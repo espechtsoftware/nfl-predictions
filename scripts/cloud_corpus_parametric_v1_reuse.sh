@@ -8,6 +8,7 @@
 # gcloud response.
 
 set -euo pipefail
+set -o noclobber
 
 PROJECT="nfl-predictions-503414"
 REGION="us-central1"
@@ -138,9 +139,10 @@ configure_mode() {
   require_variable CORPUS_PARAMETRIC_BUILD_ID
   require_variable CORPUS_PARAMETRIC_CODE_SHA
   require_variable CORPUS_PARAMETRIC_SERVICE_ACCOUNT
+  require_variable CORPUS_PARAMETRIC_EXPECTED_JOB_UID
   require_variable CORPUS_PARAMETRIC_RUNTIME_IAM_FILE
   require_variable CORPUS_PARAMETRIC_BUILD_METADATA_FILE
-  for stem in MANIFEST EVIDENCE_CONTRACT RETRIEVAL_PREREQUISITE; do
+  for stem in FOUNDATION_PUBLICATION MANIFEST EVIDENCE_CONTRACT RETRIEVAL_PREREQUISITE; do
     require_variable "CORPUS_PARAMETRIC_${stem}_URI"
     require_variable "CORPUS_PARAMETRIC_${stem}_GENERATION"
     require_variable "CORPUS_PARAMETRIC_${stem}_SHA256"
@@ -150,6 +152,22 @@ configure_mode() {
   local before_yaml="$CORPUS_PARAMETRIC_RUN_DIR/job-before.yaml"
   local before_executions="$CORPUS_PARAMETRIC_RUN_DIR/executions-before.json"
   local before_schedulers="$CORPUS_PARAMETRIC_RUN_DIR/schedulers-before.json"
+  local preflight_file="$CORPUS_PARAMETRIC_RUN_DIR/preflight-configure.json"
+  local build_validated_file="$CORPUS_PARAMETRIC_RUN_DIR/build-validated.json"
+  local job_after="$CORPUS_PARAMETRIC_RUN_DIR/job-after.json"
+  local executions_after="$CORPUS_PARAMETRIC_RUN_DIR/executions-after.json"
+  local schedulers_after="$CORPUS_PARAMETRIC_RUN_DIR/schedulers-after.json"
+  local configured_file="$CORPUS_PARAMETRIC_RUN_DIR/configured.json"
+  local rollback_restored="$CORPUS_PARAMETRIC_RUN_DIR/job-rollback-restored.json"
+  local retained_path
+  for retained_path in \
+    "$before_json" "$before_yaml" "$before_executions" "$before_schedulers" \
+    "$CORPUS_PARAMETRIC_BUILD_METADATA_FILE" "$build_validated_file" \
+    "$preflight_file" "$job_after" "$executions_after" \
+    "$schedulers_after" "$configured_file" "$rollback_restored"; do
+    [[ ! -e "$retained_path" && ! -L "$retained_path" ]] || \
+      die "configure evidence path already exists: $retained_path"
+  done
   capture_job "$before_json"
   gcloud run jobs describe "$CORPUS_PARAMETRIC_JOB" \
     --project "$PROJECT" --region "$REGION" --format=export >"$before_yaml"
@@ -160,13 +178,80 @@ configure_mode() {
   jq -e --arg needle "/jobs/${CORPUS_PARAMETRIC_JOB}:run" \
     'all(.[]; ((.httpTarget.uri // "") | contains($needle) | not))' \
     "$before_schedulers" >/dev/null || die "a scheduler targets the reused job"
+  gcloud builds describe "$CORPUS_PARAMETRIC_BUILD_ID" \
+    --project "$PROJECT" --format=json >"$CORPUS_PARAMETRIC_BUILD_METADATA_FILE"
+  "$PYTHON_BIN" "$TRANSPORT_SCRIPT" validate-build \
+    --build-metadata-file "$CORPUS_PARAMETRIC_BUILD_METADATA_FILE" \
+    --build-id "$CORPUS_PARAMETRIC_BUILD_ID" \
+    --code-sha "$CORPUS_PARAMETRIC_CODE_SHA" \
+    --image "$CORPUS_PARAMETRIC_IMAGE" \
+    >"$build_validated_file"
+
+  "$PYTHON_BIN" "$TRANSPORT_SCRIPT" preflight-configure \
+    --foundation-publication-uri "$CORPUS_PARAMETRIC_FOUNDATION_PUBLICATION_URI" \
+    --foundation-publication-generation "$CORPUS_PARAMETRIC_FOUNDATION_PUBLICATION_GENERATION" \
+    --foundation-publication-sha256 "$CORPUS_PARAMETRIC_FOUNDATION_PUBLICATION_SHA256" \
+    --foundation-publication-bytes "$CORPUS_PARAMETRIC_FOUNDATION_PUBLICATION_BYTES" \
+    --manifest-uri "$CORPUS_PARAMETRIC_MANIFEST_URI" \
+    --manifest-generation "$CORPUS_PARAMETRIC_MANIFEST_GENERATION" \
+    --manifest-sha256 "$CORPUS_PARAMETRIC_MANIFEST_SHA256" \
+    --manifest-bytes "$CORPUS_PARAMETRIC_MANIFEST_BYTES" \
+    --evidence-contract-uri "$CORPUS_PARAMETRIC_EVIDENCE_CONTRACT_URI" \
+    --evidence-contract-generation "$CORPUS_PARAMETRIC_EVIDENCE_CONTRACT_GENERATION" \
+    --evidence-contract-sha256 "$CORPUS_PARAMETRIC_EVIDENCE_CONTRACT_SHA256" \
+    --evidence-contract-bytes "$CORPUS_PARAMETRIC_EVIDENCE_CONTRACT_BYTES" \
+    --retrieval-prerequisite-uri "$CORPUS_PARAMETRIC_RETRIEVAL_PREREQUISITE_URI" \
+    --retrieval-prerequisite-generation "$CORPUS_PARAMETRIC_RETRIEVAL_PREREQUISITE_GENERATION" \
+    --retrieval-prerequisite-sha256 "$CORPUS_PARAMETRIC_RETRIEVAL_PREREQUISITE_SHA256" \
+    --retrieval-prerequisite-bytes "$CORPUS_PARAMETRIC_RETRIEVAL_PREREQUISITE_BYTES" \
+    --runtime-iam-file "$CORPUS_PARAMETRIC_RUNTIME_IAM_FILE" \
+    --build-metadata-file "$CORPUS_PARAMETRIC_BUILD_METADATA_FILE" \
+    --job-file "$before_json" --executions-file "$before_executions" \
+    --schedulers-file "$before_schedulers" --all-regions-complete \
+    --build-id "$CORPUS_PARAMETRIC_BUILD_ID" \
+    --code-sha "$CORPUS_PARAMETRIC_CODE_SHA" \
+    --image "$CORPUS_PARAMETRIC_IMAGE" \
+    --service-account "$CORPUS_PARAMETRIC_SERVICE_ACCOUNT" \
+    --expected-job-name "$CORPUS_PARAMETRIC_JOB" \
+    --expected-job-uid "$CORPUS_PARAMETRIC_EXPECTED_JOB_UID" \
+    --execute >"$preflight_file"
 
   local configured=0
   rollback_before_acceptance() {
+    local status=$?
+    trap - EXIT
     if [[ "$configured" -eq 0 ]]; then
-      gcloud run jobs replace "$before_yaml" --project "$PROJECT" \
-        --region "$REGION" --quiet >/dev/null || true
+      if ! gcloud run jobs replace "$before_yaml" --project "$PROJECT" \
+        --region "$REGION" --quiet >/dev/null \
+        || ! capture_job "$rollback_restored" \
+        || ! jq -e -s '
+          def stable_metadata:
+            {
+              annotations: (
+                (.metadata.annotations // {}) |
+                del(
+                  .["run.googleapis.com/client-name"],
+                  .["run.googleapis.com/client-version"],
+                  .["run.googleapis.com/lastModifier"],
+                  .["run.googleapis.com/operation-id"]
+                )
+              ),
+              labels: (
+                (.metadata.labels // {}) |
+                del(.["run.googleapis.com/lastUpdatedTime"])
+              )
+            };
+          .[0].metadata.name == .[1].metadata.name and
+          .[0].metadata.uid == .[1].metadata.uid and
+          (.[0] | stable_metadata) == (.[1] | stable_metadata) and
+          .[0].spec == .[1].spec
+        ' "$before_json" "$rollback_restored" >/dev/null; then
+        printf '%s\n' \
+          "automatic exact-job rollback failed; manual recovery required" >&2
+        status=97
+      fi
     fi
+    exit "$status"
   }
   trap rollback_before_acceptance EXIT
   gcloud run jobs update "$CORPUS_PARAMETRIC_JOB" \
@@ -177,18 +262,21 @@ configure_mode() {
     --set-env-vars "CORPUS_PARAMETRIC_RESEARCH_ENABLED=1,CORPUS_PARAMETRIC_IMAGE=${CORPUS_PARAMETRIC_IMAGE},CORPUS_PARAMETRIC_BUILD_ID=${CORPUS_PARAMETRIC_BUILD_ID},CODE_SHA=${CORPUS_PARAMETRIC_CODE_SHA}" \
     --tasks 1 --parallelism 1 --max-retries 0 --task-timeout 86400s \
     --cpu 8 --memory 32Gi --service-account "$CORPUS_PARAMETRIC_SERVICE_ACCOUNT" \
+    --clear-secrets --clear-volumes --clear-volume-mounts \
+    --clear-vpc-connector --clear-cloudsql-instances --clear-network \
+    --clear-network-tags --clear-labels \
+    --startup-probe="" --workdir="" \
     --quiet >/dev/null
-  local job_after="$CORPUS_PARAMETRIC_RUN_DIR/job-after.json"
-  local executions_after="$CORPUS_PARAMETRIC_RUN_DIR/executions-after.json"
-  local schedulers_after="$CORPUS_PARAMETRIC_RUN_DIR/schedulers-after.json"
   capture_job "$job_after"
   capture_executions "$executions_after"
   capture_all_region_schedulers "$schedulers_after"
-  gcloud builds describe "$CORPUS_PARAMETRIC_BUILD_ID" \
-    --project "$PROJECT" --format=json >"$CORPUS_PARAMETRIC_BUILD_METADATA_FILE"
   local created_at
   created_at="$(timestamp_for configured)"
   "$PYTHON_BIN" "$TRANSPORT_SCRIPT" configure \
+    --foundation-publication-uri "$CORPUS_PARAMETRIC_FOUNDATION_PUBLICATION_URI" \
+    --foundation-publication-generation "$CORPUS_PARAMETRIC_FOUNDATION_PUBLICATION_GENERATION" \
+    --foundation-publication-sha256 "$CORPUS_PARAMETRIC_FOUNDATION_PUBLICATION_SHA256" \
+    --foundation-publication-bytes "$CORPUS_PARAMETRIC_FOUNDATION_PUBLICATION_BYTES" \
     --manifest-uri "$CORPUS_PARAMETRIC_MANIFEST_URI" \
     --manifest-generation "$CORPUS_PARAMETRIC_MANIFEST_GENERATION" \
     --manifest-sha256 "$CORPUS_PARAMETRIC_MANIFEST_SHA256" \
@@ -209,8 +297,10 @@ configure_mode() {
     --code-sha "$CORPUS_PARAMETRIC_CODE_SHA" \
     --image "$CORPUS_PARAMETRIC_IMAGE" \
     --service-account "$CORPUS_PARAMETRIC_SERVICE_ACCOUNT" \
+    --expected-job-name "$CORPUS_PARAMETRIC_JOB" \
+    --expected-job-uid "$CORPUS_PARAMETRIC_EXPECTED_JOB_UID" \
     --created-at-utc "$created_at" --execute \
-    >"$CORPUS_PARAMETRIC_RUN_DIR/configured.json"
+    >"$configured_file"
   configured=1
   trap - EXIT
 }

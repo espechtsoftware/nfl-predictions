@@ -5,6 +5,7 @@ from hashlib import sha256
 import importlib.util
 from pathlib import Path
 from types import SimpleNamespace
+import shlex
 import subprocess
 import sys
 
@@ -30,6 +31,7 @@ IMAGE = (
     "us-central1-docker.pkg.dev/nfl-predictions-503414/"
     "nfl-dfs/nfl-dfs@sha256:" + "b" * 64
 )
+IMAGE_TAG = IMAGE.split("@", 1)[0] + ":cloud-validated"
 SERVICE_ACCOUNT = (
     "corpus-parametric@nfl-predictions-503414.iam.gserviceaccount.com"
 )
@@ -38,6 +40,11 @@ JOB_UID = "fixture-job-uid"
 NOW = "2026-08-21T18:00:00Z"
 ENABLED = {transport.ENABLE_ENV: "1"}
 PLACEHOLDER_RAW: dict[tuple[str, str], bytes] = {}
+FOUNDATION_PREFIX = "gs://foundation/corpus-parametric-research/test-v1/"
+SOURCE_PREFIX = (
+    "gs://source-authority/corpus-artifact-source/source-test-v1/"
+)
+RETRIEVAL_PREFIX = "gs://retrieval/task0/"
 
 
 class FakeStore:
@@ -46,6 +53,10 @@ class FakeStore:
         self.current: dict[str, str] = {}
         self.next_generation = 1
         self.inventory_calls = 0
+        self.publish_calls = 0
+        self.read_calls = 0
+        self.read_generation_calls = 0
+        self.resolve_calls = 0
 
     def seed(self, uri: str, raw: bytes, generation: str) -> dict[str, object]:
         assert uri not in self.current
@@ -54,18 +65,21 @@ class FakeStore:
         return _identity(uri, raw, generation)
 
     def read(self, identity: dict[str, object]) -> bytes:
+        self.read_calls += 1
         raw = self.values[(str(identity["uri"]), str(identity["generation"]))]
         if len(raw) != identity["bytes"] or sha256(raw).hexdigest() != identity["sha256"]:
             raise ValueError("identity mismatch")
         return raw
 
     def read_generation(self, *, uri: str, generation: str) -> bytes:
+        self.read_generation_calls += 1
         return self.values[(uri, generation)]
 
     def publish(
         self, uri: str, raw: bytes, media_type: str = "application/json"
     ) -> dict[str, object]:
         del media_type
+        self.publish_calls += 1
         if uri in self.current:
             raise ValueError("create-once collision")
         generation = str(self.next_generation)
@@ -84,6 +98,7 @@ class FakeStore:
             return identity
 
     def resolve_current(self, uri: str) -> tuple[dict[str, object], bytes]:
+        self.resolve_calls += 1
         generation = self.current[uri]
         raw = self.values[(uri, generation)]
         return _identity(uri, raw, generation), raw
@@ -111,10 +126,12 @@ def _identity(uri: str, raw: bytes, generation: str = "1") -> dict[str, object]:
     }
 
 
-def _placeholder(name: str, ordinal: int) -> dict[str, object]:
+def _placeholder(
+    name: str, ordinal: int, *, prefix: str = FOUNDATION_PREFIX
+) -> dict[str, object]:
     raw = f"placeholder-{name}-{ordinal}".encode()
     identity = _identity(
-        f"gs://inputs/contracts/{name}.json", raw, str(ordinal + 1)
+        f"{prefix}{name}.json", raw, str(ordinal + 1)
     )
     PLACEHOLDER_RAW[(identity["uri"], identity["generation"])] = raw
     return identity
@@ -142,11 +159,15 @@ def _code_source() -> tuple[dict[str, object], bytes]:
         },
     }
     raw = batch.canonical_json_bytes(value)
-    return _identity("gs://inputs/contracts/code-source.json", raw, "2"), raw
+    return _identity(f"{FOUNDATION_PREFIX}code-source.json", raw, "2"), raw
 
 
 def _common_law(code_identity: dict[str, object]) -> dict[str, object]:
-    source_receipts = {"later_source_freeze": _placeholder("later-freeze", 10)}
+    source_receipts = {
+        "later_source_freeze": _placeholder(
+            "later-source-freeze", 10, prefix=f"{SOURCE_PREFIX}source/"
+        )
+    }
     result: dict[str, object] = {
         "code_source": code_identity,
         "immutable_image": {
@@ -157,7 +178,9 @@ def _common_law(code_identity: dict[str, object]) -> dict[str, object]:
         "source_receipt_set_sha256": batch.canonical_sha256(source_receipts),
         "later_source_freeze_manifest_sha256": "9" * 64,
         "artifact_source_authority_completion": _placeholder(
-            "source-authority-completion", 11
+            "artifact-source-authority-completion",
+            11,
+            prefix=f"{SOURCE_PREFIX}source/",
         ),
         "artifact_source_authority_completion_sha256": "2" * 64,
         "effective_policy_inventory_identity": _placeholder("inventory", 12),
@@ -206,7 +229,11 @@ def _common_law(code_identity: dict[str, object]) -> dict[str, object]:
 
 def _task(task_index: int, *, batch_id: str) -> dict[str, object]:
     artifacts = {
-        role: _placeholder(f"task-{task_index}-{role}", 100 + task_index * 5 + ordinal)
+        role: _placeholder(
+            f"task-{task_index}-{role}",
+            100 + task_index * 5 + ordinal,
+            prefix=SOURCE_PREFIX,
+        )
         for ordinal, role in enumerate(batch.TASK_WORLD_SOURCE_ROLES)
     }
     return {
@@ -239,10 +266,10 @@ def _manifest(task_count: int = 1) -> tuple[dict[str, object], bytes, bytes]:
     return manifest, batch.canonical_json_bytes(manifest), code_raw
 
 
-def _job(*, generation: str = "7") -> dict[str, object]:
+def _job(*, generation: int | str = 7) -> dict[str, object]:
     task_spec = {
         "maxRetries": 0,
-        "timeoutSeconds": "86400s",
+        "timeoutSeconds": transport.EXPECTED_TIMEOUT_SECONDS,
         "serviceAccountName": SERVICE_ACCOUNT,
         "volumes": [],
         "containers": [{
@@ -255,7 +282,7 @@ def _job(*, generation: str = "7") -> dict[str, object]:
                 {"name": transport.BUILD_ENV, "value": BUILD_ID},
                 {"name": transport.CODE_ENV, "value": CODE_SHA},
             ],
-            "resources": {"limits": {"cpu": "8000m", "memory": "32Gi"}},
+            "resources": {"limits": dict(transport.EXPECTED_RESOURCES)},
             "volumeMounts": [],
         }],
     }
@@ -275,13 +302,60 @@ def _job(*, generation: str = "7") -> dict[str, object]:
 
 def _build_metadata() -> dict[str, object]:
     source = {"revision": CODE_SHA, "url": transport.EXPECTED_CODE_REPOSITORY}
+    retained_fragments = tuple(
+        fragment.replace("${_IMAGE}", IMAGE_TAG)
+        for fragment in transport.REQUIRED_BUILD_FRAGMENTS
+    )
     return {
         "id": BUILD_ID,
         "status": "SUCCESS",
         "source": {"gitSource": source},
         "sourceProvenance": {"resolvedGitSource": source},
-        "results": {"images": [{"digest": IMAGE.rsplit("@", 1)[1]}]},
-        "steps": [{"status": "SUCCESS", "exitCode": 0}],
+        "substitutions": {"_IMAGE": IMAGE_TAG},
+        "images": [IMAGE_TAG],
+        "artifacts": {"images": [IMAGE_TAG]},
+        "timeout": "10800s",
+        "options": {
+            "logging": "LEGACY", "machineType": "E2_HIGHCPU_8", "pool": {},
+        },
+        "results": {"images": [{
+            "name": IMAGE_TAG,
+            "digest": IMAGE.rsplit("@", 1)[1],
+        }]},
+        "steps": [
+            {
+                "id": "full-test-suite",
+                "name": "python:3.11-slim",
+                "entrypoint": "bash",
+                "status": "SUCCESS",
+                "exitCode": 0,
+                "args": ["-ceu", "\n".join(
+                    [
+                        *(shlex.join(command) for command in (
+                            transport.REQUIRED_FULL_TEST_SETUP_COMMANDS
+                        )),
+                        *retained_fragments[:3],
+                    ]
+                )],
+            },
+            {
+                "id": "build-image",
+                "name": "gcr.io/cloud-builders/docker",
+                "status": "SUCCESS",
+                "exitCode": 0,
+                "args": ["build", "-t", IMAGE_TAG, "."],
+            },
+            {
+                "id": "smoke-corpus-parametric-expansion",
+                "name": "gcr.io/cloud-builders/docker",
+                "entrypoint": "bash",
+                "status": "SUCCESS",
+                "exitCode": 0,
+                "args": ["-ceu", "\n".join(
+                    retained_fragments[3:]
+                )],
+            },
+        ],
     }
 
 
@@ -356,7 +430,7 @@ def _prerequisite(store: FakeStore) -> tuple[dict[str, object], bytes]:
     }, "snapshot_manifest_sha256")
     snapshot_raw = batch.canonical_json_bytes(snapshot)
     snapshot_identity = store.seed(
-        "gs://retrieval/source/snapshot.json", snapshot_raw, "20"
+        f"{RETRIEVAL_PREFIX}snapshot.json", snapshot_raw, "20"
     )
     suite = _core_self_hash({
         "schema_version": "fake-retrieval-suite/v1",
@@ -364,15 +438,15 @@ def _prerequisite(store: FakeStore) -> tuple[dict[str, object], bytes]:
         "tasks": [{
             "task_index": 0,
             "task_id": "task-0",
-            "result_uri": "gs://retrieval/task0/result.json",
+            "result_uri": f"{RETRIEVAL_PREFIX}result.json",
         }],
     }, "suite_manifest_sha256")
     suite_raw = batch.canonical_json_bytes(suite)
     suite_identity = store.seed(
-        "gs://retrieval/task0/suite.json", suite_raw, "21"
+        f"{RETRIEVAL_PREFIX}suite.json", suite_raw, "21"
     )
     sidecar_identity = store.seed(
-        "gs://retrieval/task0/sidecar.bin", b"task0-sidecar", "22"
+        f"{RETRIEVAL_PREFIX}sidecar.bin", b"task0-sidecar", "22"
     )
     result = _core_self_hash({
         "schema_version": "fake-retrieval-task-result/v1",
@@ -388,7 +462,7 @@ def _prerequisite(store: FakeStore) -> tuple[dict[str, object], bytes]:
     }, "task_result_sha256")
     result_raw = batch.canonical_json_bytes(result)
     result_identity = store.seed(
-        "gs://retrieval/task0/result.json", result_raw, "23"
+        f"{RETRIEVAL_PREFIX}result.json", result_raw, "23"
     )
     completion = _core_self_hash({
         "schema_version": "fake-retrieval-completion/v1",
@@ -400,17 +474,47 @@ def _prerequisite(store: FakeStore) -> tuple[dict[str, object], bytes]:
     }, "batch_completion_sha256")
     completion_raw = batch.canonical_json_bytes(completion)
     completion_identity = store.seed(
-        "gs://retrieval/task0/completion.json", completion_raw, "24"
+        f"{RETRIEVAL_PREFIX}completion.json", completion_raw, "24"
     )
     governance: dict[str, dict[str, object]] = {}
-    for ordinal, field in enumerate(
-        transport._RETRIEVAL_TERMINAL_GOVERNANCE_FIELDS, start=25
-    ):
+    for ordinal, field in enumerate((
+        value for value in transport._RETRIEVAL_TERMINAL_GOVERNANCE_FIELDS
+        if value != "prefix_claim"
+    ), start=25):
         governance[field] = store.seed(
-            f"gs://retrieval/task0/{field}.json",
+            f"{RETRIEVAL_PREFIX}{field}.json",
             batch.canonical_json_bytes({"field": field}),
             str(ordinal),
         )
+    runtime_iam = governance["runtime_iam_evidence"]
+    prefix_claim = _core_self_hash({
+        "schema_version": transport.RETRIEVAL_PREFIX_CLAIM_SCHEMA,
+        "published_at_utc": NOW,
+        "preflight_sha256": "3" * 64,
+        "suite_manifest_identity": suite_identity,
+        "snapshot_manifest_identity": snapshot_identity,
+        "task_index": 0,
+        "task_id": "task-0",
+        "output_prefix": RETRIEVAL_PREFIX,
+        "result_uri": result_identity["uri"],
+        "job": "retrieval-job",
+        "job_uid": "retrieval-job-uid",
+        "job_prior_generation": "2",
+        "runtime_iam_evidence_uri": runtime_iam["uri"],
+        "runtime_iam_evidence_sha256": runtime_iam["sha256"],
+        "runtime_iam_evidence_bytes": runtime_iam["bytes"],
+        "create_once": True,
+        "uses_realized_outcomes": False,
+        "bigquery_access_licensed": False,
+        "corpus_fill_licensed": False,
+        "live_policy_access_licensed": False,
+        "production_change_licensed": False,
+    }, field="claim_sha256")
+    governance["prefix_claim"] = store.seed(
+        f"{RETRIEVAL_PREFIX}prefix-claim.json",
+        batch.canonical_json_bytes(prefix_claim),
+        "30",
+    )
     terminal_inventory = transport._inventory_rows([
         suite_identity,
         sidecar_identity,
@@ -478,7 +582,7 @@ def _prerequisite(store: FakeStore) -> tuple[dict[str, object], bytes]:
     }
     terminal_raw = batch.canonical_json_bytes(terminal)
     terminal_identity = store.seed(
-        "gs://retrieval/task0/terminal.json", terminal_raw, "31"
+        f"{RETRIEVAL_PREFIX}terminal.json", terminal_raw, "31"
     )
     body = {
         "schema_version": transport.RETRIEVAL_PREREQUISITE_SCHEMA,
@@ -500,35 +604,457 @@ def _prerequisite(store: FakeStore) -> tuple[dict[str, object], bytes]:
     }
     accepted = transport._self_hash(body, field="acceptance_sha256")
     raw = transport.canonical_json_bytes(accepted)
-    identity = store.seed("gs://retrieval/task0/accepted.json", raw, "32")
+    identity = store.seed(
+        f"{FOUNDATION_PREFIX}governance/retrieval-task0-accepted-prerequisite.json",
+        raw,
+        "32",
+    )
     return identity, raw
 
 
-def _runtime_iam_raw(manifest: dict[str, object]) -> bytes:
-    inputs = transport._manifest_input_identities(manifest)
+def _no_newline_hashed(
+    body: dict[str, object], *, field: str
+) -> tuple[dict[str, object], bytes]:
+    value = {
+        **body,
+        field: sha256(transport.canonical_json_bytes(body)[:-1]).hexdigest(),
+    }
+    return value, transport.canonical_json_bytes(value)[:-1]
+
+
+def _seed_foundation_publication(
+    *,
+    store: FakeStore,
+    manifest: dict[str, object],
+    manifest_identity: dict[str, object],
+    evidence_identity: dict[str, object],
+    prerequisite_identity: dict[str, object],
+) -> dict[str, object]:
+    common = manifest["common_law"]
+
+    def seed_source(name: str, raw: bytes, generation: str) -> dict[str, object]:
+        return store.seed(f"{SOURCE_PREFIX}{name}", raw, generation)
+
+    registration = seed_source(
+        "governance/source-registration.json", b"registration", "700"
+    )
+    salary = seed_source(
+        "source/salary-diagnostic.json", b"salary", "701"
+    )
+    base_lock = seed_source("base-source-lock.json", b"base-lock", "702")
+    capture_identities = {
+        "r0_candidates": seed_source(
+            "queries/r0-candidates.json", b"r0", "708"
+        ),
+        "artifact_catalog": seed_source(
+            "queries/artifact-catalog.json", b"catalog", "709"
+        ),
+        "salary_player_ids": seed_source(
+            "queries/salary-player-ids.json", b"salary-ids", "710"
+        ),
+    }
+    inventory = []
+    source_publication_uri = (
+        f"{SOURCE_PREFIX}governance/publication-completion.json"
+    )
+    source_claim_uri = f"{SOURCE_PREFIX}governance/prefix-claim.json"
+    source_claim_body = {
+        "schema": transport.SOURCE_PREFIX_CLAIM_SCHEMA,
+        "run_id": "source-test-v1",
+        "plan_sha256": "4" * 64,
+        "output_prefix": SOURCE_PREFIX,
+        "publication_uris": {
+            "prefix_claim": source_claim_uri,
+            "registration": registration["uri"],
+            "r0_candidates": capture_identities["r0_candidates"]["uri"],
+            "artifact_catalog": capture_identities["artifact_catalog"]["uri"],
+            "salary_player_ids": capture_identities["salary_player_ids"]["uri"],
+            "later_source_freeze": common["source_receipts"][
+                "later_source_freeze"
+            ]["uri"],
+            "salary_diagnostic": salary["uri"],
+            "publication_completion": source_publication_uri,
+            "source_authority_completion": common[
+                "artifact_source_authority_completion"
+            ]["uri"],
+        },
+        "base_source_lock_object": base_lock,
+        "source_snapshot_at": NOW,
+        "registration_sha256": "5" * 64,
+        "create_once": True,
+        "outcome_columns_read": [],
+        "uses_realized_outcomes": False,
+        "historical_scoring_licensed": False,
+        "production_change_licensed": False,
+    }
+    _, source_claim_raw = _no_newline_hashed(
+        source_claim_body, field="claim_sha256"
+    )
+    source_claim_identity = store.seed(source_claim_uri, source_claim_raw, "703")
+    producer_get_trace, _ = _no_newline_hashed({
+        "schema": "corpus-artifact-source-producer-get-trace/v1",
+        "delivered_plan_object": base_lock,
+        "events": [],
+        "event_count": 0,
+        "events_sha256": sha256(
+            transport.canonical_json_bytes([])[:-1]
+        ).hexdigest(),
+        "absence_check_uris": [],
+        "object_list_used": False,
+        "complete": True,
+    }, field="trace_sha256")
+    producer_query_trace, _ = _no_newline_hashed({
+        "schema": "corpus-artifact-source-producer-query-trace/v1",
+        "events": [],
+        "event_count": 0,
+        "events_sha256": sha256(
+            transport.canonical_json_bytes([])[:-1]
+        ).hexdigest(),
+        "complete": True,
+    }, field="trace_sha256")
+    source_publication_body = {
+        "schema": transport.SOURCE_PUBLICATION_SCHEMA,
+        "run_id": "source-test-v1",
+        "plan_sha256": "4" * 64,
+        "output_prefix": SOURCE_PREFIX,
+        "prefix_claim": source_claim_identity,
+        "registration_object": registration,
+        "registration_sha256": "5" * 64,
+        "query_captures": {
+            role: {
+                "object": identity,
+                "job_id": f"source-test-v1-{role}",
+                "row_count": 54,
+                "rows_sha256": "8" * 64,
+                "capture_sha256": "9" * 64,
+            }
+            for role, identity in capture_identities.items()
+        },
+        "later_source_freeze_object": common["source_receipts"][
+            "later_source_freeze"
+        ],
+        "later_source_freeze_manifest_sha256": common[
+            "later_source_freeze_manifest_sha256"
+        ],
+        "salary_diagnostic_object": salary,
+        "salary_diagnostic_sha256": "6" * 64,
+        "source_authority_completion_object": common[
+            "artifact_source_authority_completion"
+        ],
+        "source_authority_completion_sha256": common[
+            "artifact_source_authority_completion_sha256"
+        ],
+        "base_source_lock_object": base_lock,
+        "task_count": 54,
+        "artifact_count": 270,
+        "artifact_reads": "exact-generation-get-only-one-at-a-time",
+        "artifact_list_used": False,
+        "producer_get_trace": producer_get_trace,
+        "producer_query_trace": producer_query_trace,
+        "producer_trace_complete_before_terminal_publication": True,
+        "inventory_before_publication": inventory,
+        "inventory_before_publication_sha256": sha256(
+            transport.canonical_json_bytes(inventory)[:-1]
+        ).hexdigest(),
+        "create_once": True,
+        "outcome_columns_read": [],
+        "uses_realized_outcomes": False,
+        "historical_scoring_licensed": False,
+        "production_change_licensed": False,
+        "live_strategy_authority": False,
+    }
+    _, source_publication_raw = _no_newline_hashed(
+        source_publication_body, field="publication_completion_sha256"
+    )
+    source_publication_identity = store.seed(
+        source_publication_uri, source_publication_raw, "704"
+    )
+
+    foundation_id = "test-v1"
+    claim_uri = f"{FOUNDATION_PREFIX}governance/prefix-claim.json"
+    publication_uri = f"{FOUNDATION_PREFIX}governance/publication-completion.json"
+    preplan = store.seed(
+        f"{FOUNDATION_PREFIX}governance/preplan.json", b"preplan", "705"
+    )
+    common_identities = {
+        role: common[role] for role in transport.COMMON_LAW_BODY_ROLES
+    }
+    planned_uris = [
+        claim_uri,
+        preplan["uri"],
+        prerequisite_identity["uri"],
+        common["effective_policy_inventory_identity"]["uri"],
+        *(identity["uri"] for identity in common_identities.values()),
+        manifest_identity["uri"],
+        evidence_identity["uri"],
+        publication_uri,
+    ]
+    claim_body = {
+        "schema_version": transport.FOUNDATION_PREFIX_CLAIM_SCHEMA,
+        "foundation_id": foundation_id,
+        "workstream": "corpus-parametric-research",
+        "mode": "production" if len(manifest["tasks"]) == 54 else "smoke",
+        "foundation_prefix": FOUNDATION_PREFIX,
+        "batch_output_prefix": manifest["output_prefix"],
+        "preplan_sha256": "7" * 64,
+        "planned_object_uris": planned_uris,
+        "planned_object_uri_set_sha256": sha256(
+            transport.canonical_json_bytes(planned_uris)[:-1]
+        ).hexdigest(),
+        "pre_outcome_registration": True,
+        "create_once": True,
+        "resume_licensed": False,
+        "replace_licensed": False,
+        "outcome_columns_read": [],
+        "uses_realized_outcomes": False,
+        "corpus_fill_licensed": False,
+        "production_change_licensed": False,
+    }
+    _, claim_raw = _no_newline_hashed(
+        claim_body, field="prefix_claim_sha256"
+    )
+    claim_identity = store.seed(claim_uri, claim_raw, "706")
+    publication_body = {
+        "schema_version": transport.FOUNDATION_PUBLICATION_SCHEMA,
+        "foundation_id": foundation_id,
+        "batch_id": manifest["batch_id"],
+        "mode": claim_body["mode"],
+        "workstream": "corpus-parametric-research",
+        "reserved_independent_workstream": "corpus-population-research",
+        "created_at_utc": NOW,
+        "preplan_sha256": "7" * 64,
+        "prefix_claim": claim_identity,
+        "preplan_object": preplan,
+        "full_manifest": manifest_identity,
+        "full_evidence_contract": evidence_identity,
+        "accepted_retrieval_prerequisite": prerequisite_identity,
+        "source_publication_authority": source_publication_identity,
+        "source_authority_completion": common[
+            "artifact_source_authority_completion"
+        ],
+        "source_freeze": common["source_receipts"]["later_source_freeze"],
+        "common_law_objects": common_identities,
+        "effective_policy_inventory": common[
+            "effective_policy_inventory_identity"
+        ],
+        "task_requests": [],
+        "task_count": len(manifest["tasks"]),
+        "parameter_arm_count": 7,
+        "source_task_count": 54,
+        "source_artifact_count": 270,
+        "source_artifact_exact_get_count": 270,
+        "idempotent": True,
+        "create_once": True,
+        "runtime_iam_authority": False,
+        "launch_authority": False,
+        "outcome_read_authority": False,
+        "historical_scoring_authority": False,
+        "corpus_fill_authority": False,
+        "corpus_population_authority": False,
+        "live_strategy_authority": False,
+        "graph_mutation_authority": False,
+        "production_change_authority": False,
+        "production_policy_change_authority": False,
+        "automatic_policy_feedback": False,
+        "outcome_columns_read": [],
+        "uses_realized_outcomes": False,
+    }
+    _, publication_raw = _no_newline_hashed(
+        publication_body, field="publication_sha256"
+    )
+    return store.seed(publication_uri, publication_raw, "707")
+
+
+def _runtime_iam_capture_raw(
+    manifest: dict[str, object],
+    *,
+    exact_identities: tuple[dict[str, object], ...] = (),
+) -> bytes:
+    read_role = (
+        f"projects/{transport.PROJECT}/roles/corpusParametricObjectGetV2"
+    )
+    create_role = (
+        f"projects/{transport.PROJECT}/roles/corpusParametricObjectCreateV2"
+    )
+    member = f"serviceAccount:{SERVICE_ACCOUNT}"
+    prefixes = sorted([
+        manifest["output_prefix"],
+        FOUNDATION_PREFIX,
+        RETRIEVAL_PREFIX,
+        SOURCE_PREFIX,
+    ])
+
+    def expression(
+        rows: list[str],
+        exact_rows: list[dict[str, object]] | tuple[dict[str, object], ...] = (),
+    ) -> str:
+        clauses = [
+            f'resource.name.startsWith("{transport._resource_prefix(prefix)}")'
+            for prefix in rows
+        ]
+        clauses.extend(
+            f'resource.name == "{transport._resource_name(str(row["uri"]))}"'
+            for row in exact_rows
+        )
+        return " || ".join(clauses)
+
+    bucket_names = sorted({
+        prefix.removeprefix("gs://").split("/", 1)[0]
+        for prefix in prefixes
+    } | {
+        str(identity["uri"]).removeprefix("gs://").split("/", 1)[0]
+        for identity in exact_identities
+    })
+    bucket_policies = []
+    effective_results = []
+    for bucket_name in bucket_names:
+        bucket_prefixes = [
+            prefix for prefix in prefixes
+            if prefix.startswith(f"gs://{bucket_name}/")
+        ]
+        bucket_exact = [
+            identity for identity in exact_identities
+            if str(identity["uri"]).startswith(f"gs://{bucket_name}/")
+        ]
+        bindings: list[dict[str, object]] = [{
+            "role": read_role,
+            "members": [member],
+            "condition": {
+                "title": transport.RUNTIME_READ_CONDITION_TITLE,
+                "expression": expression(bucket_prefixes, bucket_exact),
+            },
+        }]
+        if manifest["output_prefix"].startswith(f"gs://{bucket_name}/"):
+            bindings.append({
+                "role": create_role,
+                "members": [member],
+                "condition": {
+                    "title": transport.RUNTIME_CREATE_CONDITION_TITLE,
+                    "expression": expression([manifest["output_prefix"]]),
+                },
+            })
+        bucket_policies.append({
+            "bucket": bucket_name,
+            "policy": {
+                "version": 3,
+                "etag": f"etag-{bucket_name}",
+                "bindings": bindings,
+            },
+        })
+        attached = f"//storage.googleapis.com/{bucket_name}"
+
+        def effective_grant(
+            *, role: str, title: str, grant_expression: str, permission: str
+        ) -> dict[str, object]:
+            return {
+                "fullyExplored": True,
+                "nonCriticalErrors": [],
+                "iamBinding": {
+                    "role": role,
+                    "members": [member],
+                    "condition": {
+                        "title": title,
+                        "expression": grant_expression,
+                    },
+                },
+                "attachedResourceFullName": attached,
+                "identityList": {
+                    "identities": [{"name": member}],
+                    "groupEdges": [],
+                },
+                "accessControlLists": [{
+                    "resources": [{"fullResourceName": attached}],
+                    "accesses": [
+                        {"role": role}, {"permission": permission},
+                    ],
+                    "conditionEvaluation": {
+                        "evaluationValue": "CONDITIONAL"
+                    },
+                }],
+            }
+
+        effective_results.append(effective_grant(
+            role=read_role,
+            title=transport.RUNTIME_READ_CONDITION_TITLE,
+            grant_expression=expression(bucket_prefixes, bucket_exact),
+            permission=transport.STORAGE_GET_PERMISSION,
+        ))
+        if manifest["output_prefix"].startswith(f"gs://{bucket_name}/"):
+            effective_results.append(effective_grant(
+                role=create_role,
+                title=transport.RUNTIME_CREATE_CONDITION_TITLE,
+                grant_expression=expression([manifest["output_prefix"]]),
+                permission=transport.STORAGE_CREATE_PERMISSION,
+            ))
+
+    def analysis(identity: str, results: list[dict[str, object]]) -> dict[str, object]:
+        query = {
+            "identitySelector": {"identity": identity},
+            "options": transport._CLOUD_ASSET_OPTIONS,
+            "scope": f"projects/{transport.PROJECT}",
+        }
+        return {
+            "fullyExplored": True,
+            "nonCriticalErrors": [],
+            "mainAnalysis": {
+                "fullyExplored": True,
+                "nonCriticalErrors": [],
+                "analysisQuery": query,
+                "analysisResults": results,
+            },
+        }
     body = {
-        "schema_version": "corpus-parametric-runtime-iam-evidence/v1",
+        "schema_version": transport.RUNTIME_IAM_CAPTURE_SCHEMA,
         "captured_at_utc": NOW,
         "project": transport.PROJECT,
-        "service_account": SERVICE_ACCOUNT,
-        "input_object_identity_set_sha256": transport.canonical_sha256(inputs),
-        "output_prefix": manifest["output_prefix"],
-        "all_input_gets_conditionally_authorized": True,
-        "output_get_create_conditionally_authorized": True,
-        "project_level_roles_absent": True,
-        "object_list_granted": False,
-        "object_delete_granted": False,
-        "bucket_uniform_access": True,
-        "public_access_prevention": True,
+        "project_policy": {"version": 1, "etag": "project-etag", "bindings": []},
+        "custom_role_definitions": sorted([
+            {
+                "name": read_role,
+                "stage": "GA",
+                "deleted": False,
+                "includedPermissions": [transport.STORAGE_GET_PERMISSION],
+            },
+            {
+                "name": create_role,
+                "stage": "GA",
+                "deleted": False,
+                "includedPermissions": [transport.STORAGE_CREATE_PERMISSION],
+            },
+        ], key=lambda row: row["name"]),
+        "bucket_policies": bucket_policies,
+        "bucket_metadata": [
+            {
+                "bucket": bucket_name,
+                "metadata": {
+                    "name": bucket_name,
+                    "iamConfiguration": {
+                        "uniformBucketLevelAccess": {"enabled": True},
+                        "publicAccessPrevention": "enforced",
+                    },
+                },
+            }
+            for bucket_name in bucket_names
+        ],
+        "effective_access_analyses": {
+            "runtime_identity": analysis(member, effective_results),
+            "all_users": analysis("allUsers", []),
+            "all_authenticated_users": analysis(
+                "allAuthenticatedUsers", []
+            ),
+        },
     }
     return transport.canonical_json_bytes(
-        transport._self_hash(body, field="iam_evidence_sha256")
+        transport._self_hash(body, field="capture_sha256")
     )
 
 
-def _configured(
+def _configuration_fixture(
     *, task_count: int = 1
-) -> tuple[FakeStore, dict[str, object], dict[str, object], dict[str, object]]:
+) -> tuple[
+    FakeStore, dict[str, object], dict[str, object], dict[str, object],
+    dict[str, object], dict[str, object],
+]:
     store = FakeStore()
     manifest, manifest_raw, code_raw = _manifest(task_count)
     manifest_identity = store.seed(manifest["manifest_uri"], manifest_raw, "100")
@@ -550,18 +1076,41 @@ def _configured(
         if identity["uri"] not in store.current:
             store.seed(identity["uri"], PLACEHOLDER_RAW[key], identity["generation"])
     prerequisite_identity, _ = _prerequisite(store)
+    foundation_publication_identity = _seed_foundation_publication(
+        store=store,
+        manifest=manifest,
+        manifest_identity=manifest_identity,
+        evidence_identity=evidence_identity,
+        prerequisite_identity=prerequisite_identity,
+    )
+    return (
+        store, manifest, manifest_identity, evidence_identity,
+        prerequisite_identity, foundation_publication_identity,
+    )
+
+
+def _configured(
+    *, task_count: int = 1
+) -> tuple[FakeStore, dict[str, object], dict[str, object], dict[str, object]]:
+    (
+        store, manifest, manifest_identity, evidence_identity,
+        prerequisite_identity, foundation_publication_identity,
+    ) = _configuration_fixture(task_count=task_count)
     configured = transport.configure_transport(
         storage=store,
         batch_manifest_identity=manifest_identity,
         evidence_contract_identity=evidence_identity,
         retrieval_prerequisite_identity=prerequisite_identity,
-        runtime_iam_evidence_raw=_runtime_iam_raw(manifest),
+        foundation_publication_identity=foundation_publication_identity,
+        runtime_iam_evidence_raw=_runtime_iam_capture_raw(manifest),
         build_metadata=_build_metadata(),
         build_id=BUILD_ID,
         code_sha=CODE_SHA,
         image=IMAGE,
         service_account=SERVICE_ACCOUNT,
         parked_job=_job(),
+        expected_job_name=JOB_NAME,
+        expected_job_uid=JOB_UID,
         executions=[],
         schedulers=[],
         all_regions_complete=True,
@@ -591,7 +1140,7 @@ def _execution(
     build = contract["build"]
     task_spec = {
         "maxRetries": 0,
-        "timeoutSeconds": "86400s",
+        "timeoutSeconds": transport.EXPECTED_TIMEOUT_SECONDS,
         "serviceAccountName": SERVICE_ACCOUNT,
         "volumes": [],
         "containers": [{
@@ -608,7 +1157,7 @@ def _execution(
                 {"name": transport.BUILD_ENV, "value": build["build_id"]},
                 {"name": transport.CODE_ENV, "value": build["code_sha"]},
             ],
-            "resources": {"limits": {"cpu": "8000m", "memory": "32Gi"}},
+            "resources": {"limits": dict(transport.EXPECTED_RESOURCES)},
             "volumeMounts": [],
         }],
     }
@@ -792,6 +1341,483 @@ def test_default_off_gate_and_parked_command_do_not_construct_cloud_client() -> 
     assert '"cloud_client_constructed":false' in completed.stdout
 
 
+def _runtime_iam_validation_kwargs(
+    manifest: dict[str, object], iam: dict[str, object]
+) -> dict[str, object]:
+    retrieval_inputs = [
+        identity for identity in iam["required_input_identities"]
+        if identity["uri"].startswith(RETRIEVAL_PREFIX)
+        or identity == iam["retrieval_prerequisite_identity"]
+    ]
+    return {
+        "service_account": SERVICE_ACCOUNT,
+        "foundation_publication_identity": iam[
+            "foundation_publication_identity"
+        ],
+        "batch_manifest_identity": iam["batch_manifest_identity"],
+        "evidence_contract_identity": iam["evidence_contract_identity"],
+        "retrieval_prerequisite_identity": iam[
+            "retrieval_prerequisite_identity"
+        ],
+        "required_input_identities": iam["required_input_identities"],
+        "manifest_input_identities": transport._manifest_input_identities(
+            manifest
+        ),
+        "retrieval_replay_identities": retrieval_inputs,
+        "read_prefix_authorities": iam["read_prefix_authorities"],
+        "output_prefix": manifest["output_prefix"],
+    }
+
+
+def _rehash_runtime_iam(value: dict[str, object]) -> dict[str, object]:
+    changed = deepcopy(value)
+    changed.pop("iam_evidence_sha256", None)
+    return transport._self_hash(changed, field="iam_evidence_sha256")
+
+
+def test_runtime_iam_v2_derives_exact_transitive_get_and_create_authority() -> None:
+    store, manifest, _, configured = _configured()
+    raw = store.read(configured["runtime_iam_evidence"])
+    iam = transport.strict_json_bytes(raw, label="runtime IAM")
+    assert iam["schema_version"] == transport.RUNTIME_IAM_EVIDENCE_SCHEMA
+    assert iam["principal_scope"] == transport.RUNTIME_PRINCIPAL_SCOPE
+    assert any(
+        identity["uri"] == "gs://retrieval/task0/sidecar.bin"
+        for identity in iam["required_input_identities"]
+    )
+    permissions = {
+        tuple(role["includedPermissions"])
+        for role in iam["custom_role_definitions"]
+    }
+    assert permissions == {
+        (transport.STORAGE_GET_PERMISSION,),
+        (transport.STORAGE_CREATE_PERMISSION,),
+    }
+    assert transport.validate_runtime_iam_evidence(
+        iam, **_runtime_iam_validation_kwargs(manifest, iam)
+    )["iam_evidence_sha256"] == iam["iam_evidence_sha256"]
+
+    observed = list(iam["required_input_identities"])
+    transport._validate_observed_runtime_gets(
+        iam_evidence=iam, observed_identities=observed
+    )
+    unknown_raw = b"not-retained"
+    unknown = _identity(
+        "gs://retrieval/task0/unretained.json", unknown_raw, "909"
+    )
+    with pytest.raises(
+        transport.CorpusParametricTransportError,
+        match="absent from retained IAM evidence",
+    ):
+        transport._validate_observed_runtime_gets(
+            iam_evidence=iam, observed_identities=[unknown]
+        )
+
+
+def test_guarded_worker_store_blocks_rogue_get_generation_and_current_before_io() -> None:
+    store, _, _, configured = _configured()
+    iam = transport.strict_json_bytes(
+        store.read(configured["runtime_iam_evidence"]), label="runtime IAM"
+    )
+    guard = transport._TracingReadStore(store)
+    guard.authorize(iam)
+    rogue_raw = b"rogue"
+    rogue = store.seed(
+        f"{RETRIEVAL_PREFIX}rogue.bin", rogue_raw, "9999"
+    )
+
+    reads_before = store.read_calls
+    with pytest.raises(
+        transport.CorpusParametricTransportError, match="exact retained inputs"
+    ):
+        guard.read(rogue)
+    assert store.read_calls == reads_before
+
+    generation_reads_before = store.read_generation_calls
+    with pytest.raises(
+        transport.CorpusParametricTransportError, match="retained inputs"
+    ):
+        guard.read_generation(
+            uri=str(rogue["uri"]), generation=str(rogue["generation"])
+        )
+    assert store.read_generation_calls == generation_reads_before
+
+    known = next(
+        row for row in iam["required_input_identities"]
+        if not row["uri"].startswith(iam["output_prefix"])
+    )
+    resolves_before = store.resolve_calls
+    with pytest.raises(
+        transport.CorpusParametricTransportError, match="outside output prefix"
+    ):
+        guard.resolve_current(str(known["uri"]))
+    assert store.resolve_calls == resolves_before
+
+    assert guard.read_generation(
+        uri=str(known["uri"]), generation=str(known["generation"])
+    ) == store.values[(str(known["uri"]), str(known["generation"]))]
+
+
+def test_runtime_iam_uses_exact_object_equality_without_frozen_prefix_claim() -> None:
+    store, manifest, _, configured = _configured()
+    retained = transport.strict_json_bytes(
+        store.read(configured["runtime_iam_evidence"]), label="runtime IAM"
+    )
+    exact = store.seed(
+        "gs://one-exact-object/authority.json", b"exact", "9001"
+    )
+    kwargs = _runtime_iam_validation_kwargs(manifest, retained)
+    required = [*retained["required_input_identities"], exact]
+    capture = transport.strict_json_bytes(
+        _runtime_iam_capture_raw(manifest, exact_identities=(exact,)),
+        label="IAM capture with exact object",
+    )
+    rebuilt = transport.build_runtime_iam_evidence(
+        policy_capture=capture,
+        service_account=SERVICE_ACCOUNT,
+        foundation_publication_identity=kwargs[
+            "foundation_publication_identity"
+        ],
+        batch_manifest_identity=kwargs["batch_manifest_identity"],
+        evidence_contract_identity=kwargs["evidence_contract_identity"],
+        retrieval_prerequisite_identity=kwargs[
+            "retrieval_prerequisite_identity"
+        ],
+        required_input_identities=required,
+        manifest_input_identities=kwargs["manifest_input_identities"],
+        retrieval_replay_identities=kwargs["retrieval_replay_identities"],
+        read_prefix_authorities=kwargs["read_prefix_authorities"],
+        output_prefix=manifest["output_prefix"],
+    )
+    assert rebuilt["read_exact_identities"] == [exact]
+    policy = next(
+        row["policy"] for row in rebuilt["bucket_policies"]
+        if row["bucket"] == "one-exact-object"
+    )
+    assert (
+        f'resource.name == "{transport._resource_name(str(exact["uri"]))}"'
+        in policy["bindings"][0]["condition"]["expression"]
+    )
+
+
+def test_preflight_configure_is_read_only_and_freezes_reused_job_name_uid() -> None:
+    (
+        store, manifest, manifest_identity, evidence_identity,
+        prerequisite_identity, foundation_publication_identity,
+    ) = _configuration_fixture()
+    kwargs = {
+        "storage": store,
+        "batch_manifest_identity": manifest_identity,
+        "evidence_contract_identity": evidence_identity,
+        "retrieval_prerequisite_identity": prerequisite_identity,
+        "foundation_publication_identity": foundation_publication_identity,
+        "runtime_iam_evidence_raw": _runtime_iam_capture_raw(manifest),
+        "build_metadata": _build_metadata(),
+        "build_id": BUILD_ID,
+        "code_sha": CODE_SHA,
+        "image": IMAGE,
+        "service_account": SERVICE_ACCOUNT,
+        "observed_job": _job(),
+        "expected_job_name": JOB_NAME,
+        "expected_job_uid": JOB_UID,
+        "executions": [],
+        "schedulers": [],
+        "all_regions_complete": True,
+        "execute": True,
+        "environ": ENABLED,
+    }
+    before = store.publish_calls
+    result = transport.preflight_configure(**kwargs)
+    assert result["valid"] is True
+    assert result["read_only"] is True
+    assert store.publish_calls == before
+
+    changed = {**kwargs, "expected_job_uid": "different-frozen-uid"}
+    with pytest.raises(
+        transport.CorpusParametricTransportError, match="name/UID"
+    ):
+        transport.preflight_configure(**changed)
+    assert store.publish_calls == before
+
+
+def test_runtime_iam_v2_rejects_self_attestation_and_policy_escalations() -> None:
+    store, manifest, _, configured = _configured()
+    iam = transport.strict_json_bytes(
+        store.read(configured["runtime_iam_evidence"]), label="runtime IAM"
+    )
+    kwargs = _runtime_iam_validation_kwargs(manifest, iam)
+
+    old_v1 = {
+        "schema_version": "corpus-parametric-runtime-iam-evidence/v1",
+        "captured_at_utc": NOW,
+        "project": transport.PROJECT,
+        "service_account": SERVICE_ACCOUNT,
+        "all_input_gets_conditionally_authorized": True,
+    }
+    with pytest.raises(
+        transport.CorpusParametricTransportError, match="fields differ"
+    ):
+        transport.validate_runtime_iam_evidence(old_v1, **kwargs)
+
+    def rejected(value: dict[str, object], pattern: str) -> None:
+        with pytest.raises(transport.CorpusParametricTransportError, match=pattern):
+            transport.validate_runtime_iam_evidence(
+                _rehash_runtime_iam(value), **kwargs
+            )
+
+    project_role = deepcopy(iam)
+    project_role["project_policy"]["bindings"] = [{
+        "role": "roles/viewer",
+        "members": [f"serviceAccount:{SERVICE_ACCOUNT}"],
+    }]
+    rejected(project_role, "project-level role")
+
+    public = deepcopy(iam)
+    public["bucket_policies"][0]["policy"]["bindings"].append({
+        "role": "roles/storage.objectViewer", "members": ["allUsers"]
+    })
+    rejected(public, "public access")
+
+    object_viewer = deepcopy(iam)
+    object_viewer["bucket_policies"][0]["policy"]["bindings"][0]["role"] = (
+        "roles/storage.objectViewer"
+    )
+    rejected(object_viewer, "predefined")
+
+    grants_list = deepcopy(iam)
+    read_role = next(
+        row for row in grants_list["custom_role_definitions"]
+        if row["includedPermissions"] == [transport.STORAGE_GET_PERMISSION]
+    )
+    read_role["includedPermissions"].append("storage.objects.list")
+    rejected(grants_list, "overbroad")
+
+    grants_delete = deepcopy(iam)
+    create_role = next(
+        row for row in grants_delete["custom_role_definitions"]
+        if row["includedPermissions"] == [transport.STORAGE_CREATE_PERMISSION]
+    )
+    create_role["includedPermissions"].append("storage.objects.delete")
+    rejected(grants_delete, "overbroad")
+
+    no_ubla = deepcopy(iam)
+    no_ubla["bucket_metadata"][0]["metadata"]["iamConfiguration"][
+        "uniformBucketLevelAccess"
+    ]["enabled"] = False
+    rejected(no_ubla, "UBLA/PAP")
+
+    no_pap = deepcopy(iam)
+    no_pap["bucket_metadata"][0]["metadata"]["iamConfiguration"][
+        "publicAccessPrevention"
+    ] = "inherited"
+    rejected(no_pap, "UBLA/PAP")
+
+    missing_bucket = deepcopy(iam)
+    missing_bucket["bucket_policies"].pop()
+    rejected(missing_bucket, "policy census")
+
+    wrong_condition = deepcopy(iam)
+    wrong_condition["bucket_policies"][0]["policy"]["bindings"][0][
+        "condition"
+    ]["title"] = "unbound-read"
+    rejected(wrong_condition, "condition title")
+
+    overlapping = deepcopy(iam)
+    overlapping["read_prefixes"].append(
+        f'{manifest["output_prefix"]}nested/'
+    )
+    overlapping["read_prefixes"].sort()
+    rejected(overlapping, "overlap")
+
+    operator_broadening = deepcopy(iam)
+    operator_broadening["read_prefix_authorities"][0]["prefixes"][0] = (
+        "gs://foundation/"
+    )
+    rejected(operator_broadening, "identity graph differs")
+
+    credential = deepcopy(iam)
+    credential["project_policy"]["password"] = "must-never-be-retained"
+    rejected(credential, "credential material")
+
+    camel_credential = deepcopy(iam)
+    camel_credential["project_policy"]["privateKeyData"] = "forbidden"
+    rejected(camel_credential, "credential material")
+
+    incomplete_asset = deepcopy(iam)
+    incomplete_asset["effective_access_analyses"]["runtime_identity"][
+        "fullyExplored"
+    ] = False
+    rejected(incomplete_asset, "incomplete or differs")
+
+    asset_error = deepcopy(iam)
+    asset_error["effective_access_analyses"]["runtime_identity"][
+        "nonCriticalErrors"
+    ] = [{"code": "PARTIAL"}]
+    rejected(asset_error, "incomplete or differs")
+
+    group_inheritance = deepcopy(iam)
+    group_inheritance["effective_access_analyses"]["runtime_identity"][
+        "mainAnalysis"
+    ]["analysisResults"][0]["identityList"]["groupEdges"] = [{
+        "sourceNode": "group:unsafe@example.com",
+        "targetNode": f"serviceAccount:{SERVICE_ACCOUNT}",
+    }]
+    rejected(group_inheritance, "inherited")
+
+    effective_list = deepcopy(iam)
+    effective_list["effective_access_analyses"]["runtime_identity"][
+        "mainAnalysis"
+    ]["analysisResults"][0]["accessControlLists"][0]["accesses"].append({
+        "permission": "storage.objects.list"
+    })
+    rejected(effective_list, "effective runtime access")
+
+    public_effective = deepcopy(iam)
+    public_effective["effective_access_analyses"]["all_users"][
+        "mainAnalysis"
+    ]["analysisResults"] = [{"unexpected": "public grant"}]
+    rejected(public_effective, "public access")
+
+
+def test_build_gate_requires_every_expansion_test_cli_import_and_shell_smoke() -> None:
+    retained_fragments = tuple(
+        fragment.replace("${_IMAGE}", IMAGE_TAG)
+        for fragment in transport.REQUIRED_BUILD_FRAGMENTS
+    )
+    assert transport.validate_build_metadata(
+        _build_metadata(), build_id=BUILD_ID, code_sha=CODE_SHA, image=IMAGE
+    )["image"] == IMAGE
+    for command_index, fragment in enumerate(retained_fragments):
+        changed = _build_metadata()
+        step_index = 0 if command_index < 3 else 2
+        retained = list(changed["steps"][step_index]["args"])
+        retained[1] = "\n".join(
+            row for row in retained[1].splitlines() if row != fragment
+        )
+        changed["steps"][step_index]["args"] = retained
+        with pytest.raises(
+            transport.CorpusParametricTransportError, match="build smokes"
+        ):
+            transport.validate_build_metadata(
+                changed, build_id=BUILD_ID, code_sha=CODE_SHA, image=IMAGE
+            )
+
+    commented = _build_metadata()
+    commented["steps"][2]["args"][1] = "\n".join(
+        f"# {row}" for row in retained_fragments[3:]
+    )
+    with pytest.raises(
+        transport.CorpusParametricTransportError, match="build smokes"
+    ):
+        transport.validate_build_metadata(
+            commented, build_id=BUILD_ID, code_sha=CODE_SHA, image=IMAGE
+        )
+
+    masked = _build_metadata()
+    masked["steps"][0]["args"][1] += " || true"
+    with pytest.raises(
+        transport.CorpusParametricTransportError, match="mask or branch"
+    ):
+        transport.validate_build_metadata(
+            masked, build_id=BUILD_ID, code_sha=CODE_SHA, image=IMAGE
+        )
+
+    shell_state_masked = _build_metadata()
+    shell_state_masked["steps"][0]["args"][1] = (
+        "set +e\n" + shell_state_masked["steps"][0]["args"][1]
+    )
+    with pytest.raises(
+        transport.CorpusParametricTransportError, match="shell state"
+    ):
+        transport.validate_build_metadata(
+            shell_state_masked, build_id=BUILD_ID, code_sha=CODE_SHA,
+            image=IMAGE,
+        )
+
+    extra_smoke = _build_metadata()
+    extra_smoke["steps"][2]["args"][1] += "\necho not-a-bound-smoke"
+    with pytest.raises(
+        transport.CorpusParametricTransportError, match="not exact"
+    ):
+        transport.validate_build_metadata(
+            extra_smoke, build_id=BUILD_ID, code_sha=CODE_SHA, image=IMAGE
+        )
+
+    unbound_step_environment = _build_metadata()
+    unbound_step_environment["steps"][0]["env"] = [
+        "PYTEST_ADDOPTS=--ignore=tests/test_corpus_parametric_transport.py"
+    ]
+    with pytest.raises(
+        transport.CorpusParametricTransportError, match="unbound execution fields"
+    ):
+        transport.validate_build_metadata(
+            unbound_step_environment, build_id=BUILD_ID, code_sha=CODE_SHA,
+            image=IMAGE,
+        )
+
+    injected_step = _build_metadata()
+    injected_step["steps"].insert(2, {
+        "id": "unbound-successful-step",
+        "name": "gcr.io/cloud-builders/docker",
+        "status": "SUCCESS",
+        "exitCode": 0,
+        "args": ["build", "-t", IMAGE_TAG, "."],
+    })
+    with pytest.raises(
+        transport.CorpusParametricTransportError, match="step census/order"
+    ):
+        transport.validate_build_metadata(
+            injected_step, build_id=BUILD_ID, code_sha=CODE_SHA, image=IMAGE,
+        )
+
+
+def test_parked_job_rejects_inherited_secrets_volumes_and_mounts() -> None:
+    build = transport.validate_build_metadata(
+        _build_metadata(), build_id=BUILD_ID, code_sha=CODE_SHA, image=IMAGE
+    )
+    for mutate in (
+        lambda value: value["spec"]["template"]["spec"]["template"]["spec"]
+        ["containers"][0]["env"].append({
+            "name": "INHERITED_SECRET",
+            "valueSource": {"secretKeyRef": {"secret": "unsafe", "version": "1"}},
+        }),
+        lambda value: value["spec"]["template"]["spec"]["template"]["spec"]
+        ["volumes"].append({"name": "inherited"}),
+        lambda value: value["spec"]["template"]["spec"]["template"]["spec"]
+        ["containers"][0]["volumeMounts"].append({
+            "name": "inherited", "mountPath": "/unsafe"
+        }),
+        lambda value: value["spec"]["template"]["spec"]["template"]["spec"].update({
+            "vpcAccess": {"connector": "unsafe"}
+        }),
+        lambda value: value["spec"]["template"]["spec"]["template"]["spec"].update({
+            "cloudSqlInstances": ["unsafe"]
+        }),
+        lambda value: value["spec"]["template"]["spec"]["template"]["spec"].update({
+            "tags": ["unsafe"]
+        }),
+        lambda value: value["spec"]["template"]["spec"]["template"]["spec"]
+        ["containers"][0].update({"startupProbe": {"tcpSocket": {"port": 9}}}),
+        lambda value: value["spec"]["template"]["spec"]["template"]["spec"]
+        ["containers"][0].update({"workingDir": "/unsafe"}),
+        lambda value: value["spec"]["template"]["spec"]["template"]["spec"]
+        ["containers"][0].update({"ports": [{"containerPort": 9999}]}),
+        lambda value: value["spec"]["template"].update({
+            "metadata": {"annotations": {"unsafe.example/attachment": "1"}}
+        }),
+    ):
+        job = _job()
+        mutate(job)
+        with pytest.raises(transport.CorpusParametricTransportError):
+            transport.validate_parked_job(
+                job,
+                job_name=JOB_NAME,
+                expected_uid=JOB_UID,
+                build=build,
+                service_account=SERVICE_ACCOUNT,
+            )
+
+
 def test_retrieval_task0_prerequisite_is_transitively_reopened_and_fail_closed(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -879,6 +1905,11 @@ def test_configure_accepts_only_one_task_smoke_or_complete_54_task_batch() -> No
             ),
             retrieval_prerequisite_identity=transport.identity_for_bytes(
                 uri="gs://retrieval/task0/accepted.json", generation="1", raw=raw
+            ),
+            foundation_publication_identity=transport.identity_for_bytes(
+                uri=f"{FOUNDATION_PREFIX}governance/publication-completion.json",
+                generation="1",
+                raw=raw,
             ),
             runtime_iam_identity=transport.identity_for_bytes(
                 uri=manifest["output_prefix"] + "governance/iam.json",
@@ -1100,16 +2131,24 @@ def test_complete_two_execution_flow_accepts_only_after_independent_verifier() -
     )
 
     def fake_verifier(**kwargs: object) -> SimpleNamespace:
-        result_raw = store.read(kwargs["task_result_identity"])
+        reader = kwargs["object_reader"]
+
+        def exact_read(identity: dict[str, object]) -> bytes:
+            return reader.read_generation(
+                uri=str(identity["uri"]),
+                generation=str(identity["generation"]),
+            )
+
+        result_raw = exact_read(kwargs["task_result_identity"])
         result = batch.parse_canonical_json_bytes(result_raw, label="result")
         terminal_identity = result["execution"]["terminal_receipt"]
-        terminal_raw = store.read(terminal_identity)
+        terminal_raw = exact_read(terminal_identity)
         terminal = batch.parse_canonical_json_bytes(terminal_raw, label="terminal")
         authorities = terminal["authorities"]
 
         def authority(role: str) -> dict[str, object]:
             return batch.parse_canonical_json_bytes(
-                store.read(authorities[role]), label=f"fake {role}"
+                exact_read(authorities[role]), label=f"fake {role}"
             )
 
         source = authority("source_binding")
@@ -1123,7 +2162,7 @@ def test_complete_two_execution_flow_accepts_only_after_independent_verifier() -
         batch_result = authority("batch_result")
         variants = [
             batch.parse_canonical_json_bytes(
-                store.read(row["object_identity"]), label=f"fake variant {ordinal}"
+                exact_read(row["object_identity"]), label=f"fake variant {ordinal}"
             )
             for ordinal, row in enumerate(terminal["variant_result_objects"])
         ]
@@ -1400,8 +2439,23 @@ def test_shell_keeps_configure_launch_recover_watch_and_finish_separate() -> Non
     ):
         assert mode in source
     assert "--max-retries 0" in source
+    assert "--clear-secrets --clear-volumes --clear-volume-mounts" in source
+    for fragment in (
+        "preflight-configure",
+        "CORPUS_PARAMETRIC_EXPECTED_JOB_UID",
+        "--foundation-publication-uri",
+        "--clear-vpc-connector",
+        "--clear-cloudsql-instances",
+        "--clear-network",
+        "--clear-network-tags",
+        "--startup-probe=\"\"",
+        "--workdir=\"\"",
+        "status=97",
+    ):
+        assert fragment in source
     assert "--async" in source
     assert "never relaunch" in source
+    assert "set -o noclobber" in source
     assert "CORPUS_PARAMETRIC_RESEARCH_ENABLED=1 is required" in source
     assert "gcloud run jobs create" not in source
     assert "sleep " not in source
@@ -1416,3 +2470,8 @@ def test_shell_keeps_configure_launch_recover_watch_and_finish_separate() -> Non
     ):
         assert event_key in source
     assert "transport-created-at.txt" not in source
+    assert source.index("validate-build") < source.index("gcloud run jobs update")
+    assert source.index("preflight-configure") < source.index(
+        "gcloud run jobs update"
+    )
+    assert "--region \"$REGION\" --quiet >/dev/null || true" not in source

@@ -26,6 +26,7 @@ import math
 import os
 from pathlib import Path
 import re
+import shlex
 import sys
 import tempfile
 import time
@@ -46,8 +47,110 @@ PARKED_ARGS: Final = ["scripts/run_corpus_parametric_transport.py", "parked"]
 EXPECTED_TASK_COUNT: Final = 1
 EXPECTED_PARALLELISM: Final = 1
 EXPECTED_MAX_RETRIES: Final = 0
-EXPECTED_TIMEOUT_SECONDS: Final = "86400s"
-EXPECTED_RESOURCES: Final = {"cpu": "8000m", "memory": "32Gi"}
+# Cloud Run's v1 JSON/export surface retains this protobuf duration as seconds
+# without the CLI's ``s`` suffix (the wrapper still passes ``86400s``).
+EXPECTED_TIMEOUT_SECONDS: Final = "86400"
+EXPECTED_RESOURCES: Final = {"cpu": "8", "memory": "32Gi"}
+RUNTIME_IAM_CAPTURE_SCHEMA: Final = (
+    "corpus-parametric-runtime-iam-policy-capture/v2"
+)
+RUNTIME_IAM_EVIDENCE_SCHEMA: Final = (
+    "corpus-parametric-runtime-iam-evidence/v3"
+)
+RUNTIME_PRINCIPAL_SCOPE: Final = "cloud-run-producer-verifier-only"
+STORAGE_GET_PERMISSION: Final = "storage.objects.get"
+STORAGE_CREATE_PERMISSION: Final = "storage.objects.create"
+RUNTIME_READ_CONDITION_TITLE: Final = "corpus-parametric-read-v2"
+RUNTIME_CREATE_CONDITION_TITLE: Final = "corpus-parametric-create-v2"
+REQUIRED_BUILD_COMMANDS: Final = (
+    ("PYTHONPATH=src", "pytest"),
+    (
+        "PYTHONPATH=src", "python", "-m", "pytest", "-q",
+        "tests/test_corpus_parametric_transport.py",
+    ),
+    (
+        "PYTHONPATH=src", "python", "-m", "pytest", "-q",
+        "tests/test_corpus_retrieval_neo4j.py",
+    ),
+    (
+        "docker", "run", "--rm", "${_IMAGE}", "python",
+        "scripts/run_corpus_parametric_transport.py", "--help",
+    ),
+    (
+        "docker", "run", "--rm", "${_IMAGE}", "python",
+        "scripts/run_corpus_parametric_transport.py", "parked",
+    ),
+    (
+        "docker", "run", "--rm", "${_IMAGE}", "python",
+        "scripts/prepare_corpus_parametric_batch_v1.py", "--help",
+    ),
+    (
+        "docker", "run", "--rm", "${_IMAGE}", "python",
+        "scripts/prepare_corpus_parametric_batch_v1.py", "solver-probe",
+    ),
+    (
+        "docker", "run", "--rm", "${_IMAGE}", "python",
+        "scripts/load_corpus_retrieval_neo4j.py", "--help",
+    ),
+    (
+        "docker", "run", "--rm", "${_IMAGE}", "bash", "-n",
+        "scripts/cloud_corpus_parametric_v1_reuse.sh",
+    ),
+    (
+        "docker", "run", "--rm", "${_IMAGE}", "python", "-c",
+        "import nfl_dfs.research.corpus_legal_feasibility; "
+        "import nfl_dfs.research.corpus_legal_feasibility_verifier; "
+        "import nfl_dfs.research.corpus_retrieval_neo4j; "
+        "import nfl_dfs.research.corpus_neo4j_extensions; import neo4j",
+    ),
+)
+REQUIRED_BUILD_FRAGMENTS: Final = tuple(
+    shlex.join(command) for command in REQUIRED_BUILD_COMMANDS
+)
+EXPECTED_BUILD_STEPS: Final = {
+    "full-test-suite": ("python:3.11-slim", "bash"),
+    "build-image": ("gcr.io/cloud-builders/docker", ""),
+    "smoke-corpus-parametric-expansion": (
+        "gcr.io/cloud-builders/docker", "bash",
+    ),
+}
+_ALLOWED_RETAINED_BUILD_STEP_KEYS: Final = frozenset({
+    "args", "entrypoint", "exitCode", "id", "name", "pullTiming", "status",
+    "timing",
+})
+REQUIRED_FULL_TEST_SETUP_COMMANDS: Final = (
+    ("apt-get", "update"),
+    (
+        "apt-get", "install", "-y", "--no-install-recommends", "git",
+        "libgomp1",
+    ),
+    ("pip", "install", "--no-cache-dir", ".[gcp,app,dev]"),
+)
+_FORBIDDEN_BUILD_SHELL_COMMANDS: Final = frozenset({
+    ".", "alias", "builtin", "cd", "command", "declare", "eval", "exec",
+    "export", "function", "local", "popd", "pushd", "readonly", "set",
+    "shopt", "source", "trap", "typeset", "unalias",
+})
+_CLOUD_ASSET_OPTIONS: Final = {
+    "expandGroups": True,
+    "expandResources": True,
+    "expandRoles": True,
+    "outputGroupEdges": True,
+    "outputResourceEdges": True,
+}
+FOUNDATION_PUBLICATION_SCHEMA: Final = (
+    "corpus-parametric-foundation-publication/v1"
+)
+FOUNDATION_PREFIX_CLAIM_SCHEMA: Final = (
+    "corpus-parametric-foundation-prefix-claim/v1"
+)
+SOURCE_PUBLICATION_SCHEMA: Final = (
+    "corpus-artifact-source-publication-completion/v1"
+)
+SOURCE_PREFIX_CLAIM_SCHEMA: Final = "corpus-artifact-source-prefix-claim/v1"
+RETRIEVAL_PREFIX_CLAIM_SCHEMA: Final = (
+    "corpus-retrieval-transport-prefix-claim/v1"
+)
 COMMON_LAW_BODY_ROLES: Final = (
     "code_source",
     "world_schedule",
@@ -72,8 +175,8 @@ AUTHORITY_OBJECT_ROLES: Final = (
     "authority_bundle",
     "batch_result",
 )
-TRANSPORT_CONTRACT_SCHEMA: Final = "corpus-parametric-transport-contract/v1"
-PREFIX_CLAIM_SCHEMA: Final = "corpus-parametric-transport-prefix-claim/v1"
+TRANSPORT_CONTRACT_SCHEMA: Final = "corpus-parametric-transport-contract/v2"
+PREFIX_CLAIM_SCHEMA: Final = "corpus-parametric-transport-prefix-claim/v2"
 LAUNCH_INTENT_SCHEMA: Final = "corpus-parametric-transport-launch-intent/v1"
 LAUNCH_LEDGER_SCHEMA: Final = "corpus-parametric-transport-launch-ledger/v1"
 EXECUTION_NAME_SCHEMA: Final = (
@@ -797,61 +900,1851 @@ def reopen_retrieval_task0_prerequisite(
     return prerequisite, raw
 
 
+_FOUNDATION_PUBLICATION_KEYS: Final = frozenset({
+    "schema_version", "foundation_id", "batch_id", "mode", "workstream",
+    "reserved_independent_workstream", "created_at_utc", "preplan_sha256",
+    "prefix_claim", "preplan_object", "full_manifest",
+    "full_evidence_contract", "accepted_retrieval_prerequisite",
+    "source_publication_authority", "source_authority_completion",
+    "source_freeze", "common_law_objects", "effective_policy_inventory",
+    "task_requests", "task_count", "parameter_arm_count",
+    "source_task_count", "source_artifact_count",
+    "source_artifact_exact_get_count", "idempotent", "create_once",
+    "runtime_iam_authority", "launch_authority", "outcome_read_authority",
+    "historical_scoring_authority", "corpus_fill_authority",
+    "corpus_population_authority", "live_strategy_authority",
+    "graph_mutation_authority", "production_change_authority",
+    "production_policy_change_authority", "automatic_policy_feedback",
+    "outcome_columns_read", "uses_realized_outcomes", "publication_sha256",
+})
+_FOUNDATION_PREFIX_CLAIM_KEYS: Final = frozenset({
+    "schema_version", "foundation_id", "workstream", "mode",
+    "foundation_prefix", "batch_output_prefix", "preplan_sha256",
+    "planned_object_uris", "planned_object_uri_set_sha256",
+    "pre_outcome_registration", "create_once", "resume_licensed",
+    "replace_licensed", "outcome_columns_read", "uses_realized_outcomes",
+    "corpus_fill_licensed", "production_change_licensed",
+    "prefix_claim_sha256",
+})
+_SOURCE_PUBLICATION_KEYS: Final = frozenset({
+    "schema", "run_id", "plan_sha256", "output_prefix", "prefix_claim",
+    "registration_object", "registration_sha256", "query_captures",
+    "later_source_freeze_object", "later_source_freeze_manifest_sha256",
+    "salary_diagnostic_object", "salary_diagnostic_sha256",
+    "source_authority_completion_object",
+    "source_authority_completion_sha256", "base_source_lock_object",
+    "task_count", "artifact_count", "artifact_reads",
+    "artifact_list_used", "producer_get_trace", "producer_query_trace",
+    "producer_trace_complete_before_terminal_publication",
+    "inventory_before_publication",
+    "inventory_before_publication_sha256", "create_once",
+    "outcome_columns_read", "uses_realized_outcomes",
+    "historical_scoring_licensed", "production_change_licensed",
+    "live_strategy_authority", "publication_completion_sha256",
+})
+_SOURCE_PREFIX_CLAIM_KEYS: Final = frozenset({
+    "schema", "run_id", "plan_sha256", "output_prefix",
+    "publication_uris", "base_source_lock_object", "source_snapshot_at",
+    "registration_sha256", "create_once", "outcome_columns_read",
+    "uses_realized_outcomes", "historical_scoring_licensed",
+    "production_change_licensed", "claim_sha256",
+})
+_RETRIEVAL_PREFIX_CLAIM_KEYS: Final = frozenset({
+    "schema_version", "published_at_utc", "preflight_sha256",
+    "suite_manifest_identity", "snapshot_manifest_identity", "task_index",
+    "task_id", "output_prefix", "result_uri", "job", "job_uid",
+    "job_prior_generation", "runtime_iam_evidence_uri",
+    "runtime_iam_evidence_sha256", "runtime_iam_evidence_bytes",
+    "create_once", "uses_realized_outcomes", "bigquery_access_licensed",
+    "corpus_fill_licensed", "live_policy_access_licensed",
+    "production_change_licensed", "claim_sha256",
+})
+
+
+def _strict_no_newline_json(raw: bytes, *, label: str) -> object:
+    value = external_json_bytes(raw, label=label)
+    if canonical_json_bytes(value)[:-1] != raw:
+        raise CorpusParametricTransportError(
+            f"{label} is not canonical no-newline JSON"
+        )
+    return value
+
+
+def _validate_no_newline_self_hash(
+    value: Mapping[str, object], *, field: str, label: str
+) -> None:
+    retained = _sha(value.get(field), label=f"{label}.{field}")
+    body = {key: value[key] for key in value if key != field}
+    if retained != sha256(canonical_json_bytes(body)[:-1]).hexdigest():
+        raise CorpusParametricTransportError(f"{label} self-hash differs")
+
+
+def _identity_field(value: Mapping[str, object], key: str, *, label: str) -> dict[str, object]:
+    return object_identity(value[key], label=f"{label} {key}").as_dict()
+
+
+def _validate_source_trace_envelope(
+    value: object, *, query: bool
+) -> None:
+    label = "source producer query trace" if query else "source producer GET trace"
+    item = dict(_mapping(value, label=label))
+    expected = frozenset({
+        "schema", "events", "event_count", "events_sha256", "complete",
+        "trace_sha256",
+    })
+    if not query:
+        expected |= frozenset({
+            "delivered_plan_object", "absence_check_uris", "object_list_used",
+        })
+    _exact_keys(item, expected, label=label)
+    _validate_no_newline_self_hash(item, field="trace_sha256", label=label)
+    events = list(_sequence(item["events"], label=f"{label} events"))
+    if (
+        item["schema"]
+        != (
+            "corpus-artifact-source-producer-query-trace/v1"
+            if query else "corpus-artifact-source-producer-get-trace/v1"
+        )
+        or item["event_count"] != len(events)
+        or item["events_sha256"]
+        != sha256(canonical_json_bytes(events)[:-1]).hexdigest()
+        or item["complete"] is not True
+    ):
+        raise CorpusParametricTransportError(f"{label} differs")
+    if not query:
+        object_identity(
+            item["delivered_plan_object"], label="source delivered plan"
+        )
+        if (
+            item["object_list_used"] is not False
+            or type(item["absence_check_uris"]) is not list
+        ):
+            raise CorpusParametricTransportError(f"{label} differs")
+
+
+def reopen_upstream_prefix_authorities(
+    *,
+    storage: ObjectStore,
+    foundation_publication_identity: object,
+    manifest: Mapping[str, object],
+    manifest_identity: ObjectIdentity,
+    evidence_contract_identity: ObjectIdentity,
+    retrieval_prerequisite: Mapping[str, object],
+    retrieval_prerequisite_identity: ObjectIdentity,
+) -> dict[str, object]:
+    """Reopen the three frozen prefix claims that alone authorize read roots."""
+    publication_identity, publication_raw = _read_identity(
+        storage,
+        foundation_publication_identity,
+        label="foundation publication",
+    )
+    publication = dict(_mapping(
+        _strict_no_newline_json(
+            publication_raw, label="foundation publication"
+        ),
+        label="foundation publication",
+    ))
+    _exact_keys(
+        publication,
+        _FOUNDATION_PUBLICATION_KEYS,
+        label="foundation publication",
+    )
+    _validate_no_newline_self_hash(
+        publication,
+        field="publication_sha256",
+        label="foundation publication",
+    )
+    common = _mapping(manifest["common_law"], label="manifest common law")
+    publication_common = _mapping(
+        publication["common_law_objects"], label="foundation common law"
+    )
+    publication_requests = _sequence(
+        publication["task_requests"], label="foundation task requests"
+    )
+    if (
+        publication["schema_version"] != FOUNDATION_PUBLICATION_SCHEMA
+        or publication["workstream"] != "corpus-parametric-research"
+        or publication["reserved_independent_workstream"]
+        != "corpus-population-research"
+        or publication["batch_id"] != manifest["batch_id"]
+        or publication["task_count"] != len(manifest["tasks"])
+        or publication["parameter_arm_count"] != 7
+        or publication["source_task_count"] != 54
+        or publication["source_artifact_count"] != 270
+        or publication["source_artifact_exact_get_count"] != 270
+        or publication["idempotent"] is not True
+        or publication["create_once"] is not True
+        or publication["outcome_columns_read"] != []
+        or any(publication[field] is not False for field in (
+            "runtime_iam_authority", "launch_authority",
+            "outcome_read_authority", "historical_scoring_authority",
+            "corpus_fill_authority", "corpus_population_authority",
+            "live_strategy_authority", "graph_mutation_authority",
+            "production_change_authority", "production_policy_change_authority",
+            "automatic_policy_feedback", "uses_realized_outcomes",
+        ))
+        or _identity_field(
+            publication, "full_manifest", label="foundation publication"
+        ) != manifest_identity.as_dict()
+        or _identity_field(
+            publication, "full_evidence_contract", label="foundation publication"
+        ) != evidence_contract_identity.as_dict()
+        or _identity_field(
+            publication,
+            "accepted_retrieval_prerequisite",
+            label="foundation publication",
+        ) != retrieval_prerequisite_identity.as_dict()
+        or _identity_field(
+            publication,
+            "source_authority_completion",
+            label="foundation publication",
+        )
+        != object_identity(
+            common["artifact_source_authority_completion"],
+            label="manifest source completion",
+        ).as_dict()
+        or _identity_field(
+            publication, "source_freeze", label="foundation publication"
+        )
+        != object_identity(
+            _mapping(common["source_receipts"], label="source receipts")[
+                "later_source_freeze"
+            ],
+            label="manifest source freeze",
+        ).as_dict()
+        or _identity_field(
+            publication,
+            "effective_policy_inventory",
+            label="foundation publication",
+        )
+        != object_identity(
+            common["effective_policy_inventory_identity"],
+            label="manifest policy inventory",
+        ).as_dict()
+        or frozenset(publication_common) != frozenset(COMMON_LAW_BODY_ROLES)
+        or any(
+            object_identity(
+                publication_common[role], label=f"foundation common {role}"
+            ).as_dict()
+            != object_identity(
+                common[role], label=f"manifest common {role}"
+            ).as_dict()
+            for role in COMMON_LAW_BODY_ROLES
+        )
+    ):
+        raise CorpusParametricTransportError(
+            "foundation publication does not bind the exact batch inputs"
+        )
+    _timestamp(publication["created_at_utc"], label="foundation publication time")
+
+    foundation_claim_identity, foundation_claim_raw = _read_identity(
+        storage, publication["prefix_claim"], label="foundation prefix claim"
+    )
+    foundation_claim = dict(_mapping(
+        _strict_no_newline_json(
+            foundation_claim_raw, label="foundation prefix claim"
+        ),
+        label="foundation prefix claim",
+    ))
+    _exact_keys(
+        foundation_claim,
+        _FOUNDATION_PREFIX_CLAIM_KEYS,
+        label="foundation prefix claim",
+    )
+    _validate_no_newline_self_hash(
+        foundation_claim,
+        field="prefix_claim_sha256",
+        label="foundation prefix claim",
+    )
+    foundation_prefix = _gcs_iam_prefix(
+        foundation_claim["foundation_prefix"], label="foundation read root"
+    )
+    batch_prefix = _gcs_iam_prefix(
+        foundation_claim["batch_output_prefix"], label="batch read root"
+    )
+    planned_uris = list(_sequence(
+        foundation_claim["planned_object_uris"],
+        label="foundation planned object URIs",
+    ))
+    if (
+        foundation_claim["schema_version"] != FOUNDATION_PREFIX_CLAIM_SCHEMA
+        or foundation_claim["foundation_id"] != publication["foundation_id"]
+        or foundation_claim["workstream"] != publication["workstream"]
+        or foundation_claim["mode"] != publication["mode"]
+        or foundation_claim["preplan_sha256"] != publication["preplan_sha256"]
+        or not foundation_prefix.endswith(
+            f"/{publication['foundation_id']}/"
+        )
+        or publication_identity.uri
+        != f"{foundation_prefix}governance/publication-completion.json"
+        or foundation_claim_identity.uri
+        != f"{foundation_prefix}governance/prefix-claim.json"
+        or publication["preplan_object"]["uri"]
+        != f"{foundation_prefix}governance/preplan.json"
+        or publication["accepted_retrieval_prerequisite"]["uri"]
+        != (
+            f"{foundation_prefix}governance/"
+            "retrieval-task0-accepted-prerequisite.json"
+        )
+        or batch_prefix != manifest["output_prefix"]
+        or foundation_prefix.startswith(batch_prefix)
+        or batch_prefix.startswith(foundation_prefix)
+        or len(planned_uris) != len(set(planned_uris))
+        or any(type(uri) is not str for uri in planned_uris)
+        or any(
+            sum(str(uri).startswith(prefix) for prefix in (
+                foundation_prefix, batch_prefix,
+            )) != 1
+            for uri in planned_uris
+        )
+        or foundation_claim["planned_object_uri_set_sha256"]
+        != sha256(canonical_json_bytes(planned_uris)[:-1]).hexdigest()
+        or publication_identity.uri not in planned_uris
+        or any(
+            str(identity["uri"]) not in planned_uris
+            for identity in (
+                publication["prefix_claim"], publication["full_manifest"],
+                publication["preplan_object"],
+                publication["full_evidence_contract"],
+                publication["accepted_retrieval_prerequisite"],
+                publication["effective_policy_inventory"],
+                *publication_common.values(),
+                *publication_requests,
+            )
+        )
+        or foundation_claim["pre_outcome_registration"] is not True
+        or foundation_claim["create_once"] is not True
+        or foundation_claim["resume_licensed"] is not False
+        or foundation_claim["replace_licensed"] is not False
+        or foundation_claim["outcome_columns_read"] != []
+        or foundation_claim["uses_realized_outcomes"] is not False
+        or foundation_claim["corpus_fill_licensed"] is not False
+        or foundation_claim["production_change_licensed"] is not False
+    ):
+        raise CorpusParametricTransportError("foundation prefix claim differs")
+
+    source_publication_identity, source_publication_raw = _read_identity(
+        storage,
+        publication["source_publication_authority"],
+        label="source publication authority",
+    )
+    source_publication = dict(_mapping(
+        _strict_no_newline_json(
+            source_publication_raw, label="source publication authority"
+        ),
+        label="source publication authority",
+    ))
+    _exact_keys(
+        source_publication,
+        _SOURCE_PUBLICATION_KEYS,
+        label="source publication authority",
+    )
+    _validate_no_newline_self_hash(
+        source_publication,
+        field="publication_completion_sha256",
+        label="source publication authority",
+    )
+    _validate_source_trace_envelope(
+        source_publication["producer_get_trace"], query=False
+    )
+    _validate_source_trace_envelope(
+        source_publication["producer_query_trace"], query=True
+    )
+    source_prefix = _gcs_iam_prefix(
+        source_publication["output_prefix"], label="source read root"
+    )
+    source_run_id = _string(
+        source_publication["run_id"], label="source publication run ID"
+    )
+    expected_source_uris = {
+        "prefix_claim": f"{source_prefix}governance/prefix-claim.json",
+        "registration": f"{source_prefix}governance/source-registration.json",
+        "r0_candidates": f"{source_prefix}queries/r0-candidates.json",
+        "artifact_catalog": f"{source_prefix}queries/artifact-catalog.json",
+        "salary_player_ids": f"{source_prefix}queries/salary-player-ids.json",
+        "later_source_freeze": f"{source_prefix}source/later-source-freeze.json",
+        "salary_diagnostic": f"{source_prefix}source/salary-diagnostic.json",
+        "source_authority_completion": (
+            f"{source_prefix}source/artifact-source-authority-completion.json"
+        ),
+        "publication_completion": (
+            f"{source_prefix}governance/publication-completion.json"
+        ),
+    }
+    source_captures = _mapping(
+        source_publication["query_captures"],
+        label="source publication query captures",
+    )
+    if (
+        source_publication["schema"] != SOURCE_PUBLICATION_SCHEMA
+        or not source_prefix.endswith(f"/{source_run_id}/")
+        or source_publication_identity.uri
+        != expected_source_uris["publication_completion"]
+        or source_publication["prefix_claim"]["uri"]
+        != expected_source_uris["prefix_claim"]
+        or source_publication["registration_object"]["uri"]
+        != expected_source_uris["registration"]
+        or source_publication["later_source_freeze_object"]["uri"]
+        != expected_source_uris["later_source_freeze"]
+        or source_publication["salary_diagnostic_object"]["uri"]
+        != expected_source_uris["salary_diagnostic"]
+        or source_publication["source_authority_completion_object"]["uri"]
+        != expected_source_uris["source_authority_completion"]
+        or frozenset(source_captures)
+        != frozenset({"r0_candidates", "artifact_catalog", "salary_player_ids"})
+        or any(
+            _mapping(
+                source_captures[role], label=f"source capture {role}"
+            ).get("object", {}).get("uri") != expected_source_uris[role]
+            for role in source_captures
+        )
+        or source_publication["task_count"] != 54
+        or source_publication["artifact_count"] != 270
+        or source_publication["artifact_reads"]
+        != "exact-generation-get-only-one-at-a-time"
+        or source_publication["artifact_list_used"] is not False
+        or source_publication[
+            "producer_trace_complete_before_terminal_publication"
+        ] is not True
+        or source_publication["create_once"] is not True
+        or source_publication["outcome_columns_read"] != []
+        or any(source_publication[field] is not False for field in (
+            "uses_realized_outcomes", "historical_scoring_licensed",
+            "production_change_licensed", "live_strategy_authority",
+        ))
+        or _identity_field(
+            source_publication,
+            "source_authority_completion_object",
+            label="source publication",
+        ) != publication["source_authority_completion"]
+        or _identity_field(
+            source_publication,
+            "later_source_freeze_object",
+            label="source publication",
+        ) != publication["source_freeze"]
+    ):
+        raise CorpusParametricTransportError("source publication authority differs")
+    source_claim_identity, source_claim_raw = _read_identity(
+        storage, source_publication["prefix_claim"], label="source prefix claim"
+    )
+    source_claim = dict(_mapping(
+        _strict_no_newline_json(source_claim_raw, label="source prefix claim"),
+        label="source prefix claim",
+    ))
+    _exact_keys(
+        source_claim, _SOURCE_PREFIX_CLAIM_KEYS, label="source prefix claim"
+    )
+    _validate_no_newline_self_hash(
+        source_claim, field="claim_sha256", label="source prefix claim"
+    )
+    source_uris = _mapping(
+        source_claim["publication_uris"], label="source publication URIs"
+    )
+    if (
+        source_claim["schema"] != SOURCE_PREFIX_CLAIM_SCHEMA
+        or source_claim["run_id"] != source_publication["run_id"]
+        or source_claim["plan_sha256"] != source_publication["plan_sha256"]
+        or source_claim["output_prefix"] != source_prefix
+        or source_uris != expected_source_uris
+        or source_uris.get("prefix_claim") != source_claim_identity.uri
+        or source_uris.get("publication_completion")
+        != source_publication_identity.uri
+        or source_uris.get("source_authority_completion")
+        != source_publication["source_authority_completion_object"]["uri"]
+        or any(
+            type(uri) is not str or not uri.startswith(source_prefix)
+            for uri in source_uris.values()
+        )
+        or source_claim["create_once"] is not True
+        or source_claim["outcome_columns_read"] != []
+        or any(source_claim[field] is not False for field in (
+            "uses_realized_outcomes", "historical_scoring_licensed",
+            "production_change_licensed",
+        ))
+    ):
+        raise CorpusParametricTransportError("source prefix claim differs")
+
+    terminal_identity, terminal_raw = _read_identity(
+        storage,
+        retrieval_prerequisite["terminal_receipt"],
+        label="retrieval terminal for prefix authority",
+    )
+    retrieval = _retrieval_module()
+    parse_retrieval = getattr(retrieval, "parse_canonical_json_bytes", None)
+    retrieval_bytes = getattr(retrieval, "canonical_json_bytes", None)
+    if not callable(parse_retrieval) or not callable(retrieval_bytes):
+        raise CorpusParametricTransportError(
+            "retrieval core lacks its frozen canonical JSON API"
+        )
+    try:
+        parsed_terminal = parse_retrieval(
+            terminal_raw, label="retrieval terminal prefix replay"
+        )
+        if retrieval_bytes(parsed_terminal) != terminal_raw:
+            raise CorpusParametricTransportError(
+                "retrieval terminal prefix replay is not canonical JSON"
+            )
+    except CorpusParametricTransportError:
+        raise
+    except Exception as exc:
+        raise CorpusParametricTransportError(
+            "retrieval terminal prefix replay is invalid"
+        ) from exc
+    terminal = _mapping(
+        parsed_terminal, label="retrieval terminal prefix replay"
+    )
+    retrieval_claim_identity, retrieval_claim_raw = _read_identity(
+        storage, terminal["prefix_claim"], label="retrieval prefix claim"
+    )
+    try:
+        parsed_retrieval_claim = parse_retrieval(
+            retrieval_claim_raw, label="retrieval prefix claim"
+        )
+        if retrieval_bytes(parsed_retrieval_claim) != retrieval_claim_raw:
+            raise CorpusParametricTransportError(
+                "retrieval prefix claim is not canonical JSON"
+            )
+    except CorpusParametricTransportError:
+        raise
+    except Exception as exc:
+        raise CorpusParametricTransportError(
+            "retrieval prefix claim is invalid"
+        ) from exc
+    retrieval_claim = dict(_mapping(
+        parsed_retrieval_claim, label="retrieval prefix claim"
+    ))
+    _exact_keys(
+        retrieval_claim,
+        _RETRIEVAL_PREFIX_CLAIM_KEYS,
+        label="retrieval prefix claim",
+    )
+    _validate_no_newline_self_hash(
+        retrieval_claim, field="claim_sha256", label="retrieval prefix claim"
+    )
+    retrieval_prefix = _gcs_iam_prefix(
+        retrieval_claim["output_prefix"], label="retrieval read root"
+    )
+    if (
+        terminal_identity.as_dict() != retrieval_prerequisite["terminal_receipt"]
+        or retrieval_claim["schema_version"] != RETRIEVAL_PREFIX_CLAIM_SCHEMA
+        or retrieval_claim["suite_manifest_identity"]
+        != retrieval_prerequisite["suite_manifest_identity"]
+        or retrieval_claim["snapshot_manifest_identity"]
+        != retrieval_prerequisite["snapshot_manifest_identity"]
+        or retrieval_claim["task_index"] != 0
+        or retrieval_claim["result_uri"]
+        != retrieval_prerequisite["task_result_object"]["uri"]
+        or terminal_identity.uri.startswith(retrieval_prefix) is not True
+        or any(
+            not str(retrieval_claim[key]).startswith(retrieval_prefix)
+            for key in (
+                "result_uri", "runtime_iam_evidence_uri",
+            )
+        )
+        or not retrieval_claim_identity.uri.startswith(retrieval_prefix)
+        or retrieval_claim["create_once"] is not True
+        or any(retrieval_claim[field] is not False for field in (
+            "uses_realized_outcomes", "bigquery_access_licensed",
+            "corpus_fill_licensed", "live_policy_access_licensed",
+            "production_change_licensed",
+        ))
+    ):
+        raise CorpusParametricTransportError("retrieval prefix claim differs")
+
+    prefixes = sorted({
+        foundation_prefix, batch_prefix, source_prefix, retrieval_prefix,
+    })
+    for ordinal, first in enumerate(prefixes):
+        for second in prefixes[ordinal + 1:]:
+            if first.startswith(second) or second.startswith(first):
+                raise CorpusParametricTransportError(
+                    "upstream prefix claims overlap"
+                )
+    authorities = [
+        {
+            "authority": "foundation",
+            "claim_identity": foundation_claim_identity.as_dict(),
+            "prefixes": [foundation_prefix, batch_prefix],
+        },
+        {
+            "authority": "retrieval-task0",
+            "claim_identity": retrieval_claim_identity.as_dict(),
+            "prefixes": [retrieval_prefix],
+        },
+        {
+            "authority": "source-publication",
+            "claim_identity": source_claim_identity.as_dict(),
+            "prefixes": [source_prefix],
+        },
+    ]
+    return {
+        "foundation_publication_identity": publication_identity.as_dict(),
+        "read_prefix_authorities": authorities,
+        "read_prefixes": prefixes,
+    }
+
+
+_RUNTIME_IAM_CAPTURE_KEYS: Final = frozenset({
+    "schema_version",
+    "captured_at_utc",
+    "project",
+    "project_policy",
+    "custom_role_definitions",
+    "bucket_policies",
+    "bucket_metadata",
+    "effective_access_analyses",
+    "capture_sha256",
+})
 _RUNTIME_IAM_KEYS: Final = frozenset({
     "schema_version",
     "captured_at_utc",
     "project",
+    "principal_scope",
     "service_account",
-    "input_object_identity_set_sha256",
+    "foundation_publication_identity",
+    "batch_manifest_identity",
+    "evidence_contract_identity",
+    "retrieval_prerequisite_identity",
+    "required_input_identities",
+    "required_input_identity_set_sha256",
+    "manifest_input_identity_set_sha256",
+    "retrieval_replay_identity_set_sha256",
+    "read_prefix_authorities",
+    "read_prefixes",
+    "read_exact_identities",
+    "read_exact_identity_set_sha256",
     "output_prefix",
-    "all_input_gets_conditionally_authorized",
-    "output_get_create_conditionally_authorized",
-    "project_level_roles_absent",
-    "object_list_granted",
-    "object_delete_granted",
-    "bucket_uniform_access",
-    "public_access_prevention",
+    "project_policy",
+    "custom_role_definitions",
+    "bucket_policies",
+    "bucket_metadata",
+    "effective_access_analyses",
     "iam_evidence_sha256",
 })
+_PUBLIC_IAM_MEMBERS: Final = frozenset({"allUsers", "allAuthenticatedUsers"})
+_CREDENTIAL_KEYS: Final = frozenset({
+    "access_token",
+    "authorization",
+    "client_secret",
+    "client_secret_data",
+    "credential",
+    "credentials",
+    "password",
+    "private_key",
+    "private_key_data",
+    "refresh_token",
+    "secret",
+    "secret_key_ref",
+    "service_account_key",
+    "token",
+    "value_source",
+})
+_CUSTOM_ROLE_NAME = re.compile(
+    rf"projects/{re.escape(PROJECT)}/roles/[A-Za-z0-9_.]{{3,64}}"
+)
+_IAM_PREFIX_CLAUSE = re.compile(
+    r"resource\.name\.startsWith\((?:\"([^\"]+)\"|'([^']+)')\)"
+)
+_IAM_EQUALITY_CLAUSE = re.compile(
+    r"resource\.name\s*==\s*(?:\"([^\"]+)\"|'([^']+)')"
+)
+
+
+class _TracingReadStore:
+    """Trace and, once bootstrapped, enforce every worker object GET.
+
+    The immutable contract and its IAM object have to be reopened before the
+    retained authority can be known.  ``authorize`` validates that bootstrap
+    trace, then makes every later read/read_generation/resolve_current fail
+    before delegation unless the exact retained identity (or a dynamic object
+    under the create-once output prefix) is authorized.
+    """
+
+    def __init__(self, storage: ObjectStore) -> None:
+        self._storage = storage
+        self._reads: dict[tuple[str, str], dict[str, object]] = {}
+        self._iam_evidence: Mapping[str, object] | None = None
+
+    def _record(self, identity: ObjectIdentity) -> None:
+        key = (identity.uri, identity.generation)
+        retained = self._reads.get(key)
+        if retained is not None and retained != identity.as_dict():
+            raise CorpusParametricTransportError(
+                "one traced object generation has conflicting identities"
+            )
+        self._reads[key] = identity.as_dict()
+
+    def _required_identity(self, *, uri: str, generation: str) -> ObjectIdentity | None:
+        if self._iam_evidence is None:
+            return None
+        matches = [
+            object_identity(row, label="authorized runtime identity")
+            for row in _sequence(
+                self._iam_evidence["required_input_identities"],
+                label="authorized runtime inputs",
+            )
+            if isinstance(row, Mapping)
+            and row.get("uri") == uri
+            and row.get("generation") == generation
+        ]
+        if len(matches) > 1:
+            raise CorpusParametricTransportError(
+                "runtime IAM aliases one object generation"
+            )
+        return matches[0] if matches else None
+
+    def _output_prefix(self) -> str | None:
+        if self._iam_evidence is None:
+            return None
+        return _gcs_iam_prefix(
+            self._iam_evidence["output_prefix"],
+            label="authorized runtime output prefix",
+        )
+
+    def _authorize_exact(self, identity: ObjectIdentity) -> None:
+        if self._iam_evidence is None:
+            return
+        output = self._output_prefix()
+        assert output is not None
+        if identity.uri.startswith(output):
+            return
+        expected = self._required_identity(
+            uri=identity.uri, generation=identity.generation
+        )
+        if expected != identity:
+            raise CorpusParametricTransportError(
+                f"runtime GET is absent from exact retained inputs: {identity.uri}"
+            )
+
+    def _authorize_output_uri(self, uri: str, *, label: str) -> str:
+        retained = _gcs_uri(uri, label=label)
+        output = self._output_prefix()
+        if self._iam_evidence is not None and (
+            output is None or not retained.startswith(output)
+        ):
+            raise CorpusParametricTransportError(
+                f"runtime dynamic object is outside output prefix: {retained}"
+            )
+        return retained
+
+    def authorize(self, iam_evidence: Mapping[str, object]) -> None:
+        if self._iam_evidence is not None:
+            if self._iam_evidence != iam_evidence:
+                raise CorpusParametricTransportError(
+                    "runtime read authority cannot be replaced"
+                )
+            return
+        self._iam_evidence = iam_evidence
+        try:
+            _validate_observed_runtime_gets(
+                iam_evidence=iam_evidence,
+                observed_identities=self.identities(),
+            )
+        except Exception:
+            self._iam_evidence = None
+            raise
+
+    def read(self, identity: Mapping[str, object]) -> bytes:
+        normalized = object_identity(identity, label="traced GET identity")
+        self._authorize_exact(normalized)
+        raw = self._storage.read(normalized.as_dict())
+        _identity_matches_raw(normalized, raw, label="traced GET")
+        self._record(normalized)
+        return raw
+
+    def read_generation(self, *, uri: str, generation: str) -> bytes:
+        retained_uri = _gcs_uri(uri, label="traced generation GET URI")
+        retained_generation = _string(
+            generation, label="traced generation GET generation"
+        )
+        if _GENERATION.fullmatch(retained_generation) is None:
+            raise CorpusParametricTransportError(
+                "traced generation GET generation differs"
+            )
+        expected = self._required_identity(
+            uri=retained_uri, generation=retained_generation
+        )
+        output = self._output_prefix()
+        if self._iam_evidence is not None and expected is None and (
+            output is None or not retained_uri.startswith(output)
+        ):
+            raise CorpusParametricTransportError(
+                f"runtime generation GET is absent from retained inputs: {retained_uri}"
+            )
+        method = getattr(self._storage, "read_generation", None)
+        if not callable(method):
+            raise CorpusParametricTransportError(
+                "storage lacks exact-generation read"
+            )
+        raw = method(uri=retained_uri, generation=retained_generation)
+        identity = identity_for_bytes(
+            uri=retained_uri, generation=retained_generation, raw=raw
+        )
+        if expected is not None and identity != expected:
+            raise CorpusParametricTransportError(
+                "runtime generation GET bytes differ from retained identity"
+            )
+        self._record(identity)
+        return raw
+
+    def publish(
+        self, uri: str, raw: bytes, media_type: str = "application/json"
+    ) -> dict[str, object]:
+        retained_uri = self._authorize_output_uri(uri, label="runtime publish URI")
+        identity = object_identity(
+            self._storage.publish(retained_uri, raw, media_type),
+            label="runtime published identity",
+        )
+        _identity_matches_raw(identity, raw, label="runtime published object")
+        self._record(identity)
+        return identity.as_dict()
+
+    def publish_or_reopen(
+        self, uri: str, raw: bytes, media_type: str = "application/json"
+    ) -> dict[str, object]:
+        retained_uri = self._authorize_output_uri(
+            uri, label="runtime publish/reopen URI"
+        )
+        identity = object_identity(
+            self._storage.publish_or_reopen(retained_uri, raw, media_type),
+            label="runtime publish/reopen identity",
+        )
+        _identity_matches_raw(identity, raw, label="runtime publish/reopen object")
+        self._record(identity)
+        return identity.as_dict()
+
+    def resolve_current(self, uri: str) -> tuple[dict[str, object], bytes]:
+        retained_uri = self._authorize_output_uri(
+            uri, label="runtime current-object URI"
+        )
+        identity_raw, raw = self._storage.resolve_current(retained_uri)
+        identity = object_identity(identity_raw, label="runtime current identity")
+        if identity.uri != retained_uri:
+            raise CorpusParametricTransportError(
+                "runtime current-object URI alias differs"
+            )
+        _identity_matches_raw(identity, raw, label="runtime current object")
+        self._record(identity)
+        return identity.as_dict(), raw
+
+    def inventory(self, prefix: str) -> list[dict[str, object]]:
+        if self._iam_evidence is not None:
+            raise CorpusParametricTransportError(
+                "worker object inventory/LIST is forbidden"
+            )
+        return self._storage.inventory(prefix)
+
+    def identities(self) -> list[dict[str, object]]:
+        return sorted(self._reads.values(), key=_identity_key)
+
+    def validate_trace(self) -> None:
+        if self._iam_evidence is None:
+            raise CorpusParametricTransportError(
+                "runtime read trace was never authorized"
+            )
+        _validate_observed_runtime_gets(
+            iam_evidence=self._iam_evidence,
+            observed_identities=self.identities(),
+        )
+
+
+def _normalize_identity_set(
+    values: Sequence[object], *, label: str, reject_repeats: bool = True
+) -> list[dict[str, object]]:
+    result: dict[tuple[str, str], dict[str, object]] = {}
+    for ordinal, raw in enumerate(values):
+        identity = object_identity(raw, label=f"{label}[{ordinal}]").as_dict()
+        key = (str(identity["uri"]), str(identity["generation"]))
+        retained = result.get(key)
+        if retained is not None:
+            if retained != identity:
+                raise CorpusParametricTransportError(
+                    f"{label} aliases one object generation"
+                )
+            if reject_repeats:
+                raise CorpusParametricTransportError(f"{label} repeats")
+            continue
+        result[key] = identity
+    return sorted(result.values(), key=_identity_key)
+
+
+def _reject_credential_material(value: object, *, label: str) -> None:
+    if isinstance(value, Mapping):
+        for raw_key, child in value.items():
+            key = re.sub(
+                r"[^a-z0-9]+", "_",
+                re.sub(r"(?<!^)(?=[A-Z])", "_", str(raw_key)).lower(),
+            ).strip("_")
+            key_parts = frozenset(key.split("_"))
+            if (
+                key in _CREDENTIAL_KEYS
+                or key in {"access_key", "access_key_id", "api_key"}
+                or key_parts.intersection({
+                    "credential", "credentials", "password", "secret", "token",
+                })
+                or key.startswith("private_key")
+            ):
+                raise CorpusParametricTransportError(
+                    f"{label} contains forbidden credential material"
+                )
+            _reject_credential_material(child, label=label)
+    elif type(value) is list:
+        for child in value:
+            _reject_credential_material(child, label=label)
+
+
+def _gcs_iam_prefix(value: object, *, label: str) -> str:
+    prefix = _gcs_uri(value, label=label, prefix=True)
+    name = prefix.removeprefix("gs://").split("/", 1)[1]
+    parts = [part for part in name.split("/") if part]
+    if not parts or any(part in {".", ".."} for part in parts):
+        raise CorpusParametricTransportError(
+            f"{label} must be a narrow object prefix, not a bucket root"
+        )
+    return prefix
+
+
+def _resource_prefix(prefix: str) -> str:
+    retained = _gcs_iam_prefix(prefix, label="IAM resource prefix")
+    bucket, name = retained.removeprefix("gs://").split("/", 1)
+    return f"projects/_/buckets/{bucket}/objects/{name}"
+
+
+def _resource_name(uri: str) -> str:
+    retained = _gcs_uri(uri, label="IAM exact object")
+    bucket, name = retained.removeprefix("gs://").split("/", 1)
+    return f"projects/_/buckets/{bucket}/objects/{name}"
+
+
+def _condition_grants(
+    value: object, *, label: str
+) -> tuple[frozenset[str], frozenset[str]]:
+    expression = _string(value, label=label)
+    prefixes: list[str] = []
+    exact_objects: list[str] = []
+    for ordinal, raw_clause in enumerate(expression.split("||")):
+        clause = raw_clause.strip()
+        prefix_match = _IAM_PREFIX_CLAUSE.fullmatch(clause)
+        equality_match = _IAM_EQUALITY_CLAUSE.fullmatch(clause)
+        if prefix_match is None and equality_match is None:
+            raise CorpusParametricTransportError(
+                f"{label} clause[{ordinal}] is not one exact read authority"
+            )
+        match = prefix_match or equality_match
+        assert match is not None
+        target = match.group(1) or match.group(2)
+        collection = prefixes if prefix_match is not None else exact_objects
+        if target in collection:
+            raise CorpusParametricTransportError(
+                f"{label} repeats a read authority"
+            )
+        collection.append(target)
+    if not prefixes and not exact_objects:
+        raise CorpusParametricTransportError(f"{label} has no authority")
+    return frozenset(prefixes), frozenset(exact_objects)
+
+
+def _policy_bindings(value: object, *, label: str) -> list[Mapping[str, object]]:
+    policy = _mapping(value, label=label)
+    bindings = policy.get("bindings", [])
+    if type(bindings) is not list or any(
+        not isinstance(binding, Mapping) for binding in bindings
+    ):
+        raise CorpusParametricTransportError(f"{label} bindings differ")
+    etag = policy.get("etag")
+    version = policy.get("version")
+    if type(etag) is not str or not etag or type(version) is not int:
+        raise CorpusParametricTransportError(
+            f"{label} lacks retained etag/version"
+        )
+    return list(bindings)
+
+
+def _binding_members(value: Mapping[str, object], *, label: str) -> list[str]:
+    members = value.get("members", [])
+    if type(members) is not list or any(
+        type(member) is not str or not member for member in members
+    ):
+        raise CorpusParametricTransportError(f"{label} members differ")
+    if len(members) != len(set(members)):
+        raise CorpusParametricTransportError(f"{label} repeats a member")
+    return list(members)
+
+
+def _reject_public_members(
+    bindings: Sequence[Mapping[str, object]], *, label: str
+) -> None:
+    for ordinal, binding in enumerate(bindings):
+        members = _binding_members(binding, label=f"{label}[{ordinal}]")
+        if _PUBLIC_IAM_MEMBERS.intersection(members):
+            raise CorpusParametricTransportError(
+                f"{label} grants forbidden public access"
+            )
+
+
+def _normalize_read_prefixes(value: object) -> list[str]:
+    rows = _sequence(value, label="runtime IAM read prefixes")
+    prefixes = [
+        _gcs_iam_prefix(row, label=f"runtime IAM read prefix[{ordinal}]")
+        for ordinal, row in enumerate(rows)
+    ]
+    if prefixes != sorted(prefixes) or len(prefixes) != len(set(prefixes)):
+        raise CorpusParametricTransportError(
+            "runtime IAM read prefixes are not unique and sorted"
+        )
+    for ordinal, first in enumerate(prefixes):
+        for second in prefixes[ordinal + 1:]:
+            if first.startswith(second) or second.startswith(first):
+                raise CorpusParametricTransportError(
+                    "runtime IAM read prefixes overlap"
+                )
+    return prefixes
+
+
+def _validate_custom_roles(
+    value: object,
+) -> tuple[list[dict[str, object]], str, str]:
+    rows = _sequence(value, label="runtime custom role definitions")
+    normalized: list[dict[str, object]] = []
+    permission_to_name: dict[str, str] = {}
+    for ordinal, raw in enumerate(rows):
+        row = dict(_mapping(raw, label=f"custom role[{ordinal}]"))
+        name = _string(row.get("name"), label=f"custom role[{ordinal}].name")
+        permissions = row.get("includedPermissions")
+        if (
+            _CUSTOM_ROLE_NAME.fullmatch(name) is None
+            or row.get("stage") != "GA"
+            or row.get("deleted", False) is not False
+            or type(permissions) is not list
+            or len(permissions) != 1
+            or permissions[0] not in {
+                STORAGE_GET_PERMISSION, STORAGE_CREATE_PERMISSION,
+            }
+            or permissions[0] in permission_to_name
+        ):
+            raise CorpusParametricTransportError(
+                "runtime custom role is absent, disabled, repeated, or overbroad"
+            )
+        permission_to_name[str(permissions[0])] = name
+        normalized.append(row)
+    normalized.sort(key=lambda row: str(row["name"]))
+    if len(normalized) != 2 or set(permission_to_name) != {
+        STORAGE_GET_PERMISSION, STORAGE_CREATE_PERMISSION,
+    }:
+        raise CorpusParametricTransportError(
+            "runtime requires exact GET-only and CREATE-only custom roles"
+        )
+    if list(rows) != normalized:
+        raise CorpusParametricTransportError(
+            "runtime custom role definitions are not sorted"
+        )
+    return (
+        normalized,
+        permission_to_name[STORAGE_GET_PERMISSION],
+        permission_to_name[STORAGE_CREATE_PERMISSION],
+    )
+
+
+def _validate_runtime_policies(
+    *,
+    project_policy: object,
+    custom_role_definitions: object,
+    bucket_policies: object,
+    bucket_metadata: object,
+    service_account: str,
+    required_inputs: Sequence[Mapping[str, object]],
+    read_prefixes: Sequence[str],
+    read_exact_identities: Sequence[Mapping[str, object]],
+    output_prefix: str,
+) -> tuple[list[dict[str, object]], list[dict[str, object]], list[dict[str, object]]]:
+    member = f"serviceAccount:{service_account}"
+    project_bindings = _policy_bindings(
+        project_policy, label="runtime project policy"
+    )
+    _reject_public_members(project_bindings, label="runtime project bindings")
+    if any(
+        member in _binding_members(binding, label="runtime project binding")
+        for binding in project_bindings
+    ):
+        raise CorpusParametricTransportError(
+            "runtime service account has a forbidden project-level role"
+        )
+
+    roles, read_role, create_role = _validate_custom_roles(
+        custom_role_definitions
+    )
+    output_bucket = output_prefix.removeprefix("gs://").split("/", 1)[0]
+    relevant_buckets = {
+        str(identity["uri"]).removeprefix("gs://").split("/", 1)[0]
+        for identity in required_inputs
+    } | {output_bucket}
+
+    metadata_rows = _sequence(bucket_metadata, label="runtime bucket metadata")
+    normalized_metadata: list[dict[str, object]] = []
+    observed_metadata: set[str] = set()
+    for ordinal, raw in enumerate(metadata_rows):
+        row = _mapping(raw, label=f"runtime bucket metadata[{ordinal}]")
+        _exact_keys(
+            row, frozenset({"bucket", "metadata"}),
+            label=f"runtime bucket metadata[{ordinal}]",
+        )
+        bucket = _string(row["bucket"], label="runtime metadata bucket")
+        if bucket in observed_metadata:
+            raise CorpusParametricTransportError("runtime bucket metadata repeats")
+        observed_metadata.add(bucket)
+        metadata = _mapping(row["metadata"], label=f"bucket {bucket} metadata")
+        iam = _mapping(
+            metadata.get("iamConfiguration"),
+            label=f"bucket {bucket} IAM configuration",
+        )
+        ubla = _mapping(
+            iam.get("uniformBucketLevelAccess"), label=f"bucket {bucket} UBLA"
+        )
+        if (
+            metadata.get("name") not in {
+                bucket, f"projects/_/buckets/{bucket}",
+            }
+            or ubla.get("enabled") is not True
+            or iam.get("publicAccessPrevention") != "enforced"
+        ):
+            raise CorpusParametricTransportError(
+                f"bucket {bucket} does not prove UBLA/PAP enforcement"
+            )
+        normalized_metadata.append({"bucket": bucket, "metadata": dict(metadata)})
+    if (
+        observed_metadata != relevant_buckets
+        or normalized_metadata != sorted(
+            normalized_metadata, key=lambda row: str(row["bucket"])
+        )
+    ):
+        raise CorpusParametricTransportError(
+            "runtime bucket metadata census is incomplete, extra, or unsorted"
+        )
+
+    policy_rows = _sequence(bucket_policies, label="runtime bucket policies")
+    normalized_policies: list[dict[str, object]] = []
+    observed_policies: set[str] = set()
+    for ordinal, raw in enumerate(policy_rows):
+        row = _mapping(raw, label=f"runtime bucket policy[{ordinal}]")
+        _exact_keys(
+            row, frozenset({"bucket", "policy"}),
+            label=f"runtime bucket policy[{ordinal}]",
+        )
+        bucket = _string(row["bucket"], label="runtime policy bucket")
+        if bucket in observed_policies:
+            raise CorpusParametricTransportError("runtime bucket policy repeats")
+        observed_policies.add(bucket)
+        policy = _mapping(row["policy"], label=f"bucket {bucket} policy")
+        bindings = _policy_bindings(policy, label=f"bucket {bucket} policy")
+        if policy.get("version") != 3:
+            raise CorpusParametricTransportError(
+                f"bucket {bucket} policy must retain conditional policy v3"
+            )
+        _reject_public_members(bindings, label=f"bucket {bucket} bindings")
+        account_roles: dict[
+            str, tuple[frozenset[str], frozenset[str]]
+        ] = {}
+        for binding_ordinal, binding in enumerate(bindings):
+            members = _binding_members(
+                binding,
+                label=f"bucket {bucket} binding[{binding_ordinal}]",
+            )
+            if member not in members:
+                continue
+            if members != [member]:
+                raise CorpusParametricTransportError(
+                    "runtime bucket binding is not principal-exact"
+                )
+            role = _string(binding.get("role"), label="runtime bucket role")
+            if role not in {read_role, create_role} or role in account_roles:
+                raise CorpusParametricTransportError(
+                    "runtime bucket role is repeated, predefined, or overbroad"
+                )
+            condition = _mapping(
+                binding.get("condition"), label="runtime bucket condition"
+            )
+            if set(condition) - {"title", "description", "expression"}:
+                raise CorpusParametricTransportError(
+                    "runtime bucket IAM condition fields differ"
+                )
+            expected_title = (
+                RUNTIME_READ_CONDITION_TITLE
+                if role == read_role
+                else RUNTIME_CREATE_CONDITION_TITLE
+            )
+            if condition.get("title") != expected_title:
+                raise CorpusParametricTransportError(
+                    "runtime bucket IAM condition title differs"
+                )
+            account_roles[role] = _condition_grants(
+                condition.get("expression"), label="runtime bucket condition"
+            )
+        expected_roles = {
+            read_role: (
+                frozenset(
+                    _resource_prefix(prefix)
+                    for prefix in read_prefixes
+                    if prefix.startswith(f"gs://{bucket}/")
+                ),
+                frozenset(
+                    _resource_name(str(identity["uri"]))
+                    for identity in read_exact_identities
+                    if str(identity["uri"]).startswith(f"gs://{bucket}/")
+                ),
+            )
+        }
+        if bucket == output_bucket:
+            expected_roles[create_role] = (
+                frozenset({_resource_prefix(output_prefix)}),
+                frozenset(),
+            )
+        if (
+            not any(expected_roles[read_role])
+            or account_roles != expected_roles
+        ):
+            raise CorpusParametricTransportError(
+                f"bucket {bucket} exact GET/CREATE conditions differ"
+            )
+        normalized_policies.append({"bucket": bucket, "policy": dict(policy)})
+    if (
+        observed_policies != relevant_buckets
+        or normalized_policies != sorted(
+            normalized_policies, key=lambda row: str(row["bucket"])
+        )
+    ):
+        raise CorpusParametricTransportError(
+            "runtime bucket policy census is incomplete, extra, or unsorted"
+        )
+    return roles, normalized_policies, normalized_metadata
+
+
+def _validate_input_prefix_coverage(
+    *,
+    required_inputs: Sequence[Mapping[str, object]],
+    read_prefixes: Sequence[str],
+    read_exact_identities: Sequence[Mapping[str, object]],
+    output_prefix: str,
+) -> None:
+    if output_prefix not in read_prefixes:
+        raise CorpusParametricTransportError(
+            "runtime output prefix lacks exact GET authority"
+        )
+    usage = {prefix: 0 for prefix in read_prefixes}
+    exact = {
+        str(identity["uri"]): _identity_key(identity)
+        for identity in read_exact_identities
+    }
+    if len(exact) != len(read_exact_identities):
+        raise CorpusParametricTransportError("runtime exact read URIs repeat")
+    for identity in required_inputs:
+        uri = str(identity["uri"])
+        prefix_matches = [
+            prefix for prefix in read_prefixes if uri.startswith(prefix)
+        ]
+        exact_match = int(uri in exact)
+        if len(prefix_matches) + exact_match != 1:
+            raise CorpusParametricTransportError(
+                f"required runtime GET is not covered exactly once: {uri}"
+            )
+        if prefix_matches:
+            usage[prefix_matches[0]] += 1
+        elif exact[uri] != _identity_key(identity):
+            raise CorpusParametricTransportError(
+                "runtime exact read identity differs"
+            )
+    if any(count == 0 for count in usage.values()):
+        raise CorpusParametricTransportError(
+            "runtime IAM includes an unused read prefix"
+        )
+
+
+def _derive_exact_read_identities(
+    required_inputs: Sequence[Mapping[str, object]],
+    read_prefixes: Sequence[str],
+) -> list[dict[str, object]]:
+    return _normalize_identity_set(
+        [
+            identity for identity in required_inputs
+            if not any(
+                str(identity["uri"]).startswith(prefix)
+                for prefix in read_prefixes
+            )
+        ],
+        label="derived exact read identities",
+        reject_repeats=False,
+    )
+
+
+def _normalize_read_prefix_authorities(value: object) -> list[dict[str, object]]:
+    rows = _sequence(value, label="read prefix authorities")
+    normalized: list[dict[str, object]] = []
+    for ordinal, raw in enumerate(rows):
+        row = _mapping(raw, label=f"read prefix authority[{ordinal}]")
+        _exact_keys(
+            row,
+            frozenset({"authority", "claim_identity", "prefixes"}),
+            label=f"read prefix authority[{ordinal}]",
+        )
+        prefixes = sorted(
+            _gcs_iam_prefix(
+                prefix,
+                label=f"read prefix authority[{ordinal}] prefix",
+            )
+            for prefix in _sequence(
+                row["prefixes"], label="read prefix authority prefixes"
+            )
+        )
+        normalized.append({
+            "authority": _string(
+                row["authority"], label="read prefix authority name"
+            ),
+            "claim_identity": object_identity(
+                row["claim_identity"], label="read prefix claim identity"
+            ).as_dict(),
+            "prefixes": prefixes,
+        })
+    normalized.sort(key=lambda row: str(row["authority"]))
+    if [row["authority"] for row in normalized] != [
+        "foundation", "retrieval-task0", "source-publication",
+    ]:
+        raise CorpusParametricTransportError(
+            "read prefix authority census differs"
+        )
+    flattened = [
+        str(prefix) for row in normalized for prefix in row["prefixes"]
+    ]
+    _normalize_read_prefixes(sorted(flattened))
+    return normalized
+
+
+def _cloud_asset_results(value: object, *, identity: str) -> list[object]:
+    response = _mapping(value, label=f"Cloud Asset analysis for {identity}")
+    main = _mapping(
+        response.get("mainAnalysis"),
+        label=f"Cloud Asset main analysis for {identity}",
+    )
+    expected_query = {
+        "identitySelector": {"identity": identity},
+        "options": _CLOUD_ASSET_OPTIONS,
+        "scope": f"projects/{PROJECT}",
+    }
+    def has_errors(row: Mapping[str, object]) -> bool:
+        return any(
+            "error" in re.sub(
+                r"[^a-z0-9]+", "_",
+                re.sub(r"(?<!^)(?=[A-Z])", "_", str(key)).lower(),
+            )
+            and child not in (None, [], {})
+            for key, child in row.items()
+        )
+    if (
+        response.get("fullyExplored") is not True
+        or main.get("fullyExplored") is not True
+        or main.get("analysisQuery") != expected_query
+        or response.get("nonCriticalErrors", []) != []
+        or main.get("nonCriticalErrors", []) != []
+        or response.get("groupEdges", []) != []
+        or response.get("resourceEdges", []) != []
+        or main.get("groupEdges", []) != []
+        or main.get("resourceEdges", []) != []
+        or has_errors(response)
+        or has_errors(main)
+    ):
+        raise CorpusParametricTransportError(
+            f"Cloud Asset analysis for {identity} is incomplete or differs"
+        )
+    return list(_sequence(
+        main.get("analysisResults", []),
+        label=f"Cloud Asset results for {identity}",
+    ))
+
+
+def _cloud_asset_grant(
+    value: object, *, member: str
+) -> tuple[
+    str, str, str, frozenset[str], frozenset[str], frozenset[str]
+]:
+    result = _mapping(value, label="Cloud Asset runtime result")
+    binding = _mapping(result.get("iamBinding"), label="Cloud Asset IAM binding")
+    members = list(_sequence(
+        binding.get("members"), label="Cloud Asset binding members"
+    ))
+    identities = _mapping(
+        result.get("identityList"), label="Cloud Asset identity list"
+    )
+    names = [
+        _string(
+            _mapping(row, label="Cloud Asset identity").get("name"),
+            label="Cloud Asset identity name",
+        )
+        for row in _sequence(
+            identities.get("identities"), label="Cloud Asset identities"
+        )
+    ]
+    if (
+        identities.get("groupEdges", []) != []
+        or identities.get("resourceEdges", []) != []
+        or result.get("resourceEdges", []) != []
+        or any(
+            "error" in re.sub(
+                r"[^a-z0-9]+", "_",
+                re.sub(r"(?<!^)(?=[A-Z])", "_", str(key)).lower(),
+            )
+            and child not in (None, [], {})
+            for key, child in result.items()
+        )
+    ):
+        raise CorpusParametricTransportError(
+            "Cloud Asset runtime grant is inherited or contains errors"
+        )
+    role = _string(binding.get("role"), label="Cloud Asset role")
+    attached = _string(
+        result.get("attachedResourceFullName"),
+        label="Cloud Asset attached resource",
+    )
+    condition = _mapping(
+        binding.get("condition"), label="Cloud Asset binding condition"
+    )
+    title = _string(
+        condition.get("title"), label="Cloud Asset condition title"
+    )
+    prefixes, exact_objects = _condition_grants(
+        condition.get("expression"),
+        label="Cloud Asset condition expression",
+    )
+    observed_role = False
+    permissions: set[str] = set()
+    access_lists = _sequence(
+        result.get("accessControlLists"), label="Cloud Asset access lists"
+    )
+    for raw_acl in access_lists:
+        acl = _mapping(raw_acl, label="Cloud Asset access list")
+        resources = _sequence(
+            acl.get("resources"), label="Cloud Asset access resources"
+        )
+        resource_names = {
+            _string(
+                _mapping(resource, label="Cloud Asset resource").get(
+                    "fullResourceName"
+                ),
+                label="Cloud Asset resource name",
+            )
+            for resource in resources
+        }
+        if resource_names != {attached}:
+            raise CorpusParametricTransportError(
+                "Cloud Asset effective resource differs"
+            )
+        for raw_access in _sequence(
+            acl.get("accesses"), label="Cloud Asset accesses"
+        ):
+            access = _mapping(raw_access, label="Cloud Asset access")
+            if set(access) == {"role"} and access["role"] == role:
+                observed_role = True
+            elif set(access) == {"permission"}:
+                permissions.add(_string(
+                    access["permission"],
+                    label="Cloud Asset expanded permission",
+                ))
+            else:
+                raise CorpusParametricTransportError(
+                    "Cloud Asset expanded capability differs"
+                )
+        evaluation = _mapping(
+            acl.get("conditionEvaluation"),
+            label="Cloud Asset condition evaluation",
+        )
+        if evaluation.get("evaluationValue") != "CONDITIONAL":
+            raise CorpusParametricTransportError(
+                "Cloud Asset conditional grant evaluation differs"
+            )
+    if (
+        result.get("fullyExplored") is not True
+        or result.get("nonCriticalErrors", []) != []
+        or members != [member]
+        or names != [member]
+        or not observed_role
+        or not permissions
+    ):
+        raise CorpusParametricTransportError(
+            "Cloud Asset runtime identity expansion differs"
+        )
+    return (
+        role, attached, title, prefixes, exact_objects,
+        frozenset(permissions),
+    )
+
+
+def _validate_effective_access(
+    value: object,
+    *,
+    service_account: str,
+    custom_role_definitions: object,
+    read_prefixes: Sequence[str],
+    read_exact_identities: Sequence[Mapping[str, object]],
+    output_prefix: str,
+) -> None:
+    analyses = _mapping(value, label="effective-access analyses")
+    _exact_keys(
+        analyses,
+        frozenset({"runtime_identity", "all_users", "all_authenticated_users"}),
+        label="effective-access analyses",
+    )
+    _, read_role, create_role = _validate_custom_roles(
+        custom_role_definitions
+    )
+    member = f"serviceAccount:{service_account}"
+    observed = [
+        _cloud_asset_grant(row, member=member)
+        for row in _cloud_asset_results(
+            analyses["runtime_identity"], identity=member
+        )
+    ]
+    if len(observed) != len(set(observed)):
+        raise CorpusParametricTransportError(
+            "Cloud Asset effective grant repeats"
+        )
+    buckets = sorted({
+        str(identity["uri"]).removeprefix("gs://").split("/", 1)[0]
+        for identity in read_exact_identities
+    } | {
+        prefix.removeprefix("gs://").split("/", 1)[0]
+        for prefix in read_prefixes
+    })
+    output_bucket = output_prefix.removeprefix("gs://").split("/", 1)[0]
+    expected: set[tuple[
+        str, str, str, frozenset[str], frozenset[str], frozenset[str]
+    ]] = set()
+    for bucket in buckets:
+        expected.add((
+            read_role,
+            f"//storage.googleapis.com/{bucket}",
+            RUNTIME_READ_CONDITION_TITLE,
+            frozenset(
+                _resource_prefix(prefix)
+                for prefix in read_prefixes
+                if prefix.startswith(f"gs://{bucket}/")
+            ),
+            frozenset(
+                _resource_name(str(identity["uri"]))
+                for identity in read_exact_identities
+                if str(identity["uri"]).startswith(f"gs://{bucket}/")
+            ),
+            frozenset({STORAGE_GET_PERMISSION}),
+        ))
+        if bucket == output_bucket:
+            expected.add((
+                create_role,
+                f"//storage.googleapis.com/{bucket}",
+                RUNTIME_CREATE_CONDITION_TITLE,
+                frozenset({_resource_prefix(output_prefix)}),
+                frozenset(),
+                frozenset({STORAGE_CREATE_PERMISSION}),
+            ))
+    if set(observed) != expected:
+        raise CorpusParametricTransportError(
+            "Cloud Asset effective runtime access is incomplete or overbroad"
+        )
+    for key, identity in (
+        ("all_users", "allUsers"),
+        ("all_authenticated_users", "allAuthenticatedUsers"),
+    ):
+        if _cloud_asset_results(analyses[key], identity=identity):
+            raise CorpusParametricTransportError(
+                f"Cloud Asset public access exists for {identity}"
+            )
+
+
+def _validate_runtime_iam_capture(value: object) -> dict[str, object]:
+    item = dict(_mapping(value, label="runtime IAM policy capture"))
+    _exact_keys(
+        item, _RUNTIME_IAM_CAPTURE_KEYS, label="runtime IAM policy capture"
+    )
+    _validate_self_hash(
+        item, field="capture_sha256", label="runtime IAM policy capture"
+    )
+    _reject_credential_material(item, label="runtime IAM policy capture")
+    if item["schema_version"] != RUNTIME_IAM_CAPTURE_SCHEMA:
+        raise CorpusParametricTransportError(
+            "runtime IAM policy capture schema differs"
+        )
+    if item["project"] != PROJECT:
+        raise CorpusParametricTransportError(
+            "runtime IAM policy capture project differs"
+        )
+    _timestamp(item["captured_at_utc"], label="runtime IAM capture timestamp")
+    return item
+
+
+def build_runtime_iam_evidence(
+    *,
+    policy_capture: object,
+    service_account: str,
+    foundation_publication_identity: object,
+    batch_manifest_identity: object,
+    evidence_contract_identity: object,
+    retrieval_prerequisite_identity: object,
+    required_input_identities: Sequence[object],
+    manifest_input_identities: Sequence[object],
+    retrieval_replay_identities: Sequence[object],
+    read_prefix_authorities: Sequence[object],
+    output_prefix: str,
+) -> dict[str, object]:
+    """Build v3 evidence from retained IAM bodies without an IAM client."""
+    capture = _validate_runtime_iam_capture(policy_capture)
+    required_inputs = _normalize_identity_set(
+        required_input_identities,
+        label="runtime required input identities",
+        reject_repeats=False,
+    )
+    manifest_inputs = _normalize_identity_set(
+        manifest_input_identities,
+        label="runtime manifest input identities",
+        reject_repeats=False,
+    )
+    retrieval_inputs = _normalize_identity_set(
+        retrieval_replay_identities,
+        label="runtime retrieval replay identities",
+        reject_repeats=False,
+    )
+    prefix_authorities = _normalize_read_prefix_authorities(
+        read_prefix_authorities
+    )
+    read_prefixes = _normalize_read_prefixes(sorted(
+        str(prefix)
+        for authority in prefix_authorities
+        for prefix in authority["prefixes"]
+    ))
+    exact_reads = _derive_exact_read_identities(
+        required_inputs, read_prefixes
+    )
+    body = {
+        "schema_version": RUNTIME_IAM_EVIDENCE_SCHEMA,
+        "captured_at_utc": capture["captured_at_utc"],
+        "project": PROJECT,
+        "principal_scope": RUNTIME_PRINCIPAL_SCOPE,
+        "service_account": service_account,
+        "foundation_publication_identity": object_identity(
+            foundation_publication_identity,
+            label="runtime foundation publication",
+        ).as_dict(),
+        "batch_manifest_identity": object_identity(
+            batch_manifest_identity, label="runtime batch manifest"
+        ).as_dict(),
+        "evidence_contract_identity": object_identity(
+            evidence_contract_identity, label="runtime evidence contract"
+        ).as_dict(),
+        "retrieval_prerequisite_identity": object_identity(
+            retrieval_prerequisite_identity,
+            label="runtime retrieval prerequisite",
+        ).as_dict(),
+        "required_input_identities": required_inputs,
+        "required_input_identity_set_sha256": canonical_sha256(required_inputs),
+        "manifest_input_identity_set_sha256": canonical_sha256(manifest_inputs),
+        "retrieval_replay_identity_set_sha256": canonical_sha256(
+            retrieval_inputs
+        ),
+        "read_prefix_authorities": prefix_authorities,
+        "read_prefixes": read_prefixes,
+        "read_exact_identities": exact_reads,
+        "read_exact_identity_set_sha256": canonical_sha256(exact_reads),
+        "output_prefix": output_prefix,
+        "project_policy": capture["project_policy"],
+        "custom_role_definitions": capture["custom_role_definitions"],
+        "bucket_policies": capture["bucket_policies"],
+        "bucket_metadata": capture["bucket_metadata"],
+        "effective_access_analyses": capture["effective_access_analyses"],
+    }
+    result = _self_hash(body, field="iam_evidence_sha256")
+    validate_runtime_iam_evidence(
+        result,
+        service_account=service_account,
+        foundation_publication_identity=foundation_publication_identity,
+        batch_manifest_identity=batch_manifest_identity,
+        evidence_contract_identity=evidence_contract_identity,
+        retrieval_prerequisite_identity=retrieval_prerequisite_identity,
+        required_input_identities=required_inputs,
+        manifest_input_identities=manifest_inputs,
+        retrieval_replay_identities=retrieval_inputs,
+        read_prefix_authorities=prefix_authorities,
+        output_prefix=output_prefix,
+    )
+    return result
 
 
 def validate_runtime_iam_evidence(
     value: object,
     *,
     service_account: str,
-    input_identities: Sequence[object],
+    foundation_publication_identity: object,
+    batch_manifest_identity: object,
+    evidence_contract_identity: object,
+    retrieval_prerequisite_identity: object,
+    required_input_identities: Sequence[object],
+    manifest_input_identities: Sequence[object],
+    retrieval_replay_identities: Sequence[object],
+    read_prefix_authorities: Sequence[object],
     output_prefix: str,
 ) -> dict[str, object]:
     item = dict(_mapping(value, label="runtime IAM evidence"))
     _exact_keys(item, _RUNTIME_IAM_KEYS, label="runtime IAM evidence")
     _validate_self_hash(item, field="iam_evidence_sha256", label="runtime IAM")
-    normalized_inputs = sorted(
-        [object_identity(row, label="runtime IAM input").as_dict()
-         for row in input_identities],
-        key=_identity_key,
+    _reject_credential_material(item, label="runtime IAM evidence")
+    expected_required = _normalize_identity_set(
+        required_input_identities,
+        label="expected runtime inputs",
+        reject_repeats=False,
+    )
+    expected_manifest = _normalize_identity_set(
+        manifest_input_identities,
+        label="expected manifest inputs",
+        reject_repeats=False,
+    )
+    expected_retrieval = _normalize_identity_set(
+        retrieval_replay_identities,
+        label="expected retrieval replay inputs",
+        reject_repeats=False,
+    )
+    expected_authorities = _normalize_read_prefix_authorities(
+        read_prefix_authorities
+    )
+    retained_required = _normalize_identity_set(
+        _sequence(
+            item["required_input_identities"],
+            label="runtime IAM required inputs",
+        ),
+        label="runtime IAM required inputs",
+    )
+    read_prefixes = _normalize_read_prefixes(item["read_prefixes"])
+    expected_prefixes = _normalize_read_prefixes(sorted(
+        str(prefix)
+        for authority in expected_authorities
+        for prefix in authority["prefixes"]
+    ))
+    retained_exact = _normalize_identity_set(
+        _sequence(
+            item["read_exact_identities"],
+            label="runtime exact read identities",
+        ),
+        label="runtime exact read identities",
+    )
+    expected_exact = _derive_exact_read_identities(
+        expected_required, expected_prefixes
+    )
+    retained_output = _gcs_iam_prefix(
+        item["output_prefix"], label="runtime IAM output prefix"
     )
     if (
-        item["schema_version"] != "corpus-parametric-runtime-iam-evidence/v1"
+        item["schema_version"] != RUNTIME_IAM_EVIDENCE_SCHEMA
         or item["project"] != PROJECT
+        or item["principal_scope"] != RUNTIME_PRINCIPAL_SCOPE
         or item["service_account"] != service_account
         or _SERVICE_ACCOUNT.fullmatch(service_account) is None
-        or item["input_object_identity_set_sha256"]
-        != canonical_sha256(normalized_inputs)
-        or item["output_prefix"] != output_prefix
-        or item["all_input_gets_conditionally_authorized"] is not True
-        or item["output_get_create_conditionally_authorized"] is not True
-        or item["project_level_roles_absent"] is not True
-        or item["object_list_granted"] is not False
-        or item["object_delete_granted"] is not False
-        or item["bucket_uniform_access"] is not True
-        or item["public_access_prevention"] is not True
+        or item["foundation_publication_identity"]
+        != object_identity(
+            foundation_publication_identity,
+            label="expected foundation publication",
+        ).as_dict()
+        or item["batch_manifest_identity"]
+        != object_identity(
+            batch_manifest_identity, label="expected runtime manifest"
+        ).as_dict()
+        or item["evidence_contract_identity"]
+        != object_identity(
+            evidence_contract_identity, label="expected runtime evidence"
+        ).as_dict()
+        or item["retrieval_prerequisite_identity"]
+        != object_identity(
+            retrieval_prerequisite_identity,
+            label="expected runtime retrieval prerequisite",
+        ).as_dict()
+        or retained_required != expected_required
+        or item["required_input_identities"] != retained_required
+        or item["required_input_identity_set_sha256"]
+        != canonical_sha256(expected_required)
+        or item["manifest_input_identity_set_sha256"]
+        != canonical_sha256(expected_manifest)
+        or item["retrieval_replay_identity_set_sha256"]
+        != canonical_sha256(expected_retrieval)
+        or item["read_prefix_authorities"] != expected_authorities
+        or read_prefixes != expected_prefixes
+        or retained_exact != expected_exact
+        or item["read_exact_identities"] != retained_exact
+        or item["read_exact_identity_set_sha256"]
+        != canonical_sha256(expected_exact)
+        or retained_output
+        != _gcs_iam_prefix(output_prefix, label="expected runtime output")
     ):
         raise CorpusParametricTransportError(
-            "runtime IAM evidence is incomplete or overbroad"
+            "runtime IAM evidence identity graph differs"
         )
     _timestamp(item["captured_at_utc"], label="runtime IAM timestamp")
-    _gcs_uri(item["output_prefix"], label="runtime IAM output", prefix=True)
+    _validate_input_prefix_coverage(
+        required_inputs=retained_required,
+        read_prefixes=read_prefixes,
+        read_exact_identities=retained_exact,
+        output_prefix=retained_output,
+    )
+    _validate_runtime_policies(
+        project_policy=item["project_policy"],
+        custom_role_definitions=item["custom_role_definitions"],
+        bucket_policies=item["bucket_policies"],
+        bucket_metadata=item["bucket_metadata"],
+        service_account=service_account,
+        required_inputs=retained_required,
+        read_prefixes=read_prefixes,
+        read_exact_identities=retained_exact,
+        output_prefix=retained_output,
+    )
+    _validate_effective_access(
+        item["effective_access_analyses"],
+        service_account=service_account,
+        custom_role_definitions=item["custom_role_definitions"],
+        read_prefixes=read_prefixes,
+        read_exact_identities=retained_exact,
+        output_prefix=retained_output,
+    )
     return item
+
+
+def _validate_observed_runtime_gets(
+    *, iam_evidence: Mapping[str, object], observed_identities: Sequence[object]
+) -> None:
+    observed = _normalize_identity_set(
+        observed_identities, label="observed runtime GETs", reject_repeats=False
+    )
+    required = {
+        _identity_key(identity)
+        for identity in _sequence(
+            iam_evidence["required_input_identities"],
+            label="runtime IAM required inputs",
+        )
+    }
+    prefixes = _normalize_read_prefixes(iam_evidence["read_prefixes"])
+    exact_uris = {
+        str(identity["uri"])
+        for identity in _sequence(
+            iam_evidence["read_exact_identities"],
+            label="runtime IAM exact reads",
+        )
+    }
+    output_prefix = _gcs_iam_prefix(
+        iam_evidence["output_prefix"], label="runtime IAM output prefix"
+    )
+    for identity in observed:
+        uri = str(identity["uri"])
+        if (
+            sum(uri.startswith(prefix) for prefix in prefixes)
+            + int(uri in exact_uris)
+            != 1
+        ):
+            raise CorpusParametricTransportError(
+                f"observed runtime GET is not conditionally covered once: {uri}"
+            )
+        if not uri.startswith(output_prefix) and _identity_key(identity) not in required:
+            raise CorpusParametricTransportError(
+                f"observed external GET is absent from retained IAM evidence: {uri}"
+            )
 
 
 def _task_spec(value: Mapping[str, object]) -> Mapping[str, object]:
@@ -873,6 +2766,110 @@ def _outer_spec(value: Mapping[str, object]) -> Mapping[str, object]:
         )
     except (KeyError, TypeError) as exc:
         raise CorpusParametricTransportError("Cloud Run outer spec differs") from exc
+
+
+def _validate_job_template_boundary(value: Mapping[str, object]) -> None:
+    spec = _mapping(value.get("spec"), label="parked job spec")
+    _exact_keys(spec, frozenset({"template"}), label="parked job spec")
+    template = _mapping(spec.get("template"), label="parked job template")
+    if frozenset(template) not in {
+        frozenset({"spec"}), frozenset({"metadata", "spec"}),
+    }:
+        raise CorpusParametricTransportError(
+            "parked job template fields differ"
+        )
+    if "metadata" not in template:
+        return
+    metadata = _mapping(
+        template["metadata"], label="parked job template metadata"
+    )
+    if frozenset(metadata) - {"annotations", "labels"}:
+        raise CorpusParametricTransportError(
+            "parked job template metadata fields differ"
+        )
+    annotations = _mapping(
+        metadata.get("annotations", {}),
+        label="parked job template annotations",
+    )
+    allowed_annotations = {
+        "run.googleapis.com/client-name",
+        "run.googleapis.com/client-version",
+        "run.googleapis.com/execution-environment",
+    }
+    if set(annotations) - allowed_annotations:
+        raise CorpusParametricTransportError(
+            "parked job inherited annotations are forbidden"
+        )
+    if annotations and (
+        annotations.get("run.googleapis.com/client-name") != "gcloud"
+        or annotations.get("run.googleapis.com/execution-environment") != "gen2"
+        or re.fullmatch(
+            r"[0-9]+(?:\.[0-9]+){2}",
+            str(annotations.get("run.googleapis.com/client-version", "")),
+        ) is None
+    ):
+        raise CorpusParametricTransportError(
+            "parked job safe annotations differ"
+        )
+    labels = _mapping(
+        metadata.get("labels", {}), label="parked job template labels"
+    )
+    if set(labels) - {"client.knative.dev/nonce"}:
+        raise CorpusParametricTransportError(
+            "parked job inherited labels/tags are forbidden"
+        )
+    if labels and (
+        type(labels.get("client.knative.dev/nonce")) is not str
+        or not labels["client.knative.dev/nonce"]
+    ):
+        raise CorpusParametricTransportError("parked job nonce differs")
+
+
+def _validate_task_attachment_boundary(
+    task: Mapping[str, object], container: Mapping[str, object]
+) -> None:
+    allowed_task = {
+        "containers", "maxRetries", "serviceAccountName", "timeoutSeconds",
+        "volumes",
+    }
+    required_task = allowed_task - {"volumes"}
+    allowed_container = {
+        "args", "command", "env", "image", "resources", "volumeMounts",
+    }
+    required_container = allowed_container - {"volumeMounts"}
+    forbidden_task = {
+        "cloudSqlInstances", "network", "networkInterfaces", "tags",
+        "vpcAccess", "vpcConnector", "vpcEgress",
+    }
+    forbidden_container = {
+        "livenessProbe", "ports", "startupProbe", "workingDir",
+    }
+    if (
+        required_task - set(task)
+        or set(task) - allowed_task
+        or forbidden_task.intersection(task)
+    ):
+        raise CorpusParametricTransportError(
+            "parked job retains network/VPC/Cloud SQL/tags"
+        )
+    if (
+        required_container - set(container)
+        or set(container) - allowed_container
+        or forbidden_container.intersection(container)
+    ):
+        raise CorpusParametricTransportError(
+            "parked container retains probes/workdir/ports"
+        )
+    if task.get("volumes", []) != [] or container.get("volumeMounts", []) != []:
+        raise CorpusParametricTransportError(
+            "parked job retains volumes or mounts"
+        )
+    resources = _mapping(
+        container.get("resources", {}), label="parked resources"
+    )
+    _exact_keys(
+        resources, frozenset({"limits"}), label="parked resource fields"
+    )
 
 
 def _container_environment(container: Mapping[str, object]) -> dict[str, str]:
@@ -898,14 +2895,24 @@ def job_identity(value: object, *, label: str = "job") -> dict[str, str]:
     name = _string(metadata.get("name"), label=f"{label}.name")
     if _JOB.fullmatch(name) is None:
         raise CorpusParametricTransportError(f"{label} name differs")
-    generation = _string(metadata.get("generation"), label=f"{label}.generation")
-    observed = _string(
-        status.get("observedGeneration"), label=f"{label}.observedGeneration"
+    def retained_generation(raw: object, *, field: str) -> str:
+        if type(raw) is int and raw >= 0:
+            result = str(raw)
+        else:
+            result = _string(raw, label=f"{label}.{field}")
+        if _GENERATION.fullmatch(result) is None:
+            raise CorpusParametricTransportError(f"{label}.{field} differs")
+        return result
+
+    generation = retained_generation(
+        metadata.get("generation"), field="generation"
+    )
+    observed = retained_generation(
+        status.get("observedGeneration"), field="observedGeneration"
     )
     conditions = status.get("conditions")
     if (
-        _GENERATION.fullmatch(generation) is None
-        or observed != generation
+        observed != generation
         or type(conditions) is not list
         or not any(
             isinstance(row, Mapping)
@@ -982,6 +2989,80 @@ def validate_scheduler_census(
             raise CorpusParametricTransportError("scheduler targets reused job")
 
 
+def _build_step_commands(value: object) -> list[tuple[str, ...]]:
+    commands: list[tuple[str, ...]] = []
+
+    def retain(segment: list[str]) -> None:
+        if not segment:
+            return
+        # Output suppression does not alter the executed argv.  Cloud Build
+        # retains this shell token even though it is not passed to the process.
+        if segment[-1] in {">/dev/null", "1>/dev/null"}:
+            segment = segment[:-1]
+        if not segment:
+            raise CorpusParametricTransportError(
+                "build validation step contains only a redirection"
+            )
+        if segment[0] in _FORBIDDEN_BUILD_SHELL_COMMANDS:
+            raise CorpusParametricTransportError(
+                "build validation steps may not mutate or mask shell state"
+            )
+        command = tuple(segment)
+        if command in commands:
+            raise CorpusParametricTransportError(
+                "build validation command repeats"
+            )
+        commands.append(command)
+
+    for ordinal, raw in enumerate(_sequence(value, label="build steps")):
+        row = _mapping(raw, label=f"build step[{ordinal}]")
+        args = _sequence(row.get("args", []), label=f"build step[{ordinal}].args")
+        if (
+            row.get("entrypoint") != "bash"
+            or list(args[:1]) != ["-ceu"]
+            or len(args) != 2
+            or any(type(argument) is not str for argument in args)
+        ):
+            raise CorpusParametricTransportError("build step args differ")
+        script = str(args[1]).replace("\\\n", " ")
+        lexer = shlex.shlex(
+            script.replace("\n", ";"),
+            posix=True,
+            punctuation_chars=";&|()",
+        )
+        lexer.whitespace_split = True
+        lexer.commenters = "#"
+        try:
+            tokens = list(lexer)
+        except ValueError as exc:
+            raise CorpusParametricTransportError(
+                "build step shell syntax differs"
+            ) from exc
+        segment: list[str] = []
+        for token in tokens:
+            if token and set(token) <= set(";&|()"):
+                if token != ";":
+                    raise CorpusParametricTransportError(
+                        "build validation steps may not mask or branch failures"
+                    )
+                retain(segment)
+                segment = []
+            else:
+                segment.append(token)
+        retain(segment)
+    return commands
+
+
+def _materialized_required_build_commands(
+    image_tag: str,
+) -> tuple[tuple[str, ...], ...]:
+    """Return the argv Cloud Build retains after substituting ``${_IMAGE}``."""
+    return tuple(
+        tuple(image_tag if token == "${_IMAGE}" else token for token in command)
+        for command in REQUIRED_BUILD_COMMANDS
+    )
+
+
 def validate_build_metadata(
     value: object,
     *,
@@ -999,12 +3080,22 @@ def validate_build_metadata(
     ):
         raise CorpusParametricTransportError("immutable build identity differs")
     try:
-        requested = item["source"]["gitSource"]  # type: ignore[index]
-        resolved = item["sourceProvenance"]["resolvedGitSource"]  # type: ignore[index]
+        source = _mapping(item["source"], label="build source")
+        provenance = _mapping(
+            item["sourceProvenance"], label="build source provenance"
+        )
+        requested = _mapping(source["gitSource"], label="build Git source")
+        resolved = _mapping(
+            provenance["resolvedGitSource"], label="resolved build Git source"
+        )
     except (KeyError, TypeError) as exc:
         raise CorpusParametricTransportError("direct-Git provenance is absent") from exc
     if (
-        requested.get("revision") != code_sha
+        frozenset(source) != frozenset({"gitSource"})
+        or frozenset(provenance) != frozenset({"resolvedGitSource"})
+        or frozenset(requested) != frozenset({"revision", "url"})
+        or frozenset(resolved) != frozenset({"revision", "url"})
+        or requested.get("revision") != code_sha
         or resolved.get("revision") != code_sha
         or requested.get("url") != EXPECTED_CODE_REPOSITORY
         or resolved.get("url") != EXPECTED_CODE_REPOSITORY
@@ -1014,19 +3105,108 @@ def validate_build_metadata(
     results = item.get("results", {})
     images = results.get("images", []) if isinstance(results, Mapping) else []
     steps = item.get("steps")
+    substitutions = item.get("substitutions", {})
+    image_tag = (
+        substitutions.get("_IMAGE")
+        if isinstance(substitutions, Mapping)
+        else None
+    )
+    options = item.get("options")
+    artifacts = item.get("artifacts")
     if (
         type(images) is not list
-        or not any(isinstance(row, Mapping) and row.get("digest") == digest for row in images)
+        or type(image_tag) is not str
+        or not image_tag
+        or substitutions != {"_IMAGE": image_tag}
+        or item.get("images") != [image_tag]
+        or not isinstance(artifacts, Mapping)
+        or artifacts != {"images": [image_tag]}
+        or item.get("timeout") != "10800s"
+        or not isinstance(options, Mapping)
+        or options != {
+            "logging": "LEGACY", "machineType": "E2_HIGHCPU_8", "pool": {},
+        }
+        or len(images) != 1
+        or not any(
+            isinstance(row, Mapping)
+            and row.get("digest") == digest
+            and row.get("name") == image_tag
+            for row in images
+        )
         or type(steps) is not list
         or not steps
         or any(
             not isinstance(row, Mapping)
             or row.get("status") != "SUCCESS"
-            or int(row.get("exitCode", 0) or 0) != 0
+            or (
+                row.get("exitCode") is not None
+                and (
+                    type(row.get("exitCode")) is not int
+                    or row.get("exitCode") != 0
+                )
+            )
             for row in steps
         )
     ):
         raise CorpusParametricTransportError("build image/steps differ")
+    by_id: dict[str, Mapping[str, object]] = {}
+    for ordinal, raw in enumerate(steps):
+        row = _mapping(raw, label=f"build step[{ordinal}]")
+        if frozenset(row) - _ALLOWED_RETAINED_BUILD_STEP_KEYS:
+            raise CorpusParametricTransportError(
+                f"build step[{ordinal}] retains unbound execution fields"
+            )
+        step_id = _string(row.get("id"), label=f"build step[{ordinal}].id")
+        if step_id in by_id:
+            raise CorpusParametricTransportError("build step ID repeats")
+        by_id[step_id] = row
+    if list(by_id) != list(EXPECTED_BUILD_STEPS):
+        raise CorpusParametricTransportError(
+            "required build step census/order differs"
+        )
+    for step_id, (expected_builder, expected_entrypoint) in EXPECTED_BUILD_STEPS.items():
+        row = by_id.get(step_id)
+        if (
+            row is None
+            or row.get("name") != expected_builder
+            or str(row.get("entrypoint", "")) != expected_entrypoint
+        ):
+            raise CorpusParametricTransportError(
+                f"required build step spec differs: {step_id}"
+            )
+    required_positions = [
+        next(
+            ordinal for ordinal, raw in enumerate(steps)
+            if isinstance(raw, Mapping) and raw.get("id") == step_id
+        )
+        for step_id in EXPECTED_BUILD_STEPS
+    ]
+    if (
+        required_positions[:2] != [0, 1]
+        or required_positions[2] != len(steps) - 1
+    ):
+        raise CorpusParametricTransportError(
+            "required build step order differs"
+        )
+    if list(by_id["build-image"].get("args", [])) != [
+        "build", "-t", image_tag, ".",
+    ]:
+        raise CorpusParametricTransportError("immutable image build argv differs")
+    full_commands = _build_step_commands([by_id["full-test-suite"]])
+    smoke_commands = _build_step_commands([
+        by_id["smoke-corpus-parametric-expansion"]
+    ])
+    materialized_commands = _materialized_required_build_commands(image_tag)
+    required_full = list(materialized_commands[:3])
+    required_smoke = list(materialized_commands[3:])
+    if (
+        full_commands
+        != [*REQUIRED_FULL_TEST_SETUP_COMMANDS, *required_full]
+        or smoke_commands != required_smoke
+    ):
+        raise CorpusParametricTransportError(
+            "parametric expansion build smokes are absent or not exact"
+        )
     return {
         "build_id": build_id,
         "code_repository": EXPECTED_CODE_REPOSITORY,
@@ -1045,12 +3225,24 @@ def validate_parked_job(
 ) -> dict[str, str]:
     item = _mapping(value, label="parked job")
     identity = job_identity(item, label="parked job")
+    _validate_job_template_boundary(item)
     outer = _outer_spec(item)
+    _exact_keys(
+        outer,
+        frozenset({"taskCount", "parallelism", "template"}),
+        label="parked job outer spec",
+    )
+    _exact_keys(
+        _mapping(outer.get("template"), label="parked task template"),
+        frozenset({"spec"}),
+        label="parked task template",
+    )
     task = _task_spec(item)
     containers = task.get("containers")
     if type(containers) is not list or len(containers) != 1:
         raise CorpusParametricTransportError("parked container differs")
     container = _mapping(containers[0], label="parked container")
+    _validate_task_attachment_boundary(task, container)
     expected_env = {
         ENABLE_ENV: "1",
         IMAGE_ENV: str(build["image"]),
@@ -1131,7 +3323,9 @@ class GenerationPinnedStorage:
             raw, content_type=_string(media_type, label="media type"),
             if_generation_match=0,
         )
-        generation = _string(blob.generation, label="published generation")
+        generation = str(blob.generation)
+        if _GENERATION.fullmatch(generation) is None:
+            raise CorpusParametricTransportError("published generation differs")
         identity = identity_for_bytes(uri=uri, generation=generation, raw=raw)
         if self.read(identity.as_dict()) != raw:
             raise CorpusParametricTransportError("published object reopen differs")
@@ -1141,7 +3335,7 @@ class GenerationPinnedStorage:
         bucket, name = self._parts(uri)
         blob = self._client.bucket(bucket).blob(name)
         blob.reload()
-        generation = _string(blob.generation, label="current generation")
+        generation = str(blob.generation)
         if _GENERATION.fullmatch(generation) is None:
             raise CorpusParametricTransportError("current generation differs")
         raw = self._client.bucket(bucket).blob(
@@ -1175,7 +3369,7 @@ class GenerationPinnedStorage:
         bucket, name = prefix.removeprefix("gs://").split("/", 1)
         rows: list[dict[str, object]] = []
         for blob in self._client.list_blobs(bucket, prefix=name, versions=True):
-            generation = _string(blob.generation, label="inventory generation")
+            generation = str(blob.generation)
             if _GENERATION.fullmatch(generation) is None or blob.size is None:
                 raise CorpusParametricTransportError("inventory row differs")
             rows.append({
@@ -1354,6 +3548,7 @@ def build_prefix_claim(
     manifest_identity: ObjectIdentity,
     evidence_contract_identity: ObjectIdentity,
     retrieval_prerequisite_identity: ObjectIdentity,
+    foundation_publication_identity: ObjectIdentity,
     runtime_iam_identity: ObjectIdentity,
     build: Mapping[str, object],
     job: Mapping[str, object],
@@ -1365,6 +3560,9 @@ def build_prefix_claim(
         "evidence_contract_identity": evidence_contract_identity.as_dict(),
         "retrieval_task0_prerequisite_identity": (
             retrieval_prerequisite_identity.as_dict()
+        ),
+        "foundation_publication_identity": (
+            foundation_publication_identity.as_dict()
         ),
         "runtime_iam_evidence_identity": runtime_iam_identity.as_dict(),
         "build": dict(build),
@@ -1385,6 +3583,7 @@ def build_transport_contract(
     manifest_identity: ObjectIdentity,
     evidence_contract_identity: ObjectIdentity,
     retrieval_prerequisite_identity: ObjectIdentity,
+    foundation_publication_identity: ObjectIdentity,
     runtime_iam_identity: ObjectIdentity,
     prefix_claim_identity: ObjectIdentity,
     build: Mapping[str, object],
@@ -1417,6 +3616,9 @@ def build_transport_contract(
         "evidence_contract_identity": evidence_contract_identity.as_dict(),
         "retrieval_task0_prerequisite_identity": (
             retrieval_prerequisite_identity.as_dict()
+        ),
+        "foundation_publication_identity": (
+            foundation_publication_identity.as_dict()
         ),
         "runtime_iam_evidence_identity": runtime_iam_identity.as_dict(),
         "prefix_claim_identity": prefix_claim_identity.as_dict(),
@@ -1453,6 +3655,7 @@ _CONTRACT_KEYS: Final = frozenset({
     "schema_version", "created_at_utc", "project", "region", "batch_id",
     "output_prefix", "batch_manifest_identity", "batch_manifest_sha256",
     "evidence_contract_identity", "retrieval_task0_prerequisite_identity",
+    "foundation_publication_identity",
     "runtime_iam_evidence_identity", "prefix_claim_identity", "build",
     "service_account", "job", "manifest_input_identity_set_sha256",
     "task_count", "batch_mode", "matrix_cell_count",
@@ -1464,6 +3667,14 @@ _CONTRACT_KEYS: Final = frozenset({
     "create_once", "uses_realized_outcomes", "historical_scoring_licensed",
     "corpus_fill_licensed", "graph_mutation_licensed",
     "production_change_licensed", "transport_contract_sha256",
+})
+_TRANSPORT_PREFIX_CLAIM_KEYS: Final = frozenset({
+    "schema_version", "created_at_utc", "batch_manifest_identity",
+    "evidence_contract_identity", "retrieval_task0_prerequisite_identity",
+    "foundation_publication_identity", "runtime_iam_evidence_identity",
+    "build", "job", "output_prefix", "create_once",
+    "uses_realized_outcomes", "corpus_fill_licensed",
+    "production_change_licensed", "prefix_claim_sha256",
 })
 
 
@@ -1512,6 +3723,7 @@ def validate_transport_contract(value: object) -> dict[str, object]:
         "batch_manifest_identity",
         "evidence_contract_identity",
         "retrieval_task0_prerequisite_identity",
+        "foundation_publication_identity",
         "runtime_iam_evidence_identity",
         "prefix_claim_identity",
     ):
@@ -1580,6 +3792,7 @@ def _validate_prefix_claim(
     contract: Mapping[str, object],
 ) -> dict[str, object]:
     item = dict(_mapping(value, label="prefix claim"))
+    _exact_keys(item, _TRANSPORT_PREFIX_CLAIM_KEYS, label="prefix claim")
     _validate_self_hash(item, field="prefix_claim_sha256", label="prefix claim")
     if (
         item.get("schema_version") != PREFIX_CLAIM_SCHEMA
@@ -1589,6 +3802,8 @@ def _validate_prefix_claim(
         != contract["evidence_contract_identity"]
         or item.get("retrieval_task0_prerequisite_identity")
         != contract["retrieval_task0_prerequisite_identity"]
+        or item.get("foundation_publication_identity")
+        != contract["foundation_publication_identity"]
         or item.get("runtime_iam_evidence_identity")
         != contract["runtime_iam_evidence_identity"]
         or item.get("build") != contract["build"]
@@ -1667,35 +3882,36 @@ def _require_inventory_allowing_current(
     return retained
 
 
-def configure_transport(
+def _prepare_configuration(
     *,
     storage: ObjectStore,
     batch_manifest_identity: object,
     evidence_contract_identity: object,
     retrieval_prerequisite_identity: object,
+    foundation_publication_identity: object,
     runtime_iam_evidence_raw: bytes,
     build_metadata: object,
     build_id: str,
     code_sha: str,
     image: str,
     service_account: str,
-    parked_job: object,
+    observed_job: object,
+    expected_job_name: str,
+    expected_job_uid: str,
+    require_parked_job: bool,
     executions: object,
     schedulers: object,
     all_regions_complete: bool,
-    created_at_utc: str,
-    execute: bool,
-    environ: Mapping[str, str],
 ) -> dict[str, object]:
-    """Validate and publish the immutable outer transport authority once."""
-    require_execute_gate(execute=execute, environ=environ)
+    """Replay every immutable input and census without publishing anything."""
+    traced_storage = _TracingReadStore(storage)
     manifest_identity, manifest_raw = _read_identity(
-        storage, batch_manifest_identity, label="batch manifest"
+        traced_storage, batch_manifest_identity, label="batch manifest"
     )
     batch, manifest = _parse_batch_manifest(manifest_raw)
     _validate_manifest_identity(batch, manifest, manifest_identity)
     evidence_identity, evidence_raw = _read_identity(
-        storage, evidence_contract_identity, label="evidence contract"
+        traced_storage, evidence_contract_identity, label="evidence contract"
     )
     _, evidence, _, _ = _modules()
     try:
@@ -1718,8 +3934,25 @@ def configure_transport(
         retrieval_prerequisite_identity,
         label="retrieval task-0 prerequisite identity",
     )
-    reopen_retrieval_task0_prerequisite(
-        storage=storage, prerequisite_identity=prerequisite_identity.as_dict()
+    before_retrieval = {
+        _identity_key(identity) for identity in traced_storage.identities()
+    }
+    retrieval_prerequisite, _ = reopen_retrieval_task0_prerequisite(
+        storage=traced_storage,
+        prerequisite_identity=prerequisite_identity.as_dict(),
+    )
+    retrieval_replay_inputs = [
+        identity for identity in traced_storage.identities()
+        if _identity_key(identity) not in before_retrieval
+    ]
+    prefix_authority = reopen_upstream_prefix_authorities(
+        storage=traced_storage,
+        foundation_publication_identity=foundation_publication_identity,
+        manifest=manifest,
+        manifest_identity=manifest_identity,
+        evidence_contract_identity=evidence_identity,
+        retrieval_prerequisite=retrieval_prerequisite,
+        retrieval_prerequisite_identity=prerequisite_identity,
     )
     build = validate_build_metadata(
         build_metadata,
@@ -1733,7 +3966,7 @@ def configure_transport(
         ],
         label="code-source identity",
     )
-    code_raw = storage.read(code_identity.as_dict())
+    code_raw = traced_storage.read(code_identity.as_dict())
     _identity_matches_raw(code_identity, code_raw, label="code source")
     _validate_code_source_build_binding(
         batch=batch,
@@ -1742,14 +3975,24 @@ def configure_transport(
         manifest=manifest,
         build=build,
     )
-    planned_job = job_identity(parked_job, label="planned parked job")
-    job = validate_parked_job(
-        parked_job,
-        job_name=planned_job["name"],
-        expected_uid=planned_job["uid"],
-        build=build,
-        service_account=service_account,
-    )
+    retained_name = _string(expected_job_name, label="expected reused job name")
+    retained_uid = _string(expected_job_uid, label="expected reused job UID")
+    if _JOB.fullmatch(retained_name) is None:
+        raise CorpusParametricTransportError("expected reused job name differs")
+    if require_parked_job:
+        job = validate_parked_job(
+            observed_job,
+            job_name=retained_name,
+            expected_uid=retained_uid,
+            build=build,
+            service_account=service_account,
+        )
+    else:
+        job = job_identity(observed_job, label="preflight reused job")
+        if job["name"] != retained_name or job["uid"] != retained_uid:
+            raise CorpusParametricTransportError(
+                "preflight reused job name/UID differs from frozen authority"
+            )
     _require_no_active_executions(executions)
     validate_scheduler_census(
         schedulers,
@@ -1757,13 +4000,27 @@ def configure_transport(
         all_regions_complete=all_regions_complete,
     )
     inputs = _manifest_input_identities(manifest)
-    parsed_iam = strict_json_bytes(
-        runtime_iam_evidence_raw, label="runtime IAM evidence"
+    required_inputs = _normalize_identity_set(
+        [*inputs, *traced_storage.identities()],
+        label="configured runtime input graph",
+        reject_repeats=False,
     )
-    validate_runtime_iam_evidence(
-        parsed_iam,
+    policy_capture = strict_json_bytes(
+        runtime_iam_evidence_raw, label="runtime IAM policy capture"
+    )
+    runtime_iam_evidence = build_runtime_iam_evidence(
+        policy_capture=policy_capture,
         service_account=service_account,
-        input_identities=inputs,
+        foundation_publication_identity=prefix_authority[
+            "foundation_publication_identity"
+        ],
+        batch_manifest_identity=manifest_identity.as_dict(),
+        evidence_contract_identity=evidence_identity.as_dict(),
+        retrieval_prerequisite_identity=prerequisite_identity.as_dict(),
+        required_input_identities=required_inputs,
+        manifest_input_identities=inputs,
+        retrieval_replay_identities=retrieval_replay_inputs,
+        read_prefix_authorities=prefix_authority["read_prefix_authorities"],
         output_prefix=str(manifest["output_prefix"]),
     )
     initial_identities: list[object] = [
@@ -1777,9 +4034,152 @@ def configure_transport(
         identities=initial_identities,
         label="preconfigure",
     )
+    traced_storage.authorize(runtime_iam_evidence)
+    return {
+        "traced_storage": traced_storage,
+        "batch": batch,
+        "manifest": manifest,
+        "manifest_identity": manifest_identity,
+        "evidence_identity": evidence_identity,
+        "prerequisite_identity": prerequisite_identity,
+        "foundation_publication_identity": object_identity(
+            prefix_authority["foundation_publication_identity"],
+            label="preflight foundation publication",
+        ),
+        "runtime_iam_evidence": runtime_iam_evidence,
+        "build": build,
+        "job": job,
+        "initial_identities": initial_identities,
+    }
+
+
+def preflight_configure(
+    *,
+    storage: ObjectStore,
+    batch_manifest_identity: object,
+    evidence_contract_identity: object,
+    retrieval_prerequisite_identity: object,
+    foundation_publication_identity: object,
+    runtime_iam_evidence_raw: bytes,
+    build_metadata: object,
+    build_id: str,
+    code_sha: str,
+    image: str,
+    service_account: str,
+    observed_job: object,
+    expected_job_name: str,
+    expected_job_uid: str,
+    executions: object,
+    schedulers: object,
+    all_regions_complete: bool,
+    execute: bool,
+    environ: Mapping[str, str],
+) -> dict[str, object]:
+    """Read-only gate that must pass before a reused job is mutated."""
+    require_execute_gate(execute=execute, environ=environ)
+    prepared = _prepare_configuration(
+        storage=storage,
+        batch_manifest_identity=batch_manifest_identity,
+        evidence_contract_identity=evidence_contract_identity,
+        retrieval_prerequisite_identity=retrieval_prerequisite_identity,
+        foundation_publication_identity=foundation_publication_identity,
+        runtime_iam_evidence_raw=runtime_iam_evidence_raw,
+        build_metadata=build_metadata,
+        build_id=build_id,
+        code_sha=code_sha,
+        image=image,
+        service_account=service_account,
+        observed_job=observed_job,
+        expected_job_name=expected_job_name,
+        expected_job_uid=expected_job_uid,
+        require_parked_job=False,
+        executions=executions,
+        schedulers=schedulers,
+        all_regions_complete=all_regions_complete,
+    )
+    manifest = _mapping(prepared["manifest"], label="preflight manifest")
+    return {
+        "schema_version": "corpus-parametric-transport-preflight/v1",
+        "batch_manifest": prepared["manifest_identity"].as_dict(),
+        "evidence_contract": prepared["evidence_identity"].as_dict(),
+        "retrieval_task0_prerequisite": prepared[
+            "prerequisite_identity"
+        ].as_dict(),
+        "foundation_publication": prepared[
+            "foundation_publication_identity"
+        ].as_dict(),
+        "expected_job_name": expected_job_name,
+        "expected_job_uid": expected_job_uid,
+        "observed_job": prepared["job"],
+        "task_count": len(_sequence(manifest["tasks"], label="preflight tasks")),
+        "runtime_required_input_count": len(prepared[
+            "runtime_iam_evidence"
+        ]["required_input_identities"]),
+        "valid": True,
+        "read_only": True,
+        "cloud_run_mutation_permitted": False,
+    }
+
+
+def configure_transport(
+    *,
+    storage: ObjectStore,
+    batch_manifest_identity: object,
+    evidence_contract_identity: object,
+    retrieval_prerequisite_identity: object,
+    foundation_publication_identity: object,
+    runtime_iam_evidence_raw: bytes,
+    build_metadata: object,
+    build_id: str,
+    code_sha: str,
+    image: str,
+    service_account: str,
+    parked_job: object,
+    expected_job_name: str,
+    expected_job_uid: str,
+    executions: object,
+    schedulers: object,
+    all_regions_complete: bool,
+    created_at_utc: str,
+    execute: bool,
+    environ: Mapping[str, str],
+) -> dict[str, object]:
+    """Validate and publish the immutable outer transport authority once."""
+    require_execute_gate(execute=execute, environ=environ)
+    prepared = _prepare_configuration(
+        storage=storage,
+        batch_manifest_identity=batch_manifest_identity,
+        evidence_contract_identity=evidence_contract_identity,
+        retrieval_prerequisite_identity=retrieval_prerequisite_identity,
+        foundation_publication_identity=foundation_publication_identity,
+        runtime_iam_evidence_raw=runtime_iam_evidence_raw,
+        build_metadata=build_metadata,
+        build_id=build_id,
+        code_sha=code_sha,
+        image=image,
+        service_account=service_account,
+        observed_job=parked_job,
+        expected_job_name=expected_job_name,
+        expected_job_uid=expected_job_uid,
+        require_parked_job=True,
+        executions=executions,
+        schedulers=schedulers,
+        all_regions_complete=all_regions_complete,
+    )
+    traced_storage = prepared["traced_storage"]
+    manifest = prepared["manifest"]
+    manifest_identity = prepared["manifest_identity"]
+    evidence_identity = prepared["evidence_identity"]
+    prerequisite_identity = prepared["prerequisite_identity"]
+    retained_foundation_identity = prepared["foundation_publication_identity"]
+    runtime_iam_evidence = prepared["runtime_iam_evidence"]
+    build = prepared["build"]
+    job = prepared["job"]
+    initial_identities = prepared["initial_identities"]
+    runtime_iam_raw = canonical_json_bytes(runtime_iam_evidence)
     iam_identity = object_identity(
-        storage.publish_or_reopen(
-            _runtime_iam_uri(manifest), runtime_iam_evidence_raw
+        traced_storage.publish_or_reopen(
+            _runtime_iam_uri(manifest), runtime_iam_raw
         ),
         label="runtime IAM identity",
     )
@@ -1789,12 +4189,13 @@ def configure_transport(
         manifest_identity=manifest_identity,
         evidence_contract_identity=evidence_identity,
         retrieval_prerequisite_identity=prerequisite_identity,
+        foundation_publication_identity=retained_foundation_identity,
         runtime_iam_identity=iam_identity,
         build=build,
         job=job,
     )
     claim_identity = object_identity(
-        storage.publish_or_reopen(
+        traced_storage.publish_or_reopen(
             str(manifest["create_once_prefix_claim_uri"]),
             canonical_json_bytes(claim),
         ),
@@ -1806,6 +4207,7 @@ def configure_transport(
         manifest_identity=manifest_identity,
         evidence_contract_identity=evidence_identity,
         retrieval_prerequisite_identity=prerequisite_identity,
+        foundation_publication_identity=retained_foundation_identity,
         runtime_iam_identity=iam_identity,
         prefix_claim_identity=claim_identity,
         build=build,
@@ -1814,7 +4216,7 @@ def configure_transport(
     )
     validate_transport_contract(contract)
     contract_identity = object_identity(
-        storage.publish_or_reopen(
+        traced_storage.publish_or_reopen(
             _transport_contract_uri(manifest), canonical_json_bytes(contract)
         ),
         label="transport contract identity",
@@ -1830,11 +4232,16 @@ def configure_transport(
         ],
         label="configured transport",
     )
+    _validate_observed_runtime_gets(
+        iam_evidence=runtime_iam_evidence,
+        observed_identities=traced_storage.identities(),
+    )
     return {
         "schema_version": "corpus-parametric-transport-configured/v1",
         "batch_manifest": manifest_identity.as_dict(),
         "evidence_contract": evidence_identity.as_dict(),
         "retrieval_task0_prerequisite": prerequisite_identity.as_dict(),
+        "foundation_publication": retained_foundation_identity.as_dict(),
         "runtime_iam_evidence": iam_identity.as_dict(),
         "prefix_claim": claim_identity.as_dict(),
         "transport_contract": contract_identity.as_dict(),
@@ -1851,14 +4258,60 @@ def _reopen_contract_graph(
     storage: ObjectStore,
     contract_identity: object,
 ) -> tuple[ObjectIdentity, dict[str, object], object, dict[str, object]]:
+    traced_storage = (
+        storage if isinstance(storage, _TracingReadStore)
+        else _TracingReadStore(storage)
+    )
     retained_contract_identity, contract_raw = _read_identity(
-        storage, contract_identity, label="transport contract"
+        traced_storage, contract_identity, label="transport contract"
     )
     contract = validate_transport_contract(
         strict_json_bytes(contract_raw, label="transport contract")
     )
+    # The only unauthorised bootstrap reads are the two exact, externally
+    # generation-pinned objects: the contract and the IAM evidence it names.
+    # Install the retained exact-input envelope before following any manifest,
+    # retrieval, source, or dynamic phase linkage.  The complete semantic IAM
+    # validation below must still reproduce this candidate byte-for-byte from
+    # the frozen upstream prefix claims.
+    iam_identity, iam_raw = _read_identity(
+        traced_storage,
+        contract["runtime_iam_evidence_identity"],
+        label="runtime IAM bootstrap",
+    )
+    iam_candidate = dict(_mapping(
+        strict_json_bytes(iam_raw, label="runtime IAM bootstrap"),
+        label="runtime IAM bootstrap",
+    ))
+    _exact_keys(iam_candidate, _RUNTIME_IAM_KEYS, label="runtime IAM bootstrap")
+    _validate_self_hash(
+        iam_candidate, field="iam_evidence_sha256", label="runtime IAM bootstrap"
+    )
+    _reject_credential_material(iam_candidate, label="runtime IAM bootstrap")
+    if (
+        iam_candidate["schema_version"] != RUNTIME_IAM_EVIDENCE_SCHEMA
+        or iam_candidate["project"] != PROJECT
+        or iam_candidate["principal_scope"] != RUNTIME_PRINCIPAL_SCOPE
+        or iam_candidate["service_account"] != contract["service_account"]
+        or iam_candidate["foundation_publication_identity"]
+        != contract["foundation_publication_identity"]
+        or iam_candidate["batch_manifest_identity"]
+        != contract["batch_manifest_identity"]
+        or iam_candidate["evidence_contract_identity"]
+        != contract["evidence_contract_identity"]
+        or iam_candidate["retrieval_prerequisite_identity"]
+        != contract["retrieval_task0_prerequisite_identity"]
+        or iam_candidate["output_prefix"] != contract["output_prefix"]
+        or iam_identity.as_dict() != contract["runtime_iam_evidence_identity"]
+    ):
+        raise CorpusParametricTransportError(
+            "runtime IAM bootstrap does not bind the transport contract"
+        )
+    traced_storage.authorize(iam_candidate)
     manifest_identity, manifest_raw = _read_identity(
-        storage, contract["batch_manifest_identity"], label="batch manifest"
+        traced_storage,
+        contract["batch_manifest_identity"],
+        label="batch manifest",
     )
     batch, manifest = _parse_batch_manifest(manifest_raw)
     _validate_manifest_identity(batch, manifest, manifest_identity)
@@ -1879,7 +4332,9 @@ def _reopen_contract_graph(
             "transport contract no longer binds exact manifest"
         )
     evidence_identity, evidence_raw = _read_identity(
-        storage, contract["evidence_contract_identity"], label="evidence contract"
+        traced_storage,
+        contract["evidence_contract_identity"],
+        label="evidence contract",
     )
     _, evidence, _, _ = _modules()
     try:
@@ -1898,23 +4353,35 @@ def _reopen_contract_graph(
         raise CorpusParametricTransportError(
             "reopened evidence contract differs"
         ) from exc
-    reopen_retrieval_task0_prerequisite(
-        storage=storage,
+    before_retrieval = {
+        _identity_key(identity) for identity in traced_storage.identities()
+    }
+    retrieval_prerequisite, _ = reopen_retrieval_task0_prerequisite(
+        storage=traced_storage,
         prerequisite_identity=contract[
             "retrieval_task0_prerequisite_identity"
         ],
     )
-    iam_identity, iam_raw = _read_identity(
-        storage, contract["runtime_iam_evidence_identity"], label="runtime IAM"
-    )
-    validate_runtime_iam_evidence(
-        strict_json_bytes(iam_raw, label="runtime IAM evidence"),
-        service_account=str(contract["service_account"]),
-        input_identities=_manifest_input_identities(manifest),
-        output_prefix=str(manifest["output_prefix"]),
+    retrieval_replay_inputs = [
+        identity for identity in traced_storage.identities()
+        if _identity_key(identity) not in before_retrieval
+    ]
+    prefix_authority = reopen_upstream_prefix_authorities(
+        storage=traced_storage,
+        foundation_publication_identity=contract[
+            "foundation_publication_identity"
+        ],
+        manifest=manifest,
+        manifest_identity=manifest_identity,
+        evidence_contract_identity=evidence_identity,
+        retrieval_prerequisite=retrieval_prerequisite,
+        retrieval_prerequisite_identity=object_identity(
+            contract["retrieval_task0_prerequisite_identity"],
+            label="contract retrieval prerequisite",
+        ),
     )
     claim_identity, claim_raw = _read_identity(
-        storage, contract["prefix_claim_identity"], label="prefix claim"
+        traced_storage, contract["prefix_claim_identity"], label="prefix claim"
     )
     _validate_prefix_claim(
         strict_json_bytes(claim_raw, label="prefix claim"), contract=contract
@@ -1926,7 +4393,7 @@ def _reopen_contract_graph(
     ):
         raise CorpusParametricTransportError("contract authority identity differs")
     code_identity, code_raw = _read_identity(
-        storage,
+        traced_storage,
         _mapping(manifest["common_law"], label="manifest common law")[
             "code_source"
         ],
@@ -1939,6 +4406,41 @@ def _reopen_contract_graph(
         manifest=manifest,
         build=_mapping(contract["build"], label="contract build"),
     )
+    dynamic_output_identities = {
+        _identity_key(retained_contract_identity.as_dict()),
+        _identity_key(iam_identity.as_dict()),
+        _identity_key(claim_identity.as_dict()),
+    }
+    manifest_inputs = _manifest_input_identities(manifest)
+    replayed_required_inputs = _normalize_identity_set(
+        [
+            *manifest_inputs,
+            *[
+                identity for identity in traced_storage.identities()
+                if _identity_key(identity) not in dynamic_output_identities
+            ],
+        ],
+        label="replayed runtime input graph",
+        reject_repeats=False,
+    )
+    iam_evidence = validate_runtime_iam_evidence(
+        strict_json_bytes(iam_raw, label="runtime IAM evidence"),
+        service_account=str(contract["service_account"]),
+        foundation_publication_identity=prefix_authority[
+            "foundation_publication_identity"
+        ],
+        batch_manifest_identity=manifest_identity.as_dict(),
+        evidence_contract_identity=evidence_identity.as_dict(),
+        retrieval_prerequisite_identity=contract[
+            "retrieval_task0_prerequisite_identity"
+        ],
+        required_input_identities=replayed_required_inputs,
+        manifest_input_identities=manifest_inputs,
+        retrieval_replay_identities=retrieval_replay_inputs,
+        read_prefix_authorities=prefix_authority["read_prefix_authorities"],
+        output_prefix=str(manifest["output_prefix"]),
+    )
+    traced_storage.authorize(iam_evidence)
     return retained_contract_identity, contract, batch, manifest
 
 
@@ -2344,6 +4846,11 @@ def _validate_execution_spec(
         raise CorpusParametricTransportError("execution name differs")
     job = _mapping(contract["job"], label="contract job")
     labels = _mapping(metadata.get("labels"), label="execution labels")
+    _exact_keys(
+        spec,
+        frozenset({"taskCount", "parallelism", "template"}),
+        label="execution spec fields",
+    )
     if (
         labels.get("run.googleapis.com/job") != job["name"]
         or labels.get("run.googleapis.com/jobUid") != job["uid"]
@@ -2353,14 +4860,23 @@ def _validate_execution_spec(
         or spec.get("parallelism") != 1
     ):
         raise CorpusParametricTransportError("execution job binding differs")
+    execution_template = _mapping(
+        spec.get("template"), label="execution template"
+    )
+    _exact_keys(
+        execution_template,
+        frozenset({"spec"}),
+        label="execution template fields",
+    )
     task_spec = _mapping(
-        _mapping(spec.get("template"), label="execution template").get("spec"),
+        execution_template.get("spec"),
         label="execution task spec",
     )
     containers = task_spec.get("containers")
     if type(containers) is not list or len(containers) != 1:
         raise CorpusParametricTransportError("execution container differs")
     container = _mapping(containers[0], label="execution container")
+    _validate_task_attachment_boundary(task_spec, container)
     build = _mapping(contract["build"], label="contract build")
     expected_env = {
         ENABLE_ENV: "1",
@@ -3009,12 +5525,16 @@ def execute_producer_task(
 ) -> dict[str, object]:
     """Cloud worker: run one complete seven-arm producer task, without LIST."""
     require_execute_gate(execute=execute, environ=environ)
+    phase_storage = (
+        storage if isinstance(storage, _TracingReadStore)
+        else _TracingReadStore(storage)
+    )
     retained_contract_identity, contract, batch, manifest = _reopen_contract_graph(
-        storage=storage, contract_identity=contract_identity
+        storage=phase_storage, contract_identity=contract_identity
     )
     _validate_worker_build_environment(contract=contract, environ=environ)
     reopen_retrieval_task0_prerequisite(
-        storage=storage,
+        storage=phase_storage,
         prerequisite_identity=contract[
             "retrieval_task0_prerequisite_identity"
         ],
@@ -3023,7 +5543,7 @@ def execute_producer_task(
         environ, contract=contract, task_index=task_index, phase="producer"
     )
     execution_binding = _wait_for_execution_name(
-        storage=storage,
+        storage=phase_storage,
         contract=contract,
         contract_identity=retained_contract_identity,
         task_index=task_index,
@@ -3042,7 +5562,7 @@ def execute_producer_task(
         task_index=task_index,
     )
     inputs = _read_science_inputs(
-        storage=storage, manifest=manifest, task_index=task_index
+        storage=phase_storage, manifest=manifest, task_index=task_index
     )
     _, _, core, _ = _modules()
     retained_producer = producer or core.run_authoritative_corpus_legal_feasibility
@@ -3064,7 +5584,7 @@ def execute_producer_task(
                 "authoritative producer failed"
             ) from exc
         published = _publish_draft(
-            storage=storage,
+            storage=phase_storage,
             draft=draft,
             finalizer=retained_finalizer,
             task=task,
@@ -3102,10 +5622,11 @@ def execute_producer_task(
         task_index=task_index,
     )
     task_contract = _task_contract(contract, task_index)
-    identity = storage.publish_or_reopen(
+    identity = phase_storage.publish_or_reopen(
         str(task_contract["producer_worker_completion_uri"]),
         canonical_json_bytes(body),
     )
+    phase_storage.validate_trace()
     return {
         "schema_version": "corpus-parametric-producer-published/v1",
         "task_index": task_index,
@@ -3800,15 +6321,19 @@ def execute_verifier_task(
 ) -> dict[str, object]:
     """Independent zero-retry verifier worker; never invokes the producer."""
     require_execute_gate(execute=execute, environ=environ)
+    phase_storage = (
+        storage if isinstance(storage, _TracingReadStore)
+        else _TracingReadStore(storage)
+    )
     retained_contract_identity, contract, batch, manifest = _reopen_contract_graph(
-        storage=storage, contract_identity=contract_identity
+        storage=phase_storage, contract_identity=contract_identity
     )
     _validate_worker_build_environment(contract=contract, environ=environ)
     runtime = _runtime_execution(
         environ, contract=contract, task_index=task_index, phase="verifier"
     )
     execution_binding = _wait_for_execution_name(
-        storage=storage,
+        storage=phase_storage,
         contract=contract,
         contract_identity=retained_contract_identity,
         task_index=task_index,
@@ -3821,7 +6346,7 @@ def execute_verifier_task(
         "execution_uid": execution_binding["execution_uid"],
     }
     producer_close_identity, closed = _reopen_producer_close(
-        storage=storage,
+        storage=phase_storage,
         contract=contract,
         contract_identity=retained_contract_identity,
         manifest=manifest,
@@ -3840,7 +6365,7 @@ def execute_verifier_task(
             task_request_bytes=request_raw,
             task_result_identity=closed["task_result_identity"],
             evidence_contract_identity=contract["evidence_contract_identity"],
-            object_reader=_VerifierReader(storage),
+            object_reader=_VerifierReader(phase_storage),
             repository_root=repository_root,
         )
         verification_raw = bytes(getattr(verification, "canonical_payload"))
@@ -3849,7 +6374,7 @@ def execute_verifier_task(
             "independent verification failed"
         ) from exc
     _parse_independent_verification(
-        storage=storage,
+        storage=phase_storage,
         raw=verification_raw,
         batch=batch,
         contract=contract,
@@ -3858,7 +6383,7 @@ def execute_verifier_task(
         closed=closed,
     )
     task = _task_contract(contract, task_index)
-    verification_identity = storage.publish_or_reopen(
+    verification_identity = phase_storage.publish_or_reopen(
         str(task["independent_verification_uri"]), verification_raw
     )
     body = _self_hash({
@@ -3889,9 +6414,10 @@ def execute_verifier_task(
         contract_identity=retained_contract_identity,
         task_index=task_index,
     )
-    completion_identity = storage.publish_or_reopen(
+    completion_identity = phase_storage.publish_or_reopen(
         str(task["verifier_worker_completion_uri"]), canonical_json_bytes(body)
     )
+    phase_storage.validate_trace()
     return {
         "schema_version": "corpus-parametric-independent-verification-published/v1",
         "task_index": task_index,
@@ -4934,6 +7460,36 @@ def _base_parser() -> argparse.ArgumentParser:
     canonicalize.add_argument("--input", required=True, type=Path)
     canonicalize.add_argument("--output", required=True, type=Path)
 
+    build_iam = sub.add_parser(
+        "build-runtime-iam-evidence",
+        help="build v3 evidence from retained IAM policy bodies without clients",
+    )
+    build_iam.add_argument("--policy-capture-file", required=True, type=Path)
+    build_iam.add_argument("--required-inputs-file", required=True, type=Path)
+    build_iam.add_argument("--manifest-inputs-file", required=True, type=Path)
+    build_iam.add_argument(
+        "--retrieval-replay-inputs-file", required=True, type=Path
+    )
+    build_iam.add_argument(
+        "--read-prefix-authorities-file", required=True, type=Path
+    )
+    for prefix in (
+        "foundation_publication", "manifest", "evidence_contract",
+        "retrieval_prerequisite",
+    ):
+        _add_identity_arguments(build_iam, prefix)
+    build_iam.add_argument("--service-account", required=True)
+    build_iam.add_argument("--output-prefix", required=True)
+    build_iam.add_argument("--output", required=True, type=Path)
+
+    validate_build = sub.add_parser(
+        "validate-build", help="validate immutable expansion build metadata"
+    )
+    validate_build.add_argument("--build-metadata-file", required=True, type=Path)
+    validate_build.add_argument("--build-id", required=True)
+    validate_build.add_argument("--code-sha", required=True)
+    validate_build.add_argument("--image", required=True)
+
     validate_contract = sub.add_parser(
         "validate-local-contract", help="validate a local canonical contract"
     )
@@ -4947,23 +7503,39 @@ def _base_parser() -> argparse.ArgumentParser:
     dry.add_argument("--task-index", required=True, type=int)
     dry.add_argument("--phase", required=True, choices=("producer", "verifier"))
 
+    def add_configure_arguments(
+        target: argparse.ArgumentParser, *, include_created_at: bool
+    ) -> None:
+        for prefix in (
+            "foundation_publication", "manifest", "evidence_contract",
+            "retrieval_prerequisite",
+        ):
+            _add_identity_arguments(target, prefix)
+        target.add_argument("--runtime-iam-file", required=True, type=Path)
+        target.add_argument("--build-metadata-file", required=True, type=Path)
+        target.add_argument("--job-file", required=True, type=Path)
+        target.add_argument("--executions-file", required=True, type=Path)
+        target.add_argument("--schedulers-file", required=True, type=Path)
+        target.add_argument("--build-id", required=True)
+        target.add_argument("--code-sha", required=True)
+        target.add_argument("--image", required=True)
+        target.add_argument("--service-account", required=True)
+        target.add_argument("--expected-job-name", required=True)
+        target.add_argument("--expected-job-uid", required=True)
+        if include_created_at:
+            target.add_argument("--created-at-utc", required=True)
+        target.add_argument("--all-regions-complete", action="store_true")
+        target.add_argument("--execute", action="store_true")
+
+    preflight = sub.add_parser(
+        "preflight-configure",
+        help="read-only full gate before mutating the reused Cloud Run job",
+    )
+    add_configure_arguments(preflight, include_created_at=False)
     configure = sub.add_parser(
         "configure", help="publish immutable create-once governance"
     )
-    for prefix in ("manifest", "evidence_contract", "retrieval_prerequisite"):
-        _add_identity_arguments(configure, prefix)
-    configure.add_argument("--runtime-iam-file", required=True, type=Path)
-    configure.add_argument("--build-metadata-file", required=True, type=Path)
-    configure.add_argument("--job-file", required=True, type=Path)
-    configure.add_argument("--executions-file", required=True, type=Path)
-    configure.add_argument("--schedulers-file", required=True, type=Path)
-    configure.add_argument("--build-id", required=True)
-    configure.add_argument("--code-sha", required=True)
-    configure.add_argument("--image", required=True)
-    configure.add_argument("--service-account", required=True)
-    configure.add_argument("--created-at-utc", required=True)
-    configure.add_argument("--all-regions-complete", action="store_true")
-    configure.add_argument("--execute", action="store_true")
+    add_configure_arguments(configure, include_created_at=True)
 
     validate = sub.add_parser(
         "validate-only", help="reopen and validate one task without solving"
@@ -5094,6 +7666,80 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "bytes": len(raw),
             })
             return 0
+        if args.command == "build-runtime-iam-evidence":
+            result = build_runtime_iam_evidence(
+                policy_capture=_load_json(
+                    Path(args.policy_capture_file), label="IAM policy capture"
+                ),
+                service_account=args.service_account,
+                foundation_publication_identity=_identity_from_args(
+                    args, "foundation_publication"
+                ).as_dict(),
+                batch_manifest_identity=_identity_from_args(args, "manifest").as_dict(),
+                evidence_contract_identity=_identity_from_args(
+                    args, "evidence_contract"
+                ).as_dict(),
+                retrieval_prerequisite_identity=_identity_from_args(
+                    args, "retrieval_prerequisite"
+                ).as_dict(),
+                required_input_identities=_sequence(
+                    _load_json(
+                        Path(args.required_inputs_file),
+                        label="required runtime inputs",
+                    ),
+                    label="required runtime inputs",
+                ),
+                manifest_input_identities=_sequence(
+                    _load_json(
+                        Path(args.manifest_inputs_file),
+                        label="manifest runtime inputs",
+                    ),
+                    label="manifest runtime inputs",
+                ),
+                retrieval_replay_identities=_sequence(
+                    _load_json(
+                        Path(args.retrieval_replay_inputs_file),
+                        label="retrieval replay inputs",
+                    ),
+                    label="retrieval replay inputs",
+                ),
+                read_prefix_authorities=_sequence(
+                    _load_json(
+                        Path(args.read_prefix_authorities_file),
+                        label="read prefix authorities",
+                    ),
+                    label="read prefix authorities",
+                ),
+                output_prefix=args.output_prefix,
+            )
+            raw = canonical_json_bytes(result)
+            _write_once(Path(args.output), raw)
+            _print_json({
+                "schema_version": result["schema_version"],
+                "output": str(Path(args.output)),
+                "sha256": sha256(raw).hexdigest(),
+                "bytes": len(raw),
+                "required_input_count": len(result["required_input_identities"]),
+                "client_constructed": False,
+                "credentials_emitted": False,
+            })
+            return 0
+        if args.command == "validate-build":
+            build = validate_build_metadata(
+                _read_external_file(
+                    Path(args.build_metadata_file), label="build metadata"
+                ),
+                build_id=args.build_id,
+                code_sha=args.code_sha,
+                image=args.image,
+            )
+            _print_json({
+                **build,
+                "valid": True,
+                "required_fragment_count": len(REQUIRED_BUILD_FRAGMENTS),
+                "cloud_call_made": False,
+            })
+            return 0
         if args.command == "validate-local-contract":
             contract = validate_transport_contract(
                 _load_json(Path(args.contract_file), label="local contract")
@@ -5128,7 +7774,45 @@ def main(argv: Sequence[str] | None = None) -> int:
         execute = bool(args.execute)
         require_execute_gate(execute=execute, environ=os.environ)
         store = GenerationPinnedStorage(execute=execute, environ=os.environ)
-        if args.command == "configure":
+        if args.command == "preflight-configure":
+            result = preflight_configure(
+                storage=store,
+                batch_manifest_identity=_identity_from_args(
+                    args, "manifest"
+                ).as_dict(),
+                evidence_contract_identity=_identity_from_args(
+                    args, "evidence_contract"
+                ).as_dict(),
+                retrieval_prerequisite_identity=_identity_from_args(
+                    args, "retrieval_prerequisite"
+                ).as_dict(),
+                foundation_publication_identity=_identity_from_args(
+                    args, "foundation_publication"
+                ).as_dict(),
+                runtime_iam_evidence_raw=Path(args.runtime_iam_file).read_bytes(),
+                build_metadata=_read_external_file(
+                    Path(args.build_metadata_file), label="build metadata"
+                ),
+                build_id=args.build_id,
+                code_sha=args.code_sha,
+                image=args.image,
+                service_account=args.service_account,
+                observed_job=_read_external_file(
+                    Path(args.job_file), label="preflight job"
+                ),
+                expected_job_name=args.expected_job_name,
+                expected_job_uid=args.expected_job_uid,
+                executions=_read_external_file(
+                    Path(args.executions_file), label="executions"
+                ),
+                schedulers=_read_external_file(
+                    Path(args.schedulers_file), label="schedulers"
+                ),
+                all_regions_complete=args.all_regions_complete,
+                execute=execute,
+                environ=os.environ,
+            )
+        elif args.command == "configure":
             result = configure_transport(
                 storage=store,
                 batch_manifest_identity=_identity_from_args(args, "manifest").as_dict(),
@@ -5137,6 +7821,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                 ).as_dict(),
                 retrieval_prerequisite_identity=_identity_from_args(
                     args, "retrieval_prerequisite"
+                ).as_dict(),
+                foundation_publication_identity=_identity_from_args(
+                    args, "foundation_publication"
                 ).as_dict(),
                 runtime_iam_evidence_raw=Path(args.runtime_iam_file).read_bytes(),
                 build_metadata=_read_external_file(
@@ -5147,6 +7834,8 @@ def main(argv: Sequence[str] | None = None) -> int:
                 image=args.image,
                 service_account=args.service_account,
                 parked_job=_read_external_file(Path(args.job_file), label="job"),
+                expected_job_name=args.expected_job_name,
+                expected_job_uid=args.expected_job_uid,
                 executions=_read_external_file(
                     Path(args.executions_file), label="executions"
                 ),
