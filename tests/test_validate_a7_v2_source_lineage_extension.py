@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import base64
 from hashlib import sha256
 import inspect
 import json
+import lzma
 from pathlib import Path
 import shutil
 import sys
@@ -20,6 +22,24 @@ import finish_lr8_training_source_smoke as lr8_transport  # noqa: E402
 import validate_a7_v2_source_lineage_extension as lineage  # noqa: E402
 
 
+TARGET_DRIFT_FIXTURE_PATH = (
+    "tests/fixtures/a7_v2_source_lineage/"
+    "target-drifted-source-blobs.json.xz.b64"
+)
+TARGET_DRIFT_FIXTURE_SHA256 = (
+    "56e64d8e2335796005c66bfe6f14f157dc7d639ee31193f226f4f4e01833a4f1"
+)
+TARGET_DRIFT_PAYLOAD_SHA256 = (
+    "9d95a932eb321fad851031c1b66b38c2d3b49a57cc420be6a28a288e0462450c"
+)
+TARGET_DRIFT_PATHS = {
+    "Dockerfile",
+    "cloudbuild.yaml",
+    "pyproject.toml",
+    "scripts/recover_a7_v2_build_gate_preclaim.py",
+}
+
+
 def _evidence() -> dict[str, object]:
     path = ROOT / lineage.LINEAGE_EVIDENCE_PATH
     raw = path.read_bytes()
@@ -27,6 +47,62 @@ def _evidence() -> dict[str, object]:
     value = json.loads(raw)
     assert raw == lineage._canonical_json(value) + b"\n"
     return value
+
+
+def _target_drifted_sources() -> dict[str, bytes]:
+    fixture = (ROOT / TARGET_DRIFT_FIXTURE_PATH).read_bytes()
+    assert sha256(fixture).hexdigest() == TARGET_DRIFT_FIXTURE_SHA256
+    payload = lzma.decompress(
+        base64.b64decode(b"".join(fixture.split()), validate=True)
+    )
+    assert sha256(payload).hexdigest() == TARGET_DRIFT_PAYLOAD_SHA256
+    value = json.loads(payload)
+    assert payload == lineage._canonical_json(value) + b"\n"
+    assert set(value) == {"sources", "target_code_sha", "version"}
+    assert value["version"] == "a7-v2-target-drifted-source-blobs-v1"
+    assert value["target_code_sha"] == lineage.TARGET_CODE_SHA
+    assert set(value["sources"]) == TARGET_DRIFT_PATHS
+
+    result: dict[str, bytes] = {}
+    for relative, row in value["sources"].items():
+        assert set(row) == {"base64", "bytes", "sha256"}
+        raw = base64.b64decode(row["base64"], validate=True)
+        assert len(raw) == row["bytes"]
+        assert sha256(raw).hexdigest() == row["sha256"]
+        assert row["sha256"] == _evidence()["sources"][relative][
+            "target_sha256"
+        ]
+        result[relative] = raw
+    return result
+
+
+@pytest.fixture
+def frozen_target_root(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """Stage the exact historical target without substituting drifted files."""
+    target_root = tmp_path_factory.mktemp("a7-v2-frozen-target")
+    evidence = _evidence()
+    archived = _target_drifted_sources()
+    for relative, row in evidence["sources"].items():
+        expected = row["target_sha256"]
+        if expected is None:
+            continue
+        raw = archived.get(relative)
+        if raw is None:
+            raw = (ROOT / relative).read_bytes()
+        assert sha256(raw).hexdigest() == expected
+        target = target_root / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(raw)
+
+    for relative in (
+        lineage.PROTOCOL_PATH,
+        lineage.LINEAGE_EVIDENCE_PATH,
+        lineage.BASE_TEST_FIXTURE_PATH,
+    ):
+        target = target_root / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(ROOT / relative, target)
+    return target_root
 
 
 def _fixture_blob(root: Path, commit: str, relative: str) -> bytes | None:
@@ -70,7 +146,7 @@ def _fixture_ancestry(_root: Path, base: str, target: str) -> None:
     )
 
 
-def _fixture_validate(**overrides: object) -> dict[str, object]:
+def _fixture_validate(root: Path, **overrides: object) -> dict[str, object]:
     options = {
         "blob_loader": _fixture_blob,
         "diff_loader": _fixture_diff,
@@ -78,11 +154,13 @@ def _fixture_validate(**overrides: object) -> dict[str, object]:
         "ancestry_checker": _fixture_ancestry,
     }
     options.update(overrides)
-    return lineage._validate(**options)
+    return lineage._validate(root=root, **options)
 
 
-def test_registered_source_lineage_is_exact_and_narrow() -> None:
-    receipt = _fixture_validate()
+def test_registered_source_lineage_is_exact_and_narrow(
+    frozen_target_root: Path,
+) -> None:
+    receipt = _fixture_validate(frozen_target_root)
 
     assert receipt["base_code_sha"] == lineage.BASE_CODE_SHA
     assert receipt["target_code_sha"] == lineage.TARGET_CODE_SHA
@@ -118,10 +196,12 @@ def test_registered_source_lineage_is_exact_and_narrow() -> None:
     }
 
 
-def test_synthetic_lr8_tagged_build_is_compatible_with_both_build_gates() -> None:
+def test_synthetic_lr8_tagged_build_is_compatible_with_both_build_gates(
+    frozen_target_root: Path,
+) -> None:
     image = f"{lineage.IMAGE_REPOSITORY}@sha256:{'a' * 64}"
     build_id = "shared-build-12345678"
-    cloudbuild = (ROOT / "cloudbuild.yaml").read_bytes()
+    cloudbuild = (frozen_target_root / "cloudbuild.yaml").read_bytes()
     evidence = _evidence()
     assert sha256(cloudbuild).hexdigest() == evidence["sources"][  # type: ignore[index]
         "cloudbuild.yaml"
@@ -178,8 +258,10 @@ def test_synthetic_lr8_tagged_build_is_compatible_with_both_build_gates() -> Non
     ) == lineage.SHARED_IMAGE_TAG
 
 
-def test_real_retained_recovery_body_and_fixture_are_pinned() -> None:
-    receipt = _fixture_validate()
+def test_real_retained_recovery_body_and_fixture_are_pinned(
+    frozen_target_root: Path,
+) -> None:
+    receipt = _fixture_validate(frozen_target_root)
 
     assert receipt["recovery"] == {
         "recovery_json_sha256": lineage.RECOVERY_FILES[
@@ -203,6 +285,16 @@ def test_public_authority_entrypoint_exposes_no_evidence_injection() -> None:
     assert set(inspect.signature(lineage.validate).parameters) == {
         "root", "retained_root",
     }
+
+
+def test_live_checkout_cannot_substitute_for_frozen_target() -> None:
+    evidence = _evidence()
+    archived = _target_drifted_sources()
+    for relative in TARGET_DRIFT_PATHS:
+        current = (ROOT / relative).read_bytes()
+        expected = evidence["sources"][relative]["target_sha256"]
+        assert sha256(current).hexdigest() != expected
+        assert archived[relative] != current
 
 
 def test_protocol_drift_fails_before_authority(tmp_path: Path) -> None:
@@ -236,7 +328,9 @@ def test_base_test_evidence_drift_fails_before_authority(tmp_path: Path) -> None
         lineage._registered_base_test(tmp_path)
 
 
-def test_recovery_body_drift_fails_before_authority(tmp_path: Path) -> None:
+def test_recovery_body_drift_fails_before_authority(
+    tmp_path: Path, frozen_target_root: Path,
+) -> None:
     for relative in lineage.RECOVERY_FILES:
         source = ROOT / relative
         target = tmp_path / relative
@@ -248,10 +342,10 @@ def test_recovery_body_drift_fails_before_authority(tmp_path: Path) -> None:
     recovery.write_text(json.dumps(value), encoding="utf-8")
 
     with pytest.raises(lineage.SourceLineageError, match="retained recovery differs"):
-        _fixture_validate(retained_root=tmp_path)
+        _fixture_validate(frozen_target_root, retained_root=tmp_path)
 
 
-def test_a7_governed_source_drift_fails() -> None:
+def test_a7_governed_source_drift_fails(frozen_target_root: Path) -> None:
     target = lineage.A7_SOURCE_PATHS[1]
 
     def poisoned(root: Path, commit: str, relative: str) -> bytes | None:
@@ -262,10 +356,10 @@ def test_a7_governed_source_drift_fails() -> None:
         return raw
 
     with pytest.raises(lineage.SourceLineageError, match="evidence source differs"):
-        _fixture_validate(blob_loader=poisoned)
+        _fixture_validate(frozen_target_root, blob_loader=poisoned)
 
 
-def test_archive_fixture_drift_fails() -> None:
+def test_archive_fixture_drift_fails(frozen_target_root: Path) -> None:
     def poisoned(root: Path, commit: str, relative: str) -> bytes | None:
         raw = _fixture_blob(root, commit, relative)
         if commit == lineage.TARGET_CODE_SHA and relative == (
@@ -278,20 +372,22 @@ def test_archive_fixture_drift_fails() -> None:
     with pytest.raises(
         lineage.SourceLineageError, match="evidence source differs",
     ):
-        _fixture_validate(blob_loader=poisoned)
+        _fixture_validate(frozen_target_root, blob_loader=poisoned)
 
 
-def test_unclassified_complete_delta_path_fails() -> None:
+def test_unclassified_complete_delta_path_fails(frozen_target_root: Path) -> None:
     def poisoned(root: Path, base: str, target: str) -> list[dict[str, str]]:
         rows = _fixture_diff(root, base, target)
         rows[-1] = {"path": "src/nfl_dfs/research/a7_new_science.py", "status": "A"}
         return rows
 
     with pytest.raises(lineage.SourceLineageError, match="unclassified change"):
-        _fixture_validate(diff_loader=poisoned)
+        _fixture_validate(frozen_target_root, diff_loader=poisoned)
 
 
-def test_complete_delta_content_or_status_drift_fails() -> None:
+def test_complete_delta_content_or_status_drift_fails(
+    frozen_target_root: Path,
+) -> None:
     def poisoned(root: Path, base: str, target: str) -> list[dict[str, str]]:
         rows = _fixture_diff(root, base, target)
         rows[0] = {**rows[0], "status": "A"}
@@ -300,4 +396,4 @@ def test_complete_delta_content_or_status_drift_fails() -> None:
     with pytest.raises(
         lineage.SourceLineageError, match="complete-delta receipt differs",
     ):
-        _fixture_validate(diff_loader=poisoned)
+        _fixture_validate(frozen_target_root, diff_loader=poisoned)

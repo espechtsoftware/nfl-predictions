@@ -20,7 +20,51 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 16:34 CDT
+## Current state — 2026-08-21 17:17 CDT
+
+### Corpus task 0 is continuing from retained suite evidence; no full rerun
+
+- Branch `main`, parent commit
+  `2d3d1685458e4b3fbe9be073a5693ee65cd533a4`; the narrow repair and this
+  handoff update are in the immediately following commit. Cloud Build
+  `544a65df-2a37-4fb8-b207-870dabee263c` is terminal `FAILURE`, resolved exact
+  direct-Git source `f81d02fd143f3cb5318eee1d795099fe2b167c39`, and is
+  permanently ineligible as image authority. It ran the complete suite once:
+  **3,328 passed, 4 skipped, and exactly 8 failed**, all in
+  `tests/test_validate_a7_v2_source_lineage_extension.py`; its image-build and
+  smoke steps remained queued, so it produced no eligible digest.
+- The failure was a historical test-replay defect, not corrupt frozen lineage
+  evidence and not a retrieval/science failure. The immutable 43-source
+  evidence matches every real blob at frozen commits `f389f333...` and
+  `2bec2965...`. The test helper incorrectly read four legitimately newer live
+  files as if they were the historical target: `Dockerfile`,
+  `cloudbuild.yaml`, `pyproject.toml`, and
+  `scripts/recover_a7_v2_build_gate_preclaim.py`.
+- The repair changes only that test and adds a pinned Base64/XZ fixture holding
+  those four exact historical blobs. The fixture SHA-256 is
+  `56e64d8e2335796005c66bfe6f14f157dc7d639ee31193f226f4f4e01833a4f1`;
+  its decoded canonical payload SHA-256 is
+  `9d95a932eb321fad851031c1b66b38c2d3b49a57cc420be6a28a288e0462450c`.
+  The replay now stages an exact frozen target, verifies every other staged
+  path against the existing evidence hash, and explicitly proves the four
+  current files cannot substitute for frozen bytes. The production lineage
+  validator, frozen protocol, and original evidence fixture are unchanged.
+- Per the user's explicit instruction, do **not** run the full suite again.
+  The only continuation validation run was
+  `PYTHONPATH=src .venv/bin/python -m pytest -q
+  tests/test_validate_a7_v2_source_lineage_extension.py`: after one fixture
+  temp-directory isolation correction, the exact file is green **13/13**.
+  `cloudbuild.corpus-retrieval-continuation.yaml` retains the failed build's
+  exact metadata and log summary, runs only those 13 repaired checks, builds a
+  fresh image, and runs only the four retrieval container smokes (`--help`,
+  default-off parked behavior, exact-80 engine import, and launcher syntax).
+- Exact next action: push the narrow repair, submit that dedicated direct-Git
+  continuation config at the pushed commit, and, if every step succeeds,
+  validate its immutable digest, publish the already frozen task-0 inputs into
+  the still-pristine namespace, repeat scheduler/job/IAM censuses, and perform
+  exactly one scoring launch. No scoring run has launched yet.
+
+## Prior state — 2026-08-21 16:34 CDT
 
 ### Corpus retrieval engine is focused-green; exact cloud task 0 is pending
 
