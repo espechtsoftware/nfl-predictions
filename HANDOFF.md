@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 21:25 CDT
+## Current state — 2026-08-20 22:13 CDT
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
@@ -108,12 +108,73 @@ agent or developer:
   produced no image, and it must not be reused. Corrected direct-Git build
   `063251e8-888b-4d64-9c78-1346af5b12bf` is `QUEUED` from the exact pushed
   source `7057554eb2d930be29e882745e52d271fde09339`, with requested tag
-  `a7-v2-7057554-20260820` and the registered 10,800-second timeout.
+  `a7-v2-7057554-20260820` and the registered 10,800-second timeout. It is now
+  `WORKING` in `full-test-suite`, has passed the prior archive-fixture failure
+  region cleanly, and reached the expected long retained-CBC block after 64%
+  with no failure or error marker. Image build and container smoke remain
+  queued; no digest exists yet.
 - Exact next action: monitor corrected build `063251e8...` and require every
   test, image-build, and container-smoke step to pass. Only after exact
   `SUCCESS`, source/digest validation, and the already-green idle/unscheduled
   reused-job census may v2 create its fresh claim and begin its one new
   outcome-blind smoke.
+
+### LR8 historical legal-relaxation arm has green mechanics and a score-free source contract
+
+- The registered question is now one bounded historical arm, not a blanket
+  repeal of lineup rules: can at most eight matched-budget residual columns per
+  cross-fit fold improve the unchanged exact-80 selector when the new columns
+  have only DraftKings NFL Classic legality hard? Salary floor, QB stack,
+  bring-back, RB/DST, same-team RB, ownership, exposure, and shape rules are
+  soft anatomy fields or absent for the novel columns; the incumbent pool and
+  selector remain unchanged.
+- Earlier-period learning is exact `{2019 Weeks 1..17, 2021 Weeks 1..18}`.
+  The fixed label is candidate total `>=200`, the fixed equal-cell logistic
+  feature law has no sweep, and B1/A2a/2023--2025 inputs are forbidden. The
+  2023--2025 one-read evaluation is explicitly described as disciplined
+  historical decision evidence rather than an untouched holdout: aggregate
+  winner/B1 evidence motivated the design, but B1 rows/model/coefficients are
+  never arm inputs and no post-read retune is permitted.
+- LR8 construction uses fold-local matched replacements, exact-80 parity, and
+  lexicographic marginal tiers `210/200/194/187`, then the fixed anatomy
+  probability, then 210-clipped book-max gain. Anatomy alone cannot admit a
+  zero-residual lineup. The license-bearing book is predetermined before any
+  later score read: odd weeks use Fold A and even weeks Fold B. A pass requires
+  strict selected-maximum and 200-week improvement, noninferior 194/210 counts,
+  treatment mean candidate ceiling at least 205, mean candidate-to-selected
+  gap at most 5, and treatment mean selected maximum at least 194. Production
+  remains unchanged.
+- Mechanics files are
+  `src/nfl_dfs/research/lr8_historical_arm.py`,
+  `scripts/run_lr8_historical_arm.py`,
+  `tests/test_lr8_historical_arm.py`,
+  `tests/test_lr8_historical_runner.py`, and the draft protocol
+  `reports/2026-08-20-lr8-historical-residual-column-protocol-draft.md`.
+  The only shared helper change is a default-preserving optional 210 cap for
+  the sum-max tie tier in `residual_world_columns.py`; the default remains
+  uncapped for every existing consumer. Focused mechanics/runner validation is
+  29/29 green. The complete retained `test_residual_world_columns.py` suite is
+  95/95 green with captured exit 0; no source changed during that run.
+- The new outcome-blind training source contract is
+  `src/nfl_dfs/research/lr8_training_source.py` with
+  `tests/test_lr8_training_source.py`. It requires exact 35-slate coverage,
+  exact PIT prior-season refits, baseline player worlds only, R0/R1 projection
+  seeds, exactly forty unique DK-only optima per block within the first eighty
+  ordered solves, exact incumbent no-goods, generation-pinned receipts, and an
+  externally pinned freeze-manifest SHA. Role-belief worlds are literal false;
+  the legacy role seed is retained only as explicitly nonoperative source
+  provenance and is absent from solve inputs/hashes. Focused validation is
+  34/34 green. Root reran all 63 focused LR8 mechanics/runner/source tests
+  together successfully; py_compile and whitespace checks are green.
+- No real outcomes, BigQuery rows, GCS bodies, Cloud Run job, shared lease, or
+  production path were touched by this milestone. The old 35 NPZs contain only
+  candidate indices/totals and cannot score novel relaxed rosters. Exact next
+  actions are already active in separate lanes: add the default-preserving
+  `replay_projections(include_actual=False)` seam and audited catalog/DST
+  alignment, then bind exact CBC proof callbacks for relaxed-world and
+  residual-column pricing. After a real outcome-blind source smoke, freeze the
+  2019/2021 source and portable anatomy artifact; only then construct/freeze
+  the 270-cell 2023--2025 books before the sole score read.
 
 ### A2a and B1 one-shot historical arms are closed; neither licenses adoption
 

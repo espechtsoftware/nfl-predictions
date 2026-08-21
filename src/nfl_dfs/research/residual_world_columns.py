@@ -7332,6 +7332,7 @@ def utility_from_maxima(
     maxima_micro: Sequence[int] | np.ndarray,
     *,
     thresholds_micro: Sequence[int] = TAIL_THRESHOLDS_MICRO,
+    sum_max_cap_micro: int | None = None,
 ) -> TailUtility:
     maxima = np.asarray(maxima_micro)
     if maxima.dtype.kind not in "iu" or maxima.ndim != 1 or not len(maxima):
@@ -7341,17 +7342,27 @@ def utility_from_maxima(
     maxima = maxima.astype(np.int64, copy=False)
     thresholds = _threshold_tuple(thresholds_micro)
     counts = tuple(int(np.count_nonzero(maxima >= threshold)) for threshold in thresholds)
-    return TailUtility(counts, sum(int(value) for value in maxima))
+    if sum_max_cap_micro is None:
+        summed = maxima
+    else:
+        cap = _strict_integer(sum_max_cap_micro, "tail utility sum-max cap")
+        if cap <= 0:
+            raise ResidualWorldError("tail utility sum-max cap must be positive")
+        summed = np.minimum(maxima, cap)
+    return TailUtility(counts, sum(int(value) for value in summed))
 
 
 def tail_utility(
     candidate_scores_micro: np.ndarray,
     *,
     thresholds_micro: Sequence[int] = TAIL_THRESHOLDS_MICRO,
+    sum_max_cap_micro: int | None = None,
 ) -> TailUtility:
     scores = _micro_matrix(candidate_scores_micro, label="candidate scores")
     return utility_from_maxima(
-        scores.max(axis=0), thresholds_micro=thresholds_micro
+        scores.max(axis=0),
+        thresholds_micro=thresholds_micro,
+        sum_max_cap_micro=sum_max_cap_micro,
     )
 
 
@@ -7363,6 +7374,7 @@ def reverse_greedy_pruning_order(
     steps: int = K_MAX,
     expected_protected_count: int | None = None,
     thresholds_micro: Sequence[int] = TAIL_THRESHOLDS_MICRO,
+    sum_max_cap_micro: int | None = None,
 ) -> PruningResult:
     """Freeze the deterministic matched-budget reverse-greedy removals."""
     identities = tuple(canonical_identity(value) for value in candidate_identities)
@@ -7396,7 +7408,9 @@ def reverse_greedy_pruning_order(
     for dose in range(1, steps + 1):
         matrix = scores[remaining]
         before = utility_from_maxima(
-            matrix.max(axis=0), thresholds_micro=thresholds_micro
+            matrix.max(axis=0),
+            thresholds_micro=thresholds_micro,
+            sum_max_cap_micro=sum_max_cap_micro,
         )
         if len(remaining) < 2:
             raise ResidualWorldError("pruning would empty the candidate pool")
@@ -7411,7 +7425,9 @@ def reverse_greedy_pruning_order(
             unique_maximum = (matrix[local_index] == maxima) & (maximum_count == 1)
             after_maxima = np.where(unique_maximum, second, maxima)
             utility = utility_from_maxima(
-                after_maxima, thresholds_micro=thresholds_micro
+                after_maxima,
+                thresholds_micro=thresholds_micro,
+                sum_max_cap_micro=sum_max_cap_micro,
             )
             choices.append((utility.vector, identity, original_index, utility))
         if not choices:
