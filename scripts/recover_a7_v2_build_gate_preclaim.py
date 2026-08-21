@@ -45,7 +45,9 @@ REPAIRED_FINISHER_SHA256: Final = (
     "d1f93cbe10a9e0d0d064dff36e9f168db3259a8fb833012df56f513fad509490"
 )
 CLOUDBUILD_SHA256: Final = (
-    "a4a3d8b9bd637e9f1c7efe74bea5e9c25aa200ec4e63759497b745e47dcd4a4e"
+    # Retrieval-only smoke additions do not alter the frozen A7 worker law,
+    # but the administrative recovery still pins the complete build file.
+    "648b8d944d08690ab2255396c9ca6e388e8b6c29785e58be3d35f31a62c7c8c5"
 )
 PRIOR_HELPER_SHA256: Final = (
     "2f2e491bfbcb08353e7af64632f29067644d1714c29fad22b6195606a9d39c6b"

@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 15:03 CDT
+## Current state — 2026-08-21 15:31 CDT
 
 ### Corpus retrieval engine is focused-green; exact cloud task 0 is pending
 
@@ -149,7 +149,21 @@ agent or developer:
   commit `ddef590fe71ed0e4070c1f6a43864bf6ed665cff` is pushed. Clean direct-Git
   replacement `98335823-1467-4626-bbbc-d8ba8d361510` resolves that exact
   commit and immutable tag `corpus-retrieval-v1-ddef590`; it was queued at
-  14:55 CDT. Do not submit a concurrent replacement while it is active.
+  14:55 CDT. It advanced cleanly through retrieval coverage, then exposed ten
+  deterministic failures at 69% in the historical
+  `test_recover_a7_v2_build_gate_preclaim.py` cluster and was canceled at
+  15:21 CDT. Every failure closes at the stale hard-coded `cloudbuild.yaml`
+  digest: later retrieval-only smoke additions changed the full build-file
+  hash without changing the frozen A7 worker law. Cloud diagnostic
+  `00cd5e5b-7b7e-4b9d-8900-a5a443a5dfbb` was canceled after an initial stale
+  test-count map selected the wrong recourse file; corrected Python-3.11
+  diagnostic `13a2114b-863b-46ba-9ceb-2268e0852779` passed the exact replay
+  file 20/20. A fresh 3,339-test collection mapped the failures exactly to the
+  stale A7 recovery test. Its build-file constant is now updated to exact
+  committed SHA-256
+  `648b8d944d08690ab2255396c9ca6e388e8b6c29785e58be3d35f31a62c7c8c5`;
+  current dirty A7 additions remain excluded. The canceled full build and both
+  diagnostics are permanently ineligible as retrieval images.
 - A prior outcome-blind engineering prototype over the exact task-0 shapes
   found 1,276 source rows, 585 unique lineups, 27,117 strict-`>200` events,
   581 lineups with an event, and 9,534 worlds with an event. These are
@@ -205,8 +219,10 @@ agent or developer:
   launch authority: transport/terminal publication and one real-artifact
   end-to-end smoke remain open, and Neo4j remains a separate rebuildable
   append-only projection with no execution or policy authority.
-- Next concrete action: require clean direct-Git build
-  `98335823-1467-4626-bbbc-d8ba8d361510` to succeed,
+- Next concrete action: commit/push the narrow stale A7 recovery build-hash
+  repair, prove its 15 focused tests in a clean checkout, and submit one clean
+  direct-Git retrieval build from that repair commit. Require that replacement
+  to succeed,
   publish/reopen the
   exact create-once input suite against its immutable digest, build canonical runtime
   IAM evidence, run immediate all-region scheduler and namespace censuses,
