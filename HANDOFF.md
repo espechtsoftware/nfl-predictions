@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 23:34 CDT
+## Current state — 2026-08-21 00:11 CDT
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
@@ -114,11 +114,29 @@ agent or developer:
   `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:f9ecbcc6a45046b4155bb22e0497e7b7c1c618655bad2a7852bfc8fb04c2370f`.
   It finished at `2026-08-21T04:53:40.738864Z`; no Cloud Run update or outcome
   access occurred during the build.
-- Exact next action: recheck the v2 prefix, lease, reused-job idleness and
-  scheduler absence, then start the registered v2 watcher with the immutable
-  image, source `7057554...`, and build `063251e8...`. The watcher owns the
-  sole smoke, support census, external freeze, and any subsequently licensed
-  one-shot historical execution.
+- After the administrative recovery below is durably recorded, start the
+  registered v2 watcher with the immutable image, source `7057554...`, and
+  build `063251e8...`. The watcher owns the sole smoke, support census,
+  external freeze, and any subsequently licensed one-shot historical
+  execution.
+- The first operator-side attempt to start that watcher (PID `2693633`) was
+  externally interrupted during `preflight-prepare`. It left only the exact
+  empty local preflight-directory inode and a zero-byte watcher log: no local
+  receipt, GCS object, Cloud Run job update/execution, historical lease, score
+  read, or scientific attempt exists. Direct deletion/retry is forbidden by
+  the frozen launcher. The narrow administrative amendment
+  `reports/2026-08-21-a7-v2-empty-preflight-shell-recovery-protocol.md` and
+  `scripts/recover_a7_v2_empty_preflight_shell.py` instead re-prove the exact
+  empty inode/log, byte-clean frozen source, completely empty v2 prefix,
+  definitive lease absence, unchanged generation-12 job/spec, exact 262
+  terminal executions, and scheduler absence. Its only mutation is a final
+  atomic same-filesystem rename of that empty inode into a durable incident
+  archive; it cannot update/execute Cloud Run, query outcomes, or write/delete
+  cloud objects. Focused recovery validation is 12/12 green; pycompile,
+  whitespace checks, and an independent live read-only precheck are green.
+  Execute it once only after this amendment is committed/pushed, commit its
+  durable incident receipts, then start the unchanged v2 watcher in a
+  persistent foreground tool session rather than a detached short-lived shell.
 
 ### LR8 historical legal-relaxation arm has green mechanics and a score-free source contract
 
