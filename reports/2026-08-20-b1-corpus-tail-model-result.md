@@ -30,6 +30,13 @@ score was `0.001141619`, slightly worse than the registered fold-prevalence
 comparator at `0.001141396`. The walk-forward companion showed the same
 calibration failure (`0.000966731` versus `0.000965206`).
 
+This control is specifically the stored ranks 0--79 from the canonical
+`20260815-atlas-money-worlds-r0-v1` candidate panel, with the challenger
+restricted to that same roughly 250-roster weekly pool. It is not the 176.06
+money-book baseline or the 178.57 A3/A7 comparator; those use different panel,
+slate, or book definitions and their means must not be compared as if they
+were the B1 control.
+
 The exact historical gates were:
 
 - pass: equal candidate/entry budgets; 194 protection; 210 noninferiority;
