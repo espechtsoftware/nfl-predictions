@@ -1,0 +1,15 @@
+validated_at=2026-08-21T10:16:58.885192+00:00
+run_id=20260820-a7-select-ladder-phase-s-incumbent-v2
+mode=support-census
+strict_terminal_harvest=true
+preflight_receipt_sha256=89a9ce022e835316d397ef53d53a59f56b4316520bd9bebb864c4dd1ea5637ea
+terminal_receipt_sha256=10d6dca155b7c42fb20065a5bab17e71a073f64475a4993b14ccb0e26294d0e9
+terminal_object_sha256=10d6dca155b7c42fb20065a5bab17e71a073f64475a4993b14ccb0e26294d0e9
+terminal_object_generation=1787307417866457
+disposition=support-passed
+support_passed=true
+uses_realized_outcomes=false
+actual_score_query_executed=false
+production_change_licensed=false
+production_law_scorefree_transfer_licensed=false
+prospective_shadow_licensed=false

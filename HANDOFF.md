@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 04:37 CDT
+## Current state — 2026-08-21 05:22 CDT
 
-### LR8 historical score path is the sole active priority
+### A7 exact-80 historical comparison is the sole active priority
 
 - **2026-08-21 operator reprioritization:** do not hold the Week-1 decision
   behind additional LR8 transport or solver scaffolding. The closest completed
@@ -57,9 +57,10 @@ agent or developer:
   replay hardening, but its four new files remain uncommitted pending final
   integration review and are not on the Week-1 decision critical path.
 
-- Branch `main`; pushed parent before this prepare receipt is
-  `d7a248ac2d39be432181ba97046a91ffe918ec14`. Keep A7 paused and do not spend
-  another dedicated build or execution on it while LR8 is active.
+- Branch `main`; pushed parent before the A7 support/freeze receipt is
+  `8c52489fa83be1dfdd45e320f46fa0a3cc5eaeea`. LR8-v2 is mechanically closed
+  without a score; do not spend another LR8 build or execution while the one
+  licensed A7-v2 historical comparison is active.
 - Exact LR8-v2 Cloud Build `6a364353-2485-43e9-9fdc-21f42df70bcb`
   completed `SUCCESS` at `2026-08-21T08:55:38.776811Z` from resolved Git
   source `2bec2965442b90ec87990fb25f086de9005265dc`. The full suite passed
@@ -169,8 +170,42 @@ agent or developer:
   and local `smoke/finish.sha256` SHA-256 is
   `0933009ef16995e4c01d1dcc09dac537c69f848af0127092bc3f2c0821bfdf98`.
   It read no realized outcome and grants no shadow or production license. The
-  same registered watcher has proceeded to the one score-free support census;
+  same registered watcher then proceeded to the one score-free support census;
   never relaunch the smoke.
+- The score-free support census completed strict terminal success as execution
+  `atlas-minimal-c-s2023-w1-v1-lx8vt` at
+  `2026-08-21T10:15:58.177807Z`, succeeded=1 with no failed or retried task.
+  Its strict-harvest disposition is `support-passed`, preflight receipt
+  SHA-256 is
+  `89a9ce022e835316d397ef53d53a59f56b4316520bd9bebb864c4dd1ea5637ea`,
+  terminal object generation is `1787307417866457`, and terminal object
+  SHA-256 is
+  `10d6dca155b7c42fb20065a5bab17e71a073f64475a4993b14ccb0e26294d0e9`.
+  Local `support/finish.sha256` has file SHA-256
+  `889c710d75fcbaefcc14fe36d2452f72b8bfd60d7d3b65d14175793f1e1a25de`.
+  The external freeze was then created once at
+  `gs://nfl-predictions-503414-raw/research/a7-select-ladder-runs/20260820-a7-select-ladder-phase-s-incumbent-v2/preflight/freeze-manifest.json`,
+  generation `1787307428210248`, 99,181 bytes, SHA-256
+  `1621e68d9b40880c2b17cc517b2222027483e7f60109ff4ecb15abedb12f65e0`;
+  the local freeze-upload receipt file SHA-256 is
+  `8c81b90b2a38629d6a62ed8daa159a78af5fee34f5aec2a6da84263eca566dff`.
+  These are the final score-free gates and they license exactly one historical
+  look.
+- The watcher validated that freeze, acquired the shared historical-outcome
+  lease create-only at generation `1787307463778605` (receipt/object SHA-256
+  `d4ce05e3463e9098c27d55db914031456342c05ce1cc2c07ecf37ce06ec3c660`),
+  and launched the sole zero-retry historical execution
+  `atlas-minimal-c-s2023-w1-v1-fkxv8` at
+  `2026-08-21T10:17:57.157063Z`. It became `Started=True` at
+  `2026-08-21T10:19:06.056901Z`; it currently has one running task and no
+  failed, succeeded, or retried counter. Do not read a partial result, release
+  the lease manually, cancel, or relaunch. The registered watcher must carry
+  it through terminal-first strict harvest and lease closure. The immediately
+  preceding same-corpus support run took 33m56.78s; historical mode performs
+  that reconstruction plus a second independent replay. The evidence-based
+  planning window is terminal around `2026-08-21T11:20Z--11:36Z` and fully
+  validated scores around `11:50Z--12:15Z`; the hard zero-retry task timeout is
+  `2026-08-21T12:18:11Z`.
 
 - Branch `main`, historical pushed parent milestone
   `1cbbc3d88e199bd9078e7059ef13b1d9ef76df64` (pushed to `origin/main`); the
@@ -1188,22 +1223,20 @@ agent or developer:
   read or mutation occurred.
 
 **Scientific queue and next concrete action.** Time-to-score is the sole active
-priority. Keep A7 paused and do not spend another dedicated build or execution
-on it. Let exact LR8-v2 build
-`6a364353-2485-43e9-9fdc-21f42df70bcb` finish; it was clean through 66% at
-`2026-08-21T07:42:22.198Z`. On exact SUCCESS, prepare and launch the sole new
-score-free 2019-W1/R0 smoke with its immutable digest. A strict smoke-v2 pass
-licenses one integrated build containing the now-wired 70-cell transport,
-score-map/fit runner, and the in-progress real 2023--2025 construction/scoring
-wrappers. Then run two shared season preparations, submit all 70 independent
-zero-retry cells (quota naturally schedules about 56+14), aggregate the exact
-2019/2021 freeze, and perform the one earlier score-map+fit execution. Freeze
-all later-period books before the sole exact-union score read. Do not query the
-retention-only B1 archive for a new model, bypass a full-test gate, inspect
-partial metrics, relaunch a closed attempt, use broad `deploy_jobs.sh`, or
-create/delete a Cloud Run job. Honest planning range for first clean LR8
-2023--2025 scores is 24--48 hours after smoke-v2 passes; replace that range
-with measured cell timing immediately after the smoke.
+priority. Poll only historical execution
+`atlas-minimal-c-s2023-w1-v1-fkxv8` to terminal and let the registered watcher
+perform terminal-first strict harvest and generation-bound lease closure. Do
+not inspect a partial result, cancel, relaunch, change the fixed ladder/gates,
+or overlap another outcome arm. After strict completion, preserve the exact
+historical receipts in `main`, update this HANDOFF, and commit/push them before
+reporting a disposition. Independently recompute the paired mean delta,
+signed-rank result, and threshold grid from the final per-slate receipt (with
+no second query) before trusting the 5,000-line finisher's result. If and only
+if A7 is `historical-positive-phase-s`, freeze and run its one licensed
+score-free production-law selector-transfer test; a transfer pass then
+licenses a new default-off 2026 shadow with the unchanged ladder. If A7 is
+null or negative, close it without another dose or corpus search. LR8-v2 is a
+mechanical no-score failure and is no longer on this critical path.
 
 ## Prior state — 2026-08-20 08:37 CDT
 
