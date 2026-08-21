@@ -24,8 +24,8 @@ agent or developer:
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
-- Branch `main`, source parent
-  `8b486c47ed77f11586923fcc3c325f7ae43122cf`. The failed A7-v1 smoke remains
+- Branch `main`, source commit
+  `a9edde40903ba3567aa22174dbe8f4b9fc40ae41` (pushed to `origin/main`). The failed A7-v1 smoke remains
   permanently closed and must never be relaunched or passed to the v1
   success-only finisher.
 - A new isolated close-only protocol and implementation validate the exact
@@ -66,12 +66,23 @@ agent or developer:
   the combined close-only plus A7-v2 suite passes 130/130 after that binding.
   No cloud build/job, outcome query, or lease action occurred during
   implementation or validation.
-- Exact next action: commit and push these reviewed source bytes, invoke the
-  close-only v1 tool once, validate and commit/push its local release body,
-  object receipt, terminal/inventory/absence evidence, and this handoff, then
-  build A7-v2 from its exact direct-Git source commit. Do not create a v2 job
-  claim until the create-once v1 release is generation-pinned and locally
-  reproduced.
+- The close-only tool ran once under the committed source and published only
+  the canonical 7,163-byte logical release at generation
+  `1787277749650035`, metageneration 1, SHA-256
+  `2358f9873fd43bbf9df817eba8dd4f94d035bf2faeee225e87ba014e3a6c30f5`.
+  The retained terminal/prefix/absence receipt SHAs are respectively
+  `9f7333d136fc3cef62ab351b85d6e34cfee33c2e46e7f09f7983936f8a0fd609`,
+  `25744e440c9ab04156d824390295f8776102ceec5787fb49b5e21f888042916a`,
+  and `673f4cc46fef1e8bc15e46e3b1008dd102cd96d9e4527449f59d9f6906d6a22c`.
+  The local object-receipt SHA is
+  `4329009d5f64728c174e40603b7f6662338d4d30eb5f5fcb453d01312210d53a`.
+  A second invocation returned `already-released` and generation-pinned the
+  same remote bytes. Every historical/scientific/shadow/production license is
+  literal false; no historical look or lease was consumed.
+- Exact next action: commit and push the retained v1 evidence, release body,
+  object receipt, terminal/inventory/absence receipts, and this handoff. Then
+  run the exact direct-Git A7-v2 build from source commit `a9edde4…`; only
+  after build success may v2 create its fresh claim and begin its new smoke.
 
 ### A2a and B1 one-shot historical arms are closed; neither licenses adoption
 

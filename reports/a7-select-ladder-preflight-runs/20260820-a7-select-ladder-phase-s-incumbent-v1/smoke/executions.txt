@@ -1,0 +1,1 @@
+atlas-minimal-c-s2023-w1-v1 atlas-minimal-c-s2023-w1-v1-6qfpk gs://nfl-predictions-503414-raw/research/a7-select-ladder-runs/20260820-a7-select-ladder-phase-s-incumbent-v1/preflight/real-artifact-smoke.json
