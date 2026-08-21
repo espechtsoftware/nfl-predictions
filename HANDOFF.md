@@ -172,10 +172,17 @@ agent or developer:
   and licenses only a fresh exact-source build followed by the first v2 job
   claim. The final commit-pinned finisher and closure suites pass 83/83; the
   prior supplemental A7 cloud-contract suite remains 23/23, and pycompile and
-  whitespace checks are green. Commit and push this repair, execute the
-  closure once using that full fresh commit SHA, commit its receipts, then
-  submit a fresh direct-Git A7-v2 build. Inspect the first-claim receipt before
-  handing subsequent smoke/support work to the watcher.
+  whitespace checks are green. The commit-pinned repair was committed/pushed
+  at `f389f33336868d552220bcc9e6decfe557a85220`. The closure then completed
+  once at `2026-08-21T05:38:28.865145Z`, preserving the exact shell and log at
+  `reports/a7-select-ladder-preflight-recovery-runs/20260821-a7-v2-build-gate-preclaim-recovery-v1/`.
+  Its evidence-ledger SHA-256 is
+  `43272bf6af7b1b4f936d30401946b0b56dcecdafb53d9117cf1554b79efb03a9`
+  and recovery-receipt SHA-256 is
+  `f25b87b7bce3dd170ad47f647c3f7d3606ad7de5cd646082c0b6ce34463e0e66`.
+  Commit/push these receipts, then submit a fresh direct-Git A7-v2 build from
+  exact `f389f333...`. Inspect the first-claim receipt before handing
+  subsequent smoke/support work to the watcher.
 
 ### LR8 historical legal-relaxation arm has green mechanics and a score-free source contract
 
