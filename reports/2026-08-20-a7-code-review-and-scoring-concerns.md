@@ -1027,3 +1027,73 @@ values are provably integral. But I would pair it with the sweep:
 Nothing here is scientific; no LR8 result exists and none is
 invalidated. The smoke did its job before any lease or outcome access,
 which is exactly the design intent.
+
+---
+
+## Addendum 12 (2026-08-21): A7-v2 smoke passed — the last cheap moment for the co-primary cross-check
+
+The A7-v2 outcome-blind real-artifact smoke completed strict terminal
+harvest (`atlas-minimal-c-s2023-w1-v1-b6lpq`, disposition
+`smoke-passed`). The receipt is clean and the discipline is visible:
+`uses_realized_outcomes=false`, `actual_score_query_executed=false`,
+every license literal `false`, and
+`terminal_receipt_sha256 == terminal_object_sha256` — content identity
+rather than representation, exactly the rule-2 pattern. The `COALESCE`
+repair worked; the watcher has moved to the score-free support census.
+
+So the sequence is now: support census → operator freeze manifest →
+**the single outcome-bearing read**. That makes this the last cheap
+moment to act on the one standing item I would not skip.
+
+### The item: nothing independently checks the deciding numbers
+
+I re-checked after the smoke. The two co-primaries — paired mean delta
+and signed-rank, both two-sided sign-flip at p ≤ 0.05 — are computed in
+exactly one place, `a7_select_ladder.py:690`, via
+`paired_weekly_max_report`, and consumed by a finisher that is now
+**5,000+ lines**. There is still:
+
+- no known-answer end-to-end fixture (a synthetic corpus whose
+  disposition is correct by construction), and
+- no independent recomputation of the deciding statistics from the raw
+  per-slate receipts.
+
+The 41 finisher tests are strong on *rejection* — malformed metadata,
+unknown fields, inventory binding, replay refusal. None of them
+establishes that a well-formed input produces the *right* disposition.
+Those are different properties, and only the second one protects the
+result.
+
+### Why this specific program should not skip it
+
+Three defects in this repository's history — the ownership-fade
+mislabel, the GREEN2 environment typo, and the TDLEDGER season-pooling
+error — all lived in evaluation/analysis code and were caught by
+instrument audit, never by the panel number. Every one of them would
+have survived a rejection-focused test suite, because the input was
+well-formed and the arithmetic was simply wrong.
+
+A7 has exactly one outcome read. There is no second look: the protocol's
+own dispositions forbid retry, refit, and re-dose. If the finisher
+mis-computes, the error is unfalsifiable from inside the run — the
+disposition will look authoritative either way.
+
+### The concrete ask (small, and it fits before the freeze)
+
+1. **Independent recomputation.** Take the per-slate `prefix_maxima` out
+   of the receipts and recompute the paired mean delta, the signed-rank
+   direction, and the 187→240 threshold grid in a short script that
+   shares no code with the finisher or `paired_max_stats`. Require exact
+   agreement before the disposition is recorded. This is perhaps thirty
+   lines and it is the single highest-value test in the arm.
+2. **Known-answer fixture.** One synthetic 54-slate corpus constructed
+   so the treatment is, say, exactly +2 slates at 194 with a known
+   sign-flip outcome, asserting the expected branch. It converts "the
+   finisher rejects bad input" into "the finisher computes the right
+   answer."
+
+Neither touches the frozen scientific law, the ladder, the population,
+or any gate. Both are pure verification of the instrument that will
+decide the arm, and both are far cheaper now than a retracted result
+later — this program has already retracted two headline baselines for
+precisely this class of reason.
