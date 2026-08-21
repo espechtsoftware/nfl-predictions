@@ -24,6 +24,21 @@ agent or developer:
 
 ### A7 exact-80 historical comparison is terminally null; no shadow is licensed
 
+- After the null was closed, the operator explicitly requested variations of
+  the corpus test. A bounded retrospective-only protocol is frozen and pushed
+  at `d3b5df8`:
+  `reports/2026-08-21-a7-corpus-rank-fusion-variations-v1.md`, SHA-256
+  `b608f894f4373fd0350c77e4f10290828ba21e963e56b3f4187ae686c77eb433`.
+  It predeclares exactly seven exact-80 rank-fusion variants between the
+  sealed control and A7 score-free orders: `DS25/50/75`, `RB25/50/75`, and
+  the `A7-100` endpoint. New ladder weights are forbidden because the sealed
+  report lacks the candidate-by-50,000-world matrices needed to rerun them.
+  Selection indices must be frozen and committed without semantically using
+  candidate scores before one local scoring pass over the already retained
+  report. Every variant must be reported with Holm-adjusted descriptive
+  co-primaries; all deployment/adoption/shadow licenses remain false. At most
+  one result may be nominated for a fresh unseen-2026 prospective test. No
+  analyzer has scored the real report yet.
 - The sole A7-v2 historical comparison is complete and independently
   verified. Exact-80 SELECT_LADDER versus the frozen control produced mean
   delta `+0.049630`, signed-rank `W+=13.0`, deterministic mean-test
