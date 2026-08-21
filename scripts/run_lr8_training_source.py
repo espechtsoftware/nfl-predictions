@@ -42,6 +42,7 @@ from nfl_dfs.research import residual_world_columns as rw  # noqa: E402
 ENABLED_ENV: Final = "LR8_TRAINING_SOURCE_ENABLED"
 RUNNER_VERSION: Final = "lr8-training-source-runner-v1"
 EXTRACT_VERSION: Final = "lr8-outcome-blind-bq-extract-v1"
+SMOKE_SOLVE_FREEZE_VERSION: Final = "lr8-smoke-solve-freeze-v1"
 PANEL_ID: Final = training.CANONICAL_PANEL_ID
 MODEL_BOOST_ROUNDS: Final = replay_source.MODEL_BOOST_ROUNDS
 TABPFN_TABLE_NAME: Final = "tabpfn_projections_pit_v2"
@@ -1026,6 +1027,156 @@ def _smoke_solve(
     )
 
 
+def _smoke_solve_payload(
+    block: training.FrozenBlockSource,
+    canonical: training.CanonicalSlateSource,
+) -> dict[str, object]:
+    """Serialize the complete smoke solve ledger for independent harvesting."""
+    if not isinstance(block, training.FrozenBlockSource):
+        raise LR8SourceRunnerError("smoke solve freeze has the wrong type")
+    if not isinstance(canonical, training.CanonicalSlateSource) or (
+        canonical.season,
+        canonical.week,
+    ) != (2019, 1):
+        raise LR8SourceRunnerError("smoke canonical source identity differs")
+    if block.block != "R0" or block.projection_seed != 0:
+        raise LR8SourceRunnerError("smoke solve block identity differs")
+    canonical_player_ids = tuple(
+        player.player_id for player in sorted(
+            canonical.players, key=lambda row: row.player_id
+        )
+    )
+    if block.player_ids != canonical_player_ids:
+        raise LR8SourceRunnerError("smoke solve player/catalog alignment differs")
+    attempts = [{
+        "block": attempt.block,
+        "projection_seed": attempt.projection_seed,
+        "world_index": attempt.world_index,
+        "roster": list(attempt.roster),
+        "objective_micro": attempt.objective_micro,
+        "admitted_unique": attempt.admitted_unique,
+        "request_sha256": attempt.request_sha256,
+        "evidence_receipts": list(attempt.evidence_receipts),
+        "evidence_manifest_sha256": attempt.evidence_manifest_sha256,
+    } for attempt in block.solve_attempts]
+    request_payloads = []
+    for attempt in block.solve_attempts:
+        scores = np.array(
+            block.player_draws[:, attempt.world_index],
+            dtype=np.float32,
+            copy=True,
+            order="C",
+        )
+        scores.flags.writeable = False
+        request_payload = {
+            "season": 2019,
+            "week": 1,
+            "block": block.block,
+            "projection_seed": block.projection_seed,
+            "world_index": attempt.world_index,
+            "catalog_sha256": canonical.catalog_sha256,
+            "player_scores_sha256": training.array_sha256(scores),
+            "incumbent_no_goods_sha256": (
+                canonical.incumbent_candidates_sha256
+            ),
+            "candidate_world_family": training.CANDIDATE_WORLD_FAMILY,
+            "role_belief_worlds_used": False,
+            "hard_domain_id": training.HARD_DOMAIN_ID,
+            "former_house_rules_not_applied": list(
+                training.FORMER_HOUSE_RULES_NOT_APPLIED
+            ),
+        }
+        if training.canonical_sha256(request_payload) != attempt.request_sha256:
+            raise LR8SourceRunnerError("smoke solve request preimage differs")
+        request_payloads.append(request_payload)
+    candidates = [
+        training._candidate_freeze_payload(candidate)  # noqa: SLF001
+        for candidate in block.candidates
+    ]
+    candidate_identities = [list(candidate.roster) for candidate in block.candidates]
+    anatomy = [{
+        "roster": list(candidate.roster),
+        "features": training._anatomy_payload(  # noqa: SLF001
+            candidate.anatomy_features
+        ),
+    } for candidate in block.candidates]
+    legality = [{
+        "roster": list(candidate.roster),
+        "hard_domain_id": training.HARD_DOMAIN_ID,
+        "dk_classic_legal": True,
+        "former_house_rules_applied": [],
+    } for candidate in block.candidates]
+    checks = (
+        (attempts, block.solve_attempts_sha256, "ordered solve attempts"),
+        (candidate_identities, block.candidate_identities_sha256, "candidate identities"),
+        (anatomy, block.anatomy_sha256, "candidate anatomy"),
+        (legality, block.legality_sha256, "candidate legality"),
+    )
+    for value, expected, label in checks:
+        if training.canonical_sha256(value) != _strict_sha(
+            expected, label=f"smoke {label} hash"
+        ):
+            raise LR8SourceRunnerError(f"smoke {label} hash differs")
+    world_order = list(block.world_order)
+    if training.canonical_sha256(world_order) != _strict_sha(
+        block.world_order_sha256, label="smoke world order hash"
+    ):
+        raise LR8SourceRunnerError("smoke world order hash differs")
+    player_ids = list(block.player_ids)
+    if training.player_ids_sha256(block.player_ids) != _strict_sha(
+        block.player_ids_sha256, label="smoke player ids hash"
+    ):
+        raise LR8SourceRunnerError("smoke player ids hash differs")
+    draws = np.asarray(block.player_draws)
+    if training.array_sha256(draws) != _strict_sha(
+        block.player_draws_sha256, label="smoke player draws hash"
+    ):
+        raise LR8SourceRunnerError("smoke player draws hash differs")
+    if len(candidates) != training.UNIQUE_OPTIMA_PER_BLOCK:
+        raise LR8SourceRunnerError("smoke unique candidate dose differs")
+    return {
+        "version": SMOKE_SOLVE_FREEZE_VERSION,
+        "season": 2019,
+        "week": 1,
+        "block": block.block,
+        "projection_seed": block.projection_seed,
+        "source_environment_role_seed_nonoperative": (
+            block.source_environment_role_seed_nonoperative
+        ),
+        "candidate_world_family": training.CANDIDATE_WORLD_FAMILY,
+        "role_belief_worlds_used": False,
+        "hard_domain_id": training.HARD_DOMAIN_ID,
+        "former_house_rules_not_applied": list(
+            training.FORMER_HOUSE_RULES_NOT_APPLIED
+        ),
+        "player_ids": player_ids,
+        "player_ids_sha256": block.player_ids_sha256,
+        "player_draws": {
+            "dtype": draws.dtype.str,
+            "shape": list(draws.shape),
+            "sha256": block.player_draws_sha256,
+        },
+        "world_order_law": training.WORLD_ORDER_LAW,
+        "world_order": world_order,
+        "world_order_sha256": block.world_order_sha256,
+        "source_receipts": list(block.source_receipts),
+        "catalog_sha256": canonical.catalog_sha256,
+        "incumbent_candidates_sha256": canonical.incumbent_candidates_sha256,
+        "ordered_request_payloads": request_payloads,
+        "ordered_request_payloads_sha256": training.canonical_sha256(
+            request_payloads
+        ),
+        "ordered_solve_attempt_count": len(attempts),
+        "ordered_solve_attempts": attempts,
+        "ordered_solve_attempts_sha256": block.solve_attempts_sha256,
+        "unique_candidates": candidates,
+        "unique_candidate_count": len(candidates),
+        "candidate_identities_sha256": block.candidate_identities_sha256,
+        "anatomy_sha256": block.anatomy_sha256,
+        "legality_sha256": block.legality_sha256,
+    }
+
+
 def run_source(
     config: RunnerConfig,
     *,
@@ -1181,6 +1332,7 @@ def run_source(
         raise LR8SourceRunnerError("exact solver factory returned non-callable")
 
     source_freeze_receipt = None
+    smoke_solve_receipt = None
     smoke_solve = None
     if cfg.mode == "full-source":
         if solve_world is None:
@@ -1202,6 +1354,15 @@ def run_source(
             raise LR8SourceRunnerError(
                 "smoke did not produce exactly forty unique DK-only optima"
             )
+        smoke_solve_raw = _canonical_json(_smoke_solve_payload(
+            smoke_solve, canonical_sources[0]
+        ))
+        smoke_solve_uri = f"{cfg.output_root}/smoke-solve-freeze.json"
+        smoke_solve_receipt = _published(
+            publish(smoke_solve_uri, smoke_solve_raw),
+            expected_uri=smoke_solve_uri,
+            expected_raw=smoke_solve_raw,
+        )[0]
 
     if cfg.mode == "smoke":
         if len(canonical_sources) != 1 or len(blocks) != 1:
@@ -1259,6 +1420,7 @@ def run_source(
             len(smoke_solve.candidates) if smoke_solve is not None else 0
         ),
         "training_source_freeze_object": source_freeze_receipt,
+        "smoke_solve_freeze_object": smoke_solve_receipt,
         "smoke_solve_freeze": (
             {
                 "block": smoke_solve.block,

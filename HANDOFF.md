@@ -123,6 +123,10 @@ agent or developer:
 
 - Branch `main`; the bounded mechanics/source-contract milestone is committed
   and pushed at `cce5511c623a4f9325255a4353ad31c0bae3ab7f`.
+- The fixed-point anatomy law, exact retained-CBC solver, create-once source
+  runner, tests, and this milestone record are committed at
+  `057fca84df961300fc79049fa882e33ad3067775`; push status is recorded by the
+  immediately following HANDOFF receipt commit.
 - The registered question is now one bounded historical arm, not a blanket
   repeal of lineup rules: can at most eight matched-budget residual columns per
   cross-fit fold improve the unchanged exact-80 selector when the new columns
@@ -195,15 +199,21 @@ agent or developer:
   captured unchanged residual helper suite remains 95/95 with exit 0.
 - The create-once source runner is
   `scripts/run_lr8_training_source.py` (SHA-256
-  `fe69a176136306900a58e7bf81656821bdd1b61a8eb0205ecdbc4b4c0b275633`).
+  `2b7788706de99e1908ec42c41ac84b647cbf2a114c8b9cecd680b67693167ede`).
   `smoke` is exactly 2019-W1/R0 and cannot succeed without forty unique
   DK-only optima plus reopened proof/log/SOL/MPS/domain/MST evidence.
   `full-source` is exactly the 35-slate R0/R1 lattice. It generation-pins and
   reopens every extract, reuses the exact hash-bound fitted model object,
   requires target labels to be NULL, and records prior-season training-label
   use truthfully while all target/candidate/B1/production licenses remain
-  false. Its focused suite passes 13/13; py_compile and whitespace checks are
-  green. No real BigQuery row, GCS object, CBC smoke, or cloud job was touched.
+  false. The smoke now also publishes and binds a complete
+  `smoke-solve-freeze.json`: ordered solve attempts, the aligned canonical
+  request preimages, all forty candidate/anatomy rows, legality/world-order
+  hashes, and every generation-pinned CBC evidence receipt. This lets the
+  terminal harvester replay the request/proof chain without claiming to refit
+  the model. Its focused suite passes 13/13; py_compile and whitespace checks
+  are green. No real BigQuery row, GCS object, CBC smoke, or cloud job was
+  touched.
 - No real outcomes, BigQuery rows, GCS bodies, Cloud Run job, shared lease, or
   production path were touched by this milestone. The old 35 NPZs contain only
   candidate indices/totals and cannot score novel relaxed rosters. Exact next

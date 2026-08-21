@@ -276,18 +276,125 @@ def _adapter(binding: runner.FittedModelBinding, calls: list[dict[str, object]])
 
 
 def _frozen_smoke() -> object:
-    return SimpleNamespace(
+    attempts = []
+    candidates = []
+    anatomy_width = len(runner.training.lr8.ANATOMY_FEATURES)
+    canonical_players = tuple(runner.rw.PlayerSpec.from_mapping({
+        "id": row["id"],
+        "pos": row["pos"],
+        "team": row["team"],
+        "opp": row["opp"],
+        "game_id": row["game_id"],
+        "salary": row["salary"],
+    }) for row in _players())
+    catalog_sha = runner.training.catalog_sha256(canonical_players)
+    incumbent_sha = runner.training.identities_sha256((tuple(
+        row["id"] for row in _players()
+    ),))
+    player_ids = tuple(player.player_id for player in canonical_players)
+    player_draws = np.zeros(
+        (len(player_ids), runner.training.WORLDS_PER_BLOCK), dtype=np.float32
+    )
+    player_draws.flags.writeable = False
+    for index in range(runner.training.UNIQUE_OPTIMA_PER_BLOCK):
+        roster = tuple(f"p{index:02d}-{slot}" for slot in range(9))
+        evidence = ({
+            "uri": f"gs://lr8-test/evidence-{index}.json",
+            "generation": "1",
+            "sha256": sha256(f"evidence-{index}".encode()).hexdigest(),
+            "bytes": index + 1,
+        },)
+        score_column = np.array(
+            player_draws[:, index], dtype=np.float32, copy=True, order="C"
+        )
+        score_column.flags.writeable = False
+        request_payload = {
+            "season": 2019,
+            "week": 1,
+            "block": "R0",
+            "projection_seed": 0,
+            "world_index": index,
+            "catalog_sha256": catalog_sha,
+            "player_scores_sha256": runner.training.array_sha256(score_column),
+            "incumbent_no_goods_sha256": incumbent_sha,
+            "candidate_world_family": runner.training.CANDIDATE_WORLD_FAMILY,
+            "role_belief_worlds_used": False,
+            "hard_domain_id": runner.training.HARD_DOMAIN_ID,
+            "former_house_rules_not_applied": list(
+                runner.training.FORMER_HOUSE_RULES_NOT_APPLIED
+            ),
+        }
+        attempts.append(runner.training.SolveAttempt(
+            block="R0",
+            projection_seed=0,
+            world_index=index,
+            roster=roster,
+            objective_micro=1_000_000 + index,
+            admitted_unique=True,
+            request_sha256=runner.training.canonical_sha256(request_payload),
+            evidence_receipts=evidence,
+            evidence_manifest_sha256=runner.training.canonical_sha256(
+                list(evidence)
+            ),
+        ))
+        candidates.append(runner.training.FrozenCandidate(
+            season=2019,
+            week=1,
+            roster=roster,
+            anatomy_features=tuple(0.0 for _ in range(anatomy_width)),
+            first_source_block="R0",
+            first_source_world_index=index,
+            source_occurrences=(("R0", index),),
+        ))
+    attempt_payload = [{
+        "block": attempt.block,
+        "projection_seed": attempt.projection_seed,
+        "world_index": attempt.world_index,
+        "roster": list(attempt.roster),
+        "objective_micro": attempt.objective_micro,
+        "admitted_unique": attempt.admitted_unique,
+        "request_sha256": attempt.request_sha256,
+        "evidence_receipts": list(attempt.evidence_receipts),
+        "evidence_manifest_sha256": attempt.evidence_manifest_sha256,
+    } for attempt in attempts]
+    candidate_payload = [list(candidate.roster) for candidate in candidates]
+    anatomy_payload = [{
+        "roster": list(candidate.roster),
+        "features": runner.training._anatomy_payload(  # noqa: SLF001
+            candidate.anatomy_features
+        ),
+    } for candidate in candidates]
+    legality_payload = [{
+        "roster": list(candidate.roster),
+        "hard_domain_id": runner.training.HARD_DOMAIN_ID,
+        "dk_classic_legal": True,
+        "former_house_rules_applied": [],
+    } for candidate in candidates]
+    world_order = tuple(range(runner.training.WORLDS_PER_BLOCK))
+    return runner.training.FrozenBlockSource(
         block="R0",
         projection_seed=0,
-        player_ids_sha256="1" * 64,
-        player_draws_sha256="2" * 64,
-        world_order_sha256="3" * 64,
-        solve_attempts=tuple(range(40)),
-        solve_attempts_sha256="4" * 64,
-        candidates=tuple(range(40)),
-        candidate_identities_sha256="5" * 64,
-        anatomy_sha256="6" * 64,
-        legality_sha256="7" * 64,
+        source_environment_role_seed_nonoperative=7331,
+        player_ids=player_ids,
+        player_draws=player_draws,
+        player_ids_sha256=runner.training.player_ids_sha256(player_ids),
+        player_draws_sha256=runner.training.array_sha256(player_draws),
+        world_order=world_order,
+        world_order_sha256=runner.training.canonical_sha256(list(world_order)),
+        source_receipts=({
+            "uri": "gs://lr8-test/replay-source.json",
+            "generation": "1",
+            "sha256": "9" * 64,
+            "bytes": 1,
+        },),
+        solve_attempts=tuple(attempts),
+        solve_attempts_sha256=runner.training.canonical_sha256(attempt_payload),
+        candidates=tuple(candidates),
+        candidate_identities_sha256=runner.training.canonical_sha256(
+            candidate_payload
+        ),
+        anatomy_sha256=runner.training.canonical_sha256(anatomy_payload),
+        legality_sha256=runner.training.canonical_sha256(legality_payload),
     )
 
 
@@ -373,6 +480,28 @@ def test_smoke_reopens_sources_reuses_exact_fit_and_requires_40(
     assert manifest["solver_status"] == "exact_smoke_complete"
     assert manifest["smoke_unique_candidates"] == 40
     assert manifest["smoke_solve_freeze"]["unique_candidate_count"] == 40
+    solve_receipt = manifest["smoke_solve_freeze_object"]
+    solve_body = runner._strict_json(
+        publisher.objects[solve_receipt["uri"]], label="smoke solve freeze"
+    )
+    assert solve_body["version"] == runner.SMOKE_SOLVE_FREEZE_VERSION
+    assert len(solve_body["ordered_solve_attempts"]) == 40
+    assert len(solve_body["ordered_request_payloads"]) == 40
+    assert len(solve_body["unique_candidates"]) == 40
+    assert runner.training.canonical_sha256(
+        solve_body["ordered_solve_attempts"]
+    ) == solve_body["ordered_solve_attempts_sha256"]
+    assert runner.training.canonical_sha256(
+        solve_body["ordered_request_payloads"]
+    ) == solve_body["ordered_request_payloads_sha256"]
+    for attempt, request_payload in zip(
+        solve_body["ordered_solve_attempts"],
+        solve_body["ordered_request_payloads"],
+        strict=True,
+    ):
+        assert runner.training.canonical_sha256(
+            request_payload
+        ) == attempt["request_sha256"]
     assert manifest["target_player_labels_read"] is False
     assert manifest["prior_model_training_labels_queried"] is True
     assert manifest["prior_model_training_seasons"] == {
@@ -387,7 +516,7 @@ def test_smoke_reopens_sources_reuses_exact_fit_and_requires_40(
     assert len(factory_calls) == 1
     assert Path(factory_calls[0]["evidence_root"]).is_absolute()
     assert callable(factory_calls[0]["publish_evidence"])
-    assert len(publisher.objects) == 5
+    assert len(publisher.objects) == 6
     assert all(generation == "1" for _, generation in publisher.reopens)
     assert result["manifest_object"]["generation"] == "1"
 
