@@ -28,6 +28,11 @@ COPY scripts/run_lr8_training_source.py ./scripts/run_lr8_training_source.py
 COPY scripts/finish_lr8_training_source_smoke.py ./scripts/finish_lr8_training_source_smoke.py
 COPY scripts/cloud_lr8_training_source_smoke.sh ./scripts/cloud_lr8_training_source_smoke.sh
 COPY scripts/watch_lr8_training_source_smoke_queue.sh ./scripts/watch_lr8_training_source_smoke_queue.sh
+COPY scripts/run_lr8_full_source_shards.py ./scripts/run_lr8_full_source_shards.py
+COPY scripts/finish_lr8_full_source_shards.py ./scripts/finish_lr8_full_source_shards.py
+COPY scripts/cloud_lr8_full_source_shards.sh ./scripts/cloud_lr8_full_source_shards.sh
+COPY scripts/watch_lr8_full_source_shards_queue.sh ./scripts/watch_lr8_full_source_shards_queue.sh
+COPY scripts/run_lr8_label_score_map.py ./scripts/run_lr8_label_score_map.py
 COPY scripts/historical_outcome_lease.py ./scripts/historical_outcome_lease.py
 COPY scripts/run_b1_union_c_census.py ./scripts/run_b1_union_c_census.py
 COPY scripts/run_b2prime_volume_oi_admission.py ./scripts/run_b2prime_volume_oi_admission.py

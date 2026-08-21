@@ -48,6 +48,13 @@ class SourcePin:
     manifest_sha256: str
 
 
+@dataclass(frozen=True, slots=True)
+class ScoreMapFitRun:
+    supply: supplier.ScoreMapSupply
+    fit_freeze: Mapping[str, object]
+    fit_freeze_receipt: Mapping[str, object]
+
+
 def _strict_json(raw: bytes, *, label: str) -> dict[str, object]:
     def reject_constant(value: str) -> None:
         raise ValueError(f"non-finite JSON constant: {value}")
@@ -326,6 +333,38 @@ class _CreateOncePublisher:
         )
 
 
+def _run_supply(
+    *,
+    config: supplier.SupplierConfig,
+    source_pin: SourcePin,
+    lease_contract: Mapping[str, object],
+    bq_client: object,
+    storage_client: object,
+    clock: supplier.Clock = lambda: datetime.now(timezone.utc),
+) -> tuple[
+    supplier.ScoreMapSupply,
+    dict[str, object],
+    dict[str, object],
+    _CreateOncePublisher,
+]:
+    if not isinstance(config.enabled, bool) or config.enabled is not True:
+        raise LR8ScoreMapRunnerError("LR8 score-map runner is default-off")
+    training_source, source_receipt = _load_source(storage_client, source_pin)
+    lease_verifier = _LiveLeaseVerifier(storage_client, lease_contract)
+    publisher = _CreateOncePublisher(storage_client)
+    result = supplier.supply_authoritative_score_map(
+        config=config,
+        training_source_freeze=training_source,
+        training_source_receipt=source_receipt,
+        verify_lease=lease_verifier,
+        read_table_metadata=lambda table: _table_metadata(bq_client, table),
+        execute_query=lambda spec: _execute_query(bq_client, spec),
+        publish=publisher,
+        clock=clock,
+    )
+    return result, training_source, source_receipt, publisher
+
+
 def run_cloud(
     *,
     config: supplier.SupplierConfig,
@@ -335,19 +374,56 @@ def run_cloud(
     storage_client: object,
     clock: supplier.Clock = lambda: datetime.now(timezone.utc),
 ) -> supplier.ScoreMapSupply:
-    if not isinstance(config.enabled, bool) or config.enabled is not True:
-        raise LR8ScoreMapRunnerError("LR8 score-map runner is default-off")
-    training_source, source_receipt = _load_source(storage_client, source_pin)
-    lease_verifier = _LiveLeaseVerifier(storage_client, lease_contract)
-    return supplier.supply_authoritative_score_map(
+    result, _, _, _ = _run_supply(
         config=config,
-        training_source_freeze=training_source,
-        training_source_receipt=source_receipt,
-        verify_lease=lease_verifier,
-        read_table_metadata=lambda table: _table_metadata(bq_client, table),
-        execute_query=lambda spec: _execute_query(bq_client, spec),
-        publish=_CreateOncePublisher(storage_client),
+        source_pin=source_pin,
+        lease_contract=lease_contract,
+        bq_client=bq_client,
+        storage_client=storage_client,
         clock=clock,
+    )
+    return result
+
+
+def run_cloud_and_fit(
+    *,
+    config: supplier.SupplierConfig,
+    source_pin: SourcePin,
+    lease_contract: Mapping[str, object],
+    bq_client: object,
+    storage_client: object,
+    clock: supplier.Clock = lambda: datetime.now(timezone.utc),
+) -> ScoreMapFitRun:
+    result, training_source, source_receipt, publisher = _run_supply(
+        config=config,
+        source_pin=source_pin,
+        lease_contract=lease_contract,
+        bq_client=bq_client,
+        storage_client=storage_client,
+        clock=clock,
+    )
+    fit_freeze = adapter.fit_and_freeze(
+        training_source_freeze=training_source,
+        expected_source_manifest_sha256=source_pin.manifest_sha256,
+        training_source_receipt=source_receipt,
+        authoritative_score_map=result.score_map,
+        authoritative_score_map_receipt=result.score_map_receipt,
+    )
+    fit_uri = f"{config.output_root}/label-fit-freeze.json"
+    published = publisher(fit_uri, supplier.canonical_json(fit_freeze))
+    reopened = _strict_json(
+        published.reopened_raw, label="created label-fit freeze"
+    )
+    validated = adapter.validate_label_fit_freeze(
+        reopened,
+        expected_freeze_sha256=fit_freeze["freeze_sha256"],
+    )
+    if validated != fit_freeze:
+        raise LR8ScoreMapRunnerError("created label-fit freeze differs")
+    return ScoreMapFitRun(
+        supply=result,
+        fit_freeze=fit_freeze,
+        fit_freeze_receipt=dict(published.receipt),
     )
 
 
@@ -357,6 +433,14 @@ def _receipt_only(result: supplier.ScoreMapSupply) -> dict[str, object]:
         "attempt_object": dict(result.attempt_receipt),
         "source_extract_object": dict(result.source_extract_receipt),
         "score_map_object": dict(result.score_map_receipt),
+    }
+
+
+def _fit_receipt_only(result: ScoreMapFitRun) -> dict[str, object]:
+    return {
+        **_receipt_only(result.supply),
+        "status": "LR8_LABEL_SCORE_MAP_AND_FIT_CLOSED",
+        "label_fit_freeze_object": dict(result.fit_freeze_receipt),
     }
 
 
@@ -420,8 +504,9 @@ def _validated_cli(
         f"{config.output_root}/label-read-attempt.json",
         f"{config.output_root}/authoritative-score-source.json",
         f"{config.output_root}/authoritative-score-map.json",
+        f"{config.output_root}/label-fit-freeze.json",
     }
-    if len(output_uris) != 5:
+    if len(output_uris) != 6:
         raise LR8ScoreMapRunnerError("LR8 score-map object URIs alias")
     lease = _read_lease_contract(args.historical_lease_receipt)
     validated = supplier._validate_lease(lease, config=config)  # noqa: SLF001
@@ -432,19 +517,23 @@ def main(argv: Sequence[str] | None = None) -> int:
     config, source_pin, lease_contract = _validated_cli(_parser().parse_args(argv))
     from google.cloud import bigquery, storage
 
-    result = run_cloud(
+    result = run_cloud_and_fit(
         config=config,
         source_pin=source_pin,
         lease_contract=lease_contract,
         bq_client=bigquery.Client(project=PROJECT),
         storage_client=storage.Client(project=PROJECT),
     )
-    print(supplier.canonical_json(_receipt_only(result)).decode(), end="")
+    print(supplier.canonical_json(_fit_receipt_only(result)).decode(), end="")
     return 0
 
 
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
-    except (LR8ScoreMapRunnerError, supplier.LR8ScoreMapError) as exc:
+    except (
+        LR8ScoreMapRunnerError,
+        supplier.LR8ScoreMapError,
+        adapter.LR8LabelFitError,
+    ) as exc:
         raise SystemExit(f"ERROR: {exc}") from exc

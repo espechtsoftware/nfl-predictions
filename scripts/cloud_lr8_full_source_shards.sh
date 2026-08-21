@@ -18,7 +18,7 @@ OUT="$ROOT/reports/lr8-full-source-shard-runs/$ATTEMPT_ID"
 PENDING="$ROOT/reports/lr8-full-source-shard-runs/.$ATTEMPT_ID.prepare.pending"
 RESULT_PREFIX="gs://nfl-predictions-503414-raw/research/lr8-training-source/$ATTEMPT_ID"
 PREPARATION_URI="$RESULT_PREFIX/preparation-manifest.json"
-SMOKE_OUT="$ROOT/reports/lr8-training-source-smoke-runs/20260820-lr8-training-source-smoke-v1"
+SMOKE_OUT="$ROOT/reports/lr8-training-source-smoke-runs/20260821-lr8-training-source-smoke-v2"
 RUNNER="$ROOT/scripts/run_lr8_full_source_shards.py"
 FINISHER="$ROOT/scripts/finish_lr8_full_source_shards.py"
 PYTHON=${NFL_DFS_PYTHON:-"$ROOT/.venv/bin/python"}
@@ -70,12 +70,11 @@ case "$COMMAND" in
     mkdir -p "$(dirname "$PENDING")"
     mkdir "$PENDING"
     PYTHONPATH="$ROOT/src:$ROOT/scripts" "$PYTHON" "$FINISHER" \
-      validate-smoke --completion "$SMOKE_OUT/completion.json" \
-      --smoke-freeze "$SMOKE_OUT/smoke-solve-freeze.json"
+      validate-smoke --smoke-dir "$SMOKE_OUT"
     capture_json "$PENDING/build.json" \
       gcloud builds describe "$BUILD_ID" --project "$PROJECT" --format=json
-    # This intentionally keeps the scaffold unlaunchable until Docker and
-    # Cloud Build integration add all four registered source/transport smokes.
+    # The selected image must contain and have passed all four registered
+    # full-source transport smokes.
     PYTHONPATH="$ROOT/src:$ROOT/scripts" "$PYTHON" "$FINISHER" \
       validate-build --build-metadata "$PENDING/build.json" \
       --build-id "$BUILD_ID" --code-sha "$CODE_SHA" --image "$IMAGE"

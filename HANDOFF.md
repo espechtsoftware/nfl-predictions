@@ -20,12 +20,14 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 03:02 CDT
+## Current state — 2026-08-21 03:13 CDT
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
-- Branch `main`, current pushed source milestone
-  `d6b5038d467a11e81497d1c5620a452a153b0101` (pushed to `origin/main`). The failed A7-v1 smoke remains
+- Branch `main`, current pushed parent milestone
+  `1cbbc3d88e199bd9078e7059ef13b1d9ef76df64` (pushed to `origin/main`); the
+  LR8 full-source/fit integration described below is in the associated commit
+  carrying this record. The failed A7-v1 smoke remains
   permanently closed and must never be relaunched or passed to the v1
   success-only finisher.
 - A new isolated close-only protocol and implementation validate the exact
@@ -560,6 +562,25 @@ agent or developer:
   `29a810311fa5837e9c3ac93819593e05abe80855`. It is not yet in Docker/Cloud
   Build and no real client, query, object, lease action or outcome access
   occurred.
+- The shortest post-smoke source path is now integrated rather than merely
+  scaffolded. The full-source runner, finisher, update-only launcher and
+  watcher are copied into the image and registered in Cloud Build; the
+  authority is retargeted to exact smoke-v2 identity
+  `20260821-lr8-training-source-smoke-v2`. Both the direct parity gate and
+  finisher require the completion version/attempt, canonical newline-inclusive
+  smoke-freeze digest, and exact seven-entry immutable `finish.sha256` ledger.
+  `chain_status.sh` labels cell shard ledgers as `LR8 full source`. Attempt,
+  freeze-hash and mixed-ledger poisons fail closed. The score-map runner is
+  also packaged and container-smoked.
+- The same lease-protected score-map execution now deterministically calls the
+  already frozen no-sweep `fit_and_freeze` law before returning, publishes
+  `label-fit-freeze.json` create-once through the same generation-pinned
+  publisher, reopens it, and independently validates the complete freeze.
+  Public stdout remains receipt-only. This removes a separate fit execution
+  and keeps the earlier-period label query and fit inside one serialized lease
+  window. The combined full-source, score supplier, fit adapter and executable
+  runner focused set passes 58/58; pycompile and `git diff --check` are green.
+  No cloud/data/outcome/lease action occurred while integrating it.
 - No real outcomes, BigQuery rows, GCS bodies, Cloud Run job, shared lease, or
   production path were touched by this milestone. The old 35 NPZs contain only
   candidate indices/totals and cannot score novel relaxed rosters. Exact next
@@ -1014,20 +1035,23 @@ agent or developer:
   unmocked producer-to-settlement receipt-chain smoke. No cloud/data/outcome
   read or mutation occurred.
 
-**Scientific queue and next concrete action.** Keep the independent lanes
-serialized only where required. LR8 smoke v1 is terminal-failed and closed;
-commit/push the archive-hermetic A7 recovery-test fixture, rebuild the already
-frozen v2 exact-integer-scalar repair from that exact pushed source, and
-prepare/launch one new score-free 2019-W1/R0 smoke. Only a strict v2 pass and prepared-cell-0
-parity may unlock Docker/Cloud Build/dashboard integration of the already
-source-green 70-cell full-source transport. In parallel, let repaired A7 build
-`f500c3ed-1960-427a-a415-2f4a4bff804b` reach terminal only to retain its exact
-test failures; it is non-reusable. Submit a fresh A7 exact-source build after
-the fixture repair, and only its exact success may create the first v2
-preflight claim. Do not bypass either full-test gate, inspect partial metrics, relaunch a
-closed attempt, launch the unlicensed exact-one/legal-soft drafts, use broad
-`deploy_jobs.sh`, or create/delete a Cloud Run job. Production remains
-unchanged until registered historical evidence licenses a bounded challenger.
+**Scientific queue and next concrete action.** Time-to-score is the sole active
+priority. Keep A7 paused and do not spend another dedicated build or execution
+on it. Let exact LR8-v2 build
+`6a364353-2485-43e9-9fdc-21f42df70bcb` finish; it was clean through 66% at
+`2026-08-21T07:42:22.198Z`. On exact SUCCESS, prepare and launch the sole new
+score-free 2019-W1/R0 smoke with its immutable digest. A strict smoke-v2 pass
+licenses one integrated build containing the now-wired 70-cell transport,
+score-map/fit runner, and the in-progress real 2023--2025 construction/scoring
+wrappers. Then run two shared season preparations, submit all 70 independent
+zero-retry cells (quota naturally schedules about 56+14), aggregate the exact
+2019/2021 freeze, and perform the one earlier score-map+fit execution. Freeze
+all later-period books before the sole exact-union score read. Do not query the
+retention-only B1 archive for a new model, bypass a full-test gate, inspect
+partial metrics, relaunch a closed attempt, use broad `deploy_jobs.sh`, or
+create/delete a Cloud Run job. Honest planning range for first clean LR8
+2023--2025 scores is 24--48 hours after smoke-v2 passes; replace that range
+with measured cell timing immediately after the smoke.
 
 ## Prior state — 2026-08-20 08:37 CDT
 

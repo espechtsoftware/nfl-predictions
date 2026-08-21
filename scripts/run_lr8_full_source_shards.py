@@ -69,10 +69,11 @@ FINAL_FREEZE_URI: Final = RESULT_PREFIX + "/training-source-freeze.json"
 AGGREGATE_URI: Final = RESULT_PREFIX + "/aggregate-manifest.json"
 SMOKE_PARITY_URI: Final = RESULT_PREFIX + "/smoke-prepared-parity.json"
 
-SMOKE_ATTEMPT_ID: Final = "20260820-lr8-training-source-smoke-v1"
+SMOKE_ATTEMPT_ID: Final = "20260821-lr8-training-source-smoke-v2"
 SMOKE_RESULT_PREFIX: Final = (
     f"gs://{BUCKET}/research/lr8-training-source/{SMOKE_ATTEMPT_ID}"
 )
+SMOKE_COMPLETION_VERSION: Final = "lr8-training-source-smoke-completion-v1"
 SMOKE_COMPLETION_DISPOSITION: Final = "outcome-blind-real-source-smoke-passed"
 
 ENABLED_ENV: Final = "LR8_FULL_SOURCE_SHARDS_ENABLED"
@@ -881,8 +882,13 @@ def validate_smoke_parity(
 ) -> dict[str, object]:
     """Require the passed real smoke and exact prepared 2019-W1/R0 parity."""
     completion = dict(smoke_completion)
+    freeze = dict(smoke_solve_freeze)
     if (
-        completion.get("disposition") != SMOKE_COMPLETION_DISPOSITION
+        completion.get("version") != SMOKE_COMPLETION_VERSION
+        or completion.get("attempt_id") != SMOKE_ATTEMPT_ID
+        or completion.get("disposition") != SMOKE_COMPLETION_DISPOSITION
+        or completion.get("smoke_solve_freeze_sha256")
+        != sha256(_canonical_json(freeze)).hexdigest()
         or completion.get("historical_outcome_lease_acquired") is not False
         or completion.get("uses_realized_target_or_candidate_outcomes") is not False
         or completion.get("production_change_licensed") is not False
@@ -898,7 +904,6 @@ def validate_smoke_parity(
         shard_core._validate_prepared(prepared_cell)  # noqa: SLF001
     except shard_core.LR8FullSourceShardError as exc:
         raise LR8FullSourceTransportError(str(exc)) from exc
-    freeze = dict(smoke_solve_freeze)
     expected = {
         "season": prepared_cell.season,
         "week": prepared_cell.week,

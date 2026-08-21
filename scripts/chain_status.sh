@@ -234,6 +234,7 @@ PYE
       */a2a-production-law-dependence-runs/*/report.json) phase="A2a realized law" ;;
       */b1-corpus-tail-runs/*/historical-report.json) phase="B1 corpus tail" ;;
       */lr8-training-source/*/smoke-manifest.json) phase="LR8 source smoke" ;;
+      */lr8-training-source/*/cells/*/shard.json) phase="LR8 full source" ;;
       *)
         case "$shadow_phase" in
           freeze) phase="B1 shadow freeze" ;;

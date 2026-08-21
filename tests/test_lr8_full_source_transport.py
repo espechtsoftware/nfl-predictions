@@ -215,9 +215,14 @@ def prepared_grid() -> Fixture:
     return Fixture(publication, publisher, rosters, tuple(calls))
 
 
-def _smoke_completion() -> dict[str, object]:
+def _smoke_completion(smoke_freeze: dict[str, object]) -> dict[str, object]:
     return {
+        "version": transport.SMOKE_COMPLETION_VERSION,
+        "attempt_id": transport.SMOKE_ATTEMPT_ID,
         "disposition": transport.SMOKE_COMPLETION_DISPOSITION,
+        "smoke_solve_freeze_sha256": sha256(
+            transport._canonical_json(smoke_freeze)  # noqa: SLF001
+        ).hexdigest(),
         "execution": {
             "state": "True",
             "counters": {
@@ -243,7 +248,31 @@ def _smoke_freeze(prepared: shards.PreparedCell) -> dict[str, object]:
         "player_draws": {"sha256": prepared.player_draws_sha256},
         "catalog_sha256": prepared.catalog_sha256,
         "incumbent_candidates_sha256": prepared.incumbent_candidates_sha256,
+        "unique_candidate_count": 40,
     }
+
+
+def _write_smoke_authority(
+    out: Path, prepared: shards.PreparedCell,
+) -> tuple[dict[str, object], dict[str, object]]:
+    out.mkdir()
+    smoke_freeze = _smoke_freeze(prepared)
+    completion = _smoke_completion(smoke_freeze)
+    for name in finisher.SMOKE_FINISH_FILES:
+        if name == "completion.json":
+            raw = transport._canonical_json(completion)  # noqa: SLF001
+        elif name == "smoke-solve-freeze.json":
+            raw = transport._canonical_json(smoke_freeze)  # noqa: SLF001
+        elif name == "launch.sha256":
+            raw = b"fixture launch ledger\n"
+        else:
+            raw = transport._canonical_json({"fixture": name})  # noqa: SLF001
+        (out / name).write_bytes(raw)
+    (out / "finish.sha256").write_text("".join(
+        f"{sha256((out / name).read_bytes()).hexdigest()}  {name}\n"
+        for name in sorted(finisher.SMOKE_FINISH_FILES)
+    ))
+    return completion, smoke_freeze
 
 
 def _terminal(
@@ -340,9 +369,10 @@ def test_preparation_is_exact_70_and_replays_once_per_season(prepared_grid: Fixt
 
 def test_smoke_gate_requires_exact_prepared_cell_parity(prepared_grid: Fixture):
     prepared = prepared_grid.publication.prepared_cells[0]
+    smoke_freeze = _smoke_freeze(prepared)
     parity = transport.validate_smoke_parity(
-        smoke_completion=_smoke_completion(),
-        smoke_solve_freeze=_smoke_freeze(prepared),
+        smoke_completion=_smoke_completion(smoke_freeze),
+        smoke_solve_freeze=smoke_freeze,
         prepared_cell=prepared,
     )
     assert parity["parity_exact"] is True
@@ -355,10 +385,63 @@ def test_smoke_gate_requires_exact_prepared_cell_parity(prepared_grid: Fixture):
         transport.LR8FullSourceTransportError, match="does not exactly match",
     ):
         transport.validate_smoke_parity(
-            smoke_completion=_smoke_completion(),
+            smoke_completion=_smoke_completion(poison),
             smoke_solve_freeze=poison,
             prepared_cell=prepared,
         )
+
+
+def test_smoke_gate_pins_v2_attempt_and_canonical_freeze_hash(
+    prepared_grid: Fixture,
+):
+    prepared = prepared_grid.publication.prepared_cells[0]
+    smoke_freeze = _smoke_freeze(prepared)
+    completion = _smoke_completion(smoke_freeze)
+    finisher.validate_smoke(completion, smoke_freeze)
+
+    for key, value in (
+        ("attempt_id", "20260820-lr8-training-source-smoke-v1"),
+        ("smoke_solve_freeze_sha256", "0" * 64),
+    ):
+        poison = {**completion, key: value}
+        with pytest.raises(finisher.LR8FullSourceFinishError):
+            finisher.validate_smoke(poison, smoke_freeze)
+        with pytest.raises(transport.LR8FullSourceTransportError):
+            transport.validate_smoke_parity(
+                smoke_completion=poison,
+                smoke_solve_freeze=smoke_freeze,
+                prepared_cell=prepared,
+            )
+
+
+def test_smoke_finish_ledger_binds_exact_local_authority(
+    prepared_grid: Fixture, tmp_path: Path,
+):
+    smoke_out = tmp_path / transport.SMOKE_ATTEMPT_ID
+    completion, smoke_freeze = _write_smoke_authority(
+        smoke_out, prepared_grid.publication.prepared_cells[0],
+    )
+    assert finisher.load_validated_smoke(smoke_out) == (
+        completion, smoke_freeze,
+    )
+
+    ledger = smoke_out / "finish.sha256"
+    canonical_ledger = ledger.read_bytes()
+    ledger.write_bytes(canonical_ledger + b"0" * 64 + b"  extra.json\n")
+    with pytest.raises(
+        finisher.LR8FullSourceFinishError, match="finish ledger differs",
+    ):
+        finisher.load_validated_smoke(smoke_out)
+    ledger.write_bytes(canonical_ledger)
+
+    completion_path = smoke_out / "completion.json"
+    completion_path.write_bytes(
+        transport._canonical_json({**completion, "attempt_id": "wrong"})  # noqa: SLF001
+    )
+    with pytest.raises(
+        finisher.LR8FullSourceFinishError, match="finish ledger differs",
+    ):
+        finisher.load_validated_smoke(smoke_out)
 
 
 def test_one_cell_attempt_is_create_once_and_harvest_is_terminal_first(
@@ -753,7 +836,28 @@ def test_preparation_manifest_hash_must_match_reopened_cell(prepared_grid: Fixtu
         )
 
 
-def test_build_gate_requires_the_future_shared_integration_smokes():
+def test_build_gate_requires_exact_shared_integration_files_and_smokes():
+    names = (
+        "run_lr8_full_source_shards.py",
+        "finish_lr8_full_source_shards.py",
+        "cloud_lr8_full_source_shards.sh",
+        "watch_lr8_full_source_shards_queue.sh",
+    )
+    docker = (ROOT / "Dockerfile").read_text()
+    cloudbuild = (ROOT / "cloudbuild.yaml").read_text()
+    docker_rows = [
+        f"COPY scripts/{name} ./scripts/{name}" for name in names
+    ]
+    smoke_rows = list(finisher.REQUIRED_BUILD_SMOKES)
+    assert all(row in docker for row in docker_rows)
+    assert [docker.index(row) for row in docker_rows] == sorted(
+        docker.index(row) for row in docker_rows
+    )
+    assert all(row in cloudbuild for row in smoke_rows)
+    assert [cloudbuild.index(row) for row in smoke_rows] == sorted(
+        cloudbuild.index(row) for row in smoke_rows
+    )
+
     build_id = "12345678-abcd-abcd-abcd-123456789abc"
     code_sha = "a" * 40
     digest = "sha256:" + "b" * 64
@@ -790,6 +894,13 @@ def test_shell_scaffold_reuses_one_job_and_emits_three_field_ledgers():
     watcher = (
         ROOT / "scripts/watch_lr8_full_source_shards_queue.sh"
     ).read_text()
+    status = (ROOT / "scripts/chain_status.sh").read_text()
+    assert transport.SMOKE_ATTEMPT_ID == "20260821-lr8-training-source-smoke-v2"
+    assert transport.SMOKE_ATTEMPT_ID in launcher
+    assert "20260820-lr8-training-source-smoke-v1" not in launcher
+    assert 'validate-smoke --smoke-dir "$SMOKE_OUT"' in launcher
+    assert "*/lr8-training-source/*/cells/*/shard.json" in status
+    assert 'phase="LR8 full source"' in status
     assert "gcloud run jobs update" in launcher
     assert "gcloud run jobs execute" in launcher
     assert "gcloud run jobs create" not in launcher

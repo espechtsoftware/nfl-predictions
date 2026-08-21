@@ -272,6 +272,16 @@ def test_default_off_precedes_receipt_or_cloud_access(
     assert not missing.exists()
 
 
+def test_score_map_runner_is_packaged_and_container_smoked() -> None:
+    docker = (ROOT / "Dockerfile").read_text()
+    cloudbuild = (ROOT / "cloudbuild.yaml").read_text()
+    assert (
+        "COPY scripts/run_lr8_label_score_map.py "
+        "./scripts/run_lr8_label_score_map.py"
+    ) in docker
+    assert "python scripts/run_lr8_label_score_map.py --help >/dev/null" in cloudbuild
+
+
 def test_mocked_runner_is_pinned_one_query_create_once_and_receipt_only(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
 ) -> None:
@@ -328,6 +338,61 @@ def test_mocked_runner_is_pinned_one_query_create_once_and_receipt_only(
     public = runner.supplier.canonical_json(closed)
     assert b"realized_score" not in public and b'"rows"' not in public
     assert b"total_bytes_processed" not in public
+
+
+def test_score_map_and_fit_publish_in_one_lease_protected_run(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    storage, pin, lease, _ = _fixture(tmp_path)
+    bq = _BQ(storage.events)
+    captured: dict[str, object] = {}
+    monkeypatch.setattr(
+        runner.supplier, "supply_authoritative_score_map",
+        _mock_supplier(captured),
+    )
+    fit_freeze = {
+        "version": "lr8-label-fit-freeze-test-v1",
+        "freeze_sha256": "f" * 64,
+    }
+    fit_inputs: dict[str, object] = {}
+
+    def fit_and_freeze(**kwargs: object) -> dict[str, object]:
+        fit_inputs.update(kwargs)
+        return dict(fit_freeze)
+
+    def validate(
+        body: object, *, expected_freeze_sha256: object,
+    ) -> dict[str, object]:
+        assert body == fit_freeze
+        assert expected_freeze_sha256 == fit_freeze["freeze_sha256"]
+        return dict(fit_freeze)
+
+    monkeypatch.setattr(runner.adapter, "fit_and_freeze", fit_and_freeze)
+    monkeypatch.setattr(runner.adapter, "validate_label_fit_freeze", validate)
+
+    result = runner.run_cloud_and_fit(
+        config=_config(), source_pin=pin, lease_contract=lease,
+        bq_client=bq, storage_client=storage,
+    )
+
+    assert fit_inputs["training_source_freeze"] == captured["source"]
+    assert fit_inputs["training_source_receipt"] == captured["source_receipt"]
+    assert fit_inputs["authoritative_score_map"] == result.supply.score_map
+    assert (
+        fit_inputs["authoritative_score_map_receipt"]
+        == result.supply.score_map_receipt
+    )
+    uploads = [event for event in storage.events if event[0] == "upload"]
+    assert len(uploads) == 4
+    assert uploads[-1][1].endswith("/label-fit-freeze.json")
+    closed = runner._fit_receipt_only(result)  # noqa: SLF001
+    assert set(closed) == {
+        "status", "attempt_object", "source_extract_object",
+        "score_map_object", "label_fit_freeze_object",
+    }
+    assert closed["status"] == "LR8_LABEL_SCORE_MAP_AND_FIT_CLOSED"
+    public = runner.supplier.canonical_json(closed)
+    assert b"freeze_sha256" not in public and b"realized_score" not in public
 
 
 def test_pin_lease_and_collision_fail_without_query_or_metrics(

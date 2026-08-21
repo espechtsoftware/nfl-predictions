@@ -40,6 +40,15 @@ REQUIRED_BUILD_SMOKES: Final = (
     "bash -n scripts/cloud_lr8_full_source_shards.sh",
     "bash -n scripts/watch_lr8_full_source_shards_queue.sh",
 )
+SMOKE_FINISH_FILES: Final = (
+    "launch.sha256",
+    "execution-terminal.json",
+    "result-inventory.json",
+    "result-objects.json",
+    "smoke-manifest.json",
+    "smoke-solve-freeze.json",
+    "completion.json",
+)
 
 
 class LR8FullSourceFinishError(RuntimeError):
@@ -66,6 +75,29 @@ def _write_once(path: Path, raw: bytes) -> None:
             raise LR8FullSourceFinishError(
                 f"immutable local object differs: {path}"
             )
+
+
+def _sha_path(path: Path, *, label: str) -> str:
+    if path.is_symlink() or not path.is_file():
+        raise LR8FullSourceFinishError(f"{label} file is absent")
+    return sha256(path.read_bytes()).hexdigest()
+
+
+def load_validated_smoke(smoke_out: Path) -> tuple[object, object]:
+    """Reopen the exact v2 smoke authority through its immutable finish ledger."""
+    ledger = smoke_out / "finish.sha256"
+    expected = "".join(
+        f"{_sha_path(smoke_out / name, label='smoke finish object')}  {name}\n"
+        for name in sorted(SMOKE_FINISH_FILES)
+    ).encode("utf-8")
+    if ledger.is_symlink() or not ledger.is_file() or ledger.read_bytes() != expected:
+        raise LR8FullSourceFinishError("real LR8 smoke finish ledger differs")
+    completion = _load_json(smoke_out / "completion.json", label="smoke completion")
+    smoke_freeze = _load_json(
+        smoke_out / "smoke-solve-freeze.json", label="smoke freeze",
+    )
+    validate_smoke(completion, smoke_freeze)
+    return completion, smoke_freeze
 
 
 def _completion_state(value: Mapping[str, object]) -> str:
@@ -370,7 +402,9 @@ class _Storage:
 
 def validate_smoke(completion: object, smoke_freeze: object) -> None:
     if not isinstance(completion, Mapping) or (
-        completion.get("disposition") != transport.SMOKE_COMPLETION_DISPOSITION
+        completion.get("version") != transport.SMOKE_COMPLETION_VERSION
+        or completion.get("attempt_id") != transport.SMOKE_ATTEMPT_ID
+        or completion.get("disposition") != transport.SMOKE_COMPLETION_DISPOSITION
         or completion.get("uses_realized_target_or_candidate_outcomes") is not False
         or completion.get("historical_outcome_lease_acquired") is not False
         or completion.get("production_change_licensed") is not False
@@ -388,6 +422,10 @@ def validate_smoke(completion: object, smoke_freeze: object) -> None:
         smoke_freeze.get("block"), smoke_freeze.get("unique_candidate_count"),
     ) != (2019, 1, "R0", 40):
         raise LR8FullSourceFinishError("real LR8 smoke freeze differs")
+    if completion.get("smoke_solve_freeze_sha256") != sha256(
+        _canonical_json(smoke_freeze)
+    ).hexdigest():
+        raise LR8FullSourceFinishError("real LR8 smoke freeze hash differs")
 
 
 def _load_prepared_cells(
@@ -521,17 +559,10 @@ def finish_preparation(
         ) != receipt:
             raise LR8FullSourceFinishError("preparation object receipt differs")
 
-    smoke_completion = _load_json(
+    smoke_completion, smoke_freeze = load_validated_smoke(
         ROOT / "reports/lr8-training-source-smoke-runs" /
-        transport.SMOKE_ATTEMPT_ID / "completion.json",
-        label="smoke completion",
+        transport.SMOKE_ATTEMPT_ID,
     )
-    smoke_freeze = _load_json(
-        ROOT / "reports/lr8-training-source-smoke-runs" /
-        transport.SMOKE_ATTEMPT_ID / "smoke-solve-freeze.json",
-        label="smoke solve freeze",
-    )
-    validate_smoke(smoke_completion, smoke_freeze)
     parity = transport.validate_smoke_parity(
         smoke_completion=smoke_completion,
         smoke_solve_freeze=smoke_freeze,
@@ -728,8 +759,7 @@ def _arguments() -> argparse.ArgumentParser:
     inventory.add_argument("--prefix", required=True)
     inventory.add_argument("--output", type=Path, required=True)
     smoke = sub.add_parser("validate-smoke")
-    smoke.add_argument("--completion", type=Path, required=True)
-    smoke.add_argument("--smoke-freeze", type=Path, required=True)
+    smoke.add_argument("--smoke-dir", type=Path, required=True)
     reuse = sub.add_parser("validate-reuse")
     reuse.add_argument("--job", required=True)
     reuse.add_argument("--job-uid", required=True)
@@ -782,10 +812,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     elif args.command == "inventory":
         _write_once(args.output, _canonical_json(_Storage().inventory(args.prefix)))
     elif args.command == "validate-smoke":
-        validate_smoke(
-            _load_json(args.completion, label="smoke completion"),
-            _load_json(args.smoke_freeze, label="smoke freeze"),
-        )
+        load_validated_smoke(args.smoke_dir)
     elif args.command == "validate-reuse":
         job = _load_json(args.job_metadata, label="job metadata")
         _job_identity(job, job=args.job, job_uid=args.job_uid)
