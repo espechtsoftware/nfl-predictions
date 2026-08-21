@@ -20,12 +20,12 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 02:16 CDT
+## Current state — 2026-08-21 02:47 CDT
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
-- Branch `main`, latest pre-milestone source commit
-  `7cd13e24d87f4753ec2785ada82786f924eda5ac` (pushed to `origin/main`). The failed A7-v1 smoke remains
+- Branch `main`, current pushed source commit
+  `29a810311fa5837e9c3ac93819593e05abe80855` (pushed to `origin/main`). The failed A7-v1 smoke remains
   permanently closed and must never be relaunched or passed to the v1
   success-only finisher.
 - A new isolated close-only protocol and implementation validate the exact
@@ -206,6 +206,30 @@ agent or developer:
   Run fresh exact-source builds from that source; do not reuse `f500c3ed...`
   even if its later unrelated tests continue after the already definitive
   failure cluster.
+- The completed build-gate recovery receipt originally licensed fresh source
+  `f389f33336868d552220bcc9e6decfe557a85220`; that does not by itself authorize
+  presenting a later source to A7 even when the A7 implementation is unchanged.
+  The bounded administrative extension
+  `reports/2026-08-21-a7-v2-shared-build-source-lineage-extension.md` and
+  `scripts/validate_a7_v2_source_lineage_extension.py` prove that exact
+  recovery source is an ancestor of fixture-repair source
+  `2bec2965442b90ec87990fb25f086de9005265dc`, that all 37 governed A7 and
+  recovery paths (including the transitive in-repository import closure) are
+  byte-identical, and that the complete 61-path delta contains only the two
+  archive-fixture paths, retained administrative records, and unrelated LR8
+  state. The protocol is byte-pinned at SHA-256
+  `ec22c4d898505abc11c00c56ddecbf12e9bbea3009f6369a4100f4539391ddd2`;
+  its canonical 43-source lineage fixture is byte-pinned at SHA-256
+  `f94b75786d7eac28b1508554794b02cf0903492afd14d65f99e5dfdca1a64a84`.
+  The public validator remains live-Git-only with no evidence fallback. Its
+  private test replay uses content-addressed evidence only and passes 12/12
+  both in the checkout and in a clean `git archive` without `.git`; the real
+  live-Git validator, pycompile, and whitespace checks are also green. This
+  extension licenses only the first A7-v2 `preflight-prepare` claim using one
+  real terminal-success build whose exact source is `2bec296...`, tag is
+  `lr8-smoke-2bec296`, and immutable digest/build metadata pass both unchanged
+  A7 and LR8 validators. It grants no LR8 authority, smoke/retry/outcome/lease
+  authority, repair override, or old-build reuse.
 
 ### LR8 historical legal-relaxation arm has green mechanics and a score-free source contract
 
@@ -441,7 +465,10 @@ agent or developer:
   as `2bec2965442b90ec87990fb25f086de9005265dc`. Replacement build
   `6a364353-2485-43e9-9fdc-21f42df70bcb` was submitted from that full identity
   with the same canonical `lr8-smoke-2bec296` tag. Require its resolved source,
-  full suite, container smokes and immutable digest before any prepare.
+  full suite, container smokes and immutable digest before any prepare. As of
+  `2026-08-21T07:42:22.198Z`, its full suite was clean through 66%, including
+  the exact point where both prior deterministic archive-fixture failure
+  clusters appeared; image build and container smoke remained queued.
 - The smoke transport, dashboard/build integration, 70-cell pure sharding
   core, focused tests, and milestone record are committed at
   `8a76096aa19c69f5bf5b4d7e2a7b84a06b893257`.
@@ -520,8 +547,11 @@ agent or developer:
   only object receipts—never rows, scores or metrics. The runner is 450 lines;
   its focused mocked transport is 3/3 green, and the combined supplier,
   adapter and runner boundary is 35/35 green with pycompile and whitespace
-  checks passing. It is not yet in Docker/Cloud Build and no real client,
-  query, object, lease action or outcome access occurred.
+  checks passing. The supplier/adapter and executable runner milestones are
+  committed and pushed through exact `main` commit
+  `29a810311fa5837e9c3ac93819593e05abe80855`. It is not yet in Docker/Cloud
+  Build and no real client, query, object, lease action or outcome access
+  occurred.
 - No real outcomes, BigQuery rows, GCS bodies, Cloud Run job, shared lease, or
   production path were touched by this milestone. The old 35 NPZs contain only
   candidate indices/totals and cannot score novel relaxed rosters. Exact next
