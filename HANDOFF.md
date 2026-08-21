@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 02:47 CDT
+## Current state — 2026-08-21 03:02 CDT
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
@@ -185,14 +185,20 @@ agent or developer:
   source `f389f33336868d552220bcc9e6decfe557a85220` with requested tag
   `a7-v2-f389f33-20260821`. Initial metadata confirms the exact resolved source,
   tag, and ordered three-step contract. At 65% its full suite emitted one
-  failure followed by nine additional failure markers; it remains active so
-  the cloud log can retain the canonical node IDs, tracebacks and terminal
-  summary. A clean archive independently reproduced the complete cluster as
+  failure followed by nine additional failure markers. A clean archive
+  independently reproduced the complete cluster as
   nine failures in `test_recover_a7_v2_empty_preflight_shell.py`: the unit
   harness copied the later commit-pinned finisher from the working tree while
   the correctly frozen one-shot recovery validator requires the exact
   recovery-era finisher SHA-256 `f9963fe...`. This is historical test-fixture
-  drift, not an A7 science, query, optimizer or transport failure.
+  drift, not an A7 science, query, optimizer or transport failure. After that
+  cause and its archive-hermetic repair were already independently proven,
+  the user reprioritized time-to-score for LR8. The definitively ineligible
+  build was explicitly cancelled to release compute at
+  `2026-08-21T07:56:36.509090Z`; terminal status is `CANCELLED`, failure type
+  is `USER_BUILD_STEP`, image/smoke never ran, and no reusable digest exists.
+  A7 remains paused behind the shared-build path and must not receive another
+  dedicated build or execution while the LR8 historical score path is active.
 - The archive-hermetic fixture repair leaves the production recovery script,
   protocol, constants and prior evidence byte-unchanged. The unit harness now
   decodes a tracked content-addressed LZMA/Base64 fixture containing the exact
