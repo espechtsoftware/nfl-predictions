@@ -1,0 +1,94 @@
+# Narrow continuation of failed build 544a65df-2a37-4fb8-b207-870dabee263c.
+# That exact-source build retained 3,328 passing tests and failed only the
+# eight stale historical-lineage replay cases. This build reopens the failed
+# predecessor, runs only the repaired lineage file, then builds and exercises
+# the corpus-retrieval image. It deliberately does not rerun the full suite.
+steps:
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    id: retain-failed-suite-evidence
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        gcloud builds describe \
+          544a65df-2a37-4fb8-b207-870dabee263c \
+          --project=nfl-predictions-503414 \
+          --format=json > /workspace/predecessor-build.json
+        gcloud builds log \
+          544a65df-2a37-4fb8-b207-870dabee263c \
+          --project=nfl-predictions-503414 \
+          > /workspace/predecessor-build.log 2>&1
+        python3 - <<'PY'
+        import json
+        from pathlib import Path
+
+        build = json.loads(Path("/workspace/predecessor-build.json").read_text())
+        assert build["id"] == "544a65df-2a37-4fb8-b207-870dabee263c"
+        assert build["status"] == "FAILURE"
+        expected_source = {
+            "revision": "f81d02fd143f3cb5318eee1d795099fe2b167c39",
+            "url": "https://github.com/espechtsoftware/nfl-predictions.git",
+        }
+        assert build["source"]["gitSource"] == expected_source
+        assert build["sourceProvenance"]["resolvedGitSource"] == expected_source
+        steps = build["steps"]
+        assert [row["id"] for row in steps] == [
+            "full-test-suite", "build-image", "smoke-atlas-mvp-runner",
+        ]
+        assert steps[0]["status"] == "FAILURE"
+        assert steps[0]["exitCode"] == 1
+        assert "PYTHONPATH=src pytest" in "\n".join(steps[0]["args"])
+        assert steps[1]["status"] == "QUEUED"
+        assert steps[2]["status"] == "QUEUED"
+        assert not build.get("results", {}).get("images")
+
+        log = Path("/workspace/predecessor-build.log").read_text()
+        summary = "8 failed, 3328 passed, 4 skipped, 1569 warnings in 5570.61s"
+        assert summary in log
+        failures = {
+            line.split("FAILED ", 1)[1].strip()
+            for line in log.splitlines()
+            if "FAILED tests/" in line
+        }
+        assert len(failures) == 8
+        assert all(
+            row.startswith("tests/test_validate_a7_v2_source_lineage_extension.py::")
+            for row in failures
+        )
+        PY
+  - name: python:3.11-slim
+    id: repaired-lineage-tests-only
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends git libgomp1
+        pip install --no-cache-dir '.[gcp,app,dev]'
+        PYTHONPATH=src python -m pytest -q \
+          tests/test_validate_a7_v2_source_lineage_extension.py
+  - name: gcr.io/cloud-builders/docker
+    id: build-retrieval-image
+    args: [build, -t, '${_IMAGE}', .]
+  - name: gcr.io/cloud-builders/docker
+    id: retrieval-image-smokes
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        docker run --rm '${_IMAGE}' \
+          python scripts/run_corpus_retrieval_transport.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
+          python scripts/run_corpus_retrieval_transport.py parked | \
+          grep -F 'CORPUS_RETRIEVAL_PARKED default_off=true client_constructed=false' >/dev/null
+        docker run --rm '${_IMAGE}' \
+          python -c 'import nfl_dfs.research.corpus_retrieval_engine as e; assert e.DEFAULT_ENTRY_BUDGET == 80'
+        docker run --rm '${_IMAGE}' \
+          bash -n scripts/cloud_corpus_retrieval_v1_reuse.sh
+images:
+  - '${_IMAGE}'
+substitutions:
+  _IMAGE: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-retrieval-continuation
+timeout: 3600s
+options:
+  machineType: E2_HIGHCPU_8
