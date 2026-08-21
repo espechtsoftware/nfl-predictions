@@ -632,3 +632,59 @@ delivers. A position-aware dose evaluated on the census should be able
 to land all nine cells without another outcome-bearing run — and the
 evidence above says the census will tell you whether it has, before you
 spend anything.
+
+---
+
+## Addendum 6 (2026-08-20): the Malformed sweep is incomplete — A7 still carries it
+
+Good news first: the two watchers written since the incident
+(`watch_b1_corpus_tail_queue.sh:169`,
+`watch_a2a_production_law_dependence_queue.sh:161`) now carry exactly the
+recommended parse, with an extra hardening I did not ask for and like:
+
+```python
+if not rows:
+    print("Unknown")                      # not yet published -> retry
+elif len(rows) == 1 and rows[0].get("status") in {"Unknown", "True", "False"}:
+    print(rows[0]["status"])              # known-good status only
+else:
+    print("Malformed")                    # genuinely contradictory
+```
+
+Validating the status against an allow-list closes a second hole (an
+unexpected status string can no longer be forwarded as if it were
+meaningful). That is the right fix.
+
+**But the original two sites are unchanged:**
+
+- `scripts/cloud_a7_select_ladder.sh:349`
+- `scripts/watch_a7_select_ladder_queue.sh:250`
+
+both still read:
+
+```python
+print(rows[0].get("status", "") if len(rows) == 1 else "Malformed")
+```
+
+The fix went forward into new code but not backward into the code that
+first exhibited the defect. `CLAUDE.md` frozen-chain rule 4 is explicit
+that the whole class must be swept across sibling consumers, precisely
+because point-wise fixes made the same class recur — which is what
+happened between the A7 smoke (Addendum 1) and the A2a lease incident
+(Addendum 4).
+
+**Why this is not academic.** A7 is a queued, frozen, ready-to-run
+experiment. When it launches, its launcher can still abort a healthy
+preflight, and its watcher can still die on a transient with the message
+`"A7 execution metadata malformed; lease held"` — the exact incident
+already paid for once tonight, in the one consumer whose failure strands
+the historical-outcome lease.
+
+**Recommendation:** port the corrected parse (including the status
+allow-list) to both A7 sites before A7 is launched, and add the
+regression cases from Addendum 1 — `{"status": {}}`,
+`{"status": {"conditions": []}}`, an unexpected status string, and a
+two-`Completed`-row fixture — so the class cannot silently return in the
+next chain either. A one-line `grep` for
+`len(rows) == 1 else "Malformed"` is sufficient to confirm the sweep is
+complete.
