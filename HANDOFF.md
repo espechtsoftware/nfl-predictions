@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 15:37 CDT
+## Current state — 2026-08-21 15:53 CDT
 
 ### Corpus retrieval engine is focused-green; exact cloud task 0 is pending
 
@@ -238,8 +238,9 @@ agent or developer:
   No live connection was attempted; a dedicated endpoint, network path, and
   secret remain external provisioning blockers. See
   `reports/2026-08-21-corpus-research-neo4j-foundation.md`.
-- The independent artifact-source publication transport needed by the larger
-  suite is now locally focused-green and ready to commit. It pre-registers
+- Commit `d6841a4f7a90141e04bf7d9722a72f10615c01b2` adds the independent
+  artifact-source publication transport needed by the larger suite. It is
+  locally focused-green and pre-registers
   three fixed point-in-time, outcome-blind query jobs before either query
   runs; exact-name create-once publication and generation-pinned reopen guard
   every object; and it streams the complete 54-slate/270-artifact R0--R4
@@ -255,6 +256,31 @@ agent or developer:
   (transport), `ad84677ae80b659d216a9757eb62564818bc7f05d533daa9befd3bd71bc9e1be`
   (test), and `6693650e117b35cf755149ea085f0ed54641cc64ba2a456a2c6920bc1dc5795b`
   (frozen salary-player-ID SQL). No source query or publication was executed.
+- The larger-suite Cloud Run transport is now locally focused-green. It
+  supports only a one-task smoke or the complete ordered 54-task/378-cell
+  batch, and requires a separate zero-retry producer execution followed by a
+  separately launched independent-verifier execution for every task. It
+  transitively reopens and semantically replays accepted retrieval task 0
+  (suite, snapshot, complete result, completion, terminal, governance, and
+  retained sidecars), rejects partial verifier-v2 receipts, binds immutable
+  manifest/evidence/source/build/image/job identities, and performs complete
+  per-task and batch prefix inventories before terminal acceptance. Worker
+  paths use exact GET/create-only operations and never LIST; operator close
+  paths retain all-region Scheduler and full execution censuses. Launch,
+  census-only recovery, bind, watch, and acceptance are separate durable
+  actions, and a consumed or ambiguous launch is never retried. Focused
+  validation is 7/7 green; the frozen dependency compatibility set is 153/153
+  green (78 batch, 17 evidence-contract, 17 retrieval, 26 producer, and 15
+  independent-verifier tests). Python compile, shell syntax, and whitespace
+  checks are green. SHA-256 values are
+  `2164aad3e4180dfdd230deaa31eb3a80707be0f9f0bc8098def5b6d9f457031a`
+  (transport), `51506d2d79f1ea58562c4a7d2910ea0c8b3eeb951b98d6a8c39c2fe58f28ed3f`
+  (reuse-only launcher), and
+  `36a680ea597ad646e5737c2238efd4283fa6f913b0f6488033159e45c3041311`
+  (test). No cloud call or launch occurred. Remaining integration work is the
+  expansion image/build, source/batch input publication, real-artifact smoke,
+  and the governed Cloud Run delivery/launch wrapper for the existing
+  source-authority plan; the last gap is being implemented separately.
 - Next concrete action: require clean direct-Git build
   `544a65df-2a37-4fb8-b207-870dabee263c` to succeed,
   publish/reopen the
