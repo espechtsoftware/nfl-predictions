@@ -426,6 +426,48 @@ def test_sql_is_static_parameterized_and_target_outcome_blind():
     assert "CAST(NULL AS BOOL) AS was_active" in panel
     assert "p.`was_active`" in panel
     assert "p.proj, p.mean_projection" in catalog
+    assert re.search(r"CAST\s*\(\s*p\.salary", catalog, re.I) is None
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        5_000,
+        np.int64(5_000),
+        pd.Series([5_000], dtype="Int64").iloc[0],
+        5_000.0,
+        np.float64(5_000.0),
+    ],
+)
+def test_catalog_salary_accepts_only_proven_exact_positive_values(value):
+    assert runner._exact_catalog_salary(value) == 5_000
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        True,
+        np.bool_(False),
+        "5000",
+        5_000.5,
+        np.float64(5_000.5),
+        float("nan"),
+        float("inf"),
+        float("-inf"),
+        0,
+        0.0,
+        -1,
+        -1.0,
+        None,
+        pd.NA,
+    ],
+)
+def test_catalog_salary_rejects_rounding_and_malformed_values(value):
+    with pytest.raises(
+        runner.LR8SourceRunnerError,
+        match="finite positive exact integer",
+    ):
+        runner._exact_catalog_salary(value)
 
 
 def test_exact_lattices_and_default_off(tmp_path):
@@ -451,6 +493,14 @@ def test_smoke_reopens_sources_reuses_exact_fit_and_requires_40(
 ):
     publisher = _MemoryPublisher()
     binding = _binding()
+    config = _config(tmp_path)
+    frames = _frames()
+    # The live source schema is FLOAT NULLABLE even though DK salary values
+    # are integral.  Preserve that raw scalar truth through the extract and
+    # prove integrality only at the PlayerSpec boundary.
+    frames["canonical_catalog"]["salary"] = frames[
+        "canonical_catalog"
+    ]["salary"].astype(float)
     adapter_calls: list[dict[str, object]] = []
     factory_calls: list[dict[str, object]] = []
 
@@ -467,8 +517,8 @@ def test_smoke_reopens_sources_reuses_exact_fit_and_requires_40(
         ),
     )
     result = runner.run_source(
-        _config(tmp_path),
-        query=_query(_frames()),
+        config,
+        query=_query(frames),
         table_metadata=_metadata,
         publish=publisher,
         model_fitter=lambda panel, season: binding,
@@ -519,6 +569,15 @@ def test_smoke_reopens_sources_reuses_exact_fit_and_requires_40(
     assert len(publisher.objects) == 6
     assert all(generation == "1" for _, generation in publisher.reopens)
     assert result["manifest_object"]["generation"] == "1"
+    catalog_extract = runner._strict_json(
+        publisher.objects[f"{config.output_root}/extracts/catalog.json"],
+        label="catalog extract",
+    )
+    assert all(
+        isinstance(row["salary"], float)
+        and row["salary"].is_integer()
+        for row in catalog_extract["rows"]
+    )
 
 
 def test_target_label_poison_fails_before_fit(tmp_path):

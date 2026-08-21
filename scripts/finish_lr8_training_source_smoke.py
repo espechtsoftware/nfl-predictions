@@ -42,7 +42,15 @@ PROJECT: Final = "nfl-predictions-503414"
 REGION: Final = "us-central1"
 BUCKET: Final = "nfl-predictions-503414-raw"
 LOCATION: Final = "US"
-ATTEMPT_ID: Final = "20260820-lr8-training-source-smoke-v1"
+ATTEMPT_ID: Final = "20260821-lr8-training-source-smoke-v2"
+PREDECESSOR_ATTEMPT_ID: Final = "20260820-lr8-training-source-smoke-v1"
+PREDECESSOR_EXECUTION: Final = "atlas-md-prefix-r4-smoke-wqzpc"
+PREDECESSOR_FAILURE_CLOSURE_SHA256: Final = (
+    "79d496df434dbe007041cc51a356052ff15a5069ce0059d3418aa00a6f1d2636"
+)
+PREDECESSOR_EXECUTION_METADATA_SHA256: Final = (
+    "2c357f17410f61868657a55ea14206641054d1da06f165f0cd65c620b0933ca6"
+)
 JOB: Final = "atlas-md-prefix-r4-smoke"
 JOB_UID: Final = "51545eb0-59e4-424e-91c9-98dd318285f4"
 SERVICE_ACCOUNT: Final = "817589974517-compute@developer.gserviceaccount.com"
@@ -89,6 +97,10 @@ EXECUTION_CLAIM_URI: Final = GOVERNANCE_PREFIX + "/execution-claim.json"
 DEFAULT_OUT: Final = (
     ROOT / "reports/lr8-training-source-smoke-runs" / ATTEMPT_ID
 )
+PREDECESSOR_OUT: Final = (
+    ROOT / "reports/lr8-training-source-smoke-runs" /
+    PREDECESSOR_ATTEMPT_ID
+)
 
 IMPLEMENTATION_PATHS: Final = {
     "source_runner": "scripts/run_lr8_training_source.py",
@@ -99,6 +111,10 @@ IMPLEMENTATION_PATHS: Final = {
     "launcher": "scripts/cloud_lr8_training_source_smoke.sh",
     "watcher": "scripts/watch_lr8_training_source_smoke_queue.sh",
     "transport_tests": "tests/test_lr8_training_source_smoke_transport.py",
+    "v2_protocol": (
+        "reports/2026-08-21-lr8-training-source-smoke-v2-"
+        "salary-boundary-repair-protocol.md"
+    ),
     "dockerfile": "Dockerfile",
     "cloudbuild": "cloudbuild.yaml",
 }
@@ -1124,6 +1140,88 @@ def _execution_counts(status: Mapping[str, Any]) -> dict[str, int]:
     return result
 
 
+def _validate_predecessor_failure(
+    closure: object, execution_metadata: object,
+) -> dict[str, str]:
+    """Prove the exact retained smoke-v1 incident is closed permanently."""
+    expected_keys = {
+        "version", "attempt_id", "execution", "execution_metadata_sha256",
+        "disposition", "result_body_read", "historical_outcome_lease_acquired",
+        "relaunch_licensed", "production_change_licensed",
+    }
+    if not isinstance(closure, Mapping) or set(closure) != expected_keys:
+        raise LR8SmokeTransportError("LR8 smoke v1 failure closure differs")
+    closure_sha = _sha_bytes(_canonical_json(closure))
+    if closure_sha != PREDECESSOR_FAILURE_CLOSURE_SHA256:
+        raise LR8SmokeTransportError(
+            "LR8 smoke v1 canonical failure closure differs"
+        )
+    if (
+        closure.get("version") != "lr8-training-source-smoke-failure-v1"
+        or closure.get("attempt_id") != PREDECESSOR_ATTEMPT_ID
+        or closure.get("disposition")
+        != "terminal-failed-no-relaunch-no-result-read"
+        or closure.get("result_body_read") is not False
+        or closure.get("historical_outcome_lease_acquired") is not False
+        or closure.get("relaunch_licensed") is not False
+        or closure.get("production_change_licensed") is not False
+    ):
+        raise LR8SmokeTransportError("LR8 smoke v1 failure closure differs")
+    execution = closure.get("execution")
+    if execution != PREDECESSOR_EXECUTION:
+        raise LR8SmokeTransportError("LR8 smoke v1 execution identity differs")
+    if not isinstance(execution_metadata, Mapping):
+        raise LR8SmokeTransportError("LR8 smoke v1 execution metadata differs")
+    metadata_sha = _sha_bytes(_canonical_json(execution_metadata))
+    if (
+        metadata_sha != PREDECESSOR_EXECUTION_METADATA_SHA256
+        or closure.get("execution_metadata_sha256")
+        != PREDECESSOR_EXECUTION_METADATA_SHA256
+    ):
+        raise LR8SmokeTransportError("LR8 smoke v1 execution hash differs")
+    metadata = execution_metadata.get("metadata")
+    status = execution_metadata.get("status")
+    spec = execution_metadata.get("spec")
+    if not all(isinstance(value, Mapping) for value in (metadata, status, spec)):
+        raise LR8SmokeTransportError("LR8 smoke v1 execution metadata differs")
+    labels = metadata.get("labels")
+    if (
+        not isinstance(labels, Mapping)
+        or metadata.get("name") != execution
+        or labels.get("run.googleapis.com/job") != JOB
+        or labels.get("run.googleapis.com/jobUid") != JOB_UID
+    ):
+        raise LR8SmokeTransportError("LR8 smoke v1 execution identity differs")
+    conditions = status.get("conditions")
+    completed = [
+        row for row in conditions
+        if isinstance(row, Mapping) and row.get("type") == "Completed"
+    ] if isinstance(conditions, list) else []
+    if len(completed) != 1 or completed[0].get("status") != "False":
+        raise LR8SmokeTransportError("LR8 smoke v1 terminal state differs")
+    if _execution_counts(status) != {
+        "succeeded": 0, "failed": 1, "cancelled": 0, "retried": 0,
+    } or not status.get("completionTime"):
+        raise LR8SmokeTransportError("LR8 smoke v1 terminal counts differ")
+    task = spec.get("template", {}).get("spec", {})
+    if (
+        not isinstance(task, Mapping)
+        or _positive_int(spec.get("taskCount"), label="v1 task count") != 1
+        or _positive_int(spec.get("parallelism"), label="v1 parallelism") != 1
+        or _nonnegative_int(
+            task.get("maxRetries"), label="v1 maximum retries"
+        ) != 0
+    ):
+        raise LR8SmokeTransportError("LR8 smoke v1 retry contract differs")
+    return {
+        "attempt_id": PREDECESSOR_ATTEMPT_ID,
+        "execution": PREDECESSOR_EXECUTION,
+        "failure_closure_sha256": closure_sha,
+        "execution_metadata_sha256": metadata_sha,
+        "disposition": "terminal-failed-no-relaunch-no-result-read",
+    }
+
+
 def _validate_execution_contract(
     value: object, *, execution: str, manifest: Mapping[str, Any],
 ) -> tuple[str, dict[str, int], Mapping[str, Any]]:
@@ -2077,6 +2175,9 @@ def _arguments() -> argparse.ArgumentParser:
     inventory = sub.add_parser("inventory")
     inventory.add_argument("--prefix", required=True)
     inventory.add_argument("--output", type=Path, required=True)
+    predecessor = sub.add_parser("validate-predecessor-failure")
+    predecessor.add_argument("--closure", type=Path, required=True)
+    predecessor.add_argument("--metadata", type=Path, required=True)
     pre = sub.add_parser("validate-preupdate")
     for command in (pre,):
         command.add_argument("--code-sha", required=True)
@@ -2139,6 +2240,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     elif args.command == "inventory":
         rows = _StorageReader().inventory(args.prefix)
         _write_exclusive_or_equal(args.output, _canonical_json(rows))
+    elif args.command == "validate-predecessor-failure":
+        _validate_predecessor_failure(
+            _load_json(args.closure, label="v1 failure closure"),
+            _load_json(args.metadata, label="v1 failed execution"),
+        )
     elif args.command == "validate-preupdate":
         _validate_prepare_inputs(
             code_sha=args.code_sha, image=args.image, build_id=args.build_id,

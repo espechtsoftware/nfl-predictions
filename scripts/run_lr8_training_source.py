@@ -211,6 +211,44 @@ def _exact_int(value: object, *, label: str, minimum: int = 0) -> int:
     return result
 
 
+def _exact_catalog_salary(value: object) -> int:
+    """Return an exact positive DK salary without rounding source truth.
+
+    ``slate_player_features.salary`` is a nullable BigQuery FLOAT column, so
+    the BigQuery/pandas/JSON round trip truthfully yields floating scalars such
+    as ``5500.0``.  Accept those only after proving that the finite stored
+    value is mathematically integral.  Fractional values are never rounded;
+    booleans, strings, nulls, non-finite values, and nonpositive values remain
+    fatal at the source boundary.
+    """
+    if isinstance(value, (bool, np.bool_)):
+        raise LR8SourceRunnerError(
+            "canonical catalog salary must be a finite positive exact integer"
+        )
+    if isinstance(value, (int, np.integer)):
+        result = int(value)
+    elif isinstance(value, (float, np.floating)):
+        number = float(value)
+        if not math.isfinite(number) or not number.is_integer():
+            raise LR8SourceRunnerError(
+                "canonical catalog salary must be a finite positive exact integer"
+            )
+        result = int(number)
+        if number != result:
+            raise LR8SourceRunnerError(
+                "canonical catalog salary must be a finite positive exact integer"
+            )
+    else:
+        raise LR8SourceRunnerError(
+            "canonical catalog salary must be a finite positive exact integer"
+        )
+    if result <= 0:
+        raise LR8SourceRunnerError(
+            "canonical catalog salary must be a finite positive exact integer"
+        )
+    return result
+
+
 def _string(value: object, *, label: str) -> str:
     if not isinstance(value, str) or not value or value.strip() != value:
         raise LR8SourceRunnerError(f"{label} must be a canonical string")
@@ -719,7 +757,7 @@ def _catalog_inputs(
             "team": row.team,
             "opp": row.opp,
             "game_id": row.game_id,
-            "salary": row.salary,
+            "salary": _exact_catalog_salary(row.salary),
         }) for row in cat.itertuples(index=False))
         skill = cat.pos.astype(str).str.upper().ne("DST")
         if not cat.loc[skill, "id"].astype(str).equals(

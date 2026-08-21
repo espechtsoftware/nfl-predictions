@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 01:26 CDT
+## Current state — 2026-08-21 01:43 CDT
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
@@ -382,6 +382,23 @@ agent or developer:
   delete, or treat those partial extracts as a passing source. A bounded v2
   identity must repair only exact non-boolean integer-scalar handling, preserve
   all scientific mechanics, rebuild, and pass a fresh outcome-blind smoke.
+- That bounded successor repair is now source-ready under fresh identity
+  `20260821-lr8-training-source-smoke-v2`, with protocol
+  `reports/2026-08-21-lr8-training-source-smoke-v2-salary-boundary-repair-protocol.md`
+  (SHA-256
+  `5f7d5245348f2644178665b2cf3a58e837bc6e34ce81e379e5d9506d16374590`).
+  The query/extract continues to preserve raw `p.salary` as FLOAT; immediately
+  before `PlayerSpec`, the runner accepts it only after exact finite,
+  positive, mathematically integral and equality-after-conversion proofs.
+  Source runner validation is 32/32 and fresh-v2 transport validation is
+  13/13. The finisher now pins predecessor execution
+  `atlas-md-prefix-r4-smoke-wqzpc` plus the exact canonical failure-closure and
+  metadata hashes above; the positive test loads the retained real files and
+  an alternate self-rehashed terminal failure is poisoned. Pycompile, both
+  CLI checks, shell syntax, whitespace and `git diff --check` are green; Ruff
+  is unavailable locally. No real query, cloud write, lease or launch occurred
+  during this repair. Build a fresh exact-source image before any v2 prepare;
+  the old v1 image is not repair-overridable or reusable.
 - The smoke transport, dashboard/build integration, 70-cell pure sharding
   core, focused tests, and milestone record are committed at
   `8a76096aa19c69f5bf5b4d7e2a7b84a06b893257`.

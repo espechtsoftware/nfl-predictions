@@ -200,6 +200,68 @@ def _manifest() -> dict[str, object]:
     )
 
 
+def _predecessor_failure() -> tuple[dict[str, object], dict[str, object]]:
+    closure_path = transport.PREDECESSOR_OUT / "failure-closure.json"
+    metadata_path = transport.PREDECESSOR_OUT / "failed-execution.json"
+    assert transport._sha_path(closure_path) == (
+        transport.PREDECESSOR_FAILURE_CLOSURE_SHA256
+    )
+    assert transport._sha_path(metadata_path) == (
+        transport.PREDECESSOR_EXECUTION_METADATA_SHA256
+    )
+    closure = transport._load_json(
+        closure_path, label="retained v1 failure closure",
+    )
+    metadata = transport._load_json(
+        metadata_path, label="retained v1 failed execution",
+    )
+    assert isinstance(closure, dict)
+    assert isinstance(metadata, dict)
+    return closure, metadata
+
+
+def test_v2_identity_requires_exact_terminal_failed_v1_predecessor():
+    assert transport.ATTEMPT_ID == "20260821-lr8-training-source-smoke-v2"
+    closure, metadata = _predecessor_failure()
+    validated = transport._validate_predecessor_failure(closure, metadata)
+    assert validated["attempt_id"] == transport.PREDECESSOR_ATTEMPT_ID
+    assert validated["execution"] == transport.PREDECESSOR_EXECUTION
+    assert validated["failure_closure_sha256"] == (
+        transport.PREDECESSOR_FAILURE_CLOSURE_SHA256
+    )
+    assert validated["execution_metadata_sha256"] == (
+        transport.PREDECESSOR_EXECUTION_METADATA_SHA256
+    )
+    assert validated["disposition"] == (
+        "terminal-failed-no-relaunch-no-result-read"
+    )
+    alternate_metadata = deepcopy(metadata)
+    alternate_execution = transport.JOB + "-zzzzz"
+    alternate_metadata_identity = alternate_metadata["metadata"]
+    assert isinstance(alternate_metadata_identity, dict)
+    alternate_metadata_identity["name"] = alternate_execution
+    self_rehashed_closure = {
+        **closure,
+        "execution": alternate_execution,
+        "execution_metadata_sha256": transport._sha_bytes(
+            transport._canonical_json(alternate_metadata)
+        ),
+    }
+    for poison_closure, poison_metadata in (
+        ({**closure, "relaunch_licensed": True}, metadata),
+        ({**closure, "attempt_id": transport.ATTEMPT_ID}, metadata),
+        (closure, {**metadata, "status": {
+            **metadata["status"],
+            "conditions": [{"type": "Completed", "status": "True"}],
+        }}),
+        (self_rehashed_closure, alternate_metadata),
+    ):
+        with pytest.raises(transport.LR8SmokeTransportError):
+            transport._validate_predecessor_failure(
+                poison_closure, poison_metadata
+            )
+
+
 def test_build_prepare_and_reuse_contract_fail_closed():
     assert transport._validate_build_metadata(
         _build(), build_id=BUILD_ID, image=IMAGE, code_sha=CODE_SHA,
@@ -731,6 +793,9 @@ def test_shell_transport_is_update_only_no_lease_and_status_visible():
     assert "gcloud run jobs delete" not in launcher
     assert "_CODE_SHA" not in launcher
     assert "historical_outcome_lease.py" not in launcher + watcher
+    assert transport.ATTEMPT_ID in launcher + watcher
+    assert transport.PREDECESSOR_ATTEMPT_ID in launcher
+    assert "validate-predecessor-failure" in launcher
     assert "--tasks 1 --parallelism 1" in launcher
     assert "--max-retries 0" in launcher
     assert 'printf \'%s %s %s\\n\'' in launcher

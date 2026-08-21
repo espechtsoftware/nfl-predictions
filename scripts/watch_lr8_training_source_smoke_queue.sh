@@ -13,7 +13,7 @@ set -uo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 PROJECT=nfl-predictions-503414
 REGION=us-central1
-ATTEMPT_ID=20260820-lr8-training-source-smoke-v1
+ATTEMPT_ID=20260821-lr8-training-source-smoke-v2
 JOB=atlas-md-prefix-r4-smoke
 OUT="$ROOT/reports/lr8-training-source-smoke-runs/$ATTEMPT_ID"
 LAUNCHER="$ROOT/scripts/cloud_lr8_training_source_smoke.sh"

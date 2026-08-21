@@ -15,12 +15,14 @@ PROJECT=nfl-predictions-503414
 REGION=us-central1
 SERVICE_ACCOUNT=817589974517-compute@developer.gserviceaccount.com
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-ATTEMPT_ID=20260820-lr8-training-source-smoke-v1
+ATTEMPT_ID=20260821-lr8-training-source-smoke-v2
+PREDECESSOR_ATTEMPT_ID=20260820-lr8-training-source-smoke-v1
 JOB=atlas-md-prefix-r4-smoke
 JOB_UID=51545eb0-59e4-424e-91c9-98dd318285f4
 BUCKET=nfl-predictions-503414-raw
 OUT="$ROOT/reports/lr8-training-source-smoke-runs/$ATTEMPT_ID"
 PENDING="$ROOT/reports/lr8-training-source-smoke-runs/.$ATTEMPT_ID.prepare.pending"
+PREDECESSOR_OUT="$ROOT/reports/lr8-training-source-smoke-runs/$PREDECESSOR_ATTEMPT_ID"
 RESULT_PREFIX="gs://$BUCKET/research/lr8-training-source/$ATTEMPT_ID/"
 SMOKE_MANIFEST_URI="${RESULT_PREFIX}smoke-manifest.json"
 GOVERNANCE_PREFIX="gs://$BUCKET/research-governance/lr8-training-source-smoke/$ATTEMPT_ID/"
@@ -93,6 +95,13 @@ case "$COMMAND" in
     CODE_SHA=${3:-}
     BUILD_ID=${4:-}
     validate_identity_args "$IMAGE" "$CODE_SHA" "$BUILD_ID"
+    [ -s "$PREDECESSOR_OUT/failure-closure.json" ] && \
+      [ -s "$PREDECESSOR_OUT/failed-execution.json" ] || \
+      die "LR8 smoke v1 terminal-failure closure is absent"
+    PYTHONPATH="$ROOT/src:$ROOT/scripts" "$PYTHON" "$FINISHER" \
+      validate-predecessor-failure \
+      --closure "$PREDECESSOR_OUT/failure-closure.json" \
+      --metadata "$PREDECESSOR_OUT/failed-execution.json"
     [ ! -e "$OUT" ] && [ ! -e "$PENDING" ] || \
       die "immutable LR8 smoke preparation already exists"
     mkdir -p "$(dirname "$PENDING")"
