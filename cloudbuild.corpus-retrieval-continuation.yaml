@@ -1,8 +1,9 @@
 # Narrow continuation of failed build 544a65df-2a37-4fb8-b207-870dabee263c.
 # That exact-source build retained 3,328 passing tests and failed only the
 # eight stale historical-lineage replay cases. This build reopens the failed
-# predecessor, runs only the repaired lineage file, then builds and exercises
-# the corpus-retrieval image. It deliberately does not rerun the full suite.
+# predecessor, runs only the repaired lineage and retrieval-transport files,
+# then builds and exercises the corpus-retrieval image. It deliberately does
+# not rerun the full suite.
 steps:
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
     id: retain-failed-suite-evidence
@@ -57,7 +58,7 @@ steps:
         )
         PY
   - name: python:3.11-slim
-    id: repaired-lineage-tests-only
+    id: focused-continuation-tests-only
     entrypoint: bash
     args:
       - -ceu
@@ -66,7 +67,8 @@ steps:
         apt-get install -y --no-install-recommends git libgomp1
         pip install --no-cache-dir '.[gcp,app,dev]'
         PYTHONPATH=src python -m pytest -q \
-          tests/test_validate_a7_v2_source_lineage_extension.py
+          tests/test_validate_a7_v2_source_lineage_extension.py \
+          tests/test_corpus_retrieval_transport.py
   - name: gcr.io/cloud-builders/docker
     id: build-retrieval-image
     args: [build, -t, '${_IMAGE}', .]

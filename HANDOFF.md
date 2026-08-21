@@ -20,13 +20,15 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 17:17 CDT
+## Current state — 2026-08-21 17:28 CDT
 
 ### Corpus task 0 is continuing from retained suite evidence; no full rerun
 
-- Branch `main`, parent commit
-  `2d3d1685458e4b3fbe9be073a5693ee65cd533a4`; the narrow repair and this
-  handoff update are in the immediately following commit. Cloud Build
+- Branch `corpus-retrieval-continuation-v1`, exact retained-suite base commit
+  `f81d02fd143f3cb5318eee1d795099fe2b167c39`; narrow lineage-replay repair
+  commit `dc17fcc50c5d3dce64cde4132fe538391e593663`; the all-region scheduler
+  repair and this handoff update are in the immediately following commit.
+  Cloud Build
   `544a65df-2a37-4fb8-b207-870dabee263c` is terminal `FAILURE`, resolved exact
   direct-Git source `f81d02fd143f3cb5318eee1d795099fe2b167c39`, and is
   permanently ineligible as image authority. It ran the complete suite once:
@@ -58,7 +60,33 @@ agent or developer:
   exact metadata and log summary, runs only those 13 repaired checks, builds a
   fresh image, and runs only the four retrieval container smokes (`--help`,
   default-off parked behavior, exact-80 engine import, and launcher syntax).
-- Exact next action: push the narrow repair, submit that dedicated direct-Git
+- Cloud Build `7e9b60a0-9f99-4b37-9f7a-f5ff6b2cbc07` was canceled while
+  still queued, before any step ran. Its requested revision was not the exact
+  pushed repair commit and its proposed source inherited later mainline work
+  outside build 544's suite evidence. It is permanently ineligible and must
+  not be reused or cited as continuation authority.
+- Cloud Build `a50e787c-162f-48b7-abba-7c18832c099f` is terminal `SUCCESS`
+  at exact source `dc17fcc50c5d3dce64cde4132fe538391e593663`; all four exact
+  continuation steps succeeded and produced immutable digest
+  `sha256:12d5c988201b58eeabf88c0cc04c5b9e985a1ccb4d3287406502f7e34dd08435`.
+  Exact config/metadata projection validation passed against config SHA-256
+  `469b50c519d4de1a761f32cb6f5d76a960232a62d575d2a63a04cb3cbbcc42fd`.
+  A post-build launch audit then found that the reuse shell captured Scheduler
+  jobs only in `us-central1`, contrary to the required all-region law. This
+  image is therefore retained but ineligible for task-0 launch.
+- The shell now enumerates the complete Cloud Scheduler location census and
+  all jobs in every returned location at configure-before, configure-after,
+  launch, recovery, and terminal acceptance. The focused launcher regression
+  proves no direct `--location="$REGION"` scheduler census remains. Exact
+  lineage plus retrieval-transport validation is green **37/37**; shell syntax
+  and scoped diff checks are green. New SHA-256 values are
+  `38345348a000551c766f81f7224397e8658761f4e8ccb9a54b401bef5beaf328`
+  (continuation config),
+  `d7792af23449bb017740790cb09ccf2d387fbd18e4af3e12fb5f33a48e542c8f`
+  (reuse shell), and
+  `828c0d520d78ee7414a367a863c88a4a95ce6fb46c56cacd1fa31ba8ebec0fb8`
+  (transport test).
+- Exact next action: push the all-region repair, submit the dedicated direct-Git
   continuation config at the pushed commit, and, if every step succeeds,
   validate its immutable digest, publish the already frozen task-0 inputs into
   the still-pristine namespace, repeat scheduler/job/IAM censuses, and perform

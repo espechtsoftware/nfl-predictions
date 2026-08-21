@@ -1231,6 +1231,16 @@ def test_reuse_only_launcher_is_gated_parked_and_never_relaunches():
     assert "gcloud run jobs deploy" not in source
     assert "gcloud run jobs update" in source
     assert "--max-retries=0" in source
+    scheduler_capture = source.split(
+        "refresh_all_region_schedulers() {", 1
+    )[1].split("\n}\n", 1)[0]
+    assert "gcloud scheduler locations list" in scheduler_capture
+    assert "gcloud scheduler jobs list" in scheduler_capture
+    assert '--location="$location"' in scheduler_capture
+    assert 'refresh_all_region_schedulers "$RUN_DIR/schedulers-before.json"' in source
+    assert 'refresh_all_region_schedulers "$RUN_DIR/schedulers-current.json"' in source
+    assert 'refresh_all_region_schedulers "$RUN_DIR/schedulers-post-terminal.json"' in source
+    assert 'gcloud scheduler jobs list --project="$PROJECT" --location="$REGION"' not in source
     launch = source.split("consume_and_launch() {", 1)[1].split(
         "recover_name() {", 1
     )[0]
