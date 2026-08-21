@@ -20,6 +20,62 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current state — 2026-08-21 09:55 CDT
+
+### Parametric corpus foundation is source-green; the runner remains NO-GO
+
+- Branch `main`; parent before this milestone is
+  `f05ec0b353e132692ac9036b8993d1bc5839a73f` (`Add source-bound research
+  evidence graph`). The new bounded foundation is documented in
+  `reports/2026-08-21-corpus-parametric-batch-foundation-v1.md`. It permits
+  one immutable experiment image to service a create-once batch, but does not
+  expose arbitrary environment variables or authorize a build/launch.
+- `src/nfl_dfs/research/corpus_parametric_batch.py` freezes exactly five typed
+  fields and seven complete settings. The final setting is neutrally named
+  `remove-all-five-shared-constraints`; no parameter assignment by itself may
+  claim whole-system rule removal or DK-only execution. The exact schema SHA
+  is `d4fb644fa56d0234adc6777d18496620647a1eb77d8c31d2d37158b576e3caff`.
+  Common/task sources, inventory identities, source/object versus internal
+  freeze hashes, solver/common-law receipts, zero retry, deterministic
+  create-once namespaces, exact policy/result paths, and complete task-by-seven
+  coverage are fail-closed.
+- The registered score-free batch dose is 200 top-total outcome-blind worlds
+  in each R0--R4 block, 10,000 retained source worlds per block, at most 1,000
+  visit outputs per setting before first-occurrence deduplication, exact 80,
+  and one 120-second monotonic total solver deadline per visit. The future
+  world-schedule object must retain the exact ranked world IDs with stable
+  index ties; raw first-200 indices are not licensed.
+- `src/nfl_dfs/research/effective_policy_rule_inventory.py` independently
+  source-pins 11 files and emits 64 distinct rule rows. V2 inventory SHA is
+  `7853a701963dd6f734caf13812d44cf7392ffeec82facc46f0ff15d5de047790`,
+  rule-universe SHA is
+  `b9a33d093d258aa844cfef9b1e354175bed56a5d849cbef9682755aadf2f6533`,
+  source-set SHA is
+  `3cbe45d4e0106c867ff4ba9a9443c4fad9a7ffaac7d0492ae488d72c0ae40d4f`,
+  and its classified-input projection SHA is
+  `f48b2ed9aaac9c3f279134cff09df2ab88a54009c07e8c60c55834817841d30d`.
+  Static discovery covers 119 input keys at 230 read sites; a future runtime
+  receipt must prove the full classified-input law and all score-relevant
+  ambient absences.
+- Focused validation is 67/67 for the batch contract and 15/15 for the
+  independent inventory. Python compile and `git diff --check` are green.
+  No CBC, simulation, cloud call, outcome read, lease, build, or deployment
+  occurred.
+- A first draft of `corpus_legal_feasibility.py` remains untracked and
+  explicitly **NO-GO** after adversarial review. It must not be committed or
+  launched in its current form. The authoritative refactor must accept and
+  reopen raw source-freeze plus R0--R4 bytes, rebuild `PreparedLaterSlate`,
+  require regenerated inventory-v2 and exact manifest law, use only the
+  pinned solver, retain stage proofs under one total deadline, emit canonical
+  source/policy/matrix/result authorities, and support an independent verifier
+  that does not trust in-memory dataclasses or the execution selector.
+  Opaque or custom-solver test seams must remain private.
+- Next concrete action: finish that delete-and-refactor pass, adversarially
+  review the retained authority/verifier schemas, then run only bounded
+  focused tests. Do not package, build, publish the inventory, prepare a
+  batch, query historical outcomes, or append graph v2 until the runner and
+  independent finisher are both GO.
+
 ## Current state — 2026-08-21 08:55 CDT
 
 ### Evidence graph v1 is materialized; parametric execution is design-only
