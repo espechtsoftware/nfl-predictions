@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 01:18 CDT
+## Current state — 2026-08-21 01:21 CDT
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
@@ -344,6 +344,16 @@ agent or developer:
   or historical-outcome lease exists yet. Commit/push these exact preparation
   receipts before starting the dedicated watcher; the watcher owns the sole
   no-retry launch, terminal poll, and strict score-free harvest.
+- Those exact preparation receipts were committed/pushed at
+  `eae1349991a0112e82097cd1075c5e9d078e6bd7`. The persistent watcher then
+  created the sole launch intent and execution claim and launched exactly one
+  execution, `atlas-md-prefix-r4-smoke-wqzpc`, with no retry licensed. Its
+  canonical ledger points only to the score-free smoke manifest; the first
+  metadata poll at `2026-08-21T06:20:29Z` reported `Completed=Unknown`.
+  Watcher session `32472` and log
+  `/home/erich/nfl-panels/lr8-training-source-smoke.log` remain active. Do not
+  launch another execution or inspect a partial result body; let this watcher
+  reach strict terminal metadata and own the generation-pinned harvest.
 - The smoke transport, dashboard/build integration, 70-cell pure sharding
   core, focused tests, and milestone record are committed at
   `8a76096aa19c69f5bf5b4d7e2a7b84a06b893257`.
