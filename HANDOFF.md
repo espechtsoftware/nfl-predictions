@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 20:27 CDT
+## Current state — 2026-08-21 20:36 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -80,6 +80,12 @@ agent or developer:
   packaged smokes are green. The sole launchable image now superseding every
   earlier successful expansion image is
   `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:e515566af60a1976fe575b5a6f594909606b59b4deec700928e5df296156f431`.
+  The final source-wrapper compatibility build
+  `e3c24493-1e2d-4c55-bd10-c57bfde67e86` succeeded from exact commit
+  `4440c4fbb8afa4a4c112ab09b94145fb161f820a`; all five focused build steps and
+  the image push completed successfully. Its immutable image, which now
+  supersedes every earlier expansion image, is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:dbf9796cedc7c83064c20183d36389caa4c3876583e27a87a9fbc17a475cf801`.
   Do not reuse either failed build or the cancelled submission.
 - The graph v2 release remains outcome-blind and intentionally reserves the
   realized namespace empty. The two follow-on adapters are now implemented
@@ -172,11 +178,13 @@ agent or developer:
   occurred.
 - No source query, source publication, parametric solver, realized-outcome
   read, graph write, Cloud Run job mutation, or new scoring execution occurred
-  during this integration milestone. Exact next action: commit/push and build
-  the canonical-capture wrapper repair, regenerate the still-unpublished plan
-  for its exact digest, publish the point-in-time source authority from a fresh
-  transport directory, then run the isolated task-0 seven-arm real-artifact
-  smoke before the complete serial 54-task suite.
+  during this integration milestone. Exact next action: regenerate the
+  still-unpublished source plan for commit `4440c4f` and immutable digest
+  `dbf9796c`, assemble its self-hashed live IAM evidence, and run configuration
+  from the fresh `transport-live-v3` directory. Inspect and record the
+  configure receipt before consuming the source authority exactly once; then
+  run the isolated task-0 seven-arm real-artifact smoke before the complete
+  serial 54-task suite.
 
 ### Accepted task-0 score is on main; corpus research dashboard is mounted
 
