@@ -20,7 +20,43 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-22 11:30 CDT
+## Current handoff — 2026-08-22 11:36 CDT
+
+### Offseason corpus-fill and retrieval roadmap completed
+
+- On `main`, starting from documentation parent `af2543a`, added
+  `reports/2026-08-22-offseason-corpus-fill-and-selection-roadmap.md`. This is
+  a research-only milestone: it changes no deployment, cloud job, runtime,
+  Neo4j transport, corpus execution, or active-run authority. The concurrent
+  deployment owner remains responsible for the live chain recorded below.
+- The report reconciles the two relevant evidence surfaces: 51 governed,
+  feature-complete 2023–2025 Millionaire winners (with 68 known winner lines
+  across 2019 and 2023–2025) and the accepted 2023 Week 1 complete phenotype
+  task (585 lineups x 50,000 worlds, 27,117 strict `>200` events). It also
+  incorporates the 54-slate realized-family census, 127,778-lineup generated
+  union, prior all-boom/stack-carve/A7/B1 nulls, and accepted exact-80
+  retrieval pilot.
+- Main recommendation: separate simulated-tail, realized-tail, and
+  winner-support evidence; build bounded fill sleeves that cover both
+  simulator-favored concentrated structures and winner-supported dispersed
+  structures; then select the final book by marginal set utility and scenario
+  redundancy. Evaluate every challenger with the paired A/B/C/D fill x
+  retrieval design so population and conversion effects remain identifiable.
+- Validation is documentation-scoped: all seven relative Markdown links
+  resolve, whitespace checks pass, and the report contains no TODO/TBD/FIXME.
+  No tests or cloud executions were required or started for this milestone.
+- Unresolved evidence risks are explicit in the report: the complete `>200`
+  phenotype evidence is currently one slate; winner sources disagree and lack
+  full source receipts; historical full contest fields, duplication, payouts,
+  and rank curves are absent; FantasyPoints/SIS coverage is not present in the
+  accepted task-0 matrix.
+- Exact next research action: canonicalize the 68-winner registry and matched
+  same-slate controls while expanding the complete phenotype/event-bitmap
+  pipeline across historical slates. Freeze those folds before implementing
+  F0–F4 fill and R0–R5 retrieval presets, then run the paired A/B/C/D evaluator
+  and nominate at most one Week-1 challenger plus one distinct fallback.
+
+## Prior handoff — 2026-08-22 11:30 CDT
 
 ### Registry integrated on main; v5 expansion image building; producer still running
 
