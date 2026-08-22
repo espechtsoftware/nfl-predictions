@@ -20,7 +20,33 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-22 13:18 CDT (fourth update)
+## Current handoff — 2026-08-22 13:51 CDT (fifth update)
+
+### Matchup P3 annotations built; task-0 reality smoke PASSED
+
+- `24420f5` lands the P3 annotation builder + smoke CLI. Frozen v1
+  component laws (role concession, alignment vulnerability, defender
+  workload quality, shell fit) -> within-slate percentiles ->
+  matchup_edge (>=2 components) -> the frozen easy-coverage law
+  (0.75 edge / 0.40 floor). Outcome-blind smoke against the REAL
+  accepted task-0 catalog (pinned generation 1787351685685892):
+  474 WR/TE annotated, 140 full-edge, 14 easy_coverage_v1=true —
+  non-degenerate, so the frozen definition survives its support census.
+  The 14 are football-plausible (Chase, A.J. Brown, Adams, Cooper,
+  Aiyuk, Hopkins...). Artifacts:
+  reports/receiver-matchup-runs/20260822-task0-annotation-smoke-v1/.
+  Family stays PROVISIONAL: winner-slate smoke half + exact max-source
+  timestamps remain before freeze. As-read source identities are
+  canonical-JSON hashes of each consumed extract (bq:// + generation).
+- Producer still nonterminal at 18:50Z (~3h54m); CPU 12.3% at last
+  metric read (one saturated core; actively solving). Monitors active.
+- Erich's original question is now answerable mechanically for any
+  slate with built layers: which receivers on a slate face favorable
+  pre-lock role/alignment/defender/shell matchups, with evidence grain
+  and missingness on every claim. Cross-slate lift analysis (P4) waits
+  for the Foundry batch and the frozen family, per the plan's tiers.
+
+## Prior handoff — 2026-08-22 13:18 CDT (fourth update)
 
 ### Matchup P2 built live: defender/alignment quality with as-of workload
 
