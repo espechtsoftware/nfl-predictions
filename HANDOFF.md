@@ -44,7 +44,31 @@ agent or developer:
   deploy or remove the legacy UI until frontend and focused FastAPI parity
   tests pass.
 
-## Current handoff — 2026-08-22 15:25 CDT (ninth update)
+## Current handoff — 2026-08-22 15:36 CDT (tenth update)
+
+### F5 and F7 closed; operator away — deployment watch is autonomous
+
+- `af60779` (F5): named-scenario-comparison added to the read-only query
+  catalog (appended last to preserve receipt ordering), flowing
+  automatically into lint/receipts/UI projection; the React app gains a
+  NamedScenarios table (pinned named-scenario-panel container) showing
+  evidence beside its paired baseline with held-out splits labeled
+  descriptive. 63 tests green across the five affected suites.
+- `be64824` (F7): publish_strategy_registry_release_with_preflight runs
+  the complete release against a zero-write preflight store before any
+  real create-once publish; prep CLI switched; negative test proves a
+  poisoned definition leaves real storage EMPTY.
+- OPERATOR AWAY: this session is the deployment operator. Producer
+  `atlas-minimal-c-s2023-w1-v1-l6dll` nonterminal at 20:34Z (~5h38m,
+  within envelope); 5-minute monitor armed and verified alive; on
+  terminal success the operator executes: exact c60 close chain ->
+  foundry_v5_iam_move --execute -> configure (per foundry_v5_env.sh) ->
+  driver task 0 -> compare_corpus_task_science (PASS gate) -> driver
+  1..53. On terminal failure: preserve evidence, no retry, stop.
+- Remaining backlog: phenotype Neo4j adapter (F12 + population load +
+  bounded UI views), F2 versioned v2 retrieval suite path.
+
+## Prior handoff — 2026-08-22 15:25 CDT (ninth update)
 
 ### Families frozen, R6 vehicle built, UI now React, F8 closed
 
