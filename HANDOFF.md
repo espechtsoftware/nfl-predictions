@@ -69,9 +69,34 @@ agent or developer:
   marked superseded). Clean worktree `/tmp/nfl-predictions-corpus-bcf31a7`
   created; v6 env skeleton `scripts/foundry/foundry_v6_env.sh` holds all
   known identities with pending publication slots.
-- Remaining backlog unchanged: phenotype Neo4j population load path, F2
-  versioned v2 retrieval suite path; post-batch R6 set-level matchup
-  retrieval experiment + realized grader.
+- **Backlog closed while the v6 image builds** (all pushed):
+  - `5bd5cb1` (F2): versioned suite schema
+    `corpus-retrieval-suite-manifest/v2` + frozen suite law
+    (schema → registry/validator/count) dispatched through
+    build/validate/replay; downstream Neo4j and registry-release count
+    contracts derive from the validated suite; end-to-end seven-strategy
+    publish/reopen/replay/completion test; v1 artifacts replay
+    byte-identically. 123 tests green across seven suites.
+  - Population load path: `append_population_phenotypes` in
+    `corpus_neo4j_extensions.py` — authorization-gated
+    (population_projection_only manifest), content-bound to the plan's
+    accepted task result, licenses/outcome-read refusals, projects the
+    analysis's own bounded neo4j_projection under
+    `corpus-population-research` with discovery-scope association counts
+    as rankable metrics; idempotent; four fail-closed tests.
+  - `append_foundry_v6_identities.py`: receipt-driven env exports
+    (verified against the real v5 execute-result structure).
+  - v6 IAM move dry-run verified against the live policy (both narrow
+    conditions transform v4 → v6 exactly; execute deferred until after
+    the v6 foundation publication per runbook order).
+  - F1 disposition: R5 leximin trace + honest R3
+    distinct-block-support framing stand; the review's optional
+    weight-upgrade credit variant is deliberately deferred — it would
+    change a frozen law's behavior under the same strategy id, so it
+    can only enter as a new ordinal after R6 evidence.
+- Remaining: post-batch R6 set-level matchup retrieval experiment +
+  realized grader; cloud-stage memory/runtime benchmark of v2 selectors
+  at realistic corpus sizes (local box law forbids running it here).
 
 ## Current handoff addendum — 2026-08-22 React UI migration dependency block
 
