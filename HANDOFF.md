@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 21:24 CDT
+## Current state — 2026-08-21 21:27 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -209,6 +209,19 @@ agent or developer:
   `8c6831f384072fe9a9969a80a4206b0c5b1f28f1f52198196bf1756844512693`;
   derived runtime evidence has internal SHA
   `6e66ac2995d3cf33d706158e0cd66f2150b69779394910b8eb48cf31d0c402ff`.
+  V2 configure then succeeded from fresh
+  `reports/corpus-parametric-runs/20260821-corpus-artifact-source-authority-v2/transport-live`.
+  The reused job is reconciled Ready at generation 21, execution count 266,
+  exact source service account/image, and parked argv; no execution or query
+  was created. The three create-once delivery objects are the 5,063-byte plan
+  generation `1787365580525357`, the 21,828-byte IAM evidence generation
+  `1787365581041948`, and the 15,275-byte transport contract generation
+  `1787365581473105`. The exact one-shot contract is
+  `gs://nfl-predictions-503414-corpus-source/research/delivery/20260821-corpus-artifact-source-authority-v2/governance/transport-contract.json`,
+  SHA `0f5a71c8a456fa7e056cb8a9569ebc78a4dfb71a86f9e2a2fbf221a920dce6e4`,
+  bytes `15275`. Its receipt says `launch_permitted=false` and next action
+  `consume-launch-once`; the nine-object source namespace remains empty and all
+  three v2 deterministic BigQuery job IDs remain absent.
   Commit `7cc06de47aa2e3573b67dd734b65924ed5b47ac5` completes the live SDK
   generation sweep across source, parametric, realized, Neo4j, registry, and UI
   paths: type-exact positive integers are normalized to existing string receipt
@@ -265,11 +278,11 @@ agent or developer:
   each exact prior spec was automatically restored. One abandoned delivery
   plan object exists as documented above. Exact next action: prepare the v2
   plan and IAM evidence for commit `7cc06de`, build `8a17413e`, and immutable
-  digest `d35ed96e` are ready. Exact next action: recheck the clean v2 namespace
-  and configure against the already-switched exact v2 IAM conditions from a
-  fresh transport directory. Inspect and record its configure receipt before
-  consuming that source authority exactly once; then run the isolated task-0
-  seven-arm real-artifact smoke before the complete serial 54-task suite.
+  digest `d35ed96e` are configured. Exact next action: consume the recorded v2
+  transport contract exactly once, then use census-only recovery/binding and
+  terminal watches; never repeat the launch request. After accepted terminal
+  source publication, run the isolated task-0 seven-arm real-artifact smoke
+  before the complete serial 54-task suite.
 
 ### Accepted task-0 score is on main; corpus research dashboard is mounted
 
