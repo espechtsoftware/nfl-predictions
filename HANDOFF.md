@@ -20,7 +20,66 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-22 10:49 CDT
+## Current handoff — 2026-08-22 11:25 CDT
+
+### Lead takeover: producer healthy; deterministic engine parallelism landed
+
+- A replacement lead (Fable 5) reviewed
+  `reports/2026-08-22-corpus-research-engine-live-handoff.md`, the transport/
+  engine/attestation code, and both isolated worktrees, then began the
+  deployment-efficiency work the report's rollout list names first. The active
+  producer `atlas-minimal-c-s2023-w1-v1-l6dll` was polled read-only at
+  `15:56:35Z` and `16:19:17Z`: still `Completed=Unknown`, one running task,
+  zero success/failure/retry. No launch, bind, close, or verify authority was
+  touched. All four /tmp assets survive: the clean c60 worktree at the exact
+  SHA, `/tmp/nfl-corpus-py311` (3.11.16), and both isolated worktrees.
+- Engine parallelism is committed on `main` at `b2d8451`
+  (`corpus_legal_feasibility.py` + tests). Authoritative generation now
+  partitions the 7x1000 matrix into shard-aligned 100-visit units, executes
+  them in bounded spawn worker processes (cap 7, one vCPU reserved; serial
+  workers=1 fallback preserves the exact prior lazy path), assembles in
+  canonical profile-major order, and keeps the parent as the single
+  create-once evidence writer under the existing directory lock. Worker count
+  is execution shape only — no new env var, the 97-key ambient-absence law is
+  untouched, and construction serials/model names/proof validation derive
+  from (profile ordinal, visit ordinal) alone. Progress telemetry
+  (generation-start / unit-complete / generation-complete) now goes to stderr
+  for Cloud Logging. Validation: 31 passed in
+  `tests/test_corpus_legal_feasibility.py` on Python 3.14 AND 3.11, including
+  a real-CBC test proving a 2-worker spawn pool reproduces inline science
+  exactly (AttemptRecord equality excludes wall-clock proofs); 170 passed
+  across verifier/transport/batch/expansion-build/inventory suites.
+  THIS CODE MUST NOT TOUCH THE ACTIVE RUN: it lands only in the next
+  immutable image, and before any 54x7 use the parallel image must reproduce
+  the accepted v4 one-slate arm results (preregistered equivalence gate).
+  Expected wall-clock effect: roughly 6-7x per task (the v4 smoke's serial
+  shape saturated one core at ~12.5% machine utilization).
+- The named-scenario registry worktree
+  (`/tmp/nfl-scenario-registry-ed3f7db`, branch `codex/scenario-registry`) is
+  now at green SHA `9e9537c`. Its frozen end-to-end test carried three
+  defects written against structures the implementation never produced
+  (flattened `source_strategy_id`; nonexistent
+  `retrieval.RETRIEVAL_STRATEGY_ORDER`; a `PAIRED_AGAINST_SCENARIO_EVIDENCE`
+  graph edge the plan builder does not emit). The test now asserts the
+  paired-comparison and heldout-R4 laws through the fail-closed structures
+  that exist (`paired_design`: 3 retrieval-axis rows against 1 baseline;
+  `heldout_design`: descriptive-only, no ranker/promotion authority).
+  Registry implementation is unchanged and old release behavior remains
+  byte-compatible: 19 passed
+  (`test_corpus_strategy_registry_release.py` + `test_corpus_strategy_registry.py`).
+  Integration into `main` remains a deliberate separate step.
+- Exact next actions, in order: (1) keep polling the producer; on
+  `Completed=True` run the exact c60 `watch-producer` -> `launch-verifier` ->
+  `recover-verifier` -> `watch-verifier` -> `finish-batch` chain from the
+  live-handoff report and report the seven arm results only after verifier
+  acceptance; (2) build the v5 immutable expansion image from current `main`
+  (includes `b2d8451` and the integrated no-IAM-census path), one initial
+  deployment attestation, then `configure-attested`; (3) run the one-slate
+  parallel-vs-accepted-v4 equivalence check before the fixed 54x7 batch;
+  (4) integrate `codex/scenario-registry` after review; (5) continue the
+  phenotype graph adapter deliberately.
+
+## Prior handoff — 2026-08-22 10:49 CDT
 
 ### Replacement-model entry point
 
