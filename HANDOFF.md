@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 21:40 CDT
+## Current state — 2026-08-21 21:43 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -277,9 +277,8 @@ agent or developer:
   Ready at generation 21 with execution count 267. Do not delete either
   partial source object: deletion would not restore the consumed launch or
   used BigQuery identity.
-- On branch `main`, the focused candidate-shape repair and this handoff update
-  are based on pushed failure-evidence commit
-  `06482f6370d7d6a19a3b7123517aa91ce4bb2b89`. Candidate SQL now projects
+- On branch `main`, the focused candidate-shape repair is pushed at exact
+  commit `12ee7cefa4d6b093562696e17f82a0bdef126636`. Candidate SQL now projects
   `SPLIT(players, ',') AS players`; the derived SQL SHA is
   `2029deb3e99bd70ce5b36c628a32b31fd91d37ce36683a28f350cbdfe4e22b6b`.
   The capture boundary remains strict and still rejects an unnormalized CSV
@@ -296,6 +295,14 @@ agent or developer:
   realized-outcome column. Exact next action is a canonical direct-Git build
   from the pushed repair commit, followed by a disjoint v3 source authority;
   the existing matrices remain fixed for this controlled comparison.
+  Build `2284841e-4241-4857-8839-569be6b5b8b7` is terminal `FAILURE` before
+  every configured step because the submitted revision accidentally combined
+  the correct short prefix with the wrong suffix,
+  `12ee7cebf29146ca8932764cf6fe43d4f60b743a`; GitHub correctly returned
+  `not our ref`. All five steps remained queued, no test or build command ran,
+  and no image was produced. Never cite or reuse that failed build. Submit one
+  replacement from the actual pushed SHA above and retain the same canonical
+  `.git` repository URL.
 - The last exact 270-artifact v3 source plan was never published. It was pinned
   to commit `4440c4f`, image `dbf9796c`, internal plan SHA
   `98f2bff2d4c6891c4f5f5aad8ff5978d47c2188847f685131900d9f22cb8020b`,
