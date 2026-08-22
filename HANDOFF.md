@@ -20,7 +20,43 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-22 11:25 CDT
+## Current handoff — 2026-08-22 11:30 CDT
+
+### Registry integrated on main; v5 expansion image building; producer still running
+
+- The named-scenario registry work is integrated on `main` as `04d6579`
+  (cherry-pick of branch commit `9e9537c`; both pushed). Post-integration
+  validation on `main`: 69 passed across
+  `test_corpus_strategy_registry{,_release}.py` and all three consumer
+  suites (`corpus_neo4j_transport`, `corpus_expansion_build`,
+  `corpus_research_ui_bridge`) plus `test_corpus_research_ui.py`.
+- The v5 expansion image build was submitted from exact pushed SHA
+  `04d6579394af70df7120e81c0196837d29b5ffcf` (SHA captured via
+  `git rev-parse`, never retyped): Cloud Build
+  `b2832a18-666d-4260-9d4b-619ad94aa5ae`, image tag
+  `corpus-research-expansion-04d6579-r1`, submitted 16:28:07Z via
+  `gcloud beta builds submit <git url> --git-source-revision=...`
+  (this gcloud version lacks the GA `--git-source-url` flag). Its mandatory
+  stages run the full 21-file focused corpus suite on Python 3.11 (includes
+  the new parallel-engine tests and the fixed registry tests), the
+  import-path resolution smoke, the build-provenance hash smoke, and the
+  TTY-sensitive solver probe; `solver-probe` and transport `parked` were
+  also re-verified locally on 3.11 before submission. Building creates no
+  Cloud Run job and touches nothing in the active c60 contract; job
+  reconfiguration remains forbidden until the v4 chain is fully closed.
+- Producer `atlas-minimal-c-s2023-w1-v1-l6dll` remained
+  `Completed=Unknown`, one running task, zero failure/retry at 16:24:36Z.
+  Background monitors poll both the producer (5-minute interval) and the
+  build (3-minute interval).
+- Equivalence-comparator decision (preregistered intent): after v4
+  acceptance, compare v5-equivalence to accepted v4 on scientific content
+  only — per-arm visit rosters, unique-lineup unions, score-matrix SHAs,
+  exact-80 selections, and arm metrics — never on registered-law or
+  code-source hashes, which change with the image by construction. The
+  comparator will be written against the real accepted v4 artifact (lesson
+  1 reality contact), not speculatively.
+
+## Prior handoff — 2026-08-22 11:25 CDT
 
 ### Lead takeover: producer healthy; deterministic engine parallelism landed
 
