@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 20:18 CDT
+## Current state — 2026-08-21 20:25 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -74,6 +74,12 @@ agent or developer:
   Submission `900dd442-3959-4b92-98ea-2c32b933a495` named a malformed Git
   revision; it was cancelled while still queued, ran no step, and produced no
   image.
+  Canonical-capture repair build
+  `caa82867-d9e3-448b-bbbe-62ff827e5322` then succeeded from exact commit
+  `b20505e20a6b422d97bd6d7d4e8bc1f77fd149b4`; its full focused matrix and all
+  packaged smokes are green. The sole launchable image now superseding every
+  earlier successful expansion image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:e515566af60a1976fe575b5a6f594909606b59b4deec700928e5df296156f431`.
   Do not reuse either failed build or the cancelled submission.
 - The graph v2 release remains outcome-blind and intentionally reserves the
   realized namespace empty. The two follow-on adapters are now implemented
