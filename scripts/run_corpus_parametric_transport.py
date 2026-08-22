@@ -3048,6 +3048,9 @@ _DEPLOYMENT_ATTESTATION_KEYS: Final = frozenset({
     "no_scheduler_targets_job", "max_retries", "automatic_retry_licensed",
     "attestation_sha256",
 })
+_DEPLOYMENT_ATTESTATION_RENEWAL_KEYS: Final = (
+    _DEPLOYMENT_ATTESTATION_KEYS | {"renewed_from_attestation_sha256"}
+)
 
 
 def _utc_datetime(value: object, *, label: str) -> datetime:
@@ -3122,6 +3125,7 @@ def build_deployment_attestation(
         "no_scheduler_targets_job": True,
         "max_retries": 0,
         "automatic_retry_licensed": False,
+        "renewed_from_attestation_sha256": None,
     }
     return _self_hash(body, field="attestation_sha256")
 
@@ -3136,11 +3140,13 @@ def validate_deployment_attestation(
 ) -> dict[str, object]:
     """Fail closed when a reusable deployment proof expires or drifts."""
     item = dict(_mapping(value, label="deployment attestation"))
-    _exact_keys(
-        item,
+    if frozenset(item) not in {
         _DEPLOYMENT_ATTESTATION_KEYS,
-        label="deployment attestation fields",
-    )
+        _DEPLOYMENT_ATTESTATION_RENEWAL_KEYS,
+    }:
+        raise CorpusParametricTransportError(
+            "deployment attestation fields differ"
+        )
     _validate_self_hash(
         item,
         field="attestation_sha256",
@@ -3197,11 +3203,113 @@ def validate_deployment_attestation(
         or item.get("no_scheduler_targets_job") is not True
         or item.get("max_retries") != 0
         or item.get("automatic_retry_licensed") is not False
+        or (
+            item.get("renewed_from_attestation_sha256") is not None
+            and _SHA.fullmatch(
+                str(item.get("renewed_from_attestation_sha256"))
+            ) is None
+        )
     ):
         raise CorpusParametricTransportError(
             "deployment attestation binding differs"
         )
     return item
+
+
+def renew_deployment_attestation(
+    *,
+    existing_attestation: object,
+    current_job: object,
+    executions: object,
+    schedulers: object,
+    all_regions_complete: bool,
+    created_at_utc: str,
+    expires_at_utc: str,
+) -> dict[str, object]:
+    """Renew time authority without another IAM or Cloud Asset analysis."""
+    candidate = _mapping(
+        existing_attestation, label="existing deployment attestation"
+    )
+    expected_build = _mapping(
+        candidate.get("build"), label="existing attestation build"
+    )
+    service_account = _string(
+        candidate.get("service_account"),
+        label="existing attestation service account",
+    )
+    retained = validate_deployment_attestation(
+        candidate,
+        # Structural/binding validation uses the original validity boundary;
+        # renewal itself receives a new explicit created/expires interval.
+        observed_at_utc=_string(
+            candidate.get("created_at_utc"),
+            label="existing attestation created timestamp",
+        ),
+        current_job=current_job,
+        expected_build=expected_build,
+        expected_service_account=service_account,
+    )
+    if retained.get("renewed_from_attestation_sha256") is not None:
+        raise CorpusParametricTransportError(
+            "deployment attestation renewal chain is not licensed"
+        )
+    _require_no_active_executions(executions)
+    validate_scheduler_census(
+        schedulers,
+        job_name=str(_mapping(retained["job"], label="attested job")["name"]),
+        all_regions_complete=all_regions_complete,
+    )
+    created = _utc_datetime(
+        created_at_utc, label="renewed attestation created timestamp"
+    )
+    expires = _utc_datetime(
+        expires_at_utc, label="renewed attestation expiry timestamp"
+    )
+    prior_created = _utc_datetime(
+        retained["created_at_utc"], label="prior attestation created timestamp"
+    )
+    lifetime = (expires - created).total_seconds()
+    if (
+        created < prior_created
+        or lifetime <= 0
+        or lifetime > DEPLOYMENT_ATTESTATION_MAX_SECONDS
+    ):
+        raise CorpusParametricTransportError(
+            "renewed deployment attestation lifetime differs"
+        )
+    capture = _mapping(
+        retained["runtime_iam_policy_capture"],
+        label="renewed runtime IAM policy capture",
+    )
+    body = {
+        "schema_version": DEPLOYMENT_ATTESTATION_SCHEMA,
+        "created_at_utc": created_at_utc,
+        "expires_at_utc": expires_at_utc,
+        "project": PROJECT,
+        "region": REGION,
+        "service_account": service_account,
+        "build": dict(expected_build),
+        "job": dict(_mapping(retained["job"], label="renewed job")),
+        "runtime_iam_policy_capture": dict(capture),
+        "runtime_iam_policy_capture_sha256": retained[
+            "runtime_iam_policy_capture_sha256"
+        ],
+        "scheduler_census_sha256": canonical_sha256(schedulers),
+        "all_regions_complete": True,
+        "no_scheduler_targets_job": True,
+        "max_retries": 0,
+        "automatic_retry_licensed": False,
+        "renewed_from_attestation_sha256": retained["attestation_sha256"],
+    }
+    renewed = _self_hash(body, field="attestation_sha256")
+    # Validate at the new lower boundary before returning a reusable receipt.
+    return validate_deployment_attestation(
+        renewed,
+        observed_at_utc=created_at_utc,
+        current_job=current_job,
+        expected_build=expected_build,
+        expected_service_account=service_account,
+    )
 
 
 def _deployment_guard(
@@ -4962,9 +5070,12 @@ def _post_launch_governance(
             schedulers=schedulers,
             all_regions_complete=all_regions_complete,
         )
-        return _governance_authorization(
-            guard, observed_at_utc=observed_at_utc
-        )
+        return {
+            "launch_governance_authorization": None,
+            "terminal_scheduler_census_sha256": guard[
+                "scheduler_census_sha256"
+            ],
+        }
     retained = _validate_governance_authorization(
         governance, label="consumed launch governance authorization"
     )
@@ -4978,14 +5089,19 @@ def _post_launch_governance(
             schedulers=schedulers,
             all_regions_complete=all_regions_complete,
         )
-        # Preserve the launch-time authorization in durable receipts while
-        # requiring a fresh current census for legacy/live mode.
-        del guard
+        terminal_scheduler_sha256: object = guard[
+            "scheduler_census_sha256"
+        ]
     elif schedulers is not None or all_regions_complete is not False:
         raise CorpusParametricTransportError(
             "attested consumed launch must not substitute a live scheduler census"
         )
-    return retained
+    else:
+        terminal_scheduler_sha256 = None
+    return {
+        "launch_governance_authorization": retained,
+        "terminal_scheduler_census_sha256": terminal_scheduler_sha256,
+    }
 
 
 def consume_phase_launch(
@@ -5341,7 +5457,7 @@ def bind_phase_execution(
         phase=retained_phase,
     )
     del intent_identity
-    governance_authorization = _post_launch_governance(
+    post_launch_governance = _post_launch_governance(
         launch=launch,
         current_job=parked_job,
         contract=contract,
@@ -5349,6 +5465,9 @@ def bind_phase_execution(
         all_regions_complete=all_regions_complete,
         observed_at_utc=observed_at_utc or created_at_utc,
     )
+    governance_authorization = post_launch_governance[
+        "launch_governance_authorization"
+    ]
     # An attestation file is intentionally unnecessary after launch authority
     # is durably consumed; its launch-time SHA/timestamps are frozen above.
     del deployment_attestation
@@ -5379,7 +5498,10 @@ def bind_phase_execution(
         "launch_ledger": launch_identity,
         "task_index": task_index,
         "phase": retained_phase,
-        "governance_authorization": governance_authorization,
+        **(
+            {"governance_authorization": governance_authorization}
+            if governance_authorization is not None else {}
+        ),
         "execution_id": runtime["execution_id"],
         "execution_name": runtime["execution_name"],
         "execution_uid": runtime["execution_uid"],
@@ -5446,11 +5568,19 @@ def recover_phase_execution_name(
         raise CorpusParametricTransportError(
             "execution-name recovery is ambiguous; never relaunch"
         )
+    governance = launch.get("governance_authorization")
+    governance_mode = (
+        _validate_governance_authorization(
+            governance, label="recovery launch governance authorization"
+        )["governance_mode"]
+        if governance is not None else "legacy-governance-free"
+    )
     return {
         "schema_version": "corpus-parametric-execution-recovery-candidate/v1",
         "task_index": task_index,
         "phase": retained_phase,
         "execution_id": next(iter(new)),
+        "governance_mode": governance_mode,
         "automatic_retry_licensed": False,
         "cloud_call_made": False,
     }
@@ -6170,7 +6300,7 @@ def _validate_terminal_governance_census(
         task_index=task_index,
         phase=retained_phase,
     )
-    governance_authorization = _post_launch_governance(
+    post_launch_governance = _post_launch_governance(
         launch=launch,
         current_job=parked_job,
         contract=contract,
@@ -6179,6 +6309,20 @@ def _validate_terminal_governance_census(
         observed_at_utc=_string(
             observed_at_utc, label="terminal governance observed timestamp"
         ),
+    )
+    governance_authorization = post_launch_governance[
+        "launch_governance_authorization"
+    ]
+    terminal_scheduler_sha256 = post_launch_governance[
+        "terminal_scheduler_census_sha256"
+    ]
+    retained_scheduler_sha256 = (
+        terminal_scheduler_sha256
+        if terminal_scheduler_sha256 is not None
+        else _mapping(
+            governance_authorization,
+            label="attested launch governance authorization",
+        )["scheduler_census_sha256"]
     )
     del deployment_attestation
     before = set(_sequence(
@@ -6251,10 +6395,16 @@ def _validate_terminal_governance_census(
         "execution_uid": terminal["execution_uid"],
         "execution_names": after_names,
         "execution_census_sha256": canonical_sha256(executions),
-        "scheduler_census_sha256": governance_authorization[
-            "scheduler_census_sha256"
-        ],
-        "governance_authorization": governance_authorization,
+        "scheduler_census_sha256": retained_scheduler_sha256,
+        "launch_governance_authorization_sha256": (
+            canonical_sha256(governance_authorization)
+            if governance_authorization is not None else None
+        ),
+        "terminal_scheduler_census_sha256": terminal_scheduler_sha256,
+        **(
+            {"governance_authorization": governance_authorization}
+            if governance_authorization is not None else {}
+        ),
         "all_regions_complete": True,
         "exactly_one_new_execution": True,
         "no_active_executions": True,
@@ -6271,6 +6421,15 @@ _TERMINAL_CENSUS_KEYS: Final = frozenset({
 _TERMINAL_CENSUS_KEYS_WITH_GOVERNANCE: Final = (
     _TERMINAL_CENSUS_KEYS | {"governance_authorization"}
 )
+_TERMINAL_CENSUS_KEYS_V2: Final = (
+    _TERMINAL_CENSUS_KEYS | {
+        "launch_governance_authorization_sha256",
+        "terminal_scheduler_census_sha256",
+    }
+)
+_TERMINAL_CENSUS_KEYS_V2_WITH_GOVERNANCE: Final = (
+    _TERMINAL_CENSUS_KEYS_V2 | {"governance_authorization"}
+)
 
 
 def _validate_terminal_census_receipt(
@@ -6285,6 +6444,8 @@ def _validate_terminal_census_receipt(
     if frozenset(item) not in {
         _TERMINAL_CENSUS_KEYS,
         _TERMINAL_CENSUS_KEYS_WITH_GOVERNANCE,
+        _TERMINAL_CENSUS_KEYS_V2,
+        _TERMINAL_CENSUS_KEYS_V2_WITH_GOVERNANCE,
     }:
         raise CorpusParametricTransportError(
             "terminal census receipt fields differ"
@@ -6294,13 +6455,50 @@ def _validate_terminal_census_receipt(
         retained_governance = _validate_governance_authorization(
             governance, label="terminal governance authorization"
         )
-        if (
-            retained_governance["scheduler_census_sha256"]
-            != item.get("scheduler_census_sha256")
-        ):
+        if item.get("launch_governance_authorization_sha256") != (
+            canonical_sha256(retained_governance)
+        ) and "launch_governance_authorization_sha256" in item:
             raise CorpusParametricTransportError(
-                "terminal governance scheduler fingerprint differs"
+                "terminal launch governance fingerprint differs"
             )
+        if "terminal_scheduler_census_sha256" not in item:
+            if (
+                retained_governance["scheduler_census_sha256"]
+                != item.get("scheduler_census_sha256")
+            ):
+                raise CorpusParametricTransportError(
+                    "legacy terminal governance scheduler fingerprint differs"
+                )
+        else:
+            terminal_scheduler = item.get("terminal_scheduler_census_sha256")
+            if retained_governance["governance_mode"] == "live-all-region-census":
+                if (
+                    terminal_scheduler is None
+                    or terminal_scheduler != item.get("scheduler_census_sha256")
+                ):
+                    raise CorpusParametricTransportError(
+                        "live terminal scheduler fingerprint differs"
+                    )
+                _sha(terminal_scheduler, label="terminal scheduler census SHA")
+            elif (
+                terminal_scheduler is not None
+                or retained_governance["scheduler_census_sha256"]
+                != item.get("scheduler_census_sha256")
+            ):
+                raise CorpusParametricTransportError(
+                    "terminal governance scheduler fingerprint differs"
+                )
+    elif "terminal_scheduler_census_sha256" in item:
+        if item.get("launch_governance_authorization_sha256") is not None:
+            raise CorpusParametricTransportError(
+                "legacy launch governance fingerprint differs"
+            )
+        terminal_scheduler = item["terminal_scheduler_census_sha256"]
+        if terminal_scheduler != item.get("scheduler_census_sha256"):
+            raise CorpusParametricTransportError(
+                "legacy terminal scheduler fingerprint differs"
+            )
+        _sha(terminal_scheduler, label="legacy terminal scheduler SHA")
     names = execution_census_names([
         {"metadata": {"name": name}}
         for name in _sequence(item["execution_names"], label="terminal names")
@@ -7928,6 +8126,22 @@ def _base_parser() -> argparse.ArgumentParser:
     attest.add_argument("--expires-at-utc", required=True)
     attest.add_argument("--output", required=True, type=Path)
 
+    renew = sub.add_parser(
+        "renew-deployment-attestation",
+        help=(
+            "renew an attestation from its immutable IAM capture and fresh "
+            "job/execution/scheduler evidence without Cloud Asset"
+        ),
+    )
+    renew.add_argument("--attestation-file", required=True, type=Path)
+    renew.add_argument("--job-file", required=True, type=Path)
+    renew.add_argument("--executions-file", required=True, type=Path)
+    renew.add_argument("--schedulers-file", required=True, type=Path)
+    renew.add_argument("--all-regions-complete", action="store_true")
+    renew.add_argument("--created-at-utc", required=True)
+    renew.add_argument("--expires-at-utc", required=True)
+    renew.add_argument("--output", required=True, type=Path)
+
     validate_contract = sub.add_parser(
         "validate-local-contract", help="validate a local canonical contract"
     )
@@ -8221,6 +8435,40 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "created_at_utc": result["created_at_utc"],
                 "expires_at_utc": result["expires_at_utc"],
                 "cloud_call_made": False,
+            })
+            return 0
+        if args.command == "renew-deployment-attestation":
+            result = renew_deployment_attestation(
+                existing_attestation=_load_json(
+                    Path(args.attestation_file),
+                    label="existing deployment attestation",
+                ),
+                current_job=_read_external_file(
+                    Path(args.job_file), label="current parked job"
+                ),
+                executions=_read_external_file(
+                    Path(args.executions_file), label="current executions"
+                ),
+                schedulers=_read_external_file(
+                    Path(args.schedulers_file), label="current schedulers"
+                ),
+                all_regions_complete=args.all_regions_complete,
+                created_at_utc=args.created_at_utc,
+                expires_at_utc=args.expires_at_utc,
+            )
+            raw = canonical_json_bytes(result)
+            _write_once(Path(args.output), raw)
+            _print_json({
+                "schema_version": result["schema_version"],
+                "output": str(Path(args.output)),
+                "attestation_sha256": result["attestation_sha256"],
+                "renewed_from_attestation_sha256": result[
+                    "renewed_from_attestation_sha256"
+                ],
+                "created_at_utc": result["created_at_utc"],
+                "expires_at_utc": result["expires_at_utc"],
+                "cloud_asset_call_made": False,
+                "iam_policy_recaptured": False,
             })
             return 0
         if args.command == "validate-local-contract":

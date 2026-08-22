@@ -140,11 +140,60 @@ validate_new_deployment_attestation_settings() {
 }
 
 deployment_guard_args() {
-  local path
-  path="$(require_deployment_attestation)"
+  local path="${1:-}"
+  if [[ -z "$path" ]]; then
+    path="$(require_deployment_attestation)"
+  fi
   printf '%s\n' \
     --deployment-attestation-file "$path" \
     --observed-at-utc "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+}
+
+current_or_renew_deployment_attestation() {
+  local attempt_dir="$1" job_file="$2" executions_file="$3"
+  local current expires_epoch now_epoch
+  current="$(require_deployment_attestation)"
+  expires_epoch="$(date -u -d "$(jq -er '.expires_at_utc' "$current")" +%s)" || \
+    die "deployment attestation expiry is malformed"
+  now_epoch="$(date -u +%s)"
+  if (( now_epoch < expires_epoch )); then
+    printf '%s\n' "$current"
+    return 0
+  fi
+
+  local renewed="$attempt_dir/deployment-attestation-renewed.json"
+  local ttl_seconds="${CORPUS_PARAMETRIC_DEPLOYMENT_ATTESTATION_TTL_SECONDS:-21600}"
+  validate_new_deployment_attestation_settings "$renewed" "$ttl_seconds"
+  local schedulers="$attempt_dir/renewal-schedulers.json"
+  capture_all_region_schedulers "$schedulers"
+  # These timestamps are deliberately assigned only after the final exact
+  # job/execution and scheduler captures used by the renewal receipt.
+  local created_at expires_at
+  created_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+  expires_at="$(date -u -d "${created_at} + ${ttl_seconds} seconds" +'%Y-%m-%dT%H:%M:%SZ')"
+  "$PYTHON_BIN" "$TRANSPORT_SCRIPT" renew-deployment-attestation \
+    --attestation-file "$current" --job-file "$job_file" \
+    --executions-file "$executions_file" --schedulers-file "$schedulers" \
+    --all-regions-complete --created-at-utc "$created_at" \
+    --expires-at-utc "$expires_at" --output "$renewed" >/dev/null
+  printf '%s\n' "$renewed"
+}
+
+postlaunch_governance_args() {
+  local mode="$1" attempt_dir="$2"
+  case "$mode" in
+    bounded-deployment-attestation)
+      return 0
+      ;;
+    live-all-region-census|legacy-governance-free)
+      local schedulers="$attempt_dir/terminal-schedulers.json"
+      capture_all_region_schedulers "$schedulers"
+      printf '%s\n' --schedulers-file "$schedulers" --all-regions-complete
+      ;;
+    *)
+      die "consumed launch governance mode is unknown: $mode"
+      ;;
+  esac
 }
 
 phase_file() {
@@ -202,8 +251,6 @@ configure_mode() {
   attestation_ttl_seconds="${CORPUS_PARAMETRIC_DEPLOYMENT_ATTESTATION_TTL_SECONDS:-21600}"
   validate_new_deployment_attestation_settings \
     "$deployment_attestation" "$attestation_ttl_seconds"
-  created_at="$(timestamp_for configured)"
-  expires_at="$(date -u -d "${created_at} + ${attestation_ttl_seconds} seconds" +'%Y-%m-%dT%H:%M:%SZ')"
   local rollback_restored="$CORPUS_PARAMETRIC_RUN_DIR/job-rollback-restored.json"
   local retained_path
   for retained_path in \
@@ -317,6 +364,10 @@ configure_mode() {
   capture_job "$job_after"
   capture_executions "$executions_after"
   capture_all_region_schedulers "$schedulers_after"
+  # Assign the attestation interval only after its final job/execution and
+  # all-region scheduler captures have completed.
+  created_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+  expires_at="$(date -u -d "${created_at} + ${attestation_ttl_seconds} seconds" +'%Y-%m-%dT%H:%M:%SZ')"
   "$PYTHON_BIN" "$TRANSPORT_SCRIPT" create-deployment-attestation \
     --runtime-iam-file "$CORPUS_PARAMETRIC_RUNTIME_IAM_FILE" \
     --build-metadata-file "$CORPUS_PARAMETRIC_BUILD_METADATA_FILE" \
@@ -441,7 +492,10 @@ launch_mode() {
   capture_job "$job_file"
   capture_executions "$executions_file"
   mapfile -t identity_args < <(contract_identity_args)
-  mapfile -t guard_args < <(deployment_guard_args)
+  local active_attestation
+  active_attestation="$(current_or_renew_deployment_attestation \
+    "$attempt_dir" "$job_file" "$executions_file")"
+  mapfile -t guard_args < <(deployment_guard_args "$active_attestation")
   "$PYTHON_BIN" "$TRANSPORT_SCRIPT" consume-launch \
     "${identity_args[@]}" --task-index "$CORPUS_PARAMETRIC_TASK_INDEX" \
     --phase "$phase" --job-file "$job_file" \
@@ -475,6 +529,7 @@ recover_mode() {
   mkdir -p "$CORPUS_PARAMETRIC_RUN_DIR/tasks"
   local attempt_dir
   attempt_dir="$(new_phase_attempt_directory "$phase" recover)"
+  local -a postlaunch_args
   mapfile -t identity_args < <(contract_identity_args)
   local executions_file candidate_file execution_id execution_file job_file bound_file
   executions_file="$attempt_dir/executions.json"
@@ -487,6 +542,11 @@ recover_mode() {
     "${identity_args[@]}" --task-index "$CORPUS_PARAMETRIC_TASK_INDEX" \
     --phase "$phase" --executions-file "$executions_file" --execute \
     >"$candidate_file"
+  local governance_mode
+  governance_mode="$(jq -er '.governance_mode' "$candidate_file")"
+  mapfile -t postlaunch_args < <(
+    postlaunch_governance_args "$governance_mode" "$attempt_dir"
+  )
   execution_id="$(jq -er '.execution_id' "$candidate_file")"
   gcloud run jobs executions describe "$execution_id" \
     --project "$PROJECT" --region "$REGION" --format=json >"$execution_file"
@@ -495,6 +555,7 @@ recover_mode() {
     "${identity_args[@]}" --task-index "$CORPUS_PARAMETRIC_TASK_INDEX" \
     --phase "$phase" --execution-metadata-file "$execution_file" \
     --job-file "$job_file" --executions-file "$executions_file" \
+    "${postlaunch_args[@]}" \
     --created-at-utc "$(timestamp_for "task-${CORPUS_PARAMETRIC_TASK_INDEX}-${phase}-bound")" \
     --execute >"$bound_file"
   printf '%s\n' "execution bound; run watch-${phase} as a separate action"
@@ -507,9 +568,14 @@ watch_mode() {
   mapfile -t identity_args < <(contract_identity_args)
   local attempt_dir
   attempt_dir="$(new_phase_attempt_directory "$phase" watch)"
+  local -a postlaunch_args
   local bound_file execution_id terminal_file completed job_file executions_file
   bound_file="$(phase_file "$phase" bound)"
   [[ -f "$bound_file" ]] || die "bound execution receipt is absent; recover first"
+  local governance_mode
+  governance_mode="$(jq -r \
+    '.governance_authorization.governance_mode // "legacy-governance-free"' \
+    "$bound_file")"
   execution_id="$(jq -er '.execution_id' "$bound_file")"
   terminal_file="$attempt_dir/execution.json"
   gcloud run jobs executions describe "$execution_id" \
@@ -524,11 +590,15 @@ watch_mode() {
   executions_file="$attempt_dir/executions.json"
   capture_job "$job_file"
   capture_executions "$executions_file"
+  mapfile -t postlaunch_args < <(
+    postlaunch_governance_args "$governance_mode" "$attempt_dir"
+  )
   if [[ "$phase" == "producer" ]]; then
     "$PYTHON_BIN" "$TRANSPORT_SCRIPT" close-producer \
       "${identity_args[@]}" --task-index "$CORPUS_PARAMETRIC_TASK_INDEX" \
       --execution-metadata-file "$terminal_file" \
       --job-file "$job_file" --executions-file "$executions_file" \
+      "${postlaunch_args[@]}" \
       --created-at-utc "$(timestamp_for "task-${CORPUS_PARAMETRIC_TASK_INDEX}-producer-closed")" \
       --execute \
       >"$(phase_file "$phase" closed)"
@@ -538,6 +608,7 @@ watch_mode() {
       "${identity_args[@]}" --task-index "$CORPUS_PARAMETRIC_TASK_INDEX" \
       --execution-metadata-file "$terminal_file" \
       --job-file "$job_file" --executions-file "$executions_file" \
+      "${postlaunch_args[@]}" \
       --created-at-utc "$(timestamp_for "task-${CORPUS_PARAMETRIC_TASK_INDEX}-verifier-accepted")" \
       --execute \
       >"$(phase_file "$phase" accepted)"
@@ -573,4 +644,6 @@ main() {
   esac
 }
 
-main "$@"
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  main "$@"
+fi

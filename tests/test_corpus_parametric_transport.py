@@ -1761,7 +1761,9 @@ def test_attested_configure_and_launch_need_only_current_job_and_executions() ->
     }
 
 
-def test_consumed_attestation_can_bind_and_terminalize_after_expiry() -> None:
+def test_consumed_attestation_can_bind_and_terminalize_after_expiry(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     (
         store, manifest, manifest_identity, evidence_identity,
         prerequisite_identity, foundation_publication_identity,
@@ -1913,6 +1915,61 @@ def test_consumed_attestation_can_bind_and_terminalize_after_expiry() -> None:
             deployment_attestation=attestation,
             observed_at_utc="2026-08-22T19:02:00Z",
         )
+
+    renewed = transport.renew_deployment_attestation(
+        existing_attestation=attestation,
+        current_job=_job(),
+        executions=[terminal],
+        schedulers=[],
+        all_regions_complete=True,
+        created_at_utc="2026-08-22T19:03:00Z",
+        expires_at_utc="2026-08-23T01:03:00Z",
+    )
+    assert renewed["renewed_from_attestation_sha256"] == attestation[
+        "attestation_sha256"
+    ]
+    assert renewed["runtime_iam_policy_capture"] == attestation[
+        "runtime_iam_policy_capture"
+    ]
+    assert renewed["runtime_iam_policy_capture_sha256"] == attestation[
+        "runtime_iam_policy_capture_sha256"
+    ]
+    with pytest.raises(
+        transport.CorpusParametricTransportError, match="renewal chain"
+    ):
+        transport.renew_deployment_attestation(
+            existing_attestation=renewed,
+            current_job=_job(),
+            executions=[terminal],
+            schedulers=[],
+            all_regions_complete=True,
+            created_at_utc="2026-08-23T01:04:00Z",
+            expires_at_utc="2026-08-23T07:04:00Z",
+        )
+    monkeypatch.setattr(
+        transport,
+        "_reopen_producer_close",
+        lambda **kwargs: ({"uri": "fixture"}, {"closed": True}),
+    )
+    verifier_ready = transport.consume_phase_launch(
+        storage=store,
+        contract_identity=contract_identity,
+        task_index=0,
+        phase="verifier",
+        parked_job=_job(),
+        executions=[terminal],
+        schedulers=None,
+        all_regions_complete=False,
+        created_at_utc="2026-08-22T19:04:00Z",
+        execute=True,
+        environ=ENABLED,
+        deployment_attestation=renewed,
+        observed_at_utc="2026-08-22T19:04:00Z",
+    )
+    assert verifier_ready["launch_permitted"] is True
+    assert verifier_ready["governance_authorization"][
+        "deployment_attestation_sha256"
+    ] == renewed["attestation_sha256"]
 
 def test_runtime_iam_v2_rejects_self_attestation_and_policy_escalations() -> None:
     store, manifest, _, configured = _configured()
@@ -2589,6 +2646,10 @@ def test_complete_two_execution_flow_accepts_only_after_independent_verifier() -
             environ=ENABLED,
         )
     assert contract["tasks"][0]["science_terminal_uri"] not in store.current
+    fresh_terminal_schedulers = [{
+        "name": "projects/fixture/locations/us-central1/jobs/unrelated",
+        "httpTarget": {"uri": "https://example.test/unrelated:run"},
+    }]
     closed = transport.close_producer_task(
         storage=store,
         contract_identity=contract_identity,
@@ -2596,7 +2657,7 @@ def test_complete_two_execution_flow_accepts_only_after_independent_verifier() -
         terminal_execution_metadata=producer_terminal,
         parked_job=_job(),
         executions=[producer_terminal],
-        schedulers=[],
+        schedulers=fresh_terminal_schedulers,
         all_regions_complete=True,
         created_at_utc=NOW,
         execute=True,
@@ -2614,6 +2675,47 @@ def test_complete_two_execution_flow_accepts_only_after_independent_verifier() -
     ]
     assert producer_governance["governance_mode"] == "live-all-region-census"
     assert producer_governance["governance_observed_at_utc"] == NOW
+    terminal_census = producer_close["terminal_governance_census"]
+    assert producer_governance["scheduler_census_sha256"] == (
+        transport.canonical_sha256([])
+    )
+    assert terminal_census["terminal_scheduler_census_sha256"] == (
+        transport.canonical_sha256(fresh_terminal_schedulers)
+    )
+    assert terminal_census["launch_governance_authorization_sha256"] == (
+        transport.canonical_sha256(producer_governance)
+    )
+    assert terminal_census["launch_governance_authorization_sha256"] != (
+        terminal_census["terminal_scheduler_census_sha256"]
+    )
+    assert terminal_census["scheduler_census_sha256"] == terminal_census[
+        "terminal_scheduler_census_sha256"
+    ]
+    legacy_terminal_census = deepcopy(terminal_census)
+    legacy_terminal_census.pop("launch_governance_authorization_sha256")
+    legacy_terminal_census.pop("terminal_scheduler_census_sha256")
+    legacy_terminal_census["scheduler_census_sha256"] = producer_governance[
+        "scheduler_census_sha256"
+    ]
+    validated_producer_terminal = transport._validate_execution_spec(
+        producer_terminal,
+        contract=contract,
+        contract_identity=transport.object_identity(
+            contract_identity, label="contract identity"
+        ),
+        task_index=0,
+        phase="producer",
+        require_terminal_success=True,
+    )
+    assert transport._validate_terminal_census_receipt(
+        legacy_terminal_census,
+        contract=contract,
+        task_index=0,
+        phase="producer",
+        terminal=validated_producer_terminal,
+    )["scheduler_census_sha256"] == producer_governance[
+        "scheduler_census_sha256"
+    ]
     assert task_paths["accepted_terminal_uri"] not in store.current
 
     verifier_ready = transport.consume_phase_launch(
@@ -3008,6 +3110,127 @@ def test_bad_attestation_ttl_fails_before_any_cloud_mutation(
     assert not (run_dir / "job-before.json").exists()
 
 
+def test_operator_legacy_postlaunch_seam_captures_fresh_scheduler_census(
+    tmp_path: Path,
+) -> None:
+    attempt = tmp_path / "attempt"
+    attempt.mkdir()
+    shell = ROOT / "scripts/cloud_corpus_parametric_v1_reuse.sh"
+    command = r'''
+source "$SHELL_UNDER_TEST"
+capture_all_region_schedulers() {
+  printf '%s\n' '[]' >"$1"
+}
+postlaunch_governance_args legacy-governance-free "$ATTEMPT_DIR"
+'''
+    completed = subprocess.run(
+        ["bash", "-c", command],
+        cwd=ROOT,
+        env={
+            **os.environ,
+            "SHELL_UNDER_TEST": str(shell),
+            "ATTEMPT_DIR": str(attempt),
+        },
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    scheduler_file = attempt / "terminal-schedulers.json"
+    assert scheduler_file.read_text(encoding="utf-8") == "[]\n"
+    assert completed.stdout.splitlines() == [
+        "--schedulers-file",
+        str(scheduler_file),
+        "--all-regions-complete",
+    ]
+
+
+def test_operator_recovers_governance_free_launch_with_live_census(
+    tmp_path: Path,
+) -> None:
+    scheduler_marker = tmp_path / "scheduler-called"
+    fake_gcloud = tmp_path / "gcloud"
+    fake_gcloud.write_text(
+        """#!/bin/sh
+case "$*" in
+  *"scheduler locations list"*)
+    printf '%s\n' '[{"locationId":"us-central1"}]'
+    ;;
+  *"scheduler jobs list"*)
+    touch "$SCHEDULER_MARKER"
+    printf '%s\n' '[]'
+    ;;
+  *"run jobs executions list"*)
+    printf '%s\n' '[{"metadata":{"name":"old-execution"}}]'
+    ;;
+  *"run jobs executions describe"*|*"run jobs describe"*)
+    printf '%s\n' '{}'
+    ;;
+  *)
+    exit 91
+    ;;
+esac
+""",
+        encoding="utf-8",
+    )
+    fake_gcloud.chmod(0o755)
+    fake_python = tmp_path / "transport-python"
+    fake_python.write_text(
+        """#!/bin/sh
+case "$2" in
+  recover-name)
+    printf '%s\n' '{"execution_id":"old-execution","governance_mode":"legacy-governance-free"}'
+    ;;
+  bind-execution)
+    printf '%s\n' '{"execution_id":"old-execution","governance_authorization":null}'
+    ;;
+  *)
+    exit 92
+    ;;
+esac
+""",
+        encoding="utf-8",
+    )
+    fake_python.chmod(0o755)
+    run_dir = tmp_path / "operator-run"
+    env = {
+        **os.environ,
+        "PATH": f"{tmp_path}:/usr/bin:/bin",
+        "SCHEDULER_MARKER": str(scheduler_marker),
+        "CORPUS_PARAMETRIC_RESEARCH_ENABLED": "1",
+        "CORPUS_PARAMETRIC_PYTHON": str(fake_python),
+        "CORPUS_PARAMETRIC_RUN_DIR": str(run_dir),
+        "CORPUS_PARAMETRIC_JOB": JOB_NAME,
+        "CORPUS_PARAMETRIC_TASK_INDEX": "0",
+        "CORPUS_PARAMETRIC_CONTRACT_URI": "gs://fixture/contract.json",
+        "CORPUS_PARAMETRIC_CONTRACT_GENERATION": "1",
+        "CORPUS_PARAMETRIC_CONTRACT_SHA256": "a" * 64,
+        "CORPUS_PARAMETRIC_CONTRACT_BYTES": "1",
+    }
+    completed = subprocess.run(
+        [
+            "bash",
+            str(ROOT / "scripts/cloud_corpus_parametric_v1_reuse.sh"),
+            "--execute",
+            "recover-producer",
+        ],
+        cwd=ROOT,
+        env=env,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "execution bound" in completed.stdout
+    assert scheduler_marker.exists()
+    assert (
+        run_dir / "tasks/000-producer-bound.json"
+    ).is_file()
+    attempts = list(
+        (run_dir / "tasks").glob("000-producer-recover-attempt-*/terminal-schedulers.json")
+    )
+    assert len(attempts) == 1
+    assert attempts[0].read_text(encoding="utf-8") == "[]\n"
+
+
 def test_shell_keeps_configure_launch_recover_watch_and_finish_separate() -> None:
     shell = ROOT / "scripts/cloud_corpus_parametric_v1_reuse.sh"
     subprocess.run(["bash", "-n", str(shell)], check=True)
@@ -3077,3 +3300,19 @@ def test_shell_keeps_configure_launch_recover_watch_and_finish_separate() -> Non
     assert configure_source.index(
         "create-deployment-attestation"
     ) < configure_source.index('"$PYTHON_BIN" "$TRANSPORT_SCRIPT" configure')
+    assert configure_source.index(
+        'capture_all_region_schedulers "$schedulers_after"'
+    ) < configure_source.index("created_at=\"$(date -u")
+    assert configure_source.index("created_at=\"$(date -u") < (
+        configure_source.index("create-deployment-attestation")
+    )
+    assert "renew-deployment-attestation" in source
+    renewal_source = source[
+        source.index("current_or_renew_deployment_attestation()") :
+        source.index("postlaunch_governance_args()")
+    ]
+    assert "CORPUS_PARAMETRIC_RUNTIME_IAM_FILE" not in renewal_source
+    assert "build-runtime-iam-evidence" not in renewal_source
+    assert renewal_source.index(
+        'capture_all_region_schedulers "$schedulers"'
+    ) < renewal_source.index("created_at=\"$(date -u")
