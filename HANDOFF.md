@@ -20,7 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-22 14:09 CDT (sixth update)
+## Current handoff — 2026-08-22 14:45 CDT (seventh update)
+
+### Full modeling system LIVE: 385k lineups joined to matchup context
+
+- `0c47356`: 017r all-week matchup table (68,434 player-week rows, all
+  three families under the frozen laws; depth_team STRING cast fixed a
+  latent lexicographic depth bug in 017l/o) + 017s lineup evidence
+  (384,947 research-eligible realized-corpus lineups joined to matchup
+  aggregates with actual labels). Eight research tables, TWENTY checks,
+  zero violations, exact gt200 label reconciliation.
+- First EXPLORATORY read (already-viewed slates; nominates hypotheses
+  only): mean actual rises monotonically with easy-coverage receiver
+  count (116.6/118.1/122.1/133.2); lineup edge >=0.6 doubles the >200
+  rate vs <0.5 (2.23 vs 0.96 per 1000). Confounds uncontrolled; the
+  walk-forward slate-clustered analysis is next.
+- NEXT (tonight/tomorrow): (1) walk-forward model + winner enrichment
+  with matched controls from lineup_matchup_evidence + winner registry;
+  (2) paired retrieval tests — incumbent vs matchup-aware admission/
+  rerank books over the SAME weekly pools, LOSO by season, tail gates
+  govern; (3) any nominated strategy remains shadow until the
+  preregistered held-out/prospective gates pass. Fill-side application
+  requires a new engine law + image (days, not hours) and rides the
+  post-batch A/B/C/D.
+- Producer nonterminal at 19:35Z (~4h39m); monitors active.
+
+## Prior handoff — 2026-08-22 14:09 CDT (sixth update)
 
 ### Winner registry reconciled; receiver family FROZEN; RB+QB families live
 
