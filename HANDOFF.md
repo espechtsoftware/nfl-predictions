@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 21:21 CDT
+## Current state — 2026-08-21 21:24 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -197,8 +197,18 @@ agent or developer:
   `20260821-corpus-artifact-source-authority-v2` names. Role, member, condition
   title/description, and every unrelated binding remained unchanged. The v1
   object remains retained but is no longer in the source runtime's read scope.
-  Freeze v2 registration at `2026-08-22T02:12:28Z` while retaining the original
-  outcome-blind source snapshot `2026-08-21T23:53:22Z`.
+  The preparer requires registration not to follow the source snapshot, so v2
+  retains both original outcome-blind timestamps at
+  `2026-08-21T23:53:22Z`; the namespace/version changes without population
+  drift. The final v2 plan has internal SHA
+  `5ae930ae0c3c9f8dc7634adb20dddd9233ec41ebf07ebf9abca3810d9d5e26fb`
+  and file SHA
+  `dcd6cb696be77c1dbcfc8ff718d145bfb9bcebd5fa8105d144a2c0601111b9be`.
+  Fresh v2 IAM capture is fully explored for the six runtime grants, uses the
+  bounded parentless-project public fallback, and has internal SHA
+  `8c6831f384072fe9a9969a80a4206b0c5b1f28f1f52198196bf1756844512693`;
+  derived runtime evidence has internal SHA
+  `6e66ac2995d3cf33d706158e0cd66f2150b69779394910b8eb48cf31d0c402ff`.
   Commit `7cc06de47aa2e3573b67dd734b65924ed5b47ac5` completes the live SDK
   generation sweep across source, parametric, realized, Neo4j, registry, and UI
   paths: type-exact positive integers are normalized to existing string receipt
@@ -255,11 +265,11 @@ agent or developer:
   each exact prior spec was automatically restored. One abandoned delivery
   plan object exists as documented above. Exact next action: prepare the v2
   plan and IAM evidence for commit `7cc06de`, build `8a17413e`, and immutable
-  digest `d35ed96e`, then configure against the already-switched exact v2 IAM
-  conditions from a fresh transport directory. Inspect and record its
-  configure receipt before consuming that source authority exactly once; then
-  run the isolated task-0 seven-arm real-artifact smoke before the complete
-  serial 54-task suite.
+  digest `d35ed96e` are ready. Exact next action: recheck the clean v2 namespace
+  and configure against the already-switched exact v2 IAM conditions from a
+  fresh transport directory. Inspect and record its configure receipt before
+  consuming that source authority exactly once; then run the isolated task-0
+  seven-arm real-artifact smoke before the complete serial 54-task suite.
 
 ### Accepted task-0 score is on main; corpus research dashboard is mounted
 
