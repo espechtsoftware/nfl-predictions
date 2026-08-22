@@ -78,8 +78,10 @@ per-slate snapshots via the parametric-snapshot adapter.
    `reports/corpus-parametric-runs/20260822-foundry-production-v6/transport-live-v6`.
 6. TASK-0 GATE (redesigned): `foundry_batch_driver.sh 0 0` (launch →
    recover → poll → close → verify → accept), then
-   `python scripts/foundry/accept_foundry_task0.py` with the closed-task
-   carrier identity + the driver's `tasks/000-verifier-accepted.json`.
+   `bash scripts/foundry/run_foundry_task0_gate.sh` (composes
+   `accept_foundry_task0.py` from the closed-task carrier identity in
+   `tasks/000-producer-closed.json` and the driver's
+   `tasks/000-verifier-accepted.json` — nothing retyped).
    The gate reopens all seven variant results by exact identity and
    requires scheduled=attempted=optimal=1000 on every arm plus verifier
    acceptance — the exact invariant v4 violated. It writes
