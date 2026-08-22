@@ -47,6 +47,7 @@ from nfl_dfs.research.corpus_retrieval_neo4j import (
 
 
 DEPLOYMENT_SCHEMA: Final = "corpus-neo4j-dedicated-deployment/v2"
+POPULATION_DEPLOYMENT_SCHEMA: Final = "corpus-neo4j-dedicated-deployment/v3"
 LOAD_MANIFEST_SCHEMA: Final = "corpus-neo4j-governed-load-manifest/v2"
 BOOTSTRAP_RECEIPT_SCHEMA: Final = "corpus-neo4j-schema-bootstrap/v1"
 LOAD_RECEIPT_SCHEMA: Final = "corpus-neo4j-governed-load-result/v2"
@@ -763,9 +764,66 @@ def build_deployment_manifest(
     return _with_self_hash(body, field="deployment_manifest_sha256")
 
 
+def build_population_authorized_deployment_manifest(
+    *,
+    base_deployment_manifest: Mapping[str, object],
+    base_deployment_identity: object,
+    authorization_id: str,
+    created_at_utc: str,
+) -> dict[str, object]:
+    """Authorize only the bounded population projection on the same graph.
+
+    The v2 manifest deliberately reserves both population and realized
+    namespaces.  This create-once v3 successor copies every physical,
+    principal, TLS, and empty-origin binding from that exact v2 authority,
+    moves only ``corpus-population-research`` into the allowed set, and keeps
+    the realized namespace reserved empty.  It is not a replacement for the
+    original load manifest and grants no outcome or policy authority.
+    """
+
+    base = validate_deployment_manifest(base_deployment_manifest)
+    if base["schema_version"] != DEPLOYMENT_SCHEMA:
+        raise CorpusNeo4jTransportError(
+            "population authorization must directly succeed deployment v2"
+        )
+    base_identity = object_identity(
+        base_deployment_identity, label="base deployment manifest identity"
+    )
+    body = {
+        key: value
+        for key, value in base.items()
+        if key not in {"schema_version", "deployment_manifest_sha256"}
+    }
+    body.update({
+        "schema_version": POPULATION_DEPLOYMENT_SCHEMA,
+        "supersedes_deployment_manifest": base_identity.as_dict(),
+        "authorization_id": _string(
+            authorization_id, label="population authorization id"
+        ),
+        "authorized_added_namespaces": [POPULATION_NAMESPACE],
+        "population_projection_only": True,
+        "realized_outcome_namespace_reserved_empty": True,
+        "created_at_utc": _timestamp(
+            created_at_utc, label="population authorization timestamp"
+        ),
+    })
+    body["allowed_schema"] = {
+        "node_labels": ["CorpusRetrievalEntity"],
+        "relationship_types": ["CORPUS_RELATION"],
+        "workstream_namespaces": [
+            PARAMETRIC_NAMESPACE,
+            POPULATION_NAMESPACE,
+            RETRIEVAL_NAMESPACE,
+            STRATEGY_REGISTRY_NAMESPACE,
+        ],
+        "reserved_empty_namespaces": [REALIZED_OUTCOME_NAMESPACE],
+    }
+    return _with_self_hash(body, field="deployment_manifest_sha256")
+
+
 def validate_deployment_manifest(value: object) -> dict[str, object]:
     item = dict(_mapping(value, label="deployment manifest"))
-    expected_keys = {
+    v2_keys = {
         "schema_version", "publication_mode", "deployment_id", "provider",
         "provider_resource_id", "endpoint_host_sha256", "database", "tls",
         "server", "principal_secret_versions", "allowed_schema",
@@ -774,11 +832,22 @@ def validate_deployment_manifest(value: object) -> dict[str, object]:
         "raw_outcomes_stored_in_graph", "created_at_utc",
         "deployment_manifest_sha256",
     }
-    if set(item) != expected_keys:
+    v3_extra_keys = {
+        "supersedes_deployment_manifest", "authorization_id",
+        "authorized_added_namespaces", "population_projection_only",
+        "realized_outcome_namespace_reserved_empty",
+    }
+    schema_version = item.get("schema_version")
+    expected_keys = (
+        v2_keys if schema_version == DEPLOYMENT_SCHEMA
+        else v2_keys | v3_extra_keys
+        if schema_version == POPULATION_DEPLOYMENT_SCHEMA
+        else set()
+    )
+    if not expected_keys or set(item) != expected_keys:
         raise CorpusNeo4jTransportError("deployment manifest schema differs")
     if (
-        item["schema_version"] != DEPLOYMENT_SCHEMA
-        or item["publication_mode"] != "create_once"
+        item["publication_mode"] != "create_once"
         or item["dedicated_physical_instance_required"] is not True
         or item["shared_application_database_forbidden"] is not True
         or item["world_matrices_stored_in_graph"] is not False
@@ -817,7 +886,7 @@ def validate_deployment_manifest(value: object) -> dict[str, object]:
                 raise CorpusNeo4jTransportError("secret version binding differs")
             seen.add(version)
     schema = _mapping(item["allowed_schema"], label="allowed schema")
-    expected_schema = {
+    expected_schema_v2 = {
         "node_labels": ["CorpusRetrievalEntity"],
         "relationship_types": ["CORPUS_RELATION"],
         "workstream_namespaces": [
@@ -830,6 +899,22 @@ def validate_deployment_manifest(value: object) -> dict[str, object]:
             REALIZED_OUTCOME_NAMESPACE,
         ],
     }
+    expected_schema_v3 = {
+        "node_labels": ["CorpusRetrievalEntity"],
+        "relationship_types": ["CORPUS_RELATION"],
+        "workstream_namespaces": [
+            PARAMETRIC_NAMESPACE,
+            POPULATION_NAMESPACE,
+            RETRIEVAL_NAMESPACE,
+            STRATEGY_REGISTRY_NAMESPACE,
+        ],
+        "reserved_empty_namespaces": [REALIZED_OUTCOME_NAMESPACE],
+    }
+    expected_schema = (
+        expected_schema_v2
+        if schema_version == DEPLOYMENT_SCHEMA
+        else expected_schema_v3
+    )
     if schema != expected_schema:
         raise CorpusNeo4jTransportError("dedicated allowed schema differs")
     census = _mapping(item["initial_empty_census"], label="initial empty census")
@@ -841,6 +926,20 @@ def validate_deployment_manifest(value: object) -> dict[str, object]:
         "workstream_namespaces": [],
     }:
         raise CorpusNeo4jTransportError("initial graph census is not empty")
+    if schema_version == POPULATION_DEPLOYMENT_SCHEMA:
+        object_identity(
+            item["supersedes_deployment_manifest"],
+            label="superseded deployment manifest",
+        )
+        _string(item["authorization_id"], label="population authorization id")
+        if (
+            item["authorized_added_namespaces"] != [POPULATION_NAMESPACE]
+            or item["population_projection_only"] is not True
+            or item["realized_outcome_namespace_reserved_empty"] is not True
+        ):
+            raise CorpusNeo4jTransportError(
+                "population deployment authorization differs"
+            )
     _timestamp(item["created_at_utc"], label="deployment created timestamp")
     return item
 
