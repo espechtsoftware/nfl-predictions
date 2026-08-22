@@ -2149,58 +2149,81 @@ def _validate_named_release_bindings(
                 "accepted scenario paired baseline is not registered"
             )
         baseline = baseline_row[1]
-        expected_baseline_id = declared_pair["baseline_experiment_id"]
+        _validate_paired_scenario_axis(
+            baseline=baseline,
+            evidence=evidence,
+            comparison_axis=str(paired["comparison_axis"]),
+            expected_baseline_id=declared_pair["baseline_experiment_id"],
+        )
+
+
+def _validate_paired_scenario_axis(
+    *,
+    baseline: Mapping[str, object],
+    evidence: Mapping[str, object],
+    comparison_axis: str,
+    expected_baseline_id: object,
+) -> None:
+    """Enforce the axis-specific isolation law for one paired comparison.
+
+    Axis-independent: one definition, one slate, and the exact same frozen
+    world artifacts.  Source-run identity equality is a RETRIEVAL-axis
+    requirement only: a fill comparison necessarily comes from a different
+    fill-produced snapshot and therefore a different source run over the
+    same worlds.
+    """
+    if (
+        baseline["experiment_id"] != expected_baseline_id
+        or baseline["definition"] != evidence["definition"]
+        or baseline["paired_design"]["required"] is not False
+        or baseline["task_index"] != evidence["task_index"]
+        or baseline["slate_id"] != evidence["slate_id"]
+        or baseline["shared_world_artifacts"]
+        != evidence["shared_world_artifacts"]
+    ):
+        raise CorpusStrategyRegistryError(
+            "accepted scenario paired source/world law differs"
+        )
+    baseline_metrics = {
+        str(row["metric_id"]): row for row in baseline["metrics"]
+    }
+    for metric in evidence["metrics"]:
+        matched = baseline_metrics.get(str(metric["metric_id"]))
+        if matched is None or any(
+            matched[field] != metric[field]
+            for field in (
+                "name", "unit", "direction", "scope", "sample_count",
+                "paired_key", "source_scope", "source_metric",
+            )
+        ):
+            raise CorpusStrategyRegistryError(
+                "accepted scenario paired metric law differs"
+            )
+    if comparison_axis == "retrieval":
         if (
-            baseline["experiment_id"] != expected_baseline_id
-            or baseline["definition"] != evidence["definition"]
-            or baseline["paired_design"]["required"] is not False
-            or baseline["task_index"] != evidence["task_index"]
-            or baseline["slate_id"] != evidence["slate_id"]
+            baseline["fill_preset"] != evidence["fill_preset"]
+            or baseline["retrieval_preset"] == evidence["retrieval_preset"]
             or baseline["source_terminal"] != evidence["source_terminal"]
-            or baseline["source_task_result"] != evidence["source_task_result"]
+            or baseline["source_task_result"]
+            != evidence["source_task_result"]
             or baseline["source_suite_manifest"]
             != evidence["source_suite_manifest"]
             or baseline["source_snapshot_manifest"]
             != evidence["source_snapshot_manifest"]
-            or baseline["shared_world_artifacts"]
-            != evidence["shared_world_artifacts"]
             or baseline["source_execution"] != evidence["source_execution"]
         ):
             raise CorpusStrategyRegistryError(
-                "accepted scenario paired source/world law differs"
+                "named retrieval comparison is not isolated"
             )
-        baseline_metrics = {
-            str(row["metric_id"]): row for row in baseline["metrics"]
-        }
-        for metric in evidence["metrics"]:
-            matched = baseline_metrics.get(str(metric["metric_id"]))
-            if matched is None or any(
-                matched[field] != metric[field]
-                for field in (
-                    "name", "unit", "direction", "scope", "sample_count",
-                    "paired_key", "source_scope", "source_metric",
-                )
-            ):
-                raise CorpusStrategyRegistryError(
-                    "accepted scenario paired metric law differs"
-                )
-        if paired["comparison_axis"] == "retrieval":
-            if (
-                baseline["fill_preset"] != evidence["fill_preset"]
-                or baseline["retrieval_preset"] == evidence["retrieval_preset"]
-            ):
-                raise CorpusStrategyRegistryError(
-                    "named retrieval comparison is not isolated"
-                )
-        elif (
-            baseline["retrieval_preset"] != evidence["retrieval_preset"]
-            or baseline["fill_preset"] == evidence["fill_preset"]
-            or baseline["source_snapshot_manifest"]
-            == evidence["source_snapshot_manifest"]
-        ):
-            raise CorpusStrategyRegistryError(
-                "named fill comparison is not isolated"
-            )
+    elif (
+        baseline["retrieval_preset"] != evidence["retrieval_preset"]
+        or baseline["fill_preset"] == evidence["fill_preset"]
+        or baseline["source_snapshot_manifest"]
+        == evidence["source_snapshot_manifest"]
+    ):
+        raise CorpusStrategyRegistryError(
+            "named fill comparison is not isolated"
+        )
 
 
 def prepare_strategy_registry_plan(

@@ -1029,3 +1029,126 @@ def test_registry_fails_closed_on_authority_and_schema_violations(
     storage, release_id, _ = _build_fixture(**options)
     with pytest.raises(registry.CorpusStrategyRegistryError, match=match):
         _prepare(storage, release_id)
+
+
+def _paired_axis_evidence(**overrides: object) -> dict[str, object]:
+    body: dict[str, object] = {
+        "experiment_id": "exp-baseline",
+        "definition": {"uri": "gs://x/def.json", "generation": "1",
+                       "sha256": "a" * 64, "bytes": 10},
+        "paired_design": {"required": False},
+        "task_index": 0,
+        "slate_id": "2023-w01",
+        "shared_world_artifacts": [{"uri": "gs://x/w0.npz", "generation": "1",
+                                    "sha256": "b" * 64, "bytes": 5}],
+        "metrics": [{
+            "metric_id": "m0", "name": "worlds-gt-200", "unit": "worlds",
+            "direction": "descriptive", "scope": "all-worlds-descriptive",
+            "sample_count": 50_000, "paired_key": "r0-r4-world-id",
+            "source_scope": "all_r0_r4_descriptive",
+            "source_metric": "strict-200-worlds",
+        }],
+        "fill_preset": {"uri": "gs://x/fill-a.json", "generation": "1",
+                        "sha256": "c" * 64, "bytes": 7},
+        "retrieval_preset": {"uri": "gs://x/ret-a.json", "generation": "1",
+                             "sha256": "d" * 64, "bytes": 7},
+        "source_terminal": {"uri": "gs://x/term-a.json", "generation": "1",
+                            "sha256": "e" * 64, "bytes": 7},
+        "source_task_result": {"uri": "gs://x/res-a.json", "generation": "1",
+                               "sha256": "f" * 64, "bytes": 7},
+        "source_suite_manifest": {"uri": "gs://x/suite-a.json",
+                                  "generation": "1", "sha256": "1" * 64,
+                                  "bytes": 7},
+        "source_snapshot_manifest": {"uri": "gs://x/snap-a.json",
+                                     "generation": "1", "sha256": "2" * 64,
+                                     "bytes": 7},
+        "source_execution": {"execution_id": "exec-a"},
+    }
+    body.update(overrides)
+    return body
+
+
+def test_fill_axis_pairing_is_now_satisfiable() -> None:
+    baseline = _paired_axis_evidence()
+    challenger = _paired_axis_evidence(
+        experiment_id="exp-fill-challenger",
+        paired_design={"required": True},
+        fill_preset={"uri": "gs://x/fill-b.json", "generation": "1",
+                     "sha256": "3" * 64, "bytes": 7},
+        source_snapshot_manifest={"uri": "gs://x/snap-b.json",
+                                  "generation": "1", "sha256": "4" * 64,
+                                  "bytes": 7},
+        source_terminal={"uri": "gs://x/term-b.json", "generation": "1",
+                         "sha256": "5" * 64, "bytes": 7},
+        source_task_result={"uri": "gs://x/res-b.json", "generation": "1",
+                            "sha256": "6" * 64, "bytes": 7},
+        source_suite_manifest={"uri": "gs://x/suite-b.json", "generation": "1",
+                               "sha256": "7" * 64, "bytes": 7},
+        source_execution={"execution_id": "exec-b"},
+    )
+    # Different fill-produced snapshot, same worlds, same retrieval preset:
+    # this is the roadmap's fill-only cell and must validate.
+    registry._validate_paired_scenario_axis(
+        baseline=baseline,
+        evidence=challenger,
+        comparison_axis="fill",
+        expected_baseline_id="exp-baseline",
+    )
+    same_snapshot = dict(challenger)
+    same_snapshot["source_snapshot_manifest"] = dict(
+        baseline["source_snapshot_manifest"]
+    )
+    with pytest.raises(
+        registry.CorpusStrategyRegistryError, match="fill comparison"
+    ):
+        registry._validate_paired_scenario_axis(
+            baseline=baseline,
+            evidence=same_snapshot,
+            comparison_axis="fill",
+            expected_baseline_id="exp-baseline",
+        )
+
+
+def test_retrieval_axis_pairing_still_requires_one_source_run() -> None:
+    baseline = _paired_axis_evidence()
+    challenger = _paired_axis_evidence(
+        experiment_id="exp-retrieval-challenger",
+        paired_design={"required": True},
+        retrieval_preset={"uri": "gs://x/ret-b.json", "generation": "1",
+                          "sha256": "8" * 64, "bytes": 7},
+    )
+    registry._validate_paired_scenario_axis(
+        baseline=baseline,
+        evidence=challenger,
+        comparison_axis="retrieval",
+        expected_baseline_id="exp-baseline",
+    )
+    foreign_result = dict(challenger)
+    foreign_result["source_task_result"] = {
+        "uri": "gs://x/res-other.json", "generation": "1",
+        "sha256": "9" * 64, "bytes": 7,
+    }
+    with pytest.raises(
+        registry.CorpusStrategyRegistryError, match="retrieval comparison"
+    ):
+        registry._validate_paired_scenario_axis(
+            baseline=baseline,
+            evidence=foreign_result,
+            comparison_axis="retrieval",
+            expected_baseline_id="exp-baseline",
+        )
+    with pytest.raises(
+        registry.CorpusStrategyRegistryError, match="source/world law"
+    ):
+        registry._validate_paired_scenario_axis(
+            baseline=baseline,
+            evidence=_paired_axis_evidence(
+                paired_design={"required": True},
+                shared_world_artifacts=[{
+                    "uri": "gs://x/other-worlds.npz", "generation": "1",
+                    "sha256": "0" * 64, "bytes": 5,
+                }],
+            ),
+            comparison_axis="retrieval",
+            expected_baseline_id="exp-baseline",
+        )

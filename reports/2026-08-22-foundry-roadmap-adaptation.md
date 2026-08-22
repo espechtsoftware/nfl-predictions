@@ -32,7 +32,7 @@ Atlas matrices, every experiment recorded in the versioned strategy registry.
 
 | Roadmap item | Foundry binding |
 |---|---|
-| §12.2 / P0.3 all-slate scoring for phenotype expansion | **The running 54-slate x 7-arm production batch is the compute vehicle.** Batch `20260822-corpus-parametric-production-batch-v5`, image digest `232c1087...`, foundation `...production-foundation-v5`. Each accepted task yields one slate's per-arm corpora, the cross-arm union, and full 50k-world score matrices — exactly the §9.1 "structured super-pool with source attribution," produced per slate with equal budgets and shared worlds. Do not build a separate super-pool generator first. |
+| §12.2 / P0.3 all-slate scoring for phenotype expansion | **The 54-slate x 7-arm production batch is the compute vehicle** — and per review F3 it must be reported as **fill-ablation diagnostics under one fixed exact-80/line-194 selector**, not as a fill x retrieval factorial. Batch `20260822-corpus-parametric-production-batch-v5`, image digest `232c1087...`, foundation `...production-foundation-v5`. Correction per review F9: accepted variant payloads retain per-arm rosters and score-matrix SHAs, **not score-matrix bodies**. The §9.1 super-pool is therefore realized by the parametric-snapshot adapter, which deterministically reconstructs union score vectors from the pinned Atlas world matrices plus retained rosters and verifies them against the retained score hashes before any retrieval or phenotype use. Do not build a separate super-pool generator first. |
 | §9.2 fill preset F2 (winner-support topology sleeves) | **The seven parametric arms are F2's first bounded form.** They one-factor-ablate precisely the rules the winner census says winners violate: `remove-qb-stack` admits the naked/one-teammate shapes (32/51 winners violate stack-2), `remove-bring-back` admits the no-bring-back shape (31/51), plus salary-floor, RB-v-DST, two-RB ablations and the all-relaxed arm, against the `incumbent` control. The batch therefore measures, at 54-slate scale, how much simulated-tail support each winner-blocking rule suppresses — outcome-blind. |
 | §9.2 F1 (tail-family / boom enrichment) | Already queued as the registered boom-enriched challenger fill preset (live handoff "Boom direction"): score its snapshot once, apply all retrieval presets to the same snapshot, keep the baseline on every slate. Enters only after the baseline batch is accepted. |
 | §9.2 F3 (phenotype-conditional) | Gated on P0.4 (cross-slate shrunk-effect report). No identity coefficients, per §16. |
@@ -73,6 +73,24 @@ discipline; no score-matrix reads beyond the sparse event projections.
 - The arm-vs-arm results of the running batch are simulated support
   evidence (outcome-blind). They inform fill-preset design; they are not
   adoption authority. Realized reads happen once, after freezing, per §11.2.
+
+## 4a. Independent review actions (2026-08-22 second update)
+
+The independent review
+(`2026-08-22-foundry-code-review.md`) was adopted. Immediate fixes landed
+the same day: the F4 fill-axis pairing contradiction is repaired (source-run
+identity equality is now a retrieval-axis-only law; fill pairs require a
+different fill-produced snapshot over the same worlds; the pairing law is a
+directly tested helper), the R5 trace now retains per-block
+before/added/after vectors plus the exact leximin profile (F1), both
+strategy validators reject negative ordinals (F2 hardening), the driver
+gained integer-bounds checks and a hard fan-out gate requiring an immutable
+task-0 science-equivalence PASS receipt before any range beyond task 0, and
+the builder/driver/runbook/env/IAM scripts are version-controlled under
+`scripts/foundry/` (F10). Remaining review blockers stay sequenced: the
+versioned end-to-end v2 suite path (F2), release preflight-before-write and
+source-shape closure (F7/F8), named-scenario UI views (F5), and the
+phenotype-draft predecessor content binding (F12).
 
 ## 5. Sequenced plan from here
 

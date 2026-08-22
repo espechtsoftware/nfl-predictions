@@ -837,7 +837,7 @@ def validate_retrieval_strategy(
         "strategy_sha256",
     }, label=f"strategy[{expected_ordinal}]")
     frozen = frozen_retrieval_strategies(entry_budget)
-    if expected_ordinal >= len(frozen):
+    if not 0 <= expected_ordinal < len(frozen):
         raise CorpusRetrievalError("v1 has exactly four registered strategies")
     expected = frozen[expected_ordinal]
     if canonical_json_bytes(item) != canonical_json_bytes(expected):
@@ -936,7 +936,7 @@ def validate_retrieval_strategy_v2(
         "strategy_sha256",
     }, label=f"strategy[{expected_ordinal}]")
     frozen = frozen_retrieval_strategies_v2(entry_budget)
-    if expected_ordinal >= len(frozen):
+    if not 0 <= expected_ordinal < len(frozen):
         raise CorpusRetrievalError("v2 has exactly seven registered strategies")
     expected = frozen[expected_ordinal]
     if canonical_json_bytes(item) != canonical_json_bytes(expected):
@@ -1886,6 +1886,7 @@ def _select_blockmin_ladder(
         )[0]
         best_position = order.index(best)
         selected.append(best)
+        best_after = after[best_position]
         trace.append({
             "selection_rank": len(selected) - 1,
             "lineup_index": best,
@@ -1893,6 +1894,16 @@ def _select_blockmin_ladder(
             "marginal_utility": int(added[best_position].sum()),
             "discovery_primary_event_count": int(primary_counts[best]),
             "discovery_mean_score": float(means[best]),
+            "block_utilities_before": [
+                int(value) for value in block_utilities
+            ],
+            "block_utilities_added": [
+                int(value) for value in added[best_position]
+            ],
+            "block_utilities_after": [int(value) for value in best_after],
+            "leximin_profile_after": [
+                int(value) for value in np.sort(best_after)
+            ],
         })
         block_utilities = block_utilities + added[best_position]
         for mask, seen in zip(rung_masks, covered, strict=True):

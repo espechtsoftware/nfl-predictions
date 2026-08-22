@@ -939,3 +939,36 @@ def test_v2_methods_dispatch_and_block_view_guards() -> None:
         retrieval._discovery_block_view(
             scores[:, :retrieval.WORLDS_PER_BLOCK]
         )
+
+
+def test_strategy_validators_reject_negative_ordinals() -> None:
+    v1 = retrieval.frozen_retrieval_strategies(80)
+    v2 = retrieval.frozen_retrieval_strategies_v2(80)
+    with pytest.raises(retrieval.CorpusRetrievalError, match="exactly four"):
+        retrieval.validate_retrieval_strategy(
+            v1[3], expected_ordinal=-1, entry_budget=80
+        )
+    with pytest.raises(retrieval.CorpusRetrievalError, match="exactly seven"):
+        retrieval.validate_retrieval_strategy_v2(
+            v2[6], expected_ordinal=-1, entry_budget=80
+        )
+
+
+def test_blockmin_trace_retains_block_vectors_and_leximin_profile() -> None:
+    per_block = retrieval.WORLDS_PER_BLOCK
+    scores = _block_scores(2)
+    scores[0, :30] = np.float32(201.0)
+    scores[1, per_block:per_block + 20] = np.float32(201.0)
+    ids = [f"lineup:{index:064x}" for index in range(2)]
+    rungs = [{"threshold": 200.0, "operator": ">", "weight": 1}]
+    _, trace = retrieval._select_blockmin_ladder(
+        scores, budget=2, rungs=rungs, lineup_ids=ids
+    )
+    assert trace[0]["block_utilities_before"] == [0, 0, 0, 0]
+    assert trace[0]["block_utilities_added"] == [30, 0, 0, 0]
+    assert trace[0]["block_utilities_after"] == [30, 0, 0, 0]
+    assert trace[0]["leximin_profile_after"] == [0, 0, 0, 30]
+    assert trace[1]["block_utilities_before"] == [30, 0, 0, 0]
+    assert trace[1]["block_utilities_added"] == [0, 20, 0, 0]
+    assert trace[1]["block_utilities_after"] == [30, 20, 0, 0]
+    assert trace[1]["leximin_profile_after"] == [0, 0, 20, 30]

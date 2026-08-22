@@ -20,7 +20,62 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-22 12:04 CDT
+## Current handoff — 2026-08-22 12:55 CDT
+
+### v5 foundation CREATED (54 tasks); review findings triaged and first fixes landed
+
+- The one v5 production foundation execution completed successfully
+  (`status=created`, exit 0): all 270 Atlas source artifacts reopened with
+  exact generation-pinned GETs (270/270), batch manifest carrying all 54
+  task definitions published. Task-request objects are deliberately zero
+  (`publish_task_requests:false`); the transport synthesizes each request
+  deterministically at launch (review F10 confirms this is the law — never
+  relaunch the create-once foundation). Durable identities (frozen with the
+  full configure environment in `scripts/foundry/foundry_v5_env.sh`):
+  publication completion generation `1787418113444767` SHA
+  `c4314f30...ece2` (7,560 B); batch manifest generation `1787418112515448`
+  SHA `7f0a2167...2b31` (122,970 B); evidence contract generation
+  `1787418113085346` SHA `67cbbba5...73e35` (51,640 B); retrieval
+  prerequisite generation `1787418106867770` SHA `5f5a8214...b03f`
+  (1,925 B). Local receipt:
+  `reports/corpus-parametric-runs/20260822-foundry-production-v5/foundation-live/execute-result.json`.
+- The independent review below was adopted; same-day fixes landed on `main`:
+  - **F4 repaired with tests**: the fill-axis pairing contradiction is gone —
+    source-run identity equality (terminal/task-result/suite/snapshot/
+    execution) is now a retrieval-axis-only law inside the extracted,
+    directly tested `_validate_paired_scenario_axis`; fill pairs require a
+    different fill-produced snapshot over identical worlds. Retrieval-axis
+    behavior is byte-preserved for the accepted task-0 evidence.
+  - **F1 partial**: the R5 trace now retains per-block before/added/after
+    vectors and the exact ascending leximin profile per pick. R3 remains
+    named/documented as the distinct-block-support heuristic (not an LCB).
+  - **F2 hardening**: both strategy validators reject negative ordinals.
+  - **F10**: builder/driver/runbook/env/IAM-move scripts are tracked under
+    `scripts/foundry/` (the `~/nfl-panels` copies are now symlinks); the
+    driver validates integer bounds `0..53`, `FIRST <= LAST`, and refuses
+    any range beyond task 0 without an immutable
+    `task0-equivalence-pass.json` receipt recording
+    `equivalent=true, comparison="science-only"`. The runbook now names the
+    batch correctly: 54x7 fixed-selector fill-ablation diagnostics (F3) and
+    records that variant payloads retain score HASHES, so the snapshot
+    adapter must reconstruct union scores from pinned world matrices and
+    verify against those hashes (F9).
+  - Focused validation for these fixes: retrieval engine + strategy
+    registry + registry release suites all green (46 tests, including the
+    new fill-axis/retrieval-axis pairing tests, negative-ordinal guards,
+    and R5 trace-vector assertions).
+- Remaining review blockers stay sequenced ahead of any v2 retrieval
+  deployment or A/B/C/D use: versioned end-to-end v2 suite path (F2),
+  release preflight-before-write (F7), source-shape closure (F8), named-
+  scenario UI views (F5), phenotype-draft predecessor content binding
+  (F12), and the parallel-generator head-of-line/teardown improvements
+  (F11 — engine changes require a new image; do not churn the accepted v5
+  image for it).
+- v4 producer `atlas-minimal-c-s2023-w1-v1-l6dll` remains nonterminal and
+  untouched; monitors active; the post-v4 sequence is unchanged and fully
+  mechanical from `scripts/foundry/`.
+
+## Prior handoff — 2026-08-22 12:04 CDT
 
 ### Independent Foundry code review completed; implementation and deployment untouched
 
