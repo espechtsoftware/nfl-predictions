@@ -46,7 +46,7 @@ FOCUSED_TEST_COMMANDS: Final = (
     ("apt-get", "update"),
     (
         "apt-get", "install", "-y", "--no-install-recommends", "git",
-        "libgomp1",
+        "jq", "libgomp1",
     ),
     ("pip", "install", "--no-cache-dir", ".[gcp,app,graph,dev]"),
     (

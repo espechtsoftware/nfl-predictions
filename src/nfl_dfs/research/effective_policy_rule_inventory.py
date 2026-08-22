@@ -24,12 +24,12 @@ from typing import Any, Iterable, Mapping, Sequence
 
 
 SCHEMA = "nfl-dfs-effective-policy-rule-inventory/v2"
-SOURCE_SET_ID = "adopted-classic-policy-20260821-f05ec0b"
+SOURCE_SET_ID = "adopted-classic-policy-20260821-2c8564e"
 POLICY_ENV_SHA256 = (
     "82cdb718458124536a1a5989d72805bebb149a27d63a272d27a5c9a89751f0df"
 )
 CLASSIFIED_INPUT_PROJECTION_SHA256 = (
-    "f48b2ed9aaac9c3f279134cff09df2ab88a54009c07e8c60c55834817841d30d"
+    "3ddef13eade46dd3198bc86acdb7f16f56ea8fc30a81c2f421c5c3e72b8ddd99"
 )
 CLASSIFIED_INPUT_KEY_COUNT = 119
 DIRECT_INPUT_READ_SITE_COUNT = 230
@@ -40,7 +40,7 @@ DIRECT_INPUT_READ_SITE_COUNT = 230
 # world while claiming that it remained frozen.
 FROZEN_SOURCE_SHA256: Mapping[str, str] = {
     "src/nfl_dfs/app/main.py": (
-        "ff1ba2536f2cfe0d497d5969dbb7b9cf200223e4c4ff07daea5d462e322f896f"
+        "64020a5cc7749ec725b79be874044113720a08f0ae3da5f78f0e1bb82d9379a4"
     ),
     "src/nfl_dfs/backtest/engine.py": (
         "04fd647fa6916c693f8ac22dcd31741d6f64b466b82ee8aac236e52fcaaa16bf"

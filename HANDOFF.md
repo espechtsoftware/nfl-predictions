@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 19:20 CDT
+## Current state — 2026-08-21 19:25 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -42,8 +42,18 @@ agent or developer:
   `168a9eb1-d1eb-46d0-99ee-2b67c5dc05cf` resolved exact commit
   `ea10d42c8a8f4c5b2356b3035f4eec9d585d95b2` but failed before test
   collection because the clean Python 3.11 environment lacked the test-only
-  `PyYAML` dependency. It produced no image. `PyYAML>=6.0` is now explicit in
-  the dev extra; resubmit the same exact focused build after this correction.
+  `PyYAML` dependency. It produced no image. Replacement build
+  `17bb7251-0c3d-4314-acf2-76c695150016` resolved exact commit
+  `d9da543c718a508de81d20387bdd2f70209c5f49`; the full focused matrix ran and
+  exposed two independent packaging/freeze defects: `jq` was absent from the
+  test container, and the effective-policy source inventory still pinned
+  `src/nfl_dfs/app/main.py` before the read-only corpus dashboard was mounted.
+  It also produced no image. The focused build now installs `jq`, and the
+  conscious source-set revision `adopted-classic-policy-20260821-2c8564e`
+  re-freezes the current app hash plus all four derived evidence-contract
+  hashes. Exact affected regressions are green (29 focused assertions across
+  the build/shell, inventory, evidence-contract, and preparer paths). Submit
+  one replacement exact-source build; do not reuse either failed build.
 - The graph v2 release remains outcome-blind and intentionally reserves the
   realized namespace empty. Two follow-on adapters are being implemented
   independently while scoring launches: a create-once accepted-batch registry
