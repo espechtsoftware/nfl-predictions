@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 20:48 CDT
+## Current state — 2026-08-21 20:54 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -164,9 +164,11 @@ agent or developer:
   Neo4j. Realized/retrieval generation paths were already compatible. Sixteen
   narrow affected checks, Python/shell syntax, diff checks, and the actual v3
   parked-job replay are green. Direct-Git focused build
-  `98eab401-2098-4767-873d-31993b3d3b75` is queued from exact commit
-  `b2186b4fc1f8dc84f36db075560c35a6fcee4e7b` with image tag
-  `corpus-research-expansion-b2186b4`; it has not yet produced an image.
+  `98eab401-2098-4767-873d-31993b3d3b75` succeeded from exact commit
+  `b2186b4fc1f8dc84f36db075560c35a6fcee4e7b`; all five focused corpus,
+  source, parametric/realized, and Neo4j/UI stages passed. Its immutable image,
+  superseding every prior expansion image, is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:3b20df0a937cb5512506815379f9e75624996c24bbb21776a44562916ffefe0d`.
   Never reuse `transport-live-v3`.
 - The last exact 270-artifact v3 source plan was never published. It was pinned
   to commit `4440c4f`, image `dbf9796c`, internal plan SHA
@@ -206,12 +208,11 @@ agent or developer:
   read, graph write, or new scoring execution occurred during this milestone.
   The sole Cloud Run mutation was the failed source configure update described
   above, and its exact prior spec was automatically restored. Exact next
-  action: monitor build `98eab401` to terminal success, record its immutable
-  digest, regenerate the source plan and IAM for that exact digest, and
-  configure from fresh `transport-live-v4`. Inspect and record the configure
-  receipt before consuming the source authority exactly once; then run the
-  isolated task-0 seven-arm real-artifact smoke before the complete serial
-  54-task suite.
+  action: regenerate the source plan and IAM for commit `b2186b4` and immutable
+  digest `3b20df0a`, then configure from fresh `transport-live-v4`. Inspect and
+  record the configure receipt before consuming the source authority exactly
+  once; then run the isolated task-0 seven-arm real-artifact smoke before the
+  complete serial 54-task suite.
 
 ### Accepted task-0 score is on main; corpus research dashboard is mounted
 
