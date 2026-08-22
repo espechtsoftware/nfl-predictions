@@ -20,12 +20,12 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 23:08 CDT
+## Current state — 2026-08-21 23:45 CDT
 
 ### Task-0 parametric foundation is accepted; launch is waiting only on the daily Policy Analyzer reset
 
-- Branch `main` remains at pushed commit
-  `d94414ad35940fa67405434c9f6884c4b5410691`. The governed implementation,
+- Branch `main` is at pushed commit
+  `84b8efc` before this handoff-only update. The governed implementation,
   build and immutable worker remain exact commit
   `12ee7cefa4d6b093562696e17f82a0bdef126636`, Cloud Build
   `0332dff4-ee9d-45b2-a3c1-41dc1891cf60`, and image
@@ -90,8 +90,8 @@ agent or developer:
   long-running route. The consumer override and Cloud Quotas preference paths
   both refused an increase; no quota override exists. Do not synthesize an
   AnalyzeIAM response or weaken the configure gate.
-- A tracked, fail-closed one-shot continuation is scheduled as user-systemd
-  timer `corpus-parametric-smoke-resume.timer` for
+- A tracked, fail-closed one-shot continuation is scheduled as persistent
+  user-systemd timer `corpus-parametric-smoke-resume-persistent.timer` for
   `2026-08-22 02:01:00 CDT` (`07:01:00Z`), one minute after the documented
   midnight-Pacific reset. The exact operator is
   `reports/corpus-parametric-runs/20260821-corpus-parametric-task0-smoke-v1/resume-after-policy-analyzer-reset.sh`.
@@ -101,9 +101,10 @@ agent or developer:
   configures the accepted smoke under Python 3.11; and consumes the producer
   launch exactly once. It deliberately stops after launch and never retries or
   auto-recovers an execution. `bash -n` passed, and an early invocation exited
-  2 before any file/client action as designed. If the user session or machine
-  stops before 02:01, run this exact script manually after reset. If the timer
-  fires, inspect `resume-after-policy-analyzer-reset.log` and the
+  2 before any file/client action as designed. The timer has `Persistent=yes`,
+  user lingering is enabled for `erich`, and the earlier non-persistent timer
+  is inactive, so logout or reboot will not create a second launch. If the
+  timer fires, inspect `resume-after-policy-analyzer-reset.log` and the
   `transport-live` evidence; after any consumed launch run only
   `recover-producer`, never `launch-producer` again.
 - The reused Cloud Run job remains idle and ready as
