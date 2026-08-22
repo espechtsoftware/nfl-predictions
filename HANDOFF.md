@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 19:25 CDT
+## Current state — 2026-08-21 19:35 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -52,8 +52,13 @@ agent or developer:
   conscious source-set revision `adopted-classic-policy-20260821-2c8564e`
   re-freezes the current app hash plus all four derived evidence-contract
   hashes. Exact affected regressions are green (29 focused assertions across
-  the build/shell, inventory, evidence-contract, and preparer paths). Submit
-  one replacement exact-source build; do not reuse either failed build.
+  the build/shell, inventory, evidence-contract, and preparer paths).
+  Replacement direct-Git build
+  `6fdc9c02-50d8-46d4-9e4d-7bcfc542adec` succeeded from commit
+  `3bbc16542f88a55508df48a3e55e4a03476efbfb`; every focused step and image
+  smoke is green. Its sole immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:94133a8293ea7c4374fe05470471020ccdecf590a2a4dbb8402dc9a9d77fad67`.
+  Do not reuse either failed build.
 - The graph v2 release remains outcome-blind and intentionally reserves the
   realized namespace empty. Two follow-on adapters are being implemented
   independently while scoring launches: a create-once accepted-batch registry
@@ -89,6 +94,16 @@ agent or developer:
   `research/delivery/20260821-corpus-artifact-source-authority-v1/`. The
   bucket remains empty; the replacement retains exact GETs plus create-only
   output-prefix authority.
+- The exact 270-artifact source plan is frozen locally with internal plan SHA
+  `ff6131f4a35dd74724cf7c701328fef1c74ad00787a2455dae6e8da6ad8a6c02`
+  and object-body SHA
+  `1b8bd6ce2714cf45ba765da3523cd43ef9d980e0e5df8d80de07350307591b0a`.
+  Runtime/project/table/role/bucket IAM bodies and the fully explored six-grant
+  source-principal Cloud Asset analysis are captured. A public-principal
+  Cloud Asset capture hit HTTP 429 before the final self-hashed IAM evidence
+  could be built; wait for quota and recapture only the two missing public
+  analyses. No source query, object publication, or Cloud Run mutation has
+  occurred.
 - No source query, source publication, parametric solver, realized-outcome
   read, graph write, Cloud Build submission, Cloud Run job mutation, or new
   scoring execution occurred during this provisioning milestone. Exact next
