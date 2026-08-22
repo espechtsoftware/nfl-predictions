@@ -20,7 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-22 13:35 CDT
+## Current handoff — 2026-08-22 12:40 CDT (second update)
+
+### Equivalence comparator and annotation contract landed; producer still running
+
+- `9b6ad91` adds `corpus_parametric_snapshot.py` +
+  `scripts/compare_corpus_task_science.py`: the generation-pinned reader for
+  a task's seven per-arm variant results and the machine-readable
+  science-only equivalence comparator. It projects the image-invariant
+  subset (slate/source identities, schedule hash, profiles, visit rosters,
+  unions, score SHAs, selector receipts, selected books, censuses),
+  enumerates the excluded image/law/wall-clock fields in every receipt, and
+  the CLI writes the driver's fan-out gate file ONLY on PASS
+  (`equivalent=true`, `comparison="science-only"` — the driver's exact
+  predicate). Freeze gate documented: first production use must smoke
+  outcome-blind against the real accepted v4 task-0 artifacts. Fixtures
+  are built from the real engine payload builder; 4 tests green; the
+  task-0 critical path is now fully tooled end to end.
+- `a89d21f` adds `receiver_matchup_contract.py`: the matchup plan's P0
+  §5.6 contract as one metric-family-extensible mechanism (generation-
+  pinned sources, lock/max-source PIT ordering, exact field dictionaries,
+  missingness reason codes, forbidden-outcome name scan, create-once
+  self-hash + full replay validation). `receiver-matchup/v1` is registered
+  PROVISIONAL with the census-verified core dictionary; freezing requires
+  the P3 outcome-blind reality smoke. 4 tests green.
+- Producer `atlas-minimal-c-s2023-w1-v1-l6dll` still nonterminal at
+  17:37Z (~2h40m); monitors active. Next queue: matchup P1 role/concession
+  feature SQL with leakage tests, then P2 defender/alignment context.
+
+## Prior handoff — 2026-08-22 13:35 CDT
 
 ### Matchup plan ADOPTED and fast-tracked; P0 support census executed GREEN
 
