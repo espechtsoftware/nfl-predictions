@@ -502,6 +502,68 @@ def receiver_matchup_family_v1(*, provisional: bool = True) -> MetricFamily:
     )
 
 
+def rb_matchup_family_v1(*, provisional: bool = True) -> MetricFamily:
+    """Family two: RB matchup context (rushing + checkdown surfaces)."""
+    fields = (
+        FieldSpec("role_label", "string", True, "consensus pre-lock role (RB1/RB2/RB3+)"),
+        FieldSpec("role_consensus_score", "percentile", True, "within-team consensus role percentile"),
+        FieldSpec("role_component_count", "integer", True, "non-null role components used"),
+        FieldSpec("role_supported", "boolean", False, "at least two components and two eligible teammates"),
+        FieldSpec("opponent_rushing_concession_l8", "number", True, "opponent rushing DK allowed per game to this role, last eight prior games"),
+        FieldSpec("opponent_receiving_concession_l8", "number", True, "opponent receiving DK allowed per game to this role (checkdown surface), last eight"),
+        FieldSpec("opponent_rdef_epa_per_attempt_l8", "number", True, "opponent run-defense EPA allowed per attempt, strictly prior, attempt-weighted"),
+        FieldSpec("opponent_rdef_boom_rate_l8", "number", True, "opponent run-defense boom rate allowed, strictly prior"),
+        FieldSpec("matchup_edge_score", "percentile", True, "unweighted mean of supported component percentiles, within slate"),
+        FieldSpec("matchup_component_count", "integer", False, "supported matchup components"),
+        FieldSpec("easy_ground_matchup_v1", "boolean", True, "frozen law: edge>=0.75 and no supported component below 0.40"),
+    )
+    return define_metric_family(
+        family_id="rb-matchup",
+        version=1,
+        provisional=provisional,
+        source_roles=(
+            "rb-role-components",
+            "defense-rb-role-concessions",
+            "team-run-defense-context",
+        ),
+        fields=fields,
+        description=(
+            "Point-in-time RB matchup context: consensus role, opponent "
+            "rushing and checkdown-receiving concessions by role, run-"
+            "defense unit context, and the frozen easy-ground descriptor."
+        ),
+    )
+
+
+def qb_matchup_family_v1(*, provisional: bool = True) -> MetricFamily:
+    """Family three: QB matchup context (concession, pressure, secondary)."""
+    fields = (
+        FieldSpec("opponent_qb_dk_concession_l8", "number", True, "opponent full-QB-DK points allowed per game, last eight prior games"),
+        FieldSpec("opponent_pressures_per_game_l8", "number", True, "opponent pressures generated per game, strictly prior (fewer is offense-favorable; orientation applied at percentile time)"),
+        FieldSpec("opponent_sacks_per_game_l8", "number", True, "opponent sacks per game, strictly prior"),
+        FieldSpec("opponent_secondary_ypt_allowed_l6", "number", True, "opponent DB yards per target allowed, trailing six (production coverage table)"),
+        FieldSpec("matchup_edge_score", "percentile", True, "unweighted mean of supported component percentiles, within slate"),
+        FieldSpec("matchup_component_count", "integer", False, "supported matchup components"),
+        FieldSpec("easy_pass_matchup_v1", "boolean", True, "frozen law: edge>=0.75 and no supported component below 0.40"),
+    )
+    return define_metric_family(
+        family_id="qb-matchup",
+        version=1,
+        provisional=provisional,
+        source_roles=(
+            "qb-defense-concessions",
+            "pfr-pass-rush-context",
+            "secondary-coverage-quality",
+        ),
+        fields=fields,
+        description=(
+            "Point-in-time QB matchup context: opponent QB-DK concessions, "
+            "pass-rush pressure context, secondary quality, and the frozen "
+            "easy-pass descriptor."
+        ),
+    )
+
+
 __all__ = [
     "ANNOTATION_CONTRACT_SCHEMA",
     "FAMILY_DEFINITION_SCHEMA",
@@ -516,6 +578,8 @@ __all__ = [
     "canonical_sha256",
     "define_metric_family",
     "normalize_object_identity",
+    "qb_matchup_family_v1",
+    "rb_matchup_family_v1",
     "receiver_matchup_family_v1",
     "validate_annotation_bytes",
 ]
