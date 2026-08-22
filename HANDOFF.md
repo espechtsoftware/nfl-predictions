@@ -144,9 +144,16 @@ agent or developer:
   effective-policy import resolve to `/app/src`. Local runs succeeded only
   because `PYTHONPATH` was explicitly pinned. This is a runtime import-path
   packaging defect before solve, not a score result.
-- Exact next action: repair the image/runtime import contract so the worker
-  imports the pinned `/app/src` tree, validate the narrow runtime seam, build
-  one new exact image, and use wholly new v4 foundation/batch/transport IDs.
+- The runtime import repair is integrated on `main` at commit `953d952`. The
+  expansion image now sets exactly `PYTHONPATH=/app/src`, and its mandatory
+  build smoke asserts both the package and effective-policy inventory module
+  resolve under `/app/src` before regenerating the complete inventory. The
+  validator remains unchanged. Python 3.11 validation passed 9 expansion-build,
+  16 inventory and 37 parametric-transport tests, plus bytecode compilation and
+  diff checks. No cloud, IAM, scheduler, storage or score state changed during
+  the repair.
+- Exact next action: push the integrated repair, build one new exact expansion
+  image, and use wholly new v4 foundation/batch/transport IDs.
   Reuse the accepted source-v3 publication but never any v2/v3 task launch
   authority. Remove repeated all-region IAM/scheduler census and repeated
   science-input reopening from future per-experiment critical paths by using
