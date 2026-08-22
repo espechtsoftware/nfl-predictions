@@ -20,7 +20,61 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 18:28 CDT
+## Current state — 2026-08-21 19:13 CDT
+
+### Full research-suite integration and isolated cloud prerequisites are active
+
+- The operator closed the sub-ULP replay investigation. Do not relaunch
+  retrieval task 0. Its accepted simulated held-out score remains 1,216 of
+  10,000 worlds above 200 for `coverage-194-v1`, versus 1,017 for the
+  mean-score baseline; this is not a realized contest result.
+- One shared expansion image/build contract is integrated for the
+  source publisher, 54-slate by seven-arm parametric producer/verifier, the
+  separately governed one-read realized grader, Neo4j registry/loader, and
+  read-only UI. Only the focused corpus workstream is in that build; a broad
+  repository test rerun remains forbidden by operator direction. The new
+  source IAM builder derives its 270-object boundary from the frozen
+  plan/source lock rather than accepting operator prefixes. Realized-grading
+  core tests are green 19/19; the graph registry/transport audit was green for
+  29 cases with its one stronger fail-closed message assertion corrected; the
+  exact build/UI integration is green 14/14 after binding the UI directly to
+  graph projection schema v2. The shared Cloud Build is the remaining full
+  focused-workstream validator and has not yet been submitted.
+- The graph v2 release remains outcome-blind and intentionally reserves the
+  realized namespace empty. Two follow-on adapters are being implemented
+  independently while scoring launches: a create-once accepted-batch registry
+  producer plus graph-to-UI materializer, and a reuse-only Cloud Run lifecycle
+  around the realized grader with historical-outcome lease release/abandon.
+  These do not block source publication or the seven-arm scoring smoke.
+- Dedicated cloud prerequisites now exist: bucket
+  `gs://nfl-predictions-503414-corpus-source` and service account
+  `corpus-source-research@nfl-predictions-503414.iam.gserviceaccount.com`, plus
+  bucket `gs://nfl-predictions-503414-corpus-parametric` and service account
+  `corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com`.
+  Both new buckets use UBLA and public-access prevention. Four source custom
+  roles contain exactly one permission each (`storage.objects.get`,
+  `storage.objects.create`, `bigquery.jobs.create`, and
+  `bigquery.tables.getData`); the source identity has the exact project/table
+  bindings and conditioned source-output bindings. The two parametric custom
+  roles contain exactly GET or CREATE. Fully explored Cloud Asset analysis
+  currently exposes six expected source grants and one parametric grant, with
+  no expanded extra permission.
+- The immutable 270 R0--R4 matrices remain in the older non-UBLA raw bucket.
+  Enabling UBLA there could break unrelated workloads, and Cloud Storage will
+  not accept IAM Conditions without it. The bounded compatibility law grants
+  each new runtime only its custom bucket-level GET permission: no LIST,
+  create, update, or delete. Worker code still generation/hash-pins and traces
+  every accepted object read. New outputs remain in the dedicated protected
+  buckets. Regenerating matrices is reserved for a separately named corpus
+  population preset so the first scenario suite remains directly comparable
+  to the accepted result.
+- No source query, source publication, parametric solver, realized-outcome
+  read, graph write, Cloud Build submission, Cloud Run job mutation, or new
+  scoring execution occurred during this provisioning milestone. Exact next
+  action: commit and push the exact shared build source, obtain one immutable
+  expansion digest, publish the point-in-time source authority, then run the
+  isolated task-0 seven-arm real-artifact smoke before the complete serial
+  54-task suite.
 
 ### Accepted task-0 score is on main; corpus research dashboard is mounted
 

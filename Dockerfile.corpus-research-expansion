@@ -1,0 +1,21 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# LightGBM needs libgomp.  PuLP's pinned CBC distribution is validated by the
+# build smoke before this image may be used by a corpus worker.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml README.md CLAUDE.md ./
+COPY reports ./reports
+COPY src ./src
+COPY sql ./sql
+COPY scripts ./scripts
+
+RUN pip install --no-cache-dir ".[gcp,app,graph]"
+
+# Every governed Cloud Run execution overrides this command.  Serving the app
+# is a safe default and exposes the read-only corpus research dashboard.
+CMD ["uvicorn", "nfl_dfs.app.main:app", "--host", "0.0.0.0", "--port", "8080"]

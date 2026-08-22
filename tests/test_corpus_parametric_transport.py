@@ -12,6 +12,7 @@ import sys
 import pytest
 
 from nfl_dfs.research import corpus_batch_evidence_contract as evidence
+from nfl_dfs.research import corpus_expansion_build as expansion_build
 from nfl_dfs.research import corpus_parametric_batch as batch
 
 
@@ -302,10 +303,40 @@ def _job(*, generation: int | str = 7) -> dict[str, object]:
 
 def _build_metadata() -> dict[str, object]:
     source = {"revision": CODE_SHA, "url": transport.EXPECTED_CODE_REPOSITORY}
-    retained_fragments = tuple(
-        fragment.replace("${_IMAGE}", IMAGE_TAG)
-        for fragment in transport.REQUIRED_BUILD_FRAGMENTS
-    )
+    command_sets = {
+        "focused-corpus-research-tests": expansion_build.FOCUSED_TEST_COMMANDS,
+        "smoke-corpus-artifact-source": expansion_build.SOURCE_SMOKE_COMMANDS,
+        "smoke-corpus-parametric-expansion": (
+            expansion_build.PARAMETRIC_SMOKE_COMMANDS
+        ),
+        "smoke-corpus-neo4j-transport": expansion_build.NEO4J_SMOKE_COMMANDS,
+    }
+    steps: list[dict[str, object]] = []
+    for step_id, name, entrypoint in expansion_build.EXPECTED_STEP_SPECS:
+        if step_id == "build-image":
+            args = [
+                "build", "-f", expansion_build.EXPANSION_DOCKERFILE,
+                "-t", IMAGE_TAG, ".",
+            ]
+        else:
+            rendered = [
+                shlex.join(tuple(
+                    IMAGE_TAG if token == "${_IMAGE}" else token
+                    for token in command
+                ))
+                for command in command_sets[step_id]
+            ]
+            args = ["-ceu", "\n".join(rendered)]
+        row: dict[str, object] = {
+            "id": step_id,
+            "name": name,
+            "status": "SUCCESS",
+            "exitCode": 0,
+            "args": args,
+        }
+        if entrypoint:
+            row["entrypoint"] = entrypoint
+        steps.append(row)
     return {
         "id": BUILD_ID,
         "status": "SUCCESS",
@@ -322,40 +353,7 @@ def _build_metadata() -> dict[str, object]:
             "name": IMAGE_TAG,
             "digest": IMAGE.rsplit("@", 1)[1],
         }]},
-        "steps": [
-            {
-                "id": "full-test-suite",
-                "name": "python:3.11-slim",
-                "entrypoint": "bash",
-                "status": "SUCCESS",
-                "exitCode": 0,
-                "args": ["-ceu", "\n".join(
-                    [
-                        *(shlex.join(command) for command in (
-                            transport.REQUIRED_FULL_TEST_SETUP_COMMANDS
-                        )),
-                        *retained_fragments[:3],
-                    ]
-                )],
-            },
-            {
-                "id": "build-image",
-                "name": "gcr.io/cloud-builders/docker",
-                "status": "SUCCESS",
-                "exitCode": 0,
-                "args": ["build", "-t", IMAGE_TAG, "."],
-            },
-            {
-                "id": "smoke-corpus-parametric-expansion",
-                "name": "gcr.io/cloud-builders/docker",
-                "entrypoint": "bash",
-                "status": "SUCCESS",
-                "exitCode": 0,
-                "args": ["-ceu", "\n".join(
-                    retained_fragments[3:]
-                )],
-            },
-        ],
+        "steps": steps,
     }
 
 
@@ -1680,34 +1678,27 @@ def test_runtime_iam_v2_rejects_self_attestation_and_policy_escalations() -> Non
 
 
 def test_build_gate_requires_every_expansion_test_cli_import_and_shell_smoke() -> None:
-    retained_fragments = tuple(
-        fragment.replace("${_IMAGE}", IMAGE_TAG)
-        for fragment in transport.REQUIRED_BUILD_FRAGMENTS
-    )
     assert transport.validate_build_metadata(
         _build_metadata(), build_id=BUILD_ID, code_sha=CODE_SHA, image=IMAGE
     )["image"] == IMAGE
-    for command_index, fragment in enumerate(retained_fragments):
+    for step_index in (0, 2, 3, 4):
         changed = _build_metadata()
-        step_index = 0 if command_index < 3 else 2
         retained = list(changed["steps"][step_index]["args"])
-        retained[1] = "\n".join(
-            row for row in retained[1].splitlines() if row != fragment
-        )
+        retained[1] = "\n".join(retained[1].splitlines()[:-1])
         changed["steps"][step_index]["args"] = retained
         with pytest.raises(
-            transport.CorpusParametricTransportError, match="build smokes"
+            transport.CorpusParametricTransportError, match="not exact"
         ):
             transport.validate_build_metadata(
                 changed, build_id=BUILD_ID, code_sha=CODE_SHA, image=IMAGE
             )
 
     commented = _build_metadata()
-    commented["steps"][2]["args"][1] = "\n".join(
-        f"# {row}" for row in retained_fragments[3:]
+    commented["steps"][3]["args"][1] = "\n".join(
+        f"# {row}" for row in commented["steps"][3]["args"][1].splitlines()
     )
     with pytest.raises(
-        transport.CorpusParametricTransportError, match="build smokes"
+        transport.CorpusParametricTransportError, match="not exact"
     ):
         transport.validate_build_metadata(
             commented, build_id=BUILD_ID, code_sha=CODE_SHA, image=IMAGE
@@ -1727,7 +1718,7 @@ def test_build_gate_requires_every_expansion_test_cli_import_and_shell_smoke() -
         "set +e\n" + shell_state_masked["steps"][0]["args"][1]
     )
     with pytest.raises(
-        transport.CorpusParametricTransportError, match="shell state"
+        transport.CorpusParametricTransportError, match="not exact"
     ):
         transport.validate_build_metadata(
             shell_state_masked, build_id=BUILD_ID, code_sha=CODE_SHA,
@@ -1735,7 +1726,7 @@ def test_build_gate_requires_every_expansion_test_cli_import_and_shell_smoke() -
         )
 
     extra_smoke = _build_metadata()
-    extra_smoke["steps"][2]["args"][1] += "\necho not-a-bound-smoke"
+    extra_smoke["steps"][3]["args"][1] += "\necho not-a-bound-smoke"
     with pytest.raises(
         transport.CorpusParametricTransportError, match="not exact"
     ):

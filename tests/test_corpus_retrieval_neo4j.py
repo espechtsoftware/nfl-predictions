@@ -187,7 +187,7 @@ def _bundle(
         }, "selection_sha256")
         add_sidecar(
             "strategy-selection", strategy_id, f"strategies/{strategy_id}/selection.json",
-            selection if analytics and strategy_id == "coverage194" else None,
+            selection if analytics else None,
         )
         add_sidecar(
             "strategy-selected-scores",

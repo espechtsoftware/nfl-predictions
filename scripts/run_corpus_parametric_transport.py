@@ -32,12 +32,12 @@ import tempfile
 import time
 from typing import Final, Protocol
 
+from nfl_dfs.research import corpus_expansion_build as expansion_build
+
 
 PROJECT: Final = "nfl-predictions-503414"
 REGION: Final = "us-central1"
-EXPECTED_CODE_REPOSITORY: Final = (
-    "https://github.com/espechtsoftware/nfl-predictions.git"
-)
+EXPECTED_CODE_REPOSITORY: Final = expansion_build.EXPECTED_CODE_REPOSITORY
 ENABLE_ENV: Final = "CORPUS_PARAMETRIC_RESEARCH_ENABLED"
 IMAGE_ENV: Final = "CORPUS_PARAMETRIC_IMAGE"
 BUILD_ENV: Final = "CORPUS_PARAMETRIC_BUILD_ID"
@@ -60,71 +60,37 @@ RUNTIME_IAM_EVIDENCE_SCHEMA: Final = (
 RUNTIME_PRINCIPAL_SCOPE: Final = "cloud-run-producer-verifier-only"
 STORAGE_GET_PERMISSION: Final = "storage.objects.get"
 STORAGE_CREATE_PERMISSION: Final = "storage.objects.create"
+# The immutable R0--R4 bodies predate this workstream and live in the
+# project's fine-grained-access raw bucket.  Cloud Storage does not permit IAM
+# Conditions on that bucket without enabling UBLA, which would be a broad,
+# potentially breaking migration for unrelated workloads.  The sole bounded
+# exception is therefore the custom GET-only role on this named bucket.  It
+# grants neither LIST nor any mutation permission; all observed worker GETs
+# remain pinned to the retained 270 object identities below.
+LEGACY_GET_ONLY_BUCKETS: Final = frozenset({
+    "nfl-predictions-503414-raw",
+})
 RUNTIME_READ_CONDITION_TITLE: Final = "corpus-parametric-read-v2"
 RUNTIME_CREATE_CONDITION_TITLE: Final = "corpus-parametric-create-v2"
 REQUIRED_BUILD_COMMANDS: Final = (
-    ("PYTHONPATH=src", "pytest"),
-    (
-        "PYTHONPATH=src", "python", "-m", "pytest", "-q",
-        "tests/test_corpus_parametric_transport.py",
-    ),
-    (
-        "PYTHONPATH=src", "python", "-m", "pytest", "-q",
-        "tests/test_corpus_retrieval_neo4j.py",
-    ),
-    (
-        "docker", "run", "--rm", "${_IMAGE}", "python",
-        "scripts/run_corpus_parametric_transport.py", "--help",
-    ),
-    (
-        "docker", "run", "--rm", "${_IMAGE}", "python",
-        "scripts/run_corpus_parametric_transport.py", "parked",
-    ),
-    (
-        "docker", "run", "--rm", "${_IMAGE}", "python",
-        "scripts/prepare_corpus_parametric_batch_v1.py", "--help",
-    ),
-    (
-        "docker", "run", "--rm", "${_IMAGE}", "python",
-        "scripts/prepare_corpus_parametric_batch_v1.py", "solver-probe",
-    ),
-    (
-        "docker", "run", "--rm", "${_IMAGE}", "python",
-        "scripts/load_corpus_retrieval_neo4j.py", "--help",
-    ),
-    (
-        "docker", "run", "--rm", "${_IMAGE}", "bash", "-n",
-        "scripts/cloud_corpus_parametric_v1_reuse.sh",
-    ),
-    (
-        "docker", "run", "--rm", "${_IMAGE}", "python", "-c",
-        "import nfl_dfs.research.corpus_legal_feasibility; "
-        "import nfl_dfs.research.corpus_legal_feasibility_verifier; "
-        "import nfl_dfs.research.corpus_retrieval_neo4j; "
-        "import nfl_dfs.research.corpus_neo4j_extensions; import neo4j",
-    ),
+    *expansion_build.FOCUSED_TEST_COMMANDS,
+    *expansion_build.SOURCE_SMOKE_COMMANDS,
+    *expansion_build.PARAMETRIC_SMOKE_COMMANDS,
+    *expansion_build.NEO4J_SMOKE_COMMANDS,
 )
 REQUIRED_BUILD_FRAGMENTS: Final = tuple(
     shlex.join(command) for command in REQUIRED_BUILD_COMMANDS
 )
 EXPECTED_BUILD_STEPS: Final = {
-    "full-test-suite": ("python:3.11-slim", "bash"),
-    "build-image": ("gcr.io/cloud-builders/docker", ""),
-    "smoke-corpus-parametric-expansion": (
-        "gcr.io/cloud-builders/docker", "bash",
-    ),
+    step_id: (builder, entrypoint)
+    for step_id, builder, entrypoint in expansion_build.EXPECTED_STEP_SPECS
 }
 _ALLOWED_RETAINED_BUILD_STEP_KEYS: Final = frozenset({
     "args", "entrypoint", "exitCode", "id", "name", "pullTiming", "status",
     "timing",
 })
 REQUIRED_FULL_TEST_SETUP_COMMANDS: Final = (
-    ("apt-get", "update"),
-    (
-        "apt-get", "install", "-y", "--no-install-recommends", "git",
-        "libgomp1",
-    ),
-    ("pip", "install", "--no-cache-dir", ".[gcp,app,dev]"),
+    expansion_build.FOCUSED_TEST_COMMANDS[:3]
 )
 _FORBIDDEN_BUILD_SHELL_COMMANDS: Final = frozenset({
     ".", "alias", "builtin", "cd", "command", "declare", "eval", "exec",
@@ -1982,6 +1948,7 @@ def _validate_runtime_policies(
     metadata_rows = _sequence(bucket_metadata, label="runtime bucket metadata")
     normalized_metadata: list[dict[str, object]] = []
     observed_metadata: set[str] = set()
+    legacy_unconditioned_buckets: set[str] = set()
     for ordinal, raw in enumerate(metadata_rows):
         row = _mapping(raw, label=f"runtime bucket metadata[{ordinal}]")
         _exact_keys(
@@ -2000,16 +1967,35 @@ def _validate_runtime_policies(
         ubla = _mapping(
             iam.get("uniformBucketLevelAccess"), label=f"bucket {bucket} UBLA"
         )
+        legacy_get_only = (
+            bucket in LEGACY_GET_ONLY_BUCKETS and ubla.get("enabled") is False
+        )
         if (
             metadata.get("name") not in {
                 bucket, f"projects/_/buckets/{bucket}",
             }
-            or ubla.get("enabled") is not True
-            or iam.get("publicAccessPrevention") != "enforced"
+            or (
+                legacy_get_only
+                and (
+                    bucket == output_bucket
+                    or ubla.get("enabled") is not False
+                    or iam.get("publicAccessPrevention")
+                    not in {"inherited", "enforced"}
+                )
+            )
+            or (
+                not legacy_get_only
+                and (
+                    ubla.get("enabled") is not True
+                    or iam.get("publicAccessPrevention") != "enforced"
+                )
+            )
         ):
             raise CorpusParametricTransportError(
-                f"bucket {bucket} does not prove UBLA/PAP enforcement"
+                f"bucket {bucket} UBLA/PAP storage access boundary differs"
             )
+        if legacy_get_only:
+            legacy_unconditioned_buckets.add(bucket)
         normalized_metadata.append({"bucket": bucket, "metadata": dict(metadata)})
     if (
         observed_metadata != relevant_buckets
@@ -2036,9 +2022,13 @@ def _validate_runtime_policies(
         observed_policies.add(bucket)
         policy = _mapping(row["policy"], label=f"bucket {bucket} policy")
         bindings = _policy_bindings(policy, label=f"bucket {bucket} policy")
-        if policy.get("version") != 3:
+        legacy_get_only = bucket in legacy_unconditioned_buckets
+        if (
+            (legacy_get_only and policy.get("version") not in {1, 3})
+            or (not legacy_get_only and policy.get("version") != 3)
+        ):
             raise CorpusParametricTransportError(
-                f"bucket {bucket} policy must retain conditional policy v3"
+                f"bucket {bucket} retained policy version differs"
             )
         _reject_public_members(bindings, label=f"bucket {bucket} bindings")
         account_roles: dict[
@@ -2060,27 +2050,37 @@ def _validate_runtime_policies(
                 raise CorpusParametricTransportError(
                     "runtime bucket role is repeated, predefined, or overbroad"
                 )
-            condition = _mapping(
-                binding.get("condition"), label="runtime bucket condition"
-            )
-            if set(condition) - {"title", "description", "expression"}:
-                raise CorpusParametricTransportError(
-                    "runtime bucket IAM condition fields differ"
+            if legacy_get_only:
+                if role != read_role or "condition" in binding:
+                    raise CorpusParametricTransportError(
+                        "legacy raw bucket must use one unconditional GET-only role"
+                    )
+                account_roles[role] = (frozenset(), frozenset())
+            else:
+                condition = _mapping(
+                    binding.get("condition"), label="runtime bucket condition"
                 )
-            expected_title = (
-                RUNTIME_READ_CONDITION_TITLE
-                if role == read_role
-                else RUNTIME_CREATE_CONDITION_TITLE
-            )
-            if condition.get("title") != expected_title:
-                raise CorpusParametricTransportError(
-                    "runtime bucket IAM condition title differs"
+                if set(condition) - {"title", "description", "expression"}:
+                    raise CorpusParametricTransportError(
+                        "runtime bucket IAM condition fields differ"
+                    )
+                expected_title = (
+                    RUNTIME_READ_CONDITION_TITLE
+                    if role == read_role
+                    else RUNTIME_CREATE_CONDITION_TITLE
                 )
-            account_roles[role] = _condition_grants(
-                condition.get("expression"), label="runtime bucket condition"
-            )
+                if condition.get("title") != expected_title:
+                    raise CorpusParametricTransportError(
+                        "runtime bucket IAM condition title differs"
+                    )
+                account_roles[role] = _condition_grants(
+                    condition.get("expression"), label="runtime bucket condition"
+                )
         expected_roles = {
             read_role: (
+                (frozenset(), frozenset())
+                if legacy_get_only
+                else (
                 frozenset(
                     _resource_prefix(prefix)
                     for prefix in read_prefixes
@@ -2091,6 +2091,7 @@ def _validate_runtime_policies(
                     for identity in read_exact_identities
                     if str(identity["uri"]).startswith(f"gs://{bucket}/")
                 ),
+                )
             )
         }
         if bucket == output_bucket:
@@ -2099,7 +2100,7 @@ def _validate_runtime_policies(
                 frozenset(),
             )
         if (
-            not any(expected_roles[read_role])
+            (not legacy_get_only and not any(expected_roles[read_role]))
             or account_roles != expected_roles
         ):
             raise CorpusParametricTransportError(
@@ -2262,7 +2263,7 @@ def _cloud_asset_results(value: object, *, identity: str) -> list[object]:
 def _cloud_asset_grant(
     value: object, *, member: str
 ) -> tuple[
-    str, str, str, frozenset[str], frozenset[str], frozenset[str]
+    str, str, str | None, frozenset[str], frozenset[str], frozenset[str]
 ]:
     result = _mapping(value, label="Cloud Asset runtime result")
     binding = _mapping(result.get("iamBinding"), label="Cloud Asset IAM binding")
@@ -2302,16 +2303,21 @@ def _cloud_asset_grant(
         result.get("attachedResourceFullName"),
         label="Cloud Asset attached resource",
     )
-    condition = _mapping(
-        binding.get("condition"), label="Cloud Asset binding condition"
-    )
-    title = _string(
-        condition.get("title"), label="Cloud Asset condition title"
-    )
-    prefixes, exact_objects = _condition_grants(
-        condition.get("expression"),
-        label="Cloud Asset condition expression",
-    )
+    condition_value = binding.get("condition")
+    title: str | None = None
+    prefixes: frozenset[str] = frozenset()
+    exact_objects: frozenset[str] = frozenset()
+    if condition_value is not None:
+        condition = _mapping(
+            condition_value, label="Cloud Asset binding condition"
+        )
+        title = _string(
+            condition.get("title"), label="Cloud Asset condition title"
+        )
+        prefixes, exact_objects = _condition_grants(
+            condition.get("expression"),
+            label="Cloud Asset condition expression",
+        )
     observed_role = False
     permissions: set[str] = set()
     access_lists = _sequence(
@@ -2350,13 +2356,18 @@ def _cloud_asset_grant(
                 raise CorpusParametricTransportError(
                     "Cloud Asset expanded capability differs"
                 )
-        evaluation = _mapping(
-            acl.get("conditionEvaluation"),
-            label="Cloud Asset condition evaluation",
-        )
-        if evaluation.get("evaluationValue") != "CONDITIONAL":
+        evaluation = acl.get("conditionEvaluation")
+        if condition_value is not None:
+            retained_evaluation = _mapping(
+                evaluation, label="Cloud Asset condition evaluation"
+            )
+            if retained_evaluation.get("evaluationValue") != "CONDITIONAL":
+                raise CorpusParametricTransportError(
+                    "Cloud Asset conditional grant evaluation differs"
+                )
+        elif evaluation not in (None, {}):
             raise CorpusParametricTransportError(
-                "Cloud Asset conditional grant evaluation differs"
+                "Cloud Asset unconditional grant evaluation differs"
             )
     if (
         result.get("fullyExplored") is not True
@@ -2413,7 +2424,7 @@ def _validate_effective_access(
     })
     output_bucket = output_prefix.removeprefix("gs://").split("/", 1)[0]
     expected: set[tuple[
-        str, str, str, frozenset[str], frozenset[str], frozenset[str]
+        str, str, str | None, frozenset[str], frozenset[str], frozenset[str]
     ]] = set()
     for bucket in buckets:
         expected.add((
@@ -2441,7 +2452,27 @@ def _validate_effective_access(
                 frozenset(),
                 frozenset({STORAGE_CREATE_PERMISSION}),
             ))
-    if set(observed) != expected:
+    observed_set = set(observed)
+    accepted_sets = [expected]
+    legacy_expected = set(expected)
+    for bucket in sorted(LEGACY_GET_ONLY_BUCKETS.intersection(buckets)):
+        conditional = next(
+            row for row in legacy_expected
+            if row[0] == read_role
+            and row[1] == f"//storage.googleapis.com/{bucket}"
+        )
+        legacy_expected.remove(conditional)
+        legacy_expected.add((
+            read_role,
+            f"//storage.googleapis.com/{bucket}",
+            None,
+            frozenset(),
+            frozenset(),
+            frozenset({STORAGE_GET_PERMISSION}),
+        ))
+    if legacy_expected != expected:
+        accepted_sets.append(legacy_expected)
+    if all(observed_set != candidate for candidate in accepted_sets):
         raise CorpusParametricTransportError(
             "Cloud Asset effective runtime access is incomplete or overbroad"
         )
@@ -3070,148 +3101,15 @@ def validate_build_metadata(
     code_sha: str,
     image: str,
 ) -> dict[str, str]:
-    item = _mapping(value, label="build metadata")
-    if (
-        _BUILD.fullmatch(build_id) is None
-        or _COMMIT.fullmatch(code_sha) is None
-        or _IMAGE.fullmatch(image) is None
-        or item.get("id") != build_id
-        or item.get("status") != "SUCCESS"
-    ):
-        raise CorpusParametricTransportError("immutable build identity differs")
     try:
-        source = _mapping(item["source"], label="build source")
-        provenance = _mapping(
-            item["sourceProvenance"], label="build source provenance"
+        retained = expansion_build.validate_build_metadata(
+            value, build_id=build_id, code_sha=code_sha, image=image
         )
-        requested = _mapping(source["gitSource"], label="build Git source")
-        resolved = _mapping(
-            provenance["resolvedGitSource"], label="resolved build Git source"
-        )
-    except (KeyError, TypeError) as exc:
-        raise CorpusParametricTransportError("direct-Git provenance is absent") from exc
-    if (
-        frozenset(source) != frozenset({"gitSource"})
-        or frozenset(provenance) != frozenset({"resolvedGitSource"})
-        or frozenset(requested) != frozenset({"revision", "url"})
-        or frozenset(resolved) != frozenset({"revision", "url"})
-        or requested.get("revision") != code_sha
-        or resolved.get("revision") != code_sha
-        or requested.get("url") != EXPECTED_CODE_REPOSITORY
-        or resolved.get("url") != EXPECTED_CODE_REPOSITORY
-    ):
-        raise CorpusParametricTransportError("build source commit differs")
-    digest = image.rsplit("@", 1)[1]
-    results = item.get("results", {})
-    images = results.get("images", []) if isinstance(results, Mapping) else []
-    steps = item.get("steps")
-    substitutions = item.get("substitutions", {})
-    image_tag = (
-        substitutions.get("_IMAGE")
-        if isinstance(substitutions, Mapping)
-        else None
-    )
-    options = item.get("options")
-    artifacts = item.get("artifacts")
-    if (
-        type(images) is not list
-        or type(image_tag) is not str
-        or not image_tag
-        or substitutions != {"_IMAGE": image_tag}
-        or item.get("images") != [image_tag]
-        or not isinstance(artifacts, Mapping)
-        or artifacts != {"images": [image_tag]}
-        or item.get("timeout") != "10800s"
-        or not isinstance(options, Mapping)
-        or options != {
-            "logging": "LEGACY", "machineType": "E2_HIGHCPU_8", "pool": {},
-        }
-        or len(images) != 1
-        or not any(
-            isinstance(row, Mapping)
-            and row.get("digest") == digest
-            and row.get("name") == image_tag
-            for row in images
-        )
-        or type(steps) is not list
-        or not steps
-        or any(
-            not isinstance(row, Mapping)
-            or row.get("status") != "SUCCESS"
-            or (
-                row.get("exitCode") is not None
-                and (
-                    type(row.get("exitCode")) is not int
-                    or row.get("exitCode") != 0
-                )
-            )
-            for row in steps
-        )
-    ):
-        raise CorpusParametricTransportError("build image/steps differ")
-    by_id: dict[str, Mapping[str, object]] = {}
-    for ordinal, raw in enumerate(steps):
-        row = _mapping(raw, label=f"build step[{ordinal}]")
-        if frozenset(row) - _ALLOWED_RETAINED_BUILD_STEP_KEYS:
-            raise CorpusParametricTransportError(
-                f"build step[{ordinal}] retains unbound execution fields"
-            )
-        step_id = _string(row.get("id"), label=f"build step[{ordinal}].id")
-        if step_id in by_id:
-            raise CorpusParametricTransportError("build step ID repeats")
-        by_id[step_id] = row
-    if list(by_id) != list(EXPECTED_BUILD_STEPS):
-        raise CorpusParametricTransportError(
-            "required build step census/order differs"
-        )
-    for step_id, (expected_builder, expected_entrypoint) in EXPECTED_BUILD_STEPS.items():
-        row = by_id.get(step_id)
-        if (
-            row is None
-            or row.get("name") != expected_builder
-            or str(row.get("entrypoint", "")) != expected_entrypoint
-        ):
-            raise CorpusParametricTransportError(
-                f"required build step spec differs: {step_id}"
-            )
-    required_positions = [
-        next(
-            ordinal for ordinal, raw in enumerate(steps)
-            if isinstance(raw, Mapping) and raw.get("id") == step_id
-        )
-        for step_id in EXPECTED_BUILD_STEPS
-    ]
-    if (
-        required_positions[:2] != [0, 1]
-        or required_positions[2] != len(steps) - 1
-    ):
-        raise CorpusParametricTransportError(
-            "required build step order differs"
-        )
-    if list(by_id["build-image"].get("args", [])) != [
-        "build", "-t", image_tag, ".",
-    ]:
-        raise CorpusParametricTransportError("immutable image build argv differs")
-    full_commands = _build_step_commands([by_id["full-test-suite"]])
-    smoke_commands = _build_step_commands([
-        by_id["smoke-corpus-parametric-expansion"]
-    ])
-    materialized_commands = _materialized_required_build_commands(image_tag)
-    required_full = list(materialized_commands[:3])
-    required_smoke = list(materialized_commands[3:])
-    if (
-        full_commands
-        != [*REQUIRED_FULL_TEST_SETUP_COMMANDS, *required_full]
-        or smoke_commands != required_smoke
-    ):
-        raise CorpusParametricTransportError(
-            "parametric expansion build smokes are absent or not exact"
-        )
+    except expansion_build.CorpusExpansionBuildError as exc:
+        raise CorpusParametricTransportError(str(exc)) from exc
     return {
-        "build_id": build_id,
-        "code_repository": EXPECTED_CODE_REPOSITORY,
-        "code_sha": code_sha,
-        "image": image,
+        key: retained[key]
+        for key in ("build_id", "code_repository", "code_sha", "image")
     }
 
 

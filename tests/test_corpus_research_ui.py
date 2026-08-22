@@ -7,6 +7,11 @@ from fastapi.testclient import TestClient
 import pytest
 
 from nfl_dfs.app import corpus_research as ui
+from nfl_dfs.research import corpus_strategy_registry as registry
+
+
+def test_ui_projection_schema_matches_registry_authority() -> None:
+    assert ui.SOURCE_PROJECTION_SCHEMA == registry.PROJECTION_RECEIPT_SCHEMA
 
 
 def _source_receipt() -> dict[str, object]:
@@ -27,7 +32,7 @@ def _source_receipt() -> dict[str, object]:
         "winner_imported": False,
         "winner_count": 0,
         "registry_namespace": ui.REGISTRY_NAMESPACE,
-        "requires_p0_manifest_namespace_v2": True,
+        "manifest_namespace_v2_authorized": True,
         "gcs_remains_authoritative": True,
         "world_matrices_stored_in_graph": False,
         "automatic_promotion": False,

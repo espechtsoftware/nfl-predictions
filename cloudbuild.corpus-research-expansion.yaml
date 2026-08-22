@@ -1,0 +1,86 @@
+# Focused immutable build for the corpus source, 54x7 batch, realized grading,
+# and dedicated research-graph/UI expansion.  The accepted retrieval
+# continuation already retains the repository-wide suite evidence; this build
+# deliberately runs only the complete directly affected corpus workstream.
+steps:
+  - name: python:3.11-slim
+    id: focused-corpus-research-tests
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends git libgomp1
+        pip install --no-cache-dir '.[gcp,app,graph,dev]'
+        PYTHONPATH=src python -m pytest -q \
+          tests/test_corpus_retrieval_engine.py \
+          tests/test_corpus_retrieval_transport.py \
+          tests/test_corpus_artifact_source_authority.py \
+          tests/test_prepare_corpus_artifact_source_authority.py \
+          tests/test_corpus_artifact_source_transport.py \
+          tests/test_corpus_parametric_batch.py \
+          tests/test_corpus_batch_evidence_contract.py \
+          tests/test_corpus_legal_feasibility.py \
+          tests/test_corpus_legal_feasibility_verifier.py \
+          tests/test_prepare_corpus_parametric_batch_v1.py \
+          tests/test_corpus_parametric_transport.py \
+          tests/test_corpus_realized_grading.py \
+          tests/test_corpus_realized_outcome_transport.py \
+          tests/test_corpus_retrieval_neo4j.py \
+          tests/test_corpus_neo4j_transport.py \
+          tests/test_corpus_strategy_registry.py \
+          tests/test_corpus_research_ui.py \
+          tests/test_corpus_expansion_build.py
+  - name: gcr.io/cloud-builders/docker
+    id: build-image
+    args:
+      - build
+      - -f
+      - Dockerfile.corpus-research-expansion
+      - -t
+      - '${_IMAGE}'
+      - .
+  - name: gcr.io/cloud-builders/docker
+    id: smoke-corpus-artifact-source
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        docker run --rm '${_IMAGE}' python scripts/prepare_corpus_artifact_source_authority.py --help
+        docker run --rm '${_IMAGE}' python scripts/prepare_corpus_artifact_source_authority.py parked
+        docker run --rm '${_IMAGE}' python scripts/prepare_corpus_artifact_source_authority.py cloud-worker --help
+        docker run --rm '${_IMAGE}' python scripts/run_corpus_artifact_source_transport.py --help
+        docker run --rm '${_IMAGE}' python scripts/run_corpus_artifact_source_transport.py parked
+        docker run --rm '${_IMAGE}' bash -n scripts/cloud_corpus_artifact_source_v1_reuse.sh
+  - name: gcr.io/cloud-builders/docker
+    id: smoke-corpus-parametric-expansion
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        docker run --rm '${_IMAGE}' python scripts/run_corpus_parametric_transport.py --help
+        docker run --rm '${_IMAGE}' python scripts/run_corpus_parametric_transport.py parked
+        docker run --rm '${_IMAGE}' python scripts/prepare_corpus_parametric_batch_v1.py --help
+        docker run --rm '${_IMAGE}' python scripts/prepare_corpus_parametric_batch_v1.py solver-probe
+        docker run --rm '${_IMAGE}' bash -n scripts/cloud_corpus_parametric_v1_reuse.sh
+        docker run --rm '${_IMAGE}' python scripts/run_corpus_realized_outcomes.py --help
+        docker run --rm '${_IMAGE}' python -c 'import nfl_dfs.research.corpus_legal_feasibility; import nfl_dfs.research.corpus_legal_feasibility_verifier; import nfl_dfs.research.corpus_realized_grading; import nfl_dfs.research.corpus_realized_outcome_transport'
+  - name: gcr.io/cloud-builders/docker
+    id: smoke-corpus-neo4j-transport
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        docker run --rm '${_IMAGE}' python scripts/prepare_corpus_neo4j_load_manifest.py --help
+        docker run --rm '${_IMAGE}' python scripts/run_corpus_neo4j_transport.py --help
+        docker run --rm '${_IMAGE}' python scripts/run_corpus_neo4j_transport.py parked
+        docker run --rm '${_IMAGE}' bash -n scripts/cloud_corpus_neo4j_v1_reuse.sh
+        docker run --rm '${_IMAGE}' python -c 'import neo4j; import nfl_dfs.research.corpus_neo4j_transport; import nfl_dfs.research.corpus_strategy_registry; import nfl_dfs.app.corpus_research'
+images:
+  - '${_IMAGE}'
+substitutions:
+  _IMAGE: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion
+timeout: 10800s
+options:
+  logging: LEGACY
+  machineType: E2_HIGHCPU_8

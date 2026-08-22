@@ -46,6 +46,8 @@ from nfl_dfs.research.corpus_parametric_batch import (  # noqa: E402
 PROJECT: Final = "nfl-predictions-503414"
 LOCATION: Final = "US"
 ENABLE_ENV: Final = "CORPUS_ARTIFACT_SOURCE_AUTHORITY_ENABLED"
+IMAGE_ENV: Final = "CORPUS_ARTIFACT_SOURCE_IMAGE"
+CODE_ENV: Final = "CODE_SHA"
 
 PLAN_SCHEMA: Final = "corpus-artifact-source-publication-plan/v1"
 PREFIX_CLAIM_SCHEMA: Final = "corpus-artifact-source-prefix-claim/v1"
@@ -53,6 +55,11 @@ QUERY_CAPTURE_SCHEMA: Final = "corpus-artifact-source-query-capture/v1"
 PUBLICATION_COMPLETION_SCHEMA: Final = (
     "corpus-artifact-source-publication-completion/v1"
 )
+PRODUCER_GET_TRACE_SCHEMA: Final = "corpus-artifact-source-producer-get-trace/v1"
+PRODUCER_QUERY_TRACE_SCHEMA: Final = (
+    "corpus-artifact-source-producer-query-trace/v1"
+)
+LAUNCH_LEDGER_SCHEMA: Final = "corpus-artifact-source-launch-ledger/v1"
 
 SALARY_SQL_RELATIVE_PATH: Final = (
     "reports/corpus-parametric-runs/"
@@ -104,6 +111,9 @@ _PUBLICATION_COMPLETION_KEYS: Final = frozenset({
     "artifact_count",
     "artifact_reads",
     "artifact_list_used",
+    "producer_get_trace",
+    "producer_query_trace",
+    "producer_trace_complete_before_terminal_publication",
     "inventory_before_publication",
     "inventory_before_publication_sha256",
     "create_once",
@@ -370,6 +380,286 @@ def _bind_raw(
             f"{label} bytes differ from generation-pinned identity"
         )
     return normalized
+
+
+class _TracingStorageBoundary:
+    """Fail-closed, observed GET boundary for the source producer.
+
+    The delivered plan is the only bootstrap read.  Once parsed, the exact
+    base lock, its 270 retained artifact identities, and the nine deterministic
+    output names are the complete storage authority.  The trace is sealed
+    immediately before the terminal publication, and no producer GET occurs
+    after that seal.
+    """
+
+    def __init__(
+        self,
+        storage: StorageBoundary,
+        *,
+        delivered_plan_identity: Mapping[str, object] | None = None,
+        delivered_intent_identity: Mapping[str, object] | None = None,
+    ) -> None:
+        self._storage = storage
+        self._allowed_inputs: dict[tuple[str, str], dict[str, object]] = {}
+        self._allowed_outputs: set[str] = set()
+        self._output_uris: list[str] = []
+        self._published: dict[tuple[str, str], dict[str, object]] = {}
+        self._events: list[dict[str, object]] = []
+        self._absence_uris: list[str] | None = None
+        self._sealed = False
+        self._delivered_plan_identity = (
+            None
+            if delivered_plan_identity is None
+            else normalize_object_identity(
+                delivered_plan_identity, label="delivered trace plan"
+            )
+        )
+        self._delivered_intent_identity = (
+            None
+            if delivered_intent_identity is None
+            else normalize_object_identity(
+                delivered_intent_identity, label="delivered trace intent"
+            )
+        )
+        delivered = [
+            identity
+            for identity in (
+                self._delivered_plan_identity,
+                self._delivered_intent_identity,
+            )
+            if identity is not None
+        ]
+        if delivered:
+            self._authorize_inputs(delivered)
+
+    def _authorize_inputs(self, values: Sequence[Mapping[str, object]]) -> None:
+        if self._sealed:
+            raise CorpusArtifactSourcePreparationError(
+                "producer GET authority is already sealed"
+            )
+        for ordinal, value in enumerate(values):
+            identity = normalize_object_identity(
+                value, label=f"producer allowed input[{ordinal}]"
+            )
+            key = (str(identity["uri"]), str(identity["generation"]))
+            retained = self._allowed_inputs.get(key)
+            if retained is not None and retained != identity:
+                raise CorpusArtifactSourcePreparationError(
+                    "producer GET authority aliases one object generation"
+                )
+            self._allowed_inputs[key] = identity
+
+    def configure_plan(self, plan: Mapping[str, object]) -> None:
+        frozen = validate_execution_plan(plan)
+        self._authorize_inputs([
+            normalize_object_identity(
+                frozen["base_source_lock_object"], label="trace base source lock"
+            )
+        ])
+        output_uris = list(
+            _publication_uris(str(frozen["output_prefix"])).values()
+        )
+        outputs = set(output_uris)
+        if self._allowed_outputs and self._allowed_outputs != outputs:
+            raise CorpusArtifactSourcePreparationError(
+                "producer output authority cannot be replaced"
+            )
+        self._allowed_outputs = outputs
+        self._output_uris = output_uris
+
+    def authorize_artifacts(
+        self, receipts: Sequence[Mapping[str, object]]
+    ) -> None:
+        identities = [
+            {
+                key: receipt[key]
+                for key in ("uri", "generation", "sha256", "bytes")
+            }
+            for receipt in receipts
+        ]
+        self._authorize_inputs(identities)
+
+    def read(self, identity: Mapping[str, object]) -> bytes:
+        if self._sealed:
+            raise CorpusArtifactSourcePreparationError(
+                "producer attempted a GET after trace seal"
+            )
+        normalized = normalize_object_identity(identity, label="producer traced GET")
+        key = (str(normalized["uri"]), str(normalized["generation"]))
+        allowed = self._allowed_inputs.get(key) or self._published.get(key)
+        if allowed != normalized:
+            raise CorpusArtifactSourcePreparationError(
+                f"producer GET is outside exact authority: {normalized['uri']}"
+            )
+        raw = self._storage.read(normalized)
+        _bind_raw(raw, normalized, label="producer traced GET body")
+        self._events.append({
+            "ordinal": len(self._events),
+            "identity": normalized,
+        })
+        return raw
+
+    def publish(self, uri: str, raw: bytes) -> Mapping[str, object]:
+        terminal_after_seal = (
+            self._sealed
+            and bool(self._output_uris)
+            and uri == self._output_uris[-1]
+        )
+        if (
+            uri not in self._allowed_outputs
+            or (self._sealed and not terminal_after_seal)
+        ):
+            raise CorpusArtifactSourcePreparationError(
+                f"producer publication is outside exact authority: {uri}"
+            )
+        if any(identity["uri"] == uri for identity in self._published.values()):
+            raise CorpusArtifactSourcePreparationError(
+                f"producer publication repeats deterministic URI: {uri}"
+            )
+        identity = normalize_object_identity(
+            self._storage.publish(uri, raw), label="producer traced publication"
+        )
+        _bind_raw(raw, identity, label="producer traced publication body")
+        if identity["uri"] != uri:
+            raise CorpusArtifactSourcePreparationError(
+                "producer publication URI alias differs"
+            )
+        key = (str(identity["uri"]), str(identity["generation"]))
+        self._published[key] = identity
+        return identity
+
+    def require_absent(self, uris: Sequence[str]) -> None:
+        expected = list(self._output_uris)
+        observed = list(uris)
+        if (
+            self._sealed
+            or self._absence_uris is not None
+            or observed != expected
+        ):
+            raise CorpusArtifactSourcePreparationError(
+                "producer exact-name absence boundary differs"
+            )
+        self._storage.require_absent(observed)
+        self._absence_uris = observed
+
+    def seal_trace(self) -> dict[str, object]:
+        if self._sealed or self._absence_uris is None:
+            raise CorpusArtifactSourcePreparationError(
+                "producer GET trace cannot be sealed"
+            )
+        self._sealed = True
+        body = {
+            "schema": PRODUCER_GET_TRACE_SCHEMA,
+            "delivered_plan_object": self._delivered_plan_identity,
+            "delivered_intent_object": self._delivered_intent_identity,
+            "events": list(self._events),
+            "event_count": len(self._events),
+            "events_sha256": canonical_sha256(self._events),
+            "absence_check_uris": list(self._absence_uris),
+            "object_list_used": False,
+            "complete": True,
+        }
+        return _self_hash(body, field="trace_sha256")
+
+    @property
+    def delivered_plan_identity(self) -> Mapping[str, object] | None:
+        return self._delivered_plan_identity
+
+    @property
+    def delivered_intent_identity(self) -> Mapping[str, object] | None:
+        return self._delivered_intent_identity
+
+
+class _TracingQueryBoundary:
+    """Restrict and record the exact three registered query operations."""
+
+    def __init__(
+        self, query: QueryBoundary, *, registration: Mapping[str, object]
+    ) -> None:
+        self._query = query
+        self._identities = _query_identities(registration)
+        self._specs = _query_specs(registration)
+        self._events: list[dict[str, object]] = []
+        self._absence_checked = False
+        self._next_role = 0
+        self._sealed = False
+
+    def require_unused_job_ids(self, job_ids: Sequence[str]) -> None:
+        expected = [str(self._identities[role]["job_id"]) for role in QUERY_ROLES]
+        if self._sealed or self._absence_checked or list(job_ids) != expected:
+            raise CorpusArtifactSourcePreparationError(
+                "producer query-ID absence authority differs"
+            )
+        self._query.require_unused_job_ids(job_ids)
+        for job_id in expected:
+            self._events.append({
+                "ordinal": len(self._events),
+                "operation": "require-unused-job-id",
+                "job_id": job_id,
+            })
+        self._absence_checked = True
+
+    def run_query(
+        self,
+        *,
+        sql: str,
+        query_identity: Mapping[str, object],
+        parameters: Sequence[Mapping[str, object]],
+    ) -> QueryOutcome:
+        if (
+            self._sealed
+            or not self._absence_checked
+            or self._next_role >= len(QUERY_ROLES)
+        ):
+            raise CorpusArtifactSourcePreparationError(
+                "producer query sequence differs"
+            )
+        role = QUERY_ROLES[self._next_role]
+        expected_sql, expected_parameters = self._specs[role]
+        if (
+            dict(query_identity) != self._identities[role]
+            or sql != expected_sql
+            or list(parameters) != list(expected_parameters)
+        ):
+            raise CorpusArtifactSourcePreparationError(
+                f"producer query authority differs for {role}"
+            )
+        outcome = self._query.run_query(
+            sql=sql,
+            query_identity=query_identity,
+            parameters=parameters,
+        )
+        receipt = dict(_mapping(outcome.receipt, label=f"{role} query receipt"))
+        self._events.append({
+            "ordinal": len(self._events),
+            "operation": "run-query",
+            "role": role,
+            "job_id": query_identity["job_id"],
+            "sql_sha256": sha256(sql.encode("utf-8")).hexdigest(),
+            "parameters_sha256": canonical_sha256(list(parameters)),
+            "receipt_sha256": canonical_sha256(receipt),
+        })
+        self._next_role += 1
+        return outcome
+
+    def seal_trace(self) -> dict[str, object]:
+        if (
+            self._sealed
+            or not self._absence_checked
+            or self._next_role != len(QUERY_ROLES)
+        ):
+            raise CorpusArtifactSourcePreparationError(
+                "producer query trace is incomplete"
+            )
+        self._sealed = True
+        body = {
+            "schema": PRODUCER_QUERY_TRACE_SCHEMA,
+            "events": list(self._events),
+            "event_count": len(self._events),
+            "events_sha256": canonical_sha256(self._events),
+            "complete": True,
+        }
+        return _self_hash(body, field="trace_sha256")
 
 
 def require_execute_gate(*, execute: bool, environ: Mapping[str, str]) -> None:
@@ -1189,6 +1479,177 @@ def _query_specs(
     }
 
 
+def validate_producer_get_trace(
+    value: object,
+    *,
+    delivered_plan_identity: Mapping[str, object] | None,
+    delivered_intent_identity: Mapping[str, object] | None,
+    plan: Mapping[str, object],
+    artifact_receipts: Sequence[Mapping[str, object]],
+    publication_identities: Mapping[str, Mapping[str, object]],
+) -> dict[str, object]:
+    """Replay the complete producer GET sequence before terminal publication."""
+    item = dict(_mapping(value, label="producer GET trace"))
+    _exact_keys(
+        item,
+        frozenset({
+            "schema", "delivered_plan_object", "delivered_intent_object",
+            "events", "event_count", "events_sha256", "absence_check_uris",
+            "object_list_used", "complete", "trace_sha256",
+        }),
+        label="producer GET trace",
+    )
+    _validate_self_hash(item, field="trace_sha256", label="producer GET trace")
+    frozen_plan = validate_execution_plan(plan)
+    expected_plan = (
+        None
+        if delivered_plan_identity is None
+        else normalize_object_identity(
+            delivered_plan_identity, label="expected delivered plan"
+        )
+    )
+    expected_intent = (
+        None
+        if delivered_intent_identity is None
+        else normalize_object_identity(
+            delivered_intent_identity, label="expected delivered intent"
+        )
+    )
+    roles_before_terminal = (
+        "prefix_claim", "registration", *QUERY_ROLES,
+        "later_source_freeze", "salary_diagnostic",
+        "source_authority_completion",
+    )
+    retained_publications = {
+        role: normalize_object_identity(
+            publication_identities[role], label=f"producer trace {role}"
+        )
+        for role in roles_before_terminal
+    }
+    artifact_identities = [
+        normalize_object_identity(
+            {key: receipt[key] for key in ("uri", "generation", "sha256", "bytes")},
+            label=f"producer trace artifact[{ordinal}]",
+        )
+        for ordinal, receipt in enumerate(artifact_receipts)
+    ]
+    if len(artifact_identities) != authority.EXPECTED_ARTIFACT_COUNT:
+        raise CorpusArtifactSourcePreparationError(
+            "producer trace artifact authority is incomplete"
+        )
+    expected_sequence = [
+        *([] if expected_plan is None else [expected_plan]),
+        *([] if expected_intent is None else [expected_intent]),
+        normalize_object_identity(
+            frozen_plan["base_source_lock_object"], label="producer trace base lock"
+        ),
+        retained_publications["prefix_claim"],
+        retained_publications["registration"],
+        *(retained_publications[role] for role in QUERY_ROLES),
+        retained_publications["later_source_freeze"],
+        retained_publications["salary_diagnostic"],
+        *artifact_identities,
+        retained_publications["source_authority_completion"],
+        *(retained_publications[role] for role in roles_before_terminal),
+    ]
+    raw_events = _sequence(item["events"], label="producer GET events")
+    events: list[dict[str, object]] = []
+    for ordinal, raw in enumerate(raw_events):
+        event = dict(_mapping(raw, label=f"producer GET event[{ordinal}]"))
+        _exact_keys(
+            event, frozenset({"ordinal", "identity"}),
+            label=f"producer GET event[{ordinal}]",
+        )
+        identity = normalize_object_identity(
+            event["identity"], label=f"producer GET event[{ordinal}] identity"
+        )
+        if event["ordinal"] != ordinal:
+            raise CorpusArtifactSourcePreparationError(
+                "producer GET trace ordinal differs"
+            )
+        events.append({"ordinal": ordinal, "identity": identity})
+    if (
+        item["schema"] != PRODUCER_GET_TRACE_SCHEMA
+        or item["delivered_plan_object"] != expected_plan
+        or item["delivered_intent_object"] != expected_intent
+        or [event["identity"] for event in events] != expected_sequence
+        or item["event_count"] != len(expected_sequence)
+        or item["events_sha256"] != canonical_sha256(events)
+        or item["absence_check_uris"]
+        != list(_publication_uris(str(frozen_plan["output_prefix"])).values())
+        or item["object_list_used"] is not False
+        or item["complete"] is not True
+    ):
+        raise CorpusArtifactSourcePreparationError(
+            "producer GET trace is incomplete, extra, or reordered"
+        )
+    item["events"] = events
+    return item
+
+
+def validate_producer_query_trace(
+    value: object,
+    *,
+    registration: Mapping[str, object],
+    captures: Mapping[str, Mapping[str, object]],
+) -> dict[str, object]:
+    """Replay the exact absence-check and fixed-query call sequence."""
+    item = dict(_mapping(value, label="producer query trace"))
+    _exact_keys(
+        item,
+        frozenset({
+            "schema", "events", "event_count", "events_sha256", "complete",
+            "trace_sha256",
+        }),
+        label="producer query trace",
+    )
+    _validate_self_hash(
+        item, field="trace_sha256", label="producer query trace"
+    )
+    identities = _query_identities(registration)
+    specs = _query_specs(registration)
+    expected: list[dict[str, object]] = []
+    for role in QUERY_ROLES:
+        expected.append({
+            "ordinal": len(expected),
+            "operation": "require-unused-job-id",
+            "job_id": identities[role]["job_id"],
+        })
+    for role in QUERY_ROLES:
+        sql, parameters = specs[role]
+        capture = _mapping(captures[role], label=f"query trace {role} capture")
+        receipt = _mapping(
+            capture["query_receipt"], label=f"query trace {role} receipt"
+        )
+        expected.append({
+            "ordinal": len(expected),
+            "operation": "run-query",
+            "role": role,
+            "job_id": identities[role]["job_id"],
+            "sql_sha256": sha256(sql.encode("utf-8")).hexdigest(),
+            "parameters_sha256": canonical_sha256(list(parameters)),
+            "receipt_sha256": canonical_sha256(dict(receipt)),
+        })
+    events = [
+        dict(_mapping(raw, label=f"producer query event[{ordinal}]"))
+        for ordinal, raw in enumerate(
+            _sequence(item["events"], label="producer query events")
+        )
+    ]
+    if (
+        item["schema"] != PRODUCER_QUERY_TRACE_SCHEMA
+        or events != expected
+        or item["event_count"] != len(expected)
+        or item["events_sha256"] != canonical_sha256(expected)
+        or item["complete"] is not True
+    ):
+        raise CorpusArtifactSourcePreparationError(
+            "producer query trace is incomplete, extra, or reordered"
+        )
+    item["events"] = events
+    return item
+
+
 def _build_publication_completion(
     *,
     plan: Mapping[str, object],
@@ -1203,6 +1664,8 @@ def _build_publication_completion(
     completion_identity: Mapping[str, object],
     completion: Mapping[str, object],
     inventory_before_publication: Sequence[Mapping[str, object]],
+    producer_get_trace: Mapping[str, object],
+    producer_query_trace: Mapping[str, object],
 ) -> dict[str, object]:
     body = {
         "schema": PUBLICATION_COMPLETION_SCHEMA,
@@ -1233,6 +1696,9 @@ def _build_publication_completion(
         "artifact_count": authority.EXPECTED_ARTIFACT_COUNT,
         "artifact_reads": "exact-generation-get-only-one-at-a-time",
         "artifact_list_used": False,
+        "producer_get_trace": dict(producer_get_trace),
+        "producer_query_trace": dict(producer_query_trace),
+        "producer_trace_complete_before_terminal_publication": True,
         "inventory_before_publication": list(inventory_before_publication),
         "inventory_before_publication_sha256": canonical_sha256(
             list(inventory_before_publication)
@@ -1245,6 +1711,35 @@ def _build_publication_completion(
         "live_strategy_authority": False,
     }
     return _self_hash(body, field="publication_completion_sha256")
+
+
+def _validate_trace_envelope(
+    value: object, *, schema: str, label: str
+) -> dict[str, object]:
+    item = dict(_mapping(value, label=label))
+    expected_keys = (
+        frozenset({
+            "schema", "delivered_plan_object", "delivered_intent_object",
+            "events", "event_count", "events_sha256", "absence_check_uris",
+            "object_list_used", "complete", "trace_sha256",
+        })
+        if schema == PRODUCER_GET_TRACE_SCHEMA
+        else frozenset({
+            "schema", "events", "event_count", "events_sha256", "complete",
+            "trace_sha256",
+        })
+    )
+    _exact_keys(item, expected_keys, label=label)
+    _validate_self_hash(item, field="trace_sha256", label=label)
+    events = list(_sequence(item["events"], label=f"{label} events"))
+    if (
+        item["schema"] != schema
+        or item["event_count"] != len(events)
+        or item["events_sha256"] != canonical_sha256(events)
+        or item["complete"] is not True
+    ):
+        raise CorpusArtifactSourcePreparationError(f"{label} envelope differs")
+    return item
 
 
 def validate_publication_completion_bytes(raw: bytes) -> dict[str, object]:
@@ -1279,6 +1774,7 @@ def validate_publication_completion_bytes(raw: bytes) -> dict[str, object]:
         or item["artifact_reads"]
         != "exact-generation-get-only-one-at-a-time"
         or item["artifact_list_used"] is not False
+        or item["producer_trace_complete_before_terminal_publication"] is not True
         or item["create_once"] is not True
         or item["outcome_columns_read"] != []
         or item["uses_realized_outcomes"] is not False
@@ -1289,6 +1785,16 @@ def validate_publication_completion_bytes(raw: bytes) -> dict[str, object]:
         raise CorpusArtifactSourcePreparationError(
             "source publication completion authority differs"
         )
+    item["producer_get_trace"] = _validate_trace_envelope(
+        item["producer_get_trace"],
+        schema=PRODUCER_GET_TRACE_SCHEMA,
+        label="producer GET trace",
+    )
+    item["producer_query_trace"] = _validate_trace_envelope(
+        item["producer_query_trace"],
+        schema=PRODUCER_QUERY_TRACE_SCHEMA,
+        label="producer query trace",
+    )
     _sha(item["plan_sha256"], label="publication plan SHA")
     registration_sha = _sha(
         item["registration_sha256"], label="publication registration SHA"
@@ -1426,7 +1932,13 @@ def execute_authority(
     frozen_plan = validate_execution_plan(plan)
 
     # Source and namespace validity are proven before the first publication.
-    storage = storage_factory()
+    raw_storage = storage_factory()
+    storage = (
+        raw_storage
+        if isinstance(raw_storage, _TracingStorageBoundary)
+        else _TracingStorageBoundary(raw_storage)
+    )
+    storage.configure_plan(frozen_plan)
     base_identity = normalize_object_identity(
         frozen_plan["base_source_lock_object"], label="base source lock"
     )
@@ -1452,6 +1964,7 @@ def execute_authority(
         raise CorpusArtifactSourcePreparationError(
             "base source-lock artifact manifest differs from plan"
         )
+    storage.authorize_artifacts(base_receipts)
     prefix = str(frozen_plan["output_prefix"])
     uris = frozen_plan["publication_uris"]
     storage.require_absent([str(uris[key]) for key in _publication_uris(prefix)])
@@ -1477,7 +1990,9 @@ def execute_authority(
 
     # Constructing the query client and every query operation happens only
     # after the generation-pinned registration has been published/reopened.
-    query_boundary = query_factory()
+    query_boundary = _TracingQueryBoundary(
+        query_factory(), registration=registration
+    )
     query_identities = _query_identities(registration)
     job_ids = [str(query_identities[role]["job_id"]) for role in QUERY_ROLES]
     query_boundary.require_unused_job_ids(job_ids)
@@ -1597,6 +2112,32 @@ def execute_authority(
     _reopen_exact_publications(storage, before_publications)
     before_publication_identities = [row[0] for row in before_publications]
     expected_before = _inventory_rows(before_publication_identities)
+    producer_get_trace = storage.seal_trace()
+    producer_query_trace = query_boundary.seal_trace()
+    validate_producer_get_trace(
+        producer_get_trace,
+        delivered_plan_identity=storage.delivered_plan_identity,
+        delivered_intent_identity=storage.delivered_intent_identity,
+        plan=frozen_plan,
+        artifact_receipts=base_receipts,
+        publication_identities={
+            role: identity
+            for role, identity in zip(
+                (
+                    "prefix_claim", "registration", *QUERY_ROLES,
+                    "later_source_freeze", "salary_diagnostic",
+                    "source_authority_completion",
+                ),
+                before_publication_identities,
+                strict=True,
+            )
+        },
+    )
+    validate_producer_query_trace(
+        producer_query_trace,
+        registration=registration,
+        captures=captures,
+    )
     publication = _build_publication_completion(
         plan=frozen_plan,
         claim_identity=claim_identity,
@@ -1610,6 +2151,8 @@ def execute_authority(
         completion_identity=completion_identity,
         completion=completion,
         inventory_before_publication=expected_before,
+        producer_get_trace=producer_get_trace,
+        producer_query_trace=producer_query_trace,
     )
     publication_raw = canonical_json_bytes(publication)
     publication = validate_publication_completion_bytes(publication_raw)
@@ -1617,15 +2160,10 @@ def execute_authority(
         storage.publish(str(uris["publication_completion"]), publication_raw),
         label="published transport completion",
     )
-    if storage.read(publication_identity) != publication_raw:
-        raise CorpusArtifactSourcePreparationError(
-            "published transport completion did not reopen byte-identically"
-        )
     final_publications = [
         *before_publications,
         (publication_identity, publication_raw),
     ]
-    _reopen_exact_publications(storage, final_publications)
     final_identities = [row[0] for row in final_publications]
     final_inventory = _inventory_rows(final_identities)
     return {
@@ -1646,7 +2184,214 @@ def execute_authority(
         "artifact_streamed_one_at_a_time": True,
         "final_object_count": len(final_inventory),
         "final_inventory_sha256": canonical_sha256(final_inventory),
+        "producer_get_trace_sha256": producer_get_trace["trace_sha256"],
+        "producer_query_trace_sha256": producer_query_trace["trace_sha256"],
         "uses_realized_outcomes": False,
+    }
+
+
+_LAUNCH_LEDGER_KEYS: Final = frozenset({
+    "schema_version", "created_at_utc", "transport_contract", "plan_object",
+    "run_id", "job", "execution_names_before", "worker_args",
+    "worker_args_sha256", "launch_authority_consumed", "one_execution",
+    "max_retries", "automatic_retry_licensed", "uses_realized_outcomes",
+    "production_change_licensed", "launch_ledger_sha256",
+    "execution_intent", "intent_nonce",
+})
+
+
+def _cloud_worker_base_args(plan_identity: Mapping[str, object]) -> list[str]:
+    plan = normalize_object_identity(plan_identity, label="worker plan identity")
+    return [
+        "scripts/prepare_corpus_artifact_source_authority.py",
+        "cloud-worker",
+        "--plan-uri", str(plan["uri"]),
+        "--plan-generation", str(plan["generation"]),
+        "--plan-sha256", str(plan["sha256"]),
+        "--plan-bytes", str(plan["bytes"]),
+    ]
+
+
+def _validate_execution_intent(
+    value: object,
+    *,
+    intent_identity: Mapping[str, object],
+    plan_identity: Mapping[str, object],
+    plan: Mapping[str, object],
+) -> dict[str, object]:
+    """Validate the consumed one-launch ledger without importing transport."""
+    item = dict(_mapping(value, label="source execution intent"))
+    _exact_keys(item, _LAUNCH_LEDGER_KEYS, label="source execution intent")
+    _validate_self_hash(
+        item, field="launch_ledger_sha256", label="source execution intent"
+    )
+    retained_plan = normalize_object_identity(
+        plan_identity, label="execution-intent plan"
+    )
+    retained_intent = normalize_object_identity(
+        intent_identity, label="execution-intent object"
+    )
+    plan_uri = str(retained_plan["uri"])
+    suffix = "input/publication-plan.json"
+    if not plan_uri.endswith(suffix):
+        raise CorpusArtifactSourcePreparationError(
+            "execution-intent plan URI differs"
+        )
+    delivery_prefix = plan_uri[: -len(suffix)]
+    if (
+        retained_intent["uri"]
+        != f"{delivery_prefix}governance/launch-ledger.json"
+    ):
+        raise CorpusArtifactSourcePreparationError(
+            "execution-intent object URI differs"
+        )
+    contract_identity = normalize_object_identity(
+        item["transport_contract"], label="execution-intent contract"
+    )
+    if (
+        contract_identity["uri"]
+        != f"{delivery_prefix}governance/transport-contract.json"
+    ):
+        raise CorpusArtifactSourcePreparationError(
+            "execution-intent contract URI differs"
+        )
+    job = dict(_mapping(item["job"], label="execution-intent job"))
+    _exact_keys(
+        job,
+        frozenset({
+            "name", "uid", "generation", "observed_generation",
+            "spec_sha256",
+        }),
+        label="execution-intent job",
+    )
+    generation = _string(job["generation"], label="execution-intent generation")
+    names = list(
+        _sequence(
+            item["execution_names_before"],
+            label="execution-intent execution names",
+        )
+    )
+    expected_args = _cloud_worker_base_args(retained_plan)
+    expected_nonce = canonical_sha256({
+        "transport_contract": contract_identity,
+        "plan_object": retained_plan,
+        "job": job,
+        "run_id": plan["run_id"],
+    })
+    if (
+        item["schema_version"] != LAUNCH_LEDGER_SCHEMA
+        or item["plan_object"] != retained_plan
+        or item["run_id"] != plan["run_id"]
+        or job["name"] != plan["runtime_identity"]["job"]
+        or type(job["uid"]) is not str
+        or not job["uid"]
+        or _GENERATION.fullmatch(generation) is None
+        or job["observed_generation"] != generation
+        or _SHA256.fullmatch(str(job["spec_sha256"])) is None
+        or names != sorted(names)
+        or len(names) != len(set(names))
+        or any(type(name) is not str or _RUN_ID.fullmatch(name) is None for name in names)
+        or item["worker_args"] != expected_args
+        or item["worker_args_sha256"] != canonical_sha256(expected_args)
+        or item["launch_authority_consumed"] is not True
+        or item["execution_intent"] is not True
+        or item["intent_nonce"] != expected_nonce
+        or item["one_execution"] is not True
+        or item["max_retries"] != 0
+        or item["automatic_retry_licensed"] is not False
+        or item["uses_realized_outcomes"] is not False
+        or item["production_change_licensed"] is not False
+    ):
+        raise CorpusArtifactSourcePreparationError(
+            "execution-intent launch binding differs"
+        )
+    _timestamp(item["created_at_utc"], label="execution-intent timestamp")
+    item["transport_contract"] = contract_identity
+    item["plan_object"] = retained_plan
+    item["job"] = job
+    item["execution_names_before"] = names
+    return item
+
+
+def execute_cloud_worker(
+    *,
+    plan_identity: object,
+    intent_identity: object,
+    execute: bool,
+    environ: Mapping[str, str],
+    storage_factory: Callable[[], StorageBoundary],
+    query_factory: Callable[[], QueryBoundary],
+) -> dict[str, object]:
+    """Generation-GET one delivered plan and execute through that GCS seam.
+
+    This is the only Cloud Run worker entry point.  The literal/environment
+    gate precedes construction of either cloud client.  The delivered plan is
+    content-addressed, canonical, outside its nine-object output prefix, and
+    bound to the immutable image/code/job observed by the runtime.
+    """
+    require_execute_gate(execute=execute, environ=environ)
+    execution_id = environ.get("CLOUD_RUN_EXECUTION", "")
+    if (
+        environ.get("CLOUD_RUN_TASK_INDEX") != "0"
+        or environ.get("CLOUD_RUN_TASK_COUNT") != "1"
+        or environ.get("CLOUD_RUN_TASK_ATTEMPT") != "0"
+        or _RUN_ID.fullmatch(execution_id) is None
+    ):
+        raise CorpusArtifactSourcePreparationError(
+            "Cloud Run task/execution runtime binding differs"
+        )
+    normalized_identity = normalize_object_identity(
+        plan_identity, label="delivered source publication plan"
+    )
+    normalized_intent_identity = normalize_object_identity(
+        intent_identity, label="delivered source execution intent"
+    )
+    storage = _TracingStorageBoundary(
+        storage_factory(),
+        delivered_plan_identity=normalized_identity,
+        delivered_intent_identity=normalized_intent_identity,
+    )
+    raw = storage.read(normalized_identity)
+    plan = validate_execution_plan(
+        parse_canonical_json_bytes(raw, label="delivered source publication plan")
+    )
+    if str(normalized_identity["uri"]).startswith(str(plan["output_prefix"])):
+        raise CorpusArtifactSourcePreparationError(
+            "delivered plan must be outside the nine-object source prefix"
+        )
+    intent_raw = storage.read(normalized_intent_identity)
+    intent = _validate_execution_intent(
+        parse_canonical_json_bytes(
+            intent_raw, label="delivered source execution intent"
+        ),
+        intent_identity=normalized_intent_identity,
+        plan_identity=normalized_identity,
+        plan=plan,
+    )
+    storage.configure_plan(plan)
+    runtime = _mapping(plan["runtime_identity"], label="plan runtime identity")
+    expected_runtime = {
+        "CLOUD_RUN_JOB": runtime["job"],
+        IMAGE_ENV: runtime["image"],
+        CODE_ENV: runtime["code_sha"],
+    }
+    if any(environ.get(key) != value for key, value in expected_runtime.items()):
+        raise CorpusArtifactSourcePreparationError(
+            "Cloud Run image/code/job runtime binding differs"
+        )
+    result = execute_authority(
+        plan=plan,
+        execute=True,
+        environ=environ,
+        storage_factory=lambda: storage,
+        query_factory=query_factory,
+    )
+    return {
+        **result,
+        "delivered_plan_object": normalized_identity,
+        "delivered_plan_sha256": plan["plan_sha256"],
+        "execution_intent_object": normalized_intent_identity,
+        "execution_intent_sha256": intent["launch_ledger_sha256"],
     }
 
 
@@ -1701,12 +2446,7 @@ class GCSStorage:
             raise CorpusArtifactSourcePreparationError(
                 "create-once GCS publication failed"
             ) from exc
-        identity = _identity_for_raw(uri, generation, raw)
-        if self.read(identity) != raw:
-            raise CorpusArtifactSourcePreparationError(
-                "create-once GCS publication did not reopen byte-identically"
-            )
-        return identity
+        return _identity_for_raw(uri, generation, raw)
 
     def require_absent(self, uris: Sequence[str]) -> None:
         """Prove every deterministic output name absent without bucket LIST."""
@@ -1854,6 +2594,18 @@ def parser() -> argparse.ArgumentParser:
     execute = commands.add_parser("execute", help="run one create-once authority")
     execute.add_argument("--plan", type=Path, required=True)
     execute.add_argument("--execute", action="store_true")
+    worker = commands.add_parser(
+        "cloud-worker", help="generation-pinned Cloud Run plan worker"
+    )
+    worker.add_argument("--plan-uri", required=True)
+    worker.add_argument("--plan-generation", required=True)
+    worker.add_argument("--plan-sha256", required=True)
+    worker.add_argument("--plan-bytes", type=int, required=True)
+    worker.add_argument("--intent-uri", required=True)
+    worker.add_argument("--intent-generation", required=True)
+    worker.add_argument("--intent-sha256", required=True)
+    worker.add_argument("--intent-bytes", type=int, required=True)
+    worker.add_argument("--execute", action="store_true")
     return root
 
 
@@ -1899,6 +2651,28 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         print(canonical_json_bytes(result).decode("utf-8"))
         return 0
+    if args.command == "cloud-worker":
+        # The worker function gates before constructing either cloud client.
+        result = execute_cloud_worker(
+            plan_identity={
+                "uri": args.plan_uri,
+                "generation": args.plan_generation,
+                "sha256": args.plan_sha256,
+                "bytes": args.plan_bytes,
+            },
+            intent_identity={
+                "uri": args.intent_uri,
+                "generation": args.intent_generation,
+                "sha256": args.intent_sha256,
+                "bytes": args.intent_bytes,
+            },
+            execute=args.execute,
+            environ=os.environ,
+            storage_factory=lambda: GCSStorage(project=PROJECT),
+            query_factory=lambda: BigQueryBoundary(project=PROJECT),
+        )
+        print(canonical_json_bytes(result).decode("utf-8"))
+        return 0
     raise CorpusArtifactSourcePreparationError("command differs")
 
 
@@ -1909,6 +2683,7 @@ __all__ = [
     "PLAN_SCHEMA",
     "PUBLICATION_COMPLETION_SCHEMA",
     "build_execution_plan",
+    "execute_cloud_worker",
     "execute_authority",
     "validate_execution_plan",
     "validate_publication_completion_bytes",

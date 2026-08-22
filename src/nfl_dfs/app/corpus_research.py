@@ -33,7 +33,7 @@ router = APIRouter(tags=["corpus research"])
 
 UI_PROJECTION_SCHEMA: Final = "corpus-research-ui-projection/v1"
 UI_QUERY_RECEIPT_SCHEMA: Final = "corpus-research-ui-query-receipt/v1"
-SOURCE_PROJECTION_SCHEMA: Final = "corpus-strategy-registry-projection/v1"
+SOURCE_PROJECTION_SCHEMA: Final = "corpus-strategy-registry-projection/v2"
 REGISTRY_NAMESPACE: Final = "corpus-strategy-registry"
 PROJECTION_PATH_ENV: Final = "CORPUS_RESEARCH_UI_PROJECTION_PATH"
 MAX_PROJECTION_BYTES: Final = 32 * 1024 * 1024
@@ -198,7 +198,7 @@ def _validate_source_receipt(value: object) -> dict[str, object]:
         or _ID.fullmatch(registry_id) is None
         or namespace != REGISTRY_NAMESPACE
         or receipt.get("publication_mode") != "create_once"
-        or receipt.get("requires_p0_manifest_namespace_v2") is not True
+        or receipt.get("manifest_namespace_v2_authorized") is not True
     ):
         raise CorpusResearchProjectionError(
             "source projection registry identity differs"

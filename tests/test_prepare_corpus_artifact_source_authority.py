@@ -39,17 +39,24 @@ def module() -> ModuleType:
     return imported
 
 
-def _base_source_lock(module: ModuleType) -> tuple[bytes, dict[str, object]]:
+def _base_source_lock(
+    module: ModuleType, *, synthetic_artifacts: bool = False,
+) -> tuple[bytes, dict[str, object]]:
     receipts: list[dict[str, object]] = []
     for season, week in later.EXPECTED_SLATE_KEYS:
         for seed, _block in enumerate(rw.WORLD_BLOCKS):
-            artifact_sha = sha256(
-                f"{season}-{week}-{seed}".encode("ascii")
-            ).hexdigest()
+            artifact_raw = (
+                f"npz-{len(receipts):03d}-{TASK_WORLD_SOURCE_ROLES[seed]}"
+            ).encode("ascii")
+            artifact_sha = (
+                sha256(artifact_raw).hexdigest()
+                if synthetic_artifacts
+                else sha256(f"{season}-{week}-{seed}".encode("ascii")).hexdigest()
+            )
             if (season, week, rw.WORLD_BLOCKS[seed]) == later.REPAIRED_R3_KEY:
                 artifact_sha = later.REPAIRED_R3_SHA256
             receipts.append({
-                "bytes": 11 + seed,
+                "bytes": len(artifact_raw) if synthetic_artifacts else 11 + seed,
                 "candidate_rows": 1,
                 "generation": str(100_000 + len(receipts)),
                 "panel_run_id": later.SOURCE_PANELS[seed],
@@ -87,7 +94,15 @@ def _base_source_lock(module: ModuleType) -> tuple[bytes, dict[str, object]]:
 def _plan(
     module: ModuleType, monkeypatch: pytest.MonkeyPatch,
 ) -> tuple[dict[str, object], bytes, dict[str, object]]:
-    base_raw, base_identity = _base_source_lock(module)
+    repaired_ordinal = later.EXPECTED_ARTIFACT_KEYS.index(later.REPAIRED_R3_KEY)
+    repaired_role = TASK_WORLD_SOURCE_ROLES[repaired_ordinal % 5]
+    repaired_raw = f"npz-{repaired_ordinal:03d}-{repaired_role}".encode("ascii")
+    monkeypatch.setattr(
+        later, "REPAIRED_R3_SHA256", sha256(repaired_raw).hexdigest()
+    )
+    base_raw, base_identity = _base_source_lock(
+        module, synthetic_artifacts=True
+    )
     monkeypatch.setattr(module, "BASE_SOURCE_OBJECT", base_identity)
     plan = module.build_execution_plan(
         run_id="20260821-artifact-source-test-v1",
@@ -103,6 +118,61 @@ def _plan(
         base_source_lock_bytes=base_raw,
     )
     return plan, base_raw, base_identity
+
+
+def _execution_intent(
+    module: ModuleType,
+    *,
+    plan: Mapping[str, object],
+    plan_identity: Mapping[str, object],
+) -> tuple[dict[str, object], bytes, dict[str, object]]:
+    delivery_prefix = str(plan_identity["uri"]).removesuffix(
+        "input/publication-plan.json"
+    )
+    contract_identity = {
+        "uri": f"{delivery_prefix}governance/transport-contract.json",
+        "generation": "54",
+        "sha256": "c" * 64,
+        "bytes": 100,
+    }
+    job = {
+        "name": plan["runtime_identity"]["job"],
+        "uid": "source-job-uid",
+        "generation": "5",
+        "observed_generation": "5",
+        "spec_sha256": "d" * 64,
+    }
+    worker_args = module._cloud_worker_base_args(plan_identity)
+    body = {
+        "schema_version": module.LAUNCH_LEDGER_SCHEMA,
+        "created_at_utc": "2026-08-21T00:00:00+00:00",
+        "transport_contract": contract_identity,
+        "plan_object": dict(plan_identity),
+        "run_id": plan["run_id"],
+        "job": job,
+        "execution_names_before": ["source-prior-execution"],
+        "worker_args": worker_args,
+        "worker_args_sha256": module.canonical_sha256(worker_args),
+        "launch_authority_consumed": True,
+        "execution_intent": True,
+        "intent_nonce": module.canonical_sha256({
+            "transport_contract": contract_identity,
+            "plan_object": dict(plan_identity),
+            "job": job,
+            "run_id": plan["run_id"],
+        }),
+        "one_execution": True,
+        "max_retries": 0,
+        "automatic_retry_licensed": False,
+        "uses_realized_outcomes": False,
+        "production_change_licensed": False,
+    }
+    intent = module._self_hash(body, field="launch_ledger_sha256")
+    raw = module.canonical_json_bytes(intent)
+    identity = module._identity_for_raw(
+        f"{delivery_prefix}governance/launch-ledger.json", "56", raw
+    )
+    return intent, raw, identity
 
 
 def _query_rows(role: str) -> tuple[dict[str, object], ...]:
@@ -164,9 +234,13 @@ def _fake_source_freeze() -> tuple[dict[str, object], dict[tuple[str, str], byte
         for role, block in zip(
             TASK_WORLD_SOURCE_ROLES, rw.WORLD_BLOCKS, strict=True
         ):
-            raw = f"npz-{task_index:03d}-{role}".encode("ascii")
-            uri = f"gs://artifact-bodies/task-{task_index:03d}/{role}.npz"
-            generation = str(700_000 + task_index * 5 + len(receipts))
+            ordinal = task_index * 5 + len(receipts)
+            raw = f"npz-{ordinal:03d}-{role}".encode("ascii")
+            uri = (
+                "gs://retained-source/"
+                f"{season}/w{week:02d}/{block}.npz"
+            )
+            generation = str(100_000 + ordinal)
             receipt = {
                 "block": block,
                 "uri": uri,
@@ -512,15 +586,11 @@ def test_execute_registers_before_queries_streams_270_and_publishes_terminal(
     first_query = events.index("query:r0_candidates")
     assert registration_publish < registration_reopen < query_factory < first_query
     artifact_reads = [
-        event for event in events if event.startswith("read:gs://artifact-bodies/")
+        event for event in events if event.startswith("read:gs://retained-source/")
     ]
     assert len(artifact_reads) == 270
-    assert artifact_reads[0].endswith(
-        f"task-000/{TASK_WORLD_SOURCE_ROLES[0]}.npz"
-    )
-    assert artifact_reads[-1].endswith(
-        f"task-053/{TASK_WORLD_SOURCE_ROLES[-1]}.npz"
-    )
+    assert artifact_reads[0].endswith("/R0.npz")
+    assert artifact_reads[-1].endswith("/R4.npz")
     assert len(build_calls) == len(verified) == 1
     assert result["artifact_count"] == 270
     assert result["artifact_streamed_one_at_a_time"] is True
@@ -626,7 +696,7 @@ def test_registration_reopen_failure_prevents_query_client(
     )
     with pytest.raises(
         module.CorpusArtifactSourcePreparationError,
-        match="registration did not reopen",
+        match="traced GET body bytes differ",
     ):
         module.execute_authority(
             plan=plan,
@@ -675,3 +745,159 @@ def test_validate_only_and_parked_construct_no_clients(
     output = capsys.readouterr().out
     assert "client_constructed=false" in output
     assert module.PLAN_SCHEMA in output
+
+
+def test_cloud_worker_gate_precedes_clients_and_binds_task_runtime(
+    module: ModuleType,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv(module.ENABLE_ENV, "1")
+    for key in (
+        "CLOUD_RUN_TASK_INDEX", "CLOUD_RUN_TASK_COUNT",
+        "CLOUD_RUN_TASK_ATTEMPT", "CLOUD_RUN_EXECUTION",
+    ):
+        monkeypatch.delenv(key, raising=False)
+    monkeypatch.setattr(
+        module,
+        "GCSStorage",
+        lambda **_kwargs: (_ for _ in ()).throw(
+            AssertionError("GCS client must not be constructed")
+        ),
+    )
+    with pytest.raises(
+        module.CorpusArtifactSourcePreparationError,
+        match="task/execution runtime binding",
+    ):
+        module.main([
+            "cloud-worker",
+            "--plan-uri", "gs://delivery/run/plan.json",
+            "--plan-generation", "1",
+            "--plan-sha256", "a" * 64,
+            "--plan-bytes", "1",
+            "--intent-uri", "gs://delivery/run/governance/launch-ledger.json",
+            "--intent-generation", "2",
+            "--intent-sha256", "b" * 64,
+            "--intent-bytes", "1",
+            "--execute",
+        ])
+
+
+def test_cloud_worker_generation_get_reuses_storage_and_rejects_substitution(
+    module: ModuleType,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    plan, _base_raw, _base_identity = _plan(module, monkeypatch)
+    plan_raw = module.canonical_json_bytes(plan)
+    plan_uri = (
+        "gs://dedicated-delivery/source-run/input/publication-plan.json"
+    )
+    identity = module._identity_for_raw(plan_uri, "55", plan_raw)
+    _intent, intent_raw, intent_identity = _execution_intent(
+        module, plan=plan, plan_identity=identity
+    )
+    events: list[str] = []
+
+    class PlanStorage:
+        def __init__(self, bodies: Mapping[tuple[str, str], bytes]) -> None:
+            self.bodies = dict(bodies)
+
+        def read(self, retained: Mapping[str, object]) -> bytes:
+            events.append("generation_get")
+            raw = self.bodies[(str(retained["uri"]), str(retained["generation"]))]
+            module._bind_raw(raw, retained, label="delivered input")
+            return raw
+
+        def require_absent(self, _uris: Sequence[str]) -> None:
+            raise AssertionError("execute_authority is replaced")
+
+        def publish(self, _uri: str, _raw: bytes) -> Mapping[str, object]:
+            raise AssertionError("execute_authority is replaced")
+
+        def list(self, *_args: object, **_kwargs: object) -> object:
+            raise AssertionError("worker must not LIST")
+
+    storage = PlanStorage({
+        (str(identity["uri"]), str(identity["generation"])): plan_raw,
+        (
+            str(intent_identity["uri"]),
+            str(intent_identity["generation"]),
+        ): intent_raw,
+    })
+    executed: list[object] = []
+
+    def fake_execute(**kwargs: object) -> dict[str, object]:
+        executed.append(kwargs["plan"])
+        traced = kwargs["storage_factory"]()
+        assert traced._storage is storage
+        return {"schema": "fake-source-result/v1"}
+
+    monkeypatch.setattr(module, "execute_authority", fake_execute)
+    runtime = {
+        module.ENABLE_ENV: "1",
+        "CLOUD_RUN_TASK_INDEX": "0",
+        "CLOUD_RUN_TASK_COUNT": "1",
+        "CLOUD_RUN_TASK_ATTEMPT": "0",
+        "CLOUD_RUN_EXECUTION": "source-execution-abc",
+        "CLOUD_RUN_JOB": plan["runtime_identity"]["job"],
+        module.IMAGE_ENV: plan["runtime_identity"]["image"],
+        module.CODE_ENV: plan["runtime_identity"]["code_sha"],
+    }
+    result = module.execute_cloud_worker(
+        plan_identity=identity,
+        intent_identity=intent_identity,
+        execute=True,
+        environ=runtime,
+        storage_factory=lambda: (events.append("storage_factory") or storage),
+        query_factory=lambda: (_ for _ in ()).throw(
+            AssertionError("query factory is deferred to execute_authority")
+        ),
+    )
+    assert events == ["storage_factory", "generation_get", "generation_get"]
+    assert executed == [plan]
+    assert result["delivered_plan_object"] == identity
+
+    substituted = bytearray(plan_raw)
+    substituted[-2] = ord("0") if substituted[-2] != ord("0") else ord("1")
+    with pytest.raises(
+        module.CorpusArtifactSourcePreparationError,
+        match="bytes differ",
+    ):
+        module.execute_cloud_worker(
+            plan_identity=identity,
+            intent_identity=intent_identity,
+            execute=True,
+            environ=runtime,
+            storage_factory=lambda: PlanStorage({
+                (str(identity["uri"]), str(identity["generation"])): bytes(substituted),
+                (
+                    str(intent_identity["uri"]),
+                    str(intent_identity["generation"]),
+                ): intent_raw,
+            }),
+            query_factory=lambda: None,
+        )
+
+    inside_identity = module._identity_for_raw(
+        str(plan["output_prefix"]) + "plan.json", "56", plan_raw
+    )
+    with pytest.raises(
+        module.CorpusArtifactSourcePreparationError,
+        match="outside the nine-object",
+    ):
+        module.execute_cloud_worker(
+            plan_identity=inside_identity,
+            intent_identity=intent_identity,
+            execute=True,
+            environ=runtime,
+            storage_factory=lambda: PlanStorage({
+                (
+                    str(inside_identity["uri"]),
+                    str(inside_identity["generation"]),
+                ): plan_raw,
+                (
+                    str(intent_identity["uri"]),
+                    str(intent_identity["generation"]),
+                ): intent_raw,
+            }),
+            query_factory=lambda: None,
+        )
