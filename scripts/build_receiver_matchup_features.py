@@ -36,6 +36,7 @@ ENABLE_ENV = "RECEIVER_MATCHUP_FEATURES_ENABLED"
 SQL_FILES = (
     "017l_receiver_week_role_pit.sql",
     "017m_defense_receiver_role_concession_pit.sql",
+    "017n_defender_alignment_quality_week_pit.sql",
 )
 
 VALIDATION_QUERIES: tuple[tuple[str, str], ...] = (
@@ -117,6 +118,47 @@ VALIDATION_QUERIES: tuple[tuple[str, str], ...] = (
            OR yards_per_target_allowed_shrunk_l8 < 0
         """,
     ),
+    (
+        "defender-strictly-prior",
+        """
+        SELECT COUNT(*) AS violations
+        FROM `${features}.defender_alignment_quality_week_pit`
+        WHERE max_source_season_week >= season * 100 + week
+        """,
+    ),
+    (
+        "defender-unique-target-row",
+        """
+        SELECT COALESCE(SUM(n - 1), 0) AS violations FROM (
+          SELECT COUNT(*) AS n
+          FROM `${features}.defender_alignment_quality_week_pit`
+          GROUP BY defense, season, week, alignment, defender_player_id
+        )
+        """,
+    ),
+    (
+        "defender-exposure-weights-partition",
+        """
+        SELECT COUNT(*) AS violations FROM (
+          SELECT defense, season, week, alignment,
+                 SUM(defender_exposure_weight) AS total_weight
+          FROM `${features}.defender_alignment_quality_week_pit`
+          GROUP BY defense, season, week, alignment
+          HAVING ABS(total_weight - 1.0) > 1e-9
+        )
+        """,
+    ),
+    (
+        "defender-support-law",
+        """
+        SELECT COUNT(*) AS violations
+        FROM `${features}.defender_alignment_quality_week_pit`
+        WHERE (defender_supported
+               AND (prior_games_l8 < 4 OR coverage_snaps_l8 = 0))
+           OR (NOT defender_supported
+               AND prior_games_l8 >= 4 AND coverage_snaps_l8 > 0)
+        """,
+    ),
 )
 
 
@@ -149,7 +191,10 @@ def _execute() -> dict[str, object]:
         f"FROM `{bq.settings.features}.receiver_week_role_pit` "
         "UNION ALL "
         "SELECT 'defense_receiver_role_concession_pit', COUNT(*) "
-        f"FROM `{bq.settings.features}.defense_receiver_role_concession_pit`"
+        f"FROM `{bq.settings.features}.defense_receiver_role_concession_pit` "
+        "UNION ALL "
+        "SELECT 'defender_alignment_quality_week_pit', COUNT(*) "
+        f"FROM `{bq.settings.features}.defender_alignment_quality_week_pit`"
     )
     return {
         "schema_version": "receiver-matchup-p1-build/v1",
