@@ -121,13 +121,37 @@ agent or developer:
   causal evidence. FantasyPoints/SIS are not inputs to either the accepted
   task-0 matrices or the v3 Atlas foundation; PIT coverage is an explicit
   annotation join/future arm.
-- Exact next action: configure the fresh `transport-live-v3` namespace from
-  the exact `9a5c621` worktree using the four identities above, corrected image
-  digest `sha256:a932cc7bbbf02cd17d8838fbb54ebec085fef05bdbcc16a59ea9865760076745`,
-  build `46667fe8-4a80-4347-9611-3197d7c34fab`, and the fresh IAM capture.
-  Then run the outcome-blind `validate-only` task-0 smoke, prove its task
-  prefix empty, consume producer launch exactly once, bind/recover, watch,
-  independently verify, and accept. Never reuse any v2 launch authority.
+- Fresh configuration succeeded under local namespace
+  `transport-live-v3-recovery1`. Transport contract generation
+  `1787405951716844`, SHA-256
+  `080dc8542a69e63f998101aea50c22fe8f9a461bc6735cd4732ce180af21b937`,
+  7,383 bytes passed exact build, IAM, job, execution and all-region scheduler
+  gates. Outcome-blind task validation reopened 19 exact inputs for slate
+  `2023-w01`, invoked no solve and read no outcomes.
+- The v3 producer launch was consumed exactly once and bound to execution
+  `atlas-minimal-c-s2023-w1-v1-jx6wt`, UID
+  `2eefaf30-42f4-468e-8558-cc6db62ce110`. It is terminal failed with
+  `Completed=False`, `NonZeroExitCode`, exit code 2, one failed attempt,
+  `maxRetries=0`, zero retries and no success. Never launch, watch, close,
+  verify or retry this v3 task.
+- The corrected controlled error is
+  `effective-policy inventory does not regenerate from frozen source`. The
+  task prefix contains exactly the producer launch intent, launch ledger and
+  execution-name binding; it contains zero science outputs. Static diagnosis:
+  the image copies pinned sources to `/app/src`, then installs a wheel with
+  `pip install .`; `python scripts/run_corpus_parametric_transport.py` imports
+  the installed package, while the inventory correctly insists that the
+  effective-policy import resolve to `/app/src`. Local runs succeeded only
+  because `PYTHONPATH` was explicitly pinned. This is a runtime import-path
+  packaging defect before solve, not a score result.
+- Exact next action: repair the image/runtime import contract so the worker
+  imports the pinned `/app/src` tree, validate the narrow runtime seam, build
+  one new exact image, and use wholly new v4 foundation/batch/transport IDs.
+  Reuse the accepted source-v3 publication but never any v2/v3 task launch
+  authority. Remove repeated all-region IAM/scheduler census and repeated
+  science-input reopening from future per-experiment critical paths by using
+  one time-bounded deployment attestation plus immutable validation receipt;
+  do not weaken the one-shot launch or exact-source checks.
 
 ## Prior current state — 2026-08-22 08:03 CDT
 
