@@ -20,6 +20,66 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Parallel branch — 2026-08-22 08:30 CDT
+
+### Sparse simulated->200 phenotype analysis is implementation-ready; not executed
+
+- Isolated branch `codex/above200-analysis`, based on pushed `main` commit
+  `f95878d9394cc4dac2eb97ed6ec6362b460d45c1`, contains implementation commit
+  `52021cba12730238fb853c6598aab2621fd5d09e`. It adds a pure exact-evidence
+  analyzer, a generation-pinned read-only GCS CLI, the accepted task-0 context
+  annotation, and focused synthetic tests. No retrieval/scoring namespace,
+  cloud execution, IAM binding, GCS object, Neo4j database, or accepted evidence
+  was mutated.
+- The analyzer reads only nine compact accepted objects: result, snapshot,
+  player catalog, unique lineups, strict-event NPZ, and four selections. The
+  accepted task-0 input total is exactly 1,274,967 bytes; it never reads the
+  102-MB score matrix. It projects every strict simulated >200 event, all 585
+  lineups, discovery R0--R3 versus held-out descriptive R4 statistics, origin,
+  player/position pairs, team/game stacks, generator tags, phenotype
+  combinations, selector exposure, full 170,820-pair roster-overlap census,
+  and a dedicated-graph node/edge projection. Rankable discovery statistics
+  and held-out evaluation are structurally separate.
+- The named `simulated-gt200-phenotype-v1` preset has separate population-
+  admission and retrieval filter/ranker views. Missing easy-coverage,
+  ownership, leverage, game-environment and seed features remain null with
+  coverage diagnostics and an explicit PIT join contract; they are never
+  fabricated. Realized outcomes are unavailable/unread and winner, profit,
+  ROI and causal claims are unlicensed.
+- Exact source context is corrected: accepted task 0 uses the five Atlas
+  `20260815-atlas-money-worlds-r0..r4-v1` production-law panels. FantasyPoints
+  and SIS are marked inactive in those matrices and appear only as optional
+  future PIT phenotype annotations or a separately governed future source-law
+  arm.
+- Focused validation passed with
+  `PYTHONPATH=src .venv/bin/python -m pytest -q
+  tests/test_corpus_gt200_analysis.py` (3 passed), `git diff --check`, and a
+  Python 3.11 canonical parse of the task-0 context. The repo `.venv` is Python
+  3.14.4; `/tmp/nfl-corpus-py311/bin/python` is Python 3.11.16 with NumPy 2.4.6
+  and GCS support. No broad suite or heavy local computation ran.
+- Exact next action is review/cherry-pick this parallel branch and, only after
+  the operator accepts the bounded cost, execute from this worktree with a new
+  local output path:
+
+  ```bash
+  PYTHONPATH=src /tmp/nfl-corpus-py311/bin/python scripts/analyze_corpus_gt200.py \
+    --task-result-uri gs://nfl-predictions-503414-corpus-retrieval/research/corpus-retrieval-runs/20260821-corpus-retrieval-engine-v1/tasks/0000/result.json \
+    --task-result-generation 1787352766192580 \
+    --task-result-sha256 805e560d146256887e47a99e4f8a96ab7a6062a345a7887aca32f8506b837d78 \
+    --task-result-bytes 27651 \
+    --analysis-id 20260822-task0-simulated-gt200-phenotype-v1 \
+    --created-at-utc 2026-08-22T13:30:00Z \
+    --context-annotations config/corpus_gt200_task0_context.json \
+    --output /tmp/20260822-task0-simulated-gt200-phenotype-v1.json
+  ```
+
+  This performs nine pinned GETs (~1.3 MB), about 171k small roster-pair
+  comparisons and 27,117 sparse-event projections. Expected runtime is under
+  one minute, expected peak memory is below 512 MiB, there is no cloud compute
+  launch or write, and read charges are expected below $0.01. The timestamp is
+  a frozen analysis metadata value; change both ID/timestamp/output together
+  if a later execution identity is desired.
+
 ## Current state — 2026-08-22 08:03 CDT
 
 ### Task-0 v2 worker failed before solving; runtime-provenance repair is focused-green
