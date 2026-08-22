@@ -138,6 +138,13 @@ def _query_receipt(label: str) -> dict[str, object]:
     }
 
 
+def test_candidate_sql_adapts_warehouse_csv_to_roster_array():
+    assert "SPLIT(players, ',') AS players" in later.CANDIDATE_SQL
+    assert later.CANDIDATE_SQL_SHA256 == sha256(
+        later.CANDIDATE_SQL.encode("utf-8")
+    ).hexdigest()
+
+
 def _source_inputs():
     base = _base_source()
     artifacts = {

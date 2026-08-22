@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 21:37 CDT
+## Current state — 2026-08-21 21:40 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -277,6 +277,25 @@ agent or developer:
   Ready at generation 21 with execution count 267. Do not delete either
   partial source object: deletion would not restore the consumed launch or
   used BigQuery identity.
+- On branch `main`, the focused candidate-shape repair and this handoff update
+  are based on pushed failure-evidence commit
+  `06482f6370d7d6a19a3b7123517aa91ce4bb2b89`. Candidate SQL now projects
+  `SPLIT(players, ',') AS players`; the derived SQL SHA is
+  `2029deb3e99bd70ce5b36c628a32b31fd91d37ce36683a28f350cbdfe4e22b6b`.
+  The capture boundary remains strict and still rejects an unnormalized CSV
+  string. Read-only live schema inspection found no second type mismatch:
+  catalog `salary` is FLOAT but its existing boundary accepts only exact
+  positive integral values and canonicalizes them to integer; every other
+  selected candidate/catalog/salary-ID field already matches. Six focused
+  source/query checks and scoped diff validation are green; no broad suite was
+  rerun. Exact-snapshot diagnostic BigQuery job
+  `20260821-corpus-source-v3-preflight-candidate-shape-v2` independently
+  covered all 13,633 rows/54 slates and found zero null/empty or non-nine
+  rosters, noncanonical or duplicate player IDs, invalid artifact URIs/hashes,
+  null candidate indices, or noncontiguous slate indices. It selected no
+  realized-outcome column. Exact next action is a canonical direct-Git build
+  from the pushed repair commit, followed by a disjoint v3 source authority;
+  the existing matrices remain fixed for this controlled comparison.
 - The last exact 270-artifact v3 source plan was never published. It was pinned
   to commit `4440c4f`, image `dbf9796c`, internal plan SHA
   `98f2bff2d4c6891c4f5f5aad8ff5978d47c2188847f685131900d9f22cb8020b`,

@@ -51,7 +51,8 @@ LOCATION: Final = "US"
 CANDIDATE_TABLE: Final = f"{PROJECT}.nfl_predictions.replay_candidates_staging"
 CATALOG_TABLE: Final = f"{PROJECT}.nfl_predictions.slate_player_features"
 CANDIDATE_SQL: Final = f"""
-SELECT panel_run_id, season, week, cand_ix, players,
+SELECT panel_run_id, season, week, cand_ix,
+       SPLIT(players, ',') AS players,
        score_artifact_uri, score_artifact_sha256
 FROM `{CANDIDATE_TABLE}` FOR SYSTEM_TIME AS OF @source_snapshot_at
 WHERE panel_run_id=@r0_panel

@@ -373,10 +373,26 @@ def test_fixed_source_and_salary_query_boundaries(module: ModuleType) -> None:
     assert not any(
         fragment in lowered for fragment in module._FORBIDDEN_OUTCOME_FRAGMENTS
     )
+    assert "SPLIT(players, ',') AS players" in later.CANDIDATE_SQL
     source_text = SCRIPT.read_text(encoding="utf-8")
     assert "list_blobs" not in source_text
     assert "later.build_source_freeze(" in source_text
     assert "authority.verify_artifact_supported_source_authority(" in source_text
+
+
+def test_candidate_capture_requires_sql_normalized_roster_array(
+    module: ModuleType,
+) -> None:
+    rows = list(_query_rows("r0_candidates"))
+    rows[0] = {
+        **rows[0],
+        "players": ",".join(rows[0]["players"]),
+    }
+    with pytest.raises(
+        module.CorpusArtifactSourcePreparationError,
+        match=r"r0_candidates row\[0\] candidate identity differs",
+    ):
+        module.normalize_query_rows("r0_candidates", rows)
 
 
 def test_plan_is_client_free_and_binds_full_lattice(
