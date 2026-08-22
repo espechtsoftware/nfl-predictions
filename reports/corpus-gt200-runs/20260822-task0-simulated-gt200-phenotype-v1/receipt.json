@@ -1,0 +1,81 @@
+{
+  "schema_version": "corpus-gt200-analysis-execution-receipt/v1",
+  "analysis_id": "20260822-task0-simulated-gt200-phenotype-v1",
+  "created_at_utc": "2026-08-22T13:30:00Z",
+  "source_commit_sha": "c60b7e7992b5c6367edb14a17c6edd13a30539f2",
+  "task_result_identity": {
+    "uri": "gs://nfl-predictions-503414-corpus-retrieval/research/corpus-retrieval-runs/20260821-corpus-retrieval-engine-v1/tasks/0000/result.json",
+    "generation": "1787352766192580",
+    "sha256": "805e560d146256887e47a99e4f8a96ab7a6062a345a7887aca32f8506b837d78",
+    "bytes": 27651
+  },
+  "analysis_object": {
+    "uri": "gs://nfl-predictions-503414-corpus-parametric/research/corpus-phenotype-analysis/20260822-task0-simulated-gt200-phenotype-v1/analysis.json.gz",
+    "generation": "1787408082871309",
+    "sha256": "83d7bfe6d635530ce7983df0bf875031a7b0370837e285e573a4c7bd32d28ed5",
+    "bytes": 6336408,
+    "content_type": "application/json",
+    "content_encoding": "gzip",
+    "create_once": true
+  },
+  "analysis_identity": {
+    "internal_sha256": "98b21c536660a9d012be178632914ff0f0a36fbd951445177180401915ba5e19",
+    "uncompressed_file_sha256": "ef65d7a24e78088ab740fabc5e02217ace6649e181f570a41cb89fed0cbe0bbb",
+    "uncompressed_bytes": 62124979
+  },
+  "summary": {
+    "lineup_count": 585,
+    "simulated_world_count": 50000,
+    "strict_gt_200_event_count": 27117,
+    "lineups_with_event": 581,
+    "association_count": 5997,
+    "roster_overlap_pair_universe_count": 170820,
+    "roster_redundancy_pair_retained_count": 2000,
+    "neo4j_node_count": 16899,
+    "neo4j_edge_count": 82917
+  },
+  "supported_discovery_findings": [
+    {
+      "phenotype": "generator-tag:boom",
+      "lineup_support": 200,
+      "strict_gt_200_event_count_r0_r3": 12089,
+      "discovery_lift": 1.6239701019564619,
+      "heldout_r4_descriptive_lift": 1.6817518248175183
+    },
+    {
+      "phenotype": "qb_stack=3|bring_back=1|max_game=5",
+      "lineup_support": 92,
+      "strict_gt_200_event_count_r0_r3": 7607,
+      "discovery_lift": 2.2214842392801946,
+      "heldout_r4_descriptive_lift": 2.282608695652174
+    },
+    {
+      "phenotype": "bring_back=1|max_game=5|qb_stack=3|tag=boom",
+      "lineup_support": 55,
+      "strict_gt_200_event_count_r0_r3": 5494,
+      "discovery_lift": 2.683759613216764,
+      "heldout_r4_descriptive_lift": 2.7730590577305905
+    },
+    {
+      "phenotype": "player-pair:Raheem Mostert|Tyreek Hill",
+      "lineup_support": 10,
+      "strict_gt_200_event_count_r0_r3": 1586,
+      "discovery_lift": 4.261091209699641,
+      "heldout_r4_descriptive_lift": 4.7627737226277365
+    },
+    {
+      "phenotype": "team-stack:MIA|4",
+      "lineup_support": 10,
+      "strict_gt_200_event_count_r0_r3": 1585,
+      "discovery_lift": 4.258404519151281,
+      "heldout_r4_descriptive_lift": 4.697080291970803
+    }
+  ],
+  "limitations": {
+    "realized_contest_outcomes_read": false,
+    "full_score_matrix_read": false,
+    "easy_coverage_available": false,
+    "fantasypoints_or_sis_scoring_inputs": false,
+    "production_change_authority": false
+  }
+}

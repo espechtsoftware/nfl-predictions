@@ -20,6 +20,95 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current state — 2026-08-22 09:28 CDT
+
+### Repaired v4 image is accepted; foundation verification is active
+
+- Branch `main` is pushed through `c60b7e7992b5c6367edb14a17c6edd13a30539f2`.
+  The exact clean execution worktree is `/tmp/nfl-predictions-corpus-c60b7e7`
+  and its Python 3.11 environment is `/tmp/nfl-corpus-py311/bin/python`. Do not
+  bind the v4 worker to later local source changes.
+- Canonical Cloud Build `485ecb3f-ef3e-4bf4-81b7-408adae96362` succeeded from
+  that exact pushed SHA. All mandatory focused tests, source-resolution smoke,
+  full effective-policy inventory regeneration, image smoke, and Neo4j/UI
+  build stages passed. The accepted immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:93623cffccdd67688499e20ef9904504749d270184158f181b90af5d3d4b6c5b`.
+  Build validation is retained under the v4 foundation directory.
+- Build submission `e6fb9995-a89d-4765-bc89-7292ce5a551a` is permanently
+  ineligible: its requested revision contained a mistyped nonexistent SHA, so
+  source fetch failed before any configured build step. It produced no image
+  and must never be cited as execution evidence.
+- The fresh v4 preplan is
+  `reports/corpus-parametric-runs/20260822-corpus-parametric-task0-smoke-v4/foundation-live/preplan.json`.
+  It is 3,693 bytes with embedded SHA-256
+  `06159b2a2c08bd54042ea48d1d3d59cb85662639e7e44efd77cb6972b7bf7229`;
+  Python 3.11 validation and dry-run both passed with one task, seven arms, 18
+  planned create-once objects and zero dry-run writes.
+- Exactly one non-TTY v4 foundation execution is active locally. It is
+  reopening and byte-verifying all 270 exact-generation Atlas money-world
+  artifacts before it publishes the fresh v4 foundation/batch governance
+  objects. This is not a simulation or score execution. The v4 prefixes were
+  proven empty before launch. Two earlier local invocations stopped before any
+  storage write: one used the wrong enable-variable name and one exposed a TTY-
+  sensitive CBC probe mismatch. Do not start another foundation invocation
+  while the active process exists.
+- The two narrow corpus-parametric runtime IAM conditions were atomically moved
+  from v3 to the v4 foundation and batch prefixes; every other bucket binding
+  was preserved. The resulting complete self-hashed capture is tracked at
+  `reports/corpus-parametric-runs/20260822-corpus-parametric-task0-smoke-v4/governance-live-v4/runtime-iam-policy-capture.json` (23,569 bytes, raw SHA-256
+  `476bfdd06634058449c4afc43511fd37a614f7f38b80e68a8ed012f166e2776d`,
+  embedded capture SHA-256
+  `9cfa4b86726591f3f915e4ecf8882ccb70cb8cb135c2ec413581dc76d2d57c32`).
+  This is the final v4 IAM census; do not repeat it per task or phase.
+
+### Sparse simulated->200 phenotype evidence is now executed and durable
+
+- The accepted task-0 analyzer completed from exact commit `c60b7e7` using nine
+  generation-pinned GETs and no score-tensor read. The create-once compressed
+  analysis is
+  `gs://nfl-predictions-503414-corpus-parametric/research/corpus-phenotype-analysis/20260822-task0-simulated-gt200-phenotype-v1/analysis.json.gz`,
+  generation `1787408082871309`, compressed SHA-256
+  `83d7bfe6d635530ce7983df0bf875031a7b0370837e285e573a4c7bd32d28ed5`,
+  6,336,408 bytes. The exact small execution receipt is tracked under
+  `reports/corpus-gt200-runs/20260822-task0-simulated-gt200-phenotype-v1/`.
+- It covers all 585 lineups across 50,000 simulated worlds and projects 27,117
+  strict >200 events, 5,997 supported associations, all 170,820 roster pairs,
+  2,000 retained redundancy pairs, and a 16,899-node/82,917-edge dedicated-
+  graph projection. Discovery R0--R3 versus descriptive held-out R4 remains
+  structurally separated.
+- Strong supported discovery phenotypes include boom generator tag (200-lineup
+  support, 12,089 R0--R3 events, 1.624x lift), QB stack 3 + bring-back 1 + max
+  game stack 5 (92 lineups, 7,607 events, 2.221x), the same stack plus boom
+  (55 lineups, 5,494 events, 2.684x), Mostert + Tyreek Hill (10 lineups, 1,586
+  events, 4.261x), and four-player MIA stacks (10 lineups, 1,585 events,
+  4.258x). These are simulated phenotype observations, not causal promotion
+  authority.
+- Easy-coverage annotations and realized contest outcomes remain unavailable;
+  FantasyPoints and SIS were not scoring inputs. They must enter later as
+  separately governed point-in-time annotations/source-law arms rather than be
+  retroactively implied by the accepted Atlas matrices.
+
+### Hot-path governance change is under final correction, not yet integrated
+
+- A bounded deployment-attestation implementation exists on commit
+  `deb7e7f4e0bcdccad8984769f8bbcca5aa087345` but is deliberately not yet on
+  `main`. It genuinely removes IAM analysis and all-region Scheduler scans from
+  configure-attested, launch, recovery and watch hot paths while preserving
+  exact job/execution checks and one-shot launch consumption; 39 focused tests
+  passed.
+- Independent review found that its six-hour default expiry could prevent
+  terminalizing a legitimately long-running execution, that TTL/path failure
+  validation occurred too late, and that phase receipts omitted the exact
+  attestation identity. Correct those three issues and revalidate before
+  cherry-picking. Do not trade away recovery, immutable-output, or audit
+  guarantees merely to eliminate the census.
+- Exact next action: wait for the one active v4 foundation verifier. On success,
+  retain its canonical receipt, configure the fresh v4 transport from the
+  already-captured IAM evidence, run outcome-blind validate-only, prove the
+  task prefix remains empty, then consume one producer launch and recover/watch
+  that execution without relaunch. In parallel finish and integrate the
+  corrected deployment attestation for the subsequent multi-scenario suite.
+
 ## Integrated workstream — 2026-08-22 08:30 CDT
 
 ### Sparse simulated->200 phenotype analysis is implementation-ready; not executed
