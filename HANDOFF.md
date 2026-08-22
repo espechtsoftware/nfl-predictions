@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 20:01 CDT
+## Current state — 2026-08-21 20:12 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -64,7 +64,17 @@ agent or developer:
   four source/parametric/realized/Neo4j smokes are green. The launchable image
   superseding the earlier digest is
   `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:4c69c7c52d40bbbcd1e36975c6e38be5d449248ed339cc20b6d7795e7a5fd52d`.
-  Do not reuse either failed build.
+  Final integrated direct-Git build
+  `85dca213-9b20-4090-a338-b4999750eab4` succeeded from exact commit
+  `4cc599f8c3f90629e531cf8b91e908aa729757a4`; the expanded focused matrix,
+  image build, and source/parametric/realized/Neo4j/UI smokes are all green.
+  Its launchable immutable image, superseding both earlier successful
+  expansion images, is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:f90076546937d66d3cb0a1b6eddfc6ea27430be1e10c3007c01e5114c174d59a`.
+  Submission `900dd442-3959-4b92-98ea-2c32b933a495` named a malformed Git
+  revision; it was cancelled while still queued, ran no step, and produced no
+  image.
+  Do not reuse either failed build or the cancelled submission.
 - The graph v2 release remains outcome-blind and intentionally reserves the
   realized namespace empty. The two follow-on adapters are now implemented
   and included in the exact shared-build contract: a create-once accepted
