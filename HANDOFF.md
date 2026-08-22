@@ -20,7 +20,23 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-22 13:13 CDT (third update)
+## Current handoff — 2026-08-22 13:18 CDT (fourth update)
+
+### Matchup P2 built live: defender/alignment quality with as-of workload
+
+- `e4b0f82` lands 017n (SIS defender/alignment quality): 25,811 target
+  rows in `nfl_features.defender_alignment_quality_week_pit`, all TWELVE
+  runner validation checks zero violations (strictly-prior, uniqueness,
+  exposure weights summing to 1 per partition, support law). PIT design
+  correction made pre-execution: windows are computed THROUGH each
+  defender game and AS-OF joined to later defense game weeks within an
+  8-game horizon, so week-W row existence never conditions on week-W
+  participation. Spot check 2023 W1 wide: MIA Howard/Kohou, NYJ
+  Reed/Gardner top workload; Gardner best shrunk DK/target (1.24).
+  Crosswalk + injury-state joins and the annotation builder are P3.
+- Producer still nonterminal at 18:18Z; monitors active.
+
+## Prior handoff — 2026-08-22 13:13 CDT (third update)
 
 ### Matchup P1 built and validated against the live warehouse
 
