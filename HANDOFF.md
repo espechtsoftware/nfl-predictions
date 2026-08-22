@@ -82,13 +82,30 @@ agent or developer:
   `nfl-predictions-503414` has exhausted the non-organization Policy Analyzer
   limit of 20 queries/day. Direct retry returned HTTP 429. Charging quota to
   `agentic-services` did not bypass the resource-project limit. Cloud Asset API
-  was enabled in `agentic-services` solely for that unsuccessful quota attempt;
-  no resource was analyzed, stored or deployed there. A Cloud Asset service
+  was enabled in `agentic-services` solely for that unsuccessful quota attempt,
+  then disabled again to restore the prior state; no resource was analyzed,
+  stored or deployed there. A Cloud Asset service
   identity `service-817589974517@gcp-sa-cloudasset.iam.gserviceaccount.com` was
   also initialized in the NFL project while checking the documented
   long-running route. The consumer override and Cloud Quotas preference paths
   both refused an increase; no quota override exists. Do not synthesize an
   AnalyzeIAM response or weaken the configure gate.
+- A tracked, fail-closed one-shot continuation is scheduled as user-systemd
+  timer `corpus-parametric-smoke-resume.timer` for
+  `2026-08-22 02:01:00 CDT` (`07:01:00Z`), one minute after the documented
+  midnight-Pacific reset. The exact operator is
+  `reports/corpus-parametric-runs/20260821-corpus-parametric-task0-smoke-v1/resume-after-policy-analyzer-reset.sh`.
+  It refuses to run early or reuse any local output namespace; makes one
+  runtime analysis and validates exactly five grants before making the two
+  zero-result public analyses; captures/self-hashes fresh policy evidence;
+  configures the accepted smoke under Python 3.11; and consumes the producer
+  launch exactly once. It deliberately stops after launch and never retries or
+  auto-recovers an execution. `bash -n` passed, and an early invocation exited
+  2 before any file/client action as designed. If the user session or machine
+  stops before 02:01, run this exact script manually after reset. If the timer
+  fires, inspect `resume-after-policy-analyzer-reset.log` and the
+  `transport-live` evidence; after any consumed launch run only
+  `recover-producer`, never `launch-producer` again.
 - The reused Cloud Run job remains idle and ready as
   `atlas-minimal-c-s2023-w1-v1`, UID
   `d6e4b8c1-5950-46b7-8869-7e34dbf29ad2`; all 268 existing executions are
