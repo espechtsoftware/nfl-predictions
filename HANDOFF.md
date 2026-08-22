@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 20:54 CDT
+## Current state — 2026-08-21 20:57 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -167,8 +167,16 @@ agent or developer:
   `98eab401-2098-4767-873d-31993b3d3b75` succeeded from exact commit
   `b2186b4fc1f8dc84f36db075560c35a6fcee4e7b`; all five focused corpus,
   source, parametric/realized, and Neo4j/UI stages passed. Its immutable image,
-  superseding every prior expansion image, is
+  whose content passed but whose build provenance is not launchable under the
+  frozen repository-URL contract, is
   `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:3b20df0a937cb5512506815379f9e75624996c24bbb21776a44562916ffefe0d`.
+  The build was submitted with repository URL spelling lacking the required
+  `.git` suffix. Source `transport-live-v4` rejected it during build
+  prevalidation, before Cloud Run update, publication, or query. Replacement
+  build `807475d4-184c-4475-9e3d-639effe12ba0` is queued from the same exact
+  code commit with canonical repository URL
+  `https://github.com/espechtsoftware/nfl-predictions.git` and image tag
+  `corpus-research-expansion-b2186b4-r2`.
   Never reuse `transport-live-v3`.
 - The last exact 270-artifact v3 source plan was never published. It was pinned
   to commit `4440c4f`, image `dbf9796c`, internal plan SHA
@@ -179,8 +187,10 @@ agent or developer:
   `b78ad64475b670ca67b9f4400e06e3a1aeabe8aa56842696bd49401b2c3b9480`
   and file SHA
   `181343eca954561b8bd51aa692cdbef4ed5c1e429ee10f276a9469c7ada5ec99`.
-  Do not publish those superseded files; regenerate both for the immutable
-  image built from `b2186b4` and use a fresh `transport-live-v4` directory.
+  Do not publish those superseded files. The next plan/IAM pair prepared for
+  noncanonical-URL build `98eab401` was also never published; do not use it or
+  `transport-live-v4`. Regenerate both for replacement build `807475d4` and
+  use a fresh `transport-live-v5` directory.
   Runtime/project/table/role/bucket IAM bodies and the fully explored six-grant
   source-principal Cloud Asset analysis are captured. A public-principal
   Cloud Asset capture repeatedly hit HTTP 429 even though the published
@@ -208,11 +218,12 @@ agent or developer:
   read, graph write, or new scoring execution occurred during this milestone.
   The sole Cloud Run mutation was the failed source configure update described
   above, and its exact prior spec was automatically restored. Exact next
-  action: regenerate the source plan and IAM for commit `b2186b4` and immutable
-  digest `3b20df0a`, then configure from fresh `transport-live-v4`. Inspect and
-  record the configure receipt before consuming the source authority exactly
-  once; then run the isolated task-0 seven-arm real-artifact smoke before the
-  complete serial 54-task suite.
+  action: monitor canonical-URL replacement build `807475d4` to terminal
+  success, regenerate the source plan and IAM for its immutable digest, then
+  configure from fresh `transport-live-v5`. Inspect and record the configure
+  receipt before consuming the source authority exactly once; then run the
+  isolated task-0 seven-arm real-artifact smoke before the complete serial
+  54-task suite.
 
 ### Accepted task-0 score is on main; corpus research dashboard is mounted
 
