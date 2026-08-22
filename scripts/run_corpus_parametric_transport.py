@@ -960,7 +960,8 @@ def _validate_source_trace_envelope(
     })
     if not query:
         expected |= frozenset({
-            "delivered_plan_object", "absence_check_uris", "object_list_used",
+            "delivered_plan_object", "delivered_intent_object",
+            "absence_check_uris", "object_list_used",
         })
     _exact_keys(item, expected, label=label)
     _validate_no_newline_self_hash(item, field="trace_sha256", label=label)
@@ -980,6 +981,9 @@ def _validate_source_trace_envelope(
     if not query:
         object_identity(
             item["delivered_plan_object"], label="source delivered plan"
+        )
+        object_identity(
+            item["delivered_intent_object"], label="source delivered intent"
         )
         if (
             item["object_list_used"] is not False

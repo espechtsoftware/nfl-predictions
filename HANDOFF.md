@@ -20,6 +20,28 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current state — 2026-08-22 06:20 CDT
+
+### Task-0 smoke preflight mismatch is fixed locally; no scoring launch was consumed
+
+- The persistent reset continuation fired at `2026-08-22T07:01:00Z` and the
+  three effective-access checks passed. It created the self-hashed runtime IAM
+  capture, then stopped during the read-only transport preflight with
+  `source producer GET trace fields differ`. The reused Cloud Run job was not
+  updated, no producer launch was consumed, and no scoring execution started.
+- The accepted source-v3 publication is intact. Its producer GET trace includes
+  both `delivered_plan_object` and `delivered_intent_object`, as required and
+  emitted by `prepare_corpus_artifact_source_authority.py`; the parametric
+  transport envelope validator accidentally omitted the latter from its exact
+  field set. The validator and its fixture now include and validate that object
+  identity. No matrix, score, source publication, or accepted retrieval result
+  was changed.
+- Focused validation passed:
+  `.venv/bin/python -m pytest -q tests/test_corpus_parametric_transport.py`
+  (`34 passed`). Do not reuse the consumed local `transport-live` directory;
+  configure and launch from a fresh recovery namespace after committing and
+  building the corrected worker.
+
 ## Current state — 2026-08-21 23:45 CDT
 
 ### Task-0 parametric foundation is accepted; launch is waiting only on the daily Policy Analyzer reset

@@ -780,6 +780,7 @@ def _seed_foundation_publication(
     producer_get_trace, _ = _no_newline_hashed({
         "schema": "corpus-artifact-source-producer-get-trace/v1",
         "delivered_plan_object": base_lock,
+        "delivered_intent_object": base_lock,
         "events": [],
         "event_count": 0,
         "events_sha256": sha256(
