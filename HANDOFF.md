@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 22:00 CDT
+## Current state — 2026-08-21 22:30 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -354,6 +354,21 @@ agent or developer:
   `4a1cf549c271c1b3064815fbf2430289b35bb2dd9621abf4da27c31397f842c7`,
   bytes `11126`. Never launch v3 again. Exact next action is terminal watch and
   acceptance, then the already-prepared isolated task-0 seven-arm smoke.
+  V3 is now terminal successful and independently accepted. Execution `nvdhw`
+  completed at `2026-08-22T03:05:21.447648Z`, attempt 0/retry 0, after six
+  minutes. The accepted 54-slate/270-artifact publication completion is
+  generation `1787367916927834`, SHA
+  `c6d16f40c3b35e6bff736a0bb1926e1a1de973dbc323c7a910a2d36080fc7ada`,
+  bytes `87476`; source-authority completion is generation
+  `1787367915631771`, SHA
+  `2d3a97e524fb0f592f0c57ed67643a84281fc97203e348f01031e3c356bded6c`,
+  bytes `383554`. The create-once terminal acceptance is generation
+  `1787369428935595`, SHA
+  `b481b807cd1cdb51f3d5bdb329aaa7a3045b908ce8076548ff97f01829bdc4fc`,
+  bytes `92347`. The final operator replay reopened the complete 6.6-GB matrix
+  lattice and passed. Exact next action is now the isolated task-0 seven-arm
+  foundation/producer/verifier sequence; no further source or retrieval run is
+  licensed.
 - The last exact 270-artifact v3 source plan was never published. It was pinned
   to commit `4440c4f`, image `dbf9796c`, internal plan SHA
   `98f2bff2d4c6891c4f5f5aad8ff5978d47c2188847f685131900d9f22cb8020b`,
