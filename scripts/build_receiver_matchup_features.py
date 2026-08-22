@@ -37,6 +37,9 @@ SQL_FILES = (
     "017l_receiver_week_role_pit.sql",
     "017m_defense_receiver_role_concession_pit.sql",
     "017n_defender_alignment_quality_week_pit.sql",
+    "017o_rb_week_role_pit.sql",
+    "017p_defense_rb_role_concession_pit.sql",
+    "017q_team_defense_context_pit.sql",
 )
 
 VALIDATION_QUERIES: tuple[tuple[str, str], ...] = (
@@ -159,6 +162,80 @@ VALIDATION_QUERIES: tuple[tuple[str, str], ...] = (
                AND prior_games_l8 >= 4 AND coverage_snaps_l8 > 0)
         """,
     ),
+    (
+        "rb-role-strictly-prior",
+        """
+        SELECT COUNT(*) AS violations
+        FROM `${features}.rb_week_role_pit`
+        WHERE max_source_season_week IS NOT NULL
+          AND max_source_season_week >= season * 100 + week
+        """,
+    ),
+    (
+        "rb-role-unique-and-consistent",
+        """
+        SELECT (
+          SELECT COALESCE(SUM(n - 1), 0) FROM (
+            SELECT COUNT(*) AS n FROM `${features}.rb_week_role_pit`
+            GROUP BY gsis_id, season, week
+          )
+        ) + (
+          SELECT COUNT(*) FROM `${features}.rb_week_role_pit`
+          WHERE (role_supported AND role_label IS NULL)
+             OR (NOT role_supported AND role_label IS NOT NULL)
+        ) AS violations
+        """,
+    ),
+    (
+        "rb-concession-strictly-prior-and-unique",
+        """
+        SELECT (
+          SELECT COUNT(*)
+          FROM `${features}.defense_rb_role_concession_pit`
+          WHERE max_source_season_week IS NOT NULL
+            AND max_source_season_week >= season * 100 + week
+        ) + (
+          SELECT COALESCE(SUM(n - 1), 0) FROM (
+            SELECT COUNT(*) AS n
+            FROM `${features}.defense_rb_role_concession_pit`
+            GROUP BY defense, season, week, role_label
+          )
+        ) AS violations
+        """,
+    ),
+    (
+        "defense-context-strictly-prior",
+        """
+        SELECT COUNT(*) AS violations
+        FROM `${features}.team_defense_context_pit`
+        WHERE (sis_max_source_season_week IS NOT NULL
+               AND sis_max_source_season_week >= season * 100 + week)
+           OR (pfr_max_source_season_week IS NOT NULL
+               AND pfr_max_source_season_week >= season * 100 + week)
+           OR (qb_max_source_season_week IS NOT NULL
+               AND qb_max_source_season_week >= season * 100 + week)
+        """,
+    ),
+    (
+        "defense-context-unique-and-support-law",
+        """
+        SELECT (
+          SELECT COALESCE(SUM(n - 1), 0) FROM (
+            SELECT COUNT(*) AS n
+            FROM `${features}.team_defense_context_pit`
+            GROUP BY defense, season, week
+          )
+        ) + (
+          SELECT COUNT(*) FROM `${features}.team_defense_context_pit`
+          WHERE (run_context_supported
+                 AND COALESCE(sis_prior_games_l8, 0) < 4)
+             OR (pass_rush_supported
+                 AND COALESCE(pfr_prior_games_l8, 0) < 4)
+             OR (qb_concession_supported
+                 AND COALESCE(qb_prior_games_l8, 0) < 4)
+        ) AS violations
+        """,
+    ),
 )
 
 
@@ -194,7 +271,16 @@ def _execute() -> dict[str, object]:
         f"FROM `{bq.settings.features}.defense_receiver_role_concession_pit` "
         "UNION ALL "
         "SELECT 'defender_alignment_quality_week_pit', COUNT(*) "
-        f"FROM `{bq.settings.features}.defender_alignment_quality_week_pit`"
+        f"FROM `{bq.settings.features}.defender_alignment_quality_week_pit` "
+        "UNION ALL "
+        "SELECT 'rb_week_role_pit', COUNT(*) "
+        f"FROM `{bq.settings.features}.rb_week_role_pit` "
+        "UNION ALL "
+        "SELECT 'defense_rb_role_concession_pit', COUNT(*) "
+        f"FROM `{bq.settings.features}.defense_rb_role_concession_pit` "
+        "UNION ALL "
+        "SELECT 'team_defense_context_pit', COUNT(*) "
+        f"FROM `{bq.settings.features}.team_defense_context_pit`"
     )
     return {
         "schema_version": "receiver-matchup-p1-build/v1",
