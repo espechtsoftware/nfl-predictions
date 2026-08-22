@@ -3229,6 +3229,9 @@ def _deployment_guard(
             "job": retained_job,
             "scheduler_census_sha256": canonical_sha256(schedulers),
             "governance_mode": "live-all-region-census",
+            "deployment_attestation_sha256": None,
+            "attestation_created_at_utc": None,
+            "attestation_expires_at_utc": None,
         }
     if schedulers is not None or all_regions_complete is not False:
         raise CorpusParametricTransportError(
@@ -3250,7 +3253,91 @@ def _deployment_guard(
         "scheduler_census_sha256": retained["scheduler_census_sha256"],
         "governance_mode": "bounded-deployment-attestation",
         "deployment_attestation_sha256": retained["attestation_sha256"],
+        "attestation_created_at_utc": retained["created_at_utc"],
+        "attestation_expires_at_utc": retained["expires_at_utc"],
     }
+
+
+_GOVERNANCE_AUTHORIZATION_KEYS: Final = frozenset({
+    "governance_mode", "deployment_attestation_sha256",
+    "governance_observed_at_utc", "attestation_created_at_utc",
+    "attestation_expires_at_utc", "scheduler_census_sha256",
+})
+
+
+def _governance_authorization(
+    guard: Mapping[str, object], *, observed_at_utc: str
+) -> dict[str, object]:
+    mode = guard.get("governance_mode")
+    if mode not in {"live-all-region-census", "bounded-deployment-attestation"}:
+        raise CorpusParametricTransportError("deployment governance mode differs")
+    result = {
+        "governance_mode": mode,
+        "deployment_attestation_sha256": guard.get(
+            "deployment_attestation_sha256"
+        ),
+        "governance_observed_at_utc": _timestamp(
+            observed_at_utc, label="governance observed timestamp"
+        ),
+        "attestation_created_at_utc": guard.get(
+            "attestation_created_at_utc"
+        ),
+        "attestation_expires_at_utc": guard.get(
+            "attestation_expires_at_utc"
+        ),
+        "scheduler_census_sha256": _sha(
+            guard.get("scheduler_census_sha256"),
+            label="governance scheduler census SHA",
+        ),
+    }
+    return _validate_governance_authorization(result)
+
+
+def _validate_governance_authorization(
+    value: object, *, label: str = "governance authorization"
+) -> dict[str, object]:
+    item = dict(_mapping(value, label=label))
+    _exact_keys(item, _GOVERNANCE_AUTHORIZATION_KEYS, label=f"{label} fields")
+    _timestamp(
+        item.get("governance_observed_at_utc"),
+        label=f"{label} observed timestamp",
+    )
+    _sha(
+        item.get("scheduler_census_sha256"),
+        label=f"{label} scheduler census SHA",
+    )
+    mode = item.get("governance_mode")
+    if mode == "bounded-deployment-attestation":
+        _sha(
+            item.get("deployment_attestation_sha256"),
+            label=f"{label} deployment attestation SHA",
+        )
+        created = _utc_datetime(
+            item.get("attestation_created_at_utc"),
+            label=f"{label} attestation created timestamp",
+        )
+        expires = _utc_datetime(
+            item.get("attestation_expires_at_utc"),
+            label=f"{label} attestation expiry timestamp",
+        )
+        observed = _utc_datetime(
+            item["governance_observed_at_utc"],
+            label=f"{label} observed timestamp",
+        )
+        if not created <= observed < expires:
+            raise CorpusParametricTransportError(
+                f"{label} was not valid when launch authority was consumed"
+            )
+    elif mode == "live-all-region-census":
+        if any(item.get(key) is not None for key in (
+            "deployment_attestation_sha256",
+            "attestation_created_at_utc",
+            "attestation_expires_at_utc",
+        )):
+            raise CorpusParametricTransportError(f"{label} live census differs")
+    else:
+        raise CorpusParametricTransportError(f"{label} mode differs")
+    return item
 
 
 def _build_step_commands(value: object) -> list[tuple[str, ...]]:
@@ -4338,6 +4425,12 @@ def configure_transport(
     runtime_iam_evidence = prepared["runtime_iam_evidence"]
     build = prepared["build"]
     job = prepared["job"]
+    governance_authorization = _governance_authorization(
+        _mapping(
+            prepared["deployment_guard"], label="configured deployment guard"
+        ),
+        observed_at_utc=observed_at_utc or created_at_utc,
+    )
     initial_identities = prepared["initial_identities"]
     runtime_iam_raw = canonical_json_bytes(runtime_iam_evidence)
     iam_identity = object_identity(
@@ -4411,6 +4504,7 @@ def configure_transport(
         "task_count": len(manifest["tasks"]),
         "batch_mode": contract["batch_mode"],
         "matrix_cell_count": contract["matrix_cell_count"],
+        "governance_authorization": governance_authorization,
         "default_off": True,
         "launch_permitted": False,
     }
@@ -4731,6 +4825,11 @@ def _validate_launch_intent(
         contract_identity=contract_identity.as_dict(),
         task_index=task_index,
     )
+    governance = item.get("governance_authorization")
+    if governance is not None:
+        _validate_governance_authorization(
+            governance, label="launch intent governance authorization"
+        )
     if (
         item.get("schema_version") != LAUNCH_INTENT_SCHEMA
         or item.get("transport_contract") != contract_identity.as_dict()
@@ -4760,12 +4859,18 @@ def _validate_launch_ledger(
     intent_identity: Mapping[str, object],
     task_index: int,
     phase: str,
+    intent_governance_authorization: object = None,
 ) -> dict[str, object]:
     item = dict(_mapping(value, label="launch ledger"))
     _validate_self_hash(
         item, field="launch_ledger_sha256", label="launch ledger"
     )
     names = item.get("execution_names_before")
+    governance = item.get("governance_authorization")
+    if governance is not None:
+        _validate_governance_authorization(
+            governance, label="launch ledger governance authorization"
+        )
     if (
         item.get("schema_version") != LAUNCH_LEDGER_SCHEMA
         or item.get("transport_contract") != contract_identity.as_dict()
@@ -4775,6 +4880,7 @@ def _validate_launch_ledger(
         or item.get("task_index") != task_index
         or item.get("phase") != phase
         or item.get("job") != contract["job"]
+        or governance != intent_governance_authorization
         or type(names) is not list
         or names != sorted(names)
         or len(names) != len(set(names))
@@ -4821,8 +4927,65 @@ def _reopen_phase_launch(
         intent_identity=intent_identity,
         task_index=task_index,
         phase=phase,
+        intent_governance_authorization=intent.get(
+            "governance_authorization"
+        ),
     )
     return intent_identity, ledger_identity, ledger
+
+
+def _post_launch_governance(
+    *,
+    launch: Mapping[str, object],
+    current_job: object,
+    contract: Mapping[str, object],
+    schedulers: object,
+    all_regions_complete: bool,
+    observed_at_utc: str,
+) -> dict[str, object]:
+    """Validate governance after consumption without renewing authority.
+
+    A bounded attestation is checked at launch and frozen into both launch
+    objects.  Expiry therefore blocks another launch, but cannot strand the
+    already-consumed execution.  Terminalization still revalidates the exact
+    current parked job and execution census.  Legacy/live-census launches keep
+    their prior requirement for a fresh all-region scheduler census.
+    """
+    governance = launch.get("governance_authorization")
+    if governance is None:
+        guard = _deployment_guard(
+            deployment_attestation=None,
+            observed_at_utc=None,
+            current_job=current_job,
+            expected_build=_mapping(contract["build"], label="contract build"),
+            expected_service_account=str(contract["service_account"]),
+            schedulers=schedulers,
+            all_regions_complete=all_regions_complete,
+        )
+        return _governance_authorization(
+            guard, observed_at_utc=observed_at_utc
+        )
+    retained = _validate_governance_authorization(
+        governance, label="consumed launch governance authorization"
+    )
+    if retained["governance_mode"] == "live-all-region-census":
+        guard = _deployment_guard(
+            deployment_attestation=None,
+            observed_at_utc=None,
+            current_job=current_job,
+            expected_build=_mapping(contract["build"], label="contract build"),
+            expected_service_account=str(contract["service_account"]),
+            schedulers=schedulers,
+            all_regions_complete=all_regions_complete,
+        )
+        # Preserve the launch-time authorization in durable receipts while
+        # requiring a fresh current census for legacy/live mode.
+        del guard
+    elif schedulers is not None or all_regions_complete is not False:
+        raise CorpusParametricTransportError(
+            "attested consumed launch must not substitute a live scheduler census"
+        )
+    return retained
 
 
 def consume_phase_launch(
@@ -4851,7 +5014,7 @@ def consume_phase_launch(
     _validate_current_job(parked_job, contract=contract)
     names = execution_census_names(executions)
     _require_no_active_executions(executions)
-    _deployment_guard(
+    guard = _deployment_guard(
         deployment_attestation=deployment_attestation,
         observed_at_utc=observed_at_utc,
         current_job=parked_job,
@@ -4859,6 +5022,9 @@ def consume_phase_launch(
         expected_service_account=str(contract["service_account"]),
         schedulers=schedulers,
         all_regions_complete=all_regions_complete,
+    )
+    governance_authorization = _governance_authorization(
+        guard, observed_at_utc=observed_at_utc or created_at_utc
     )
     # The prerequisite is deliberately reopened immediately before each phase.
     reopen_retrieval_task0_prerequisite(
@@ -4929,6 +5095,7 @@ def consume_phase_launch(
         "task_index": task_index,
         "phase": retained_phase,
         "job": contract["job"],
+        "governance_authorization": governance_authorization,
         "worker_args": args,
         "worker_args_sha256": canonical_sha256(args),
         "one_execution": True,
@@ -4959,6 +5126,7 @@ def consume_phase_launch(
         "task_index": task_index,
         "phase": retained_phase,
         "job": contract["job"],
+        "governance_authorization": governance_authorization,
         "execution_names_before": names,
         "launch_authority_consumed": True,
         "one_execution": True,
@@ -4977,6 +5145,7 @@ def consume_phase_launch(
         intent_identity=intent_identity,
         task_index=task_index,
         phase=retained_phase,
+        intent_governance_authorization=governance_authorization,
     )
     return {
         "schema_version": "corpus-parametric-phase-launch-ready/v1",
@@ -4987,6 +5156,7 @@ def consume_phase_launch(
         "worker_args": args if created else [],
         "launch_permitted": created,
         "launch_authority_consumed": True,
+        "governance_authorization": governance_authorization,
         "automatic_retry_licensed": False,
         "recovery_action": (
             "invoke-exactly-once-now"
@@ -5103,6 +5273,7 @@ def _validate_execution_name_ledger(
     runtime: Mapping[str, object],
     task_index: int,
     phase: str,
+    launch_governance_authorization: object = None,
 ) -> dict[str, object]:
     item = dict(_mapping(value, label="execution-name ledger"))
     _validate_self_hash(
@@ -5110,12 +5281,18 @@ def _validate_execution_name_ledger(
         field="execution_name_ledger_sha256",
         label="execution-name ledger",
     )
+    governance = item.get("governance_authorization")
+    if governance is not None:
+        _validate_governance_authorization(
+            governance, label="execution-name governance authorization"
+        )
     if (
         item.get("schema_version") != EXECUTION_NAME_SCHEMA
         or item.get("transport_contract") != contract_identity.as_dict()
         or item.get("launch_ledger") != launch_ledger_identity
         or item.get("task_index") != task_index
         or item.get("phase") != phase
+        or governance != launch_governance_authorization
         or item.get("execution_id") != runtime["execution_id"]
         or item.get("execution_name") != runtime["execution_name"]
         or item.get("execution_uid") != runtime["execution_uid"]
@@ -5156,15 +5333,6 @@ def bind_phase_execution(
         storage=storage, contract_identity=contract_identity
     )
     _validate_current_job(parked_job, contract=contract)
-    _deployment_guard(
-        deployment_attestation=deployment_attestation,
-        observed_at_utc=observed_at_utc,
-        current_job=parked_job,
-        expected_build=_mapping(contract["build"], label="contract build"),
-        expected_service_account=str(contract["service_account"]),
-        schedulers=schedulers,
-        all_regions_complete=all_regions_complete,
-    )
     intent_identity, launch_identity, launch = _reopen_phase_launch(
         storage=storage,
         contract=contract,
@@ -5173,6 +5341,17 @@ def bind_phase_execution(
         phase=retained_phase,
     )
     del intent_identity
+    governance_authorization = _post_launch_governance(
+        launch=launch,
+        current_job=parked_job,
+        contract=contract,
+        schedulers=schedulers,
+        all_regions_complete=all_regions_complete,
+        observed_at_utc=observed_at_utc or created_at_utc,
+    )
+    # An attestation file is intentionally unnecessary after launch authority
+    # is durably consumed; its launch-time SHA/timestamps are frozen above.
+    del deployment_attestation
     before = set(_sequence(launch["execution_names_before"], label="names before"))
     after_names = execution_census_names(executions)
     after = set(after_names)
@@ -5200,6 +5379,7 @@ def bind_phase_execution(
         "launch_ledger": launch_identity,
         "task_index": task_index,
         "phase": retained_phase,
+        "governance_authorization": governance_authorization,
         "execution_id": runtime["execution_id"],
         "execution_name": runtime["execution_name"],
         "execution_uid": runtime["execution_uid"],
@@ -5216,6 +5396,7 @@ def bind_phase_execution(
         runtime=runtime,
         task_index=task_index,
         phase=retained_phase,
+        launch_governance_authorization=governance_authorization,
     )
     task = _task_contract(contract, task_index)
     identity = storage.publish_or_reopen(
@@ -5230,6 +5411,7 @@ def bind_phase_execution(
         "execution_name": runtime["execution_name"],
         "execution_uid": runtime["execution_uid"],
         "execution_name_ledger": identity,
+        "governance_authorization": governance_authorization,
         "automatic_retry_licensed": False,
     }
 
@@ -5330,7 +5512,7 @@ def _wait_for_execution_name(
     wait_seconds: int = EXECUTION_NAME_WAIT_SECONDS,
 ) -> dict[str, object]:
     task = _task_contract(contract, task_index)
-    _, launch_identity, _ = _reopen_phase_launch(
+    _, launch_identity, launch = _reopen_phase_launch(
         storage=storage,
         contract=contract,
         contract_identity=contract_identity,
@@ -5918,7 +6100,7 @@ def _reopen_execution_name_binding(
     phase: str,
 ) -> tuple[dict[str, object], dict[str, object]]:
     task = _task_contract(contract, task_index)
-    _, launch_identity, _ = _reopen_phase_launch(
+    _, launch_identity, launch = _reopen_phase_launch(
         storage=storage,
         contract=contract,
         contract_identity=contract_identity,
@@ -5941,12 +6123,18 @@ def _reopen_execution_name_binding(
         field="execution_name_ledger_sha256",
         label="execution-name ledger",
     )
+    governance = item.get("governance_authorization")
+    if governance is not None:
+        _validate_governance_authorization(
+            governance, label="execution-name binding governance"
+        )
     if (
         item.get("schema_version") != EXECUTION_NAME_SCHEMA
         or item.get("transport_contract") != contract_identity.as_dict()
         or item.get("launch_ledger") != launch_identity
         or item.get("task_index") != task_index
         or item.get("phase") != phase
+        or governance != launch.get("governance_authorization")
         or item.get("task_attempt") != 0
         or item.get("max_retries") != 0
         or item.get("automatic_retry_licensed") is not False
@@ -5975,15 +6163,6 @@ def _validate_terminal_governance_census(
     """Prove the job stayed parked and exactly one governed launch occurred."""
     retained_phase = _phase(phase)
     current_job = _validate_current_job(parked_job, contract=contract)
-    guard = _deployment_guard(
-        deployment_attestation=deployment_attestation,
-        observed_at_utc=observed_at_utc,
-        current_job=parked_job,
-        expected_build=_mapping(contract["build"], label="contract build"),
-        expected_service_account=str(contract["service_account"]),
-        schedulers=schedulers,
-        all_regions_complete=all_regions_complete,
-    )
     _, _, launch = _reopen_phase_launch(
         storage=storage,
         contract=contract,
@@ -5991,6 +6170,17 @@ def _validate_terminal_governance_census(
         task_index=task_index,
         phase=retained_phase,
     )
+    governance_authorization = _post_launch_governance(
+        launch=launch,
+        current_job=parked_job,
+        contract=contract,
+        schedulers=schedulers,
+        all_regions_complete=all_regions_complete,
+        observed_at_utc=_string(
+            observed_at_utc, label="terminal governance observed timestamp"
+        ),
+    )
+    del deployment_attestation
     before = set(_sequence(
         launch["execution_names_before"], label="terminal names before"
     ))
@@ -6061,7 +6251,10 @@ def _validate_terminal_governance_census(
         "execution_uid": terminal["execution_uid"],
         "execution_names": after_names,
         "execution_census_sha256": canonical_sha256(executions),
-        "scheduler_census_sha256": guard["scheduler_census_sha256"],
+        "scheduler_census_sha256": governance_authorization[
+            "scheduler_census_sha256"
+        ],
+        "governance_authorization": governance_authorization,
         "all_regions_complete": True,
         "exactly_one_new_execution": True,
         "no_active_executions": True,
@@ -6075,6 +6268,9 @@ _TERMINAL_CENSUS_KEYS: Final = frozenset({
     "all_regions_complete", "exactly_one_new_execution",
     "no_active_executions", "job_remains_parked",
 })
+_TERMINAL_CENSUS_KEYS_WITH_GOVERNANCE: Final = (
+    _TERMINAL_CENSUS_KEYS | {"governance_authorization"}
+)
 
 
 def _validate_terminal_census_receipt(
@@ -6086,7 +6282,25 @@ def _validate_terminal_census_receipt(
     terminal: Mapping[str, object],
 ) -> dict[str, object]:
     item = dict(_mapping(value, label="terminal governance census receipt"))
-    _exact_keys(item, _TERMINAL_CENSUS_KEYS, label="terminal census receipt")
+    if frozenset(item) not in {
+        _TERMINAL_CENSUS_KEYS,
+        _TERMINAL_CENSUS_KEYS_WITH_GOVERNANCE,
+    }:
+        raise CorpusParametricTransportError(
+            "terminal census receipt fields differ"
+        )
+    governance = item.get("governance_authorization")
+    if governance is not None:
+        retained_governance = _validate_governance_authorization(
+            governance, label="terminal governance authorization"
+        )
+        if (
+            retained_governance["scheduler_census_sha256"]
+            != item.get("scheduler_census_sha256")
+        ):
+            raise CorpusParametricTransportError(
+                "terminal governance scheduler fingerprint differs"
+            )
     names = execution_census_names([
         {"metadata": {"name": name}}
         for name in _sequence(item["execution_names"], label="terminal names")
@@ -6226,7 +6440,7 @@ def close_producer_task(
         schedulers=schedulers,
         all_regions_complete=all_regions_complete,
         deployment_attestation=deployment_attestation,
-        observed_at_utc=observed_at_utc,
+        observed_at_utc=observed_at_utc or created_at_utc,
     )
     completion_identity, completion = _reopen_producer_completion(
         storage=storage,
@@ -7250,7 +7464,7 @@ def accept_verified_task(
         schedulers=schedulers,
         all_regions_complete=all_regions_complete,
         deployment_attestation=deployment_attestation,
-        observed_at_utc=observed_at_utc,
+        observed_at_utc=observed_at_utc or created_at_utc,
     )
     verifier_completion_identity, verifier_completion, verification = (
         _reopen_verifier_completion(
@@ -8075,6 +8289,20 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "all_regions_complete": all_regions,
             }
 
+        def postlaunch_guard_args() -> dict[str, object]:
+            if (
+                getattr(args, "deployment_attestation_file", None) is None
+                and getattr(args, "schedulers_file", None) is None
+                and not bool(getattr(args, "all_regions_complete", False))
+            ):
+                return {
+                    "deployment_attestation": None,
+                    "observed_at_utc": getattr(args, "observed_at_utc", None),
+                    "schedulers": None,
+                    "all_regions_complete": False,
+                }
+            return deployment_guard_args()
+
         if args.command == "preflight-configure":
             guard = deployment_guard_args()
             if args.runtime_iam_file is None and guard["deployment_attestation"] is None:
@@ -8191,7 +8419,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 observed_at_utc=guard["observed_at_utc"],
             )
         elif args.command == "bind-execution":
-            guard = deployment_guard_args()
+            guard = postlaunch_guard_args()
             result = bind_phase_execution(
                 storage=store,
                 contract_identity=_identity_from_args(args, "contract").as_dict(),
@@ -8244,7 +8472,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 environ=os.environ,
             )
         elif args.command == "close-producer":
-            guard = deployment_guard_args()
+            guard = postlaunch_guard_args()
             result = close_producer_task(
                 storage=store,
                 contract_identity=_identity_from_args(args, "contract").as_dict(),
@@ -8266,7 +8494,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 observed_at_utc=guard["observed_at_utc"],
             )
         elif args.command == "accept-task":
-            guard = deployment_guard_args()
+            guard = postlaunch_guard_args()
             result = accept_verified_task(
                 storage=store,
                 contract_identity=_identity_from_args(args, "contract").as_dict(),
