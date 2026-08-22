@@ -1755,6 +1755,7 @@ def test_cli_gate_precedes_client_and_shell_has_separate_reuse_only_actions(
     assert "--clear-vpc-connector" in source_text
     assert "--clear-cloudsql-instances" in source_text
     assert "--clear-network" in source_text
+    assert "--clear-network-tags" not in source_text
     assert "--execution-environment" not in source_text
     assert "validate-build" in source_text
     assert "validate-parked-job" in source_text

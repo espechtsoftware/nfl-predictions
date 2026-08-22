@@ -273,7 +273,7 @@ configure_mode() {
     --args "$PREPARER,parked" \
     --clear-secrets --clear-volumes --clear-volume-mounts \
     --clear-vpc-connector --clear-cloudsql-instances \
-    --clear-network --clear-network-tags --clear-labels \
+    --clear-network --clear-labels \
     --startup-probe="" --workdir="" \
     --set-env-vars "CORPUS_ARTIFACT_SOURCE_AUTHORITY_ENABLED=1,CORPUS_ARTIFACT_SOURCE_IMAGE=${CORPUS_ARTIFACT_SOURCE_IMAGE},CORPUS_ARTIFACT_SOURCE_BUILD_ID=${CORPUS_ARTIFACT_SOURCE_BUILD_ID},CODE_SHA=${CORPUS_ARTIFACT_SOURCE_CODE_SHA}" \
     --tasks 1 --parallelism 1 --max-retries 0 --task-timeout 86400s \

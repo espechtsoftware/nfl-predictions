@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 20:25 CDT
+## Current state — 2026-08-21 20:27 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -132,8 +132,17 @@ agent or developer:
   and derives a separate canonical body for all job, execution, scheduler,
   build, launch-response, recovery, watch, and rollback captures. The exact
   behavioral rollback tests are green 2/2, shell syntax is green, and the
-  shared build-contract tests remain green 8/8. Use a fresh `transport-live-v2`
-  directory after the replacement image; do not reuse the partial directory.
+  shared build-contract tests remain green 8/8. The next attempt used a fresh
+  `transport-live-v2` directory and reached the actual `gcloud run jobs update`
+  parser, which
+  rejected redundant mutually exclusive `--clear-network` and
+  `--clear-network-tags` flags before issuing a request. The armed rollback
+  re-opened the prior job and confirmed the spec was unchanged. No object,
+  query, or execution exists. The wrapper now retains `--clear-network` and
+  omits the redundant tags flag; exact behavioral tests remain green 2/2,
+  shell syntax is green, and build-contract tests are green 8/8. Build this
+  one-line compatibility repair and use a fresh `transport-live-v3` directory;
+  do not reuse either partial directory.
 - The exact 270-artifact source plan is frozen locally with internal plan SHA
   `ff6131f4a35dd74724cf7c701328fef1c74ad00787a2455dae6e8da6ad8a6c02`
   and object-body SHA
