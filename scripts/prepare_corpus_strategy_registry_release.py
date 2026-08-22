@@ -21,7 +21,7 @@ from nfl_dfs.research.corpus_retrieval_neo4j import (
 )
 from nfl_dfs.research.corpus_strategy_registry_release import (
     CorpusStrategyRegistryReleaseError,
-    publish_strategy_registry_release,
+    publish_strategy_registry_release_with_preflight,
 )
 
 
@@ -130,7 +130,7 @@ def main(argv: list[str] | None = None) -> int:
                 _load_named_definition(path)
                 for path in args.named_scenario_definition
             ]
-            published = publish_strategy_registry_release(
+            published = publish_strategy_registry_release_with_preflight(
                 storage=storage,
                 retrieval_terminal_identity=_identity(
                     args, "retrieval_terminal"

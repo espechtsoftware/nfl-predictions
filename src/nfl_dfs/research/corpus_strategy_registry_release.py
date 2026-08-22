@@ -15,6 +15,8 @@ historical-outcome reader.
 
 from __future__ import annotations
 
+import hashlib
+
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from hashlib import sha256
@@ -2064,6 +2066,84 @@ def _publish_validated_strategy_registry_release(
     )
 
 
+class _PreflightObjectStore:
+    """Validate an entire release with ZERO real writes (review F7).
+
+    Reads delegate to the real store; publishes stay in memory with
+    deterministic fake generations, and reopening a preflight object
+    serves its exact bytes. Every deterministic release validation —
+    duplicate ids, pairing cycles, invalid fill pairs, missing source
+    shapes, and the complete graph replay — therefore runs to completion
+    before the first create-once object can strand a partial prefix.
+    Preflight outputs are discarded; the real publication then runs
+    normally against real storage.
+    """
+
+    def __init__(self, real: ExactObjectStore) -> None:
+        self._real = real
+        self._writes: dict[str, bytes] = {}
+        self._order: list[str] = []
+
+    @property
+    def write_count(self) -> int:
+        return len(self._order)
+
+    def publish_create_once(self, uri: str, raw: bytes) -> ObjectIdentity:
+        retained = self._writes.get(uri)
+        if retained is not None:
+            if retained != raw:
+                raise CorpusStrategyRegistryReleaseError(
+                    f"preflight create-once collision at {uri!r}"
+                )
+        else:
+            self._writes[uri] = bytes(raw)
+            self._order.append(uri)
+        digest = hashlib.sha256(self._writes[uri]).hexdigest()
+        return ObjectIdentity(
+            uri=uri,
+            generation=str(self._order.index(uri) + 1),
+            sha256=digest,
+            bytes=len(self._writes[uri]),
+        )
+
+    def read_exact(self, identity: object) -> bytes:
+        uri = (
+            identity.uri if hasattr(identity, "uri")
+            else str(identity["uri"])
+        )
+        retained = self._writes.get(uri)
+        if retained is not None:
+            return retained
+        return self._real.read_exact(identity)
+
+
+def publish_strategy_registry_release_with_preflight(
+    *,
+    storage: ExactObjectStore,
+    retrieval_terminal_identity: object,
+    batch_acceptance_identity: object,
+    registry_id: str,
+    output_prefix: str,
+    created_at_utc: str,
+    producer_release: Mapping[str, object],
+    named_scenario_definitions: Sequence[Mapping[str, object]] = (),
+) -> PublishedStrategyRegistryRelease:
+    """Run the complete release against a zero-write preflight store first."""
+    kwargs = dict(
+        retrieval_terminal_identity=retrieval_terminal_identity,
+        batch_acceptance_identity=batch_acceptance_identity,
+        registry_id=registry_id,
+        output_prefix=output_prefix,
+        created_at_utc=created_at_utc,
+        producer_release=producer_release,
+        named_scenario_definitions=named_scenario_definitions,
+    )
+    publish_strategy_registry_release(
+        storage=_PreflightObjectStore(storage), **kwargs
+    )
+    return publish_strategy_registry_release(storage=storage, **kwargs)
+
+
 def publish_strategy_registry_release(
     *,
     storage: ExactObjectStore,
@@ -2111,6 +2191,7 @@ __all__ = [
     "PUBLICATION_INTENT_SCHEMA",
     "PUBLICATION_SCHEMA",
     "PublishedStrategyRegistryRelease",
+    "publish_strategy_registry_release_with_preflight",
     "TASK_COUNT",
     "accepted_task0_existing_corpus_fill_parameters",
     "accepted_task0_retrieval_preset_parameters",

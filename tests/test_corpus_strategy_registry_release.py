@@ -802,3 +802,57 @@ def test_named_definition_rejects_heldout_metric_as_ranker_signal(
         match="heldout_r4 metric direction must be descriptive",
     ):
         registry.validate_named_scenario_definition(invalid)
+
+
+def test_preflight_wrapper_leaves_storage_untouched_on_invalid_release(
+    monkeypatch: pytest.MonkeyPatch,
+    accepted_task0_named_definition: dict[str, object],
+) -> None:
+    storage = FakeStorage()
+    parent_plan, named_context = _named_context()
+    evidence = replace(
+        _accepted_evidence(),
+        retrieval_plan=parent_plan,
+        retrieval_terminal_identity=named_context["terminal"],
+    )
+    monkeypatch.setattr(
+        release, "reopen_accepted_batch_evidence",
+        lambda **kwargs: evidence,
+    )
+    monkeypatch.setattr(
+        release,
+        "_accepted_task0_retrieval_context",
+        lambda **_kwargs: named_context,
+    )
+    poisoned = deepcopy(accepted_task0_named_definition)
+    poisoned["accepted_experiments"].append(
+        deepcopy(poisoned["accepted_experiments"][0])
+    )
+    poisoned.pop("named_scenario_definition_sha256")
+    poisoned["named_scenario_definition_sha256"] = (
+        registry.canonical_sha256(poisoned)
+    )
+    kwargs = dict(
+        storage=storage,
+        retrieval_terminal_identity=evidence.retrieval_terminal_identity,
+        batch_acceptance_identity=evidence.batch_acceptance_identity,
+        registry_id="accepted-54x7-registry-v1",
+        output_prefix="gs://registry-output/accepted-54x7-registry-v1/",
+        created_at_utc="2026-08-21T23:00:00Z",
+        producer_release={
+            "code_commit": "c" * 40,
+            "image": "example.invalid/repo/producer@sha256:" + "d" * 64,
+            "build_id": "87654321-4321-4321-4321-cba987654321",
+        },
+        named_scenario_definitions=[poisoned],
+    )
+    with pytest.raises(release.CorpusStrategyRegistryReleaseError):
+        release.publish_strategy_registry_release_with_preflight(**kwargs)
+    assert len(storage.current) == 0
+
+    kwargs["named_scenario_definitions"] = [accepted_task0_named_definition]
+    published = release.publish_strategy_registry_release_with_preflight(
+        **kwargs
+    )
+    assert published.publication["named_scenario_definition_count"] == 1
+    assert len(storage.current) > 0
