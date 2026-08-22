@@ -20,6 +20,48 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-22 10:49 CDT
+
+### Replacement-model entry point
+
+- Read
+  `reports/2026-08-22-corpus-research-engine-live-handoff.md` before taking any
+  action. It contains the full current architecture, exact immutable identities,
+  accepted >200 phenotype findings, no-IAM-census semantics, Neo4j/UI readiness,
+  unfinished isolated worktrees, safety constraints, and copyable recovery/
+  acceptance commands.
+- The code/evidence baseline immediately before this documentation-only
+  checkpoint is `ed3f7db4ef0269cbee63c78f140a415f47bb1185`. The active science run remains
+  bound to clean exact c60 source
+  `c60b7e7992b5c6367edb14a17c6edd13a30539f2`; do not mix current-main
+  transport code into its contract.
+- Producer execution `atlas-minimal-c-s2023-w1-v1-l6dll`, UID
+  `64e1275f-ee3f-4efe-a63a-6fc6becfac84`, was still running at
+  `2026-08-22T15:49:15Z`: `Completed=Unknown`, one running task, zero success,
+  failure or retry. Its one launch is consumed and its exact name is bound.
+  Never launch or bind it again. Poll only; on `Completed=True`, use the exact
+  c60 environment and `watch-producer` procedure in the report. On
+  `Completed=False`, preserve evidence and stop with no retry.
+- Cloud Monitoring proves continuing work rather than a hang: the 8-vCPU
+  worker holds approximately 12.5% utilization, exactly one saturated core.
+  The current engine serializes 7,000 one-thread CBC visits (normally two proof
+  stages per visit). Deterministic arm/block parallelism and bounded progress
+  telemetry are the first performance changes for the larger suite; do not
+  alter the active run.
+- The bounded deployment-attestation/no-IAM-census path is integrated and
+  pushed in `1a1cbc8`, `0393e09`, and `0409c8c`; final independent rereview
+  found no blockers and 43 focused tests passed. A new immutable image is still
+  required before the later full suite uses this current-main worker path.
+- The named-scenario registry extension is uncommitted in
+  `/tmp/nfl-scenario-registry-ed3f7db` on `codex/scenario-registry`. It is being
+  finished/tested; do not cherry-pick without a reported green commit SHA.
+- The phenotype graph/UI adapter is an incomplete, uncommitted draft in
+  `/tmp/nfl-predictions-phenotype-ed3f7db` on
+  `codex/phenotype-graph-ui-adapter`. Only the transport successor draft exists;
+  bytecode/diff checks pass but behavioral tests and the actual adapter/UI are
+  absent. Continue it deliberately or discard only that isolated worktree after
+  review; do not mistake it for production-ready code.
+
 ## Current state — 2026-08-22 10:00 CDT
 
 ### V4 foundation is accepted; exact score execution is running
