@@ -1114,8 +1114,223 @@ def append_parametric_batch(
     return append_load_plan(plan, nodes=nodes, relationships=relationships)
 
 
+GT200_ANALYSIS_SCHEMA: Final = "corpus-gt200-phenotype-analysis/v1"
+
+_GT200_ANALYSIS_KEYS: Final = {
+    "schema_version", "analysis_id", "created_at_utc", "task_id", "evidence",
+    "outcome_semantics", "world_provenance", "phenotype_preset",
+    "availability", "optional_join_contract", "summary", "lineups",
+    "simulated_gt200_events", "associations", "candidate_origins",
+    "world_block_concentration", "top_worlds_by_block", "roster_redundancy",
+    "neo4j_projection", "licenses", "analysis_sha256",
+}
+
+
+def append_population_phenotypes(
+    plan: Neo4jLoadPlan,
+    *,
+    analysis_raw: bytes,
+    analysis_identity: object,
+    population_authorization: Mapping[str, object],
+) -> Neo4jLoadPlan:
+    """Append the gt200 phenotype population projection to a base plan.
+
+    The population namespace stays reserved-empty until a deployment
+    manifest explicitly authorizes it (the population-authorized v3
+    manifest); this appender re-checks that authorization structurally,
+    binds the analysis artifact by content identity to the parent plan's
+    accepted task result, and projects the analysis's own bounded
+    ``neo4j_projection`` — nothing else — under
+    ``corpus-population-research``. Realized outcomes are refused at the
+    licenses, outcome-semantics, and namespace layers.
+    """
+    authorization = _mapping(
+        population_authorization, label="population authorization"
+    )
+    if (
+        list(authorization.get("authorized_added_namespaces", []))
+        != [POPULATION_NAMESPACE]
+        or authorization.get("population_projection_only") is not True
+        or authorization.get("realized_outcome_namespace_reserved_empty")
+        is not True
+        or not _string(
+            authorization.get("authorization_id"),
+            label="population authorization id",
+        )
+    ):
+        raise CorpusRetrievalNeo4jError(
+            "population namespace is not authorized for projection"
+        )
+    analysis, retained = _parse_bound_self_hash(
+        analysis_raw,
+        analysis_identity,
+        label="gt200 phenotype analysis",
+        schema_field="schema_version",
+        schema=GT200_ANALYSIS_SCHEMA,
+        hash_field="analysis_sha256",
+        exact_keys=_GT200_ANALYSIS_KEYS,
+    )
+    evidence = _mapping(analysis["evidence"], label="analysis evidence")
+    if (
+        _identity(
+            evidence.get("task_result_identity"),
+            label="analysis task result identity",
+        )
+        != plan.task_result_identity
+        or _string(analysis["task_id"], label="analysis task id")
+        != plan.task_id
+    ):
+        raise CorpusRetrievalNeo4jError(
+            "analysis is not content-bound to the plan's task result"
+        )
+    licenses = _mapping(analysis["licenses"], label="analysis licenses")
+    outcome_semantics = _mapping(
+        analysis["outcome_semantics"], label="analysis outcome semantics"
+    )
+    if (
+        licenses.get("analytics_authority") is not True
+        or licenses.get("historical_outcome_read_authority") is not False
+        or licenses.get("live_money_policy_authority") is not False
+        or licenses.get("production_default_change_authority") is not False
+        or outcome_semantics.get("realized_contest_outcomes_read")
+        is not False
+    ):
+        raise CorpusRetrievalNeo4jError(
+            "analysis licenses admit more than simulated-world analytics"
+        )
+    projection = _mapping(
+        analysis["neo4j_projection"], label="analysis projection"
+    )
+    if projection.get("dedicated_analytical_graph_only") is not True:
+        raise CorpusRetrievalNeo4jError(
+            "analysis projection is not analytics-dedicated"
+        )
+    raw_nodes = _sequence(projection["nodes"], label="analysis nodes")
+    raw_edges = _sequence(projection["edges"], label="analysis edges")
+    if (
+        projection.get("node_count") != len(raw_nodes)
+        or projection.get("edge_count") != len(raw_edges)
+    ):
+        raise CorpusRetrievalNeo4jError(
+            "analysis projection counts differ from its rows"
+        )
+
+    analysis_sha = str(retained["sha256"])
+    nodes: list[dict[str, object]] = []
+    physical_by_logical: dict[str, str] = {}
+    analysis_root_physical = ""
+    for raw_node in raw_nodes:
+        node = _mapping(raw_node, label="analysis node")
+        _exact_keys(
+            node, {"id", "kind", "properties"}, label="analysis node"
+        )
+        logical_id = _string(node["id"], label="analysis node id")
+        kind = _string(node["kind"], label="analysis node kind")
+        properties = _mapping(node["properties"], label="analysis node body")
+        if logical_id in physical_by_logical:
+            raise CorpusRetrievalNeo4jError("analysis node IDs repeat")
+        physical_id = (
+            f"corpus-population-entity:{analysis_sha}:"
+            f"{canonical_sha256(logical_id)}"
+        )
+        physical_by_logical[logical_id] = physical_id
+        if kind == "CorpusGt200Analysis":
+            if analysis_root_physical:
+                raise CorpusRetrievalNeo4jError(
+                    "analysis projection has two root nodes"
+                )
+            analysis_root_physical = physical_id
+        metric_name = ""
+        metric_value = 0.0
+        metric_present = False
+        if kind == "PhenotypeAssociation":
+            scopes = properties.get("scopes")
+            discovery = (
+                scopes.get("discovery-r0-r3")
+                if isinstance(scopes, Mapping) else None
+            )
+            count = (
+                discovery.get("strict_gt_200_event_count")
+                if isinstance(discovery, Mapping) else None
+            )
+            if type(count) is int:
+                metric_name = "strict_gt_200_event_count_discovery_r0_r3"
+                metric_value = float(count)
+                metric_present = True
+        nodes.append({
+            "id": physical_id,
+            "kind": kind,
+            "logical_id": logical_id,
+            "run_id": plan.run_id,
+            "task_id": plan.task_id,
+            "payload_sha256": canonical_sha256(node),
+            "properties_json": canonical_json_bytes(properties).decode(
+                "utf-8"
+            ),
+            "source_uri": retained["uri"],
+            "source_generation": retained["generation"],
+            "source_sha256": retained["sha256"],
+            "source_bytes": retained["bytes"],
+            "workstream_namespace": POPULATION_NAMESPACE,
+            "task_index": 0,
+            "task_index_present": True,
+            "slate_id": plan.task_id,
+            "parameter_set_id": "",
+            "strategy_id": str(properties.get("strategy_id", "")),
+            "analysis_scope": (
+                "discovery-r0-r3-rankable"
+                if metric_present else "population-projection"
+            ),
+            "metric_name": metric_name,
+            "metric_value": metric_value,
+            "metric_value_present": metric_present,
+        })
+    if not analysis_root_physical:
+        raise CorpusRetrievalNeo4jError(
+            "analysis projection has no CorpusGt200Analysis root"
+        )
+
+    relationships = [_relationship(
+        _authority_id(plan, "CorpusTaskResult"),
+        "HAS_PHENOTYPE_ANALYSIS",
+        analysis_root_physical,
+        {
+            "analysis_sha256": analysis_sha,
+            "analysis_id": str(analysis["analysis_id"]),
+            "workstream_namespace": POPULATION_NAMESPACE,
+        },
+        task_index=0,
+        slate_id=plan.task_id,
+    )]
+    for raw_edge in raw_edges:
+        edge = _mapping(raw_edge, label="analysis edge")
+        _exact_keys(
+            edge, {"from", "type", "to", "properties"}, label="analysis edge"
+        )
+        source = physical_by_logical.get(
+            _string(edge["from"], label="analysis edge source")
+        )
+        target = physical_by_logical.get(
+            _string(edge["to"], label="analysis edge target")
+        )
+        if source is None or target is None:
+            raise CorpusRetrievalNeo4jError(
+                "analysis edge endpoint is outside the projection"
+            )
+        relationships.append(_relationship(
+            source,
+            _string(edge["type"], label="analysis edge type"),
+            target,
+            _mapping(edge["properties"], label="analysis edge body"),
+            task_index=0,
+            slate_id=plan.task_id,
+        ))
+    return append_load_plan(plan, nodes=nodes, relationships=relationships)
+
+
 __all__ = [
     "AUTHORITY_ROLES",
+    "GT200_ANALYSIS_SCHEMA",
     "PARAMETRIC_COMPLETION_SCHEMA",
     "PARAMETRIC_NAMESPACE",
     "PARAMETRIC_TASK_SCHEMA",
@@ -1127,5 +1342,6 @@ __all__ = [
     "VERIFIED_GATE_IDS",
     "RETRIEVAL_NAMESPACE",
     "append_parametric_batch",
+    "append_population_phenotypes",
     "append_retrieval_analytics",
 ]

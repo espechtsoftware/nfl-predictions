@@ -1171,3 +1171,217 @@ def test_analysis_query_catalog_is_read_only_and_complete() -> None:
     assert "$run_id" in source
     assert "$task_id" in source
     assert "$batch_id" in source
+
+
+def _population_analysis(
+    parent: projection.Neo4jLoadPlan,
+) -> tuple[dict[str, Any], bytes, dict[str, object]]:
+    task_id = parent.task_id
+    root_id = f"analysis:{task_id}:gt200"
+    candidate_id = f"candidate:{task_id}:lineup-a"
+    association_id = "association:tag:abc123"
+    nodes = [
+        {"id": root_id, "kind": "CorpusGt200Analysis", "properties": {
+            "analysis_id": "gt200-analysis-fixture", "task_id": task_id,
+            "outcome_semantics": "simulated-world-scores-only",
+        }},
+        {"id": association_id, "kind": "PhenotypeAssociation", "properties": {
+            "category": "tag", "key": "tag=boom",
+            "scopes": {"discovery-r0-r3": {"strict_gt_200_event_count": 7}},
+        }},
+        {"id": candidate_id, "kind": "LineupCandidate", "properties": {
+            "lineup_id": "lineup-a", "salary_total": 49_900,
+        }},
+    ]
+    edges = [
+        {"from": root_id, "type": "HAS_LINEUP", "to": candidate_id,
+         "properties": {}},
+        {"from": association_id, "type": "SUPPORTED_BY", "to": candidate_id,
+         "properties": {}},
+    ]
+    body = _self_hash({
+        "schema_version": extensions.GT200_ANALYSIS_SCHEMA,
+        "analysis_id": "gt200-analysis-fixture",
+        "created_at_utc": "2026-08-22T12:00:00Z",
+        "task_id": task_id,
+        "evidence": {
+            "task_result_identity": dict(parent.task_result_identity),
+            "full_score_matrix_read": False,
+        },
+        "outcome_semantics": {"realized_contest_outcomes_read": False},
+        "world_provenance": {},
+        "phenotype_preset": {},
+        "availability": {},
+        "optional_join_contract": {},
+        "summary": {"lineup_count": 1},
+        "lineups": [],
+        "simulated_gt200_events": [],
+        "associations": [],
+        "candidate_origins": [],
+        "world_block_concentration": [],
+        "top_worlds_by_block": [],
+        "roster_redundancy": {},
+        "neo4j_projection": {
+            "dedicated_analytical_graph_only": True,
+            "node_count": len(nodes),
+            "edge_count": len(edges),
+            "nodes": nodes,
+            "edges": edges,
+        },
+        "licenses": {
+            "analytics_authority": True,
+            "corpus_fill_authority": False,
+            "historical_outcome_read_authority": False,
+            "live_money_policy_authority": False,
+            "production_default_change_authority": False,
+        },
+    }, "analysis_sha256")
+    raw = projection.canonical_json_bytes(body)
+    identity = _identity(
+        "gs://dedicated-research/run/analysis/gt200-analysis.json", 900, raw
+    )
+    return body, raw, identity
+
+
+def _population_authorization() -> dict[str, object]:
+    return {
+        "authorization_id": "population-authorization-fixture-v1",
+        "authorized_added_namespaces": [extensions.POPULATION_NAMESPACE],
+        "population_projection_only": True,
+        "realized_outcome_namespace_reserved_empty": True,
+    }
+
+
+def test_population_appender_projects_bounded_namespace() -> None:
+    parent = _plan(_bundle())
+    body, raw, identity = _population_analysis(parent)
+    plan = extensions.append_population_phenotypes(
+        parent,
+        analysis_raw=raw,
+        analysis_identity=identity,
+        population_authorization=_population_authorization(),
+    )
+    population_nodes = [
+        row for row in plan.nodes
+        if row["workstream_namespace"] == extensions.POPULATION_NAMESPACE
+    ]
+    assert len(population_nodes) == 3
+    assert all(
+        str(row["id"]).startswith("corpus-population-entity:")
+        and row["source_sha256"] == identity["sha256"]
+        and row["task_index"] == 0
+        and row["slate_id"] == parent.task_id
+        for row in population_nodes
+    )
+    association = [
+        row for row in population_nodes
+        if row["kind"] == "PhenotypeAssociation"
+    ]
+    assert len(association) == 1
+    assert association[0]["metric_value_present"] is True
+    assert association[0]["metric_value"] == 7.0
+    assert association[0]["metric_name"] == (
+        "strict_gt_200_event_count_discovery_r0_r3"
+    )
+    bridge = [
+        row for row in plan.relationships
+        if row["relationship_type"] == "HAS_PHENOTYPE_ANALYSIS"
+    ]
+    assert len(bridge) == 1
+    root = [
+        row for row in population_nodes
+        if row["kind"] == "CorpusGt200Analysis"
+    ][0]
+    assert bridge[0]["to_id"] == root["id"]
+    projected_types = {
+        row["relationship_type"] for row in plan.relationships
+        if row["from_id"] in {str(node["id"]) for node in population_nodes}
+    }
+    assert {"HAS_LINEUP", "SUPPORTED_BY"} <= projected_types
+    # Idempotent on repeat (same content merges byte-identically).
+    repeated = extensions.append_population_phenotypes(
+        plan,
+        analysis_raw=raw,
+        analysis_identity=identity,
+        population_authorization=_population_authorization(),
+    )
+    assert repeated.plan_sha256 == plan.plan_sha256
+    # Base retrieval namespace untouched.
+    assert len(plan.nodes) == len(parent.nodes) + 3
+
+
+def test_population_appender_is_fail_closed() -> None:
+    parent = _plan(_bundle())
+    body, raw, identity = _population_analysis(parent)
+    unauthorized = _population_authorization() | {
+        "population_projection_only": False
+    }
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError, match="not authorized"
+    ):
+        extensions.append_population_phenotypes(
+            parent, analysis_raw=raw, analysis_identity=identity,
+            population_authorization=unauthorized,
+        )
+    drifted = dict(body)
+    drifted["evidence"] = {
+        "task_result_identity": _placeholder_identity("other/result.json", 7),
+        "full_score_matrix_read": False,
+    }
+    drifted.pop("analysis_sha256")
+    drifted = _self_hash(drifted, "analysis_sha256")
+    drifted_raw = projection.canonical_json_bytes(drifted)
+    drifted_identity = _identity(
+        "gs://dedicated-research/run/analysis/gt200-analysis-drift.json",
+        901, drifted_raw,
+    )
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError, match="content-bound"
+    ):
+        extensions.append_population_phenotypes(
+            parent, analysis_raw=drifted_raw,
+            analysis_identity=drifted_identity,
+            population_authorization=_population_authorization(),
+        )
+    outcome_read = dict(body)
+    outcome_read["outcome_semantics"] = {
+        "realized_contest_outcomes_read": True
+    }
+    outcome_read.pop("analysis_sha256")
+    outcome_read = _self_hash(outcome_read, "analysis_sha256")
+    outcome_raw = projection.canonical_json_bytes(outcome_read)
+    outcome_identity = _identity(
+        "gs://dedicated-research/run/analysis/gt200-analysis-outcome.json",
+        902, outcome_raw,
+    )
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError, match="licenses admit"
+    ):
+        extensions.append_population_phenotypes(
+            parent, analysis_raw=outcome_raw,
+            analysis_identity=outcome_identity,
+            population_authorization=_population_authorization(),
+        )
+    dangling = dict(body)
+    dangling_projection = dict(dangling["neo4j_projection"])
+    dangling_projection["edges"] = list(dangling_projection["edges"]) + [{
+        "from": f"analysis:{parent.task_id}:gt200", "type": "HAS_LINEUP",
+        "to": "candidate:absent", "properties": {},
+    }]
+    dangling_projection["edge_count"] = len(dangling_projection["edges"])
+    dangling["neo4j_projection"] = dangling_projection
+    dangling.pop("analysis_sha256")
+    dangling = _self_hash(dangling, "analysis_sha256")
+    dangling_raw = projection.canonical_json_bytes(dangling)
+    dangling_identity = _identity(
+        "gs://dedicated-research/run/analysis/gt200-analysis-dangling.json",
+        903, dangling_raw,
+    )
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError, match="outside the projection"
+    ):
+        extensions.append_population_phenotypes(
+            parent, analysis_raw=dangling_raw,
+            analysis_identity=dangling_identity,
+            population_authorization=_population_authorization(),
+        )
