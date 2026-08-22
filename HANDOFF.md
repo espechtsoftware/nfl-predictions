@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 21:29 CDT
+## Current state — 2026-08-21 21:37 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -241,6 +241,42 @@ agent or developer:
   all five focused stages green and canonical Git provenance. Its immutable
   image, superseding every prior expansion image, is
   `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:d35ed96e000317928530bd3d7e5a88ff63d233217066f67fc80d782b8a22700c`.
+  Census-only recovery and one-time binding then captured execution `zd6zw`
+  without issuing another launch. The create-once execution binding is
+  `gs://nfl-predictions-503414-corpus-source/research/delivery/20260821-corpus-artifact-source-authority-v2/governance/execution-binding.json`,
+  generation `1787365914356300`, SHA
+  `cb0a204ea1d7d2dea6527c1ecfb2dabca42967a10597e0a214ca9c2b48b8c256`,
+  bytes `11090`. The execution is terminal failed, attempt 0/retry 0, exit 1;
+  it started `2026-08-22T02:29:08.846858Z` and completed
+  `2026-08-22T02:30:20.784167Z`. At
+  `2026-08-22T02:30:14.791021Z`, the worker failed closed with
+  `CorpusArtifactSourcePreparationError: r0_candidates row[0] candidate
+  identity differs`. The registered R0 query itself completed successfully
+  and returned 13,633 rows after reading 68,980; the exact table schema stores
+  `players` as one comma-separated `STRING`, while the frozen query selected
+  it raw and the authority correctly requires a player list. An exact-snapshot
+  diagnostic confirmed row 0 otherwise has the expected panel/slate/index,
+  a valid GCS score-artifact URI, and a valid 64-character SHA. This is a
+  deterministic SQL/schema-boundary defect, not matrix corruption, IAM, or a
+  Cloud Run transient. The whole repair class is to project
+  `SPLIT(players, ',') AS players`, add a result-type regression, build a new
+  immutable image, and register a fresh v3 authority. Never relaunch `zd6zw`
+  or reuse v2 job IDs/prefixes.
+
+  V2 remains intact as failed-authority evidence. Its source prefix contains
+  exactly two create-once objects: prefix claim generation
+  `1787365809634585`, SHA
+  `8bc20833f06525cf35200a70c05b6a43ac64eeb5a53dbcb2ee59faea41717689`,
+  bytes `2422`; and source registration generation `1787365809932910`, SHA
+  `5e4853b8ca6796594292870bd2a9c80e6ce13c4bcb74285966902de000468fe5`,
+  bytes `1840`. All seven later source objects are absent. Delivery contains the
+  plan, IAM evidence, transport contract, launch ledger, and execution binding
+  only. Of the three deterministic BigQuery jobs, only
+  `20260821-corpus-artifact-source-authority-v2-r0-candidates` exists; the
+  catalog and salary jobs are absent. The reused Cloud Run job is parked and
+  Ready at generation 21 with execution count 267. Do not delete either
+  partial source object: deletion would not restore the consumed launch or
+  used BigQuery identity.
 - The last exact 270-artifact v3 source plan was never published. It was pinned
   to commit `4440c4f`, image `dbf9796c`, internal plan SHA
   `98f2bff2d4c6891c4f5f5aad8ff5978d47c2188847f685131900d9f22cb8020b`,
@@ -255,10 +291,10 @@ agent or developer:
   `transport-live-v4`. The provenance-valid v1 plan had internal SHA
   `80b72f02b1f4ac0b03c134adf97cf6eccd8ce8ed3b251d0dd8c4bd1be5193988`
   and file SHA `04627aca...`; only its first delivery object was published as
-  documented above. Preserve that abandoned partial namespace. Repair and
-  sweep live Storage generation normalization, build one superseding image,
-  and register a clean `20260821-corpus-artifact-source-authority-v2` with
-  disjoint v2 delivery/output prefixes and matching exact IAM conditions.
+  documented above. Preserve that abandoned partial namespace. The Storage
+  generation repair, superseding image, and clean v2 registration described
+  here were completed; v2 subsequently failed for the independent raw-player
+  SQL projection defect recorded above and is now also immutable history.
   Runtime/project/table/role/bucket IAM bodies and the fully explored six-grant
   source-principal Cloud Asset analysis are captured. A public-principal
   Cloud Asset capture repeatedly hit HTTP 429 even though the published
@@ -281,17 +317,16 @@ agent or developer:
   now-integrated release, then regenerate the still-unpublished source plan
   for that final code/image identity and assemble the self-hashed live IAM
   evidence.
-- No source query, source-output publication, parametric solver,
-  realized-outcome read, graph write, or new scoring execution occurred during
-  this milestone. Cloud Run was updated only by failed configure attempts and
-  each exact prior spec was automatically restored. One abandoned delivery
-  plan object exists as documented above. Exact next action: prepare the v2
-  plan and IAM evidence for commit `7cc06de`, build `8a17413e`, and immutable
-  digest `d35ed96e` are configured and the one launch is consumed. Exact next
-  action: use census-only recovery and binding for execution `zd6zw`, then
-  terminal watches; never repeat the launch request. After accepted terminal
-  source publication, run the isolated task-0 seven-arm real-artifact smoke
-  before the complete serial 54-task suite.
+- No parametric solver, realized-outcome read, graph write, or new scoring
+  execution occurred during this milestone. Source v2 ran exactly its
+  registered R0 candidate query but published no query capture, source freeze,
+  salary diagnostic, or terminal completion. Exact next action: implement and
+  focused-test the canonical player projection, commit/push the repair, build
+  one provenance-valid immutable replacement image, and prepare a clean v3
+  authority with disjoint source/delivery prefixes, deterministic query IDs,
+  and matching IAM conditions. After accepted v3 source publication, run the
+  isolated one-slate seven-arm real-artifact smoke before the complete serial
+  54-task suite.
 
 ### Accepted task-0 score is on main; corpus research dashboard is mounted
 
