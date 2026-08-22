@@ -20,14 +20,13 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Parallel branch — 2026-08-22 08:30 CDT
+## Integrated workstream — 2026-08-22 08:30 CDT
 
 ### Sparse simulated->200 phenotype analysis is implementation-ready; not executed
 
-- Isolated branch `codex/above200-analysis`, based on pushed `main` commit
-  `f95878d9394cc4dac2eb97ed6ec6362b460d45c1`, contains implementation commit
-  `52021cba12730238fb853c6598aab2621fd5d09e` and completeness repair
-  `3bf90a64dc31bb8123a3618e97b08cbddd7d9aca`. It adds a pure exact-evidence
+- The isolated `codex/above200-analysis` work is integrated on `main` as
+  commits `95db0e0`, `85b1b7a`, `3bbb280`, and `31f1fc2` (original branch tip
+  `7219a593e07a9bdb939241b9b7fa69943b0f15e5`). It adds a pure exact-evidence
   analyzer, a generation-pinned read-only GCS CLI, the accepted task-0 context
   annotation, and focused synthetic tests. No retrieval/scoring namespace,
   cloud execution, IAM binding, GCS object, Neo4j database, or accepted evidence
@@ -58,9 +57,8 @@ agent or developer:
   Python 3.11 canonical parse of the task-0 context. The repo `.venv` is Python
   3.14.4; `/tmp/nfl-corpus-py311/bin/python` is Python 3.11.16 with NumPy 2.4.6
   and GCS support. No broad suite or heavy local computation ran.
-- Exact next action is review/cherry-pick this parallel branch and, only after
-  the operator accepts the bounded cost, execute from this worktree with a new
-  local output path:
+- After the active task-0 parametric smoke is accepted, execute the bounded
+  analyzer from `main` with a new local output path:
 
   ```bash
   PYTHONPATH=src /tmp/nfl-corpus-py311/bin/python scripts/analyze_corpus_gt200.py \
@@ -81,7 +79,57 @@ agent or developer:
   a frozen analysis metadata value; change both ID/timestamp/output together
   if a later execution identity is desired.
 
-## Current state — 2026-08-22 08:03 CDT
+## Current state — 2026-08-22 08:32 CDT
+
+### Corrected v3 foundation accepted; configure and score next
+
+- Branch `main` contains integrated phenotype implementation through
+  `31f1fc2`. The corrected code-source worktree used for all current immutable
+  execution bindings remains `/tmp/nfl-predictions-corpus-9a5c621` at exact
+  pushed SHA `9a5c62130419da95d5ddb6af4c6396abb2ae089d` with Python 3.11 at
+  `/tmp/nfl-corpus-py311/bin/python`.
+- The one and only v3 foundation execution completed successfully. Foundation
+  `20260822-corpus-parametric-task0-smoke-foundation-v3` reopened and verified
+  all 270 exact-generation Atlas money-world artifacts (54 slates, five blocks,
+  6,630,513,953 retained bytes) and published exactly one smoke task with seven
+  parameter arms. It read no realized outcomes and created no scoring result.
+- Durable foundation publication completion is
+  `gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/foundations/20260822-corpus-parametric-task0-smoke-foundation-v3/governance/publication-completion.json`,
+  generation `1787405143455594`, SHA-256
+  `96220f57858496eea87ee3a0869ae01722f4fb3c9b1a1836c3329221f19596f6`,
+  7,570 bytes. The retained manifest identity is generation
+  `1787405142395145`, SHA-256
+  `ff2ea40b01b4c202f27f29f7c10fc5f24074bb9dfe62dda3de2a19a340cff247`,
+  12,646 bytes; evidence contract identity is generation
+  `1787405142828286`, SHA-256
+  `faa32b4e104dc87b6bd1e5c71385bbd24fdd0a6aa7a678a8de21c1701df854ec`,
+  38,493 bytes; retrieval prerequisite identity is generation
+  `1787405137960046`, SHA-256
+  `1e2090aaf88085c5fb99ad1b07e480b0d0db5cb0606b5edd464703b3a7f89c85`,
+  1,925 bytes. The local exact receipt is tracked under the v3 foundation
+  directory.
+- Fresh runtime IAM capture is retained at
+  `reports/corpus-parametric-runs/20260822-corpus-parametric-task0-smoke-v3/governance-live-v3/runtime-iam-policy-capture.json` and validates against the
+  v3-only create/read conditions. It is 23,569 bytes, raw SHA-256
+  `b345f52c4ea3b310905b8530f4e7e8b71ba6fed776cf33ff3c0771347b8a20f2`,
+  embedded capture SHA-256
+  `762cda8b703d2c4f6c2b5d51295d24fb7a6bc010997d4151b0b809c0186bff32`.
+- The accepted task-0 phenotype evidence already establishes 27,117 strict
+  simulated >200 lineup-world events. Boom-tagged lineups are 34.2% of the
+  585-lineup corpus but supply 55.9% of those events (1.6354x lift), rising to
+  86.2% of >240 events. This is simulated one-slate evidence, not realized or
+  causal evidence. FantasyPoints/SIS are not inputs to either the accepted
+  task-0 matrices or the v3 Atlas foundation; PIT coverage is an explicit
+  annotation join/future arm.
+- Exact next action: configure the fresh `transport-live-v3` namespace from
+  the exact `9a5c621` worktree using the four identities above, corrected image
+  digest `sha256:a932cc7bbbf02cd17d8838fbb54ebec085fef05bdbcc16a59ea9865760076745`,
+  build `46667fe8-4a80-4347-9611-3197d7c34fab`, and the fresh IAM capture.
+  Then run the outcome-blind `validate-only` task-0 smoke, prove its task
+  prefix empty, consume producer launch exactly once, bind/recover, watch,
+  independently verify, and accept. Never reuse any v2 launch authority.
+
+## Prior current state — 2026-08-22 08:03 CDT
 
 ### Task-0 v2 worker failed before solving; runtime-provenance repair is focused-green
 
