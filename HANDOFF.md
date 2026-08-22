@@ -20,7 +20,51 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-22 11:55 CDT
+## Current handoff — 2026-08-22 12:04 CDT
+
+### Independent Foundry code review completed; implementation and deployment untouched
+
+- On `main` at review base `abe06843090985bb17573918816b327c94b8e605`,
+  added the shareable findings-first review
+  `reports/2026-08-22-foundry-code-review.md`. The review covers merged
+  parallel generation (`b2d8451`), named registry release (`04d6579`), the
+  Foundry preplan/runbook, merged retrieval-v2 implementation `10bdb07`, and
+  separately the unmerged Neo4j v3 draft (`4859f7e`). No source code, cloud
+  state, deployment, or running process was changed.
+- Principal conclusion: the running production plan is a useful 54-slate x
+  7-fill-arm panel under one fixed exact80/line194 selector, not yet a
+  fill x retrieval factorial. It is safe to continue foundation/task 0 under
+  the exact preplan; do not relaunch merely because
+  `publish_task_requests=false`, since runtime deterministically reconstructs
+  exact requests. Tasks 1-53 still require a machine-readable task-0 v4/v5
+  science-equivalence PASS.
+- The retrieval-v2 commit defines three new selectors, but no
+  accepted v2 suite can be built: suite/result/transport/registry/Neo4j paths
+  remain hard-coded to the four-law v1 contract. An initial R5 zero-minimum
+  plateau and overlapping test fixture were corrected by the concurrent owner
+  during review; the five new selector-focused tests then passed. V2 remains
+  non-deployable until a versioned end-to-end build/run/replay/graph path and
+  realistic memory canary exist.
+- Additional high findings: fill-axis named comparisons contain contradictory
+  same/different-snapshot requirements; named scenario evidence is absent from
+  functional UI queries; create-once named releases can fail after partial
+  writes; the documented cross-arm union/full-matrix product is not retained;
+  and all-world descriptive evidence cannot license strategy promotion.
+- Focused validation: legal feasibility 31 passed; strategy registry release 4
+  passed; strategy registry 15 passed; UI bridge 6 passed; UI 6 passed (one
+  deprecation warning); current five retrieval-v2 selector tests 5 passed after
+  the concurrent correction. No full suite or heavy local simulation ran.
+- Unrelated dirty work remains owned by other agents/models: `Dockerfile`,
+  `cloudbuild.yaml`, LR8 source/tests, and untracked
+  A7/LR8/report artifacts. Preserve all of it.
+- Next concrete action for the deployment owner: finish the exact task-0
+  equivalence gate, put the resumable driver under version control, and report
+  the current batch accurately as fixed-selector fill diagnostics. Next code
+  action for Foundry v2: version the seven-law suite and consumers, repair the
+  R3 law/name and R5 trace, and add one end-to-end accepted replay test before
+  deployment.
+
+## Prior handoff — 2026-08-22 11:55 CDT
 
 ### "Foundry" named; v5 image SUCCESS; production preplan validated; foundation executing
 
