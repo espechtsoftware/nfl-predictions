@@ -20,7 +20,54 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-22 11:36 CDT
+## Current handoff — 2026-08-22 11:55 CDT
+
+### "Foundry" named; v5 image SUCCESS; production preplan validated; foundation executing
+
+- Named system: **the Foundry** = the fill x retrieval corpus experiment
+  engine (7 parametric fill arms populate a per-slate lineup corpus, 4
+  retrieval laws select exact-80 books from the upper tail, scored on the
+  frozen 50k-world Atlas matrices, recorded in the strategy registry).
+- v5 immutable image is ACCEPTED: Cloud Build
+  `b2832a18-666d-4260-9d4b-619ad94aa5ae` SUCCESS at 16:34:20Z from exact
+  pushed SHA `04d6579394af70df7120e81c0196837d29b5ffcf`; image digest
+  `sha256:232c1087471f91a62e1f3a7d7036e7a344dab1c826eedc004cb027d86a2cdadd`.
+  All 21 focused corpus suites (including the new parallel-engine and fixed
+  registry tests), the /app/src import-resolution smoke, the build-
+  provenance hash smoke, and the solver probe passed in the build.
+- The v5 PRODUCTION preplan (mode=production, 54 tasks, 7 arms) is built,
+  validated and dry-run clean (zero writes): batch
+  `20260822-corpus-parametric-production-batch-v5`, foundation
+  `20260822-corpus-parametric-production-foundation-v5`, preplan tracked at
+  `reports/corpus-parametric-runs/20260822-foundry-production-v5/foundation-live/preplan.json`
+  (raw SHA `75c8c809bd7619f6a4c6aed5f56902dc7b00881a0e825d40a5eec7c098530b83`,
+  embedded `d4fcf1dcf2b04d0d227842ff980e78cdc0560b8bd2afecf9ff9d3e8470419c86`,
+  3,844 bytes). Builder script (hash-recomputing, never hand-typed):
+  `~/nfl-panels/build_foundry_v5_preplan.py`. Clean exact worktree:
+  `/tmp/nfl-predictions-corpus-04d6579`.
+- The one v5 foundation execution is RUNNING locally (operator credentials,
+  non-TTY, background): it reopens/verifies all 270 Atlas artifacts and
+  publishes 54 task requests to the new v5 prefixes only. It cannot touch
+  the running v4 producer, the job, the v4 prefixes, or the runtime service
+  account. Result will land at
+  `reports/corpus-parametric-runs/20260822-foundry-production-v5/foundation-live/execute-result.json`.
+- Durable operator assets: `~/nfl-panels/foundry-v5-runbook.md` (full
+  sequence: IAM condition move -> initial configure with one bounded census
+  and attestation -> task-0 equivalence gate vs accepted v4 -> tasks 1..53)
+  and `~/nfl-panels/foundry_batch_driver.sh` (receipt-resumable sequential
+  task driver; never reinvokes a consumed phase).
+- Equivalence gate design: production task 0 IS slate 2023-w01 (the v4
+  smoke slate). The driver runs task 0 first; its accepted science is
+  compared against accepted v4 (rosters/unions/score SHAs/selections/
+  metrics only — law hashes differ by construction); tasks 1..53 launch
+  only on PASS. No separate equivalence batch is needed.
+- Still true: v4 producer `atlas-minimal-c-s2023-w1-v1-l6dll` remains
+  nonterminal and untouched; the v4 close/verify chain (exact c60
+  procedure) remains the gate before any job reconfiguration; IAM condition
+  moves wait for full v4 chain closure because the running producer still
+  writes under v4 prefixes.
+
+## Prior handoff — 2026-08-22 11:36 CDT
 
 ### Offseason corpus-fill and retrieval roadmap completed
 
