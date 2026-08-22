@@ -91,16 +91,27 @@ contract_identity_args() {
     --contract-bytes "$CORPUS_ARTIFACT_SOURCE_CONTRACT_BYTES"
 }
 
+capture_canonical_json() {
+  local output="$1"
+  shift
+  local raw="${output}.raw"
+  [[ ! -e "$output" && ! -e "$raw" ]] || \
+    die "JSON capture already exists: $output"
+  "$@" >"$raw"
+  jq -e -cSj . "$raw" >"$output"
+}
+
 capture_job() {
   local output="$1"
-  gcloud run jobs describe "$CORPUS_ARTIFACT_SOURCE_JOB" \
-    --project "$PROJECT" --region "$REGION" --format=json >"$output"
+  capture_canonical_json "$output" \
+    gcloud run jobs describe "$CORPUS_ARTIFACT_SOURCE_JOB" \
+      --project "$PROJECT" --region "$REGION" --format=json
 }
 
 build_rollback_export() {
   local captured="$1"
   local output="$2"
-  jq -e --arg project "$PROJECT" '
+  jq -e -cSj --arg project "$PROJECT" '
     select(.metadata.name | type == "string" and length > 0) |
     select(.metadata.uid | type == "string" and length > 0) |
     select(.metadata.resourceVersion | type == "string" and length > 0) |
@@ -143,9 +154,10 @@ rollback_existing_job() {
   fi
   local current_resource_version
   current_resource_version="$(jq -er '.metadata.resourceVersion' "$current")"
-  jq -e --arg resource_version "$current_resource_version" \
+  jq -e -cSj --arg resource_version "$current_resource_version" \
     '.metadata.resourceVersion = $resource_version' \
     "$prior_export" >"$request"
+  local response_raw="${response}.raw"
   {
     printf '%s' 'Authorization: Bearer '
     gcloud auth print-access-token
@@ -153,7 +165,8 @@ rollback_existing_job() {
     --request PUT --header @- --header 'Content-Type: application/json' \
     --data-binary "@$request" \
     "https://${REGION}-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/${PROJECT}/jobs/${CORPUS_ARTIFACT_SOURCE_JOB}" \
-    >"$response"
+    >"$response_raw"
+  jq -e -cSj . "$response_raw" >"$response"
   capture_job "$restored"
   jq -e -s '
     .[0].metadata.name == .[1].metadata.name and
@@ -168,8 +181,9 @@ rollback_existing_job() {
 
 capture_executions() {
   local output="$1"
-  gcloud run jobs executions list --job "$CORPUS_ARTIFACT_SOURCE_JOB" \
-    --project "$PROJECT" --region "$REGION" --format=json >"$output"
+  capture_canonical_json "$output" \
+    gcloud run jobs executions list --job "$CORPUS_ARTIFACT_SOURCE_JOB" \
+      --project "$PROJECT" --region "$REGION" --format=json
 }
 
 capture_all_region_schedulers() {
@@ -183,13 +197,15 @@ capture_all_region_schedulers() {
   [[ ! -e "$locations" && ! -e "$fragments" ]] || \
     die "scheduler census namespace already exists"
   mkdir -p "$fragments"
-  gcloud scheduler locations list --project "$PROJECT" --format=json >"$locations"
+  capture_canonical_json "$locations" \
+    gcloud scheduler locations list --project "$PROJECT" --format=json
   while IFS= read -r location; do
     [[ -n "$location" ]] || continue
-    gcloud scheduler jobs list --project "$PROJECT" --location "$location" \
-      --format=json >"$fragments/${location}.json"
+    capture_canonical_json "$fragments/${location}.json" \
+      gcloud scheduler jobs list --project "$PROJECT" --location "$location" \
+        --format=json
   done < <(jq -r '.[].locationId' "$locations" | LC_ALL=C sort)
-  jq -s 'add // []' "$fragments"/*.json >"$output"
+  jq -e -cSj -s 'add // []' "$fragments"/*.json >"$output"
 }
 
 configure_mode() {
@@ -216,8 +232,9 @@ configure_mode() {
   build_rollback_export "$before_job" "$before_export"
   capture_executions "$before_executions"
   capture_all_region_schedulers "$before_schedulers"
-  gcloud builds describe "$CORPUS_ARTIFACT_SOURCE_BUILD_ID" \
-    --project "$PROJECT" --format=json >"$build_file"
+  capture_canonical_json "$build_file" \
+    gcloud builds describe "$CORPUS_ARTIFACT_SOURCE_BUILD_ID" \
+      --project "$PROJECT" --format=json
   "$PYTHON_BIN" "$TRANSPORT" validate-build \
     --build-metadata-file "$build_file" \
     --build-id "$CORPUS_ARTIFACT_SOURCE_BUILD_ID" \
@@ -319,16 +336,18 @@ consume_launch_mode() {
     "$ready_file" >/dev/null || die "launch is consumed; recover only"
   local joined_args
   joined_args="$(jq -r '.worker_args | join(",")' "$ready_file")"
+  local response_raw="${response_file}.raw"
   set +e
   gcloud run jobs execute "$CORPUS_ARTIFACT_SOURCE_JOB" \
     --project "$PROJECT" --region "$REGION" --args "$joined_args" \
-    --async --format=json >"$response_file"
+    --async --format=json >"$response_raw"
   local status=$?
   set -e
   if [[ "$status" -ne 0 ]]; then
     printf '%s\n' "launch response ambiguous; run recover only, never relaunch" >&2
     return "$status"
   fi
+  jq -e -cSj . "$response_raw" >"$response_file"
   printf '%s\n' "launch consumed; run recover as a separate action"
 }
 
@@ -351,8 +370,9 @@ recover_mode() {
     --all-regions-complete --execute \
     >"$candidate_file"
   execution_id="$(jq -er '.execution_id' "$candidate_file")"
-  gcloud run jobs executions describe "$execution_id" \
-    --project "$PROJECT" --region "$REGION" --format=json >"$execution_file"
+  capture_canonical_json "$execution_file" \
+    gcloud run jobs executions describe "$execution_id" \
+      --project "$PROJECT" --region "$REGION" --format=json
   printf '%s\n' "recovered metadata: $execution_file; bind is a separate action"
 }
 
@@ -394,8 +414,9 @@ watch_mode() {
   execution_id="$(jq -er '.execution_id' "$bound")"
   attempt="$(new_attempt_directory watch)"
   terminal_file="$attempt/execution.json"
-  gcloud run jobs executions describe "$execution_id" \
-    --project "$PROJECT" --region "$REGION" --format=json >"$terminal_file"
+  capture_canonical_json "$terminal_file" \
+    gcloud run jobs executions describe "$execution_id" \
+      --project "$PROJECT" --region "$REGION" --format=json
   completed="$(jq -r '[.status.conditions[]? | select(.type == "Completed")][0].status // "Unknown"' "$terminal_file")"
   if [[ "$completed" == "Unknown" ]]; then
     printf '%s\n' "execution is nonterminal; invoke watch again later"

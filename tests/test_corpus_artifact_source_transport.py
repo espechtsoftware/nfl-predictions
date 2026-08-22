@@ -1812,6 +1812,7 @@ def test_shell_prevalidates_build_and_rolls_back_failed_configure(
         """#!/usr/bin/env bash
 set -euo pipefail
 printf '%s\\n' "$*" >>"$FAKE_LOG"
+printf '%s\\n' ' '
 if [[ "${1:-} ${2:-} ${3:-}" == "run jobs describe" ]]; then
   state="$(test -f "$FAKE_STATE" && command cat "$FAKE_STATE" || true)"
   if [[ "$state" == "rolledback" ]]; then

@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 20:12 CDT
+## Current state — 2026-08-21 20:18 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -117,6 +117,17 @@ agent or developer:
   `research/delivery/20260821-corpus-artifact-source-authority-v1/`. The
   bucket remains empty; the replacement retains exact GETs plus create-only
   output-prefix authority.
+- The first source configure attempt retained its read-only census under
+  `reports/corpus-parametric-runs/20260821-corpus-artifact-source-authority-v1/transport-live`
+  and failed closed before job update or object publication because `gcloud
+  builds describe --format=json` emitted non-canonical whitespace while the
+  transport correctly requires canonical bytes. No source query or execution
+  was launched. The reuse wrapper now preserves every raw external JSON body
+  and derives a separate canonical body for all job, execution, scheduler,
+  build, launch-response, recovery, watch, and rollback captures. The exact
+  behavioral rollback tests are green 2/2, shell syntax is green, and the
+  shared build-contract tests remain green 8/8. Use a fresh `transport-live-v2`
+  directory after the replacement image; do not reuse the partial directory.
 - The exact 270-artifact source plan is frozen locally with internal plan SHA
   `ff6131f4a35dd74724cf7c701328fef1c74ad00787a2455dae6e8da6ad8a6c02`
   and object-body SHA
@@ -146,10 +157,11 @@ agent or developer:
   occurred.
 - No source query, source publication, parametric solver, realized-outcome
   read, graph write, Cloud Run job mutation, or new scoring execution occurred
-  during this integration milestone. Exact next action: commit and push the
-  integrated release, obtain its immutable direct-Git digest, publish the
-  point-in-time source authority, then run the isolated task-0 seven-arm
-  real-artifact smoke before the complete serial 54-task suite.
+  during this integration milestone. Exact next action: commit/push and build
+  the canonical-capture wrapper repair, regenerate the still-unpublished plan
+  for its exact digest, publish the point-in-time source authority from a fresh
+  transport directory, then run the isolated task-0 seven-arm real-artifact
+  smoke before the complete serial 54-task suite.
 
 ### Accepted task-0 score is on main; corpus research dashboard is mounted
 
