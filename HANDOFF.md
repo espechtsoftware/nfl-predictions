@@ -20,6 +20,72 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current state — 2026-08-21 23:08 CDT
+
+### Task-0 parametric foundation is accepted; launch is waiting only on the daily Policy Analyzer reset
+
+- Branch `main` remains at pushed commit
+  `d94414ad35940fa67405434c9f6884c4b5410691`. The governed implementation,
+  build and immutable worker remain exact commit
+  `12ee7cefa4d6b093562696e17f82a0bdef126636`, Cloud Build
+  `0332dff4-ee9d-45b2-a3c1-41dc1891cf60`, and image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:e099b4a4feeeb2ee3e738f4661c941950181412505d28c5926d734a534e8ce69`.
+  No code changed and no broad test suite was rerun.
+- The first local foundation attempt used workstation Python 3.14.4 and failed
+  before any GCS write because 273/585 replayed lineup `features.projection`
+  sums differed from the accepted Python 3.11 producer. All 29,250,000 score
+  values were exact. No tolerance or replay bypass was added. A clean temporary
+  Python 3.11.16 environment with NumPy 2.4.6, PuLP 3.3.2 and the accepted CBC
+  hash was created under `/tmp/nfl-corpus-py311`, and the unchanged preparer
+  was rerun from detached worktree `/tmp/nfl-predictions-corpus-12ee7ce`.
+- The Python 3.11 replay reopened the accepted retrieval task and all 270 frozen
+  source matrices (about 6.6 GB), passed exactly, and created the smoke
+  foundation. Publication completion is generation `1787371186298971`,
+  7,570 bytes, SHA-256
+  `6e6b0f56ea4d15934e8d7e64b7464fa5bd231c8a73329e2a653f070788b1fadc`.
+  The one-task batch manifest is generation `1787371185539011`, 12,646 bytes,
+  SHA-256 `e6eab1f49d0b8eb2b5e8839417fe76167ae72574dbee93c0a034d1a6339bcbfc`;
+  the evidence contract is generation `1787371185939824`, 38,493 bytes,
+  SHA-256 `86b59961f76143d981e4f392e9c9907521493d78909a22870da6c0ed795d85bd`;
+  and the accepted retrieval prerequisite is generation `1787371181409093`,
+  1,925 bytes, SHA-256
+  `1e2090aaf88085c5fb99ad1b07e480b0d0db5cb0606b5edd464703b3a7f89c85`.
+- The parametric runtime now has only the four intended additional conditional
+  bindings: source-prefix GET, retrieval-run plus eight exact input-object GET,
+  smoke foundation/batch GET, and smoke batch CREATE. The existing raw-bucket
+  GET-only custom-role binding is unchanged; the service account still has no
+  project role. Current bucket policy etags observed after the changes are
+  `CAc=` (source), `CAQ=` (retrieval), and `CAM=` (parametric).
+- The required fully expanded Cloud Asset capture cannot currently complete:
+  `nfl-predictions-503414` has exhausted the non-organization Policy Analyzer
+  limit of 20 queries/day. Direct retry returned HTTP 429. Charging quota to
+  `agentic-services` did not bypass the resource-project limit. Cloud Asset API
+  was enabled in `agentic-services` solely for that unsuccessful quota attempt;
+  no resource was analyzed, stored or deployed there. A Cloud Asset service
+  identity `service-817589974517@gcp-sa-cloudasset.iam.gserviceaccount.com` was
+  also initialized in the NFL project while checking the documented
+  long-running route. The consumer override and Cloud Quotas preference paths
+  both refused an increase; no quota override exists. Do not synthesize an
+  AnalyzeIAM response or weaken the configure gate.
+- The reused Cloud Run job remains idle and ready as
+  `atlas-minimal-c-s2023-w1-v1`, UID
+  `d6e4b8c1-5950-46b7-8869-7e34dbf29ad2`; all 268 existing executions are
+  terminal. No parametric producer/verifier launch authority has been consumed,
+  no new scoring execution exists, and therefore there is no new score yet.
+  The previously accepted simulated task-0 metric remains 1,216/10,000 held-out
+  worlds above 200 for `coverage-194-v1` versus 1,017 for the mean baseline.
+- Exact next action: after the daily Policy Analyzer reset, make exactly three
+  fully expanded calls for the parametric service account, `allUsers`, and
+  `allAuthenticatedUsers`; assemble
+  `governance-live/runtime-iam-policy-capture.json`; then run the existing
+  wrapper from the exact worktree with
+  `CORPUS_PARAMETRIC_PYTHON=/tmp/nfl-corpus-py311/bin/python` through
+  `configure`, producer launch/recover/watch, verifier launch/recover/watch,
+  and `finish-batch`. Never repeat a consumed launch. Commit/push this handoff
+  before any machine move. The realized grader and current Neo4j registry both
+  require a complete accepted 54-task by seven-arm batch; the one-task smoke
+  licenses proceeding but cannot be graded or loaded as the complete suite.
+
 ## Current state — 2026-08-21 22:30 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
