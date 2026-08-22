@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 21:08 CDT
+## Current state — 2026-08-21 21:12 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -192,6 +192,13 @@ agent or developer:
   `04627acae3559df3df7f5c447c9a26d3cbd5c602ddcade32fe2f67abd576b3b0`,
   bytes `5063`; it is byte-identical to the final v1 plan. Do not delete,
   overwrite, or reuse it. Never reuse transport directories v3--v5.
+  The source bucket's two etag-protected runtime bindings were then atomically
+  moved from the abandoned v1 delivery/output names to the corresponding clean
+  `20260821-corpus-artifact-source-authority-v2` names. Role, member, condition
+  title/description, and every unrelated binding remained unchanged. The v1
+  object remains retained but is no longer in the source runtime's read scope.
+  Freeze v2 registration at `2026-08-22T02:12:28Z` while retaining the original
+  outcome-blind source snapshot `2026-08-21T23:53:22Z`.
 - The last exact 270-artifact v3 source plan was never published. It was pinned
   to commit `4440c4f`, image `dbf9796c`, internal plan SHA
   `98f2bff2d4c6891c4f5f5aad8ff5978d47c2188847f685131900d9f22cb8020b`,
@@ -238,11 +245,10 @@ agent or developer:
   each exact prior spec was automatically restored. One abandoned delivery
   plan object exists as documented above. Exact next action: finish the live
   Storage generation defect-class sweep, commit/push and build its immutable
-  repair, atomically move the source runtime's exact conditions from the
-  abandoned v1 namespace to clean v2 prefixes, then prepare/configure the v2
-  authority. Inspect and record its configure receipt before consuming that
-  source authority exactly once; then run the isolated task-0 seven-arm
-  real-artifact smoke before the complete serial 54-task suite.
+  repair, then prepare/configure the v2 authority against the already-switched
+  exact v2 IAM conditions. Inspect and record its configure receipt before
+  consuming that source authority exactly once; then run the isolated task-0
+  seven-arm real-artifact smoke before the complete serial 54-task suite.
 
 ### Accepted task-0 score is on main; corpus research dashboard is mounted
 
