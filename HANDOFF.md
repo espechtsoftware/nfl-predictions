@@ -54,7 +54,8 @@ agent or developer:
   required before the later full suite uses this current-main worker path.
 - The named-scenario registry extension is uncommitted in
   `/tmp/nfl-scenario-registry-ed3f7db` on `codex/scenario-registry`. It is being
-  finished/tested; do not cherry-pick without a reported green commit SHA.
+  frozen for this handoff with four modified files and no commit; do not
+  cherry-pick without completing focused validation and producing a green SHA.
 - The phenotype graph/UI adapter is an incomplete, uncommitted draft in
   `/tmp/nfl-predictions-phenotype-ed3f7db` on
   `codex/phenotype-graph-ui-adapter`. Only the transport successor draft exists;

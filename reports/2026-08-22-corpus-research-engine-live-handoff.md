@@ -480,10 +480,13 @@ identity and player/team identity-mapping provenance.
     `accepted-task0-existing-corpus-v1` fill;
   - no fabricated boom-fill outcome;
   - R4 descriptive only.
-- Status at handoff: new v3 code compiles; existing registry/release tests passed
-  17 tests before the new fixture; old release/publication hashes remained
-  unchanged. New end-to-end tests are not yet complete, so this work is
-  deliberately uncommitted and must not be cherry-picked yet.
+- Status at handoff: the agent was interrupted after the documentation snapshot
+  to freeze the worktree. The current diff is 2,159 lines across the four files
+  and remains uncommitted. New v3 code compiled; existing registry/release tests
+  passed 17 tests before the new fixture; old release/publication hashes
+  remained unchanged. The subsequently added end-to-end test changes have not
+  been run to a reported green terminal, so this work must not be cherry-picked
+  yet.
 
 ### Phenotype Neo4j/UI adapter
 
