@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 20:57 CDT
+## Current state — 2026-08-21 21:03 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -176,7 +176,10 @@ agent or developer:
   build `807475d4-184c-4475-9e3d-639effe12ba0` is queued from the same exact
   code commit with canonical repository URL
   `https://github.com/espechtsoftware/nfl-predictions.git` and image tag
-  `corpus-research-expansion-b2186b4-r2`.
+  `corpus-research-expansion-b2186b4-r2`. That replacement succeeded with all
+  five focused stages green. Its immutable, provenance-valid image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:8b4ad7b101a681517b9019c69f4a118f6eca14bc1e05133e5c736c61e899b2a7`;
+  this is the only expansion image to use.
   Never reuse `transport-live-v3`.
 - The last exact 270-artifact v3 source plan was never published. It was pinned
   to commit `4440c4f`, image `dbf9796c`, internal plan SHA
@@ -218,12 +221,11 @@ agent or developer:
   read, graph write, or new scoring execution occurred during this milestone.
   The sole Cloud Run mutation was the failed source configure update described
   above, and its exact prior spec was automatically restored. Exact next
-  action: monitor canonical-URL replacement build `807475d4` to terminal
-  success, regenerate the source plan and IAM for its immutable digest, then
-  configure from fresh `transport-live-v5`. Inspect and record the configure
-  receipt before consuming the source authority exactly once; then run the
-  isolated task-0 seven-arm real-artifact smoke before the complete serial
-  54-task suite.
+  action: regenerate the source plan and IAM for canonical build `807475d4`
+  and immutable digest `8b4ad7b1`, then configure from fresh
+  `transport-live-v5`. Inspect and record the configure receipt before
+  consuming the source authority exactly once; then run the isolated task-0
+  seven-arm real-artifact smoke before the complete serial 54-task suite.
 
 ### Accepted task-0 score is on main; corpus research dashboard is mounted
 
