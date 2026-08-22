@@ -30,6 +30,12 @@ GRAPH_SCHEMA: Final = "corpus-retrieval-graph-projection/v1"
 TERMINAL_SCHEMA: Final = "corpus-retrieval-transport-terminal/v1"
 ENABLE_ENV: Final = "CORPUS_RETRIEVAL_NEO4J_ENABLED"
 
+# This module independently re-validates published bytes and deliberately
+# does not import the engine. These counts mirror the engine's versioned
+# suite law (corpus_retrieval_engine._SUITE_STRATEGY_LAW): v1 suites carry
+# exactly four strategies, v2 suites exactly seven. Update both together.
+_SUITE_STRATEGY_COUNTS: Final = frozenset({4, 7})
+
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _GENERATION = re.compile(r"^[1-9][0-9]*$")
 
@@ -420,12 +426,14 @@ def _validate_task_result(
         or world_count != 50_000
         or coverage["lineup_world_score_count"] != lineup_count * world_count
         or coverage["every_unique_lineup_scored_in_every_world"] is not True
-        or strategy_count != 4
+        or strategy_count not in _SUITE_STRATEGY_COUNTS
         or coverage["exact_budget_per_strategy"] != 80
         or coverage["all_strategies_exact_budget"] is not True
     ):
         raise CorpusRetrievalNeo4jError("task result score coverage is incomplete")
-    if len(_sequence(item["strategy_results"], label="strategy results")) != 4:
+    if len(
+        _sequence(item["strategy_results"], label="strategy results")
+    ) != strategy_count:
         raise CorpusRetrievalNeo4jError("task result strategy coverage is incomplete")
     _require_license_values(item["licenses"], expected={
         "analytics_authority": True,
@@ -514,7 +522,8 @@ def _validate_graph(
         kind_counts.get("RetrievalTask") != 1
         or kind_counts.get("LineupCandidate")
         != task_result["coverage"]["unique_lineup_count"]
-        or kind_counts.get("RetrievalStrategyResult") != 4
+        or kind_counts.get("RetrievalStrategyResult")
+        != task_result["coverage"]["strategy_count"]
     ):
         raise CorpusRetrievalNeo4jError("graph node coverage differs from task result")
     normalized_edges: list[dict[str, object]] = []

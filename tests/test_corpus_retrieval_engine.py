@@ -87,8 +87,12 @@ def _query_receipt(
     }
 
 
-@pytest.fixture(scope="module")
-def completed_run() -> dict[str, Any]:
+def _build_completed_run(
+    *,
+    suite_schema: str,
+    strategies: list[dict[str, object]],
+    run_id: str,
+) -> dict[str, Any]:
     store = MemoryObjects()
     player_ids = np.asarray([f"p{index:02d}" for index in range(18)])
     players = [{
@@ -219,9 +223,9 @@ def completed_run() -> dict[str, Any]:
     )
     image_digest = f"sha256:{'a' * 64}"
     suite = retrieval.build_suite_manifest(
-        run_id="fixture-retrieval-v1",
+        run_id=run_id,
         created_at_utc="2026-08-21T12:31:00Z",
-        output_prefix="gs://fixture/research/fixture-retrieval-v1/",
+        output_prefix=f"gs://fixture/research/{run_id}/",
         snapshot_manifest=snapshot,
         snapshot_manifest_identity=snapshot_identity,
         entry_budget=80,
@@ -232,7 +236,8 @@ def completed_run() -> dict[str, Any]:
             "image_uri": f"registry.example/fixture@{image_digest}",
             "image_digest": image_digest,
         },
-        strategies=retrieval.frozen_retrieval_strategies(80),
+        strategies=strategies,
+        suite_schema=suite_schema,
     )
     suite_identity = store.add(
         str(suite["suite_manifest_uri"]), retrieval.canonical_json_bytes(suite)
@@ -267,6 +272,24 @@ def completed_run() -> dict[str, Any]:
         "source_authority": source_authority,
         "player_body": player_body,
     }
+
+
+@pytest.fixture(scope="module")
+def completed_run() -> dict[str, Any]:
+    return _build_completed_run(
+        suite_schema=retrieval.SUITE_SCHEMA,
+        strategies=retrieval.frozen_retrieval_strategies(80),
+        run_id="fixture-retrieval-v1",
+    )
+
+
+@pytest.fixture(scope="module")
+def completed_run_v2() -> dict[str, Any]:
+    return _build_completed_run(
+        suite_schema=retrieval.SUITE_SCHEMA_V2,
+        strategies=retrieval.frozen_retrieval_strategies_v2(80),
+        run_id="fixture-retrieval-v2",
+    )
 
 
 def test_manifest_and_transport_binding(completed_run: dict[str, Any]) -> None:
@@ -972,3 +995,95 @@ def test_blockmin_trace_retains_block_vectors_and_leximin_profile() -> None:
     assert trace[1]["block_utilities_added"] == [0, 20, 0, 0]
     assert trace[1]["block_utilities_after"] == [30, 20, 0, 0]
     assert trace[1]["leximin_profile_after"] == [0, 0, 20, 30]
+
+
+def test_v2_suite_is_executable_end_to_end(
+    completed_run_v2: dict[str, Any],
+) -> None:
+    # Review F2: the seven-strategy registry must publish, reopen, replay,
+    # and complete under its own versioned schema, while v1 stays intact.
+    suite = retrieval.validate_suite_manifest(completed_run_v2["suite"])
+    assert suite["schema_version"] == retrieval.SUITE_SCHEMA_V2
+    assert [row["ordinal"] for row in suite["strategies"]] == list(range(7))
+    assert [
+        row["strategy_sha256"] for row in suite["strategies"][:4]
+    ] == [
+        row["strategy_sha256"]
+        for row in retrieval.frozen_retrieval_strategies(80)
+    ]
+    authority = retrieval.validate_retrieval_task_result(
+        published_result=completed_run_v2["published"],
+        suite_manifest=completed_run_v2["suite"],
+        suite_manifest_identity=completed_run_v2["suite_identity"],
+        snapshot_manifest=completed_run_v2["snapshot"],
+        snapshot_manifest_identity=completed_run_v2["snapshot_identity"],
+        read_object=completed_run_v2["store"].read,
+        replay=True,
+    )
+    assert authority["coverage"]["strategy_count"] == 7
+    assert len(authority["strategy_results"]) == 7
+    completion = retrieval.build_retrieval_batch_completion(
+        suite_manifest=completed_run_v2["suite"],
+        suite_manifest_identity=completed_run_v2["suite_identity"],
+        snapshot_manifest=completed_run_v2["snapshot"],
+        snapshot_manifest_identity=completed_run_v2["snapshot_identity"],
+        published_results=[completed_run_v2["published"]],
+        read_object=completed_run_v2["store"].read,
+    )
+    validated = retrieval.validate_retrieval_batch_completion(
+        completion,
+        suite_manifest=completed_run_v2["suite"],
+        suite_manifest_identity=completed_run_v2["suite_identity"],
+        snapshot_manifest=completed_run_v2["snapshot"],
+        snapshot_manifest_identity=completed_run_v2["snapshot_identity"],
+        published_results=[completed_run_v2["published"]],
+        read_object=completed_run_v2["store"].read,
+    )
+    assert validated["coverage"] == {
+        "task_count": 1,
+        "strategy_count": 7,
+        "task_strategy_cell_count": 7,
+        "all_tasks_complete": True,
+        "all_strategies_equal_budget": True,
+    }
+
+
+def test_v2_task_result_passes_independent_graph_count_law(
+    completed_run_v2: dict[str, Any],
+) -> None:
+    from nfl_dfs.research import corpus_retrieval_neo4j as neo4j_mod
+
+    suite = completed_run_v2["suite"]
+    result_uri = str(suite["tasks"][0]["result_uri"])
+    store = completed_run_v2["store"]
+    raw = store._raw[(result_uri, str(store._latest[result_uri]))]
+    identity = retrieval.object_identity_for_bytes(
+        uri=result_uri,
+        generation=str(store._latest[result_uri]),
+        raw=raw,
+    )
+    body, _ = neo4j_mod._validate_task_result(raw, identity)
+    assert body["coverage"]["strategy_count"] == 7
+    assert len(body["strategy_results"]) == 7
+
+
+def test_suite_schema_law_is_versioned_and_fail_closed() -> None:
+    v1_law = retrieval.suite_strategy_law(retrieval.SUITE_SCHEMA)
+    v2_law = retrieval.suite_strategy_law(retrieval.SUITE_SCHEMA_V2)
+    assert v1_law["strategy_count"] == 4
+    assert v2_law["strategy_count"] == 7
+    with pytest.raises(retrieval.CorpusRetrievalError, match="unregistered"):
+        retrieval.suite_strategy_law("corpus-retrieval-suite-manifest/v3")
+    # Cross-version strategy lists are refused by count before content.
+    with pytest.raises(retrieval.CorpusRetrievalError, match="exactly 4"):
+        _build_completed_run(
+            suite_schema=retrieval.SUITE_SCHEMA,
+            strategies=retrieval.frozen_retrieval_strategies_v2(80),
+            run_id="fixture-retrieval-vx",
+        )
+    with pytest.raises(retrieval.CorpusRetrievalError, match="exactly 7"):
+        _build_completed_run(
+            suite_schema=retrieval.SUITE_SCHEMA_V2,
+            strategies=retrieval.frozen_retrieval_strategies(80),
+            run_id="fixture-retrieval-vy",
+        )

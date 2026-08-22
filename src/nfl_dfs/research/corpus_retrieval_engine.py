@@ -36,6 +36,7 @@ import numpy as np
 SNAPSHOT_SCHEMA: Final = "corpus-retrieval-snapshot-manifest/v1"
 STRATEGY_SCHEMA: Final = "corpus-retrieval-strategy/v1"
 SUITE_SCHEMA: Final = "corpus-retrieval-suite-manifest/v1"
+SUITE_SCHEMA_V2: Final = "corpus-retrieval-suite-manifest/v2"
 CANDIDATE_ROWS_SCHEMA: Final = "corpus-retrieval-candidate-rows/v1"
 PLAYER_CATALOG_SCHEMA: Final = "corpus-retrieval-player-catalog/v1"
 INPUT_QUERY_AUTHORITY_SCHEMA: Final = "corpus-retrieval-input-query-authority/v1"
@@ -946,6 +947,36 @@ def validate_retrieval_strategy_v2(
     return expected
 
 
+# Versioned suite law (review F2). Each suite schema version pins its
+# strategy registry, per-strategy validator, and exact strategy count.
+# Accepted v1 artifacts stay replayable under the v1 row untouched; the
+# seven-strategy v2 registry becomes executable end to end under its own
+# schema string. Suite consumers must resolve counts through this law,
+# never through a literal.
+_SUITE_STRATEGY_LAW: Final = {
+    SUITE_SCHEMA: {
+        "registry": frozen_retrieval_strategies,
+        "validator": validate_retrieval_strategy,
+        "strategy_count": 4,
+    },
+    SUITE_SCHEMA_V2: {
+        "registry": frozen_retrieval_strategies_v2,
+        "validator": validate_retrieval_strategy_v2,
+        "strategy_count": 7,
+    },
+}
+
+
+def suite_strategy_law(suite_schema: object) -> dict[str, object]:
+    """Resolve the frozen strategy law for a suite schema version."""
+    law = _SUITE_STRATEGY_LAW.get(suite_schema)  # type: ignore[arg-type]
+    if law is None:
+        raise CorpusRetrievalError(
+            f"unregistered suite schema version {suite_schema!r}"
+        )
+    return law
+
+
 def _normalize_engine_release(value: object) -> dict[str, str]:
     item = _mapping(value, label="engine release")
     _keys(item, {
@@ -988,8 +1019,10 @@ def build_suite_manifest(
     entry_budget: int,
     engine_release: Mapping[str, object],
     strategies: Sequence[Mapping[str, object]] | None = None,
+    suite_schema: str = SUITE_SCHEMA,
 ) -> dict[str, object]:
     """Build a one-snapshot, equal-budget retrieval suite."""
+    law = suite_strategy_law(suite_schema)
     snapshot = validate_snapshot_manifest(snapshot_manifest)
     snapshot_identity = _validate_manifest_identity(
         snapshot, snapshot_manifest_identity, label="snapshot manifest identity"
@@ -1000,12 +1033,15 @@ def build_suite_manifest(
         raise CorpusRetrievalError("output prefix must end in /<run_id>/")
     budget = _integer(entry_budget, label="entry budget", minimum=1)
     if budget != DEFAULT_ENTRY_BUDGET:
-        raise CorpusRetrievalError("retrieval v1 requires an exact-80 budget")
-    raw_strategies = list(strategies or frozen_retrieval_strategies(budget))
-    if len(raw_strategies) != 4:
-        raise CorpusRetrievalError("v1 suite must contain all four strategies")
+        raise CorpusRetrievalError("suite retrieval requires an exact-80 budget")
+    raw_strategies = list(strategies or law["registry"](budget))
+    if len(raw_strategies) != law["strategy_count"]:
+        raise CorpusRetrievalError(
+            f"{suite_schema} requires exactly "
+            f"{law['strategy_count']} strategies"
+        )
     normalized_strategies = [
-        validate_retrieval_strategy(row, expected_ordinal=index, entry_budget=budget)
+        law["validator"](row, expected_ordinal=index, entry_budget=budget)
         for index, row in enumerate(raw_strategies)
     ]
     tasks = [{
@@ -1015,7 +1051,7 @@ def build_suite_manifest(
         "result_uri": f"{prefix}tasks/{int(task['task_index']):04d}/result.json",
     } for task in snapshot["tasks"]]
     body = {
-        "schema_version": SUITE_SCHEMA,
+        "schema_version": suite_schema,
         "run_id": normalized_run_id,
         "created_at_utc": _timestamp(created_at_utc, label="suite created_at"),
         "publication_mode": PUBLICATION_MODE,
@@ -1050,8 +1086,9 @@ def validate_suite_manifest(value: object) -> dict[str, object]:
         "discovery_blocks", "heldout_blocks", "strategies", "engine_release",
         "tasks", "licenses", "suite_manifest_sha256",
     }, label="suite manifest")
-    if item["schema_version"] != SUITE_SCHEMA or item["publication_mode"] != PUBLICATION_MODE:
+    if item["publication_mode"] != PUBLICATION_MODE:
         raise CorpusRetrievalError("suite schema/publication mode differs")
+    law = suite_strategy_law(item["schema_version"])
     run_id = _identifier(item["run_id"], label="suite run id")
     prefix = _gcs_uri(item["output_prefix"], label="suite output prefix", prefix=True)
     if not prefix.endswith(f"/{run_id}/") or item["suite_manifest_uri"] != (
@@ -1060,16 +1097,16 @@ def validate_suite_manifest(value: object) -> dict[str, object]:
         raise CorpusRetrievalError("suite deterministic namespace differs")
     budget = _integer(item["entry_budget"], label="suite entry budget", minimum=1)
     if budget != DEFAULT_ENTRY_BUDGET:
-        raise CorpusRetrievalError("retrieval v1 requires an exact-80 budget")
+        raise CorpusRetrievalError("suite retrieval requires an exact-80 budget")
     if list(item["discovery_blocks"]) != list(DISCOVERY_BLOCKS) or list(
         item["heldout_blocks"]
     ) != list(HELDOUT_BLOCKS):
         raise CorpusRetrievalError("suite discovery/heldout split differs")
     strategies = _sequence(item["strategies"], label="suite strategies")
-    if len(strategies) != 4:
+    if len(strategies) != law["strategy_count"]:
         raise CorpusRetrievalError("suite strategy count differs")
     normalized_strategies = [
-        validate_retrieval_strategy(row, expected_ordinal=index, entry_budget=budget)
+        law["validator"](row, expected_ordinal=index, entry_budget=budget)
         for index, row in enumerate(strategies)
     ]
     snapshot_identity = normalize_object_identity(
@@ -1105,7 +1142,7 @@ def validate_suite_manifest(value: object) -> dict[str, object]:
     if dict(licenses) != expected_licenses:
         raise CorpusRetrievalError("suite licenses differ")
     normalized = {
-        "schema_version": SUITE_SCHEMA,
+        "schema_version": item["schema_version"],
         "run_id": run_id,
         "created_at_utc": _timestamp(item["created_at_utc"], label="created_at"),
         "publication_mode": PUBLICATION_MODE,
@@ -3179,7 +3216,7 @@ def validate_retrieval_task_result(
         or world_count != len(WORLD_BLOCKS) * WORLDS_PER_BLOCK
         or coverage["lineup_world_score_count"] != lineup_count * world_count
         or coverage["every_unique_lineup_scored_in_every_world"] is not True
-        or coverage["strategy_count"] != 4
+        or coverage["strategy_count"] != len(suite["strategies"])
         or coverage["exact_budget_per_strategy"] != suite["entry_budget"]
         or coverage["all_strategies_exact_budget"] is not True
     ):
@@ -3684,6 +3721,7 @@ __all__ = [
     "SNAPSHOT_SCHEMA",
     "STRATEGY_SCHEMA",
     "SUITE_SCHEMA",
+    "SUITE_SCHEMA_V2",
     "TASK_RESULT_SCHEMA",
     "WORLD_BLOCKS",
     "build_candidate_rows_object",
@@ -3695,10 +3733,12 @@ __all__ = [
     "canonical_npz_bytes",
     "canonical_sha256",
     "frozen_retrieval_strategies",
+    "frozen_retrieval_strategies_v2",
     "normalize_candidate_query_rows",
     "normalize_player_query_rows",
     "object_identity_for_bytes",
     "run_retrieval_task",
+    "suite_strategy_law",
     "task_transport_binding",
     "validate_candidate_rows_object",
     "validate_player_catalog_object",

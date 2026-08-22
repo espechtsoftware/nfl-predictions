@@ -1046,11 +1046,14 @@ def _accepted_task0_retrieval_context(
         raise CorpusStrategyRegistryReleaseError(
             "accepted task-0 retrieval strategy coverage differs"
         )
+    strategy_validator = retrieval.suite_strategy_law(
+        suite.get("schema_version")
+    )["validator"]
     for ordinal, (raw_strategy, result) in enumerate(
         zip(suite_strategies, results, strict=True)
     ):
         try:
-            strategy = retrieval.validate_retrieval_strategy(
+            strategy = strategy_validator(
                 raw_strategy,
                 expected_ordinal=ordinal,
                 entry_budget=int(suite["entry_budget"]),
