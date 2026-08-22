@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 21:43 CDT
+## Current state — 2026-08-21 21:50 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -303,6 +303,29 @@ agent or developer:
   and no image was produced. Never cite or reuse that failed build. Submit one
   replacement from the actual pushed SHA above and retain the same canonical
   `.git` repository URL.
+  Replacement build `0332dff4-ee9d-45b2-a3c1-41dc1891cf60` is terminal
+  `SUCCESS` from the exact repair commit and canonical repository URL. All
+  five configured steps passed: the focused corpus research matrix, image
+  build, source smoke, parametric/realized smoke, and Neo4j/registry/UI smoke.
+  Its shared build contract independently revalidated with config SHA
+  `f2558d979e3f3c1e65d0931794d308dcdc9b866f2171b5d99d36b6d4705dd257`.
+  The sole launchable replacement image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:e099b4a4feeeb2ee3e738f4661c941950181412505d28c5926d734a534e8ce69`;
+  it supersedes `d35ed96e` for every not-yet-launched source, parametric,
+  realized, graph, registry, and UI execution.
+
+  Two additional outcome-blind exact-snapshot preflight jobs used disjoint
+  diagnostic IDs and no production authority. Candidate and catalog queries
+  returned 13,633 and 29,605 rows, respectively; the actual strict
+  normalization plus `build_source_freeze` replay passed every 54-slate DK
+  legality, catalog membership, artifact receipt, candidate count/order, and
+  uniqueness check and produced a complete 270-artifact preflight freeze.
+  Salary coverage contains 39,649 player-slates across all 54 slates and has
+  zero catalog player IDs absent. The registered v3 source queries have not
+  run; its source/delivery prefixes and three deterministic job IDs remain
+  empty. Exact next action: atomically move only the two conditioned source
+  bucket bindings from v2 to v3, capture fresh complete IAM evidence, generate
+  the v3 plan bound to this image, and configure the parked reuse job.
 - The last exact 270-artifact v3 source plan was never published. It was pinned
   to commit `4440c4f`, image `dbf9796c`, internal plan SHA
   `98f2bff2d4c6891c4f5f5aad8ff5978d47c2188847f685131900d9f22cb8020b`,
