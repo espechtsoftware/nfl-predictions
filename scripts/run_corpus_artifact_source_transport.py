@@ -850,15 +850,24 @@ def _cloud_asset_results(value: object, *, identity: str) -> list[object]:
     main = _mapping(
         response.get("mainAnalysis"), label=f"Cloud Asset main analysis for {identity}"
     )
-    expected_query = {
+    base_query = {
         "identitySelector": {"identity": identity},
-        "options": _CLOUD_ASSET_OPTIONS,
         "scope": f"projects/{PROJECT}",
     }
+    query = main.get("analysisQuery")
+    accepted_queries = [{**base_query, "options": _CLOUD_ASSET_OPTIONS}]
+    # Cloud Asset can exhaust the expanded graph for the two special public
+    # principals even when their fully explored result is empty.  A minimal
+    # fully explored special-principal query is equally conclusive here:
+    # special principals cannot be group members, and with zero bindings
+    # there is no role, resource, group, or edge to expand.  Runtime identity
+    # evidence remains expansion-mandatory.
+    if identity in {"allUsers", "allAuthenticatedUsers"}:
+        accepted_queries.append(base_query)
     if (
         response.get("fullyExplored") is not True
         or main.get("fullyExplored") is not True
-        or main.get("analysisQuery") != expected_query
+        or query not in accepted_queries
         or response.get("nonCriticalErrors", []) != []
         or main.get("nonCriticalErrors", []) != []
     ):

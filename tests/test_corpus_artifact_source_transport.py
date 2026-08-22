@@ -1095,6 +1095,25 @@ def test_raw_iam_replay_rejects_public_and_overbroad_roles(
     )
     assert validated["query_tables"] == list(transport.QUERY_TABLES)
 
+    minimal_public = deepcopy(evidence)
+    minimal_public.pop("iam_evidence_sha256")
+    for key in ("all_users", "all_authenticated_users"):
+        analysis = minimal_public["effective_access_analyses"][key]
+        analysis.pop("nonCriticalErrors")
+        main = analysis["mainAnalysis"]
+        main.pop("nonCriticalErrors")
+        main.pop("analysisResults")
+        main["analysisQuery"].pop("options")
+    minimal_public = transport._self_hash(
+        minimal_public, field="iam_evidence_sha256"
+    )
+    transport.validate_runtime_iam_evidence(
+        minimal_public,
+        service_account=SERVICE_ACCOUNT,
+        required_read_uris=required,
+        output_prefix=OUTPUT_PREFIX,
+    )
+
     public = dict(evidence)
     public.pop("iam_evidence_sha256")
     public["project_policy"] = {

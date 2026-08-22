@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 19:35 CDT
+## Current state — 2026-08-21 19:43 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -100,10 +100,16 @@ agent or developer:
   `1b8bd6ce2714cf45ba765da3523cd43ef9d980e0e5df8d80de07350307591b0a`.
   Runtime/project/table/role/bucket IAM bodies and the fully explored six-grant
   source-principal Cloud Asset analysis are captured. A public-principal
-  Cloud Asset capture hit HTTP 429 before the final self-hashed IAM evidence
-  could be built; wait for quota and recapture only the two missing public
-  analyses. No source query, object publication, or Cloud Run mutation has
-  occurred.
+  Cloud Asset capture repeatedly hit HTTP 429 even though the published
+  `AnalyzeIamPolicy` quotas are not exhausted. The same current, fully explored
+  public-principal query without expansion succeeded with zero results; role,
+  resource, and group expansion cannot add an edge when a special public
+  principal has no binding. The validator now permits that exact minimal form
+  only for `allUsers` and `allAuthenticatedUsers`; the runtime identity still
+  requires full expansion. Its focused adversarial test is green. Build one
+  replacement image for this transport change, then retain fresh minimal
+  public analyses and regenerate the source plan for the new digest. No source
+  query, object publication, or Cloud Run mutation has occurred.
 - No source query, source publication, parametric solver, realized-outcome
   read, graph write, Cloud Build submission, Cloud Run job mutation, or new
   scoring execution occurred during this provisioning milestone. Exact next
