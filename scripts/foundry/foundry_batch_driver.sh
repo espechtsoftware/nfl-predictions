@@ -101,15 +101,21 @@ done
   echo "CORPUS_PARAMETRIC_RESEARCH_ENABLED=1 required" >&2; exit 2; }
 
 # Fan-out gate: any range beyond task 0 requires an immutable task-0
-# science-equivalence PASS receipt against the accepted v4 result.
-EQUIVALENCE_RECEIPT="$CORPUS_PARAMETRIC_RUN_DIR/task0-equivalence-pass.json"
+# independent-acceptance PASS receipt (scripts/foundry/accept_foundry_task0.py:
+# exact-identity artifact reopen + all-optimal solver census + verifier
+# acceptance). The former v4 science-equivalence baseline is permanently
+# dead — the v4 producer failed terminally and its launch authority is
+# consumed — so no cross-run equivalence gate exists for v6.
+ACCEPTANCE_RECEIPT="$CORPUS_PARAMETRIC_RUN_DIR/task0-acceptance-pass.json"
 if (( FIRST >= 1 )); then
-  [[ -f "$EQUIVALENCE_RECEIPT" && ! -L "$EQUIVALENCE_RECEIPT" ]] || {
-    echo "refused: $EQUIVALENCE_RECEIPT is absent; tasks 1..53 are gated on" \
-      "the task-0 v4/v5 science-equivalence PASS" >&2; exit 5; }
-  jq -e '.equivalent == true and .comparison == "science-only"' \
-    "$EQUIVALENCE_RECEIPT" >/dev/null || {
-    echo "refused: task-0 equivalence receipt does not record a PASS" >&2
+  [[ -f "$ACCEPTANCE_RECEIPT" && ! -L "$ACCEPTANCE_RECEIPT" ]] || {
+    echo "refused: $ACCEPTANCE_RECEIPT is absent; tasks 1..53 are gated on" \
+      "the task-0 independent-acceptance PASS" >&2; exit 5; }
+  jq -e '.gate == "task0-independent-acceptance" and .passed == true
+         and .solver_all_optimal == true and .verifier_accepted == true
+         and .uses_realized_outcomes == false' \
+    "$ACCEPTANCE_RECEIPT" >/dev/null || {
+    echo "refused: task-0 acceptance receipt does not record a PASS" >&2
     exit 5; }
 fi
 

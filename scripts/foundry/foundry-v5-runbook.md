@@ -1,3 +1,11 @@
+# Foundry v5 production runbook — SUPERSEDED by foundry-v6-runbook.md
+
+**SUPERSEDED 2026-08-22.** The v4 producer failed terminally (CBC
+integer-infeasibility solution headers classified ERROR — fixed in
+`bcf31a7`) and the v5 image carries the same defect, so v5 was never
+launched and its namespaces are burned. All operation now follows
+`foundry-v6-runbook.md`. Retained verbatim below as the design record.
+
 # Foundry v5 production runbook — 54-slate × 7-arm historical scores
 
 "The Foundry" = the fill × retrieval corpus experiment engine. THIS BATCH is

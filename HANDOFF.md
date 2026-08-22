@@ -20,6 +20,59 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-22 22:15 UTC (eleventh update)
+
+### v4 producer FAILED terminally; root cause found, fixed, verified; v6 chain staged
+
+- **v4 terminal failure**: producer execution of job
+  `atlas-minimal-c-s2023-w1-v1` completed 2026-08-22T21:31:56Z with exit 2
+  after 6h34m: "solver matrix contains 6363 non-optimal cells after all
+  7000 attempts; status_counts={'error': 6363, 'optimal': 637}". Launch
+  authority consumed; no retry is licensed; only 3 transport objects exist
+  under the v4 prefixes; the v4 close/verify sequence is impossible and
+  the accepted-v4 equivalence baseline is permanently dead. Terminal
+  evidence preserved under
+  `reports/corpus-parametric-runs/20260822-corpus-parametric-task0-smoke-v4/terminal-failure-evidence/`.
+- **Root cause (proven, not conjectured)**: CBC emits the solution header
+  `Integer infeasible - objective value X` when branch-and-bound (not
+  presolve) proves the collision stage infeasible. `_classify_cbc_log`
+  accepted only the presolve header `Infeasible - ...`, so correct
+  uniqueness proofs on the real 773-player slate were classified ERROR
+  (poison). Small/synthetic models die in presolve — every local test,
+  the synthetic contract suite, and a 24-player 700-solve fd-probe passed
+  while 91% of real cells failed. Reproduced deterministically by
+  exact-identity download of the v5 batch-manifest task-0 inputs
+  (8/9 probe cells ERROR), then fixed in **`bcf31a7`** (pushed) by
+  widening the exact solution-header law to both variants; regression
+  test pins both headers plus five poison cases proving no weakening.
+  Re-probe after fix: 9/9 optimal at 0.8–3.5 s/solve. Full engine +
+  verifier suites green.
+- **v5 is burned, never launched**: its image `232c1087` (commit
+  `04d6579`) contains the same defective classifier; the v5 foundation
+  governance objects exist but no batch execution ever ran. Do not reuse
+  the v5 namespaces; do not touch v4/v5 further.
+- **v6 chain staged** (all scripts tracked in `scripts/foundry/`):
+  immutable image build `588a2b97-5e2b-4663-a1c1-65b5039a4588` submitted
+  21:57Z from pushed `bcf31a7` using the PRISTINE tracked
+  cloudbuild.yaml (NOTE: the uncommitted local cloudbuild.yaml edit
+  expands step-2's arg to 10,021 chars, over Cloud Build's 10,000 limit —
+  it broke the first submit and will break future builds if committed
+  as-is). Monitor armed on the build. Then: capture build-metadata →
+  `build_foundry_v6_preplan.py` → validate/dry-run/execute →
+  `foundry_v6_iam_move.sh` (v4→v6; safe now — v4 has no live writers) →
+  configure → driver task 0 → **redesigned task-0 gate**
+  `accept_foundry_task0.py` (exact-identity artifact reopen + per-arm
+  scheduled=attempted=optimal=1000 census + verifier acceptance; replaces
+  the impossible vs-v4 science-equivalence gate; driver now requires
+  `task0-acceptance-pass.json`) → driver 1..53. Sequence, identities, and
+  failure record: `scripts/foundry/foundry-v6-runbook.md` (v5 runbook
+  marked superseded). Clean worktree `/tmp/nfl-predictions-corpus-bcf31a7`
+  created; v6 env skeleton `scripts/foundry/foundry_v6_env.sh` holds all
+  known identities with pending publication slots.
+- Remaining backlog unchanged: phenotype Neo4j population load path, F2
+  versioned v2 retrieval suite path; post-batch R6 set-level matchup
+  retrieval experiment + realized grader.
+
 ## Current handoff addendum — 2026-08-22 React UI migration dependency block
 
 ### Full UI replacement started; production UI remains unchanged
