@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-22 07:50 CDT
+## Current state — 2026-08-22 08:03 CDT
 
 ### Task-0 v2 worker failed before solving; runtime-provenance repair is focused-green
 
@@ -63,13 +63,34 @@ agent or developer:
   tests/test_corpus_legal_feasibility.py
   tests/test_corpus_legal_feasibility_verifier.py` (96 passed), plus
   `git diff --check`.
-- Exact next action: push the repair/handoff, submit one canonical focused
-  expansion build from the final pushed commit, then create fresh v3
-  foundation, batch, IAM, and transport namespaces. Reuse the accepted
-  retrieval task-0 result, source-v3 publication, and all 270 immutable matrix
-  identities; do not regenerate matrices. Run `validate-only` against the
-  exact v3 contract before consuming its single producer launch, then launch
-  the v3 task-0 seven-arm smoke exactly once.
+- The first replacement build submission
+  `f09b1d0f-18f1-43f4-8c44-801ea1ef6293` is permanently ineligible. Its
+  requested full SHA was mistyped, source fetch failed after three attempts,
+  no build step ran, and no image exists. Corrected canonical Cloud Build
+  `46667fe8-4a80-4347-9611-3197d7c34fab` succeeded from exact pushed commit
+  `9a5c62130419da95d5ddb6af4c6396abb2ae089d`; all five focused test, image,
+  source, parametric/realized, and Neo4j/UI stages succeeded. Accepted image:
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:a932cc7bbbf02cd17d8838fbb54ebec085fef05bdbcc16a59ea9865760076745`.
+  Exact build-contract SHA-256 is
+  `daadd6f13524530858531cc43a009c4e282fd9c8e833e5e85e1df120f12a6bb8`;
+  its in-image runtime hash smoke matched both frozen expansion build files.
+- Fresh v3 preplan is tracked at
+  `reports/corpus-parametric-runs/20260822-corpus-parametric-task0-smoke-v3/foundation-live/preplan.json`.
+  It is 3,693 canonical bytes, raw SHA-256
+  `5e64edceb442ca112b30d462276642c250480c4cc29186ebb148a67112ebbee5`,
+  embedded preplan SHA-256
+  `e1e5f1c30d1d866d77b357af3528942680daba2286a05d98d0fadc2e05c6aa6a`,
+  and passed Python 3.11 validation plus dry-run with one task, seven arms,
+  zero writes and 18 planned create-once objects. Clean exact source worktree
+  is `/tmp/nfl-predictions-corpus-9a5c621`.
+- Exact next action: execute the v3 foundation preparer once from the clean
+  Python 3.11 worktree. It must reopen and verify, not regenerate, all 270
+  immutable source matrices. In parallel replace the two v2 parametric-bucket
+  runtime conditions with the fresh v3 foundation/batch prefixes and create a
+  fresh complete IAM capture. Then configure `transport-live-v3`, run
+  `validate-only` against its exact contract before consuming launch, prove
+  the v3 task prefix is empty, and launch the v3 task-0 seven-arm smoke exactly
+  once.
 
 ## Prior state — 2026-08-22 07:34 CDT
 
