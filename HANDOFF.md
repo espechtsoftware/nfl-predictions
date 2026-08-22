@@ -26,7 +26,8 @@ agent or developer:
 
 - Isolated branch `codex/above200-analysis`, based on pushed `main` commit
   `f95878d9394cc4dac2eb97ed6ec6362b460d45c1`, contains implementation commit
-  `52021cba12730238fb853c6598aab2621fd5d09e`. It adds a pure exact-evidence
+  `52021cba12730238fb853c6598aab2621fd5d09e` and completeness repair
+  `3bf90a64dc31bb8123a3618e97b08cbddd7d9aca`. It adds a pure exact-evidence
   analyzer, a generation-pinned read-only GCS CLI, the accepted task-0 context
   annotation, and focused synthetic tests. No retrieval/scoring namespace,
   cloud execution, IAM binding, GCS object, Neo4j database, or accepted evidence
