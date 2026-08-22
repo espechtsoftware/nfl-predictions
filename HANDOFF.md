@@ -20,7 +20,30 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-22 12:40 CDT (second update)
+## Current handoff — 2026-08-22 13:13 CDT (third update)
+
+### Matchup P1 built and validated against the live warehouse
+
+- `eedde39` lands P1: `sql/research/017l_receiver_week_role_pit.sql` +
+  `017m_defense_receiver_role_concession_pit.sql` (deliberately outside the
+  production build glob — test-enforced) and the doubly gated runner
+  `scripts/build_receiver_matchup_features.py` with eight fail-closed
+  PIT/structural validation queries. REALITY CONTACT DONE: built live —
+  43,908 role rows (`nfl_features.receiver_week_role_pit`) + 32,785
+  concession rows (`nfl_features.defense_receiver_role_concession_pit`),
+  all eight checks ZERO violations. Spot check: 2023 W1 consensus roles
+  label MIA WR1=Tyreek Hill/WR2=Waddle, MIN WR1=Jefferson/TE1=Hockenson;
+  supported concessions order WR1 13.81 > WR2 10.13 > WR3+ 9.97 > TE1
+  7.34 > TE2+ 3.68 receiving-DK/game. Cross-season strictly-prior windows
+  per the plan (not season-partitioned); depth component null-with-reason
+  for 2025 (depth_charts ends 2024); `*_over_expectation` views deferred
+  to P3 with receipted projections, by design.
+- Producer `atlas-minimal-c-s2023-w1-v1-l6dll` still nonterminal at
+  18:12Z (~3h15m of solving); monitors active. Next queue: matchup P2
+  (SIS defender/alignment context + crosswalk), then the P3 annotation
+  builder joining P1+P2 into `receiver-matchup/v1` rows.
+
+## Prior handoff — 2026-08-22 12:40 CDT (second update)
 
 ### Equivalence comparator and annotation contract landed; producer still running
 
