@@ -800,3 +800,142 @@ def test_redundancy_replay_allows_only_cross_blas_last_bit_drift() -> None:
         )
         is False
     )
+
+
+def _block_scores(rows: int) -> np.ndarray:
+    width = len(retrieval.DISCOVERY_BLOCKS) * retrieval.WORLDS_PER_BLOCK
+    return np.zeros((rows, width), dtype=np.float32)
+
+
+def test_v2_registry_extends_v1_byte_identically() -> None:
+    v1 = retrieval.frozen_retrieval_strategies(80)
+    v2 = retrieval.frozen_retrieval_strategies_v2(80)
+    assert len(v1) == 4 and len(v2) == 7
+    for ordinal, (old, new) in enumerate(zip(v1, v2[:4], strict=True)):
+        assert retrieval.canonical_json_bytes(old) == (
+            retrieval.canonical_json_bytes(new)
+        )
+        assert new["ordinal"] == ordinal
+    assert [row["strategy_id"] for row in v2[4:]] == [
+        "expected-max-v1",
+        "block-supported-tail-ladder-v1",
+        "regime-robust-ladder-v1",
+    ]
+    for ordinal, row in enumerate(v2):
+        validated = retrieval.validate_retrieval_strategy_v2(
+            row, expected_ordinal=ordinal, entry_budget=80
+        )
+        assert validated["ordinal"] == ordinal
+    with pytest.raises(retrieval.CorpusRetrievalError, match="exactly four"):
+        retrieval.validate_retrieval_strategy(
+            v2[4], expected_ordinal=4, entry_budget=80
+        )
+    tampered = deepcopy(v2[5])
+    tampered["parameters"]["support_scaling"] = "raw"
+    with pytest.raises(retrieval.CorpusRetrievalError, match="differs"):
+        retrieval.validate_retrieval_strategy_v2(
+            tampered, expected_ordinal=5, entry_budget=80
+        )
+    with pytest.raises(retrieval.CorpusRetrievalError, match="exact-80"):
+        retrieval.frozen_retrieval_strategies_v2(40)
+
+
+def test_expected_max_greedy_prefers_complementary_worlds() -> None:
+    scores = _block_scores(3)
+    half = scores.shape[1] // 2
+    scores[0, :half] = np.float32(100.0)
+    scores[1, half:] = np.float32(100.0)
+    scores[2, :] = np.float32(90.0)
+    ids = [f"lineup:{index:064x}" for index in range(3)]
+    selected, trace = retrieval._select_expected_max(
+        scores, budget=2, lineup_ids=ids
+    )
+    # Highest mean first; then either complement adds exactly +5 expected
+    # points, and the ascending-lineup-id law resolves the exact tie.
+    assert selected == [2, 0]
+    assert trace[0]["marginal_utility"] == pytest.approx(90.0)
+    assert trace[1]["marginal_utility"] == pytest.approx(5.0)
+    again, again_trace = retrieval._select_expected_max(
+        scores, budget=2, lineup_ids=ids
+    )
+    assert again == selected and again_trace == trace
+    full, full_trace = retrieval._select_expected_max(
+        scores, budget=3, lineup_ids=ids
+    )
+    assert full == [2, 0, 1]
+    assert full_trace[2]["marginal_utility"] == pytest.approx(5.0)
+    book_max = scores[full].max(axis=0).astype(np.float64).mean()
+    assert book_max == pytest.approx(90.0 + 5.0 + 5.0)
+
+
+def test_block_supported_ladder_discounts_one_block_wonders() -> None:
+    per_block = retrieval.WORLDS_PER_BLOCK
+    scores = _block_scores(2)
+    # Concentrated: 500 strict >200 worlds, all inside block R0, disjoint
+    # from the spread lineup's worlds.
+    scores[0, 1_000:1_500] = np.float32(201.0)
+    # Spread: 400 strict >200 worlds, 100 in every discovery block.
+    for block in range(4):
+        scores[1, block * per_block:block * per_block + 100] = np.float32(201.0)
+    ids = [f"lineup:{index:064x}" for index in range(2)]
+    rungs = [{"threshold": 200.0, "operator": ">", "weight": 1}]
+    plain, _ = retrieval._select_ladder(
+        scores, budget=2, rungs=rungs, lineup_ids=ids
+    )
+    supported, trace = retrieval._select_block_supported_ladder(
+        scores, budget=2, rungs=rungs, lineup_ids=ids
+    )
+    assert plain == [0, 1]
+    assert supported == [1, 0]
+    assert trace[0]["marginal_utility"] == 4 * 400
+    assert trace[1]["marginal_utility"] == 1 * 500
+
+
+def test_blockmin_ladder_balances_blocks_where_plain_ladder_does_not() -> None:
+    per_block = retrieval.WORLDS_PER_BLOCK
+    scores = _block_scores(5)
+    placements = [
+        (0, 0, 100),  # A: block 0
+        (1, 0, 90),   # A2: block 0 again
+        (2, 1, 60),   # B: block 1
+        (3, 2, 50),   # C: block 2
+        (4, 3, 40),   # D: block 3
+    ]
+    for row, block, count in placements:
+        start = block * per_block + row * 200
+        scores[row, start:start + count] = np.float32(201.0)
+    ids = [f"lineup:{index:064x}" for index in range(5)]
+    rungs = [{"threshold": 200.0, "operator": ">", "weight": 1}]
+    plain, _ = retrieval._select_ladder(
+        scores, budget=4, rungs=rungs, lineup_ids=ids
+    )
+    robust, trace = retrieval._select_blockmin_ladder(
+        scores, budget=4, rungs=rungs, lineup_ids=ids
+    )
+    # Raw totals prefer the second block-0 lineup; the regime-robust law
+    # completes all four blocks instead.
+    assert plain == [0, 1, 2, 3]
+    assert robust == [0, 2, 3, 4]
+    assert [row["marginal_utility"] for row in trace] == [100, 60, 50, 40]
+
+
+def test_v2_methods_dispatch_and_block_view_guards() -> None:
+    rng = np.random.default_rng(11)
+    width = len(retrieval.DISCOVERY_BLOCKS) * retrieval.WORLDS_PER_BLOCK
+    scores = rng.normal(loc=150.0, scale=30.0, size=(82, width)).astype(
+        np.float32
+    )
+    ids = [f"lineup:{index:064x}" for index in range(82)]
+    for strategy in retrieval.frozen_retrieval_strategies_v2(80)[4:]:
+        selected, trace = retrieval._run_strategy(
+            strategy, discovery_scores=scores, lineup_ids=ids
+        )
+        assert len(selected) == 80 and len(set(selected)) == 80
+        assert [row["lineup_index"] for row in trace] == selected
+        assert [row["selection_rank"] for row in trace] == list(range(80))
+    with pytest.raises(retrieval.CorpusRetrievalError, match="whole world"):
+        retrieval._discovery_block_view(scores[:, :-1])
+    with pytest.raises(retrieval.CorpusRetrievalError, match="at least two"):
+        retrieval._discovery_block_view(
+            scores[:, :retrieval.WORLDS_PER_BLOCK]
+        )

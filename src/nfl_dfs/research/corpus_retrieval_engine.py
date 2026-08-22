@@ -845,6 +845,107 @@ def validate_retrieval_strategy(
     return expected
 
 
+_ROADMAP_LADDER_RUNGS: Final = (
+    {"threshold": 200.0, "operator": ">", "weight": 1},
+    {"threshold": 210.0, "operator": ">", "weight": 4},
+    {"threshold": 220.0, "operator": ">", "weight": 12},
+)
+
+
+def frozen_retrieval_strategies_v2(
+    entry_budget: int = DEFAULT_ENTRY_BUDGET,
+) -> list[dict[str, object]]:
+    """The v2 registry: the four v1 laws byte-identical plus three roadmap laws.
+
+    Ordinals 0-3 are exactly the v1 bodies (same strategy_sha256), so every
+    accepted v1 artifact remains valid under its own validator.  Ordinals
+    4-6 realize the offseason roadmap's R2/R3/R5 retrieval directions as
+    exact frozen laws: greedy expected book maximum, distinct-block-support
+    scaled tail ladder, and weakest-block regime-robust ladder.
+    """
+    budget = _integer(entry_budget, label="entry budget", minimum=1)
+    if budget != DEFAULT_ENTRY_BUDGET:
+        raise CorpusRetrievalError("retrieval v2 requires an exact-80 budget")
+    return frozen_retrieval_strategies(budget) + [
+        _strategy(
+            ordinal=4,
+            strategy_id="expected-max-v1",
+            method="greedy-expected-max-v1",
+            entry_budget=budget,
+            parameters={},
+            tie_law=[
+                "largest-marginal-expected-max-gain",
+                "largest-individual-strict-gt-200-count",
+                "largest-discovery-mean-score",
+                "ascending-lineup-id",
+            ],
+            description=(
+                "Greedy marginal gain in the expected discovery-world book "
+                "maximum (submodular expected-max objective)."
+            ),
+        ),
+        _strategy(
+            ordinal=5,
+            strategy_id="block-supported-tail-ladder-v1",
+            method="greedy-block-supported-ladder-v1",
+            entry_budget=budget,
+            parameters={
+                "rungs": [dict(rung) for rung in _ROADMAP_LADDER_RUNGS],
+                "support_scaling": "distinct-discovery-block-count",
+            },
+            tie_law=[
+                "largest-block-supported-marginal-rung-utility",
+                "largest-individual-strict-gt-200-count",
+                "largest-discovery-mean-score",
+                "ascending-lineup-id",
+            ],
+            description=(
+                "Tail ladder above 200/210/220 with each lineup's marginal "
+                "coverage scaled by its distinct-discovery-block event "
+                "support, discounting one-block tail accidents."
+            ),
+        ),
+        _strategy(
+            ordinal=6,
+            strategy_id="regime-robust-ladder-v1",
+            method="greedy-blockmin-ladder-v1",
+            entry_budget=budget,
+            parameters={"rungs": [dict(rung) for rung in _ROADMAP_LADDER_RUNGS]},
+            tie_law=[
+                "greatest-post-addition-leximin-block-utility-profile",
+                "largest-individual-strict-gt-200-count",
+                "largest-discovery-mean-score",
+                "ascending-lineup-id",
+            ],
+            description=(
+                "Regime-robust ladder that leximin-maximizes the "
+                "ascending-sorted per-block weighted rung coverage profile "
+                "so no single world family dominates the book."
+            ),
+        ),
+    ]
+
+
+def validate_retrieval_strategy_v2(
+    value: object, *, expected_ordinal: int, entry_budget: int,
+) -> dict[str, object]:
+    item = _mapping(value, label=f"strategy[{expected_ordinal}]")
+    _keys(item, {
+        "schema_version", "ordinal", "strategy_id", "method", "entry_budget",
+        "parameters", "tie_law", "selection_inputs", "description",
+        "strategy_sha256",
+    }, label=f"strategy[{expected_ordinal}]")
+    frozen = frozen_retrieval_strategies_v2(entry_budget)
+    if expected_ordinal >= len(frozen):
+        raise CorpusRetrievalError("v2 has exactly seven registered strategies")
+    expected = frozen[expected_ordinal]
+    if canonical_json_bytes(item) != canonical_json_bytes(expected):
+        raise CorpusRetrievalError(
+            f"strategy[{expected_ordinal}] differs from v2 registry"
+        )
+    return expected
+
+
 def _normalize_engine_release(value: object) -> dict[str, str]:
     item = _mapping(value, label="engine release")
     _keys(item, {
@@ -1579,6 +1680,227 @@ def _select_mean(
     return selected, trace
 
 
+def _discovery_block_view(scores: np.ndarray) -> tuple[int, int]:
+    """Return (block count, worlds per block) for a discovery score matrix."""
+    if scores.ndim != 2 or scores.shape[1] % WORLDS_PER_BLOCK != 0:
+        raise CorpusRetrievalError(
+            "discovery scores are not whole world blocks"
+        )
+    blocks = scores.shape[1] // WORLDS_PER_BLOCK
+    if blocks < 2:
+        raise CorpusRetrievalError(
+            "block-aware selection requires at least two discovery blocks"
+        )
+    return blocks, WORLDS_PER_BLOCK
+
+
+def _select_expected_max(
+    scores: np.ndarray,
+    *,
+    budget: int,
+    lineup_ids: Sequence[str],
+) -> tuple[list[int], list[dict[str, object]]]:
+    """Greedy marginal gain in the expected book maximum across worlds.
+
+    E[max over the book] is monotone submodular in the selected set, so the
+    deterministic greedy build is the principled construction.  Marginal
+    gains are exact float64 means of per-world improvements.
+    """
+    values = scores.astype(np.float64)
+    means = values.mean(axis=1)
+    primary_counts = _support(
+        scores, PRIMARY_EVENT_THRESHOLD, PRIMARY_EVENT_OPERATOR
+    ).sum(axis=1, dtype=np.int64)
+    current: np.ndarray | None = None
+    remaining = set(range(scores.shape[0]))
+    selected: list[int] = []
+    trace: list[dict[str, object]] = []
+    while len(selected) < budget and remaining:
+        order = sorted(remaining)
+        rows = np.asarray(order, dtype=np.int64)
+        if current is None:
+            gains = means[rows]
+        else:
+            gains = np.maximum(values[rows] - current, 0.0).mean(axis=1)
+        gain_by_index = {
+            index: float(gain) for index, gain in zip(order, gains)
+        }
+        best = sorted(
+            order,
+            key=lambda index: (
+                -gain_by_index[index],
+                -int(primary_counts[index]),
+                -float(means[index]),
+                lineup_ids[index],
+            ),
+        )[0]
+        selected.append(best)
+        trace.append({
+            "selection_rank": len(selected) - 1,
+            "lineup_index": best,
+            "lineup_id": lineup_ids[best],
+            "marginal_utility": gain_by_index[best],
+            "discovery_primary_event_count": int(primary_counts[best]),
+            "discovery_mean_score": float(means[best]),
+        })
+        current = (
+            values[best].copy() if current is None
+            else np.maximum(current, values[best])
+        )
+        remaining.remove(best)
+    return selected, trace
+
+
+def _select_block_supported_ladder(
+    scores: np.ndarray,
+    *,
+    budget: int,
+    rungs: Sequence[Mapping[str, object]],
+    lineup_ids: Sequence[str],
+) -> tuple[list[int], list[dict[str, object]]]:
+    """Tail-ladder coverage scaled by each lineup's distinct-block support.
+
+    A lineup's marginal new-world count at each rung is multiplied by the
+    number of distinct discovery blocks in which that lineup has at least
+    one rung event.  One-block wonders keep a quarter of their raw credit;
+    lineups whose tail appears in every block keep full credit.  This is the
+    frozen, exact-integer realization of "shrunk cross-block support, not
+    raw event counts".
+    """
+    blocks, per_block = _discovery_block_view(scores)
+    rung_masks = [
+        _support(scores, float(rung["threshold"]), str(rung["operator"]))
+        for rung in rungs
+    ]
+    weights = [int(rung["weight"]) for rung in rungs]
+    if any(weight <= 0 for weight in weights):
+        raise CorpusRetrievalError("ladder weights must be positive integers")
+    support_factors = [
+        mask.reshape(scores.shape[0], blocks, per_block)
+        .any(axis=2)
+        .sum(axis=1, dtype=np.int64)
+        for mask in rung_masks
+    ]
+    means = scores.mean(axis=1, dtype=np.float64)
+    primary_counts = _support(
+        scores, PRIMARY_EVENT_THRESHOLD, PRIMARY_EVENT_OPERATOR
+    ).sum(axis=1, dtype=np.int64)
+    covered = [np.zeros(scores.shape[1], dtype=bool) for _ in rungs]
+    remaining = set(range(scores.shape[0]))
+    selected: list[int] = []
+    trace: list[dict[str, object]] = []
+    while len(selected) < budget and remaining:
+        utilities = {
+            index: sum(
+                weight
+                * int(support[index])
+                * int(np.count_nonzero(mask[index] & ~seen))
+                for weight, support, mask, seen in zip(
+                    weights, support_factors, rung_masks, covered, strict=True
+                )
+            )
+            for index in remaining
+        }
+        best = sorted(
+            remaining,
+            key=lambda index: (
+                -utilities[index],
+                -int(primary_counts[index]),
+                -float(means[index]),
+                lineup_ids[index],
+            ),
+        )[0]
+        selected.append(best)
+        trace.append({
+            "selection_rank": len(selected) - 1,
+            "lineup_index": best,
+            "lineup_id": lineup_ids[best],
+            "marginal_utility": int(utilities[best]),
+            "discovery_primary_event_count": int(primary_counts[best]),
+            "discovery_mean_score": float(means[best]),
+        })
+        for mask, seen in zip(rung_masks, covered, strict=True):
+            seen |= mask[best]
+        remaining.remove(best)
+    return selected, trace
+
+
+def _select_blockmin_ladder(
+    scores: np.ndarray,
+    *,
+    budget: int,
+    rungs: Sequence[Mapping[str, object]],
+    lineup_ids: Sequence[str],
+) -> tuple[list[int], list[dict[str, object]]]:
+    """Regime-robust ladder: leximin over per-block covered utility.
+
+    Each step picks the lineup whose addition gives the lexicographically
+    greatest ascending-sorted profile of per-discovery-block weighted rung
+    coverage.  Leximin subsumes maximin and stays discriminative while some
+    blocks are still empty, so one rare world family cannot dominate the
+    book and new regimes are opened before existing ones are deepened.
+    """
+    blocks, per_block = _discovery_block_view(scores)
+    rung_masks = [
+        _support(scores, float(rung["threshold"]), str(rung["operator"]))
+        for rung in rungs
+    ]
+    weights = [int(rung["weight"]) for rung in rungs]
+    if any(weight <= 0 for weight in weights):
+        raise CorpusRetrievalError("ladder weights must be positive integers")
+    means = scores.mean(axis=1, dtype=np.float64)
+    primary_counts = _support(
+        scores, PRIMARY_EVENT_THRESHOLD, PRIMARY_EVENT_OPERATOR
+    ).sum(axis=1, dtype=np.int64)
+    covered = [np.zeros(scores.shape[1], dtype=bool) for _ in rungs]
+    block_utilities = np.zeros(blocks, dtype=np.int64)
+    remaining = set(range(scores.shape[0]))
+    selected: list[int] = []
+    trace: list[dict[str, object]] = []
+    while len(selected) < budget and remaining:
+        order = sorted(remaining)
+        rows = np.asarray(order, dtype=np.int64)
+        added = np.zeros((len(order), blocks), dtype=np.int64)
+        for weight, mask, seen in zip(
+            weights, rung_masks, covered, strict=True
+        ):
+            fresh = mask[rows] & ~seen
+            added += weight * fresh.reshape(
+                len(order), blocks, per_block
+            ).sum(axis=2, dtype=np.int64)
+        after = block_utilities[None, :] + added
+        leximin_key = {
+            index: tuple(
+                -int(value) for value in np.sort(after[position])
+            )
+            for position, index in enumerate(order)
+        }
+        best = sorted(
+            order,
+            key=lambda index: (
+                leximin_key[index],
+                -int(primary_counts[index]),
+                -float(means[index]),
+                lineup_ids[index],
+            ),
+        )[0]
+        best_position = order.index(best)
+        selected.append(best)
+        trace.append({
+            "selection_rank": len(selected) - 1,
+            "lineup_index": best,
+            "lineup_id": lineup_ids[best],
+            "marginal_utility": int(added[best_position].sum()),
+            "discovery_primary_event_count": int(primary_counts[best]),
+            "discovery_mean_score": float(means[best]),
+        })
+        block_utilities = block_utilities + added[best_position]
+        for mask, seen in zip(rung_masks, covered, strict=True):
+            seen |= mask[best]
+        remaining.remove(best)
+    return selected, trace
+
+
 def _run_strategy(
     strategy: Mapping[str, object],
     *,
@@ -1606,6 +1928,24 @@ def _run_strategy(
     if method == "rank-mean-score-v1":
         return _select_mean(
             discovery_scores, budget=budget, lineup_ids=lineup_ids
+        )
+    if method == "greedy-expected-max-v1":
+        return _select_expected_max(
+            discovery_scores, budget=budget, lineup_ids=lineup_ids
+        )
+    if method == "greedy-block-supported-ladder-v1":
+        return _select_block_supported_ladder(
+            discovery_scores,
+            budget=budget,
+            rungs=parameters["rungs"],
+            lineup_ids=lineup_ids,
+        )
+    if method == "greedy-blockmin-ladder-v1":
+        return _select_blockmin_ladder(
+            discovery_scores,
+            budget=budget,
+            rungs=parameters["rungs"],
+            lineup_ids=lineup_ids,
         )
     raise CorpusRetrievalError(f"unregistered retrieval method {method!r}")
 
