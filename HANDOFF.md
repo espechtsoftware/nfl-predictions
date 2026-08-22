@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 21:15 CDT
+## Current state — 2026-08-21 21:21 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -205,9 +205,10 @@ agent or developer:
   identities; strings, floats, booleans, zero, negatives, and null fail closed.
   Seventy-two narrow affected checks, Python/shell syntax, the shared build
   contract, and diff checks are green. Canonical Direct-Git build
-  `8a17413e-4950-40e1-ab38-77317e2f4830` is queued from that exact commit with
-  image tag `corpus-research-expansion-7cc06de`; it has not yet produced an
-  image.
+  `8a17413e-4950-40e1-ab38-77317e2f4830` succeeded from that exact commit with
+  all five focused stages green and canonical Git provenance. Its immutable
+  image, superseding every prior expansion image, is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:d35ed96e000317928530bd3d7e5a88ff63d233217066f67fc80d782b8a22700c`.
 - The last exact 270-artifact v3 source plan was never published. It was pinned
   to commit `4440c4f`, image `dbf9796c`, internal plan SHA
   `98f2bff2d4c6891c4f5f5aad8ff5978d47c2188847f685131900d9f22cb8020b`,
@@ -252,12 +253,13 @@ agent or developer:
   realized-outcome read, graph write, or new scoring execution occurred during
   this milestone. Cloud Run was updated only by failed configure attempts and
   each exact prior spec was automatically restored. One abandoned delivery
-  plan object exists as documented above. Exact next action: monitor build
-  `8a17413e` to terminal success, record its immutable digest, then
-  prepare/configure the v2 authority against the already-switched exact v2 IAM
-  conditions. Inspect and record its configure receipt before consuming that
-  source authority exactly once; then run the isolated task-0 seven-arm
-  real-artifact smoke before the complete serial 54-task suite.
+  plan object exists as documented above. Exact next action: prepare the v2
+  plan and IAM evidence for commit `7cc06de`, build `8a17413e`, and immutable
+  digest `d35ed96e`, then configure against the already-switched exact v2 IAM
+  conditions from a fresh transport directory. Inspect and record its
+  configure receipt before consuming that source authority exactly once; then
+  run the isolated task-0 seven-arm real-artifact smoke before the complete
+  serial 54-task suite.
 
 ### Accepted task-0 score is on main; corpus research dashboard is mounted
 
