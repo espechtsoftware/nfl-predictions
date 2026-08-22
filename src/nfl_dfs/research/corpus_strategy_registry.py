@@ -2962,6 +2962,28 @@ def prepare_strategy_registry_plan(
                 if strategy_id:
                     parent_strategy_nodes[strategy_id] = str(parent_node["id"])
 
+        def require_parent_source(
+            kinds: Sequence[str], identity: Mapping[str, object], *, label: str
+        ) -> str:
+            key = _identity_key(identity)
+            for kind in kinds:
+                node_id = parent_node_by_kind_source.get((kind, key))
+                if node_id is not None:
+                    return node_id
+            raise CorpusStrategyRegistryError(
+                f"named scenario {label} source is absent from the parent "
+                f"plan for kinds {list(kinds)}: {dict(identity)}"
+            )
+
+        def require_parent_strategy(strategy_id: str) -> str:
+            node_id = parent_strategy_nodes.get(strategy_id)
+            if node_id is None:
+                raise CorpusStrategyRegistryError(
+                    "named scenario source strategy is absent from the "
+                    f"parent plan: {strategy_id!r}"
+                )
+            return node_id
+
         evidence_nodes: dict[tuple[object, ...], str] = {}
         metric_nodes_by_evidence: dict[tuple[object, ...], dict[str, str]] = {}
         for evidence_identity, evidence in accepted_scenario_evidence:
@@ -3014,33 +3036,34 @@ def prepare_strategy_registry_plan(
                 _edge(
                     str(node["id"]),
                     "DERIVED_FROM_ACCEPTED_TASK_RESULT",
-                    parent_node_by_kind_source[
-                        (
-                            "CorpusTaskResult",
-                            _identity_key(evidence["source_task_result"]),
-                        )
-                    ],
+                    require_parent_source(
+                        ("CorpusTaskResult",),
+                        evidence["source_task_result"],
+                        label="task result",
+                    ),
                     task_index=task_index,
                     slate_id=slate_id,
                 ),
                 _edge(
                     str(node["id"]),
                     "DERIVED_FROM_RETRIEVAL_STRATEGY",
-                    parent_strategy_nodes[
+                    require_parent_strategy(
                         str(evidence["source_strategy"]["strategy_id"])
-                    ],
+                    ),
                     task_index=task_index,
                     slate_id=slate_id,
                 ),
                 _edge(
                     str(node["id"]),
                     "DERIVED_FROM_ACCEPTED_SELECTION",
-                    parent_node_by_kind_source[
+                    require_parent_source(
                         (
                             "CorpusArtifactPointer",
-                            _identity_key(evidence["source_selection"]),
-                        )
-                    ],
+                            "CorpusStrategySplitMeasurement",
+                        ),
+                        evidence["source_selection"],
+                        label="selection",
+                    ),
                     task_index=task_index,
                     slate_id=slate_id,
                 ),
@@ -3049,9 +3072,11 @@ def prepare_strategy_registry_plan(
                 edges.append(_edge(
                     str(node["id"]),
                     "USES_SHARED_WORLD_ARTIFACT",
-                    parent_node_by_kind_source[
-                        ("CorpusArtifactPointer", _identity_key(artifact))
-                    ],
+                    require_parent_source(
+                        ("CorpusArtifactPointer",),
+                        artifact,
+                        label="shared world artifact",
+                    ),
                     {"same_worlds": True},
                     task_index=task_index,
                     slate_id=slate_id,
