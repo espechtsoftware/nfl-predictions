@@ -20,7 +20,54 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-22 14:45 CDT (seventh update)
+## Current handoff addendum — 2026-08-22 React UI migration dependency block
+
+### Full UI replacement started; production UI remains unchanged
+
+- On `main` at base `4accb7b`, the operator authorized replacement of every
+  custom HTML page with one React/TypeScript frontend served by the existing
+  FastAPI/Cloud Run service. The intended scope is Season, Lineups, Defense,
+  Market, Watchlist, About, and Corpus Research; `/docs` remains FastAPI's
+  generated API UI.
+- Added the initial deterministic Vite/React scaffold under `frontend/` and a
+  root-anchored `/frontend/node_modules/` ignore rule. No FastAPI route,
+  static bundle, Docker image, cloud resource, or production revision has
+  changed yet.
+- The first sandboxed `npm install` could not reach the package registry. The
+  required escalated install was then refused by the execution environment
+  because its Codex usage allowance is exhausted until 2026-08-26 23:14.
+  Per the refusal, no alternate download path was attempted.
+- Exact next action: after the operator explicitly reauthorizes the pinned
+  npm dependency download (or the execution allowance resets), run
+  `npm install --ignore-scripts --no-audit --no-fund` in `frontend/`, inspect
+  the lockfile, then continue the seven-step React migration plan. Do not
+  deploy or remove the legacy UI until frontend and focused FastAPI parity
+  tests pass.
+
+## Current handoff — 2026-08-22 15:10 CDT (eighth update)
+
+### Model, winner census, and first paired retrieval test all executed
+
+- `93274e3`: LOSO walk-forward model — matchup features beat the
+  simulated-only comparator on out-of-fold AP in 5/6 seasons for
+  actual>200 (fat 2019 fold: +48 percent relative AP, top-80 lift 1.01
+  vs 0.23); positives thin (41 in-panel), nominating not proving.
+  Winner census (68 winners, same-slate percentiles): winners at mean
+  59.5th percentile on lineup matchup edge, QB edge median 68.8th;
+  receiver/RB mean edges near-neutral vs our projection-optimized
+  corpus.
+- `5e4d34e` + `07d33e4`: the preregistered paired retrieval test ran
+  after its spec was committed. PRIMARY K=8 admission sleeve FAILS its
+  nomination bar (mean delta -0.32; >200 weeks 13=13; +3 weeks at >=194
+  with no tail loss — shoulder only). SECONDARY blend rerank -6.42 —
+  the predicted negative control, validating the harness. Verdict: the
+  conversion problem stands; next legitimate step is R6-shaped matchup
+  ADMISSION feeding the frozen v2 set-level selectors over per-world
+  coverage, which requires the Foundry batch artifacts. No further
+  challenger iteration on these 107 slates (panel-mining law).
+- Producer nonterminal at ~19:50Z (~4h55m); monitors active.
+
+## Prior handoff — 2026-08-22 14:45 CDT (seventh update)
 
 ### Full modeling system LIVE: 385k lineups joined to matchup context
 
