@@ -496,7 +496,14 @@ def build_gt200_analysis(
 
     association_support: dict[tuple[str, str, tuple[str, ...]], set[int]] = defaultdict(set)
     phenotype_tokens_by_lineup: list[list[str]] = []
+    easy_coverage_annotated_ids = {
+        player_id for player_id, row in player_features.items()
+        if "easy_coverage" in row
+    }
+    easy_coverage_state_by_lineup: list[bool | None] = []
+    easy_coverage_count_by_lineup: list[int | None] = []
     easy_coverage_lineups = 0
+    easy_coverage_complete_lineups = 0
     for lineup_index, (lineup, roster) in enumerate(zip(lineups, roster_sets, strict=True)):
         ordered_roster = sorted(roster)
         positions = {player_id: str(player_by_id[player_id]["pos"]) for player_id in roster}
@@ -535,11 +542,25 @@ def build_gt200_analysis(
             f"max_game={features.get('max_players_same_game')}"
         )
         association_support[("stack-topology", stack_key, (stack_key,))].add(lineup_index)
-        easy_players = [
+        receiver_players = [
             player_id for player_id in roster
+            if str(player_by_id[player_id]["pos"]) in {"WR", "TE"}
+        ]
+        easy_coverage_complete = bool(receiver_players) and all(
+            player_id in easy_coverage_annotated_ids for player_id in receiver_players
+        )
+        easy_players = [
+            player_id for player_id in receiver_players
             if player_features.get(player_id, {}).get("easy_coverage") is True
         ]
-        if easy_players:
+        easy_coverage_state = bool(easy_players) if easy_coverage_complete else None
+        easy_coverage_state_by_lineup.append(easy_coverage_state)
+        easy_coverage_count_by_lineup.append(
+            len(easy_players) if easy_coverage_complete else None
+        )
+        if easy_coverage_complete:
+            easy_coverage_complete_lineups += 1
+        if easy_coverage_state is True:
             easy_coverage_lineups += 1
         phenotype_tokens = [f"tag={tag}" for tag in tags]
         phenotype_tokens.extend((
@@ -547,8 +568,8 @@ def build_gt200_analysis(
             f"bring_back={features.get('bring_back_players')}",
             f"max_game={features.get('max_players_same_game')}",
         ))
-        if player_features:
-            phenotype_tokens.append(f"easy_coverage={bool(easy_players)}")
+        if easy_coverage_state is not None:
+            phenotype_tokens.append(f"easy_coverage={easy_coverage_state}")
         phenotype_tokens = sorted(phenotype_tokens)
         phenotype_tokens_by_lineup.append(phenotype_tokens)
         phenotype_key = "|".join(phenotype_tokens)
@@ -687,7 +708,7 @@ def build_gt200_analysis(
             "features": features,
             "phenotype_tokens": phenotype_tokens_by_lineup[index],
             "optional_features": {
-                "easy_coverage_player_count": sum(player_features.get(player, {}).get("easy_coverage") is True for player in roster) if player_features else None,
+                "easy_coverage_player_count": easy_coverage_count_by_lineup[index],
                 "ownership_projection_sum": sum(float(value) for value in ownership_values) if len(ownership_values) == len(roster) else None,
                 "leverage_projection_sum": sum(float(value) for value in leverage_values) if len(leverage_values) == len(roster) else None,
                 "game_environment_annotations": [game_features[game] for game in features.get("games", []) if game in game_features],
@@ -775,9 +796,12 @@ def build_gt200_analysis(
         "simulated_world_block_origin": {"available": True, "event_coverage": event_count},
         "simulated_world_seed": {"available": bool(world_features), "annotated_world_count": len(world_features)},
         "easy_coverage": {
-            "available": bool(player_features),
-            "annotated_player_count": sum("easy_coverage" in row for row in player_features.values()),
-            "lineups_with_easy_coverage": easy_coverage_lineups if player_features else None,
+            "available": bool(easy_coverage_annotated_ids),
+            "annotated_player_count": len(easy_coverage_annotated_ids),
+            "complete_lineup_count": easy_coverage_complete_lineups,
+            "lineups_with_easy_coverage": (
+                easy_coverage_lineups if easy_coverage_complete_lineups else None
+            ),
         },
         "ownership_projection": {
             "available": any("ownership_projection" in row for row in player_features.values()),

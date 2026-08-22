@@ -191,7 +191,15 @@ def _bundle(*, annotations: bool = True):
             "world_law": {"family": "Atlas production-law panels"},
             "pit_vendor_annotations": [{"vendor": "fixture", "active_in_matrix": False}],
             "player_features": [
-                {"player_id": "p03", "easy_coverage": True, "ownership_projection": 0.1}
+                {
+                    "player_id": player["id"],
+                    "easy_coverage": player["id"] == "p03",
+                    **(
+                        {"ownership_projection": 0.1}
+                        if player["id"] == "p03" else {}
+                    ),
+                }
+                for player in players if player["pos"] in {"WR", "TE"}
             ],
             "game_features": [{"game_id": "A|B", "game_environment": "high"}],
             "world_features": [{"block_id": "R0", "world_index": 0, "seed": "seed-0"}],
