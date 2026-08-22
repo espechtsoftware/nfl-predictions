@@ -8,7 +8,9 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml README.md CLAUDE.md ./
+# The authoritative producer re-hashes the actual expansion build definitions
+# at runtime as part of its frozen code-source law.
+COPY pyproject.toml README.md CLAUDE.md Dockerfile.corpus-research-expansion cloudbuild.corpus-research-expansion.yaml ./
 COPY reports ./reports
 COPY src ./src
 COPY sql ./sql

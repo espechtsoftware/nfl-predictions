@@ -148,7 +148,10 @@ _CODE_SOURCE_IMPLEMENTATION_PATHS: Final = (
     "src/nfl_dfs/research/lr8_later_period_source.py",
     "src/nfl_dfs/research/residual_world_columns.py",
 )
-_CODE_SOURCE_BUILD_PATHS: Final = ("Dockerfile", "cloudbuild.yaml")
+_CODE_SOURCE_BUILD_PATHS: Final = (
+    "Dockerfile.corpus-research-expansion",
+    "cloudbuild.corpus-research-expansion.yaml",
+)
 _CODE_SOURCE_TERMINAL_VERIFICATION: Final = {
     "authority": "external-terminal-execution-receipt",
     "required": True,

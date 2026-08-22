@@ -2103,6 +2103,115 @@ def test_one_shot_launch_is_recover_only_and_requires_all_region_census() -> Non
     assert recovered["recovery_action"] == "census-only-never-relaunch"
 
 
+def test_validate_only_reports_loaded_source_without_solving(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, manifest, _, configured = _configured()
+    task = manifest["tasks"][0]
+    _, _, core, _ = transport._modules()
+    loaded = SimpleNamespace(source=SimpleNamespace(
+        prepared=SimpleNamespace(slate_id=task["slate_id"]),
+        binding=SimpleNamespace(
+            artifact_source_authority_task_sha256=task[
+                "artifact_source_authority_task_sha256"
+            ]
+        ),
+    ))
+    monkeypatch.setattr(
+        core, "_load_authoritative_inputs", lambda **kwargs: loaded
+    )
+
+    result = transport.validate_task_inputs(
+        storage=store,
+        contract_identity=configured["transport_contract"],
+        task_index=0,
+        repository_root=ROOT,
+    )
+
+    assert result["slate_id"] == task["slate_id"]
+    assert result["artifact_source_authority_task_sha256"] == task[
+        "artifact_source_authority_task_sha256"
+    ]
+    assert result["solve_invoked"] is False
+    assert result["uses_realized_outcomes"] is False
+
+
+@pytest.mark.parametrize("domain_failure", [False, True])
+def test_producer_failure_discloses_only_controlled_domain_detail(
+    domain_failure: bool,
+) -> None:
+    store, _, contract, configured = _configured()
+    contract_identity = configured["transport_contract"]
+    transport.consume_phase_launch(
+        storage=store,
+        contract_identity=contract_identity,
+        task_index=0,
+        phase="producer",
+        parked_job=_job(),
+        executions=[],
+        schedulers=[],
+        all_regions_complete=True,
+        created_at_utc=NOW,
+        execute=True,
+        environ=ENABLED,
+    )
+    producer_running = _execution(
+        contract=contract,
+        contract_identity=contract_identity,
+        task_index=0,
+        phase="producer",
+        execution_id="producer-failure",
+        execution_uid="producer-failure-uid",
+        terminal=False,
+    )
+    transport.bind_phase_execution(
+        storage=store,
+        contract_identity=contract_identity,
+        task_index=0,
+        phase="producer",
+        execution_metadata=producer_running,
+        parked_job=_job(),
+        executions=[producer_running],
+        schedulers=[],
+        all_regions_complete=True,
+        created_at_utc=NOW,
+        execute=True,
+        environ=ENABLED,
+    )
+
+    _, _, core, _ = transport._modules()
+    failure = (
+        core.CorpusLegalFeasibilityError("runtime source file is absent")
+        if domain_failure
+        else RuntimeError("sensitive sentinel")
+    )
+
+    def fail_with_context(**kwargs: object) -> object:
+        del kwargs
+        raise failure
+
+    with pytest.raises(transport.CorpusParametricTransportError) as captured:
+        transport.execute_producer_task(
+            storage=store,
+            contract_identity=contract_identity,
+            task_index=0,
+            repository_root=ROOT,
+            execute=True,
+            environ=_runtime_environ(
+                "producer-failure", "producer-failure-uid"
+            ),
+            wait_seconds=0,
+            producer=fail_with_context,
+            finalizer=_fake_finalizer,
+        )
+    expected = "authoritative producer failed"
+    if domain_failure:
+        expected += ": runtime source file is absent"
+    assert str(captured.value) == expected
+    assert captured.value.__cause__ is failure
+    assert domain_failure or "sensitive sentinel" not in str(captured.value)
+
+
 def test_complete_two_execution_flow_accepts_only_after_independent_verifier() -> None:
     store, manifest, contract, configured = _configured()
     contract_identity = configured["transport_contract"]

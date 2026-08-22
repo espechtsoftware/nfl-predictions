@@ -5249,17 +5249,23 @@ def validate_task_inputs(
             **inputs,
         )
     except Exception as exc:
+        domain_error = getattr(core, "CorpusLegalFeasibilityError", None)
+        detail = (
+            f": {exc}"
+            if isinstance(domain_error, type) and isinstance(exc, domain_error)
+            else ""
+        )
         raise CorpusParametricTransportError(
-            "authoritative task input validation failed"
+            f"authoritative task input validation failed{detail}"
         ) from exc
     return {
         "schema_version": "corpus-parametric-input-validation/v1",
         "task_index": task_index,
-        "slate_id": loaded.task["slate_id"],
+        "slate_id": loaded.source.prepared.slate_id,
         "batch_manifest_sha256": manifest["batch_manifest_sha256"],
-        "artifact_source_authority_task_sha256": loaded.task[
-            "artifact_source_authority_task_sha256"
-        ],
+        "artifact_source_authority_task_sha256": (
+            loaded.source.binding.artifact_source_authority_task_sha256
+        ),
         "input_identity_count": len(_manifest_input_identities(manifest)),
         "solve_invoked": False,
         "uses_realized_outcomes": False,
@@ -5504,8 +5510,15 @@ def execute_producer_task(
                 **inputs,
             )
         except Exception as exc:
+            domain_error = getattr(core, "CorpusLegalFeasibilityError", None)
+            detail = (
+                f": {exc}"
+                if isinstance(domain_error, type)
+                and isinstance(exc, domain_error)
+                else ""
+            )
             raise CorpusParametricTransportError(
-                "authoritative producer failed"
+                f"authoritative producer failed{detail}"
             ) from exc
         published = _publish_draft(
             storage=phase_storage,

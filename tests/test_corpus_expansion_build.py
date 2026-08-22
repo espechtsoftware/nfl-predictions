@@ -118,6 +118,27 @@ def test_committed_cloud_build_matches_shared_contract() -> None:
     assert config["timeout"] == "10800s"
 
 
+def test_expansion_image_retains_runtime_code_source_build_definitions() -> None:
+    dockerfile = (
+        ROOT / "Dockerfile.corpus-research-expansion"
+    ).read_text(encoding="utf-8")
+    assert (
+        "COPY pyproject.toml README.md CLAUDE.md "
+        "Dockerfile.corpus-research-expansion "
+        "cloudbuild.corpus-research-expansion.yaml ./"
+        in dockerfile
+    )
+    assert build.PARAMETRIC_SMOKE_COMMANDS[0] == (
+        "docker", "run", "--rm", "${_IMAGE}", "python", "-c",
+        "from pathlib import Path; from nfl_dfs.research import "
+        "corpus_legal_feasibility as c; assert c._CODE_SOURCE_BUILD_PATHS "
+        "== ('Dockerfile.corpus-research-expansion', "
+        "'cloudbuild.corpus-research-expansion.yaml'); print({name: "
+        "c._repository_source_sha256(Path('/app'), name) for name in "
+        "c._CODE_SOURCE_BUILD_PATHS})",
+    )
+
+
 @pytest.mark.parametrize("mutation", [
     lambda value: value["steps"].pop(),
     lambda value: value["steps"].append(deepcopy(value["steps"][-1])),

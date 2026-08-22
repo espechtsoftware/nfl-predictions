@@ -88,6 +88,15 @@ SOURCE_SMOKE_COMMANDS: Final = (
 
 PARAMETRIC_SMOKE_COMMANDS: Final = (
     (
+        "docker", "run", "--rm", "${_IMAGE}", "python", "-c",
+        "from pathlib import Path; from nfl_dfs.research import "
+        "corpus_legal_feasibility as c; assert c._CODE_SOURCE_BUILD_PATHS "
+        "== ('Dockerfile.corpus-research-expansion', "
+        "'cloudbuild.corpus-research-expansion.yaml'); print({name: "
+        "c._repository_source_sha256(Path('/app'), name) for name in "
+        "c._CODE_SOURCE_BUILD_PATHS})",
+    ),
+    (
         "docker", "run", "--rm", "${_IMAGE}", "python",
         "scripts/run_corpus_parametric_transport.py", "--help",
     ),
