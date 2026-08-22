@@ -25,10 +25,16 @@ per-slate snapshots via the parametric-snapshot adapter.
 ## Frozen v6 identities (copy from receipts — never retype)
 
 - Code SHA: `bcf31a75087a48d7207389fe6a69bf9244f73aeb` (pushed `main`)
-- Cloud Build: `588a2b97-5e2b-4663-a1c1-65b5039a4588` (submitted 21:57Z
-  from the PRISTINE tracked cloudbuild.yaml at bcf31a7 — the local dirty
-  copy expands past Cloud Build's 10,000-char step-arg limit and must not
-  be used)
+- Cloud Build: `b0bfb7b6-cfb4-4016-8e20-9ebee67b5857` (submitted 23:34Z
+  from the PRISTINE tracked `cloudbuild.corpus-research-expansion.yaml`
+  at bcf31a7 — the dedicated corpus config the preplan's
+  build_definition_sha256 pins; it installs jq and runs the complete
+  corpus workstream suites). Superseded attempt `588a2b97` FAILED because
+  it used the MAIN cloudbuild.yaml: its python:3.11-slim step lacks jq,
+  so the two operator-shell tests fail there (3,607 others passed; both
+  pass wherever jq exists). Never build corpus images from the main
+  config, and never from the dirty local cloudbuild.yaml (its step arg
+  exceeds Cloud Build's 10,000-char limit).
 - Immutable image: from `governance-live-v6/build-metadata.json` after
   SUCCESS (results.images[0].digest)
 - Engine: same deterministic 7-worker parallel generation as v5, plus the

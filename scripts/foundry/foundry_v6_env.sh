@@ -5,10 +5,16 @@
 # the consumers) until they are appended.
 #
 # ORDER:
-#   1. Build metadata capture (after build 588a2b97 SUCCESS):
-#      gcloud builds describe 588a2b97-5e2b-4663-a1c1-65b5039a4588 \
+#   1. Build metadata capture (after build b0bfb7b6 SUCCESS):
+#      gcloud builds describe b0bfb7b6-cfb4-4016-8e20-9ebee67b5857 \
 #        --project nfl-predictions-503414 --format=json \
 #        > reports/corpus-parametric-runs/20260822-foundry-production-v6/governance-live-v6/build-metadata.json
+#      (Build 588a2b97 FAILED and is superseded: it was submitted with the
+#      MAIN cloudbuild.yaml full suite, whose python:3.11-slim step lacks
+#      jq, so two operator-shell tests fail there. The corpus chain builds
+#      with the dedicated cloudbuild.corpus-research-expansion.yaml — the
+#      config the preplan's build_definition_sha256 pins — which installs
+#      jq and runs the complete corpus workstream suites.)
 #   2. python scripts/foundry/build_foundry_v6_preplan.py   (py311 worktree)
 #      then validate + dry-run + execute --execute via
 #      scripts/prepare_corpus_parametric_batch_v1.py from the worktree.
@@ -35,7 +41,7 @@ export CORPUS_PARAMETRIC_RUN_DIR=/home/erich/projects/nfl-predictions/reports/co
 export CORPUS_PARAMETRIC_JOB=atlas-minimal-c-s2023-w1-v1
 export CORPUS_PARAMETRIC_EXPECTED_JOB_UID=d6e4b8c1-5950-46b7-8869-7e34dbf29ad2
 export CORPUS_PARAMETRIC_SERVICE_ACCOUNT=corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com
-export CORPUS_PARAMETRIC_BUILD_ID=588a2b97-5e2b-4663-a1c1-65b5039a4588
+export CORPUS_PARAMETRIC_BUILD_ID=b0bfb7b6-cfb4-4016-8e20-9ebee67b5857
 export CORPUS_PARAMETRIC_CODE_SHA=bcf31a75087a48d7207389fe6a69bf9244f73aeb
 export CORPUS_PARAMETRIC_RUNTIME_IAM_FILE="$CORPUS_PARAMETRIC_RUN_DIR/../governance-live-v6/runtime-iam-policy-capture.json"
 export CORPUS_PARAMETRIC_BUILD_METADATA_FILE="$CORPUS_PARAMETRIC_RUN_DIR/../governance-live-v6/build-metadata.json"

@@ -52,12 +52,25 @@ agent or developer:
   governance objects exist but no batch execution ever ran. Do not reuse
   the v5 namespaces; do not touch v4/v5 further.
 - **v6 chain staged** (all scripts tracked in `scripts/foundry/`):
-  immutable image build `588a2b97-5e2b-4663-a1c1-65b5039a4588` submitted
-  21:57Z from pushed `bcf31a7` using the PRISTINE tracked
-  cloudbuild.yaml (NOTE: the uncommitted local cloudbuild.yaml edit
-  expands step-2's arg to 10,021 chars, over Cloud Build's 10,000 limit —
-  it broke the first submit and will break future builds if committed
-  as-is). Monitor armed on the build. Then: capture build-metadata →
+  immutable image build `b0bfb7b6-cfb4-4016-8e20-9ebee67b5857` submitted
+  23:34Z from pushed `bcf31a7` using the PRISTINE tracked
+  `cloudbuild.corpus-research-expansion.yaml` — the dedicated corpus
+  config the preplan's build_definition_sha256 pins (installs jq, runs
+  the complete corpus workstream suites, builds
+  Dockerfile.corpus-research-expansion). A first attempt `588a2b97`
+  FAILED because it was submitted with the MAIN cloudbuild.yaml: its
+  python:3.11-slim step lacks jq, so
+  test_corpus_artifact_source_transport.py::test_shell_prevalidates_...
+  and test_corpus_parametric_transport.py::test_operator_recovers_...
+  (which drive the operator shell scripts) fail there with "jq is
+  required" — 3,607 other tests passed and both pass wherever jq exists;
+  no code change was needed. Standing build-config laws: corpus images
+  build ONLY from cloudbuild.corpus-research-expansion.yaml; the MAIN
+  cloudbuild.yaml's test step needs jq added before it can run the full
+  suite again; the uncommitted local cloudbuild.yaml edit expands
+  step-2's arg to 10,021 chars, over Cloud Build's 10,000-char limit —
+  it broke the very first submit and will break future builds if
+  committed as-is. Monitor armed on the build. Then: capture build-metadata →
   `build_foundry_v6_preplan.py` → validate/dry-run/execute →
   `foundry_v6_iam_move.sh` (v4→v6; safe now — v4 has no live writers) →
   configure → driver task 0 → **redesigned task-0 gate**
