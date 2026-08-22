@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-22 06:48 CDT
+## Current state — 2026-08-22 07:34 CDT
 
 ### Task-0 smoke preflight mismatch is fixed locally; no scoring launch was consumed
 
@@ -57,8 +57,9 @@ agent or developer:
   `329f410f16b7926e77b426a14452f7bbf4897615dab9eae69a6b16babb848d8f`,
   and reuses the accepted retrieval result, source-v3 publication, world seed,
   solver, and all 270 fixed matrices. Python 3.11 validation passed. The first
-  execute attempt performed no write and stopped at its second solver check;
-  a read-only exact replay is diagnosing that runtime consistency failure.
+  execute attempt performed no write and stopped on a transient initial CBC
+  probe exception. A complete read-only replay subsequently confirmed the
+  retained and runtime CBC identities are exact.
 - The retrieval-bucket runtime GET condition was missing two transitive,
   generation-pinned authority objects: `query-authority.json` and
   `snapshot-producer-authority.json`. Exactly those two GET names were added.
@@ -69,6 +70,26 @@ agent or developer:
   `reports/corpus-parametric-runs/20260822-corpus-parametric-task0-smoke-v2/governance-live-v2/runtime-iam-policy-capture.json`,
   capture SHA-256
   `37efb37c453594f792d4ba3330ca86c7b481ef2cc7a470862bac5c8d2ada5393`.
+- The v2 create-once foundation then replayed all 270 fixed matrices and was
+  accepted. Publication completion is generation `1787401084851019`, 7,570
+  bytes, SHA-256
+  `2dd7f17101e8e19469bc5fe7e8bfec74cb3a3fd67a344e735188fba6b250105c`.
+  The manifest is generation `1787401083932462`, 12,646 bytes, SHA-256
+  `1f08ecd91a32e13fae8975ce4abafb533848b482a49fd5ba4c30bf3f5bd1502d`;
+  evidence contract generation `1787401084478632`, 38,493 bytes, SHA-256
+  `ff97ee67c47def91705491c6cdc1bf1db452bd665c2076e029b50800d1855af2`;
+  retrieval prerequisite generation `1787401078078413`, 1,925 bytes, SHA-256
+  `1e2090aaf88085c5fb99ad1b07e480b0d0db5cb0606b5edd464703b3a7f89c85`.
+- Corrected transport configuration is accepted under
+  `transport-live-v2`. Contract generation is `1787401469243744`, 7,383
+  bytes, SHA-256
+  `df767a8b6de3f5bce4d4d6a95f7d128be71493f52758820a7bfdb90c52600c9d`.
+  Producer execution `atlas-minimal-c-s2023-w1-v1-24bkl`, UID
+  `871b20d0-5cdb-4c2c-8f3e-ab0d696fb460`, was launched exactly once and is
+  bound by execution-name ledger generation `1787402061395611`, SHA-256
+  `8efa53d2383737d15ae875e53cb333c51930086f0783a8b2c2eabad06e90f95f`.
+  It is currently running. Never call `launch-producer` again; use only
+  `watch-producer`, then the separately governed verifier sequence.
 
 ## Current state — 2026-08-21 23:45 CDT
 
