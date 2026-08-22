@@ -3857,8 +3857,14 @@ def _classify_cbc_log(
         r"[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][+-]?\d+)?",
         first_solution_line,
     ) is not None
+    # CBC writes two exact infeasibility solution headers: presolve
+    # infeasibility ("Infeasible - ...") and branch-and-bound integer
+    # infeasibility ("Integer infeasible - ..."). Both are complete
+    # infeasibility proofs; the collision stage's uniqueness law accepts
+    # either. (The missing variant silently failed 6,363 of 7,000 real
+    # cells in the v4 smoke: rich models rarely die in presolve.)
     infeasible_solution = re.fullmatch(
-        r"Infeasible - objective value "
+        r"(?:Integer i|I)nfeasible - objective value "
         r"[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][+-]?\d+)?",
         first_solution_line,
     ) is not None

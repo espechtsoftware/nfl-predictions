@@ -1404,3 +1404,54 @@ def test_iter_unit_results_consumes_in_plan_order_with_bounded_window(
         list(core._iter_authoritative_unit_results(
             plan, requests[:5], worker_processes=1,
         ))
+
+
+def test_classifier_accepts_both_exact_infeasibility_solution_headers():
+    # Regression for the v4 producer failure (2026-08-22): CBC writes
+    # "Integer infeasible - objective value X" when branch-and-bound —
+    # not presolve — proves the collision stage infeasible. Rich real
+    # slates almost always take that path; the classifier rejected it
+    # and 6,363/7,000 correct uniqueness proofs were scored ERROR.
+    command = "command line - cbc model.mps sec 120 solve solu out.sol"
+    log = (
+        f"{command}\n"
+        "Coin0008I MODEL read with 0 errors\n"
+        "Result - Problem proven infeasible\n"
+    )
+    for header in (
+        "Infeasible - objective value 0.00000000",
+        "Integer infeasible - objective value 1915419784523.99975586",
+    ):
+        status, terminal, poison = core._classify_cbc_log(
+            log,
+            f"{header}\n".encode("utf-8"),
+            pulp_status=core.SolverStatus.INFEASIBLE,
+            expected_command_line=command,
+        )
+        assert status is core.SolverStatus.INFEASIBLE, header
+        assert terminal == "Result - Problem proven infeasible"
+        assert poison is False
+    # The widened header never weakens the poison laws around it.
+    poisoned_cases = (
+        (log + "Clp0006W scaling warning\n",
+         b"Integer infeasible - objective value 1.0\n",
+         core.SolverStatus.INFEASIBLE),
+        (log, b"Integer infeasible - objective value 1.0\n",
+         core.SolverStatus.OPTIMAL),
+        (f"{command}\nCoin0008I MODEL read with 0 errors\n",
+         b"Integer infeasible - objective value 1.0\n",
+         core.SolverStatus.INFEASIBLE),
+        (log, b"Integer INFEASIBLE - objective value 1.0\n",
+         core.SolverStatus.INFEASIBLE),
+        (log, b"infeasible - objective value 1.0\n",
+         core.SolverStatus.INFEASIBLE),
+    )
+    for bad_log, bad_solution, bad_pulp in poisoned_cases:
+        status, terminal, poison = core._classify_cbc_log(
+            bad_log, bad_solution,
+            pulp_status=bad_pulp,
+            expected_command_line=command,
+        )
+        assert status is core.SolverStatus.ERROR
+        assert terminal is None
+        assert poison is True
