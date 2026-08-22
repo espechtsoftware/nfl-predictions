@@ -20,7 +20,37 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-22 13:51 CDT (fifth update)
+## Current handoff — 2026-08-22 14:09 CDT (sixth update)
+
+### Winner registry reconciled; receiver family FROZEN; RB+QB families live
+
+- `a8f6bbc`: canonical 68-contest winner registry (P0.2) with exact
+  defect flags (5 salary-above-cap, 1 missing-salary, 3
+  summary-salary-missing, 11 article disagreements; provenance gaps
+  recorded); governed-51 subset preserved; registry sha b8fc84ee...
+  The winner-slate half of the receiver freeze gate ran on the governed
+  2023 W1 winner: 4/4 WR/TE resolved and annotated ->
+  **receiver-matchup/v1 is FROZEN (analysis-grade)** via
+  family-freeze-receipt.json. Descriptive anecdote: the winner's three
+  WRs all had above-median pre-lock edges (Aiyuk 0.81 easy-coverage
+  TRUE; Aiyuk + Ridley pre-lock WR1s).
+- `e326d5d`: RB/QB PIT SQL layers live — 017o RB roles (Chubb/CMC/Henry
+  RB1 spot checks), 017p RB concessions with BOTH rushing and checkdown
+  receiving surfaces, 017q team defense context (SIS run defense, PFR
+  pass rush, QB-DK concessions). Six tables total, SEVENTEEN validation
+  checks zero violations.
+- `977b4ac`: rb-matchup/v1 + qb-matchup/v1 registered (PROVISIONAL) with
+  builders under the identical frozen laws; live task-0 smokes PASSED:
+  RB 180/61/10 easy-ground (incl. Mostert — converging with the
+  phenotype's Mostert+Hill 4.26x pair), QB 93/93/10 easy-pass. Known QB
+  caveat for its freeze gate: team-level components give backups the
+  starter's edge — starter/depth gate required pre-freeze.
+- Producer `atlas-minimal-c-s2023-w1-v1-l6dll` still nonterminal at
+  19:08Z (~4h12m); monitors active. Remaining next: RB/QB winner halves
+  + freeze receipts (with QB starter gate), then P4 analyses once the
+  Foundry batch lands.
+
+## Prior handoff — 2026-08-22 13:51 CDT (fifth update)
 
 ### Matchup P3 annotations built; task-0 reality smoke PASSED
 
