@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from hashlib import sha256
 import os
 from pathlib import Path
 import re
@@ -32,7 +33,7 @@ from nfl_dfs.research import corpus_realized_outcome_transport as supplier  # no
 
 ENABLED_ENV: Final = "CORPUS_REALIZED_OUTCOMES_ENABLED"
 PROJECT: Final = supplier.PROJECT
-_RUN_ID: Final = re.compile(r"[a-z0-9][a-z0-9-]{7,127}")
+_RUN_ID: Final = re.compile(r"[a-z0-9][a-z0-9-]{7,80}")
 _JOB: Final = re.compile(r"[a-z0-9][a-z0-9-]{2,62}")
 _CODE: Final = re.compile(r"[0-9a-f]{40}")
 _IMAGE: Final = re.compile(r".+@sha256:[0-9a-f]{64}")
@@ -45,6 +46,24 @@ class CorpusRealizedOutcomeRunnerError(RuntimeError):
 
 @dataclass(frozen=True, slots=True)
 class BatchAcceptancePin:
+    uri: str
+    generation: str
+    sha256: str
+    bytes: int
+
+    def identity(self) -> dict[str, object]:
+        return {
+            "uri": self.uri,
+            "generation": self.generation,
+            "sha256": self.sha256,
+            "bytes": self.bytes,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class LeaseReceiptPin:
+    """Non-secret, generation-pinned GCS delivery of the lease receipt."""
+
     uri: str
     generation: str
     sha256: str
@@ -144,6 +163,65 @@ def run_cloud(
     )
 
 
+def _lease_contract_from_raw(raw: bytes) -> dict[str, object]:
+    value = cloud_boundary._strict_json(  # noqa: SLF001
+        raw, label="historical lease receipt"
+    )
+    allowed = ({"lease", "object"}, {"schema_version", "lease", "object"})
+    if set(value) not in allowed or (
+        "schema_version" in value
+        and value["schema_version"] != "corpus-realized-lease-receipt/v1"
+    ):
+        raise CorpusRealizedOutcomeRunnerError(
+            "historical lease receipt fields differ"
+        )
+    try:
+        body = dict(value["lease"])  # type: ignore[arg-type]
+        receipt = dict(value["object"])  # type: ignore[arg-type]
+    except (TypeError, ValueError) as exc:
+        raise CorpusRealizedOutcomeRunnerError(
+            "historical lease receipt contract differs"
+        ) from exc
+    return {"body": body, "object_receipt": receipt}
+
+
+def _load_remote_lease_receipt(
+    storage_client: object, pin: LeaseReceiptPin,
+) -> dict[str, object]:
+    try:
+        bucket_name, name = cloud_boundary._gcs_parts(  # noqa: SLF001
+            pin.uri, label="historical lease receipt delivery"
+        )
+        generation = cloud_boundary._generation(  # noqa: SLF001
+            pin.generation, label="historical lease receipt delivery"
+        )
+        cloud_boundary._digest(  # noqa: SLF001
+            pin.sha256, label="historical lease receipt delivery digest"
+        )
+        generation_int = int(generation)
+        blob = storage_client.bucket(bucket_name).blob(  # type: ignore[attr-defined]
+            name, generation=generation_int
+        )
+        blob.reload(if_generation_match=generation_int)
+        raw = blob.download_as_bytes(if_generation_match=generation_int)
+    except cloud_boundary.LR8ScoreMapRunnerError as exc:
+        raise CorpusRealizedOutcomeRunnerError(str(exc)) from exc
+    except Exception as exc:
+        raise CorpusRealizedOutcomeRunnerError(
+            "historical lease receipt generation-pinned delivery failed"
+        ) from exc
+    if (
+        str(blob.generation) != generation
+        or type(raw) is not bytes
+        or len(raw) != pin.bytes
+        or sha256(raw).hexdigest() != pin.sha256
+    ):
+        raise CorpusRealizedOutcomeRunnerError(
+            "historical lease receipt delivery identity differs"
+        )
+    return _lease_contract_from_raw(raw)
+
+
 def _receipt_only(result: supplier.RealizedOutcomeSupply) -> dict[str, object]:
     return {
         "status": "CORPUS_REALIZED_OUTCOMES_CLOSED",
@@ -173,13 +251,21 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--batch-acceptance-generation", required=True)
     parser.add_argument("--batch-acceptance-sha256", required=True)
     parser.add_argument("--batch-acceptance-bytes", required=True)
-    parser.add_argument("--historical-lease-receipt", type=Path, required=True)
+    parser.add_argument("--historical-lease-receipt", type=Path)
+    parser.add_argument("--historical-lease-receipt-uri")
+    parser.add_argument("--historical-lease-receipt-generation")
+    parser.add_argument("--historical-lease-receipt-sha256")
+    parser.add_argument("--historical-lease-receipt-bytes")
     return parser
 
 
 def _validated_cli(
     args: argparse.Namespace,
-) -> tuple[supplier.SupplierConfig, BatchAcceptancePin, dict[str, object]]:
+) -> tuple[
+    supplier.SupplierConfig,
+    BatchAcceptancePin,
+    dict[str, object] | LeaseReceiptPin,
+]:
     # These two gates intentionally precede every file read and cloud object.
     if not args.execute or os.environ.get(ENABLED_ENV) != "1":
         raise CorpusRealizedOutcomeRunnerError(
@@ -214,9 +300,6 @@ def _validated_cli(
             sha256=digest,
             bytes=int(args.batch_acceptance_bytes),
         )
-        lease = cloud_boundary._read_lease_contract(  # noqa: SLF001
-            args.historical_lease_receipt
-        )
     except cloud_boundary.LR8ScoreMapRunnerError as exc:
         raise CorpusRealizedOutcomeRunnerError(str(exc)) from exc
     config = supplier.SupplierConfig(
@@ -227,6 +310,57 @@ def _validated_cli(
         expected_batch_acceptance_object_sha256=pin.sha256,
         enabled=True,
     )
+    local_receipt = getattr(args, "historical_lease_receipt", None)
+    remote_values = (
+        getattr(args, "historical_lease_receipt_uri", None),
+        getattr(args, "historical_lease_receipt_generation", None),
+        getattr(args, "historical_lease_receipt_sha256", None),
+        getattr(args, "historical_lease_receipt_bytes", None),
+    )
+    if (local_receipt is not None) == all(
+        value is not None for value in remote_values
+    ):
+        raise CorpusRealizedOutcomeRunnerError(
+            "use exactly one local or generation-pinned GCS lease receipt"
+        )
+    if any(value is not None for value in remote_values) and not all(
+        value is not None for value in remote_values
+    ):
+        raise CorpusRealizedOutcomeRunnerError(
+            "generation-pinned GCS lease receipt fields are incomplete"
+        )
+    if local_receipt is not None:
+        try:
+            lease: dict[str, object] | LeaseReceiptPin = (
+                cloud_boundary._read_lease_contract(local_receipt)  # noqa: SLF001
+            )
+        except cloud_boundary.LR8ScoreMapRunnerError as exc:
+            raise CorpusRealizedOutcomeRunnerError(str(exc)) from exc
+    else:
+        assert all(value is not None for value in remote_values)
+        uri, generation_raw, digest_raw, bytes_raw = remote_values
+        try:
+            cloud_boundary._gcs_parts(  # noqa: SLF001
+                uri, label="historical lease receipt delivery"
+            )
+            generation = cloud_boundary._generation(  # noqa: SLF001
+                generation_raw, label="historical lease receipt delivery"
+            )
+            digest = cloud_boundary._digest(  # noqa: SLF001
+                digest_raw, label="historical lease receipt delivery digest"
+            )
+        except cloud_boundary.LR8ScoreMapRunnerError as exc:
+            raise CorpusRealizedOutcomeRunnerError(str(exc)) from exc
+        if type(bytes_raw) is not str or _BYTES.fullmatch(bytes_raw) is None:
+            raise CorpusRealizedOutcomeRunnerError(
+                "historical lease receipt delivery bytes must be canonical"
+            )
+        lease = LeaseReceiptPin(
+            uri=str(uri),
+            generation=generation,
+            sha256=digest,
+            bytes=int(bytes_raw),
+        )
     uris = {
         pin.uri,
         lease_identity.HISTORICAL_OUTCOME_LEASE_URI,
@@ -239,6 +373,18 @@ def _validated_cli(
         raise CorpusRealizedOutcomeRunnerError(
             "corpus realized object URIs alias"
         )
+    if isinstance(lease, LeaseReceiptPin):
+        if lease.uri in uris:
+            raise CorpusRealizedOutcomeRunnerError(
+                "historical lease receipt delivery URI aliases runtime objects"
+            )
+        return config, pin, lease
+    return config, pin, _validate_lease_for_config(lease, config=config)
+
+
+def _validate_lease_for_config(
+    lease: Mapping[str, object], *, config: supplier.SupplierConfig,
+) -> dict[str, object]:
     lease_config = lease_boundary.SupplierConfig(
         config.run_id,
         config.job,
@@ -248,25 +394,32 @@ def _validated_cli(
         True,
     )
     try:
-        validated_lease = lease_boundary._validate_lease(  # noqa: SLF001
+        return lease_boundary._validate_lease(  # noqa: SLF001
             lease, config=lease_config
         )
     except lease_boundary.LR8ScoreMapError as exc:
         raise CorpusRealizedOutcomeRunnerError(str(exc)) from exc
-    return config, pin, validated_lease
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    config, pin, lease = _validated_cli(_parser().parse_args(argv))
+    config, pin, lease_reference = _validated_cli(_parser().parse_args(argv))
     # No Google client import or construction is reachable before both gates.
     from google.cloud import bigquery, storage
 
+    storage_client = storage.Client(project=PROJECT)
+    if isinstance(lease_reference, LeaseReceiptPin):
+        lease = _validate_lease_for_config(
+            _load_remote_lease_receipt(storage_client, lease_reference),
+            config=config,
+        )
+    else:
+        lease = lease_reference
     result = run_cloud(
         config=config,
         batch_pin=pin,
         lease_contract=lease,
         bq_client=bigquery.Client(project=PROJECT),
-        storage_client=storage.Client(project=PROJECT),
+        storage_client=storage_client,
     )
     print(supplier.canonical_json_bytes(_receipt_only(result)).decode(), end="")
     return 0

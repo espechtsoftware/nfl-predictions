@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 19:49 CDT
+## Current state — 2026-08-21 20:01 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -66,11 +66,18 @@ agent or developer:
   `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:4c69c7c52d40bbbcd1e36975c6e38be5d449248ed339cc20b6d7795e7a5fd52d`.
   Do not reuse either failed build.
 - The graph v2 release remains outcome-blind and intentionally reserves the
-  realized namespace empty. Two follow-on adapters are being implemented
-  independently while scoring launches: a create-once accepted-batch registry
-  producer plus graph-to-UI materializer, and a reuse-only Cloud Run lifecycle
-  around the realized grader with historical-outcome lease release/abandon.
-  These do not block source publication or the seven-arm scoring smoke.
+  realized namespace empty. The two follow-on adapters are now implemented
+  and included in the exact shared-build contract: a create-once accepted
+  54-by-seven batch registry producer plus bounded graph-to-UI materializer,
+  and a reuse-only Cloud Run lifecycle around the realized grader with
+  generation-pinned lease delivery and release/abandon receipts. The registry
+  labels this first import retrospective and all-worlds descriptive; it does
+  not claim preregistration, held-out evidence, promotion, or an active
+  strategy pointer. Focused producer/bridge/UI validation is green 15/15;
+  existing and new realized boundaries are green 19/19, and the corrected
+  wrapper assertion is green. Shared build-contract validation is green 8/8,
+  including the new CLI, parked, shell, and import smokes. These adapters do
+  not block source publication or the seven-arm scoring smoke.
 - Dedicated cloud prerequisites now exist: bucket
   `gs://nfl-predictions-503414-corpus-source` and service account
   `corpus-source-research@nfl-predictions-503414.iam.gserviceaccount.com`, plus
@@ -113,19 +120,26 @@ agent or developer:
   principal has no binding. The validator now permits that exact minimal form
   only for `allUsers` and `allAuthenticatedUsers`; the runtime identity still
   requires full expansion. Its focused adversarial test is green. Build one
-  fresh minimal public analyses are still required: a post-build retry at
-  19:47 CDT again returned HTTP 429. Retain those proofs (or land and build an
-  equally fail-closed retained-policy fallback), then regenerate the source
-  plan for build `240b60a6-79dd-4ffc-bb17-d27e3250e2c6` and the digest above.
-  No source query,
-  object publication, or Cloud Run mutation has occurred.
+  fresh minimal public AnalyzeIamPolicy calls remain quota-throttled: a
+  post-build retry at 19:47 CDT and an exact-resource retry both returned HTTP
+  429. The current SearchAllIamPolicies fallback succeeded for both special
+  principals with exact empty raw responses; Resource Manager independently
+  confirms active project `817589974517` has no parent, closing the ancestor
+  policy gap. A new fail-closed v1 replay accepts only those exact project,
+  query, page-size, empty-response, and parentless-project bodies; pagination,
+  unreachable scope, API errors, any result, parent, or identity mismatch is
+  rejected. Existing fully explored AnalyzeIamPolicy validation is unchanged.
+  Its builder round-trip and adversarial validation are green 3/3. Build the
+  now-integrated release, then regenerate the still-unpublished source plan
+  for that final code/image identity and assemble the self-hashed live IAM
+  evidence. No source query, object publication, or Cloud Run mutation has
+  occurred.
 - No source query, source publication, parametric solver, realized-outcome
-  read, graph write, Cloud Build submission, Cloud Run job mutation, or new
-  scoring execution occurred during this provisioning milestone. Exact next
-  action: commit and push the exact shared build source, obtain one immutable
-  expansion digest, publish the point-in-time source authority, then run the
-  isolated task-0 seven-arm real-artifact smoke before the complete serial
-  54-task suite.
+  read, graph write, Cloud Run job mutation, or new scoring execution occurred
+  during this integration milestone. Exact next action: commit and push the
+  integrated release, obtain its immutable direct-Git digest, publish the
+  point-in-time source authority, then run the isolated task-0 seven-arm
+  real-artifact smoke before the complete serial 54-task suite.
 
 ### Accepted task-0 score is on main; corpus research dashboard is mounted
 

@@ -35,10 +35,13 @@ FOCUSED_TEST_FILES: Final = (
     "tests/test_corpus_parametric_transport.py",
     "tests/test_corpus_realized_grading.py",
     "tests/test_corpus_realized_outcome_transport.py",
+    "tests/test_corpus_realized_cloud_transport.py",
     "tests/test_corpus_retrieval_neo4j.py",
     "tests/test_corpus_neo4j_transport.py",
     "tests/test_corpus_strategy_registry.py",
+    "tests/test_corpus_strategy_registry_release.py",
     "tests/test_corpus_research_ui.py",
+    "tests/test_corpus_research_ui_bridge.py",
     "tests/test_corpus_expansion_build.py",
 )
 
@@ -109,11 +112,24 @@ PARAMETRIC_SMOKE_COMMANDS: Final = (
         "scripts/run_corpus_realized_outcomes.py", "--help",
     ),
     (
+        "docker", "run", "--rm", "${_IMAGE}", "python",
+        "scripts/run_corpus_realized_cloud_transport.py", "--help",
+    ),
+    (
+        "docker", "run", "--rm", "${_IMAGE}", "python",
+        "scripts/run_corpus_realized_cloud_transport.py", "parked",
+    ),
+    (
+        "docker", "run", "--rm", "${_IMAGE}", "bash", "-n",
+        "scripts/cloud_corpus_realized_v1_reuse.sh",
+    ),
+    (
         "docker", "run", "--rm", "${_IMAGE}", "python", "-c",
         "import nfl_dfs.research.corpus_legal_feasibility; "
         "import nfl_dfs.research.corpus_legal_feasibility_verifier; "
         "import nfl_dfs.research.corpus_realized_grading; "
-        "import nfl_dfs.research.corpus_realized_outcome_transport",
+        "import nfl_dfs.research.corpus_realized_outcome_transport; "
+        "import nfl_dfs.research.corpus_realized_cloud_transport",
     ),
 )
 
@@ -135,9 +151,27 @@ NEO4J_SMOKE_COMMANDS: Final = (
         "scripts/cloud_corpus_neo4j_v1_reuse.sh",
     ),
     (
+        "docker", "run", "--rm", "${_IMAGE}", "python",
+        "scripts/prepare_corpus_strategy_registry_release.py", "--help",
+    ),
+    (
+        "docker", "run", "--rm", "${_IMAGE}", "python",
+        "scripts/prepare_corpus_strategy_registry_release.py", "parked",
+    ),
+    (
+        "docker", "run", "--rm", "${_IMAGE}", "python",
+        "scripts/materialize_corpus_research_ui_projection.py", "--help",
+    ),
+    (
+        "docker", "run", "--rm", "${_IMAGE}", "python",
+        "scripts/materialize_corpus_research_ui_projection.py", "parked",
+    ),
+    (
         "docker", "run", "--rm", "${_IMAGE}", "python", "-c",
         "import neo4j; import nfl_dfs.research.corpus_neo4j_transport; "
         "import nfl_dfs.research.corpus_strategy_registry; "
+        "import nfl_dfs.research.corpus_strategy_registry_release; "
+        "import nfl_dfs.research.corpus_research_ui_bridge; "
         "import nfl_dfs.app.corpus_research",
     ),
 )

@@ -55,7 +55,7 @@ SOURCE_ROW_FIELDS: Final = (
     "source_key", "player_id", "realized_score_micro",
 )
 
-_RUN_ID: Final = re.compile(r"[a-z0-9][a-z0-9-]{7,127}")
+_RUN_ID: Final = re.compile(r"[a-z0-9][a-z0-9-]{7,80}")
 _JOB: Final = re.compile(r"[a-z0-9][a-z0-9-]{2,62}")
 _CODE_SHA: Final = re.compile(r"[0-9a-f]{40}")
 _IMAGE: Final = re.compile(r".+@sha256:[0-9a-f]{64}")
@@ -891,14 +891,20 @@ def build_query_spec(
     return QuerySpec(
         sql=AUTHORITATIVE_SCORE_SQL,
         parameters=parameters,
-        job_id=(
-            f"corpus_realized_{config.run_id.replace('-', '_')[:42]}_"
-            f"{config.expected_batch_acceptance_object_sha256[:12]}"
-        ),
+        job_id=deterministic_query_job_id(config),
         location=LOCATION,
         sql_sha256=AUTHORITATIVE_SCORE_SQL_SHA256,
         parameters_sha256=canonical_sha256(payload),
         union_keys_sha256=canonical_sha256(_union_payload(rows)),
+    )
+
+
+def deterministic_query_job_id(config: SupplierConfig) -> str:
+    """Return the only BigQuery job id licensed for one realized run."""
+    config = _validate_config(config)
+    return (
+        f"corpus_realized_{config.run_id.replace('-', '_')[:42]}_"
+        f"{config.expected_batch_acceptance_object_sha256[:12]}"
     )
 
 
@@ -1611,6 +1617,7 @@ __all__ = [
     "build_query_spec",
     "canonical_json_bytes",
     "canonical_sha256",
+    "deterministic_query_job_id",
     "reopen_accepted_batch",
     "supply_realized_outcomes",
 ]

@@ -349,6 +349,7 @@
       label: row.label,
       discovery: mean(row.discovery.length ? row.discovery : row.other),
       heldout: mean(row.heldout),
+      primaryLabel: row.discovery.length ? "Discovery" : "All-worlds descriptive",
     })).filter((row) => row.discovery !== null || row.heldout !== null);
   }
 
@@ -384,7 +385,7 @@
         svg.appendChild(svgNode("line", { x1: x, x2: x, y1: y(row.discovery), y2: y(row.heldout), stroke: "rgba(197,217,219,.38)", "stroke-width": 2 }));
       }
       const stable = row.discovery !== null && row.heldout !== null && Math.sign(row.discovery) === Math.sign(row.heldout);
-      [[row.discovery, "#ffca72", -4, "Discovery"], [row.heldout, "#6ea8ff", 4, "Held-out"]].forEach(([value, color, offset, label]) => {
+      [[row.discovery, "#ffca72", -4, row.primaryLabel], [row.heldout, "#6ea8ff", 4, "Held-out"]].forEach(([value, color, offset, label]) => {
         if (value === null) return;
         const circle = svgNode("circle", { cx: x + offset, cy: y(value), r: 5.3, fill: color, stroke: stable ? "#a7ed68" : "rgba(255,255,255,.22)", "stroke-width": stable ? 2 : 1 });
         titleFor(circle, `${row.label}\n${label} delta: ${format(value)}`);

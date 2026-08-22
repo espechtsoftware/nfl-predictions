@@ -588,6 +588,30 @@ def _iam_evidence(
     return module._self_hash(body, field="iam_evidence_sha256")
 
 
+def _public_principal_search_proof(
+    module: ModuleType,
+    identity: str,
+) -> dict[str, object]:
+    return {
+        "schema_version": module.PUBLIC_PRINCIPAL_SEARCH_SCHEMA,
+        "search_all_iam_policies_request": {
+            "scope": f"projects/{module.PROJECT}",
+            "query": f"policy:{identity}",
+            "pageSize": module.PUBLIC_PRINCIPAL_SEARCH_PAGE_SIZE,
+        },
+        "search_all_iam_policies_response": {},
+        "resource_manager_project": {
+            "name": f"projects/{module.PROJECT_NUMBER}",
+            "projectId": module.PROJECT,
+            "state": "ACTIVE",
+            "displayName": "NFL predictions",
+            "createTime": "2025-01-01T00:00:00Z",
+            "updateTime": "2026-08-21T18:00:00Z",
+            "etag": "retained-project-etag",
+        },
+    }
+
+
 def _query_rows(role: str) -> tuple[dict[str, object], ...]:
     rows: list[dict[str, object]] = []
     for season, week in later.EXPECTED_SLATE_KEYS:
@@ -1195,6 +1219,192 @@ def test_raw_iam_replay_rejects_public_and_overbroad_roles(
             required_read_uris=required,
             output_prefix=OUTPUT_PREFIX,
         )
+
+
+def test_public_principal_search_fallback_is_bounded_and_fail_closed(
+    transport: ModuleType,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    plan, plan_raw, initial = _plan(transport, monkeypatch)
+    storage = FakeStorage(transport, initial)
+    evidence = _iam_evidence(transport, storage, plan)
+    fallback_body = deepcopy(evidence)
+    fallback_body.pop("iam_evidence_sha256")
+    fallback_body["effective_access_analyses"]["all_users"] = (
+        _public_principal_search_proof(transport, "allUsers")
+    )
+    fallback_body["effective_access_analyses"]["all_authenticated_users"] = (
+        _public_principal_search_proof(transport, "allAuthenticatedUsers")
+    )
+    fallback = transport._self_hash(
+        fallback_body, field="iam_evidence_sha256"
+    )
+
+    _base, receipts, _raw = transport._base_source_receipts(storage, plan)
+    required = transport._required_read_uris(
+        plan_identity={
+            "uri": transport._governance_uris(DELIVERY_PREFIX)["plan"],
+            "generation": "1",
+            "sha256": "0" * 64,
+            "bytes": 1,
+        },
+        plan=plan,
+        receipts=receipts,
+    ) + [transport._governance_uris(DELIVERY_PREFIX)["launch_ledger"]]
+    validated = transport.validate_runtime_iam_evidence(
+        fallback,
+        service_account=SERVICE_ACCOUNT,
+        required_read_uris=required,
+        output_prefix=OUTPUT_PREFIX,
+    )
+    assert validated == fallback
+
+    capture_body = {
+        "schema_version": transport.RUNTIME_IAM_CAPTURE_SCHEMA,
+        "captured_at_utc": fallback["captured_at_utc"],
+        "project": fallback["project"],
+        **{
+            key: deepcopy(fallback[key])
+            for key in (
+                "project_policy", "query_table_policies",
+                "custom_role_definitions", "bucket_policies",
+                "bucket_metadata", "effective_access_analyses",
+            )
+        },
+    }
+    capture = transport._self_hash(capture_body, field="capture_sha256")
+    base_identity = plan["base_source_lock_object"]
+    base_raw = initial[(
+        str(base_identity["uri"]), str(base_identity["generation"])
+    )]
+    rebuilt = transport.build_runtime_iam_evidence(
+        policy_capture=capture,
+        plan_raw=plan_raw,
+        base_source_lock_raw=base_raw,
+        delivery_prefix=DELIVERY_PREFIX,
+        service_account=SERVICE_ACCOUNT,
+    )
+    assert rebuilt["effective_access_analyses"] == (
+        fallback["effective_access_analyses"]
+    )
+
+    tampered_capture = deepcopy(capture)
+    tampered_capture["effective_access_analyses"]["all_users"][
+        "search_all_iam_policies_request"
+    ]["query"] = "policy:allAuthenticatedUsers"
+    with pytest.raises(
+        transport.CorpusArtifactSourceTransportError,
+        match="policy capture self-hash differs",
+    ):
+        transport.build_runtime_iam_evidence(
+            policy_capture=tampered_capture,
+            plan_raw=plan_raw,
+            base_source_lock_raw=base_raw,
+            delivery_prefix=DELIVERY_PREFIX,
+            service_account=SERVICE_ACCOUNT,
+        )
+
+    def wrong_scope(proof: dict[str, object]) -> None:
+        proof["search_all_iam_policies_request"]["scope"] = (
+            "projects/another-project"
+        )
+
+    def wrong_query(proof: dict[str, object]) -> None:
+        proof["search_all_iam_policies_request"]["query"] = (
+            "policy:allAuthenticatedUsers"
+        )
+
+    def wrong_page_size(proof: dict[str, object]) -> None:
+        proof["search_all_iam_policies_request"]["pageSize"] = 499
+
+    def nonempty_results(proof: dict[str, object]) -> None:
+        proof["search_all_iam_policies_response"] = {
+            "results": [{"resource": "//cloudresourcemanager.googleapis.com/x"}]
+        }
+
+    def response_field(field: str):
+        def mutate(proof: dict[str, object]) -> None:
+            proof["search_all_iam_policies_response"][field] = []
+
+        return mutate
+
+    def wrong_project_name(proof: dict[str, object]) -> None:
+        proof["resource_manager_project"]["name"] = "projects/123456789"
+
+    def wrong_project_id(proof: dict[str, object]) -> None:
+        proof["resource_manager_project"]["projectId"] = "another-project"
+
+    def inactive_project(proof: dict[str, object]) -> None:
+        proof["resource_manager_project"]["state"] = "DELETE_REQUESTED"
+
+    def parented_project(proof: dict[str, object]) -> None:
+        proof["resource_manager_project"]["parent"] = "organizations/123"
+
+    def truncated_project(proof: dict[str, object]) -> None:
+        proof["resource_manager_project"].pop("state")
+
+    def truncated_bundle(proof: dict[str, object]) -> None:
+        proof.pop("resource_manager_project")
+
+    cases = (
+        ("scope", wrong_scope, "request for allUsers differs"),
+        ("principal query", wrong_query, "request for allUsers differs"),
+        ("page size", wrong_page_size, "request for allUsers differs"),
+        (
+            "nonempty",
+            nonempty_results,
+            "not a complete zero-result page",
+        ),
+        (
+            "pagination",
+            response_field("nextPageToken"),
+            "not a complete zero-result page",
+        ),
+        (
+            "unreachable",
+            response_field("unreachable"),
+            "not a complete zero-result page",
+        ),
+        (
+            "errors",
+            response_field("errors"),
+            "not a complete zero-result page",
+        ),
+        (
+            "API error",
+            response_field("error"),
+            "not a complete zero-result page",
+        ),
+        ("project number", wrong_project_name, "identity/state differs"),
+        ("project ID", wrong_project_id, "identity/state differs"),
+        ("project state", inactive_project, "identity/state differs"),
+        ("project parent", parented_project, "must be parentless"),
+        (
+            "truncated project",
+            truncated_project,
+            "Resource Manager project fields differ",
+        ),
+        ("truncated bundle", truncated_bundle, "proof for allUsers fields differ"),
+    )
+    for label, mutate, expected_message in cases:
+        candidate = deepcopy(fallback)
+        candidate.pop("iam_evidence_sha256")
+        proof = candidate["effective_access_analyses"]["all_users"]
+        mutate(proof)
+        candidate = transport._self_hash(
+            candidate, field="iam_evidence_sha256"
+        )
+        try:
+            transport.validate_runtime_iam_evidence(
+                candidate,
+                service_account=SERVICE_ACCOUNT,
+                required_read_uris=required,
+                output_prefix=OUTPUT_PREFIX,
+            )
+        except transport.CorpusArtifactSourceTransportError as exc:
+            assert expected_message in str(exc), f"{label}: {exc}"
+        else:
+            pytest.fail(f"{label} public-principal proof was accepted")
 
 
 def test_client_free_iam_builder_derives_exact_plan_and_270_object_boundary(

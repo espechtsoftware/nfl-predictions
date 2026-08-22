@@ -36,6 +36,7 @@ from nfl_dfs.research import lr8_later_period_source as later  # noqa: E402
 
 
 PROJECT: Final = source.PROJECT
+PROJECT_NUMBER: Final = "817589974517"
 REGION: Final = "us-central1"
 EXPECTED_CODE_REPOSITORY: Final = expansion_build.EXPECTED_CODE_REPOSITORY
 ENABLE_ENV: Final = source.ENABLE_ENV
@@ -59,6 +60,10 @@ RUNTIME_IAM_CAPTURE_SCHEMA: Final = (
     "corpus-artifact-source-runtime-iam-policy-capture/v1"
 )
 RUNTIME_IAM_SCHEMA: Final = "corpus-artifact-source-runtime-iam-evidence/v3"
+PUBLIC_PRINCIPAL_SEARCH_SCHEMA: Final = (
+    "corpus-artifact-source-public-principal-search-evidence/v1"
+)
+PUBLIC_PRINCIPAL_SEARCH_PAGE_SIZE: Final = 500
 LAUNCH_LEDGER_SCHEMA: Final = "corpus-artifact-source-launch-ledger/v1"
 EXECUTION_BINDING_SCHEMA: Final = "corpus-artifact-source-execution-binding/v1"
 TERMINAL_ACCEPTANCE_SCHEMA: Final = "corpus-artifact-source-terminal-acceptance/v1"
@@ -882,6 +887,114 @@ def _cloud_asset_results(value: object, *, identity: str) -> list[object]:
     )
 
 
+_PUBLIC_PRINCIPAL_SEARCH_KEYS: Final = frozenset({
+    "schema_version",
+    "search_all_iam_policies_request",
+    "search_all_iam_policies_response",
+    "resource_manager_project",
+})
+_PUBLIC_PRINCIPAL_SEARCH_REQUEST_KEYS: Final = frozenset({
+    "scope", "query", "pageSize",
+})
+_RESOURCE_MANAGER_PROJECT_KEYS: Final = frozenset({
+    "name", "projectId", "state", "displayName", "createTime",
+    "updateTime", "etag",
+})
+
+
+def _public_principal_results(value: object, *, identity: str) -> list[object]:
+    """Replay either conclusive AnalyzeIamPolicy or its bounded fallback.
+
+    SearchAllIamPolicies is only conclusive for a project when the retained
+    response is a complete empty page and the project has no parent.  The
+    latter closes the ancestor-policy gap inherent in a project-scoped
+    search.  This bundle intentionally has no inner self-hash: the enclosing
+    policy-capture/evidence self-hash remains the sole byte authority.
+    """
+    if identity not in {"allUsers", "allAuthenticatedUsers"}:
+        raise CorpusArtifactSourceTransportError(
+            "public-principal fallback identity differs"
+        )
+    if not (
+        isinstance(value, Mapping)
+        and value.get("schema_version") == PUBLIC_PRINCIPAL_SEARCH_SCHEMA
+    ):
+        return _cloud_asset_results(value, identity=identity)
+
+    proof = _mapping(
+        value, label=f"public-principal search proof for {identity}"
+    )
+    _exact_keys(
+        proof,
+        _PUBLIC_PRINCIPAL_SEARCH_KEYS,
+        label=f"public-principal search proof for {identity}",
+    )
+    request = _mapping(
+        proof["search_all_iam_policies_request"],
+        label=f"SearchAllIamPolicies request for {identity}",
+    )
+    _exact_keys(
+        request,
+        _PUBLIC_PRINCIPAL_SEARCH_REQUEST_KEYS,
+        label=f"SearchAllIamPolicies request for {identity}",
+    )
+    if request != {
+        "scope": f"projects/{PROJECT}",
+        "query": f"policy:{identity}",
+        "pageSize": PUBLIC_PRINCIPAL_SEARCH_PAGE_SIZE,
+    }:
+        raise CorpusArtifactSourceTransportError(
+            f"SearchAllIamPolicies request for {identity} differs"
+        )
+
+    response = _mapping(
+        proof["search_all_iam_policies_response"],
+        label=f"SearchAllIamPolicies response for {identity}",
+    )
+    # The retained direct REST searches returned exact empty objects.  Do not
+    # widen that observed wire result to a synthesized ``results: []`` or to
+    # any response carrying pagination, unreachable scopes, or API errors.
+    if response != {}:
+        raise CorpusArtifactSourceTransportError(
+            f"SearchAllIamPolicies response for {identity} is not a complete "
+            "zero-result page"
+        )
+
+    project = _mapping(
+        proof["resource_manager_project"],
+        label="Resource Manager project",
+    )
+    # The raw v3 Project resource omits parent for a parentless project.  Do
+    # not treat an empty/null parent as equivalent: retaining the field means
+    # the proof is not the exact observed parentless body.
+    if "parent" in project:
+        raise CorpusArtifactSourceTransportError(
+            "Resource Manager project must be parentless"
+        )
+    _exact_keys(
+        project,
+        _RESOURCE_MANAGER_PROJECT_KEYS,
+        label="Resource Manager project",
+    )
+    if (
+        project["name"] != f"projects/{PROJECT_NUMBER}"
+        or project["projectId"] != PROJECT
+        or project["state"] != "ACTIVE"
+    ):
+        raise CorpusArtifactSourceTransportError(
+            "Resource Manager project identity/state differs"
+        )
+    _string(project["displayName"], label="Resource Manager project displayName")
+    _string(project["etag"], label="Resource Manager project etag")
+    _timestamp(
+        project["createTime"], label="Resource Manager project createTime"
+    )
+    _timestamp(
+        project["updateTime"], label="Resource Manager project updateTime"
+    )
+    return []
+
+
 def _cloud_asset_grant(
     value: object, *, member: str
 ) -> tuple[
@@ -1107,7 +1220,7 @@ def _validate_effective_access(
         ("all_users", "allUsers"),
         ("all_authenticated_users", "allAuthenticatedUsers"),
     ):
-        if _cloud_asset_results(analyses[key], identity=identity):
+        if _public_principal_results(analyses[key], identity=identity):
             raise CorpusArtifactSourceTransportError(
                 f"Cloud Asset public access exists for {identity}"
             )

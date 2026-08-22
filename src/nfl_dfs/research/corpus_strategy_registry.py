@@ -52,6 +52,15 @@ METRIC_SET_SCHEMA: Final = "corpus-experiment-metric-set/v2"
 EFFECTIVE_PARAMETERS_SCHEMA: Final = "corpus-experiment-effective-parameters/v1"
 PRE_EXECUTION_GATE_SCHEMA: Final = "corpus-experiment-pre-execution-gate/v1"
 EVIDENCE_BINDING_SCHEMA: Final = "corpus-experiment-evidence-binding/v1"
+RETROSPECTIVE_REGISTRATION_SCHEMA: Final = (
+    "corpus-experiment-retrospective-registration/v1"
+)
+RETROSPECTIVE_EFFECTIVE_PARAMETERS_SCHEMA: Final = (
+    "corpus-experiment-retrospective-effective-parameters/v1"
+)
+RETROSPECTIVE_EVIDENCE_BINDING_SCHEMA: Final = (
+    "corpus-experiment-retrospective-evidence-binding/v1"
+)
 PROMOTION_SCHEMA: Final = "corpus-promotion-decision/v1"
 ACTIVE_POINTER_SCHEMA: Final = "corpus-active-strategy-pointer/v1"
 WINNER_AUTHORITY_SCHEMA: Final = "corpus-winner-import-authority/v1"
@@ -67,7 +76,9 @@ _BUILD = re.compile(
 )
 _UTC = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 _ID = re.compile(r"^[a-z0-9][a-z0-9._-]{0,127}$")
-_SLATE = re.compile(r"^[0-9]{4}-w[1-9][0-9]*(?:-[a-z0-9][a-z0-9-]*)?$")
+_SLATE = re.compile(
+    r"^[0-9]{4}-w(?:0[1-9]|[1-9][0-9]*)(?:-[a-z0-9][a-z0-9-]*)?$"
+)
 
 _MAX_TYPED_PARAMETERS: Final = 256
 _MAX_ARTIFACT_POINTERS: Final = 128
@@ -553,6 +564,14 @@ def _validate_release_binding(value: object) -> dict[str, str]:
 
 def _validate_effective_parameters(value: Mapping[str, object]) -> dict[str, object]:
     item = dict(value)
+    retrospective = (
+        item.get("schema_version")
+        == RETROSPECTIVE_EFFECTIVE_PARAMETERS_SCHEMA
+    )
+    extra_fields = (
+        {"source_effective_policy", "derivation_mode"}
+        if retrospective else set()
+    )
     _exact_keys(
         item,
         {
@@ -561,12 +580,21 @@ def _validate_effective_parameters(value: Mapping[str, object]) -> dict[str, obj
             "retrieval_parameters", "uses_realized_outcomes",
             "historical_outcome_read_authority", "outcome_namespace_read",
             "outcome_columns_read", "effective_parameters_sha256",
+            *extra_fields,
         },
         label="effective parameters",
     )
     if (
-        item["schema_version"] != EFFECTIVE_PARAMETERS_SCHEMA
+        item["schema_version"] not in {
+            EFFECTIVE_PARAMETERS_SCHEMA,
+            RETROSPECTIVE_EFFECTIVE_PARAMETERS_SCHEMA,
+        }
         or item["publication_mode"] != "create_once"
+        or (
+            retrospective
+            and item.get("derivation_mode")
+            != "retrospective-pointer-binding"
+        )
     ):
         raise CorpusStrategyRegistryError("effective parameters law differs")
     _identifier(item["experiment_id"], label="effective parameters experiment ID")
@@ -582,6 +610,11 @@ def _validate_effective_parameters(value: Mapping[str, object]) -> dict[str, obj
     item["retrieval_parameters"] = _typed_parameters(
         item["retrieval_parameters"], label="effective retrieval parameters"
     )
+    if retrospective:
+        item["source_effective_policy"] = _identity_dict(
+            item["source_effective_policy"],
+            label="source runtime effective policy",
+        )
     _require_outcome_firewall(item, label="effective parameters")
     _self_hash(
         item, field="effective_parameters_sha256", label="effective parameters"
@@ -591,27 +624,60 @@ def _validate_effective_parameters(value: Mapping[str, object]) -> dict[str, obj
 
 def _validate_pre_execution_gate(value: Mapping[str, object]) -> dict[str, object]:
     item = dict(value)
-    _exact_keys(
-        item,
-        {
+    retrospective = (
+        item.get("schema_version") == RETROSPECTIVE_REGISTRATION_SCHEMA
+    )
+    if retrospective:
+        expected_fields = {
             "schema_version", "publication_mode", "gate_id", "experiment_id",
             "task_index", "slate_id", "fill_preset", "retrieval_preset",
             "corpus_snapshot", "matrix_artifacts", "effective_parameters",
-            "exact_release",
-            "registered_before_execution", "gate_passed",
+            "exact_release", "derivation_manifest", "batch_manifest",
+            "task_acceptance", "task_result", "science_terminal",
+            "independent_verification", "variant_result", "effective_policy",
+            "task_sha256", "parameter_set_sha256",
+            "registered_before_execution", "batch_law_frozen_before_execution",
+            "retrospective_binding", "uses_realized_outcomes",
+            "historical_outcome_read_authority", "outcome_namespace_read",
+            "outcome_columns_read", "created_at_utc",
+            "retrospective_registration_sha256",
+        }
+    else:
+        expected_fields = {
+            "schema_version", "publication_mode", "gate_id", "experiment_id",
+            "task_index", "slate_id", "fill_preset", "retrieval_preset",
+            "corpus_snapshot", "matrix_artifacts", "effective_parameters",
+            "exact_release", "registered_before_execution", "gate_passed",
             "uses_realized_outcomes", "historical_outcome_read_authority",
             "outcome_namespace_read", "outcome_columns_read",
             "created_at_utc", "pre_execution_gate_sha256",
-        },
+        }
+    _exact_keys(
+        item, expected_fields,
         label="pre-execution gate",
     )
     if (
-        item["schema_version"] != PRE_EXECUTION_GATE_SCHEMA
+        item["schema_version"] not in {
+            PRE_EXECUTION_GATE_SCHEMA, RETROSPECTIVE_REGISTRATION_SCHEMA,
+        }
         or item["publication_mode"] != "create_once"
         or type(item["task_index"]) is not int
         or not 0 <= item["task_index"] < 54
-        or item["registered_before_execution"] is not True
-        or item["gate_passed"] is not True
+        or (
+            not retrospective
+            and (
+                item["registered_before_execution"] is not True
+                or item["gate_passed"] is not True
+            )
+        )
+        or (
+            retrospective
+            and (
+                item["registered_before_execution"] is not False
+                or item["batch_law_frozen_before_execution"] is not True
+                or item["retrospective_binding"] is not True
+            )
+        )
     ):
         raise CorpusStrategyRegistryError("pre-execution gate law differs")
     _identifier(item["gate_id"], label="pre-execution gate ID")
@@ -624,6 +690,24 @@ def _validate_pre_execution_gate(value: Mapping[str, object]) -> dict[str, objec
     ):
         item[field] = _identity_dict(item[field], label=f"pre-execution gate {field}")
     item["exact_release"] = _validate_release_binding(item["exact_release"])
+    if retrospective:
+        for field in (
+            "derivation_manifest", "batch_manifest", "task_acceptance",
+            "task_result", "science_terminal", "independent_verification",
+            "variant_result", "effective_policy",
+        ):
+            item[field] = _identity_dict(
+                item[field], label=f"retrospective registration {field}"
+            )
+        if (
+            not isinstance(item["task_sha256"], str)
+            or _SHA.fullmatch(item["task_sha256"]) is None
+            or not isinstance(item["parameter_set_sha256"], str)
+            or _SHA.fullmatch(item["parameter_set_sha256"]) is None
+        ):
+            raise CorpusStrategyRegistryError(
+                "retrospective registration source hashes differ"
+            )
     matrices = [
         _identity_dict(raw, label=f"pre-execution gate matrix[{ordinal}]")
         for ordinal, raw in enumerate(
@@ -637,13 +721,21 @@ def _validate_pre_execution_gate(value: Mapping[str, object]) -> dict[str, objec
     _require_outcome_firewall(item, label="pre-execution gate")
     _timestamp(item["created_at_utc"], label="pre-execution gate timestamp")
     _self_hash(
-        item, field="pre_execution_gate_sha256", label="pre-execution gate"
+        item,
+        field=(
+            "retrospective_registration_sha256"
+            if retrospective else "pre_execution_gate_sha256"
+        ),
+        label="pre-execution gate",
     )
     return item
 
 
 def _validate_evidence_binding(value: Mapping[str, object]) -> dict[str, object]:
     item = dict(value)
+    retrospective = (
+        item.get("schema_version") == RETROSPECTIVE_EVIDENCE_BINDING_SCHEMA
+    )
     _exact_keys(
         item,
         {
@@ -654,17 +746,25 @@ def _validate_evidence_binding(value: Mapping[str, object]) -> dict[str, object]
             "uses_realized_outcomes", "historical_outcome_read_authority",
             "outcome_namespace_read", "outcome_columns_read",
             "created_at_utc", "evidence_binding_sha256",
+            *({"derivation_mode"} if retrospective else set()),
         },
         label="experiment evidence binding",
     )
     if (
-        item["schema_version"] != EVIDENCE_BINDING_SCHEMA
+        item["schema_version"] not in {
+            EVIDENCE_BINDING_SCHEMA, RETROSPECTIVE_EVIDENCE_BINDING_SCHEMA,
+        }
         or item["publication_mode"] != "create_once"
         or item["evidence_role"] not in _EVIDENCE_ROLES
         or type(item["task_index"]) is not int
         or not 0 <= item["task_index"] < 54
         or item["accepted"] is not True
         or item["complete"] is not True
+        or (
+            retrospective
+            and item.get("derivation_mode")
+            != "retrospective-pointer-binding"
+        )
     ):
         raise CorpusStrategyRegistryError("experiment evidence law differs")
     _identifier(item["evidence_id"], label="experiment evidence ID")
@@ -817,12 +917,28 @@ def _validate_metric_set(value: Mapping[str, object]) -> dict[str, object]:
     )
     _exact_keys(
         heldout,
-        {"heldout_split_registered", "selection_informed_by_heldout"},
+        {
+            "heldout_split_registered", "selection_informed_by_heldout",
+            *(
+                {"selection_informed_by_evaluation_worlds"}
+                if "selection_informed_by_evaluation_worlds" in heldout
+                else set()
+            ),
+        },
         label="heldout design",
     )
     paired_key = _identifier(paired["paired_key"], label="paired design key")
     comparison_axis = paired.get("comparison_axis")
     required = paired.get("required")
+    heldout_registered = heldout == {
+        "heldout_split_registered": True,
+        "selection_informed_by_heldout": False,
+    }
+    all_worlds_descriptive = heldout == {
+        "heldout_split_registered": False,
+        "selection_informed_by_heldout": False,
+        "selection_informed_by_evaluation_worlds": True,
+    }
     if (
         item["schema_version"] != METRIC_SET_SCHEMA
         or item["publication_mode"] != "create_once"
@@ -848,10 +964,7 @@ def _validate_metric_set(value: Mapping[str, object]) -> dict[str, object]:
             and paired.get("same_snapshot") is not False
         )
         or (required is True and comparison_axis == "none")
-        or heldout != {
-            "heldout_split_registered": True,
-            "selection_informed_by_heldout": False,
-        }
+        or not (heldout_registered or all_worlds_descriptive)
     ):
         raise CorpusStrategyRegistryError("paired/heldout metric law differs")
     raw_metrics = _sequence(item["metrics"], label="metrics")
@@ -867,7 +980,14 @@ def _validate_metric_set(value: Mapping[str, object]) -> dict[str, object]:
         not metrics
         or ids != sorted(set(ids))
         or any(row["paired_key"] != paired_key for row in metrics)
-        or not {"discovery", "heldout"}.issubset(scopes)
+        or (
+            heldout_registered
+            and not {"discovery", "heldout"}.issubset(scopes)
+        )
+        or (
+            all_worlds_descriptive
+            and scopes != {"all-worlds-descriptive"}
+        )
         or (
             required is True
             and any(row["baseline_experiment_run"] is None for row in metrics)
@@ -1491,6 +1611,9 @@ def prepare_strategy_registry_plan(
                 "executed parameters differ from the registered presets"
             )
         gate_identity, gate = authority["pre_execution_gate"]
+        retrospective = (
+            gate["schema_version"] == RETROSPECTIVE_REGISTRATION_SCHEMA
+        )
         if (
             gate["experiment_id"] != experiment["experiment_id"]
             or gate["task_index"] != experiment["task_index"]
@@ -1505,30 +1628,73 @@ def prepare_strategy_registry_plan(
             raise CorpusStrategyRegistryError(
                 "pre-execution gate experiment binding differs"
             )
-        expected_dependencies = {
-            "accepted_execution": [
-                gate_identity.as_dict(), effective_identity.as_dict(),
-            ],
-            "accepted_result": [
-                authority["accepted_execution"][0].as_dict(),
-                effective_identity.as_dict(),
-            ],
-            "independent_verification": [
-                authority["accepted_result"][0].as_dict(),
-                effective_identity.as_dict(),
-            ],
-            "selection_evidence": [
-                authority["accepted_result"][0].as_dict(),
-                authority["independent_verification"][0].as_dict(),
-                effective_identity.as_dict(),
-            ],
-            "metric_computation": [
-                authority["accepted_result"][0].as_dict(),
-                authority["independent_verification"][0].as_dict(),
-                effective_identity.as_dict(),
-                authority["selection_evidence"][0].as_dict(),
-            ],
-        }
+        if retrospective:
+            if (
+                effective["schema_version"]
+                != RETROSPECTIVE_EFFECTIVE_PARAMETERS_SCHEMA
+                or effective["source_effective_policy"]
+                != gate["effective_policy"]
+            ):
+                raise CorpusStrategyRegistryError(
+                    "retrospective effective-policy binding differs"
+                )
+            expected_dependencies = {
+                "accepted_execution": [
+                    gate_identity.as_dict(), effective_identity.as_dict(),
+                    gate["task_acceptance"], gate["science_terminal"],
+                ],
+                "accepted_result": [
+                    authority["accepted_execution"][0].as_dict(),
+                    effective_identity.as_dict(), gate["task_result"],
+                    gate["variant_result"],
+                ],
+                "independent_verification": [
+                    authority["accepted_result"][0].as_dict(),
+                    effective_identity.as_dict(),
+                    gate["independent_verification"],
+                ],
+                "selection_evidence": [
+                    authority["accepted_result"][0].as_dict(),
+                    authority["independent_verification"][0].as_dict(),
+                    effective_identity.as_dict(), gate["variant_result"],
+                ],
+                "metric_computation": [
+                    authority["accepted_result"][0].as_dict(),
+                    authority["independent_verification"][0].as_dict(),
+                    effective_identity.as_dict(),
+                    authority["selection_evidence"][0].as_dict(),
+                    gate["independent_verification"],
+                ],
+            }
+        else:
+            if effective["schema_version"] != EFFECTIVE_PARAMETERS_SCHEMA:
+                raise CorpusStrategyRegistryError(
+                    "prospective effective-parameter binding differs"
+                )
+            expected_dependencies = {
+                "accepted_execution": [
+                    gate_identity.as_dict(), effective_identity.as_dict(),
+                ],
+                "accepted_result": [
+                    authority["accepted_execution"][0].as_dict(),
+                    effective_identity.as_dict(),
+                ],
+                "independent_verification": [
+                    authority["accepted_result"][0].as_dict(),
+                    effective_identity.as_dict(),
+                ],
+                "selection_evidence": [
+                    authority["accepted_result"][0].as_dict(),
+                    authority["independent_verification"][0].as_dict(),
+                    effective_identity.as_dict(),
+                ],
+                "metric_computation": [
+                    authority["accepted_result"][0].as_dict(),
+                    authority["independent_verification"][0].as_dict(),
+                    effective_identity.as_dict(),
+                    authority["selection_evidence"][0].as_dict(),
+                ],
+            }
         for field, expected in expected_dependencies.items():
             evidence = authority[field][1]
             normalized_expected = sorted(expected, key=_identity_key)
@@ -1538,7 +1704,22 @@ def prepare_strategy_registry_plan(
                 or evidence["slate_id"] != experiment["slate_id"]
                 or evidence["exact_release"] != experiment["exact_release"]
                 or evidence["dependencies"] != normalized_expected
-                or evidence["created_at_utc"] <= gate["created_at_utc"]
+                or (
+                    retrospective
+                    and (
+                        evidence["schema_version"]
+                        != RETROSPECTIVE_EVIDENCE_BINDING_SCHEMA
+                        or evidence["created_at_utc"]
+                        != gate["created_at_utc"]
+                    )
+                )
+                or (
+                    not retrospective
+                    and (
+                        evidence["schema_version"] != EVIDENCE_BINDING_SCHEMA
+                        or evidence["created_at_utc"] <= gate["created_at_utc"]
+                    )
+                )
             ):
                 raise CorpusStrategyRegistryError(
                     f"experiment {field} evidence chain differs"
@@ -2096,6 +2277,13 @@ def prepare_strategy_registry_plan(
                 experiment_key
             ][field]
             authority_kind, relationship_type = authority_kinds[field]
+            if (
+                field == "pre_execution_gate"
+                and authority_payload["schema_version"]
+                == RETROSPECTIVE_REGISTRATION_SCHEMA
+            ):
+                authority_kind = "ExperimentRetrospectiveRegistration"
+                relationship_type = "HAS_RETROSPECTIVE_REGISTRATION"
             authority_node = _source_node(
                 kind=authority_kind,
                 logical_id=(
@@ -2904,6 +3092,9 @@ __all__ = [
     "READ_ONLY_QUERIES",
     "REGISTRY_NAMESPACE",
     "RELEASE_SCHEMA",
+    "RETROSPECTIVE_EFFECTIVE_PARAMETERS_SCHEMA",
+    "RETROSPECTIVE_EVIDENCE_BINDING_SCHEMA",
+    "RETROSPECTIVE_REGISTRATION_SCHEMA",
     "RETRIEVAL_PRESET_SCHEMA",
     "ReadOnlyRegistryQuery",
     "SNAPSHOT_SCHEMA",

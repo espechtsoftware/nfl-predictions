@@ -825,11 +825,11 @@ CORPUS_RESEARCH_HTML: Final = """<!doctype html>
 
         <section class="panel">
           <div class="panel-head"><div><p class="eyebrow">Paired evidence</p>
-            <h2>Discovery vs held-out stability</h2></div>
+            <h2>Paired baseline deltas</h2></div>
             <label>Metric<select id="paired-metric"></select></label></div>
           <svg id="paired-chart" class="chart" viewBox="0 0 720 430"
-            role="img" aria-label="Paired discovery and held-out deltas"></svg>
-          <div class="legend"><span class="disc"></span>Discovery delta
+            role="img" aria-label="Paired strategy baseline deltas"></svg>
+          <div class="legend"><span class="disc"></span>Primary / descriptive delta
             <span class="held"></span>Held-out delta
             <span class="stable"></span>Same direction</div>
         </section>
