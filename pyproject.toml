@@ -46,6 +46,7 @@ tuning = [
 dev = [
     "pytest>=7.4",
     "httpx>=0.25",  # FastAPI TestClient
+    "PyYAML>=6.0",  # validates committed Cloud Build contracts
 ]
 
 [project.scripts]

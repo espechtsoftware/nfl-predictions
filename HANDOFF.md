@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 19:13 CDT
+## Current state — 2026-08-21 19:20 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -38,8 +38,12 @@ agent or developer:
   core tests are green 19/19; the graph registry/transport audit was green for
   29 cases with its one stronger fail-closed message assertion corrected; the
   exact build/UI integration is green 14/14 after binding the UI directly to
-  graph projection schema v2. The shared Cloud Build is the remaining full
-  focused-workstream validator and has not yet been submitted.
+  graph projection schema v2. Direct-Git build
+  `168a9eb1-d1eb-46d0-99ee-2b67c5dc05cf` resolved exact commit
+  `ea10d42c8a8f4c5b2356b3035f4eec9d585d95b2` but failed before test
+  collection because the clean Python 3.11 environment lacked the test-only
+  `PyYAML` dependency. It produced no image. `PyYAML>=6.0` is now explicit in
+  the dev extra; resubmit the same exact focused build after this correction.
 - The graph v2 release remains outcome-blind and intentionally reserves the
   realized namespace empty. Two follow-on adapters are being implemented
   independently while scoring launches: a create-once accepted-batch registry
@@ -68,6 +72,13 @@ agent or developer:
   buckets. Regenerating matrices is reserved for a separately named corpus
   population preset so the first scenario suite remains directly comparable
   to the accepted result.
+- The source preparer requires both output and delivery prefixes to end in the
+  exact run ID. Before any object or query existed, the source bucket's two
+  runtime bindings were atomically corrected from the rejected nested layout
+  to `research/source/20260821-corpus-artifact-source-authority-v1/` and
+  `research/delivery/20260821-corpus-artifact-source-authority-v1/`. The
+  bucket remains empty; the replacement retains exact GETs plus create-only
+  output-prefix authority.
 - No source query, source publication, parametric solver, realized-outcome
   read, graph write, Cloud Build submission, Cloud Run job mutation, or new
   scoring execution occurred during this provisioning milestone. Exact next
