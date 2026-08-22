@@ -181,6 +181,98 @@ class FakeStorage:
         return sorted(rows, key=lambda row: (row["uri"], row["generation"]))
 
 
+class _FakeGCSBlob:
+    def __init__(self, *, generation: object) -> None:
+        self.name = "prefix/object.json"
+        self.generation = generation
+        self.raw = b"retained"
+        self.size = len(self.raw)
+
+    def upload_from_string(
+        self, raw: bytes, *, content_type: str, if_generation_match: int,
+    ) -> None:
+        assert content_type == "application/json"
+        assert if_generation_match == 0
+        self.raw = raw
+        self.size = len(raw)
+
+    def reload(self) -> None:
+        return None
+
+    def download_as_bytes(self, *, if_generation_match: int) -> bytes:
+        assert type(self.generation) is int
+        assert if_generation_match == self.generation
+        return self.raw
+
+
+class _FakeGCSClient:
+    def __init__(self, blob: _FakeGCSBlob) -> None:
+        self.blob_value = blob
+
+    def bucket(self, name: str) -> "_FakeGCSClient":
+        assert name == "test-bucket"
+        return self
+
+    def blob(
+        self, name: str, generation: int | None = None,
+    ) -> _FakeGCSBlob:
+        assert name == self.blob_value.name
+        if generation is not None:
+            assert type(self.blob_value.generation) is int
+            assert generation == self.blob_value.generation
+        return self.blob_value
+
+    def list_blobs(
+        self, bucket: str, *, prefix: str, versions: bool,
+    ) -> list[_FakeGCSBlob]:
+        assert bucket == "test-bucket"
+        assert prefix == "prefix/"
+        assert versions is True
+        return [self.blob_value]
+
+
+def _generation_boundary_storage(
+    module: ModuleType, generation: object,
+) -> tuple[object, _FakeGCSBlob]:
+    storage = object.__new__(module.GenerationPinnedStorage)
+    blob = _FakeGCSBlob(generation=generation)
+    storage._client = _FakeGCSClient(blob)
+    return storage, blob
+
+
+def test_gcs_blob_positive_integer_generation_is_normalized(
+    transport: ModuleType,
+) -> None:
+    storage, _blob = _generation_boundary_storage(transport, 7)
+    uri = "gs://test-bucket/prefix/object.json"
+    published = storage.publish(uri, b"published")
+    assert published["generation"] == "7"
+    current, reopened = storage.resolve_current(uri)
+    assert current["generation"] == "7"
+    assert reopened == b"published"
+    assert storage.inventory("gs://test-bucket/prefix/") == [{
+        "uri": uri, "generation": "7", "bytes": len(b"published"),
+    }]
+
+
+@pytest.mark.parametrize("generation", ["7", 7.0, True, 0, -1, None])
+@pytest.mark.parametrize("operation", ["publish", "resolve", "inventory"])
+def test_gcs_blob_generation_rejects_non_positive_json_integers(
+    transport: ModuleType, generation: object, operation: str,
+) -> None:
+    storage, _blob = _generation_boundary_storage(transport, generation)
+    uri = "gs://test-bucket/prefix/object.json"
+    with pytest.raises(
+        transport.CorpusArtifactSourceTransportError, match="generation"
+    ):
+        if operation == "publish":
+            storage.publish(uri, b"published")
+        elif operation == "resolve":
+            storage.resolve_current(uri)
+        else:
+            storage.inventory("gs://test-bucket/prefix/")
+
+
 def _build_metadata(module: ModuleType, *, include_smokes: bool = True) -> dict[str, object]:
     image_tag = IMAGE.rsplit("@", 1)[0] + ":source-test"
     command_sets = {

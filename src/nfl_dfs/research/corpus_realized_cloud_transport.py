@@ -115,6 +115,15 @@ def _string(value: object, *, label: str) -> str:
     return value
 
 
+def _blob_generation(value: object, *, label: str) -> str:
+    """Normalize one loaded google-cloud-storage generation for receipts."""
+    if type(value) is not int or value < 1:
+        raise CorpusRealizedCloudTransportError(
+            f"{label} must be a positive SDK integer"
+        )
+    return str(value)
+
+
 def _timestamp(value: object, *, label: str) -> str:
     text = _string(value, label=label)
     try:
@@ -1754,7 +1763,9 @@ class GoogleCloudObjectStore:
             raise CorpusRealizedCloudTransportError(
                 "GCS object resolution failed"
             ) from exc
-        generation = str(blob.generation)
+        generation = _blob_generation(
+            blob.generation, label="resolved GCS generation"
+        )
         pinned = self._client.bucket(bucket).blob(
             name, generation=int(generation)
         )
@@ -1779,7 +1790,6 @@ class GoogleCloudObjectStore:
                 content_type="application/json",
                 if_generation_match=0,
             )
-            generation = str(blob.generation)
         except Exception as exc:
             if type(exc).__name__ != "PreconditionFailed":
                 raise CorpusRealizedCloudTransportError(
@@ -1791,6 +1801,9 @@ class GoogleCloudObjectStore:
                     "GCS create-once collision differs"
                 ) from exc
             return current[0]
+        generation = _blob_generation(
+            blob.generation, label="published GCS generation"
+        )
         identity = {
             "uri": uri,
             "generation": generation,

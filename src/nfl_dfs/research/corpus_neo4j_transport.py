@@ -218,6 +218,15 @@ def _cloud_run_generation(value: object, *, label: str) -> str:
     return str(value)
 
 
+def _blob_generation(value: object, *, label: str) -> str:
+    """Normalize one loaded google-cloud-storage generation for receipts."""
+    if type(value) is not int or value < 1:
+        raise CorpusNeo4jTransportError(
+            f"{label} must be a positive SDK integer"
+        )
+    return str(value)
+
+
 def object_identity(value: object, *, label: str) -> ObjectIdentity:
     item = _mapping(value, label=label)
     if set(item) != {"uri", "generation", "sha256", "bytes"}:
@@ -3088,9 +3097,9 @@ class GoogleCloudObjectStore:
             raise CorpusNeo4jTransportError(
                 f"exact-name object metadata GET failed for {uri}"
             ) from exc
-        generation = str(blob.generation or "")
-        if _GENERATION.fullmatch(generation) is None:
-            raise CorpusNeo4jTransportError("resolved object generation differs")
+        generation = _blob_generation(
+            blob.generation, label="resolved object generation"
+        )
         pinned = self._client.bucket(bucket_name).blob(
             object_name, generation=int(generation)
         )
@@ -3131,7 +3140,9 @@ class GoogleCloudObjectStore:
         blob.reload()
         identity = ObjectIdentity(
             uri=uri,
-            generation=str(blob.generation),
+            generation=_blob_generation(
+                blob.generation, label="published object generation"
+            ),
             sha256=sha256(raw).hexdigest(),
             bytes=len(raw),
         )

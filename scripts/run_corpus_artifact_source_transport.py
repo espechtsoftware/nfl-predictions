@@ -422,7 +422,9 @@ class GenerationPinnedStorage:
             raw, content_type="application/json", if_generation_match=0
         )
         identity = identity_for_bytes(
-            uri=uri, generation=_string(blob.generation, label="generation"), raw=raw
+            uri=uri,
+            generation=_generation(blob.generation, label="generation"),
+            raw=raw,
         )
         if self.read(identity) != raw:
             raise CorpusArtifactSourceTransportError("publication reopen differs")
@@ -432,7 +434,7 @@ class GenerationPinnedStorage:
         bucket, name = self._parts(uri)
         blob = self._client.bucket(bucket).blob(name)
         blob.reload()
-        generation = _string(blob.generation, label="current generation")
+        generation = _generation(blob.generation, label="current generation")
         return self.resolve_generation(uri, generation)
 
     def resolve_generation(
@@ -451,8 +453,10 @@ class GenerationPinnedStorage:
         bucket, name = retained.removeprefix("gs://").split("/", 1)
         rows = []
         for blob in self._client.list_blobs(bucket, prefix=name, versions=True):
-            generation = _string(blob.generation, label="inventory generation")
-            if _GENERATION.fullmatch(generation) is None or blob.size is None:
+            generation = _generation(
+                blob.generation, label="inventory generation"
+            )
+            if blob.size is None:
                 raise CorpusArtifactSourceTransportError("inventory row differs")
             rows.append({
                 "uri": f"gs://{bucket}/{blob.name}",

@@ -3203,6 +3203,14 @@ class GenerationPinnedStorage:
         candidate = _gcs_uri(uri, label="GCS object URI")
         return tuple(candidate.removeprefix("gs://").split("/", 1))  # type: ignore[return-value]
 
+    @staticmethod
+    def _blob_generation(value: object, *, label: str) -> str:
+        if type(value) is not int or value < 1:
+            raise CorpusParametricTransportError(
+                f"{label} must be a positive JSON integer"
+            )
+        return str(value)
+
     def read(self, value: Mapping[str, object]) -> bytes:
         identity = object_identity(value, label="GCS read identity")
         bucket, name = self._parts(identity.uri)
@@ -3233,9 +3241,9 @@ class GenerationPinnedStorage:
             raw, content_type=_string(media_type, label="media type"),
             if_generation_match=0,
         )
-        generation = str(blob.generation)
-        if _GENERATION.fullmatch(generation) is None:
-            raise CorpusParametricTransportError("published generation differs")
+        generation = self._blob_generation(
+            blob.generation, label="published generation"
+        )
         identity = identity_for_bytes(uri=uri, generation=generation, raw=raw)
         if self.read(identity.as_dict()) != raw:
             raise CorpusParametricTransportError("published object reopen differs")
@@ -3245,9 +3253,9 @@ class GenerationPinnedStorage:
         bucket, name = self._parts(uri)
         blob = self._client.bucket(bucket).blob(name)
         blob.reload()
-        generation = str(blob.generation)
-        if _GENERATION.fullmatch(generation) is None:
-            raise CorpusParametricTransportError("current generation differs")
+        generation = self._blob_generation(
+            blob.generation, label="current generation"
+        )
         raw = self._client.bucket(bucket).blob(
             name, generation=int(generation)
         ).download_as_bytes(if_generation_match=int(generation))
@@ -3279,8 +3287,10 @@ class GenerationPinnedStorage:
         bucket, name = prefix.removeprefix("gs://").split("/", 1)
         rows: list[dict[str, object]] = []
         for blob in self._client.list_blobs(bucket, prefix=name, versions=True):
-            generation = str(blob.generation)
-            if _GENERATION.fullmatch(generation) is None or blob.size is None:
+            generation = self._blob_generation(
+                blob.generation, label="inventory generation"
+            )
+            if blob.size is None:
                 raise CorpusParametricTransportError("inventory row differs")
             rows.append({
                 "uri": f"gs://{bucket}/{blob.name}",

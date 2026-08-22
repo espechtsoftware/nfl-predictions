@@ -104,6 +104,64 @@ class FakeStorage:
         raise AssertionError("worker LIST is forbidden")
 
 
+class _SdkBlob:
+    def __init__(
+        self,
+        client: "_SdkStorageClient",
+        name: str,
+        requested_generation: int | None,
+    ) -> None:
+        self.client = client
+        self.name = name
+        self.requested_generation = requested_generation
+        current = client.objects.get(name)
+        self.generation = None if current is None else current[0]
+
+    def reload(self) -> None:
+        self.generation = self.client.objects[self.name][0]
+
+    def download_as_bytes(self, *, if_generation_match: int) -> bytes:
+        generation, raw = self.client.objects[self.name]
+        assert self.requested_generation == generation
+        assert if_generation_match == generation
+        return raw
+
+    def upload_from_string(
+        self, raw: bytes, *, content_type: str, if_generation_match: int,
+    ) -> None:
+        assert content_type == "application/json"
+        assert if_generation_match == 0
+        assert self.name not in self.client.objects
+        self.client.objects[self.name] = (self.client.upload_generation, raw)
+        self.generation = self.client.upload_generation
+
+
+class _SdkBucket:
+    def __init__(self, client: "_SdkStorageClient") -> None:
+        self.client = client
+
+    def blob(
+        self, name: str, generation: int | None = None,
+    ) -> _SdkBlob:
+        self.client.requests.append((name, generation))
+        return _SdkBlob(self.client, name, generation)
+
+
+class _SdkStorageClient:
+    def __init__(
+        self,
+        *,
+        objects: dict[str, tuple[object, bytes]] | None = None,
+        upload_generation: object = 91,
+    ) -> None:
+        self.objects = {} if objects is None else objects
+        self.upload_generation = upload_generation
+        self.requests: list[tuple[str, int | None]] = []
+
+    def bucket(self, _name: str) -> _SdkBucket:
+        return _SdkBucket(self)
+
+
 class FakeGraph:
     def __init__(self, deployment: dict[str, object]) -> None:
         self.database = str(deployment["database"])
@@ -378,6 +436,78 @@ def _identity(uri: str, generation: int, raw: bytes) -> dict[str, object]:
         "sha256": sha256(raw).hexdigest(),
         "bytes": len(raw),
     }
+
+
+@pytest.mark.parametrize("value", ["7", 7.0, True, 0, -1, None])
+def test_live_blob_generation_requires_positive_sdk_integer(
+    value: object,
+) -> None:
+    with pytest.raises(
+        transport.CorpusNeo4jTransportError,
+        match="positive SDK integer",
+    ):
+        transport._blob_generation(value, label="live GCS generation")  # noqa: SLF001
+
+    assert (
+        transport._blob_generation(7, label="live GCS generation")  # noqa: SLF001
+        == "7"
+    )
+    assert transport.object_identity(
+        {
+            "uri": "gs://fixture/retained.json",
+            "generation": "7",
+            "sha256": "a" * 64,
+            "bytes": 1,
+        },
+        label="retained identity",
+    ).generation == "7"
+
+
+def test_google_cloud_object_store_normalizes_integer_blob_generations() -> None:
+    raw = b'{"retained":true}'
+    client = _SdkStorageClient(objects={"retained.json": (71, raw)})
+    storage = object.__new__(transport.GoogleCloudObjectStore)
+    storage._client = client  # type: ignore[attr-defined]  # noqa: SLF001
+
+    resolved = storage.resolve_optional("gs://fixture/retained.json")
+    assert resolved is not None
+    assert resolved[0].generation == "71"
+    assert resolved[1] == raw
+    assert client.requests == [("retained.json", None), ("retained.json", 71)]
+
+    published_raw = b'{"published":true}'
+    published = storage.publish_create_once(
+        "gs://fixture/published.json", published_raw
+    )
+    assert published.generation == "91"
+    assert client.requests[-2:] == [
+        ("published.json", None),
+        ("published.json", 91),
+    ]
+
+
+@pytest.mark.parametrize("value", ["7", 7.0, True, 0, -1, None])
+def test_google_cloud_object_store_rejects_noninteger_blob_generations(
+    value: object,
+) -> None:
+    storage = object.__new__(transport.GoogleCloudObjectStore)
+    storage._client = _SdkStorageClient(  # type: ignore[attr-defined]  # noqa: SLF001
+        objects={"retained.json": (value, b"retained")}
+    )
+    with pytest.raises(
+        transport.CorpusNeo4jTransportError,
+        match="positive SDK integer",
+    ):
+        storage.resolve_optional("gs://fixture/retained.json")
+
+    storage._client = _SdkStorageClient(  # type: ignore[attr-defined]  # noqa: SLF001
+        upload_generation=value
+    )
+    with pytest.raises(
+        transport.CorpusNeo4jTransportError,
+        match="positive SDK integer",
+    ):
+        storage.publish_create_once("gs://fixture/published.json", b"published")
 
 
 def _deployment(storage: FakeStorage) -> tuple[dict[str, object], dict[str, object]]:

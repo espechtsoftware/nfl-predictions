@@ -44,6 +44,15 @@ class CorpusRealizedOutcomeRunnerError(RuntimeError):
     """The executable realized-outcome boundary failed closed."""
 
 
+def _blob_generation(value: object, *, label: str) -> str:
+    """Normalize one loaded google-cloud-storage generation for receipts."""
+    if type(value) is not int or value < 1:
+        raise CorpusRealizedOutcomeRunnerError(
+            f"{label} must be a positive SDK integer"
+        )
+    return str(value)
+
+
 @dataclass(frozen=True, slots=True)
 class BatchAcceptancePin:
     uri: str
@@ -108,7 +117,13 @@ class _ExactGraphReader:
             raise CorpusRealizedOutcomeRunnerError(
                 "accepted graph generation-pinned read failed"
             ) from exc
-        if str(blob.generation) != generation or type(raw) is not bytes:
+        if (
+            _blob_generation(
+                blob.generation, label="accepted graph live generation"
+            )
+            != generation
+            or type(raw) is not bytes
+        ):
             raise CorpusRealizedOutcomeRunnerError(
                 "accepted graph generation-pinned read differs"
             )
@@ -211,7 +226,11 @@ def _load_remote_lease_receipt(
             "historical lease receipt generation-pinned delivery failed"
         ) from exc
     if (
-        str(blob.generation) != generation
+        _blob_generation(
+            blob.generation,
+            label="historical lease receipt live generation",
+        )
+        != generation
         or type(raw) is not bytes
         or len(raw) != pin.bytes
         or sha256(raw).hexdigest() != pin.sha256

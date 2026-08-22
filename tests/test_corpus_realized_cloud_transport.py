@@ -73,6 +73,64 @@ class MemoryStore:
         del self.values[str(identity["uri"])]
 
 
+class _SdkStoreBlob:
+    def __init__(
+        self,
+        client: "_SdkStoreClient",
+        name: str,
+        requested_generation: int | None,
+    ) -> None:
+        self.client = client
+        self.name = name
+        self.requested_generation = requested_generation
+        current = client.objects.get(name)
+        self.generation = None if current is None else current[0]
+
+    def reload(self) -> None:
+        self.generation = self.client.objects[self.name][0]
+
+    def download_as_bytes(self, *, if_generation_match: int) -> bytes:
+        generation, raw = self.client.objects[self.name]
+        assert self.requested_generation == generation
+        assert if_generation_match == generation
+        return raw
+
+    def upload_from_string(
+        self, raw: bytes, *, content_type: str, if_generation_match: int,
+    ) -> None:
+        assert content_type == "application/json"
+        assert if_generation_match == 0
+        assert self.name not in self.client.objects
+        self.client.objects[self.name] = (self.client.upload_generation, raw)
+        self.generation = self.client.upload_generation
+
+
+class _SdkStoreBucket:
+    def __init__(self, client: "_SdkStoreClient") -> None:
+        self.client = client
+
+    def blob(
+        self, name: str, generation: int | None = None,
+    ) -> _SdkStoreBlob:
+        self.client.requests.append((name, generation))
+        return _SdkStoreBlob(self.client, name, generation)
+
+
+class _SdkStoreClient:
+    def __init__(
+        self,
+        *,
+        objects: dict[str, tuple[object, bytes]] | None = None,
+        upload_generation: object = 91,
+    ) -> None:
+        self.objects = {} if objects is None else objects
+        self.upload_generation = upload_generation
+        self.requests: list[tuple[str, int | None]] = []
+
+    def bucket(self, _name: str) -> _SdkStoreBucket:
+        return _SdkStoreBucket(self)
+
+
 def _identity(uri: str, seed: str) -> transport.ObjectIdentity:
     raw = seed.encode()
     return transport.ObjectIdentity(
@@ -505,13 +563,13 @@ def test_failure_archives_and_abandons_without_retry(
 class _Blob:
     def __init__(self, raw: bytes, generation: str) -> None:
         self.raw = raw
-        self.generation = generation
+        self.generation = int(generation)
 
     def reload(self, *, if_generation_match: int) -> None:
-        assert str(if_generation_match) == self.generation
+        assert if_generation_match == self.generation
 
     def download_as_bytes(self, *, if_generation_match: int) -> bytes:
-        assert str(if_generation_match) == self.generation
+        assert if_generation_match == self.generation
         return self.raw
 
 
@@ -577,6 +635,78 @@ def test_worker_receives_nonsecret_lease_by_exact_gcs_identity() -> None:
         worker._load_remote_lease_receipt(  # noqa: SLF001
             _StorageClient(raw, identity.generation), bad
         )
+
+
+@pytest.mark.parametrize("value", ["7", 7.0, True, 0, -1, None])
+def test_live_blob_generations_require_positive_sdk_integers(
+    value: object,
+) -> None:
+    with pytest.raises(
+        transport.CorpusRealizedCloudTransportError,
+        match="positive SDK integer",
+    ):
+        transport._blob_generation(value, label="live GCS generation")  # noqa: SLF001
+    with pytest.raises(
+        worker.CorpusRealizedOutcomeRunnerError,
+        match="positive SDK integer",
+    ):
+        worker._blob_generation(value, label="live GCS generation")  # noqa: SLF001
+
+    assert (
+        transport._blob_generation(7, label="live GCS generation")  # noqa: SLF001
+        == "7"
+    )
+    assert (
+        worker._blob_generation(7, label="live GCS generation")  # noqa: SLF001
+        == "7"
+    )
+
+
+def test_realized_store_normalizes_integer_blob_generations() -> None:
+    raw = b'{"retained":true}'
+    client = _SdkStoreClient(objects={"retained.json": (71, raw)})
+    storage = object.__new__(transport.GoogleCloudObjectStore)
+    storage._client = client  # type: ignore[attr-defined]  # noqa: SLF001
+
+    resolved = storage.resolve("gs://fixture/retained.json")
+    assert resolved is not None
+    assert resolved[0]["generation"] == "71"
+    assert resolved[1] == raw
+    assert client.requests == [("retained.json", None), ("retained.json", 71)]
+
+    published_raw = b'{"published":true}'
+    published = storage.publish_or_reopen(
+        "gs://fixture/published.json", published_raw
+    )
+    assert published["generation"] == "91"
+    assert client.requests[-2:] == [
+        ("published.json", None),
+        ("published.json", 91),
+    ]
+
+
+@pytest.mark.parametrize("value", ["7", 7.0, True, 0, -1, None])
+def test_realized_store_rejects_noninteger_blob_generations(
+    value: object,
+) -> None:
+    storage = object.__new__(transport.GoogleCloudObjectStore)
+    storage._client = _SdkStoreClient(  # type: ignore[attr-defined]  # noqa: SLF001
+        objects={"retained.json": (value, b"retained")}
+    )
+    with pytest.raises(
+        transport.CorpusRealizedCloudTransportError,
+        match="positive SDK integer",
+    ):
+        storage.resolve("gs://fixture/retained.json")
+
+    storage._client = _SdkStoreClient(  # type: ignore[attr-defined]  # noqa: SLF001
+        upload_generation=value
+    )
+    with pytest.raises(
+        transport.CorpusRealizedCloudTransportError,
+        match="positive SDK integer",
+    ):
+        storage.publish_or_reopen("gs://fixture/published.json", b"published")
 
 
 def test_worker_cloud_adapter_still_delegates_the_one_read(
