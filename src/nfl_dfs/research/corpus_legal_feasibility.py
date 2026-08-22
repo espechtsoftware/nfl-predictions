@@ -13,12 +13,20 @@ resolved by the minimum UTF-8 player-id rank sum; a final no-good solve proves
 that this secondary optimum names one roster.  A rank-sum collision is
 reported as ambiguous and fails closed.  Most tests inject callbacks; one
 bounded regression runs the bundled CBC through both proof stages.
+
+Authoritative generation may execute shard-aligned visit units in bounded
+worker processes.  Worker count is execution shape only: every unit derives
+its serials, models, and proofs from (profile ordinal, visit ordinal) alone,
+assembly consumes units in canonical order, and the parent process remains
+the single create-once evidence writer, so scientific content is identical
+at any worker count.
 """
 
 from __future__ import annotations
 
 from collections import Counter
 from collections.abc import Callable, Iterator, Mapping, Sequence
+from concurrent.futures import Future, ProcessPoolExecutor
 from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
 from decimal import Decimal, InvalidOperation
@@ -27,11 +35,13 @@ import fcntl
 from functools import lru_cache
 from hashlib import sha256
 import json
+import multiprocessing
 import os
 from pathlib import Path
 import re
 import stat
 import subprocess
+import sys
 import tempfile
 import time
 from typing import Final, Protocol
@@ -186,6 +196,12 @@ MAX_SHARD_SOLVER_EVIDENCE_COMPRESSED_BYTES: Final = (
 )
 MAX_SHARD_SOLVER_EVIDENCE_INDEX_BYTES: Final = 16 * 1024 * 1024
 CLOCK_MEASUREMENT_TOLERANCE_MICROSECONDS: Final = 10
+
+# Execution shape only.  Worker-process count never enters any scientific
+# payload: every unit's attempts are a pure function of the registered law,
+# so serial and parallel execution must produce identical science.
+AUTHORITATIVE_SOLVE_WORKER_CAP: Final = 7
+AUTHORITATIVE_UNIT_WINDOW_PER_WORKER: Final = 2
 
 _REGISTERED_MECHANISM_BODIES: Final = {
     "objective": {
@@ -4938,11 +4954,179 @@ def _build_authoritative_matrix_payloads(
     )
 
 
+@dataclass(frozen=True, slots=True)
+class _AuthoritativeUnitRequest:
+    """One contiguous evidence-shard-aligned visit range for one variant."""
+
+    profile_ordinal: int
+    shard_ordinal: int
+    visit_start: int
+    visit_stop: int
+
+
+def _solve_worker_processes() -> int:
+    """Bounded execution shape only; never a scientific input."""
+    available = os.cpu_count() or 1
+    return max(1, min(AUTHORITATIVE_SOLVE_WORKER_CAP, available - 1))
+
+
+def _emit_authoritative_progress(message: str) -> None:
+    print(
+        f"corpus-authoritative-progress {message}",
+        file=sys.stderr,
+        flush=True,
+    )
+
+
+def _authoritative_unit_plan(
+    *,
+    profile_count: int,
+    schedule_length: int,
+) -> tuple[_AuthoritativeUnitRequest, ...]:
+    """Canonical profile-major, shard-minor partition of the full matrix."""
+    if (
+        profile_count <= 0
+        or schedule_length <= 0
+        or schedule_length % EVIDENCE_SHARD_VISITS != 0
+    ):
+        raise CorpusLegalFeasibilityError(
+            "authoritative unit plan requires whole evidence shards"
+        )
+    return tuple(
+        _AuthoritativeUnitRequest(
+            profile_ordinal=profile_ordinal,
+            shard_ordinal=shard_ordinal,
+            visit_start=shard_ordinal * EVIDENCE_SHARD_VISITS,
+            visit_stop=(shard_ordinal + 1) * EVIDENCE_SHARD_VISITS,
+        )
+        for profile_ordinal in range(profile_count)
+        for shard_ordinal in range(schedule_length // EVIDENCE_SHARD_VISITS)
+    )
+
+
+def _execute_authoritative_unit(
+    *,
+    profile: EffectivePolicyProfile,
+    players: tuple[rw.PlayerSpec, ...],
+    schedule_slice: tuple[rw.WorldId, ...],
+    objective_slice: tuple[tuple[int, ...], ...],
+    visit_start: int,
+    schedule_length: int,
+    solver_authority_sha256: str,
+) -> tuple[AttemptRecord, ...]:
+    """Solve one contiguous visit range exactly as the serial order would.
+
+    Construction serials, model names, requests, and proof validation are
+    all derived from (profile ordinal, visit ordinal) alone, so any process
+    may execute any unit without changing scientific content.
+    """
+    if (
+        len(schedule_slice) != len(objective_slice)
+        or not schedule_slice
+        or visit_start < 0
+        or visit_start + len(schedule_slice) > schedule_length
+    ):
+        raise CorpusLegalFeasibilityError(
+            "authoritative unit request alignment differs"
+        )
+    attempts: list[AttemptRecord] = []
+    for offset, (world, objective) in enumerate(
+        zip(schedule_slice, objective_slice, strict=True)
+    ):
+        visit_ordinal = visit_start + offset
+        model = build_fresh_legal_model(
+            players,
+            profile,
+            objective,
+            construction_serial=(
+                profile.ordinal * schedule_length + visit_ordinal
+            ),
+            model_name=(
+                f"corpus_authoritative_v{profile.ordinal:02d}_"
+                f"visit_{visit_ordinal:04d}"
+            ),
+        )
+        request = SolveRequest(
+            variant_ordinal=profile.ordinal,
+            parameter_set_id=profile.parameter_set_id,
+            visit_ordinal=visit_ordinal,
+            world=world,
+            objective_micro=objective,
+            timeout_seconds=SOLVER_TIMEOUT_SECONDS,
+            model=model,
+        )
+        outcome = _normalize_solver_outcome(
+            default_cbc_solver(request),
+            request=request,
+            profile=profile,
+        )
+        try:
+            _validate_authoritative_solver_proof(
+                outcome,
+                solver_authority_sha256=solver_authority_sha256,
+            )
+        except CorpusLegalFeasibilityError as exc:
+            outcome = SolveOutcome(
+                SolverStatus.ERROR,
+                solver_proof=outcome.solver_proof,
+                detail=f"solver proof validation failed: {exc}",
+            )
+        attempts.append(_attempt_record(request, outcome))
+    return tuple(attempts)
+
+
+def _unit_pool_executor(worker_processes: int) -> ProcessPoolExecutor:
+    return ProcessPoolExecutor(
+        max_workers=worker_processes,
+        mp_context=multiprocessing.get_context("spawn"),
+    )
+
+
+def _iter_authoritative_unit_results(
+    plan: Sequence[_AuthoritativeUnitRequest],
+    unit_requests: Sequence[Mapping[str, object]],
+    *,
+    worker_processes: int,
+) -> Iterator[tuple[_AuthoritativeUnitRequest, tuple[AttemptRecord, ...]]]:
+    """Yield unit results in canonical plan order regardless of executor.
+
+    Serial execution stays lazy with the exact prior memory profile.  The
+    parallel path keeps a bounded submission window and always consumes in
+    plan order, so downstream assembly is identical byte-for-byte modulo
+    solver wall-clock receipts.
+    """
+    if len(plan) != len(unit_requests):
+        raise CorpusLegalFeasibilityError(
+            "authoritative unit plan/request alignment differs"
+        )
+    if worker_processes <= 1:
+        for unit, request in zip(plan, unit_requests, strict=True):
+            yield unit, _execute_authoritative_unit(**request)
+        return
+    window = worker_processes * AUTHORITATIVE_UNIT_WINDOW_PER_WORKER
+    with _unit_pool_executor(worker_processes) as pool:
+        pending: dict[int, Future] = {}
+        try:
+            next_submit = 0
+            for consume in range(len(plan)):
+                while next_submit < len(plan) and len(pending) < window:
+                    pending[next_submit] = pool.submit(
+                        _execute_authoritative_unit,
+                        **unit_requests[next_submit],
+                    )
+                    next_submit += 1
+                yield plan[consume], pending.pop(consume).result()
+        finally:
+            for future in pending.values():
+                future.cancel()
+
+
 def _execute_authoritative_generation(
     inputs: _AuthoritativeInputs,
     *,
     evidence_directory: Path,
     evidence_directory_fd: int,
+    solve_worker_processes: int | None = None,
 ) -> tuple[AuthoritativeGenerationMatrix, tuple[SolverEvidenceShard, ...]]:
     """Execute exact registered law; there is deliberately no callback seam."""
     snapshot = _validate_prepared_slate(inputs.source.prepared)
@@ -4970,96 +5154,112 @@ def _execute_authoritative_generation(
             snapshot.player_draws, world_column=flat
         ))
     profiles = frozen_policy_profiles()
+    worker_processes = (
+        _solve_worker_processes()
+        if solve_worker_processes is None
+        else _strict_int(
+            solve_worker_processes,
+            label="solve worker processes",
+            minimum=1,
+        )
+    )
+    plan = _authoritative_unit_plan(
+        profile_count=len(profiles),
+        schedule_length=len(schedule),
+    )
+    unit_requests = tuple(
+        {
+            "profile": profiles[unit.profile_ordinal],
+            "players": snapshot.players,
+            "schedule_slice": tuple(
+                schedule[unit.visit_start:unit.visit_stop]
+            ),
+            "objective_slice": tuple(
+                objectives[unit.visit_start:unit.visit_stop]
+            ),
+            "visit_start": unit.visit_start,
+            "schedule_length": len(schedule),
+            "solver_authority_sha256": inputs.law.solver_authority_sha256,
+        }
+        for unit in plan
+    )
+    generation_started = time.monotonic()
+    _emit_authoritative_progress(
+        f"generation-start workers={worker_processes} units={len(plan)} "
+        f"cells={len(profiles) * len(schedule)}"
+    )
     all_attempts: list[AttemptRecord] = []
     generated: list[VariantGeneration] = []
     evidence_shards: list[SolverEvidenceShard] = []
-    serial = 0
-    for profile in profiles:
-        runtime_policy = build_runtime_effective_policy(
-            inputs.inventory,
-            profile,
-            visits_per_block=VISITS_PER_BLOCK,
-            visit_schedule_sha256=schedule_sha,
-            ambient_process_keys_present=(
-                inputs.ambient_process_keys_present
-            ),
-            inventory_validator=None,
-        )
-        variant_attempts: list[AttemptRecord] = []
-        raw_shard_attempts: list[AttemptRecord] = []
-        variant_rosters: list[tuple[str, ...]] = []
-        for visit_ordinal, (world, objective) in enumerate(
-            zip(schedule, objectives, strict=True)
-        ):
-            model = build_fresh_legal_model(
-                snapshot.players,
-                profile,
-                objective,
-                construction_serial=serial,
-                model_name=(
-                    f"corpus_authoritative_v{profile.ordinal:02d}_"
-                    f"visit_{visit_ordinal:04d}"
-                ),
-            )
-            serial += 1
-            request = SolveRequest(
-                variant_ordinal=profile.ordinal,
-                parameter_set_id=profile.parameter_set_id,
-                visit_ordinal=visit_ordinal,
-                world=world,
-                objective_micro=objective,
-                timeout_seconds=SOLVER_TIMEOUT_SECONDS,
-                model=model,
-            )
-            outcome = _normalize_solver_outcome(
-                default_cbc_solver(request),
-                request=request,
-                profile=profile,
-            )
-            try:
-                _validate_authoritative_solver_proof(
-                    outcome,
-                    solver_authority_sha256=(
-                        inputs.law.solver_authority_sha256
-                    ),
-                )
-            except CorpusLegalFeasibilityError as exc:
-                outcome = SolveOutcome(
-                    SolverStatus.ERROR,
-                    solver_proof=outcome.solver_proof,
-                    detail=f"solver proof validation failed: {exc}",
-                )
-            record = _attempt_record(request, outcome)
-            raw_shard_attempts.append(record)
-            if outcome.status == SolverStatus.OPTIMAL:
-                assert outcome.roster is not None
-                variant_rosters.append(outcome.roster)
-            if len(raw_shard_attempts) == EVIDENCE_SHARD_VISITS:
-                shard_ordinal = visit_ordinal // EVIDENCE_SHARD_VISITS
-                evidence_shards.append(_build_solver_evidence_shard(
-                    raw_shard_attempts,
-                    variant_ordinal=profile.ordinal,
-                    variant_shard_ordinal=shard_ordinal,
-                    evidence_directory=evidence_directory,
-                    evidence_directory_fd=evidence_directory_fd,
-                ))
-                compact = [
-                    _compact_attempt_evidence(attempt)
-                    for attempt in raw_shard_attempts
-                ]
-                variant_attempts.extend(compact)
-                all_attempts.extend(compact)
-                raw_shard_attempts.clear()
-        if raw_shard_attempts:
-            raise CorpusLegalFeasibilityError(
-                "authoritative evidence shard ended at a partial boundary"
-            )
+    variant_attempts: list[AttemptRecord] = []
+    variant_rosters: list[tuple[str, ...]] = []
+    current_profile: EffectivePolicyProfile | None = None
+    current_policy: RuntimePolicyBinding | None = None
+
+    def finish_variant() -> None:
+        nonlocal variant_attempts, variant_rosters
+        assert current_profile is not None and current_policy is not None
         generated.append(VariantGeneration(
-            profile=profile,
-            runtime_policy=runtime_policy,
+            profile=current_profile,
+            runtime_policy=current_policy,
             attempts=tuple(variant_attempts),
             visit_rosters=tuple(variant_rosters),
         ))
+        variant_attempts = []
+        variant_rosters = []
+
+    for completed, (unit, attempts) in enumerate(
+        _iter_authoritative_unit_results(
+            plan,
+            unit_requests,
+            worker_processes=worker_processes,
+        )
+    ):
+        profile = profiles[unit.profile_ordinal]
+        if (
+            current_profile is None
+            or profile.ordinal != current_profile.ordinal
+        ):
+            if current_profile is not None:
+                finish_variant()
+            current_profile = profile
+            current_policy = build_runtime_effective_policy(
+                inputs.inventory,
+                profile,
+                visits_per_block=VISITS_PER_BLOCK,
+                visit_schedule_sha256=schedule_sha,
+                ambient_process_keys_present=(
+                    inputs.ambient_process_keys_present
+                ),
+                inventory_validator=None,
+            )
+        evidence_shards.append(_build_solver_evidence_shard(
+            attempts,
+            variant_ordinal=unit.profile_ordinal,
+            variant_shard_ordinal=unit.shard_ordinal,
+            evidence_directory=evidence_directory,
+            evidence_directory_fd=evidence_directory_fd,
+        ))
+        compact = [
+            _compact_attempt_evidence(attempt) for attempt in attempts
+        ]
+        variant_attempts.extend(compact)
+        all_attempts.extend(compact)
+        optimal_count = 0
+        for attempt in attempts:
+            if attempt.status == SolverStatus.OPTIMAL:
+                assert attempt.roster is not None
+                variant_rosters.append(attempt.roster)
+                optimal_count += 1
+        _emit_authoritative_progress(
+            f"unit-complete variant={unit.profile_ordinal} "
+            f"shard={unit.shard_ordinal} "
+            f"optimal={optimal_count}/{len(attempts)} "
+            f"units={completed + 1}/{len(plan)} "
+            f"elapsed_seconds={time.monotonic() - generation_started:.1f}"
+        )
+    if current_profile is not None:
+        finish_variant()
     expected_cells = len(PARAMETER_SET_ORDER) * len(schedule)
     matrix = AuthoritativeGenerationMatrix(
         schema=SCHEMA,
@@ -5075,10 +5275,18 @@ def _execute_authoritative_generation(
         attempts=tuple(all_attempts),
         registered_law=inputs.law,
     )
-    if len(all_attempts) != expected_cells or serial != expected_cells:
+    if (
+        len(all_attempts) != expected_cells
+        or [attempt.construction_serial for attempt in all_attempts]
+        != list(range(expected_cells))
+    ):
         raise CorpusLegalFeasibilityError(
             "authoritative generation did not attempt the complete matrix"
         )
+    _emit_authoritative_progress(
+        f"generation-complete cells={len(all_attempts)} "
+        f"elapsed_seconds={time.monotonic() - generation_started:.1f}"
+    )
     matrix = _build_authoritative_matrix_payloads(
         matrix,
         solver_evidence_shards=evidence_shards,

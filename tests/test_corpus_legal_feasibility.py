@@ -1172,3 +1172,235 @@ def test_solver_proof_reconciles_absolute_deadline_and_stage_budgets():
             ),
             solver_authority_sha256=core.canonical_sha256(solver),
         )
+
+
+def test_authoritative_unit_plan_is_canonical_and_shard_aligned():
+    plan = core._authoritative_unit_plan(
+        profile_count=len(PARAMETER_SET_ORDER),
+        schedule_length=core.MAX_VISIT_OUTPUTS_BEFORE_DEDUPLICATION,
+    )
+    assert len(plan) == core.EVIDENCE_SHARDS_PER_TASK
+    expected = [
+        (profile, shard)
+        for profile in range(len(PARAMETER_SET_ORDER))
+        for shard in range(core.EVIDENCE_SHARDS_PER_VARIANT)
+    ]
+    assert [
+        (unit.profile_ordinal, unit.shard_ordinal) for unit in plan
+    ] == expected
+    assert all(
+        unit.visit_start == unit.shard_ordinal * core.EVIDENCE_SHARD_VISITS
+        and unit.visit_stop == unit.visit_start + core.EVIDENCE_SHARD_VISITS
+        for unit in plan
+    )
+    with pytest.raises(
+        core.CorpusLegalFeasibilityError, match="whole evidence shards"
+    ):
+        core._authoritative_unit_plan(
+            profile_count=1,
+            schedule_length=core.EVIDENCE_SHARD_VISITS + 1,
+        )
+
+
+def test_solve_worker_process_resolution_is_bounded(monkeypatch):
+    cases = {
+        None: 1,
+        1: 1,
+        2: 1,
+        8: core.AUTHORITATIVE_SOLVE_WORKER_CAP,
+        64: core.AUTHORITATIVE_SOLVE_WORKER_CAP,
+    }
+    for reported, expected in cases.items():
+        monkeypatch.setattr(core.os, "cpu_count", lambda value=reported: value)
+        assert core._solve_worker_processes() == expected
+
+
+def test_authoritative_unit_preserves_serial_identity_and_refuses_mock_proofs(
+    players, clean_rosters, monkeypatch,
+):
+    profile = core.frozen_policy_profiles()[2]
+    sink: list[dict[str, object]] = []
+    monkeypatch.setattr(
+        core, "default_cbc_solver", _capture_solver(clean_rosters[0], sink)
+    )
+    schedule_length = core.MAX_VISIT_OUTPUTS_BEFORE_DEDUPLICATION
+    visit_start = 300
+    schedule_slice = tuple(
+        rw.WorldId("R1", index) for index in range(4)
+    )
+    objective_slice = tuple(
+        tuple(1 + offset + index for index in range(len(players)))
+        for offset in range(4)
+    )
+    attempts = core._execute_authoritative_unit(
+        profile=profile,
+        players=players,
+        schedule_slice=schedule_slice,
+        objective_slice=objective_slice,
+        visit_start=visit_start,
+        schedule_length=schedule_length,
+        solver_authority_sha256="0" * 64,
+    )
+    assert [attempt.visit_ordinal for attempt in attempts] == [
+        300, 301, 302, 303,
+    ]
+    assert [attempt.construction_serial for attempt in attempts] == [
+        profile.ordinal * schedule_length + visit
+        for visit in (300, 301, 302, 303)
+    ]
+    assert all(
+        attempt.variant_ordinal == profile.ordinal
+        and attempt.parameter_set_id == profile.parameter_set_id
+        for attempt in attempts
+    )
+    assert [attempt.world for attempt in attempts] == list(schedule_slice)
+    # A mocked outcome carries no raw CBC proof, so the authoritative gate
+    # must fail closed rather than trust the callback.
+    assert all(
+        attempt.status is core.SolverStatus.ERROR
+        and attempt.detail.startswith("solver proof validation failed")
+        for attempt in attempts
+    )
+    assert [row["request"].model.problem.name for row in sink] == [
+        f"corpus_authoritative_v{profile.ordinal:02d}_visit_{visit:04d}"
+        for visit in (300, 301, 302, 303)
+    ]
+    with pytest.raises(
+        core.CorpusLegalFeasibilityError, match="alignment differs"
+    ):
+        core._execute_authoritative_unit(
+            profile=profile,
+            players=players,
+            schedule_slice=schedule_slice,
+            objective_slice=objective_slice[:3],
+            visit_start=visit_start,
+            schedule_length=schedule_length,
+            solver_authority_sha256="0" * 64,
+        )
+
+
+def test_parallel_unit_pool_reproduces_inline_real_cbc_science(players):
+    solver_authority_sha256 = core.canonical_sha256(
+        core._cbc_runtime_authority()
+    )
+    profile = core.frozen_policy_profiles()[0]
+    schedule_length = core.MAX_VISIT_OUTPUTS_BEFORE_DEDUPLICATION
+
+    def unit_request(visit_start: int) -> dict[str, object]:
+        return {
+            "profile": profile,
+            "players": players,
+            "schedule_slice": tuple(
+                rw.WorldId("R0", visit_start + index) for index in range(2)
+            ),
+            "objective_slice": tuple(
+                tuple(
+                    (1 << index) + visit_start + offset
+                    for index in range(len(players))
+                )
+                for offset in range(2)
+            ),
+            "visit_start": visit_start,
+            "schedule_length": schedule_length,
+            "solver_authority_sha256": solver_authority_sha256,
+        }
+
+    plan = (
+        core._AuthoritativeUnitRequest(
+            profile_ordinal=0, shard_ordinal=0, visit_start=0, visit_stop=2,
+        ),
+        core._AuthoritativeUnitRequest(
+            profile_ordinal=0, shard_ordinal=1, visit_start=2, visit_stop=4,
+        ),
+    )
+    requests = tuple(unit_request(unit.visit_start) for unit in plan)
+    inline = [
+        core._execute_authoritative_unit(**request) for request in requests
+    ]
+    pooled = list(core._iter_authoritative_unit_results(
+        plan, requests, worker_processes=2,
+    ))
+    assert [unit for unit, _ in pooled] == list(plan)
+    for (unit, pooled_attempts), inline_attempts in zip(
+        pooled, inline, strict=True
+    ):
+        # AttemptRecord equality covers every scientific field; wall-clock
+        # solver receipts are excluded from comparison by the dataclass.
+        assert pooled_attempts == tuple(inline_attempts)
+        assert all(
+            attempt.status is core.SolverStatus.OPTIMAL
+            and attempt.roster is not None
+            for attempt in pooled_attempts
+        )
+
+
+def test_iter_unit_results_consumes_in_plan_order_with_bounded_window(
+    monkeypatch,
+):
+    from concurrent.futures import Future
+
+    events: list[tuple[str, int]] = []
+
+    class _ImmediateFakePool:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_exc):
+            return False
+
+        def submit(self, _fn, **kwargs):
+            index = kwargs["visit_start"]
+            events.append(("submit", index))
+            future = Future()
+            future.set_result(("unit-result", index))
+            return future
+
+    plan = tuple(
+        core._AuthoritativeUnitRequest(
+            profile_ordinal=0,
+            shard_ordinal=index,
+            visit_start=index,
+            visit_stop=index + 1,
+        )
+        for index in range(10)
+    )
+    requests = tuple({"visit_start": index} for index in range(10))
+    monkeypatch.setattr(
+        core, "_unit_pool_executor", lambda workers: _ImmediateFakePool()
+    )
+    yielded = list(core._iter_authoritative_unit_results(
+        plan, requests, worker_processes=3,
+    ))
+    assert [unit.visit_start for unit, _ in yielded] == list(range(10))
+    assert [result for _, result in yielded] == [
+        ("unit-result", index) for index in range(10)
+    ]
+    window = 3 * core.AUTHORITATIVE_UNIT_WINDOW_PER_WORKER
+    submits = [index for kind, index in events if kind == "submit"]
+    assert submits == list(range(10))
+    assert events[:window] == [("submit", index) for index in range(window)]
+
+    def forbidden_pool(_workers):
+        raise AssertionError("serial path must never build a process pool")
+
+    stub_calls: list[int] = []
+
+    def stub_unit(**kwargs):
+        stub_calls.append(kwargs["visit_start"])
+        return ("serial-result", kwargs["visit_start"])
+
+    monkeypatch.setattr(core, "_unit_pool_executor", forbidden_pool)
+    monkeypatch.setattr(core, "_execute_authoritative_unit", stub_unit)
+    serial = list(core._iter_authoritative_unit_results(
+        plan, requests, worker_processes=1,
+    ))
+    assert stub_calls == list(range(10))
+    assert [result for _, result in serial] == [
+        ("serial-result", index) for index in range(10)
+    ]
+    with pytest.raises(
+        core.CorpusLegalFeasibilityError, match="alignment differs"
+    ):
+        list(core._iter_authoritative_unit_results(
+            plan, requests[:5], worker_processes=1,
+        ))
