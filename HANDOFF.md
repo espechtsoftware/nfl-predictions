@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 19:43 CDT
+## Current state — 2026-08-21 19:49 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -58,6 +58,12 @@ agent or developer:
   `3bbc16542f88a55508df48a3e55e4a03476efbfb`; every focused step and image
   smoke is green. Its sole immutable image is
   `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:94133a8293ea7c4374fe05470471020ccdecf590a2a4dbb8402dc9a9d77fad67`.
+  The public-principal validator replacement build
+  `240b60a6-79dd-4ffc-bb17-d27e3250e2c6` then succeeded from exact commit
+  `6468649896bfbeb8343b8ce6f7d4bfc09a02ef08`; its full focused matrix and all
+  four source/parametric/realized/Neo4j smokes are green. The launchable image
+  superseding the earlier digest is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:4c69c7c52d40bbbcd1e36975c6e38be5d449248ed339cc20b6d7795e7a5fd52d`.
   Do not reuse either failed build.
 - The graph v2 release remains outcome-blind and intentionally reserves the
   realized namespace empty. Two follow-on adapters are being implemented
@@ -107,9 +113,12 @@ agent or developer:
   principal has no binding. The validator now permits that exact minimal form
   only for `allUsers` and `allAuthenticatedUsers`; the runtime identity still
   requires full expansion. Its focused adversarial test is green. Build one
-  replacement image for this transport change, then retain fresh minimal
-  public analyses and regenerate the source plan for the new digest. No source
-  query, object publication, or Cloud Run mutation has occurred.
+  fresh minimal public analyses are still required: a post-build retry at
+  19:47 CDT again returned HTTP 429. Retain those proofs (or land and build an
+  equally fail-closed retained-policy fallback), then regenerate the source
+  plan for build `240b60a6-79dd-4ffc-bb17-d27e3250e2c6` and the digest above.
+  No source query,
+  object publication, or Cloud Run mutation has occurred.
 - No source query, source publication, parametric solver, realized-outcome
   read, graph write, Cloud Build submission, Cloud Run job mutation, or new
   scoring execution occurred during this provisioning milestone. Exact next
