@@ -108,6 +108,27 @@ capture_all_region_schedulers() {
   jq -s 'add // []' "$fragments"/*.json >"$output"
 }
 
+deployment_attestation_file() {
+  printf '%s\n' "${CORPUS_PARAMETRIC_DEPLOYMENT_ATTESTATION_FILE:-$CORPUS_PARAMETRIC_RUN_DIR/deployment-attestation.json}"
+}
+
+require_deployment_attestation() {
+  local path
+  path="$(deployment_attestation_file)"
+  [[ "$path" == /* ]] || die "deployment attestation path must be absolute"
+  [[ -f "$path" && ! -L "$path" ]] || \
+    die "deployment attestation is absent; configure once before using the hot path"
+  printf '%s\n' "$path"
+}
+
+deployment_guard_args() {
+  local path
+  path="$(require_deployment_attestation)"
+  printf '%s\n' \
+    --deployment-attestation-file "$path" \
+    --observed-at-utc "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+}
+
 phase_file() {
   local phase="$1"
   local suffix="$2"
@@ -158,13 +179,16 @@ configure_mode() {
   local executions_after="$CORPUS_PARAMETRIC_RUN_DIR/executions-after.json"
   local schedulers_after="$CORPUS_PARAMETRIC_RUN_DIR/schedulers-after.json"
   local configured_file="$CORPUS_PARAMETRIC_RUN_DIR/configured.json"
+  local deployment_attestation
+  deployment_attestation="$(deployment_attestation_file)"
   local rollback_restored="$CORPUS_PARAMETRIC_RUN_DIR/job-rollback-restored.json"
   local retained_path
   for retained_path in \
     "$before_json" "$before_yaml" "$before_executions" "$before_schedulers" \
     "$CORPUS_PARAMETRIC_BUILD_METADATA_FILE" "$build_validated_file" \
     "$preflight_file" "$job_after" "$executions_after" \
-    "$schedulers_after" "$configured_file" "$rollback_restored"; do
+    "$schedulers_after" "$configured_file" "$rollback_restored" \
+    "$deployment_attestation"; do
     [[ ! -e "$retained_path" && ! -L "$retained_path" ]] || \
       die "configure evidence path already exists: $retained_path"
   done
@@ -301,8 +325,89 @@ configure_mode() {
     --expected-job-uid "$CORPUS_PARAMETRIC_EXPECTED_JOB_UID" \
     --created-at-utc "$created_at" --execute \
     >"$configured_file"
+  local attestation_ttl_seconds expires_at
+  attestation_ttl_seconds="${CORPUS_PARAMETRIC_DEPLOYMENT_ATTESTATION_TTL_SECONDS:-21600}"
+  [[ "$attestation_ttl_seconds" =~ ^[1-9][0-9]*$ ]] || \
+    die "deployment attestation TTL must be positive integer seconds"
+  expires_at="$(date -u -d "${created_at} + ${attestation_ttl_seconds} seconds" +'%Y-%m-%dT%H:%M:%SZ')"
+  "$PYTHON_BIN" "$TRANSPORT_SCRIPT" create-deployment-attestation \
+    --runtime-iam-file "$CORPUS_PARAMETRIC_RUNTIME_IAM_FILE" \
+    --build-metadata-file "$CORPUS_PARAMETRIC_BUILD_METADATA_FILE" \
+    --job-file "$job_after" --schedulers-file "$schedulers_after" \
+    --all-regions-complete \
+    --build-id "$CORPUS_PARAMETRIC_BUILD_ID" \
+    --code-sha "$CORPUS_PARAMETRIC_CODE_SHA" \
+    --image "$CORPUS_PARAMETRIC_IMAGE" \
+    --service-account "$CORPUS_PARAMETRIC_SERVICE_ACCOUNT" \
+    --expected-job-name "$CORPUS_PARAMETRIC_JOB" \
+    --expected-job-uid "$CORPUS_PARAMETRIC_EXPECTED_JOB_UID" \
+    --created-at-utc "$created_at" --expires-at-utc "$expires_at" \
+    --output "$deployment_attestation" >/dev/null
   configured=1
   trap - EXIT
+}
+
+configure_attested_mode() {
+  require_variable CORPUS_PARAMETRIC_JOB
+  require_variable CORPUS_PARAMETRIC_IMAGE
+  require_variable CORPUS_PARAMETRIC_BUILD_ID
+  require_variable CORPUS_PARAMETRIC_CODE_SHA
+  require_variable CORPUS_PARAMETRIC_SERVICE_ACCOUNT
+  require_variable CORPUS_PARAMETRIC_EXPECTED_JOB_UID
+  require_variable CORPUS_PARAMETRIC_BUILD_METADATA_FILE
+  for stem in FOUNDATION_PUBLICATION MANIFEST EVIDENCE_CONTRACT RETRIEVAL_PREREQUISITE; do
+    require_variable "CORPUS_PARAMETRIC_${stem}_URI"
+    require_variable "CORPUS_PARAMETRIC_${stem}_GENERATION"
+    require_variable "CORPUS_PARAMETRIC_${stem}_SHA256"
+    require_variable "CORPUS_PARAMETRIC_${stem}_BYTES"
+  done
+  local attestation job_file executions_file preflight_file configured_file
+  attestation="$(require_deployment_attestation)"
+  job_file="$CORPUS_PARAMETRIC_RUN_DIR/job-attested-current.json"
+  executions_file="$CORPUS_PARAMETRIC_RUN_DIR/executions-attested-current.json"
+  preflight_file="$CORPUS_PARAMETRIC_RUN_DIR/preflight-configure-attested.json"
+  configured_file="$CORPUS_PARAMETRIC_RUN_DIR/configured.json"
+  local retained_path
+  for retained_path in "$job_file" "$executions_file" "$preflight_file" "$configured_file"; do
+    [[ ! -e "$retained_path" && ! -L "$retained_path" ]] || \
+      die "attested configure evidence path already exists: $retained_path"
+  done
+  capture_job "$job_file"
+  capture_executions "$executions_file"
+  local -a guard_args
+  mapfile -t guard_args < <(deployment_guard_args)
+  local -a common_args
+  common_args=(
+    --foundation-publication-uri "$CORPUS_PARAMETRIC_FOUNDATION_PUBLICATION_URI"
+    --foundation-publication-generation "$CORPUS_PARAMETRIC_FOUNDATION_PUBLICATION_GENERATION"
+    --foundation-publication-sha256 "$CORPUS_PARAMETRIC_FOUNDATION_PUBLICATION_SHA256"
+    --foundation-publication-bytes "$CORPUS_PARAMETRIC_FOUNDATION_PUBLICATION_BYTES"
+    --manifest-uri "$CORPUS_PARAMETRIC_MANIFEST_URI"
+    --manifest-generation "$CORPUS_PARAMETRIC_MANIFEST_GENERATION"
+    --manifest-sha256 "$CORPUS_PARAMETRIC_MANIFEST_SHA256"
+    --manifest-bytes "$CORPUS_PARAMETRIC_MANIFEST_BYTES"
+    --evidence-contract-uri "$CORPUS_PARAMETRIC_EVIDENCE_CONTRACT_URI"
+    --evidence-contract-generation "$CORPUS_PARAMETRIC_EVIDENCE_CONTRACT_GENERATION"
+    --evidence-contract-sha256 "$CORPUS_PARAMETRIC_EVIDENCE_CONTRACT_SHA256"
+    --evidence-contract-bytes "$CORPUS_PARAMETRIC_EVIDENCE_CONTRACT_BYTES"
+    --retrieval-prerequisite-uri "$CORPUS_PARAMETRIC_RETRIEVAL_PREREQUISITE_URI"
+    --retrieval-prerequisite-generation "$CORPUS_PARAMETRIC_RETRIEVAL_PREREQUISITE_GENERATION"
+    --retrieval-prerequisite-sha256 "$CORPUS_PARAMETRIC_RETRIEVAL_PREREQUISITE_SHA256"
+    --retrieval-prerequisite-bytes "$CORPUS_PARAMETRIC_RETRIEVAL_PREREQUISITE_BYTES"
+    --build-metadata-file "$CORPUS_PARAMETRIC_BUILD_METADATA_FILE"
+    --job-file "$job_file" --executions-file "$executions_file"
+    --build-id "$CORPUS_PARAMETRIC_BUILD_ID"
+    --code-sha "$CORPUS_PARAMETRIC_CODE_SHA"
+    --image "$CORPUS_PARAMETRIC_IMAGE"
+    --service-account "$CORPUS_PARAMETRIC_SERVICE_ACCOUNT"
+    --expected-job-name "$CORPUS_PARAMETRIC_JOB"
+    --expected-job-uid "$CORPUS_PARAMETRIC_EXPECTED_JOB_UID"
+  )
+  "$PYTHON_BIN" "$TRANSPORT_SCRIPT" preflight-configure \
+    "${common_args[@]}" "${guard_args[@]}" --execute >"$preflight_file"
+  "$PYTHON_BIN" "$TRANSPORT_SCRIPT" configure \
+    "${common_args[@]}" "${guard_args[@]}" \
+    --created-at-utc "$(timestamp_for configured)" --execute >"$configured_file"
 }
 
 launch_mode() {
@@ -312,20 +417,19 @@ launch_mode() {
   mkdir -p "$CORPUS_PARAMETRIC_RUN_DIR/tasks"
   local attempt_dir
   attempt_dir="$(new_phase_attempt_directory "$phase" launch)"
-  local job_file executions_file schedulers_file ready_file
+  local -a guard_args
+  local job_file executions_file ready_file
   job_file="$attempt_dir/job.json"
   executions_file="$attempt_dir/executions.json"
-  schedulers_file="$attempt_dir/schedulers.json"
   ready_file="$attempt_dir/launch-ready.json"
   capture_job "$job_file"
   capture_executions "$executions_file"
-  capture_all_region_schedulers "$schedulers_file"
   mapfile -t identity_args < <(contract_identity_args)
+  mapfile -t guard_args < <(deployment_guard_args)
   "$PYTHON_BIN" "$TRANSPORT_SCRIPT" consume-launch \
     "${identity_args[@]}" --task-index "$CORPUS_PARAMETRIC_TASK_INDEX" \
     --phase "$phase" --job-file "$job_file" \
-    --executions-file "$executions_file" --schedulers-file "$schedulers_file" \
-    --all-regions-complete \
+    --executions-file "$executions_file" "${guard_args[@]}" \
     --created-at-utc "$(timestamp_for "task-${CORPUS_PARAMETRIC_TASK_INDEX}-${phase}-launch")" \
     --execute \
     >"$ready_file"
@@ -355,13 +459,13 @@ recover_mode() {
   mkdir -p "$CORPUS_PARAMETRIC_RUN_DIR/tasks"
   local attempt_dir
   attempt_dir="$(new_phase_attempt_directory "$phase" recover)"
+  local -a guard_args
   mapfile -t identity_args < <(contract_identity_args)
-  local executions_file candidate_file execution_id execution_file job_file schedulers_file bound_file
+  local executions_file candidate_file execution_id execution_file job_file bound_file
   executions_file="$attempt_dir/executions.json"
   candidate_file="$attempt_dir/recovery-candidate.json"
   execution_file="$attempt_dir/execution.json"
   job_file="$attempt_dir/job.json"
-  schedulers_file="$attempt_dir/schedulers.json"
   bound_file="$(phase_file "$phase" bound)"
   capture_executions "$executions_file"
   "$PYTHON_BIN" "$TRANSPORT_SCRIPT" recover-name \
@@ -372,12 +476,12 @@ recover_mode() {
   gcloud run jobs executions describe "$execution_id" \
     --project "$PROJECT" --region "$REGION" --format=json >"$execution_file"
   capture_job "$job_file"
-  capture_all_region_schedulers "$schedulers_file"
+  mapfile -t guard_args < <(deployment_guard_args)
   "$PYTHON_BIN" "$TRANSPORT_SCRIPT" bind-execution \
     "${identity_args[@]}" --task-index "$CORPUS_PARAMETRIC_TASK_INDEX" \
     --phase "$phase" --execution-metadata-file "$execution_file" \
     --job-file "$job_file" --executions-file "$executions_file" \
-    --schedulers-file "$schedulers_file" --all-regions-complete \
+    "${guard_args[@]}" \
     --created-at-utc "$(timestamp_for "task-${CORPUS_PARAMETRIC_TASK_INDEX}-${phase}-bound")" \
     --execute >"$bound_file"
   printf '%s\n' "execution bound; run watch-${phase} as a separate action"
@@ -390,7 +494,8 @@ watch_mode() {
   mapfile -t identity_args < <(contract_identity_args)
   local attempt_dir
   attempt_dir="$(new_phase_attempt_directory "$phase" watch)"
-  local bound_file execution_id terminal_file completed job_file executions_file schedulers_file
+  local -a guard_args
+  local bound_file execution_id terminal_file completed job_file executions_file
   bound_file="$(phase_file "$phase" bound)"
   [[ -f "$bound_file" ]] || die "bound execution receipt is absent; recover first"
   execution_id="$(jq -er '.execution_id' "$bound_file")"
@@ -405,16 +510,15 @@ watch_mode() {
   [[ "$completed" == "True" ]] || die "execution failed/cancelled; no retry is licensed"
   job_file="$attempt_dir/job.json"
   executions_file="$attempt_dir/executions.json"
-  schedulers_file="$attempt_dir/schedulers.json"
   capture_job "$job_file"
   capture_executions "$executions_file"
-  capture_all_region_schedulers "$schedulers_file"
+  mapfile -t guard_args < <(deployment_guard_args)
   if [[ "$phase" == "producer" ]]; then
     "$PYTHON_BIN" "$TRANSPORT_SCRIPT" close-producer \
       "${identity_args[@]}" --task-index "$CORPUS_PARAMETRIC_TASK_INDEX" \
       --execution-metadata-file "$terminal_file" \
       --job-file "$job_file" --executions-file "$executions_file" \
-      --schedulers-file "$schedulers_file" --all-regions-complete \
+      "${guard_args[@]}" \
       --created-at-utc "$(timestamp_for "task-${CORPUS_PARAMETRIC_TASK_INDEX}-producer-closed")" \
       --execute \
       >"$(phase_file "$phase" closed)"
@@ -424,7 +528,7 @@ watch_mode() {
       "${identity_args[@]}" --task-index "$CORPUS_PARAMETRIC_TASK_INDEX" \
       --execution-metadata-file "$terminal_file" \
       --job-file "$job_file" --executions-file "$executions_file" \
-      --schedulers-file "$schedulers_file" --all-regions-complete \
+      "${guard_args[@]}" \
       --created-at-utc "$(timestamp_for "task-${CORPUS_PARAMETRIC_TASK_INDEX}-verifier-accepted")" \
       --execute \
       >"$(phase_file "$phase" accepted)"
@@ -448,6 +552,7 @@ main() {
   prepare_run_directory
   case "$mode" in
     configure) configure_mode ;;
+    configure-attested) configure_attested_mode ;;
     launch-producer) launch_mode producer ;;
     recover-producer) recover_mode producer ;;
     watch-producer) watch_mode producer ;;

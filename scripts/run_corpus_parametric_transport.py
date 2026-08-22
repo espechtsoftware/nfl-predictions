@@ -58,6 +58,10 @@ RUNTIME_IAM_EVIDENCE_SCHEMA: Final = (
     "corpus-parametric-runtime-iam-evidence/v3"
 )
 RUNTIME_PRINCIPAL_SCOPE: Final = "cloud-run-producer-verifier-only"
+DEPLOYMENT_ATTESTATION_SCHEMA: Final = (
+    "corpus-parametric-deployment-attestation/v1"
+)
+DEPLOYMENT_ATTESTATION_MAX_SECONDS: Final = 24 * 60 * 60
 STORAGE_GET_PERMISSION: Final = "storage.objects.get"
 STORAGE_CREATE_PERMISSION: Final = "storage.objects.create"
 # The immutable R0--R4 bodies predate this workstream and live in the
@@ -3036,6 +3040,219 @@ def validate_scheduler_census(
             raise CorpusParametricTransportError("scheduler targets reused job")
 
 
+_DEPLOYMENT_ATTESTATION_KEYS: Final = frozenset({
+    "schema_version", "created_at_utc", "expires_at_utc", "project",
+    "region", "service_account", "build", "job",
+    "runtime_iam_policy_capture", "runtime_iam_policy_capture_sha256",
+    "scheduler_census_sha256", "all_regions_complete",
+    "no_scheduler_targets_job", "max_retries", "automatic_retry_licensed",
+    "attestation_sha256",
+})
+
+
+def _utc_datetime(value: object, *, label: str) -> datetime:
+    retained = _timestamp(value, label=label)
+    return datetime.strptime(retained, "%Y-%m-%dT%H:%M:%SZ").replace(
+        tzinfo=timezone.utc
+    )
+
+
+def build_deployment_attestation(
+    *,
+    runtime_iam_policy_capture: object,
+    build_metadata: object,
+    build_id: str,
+    code_sha: str,
+    image: str,
+    service_account: str,
+    parked_job: object,
+    expected_job_name: str,
+    expected_job_uid: str,
+    schedulers: object,
+    all_regions_complete: bool,
+    created_at_utc: str,
+    expires_at_utc: str,
+) -> dict[str, object]:
+    """Create one bounded proof for a stable corpus worker deployment.
+
+    Cloud Asset and all-region Scheduler discovery happen before this pure
+    function is called.  Experiments reuse the self-hashed result and only
+    re-describe the exact Cloud Run job plus its executions until expiry.
+    """
+    created = _utc_datetime(
+        created_at_utc, label="deployment attestation created timestamp"
+    )
+    expires = _utc_datetime(
+        expires_at_utc, label="deployment attestation expiry timestamp"
+    )
+    lifetime = (expires - created).total_seconds()
+    if lifetime <= 0 or lifetime > DEPLOYMENT_ATTESTATION_MAX_SECONDS:
+        raise CorpusParametricTransportError(
+            "deployment attestation lifetime differs"
+        )
+    build = validate_build_metadata(
+        build_metadata, build_id=build_id, code_sha=code_sha, image=image
+    )
+    job = validate_parked_job(
+        parked_job,
+        job_name=expected_job_name,
+        expected_uid=expected_job_uid,
+        build=build,
+        service_account=service_account,
+    )
+    validate_scheduler_census(
+        schedulers,
+        job_name=job["name"],
+        all_regions_complete=all_regions_complete,
+    )
+    capture = _validate_runtime_iam_capture(runtime_iam_policy_capture)
+    body = {
+        "schema_version": DEPLOYMENT_ATTESTATION_SCHEMA,
+        "created_at_utc": created_at_utc,
+        "expires_at_utc": expires_at_utc,
+        "project": PROJECT,
+        "region": REGION,
+        "service_account": service_account,
+        "build": build,
+        "job": job,
+        "runtime_iam_policy_capture": capture,
+        "runtime_iam_policy_capture_sha256": canonical_sha256(capture),
+        "scheduler_census_sha256": canonical_sha256(schedulers),
+        "all_regions_complete": True,
+        "no_scheduler_targets_job": True,
+        "max_retries": 0,
+        "automatic_retry_licensed": False,
+    }
+    return _self_hash(body, field="attestation_sha256")
+
+
+def validate_deployment_attestation(
+    value: object,
+    *,
+    observed_at_utc: str,
+    current_job: object,
+    expected_build: Mapping[str, object],
+    expected_service_account: str,
+) -> dict[str, object]:
+    """Fail closed when a reusable deployment proof expires or drifts."""
+    item = dict(_mapping(value, label="deployment attestation"))
+    _exact_keys(
+        item,
+        _DEPLOYMENT_ATTESTATION_KEYS,
+        label="deployment attestation fields",
+    )
+    _validate_self_hash(
+        item,
+        field="attestation_sha256",
+        label="deployment attestation",
+    )
+    created = _utc_datetime(
+        item.get("created_at_utc"),
+        label="deployment attestation created timestamp",
+    )
+    expires = _utc_datetime(
+        item.get("expires_at_utc"),
+        label="deployment attestation expiry timestamp",
+    )
+    observed = _utc_datetime(
+        observed_at_utc, label="deployment attestation observed timestamp"
+    )
+    lifetime = (expires - created).total_seconds()
+    if (
+        lifetime <= 0
+        or lifetime > DEPLOYMENT_ATTESTATION_MAX_SECONDS
+        or observed < created
+        or observed >= expires
+    ):
+        raise CorpusParametricTransportError(
+            "deployment attestation is expired or not yet valid"
+        )
+    capture = _validate_runtime_iam_capture(
+        item.get("runtime_iam_policy_capture")
+    )
+    retained_build = _mapping(
+        item.get("build"), label="deployment attestation build"
+    )
+    retained_job = _mapping(
+        item.get("job"), label="deployment attestation job"
+    )
+    expected_job = validate_parked_job(
+        current_job,
+        job_name=str(retained_job.get("name")),
+        expected_uid=str(retained_job.get("uid")),
+        build=expected_build,
+        service_account=expected_service_account,
+    )
+    if (
+        item.get("schema_version") != DEPLOYMENT_ATTESTATION_SCHEMA
+        or item.get("project") != PROJECT
+        or item.get("region") != REGION
+        or item.get("service_account") != expected_service_account
+        or retained_build != expected_build
+        or expected_job != retained_job
+        or item.get("runtime_iam_policy_capture_sha256")
+        != canonical_sha256(capture)
+        or _SHA.fullmatch(str(item.get("scheduler_census_sha256"))) is None
+        or item.get("all_regions_complete") is not True
+        or item.get("no_scheduler_targets_job") is not True
+        or item.get("max_retries") != 0
+        or item.get("automatic_retry_licensed") is not False
+    ):
+        raise CorpusParametricTransportError(
+            "deployment attestation binding differs"
+        )
+    return item
+
+
+def _deployment_guard(
+    *,
+    deployment_attestation: object | None,
+    observed_at_utc: str | None,
+    current_job: object,
+    expected_build: Mapping[str, object],
+    expected_service_account: str,
+    schedulers: object,
+    all_regions_complete: bool,
+) -> dict[str, object]:
+    if deployment_attestation is None:
+        if observed_at_utc is not None:
+            raise CorpusParametricTransportError(
+                "deployment attestation timestamp is unbound"
+            )
+        retained_job = job_identity(current_job, label="live-census job")
+        validate_scheduler_census(
+            schedulers,
+            job_name=retained_job["name"],
+            all_regions_complete=all_regions_complete,
+        )
+        return {
+            "job": retained_job,
+            "scheduler_census_sha256": canonical_sha256(schedulers),
+            "governance_mode": "live-all-region-census",
+        }
+    if schedulers is not None or all_regions_complete is not False:
+        raise CorpusParametricTransportError(
+            "deployment attestation and live scheduler census are mutually exclusive"
+        )
+    if observed_at_utc is None:
+        raise CorpusParametricTransportError(
+            "deployment attestation observed timestamp is required"
+        )
+    retained = validate_deployment_attestation(
+        deployment_attestation,
+        observed_at_utc=observed_at_utc,
+        current_job=current_job,
+        expected_build=expected_build,
+        expected_service_account=expected_service_account,
+    )
+    return {
+        "job": retained["job"],
+        "scheduler_census_sha256": retained["scheduler_census_sha256"],
+        "governance_mode": "bounded-deployment-attestation",
+        "deployment_attestation_sha256": retained["attestation_sha256"],
+    }
+
+
 def _build_step_commands(value: object) -> list[tuple[str, ...]]:
     commands: list[tuple[str, ...]] = []
 
@@ -3826,6 +4043,8 @@ def _prepare_configuration(
     executions: object,
     schedulers: object,
     all_regions_complete: bool,
+    deployment_attestation: object | None = None,
+    observed_at_utc: str | None = None,
 ) -> dict[str, object]:
     """Replay every immutable input and census without publishing anything."""
     traced_storage = _TracingReadStore(storage)
@@ -3918,9 +4137,13 @@ def _prepare_configuration(
                 "preflight reused job name/UID differs from frozen authority"
             )
     _require_no_active_executions(executions)
-    validate_scheduler_census(
-        schedulers,
-        job_name=job["name"],
+    guard = _deployment_guard(
+        deployment_attestation=deployment_attestation,
+        observed_at_utc=observed_at_utc,
+        current_job=observed_job,
+        expected_build=build,
+        expected_service_account=service_account,
+        schedulers=schedulers,
         all_regions_complete=all_regions_complete,
     )
     inputs = _manifest_input_identities(manifest)
@@ -3929,9 +4152,15 @@ def _prepare_configuration(
         label="configured runtime input graph",
         reject_repeats=False,
     )
-    policy_capture = strict_json_bytes(
-        runtime_iam_evidence_raw, label="runtime IAM policy capture"
-    )
+    if deployment_attestation is None:
+        policy_capture = strict_json_bytes(
+            runtime_iam_evidence_raw, label="runtime IAM policy capture"
+        )
+    else:
+        policy_capture = _mapping(
+            deployment_attestation,
+            label="deployment attestation",
+        )["runtime_iam_policy_capture"]
     runtime_iam_evidence = build_runtime_iam_evidence(
         policy_capture=policy_capture,
         service_account=service_account,
@@ -3973,6 +4202,7 @@ def _prepare_configuration(
         "runtime_iam_evidence": runtime_iam_evidence,
         "build": build,
         "job": job,
+        "deployment_guard": guard,
         "initial_identities": initial_identities,
     }
 
@@ -3998,6 +4228,8 @@ def preflight_configure(
     all_regions_complete: bool,
     execute: bool,
     environ: Mapping[str, str],
+    deployment_attestation: object | None = None,
+    observed_at_utc: str | None = None,
 ) -> dict[str, object]:
     """Read-only gate that must pass before a reused job is mutated."""
     require_execute_gate(execute=execute, environ=environ)
@@ -4020,6 +4252,8 @@ def preflight_configure(
         executions=executions,
         schedulers=schedulers,
         all_regions_complete=all_regions_complete,
+        deployment_attestation=deployment_attestation,
+        observed_at_utc=observed_at_utc,
     )
     manifest = _mapping(prepared["manifest"], label="preflight manifest")
     return {
@@ -4039,6 +4273,7 @@ def preflight_configure(
         "runtime_required_input_count": len(prepared[
             "runtime_iam_evidence"
         ]["required_input_identities"]),
+        "deployment_guard": prepared["deployment_guard"],
         "valid": True,
         "read_only": True,
         "cloud_run_mutation_permitted": False,
@@ -4067,6 +4302,8 @@ def configure_transport(
     created_at_utc: str,
     execute: bool,
     environ: Mapping[str, str],
+    deployment_attestation: object | None = None,
+    observed_at_utc: str | None = None,
 ) -> dict[str, object]:
     """Validate and publish the immutable outer transport authority once."""
     require_execute_gate(execute=execute, environ=environ)
@@ -4089,6 +4326,8 @@ def configure_transport(
         executions=executions,
         schedulers=schedulers,
         all_regions_complete=all_regions_complete,
+        deployment_attestation=deployment_attestation,
+        observed_at_utc=observed_at_utc,
     )
     traced_storage = prepared["traced_storage"]
     manifest = prepared["manifest"]
@@ -4599,6 +4838,8 @@ def consume_phase_launch(
     created_at_utc: str,
     execute: bool,
     environ: Mapping[str, str],
+    deployment_attestation: object | None = None,
+    observed_at_utc: str | None = None,
 ) -> dict[str, object]:
     """Consume one phase authority.  This function never invokes Cloud Run."""
     require_execute_gate(execute=execute, environ=environ)
@@ -4610,9 +4851,13 @@ def consume_phase_launch(
     _validate_current_job(parked_job, contract=contract)
     names = execution_census_names(executions)
     _require_no_active_executions(executions)
-    validate_scheduler_census(
-        schedulers,
-        job_name=str(_mapping(contract["job"], label="contract job")["name"]),
+    _deployment_guard(
+        deployment_attestation=deployment_attestation,
+        observed_at_utc=observed_at_utc,
+        current_job=parked_job,
+        expected_build=_mapping(contract["build"], label="contract build"),
+        expected_service_account=str(contract["service_account"]),
+        schedulers=schedulers,
         all_regions_complete=all_regions_complete,
     )
     # The prerequisite is deliberately reopened immediately before each phase.
@@ -4901,6 +5146,8 @@ def bind_phase_execution(
     created_at_utc: str,
     execute: bool,
     environ: Mapping[str, str],
+    deployment_attestation: object | None = None,
+    observed_at_utc: str | None = None,
 ) -> dict[str, object]:
     """Census-only launch recovery; never invokes or retries an execution."""
     require_execute_gate(execute=execute, environ=environ)
@@ -4909,9 +5156,13 @@ def bind_phase_execution(
         storage=storage, contract_identity=contract_identity
     )
     _validate_current_job(parked_job, contract=contract)
-    validate_scheduler_census(
-        schedulers,
-        job_name=str(_mapping(contract["job"], label="contract job")["name"]),
+    _deployment_guard(
+        deployment_attestation=deployment_attestation,
+        observed_at_utc=observed_at_utc,
+        current_job=parked_job,
+        expected_build=_mapping(contract["build"], label="contract build"),
+        expected_service_account=str(contract["service_account"]),
+        schedulers=schedulers,
         all_regions_complete=all_regions_complete,
     )
     intent_identity, launch_identity, launch = _reopen_phase_launch(
@@ -5718,13 +5969,19 @@ def _validate_terminal_governance_census(
     executions: object,
     schedulers: object,
     all_regions_complete: bool,
+    deployment_attestation: object | None = None,
+    observed_at_utc: str | None = None,
 ) -> dict[str, object]:
     """Prove the job stayed parked and exactly one governed launch occurred."""
     retained_phase = _phase(phase)
     current_job = _validate_current_job(parked_job, contract=contract)
-    validate_scheduler_census(
-        schedulers,
-        job_name=str(_mapping(contract["job"], label="contract job")["name"]),
+    guard = _deployment_guard(
+        deployment_attestation=deployment_attestation,
+        observed_at_utc=observed_at_utc,
+        current_job=parked_job,
+        expected_build=_mapping(contract["build"], label="contract build"),
+        expected_service_account=str(contract["service_account"]),
+        schedulers=schedulers,
         all_regions_complete=all_regions_complete,
     )
     _, _, launch = _reopen_phase_launch(
@@ -5804,7 +6061,7 @@ def _validate_terminal_governance_census(
         "execution_uid": terminal["execution_uid"],
         "execution_names": after_names,
         "execution_census_sha256": canonical_sha256(executions),
-        "scheduler_census_sha256": canonical_sha256(schedulers),
+        "scheduler_census_sha256": guard["scheduler_census_sha256"],
         "all_regions_complete": True,
         "exactly_one_new_execution": True,
         "no_active_executions": True,
@@ -5926,6 +6183,8 @@ def close_producer_task(
     created_at_utc: str,
     execute: bool,
     environ: Mapping[str, str],
+    deployment_attestation: object | None = None,
+    observed_at_utc: str | None = None,
 ) -> dict[str, object]:
     """Operator close: terminal producer → science terminal → task result."""
     require_execute_gate(execute=execute, environ=environ)
@@ -5966,6 +6225,8 @@ def close_producer_task(
         executions=executions,
         schedulers=schedulers,
         all_regions_complete=all_regions_complete,
+        deployment_attestation=deployment_attestation,
+        observed_at_utc=observed_at_utc,
     )
     completion_identity, completion = _reopen_producer_completion(
         storage=storage,
@@ -6946,6 +7207,8 @@ def accept_verified_task(
     created_at_utc: str,
     execute: bool,
     environ: Mapping[str, str],
+    deployment_attestation: object | None = None,
+    observed_at_utc: str | None = None,
 ) -> dict[str, object]:
     """Publish the sole accepted terminal, only after verifier success."""
     require_execute_gate(execute=execute, environ=environ)
@@ -6986,6 +7249,8 @@ def accept_verified_task(
         executions=executions,
         schedulers=schedulers,
         all_regions_complete=all_regions_complete,
+        deployment_attestation=deployment_attestation,
+        observed_at_utc=observed_at_utc,
     )
     verifier_completion_identity, verifier_completion, verification = (
         _reopen_verifier_completion(
@@ -7427,6 +7692,28 @@ def _base_parser() -> argparse.ArgumentParser:
     validate_build.add_argument("--code-sha", required=True)
     validate_build.add_argument("--image", required=True)
 
+    attest = sub.add_parser(
+        "create-deployment-attestation",
+        help=(
+            "freeze one expiring IAM/job/scheduler deployment proof for "
+            "reuse by experiment hot paths"
+        ),
+    )
+    attest.add_argument("--runtime-iam-file", required=True, type=Path)
+    attest.add_argument("--build-metadata-file", required=True, type=Path)
+    attest.add_argument("--job-file", required=True, type=Path)
+    attest.add_argument("--schedulers-file", required=True, type=Path)
+    attest.add_argument("--all-regions-complete", action="store_true")
+    attest.add_argument("--build-id", required=True)
+    attest.add_argument("--code-sha", required=True)
+    attest.add_argument("--image", required=True)
+    attest.add_argument("--service-account", required=True)
+    attest.add_argument("--expected-job-name", required=True)
+    attest.add_argument("--expected-job-uid", required=True)
+    attest.add_argument("--created-at-utc", required=True)
+    attest.add_argument("--expires-at-utc", required=True)
+    attest.add_argument("--output", required=True, type=Path)
+
     validate_contract = sub.add_parser(
         "validate-local-contract", help="validate a local canonical contract"
     )
@@ -7448,11 +7735,13 @@ def _base_parser() -> argparse.ArgumentParser:
             "retrieval_prerequisite",
         ):
             _add_identity_arguments(target, prefix)
-        target.add_argument("--runtime-iam-file", required=True, type=Path)
+        target.add_argument("--runtime-iam-file", type=Path)
         target.add_argument("--build-metadata-file", required=True, type=Path)
         target.add_argument("--job-file", required=True, type=Path)
         target.add_argument("--executions-file", required=True, type=Path)
-        target.add_argument("--schedulers-file", required=True, type=Path)
+        target.add_argument("--schedulers-file", type=Path)
+        target.add_argument("--deployment-attestation-file", type=Path)
+        target.add_argument("--observed-at-utc")
         target.add_argument("--build-id", required=True)
         target.add_argument("--code-sha", required=True)
         target.add_argument("--image", required=True)
@@ -7492,7 +7781,9 @@ def _base_parser() -> argparse.ArgumentParser:
     consume.add_argument("--phase", required=True, choices=("producer", "verifier"))
     consume.add_argument("--job-file", required=True, type=Path)
     consume.add_argument("--executions-file", required=True, type=Path)
-    consume.add_argument("--schedulers-file", required=True, type=Path)
+    consume.add_argument("--schedulers-file", type=Path)
+    consume.add_argument("--deployment-attestation-file", type=Path)
+    consume.add_argument("--observed-at-utc")
     consume.add_argument("--all-regions-complete", action="store_true")
     consume.add_argument("--created-at-utc", required=True)
     consume.add_argument("--execute", action="store_true")
@@ -7506,7 +7797,9 @@ def _base_parser() -> argparse.ArgumentParser:
     bind.add_argument("--execution-metadata-file", required=True, type=Path)
     bind.add_argument("--job-file", required=True, type=Path)
     bind.add_argument("--executions-file", required=True, type=Path)
-    bind.add_argument("--schedulers-file", required=True, type=Path)
+    bind.add_argument("--schedulers-file", type=Path)
+    bind.add_argument("--deployment-attestation-file", type=Path)
+    bind.add_argument("--observed-at-utc")
     bind.add_argument("--all-regions-complete", action="store_true")
     bind.add_argument("--created-at-utc", required=True)
     bind.add_argument("--execute", action="store_true")
@@ -7552,7 +7845,9 @@ def _base_parser() -> argparse.ArgumentParser:
     close.add_argument("--execution-metadata-file", required=True, type=Path)
     close.add_argument("--job-file", required=True, type=Path)
     close.add_argument("--executions-file", required=True, type=Path)
-    close.add_argument("--schedulers-file", required=True, type=Path)
+    close.add_argument("--schedulers-file", type=Path)
+    close.add_argument("--deployment-attestation-file", type=Path)
+    close.add_argument("--observed-at-utc")
     close.add_argument("--all-regions-complete", action="store_true")
     close.add_argument("--created-at-utc", required=True)
     close.add_argument("--execute", action="store_true")
@@ -7565,7 +7860,9 @@ def _base_parser() -> argparse.ArgumentParser:
     accept.add_argument("--execution-metadata-file", required=True, type=Path)
     accept.add_argument("--job-file", required=True, type=Path)
     accept.add_argument("--executions-file", required=True, type=Path)
-    accept.add_argument("--schedulers-file", required=True, type=Path)
+    accept.add_argument("--schedulers-file", type=Path)
+    accept.add_argument("--deployment-attestation-file", type=Path)
+    accept.add_argument("--observed-at-utc")
     accept.add_argument("--all-regions-complete", action="store_true")
     accept.add_argument("--created-at-utc", required=True)
     accept.add_argument("--execute", action="store_true")
@@ -7677,6 +7974,41 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "cloud_call_made": False,
             })
             return 0
+        if args.command == "create-deployment-attestation":
+            result = build_deployment_attestation(
+                runtime_iam_policy_capture=_read_external_file(
+                    Path(args.runtime_iam_file), label="runtime IAM policy capture"
+                ),
+                build_metadata=_read_external_file(
+                    Path(args.build_metadata_file), label="build metadata"
+                ),
+                build_id=args.build_id,
+                code_sha=args.code_sha,
+                image=args.image,
+                service_account=args.service_account,
+                parked_job=_read_external_file(
+                    Path(args.job_file), label="parked job"
+                ),
+                expected_job_name=args.expected_job_name,
+                expected_job_uid=args.expected_job_uid,
+                schedulers=_read_external_file(
+                    Path(args.schedulers_file), label="schedulers"
+                ),
+                all_regions_complete=args.all_regions_complete,
+                created_at_utc=args.created_at_utc,
+                expires_at_utc=args.expires_at_utc,
+            )
+            raw = canonical_json_bytes(result)
+            _write_once(Path(args.output), raw)
+            _print_json({
+                "schema_version": result["schema_version"],
+                "output": str(Path(args.output)),
+                "attestation_sha256": result["attestation_sha256"],
+                "created_at_utc": result["created_at_utc"],
+                "expires_at_utc": result["expires_at_utc"],
+                "cloud_call_made": False,
+            })
+            return 0
         if args.command == "validate-local-contract":
             contract = validate_transport_contract(
                 _load_json(Path(args.contract_file), label="local contract")
@@ -7711,7 +8043,44 @@ def main(argv: Sequence[str] | None = None) -> int:
         execute = bool(args.execute)
         require_execute_gate(execute=execute, environ=os.environ)
         store = GenerationPinnedStorage(execute=execute, environ=os.environ)
+
+        def deployment_guard_args() -> dict[str, object]:
+            attestation_path = getattr(args, "deployment_attestation_file", None)
+            schedulers_path = getattr(args, "schedulers_file", None)
+            observed_at = getattr(args, "observed_at_utc", None)
+            all_regions = bool(getattr(args, "all_regions_complete", False))
+            if attestation_path is not None:
+                if schedulers_path is not None or all_regions:
+                    raise CorpusParametricTransportError(
+                        "deployment attestation and scheduler census flags are mutually exclusive"
+                    )
+                return {
+                    "deployment_attestation": _load_json(
+                        Path(attestation_path), label="deployment attestation"
+                    ),
+                    "observed_at_utc": observed_at,
+                    "schedulers": None,
+                    "all_regions_complete": False,
+                }
+            if schedulers_path is None or observed_at is not None:
+                raise CorpusParametricTransportError(
+                    "either deployment attestation or scheduler census is required"
+                )
+            return {
+                "deployment_attestation": None,
+                "observed_at_utc": None,
+                "schedulers": _read_external_file(
+                    Path(schedulers_path), label="schedulers"
+                ),
+                "all_regions_complete": all_regions,
+            }
+
         if args.command == "preflight-configure":
+            guard = deployment_guard_args()
+            if args.runtime_iam_file is None and guard["deployment_attestation"] is None:
+                raise CorpusParametricTransportError(
+                    "runtime IAM file is required without deployment attestation"
+                )
             result = preflight_configure(
                 storage=store,
                 batch_manifest_identity=_identity_from_args(
@@ -7726,7 +8095,10 @@ def main(argv: Sequence[str] | None = None) -> int:
                 foundation_publication_identity=_identity_from_args(
                     args, "foundation_publication"
                 ).as_dict(),
-                runtime_iam_evidence_raw=Path(args.runtime_iam_file).read_bytes(),
+                runtime_iam_evidence_raw=(
+                    Path(args.runtime_iam_file).read_bytes()
+                    if args.runtime_iam_file is not None else b""
+                ),
                 build_metadata=_read_external_file(
                     Path(args.build_metadata_file), label="build metadata"
                 ),
@@ -7742,14 +8114,19 @@ def main(argv: Sequence[str] | None = None) -> int:
                 executions=_read_external_file(
                     Path(args.executions_file), label="executions"
                 ),
-                schedulers=_read_external_file(
-                    Path(args.schedulers_file), label="schedulers"
-                ),
-                all_regions_complete=args.all_regions_complete,
+                schedulers=guard["schedulers"],
+                all_regions_complete=bool(guard["all_regions_complete"]),
                 execute=execute,
                 environ=os.environ,
+                deployment_attestation=guard["deployment_attestation"],
+                observed_at_utc=guard["observed_at_utc"],
             )
         elif args.command == "configure":
+            guard = deployment_guard_args()
+            if args.runtime_iam_file is None and guard["deployment_attestation"] is None:
+                raise CorpusParametricTransportError(
+                    "runtime IAM file is required without deployment attestation"
+                )
             result = configure_transport(
                 storage=store,
                 batch_manifest_identity=_identity_from_args(args, "manifest").as_dict(),
@@ -7762,7 +8139,10 @@ def main(argv: Sequence[str] | None = None) -> int:
                 foundation_publication_identity=_identity_from_args(
                     args, "foundation_publication"
                 ).as_dict(),
-                runtime_iam_evidence_raw=Path(args.runtime_iam_file).read_bytes(),
+                runtime_iam_evidence_raw=(
+                    Path(args.runtime_iam_file).read_bytes()
+                    if args.runtime_iam_file is not None else b""
+                ),
                 build_metadata=_read_external_file(
                     Path(args.build_metadata_file), label="build metadata"
                 ),
@@ -7776,13 +8156,13 @@ def main(argv: Sequence[str] | None = None) -> int:
                 executions=_read_external_file(
                     Path(args.executions_file), label="executions"
                 ),
-                schedulers=_read_external_file(
-                    Path(args.schedulers_file), label="schedulers"
-                ),
-                all_regions_complete=args.all_regions_complete,
+                schedulers=guard["schedulers"],
+                all_regions_complete=bool(guard["all_regions_complete"]),
                 created_at_utc=args.created_at_utc,
                 execute=execute,
                 environ=os.environ,
+                deployment_attestation=guard["deployment_attestation"],
+                observed_at_utc=guard["observed_at_utc"],
             )
         elif args.command == "validate-only":
             result = validate_task_inputs(
@@ -7792,6 +8172,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 repository_root=args.repository_root,
             )
         elif args.command == "consume-launch":
+            guard = deployment_guard_args()
             result = consume_phase_launch(
                 storage=store,
                 contract_identity=_identity_from_args(args, "contract").as_dict(),
@@ -7801,15 +8182,16 @@ def main(argv: Sequence[str] | None = None) -> int:
                 executions=_read_external_file(
                     Path(args.executions_file), label="executions"
                 ),
-                schedulers=_read_external_file(
-                    Path(args.schedulers_file), label="schedulers"
-                ),
-                all_regions_complete=args.all_regions_complete,
+                schedulers=guard["schedulers"],
+                all_regions_complete=bool(guard["all_regions_complete"]),
                 created_at_utc=args.created_at_utc,
                 execute=execute,
                 environ=os.environ,
+                deployment_attestation=guard["deployment_attestation"],
+                observed_at_utc=guard["observed_at_utc"],
             )
         elif args.command == "bind-execution":
+            guard = deployment_guard_args()
             result = bind_phase_execution(
                 storage=store,
                 contract_identity=_identity_from_args(args, "contract").as_dict(),
@@ -7823,13 +8205,13 @@ def main(argv: Sequence[str] | None = None) -> int:
                 executions=_read_external_file(
                     Path(args.executions_file), label="executions"
                 ),
-                schedulers=_read_external_file(
-                    Path(args.schedulers_file), label="schedulers"
-                ),
-                all_regions_complete=args.all_regions_complete,
+                schedulers=guard["schedulers"],
+                all_regions_complete=bool(guard["all_regions_complete"]),
                 created_at_utc=args.created_at_utc,
                 execute=execute,
                 environ=os.environ,
+                deployment_attestation=guard["deployment_attestation"],
+                observed_at_utc=guard["observed_at_utc"],
             )
         elif args.command == "recover-name":
             result = recover_phase_execution_name(
@@ -7862,6 +8244,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 environ=os.environ,
             )
         elif args.command == "close-producer":
+            guard = deployment_guard_args()
             result = close_producer_task(
                 storage=store,
                 contract_identity=_identity_from_args(args, "contract").as_dict(),
@@ -7874,15 +8257,16 @@ def main(argv: Sequence[str] | None = None) -> int:
                 executions=_read_external_file(
                     Path(args.executions_file), label="executions"
                 ),
-                schedulers=_read_external_file(
-                    Path(args.schedulers_file), label="schedulers"
-                ),
-                all_regions_complete=args.all_regions_complete,
+                schedulers=guard["schedulers"],
+                all_regions_complete=bool(guard["all_regions_complete"]),
                 created_at_utc=args.created_at_utc,
                 execute=execute,
                 environ=os.environ,
+                deployment_attestation=guard["deployment_attestation"],
+                observed_at_utc=guard["observed_at_utc"],
             )
         elif args.command == "accept-task":
+            guard = deployment_guard_args()
             result = accept_verified_task(
                 storage=store,
                 contract_identity=_identity_from_args(args, "contract").as_dict(),
@@ -7895,13 +8279,13 @@ def main(argv: Sequence[str] | None = None) -> int:
                 executions=_read_external_file(
                     Path(args.executions_file), label="executions"
                 ),
-                schedulers=_read_external_file(
-                    Path(args.schedulers_file), label="schedulers"
-                ),
-                all_regions_complete=args.all_regions_complete,
+                schedulers=guard["schedulers"],
+                all_regions_complete=bool(guard["all_regions_complete"]),
                 created_at_utc=args.created_at_utc,
                 execute=execute,
                 environ=os.environ,
+                deployment_attestation=guard["deployment_attestation"],
+                observed_at_utc=guard["observed_at_utc"],
             )
         elif args.command == "finish-batch":
             result = finish_batch(

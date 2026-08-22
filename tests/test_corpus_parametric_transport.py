@@ -1136,6 +1136,28 @@ def _runtime_iam_capture_raw(
     )
 
 
+def _deployment_attestation(
+    manifest: dict[str, object],
+) -> dict[str, object]:
+    return transport.build_deployment_attestation(
+        runtime_iam_policy_capture=transport.strict_json_bytes(
+            _runtime_iam_capture_raw(manifest), label="fixture IAM capture"
+        ),
+        build_metadata=_build_metadata(),
+        build_id=BUILD_ID,
+        code_sha=CODE_SHA,
+        image=IMAGE,
+        service_account=SERVICE_ACCOUNT,
+        parked_job=_job(),
+        expected_job_name=JOB_NAME,
+        expected_job_uid=JOB_UID,
+        schedulers=[],
+        all_regions_complete=True,
+        created_at_utc=NOW,
+        expires_at_utc="2026-08-22T18:00:00Z",
+    )
+
+
 def _configuration_fixture(
     *, task_count: int = 1
 ) -> tuple[
@@ -1626,6 +1648,106 @@ def test_preflight_configure_is_read_only_and_freezes_reused_job_name_uid() -> N
         transport.preflight_configure(**changed)
     assert store.publish_calls == before
 
+
+def test_deployment_attestation_is_bounded_self_hashed_and_drift_closed() -> None:
+    manifest, _, _ = _manifest()
+    attestation = _deployment_attestation(manifest)
+    build = transport.validate_build_metadata(
+        _build_metadata(), build_id=BUILD_ID, code_sha=CODE_SHA, image=IMAGE
+    )
+    validated = transport.validate_deployment_attestation(
+        attestation,
+        observed_at_utc="2026-08-22T17:59:59Z",
+        current_job=_job(),
+        expected_build=build,
+        expected_service_account=SERVICE_ACCOUNT,
+    )
+    assert validated["runtime_iam_policy_capture_sha256"] == (
+        transport.canonical_sha256(validated["runtime_iam_policy_capture"])
+    )
+    assert validated["scheduler_census_sha256"] == transport.canonical_sha256([])
+    assert validated["max_retries"] == 0
+    assert validated["automatic_retry_licensed"] is False
+
+    with pytest.raises(
+        transport.CorpusParametricTransportError, match="expired"
+    ):
+        transport.validate_deployment_attestation(
+            attestation,
+            observed_at_utc="2026-08-22T18:00:00Z",
+            current_job=_job(),
+            expected_build=build,
+            expected_service_account=SERVICE_ACCOUNT,
+        )
+    with pytest.raises(transport.CorpusParametricTransportError):
+        transport.validate_deployment_attestation(
+            attestation,
+            observed_at_utc="2026-08-22T12:00:00Z",
+            current_job=_job(generation=8),
+            expected_build=build,
+            expected_service_account=SERVICE_ACCOUNT,
+        )
+    tampered = deepcopy(attestation)
+    tampered["no_scheduler_targets_job"] = False
+    with pytest.raises(
+        transport.CorpusParametricTransportError, match="self-hash"
+    ):
+        transport.validate_deployment_attestation(
+            tampered,
+            observed_at_utc="2026-08-22T12:00:00Z",
+            current_job=_job(),
+            expected_build=build,
+            expected_service_account=SERVICE_ACCOUNT,
+        )
+
+
+def test_attested_configure_and_launch_need_only_current_job_and_executions() -> None:
+    (
+        store, manifest, manifest_identity, evidence_identity,
+        prerequisite_identity, foundation_publication_identity,
+    ) = _configuration_fixture()
+    attestation = _deployment_attestation(manifest)
+    configured = transport.configure_transport(
+        storage=store,
+        batch_manifest_identity=manifest_identity,
+        evidence_contract_identity=evidence_identity,
+        retrieval_prerequisite_identity=prerequisite_identity,
+        foundation_publication_identity=foundation_publication_identity,
+        runtime_iam_evidence_raw=b"",
+        build_metadata=_build_metadata(),
+        build_id=BUILD_ID,
+        code_sha=CODE_SHA,
+        image=IMAGE,
+        service_account=SERVICE_ACCOUNT,
+        parked_job=_job(),
+        expected_job_name=JOB_NAME,
+        expected_job_uid=JOB_UID,
+        executions=[],
+        schedulers=None,
+        all_regions_complete=False,
+        created_at_utc=NOW,
+        execute=True,
+        environ=ENABLED,
+        deployment_attestation=attestation,
+        observed_at_utc="2026-08-22T12:00:00Z",
+    )
+    ready = transport.consume_phase_launch(
+        storage=store,
+        contract_identity=configured["transport_contract"],
+        task_index=0,
+        phase="producer",
+        parked_job=_job(),
+        executions=[],
+        schedulers=None,
+        all_regions_complete=False,
+        created_at_utc=NOW,
+        execute=True,
+        environ=ENABLED,
+        deployment_attestation=attestation,
+        observed_at_utc="2026-08-22T12:01:00Z",
+    )
+    assert ready["launch_permitted"] is True
+    assert ready["automatic_retry_licensed"] is False
 
 def test_runtime_iam_v2_rejects_self_attestation_and_policy_escalations() -> None:
     store, manifest, _, configured = _configured()
@@ -2703,3 +2825,9 @@ def test_shell_keeps_configure_launch_recover_watch_and_finish_separate() -> Non
         "gcloud run jobs update"
     )
     assert "--region \"$REGION\" --quiet >/dev/null || true" not in source
+    assert "configure-attested" in source
+    assert "create-deployment-attestation" in source
+    hot_path = source[source.index("launch_mode()") : source.index("finish_batch_mode()")]
+    assert "capture_all_region_schedulers" not in hot_path
+    assert "--deployment-attestation-file" in source
+    assert "--observed-at-utc" in source
