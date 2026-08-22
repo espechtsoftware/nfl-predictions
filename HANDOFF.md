@@ -20,14 +20,16 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-22 09:28 CDT
+## Current state — 2026-08-22 10:00 CDT
 
-### Repaired v4 image is accepted; foundation verification is active
+### V4 foundation is accepted; exact score execution is running
 
-- Branch `main` is pushed through `c60b7e7992b5c6367edb14a17c6edd13a30539f2`.
-  The exact clean execution worktree is `/tmp/nfl-predictions-corpus-c60b7e7`
-  and its Python 3.11 environment is `/tmp/nfl-corpus-py311/bin/python`. Do not
-  bind the v4 worker to later local source changes.
+- Branch `main` integrates the no-IAM-census deployment-attestation series
+  through `0409c8c`. The active v4 science execution remains bound to the exact
+  earlier pushed source `c60b7e7992b5c6367edb14a17c6edd13a30539f2`, clean
+  worktree `/tmp/nfl-predictions-corpus-c60b7e7`, and Python 3.11 environment
+  `/tmp/nfl-corpus-py311/bin/python`. Do not mix later operator code into this
+  already-launched c60 worker/contract.
 - Canonical Cloud Build `485ecb3f-ef3e-4bf4-81b7-408adae96362` succeeded from
   that exact pushed SHA. All mandatory focused tests, source-resolution smoke,
   full effective-policy inventory regeneration, image smoke, and Neo4j/UI
@@ -44,14 +46,18 @@ agent or developer:
   `06159b2a2c08bd54042ea48d1d3d59cb85662639e7e44efd77cb6972b7bf7229`;
   Python 3.11 validation and dry-run both passed with one task, seven arms, 18
   planned create-once objects and zero dry-run writes.
-- Exactly one non-TTY v4 foundation execution is active locally. It is
-  reopening and byte-verifying all 270 exact-generation Atlas money-world
-  artifacts before it publishes the fresh v4 foundation/batch governance
-  objects. This is not a simulation or score execution. The v4 prefixes were
-  proven empty before launch. Two earlier local invocations stopped before any
-  storage write: one used the wrong enable-variable name and one exposed a TTY-
-  sensitive CBC probe mismatch. Do not start another foundation invocation
-  while the active process exists.
+- The one non-TTY v4 foundation execution completed successfully. It reopened
+  and byte-verified all 270 exact-generation Atlas money-world artifacts
+  (54 slates, five blocks, 6,630,513,953 retained bytes), regenerated the full
+  effective-policy inventory under the repaired image, and published one smoke
+  task with seven parameter arms. Its publication completion is
+  `gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/foundations/20260822-corpus-parametric-task0-smoke-foundation-v4/governance/publication-completion.json`,
+  generation `1787409646860065`, SHA-256
+  `afccf08cdc0e643fc9363c9d012b7fb9f876728f8af19aaf04ff3218d73a37e3`,
+  7,570 bytes. The canonical local result is tracked beside the preplan. Two
+  earlier local invocations stopped before any storage write: one used the
+  wrong enable-variable name and one exposed a TTY-sensitive CBC probe
+  mismatch. Never execute this foundation again.
 - The two narrow corpus-parametric runtime IAM conditions were atomically moved
   from v3 to the v4 foundation and batch prefixes; every other bucket binding
   was preserved. The resulting complete self-hashed capture is tracked at
@@ -60,6 +66,22 @@ agent or developer:
   embedded capture SHA-256
   `9cfa4b86726591f3f915e4ecf8882ccb70cb8cb135c2ec413581dc76d2d57c32`).
   This is the final v4 IAM census; do not repeat it per task or phase.
+- Exact c60 configuration succeeded in `transport-live-v4`. Transport contract
+  generation `1787410071435177`, SHA-256
+  `269f7ddd18d661adc5cc5458e6f08021f71ebfbda0667ea9838a27eecc272f33`,
+  7,383 bytes passed build, retained-IAM, exact-job/execution and all-region
+  Scheduler checks. No new IAM or Cloud Asset call occurred. Outcome-blind
+  validate-only reopened all 19 task inputs for `2023-w01`, invoked no solve,
+  and read no realized outcome. The exact version-aware task prefix was proven
+  empty immediately before launch.
+- Producer launch authority was consumed exactly once. Cloud Run execution
+  `atlas-minimal-c-s2023-w1-v1-l6dll`, UID
+  `64e1275f-ee3f-4efe-a63a-6fc6becfac84`, started at
+  `2026-08-22T14:56:38.322669Z` and is currently running one task with zero
+  successes, failures or retries. `maxRetries=0`; never issue another producer
+  launch. Exact-name recovery is complete and the execution is bound in
+  `tasks/000-producer-bound.json`; poll only that execution and never infer
+  acceptance from Cloud Run status alone.
 
 ### Sparse simulated->200 phenotype evidence is now executed and durable
 
@@ -88,26 +110,35 @@ agent or developer:
   separately governed point-in-time annotations/source-law arms rather than be
   retroactively implied by the accepted Atlas matrices.
 
-### Hot-path governance change is under final correction, not yet integrated
+### Bounded no-IAM-census hot path is integrated for the next suite
 
-- A bounded deployment-attestation implementation exists on commit
-  `deb7e7f4e0bcdccad8984769f8bbcca5aa087345` but is deliberately not yet on
-  `main`. It genuinely removes IAM analysis and all-region Scheduler scans from
-  configure-attested, launch, recovery and watch hot paths while preserving
-  exact job/execution checks and one-shot launch consumption; 39 focused tests
-  passed.
-- Independent review found that its six-hour default expiry could prevent
-  terminalizing a legitimately long-running execution, that TTL/path failure
-  validation occurred too late, and that phase receipts omitted the exact
-  attestation identity. Correct those three issues and revalidate before
-  cherry-picking. Do not trade away recovery, immutable-output, or audit
-  guarantees merely to eliminate the census.
-- Exact next action: wait for the one active v4 foundation verifier. On success,
-  retain its canonical receipt, configure the fresh v4 transport from the
-  already-captured IAM evidence, run outcome-blind validate-only, prove the
-  task prefix remains empty, then consume one producer launch and recover/watch
-  that execution without relaunch. In parallel finish and integrate the
-  corrected deployment attestation for the subsequent multi-scenario suite.
+- The reviewed deployment-attestation series is integrated as commits
+  `1a1cbc8`, `0393e09`, and `0409c8c`. Initial configuration creates one
+  self-hashed bounded proof from the retained immutable IAM capture, exact
+  build/image/service account, current parked job UID/generation/spec, zero
+  retries, no active executions, and a complete Scheduler census. Subsequent
+  configure-attested, launch, bounded recovery and watch perform no IAM or
+  Cloud Asset census; they retain exact current job/execution and one-shot
+  object checks.
+- A phase validly launched before attestation expiry remains recoverable and
+  terminalizable afterward. If a long producer outlives the six-hour default,
+  the later verifier launch can make one bounded renewal from the byte-identical
+  retained IAM capture plus fresh exact job/execution and Scheduler evidence;
+  renewal makes no IAM/Cloud Asset call. Legacy governance-free executions
+  retain their fail-closed fresh-Scheduler fallback. Launch and terminal
+  governance fingerprints are separately durable.
+- Independent final rereview found no blockers. Python 3.11 focused transport
+  validation passed 43 tests, plus shell syntax, bytecode compilation and diff
+  checks. The intentional trust tradeoff is that the no-census hot path cannot
+  detect an out-of-band IAM policy mutation until the bounded proof expires or
+  a new initial configuration is required.
+- Exact next action: poll only execution `atlas-minimal-c-s2023-w1-v1-l6dll`.
+  On terminal success, close producer,
+  launch one independent verifier, bind/watch it, accept task and batch, then
+  report the seven score-arm comparisons from the accepted result. On terminal
+  failure, retain the evidence and do not retry. The following larger suite
+  should use the integrated attested path rather than c60's repeated Scheduler
+  census path.
 
 ## Integrated workstream — 2026-08-22 08:30 CDT
 
