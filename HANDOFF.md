@@ -44,7 +44,35 @@ agent or developer:
   deploy or remove the legacy UI until frontend and focused FastAPI parity
   tests pass.
 
-## Current handoff — 2026-08-22 15:10 CDT (eighth update)
+## Current handoff — 2026-08-22 15:25 CDT (ninth update)
+
+### Families frozen, R6 vehicle built, UI now React, F8 closed
+
+- `0fd9ace`: RB and QB matchup families FROZEN via winner-half smokes
+  (Ekeler/Walker/Tagovailoa all resolved+annotated; winner QB passes the
+  017r qb_depth1 starter gate, codified as a use condition). All three
+  families are analysis-grade.
+- `87313f1`: corpus_batch_retrieval_runner — the R6 vehicle. Verified
+  score reconstruction from pinned draws + retained rosters against
+  every retained candidate/selected hash (F9 law), cross-arm union,
+  matchup lineup scoring with the QB starter gate, and the frozen v2
+  laws under full-union vs matchup-top-200 admission; R4 strictly
+  descriptive. Reality gate: first accepted batch task must verify
+  end-to-end before production use. 3 tests green.
+- `c5cce30`: the Corpus Research Observatory is now a REACT 18 app —
+  server shell byte-compatible (all pinned ids; existing UI tests
+  unchanged), one React root owning every interior via portals; React/
+  ReactDOM/htm vendored with SHA-pinned integrity test; no node/npm in
+  the build; packaging fix so static/vendor ships in images.
+- `b305090`: review F8 closed — governed parent-source requirements in
+  named-scenario assembly; both validated selection shapes accepted.
+- Producer STILL nonterminal at 20:20Z (~5h24m; within the 2-4s/visit
+  envelope; 24h cap far away). Monitors active. Remaining backlog: F7
+  preflight-before-write, F5 named-scenario query/bridge/UI views, F2
+  versioned v2 suite path, phenotype Neo4j adapter, batch acceptance
+  chain on producer completion.
+
+## Prior handoff — 2026-08-22 15:10 CDT (eighth update)
 
 ### Model, winner census, and first paired retrieval test all executed
 
