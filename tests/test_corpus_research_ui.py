@@ -314,3 +314,16 @@ def test_react_shell_serves_pinned_vendor_runtime() -> None:
     app_js = (static / "corpus_research.js").read_text()
     assert "createRoot" in app_js and "createPortal" in app_js
     assert "htm.bind" in app_js
+
+
+def test_named_scenario_panel_is_served_in_the_shell() -> None:
+    client = _client(_UnavailableReader())
+    page = client.get("/corpus-research")
+    assert 'id="named-scenario-panel"' in page.text
+    from pathlib import Path
+    app_js = (
+        Path(__file__).resolve().parents[1]
+        / "src/nfl_dfs/app/static/corpus_research.js"
+    ).read_text()
+    assert "named-scenario-comparison" in app_js
+    assert "NamedScenarios" in app_js

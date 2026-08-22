@@ -941,6 +941,7 @@ def test_registry_read_only_query_receipt_is_bounded_and_non_mutating() -> None:
         "active-pointer-promotion-traversal",
         "lineup-player-team-game-traversal",
         "registry-firewall-census",
+        "named-scenario-comparison",
     ]
     assert all(result["row_count"] == 1 for result in receipt["results"])
     assert all("rows" not in result for result in receipt["results"])

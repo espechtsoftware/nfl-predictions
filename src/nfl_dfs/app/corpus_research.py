@@ -880,6 +880,16 @@ CORPUS_RESEARCH_HTML: Final = """<!doctype html>
         </div>
       </section>
 
+      <section class="panel">
+        <div class="panel-head"><div><p class="eyebrow">Named scenarios</p>
+          <h2>Registered scenario comparisons</h2>
+          <p class="subhead">Accepted named-scenario evidence beside its
+            paired baseline; held-out values are descriptive only.</p></div>
+          <span class="manual-pill">Descriptive evidence</span></div>
+        <div id="named-scenario-panel" class="table-wrap"
+          aria-label="Named scenario comparison table"></div>
+      </section>
+
       <footer>
         <span>Visualization data is a rebuildable Neo4j projection.</span>
         <span>GCS receipts and immutable artifacts remain authoritative.</span>

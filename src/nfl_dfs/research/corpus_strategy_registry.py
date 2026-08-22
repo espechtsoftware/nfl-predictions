@@ -3891,6 +3891,45 @@ RETURN node.kind AS kind, count(node) AS node_count
 ORDER BY kind
 """.strip(),
     ),
+    ReadOnlyRegistryQuery(
+        "named-scenario-comparison",
+        """
+MATCH (definition:CorpusRetrievalEntity)-[declares:CORPUS_RELATION]->
+      (evidence:CorpusRetrievalEntity)-[hasMetric:CORPUS_RELATION]->
+      (metric:CorpusRetrievalEntity)
+MATCH (evidence)-[usesFill:CORPUS_RELATION]->(fill:CorpusRetrievalEntity)
+MATCH (evidence)-[usesRetrieval:CORPUS_RELATION]->
+      (retrieval:CorpusRetrievalEntity)
+WHERE definition.workstream_namespace = $namespace
+  AND definition.run_id = $registry_id
+  AND definition.kind = 'NamedScenarioDefinition'
+  AND evidence.kind = 'AcceptedScenarioExperimentEvidence'
+  AND metric.kind = 'Metric'
+  AND fill.kind = 'FillPreset'
+  AND retrieval.kind = 'RetrievalPreset'
+  AND declares.relationship_type = 'DECLARES_ACCEPTED_SCENARIO_EVIDENCE'
+  AND hasMetric.relationship_type = 'HAS_METRIC'
+  AND usesFill.relationship_type = 'USES_FILL_PRESET'
+  AND usesRetrieval.relationship_type = 'USES_RETRIEVAL_PRESET'
+OPTIONAL MATCH (evidence)-[paired:CORPUS_RELATION]->
+      (baseline:CorpusRetrievalEntity)
+WHERE paired.relationship_type = 'PAIRED_AGAINST_SCENARIO_EVIDENCE'
+  AND baseline.kind = 'AcceptedScenarioExperimentEvidence'
+RETURN definition.logical_id AS definition_id,
+       evidence.logical_id AS evidence_id,
+       evidence.slate_id AS slate_id,
+       fill.logical_id AS fill_preset,
+       retrieval.logical_id AS retrieval_preset,
+       metric.metric_name AS metric_name,
+       metric.analysis_scope AS split,
+       metric.metric_value AS value,
+       hasMetric.properties_json AS metric_law,
+       baseline.logical_id AS paired_baseline,
+       paired.properties_json AS pairing_law
+ORDER BY definition_id, slate_id, fill_preset, retrieval_preset,
+         metric_name, split
+""".strip(),
+    ),
 )
 
 

@@ -70,7 +70,7 @@ def test_exact_registry_queries_materialize_create_once_ui_projection() -> None:
     assert first.receipt["view_names"] == [
         query.name for query in registry.READ_ONLY_QUERIES
     ]
-    assert first.receipt["combined_row_count"] == 6
+    assert first.receipt["combined_row_count"] == 7
     assert first.receipt["maximum_combined_row_count"] == 100_000
     assert first.receipt["source_projection_schema"] == (
         "corpus-strategy-registry-projection/v2"
