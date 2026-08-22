@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 21:50 CDT
+## Current state — 2026-08-21 22:00 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -326,6 +326,34 @@ agent or developer:
   empty. Exact next action: atomically move only the two conditioned source
   bucket bindings from v2 to v3, capture fresh complete IAM evidence, generate
   the v3 plan bound to this image, and configure the parked reuse job.
+  Those actions are now complete. The source bucket policy was atomically
+  compare-and-set from etag `CAU=` to `CAY=`; exactly the create-prefix
+  expression and eleven exact-GET object names changed from v2 to v3, while
+  roles, member, titles/descriptions, and all four unrelated bindings remained
+  byte-equivalent. Fresh fully explored runtime analysis shows the expected
+  six grants and both public-principal searches are exactly empty. The v3 plan
+  has internal SHA
+  `3b53e695d0fb52acf68bb8d99b9dd0b30fbc2b0bc030a7de85f383fa430b8447`
+  and file SHA
+  `10d91328b4bbee846e7e7349b93d5794b264323628ef5c5f83f2ef0d16229e0d`;
+  runtime IAM evidence has internal SHA
+  `a8ccfe676e6267da9c739ca158b446ae396bfab6aca2f5bedc9444c60ed06a30`
+  and file SHA
+  `53ab3b30dd70a19e12456de06c71482b96b9fe8e61ed1b7debdc85da33fcab8f`.
+  Configure succeeded at parked job generation 22/execution count 267. Its
+  transport contract is generation `1787367449607079`, SHA
+  `ae079403907f3c8810084986e89d9257db8592789a8347357672bc31a1a0f774`,
+  bytes `15314`. The one launch was then consumed exactly once; its ledger is
+  generation `1787367518433172`, SHA
+  `4b662220e36682b45781896e76bc6a68d7eb277963eea0e948181a02d004bd5e`,
+  bytes `11412`. Bound execution
+  `atlas-minimal-c-s2023-w1-v1-nvdhw`, UID
+  `f9fbe4ec-70c8-45b3-88c1-9b132fdc5b68`, initially has
+  `Completed=Unknown`; its create-once binding is generation
+  `1787367643404903`, SHA
+  `4a1cf549c271c1b3064815fbf2430289b35bb2dd9621abf4da27c31397f842c7`,
+  bytes `11126`. Never launch v3 again. Exact next action is terminal watch and
+  acceptance, then the already-prepared isolated task-0 seven-arm smoke.
 - The last exact 270-artifact v3 source plan was never published. It was pinned
   to commit `4440c4f`, image `dbf9796c`, internal plan SHA
   `98f2bff2d4c6891c4f5f5aad8ff5978d47c2188847f685131900d9f22cb8020b`,
