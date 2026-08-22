@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Mapping
 import os
+from pathlib import Path
 import sys
 
 from nfl_dfs.research.corpus_neo4j_transport import (
@@ -12,7 +14,11 @@ from nfl_dfs.research.corpus_neo4j_transport import (
     GoogleCloudObjectStore,
     ObjectIdentity,
 )
-from nfl_dfs.research.corpus_retrieval_neo4j import canonical_json_bytes
+from nfl_dfs.research.corpus_retrieval_neo4j import (
+    CorpusRetrievalNeo4jError,
+    canonical_json_bytes,
+    parse_canonical_json_bytes,
+)
 from nfl_dfs.research.corpus_strategy_registry_release import (
     CorpusStrategyRegistryReleaseError,
     publish_strategy_registry_release,
@@ -55,8 +61,35 @@ def _parser() -> argparse.ArgumentParser:
     publish.add_argument("--producer-code-commit", required=True)
     publish.add_argument("--producer-image", required=True)
     publish.add_argument("--producer-build-id", required=True)
+    publish.add_argument(
+        "--named-scenario-definition",
+        action="append",
+        type=Path,
+        default=[],
+        help=(
+            "canonical, self-hashed additive named-scenario manifest; "
+            "repeat for multiple definitions"
+        ),
+    )
     publish.add_argument("--execute", action="store_true")
     return parser
+
+
+def _load_named_definition(path: Path) -> Mapping[str, object]:
+    try:
+        raw = path.read_bytes()
+        parsed = parse_canonical_json_bytes(
+            raw, label=f"named scenario definition {path}"
+        )
+    except (CorpusRetrievalNeo4jError, OSError) as exc:
+        raise CorpusStrategyRegistryReleaseError(
+            f"named scenario definition {path} differs"
+        ) from exc
+    if not isinstance(parsed, Mapping):
+        raise CorpusStrategyRegistryReleaseError(
+            f"named scenario definition {path} must be an object"
+        )
+    return parsed
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -93,6 +126,10 @@ def main(argv: list[str] | None = None) -> int:
                     "producer code/image/build environment differs"
                 )
             storage = GoogleCloudObjectStore(project=args.project)
+            named_definitions = [
+                _load_named_definition(path)
+                for path in args.named_scenario_definition
+            ]
             published = publish_strategy_registry_release(
                 storage=storage,
                 retrieval_terminal_identity=_identity(
@@ -105,6 +142,7 @@ def main(argv: list[str] | None = None) -> int:
                 output_prefix=args.output_prefix,
                 created_at_utc=args.created_at_utc,
                 producer_release=producer_release,
+                named_scenario_definitions=named_definitions,
             )
             result = {
                 "schema_version": "corpus-strategy-registry-release-published/v1",
@@ -120,6 +158,17 @@ def main(argv: list[str] | None = None) -> int:
                 "uses_realized_outcomes": False,
                 "graph_contacted": False,
             }
+            if named_definitions:
+                result.update({
+                    "named_scenario_definition_count": published.publication[
+                        "named_scenario_definition_count"
+                    ],
+                    "accepted_scenario_evidence_count": published.publication[
+                        "accepted_scenario_evidence_count"
+                    ],
+                    "named_heldout_metrics_descriptive_only": True,
+                    "named_ranker_input_authority": False,
+                })
         sys.stdout.buffer.write(canonical_json_bytes(result) + b"\n")
         return 0
     except (
