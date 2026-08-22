@@ -285,3 +285,32 @@ def test_projection_route_returns_only_validated_ready_snapshot() -> None:
         projection["projection_sha256"]
     )
     assert response.headers["cache-control"] == "no-store"
+
+
+def test_react_shell_serves_pinned_vendor_runtime() -> None:
+    from hashlib import sha256
+    from pathlib import Path
+
+    client = _client(_UnavailableReader())
+    page = client.get("/corpus-research")
+    for script in (
+        "/static/vendor/react.production.min.js",
+        "/static/vendor/react-dom.production.min.js",
+        "/static/vendor/htm.min.js",
+        "/static/corpus_research.js",
+    ):
+        assert f'src="{script}"' in page.text
+    static = Path(__file__).resolve().parents[1] / "src/nfl_dfs/app/static"
+    pinned = {
+        "vendor/react.production.min.js":
+            "d949f1c3687aedadcedac85261865f29b17cd273997e7f6b2bfc53b2f9d4c4dd",
+        "vendor/react-dom.production.min.js":
+            "35f4f974f4b2bcd44da73963347f8952e341f83909e4498227d4e26b98f66f0d",
+        "vendor/htm.min.js":
+            "80e39afe20fd61183412eda89efa10532d57945e6364642aceacd50eb2384b4b",
+    }
+    for name, expected in pinned.items():
+        assert sha256((static / name).read_bytes()).hexdigest() == expected
+    app_js = (static / "corpus_research.js").read_text()
+    assert "createRoot" in app_js and "createPortal" in app_js
+    assert "htm.bind" in app_js

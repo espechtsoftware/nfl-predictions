@@ -886,6 +886,9 @@ CORPUS_RESEARCH_HTML: Final = """<!doctype html>
       </footer>
     </section>
   </main>
+  <script src="/static/vendor/react.production.min.js" defer></script>
+  <script src="/static/vendor/react-dom.production.min.js" defer></script>
+  <script src="/static/vendor/htm.min.js" defer></script>
   <script src="/static/corpus_research.js" defer></script>
 </body>
 </html>"""

@@ -58,7 +58,7 @@ sis-download = "nfl_dfs.ops.sis_downloads:main"
 nfl-weekly-data = "nfl_dfs.ops.weekly_vendor_data:main"
 
 [tool.setuptools.package-data]
-"nfl_dfs.app" = ["static/*"]
+"nfl_dfs.app" = ["static/*", "static/vendor/*"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
