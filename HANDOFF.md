@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 20:36 CDT
+## Current state — 2026-08-21 20:47 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -146,13 +146,35 @@ agent or developer:
   re-opened the prior job and confirmed the spec was unchanged. No object,
   query, or execution exists. The wrapper now retains `--clear-network` and
   omits the redundant tags flag; exact behavioral tests remain green 2/2,
-  shell syntax is green, and build-contract tests are green 8/8. Build this
-  one-line compatibility repair and use a fresh `transport-live-v3` directory;
-  do not reuse either partial directory.
-- The exact 270-artifact source plan is frozen locally with internal plan SHA
-  `ff6131f4a35dd74724cf7c701328fef1c74ad00787a2455dae6e8da6ad8a6c02`
-  and object-body SHA
-  `1b8bd6ce2714cf45ba765da3523cd43ef9d980e0e5df8d80de07350307591b0a`.
+  shell syntax is green, and build-contract tests are green 8/8. Final image
+  `dbf9796c` was then used from fresh `transport-live-v3`. Configure updated
+  the reused job from generation 16 to 17 but failed closed before publication
+  because raw Cloud Run v1 emits `metadata.generation` and
+  `status.observedGeneration` as JSON integers while the source identity parser
+  required strings. Automatic rollback restored the exact prior spec at
+  generation 18; execution count remained 266. The source and delivery
+  namespaces remain empty and all three deterministic BigQuery job IDs remain
+  absent. Replaying the real generation-17 parked capture exposed the complete
+  sibling representation issue before another launch: gcloud 579 retains
+  `run.googleapis.com/cloudsql-instances: ""` after clearing Cloud SQL.
+  Commit `b2186b4fc1f8dc84f36db075560c35a6fcee4e7b` now requires positive
+  JSON-integer source generations, permits only that exact empty clear marker,
+  removes the same conflicting network-tags flag and handles the clear marker
+  in the imminent parametric transport, and repairs the same integer parser in
+  Neo4j. Realized/retrieval generation paths were already compatible. Sixteen
+  narrow affected checks, Python/shell syntax, diff checks, and the actual v3
+  parked-job replay are green. Never reuse `transport-live-v3`.
+- The last exact 270-artifact v3 source plan was never published. It was pinned
+  to commit `4440c4f`, image `dbf9796c`, internal plan SHA
+  `98f2bff2d4c6891c4f5f5aad8ff5978d47c2188847f685131900d9f22cb8020b`,
+  and file SHA
+  `f79f8bd830195cfe8860b422f16c3b05e92f8b5edb007fa565ff92132acd658b`.
+  Its live IAM evidence retained internal SHA
+  `b78ad64475b670ca67b9f4400e06e3a1aeabe8aa56842696bd49401b2c3b9480`
+  and file SHA
+  `181343eca954561b8bd51aa692cdbef4ed5c1e429ee10f276a9469c7ada5ec99`.
+  Do not publish those superseded files; regenerate both for the immutable
+  image built from `b2186b4` and use a fresh `transport-live-v4` directory.
   Runtime/project/table/role/bucket IAM bodies and the fully explored six-grant
   source-principal Cloud Asset analysis are captured. A public-principal
   Cloud Asset capture repeatedly hit HTTP 429 even though the published
@@ -177,14 +199,14 @@ agent or developer:
   evidence. No source query, object publication, or Cloud Run mutation has
   occurred.
 - No source query, source publication, parametric solver, realized-outcome
-  read, graph write, Cloud Run job mutation, or new scoring execution occurred
-  during this integration milestone. Exact next action: regenerate the
-  still-unpublished source plan for commit `4440c4f` and immutable digest
-  `dbf9796c`, assemble its self-hashed live IAM evidence, and run configuration
-  from the fresh `transport-live-v3` directory. Inspect and record the
-  configure receipt before consuming the source authority exactly once; then
-  run the isolated task-0 seven-arm real-artifact smoke before the complete
-  serial 54-task suite.
+  read, graph write, or new scoring execution occurred during this milestone.
+  The sole Cloud Run mutation was the failed source configure update described
+  above, and its exact prior spec was automatically restored. Exact next
+  action: push commit `b2186b4`, build its immutable focused expansion image,
+  regenerate the source plan and IAM for that exact digest, and configure from
+  fresh `transport-live-v4`. Inspect and record the configure receipt before
+  consuming the source authority exactly once; then run the isolated task-0
+  seven-arm real-artifact smoke before the complete serial 54-task suite.
 
 ### Accepted task-0 score is on main; corpus research dashboard is mounted
 
