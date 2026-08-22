@@ -40,6 +40,8 @@ SQL_FILES = (
     "017o_rb_week_role_pit.sql",
     "017p_defense_rb_role_concession_pit.sql",
     "017q_team_defense_context_pit.sql",
+    "017r_player_matchup_week_pit.sql",
+    "017s_lineup_matchup_evidence.sql",
 )
 
 VALIDATION_QUERIES: tuple[tuple[str, str], ...] = (
@@ -217,6 +219,54 @@ VALIDATION_QUERIES: tuple[tuple[str, str], ...] = (
         """,
     ),
     (
+        "player-matchup-unique-and-bounded",
+        """
+        SELECT (
+          SELECT COALESCE(SUM(n - 1), 0) FROM (
+            SELECT COUNT(*) AS n
+            FROM `${features}.player_matchup_week_pit`
+            GROUP BY season, week, gsis_id, family
+          )
+        ) + (
+          SELECT COUNT(*) FROM `${features}.player_matchup_week_pit`
+          WHERE matchup_edge_score IS NOT NULL
+            AND (matchup_edge_score < 0 OR matchup_edge_score > 1)
+        ) AS violations
+        """,
+    ),
+    (
+        "player-matchup-easy-law",
+        """
+        SELECT COUNT(*) AS violations
+        FROM `${features}.player_matchup_week_pit`
+        WHERE easy_matchup IS TRUE
+          AND (component_count < 2 OR matchup_edge_score < 0.75)
+        """,
+    ),
+    (
+        "lineup-evidence-key-and-label-consistency",
+        """
+        SELECT (
+          SELECT COALESCE(SUM(n - 1), 0) FROM (
+            SELECT COUNT(*) AS n
+            FROM `${features}.lineup_matchup_evidence`
+            GROUP BY panel_run_id, season, week, cand_ix
+          )
+        ) + (
+          SELECT ABS(
+            (SELECT COUNTIF(actual_gt_200)
+             FROM `${features}.lineup_matchup_evidence`)
+            - (SELECT COUNTIF(actual_score > 200)
+               FROM `${predictions}.replay_candidates`
+               WHERE research_eligible)
+          )
+        ) + (
+          SELECT COUNT(*) FROM `${features}.lineup_matchup_evidence`
+          WHERE matchup_matched_count > skill_player_count
+        ) AS violations
+        """,
+    ),
+    (
         "defense-context-unique-and-support-law",
         """
         SELECT (
@@ -257,7 +307,11 @@ def _execute() -> dict[str, object]:
     checks: list[dict[str, object]] = []
     failures = 0
     for check_id, template in VALIDATION_QUERIES:
-        rendered = template.replace("${features}", bq.settings.features)
+        rendered = (
+            template
+            .replace("${features}", bq.settings.features)
+            .replace("${predictions}", bq.settings.predictions)
+        )
         frame = bq.query_df(rendered)
         violations = int(frame["violations"].iloc[0])
         checks.append({"check": check_id, "violations": violations})
@@ -280,7 +334,13 @@ def _execute() -> dict[str, object]:
         f"FROM `{bq.settings.features}.defense_rb_role_concession_pit` "
         "UNION ALL "
         "SELECT 'team_defense_context_pit', COUNT(*) "
-        f"FROM `{bq.settings.features}.team_defense_context_pit`"
+        f"FROM `{bq.settings.features}.team_defense_context_pit` "
+        "UNION ALL "
+        "SELECT 'player_matchup_week_pit', COUNT(*) "
+        f"FROM `{bq.settings.features}.player_matchup_week_pit` "
+        "UNION ALL "
+        "SELECT 'lineup_matchup_evidence', COUNT(*) "
+        f"FROM `{bq.settings.features}.lineup_matchup_evidence`"
     )
     return {
         "schema_version": "receiver-matchup-p1-build/v1",

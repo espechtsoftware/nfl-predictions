@@ -88,7 +88,7 @@ depth AS (
     gsis_id,
     season,
     week,
-    MIN(depth_team) AS depth_rank_current
+    MIN(SAFE_CAST(depth_team AS INT64)) AS depth_rank_current
   FROM `${raw}.depth_charts`
   WHERE gsis_id IS NOT NULL
     AND formation = 'Offense'
