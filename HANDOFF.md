@@ -50,6 +50,28 @@ agent or developer:
   and the accepted retrieval prerequisite is generation `1787371181409093`,
   1,925 bytes, SHA-256
   `1e2090aaf88085c5fb99ad1b07e480b0d0db5cb0606b5edd464703b3a7f89c85`.
+- The same pinned runtime then published the separate complete-suite
+  foundation without regenerating worlds or launching a solver. Its tracked
+  preplan is
+  `reports/corpus-parametric-runs/20260821-corpus-parametric-production-v1/foundation-live/preplan.json`,
+  raw SHA-256 `228a3ec2cf4a40c026c5ecfb7497fa9e94da9cfea3546904fbc2316ea9f75af4`
+  and embedded self-hash
+  `b64f0eefcf2696c5952c91d4ace561f71c733e9cad2d46a55ff14218f9a11827`.
+  Production publication completion is generation `1787373308822025`, 7,560
+  bytes, SHA-256
+  `32931ed927b20cd817ceeaf57c264e3a71205253d7abb85bc5f643b68f351460`.
+  The 54-task/seven-arm manifest is generation `1787373307985130`, 122,970
+  bytes, SHA-256
+  `16647f90e4232e1778ffe05eafd13b7b0e7881dc8fb1b99236f06ec91c59bb41`;
+  its evidence contract is generation `1787373308489780`, 51,640 bytes,
+  SHA-256 `02e64253cc39fc7eb1ad1248bd3ab5c2a55dba993fe3432c95cbabe5aa62a59d`;
+  and its accepted retrieval prerequisite is generation `1787373303466745`,
+  1,925 bytes, SHA-256
+  `1e2090aaf88085c5fb99ad1b07e480b0d0db5cb0606b5edd464703b3a7f89c85`.
+  The production namespace is disjoint from smoke. Keep smoke IAM unchanged
+  until smoke acceptance; then replace, rather than duplicate, its parametric
+  foundation/batch GET and batch CREATE conditions with these production
+  prefixes before taking fresh effective-access evidence.
 - The parametric runtime now has only the four intended additional conditional
   bindings: source-prefix GET, retrieval-run plus eight exact input-object GET,
   smoke foundation/batch GET, and smoke batch CREATE. The existing raw-bucket
