@@ -128,7 +128,19 @@ def test_expansion_image_retains_runtime_code_source_build_definitions() -> None
         "cloudbuild.corpus-research-expansion.yaml ./"
         in dockerfile
     )
+    assert dockerfile.splitlines().count("ENV PYTHONPATH=/app/src") == 1
     assert build.PARAMETRIC_SMOKE_COMMANDS[0] == (
+        "docker", "run", "--rm", "${_IMAGE}", "python", "-c",
+        "from pathlib import Path; import nfl_dfs; from nfl_dfs.research "
+        "import effective_policy_rule_inventory as i; root = Path('/app'); "
+        "package_root = root / 'src/nfl_dfs'; assert "
+        "Path(nfl_dfs.__file__).resolve() == package_root / '__init__.py'; "
+        "assert Path(i.__file__).resolve() == package_root / "
+        "'research/effective_policy_rule_inventory.py'; "
+        "print(i.generate_effective_policy_rule_inventory(root)"
+        "['inventory_sha256'])",
+    )
+    assert build.PARAMETRIC_SMOKE_COMMANDS[1] == (
         "docker", "run", "--rm", "${_IMAGE}", "python", "-c",
         "from pathlib import Path; from nfl_dfs.research import "
         "corpus_legal_feasibility as c; assert c._CODE_SOURCE_BUILD_PATHS "

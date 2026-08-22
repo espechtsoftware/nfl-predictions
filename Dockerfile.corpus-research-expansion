@@ -18,6 +18,10 @@ COPY scripts ./scripts
 
 RUN pip install --no-cache-dir ".[gcp,app,graph]"
 
+# Runtime source validation hashes /app/src and requires adopted-policy imports
+# to resolve from that same pinned tree, never from the installed wheel copy.
+ENV PYTHONPATH=/app/src
+
 # Every governed Cloud Run execution overrides this command.  Serving the app
 # is a safe default and exposes the read-only corpus research dashboard.
 CMD ["uvicorn", "nfl_dfs.app.main:app", "--host", "0.0.0.0", "--port", "8080"]
