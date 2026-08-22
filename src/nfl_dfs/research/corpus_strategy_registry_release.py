@@ -22,6 +22,7 @@ import re
 from typing import Final
 
 from nfl_dfs.research import corpus_parametric_batch as batch
+from nfl_dfs.research import corpus_retrieval_engine as retrieval
 from nfl_dfs.research import corpus_strategy_registry as registry
 from nfl_dfs.research import lr8_later_period_source as later_source
 from nfl_dfs.research.corpus_neo4j_transport import (
@@ -43,8 +44,14 @@ from nfl_dfs.research.corpus_retrieval_neo4j import (
 PUBLICATION_SCHEMA: Final = (
     "corpus-strategy-registry-release-publication/v1"
 )
+NAMED_PUBLICATION_SCHEMA: Final = (
+    "corpus-strategy-registry-release-publication/v2"
+)
 PUBLICATION_INTENT_SCHEMA: Final = (
     "corpus-strategy-registry-release-intent/v1"
+)
+NAMED_PUBLICATION_INTENT_SCHEMA: Final = (
+    "corpus-strategy-registry-release-intent/v2"
 )
 VARIANT_RESULT_SCHEMA: Final = "corpus-legal-feasibility-variant-result/v2"
 RUNTIME_POLICY_SCHEMA: Final = "corpus-runtime-effective-policy/v1"
@@ -658,7 +665,7 @@ def _publish_json(
 
 def _preset(
     *, kind: str, preset_id: str, parameters: list[dict[str, object]],
-    description: str,
+    description: str, version: int = 1, deprecated: bool = False,
 ) -> dict[str, object]:
     schema, field = (
         (registry.FILL_PRESET_SCHEMA, "fill_preset_sha256")
@@ -669,10 +676,10 @@ def _preset(
         "schema_version": schema,
         "publication_mode": "create_once",
         "preset_id": preset_id,
-        "version": 1,
+        "version": version,
         "parameters": parameters,
         "description": description,
-        "deprecated": False,
+        "deprecated": deprecated,
         "research_only": True,
         "production_policy_authority": False,
     }, field=field)
@@ -898,6 +905,434 @@ def _evidence_binding(
     }, field="evidence_binding_sha256")
 
 
+def accepted_task0_existing_corpus_fill_parameters() -> list[dict[str, object]]:
+    """The neutral fill binding for retrospective task-0 retrieval evidence."""
+    return _typed_parameters({
+        "source-mode": "accepted-task0-existing-corpus-v1",
+    })
+
+
+def accepted_task0_retrieval_preset_parameters(
+    strategy: Mapping[str, object],
+) -> list[dict[str, object]]:
+    """Translate one exact accepted retrieval law into typed preset values."""
+    return _typed_parameters({
+        "entry-budget": strategy["entry_budget"],
+        "method": strategy["method"],
+        "parameters": strategy["parameters"],
+        "selection-inputs": strategy["selection_inputs"],
+        "strategy-id": strategy["strategy_id"],
+        "strategy-sha256": strategy["strategy_sha256"],
+        "tie-law": strategy["tie_law"],
+    })
+
+
+def _validated_named_definitions(
+    values: Sequence[Mapping[str, object]],
+) -> list[dict[str, object]]:
+    retained: list[dict[str, object]] = []
+    for ordinal, raw in enumerate(values):
+        try:
+            retained.append(registry.validate_named_scenario_definition(raw))
+        except registry.CorpusStrategyRegistryError as exc:
+            raise CorpusStrategyRegistryReleaseError(
+                f"named scenario definition[{ordinal}] differs"
+            ) from exc
+    identifiers = [str(row["definition_id"]) for row in retained]
+    if identifiers != sorted(set(identifiers)):
+        raise CorpusStrategyRegistryReleaseError(
+            "named scenario definitions must be sorted and unique"
+        )
+    preset_bodies: dict[tuple[str, str, int], bytes] = {}
+    for definition in retained:
+        for kind, field in (
+            ("fill", "fill_presets"), ("retrieval", "retrieval_presets")
+        ):
+            for row in definition[field]:
+                key = (kind, str(row["preset_id"]), int(row["version"]))
+                raw = canonical_json_bytes(row)
+                prior = preset_bodies.get(key)
+                if prior is not None and prior != raw:
+                    raise CorpusStrategyRegistryReleaseError(
+                        "named preset ID/version has conflicting definitions"
+                    )
+                preset_bodies[key] = raw
+    return retained
+
+
+def _accepted_task0_retrieval_context(
+    *, storage: ExactObjectStore, evidence: AcceptedBatchEvidence,
+) -> dict[str, object]:
+    terminal_identity, terminal = _read_json(
+        storage,
+        evidence.retrieval_terminal_identity,
+        label="named scenario retrieval terminal",
+    )
+    result_identity, task_result = _read_json(
+        storage,
+        terminal.get("result_object"),
+        label="named scenario retrieval task result",
+    )
+    if (
+        terminal_identity != evidence.retrieval_terminal_identity
+        or result_identity != evidence.retrieval_plan.task_result_identity
+        or terminal.get("uses_realized_outcomes") is not False
+        or task_result.get("task_index") != 0
+        or task_result.get("licenses") != {
+            "analytics_authority": True,
+            "corpus_fill_authority": False,
+            "historical_outcome_read_authority": False,
+            "live_money_policy_authority": False,
+            "production_default_change_authority": False,
+        }
+    ):
+        raise CorpusStrategyRegistryReleaseError(
+            "accepted task-0 retrieval source differs"
+        )
+    suite_identity, raw_suite = _read_json(
+        storage,
+        task_result.get("suite_manifest_identity"),
+        label="named scenario retrieval suite",
+    )
+    snapshot_identity, raw_snapshot = _read_json(
+        storage,
+        task_result.get("snapshot_manifest_identity"),
+        label="named scenario retrieval snapshot",
+    )
+    try:
+        suite = retrieval.validate_suite_manifest(raw_suite)
+        snapshot = retrieval.validate_snapshot_manifest(raw_snapshot)
+    except Exception as exc:
+        raise CorpusStrategyRegistryReleaseError(
+            "accepted task-0 retrieval manifests differ"
+        ) from exc
+    if (
+        task_result.get("suite_manifest_sha256")
+        != suite.get("suite_manifest_sha256")
+        or task_result.get("snapshot_manifest_sha256")
+        != snapshot.get("snapshot_manifest_sha256")
+        or suite.get("snapshot_manifest_identity") != snapshot_identity
+        or task_result.get("task_id") != evidence.retrieval_plan.task_id
+    ):
+        raise CorpusStrategyRegistryReleaseError(
+            "accepted task-0 retrieval manifest binding differs"
+        )
+    sidecars = [
+        _mapping(row, label="retrieval sidecar")
+        for row in _sequence(task_result.get("sidecars"), label="retrieval sidecars")
+    ]
+    shared = [
+        _identity(row.get("object_identity"), label="shared lineup score artifact")
+        for row in sidecars if row.get("role") == "unique-lineup-scores"
+    ]
+    if len(shared) != 1:
+        raise CorpusStrategyRegistryReleaseError(
+            "accepted task-0 shared score artifact differs"
+        )
+    strategies: dict[str, dict[str, object]] = {}
+    suite_strategies = [
+        _mapping(row, label="retrieval strategy")
+        for row in _sequence(suite.get("strategies"), label="retrieval strategies")
+    ]
+    results = [
+        _mapping(row, label="retrieval strategy result")
+        for row in _sequence(
+            task_result.get("strategy_results"), label="retrieval strategy results"
+        )
+    ]
+    if len(suite_strategies) != len(results):
+        raise CorpusStrategyRegistryReleaseError(
+            "accepted task-0 retrieval strategy coverage differs"
+        )
+    for ordinal, (raw_strategy, result) in enumerate(
+        zip(suite_strategies, results, strict=True)
+    ):
+        try:
+            strategy = retrieval.validate_retrieval_strategy(
+                raw_strategy,
+                expected_ordinal=ordinal,
+                entry_budget=int(suite["entry_budget"]),
+            )
+        except Exception as exc:
+            raise CorpusStrategyRegistryReleaseError(
+                "accepted task-0 retrieval strategy differs"
+            ) from exc
+        strategy_id = str(strategy["strategy_id"])
+        selection_identity, selection = _read_json(
+            storage,
+            result.get("selection_object"),
+            label=f"accepted selection {strategy_id}",
+        )
+        _self_hash(
+            selection,
+            field="selection_sha256",
+            label=f"accepted selection {strategy_id}",
+        )
+        if (
+            selection.get("schema_version") != retrieval.SELECTION_SCHEMA
+            or selection.get("strategy") != strategy
+            or selection.get("selection_law")
+            != "R0--R3 discovery only; R4 held out"
+            or selection.get("metrics") != result.get("metrics")
+            or result.get("strategy_id") != strategy_id
+            or result.get("strategy_sha256") != strategy["strategy_sha256"]
+        ):
+            raise CorpusStrategyRegistryReleaseError(
+                f"accepted selection {strategy_id} binding differs"
+            )
+        strategies[strategy_id] = {
+            "strategy": strategy,
+            "selection": selection_identity,
+            "selected_scores": _identity(
+                result.get("selected_scores_object"),
+                label=f"accepted selected scores {strategy_id}",
+            ),
+            "metrics": _mapping(result.get("metrics"), label="strategy metrics"),
+        }
+    return {
+        "terminal": terminal_identity,
+        "task_result": result_identity,
+        "suite_manifest": suite_identity,
+        "snapshot_manifest": snapshot_identity,
+        "shared_world_artifacts": sorted(shared, key=_identity_key),
+        "source_execution": _mapping(
+            task_result.get("execution"), label="retrieval source execution"
+        ),
+        "slate_id": str(task_result["task_id"]),
+        "strategies": strategies,
+    }
+
+
+def _publish_named_presets(
+    *,
+    storage: ExactObjectStore,
+    prefix: str,
+    definitions: Sequence[Mapping[str, object]],
+    existing: Mapping[tuple[str, str, int], tuple[dict[str, object], dict[str, object]]],
+) -> dict[tuple[str, str, int], tuple[dict[str, object], dict[str, object]]]:
+    retained = dict(existing)
+    for definition in definitions:
+        for kind, field in (
+            ("fill", "fill_presets"), ("retrieval", "retrieval_presets")
+        ):
+            for row in definition[field]:
+                key = (kind, str(row["preset_id"]), int(row["version"]))
+                body = _preset(
+                    kind=kind,
+                    preset_id=str(row["preset_id"]),
+                    version=int(row["version"]),
+                    parameters=list(row["parameters"]),
+                    description=str(row["description"]),
+                    deprecated=bool(row["deprecated"]),
+                )
+                prior = retained.get(key)
+                if prior is not None:
+                    if prior[1] != body:
+                        raise CorpusStrategyRegistryReleaseError(
+                            "named preset collides with another release preset"
+                        )
+                    continue
+                identity = _publish_json(
+                    storage,
+                    uri=(
+                        f"{prefix}presets/{kind}/{row['preset_id']}/"
+                        f"v{row['version']}.json"
+                    ),
+                    value=body,
+                )
+                retained[key] = (identity, body)
+    return retained
+
+
+def _experiment_publication_order(
+    definitions: Sequence[Mapping[str, object]],
+) -> list[tuple[Mapping[str, object], Mapping[str, object]]]:
+    rows: dict[str, tuple[Mapping[str, object], Mapping[str, object]]] = {}
+    for definition in definitions:
+        for experiment in definition["accepted_experiments"]:
+            experiment_id = str(experiment["experiment_id"])
+            if experiment_id in rows:
+                raise CorpusStrategyRegistryReleaseError(
+                    "accepted experiment IDs repeat across definitions"
+                )
+            rows[experiment_id] = (definition, experiment)
+    visiting: set[str] = set()
+    visited: set[str] = set()
+    ordered: list[tuple[Mapping[str, object], Mapping[str, object]]] = []
+
+    def visit(experiment_id: str) -> None:
+        if experiment_id in visited:
+            return
+        if experiment_id in visiting:
+            raise CorpusStrategyRegistryReleaseError(
+                "accepted experiment pairing contains a cycle"
+            )
+        visiting.add(experiment_id)
+        definition, experiment = rows[experiment_id]
+        baseline = experiment["paired_design"]["baseline_experiment_id"]
+        if baseline is not None:
+            baseline_row = rows.get(str(baseline))
+            if (
+                baseline_row is None
+                or baseline_row[0]["definition_id"] != definition["definition_id"]
+            ):
+                raise CorpusStrategyRegistryReleaseError(
+                    "accepted experiment baseline crosses its definition"
+                )
+            visit(str(baseline))
+        visiting.remove(experiment_id)
+        visited.add(experiment_id)
+        ordered.append((definition, experiment))
+
+    for experiment_id in sorted(rows):
+        visit(experiment_id)
+    return ordered
+
+
+def _publish_named_evidence(
+    *,
+    storage: ExactObjectStore,
+    prefix: str,
+    definitions: Sequence[Mapping[str, object]],
+    definition_identities: Mapping[str, dict[str, object]],
+    presets: Mapping[
+        tuple[str, str, int], tuple[dict[str, object], dict[str, object]]
+    ],
+    context: Mapping[str, object],
+) -> list[dict[str, object]]:
+    published: dict[str, dict[str, object]] = {}
+    identities: list[dict[str, object]] = []
+    strategies = _mapping(context["strategies"], label="accepted strategies")
+    scope_map = {
+        "discovery_r0_r3": "discovery",
+        "heldout_r4": "heldout",
+        "all_r0_r4_descriptive": "all-worlds-descriptive",
+    }
+    for definition, experiment in _experiment_publication_order(definitions):
+        experiment_id = str(experiment["experiment_id"])
+        strategy_id = str(experiment["source_strategy_id"])
+        source = _mapping(
+            strategies.get(strategy_id),
+            label=f"accepted source strategy {strategy_id}",
+        )
+        strategy = _mapping(source["strategy"], label="accepted source strategy")
+        fill_ref = _mapping(experiment["fill_preset"], label="fill preset ref")
+        retrieval_ref = _mapping(
+            experiment["retrieval_preset"], label="retrieval preset ref"
+        )
+        fill_key = ("fill", str(fill_ref["preset_id"]), int(fill_ref["version"]))
+        retrieval_key = (
+            "retrieval",
+            str(retrieval_ref["preset_id"]),
+            int(retrieval_ref["version"]),
+        )
+        fill_identity, fill_body = presets[fill_key]
+        retrieval_identity, retrieval_body = presets[retrieval_key]
+        if (
+            fill_body["parameters"]
+            != accepted_task0_existing_corpus_fill_parameters()
+            or retrieval_body["parameters"]
+            != accepted_task0_retrieval_preset_parameters(strategy)
+        ):
+            raise CorpusStrategyRegistryReleaseError(
+                "named accepted evidence preset/source law differs"
+            )
+        raw_metrics = _mapping(source["metrics"], label="accepted source metrics")
+        metric_rows: list[dict[str, object]] = []
+        for metric in experiment["metrics"]:
+            source_scope = str(metric["source_scope"])
+            source_metric = str(metric["source_metric"])
+            summary = _mapping(
+                raw_metrics.get(source_scope),
+                label=f"accepted source metric scope {source_scope}",
+            )
+            value = summary.get(source_metric)
+            sample_count = summary.get("world_count")
+            if (
+                type(value) not in {int, float}
+                or isinstance(value, bool)
+                or type(sample_count) is not int
+                or sample_count < 1
+            ):
+                raise CorpusStrategyRegistryReleaseError(
+                    "named accepted metric source differs"
+                )
+            metric_rows.append({
+                "metric_id": metric["metric_id"],
+                "name": metric["name"],
+                "value": value,
+                "unit": metric["unit"],
+                "direction": metric["direction"],
+                "scope": scope_map[source_scope],
+                "sample_count": sample_count,
+                "paired_key": "r0-r4-world-id",
+                "source_scope": source_scope,
+                "source_metric": source_metric,
+            })
+        baseline_id = experiment["paired_design"]["baseline_experiment_id"]
+        baseline_identity = (
+            None if baseline_id is None else published[str(baseline_id)]
+        )
+        comparison_axis = str(experiment["paired_design"]["comparison_axis"])
+        evidence_body = _with_hash({
+            "schema_version": registry.ACCEPTED_SCENARIO_EVIDENCE_SCHEMA,
+            "publication_mode": "create_once",
+            "evidence_id": f"accepted-scenario-{experiment_id}",
+            "experiment_id": experiment_id,
+            "definition": definition_identities[str(definition["definition_id"])],
+            "task_index": 0,
+            "slate_id": context["slate_id"],
+            "fill_preset": fill_identity,
+            "retrieval_preset": retrieval_identity,
+            "source_kind": "accepted-task0-retrieval-v1",
+            "source_strategy": strategy,
+            "source_terminal": context["terminal"],
+            "source_task_result": context["task_result"],
+            "source_selection": source["selection"],
+            "source_selected_scores": source["selected_scores"],
+            "source_suite_manifest": context["suite_manifest"],
+            "source_snapshot_manifest": context["snapshot_manifest"],
+            "shared_world_artifacts": context["shared_world_artifacts"],
+            "source_execution": context["source_execution"],
+            "metrics": metric_rows,
+            "paired_design": {
+                "required": baseline_identity is not None,
+                "comparison_axis": comparison_axis,
+                "same_snapshot": comparison_axis == "retrieval",
+                "same_worlds": True,
+                "paired_key": "r0-r4-world-id",
+                "baseline_evidence": baseline_identity,
+            },
+            "heldout_design": {
+                "heldout_split_registered": True,
+                "selection_informed_by_heldout": False,
+                "heldout_metrics_descriptive_only": True,
+                "ranker_input_authority": False,
+                "promotion_authority": False,
+            },
+            "accepted": True,
+            "complete": True,
+            "uses_realized_outcomes": False,
+            "historical_outcome_read_authority": False,
+            "outcome_namespace_read": False,
+            "outcome_columns_read": [],
+            "automatic_promotion": False,
+            "application_config_mutation": False,
+            "production_policy_authority": False,
+        }, field="accepted_scenario_evidence_sha256")
+        identity = _publish_json(
+            storage,
+            uri=(
+                f"{prefix}named-scenarios/{definition['definition_id']}/"
+                f"{experiment_id}/evidence.json"
+            ),
+            value=evidence_body,
+        )
+        published[experiment_id] = identity
+        identities.append(identity)
+    return sorted(identities, key=_identity_key)
+
+
 def _publish_validated_strategy_registry_release(
     *,
     storage: ExactObjectStore,
@@ -906,6 +1341,7 @@ def _publish_validated_strategy_registry_release(
     output_prefix: str,
     created_at_utc: str,
     producer_release: Mapping[str, object],
+    named_scenario_definitions: Sequence[Mapping[str, object]] = (),
 ) -> PublishedStrategyRegistryRelease:
     """Publish the bounded release and its transitive create-once receipt."""
     prefix = _prefix(output_prefix)
@@ -916,6 +1352,9 @@ def _publish_validated_strategy_registry_release(
     )
     retained_producer_release = _release_binding(
         producer_release, label="registry producer release"
+    )
+    named_definitions = _validated_named_definitions(
+        named_scenario_definitions
     )
     if (
         len(evidence.tasks) != TASK_COUNT
@@ -933,8 +1372,33 @@ def _publish_validated_strategy_registry_release(
         raise CorpusStrategyRegistryReleaseError(
             "registry output must use a bucket dedicated away from all inputs"
         )
+    named_context = (
+        _accepted_task0_retrieval_context(storage=storage, evidence=evidence)
+        if any(row["accepted_experiments"] for row in named_definitions)
+        else None
+    )
+    definition_identities = [
+        _publish_json(
+            storage,
+            uri=f"{prefix}definitions/{row['definition_id']}.json",
+            value=row,
+        )
+        for row in named_definitions
+    ]
+    definition_identity_by_id = {
+        str(row["definition_id"]): identity
+        for row, identity in zip(
+            named_definitions, definition_identities, strict=True
+        )
+    }
+    named_experiment_count = sum(
+        len(row["accepted_experiments"]) for row in named_definitions
+    )
     intent_body = {
-        "schema_version": PUBLICATION_INTENT_SCHEMA,
+        "schema_version": (
+            NAMED_PUBLICATION_INTENT_SCHEMA
+            if named_definitions else PUBLICATION_INTENT_SCHEMA
+        ),
         "publication_mode": "create_once",
         "registry_id": retained_registry_id,
         "output_prefix": prefix,
@@ -962,6 +1426,16 @@ def _publish_validated_strategy_registry_release(
         "production_policy_authority": False,
         "created_at_utc": timestamp,
     }
+    if named_definitions:
+        intent_body.update({
+            "named_scenario_definitions": sorted(
+                definition_identities, key=_identity_key
+            ),
+            "named_scenario_definition_count": len(named_definitions),
+            "accepted_scenario_evidence_count": named_experiment_count,
+            "named_heldout_metrics_descriptive_only": True,
+            "named_ranker_input_authority": False,
+        })
     intent = _with_hash(
         intent_body, field="publication_intent_sha256"
     )
@@ -1027,6 +1501,61 @@ def _publish_validated_strategy_registry_release(
         uri=f"{prefix}presets/retrieval/retrieval-exact80-line194/v1.json",
         value=retrieval_body,
     )
+    preset_rows: dict[
+        tuple[str, str, int], tuple[dict[str, object], dict[str, object]]
+    ] = {
+        **{
+            ("fill", str(row["parameter_set_id"]), 1): (
+                fill_by_id[str(row["parameter_set_id"])][0],
+                _preset(
+                    kind="fill",
+                    preset_id="fill-" + str(row["parameter_set_id"]),
+                    parameters=fill_by_id[str(row["parameter_set_id"])][1],
+                    description=(
+                        "Accepted request-local legal-feasibility generation "
+                        "arm; research only."
+                    ),
+                ),
+            )
+            for row in parameter_sets
+        },
+        (
+            "retrieval",
+            str(retrieval_body["preset_id"]),
+            int(retrieval_body["version"]),
+        ): (retrieval_identity, retrieval_body),
+    }
+    # The fill map above is keyed by its logical preset ID, not the source
+    # parameter-set ID used by the 54x7 execution loop.
+    preset_rows = {
+        (
+            kind,
+            str(body["preset_id"]),
+            int(body["version"]),
+        ): (identity, body)
+        for (kind, _source_id, _version), (identity, body) in preset_rows.items()
+    }
+    if named_definitions:
+        preset_rows = _publish_named_presets(
+            storage=storage,
+            prefix=prefix,
+            definitions=named_definitions,
+            existing=preset_rows,
+        )
+        fill_identities = [
+            identity
+            for (kind, _preset_id, _version), (identity, _body)
+            in preset_rows.items()
+            if kind == "fill"
+        ]
+        retrieval_identities = [
+            identity
+            for (kind, _preset_id, _version), (identity, _body)
+            in preset_rows.items()
+            if kind == "retrieval"
+        ]
+    else:
+        retrieval_identities = [retrieval_identity]
 
     source_slates = [
         _mapping(row, label="source slate")
@@ -1389,13 +1918,28 @@ def _publish_validated_strategy_registry_release(
             if ordinal == 0:
                 baseline_experiment = experiment_identity
 
+    named_evidence_identities: list[dict[str, object]] = []
+    if named_experiment_count:
+        assert named_context is not None
+        named_evidence_identities = _publish_named_evidence(
+            storage=storage,
+            prefix=prefix,
+            definitions=named_definitions,
+            definition_identities=definition_identity_by_id,
+            presets=preset_rows,
+            context=named_context,
+        )
+
     release_body = {
-        "schema_version": registry.RELEASE_SCHEMA,
+        "schema_version": (
+            registry.NAMED_RELEASE_SCHEMA
+            if named_definitions else registry.RELEASE_SCHEMA
+        ),
         "publication_mode": "create_once",
         "registry_id": retained_registry_id,
         "output_prefix": prefix,
         "fill_presets": sorted(fill_identities, key=_identity_key),
-        "retrieval_presets": [retrieval_identity],
+        "retrieval_presets": sorted(retrieval_identities, key=_identity_key),
         "corpus_snapshots": sorted(snapshot_identities, key=_identity_key),
         "slate_structures": sorted(structure_identities, key=_identity_key),
         "experiment_runs": sorted(experiment_identities, key=_identity_key),
@@ -1417,6 +1961,13 @@ def _publish_validated_strategy_registry_release(
         "outcome_columns_read": [],
         "created_at_utc": timestamp,
     }
+    if named_definitions:
+        release_body.update({
+            "named_scenario_definitions": sorted(
+                definition_identities, key=_identity_key
+            ),
+            "accepted_scenario_evidence": named_evidence_identities,
+        })
     release = _with_hash(release_body, field="registry_release_sha256")
     release_identity = ObjectIdentity(**_publish_json(
         storage, uri=f"{prefix}release.json", value=release
@@ -1442,7 +1993,9 @@ def _publish_validated_strategy_registry_release(
         for row in prepared.plan.relationships
     )
     publication_body = {
-        "schema_version": PUBLICATION_SCHEMA,
+        "schema_version": (
+            NAMED_PUBLICATION_SCHEMA if named_definitions else PUBLICATION_SCHEMA
+        ),
         "publication_mode": "create_once",
         "publication_intent": intent_identity,
         "registry_release": release_identity.as_dict(),
@@ -1457,8 +2010,8 @@ def _publish_validated_strategy_registry_release(
         "registry_node_count": len(registry_nodes),
         "registry_relationship_count": registry_relationship_count,
         "task_count": TASK_COUNT,
-        "fill_preset_count": ARM_COUNT,
-        "retrieval_preset_count": 1,
+        "fill_preset_count": len(fill_identities),
+        "retrieval_preset_count": len(retrieval_identities),
         "experiment_count": MATRIX_CELL_COUNT,
         "metric_set_count": MATRIX_CELL_COUNT,
         "lineup_sample_per_arm": LINEUP_SAMPLE_PER_ARM,
@@ -1483,6 +2036,18 @@ def _publish_validated_strategy_registry_release(
         "production_policy_authority": False,
         "created_at_utc": timestamp,
     }
+    if named_definitions:
+        publication_body.update({
+            "named_scenario_definitions": sorted(
+                definition_identities, key=_identity_key
+            ),
+            "named_scenario_definition_count": len(named_definitions),
+            "accepted_scenario_evidence_count": len(
+                named_evidence_identities
+            ),
+            "named_heldout_metrics_descriptive_only": True,
+            "named_ranker_input_authority": False,
+        })
     publication = _with_hash(
         publication_body, field="publication_receipt_sha256"
     )
@@ -1508,6 +2073,7 @@ def publish_strategy_registry_release(
     output_prefix: str,
     created_at_utc: str,
     producer_release: Mapping[str, object],
+    named_scenario_definitions: Sequence[Mapping[str, object]] = (),
 ) -> PublishedStrategyRegistryRelease:
     """Reopen exact accepted identities, then publish the derived release.
 
@@ -1528,6 +2094,7 @@ def publish_strategy_registry_release(
         output_prefix=output_prefix,
         created_at_utc=created_at_utc,
         producer_release=producer_release,
+        named_scenario_definitions=named_scenario_definitions,
     )
 
 
@@ -1539,10 +2106,14 @@ __all__ = [
     "CorpusStrategyRegistryReleaseError",
     "LINEUP_SAMPLE_PER_ARM",
     "MATRIX_CELL_COUNT",
+    "NAMED_PUBLICATION_INTENT_SCHEMA",
+    "NAMED_PUBLICATION_SCHEMA",
     "PUBLICATION_INTENT_SCHEMA",
     "PUBLICATION_SCHEMA",
     "PublishedStrategyRegistryRelease",
     "TASK_COUNT",
+    "accepted_task0_existing_corpus_fill_parameters",
+    "accepted_task0_retrieval_preset_parameters",
     "publish_strategy_registry_release",
     "reopen_accepted_batch_evidence",
 ]
