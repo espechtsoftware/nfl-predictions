@@ -12,6 +12,9 @@ from typing import Any
 import pytest
 
 from nfl_dfs.research import corpus_expansion_build as expansion_build
+import hashlib
+
+from nfl_dfs.research import corpus_neo4j_extensions as extensions
 from nfl_dfs.research import corpus_neo4j_transport as transport
 from nfl_dfs.research import corpus_retrieval_neo4j as projection
 from scripts import run_corpus_neo4j_transport as run_cli
@@ -1304,3 +1307,102 @@ def test_reuse_wrapper_has_no_job_creation_or_deployment_command() -> None:
     assert "recover-strategy-registry-receipt" in source
     assert "query-strategy-registry" in source
     assert "capture_all_region_schedulers" in source
+
+
+def _v2_deployment_manifest() -> dict[str, object]:
+    body = {
+        "schema_version": transport.DEPLOYMENT_SCHEMA,
+        "publication_mode": "create_once",
+        "deployment_id": "corpus-graph-fixture-v2",
+        "provider": "fixture-provider",
+        "provider_resource_id": "fixture-resource",
+        "endpoint_host_sha256": "a" * 64,
+        "database": "corpusresearch",
+        "tls": {"required": True,
+                "accepted_uri_schemes": ["neo4j+s", "bolt+s"]},
+        "server": {"version": "5.20.0", "edition": "enterprise"},
+        "principal_secret_versions": {
+            role: {
+                "username": (
+                    f"projects/fixture-project/secrets/{role}-user/"
+                    f"versions/{ordinal * 2 + 1}"
+                ),
+                "password": (
+                    f"projects/fixture-project/secrets/{role}-pass/"
+                    f"versions/{ordinal * 2 + 2}"
+                ),
+            }
+            for ordinal, role in enumerate(
+                ("bootstrap", "writer", "reader")
+            )
+        },
+        "allowed_schema": {
+            "node_labels": ["CorpusRetrievalEntity"],
+            "relationship_types": ["CORPUS_RELATION"],
+            "workstream_namespaces": [
+                extensions.PARAMETRIC_NAMESPACE,
+                extensions.RETRIEVAL_NAMESPACE,
+                transport.STRATEGY_REGISTRY_NAMESPACE,
+            ],
+            "reserved_empty_namespaces": [
+                extensions.POPULATION_NAMESPACE,
+                transport.REALIZED_OUTCOME_NAMESPACE,
+            ],
+        },
+        "initial_empty_census": {
+            "node_count": 0,
+            "relationship_count": 0,
+            "node_labels": [],
+            "relationship_types": [],
+            "workstream_namespaces": [],
+        },
+        "dedicated_physical_instance_required": True,
+        "shared_application_database_forbidden": True,
+        "world_matrices_stored_in_graph": False,
+        "raw_outcomes_stored_in_graph": False,
+        "created_at_utc": "2026-08-22T00:00:00Z",
+    }
+    return transport._with_self_hash(
+        body, field="deployment_manifest_sha256"
+    )
+
+
+def test_population_successor_content_binds_its_predecessor() -> None:
+    base = _v2_deployment_manifest()
+    raw = transport.canonical_json_bytes(base)
+    good_identity = {
+        "uri": "gs://graph/governance/deployment-manifest.json",
+        "generation": "77",
+        "sha256": hashlib.sha256(raw).hexdigest(),
+        "bytes": len(raw),
+    }
+    successor = transport.build_population_authorized_deployment_manifest(
+        base_deployment_manifest=base,
+        base_deployment_identity=good_identity,
+        authorization_id="population-authorization-v1",
+        created_at_utc="2026-08-22T01:00:00Z",
+    )
+    assert successor["schema_version"] == (
+        transport.POPULATION_DEPLOYMENT_SCHEMA
+    )
+    assert successor["authorized_added_namespaces"] == [
+        extensions.POPULATION_NAMESPACE
+    ]
+    validated = transport.validate_deployment_manifest(successor)
+    assert validated["supersedes_deployment_manifest"] == good_identity
+    assert validated["allowed_schema"]["reserved_empty_namespaces"] == [
+        transport.REALIZED_OUTCOME_NAMESPACE
+    ]
+
+    mismatched = dict(good_identity)
+    mismatched["sha256"] = "b" * 64
+    with pytest.raises(
+        transport.CorpusNeo4jTransportError,
+        match="does not bind the supplied manifest",
+    ):
+        transport.build_population_authorized_deployment_manifest(
+            base_deployment_manifest=base,
+            base_deployment_identity=mismatched,
+            authorization_id="population-authorization-v1",
+            created_at_utc="2026-08-22T01:00:00Z",
+        )

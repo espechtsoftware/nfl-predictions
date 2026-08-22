@@ -789,6 +789,17 @@ def build_population_authorized_deployment_manifest(
     base_identity = object_identity(
         base_deployment_identity, label="base deployment manifest identity"
     )
+    # Content-bind the claimed predecessor identity to the supplied base
+    # manifest: a valid-but-mismatched identity must fail closed rather
+    # than be copied into the successor as provenance (review F12).
+    base_raw = canonical_json_bytes(base)
+    if (
+        sha256(base_raw).hexdigest() != base_identity.sha256
+        or len(base_raw) != base_identity.bytes
+    ):
+        raise CorpusNeo4jTransportError(
+            "base deployment identity does not bind the supplied manifest"
+        )
     body = {
         key: value
         for key, value in base.items()
