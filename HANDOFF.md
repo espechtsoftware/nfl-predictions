@@ -20,6 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-22 13:35 CDT
+
+### Matchup plan ADOPTED and fast-tracked; P0 support census executed GREEN
+
+- The receiver/defender matchup plan (addendum below) is adopted as the
+  Foundry's paid-data annotation workstream:
+  `reports/2026-08-22-matchup-plan-fasttrack-decision.md`. Its P0
+  outcome-blind support census was executed today (identity/eligibility
+  counts only): SIS defender-grain 15,477 rows / 376 defenders / 72
+  season-weeks 2022-2025; strict-prior defense/alignment 3,324 rows / 56
+  target-weeks; PFR nearest-defender 62,345 rows back to 2018;
+  FantasyPoints alignment-L4 16,482 rows / 56 target-weeks; route share
+  27,305 rows / 72 weeks; three season-grain FP priors. **Verdict: GREEN
+  for the entire 54-slate panel (seasons 2023-2025) including season
+  boundaries** — the plan's §5 support laws can freeze as written.
+- Generalized per operator request: the v2 annotation contract will be
+  metric-family extensible (same generation-pinned pattern for any paid
+  metric family; receiver-matchup is family one).
+- Priority interleave recorded in the decision report: live chain first;
+  parametric-snapshot reader + equivalence comparator second; matchup
+  P0->P3 as the parallel data workstream (winner reconciliation shared
+  with roadmap P0.2); analyses/challengers only after the batch and a
+  frozen annotation layer.
+- v4 producer `atlas-minimal-c-s2023-w1-v1-l6dll` remains nonterminal and
+  untouched (last poll 17:23Z); monitors active.
+
 ## Current handoff addendum — 2026-08-22 receiver/defender matchup plan
 
 ### Implementation-ready coverage intelligence plan completed; runtime untouched
