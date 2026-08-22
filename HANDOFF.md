@@ -20,7 +20,42 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-22 12:55 CDT
+## Current handoff addendum — 2026-08-22 receiver/defender matchup plan
+
+### Implementation-ready coverage intelligence plan completed; runtime untouched
+
+- On `main` at documentation base
+  `10666425d18fd2c835f6d207178bb15dd6987ac7`, added
+  `reports/2026-08-22-receiver-defender-matchup-intelligence-implementation-plan.md`.
+  This is documentation only: no source code, BigQuery/Neo4j/GCS object,
+  Foundry task, Cloud Run job, deployment, score matrix, or money policy was
+  changed.
+- The audit records the current evidence boundary: winner studies are deep on
+  construction/ownership/world placement and the accepted `>200` phenotype is
+  deep on topology/origin/event recurrence, but neither currently joins a
+  computed coverage matchup. Accepted task 0 has zero populated easy-coverage
+  annotations.
+- Existing inputs are more extensive than a one-team feasibility sample: the
+  retained SIS receiver-copula acquisition contains 15,477 defender-game rows,
+  376 defenders, all 32 teams, and 2022--2025 Wide/Slot denominators, with
+  3,324 strictly-prior defense/alignment context rows. It identifies defender
+  quality/workload but not the exact receiver each defender covered, so the
+  plan prohibits factual WR--CB assignment edges until a direct source exists.
+- The plan specifies point-in-time WR1/WR2/WR3+/TE1 roles, defense concessions
+  to those pre-game roles, defender/alignment/shell context, a versioned
+  `easy_coverage_v1`, lineup aggregation, matched winner controls, separate
+  simulated and realized tail analyses, a strict annotation-v2 contract,
+  Neo4j/UI projections, one bounded fill/retrieval A/B/C/D challenger, tests,
+  gates, and Week-1 prospective operation. It explicitly does not retry the
+  closed Fantasy Points twelve-candidate arm or the closed SIS copula protocol.
+- Validation is documentation-scoped: the report exists with 1,147 lines and
+  `git diff --check` passes. No tests or cloud commands were required.
+- Exact next action for the implementing model: execute P0 only—build the
+  outcome-blind source/support census and strict v2 annotation contract, then
+  freeze the role/easy-coverage definitions before reading any matchup effect.
+  Do not begin with Neo4j, UI, optimizer weights, or a historical score read.
+
+## Prior current handoff — 2026-08-22 12:55 CDT
 
 ### v5 foundation CREATED (54 tasks); review findings triaged and first fixes landed
 
