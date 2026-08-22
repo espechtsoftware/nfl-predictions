@@ -20,7 +20,58 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-22 07:34 CDT
+## Current state — 2026-08-22 07:50 CDT
+
+### Task-0 v2 worker failed before solving; runtime-provenance repair is focused-green
+
+- Branch `main` contains the focused repair commit
+  `9c32f8b534891ba0e9e1aeb8ce2d6ece50a71b10` on top of pushed commit
+  `f74d672a8164012b0e881fa936161ea559208d00`. The v2 producer execution
+  `atlas-minimal-c-s2023-w1-v1-24bkl`, UID
+  `871b20d0-5cdb-4c2c-8f3e-ab0d696fb460`, is terminal failed with
+  `Completed=False`, `NonZeroExitCode`, exit code 2, one failed attempt and
+  `maxRetries=0`. Its single launch authority is consumed. Never launch,
+  watch, close, or retry this execution again; retain the v2 namespace as
+  durable failed evidence.
+- Exact object census under the v2 task prefix contains only the producer
+  launch intent, launch ledger, and execution-name binding. There are zero
+  solver shards, authority objects, runtime-policy receipts, variant results,
+  worker completion objects, or other partial science outputs. The worker
+  passed contract reopening, build/runtime binding, retrieval reopening,
+  execution-name binding, task-request binding, and all exact science-input
+  reads, then failed about seven seconds after entering the authoritative
+  producer. Cloud Logging retained only the transport's former generic
+  `authoritative producer failed` wrapper.
+- The immutable image omitted the build definitions required by its runtime
+  code-source check. The repair closes the whole provenance mismatch: producer
+  and independent verifier now bind the actual expansion build inputs
+  `Dockerfile.corpus-research-expansion` and
+  `cloudbuild.corpus-research-expansion.yaml`; the expansion image copies both;
+  and its mandatory image smoke invokes the production regular-file hashing
+  seam for both paths. Controlled `CorpusLegalFeasibilityError` detail is now
+  retained in the worker's outer error while arbitrary exception text remains
+  hidden and the chained cause is preserved.
+- The read-only `validate-only` path successfully loaded all exact v2 inputs
+  without solving, then exposed a success-receipt bug: it referenced nonexistent
+  `loaded.task`. It now reports the validated slate and source-authority task
+  SHA through `loaded.source`. No local simulation, cloud relaunch, GCS write,
+  matrix regeneration, or broad test suite occurred during diagnosis/repair.
+- Focused validation passed:
+  `.venv/bin/python -m pytest -q tests/test_corpus_expansion_build.py
+  tests/test_corpus_parametric_transport.py
+  tests/test_prepare_corpus_parametric_batch_v1.py
+  tests/test_corpus_legal_feasibility.py
+  tests/test_corpus_legal_feasibility_verifier.py` (96 passed), plus
+  `git diff --check`.
+- Exact next action: push the repair/handoff, submit one canonical focused
+  expansion build from the final pushed commit, then create fresh v3
+  foundation, batch, IAM, and transport namespaces. Reuse the accepted
+  retrieval task-0 result, source-v3 publication, and all 270 immutable matrix
+  identities; do not regenerate matrices. Run `validate-only` against the
+  exact v3 contract before consuming its single producer launch, then launch
+  the v3 task-0 seven-arm smoke exactly once.
+
+## Prior state — 2026-08-22 07:34 CDT
 
 ### Task-0 smoke preflight mismatch is fixed locally; no scoring launch was consumed
 
