@@ -3,6 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 from hashlib import sha256
 import importlib.util
+import os
 from pathlib import Path
 from types import SimpleNamespace
 import shlex
@@ -1748,6 +1749,170 @@ def test_attested_configure_and_launch_need_only_current_job_and_executions() ->
     )
     assert ready["launch_permitted"] is True
     assert ready["automatic_retry_licensed"] is False
+    configured_governance = configured["governance_authorization"]
+    assert configured_governance["governance_mode"] == (
+        "bounded-deployment-attestation"
+    )
+    assert configured_governance["deployment_attestation_sha256"] == (
+        attestation["attestation_sha256"]
+    )
+    assert ready["governance_authorization"] == configured_governance | {
+        "governance_observed_at_utc": "2026-08-22T12:01:00Z"
+    }
+
+
+def test_consumed_attestation_can_bind_and_terminalize_after_expiry() -> None:
+    (
+        store, manifest, manifest_identity, evidence_identity,
+        prerequisite_identity, foundation_publication_identity,
+    ) = _configuration_fixture()
+    attestation = _deployment_attestation(manifest)
+    configured = transport.configure_transport(
+        storage=store,
+        batch_manifest_identity=manifest_identity,
+        evidence_contract_identity=evidence_identity,
+        retrieval_prerequisite_identity=prerequisite_identity,
+        foundation_publication_identity=foundation_publication_identity,
+        runtime_iam_evidence_raw=b"",
+        build_metadata=_build_metadata(),
+        build_id=BUILD_ID,
+        code_sha=CODE_SHA,
+        image=IMAGE,
+        service_account=SERVICE_ACCOUNT,
+        parked_job=_job(),
+        expected_job_name=JOB_NAME,
+        expected_job_uid=JOB_UID,
+        executions=[],
+        schedulers=None,
+        all_regions_complete=False,
+        created_at_utc=NOW,
+        execute=True,
+        environ=ENABLED,
+        deployment_attestation=attestation,
+        observed_at_utc="2026-08-22T17:58:00Z",
+    )
+    contract_identity = configured["transport_contract"]
+    _, contract_raw = store.resolve_current(contract_identity["uri"])
+    contract = transport.validate_transport_contract(
+        transport.strict_json_bytes(contract_raw, label="contract")
+    )
+    ready = transport.consume_phase_launch(
+        storage=store,
+        contract_identity=contract_identity,
+        task_index=0,
+        phase="producer",
+        parked_job=_job(),
+        executions=[],
+        schedulers=None,
+        all_regions_complete=False,
+        created_at_utc="2026-08-22T17:59:00Z",
+        execute=True,
+        environ=ENABLED,
+        deployment_attestation=attestation,
+        observed_at_utc="2026-08-22T17:59:00Z",
+    )
+    task = contract["tasks"][0]
+    for uri_key in ("producer_launch_intent_uri", "producer_launch_ledger_uri"):
+        _, raw = store.resolve_current(task[uri_key])
+        retained = transport.strict_json_bytes(raw, label=uri_key)
+        assert retained["governance_authorization"] == ready[
+            "governance_authorization"
+        ]
+    running = _execution(
+        contract=contract,
+        contract_identity=contract_identity,
+        task_index=0,
+        phase="producer",
+        execution_id="producer-expiry",
+        execution_uid="producer-expiry-uid",
+        terminal=False,
+    )
+    recovered = transport.recover_phase_execution_name(
+        storage=store,
+        contract_identity=contract_identity,
+        task_index=0,
+        phase="producer",
+        executions=[running],
+        execute=True,
+        environ=ENABLED,
+    )
+    assert recovered["execution_id"] == "producer-expiry"
+    bound = transport.bind_phase_execution(
+        storage=store,
+        contract_identity=contract_identity,
+        task_index=0,
+        phase="producer",
+        execution_metadata=running,
+        parked_job=_job(),
+        executions=[running],
+        schedulers=None,
+        all_regions_complete=False,
+        created_at_utc="2026-08-22T19:00:00Z",
+        execute=True,
+        environ=ENABLED,
+    )
+    assert bound["governance_authorization"] == ready[
+        "governance_authorization"
+    ]
+    _, bound_raw = store.resolve_current(task["producer_execution_name_uri"])
+    assert transport.strict_json_bytes(
+        bound_raw, label="execution-name ledger"
+    )["governance_authorization"] == ready["governance_authorization"]
+    terminal = _execution(
+        contract=contract,
+        contract_identity=contract_identity,
+        task_index=0,
+        phase="producer",
+        execution_id="producer-expiry",
+        execution_uid="producer-expiry-uid",
+        terminal=True,
+    )
+    terminal_receipt = transport._validate_terminal_governance_census(
+        storage=store,
+        contract=contract,
+        contract_identity=transport.object_identity(
+            contract_identity, label="contract identity"
+        ),
+        task_index=0,
+        phase="producer",
+        terminal=transport._validate_execution_spec(
+            terminal,
+            contract=contract,
+            contract_identity=transport.object_identity(
+                contract_identity, label="contract identity"
+            ),
+            task_index=0,
+            phase="producer",
+            require_terminal_success=True,
+        ),
+        parked_job=_job(),
+        executions=[terminal],
+        schedulers=None,
+        all_regions_complete=False,
+        observed_at_utc="2026-08-22T19:01:00Z",
+    )
+    assert terminal_receipt["governance_authorization"] == ready[
+        "governance_authorization"
+    ]
+
+    with pytest.raises(
+        transport.CorpusParametricTransportError, match="expired"
+    ):
+        transport.consume_phase_launch(
+            storage=store,
+            contract_identity=contract_identity,
+            task_index=0,
+            phase="verifier",
+            parked_job=_job(),
+            executions=[terminal],
+            schedulers=None,
+            all_regions_complete=False,
+            created_at_utc="2026-08-22T19:02:00Z",
+            execute=True,
+            environ=ENABLED,
+            deployment_attestation=attestation,
+            observed_at_utc="2026-08-22T19:02:00Z",
+        )
 
 def test_runtime_iam_v2_rejects_self_attestation_and_policy_escalations() -> None:
     store, manifest, _, configured = _configured()
@@ -2440,6 +2605,15 @@ def test_complete_two_execution_flow_accepts_only_after_independent_verifier() -
     assert closed["terminal_acceptance"] is False
     assert closed["independent_verification_complete"] is False
     task_paths = contract["tasks"][0]
+    producer_close_raw = store.resolve_current(task_paths["producer_close_uri"])[1]
+    producer_close = transport.strict_json_bytes(
+        producer_close_raw, label="producer close"
+    )
+    producer_governance = producer_close["terminal_governance_census"][
+        "governance_authorization"
+    ]
+    assert producer_governance["governance_mode"] == "live-all-region-census"
+    assert producer_governance["governance_observed_at_utc"] == NOW
     assert task_paths["accepted_terminal_uri"] not in store.current
 
     verifier_ready = transport.consume_phase_launch(
@@ -2714,6 +2888,11 @@ def test_complete_two_execution_flow_accepts_only_after_independent_verifier() -
     assert acceptance["complete_evidence_receipt"] is True
     assert acceptance["independent_verification_complete"] is True
     assert acceptance["partial_result"] is False
+    verifier_governance = acceptance["terminal_governance_census"][
+        "governance_authorization"
+    ]
+    assert verifier_governance["governance_mode"] == "live-all-region-census"
+    assert verifier_governance["governance_observed_at_utc"] == NOW
 
     rogue_uri = manifest["output_prefix"] + "rogue-extra.json"
     store.seed(rogue_uri, b"rogue", "999")
@@ -2771,6 +2950,62 @@ def test_partial_or_identity_mismatched_verification_never_accepts() -> None:
             environ=ENABLED,
         )
     assert contract["tasks"][0]["accepted_terminal_uri"] not in store.current
+
+
+def test_bad_attestation_ttl_fails_before_any_cloud_mutation(
+    tmp_path: Path,
+) -> None:
+    marker = tmp_path / "gcloud-called"
+    for name, body in {
+        "gcloud": f"#!/bin/sh\ntouch '{marker}'\nexit 99\n",
+        "jq": "#!/bin/sh\nexit 99\n",
+    }.items():
+        executable = tmp_path / name
+        executable.write_text(body, encoding="utf-8")
+        executable.chmod(0o755)
+    run_dir = tmp_path / "run"
+    env = {
+        **os.environ,
+        "PATH": f"{tmp_path}:/usr/bin:/bin",
+        "CORPUS_PARAMETRIC_RESEARCH_ENABLED": "1",
+        "CORPUS_PARAMETRIC_PYTHON": sys.executable,
+        "CORPUS_PARAMETRIC_RUN_DIR": str(run_dir),
+        "CORPUS_PARAMETRIC_JOB": JOB_NAME,
+        "CORPUS_PARAMETRIC_IMAGE": IMAGE,
+        "CORPUS_PARAMETRIC_BUILD_ID": BUILD_ID,
+        "CORPUS_PARAMETRIC_CODE_SHA": CODE_SHA,
+        "CORPUS_PARAMETRIC_SERVICE_ACCOUNT": SERVICE_ACCOUNT,
+        "CORPUS_PARAMETRIC_EXPECTED_JOB_UID": JOB_UID,
+        "CORPUS_PARAMETRIC_RUNTIME_IAM_FILE": str(tmp_path / "iam.json"),
+        "CORPUS_PARAMETRIC_BUILD_METADATA_FILE": str(
+            run_dir / "build.json"
+        ),
+        "CORPUS_PARAMETRIC_DEPLOYMENT_ATTESTATION_TTL_SECONDS": "86401",
+    }
+    for stem in (
+        "FOUNDATION_PUBLICATION", "MANIFEST", "EVIDENCE_CONTRACT",
+        "RETRIEVAL_PREREQUISITE",
+    ):
+        env[f"CORPUS_PARAMETRIC_{stem}_URI"] = f"gs://fixture/{stem}.json"
+        env[f"CORPUS_PARAMETRIC_{stem}_GENERATION"] = "1"
+        env[f"CORPUS_PARAMETRIC_{stem}_SHA256"] = "a" * 64
+        env[f"CORPUS_PARAMETRIC_{stem}_BYTES"] = "1"
+    completed = subprocess.run(
+        [
+            "bash",
+            str(ROOT / "scripts/cloud_corpus_parametric_v1_reuse.sh"),
+            "--execute",
+            "configure",
+        ],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 2
+    assert "TTL exceeds 86400" in completed.stderr
+    assert not marker.exists()
+    assert not (run_dir / "job-before.json").exists()
 
 
 def test_shell_keeps_configure_launch_recover_watch_and_finish_separate() -> None:
@@ -2831,3 +3066,14 @@ def test_shell_keeps_configure_launch_recover_watch_and_finish_separate() -> Non
     assert "capture_all_region_schedulers" not in hot_path
     assert "--deployment-attestation-file" in source
     assert "--observed-at-utc" in source
+    assert "TTL exceeds 86400 seconds" in source
+    assert "path must be absolute and canonical" in source
+    configure_source = source[
+        source.index("configure_mode()") : source.index("configure_attested_mode()")
+    ]
+    assert configure_source.index(
+        "validate_new_deployment_attestation_settings"
+    ) < configure_source.index('capture_job "$before_json"')
+    assert configure_source.index(
+        "create-deployment-attestation"
+    ) < configure_source.index('"$PYTHON_BIN" "$TRANSPORT_SCRIPT" configure')
