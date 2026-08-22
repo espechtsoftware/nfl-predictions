@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 21:03 CDT
+## Current state — 2026-08-21 21:08 CDT
 
 ### Full research-suite integration and isolated cloud prerequisites are active
 
@@ -179,8 +179,19 @@ agent or developer:
   `corpus-research-expansion-b2186b4-r2`. That replacement succeeded with all
   five focused stages green. Its immutable, provenance-valid image is
   `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:8b4ad7b101a681517b9019c69f4a118f6eca14bc1e05133e5c736c61e899b2a7`;
-  this is the only expansion image to use.
-  Never reuse `transport-live-v3`.
+  this is the current expansion image. Source `transport-live-v5` passed the
+  complete build/job/census validation, updated the job from generation 18 to
+  19, and create-once published the first 5,063-byte delivery object. It then
+  failed while constructing that object's receipt because the live Storage
+  client exposes `Blob.generation` as a JSON integer but the receipt boundary
+  required a string. Automatic rollback restored the exact retrieval spec at
+  generation 20; execution count remains 266. No query or execution ran and no
+  source-output object exists. The intentionally retained partial object is
+  `gs://nfl-predictions-503414-corpus-source/research/delivery/20260821-corpus-artifact-source-authority-v1/input/publication-plan.json`,
+  generation `1787364351113215`, SHA
+  `04627acae3559df3df7f5c447c9a26d3cbd5c602ddcade32fe2f67abd576b3b0`,
+  bytes `5063`; it is byte-identical to the final v1 plan. Do not delete,
+  overwrite, or reuse it. Never reuse transport directories v3--v5.
 - The last exact 270-artifact v3 source plan was never published. It was pinned
   to commit `4440c4f`, image `dbf9796c`, internal plan SHA
   `98f2bff2d4c6891c4f5f5aad8ff5978d47c2188847f685131900d9f22cb8020b`,
@@ -192,8 +203,13 @@ agent or developer:
   `181343eca954561b8bd51aa692cdbef4ed5c1e429ee10f276a9469c7ada5ec99`.
   Do not publish those superseded files. The next plan/IAM pair prepared for
   noncanonical-URL build `98eab401` was also never published; do not use it or
-  `transport-live-v4`. Regenerate both for replacement build `807475d4` and
-  use a fresh `transport-live-v5` directory.
+  `transport-live-v4`. The provenance-valid v1 plan had internal SHA
+  `80b72f02b1f4ac0b03c134adf97cf6eccd8ce8ed3b251d0dd8c4bd1be5193988`
+  and file SHA `04627aca...`; only its first delivery object was published as
+  documented above. Preserve that abandoned partial namespace. Repair and
+  sweep live Storage generation normalization, build one superseding image,
+  and register a clean `20260821-corpus-artifact-source-authority-v2` with
+  disjoint v2 delivery/output prefixes and matching exact IAM conditions.
   Runtime/project/table/role/bucket IAM bodies and the fully explored six-grant
   source-principal Cloud Asset analysis are captured. A public-principal
   Cloud Asset capture repeatedly hit HTTP 429 even though the published
@@ -215,17 +231,18 @@ agent or developer:
   Its builder round-trip and adversarial validation are green 3/3. Build the
   now-integrated release, then regenerate the still-unpublished source plan
   for that final code/image identity and assemble the self-hashed live IAM
-  evidence. No source query, object publication, or Cloud Run mutation has
-  occurred.
-- No source query, source publication, parametric solver, realized-outcome
-  read, graph write, or new scoring execution occurred during this milestone.
-  The sole Cloud Run mutation was the failed source configure update described
-  above, and its exact prior spec was automatically restored. Exact next
-  action: regenerate the source plan and IAM for canonical build `807475d4`
-  and immutable digest `8b4ad7b1`, then configure from fresh
-  `transport-live-v5`. Inspect and record the configure receipt before
-  consuming the source authority exactly once; then run the isolated task-0
-  seven-arm real-artifact smoke before the complete serial 54-task suite.
+  evidence.
+- No source query, source-output publication, parametric solver,
+  realized-outcome read, graph write, or new scoring execution occurred during
+  this milestone. Cloud Run was updated only by failed configure attempts and
+  each exact prior spec was automatically restored. One abandoned delivery
+  plan object exists as documented above. Exact next action: finish the live
+  Storage generation defect-class sweep, commit/push and build its immutable
+  repair, atomically move the source runtime's exact conditions from the
+  abandoned v1 namespace to clean v2 prefixes, then prepare/configure the v2
+  authority. Inspect and record its configure receipt before consuming that
+  source authority exactly once; then run the isolated task-0 seven-arm
+  real-artifact smoke before the complete serial 54-task suite.
 
 ### Accepted task-0 score is on main; corpus research dashboard is mounted
 
