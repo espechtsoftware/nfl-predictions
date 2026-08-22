@@ -221,6 +221,11 @@ def _integer(value: object, *, label: str, minimum: int = 0) -> int:
     return value
 
 
+def _generation(value: object, *, label: str) -> str:
+    """Normalize one positive JSON integer generation for durable receipts."""
+    return str(_integer(value, label=label, minimum=1))
+
+
 def _sha(value: object, *, label: str) -> str:
     retained = _string(value, label=label)
     if _SHA.fullmatch(retained) is None:
@@ -1572,15 +1577,21 @@ def _validate_job_template_boundary(value: Mapping[str, object]) -> None:
     annotations = _mapping(
         metadata.get("annotations"), label="parked job template annotations"
     )
-    _exact_keys(
-        annotations,
-        frozenset({
-            "run.googleapis.com/client-name",
-            "run.googleapis.com/client-version",
-            "run.googleapis.com/execution-environment",
-        }),
-        label="parked job template annotations",
-    )
+    expected_annotations = frozenset({
+        "run.googleapis.com/client-name",
+        "run.googleapis.com/client-version",
+        "run.googleapis.com/execution-environment",
+    })
+    cloudsql_clear = "run.googleapis.com/cloudsql-instances"
+    if not (
+        frozenset(annotations) == expected_annotations | {cloudsql_clear}
+        and annotations.get(cloudsql_clear) == ""
+    ):
+        _exact_keys(
+            annotations,
+            expected_annotations,
+            label="parked job template annotations",
+        )
     labels = _mapping(metadata.get("labels"), label="parked job template labels")
     _exact_keys(
         labels,
@@ -1648,8 +1659,10 @@ def job_identity(value: object, *, label: str = "job") -> dict[str, str]:
     metadata = _mapping(item.get("metadata"), label=f"{label}.metadata")
     status = _mapping(item.get("status"), label=f"{label}.status")
     name = _string(metadata.get("name"), label=f"{label}.name")
-    generation = _string(metadata.get("generation"), label=f"{label}.generation")
-    observed = _string(
+    generation = _generation(
+        metadata.get("generation"), label=f"{label}.generation"
+    )
+    observed = _generation(
         status.get("observedGeneration"), label=f"{label}.observedGeneration"
     )
     conditions = status.get("conditions")

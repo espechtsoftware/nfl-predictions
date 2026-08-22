@@ -1809,6 +1809,45 @@ def test_parked_job_rejects_inherited_secrets_volumes_and_mounts() -> None:
             )
 
 
+def test_parked_job_accepts_only_exact_empty_cloudsql_clear_marker() -> None:
+    build = transport.validate_build_metadata(
+        _build_metadata(), build_id=BUILD_ID, code_sha=CODE_SHA, image=IMAGE
+    )
+    cleared = _job()
+    cleared["spec"]["template"]["metadata"] = {
+        "annotations": {
+            "run.googleapis.com/client-name": "gcloud",
+            "run.googleapis.com/client-version": "579.0.0",
+            "run.googleapis.com/execution-environment": "gen2",
+            "run.googleapis.com/cloudsql-instances": "",
+        }
+    }
+    assert transport.validate_parked_job(
+        cleared,
+        job_name=JOB_NAME,
+        expected_uid=JOB_UID,
+        build=build,
+        service_account=SERVICE_ACCOUNT,
+    )["generation"] == "7"
+
+    for inherited in ("project:region:instance", " ", None, [], {}):
+        poisoned = deepcopy(cleared)
+        poisoned["spec"]["template"]["metadata"]["annotations"][
+            "run.googleapis.com/cloudsql-instances"
+        ] = inherited
+        with pytest.raises(
+            transport.CorpusParametricTransportError,
+            match="inherited Cloud SQL instances are forbidden",
+        ):
+            transport.validate_parked_job(
+                poisoned,
+                job_name=JOB_NAME,
+                expected_uid=JOB_UID,
+                build=build,
+                service_account=SERVICE_ACCOUNT,
+            )
+
+
 def test_retrieval_task0_prerequisite_is_transitively_reopened_and_fail_closed(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -2438,12 +2477,12 @@ def test_shell_keeps_configure_launch_recover_watch_and_finish_separate() -> Non
         "--clear-vpc-connector",
         "--clear-cloudsql-instances",
         "--clear-network",
-        "--clear-network-tags",
         "--startup-probe=\"\"",
         "--workdir=\"\"",
         "status=97",
     ):
         assert fragment in source
+    assert "--clear-network-tags" not in source
     assert "--async" in source
     assert "never relaunch" in source
     assert "set -o noclobber" in source

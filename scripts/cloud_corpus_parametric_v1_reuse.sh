@@ -264,7 +264,7 @@ configure_mode() {
     --cpu 8 --memory 32Gi --service-account "$CORPUS_PARAMETRIC_SERVICE_ACCOUNT" \
     --clear-secrets --clear-volumes --clear-volume-mounts \
     --clear-vpc-connector --clear-cloudsql-instances --clear-network \
-    --clear-network-tags --clear-labels \
+    --clear-labels \
     --startup-probe="" --workdir="" \
     --quiet >/dev/null
   capture_job "$job_after"

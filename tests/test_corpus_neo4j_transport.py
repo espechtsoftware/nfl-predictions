@@ -339,7 +339,7 @@ def _parked_job(
         "metadata": {
             "name": JOB_NAME,
             "uid": JOB_UID,
-            "generation": "7",
+            "generation": 7,
             "resourceVersion": "resource-version-7",
         },
         "spec": {"template": {
@@ -365,7 +365,7 @@ def _parked_job(
             },
         }},
         "status": {
-            "observedGeneration": "7",
+            "observedGeneration": 7,
             "conditions": [{"type": "Ready", "status": "True"}],
         },
     }
@@ -990,6 +990,56 @@ def test_build_and_frozen_job_preflights_reject_missing_authority_surface() -> N
             expected_job_name=JOB_NAME,
             expected_job_uid="different-uid",
             all_regions_complete=True,
+        )
+
+
+def test_job_identity_normalizes_only_positive_json_integer_generations() -> None:
+    job = {
+        "metadata": {
+            "name": JOB_NAME,
+            "uid": JOB_UID,
+            "generation": 7,
+            "resourceVersion": "resource-version-7",
+        },
+        "status": {
+            "observedGeneration": 7,
+            "conditions": [{"type": "Ready", "status": "True"}],
+        },
+        "spec": {},
+    }
+    identity = transport._job_identity(
+        job, expected_name=JOB_NAME, expected_uid=JOB_UID
+    )
+    assert identity["generation"] == "7"
+    assert identity["observed_generation"] == "7"
+
+    for parent, field in (
+        ("metadata", "generation"),
+        ("status", "observedGeneration"),
+    ):
+        for invalid in ("7", 7.0, True, 0, -1, None):
+            poisoned = deepcopy(job)
+            poisoned[parent][field] = invalid
+            with pytest.raises(
+                transport.CorpusNeo4jTransportError,
+                match="must be a positive JSON integer",
+            ):
+                transport._job_identity(
+                    poisoned,
+                    expected_name=JOB_NAME,
+                    expected_uid=JOB_UID,
+                )
+
+    unreconciled = deepcopy(job)
+    unreconciled["status"]["observedGeneration"] = 6
+    with pytest.raises(
+        transport.CorpusNeo4jTransportError,
+        match="externally frozen Ready name/UID",
+    ):
+        transport._job_identity(
+            unreconciled,
+            expected_name=JOB_NAME,
+            expected_uid=JOB_UID,
         )
 
 

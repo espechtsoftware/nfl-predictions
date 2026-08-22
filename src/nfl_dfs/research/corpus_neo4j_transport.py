@@ -210,6 +210,14 @@ def _string(value: object, *, label: str) -> str:
     return value
 
 
+def _cloud_run_generation(value: object, *, label: str) -> str:
+    if type(value) is not int or value < 1:
+        raise CorpusNeo4jTransportError(
+            f"{label} must be a positive JSON integer"
+        )
+    return str(value)
+
+
 def object_identity(value: object, *, label: str) -> ObjectIdentity:
     item = _mapping(value, label=label)
     if set(item) != {"uri", "generation", "sha256", "bytes"}:
@@ -344,8 +352,10 @@ def _job_identity(
     status = _mapping(item.get("status"), label="reused job status")
     name = _string(metadata.get("name"), label="reused job name").rsplit("/", 1)[-1]
     uid = _string(metadata.get("uid"), label="reused job UID")
-    generation = _string(metadata.get("generation"), label="reused job generation")
-    observed = _string(
+    generation = _cloud_run_generation(
+        metadata.get("generation"), label="reused job generation"
+    )
+    observed = _cloud_run_generation(
         status.get("observedGeneration"), label="reused job observed generation"
     )
     conditions = status.get("conditions")
@@ -353,7 +363,6 @@ def _job_identity(
         _JOB.fullmatch(expected_name) is None
         or name != expected_name
         or uid != expected_uid
-        or _GENERATION.fullmatch(generation) is None
         or observed != generation
         or type(conditions) is not list
         or not any(

@@ -239,7 +239,7 @@ def _build_metadata(module: ModuleType, *, include_smokes: bool = True) -> dict[
 
 
 def _job(
-    module: ModuleType, *, generation: str, parked: bool,
+    module: ModuleType, *, generation: int, parked: bool,
 ) -> dict[str, object]:
     container: dict[str, object] = {
         "image": IMAGE if parked else "old-image",
@@ -902,8 +902,8 @@ def _configured(
         code_sha=CODE_SHA,
         image=IMAGE,
         service_account=SERVICE_ACCOUNT,
-        job_before=_job(module, generation="4", parked=False),
-        job_after=_job(module, generation="5", parked=True),
+        job_before=_job(module, generation=4, parked=False),
+        job_after=_job(module, generation=5, parked=True),
         executions_before=baseline,
         executions_after=baseline,
         schedulers_before=[],
@@ -945,6 +945,71 @@ def test_configure_binds_exact_plan_raw_iam_build_job_and_pristine_prefixes(
     assert OUTPUT_PREFIX in storage.inventory_calls
 
 
+def test_job_identity_normalizes_only_positive_json_integer_generations(
+    transport: ModuleType,
+) -> None:
+    job = _job(transport, generation=17, parked=True)
+    assert type(job["metadata"]["generation"]) is int
+    assert type(job["status"]["observedGeneration"]) is int
+    assert transport.job_identity(job)["generation"] == "17"
+    assert transport.job_identity(job)["observed_generation"] == "17"
+
+    for parent, field in (
+        ("metadata", "generation"),
+        ("status", "observedGeneration"),
+    ):
+        for invalid in ("17", 17.0, True, 0, -1, None):
+            poisoned = deepcopy(job)
+            poisoned[parent][field] = invalid
+            with pytest.raises(
+                transport.CorpusArtifactSourceTransportError,
+                match=r"must be an integer >= 1",
+            ):
+                transport.job_identity(poisoned)
+
+    unreconciled = deepcopy(job)
+    unreconciled["status"]["observedGeneration"] = 16
+    with pytest.raises(
+        transport.CorpusArtifactSourceTransportError,
+        match="not reconciled Ready",
+    ):
+        transport.job_identity(unreconciled)
+
+
+def test_parked_job_accepts_only_empty_cloudsql_clear_annotation(
+    transport: ModuleType,
+) -> None:
+    cleared = _job(transport, generation=17, parked=True)
+    annotations = cleared["spec"]["template"]["metadata"]["annotations"]
+    annotations["run.googleapis.com/cloudsql-instances"] = ""
+    transport.validate_parked_job(
+        cleared,
+        expected_job=transport.job_identity(cleared),
+        build={"image": IMAGE, "build_id": BUILD_ID, "code_sha": CODE_SHA},
+        service_account=SERVICE_ACCOUNT,
+    )
+
+    for nonempty in ("project:region:instance", " "):
+        poisoned = deepcopy(cleared)
+        poisoned["spec"]["template"]["metadata"]["annotations"][
+            "run.googleapis.com/cloudsql-instances"
+        ] = nonempty
+        with pytest.raises(
+            transport.CorpusArtifactSourceTransportError,
+            match=r"template annotations.*fields differ",
+        ):
+            transport.validate_parked_job(
+                poisoned,
+                expected_job=transport.job_identity(poisoned),
+                build={
+                    "image": IMAGE,
+                    "build_id": BUILD_ID,
+                    "code_sha": CODE_SHA,
+                },
+                service_account=SERVICE_ACCOUNT,
+            )
+
+
 def test_one_shot_launch_recover_bind_and_full_270_terminal_replay(
     transport: ModuleType,
     monkeypatch: pytest.MonkeyPatch,
@@ -956,7 +1021,7 @@ def test_one_shot_launch_recover_bind_and_full_270_terminal_replay(
     ready = transport.consume_launch(
         storage=storage,
         contract_identity=contract_identity,
-        parked_job=_job(transport, generation="5", parked=True),
+        parked_job=_job(transport, generation=5, parked=True),
         executions=baseline,
         schedulers=[],
         all_regions_complete=True,
@@ -969,7 +1034,7 @@ def test_one_shot_launch_recover_bind_and_full_270_terminal_replay(
     second = transport.consume_launch(
         storage=storage,
         contract_identity=contract_identity,
-        parked_job=_job(transport, generation="5", parked=True),
+        parked_job=_job(transport, generation=5, parked=True),
         executions=baseline,
         schedulers=[],
         all_regions_complete=True,
@@ -991,7 +1056,7 @@ def test_one_shot_launch_recover_bind_and_full_270_terminal_replay(
     recovered = transport.recover_execution_name(
         storage=storage,
         contract_identity=contract_identity,
-        parked_job=_job(transport, generation="5", parked=True),
+        parked_job=_job(transport, generation=5, parked=True),
         executions=active_census,
         schedulers=[],
         all_regions_complete=True,
@@ -1004,7 +1069,7 @@ def test_one_shot_launch_recover_bind_and_full_270_terminal_replay(
         storage=storage,
         contract_identity=contract_identity,
         execution_metadata=active_execution,
-        parked_job=_job(transport, generation="5", parked=True),
+        parked_job=_job(transport, generation=5, parked=True),
         executions=active_census,
         schedulers=[],
         all_regions_complete=True,
@@ -1037,7 +1102,7 @@ def test_one_shot_launch_recover_bind_and_full_270_terminal_replay(
             storage=storage,
             contract_identity=contract_identity,
             terminal_execution_metadata=terminal_execution,
-            parked_job=_job(transport, generation="5", parked=True),
+            parked_job=_job(transport, generation=5, parked=True),
             executions=terminal_census,
             schedulers=[],
             all_regions_complete=True,
@@ -1062,7 +1127,7 @@ def test_one_shot_launch_recover_bind_and_full_270_terminal_replay(
             storage=storage,
             contract_identity=contract_identity,
             terminal_execution_metadata=terminal_execution,
-            parked_job=_job(transport, generation="5", parked=True),
+            parked_job=_job(transport, generation=5, parked=True),
             executions=terminal_census,
             schedulers=[],
             all_regions_complete=True,
@@ -1075,7 +1140,7 @@ def test_one_shot_launch_recover_bind_and_full_270_terminal_replay(
         storage=storage,
         contract_identity=contract_identity,
         terminal_execution_metadata=terminal_execution,
-        parked_job=_job(transport, generation="5", parked=True),
+        parked_job=_job(transport, generation=5, parked=True),
         executions=terminal_census,
         schedulers=[],
         all_regions_complete=True,
@@ -1475,7 +1540,7 @@ def test_missing_build_smoke_and_partial_or_rogue_namespace_fail_closed(
             image=IMAGE,
         )
 
-    attached = _job(transport, generation="5", parked=True)
+    attached = _job(transport, generation=5, parked=True)
     task = attached["spec"]["template"]["spec"]["template"]["spec"]
     task["volumes"] = [{"name": "inherited", "secret": {"secret": "x"}}]
     task["containers"][0]["volumeMounts"] = [{
@@ -1497,7 +1562,7 @@ def test_missing_build_smoke_and_partial_or_rogue_namespace_fail_closed(
         "run.googleapis.com/cloudsql-instances",
         "run.googleapis.com/network-interfaces",
     ):
-        poisoned = _job(transport, generation="5", parked=True)
+        poisoned = _job(transport, generation=5, parked=True)
         poisoned["spec"]["template"]["metadata"]["annotations"][annotation] = (
             "inherited"
         )
@@ -1522,7 +1587,7 @@ def test_missing_build_smoke_and_partial_or_rogue_namespace_fail_closed(
         ("workingDir", "/tmp/inherited"),
         ("ports", [{"containerPort": 8080}]),
     ):
-        poisoned = _job(transport, generation="5", parked=True)
+        poisoned = _job(transport, generation=5, parked=True)
         poisoned["spec"]["template"]["spec"]["template"]["spec"][
             "containers"
         ][0][field] = value
@@ -1541,7 +1606,7 @@ def test_missing_build_smoke_and_partial_or_rogue_namespace_fail_closed(
                 service_account=SERVICE_ACCOUNT,
             )
 
-    networked = _job(transport, generation="5", parked=True)
+    networked = _job(transport, generation=5, parked=True)
     networked["spec"]["template"]["spec"]["template"]["spec"][
         "networkInterfaces"
     ] = [{"network": "default", "tags": ["inherited"]}]
@@ -1572,8 +1637,8 @@ def test_missing_build_smoke_and_partial_or_rogue_namespace_fail_closed(
             code_sha=CODE_SHA,
             image=IMAGE,
             service_account=SERVICE_ACCOUNT,
-            job_before=_job(transport, generation="4", parked=False),
-            job_after=_job(transport, generation="5", parked=True),
+            job_before=_job(transport, generation=4, parked=False),
+            job_after=_job(transport, generation=5, parked=True),
             executions_before=[],
             executions_after=[],
             schedulers_before=[],
@@ -1598,7 +1663,7 @@ def test_missing_build_smoke_and_partial_or_rogue_namespace_fail_closed(
         transport.consume_launch(
             storage=partial_storage,
             contract_identity=partial_configured["transport_contract"],
-            parked_job=_job(transport, generation="5", parked=True),
+            parked_job=_job(transport, generation=5, parked=True),
             executions=baseline,
             schedulers=[],
             all_regions_complete=True,
@@ -1623,7 +1688,7 @@ def test_active_rogue_execution_and_scheduler_target_fail_closed(
         transport.consume_launch(
             storage=storage,
             contract_identity=contract_identity,
-            parked_job=_job(transport, generation="5", parked=True),
+            parked_job=_job(transport, generation=5, parked=True),
             executions=[_census_row(f"{JOB_NAME}-old01", state="Unknown")],
             schedulers=[],
             all_regions_complete=True,
@@ -1638,7 +1703,7 @@ def test_active_rogue_execution_and_scheduler_target_fail_closed(
         transport.consume_launch(
             storage=storage,
             contract_identity=contract_identity,
-            parked_job=_job(transport, generation="5", parked=True),
+            parked_job=_job(transport, generation=5, parked=True),
             executions=baseline,
             schedulers=[{"httpTarget": {
                 "uri": f"https://run.googleapis.com/jobs/{JOB_NAME}:run"
@@ -1651,7 +1716,7 @@ def test_active_rogue_execution_and_scheduler_target_fail_closed(
     transport.consume_launch(
         storage=storage,
         contract_identity=contract_identity,
-        parked_job=_job(transport, generation="5", parked=True),
+        parked_job=_job(transport, generation=5, parked=True),
         executions=baseline,
         schedulers=[],
         all_regions_complete=True,
@@ -1666,7 +1731,7 @@ def test_active_rogue_execution_and_scheduler_target_fail_closed(
         transport.recover_execution_name(
             storage=storage,
             contract_identity=contract_identity,
-            parked_job=_job(transport, generation="5", parked=True),
+            parked_job=_job(transport, generation=5, parked=True),
             executions=[
                 *baseline,
                 _census_row(f"{JOB_NAME}-abc12", state="Unknown"),
@@ -1729,7 +1794,7 @@ def test_cli_gate_precedes_client_and_shell_has_separate_reuse_only_actions(
     job_file = tmp_path / "job.json"
     job_file.write_bytes(
         transport.canonical_json_bytes(
-            _job(transport, generation="5", parked=True)
+            _job(transport, generation=5, parked=True)
         )
     )
     assert transport.main([
@@ -1786,14 +1851,14 @@ def test_shell_prevalidates_build_and_rolls_back_failed_configure(
     build_file.write_bytes(
         transport.canonical_json_bytes(_build_metadata(transport))
     )
-    prior = _job(transport, generation="4", parked=False)
+    prior = _job(transport, generation=4, parked=False)
     prior["metadata"]["resourceVersion"] = "rv4"
-    updated = _job(transport, generation="5", parked=True)
+    updated = _job(transport, generation=5, parked=True)
     updated["metadata"]["resourceVersion"] = "rv5"
     restored = deepcopy(prior)
-    restored["metadata"]["generation"] = "6"
+    restored["metadata"]["generation"] = 6
     restored["metadata"]["resourceVersion"] = "rv6"
-    restored["status"]["observedGeneration"] = "6"
+    restored["status"]["observedGeneration"] = 6
     prior_file = tmp_path / "prior.json"
     updated_file = tmp_path / "updated.json"
     restored_file = tmp_path / "restored.json"

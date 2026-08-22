@@ -2826,17 +2826,29 @@ def _validate_job_template_boundary(value: Mapping[str, object]) -> None:
         "run.googleapis.com/client-name",
         "run.googleapis.com/client-version",
         "run.googleapis.com/execution-environment",
+        "run.googleapis.com/cloudsql-instances",
     }
     if set(annotations) - allowed_annotations:
         raise CorpusParametricTransportError(
             "parked job inherited annotations are forbidden"
         )
-    if annotations and (
-        annotations.get("run.googleapis.com/client-name") != "gcloud"
-        or annotations.get("run.googleapis.com/execution-environment") != "gen2"
+    cloudsql_marker = "run.googleapis.com/cloudsql-instances"
+    if cloudsql_marker in annotations and annotations[cloudsql_marker] != "":
+        raise CorpusParametricTransportError(
+            "parked job inherited Cloud SQL instances are forbidden"
+        )
+    safe_annotations = {
+        key: retained
+        for key, retained in annotations.items()
+        if key != cloudsql_marker
+    }
+    if safe_annotations and (
+        safe_annotations.get("run.googleapis.com/client-name") != "gcloud"
+        or safe_annotations.get("run.googleapis.com/execution-environment")
+        != "gen2"
         or re.fullmatch(
             r"[0-9]+(?:\.[0-9]+){2}",
-            str(annotations.get("run.googleapis.com/client-version", "")),
+            str(safe_annotations.get("run.googleapis.com/client-version", "")),
         ) is None
     ):
         raise CorpusParametricTransportError(
