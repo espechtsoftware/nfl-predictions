@@ -66,6 +66,16 @@ agent or developer:
   procedure) remains the gate before any job reconfiguration; IAM condition
   moves wait for full v4 chain closure because the running producer still
   writes under v4 prefixes.
+- The offseason fill/selection roadmap
+  (`reports/2026-08-22-offseason-corpus-fill-and-selection-roadmap.md`, by a
+  concurrent research agent) is reviewed and ADOPTED with bindings in
+  `reports/2026-08-22-foundry-roadmap-adaptation.md`: the running 54x7 batch
+  is the compute vehicle for its P0.3 all-slate phenotype expansion and the
+  first bounded form of its F2 winner-support sleeves (the seven arms ablate
+  exactly the rules winners violate); R2/R3/R5 retrieval laws and a
+  parametric-result adapter for the gt200 analyzer are the first post-batch
+  code deliverables; its winner-CSV source-integrity findings are now a
+  README Data deficiency log row (2026-08-22).
 
 ## Prior handoff — 2026-08-22 11:36 CDT
 
