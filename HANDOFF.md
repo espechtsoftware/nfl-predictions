@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-22 06:20 CDT
+## Current state — 2026-08-22 06:48 CDT
 
 ### Task-0 smoke preflight mismatch is fixed locally; no scoring launch was consumed
 
@@ -41,6 +41,34 @@ agent or developer:
   (`34 passed`). Do not reuse the consumed local `transport-live` directory;
   configure and launch from a fresh recovery namespace after committing and
   building the corrected worker.
+- The correction is pushed as commit
+  `36fb2eb9fda2abb9a6539ac4ca479e6f054e3f82`. Canonical Cloud Build
+  `ba74a73d-43d5-44f7-9004-a336b99d5784` succeeded, including the focused
+  corpus suite and all image smokes. Its immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:86906c2e99e9d944ffc8c325ccb8f637b7f85816f1fbec2297fb7f138d6c7fdf`.
+  Earlier build `c136357d-2845-4f34-ab48-91965e86b75d` failed during source
+  fetch because the submitted full revision was mistyped; no build step ran.
+- The old foundation cannot bind the corrected image. A distinct tracked v2
+  smoke preplan is at
+  `reports/corpus-parametric-runs/20260822-corpus-parametric-task0-smoke-v2/foundation-live/preplan.json`;
+  it is 3,641 canonical bytes, raw SHA-256
+  `b705bdafb2ed7a23480668052a20e3d5414dbf3137e7506d32f113d92f0c3523`,
+  embedded preplan SHA-256
+  `329f410f16b7926e77b426a14452f7bbf4897615dab9eae69a6b16babb848d8f`,
+  and reuses the accepted retrieval result, source-v3 publication, world seed,
+  solver, and all 270 fixed matrices. Python 3.11 validation passed. The first
+  execute attempt performed no write and stopped at its second solver check;
+  a read-only exact replay is diagnosing that runtime consistency failure.
+- The retrieval-bucket runtime GET condition was missing two transitive,
+  generation-pinned authority objects: `query-authority.json` and
+  `snapshot-producer-authority.json`. Exactly those two GET names were added.
+  The two parametric-bucket conditions were replaced with the v2 foundation
+  and batch prefixes; v1 grants were removed. Fresh fully-expanded access
+  analysis reports five runtime results and zero results for both public
+  principals. The new self-hashed policy capture is
+  `reports/corpus-parametric-runs/20260822-corpus-parametric-task0-smoke-v2/governance-live-v2/runtime-iam-policy-capture.json`,
+  capture SHA-256
+  `37efb37c453594f792d4ba3330ca86c7b481ef2cc7a470862bac5c8d2ada5393`.
 
 ## Current state — 2026-08-21 23:45 CDT
 
