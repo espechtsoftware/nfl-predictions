@@ -100,9 +100,17 @@ fixed on disk.
   `20260823-corpus-parametric-production-batch-v8a` (source tasks 0–27)
   and `-v8b` (28–53); every frozen cell, endpoint, bar, and prohibition
   is unchanged.
-- v8a batch manifest: TO BE BOUND at publication
+- Namespace amendment 2 (2026-08-23, still zero scores read or
+  published): v8a's task-0 producer completed a perfect 7,000/7,000
+  generation but the finalizer's stage-tuple law refused the new
+  uniqueness certificate before ANY variant result was published, so
+  v8a is burned by its consumed launch and v8b unused by the image pin.
+  The lanes are now `20260823-corpus-parametric-production-batch-v9a`
+  and `-v9b`; every frozen cell, endpoint, bar, and prohibition is
+  unchanged.
+- v9a batch manifest: TO BE BOUND at publication
   (uri/generation/sha256/bytes).
-- v8b batch manifest: TO BE BOUND at publication
+- v9b batch manifest: TO BE BOUND at publication
   (uri/generation/sha256/bytes).
 - Runner commit at freeze: bound to repository main at the commit that
   adds this file (see git history for the exact SHA).

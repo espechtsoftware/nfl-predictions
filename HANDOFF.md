@@ -20,6 +20,31 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-23 09:25 UTC (eighteenth update)
+
+### Perfect 7000/7000 generation; finalizer certificate law fixed; v9 staged
+
+- v8 lane A launched and its producer completed a PERFECT generation —
+  7,000/7,000 cells optimal in 1,991 s under the second-best
+  certificate (~3.5x faster than v6's partial run) — then the
+  finalizer's aggregate stage-tuple law, still pinning
+  (OPTIMAL, INFEASIBLE), refused every runner-up certificate before any
+  publication. Fifth and final member of the old-certificate class;
+  both sites now share UNIQUENESS_CERTIFICATE_STAGE_TUPLES with a real
+  spread-objective regression driving the runner-up certificate
+  (`6f66bf9`). Evidence under
+  `20260823-foundry-production-v8a/terminal-failure-evidence/` (all 70
+  unit-complete lines at 100/100).
+- Lane B was stopped BEFORE any launch (asset-ingestion waiter killed);
+  v8b burned unused by the image pin only. v9a/v9b staged at build
+  `bfef7cbc`/`6f66bf9`: scripts/envs renamed, stale identity blocks
+  stripped, four lane IAM conditions moved, prereg bindings amended
+  (still zero scores read or published anywhere).
+- New-SA operational note: Cloud Asset analysis for a brand-new service
+  account returns EMPTY for 60+ minutes after binding creation; the
+  transport correctly refuses an empty analysis. Lane-B relaunch gates
+  on analyzer ingestion (>=4 results for SA-b) before capture.
+
 ## Current handoff — 2026-08-23 07:55 UTC (seventeenth update)
 
 ### v8 lanes live: foundations published at the lane-modes image, chains launched
