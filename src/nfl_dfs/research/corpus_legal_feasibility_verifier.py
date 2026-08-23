@@ -1760,7 +1760,7 @@ def _registered_mechanism_bodies() -> dict[str, object]:
                 True
             ),
             "collision_proof": (
-                "freeze-combined-optimum-plus-no-good-must-be-infeasible"
+                "witness-excluded-second-best-strictly-below-optimum-or-infeasible"
             ),
             "one_optimum_per_visit": True,
             "outcome_blind": True,
@@ -2962,8 +2962,17 @@ def _parse_cbc_solution(
             "CBC solution contains NUL"
         )
     lines = text.splitlines()
+    # CBC writes two exact infeasibility headers: presolve ("Infeasible -
+    # ...") and branch-and-bound ("Integer infeasible - ..."). Both are
+    # complete proofs — the same misclassified-benign-terminal class that
+    # terminally failed the v4 producer, swept here for the verifier.
+    header = (
+        r"(?:Integer i|I)nfeasible"
+        if expected_status == "Infeasible"
+        else re.escape(expected_status)
+    )
     terminal = re.fullmatch(
-        rf"{expected_status} - objective value {_CBC_NUMBER}", lines[0]
+        rf"{header} - objective value {_CBC_NUMBER}", lines[0]
     )
     if terminal is None or len(lines) < 2:
         raise CorpusLegalFeasibilityVerificationError(
@@ -3366,10 +3375,11 @@ def _verify_attempt_stage_evidence(
         )
     stage_one_objective_sha = _objective_projection_sha256(problem)
     stage_one_mps, variable_names, constraint_names = _write_mps(problem)
-    problem += (
-        combined == combined_optimum,
-        "freeze_lexicographic_combined_optimum",
-    )
+    # Second-best uniqueness law (2026-08-23): the collision stage carries
+    # only the witness exclusion — no optimum-pinning equality — and either
+    # proves infeasibility (the witness was the only legal roster) or
+    # yields a runner-up roster whose combined value must reconstruct
+    # STRICTLY below the proven optimum by exact integer comparison.
     problem += pulp.lpSum(
         decision[player_id] for player_id in roster
     ) <= rw.ROSTER_SIZE - 1, "exclude_combined_witness"
@@ -3390,13 +3400,21 @@ def _verify_attempt_stage_evidence(
         raise CorpusLegalFeasibilityVerificationError(
             "attempt shard/proof stage cross-link differs"
         )
+    stage_two_status = str(receipts[1].get("status"))
+    if stage_two_status not in ("optimal", "infeasible"):
+        raise CorpusLegalFeasibilityVerificationError(
+            "uniqueness certificate stage status differs"
+        )
+    objective_by_id = {
+        player.player_id: objective[index]
+        for index, player in enumerate(raw_inputs.players)
+    }
     stage_specs = (
         (
             receipts[0],
             "lexicographic_combined_optimum",
             "optimal",
             stage_one_objective_sha,
-            _canonical_sha256(list(roster)),
             stage_one_mps,
             variable_names,
             constraint_names,
@@ -3407,15 +3425,14 @@ def _verify_attempt_stage_evidence(
         (
             receipts[1],
             "combined_optimum_collision",
-            "infeasible",
+            stage_two_status,
             stage_two_objective_sha,
-            None,
             stage_two_mps,
             stage_two_variables,
             stage_two_constraints,
             raw_members[2],
             raw_members[3],
-            "Infeasible",
+            "Optimal" if stage_two_status == "optimal" else "Infeasible",
         ),
     )
     previous_after = SOLVER_TIMEOUT_SECONDS * 1_000_000
@@ -3425,7 +3442,6 @@ def _verify_attempt_stage_evidence(
         stage_name,
         status,
         objective_sha,
-        witness_sha,
         model_raw,
         variables,
         constraints,
@@ -3433,12 +3449,64 @@ def _verify_attempt_stage_evidence(
         solution_raw,
         solution_status,
     ) in stage_specs:
+        solution_values = _parse_cbc_solution(
+            solution_raw,
+            expected_status=solution_status,
+            variable_names=variables,
+            constraint_names=constraints,
+        )
+        decoded: tuple[str, ...] | None = None
+        if status == "optimal":
+            inverse_variables = {
+                renamed: original for original, renamed in variables.items()
+            }
+            by_variable = {
+                variable.name: player_id
+                for player_id, variable in decision.items()
+            }
+            selected: list[str] = []
+            for renamed, original in inverse_variables.items():
+                value = solution_values[renamed]
+                rounded = round(value)
+                if abs(value - rounded) > 1e-7 or rounded not in (0, 1):
+                    raise CorpusLegalFeasibilityVerificationError(
+                        "optimal CBC solution variable is nonbinary"
+                    )
+                if rounded == 1:
+                    selected.append(by_variable[original])
+            decoded = tuple(sorted(selected))
+        if stage_name == "lexicographic_combined_optimum":
+            if decoded != roster:
+                raise CorpusLegalFeasibilityVerificationError(
+                    "CBC solution witness differs from attempt roster"
+                )
+            expected_witness = _canonical_sha256(list(roster))
+        elif status == "optimal":
+            if decoded is None or decoded == roster:
+                raise CorpusLegalFeasibilityVerificationError(
+                    "second-best solution repeats the excluded witness"
+                )
+            runner_up = _audit_dk_classic(raw_inputs.players, decoded)
+            runner_primary = sum(
+                objective_by_id[player_id] for player_id in runner_up
+            )
+            runner_rank = sum(
+                rank_by_id[player_id] for player_id in runner_up
+            )
+            second_best = runner_primary * radix - runner_rank
+            if second_best >= combined_optimum:
+                raise CorpusLegalFeasibilityVerificationError(
+                    "second-best does not prove a strict uniqueness gap"
+                )
+            expected_witness = _canonical_sha256(list(runner_up))
+        else:
+            expected_witness = None
         _validate_stage_receipt_common(
             receipt,
             expected_stage=stage_name,
             expected_status=status,
             expected_objective_sha256=objective_sha,
-            expected_witness_sha256=witness_sha,
+            expected_witness_sha256=expected_witness,
             expected_model=model_raw,
             solver_authority=raw_inputs.solver_authority,
         )
@@ -3460,34 +3528,6 @@ def _verify_attempt_stage_evidence(
             model_sha256=sha256(model_raw).hexdigest(),
             solver_authority=raw_inputs.solver_authority,
         )
-        solution_values = _parse_cbc_solution(
-            solution_raw,
-            expected_status=solution_status,
-            variable_names=variables,
-            constraint_names=constraints,
-        )
-        if status == "optimal":
-            inverse_variables = {
-                renamed: original for original, renamed in variables.items()
-            }
-            by_variable = {
-                variable.name: player_id
-                for player_id, variable in decision.items()
-            }
-            selected: list[str] = []
-            for renamed, original in inverse_variables.items():
-                value = solution_values[renamed]
-                rounded = round(value)
-                if abs(value - rounded) > 1e-7 or rounded not in (0, 1):
-                    raise CorpusLegalFeasibilityVerificationError(
-                        "optimal CBC solution variable is nonbinary"
-                    )
-                if rounded == 1:
-                    selected.append(by_variable[original])
-            if tuple(sorted(selected)) != roster:
-                raise CorpusLegalFeasibilityVerificationError(
-                    "CBC solution witness differs from attempt roster"
-                )
         before = int(receipt["remaining_before_microseconds"])
         after = int(receipt["remaining_after_microseconds"])
         total_elapsed += int(receipt["elapsed_microseconds"])

@@ -552,8 +552,10 @@ def test_solver_status_classification(status, solution_status, expected):
 
 
 def test_bundled_cbc_proves_clean_two_stage_unique_optimum(players):
-    # Binary weights make every roster's primary sum unique, so the second
-    # stage must prove infeasibility after excluding the first witness.
+    # Binary weights make every roster's primary sum unique, so under the
+    # second-best law the collision stage either proves infeasibility (the
+    # witness was the only legal roster) or yields a runner-up strictly
+    # below the optimum — both are exact uniqueness certificates.
     objective = tuple(1 << index for index in range(len(players)))
     profile = core.frozen_policy_profiles()[0]
     model = core.build_fresh_legal_model(
@@ -578,15 +580,25 @@ def test_bundled_cbc_proves_clean_two_stage_unique_optimum(players):
     assert outcome.roster is not None and len(outcome.roster) == rw.ROSTER_SIZE
     assert outcome.solver_proof is not None
     stages = outcome.solver_proof.stages
-    assert tuple(stage.status for stage in stages) == (
+    assert stages[0].status is core.SolverStatus.OPTIMAL
+    assert stages[1].status in (
         core.SolverStatus.OPTIMAL,
         core.SolverStatus.INFEASIBLE,
     )
     assert stages[0].exact_terminal_record == "Result - Optimal solution found"
     assert stages[1].exact_terminal_record is not None
-    assert core._CBC_INFEASIBLE_TERMINAL.fullmatch(
-        stages[1].exact_terminal_record
-    ) is not None
+    if stages[1].status is core.SolverStatus.INFEASIBLE:
+        assert core._CBC_INFEASIBLE_TERMINAL.fullmatch(
+            stages[1].exact_terminal_record
+        ) is not None
+        assert stages[1].witness_sha256 is None
+    else:
+        # A runner-up exists: its witness must differ from the optimum's.
+        assert stages[1].exact_terminal_record == (
+            "Result - Optimal solution found"
+        )
+        assert stages[1].witness_sha256 is not None
+        assert stages[1].witness_sha256 != stages[0].witness_sha256
     assert stages[0].objective_sha256 == stages[1].objective_sha256
     for stage in stages:
         command_lines = [

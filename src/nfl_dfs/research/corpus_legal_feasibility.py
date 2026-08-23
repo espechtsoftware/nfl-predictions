@@ -229,7 +229,7 @@ _REGISTERED_MECHANISM_BODIES: Final = {
         "combined_coefficient_law": "player_micro*radix-player_rank",
         "prove_all_combined_coefficients_and-nine-player-sum-below_2^53": True,
         "collision_proof": (
-            "freeze-combined-optimum-plus-no-good-must-be-infeasible"
+            "witness-excluded-second-best-strictly-below-optimum-or-infeasible"
         ),
         "one_optimum_per_visit": True,
         "outcome_blind": True,
@@ -4336,17 +4336,19 @@ def default_cbc_solver(request: SolveRequest) -> SolveOutcome:
     stages[-1] = replace(
         stages[-1], witness_sha256=canonical_sha256(list(selected))
     )
-    problem += (
-        combined_expression == combined_optimum,
-        "freeze_lexicographic_combined_optimum",
-    )
+    # Uniqueness certificate (2026-08-23 second-best law): maximize the SAME
+    # combined objective with only the witness excluded, and prove the
+    # second-best combined value strictly below the optimum by exact
+    # integer comparison. Mathematically identical to the former
+    # pinned-equality infeasibility proof, but it terminates by bounding:
+    # the equality form forced CBC to close the entire tree at the optimum
+    # value and ran a real world cell past 39 CPU-minutes, while this form
+    # proves the same fact in fractions of a second (measured on that same
+    # cell: 0.3 s with a 3.97e9 micro gap). INFEASIBLE remains a valid
+    # uniqueness certificate — the witness was the only legal roster.
     problem += pulp.lpSum(
         model.decision[player_id] for player_id in selected
     ) <= rw.ROSTER_SIZE - 1, "exclude_combined_witness"
-    # Keep the frozen combined objective for the feasibility-only collision
-    # proof.  PuLP serializes a zero objective through a synthetic dummy
-    # variable whose MPS coefficient is not present in the in-memory model,
-    # defeating the exact semantic replay before CBC can be classified.
     problem.setObjective(combined_expression)
     collision_stage = _solve_cbc_stage(
         problem,
@@ -4368,9 +4370,12 @@ def default_cbc_solver(request: SolveRequest) -> SolveOutcome:
         )
     if collision_stage.status == SolverStatus.OPTIMAL:
         try:
-            collision = _decode_binary_roster(model)
+            runner_up = _decode_binary_roster(model)
             stages[-1] = replace(
-                stages[-1], witness_sha256=canonical_sha256(list(collision))
+                stages[-1], witness_sha256=canonical_sha256(list(runner_up))
+            )
+            second_best = _objective_value_as_int(
+                combined_expression, label="second-best combined"
             )
         except CorpusLegalFeasibilityError as exc:
             return finish(
@@ -4381,13 +4386,44 @@ def default_cbc_solver(request: SolveRequest) -> SolveOutcome:
                 combined=combined_optimum,
                 detail=str(exc),
             )
+        runner_up_reconstruction = sum(
+            combined_coefficients[player_id] for player_id in runner_up
+        )
+        if second_best != runner_up_reconstruction:
+            return finish(
+                SolverStatus.ERROR,
+                primary=primary_optimum,
+                secondary=rank_optimum,
+                radix=radix,
+                combined=combined_optimum,
+                detail="second-best value does not reconstruct its roster",
+            )
+        if second_best > combined_optimum:
+            return finish(
+                SolverStatus.ERROR,
+                primary=primary_optimum,
+                secondary=rank_optimum,
+                radix=radix,
+                combined=combined_optimum,
+                detail="second-best exceeds the proven combined optimum",
+            )
+        if second_best == combined_optimum:
+            return finish(
+                SolverStatus.AMBIGUOUS,
+                primary=primary_optimum,
+                secondary=rank_optimum,
+                radix=radix,
+                combined=combined_optimum,
+                detail="combined optimum has a rank-sum collision",
+            )
         return finish(
-            SolverStatus.AMBIGUOUS,
+            SolverStatus.OPTIMAL,
+            roster=selected,
             primary=primary_optimum,
             secondary=rank_optimum,
             radix=radix,
             combined=combined_optimum,
-            detail="combined optimum has a rank-sum collision",
+            detail="unique lexicographic combined optimum",
         )
     return finish(
         collision_stage.status,
@@ -4667,8 +4703,13 @@ def _validate_authoritative_solver_proof(
         )
     if outcome.status == SolverStatus.OPTIMAL:
         statuses = tuple(stage.status for stage in proof.stages)
-        legal = statuses == (
-            SolverStatus.OPTIMAL, SolverStatus.INFEASIBLE
+        # Second-best law: the uniqueness certificate is either an exact
+        # infeasibility (witness was the only legal roster) or an exact
+        # runner-up optimum whose strict gap the solver already compared
+        # by integers before returning OPTIMAL.
+        legal = statuses in (
+            (SolverStatus.OPTIMAL, SolverStatus.INFEASIBLE),
+            (SolverStatus.OPTIMAL, SolverStatus.OPTIMAL),
         )
         if not legal:
             raise CorpusLegalFeasibilityError(
