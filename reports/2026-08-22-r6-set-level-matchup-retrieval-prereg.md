@@ -81,7 +81,20 @@ fixed on disk.
 
 ## Bindings (identity-only edits permitted while outcome-blind)
 
-- v6 batch manifest: TO BE BOUND at publication
+- Substrate amendment 2026-08-23, made before ANY batch task produced a
+  score: the v6 single batch died with its task-0 producer (one correct
+  ~91 s collision proof crossed the 120 s per-visit deadline; the
+  all-optimal and finish-batch laws make a 54-task batch unrecoverable
+  after one consumed failed launch). The substrate is now the UNION of
+  the two v7 half-batches over the SAME 54 source slates —
+  `20260823-corpus-parametric-production-batch-v7a` (source tasks 0–27)
+  and `-v7b` (source tasks 28–53) — with the split fixed by enumerated
+  lattice law before any lane score existed. Every frozen cell,
+  endpoint, bar, and prohibition above is unchanged; "the accepted
+  panel" means the union of both lanes' verifier-accepted tasks.
+- v7a batch manifest: TO BE BOUND at publication
+  (uri/generation/sha256/bytes).
+- v7b batch manifest: TO BE BOUND at publication
   (uri/generation/sha256/bytes).
 - Runner commit at freeze: bound to repository main at the commit that
   adds this file (see git history for the exact SHA).
