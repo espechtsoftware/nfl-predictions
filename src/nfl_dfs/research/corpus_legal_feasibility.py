@@ -113,15 +113,30 @@ CBC_RANDOM_SEED: Final = 20_260_821
 CBC_INTEGER_TOLERANCE: Final = "1e-9"
 CBC_PRIMAL_TOLERANCE: Final = "1e-9"
 CBC_INTEGER_TOLERANCE_VALUE: Final = float(CBC_INTEGER_TOLERANCE)
+# allowableGap/ratioGap/increment/cuts were previously claimed by the
+# options payload but never passed to CBC: at the combined objective's
+# ~1e12 coefficient scale, CBC's default cut and cutoff-increment
+# fathoming declared "Optimal" for rosters up to 1.35 DK points below
+# the true optimum on ~2 of 7,000 worlds per slate (caught by the
+# second-best certificate on 2023-w02 arm2/v423 and arm3/v28, where the
+# runner-up exceeded the claimed optimum; both cells solve exactly in
+# 0.1 s with these flags). Every accepted task remains sound — its
+# certificate proved the strict gap cell by cell.
 CBC_OPTIONS: Final = (
     f"randomSeed {CBC_RANDOM_SEED}",
     f"randomCbcSeed {CBC_RANDOM_SEED}",
     f"integerTolerance {CBC_INTEGER_TOLERANCE}",
     f"primalTolerance {CBC_PRIMAL_TOLERANCE}",
+    "allowableGap 0",
+    "ratioGap 0",
+    "increment 0",
+    "cuts off",
 )
 CBC_OPTIONS_PAYLOAD: Final = {
     "gap_abs": 0.0,
     "gap_rel": 0.0,
+    "increment": 0.0,
+    "cuts": "off",
     "integer_tolerance": CBC_INTEGER_TOLERANCE,
     "primal_tolerance": CBC_PRIMAL_TOLERANCE,
     "random_cbc_seed": CBC_RANDOM_SEED,
