@@ -4,15 +4,15 @@
 # reused job; both lanes share the image, worktree, and service account.
 
 export CORPUS_PARAMETRIC_RESEARCH_ENABLED=1
-export CORPUS_PARAMETRIC_SOURCE=/tmp/nfl-predictions-corpus-f032f0c
+export CORPUS_PARAMETRIC_SOURCE=/tmp/nfl-predictions-corpus-cd5e64d
 export CORPUS_PARAMETRIC_PYTHON=/tmp/nfl-corpus-py311/bin/python
 export PYTHONPATH="$CORPUS_PARAMETRIC_SOURCE/src"
 export CORPUS_PARAMETRIC_RUN_DIR=/home/erich/projects/nfl-predictions/reports/corpus-parametric-runs/20260823-foundry-production-v12a/transport-live-v12a
 export CORPUS_PARAMETRIC_JOB=atlas-minimal-c-s2023-w1-v1
 export CORPUS_PARAMETRIC_EXPECTED_JOB_UID=d6e4b8c1-5950-46b7-8869-7e34dbf29ad2
 export CORPUS_PARAMETRIC_SERVICE_ACCOUNT=corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com
-export CORPUS_PARAMETRIC_BUILD_ID=b01f8758-8641-4cd7-aa15-04521bce478a
-export CORPUS_PARAMETRIC_CODE_SHA=f032f0c3c6d36a1f9f879e206fb40ab9e663bdce
+export CORPUS_PARAMETRIC_BUILD_ID=27177530-ee69-4bd8-b45d-503e1a61c920
+export CORPUS_PARAMETRIC_CODE_SHA=cd5e64d42d35d7b36c61b80896a2a3df8c9ced0b
 export CORPUS_PARAMETRIC_RUNTIME_IAM_FILE="$CORPUS_PARAMETRIC_RUN_DIR/../governance-live-v12a/runtime-iam-policy-capture.json"
 export CORPUS_PARAMETRIC_BUILD_METADATA_FILE="$CORPUS_PARAMETRIC_RUN_DIR/build-metadata.json"
 
