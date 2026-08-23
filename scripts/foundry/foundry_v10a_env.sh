@@ -1,22 +1,23 @@
 # Foundry v7 LANE A environment — source tasks 0..27 on the incumbent
 # reused job. All identities are copied from durable receipts, never
-# retyped. Lane B (tasks 28..53) is foundry_v9b_env.sh on the second
+# retyped. Lane B (tasks 28..53) is foundry_v10b_env.sh on the second
 # reused job; both lanes share the image, worktree, and service account.
 
 export CORPUS_PARAMETRIC_RESEARCH_ENABLED=1
-export CORPUS_PARAMETRIC_SOURCE=/tmp/nfl-predictions-corpus-6f66bf9
+export CORPUS_PARAMETRIC_SOURCE=/tmp/nfl-predictions-corpus-707777a
 export CORPUS_PARAMETRIC_PYTHON=/tmp/nfl-corpus-py311/bin/python
 export PYTHONPATH="$CORPUS_PARAMETRIC_SOURCE/src"
-export CORPUS_PARAMETRIC_RUN_DIR=/home/erich/projects/nfl-predictions/reports/corpus-parametric-runs/20260823-foundry-production-v9a/transport-live-v9a
+export CORPUS_PARAMETRIC_RUN_DIR=/home/erich/projects/nfl-predictions/reports/corpus-parametric-runs/20260823-foundry-production-v10a/transport-live-v10a
 export CORPUS_PARAMETRIC_JOB=atlas-minimal-c-s2023-w1-v1
 export CORPUS_PARAMETRIC_EXPECTED_JOB_UID=d6e4b8c1-5950-46b7-8869-7e34dbf29ad2
 export CORPUS_PARAMETRIC_SERVICE_ACCOUNT=corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com
-export CORPUS_PARAMETRIC_BUILD_ID=bfef7cbc-1f6f-454a-9263-18cac795151a
-export CORPUS_PARAMETRIC_CODE_SHA=6f66bf90e89d1e622d74bb5a803a9c4a3edc23ed
-export CORPUS_PARAMETRIC_RUNTIME_IAM_FILE="$CORPUS_PARAMETRIC_RUN_DIR/../governance-live-v9a/runtime-iam-policy-capture.json"
+export CORPUS_PARAMETRIC_BUILD_ID=4f1a0495-527b-4320-bce5-a4fd8ddb24f6
+export CORPUS_PARAMETRIC_CODE_SHA=707777ac4129ff7820cf416e46d5e0f0d6b02226
+export CORPUS_PARAMETRIC_RUNTIME_IAM_FILE="$CORPUS_PARAMETRIC_RUN_DIR/../governance-live-v10a/runtime-iam-policy-capture.json"
 export CORPUS_PARAMETRIC_BUILD_METADATA_FILE="$CORPUS_PARAMETRIC_RUN_DIR/build-metadata.json"
 
 # Appended by append_foundry_lane_identities.py --lane a after the
 # foundation execute, and the contract block after configure.
+
 
 
