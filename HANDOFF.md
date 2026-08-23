@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-23 02:55 UTC (fourteenth update)
+
+### Probe caught a 600s-exceeding cell pre-launch; deadline measurement running
+
+- The 700-cell local probe over all seven v6-failed ranges (run before
+  consuming any lane launch): six cells prove optimal in 77–155 s —
+  comfortably inside 600 s — but **arm 5 visit 512 exhausts the full
+  600 s** (status timeout at 600.2 s). It would have burned lane A
+  exactly as v6 burned, after launch consumption. Namespaces remain
+  virgin; nothing was published or launched.
+- Because the manifests embed solve_budget.solver_timeout_seconds at
+  foundation execute, the lane executes are HELD until the cell's true
+  cost is measured: a one-off in-process research measurement (cap
+  14,400 s) is running for arm5/visit512; the deadline will be set with
+  ≥3–4× margin over the observed worst (contention-adjusted), then one
+  more code+image cycle (#4) → rebind → foundations → lane chains.
+- Third defect-class member fixed on the way here (`b7f9c98`): three
+  execute-path count laws still pinned to the 54-task constant refused
+  both lane foundations fail-closed pre-write ("preflight task count
+  differs"); all now derive from the plan lattice, with a 26-task
+  fake-storage half-batch publication regression. Final current image:
+  `4ea157a4` at `b7f9c98` (digest `6d91f03f...`), lane preplans
+  validated/dry-run clean against it (28/26 tasks).
+- Superseded unused images this cycle: `1d27f45f`@`0c7d8cc`
+  (HEAD-equality law vs late lattices), `1a017a13`@`6b05db2` (count
+  laws). Every refusal was pre-write; zero cloud objects exist under
+  v7a/v7b.
+
 ## Current handoff — 2026-08-23 01:55 UTC (thirteenth update)
 
 ### v6 terminally closed by 7 hard cells; v7 two-lane chain live
