@@ -1117,24 +1117,25 @@ def test_solver_proof_reconciles_absolute_deadline_and_stage_budgets():
         "binary_sha256": "d" * 64,
         "options_sha256": "e" * 64,
     }
+    budget = core.SOLVER_TIMEOUT_SECONDS * 1_000_000
     stages = (
         _deadline_stage(
             "lexicographic_combined_optimum",
             core.SolverStatus.OPTIMAL,
-            remaining_before=120_000_000,
-            requested=119_999_990,
-            watchdog=119_999_980,
+            remaining_before=budget,
+            requested=budget - 10,
+            watchdog=budget - 20,
             elapsed=10,
-            remaining_after=119_999_970,
+            remaining_after=budget - 30,
         ),
         _deadline_stage(
             "combined_optimum_collision",
             core.SolverStatus.INFEASIBLE,
-            remaining_before=119_999_960,
-            requested=119_999_950,
-            watchdog=119_999_940,
+            remaining_before=budget - 40,
+            requested=budget - 50,
+            watchdog=budget - 60,
             elapsed=10,
-            remaining_after=119_999_930,
+            remaining_after=budget - 70,
         ),
     )
     proof = core._build_solver_proof(
@@ -1161,7 +1162,7 @@ def test_solver_proof_reconciles_absolute_deadline_and_stage_budgets():
         )
 
     exhausted = core._build_solver_proof(
-        solver, stages, total_elapsed_microseconds=120_000_000
+        solver, stages, total_elapsed_microseconds=budget
     )
     with pytest.raises(
         core.CorpusLegalFeasibilityError, match="identity/deadline"

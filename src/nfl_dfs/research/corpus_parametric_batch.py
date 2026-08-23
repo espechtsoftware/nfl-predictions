@@ -39,7 +39,14 @@ SOLVE_ATTEMPTS_PER_BLOCK: Final = 200
 WORLDS_PER_BLOCK: Final = 10_000
 MAX_VISIT_OUTPUTS_BEFORE_DEDUPLICATION: Final = 1_000
 SELECTED_ENTRY_BUDGET: Final = 80
-SOLVER_TIMEOUT_SECONDS: Final = 120
+# 600, raised from 120 on 2026-08-23: the v6 task-0 producer lost exactly
+# one cell (arm 0, visit 573) whose branch-and-bound collision proof needs
+# ~91 s locally and crossed 120 s under cloud worker contention, and the
+# all-optimal batch law fails a whole task for one timed-out cell. The
+# deadline is an execution bound, never a selection input: a proof either
+# terminates exactly within it or the cell fails closed, so raising it
+# admits slow exact proofs and changes no science.
+SOLVER_TIMEOUT_SECONDS: Final = 600
 SOLVER_TIMEOUT_LAW: Final = (
     "one monotonic total deadline per parameter-set visit across all solver stages"
 )
@@ -618,8 +625,8 @@ def _normalize_solve_budget(value: object) -> dict[str, int]:
             )
         elif key == "solver_timeout_seconds":
             detail = (
-                "120 seconds under the one-monotonic-total-deadline law "
-                "per parameter-set visit"
+                f"{SOLVER_TIMEOUT_SECONDS} seconds under the "
+                "one-monotonic-total-deadline law per parameter-set visit"
             )
         elif key == "selected_entry_budget":
             detail = "exact-80"

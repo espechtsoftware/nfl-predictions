@@ -58,7 +58,7 @@ def _common_law() -> dict[str, object]:
         "solve_budget": {
             "solve_attempts_per_seed": 200,
             "worlds_per_block": 10_000,
-            "solver_timeout_seconds": 120,
+            "solver_timeout_seconds": 600,
             "candidate_entry_budget": 1_000,
             "selected_entry_budget": 80,
         },
