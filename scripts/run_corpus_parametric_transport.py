@@ -3932,11 +3932,21 @@ def build_transport_contract(
             _sequence(manifest["tasks"], label="manifest tasks")
         )
     ]
-    if len(tasks) not in {1, 54}:
+    # Enumerated batch shapes: the one-task smoke, the complete 54-slate
+    # batch, and the two v7 half-batch lanes (28 and 26 tasks) that run
+    # concurrently on separate reused jobs under separate runtime SAs.
+    batch_modes_by_count = {
+        1: "one-task-smoke",
+        54: "complete-54-task",
+        28: "lane-a-28-task",
+        26: "lane-b-26-task",
+    }
+    if len(tasks) not in batch_modes_by_count:
         raise CorpusParametricTransportError(
-            "transport requires a one-task smoke or complete 54-task batch"
+            "transport requires a one-task smoke, a complete 54-task "
+            "batch, or one enumerated v7 lane"
         )
-    batch_mode = "one-task-smoke" if len(tasks) == 1 else "complete-54-task"
+    batch_mode = batch_modes_by_count[len(tasks)]
     inputs = _manifest_input_identities(manifest)
     body = {
         "schema_version": TRANSPORT_CONTRACT_SCHEMA,
@@ -4096,9 +4106,14 @@ def validate_transport_contract(value: object) -> dict[str, object]:
     tasks = _sequence(item["tasks"], label="contract tasks")
     if (
         item["task_count"] != len(tasks)
-        or len(tasks) not in {1, 54}
+        or len(tasks) not in {1, 54, 28, 26}
         or item["batch_mode"]
-        != ("one-task-smoke" if len(tasks) == 1 else "complete-54-task")
+        != {
+            1: "one-task-smoke",
+            54: "complete-54-task",
+            28: "lane-a-28-task",
+            26: "lane-b-26-task",
+        }.get(len(tasks))
         or item["matrix_cell_count"] != len(tasks) * 7
     ):
         raise CorpusParametricTransportError("contract task count differs")

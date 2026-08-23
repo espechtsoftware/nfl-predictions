@@ -2347,6 +2347,14 @@ def test_configure_accepts_only_one_task_smoke_or_complete_54_task_batch() -> No
     assert full_contract["matrix_cell_count"] == 378
     assert len(full_contract["tasks"]) == 54
 
+    # The two enumerated v7 half-batch lanes are the only other shapes.
+    _, _, lane_a, _ = _configured(task_count=28)
+    assert lane_a["batch_mode"] == "lane-a-28-task"
+    assert lane_a["matrix_cell_count"] == 196
+    _, _, lane_b, _ = _configured(task_count=26)
+    assert lane_b["batch_mode"] == "lane-b-26-task"
+    assert lane_b["matrix_cell_count"] == 182
+
     manifest, raw, _ = _manifest(2)
     identity = transport.object_identity(
         batch.object_identity_for_json(
