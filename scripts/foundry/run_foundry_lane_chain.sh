@@ -12,8 +12,8 @@ LANE="${1:?lane a or b required}"
 [[ "$LANE" == "a" || "$LANE" == "b" ]] || { echo "lane must be a|b" >&2; exit 2; }
 ROOT=/home/erich/projects/nfl-predictions
 FOUNDRY="$ROOT/scripts/foundry"
-ENV_FILE="$FOUNDRY/foundry_v10${LANE}_env.sh"
-RUN_ROOT="$ROOT/reports/corpus-parametric-runs/20260823-foundry-production-v10${LANE}"
+ENV_FILE="$FOUNDRY/foundry_v11${LANE}_env.sh"
+RUN_ROOT="$ROOT/reports/corpus-parametric-runs/20260823-foundry-production-v11${LANE}"
 PY311=/tmp/nfl-corpus-py311/bin/python
 
 log() { printf '%s lane-%s %s\n' "$(date -u +%FT%TZ)" "$LANE" "$*"; }
@@ -32,7 +32,7 @@ else
 fi
 
 # 2. Runtime IAM capture (create-once inside the script).
-if [[ ! -s "$RUN_ROOT/governance-live-v10${LANE}/runtime-iam-policy-capture.json" ]]; then
+if [[ ! -s "$RUN_ROOT/governance-live-v11${LANE}/runtime-iam-policy-capture.json" ]]; then
   log "capturing runtime IAM policy"
   "$PY311" "$FOUNDRY/capture_foundry_lane_iam.py" --lane "$LANE" >/dev/null
 else
@@ -58,7 +58,7 @@ lane = sys.argv[1]
 root = "/home/erich/projects/nfl-predictions"
 run_dir = (
     f"{root}/reports/corpus-parametric-runs/"
-    f"20260823-foundry-production-v10{lane}/transport-live-v10{lane}"
+    f"20260823-foundry-production-v11{lane}/transport-live-v11{lane}"
 )
 doc = json.load(open(f"{run_dir}/configured.json"))
 contract = doc["transport_contract"]
@@ -70,7 +70,7 @@ lines = [
     f"export CORPUS_PARAMETRIC_CONTRACT_SHA256={contract['sha256']}",
     f"export CORPUS_PARAMETRIC_CONTRACT_BYTES={contract['bytes']}",
 ]
-path = f"{root}/scripts/foundry/foundry_v10{lane}_env.sh"
+path = f"{root}/scripts/foundry/foundry_v11{lane}_env.sh"
 body = open(path).read()
 assert "CORPUS_PARAMETRIC_CONTRACT_URI" not in body
 open(path, "a").write("\n".join(lines) + "\n")

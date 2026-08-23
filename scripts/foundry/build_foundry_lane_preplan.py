@@ -67,7 +67,7 @@ def main() -> int:
     )
     args = parser.parse_args()
     lane = LANES[args.lane]
-    lane_id = f"v10{args.lane}"
+    lane_id = f"v11{args.lane}"
     run_root = ROOT_REPO / (
         f"reports/corpus-parametric-runs/20260823-foundry-production-{lane_id}"
     )

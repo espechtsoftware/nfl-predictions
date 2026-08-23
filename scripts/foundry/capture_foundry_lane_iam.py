@@ -23,7 +23,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-WORKTREE = Path("/tmp/nfl-predictions-corpus-707777a")
+WORKTREE = Path("/tmp/nfl-predictions-corpus-ca2784e")
 import argparse
 
 _parser = argparse.ArgumentParser(description=__doc__)
@@ -31,7 +31,7 @@ _parser.add_argument("--lane", required=True, choices=("a", "b"))
 _LANE = _parser.parse_args().lane
 OUT_DIR = Path(
     "/home/erich/projects/nfl-predictions/reports/corpus-parametric-runs/"
-    f"20260823-foundry-production-v10{_LANE}/governance-live-v10{_LANE}"
+    f"20260823-foundry-production-v11{_LANE}/governance-live-v11{_LANE}"
 )
 PROJECT = "nfl-predictions-503414"
 # Per-lane runtime identity: the transport's least-privilege law admits

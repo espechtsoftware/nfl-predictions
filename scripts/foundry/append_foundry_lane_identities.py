@@ -2,7 +2,7 @@
 
 Reads the lane's foundation execute-result.json and its captured
 build-metadata.json and emits the export lines for
-scripts/foundry/foundry_v10<lane>_env.sh — publication identities and the
+scripts/foundry/foundry_v11<lane>_env.sh — publication identities and the
 immutable image — so no hash is ever retyped by hand. With --append it
 appends the block exactly once (refuses if already present). Role paths
 were verified against the real v5/v6 execute-result structure.
@@ -40,7 +40,7 @@ def main() -> int:
     parser.add_argument("--lane", required=True, choices=("a", "b"))
     parser.add_argument("--append", action="store_true")
     args = parser.parse_args()
-    lane_id = f"v10{args.lane}"
+    lane_id = f"v11{args.lane}"
     run_root = ROOT / (
         f"reports/corpus-parametric-runs/20260823-foundry-production-{lane_id}"
     )
