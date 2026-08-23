@@ -20,6 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-23 19:00 UTC (nineteenth update)
+
+### FIRST FOUNDRY SLATES ACCEPTED — two-lane fan-out running
+
+- v11 (image `964a3ee4`/`ca2784e`) carries the last three fixes: the
+  verifier's attempt-ledger certificate law (sixth and final member of
+  the old-certificate class), lane-safe identity-matched source-row
+  selection in producer AND verifier (positional local indexing had
+  refused lane B), and surfaced verify-task error detail. Both root
+  causes were found by exact local replay against the real published
+  v10 artifacts (with a diagnostic-only pinned-hash bypass and a
+  container-mirroring gitless worktree; zlib_runtime_version in shard
+  headers is container-bound, so full local shard replay needs matching
+  zlib — noted, not needed).
+- **Task 0 ACCEPTED on BOTH lanes**: lane A `2023-w01`, lane B
+  `2024-w11` — 7 arms x 1000 visits, 7000/7000 optimal, exact-80
+  selections, independent verifier acceptance, and the operator
+  all-optimal census gate PASS (after teaching
+  corpus_parametric_snapshot the parametric carrier dialect:
+  variant_results rows with result_object identities).
+- Fan-out drivers running: lane A tasks 1..27, lane B tasks 1..25,
+  sequential per lane, concurrent across lanes. Cycle time ~75 min/task
+  (producer ~40 + verifier ~35) → full 54-slate acceptance ~2026-08-25
+  early UTC. Live view: `summarize_accepted_tasks.py --lane a|b`.
+  Realized grading + R6 read only after BOTH lanes complete.
+
 ## Current handoff — 2026-08-23 09:25 UTC (eighteenth update)
 
 ### Perfect 7000/7000 generation; finalizer certificate law fixed; v9 staged
