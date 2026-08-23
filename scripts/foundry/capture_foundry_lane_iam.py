@@ -86,10 +86,26 @@ def _gcloud(arguments: list[str], name: str) -> object:
         # retained raw component from this session is reused, never
         # refetched-and-overwritten.
         return json.loads(path.read_bytes())
-    raw = subprocess.run(
-        ["gcloud", *arguments, "--format=json"],
-        check=True, capture_output=True,
-    ).stdout
+    import time as _time
+    for attempt in range(8):
+        completed = subprocess.run(
+            ["gcloud", *arguments, "--format=json"], capture_output=True,
+        )
+        if completed.returncode == 0:
+            break
+        stderr = completed.stderr.decode("utf-8", "replace")
+        if "RESOURCE_EXHAUSTED" in stderr or " 429" in stderr:
+            # Cloud Asset analyze quota is 100/min and 200/day; back off
+            # rather than fail the whole capture on a burst limit.
+            _time.sleep(min(300, 30 * (attempt + 1)))
+            continue
+        raise subprocess.CalledProcessError(
+            completed.returncode, completed.args, completed.stdout,
+            completed.stderr,
+        )
+    else:
+        raise SystemExit(f"gcloud capture exhausted retries: {name}")
+    raw = completed.stdout
     path.write_bytes(raw)
     return json.loads(raw)
 
