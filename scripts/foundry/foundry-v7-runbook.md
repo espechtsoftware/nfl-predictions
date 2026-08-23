@@ -28,9 +28,13 @@ Bindings section.
 
 ## Frozen v7 identities
 
-- Code SHA: `0c7d8cc58344e1b14f0d64aad30007c889c4df30` (pushed `main`)
-- Cloud Build: `1d27f45f-9c85-43a6-a3e6-a8f9d4d56b59` (corpus config)
-- Worktree: `/tmp/nfl-predictions-corpus-0c7d8cc` (recreate after reboot)
+- Code SHA: `6b05db21b42b0469c672fe5d3ad5006a5f29df80` (pushed `main`;
+  contains the 600 s deadline AND the lane lattices — the first v7 build
+  `1d27f45f` at `0c7d8cc` was superseded unused because the preparer's
+  strict HEAD-equality law forbids running lane preplans from any
+  worktree not at the image commit)
+- Cloud Build: `1a017a13-8079-4e5f-bb61-3433e20458a2` (corpus config)
+- Worktree: `/tmp/nfl-predictions-corpus-6b05db2` (recreate after reboot)
 - Namespaces: `20260823-corpus-parametric-production-{foundation,batch}-v7a`
   and `-v7b`. v6 namespaces are BURNED (task-0 launch consumed + failed;
   never retry, never reuse the names; terminal evidence retained under
@@ -44,15 +48,13 @@ Bindings section.
 2. `foundry_v7_iam_move.sh` (dry-run, inspect, `--execute`) — ONCE for
    both lanes (moves both conditions to cover v7a+v7b prefixes).
 3. `python scripts/foundry/build_foundry_lane_preplan.py --lane <lane>
-   --image-commit 0c7d8cc58344e1b14f0d64aad30007c889c4df30
-   --worktree /tmp/nfl-predictions-corpus-lanes`
+   --image-commit 6b05db21b42b0469c672fe5d3ad5006a5f29df80
+   --worktree /tmp/nfl-predictions-corpus-6b05db2`
    → validate → dry-run → `execute --preplan … --execute` once
-   (CORPUS_PARAMETRIC_BATCH_PREPARER_ENABLED=1), all FROM the lanes
-   worktree (`/tmp/nfl-predictions-corpus-lanes` at `30254da` — the
-   lane-lattice preparer amendment; every image-pinned file is proven
-   byte-identical to the image commit by the builder, so the image stays
-   `1d27f45f`/`0c7d8cc`). The reuse-script transport flows keep
-   `CORPUS_PARAMETRIC_SOURCE=/tmp/nfl-predictions-corpus-0c7d8cc`.
+   (CORPUS_PARAMETRIC_BATCH_PREPARER_ENABLED=1), all FROM the image
+   worktree — the image commit contains the lane lattices, so preparer
+   worktree and image commit are the same and the builder's byte-identity
+   cross-check is trivially exact.
 4. `python scripts/foundry/append_foundry_lane_identities.py --lane
    <lane> --append`.
 5. `python scripts/foundry/capture_foundry_lane_iam.py --lane <lane>`
