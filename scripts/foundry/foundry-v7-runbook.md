@@ -49,7 +49,7 @@ Bindings section.
 
 1. v7 build SUCCESS → per lane: capture
    `governance-live-v7<lane>/build-metadata.json`
-   (gcloud builds describe 1a017a13… --format=json).
+   (gcloud builds describe 4ea157a4… --format=json).
 2. `foundry_v7_iam_move.sh` (dry-run, inspect, `--execute`) — ONCE for
    both lanes (moves both conditions to cover v7a+v7b prefixes).
 3. `python scripts/foundry/build_foundry_lane_preplan.py --lane <lane>
