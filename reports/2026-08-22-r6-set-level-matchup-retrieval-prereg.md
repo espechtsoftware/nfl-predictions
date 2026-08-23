@@ -92,9 +92,17 @@ fixed on disk.
   lattice law before any lane score existed. Every frozen cell,
   endpoint, bar, and prohibition above is unchanged; "the accepted
   panel" means the union of both lanes' verifier-accepted tasks.
-- v7a batch manifest: TO BE BOUND at publication
+- Namespace amendment 2026-08-23 (still before ANY batch task produced
+  a score): the v7 lane namespaces were burned UNUSED — their published
+  foundations pin a superseded image digest after the transport's
+  lane batch-mode law forced one more image respin; no launch was ever
+  consumed under them. The lanes are now
+  `20260823-corpus-parametric-production-batch-v8a` (source tasks 0–27)
+  and `-v8b` (28–53); every frozen cell, endpoint, bar, and prohibition
+  is unchanged.
+- v8a batch manifest: TO BE BOUND at publication
   (uri/generation/sha256/bytes).
-- v7b batch manifest: TO BE BOUND at publication
+- v8b batch manifest: TO BE BOUND at publication
   (uri/generation/sha256/bytes).
 - Runner commit at freeze: bound to repository main at the commit that
   adds this file (see git history for the exact SHA).
