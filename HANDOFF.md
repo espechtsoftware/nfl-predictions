@@ -20,6 +20,40 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-23 01:55 UTC (thirteenth update)
+
+### v6 terminally closed by 7 hard cells; v7 two-lane chain live
+
+- **v6 task-0 terminal failure (expected and clean)**: execution `knzbv`
+  failed 01:41Z with "solver matrix contains 7 non-optimal cells after
+  all 7000 attempts; status_counts={'error': 7, 'optimal': 6993}". All
+  seven are single cells in distinct hundred-visit units (arms 0/0/2/2/
+  3/5/5, shards 5/9/6/8/3/2/5): correct branch-and-bound collision
+  proofs that exceed the 120s per-visit budget under 7-worker cloud
+  contention (local reproduction of the first: optimal at 91.7s; the
+  cloud kill lands as status 'error' because the host watchdog truncates
+  CBC mid-write). Terminal evidence under
+  `20260822-foundry-production-v6/terminal-failure-evidence/`. v6
+  namespaces burned; never retry.
+- **Repairs on main**: deadline 600s (`0c7d8cc`); two enumerated
+  production lane lattices 0-27/28-53 (`30254da`) after discovering the
+  preparer's all-54 law; the first v7 image (`1d27f45f` at `0c7d8cc`)
+  was superseded UNUSED because the preparer's HEAD-equality law forbids
+  lane preplans from a worktree not at the image commit — final image
+  `1a017a13` at `6b05db2` (digest `sha256:15846fef...`) carries both.
+- **v7 lanes**: preplans built/validated/dry-run (A: 28 tasks, B: 26);
+  IAM conditions moved to v7a+v7b prefixes; lane A foundation executing;
+  operator authorized the second lane explicitly ("yes please do") on
+  reused job `atlas-cbc-32g-full-2023-w8-v1` (UID `1f4bcf0a-...`);
+  `scripts/foundry/run_foundry_lane_chain.sh <lane>` drives each lane
+  end-to-end resumably. R6 prereg substrate amended to the lane union
+  while outcome-blind. Before consuming lane launches, a local probe of
+  all seven hard ranges measures the empirical worst solve time against
+  the 600s law (scratchpad probe; runs after the foundation executes to
+  respect the single-heavy-process box law).
+- LR8-v3 warm-chain repair committed (`residual` suites green); working
+  tree fully clean.
+
 ## Current handoff — 2026-08-23 01:25 UTC (twelfth update)
 
 ### v6 LIVE: image accepted, foundation published, job configured, task-0 producer running
