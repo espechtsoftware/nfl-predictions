@@ -28,9 +28,14 @@ Bindings section.
 
 ## Frozen v7 identities
 
-- Code SHA: `b7f9c9848d05fe41314f14fbdfca8a9be241780d` (pushed `main`;
-  carries the 600 s deadline, the lane lattices, AND the
-  lattice-derived execute-path count laws). Superseded unused images:
+- Code SHA: `2aba4aefdc98b71e874195c85944c72f4b707c58` (pushed `main`;
+  carries the 600 s deadline, the lane lattices, the lattice-derived
+  execute-path count laws, AND the second-best uniqueness certificate —
+  the collision stage now maximizes the witness-excluded combined
+  objective and proves the runner-up strictly below the optimum by
+  exact integers, replacing the pinned-equality infeasibility proof
+  whose tree-closure ran a real cell past 39 unbounded CPU-minutes; all
+  seven v6-failed cells now certify in 0.8-1.38 s). Superseded unused images:
   `1d27f45f` at `0c7d8cc` (the preparer's strict HEAD-equality law
   forbids lane preplans from a worktree not at the image commit, and
   the lattices landed after that commit) and `1a017a13` at `6b05db2`
@@ -38,8 +43,10 @@ Bindings section.
   production constant, so both lane foundation executes refused
   fail-closed pre-write with "preflight task count differs" — nothing
   was published and the v7a/v7b namespaces stayed virgin).
-- Cloud Build: `4ea157a4-8e47-4956-ab3e-e0a24e080ff4` (corpus config)
-- Worktree: `/tmp/nfl-predictions-corpus-b7f9c98` (recreate after reboot)
+- Cloud Build: `b75297ee-f161-4c10-ba2d-5333efb0bde4` (corpus config;
+  superseded unused: `4ea157a4`@`b7f9c98` — its image predates the
+  second-best certificate and a hard cell would time out its lane)
+- Worktree: `/tmp/nfl-predictions-corpus-2aba4ae` (recreate after reboot)
 - Namespaces: `20260823-corpus-parametric-production-{foundation,batch}-v7a`
   and `-v7b`. v6 namespaces are BURNED (task-0 launch consumed + failed;
   never retry, never reuse the names; terminal evidence retained under
@@ -49,12 +56,12 @@ Bindings section.
 
 1. v7 build SUCCESS → per lane: capture
    `governance-live-v7<lane>/build-metadata.json`
-   (gcloud builds describe 4ea157a4… --format=json).
+   (gcloud builds describe b75297ee… --format=json).
 2. `foundry_v7_iam_move.sh` (dry-run, inspect, `--execute`) — ONCE for
    both lanes (moves both conditions to cover v7a+v7b prefixes).
 3. `python scripts/foundry/build_foundry_lane_preplan.py --lane <lane>
-   --image-commit b7f9c9848d05fe41314f14fbdfca8a9be241780d
-   --worktree /tmp/nfl-predictions-corpus-b7f9c98`
+   --image-commit 2aba4aefdc98b71e874195c85944c72f4b707c58
+   --worktree /tmp/nfl-predictions-corpus-2aba4ae`
    → validate → dry-run → `execute --preplan … --execute` once
    (CORPUS_PARAMETRIC_BATCH_PREPARER_ENABLED=1), all FROM the image
    worktree — the image commit contains the lane lattices, so preparer
@@ -78,8 +85,8 @@ Bindings section.
 
 - ~70–110 min per task (producer) + ~10–15 min verifier, per lane.
 - Two lanes ≈ 27–28 tasks each ≈ 24–30 h to full acceptance.
-- The 600 s deadline adds wall-clock only on genuinely hard worlds
-  (observed: 1 cell in 7,000 at ~91 s; margin ≈ 6×).
+- Under the second-best certificate the worst observed real cell is
+  1.38 s; the 600 s deadline carries ~430× margin.
 
 ## Never
 
