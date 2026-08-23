@@ -23,7 +23,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-WORKTREE = Path("/tmp/nfl-predictions-corpus-6b05db2")
+WORKTREE = Path("/tmp/nfl-predictions-corpus-b7f9c98")
 import argparse
 
 _parser = argparse.ArgumentParser(description=__doc__)

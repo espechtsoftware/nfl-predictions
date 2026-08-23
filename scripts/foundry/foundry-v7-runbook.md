@@ -28,13 +28,18 @@ Bindings section.
 
 ## Frozen v7 identities
 
-- Code SHA: `6b05db21b42b0469c672fe5d3ad5006a5f29df80` (pushed `main`;
-  contains the 600 s deadline AND the lane lattices — the first v7 build
-  `1d27f45f` at `0c7d8cc` was superseded unused because the preparer's
-  strict HEAD-equality law forbids running lane preplans from any
-  worktree not at the image commit)
-- Cloud Build: `1a017a13-8079-4e5f-bb61-3433e20458a2` (corpus config)
-- Worktree: `/tmp/nfl-predictions-corpus-6b05db2` (recreate after reboot)
+- Code SHA: `b7f9c9848d05fe41314f14fbdfca8a9be241780d` (pushed `main`;
+  carries the 600 s deadline, the lane lattices, AND the
+  lattice-derived execute-path count laws). Superseded unused images:
+  `1d27f45f` at `0c7d8cc` (the preparer's strict HEAD-equality law
+  forbids lane preplans from a worktree not at the image commit, and
+  the lattices landed after that commit) and `1a017a13` at `6b05db2`
+  (three execute-path count laws were still pinned to the 54-task
+  production constant, so both lane foundation executes refused
+  fail-closed pre-write with "preflight task count differs" — nothing
+  was published and the v7a/v7b namespaces stayed virgin).
+- Cloud Build: `4ea157a4-8e47-4956-ab3e-e0a24e080ff4` (corpus config)
+- Worktree: `/tmp/nfl-predictions-corpus-b7f9c98` (recreate after reboot)
 - Namespaces: `20260823-corpus-parametric-production-{foundation,batch}-v7a`
   and `-v7b`. v6 namespaces are BURNED (task-0 launch consumed + failed;
   never retry, never reuse the names; terminal evidence retained under
@@ -48,8 +53,8 @@ Bindings section.
 2. `foundry_v7_iam_move.sh` (dry-run, inspect, `--execute`) — ONCE for
    both lanes (moves both conditions to cover v7a+v7b prefixes).
 3. `python scripts/foundry/build_foundry_lane_preplan.py --lane <lane>
-   --image-commit 6b05db21b42b0469c672fe5d3ad5006a5f29df80
-   --worktree /tmp/nfl-predictions-corpus-6b05db2`
+   --image-commit b7f9c9848d05fe41314f14fbdfca8a9be241780d
+   --worktree /tmp/nfl-predictions-corpus-b7f9c98`
    → validate → dry-run → `execute --preplan … --execute` once
    (CORPUS_PARAMETRIC_BATCH_PREPARER_ENABLED=1), all FROM the image
    worktree — the image commit contains the lane lattices, so preparer
