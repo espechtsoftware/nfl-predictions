@@ -1468,3 +1468,48 @@ def test_classifier_accepts_both_exact_infeasibility_solution_headers():
         assert status is core.SolverStatus.ERROR
         assert terminal is None
         assert poison is True
+
+
+def test_finalizer_accepts_both_uniqueness_certificates(players):
+    # Regression for the v8 lane-A task-0 failure: generation completed
+    # 7000/7000 optimal, then the finalizer's aggregate stage-tuple law
+    # still pinned (OPTIMAL, INFEASIBLE) and refused every runner-up
+    # certificate. Both certificate tuples now come from one shared law,
+    # and a real flat-objective solve exercises the runner-up form
+    # through the finalizer clause exactly as the cloud matrix does.
+    assert core.UNIQUENESS_CERTIFICATE_STAGE_TUPLES == (
+        (core.SolverStatus.OPTIMAL, core.SolverStatus.INFEASIBLE),
+        (core.SolverStatus.OPTIMAL, core.SolverStatus.OPTIMAL),
+    )
+    profile = core.frozen_policy_profiles()[0]
+    flat = tuple(
+        10_000 + (index * index * 37) % 8_191
+        for index in range(len(players))
+    )
+    model = core.build_fresh_legal_model(
+        players, profile, flat,
+        construction_serial=0, model_name="finalizer_runner_up_cert",
+    )
+    outcome = core.default_cbc_solver(core.SolveRequest(
+        variant_ordinal=0,
+        parameter_set_id=profile.parameter_set_id,
+        visit_ordinal=0,
+        world=rw.WorldId("R0", 0),
+        objective_micro=flat,
+        timeout_seconds=core.SOLVER_TIMEOUT_SECONDS,
+        model=model,
+    ))
+    assert outcome.status is core.SolverStatus.OPTIMAL
+    statuses = tuple(
+        stage.status for stage in outcome.solver_proof.stages
+    )
+    assert statuses == (
+        core.SolverStatus.OPTIMAL, core.SolverStatus.OPTIMAL,
+    )
+    assert statuses in core.UNIQUENESS_CERTIFICATE_STAGE_TUPLES
+    core._validate_authoritative_solver_proof(
+        outcome,
+        solver_authority_sha256=core.canonical_sha256(
+            core._cbc_runtime_authority()
+        ),
+    )

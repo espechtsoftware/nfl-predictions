@@ -4707,10 +4707,7 @@ def _validate_authoritative_solver_proof(
         # infeasibility (witness was the only legal roster) or an exact
         # runner-up optimum whose strict gap the solver already compared
         # by integers before returning OPTIMAL.
-        legal = statuses in (
-            (SolverStatus.OPTIMAL, SolverStatus.INFEASIBLE),
-            (SolverStatus.OPTIMAL, SolverStatus.OPTIMAL),
-        )
+        legal = statuses in UNIQUENESS_CERTIFICATE_STAGE_TUPLES
         if not legal:
             raise CorpusLegalFeasibilityError(
                 "optimal cell does not carry a complete uniqueness proof"
@@ -6515,6 +6512,16 @@ def _finalize_test_generation_matrix(
     return _finalize_matrix_common(matrix)
 
 
+# The two exact uniqueness certificates of the second-best law: an exact
+# runner-up strictly below the optimum (OPTIMAL stage 2, gap compared by
+# integers in default_cbc_solver) or exact infeasibility (the witness was
+# the only legal roster). Single source for every stage-tuple law.
+UNIQUENESS_CERTIFICATE_STAGE_TUPLES: Final = (
+    (SolverStatus.OPTIMAL, SolverStatus.INFEASIBLE),
+    (SolverStatus.OPTIMAL, SolverStatus.OPTIMAL),
+)
+
+
 def _require_authoritative_generation_matrix(
     matrix: GenerationMatrix,
 ) -> AuthoritativeGenerationMatrix:
@@ -6546,8 +6553,11 @@ def _require_authoritative_generation_matrix(
         or any(
             attempt.status != SolverStatus.OPTIMAL
             or attempt.roster is None
+            # Second-best law: uniqueness is certified by either an exact
+            # runner-up strictly below the optimum (OPTIMAL stage 2) or
+            # exact infeasibility (the witness was the only legal roster).
             or tuple(stage.status for stage in attempt.solver_proof.stages)
-            != (SolverStatus.OPTIMAL, SolverStatus.INFEASIBLE)
+            not in UNIQUENESS_CERTIFICATE_STAGE_TUPLES
             for attempt in matrix.attempts
         )
         or sum(
