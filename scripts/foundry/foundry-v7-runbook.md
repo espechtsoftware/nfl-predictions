@@ -44,9 +44,15 @@ Bindings section.
 2. `foundry_v7_iam_move.sh` (dry-run, inspect, `--execute`) — ONCE for
    both lanes (moves both conditions to cover v7a+v7b prefixes).
 3. `python scripts/foundry/build_foundry_lane_preplan.py --lane <lane>
-   --expected-commit 0c7d8cc… --worktree /tmp/nfl-predictions-corpus-0c7d8cc`
+   --image-commit 0c7d8cc58344e1b14f0d64aad30007c889c4df30
+   --worktree /tmp/nfl-predictions-corpus-lanes`
    → validate → dry-run → `execute --preplan … --execute` once
-   (CORPUS_PARAMETRIC_BATCH_PREPARER_ENABLED=1).
+   (CORPUS_PARAMETRIC_BATCH_PREPARER_ENABLED=1), all FROM the lanes
+   worktree (`/tmp/nfl-predictions-corpus-lanes` at `30254da` — the
+   lane-lattice preparer amendment; every image-pinned file is proven
+   byte-identical to the image commit by the builder, so the image stays
+   `1d27f45f`/`0c7d8cc`). The reuse-script transport flows keep
+   `CORPUS_PARAMETRIC_SOURCE=/tmp/nfl-predictions-corpus-0c7d8cc`.
 4. `python scripts/foundry/append_foundry_lane_identities.py --lane
    <lane> --append`.
 5. `python scripts/foundry/capture_foundry_lane_iam.py --lane <lane>`
