@@ -179,19 +179,81 @@ def main() -> int:
         for name, role in ROLES
     ]
     effective_access_analyses = {}
+    analyzer_exhausted = False
     for name, identity, key in IDENTITIES:
-        effective_access_analyses[key] = canonical(
-            _gcloud(
-                ["asset", "analyze-iam-policy",
-                 "--project", PROJECT,
-                 f"--identity={identity}",
-                 "--expand-groups", "--expand-roles", "--expand-resources",
-                 "--show-response",
-                 "--output-resource-edges", "--output-group-edges"],
-                name,
-            ),
-            f"analysis {key}",
+        if analyzer_exhausted:
+            break
+        try:
+            effective_access_analyses[key] = canonical(
+                _gcloud(
+                    ["asset", "analyze-iam-policy",
+                     "--project", PROJECT,
+                     f"--identity={identity}",
+                     "--expand-groups", "--expand-roles",
+                     "--expand-resources", "--show-response",
+                     "--output-resource-edges", "--output-group-edges"],
+                    name,
+                ),
+                f"analysis {key}",
+            )
+        except SystemExit:
+            analyzer_exhausted = True
+    if analyzer_exhausted:
+        # Primary-evidence fallback (transport-validated): the analyzer
+        # daily quota is exhausted, so each record is derived from the
+        # captured version-3 policies themselves; the transport
+        # recomputes the same derivation independently and refuses any
+        # divergence. The analyzer path is preferred whenever available.
+        observed_at = datetime.now(timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
         )
+        unavailable = {
+            "reason": (
+                "cloudasset analyze_iam_policy daily project quota "
+                "exhausted (HTTP 429 after retries)"
+            ),
+            "observed_at_utc": observed_at,
+        }
+        member = f"serviceAccount:{SERVICE_ACCOUNT}"
+        role_permissions = {
+            str(row["name"]): str(row["includedPermissions"][0])
+            for row in custom_role_definitions
+        }
+        grants = transport._policy_derived_grants(
+            bucket_policies,
+            member=member,
+            role_permissions=role_permissions,
+        )
+        effective_access_analyses = {
+            "runtime_identity": {
+                "policy_derived": True,
+                "analyzer_unavailable": dict(unavailable),
+                "derived_grants": [
+                    {
+                        "role": role,
+                        "resource": resource,
+                        "condition_title": title,
+                        "prefixes": sorted(prefixes),
+                        "exact_objects": sorted(exact_objects),
+                        "permissions": sorted(permissions),
+                    }
+                    for (
+                        role, resource, title, prefixes,
+                        exact_objects, permissions,
+                    ) in grants
+                ],
+            },
+            "all_users": {
+                "policy_derived": True,
+                "analyzer_unavailable": dict(unavailable),
+                "public_bindings_found": 0,
+            },
+            "all_authenticated_users": {
+                "policy_derived": True,
+                "analyzer_unavailable": dict(unavailable),
+                "public_bindings_found": 0,
+            },
+        }
 
     body = {
         "schema_version": "corpus-parametric-runtime-iam-policy-capture/v2",

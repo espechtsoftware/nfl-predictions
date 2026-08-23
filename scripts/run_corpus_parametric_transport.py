@@ -2394,6 +2394,94 @@ def _cloud_asset_grant(
     )
 
 
+def _policy_derived_grants(
+    bucket_policies: object,
+    *,
+    member: str,
+    role_permissions: Mapping[str, str],
+) -> list[tuple[
+    str, str, str | None, frozenset[str], frozenset[str], frozenset[str]
+]]:
+    """Recompute the runtime member's grants from the captured policies.
+
+    Primary-evidence fallback for the Cloud Asset analyzer (200/day
+    project quota): the version-3 bucket policies in the capture are the
+    authoritative source the analyzer itself reads, the project policy
+    is separately proven role-free for the member, and this standalone
+    project has no organization- or folder-level bindings to inherit —
+    so a deterministic recomputation over the captured policies covers
+    the analyzer's reachable-grant set for these buckets exactly. The
+    analyzer path remains preferred whenever quota permits.
+    """
+    grants: list[tuple[
+        str, str, str | None, frozenset[str], frozenset[str], frozenset[str]
+    ]] = []
+    for raw_row in _sequence(bucket_policies, label="derived bucket policies"):
+        row = _mapping(raw_row, label="derived bucket policy row")
+        bucket = _string(row.get("bucket"), label="derived policy bucket")
+        policy = _mapping(row.get("policy"), label="derived policy body")
+        for binding in _policy_bindings(
+            policy, label=f"derived bucket {bucket} policy"
+        ):
+            if _binding_members(
+                binding, label=f"derived bucket {bucket} binding"
+            ) != [member]:
+                continue
+            role = _string(binding.get("role"), label="derived binding role")
+            if role not in role_permissions:
+                raise CorpusParametricTransportError(
+                    "derived runtime grant uses an unregistered role"
+                )
+            title: str | None = None
+            prefixes: frozenset[str] = frozenset()
+            exact_objects: frozenset[str] = frozenset()
+            condition_value = binding.get("condition")
+            if condition_value is not None:
+                condition = _mapping(
+                    condition_value, label="derived binding condition"
+                )
+                title = _string(
+                    condition.get("title"), label="derived condition title"
+                )
+                prefixes, exact_objects = _condition_grants(
+                    condition.get("expression"),
+                    label="derived condition expression",
+                )
+            grants.append((
+                role,
+                f"//storage.googleapis.com/{bucket}",
+                title,
+                prefixes,
+                exact_objects,
+                frozenset({role_permissions[role]}),
+            ))
+    return grants
+
+
+def _require_policy_derived_marker(
+    value: object, *, label: str
+) -> Mapping[str, object]:
+    item = _mapping(value, label=label)
+    unavailable = _mapping(
+        item.get("analyzer_unavailable"),
+        label=f"{label} analyzer-unavailable record",
+    )
+    if (
+        item.get("policy_derived") is not True
+        or not _string(
+            unavailable.get("reason"), label=f"{label} unavailable reason"
+        )
+    ):
+        raise CorpusParametricTransportError(
+            f"{label} is not a complete policy-derived record"
+        )
+    _timestamp(
+        unavailable.get("observed_at_utc"),
+        label=f"{label} unavailable timestamp",
+    )
+    return item
+
+
 def _validate_effective_access(
     value: object,
     *,
@@ -2402,6 +2490,8 @@ def _validate_effective_access(
     read_prefixes: Sequence[str],
     read_exact_identities: Sequence[Mapping[str, object]],
     output_prefix: str,
+    bucket_policies: object,
+    project_policy: object,
 ) -> None:
     analyses = _mapping(value, label="effective-access analyses")
     _exact_keys(
@@ -2409,16 +2499,122 @@ def _validate_effective_access(
         frozenset({"runtime_identity", "all_users", "all_authenticated_users"}),
         label="effective-access analyses",
     )
-    _, read_role, create_role = _validate_custom_roles(
+    roles, read_role, create_role = _validate_custom_roles(
         custom_role_definitions
     )
     member = f"serviceAccount:{service_account}"
-    observed = [
-        _cloud_asset_grant(row, member=member)
-        for row in _cloud_asset_results(
-            analyses["runtime_identity"], identity=member
+    runtime_value = _mapping(
+        analyses["runtime_identity"], label="runtime effective access"
+    )
+    policy_derived = runtime_value.get("policy_derived") is True
+    if policy_derived:
+        # Every one of the three records must be policy-derived together,
+        # each carrying the explicit analyzer-unavailable reason.
+        runtime_record = _require_policy_derived_marker(
+            runtime_value, label="runtime policy-derived access"
         )
-    ]
+        for key, identity in (
+            ("all_users", "allUsers"),
+            ("all_authenticated_users", "allAuthenticatedUsers"),
+        ):
+            record = _require_policy_derived_marker(
+                analyses[key], label=f"{identity} policy-derived access"
+            )
+            found = 0
+            for raw_row in _sequence(
+                bucket_policies, label="derived public scan policies"
+            ):
+                row = _mapping(raw_row, label="derived public scan row")
+                for binding in _policy_bindings(
+                    _mapping(row.get("policy"), label="derived public policy"),
+                    label="derived public policy",
+                ):
+                    members = _binding_members(
+                        binding, label="derived public binding"
+                    )
+                    found += int(identity in members)
+            for binding in _policy_bindings(
+                _mapping(project_policy, label="derived project policy"),
+                label="derived project policy",
+            ):
+                found += int(identity in _binding_members(
+                    binding, label="derived project binding"
+                ))
+            if found != 0 or record.get("public_bindings_found") != 0:
+                raise CorpusParametricTransportError(
+                    f"policy-derived public access exists for {identity}"
+                )
+        role_permissions = {
+            str(row["name"]): str(
+                _sequence(
+                    _mapping(row, label="derived role").get(
+                        "includedPermissions"
+                    ),
+                    label="derived role permissions",
+                )[0]
+            )
+            for row in roles
+        }
+        observed = _policy_derived_grants(
+            bucket_policies,
+            member=member,
+            role_permissions=role_permissions,
+        )
+        declared = [
+            (
+                _string(row.get("role"), label="declared grant role"),
+                _string(row.get("resource"), label="declared grant resource"),
+                (
+                    None
+                    if row.get("condition_title") is None
+                    else _string(
+                        row.get("condition_title"),
+                        label="declared grant title",
+                    )
+                ),
+                frozenset(
+                    _string(item, label="declared grant prefix")
+                    for item in _sequence(
+                        row.get("prefixes"), label="declared grant prefixes"
+                    )
+                ),
+                frozenset(
+                    _string(item, label="declared grant exact")
+                    for item in _sequence(
+                        row.get("exact_objects"),
+                        label="declared grant exact objects",
+                    )
+                ),
+                frozenset(
+                    _string(item, label="declared grant permission")
+                    for item in _sequence(
+                        row.get("permissions"),
+                        label="declared grant permissions",
+                    )
+                ),
+            )
+            for raw_row in [
+                _sequence(
+                    runtime_record.get("derived_grants"),
+                    label="declared derived grants",
+                )
+            ]
+            for row in (
+                _mapping(item, label="declared derived grant")
+                for item in raw_row
+            )
+        ]
+        if sorted(declared) != sorted(observed):
+            raise CorpusParametricTransportError(
+                "policy-derived grants differ from the captured policies"
+            )
+    else:
+        observed = [
+            _cloud_asset_grant(row, member=member)
+            for row in _cloud_asset_results(
+                analyses["runtime_identity"], identity=member
+            )
+        ]
     if len(observed) != len(set(observed)):
         raise CorpusParametricTransportError(
             "Cloud Asset effective grant repeats"
@@ -2484,14 +2680,15 @@ def _validate_effective_access(
         raise CorpusParametricTransportError(
             "Cloud Asset effective runtime access is incomplete or overbroad"
         )
-    for key, identity in (
-        ("all_users", "allUsers"),
-        ("all_authenticated_users", "allAuthenticatedUsers"),
-    ):
-        if _cloud_asset_results(analyses[key], identity=identity):
-            raise CorpusParametricTransportError(
-                f"Cloud Asset public access exists for {identity}"
-            )
+    if not policy_derived:
+        for key, identity in (
+            ("all_users", "allUsers"),
+            ("all_authenticated_users", "allAuthenticatedUsers"),
+        ):
+            if _cloud_asset_results(analyses[key], identity=identity):
+                raise CorpusParametricTransportError(
+                    f"Cloud Asset public access exists for {identity}"
+                )
 
 
 def _validate_runtime_iam_capture(value: object) -> dict[str, object]:
@@ -2742,6 +2939,8 @@ def validate_runtime_iam_evidence(
         read_prefixes=read_prefixes,
         read_exact_identities=retained_exact,
         output_prefix=retained_output,
+        bucket_policies=item["bucket_policies"],
+        project_policy=item["project_policy"],
     )
     return item
 

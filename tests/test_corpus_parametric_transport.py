@@ -3324,3 +3324,95 @@ def test_shell_keeps_configure_launch_recover_watch_and_finish_separate() -> Non
     assert renewal_source.index(
         'capture_all_region_schedulers "$schedulers"'
     ) < renewal_source.index("created_at=\"$(date -u")
+
+
+def test_policy_derived_effective_access_recomputes_and_fails_closed() -> None:
+    # Analyzer-quota fallback: each record must declare policy_derived
+    # with an explicit analyzer-unavailable reason, and the validator
+    # recomputes every grant from the capture's own version-3 bucket
+    # policies, refusing any divergence, unregistered role, or public
+    # member. The analyzer path remains preferred and untouched.
+    store, manifest, _, configured = _configured()
+    iam = transport.strict_json_bytes(
+        store.read(configured["runtime_iam_evidence"]), label="runtime IAM"
+    )
+    kwargs = _runtime_iam_validation_kwargs(manifest, iam)
+    member = f"serviceAccount:{SERVICE_ACCOUNT}"
+    role_permissions = {
+        str(row["name"]): str(row["includedPermissions"][0])
+        for row in iam["custom_role_definitions"]
+    }
+    unavailable = {
+        "reason": "cloudasset analyze_iam_policy daily quota exhausted",
+        "observed_at_utc": NOW,
+    }
+    grants = transport._policy_derived_grants(
+        iam["bucket_policies"],
+        member=member,
+        role_permissions=role_permissions,
+    )
+    derived = deepcopy(iam)
+    derived["effective_access_analyses"] = {
+        "runtime_identity": {
+            "policy_derived": True,
+            "analyzer_unavailable": dict(unavailable),
+            "derived_grants": [
+                {
+                    "role": role,
+                    "resource": resource,
+                    "condition_title": title,
+                    "prefixes": sorted(prefixes),
+                    "exact_objects": sorted(exact_objects),
+                    "permissions": sorted(permissions),
+                }
+                for (
+                    role, resource, title, prefixes, exact_objects,
+                    permissions,
+                ) in grants
+            ],
+        },
+        "all_users": {
+            "policy_derived": True,
+            "analyzer_unavailable": dict(unavailable),
+            "public_bindings_found": 0,
+        },
+        "all_authenticated_users": {
+            "policy_derived": True,
+            "analyzer_unavailable": dict(unavailable),
+            "public_bindings_found": 0,
+        },
+    }
+    accepted = transport.validate_runtime_iam_evidence(
+        _rehash_runtime_iam(derived), **kwargs
+    )
+    assert accepted["effective_access_analyses"]["runtime_identity"][
+        "policy_derived"
+    ] is True
+
+    def rejected(value: dict[str, object], pattern: str) -> None:
+        with pytest.raises(
+            transport.CorpusParametricTransportError, match=pattern
+        ):
+            transport.validate_runtime_iam_evidence(
+                _rehash_runtime_iam(value), **kwargs
+            )
+
+    tampered = deepcopy(derived)
+    tampered["effective_access_analyses"]["runtime_identity"][
+        "derived_grants"
+    ] = tampered["effective_access_analyses"]["runtime_identity"][
+        "derived_grants"
+    ][:-1]
+    rejected(tampered, "differ from the captured policies")
+
+    unreasoned = deepcopy(derived)
+    del unreasoned["effective_access_analyses"]["all_users"][
+        "analyzer_unavailable"
+    ]
+    rejected(unreasoned, "analyzer-unavailable record")
+
+    public = deepcopy(derived)
+    public["bucket_policies"][0]["policy"]["bindings"].append({
+        "role": "roles/storage.objectViewer", "members": ["allUsers"]
+    })
+    rejected(public, "public")
