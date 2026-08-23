@@ -312,16 +312,34 @@ def read_task_variant_results(
     if len(present) != 1:
         _fail("carrier must have exactly one known self-hash field")
     _validate_self_hash(carrier, field=present[0], label="carrier")
-    rows = _sequence(
-        carrier.get("variant_result_objects"),
-        label="carrier variant result objects",
-    )
+    # Two carrier dialects name the seven per-arm results: the retrieval
+    # continuation's "variant_result_objects" rows carry object_identity
+    # directly, while the parametric task result's "variant_results" rows
+    # carry the identity under result_object beside the arm's policy
+    # receipt. Each dialect is validated against its own exact row shape.
+    if "variant_result_objects" in carrier:
+        rows = _sequence(
+            carrier.get("variant_result_objects"),
+            label="carrier variant result objects",
+        )
+        identity_field = "object_identity"
+        expected_row_fields = {"ordinal", "parameter_set_id", "object_identity"}
+    else:
+        rows = _sequence(
+            carrier.get("variant_results"),
+            label="carrier variant result objects",
+        )
+        identity_field = "result_object"
+        expected_row_fields = {
+            "ordinal", "parameter_set_id", "parameter_set_sha256",
+            "effective_policy_receipt", "result_object",
+        }
     if len(rows) != len(PARAMETER_SET_ORDER):
         _fail("carrier does not name exactly seven variant results")
     results: list[dict[str, object]] = []
     for expected_ordinal, raw_row in enumerate(rows):
         row = _mapping(raw_row, label=f"variant object[{expected_ordinal}]")
-        if set(row) != {"ordinal", "parameter_set_id", "object_identity"}:
+        if set(row) != expected_row_fields:
             _fail("variant object row fields differ")
         if (
             row["ordinal"] != expected_ordinal
@@ -330,7 +348,7 @@ def read_task_variant_results(
         ):
             _fail("variant object ordering differs")
         identity = normalize_object_identity(
-            row["object_identity"],
+            row[identity_field],
             label=f"variant object[{expected_ordinal}]",
         )
         body = validate_variant_result_bytes(

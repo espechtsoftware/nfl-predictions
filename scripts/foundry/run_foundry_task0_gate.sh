@@ -25,7 +25,7 @@ carrier_field() {
   jq -er ".task_result.$1" "$CLOSED"
 }
 
-exec "$PYTHON_BIN" "$GATE_SCRIPT" \
+PYTHONPATH=/home/erich/projects/nfl-predictions/src exec "$PYTHON_BIN" "$GATE_SCRIPT" \
   --carrier-uri "$(carrier_field uri)" \
   --carrier-generation "$(carrier_field generation)" \
   --carrier-sha256 "$(carrier_field sha256)" \
