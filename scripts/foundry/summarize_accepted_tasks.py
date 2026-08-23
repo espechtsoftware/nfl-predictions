@@ -34,7 +34,7 @@ def main() -> int:
     args = parser.parse_args()
     run_dir = ROOT / (
         f"reports/corpus-parametric-runs/20260823-foundry-production-"
-        f"v7{args.lane}/transport-live-v7{args.lane}"
+        f"v8{args.lane}/transport-live-v8{args.lane}"
     )
     tasks_dir = run_dir / "tasks"
     closed = sorted(tasks_dir.glob("*-producer-closed.json"))
