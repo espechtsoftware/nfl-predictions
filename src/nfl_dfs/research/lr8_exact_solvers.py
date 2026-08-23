@@ -24,12 +24,13 @@ from nfl_dfs.research import lr8_training_source as source
 from nfl_dfs.research import residual_world_columns as rw
 
 
-PROOF_SCHEMA: Final = "lr8-exact-cbc-proof-v1"
+PROOF_SCHEMA: Final = "lr8-exact-cbc-proof-v2"
 TRAINING_SOLVE_KIND: Final = "lr8-training-world-optimum"
 PRICING_SOLVE_KIND: Final = "lr8-positive-residual-pricing"
 EXACT_SOLVE_SECONDS: Final = 300
 CANONICAL_CHUNK_BITS: Final = rw.RESIDUAL_OBJECTIVE_CHUNK_BITS
 CANONICAL_ROSTER_LAW: Final = "minimum-rank-sum-then-utf8-incidence-v1"
+TRAINING_WARM_CHAIN_LAW: Final = "cold-quotient-then-immediate-predecessor-v1"
 GAIN_OBJECTIVE_CHUNK_BITS: Final = 20
 
 
@@ -171,7 +172,7 @@ def _solve_and_freeze(
             solver.cuts_exact = False  # noqa: SLF001
         if solver.cuts_exact is not False:  # noqa: SLF001
             raise LR8ExactSolverError("exact solve did not disable cuts")
-    if warm_start or preprocess_off:
+    if preprocess_off:
         solver.disable_preprocess()
     evidence = rw._solve(problem, solver, label)  # noqa: SLF001
     rw.validate_cbc_solve_evidence(evidence)
@@ -202,7 +203,7 @@ def _solve_without_freeze(
             solver.cuts_exact = False  # noqa: SLF001
         if solver.cuts_exact is not False:  # noqa: SLF001
             raise LR8ExactSolverError("exact solve did not disable cuts")
-    if warm_start or preprocess_off:
+    if preprocess_off:
         solver.disable_preprocess()
     evidence = rw._solve(problem, solver, label)  # noqa: SLF001
     rw.validate_cbc_solve_evidence(evidence)
@@ -237,6 +238,7 @@ def _canonicalize(
     solver_factory: rw.SolverFactory,
     solve_evidence: list[rw.CbcSolveEvidence],
     label_prefix: str,
+    warm_chain: bool,
 ) -> tuple[tuple[str, ...], dict[str, object]]:
     """Prove the retained minimum-rank then UTF-8-incidence tie law.
 
@@ -260,9 +262,9 @@ def _canonicalize(
         name=f"{label_prefix}_canonical_rank",
         label=f"{label_prefix} canonical rank sum",
         solver_factory=solver_factory,
-        warm_start=False,
+        warm_start=warm_chain,
         cuts_off=True,
-        preprocess_off=True,
+        preprocess_off=not warm_chain,
     )
     solve_evidence.append(rank_evidence)
     first = _solved_roster(model)
@@ -277,9 +279,9 @@ def _canonicalize(
         sense=pulp.LpMinimize,
         label=f"{label_prefix} canonical ambiguity distance",
         solver_factory=solver_factory,
-        warm_start=False,
+        warm_start=warm_chain,
         cuts_off=True,
-        preprocess_off=True,
+        preprocess_off=not warm_chain,
     )
     solve_evidence.append(ambiguity_evidence)
     ambiguity_distance = rw.ROSTER_SIZE - minimum_overlap
@@ -321,9 +323,9 @@ def _canonicalize(
                 sense=pulp.LpMaximize,
                 label=f"{label_prefix} canonical incidence chunk {index:04d}",
                 solver_factory=solver_factory,
-                warm_start=False,
+                warm_start=warm_chain,
                 cuts_off=True,
-                preprocess_off=True,
+                preprocess_off=not warm_chain,
             )
             solve_evidence.append(evidence)
             reconstructed = 0
@@ -358,6 +360,178 @@ def _canonicalize(
     }
 
 
+def _training_stage_semantics(
+    result_payload: Mapping[str, object],
+    solve_evidence: Sequence[rw.CbcSolveEvidence],
+) -> tuple[tuple[str, int], ...]:
+    """Reconstruct the exact ordered LR8 training-solve stage contract."""
+    if result_payload.get("solve_chain_law") != TRAINING_WARM_CHAIN_LAW:
+        raise LR8ExactSolverError("training proof solve-chain law differs")
+    canonical = result_payload.get("canonical")
+    if not isinstance(canonical, Mapping):
+        raise LR8ExactSolverError("training proof lacks canonical stage data")
+    if canonical.get("law") != CANONICAL_ROSTER_LAW:
+        raise LR8ExactSolverError("training proof canonical law differs")
+
+    def stage_int(value: object, *, label: str) -> int:
+        try:
+            return _exact_int(value, label=label, minimum=0)
+        except LR8ExactSolverError as exc:
+            raise LR8ExactSolverError(
+                f"training proof {label} is malformed"
+            ) from exc
+
+    quotient = stage_int(
+        result_payload.get("score_quotient"), label="score quotient"
+    )
+    remainder = stage_int(
+        result_payload.get("score_remainder"), label="score remainder"
+    )
+    rank_sum = stage_int(canonical.get("rank_sum"), label="canonical rank sum")
+    ambiguity_distance = stage_int(
+        canonical.get("ambiguity_distance"),
+        label="canonical ambiguity distance",
+    )
+    if ambiguity_distance > rw.ROSTER_SIZE:
+        raise LR8ExactSolverError(
+            "training proof canonical ambiguity distance is malformed"
+        )
+    raw_incidence = canonical.get("incidence_chunk_optima")
+    if not isinstance(raw_incidence, list):
+        raise LR8ExactSolverError(
+            "training proof incidence chunk optima are malformed"
+        )
+    incidence = tuple(
+        stage_int(value, label=f"canonical incidence optimum {index:02d}")
+        for index, value in enumerate(raw_incidence)
+    )
+    if not solve_evidence:
+        raise LR8ExactSolverError("training proof has no retained stage")
+    try:
+        assignment = rw._scientific_assignment_from_evidence(  # noqa: SLF001
+            solve_evidence[-1]
+        )
+    except rw.ResidualWorldError as exc:
+        raise LR8ExactSolverError(
+            "training proof terminal assignment is malformed"
+        ) from exc
+    indexed_decisions: list[tuple[int, int]] = []
+    for name, value in assignment:
+        if not name.startswith("x_"):
+            continue
+        suffix = name[2:]
+        if len(suffix) != 4 or not suffix.isascii() or not suffix.isdigit():
+            raise LR8ExactSolverError(
+                "training proof decision assignment is malformed"
+            )
+        indexed_decisions.append((int(suffix), value))
+    indexed_decisions.sort()
+    if (
+        len(indexed_decisions) < rw.ROSTER_SIZE
+        or [index for index, _ in indexed_decisions]
+        != list(range(len(indexed_decisions)))
+        or any(value not in {0, 1} for _, value in indexed_decisions)
+        or sum(value for _, value in indexed_decisions) != rw.ROSTER_SIZE
+    ):
+        raise LR8ExactSolverError(
+            "training proof decision assignment is incomplete"
+        )
+    decision_bits = tuple(value for _, value in indexed_decisions)
+    if sum(
+        (index + 1) * value for index, value in enumerate(decision_bits)
+    ) != rank_sum:
+        raise LR8ExactSolverError(
+            "training proof terminal assignment left the canonical rank face"
+        )
+    incidence_indices: list[int] = []
+    if ambiguity_distance:
+        fixed_ones = 0
+        index = 0
+        while index < len(decision_bits):
+            remaining = len(decision_bits) - index
+            needed = rw.ROSTER_SIZE - fixed_ones
+            if needed in {0, remaining}:
+                break
+            incidence_indices.append(index)
+            chunk = decision_bits[index:index + CANONICAL_CHUNK_BITS]
+            fixed_ones += sum(chunk)
+            index += len(chunk)
+    if len(incidence) != len(incidence_indices):
+        raise LR8ExactSolverError(
+            "training proof incidence stage population is incomplete"
+        )
+    return (
+        ("lr8 training score quotient", quotient),
+        ("lr8 training score remainder", remainder),
+        ("lr8_training canonical rank sum", rank_sum),
+        (
+            "lr8_training canonical ambiguity distance",
+            rw.ROSTER_SIZE - ambiguity_distance,
+        ),
+        *(
+            (
+                "lr8_training canonical incidence chunk "
+                f"{stage_index:04d}",
+                optimum,
+            )
+            for stage_index, optimum in zip(
+                incidence_indices, incidence, strict=True
+            )
+        ),
+    )
+
+
+def _validate_training_warm_chain(
+    result_payload: Mapping[str, object],
+    solve_evidence: Sequence[rw.CbcSolveEvidence],
+) -> None:
+    """Fail closed unless every post-quotient stage names its predecessor."""
+    evidence = tuple(solve_evidence)
+    if not evidence:
+        raise LR8ExactSolverError("training proof has no retained stage")
+    for index, receipt in enumerate(evidence):
+        try:
+            rw.validate_cbc_solve_evidence(receipt)
+        except rw.ResidualWorldError as exc:
+            raise LR8ExactSolverError(
+                f"training proof stage {index:02d} evidence is malformed"
+            ) from exc
+    semantics = _training_stage_semantics(result_payload, evidence)
+    if len(evidence) != len(semantics):
+        raise LR8ExactSolverError("training proof stage count differs")
+    prior: rw.CbcSolveEvidence | None = None
+    for index, (receipt, (label, objective)) in enumerate(
+        zip(evidence, semantics, strict=True)
+    ):
+        expected_warm = index > 0
+        if (
+            receipt.solve_label != label
+            or receipt.objective != objective
+            or receipt.max_seconds != EXACT_SOLVE_SECONDS
+            or receipt.warm_start is not expected_warm
+            or receipt.cuts is not False
+            or receipt.preprocess_off is not False
+        ):
+            raise LR8ExactSolverError(
+                f"training proof stage {index:02d} semantic law differs"
+            )
+        if expected_warm:
+            if prior is None:  # pragma: no cover - guarded by index
+                raise LR8ExactSolverError(
+                    "training warm stage lacks an ordered predecessor"
+                )
+            try:
+                rw._validate_ordered_warm_predecessor(  # noqa: SLF001
+                    prior, receipt
+                )
+            except rw.ResidualWorldError as exc:
+                raise LR8ExactSolverError(
+                    f"training proof stage {index:02d} does not name its "
+                    "immediate ordered predecessor"
+                ) from exc
+        prior = receipt
+
+
 def _proof_bundle(
     *,
     solve_kind: str,
@@ -370,6 +544,8 @@ def _proof_bundle(
         raise LR8ExactSolverError("exact solve retained no CBC evidence")
     for receipt in evidence:
         rw.validate_cbc_solve_evidence(receipt)
+    if solve_kind == TRAINING_SOLVE_KIND:
+        _validate_training_warm_chain(result_payload, evidence)
     payload = {
         "schema": PROOF_SCHEMA,
         "solve_kind": solve_kind,
@@ -424,6 +600,10 @@ def validate_proof_bundle(value: ExactSolveProofBundle) -> None:
         raise LR8ExactSolverError("exact proof has no retained CBC evidence")
     for receipt in value.solve_evidence:
         rw.validate_cbc_solve_evidence(receipt)
+    if value.solve_kind == TRAINING_SOLVE_KIND:
+        _validate_training_warm_chain(
+            value.result_payload, value.solve_evidence
+        )
 
 
 def _publish(
@@ -567,9 +747,9 @@ def _solve_training_core(
         name="training_score_remainder",
         label="lr8 training score remainder",
         solver_factory=factory,
-        warm_start=False,
+        warm_start=True,
         cuts_off=True,
-        preprocess_off=True,
+        preprocess_off=False,
     )
     evidence.append(receipt)
     objective = (
@@ -582,6 +762,7 @@ def _solve_training_core(
         solver_factory=factory,
         solve_evidence=evidence,
         label_prefix="lr8_training",
+        warm_chain=True,
     )
     row = {player.player_id: index for index, player in enumerate(players)}
     reconstructed = sum(int(micro[row[player_id]]) for player_id in roster)
@@ -596,6 +777,7 @@ def _solve_training_core(
         "score_remainder": remainder_optimum,
         "score_offset": offset,
         "canonical": canonical,
+        "solve_chain_law": TRAINING_WARM_CHAIN_LAW,
         "dk_classic_only": True,
         "incumbent_no_goods_enforced": True,
         "house_rules_applied": [],
@@ -1256,6 +1438,7 @@ def _solve_pricing_core(
         solver_factory=factory,
         solve_evidence=evidence,
         label_prefix="lr8_pricing",
+        warm_chain=False,
     )
     if roster in forbidden:
         raise LR8ExactSolverError("pricing roster violates a complete no-good")
@@ -1424,6 +1607,7 @@ __all__ = [
     "PRICING_SOLVE_KIND",
     "PROOF_SCHEMA",
     "TRAINING_SOLVE_KIND",
+    "TRAINING_WARM_CHAIN_LAW",
     "make_pricing_step",
     "make_training_world_solver",
     "pricing_request_sha256",

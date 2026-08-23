@@ -4409,6 +4409,31 @@ def _decode_integer_token(value: str, label: str) -> tuple[int, Decimal]:
     return int(canonical_decimal), signed_residual
 
 
+_CBC_BENIGN_PRESOLVED_MIP = re.compile(
+    r"^Cbc3007W No integer variables - nothing to do[ \t]*$",
+    re.MULTILINE,
+)
+
+
+def _cbc_warning_marker_text(log: str) -> str:
+    """Mask only CBC's benign fully-presolved-MIP notice before warning scan.
+
+    With preprocessing enabled (mandated by the LR8-v3 warm-chain protocol),
+    CBC presolve can fix every integer variable of a small exact stage and
+    then prints ``Cbc3007W No integer variables - nothing to do`` before
+    solving the remaining problem to its exact optimum.  The message code
+    ends in ``W`` so the blanket warning law would poison a correct exact
+    receipt — the same misclassified-benign-terminal defect class that
+    terminally failed the corpus v4 producer (``Integer infeasible``
+    solution headers).  Only this complete, observed line is masked; the
+    exact ``Result - Optimal solution found`` terminal and every other
+    warning code remain enforced.
+    """
+    return _CBC_BENIGN_PRESOLVED_MIP.sub(
+        "<benign presolved-mip notice>", log
+    )
+
+
 def _cbc_forbidden_marker_text(log: str) -> str:
     """Mask only CBC's finite intermediate LP infeasibility diagnostics.
 
@@ -5458,7 +5483,7 @@ def _parse_cbc_evidence(
             f"{label} is {pulp.LpStatus[problem.status]}/"
             f"{pulp.LpSolution.get(problem.sol_status, problem.sol_status)}"
         )
-    if _CBC_WARNING.search(log):
+    if _CBC_WARNING.search(_cbc_warning_marker_text(log)):
         raise SolverFailure("CBC exact solve emitted a solver warning")
     if _CBC_FORBIDDEN.search(_cbc_forbidden_marker_text(log)):
         raise SolverFailure("CBC exact solve contains a forbidden terminal marker")
@@ -5948,7 +5973,7 @@ def validate_cbc_solve_evidence(evidence: CbcSolveEvidence) -> None:
         solution = retained_bytes["solution"].decode("utf-8")
     except UnicodeDecodeError as exc:
         raise SolverFailure("CBC retained log/solution is not UTF-8") from exc
-    if _CBC_WARNING.search(log) or _CBC_FORBIDDEN.search(
+    if _CBC_WARNING.search(_cbc_warning_marker_text(log)) or _CBC_FORBIDDEN.search(
         _cbc_forbidden_marker_text(log)
     ):
         raise SolverFailure("CBC retained exact evidence has a forbidden marker")
