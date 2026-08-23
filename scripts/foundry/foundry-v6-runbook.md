@@ -1,3 +1,11 @@
+# Foundry v6 production runbook — SUPERSEDED by foundry-v7-runbook.md
+
+**SUPERSEDED 2026-08-23.** The v6 task-0 producer lost one cell to the
+120 s per-visit deadline (a correct ~91 s branch-and-bound collision
+proof under cloud contention) and the all-optimal + finish-batch laws
+made the 54-task batch unrecoverable. v7 raises the deadline to 600 s
+and runs two concurrent half-batches; see foundry-v7-runbook.md.
+
 # Foundry v6 production runbook — 54-slate × 7-arm historical scores
 
 SUPERSEDES `foundry-v5-runbook.md`. v5 was never launched: its image
