@@ -12,6 +12,12 @@
 # parametric bucket and mirrored read conditions on source/retrieval/raw.
 #
 # Dry-run by default; pass --execute to apply all four buckets.
+#
+# AFTER any applied IAM change, purge both lanes' retained capture raws
+# (governance-live-v7*/ *.raw.json + runtime-iam-policy-capture.json →
+# attempt-archive/) before rerunning a chain: the lane capture resumes
+# retained raws for idempotency, and pre-change bucket-policy raws would
+# assemble a stale capture that configure refuses fail-closed.
 
 set -euo pipefail
 
