@@ -108,9 +108,17 @@ fixed on disk.
   The lanes are now `20260823-corpus-parametric-production-batch-v9a`
   and `-v9b`; every frozen cell, endpoint, bar, and prohibition is
   unchanged.
-- v9a batch manifest: TO BE BOUND at publication
+- Namespace amendment 3 (2026-08-23, still zero scores read or
+  published): the Cloud Asset analyzer daily quota wall forced a
+  policy-derived effective-access fallback in the transport (validator
+  recomputes grants from the captured version-3 policies; analyzer
+  preferred when available), which pins a new image, so the v9 lanes
+  are burned unused. The lanes are now
+  `20260823-corpus-parametric-production-batch-v10a` and `-v10b`; every
+  frozen cell, endpoint, bar, and prohibition is unchanged.
+- v10a batch manifest: TO BE BOUND at publication
   (uri/generation/sha256/bytes).
-- v9b batch manifest: TO BE BOUND at publication
+- v10b batch manifest: TO BE BOUND at publication
   (uri/generation/sha256/bytes).
 - Runner commit at freeze: bound to repository main at the commit that
   adds this file (see git history for the exact SHA).
