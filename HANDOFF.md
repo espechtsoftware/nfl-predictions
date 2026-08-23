@@ -20,6 +20,49 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-23 01:25 UTC (twelfth update)
+
+### v6 LIVE: image accepted, foundation published, job configured, task-0 producer running
+
+- Image build `b0bfb7b6` SUCCESS (corpus config; digest
+  `sha256:0b69704a88a8c757ec742e063e4b45ffd61984ba14ccee3747aee579738084c2`).
+- v6 foundation EXECUTED once (status=created): 54 tasks, 7 arms,
+  270/270 exact source GETs, zero outcome reads. Foundation publication
+  gen `1787443651199879`, batch manifest gen `1787443650334040`; all
+  identities + transport contract (gen `1787444784745289`, 378 cells)
+  are receipt-copied into `scripts/foundry/foundry_v6_env.sh`.
+- IAM conditions moved v4→v6 (applied; diff archived by the script) and
+  the runtime IAM capture rebuilt with storage JSON API shapes +
+  version-3 conditional policies + asset analyses
+  (`scripts/foundry/capture_foundry_v6_iam.py`; three capture-shape
+  refusals from the transport were fixed by matching the API shapes —
+  raw components retained under `governance-live-v6/`).
+- `configure` SUCCEEDED: job `atlas-minimal-c-s2023-w1-v1` updated to
+  the v6 image with fresh attestation; two refused configure attempts
+  (path collision, capture shape) are archived under
+  `transport-live-v6/attempt-archive/` — nothing was mutated by them.
+- Task-0 producer execution `atlas-minimal-c-s2023-w1-v1-knzbv`
+  LAUNCHED (driver `foundry_batch_driver.sh 0 0` running: poll → close →
+  verifier → accept, then the independent acceptance gate).
+- Working-tree resolution per operator instruction ("don't worry about
+  overwriting my local changes"): the pending main-image refresh
+  (Dockerfile + cloudbuild smokes) is committed with the build-gate
+  repairs (jq in the test container; smoke step passes the image once
+  via step env — the inline substitution expansions had exceeded the
+  10,000-char step-arg limit); the previously untracked a7-transfer and
+  lr8 later-period operator sets the Dockerfile references are tracked
+  and green (47 tests; one stale watcher-ordering assertion fixed to pin
+  terminal-first resume); accumulated run evidence and reports
+  committed. The in-progress LR8-v3 warm-chain repair was completed: the
+  protocol mandates preprocessing stay enabled, and CBC's benign
+  `Cbc3007W No integer variables - nothing to do` (fully presolved tiny
+  stage) was poisoning correct receipts — same defect class as the v4
+  `Integer infeasible` failure; fixed by masking exactly that line
+  before the warning scan in residual_world_columns, plus a
+  salary-forced-tie fixture so the truncation poison test exercises a
+  real incidence-chunk stage. lr8 suite 9/9; residual-world suites
+  verifying.
+
 ## Current handoff — 2026-08-22 22:15 UTC (eleventh update)
 
 ### v4 producer FAILED terminally; root cause found, fixed, verified; v6 chain staged
