@@ -21,8 +21,15 @@ COPY scripts/run_stack_relaxation_carve.py ./scripts/run_stack_relaxation_carve.
 COPY scripts/run_a7_select_ladder.py ./scripts/run_a7_select_ladder.py
 COPY scripts/run_a7_production_law_transfer.py ./scripts/run_a7_production_law_transfer.py
 COPY scripts/freeze_a7_production_law_transfer.py ./scripts/freeze_a7_production_law_transfer.py
+COPY scripts/finish_a7_production_law_transfer.py ./scripts/finish_a7_production_law_transfer.py
+COPY scripts/cloud_a7_production_law_transfer.sh ./scripts/cloud_a7_production_law_transfer.sh
+COPY scripts/watch_a7_production_law_transfer_queue.sh ./scripts/watch_a7_production_law_transfer_queue.sh
 COPY scripts/run_corpus_retrieval_transport.py ./scripts/run_corpus_retrieval_transport.py
 COPY scripts/cloud_corpus_retrieval_v1_reuse.sh ./scripts/cloud_corpus_retrieval_v1_reuse.sh
+COPY scripts/prepare_corpus_artifact_source_authority.py ./scripts/prepare_corpus_artifact_source_authority.py
+COPY scripts/run_corpus_parametric_transport.py ./scripts/run_corpus_parametric_transport.py
+COPY scripts/cloud_corpus_parametric_v1_reuse.sh ./scripts/cloud_corpus_parametric_v1_reuse.sh
+COPY scripts/load_corpus_retrieval_neo4j.py ./scripts/load_corpus_retrieval_neo4j.py
 COPY scripts/freeze_a7_select_ladder.py ./scripts/freeze_a7_select_ladder.py
 COPY scripts/cloud_a7_select_ladder.sh ./scripts/cloud_a7_select_ladder.sh
 COPY scripts/watch_a7_select_ladder_queue.sh ./scripts/watch_a7_select_ladder_queue.sh
@@ -115,7 +122,7 @@ COPY scripts/run_realistic_recourse_sizing.py ./scripts/run_realistic_recourse_s
 COPY scripts/audit_recourse_scoring_reconciliation.py ./scripts/audit_recourse_scoring_reconciliation.py
 COPY scripts/cleanup_final_forensic_warehouse.py ./scripts/cleanup_final_forensic_warehouse.py
 
-RUN pip install --no-cache-dir ".[gcp,app]"
+RUN pip install --no-cache-dir ".[gcp,app,graph]"
 
 # Cloud Run Jobs override the command per job; the default serves the UI.
 CMD ["uvicorn", "nfl_dfs.app.main:app", "--host", "0.0.0.0", "--port", "8080"]
