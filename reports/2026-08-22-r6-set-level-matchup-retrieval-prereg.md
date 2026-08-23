@@ -116,9 +116,17 @@ fixed on disk.
   are burned unused. The lanes are now
   `20260823-corpus-parametric-production-batch-v10a` and `-v10b`; every
   frozen cell, endpoint, bar, and prohibition is unchanged.
-- v10a batch manifest: TO BE BOUND at publication
+- Namespace amendment 4 (2026-08-23, still zero scores READ; lane-A's
+  v10 producer published its variant results but no score was ever read
+  by any consumer — its verifier failed on the attempt-ledger
+  certificate law, and lane-B's producer refused on positional
+  source-row selection; both fixed with lane-safe identity-matched
+  selection). The lanes are now
+  `20260823-corpus-parametric-production-batch-v11a` and `-v11b`; every
+  frozen cell, endpoint, bar, and prohibition is unchanged.
+- v11a batch manifest: TO BE BOUND at publication
   (uri/generation/sha256/bytes).
-- v10b batch manifest: TO BE BOUND at publication
+- v11b batch manifest: TO BE BOUND at publication
   (uri/generation/sha256/bytes).
 - Runner commit at freeze: bound to repository main at the commit that
   adds this file (see git history for the exact SHA).
