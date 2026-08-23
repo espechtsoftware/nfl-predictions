@@ -20,6 +20,23 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-23 22:45 UTC (twenty-first update)
+
+### v12 PANEL LIVE: both lanes accepted task 0 and are fanning out
+
+- Both v12 task-0s ACCEPTED (lane A 22:32Z, lane B 22:40Z) with
+  acceptance-gate PASS on each — first slates generated end to end on
+  the exact-gaps solver. Lane A fan-out (tasks 1..27) launched 22:32Z
+  beginning with 2023-w02, the slate that exposed the CBC defect; lane
+  B fan-out (tasks 1..25) launching after its gate. Cadence ~75
+  min/task/lane; full 54-slate panel projected 2026-08-24 late UTC.
+- Panel = v12a ∪ v12b acceptances per the frozen R6 prereg. The three
+  v11-accepted slates remain diagnostic-only. Realized grading and the
+  single R6 read only after BOTH lanes complete and finish-batch.
+- Watch: monitor bgsdvg86o streams ACCEPTED/FATAL/refused from both
+  chain logs; per-slate live view via
+  `summarize_accepted_tasks.py --lane a|b`.
+
 ## Current handoff — 2026-08-23 20:45 UTC (twentieth update)
 
 ### CBC silent non-optimality caught and fixed; v12 lanes launching
