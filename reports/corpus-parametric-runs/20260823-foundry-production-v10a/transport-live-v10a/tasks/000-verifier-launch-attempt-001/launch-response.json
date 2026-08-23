@@ -1,0 +1,101 @@
+{
+  "apiVersion": "run.googleapis.com/v1",
+  "kind": "Execution",
+  "metadata": {
+    "annotations": {
+      "run.googleapis.com/client-name": "gcloud",
+      "run.googleapis.com/client-version": "579.0.0",
+      "run.googleapis.com/cloudsql-instances": "",
+      "run.googleapis.com/creator": "espechtsoftware@gmail.com",
+      "run.googleapis.com/execution-environment": "gen2",
+      "run.googleapis.com/lastModifier": "espechtsoftware@gmail.com",
+      "run.googleapis.com/operation-id": "6d1410ea-ab43-476e-bc57-2958244b278a"
+    },
+    "creationTimestamp": "2026-08-23T15:20:15.777725Z",
+    "generation": 1,
+    "labels": {
+      "client.knative.dev/nonce": "yoz_max_rom",
+      "cloud.googleapis.com/location": "us-central1",
+      "run.googleapis.com/job": "atlas-minimal-c-s2023-w1-v1",
+      "run.googleapis.com/jobGeneration": "33",
+      "run.googleapis.com/jobResourceVersion": "1787497843089120",
+      "run.googleapis.com/jobUid": "d6e4b8c1-5950-46b7-8869-7e34dbf29ad2"
+    },
+    "name": "atlas-minimal-c-s2023-w1-v1-5pmtf",
+    "namespace": "817589974517",
+    "ownerReferences": [
+      {
+        "apiVersion": "serving.knative.dev/v1",
+        "blockOwnerDeletion": true,
+        "controller": true,
+        "kind": "Job",
+        "name": "atlas-minimal-c-s2023-w1-v1",
+        "uid": "d6e4b8c1-5950-46b7-8869-7e34dbf29ad2"
+      }
+    ],
+    "resourceVersion": "AAZZuGgb570",
+    "selfLink": "/apis/run.googleapis.com/v1/namespaces/817589974517/executions/atlas-minimal-c-s2023-w1-v1-5pmtf",
+    "uid": "67ed4f17-770e-41d0-9044-68c8c7c3ed1d"
+  },
+  "spec": {
+    "parallelism": 1,
+    "taskCount": 1,
+    "template": {
+      "spec": {
+        "containers": [
+          {
+            "args": [
+              "scripts/run_corpus_parametric_transport.py",
+              "verify-task",
+              "--contract-uri",
+              "gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/batches/20260823-corpus-parametric-production-batch-v10a/governance/parametric-transport-contract.json",
+              "--contract-generation",
+              "1787495164063173",
+              "--contract-sha256",
+              "9a09b03e27166c97b3a3e2e86a9d23029f0a8b53b1119ac994b089c842ddcfb0",
+              "--contract-bytes",
+              "98849",
+              "--task-index",
+              "0",
+              "--execute"
+            ],
+            "command": [
+              "python"
+            ],
+            "env": [
+              {
+                "name": "CORPUS_PARAMETRIC_RESEARCH_ENABLED",
+                "value": "1"
+              },
+              {
+                "name": "CORPUS_PARAMETRIC_IMAGE",
+                "value": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:8e00087333ca09d42764cc2672f29f98739a928fb3dd4a8d2203785df7088d4b"
+              },
+              {
+                "name": "CORPUS_PARAMETRIC_BUILD_ID",
+                "value": "4f1a0495-527b-4320-bce5-a4fd8ddb24f6"
+              },
+              {
+                "name": "CODE_SHA",
+                "value": "707777ac4129ff7820cf416e46d5e0f0d6b02226"
+              }
+            ],
+            "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:8e00087333ca09d42764cc2672f29f98739a928fb3dd4a8d2203785df7088d4b",
+            "resources": {
+              "limits": {
+                "cpu": "8",
+                "memory": "32Gi"
+              }
+            }
+          }
+        ],
+        "maxRetries": 0,
+        "serviceAccountName": "corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com",
+        "timeoutSeconds": "86400"
+      }
+    }
+  },
+  "status": {
+    "logUri": "https://console.cloud.google.com/logs/viewer?project=nfl-predictions-503414&advancedFilter=resource.type%3D%22cloud_run_job%22%0Aresource.labels.job_name%3D%22atlas-minimal-c-s2023-w1-v1%22%0Aresource.labels.location%3D%22us-central1%22%0Alabels.%22run.googleapis.com/execution_name%22%3D%22atlas-minimal-c-s2023-w1-v1-5pmtf%22"
+  }
+}

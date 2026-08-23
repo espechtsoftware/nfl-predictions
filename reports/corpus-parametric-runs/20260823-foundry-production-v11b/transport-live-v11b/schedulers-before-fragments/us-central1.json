@@ -1,0 +1,1178 @@
+[
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/ingest-contests:run"
+    },
+    "lastAttemptTime": "2026-08-22T15:00:01.529038Z",
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-contests",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "0 10 * * 3-6",
+    "scheduleTime": "2026-08-26T15:00:00.678580Z",
+    "state": "ENABLED",
+    "status": {},
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-18T12:19:48.057071Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/shadow-k3:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-shadow-k3-late",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "20 11 * * 7",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-09T12:04:14.553721Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/train-weekly-k1-role:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-train-k1-role",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "45 8 * * 2",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-10T14:18:48.307894Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/train-weekly-k1:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-train-k1",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "30 8 * * 2",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-09T11:36:12.417731Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/shadow-k1-route-roleunion:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-shadow-k1-route-roleunion-early",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "20 10 * * 7",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-11T18:19:42.888124Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/shadow-archetype-paired:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-shadow-archetype-paired-late",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "30 10 * * 7",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-15T06:06:17.697101Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/shadow-cbwu-oi-paired:run"
+    },
+    "lastAttemptTime": "2026-08-23T14:45:00.772185Z",
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-shadow-cbwu-oi-paired-early",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "45 9 * * 7",
+    "scheduleTime": "2026-08-30T14:45:00.073991Z",
+    "state": "ENABLED",
+    "status": {},
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-18T19:22:49.427582Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/shadow-k3:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-shadow-k3-early",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "30 10 * * 7",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-09T12:04:14.559562Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/check-freshness:run"
+    },
+    "lastAttemptTime": "2026-08-23T13:00:34.593985Z",
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-freshness",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "0 8 * * *",
+    "scheduleTime": "2026-08-24T13:00:03.553546Z",
+    "state": "ENABLED",
+    "status": {},
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-07-31T19:04:55.261263Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/ingest-cfb:run"
+    },
+    "lastAttemptTime": "2026-08-23T15:00:02.138173Z",
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-cfb",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "0 10,14,18 * * *",
+    "scheduleTime": "2026-08-23T19:00:01.345774Z",
+    "state": "ENABLED",
+    "status": {},
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-07-31T17:32:17.725699Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/trends-alerts:run"
+    },
+    "lastAttemptTime": "2026-08-19T16:00:05.450237Z",
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-trends",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "0 11 * * 3",
+    "scheduleTime": "2026-08-26T16:00:04.592135Z",
+    "state": "ENABLED",
+    "status": {},
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-07-31T11:08:07.478743Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/shadow-k1-roleunion:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-shadow-k1-roleunion-late",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "10 11 * * 7",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-10T14:18:53.376995Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/freeze-tail-early:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-freeze-tail-early",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "5 11 * * 7",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-09T15:06:45.734614Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/build-features:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-features",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "30 6 * * 2",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-10T02:04:28.917135Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/shadow-k1:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-shadow-k1-late",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "20 11 * * 7",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-09T11:36:12.415545Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/shadow-cbwu-oi-paired:run"
+    },
+    "lastAttemptTime": "2026-08-23T15:45:00.912212Z",
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-shadow-cbwu-oi-paired-late",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "45 10 * * 7",
+    "scheduleTime": "2026-08-30T15:45:02.137308Z",
+    "state": "ENABLED",
+    "status": {},
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-18T19:22:51.170227Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/score-entries:run"
+    },
+    "lastAttemptTime": "2026-08-18T13:00:04.499539Z",
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-score",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "0 8 * * 2",
+    "scheduleTime": "2026-08-25T13:00:03.650070Z",
+    "state": "ENABLED",
+    "status": {},
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-07-31T11:08:08.968348Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/ingest-contests:run"
+    },
+    "lastAttemptTime": "2026-08-23T16:00:09.322374Z",
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-contests-sun",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "0 6-11 * * 7",
+    "scheduleTime": "2026-08-30T11:00:04.659671Z",
+    "state": "ENABLED",
+    "status": {},
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-18T12:19:49.743783Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/build-features:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-features-route",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "30 6 * * 4",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-11T18:19:34.320929Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/shadow-k1-nofloor:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-shadow-k1-nofloor-early",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "30 10 * * 7",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-09T18:56:24.085944Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/train-weekly:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-train",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "30 7 * * 2",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-10T02:04:30.044327Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/ingest-cfb:run"
+    },
+    "lastAttemptTime": "2026-08-22T18:00:01.352053Z",
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-cfb-sat",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "0 8-13 * * 6",
+    "scheduleTime": "2026-08-29T13:00:00.583816Z",
+    "state": "ENABLED",
+    "status": {},
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-07-31T17:32:19.150496Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/shadow-k1:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-shadow-k1-early",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "30 10 * * 7",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-09T11:36:12.417730Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/train-weekly-k1-route:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-train-k1-route",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "30 7 * * 4",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-11T18:19:37.646710Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/ingest-dk:run"
+    },
+    "lastAttemptTime": "2026-08-23T15:00:04.410186Z",
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-dk",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "0 10 * * 3-7",
+    "scheduleTime": "2026-08-26T15:00:03.555655Z",
+    "state": "ENABLED",
+    "status": {},
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-07-31T11:07:57.491779Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/backup-tables:run"
+    },
+    "lastAttemptTime": "2026-08-23T07:00:02.613178Z",
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-backup",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "0 7 * * *",
+    "scheduleTime": "2026-08-24T07:00:01.890251Z",
+    "state": "ENABLED",
+    "status": {},
+    "timeZone": "Etc/UTC",
+    "userUpdateTime": "2026-08-02T09:50:56.303279Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/ingest-props:run"
+    },
+    "lastAttemptTime": "2026-08-23T14:30:04.893873Z",
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-props",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "30 9 * * 3-7",
+    "scheduleTime": "2026-08-26T14:30:03.752859Z",
+    "state": "ENABLED",
+    "status": {},
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-07-31T11:08:01.174957Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/freeze-tail-late:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-freeze-tail-late",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "50 11 * * 7",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-09T15:06:45.723841Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/project-slate:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-project-tu",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "30 9 * * 2",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-10T02:04:31.237525Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/project-slate:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-project-su",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "0 6-11 * * 7",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-10T02:04:32.239612Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/ingest-weather:run"
+    },
+    "lastAttemptTime": "2026-08-23T13:00:36.997861Z",
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-weather",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "0 8 * * 5-7",
+    "scheduleTime": "2026-08-28T13:00:04.380479Z",
+    "state": "ENABLED",
+    "status": {},
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-07-31T11:08:02.859082Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/tabpfn-sis-pass-tail-live-control:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-tabpfn-sis-pass-tail-control",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "15 9 * * 4",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-15T07:36:20.100895Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/tabpfn-sis-pass-tail-live-treatment:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-tabpfn-sis-pass-tail-treatment",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "20 9 * * 4",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-15T07:36:25.866509Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/shadow-sis-pass-tail-paired:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-shadow-sis-pass-tail-paired",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "0 6 * * 7",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-15T07:30:59.723817Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/shadow-k1-roleunion:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-shadow-k1-roleunion-early",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "20 10 * * 7",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-10T14:18:51.041676Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/fantasy-points-route-tail-union:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-shadow-cbwu-volume",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "30 8 * * 7",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-20T18:42:53.912556Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/shadow-k1-route-roleunion:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-shadow-k1-route-roleunion-late",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "10 11 * * 7",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-11T18:19:45.243866Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/shadow-archetype-paired:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-shadow-archetype-paired-early",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "15 9 * * 7",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-15T06:06:14.729960Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/shadow-k1-nofloor:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-shadow-k1-nofloor-late",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "20 11 * * 7",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-09T18:56:24.127900Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/train-weekly-k1-route-role:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-train-k1-route-role",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "0 8 * * 4",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-11T18:19:40.419569Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/ingest-odds:run"
+    },
+    "lastAttemptTime": "2026-08-23T14:00:29.274704Z",
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-odds",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "0 9,15 * * 3-7",
+    "scheduleTime": "2026-08-23T20:00:01.739701Z",
+    "state": "ENABLED",
+    "status": {},
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-07-31T11:07:59.267551Z"
+  },
+  {
+    "attemptDeadline": "180s",
+    "httpTarget": {
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "httpMethod": "POST",
+      "oauthToken": {
+        "scope": "https://www.googleapis.com/auth/cloud-platform",
+        "serviceAccountEmail": "817589974517-compute@developer.gserviceaccount.com"
+      },
+      "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/ingest-nflverse:run"
+    },
+    "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-nflverse",
+    "retryConfig": {
+      "maxBackoffDuration": "3600s",
+      "maxDoublings": 5,
+      "maxRetryDuration": "0s",
+      "minBackoffDuration": "5s"
+    },
+    "schedule": "0 5 * * *",
+    "state": "PAUSED",
+    "status": {
+      "code": -1
+    },
+    "timeZone": "America/Chicago",
+    "userUpdateTime": "2026-08-15T08:58:51.013897Z"
+  }
+]

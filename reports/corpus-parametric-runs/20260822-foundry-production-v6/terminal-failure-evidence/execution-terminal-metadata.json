@@ -1,0 +1,132 @@
+{
+  "apiVersion": "run.googleapis.com/v1",
+  "kind": "Execution",
+  "metadata": {
+    "annotations": {
+      "run.googleapis.com/client-name": "gcloud",
+      "run.googleapis.com/client-version": "579.0.0",
+      "run.googleapis.com/cloudsql-instances": "",
+      "run.googleapis.com/creator": "espechtsoftware@gmail.com",
+      "run.googleapis.com/execution-environment": "gen2",
+      "run.googleapis.com/lastModifier": "espechtsoftware@gmail.com",
+      "run.googleapis.com/operation-id": "d29b05ee-b997-46e8-b54a-1e094175b2f1"
+    },
+    "creationTimestamp": "2026-08-23T00:31:44.454438Z",
+    "generation": 1,
+    "labels": {
+      "client.knative.dev/nonce": "hab_kod_nur",
+      "cloud.googleapis.com/location": "us-central1",
+      "run.googleapis.com/job": "atlas-minimal-c-s2023-w1-v1",
+      "run.googleapis.com/jobGeneration": "26",
+      "run.googleapis.com/jobResourceVersion": "1787444613445910",
+      "run.googleapis.com/jobUid": "d6e4b8c1-5950-46b7-8869-7e34dbf29ad2"
+    },
+    "name": "atlas-minimal-c-s2023-w1-v1-knzbv",
+    "namespace": "817589974517",
+    "ownerReferences": [
+      {
+        "apiVersion": "serving.knative.dev/v1",
+        "blockOwnerDeletion": true,
+        "controller": true,
+        "kind": "Job",
+        "name": "atlas-minimal-c-s2023-w1-v1",
+        "uid": "d6e4b8c1-5950-46b7-8869-7e34dbf29ad2"
+      }
+    ],
+    "resourceVersion": "AAZZrPKdVd0",
+    "selfLink": "/apis/run.googleapis.com/v1/namespaces/817589974517/executions/atlas-minimal-c-s2023-w1-v1-knzbv",
+    "uid": "cdb85944-af0e-428c-8aa3-ef878b25ed8b"
+  },
+  "spec": {
+    "parallelism": 1,
+    "taskCount": 1,
+    "template": {
+      "spec": {
+        "containers": [
+          {
+            "args": [
+              "scripts/run_corpus_parametric_transport.py",
+              "execute-task",
+              "--contract-uri",
+              "gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/batches/20260822-corpus-parametric-production-batch-v6/governance/parametric-transport-contract.json",
+              "--contract-generation",
+              "1787444784745289",
+              "--contract-sha256",
+              "92347761cf7c1062807f205285676e571cc18b72be506282b358a5702dd82541",
+              "--contract-bytes",
+              "185386",
+              "--task-index",
+              "0",
+              "--execute"
+            ],
+            "command": [
+              "python"
+            ],
+            "env": [
+              {
+                "name": "CORPUS_PARAMETRIC_RESEARCH_ENABLED",
+                "value": "1"
+              },
+              {
+                "name": "CORPUS_PARAMETRIC_IMAGE",
+                "value": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:0b69704a88a8c757ec742e063e4b45ffd61984ba14ccee3747aee579738084c2"
+              },
+              {
+                "name": "CORPUS_PARAMETRIC_BUILD_ID",
+                "value": "b0bfb7b6-cfb4-4016-8e20-9ebee67b5857"
+              },
+              {
+                "name": "CODE_SHA",
+                "value": "bcf31a75087a48d7207389fe6a69bf9244f73aeb"
+              }
+            ],
+            "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:0b69704a88a8c757ec742e063e4b45ffd61984ba14ccee3747aee579738084c2",
+            "resources": {
+              "limits": {
+                "cpu": "8",
+                "memory": "32Gi"
+              }
+            }
+          }
+        ],
+        "maxRetries": 0,
+        "serviceAccountName": "corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com",
+        "timeoutSeconds": "86400"
+      }
+    }
+  },
+  "status": {
+    "completionTime": "2026-08-23T01:39:58.237229Z",
+    "conditions": [
+      {
+        "lastTransitionTime": "2026-08-23T01:39:58.237229Z",
+        "message": "Task atlas-minimal-c-s2023-w1-v1-knzbv-task0 failed with exit code: 2 and message: The container exited with an error.",
+        "reason": "NonZeroExitCode",
+        "status": "False",
+        "type": "Completed"
+      },
+      {
+        "lastTransitionTime": "2026-08-23T00:32:35.098478Z",
+        "message": "Provisioned imported containers.",
+        "status": "True",
+        "type": "ResourcesAvailable"
+      },
+      {
+        "lastTransitionTime": "2026-08-23T00:35:04.022126Z",
+        "message": "Started deployed execution in 2m28.92s.",
+        "status": "True",
+        "type": "Started"
+      },
+      {
+        "lastTransitionTime": "2026-08-23T00:32:35.009004Z",
+        "message": "Imported container image in 50.55s.",
+        "status": "True",
+        "type": "ContainerReady"
+      }
+    ],
+    "failedCount": 1,
+    "logUri": "https://console.cloud.google.com/logs/viewer?project=nfl-predictions-503414&advancedFilter=resource.type%3D%22cloud_run_job%22%0Aresource.labels.job_name%3D%22atlas-minimal-c-s2023-w1-v1%22%0Aresource.labels.location%3D%22us-central1%22%0Alabels.%22run.googleapis.com/execution_name%22%3D%22atlas-minimal-c-s2023-w1-v1-knzbv%22",
+    "observedGeneration": 1,
+    "startTime": "2026-08-23T00:32:49.293710Z"
+  }
+}

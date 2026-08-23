@@ -1,0 +1,29 @@
+{
+  "kind": "storage#bucket",
+  "selfLink": "https://www.googleapis.com/storage/v1/b/nfl-predictions-503414-raw",
+  "id": "nfl-predictions-503414-raw",
+  "name": "nfl-predictions-503414-raw",
+  "projectNumber": "817589974517",
+  "generation": "1784902736623594300",
+  "metageneration": "3",
+  "location": "US",
+  "storageClass": "STANDARD",
+  "etag": "CAM=",
+  "timeCreated": "2026-07-24T14:18:56.896Z",
+  "updated": "2026-08-21T23:57:41.684Z",
+  "softDeletePolicy": {
+    "retentionDurationSeconds": "604800",
+    "effectiveTime": "2026-07-24T14:18:56.896Z"
+  },
+  "iamConfiguration": {
+    "bucketPolicyOnly": {
+      "enabled": false
+    },
+    "uniformBucketLevelAccess": {
+      "enabled": false
+    },
+    "publicAccessPrevention": "inherited"
+  },
+  "locationType": "multi-region",
+  "rpo": "DEFAULT"
+}

@@ -1,0 +1,19 @@
+{
+  "fullyExplored": true,
+  "mainAnalysis": {
+    "analysisQuery": {
+      "identitySelector": {
+        "identity": "allAuthenticatedUsers"
+      },
+      "options": {
+        "expandGroups": true,
+        "expandResources": true,
+        "expandRoles": true,
+        "outputGroupEdges": true,
+        "outputResourceEdges": true
+      },
+      "scope": "projects/nfl-predictions-503414"
+    },
+    "fullyExplored": true
+  }
+}

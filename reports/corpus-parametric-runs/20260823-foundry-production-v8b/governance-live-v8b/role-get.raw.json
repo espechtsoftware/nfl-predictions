@@ -1,0 +1,9 @@
+{
+  "etag": "BwZZr9mtImU=",
+  "includedPermissions": [
+    "storage.objects.get"
+  ],
+  "name": "projects/nfl-predictions-503414/roles/corpusParametricObjectGetV2B",
+  "stage": "GA",
+  "title": "Corpus parametric object GET v2 lane B"
+}

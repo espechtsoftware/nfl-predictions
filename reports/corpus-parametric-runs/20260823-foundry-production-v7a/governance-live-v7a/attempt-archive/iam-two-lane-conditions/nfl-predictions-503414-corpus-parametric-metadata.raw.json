@@ -1,0 +1,31 @@
+{
+  "kind": "storage#bucket",
+  "selfLink": "https://www.googleapis.com/storage/v1/b/nfl-predictions-503414-corpus-parametric",
+  "id": "nfl-predictions-503414-corpus-parametric",
+  "name": "nfl-predictions-503414-corpus-parametric",
+  "projectNumber": "817589974517",
+  "generation": "1787356362731550889",
+  "metageneration": "11",
+  "location": "US-CENTRAL1",
+  "storageClass": "STANDARD",
+  "etag": "CAs=",
+  "timeCreated": "2026-08-21T23:52:42.946Z",
+  "updated": "2026-08-23T01:41:32.286Z",
+  "softDeletePolicy": {
+    "retentionDurationSeconds": "604800",
+    "effectiveTime": "2026-08-21T23:52:42.946Z"
+  },
+  "iamConfiguration": {
+    "bucketPolicyOnly": {
+      "enabled": true,
+      "lockedTime": "2026-11-19T23:52:42.946Z"
+    },
+    "uniformBucketLevelAccess": {
+      "enabled": true,
+      "lockedTime": "2026-11-19T23:52:42.946Z"
+    },
+    "publicAccessPrevention": "enforced"
+  },
+  "locationType": "region",
+  "satisfiesPZI": true
+}

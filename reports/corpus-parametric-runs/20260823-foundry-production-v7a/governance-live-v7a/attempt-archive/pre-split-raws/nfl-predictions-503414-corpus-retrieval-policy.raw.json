@@ -1,0 +1,76 @@
+{
+  "kind": "storage#policy",
+  "resourceId": "projects/_/buckets/nfl-predictions-503414-corpus-retrieval",
+  "version": 3,
+  "etag": "CAc=",
+  "bindings": [
+    {
+      "role": "projects/nfl-predictions-503414/roles/corpusParametricObjectGetV2",
+      "members": [
+        "serviceAccount:corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com"
+      ],
+      "condition": {
+        "expression": "resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-runs/20260821-corpus-retrieval-engine-v1/') || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/governance/query-authority.json' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/governance/snapshot-manifest.json' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/governance/snapshot-producer-authority.json' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/candidate-rows.json' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/player-catalog.json' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/worlds/R0.npz' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/worlds/R1.npz' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/worlds/R2.npz' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/worlds/R3.npz' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/worlds/R4.npz'",
+        "title": "corpus-parametric-read-v2"
+      }
+    },
+    {
+      "role": "projects/nfl-predictions-503414/roles/corpusParametricObjectGetV2B",
+      "members": [
+        "serviceAccount:corpus-parametric-research-b@nfl-predictions-503414.iam.gserviceaccount.com"
+      ],
+      "condition": {
+        "expression": "resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-runs/20260821-corpus-retrieval-engine-v1/') || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/governance/query-authority.json' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/governance/snapshot-manifest.json' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/governance/snapshot-producer-authority.json' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/candidate-rows.json' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/player-catalog.json' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/worlds/R0.npz' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/worlds/R1.npz' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/worlds/R2.npz' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/worlds/R3.npz' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/worlds/R4.npz'",
+        "title": "corpus-parametric-read-v2"
+      }
+    },
+    {
+      "role": "roles/storage.legacyBucketOwner",
+      "members": [
+        "projectEditor:nfl-predictions-503414",
+        "projectOwner:nfl-predictions-503414"
+      ]
+    },
+    {
+      "role": "roles/storage.legacyBucketReader",
+      "members": [
+        "projectViewer:nfl-predictions-503414"
+      ]
+    },
+    {
+      "role": "roles/storage.legacyObjectOwner",
+      "members": [
+        "projectEditor:nfl-predictions-503414",
+        "projectOwner:nfl-predictions-503414"
+      ]
+    },
+    {
+      "role": "roles/storage.legacyObjectReader",
+      "members": [
+        "projectViewer:nfl-predictions-503414"
+      ]
+    },
+    {
+      "role": "roles/storage.objectCreator",
+      "members": [
+        "serviceAccount:corpus-retrieval-research@nfl-predictions-503414.iam.gserviceaccount.com"
+      ],
+      "condition": {
+        "expression": "resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-runs/20260821-corpus-retrieval-engine-v1/')",
+        "title": "corpus-retrieval-create-v1",
+        "description": "Exact retrieval output create prefix"
+      }
+    },
+    {
+      "role": "roles/storage.objectViewer",
+      "members": [
+        "serviceAccount:corpus-retrieval-research@nfl-predictions-503414.iam.gserviceaccount.com"
+      ],
+      "condition": {
+        "expression": "resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/') || resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-runs/20260821-corpus-retrieval-engine-v1/')",
+        "title": "corpus-retrieval-read-v1",
+        "description": "Exact retrieval input and output read prefixes"
+      }
+    }
+  ]
+}

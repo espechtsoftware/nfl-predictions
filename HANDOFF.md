@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-23 20:45 UTC (twentieth update)
+
+### CBC silent non-optimality caught and fixed; v12 lanes launching
+
+- Lane A's v11 fan-out task 1 (2023-w02) failed with 2/7000 'error'
+  cells whose detail was `second-best exceeds the proven combined
+  optimum` — the certificate catching CBC returning WRONG optima (0.64
+  and 1.35 DK points below true on the PRIMARY objective). Root cause:
+  gap/increment/cuts flags existed only in the options payload
+  metadata, never on the CBC command line; at ~1e12 combined
+  coefficients CBC's default fathoming mispruned. Fixed at `f032f0c`
+  (+ pinned-hash test refresh `cd5e64d`): flags passed for real; all
+  14 probed cells across two slates exact at worst 1.6 s. Full record:
+  `reports/2026-08-23-cbc-silent-nonoptimality-finding.md`. The old
+  pinned-equality law could NEVER have detected this class; every
+  historical radix-combined CBC result inherited the exposure
+  silently. All verifier-ACCEPTED tasks are proven exact per cell.
+- THREE accepted v11 slates exist (lane A 2023-w01; lane B 2024-w11,
+  2024-w12 — its lane-safe fix held through two full cycles); they are
+  diagnostic-only for the panel (prereg substrate = v12 union).
+  Lane B's driver was stopped at a receipt boundary; its task-2 launch
+  marker was consumed but no cloud execution was created. v11 lanes
+  closed; IAM moved v11→v12.
+- v12 (image `27177530`/`cd5e64d`) foundations: lane A PUBLISHED and
+  its chain launched; lane B foundation executing, chain gated. Lane
+  preplans now refresh the solver authority from the live probe (the
+  template carried the stale options hash).
+
 ## Current handoff — 2026-08-23 19:00 UTC (nineteenth update)
 
 ### FIRST FOUNDRY SLATES ACCEPTED — two-lane fan-out running

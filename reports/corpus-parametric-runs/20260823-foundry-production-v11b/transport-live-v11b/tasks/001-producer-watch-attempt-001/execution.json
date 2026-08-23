@@ -1,0 +1,131 @@
+{
+  "apiVersion": "run.googleapis.com/v1",
+  "kind": "Execution",
+  "metadata": {
+    "annotations": {
+      "run.googleapis.com/client-name": "gcloud",
+      "run.googleapis.com/client-version": "579.0.0",
+      "run.googleapis.com/cloudsql-instances": "",
+      "run.googleapis.com/creator": "espechtsoftware@gmail.com",
+      "run.googleapis.com/execution-environment": "gen2",
+      "run.googleapis.com/lastModifier": "espechtsoftware@gmail.com",
+      "run.googleapis.com/operation-id": "b6957967-7fe6-48e4-9fc1-6007716fbcc3"
+    },
+    "creationTimestamp": "2026-08-23T19:00:34.106377Z",
+    "generation": 1,
+    "labels": {
+      "client.knative.dev/nonce": "jop_zeh_pam",
+      "cloud.googleapis.com/location": "us-central1",
+      "run.googleapis.com/job": "atlas-cbc-32g-full-2023-w8-v1",
+      "run.googleapis.com/jobGeneration": "3",
+      "run.googleapis.com/jobResourceVersion": "1787510749927697",
+      "run.googleapis.com/jobUid": "1f4bcf0a-2300-4afa-9fc1-9981844c8275"
+    },
+    "name": "atlas-cbc-32g-full-2023-w8-v1-6fkmj",
+    "namespace": "817589974517",
+    "ownerReferences": [
+      {
+        "apiVersion": "serving.knative.dev/v1",
+        "blockOwnerDeletion": true,
+        "controller": true,
+        "kind": "Job",
+        "name": "atlas-cbc-32g-full-2023-w8-v1",
+        "uid": "1f4bcf0a-2300-4afa-9fc1-9981844c8275"
+      }
+    ],
+    "resourceVersion": "AAZZu9DbOzE",
+    "selfLink": "/apis/run.googleapis.com/v1/namespaces/817589974517/executions/atlas-cbc-32g-full-2023-w8-v1-6fkmj",
+    "uid": "28e145a6-9f38-424b-867d-8ccd829348eb"
+  },
+  "spec": {
+    "parallelism": 1,
+    "taskCount": 1,
+    "template": {
+      "spec": {
+        "containers": [
+          {
+            "args": [
+              "scripts/run_corpus_parametric_transport.py",
+              "execute-task",
+              "--contract-uri",
+              "gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/batches/20260823-corpus-parametric-production-batch-v11b/governance/parametric-transport-contract.json",
+              "--contract-generation",
+              "1787506864535754",
+              "--contract-sha256",
+              "45b238493e2dff98aa829f0343da2c289ee5f69f67a7bf65477afe3a24296783",
+              "--contract-bytes",
+              "92077",
+              "--task-index",
+              "1",
+              "--execute"
+            ],
+            "command": [
+              "python"
+            ],
+            "env": [
+              {
+                "name": "CORPUS_PARAMETRIC_RESEARCH_ENABLED",
+                "value": "1"
+              },
+              {
+                "name": "CORPUS_PARAMETRIC_IMAGE",
+                "value": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:563507528baf17501ffa3b5d5140a39cdb9806ff97c8f4f0ccb37280804001ae"
+              },
+              {
+                "name": "CORPUS_PARAMETRIC_BUILD_ID",
+                "value": "964a3ee4-f5f0-46d5-a225-bb7847eb5215"
+              },
+              {
+                "name": "CODE_SHA",
+                "value": "ca2784ec454b71506ad6c5240fafc0b9766dbf7a"
+              }
+            ],
+            "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:563507528baf17501ffa3b5d5140a39cdb9806ff97c8f4f0ccb37280804001ae",
+            "resources": {
+              "limits": {
+                "cpu": "8",
+                "memory": "32Gi"
+              }
+            }
+          }
+        ],
+        "maxRetries": 0,
+        "serviceAccountName": "corpus-parametric-research-b@nfl-predictions-503414.iam.gserviceaccount.com",
+        "timeoutSeconds": "86400"
+      }
+    }
+  },
+  "status": {
+    "completionTime": "2026-08-23T19:24:16.854367Z",
+    "conditions": [
+      {
+        "lastTransitionTime": "2026-08-23T19:24:16.854367Z",
+        "message": "Execution completed successfully in 23m26.09s.",
+        "status": "True",
+        "type": "Completed"
+      },
+      {
+        "lastTransitionTime": "2026-08-23T19:00:35.004686Z",
+        "message": "Provisioned imported containers.",
+        "status": "True",
+        "type": "ResourcesAvailable"
+      },
+      {
+        "lastTransitionTime": "2026-08-23T19:02:29.009003Z",
+        "message": "Started deployed execution in 1m54s.",
+        "status": "True",
+        "type": "Started"
+      },
+      {
+        "lastTransitionTime": "2026-08-23T19:00:34.894027Z",
+        "message": "Imported container image.",
+        "status": "True",
+        "type": "ContainerReady"
+      }
+    ],
+    "logUri": "https://console.cloud.google.com/logs/viewer?project=nfl-predictions-503414&advancedFilter=resource.type%3D%22cloud_run_job%22%0Aresource.labels.job_name%3D%22atlas-cbc-32g-full-2023-w8-v1%22%0Aresource.labels.location%3D%22us-central1%22%0Alabels.%22run.googleapis.com/execution_name%22%3D%22atlas-cbc-32g-full-2023-w8-v1-6fkmj%22",
+    "observedGeneration": 1,
+    "startTime": "2026-08-23T19:00:50.761026Z",
+    "succeededCount": 1
+  }
+}

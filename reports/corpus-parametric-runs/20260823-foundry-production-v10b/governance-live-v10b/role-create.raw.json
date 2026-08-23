@@ -1,0 +1,9 @@
+{
+  "etag": "BwZZr9pViV0=",
+  "includedPermissions": [
+    "storage.objects.create"
+  ],
+  "name": "projects/nfl-predictions-503414/roles/corpusParametricObjectCreateV2B",
+  "stage": "GA",
+  "title": "Corpus parametric object CREATE v2 lane B"
+}

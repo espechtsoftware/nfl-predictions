@@ -1,0 +1,49 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  annotations:
+    run.googleapis.com/creator: espechtsoftware@gmail.com
+    run.googleapis.com/lastModifier: espechtsoftware@gmail.com
+  labels:
+    cloud.googleapis.com/location: us-central1
+    run.googleapis.com/lastUpdatedTime: '2026-08-23T07:14:54.813736Z'
+  name: atlas-minimal-c-s2023-w1-v1
+  namespace: '817589974517'
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/client-name: gcloud
+        run.googleapis.com/client-version: 579.0.0
+        run.googleapis.com/cloudsql-instances: ''
+        run.googleapis.com/execution-environment: gen2
+      labels:
+        client.knative.dev/nonce: hab_kod_nur
+    spec:
+      parallelism: 1
+      taskCount: 1
+      template:
+        spec:
+          containers:
+          - args:
+            - scripts/run_corpus_parametric_transport.py
+            - parked
+            command:
+            - python
+            env:
+            - name: CORPUS_PARAMETRIC_RESEARCH_ENABLED
+              value: '1'
+            - name: CORPUS_PARAMETRIC_IMAGE
+              value: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:0b69704a88a8c757ec742e063e4b45ffd61984ba14ccee3747aee579738084c2
+            - name: CORPUS_PARAMETRIC_BUILD_ID
+              value: b0bfb7b6-cfb4-4016-8e20-9ebee67b5857
+            - name: CODE_SHA
+              value: bcf31a75087a48d7207389fe6a69bf9244f73aeb
+            image: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:0b69704a88a8c757ec742e063e4b45ffd61984ba14ccee3747aee579738084c2
+            resources:
+              limits:
+                cpu: '8'
+                memory: 32Gi
+          maxRetries: 0
+          serviceAccountName: corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com
+          timeoutSeconds: '86400'

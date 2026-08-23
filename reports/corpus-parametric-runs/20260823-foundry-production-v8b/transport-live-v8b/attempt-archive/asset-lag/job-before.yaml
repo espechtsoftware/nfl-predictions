@@ -1,0 +1,50 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  annotations:
+    run.googleapis.com/creator: espechtsoftware@gmail.com
+    run.googleapis.com/lastModifier: espechtsoftware@gmail.com
+  labels:
+    cloud.googleapis.com/location: us-central1
+    run.googleapis.com/lastUpdatedTime: '2026-08-16T19:05:57.293599Z'
+  name: atlas-cbc-32g-full-2023-w8-v1
+  namespace: '817589974517'
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/client-name: gcloud
+        run.googleapis.com/client-version: 579.0.0
+        run.googleapis.com/execution-environment: gen2
+      labels:
+        client.knative.dev/nonce: caz_riw_hog
+    spec:
+      parallelism: 1
+      taskCount: 1
+      template:
+        spec:
+          containers:
+          - args:
+            - -c
+            - exec(__import__('base64').b64decode('ZnJvbSBoYXNobGliIGltcG9ydCBzaGEyNTYKZnJvbSBwYXRobGliIGltcG9ydCBQYXRoCmltcG9ydCBzeXMKcGF0aD1QYXRoKCcvYXBwL3NjcmlwdHMvcnVuX2F0bGFzX21hdGNoZWRfZGl2ZXJzaXR5X212cC5weScpCnJhdz1wYXRoLnJlYWRfYnl0ZXMoKQpleHBlY3RlZF9zaGE9JzA1NDhlMjZlMjZkN2U4MWIyMGM2ODM3YWRjYzg5MjViYzIzMTdmOWI3Yzg1ODZmYmEwODQ3ODc1ODFjYWM3NDAnCmlmIHNoYTI1NihyYXcpLmhleGRpZ2VzdCgpIT1leHBlY3RlZF9zaGE6CiByYWlzZSBSdW50aW1lRXJyb3IoJ0FUTEFTIHJlcGFpcjQgcGlubmVkIHJ1bm5lciBzb3VyY2UgZGlmZmVycycpCnN5cy5wYXRoLmluc2VydCgwLHN0cihwYXRoLnBhcmVudCkpCm5zPXsnX19uYW1lX18nOidhdGxhc19tYXRjaGVkX2RpdmVyc2l0eV9yZXBhaXI0X2Jhc2UnLCdfX2ZpbGVfXyc6c3RyKHBhdGgpfQpleGVjKGNvbXBpbGUocmF3LHN0cihwYXRoKSwnZXhlYycpLG5zKQpvcmlnaW5hbF9wcmVmaXg9J2dzOi8vbmZsLXByZWRpY3Rpb25zLTUwMzQxNC1yYXcvcmVzZWFyY2gvYXRsYXMtbWF0Y2hlZC1kaXZlcnNpdHktcnVucy8yMDI2MDgxNi1hdGxhcy1tYXRjaGVkLWRpdmVyc2l0eS1tdnAtdjEtcmVwYWlyMicKaWYgbnMuZ2V0KCdTSEFSREVEX09VVFBVVF9QUkVGSVgnKSE9b3JpZ2luYWxfcHJlZml4OgogcmFpc2UgUnVudGltZUVycm9yKCdBVExBUyByZXBhaXI0IG9yaWdpbmFsIG91dHB1dCBwcmVmaXggZGlmZmVycycpCnJlcGxhY2VtZW50X3ByZWZpeD0nZ3M6Ly9uZmwtcHJlZGljdGlvbnMtNTAzNDE0LXJhdy9yZXNlYXJjaC9hdGxhcy1jYmMtMzJnLWZ1bGwtY2VsbC1wcmVmbGlnaHQtcnVucy8yMDI2MDgxNi1hdGxhcy1jYmMtMzJnLWZ1bGwtY2VsbC1wcmVmbGlnaHQtdjEnCm5zWydTSEFSREVEX09VVFBVVF9QUkVGSVgnXT1yZXBsYWNlbWVudF9wcmVmaXgKaWYgbnMuZ2V0KCdTSEFSREVEX09VVFBVVF9QUkVGSVgnKSE9cmVwbGFjZW1lbnRfcHJlZml4OgogcmFpc2UgUnVudGltZUVycm9yKCdBVExBUyByZXBhaXI0IHJlcGxhY2VtZW50IG91dHB1dCBwcmVmaXggZGlmZmVycycpCm5zWydtYWluJ10oKQo='))
+            - --season
+            - '2023'
+            - --week
+            - '8'
+            - --output-uri
+            - gs://nfl-predictions-503414-raw/research/atlas-cbc-32g-full-cell-preflight-runs/20260816-atlas-cbc-32g-full-cell-preflight-v1/slate-2023-8.json
+            command:
+            - python
+            env:
+            - name: CODE_SHA
+              value: 60f296fdad769b30c0bb7334118698f156e462b9
+            - name: ANALYSIS_IMAGE
+              value: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ce03feb739e51aabedd7cea79f46e13a06a097a7f85e9a5817f38184b67f4fcb
+            image: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ce03feb739e51aabedd7cea79f46e13a06a097a7f85e9a5817f38184b67f4fcb
+            resources:
+              limits:
+                cpu: '8'
+                memory: 32Gi
+          maxRetries: 0
+          serviceAccountName: 817589974517-compute@developer.gserviceaccount.com
+          timeoutSeconds: '43200'

@@ -1,0 +1,10 @@
+{
+  "description": "Conditioned object create for corpus parametric runtime",
+  "etag": "BwZZl1WoN9M=",
+  "includedPermissions": [
+    "storage.objects.create"
+  ],
+  "name": "projects/nfl-predictions-503414/roles/corpusParametricObjectCreateV2",
+  "stage": "GA",
+  "title": "Corpus parametric object create v2"
+}

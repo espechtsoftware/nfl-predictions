@@ -1,0 +1,54 @@
+{
+  "kind": "storage#policy",
+  "resourceId": "projects/_/buckets/nfl-predictions-503414-corpus-parametric",
+  "version": 3,
+  "etag": "CAs=",
+  "bindings": [
+    {
+      "role": "projects/nfl-predictions-503414/roles/corpusParametricObjectCreateV2",
+      "members": [
+        "serviceAccount:corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com"
+      ],
+      "condition": {
+        "expression": "resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-parametric/objects/research/corpus-parametric-research/batches/20260823-corpus-parametric-production-batch-v7a/') || resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-parametric/objects/research/corpus-parametric-research/batches/20260823-corpus-parametric-production-batch-v7b/')",
+        "title": "corpus-parametric-create-v2"
+      }
+    },
+    {
+      "role": "projects/nfl-predictions-503414/roles/corpusParametricObjectGetV2",
+      "members": [
+        "serviceAccount:corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com"
+      ],
+      "condition": {
+        "expression": "resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-parametric/objects/research/corpus-parametric-research/foundations/20260823-corpus-parametric-production-foundation-v7a/') || resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-parametric/objects/research/corpus-parametric-research/batches/20260823-corpus-parametric-production-batch-v7a/') || resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-parametric/objects/research/corpus-parametric-research/foundations/20260823-corpus-parametric-production-foundation-v7b/') || resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-parametric/objects/research/corpus-parametric-research/batches/20260823-corpus-parametric-production-batch-v7b/')",
+        "title": "corpus-parametric-read-v2"
+      }
+    },
+    {
+      "role": "roles/storage.legacyBucketOwner",
+      "members": [
+        "projectEditor:nfl-predictions-503414",
+        "projectOwner:nfl-predictions-503414"
+      ]
+    },
+    {
+      "role": "roles/storage.legacyBucketReader",
+      "members": [
+        "projectViewer:nfl-predictions-503414"
+      ]
+    },
+    {
+      "role": "roles/storage.legacyObjectOwner",
+      "members": [
+        "projectEditor:nfl-predictions-503414",
+        "projectOwner:nfl-predictions-503414"
+      ]
+    },
+    {
+      "role": "roles/storage.legacyObjectReader",
+      "members": [
+        "projectViewer:nfl-predictions-503414"
+      ]
+    }
+  ]
+}

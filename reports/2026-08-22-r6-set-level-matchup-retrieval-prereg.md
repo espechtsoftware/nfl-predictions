@@ -124,9 +124,19 @@ fixed on disk.
   selection). The lanes are now
   `20260823-corpus-parametric-production-batch-v11a` and `-v11b`; every
   frozen cell, endpoint, bar, and prohibition is unchanged.
-- v11a batch manifest: TO BE BOUND at publication
+- Namespace amendment 5 (2026-08-23; simulated scores exist for three
+  v11-accepted slates but NO realized outcome has been read anywhere,
+  and no admission/evaluation choice was conditioned on any simulated
+  score): the certificate exposed genuine CBC non-optimality (~2/7000
+  worlds on the first slate expressing it), fixed by exact-gaps CBC
+  flags requiring one more image; v11 lanes closed with three accepted
+  slates retained as diagnostic evidence OUTSIDE the panel. The panel
+  substrate is now `20260823-corpus-parametric-production-batch-v12a`
+  and `-v12b`; every frozen cell, endpoint, bar, and prohibition is
+  unchanged.
+- v12a batch manifest: TO BE BOUND at publication
   (uri/generation/sha256/bytes).
-- v11b batch manifest: TO BE BOUND at publication
+- v12b batch manifest: TO BE BOUND at publication
   (uri/generation/sha256/bytes).
 - Runner commit at freeze: bound to repository main at the commit that
   adds this file (see git history for the exact SHA).
