@@ -1,0 +1,56 @@
+{
+  "kind": "storage#policy",
+  "resourceId": "projects/_/buckets/nfl-predictions-503414-corpus-source",
+  "version": 3,
+  "etag": "CAQ=",
+  "bindings": [
+    {
+      "role": "projects/nfl-predictions-503414/roles/corpusSourceObjectCreateV1",
+      "members": [
+        "serviceAccount:corpus-source-research@nfl-predictions-503414.iam.gserviceaccount.com"
+      ],
+      "condition": {
+        "expression": "resource.name.startsWith(\"projects/_/buckets/nfl-predictions-503414-corpus-source/objects/research/source/20260821-corpus-artifact-source-authority-v1/\")",
+        "title": "corpus-artifact-source-create-v1",
+        "description": "Create-only exact source publication namespace"
+      }
+    },
+    {
+      "role": "projects/nfl-predictions-503414/roles/corpusSourceObjectGetV1",
+      "members": [
+        "serviceAccount:corpus-source-research@nfl-predictions-503414.iam.gserviceaccount.com"
+      ],
+      "condition": {
+        "expression": "resource.name == \"projects/_/buckets/nfl-predictions-503414-corpus-source/objects/research/delivery/20260821-corpus-artifact-source-authority-v1/governance/launch-ledger.json\" || resource.name == \"projects/_/buckets/nfl-predictions-503414-corpus-source/objects/research/delivery/20260821-corpus-artifact-source-authority-v1/input/publication-plan.json\" || resource.name == \"projects/_/buckets/nfl-predictions-503414-corpus-source/objects/research/source/20260821-corpus-artifact-source-authority-v1/governance/prefix-claim.json\" || resource.name == \"projects/_/buckets/nfl-predictions-503414-corpus-source/objects/research/source/20260821-corpus-artifact-source-authority-v1/governance/publication-completion.json\" || resource.name == \"projects/_/buckets/nfl-predictions-503414-corpus-source/objects/research/source/20260821-corpus-artifact-source-authority-v1/governance/source-registration.json\" || resource.name == \"projects/_/buckets/nfl-predictions-503414-corpus-source/objects/research/source/20260821-corpus-artifact-source-authority-v1/queries/artifact-catalog.json\" || resource.name == \"projects/_/buckets/nfl-predictions-503414-corpus-source/objects/research/source/20260821-corpus-artifact-source-authority-v1/queries/r0-candidates.json\" || resource.name == \"projects/_/buckets/nfl-predictions-503414-corpus-source/objects/research/source/20260821-corpus-artifact-source-authority-v1/queries/salary-player-ids.json\" || resource.name == \"projects/_/buckets/nfl-predictions-503414-corpus-source/objects/research/source/20260821-corpus-artifact-source-authority-v1/source/artifact-source-authority-completion.json\" || resource.name == \"projects/_/buckets/nfl-predictions-503414-corpus-source/objects/research/source/20260821-corpus-artifact-source-authority-v1/source/later-source-freeze.json\" || resource.name == \"projects/_/buckets/nfl-predictions-503414-corpus-source/objects/research/source/20260821-corpus-artifact-source-authority-v1/source/salary-diagnostic.json\"",
+        "title": "corpus-artifact-source-read-v1",
+        "description": "Exact source delivery and output reopens"
+      }
+    },
+    {
+      "role": "roles/storage.legacyBucketOwner",
+      "members": [
+        "projectEditor:nfl-predictions-503414",
+        "projectOwner:nfl-predictions-503414"
+      ]
+    },
+    {
+      "role": "roles/storage.legacyBucketReader",
+      "members": [
+        "projectViewer:nfl-predictions-503414"
+      ]
+    },
+    {
+      "role": "roles/storage.legacyObjectOwner",
+      "members": [
+        "projectEditor:nfl-predictions-503414",
+        "projectOwner:nfl-predictions-503414"
+      ]
+    },
+    {
+      "role": "roles/storage.legacyObjectReader",
+      "members": [
+        "projectViewer:nfl-predictions-503414"
+      ]
+    }
+  ]
+}

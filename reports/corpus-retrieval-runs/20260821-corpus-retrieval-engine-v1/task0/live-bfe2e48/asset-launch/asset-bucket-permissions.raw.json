@@ -1,0 +1,397 @@
+{
+  "fullyExplored": true,
+  "mainAnalysis": {
+    "analysisQuery": {
+      "accessSelector": {
+        "permissions": [
+          "storage.objects.create",
+          "storage.objects.delete",
+          "storage.objects.get",
+          "storage.objects.list"
+        ]
+      },
+      "options": {
+        "expandGroups": true,
+        "expandRoles": true,
+        "outputGroupEdges": true
+      },
+      "resourceSelector": {
+        "fullResourceName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval"
+      },
+      "scope": "projects/nfl-predictions-503414"
+    },
+    "analysisResults": [
+      {
+        "accessControlLists": [
+          {
+            "accesses": [
+              {
+                "permission": "storage.objects.create"
+              },
+              {
+                "permission": "storage.objects.delete"
+              },
+              {
+                "permission": "storage.objects.get"
+              },
+              {
+                "permission": "storage.objects.list"
+              }
+            ],
+            "resources": [
+              {
+                "fullResourceName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval"
+              }
+            ]
+          }
+        ],
+        "attachedResourceFullName": "//cloudresourcemanager.googleapis.com/projects/nfl-predictions-503414",
+        "fullyExplored": true,
+        "iamBinding": {
+          "members": [
+            "serviceAccount:817589974517@cloudbuild.gserviceaccount.com"
+          ],
+          "role": "roles/cloudbuild.builds.builder"
+        },
+        "identityList": {
+          "identities": [
+            {
+              "name": "serviceAccount:817589974517@cloudbuild.gserviceaccount.com"
+            }
+          ]
+        }
+      },
+      {
+        "accessControlLists": [
+          {
+            "accesses": [
+              {
+                "permission": "storage.objects.create"
+              },
+              {
+                "permission": "storage.objects.delete"
+              },
+              {
+                "permission": "storage.objects.get"
+              },
+              {
+                "permission": "storage.objects.list"
+              }
+            ],
+            "resources": [
+              {
+                "fullResourceName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval"
+              }
+            ]
+          }
+        ],
+        "attachedResourceFullName": "//cloudresourcemanager.googleapis.com/projects/nfl-predictions-503414",
+        "fullyExplored": true,
+        "iamBinding": {
+          "members": [
+            "serviceAccount:service-817589974517@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+          ],
+          "role": "roles/cloudbuild.serviceAgent"
+        },
+        "identityList": {
+          "identities": [
+            {
+              "name": "serviceAccount:service-817589974517@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+            }
+          ]
+        }
+      },
+      {
+        "accessControlLists": [
+          {
+            "accesses": [
+              {
+                "permission": "storage.objects.get"
+              },
+              {
+                "permission": "storage.objects.list"
+              }
+            ],
+            "resources": [
+              {
+                "fullResourceName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval"
+              }
+            ]
+          }
+        ],
+        "attachedResourceFullName": "//cloudresourcemanager.googleapis.com/projects/nfl-predictions-503414",
+        "fullyExplored": true,
+        "iamBinding": {
+          "members": [
+            "serviceAccount:service-817589974517@containerregistry.iam.gserviceaccount.com"
+          ],
+          "role": "roles/containerregistry.ServiceAgent"
+        },
+        "identityList": {
+          "identities": [
+            {
+              "name": "serviceAccount:service-817589974517@containerregistry.iam.gserviceaccount.com"
+            }
+          ]
+        }
+      },
+      {
+        "accessControlLists": [
+          {
+            "accesses": [
+              {
+                "permission": "storage.objects.create"
+              },
+              {
+                "permission": "storage.objects.delete"
+              },
+              {
+                "permission": "storage.objects.get"
+              },
+              {
+                "permission": "storage.objects.list"
+              }
+            ],
+            "resources": [
+              {
+                "fullResourceName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval"
+              }
+            ]
+          }
+        ],
+        "attachedResourceFullName": "//cloudresourcemanager.googleapis.com/projects/nfl-predictions-503414",
+        "fullyExplored": true,
+        "iamBinding": {
+          "members": [
+            "serviceAccount:service-817589974517@serverless-robot-prod.iam.gserviceaccount.com"
+          ],
+          "role": "roles/run.serviceAgent"
+        },
+        "identityList": {
+          "identities": [
+            {
+              "name": "serviceAccount:service-817589974517@serverless-robot-prod.iam.gserviceaccount.com"
+            }
+          ]
+        }
+      },
+      {
+        "accessControlLists": [
+          {
+            "accesses": [
+              {
+                "permission": "storage.objects.create"
+              },
+              {
+                "permission": "storage.objects.delete"
+              },
+              {
+                "permission": "storage.objects.list"
+              }
+            ],
+            "resources": [
+              {
+                "fullResourceName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval"
+              }
+            ]
+          }
+        ],
+        "attachedResourceFullName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval",
+        "fullyExplored": true,
+        "iamBinding": {
+          "members": [
+            "projectEditor:nfl-predictions-503414",
+            "projectOwner:nfl-predictions-503414"
+          ],
+          "role": "roles/storage.legacyBucketOwner"
+        },
+        "identityList": {
+          "identities": [
+            {
+              "name": "projectEditor:nfl-predictions-503414"
+            },
+            {
+              "name": "projectOwner:nfl-predictions-503414"
+            }
+          ]
+        }
+      },
+      {
+        "accessControlLists": [
+          {
+            "accesses": [
+              {
+                "permission": "storage.objects.list"
+              }
+            ],
+            "resources": [
+              {
+                "fullResourceName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval"
+              }
+            ]
+          }
+        ],
+        "attachedResourceFullName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval",
+        "fullyExplored": true,
+        "iamBinding": {
+          "members": [
+            "projectViewer:nfl-predictions-503414"
+          ],
+          "role": "roles/storage.legacyBucketReader"
+        },
+        "identityList": {
+          "identities": [
+            {
+              "name": "projectViewer:nfl-predictions-503414"
+            }
+          ]
+        }
+      },
+      {
+        "accessControlLists": [
+          {
+            "accesses": [
+              {
+                "permission": "storage.objects.get"
+              }
+            ],
+            "resources": [
+              {
+                "fullResourceName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval"
+              }
+            ]
+          }
+        ],
+        "attachedResourceFullName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval",
+        "fullyExplored": true,
+        "iamBinding": {
+          "members": [
+            "projectEditor:nfl-predictions-503414",
+            "projectOwner:nfl-predictions-503414"
+          ],
+          "role": "roles/storage.legacyObjectOwner"
+        },
+        "identityList": {
+          "identities": [
+            {
+              "name": "projectEditor:nfl-predictions-503414"
+            },
+            {
+              "name": "projectOwner:nfl-predictions-503414"
+            }
+          ]
+        }
+      },
+      {
+        "accessControlLists": [
+          {
+            "accesses": [
+              {
+                "permission": "storage.objects.get"
+              }
+            ],
+            "resources": [
+              {
+                "fullResourceName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval"
+              }
+            ]
+          }
+        ],
+        "attachedResourceFullName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval",
+        "fullyExplored": true,
+        "iamBinding": {
+          "members": [
+            "projectViewer:nfl-predictions-503414"
+          ],
+          "role": "roles/storage.legacyObjectReader"
+        },
+        "identityList": {
+          "identities": [
+            {
+              "name": "projectViewer:nfl-predictions-503414"
+            }
+          ]
+        }
+      },
+      {
+        "accessControlLists": [
+          {
+            "accesses": [
+              {
+                "permission": "storage.objects.create"
+              }
+            ],
+            "conditionEvaluation": {
+              "evaluationValue": "CONDITIONAL"
+            },
+            "resources": [
+              {
+                "fullResourceName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval"
+              }
+            ]
+          }
+        ],
+        "attachedResourceFullName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval",
+        "fullyExplored": true,
+        "iamBinding": {
+          "condition": {
+            "description": "Exact retrieval output create prefix",
+            "expression": "resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-runs/20260821-corpus-retrieval-engine-v1/')",
+            "title": "corpus-retrieval-create-v1"
+          },
+          "members": [
+            "serviceAccount:corpus-retrieval-research@nfl-predictions-503414.iam.gserviceaccount.com"
+          ],
+          "role": "roles/storage.objectCreator"
+        },
+        "identityList": {
+          "identities": [
+            {
+              "name": "serviceAccount:corpus-retrieval-research@nfl-predictions-503414.iam.gserviceaccount.com"
+            }
+          ]
+        }
+      },
+      {
+        "accessControlLists": [
+          {
+            "accesses": [
+              {
+                "permission": "storage.objects.get"
+              }
+            ],
+            "conditionEvaluation": {
+              "evaluationValue": "CONDITIONAL"
+            },
+            "resources": [
+              {
+                "fullResourceName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval"
+              }
+            ]
+          }
+        ],
+        "attachedResourceFullName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval",
+        "fullyExplored": true,
+        "iamBinding": {
+          "condition": {
+            "description": "Exact retrieval input and output read prefixes",
+            "expression": "resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/') || resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-runs/20260821-corpus-retrieval-engine-v1/')",
+            "title": "corpus-retrieval-read-v1"
+          },
+          "members": [
+            "serviceAccount:corpus-retrieval-research@nfl-predictions-503414.iam.gserviceaccount.com"
+          ],
+          "role": "roles/storage.objectViewer"
+        },
+        "identityList": {
+          "identities": [
+            {
+              "name": "serviceAccount:corpus-retrieval-research@nfl-predictions-503414.iam.gserviceaccount.com"
+            }
+          ]
+        }
+      }
+    ],
+    "fullyExplored": true
+  }
+}

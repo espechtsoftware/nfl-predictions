@@ -1,0 +1,8 @@
+gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/batches/20260822-corpus-parametric-task0-smoke-batch-v4/tasks/task-0000-2023-w01/:
+
+gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/batches/20260822-corpus-parametric-task0-smoke-batch-v4/tasks/task-0000-2023-w01/variants/:
+
+gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/batches/20260822-corpus-parametric-task0-smoke-batch-v4/tasks/task-0000-2023-w01/variants/transport/:
+gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/batches/20260822-corpus-parametric-task0-smoke-batch-v4/tasks/task-0000-2023-w01/variants/transport/producer-execution-name.json
+gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/batches/20260822-corpus-parametric-task0-smoke-batch-v4/tasks/task-0000-2023-w01/variants/transport/producer-launch-intent.json
+gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/batches/20260822-corpus-parametric-task0-smoke-batch-v4/tasks/task-0000-2023-w01/variants/transport/producer-launch-ledger.json

@@ -1,0 +1,7 @@
+validated_at=2026-08-18T17:30:50Z
+status=True
+disposition=real-slate-parity-fails
+cell=2024-15-R0
+uses_realized_outcomes=false
+persists_lineups=false
+production_change_licensed=false

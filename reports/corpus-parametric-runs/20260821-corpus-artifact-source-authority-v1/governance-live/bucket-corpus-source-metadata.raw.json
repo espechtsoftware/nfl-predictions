@@ -1,0 +1,31 @@
+{
+  "kind": "storage#bucket",
+  "selfLink": "https://www.googleapis.com/storage/v1/b/nfl-predictions-503414-corpus-source",
+  "id": "nfl-predictions-503414-corpus-source",
+  "name": "nfl-predictions-503414-corpus-source",
+  "projectNumber": "817589974517",
+  "generation": "1787356224915170452",
+  "metageneration": "4",
+  "location": "US-CENTRAL1",
+  "storageClass": "STANDARD",
+  "etag": "CAQ=",
+  "timeCreated": "2026-08-21T23:50:25.116Z",
+  "updated": "2026-08-22T00:18:16.165Z",
+  "softDeletePolicy": {
+    "retentionDurationSeconds": "604800",
+    "effectiveTime": "2026-08-21T23:50:25.116Z"
+  },
+  "iamConfiguration": {
+    "bucketPolicyOnly": {
+      "enabled": true,
+      "lockedTime": "2026-11-19T23:50:25.116Z"
+    },
+    "uniformBucketLevelAccess": {
+      "enabled": true,
+      "lockedTime": "2026-11-19T23:50:25.116Z"
+    },
+    "publicAccessPrevention": "enforced"
+  },
+  "locationType": "region",
+  "satisfiesPZI": true
+}

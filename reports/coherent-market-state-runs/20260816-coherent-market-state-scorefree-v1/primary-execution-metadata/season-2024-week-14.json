@@ -1,0 +1,116 @@
+{
+  "apiVersion": "run.googleapis.com/v1",
+  "kind": "Execution",
+  "metadata": {
+    "annotations": {
+      "run.googleapis.com/client-name": "gcloud",
+      "run.googleapis.com/client-version": "579.0.0",
+      "run.googleapis.com/creator": "espechtsoftware@gmail.com",
+      "run.googleapis.com/execution-environment": "gen2",
+      "run.googleapis.com/lastModifier": "espechtsoftware@gmail.com",
+      "run.googleapis.com/operation-id": "9b973f75-e61b-45d9-a7e3-611cbeef46bc"
+    },
+    "creationTimestamp": "2026-08-18T17:38:35.066621Z",
+    "generation": 1,
+    "labels": {
+      "client.knative.dev/nonce": "lax_pab_xer",
+      "cloud.googleapis.com/location": "us-central1",
+      "run.googleapis.com/job": "coherent-state-s2024-w14-v1",
+      "run.googleapis.com/jobGeneration": "1",
+      "run.googleapis.com/jobResourceVersion": "1787074712773214",
+      "run.googleapis.com/jobUid": "a2847f9d-e459-46fe-ad5f-1435caaad86d"
+    },
+    "name": "coherent-state-s2024-w14-v1-6pfgf",
+    "namespace": "817589974517",
+    "ownerReferences": [
+      {
+        "apiVersion": "serving.knative.dev/v1",
+        "blockOwnerDeletion": true,
+        "controller": true,
+        "kind": "Job",
+        "name": "coherent-state-s2024-w14-v1",
+        "uid": "a2847f9d-e459-46fe-ad5f-1435caaad86d"
+      }
+    ],
+    "resourceVersion": "AAZZVctpTHk",
+    "selfLink": "/apis/run.googleapis.com/v1/namespaces/817589974517/executions/coherent-state-s2024-w14-v1-6pfgf",
+    "uid": "d65cb604-e2a2-4362-9696-1026cdb55e71"
+  },
+  "spec": {
+    "parallelism": 1,
+    "taskCount": 1,
+    "template": {
+      "spec": {
+        "containers": [
+          {
+            "args": [
+              "scripts/run_coherent_market_state_scorefree.py",
+              "--season",
+              "2024",
+              "--week",
+              "14",
+              "--output-uri",
+              "gs://nfl-predictions-503414-raw/research/coherent-market-state-runs/20260816-coherent-market-state-scorefree-v1/slate-2024-14.json"
+            ],
+            "command": [
+              "python"
+            ],
+            "env": [
+              {
+                "name": "CODE_SHA",
+                "value": "cde9c600d4d33e4d9bceae442af09b137fb4588a"
+              },
+              {
+                "name": "ANALYSIS_IMAGE",
+                "value": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:984cbdf77b43e87259c1d0e03978af034fb49f8dcb71e5a498bc520970dc7f4f"
+              }
+            ],
+            "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:984cbdf77b43e87259c1d0e03978af034fb49f8dcb71e5a498bc520970dc7f4f",
+            "resources": {
+              "limits": {
+                "cpu": "4",
+                "memory": "16Gi"
+              }
+            }
+          }
+        ],
+        "maxRetries": 0,
+        "serviceAccountName": "817589974517-compute@developer.gserviceaccount.com",
+        "timeoutSeconds": "14400"
+      }
+    }
+  },
+  "status": {
+    "completionTime": "2026-08-18T17:41:16.327155Z",
+    "conditions": [
+      {
+        "lastTransitionTime": "2026-08-18T17:41:16.327155Z",
+        "message": "Execution completed successfully in 2m38.46s.",
+        "status": "True",
+        "type": "Completed"
+      },
+      {
+        "lastTransitionTime": "2026-08-18T17:38:36.171853Z",
+        "message": "Provisioned imported containers.",
+        "status": "True",
+        "type": "ResourcesAvailable"
+      },
+      {
+        "lastTransitionTime": "2026-08-18T17:40:35.870085Z",
+        "message": "Started deployed execution in 1m59.69s.",
+        "status": "True",
+        "type": "Started"
+      },
+      {
+        "lastTransitionTime": "2026-08-18T17:38:36.001867Z",
+        "message": "Imported container image.",
+        "status": "True",
+        "type": "ContainerReady"
+      }
+    ],
+    "logUri": "https://console.cloud.google.com/logs/viewer?project=nfl-predictions-503414&advancedFilter=resource.type%3D%22cloud_run_job%22%0Aresource.labels.job_name%3D%22coherent-state-s2024-w14-v1%22%0Aresource.labels.location%3D%22us-central1%22%0Alabels.%22run.googleapis.com/execution_name%22%3D%22coherent-state-s2024-w14-v1-6pfgf%22",
+    "observedGeneration": 1,
+    "startTime": "2026-08-18T17:38:37.862763Z",
+    "succeededCount": 1
+  }
+}

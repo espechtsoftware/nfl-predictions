@@ -1,0 +1,11 @@
+validated_at=2026-08-18T17:35:22.940369Z
+status=True
+disposition=real-path-canary-passes
+execution=coherent-state-s2023-w1-v1-dqrpm
+cell=2023-1
+remaining_cells_released=false
+object_content_inspected=false
+effect_fields_inspected=false
+uses_realized_outcomes=false
+execution_metadata_sha256=d2149cfe4b33abf6ad585c59dce35ad95c95cd44eef72d857f0ba033c9617611
+object_metadata_sha256=5bdd92278a072432a9d62b49715f7c31f9a2f2dff9391dec740c1eaf34455ab7

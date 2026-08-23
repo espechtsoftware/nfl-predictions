@@ -1,0 +1,10 @@
+{
+  "description": "Create BigQuery jobs only for corpus source runtime",
+  "etag": "BwZZl01s11s=",
+  "includedPermissions": [
+    "bigquery.jobs.create"
+  ],
+  "name": "projects/nfl-predictions-503414/roles/corpusSourceQueryJobV1",
+  "stage": "GA",
+  "title": "Corpus source query job v1"
+}

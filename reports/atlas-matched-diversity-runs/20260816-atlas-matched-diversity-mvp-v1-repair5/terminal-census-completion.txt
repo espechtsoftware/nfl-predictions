@@ -1,0 +1,10 @@
+validated_at=2026-08-18T01:06:32Z
+primary_executions=54
+retry_executions=0
+all_declared_attempts_terminal=true
+scientific_result_valid=false
+effect_fields_inspected=false
+uses_realized_outcomes=false
+historical_scoring_licensed=false
+continuous_parity_capacity_released=true
+production_change_licensed=false

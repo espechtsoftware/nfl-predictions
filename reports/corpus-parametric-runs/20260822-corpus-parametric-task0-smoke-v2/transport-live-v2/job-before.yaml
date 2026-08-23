@@ -1,0 +1,49 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  annotations:
+    run.googleapis.com/creator: espechtsoftware@gmail.com
+    run.googleapis.com/lastModifier: espechtsoftware@gmail.com
+  labels:
+    cloud.googleapis.com/location: us-central1
+    run.googleapis.com/lastUpdatedTime: '2026-08-22T02:56:35.596173Z'
+  name: atlas-minimal-c-s2023-w1-v1
+  namespace: '817589974517'
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/client-name: gcloud
+        run.googleapis.com/client-version: 579.0.0
+        run.googleapis.com/cloudsql-instances: ''
+        run.googleapis.com/execution-environment: gen2
+      labels:
+        client.knative.dev/nonce: tiz_viw_hiw
+    spec:
+      parallelism: 1
+      taskCount: 1
+      template:
+        spec:
+          containers:
+          - args:
+            - scripts/prepare_corpus_artifact_source_authority.py
+            - parked
+            command:
+            - python
+            env:
+            - name: CORPUS_ARTIFACT_SOURCE_AUTHORITY_ENABLED
+              value: '1'
+            - name: CORPUS_ARTIFACT_SOURCE_IMAGE
+              value: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:e099b4a4feeeb2ee3e738f4661c941950181412505d28c5926d734a534e8ce69
+            - name: CORPUS_ARTIFACT_SOURCE_BUILD_ID
+              value: 0332dff4-ee9d-45b2-a3c1-41dc1891cf60
+            - name: CODE_SHA
+              value: 12ee7cefa4d6b093562696e17f82a0bdef126636
+            image: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:e099b4a4feeeb2ee3e738f4661c941950181412505d28c5926d734a534e8ce69
+            resources:
+              limits:
+                cpu: '8'
+                memory: 32Gi
+          maxRetries: 0
+          serviceAccountName: corpus-source-research@nfl-predictions-503414.iam.gserviceaccount.com
+          timeoutSeconds: '86400'

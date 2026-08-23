@@ -1,0 +1,105 @@
+{
+  "acl": [
+    {
+      "bucket": "nfl-predictions-503414-raw",
+      "entity": "project-editors-817589974517",
+      "etag": "CAM=",
+      "id": "nfl-predictions-503414-raw/project-editors-817589974517",
+      "kind": "storage#bucketAccessControl",
+      "projectTeam": {
+        "projectNumber": "817589974517",
+        "team": "editors"
+      },
+      "role": "OWNER",
+      "selfLink": "https://www.googleapis.com/storage/v1/b/nfl-predictions-503414-raw/acl/project-editors-817589974517"
+    },
+    {
+      "bucket": "nfl-predictions-503414-raw",
+      "entity": "project-owners-817589974517",
+      "etag": "CAM=",
+      "id": "nfl-predictions-503414-raw/project-owners-817589974517",
+      "kind": "storage#bucketAccessControl",
+      "projectTeam": {
+        "projectNumber": "817589974517",
+        "team": "owners"
+      },
+      "role": "OWNER",
+      "selfLink": "https://www.googleapis.com/storage/v1/b/nfl-predictions-503414-raw/acl/project-owners-817589974517"
+    },
+    {
+      "bucket": "nfl-predictions-503414-raw",
+      "entity": "project-viewers-817589974517",
+      "etag": "CAM=",
+      "id": "nfl-predictions-503414-raw/project-viewers-817589974517",
+      "kind": "storage#bucketAccessControl",
+      "projectTeam": {
+        "projectNumber": "817589974517",
+        "team": "viewers"
+      },
+      "role": "READER",
+      "selfLink": "https://www.googleapis.com/storage/v1/b/nfl-predictions-503414-raw/acl/project-viewers-817589974517"
+    }
+  ],
+  "defaultObjectAcl": [
+    {
+      "entity": "project-owners-817589974517",
+      "etag": "CAM=",
+      "kind": "storage#objectAccessControl",
+      "projectTeam": {
+        "projectNumber": "817589974517",
+        "team": "owners"
+      },
+      "role": "OWNER"
+    },
+    {
+      "entity": "project-editors-817589974517",
+      "etag": "CAM=",
+      "kind": "storage#objectAccessControl",
+      "projectTeam": {
+        "projectNumber": "817589974517",
+        "team": "editors"
+      },
+      "role": "OWNER"
+    },
+    {
+      "entity": "project-viewers-817589974517",
+      "etag": "CAM=",
+      "kind": "storage#objectAccessControl",
+      "projectTeam": {
+        "projectNumber": "817589974517",
+        "team": "viewers"
+      },
+      "role": "READER"
+    }
+  ],
+  "etag": "CAM=",
+  "generation": "1784902736623594300",
+  "iamConfiguration": {
+    "bucketPolicyOnly": {
+      "enabled": false
+    },
+    "publicAccessPrevention": "inherited",
+    "uniformBucketLevelAccess": {
+      "enabled": false
+    }
+  },
+  "id": "nfl-predictions-503414-raw",
+  "kind": "storage#bucket",
+  "location": "US",
+  "locationType": "multi-region",
+  "metageneration": "3",
+  "name": "nfl-predictions-503414-raw",
+  "owner": {
+    "entity": "project-owners-817589974517"
+  },
+  "projectNumber": "817589974517",
+  "rpo": "DEFAULT",
+  "selfLink": "https://www.googleapis.com/storage/v1/b/nfl-predictions-503414-raw",
+  "softDeletePolicy": {
+    "effectiveTime": "2026-07-24T14:18:56.896000+00:00",
+    "retentionDurationSeconds": "604800"
+  },
+  "storageClass": "STANDARD",
+  "timeCreated": "2026-07-24T14:18:56.896000+00:00",
+  "updated": "2026-08-21T23:57:41.684000+00:00"
+}

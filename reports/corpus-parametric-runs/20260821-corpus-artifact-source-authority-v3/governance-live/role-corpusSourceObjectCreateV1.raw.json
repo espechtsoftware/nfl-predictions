@@ -1,0 +1,10 @@
+{
+  "description": "Create storage objects only for corpus source runtime",
+  "etag": "BwZZl01vlpM=",
+  "includedPermissions": [
+    "storage.objects.create"
+  ],
+  "name": "projects/nfl-predictions-503414/roles/corpusSourceObjectCreateV1",
+  "stage": "GA",
+  "title": "Corpus source object create v1"
+}

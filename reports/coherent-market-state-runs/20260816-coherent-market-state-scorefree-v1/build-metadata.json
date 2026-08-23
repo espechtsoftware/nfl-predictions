@@ -1,0 +1,161 @@
+{
+  "artifacts": {
+    "images": [
+      "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:coherent-market-state-cde9c60"
+    ]
+  },
+  "createTime": "2026-08-17T05:18:09.928849426Z",
+  "finishTime": "2026-08-17T05:37:35.932202Z",
+  "id": "74f048df-1b8a-4b96-962b-f642deacb606",
+  "images": [
+    "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:coherent-market-state-cde9c60"
+  ],
+  "logUrl": "https://console.cloud.google.com/cloud-build/builds/74f048df-1b8a-4b96-962b-f642deacb606?project=817589974517",
+  "logsBucket": "gs://817589974517.cloudbuild-logs.googleusercontent.com",
+  "name": "projects/817589974517/locations/global/builds/74f048df-1b8a-4b96-962b-f642deacb606",
+  "options": {
+    "logging": "LEGACY",
+    "machineType": "E2_HIGHCPU_8",
+    "pool": {}
+  },
+  "projectId": "nfl-predictions-503414",
+  "queueTtl": "3600s",
+  "results": {
+    "buildStepImages": [
+      "sha256:9c900dea9e8fb7e16277c179b555cc72d29a352dbc33cff48ad5a0412fd5bfc7",
+      "sha256:617f98016081e2978c0b44184d7b09446027b909f1078b8fdc23efc4c74c5f20",
+      "sha256:617f98016081e2978c0b44184d7b09446027b909f1078b8fdc23efc4c74c5f20"
+    ],
+    "buildStepOutputs": [
+      "",
+      "",
+      ""
+    ],
+    "buildStepResults": {
+      "build-image": {},
+      "full-test-suite": {},
+      "smoke-atlas-mvp-runner": {}
+    },
+    "images": [
+      {
+        "artifactRegistryPackage": "projects/nfl-predictions-503414/locations/us-central1/repositories/nfl-dfs/packages/nfl-dfs/versions/sha256:984cbdf77b43e87259c1d0e03978af034fb49f8dcb71e5a498bc520970dc7f4f",
+        "digest": "sha256:984cbdf77b43e87259c1d0e03978af034fb49f8dcb71e5a498bc520970dc7f4f",
+        "name": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:coherent-market-state-cde9c60",
+        "pushTiming": {
+          "endTime": "2026-08-17T05:37:35.162816015Z",
+          "startTime": "2026-08-17T05:36:42.848932683Z"
+        }
+      }
+    ]
+  },
+  "serviceAccount": "projects/nfl-predictions-503414/serviceAccounts/817589974517-compute@developer.gserviceaccount.com",
+  "source": {
+    "storageSource": {
+      "bucket": "nfl-predictions-503414_cloudbuild",
+      "generation": "1786943889545769",
+      "object": "source/1786943865.730961-c66ffcb2d8d04ed284153e1bb7de2156.tgz"
+    }
+  },
+  "sourceProvenance": {
+    "fileHashes": {
+      "gs://nfl-predictions-503414_cloudbuild/source/1786943865.730961-c66ffcb2d8d04ed284153e1bb7de2156.tgz#1786943889545769": {
+        "fileHash": [
+          {
+            "type": "MD5",
+            "value": "8lUOYYRH9nTwk-l9ax-rGg=="
+          },
+          {
+            "type": "SHA256",
+            "value": "BWmtBUegSI5nfL_DQc0bPp7eVHopCObaBU_s3qUN4ag="
+          }
+        ]
+      }
+    },
+    "resolvedStorageSource": {
+      "bucket": "nfl-predictions-503414_cloudbuild",
+      "generation": "1786943889545769",
+      "object": "source/1786943865.730961-c66ffcb2d8d04ed284153e1bb7de2156.tgz"
+    }
+  },
+  "startTime": "2026-08-17T05:18:55.976874149Z",
+  "status": "SUCCESS",
+  "steps": [
+    {
+      "args": [
+        "-ceu",
+        "apt-get update\napt-get install -y --no-install-recommends libgomp1\npip install --no-cache-dir '.[gcp,app,dev]'\nPYTHONPATH=. pytest\n"
+      ],
+      "entrypoint": "bash",
+      "id": "full-test-suite",
+      "name": "python:3.11-slim",
+      "pullTiming": {
+        "endTime": "2026-08-17T05:19:05.703498679Z",
+        "startTime": "2026-08-17T05:19:02.489373665Z"
+      },
+      "status": "SUCCESS",
+      "timing": {
+        "endTime": "2026-08-17T05:35:25.624453799Z",
+        "startTime": "2026-08-17T05:19:02.489373665Z"
+      }
+    },
+    {
+      "args": [
+        "build",
+        "-t",
+        "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:coherent-market-state-cde9c60",
+        "."
+      ],
+      "id": "build-image",
+      "name": "gcr.io/cloud-builders/docker",
+      "pullTiming": {
+        "endTime": "2026-08-17T05:35:25.631232530Z",
+        "startTime": "2026-08-17T05:35:25.624739809Z"
+      },
+      "status": "SUCCESS",
+      "timing": {
+        "endTime": "2026-08-17T05:36:29.413194675Z",
+        "startTime": "2026-08-17T05:35:25.624739809Z"
+      }
+    },
+    {
+      "args": [
+        "-ceu",
+        "docker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:coherent-market-state-cde9c60' \\\n  python scripts/run_atlas_matched_diversity_mvp.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:coherent-market-state-cde9c60' \\\n  python scripts/run_atlas_historical_score_diagnostic.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:coherent-market-state-cde9c60' \\\n  python scripts/run_constraint_lattice_scorefree.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:coherent-market-state-cde9c60' \\\n  python scripts/aggregate_constraint_lattice_scorefree.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:coherent-market-state-cde9c60' \\\n  python scripts/run_constraint_lattice_support_census.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:coherent-market-state-cde9c60' \\\n  python scripts/aggregate_constraint_lattice_support_census.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:coherent-market-state-cde9c60' \\\n  python scripts/run_constraint_lattice_resource_preflight.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:coherent-market-state-cde9c60' \\\n  python scripts/run_coherent_market_state_scorefree.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:coherent-market-state-cde9c60' \\\n  python scripts/aggregate_coherent_market_state_scorefree.py --help >/dev/null\n"
+      ],
+      "entrypoint": "bash",
+      "id": "smoke-atlas-mvp-runner",
+      "name": "gcr.io/cloud-builders/docker",
+      "pullTiming": {
+        "endTime": "2026-08-17T05:36:29.414729685Z",
+        "startTime": "2026-08-17T05:36:29.413460535Z"
+      },
+      "status": "SUCCESS",
+      "timing": {
+        "endTime": "2026-08-17T05:36:42.805577111Z",
+        "startTime": "2026-08-17T05:36:29.413460535Z"
+      }
+    }
+  ],
+  "substitutions": {
+    "_IMAGE": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:coherent-market-state-cde9c60"
+  },
+  "timeout": "3600s",
+  "timing": {
+    "BUILD": {
+      "endTime": "2026-08-17T05:36:42.848793423Z",
+      "startTime": "2026-08-17T05:19:01.960221559Z"
+    },
+    "FETCHSOURCE": {
+      "endTime": "2026-08-17T05:19:01.959978779Z",
+      "startTime": "2026-08-17T05:18:58.934036585Z"
+    },
+    "PUSH": {
+      "endTime": "2026-08-17T05:37:35.162965335Z",
+      "startTime": "2026-08-17T05:36:42.848925513Z"
+    },
+    "STORAGE_SOURCE": {
+      "endTime": "2026-08-17T05:19:01.959978779Z",
+      "startTime": "2026-08-17T05:18:58.934036585Z"
+    }
+  }
+}

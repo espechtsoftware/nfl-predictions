@@ -1,0 +1,101 @@
+{
+  "apiVersion": "run.googleapis.com/v1",
+  "kind": "Job",
+  "metadata": {
+    "annotations": {
+      "run.googleapis.com/client-name": "gcloud",
+      "run.googleapis.com/client-version": "579.0.0",
+      "run.googleapis.com/creator": "espechtsoftware@gmail.com",
+      "run.googleapis.com/lastModifier": "espechtsoftware@gmail.com",
+      "run.googleapis.com/operation-id": "332389c4-d081-4688-ad68-2df9dafbfc9b"
+    },
+    "creationTimestamp": "2026-08-19T04:29:11.741949Z",
+    "generation": 21,
+    "labels": {
+      "cloud.googleapis.com/location": "us-central1",
+      "run.googleapis.com/lastUpdatedTime": "2026-08-22T02:25:23.166489Z"
+    },
+    "name": "atlas-minimal-c-s2023-w1-v1",
+    "namespace": "817589974517",
+    "resourceVersion": "AAZZmYIWkuI",
+    "selfLink": "/apis/run.googleapis.com/v1/namespaces/817589974517/jobs/atlas-minimal-c-s2023-w1-v1",
+    "uid": "d6e4b8c1-5950-46b7-8869-7e34dbf29ad2"
+  },
+  "spec": {
+    "template": {
+      "metadata": {
+        "annotations": {
+          "run.googleapis.com/client-name": "gcloud",
+          "run.googleapis.com/client-version": "579.0.0",
+          "run.googleapis.com/cloudsql-instances": "",
+          "run.googleapis.com/execution-environment": "gen2"
+        },
+        "labels": {
+          "client.knative.dev/nonce": "woh_buf_fiz"
+        }
+      },
+      "spec": {
+        "parallelism": 1,
+        "taskCount": 1,
+        "template": {
+          "spec": {
+            "containers": [
+              {
+                "args": [
+                  "scripts/prepare_corpus_artifact_source_authority.py",
+                  "parked"
+                ],
+                "command": [
+                  "python"
+                ],
+                "env": [
+                  {
+                    "name": "CORPUS_ARTIFACT_SOURCE_AUTHORITY_ENABLED",
+                    "value": "1"
+                  },
+                  {
+                    "name": "CORPUS_ARTIFACT_SOURCE_IMAGE",
+                    "value": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:d35ed96e000317928530bd3d7e5a88ff63d233217066f67fc80d782b8a22700c"
+                  },
+                  {
+                    "name": "CORPUS_ARTIFACT_SOURCE_BUILD_ID",
+                    "value": "8a17413e-4950-40e1-ab38-77317e2f4830"
+                  },
+                  {
+                    "name": "CODE_SHA",
+                    "value": "7cc06de47aa2e3573b67dd734b65924ed5b47ac5"
+                  }
+                ],
+                "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:d35ed96e000317928530bd3d7e5a88ff63d233217066f67fc80d782b8a22700c",
+                "resources": {
+                  "limits": {
+                    "cpu": "8",
+                    "memory": "32Gi"
+                  }
+                }
+              }
+            ],
+            "maxRetries": 0,
+            "serviceAccountName": "corpus-source-research@nfl-predictions-503414.iam.gserviceaccount.com",
+            "timeoutSeconds": "86400"
+          }
+        }
+      }
+    }
+  },
+  "status": {
+    "conditions": [
+      {
+        "status": "True",
+        "type": "Ready"
+      }
+    ],
+    "executionCount": 267,
+    "latestCreatedExecution": {
+      "completionStatus": "EXECUTION_PENDING",
+      "creationTimestamp": "2026-08-22T02:28:27.596359Z",
+      "name": "atlas-minimal-c-s2023-w1-v1-zd6zw"
+    },
+    "observedGeneration": 21
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "acl": [
+    {
+      "entity": "project-owners-817589974517",
+      "projectTeam": {
+        "projectNumber": "817589974517",
+        "team": "owners"
+      },
+      "role": "OWNER"
+    },
+    {
+      "entity": "project-editors-817589974517",
+      "projectTeam": {
+        "projectNumber": "817589974517",
+        "team": "editors"
+      },
+      "role": "OWNER"
+    },
+    {
+      "entity": "project-viewers-817589974517",
+      "projectTeam": {
+        "projectNumber": "817589974517",
+        "team": "viewers"
+      },
+      "role": "READER"
+    },
+    {
+      "email": "817589974517-compute@developer.gserviceaccount.com",
+      "entity": "user-817589974517-compute@developer.gserviceaccount.com",
+      "role": "OWNER"
+    }
+  ],
+  "bucket": "nfl-predictions-503414-raw",
+  "content_type": "application/json",
+  "crc32c_hash": "FzZKTg==",
+  "creation_time": "2026-08-18T17:39:41+0000",
+  "etag": "COjnpqzcqpYDEAE=",
+  "generation": "1787074781492200",
+  "md5_hash": "0MaJ3eHpoh7rn2d8jegatg==",
+  "metageneration": 1,
+  "name": "research/coherent-market-state-runs/20260816-coherent-market-state-scorefree-v1/slate-2023-4.json",
+  "size": 479752,
+  "storage_class": "STANDARD",
+  "storage_class_update_time": "2026-08-18T17:39:41+0000",
+  "storage_url": "gs://nfl-predictions-503414-raw/research/coherent-market-state-runs/20260816-coherent-market-state-scorefree-v1/slate-2023-4.json#1787074781492200",
+  "update_time": "2026-08-18T17:39:41+0000"
+}

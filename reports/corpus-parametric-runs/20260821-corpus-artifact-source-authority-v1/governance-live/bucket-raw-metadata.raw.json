@@ -1,0 +1,105 @@
+{
+  "kind": "storage#bucket",
+  "selfLink": "https://www.googleapis.com/storage/v1/b/nfl-predictions-503414-raw",
+  "id": "nfl-predictions-503414-raw",
+  "name": "nfl-predictions-503414-raw",
+  "projectNumber": "817589974517",
+  "generation": "1784902736623594300",
+  "metageneration": "3",
+  "location": "US",
+  "storageClass": "STANDARD",
+  "etag": "CAM=",
+  "timeCreated": "2026-07-24T14:18:56.896Z",
+  "updated": "2026-08-21T23:57:41.684Z",
+  "acl": [
+    {
+      "kind": "storage#bucketAccessControl",
+      "id": "nfl-predictions-503414-raw/project-editors-817589974517",
+      "selfLink": "https://www.googleapis.com/storage/v1/b/nfl-predictions-503414-raw/acl/project-editors-817589974517",
+      "bucket": "nfl-predictions-503414-raw",
+      "entity": "project-editors-817589974517",
+      "role": "OWNER",
+      "etag": "CAM=",
+      "projectTeam": {
+        "projectNumber": "817589974517",
+        "team": "editors"
+      }
+    },
+    {
+      "kind": "storage#bucketAccessControl",
+      "id": "nfl-predictions-503414-raw/project-owners-817589974517",
+      "selfLink": "https://www.googleapis.com/storage/v1/b/nfl-predictions-503414-raw/acl/project-owners-817589974517",
+      "bucket": "nfl-predictions-503414-raw",
+      "entity": "project-owners-817589974517",
+      "role": "OWNER",
+      "etag": "CAM=",
+      "projectTeam": {
+        "projectNumber": "817589974517",
+        "team": "owners"
+      }
+    },
+    {
+      "kind": "storage#bucketAccessControl",
+      "id": "nfl-predictions-503414-raw/project-viewers-817589974517",
+      "selfLink": "https://www.googleapis.com/storage/v1/b/nfl-predictions-503414-raw/acl/project-viewers-817589974517",
+      "bucket": "nfl-predictions-503414-raw",
+      "entity": "project-viewers-817589974517",
+      "role": "READER",
+      "etag": "CAM=",
+      "projectTeam": {
+        "projectNumber": "817589974517",
+        "team": "viewers"
+      }
+    }
+  ],
+  "defaultObjectAcl": [
+    {
+      "kind": "storage#objectAccessControl",
+      "entity": "project-owners-817589974517",
+      "role": "OWNER",
+      "etag": "CAM=",
+      "projectTeam": {
+        "projectNumber": "817589974517",
+        "team": "owners"
+      }
+    },
+    {
+      "kind": "storage#objectAccessControl",
+      "entity": "project-editors-817589974517",
+      "role": "OWNER",
+      "etag": "CAM=",
+      "projectTeam": {
+        "projectNumber": "817589974517",
+        "team": "editors"
+      }
+    },
+    {
+      "kind": "storage#objectAccessControl",
+      "entity": "project-viewers-817589974517",
+      "role": "READER",
+      "etag": "CAM=",
+      "projectTeam": {
+        "projectNumber": "817589974517",
+        "team": "viewers"
+      }
+    }
+  ],
+  "owner": {
+    "entity": "project-owners-817589974517"
+  },
+  "softDeletePolicy": {
+    "retentionDurationSeconds": "604800",
+    "effectiveTime": "2026-07-24T14:18:56.896Z"
+  },
+  "iamConfiguration": {
+    "bucketPolicyOnly": {
+      "enabled": false
+    },
+    "uniformBucketLevelAccess": {
+      "enabled": false
+    },
+    "publicAccessPrevention": "inherited"
+  },
+  "locationType": "multi-region",
+  "rpo": "DEFAULT"
+}

@@ -1,0 +1,219 @@
+{
+  "mainAnalysis": {
+    "analysisQuery": {
+      "scope": "projects/nfl-predictions-503414",
+      "identitySelector": {
+        "identity": "serviceAccount:corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com"
+      },
+      "options": {
+        "expandGroups": true,
+        "expandRoles": true,
+        "expandResources": true,
+        "outputResourceEdges": true,
+        "outputGroupEdges": true
+      }
+    },
+    "analysisResults": [
+      {
+        "attachedResourceFullName": "//storage.googleapis.com/nfl-predictions-503414-corpus-parametric",
+        "iamBinding": {
+          "role": "projects/nfl-predictions-503414/roles/corpusParametricObjectCreateV2",
+          "members": [
+            "serviceAccount:corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com"
+          ],
+          "condition": {
+            "expression": "resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-parametric/objects/research/corpus-parametric-research/batches/20260822-corpus-parametric-task0-smoke-batch-v2/')",
+            "title": "corpus-parametric-create-v2"
+          }
+        },
+        "accessControlLists": [
+          {
+            "resources": [
+              {
+                "fullResourceName": "//storage.googleapis.com/nfl-predictions-503414-corpus-parametric"
+              }
+            ],
+            "accesses": [
+              {
+                "permission": "storage.objects.create"
+              },
+              {
+                "role": "projects/nfl-predictions-503414/roles/corpusParametricObjectCreateV2"
+              }
+            ],
+            "conditionEvaluation": {
+              "evaluationValue": "CONDITIONAL"
+            }
+          }
+        ],
+        "identityList": {
+          "identities": [
+            {
+              "name": "serviceAccount:corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com"
+            }
+          ]
+        },
+        "fullyExplored": true
+      },
+      {
+        "attachedResourceFullName": "//storage.googleapis.com/nfl-predictions-503414-corpus-parametric",
+        "iamBinding": {
+          "role": "projects/nfl-predictions-503414/roles/corpusParametricObjectGetV2",
+          "members": [
+            "serviceAccount:corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com"
+          ],
+          "condition": {
+            "expression": "resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-parametric/objects/research/corpus-parametric-research/foundations/20260822-corpus-parametric-task0-smoke-foundation-v2/') || resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-parametric/objects/research/corpus-parametric-research/batches/20260822-corpus-parametric-task0-smoke-batch-v2/')",
+            "title": "corpus-parametric-read-v2"
+          }
+        },
+        "accessControlLists": [
+          {
+            "resources": [
+              {
+                "fullResourceName": "//storage.googleapis.com/nfl-predictions-503414-corpus-parametric"
+              }
+            ],
+            "accesses": [
+              {
+                "permission": "storage.objects.get"
+              },
+              {
+                "role": "projects/nfl-predictions-503414/roles/corpusParametricObjectGetV2"
+              }
+            ],
+            "conditionEvaluation": {
+              "evaluationValue": "CONDITIONAL"
+            }
+          }
+        ],
+        "identityList": {
+          "identities": [
+            {
+              "name": "serviceAccount:corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com"
+            }
+          ]
+        },
+        "fullyExplored": true
+      },
+      {
+        "attachedResourceFullName": "//storage.googleapis.com/nfl-predictions-503414-corpus-source",
+        "iamBinding": {
+          "role": "projects/nfl-predictions-503414/roles/corpusParametricObjectGetV2",
+          "members": [
+            "serviceAccount:corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com"
+          ],
+          "condition": {
+            "expression": "resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-source/objects/research/source/20260821-corpus-artifact-source-authority-v3/')",
+            "title": "corpus-parametric-read-v2"
+          }
+        },
+        "accessControlLists": [
+          {
+            "resources": [
+              {
+                "fullResourceName": "//storage.googleapis.com/nfl-predictions-503414-corpus-source"
+              }
+            ],
+            "accesses": [
+              {
+                "permission": "storage.objects.get"
+              },
+              {
+                "role": "projects/nfl-predictions-503414/roles/corpusParametricObjectGetV2"
+              }
+            ],
+            "conditionEvaluation": {
+              "evaluationValue": "CONDITIONAL"
+            }
+          }
+        ],
+        "identityList": {
+          "identities": [
+            {
+              "name": "serviceAccount:corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com"
+            }
+          ]
+        },
+        "fullyExplored": true
+      },
+      {
+        "attachedResourceFullName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval",
+        "iamBinding": {
+          "role": "projects/nfl-predictions-503414/roles/corpusParametricObjectGetV2",
+          "members": [
+            "serviceAccount:corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com"
+          ],
+          "condition": {
+            "expression": "resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-runs/20260821-corpus-retrieval-engine-v1/') || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/governance/query-authority.json' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/governance/snapshot-manifest.json' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/governance/snapshot-producer-authority.json' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/candidate-rows.json' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/player-catalog.json' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/worlds/R0.npz' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/worlds/R1.npz' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/worlds/R2.npz' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/worlds/R3.npz' || resource.name == 'projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/tasks/0000/worlds/R4.npz'",
+            "title": "corpus-parametric-read-v2"
+          }
+        },
+        "accessControlLists": [
+          {
+            "resources": [
+              {
+                "fullResourceName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval"
+              }
+            ],
+            "accesses": [
+              {
+                "permission": "storage.objects.get"
+              },
+              {
+                "role": "projects/nfl-predictions-503414/roles/corpusParametricObjectGetV2"
+              }
+            ],
+            "conditionEvaluation": {
+              "evaluationValue": "CONDITIONAL"
+            }
+          }
+        ],
+        "identityList": {
+          "identities": [
+            {
+              "name": "serviceAccount:corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com"
+            }
+          ]
+        },
+        "fullyExplored": true
+      },
+      {
+        "attachedResourceFullName": "//storage.googleapis.com/nfl-predictions-503414-raw",
+        "iamBinding": {
+          "role": "projects/nfl-predictions-503414/roles/corpusParametricObjectGetV2",
+          "members": [
+            "serviceAccount:corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com"
+          ]
+        },
+        "accessControlLists": [
+          {
+            "resources": [
+              {
+                "fullResourceName": "//storage.googleapis.com/nfl-predictions-503414-raw"
+              }
+            ],
+            "accesses": [
+              {
+                "permission": "storage.objects.get"
+              },
+              {
+                "role": "projects/nfl-predictions-503414/roles/corpusParametricObjectGetV2"
+              }
+            ]
+          }
+        ],
+        "identityList": {
+          "identities": [
+            {
+              "name": "serviceAccount:corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com"
+            }
+          ]
+        },
+        "fullyExplored": true
+      }
+    ],
+    "fullyExplored": true
+  },
+  "fullyExplored": true
+}

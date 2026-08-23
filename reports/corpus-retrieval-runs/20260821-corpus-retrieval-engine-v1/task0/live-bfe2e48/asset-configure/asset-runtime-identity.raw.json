@@ -1,0 +1,135 @@
+{
+  "fullyExplored": true,
+  "mainAnalysis": {
+    "analysisQuery": {
+      "identitySelector": {
+        "identity": "serviceAccount:corpus-retrieval-research@nfl-predictions-503414.iam.gserviceaccount.com"
+      },
+      "options": {
+        "expandGroups": true,
+        "expandResources": true,
+        "expandRoles": true,
+        "outputGroupEdges": true,
+        "outputResourceEdges": true
+      },
+      "scope": "projects/nfl-predictions-503414"
+    },
+    "analysisResults": [
+      {
+        "accessControlLists": [
+          {
+            "accesses": [
+              {
+                "role": "roles/storage.objectCreator"
+              },
+              {
+                "permission": "storage.objects.create"
+              },
+              {
+                "permission": "storage.folders.create"
+              },
+              {
+                "permission": "storage.objects.createContext"
+              },
+              {
+                "permission": "storage.managedFolders.create"
+              },
+              {
+                "permission": "storage.multipartUploads.create"
+              },
+              {
+                "permission": "storage.multipartUploads.abort"
+              },
+              {
+                "permission": "storage.multipartUploads.listParts"
+              }
+            ],
+            "conditionEvaluation": {
+              "evaluationValue": "CONDITIONAL"
+            },
+            "resources": [
+              {
+                "fullResourceName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval"
+              }
+            ]
+          }
+        ],
+        "attachedResourceFullName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval",
+        "fullyExplored": true,
+        "iamBinding": {
+          "condition": {
+            "description": "Exact retrieval output create prefix",
+            "expression": "resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-runs/20260821-corpus-retrieval-engine-v1/')",
+            "title": "corpus-retrieval-create-v1"
+          },
+          "members": [
+            "serviceAccount:corpus-retrieval-research@nfl-predictions-503414.iam.gserviceaccount.com"
+          ],
+          "role": "roles/storage.objectCreator"
+        },
+        "identityList": {
+          "identities": [
+            {
+              "name": "serviceAccount:corpus-retrieval-research@nfl-predictions-503414.iam.gserviceaccount.com"
+            }
+          ]
+        }
+      },
+      {
+        "accessControlLists": [
+          {
+            "accesses": [
+              {
+                "role": "roles/storage.objectViewer"
+              },
+              {
+                "permission": "storage.objects.get"
+              },
+              {
+                "permission": "storage.managedFolders.get"
+              },
+              {
+                "permission": "storage.managedFolders.list"
+              },
+              {
+                "permission": "storage.folders.list"
+              },
+              {
+                "permission": "storage.folders.get"
+              }
+            ],
+            "conditionEvaluation": {
+              "evaluationValue": "CONDITIONAL"
+            },
+            "resources": [
+              {
+                "fullResourceName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval"
+              }
+            ]
+          }
+        ],
+        "attachedResourceFullName": "//storage.googleapis.com/nfl-predictions-503414-corpus-retrieval",
+        "fullyExplored": true,
+        "iamBinding": {
+          "condition": {
+            "description": "Exact retrieval input and output read prefixes",
+            "expression": "resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/') || resource.name.startsWith('projects/_/buckets/nfl-predictions-503414-corpus-retrieval/objects/research/corpus-retrieval-runs/20260821-corpus-retrieval-engine-v1/')",
+            "title": "corpus-retrieval-read-v1"
+          },
+          "members": [
+            "serviceAccount:corpus-retrieval-research@nfl-predictions-503414.iam.gserviceaccount.com"
+          ],
+          "role": "roles/storage.objectViewer"
+        },
+        "identityList": {
+          "identities": [
+            {
+              "name": "serviceAccount:corpus-retrieval-research@nfl-predictions-503414.iam.gserviceaccount.com"
+            }
+          ]
+        }
+      }
+    ],
+    "fullyExplored": true
+  }
+}

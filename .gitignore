@@ -22,3 +22,5 @@ venv/
 .DS_Store
 notebooks/.ipynb_checkpoints/
 /.claude/worktrees/
+# Frontend dependency cache; the deterministic production bundle is tracked.
+/frontend/node_modules/

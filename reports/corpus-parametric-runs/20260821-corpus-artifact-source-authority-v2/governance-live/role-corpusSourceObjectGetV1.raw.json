@@ -1,0 +1,10 @@
+{
+  "description": "Exact storage object GET only for corpus source runtime",
+  "etag": "BwZZl01p7Do=",
+  "includedPermissions": [
+    "storage.objects.get"
+  ],
+  "name": "projects/nfl-predictions-503414/roles/corpusSourceObjectGetV1",
+  "stage": "GA",
+  "title": "Corpus source object GET v1"
+}

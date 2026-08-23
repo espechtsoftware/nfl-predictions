@@ -1,0 +1,1 @@
+2024 15 R0 atlas-interaction-parity-v1 atlas-interaction-parity-v1-vqz4h gs://nfl-predictions-503414-raw/research/atlas-interaction-parity-runs/20260816-atlas-interaction-parity-v1/parity.json

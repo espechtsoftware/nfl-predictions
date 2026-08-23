@@ -1,0 +1,12 @@
+{
+  "bindings": [
+    {
+      "members": [
+        "serviceAccount:corpus-source-research@nfl-predictions-503414.iam.gserviceaccount.com"
+      ],
+      "role": "projects/nfl-predictions-503414/roles/corpusSourceTableReadV1"
+    }
+  ],
+  "etag": "BwZZl09dREg=",
+  "version": 1
+}

@@ -1,0 +1,10 @@
+{
+  "description": "Read BigQuery table data only for corpus source runtime",
+  "etag": "BwZZl01x4xg=",
+  "includedPermissions": [
+    "bigquery.tables.getData"
+  ],
+  "name": "projects/nfl-predictions-503414/roles/corpusSourceTableReadV1",
+  "stage": "GA",
+  "title": "Corpus source table read v1"
+}

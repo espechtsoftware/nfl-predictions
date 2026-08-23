@@ -1,0 +1,189 @@
+{
+  "artifacts": {
+    "images": [
+      "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2"
+    ]
+  },
+  "createTime": "2026-08-22T11:24:01.930645844Z",
+  "finishTime": "2026-08-22T11:29:42.412577Z",
+  "id": "ba74a73d-43d5-44f7-9004-a336b99d5784",
+  "images": [
+    "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2"
+  ],
+  "logUrl": "https://console.cloud.google.com/cloud-build/builds/ba74a73d-43d5-44f7-9004-a336b99d5784?project=817589974517",
+  "logsBucket": "gs://817589974517.cloudbuild-logs.googleusercontent.com",
+  "name": "projects/817589974517/locations/global/builds/ba74a73d-43d5-44f7-9004-a336b99d5784",
+  "options": {
+    "logging": "LEGACY",
+    "machineType": "E2_HIGHCPU_8",
+    "pool": {}
+  },
+  "projectId": "nfl-predictions-503414",
+  "queueTtl": "3600s",
+  "results": {
+    "buildStepImages": [
+      "sha256:9c900dea9e8fb7e16277c179b555cc72d29a352dbc33cff48ad5a0412fd5bfc7",
+      "sha256:661e95acd923514f71f47ce7b390e06a8d31b15febecf772e506babf62960528",
+      "sha256:661e95acd923514f71f47ce7b390e06a8d31b15febecf772e506babf62960528",
+      "sha256:661e95acd923514f71f47ce7b390e06a8d31b15febecf772e506babf62960528",
+      "sha256:661e95acd923514f71f47ce7b390e06a8d31b15febecf772e506babf62960528"
+    ],
+    "buildStepOutputs": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "buildStepResults": {
+      "build-image": {},
+      "focused-corpus-research-tests": {},
+      "smoke-corpus-artifact-source": {},
+      "smoke-corpus-neo4j-transport": {},
+      "smoke-corpus-parametric-expansion": {}
+    },
+    "images": [
+      {
+        "artifactRegistryPackage": "projects/nfl-predictions-503414/locations/us-central1/repositories/nfl-dfs/packages/nfl-dfs/versions/sha256:86906c2e99e9d944ffc8c325ccb8f637b7f85816f1fbec2297fb7f138d6c7fdf",
+        "digest": "sha256:86906c2e99e9d944ffc8c325ccb8f637b7f85816f1fbec2297fb7f138d6c7fdf",
+        "name": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2",
+        "pushTiming": {
+          "endTime": "2026-08-22T11:29:41.397269537Z",
+          "startTime": "2026-08-22T11:29:02.090007650Z"
+        }
+      }
+    ]
+  },
+  "serviceAccount": "projects/nfl-predictions-503414/serviceAccounts/817589974517-compute@developer.gserviceaccount.com",
+  "source": {
+    "gitSource": {
+      "revision": "36fb2eb9fda2abb9a6539ac4ca479e6f054e3f82",
+      "url": "https://github.com/espechtsoftware/nfl-predictions.git"
+    }
+  },
+  "sourceProvenance": {
+    "resolvedGitSource": {
+      "revision": "36fb2eb9fda2abb9a6539ac4ca479e6f054e3f82",
+      "url": "https://github.com/espechtsoftware/nfl-predictions.git"
+    }
+  },
+  "startTime": "2026-08-22T11:24:50.854802585Z",
+  "status": "SUCCESS",
+  "steps": [
+    {
+      "args": [
+        "-ceu",
+        "apt-get update\napt-get install -y --no-install-recommends git jq libgomp1\npip install --no-cache-dir '.[gcp,app,graph,dev]'\nPYTHONPATH=src python -m pytest -q \\\n  tests/test_corpus_retrieval_engine.py \\\n  tests/test_corpus_retrieval_transport.py \\\n  tests/test_corpus_artifact_source_authority.py \\\n  tests/test_prepare_corpus_artifact_source_authority.py \\\n  tests/test_corpus_artifact_source_transport.py \\\n  tests/test_corpus_parametric_batch.py \\\n  tests/test_corpus_batch_evidence_contract.py \\\n  tests/test_corpus_legal_feasibility.py \\\n  tests/test_corpus_legal_feasibility_verifier.py \\\n  tests/test_prepare_corpus_parametric_batch_v1.py \\\n  tests/test_corpus_parametric_transport.py \\\n  tests/test_corpus_realized_grading.py \\\n  tests/test_corpus_realized_outcome_transport.py \\\n  tests/test_corpus_realized_cloud_transport.py \\\n  tests/test_corpus_retrieval_neo4j.py \\\n  tests/test_corpus_neo4j_transport.py \\\n  tests/test_corpus_strategy_registry.py \\\n  tests/test_corpus_strategy_registry_release.py \\\n  tests/test_corpus_research_ui.py \\\n  tests/test_corpus_research_ui_bridge.py \\\n  tests/test_corpus_expansion_build.py\n"
+      ],
+      "entrypoint": "bash",
+      "id": "focused-corpus-research-tests",
+      "name": "python:3.11-slim",
+      "pullTiming": {
+        "endTime": "2026-08-22T11:25:00.635702767Z",
+        "startTime": "2026-08-22T11:24:56.898556676Z"
+      },
+      "status": "SUCCESS",
+      "timing": {
+        "endTime": "2026-08-22T11:27:28.387492625Z",
+        "startTime": "2026-08-22T11:24:56.898556676Z"
+      }
+    },
+    {
+      "args": [
+        "build",
+        "-f",
+        "Dockerfile.corpus-research-expansion",
+        "-t",
+        "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2",
+        "."
+      ],
+      "id": "build-image",
+      "name": "gcr.io/cloud-builders/docker",
+      "pullTiming": {
+        "endTime": "2026-08-22T11:27:28.391539439Z",
+        "startTime": "2026-08-22T11:27:28.387643065Z"
+      },
+      "status": "SUCCESS",
+      "timing": {
+        "endTime": "2026-08-22T11:28:25.691480731Z",
+        "startTime": "2026-08-22T11:27:28.387643065Z"
+      }
+    },
+    {
+      "args": [
+        "-ceu",
+        "docker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python scripts/prepare_corpus_artifact_source_authority.py --help\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python scripts/prepare_corpus_artifact_source_authority.py parked\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python scripts/prepare_corpus_artifact_source_authority.py cloud-worker --help\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python scripts/run_corpus_artifact_source_transport.py --help\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python scripts/run_corpus_artifact_source_transport.py parked\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' bash -n scripts/cloud_corpus_artifact_source_v1_reuse.sh\n"
+      ],
+      "entrypoint": "bash",
+      "id": "smoke-corpus-artifact-source",
+      "name": "gcr.io/cloud-builders/docker",
+      "pullTiming": {
+        "endTime": "2026-08-22T11:28:25.692446028Z",
+        "startTime": "2026-08-22T11:28:25.691603568Z"
+      },
+      "status": "SUCCESS",
+      "timing": {
+        "endTime": "2026-08-22T11:28:36.806236057Z",
+        "startTime": "2026-08-22T11:28:25.691603568Z"
+      }
+    },
+    {
+      "args": [
+        "-ceu",
+        "docker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python scripts/run_corpus_parametric_transport.py --help\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python scripts/run_corpus_parametric_transport.py parked\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python scripts/prepare_corpus_parametric_batch_v1.py --help\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python scripts/prepare_corpus_parametric_batch_v1.py solver-probe\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' bash -n scripts/cloud_corpus_parametric_v1_reuse.sh\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python scripts/run_corpus_realized_outcomes.py --help\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python scripts/run_corpus_realized_cloud_transport.py --help\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python scripts/run_corpus_realized_cloud_transport.py parked\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' bash -n scripts/cloud_corpus_realized_v1_reuse.sh\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python -c 'import nfl_dfs.research.corpus_legal_feasibility; import nfl_dfs.research.corpus_legal_feasibility_verifier; import nfl_dfs.research.corpus_realized_grading; import nfl_dfs.research.corpus_realized_outcome_transport; import nfl_dfs.research.corpus_realized_cloud_transport'\n"
+      ],
+      "entrypoint": "bash",
+      "id": "smoke-corpus-parametric-expansion",
+      "name": "gcr.io/cloud-builders/docker",
+      "pullTiming": {
+        "endTime": "2026-08-22T11:28:36.807283228Z",
+        "startTime": "2026-08-22T11:28:36.806325341Z"
+      },
+      "status": "SUCCESS",
+      "timing": {
+        "endTime": "2026-08-22T11:28:51.521327892Z",
+        "startTime": "2026-08-22T11:28:36.806325341Z"
+      }
+    },
+    {
+      "args": [
+        "-ceu",
+        "docker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python scripts/prepare_corpus_neo4j_load_manifest.py --help\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python scripts/run_corpus_neo4j_transport.py --help\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python scripts/run_corpus_neo4j_transport.py parked\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' bash -n scripts/cloud_corpus_neo4j_v1_reuse.sh\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python scripts/prepare_corpus_strategy_registry_release.py --help\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python scripts/prepare_corpus_strategy_registry_release.py parked\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python scripts/materialize_corpus_research_ui_projection.py --help\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python scripts/materialize_corpus_research_ui_projection.py parked\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2' python -c 'import neo4j; import nfl_dfs.research.corpus_neo4j_transport; import nfl_dfs.research.corpus_strategy_registry; import nfl_dfs.research.corpus_strategy_registry_release; import nfl_dfs.research.corpus_research_ui_bridge; import nfl_dfs.app.corpus_research'\n"
+      ],
+      "entrypoint": "bash",
+      "id": "smoke-corpus-neo4j-transport",
+      "name": "gcr.io/cloud-builders/docker",
+      "pullTiming": {
+        "endTime": "2026-08-22T11:28:51.522300718Z",
+        "startTime": "2026-08-22T11:28:51.521447653Z"
+      },
+      "status": "SUCCESS",
+      "timing": {
+        "endTime": "2026-08-22T11:29:02.072671996Z",
+        "startTime": "2026-08-22T11:28:51.521447653Z"
+      }
+    }
+  ],
+  "substitutions": {
+    "_IMAGE": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-research-expansion-36fb2eb-r2"
+  },
+  "timeout": "10800s",
+  "timing": {
+    "BUILD": {
+      "endTime": "2026-08-22T11:29:02.089896710Z",
+      "startTime": "2026-08-22T11:24:56.453905996Z"
+    },
+    "FETCHSOURCE": {
+      "endTime": "2026-08-22T11:24:56.453803906Z",
+      "startTime": "2026-08-22T11:24:52.273337542Z"
+    },
+    "GIT_SOURCE": {
+      "endTime": "2026-08-22T11:24:56.453803906Z",
+      "startTime": "2026-08-22T11:24:52.273337542Z"
+    },
+    "PUSH": {
+      "endTime": "2026-08-22T11:29:41.397345982Z",
+      "startTime": "2026-08-22T11:29:02.090007111Z"
+    }
+  }
+}

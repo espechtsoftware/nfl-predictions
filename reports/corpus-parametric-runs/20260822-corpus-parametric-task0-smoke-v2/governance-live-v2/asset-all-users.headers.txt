@@ -1,0 +1,13 @@
+HTTP/2 200 
+content-type: application/json; charset=UTF-8
+vary: X-Origin
+vary: Referer
+vary: Origin,Accept-Encoding
+date: Sat, 22 Aug 2026 11:44:46 GMT
+server: ESF
+x-xss-protection: 0
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+alt-svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+accept-ranges: none
+
