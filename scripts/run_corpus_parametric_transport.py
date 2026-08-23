@@ -7195,7 +7195,7 @@ def execute_verifier_task(
         verification_raw = bytes(getattr(verification, "canonical_payload"))
     except Exception as exc:
         raise CorpusParametricTransportError(
-            "independent verification failed"
+            f"independent verification failed: {exc}"
         ) from exc
     _parse_independent_verification(
         storage=phase_storage,

@@ -2252,14 +2252,26 @@ def _load_verified_raw_inputs(
     authority_tasks = _sequence(
         completion["tasks"], label="artifact source-authority tasks"
     )
-    if task_index >= len(authority_tasks):
+    # Lane manifests select a subset of the 54 source rows; select by
+    # exact content identity, never by local position (lane-B offset).
+    _lane_task_sha = _strict_sha(
+        task["artifact_source_authority_task_sha256"],
+        label="manifest artifact source-authority task SHA",
+    )
+    _matching = [
+        (position, _mapping(
+            row, label=f"artifact source-authority task[{position}]"
+        ))
+        for position, row in enumerate(authority_tasks)
+        if _mapping(row, label="artifact source-authority row").get(
+            "task_source_authority_sha256"
+        ) == _lane_task_sha
+    ]
+    if len(_matching) != 1:
         raise CorpusLegalFeasibilityVerificationError(
             "artifact source-authority task row is absent"
         )
-    authority_task = _mapping(
-        authority_tasks[task_index],
-        label=f"artifact source-authority task[{task_index}]",
-    )
+    source_position, authority_task = _matching[0]
     task_authority_sha = _strict_sha(
         task["artifact_source_authority_task_sha256"],
         label="manifest artifact source-authority task SHA",
@@ -2279,7 +2291,7 @@ def _load_verified_raw_inputs(
         != completion_source_identity
         or completion["later_source_freeze_manifest_sha256"]
         != completion_manifest_sha
-        or authority_task["task_index"] != task_index
+        or authority_task["task_index"] != source_position
         or authority_task["season"] != task["season"]
         or authority_task["week"] != task["week"]
         or authority_task["slate_id"] != task["slate_id"]
@@ -3767,8 +3779,10 @@ def _parse_attempt_ledger(
                 "lexicographic_combined_optimum",
                 "combined_optimum_collision",
             ]
+            # Second-best law: either uniqueness certificate is exact —
+            # a strict runner-up (optimal stage 2) or infeasibility.
             or [stage.get("status") for stage in stages]
-            != ["optimal", "infeasible"]
+            not in (["optimal", "infeasible"], ["optimal", "optimal"])
             or proof["proof_sha256"] != _canonical_sha256(proof_body)
         ):
             raise CorpusLegalFeasibilityVerificationError(

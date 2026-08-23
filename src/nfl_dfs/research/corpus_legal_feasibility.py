@@ -2156,18 +2156,29 @@ def _load_authoritative_source(
     authority_tasks = _sequence(
         completion.get("tasks"), label="artifact source-authority tasks"
     )
-    if index >= len(authority_tasks):
-        raise CorpusLegalFeasibilityError(
-            "artifact source-authority task row is absent"
-        )
-    authority_task = _mapping(
-        authority_tasks[index],
-        label=f"artifact source-authority task[{index}]",
-    )
     task_authority_sha = _strict_sha(
         task.get("artifact_source_authority_task_sha256"),
         label="manifest artifact source-authority task SHA",
     )
+    # Lane manifests select a SUBSET of the 54 source rows, so the local
+    # manifest task index is not the source row position (lane B's local
+    # task 0 is source task 28). Select the completion row by its exact
+    # content identity and require it to sit at its own declared source
+    # position; positional local indexing failed lane B fail-closed.
+    matching = [
+        (source_position, _mapping(
+            row, label=f"artifact source-authority task[{source_position}]"
+        ))
+        for source_position, row in enumerate(authority_tasks)
+        if _mapping(row, label="artifact source-authority row").get(
+            "task_source_authority_sha256"
+        ) == task_authority_sha
+    ]
+    if len(matching) != 1:
+        raise CorpusLegalFeasibilityError(
+            "artifact source-authority task row is absent"
+        )
+    source_position, authority_task = matching[0]
     manifest_sha = _strict_sha(
         common.get("later_source_freeze_manifest_sha256"),
         label="later-source freeze manifest SHA",
@@ -2179,7 +2190,7 @@ def _load_authoritative_source(
         or completion.get("later_source_freeze_object") != common_source
         or completion.get("later_source_freeze_manifest_sha256")
         != manifest_sha
-        or authority_task.get("task_index") != index
+        or authority_task.get("task_index") != source_position
         or authority_task.get("season") != task["season"]
         or authority_task.get("week") != task["week"]
         or authority_task.get("slate_id") != task["slate_id"]
