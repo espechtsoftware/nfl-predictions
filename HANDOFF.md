@@ -20,6 +20,31 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-23 07:55 UTC (seventeenth update)
+
+### v8 lanes live: foundations published at the lane-modes image, chains launched
+
+- Fourth (and final — census clean) member of the task-count defect
+  class: the transport's batch-mode law admitted only {1,54}; both v7
+  configures refused fail-closed pre-write. Fixed at `9be4a07`
+  (enumerated modes add lane-a-28-task/lane-b-26-task; contract shapes
+  pinned in tests). Because published foundations bind the configure
+  build image to their manifest's immutable image, the v7 lane
+  namespaces were burned UNUSED (no launch ever consumed) and
+  everything moved to v8a/v8b at image `6af6927f`
+  (digest `0bb76bf0...`): lane scripts/envs/captures renamed, the four
+  lane IAM conditions moved (`foundry_v8_lane_iam_move.sh`), R6 prereg
+  bindings amended while still outcome-blind.
+- Both v8 foundations PUBLISHED create-once: lane A gen
+  `1787471596823375` (28 tasks), lane B gen `1787472887207954`
+  (26 tasks), 270/270 exact GETs each. Chains launched (lane B gated on
+  lane A's configure receipt); monitor streams landmarks/failures.
+- Operational lessons encoded: TaskStop can orphan a running configure
+  (detach chains via plain shell background; purge census namespaces
+  after any interleave); purge capture raws after ANY IAM change (law
+  in the split script); Cloud Asset analyze quota is 200/day (capture
+  now backs off on 429).
+
 ## Current handoff — 2026-08-23 05:30 UTC (sixteenth update)
 
 ### Lane foundations published; per-lane runtime SAs; blocked ~90 min on Asset-API daily quota
