@@ -843,7 +843,7 @@ def test_execute_gate_precedes_clients_and_solver_probe_is_client_free(
             "2e17077752aa52b06385ad248c9e90bb4f1ce34038c34c94e1012ca6adea5cc7"
         ),
         "options_sha256": (
-            "01bae1c5fab58e2e2e2c7142b1ba23d83ce6d2b16909c69f3d9216d314371c58"
+            "f5c90dae3ea03b4f3efc58bd4e89c254f25f8967294259fecea3eff212b69768"
         ),
         "exact_mode": True,
     }
