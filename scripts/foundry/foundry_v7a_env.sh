@@ -18,3 +18,23 @@ export CORPUS_PARAMETRIC_BUILD_METADATA_FILE="$CORPUS_PARAMETRIC_RUN_DIR/build-m
 
 # Appended by append_foundry_lane_identities.py --lane a after the
 # foundation execute, and the contract block after configure.
+
+# Appended from execute-result.json + build-metadata.json by
+# append_foundry_lane_identities.py --lane a — never edit by hand.
+export CORPUS_PARAMETRIC_IMAGE=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:c6692f0b28e8ad9bcab4da47906148c248e098899efc9b0bc3f153dca0050ed0
+export CORPUS_PARAMETRIC_FOUNDATION_PUBLICATION_URI='gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/foundations/20260823-corpus-parametric-production-foundation-v7a/governance/publication-completion.json'
+export CORPUS_PARAMETRIC_FOUNDATION_PUBLICATION_GENERATION=1787459934224000
+export CORPUS_PARAMETRIC_FOUNDATION_PUBLICATION_SHA256=5f71c0c7ecf479d09052757890e7654ed52d77f00be050c56453d365c7f3611e
+export CORPUS_PARAMETRIC_FOUNDATION_PUBLICATION_BYTES=7578
+export CORPUS_PARAMETRIC_MANIFEST_URI='gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/batches/20260823-corpus-parametric-production-batch-v7a/governance/batch-manifest.json'
+export CORPUS_PARAMETRIC_MANIFEST_GENERATION=1787459933502940
+export CORPUS_PARAMETRIC_MANIFEST_SHA256=58f881c142e9ae9109cbe96beba2aa4cdf2207808817a472ef484d470e858db8
+export CORPUS_PARAMETRIC_MANIFEST_BYTES=68886
+export CORPUS_PARAMETRIC_EVIDENCE_CONTRACT_URI='gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/batches/20260823-corpus-parametric-production-batch-v7a/governance/pre-run-evidence-contract.json'
+export CORPUS_PARAMETRIC_EVIDENCE_CONTRACT_GENERATION=1787459933926544
+export CORPUS_PARAMETRIC_EVIDENCE_CONTRACT_SHA256=d1aef6b17d2cbaa629031cd08c7c1902aa10117a4fe1644e15807061009feecb
+export CORPUS_PARAMETRIC_EVIDENCE_CONTRACT_BYTES=45200
+export CORPUS_PARAMETRIC_RETRIEVAL_PREREQUISITE_URI='gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/foundations/20260823-corpus-parametric-production-foundation-v7a/governance/retrieval-task0-accepted-prerequisite.json'
+export CORPUS_PARAMETRIC_RETRIEVAL_PREREQUISITE_GENERATION=1787459929253260
+export CORPUS_PARAMETRIC_RETRIEVAL_PREREQUISITE_SHA256=630cad7b327969829bebd026af8c170d4335eb72777e5fdfae34093bd52b7778
+export CORPUS_PARAMETRIC_RETRIEVAL_PREREQUISITE_BYTES=1925

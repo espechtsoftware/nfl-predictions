@@ -34,8 +34,14 @@ OUT_DIR = Path(
     f"20260823-foundry-production-v7{_LANE}/governance-live-v7{_LANE}"
 )
 PROJECT = "nfl-predictions-503414"
+# Per-lane runtime identity: the transport's least-privilege law admits
+# exactly one live batch per service account, so lane B runs as its own
+# SA with its own single-permission role pair (distinct roles keep the
+# raw bucket's unconditional principal-exact GET binding unmergeable).
 SERVICE_ACCOUNT = (
     "corpus-parametric-research@nfl-predictions-503414.iam.gserviceaccount.com"
+    if _LANE == "a"
+    else "corpus-parametric-research-b@nfl-predictions-503414.iam.gserviceaccount.com"
 )
 BUCKETS = (
     "nfl-predictions-503414-corpus-parametric",
@@ -43,9 +49,10 @@ BUCKETS = (
     "nfl-predictions-503414-corpus-source",
     "nfl-predictions-503414-raw",
 )
+_SUFFIX = "" if _LANE == "a" else "B"
 ROLES = (
-    ("role-create", "corpusParametricObjectCreateV2"),
-    ("role-get", "corpusParametricObjectGetV2"),
+    ("role-create", f"corpusParametricObjectCreateV2{_SUFFIX}"),
+    ("role-get", f"corpusParametricObjectGetV2{_SUFFIX}"),
 )
 IDENTITIES = (
     ("asset-runtime", f"serviceAccount:{SERVICE_ACCOUNT}", "runtime_identity"),
