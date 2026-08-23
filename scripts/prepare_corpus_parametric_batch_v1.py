@@ -1199,9 +1199,7 @@ def _preflight(
             common_law=common_law,
             tasks=_task_inputs(plan=plan, source=source),
         )
-        expected_count = (
-            PRODUCTION_TASK_COUNT if plan["mode"] == "production" else SMOKE_TASK_COUNT
-        )
+        expected_count = len(plan["source_task_indexes"])
         if len(manifest["tasks"]) != expected_count:
             raise CorpusParametricPreparationError("preflight task count differs")
         manifest_raw = batch.canonical_json_bytes(manifest)
@@ -1328,7 +1326,7 @@ def validate_publication(
     })
     _exact_keys(item, expected_keys, label="foundation publication")
     _validate_self_hash(item, field="publication_sha256", label="foundation publication")
-    expected_task_count = PRODUCTION_TASK_COUNT if plan["mode"] == "production" else 1
+    expected_task_count = len(plan["source_task_indexes"])
     if (
         item["schema_version"] != PUBLICATION_SCHEMA
         or item["foundation_id"] != plan["foundation_id"]
@@ -1597,7 +1595,7 @@ def execute_preparer(
         common_law=common_law,
         tasks=_task_inputs(plan=plan, source=source),
     )
-    expected_count = PRODUCTION_TASK_COUNT if plan["mode"] == "production" else 1
+    expected_count = len(plan["source_task_indexes"])
     if len(manifest["tasks"]) != expected_count:
         raise CorpusParametricPreparationError("published task count differs")
     manifest_raw = batch.canonical_json_bytes(manifest)

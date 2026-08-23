@@ -621,6 +621,7 @@ def test_source_loader_rejects_task_alias_before_science_replay(
 
 def _fake_source(
     module: ModuleType, store: _FakeStorage, plan: Mapping[str, object],
+    count: int = 1,
 ) -> object:
     publication_raw = b"p"
     publication_identity = store.seed(
@@ -631,17 +632,6 @@ def _fake_source(
     # The plan hashes are rebuilt around the real seeded identities by the caller.
     completion_identity = store.seed("gs://source/completion.json", b"c", "31")
     freeze_identity = store.seed("gs://source/freeze.json", b"f", "32")
-    receipts = {
-        role: _input_identity(f"gs://source/{role}.npz", str(40 + index))
-        for index, role in enumerate(module.batch.TASK_WORLD_SOURCE_ROLES)
-    }
-    receipt_hash = module.batch.canonical_sha256(receipts)
-    task = {
-        "task_index": 0, "season": 2023, "week": 1, "slate_id": "2023-w01",
-        "world_artifact_receipts": receipts,
-        "world_artifact_receipt_set_sha256": receipt_hash,
-        "task_source_authority_sha256": "d" * 64,
-    }
     blocks = [
         {"block": block, "world_indices": list(range(200))}
         for block in module.rw.WORLD_BLOCKS
@@ -650,13 +640,35 @@ def _fake_source(
         {"block": block, "index": index}
         for block in module.rw.WORLD_BLOCKS for index in range(200)
     ]
-    schedule = {
-        "task_index": 0, "season": 2023, "week": 1, "slate_id": "2023-w01",
-        "later_source_freeze_manifest_sha256": "a" * 64,
-        "world_artifact_receipt_set_sha256": receipt_hash,
-        "blocks": blocks,
-        "visit_schedule_sha256": module.legal.canonical_sha256(flattened),
-    }
+    tasks: list[dict[str, object]] = []
+    schedules: list[dict[str, object]] = []
+    for local in range(count):
+        receipts = {
+            role: _input_identity(
+                f"gs://source/t{local:02d}-{role}.npz",
+                str(40 + local * 10 + index),
+            )
+            for index, role in enumerate(module.batch.TASK_WORLD_SOURCE_ROLES)
+        }
+        receipt_hash = module.batch.canonical_sha256(receipts)
+        season = 2023 + local // 18
+        week = local % 18 + 1
+        slate_id = f"{season}-w{week:02d}"
+        tasks.append({
+            "task_index": local, "season": season, "week": week,
+            "slate_id": slate_id,
+            "world_artifact_receipts": receipts,
+            "world_artifact_receipt_set_sha256": receipt_hash,
+            "task_source_authority_sha256": "d" * 64,
+        })
+        schedules.append({
+            "task_index": local, "season": season, "week": week,
+            "slate_id": slate_id,
+            "later_source_freeze_manifest_sha256": "a" * 64,
+            "world_artifact_receipt_set_sha256": receipt_hash,
+            "blocks": blocks,
+            "visit_schedule_sha256": module.legal.canonical_sha256(flattened),
+        })
     return module.SourceFoundation(
         publication_identity=publication_identity,
         publication={},
@@ -664,7 +676,8 @@ def _fake_source(
         completion={"completion_sha256": "b" * 64},
         source_freeze_identity=freeze_identity,
         source_freeze={"freeze_sha256": "a" * 64},
-        task_rows=(task,), schedule_rows=(schedule,), exact_artifact_get_count=270,
+        task_rows=tuple(tasks), schedule_rows=tuple(schedules),
+        exact_artifact_get_count=270,
     )
 
 
@@ -834,3 +847,63 @@ def test_execute_gate_precedes_clients_and_solver_probe_is_client_free(
         ),
         "exact_mode": True,
     }
+
+
+def test_lane_execute_publishes_exactly_the_selected_half_batch(
+    module: ModuleType, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Regression for the v7 lane failure "preflight task count differs":
+    # every execute-path count law must derive from the plan's lattice,
+    # not from the production constant.
+    store = _FakeStorage()
+    original_plan = _preplan(module, mode="production")
+    plan = _rehash(module, {
+        **original_plan,
+        "source_task_indexes": list(range(28, 54)),
+    })
+    source_raw = b"p"
+    source_identity = store.seed(
+        plan["source_publication_completion_identity"]["uri"],
+        source_raw,
+        plan["source_publication_completion_identity"]["generation"],
+    )
+    plan = _rehash(module, {
+        **plan,
+        "source_publication_completion_identity": source_identity,
+    })
+    source = _fake_source(module, _FakeStorage(), plan, count=26)
+    completion_identity = store.seed("gs://source/completion.json", b"c", "31")
+    freeze_identity = store.seed("gs://source/freeze.json", b"f", "32")
+    source = module.SourceFoundation(
+        publication_identity=source_identity, publication={},
+        completion_identity=completion_identity,
+        completion=source.completion,
+        source_freeze_identity=freeze_identity,
+        source_freeze=source.source_freeze,
+        task_rows=source.task_rows, schedule_rows=source.schedule_rows,
+        exact_artifact_get_count=270,
+    )
+    prerequisite = _fake_prerequisite(module)
+    monkeypatch.setattr(
+        module, "bridge_retrieval_task0", lambda **_kwargs: prerequisite
+    )
+    monkeypatch.setattr(
+        module, "load_source_authority", lambda **_kwargs: source
+    )
+    result = module.execute_preparer(
+        preplan=plan,
+        execute=True,
+        environ={module.ENABLE_ENV: "1"},
+        storage_factory=lambda: store,
+        repository_root=ROOT,
+        solver_probe_fn=lambda: dict(SOLVER),
+    )
+    assert result["status"] == "created"
+    assert result["publication"]["task_count"] == 26
+    assert result["publication"]["source_task_count"] == 54
+    manifest_identity = result["publication"]["full_manifest"]
+    manifest = module.batch.parse_canonical_json_bytes(
+        store.objects[(manifest_identity["uri"], manifest_identity["generation"])],
+        label="lane manifest",
+    )
+    assert len(manifest["tasks"]) == 26
