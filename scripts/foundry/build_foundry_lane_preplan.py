@@ -132,6 +132,10 @@ def main() -> int:
         code_source["build_definition_sha256"]
     )
     values["code_source"] = code_source
+    # The template's solver authority predates the exact-gaps options;
+    # always refresh it from the live probe so options_sha256 matches the
+    # immutable runtime law.
+    values["solver"] = prep.solver_probe()
 
     batch_id = f"20260823-corpus-parametric-production-batch-{lane_id}"
     foundation_id = (
