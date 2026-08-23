@@ -203,9 +203,23 @@ def test_preplan_enforces_54_production_one_smoke_and_separate_namespaces(
     assert smoke["batch_output_prefix"] != production["batch_output_prefix"]
     assert "corpus-population-research" not in _canonical([smoke, production]).decode()
 
-    wrong = _rehash(module, {**production, "source_task_indexes": list(range(53))})
-    with pytest.raises(Exception, match="task lattice"):
-        _validate_plan(module, wrong)
+    # The v7 two-lane split admits exactly the two enumerated half-batch
+    # lattices — and nothing else.
+    lane_a = _validate_plan(module, _rehash(
+        module, {**production, "source_task_indexes": list(range(0, 28))}
+    ))
+    lane_b = _validate_plan(module, _rehash(
+        module, {**production, "source_task_indexes": list(range(28, 54))}
+    ))
+    assert lane_a["source_task_indexes"] == list(range(0, 28))
+    assert lane_b["source_task_indexes"] == list(range(28, 54))
+    for bad in (
+        list(range(53)), list(range(1, 28)), list(range(27, 54)),
+        list(range(0, 27)), list(range(28, 53)), [0, 2],
+    ):
+        wrong = _rehash(module, {**production, "source_task_indexes": bad})
+        with pytest.raises(Exception, match="task lattice"):
+            _validate_plan(module, wrong)
     wrong_smoke = _rehash(module, {**smoke, "source_task_indexes": [0, 1]})
     with pytest.raises(Exception, match="task lattice"):
         _validate_plan(module, wrong_smoke)

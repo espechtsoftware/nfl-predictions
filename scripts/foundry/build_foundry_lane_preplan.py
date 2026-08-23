@@ -48,12 +48,22 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--lane", required=True, choices=sorted(LANES))
     parser.add_argument(
-        "--expected-commit", required=True,
-        help="frozen worktree commit the image was built from",
+        "--image-commit", required=True,
+        help=(
+            "commit the immutable image was built from; recorded as "
+            "code_source.source_commit_sha and checked against the build "
+            "receipt's git revision"
+        ),
     )
     parser.add_argument(
         "--worktree", required=True, type=Path,
-        help="clean worktree checked out at --expected-commit",
+        help=(
+            "clean worktree the preparer runs from; may sit at a LATER "
+            "commit than the image (e.g. the lane-lattice preparer "
+            "amendment), but every image-pinned implementation and build "
+            "definition file must be byte-identical to the image commit — "
+            "enforced below via git show"
+        ),
     )
     args = parser.parse_args()
     lane = LANES[args.lane]
@@ -69,22 +79,18 @@ def main() -> int:
     sys.path.insert(0, str(worktree / "src"))
     import prepare_corpus_parametric_batch_v1 as prep
 
-    head = subprocess.run(
-        ["git", "-C", str(worktree), "rev-parse", "HEAD"],
-        check=True, capture_output=True, text=True,
-    ).stdout.strip()
     dirty = subprocess.run(
         ["git", "-C", str(worktree), "status", "--porcelain"],
         check=True, capture_output=True, text=True,
     ).stdout.strip()
-    if head != args.expected_commit or dirty:
-        raise SystemExit(f"worktree differs: head={head} dirty={bool(dirty)}")
+    if dirty:
+        raise SystemExit("worktree is dirty")
 
     build = json.loads(build_metadata.read_bytes())
     if build["status"] != "SUCCESS":
         raise SystemExit(f"build not successful: {build['status']}")
-    if build["source"]["gitSource"]["revision"] != args.expected_commit:
-        raise SystemExit("build revision differs from expected commit")
+    if build["source"]["gitSource"]["revision"] != args.image_commit:
+        raise SystemExit("build revision differs from image commit")
     images = build["results"]["images"]
     if len(images) != 1:
         raise SystemExit(f"build emitted {len(images)} images, expected 1")
@@ -95,21 +101,36 @@ def main() -> int:
         key: value for key, value in template.items()
         if key not in {"schema_version", "preplan_sha256"}
     }
+
+    def pinned_hashes(paths: object) -> dict[str, str]:
+        result: dict[str, str] = {}
+        for path in sorted(paths):
+            local = sha256((worktree / path).read_bytes()).hexdigest()
+            at_image = sha256(subprocess.run(
+                ["git", "-C", str(worktree), "show",
+                 f"{args.image_commit}:{path}"],
+                check=True, capture_output=True,
+            ).stdout).hexdigest()
+            if local != at_image:
+                raise SystemExit(
+                    f"pinned file differs from the image commit: {path}"
+                )
+            result[path] = local
+        return result
+
     code_source = dict(values["code_source"])
     code_source["cloud_build_id"] = build["id"]
-    code_source["source_commit_sha"] = args.expected_commit
+    code_source["source_commit_sha"] = args.image_commit
     code_source["immutable_image"] = {
         "digest": image_digest,
         "uri": f"{IMAGE_REPO}@{image_digest}",
     }
-    code_source["implementation_sha256"] = {
-        path: sha256((worktree / path).read_bytes()).hexdigest()
-        for path in sorted(code_source["implementation_sha256"])
-    }
-    code_source["build_definition_sha256"] = {
-        path: sha256((worktree / path).read_bytes()).hexdigest()
-        for path in sorted(code_source["build_definition_sha256"])
-    }
+    code_source["implementation_sha256"] = pinned_hashes(
+        code_source["implementation_sha256"]
+    )
+    code_source["build_definition_sha256"] = pinned_hashes(
+        code_source["build_definition_sha256"]
+    )
     values["code_source"] = code_source
 
     batch_id = f"20260823-corpus-parametric-production-batch-{lane_id}"

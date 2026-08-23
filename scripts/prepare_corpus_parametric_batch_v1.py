@@ -60,6 +60,15 @@ RETRIEVAL_PREREQUISITE_SCHEMA: Final = (
 WORKSTREAM: Final = "corpus-parametric-research"
 RESERVED_POPULATION_WORKSTREAM: Final = "corpus-population-research"
 PRODUCTION_TASK_COUNT: Final = 54
+# Exactly three production lattices are legal: the full 54-slate batch,
+# and the two v7 half-batch lanes (source tasks 0-27 and 28-53) that run
+# concurrently on two reused jobs. Enumerated forms, never arbitrary
+# subsets — the lane split is a fixed design choice, not a tunable.
+PRODUCTION_TASK_LATTICES: Final = (
+    tuple(range(PRODUCTION_TASK_COUNT)),
+    tuple(range(0, 28)),
+    tuple(range(28, PRODUCTION_TASK_COUNT)),
+)
 SMOKE_TASK_COUNT: Final = 1
 ARTIFACT_COUNT: Final = 270
 WORLD_SCHEDULE_SCHEMA: Final = "corpus-ranked-world-schedule/v1"
@@ -388,8 +397,12 @@ def validate_preplan(
         )
     indexes_raw = _sequence(item["source_task_indexes"], label="source task indexes")
     indexes = list(indexes_raw)
-    expected = list(range(PRODUCTION_TASK_COUNT)) if mode == "production" else [0]
-    if indexes != expected or any(type(index) is not int for index in indexes):
+    allowed = (
+        PRODUCTION_TASK_LATTICES if mode == "production" else ([0],)
+    )
+    if indexes not in [list(rows) for rows in allowed] or any(
+        type(index) is not int for index in indexes
+    ):
         raise CorpusParametricPreparationError(
             f"{mode} source task lattice differs"
         )
@@ -906,8 +919,11 @@ def load_source_authority(
             "source completion/publication binding differs"
         )
     selected = list(source_task_indexes)
+    allowed_selected = [
+        list(rows) for rows in (*PRODUCTION_TASK_LATTICES, (0,))
+    ]
     if (
-        selected not in (list(range(PRODUCTION_TASK_COUNT)), [0])
+        selected not in allowed_selected
         or len(completion["tasks"]) != PRODUCTION_TASK_COUNT
         or len(source_freeze["slates"]) != PRODUCTION_TASK_COUNT
     ):
