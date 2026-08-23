@@ -20,6 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-23 05:30 UTC (sixteenth update)
+
+### Lane foundations published; per-lane runtime SAs; blocked ~90 min on Asset-API daily quota
+
+- Both v7 lane foundations PUBLISHED create-once against the
+  second-best image (digest `c6692f0b...`): lane A gen
+  `1787459934224000` (28 tasks), lane B gen `1787461243872040`
+  (26 tasks); 270/270 exact GETs each; zero outcome reads.
+- First configure attempts refused fail-closed pre-write: the
+  transport's least-privilege law requires each runtime SA's bucket
+  conditions to equal EXACTLY one batch's prefixes — one live batch per
+  SA by design; OR'd two-lane conditions can never validate. Resolution
+  (applied, committed `scripts/foundry/foundry_v7_lane_iam_split.sh`):
+  lane A keeps `corpus-parametric-research@` with conditions SHRUNK to
+  its own prefixes; lane B runs as NEW SA
+  `corpus-parametric-research-b@` with its own single-permission custom
+  role pair `corpusParametricObject{Get,Create}V2B` — a distinct role
+  per lane keeps the raw bucket's unconditional principal-exact GET
+  binding unmergeable — plus mirrored read conditions on
+  source/retrieval/raw. The lane IAM capture is lane-aware (SA + role
+  names) and now backs off on Cloud Asset 429s.
+- CURRENT BLOCK: Cloud Asset `analyze_iam_policy` daily quota (200/day)
+  exhausted by tonight's capture iterations; resets midnight Pacific
+  (07:00Z). A background resume driver probes every 10 min and then
+  runs `run_foundry_lane_chain.sh a` followed by `b` automatically
+  (captures resume missing analyses only; every configure refusal so
+  far was pre-write, both run dirs archived+pristine, launch authority
+  still never consumed under v7).
+
 ## Current handoff — 2026-08-23 04:20 UTC (fifteenth update)
 
 ### Second-best uniqueness certificate adopted; final lane image building
