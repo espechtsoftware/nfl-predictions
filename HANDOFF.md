@@ -20,6 +20,39 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-23 04:20 UTC (fifteenth update)
+
+### Second-best uniqueness certificate adopted; final lane image building
+
+- The arm5/visit512 measurement ran past **39 unbounded CPU-minutes**
+  and was killed: per-cell deadlines cannot bound the pinned-equality
+  infeasibility proof on pathological worlds. Replaced the certificate
+  with witness-excluded second-best maximization + exact strict-gap
+  comparison (mathematically identical uniqueness census; INFEASIBLE
+  still valid; equality still AMBIGUOUS; above-optimum poisons). All
+  seven v6-failed cells + three controls now certify in **0.8–1.38 s**
+  (~430× margin under the retained 600 s deadline); the engine suite
+  runs ~10× faster. Verifier rebuilt symmetrically (exclusion-only
+  stage-2 model, either certificate, runner-up legality audit +
+  independent gap re-proof, v4-class header sweep in its parser).
+  Full record: `reports/2026-08-23-second-best-uniqueness-certificate.md`.
+  437 tests green across all 21 corpus suites. Adopted at `2aba4ae`.
+- Also fixed en route (`b7f9c98`): three execute-path count laws pinned
+  to the 54-task constant refused both lane foundations pre-write; all
+  derive from the plan lattice now, with a 26-task fake-storage
+  half-batch publication regression.
+- Current image build: `b75297ee` at `2aba4ae` (corpus config).
+  Superseded unused: `4ea157a4`@`b7f9c98` (predates the certificate; a
+  hard cell would time out its lane). On SUCCESS: metadata → lane
+  preplans → validate/dry-run → sequential foundation executes →
+  `run_foundry_lane_chain.sh a` and `b` (resumable end-to-end).
+  Namespaces v7a/v7b remain virgin; zero launches consumed to date.
+- Operational note: `cbc` is an interactive shell — any local probe
+  invoking the engine from a FILE script must run with stdin closed
+  (`< /dev/null`) or the version probe hangs to its 10 s timeout
+  (heredoc-fed python consumed stdin, which is why earlier probes
+  worked).
+
 ## Current handoff — 2026-08-23 02:55 UTC (fourteenth update)
 
 ### Probe caught a 600s-exceeding cell pre-launch; deadline measurement running
