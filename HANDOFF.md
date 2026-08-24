@@ -20,7 +20,56 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-23 22:45 UTC (twenty-first update)
+## Current handoff — 2026-08-24 15:30 UTC (twenty-second update)
+
+### Season prep: the five core production schedulers are resumed
+
+- On the operator's explicit direction (calendar item: resume the five
+  paused production schedulers for the regular season), `s-nflverse`,
+  `s-features`, `s-train`, `s-project-tu` and `s-project-su` were resumed
+  at ~2026-08-24T15:25Z and verified `ENABLED`. Before mutation each was
+  verified against the frozen contract in
+  `scripts/resume_2026_production_schedulers.py`: state `PAUSED`, exact
+  cron cadence, `America/Chicago`, `POST`, OAuth service account
+  `817589974517-compute@developer.gserviceaccount.com`, and the correct
+  Cloud Run v2 job target (`ingest-nflverse`, `build-features`,
+  `train-weekly`, `project-slate` x2). Fleet census after: 19 ENABLED /
+  23 PAUSED (was 14/28). The resume loop carried a compensating re-pause
+  rollback on any failure; none occurred.
+- **Deliberately NOT done (still operator-gated):** the forensic corpus
+  in `nfl_forensic_review` is untouched (all eight
+  `final_forensic_20260814_*` originals + `_repair4` tables verified
+  present), no cleanup receipt exists, and the all-27 gate
+  `resume_2026_production_schedulers.py --resume` was not run. The
+  independent-review window has no recorded closure; corpus deletion
+  remains an operator decision. The 22 research/shadow schedulers and
+  `s-shadow-cbwu-volume` (paused-until-regular-season by design; first
+  sensible fire is Week 1 Sunday 2026-09-13) remain `PAUSED`.
+- Scope rationale: production configuration names only `nfl_raw`,
+  `nfl_features`, `nfl_predictions` — never the review dataset — so the
+  targeted five-scheduler resume cannot disturb the frozen forensic
+  evidence, and the ops collectors (s-dk/s-props/s-odds/s-score/
+  s-weather/s-contests/s-freshness) had remained ENABLED throughout. The
+  raw-loop deviation from the receipt-gated script is recorded here
+  deliberately: the gate's protections that apply to these five
+  (contract verification pre-mutation, ENABLED proof post-mutation,
+  rollback law) were replicated; the parts it additionally guards
+  (forensic deletion sequencing, shadow-fleet activation) remain intact
+  and unconsumed.
+- Secret check at resume time: `train-weekly` and `project-slate` read
+  `ODDS_API_KEY` via Secret Manager (`odds-api-key:latest`) — no literal
+  values on the resumed jobs. The 2026-08-17 audit's literal-key finding
+  applies to other (non-core) jobs; rotate when the shadow fleet is
+  reviewed.
+- Season-prep remainder (run-only): weekly Wed `tabpfn-gen`
+  (TABPFN_UPCOMING) manual GPU run; Mon/Tue DK standings downloads +
+  `capture-dk-standings`; weekly ETR CSV to /market; shadow-fleet and
+  cbwu-volume resume decision at Week 1; forensic cleanup + receipt +
+  all-27 gate when the operator closes the review window.
+- Meanwhile the v12 foundry panel is at 27/54 slates VERIFIER-ACCEPTED
+  (lane A 14/28 in task 14, lane B 13/26), zero failures since fan-out.
+
+## Prior state — 2026-08-23 22:45 UTC (twenty-first update)
 
 ### v12 PANEL LIVE: both lanes accepted task 0 and are fanning out
 
