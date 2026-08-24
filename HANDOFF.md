@@ -20,6 +20,80 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-24 22:52 UTC (twenty-fourth update)
+
+### Primary ownership retained; v12 healthy and post-G0 science preparation reviewed
+
+- The operator explicitly retained this session as project lead. Outside-agent
+  reviews are advisory input, not an ownership transfer. Branch `main` remains
+  based on `1e8acca5b2732586a963a1b994e4a38af9c4de8a`; the commit containing
+  this update owns only the additive post-G0 preparation/report paths listed
+  below and does not stage active v12 lane artifacts or environment files.
+- Added the reviewer-facing system guide
+  `reports/2026-08-24-foundry-system-big-picture-review-guide.md`. It separates
+  the normal production generator/CBWU selector, executable outage fallback,
+  active v12 fill ablation, local unreleased R6-v2 surface, Foundry Next,
+  matchup evidence classes, Neo4j authority, React product, challenges and
+  exact sequence. Two independent read-only reviews corrected production
+  request overrides/provenance/ties/fallbacks and R6 fold/admission/inference/
+  runtime/PIT claims before this milestone.
+- Local pre-G0 preparation for post-G0 execution now includes:
+  `corpus_v12_import.py` (7 focused tests),
+  `corpus_batch_retrieval_runner_v2.py` (21),
+  `corpus_v12_panel_index.py` plus its CLI (18), snapshot carrier-dialect
+  compatibility (5), and `corpus_r6_v2_one_slate_execution.py` (6). The last
+  suite stubs downstream component calls. All are local/fixture-focused and
+  unreleased; a real accepted-artifact smoke, analysis CLI/publisher/
+  completion receipt, runtime benchmark and accepted analysis release remain
+  mandatory. Python compile/diff checks were clean at their respective
+  milestones. No full-suite rerun was performed.
+- Added the formal legacy disposition
+  `reports/2026-08-24-r6-v1-non-executable-disposition.md`: R6-v1 omitted four
+  of seven laws, was candidate-identity unsafe, omitted exact books/traces and
+  had no durable publisher. This is a non-executable protocol/implementation
+  mismatch, not a negative matchup result. Added
+  `reports/2026-08-24-r6-v2-matchup-pit-lineage-disposition.md`: current
+  matchup evidence is only `non-pit-retrospective` mechanics evidence because
+  of confirmed target-season/target-week leakage and lineage defects. Full
+  matchup-primary R6-v2 freeze requires at least
+  `retrospective-prior-period-reconstruction` plus the audited immutable
+  catalog-and-two-object seam.
+- **Live state at 22:52Z:** lane A 19/28 and lane B 19/26 tasks
+  VERIFIER-ACCEPTED (38/54 total); both task-19 producers are running. Zero
+  failures, retries or interventions are recorded. The existing chain
+  processes/log paths, terminal criteria, cloud identities, finish-batch
+  commands and no-relaunch law remain exactly as recorded in the 21:50Z
+  update below. Do not run `finish-batch` until the corresponding lane is
+  complete. A failed/incomplete lane requires a terminal non-completion
+  disposition and does not permit the strict complete two-lane panel index.
+- Outcome boundary: the governed v12/R6 actual-score source remains unread and
+  no v12 grade or method choice was made from it. A broad local report search
+  did expose older historical aggregate score text; retain this qualified
+  statement rather than claiming that no historical score text was visible.
+  Every intended R6-v2 all-block final-fit primary, secondary, negative-control
+  and neutral book must be immutable before governed outcome access, or the
+  later panel comparison is exploratory.
+- Existing modified/untracked v12 `foundation-live`, `governance-live`,
+  `transport-live` and `foundry_v12*_env.sh` paths remain active-chain-owned
+  and were not edited or staged by this milestone. The operator's outside
+  advisory `reports/2026-08-24-big-picture-review-response.md` was read and
+  independently audited. Its useful 230+ direction is adopted only through
+  `reports/2026-08-24-lead-architect-decision-on-230-extreme-tail-program.md`:
+  first run a simulated opportunity/conversion census, then a separate
+  versioned full-union T230 retrieval supplement, then one equal-budget Atlas
+  schedule treatment. R6-v2's seven laws remain unchanged. Realized GPD,
+  unweighted tail-world probability claims, a new copula, and field/payout
+  objectives are deferred behind their evidence gates. The outside advisory
+  remains separately authored and was not staged as an adopted plan.
+- Exact next action: keep polling both lanes without mutation; when a lane
+  prints its terminal complete line, execute its frozen `finish-batch`; after
+  both valid finish receipts exist, create and replay the combined panel
+  index. Then certify the narrow analysis caller/publisher, smoke one exact
+  accepted slate outcome-blind, run the standalone 220/230/240/250 support
+  census and benchmark the full 46-books-by-six-scopes surface. Correct the
+  matchup source seam, freeze valid R6-v2 books, and if compute/support gates
+  pass freeze the small T230 supplement before any governed realized read.
+
 ## Current handoff — 2026-08-24 19:14 UTC (twenty-third update)
 
 ### Foundry Next completion plan is implementation-ready; active v12 untouched

@@ -246,6 +246,46 @@ def test_reader_validates_real_engine_payloads_and_projects_science(
     )
 
 
+def test_reader_variant_results_dialect_projects_identical_science(
+    fixture_payloads,
+) -> None:
+    object_carrier = json.loads(
+        fixture_payloads["carrier_raw"].decode("utf-8")
+    )
+    rows = object_carrier["variant_result_objects"]
+    task_carrier: dict[str, object] = {
+        "schema_version": "fixture-parametric-task-result/v1",
+        "variant_results": [
+            {
+                "ordinal": row["ordinal"],
+                "parameter_set_id": row["parameter_set_id"],
+                "parameter_set_sha256": f"{row['ordinal'] + 100:064x}",
+                "effective_policy_receipt": {"fixture": True},
+                "result_object": row["object_identity"],
+            }
+            for row in rows
+        ],
+    }
+    task_carrier["task_result_sha256"] = core.canonical_sha256(task_carrier)
+    task_raw = core.canonical_json_bytes(task_carrier)
+    read_exact = _read_exact_from(fixture_payloads["store"])
+    _, object_variants = snapshot.read_task_variant_results(
+        fixture_payloads["carrier_raw"],
+        carrier_identity=fixture_payloads["carrier_identity"],
+        read_exact=read_exact,
+        require_authoritative=False,
+    )
+    _, task_variants = snapshot.read_task_variant_results(
+        task_raw,
+        carrier_identity=None,
+        read_exact=read_exact,
+        require_authoritative=False,
+    )
+    assert snapshot.extract_task_science(task_variants) == (
+        snapshot.extract_task_science(object_variants)
+    )
+
+
 def test_compare_ignores_image_bindings_and_catches_science_drift(
     fixture_payloads,
 ) -> None:
