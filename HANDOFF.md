@@ -20,6 +20,53 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-24 23:19 UTC (twenty-fifth update)
+
+### Task-19 controller recovery active; both verifier launches remain one-shot
+
+- Branch `main` is at pushed commit
+  `bd4abd83d6be7f30ec626698ea096159d47b7198`. No governed realized-outcome
+  source has been opened. The outside 230+ review remains an advisory input;
+  the adopted decision and bounded T230 program are in the pushed
+  `reports/2026-08-24-lead-architect-decision-on-230-extreme-tail-program.md`.
+- The earlier local lane-controller PIDs disappeared after both task-19
+  verifier launch calls had begun. Exact launch receipts, rather than a broad
+  cloud census, were used for recovery. Both launch authorities are consumed
+  and **must not be relaunched**.
+- Lane B task 19 is durably bound to Cloud Run execution
+  `atlas-cbc-32g-full-2023-w8-v1-j2cxs`. At 23:18Z its exact execution status
+  was still nonterminal/running. The original receipt-resumable lane-B
+  controller is active and logging two-minute polls; a briefly started
+  duplicate unified-exec controller was stopped before terminal publication
+  once the original controller was confirmed alive. Task 19 is not yet
+  accepted.
+- Lane A's original one-shot call eventually created the sole verifier
+  execution `atlas-minimal-c-s2023-w1-v1-s4whg` at 23:12:17Z. At 23:18Z it
+  was nonterminal/running. Recovery selected that exact execution. Two local
+  recovery controllers briefly contended for the create-once bind receipt;
+  the later controller correctly refused to overwrite it and exited. The
+  original recovery then completed at 23:17:30Z: the canonical local receipt
+  is now a valid 1080-byte `corpus-parametric-execution-bound/v1`, and its
+  remote execution-name ledger is generation `1787613449906164`, SHA-256
+  `6425df1a308062bec4c3c82f9657ea7dd4b66466d6d664973fbe60b696e445e6`,
+  1725 bytes. The original controller is alive and logging two-minute polls.
+  Do not recover or rebind it again. The transient zero-byte interval shows
+  that future drivers should validate `-s` plus receipt schema/identity rather
+  than use bare `-f`.
+- Current accepted counts remain lane A 19/28 and lane B 19/26 (38/54). The
+  task-19 producers both succeeded; neither task-19 verifier has an accepted
+  receipt yet. No execution failure has been observed. Active transport and
+  environment artifacts remain unstaged and must not be casually cleaned.
+- Exact next action: let the original controllers poll the two named verifier
+  executions, accept task 19 after strict terminal success, and continue lane
+  A through 20..27 and lane B through 20..25. Do not start duplicate
+  operators. Validate each task-19 accepted receipt before relying on later
+  progress.
+  Finish each complete lane, build/replay the strict combined panel index,
+  then proceed to the outcome-blind 220/230/240/250 support census and the
+  separately versioned T230 program. Never launch either task-19 verifier
+  again.
+
 ## Current handoff — 2026-08-24 22:52 UTC (twenty-fourth update)
 
 ### Primary ownership retained; v12 healthy and post-G0 science preparation reviewed
