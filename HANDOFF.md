@@ -20,7 +20,133 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-24 15:30 UTC (twenty-second update)
+## Current handoff — 2026-08-24 19:14 UTC (twenty-third update)
+
+### Foundry Next completion plan is implementation-ready; active v12 untouched
+
+- On branch `main` at pre-existing commit `33c498754432`, created the
+  documentation-only plan
+  `reports/2026-08-24-foundry-completion-and-rapid-experimentation-implementation-plan.md`.
+  It consolidates the Foundry, R6, fill/retrieval, matchup, realized grading,
+  contest capture, Neo4j, API, React, deployment, security, telemetry and
+  Week-1 work into gated parallel waves. It makes the active v12 lanes a hard
+  no-touch boundary and separates the first simulated-score path (Wave 1A)
+  from the controlled realized read (Wave 1B).
+- Important corrections captured in the plan: the legacy R6 runner/protocol is
+  preserved and formally dispositioned rather than edited; the successor runs
+  all seven selectors, fold-local provenance/features, exact books/traces, an
+  all-block final-fit law and score-blind size/composition-matched controls;
+  the 54-slate outcome is labeled retrospective; any live challenger sleeve
+  requires a Tier-P limited-deployment receipt; and later scale-up is limited
+  to an exact allocation dose prospectively tested under a frozen look law.
+- Validation: all nine linked source reports exist; `git diff --no-index
+  --check /dev/null <plan>` is clean; architecture, science and product agents
+  completed two read-only audit rounds and returned `clear` after corrections.
+  No code tests were run because this milestone changes documentation only.
+- No cloud command, IAM mutation, build, deployment, process signal, outcome
+  read, v12 artifact edit, or active-run status query was performed. The live
+  v12 status immediately below is therefore the last operational status in
+  this file, not re-certified by this planning task. Existing modified/untracked
+  v12 run artifacts and both `foundry_v12*_env.sh` files remain owned by the
+  concurrent deployment work and were not staged or altered.
+- Unresolved execution gates: re-read the then-current handoff and exact lane
+  receipts when the active process ends; satisfy Gate G0 with a valid finish
+  receipt or terminal non-completion disposition for each lane; determine
+  whether any v12 actual-score source was already accessed; and label R6-v2
+  exploratory if its complete books were not frozen first.
+- Exact next action after terminal v12: build the combined read-only panel
+  census, publish the R6 non-executable disposition, implement the new
+  versioned all-seven analysis runner through the shared v12-import adapter,
+  certify one narrow analysis release, smoke one accepted slate outcome-blind,
+  then produce/freeze the simulated books and scores before any realized read.
+- This planning milestone is intentionally not committed/pushed yet: another
+  agent owns an active dirty deployment worktree, and changing shared HEAD or
+  index during that process could disrupt its handoff. Commit this report and
+  HANDOFF.md together at the first safe receipt boundary.
+
+## Current handoff — 2026-08-24 21:50 UTC (twenty-third update)
+
+### OPERATOR HANDOFF MID-FLIGHT: another agent completes Gate G0
+
+- The operator has transferred the v12 chain from this session to a
+  successor agent, scope-limited by direct instruction: **continue only
+  through Gate G0** of
+  `reports/2026-08-24-foundry-completion-and-rapid-experimentation-implementation-plan.md`
+  (finish both lanes, publish each lane's finish-batch receipt or
+  terminal disposition, create the combined panel index, commit the
+  definitive HANDOFF) and **do not access realized scores or run the
+  arm-level grade**. No v12 actual-score source has been read as of
+  this update, so R6-v2's preregistered-retrospective evidence class is
+  intact.
+- **Live state at 21:41Z:** lane A 18/28 tasks VERIFIER-ACCEPTED (task
+  18 verifier running), lane B 18/26 (task 18 verifier running) —
+  36/54 slates accepted, zero failures or interventions since fan-out
+  at 2026-08-23 22:32Z. Cadence ~70 min/task; projected terminal early
+  hours of 2026-08-25 UTC (B first, ~9 tasks ahead of it; A ~10).
+- **Local chain processes — LEAVE RUNNING (they drive the cloud
+  fan-out; killing them halts the batch):** PIDs 1132340/1132342
+  (lane A `run_foundry_lane_chain.sh a`), 1132341/1141024 (lane B
+  chain), 1165314 (`foundry_batch_driver.sh 1 27`, lane A), 1167364
+  (`foundry_batch_driver.sh 1 25`, lane B). Logs:
+  `/tmp/claude-1000/-home-erich-projects-nfl-predictions/03d0e776-2f4d-4cef-849c-3e57ed21dc63/scratchpad/lane-{a,b}-v12.log`.
+  This session's tail-monitor (task bgsdvg86o) is STOPPED; no local
+  monitor remains armed. Polling command used (change-only print,
+  break on failure signatures):
+  `for i in $(seq 1 13); do LA=$(tail -1 <lane-a log> | sed 's/^[0-9TZ:.-]* //'); LB=$(tail -1 <lane-b log> | ...); [ "$CUR" != "$LAST" ] && echo ...; case "$LA$LB" in *FATAL*|*refused*|*EXIT=*) break;; esac; sleep 44; done`
+- **Terminal criteria per lane:** every task logs
+  `=== task N ACCEPTED ===` (A: tasks 0-27, 28 total; B: tasks 0-25,
+  26 total), then the driver prints `tasks 1..27 complete` (A) /
+  `tasks 1..25 complete` (B) and the chain exits. Failure signatures
+  in the logs are `FATAL`, `refused`, `EXIT=`. One-shot launch
+  governance stands: maxRetries=0, a consumed task launch is NEVER
+  retried; on any failure diagnose by exact local replay of the real
+  artifacts before considering a new namespace (see the v8a/v11a
+  precedents in the twentieth/twenty-first updates).
+- **Cloud identity:** lane A reuses Cloud Run job
+  `atlas-minimal-c-s2023-w1-v1` (source tasks 0-27, SA
+  corpus-parametric-research@), lane B reuses
+  `atlas-cbc-32g-full-2023-w8-v1` (source tasks 28-53, SA
+  corpus-parametric-research-b@), us-central1, image digest
+  sha256:b1ca2abc... at commit cd5e64d, namespaces
+  20260823-corpus-parametric-production-{batch,foundation}-v12{a,b}.
+  Lane A executions (order launched, producer/verifier alternating):
+  m4pzk xgpgv dsnrg krk7f 72zjd b6btn p4dmg 5kz7b zzm8g 7lfgp ft5fs
+  qmxxq dnhfm xrnx8 lw98m tqgg6 8jxxk 2m78k 9c2hj qmlpd m8r54 f4jzj
+  779k4 4nrzt 26xxf 6njgt 4x8zx wh8fl jjvzp lsvv8 9kl9p rggvb zg98p
+  wcswf m9tlh mj669 x6rmt pqmfk (prefix atlas-minimal-c-s2023-w1-v1-).
+  Lane B executions: q9fzb df26x 5jn6c b9hft f27xt kxwn5 htbh2 h2w7b
+  ftdr4 l4clk 9vnxh 5hl7g bkw2c bd86r qfzjt 5rlm7 mfpwl v7rqz dwsqt
+  tt8z2 vmmlq vn4jq q8gjb vdtjf stgxs 2gknr rvmz9 hbj7r fcmwh n4frr
+  9t5dt 5xg4f zhpfm svc82 rwvf2 rv8qq 9nclf mvw9k (prefix
+  atlas-cbc-32g-full-2023-w8-v1-). Later tasks append to the logs.
+- **Remaining G0 runbook for the successor:** after a lane's chain
+  prints its `complete` line, run finish-batch for that lane from the
+  frozen worktree (outcome-blind; exact-reads every task acceptance,
+  publishes the create-once completion receipt):
+  `source scripts/foundry/foundry_v12a_env.sh` (or v12b), then
+  `"$CORPUS_PARAMETRIC_PYTHON" /tmp/nfl-predictions-corpus-cd5e64d/scripts/run_corpus_parametric_transport.py finish-batch
+  --contract-uri "$CORPUS_PARAMETRIC_CONTRACT_URI"
+  --contract-generation "$CORPUS_PARAMETRIC_CONTRACT_GENERATION"
+  --contract-sha256 "$CORPUS_PARAMETRIC_CONTRACT_SHA256"
+  --contract-bytes "$CORPUS_PARAMETRIC_CONTRACT_BYTES"
+  --created-at-utc <UTC now> --execute` (the env file exports
+  CORPUS_PARAMETRIC_RESEARCH_ENABLED=1, the execute gate). The env
+  files also pin python (/tmp/nfl-corpus-py311/bin/python) and
+  PYTHONPATH to the frozen worktree; if /tmp was lost to a reboot,
+  recreate the worktree from commit cd5e64d before running. Then build
+  the combined panel index per plan §A2 (bind both lane terminal
+  receipts by content identity, list every accepted slate once with
+  task/lane ordinals, all seven arm results per task, assert no
+  realized outcome used, no promotion authority), record the terminal
+  state here, and stop with "G0 complete". Realized grading and R6-v2
+  belong to the post-G0 program and are NOT licensed by this handoff.
+- Meanwhile-completed this session (see twenty-second update):
+  five core production schedulers resumed and verified; the operator
+  plan document was reviewed with eight inline v12-operator comments
+  (commit 5b4f4cc), including code-verified confirmation that the
+  frozen R6 runner executes only 3 of 7 laws.
+
+## Prior state — 2026-08-24 15:30 UTC (twenty-second update)
 
 ### Season prep: the five core production schedulers are resumed
 
