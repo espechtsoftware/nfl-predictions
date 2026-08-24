@@ -26,9 +26,11 @@ agent or developer:
 
 - The operator explicitly retained this session as project lead. Outside-agent
   reviews are advisory input, not an ownership transfer. Branch `main` remains
-  based on `1e8acca5b2732586a963a1b994e4a38af9c4de8a`; the commit containing
-  this update owns only the additive post-G0 preparation/report paths listed
-  below and does not stage active v12 lane artifacts or environment files.
+  based on `1e8acca5b2732586a963a1b994e4a38af9c4de8a`; milestone commit
+  `bf1fee2ee65d126b582f3e7db76ddcbd9a21d503` is pushed to `origin/main` and
+  owns only the additive post-G0 preparation/report paths listed below. It did
+  not stage active v12 lane artifacts, environment files, or the outside
+  advisory.
 - Added the reviewer-facing system guide
   `reports/2026-08-24-foundry-system-big-picture-review-guide.md`. It separates
   the normal production generator/CBWU selector, executable outage fallback,
