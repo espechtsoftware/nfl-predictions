@@ -20,6 +20,56 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-24 23:56 UTC (twenty-sixth update)
+
+### Task 19 accepted in both lanes; outcome-blind 230-support instrument ready
+
+- Branch `main` now contains commit
+  `3e94db8a` (`Add outcome-blind extreme-tail corpus census`). It adds only
+  `src/nfl_dfs/research/corpus_extreme_tail_census.py` and its focused test
+  module. Active v12 environment, governance, foundation and transport paths
+  and the separately authored outside review remain unstaged. No governed
+  realized-outcome source has been opened.
+- Both task-19 verifier executions terminated successfully and produced valid
+  local `corpus-parametric-task-accepted/v1` receipts with `task_index=19`,
+  `accepted=true` and `partial_result=false`. Lane B accepted at 23:41:19Z;
+  lane A accepted at 23:52:22Z. Their one-shot verifier executions remain
+  `atlas-cbc-32g-full-2023-w8-v1-j2cxs` and
+  `atlas-minimal-c-s2023-w1-v1-s4whg`; never relaunch them. Current acceptance
+  is lane A 20/28 plus lane B 20/26, or 40/54, with zero failures observed.
+- Both original controllers continued automatically into task 20. Lane B's
+  task-20 producer is durably bound to Cloud Run execution
+  `atlas-cbc-32g-full-2023-w8-v1-hd5n8` and was still running at 23:54:13Z.
+  Lane A began its one-shot task-20 producer launch at 23:52:22Z; allow the
+  original controller to publish/bind it. Do not start duplicate operators.
+- The new standalone census is separate from and does not modify R6-v2's
+  seven-law selector registry. It binds the canonical reconstructed union,
+  literal frozen seven-arm order, exact R0..R4 world identities and, in
+  authoritative mode, the complete 7 arms x 5 blocks x 200 visits generation
+  dose. It reports inclusive `>=220/230/240/250` candidate, lineup-world and
+  opportunity-world support over seven arm universes, five identity-safe
+  held-out folds and one all-block union. Held-out occurrences are stripped
+  before training lineage, and all authority/mutation/retry fields are hard
+  false. Scoring streams 256-row chunks rather than materializing a full event
+  matrix.
+- Validation: `.venv/bin/pytest -q
+  tests/test_corpus_extreme_tail_census.py` reports 16 passed; Python compile,
+  long-line and untracked diff checks are clean. Tests independently cover
+  exact thresholds/counts/hashes, zero events, nesting and overlap efficiency;
+  per-block world/event/opportunity hashes; exact thirteen-universe identity;
+  reconstruction and arm-count drift; mixed-origin held-out stripping and
+  perturbation invariance; 99/100/block-zero support gates; matrix layout and
+  finiteness; exact valid 7x5x200 replay plus imbalance, schedule and arm-order
+  adversaries. Independent science and allocation reviews returned clear.
+- Remaining operational gate: do not run the real-artifact census yet. Finish
+  both v12 lanes, publish/replay their terminal receipts, and create/replay the
+  strict combined panel index first. Then smoke one accepted slate
+  outcome-blind while measuring runtime and peak memory. If that benchmark is
+  acceptable, wire the separately versioned T230 retrieval supplement
+  (`coverage>=230`, finite 210..250 ladder, block-robust ladder and individual
+  230 ablation), freeze exact 4/14/80 books, and only then permit the single
+  controlled realized grade.
+
 ## Current handoff — 2026-08-24 23:19 UTC (twenty-fifth update)
 
 ### Task-19 controller recovery active; both verifier launches remain one-shot
