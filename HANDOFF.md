@@ -20,6 +20,68 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 13:08 UTC (forty-sixth update)
+
+### Foundry source panel reaches 54/54; terminal sealing and T230 transport continue
+
+- Branch `main` remains at pushed commit `7f4a9236` (`Add locked composite
+  retrieval laws`). The prospective k20/OI shadow and governed realized
+  outcomes remain untouched; no T230 comparative score has been opened or
+  released.
+- Both original Foundry v12 controllers completed exactly and exited zero:
+  lane A through task 27 and lane B through task 25. All 54 tasks have one
+  nonempty verifier-accepted receipt, with no observed failure, refusal or
+  automatic retry. This closes source computation but is not yet the combined
+  G0 panel publication.
+- Lane A's one-shot terminal envelope is complete and accepted as
+  `corpus-parametric-batch-accepted/v1`: 28 tasks, 196 matrix cells, 4,935
+  final objects. Its completion identity is generation
+  `1787656753894822`, SHA-256
+  `21ccdf2121c34883aad7441443af5f5c06a579422c15aa409c25eb7a3f91f503`,
+  22,272 bytes; its acceptance identity is generation
+  `1787656756640443`, SHA-256
+  `a0ed809dc6480c93c301e3022c4adcc173ef285b8673e76174cf81f43b5c4397`,
+  1,316,197 bytes. Final inventory SHA-256 is
+  `6ec47bd2c069d004b15e39a095333813621a8f2d43e77339ac5ff53d73fe1eec`.
+- Lane B's matching one-shot finisher completed at 13:06:30Z with exit zero.
+  Its canonical envelope is complete and accepted: 26 tasks, 182 matrix
+  cells, and 4,583 final objects. Its completion identity is generation
+  `1787663184829090`, SHA-256
+  `254502f5d3e7440e188283de744709183b719b23a7b4a2eab746c5f47ce8872f`,
+  20,796 bytes; its acceptance identity is generation
+  `1787663188263409`, SHA-256
+  `9823eaa9a51062a6a437af22d1f6a5e0444f080191dd7ab6aad37b46f32f1e53`,
+  1,222,287 bytes. Final inventory SHA-256 is
+  `0ca09dab0c9825823bb41be11c35666c95d869a4ec0b229002f8e87cf7e47fad`.
+  Across both lanes, the sealed source panel contains 54 accepted slates, 378
+  matrix cells and 9,518 final objects.
+- The independently reviewed pre-Week-1 strategy census amendment is drafted
+  at `reports/2026-08-25-pre-week-1-historical-strategy-census-execution-amendment.md`.
+  It preserves frozen prospective k20 while requiring every distinct
+  historically executable generation, admission, retrieval and interaction
+  strategy to be frozen and run before regular-season Week 1.
+- The T230 two-lane transport remains an implementation candidate, not launch
+  authority. Final audit has already required portable content identities
+  instead of local absolute-path/UID equality, immutable image resolution,
+  durable launch/job/execution evidence, benchmark recovery, full two-lane
+  joining and exact 108 science calls (54 workers plus 54 independent
+  verifiers; structural finalizer). Its files are still moving and must not be
+  committed or deployed until the implementer declares `FINAL-STABLE` and a
+  fresh independent audit approves the exact current bytes.
+- `CLAUDE.md` Rule 1 requires an additional disposable outcome-blind
+  real-artifact ordinal-0 smoke before the transport contract is frozen. The
+  existing Gate-5 smoke reconstructs the matrix and support census but does
+  not execute the exact four-law suite and support-switch call chain. The new
+  smoke must run that full science path under GNU `time -v`, retain only a
+  non-authoritative structural receipt, and inspect no realized outcome or
+  selector effect.
+- Exact next action: allow the currently running outcome-blind combined-panel
+  validate-only replay to return; then execute publication and smoke Gates 4--5 from
+  `reports/2026-08-25-foundry-v12-g0-and-first-t230-smoke-runbook.md` once;
+  then run the disposable four-law smoke, create/review/commit the literal G0
+  authority lock, and only after final transport approval build the immutable
+  T230 image and ordinal-0 production benchmark.
+
 ## Current handoff — 2026-08-25 08:03 UTC (forty-fifth update)
 
 ### Composite hybrid and ensemble retrieval laws independently clear
