@@ -28,9 +28,9 @@ API (review items 1–6):
 - one common read boundary covers repository access, model conversion,
   release/staleness lookup, canonicalization, and the byte budget on
   every endpoint; backend internals are logged, never reflected —
-  sanitized stable reason codes with a four-way taxonomy
-  (503 degraded / 422 invalid-request / 404 not-found / 500
-  response-contract-failure);
+  sanitized stable reason codes with an explicit taxonomy
+  (503 backend/contract/response-budget degradation / 422 invalid-request /
+  404 not-found);
 - `default_foundry_repository()` returns `UnavailableFoundryRepository`
   unconditionally — the synthetic fixture is reachable only by explicit
   test injection, and authority/evidence context is repository-derived
@@ -66,7 +66,8 @@ Graph (review items 7–10):
   it — a later opening requires a separately reviewed exact accepted
   OutcomeRelease contract;
 - the root plan holds only per-batch identities and the exact terminal
-  census; rows stream through `iter_load_batches`; property counts, key
+  census; rows are emitted only by the separate bounded
+  `iter_load_batches` iterator and never retained in the root plan; property counts, key
   lengths, string/list aggregate bytes, numeric magnitudes, source
   counts, and total elements are capped; NaN/Inf are rejected;
 - `None` properties are rejected (Neo4j null removes a property);
@@ -76,10 +77,17 @@ Graph (review items 7–10):
 
 ## Validation (serial, exact results)
 
-1. `pytest tests/test_foundry_api_v1.py` — **24 passed** (after the
-   one-line bad-route fixture repair; the model behavior was already
-   fail-closed, only the expected message was wrong).
-2. `pytest tests/test_corpus_graph_vnext_contracts.py` — **40 passed**.
+1. `pytest tests/test_foundry_api_v1.py` — **24 passed** under
+   `/tmp/nfl-corpus-py311/bin/python`, Python **3.11.16** (after the one-line
+   bad-route fixture repair; the model behavior was already fail-closed, only
+   the expected message was wrong). The suite was run outside the constrained
+   assistant sandbox: its Python/TestClient path hung even for a trivial
+   FastAPI app, establishing an environment/threading defect rather than a
+   Foundry-router failure.
+2. `pytest tests/test_corpus_graph_vnext_contracts.py` — **40 passed** in the
+   lead's released serial local-test lane. No different interpreter identity
+   was recorded for this pure offline suite, so this report does not invent
+   one.
 3. `pytest tests/test_corpus_research_ui.py` — **8 passed**.
 4. Frontend unchanged by this correction (no API type consumed by the
    React slice changed), so no frontend re-run was required by the

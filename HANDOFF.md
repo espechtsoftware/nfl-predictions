@@ -25,15 +25,20 @@ agent or developer:
 - **Phase 3 corrective commit landed and pushed** (`c1f6af83`, evidence in
   `reports/2026-08-25-observatory-phase3-corrective-commit.md`): every P1
   from the Phase 3 lead review is implemented — full-surface sanitized
-  degradation with a four-way error taxonomy, unconditionally unavailable
+  degradation with an explicit error taxonomy, unconditionally unavailable
   production repository (fixture by test injection only), query-side
   pagination with release/filter-bound cursors, bounded ids and
   OpenAPI-frozen typed response models, staleness-truthful ETags,
   strict finite/cross-field model laws, positive per-kind graph property
   schema, outcome vocabulary bound to a fully CLOSED realized namespace,
-  descriptor-only streamed load plans, and null/duplicate/exact-key/
-  canonical-source laws. Validation: API 24/24, graph 40/40, UI 8/8,
-  `git diff --check` clean. COORDINATION NOTE: a concurrent session
+  descriptor-only load plans with separate bounded row-bearing batch
+  iteration, and null/duplicate/exact-key/
+  canonical-source laws. Validation: API 24/24 under
+  `/tmp/nfl-corpus-py311/bin/python` (Python 3.11.16), graph 40/40 in the
+  released serial local-test lane, UI 8/8, `git diff --check` clean. The
+  constrained assistant sandbox's Python/TestClient path also hung on a
+  trivial FastAPI app, so that hang is environmental rather than a router
+  failure. COORDINATION NOTE: a concurrent session
   implemented most of this correction in the same worktree while this
   session drafted the same fixes; the collision was detected, writes
   stood down, quiescence was confirmed, one test fixture was repaired,
