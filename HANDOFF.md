@@ -20,6 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 19:35 UTC (sixty-ninth update)
+
+### Fresh T230 v2 candidate is queued from the frozen typed-flags source
+
+- The reviewed v2 repair is committed and pushed on `main` as exact source
+  `501b68a4f7b842de1f59d55358540c9a615b6e40` (`Restart T230 transport with
+  typed launch flags`); local and `origin/main` match. The fresh candidate
+  Cloud Build is `56d64cbe-2d77-4f51-adf8-21b65dbe7b7c`, created at
+  `2026-08-25T19:34:36.228503474Z` and initially `QUEUED`. Its source archive
+  is generation `1787686475543336` of
+  `gs://nfl-predictions-503414_cloudbuild/source/1787686474.884279-093908cba0fe45fc9f39b821763acf73.tgz`;
+  submission enumerated exactly three files totaling 3.2 KiB.
+- The build substitutions pin candidate phase, source S2 above, runtime
+  service account `817589974517-compute@developer.gserviceaccount.com`,
+  region `us-central1`, smoke job `atlas-minimal-c-s2023-w1-v1` and the fixed
+  image repository. An immediately preceding submit attempt that redundantly
+  supplied the build service account was rejected by Cloud Build before a
+  build existed because `LEGACY` logging is incompatible with an explicitly
+  supplied build service account; no execution or mutable science resulted.
+  The accepted submit uses the same implicit project build identity behavior
+  as the prior successful candidates while retaining the explicit runtime
+  identity substitution.
+- This candidate and its required real Rule-1 smoke are outcome-blind. They
+  establish transport/science execution integrity, not historical scoring
+  improvement. The ordinal-zero benchmark that follows measures runtime and
+  memory and produces simulated-tail science, but the first trustworthy
+  improvement comparison remains the frozen 54-slate Core v1 realized grade.
+  No historical outcome, comparative score or IAM census has run.
+- Exact next action: monitor candidate build
+  `56d64cbe-2d77-4f51-adf8-21b65dbe7b7c` to terminal. Require a fresh D2,
+  successful real smoke and durable prefreeze gate before submitting the
+  same-D2 release from this exact S2. Then bootstrap/configure/prepare,
+  exact-validate the repaired two-argument execution envelope, run and reuse
+  ordinal-zero, and scale the frozen panel toward the Core grade.
+
 ## Current handoff — 2026-08-25 19:10 UTC (sixty-eighth update)
 
 ### T230 v2 typed launch repair is validated and ready to freeze
