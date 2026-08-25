@@ -104,6 +104,7 @@ identity coefficient may transfer.
 | Achievable-lineup-ceiling/Atlas schedule | Exact minimal Atlas C test already lost mean C by 1.53 | **ALREADY CLOSED**; do not relabel or rerun |
 | Top-nine/position ceiling proxy | Same closed ceiling-ranking hypothesis | **ALREADY CLOSED** |
 | True importance-sampled T worlds | Target/proposal laws with likelihood-ratio evaluation | **DATA BLOCKED** until exact validated p/q weights exist |
+| Probability-preserving rare-event splitting | Frozen levels, branching/resampling genealogy, target-mass/weight accounting, variance law, synthetic truth and independent replay | **DATA BLOCKED** until those probability and verifier contracts exist; ordinary tail-biased discovery remains covered by the runnable game-regime/residual schedules |
 | Regime-mixture/heavy-tail/t-copula `chaos game` worlds | One frozen alternative simulator release | **DATA BLOCKED** until PIT regime-fit rows, calibrated mixture weights, exact marginal preservation, and held-out-season joint-tail/proper-score improvement exist |
 
 All discovery treatments are evaluated on separate ordinary-R blocks. A
@@ -158,6 +159,13 @@ Run before Week 1:
 - individual training-maximum anti-diversification rank;
 - the fixed convex-excess expected maximum `max(0,s-200)^2`; and
 - the 230-native distinct-block-supported 210--250 ladder.
+
+The leximin `block-robust-bounded-tail-ge-210-250-v1` law is the requested
+230-native **regime-robust** selector: at each addition it maximizes the
+ascending per-training-block weighted-coverage profile. It is distinct from
+`block-supported-bounded-tail-ge-210-250-v1`, which scales a lineup's marginal
+utility by its distinct-block event support. No third relabeled regime-robust
+law is missing.
 
 The previously proposed unbounded/steep 200--240 ladder family remains
 **closed/rejected as specified**. The one fixed convex-excess law and the
@@ -266,7 +274,7 @@ source. Report every method, not only the best.
 8. Freeze the aggregate grade catalog and perform one controlled grade.
 9. Nominate prospective shadows while preserving the frozen k20 shadow.
 10. Rehearse the Week-1 slate through legality, fallback, CSV export, telemetry,
-    and post-settlement full-field collection.
+    and post-settlement top-0.1%, top-100 and full-field collection.
 
 Neo4j and the React visual layer consume these accepted artifacts in parallel.
 They do not block score production or historical strategy execution.

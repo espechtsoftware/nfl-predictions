@@ -20,6 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 03:52 UTC (thirty-ninth update)
+
+### External 230+ review crosswalk is complete
+
+- Branch `main` is at pushed commit `cea089e7` (`Make Week 1 the historical
+  completion gate`). The deadline and immutable prospective k20 boundary are
+  now unambiguous in the lead decision and historical matrix.
+- Independent read-only crosswalk of every concrete proposal in
+  `reports/2026-08-24-big-picture-review-response.md` against the complete
+  census found no missing historically runnable strategy. It confirmed that
+  `block-robust-bounded-tail-ge-210-250-v1` is already the requested 230-native
+  regime-robust law: it leximin-maximizes the ascending per-training-block
+  weighted-coverage profile. The separately named block-supported law is a
+  different support-scaling mechanism, so no relabeled third selector is
+  needed.
+- The census now names genuine probability-preserving rare-event splitting
+  explicitly as `DATA_BLOCKED` until a frozen level law, branching genealogy,
+  target-mass/weight accounting, variance proof, synthetic truth and independent
+  verifier exist. This is not an implementation-delay exception. Runnable
+  tail-biased candidate discovery remains covered by the game-regime and
+  residual schedules and is evaluated only on ordinary R worlds.
+- The prospective collection rehearsal now explicitly requires top-0.1%,
+  top-100 and full-field rows after settlement; their historical absence still
+  blocks field-max/duplication/payout claims.
+- Exact next action: finish/audit the generation companion manifest, continue
+  live G0 observation and then run the one-slate T230 benchmark immediately;
+  in parallel, turn every other `RUN BEFORE WEEK 1` census row into a versioned
+  implementation plus historical result or exact infeasibility receipt.
+
 ## Current handoff — 2026-08-25 03:47 UTC (thirty-eighth update)
 
 ### Regular-season Week 1 is the completion gate, not a research start
