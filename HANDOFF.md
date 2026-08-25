@@ -20,6 +20,63 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 07:39 UTC (forty-fourth update)
+
+### Outcome-blind T230 panel execution is independently clear
+
+- Branch `main` is at pushed commit `f3801b31` (`Add outcome-blind R6 v2
+  release seam`) before this milestone. R6-v2's honest source-blocked release
+  path is durable; frozen k20 and governed realized outcomes remain untouched.
+- Added an isolated T230 panel workflow in
+  `corpus_extreme_tail_panel_execution.py` with CLI
+  `run_corpus_extreme_tail_panel_v1.py` and focused test. The public sequence is
+  `measure-runtime`, `freeze-g0-authority`, `prepare`, worker-only `run-slate`,
+  independent `verify-slate`, and `finish-panel`. It exact-replays the fixed
+  54-member v12 panel, R0--R4 x 10,000 ordinary worlds, four frozen T230 laws,
+  support-switch books and deterministic 4/14/80 prefixes, with no outcome or
+  science override.
+- Worker results are nonterminal. Separate worker/verifier implementation
+  contracts and real PID/start/boot/namespace identities reject same-process
+  acceptance. The verifier reconstructs the accepted member and authoritative
+  carrier/source/world/matrix/census, reruns the complete four-law/support
+  science, and only then publishes acceptance. The finalizer replays all 54
+  ordered unique result/acceptance pairs and derives 216/270 fold plus 44/54
+  final-fit gates from recomputed evidence; every outcome/promotion/decision
+  authority remains false.
+- Runtime evidence measures the current Git HEAD/blobs/dirty state, 25
+  transitive code files, 21 critical callables, Python/NumPy/runtime facts and
+  fixed baked-image evidence. Worker implementation is
+  `62dfe722cdc2af28f3cb9b9df8fa693b4312263b770c89fbfa1af830de62b81d`;
+  verifier implementation is
+  `118532c1752845e96254343242db13e6fd75c0e2f5d54901794c6da34dfcb851`;
+  final dependency catalog is
+  `49f73e5a45d2b55c66134e23cb1ea18f781d58a02c4f850351dc006fc1f25532`.
+- G0 authority is not caller-attested. Secure local reads use O_NOFOLLOW and
+  validate inode, regular-file, owner, safe mode, link count and stable
+  metadata/content. A literal self-hashed post-G0 authority lock will bind the
+  exact publication and lane receipt bytes/hashes, ordered terminal IDs,
+  semantic panel ID, literal panel URI and generation-pinned object identity.
+  `freeze-g0-authority` creates a mechanics-only create-once review artifact;
+  `prepare` accepts it only after it is reviewed, Git-tracked at HEAD and clean.
+  The real lock does not exist yet and no unknown G0 hash was invented.
+- Validation history: one focused invocation became indeterminate after 16
+  dots because its orchestration session was lost; it is not counted green.
+  The authorized replacement completed 25/25 passed in about 259 seconds. The
+  final authority-surface selection completed 26/26 passed in 12.905 seconds;
+  no full/finalizer module rerun followed. Final SHA-256 values are source
+  `74322aba68277c34469d7dedc603377eec8de2f74ddd7a2d97f75aa417e03f08`,
+  CLI `1af4d94d312f98f548d675bfc5314d5dc5dcca68dd604d865bb8cd8ffa84d733`,
+  and test `2dd8792e4d14bc054f1122322fe389a654e4ba4000e1cbbc81c2984ac0705426`.
+  A final independent read-only audit is `APPROVE` with no blocker.
+- Live Foundry remains 52/54 accepted with zero failures. Lane B is terminal
+  complete through task 25 with chain exit 0. Lane A task-26 producer
+  `atlas-minimal-c-s2023-w1-v1-wkncd` was running at 07:38:00Z; task 27 remains.
+  Do not finish either lane until lane A emits its exact COMPLETE line.
+- Exact next action: commit/push only the clear T230 source/CLI/test and this
+  handoff; continue lane-A observation; finish both lanes, publish/reopen the
+  panel and run the support smoke; then freeze/review/commit the real G0 lock
+  before T230 `prepare` and the one-slate four-law benchmark.
+
 ## Current handoff — 2026-08-25 07:37 UTC (forty-third update)
 
 ### R6-v2 release seam independently clear; lane B reaches G0
