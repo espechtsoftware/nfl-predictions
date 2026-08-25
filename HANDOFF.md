@@ -20,6 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 17:04 UTC (fifty-ninth update)
+
+### Repaired candidate passed focused/G0 preflight and is building D
+
+- Candidate Cloud Build `80963d40-24c5-4da8-af24-c490e33a4ed7` completed
+  `exact-detached-checkout` and
+  `focused-tests-and-semantic-g0-preflight` successfully from exact source
+  `37447b53c5ac71bf36d5323443566ecfac8f9c04`. The repaired Cloud SDK helper
+  has not yet been reached, but the focused tests and full outcome-blind
+  semantic G0 replay are now proven clean. Step
+  `select-one-immutable-candidate-d` is constructing/pushing the new image.
+- A read-only concurrency audit rejected submitting release merely when D
+  enters smoke. Release fails closed unless it can reconstruct the complete
+  durable prefreeze gate, so it cannot publish an un-smoked D, but submitting
+  before that gate exists creates a needless race and conflicts with the
+  frozen `On SUCCESS -> release` sequence. Once the gate exists only no-op
+  candidate steps remain; wait for terminal candidate `SUCCESS`, then release
+  the same digest. No cloud state or outcome was touched by this audit.
+- The Core lease-cleanup P1 repair remains a local parallel task and does not
+  change this candidate or require another image. No outcome or IAM census
+  has run.
+- Exact next action: monitor image build/push, in-image validation, repaired
+  helper install and the real ordinal-zero smoke to terminal. On `SUCCESS`,
+  exact-resolve the unique candidate tag to digest D and submit release from
+  source `37447b53c5ac71bf36d5323443566ecfac8f9c04` with that same D.
+
 ## Current handoff — 2026-08-25 16:56 UTC (fifty-eighth update)
 
 ### Lease cleanup incompatibility found before outcomes; local repair underway
