@@ -20,6 +20,49 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 21:58 UTC (seventy-eighth update)
+
+### T230 v2 ordinal-zero benchmark passed and licenses 54-slate scale-out
+
+- The single benchmark execution `atlas-minimal-c-s2023-w1-v1-pkqxk`
+  reached terminal success at `2026-08-25T21:57:19.759135Z`, with one task,
+  `succeededCount=1`, `maxRetries=0`, and the previously exact-validated
+  frozen D2/resource/service-account envelope. The informational Cloud Run
+  `WaitingForOperation` polling condition did not create a second task or an
+  application retry.
+- Ordinal zero produced the 15,699,100-byte outcome-blind slate result at
+  generation `1787695015843037`, SHA-256
+  `087700242625a36a968c8b0b32656f87a850f4d9f0b7aff605059442e34f22b4`.
+  Its durable stage receipt is generation `1787695016866926`, SHA-256
+  `73a5939c2d8f3d0fab7ef8a4ed603546dafbfcea6735d1a6d96f058d025208a3`,
+  2,051 bytes.
+- The strict GNU-time benchmark measured 1,116,560 ms outer wall time,
+  1,110,618 ms worker wall time, 3,612,284 KiB peak RSS, and exit code zero.
+  It inspected no rank, book, support-observation, comparative-effect, or
+  realized-outcome field. The exact benchmark is generation
+  `1787695029479985`, SHA-256
+  `fe4fcd8043e896d750ff56fad28bec72a3742d7af115326c2679cc1e366db1c2`,
+  5,551 bytes.
+- The numeric gate passed and published compute release generation
+  `1787695033977025`, SHA-256
+  `0e1deaf971c83acd0fbf261b25de21df06120ad45469a44ff789c0f9f7afcc0f`,
+  3,670 bytes. Its self-hash is
+  `7d7fc1c6450bf96a814fd74f9b30bfc812421b00805b42707215d0a83cc937ef`,
+  its frozen gate SHA remains
+  `1b4ed7073b97561b3966452c7c3f9407640df8abfc4875aa921f6b55449a7fb4`,
+  and `scale_out_licensed=true` for exactly two sequential lanes, 54 workers,
+  54 independent verifiers, zero finalizer science calls, and no retries.
+- The optional Core failed-stage recovery and corrected R6 source seam remain
+  uncommitted and outside this running chain. Latest independent reviews found
+  one Core concurrent-recovery authorization race and three R6 release
+  blockers; repair/re-review is active. Neither affects the accepted T230
+  compute release or authorizes scoring/promotion.
+- Exact next action: commit/push this benchmark milestone, invoke `run-panel`
+  once with the exact local compute-release carrier, and monitor both joined
+  lane controllers. Ordinal zero must replay without a science relaunch; no
+  scoring, finalization, or Core outcome lease begins before all 54 independent
+  verifier acceptances and both lane ledgers are durable.
+
 ## Current handoff — 2026-08-25 21:33 UTC (seventy-seventh update)
 
 ### T230 v2 prepare is accepted; a benchmark no-op bug is repaired before launch
