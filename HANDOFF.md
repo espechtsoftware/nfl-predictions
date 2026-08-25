@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 23:48 UTC (eighty-seventh update)
+
+### T230 ordinal 2 is accepted and both receipt-safe lane controllers are resumed
+
+- Lane A verifier `atlas-minimal-c-s2023-w1-v1-fsfqh` completed
+  successfully in 23m30s. Its exact verifier-stage receipt is generation
+  `1787701406659350`, SHA-256
+  `ce8007989f9083e9ff40af0b24adac24b2438cefef734d010c13458803e356f3`.
+  Ordinal 2 acceptance is generation `1787701406057611`, SHA-256
+  `4bd880fbd11d8d2d93bee2aa9f0db7d6d667c219e2363c0a48cd7413624e0481`,
+  5,350 bytes, and reports `uses_realized_outcomes=false`.
+- The panel now has five exact independent acceptances: 0, 1, 2, 28, and
+  29. After both restart-surviving verifiers exact-reopened, the existing
+  `run-panel` controller was resumed once with the identical transport,
+  image-evidence, execution-authority, D2, service account, compute release,
+  and run directory. It resolved all consumed requests instead of relaunching
+  them.
+- The resumed unified controller is session `77315`. It created exactly one
+  new worker request per lane: ordinal 3 is Cloud Run execution
+  `atlas-minimal-c-s2023-w1-v1-stg7g`; ordinal 30 is execution
+  `atlas-cbc-32g-full-2023-w8-v1-p9qk7`. Both were provisioned and waiting to
+  start at the last read. `maxRetries=0`; no duplicate, realized read, score,
+  or promotion occurred.
+- Exact next action: poll session `77315` and the two named workers. Treat a
+  worker success only as a result; require each distinct verifier and durable
+  acceptance before advancing the accepted count. Keep the two offline
+  correction workstreams isolated and uncommitted pending rereview.
+
 ## Current handoff — 2026-08-25 23:43 UTC (eighty-sixth update)
 
 ### T230 ordinal 29 is accepted; both offline candidates require correction
