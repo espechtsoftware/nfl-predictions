@@ -20,6 +20,42 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 03:40 UTC (thirty-seventh update)
+
+### Hard-230 generation and game-regime discovery independently clear
+
+- Branch `main` is at pushed commit `c876e7f2` (`Freeze preweek factorial core
+  manifest`). Its exact 18-row historical selector/oracle registry and focused
+  60-test module are durable.
+- `corpus_extreme_tail_generation_additions.py` and its focused test now bind
+  two separate outcome-blind generation mechanisms:
+  `hard-230-generate-replenish-v1` retains independently legal unique lineups
+  from an ordered stream only after a permitted fit/source-world 230 hit, while
+  `game-regime-stratified-tail-discovery-v1` derives game regimes from the
+  ordinary R matrix, spends an exactly paired control budget and evaluates only
+  on a separately bound heldout block. The focused run reports 58 passed in
+  1.09 seconds.
+- The original independent auditor rechecked all eight prior blockers and is
+  clear: source/fit/heldout scope, ordered stream, solver/scoring/legality
+  lineage, exact schedule/accounting replay, internally derived non-Atlas game
+  aggregates, heldout-only evaluation, exact public IDs, literal independent
+  hashes, bounded allocation order, zero-total classification and false
+  authority are all covered. Public strategy hashes are hard-230
+  `524aa7cb...da594` and game-regime `4389ad29...41f30`; implementation hashes
+  are `2700a834...b3da1` and `3e0a849e...634bd2`.
+- Operator direction is explicit: regular-season Week 1 is the hard completion
+  deadline, not the start of experimentation. Every historically runnable
+  catalog strategy must receive a result or an exact infeasibility receipt
+  before then. The already-frozen prospective k20 shadow remains byte-identical
+  while historical k20 cells and other testable challengers run.
+- Live Foundry is 45/54 accepted with zero failures: lane A task 22 was accepted
+  at 03:37:37Z and its original controller began task 23; lane B task-22 sole
+  verifier `atlas-cbc-32g-full-2023-w8-v1-j5s4s` was still running at 03:39Z.
+  Never relaunch an execution or start a second controller.
+- Exact next action: commit/push the cleared generation component, build and
+  independently audit its companion manifest against the frozen 53-slate
+  catalog, and continue observing both original live controllers through G0.
+
 ## Current handoff — 2026-08-25 03:37 UTC (thirty-sixth update)
 
 ### De-aliased 18-row pre-Week-1 core manifest independently clear
