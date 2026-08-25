@@ -1222,6 +1222,12 @@ def test_build_and_launcher_static_production_law() -> None:
     )
     assert helper_install in smoke_script
     assert cloudbuild.count(helper_install) == 1
+    helper_transport = (
+        "PYTHONPATH=src python3 "
+        "scripts/run_corpus_extreme_tail_panel_transport_v1.py"
+    )
+    assert smoke_script.count(helper_transport) == 8
+    assert "PYTHONPATH=src python " not in smoke_script
     assert all(
         "--break-system-packages" not in "\n".join(map(str, step.get("args", [])))
         for step in cloudbuild_config["steps"]

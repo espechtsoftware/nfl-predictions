@@ -20,6 +20,40 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 17:10 UTC (sixty-first update)
+
+### Cloud SDK helper interpreter alias repaired; another fresh candidate required
+
+- Candidate build `80963d40-24c5-4da8-af24-c490e33a4ed7` reached terminal
+  `FAILURE` at `2026-08-25T17:07:33Z` in
+  `candidate-real-four-law-smoke-or-release-gate` with exit 127. The repaired
+  PEP-668 installation succeeded, then the first helper call failed with
+  `python: command not found`: `cloud-sdk:slim` supplies `python3` but no
+  `python` alias. The real Cloud Run smoke was not launched. Focused/G0
+  preflight, image construction, in-image checks and push had already passed.
+- Pushed digest
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:c6c762d283122a91a98b81a3bff3f4193421d4ea29e6b8788aa35cecd961da4d`
+  remains **unaccepted and forbidden for release/T230**. It has no real smoke
+  or release gate and is bound to old helper bytes/source
+  `37447b53c5ac71bf36d5323443566ecfac8f9c04`; do not reuse it.
+- The eight transport invocations inside only the Cloud SDK smoke/release
+  helper now use explicit `python3`. The parsed-YAML regression requires
+  exactly eight such calls and forbids the missing `python` alias inside that
+  step. Targeted transport validation passes 13/13; scoped diff/whitespace
+  checks pass. Stable local hashes are Cloud Build
+  `185530a52ab5e0f500dbabd13780e217d9784188ba20f9d2ea624f2ce9601070`
+  and test
+  `b7726e1eb7bccf553cfea0c1fc98cc58ab9e3c795004b594c5facff68a8cc62c`.
+  Independent final review is pending.
+- This is another build-helper defect, not a science/data/image-runtime/IAM
+  failure. No outcome, score, smoke execution or IAM census ran. The separate
+  local lease-cleanup repair remains in adversarial review and does not affect
+  the candidate bytes.
+- Exact next action: obtain independent approval, commit/push only this helper
+  repair, regression and handoff, and submit a **new** candidate from that new
+  exact source commit with the three-file G0 archive. Require its own new D,
+  real smoke gate and terminal success before release.
+
 ## Current handoff — 2026-08-25 17:07 UTC (sixtieth update)
 
 ### New D is pushed and in the repaired real-smoke step; not yet accepted

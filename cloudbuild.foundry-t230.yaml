@@ -95,7 +95,7 @@ steps:
           --g0-preflight /workspace/t230-release/g0-preflight.json)
         export FOUNDRY_T230_PRODUCTION_TRANSPORT_ENABLED=1
         if [[ '${_T230_PHASE}' == candidate ]]; then
-          if PYTHONPATH=src python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+          if PYTHONPATH=src python3 scripts/run_corpus_extreme_tail_panel_transport_v1.py \
               resolve-prefreeze-release-gate "${common[@]}" \
               --output /workspace/t230-release/prefreeze-release-gate.json \
               --execute >/workspace/t230-release/prefreeze-reopen.json 2>/dev/null; then
@@ -103,10 +103,10 @@ steps:
             exit 0
           fi
           receipt=/workspace/t230-release/prefreeze-smoke-receipt.json
-          if PYTHONPATH=src python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+          if PYTHONPATH=src python3 scripts/run_corpus_extreme_tail_panel_transport_v1.py \
               recover-prefreeze-smoke-receipt "${common[@]}" \
               --output "$receipt" --execute >/workspace/t230-release/prefreeze-receipt-reopen.json 2>/dev/null; then
-            if ! PYTHONPATH=src python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+            if ! PYTHONPATH=src python3 scripts/run_corpus_extreme_tail_panel_transport_v1.py \
                 recover-prefreeze-smoke-inputs "${common[@]}" \
                 --receipt-identity-output /workspace/t230-release/prefreeze-smoke-receipt-identity.json \
                 --receipt-body-output /workspace/t230-release/prefreeze-smoke-receipt-body.json \
@@ -118,9 +118,9 @@ steps:
             fi
             execution="$(jq -er '.runtime_binding.cloud_run_execution' "$receipt")"
           else
-            PYTHONPATH=src python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+            PYTHONPATH=src python3 scripts/run_corpus_extreme_tail_panel_transport_v1.py \
               assert-prefreeze-smoke-absent --execute >/dev/null
-            PYTHONPATH=src python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+            PYTHONPATH=src python3 scripts/run_corpus_extreme_tail_panel_transport_v1.py \
               publish-prefreeze-smoke-launch "${common[@]}" \
               --service-account '${_SERVICE_ACCOUNT}' --execute \
               >/workspace/t230-release/prefreeze-launch-publication.json
@@ -140,7 +140,7 @@ steps:
               --project '${PROJECT_ID}' --region '${_REGION}' --wait \
               --tasks 1 --task-timeout 21600s --format='value(metadata.name)')"
             [[ "$execution" =~ ^[a-z][a-z0-9-]+$ ]]
-            PYTHONPATH=src python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+            PYTHONPATH=src python3 scripts/run_corpus_extreme_tail_panel_transport_v1.py \
               recover-prefreeze-smoke-inputs "${common[@]}" \
               --receipt-identity-output /workspace/t230-release/prefreeze-smoke-receipt-identity.json \
               --receipt-body-output /workspace/t230-release/prefreeze-smoke-receipt-body.json \
@@ -192,12 +192,12 @@ steps:
               } else error("prefreeze smoke execution envelope differs") end
           ' /workspace/t230-release/prefreeze-execution-raw.json \
             >/workspace/t230-release/prefreeze-observed-execution.json
-          PYTHONPATH=src python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+          PYTHONPATH=src python3 scripts/run_corpus_extreme_tail_panel_transport_v1.py \
             publish-prefreeze-smoke-execution "${common[@]}" \
             --observed-execution /workspace/t230-release/prefreeze-observed-execution.json \
             --execute >/workspace/t230-release/prefreeze-execution-publication.json
         fi
-        PYTHONPATH=src python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+        PYTHONPATH=src python3 scripts/run_corpus_extreme_tail_panel_transport_v1.py \
           resolve-prefreeze-release-gate "${common[@]}" \
           --output /workspace/t230-release/prefreeze-release-gate.json \
           --execute >/workspace/t230-release/prefreeze-release-gate-reopen.json
