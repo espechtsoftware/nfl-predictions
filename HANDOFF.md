@@ -51,6 +51,15 @@ agent or developer:
   Cloud Run runtime heredoc is byte-equivalent to frozen source S3
   `a6bc9d4c862777c03d7dd802c5950486e7d85134`; the repair changes only the
   local control-flow resolver outside the payload sent to the frozen D2.
+- Lead review of isolated observatory head `12116044` is **approve with
+  required fixes**. There is no P0, but its grade fixture misstates the real
+  realized-outcome report contract and its projection guards are too shallow
+  for the claimed schema boundary. The durable decision and exact corrective
+  scope are in
+  `reports/2026-08-25-observatory-phase2-lead-checkpoint-review.md`. One
+  corrective Phase 1–2 commit and subsequent fixture-backed bounded Phase 3
+  API work are authorized; React cutover, live Neo4j, governed outcomes,
+  deployment, and production activation remain withheld.
 - Exact next action: commit/push this operator repair and handoff, then invoke
   the fail-closed benchmark transaction once. It must create ordinal-zero
   launch evidence, reach a terminal single-task execution, publish the exact
