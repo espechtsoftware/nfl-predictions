@@ -20,6 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 19:42 UTC (seventieth update)
+
+### First-score transaction is prospectively rebound to T230 v2
+
+- A read-only critical-path audit confirms that every remaining candidate,
+  smoke, release, prepare, benchmark, panel and catalog step is outcome-blind.
+  The first artifact that can support an improvement claim is a completely
+  closed Core grade: all 54 grade shards and `contrast-summaries.json` must be
+  bound by terminal `completion.json`. The reporter is only a human-readable
+  projection and performs no new outcome query.
+- The same audit found that the previously documented Core transaction IDs
+  were bound to obsolete source `37447b53...` and candidate `80963d40...`.
+  No Core run directory, remote Core artifact, historical outcome or score
+  exists, so `reports/2026-08-25-core-v1-score-transaction-v2-amendment.md`
+  prospectively supersedes that unused operational binding. It freezes new
+  `*-v2` chain/catalog/outcome/grade IDs against S2
+  `501b68a4f7b842de1f59d55358540c9a615b6e40`, candidate build
+  `56d64cbe-2d77-4f51-adf8-21b65dbe7b7c`, and exactly the future D2 that this
+  candidate successfully smokes and a same-D2 release accepts. Core v1
+  science remains the same 1,944 prespecified book cells. Independent review
+  APPROVED the exact amendment and handoff bytes with no P0/P1/P2 and verified
+  all identifiers, fixed URIs and operator naming laws.
+- Candidate build `56d64cbe-2d77-4f51-adf8-21b65dbe7b7c` transitioned from
+  `QUEUED` to `WORKING` by `2026-08-25T19:36:54Z`. No step result, D2, smoke,
+  outcome, comparative score or IAM census is claimed at this update.
+- Exact next action: monitor the candidate to terminal and require the fresh
+  D2/real-smoke gate. On success, release only that D2 from S2. Before Core
+  launch, use only the v2 identifiers in the amendment; never launch or
+  recover the superseded Core `*-v1` transaction.
+
 ## Current handoff — 2026-08-25 19:35 UTC (sixty-ninth update)
 
 ### Fresh T230 v2 candidate is queued from the frozen typed-flags source
