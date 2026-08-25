@@ -20,6 +20,52 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 03:06 UTC (thirty-third update)
+
+### Complete pre-Week-1 strategy census clear; additive code audits active
+
+- Branch `main` is at pushed commit `ea7ac338` (`Expand preweek historical
+  strategy catalog`). A new complete census now covers every distinct runnable,
+  closed and data-blocked method explicitly on the current Foundry roadmap,
+  not only the six external-review additions. It preserves the frozen k20
+  shadow byte-for-byte while requiring historical k20 testing before Week 1.
+  It separates the fast G0/T230 score path from the complete historical search,
+  uses paired one-factor tests instead of a full Cartesian sweep, and requires
+  an accepted result or exact infeasibility receipt before the deadline. The
+  census received an independent eight-point completeness audit, was corrected
+  for neutral admission controls, chaos-simulator prerequisites, closed
+  unbounded utility, winner-score versus field-max identity, all-boom money
+  closure, ownership versus duplication, missing diagnostics and precise B1
+  closure, then passed focused re-audit.
+- The new selector/oracle additions report 15 focused tests passed. Independent
+  audit cleared their mathematical laws and bounded-memory design but blocked
+  release on wall-clock-dependent CBC replay and incomplete solver binary/
+  option/proof identity plus missing lineage attacks. A narrow deterministic-
+  work-budget and solver-identity fix is active; do not commit the component
+  until re-test and re-audit are clear.
+- The new hard-230 generation and game-regime discovery additions report 29
+  focused tests passed. Independent audit found eight authority/design
+  blockers: paired-control fit scope, nested accounting replay, exact solver/
+  scoring/legality lineage, internally derived non-Atlas game aggregates,
+  held-out evaluation receipt, public ID drift, literal contract guards,
+  dimension bounds, plus the all-zero regime edge. Narrow fixes are active;
+  do not commit or bind this component yet.
+- The core factorial manifest's prior authority blockers are fixed and static-
+  clean. R194 is correctly de-aliased to canonical `coverage-194-v1`; substrate
+  scope has its own identity. The eventual core registry has 18 distinct laws/
+  diagnostics. Factorial pytest/freeze remains held until corrected public
+  additive contracts are stable; broader F1--F4 and later methods live in
+  companion manifests joined only by the aggregate pre-grade catalog.
+- Live Foundry remains 44/54 accepted with zero failures. Lane A task-22
+  producer `atlas-minimal-c-s2023-w1-v1-kss5z` reached terminal success at
+  03:00:32Z and its original controller began the only verifier launch at
+  03:03:20Z. Lane B producer `atlas-cbc-32g-full-2023-w8-v1-bkjct` remained
+  running. Never relaunch or duplicate either controller. Active v12 files and
+  the outside review remain unstaged.
+- Exact next action: commit/push the independently cleared census, finish and
+  re-audit both narrow additive fixes, bind the corrected contracts into the
+  core/companion manifests, and continue observing the original G0 lanes.
+
 ## Current handoff — 2026-08-25 02:50 UTC (thirty-second update)
 
 ### Pre-Week-1 catalog expanded; no runnable strategy deferred to Week 1

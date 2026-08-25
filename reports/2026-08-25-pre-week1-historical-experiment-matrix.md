@@ -13,6 +13,12 @@ first 2026 regular-season Week-1 slate
 `reports/2026-08-24-lead-architect-decision-on-230-extreme-tail-program.md`,
 and the frozen T230 release plans
 
+**Complete Foundry strategy universe:**
+`reports/2026-08-25-complete-pre-week1-foundry-strategy-census.md`. This
+document remains the exact core T230/factorial specification; companion
+manifests cover the additional fill, schedule, admission, and retrieval laws
+without altering the eight primary cell identities.
+
 This document specifies science and ordering. It does not itself authorize a
 production-policy change. Historical results may nominate a prospective 2026
 shadow, but only pre-lock prospective evidence may confirm a money-path change.
