@@ -8,6 +8,7 @@ from pathlib import Path
 import sys
 
 import pytest
+import yaml
 
 from nfl_dfs.research import corpus_extreme_tail_panel_execution as execution
 from nfl_dfs.research import corpus_extreme_tail_panel_transport as transport
@@ -1179,6 +1180,13 @@ def test_cli_is_default_off_and_stage_identity_knobs_are_operation_optional() ->
 
 def test_build_and_launcher_static_production_law() -> None:
     cloudbuild = (ROOT / "cloudbuild.foundry-t230.yaml").read_text()
+    cloudbuild_config = yaml.safe_load(cloudbuild)
+    smoke_step = next(
+        step
+        for step in cloudbuild_config["steps"]
+        if step["id"] == "candidate-real-four-law-smoke-or-release-gate"
+    )
+    smoke_script = smoke_step["args"][1]
     dockerfile = (ROOT / "Dockerfile.foundry-t230").read_text()
     launcher = (
         ROOT / "scripts/cloud_corpus_extreme_tail_panel_v1_reuse.sh"
@@ -1209,6 +1217,16 @@ def test_build_and_launcher_static_production_law() -> None:
     assert transport.BENCHMARK_COMMAND in launcher
     assert "gcloud storage ls" not in launcher
     assert "gcloud storage ls" not in cloudbuild
+    helper_install = (
+        "python3 -m pip install --break-system-packages --no-cache-dir '.[gcp]'"
+    )
+    assert helper_install in smoke_script
+    assert cloudbuild.count(helper_install) == 1
+    assert all(
+        "--break-system-packages" not in "\n".join(map(str, step.get("args", [])))
+        for step in cloudbuild_config["steps"]
+        if step["id"] != "candidate-real-four-law-smoke-or-release-gate"
+    )
     assert "--max-retries 0" in launcher
     assert "COPY . /home/erich/projects/nfl-predictions" in dockerfile
     assert "COPY --chown" not in dockerfile

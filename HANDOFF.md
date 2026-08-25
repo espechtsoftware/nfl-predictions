@@ -20,6 +20,46 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 16:36 UTC (fifty-fourth update)
+
+### Candidate helper failure is isolated and repaired; fresh candidate required
+
+- Corrected candidate Cloud Build
+  `b22f8853-9237-42ad-94e8-83a0c20bde90` reached terminal `FAILURE`. Its exact
+  checkout, 13 focused transport tests, the other focused tests, semantic G0
+  replay, image construction, in-image validation and image push all passed.
+  The subsequent ephemeral `cloud-sdk:slim` helper failed before launching
+  the real ordinal-zero smoke because Debian's PEP 668 policy rejected its
+  unqualified system `pip install`. This is a build-helper defect, not a
+  Foundry science, data, image-runtime or IAM failure. No smoke or historical
+  outcome ran.
+- That failed build pushed digest
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:bf453ef6605593fa2e6c26ed7d43c000936156ede8551b687ba115da0515d930`.
+  It is **unaccepted and forbidden for release or T230 use**: it is bound to
+  old source `daf07c02f9cdc9c604184b28efe64730542ab249`, never passed the real
+  smoke and has no release gate, image evidence or transport contract.
+- `cloudbuild.foundry-t230.yaml` now uses
+  `python3 -m pip install --break-system-packages --no-cache-dir '.[gcp]'`
+  only inside the ephemeral Cloud SDK smoke/release helper. Its stable local
+  SHA-256 is
+  `09517b303cd3de785588dfa7cfa71180cd55d6e13e8bee789f39a79741df5056`.
+  The static regression parses the Cloud Build YAML, binds the command to the
+  exact helper step and forbids the override in every other step; stable test
+  SHA-256 is
+  `163bd4a6a2c3f9200444e8afa0253b8e1f7e74e0e37d68c75ca1721c59985853`.
+  Targeted transport validation passes 13/13 and `git diff --check` is clean.
+  Independent audit APPROVED the minimal repair with no P1 and confirmed that
+  neither the Python validation step nor the Docker image needs this flag.
+- Branch `main` is at pushed commit `00573d16` before this local milestone.
+  No historical outcome or comparative score has been opened, and no IAM
+  census was run.
+- Exact next action: explicitly commit and push only the Cloud Build repair,
+  its regression and this handoff. Submit a new candidate from that new exact
+  source commit with `deploy/foundry_t230_build.gcloudignore`; build a new D,
+  pass its real ordinal-zero smoke, and only then release that same D. Run the
+  T230 benchmark before the fixed two-lane panel, then materialize and grade
+  the 54-slate Core catalog for the first scoring-improvement evidence.
+
 ## Current handoff — 2026-08-25 15:58 UTC (fifty-third update)
 
 ### Corrected one-image candidate is building from the exact pushed source

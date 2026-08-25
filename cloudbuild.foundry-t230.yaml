@@ -86,7 +86,9 @@ steps:
       - |
         apt-get update
         apt-get install -y --no-install-recommends git jq libgomp1
-        pip install --no-cache-dir '.[gcp]'
+        # cloud-sdk:slim is Debian-managed and enforces PEP 668.  This helper
+        # container is ephemeral, so explicitly license its system install.
+        python3 -m pip install --break-system-packages --no-cache-dir '.[gcp]'
         image="$(tr -d '\n' </workspace/t230-release/immutable-image.txt)"
         common=(--source-snapshot /workspace/t230-release/source-snapshot.json
           --immutable-image "$image"
