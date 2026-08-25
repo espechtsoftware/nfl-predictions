@@ -20,14 +20,13 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-25 13:08 UTC (forty-sixth update)
+## Current handoff — 2026-08-25 13:19 UTC (forty-sixth update)
 
 ### Foundry source panel reaches 54/54; terminal sealing and T230 transport continue
 
-- Branch `main` remains at pushed commit `7f4a9236` (`Add locked composite
-  retrieval laws`). The prospective k20/OI shadow and governed realized
-  outcomes remain untouched; no T230 comparative score has been opened or
-  released.
+- Branch `main` is at pushed commit `8e9bf338` (`Record pre-Week 1 strategy
+  census`). The prospective k20/OI shadow and governed realized outcomes
+  remain untouched; no T230 comparative score has been opened or released.
 - Both original Foundry v12 controllers completed exactly and exited zero:
   lane A through task 27 and lane B through task 25. All 54 tasks have one
   nonempty verifier-accepted receipt, with no observed failure, refusal or
@@ -55,6 +54,28 @@ agent or developer:
   `0ca09dab0c9825823bb41be11c35666c95d869a4ec0b229002f8e87cf7e47fad`.
   Across both lanes, the sealed source panel contains 54 accepted slates, 378
   matrix cells and 9,518 final objects.
+- Combined-panel validate-only replay passed with exactly two lanes, 54
+  accepted slates, exact input replay, and all analytical/outcome/decision
+  authorities false. The exact 209,279-byte panel was then published
+  create-once and reopened at generation `1787663639938214`, SHA-256
+  `4d41acd9277e525cd8521071b62390281c442d6324db1e3f5812bf59920c16f9`.
+  Panel ID is
+  `v12:ef445e2b31a7756609b458753dc064318b58ea2912e9277071c08fd0d07392e0`;
+  panel-index SHA-256 is
+  `479b65bb40fcab6ba6721431718c8e2e95fc0a28a4354f1e7b3b1e205c69b094`;
+  local publication-receipt SHA-256 is
+  `bf5ac51420a9483028b0325f0a2f8e4b1b8dba42880f3dced8bfdd2087f2e283`.
+  The frozen census-only 2023-w01 support smoke completed with exit zero. It
+  exact-replayed the accepted member, authoritative 5 x 10,000 ordinary-R
+  score matrix and support census with all false authority fields. Runtime was
+  1:15.48 and peak RSS was 2,306,396 KiB. All five training folds passed the
+  literal-230 support gate with opportunity counts 2,558, 2,607, 2,622, 2,614
+  and 2,621. Score-matrix SHA-256 is
+  `3570d7ebe1c4b7134ada68c189c2d2af326cba90d3f12c318911836f60bc0a48`;
+  support-census SHA-256 is
+  `8f08955ca1d89c42d4243b91365b626dd3ecb5a80cf1f6d57c8bda5ef47eb5a4`;
+  execution SHA-256 is
+  `ceddab226e3ff66e5668e227d144c1431cb889da95e90570d9b7619d35fd346e`.
 - The independently reviewed pre-Week-1 strategy census amendment is drafted
   at `reports/2026-08-25-pre-week-1-historical-strategy-census-execution-amendment.md`.
   It preserves frozen prospective k20 while requiring every distinct
@@ -75,10 +96,9 @@ agent or developer:
   smoke must run that full science path under GNU `time -v`, retain only a
   non-authoritative structural receipt, and inspect no realized outcome or
   selector effect.
-- Exact next action: allow the currently running outcome-blind combined-panel
-  validate-only replay to return; then execute publication and smoke Gates 4--5 from
-  `reports/2026-08-25-foundry-v12-g0-and-first-t230-smoke-runbook.md` once;
-  then run the disposable four-law smoke, create/review/commit the literal G0
+- Exact next action: land and validate the shared science helper plus
+  disposable four-law smoke, then execute it against ordinal 0; create,
+  review and commit the literal G0
   authority lock, and only after final transport approval build the immutable
   T230 image and ordinal-0 production benchmark.
 
