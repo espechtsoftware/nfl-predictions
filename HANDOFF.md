@@ -20,6 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 17:12 UTC (sixty-second update)
+
+### Fresh python3 candidate submitted; local lease P1 repair approved
+
+- The Cloud SDK interpreter repair is pushed on `main` as exact source commit
+  `0cf48f180014862355082bff1147024d72ed4ca9` (`Use python3 in T230 Cloud
+  SDK helper`). Independent review APPROVED the exact bytes with no P0/P1;
+  the prior un-smoked `c6c...` digest remains forbidden.
+- Fresh candidate Cloud Build
+  `9d6b53a8-448f-46da-a0d0-6b454674c5c1` is submitted from exactly that
+  source using the repaired config and the required three-file/3.2-KiB G0
+  archive. It must build a new D and establish its own real smoke gate; no
+  prior failed candidate digest may be reused.
+- The independent Core lease-release repair is now FINAL-STABLE and
+  independently APPROVED with no P0/P1/P2. It exact-resolves the deterministic
+  Core completion, uses generation-pinned reads with no listing/query,
+  validates Core completion/attempt schema, self-hashes, run/catalog/count,
+  lease identity and release flags, atomically creates/reopens the bound
+  strict completion, and requires terminal `Completed=True`. The score
+  operator materializes
+  `historical-outcome-strict-completion.txt` after a successful or recovered
+  outcome stage; explicit release remains after grade. Root review/validation
+  and a separate explicit commit are next. No image rebuild is needed for it.
+- No outcome, score, smoke execution or IAM census has run at this update.
+- Exact next action: monitor build
+  `9d6b53a8-448f-46da-a0d0-6b454674c5c1` to a real smoke and terminal result.
+  In parallel root-review/validate and commit the four local lease/operator
+  files. On candidate `SUCCESS`, release its same new D without rebuild.
+
 ## Current handoff — 2026-08-25 17:10 UTC (sixty-first update)
 
 ### Cloud SDK helper interpreter alias repaired; another fresh candidate required
