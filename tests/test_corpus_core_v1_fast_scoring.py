@@ -7,7 +7,10 @@ import pytest
 
 from nfl_dfs.research import corpus_catalog_realized_grading as grading
 from nfl_dfs.research import corpus_core_v1_catalog as catalog
+from nfl_dfs.research import corpus_core_v1_catalog_materializer as materializer
 from nfl_dfs.research import corpus_core_v1_outcome_snapshot as outcome_contract
+from nfl_dfs.research import corpus_realized_outcome_transport as registered
+from nfl_dfs.research import lr8_label_score_map as shared
 from nfl_dfs.research.corpus_batch_evidence_contract import MICRO_DK_PER_POINT
 from nfl_dfs.research.corpus_v12_import import canonical_lineup_id
 
@@ -39,6 +42,71 @@ def _self_hash(value: dict[str, object], field: str) -> dict[str, object]:
     retained = dict(value)
     retained[field] = catalog.canonical_sha256(retained)
     return retained
+
+
+class _ExactObjectStore:
+    def __init__(self) -> None:
+        self.raw_by_key: dict[tuple[str, str], bytes] = {}
+        self.current_by_uri: dict[str, dict[str, object]] = {}
+        self.read_count_by_uri: dict[str, int] = {}
+        self.publish_attempts: list[str] = []
+        self.next_generation = 90_000
+
+    @staticmethod
+    def _key(identity: dict[str, object]) -> tuple[str, str]:
+        return str(identity["uri"]), str(identity["generation"])
+
+    def seed(self, value: object, identity: dict[str, object]) -> None:
+        raw = catalog.canonical_json_bytes(value)
+        assert sha256(raw).hexdigest() == identity["sha256"]
+        assert len(raw) == identity["bytes"]
+        self.raw_by_key[self._key(identity)] = raw
+        self.current_by_uri[str(identity["uri"])] = dict(identity)
+
+    def read_exact(self, identity: dict[str, object]) -> bytes:
+        self.read_count_by_uri[str(identity["uri"])] = (
+            self.read_count_by_uri.get(str(identity["uri"]), 0) + 1
+        )
+        return self.raw_by_key[self._key(identity)]
+
+    def publish_create_once(
+        self, uri: str, raw: bytes,
+    ) -> materializer.CreateOncePublication:
+        self.publish_attempts.append(uri)
+        existing = self.current_by_uri.get(uri)
+        if existing is not None:
+            return materializer.CreateOncePublication(
+                identity=dict(existing), created=False
+            )
+        generation = str(self.next_generation)
+        self.next_generation += 1
+        identity = {
+            "uri": uri,
+            "generation": generation,
+            "sha256": sha256(raw).hexdigest(),
+            "bytes": len(raw),
+        }
+        self.raw_by_key[(uri, generation)] = raw
+        self.current_by_uri[uri] = identity
+        return materializer.CreateOncePublication(
+            identity=dict(identity), created=True
+        )
+
+
+def _materializer_store(
+    inputs: dict[str, object],
+) -> _ExactObjectStore:
+    store = _ExactObjectStore()
+    store.seed(inputs["source_panel"], inputs["source_panel_identity"])
+    store.seed(
+        inputs["t230_panel_release"], inputs["t230_panel_release_identity"]
+    )
+    for source in inputs["source_slates"]:
+        for variant in source["variant_results"]:
+            store.seed(variant["result"], variant["result_identity"])
+    for retained in inputs["t230_results"]:
+        store.seed(retained["result"], retained["result_identity"])
+    return store
 
 
 def _rosters(source_ordinal: int) -> list[list[str]]:
@@ -451,11 +519,106 @@ def _outcome_artifacts(
         "source_key": row.source_key,
         "player_id": row.player_id,
     } for row in retained_keys]
-    query_job_id = "core_v1_fast_score_fixture"
-    source_snapshot_at = "2026-08-25T00:00:00+00:00"
+    table_receipts = [{
+        "table_id": table,
+        "etag": "stable",
+        "modified": "2026-08-24T00:00:00+00:00",
+        "num_rows": 1,
+        "schema_sha256": "e" * 64,
+    } for table in (registered.SKILL_TABLE, registered.DST_TABLE)]
+    lease_body = {
+        "version": shared.adapter.HISTORICAL_OUTCOME_LEASE_VERSION,
+        "run_id": "core-v1-fast-score-fixture",
+        "job": "core-v1-fast-score-fixture-job",
+        "code_sha": "1" * 40,
+        "image": f"us-docker.pkg.dev/test/core@sha256:{'2' * 64}",
+        "acquired_at": "2026-08-25T00:00:00+00:00",
+    }
+    lease_raw = shared.canonical_json(lease_body)
+    historical_lease = {
+        "body": lease_body,
+        "object_receipt": {
+            "uri": shared.adapter.HISTORICAL_OUTCOME_LEASE_URI,
+            "generation": "1",
+            "sha256": sha256(lease_raw).hexdigest(),
+            "bytes": len(lease_raw),
+            "create_only": True,
+        },
+    }
+    query_job_id = registered.deterministic_query_job_id(
+        registered.SupplierConfig(
+            run_id=str(lease_body["run_id"]),
+            job=str(lease_body["job"]),
+            code_sha=str(lease_body["code_sha"]),
+            image=str(lease_body["image"]),
+            expected_batch_acceptance_object_sha256=str(
+                core_catalog["catalog_sha256"]
+            ),
+            enabled=True,
+        )
+    )
+    source_snapshot_at = "2026-08-25T00:00:20+00:00"
+    query_contract = outcome_contract.core_query_contract(
+        outcome_keys=retained_keys,
+        query_job_id=query_job_id,
+        source_snapshot_at=source_snapshot_at,
+    )
+    query_job_receipt = {
+        "job_id": query_job_id,
+        "location": query_contract["location"],
+        "sql_sha256": query_contract["sql_sha256"],
+        "parameters_sha256": query_contract["parameters_sha256"],
+        "created": "2026-08-25T00:01:00+00:00",
+        "started": "2026-08-25T00:01:30+00:00",
+        "ended": "2026-08-25T00:02:00+00:00",
+        "total_bytes_processed": 1,
+        "cache_hit": False,
+        "error_result": None,
+    }
+    attempt_body = {
+        "schema_version": outcome_contract.READ_ATTEMPT_SCHEMA,
+        "run_id": lease_body["run_id"],
+        "catalog_identity": core_identity,
+        "catalog_sha256": core_catalog["catalog_sha256"],
+        "later_source_freeze_identity": core_catalog[
+            "later_source_freeze_identity"
+        ],
+        "later_source_freeze_sha256": core_catalog[
+            "later_source_freeze_sha256"
+        ],
+        "outcome_key_count": len(retained_keys),
+        "outcome_keys": outcome_key_payload,
+        "outcome_keys_sha256": outcome_contract.canonical_sha256(
+            outcome_key_payload
+        ),
+        "query_contract": query_contract,
+        "query_contract_sha256": outcome_contract.canonical_sha256(
+            query_contract
+        ),
+        "table_receipts_before_query": table_receipts,
+        "table_receipt_set_sha256": outcome_contract.canonical_sha256(
+            table_receipts
+        ),
+        "historical_outcome_lease": historical_lease,
+        "started_at": "2026-08-25T00:00:15+00:00",
+        "uses_realized_outcomes_at_creation": False,
+        "attempt_precedes_query": True,
+        "historical_retry_licensed": False,
+        "historical_retune_licensed": False,
+        "graph_mutation_licensed": False,
+        "production_change_licensed": False,
+        "decision_authority": False,
+    }
+    attempt = _self_hash(attempt_body, "attempt_sha256")
+    attempt_identity = _identity_for(
+        attempt, path="outcomes/read-attempt.json", generation=60_025
+    )
     source_body = {
         "schema_version": outcome_contract.PLAYER_SOURCE_SCHEMA,
         "catalog_sha256": core_catalog["catalog_sha256"],
+        "attempt": attempt,
+        "attempt_identity": attempt_identity,
+        "attempt_created_at": "2026-08-25T00:00:30+00:00",
         "later_source_freeze_identity": core_catalog[
             "later_source_freeze_identity"
         ],
@@ -466,15 +629,24 @@ def _outcome_artifacts(
         "outcome_keys_sha256": outcome_contract.canonical_sha256(
             outcome_key_payload
         ),
-        "query_contract_sha256": outcome_contract.core_query_contract_sha256(
-            outcome_keys=retained_keys,
-            query_job_id=query_job_id,
-            source_snapshot_at=source_snapshot_at,
+        "query_contract": query_contract,
+        "query_contract_sha256": outcome_contract.canonical_sha256(
+            query_contract
         ),
         "query_job_id": query_job_id,
+        "query_job_receipt": query_job_receipt,
+        "query_job_disposition": "created",
         "source_snapshot_at": source_snapshot_at,
-        "table_receipt_set_sha256": _hex(50_001),
-        "historical_outcome_lease_sha256": _hex(50_002),
+        "table_receipts_before_query": table_receipts,
+        "table_receipts_after_query": table_receipts,
+        "table_receipt_set_sha256": outcome_contract.canonical_sha256(
+            table_receipts
+        ),
+        "historical_outcome_lease_before_query": historical_lease,
+        "historical_outcome_lease_after_query": historical_lease,
+        "historical_outcome_lease_sha256": outcome_contract.canonical_sha256(
+            historical_lease
+        ),
         "row_fields": [
             "source_ordinal",
             "season",
@@ -548,6 +720,285 @@ def frozen_core() -> tuple[
         outcomes,
         outcome_identity,
     )
+
+
+@pytest.fixture(scope="module")
+def sharded_core() -> dict[str, object]:
+    inputs = _build_catalog_inputs()
+    store = _materializer_store(inputs)
+    published = materializer.materialize_sharded_core_v1_catalog(
+        catalog_id="core-score-sharded-v1-test",
+        source_panel_identity=inputs["source_panel_identity"],
+        t230_panel_release_identity=inputs["t230_panel_release_identity"],
+        output_prefix="gs://core-v1-test/sharded/",
+        max_logical_catalog_bytes=100_000_000,
+        read_exact=store.read_exact,
+        publish_create_once=store.publish_create_once,
+    )
+    bound_uris = {
+        str(inputs["source_panel_identity"]["uri"]),
+        str(inputs["t230_panel_release_identity"]["uri"]),
+        *(
+            str(variant["result_identity"]["uri"])
+            for source in inputs["source_slates"]
+            for variant in source["variant_results"]
+        ),
+        *(
+            str(retained["result_identity"]["uri"])
+            for retained in inputs["t230_results"]
+        ),
+    }
+    return {
+        "inputs": inputs,
+        "store": store,
+        "published": published,
+        "first_bound_read_counts": {
+            uri: store.read_count_by_uri.get(uri, 0) for uri in bound_uris
+        },
+    }
+
+
+def test_sharded_materializer_exact_reads_once_and_publishes_root_last(
+    sharded_core,
+) -> None:
+    published = sharded_core["published"]
+    store = sharded_core["store"]
+    root = published.root
+
+    assert set(sharded_core["first_bound_read_counts"].values()) == {1}
+    assert len(sharded_core["first_bound_read_counts"]) == 2 + 54 * 8
+    assert published.catalog_created is True
+    assert published.created_shard_count == 54
+    assert published.recovered_shard_count == 0
+    assert published.root_created is True
+    assert len(published.shard_identities) == 54
+    assert len(root["shard_descriptors"]) == 54
+    assert root["catalog_identity"] == published.catalog_identity
+    assert store.publish_attempts[0] == materializer.logical_catalog_uri(
+        "gs://core-v1-test/sharded/"
+    )
+    assert store.publish_attempts[-1] == materializer.root_uri(
+        "gs://core-v1-test/sharded/"
+    )
+    assert len(store.publish_attempts) == 56
+    assert len(materializer.canonical_json_bytes(root)) < len(
+        materializer.canonical_json_bytes(published.logical_catalog)
+    )
+    metrics = root["materialization_metrics"]
+    assert metrics["union_roster_membership_count"] == 54 * 80
+    assert metrics["source_arm_result_read_count"] == 54 * 7
+    assert metrics["t230_result_read_count"] == 54
+    assert metrics["logical_catalog_assembled_in_memory"] is True
+    assert root["science_recomputation_performed"] is False
+    assert root["outcome_fields_read"] == []
+
+
+def test_one_slate_smoke_projects_real_bound_payloads_without_publication(
+    sharded_core,
+) -> None:
+    inputs = sharded_core["inputs"]
+    store = sharded_core["store"]
+    publish_count_before = len(store.publish_attempts)
+    report = materializer.build_core_v1_slate_smoke_projection(
+        source_ordinal=0,
+        source_panel_identity=inputs["source_panel_identity"],
+        t230_result_identity=inputs["t230_results"][0]["result_identity"],
+        read_exact=store.read_exact,
+    )
+
+    assert len(store.publish_attempts) == publish_count_before
+    assert report["schema_version"] == materializer.SLATE_SMOKE_SCHEMA
+    assert report["slate_catalog"]["schema_version"] == catalog.SLATE_SCHEMA
+    assert report["slate_catalog"] == (
+        sharded_core["published"].logical_catalog["slates"][0]
+    )
+    assert report["structural_counts"] == {
+        "source_arm_result_count": 7,
+        "union_lineup_count": 80,
+        "source_population_count": 7,
+        "rank_count": 12,
+        "book_count": 36,
+    }
+    assert report["outcome_fields_read"] == []
+    assert report["science_recomputation_performed"] is False
+    assert report["root_publication_authority"] is False
+    retained_hash = report.pop("smoke_projection_sha256")
+    assert retained_hash == materializer.canonical_sha256(report)
+    report["smoke_projection_sha256"] = retained_hash
+
+
+def test_one_slate_smoke_rejects_a_different_ordinal_t230_result(
+    sharded_core,
+) -> None:
+    inputs = sharded_core["inputs"]
+    store = sharded_core["store"]
+    publish_count_before = len(store.publish_attempts)
+
+    with pytest.raises(
+        materializer.CorpusCoreV1CatalogMaterializerError,
+        match="source/slate binding differs",
+    ):
+        materializer.build_core_v1_slate_smoke_projection(
+            source_ordinal=0,
+            source_panel_identity=inputs["source_panel_identity"],
+            t230_result_identity=inputs["t230_results"][1]["result_identity"],
+            read_exact=store.read_exact,
+        )
+    assert len(store.publish_attempts) == publish_count_before
+
+
+def test_sharded_materializer_recovers_equal_create_once_content(
+    sharded_core,
+) -> None:
+    inputs = sharded_core["inputs"]
+    store = sharded_core["store"]
+    first = sharded_core["published"]
+    recovered = materializer.materialize_sharded_core_v1_catalog(
+        catalog_id="core-score-sharded-v1-test",
+        source_panel_identity=inputs["source_panel_identity"],
+        t230_panel_release_identity=inputs["t230_panel_release_identity"],
+        output_prefix="gs://core-v1-test/sharded/",
+        max_logical_catalog_bytes=100_000_000,
+        read_exact=store.read_exact,
+        publish_create_once=store.publish_create_once,
+    )
+
+    assert recovered.created_shard_count == 0
+    assert recovered.recovered_shard_count == 54
+    assert recovered.catalog_created is False
+    assert recovered.root_created is False
+    assert recovered.catalog_identity == first.catalog_identity
+    assert recovered.root_identity == first.root_identity
+    assert materializer.canonical_json_bytes(recovered.logical_catalog) == (
+        materializer.canonical_json_bytes(first.logical_catalog)
+    )
+
+
+def test_sharded_catalog_authority_reopens_from_only_root_identity(
+    sharded_core,
+) -> None:
+    published = sharded_core["published"]
+    store = sharded_core["store"]
+
+    reopened = materializer.reopen_sharded_core_v1_catalog_authority(
+        root_identity=deepcopy(published.root_identity),
+        read_exact=store.read_exact,
+    )
+
+    assert reopened.root_identity == published.root_identity
+    assert reopened.catalog_identity == published.catalog_identity
+    assert reopened.shard_identities == published.shard_identities
+    assert materializer.canonical_json_bytes(reopened.logical_catalog) == (
+        store.read_exact(dict(reopened.catalog_identity))
+    )
+    assert reopened.root["catalog_identity"] == reopened.catalog_identity
+
+
+def test_sharded_root_validator_rejects_catalog_identity_metric_drift(
+    sharded_core,
+) -> None:
+    forged = deepcopy(sharded_core["published"].root)
+    forged.pop("sharded_catalog_root_sha256")
+    forged["catalog_identity"]["bytes"] += 1
+    forged = _self_hash(forged, "sharded_catalog_root_sha256")
+
+    with pytest.raises(
+        materializer.CorpusCoreV1CatalogMaterializerError,
+        match="materialization metrics differ",
+    ):
+        materializer.validate_sharded_core_v1_catalog_root(forged)
+
+
+def test_sharded_materializer_payload_ceiling_fails_before_publication(
+    sharded_core,
+) -> None:
+    inputs = sharded_core["inputs"]
+    store = _materializer_store(inputs)
+    with pytest.raises(
+        materializer.CorpusCoreV1CatalogMaterializerError,
+        match="exceeds its configured payload ceiling",
+    ):
+        materializer.materialize_sharded_core_v1_catalog(
+            catalog_id="core-score-sharded-v1-too-large",
+            source_panel_identity=inputs["source_panel_identity"],
+            t230_panel_release_identity=inputs["t230_panel_release_identity"],
+            output_prefix="gs://core-v1-test/sharded-too-large/",
+            max_logical_catalog_bytes=1,
+            read_exact=store.read_exact,
+            publish_create_once=store.publish_create_once,
+        )
+    assert store.publish_attempts == []
+
+
+def test_sharded_catalog_reopen_rejects_changed_generation_bytes(
+    sharded_core,
+) -> None:
+    published = sharded_core["published"]
+    store = sharded_core["store"]
+    first_identity = dict(published.shard_identities[0])
+    key = store._key(first_identity)
+    original = store.raw_by_key[key]
+    store.raw_by_key[key] = original + b" "
+    try:
+        with pytest.raises(
+            materializer.CorpusCoreV1CatalogMaterializerError,
+            match="exact bytes differ",
+        ):
+            materializer.reopen_sharded_core_v1_catalog(
+                root_identity=published.root_identity,
+                read_exact=store.read_exact,
+            )
+    finally:
+        store.raw_by_key[key] = original
+
+
+def test_sharded_catalog_reopen_rejects_changed_catalog_authority_bytes(
+    sharded_core,
+) -> None:
+    published = sharded_core["published"]
+    store = sharded_core["store"]
+    catalog_identity = dict(published.catalog_identity)
+    key = store._key(catalog_identity)
+    original = store.raw_by_key[key]
+    store.raw_by_key[key] = original + b" "
+    try:
+        with pytest.raises(
+            materializer.CorpusCoreV1CatalogMaterializerError,
+            match="exact bytes differ",
+        ):
+            materializer.reopen_sharded_core_v1_catalog_authority(
+                root_identity=published.root_identity,
+                read_exact=store.read_exact,
+            )
+    finally:
+        store.raw_by_key[key] = original
+
+
+def test_sharded_materializer_rejects_changed_bound_source_arm(
+    sharded_core,
+) -> None:
+    inputs = sharded_core["inputs"]
+    store = _materializer_store(inputs)
+    first_identity = dict(
+        inputs["source_slates"][0]["variant_results"][0]["result_identity"]
+    )
+    key = store._key(first_identity)
+    store.raw_by_key[key] += b" "
+
+    with pytest.raises(
+        materializer.CorpusCoreV1CatalogMaterializerError,
+        match="exact bytes differ",
+    ):
+        materializer.materialize_sharded_core_v1_catalog(
+            catalog_id="core-score-sharded-v1-forged-source",
+            source_panel_identity=inputs["source_panel_identity"],
+            t230_panel_release_identity=inputs["t230_panel_release_identity"],
+            output_prefix="gs://core-v1-test/sharded-forged/",
+            max_logical_catalog_bytes=100_000_000,
+            read_exact=store.read_exact,
+            publish_create_once=store.publish_create_once,
+        )
+    assert store.publish_attempts == []
 
 
 def test_catalog_freezes_exact_12_by_3_by_54_lattice_and_contrasts(

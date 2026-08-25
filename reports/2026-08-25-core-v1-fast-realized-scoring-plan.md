@@ -316,6 +316,50 @@ actual DK score report.
 Target: complete T230 outcome-blind panel on August 26, actual Core v1 DK score
 comparisons on August 27, with August 28 reserved for a source/schema repair.
 
+### 9.1 Operational acceleration amendment (August 25)
+
+The first-grade path is now one resumable state machine, not a sequence of
+deployment projects.  Its only allowed stages are:
+
+```text
+candidate image D -> real ordinal-0 smoke -> release the same D
+-> T230 benchmark -> T230 panel -> Core catalog
+-> one recover-or-create outcome job -> Core grade
+```
+
+All Core commands ship in image D.  There is no application/UI deployment,
+Neo4j load, IAM census, bucket inventory, or second image build on this path.
+The Cloud Build upload contains only the three exact G0 receipts; the build
+fetches the committed code directly.  Catalog, outcome and grade objects use
+fixed names, generation-pinned reads, create-once/equal recovery and terminal
+completion objects.  Re-running the operator therefore resumes the first
+missing stage rather than discarding completed computation.
+
+The T230 ordinal-zero benchmark is the explicit latency decision point.  Use
+its measured wall time and memory to choose enough bounded parallel lanes to
+finish the 54-slate panel promptly; do not accept a days-long serial schedule
+merely because it is mechanically valid.  Any fan-out change must preserve
+the exact science call, immutable image, one worker result and independent
+verification per slate, but orchestration identity is not scientific
+identity.
+
+After the Core snapshot exists, the operational service-level objective for
+an already-supported selector/fill preset is:
+
+- no image build or Cloud Run job deployment;
+- no outcome query when its player keys are a subset of the snapshot;
+- no lineup rescore when its rosters are present in the union score map;
+- freeze one small book fragment, project its scores, and publish the result
+  in minutes rather than days; and
+- make any genuinely new player keys an additive snapshot extension rather
+  than rebuilding prior scores.
+
+Measure and retain wall time for every stage so future optimization targets
+the measured bottleneck.  Correctness checks remain proportional: one real
+artifact smoke per release, exact input/output validation, and targeted
+module tests; repeated infrastructure censuses and deployment-per-preset are
+not part of the experiment loop.
+
 ## 10. Definition of done
 
 - [ ] Core v1 catalog contains all 54 slates and every expected R194/raw-T230/

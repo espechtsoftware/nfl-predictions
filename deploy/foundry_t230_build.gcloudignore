@@ -1,0 +1,15 @@
+# The T230 build fetches its exact source commit from GitHub inside Cloud
+# Build.  The local upload carries only the three already-frozen G0 receipts
+# that are intentionally outside Git.
+**
+!reports/
+!reports/corpus-parametric-runs/
+!reports/corpus-parametric-runs/20260823-foundry-production-v12-panel-index/
+!reports/corpus-parametric-runs/20260823-foundry-production-v12-panel-index/panel-index-live/
+!reports/corpus-parametric-runs/20260823-foundry-production-v12-panel-index/panel-index-live/published.json
+!reports/corpus-parametric-runs/20260823-foundry-production-v12a/
+!reports/corpus-parametric-runs/20260823-foundry-production-v12a/transport-live-v12a/
+!reports/corpus-parametric-runs/20260823-foundry-production-v12a/transport-live-v12a/batch-accepted.json
+!reports/corpus-parametric-runs/20260823-foundry-production-v12b/
+!reports/corpus-parametric-runs/20260823-foundry-production-v12b/transport-live-v12b/
+!reports/corpus-parametric-runs/20260823-foundry-production-v12b/transport-live-v12b/batch-accepted.json

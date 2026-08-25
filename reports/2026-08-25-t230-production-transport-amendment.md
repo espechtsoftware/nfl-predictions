@@ -55,7 +55,12 @@ relative paths and replay against it.
 2. Finalize the candidate implementation and reviewed G0 lock before starting
    the two-phase build. The `candidate` phase builds and pushes one uniquely
    tagged image from the exact detached commit, resolves immutable digest D,
-   and never publishes image evidence or the transport contract.
+   and never publishes image evidence or the transport contract. Every
+   `gcloud builds submit` uses
+   `--ignore-file=deploy/foundry_t230_build.gcloudignore`. That upload law has
+   been locally enumerated and carries exactly the three untracked G0 receipts;
+   Cloud Build fetches all code from the explicit Git commit. It excludes the
+   rest of the dirty workspace, live execution files and IAM captures.
 3. Run D once as the fixed ordinal-zero Rule-1 smoke on the fixed 8-CPU/32-GiB
    Cloud Run job with retry zero. It executes exact member reconstruction, the
    support census, all four T230 suite laws, and the support-switch path through

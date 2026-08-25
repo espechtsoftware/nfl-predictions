@@ -1362,14 +1362,386 @@ def build_core_v1_catalog(
     return validate_core_v1_catalog(_self_hash(body, "catalog_sha256"))
 
 
+def build_core_v1_catalog_slate(
+    *, source_input: Mapping[str, object], t230_result: Mapping[str, object],
+) -> dict[str, object]:
+    """Project and validate one structural slate without a panel release.
+
+    This is the outcome-blind reality-contact boundary for a retained T230
+    smoke result.  It calls the same slate builder and validator as the full
+    catalog and has no publication or science-recomputation surface.
+    """
+    slate, implementations = _build_slate(
+        source_input=source_input, retained_t230=t230_result
+    )
+    strategies = _strategy_registry(implementations)
+    source_authority = _mapping(
+        slate.get("source_authority"), label="smoke slate source authority"
+    )
+    return validate_core_v1_catalog_slate(
+        slate,
+        source_ordinal=int(slate["source_ordinal"]),
+        strategy_registry=strategies,
+        later_source_freeze_identity=source_authority[
+            "later_source_freeze_identity"
+        ],
+        later_source_freeze_sha256=source_authority[
+            "later_source_freeze_sha256"
+        ],
+    )
+
+
+def _validated_strategy_implementations(
+    value: object,
+) -> tuple[list[Mapping[str, object]], dict[str, str]]:
+    strategies = [
+        _mapping(row, label=f"strategy[{ordinal}]")
+        for ordinal, row in enumerate(
+            _sequence(value, label="strategy registry")
+        )
+    ]
+    if (
+        len(strategies) != EXPECTED_STRATEGY_COUNT
+        or [row.get("strategy_id") for row in strategies]
+        != list(STRATEGY_IDS)
+    ):
+        _fail("Core v1 strategy registry census differs")
+    implementations: dict[str, str] = {}
+    for ordinal, strategy in enumerate(strategies):
+        _exact_keys(strategy, _STRATEGY_KEYS, label=f"strategy[{ordinal}]")
+        _validate_self_hash(
+            strategy, field="strategy_sha256", label=f"strategy[{ordinal}]"
+        )
+        if (
+            strategy.get("ordinal") != ordinal
+            or strategy.get("rank_depth") != EXPECTED_RANK_DEPTH
+            or strategy.get("entry_budgets") != list(EXPECTED_BOOK_BUDGETS)
+            or strategy.get("fit_scope") != "final-fit"
+            or strategy.get("evidence_class") != EVIDENCE_CLASS
+        ):
+            _fail("Core v1 strategy registry row differs")
+        strategy_id = str(strategy["strategy_id"])
+        implementations[strategy_id] = _sha(
+            strategy.get("implementation_sha256"),
+            label="strategy implementation",
+        )
+    return strategies, implementations
+
+
+def _validate_catalog_slate(
+    value: object,
+    *,
+    source_ordinal: int,
+    strategy_impl: Mapping[str, str],
+    later_source_freeze_identity: Mapping[str, object],
+    later_source_freeze_sha256: str,
+) -> tuple[dict[str, object], tuple[object, ...], str]:
+    slate_row = dict(
+        _mapping(value, label=f"catalog slate[{source_ordinal}]")
+    )
+    _exact_keys(slate_row, _SLATE_OUTPUT_KEYS, label="catalog slate")
+    _assert_nested_outcome_blind(slate_row, label="catalog slate")
+    _validate_self_hash(
+        slate_row, field="slate_catalog_sha256", label="catalog slate"
+    )
+    if (
+        slate_row.get("schema_version") != SLATE_SCHEMA
+        or slate_row.get("source_ordinal") != source_ordinal
+        or slate_row.get("rank_count") != EXPECTED_STRATEGY_COUNT
+        or slate_row.get("book_count")
+        != EXPECTED_STRATEGY_COUNT * len(EXPECTED_BOOK_BUDGETS)
+        or slate_row.get("upstream_dk_legality_verified_for_complete_union")
+        is not True
+        or slate_row.get("outcome_fields_read") != []
+        or any(
+            slate_row.get(field) is not False
+            for field in _FALSE_AUTHORITY_FIELDS
+        )
+    ):
+        _fail("Core v1 slate root law differs")
+    slate = _canonical_slate(slate_row.get("slate"), label="catalog slate")
+    source_authority = _mapping(
+        slate_row.get("source_authority"), label="slate source authority"
+    )
+    _exact_keys(
+        source_authority,
+        _SOURCE_AUTHORITY_KEYS,
+        label="slate source authority",
+    )
+    t230_authority = _mapping(
+        slate_row.get("t230_authority"), label="slate T230 authority"
+    )
+    _exact_keys(
+        t230_authority, _T230_AUTHORITY_KEYS, label="slate T230 authority"
+    )
+    _identity(t230_authority.get("result_identity"), label="slate T230 result")
+    _sha(
+        t230_authority.get("t230_slate_result_sha256"),
+        label="slate T230 result SHA",
+    )
+    _sha(
+        t230_authority.get("support_switched_policy_sha256"),
+        label="slate support-switch SHA",
+    )
+    if (
+        _identity(
+            source_authority.get("later_source_freeze_identity"),
+            label="slate later source freeze",
+        )
+        != later_source_freeze_identity
+        or _sha(
+            source_authority.get("later_source_freeze_sha256"),
+            label="slate later source freeze SHA",
+        )
+        != later_source_freeze_sha256
+    ):
+        _fail("slate later-source freeze identity/SHA differs from catalog root")
+    for field in (
+        "panel_member_sha256",
+        "source_task_authority_sha256",
+        "compatibility_import_sha256",
+        "candidate_provenance_sha256",
+        "reconstruction_sha256",
+    ):
+        _sha(source_authority.get(field), label=f"slate source authority.{field}")
+    _identity(
+        source_authority.get("task_acceptance_identity"),
+        label="slate task acceptance",
+    )
+    _identity(source_authority.get("carrier_identity"), label="slate carrier")
+    source_arm_identities = list(
+        _sequence(
+            source_authority.get("source_arm_result_identities"),
+            label="slate source-arm identities",
+        )
+    )
+    if len(source_arm_identities) != len(SOURCE_STRATEGY_IDS):
+        _fail("slate source-arm identity census differs")
+    for identity in source_arm_identities:
+        _identity(identity, label="slate source-arm result")
+    selected_support_source = t230_authority.get("selected_source_strategy_id")
+    if (
+        selected_support_source
+        not in {
+            "coverage-ge-230-v1",
+            "block-robust-bounded-tail-ge-210-250-v1",
+        }
+        or slate_row.get("support_switch_selected_source_strategy_id")
+        != selected_support_source
+    ):
+        _fail("slate support-switch source strategy differs")
+
+    union = _mapping(slate_row.get("union_population"), label="union population")
+    _exact_keys(union, _UNION_KEYS, label="union population")
+    lineup_ids = list(
+        _sequence(union.get("lineup_ids"), label="union lineup ids")
+    )
+    rosters = [
+        _canonical_roster(row, label="union roster")
+        for row in _sequence(union.get("rosters"), label="union rosters")
+    ]
+    if (
+        not lineup_ids
+        or len(lineup_ids) != len(rosters)
+        or len(set(lineup_ids)) != len(lineup_ids)
+        or lineup_ids != sorted(lineup_ids)
+        or union.get("lineup_count") != len(lineup_ids)
+        or union.get("lineup_ids_sha256") != canonical_sha256(lineup_ids)
+        or union.get("rosters_sha256")
+        != canonical_sha256([list(roster) for roster in rosters])
+        or union.get("population_sha256")
+        != canonical_sha256({
+            key: item for key, item in union.items()
+            if key != "population_sha256"
+        })
+        or any(
+            canonical_lineup_id(slate, roster) != lineup_id
+            for lineup_id, roster in zip(lineup_ids, rosters, strict=True)
+        )
+    ):
+        _fail("Core v1 union population differs")
+
+    populations = list(
+        _sequence(slate_row.get("source_populations"), label="source populations")
+    )
+    if (
+        len(populations) != len(SOURCE_STRATEGY_IDS)
+        or [row.get("strategy_id") for row in populations]
+        != list(SOURCE_STRATEGY_IDS)
+    ):
+        _fail("Core v1 source-population census differs")
+    for population_raw in populations:
+        population = _mapping(population_raw, label="source population")
+        _exact_keys(population, _POPULATION_KEYS, label="source population")
+        _validate_self_hash(
+            population,
+            field="source_population_sha256",
+            label="source population",
+        )
+        population_indices = list(
+            _sequence(
+                population.get("generated_unique_union_indices"),
+                label="source population indices",
+            )
+        )
+        strategy_id = str(population.get("strategy_id"))
+        if (
+            strategy_id not in strategy_impl
+            or population.get("schema_version") != POPULATION_SCHEMA
+            or population.get("source_ordinal") != source_ordinal
+            or population.get("implementation_sha256")
+            != strategy_impl[strategy_id]
+            or population.get("generated_unique_count")
+            != len(population_indices)
+            or not population_indices
+            or len(set(population_indices)) != len(population_indices)
+            or any(
+                type(index) is not int or not 0 <= index < len(lineup_ids)
+                for index in population_indices
+            )
+            or population.get("generated_unique_union_indices_sha256")
+            != canonical_sha256(population_indices)
+            or population.get("upstream_dk_legality_verified") is not True
+            or any(
+                population.get(field) is not False
+                for field in _FALSE_AUTHORITY_FIELDS
+            )
+        ):
+            _fail("Core v1 source population differs")
+        _identity(
+            population.get("variant_result_identity"),
+            label="source population variant result",
+        )
+        for field in (
+            "variant_result_sha256",
+            "visit_rosters_sha256",
+            "first_occurrence_visit_indices_sha256",
+        ):
+            _sha(population.get(field), label=f"source population.{field}")
+
+    ranks = list(_sequence(slate_row.get("ranks"), label="slate ranks"))
+    books = list(_sequence(slate_row.get("books"), label="slate books"))
+    if (
+        len(ranks) != EXPECTED_STRATEGY_COUNT
+        or [row.get("strategy_id") for row in ranks] != list(STRATEGY_IDS)
+        or len(books) != EXPECTED_STRATEGY_COUNT * 3
+    ):
+        _fail("Core v1 slate rank/book census differs")
+    rank_by_strategy: dict[str, Mapping[str, object]] = {}
+    for rank_raw in ranks:
+        rank = _mapping(rank_raw, label="Core v1 rank")
+        _exact_keys(rank, _RANK_KEYS, label="Core v1 rank")
+        _validate_self_hash(rank, field="rank_sha256", label="Core v1 rank")
+        strategy_id = str(rank.get("strategy_id"))
+        indices = list(
+            _sequence(rank.get("rank_union_indices"), label="rank union indices")
+        )
+        ids = list(
+            _sequence(rank.get("rank_lineup_ids"), label="rank lineup ids")
+        )
+        if (
+            strategy_id not in strategy_impl
+            or rank.get("schema_version") != RANK_SCHEMA
+            or rank.get("source_ordinal") != source_ordinal
+            or rank.get("implementation_sha256") != strategy_impl[strategy_id]
+            or rank.get("rank_depth") != EXPECTED_RANK_DEPTH
+            or len(indices) != EXPECTED_RANK_DEPTH
+            or len(set(indices)) != EXPECTED_RANK_DEPTH
+            or any(
+                type(index) is not int or not 0 <= index < len(lineup_ids)
+                for index in indices
+            )
+            or ids != [lineup_ids[index] for index in indices]
+            or rank.get("rank_union_indices_sha256") != canonical_sha256(indices)
+            or rank.get("rank_lineup_ids_sha256") != canonical_sha256(ids)
+        ):
+            _fail("Core v1 rank projection differs")
+        rank_by_strategy[strategy_id] = rank
+
+    expected_book_order = [
+        (strategy_id, budget)
+        for strategy_id in STRATEGY_IDS
+        for budget in EXPECTED_BOOK_BUDGETS
+    ]
+    observed_book_order: list[tuple[object, object]] = []
+    for book_raw in books:
+        book = _mapping(book_raw, label="Core v1 book")
+        _exact_keys(book, _BOOK_KEYS, label="Core v1 book")
+        _validate_self_hash(book, field="book_sha256", label="Core v1 book")
+        strategy_id = str(book.get("strategy_id"))
+        budget = book.get("entry_budget")
+        observed_book_order.append((strategy_id, budget))
+        if strategy_id not in rank_by_strategy:
+            _fail("Core v1 book strategy differs")
+        rank = rank_by_strategy[strategy_id]
+        indices = list(
+            _sequence(book.get("selected_union_indices"), label="book indices")
+        )
+        ids = list(
+            _sequence(book.get("selected_lineup_ids"), label="book lineup ids")
+        )
+        if (
+            book.get("schema_version") != BOOK_SCHEMA
+            or book.get("source_ordinal") != source_ordinal
+            or budget not in EXPECTED_BOOK_BUDGETS
+            or book.get("entry_count") != budget
+            or book.get("rank_sha256") != rank["rank_sha256"]
+            or indices != list(rank["rank_union_indices"][:budget])
+            or ids != list(rank["rank_lineup_ids"][:budget])
+            or book.get("selected_union_indices_sha256")
+            != canonical_sha256(indices)
+            or book.get("selected_lineup_ids_sha256") != canonical_sha256(ids)
+        ):
+            _fail("Core v1 book is not an exact rank prefix")
+    if observed_book_order != expected_book_order:
+        _fail("Core v1 book order differs")
+    return (
+        slate_row,
+        (slate["season"], slate["week"], slate["slate_id"]),
+        str(slate_row["slate_catalog_sha256"]),
+    )
+
+
+def validate_core_v1_catalog_slate(
+    value: object,
+    *,
+    source_ordinal: int,
+    strategy_registry: object,
+    later_source_freeze_identity: object,
+    later_source_freeze_sha256: object,
+) -> dict[str, object]:
+    """Validate one shard with the same law used by the monolithic catalog."""
+    retained_ordinal = _exact_int(
+        source_ordinal, label="catalog shard source ordinal"
+    )
+    if retained_ordinal >= EXPECTED_SOURCE_SLATE_COUNT:
+        _fail("catalog shard source ordinal is outside 0..53")
+    _, implementations = _validated_strategy_implementations(strategy_registry)
+    retained_freeze_identity = _identity(
+        later_source_freeze_identity, label="catalog shard later-source freeze"
+    )
+    retained_freeze_sha256 = _sha(
+        later_source_freeze_sha256,
+        label="catalog shard later-source freeze SHA",
+    )
+    retained, _, _ = _validate_catalog_slate(
+        value,
+        source_ordinal=retained_ordinal,
+        strategy_impl=implementations,
+        later_source_freeze_identity=retained_freeze_identity,
+        later_source_freeze_sha256=retained_freeze_sha256,
+    )
+    return retained
+
+
 def validate_core_v1_catalog(value: object) -> dict[str, object]:
     """Replay the complete internal Core v1 census and prefix law."""
     item = dict(_mapping(value, label="Core v1 catalog"))
     _exact_keys(item, _CATALOG_KEYS, label="Core v1 catalog")
     _validate_self_hash(item, field="catalog_sha256", label="Core v1 catalog")
     _assert_nested_outcome_blind(item, label="Core v1 catalog")
-    strategies = list(
-        _sequence(item.get("strategy_registry"), label="strategy registry")
+    strategies, strategy_impl = _validated_strategy_implementations(
+        item.get("strategy_registry")
     )
     contrasts = list(
         _sequence(item.get("contrast_registry"), label="contrast registry")
@@ -1380,8 +1752,6 @@ def validate_core_v1_catalog(value: object) -> dict[str, object]:
         or item.get("phase") != "outcome-blind-frozen-books"
         or item.get("evidence_class") != EVIDENCE_CLASS
         or item.get("strategy_count") != EXPECTED_STRATEGY_COUNT
-        or len(strategies) != EXPECTED_STRATEGY_COUNT
-        or [row.get("strategy_id") for row in strategies] != list(STRATEGY_IDS)
         or item.get("strategy_registry_sha256") != canonical_sha256(strategies)
         or item.get("entry_budgets") != list(EXPECTED_BOOK_BUDGETS)
         or item.get("thresholds_dk") != list(THRESHOLDS_DK)
@@ -1407,284 +1777,32 @@ def validate_core_v1_catalog(value: object) -> dict[str, object]:
     _sha(item.get("source_panel_sha256"), label="source panel SHA")
     _identity(item.get("t230_panel_release_identity"), label="T230 release identity")
     _sha(item.get("t230_panel_release_sha256"), label="T230 panel release SHA")
-    _identity(item.get("later_source_freeze_identity"), label="later source freeze")
-    _sha(item.get("later_source_freeze_sha256"), label="later source freeze SHA")
-    for ordinal, strategy in enumerate(strategies):
-        _exact_keys(
-            strategy, _STRATEGY_KEYS, label=f"strategy[{ordinal}]"
-        )
-        _validate_self_hash(
-            strategy, field="strategy_sha256", label=f"strategy[{ordinal}]"
-        )
-        if (
-            strategy.get("ordinal") != ordinal
-            or strategy.get("rank_depth") != EXPECTED_RANK_DEPTH
-            or strategy.get("entry_budgets") != list(EXPECTED_BOOK_BUDGETS)
-            or strategy.get("fit_scope") != "final-fit"
-            or strategy.get("evidence_class") != EVIDENCE_CLASS
-        ):
-            _fail("Core v1 strategy registry row differs")
-        _sha(strategy.get("implementation_sha256"), label="strategy implementation")
+    retained_freeze_identity = _identity(
+        item.get("later_source_freeze_identity"),
+        label="later source freeze",
+    )
+    retained_freeze_sha256 = _sha(
+        item.get("later_source_freeze_sha256"),
+        label="later source freeze SHA",
+    )
+
     observed_slate_keys: list[tuple[object, ...]] = []
     observed_slate_hashes: list[str] = []
     for source_ordinal, slate_raw in enumerate(slates):
-        slate_row = _mapping(slate_raw, label=f"catalog slate[{source_ordinal}]")
-        _exact_keys(slate_row, _SLATE_OUTPUT_KEYS, label="catalog slate")
-        _validate_self_hash(
-            slate_row, field="slate_catalog_sha256", label="catalog slate"
+        _, slate_key, slate_hash = _validate_catalog_slate(
+            slate_raw,
+            source_ordinal=source_ordinal,
+            strategy_impl=strategy_impl,
+            later_source_freeze_identity=retained_freeze_identity,
+            later_source_freeze_sha256=retained_freeze_sha256,
         )
-        if (
-            slate_row.get("schema_version") != SLATE_SCHEMA
-            or slate_row.get("source_ordinal") != source_ordinal
-            or slate_row.get("rank_count") != EXPECTED_STRATEGY_COUNT
-            or slate_row.get("book_count")
-            != EXPECTED_STRATEGY_COUNT * len(EXPECTED_BOOK_BUDGETS)
-            or slate_row.get("upstream_dk_legality_verified_for_complete_union")
-            is not True
-            or slate_row.get("outcome_fields_read") != []
-            or any(
-                slate_row.get(field) is not False
-                for field in _FALSE_AUTHORITY_FIELDS
-            )
-        ):
-            _fail("Core v1 slate root law differs")
-        slate = _canonical_slate(slate_row.get("slate"), label="catalog slate")
-        source_authority = _mapping(
-            slate_row.get("source_authority"), label="slate source authority"
-        )
-        _exact_keys(
-            source_authority,
-            _SOURCE_AUTHORITY_KEYS,
-            label="slate source authority",
-        )
-        t230_authority = _mapping(
-            slate_row.get("t230_authority"), label="slate T230 authority"
-        )
-        _exact_keys(
-            t230_authority, _T230_AUTHORITY_KEYS, label="slate T230 authority"
-        )
-        _identity(
-            t230_authority.get("result_identity"), label="slate T230 result"
-        )
-        _sha(
-            t230_authority.get("t230_slate_result_sha256"),
-            label="slate T230 result SHA",
-        )
-        _sha(
-            t230_authority.get("support_switched_policy_sha256"),
-            label="slate support-switch SHA",
-        )
-        if (
-            _identity(
-                source_authority.get("later_source_freeze_identity"),
-                label="slate later source freeze",
-            )
-            != item["later_source_freeze_identity"]
-            or _sha(
-                source_authority.get("later_source_freeze_sha256"),
-                label="slate later source freeze SHA",
-            )
-            != item["later_source_freeze_sha256"]
-        ):
-            _fail("slate later-source freeze identity/SHA differs from catalog root")
-        for field in (
-            "panel_member_sha256",
-            "source_task_authority_sha256",
-            "compatibility_import_sha256",
-            "candidate_provenance_sha256",
-            "reconstruction_sha256",
-        ):
-            _sha(source_authority.get(field), label=f"slate source authority.{field}")
-        _identity(
-            source_authority.get("task_acceptance_identity"),
-            label="slate task acceptance",
-        )
-        _identity(
-            source_authority.get("carrier_identity"), label="slate carrier"
-        )
-        source_arm_identities = list(
-            _sequence(
-                source_authority.get("source_arm_result_identities"),
-                label="slate source-arm identities",
-            )
-        )
-        if len(source_arm_identities) != len(SOURCE_STRATEGY_IDS):
-            _fail("slate source-arm identity census differs")
-        for identity in source_arm_identities:
-            _identity(identity, label="slate source-arm result")
-        selected_support_source = t230_authority.get("selected_source_strategy_id")
-        if (
-            selected_support_source
-            not in {
-                "coverage-ge-230-v1",
-                "block-robust-bounded-tail-ge-210-250-v1",
-            }
-            or slate_row.get("support_switch_selected_source_strategy_id")
-            != selected_support_source
-        ):
-            _fail("slate support-switch source strategy differs")
-        observed_slate_keys.append(
-            (slate["season"], slate["week"], slate["slate_id"])
-        )
-        observed_slate_hashes.append(str(slate_row["slate_catalog_sha256"]))
-        union = _mapping(slate_row.get("union_population"), label="union population")
-        _exact_keys(union, _UNION_KEYS, label="union population")
-        lineup_ids = list(_sequence(union.get("lineup_ids"), label="union lineup ids"))
-        rosters = [
-            _canonical_roster(value, label="union roster")
-            for value in _sequence(union.get("rosters"), label="union rosters")
-        ]
-        if (
-            not lineup_ids
-            or len(lineup_ids) != len(rosters)
-            or len(set(lineup_ids)) != len(lineup_ids)
-            or lineup_ids != sorted(lineup_ids)
-            or union.get("lineup_count") != len(lineup_ids)
-            or union.get("lineup_ids_sha256") != canonical_sha256(lineup_ids)
-            or union.get("rosters_sha256")
-            != canonical_sha256([list(roster) for roster in rosters])
-            or union.get("population_sha256")
-            != canonical_sha256({
-                key: value for key, value in union.items()
-                if key != "population_sha256"
-            })
-            or any(
-                canonical_lineup_id(slate, roster) != lineup_id
-                for lineup_id, roster in zip(lineup_ids, rosters, strict=True)
-            )
-        ):
-            _fail("Core v1 union population differs")
-        populations = list(
-            _sequence(
-                slate_row.get("source_populations"),
-                label="source populations",
-            )
-        )
-        if (
-            len(populations) != len(SOURCE_STRATEGY_IDS)
-            or [row.get("strategy_id") for row in populations]
-            != list(SOURCE_STRATEGY_IDS)
-        ):
-            _fail("Core v1 source-population census differs")
-        strategy_impl = {
-            row["strategy_id"]: row["implementation_sha256"] for row in strategies
-        }
-        for population in populations:
-            _exact_keys(
-                population, _POPULATION_KEYS, label="source population"
-            )
-            _validate_self_hash(
-                population,
-                field="source_population_sha256",
-                label="source population",
-            )
-            population_indices = list(
-                _sequence(
-                    population.get("generated_unique_union_indices"),
-                    label="source population indices",
-                )
-            )
-            if (
-                population.get("schema_version") != POPULATION_SCHEMA
-                or population.get("source_ordinal") != source_ordinal
-                or population.get("implementation_sha256")
-                != strategy_impl[population["strategy_id"]]
-                or population.get("generated_unique_count")
-                != len(population_indices)
-                or not population_indices
-                or len(set(population_indices)) != len(population_indices)
-                or any(
-                    type(index) is not int or not 0 <= index < len(lineup_ids)
-                    for index in population_indices
-                )
-                or population.get("generated_unique_union_indices_sha256")
-                != canonical_sha256(population_indices)
-                or population.get("upstream_dk_legality_verified") is not True
-                or any(
-                    population.get(field) is not False
-                    for field in _FALSE_AUTHORITY_FIELDS
-                )
-            ):
-                _fail("Core v1 source population differs")
-            _identity(
-                population.get("variant_result_identity"),
-                label="source population variant result",
-            )
-            for field in (
-                "variant_result_sha256",
-                "visit_rosters_sha256",
-                "first_occurrence_visit_indices_sha256",
-            ):
-                _sha(population.get(field), label=f"source population.{field}")
-        ranks = list(_sequence(slate_row.get("ranks"), label="slate ranks"))
-        books = list(_sequence(slate_row.get("books"), label="slate books"))
-        if (
-            len(ranks) != EXPECTED_STRATEGY_COUNT
-            or [row.get("strategy_id") for row in ranks] != list(STRATEGY_IDS)
-            or len(books) != EXPECTED_STRATEGY_COUNT * 3
-        ):
-            _fail("Core v1 slate rank/book census differs")
-        rank_by_strategy: dict[str, Mapping[str, object]] = {}
-        for rank in ranks:
-            _exact_keys(rank, _RANK_KEYS, label="Core v1 rank")
-            _validate_self_hash(rank, field="rank_sha256", label="Core v1 rank")
-            strategy_id = str(rank.get("strategy_id"))
-            indices = list(
-                _sequence(rank.get("rank_union_indices"), label="rank union indices")
-            )
-            ids = list(_sequence(rank.get("rank_lineup_ids"), label="rank lineup ids"))
-            if (
-                rank.get("schema_version") != RANK_SCHEMA
-                or rank.get("source_ordinal") != source_ordinal
-                or rank.get("implementation_sha256") != strategy_impl[strategy_id]
-                or rank.get("rank_depth") != EXPECTED_RANK_DEPTH
-                or len(indices) != EXPECTED_RANK_DEPTH
-                or len(set(indices)) != EXPECTED_RANK_DEPTH
-                or any(type(index) is not int or not 0 <= index < len(lineup_ids) for index in indices)
-                or ids != [lineup_ids[index] for index in indices]
-                or rank.get("rank_union_indices_sha256") != canonical_sha256(indices)
-                or rank.get("rank_lineup_ids_sha256") != canonical_sha256(ids)
-            ):
-                _fail("Core v1 rank projection differs")
-            rank_by_strategy[strategy_id] = rank
-        expected_book_order = [
-            (strategy_id, budget)
-            for strategy_id in STRATEGY_IDS
-            for budget in EXPECTED_BOOK_BUDGETS
-        ]
-        observed_book_order: list[tuple[object, object]] = []
-        for book in books:
-            _exact_keys(book, _BOOK_KEYS, label="Core v1 book")
-            _validate_self_hash(book, field="book_sha256", label="Core v1 book")
-            strategy_id = str(book.get("strategy_id"))
-            budget = book.get("entry_budget")
-            observed_book_order.append((strategy_id, budget))
-            rank = rank_by_strategy[strategy_id]
-            indices = list(
-                _sequence(book.get("selected_union_indices"), label="book indices")
-            )
-            ids = list(
-                _sequence(book.get("selected_lineup_ids"), label="book lineup ids")
-            )
-            if (
-                book.get("schema_version") != BOOK_SCHEMA
-                or book.get("source_ordinal") != source_ordinal
-                or budget not in EXPECTED_BOOK_BUDGETS
-                or book.get("entry_count") != budget
-                or book.get("rank_sha256") != rank["rank_sha256"]
-                or indices != list(rank["rank_union_indices"][:budget])
-                or ids != list(rank["rank_lineup_ids"][:budget])
-                or book.get("selected_union_indices_sha256")
-                != canonical_sha256(indices)
-                or book.get("selected_lineup_ids_sha256")
-                != canonical_sha256(ids)
-            ):
-                _fail("Core v1 book is not an exact rank prefix")
-        if observed_book_order != expected_book_order:
-            _fail("Core v1 book order differs")
+        observed_slate_keys.append(slate_key)
+        observed_slate_hashes.append(slate_hash)
     if len(set(observed_slate_keys)) != EXPECTED_SOURCE_SLATE_COUNT:
         _fail("Core v1 catalog slate identities repeat")
-    if item.get("slate_catalog_set_sha256") != canonical_sha256(observed_slate_hashes):
+    if item.get("slate_catalog_set_sha256") != canonical_sha256(
+        observed_slate_hashes
+    ):
         _fail("Core v1 slate catalog set hash differs")
     return item
 
@@ -1707,8 +1825,10 @@ __all__ = [
     "T230_STRATEGY_IDS",
     "THRESHOLDS_DK",
     "build_core_v1_catalog",
+    "build_core_v1_catalog_slate",
     "canonical_json_bytes",
     "canonical_sha256",
     "frozen_contrast_registry",
     "validate_core_v1_catalog",
+    "validate_core_v1_catalog_slate",
 ]

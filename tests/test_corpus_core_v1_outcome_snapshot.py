@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from hashlib import sha256
 
 import pytest
 
 from nfl_dfs.research import corpus_core_v1_outcome_snapshot as snapshot
 from nfl_dfs.research import corpus_parametric_batch as batch
+from nfl_dfs.research import corpus_realized_outcome_transport as registered
+from nfl_dfs.research import lr8_label_score_map as shared
 
 
 def _identity(value: object, name: str) -> dict[str, object]:
@@ -94,26 +97,120 @@ def _player_source(
         "source_key": row.source_key,
         "player_id": row.player_id,
     } for row in keys]
-    query_job_id = "core_v1_fixture_query"
-    source_snapshot_at = "2026-08-25T00:00:00+00:00"
-    body: dict[str, object] = {
-        "schema_version": snapshot.PLAYER_SOURCE_SCHEMA,
+    table_receipts = [{
+        "table_id": table,
+        "etag": "stable",
+        "modified": "2026-08-24T00:00:00+00:00",
+        "num_rows": 1,
+        "schema_sha256": "e" * 64,
+    } for table in (registered.SKILL_TABLE, registered.DST_TABLE)]
+    lease_body = {
+        "version": shared.adapter.HISTORICAL_OUTCOME_LEASE_VERSION,
+        "run_id": "core-v1-fixture",
+        "job": "core-v1-fixture-job",
+        "code_sha": "1" * 40,
+        "image": f"us-docker.pkg.dev/test/core@sha256:{'2' * 64}",
+        "acquired_at": "2026-08-25T00:00:00+00:00",
+    }
+    lease_raw = shared.canonical_json(lease_body)
+    historical_lease = {
+        "body": lease_body,
+        "object_receipt": {
+            "uri": shared.adapter.HISTORICAL_OUTCOME_LEASE_URI,
+            "generation": "1",
+            "sha256": sha256(lease_raw).hexdigest(),
+            "bytes": len(lease_raw),
+            "create_only": True,
+        },
+    }
+    query_job_id = registered.deterministic_query_job_id(
+        registered.SupplierConfig(
+            run_id=str(lease_body["run_id"]),
+            job=str(lease_body["job"]),
+            code_sha=str(lease_body["code_sha"]),
+            image=str(lease_body["image"]),
+            expected_batch_acceptance_object_sha256=str(
+                catalog["catalog_sha256"]
+            ),
+            enabled=True,
+        )
+    )
+    source_snapshot_at = "2026-08-25T00:00:15+00:00"
+    query_contract = snapshot.core_query_contract(
+        outcome_keys=keys,
+        query_job_id=query_job_id,
+        source_snapshot_at=source_snapshot_at,
+    )
+    query_job_receipt = {
+        "job_id": query_job_id,
+        "location": query_contract["location"],
+        "sql_sha256": query_contract["sql_sha256"],
+        "parameters_sha256": query_contract["parameters_sha256"],
+        "created": "2026-08-25T00:01:00+00:00",
+        "started": "2026-08-25T00:01:30+00:00",
+        "ended": "2026-08-25T00:02:00+00:00",
+        "total_bytes_processed": 1,
+        "cache_hit": False,
+        "error_result": None,
+    }
+    catalog_identity = _identity(catalog, "catalog")
+    attempt_body: dict[str, object] = {
+        "schema_version": snapshot.READ_ATTEMPT_SCHEMA,
+        "run_id": lease_body["run_id"],
+        "catalog_identity": catalog_identity,
         "catalog_sha256": catalog["catalog_sha256"],
         "later_source_freeze_identity": catalog[
             "later_source_freeze_identity"
         ],
         "later_source_freeze_sha256": catalog["later_source_freeze_sha256"],
         "outcome_key_count": len(keys),
+        "outcome_keys": outcome_payload,
         "outcome_keys_sha256": snapshot.canonical_sha256(outcome_payload),
-        "query_contract_sha256": snapshot.core_query_contract_sha256(
-            outcome_keys=keys,
-            query_job_id=query_job_id,
-            source_snapshot_at=source_snapshot_at,
-        ),
+        "query_contract": query_contract,
+        "query_contract_sha256": snapshot.canonical_sha256(query_contract),
+        "table_receipts_before_query": table_receipts,
+        "table_receipt_set_sha256": snapshot.canonical_sha256(table_receipts),
+        "historical_outcome_lease": historical_lease,
+        "started_at": "2026-08-25T00:00:00+00:00",
+        "uses_realized_outcomes_at_creation": False,
+        "attempt_precedes_query": True,
+        "historical_retry_licensed": False,
+        "historical_retune_licensed": False,
+        "graph_mutation_licensed": False,
+        "production_change_licensed": False,
+        "decision_authority": False,
+    }
+    attempt = {
+        **attempt_body,
+        "attempt_sha256": snapshot.canonical_sha256(attempt_body),
+    }
+    attempt_identity = _identity(attempt, "read-attempt")
+    body: dict[str, object] = {
+        "schema_version": snapshot.PLAYER_SOURCE_SCHEMA,
+        "catalog_sha256": catalog["catalog_sha256"],
+        "attempt": attempt,
+        "attempt_identity": attempt_identity,
+        "attempt_created_at": "2026-08-25T00:00:30+00:00",
+        "later_source_freeze_identity": catalog[
+            "later_source_freeze_identity"
+        ],
+        "later_source_freeze_sha256": catalog["later_source_freeze_sha256"],
+        "outcome_key_count": len(keys),
+        "outcome_keys_sha256": snapshot.canonical_sha256(outcome_payload),
+        "query_contract": query_contract,
+        "query_contract_sha256": snapshot.canonical_sha256(query_contract),
         "query_job_id": query_job_id,
+        "query_job_receipt": query_job_receipt,
+        "query_job_disposition": "created",
         "source_snapshot_at": source_snapshot_at,
-        "table_receipt_set_sha256": "b" * 64,
-        "historical_outcome_lease_sha256": "d" * 64,
+        "table_receipts_before_query": table_receipts,
+        "table_receipts_after_query": table_receipts,
+        "table_receipt_set_sha256": snapshot.canonical_sha256(table_receipts),
+        "historical_outcome_lease_before_query": historical_lease,
+        "historical_outcome_lease_after_query": historical_lease,
+        "historical_outcome_lease_sha256": snapshot.canonical_sha256(
+            historical_lease
+        ),
         "row_fields": [
             "source_ordinal",
             "season",
@@ -389,6 +486,46 @@ def test_source_identity_and_source_rows_are_one_exact_object(
             catalog_identity=catalog_identity,
             player_source=poisoned,
             player_source_identity=poisoned_identity,
+            outcome_keys=keys,
+        )
+
+    cached = deepcopy(source)
+    cached["query_job_receipt"]["cache_hit"] = True
+    cached_body = {
+        key: value for key, value in cached.items() if key != "source_sha256"
+    }
+    cached["source_sha256"] = snapshot.canonical_sha256(cached_body)
+    with pytest.raises(
+        snapshot.CorpusCoreV1OutcomeSnapshotError,
+        match="used cache",
+    ):
+        snapshot.build_core_outcome_snapshot(
+            catalog=catalog,
+            catalog_identity=catalog_identity,
+            player_source=cached,
+            player_source_identity=_identity(cached, "cached-source"),
+            outcome_keys=keys,
+        )
+
+    late_attempt = deepcopy(source)
+    late_attempt["attempt_created_at"] = "2026-08-25T00:01:01+00:00"
+    late_attempt_body = {
+        key: value
+        for key, value in late_attempt.items()
+        if key != "source_sha256"
+    }
+    late_attempt["source_sha256"] = snapshot.canonical_sha256(
+        late_attempt_body
+    )
+    with pytest.raises(
+        snapshot.CorpusCoreV1OutcomeSnapshotError,
+        match="chronology",
+    ):
+        snapshot.build_core_outcome_snapshot(
+            catalog=catalog,
+            catalog_identity=catalog_identity,
+            player_source=late_attempt,
+            player_source_identity=_identity(late_attempt, "late-attempt-source"),
             outcome_keys=keys,
         )
 

@@ -20,7 +20,78 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-25 16:02 UTC (fiftieth update)
+## Current handoff — 2026-08-25 15:18 UTC (fifty-first update)
+
+### Core first-grade transaction is recoverable; one-build fast path is closing
+
+- Branch `main` is at pushed commit `b5356bfe` (`Add reviewed T230 production
+  transport`) before this local milestone. No historical outcome, T230
+  comparative score, prospective k20 result or full-field contest result has
+  been opened. No cloud job/build was launched and no IAM census was run.
+- The Core catalog authority bridge and cloud CLI are FINAL-STABLE and
+  independently **APPROVED** with no P0/P1. They publish the bounded logical
+  catalog first, 54 verbatim slate shards next and the compact root last; a
+  root-only recovery generation-pins and exact-reconstructs all forms. Known-
+  name GCS recovery uses metadata GET plus pinned GET, never bucket listing.
+  Independent local validation is 19/19 for catalog/fast scoring and 5/5 for
+  the catalog CLI. Exact stable hashes are catalog
+  `a5965db890b3cab8a313d447beabbb56de6444441febd3131d61f28d4419d603`,
+  materializer
+  `4c4ee02fa44742e4dced2e89e920afbe6d217bc18cc32179bacce05b5e1ade34`
+  and CLI
+  `32c833da9072f93a8020c0e1ee827b52cea91b4816c9eeff8e2b8b8481c0f554`.
+- The one-query outcome transaction's two prior P0 blockers are closed and an
+  independent second review is **APPROVE**. The attempt is durable before
+  query creation; attempt, source, snapshot and completion use deterministic
+  known URIs with exact create/equal recovery. The fixed BigQuery job can be
+  recovered by exact ID/config after ambiguous creation, and a completed
+  replay invokes zero live lease, metadata, query, publisher or clock
+  callbacks. Exact stable hashes are outcome supply
+  `bce55fb0b13e9f5f5b42e8006547144246903b215175fc2e36f922df57ee1ff8`
+  and snapshot
+  `661dcd76526091d5fc78300a3c8e32576204c8a76bf7ec81fa93d3d79d0a1384`.
+  Independent local validation is 10/10 supply and 5/5 snapshot.
+- The sharded grade publisher and cloud runner are FINAL-STABLE and received
+  two independent **APPROVE** verdicts with no P0/P1 after closing a caught
+  caller-trust seam. The sole public publication path calls the established
+  score-once grader exactly once, binds the exact catalog/player-source/
+  outcome-snapshot bodies and identities, proves the complete 54-slate,
+  1,944-book, 7,290-weekly-contrast and 135-summary census before any write,
+  then publishes 54 slate shards, the summary and compact root in that order.
+  The runner exact-reopens the complete catalog and outcome predecessor chain
+  and publishes one grade completion last. Sequential validation is 9/9 for
+  the publisher and 5/5 for the runner. Stable hashes are publisher
+  `3c98f90953b23cf5eabcdb46f3e4be256d4d5c10845ef29217e174828da040d7`
+  and grade runner
+  `dcc4ed446a54965bcaad8e9925eedcdff9f343924dc4dc787a54a77682755ce0`.
+- Added the dedicated T230 Cloud Build ignore law. The Google SDK file chooser
+  enumerates exactly the three already-frozen G0 raw receipts and nothing from
+  the dirty workspace/IAM captures. Every candidate/release submit must use
+  `--ignore-file=deploy/foundry_t230_build.gcloudignore`; code is fetched from
+  the exact pushed Git commit. The fast-score plan now makes the measured T230
+  ordinal-zero benchmark an explicit latency/fan-out decision point and sets
+  the recurring experiment contract to no build, no deploy, no new outcome
+  query and no lineup rescore when the preset/keys/rosters are already
+  supported.
+- Both default-off image-resident cloud runners are complete. The outcome
+  runner starts from one deterministic catalog-root URI, exact-replays the
+  catalog authority and later-source freeze, uses one fixed-ID BigQuery
+  get-or-create with cache and job retry disabled, and completion replay uses
+  no live lease/query callback. It is independently **APPROVED**, 5/5 green,
+  at hash
+  `86bfd7a2df9070c7ab0990f6338a8af3e0cfb3306479e5614e0633d838a6ba66`.
+  Both runners print only compact receipts and expose no IAM census/listing.
+  They and the catalog CLI ship in immutable candidate image D, so the score
+  path has one image build and no app/UI deployment.
+- Exact next action: compile/diff-check, explicitly stage only reviewed Core/
+  transport/docs files, commit and push. Then build candidate D
+  using the three-file ignore context, execute the real ordinal-zero smoke,
+  release the same D, benchmark T230 and choose bounded fan-out from measured
+  latency. Complete T230, materialize Core, acquire one historical-outcome
+  lease, recover-or-create the one fixed query, publish the snapshot and grade
+  all 1,944 books. Neo4j/UI remain downstream of the first actual score.
+
+## Current handoff — 2026-08-25 14:48 UTC (fiftieth update)
 
 ### T230 production transport is static-approved; no cloud launch yet
 
