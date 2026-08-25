@@ -20,6 +20,54 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 05:04 UTC (forty-second update)
+
+### Generation companion is independently release-clear
+
+- Branch `main` is at pushed commit `59b52511` (`Record G0 preflight and open
+  audit gates`) before this milestone. The frozen prospective k20 shadow and
+  all governed realized outcomes remain untouched.
+- `corpus_extreme_tail_generation_companion_manifest.py` now supplies the
+  exact paired control, release-dimension, artifact-replay and Stage-B catalog
+  authority for the previously frozen hard-230 and game-regime generation
+  strategies. Public hard v1 derives its ceiling from the frozen minimum 200,
+  20 calls/target and exact 10,000-world source law; a caller cannot lower the
+  ceiling and self-freeze a shortfall. Early generator exhaustion is
+  unsupported/fail-closed. Discovery release requires exactly 10,000 worlds in
+  each canonical R0--R4 block. Reduced test fixtures are explicitly
+  non-release and cannot be escalated into release receipts.
+- Canonical nine-player roster identity, one shared all-five `<i8` milli-DK
+  ordinary-R matrix, exact source/member/matrix replay and prospective k20
+  shadow URI/generation/SHA-256/bytes binding remain intact. Public generation
+  strategy, implementation and contract hashes exactly match the already-
+  committed generation component.
+- Authorized affected validation collected 13 nodes: 12 passed and one stale
+  expected contract string failed in 3.21 seconds. After changing only that
+  assertion, the authorized single-node rerun passed 1/1 in 1.69 seconds; no
+  full module was rerun. Source SHA-256 is
+  `cdbb30717e0d0dc948e8859cb05dc68eaff014f9a1a884b6245f0ce94627303d`
+  and test SHA-256 is
+  `2f4d9a7532a09ead72639ff3e228c7f8da4afa266f8ab004e061e121dfed0048`.
+  An independent read-only re-audit is `APPROVE` with no blocker.
+- Companion public hashes are control implementation
+  `f55f43ac4f8594ac3d3f8400b21aae863f27f3739aa0578bfac162aa5b90c5b7`,
+  hard control `c819c6827e0a488d942fcaa6387a626abe9fe4c37488fec674b341095f3e92af`,
+  discovery control
+  `a879170e6174cd553a89708f1c9871efb5d3ea70a6d6feb0d64c973fa2cb0800`,
+  paired registry
+  `725f59b66c2336799bb243f61505e59e434e0937146c638f8edd7609f8a7e871`,
+  generation registry
+  `a698cc9c717974155e5ab417e1f8b2284b185be512a7b8d3bffe85c439927913`,
+  and Stage-B registry
+  `b1c46dfb4f4a20989ebcd90453c8401d402272ee37f24dd963cca317287329e0`.
+- Live Foundry remains 47/54 accepted with zero failures. Lane A task-24
+  producer `atlas-minimal-c-s2023-w1-v1-hj7ws` was running at 05:02:25Z;
+  lane B task-23 verifier `atlas-cbc-32g-full-2023-w8-v1-j989w` was running at
+  05:03:25Z under the original controllers.
+- Exact next action: commit/push only the cleared companion source/test and
+  this handoff, keep passively observing G0, and independently re-audit the
+  composite laws only after their five named blockers and narrow tests close.
+
 ## Current handoff — 2026-08-25 04:56 UTC (forty-first update)
 
 ### G0 finish path preflighted; additive release blockers remain visible
