@@ -20,6 +20,43 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 16:48 UTC (fifty-seventh update)
+
+### First-score identifiers are frozen before any outcome access
+
+- The exact post-grade reporter milestone is pushed on `main` as
+  `9c7013aa1eca205900675d3f124890efbea70de3` (`Add exact Core score
+  reporter`). Validation, hashes, authority limits and its no-deployment
+  operator command are recorded in the fifty-sixth update below.
+- To remove post-panel setup delay and post-outcome naming discretion, freeze
+  the first-score transaction now as:
+  - chain run ID `20260825-core-v1-score-chain-v1`;
+  - catalog ID `20260825-core-v1-score-catalog-v1`, prefix
+    `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-core-v1/catalogs/20260825-core-v1-score-catalog-v1/`
+    and byte ceiling `100000000`;
+  - outcome run ID `20260825-core-v1-realized-score-v1`, fixed prefix
+    `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-core-v1-realized/20260825-core-v1-realized-score-v1/`;
+  - grade run ID `20260825-core-v1-realized-grade-v1`, fixed prefix
+    `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-core-v1-grades/20260825-core-v1-realized-grade-v1/`
+    and byte ceiling `200000000`.
+- The transaction is bound prospectively to source code
+  `37447b53c5ac71bf36d5323443566ecfac8f9c04`, the eventual accepted digest D
+  from candidate build `80963d40-24c5-4da8-af24-c490e33a4ed7`, reused job
+  `atlas-minimal-c-s2023-w1-v1`, service account
+  `817589974517-compute@developer.gserviceaccount.com`, the frozen G0 source
+  panel identity already recorded, and the pending exact T230 panel-release
+  identity. Create-once/recovery semantics must fail closed on unequal prior
+  bytes; do not choose new IDs after seeing outcomes.
+- No outcome, score or live lease was opened while freezing these names. The
+  candidate remains in outcome-blind focused/G0 preflight at this update, and
+  no IAM census was run.
+- Exact next action: continue the known candidate to its real smoke and
+  same-D release. Bootstrap/configure/prepare/benchmark T230, reuse benchmark
+  ordinal zero, and run the two fixed lanes if measured ETA is acceptable.
+  After terminal panel release, create the source identity carrier, run the
+  frozen catalog stage, acquire the exact lease, then run outcome, grade,
+  explicit lease release and the already-pushed reporter without rebuild.
+
 ## Current handoff — 2026-08-25 16:41 UTC (fifty-sixth update)
 
 ### Exact post-grade score reporter is ready without another deployment
