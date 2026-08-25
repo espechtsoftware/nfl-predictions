@@ -20,6 +20,43 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 18:43 UTC (sixty-sixth update)
+
+### Same-D T230 release succeeded; production benchmark is next
+
+- Same-D release Cloud Build `2ffd457e-a007-46b9-89af-28e051719bf2`
+  reached terminal `SUCCESS` at `2026-08-25T18:43:00.376134Z`; all six
+  steps passed from exact source
+  `0cf48f180014862355082bff1147024d72ed4ca9`. The release pulled the
+  already-smoked immutable image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:90fd3e09d6d8a5a081f7903fa522223309d466d31d7aa163e0ea47da2a15c5a2`,
+  reconstructed prefreeze gate
+  `55de4facadb68ffe83bffc374bd444a1ec6b908367368da1ac7b8482b615236a`
+  without relaunching science, and explicitly reported
+  `candidate_image_rebuilt:false`.
+- The exact production transport contract is
+  `gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/t230/20260825-foundry-t230-production-v1/transport/transport-contract-v1.json`,
+  generation `1787683377521151`, SHA-256
+  `4c12c2b3b1f55df04a383c66423f4c0fdce84fe44803dd62fc063fbe9e74e97a`,
+  11,616 bytes. Its internal semantic contract SHA-256 is
+  `b794bc8ff71dc346984be63d284355602c4bcfb82c863e0f1e88d79c53a9e146`.
+  Exact image evidence is
+  `gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/t230/20260825-foundry-t230-production-v1/runtime/foundry-t230-image-evidence-v1.json`,
+  generation `1787683367120939`, SHA-256
+  `c2a964e7cb2690fad23c5f7754d20e1689f4a937de03cbafbfb00c293a0ad0fa`,
+  10,157 bytes. It binds the same source and D and records
+  `uses_realized_outcomes=false`.
+- No historical outcome, comparative score or IAM census has run. Independent
+  launch preflight found no P0/P1 blocker: the fixed run directory is empty,
+  the 54-slate G0 carriers are complete, critical operator bytes still equal
+  the image source, and bootstrap resolves only the fixed contract name with
+  generation-pinned reads and no list/latest operation.
+- Exact next action: bootstrap the contract into
+  `reports/t230-production-runs/20260825-foundry-t230-production-v1`, configure
+  the two fixed reused jobs, publish the execution authority, then run the
+  ordinal-zero benchmark. Reuse ordinal zero and proceed to the fixed two-lane
+  54-slate panel only through the benchmark compute-release gate.
+
 ## Current handoff — 2026-08-25 18:09 UTC (sixty-fifth update)
 
 ### Real smoke passed; same-D release is active
