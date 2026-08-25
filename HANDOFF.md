@@ -37,11 +37,11 @@ agent or developer:
   `atlas-cbc-32g-full-2023-w8-v1-j2cxs` and
   `atlas-minimal-c-s2023-w1-v1-s4whg`; never relaunch them. Current acceptance
   is lane A 20/28 plus lane B 20/26, or 40/54, with zero failures observed.
-- Both original controllers continued automatically into task 20. Lane B's
-  task-20 producer is durably bound to Cloud Run execution
-  `atlas-cbc-32g-full-2023-w8-v1-hd5n8` and was still running at 23:54:13Z.
-  Lane A began its one-shot task-20 producer launch at 23:52:22Z; allow the
-  original controller to publish/bind it. Do not start duplicate operators.
+- Both original controllers continued automatically into task 20. Their
+  producers are durably bound to Cloud Run executions
+  `atlas-cbc-32g-full-2023-w8-v1-hd5n8` (lane B) and
+  `atlas-minimal-c-s2023-w1-v1-dvlwc` (lane A). Both were still running at
+  00:04Z. Do not start duplicate operators.
 - The new standalone census is separate from and does not modify R6-v2's
   seven-law selector registry. It binds the canonical reconstructed union,
   literal frozen seven-arm order, exact R0..R4 world identities and, in
@@ -69,6 +69,16 @@ agent or developer:
   (`coverage>=230`, finite 210..250 ladder, block-robust ladder and individual
   230 ablation), freeze exact 4/14/80 books, and only then permit the single
   controlled realized grade.
+- A final experiment-design review identified one adaptive-selection risk and
+  the lead-architect decision now freezes it away before any census values are
+  seen. The later F0/F1 generation x retrieval factorial uses a deterministic
+  support-switched aggressive law: literal coverage-230 in supported fit
+  scopes, otherwise the block-robust 210..250 ladder. It is never chosen as
+  the best Phase-1 selector after inspection. All-block support is frozen at
+  every block nonzero plus at least 125 opportunity worlds; pure literal-230
+  general nomination additionally requires at least 80% of panel folds and
+  80% of all-block fits to pass. The exact rules are in the amended
+  `reports/2026-08-24-lead-architect-decision-on-230-extreme-tail-program.md`.
 
 ## Current handoff — 2026-08-24 23:19 UTC (twenty-fifth update)
 

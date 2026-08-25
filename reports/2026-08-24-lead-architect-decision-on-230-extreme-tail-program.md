@@ -175,9 +175,22 @@ initial proposed law is:
 - otherwise literal coverage-230 remains a diagnostic and the bounded ladder
   is the deterministic tail fallback.
 
-The exact panel-level nomination support fraction must be frozen in the T230
-protocol before the census is opened; it may not be selected after seeing which
-law wins.
+The aggressive policy used in later generation tests is fixed now as a
+**support-switched law**, not selected from observed selector performance:
+
+- in a four-training-block fold, use literal coverage-230 only when every
+  training block has nonzero opportunity and total opportunity is at least
+  100 worlds; otherwise use the block-robust bounded 210..250 ladder;
+- in an all-block final fit, use literal coverage-230 only when every block has
+  nonzero opportunity and total opportunity is at least 125 worlds; otherwise
+  use the same block-robust bounded ladder; and
+- pure literal coverage-230 is nomination-eligible as a generally supported
+  mechanism only if at least 80% of the 270 panel folds and at least 80% of the
+  54 all-block fits pass their respective support gates. It remains diagnostic
+  otherwise.
+
+These thresholds and the 80% panel fraction are frozen before the census is
+opened. They may not be selected after seeing which law wins.
 
 ## Phase 1 — separate T230 retrieval supplement
 
@@ -218,9 +231,11 @@ outcome access grades the whole predeclared catalog.
 Use the existing Atlas upper-bound world-ranking capability rather than
 building true importance sampling first.
 
-Run one compact 2×2:
+Run one compact 2×2. Freeze the complete factorial before inspecting Phase-1
+selector effects; choosing a retrieval arm after those effects are visible
+would reuse the same R evidence and bias the generation interaction.
 
-| | Incumbent retrieval | One Phase-1 tail nominee |
+| | Incumbent retrieval | Frozen support-switched aggressive law |
 |---|---|---|
 | `F0` current top-total schedule | control | retrieval-only |
 | `F1` 50/50 current + Atlas high-ceiling-proxy schedule | fill-only | joint/intersection |
@@ -228,6 +243,8 @@ Run one compact 2×2:
 Rules:
 
 - identical total visit and exact-solve budget;
+- the aggressive retrieval column is the Phase-0 support-switched law above,
+  never the best-performing Phase-1 selector chosen after inspection;
 - account for screening CPU/memory in compute reporting;
 - use a deterministic roster-slot/legal upper bound rather than exact-solving
   all 50,000 worlds merely to rank 200;
