@@ -605,8 +605,11 @@ prepare_panel() {
 resolve_compute_release() {
   local output="$T230_RUN_DIR/compute-release-identity.json"
   mapfile -t contract_args < <(contract_cli_args)
-  "$PYTHON_BIN" "$TRANSPORT" resolve-compute-release \
-    "${contract_args[@]}" --output "$output" --execute >/dev/null
+  if ! "$PYTHON_BIN" "$TRANSPORT" resolve-compute-release \
+      "${contract_args[@]}" --output "$output" --execute >/dev/null; then
+    return 1
+  fi
+  [[ -f "$output" && ! -L "$output" ]] || return 1
   printf '%s\n' "$output"
 }
 

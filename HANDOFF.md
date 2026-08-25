@@ -20,6 +20,43 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 21:33 UTC (seventy-seventh update)
+
+### T230 v2 prepare is accepted; a benchmark no-op bug is repaired before launch
+
+- The fixed v2 run was bootstrapped at
+  `reports/t230-production-runs/20260825-foundry-t230-production-v2` and both
+  reused Cloud Run jobs were configured to the frozen D2 with one task,
+  8 CPU/32 GiB, `maxRetries=0`, and the compute service account. Prepare was
+  launched exactly once as execution `atlas-minimal-c-s2023-w1-v1-6lxcz` and
+  completed successfully at `2026-08-25T21:26:25.072411Z`. Exact Cloud Run
+  describe validation confirmed the expected job, frozen D2, resources,
+  service account, retry/timeout envelope, and `succeededCount=1`.
+- The durable prepare receipt exposes execution authority generation
+  `1787693122369176`, SHA-256
+  `2bca3aa90c238ed56c9137b0d9bea78384cb7c45df070954557040be9e73d1d8`,
+  5,824 bytes. Its stage receipt is generation `1787693177444409`, SHA-256
+  `86f27194c7fd1d2f8eb872875018c6193dfa6f28a9751f8a70bc445bc6808451`,
+  2,015 bytes. The receipt remains outcome-blind and grants no scoring,
+  corpus-fill, graph, promotion, policy, or production authority.
+- The first benchmark invocation made no cloud launch and consumed no durable
+  run-slate request. `resolve_compute_release` allowed its failed transport
+  lookup to fall through to a successful final `printf`, so `run_benchmark`
+  incorrectly returned as if a compute release already existed. The local
+  operator now explicitly returns failure on a missing resolver result and
+  requires a regular non-symlink output file. A dynamic regression test proves
+  that an absent compute release cannot short-circuit the benchmark.
+- Validation was serialized: `bash -n` passed, the focused regression passed,
+  and `tests/test_corpus_extreme_tail_panel_transport.py` passed 15/15. The
+  Cloud Run runtime heredoc is byte-equivalent to frozen source S3
+  `a6bc9d4c862777c03d7dd802c5950486e7d85134`; the repair changes only the
+  local control-flow resolver outside the payload sent to the frozen D2.
+- Exact next action: commit/push this operator repair and handoff, then invoke
+  the fail-closed benchmark transaction once. It must create ordinal-zero
+  launch evidence, reach a terminal single-task execution, publish the exact
+  benchmark and compute-release identities, and pass the numeric gate before
+  either 54-slate lane is started.
+
 ## Current handoff — 2026-08-25 21:18 UTC (seventy-sixth update)
 
 ### T230 v2 same-D2 release is terminally accepted

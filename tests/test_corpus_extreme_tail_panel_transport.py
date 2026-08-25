@@ -1387,3 +1387,32 @@ def test_launcher_runtime_flags_file_preserves_args_and_environment(
     assert '--flags-file="$flags_file"' in launch_stage
     assert "--update-env-vars" not in launch_stage
     assert "--args=" not in launch_stage
+
+
+def test_launcher_missing_compute_release_cannot_short_circuit_benchmark(
+    tmp_path: Path,
+) -> None:
+    launcher = ROOT / "scripts/cloud_corpus_extreme_tail_panel_v1_reuse.sh"
+    completed = subprocess.run(
+        [
+            "bash", "-ceu",
+            'launcher="$1"; run_dir="$2"; '
+            'export T230_RUN_DIR="$run_dir"; '
+            'source "$launcher" parked >/dev/null; '
+            'PYTHON_BIN=false; '
+            'contract_cli_args() { :; }; '
+            'if resolved="$(resolve_compute_release)"; then '
+            '  printf "%s\\n" "unexpected compute release: $resolved" >&2; '
+            '  exit 41; '
+            'fi; '
+            '[[ -z "$resolved" ]]; '
+            '[[ ! -e "$run_dir/compute-release-identity.json" ]]',
+            "t230-missing-compute-release-test",
+            str(launcher),
+            str(tmp_path),
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 0, completed.stderr
