@@ -20,6 +20,37 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 03:29 UTC (thirty-fifth update)
+
+### Existing R6-v2 comparator implementation identity independently frozen
+
+- Branch `main` is at pushed commit `34b761a3` (`Add deterministic preweek
+  tail selectors and oracle`). The fixed convex-excess, 230-native block-
+  supported and deterministic oracle contracts are durable and may be consumed
+  by the core factorial manifest.
+- New isolated `corpus_retrieval_v2_implementation_contract.py` and its test
+  module provide the missing public implementation authority for the existing
+  seven-law R6-v2 comparator engine without modifying that engine. The focused
+  module reports 24 passed in 3.05 seconds; public hash is
+  `01f62c080451f6d090da782c47474e86ae8302a1a57df698d2df16fb5dcffac7`.
+  It binds ordered public strategies, whole engine source bytes/hash, exact
+  relevant callable/registry/preparation/validator/dispatch source hashes,
+  method mapping, numerical/tie/block/budget laws, CPython/NumPy runtime and
+  false authority. Absolute paths are diagnostic-only. Independent review is
+  clear on identity completeness, method mapping, runtime drift, coherent
+  attacks and path-independent identity.
+- The core factorial manifest is now authorized to integrate the public R6-v2
+  contract and the three additive selector/oracle contracts into one
+  de-aliased 18-row registry. It still must not import the generation companion
+  until that separate component's audit fixes pass.
+- Live Foundry remains 44/54 accepted with zero failures. Task-22 verifier A
+  `atlas-minimal-c-s2023-w1-v1-wsk99` and verifier B
+  `atlas-cbc-32g-full-2023-w8-v1-j5s4s` are the sole authorities and remained
+  running under their original controllers at 03:28Z. Never relaunch them.
+- Exact next action: commit/push the independently cleared R6-v2 contract,
+  finish/test/re-audit the hardened generation component, validate the
+  integrated factorial manifest, and keep observing the live lanes.
+
 ## Current handoff — 2026-08-25 03:16 UTC (thirty-fourth update)
 
 ### Deterministic selector/oracle additions independently clear
