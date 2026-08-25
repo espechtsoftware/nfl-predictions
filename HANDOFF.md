@@ -20,7 +20,59 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-25 03:52 UTC (thirty-ninth update)
+## Current handoff — 2026-08-25 04:46 UTC (fortieth update)
+
+### Week 1 deadline restated; calibrated-tail and correlation laws clear
+
+- Branch `main` is at pushed commit `9c720b7a` (`Complete the 230 review
+  strategy crosswalk`) before this milestone. The operator restated the hard
+  boundary: preserve the already-frozen prospective k20 shadow byte-for-byte,
+  but finish every distinct strategy on the table that is runnable from
+  historical data before the first regular-season Week 1 slate. Week 1 is not
+  the start of experimentation.
+- Tightened the lead-architect decision so its Phase 4 heading and prospective
+  shadow language cannot be read as deferring historical work into Week 1.
+  The fast T230 supplement remains first, but it sits inside the complete
+  pre-Week-1 historical catalog.
+- Added two separately versioned retrieval laws in
+  `corpus_extreme_tail_roadmap_retrieval.py`:
+  `tail-lcb-ge-230-v1` uses a preregistered two-member rank-80 catalog trained
+  without the deterministic calibration block and simultaneous exact
+  Clopper-Pearson bounds on the untouched calibration block; the distinct
+  `correlation-aware-expected-max-ge-230-v1` ranks marginal expected-max DK
+  gain minus a frozen 230-DK tail-overlap penalty. Both emit one stable rank-80
+  order with exact 4/14/80 prefixes.
+- The LCB API no longer accepts a caller-authored eligibility mask or opaque
+  lineage hash. A generation-pinned occurrence-lineage artifact binds its URI,
+  generation, SHA-256, bytes, fit scope, ordinary-R blocks, source/member/
+  matrix/candidate identities, full occurrence lineage and exact per-candidate
+  R0--R4 counts; eligibility is derived mechanically. Static compilation is
+  green. The redesigned focused module reported 36 passed; after the final
+  lineage correction, the two authorized affected nodes passed 2/2. An
+  independent read-only re-audit is `APPROVE` with no new blocker.
+- Public hashes are implementation
+  `59f75200be251763126b5a556d8e324d787c7d22890fefadb9fce08dc0dcfdb4`,
+  LCB `36ddf8187e726f665d47936fe89750157720591dc005af73b0bd8d243cf86af1`,
+  and correlation-aware
+  `e2e7245e784b5d047b7f89fc77c3647b0d1c51747bf31625ccdab14caa70dc31`.
+- The generation companion is not clear and must not be committed yet. Its
+  independent audit found caller-lowerable hard-stream ceilings, opaque rather
+  than replayed early-exhaustion proof, and no release gate enforcing the
+  registered 10,000-world discovery width. Canonical roster uniqueness,
+  shared all-five `<i8` ordinary-R derivation, and prospective shadow artifact
+  replay are clear. Fixes and coherent attacks are active in only its source
+  and focused test.
+- Live Foundry remains 46/54 accepted with zero failures. Lane A task-23
+  verifier `atlas-minimal-c-s2023-w1-v1-tfcsl` reached terminal success at
+  04:39:06Z and its original controller is closing it; lane B task-23 verifier
+  `atlas-cbc-32g-full-2023-w8-v1-j989w` was bound at 04:41:25Z and is running.
+  Never relaunch either execution or start a second controller.
+- Exact next action: commit/push the independently cleared retrieval pair and
+  deadline wording; finish/re-audit the generation companion and composite
+  laws; continue passive G0 observation, then seal the combined panel and run
+  the one-slate T230 benchmark immediately.
+
+## Current handoff — 2026-08-25 03:46 UTC (thirty-ninth update)
 
 ### External 230+ review crosswalk is complete
 

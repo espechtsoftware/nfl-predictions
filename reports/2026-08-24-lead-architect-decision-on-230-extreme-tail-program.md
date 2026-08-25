@@ -396,7 +396,7 @@ For weighted rare-event sampling:
 
 Until those gates pass, tail-biased worlds are stress/discovery worlds only.
 
-## Phase 4 — grading and Week-1 use
+## Phase 4 — preseason grading and Week-1 prospective use
 
 Before governed historical outcomes are opened, freeze:
 
@@ -413,8 +413,12 @@ confirmation.
 Reconstruct and evaluate exact 4-, 14-, and 80-entry books separately. An
 exact-80 result does not validate four Milly entries or fourteen qualifier
 entries. Unless a valid reopening signal/dependence release and Tier-P gate
-exist, the new T230 policy remains shadow/research only for Week 1. Prospective
-2026 pre-lock books provide the real confirmation.
+exist, the new T230 policy remains a separate shadow/research challenger for
+Week 1; prospective 2026 pre-lock books provide the real confirmation. This
+prospective status does not defer any historical experiment: every historically
+runnable population, admission, schedule, and retrieval strategy finishes
+before the first regular-season slate, while the frozen k=20 shadow remains
+byte-identical.
 
 ## Adopt now, defer now
 
@@ -423,7 +427,8 @@ exist, the new T230 policy remains shadow/research only for Week 1. Prospective
 - 230 as a first-class but not exclusive objective;
 - 220/230/240/250 opportunity, hit, miss, conversion and regret metrics;
 - one outcome-blind v12 support census;
-- one small versioned T230 retrieval supplement;
+- one fast-path versioned T230 retrieval supplement inside the complete
+  pre-Week-1 historical strategy catalog;
 - tail-event redundancy rather than ordinary correlation alone;
 - one exact-budget all-boom fill × T230 retrieval interaction;
 - independent ordinary-R evaluation; and
