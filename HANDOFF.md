@@ -20,6 +20,44 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 23:16 UTC (eighty-fourth update)
+
+### Corrected R6-v2 one-slate executor is independently approved
+
+- New successor
+  `src/nfl_dfs/research/corpus_r6_v2_one_slate_execution_v2.py` derives its
+  task binding and complete ordered structural player catalog from the exact
+  accepted v12 reconstruction. It requires the exact-reopened matchup catalog
+  to match every science-relevant `{id,pos,team,opp,game_id,salary}` row and
+  binds the canonical slate task to the accepted task/source ordinals. A
+  caller-selected same-slate task or alternate population/context cannot pass.
+- The successor no longer treats shape/count checks as full verification. It
+  passes the retained output through
+  `runner.validate_retrieval_surface_v2(...)` with the identical provenance,
+  union scores, reconstruction receipt, matchup source, dose, neutral, world,
+  and authoritative inputs. This independently regenerates and byte-compares
+  the complete five-fold, seven-law, 15-book-per-scope, and distinct all-block
+  surface.
+- Independent rereview is **APPROVED** with no remaining code-level P0/P1/P2.
+  Exactly one reviewer run passed 25/25 in 14.16 seconds; both files compile
+  and the diff check is clean. Adversaries cover catalog addition/removal and
+  context/salary drift, task/ordinal substitution, registry reorder/change,
+  fold-complement corruption, scope/book/hash mutation, and nested authority.
+  No cloud or outcome read occurred.
+- This is still not an executable R6 panel release by itself. The real
+  corrected source capture/catalog objects, operator/CLI, release manifest,
+  worker/verifier publication, and real exact-artifact outcome-blind smoke
+  remain required before any R6 freeze. A disjoint source-operator
+  implementation is active in new files only.
+- T230 remains healthy with three accepted ordinals (0, 1, 28). Lane A worker
+  2 is execution `atlas-minimal-c-s2023-w1-v1-hrcfx` and remains running.
+  Lane B worker 29 execution `atlas-cbc-32g-full-2023-w8-v1-rsg66` completed
+  successfully in 25m08s; independent verifier 29 is now running as
+  `atlas-cbc-32g-full-2023-w8-v1-drsn5`. No retries or realized reads occurred.
+- Exact next action: commit/push only the successor, its focused tests, and
+  this handoff; keep status-only T230 monitoring; land the real source
+  operator/catalog next and then build the corrected release successor.
+
 ## Current handoff — 2026-08-25 22:57 UTC (eighty-third update)
 
 ### T230 ordinal 1 is independently accepted; both lanes advance normally
