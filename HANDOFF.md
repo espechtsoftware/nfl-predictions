@@ -20,6 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 03:37 UTC (thirty-sixth update)
+
+### De-aliased 18-row pre-Week-1 core manifest independently clear
+
+- Branch `main` is at pushed commit `5e49d774` (`Freeze R6 v2 comparator
+  implementation identity`). The existing R6-v2 implementation contract is
+  durable and supplies public, non-self-authored implementation identity to the
+  core manifest.
+- `corpus_extreme_tail_factorial_manifest.py` and its focused test now retain
+  the unchanged eight P0/PB x K5/K20 x R194/T230 causal cells while binding an
+  exact stable catalog of 18 rows: 17 selectors plus one bounded oracle
+  diagnostic. R194 is canonical `coverage-194-v1`; complete-union/fold scope
+  lives in a separate substrate contract, not a strategy alias. The focused
+  run reports 60 passed in 6.62 seconds.
+- Independent audit is clear. It verified the generation/content-bound exact
+  54-member source catalog and mechanical 53-member exclusion, complete
+  literal 66-key P0 environment, PB's exact three-key change, zero shortfall/
+  count parity, every strategy and implementation hash, public-v2 path-
+  independent identity, stable 18-row order, unchanged eight cells, false
+  authority, controlled-grade boundary and absence of any unearned generation-
+  companion claim. The tracked protocol hash is
+  `4cd61f51617322bcafb3e2a867332ed4e35484073aa47c3d9891339fd493f338`.
+- The hard-230 generation/game-regime component is focused-green at 58 passed
+  after its authority rewrite. The original independent auditor's exact
+  eight-blocker re-audit is now clear; it remains uncommitted only so its own
+  source, focused test, and milestone handoff can be committed together next.
+- Live Foundry remains 44/54 accepted with zero failures. Lane A task-22
+  verifier `atlas-minimal-c-s2023-w1-v1-wsk99` reached terminal success at
+  03:32:05Z and its original controller is closing/accepting it. Lane B
+  verifier `atlas-cbc-32g-full-2023-w8-v1-j5s4s` remained running at 03:35Z.
+  Never relaunch either verifier or start another controller.
+- Exact next action: commit/push the independently cleared factorial manifest,
+  close the generation re-audit and companion manifest, and continue observing
+  task-22 acceptance before either lane advances.
+
 ## Current handoff — 2026-08-25 03:29 UTC (thirty-fifth update)
 
 ### Existing R6-v2 comparator implementation identity independently frozen
