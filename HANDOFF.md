@@ -20,12 +20,12 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-25 13:19 UTC (forty-sixth update)
+## Current handoff — 2026-08-25 13:39 UTC (forty-seventh update)
 
 ### Foundry source panel reaches 54/54; terminal sealing and T230 transport continue
 
-- Branch `main` is at pushed commit `8e9bf338` (`Record pre-Week 1 strategy
-  census`). The prospective k20/OI shadow and governed realized outcomes
+- Branch `main` is at pushed commit `f0cc3a97` (`Record Foundry G0 panel
+  publication`). The prospective k20/OI shadow and governed realized outcomes
   remain untouched; no T230 comparative score has been opened or released.
 - Both original Foundry v12 controllers completed exactly and exited zero:
   lane A through task 27 and lane B through task 25. All 54 tasks have one
@@ -81,6 +81,28 @@ agent or developer:
   It preserves frozen prospective k20 while requiring every distinct
   historically executable generation, admission, retrieval and interaction
   strategy to be frozen and run before regular-season Week 1.
+- The user has now prioritized a faster first actual historical grade. The
+  controlling amendment is
+  `reports/2026-08-25-core-v1-fast-realized-scoring-plan.md`: freeze one Core
+  Score Batch v1 containing the 54-slate source-arm R194 books plus raw and
+  support-switched T230 final books, create one reusable player/DST outcome
+  snapshot, score every unique corpus roster once, and project every book from
+  that shared score map. Core v1 may grade immediately after its books freeze;
+  later methods are versioned exploratory tranches while a distinct protected
+  confirmation/prospective boundary remains untouched. Actual DK score and
+  threshold comparisons are in scope; contest rank/ROI remains unavailable
+  until full field standings and payout sources are validated.
+- An independent read-only architecture audit closed the Core v1 ambiguity
+  before any outcome read. The catalog freezes exactly 12 strategies (seven
+  source-arm R194, four raw T230 and one support-switched T230) x three budgets
+  (4/14/80) x 54 slates = 1,944 book cells. `r194:incumbent` is the named
+  primary comparator; every T230-versus-other-source-arm, support-switch and
+  source-arm diagnostic contrast is also mandatory and must be reported
+  regardless of sign. The catalog must use terminal structural T230 reopen,
+  never another science recomputation, and the score snapshot must close its
+  exact player/DST key union before its one query. Generic catalog/grader
+  implementation is now proceeding in parallel without cloud or outcome
+  access.
 - The T230 two-lane transport remains an implementation candidate, not launch
   authority. Final audit has already required portable content identities
   instead of local absolute-path/UID equality, immutable image resolution,
@@ -96,11 +118,18 @@ agent or developer:
   smoke must run that full science path under GNU `time -v`, retain only a
   non-authoritative structural receipt, and inspect no realized outcome or
   selector effect.
-- Exact next action: land and validate the shared science helper plus
-  disposable four-law smoke, then execute it against ordinal 0; create,
-  review and commit the literal G0
-  authority lock, and only after final transport approval build the immutable
-  T230 image and ordinal-0 production benchmark.
+- The shared no-knob four-law science helper and disposable Rule-1 smoke are
+  now byte-frozen after eight focused tests, compile and diff checks. The
+  transport owner is integrating their exact receipt/runtime interface into
+  a two-phase candidate-image -> external real smoke -> same-image release
+  build; no cloud smoke or outcome read has run yet.
+- Exact next action: finish and independently audit the two-phase transport;
+  create, review and commit the literal G0 authority lock and transport bytes;
+  build candidate image D, execute the real four-law ordinal-0 smoke, and
+  release that same D only after the smoke passes. In parallel, complete the
+  outcome-blind Core v1 catalog plus reusable outcome snapshot/generic grader
+  so the first actual grade follows the terminal T230 panel without another
+  per-strategy deployment.
 
 ## Current handoff — 2026-08-25 08:03 UTC (forty-fifth update)
 
