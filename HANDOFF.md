@@ -20,6 +20,49 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Neo4j/React observatory workstream — 2026-08-25 (delegated lane; branch-local entry, lead reconciles at integration)
+
+- Delegated per
+  `reports/2026-08-25-parallel-neo4j-react-observatory-workstream-plan.md`.
+  Branch `feature/neo4j-react-observatory` in isolated worktree
+  `/home/erich/projects/nfl-predictions-observatory`, base commit
+  `37b5f4817dab4310ade69a3027e13599ede0d157` (origin/main tip at creation,
+  recorded per plan §6.2). The lead's live worktree, dirty files, and every
+  §6.4 no-touch path are untouched; no cloud resource, IAM, secret,
+  outcome, or governed artifact was read or written.
+- **Phase 0 complete** (`b0a3df05`):
+  `reports/2026-08-25-observatory-phase0-parity-inventory.md` — full
+  route/action inventory, projection/status schema and reason-code
+  inventory, Neo4j storage/registry inventory, fixture/accepted/absent/
+  gated data classification, packaging seams (confirmed: pyproject
+  package-data flat globs exclude nested `static/app/**` from wheels —
+  Phase 8 scope), and the routing/charting decision record (both
+  dependencies deferred; zero new deps before the checkpoint).
+- **Phases 1–2 complete** (`cab173df`):
+  `frontend/src/` React 19/TypeScript foundation — strict API contracts
+  and runtime guards for `corpus-research-ui-{status,projection}/v1`
+  including the source-receipt v2 law; eight-state availability model
+  (ready/partial/stale/empty/degraded/unauthorized/schema-mismatch/
+  loading); deterministic fixtures incl. the synthetic
+  `core-v1-human-readable-grade-report/v1` contract
+  (`uses_realized_outcomes` pinned false); Corpus Research parity page
+  (authority banner, sanitized identity strip with no raw gs:// links,
+  six view tables with per-view receipt hashes, honest empty/partial
+  rendering, grade-report preview with explicitly unavailable contest
+  metrics). Legacy compat page and all FastAPI routes untouched; the
+  reversible integration diff is PROPOSED (not applied) in
+  `reports/2026-08-25-observatory-phase1-2-react-foundation.md`.
+- Validation (serialized, one command at a time): `npm run typecheck`
+  clean; `npm test` 20/20; `npm run build` → `/static/app/assets/app.js`
+  200.91 kB (63.32 kB gzip) with absolute `/static/app/` base paths;
+  clean-checkout `npm ci && npm run check` reproduces byte-identical
+  output from the committed `package-lock.json` (node v22.22.1,
+  npm 9.2.0); `pytest tests/test_corpus_research_ui.py` 8 passed with
+  `nfl_dfs` imports verified to resolve from this worktree.
+- **STOPPED at the mandatory Phase 2 checkpoint** (plan §7). Next action
+  is the lead's review of the packet; Phases 3+ (API v1, graph vNext,
+  capacity) begin only after approval.
+
 ## Current handoff — 2026-08-25 20:55 UTC (seventy-fifth update)
 
 ### T230 v2 candidate passed and the same-D2 release is submitted
