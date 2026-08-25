@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 22:02 UTC (seventy-ninth update)
+
+### T230 v2 two-lane panel scale-out is live
+
+- After terminal acceptance of compute release generation
+  `1787695033977025`, the default-off `run-panel` operator was invoked once
+  with the exact v2 carriers, frozen D2, execution authority, and
+  `maxRetries=0`. Both joined lane controllers remain active in local unified
+  execution session `95641`; do not launch another panel controller.
+- Lane A replayed the already-durable ordinal-zero worker without a science
+  relaunch and started its independent verifier as Cloud Run execution
+  `atlas-minimal-c-s2023-w1-v1-vqfls`. Lane B started ordinal-28 worker
+  execution `atlas-cbc-32g-full-2023-w8-v1-5svgv`. Both executions report one
+  running task and the identical Cloud Run start time
+  `2026-08-25T22:00:13.9905Z`. Their local launch intents are durable and
+  their response files intentionally remain empty until each `gcloud --wait`
+  call returns.
+- The controller contract permits exactly two concurrent lanes. Each lane is
+  sequential and fail-closed: worker result publication precedes a distinct
+  verifier, verifier acceptance becomes the next predecessor, and a consumed
+  launch request is never automatically relaunched. There is no realized
+  scoring, promotion, graph write, or production change in this stage.
+- Exact next action: monitor session `95641` and the two named executions to
+  terminal. On each completion, exact-validate and retain its stage/result or
+  acceptance identity, then let that same lane controller advance. Do not
+  start Core scoring or finish-panel until all 54 worker and 54 verifier
+  receipts are durable and both lane ledgers close successfully.
+
 ## Current handoff — 2026-08-25 21:58 UTC (seventy-eighth update)
 
 ### T230 v2 ordinal-zero benchmark passed and licenses 54-slate scale-out
