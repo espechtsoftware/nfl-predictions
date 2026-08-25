@@ -20,6 +20,26 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 22:57 UTC (eighty-third update)
+
+### T230 ordinal 1 is independently accepted; both lanes advance normally
+
+- Lane A verifier execution `atlas-minimal-c-s2023-w1-v1-xg7vd` completed
+  successfully and published the ordinal-1 acceptance at generation
+  `1787698491317141`, SHA-256
+  `6f17bd2ded8358fe72e5ecd0bb7ac0e54b989b2502f77a79dad2270ca91c598c`,
+  5,350 bytes. The verifier stage is complete, reports
+  `uses_realized_outcomes=false`, and retains no scoring or promotion
+  authority.
+- The same lane controller consumed the verified ordinal-1 predecessor and
+  launched worker ordinal 2 exactly once. Lane B continues worker ordinal 29.
+  Both current response files are intentionally empty while their respective
+  `gcloud --wait` calls remain active; do not relaunch either operation.
+- The panel now has three durable independent acceptances: ordinals 0, 1, and
+  28. No failures or retries have occurred. Continue polling unified session
+  `95641`; accept no slate from Cloud Run success alone without the durable
+  verifier stage and exact acceptance identity.
+
 ## Current handoff — 2026-08-25 22:54 UTC (eighty-second update)
 
 ### Observatory Phase 3 offline boundary is accepted; Phase 4 offline work may proceed
