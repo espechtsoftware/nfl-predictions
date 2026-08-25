@@ -192,6 +192,15 @@ The aggressive policy used in later generation tests is fixed now as a
 These thresholds and the 80% panel fraction are frozen before the census is
 opened. They may not be selected after seeing which law wins.
 
+The 80% conclusion is not licensed by a structural collection of self-hashed
+policy JSON files. Its authoritative implementation must bind the exact
+published v12 panel index, all 54 accepted task memberships, and one
+generation/content-bound per-slate receipt certifying full census-and-suite
+replay. It must also enforce the canonical production dose, world width and
+matrix shape. Until that join exists and passes adversarial clone/splice
+tests, any 54-slate arithmetic is diagnostic only and cannot nominate literal
+coverage-230.
+
 ## Phase 1 — separate T230 retrieval supplement
 
 Do not edit or reorder R6-v2's seven canonical laws. Register a new

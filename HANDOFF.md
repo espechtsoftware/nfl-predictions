@@ -20,6 +20,127 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 00:56 UTC (twenty-eighth update)
+
+### T230 retrieval and support-switch policy frozen; panel certification blocked safely
+
+- The implementation worktree remains based on pushed `main` commit
+  `b138d990a945018322ed3789b966dbde015d5651`; the associated T230 commit must
+  be pushed before these paths are used against real artifacts. No governed
+  realized outcomes were accessed. Active v12 environment, governance,
+  foundation and transport paths and the separately authored outside review
+  remain unstaged.
+- The additive `extreme-tail-retrieval-suite/v1` is complete without changing
+  R6-v2's frozen seven laws. Its four frozen strategies are literal inclusive
+  coverage-230, bounded inclusive 210/220/230/240/250 coverage with weights
+  1/2/4/8/16, its block-leximin robust form, and individual-230 ranking. It
+  builds five identity-safe cross-fit scopes plus a distinct all-block fit and
+  exact nested 4/14/80 books from one deterministic rank-80 trace. The suite
+  owns bit-packed, 64-candidate-chunk selection kernels and binds their frozen
+  implementation identity into every strategy/suite receipt. Event union,
+  summed-entry redundancy, opportunity/hit/miss/conversion/regret and the
+  nominated-book pairwise diagnostic prerequisite are retained. Its focused
+  module reports 14 passed; compile/diff/line checks are clean.
+- The separate `extreme-tail-support-switched-policy/v1` fully replays the
+  census and suite against each slate's provenance/matrix, then projects only
+  existing exact suite books. Each fold selects literal coverage-230 only when
+  every training block is nonzero and the total is at least 100; final fit
+  requires every block nonzero and at least 125. Otherwise it selects the
+  frozen block-robust ladder. Exact 99/100, 124/125 and block-zero boundaries
+  are tested. Its focused module reports 7 passed; compile and line checks are
+  clean.
+- Independent audit found that a structural collection of 54 self-hashed
+  policies cannot prove authoritative panel membership or exact source-book
+  replay. The code now fails closed for authoritative panel aggregation until
+  it consumes the frozen panel index plus generation/content-bound per-slate
+  replay receipts. Non-authoritative 4/5 arithmetic is labeled diagnostic
+  only. Structural validation also binds fixture/production dose, world width,
+  score shape and per-block opportunity bounds. Do not claim the 80% literal-
+  230 nomination from the current diagnostic summarizer.
+- The direct published-panel-to-one-slate census CLI reports 16 focused tests
+  after exact universe order/gate/dose enforcement, but an independent audit
+  found its nested universe evidence still too permissive for membership-law,
+  source-support and complete threshold-row schemas. That hardening is active
+  and must finish before the CLI is committed or used on the real panel.
+- Live status at 00:56Z remains 40/54 accepted and zero failures. Lane B's
+  sole task-20 verifier `atlas-cbc-32g-full-2023-w8-v1-42hsd` reached terminal
+  success at 00:53:32Z and its original controller is closing it; no accepted
+  receipt was yet logged. Lane A's sole task-20 verifier
+  `atlas-minimal-c-s2023-w1-v1-lmccj` remained running at 00:53:34Z. Never
+  relaunch either consumed verifier authority or start a duplicate controller.
+- The realistic panel benchmark remains mandatory. Packed selector masks are
+  bounded, but raw union/training/held-out matrices still imply roughly
+  5.6--6 GB before rank-80 scans and metrics. Exact next action: finish and
+  independently re-audit the one-slate nested-evidence validator; commit/push
+  the remaining panel/reconstruction/smoke seams; keep observing only the
+  original lane controllers; then seal/publish Gate G0 and run the frozen
+  one-slate census benchmark before any panel-scale T230 selector work.
+
+## Current handoff — 2026-08-25 00:28 UTC (twenty-seventh update)
+
+### Gate-G0 publication and aggressive T230 analysis seams prepared
+
+- The implementation worktree is based on pushed `main` commit
+  `b138d990a945018322ed3789b966dbde015d5651`; the code in this update must be
+  committed and pushed before it is used against real artifacts. Active v12
+  environment, governance, foundation and transport paths and the separately
+  authored `reports/2026-08-24-big-picture-review-response.md` remain outside
+  this implementation change. No governed realized-outcome source has been
+  accessed.
+- The combined-panel CLI now accepts each canonical finish-batch local
+  envelope directly as a convenience carrier for its exact
+  `batch_acceptance` identity. It requires the accepted/complete exact-key
+  canonical transport form, but the remote generation-pinned acceptance and
+  its authority graph remain authoritative. Optional local validation and
+  publication receipts are absolute, create-once and nonsymlinked; all
+  deterministic path/receipt failures are preflighted before GCS publication.
+  Existing execute receipts must bind the requested panel URI and exact rebuilt
+  content hash/byte count before publication. A normal filesystem TOCTOU or
+  post-publication disk-write failure remains possible and is not represented
+  as a rollback of a successful immutable GCS publication.
+- Freeze the first combined panel at exactly
+  `gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/panels/20260823-foundry-production-v12/foundry-v12-combined-panel-index-v1.json`,
+  with local receipts under
+  `reports/corpus-parametric-runs/20260823-foundry-production-v12-panel-index/panel-index-live/`.
+  Use distinct absolute local receipt files for validate-only and create-once
+  modes. The panel CLI focused module reports 28 passed; compile, long-line and
+  diff checks are clean. An independent deterministic-safety re-audit is clear.
+- `corpus_r6_v2_one_slate_execution.py` now exposes one common immutable
+  accepted-slate reconstruction result rather than forcing the support census
+  through the retrospective matchup path. The additive
+  `corpus_extreme_tail_one_slate_execution.py` uses that seam to reconstruct,
+  build and byte-replay the outcome-blind 220/230/240/250 census while binding
+  the panel member, carrier, source/world artifacts and all output hashes. The
+  existing R6 one-slate focused module reports 7 passed and the new census
+  caller reports 4 passed.
+- The separate `extreme-tail-retrieval-suite/v1` is implemented without
+  changing R6-v2's frozen seven laws. It contains literal inclusive
+  coverage-230, the bounded inclusive 210/220/230/240/250 ladder with frozen
+  1/2/4/8/16 weights, its leximin block-robust form and individual-230 ranking.
+  Every law runs five identity-safe training-four/heldout-one folds plus one
+  distinct all-block fit and derives exact nested 4/14/80 books from one
+  deterministic rank-80 trace. Each book now retains admitted-pool opportunity,
+  hits, misses, conversion and conditional regret at every threshold for both
+  training and held-out worlds. Full input finiteness is checked in bounded
+  256-row chunks, all authority fields are false, and canonical replay binds
+  every result. The focused module reports 9 passed. Realistic greedy mask
+  memory/runtime remains deliberately gated by the one-slate benchmark.
+- Live status at 00:28Z remains 40/54 accepted (lane A 20/28, lane B 20/26),
+  zero failures. Lane B task-20 producer succeeded and its sole verifier
+  execution `atlas-cbc-32g-full-2023-w8-v1-42hsd` was launched; its controller
+  was recovering/binding that exact execution. Lane A task-20 producer
+  succeeded at 00:26:24Z and its original controller was proceeding toward the
+  separate verifier launch. Do not start duplicate operators or relaunch any
+  consumed task-20 authority.
+- Exact next action: finish the direct panel-publication-receipt to one-slate
+  census CLI and commit/push these prepared seams. Continue observing only the
+  original controllers. After both lane COMPLETE lines, run each frozen
+  `finish-batch` wrapper once, validate the two terminal envelopes, validate
+  and create-once publish/replay the frozen combined panel, then execute one
+  accepted-slate census smoke with runtime/peak-memory measurement. Do not run
+  T230 selector effects or access outcomes until the support census and
+  intended final books are frozen under the adopted decision report.
+
 ## Current handoff — 2026-08-24 23:56 UTC (twenty-sixth update)
 
 ### Task 19 accepted in both lanes; outcome-blind 230-support instrument ready
