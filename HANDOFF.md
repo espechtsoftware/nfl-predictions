@@ -20,6 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 03:47 UTC (thirty-eighth update)
+
+### Regular-season Week 1 is the completion gate, not a research start
+
+- Branch `main` is at pushed commit `74b850b6` (`Add preweek tail generation
+  strategies`). The exact core factorial and the first two additive generation
+  mechanisms are durable and independently clear.
+- The operator clarified that the already-frozen prospective k=20 shadow must
+  remain unchanged, while **every distinct strategy on the table that is
+  runnable on historical data must finish before regular-season Week 1**.
+  Week 1 is not permission to begin or continue the historical search.
+- Removed two stale scope ambiguities from the lead decision and factorial
+  matrix: T230 is the fast score path inside the complete program, and the
+  first six implementation additions are not a ceiling on the complete
+  pre-grade catalog. The authoritative strategy universe is
+  `reports/2026-08-25-complete-pre-week1-foundry-strategy-census.md`.
+- Every census row marked `RUN BEFORE WEEK 1` must finish as historical books/
+  diagnostics or an exact mechanical infeasibility receipt. Only a specifically
+  absent historical input or probability identity may remain `DATA_BLOCKED`;
+  implementation time and deployment inconvenience are not blockers. Closed
+  exact hypotheses retain their prior result rather than being relabeled and
+  rerun.
+- New historical challengers use separate companion identities and shared
+  generate-once/score-once artifacts. They cannot mutate the eight frozen core
+  cells or the prospective k=20 shadow.
+- Exact next action: commit/push this clarified deadline, finish the generation
+  companion manifest, and continue both original v12 controllers through G0
+  so the one-slate T230 score path can run immediately.
+
 ## Current handoff — 2026-08-25 03:40 UTC (thirty-seventh update)
 
 ### Hard-230 generation and game-regime discovery independently clear

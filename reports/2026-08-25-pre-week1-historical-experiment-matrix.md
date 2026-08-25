@@ -2,9 +2,12 @@
 
 **Date:** 2026-08-25
 **Status:** outcome-blind scientific and execution specification; the core
-eight-cell substrate is frozen, but the complete pre-grade catalog remains
-open only for the six explicitly enumerated runnable additions in sections
-7.1 and 7.2; no experiment effect or new realized grade has been inspected
+eight-cell substrate is frozen, while the complete pre-grade catalog remains
+open for every distinct historically runnable strategy in
+`reports/2026-08-25-complete-pre-week1-foundry-strategy-census.md`; sections
+7.1 and 7.2 define the first six implementation additions, not a ceiling on
+the complete program; no experiment effect or new realized grade has been
+inspected
 **Hard deadline:** every strategy classified `RUN NOW` below must have its
 historical books frozen and included in the single controlled grade before the
 first 2026 regular-season Week-1 slate
@@ -359,11 +362,12 @@ are secondary substrate-sensitivity comparisons outside the eight-cell primary
 factorial, but their feasible final books freeze before the same realized
 grade. This costs selector time, not new generation or cross-scoring.
 
-### 7.1 Six catalog additions that may not be deferred
+### 7.1 First six catalog additions that may not be deferred
 
-The operator's Week-1 correction exposed six runnable omissions. They are
-explicit additions to the outcome-blind freeze, not an invitation to add more
-methods after simulated effects are visible:
+The operator's initial Week-1 correction exposed these first six runnable
+omissions. They are explicit additions to the outcome-blind freeze. They do
+not limit the later complete census, and no method may be added in response to
+simulated effects:
 
 1. `convex-excess-expected-max-ge-200-v1`: deterministic greedy marginal set
    utility with the one fixed transform `u(s)=max(0,s-200)^2`. There is no
@@ -415,6 +419,25 @@ a strategy out of the pre-Week-1 historical catalog:
 
 An absent method definition is not by itself a data blocker. That is why the
 hard-230 generation and tail-discovery laws moved into `RUN NOW` above.
+
+### 7.3 Complete-census incorporation
+
+The six additions above are the first bounded implementation package, not the
+complete offseason search. Every row marked `RUN BEFORE WEEK 1` in
+`reports/2026-08-25-complete-pre-week1-foundry-strategy-census.md` is part of
+the same pre-grade catalog and must end as `HISTORICAL_COMPLETE`,
+`HISTORICAL_DIAGNOSTIC_COMPLETE`, or `MECHANICALLY_INFEASIBLE` before the first
+regular-season slate. A strategy may remain `DATA_BLOCKED` only when the
+specific historical input or probability identity named in that census is
+actually absent. Implementation time, deployment inconvenience, and an
+unwritten method contract are not blockers.
+
+Those additional population, generation, admission, retrieval, and diagnostic
+laws travel in separately versioned companion manifests so the frozen eight
+primary cells and frozen k=20 prospective shadow remain byte-identical. Their
+candidate populations and matrices are generated once and shared across all
+applicable selectors; they are not deployed or regenerated one strategy at a
+time.
 
 ## 8. Frozen scenario-ticket selector
 

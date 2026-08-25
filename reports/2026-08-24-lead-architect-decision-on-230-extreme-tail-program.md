@@ -34,12 +34,14 @@ the same score economically different. The long-run objective remains
 contest-relative first-place equity and payout; 230 is the strongest usable
 near-term proxy while full-field and duplication models are incomplete.
 
-The adopted direction is a **small separately versioned T230 research
-supplement**, followed by one equal-budget tail-oriented generation treatment.
-The canonical seven-law R6-v2 registry remains unchanged. This avoids turning
-one promising idea into another broad selector sweep, preserves the matchup
-primary protocol, and lets all intended books be frozen before one controlled
-outcome read.
+The first deliverable is a **separately versioned T230 research supplement**,
+but it is only the fast score path within the complete pre-Week-1 historical
+program. Every distinct strategy classified historically runnable in
+`reports/2026-08-25-complete-pre-week1-foundry-strategy-census.md` must also
+produce books/diagnostics or an exact infeasibility receipt before the first
+regular-season slate. The canonical seven-law R6-v2 registry and the already-
+frozen prospective k=20 shadow remain unchanged; challengers receive separate
+identities. All intended books freeze before one controlled outcome read.
 
 ## What the review got right
 
