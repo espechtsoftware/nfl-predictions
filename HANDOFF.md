@@ -20,6 +20,43 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 02:45 UTC (thirty-first update)
+
+### Selector ablations clear; full pre-Week-1 strategy scope reopened correctly
+
+- Branch `main` is at pushed commit `c9b42d79` (`Add frozen scenario-ticket
+  selector`). The scenario-ticket implementation and its 29-test focused
+  validation are durable; independent review cleared all prior blockers.
+- The pre-Week-1 selector-ablation implementation is now focused-green at 29
+  passed in 3.53 seconds and independently clear. Hard-230 admission
+  materializes both the literal and block-robust raw rank-80 traces and exact
+  4/14/80 books before evaluating support, then projects only immutable
+  strategy/rank/book hashes. Every selector carries exact canonical R0--R4,
+  held-out, ordered candidate, occurrence/mask, matrix and source member/
+  manifest lineage. Standalone artifacts remain diagnostic, nonpublishable,
+  false-authority and require outer exact source replay.
+- A new outcome-blind completeness audit found that the eight primary cells
+  are necessary but not the complete pre-Week-1 catalog. Six historically
+  runnable items may not be deferred: one fixed convex-excess expected-max
+  comparator, a 230-native distinct-block-supported ladder, a deterministic
+  bounded maximum-coverage oracle diagnostic, an actual equal-count hard-230
+  generation/replenishment arm, one non-Atlas equal-visit tail-discovery law,
+  and expected-max/mean comparisons across all four P x K substrates. The
+  factorial manifest must not claim a complete grade freeze or invent hashes
+  until these contracts are implemented. True weighted importance sampling,
+  field-max/duplication objectives, an alternative copula release and matchup
+  reopening remain genuinely blocked by missing validated weights, PIT field
+  rows, PIT simulator calibration or PIT matchup evidence.
+- Live Foundry remains 44/54 accepted with zero failures. Task-22's only
+  producers remain `atlas-minimal-c-s2023-w1-v1-kss5z` and
+  `atlas-cbc-32g-full-2023-w8-v1-bkjct` under the two original controllers.
+  Never relaunch or duplicate them. Active v12 environment, governance,
+  foundation and transport files and the outside review remain unstaged.
+- Exact next action: commit/push the re-audited selector-ablation component,
+  amend the strategy matrix and implementations for the six runnable gaps,
+  finish the factorial authority fixes against the expanded catalog, and keep
+  observing the original G0 controllers before panel publication/benchmark.
+
 ## Current handoff — 2026-08-25 02:40 UTC (thirtieth update)
 
 ### Week 1 is the deadline; historical T230 experiment implementation active
