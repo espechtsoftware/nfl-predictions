@@ -20,12 +20,12 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-25 13:39 UTC (forty-seventh update)
+## Current handoff — 2026-08-25 13:49 UTC (forty-eighth update)
 
 ### Foundry source panel reaches 54/54; terminal sealing and T230 transport continue
 
-- Branch `main` is at pushed commit `f0cc3a97` (`Record Foundry G0 panel
-  publication`). The prospective k20/OI shadow and governed realized outcomes
+- Branch `main` is at pushed commit `73fda0e1` (`Define fast Core v1 scoring
+  path`) before this milestone. The prospective k20/OI shadow and governed realized outcomes
   remain untouched; no T230 comparative score has been opened or released.
 - Both original Foundry v12 controllers completed exactly and exited zero:
   lane A through task 27 and lane B through task 25. All 54 tasks have one
@@ -123,6 +123,18 @@ agent or developer:
   transport owner is integrating their exact receipt/runtime interface into
   a two-phase candidate-image -> external real smoke -> same-image release
   build; no cloud smoke or outcome read has run yet.
+- The literal G0 authority lock was created from exact raw publication and lane
+  replay and independently approved for commit. Its 3,027-byte file SHA-256 is
+  `3feef892bf4410c579118e808c26f1d3f69cdedc9053c2919fccc19d81e65dad`;
+  semantic self-hash is
+  `d3efdb18755dc81b5a5c51964bd308ea346f2a239ad7a4279d62ce127d08dc5b`.
+  It binds ordered terminal hash/panel ID
+  `ef445e2b31a7756609b458753dc064318b58ea2912e9277071c08fd0d07392e0`
+  and the published 54-slate panel generation `1787663639938214`. The freeze
+  receipt correctly remains `tracked_at_head=false`, `clean_at_head=false`
+  and `prepare_gate_passed=false` until this exact lock is committed; the
+  lock grants no outcome, analysis, scoring, promotion or production
+  authority.
 - Exact next action: finish and independently audit the two-phase transport;
   create, review and commit the literal G0 authority lock and transport bytes;
   build candidate image D, execute the real four-law ordinal-0 smoke, and
