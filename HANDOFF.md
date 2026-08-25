@@ -20,6 +20,57 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 08:03 UTC (forty-fifth update)
+
+### Composite hybrid and ensemble retrieval laws independently clear
+
+- Branch `main` is at pushed commit `9c86dc8c` (`Add outcome-blind T230 panel
+  execution`) before this milestone. The executable T230 and honest
+  source-blocked R6-v2 release seams are durable; frozen k20 and governed
+  realized outcomes remain untouched.
+- Added `corpus_composite_retrieval_laws.py` with two distinct rank-80 laws.
+  `hybrid-support-retrieval-v1` forms four fixed 20-lineup sleeves from
+  simulated-tail, outer-cross-fitted historical support, winner topology and
+  novelty evidence, unions overlaps and deterministically supplements to exact
+  80 under the inclusive 210/220/230/240/250 bounded ladder. The distinct
+  `fixed-selector-ensemble-v1` applies fixed equal-weight Borda to exact public
+  coverage230, bounded-ladder, block-robust and convex-excess ranks; missing
+  sources fail closed without weight renormalization. Both expose one stable
+  rank with exact 4/14/80 prefixes.
+- Provenance is no longer caller-attested. A source lock exact-replays
+  manifest/member/binary matrix/candidate mask/occurrence artifacts; a producer
+  lock exact-replays four outer-fold producer receipts, contract and outcome-
+  registry identities, immutable prediction bytes and training/heldout
+  complements. Outcome-derived vectors are accepted only from exact outer-
+  cross-fitted artifacts; no raw/current-heldout outcome interface exists.
+  Release mode remains fail-closed until reviewed literal source+producer lock
+  identities are frozen.
+- Implementation identity covers 71 local callables, canonical aliases, full
+  relevant T230/generation/preweek/legal dependency modules and live functions,
+  plus critical constants. Coherently rebuilt/leaking source, vector, outcome,
+  rank and fit-scope receipts and local/upstream/transitive/constant drift are
+  adversarially rejected.
+- One authorized invocation containing exactly 18 named selectors collected 21
+  executions after one selector expanded to four cases. All 21 passed in 5.57
+  seconds; no full module/rerun followed. Source SHA-256 is
+  `f635a362f02a5c0201c80c732198da7294f439834a2e4d29fb5f80b4a77b87ef`;
+  test SHA-256 is
+  `954aa65b078a973fd18140424ef6c0e728e1ef2aab0afda0da4153c7ae28f564`.
+  Public hashes are implementation
+  `d2d30be6df6732b40d32bdb99cb11cd5f70b9c7725c43bf261825c3ac6827e3a`,
+  hybrid `02c0279c7e13d6437ecfbb3a8027bca6db796feca6ddfd9e91e203db5779b8cd`,
+  and ensemble
+  `ec52a2e34ad09a7ba7b49a4515c76a2dabb85c50e90b62c79e53eb432d261500`.
+  An independent read-only audit is `APPROVE` with no scoped trust circularity.
+- Live Foundry remains 52/54 accepted with zero failures. Lane B is terminal
+  complete. Lane A task-26 verifier
+  `atlas-minimal-c-s2023-w1-v1-lzqfm` began binding at 08:02:27Z; task 27
+  remains. Neither one-shot lane finisher has run.
+- Exact next action: commit/push only the clear composite source/test and this
+  handoff; continue lane-A observation through COMPLETE; finish both lanes,
+  publish/reopen the combined panel, run the support smoke, then create/review/
+  commit the real T230 G0 authority lock before comparative execution.
+
 ## Current handoff — 2026-08-25 07:39 UTC (forty-fourth update)
 
 ### Outcome-blind T230 panel execution is independently clear
