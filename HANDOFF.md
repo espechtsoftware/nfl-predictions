@@ -55,6 +55,13 @@ agent or developer:
   phenotype loading is not wired end to end, the Foundry-Next registry axes
   are incomplete, and the React 19 tree/lock/build/package path do not yet
   exist.
+- The operator clarified that the workstation with repeated hypervisor
+  crashes is a different machine now in the shop. `CLAUDE.md` and the
+  delegation plan now permit concurrent agents on this workstation when they
+  use isolated worktrees and disjoint file ownership. Local heavyweight work
+  remains serialized: one targeted pytest module, frontend build/dependency
+  install, or similar process at a time; no parallel pytest or local
+  simulations.
 - Independent review of the local-only explicit Core failed-stage recovery is
   `NOT APPROVED`: equal launch intents are not an atomic exclusive claim,
   successful replay does not revalidate the full launch-evidence envelope,
@@ -66,10 +73,9 @@ agent or developer:
   `93b920bc-0954-414d-aac2-48e378edc5bf` to terminal and verify the exact
   same-S3/same-D2 release receipts. On success, bootstrap/configure/prepare the
   v2 run and execute the ordinal-zero benchmark before scaling the 54-slate
-  panel. The delegated observatory assistant may perform only Phases 0–2 of
-  its new plan before review, and only on separate compute with a separate
-  clone or after an explicit exclusive local handoff; the repository's ban on
-  concurrent agents on this workstation remains in force.
+  panel. The delegated observatory assistant may concurrently perform only
+  Phases 0–2 of its new plan before review, using an isolated worktree and
+  disjoint file ownership while coordinating the single-heavy-command lane.
 
 ## Current handoff — 2026-08-25 20:30 UTC (seventy-fourth update)
 

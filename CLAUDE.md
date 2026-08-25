@@ -107,11 +107,16 @@ Config is env vars only, all read in `src/nfl_dfs/config.py`.
 
 ## Handoff state (2026-08-05 final, Fable program complete — Opus operates from here)
 
-Local box crashes under load (HYPERVISOR_ERROR, 5x): BQ queries and
-SINGLE targeted test runs are fine locally; NEVER run parallel agents,
-parallel pytest, or local sims — ALL heavy compute on Cloud Run. /tmp
-dies on reboot — durable driver scripts + state files live in
-~/nfl-panels/ (rerun any driver after a crash; state files resume).
+**Hardware clarification (2026-08-25):** the box that crashed under load
+(`HYPERVISOR_ERROR`, 5x) is a different machine and is currently in the shop.
+Its blanket ban on parallel agents does not apply to the current workstation.
+Parallel agents are permitted here only with disjoint file ownership and an
+isolated worktree/clone. Continue to run at most one resource-intensive local
+command at a time: one targeted pytest module, one frontend build, or one
+other heavy process; never parallel pytest or local simulations. Put heavy
+compute on Cloud Run. Treat `/tmp` as nondurable and keep durable driver
+scripts and state in tracked or otherwise persistent storage.
+
 The experiment ledger is reports/2026-07-25-system-study.md (89
 addenda — READ THE LAST FIFTEEN before proposing anything; most "new"
 ideas are already tested, and several early verdicts were RETRACTED

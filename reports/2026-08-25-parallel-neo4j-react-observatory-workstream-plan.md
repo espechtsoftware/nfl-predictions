@@ -2,9 +2,9 @@
 
 **Date:** 2026-08-25
 
-**Status:** ready to delegate after the execution-isolation gate in Section
-6.1; implementation is intentionally separated from the active T230/Core/R6
-scoring chain
+**Status:** ready to delegate; Section 6.1 permits concurrent work on the
+current workstation with an isolated worktree and serialized heavyweight
+commands
 
 **Primary objective:** let a second assistant build the research observatory in
 parallel without delaying, changing, or endangering the first historical
@@ -28,8 +28,8 @@ read-only observatory workstream**. The lead assistant continues to own:
 - cloud execution, production releases, and activation decisions; and
 - the authoritative `HANDOFF.md` integration on the live branch.
 
-The plan may be shared immediately. The delegated assistant may begin only
-after the execution-isolation gate in Section 6.1 is satisfied, and its first
+The plan may be shared and the delegated assistant may begin immediately once
+the repository/worktree isolation in Section 6.1 is established. Its first
 assignment stops after Phase 2. Later phases require the checkpoints described
 below. It must always stop for lead review before provisioning a live graph,
 loading cloud evidence, changing an application deployment, or removing any
@@ -266,28 +266,27 @@ it does not weaken them.
 
 ## 6. Isolation and file ownership
 
-### 6.1 Hard execution-isolation gate
+### 6.1 Execution and repository isolation
 
-`CLAUDE.md` records repeated local `HYPERVISOR_ERROR` crashes and therefore
-forbids parallel local agents, parallel pytest, and local simulations. Git
-isolation does not override that compute-safety law.
+The operator clarified on 2026-08-25 that the machine with repeated
+`HYPERVISOR_ERROR` crashes is a different machine and is currently in the
+shop. The old machine-specific blanket ban on parallel agents does not apply
+to this workstation.
 
-The delegated assistant may start under exactly one of these conditions:
+The delegated assistant may work concurrently here under these constraints:
 
-1. it has a separate machine or genuinely separate remote execution
-   environment and a separate clone, with no shared writable worktree; or
-2. the lead assistant has paused local work and explicitly handed the local
-   workstation to the delegated assistant as its sole active agent.
+1. use a separate worktree or clone and a dedicated branch;
+2. obey the file ownership and no-touch lists below;
+3. do not edit the lead assistant's dirty worktree or runtime captures;
+4. run at most one resource-intensive local command across all assistants at
+   a time—one targeted pytest module, frontend build, dependency install, or
+   similar process;
+5. never run parallel pytest or local simulations; and
+6. keep heavy computation on Cloud Run.
 
-A second VS Code window, process, terminal, Git branch, or worktree on this
-same workstation is **not** sufficient. On this workstation, do not run two
-agents at once even if both tasks seem light, and never overlap npm, pytest,
-or other local builds. Cloud jobs may continue remotely, but only one local
-agent operates and monitors them.
-
-If separate compute is unavailable, queue this plan and execute it serially
-after the lead announces the local handoff point. This affects timing, not the
-value or architecture of the workstream.
+Concurrent reading, editing, review, and cloud-status monitoring are allowed
+when their files are disjoint. Git isolation prevents content collisions;
+serialized heavyweight commands preserve local compute safety.
 
 ### 6.2 Work in a separate clone or worktree
 
@@ -782,10 +781,10 @@ This workstream is acceptable when:
 
 The recommended initial assignment is deliberately bounded:
 
-1. Satisfy the hard execution-isolation gate: use a separate machine/remote
-   clone, or wait for an explicit exclusive local handoff.
-2. Create an isolated clone/worktree from the lead-confirmed `origin/main`
-   commit.
+1. Create an isolated clone/worktree and dedicated branch from the
+   lead-confirmed `origin/main` commit.
+2. Confirm the no-touch list and coordinate the single-heavy-command lane
+   with the lead.
 3. Complete Phase 0 and commit the parity/contract inventory.
 4. Complete Phase 1's reproducible React foundation.
 5. Complete Phase 2's fixture-backed Corpus Research React parity while
