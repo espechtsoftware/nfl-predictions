@@ -20,6 +20,53 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 02:40 UTC (thirtieth update)
+
+### Week 1 is the deadline; historical T230 experiment implementation active
+
+- Branch `main` is at pushed commit `e4a09a38` (`Freeze pre-Week-1 T230
+  experiment manifest`). Regular-season Week 1 is a hard delivery boundary,
+  not the beginning of experimentation. The frozen prospective k=20 shadow
+  remains a confirmation instrument, while every strategy that is testable
+  from point-in-time historical inputs must be run before Week 1. The frozen
+  historical program covers incumbent/all-boom population, k=5/k=20 seed
+  volume and complete-union R194/support-switched T230 retrieval as an
+  attributable eight-cell factorial, plus the raw T230 laws, the deterministic
+  scenario-ticket law, exact 4/14/80 books and the hard-230 admission
+  sensitivity. See
+  `reports/2026-08-25-pre-week1-historical-experiment-matrix.md`.
+- The deterministic scenario-ticket selector is implemented in new files
+  `src/nfl_dfs/research/corpus_extreme_tail_scenario_ticket.py` and
+  `tests/test_corpus_extreme_tail_scenario_ticket.py`. It uses exact connected
+  components, a frozen breadth-plus-D'Hondt schedule, exact-rank-80 fallback,
+  canonical R0--R4 cross-fit scoping, sorted identity-safe matrices and
+  drift-guarded neighboring contracts. Its only focused run reports 29 passed.
+  Independent re-audit is clear on all four prior blockers: exact fallback,
+  held-out exclusion, self-authoring local constants and implicit matrix
+  copying.
+- Pre-Week-1 selector-ablation and factorial-manifest implementations are in
+  progress in their own new source/test pairs. The selector fix now retains
+  both raw hard-230 ranks before support projection and exact-binds canonical
+  fit/source/candidate/matrix lineage; its one authorized focused validation is
+  pending. The factorial fix generation-pins the canonical accepted source
+  catalog, freezes the complete 66-key P0 environment, derives PB by exactly
+  three boom levers, forbids retained shortfall and will bind both strategy and
+  implementation identities. Do not use or commit either component until its
+  focused test and independent blocker re-audit are clear.
+- Live Foundry status at 02:39Z is 44/54 accepted with zero failures: lane A
+  22/28 and lane B 22/26. Task-22's only producer executions are
+  `atlas-minimal-c-s2023-w1-v1-kss5z` and
+  `atlas-cbc-32g-full-2023-w8-v1-bkjct`; the original controllers are binding
+  or watching them. Never relaunch either producer or start another
+  controller. Active v12 environment, governance, foundation and transport
+  paths and the separately authored outside review remain unstaged and must
+  not be cleaned or included in implementation commits.
+- Exact next action: commit/push the re-audited scenario-ticket component,
+  finish and independently re-audit the selector and factorial components,
+  keep observing only the original lane controllers, then finish both batches,
+  publish/replay the exact combined panel and run the frozen 2023 W1 local
+  benchmark without accessing realized outcomes.
+
 ## Current handoff — 2026-08-25 02:08 UTC (twenty-ninth update)
 
 ### T230 direction corrected to full-union boom conversion; smoke audit active
