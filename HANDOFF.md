@@ -20,6 +20,40 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 21:18 UTC (seventy-sixth update)
+
+### T230 v2 same-D2 release is terminally accepted
+
+- Release Cloud Build `93b920bc-0954-414d-aac2-48e378edc5bf` reached
+  terminal `SUCCESS` at `2026-08-25T21:16:49.623453Z`. It exact-binds source
+  S3 `a6bc9d4c862777c03d7dd802c5950486e7d85134` and the already-smoked D2
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ed7da003c80ad47118c3c9242ec2e9047a24f489134bfdc0f534a6769d622fee`;
+  the release reports `candidate_image_rebuilt=false`.
+- The prefreeze gate self-hash remains
+  `98439f869cfb55ade313b23fcc207ad2d7d4e44d6741a816fc493e021e33e643`;
+  its real smoke execution is `atlas-minimal-c-s2023-w1-v1-xc2sx`, and the
+  numeric compute-gate SHA is
+  `1b4ed7073b97561b3966452c7c3f9407640df8abfc4875aa921f6b55449a7fb4`.
+- Exact image evidence is generation `1787692598178285`, SHA-256
+  `674d9cc4df83b0c92eea9d763f9cfe0ff687ac09dbd5a77ca0c693683dd8b10f`,
+  10,157 bytes at the v2 runtime evidence URI. The transport contract is
+  generation `1787692605903060`, SHA-256
+  `0ce6aa688ef9ca599f5fbafd8bd3e9d41a6557e1fe0c56c5caf15a2c80e64af9`,
+  11,617 bytes at the fixed v2 transport-contract URI. Generation-pinned
+  reopens proved the source/image binding and `uses_realized_outcomes=false`.
+- Independent R6-v2 contract review is not yet accepted: it identified
+  outcome-firewall bypasses, asserted rather than replay-derived target-week
+  PIT authority, component values not bound to available declared sources,
+  and missing reason propagation. Repairs are in progress; no R6-v2 release
+  claim exists. The optional Core failed-stage recovery also remains
+  uncommitted while its interrupted-replay and concurrent-archive findings are
+  repaired. Neither path is used by the T230 bootstrap.
+- Exact next action: bootstrap the release into the still-empty local directory
+  `reports/t230-production-runs/20260825-foundry-t230-production-v2`, configure
+  the two fixed jobs, launch prepare exactly once, and exact-validate its
+  terminal execution and durable authority. Then run and reuse ordinal zero as
+  the mechanics benchmark before any two-lane scale-out.
+
 ## Current handoff — 2026-08-25 20:55 UTC (seventy-fifth update)
 
 ### T230 v2 candidate passed and the same-D2 release is submitted
