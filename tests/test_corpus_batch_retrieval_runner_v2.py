@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 from collections import Counter
+from collections.abc import Mapping
 from copy import deepcopy
 from hashlib import sha256
+import json
+from typing import Any
 
 import numpy as np
 import pytest
 
 from nfl_dfs.research import corpus_retrieval_engine as retrieval
+from nfl_dfs.research import corpus_r6_matchup_source_v1 as corrected_source
 from nfl_dfs.research import residual_world_columns as rw
 from nfl_dfs.research.corpus_legal_feasibility import (
     _score_matrix_sha256,
@@ -91,7 +95,11 @@ def _matchup_rows(provenance: dict[str, object]) -> list[dict[str, object]]:
                     else "rb" if player_offset in {1, 2}
                     else "receiver"
                 ),
-                "matchup_edge_score": float(ordinal + player_offset / 10),
+                "matchup_edge_score": round(
+                    (ordinal + player_offset / 10)
+                    / (len(provenance["candidates"]) + 1),
+                    12,
+                ),
             })
     return rows
 
@@ -127,24 +135,479 @@ def _object_identity(name: str) -> dict[str, object]:
     }
 
 
+class _ExactMatchupStore:
+    """Generation-aware in-memory object store used by the runner boundary."""
+
+    def __init__(self) -> None:
+        self.objects: dict[str, dict[str, Any]] = {}
+        self.next_generation = 1000
+
+    @staticmethod
+    def _identity(uri: str, raw: bytes, generation: str) -> dict[str, object]:
+        return {
+            "uri": uri,
+            "generation": generation,
+            "sha256": sha256(raw).hexdigest(),
+            "bytes": len(raw),
+        }
+
+    def seed(self, uri: str, raw: bytes) -> dict[str, object]:
+        identity = self._identity(uri, raw, "900")
+        self.objects[uri] = {"identity": identity, "raw": raw}
+        return deepcopy(identity)
+
+    def publish_create_once(self, uri: str, raw: bytes) -> dict[str, object]:
+        if uri in self.objects:
+            raise corrected_source.CorpusR6MatchupSourceV1Error(
+                "create-once collision"
+            )
+        identity = self._identity(uri, raw, str(self.next_generation))
+        self.next_generation += 1
+        self.objects[uri] = {"identity": identity, "raw": raw}
+        return deepcopy(identity)
+
+    def read_exact(self, identity: Mapping[str, object]) -> bytes:
+        retained = self.objects.get(str(identity["uri"]))
+        if retained is None or retained["identity"] != identity:
+            raise corrected_source.CorpusR6MatchupSourceV1Error(
+                "exact identity/generation differs"
+            )
+        return bytes(retained["raw"])
+
+
+_MATCHUP_AUTHORITY_CACHE: dict[str, runner.MatchupSourceExactReopen] = {}
+
+
+def _self_hashed(
+    body: dict[str, object], field: str
+) -> dict[str, object]:
+    result = deepcopy(body)
+    result[field] = corrected_source.canonical_sha256(result)
+    return result
+
+
+def _family_definition(family: str, role: str) -> dict[str, object]:
+    row_fields = sorted({
+        "role",
+        "source_season",
+        "source_week",
+        "source_event_time_utc",
+        "observed_at_utc",
+        "target_season",
+        "target_week",
+        "target_slate_id",
+        "target_task_id",
+        "gsis_id",
+        "family",
+        "team",
+        "opponent",
+        "game_id",
+        "component",
+        "component_value",
+        "component_supported",
+        "missing_reason_code",
+    })
+    role_schema = corrected_source.build_source_role_schema_v1(
+        role=role,
+        row_fields=row_fields,
+        source_period_kind="prior-season-full",
+        population_role="component",
+    )
+    return _self_hashed({
+        "schema_version": corrected_source.FAMILY_DEFINITION_SCHEMA,
+        "family_id": f"{family}-matchup",
+        "version": 2,
+        "provisional": True,
+        "source_roles": [role],
+        "fields": [
+            {
+                "name": component,
+                "field_type": "percentile",
+                "nullable": True,
+                "description": f"outcome-blind fixture {component}",
+            }
+            for component in ("component_a", "component_b")
+        ],
+        "missing_reason_codes": ["source-absent"],
+        "description": "exact-reopen runner fixture",
+        "source_role_schemas": {role: role_schema},
+        "component_source_roles": {
+            "component_a": [role],
+            "component_b": [role],
+        },
+    }, "family_definition_sha256")
+
+
+def _source_extract(
+    *,
+    role: str,
+    schema_sha256: str,
+    rows: list[dict[str, object]],
+    period_kind: str,
+    period: dict[str, object],
+    maximum_event: str,
+) -> dict[str, object]:
+    rows_sha = corrected_source.canonical_sha256(rows)
+    return {
+        "role": role,
+        "relation_or_object": (
+            "bq://fixture_project.fixture_dataset."
+            f"{role.replace('-', '_')}"
+        ),
+        "source_identity_or_extract_sha256": rows_sha,
+        "source_role_schema_sha256": schema_sha256,
+        "rows": rows,
+        "rows_sha256": rows_sha,
+        "row_count": len(rows),
+        "source_period_kind": period_kind,
+        "source_season_week_min": period,
+        "source_season_week_max": period,
+        "maximum_source_event_time_utc": maximum_event,
+        "observed_at_utc": "2026-08-25T11:58:00Z",
+        "observed_at_basis": "historical-source-period-only",
+        "evidence_class": corrected_source.EVIDENCE_RETROSPECTIVE,
+        "missingness_reason": None,
+    }
+
+
+def _capture_matchup_source(
+    provenance: dict[str, object],
+    *,
+    rows: list[dict[str, object]] | None = None,
+    eligible_players: list[dict[str, object]] | None = None,
+) -> tuple[runner.MatchupSourceExactReopen, _ExactMatchupStore]:
+    """Capture, create-once publish, and prepare an exact runner reopen."""
+    eligible = deepcopy(
+        _eligible_players(provenance)
+        if eligible_players is None else eligible_players
+    )
+    eligible.sort(key=lambda row: str(row["gsis_id"]))
+    eligible_by_id = {
+        str(row["gsis_id"]): dict(row) for row in eligible
+    }
+    supplied = {
+        str(row["gsis_id"]): dict(row)
+        for row in (_matchup_rows(provenance) if rows is None else rows)
+    }
+    task_slate = {**SLATE, "task_id": "fixture-task"}
+    lock_time = "2023-09-10T17:00:00Z"
+
+    families = {
+        family: _family_definition(family, f"{family}-prior-context")
+        for family in corrected_source.ELIGIBLE_FAMILIES
+    }
+    extracts: list[dict[str, object]] = []
+    annotations: list[dict[str, object]] = []
+    for family in corrected_source.ELIGIBLE_FAMILIES:
+        role = f"{family}-prior-context"
+        component_rows: list[dict[str, object]] = []
+        for player in eligible:
+            if player["family"] != family:
+                continue
+            player_id = str(player["gsis_id"])
+            supplied_row = supplied.get(player_id)
+            edge = (
+                None
+                if supplied_row is None
+                else supplied_row["matchup_edge_score"]
+            )
+            supported = edge is not None
+            for component in ("component_a", "component_b"):
+                component_rows.append({
+                    "role": role,
+                    "source_season": 2022,
+                    "source_week": None,
+                    "source_event_time_utc": "2023-02-12T23:00:00Z",
+                    "observed_at_utc": "2026-08-25T11:58:00Z",
+                    "target_season": SLATE["season"],
+                    "target_week": SLATE["week"],
+                    "target_slate_id": SLATE["slate_id"],
+                    "target_task_id": task_slate["task_id"],
+                    "gsis_id": player_id,
+                    "family": family,
+                    "team": "AAA",
+                    "opponent": "BBB",
+                    "game_id": "AAA|BBB",
+                    "component": component,
+                    "component_value": None if edge is None else float(edge),
+                    "component_supported": supported,
+                    "missing_reason_code": (
+                        None if supported else "source-absent"
+                    ),
+                })
+            if not supported:
+                continue
+            bound = {
+                "source_roles": [role],
+                "source_season_week_min": {"season": 2022, "week": None},
+                "source_season_week_max": {"season": 2022, "week": None},
+                "maximum_source_event_time_utc": "2023-02-12T23:00:00Z",
+                "evidence_class": corrected_source.EVIDENCE_RETROSPECTIVE,
+            }
+            depth = player["qb_depth1"]
+            annotations.append({
+                "gsis_id": player_id,
+                "family": family,
+                "position": player["position"],
+                "qb_depth1": depth,
+                "qb_depth_evidence_class": (
+                    corrected_source.EVIDENCE_RETROSPECTIVE
+                    if family == "qb" and depth is not None
+                    else "unknown"
+                    if family == "qb"
+                    else "not-applicable"
+                ),
+                "component_values": {
+                    "component_a": float(edge),
+                    "component_b": float(edge),
+                },
+                "component_support": {
+                    "component_a": True,
+                    "component_b": True,
+                },
+                "component_source_bounds": {
+                    "component_a": bound,
+                    "component_b": bound,
+                },
+                "component_missing_reason_codes": {
+                    "component_a": [],
+                    "component_b": [],
+                },
+                "matchup_component_count": 2,
+                "matchup_edge_score": float(edge),
+            })
+        component_rows.sort(
+            key=lambda row: (str(row["gsis_id"]), str(row["component"]))
+        )
+        extracts.append(_source_extract(
+            role=role,
+            schema_sha256=str(
+                families[family]["source_role_schemas"][role][
+                    "source_role_schema_sha256"
+                ]
+            ),
+            rows=component_rows,
+            period_kind="prior-season-full",
+            period={"season": 2022, "week": None},
+            maximum_event="2023-02-12T23:00:00Z",
+        ))
+    annotations.sort(key=lambda row: str(row["gsis_id"]))
+
+    schedule_schema = corrected_source.infrastructure_source_role_schemas_v1()[
+        corrected_source.SCHEDULE_SOURCE_ROLE
+    ]
+    schedule_rows = [
+        {
+            "role": corrected_source.SCHEDULE_SOURCE_ROLE,
+            "source_season": 2023,
+            "source_week": 1,
+            "source_event_time_utc": "2023-09-01T12:00:00Z",
+            "observed_at_utc": "2026-08-25T11:58:00Z",
+            "season": 2023,
+            "week": 1,
+            "slate_id": SLATE["slate_id"],
+            "task_id": task_slate["task_id"],
+            "game_id": "AAA|BBB",
+            "team": team,
+            "opponent": opponent,
+            "kickoff_time_utc": lock_time,
+            "lock_time_utc": lock_time,
+        }
+        for team, opponent in (("AAA", "BBB"), ("BBB", "AAA"))
+    ]
+    extracts.append(_source_extract(
+        role=corrected_source.SCHEDULE_SOURCE_ROLE,
+        schema_sha256=str(schedule_schema["source_role_schema_sha256"]),
+        rows=schedule_rows,
+        period_kind="prelock-snapshot",
+        period={"season": 2023, "week": 1},
+        maximum_event="2023-09-01T12:00:00Z",
+    ))
+    depth_schema = corrected_source.infrastructure_source_role_schemas_v1()[
+        corrected_source.QB_DEPTH_SOURCE_ROLE
+    ]
+    depth_rows = []
+    for player in eligible:
+        if player["family"] != "qb":
+            continue
+        depth = player["qb_depth1"]
+        depth_rows.append({
+            "role": corrected_source.QB_DEPTH_SOURCE_ROLE,
+            "source_season": 2023,
+            "source_week": 1,
+            "source_event_time_utc": "2023-09-10T16:00:00Z",
+            "observed_at_utc": "2026-08-25T11:58:00Z",
+            "season": 2023,
+            "week": 1,
+            "slate_id": SLATE["slate_id"],
+            "task_id": task_slate["task_id"],
+            "gsis_id": player["gsis_id"],
+            "team": "AAA",
+            "game_id": "AAA|BBB",
+            "depth1": depth,
+            "missingness_reason": None if depth is not None else "source-absent",
+        })
+    depth_rows.sort(key=lambda row: str(row["gsis_id"]))
+    extracts.append(_source_extract(
+        role=corrected_source.QB_DEPTH_SOURCE_ROLE,
+        schema_sha256=str(depth_schema["source_role_schema_sha256"]),
+        rows=depth_rows,
+        period_kind="prelock-snapshot",
+        period={"season": 2023, "week": 1},
+        maximum_event="2023-09-10T16:00:00Z",
+    ))
+    extracts.sort(key=lambda row: str(row["role"]))
+
+    all_roster_ids = sorted({
+        str(player_id)
+        for candidate in provenance["candidates"]
+        for player_id in candidate["roster_player_ids"]
+    })
+    catalog_players = []
+    for player_id in all_roster_ids:
+        eligible_player = eligible_by_id.get(player_id)
+        position = (
+            str(eligible_player["position"])
+            if eligible_player is not None
+            else "DST"
+        )
+        is_dst = position == "DST"
+        catalog_players.append({
+            "id": player_id,
+            "name": player_id,
+            "pos": position,
+            "team": "BBB" if is_dst else "AAA",
+            "opp": "AAA" if is_dst else "BBB",
+            "game_id": "AAA|BBB",
+            "salary": 3000 if is_dst else 6000,
+            "proj": 7.0 if is_dst else 15.0,
+        })
+    catalog = _self_hashed({
+        "schema_version": corrected_source.PLAYER_CATALOG_SCHEMA,
+        "task_id": task_slate["task_id"],
+        "source_authority": _object_identity("catalog-authority"),
+        "players": catalog_players,
+    }, "player_catalog_sha256")
+    catalog_raw = corrected_source.canonical_json_bytes(catalog)
+    store = _ExactMatchupStore()
+    catalog_identity = store.seed(
+        "gs://fixture/r6-runner/player-catalog.json", catalog_raw
+    )
+    relations = [
+        {
+            "role": str(extract["role"]),
+            "table_or_object": str(extract["relation_or_object"]),
+            "schema_sha256": str(extract["source_role_schema_sha256"]),
+            "etag_or_generation": f"etag-{ordinal}",
+            "modified_or_created_at_utc": "2026-08-25T11:58:00Z",
+            "exact_extract_sha256": str(extract["rows_sha256"]),
+            "row_count": int(extract["row_count"]),
+        }
+        for ordinal, extract in enumerate(extracts)
+    ]
+    identities = corrected_source.capture_matchup_source_v1(
+        slate=task_slate,
+        lock_time_utc=lock_time,
+        player_catalog_identity=catalog_identity,
+        player_catalog_raw=catalog_raw,
+        rendered_sql_raw=corrected_source.build_rendered_sql_v1(relations),
+        query_job_receipt={
+            "created_at_utc": "2026-08-25T12:05:00Z",
+            "query_parameters": {
+                "season": 2023,
+                "week": 1,
+                "slate_id": SLATE["slate_id"],
+                "task_id": task_slate["task_id"],
+                "lock_time_utc": lock_time,
+                "source_roles": sorted(
+                    str(extract["role"]) for extract in extracts
+                ),
+            },
+            "query_snapshot_at_utc": "2026-08-25T11:59:00Z",
+            "query_job": {
+                "project": "fixture-project",
+                "location": "US",
+                "job_id": "r6_runner_exact_reopen_fixture",
+                "created": "2026-08-25T12:00:00Z",
+                "started": "2026-08-25T12:01:00Z",
+                "ended": "2026-08-25T12:02:00Z",
+                "cache_hit": False,
+                "error_result": None,
+                "total_bytes_processed": 1234,
+            },
+            "source_relations": relations,
+            "player_catalog_evidence": {
+                "maximum_source_event_time_utc": "2023-09-10T16:00:00Z",
+                "observed_at_utc": "2026-08-25T11:58:00Z",
+                "observed_at_basis": "historical-source-period-only",
+                "evidence_class": corrected_source.EVIDENCE_RETROSPECTIVE,
+            },
+        },
+        component_extracts=extracts,
+        annotation_rows=annotations,
+        family_definition_identities=families,
+        code_identity={
+            "schema_version": "r6-matchup-source-code/v1",
+            "source_commit": "b" * 40,
+            "uses_realized_outcomes": False,
+        },
+        publish_create_once=store.publish_create_once,
+        read_exact=store.read_exact,
+        output_prefix="gs://fixture/r6-runner/corrected-source",
+    )
+    authority = runner.MatchupSourceExactReopen(
+        source_export_identity=identities["source_export_identity"],
+        query_receipt_identity=identities["query_receipt_identity"],
+        player_catalog_identity=catalog_identity,
+        expected_slate=task_slate,
+        required_evidence_class=corrected_source.EVIDENCE_RETROSPECTIVE,
+        read_exact=store.read_exact,
+    )
+    # Prove the fixture itself takes the same exact reopen used by the runner.
+    corrected_source.reopen_matchup_source_snapshot(
+        source_export_identity=authority.source_export_identity,
+        query_receipt_identity=authority.query_receipt_identity,
+        player_catalog_identity=authority.player_catalog_identity,
+        read_exact=authority.read_exact,
+        expected_slate=authority.expected_slate,
+        required_evidence_class=authority.required_evidence_class,
+    )
+    return authority, store
+
+
 def _matchup_source(
     provenance: dict[str, object],
     *,
     rows: list[dict[str, object]] | None = None,
     eligible_players: list[dict[str, object]] | None = None,
-) -> dict[str, object]:
-    return runner.build_matchup_source_snapshot(
-        slate=SLATE,
-        lock_time_utc="2023-09-10T17:00:00Z",
-        maximum_source_time_utc="2023-09-10T16:59:59Z",
-        eligible_players=(
-            _eligible_players(provenance)
-            if eligible_players is None else eligible_players
-        ),
-        annotation_rows=_matchup_rows(provenance) if rows is None else rows,
-        player_catalog_identity=_object_identity("player-catalog"),
-        annotation_query_receipt_identity=_object_identity("query-receipt"),
+) -> runner.MatchupSourceExactReopen:
+    effective_rows = (
+        _matchup_rows(provenance) if rows is None else deepcopy(rows)
     )
+    effective_eligible = (
+        _eligible_players(provenance)
+        if eligible_players is None
+        else deepcopy(eligible_players)
+    )
+    cache_key = corrected_source.canonical_sha256({
+        "slate": provenance["slate"],
+        "rosters": [
+            candidate["roster_player_ids"]
+            for candidate in provenance["candidates"]
+        ],
+        "rows": effective_rows,
+        "eligible_players": effective_eligible,
+    })
+    cached = _MATCHUP_AUTHORITY_CACHE.get(cache_key)
+    if cached is not None:
+        return cached
+    authority, _ = _capture_matchup_source(
+        provenance,
+        rows=effective_rows,
+        eligible_players=effective_eligible,
+    )
+    _MATCHUP_AUTHORITY_CACHE[cache_key] = authority
+    return authority
 
 
 def _scores(provenance: dict[str, object]) -> np.ndarray:
@@ -482,7 +945,7 @@ def test_matchup_preserves_zero_missing_and_qb_starter_semantics() -> None:
         {
             "gsis_id": second["roster_player_ids"][0],
             "family": "qb",
-            "matchup_edge_score": 100.0,
+            "matchup_edge_score": 1.0,
         },
     ]
     eligible = _eligible_players(provenance)
@@ -507,7 +970,37 @@ def test_matchup_preserves_zero_missing_and_qb_starter_semantics() -> None:
     second_row = by_id[second["lineup_id"]]
     assert second_row["eligible_player_count"] == 7
     assert second_row["matchup_edge_mean"] is None
+    assert second_row["qb_depth1_eligible"] is False
     assert second_row["qualifies_for_matchup_admission"] is False
+    assert summary["qb_gate"] == "require-qb_depth1-is-literal-true"
+
+
+def test_unknown_qb_depth_cannot_silently_pass_matchup_admission() -> None:
+    provenance = _provenance(count=3)
+    first = provenance["candidates"][0]
+    eligible = _eligible_players(provenance)
+    first_qb = first["roster_player_ids"][0]
+    for player in eligible:
+        if player["gsis_id"] == first_qb:
+            player["qb_depth1"] = None
+    summary = runner.build_matchup_lineup_summaries(
+        provenance=provenance,
+        matchup_source=_matchup_source(
+            provenance,
+            rows=_matchup_rows(provenance),
+            eligible_players=eligible,
+        ),
+        minimum_supported_players=1,
+        minimum_completeness=0.0,
+    )
+    row = next(
+        row
+        for row in summary["lineups"]
+        if row["lineup_id"] == first["lineup_id"]
+    )
+    assert row["qb_depth1_eligible"] is False
+    assert row["qualifies_for_matchup_admission"] is False
+    assert row["eligible_player_count"] == 7
 
 
 def test_final_fit_uses_all_blocks_and_includes_heldout_only_origin(
@@ -815,14 +1308,40 @@ def test_matchup_source_rejects_post_lock_and_tampered_evidence() -> None:
             player_catalog_identity=_object_identity("player-catalog"),
             annotation_query_receipt_identity=_object_identity("query-receipt"),
         )
-    source = _matchup_source(provenance)
+    legacy_source = runner.build_matchup_source_snapshot(
+        slate=SLATE,
+        lock_time_utc="2023-09-10T17:00:00Z",
+        maximum_source_time_utc="2023-09-10T16:59:59Z",
+        eligible_players=_eligible_players(provenance),
+        annotation_rows=_matchup_rows(provenance),
+        player_catalog_identity=_object_identity("player-catalog"),
+        annotation_query_receipt_identity=_object_identity("query-receipt"),
+    )
+    with pytest.raises(
+        runner.CorpusBatchRetrievalV2Error,
+        match="legacy caller-asserted matchup source",
+    ):
+        runner.build_matchup_lineup_summaries(
+            provenance=provenance,
+            matchup_source=legacy_source,
+        )
+
+    authority = _matchup_source(provenance)
+    source = corrected_source.reopen_matchup_source_snapshot(
+        source_export_identity=authority.source_export_identity,
+        query_receipt_identity=authority.query_receipt_identity,
+        player_catalog_identity=authority.player_catalog_identity,
+        read_exact=authority.read_exact,
+        expected_slate=authority.expected_slate,
+        required_evidence_class=authority.required_evidence_class,
+    )
     tampered = deepcopy(source)
     tampered["rows"][0]["matchup_edge_score"] = 999.0
     with pytest.raises(
-        runner.CorpusBatchRetrievalV2Error,
-        match="self-hash differs",
+        corrected_source.CorpusR6MatchupSourceV1Error,
+        match="component value|frozen edge|row population",
     ):
-        runner.validate_matchup_source_snapshot(tampered)
+        corrected_source.validate_reopened_matchup_source_snapshot(tampered)
 
 
 def test_non_boolean_qb_depth_is_rejected() -> None:
@@ -830,17 +1349,158 @@ def test_non_boolean_qb_depth_is_rejected() -> None:
     eligible = _eligible_players(provenance)
     eligible[0]["qb_depth1"] = 1
     with pytest.raises(
-        runner.CorpusBatchRetrievalV2Error,
-        match=r"eligible player\[0\] values differ",
+        corrected_source.CorpusR6MatchupSourceV1Error,
+        match="QB depth row",
     ):
-        _matchup_source(provenance, eligible_players=eligible)
+        _matchup_source(
+            provenance, eligible_players=eligible
+        )
+
+
+def test_coherent_reopened_projection_forgery_cannot_cross_runner_boundary() -> None:
+    """Rehashing every replay checked below cannot replace an exact reopen."""
+    provenance = _provenance(count=3)
+    authority = _matchup_source(provenance)
+    reopened = corrected_source.reopen_matchup_source_snapshot(
+        source_export_identity=authority.source_export_identity,
+        query_receipt_identity=authority.query_receipt_identity,
+        player_catalog_identity=authority.player_catalog_identity,
+        read_exact=authority.read_exact,
+        expected_slate=authority.expected_slate,
+        required_evidence_class=authority.required_evidence_class,
+    )
+    forged = deepcopy(reopened)
+    forged_row = forged["rows"][0]
+    replacement = round(float(forged_row["matchup_edge_score"]) + 0.001, 12)
+    forged_row["component_values"] = {
+        component: replacement
+        for component in forged_row["component_values"]
+    }
+    forged_row["matchup_edge_score"] = replacement
+    rows_sha = corrected_source.canonical_sha256(forged["rows"])
+    forged["rows_sha256"] = rows_sha
+    replay = forged["component_value_replay"]
+    replay["normalized_rows_sha256"] = rows_sha
+    deletion = replay["target_week_deletion_proof"]
+    deletion["reduction_output"]["percentile_rows_sha256"] = rows_sha
+    reduction_sha = corrected_source.canonical_sha256(
+        deletion["reduction_output"]
+    )
+    deletion["full_reduction_sha256"] = reduction_sha
+    deletion["deleted_reduction_sha256"] = reduction_sha
+    deletion["target_week_deletion_proof_sha256"] = (
+        corrected_source.canonical_sha256({
+            key: value
+            for key, value in deletion.items()
+            if key != "target_week_deletion_proof_sha256"
+        })
+    )
+    replay["component_value_replay_sha256"] = (
+        corrected_source.canonical_sha256({
+            key: value
+            for key, value in replay.items()
+            if key != "component_value_replay_sha256"
+        })
+    )
+
+    # This is the exact prior weakness: all retained identities are unchanged
+    # and the pure projection/replay validator sees a coherent replacement.
+    assert (
+        corrected_source.validate_reopened_matchup_source_snapshot(forged)[
+            "source_export_identity"
+        ]
+        == reopened["source_export_identity"]
+    )
+    with pytest.raises(
+        runner.CorpusBatchRetrievalV2Error,
+        match="exact-generation reopen authority",
+    ):
+        runner.build_matchup_lineup_summaries(
+            provenance=provenance,
+            matchup_source=forged,
+        )
+
+
+def test_exact_reader_rejects_coherent_export_rehash_under_retained_identity() -> None:
+    """A dishonest reader cannot substitute rehashed rows for exact bytes."""
+    provenance = _provenance(count=3)
+    authority = _matchup_source(provenance)
+    source_raw = authority.read_exact(authority.source_export_identity)
+    forged_export = json.loads(source_raw)
+    forged_row = forged_export["rows"][0]
+    replacement = round(float(forged_row["matchup_edge_score"]) + 0.001, 12)
+    forged_row["component_values"] = {
+        component: replacement
+        for component in forged_row["component_values"]
+    }
+    forged_row["matchup_edge_score"] = replacement
+    rows_sha = corrected_source.canonical_sha256(forged_export["rows"])
+    forged_export["rows_sha256"] = rows_sha
+    replay = forged_export["component_value_replay"]
+    replay["normalized_rows_sha256"] = rows_sha
+    deletion = replay["target_week_deletion_proof"]
+    deletion["reduction_output"]["percentile_rows_sha256"] = rows_sha
+    reduction_sha = corrected_source.canonical_sha256(
+        deletion["reduction_output"]
+    )
+    deletion["full_reduction_sha256"] = reduction_sha
+    deletion["deleted_reduction_sha256"] = reduction_sha
+    deletion["target_week_deletion_proof_sha256"] = (
+        corrected_source.canonical_sha256({
+            key: value
+            for key, value in deletion.items()
+            if key != "target_week_deletion_proof_sha256"
+        })
+    )
+    replay["component_value_replay_sha256"] = (
+        corrected_source.canonical_sha256({
+            key: value
+            for key, value in replay.items()
+            if key != "component_value_replay_sha256"
+        })
+    )
+    forged_export["matchup_source_export_sha256"] = (
+        corrected_source.canonical_sha256({
+            key: value
+            for key, value in forged_export.items()
+            if key != "matchup_source_export_sha256"
+        })
+    )
+    forged_raw = corrected_source.canonical_json_bytes(forged_export)
+    assert sha256(forged_raw).hexdigest() != authority.source_export_identity[
+        "sha256"
+    ]
+
+    def forged_reader(identity: Mapping[str, object]) -> bytes:
+        if identity == authority.source_export_identity:
+            return forged_raw
+        return authority.read_exact(identity)
+
+    forged_authority = runner.MatchupSourceExactReopen(
+        source_export_identity=authority.source_export_identity,
+        query_receipt_identity=authority.query_receipt_identity,
+        player_catalog_identity=authority.player_catalog_identity,
+        expected_slate=authority.expected_slate,
+        required_evidence_class=authority.required_evidence_class,
+        read_exact=forged_reader,
+    )
+    with pytest.raises(
+        runner.CorpusBatchRetrievalV2Error,
+        match="exact reopen failed.*content identity differs",
+    ):
+        runner.build_matchup_lineup_summaries(
+            provenance=provenance,
+            matchup_source=forged_authority,
+        )
 
 
 def test_matchup_summary_must_replay_from_its_bound_source() -> None:
     provenance = _provenance(count=3)
     summary = _summary(provenance)
     different_rows = deepcopy(_matchup_rows(provenance))
-    different_rows[0]["matchup_edge_score"] += 1.0
+    different_rows[0]["matchup_edge_score"] = min(
+        1.0, float(different_rows[0]["matchup_edge_score"]) + 0.01
+    )
     different_source = _matchup_source(provenance, rows=different_rows)
     with pytest.raises(
         runner.CorpusBatchRetrievalV2Error,

@@ -14,7 +14,8 @@ execution/acceptance receipts; no function here imports an outcome source.
 from __future__ import annotations
 
 from collections import Counter, defaultdict
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
+from dataclasses import dataclass
 from datetime import datetime
 from hashlib import sha256
 import json
@@ -25,6 +26,7 @@ import numpy as np
 
 from nfl_dfs.research import corpus_retrieval_engine as retrieval
 from nfl_dfs.research import corpus_parametric_snapshot as parametric_snapshot
+from nfl_dfs.research import corpus_r6_matchup_source_v1 as corrected_matchup_source
 from nfl_dfs.research import residual_world_columns as rw
 from nfl_dfs.research.corpus_legal_feasibility import (
     VISITS_PER_BLOCK,
@@ -65,6 +67,25 @@ THRESHOLDS: Final = (
     ("gt_220", 220.0, ">"),
 )
 ELIGIBLE_MATCHUP_FAMILIES: Final = ("qb", "rb", "receiver")
+
+
+@dataclass(frozen=True)
+class MatchupSourceExactReopen:
+    """Exact-generation authority required at every public R6-v2 boundary.
+
+    A reopened projection is intentionally not accepted on its own: its
+    recomputable row/replay hashes do not authenticate it to retained object
+    bytes.  The runner uses this instruction to call the corrected source
+    seam's exact reopen itself, binding all score-relevant values to the
+    supplied URI/generation/SHA-256/byte identities before selection.
+    """
+
+    source_export_identity: Mapping[str, object]
+    query_receipt_identity: Mapping[str, object]
+    player_catalog_identity: Mapping[str, object]
+    expected_slate: Mapping[str, object]
+    required_evidence_class: str
+    read_exact: Callable[[Mapping[str, object]], bytes]
 
 
 class CorpusBatchRetrievalV2Error(ValueError):
@@ -754,18 +775,52 @@ def validate_matchup_source_snapshot(value: Mapping[str, object]) -> dict[str, o
     return rebuilt
 
 
-def build_matchup_lineup_summaries(
+def _exact_reopen_matchup_source(
+    authority: MatchupSourceExactReopen | object,
     *,
     provenance: Mapping[str, object],
-    matchup_source: Mapping[str, object],
-    minimum_supported_players: int = 2,
-    minimum_completeness: float = 0.5,
 ) -> dict[str, object]:
-    """Create null-preserving matchup summaries with an explicit QB gate."""
-    candidates = _validate_provenance(provenance)
-    source = validate_matchup_source_snapshot(matchup_source)
-    if source["slate"] != provenance["slate"]:
+    """Authenticate a source to retained bytes before any runner use."""
+    if not isinstance(authority, MatchupSourceExactReopen):
+        if (
+            isinstance(authority, Mapping)
+            and authority.get("schema_version") == MATCHUP_SOURCE_SCHEMA
+        ):
+            _fail(
+                "legacy caller-asserted matchup source is not accepted by R6-v2"
+            )
+        _fail("matchup source requires exact-generation reopen authority")
+    if not callable(authority.read_exact):
+        _fail("matchup source exact reader is not callable")
+    try:
+        source = corrected_matchup_source.reopen_matchup_source_snapshot(
+            source_export_identity=authority.source_export_identity,
+            query_receipt_identity=authority.query_receipt_identity,
+            player_catalog_identity=authority.player_catalog_identity,
+            read_exact=authority.read_exact,
+            expected_slate=authority.expected_slate,
+            required_evidence_class=authority.required_evidence_class,
+        )
+    except corrected_matchup_source.CorpusR6MatchupSourceV1Error as exc:
+        raise CorpusBatchRetrievalV2Error(
+            f"corrected matchup source exact reopen failed: {exc}"
+        ) from exc
+    if {
+        key: source["slate"].get(key) for key in provenance["slate"]
+    } != provenance["slate"]:
         _fail("matchup source slate differs from candidate provenance")
+    return source
+
+
+def _build_matchup_lineup_summaries_from_reopened(
+    *,
+    provenance: Mapping[str, object],
+    source: Mapping[str, object],
+    minimum_supported_players: int,
+    minimum_completeness: float,
+) -> dict[str, object]:
+    """Build summaries only from a source reopened in this call chain."""
+    candidates = _validate_provenance(provenance)
     if type(minimum_supported_players) is not int or minimum_supported_players < 1:
         _fail("minimum_supported_players must be positive")
     if (
@@ -777,7 +832,7 @@ def build_matchup_lineup_summaries(
     by_player = {
         str(row["gsis_id"]): dict(row)
         for row in source["rows"]
-        if not (row["family"] == "qb" and row["qb_depth1"] is False)
+        if row["family"] != "qb" or row["qb_depth1"] is True
     }
     catalog_by_player = {
         str(row["gsis_id"]): dict(row) for row in source["rows"]
@@ -798,6 +853,10 @@ def build_matchup_lineup_summaries(
                 "matchup player catalog does not cover exactly eight skill "
                 "players including one QB for every lineup"
             )
+        lineup_qb = next(
+            row for row in catalog_members if row["family"] == "qb"
+        )
+        qb_depth1_eligible = lineup_qb["qb_depth1"] is True
         annotations = [
             by_player[player]
             for player in candidate["roster_player_ids"]
@@ -819,7 +878,8 @@ def build_matchup_lineup_summaries(
             else None
         )
         qualifies = (
-            supported_count >= minimum_supported_players
+            qb_depth1_eligible
+            and supported_count >= minimum_supported_players
             and completeness >= float(minimum_completeness)
         )
         summaries.append({
@@ -831,6 +891,7 @@ def build_matchup_lineup_summaries(
                 str(row["family"]) for row in supported
             }),
             "annotation_completeness": completeness,
+            "qb_depth1_eligible": qb_depth1_eligible,
             "qualifies_for_matchup_admission": qualifies,
             "missing_semantics": "missing-not-zero",
         })
@@ -838,14 +899,17 @@ def build_matchup_lineup_summaries(
         "schema_version": MATCHUP_SUMMARY_SCHEMA,
         "slate": provenance["slate"],
         "matchup_source_snapshot_sha256": source[
-            "matchup_source_snapshot_sha256"
+            "source_export_identity"
+        ][
+            "sha256"
         ],
         "player_catalog_identity": source["player_catalog_identity"],
         "annotation_query_receipt_identity": source[
-            "annotation_query_receipt_identity"
+            "query_receipt_identity"
         ],
+        "matchup_source_schema_version": source["schema_version"],
         "eligible_families": list(ELIGIBLE_MATCHUP_FAMILIES),
-        "qb_gate": "exclude-only-when-qb_depth1-is-literal-false",
+        "qb_gate": "require-qb_depth1-is-literal-true",
         "minimum_supported_players": minimum_supported_players,
         "minimum_completeness": float(minimum_completeness),
         "lineups": summaries,
@@ -855,11 +919,30 @@ def build_matchup_lineup_summaries(
     return body
 
 
+def build_matchup_lineup_summaries(
+    *,
+    provenance: Mapping[str, object],
+    matchup_source: MatchupSourceExactReopen,
+    minimum_supported_players: int = 2,
+    minimum_completeness: float = 0.5,
+) -> dict[str, object]:
+    """Exact-reopen a source, then create null-preserving lineup summaries."""
+    source = _exact_reopen_matchup_source(
+        matchup_source, provenance=provenance
+    )
+    return _build_matchup_lineup_summaries_from_reopened(
+        provenance=provenance,
+        source=source,
+        minimum_supported_players=minimum_supported_players,
+        minimum_completeness=minimum_completeness,
+    )
+
+
 def validate_matchup_lineup_summaries(
     value: Mapping[str, object],
     *,
     provenance: Mapping[str, object],
-    matchup_source: Mapping[str, object],
+    matchup_source: MatchupSourceExactReopen,
 ) -> dict[str, object]:
     """Replay a lineup summary from its exact PIT source and candidate union."""
     body = _mapping(value, label="matchup summary")
@@ -867,6 +950,7 @@ def validate_matchup_lineup_summaries(
         "schema_version",
         "slate",
         "matchup_source_snapshot_sha256",
+        "matchup_source_schema_version",
         "player_catalog_identity",
         "annotation_query_receipt_identity",
         "eligible_families",
@@ -884,14 +968,20 @@ def validate_matchup_lineup_summaries(
     ):
         _fail("matchup summary contract differs")
     _validate_self_hash(body, "matchup_summary_sha256", label="matchup summary")
-    source = validate_matchup_source_snapshot(matchup_source)
+    source = _exact_reopen_matchup_source(
+        matchup_source, provenance=provenance
+    )
     if body.get("matchup_source_snapshot_sha256") != source.get(
-        "matchup_source_snapshot_sha256"
+        "source_export_identity", {}
+    ).get(
+        "sha256"
     ):
         _fail("matchup summary source binding differs")
-    rebuilt = build_matchup_lineup_summaries(
+    if body.get("matchup_source_schema_version") != source.get("schema_version"):
+        _fail("matchup summary source schema differs")
+    rebuilt = _build_matchup_lineup_summaries_from_reopened(
         provenance=provenance,
-        matchup_source=source,
+        source=source,
         minimum_supported_players=body["minimum_supported_players"],
         minimum_completeness=body["minimum_completeness"],
     )
@@ -2022,7 +2112,7 @@ def _run_fit_scope_impl(
     union_scores: np.ndarray,
     reconstruction_receipt: Mapping[str, object],
     matchup_summary: Mapping[str, object],
-    matchup_source: Mapping[str, object],
+    matchup_source: MatchupSourceExactReopen,
     heldout_block: str | None,
     admission_m: int = DEFAULT_ADMISSION_M,
     neutral_replicates: int = DEFAULT_NEUTRAL_REPLICATES,
@@ -2231,7 +2321,7 @@ def run_fit_scope(
     union_scores: np.ndarray,
     reconstruction_receipt: Mapping[str, object],
     matchup_summary: Mapping[str, object],
-    matchup_source: Mapping[str, object],
+    matchup_source: MatchupSourceExactReopen,
     heldout_block: str | None,
     admission_m: int = DEFAULT_ADMISSION_M,
     neutral_replicates: int = DEFAULT_NEUTRAL_REPLICATES,
@@ -2261,7 +2351,7 @@ def run_retrieval_surface_v2(
     union_scores: np.ndarray,
     reconstruction_receipt: Mapping[str, object],
     matchup_summary: Mapping[str, object],
-    matchup_source: Mapping[str, object],
+    matchup_source: MatchupSourceExactReopen,
     admission_m: int = DEFAULT_ADMISSION_M,
     neutral_replicates: int = DEFAULT_NEUTRAL_REPLICATES,
     neutral_seed_root: str = "r6-v2-neutral-v1",
@@ -2355,7 +2445,7 @@ def validate_fit_scope(
     union_scores: np.ndarray,
     reconstruction_receipt: Mapping[str, object],
     matchup_summary: Mapping[str, object],
-    matchup_source: Mapping[str, object],
+    matchup_source: MatchupSourceExactReopen,
     heldout_block: str | None,
     admission_m: int = DEFAULT_ADMISSION_M,
     neutral_replicates: int = DEFAULT_NEUTRAL_REPLICATES,
@@ -2390,7 +2480,7 @@ def validate_retrieval_surface_v2(
     union_scores: np.ndarray,
     reconstruction_receipt: Mapping[str, object],
     matchup_summary: Mapping[str, object],
-    matchup_source: Mapping[str, object],
+    matchup_source: MatchupSourceExactReopen,
     admission_m: int = DEFAULT_ADMISSION_M,
     neutral_replicates: int = DEFAULT_NEUTRAL_REPLICATES,
     neutral_seed_root: str = "r6-v2-neutral-v1",
@@ -2431,6 +2521,7 @@ __all__ = [
     "MATCHUP_ADMISSION_ID",
     "MATCHUP_SOURCE_SCHEMA",
     "MATCHUP_SUMMARY_SCHEMA",
+    "MatchupSourceExactReopen",
     "NEUTRAL_LAW_ID",
     "PRIMARY_STRATEGY_ID",
     "RUNNER_SCHEMA",

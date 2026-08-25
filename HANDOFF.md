@@ -20,6 +20,38 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 22:37 UTC (eighty-first update)
+
+### Corrected R6 source boundary is green and ready to land; execution migration remains
+
+- The corrected R6 matchup-source/export contract and retrieval-runner seam
+  now fail closed at an authenticated exact reopen. Public runner boundaries
+  accept `MatchupSourceExactReopen`, carrying the source-export, query-receipt,
+  and player-catalog identities, expected slate, minimum evidence class, and
+  exact reader. They invoke `reopen_matchup_source_snapshot()` themselves;
+  caller-provided reopened mappings and coherently rehashed substitutions that
+  retain asserted identities are rejected.
+- The runner fixtures now use the real offline path—capture, create-once
+  in-memory publication, exact reopen, then runner—instead of fabricating a
+  trusted reopened mapping. The focused source suite is 90/90 and the runner
+  suite is 24/24. The coherent-forgery adversarial test reaches the exact
+  content-identity rejection. `git diff --check` is clean. No cloud, outcome,
+  graph, deployment, or active T230 action occurred in this repair.
+- This commit is deliberately a contract repair, not an executable R6-v2
+  release. `corpus_r6_v2_one_slate_execution.py` still supplies the rejected
+  legacy snapshot interface, and no real producer currently captures and
+  publishes the corrected export/receipt/catalog trio. Those are the next P1
+  implementation boundary; no R6 freeze or smoke is licensed until both land
+  and one real outcome-blind exact-artifact smoke passes.
+- The live T230 controllers remain healthy and unchanged. Ordinal 0 is
+  accepted; worker results for ordinals 1 and 28 are durable. Lane A is
+  verifying ordinal 1 after worker execution
+  `atlas-minimal-c-s2023-w1-v1-gf4hb` succeeded; lane B is independently
+  verifying ordinal 28. Exact next action: commit/push only the four corrected
+  R6 source/runner files, their tests, and this handoff; continue status-only
+  T230 polling; then implement the corrected one-slate executor and real
+  source producer/catalog as a separate reviewed change.
+
 ## Current handoff — 2026-08-25 22:20 UTC (eightieth update)
 
 ### Observatory Phase 3 is reviewed; one corrective commit is authorized
