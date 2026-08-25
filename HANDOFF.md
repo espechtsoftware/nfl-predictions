@@ -20,6 +20,50 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 04:56 UTC (forty-first update)
+
+### G0 finish path preflighted; additive release blockers remain visible
+
+- Branch `main` is at pushed commit `0a1cfb26` (`Add calibrated tail retrieval
+  laws`). The frozen prospective k20 control remains byte-identical, and the
+  architectural reports now unambiguously make regular-season Week 1 the hard
+  deadline for every historically runnable strategy, not the start of the
+  experiment program.
+- Read-only preflight of the exact G0 finish/panel/smoke runbook is
+  conditionally `READY`. The frozen checkout is clean at
+  `cd5e64d42d35d7b36c61b80896a2a3df8c9ced0b`; wrapper/transport hashes,
+  configured lane identities, required environments/tools, panel lane order,
+  and one-slate smoke arguments match. `finish-batch` cannot launch or relaunch
+  a controller/task. Do not invoke it until both original controller logs emit
+  their exact `COMPLETE` lines and all expected verifier receipts are nonempty.
+- At 04:53:09Z live Foundry was 47/54 accepted with zero failures: lane A
+  24/28 with tasks 24--27 missing, lane B 23/26 with tasks 23--25 missing.
+  Neither batch-accepted object existed. The one-shot finishers can leave an
+  empty local acceptance file if interrupted, so a failed finish requires
+  reviewed recovery rather than a blind retry. Run panel Gates 3--5 in one
+  shell because later gates consume variables set by Gate 3.
+- The composite hybrid/ensemble draft is not release-clear despite its
+  author-focused 23-test pass. Independent review found five blockers:
+  attestation-only outer-crossfit/no-leakage claims; noncanonical ordinary-R/
+  source/generation/matrix bindings; ensemble ranks not replayed from all four
+  public upstream selectors; implementation identity not covering executable
+  builder/dispatch code; and contradictory realized-outcome semantics. The
+  sleeve union/supplement, exact T230 ladder, fixed Borda/no-renormalization,
+  and prefix-stable 4/14/80 mechanics are clear. Fixes are active only in the
+  untracked composite source/test and must receive another independent audit.
+- The generation companion fixes are also active only in its untracked
+  source/test. Public v1 will reject early generator-exhaustion outright,
+  derive the hard stream ceiling from the frozen min/max/20x law, require exact
+  production dimensions, and keep reduced fixtures explicitly non-release.
+  Coherently rehashed truncation and fixture-to-release escalation attacks are
+  required before its next audit.
+- Exact next action: let both original controllers reach G0, then run the
+  preflighted lane finishers and one-slate T230 smoke immediately. In parallel,
+  finish only the named companion/composite blockers, run authorized narrow
+  affected tests, independently re-audit, and commit them separately; do not
+  stage live env/governance/transport artifacts or the untracked external
+  review response.
+
 ## Current handoff — 2026-08-25 04:46 UTC (fortieth update)
 
 ### Week 1 deadline restated; calibrated-tail and correlation laws clear
