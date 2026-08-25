@@ -20,6 +20,57 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 20:55 UTC (seventy-fifth update)
+
+### T230 v2 candidate passed and the same-D2 release is submitted
+
+- Candidate Cloud Build `52c91739-aa85-4c61-95fa-155e1a1c96a5` reached
+  terminal `SUCCESS` at `2026-08-25T20:50:57.087798Z`; all six steps are
+  successful, with the two release-only steps correctly acting as candidate
+  no-ops. The real Rule-1 smoke execution
+  `atlas-minimal-c-s2023-w1-v1-xc2sx` completed successfully at
+  `2026-08-25T20:50:33.305303Z`, reports `succeededCount=1`, used
+  `maxRetries=0`, and took 19m7.44s from start. No realized outcome was read.
+- The candidate tag was re-resolved after terminal success to the unchanged
+  exact D2
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ed7da003c80ad47118c3c9242ec2e9047a24f489134bfdc0f534a6769d622fee`.
+  Candidate S3 remains
+  `a6bc9d4c862777c03d7dd802c5950486e7d85134`; the prefreeze gate SHA is
+  `98439f869cfb55ade313b23fcc207ad2d7d4e44d6741a816fc493e021e33e643`.
+- Same-S3/same-D2 release Cloud Build
+  `93b920bc-0954-414d-aac2-48e378edc5bf` was submitted asynchronously. It
+  receives the immutable D2 explicitly and must prove
+  `candidate_image_rebuilt=false`, publish the release transport/gate, and
+  reach terminal success before bootstrap/configure/prepare. It was `WORKING`
+  at the last read, created `2026-08-25T20:52:56.898827170Z`, started
+  `2026-08-25T20:53:40.740881431Z`, and had completed exact detached checkout;
+  no release receipt is claimed yet. Do not rebuild or substitute the
+  candidate image.
+- `reports/2026-08-25-parallel-neo4j-react-observatory-workstream-plan.md`
+  is prepared as the safe delegation contract for a second assistant. It
+  separates fixture-first React 19, bounded read APIs and offline/rebuildable
+  Neo4j projection work from T230/Core/R6, requires an isolated worktree and a
+  Phase-2 review stop, and forbids live graph/cloud/outcome/IAM/deployment
+  operations. Inventory confirms the graph foundation is offline, population
+  phenotype loading is not wired end to end, the Foundry-Next registry axes
+  are incomplete, and the React 19 tree/lock/build/package path do not yet
+  exist.
+- Independent review of the local-only explicit Core failed-stage recovery is
+  `NOT APPROVED`: equal launch intents are not an atomic exclusive claim,
+  successful replay does not revalidate the full launch-evidence envelope,
+  and `--mode all` can operate predecessor stages before proving the recovery
+  target exists. The uncommitted recovery patch must not be used or committed
+  until those findings are repaired and re-reviewed. The default refusal path
+  and frozen catalog-first transaction order remain in force.
+- Exact next action: monitor release build
+  `93b920bc-0954-414d-aac2-48e378edc5bf` to terminal and verify the exact
+  same-S3/same-D2 release receipts. On success, bootstrap/configure/prepare the
+  v2 run and execute the ordinal-zero benchmark before scaling the 54-slate
+  panel. The delegated observatory assistant may perform only Phases 0–2 of
+  its new plan before review, and only on separate compute with a separate
+  clone or after an explicit exclusive local handoff; the repository's ban on
+  concurrent agents on this workstation remains in force.
+
 ## Current handoff — 2026-08-25 20:30 UTC (seventy-fourth update)
 
 ### Fresh T230 v2 candidate D2 is immutable and the real smoke is running
