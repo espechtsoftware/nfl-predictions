@@ -106,6 +106,15 @@ class PublishedGradeCompletion:
     created: bool
 
 
+@dataclass(frozen=True, slots=True)
+class ReopenedCompletedCoreV1Grade:
+    """One fully validated, read-only completion-to-grade replay."""
+
+    completion: Mapping[str, object]
+    completion_identity: Mapping[str, object]
+    realized_grade: Mapping[str, object]
+
+
 def _fail(message: str) -> None:
     raise CoreV1GradeCloudError(message)
 
@@ -162,8 +171,8 @@ def _generation(value: object, *, label: str) -> str:
     _fail(f"{label} must be one positive generation")
 
 
-class GenerationPinnedGCS:
-    """Known-name generation GET and equal-content create-once publication."""
+class ReadOnlyGenerationPinnedGCS:
+    """Known-name metadata GET followed only by generation-pinned reads."""
 
     def __init__(self, client: object):
         self._client = client
@@ -230,6 +239,10 @@ class GenerationPinnedGCS:
             _fail("Core v1 recovered grade bytes differ")
         return identity, raw
 
+
+class GenerationPinnedGCS(ReadOnlyGenerationPinnedGCS):
+    """Read-only exact access plus equal-content create-once publication."""
+
     def publish_create_once(
         self, uri: str, raw: bytes,
     ) -> grade_store.CreateOncePublication:
@@ -261,7 +274,7 @@ class GenerationPinnedGCS:
 def _read_json_exact(
     identity: Mapping[str, object],
     *,
-    store: GenerationPinnedGCS,
+    store: ReadOnlyGenerationPinnedGCS,
     label: str,
 ) -> tuple[dict[str, object], dict[str, object]]:
     retained_identity = _identity(identity, label=f"{label} identity")
@@ -316,6 +329,16 @@ def _grade_completion_uri(run_id: object) -> str:
     return _grade_output_prefix(run_id) + GRADE_COMPLETION_FILENAME
 
 
+def grade_output_prefix(run_id: object) -> str:
+    """Return the fixed known output prefix for one validated grade run ID."""
+    return _grade_output_prefix(run_id)
+
+
+def grade_completion_uri(run_id: object) -> str:
+    """Return the sole known completion URI for one validated grade run ID."""
+    return _grade_completion_uri(run_id)
+
+
 def _outcome_keys_from_attempt(
     attempt: Mapping[str, object],
 ) -> tuple[outcome.CoreOutcomeKey, ...]:
@@ -368,7 +391,7 @@ def _reopen_completed_outcomes(
     completion_identity: Mapping[str, object],
     catalog: Mapping[str, object],
     catalog_identity: Mapping[str, object],
-    store: GenerationPinnedGCS,
+    store: ReadOnlyGenerationPinnedGCS,
 ) -> ReopenedCompletedOutcomes:
     retained_completion_identity, completion = _read_json_exact(
         completion_identity,
@@ -709,7 +732,7 @@ def _publish_grade_completion(
 
 
 def _reopen_grade_completion(
-    *, grade_run_id: str, store: GenerationPinnedGCS,
+    *, grade_run_id: str, store: ReadOnlyGenerationPinnedGCS,
 ) -> tuple[dict[str, object], dict[str, object], dict[str, object]]:
     completion_identity, _ = store.resolve_current_exact(
         _grade_completion_uri(grade_run_id)
@@ -751,6 +774,23 @@ def _reopen_grade_completion(
         completed=completed,
     )
     return retained_completion, retained_identity, reopened_grade
+
+
+def reopen_completed_core_v1_grade(
+    *, grade_run_id: str, store: ReadOnlyGenerationPinnedGCS,
+) -> ReopenedCompletedCoreV1Grade:
+    """Public least-authority replay for read-only downstream consumers."""
+    if not isinstance(store, ReadOnlyGenerationPinnedGCS):
+        _fail("Core v1 completed-grade reader differs")
+    completion, completion_identity, realized_grade = _reopen_grade_completion(
+        grade_run_id=grade_run_id,
+        store=store,
+    )
+    return ReopenedCompletedCoreV1Grade(
+        completion=completion,
+        completion_identity=completion_identity,
+        realized_grade=realized_grade,
+    )
 
 
 def _grade_receipt(
@@ -933,6 +973,11 @@ __all__ = [
     "ENABLED_ENV",
     "GenerationPinnedGCS",
     "PROJECT",
+    "ReadOnlyGenerationPinnedGCS",
+    "ReopenedCompletedCoreV1Grade",
     "ReopenedCompletedOutcomes",
+    "grade_completion_uri",
+    "grade_output_prefix",
     "main",
+    "reopen_completed_core_v1_grade",
 ]

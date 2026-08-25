@@ -20,6 +20,46 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 16:41 UTC (fifty-sixth update)
+
+### Exact post-grade score reporter is ready without another deployment
+
+- Added default-off, read-only `scripts/report_core_v1_grade.py` plus the
+  least-authority completed-grade reopen seam in
+  `scripts/run_core_v1_grade_cloud.py`. Starting from one exact known grade
+  completion URI, it performs a single current-object metadata resolution and
+  then generation-pinned reads of the complete catalog, outcome and grade
+  root/shard chain. It has no listing, publication, query, IAM, graph or
+  process-mutation interface and requires both `--execute` and
+  `CORE_V1_GRADE_REPORT_ENABLED=1`.
+- JSON reports all 12 strategies at entry budgets 4/14/80: 36 absolute
+  summaries, 1,944 weekly book rows, 15 incumbent-versus-T230 summaries, 810
+  paired weekly contrasts, season and both leave-one-out sensitivity families
+  and 54 shared-union ceilings. Markdown headlines the incumbent and five
+  T230 strategies. Score/tail metrics are available; contest rank and ROI are
+  explicitly unavailable until full-field standings, payouts, duplicates and
+  tie settlement are supplied. This reporter runs locally after grade close,
+  so it does not require another image build or historical outcome query.
+- Stable SHA-256 values are runner
+  `43b287265f886d37b0722846cbc30461217debb0e89460cb2c889b4e6d18f433`,
+  reporter
+  `714de4c1bcfc51c8c60355a0cac85f0e0572eee34fa8e56b71988fd841954743`
+  and test
+  `8c333efbf377a48b645756161903666b69ecfdbe4968414723182ec76af08680`.
+  Root validation passes reporter 4/4 and existing grade-runner 5/5; Python
+  compilation and scoped diff checks pass. Independent final review APPROVED
+  the exact bytes with no P0/P1, including an end-to-end fake-GCS proof of the
+  completion-to-all-shards path and zero listing/mutation. No cloud object or
+  historical outcome was accessed by this work.
+- Candidate build `80963d40-24c5-4da8-af24-c490e33a4ed7` remains bound to
+  exact source `37447b53c5ac71bf36d5323443566ecfac8f9c04`; this later local reporting
+  addition is deliberately not part of D and is not needed inside D.
+- Exact next action: commit/push only these three score-report files and this
+  handoff while monitoring the candidate. After the candidate smoke and
+  same-D release, benchmark/run T230, execute the one materialize/outcome/
+  grade transaction, then run this reporter against its exact grade run ID to
+  expose the first evidence of scoring improvement.
+
 ## Current handoff — 2026-08-25 16:38 UTC (fifty-fifth update)
 
 ### Fresh repaired candidate is active from an exact source commit
