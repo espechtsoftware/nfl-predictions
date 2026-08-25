@@ -20,6 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 18:49 UTC (sixty-seventh update)
+
+### T230 v1 prepare request is terminal after an argument-delimiter defect
+
+- Production v1 bootstrap resolved the accepted contract and configured both
+  fixed jobs to exact D. The first prepare execution was
+  `atlas-minimal-c-s2023-w1-v1-zxnbb`; it reached terminal
+  `EXECUTION_FAILED` at `2026-08-25T18:48:12.042398Z`, with one task,
+  `maxRetries=0`, exit code 2. Its durable prepare launch request is consumed,
+  so it must never be relaunched in this run namespace.
+- The exact execution envelope proves an operator serialization defect before
+  science: `--args="^~^-ceu~$(runtime_script)"` selected `~` as gcloud's
+  argument separator, while the injected Bash contains the `=~` regex
+  operator. Cloud Run therefore received three container arguments rather
+  than exactly `[-ceu, <complete runtime script>]`; the split occurred inside
+  `[[ "$T230_PRED_COUNT" =~ ^[0-2]$ ]]`. No prepare stage receipt, execution
+  authority, benchmark, slate science or historical outcome was produced.
+- The transport's create-once law correctly stopped after the missing stage
+  exact-read and refused a second launch. Because the singleton v1 prepare
+  request is terminally consumed and the run ID/output prefixes are baked
+  into D, protocol-compliant recovery requires a new versioned run ID and a
+  fresh D; do not reuse the v1 contract for compute.
+- Exact next action: replace the argument separator with a collision-checked
+  delimiter, add a regression that parses the resulting gcloud override into
+  exactly two container arguments and preserves the literal `=~`, version the
+  T230 run/prefix/tag to v2, obtain focused and independent review, then build,
+  real-smoke and release the fresh v2 D. G0 remains the same frozen 54-slate
+  panel and no outcome/IAM work is needed.
+
 ## Current handoff — 2026-08-25 18:43 UTC (sixty-sixth update)
 
 ### Same-D T230 release succeeded; production benchmark is next
