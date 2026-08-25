@@ -20,6 +20,44 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 23:30 UTC (eighty-fifth update)
+
+### T230 cloud work survived the IDE restart; local controllers require receipt-safe resume
+
+- The IDE restart ended unified polling session `95641` and both local
+  background lane-controller processes. It did **not** cancel or duplicate the
+  already-launched Cloud Run work. The durable run remains
+  `reports/t230-production-runs/20260825-foundry-t230-production-v2` with the
+  frozen D2 image and `maxRetries=0`.
+- Lane A worker ordinal 2 completed successfully as execution
+  `atlas-minimal-c-s2023-w1-v1-hrcfx` and published result generation
+  `1787699963546418`, SHA-256
+  `efe63d5a7fe15af3d4a561632831a64a59b95f4565bf3389b12134d82ded7276`.
+  Its independent verifier `atlas-minimal-c-s2023-w1-v1-fsfqh` remains
+  running. Lane B worker ordinal 29 remains durably published at generation
+  `1787699468901817`, SHA-256
+  `aafa977174fc0368a3b337a1dae6f28228ab4ba4c3ac182ce68c531320081101`;
+  verifier `atlas-cbc-32g-full-2023-w8-v1-drsn5` also remains running.
+- There are still only three accepted ordinals: 0, 1, and 28. Worker success
+  is not acceptance. Continue compact read-only Cloud Run polling. After both
+  current verifiers are terminal, exact-resolve their durable stage receipts
+  and acceptances before resuming `run-panel` with the identical frozen
+  carriers. `launch_stage` resolves or recovers consumed requests and forbids
+  relaunch, so no new panel or ordinal request may be created manually.
+- No separate `T270` chain exists in the repository; the active requested
+  poll target is T230. No realized outcome, score, promotion, graph, IAM, or
+  deployment read/action occurred during recovery.
+- The other agent's newest Observatory work is not yet a commit: two untracked
+  Phase 4 files are present only in the isolated
+  `feature/neo4j-react-observatory` worktree. An independent offline review is
+  active before any focused test or commit. The corrected R6 source operator
+  is likewise an untracked three-file candidate on main; its author recorded
+  13/13 focused tests before restart, and independent review is active.
+- Exact next action: keep polling both verifier executions; once both exact
+  acceptances are durable, resume the existing two lanes without relaunching
+  consumed requests. In parallel, disposition the Phase 4 and R6 source
+  operator reviews and commit only independently approved bounded changes.
+
 ## Current handoff — 2026-08-25 23:16 UTC (eighty-fourth update)
 
 ### Corrected R6-v2 one-slate executor is independently approved
