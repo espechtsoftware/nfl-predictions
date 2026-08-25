@@ -20,6 +20,61 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 07:37 UTC (forty-third update)
+
+### R6-v2 release seam independently clear; lane B reaches G0
+
+- Branch `main` is at pushed commit `a49e265a` (`Freeze tail generation
+  companion controls`) before this milestone. The prospective k20 shadow and
+  all governed realized-outcome sources remain untouched.
+- Added an isolated outcome-blind R6-v2 release workflow in
+  `corpus_r6_v2_analysis_release.py` with CLI
+  `run_corpus_r6_v2_analysis_release.py` and its focused test. The public
+  workflow is `prepare`, worker-only `run-slate`, independent `verify-slate`
+  and `finish-panel`. It exact-binds the complete 54-member v12 panel and the
+  frozen seven-law implementation, validates union+matchup admission, 32
+  score-blind neutral controls, 46 exact-80 books per scope, five heldout folds
+  plus a distinct all-block fit, 276 books/slate and deterministic 4/14/80
+  prefixes.
+- Worker results are nonterminal. The verifier captures and `/proc`-validates
+  its real PID/start/boot/namespace tuple, must be distinct from the worker,
+  exact-reopens authoritative inputs, internally reruns the one-slate science,
+  publishes a separate full verifier result, and only then permits acceptance.
+  The finalizer exact-reopens/content-binds/full-schema validates all 54 ordered
+  mechanics/verifier/acceptance rows and postvalidates the terminal.
+- Release identity now measures the release module, CLI, upstream executor,
+  eight full dependency modules, 48 critical callables, nine constant groups,
+  canonical JSON/lineup/object identities, exact object-store methods and
+  Python/NumPy runtime paths/bytes. Public release contract is
+  `6b301b2e9c4814a83493246e6e7eda73fc1e0a6d9d49d03fc17d9f93178f7d62`;
+  measured registry is
+  `c95df87e218c1391d5b17703c1b79feb688a306447a5662e2d4898f1e7f327c5`.
+- Current retrospective matchup evidence cannot earn accepted-release
+  authority. The exact terminal is `complete-source-blocked`, accepted=false,
+  with all freeze/outcome/promotion/decision authority false; caller evidence
+  upgrades and matchup-free shortcuts fail closed. This honest R6 blocker does
+  not delay the matchup-free T230 score path.
+- Validation history: the initial focused module passed 8/8 before the final
+  trust hardening. The final three affected nodes reported 2 passed and one
+  sandbox-only AF_UNIX harness failure; after replacing only the test harness
+  with a real fork plus file-backed exact store, the authorized failed-node
+  rerun passed 1/1 in about 60.3 seconds. Static compile/diff checks pass. Final
+  file SHA-256 values are source
+  `d5729fd836835748fb1932c19b172f43f38a1d02beb7054c4e2984b8398aeafb`,
+  CLI `b00e50d89db6d7265c9a8ae14decd94adcacc155b0d72fc5919e5aa5f6c00ab0`,
+  and test `2891be8ababbb98074a7507e4ab5d8c88663b1a01f7b459f745de3dfb5639dc0`.
+  A fresh independent read-only audit is `APPROVE` on the final bytes.
+- Live Foundry is 52/54 accepted with zero failures. Lane B task 25 was accepted
+  at 07:34:32Z and its original controller emitted
+  `lane b COMPLETE through task 25` plus `LANE B CHAIN EXIT=0`. Do not run its
+  one-shot finisher until lane A also completes. Lane A task-26 producer
+  `atlas-minimal-c-s2023-w1-v1-wkncd` was running at 07:35:59Z; task 27 remains.
+- Exact next action: commit/push only the independently clear R6 files and this
+  handoff; continue passive lane-A observation; after both COMPLETE lines run
+  the preflighted lane finishers, panel publication and one-slate smoke. Finish
+  the independent T230 authority-lock audit; generate/review/commit its real
+  lock only after G0 publication.
+
 ## Current handoff — 2026-08-25 05:04 UTC (forty-second update)
 
 ### Generation companion is independently release-clear
