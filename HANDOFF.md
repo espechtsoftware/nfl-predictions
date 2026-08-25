@@ -20,6 +20,42 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 16:56 UTC (fifty-eighth update)
+
+### Lease cleanup incompatibility found before outcomes; local repair underway
+
+- A focused post-grade audit found one P1 operational blocker in the otherwise
+  prepared Core score chain. `scripts/cloud_core_v1_score_chain.sh` records a
+  terminal Cloud Run outcome execution and the deterministic remote Core
+  `completion.json` URI, but does not create the local key/value strict
+  completion accepted by `scripts/historical_outcome_lease.py release`.
+  Core's canonical JSON completion intentionally carries
+  `one_historical_outcome_read=true` and
+  `historical_outcome_lease_release_required=true`, not the legacy
+  `uses_realized_outcomes`/`disposition` keys. Passing it directly therefore
+  fails closed and could leave the shared historical lease occupied after a
+  successful score run. It cannot corrupt scores or trigger another query.
+- The minimal repair is local-only and does not change candidate D: resolve
+  the one deterministic Core completion URI, pin/read its generation without
+  listing, validate bytes, SHA, canonical schema/self-hash, frozen run ID and
+  release-required flags, and atomically create an identity-bound strict
+  completion carrier for the explicit legacy lease deletion. Also require
+  the recorded outcome execution's terminal `Completed` status to be exactly
+  `True`; the legacy release check currently admits `False`.
+- Implementation and focused adversarial tests are in progress. They must
+  prove no listing/query/mutation in preparation, rejection of generation,
+  schema, self-hash, run and flag drift, deterministic recovery, legacy
+  release compatibility, and rejection of a failed terminal execution. No
+  cloud object, outcome, lease or IAM surface was opened by this audit.
+- Candidate Cloud Build `80963d40-24c5-4da8-af24-c490e33a4ed7` remains
+  `WORKING` in outcome-blind `focused-tests-and-semantic-g0-preflight` from
+  exact source `37447b53c5ac71bf36d5323443566ecfac8f9c04`; checkout and dependency
+  installation passed, with no build error as of this update.
+- Exact next action: continue monitoring the candidate. Independently finish,
+  review and commit the local lease-release adapter before catalog close.
+  Candidate success still proceeds to same-D release and T230 benchmark; this
+  P1 does not require or justify another candidate image.
+
 ## Current handoff — 2026-08-25 16:48 UTC (fifty-seventh update)
 
 ### First-score identifiers are frozen before any outcome access
