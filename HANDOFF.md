@@ -20,6 +20,40 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 22:20 UTC (eightieth update)
+
+### Observatory Phase 3 is reviewed; one corrective commit is authorized
+
+- The isolated observatory branch
+  `feature/neo4j-react-observatory` is clean and pushed at `ff04bd67`. Its
+  Phase 3 packet contains a new, unmounted GET-only Foundry API/read-model
+  surface and pure offline graph-vNext contracts. It performed no live graph,
+  cloud, outcome, IAM, deployment, or main-worktree action. There is no P0
+  while the code remains unwired.
+- Lead checkpoint review
+  `reports/2026-08-25-observatory-phase3-lead-checkpoint-review.md` decides
+  **APPROVE ONE CORRECTIVE COMMIT; INTEGRATION NOT APPROVED**. API P1s are:
+  degradation does not cover the whole endpoint/read/serialization path; raw
+  backend exception text can be reflected; the production default is a
+  synthetic fixture reporting 54 accepted slates; pagination materializes
+  complete repository sequences with no query-side row/time cap; path IDs and
+  endpoint response schemas are not fully bounded; ETags hide staleness-state
+  transitions; and cross-field/finite-value model laws are incomplete.
+- Graph P1s are: exact-name outcome/secret denylists are bypassable; outcome
+  entities/relationships are not namespace-bound; a caller-supplied outcome
+  release name is not authorization; list/property/source/plan bounds are
+  incomplete; the root plan retains all rows instead of streaming; and null,
+  source-order, duplicate, and exact-schema semantics need correction.
+- Authorized scope is one isolated correction touching only the new Phase 3
+  modules/tests/report/branch handoff. Router wiring, governed adapters, live
+  Neo4j, realized data, React cutover, packaging release, deployment, and all
+  active T230/Core/R6 paths remain withheld pending re-review.
+- The live T230 two-lane controller remains unchanged in unified session
+  `95641`; worker ordinal 28 and verifier ordinal 0 were still nonterminal at
+  the last status-only poll, with no controller output or duplicate launch.
+  Exact next action: keep polling that session without mutation while the
+  observatory assistant makes only the bounded offline correction.
+
 ## Current handoff — 2026-08-25 22:02 UTC (seventy-ninth update)
 
 ### T230 v2 two-lane panel scale-out is live
