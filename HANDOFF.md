@@ -20,6 +20,39 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 20:30 UTC (seventy-fourth update)
+
+### Fresh T230 v2 candidate D2 is immutable and the real smoke is running
+
+- Candidate Cloud Build `52c91739-aa85-4c61-95fa-155e1a1c96a5` remains
+  `WORKING`. Exact checkout succeeded. Its focused tests plus semantic G0
+  replay succeeded from `2026-08-25T20:01:57.776150685Z` through
+  `2026-08-25T20:26:13.711149343Z`; the focused suite reached 60/60 before the
+  exact-replay gate closed.
+- The image step succeeded from `2026-08-25T20:26:13.711367753Z` through
+  `2026-08-25T20:29:18.570972060Z`. The exact candidate tag resolves in
+  Artifact Registry to D2
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ed7da003c80ad47118c3c9242ec2e9047a24f489134bfdc0f534a6769d622fee`.
+  Parked-image, source-snapshot and source-commit checks passed before push.
+- The real ordinal-zero four-law smoke/gate step began at
+  `2026-08-25T20:29:18.571287360Z` and is still running. D2 is not yet
+  release-authorized; no smoke receipt/gate, canonical v2 transport object,
+  T230 panel, outcome or score is claimed at this update.
+- An outcome-blind Core fast-path audit confirms all Core runners are already
+  inside D2. It found two pre-score risks to resolve without rebuilding D2:
+  the 100 MB catalog ceiling has not had real-union contact, and the local
+  chain operator defaults correctly to refusing a terminal failed stage but
+  lacks an explicit evidence-preserving retry. The frozen safe order remains
+  catalog first, then one lease/outcome/grade transaction; never first-call
+  `--mode all`. Run the existing one-slate Core structural projection after
+  the T230 ordinal-zero benchmark, and keep v3 ceilings unchanged unless the
+  measured pre-write check requires a ceiling-only new transaction.
+- Exact next action: monitor the real smoke to terminal. On candidate success,
+  re-resolve the exact tag to the same D2 and submit the same-S3/same-D2
+  release immediately; on failure, disposition the exact smoke boundary and
+  do not release. In parallel, finish focused validation of the local-only
+  explicit failed-stage recovery and the corrected R6 source contract.
+
 ## Current handoff — 2026-08-25 20:09 UTC (seventy-third update)
 
 ### R6-v1 non-executable disposition is terminally bound to Gate G0
