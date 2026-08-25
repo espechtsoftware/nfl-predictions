@@ -901,6 +901,35 @@ def _identity_files(
     return paths
 
 
+def _batch_envelope_files(
+    tmp_path: Path, lanes: list[dict[str, object]]
+) -> list[Path]:
+    paths: list[Path] = []
+    for ordinal, lane in enumerate(lanes):
+        path = tmp_path / f"lane-{ordinal}-batch-accepted.json"
+        body = {
+            "schema_version": "corpus-parametric-batch-accepted/v1",
+            "batch_mode": panel.V12_LANE_LATTICE[ordinal]["batch_mode"],
+            "task_count": panel.V12_LANE_LATTICE[ordinal]["task_count"],
+            "matrix_cell_count": (
+                panel.V12_LANE_LATTICE[ordinal]["task_count"] * 7
+            ),
+            "batch_completion": _identity_stub(
+                f"gs://fixture/{ordinal}/completion.json",
+                generation=900 + ordinal,
+                seed=900 + ordinal,
+            ),
+            "batch_acceptance": lane["terminal_receipt_identity"],
+            "final_output_inventory_sha256": _hex(950 + ordinal),
+            "final_output_object_count": 100,
+            "complete": True,
+            "accepted": True,
+        }
+        path.write_bytes(batch.canonical_json_bytes(body) + b"\n")
+        paths.append(path)
+    return paths
+
+
 def _cli_args(paths: list[Path], *, execute: bool) -> list[str]:
     return [
         "--lane-id",
@@ -969,6 +998,246 @@ def test_cli_execute_is_create_once_and_exactly_replayable(tmp_path: Path) -> No
     assert len(store.publish_calls) == 2
     published = store.raw_by_uri["gs://fixture/panels/foundry-v12.json"]
     assert sha256(published).hexdigest() == first["panel_content_sha256"]
+
+
+def test_cli_accepts_exact_finish_batch_local_envelopes(tmp_path: Path) -> None:
+    store, lanes = _fixture()
+    receipt = cli.run(
+        _cli_args(
+            _batch_envelope_files(tmp_path, lanes),
+            execute=False,
+        ),
+        store=store,
+    )
+    assert receipt["accepted_slate_count"] == 54
+    assert receipt["exact_input_replay_verified"] is True
+    assert receipt["published"] is False
+
+
+def test_cli_rejects_noncanonical_finish_batch_local_envelope(
+    tmp_path: Path,
+) -> None:
+    store, lanes = _fixture()
+    paths = _batch_envelope_files(tmp_path, lanes)
+    value = json.loads(paths[0].read_text(encoding="utf-8"))
+    paths[0].write_text(
+        json.dumps(value, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(
+        cli.CorpusV12PanelIndexCLIError,
+        match="local batch-accepted envelope is not canonical",
+    ):
+        cli.run(_cli_args(paths, execute=False), store=store)
+
+
+def test_cli_writes_and_reopens_exact_local_receipt_create_once(
+    tmp_path: Path,
+) -> None:
+    store, lanes = _fixture()
+    paths = _identity_files(tmp_path, lanes)
+    receipt_path = tmp_path / "receipts" / "panel-publication.json"
+    args = [
+        *_cli_args(paths, execute=False),
+        "--receipt-output",
+        str(receipt_path),
+    ]
+    first = cli.run(args, store=store)
+    second = cli.run(args, store=store)
+    assert second == first
+    assert receipt_path.read_bytes() == (
+        batch.canonical_json_bytes(first) + b"\n"
+    )
+
+    receipt_path.write_bytes(b"{}\n")
+    with pytest.raises(
+        cli.CorpusV12PanelIndexCLIError,
+        match="existing local receipt preflight differs",
+    ):
+        cli.run(args, store=store)
+
+
+def test_cli_execute_receipt_binds_exact_published_panel_identity(
+    tmp_path: Path,
+) -> None:
+    store, lanes = _fixture()
+    receipt_path = tmp_path / "receipts" / "panel-publication.json"
+    receipt = cli.run(
+        [
+            *_cli_args(_identity_files(tmp_path, lanes), execute=True),
+            "--receipt-output",
+            str(receipt_path),
+        ],
+        store=store,
+    )
+    assert receipt_path.read_bytes() == (
+        batch.canonical_json_bytes(receipt) + b"\n"
+    )
+    assert receipt["mode"] == "create_once"
+    assert receipt["published"] is True
+    assert receipt["panel_object_identity"] == {
+        "uri": receipt["panel_uri"],
+        "generation": "1",
+        "sha256": receipt["panel_content_sha256"],
+        "bytes": receipt["panel_content_bytes"],
+    }
+    assert len(store.publish_calls) == 1
+
+
+def test_cli_bad_local_receipt_paths_fail_before_publication(
+    tmp_path: Path,
+) -> None:
+    def execute_with(receipt_path: Path) -> Store:
+        store, lanes = _fixture()
+        input_root = tmp_path / f"inputs-{len(stores)}"
+        input_root.mkdir()
+        with pytest.raises(cli.CorpusV12PanelIndexCLIError):
+            cli.run(
+                [
+                    *_cli_args(
+                        _identity_files(input_root, lanes),
+                        execute=True,
+                    ),
+                    "--receipt-output",
+                    str(receipt_path),
+                ],
+                store=store,
+            )
+        assert store.publish_calls == []
+        stores.append(store)
+        return store
+
+    stores: list[Store] = []
+    relative_path = Path("relative-panel-publication.json")
+    execute_with(relative_path)
+
+    final_target = tmp_path / "final-target.json"
+    final_target.write_bytes(b"target\n")
+    final_symlink = tmp_path / "final-symlink.json"
+    final_symlink.symlink_to(final_target)
+    execute_with(final_symlink)
+
+    real_parent = tmp_path / "real-parent"
+    real_parent.mkdir()
+    parent_symlink = tmp_path / "parent-symlink"
+    parent_symlink.symlink_to(real_parent, target_is_directory=True)
+    execute_with(parent_symlink / "receipt.json")
+
+    parent_file = tmp_path / "parent-file"
+    parent_file.write_bytes(b"not a directory\n")
+    execute_with(parent_file / "receipt.json")
+
+    directory_target = tmp_path / "directory-target"
+    directory_target.mkdir()
+    execute_with(directory_target)
+
+
+def test_cli_differing_valid_local_receipt_fails_before_publication(
+    tmp_path: Path,
+) -> None:
+    store, lanes = _fixture()
+    paths = _identity_files(tmp_path, lanes)
+    validate_receipt = cli.run(
+        _cli_args(paths, execute=False),
+        store=store,
+    )
+    changed = {
+        **validate_receipt,
+        "mode": "create_once",
+        "published": True,
+        "panel_id": _hex(999_999),
+        "panel_object_identity": {
+            "uri": validate_receipt["panel_uri"],
+            "generation": "1",
+            "sha256": validate_receipt["panel_content_sha256"],
+            "bytes": validate_receipt["panel_content_bytes"],
+        },
+    }
+    changed.pop("publication_receipt_sha256")
+    changed["publication_receipt_sha256"] = batch.canonical_sha256(changed)
+    receipt_path = tmp_path / "differing-valid-receipt.json"
+    receipt_path.write_bytes(batch.canonical_json_bytes(changed) + b"\n")
+
+    with pytest.raises(
+        cli.CorpusV12PanelIndexCLIError,
+        match="content differs before publication",
+    ):
+        cli.run(
+            [
+                *_cli_args(paths, execute=True),
+                "--receipt-output",
+                str(receipt_path),
+            ],
+            store=store,
+        )
+    assert store.publish_calls == []
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("uri", "gs://fixture/panels/wrong.json"),
+        ("sha256", "f" * 64),
+        ("bytes", 999_999),
+    ],
+)
+def test_cli_wrong_existing_panel_identity_fails_before_publication(
+    tmp_path: Path,
+    field: str,
+    value: object,
+) -> None:
+    store, lanes = _fixture()
+    paths = _identity_files(tmp_path, lanes)
+    validate_receipt = cli.run(
+        _cli_args(paths, execute=False),
+        store=store,
+    )
+    panel_identity = {
+        "uri": validate_receipt["panel_uri"],
+        "generation": "1",
+        "sha256": validate_receipt["panel_content_sha256"],
+        "bytes": validate_receipt["panel_content_bytes"],
+    }
+    panel_identity[field] = value
+    changed = {
+        **validate_receipt,
+        "mode": "create_once",
+        "published": True,
+        "panel_object_identity": panel_identity,
+    }
+    changed.pop("publication_receipt_sha256")
+    changed["publication_receipt_sha256"] = batch.canonical_sha256(changed)
+    receipt_path = tmp_path / f"wrong-panel-{field}.json"
+    receipt_path.write_bytes(batch.canonical_json_bytes(changed) + b"\n")
+
+    with pytest.raises(
+        cli.CorpusV12PanelIndexCLIError,
+        match="panel identity differs from requested content",
+    ):
+        cli.run(
+            [
+                *_cli_args(paths, execute=True),
+                "--receipt-output",
+                str(receipt_path),
+            ],
+            store=store,
+        )
+    assert store.publish_calls == []
+
+
+def test_cli_rejects_nonterminal_finish_batch_local_envelope(
+    tmp_path: Path,
+) -> None:
+    store, lanes = _fixture()
+    paths = _batch_envelope_files(tmp_path, lanes)
+    changed = json.loads(paths[0].read_text(encoding="utf-8"))
+    changed["complete"] = False
+    paths[0].write_bytes(batch.canonical_json_bytes(changed) + b"\n")
+    with pytest.raises(
+        cli.CorpusV12PanelIndexCLIError,
+        match="local batch-accepted envelope differs",
+    ):
+        cli.run(_cli_args(paths, execute=False), store=store)
 
 
 @pytest.mark.parametrize("lane_count", [1, 3])

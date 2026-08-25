@@ -14,6 +14,7 @@ as mechanics-only and can never grant R6 freeze or promotion authority.
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping, Sequence
+from dataclasses import dataclass
 from hashlib import sha256
 import json
 from typing import Final
@@ -66,6 +67,38 @@ class CorpusR6V2OneSlateExecutionError(ValueError):
 
 
 ReadExact = Callable[[Mapping[str, object]], bytes]
+
+
+@dataclass(frozen=True)
+class AcceptedV12SlateReconstruction:
+    """Exact accepted-slate bindings plus the canonical v12 reconstruction."""
+
+    slate_id: str
+    panel_index_identity: Mapping[str, object]
+    panel_index_sha256: str
+    accepted_slate_membership: Mapping[str, object]
+    task_acceptance_identity: Mapping[str, object]
+    carrier_identity: Mapping[str, object]
+    later_source_freeze_identity: Mapping[str, object]
+    world_artifact_identities: Mapping[str, Mapping[str, object]]
+    imported: v12_import.V12ImportedTask
+    reconstructed: v12_import.V12ReconstructedTask
+
+
+@dataclass(frozen=True)
+class _ResolvedAcceptedV12Slate:
+    slate_id: str
+    panel_index_identity: Mapping[str, object]
+    panel_index_sha256: str
+    accepted_slate_membership: Mapping[str, object]
+    task_acceptance_identity: Mapping[str, object]
+    carrier_identity: Mapping[str, object]
+    later_source_freeze_identity: Mapping[str, object]
+    world_artifact_identities: Mapping[str, Mapping[str, object]]
+    source_freeze: Mapping[str, object]
+    artifact_bodies: Mapping[str, bytes]
+    read_exact: ReadExact
+    require_authoritative: bool
 
 
 def _fail(message: str) -> None:
@@ -234,7 +267,10 @@ def _validate_panel_and_membership(
             or coverage.get("missing_task_count") != 0
             or coverage.get("complete") is not True
         ):
-            _fail("authoritative execution requires complete accepted v12 panel membership")
+            _fail(
+                "authoritative execution requires complete accepted v12 "
+                "panel membership"
+            )
         for field in (
             "lane_ordinal",
             "task_ordinal",
@@ -335,35 +371,19 @@ def _carrier_reconstruction_inputs(
     )
 
 
-def execute_one_slate_r6_v2(
+def _resolve_one_accepted_v12_slate(
     *,
     validated_panel_index: Mapping[str, object],
     panel_index_identity: Mapping[str, object],
     accepted_slate_membership: Mapping[str, object],
     task_acceptance_identity: Mapping[str, object],
     carrier_identity: Mapping[str, object],
-    validated_matchup_source_snapshot: Mapping[str, object],
-    matchup_source_snapshot_identity: Mapping[str, object],
     read_exact: ReadExact,
-    matchup_evidence_class: str = MATCHUP_EVIDENCE_RETROSPECTIVE,
-    minimum_supported_players: int = 2,
-    minimum_completeness: float = 0.5,
-    admission_m: int = runner.DEFAULT_ADMISSION_M,
-    neutral_replicates: int = runner.DEFAULT_NEUTRAL_REPLICATES,
-    neutral_seed_root: str = "r6-v2-neutral-v1",
-    worlds_per_block: int | None = None,
-    require_authoritative: bool = True,
-) -> dict[str, object]:
-    """Execute and retain one exact outcome-blind R6-v2 slate surface."""
+    require_authoritative: bool,
+) -> _ResolvedAcceptedV12Slate:
+    """Exact-read the accepted membership and its reconstruction inputs."""
     if type(require_authoritative) is not bool:
         _fail("require_authoritative must be an exact boolean")
-    if matchup_evidence_class not in MATCHUP_EVIDENCE_CLASSES:
-        _fail("matchup evidence class differs")
-    if require_authoritative and (
-        admission_m != runner.DEFAULT_ADMISSION_M
-        or worlds_per_block is not None
-    ):
-        _fail("authoritative one-slate execution cannot override registered doses")
     panel_body = dict(_mapping(validated_panel_index, label="validated panel"))
     normalized_panel_identity, exact_panel = _exact_read_body(
         panel_index_identity,
@@ -402,6 +422,146 @@ def execute_one_slate_r6_v2(
     )
     if exact_carrier_identity != normalized_carrier:
         _fail("exact-read carrier identity differs from panel membership")
+    return _ResolvedAcceptedV12Slate(
+        slate_id=slate_id,
+        panel_index_identity=normalized_panel_identity,
+        panel_index_sha256=_sha(
+            exact_panel.get("panel_index_sha256"), label="panel index SHA"
+        ),
+        accepted_slate_membership=membership,
+        task_acceptance_identity=normalized_acceptance,
+        carrier_identity=normalized_carrier,
+        later_source_freeze_identity=source_freeze_identity,
+        world_artifact_identities=world_artifact_identities,
+        source_freeze=source_freeze,
+        artifact_bodies=artifact_bodies,
+        read_exact=read_exact,
+        require_authoritative=require_authoritative,
+    )
+
+
+def _finish_one_accepted_v12_slate_reconstruction(
+    resolved: _ResolvedAcceptedV12Slate,
+) -> AcceptedV12SlateReconstruction:
+    """Replay the accepted task and verify its canonical union reconstruction."""
+    try:
+        imported = v12_import.reopen_v12_task(
+            acceptance_receipt_identity=resolved.task_acceptance_identity,
+            carrier_identity=resolved.carrier_identity,
+            read_exact=resolved.read_exact,
+            require_authoritative=resolved.require_authoritative,
+        )
+        reconstructed = v12_import.reconstruct_v12_task(
+            imported,
+            source_freeze=resolved.source_freeze,
+            artifact_bodies=resolved.artifact_bodies,
+        )
+    except v12_import.CorpusV12ImportError as exc:
+        raise CorpusR6V2OneSlateExecutionError(str(exc)) from exc
+    import_receipt = _mapping(
+        imported.compatibility_receipt, label="v12 compatibility import"
+    )
+    if (
+        import_receipt.get("acceptance_receipt_identity")
+        != resolved.task_acceptance_identity
+        or import_receipt.get("carrier_identity") != resolved.carrier_identity
+        or import_receipt.get("slate", {}).get("slate_id") != resolved.slate_id
+    ):
+        _fail("v12 compatibility import differs from panel membership")
+    if resolved.require_authoritative and (
+        import_receipt.get("authoritative_task_acceptance_verified") is not True
+        or import_receipt.get("accepted_task_result_binding_verified") is not True
+        or import_receipt.get("accepted_task_index")
+        != resolved.accepted_slate_membership.get("task_ordinal")
+    ):
+        _fail("authoritative task acceptance was not preserved by v12 import")
+    provenance = _mapping(reconstructed.provenance, label="reconstructed provenance")
+    if provenance.get("slate", {}).get("slate_id") != resolved.slate_id:
+        _fail("reconstructed slate differs from panel membership")
+    reconstruction_receipt = _mapping(
+        reconstructed.reconstruction_receipt,
+        label="reconstruction receipt",
+    )
+    if (
+        reconstruction_receipt.get("uses_realized_outcomes") is not False
+        or reconstruction_receipt.get("promotion_authority") is not False
+    ):
+        _fail("reconstruction receipt carries forbidden authority")
+    return AcceptedV12SlateReconstruction(
+        slate_id=resolved.slate_id,
+        panel_index_identity=resolved.panel_index_identity,
+        panel_index_sha256=resolved.panel_index_sha256,
+        accepted_slate_membership=resolved.accepted_slate_membership,
+        task_acceptance_identity=resolved.task_acceptance_identity,
+        carrier_identity=resolved.carrier_identity,
+        later_source_freeze_identity=resolved.later_source_freeze_identity,
+        world_artifact_identities=resolved.world_artifact_identities,
+        imported=imported,
+        reconstructed=reconstructed,
+    )
+
+
+def reconstruct_one_accepted_v12_slate(
+    *,
+    validated_panel_index: Mapping[str, object],
+    panel_index_identity: Mapping[str, object],
+    accepted_slate_membership: Mapping[str, object],
+    task_acceptance_identity: Mapping[str, object],
+    carrier_identity: Mapping[str, object],
+    read_exact: ReadExact,
+    require_authoritative: bool = True,
+) -> AcceptedV12SlateReconstruction:
+    """Exact-read and reconstruct one outcome-blind accepted v12 panel member."""
+    resolved = _resolve_one_accepted_v12_slate(
+        validated_panel_index=validated_panel_index,
+        panel_index_identity=panel_index_identity,
+        accepted_slate_membership=accepted_slate_membership,
+        task_acceptance_identity=task_acceptance_identity,
+        carrier_identity=carrier_identity,
+        read_exact=read_exact,
+        require_authoritative=require_authoritative,
+    )
+    return _finish_one_accepted_v12_slate_reconstruction(resolved)
+
+
+def execute_one_slate_r6_v2(
+    *,
+    validated_panel_index: Mapping[str, object],
+    panel_index_identity: Mapping[str, object],
+    accepted_slate_membership: Mapping[str, object],
+    task_acceptance_identity: Mapping[str, object],
+    carrier_identity: Mapping[str, object],
+    validated_matchup_source_snapshot: Mapping[str, object],
+    matchup_source_snapshot_identity: Mapping[str, object],
+    read_exact: ReadExact,
+    matchup_evidence_class: str = MATCHUP_EVIDENCE_RETROSPECTIVE,
+    minimum_supported_players: int = 2,
+    minimum_completeness: float = 0.5,
+    admission_m: int = runner.DEFAULT_ADMISSION_M,
+    neutral_replicates: int = runner.DEFAULT_NEUTRAL_REPLICATES,
+    neutral_seed_root: str = "r6-v2-neutral-v1",
+    worlds_per_block: int | None = None,
+    require_authoritative: bool = True,
+) -> dict[str, object]:
+    """Execute and retain one exact outcome-blind R6-v2 slate surface."""
+    if type(require_authoritative) is not bool:
+        _fail("require_authoritative must be an exact boolean")
+    if matchup_evidence_class not in MATCHUP_EVIDENCE_CLASSES:
+        _fail("matchup evidence class differs")
+    if require_authoritative and (
+        admission_m != runner.DEFAULT_ADMISSION_M
+        or worlds_per_block is not None
+    ):
+        _fail("authoritative one-slate execution cannot override registered doses")
+    resolved = _resolve_one_accepted_v12_slate(
+        validated_panel_index=validated_panel_index,
+        panel_index_identity=panel_index_identity,
+        accepted_slate_membership=accepted_slate_membership,
+        task_acceptance_identity=task_acceptance_identity,
+        carrier_identity=carrier_identity,
+        read_exact=read_exact,
+        require_authoritative=require_authoritative,
+    )
     matchup_body = dict(_mapping(
         validated_matchup_source_snapshot,
         label="validated matchup source snapshot",
@@ -416,42 +576,21 @@ def execute_one_slate_r6_v2(
         matchup_source = runner.validate_matchup_source_snapshot(
             exact_matchup_body
         )
-        imported = v12_import.reopen_v12_task(
-            acceptance_receipt_identity=normalized_acceptance,
-            carrier_identity=normalized_carrier,
-            read_exact=read_exact,
-            require_authoritative=require_authoritative,
-        )
-        reconstructed = v12_import.reconstruct_v12_task(
-            imported,
-            source_freeze=source_freeze,
-            artifact_bodies=artifact_bodies,
-        )
-    except (
-        runner.CorpusBatchRetrievalV2Error,
-        v12_import.CorpusV12ImportError,
-    ) as exc:
+    except runner.CorpusBatchRetrievalV2Error as exc:
         raise CorpusR6V2OneSlateExecutionError(str(exc)) from exc
+    accepted = _finish_one_accepted_v12_slate_reconstruction(resolved)
+    imported = accepted.imported
+    reconstructed = accepted.reconstructed
+    slate_id = accepted.slate_id
+    membership = accepted.accepted_slate_membership
+    normalized_acceptance = accepted.task_acceptance_identity
+    normalized_carrier = accepted.carrier_identity
+    source_freeze_identity = accepted.later_source_freeze_identity
+    world_artifact_identities = accepted.world_artifact_identities
     import_receipt = _mapping(
         imported.compatibility_receipt, label="v12 compatibility import"
     )
-    if (
-        import_receipt.get("acceptance_receipt_identity")
-        != normalized_acceptance
-        or import_receipt.get("carrier_identity") != normalized_carrier
-        or import_receipt.get("slate", {}).get("slate_id") != slate_id
-    ):
-        _fail("v12 compatibility import differs from panel membership")
-    if require_authoritative and (
-        import_receipt.get("authoritative_task_acceptance_verified") is not True
-        or import_receipt.get("accepted_task_result_binding_verified") is not True
-        or import_receipt.get("accepted_task_index")
-        != membership.get("task_ordinal")
-    ):
-        _fail("authoritative task acceptance was not preserved by v12 import")
     provenance = _mapping(reconstructed.provenance, label="reconstructed provenance")
-    if provenance.get("slate", {}).get("slate_id") != slate_id:
-        _fail("reconstructed slate differs from panel membership")
     try:
         matchup_summary = runner.build_matchup_lineup_summaries(
             provenance=provenance,
@@ -539,10 +678,8 @@ def execute_one_slate_r6_v2(
             else "non-authoritative-fixture-mechanics"
         ),
         "slate_id": slate_id,
-        "panel_index_identity": normalized_panel_identity,
-        "panel_index_sha256": _sha(
-            exact_panel.get("panel_index_sha256"), label="panel index SHA"
-        ),
+        "panel_index_identity": accepted.panel_index_identity,
+        "panel_index_sha256": accepted.panel_index_sha256,
         "accepted_slate_membership": membership,
         "accepted_slate_membership_sha256": batch.canonical_sha256(membership),
         "task_acceptance_identity": normalized_acceptance,
@@ -591,6 +728,7 @@ def execute_one_slate_r6_v2(
 
 
 __all__ = [
+    "AcceptedV12SlateReconstruction",
     "CorpusR6V2OneSlateExecutionError",
     "FIXTURE_PANEL_SCHEMA",
     "FIXTURE_PUBLICATION_MODE",
@@ -599,4 +737,5 @@ __all__ = [
     "MATCHUP_EVIDENCE_RETROSPECTIVE",
     "RESULT_SCHEMA",
     "execute_one_slate_r6_v2",
+    "reconstruct_one_accepted_v12_slate",
 ]

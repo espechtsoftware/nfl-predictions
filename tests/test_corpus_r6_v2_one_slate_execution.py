@@ -356,6 +356,38 @@ def test_authoritative_one_slate_orchestration_binds_every_input_and_output(
     })
 
 
+def test_public_accepted_slate_reconstruction_reuses_the_exact_import_seam(
+    monkeypatch,
+) -> None:
+    fixture = _fixture_inputs(authoritative_panel=True)
+    calls = _install_pipeline_stubs(monkeypatch, fixture, authoritative=True)
+
+    result = execution.reconstruct_one_accepted_v12_slate(
+        validated_panel_index=fixture["panel"],
+        panel_index_identity=fixture["panel_identity"],
+        accepted_slate_membership=fixture["target"],
+        task_acceptance_identity=fixture["acceptance_identity"],
+        carrier_identity=fixture["carrier_identity"],
+        read_exact=lambda identity: fixture["store"][identity["uri"]],
+        require_authoritative=True,
+    )
+
+    assert calls == ["reopen", "reconstruct"]
+    assert result.slate_id == SLATE_ID
+    assert result.panel_index_identity == fixture["panel_identity"]
+    assert result.accepted_slate_membership == fixture["target"]
+    assert result.task_acceptance_identity == fixture["acceptance_identity"]
+    assert result.carrier_identity == fixture["carrier_identity"]
+    assert result.later_source_freeze_identity == fixture["source_identity"]
+    assert result.world_artifact_identities == fixture["world_identities"]
+    assert result.imported.compatibility_receipt[
+        "compatibility_import_sha256"
+    ] == "1" * 64
+    assert result.reconstructed.reconstruction_receipt[
+        "reconstruction_sha256"
+    ] == "3" * 64
+
+
 def test_fixture_path_is_explicitly_non_authoritative(monkeypatch) -> None:
     fixture = _fixture_inputs(authoritative_panel=False)
     _install_pipeline_stubs(monkeypatch, fixture, authoritative=False)
@@ -434,7 +466,12 @@ def test_carrier_source_receipt_hash_drift_fails_closed(monkeypatch) -> None:
         execution.CorpusR6V2OneSlateExecutionError,
         match="carrier source receipt set hash differs",
     ):
-        _execute(fixture, require_authoritative=False, admission_m=80, worlds_per_block=2)
+        _execute(
+            fixture,
+            require_authoritative=False,
+            admission_m=80,
+            worlds_per_block=2,
+        )
     assert calls == []
 
 

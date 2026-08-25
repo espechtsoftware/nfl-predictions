@@ -20,6 +20,61 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 01:26 UTC (twenty-ninth update)
+
+### T230 direction corrected to full-union boom conversion; smoke audit active
+
+- Branch `main` is at pushed commit `caf5f33a` (`Add frozen T230 retrieval
+  support switch`). No governed realized outcome was accessed. Active v12
+  environment, governance, foundation and transport files and the outside
+  review remain unstaged and must not be cleaned or included in the next
+  implementation commit.
+- The lead-architect response now rejects another Atlas arm: the already-
+  frozen minimal Atlas C test lost mean C by 1.53 and permanently closed that
+  method. The aggressive fill follow-up instead crosses the exact frozen all-
+  boom population with the already-frozen support-switched T230 retrieval law.
+- Source audit corrected the all-boom interpretation. Its C endpoint measured
+  the complete five-seed union (mean 550 control versus 1,106 treatment unique
+  lineups), but the old S path called `combine_cbwu_books` and reduced each
+  union to the first-seed budget of roughly 253 candidates before line-194
+  exact-80 selection. The +1.34 null therefore tested the legacy admission-
+  plus-objective pipeline, not T230 retrieval over the complete boom supply.
+  The clean next 2x2 gives line-194 and support-switched T230 the same fold-
+  eligible complete union within each native/all-boom population. It uses 53
+  complete slates and 265 folds, excludes 2025 W1 mechanically, strips held-
+  out-only candidate provenance and never inserts legacy quota admission ahead
+  of either law. Existing all-boom receipts lack complete roster hashes, so
+  this must be a labeled deterministic reconstruction from pinned sources.
+- The existing prospective k=20 seed-volume/OI shadow stays separate and is
+  the Week-1 priority. Do not combine k=20, all-boom and T230 in the first
+  prospective arm. A historical all-boom/T230 cell must first improve held-out
+  230 conversion without material 220/240 regression, then pass one frozen
+  realized grade, before it may earn its own prospective shadow.
+- Gate-G0 panel publication code still reports 28 focused tests; common
+  accepted-slate reconstruction reports 7; the standalone census caller
+  reports 4. The one-slate CLI previously reported 17 focused tests, but a
+  final independent coherent-rehash audit found four remaining publication-
+  authority fail-opens: carrier identity splice, permissive nested lineage,
+  self-establishing scope hashes and unreconciled full-union arm marginals.
+  Fixes and adversarial tests are active. The real smoke may remain a local
+  benchmark diagnostic, but its envelope may not become a 54-slate acceptance
+  receipt; the panel release independently replays carrier-bound inputs.
+- A detailed two-lane scale-out plan is staged at
+  `reports/2026-08-25-t230-panel-release-and-authoritative-summary-plan.md`.
+  It freezes one generation-pinned execution manifest, one create-once result
+  and small acceptance per slate, and one exact 54-member final join. Exact
+  support boundaries remain 216/270 folds and 44/54 final fits. Cloud scale
+  still waits for the real one-slate full-suite runtime/memory benchmark.
+- Live Foundry status at 01:24Z is 42/54 accepted with zero failures: lane A
+  21/28 and lane B 21/26. Task-21 producer executions
+  `atlas-minimal-c-s2023-w1-v1-bgqwk` and
+  `atlas-cbc-32g-full-2023-w8-v1-ch8kt` are the sole bound authorities and
+  remained running. Never relaunch them or start duplicate controllers.
+- Exact next action: close and re-audit the four smoke fail-opens, commit/push
+  the accepted-panel reconstruction/smoke seams and runbooks without staging
+  live files, continue observing the original controllers, then finish both
+  batches, publish/replay the combined panel and benchmark frozen 2023 W1.
+
 ## Current handoff — 2026-08-25 00:56 UTC (twenty-eighth update)
 
 ### T230 retrieval and support-switch policy frozen; panel certification blocked safely

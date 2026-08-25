@@ -34,6 +34,18 @@ _FALSE_AUTHORITY_FIELDS = (
     "promotion_authority",
     "decision_authority",
 )
+_LOCAL_BATCH_ACCEPTED_KEYS = frozenset({
+    "schema_version",
+    "batch_mode",
+    "task_count",
+    "matrix_cell_count",
+    "batch_completion",
+    "batch_acceptance",
+    "final_output_inventory_sha256",
+    "final_output_object_count",
+    "complete",
+    "accepted",
+})
 
 
 class CorpusV12PanelIndexCLIError(RuntimeError):
@@ -188,7 +200,27 @@ def _load_identity(path: Path, *, label: str) -> dict[str, object]:
             object_pairs_hook=pairs,
             parse_constant=reject_constant,
         )
+        if (
+            isinstance(value, Mapping)
+            and value.get("schema_version")
+            == "corpus-parametric-batch-accepted/v1"
+        ):
+            if (
+                frozenset(value) != _LOCAL_BATCH_ACCEPTED_KEYS
+                or value.get("complete") is not True
+                or value.get("accepted") is not True
+            ):
+                raise CorpusV12PanelIndexCLIError(
+                    f"{label} local batch-accepted envelope differs"
+                )
+            if batch.canonical_json_bytes(value) + b"\n" != raw:
+                raise CorpusV12PanelIndexCLIError(
+                    f"{label} local batch-accepted envelope is not canonical"
+                )
+            value = value["batch_acceptance"]
         return batch.normalize_object_identity(value, label=label)
+    except CorpusV12PanelIndexCLIError:
+        raise
     except Exception as exc:
         raise CorpusV12PanelIndexCLIError(
             f"{label} is not one exact object identity"
@@ -214,6 +246,14 @@ def _publication_receipt(
         raise CorpusV12PanelIndexCLIError(
             "publication receipt mode/identity differs"
         )
+    if retained_identity is not None and (
+        retained_identity["uri"] != panel_uri
+        or retained_identity["sha256"] != sha256(raw).hexdigest()
+        or retained_identity["bytes"] != len(raw)
+    ):
+        raise CorpusV12PanelIndexCLIError(
+            "published panel identity differs from requested content"
+        )
     body: dict[str, object] = {
         "schema_version": PUBLICATION_RECEIPT_SCHEMA,
         "mode": "create_once" if published else "validate_only",
@@ -233,6 +273,119 @@ def _publication_receipt(
     return body
 
 
+def _write_local_receipt_create_once(
+    path: Path, receipt: Mapping[str, object]
+) -> None:
+    raw = batch.canonical_json_bytes(dict(receipt)) + b"\n"
+    try:
+        _reject_local_receipt_symlinks(path)
+        with path.open("xb") as handle:
+            handle.write(raw)
+    except FileExistsError:
+        try:
+            _reject_local_receipt_symlinks(path)
+            if not path.is_file() or path.read_bytes() != raw:
+                raise CorpusV12PanelIndexCLIError(
+                    "create-once local receipt collision differs"
+                )
+        except CorpusV12PanelIndexCLIError:
+            raise
+        except OSError as exc:
+            raise CorpusV12PanelIndexCLIError(
+                "create-once local receipt collision read failed"
+            ) from exc
+    except OSError as exc:
+        raise CorpusV12PanelIndexCLIError(
+            "create-once local receipt write failed"
+        ) from exc
+
+
+def _reject_local_receipt_symlinks(path: Path) -> None:
+    for component in (path, *path.parents):
+        if component.is_symlink():
+            raise CorpusV12PanelIndexCLIError(
+                "local receipt path cannot contain a symlink"
+            )
+
+
+def _preflight_local_receipt(
+    path: Path,
+    *,
+    panel_uri: str,
+    published: bool,
+) -> dict[str, object] | None:
+    if not path.is_absolute() or path.name in {"", ".", ".."}:
+        raise CorpusV12PanelIndexCLIError(
+            "local receipt output must be one absolute file path"
+        )
+    try:
+        _reject_local_receipt_symlinks(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        _reject_local_receipt_symlinks(path)
+        if not path.parent.is_dir():
+            raise CorpusV12PanelIndexCLIError(
+                "local receipt parent must be a directory"
+            )
+        if not path.exists():
+            return None
+        if not path.is_file():
+            raise CorpusV12PanelIndexCLIError(
+                "local receipt target must be a regular file"
+            )
+        raw = path.read_bytes()
+    except CorpusV12PanelIndexCLIError:
+        raise
+    except OSError as exc:
+        raise CorpusV12PanelIndexCLIError(
+            "local receipt path preflight failed"
+        ) from exc
+
+    def pairs(rows: list[tuple[str, object]]) -> dict[str, object]:
+        result: dict[str, object] = {}
+        for key, value in rows:
+            if key in result:
+                raise CorpusV12PanelIndexCLIError(
+                    f"local receipt contains duplicate key {key!r}"
+                )
+            result[key] = value
+        return result
+
+    def reject_constant(value: str) -> object:
+        raise CorpusV12PanelIndexCLIError(
+            f"local receipt contains non-finite value {value}"
+        )
+
+    try:
+        value = json.loads(
+            raw.decode("utf-8"),
+            object_pairs_hook=pairs,
+            parse_constant=reject_constant,
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise CorpusV12PanelIndexCLIError(
+            "existing local receipt is not canonical JSON"
+        ) from exc
+    if (
+        not isinstance(value, Mapping)
+        or batch.canonical_json_bytes(value) + b"\n" != raw
+        or value.get("schema_version") != PUBLICATION_RECEIPT_SCHEMA
+        or value.get("mode")
+        != ("create_once" if published else "validate_only")
+        or value.get("panel_uri") != panel_uri
+        or value.get("published") is not published
+    ):
+        raise CorpusV12PanelIndexCLIError(
+            "existing local receipt preflight differs"
+        )
+    body = dict(value)
+    retained_sha = body.pop("publication_receipt_sha256", None)
+    if retained_sha != batch.canonical_sha256(body):
+        raise CorpusV12PanelIndexCLIError(
+            "existing local receipt self-hash differs"
+        )
+    return dict(value)
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Build/replay the exact two-lane Foundry v12 panel index"
@@ -248,9 +401,18 @@ def _parser() -> argparse.ArgumentParser:
         action="append",
         required=True,
         type=Path,
-        help="canonical terminal identity JSON in lane order; provide twice",
+        help=(
+            "canonical terminal identity or canonical finish-batch local "
+            "envelope used only as its batch_acceptance identity carrier; "
+            "provide twice in lane order"
+        ),
     )
     parser.add_argument("--panel-uri", required=True)
+    parser.add_argument(
+        "--receipt-output",
+        type=Path,
+        help="optional absolute create-once local publication receipt path",
+    )
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--validate-only", action="store_true")
     mode.add_argument("--execute", action="store_true")
@@ -268,6 +430,15 @@ def run(
             "exactly two lane ids and terminal identity files are required"
         )
     _split_gcs_uri(args.panel_uri, label="panel output URI")
+    existing_local_receipt = (
+        None
+        if args.receipt_output is None
+        else _preflight_local_receipt(
+            args.receipt_output,
+            panel_uri=args.panel_uri,
+            published=bool(args.execute),
+        )
+    )
     terminal_identities = [
         _load_identity(path, label=f"lane[{ordinal}] terminal identity")
         for ordinal, path in enumerate(args.lane_terminal_identity)
@@ -288,6 +459,23 @@ def run(
         result, lane_inputs=lane_inputs, read_exact=store.read
     )
     raw = batch.canonical_json_bytes(replayed)
+    if existing_local_receipt is not None:
+        existing_identity = existing_local_receipt.get(
+            "panel_object_identity"
+        )
+        expected_existing = _publication_receipt(
+            result=replayed,
+            panel_uri=args.panel_uri,
+            raw=raw,
+            panel_identity=existing_identity,
+            published=bool(args.execute),
+        )
+        if batch.canonical_json_bytes(existing_local_receipt) != (
+            batch.canonical_json_bytes(expected_existing)
+        ):
+            raise CorpusV12PanelIndexCLIError(
+                "existing local receipt content differs before publication"
+            )
     panel_identity: Mapping[str, object] | None = None
     if args.execute:
         panel_identity = store.publish_create_once(args.panel_uri, raw)
@@ -300,13 +488,16 @@ def run(
             raise CorpusV12PanelIndexCLIError(
                 "published panel semantic replay differs"
             )
-    return _publication_receipt(
+    receipt = _publication_receipt(
         result=replayed,
         panel_uri=args.panel_uri,
         raw=raw,
         panel_identity=panel_identity,
         published=bool(args.execute),
     )
+    if args.receipt_output is not None:
+        _write_local_receipt_create_once(args.receipt_output, receipt)
+    return receipt
 
 
 def main(argv: Sequence[str] | None = None) -> int:

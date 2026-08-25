@@ -235,36 +235,93 @@ This supplement is Tier-E on the current simulator. If complete before the
 governed grade, freeze its intended final-fit books alongside R6-v2 so one
 outcome access grades the whole predeclared catalog.
 
-## Phase 2 — fastest legitimate new-generation treatment
+## Phase 2 — fastest legitimate fill × retrieval treatment
 
-Use the existing Atlas upper-bound world-ranking capability rather than
-building true importance sampling first.
+Do **not** rerun the Atlas roster-slot-upper-bound world ranker. Its frozen
+minimal C test already returned mean `delta C = -1.53` with a preregistered
+permanent-close disposition. The outside review missed that completed result.
+A 50/50 or 100% Atlas dose would be a relabeled repeat, not aggressive new
+science.
+
+The useful unresolved interaction is the prior all-boom result: exact-budget
+boom depth raised mean pool ceiling `187.58 -> 196.64` (`+9.06`) and roughly
+doubled the five-seed deduplicated union from 550 to 1,106 lineups, but the
+inherited path moved the selected book only `178.57 -> 179.91` (`+1.34`,
+null). That old S path first called `combine_cbwu_books`, which reduced the
+complete treatment union back to the first-seed candidate budget of roughly
+253 before line-194 exact-80 selection. It therefore tested the legacy
+admission-plus-objective pipeline; it did **not** establish that a tail-native
+selector cannot harvest the complete boom union.
+
+The all-boom fill itself remains closed for the money path at that dose. This
+phase does not rerun, retune or independently rehabilitate it. It reconstructs
+the frozen challenger population as a conversion substrate only after Phase 1
+proves that the new selector can harvest held-out simulated tail opportunity.
+The old receipts do not retain complete roster hashes, so a replay must be
+labeled deterministic reconstruction, not byte-identical retained evidence.
+The joint cell remains research/shadow evidence unless later prospective
+results clear their own gate.
 
 Run one compact 2×2. Freeze the complete factorial before inspecting Phase-1
 selector effects; choosing a retrieval arm after those effects are visible
 would reuse the same R evidence and bias the generation interaction.
 
-| | Incumbent retrieval | Frozen support-switched aggressive law |
+| | Complete-union line-194 coverage | Frozen support-switched aggressive law |
 |---|---|---|
-| `F0` current top-total schedule | control | retrieval-only |
-| `F1` 50/50 current + Atlas high-ceiling-proxy schedule | fill-only | joint/intersection |
+| `F0` exact incumbent-native population | full-union control | retrieval-only |
+| `F1` exact all-boom population | fill-only comparator | new joint conversion test |
+
+Both columns consume the same fold-eligible **complete union** within a row.
+The legacy quota path remains a reproduction anchor outside the factorial. If
+one column first compresses the population to roughly 253 candidates while the
+other sees roughly 1,106, admission and retrieval become inseparable and the
+test cannot answer the intended question.
 
 Rules:
 
-- identical total visit and exact-solve budget;
+- preserve the original arm's matched retained-candidate budget and exact
+  registered generation levers; do not claim optimizer-visit parity;
 - the aggressive retrieval column is the Phase-0 support-switched law above,
   never the best-performing Phase-1 selector chosen after inspection;
-- account for screening CPU/memory in compute reporting;
-- use a deterministic roster-slot/legal upper bound rather than exact-solving
-  all 50,000 worlds merely to rank 200;
-- use training/T worlds for generation only;
+- reproduce the already-frozen all-boom law (`CAND_MULT=0`, `N_BOOM=200`,
+  `BOOM_UNIQUE_FILL=1`, native-count truncation and unchanged role injection)
+  rather than inventing another boom dose;
+- use the original pinned R0--R4 sources and original implementation identity;
+  persist newly reconstructed roster/provenance/matrix snapshots before any
+  outcome access;
+- use the 53 complete five-block slates and exactly 265 folds; mechanically
+  exclude 2025 W1 because its fifth block does not exist, and do not represent
+  this reconstruction as the canonical 54-slate Foundry panel;
+- strip held-out-only candidate provenance in each fold; a duplicate lineup is
+  eligible only when it also occurs in a training block;
+- select directly from each complete eligible union, with no legacy CBWU quota
+  admission in front of either retrieval law;
+- treat the line-194 all-boom cell as a bound comparator, never as a fresh
+  attempt to rescue the closed money-path result;
 - cross-score every unique candidate on the unchanged ordinary R release;
 - evaluate only on held-out ordinary R blocks;
 - retain all candidate occurrences and F→admission→selection conversion; and
-- change no dependence model in this family, so the world-schedule effect
-  remains identifiable.
+- change no dependence model in this family, so fill and retrieval remain
+  identifiable;
+- report actual optimizer visits and solve calls because unique-fill may
+  inspect additional worlds even though retained candidate counts are equal;
+  any compute difference travels with the treatment effect; and
+- materialize exact 4/14/80 books before a controlled outcome read.
 
 This is the fastest safe test of the review's main world-supply hypothesis.
+The simulated go gate requires the all-boom/T230 cell both to reduce the
+all-boom pool's 230 miss relative to all-boom/line-194 and to beat the
+incumbent-population/T230 cell, without a material 220 or 240 regression. A
+passing cell earns one frozen realized grade, not production adoption. Only a
+positive realized conversion may create a prospective all-boom/T230 shadow.
+The prior all-boom population produced only one realized 230+ slate, so that
+grade must carry paired weekly maximum and the complete 194--240 transition
+grid; a sparse fixed-230 p-value alone cannot decide it.
+
+Keep the already-frozen prospective `k=20` seed-volume/OI shadow separate and
+make it the Week-1 priority. Combining `k=20`, all-boom fill and T230 retrieval
+in the first prospective arm would create an uninterpretable three-lever
+treatment.
 
 ## Phase 3 — dependence and true rare-event sampling
 
@@ -320,7 +377,7 @@ exist, the new T230 policy remains shadow/research only for Week 1. Prospective
 - one outcome-blind v12 support census;
 - one small versioned T230 retrieval supplement;
 - tail-event redundancy rather than ordinary correlation alone;
-- one Atlas upper-bound generation schedule treatment;
+- one exact-budget all-boom fill × T230 retrieval interaction;
 - independent ordinary-R evaluation; and
 - exact 4/14/80 budget separation.
 
