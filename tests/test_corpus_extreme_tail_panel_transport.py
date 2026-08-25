@@ -4,7 +4,9 @@ from copy import deepcopy
 from collections.abc import Mapping
 from hashlib import sha256
 import importlib.util
+import json
 from pathlib import Path
+import subprocess
 import sys
 
 import pytest
@@ -463,7 +465,7 @@ def _published_worker_runtime(
 
 def test_frozen_prefix_lanes_compute_gate_and_parser_contract() -> None:
     assert transport.OUTPUT_PREFIX.endswith(
-        "/t230/20260825-foundry-t230-production-v1/"
+        "/t230/20260825-foundry-t230-production-v2/"
     )
     assert transport.LANE_CONTRACT[0]["source_ordinals"] == list(range(28))
     assert transport.LANE_CONTRACT[1]["source_ordinals"] == list(range(28, 54))
@@ -1278,8 +1280,103 @@ def test_build_and_launcher_static_production_law() -> None:
         'lane-controller-status-${lane_a_status}-${lane_b_status}.json'
         in launcher
     )
-    assert "foundry-t230-production-v1-${_SOURCE_COMMIT}-${BUILD_ID}" in cloudbuild
+    assert "foundry-t230-production-v2-${_SOURCE_COMMIT}-${BUILD_ID}" in cloudbuild
     assert "--env EXPECTED_SOURCE_COMMIT='${_SOURCE_COMMIT}'" in cloudbuild
     assert '"$$EXPECTED_SOURCE_COMMIT"' in cloudbuild
     assert "immutable-image.txt" in cloudbuild
     assert transport._runtime_mount_contract()["target_owner_uid"] == 0
+
+
+def test_launcher_runtime_flags_file_preserves_args_and_environment(
+    tmp_path: Path,
+) -> None:
+    launcher = (
+        ROOT / "scripts/cloud_corpus_extreme_tail_panel_v1_reuse.sh"
+    ).read_text()
+    runtime = launcher.split("cat <<'RUNTIME'\n", 1)[1].split(
+        "\nRUNTIME\n", 1
+    )[0]
+    env_items = [
+        "FOUNDRY_T230_PRODUCTION_TRANSPORT_ENABLED=1",
+        "T230_IMAGE=repo.example/image@sha256:" + "a" * 64,
+        "HOSTILE=~,|,@sha256:abc,=tail\nnext-line",
+        "EMPTY=",
+    ]
+    command = (
+        'launcher="$1"; run_dir="$2"; shift 2; '
+        'export T230_RUN_DIR="$run_dir"; '
+        'source "$launcher" parked >/dev/null; '
+        'runtime_payload="$(runtime_script)"; '
+        'build_gcloud_execution_flags "$runtime_payload" "$@"'
+    )
+    completed = subprocess.run(
+        [
+            "bash", "-ceu", command, "t230-flags-test",
+            str(ROOT / "scripts/cloud_corpus_extreme_tail_panel_v1_reuse.sh"),
+            str(tmp_path), *env_items,
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    flags_file = Path(completed.stdout.strip())
+    flags = json.loads(flags_file.read_text())
+    assert flags == {
+        "--args": ["-ceu", runtime],
+        "--update-env-vars": {
+            item.split("=", 1)[0]: item.split("=", 1)[1]
+            for item in env_items
+        },
+    }
+    assert flags_file.stat().st_mode & 0o777 == 0o600
+    flags_file.unlink()
+    assert not flags_file.exists()
+
+    failed = subprocess.run(
+        [
+            "bash", "-ceu",
+            'launcher="$1"; run_dir="$2"; '
+            'export T230_RUN_DIR="$run_dir"; '
+            'source "$launcher" parked >/dev/null; '
+            'jq() { return 1; }; '
+            'runtime_payload="$(runtime_script)"; '
+            'flags_file="$(build_gcloud_execution_flags '
+            '"$runtime_payload" "A=1")"',
+            "t230-flags-failure-test",
+            str(ROOT / "scripts/cloud_corpus_extreme_tail_panel_v1_reuse.sh"),
+            str(tmp_path),
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert failed.returncode == 2
+    assert "cannot write the gcloud flags file" in failed.stderr
+    assert list(tmp_path.glob(".gcloud-execution-flags.*")) == []
+
+    def parse_gcloud_list(encoded: str) -> list[str]:
+        assert encoded.startswith("^")
+        delimiter_end = encoded.index("^", 1)
+        selected_delimiter = encoded[1:delimiter_end]
+        assert selected_delimiter
+        return encoded[delimiter_end + 1 :].split(selected_delimiter)
+
+    assert flags["--args"] == ["-ceu", runtime]
+    assert '[[ "$T230_PRED_COUNT" =~ ^[0-2]$ ]]' in flags["--args"][1]
+    assert len(parse_gcloud_list(f"^~^-ceu~{runtime}")) == 3
+
+    launch_stage = launcher.split("launch_stage() {", 1)[1].split(
+        "\nprepare_panel() {", 1
+    )[0]
+    payload_offset = launch_stage.index('runtime_payload="$(runtime_script)"')
+    publication_offset = launch_stage.index("publish-launch-request")
+    builder_offset = launch_stage.index(
+        'flags_file="$(build_gcloud_execution_flags '
+    )
+    execute_offset = launch_stage.index("gcloud run jobs execute")
+    cleanup_offset = launch_stage.index('command rm -f -- "$flags_file"')
+    assert payload_offset < publication_offset < builder_offset < execute_offset
+    assert execute_offset < cleanup_offset
+    assert '--flags-file="$flags_file"' in launch_stage
+    assert "--update-env-vars" not in launch_stage
+    assert "--args=" not in launch_stage

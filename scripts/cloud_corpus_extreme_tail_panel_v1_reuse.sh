@@ -91,6 +91,55 @@ write_jq_identity() {
   install_local_equal "$candidate" "$target"
 }
 
+build_gcloud_execution_flags() {
+  local runtime_payload="$1"
+  shift
+  local item key value
+  local -A seen=()
+  local jq_vars=(--arg runtime_payload "$runtime_payload")
+  for item in "$@"; do
+    [[ "$item" == *=* ]] || die "gcloud environment item lacks '='"
+    key="${item%%=*}"
+    value="${item#*=}"
+    [[ "$key" =~ ^[A-Z][A-Z0-9_]*$ ]] || \
+      die "gcloud environment key is invalid"
+    [[ -z "${seen[$key]:-}" ]] || die "gcloud environment key is duplicated"
+    seen[$key]=1
+    jq_vars+=(--arg "$key" "$value")
+  done
+  local flags_file
+  if ! flags_file="$(
+    mktemp "$T230_RUN_DIR/.gcloud-execution-flags.XXXXXX.json"
+  )"; then
+    die "cannot allocate the gcloud flags file"
+  fi
+  if ! jq -cn "${jq_vars[@]}" \
+    '{"--args":["-ceu",$runtime_payload],
+      "--update-env-vars":($ARGS.named | del(.runtime_payload))}' \
+    >|"$flags_file"; then
+    command rm -f -- "$flags_file"
+    die "cannot write the gcloud flags file"
+  fi
+  if ! jq -e "${jq_vars[@]}" '
+      type == "object"
+      and (keys == ["--args", "--update-env-vars"])
+      and .["--args"] == ["-ceu", $runtime_payload]
+      and .["--update-env-vars"] == ($ARGS.named | del(.runtime_payload))
+    ' "$flags_file" >/dev/null; then
+    command rm -f -- "$flags_file"
+    die "gcloud flags file failed exact validation"
+  fi
+  if [[ ! -f "$flags_file" || -L "$flags_file" ]]; then
+    command rm -f -- "$flags_file"
+    die "gcloud flags file is unsafe"
+  fi
+  if [[ "$(stat -c '%a' "$flags_file")" != "600" ]]; then
+    command rm -f -- "$flags_file"
+    die "gcloud flags file mode is not 0600"
+  fi
+  printf '%s\n' "$flags_file"
+}
+
 contract_cli_args() {
   printf '%s\n' \
     --transport-contract-uri "$(identity_value "$T230_TRANSPORT_CONTRACT_IDENTITY_FILE" uri)" \
@@ -334,18 +383,6 @@ configure() {
   publish_or_replay_live_job_config "$JOB_B" >/dev/null
 }
 
-authority_env() {
-  local file="${T230_EXECUTION_AUTHORITY_IDENTITY_FILE:-}"
-  if [[ -n "$file" ]]; then
-    printf '%s' "~T230_AUTHORITY_URI=$(identity_value "$file" uri)"
-    printf '%s' "~T230_AUTHORITY_GENERATION=$(identity_value "$file" generation)"
-    printf '%s' "~T230_AUTHORITY_SHA256=$(identity_value "$file" sha256)"
-    printf '%s' "~T230_AUTHORITY_BYTES=$(identity_value "$file" bytes)"
-  else
-    printf '%s' '~T230_AUTHORITY_URI=~T230_AUTHORITY_GENERATION=~T230_AUTHORITY_SHA256=~T230_AUTHORITY_BYTES='
-  fi
-}
-
 launch_stage() {
   require_var T230_IMAGE
   local job="$1" operation="$2" ordinal="$3" result_file="${4:-}" benchmark="${5:-0}"
@@ -405,62 +442,109 @@ launch_stage() {
   fi
   local job_config_file
   job_config_file="$(publish_or_replay_live_job_config "$job")"
-  local envs="^~^${ENABLE_ENV}=1~T230_OPERATION=${operation}~T230_SOURCE_ORDINAL=${ordinal}~T230_ATTEMPT=${attempt}~T230_BENCHMARK=${benchmark}~T230_IMAGE=${T230_IMAGE}"
+  local env_items=(
+    "${ENABLE_ENV}=1"
+    "T230_OPERATION=${operation}"
+    "T230_SOURCE_ORDINAL=${ordinal}"
+    "T230_ATTEMPT=${attempt}"
+    "T230_BENCHMARK=${benchmark}"
+    "T230_IMAGE=${T230_IMAGE}"
+  )
   local predecessor_count=0 predecessor_file
   for predecessor_file in "$predecessor0" "$predecessor1"; do
     [[ -n "$predecessor_file" ]] || continue
-    envs+="~T230_PRED${predecessor_count}_URI=$(identity_value "$predecessor_file" uri)"
-    envs+="~T230_PRED${predecessor_count}_GENERATION=$(identity_value "$predecessor_file" generation)"
-    envs+="~T230_PRED${predecessor_count}_SHA256=$(identity_value "$predecessor_file" sha256)"
-    envs+="~T230_PRED${predecessor_count}_BYTES=$(identity_value "$predecessor_file" bytes)"
+    env_items+=(
+      "T230_PRED${predecessor_count}_URI=$(identity_value "$predecessor_file" uri)"
+      "T230_PRED${predecessor_count}_GENERATION=$(identity_value "$predecessor_file" generation)"
+      "T230_PRED${predecessor_count}_SHA256=$(identity_value "$predecessor_file" sha256)"
+      "T230_PRED${predecessor_count}_BYTES=$(identity_value "$predecessor_file" bytes)"
+    )
     predecessor_count=$((predecessor_count + 1))
   done
-  envs+="~T230_PRED_COUNT=${predecessor_count}"
+  env_items+=("T230_PRED_COUNT=${predecessor_count}")
   while (( predecessor_count < 2 )); do
-    envs+="~T230_PRED${predecessor_count}_URI=~T230_PRED${predecessor_count}_GENERATION=~T230_PRED${predecessor_count}_SHA256=~T230_PRED${predecessor_count}_BYTES="
+    env_items+=(
+      "T230_PRED${predecessor_count}_URI="
+      "T230_PRED${predecessor_count}_GENERATION="
+      "T230_PRED${predecessor_count}_SHA256="
+      "T230_PRED${predecessor_count}_BYTES="
+    )
     predecessor_count=$((predecessor_count + 1))
   done
-  envs+="~T230_CONTRACT_URI=$(identity_value "$T230_TRANSPORT_CONTRACT_IDENTITY_FILE" uri)"
-  envs+="~T230_CONTRACT_GENERATION=$(identity_value "$T230_TRANSPORT_CONTRACT_IDENTITY_FILE" generation)"
-  envs+="~T230_CONTRACT_SHA256=$(identity_value "$T230_TRANSPORT_CONTRACT_IDENTITY_FILE" sha256)"
-  envs+="~T230_CONTRACT_BYTES=$(identity_value "$T230_TRANSPORT_CONTRACT_IDENTITY_FILE" bytes)"
-  envs+="~T230_EVIDENCE_URI=$(identity_value "$T230_IMAGE_EVIDENCE_IDENTITY_FILE" uri)"
-  envs+="~T230_EVIDENCE_GENERATION=$(identity_value "$T230_IMAGE_EVIDENCE_IDENTITY_FILE" generation)"
-  envs+="~T230_EVIDENCE_SHA256=$(identity_value "$T230_IMAGE_EVIDENCE_IDENTITY_FILE" sha256)"
-  envs+="~T230_EVIDENCE_BYTES=$(identity_value "$T230_IMAGE_EVIDENCE_IDENTITY_FILE" bytes)"
-  envs+="$(authority_env)"
-  if [[ -n "$result_file" ]]; then
-    envs+="~T230_RESULT_URI=$(identity_value "$result_file" uri)"
-    envs+="~T230_RESULT_GENERATION=$(identity_value "$result_file" generation)"
-    envs+="~T230_RESULT_SHA256=$(identity_value "$result_file" sha256)"
-    envs+="~T230_RESULT_BYTES=$(identity_value "$result_file" bytes)"
+  env_items+=(
+    "T230_CONTRACT_URI=$(identity_value "$T230_TRANSPORT_CONTRACT_IDENTITY_FILE" uri)"
+    "T230_CONTRACT_GENERATION=$(identity_value "$T230_TRANSPORT_CONTRACT_IDENTITY_FILE" generation)"
+    "T230_CONTRACT_SHA256=$(identity_value "$T230_TRANSPORT_CONTRACT_IDENTITY_FILE" sha256)"
+    "T230_CONTRACT_BYTES=$(identity_value "$T230_TRANSPORT_CONTRACT_IDENTITY_FILE" bytes)"
+    "T230_EVIDENCE_URI=$(identity_value "$T230_IMAGE_EVIDENCE_IDENTITY_FILE" uri)"
+    "T230_EVIDENCE_GENERATION=$(identity_value "$T230_IMAGE_EVIDENCE_IDENTITY_FILE" generation)"
+    "T230_EVIDENCE_SHA256=$(identity_value "$T230_IMAGE_EVIDENCE_IDENTITY_FILE" sha256)"
+    "T230_EVIDENCE_BYTES=$(identity_value "$T230_IMAGE_EVIDENCE_IDENTITY_FILE" bytes)"
+  )
+  local authority_file="${T230_EXECUTION_AUTHORITY_IDENTITY_FILE:-}"
+  if [[ -n "$authority_file" ]]; then
+    env_items+=(
+      "T230_AUTHORITY_URI=$(identity_value "$authority_file" uri)"
+      "T230_AUTHORITY_GENERATION=$(identity_value "$authority_file" generation)"
+      "T230_AUTHORITY_SHA256=$(identity_value "$authority_file" sha256)"
+      "T230_AUTHORITY_BYTES=$(identity_value "$authority_file" bytes)"
+    )
   else
-    envs+='~T230_RESULT_URI=~T230_RESULT_GENERATION=~T230_RESULT_SHA256=~T230_RESULT_BYTES='
+    env_items+=(
+      "T230_AUTHORITY_URI=" "T230_AUTHORITY_GENERATION="
+      "T230_AUTHORITY_SHA256=" "T230_AUTHORITY_BYTES="
+    )
+  fi
+  if [[ -n "$result_file" ]]; then
+    env_items+=(
+      "T230_RESULT_URI=$(identity_value "$result_file" uri)"
+      "T230_RESULT_GENERATION=$(identity_value "$result_file" generation)"
+      "T230_RESULT_SHA256=$(identity_value "$result_file" sha256)"
+      "T230_RESULT_BYTES=$(identity_value "$result_file" bytes)"
+    )
+  else
+    env_items+=(
+      "T230_RESULT_URI=" "T230_RESULT_GENERATION="
+      "T230_RESULT_SHA256=" "T230_RESULT_BYTES="
+    )
   fi
   if [[ "$operation" == "finish-panel" ]]; then
     [[ -f "$lane0_file" && -f "$lane1_file" ]] || die "finalizer lane identities are absent"
-    envs+="~T230_LANE0_URI=$(identity_value "$lane0_file" uri)"
-    envs+="~T230_LANE0_GENERATION=$(identity_value "$lane0_file" generation)"
-    envs+="~T230_LANE0_SHA256=$(identity_value "$lane0_file" sha256)"
-    envs+="~T230_LANE0_BYTES=$(identity_value "$lane0_file" bytes)"
-    envs+="~T230_LANE1_URI=$(identity_value "$lane1_file" uri)"
-    envs+="~T230_LANE1_GENERATION=$(identity_value "$lane1_file" generation)"
-    envs+="~T230_LANE1_SHA256=$(identity_value "$lane1_file" sha256)"
-    envs+="~T230_LANE1_BYTES=$(identity_value "$lane1_file" bytes)"
+    env_items+=(
+      "T230_LANE0_URI=$(identity_value "$lane0_file" uri)"
+      "T230_LANE0_GENERATION=$(identity_value "$lane0_file" generation)"
+      "T230_LANE0_SHA256=$(identity_value "$lane0_file" sha256)"
+      "T230_LANE0_BYTES=$(identity_value "$lane0_file" bytes)"
+      "T230_LANE1_URI=$(identity_value "$lane1_file" uri)"
+      "T230_LANE1_GENERATION=$(identity_value "$lane1_file" generation)"
+      "T230_LANE1_SHA256=$(identity_value "$lane1_file" sha256)"
+      "T230_LANE1_BYTES=$(identity_value "$lane1_file" bytes)"
+    )
   else
-    envs+='~T230_LANE0_URI=~T230_LANE0_GENERATION=~T230_LANE0_SHA256=~T230_LANE0_BYTES='
-    envs+='~T230_LANE1_URI=~T230_LANE1_GENERATION=~T230_LANE1_SHA256=~T230_LANE1_BYTES='
+    env_items+=(
+      "T230_LANE0_URI=" "T230_LANE0_GENERATION="
+      "T230_LANE0_SHA256=" "T230_LANE0_BYTES="
+      "T230_LANE1_URI=" "T230_LANE1_GENERATION="
+      "T230_LANE1_SHA256=" "T230_LANE1_BYTES="
+    )
   fi
   if [[ -n "${T230_COMPUTE_RELEASE_IDENTITY_FILE:-}" ]] \
       && [[ "$operation" != "prepare" ]] \
       && [[ "$operation" != "run-slate" || "$ordinal" != "0" ]]; then
-    envs+="~T230_COMPUTE_URI=$(identity_value "$T230_COMPUTE_RELEASE_IDENTITY_FILE" uri)"
-    envs+="~T230_COMPUTE_GENERATION=$(identity_value "$T230_COMPUTE_RELEASE_IDENTITY_FILE" generation)"
-    envs+="~T230_COMPUTE_SHA256=$(identity_value "$T230_COMPUTE_RELEASE_IDENTITY_FILE" sha256)"
-    envs+="~T230_COMPUTE_BYTES=$(identity_value "$T230_COMPUTE_RELEASE_IDENTITY_FILE" bytes)"
+    env_items+=(
+      "T230_COMPUTE_URI=$(identity_value "$T230_COMPUTE_RELEASE_IDENTITY_FILE" uri)"
+      "T230_COMPUTE_GENERATION=$(identity_value "$T230_COMPUTE_RELEASE_IDENTITY_FILE" generation)"
+      "T230_COMPUTE_SHA256=$(identity_value "$T230_COMPUTE_RELEASE_IDENTITY_FILE" sha256)"
+      "T230_COMPUTE_BYTES=$(identity_value "$T230_COMPUTE_RELEASE_IDENTITY_FILE" bytes)"
+    )
   else
-    envs+='~T230_COMPUTE_URI=~T230_COMPUTE_GENERATION=~T230_COMPUTE_SHA256=~T230_COMPUTE_BYTES='
+    env_items+=(
+      "T230_COMPUTE_URI=" "T230_COMPUTE_GENERATION="
+      "T230_COMPUTE_SHA256=" "T230_COMPUTE_BYTES="
+    )
   fi
+  local runtime_payload
+  runtime_payload="$(runtime_script)"
   local launch_request=("$PYTHON_BIN" "$TRANSPORT" publish-launch-request)
   launch_request+=("${launch_contract_args[@]}" --operation "$operation" --execute)
   launch_request+=(--job-config-identity "$job_config_file")
@@ -476,28 +560,33 @@ launch_stage() {
     fi
     die "durable launch request is consumed; no stage or recoverable core terminal exists, and relaunch is forbidden"
   fi
-  envs+="~T230_LAUNCH_REQUEST_URI=$(jq -er '.target_identity.uri' <<<"$launch_publication")"
-  envs+="~T230_LAUNCH_REQUEST_GENERATION=$(jq -er '.target_identity.generation' <<<"$launch_publication")"
-  envs+="~T230_LAUNCH_REQUEST_SHA256=$(jq -er '.target_identity.sha256' <<<"$launch_publication")"
-  envs+="~T230_LAUNCH_REQUEST_BYTES=$(jq -er '.target_identity.bytes' <<<"$launch_publication")"
-  envs+="~T230_LAUNCH_INTENT_URI=$(jq -er '.intent_identity.uri' <<<"$launch_publication")"
-  envs+="~T230_LAUNCH_INTENT_GENERATION=$(jq -er '.intent_identity.generation' <<<"$launch_publication")"
-  envs+="~T230_LAUNCH_INTENT_SHA256=$(jq -er '.intent_identity.sha256' <<<"$launch_publication")"
-  envs+="~T230_LAUNCH_INTENT_BYTES=$(jq -er '.intent_identity.bytes' <<<"$launch_publication")"
-  envs+="~T230_LAUNCH_COMPLETION_URI=$(jq -er '.completion_identity.uri' <<<"$launch_publication")"
-  envs+="~T230_LAUNCH_COMPLETION_GENERATION=$(jq -er '.completion_identity.generation' <<<"$launch_publication")"
-  envs+="~T230_LAUNCH_COMPLETION_SHA256=$(jq -er '.completion_identity.sha256' <<<"$launch_publication")"
-  envs+="~T230_LAUNCH_COMPLETION_BYTES=$(jq -er '.completion_identity.bytes' <<<"$launch_publication")"
+  env_items+=(
+    "T230_LAUNCH_REQUEST_URI=$(jq -er '.target_identity.uri' <<<"$launch_publication")"
+    "T230_LAUNCH_REQUEST_GENERATION=$(jq -er '.target_identity.generation' <<<"$launch_publication")"
+    "T230_LAUNCH_REQUEST_SHA256=$(jq -er '.target_identity.sha256' <<<"$launch_publication")"
+    "T230_LAUNCH_REQUEST_BYTES=$(jq -er '.target_identity.bytes' <<<"$launch_publication")"
+    "T230_LAUNCH_INTENT_URI=$(jq -er '.intent_identity.uri' <<<"$launch_publication")"
+    "T230_LAUNCH_INTENT_GENERATION=$(jq -er '.intent_identity.generation' <<<"$launch_publication")"
+    "T230_LAUNCH_INTENT_SHA256=$(jq -er '.intent_identity.sha256' <<<"$launch_publication")"
+    "T230_LAUNCH_INTENT_BYTES=$(jq -er '.intent_identity.bytes' <<<"$launch_publication")"
+    "T230_LAUNCH_COMPLETION_URI=$(jq -er '.completion_identity.uri' <<<"$launch_publication")"
+    "T230_LAUNCH_COMPLETION_GENERATION=$(jq -er '.completion_identity.generation' <<<"$launch_publication")"
+    "T230_LAUNCH_COMPLETION_SHA256=$(jq -er '.completion_identity.sha256' <<<"$launch_publication")"
+    "T230_LAUNCH_COMPLETION_BYTES=$(jq -er '.completion_identity.bytes' <<<"$launch_publication")"
+  )
   local intent_candidate
   intent_candidate="$(mktemp "$T230_RUN_DIR/.launch-intent.XXXXXX")"
   printf '%s\n' "job=$job operation=$operation ordinal=$ordinal attempt=$attempt maxRetries=0" >|"$intent_candidate"
   install_local_equal "$intent_candidate" "$intent"
+  local flags_file
+  flags_file="$(build_gcloud_execution_flags "$runtime_payload" "${env_items[@]}")"
   if ! gcloud run jobs execute "$job" --project "$PROJECT" --region "$REGION" \
     --wait --tasks 1 --task-timeout 21600s \
-    --args="^~^-ceu~$(runtime_script)" --update-env-vars "$envs" \
+    --flags-file="$flags_file" \
     --format='value(metadata.name)' >"$response"; then
     printf '%s\n' "execution response was ambiguous or failed; durable request is consumed and will never be relaunched" >&2
   fi
+  command rm -f -- "$flags_file"
   local resolve=("$PYTHON_BIN" "$TRANSPORT" resolve-stage-receipt)
   mapfile -t contract_args < <(contract_cli_args)
   resolve+=("${contract_args[@]}" --operation "$operation" --output "$stage_identity" --body-output "$stage_body" --execute)

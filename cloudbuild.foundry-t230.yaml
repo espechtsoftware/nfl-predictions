@@ -55,7 +55,7 @@ steps:
       - -ceu
       - |
         if [[ '${_T230_PHASE}' == candidate ]]; then
-          image_tag='${_IMAGE_REPOSITORY}:foundry-t230-production-v1-${_SOURCE_COMMIT}-${BUILD_ID}'
+          image_tag='${_IMAGE_REPOSITORY}:foundry-t230-production-v2-${_SOURCE_COMMIT}-${BUILD_ID}'
           docker build --build-arg 'SOURCE_COMMIT=${_SOURCE_COMMIT}' \
             -f Dockerfile.foundry-t230 -t "$image_tag" .
           docker run --rm "$image_tag" \

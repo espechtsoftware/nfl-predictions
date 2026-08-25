@@ -20,6 +20,54 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 19:10 UTC (sixty-eighth update)
+
+### T230 v2 typed launch repair is validated and ready to freeze
+
+- The terminal v1 prepare failure is dispositioned in the new governing
+  `reports/2026-08-25-t230-production-v2-restart-amendment.md`. V2 is the new
+  run incarnation `20260825-foundry-t230-production-v2`; both canonical and
+  prefreeze prefixes derive from that one `RUN_ID`, the candidate tag is
+  `foundry-t230-production-v2-<source>-<build>`, and the v2 amendment is now
+  included in `SOURCE_SNAPSHOT_PATHS`. A fresh source-bound D2, real smoke and
+  same-D2 release remain mandatory; v1 D and its consumed request are never
+  reused for compute.
+- The final serialization repair removes dynamic delimiter encoding from the
+  complete production launch, not only the observed argument site.
+  `launch_stage` assembles the exact environment as distinct key/value items;
+  `build_gcloud_execution_flags` writes one mode-0600 typed JSON flags file
+  containing exact `--args: [-ceu, <complete runtime>]` and the complete
+  `--update-env-vars` dictionary. Keys are syntax-validated, duplicates fail,
+  allocation and writes are explicitly checked even under command
+  substitution, and the complete JSON is exact-validated before use.
+  Arbitrary punctuation/newlines remain values, gcloud consumes only that
+  flags file, and failure/success paths delete the temporary file.
+- The production-builder regression invokes those exact shell bytes and
+  requires byte-equal runtime arguments, the complete environment dictionary,
+  mode 0600 and hostile `~`, comma, pipe, `@sha256:`, embedded `=` and newline
+  preservation. It separately proves the old v1 alternate-delimiter encoding
+  produces three arguments. A help-only invocation through the installed
+  gcloud parser accepted the typed flags file without executing a job.
+- Validation is green one module at a time: transport 14/14, panel execution
+  40/40 and prefreeze smoke 6/6, plus Bash syntax, Python compilation, YAML
+  parsing and scoped diff checks. Stable SHA-256 values are Cloud Build
+  `0721235a2fdafe0bdc98a38bc0a08db8c923978b38ca96cd7d14cc13aa133449`,
+  transport
+  `84db71cda2bdd41b265b4daacb32d51704abf0bf15871b2060bfddd6712f1058`,
+  launcher
+  `432efbe0f70395295731e7911db2f32badb3c76e0b0ecd127b1bca8bc727e6ec`,
+  test
+  `a18bb40e5543bfd3fe93eb5f59d828192469f3520182c1d1826a5ab1cec2a71d`
+  and v2 amendment
+  `bb49b63b5100a83ceb4b125153e13a856ab68fc451c8fcb59c73728d8d672ce3`.
+  Independent version/provenance and typed-flags reviews both APPROVE the
+  exact final bytes with no P0/P1/P2.
+- No new cloud execution, image, smoke, outcome, score or IAM census occurred
+  during this repair. Exact next action: obtain the final review, explicitly
+  commit/push only the five repaired code/test/report files plus this handoff,
+  and submit a fresh candidate from that exact source with the same three G0
+  carriers. Require new D2 and its own real smoke before same-D2 release.
+
 ## Current handoff — 2026-08-25 18:49 UTC (sixty-seventh update)
 
 ### T230 v1 prepare request is terminal after an argument-delimiter defect

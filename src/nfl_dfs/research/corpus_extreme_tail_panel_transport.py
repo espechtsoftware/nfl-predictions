@@ -69,19 +69,17 @@ IMAGE_EVIDENCE_PUBLICATION_BINDING_SCHEMA: Final = (
     "foundry-t230-image-evidence-publication-binding/v1"
 )
 
-RUN_ID: Final = "20260825-foundry-t230-production-v1"
+RUN_ID: Final = "20260825-foundry-t230-production-v2"
 PROJECT: Final = "nfl-predictions-503414"
 REGION: Final = "us-central1"
 OUTPUT_PREFIX: Final = (
     "gs://nfl-predictions-503414-corpus-parametric/research/"
-    "corpus-parametric-research/t230/"
-    "20260825-foundry-t230-production-v1/"
+    f"corpus-parametric-research/t230/{RUN_ID}/"
 )
 TRANSPORT_PREFIX: Final = OUTPUT_PREFIX + "transport/"
 PREFREEZE_OUTPUT_PREFIX: Final = (
     "gs://nfl-predictions-503414-corpus-parametric/research/"
-    "corpus-parametric-research/t230-prefreeze/"
-    "20260825-foundry-t230-production-v1/"
+    f"corpus-parametric-research/t230-prefreeze/{RUN_ID}/"
 )
 PREFREEZE_JOURNAL_PREFIX: Final = PREFREEZE_OUTPUT_PREFIX + "publication-journal/"
 TRANSPORT_CONTRACT_URI: Final = TRANSPORT_PREFIX + "transport-contract-v1.json"
@@ -180,6 +178,7 @@ SOURCE_SNAPSHOT_PATHS: Final = tuple(dict.fromkeys((
     execution.FROZEN_G0_AUTHORITY_LOCK_RELATIVE_PATH,
     *_LOCAL_G0_RECEIPT_PATHS,
     "reports/2026-08-25-t230-production-transport-amendment.md",
+    "reports/2026-08-25-t230-production-v2-restart-amendment.md",
     "src/nfl_dfs/research/corpus_extreme_tail_panel_transport.py",
     "scripts/run_corpus_extreme_tail_panel_transport_v1.py",
     "scripts/run_t230_benchmark_worker_v1.sh",
