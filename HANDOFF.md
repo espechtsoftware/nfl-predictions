@@ -20,6 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 20:01 UTC (seventy-second update)
+
+### Fresh S3 candidate is queued and the first-score transaction is rebound
+
+- The approved missing-`jq` repair is committed and pushed as exact S3
+  `a6bc9d4c862777c03d7dd802c5950486e7d85134` (`Install jq for T230 candidate
+  tests`); local and `origin/main` matched at submission. Fresh candidate
+  Cloud Build `52c91739-aa85-4c61-95fa-155e1a1c96a5` was created at
+  `2026-08-25T20:00:24.175146092Z`, initially `QUEUED`, from source archive
+  generation `1787688023565558` at
+  `gs://nfl-predictions-503414_cloudbuild/source/1787688022.829828-eeeb72ea1290471ba1cfcbc5da723b34.tgz`.
+  The submission again contained exactly three files totaling 3.2 KiB and
+  pins candidate phase, S3, the runtime service account, smoke job, region and
+  image repository.
+- `reports/2026-08-25-core-v1-score-transaction-v3-amendment.md`
+  prospectively freezes new `*-v3` Core chain/catalog/outcome/grade IDs against
+  this exact S3 candidate and only its future successfully smoked D2 plus a
+  same-S3/same-D2 release. Core v1 science remains 1,944 prespecified book
+  cells. The failed-candidate `*-v2` declarations remain terminal-unused.
+  Independent review APPROVED the exact v3 amendment and handoff bytes with no
+  P0/P1/P2 after checking every source, candidate, URI, ID, prefix and outcome
+  boundary against current operator law.
+- No D2, smoke, canonical v2 transport object, T230 science, historical
+  outcome, comparative score or IAM census is claimed at this update.
+- Exact next action: monitor candidate
+  `52c91739-aa85-4c61-95fa-155e1a1c96a5` to terminal. On success, exact-resolve
+  its known tag to D2 and submit the same-S3/same-D2 release; on failure, stop
+  and disposition the exact pre-image or smoke boundary before any successor.
+
 ## Current handoff — 2026-08-25 20:00 UTC (seventy-first update)
 
 ### First T230 v2 candidate stopped before image build on one missing test dependency
