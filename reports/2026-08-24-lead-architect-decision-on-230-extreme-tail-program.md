@@ -353,6 +353,11 @@ True importance sampling is not yet in this inventory because no validated
 without a point-in-time field model. Those are missing-method/data tasks, not
 reasons to postpone any currently executable historical cell.
 
+The complete pre-season cell registry, compute-sharing law, scenario-ticket
+definition, hard-230 admission sensitivity, external-review disposition table
+and one-grade boundary are frozen in
+`reports/2026-08-25-pre-week1-historical-experiment-matrix.md`.
+
 ## Phase 3 — dependence and true rare-event sampling
 
 These are separate later workstreams, not a combined first arm.

@@ -20,15 +20,15 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-25 01:49 UTC (twenty-ninth update)
+## Current handoff — 2026-08-25 02:08 UTC (twenty-ninth update)
 
 ### T230 direction corrected to full-union boom conversion; smoke audit active
 
-- Branch `main` is at pushed commit `06ae9676` (`Prepare accepted-panel T230
-  execution`). It contains the exact combined-panel builder, common accepted-
-  slate reconstruction, one-slate census caller, corrected T230 decision and
-  manifest/result/final-join scale-out design. No governed realized outcome
-  was accessed. Active v12
+- Branch `main` is at pushed commit `f1e00cd1` (`Add accepted-panel T230
+  smoke`). It contains the exact combined-panel builder, common accepted-slate
+  reconstruction, one-slate census caller, corrected T230 decision, manifest/
+  result/final-join scale-out design, independently audited smoke CLI and its
+  frozen runbook. No governed realized outcome was accessed. Active v12
   environment, governance, foundation and transport files and the outside
   review remain unstaged and must not be cleaned or included in the next
   implementation commit.
@@ -60,7 +60,11 @@ agent or developer:
   deterministic scenario-ticket law, and exact 4/14/80 diagnostics before
   Week 1. True importance sampling remains outside the executable inventory
   until an exact `p/q` weight contract exists; incomplete point-in-time field
-  data likewise cannot support a field-max arm yet.
+  data likewise cannot support a field-max arm yet. The complete frozen cell
+  registry, compute-sharing/cross-fit law, scenario-ticket selector, hard-230
+  admission sensitivity, external-review disposition table and pre-season
+  deliverables are in
+  `reports/2026-08-25-pre-week1-historical-experiment-matrix.md`.
 - Gate-G0 panel publication code reports 28 focused tests; common
   accepted-slate reconstruction reports 7; the standalone census caller
   reports 4. The one-slate CLI now exact-binds carrier source/world receipts,
@@ -79,20 +83,27 @@ agent or developer:
   and small acceptance per slate, and one exact 54-member final join. Exact
   support boundaries remain 216/270 folds and 44/54 final fits. Cloud scale
   still waits for the real one-slate full-suite runtime/memory benchmark.
-- A pure outcome-blind T230 execution-manifest builder/validator and focused
-  adversarial fixture are being implemented in new files only; no cloud or
-  result/finalizer work is authorized before the real benchmark.
-- Live Foundry status at 01:44Z is 42/54 accepted with zero failures: lane A
+- The pure `foundry-t230-panel-execution-manifest/v1` builder/validator is
+  complete in new files. It literal-freezes the 54-member 28/26 lattice,
+  canonical seven arms, `7 x 5 x 200` dose, 10,000-world blocks, four-law
+  registry, 4/14/80 budgets, 100/125 support switch, exact 4/5 and 216/270 plus
+  44/54 panel boundaries, deterministic result/acceptance URIs, source commit/
+  image and false authorities. Focused validation reports 44 passed in 2.6
+  seconds; compile, Ruff, line and whitespace checks are clean. Independent
+  re-audit is clear after explicit coherent imported-constant drift tests. No
+  cloud or result/finalizer work is authorized before the real benchmark.
+- Live Foundry status at 02:06Z is 42/54 accepted with zero failures: lane A
   21/28 and lane B 21/26. Task-21 producer executions
   `atlas-minimal-c-s2023-w1-v1-bgqwk` and
-  `atlas-cbc-32g-full-2023-w8-v1-ch8kt` both reached terminal success. Lane B
-  entered its one-shot task-21 verifier launch at 01:41:18Z; lane A was closing
-  its producer at 01:44:16Z. No verifier execution identity was yet logged.
-  Never relaunch either producer or start duplicate controllers.
-- Exact next action: commit/push the re-audited smoke CLI and frozen runbook
-  without staging live files, complete and validate the manifest schema, keep
-  observing the original controllers, then finish both batches, publish/replay
-  the combined panel and benchmark frozen 2023 W1.
+  `atlas-cbc-32g-full-2023-w8-v1-ch8kt` both reached terminal success. Their
+  sole verifier authorities are now bound to
+  `atlas-minimal-c-s2023-w1-v1-868s6` and
+  `atlas-cbc-32g-full-2023-w8-v1-wf7r2`; both remained running. Never relaunch
+  either producer/verifier or start duplicate controllers.
+- Exact next action: commit/push the re-audited manifest schema and pre-Week-1
+  experiment matrix without staging live files, keep observing the original
+  controllers, then finish both batches, publish/replay the combined panel and
+  benchmark frozen 2023 W1.
 
 ## Current handoff — 2026-08-25 00:56 UTC (twenty-eighth update)
 
