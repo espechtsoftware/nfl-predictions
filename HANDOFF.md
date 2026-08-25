@@ -20,6 +20,43 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 23:43 UTC (eighty-sixth update)
+
+### T230 ordinal 29 is accepted; both offline candidates require correction
+
+- Lane B verifier execution `atlas-cbc-32g-full-2023-w8-v1-drsn5`
+  completed successfully in 20m39s. Its exact-reopened verifier stage is
+  generation `1787700741008982`, SHA-256
+  `f6ee77536340a1d04aee500baecbb092fad24ce34df8ab87c7e1d33763e0508d`.
+  Ordinal 29 acceptance is generation `1787700740365862`, SHA-256
+  `68d151f93968070d902aba1922809f815c43e0dfafb17aaa34ec51c286a13a25`,
+  5,351 bytes, and reports `uses_realized_outcomes=false`. The panel now has
+  four exact acceptances: 0, 1, 28, and 29.
+- Lane A verifier 2 `atlas-minimal-c-s2023-w1-v1-fsfqh` remains genuinely
+  running with one task and no failure or retry. Do not resume `run-panel`
+  until this verifier is terminal and its stage/acceptance exact-reopen.
+- Independent static review rejected the uncommitted Observatory Phase 4
+  candidate for correction before testing. P1s include silent/non-unique live
+  loader conflict behavior, content-derived transaction identities,
+  caller-asserted predecessor evidence, frozen-query/evaluator mismatches,
+  hard-coded realized census values, pre-read receipt-size exposure, and
+  missing manifest namespace enforcement. One bounded correction pass is
+  active in the isolated worktree; no Neo4j, router, outcome, cloud, or
+  production integration is approved.
+- Independent static review also rejected the uncommitted R6 source operator
+  as a trusted execute boundary. A coherent caller-selected catalog/query/
+  extract/code bundle could mint an internally authoritative source chain,
+  and its denylist-based authority closure is bypassable. A bounded correction
+  is active to require an externally supplied, exact-read capture-authority
+  carrier, strict positive code schema, coherent-substitution adversaries,
+  stable bounded CLI reads, and generation/fake-store coverage. Execute must
+  remain source-blocked without the future frozen 54-entry authority catalog.
+- No candidate was staged or committed and no realized outcome was read.
+  Exact next action: keep status-only polling verifier 2; exact-resolve its
+  acceptance, then resume the existing two T230 lanes from consumed durable
+  requests. Rereview both offline corrections before granting one focused
+  test invocation or committing them.
+
 ## Current handoff — 2026-08-25 23:30 UTC (eighty-fifth update)
 
 ### T230 cloud work survived the IDE restart; local controllers require receipt-safe resume
