@@ -20,6 +20,33 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 17:48 UTC (sixty-fourth update)
+
+### Fresh D reached the real Cloud Run smoke; still unaccepted
+
+- Candidate build `9d6b53a8-448f-46da-a0d0-6b454674c5c1` passed exact
+  checkout, all focused tests, the full semantic G0 replay, new-image build,
+  parked/source-snapshot checks and push from exact source
+  `0cf48f180014862355082bff1147024d72ed4ca9`.
+- Its unique tag is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:foundry-t230-production-v1-0cf48f180014862355082bff1147024d72ed4ca9-9d6b53a8-448f-46da-a0d0-6b454674c5c1`
+  and new candidate D is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:90fd3e09d6d8a5a081f7903fa522223309d466d31d7aa163e0ea47da2a15c5a2`.
+  D remains **unaccepted and forbidden for release/T230** until the real
+  smoke, durable gate and terminal candidate success all pass.
+- The corrected Cloud SDK step passed its PEP-668 install and every explicit
+  `python3` invocation needed to reach Cloud Run. It cleared/reconfigured the
+  known smoke job to D's exact one-task/no-retry envelope and is now creating
+  the real smoke execution. This is the first candidate to reach reality
+  contact; no result or gate exists yet.
+- The local lease-release P1 repair is separately pushed as `a9549550`; it
+  does not alter D. No historical outcome, comparative score or IAM census
+  has run.
+- Exact next action: wait for the real smoke execution, exact envelope
+  validation, journal publication, numeric gate reconstruction and candidate
+  terminal `SUCCESS`. Only then exact-resolve this tag to the digest above and
+  submit same-D release without rebuild.
+
 ## Current handoff — 2026-08-25 17:15 UTC (sixty-third update)
 
 ### Core lease-release P1 is closed and root-validated without rebuilding D
