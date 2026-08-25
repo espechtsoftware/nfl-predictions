@@ -6,6 +6,17 @@ no governed outcome read, v12 mutation, production-policy change, or R6-v2
 registry change is authorized by this document
 **Reviewed input:** `reports/2026-08-24-big-picture-review-response.md`
 
+**Scope amendment — 2026-08-25:** regular-season Week 1 is the hard deadline,
+not the start of this research. The frozen k=20 prospective shadow remains
+unchanged, but every historically runnable strategy must complete before Week
+1. The later, authoritative catalog expansion is in sections 7.1--7.2 of
+`reports/2026-08-25-pre-week1-historical-experiment-matrix.md`; it adds the
+fixed convex-excess selector, 230-native block-supported ladder, bounded
+coverage oracle, actual hard-230 generation/replenishment arm, non-Atlas
+game-regime tail-discovery schedule, and full P x K comparator coverage. Any
+language below describing a "small" supplement does not narrow that amended
+pre-Week-1 requirement.
+
 ## Executive decision
 
 The review is directionally correct: **230+ must become a first-class scoring

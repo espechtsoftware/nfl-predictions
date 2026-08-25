@@ -20,6 +20,38 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 02:50 UTC (thirty-second update)
+
+### Pre-Week-1 catalog expanded; no runnable strategy deferred to Week 1
+
+- Branch `main` is at pushed commit `ed668a2c` (`Add preweek extreme-tail
+  selector ablations`). The hard-230 admission/upper-end ablation component is
+  durable after 29 focused tests and independent fail-closed review.
+- The outcome-blind experiment specification has been amended, before effects
+  or a new realized grade, to close six runnable omissions. In addition to the
+  frozen eight primary cells, the pre-Week-1 catalog now requires: a single
+  fixed convex-excess expected-max selector; a 230-native distinct-block-
+  supported ladder; bounded maximum-coverage oracle gaps; a true hard-230
+  generation/replenishment arm; a non-Atlas, equal-visit, game-regime tail-
+  discovery schedule; and the complete existing comparator catalog on every
+  P x K substrate. See sections 7.1--7.2 of
+  `reports/2026-08-25-pre-week1-historical-experiment-matrix.md`. The older
+  lead-architect decision carries an explicit scope-amendment pointer.
+- Additive selector/oracle and generation/schedule modules are being built in
+  isolated new files. The core factorial manifest's three prior authority
+  blockers are code-complete and static-clean, but it must not run/freeze as a
+  complete grade catalog until it binds the new public component contracts.
+  Its eight primary cells stay unchanged; the two generation experiments use
+  a companion registry and feed the same aggregate pre-grade catalog.
+- Live Foundry remained 44/54 accepted with zero failures at 02:48Z. The sole
+  task-22 producers `atlas-minimal-c-s2023-w1-v1-kss5z` and
+  `atlas-cbc-32g-full-2023-w8-v1-bkjct` remained under their original
+  controllers. Never relaunch or duplicate them. Active v12 files and the
+  outside review remain unstaged.
+- Exact next action: commit/push the scope amendment, complete and audit the
+  two additive implementation modules, bind them into the core/companion
+  manifests, and continue observing the original G0 controllers.
+
 ## Current handoff — 2026-08-25 02:45 UTC (thirty-first update)
 
 ### Selector ablations clear; full pre-Week-1 strategy scope reopened correctly

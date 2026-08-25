@@ -1,8 +1,10 @@
 # Pre-Week-1 historical experiment matrix: 230+ population, volume, and retrieval
 
 **Date:** 2026-08-25
-**Status:** outcome-blind scientific and execution specification; frozen before
-the experiment effects or any new realized grade are inspected
+**Status:** outcome-blind scientific and execution specification; the core
+eight-cell substrate is frozen, but the complete pre-grade catalog remains
+open only for the six explicitly enumerated runnable additions in sections
+7.1 and 7.2; no experiment effect or new realized grade has been inspected
 **Hard deadline:** every strategy classified `RUN NOW` below must have its
 historical books frozen and included in the single controlled grade before the
 first 2026 regular-season Week-1 slate
@@ -27,11 +29,17 @@ access:
    incumbent-native versus frozen all-boom population, five versus twenty
    candidate-origin books, and complete-union line-194 versus the frozen
    support-switched T230 retrieval law.
-3. On the same matrices, run all four raw T230 laws and one newly frozen
-   scenario-ticket law as secondary mechanism comparisons. Expensive
+3. On the same matrices, run all four frozen raw T230 laws, the scenario-ticket
+   law, the existing comparator catalog, one fixed convex-excess expected-max
+   law, and one 230-native distinct-block-supported ladder. Expensive
    population generation and cross-scoring may not be repeated for selectors.
-4. Freeze exact 4-, 14-, and 80-entry final books for every intended law.
-5. Only then perform one controlled realized-outcome grade covering the entire
+4. Run a deterministic exact/bounded maximum-coverage oracle diagnostic and
+   add two generation experiments that existing historical inputs support: an
+   actual hard-230 generate/filter/replenish preset and one non-Atlas,
+   equal-visit, game-regime-stratified tail-discovery schedule.
+5. Freeze exact 4-, 14-, and 80-entry final books for every intended selection
+   law and every feasible generated population.
+6. Only then perform one controlled realized-outcome grade covering the entire
    predeclared catalog.
 
 The experiment does **not** reopen Atlas. The minimal frozen Atlas test lost
@@ -317,9 +325,13 @@ The support-switched policy is reported separately from the four raw laws. The
 factorial's causal retrieval contrast is R194 versus the support switch, not a
 post-result choice among the raw four.
 
-The canonical panel must also carry the existing `coverage-194-v1`,
-`expected-max-v1`, and `mean-score-v1` comparators. Freeze one additional
-upper-end ablation requested by the external review:
+The canonical panel and every P x K substrate must also carry the existing
+`coverage-194-v1`, `strict-200-coverage-v1`, `tail-ladder-200-210-220-v1`,
+`expected-max-v1`, `block-supported-tail-ladder-v1`,
+`regime-robust-ladder-v1`, and `mean-score-v1` comparator catalog. Shared
+matrices make this selector expansion cheap; restricting expected-max or mean
+to the canonical panel would leave the population/volume interaction untested.
+Freeze one additional upper-end ablation requested by the external review:
 `individual-training-maximum-rank-v1`, which orders candidates by descending
 maximum fit-world score, then descending fit-world mean, then ascending lineup
 ID. It ignores overlap and returns the same exact 4/14/80 prefixes. It is a
@@ -335,11 +347,68 @@ admission-mechanism comparison, not a ninth factorial cell or an automatic
 nominee.
 
 All raw T230 laws, the support switch, the scenario-ticket law below, R194,
-the upper-end ablation, and the hard-230 admission sensitivity must also run on
-each of the four P x K matrices. They are secondary substrate-sensitivity
-comparisons outside the eight-cell primary factorial, but their feasible final
-books freeze before the same realized grade. This costs selector time, not new
-generation or cross-scoring.
+the complete comparator catalog, the upper-end ablation, and the hard-230
+admission sensitivity must also run on each of the four P x K matrices. They
+are secondary substrate-sensitivity comparisons outside the eight-cell primary
+factorial, but their feasible final books freeze before the same realized
+grade. This costs selector time, not new generation or cross-scoring.
+
+### 7.1 Six catalog additions that may not be deferred
+
+The operator's Week-1 correction exposed six runnable omissions. They are
+explicit additions to the outcome-blind freeze, not an invitation to add more
+methods after simulated effects are visible:
+
+1. `convex-excess-expected-max-ge-200-v1`: deterministic greedy marginal set
+   utility with the one fixed transform `u(s)=max(0,s-200)^2`. There is no
+   threshold or exponent sweep. It materializes one prefix-stable rank 80 and
+   exact 4/14/80 books on every canonical and P x K substrate.
+2. `block-supported-bounded-tail-ge-210-250-v1`: the existing exact distinct-
+   block-support scaling applied to inclusive 210/220/230/240/250 events with
+   weights 1/2/4/8/16. It is separate from the leximin block-robust fallback
+   and runs on every substrate.
+3. `maximum-coverage-ge-230-oracle-diagnostic-v1`: deterministic exact or
+   bounded-MIP maximum coverage for N=4 and N=14, plus a bounded N=80 attempt.
+   Every row retains incumbent lower bound, solver upper bound, absolute and
+   relative gap, terminal status, node/time budget, and input identity. It is
+   a diagnostic of greedy conversion loss, never a post-result book selector.
+4. `hard-230-generate-replenish-v1`: an actual generation preset, not the
+   already-registered admission filter. It consumes a frozen generator stream,
+   retains only new legal rosters with an inclusive-230 hit in their permitted
+   source/training worlds, and continues the stream until the exact paired
+   retained count or a frozen source/compute ceiling. It fails rather than
+   lowering 230, using a held-out world, or publishing a short book.
+5. `game-regime-stratified-tail-discovery-v1`: a non-Atlas equal-visit world
+   schedule. It allocates deterministic round-robin visits across game keys
+   using only game-level simulated fantasy-point aggregates, never achievable
+   lineup ceilings or realized scores; it generates under the incumbent legal
+   law and is evaluated only on separate ordinary-R held-out blocks.
+6. The existing expected-max and mean-score laws, together with every other
+   frozen comparator named above, run on all four P x K substrates rather than
+   only the canonical panel.
+
+Exact implementation/strategy hashes for items 1--5 must exist before the
+complete execution/grade manifest freezes. The already-frozen eight primary
+cells retain their IDs and estimands; these additions are separately named
+secondary experiments and cannot silently alter them.
+
+### 7.2 What is genuinely blocked rather than merely unspecified
+
+Only missing information or an unverifiable probability law justifies moving
+a strategy out of the pre-Week-1 historical catalog:
+
+- weighted importance sampling and target-law T blocks remain blocked until
+  exact target/proposal densities and validated `p/q` weights exist;
+- field-max, duplication, payout and ROI objectives remain blocked where
+  historical point-in-time field rosters/ownership are absent;
+- a chaos-mixture or alternative copula release remains blocked until a
+  point-in-time calibrated, marginal-preserving alternative passes held-out
+  joint-tail validation; and
+- matchup-based selection remains blocked where receiver/defender features
+  cannot be reconstructed point-in-time.
+
+An absent method definition is not by itself a data blocker. That is why the
+hard-230 generation and tail-discovery laws moved into `RUN NOW` above.
 
 ## 8. Frozen scenario-ticket selector
 
@@ -500,7 +569,13 @@ The outcome boundary opens only after all of the following exist:
 - all eight factorial cells at exact 4/14/80;
 - raw T230 substrate-sensitivity books;
 - scenario-ticket books;
-- incumbent and negative/mechanism comparators;
+- incumbent, convex-excess, block-supported, and negative/mechanism
+  comparator books on every required substrate;
+- accepted hard-230 generation/replenishment and game-regime tail-discovery
+  populations, or explicit mechanically infeasible receipts, plus their
+  frozen selector books;
+- bounded maximum-coverage oracle receipts for every required diagnostic
+  scope;
 - immutable catalogs binding every lineup ID, roster, population, fold scope,
   final-fit scope, matrix, selector trace, and output identity; and
 - one predeclared grade manifest containing the complete catalog. No strategy
@@ -531,16 +606,20 @@ all-boom money-path closure intact.
 1. **Finish Gate G0 without interference.** Seal the accepted v12 panel and
    complete the frozen real-artifact T230 runtime/memory smoke.
 2. **Freeze the full catalog.** Bind the raw four laws, support switch,
-   scenario-ticket law, comparators, eight cells, exact budgets, seed pairs,
-   panel memberships, and deterministic output identities before effects.
+   scenario-ticket law, complete comparators including the two additive
+   selector laws, oracle diagnostic, eight cells, two additive generation
+   experiments, exact budgets, seed pairs, panel memberships, compute limits,
+   and deterministic output identities before effects.
 3. **Build shared populations.** For each factorial slate, reconstruct P0 and
-   PB for all twenty origins once and persist occurrence/provenance receipts.
+   PB for all twenty origins once, run the separately registered hard-230 and
+   game-regime discovery generation experiments, and persist complete
+   occurrence/provenance/compute receipts.
 4. **Build shared matrices.** Cross-score the canonical global roster union on
    ordinary R0..R4 once per slate and persist masks for every cell and fold.
 5. **Run simulated selection/evaluation.** Materialize all folds, traces, and
-   exact final books for every `RUN NOW` law. Run population and matrix work
-   sequentially per slate; selector computations may reuse the immutable
-   matrix but may not regenerate it.
+   exact final books for every `RUN NOW` law, then the bounded oracle gaps.
+   Run population and matrix work sequentially per slate; selector computations
+   may reuse the immutable matrix but may not regenerate it.
 6. **Accept or fail mechanically.** Identity mismatch, missing book, wrong
    budget, leakage, non-deterministic replay, insufficient candidates, or a
    runtime envelope breach stops publication. An unfavorable simulated effect
@@ -573,8 +652,9 @@ measurement in the one frozen analysis/grade but no selector nomination.
 |---|---|---|
 | Inclusive coverage at 230 | **RUN NOW** | `coverage-ge-230-v1` runs in the raw suite and on every P x K substrate. |
 | Steep/unbounded 200/210/220/230/240 ladder | **ALREADY CLOSED as specified** | Unbounded utility is rejected; run the already-frozen finite inclusive 210/220/230/240/250 ladder with weights 1/2/4/8/16. |
-| Convex expected max `max(0,s-200)^2` | **ALREADY CLOSED as specified** | No unbounded squared utility sweep. Its indicator-at-230 case is literal coverage; bounded convexity is the frozen finite ladder. |
-| Expected-max comparator | **RUN NOW** | Carry existing `expected-max-v1` in the canonical catalog and controlled grade. |
+| Convex expected max `max(0,s-200)^2` | **RUN NOW, ONE FIXED LAW** | Run exactly `convex-excess-expected-max-ge-200-v1`; no exponent, threshold, or coefficient sweep. |
+| Expected-max comparator | **RUN NOW** | Carry existing `expected-max-v1` on the canonical panel and every P x K substrate. |
+| 230-native block-supported ladder | **RUN NOW** | Run `block-supported-bounded-tail-ge-210-250-v1` with inclusive rungs 210/220/230/240/250 and exact weights 1/2/4/8/16 everywhere. |
 | 230/240/250 sparse-sidecar and scorecard extensions | **RUN NOW** | Opportunity, hit, miss, conversion, regret, event counts, and threshold transitions are mandatory outputs. |
 | 230-regime corpus ceiling and `C-S` | **RUN NOW** | Compute simulated held-out values first and realized values only in the single grade. |
 | Simulated optimum/opportunity tail census | **RUN NOW** | Ordinary-R opportunity census precedes selector effects and is retained by block, source, and support breadth. |
@@ -589,7 +669,7 @@ measurement in the one frozen analysis/grade but no selector nomination.
 | Internally concentrated, externally orthogonal book score | **DIAGNOSTIC ONLY** | Report lineup topology concentration plus cross-lineup event overlap/rank. It is not a learned selection coefficient. |
 | True importance sampling/splitting and weighted T blocks | **BLOCKED — missing `p/q` weights** | Requires exact target/proposal laws, common support, likelihood ratios, ESS, max-weight and variance receipts, synthetic truth, uniform-weight parity, and an independent verifier. |
 | Tail-enriched worlds used as target-law probabilities | **BLOCKED — missing `p/q` weights** | Raw tail-biased frequency may not be interpreted as probability. |
-| Tail-enriched worlds used only for candidate discovery | **BLOCKED — missing frozen proposal/visit law** | The review gives no exact conditioning or equal-visit schedule. Freeze one law in a later release; evaluate it only on ordinary R. |
+| Tail-enriched worlds used only for candidate discovery | **RUN NOW, ONE FIXED LAW** | Freeze `game-regime-stratified-tail-discovery-v1`, give it the control's exact visit/solve budget, forbid Atlas ceiling ranks, and evaluate only on separate ordinary R. |
 | Rank visit worlds by exact achievable lineup ceiling | **ALREADY CLOSED** | The frozen minimal Atlas world-ranking test lost `-1.53` mean C and is permanently closed; no 50/50, 100%, or mixed rerun. |
 | Rank visits by top-nine/position upper-bound proxy | **ALREADY CLOSED as a relabeled ceiling-ranker** | It targets the same closed world-ranking hypothesis without new information. It is not a pre-Week-1 arm. |
 | Slate-conditional field-max threshold | **BLOCKED — missing PIT full-field model** | Historical contest entries were not captured. Requires pre-lock field covariates, a frozen field-max model, and walk-forward predictions. |
@@ -598,9 +678,10 @@ measurement in the one frozen analysis/grade but no selector nomination.
 | Time-box Neo4j/React after the scoring path | **DIAGNOSTIC ONLY / non-scoring** | Neither blocks G0, matrices, book freezes, or the controlled grade. They consume accepted releases afterward. |
 | Existing `mean-score-v1` negative control | **RUN NOW** | Retain it in the canonical comparator catalog and grade manifest. |
 | Highest single-world lineups without overlap control | **RUN NOW** | Run the frozen `individual-training-maximum-rank-v1` upper-end ablation; it cannot be a nominee. |
+| Exact/bounded 230 maximum-coverage oracle | **RUN NOW as diagnostic** | Solve or bound N=4/14 and attempt bounded N=80 with frozen time/node limits; report greedy lower bound, solver upper bound and gap. |
 | Mine 230+ lineups versus same-slate 190-210 lineups | **DIAGNOSTIC ONLY** | Perform only after the controlled grade on governed historical rows, with slate/season support and no transferable coefficient. |
 | Prospective top-0.1%, top-100, and full-field capture | **BLOCKED historically — missing field rows; mandatory prospectively** | The Week-1 standings collector must capture these rows after lock/settlement for later PIT-governed research. |
-| Hard mean-sacrifice fill: every lineup clears 230 in a training world | **RUN NOW as admission sensitivity** | Run `training-hit-ge-230-admission-v1` on every P x K substrate. Publish an exact book only where at least 80 candidates survive; never lower the line. It is not a new generation preset or primary factorial cell. |
+| Hard mean-sacrifice fill: every lineup clears 230 in a training world | **RUN NOW as two distinct mechanisms** | Keep `training-hit-ge-230-admission-v1` on every P x K substrate, and separately run `hard-230-generate-replenish-v1` so continued generation after rejection tests the actual fill hypothesis. Both keep 230 literal and fail on shortfall. |
 | Block breadth, cross-fit, and prospective guard against 230 overfit | **RUN NOW** | Candidate-origin stripping, per-block support, training-to-heldout gap, influence, and immutable prospective shadows are mandatory. |
 | Reopen selection merely because T230 scores historically | **ALREADY CLOSED for production authority** | T230 is Tier-E on the current simulator. Historical performance can nominate a shadow, not reopen money selection. |
 | Reopen on corrected matchup evidence | **BLOCKED — current matchup source is not PIT** | Requires corrected receiver/defender lineage and a new pre-outcome evaluation freeze. |
@@ -614,18 +695,23 @@ measurement in the one frozen analysis/grade but no selector nomination.
 The historical program is incomplete until it has all of the following:
 
 1. one accepted canonical 54-slate raw T230 release with four raw laws,
-   support switch, exact 4/14/80 books, and required comparators;
+   support switch, exact 4/14/80 books, complete comparator catalog, and the
+   two additive selector laws;
 2. one accepted 53-slate factorial release with all eight primary cells;
 3. one immutable shared population/provenance and score-matrix identity per
    factorial slate;
 4. 265 held-out folds and 53 final fits for every factorial retrieval law;
-5. raw-four, scenario-ticket, upper-end-ablation, and feasible hard-230-
-   admission substrate-sensitivity books on all four P x K matrices;
-6. complete simulated opportunity/conversion, redundancy, support, influence,
+5. raw-four, scenario-ticket, full existing comparator, convex-excess,
+   block-supported, upper-end-ablation, and feasible hard-230-admission books
+   on all four P x K matrices;
+6. accepted hard-230 generation/replenishment and game-regime tail-discovery
+   experiments, or exact infeasibility receipts, with frozen books;
+7. deterministic maximum-coverage oracle lower/upper/gap receipts;
+8. complete simulated opportunity/conversion, redundancy, support, influence,
    and compute reports;
-7. a grade catalog proving every intended final book existed before outcomes;
-8. one controlled realized report covering the entire catalog; and
-9. a prospective-shadow nomination or explicit no-nomination disposition for
+9. a grade catalog proving every intended final book existed before outcomes;
+10. one controlled realized report covering the entire catalog; and
+11. a prospective-shadow nomination or explicit no-nomination disposition for
    each historically favorable strategy.
 
 Anything lacking exact candidate identity, source/provenance, ordinary-R
