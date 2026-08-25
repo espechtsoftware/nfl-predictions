@@ -20,6 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 16:38 UTC (fifty-fifth update)
+
+### Fresh repaired candidate is active from an exact source commit
+
+- The PEP-668 Cloud SDK helper repair, parsed-YAML regression and prior
+  failure record are pushed on `main` as exact commit
+  `37447b53c5ac71bf36d5323443566ecfac8f9c04` (`Fix Cloud SDK candidate
+  smoke environment`). Targeted validation passed 13/13 and two independent
+  review passes APPROVED the final bytes with no P0/P1.
+- Fresh candidate Cloud Build
+  `80963d40-24c5-4da8-af24-c490e33a4ed7` is active from exactly that commit
+  using `cloudbuild.foundry-t230.yaml` and
+  `deploy/foundry_t230_build.gcloudignore`. Submission archived exactly the
+  three required frozen G0 receipt files (3.2 KiB before compression); source
+  code is fetched from the exact pushed Git commit. The un-smoked digest from
+  failed build `b22f8853-9237-42ad-94e8-83a0c20bde90` remains forbidden.
+- No historical outcome or comparative score has been opened, no IAM census
+  was run and the new build has not yet established a valid smoke result.
+- Exact next action: monitor build
+  `80963d40-24c5-4da8-af24-c490e33a4ed7` through exact checkout, focused/G0
+  replay, new-image construction and the real ordinal-zero smoke. On
+  `SUCCESS`, resolve its unique digest and release that exact same D without
+  rebuild. Then benchmark T230, run the fixed 54-slate panel if measured ETA
+  is acceptable, materialize Core once and publish the first comparative
+  historical grade.
+
 ## Current handoff — 2026-08-25 16:36 UTC (fifty-fourth update)
 
 ### Candidate helper failure is isolated and repaired; fresh candidate required
