@@ -20,6 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 20:09 UTC (seventy-third update)
+
+### R6-v1 non-executable disposition is terminally bound to Gate G0
+
+- `reports/2026-08-24-r6-v1-non-executable-disposition.md` is finalized from
+  draft using the exact two lane-manifest identities, two complete/accepted
+  lane-receipt identities and the combined 54/54 panel identity frozen at
+  Gate G0. The disposition remains a protocol/implementation non-result: it
+  grants no R6-v2 freeze, outcome access, scoring, promotion or production
+  authority.
+- The outcome boundary is deliberately qualified. The governed v12/R6
+  realized-outcome source remained unread through G0, as recorded by the
+  publication receipt and authority lock; the document preserves the earlier
+  aggregate-score-text boundary event and does not overstate it.
+- Independent exact-diff review APPROVED working blob
+  `945337564af56be2dd31455ea8b615cbaa9e1f4a` with no P0/P1/P2 after checking
+  every URI, generation, SHA-256, byte count, lane count, task denominator,
+  missing list and no-authority claim against the durable G0 evidence. No
+  cloud, outcome or IAM access was used for this finalization.
+- In parallel, candidate Cloud Build
+  `52c91739-aa85-4c61-95fa-155e1a1c96a5` remains `WORKING`; exact checkout is
+  successful and the focused-test/semantic-G0 step is running. Image build and
+  real Rule-1 smoke remain queued, so no D2, smoke, score or scoring claim
+  exists yet.
+- Exact next action: commit/push this disposition-only milestone without
+  staging unrelated runtime captures, continue candidate monitoring, and on
+  terminal success resolve its exact D2 and immediately submit the frozen
+  same-S3/same-D2 release.
+
 ## Current handoff — 2026-08-25 20:01 UTC (seventy-second update)
 
 ### Fresh S3 candidate is queued and the first-score transaction is rebound

@@ -1,11 +1,12 @@
 # R6-v1 disposition — non-executable before outcome access
 
 **Date:** 2026-08-24
-**Status:** DRAFT — awaiting Gate G0 terminal v12 lane identities
+**Status:** FINAL — Gate G0 complete; R6-v1 remains non-executable
 **Disposition class:** protocol/implementation non-result
-**Realized-outcome status:** not accessed for R6 as of handoff commit
-`1e8acca5b2732586a963a1b994e4a38af9c4de8a`; this must be reverified and
-replaced with terminal evidence before this document becomes final
+**Realized-outcome status:** the governed v12/R6 realized-outcome source
+remained unread through terminal Gate G0. The terminal panel publication and
+G0 authority lock both record `uses_realized_outcomes=false`; this is the
+qualified claim defined by the boundary-event note below
 **Decision authority:** none
 
 **Boundary-event note (2026-08-24 22:00 UTC):** while locating existing panel-
@@ -159,15 +160,43 @@ default change.
 
 ## Gate G0 completion fields
 
-The finalizer must replace this section atomically with exact evidence:
+The terminal, exact-read-replayed Gate G0 evidence is:
 
-- v12a batch manifest identity: **PENDING**
-- v12a terminal batch acceptance identity: **PENDING**
-- v12b batch manifest identity: **PENDING**
-- v12b terminal batch acceptance identity: **PENDING**
-- combined v12 panel index identity: **PENDING**
-- accepted slate count and missing-task list: **PENDING**
-- terminal proof that R6 realized outcomes remained unread: **PENDING**
+- v12a batch manifest identity: URI
+  `gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/batches/20260823-corpus-parametric-production-batch-v12a/governance/batch-manifest.json`,
+  generation `1787516651848534`, SHA-256
+  `cdcdc77b66ad01e77e97419ba596cd87d65eba1f3b3b36313c6af89d388f9aa3`,
+  68,958 bytes.
+- v12a terminal batch acceptance identity: URI
+  `gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/batches/20260823-corpus-parametric-production-batch-v12a/governance/batch-acceptance.json`,
+  generation `1787656756640443`, SHA-256
+  `a0ed809dc6480c93c301e3022c4adcc173ef285b8673e76174cf81f43b5c4397`,
+  1,316,197 bytes. It is complete and accepted for all 28 lane tasks.
+- v12b batch manifest identity: URI
+  `gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/batches/20260823-corpus-parametric-production-batch-v12b/governance/batch-manifest.json`,
+  generation `1787517978301938`, SHA-256
+  `90d60d62e5045c1a5b82486d4ee2bddaa24200f8ee0ce4c26a3dea7a51d17b92`,
+  64,834 bytes.
+- v12b terminal batch acceptance identity: URI
+  `gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/batches/20260823-corpus-parametric-production-batch-v12b/governance/batch-acceptance.json`,
+  generation `1787663188263409`, SHA-256
+  `9823eaa9a51062a6a437af22d1f6a5e0444f080191dd7ab6aad37b46f32f1e53`,
+  1,222,287 bytes. It is complete and accepted for all 26 lane tasks.
+- combined v12 panel index identity: URI
+  `gs://nfl-predictions-503414-corpus-parametric/research/corpus-parametric-research/panels/20260823-foundry-production-v12/foundry-v12-combined-panel-index-v1.json`,
+  generation `1787663639938214`, SHA-256
+  `4d41acd9277e525cd8521071b62390281c442d6324db1e3f5812bf59920c16f9`,
+  209,279 bytes. Its panel ID is
+  `v12:ef445e2b31a7756609b458753dc064318b58ea2912e9277071c08fd0d07392e0`.
+- accepted slate count: 54/54—v12a 28/28 plus v12b 26/26. Missing-task
+  list: `[]`.
+- outcome boundary: validate-only replay passed with exact input replay; the
+  create-once publication receipt and frozen G0 authority lock both record
+  `uses_realized_outcomes=false`, `historical_scoring_licensed=false`, and
+  no analytical or decision authority. The terminal handoff records that the
+  governed v12/R6 actual-score source remained unread and no v12/R6 grade was
+  performed. This does not retract the older-score-text boundary event above
+  and grants no R6-v2 freeze, scoring, promotion, or production authority.
 
-Until all fields are populated and exact-read replay passes, this document is
-a draft and carries no terminal Gate G0 authority.
+These identities finalize only the Gate G0 substrate census. They do not
+create an R6-v1 result or alter its non-executable disposition.
