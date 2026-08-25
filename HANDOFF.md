@@ -22,6 +22,25 @@ agent or developer:
 
 ## Neo4j/React observatory workstream — 2026-08-25 (delegated lane; branch-local entry, lead reconciles at integration)
 
+- **Phase 3 corrective commit landed and pushed** (`c1f6af83`, evidence in
+  `reports/2026-08-25-observatory-phase3-corrective-commit.md`): every P1
+  from the Phase 3 lead review is implemented — full-surface sanitized
+  degradation with a four-way error taxonomy, unconditionally unavailable
+  production repository (fixture by test injection only), query-side
+  pagination with release/filter-bound cursors, bounded ids and
+  OpenAPI-frozen typed response models, staleness-truthful ETags,
+  strict finite/cross-field model laws, positive per-kind graph property
+  schema, outcome vocabulary bound to a fully CLOSED realized namespace,
+  descriptor-only streamed load plans, and null/duplicate/exact-key/
+  canonical-source laws. Validation: API 24/24, graph 40/40, UI 8/8,
+  `git diff --check` clean. COORDINATION NOTE: a concurrent session
+  implemented most of this correction in the same worktree while this
+  session drafted the same fixes; the collision was detected, writes
+  stood down, quiescence was confirmed, one test fixture was repaired,
+  and one commit preserves the joint result — point exactly one session
+  at a worktree at a time. Integration remains withheld pending lead
+  re-review.
+
 - Delegated per
   `reports/2026-08-25-parallel-neo4j-react-observatory-workstream-plan.md`.
   Branch `feature/neo4j-react-observatory` in isolated worktree
