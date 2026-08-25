@@ -147,6 +147,13 @@ def _identity(uri: str, generation: int, raw: bytes | None = None) -> dict[str, 
     }
 
 
+def _canonical_lease_raw(marker: str) -> bytes:
+    return (
+        json.dumps({"marker": marker}, sort_keys=True, separators=(",", ":"))
+        + "\n"
+    ).encode()
+
+
 def _config() -> supply.CoreOutcomeSupplyConfig:
     return supply.CoreOutcomeSupplyConfig(
         run_id="core-v1-fixture",
@@ -157,7 +164,16 @@ def _config() -> supply.CoreOutcomeSupplyConfig:
     )
 
 
+def _lease_identity(
+    generation: int = 99, raw: bytes | None = None,
+) -> dict[str, object]:
+    return _identity(
+        shared.adapter.HISTORICAL_OUTCOME_LEASE_URI, generation, raw
+    )
+
+
 def _argv() -> list[str]:
+    lease = _lease_identity()
     return [
         "--run-id",
         "core-v1-fixture",
@@ -172,6 +188,14 @@ def _argv() -> list[str]:
             f"gs://{supply.OUTPUT_BUCKET}/research/core-v1-fixture/"
             f"{catalog_store.ROOT_FILENAME}"
         ),
+        "--expected-lease-uri",
+        str(lease["uri"]),
+        "--expected-lease-generation",
+        str(lease["generation"]),
+        "--expected-lease-sha256",
+        str(lease["sha256"]),
+        "--expected-lease-bytes",
+        str(lease["bytes"]),
     ]
 
 
@@ -250,9 +274,7 @@ def test_cloud_reopens_catalog_root_outputs_without_touching_released_lease(
         label: client.seed(uri, b'{"closed":true}', generation=20 + ordinal)
         for ordinal, (label, uri) in enumerate(names.items())
     }
-    lease_identity = _identity(
-        shared.adapter.HISTORICAL_OUTCOME_LEASE_URI, 99
-    )
+    lease_identity = _lease_identity()
 
     def completed_supply(**kwargs):
         assert kwargs["catalog"] == catalog
@@ -290,6 +312,7 @@ def test_cloud_reopens_catalog_root_outputs_without_touching_released_lease(
     result = cli.run_cloud(
         config=config,
         catalog_root_uri=root_uri,
+        expected_lease_identity=lease_identity,
         storage_client=client,
         bq_client=object(),
     )
@@ -302,6 +325,53 @@ def test_cloud_reopens_catalog_root_outputs_without_touching_released_lease(
         "gs://"
     ).split("/", 1)
     assert tuple(lease_parts) not in client.current_resolutions
+
+
+def test_live_lease_verifier_rejects_replacement_generation() -> None:
+    client = _FakeGCSClient()
+    expected_raw = _canonical_lease_raw("expected")
+    expected = client.seed(
+        shared.adapter.HISTORICAL_OUTCOME_LEASE_URI,
+        expected_raw,
+        generation=30,
+    )
+    client.seed(
+        shared.adapter.HISTORICAL_OUTCOME_LEASE_URI,
+        _canonical_lease_raw("replacement"),
+        generation=31,
+    )
+    verifier = cli.LiveLeaseVerifier(
+        cli.GenerationPinnedGCS(client), expected_identity=expected
+    )
+
+    with pytest.raises(
+        cli.CoreV1OutcomeRunnerError,
+        match="differs from its expected identity",
+    ):
+        verifier()
+
+    bucket, name = shared.adapter.HISTORICAL_OUTCOME_LEASE_URI.removeprefix(
+        "gs://"
+    ).split("/", 1)
+    assert client.current_resolutions[-1] == (bucket, name)
+
+
+def test_live_lease_verifier_accepts_exact_writer_bytes_and_identity() -> None:
+    client = _FakeGCSClient()
+    raw = _canonical_lease_raw("expected")
+    expected = client.seed(
+        shared.adapter.HISTORICAL_OUTCOME_LEASE_URI, raw, generation=32
+    )
+    verifier = cli.LiveLeaseVerifier(
+        cli.GenerationPinnedGCS(client), expected_identity=expected
+    )
+
+    first = verifier()
+    second = verifier()
+
+    assert first == second
+    assert first["body"] == {"marker": "expected"}
+    assert first["object_receipt"] == {**expected, "create_only": True}
 
 
 class _FakeJob:
@@ -422,6 +492,7 @@ def test_cli_is_default_off_and_success_stdout_is_receipt_only(
             start=1,
         )
     }
+    identities["lease"] = _lease_identity()
     supplied = supply.CoreOutcomeSupply(
         attempt={"rows": ["must-not-reach-stdout"]},
         attempt_identity=identities["attempt"],
@@ -443,7 +514,11 @@ def test_cli_is_default_off_and_success_stdout_is_receipt_only(
         source_freeze_identity=identities["freeze"],
         historical_lease_identity=identities["lease"],
     )
-    monkeypatch.setattr(cli, "run_cloud", lambda **_kwargs: cloud)
+    def _run_cloud(**kwargs):
+        assert kwargs["expected_lease_identity"] == identities["lease"]
+        return cloud
+
+    monkeypatch.setattr(cli, "run_cloud", _run_cloud)
 
     assert cli.main(
         ["--execute", *_argv()],

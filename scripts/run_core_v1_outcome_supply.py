@@ -108,6 +108,13 @@ def _json(raw: bytes, *, label: str) -> dict[str, object]:
     return dict(value)
 
 
+def _lease_json(raw: bytes) -> dict[str, object]:
+    """Parse the lease writer's exact canonical-JSON-plus-newline format."""
+    if type(raw) is not bytes or not raw.endswith(b"\n"):
+        _fail("live historical lease bytes differ from the lease writer law")
+    return _json(raw[:-1], label="live historical lease")
+
+
 class GenerationPinnedGCS:
     """Known-name GCS reads and exact create-or-equal-reopen publication."""
 
@@ -220,10 +227,23 @@ class GenerationPinnedGCS:
 
 
 class LiveLeaseVerifier:
-    """Resolve the fixed live lease lazily, then require that exact generation."""
+    """Resolve the expected live lease lazily and retain that exact generation."""
 
-    def __init__(self, store: GenerationPinnedGCS) -> None:
+    def __init__(
+        self,
+        store: GenerationPinnedGCS,
+        *,
+        expected_identity: Mapping[str, object],
+    ) -> None:
         self._store = store
+        self._expected_identity = _identity(
+            expected_identity, label="expected historical lease identity"
+        )
+        if (
+            self._expected_identity["uri"]
+            != shared.adapter.HISTORICAL_OUTCOME_LEASE_URI
+        ):
+            _fail("expected historical-outcome lease URI differs")
         self._identity: dict[str, object] | None = None
         self._body: dict[str, object] | None = None
 
@@ -236,7 +256,9 @@ class LiveLeaseVerifier:
             {key: receipt[key] for key in ("uri", "generation", "sha256", "bytes")},
             label="live historical lease identity",
         )
-        body = _json(observed.reopened_raw, label="live historical lease")
+        if content_identity != self._expected_identity:
+            _fail("live historical-outcome lease differs from its expected identity")
+        body = _lease_json(observed.reopened_raw)
         if self._identity is None:
             self._identity = content_identity
             self._body = body
@@ -434,6 +456,7 @@ def run_cloud(
     *,
     config: supply.CoreOutcomeSupplyConfig,
     catalog_root_uri: str,
+    expected_lease_identity: Mapping[str, object],
     storage_client: object,
     bq_client: object,
     clock: supply.Clock = lambda: datetime.now(timezone.utc),
@@ -448,6 +471,14 @@ def run_cloud(
     ):
         _fail("Core v1 catalog root URI differs from its deterministic law")
     store = GenerationPinnedGCS(storage_client)
+    retained_expected_lease_identity = _identity(
+        expected_lease_identity, label="expected historical lease identity"
+    )
+    if (
+        retained_expected_lease_identity["uri"]
+        != shared.adapter.HISTORICAL_OUTCOME_LEASE_URI
+    ):
+        _fail("expected historical-outcome lease URI differs")
     catalog_root = store.resolve_required(catalog_root_uri)
     catalog_root_identity = _identity(
         {
@@ -494,7 +525,9 @@ def run_cloud(
         catalog_identity=catalog_identity,
         source_freeze=source_freeze,
         source_freeze_identity=source_freeze_identity,
-        verify_lease=LiveLeaseVerifier(store),
+        verify_lease=LiveLeaseVerifier(
+            store, expected_identity=retained_expected_lease_identity
+        ),
         read_table_metadata=lambda table: _table_metadata(bq_client, table),
         get_or_create_query=lambda spec: _get_or_create_query(bq_client, spec),
         publish=store.publish,
@@ -514,8 +547,8 @@ def run_cloud(
         },
         label="persisted historical lease identity",
     )
-    if persisted_lease["uri"] != shared.adapter.HISTORICAL_OUTCOME_LEASE_URI:
-        _fail("persisted historical lease URI differs")
+    if persisted_lease != retained_expected_lease_identity:
+        _fail("persisted historical lease differs from its expected identity")
     return CoreOutcomeCloudResult(
         supply=supplied,
         catalog_root_identity=catalog_root_identity,
@@ -534,6 +567,10 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--code-sha", required=True)
     parser.add_argument("--image", required=True)
     parser.add_argument("--catalog-root-uri", required=True)
+    parser.add_argument("--expected-lease-uri", required=True)
+    parser.add_argument("--expected-lease-generation", required=True)
+    parser.add_argument("--expected-lease-sha256", required=True)
+    parser.add_argument("--expected-lease-bytes", type=int, required=True)
     return parser
 
 
@@ -541,7 +578,7 @@ def _validated_cli(
     args: argparse.Namespace,
     *,
     environ: Mapping[str, str],
-) -> tuple[supply.CoreOutcomeSupplyConfig, str]:
+) -> tuple[supply.CoreOutcomeSupplyConfig, str, dict[str, object]]:
     if args.execute is not True or environ.get(ENABLED_ENV) != "1":
         _fail(f"--execute and {ENABLED_ENV}=1 are required explicitly")
     if args.project != PROJECT:
@@ -572,7 +609,18 @@ def _validated_cli(
     ):
         _fail("Core v1 catalog root URI differs from its deterministic law")
     _gcs_parts(catalog_root_uri)
-    return config, catalog_root_uri
+    expected_lease_identity = _identity({
+        "uri": args.expected_lease_uri,
+        "generation": args.expected_lease_generation,
+        "sha256": args.expected_lease_sha256,
+        "bytes": args.expected_lease_bytes,
+    }, label="expected historical lease identity")
+    if (
+        expected_lease_identity["uri"]
+        != shared.adapter.HISTORICAL_OUTCOME_LEASE_URI
+    ):
+        _fail("expected historical-outcome lease URI differs")
+    return config, catalog_root_uri, expected_lease_identity
 
 
 def _receipt_only(cloud: CoreOutcomeCloudResult) -> dict[str, object]:
@@ -612,7 +660,7 @@ def main(
 ) -> int:
     args = _parser().parse_args(argv)
     retained_environ = os.environ if environ is None else environ
-    config, catalog_root_uri = _validated_cli(
+    config, catalog_root_uri, expected_lease_identity = _validated_cli(
         args, environ=retained_environ
     )
     if storage_client is None or bq_client is None:
@@ -626,6 +674,7 @@ def main(
     result = run_cloud(
         config=config,
         catalog_root_uri=catalog_root_uri,
+        expected_lease_identity=expected_lease_identity,
         storage_client=storage_client,
         bq_client=bq_client,
     )

@@ -20,6 +20,65 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 15:56 UTC (fifty-second update)
+
+### One-image score operator is lease-safe; corrected candidate resubmit next
+
+- Branch `main` is at pushed commit
+  `9e5747957bf686d7295eac11d6b6dc0e3937a305` (`Complete recoverable Core v1
+  score chain`) before this local milestone. No historical outcome, T230
+  comparative score, prospective k20 result or full-field contest result has
+  been opened. No IAM census or policy mutation was performed.
+- The first candidate Cloud Build
+  `379aec0d-47c8-4954-800c-b0f9baf68889` was intentionally cancelled while
+  still in its outcome-blind focused-test/G0-preflight step, before Docker
+  construction, push or the real smoke. A parallel recovery audit found that
+  the supplied historical-outcome lease identity was recorded by the local
+  operator but not passed into the image-side runner; it also exposed that the
+  runner expected newline-free lease bytes while the authoritative lease
+  writer emits canonical JSON plus one newline. Continuing that build would
+  have produced an image unable to support the promised exact one-image score
+  chain and forced a second image later.
+- The repaired outcome runner now requires the expected lease URI,
+  generation, SHA-256 and byte count. Its known-name live lease resolution
+  must equal that identity before any BigQuery get-or-create, while completed
+  recovery binds the same persisted identity without touching a released
+  live lease. The parser now validates the lease writer's exact canonical-
+  JSON-plus-newline format. Stable hashes are outcome runner
+  `91678c4518a3b3db53de8bed33dded3394199e9d6d165eed9dd9834cd2bec8df`
+  and test
+  `fd8f58b04c42b5038ee84e6bb910f9a3aa25f57f77260467d4881c3e671d935e`.
+- Added the default-off, resumable post-T230 operator
+  `scripts/cloud_core_v1_score_chain.sh`. It reuses one already configured
+  image-D Cloud Run job and advances only catalog -> outcome -> grade, with
+  individual/all modes, exact input identities, exact terminal execution
+  envelopes, durable workspace receipts and stage timing. It never builds,
+  deploys, creates/configures a job, inventories IAM/storage/logs or manages
+  the historical-outcome lease. Stable hashes are operator
+  `c55c515ae60e4a121a080343e2e4962ea75b68ed6e60dd29d332ffb4a1461cb8`
+  and test
+  `44d78a5733839e71067de52f553d8b9e6ca25505604a03b3e30e0d8924b3d574`.
+- The four exact files are FINAL-STABLE and independently **APPROVED** with no
+  P0/P1. Root and independent sequential validation each passed 7 outcome
+  tests plus 5 operator tests; Bash syntax, Python compilation, hash and diff
+  checks are green. No cloud execution or outcome access occurred in this
+  validation.
+- A separate exact runbook audit confirmed release mode pulls and releases the
+  same D without rebuilding. It also confirmed the present transport is
+  frozen to two concurrent lanes with sequential worker/verifier chains;
+  current D cannot be fanned out further. Use the ordinal-zero benchmark to
+  project the 55-call critical lane. A materially faster fan-out would need a
+  newly versioned transport/candidate cycle, so do that only if the measured
+  two-lane ETA is unacceptable rather than speculating before measurement.
+- Exact next action: explicitly stage only the four FINAL-STABLE files and this
+  handoff, commit and push. Submit a corrected candidate build using
+  `deploy/foundry_t230_build.gcloudignore` and the new exact commit; after its
+  real ordinal-zero smoke passes, release that same digest D, bootstrap,
+  configure, prepare and benchmark T230. Continue the two-lane panel only if
+  measured latency meets the prompt-score objective; otherwise version the
+  bounded orchestration without changing the science call. Then materialize
+  Core, acquire one exact historical lease, query outcomes once and grade.
+
 ## Current handoff — 2026-08-25 15:18 UTC (fifty-first update)
 
 ### Core first-grade transaction is recoverable; one-build fast path is closing
