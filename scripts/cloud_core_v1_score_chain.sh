@@ -13,6 +13,7 @@ readonly ENABLED_ENV="CORE_V1_SCORE_CHAIN_ENABLED"
 readonly OUTCOME_LEASE_URI="gs://nfl-predictions-503414-raw/research-governance/historical-outcome-active-v1.json"
 readonly ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly RUN_ROOT="$ROOT/reports/core-v1-score-chain-runs"
+readonly PYTHON_BIN="${CORE_V1_SCORE_CHAIN_PYTHON_BIN:-$ROOT/.venv/bin/python}"
 
 MODE=""
 EXECUTE=0
@@ -63,9 +64,10 @@ Usage:
     [--lease-receipt FILE] [--poll-seconds N] [--max-wait-seconds N]
 
 `outcome` and `all` require --lease-receipt. Acquire that lease explicitly
-with scripts/historical_outcome_lease.py before this operator, and release it
-explicitly after the grade is durably closed. This operator never acquires,
-abandons, or releases the historical-outcome lease.
+with scripts/historical_outcome_lease.py before this operator. The operator
+exact-reads the known Core completion and materializes the strict local release
+evidence, but never acquires, abandons, or deletes the lease. Release remains
+explicit after the grade is durably closed.
 USAGE
 }
 
@@ -110,6 +112,7 @@ require_tools() {
   for tool in gcloud jq sha256sum cmp mktemp date sleep awk chmod cp dirname ln rm tr wc; do
     command -v "$tool" >/dev/null 2>&1 || die "required tool is absent: $tool"
   done
+  [[ -x "$PYTHON_BIN" ]] || die "Core v1 local Python is absent or not executable"
 }
 
 validate_slug() {
@@ -580,15 +583,35 @@ grade_command() {
     --outcome-completion-uri "${OUTCOME_OUTPUT_PREFIX}completion.json"
 }
 
+materialize_core_completion() {
+  local run_dir="$1" output receipt_tmp
+  output="$run_dir/historical-outcome-strict-completion.txt"
+  receipt_tmp="$(mktemp)"
+  if ! PYTHONPATH="$ROOT/src:$ROOT/scripts${PYTHONPATH:+:$PYTHONPATH}" \
+    "$PYTHON_BIN" "$ROOT/scripts/historical_outcome_lease.py" \
+      materialize-core-v1-completion \
+      --receipt "$run_dir/historical-outcome-lease-receipt.json" \
+      --completion-uri "${OUTCOME_OUTPUT_PREFIX}completion.json" \
+      --output "$output" >"$receipt_tmp"; then
+    rm -f -- "$receipt_tmp"
+    die "Core v1 strict lease completion materialization failed"
+  fi
+  install_local_equal \
+    "$receipt_tmp" "$run_dir/historical-outcome-completion-materialization.txt"
+  rm -f -- "$receipt_tmp"
+}
+
 record_release_required() {
   local run_dir="$1" temp
   temp="$(mktemp)"
   jq -cnS --arg schema_version "core-v1-score-chain-lease-release-required/v1" \
     --arg lease_receipt "$run_dir/historical-outcome-lease-receipt.json" \
     --arg outcome_execution "$run_dir/stages/outcome/terminal-execution.json" \
+    --arg strict_completion "$run_dir/historical-outcome-strict-completion.txt" \
     --arg outcome_completion_uri "${OUTCOME_OUTPUT_PREFIX}completion.json" '
     {schema_version:$schema_version,status:"EXPLICIT_EXTERNAL_RELEASE_REQUIRED",
       lease_receipt:$lease_receipt,outcome_execution:$outcome_execution,
+      strict_completion:$strict_completion,
       outcome_completion_uri:$outcome_completion_uri,
       automatic_release_licensed:false}
   ' >"$temp"
@@ -623,6 +646,7 @@ main() {
       ;;
     outcome)
       run_stage "$run_dir" outcome CORE_V1_OUTCOME_SUPPLY_ENABLED "$(outcome_command)"
+      materialize_core_completion "$run_dir"
       record_release_required "$run_dir"
       ;;
     grade)
@@ -631,6 +655,7 @@ main() {
     all)
       run_stage "$run_dir" catalog CORE_V1_CATALOG_CLOUD_ENABLED "$(catalog_command)"
       run_stage "$run_dir" outcome CORE_V1_OUTCOME_SUPPLY_ENABLED "$(outcome_command)"
+      materialize_core_completion "$run_dir"
       record_release_required "$run_dir"
       run_stage "$run_dir" grade CORE_V1_GRADE_CLOUD_ENABLED "$(grade_command)"
       record_release_required "$run_dir"

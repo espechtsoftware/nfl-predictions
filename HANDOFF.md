@@ -20,6 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 17:15 UTC (sixty-third update)
+
+### Core lease-release P1 is closed and root-validated without rebuilding D
+
+- The local Core lease-release adapter and operator integration are
+  FINAL-STABLE. `scripts/historical_outcome_lease.py` materializes an
+  identity-bound strict completion from the deterministic known Core
+  completion plus exact read-attempt/lease evidence; release reopens and
+  validates those exact generations and requires a successful terminal
+  execution before generation-matched lease deletion. Valid legacy strict
+  completions remain supported. `scripts/cloud_core_v1_score_chain.sh`
+  creates/reopens this artifact after both new and recovered outcome stages,
+  records its path, and still leaves deletion explicit until grade close.
+- Stable SHA-256 values are lease tool
+  `b0f94e255381cbede0daf6c7cb3a29e4c124c0c8413a535d699b4ea99b58c4c7`,
+  score operator
+  `d7079253a8a5a533b11d1666c6188cc6d4a931d6df1fce18b0cdf4d4efdf5790`,
+  lease test
+  `adaebb31f6c628df7529ba73bdb2f08043751d731be97065e3035ba985b5b125`
+  and operator test
+  `d72a79895b57e0903b9dee0580e0b8a235e3a568ddad45a8c12fe0f591c7aff1`.
+  Root validation passes lease 6/6 and operator 5/5, Bash syntax, Python
+  compilation and scoped diff checks. Independent review APPROVED the final
+  bytes with no P0/P1/P2 after adversarial downgrade and attempt-envelope
+  repairs. No cloud/outcome/list/query/build/deploy/IAM action occurred.
+- This repair is intentionally local post-image orchestration. Candidate
+  build `9d6b53a8-448f-46da-a0d0-6b454674c5c1` remains bound to exact image
+  source `0cf48f180014862355082bff1147024d72ed4ca9`; no new D is required for
+  lease cleanup or reporting.
+- Exact next action: explicitly commit/push only these four reviewed files and
+  this handoff while monitoring the candidate. After grade close, call
+  `historical_outcome_lease.py release` with the retained lease receipt,
+  outcome terminal execution JSON and generated
+  `historical-outcome-strict-completion.txt`.
+
 ## Current handoff — 2026-08-25 17:12 UTC (sixty-second update)
 
 ### Fresh python3 candidate submitted; local lease P1 repair approved

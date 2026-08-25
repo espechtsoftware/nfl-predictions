@@ -252,6 +252,41 @@ else:
         encoding="utf-8",
     )
     script.chmod(0o755)
+    helper = fake_bin / "core-v1-python"
+    helper.write_text(
+        """#!/usr/bin/env python3
+import json
+import os
+from pathlib import Path
+import sys
+
+args = sys.argv[1:]
+with open(os.environ["FAKE_CORE_MATERIALIZER_LOG"], "a", encoding="utf-8") as handle:
+    handle.write(json.dumps(args, separators=(",", ":")) + "\\n")
+if len(args) < 2 or args[1] != "materialize-core-v1-completion":
+    raise SystemExit("unexpected local Core helper invocation")
+output = Path(args[args.index("--output") + 1])
+completion_uri = args[args.index("--completion-uri") + 1]
+raw = (
+    "disposition=core-v1-outcome-snapshot-closed\\n"
+    "run_id=core-outcome-fixture\\n"
+    "uses_realized_outcomes=true\\n"
+).encode()
+if output.exists() and output.read_bytes() != raw:
+    raise SystemExit("fake materialization differs")
+output.parent.mkdir(parents=True, exist_ok=True)
+output.write_bytes(raw)
+print("HISTORICAL_OUTCOME_CORE_V1_COMPLETION_MATERIALIZED " + json.dumps({
+    "completion_uri": completion_uri,
+    "completion_generation": "73",
+    "completion_sha256": "f" * 64,
+    "completion_bytes": 3,
+    "output": str(output),
+}, sort_keys=True, separators=(",", ":")))
+""",
+        encoding="utf-8",
+    )
+    helper.chmod(0o755)
     return fake_bin, log
 
 
@@ -261,9 +296,11 @@ def _environment(fake_bin: Path, log: Path) -> dict[str, str]:
         "PATH": str(fake_bin) + os.pathsep + os.environ["PATH"],
         "CORE_V1_SCORE_CHAIN_ENABLED": "1",
         "FAKE_GCLOUD_LOG": str(log),
+        "FAKE_CORE_MATERIALIZER_LOG": str(log.parent / "core-materializer.jsonl"),
         "FAKE_JOB": JOB,
         "FAKE_IMAGE": IMAGE,
         "FAKE_SERVICE_ACCOUNT": SERVICE_ACCOUNT,
+        "CORE_V1_SCORE_CHAIN_PYTHON_BIN": str(fake_bin / "core-v1-python"),
     }
 
 
@@ -302,6 +339,7 @@ def test_operator_is_narrow_default_off_and_has_no_admin_or_inventory_surface() 
     assert "CORE_V1_OUTCOME_SUPPLY_ENABLED" in source
     assert "CORE_V1_GRADE_CLOUD_ENABLED" in source
     assert "historical_outcome_lease.py" in source
+    assert "materialize-core-v1-completion" in source
     for forbidden in (
         "gcloud builds",
         "gcloud run jobs deploy",
@@ -439,6 +477,26 @@ def test_all_runs_three_cli_overrides_and_exactly_resumes_local_evidence(
     )
     assert release["status"] == "EXPLICIT_EXTERNAL_RELEASE_REQUIRED"
     assert release["automatic_release_licensed"] is False
+    strict_completion = run_dir / "historical-outcome-strict-completion.txt"
+    assert release["strict_completion"] == str(strict_completion)
+    assert strict_completion.read_text(encoding="utf-8").splitlines() == [
+        "disposition=core-v1-outcome-snapshot-closed",
+        f"run_id={OUTCOME_RUN_ID}",
+        "uses_realized_outcomes=true",
+    ]
+    materializer_calls = [
+        json.loads(line)
+        for line in (tmp_path / "core-materializer.jsonl").read_text(
+            encoding="utf-8"
+        ).splitlines()
+    ]
+    assert len(materializer_calls) == 1
+    assert materializer_calls[0][1:3] == [
+        "materialize-core-v1-completion", "--receipt",
+    ]
+    assert materializer_calls[0][
+        materializer_calls[0].index("--completion-uri") + 1
+    ] == OUTCOME_PREFIX + "completion.json"
     for stage, _, _ in expected:
         stage_dir = run_dir / "stages" / stage
         launch = json.loads((stage_dir / "launch.json").read_text(encoding="utf-8"))
@@ -476,6 +534,11 @@ def test_all_runs_three_cli_overrides_and_exactly_resumes_local_evidence(
     assert second.returncode == 0, second.stderr
     assert second.stdout.count("CORE_V1_STAGE_RECOVERED") == 3
     assert log.read_bytes() == before_replay
+    assert len(
+        (tmp_path / "core-materializer.jsonl").read_text(
+            encoding="utf-8"
+        ).splitlines()
+    ) == 2
 
 
 def test_individual_modes_work_and_create_equal_config_rejects_identity_drift(
