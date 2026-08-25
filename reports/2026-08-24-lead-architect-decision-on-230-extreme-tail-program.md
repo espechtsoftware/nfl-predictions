@@ -318,10 +318,40 @@ The prior all-boom population produced only one realized 230+ slate, so that
 grade must carry paired weekly maximum and the complete 194--240 transition
 grid; a sparse fixed-230 p-value alone cannot decide it.
 
-Keep the already-frozen prospective `k=20` seed-volume/OI shadow separate and
-make it the Week-1 priority. Combining `k=20`, all-boom fill and T230 retrieval
-in the first prospective arm would create an uninterpretable three-lever
-treatment.
+Do not defer `k=20` evaluation until regular-season Week 1. Keep its already-
+frozen prospective shadow as a confirmation instrument, but complete the
+historical research before the season through one preregistered 2x2x2:
+
+- population: incumbent-native versus the exact frozen all-boom law;
+- candidate volume/admission: five versus twenty frozen seed books; and
+- retrieval objective: complete-union line-194 versus the support-switched
+  T230 law.
+
+This yields eight attributable cells, including the three-way interaction,
+without pretending one combined treatment identifies its winning component.
+Reuse the twenty seed pairs already frozen for the volume shadow. Applying the
+unchanged all-boom law to the additional seed pairs is a new historical
+reconstruction, so bind and report it separately; do not imply it was covered
+by the old five-seed receipts. All cells use independent ordinary-R evaluation,
+the same candidate-eligibility rule and exact 4/14/80 books. Share generated
+populations and matrices across cells so the factorial does not multiply the
+expensive work unnecessarily.
+
+Every other strategy that is sufficiently specified and testable from frozen
+historical inputs must also finish before Week 1. The pre-season inventory is:
+
+1. all four raw T230 laws plus incumbent comparators;
+2. the support-switched T230 policy;
+3. the eight fill x volume x retrieval cells above;
+4. one deterministic scenario-ticket selector over the same 230 event matrix,
+   frozen before its effects are viewed; and
+5. exact 4/14/80 books and the complete opportunity/conversion diagnostics for
+   every cell.
+
+True importance sampling is not yet in this inventory because no validated
+`p/q` weight contract exists. A field-max threshold is not testable on a slate
+without a point-in-time field model. Those are missing-method/data tasks, not
+reasons to postpone any currently executable historical cell.
 
 ## Phase 3 — dependence and true rare-event sampling
 

@@ -20,12 +20,15 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff — 2026-08-25 01:26 UTC (twenty-ninth update)
+## Current handoff — 2026-08-25 01:49 UTC (twenty-ninth update)
 
 ### T230 direction corrected to full-union boom conversion; smoke audit active
 
-- Branch `main` is at pushed commit `caf5f33a` (`Add frozen T230 retrieval
-  support switch`). No governed realized outcome was accessed. Active v12
+- Branch `main` is at pushed commit `06ae9676` (`Prepare accepted-panel T230
+  execution`). It contains the exact combined-panel builder, common accepted-
+  slate reconstruction, one-slate census caller, corrected T230 decision and
+  manifest/result/final-join scale-out design. No governed realized outcome
+  was accessed. Active v12
   environment, governance, foundation and transport files and the outside
   review remain unstaged and must not be cleaned or included in the next
   implementation commit.
@@ -45,35 +48,51 @@ agent or developer:
   out-only candidate provenance and never inserts legacy quota admission ahead
   of either law. Existing all-boom receipts lack complete roster hashes, so
   this must be a labeled deterministic reconstruction from pinned sources.
-- The existing prospective k=20 seed-volume/OI shadow stays separate and is
-  the Week-1 priority. Do not combine k=20, all-boom and T230 in the first
-  prospective arm. A historical all-boom/T230 cell must first improve held-out
-  230 conversion without material 220/240 regression, then pass one frozen
-  realized grade, before it may earn its own prospective shadow.
-- Gate-G0 panel publication code still reports 28 focused tests; common
+- The operator explicitly rejected deferring any historically testable method
+  until regular-season Week 1. The existing prospective k=20 seed-volume/OI
+  shadow remains a confirmation instrument, but pre-season research now uses
+  a frozen eight-cell population x volume x retrieval factorial: incumbent
+  versus all-boom, k=5 versus k=20 frozen seed books, and complete-union line-
+  194 versus support-switched T230. Shared populations/matrices keep the eight
+  contrasts economical. The additional k=20 all-boom population is a new
+  deterministic reconstruction, not evidence covered by the old five-seed
+  receipts. Also finish the four raw T230 laws, support switch, one frozen
+  deterministic scenario-ticket law, and exact 4/14/80 diagnostics before
+  Week 1. True importance sampling remains outside the executable inventory
+  until an exact `p/q` weight contract exists; incomplete point-in-time field
+  data likewise cannot support a field-max arm yet.
+- Gate-G0 panel publication code reports 28 focused tests; common
   accepted-slate reconstruction reports 7; the standalone census caller
-  reports 4. The one-slate CLI previously reported 17 focused tests, but a
-  final independent coherent-rehash audit found four remaining publication-
-  authority fail-opens: carrier identity splice, permissive nested lineage,
-  self-establishing scope hashes and unreconciled full-union arm marginals.
-  Fixes and adversarial tests are active. The real smoke may remain a local
-  benchmark diagnostic, but its envelope may not become a 54-slate acceptance
-  receipt; the panel release independently replays carrier-bound inputs.
+  reports 4. The one-slate CLI now exact-binds carrier source/world receipts,
+  nested lineage schemas, canonical scope/block hashes, full-union arm
+  marginals and symmetric overlap/breadth laws. It also corrects the producer
+  law to exact `selected_count=80`. Its final focused module reports 19 passed
+  in 2.71 seconds; compile, whitespace and line checks are clean. Independent
+  coherent-rehash re-audit is clear on all five requested points. Receipt-only
+  unequal-cardinality threshold subset and exact histogram identity remain
+  explicitly diagnostic with all authorities false. The real smoke is a local
+  benchmark artifact, never a 54-slate acceptance; panel release independently
+  replays carrier-bound inputs.
 - A detailed two-lane scale-out plan is staged at
   `reports/2026-08-25-t230-panel-release-and-authoritative-summary-plan.md`.
   It freezes one generation-pinned execution manifest, one create-once result
   and small acceptance per slate, and one exact 54-member final join. Exact
   support boundaries remain 216/270 folds and 44/54 final fits. Cloud scale
   still waits for the real one-slate full-suite runtime/memory benchmark.
-- Live Foundry status at 01:24Z is 42/54 accepted with zero failures: lane A
+- A pure outcome-blind T230 execution-manifest builder/validator and focused
+  adversarial fixture are being implemented in new files only; no cloud or
+  result/finalizer work is authorized before the real benchmark.
+- Live Foundry status at 01:44Z is 42/54 accepted with zero failures: lane A
   21/28 and lane B 21/26. Task-21 producer executions
   `atlas-minimal-c-s2023-w1-v1-bgqwk` and
-  `atlas-cbc-32g-full-2023-w8-v1-ch8kt` are the sole bound authorities and
-  remained running. Never relaunch them or start duplicate controllers.
-- Exact next action: close and re-audit the four smoke fail-opens, commit/push
-  the accepted-panel reconstruction/smoke seams and runbooks without staging
-  live files, continue observing the original controllers, then finish both
-  batches, publish/replay the combined panel and benchmark frozen 2023 W1.
+  `atlas-cbc-32g-full-2023-w8-v1-ch8kt` both reached terminal success. Lane B
+  entered its one-shot task-21 verifier launch at 01:41:18Z; lane A was closing
+  its producer at 01:44:16Z. No verifier execution identity was yet logged.
+  Never relaunch either producer or start duplicate controllers.
+- Exact next action: commit/push the re-audited smoke CLI and frozen runbook
+  without staging live files, complete and validate the manifest schema, keep
+  observing the original controllers, then finish both batches, publish/replay
+  the combined panel and benchmark frozen 2023 W1.
 
 ## Current handoff — 2026-08-25 00:56 UTC (twenty-eighth update)
 
