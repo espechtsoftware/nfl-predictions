@@ -20,6 +20,39 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 03:16 UTC (thirty-fourth update)
+
+### Deterministic selector/oracle additions independently clear
+
+- Branch `main` is at pushed commit `644a5f32` (`Define complete preweek
+  Foundry strategy census`). The independently audited complete pre-Week-1
+  census is durable at
+  `reports/2026-08-25-complete-pre-week1-foundry-strategy-census.md`.
+- `corpus_extreme_tail_preweek_additions.py` and its focused test module now
+  implement the fixed convex-excess set selector, inclusive 210--250 distinct-
+  block-supported selector, and inclusive-230 exact/bounded oracle diagnostic.
+  The narrow corrected run reports 43 passed in 5.09 seconds. CBC replay is
+  deterministic node-work only: no wall-clock stop, one thread, fixed options/
+  seeds and exact 100k/250k/500k node budgets. Runtime binds the CBC executable
+  path/content/bytes/version/build, PuLP version, every solver option, input/
+  incidence/model identity, witnessed bounds and canonical terminal proof-log
+  identity. Independent re-audit cleared both prior solver blockers and all
+  requested lineage/authority attack gaps. Public hashes are implementation
+  `1c94e963...19403d`, convex `189dc698...dd1082`, block-support
+  `a2070561...775954`, and oracle `b40a7ed8...b6b6e`.
+- The factorial manifest may now bind those three public contracts into its
+  de-aliased 18-row core registry. Its test/freeze remains held until the
+  integration is static-ready. Generation companion contracts remain blocked
+  on the independent audit fixes and must not be imported yet.
+- Live Foundry is still 44/54 accepted with zero failures. Lane A task-22's
+  sole verifier is `atlas-minimal-c-s2023-w1-v1-wsk99`; its original controller
+  began recovery at 03:10:12Z. Lane B's original controller began its only
+  task-22 verifier launch at 03:10:08Z; no execution ID was yet logged. Never
+  relaunch either authority or start another controller.
+- Exact next action: commit/push the cleared selector/oracle additions, finish
+  and re-audit the generation fixes, complete the factorial/companion manifest
+  bindings, and continue observing the two original lanes.
+
 ## Current handoff — 2026-08-25 03:06 UTC (thirty-third update)
 
 ### Complete pre-Week-1 strategy census clear; additive code audits active
