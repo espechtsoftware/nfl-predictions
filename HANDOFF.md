@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 15:58 UTC (fifty-third update)
+
+### Corrected one-image candidate is building from the exact pushed source
+
+- The lease-safe Core operator milestone is pushed on `main` as
+  `daf07c02f9cdc9c604184b28efe64730542ab249` (`Add lease-safe resumable score
+  operator`). The four implementation/test hashes and independent APPROVE
+  verdict are recorded in the fifty-second update below. No historical
+  outcome or comparative score has been opened, and no IAM census was run.
+- Superseded pre-image build `379aec0d-47c8-4954-800c-b0f9baf68889` reached
+  terminal `CANCELLED` at the operator's request. It ended before Docker image
+  construction, push or real smoke, so it produced no candidate D and cannot
+  be cited as a failure of the code or science.
+- Corrected candidate Cloud Build
+  `b22f8853-9237-42ad-94e8-83a0c20bde90` is active from exact source commit
+  `daf07c02f9cdc9c604184b28efe64730542ab249`, using
+  `cloudbuild.foundry-t230.yaml`, the default compute service account already
+  recorded in project evidence and the required
+  `deploy/foundry_t230_build.gcloudignore`. Submission again archived exactly
+  three G0 receipt files (3.2 KiB before compression); code is fetched from
+  the exact pushed Git commit.
+- Exact next action: monitor build
+  `b22f8853-9237-42ad-94e8-83a0c20bde90` through focused validation, image
+  construction and its real outcome-blind ordinal-zero smoke. On `SUCCESS`,
+  resolve the digest from its unique known tag, release that same digest D
+  without rebuild, then bootstrap/configure/prepare and run the measured T230
+  benchmark before deciding whether the frozen two-lane ETA is acceptable.
+
 ## Current handoff — 2026-08-25 15:56 UTC (fifty-second update)
 
 ### One-image score operator is lease-safe; corrected candidate resubmit next
