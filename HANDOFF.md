@@ -20,6 +20,60 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 14:18 UTC (forty-ninth update)
+
+### Reusable Core v1 score-once foundation is complete and outcome-blind
+
+- Branch `main` is at pushed commit `45511cc1` (`Freeze Foundry G0 authority
+  lock`) before this milestone. The exact G0 lock is now tracked and clean at
+  that commit. No historical outcome, comparative T230 score, prospective k20
+  result or full-field contest result has been opened.
+- Added the pure Core v1 catalog, reusable player/DST outcome snapshot and
+  generic score-once grader. The catalog freezes the exact prespecified
+  12-strategy x 3-budget x 54-slate lattice (1,944 books) and all 45 x 3 x 54
+  weekly contrasts (7,290 rows). It structurally binds the terminal source
+  panel and T230 release, all retained source/T230 result identities, exact
+  4/14/80 rank prefixes and a common later-source freeze without rerunning the
+  T230 science stack.
+- The outcome layer closes the exact union player/DST keys from the catalog and
+  later-source freeze, reuses the registered authoritative score SQL row and
+  decimal-to-micro-DK laws, and binds every score to one exact persisted source
+  object. Its query-contract hash includes the registered SQL identity, full
+  frozen key union, deterministic query job, snapshot timestamp and no-cache
+  assertion. Missing, extra, reordered, source-mismatched and independently
+  rehashed forged-score payloads fail closed.
+- The grader sums each unique union roster exactly once per slate, projects all
+  books from that shared score map without another lineup sum, independently
+  replays every book projection, and retains exact rational means/medians,
+  threshold/ceiling metrics, paired season and leave-one-slate/season summaries
+  and negative contrasts. Rank and ROI remain explicitly unavailable because
+  full-field standings and payout ladders are not part of Core v1.
+- Validation is 14/14 across the two focused Core modules, with Python compile
+  and scoped whitespace checks green. Stable SHA-256 values are catalog
+  `97db16ba5a94ea9aa6b5d51108c5eb8b43bc7f884b3c46739c352dba46ec36c4`,
+  snapshot
+  `c9f03aaaed6d2b21b7df22819b04a85f04f5f14f7f40b1c7a5ed259fbf9a3582`,
+  grader
+  `cadfbd590b28d693e8b0d8af4df841cf4d56bdf3fb38e4cd4a73997954a25938`,
+  fast-scoring test
+  `9b551ad6646824c0854526d8b0004c1bfbff00db2a61df0008fedb95176fde52`
+  and snapshot test
+  `fff23f2227c0a62f6ce2dde0fc93e1406be1480498160aab6abdd9779abe33e7`.
+- The T230 transport is functionally integrated and its terminal release shape
+  matches the Core catalog consumer. It remains outcome-blind and unlaunched
+  while final stable-byte and independent static review complete.
+- Residual scaling risk is explicit: the synthetic 80-roster-per-slate catalog
+  and grade serialize to roughly 14.2 MB and 44.9 MB. Real source unions can be
+  much larger, so production materialization must publish 54 immutable slate
+  shards plus a small root index and shard grade surfaces; a giant monolithic
+  object cannot be allowed to become the next scoring bottleneck.
+- Exact next action: commit/push this pure Core foundation; finish independent
+  T230 transport review; add the sharded exact-reader/catalog publisher and
+  narrow one-query Core outcome adapter. Then build candidate image D, run the
+  required real ordinal-0 smoke, release the same image, execute/finalize the
+  54-slate T230 panel, freeze the Core catalog, perform one historical outcome
+  read and publish the first actual Core DK grade.
+
 ## Current handoff — 2026-08-25 13:49 UTC (forty-eighth update)
 
 ### Foundry source panel reaches 54/54; terminal sealing and T230 transport continue
