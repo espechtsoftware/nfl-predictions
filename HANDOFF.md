@@ -20,6 +20,38 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 22:54 UTC (eighty-second update)
+
+### Observatory Phase 3 offline boundary is accepted; Phase 4 offline work may proceed
+
+- The isolated `feature/neo4j-react-observatory` branch is clean, pushed, and
+  equal to origin at `3baf659fbaca4fbba91907891187a77a7acc5103`.
+  Corrective implementation commit `c1f6af83` closes the API and graph P1s
+  recorded in the Phase 3 checkpoint review; its branch-local handoff follows
+  at `e46ce0da`, and docs-only precision follow-up `3baf659f` records the
+  exact API validation environment and corrects two evidence descriptions.
+- Independent review found no remaining offline Phase 3 P0/P1. Recorded
+  validation is API 24/24, graph 40/40, compatibility UI 8/8, prior React
+  44/44, and a clean diff. Lead disposition is recorded in
+  `reports/2026-08-25-observatory-phase3-lead-acceptance.md`:
+  **OFFLINE PHASE 3 ACCEPTED; PRODUCTION INTEGRATION NOT YET APPROVED**.
+- The router remains unmounted and the production repository deliberately
+  unavailable. No live Neo4j, governed source/outcome read, realized namespace,
+  React cutover, cloud, IAM, or deployment action is licensed. The current
+  Python 3.14/FastAPI/Starlette TestClient hang remains a packaging/integration
+  gate; the API contract evidence came from the stable temporary Python 3.11
+  stack, not from a live service.
+- Phase 4 may now proceed only in the isolated worktree: terminal
+  identity-bound fixture adapters, positive-schema graph projection,
+  deterministic streamed/idempotent batches, bounded allowlisted queries, and
+  zero-state rebuild equivalence. It must stop for lead review before any
+  router seam, live graph, infrastructure, or source/outcome access.
+- The active T230 two-lane controller remains untouched in session `95641`.
+  Last durable acceptances are ordinals 0 and 28; lane A is independently
+  verifying ordinal 1 and lane B is executing ordinal 29. Exact next action:
+  continue status-only T230 monitoring while the observatory lane begins only
+  the approved offline Phase 4 work.
+
 ## Current handoff — 2026-08-25 22:37 UTC (eighty-first update)
 
 ### Corrected R6 source boundary is green and ready to land; execution migration remains
