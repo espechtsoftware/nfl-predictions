@@ -20,6 +20,29 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 17:07 UTC (sixtieth update)
+
+### New D is pushed and in the repaired real-smoke step; not yet accepted
+
+- Candidate build `80963d40-24c5-4da8-af24-c490e33a4ed7` successfully built
+  and validated the exact-source image, including the parked command, baked
+  source snapshot, exact commit `37447b53c5ac71bf36d5323443566ecfac8f9c04`
+  and outcome-blind image law. Registry push completed under unique tag
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:foundry-t230-production-v1-37447b53c5ac71bf36d5323443566ecfac8f9c04-80963d40-24c5-4da8-af24-c490e33a4ed7`.
+- The resulting candidate is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:c6c762d283122a91a98b81a3bff3f4193421d4ea29e6b8788aa35cecd961da4d`.
+  It is **unaccepted and must not be released or used for T230 yet**. Build
+  step `candidate-real-four-law-smoke-or-release-gate` is active; its repaired
+  PEP-668-compatible helper installation is in progress before the real
+  ordinal-zero smoke and durable gate reconstruction.
+- No outcome, score or IAM census has run. The separate local Core lease
+  cleanup repair is functionally green and in independent final review; it
+  does not change D.
+- Exact next action: require candidate build terminal `SUCCESS` and a complete
+  reconstructible smoke gate. Then exact-resolve the unique tag, require it
+  equals the digest above, and submit release using the same D and exact
+  source commit without rebuild.
+
 ## Current handoff — 2026-08-25 17:04 UTC (fifty-ninth update)
 
 ### Repaired candidate passed focused/G0 preflight and is building D
