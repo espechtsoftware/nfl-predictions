@@ -59,9 +59,49 @@ agent or developer:
   output from the committed `package-lock.json` (node v22.22.1,
   npm 9.2.0); `pytest tests/test_corpus_research_ui.py` 8 passed with
   `nfl_dfs` imports verified to resolve from this worktree.
-- **STOPPED at the mandatory Phase 2 checkpoint** (plan §7). Next action
-  is the lead's review of the packet; Phases 3+ (API v1, graph vNext,
-  capacity) begin only after approval.
+- **Phase 2 checkpoint REVIEWED and corrections landed** (lead review
+  `reports/2026-08-25-observatory-phase2-lead-checkpoint-review.md`,
+  APPROVE WITH REQUIRED FIXES). Corrective commit `4f783e49`
+  (`reports/2026-08-25-observatory-checkpoint-corrections.md`): the
+  grade-report contract now mirrors `scripts/report_core_v1_grade.py`
+  exactly (12 real strategies × 3 budgets = 36 absolute summaries, 5×3
+  paired family, exact micro-DK/rational values,
+  `uses_realized_outcomes: true` preserved with a separate
+  synthetic-fixture wrapper); projection guards deep-validate every
+  nested receipt and cross-binding with 13 adversarial mutation tests;
+  unreachable is distinct from schema-mismatch; stale and partial
+  coexist; evidence tiers derive per section; view tables paginate at
+  50 rows; config and keyboard claims are test-pinned. Validations:
+  typecheck clean, vitest 44/44, build 219.65 kB (68.18 kB gzip),
+  clean-lock `npm ci` + check reproduces, pytest UI module 8 passed,
+  `git diff --check` clean. Page relabeled "foundation slice" — legacy
+  page still owns the interactive visualizations.
+- **Phase 3 (authorized scope) complete, fixture-backed and offline:**
+  commit `76d9577a` adds `src/nfl_dfs/app/foundry_read_models.py` +
+  `foundry_api.py` — a GET-only `/api/v1/foundry` surface (15 endpoints:
+  status/releases/presets/strategy-bundles/experiments+metrics/runs/
+  evaluations/books/cohorts/traits/lineups/lineup-network/
+  source-coverage/receipts) with envelope schema, release identity,
+  staleness, cursor pagination, page-size caps, a 256 KiB
+  canonical-bytes response budget, ETag/304, bounded typed filters,
+  allowlisted sanitized receipt metadata, and healthy-degraded 503
+  without a graph. Deliberately NOT wired into the live app (a test
+  pins `main.py` free of `foundry_api`); 15/15 contract tests including
+  an OpenAPI surface freeze. Commit `19c5cc33` adds
+  `src/nfl_dfs/research/corpus_graph_vnext_contracts.py` — offline
+  graph vocabulary (COVERED_BY forbidden, inferred exposure must stay
+  qualified), load-manifest contract (exact gs:// source identities;
+  realized namespace closed without an authorized OutcomeRelease),
+  deterministic bounded batch plans with order-independent hashes,
+  conflicting-identity fail-closed law, and property guards against
+  world-scale arrays/outcomes/secrets; 11/11 focused tests. No live
+  graph, cloud, outcome, IAM, or deployment action occurred anywhere in
+  this workstream.
+- **STOPPED at the next mandatory lead checkpoint** (per the review:
+  integration switch, live Neo4j, governed artifact reads, and
+  deployment all remain withheld). Next actions available on approval:
+  wire the router seam (one reviewed commit), Phase 4 fixture-receipt
+  graph adapters, Phase 5 capacity estimator.
 
 ## Current handoff — 2026-08-25 20:55 UTC (seventy-fifth update)
 
