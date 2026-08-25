@@ -20,6 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 18:09 UTC (sixty-fifth update)
+
+### Real smoke passed; same-D release is active
+
+- Candidate Cloud Build `9d6b53a8-448f-46da-a0d0-6b454674c5c1` reached
+  terminal `SUCCESS` at `2026-08-25T18:07:54.977053Z` from exact source
+  `0cf48f180014862355082bff1147024d72ed4ca9` after about 52m30s. All six
+  build steps completed. Real smoke execution
+  `atlas-minimal-c-s2023-w1-v1-8jjmr` completed successfully and the durable
+  prefreeze gate SHA-256 is
+  `55de4facadb68ffe83bffc374bd444a1ec6b908367368da1ac7b8482b615236a`.
+  The candidate phase correctly published neither image evidence nor the
+  transport contract.
+- Independent exact known-tag resolution returned the same D:
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:90fd3e09d6d8a5a081f7903fa522223309d466d31d7aa163e0ea47da2a15c5a2`.
+  Do not substitute or rebuild it.
+- Same-D release Cloud Build
+  `2ffd457e-a007-46b9-89af-28e051719bf2` is submitted from exact source
+  `0cf48f180014862355082bff1147024d72ed4ca9`, explicit immutable D above,
+  `cloudbuild.foundry-t230.yaml`, and the exact three-file/3.2-KiB G0 archive.
+  Release mode must pull D, reconstruct the existing smoke gate, generate
+  image evidence inside D and create/reopen the transport contract without
+  rebuilding the candidate.
+- No historical outcome, comparative score or IAM census has run.
+- Exact next action: monitor release build to terminal `SUCCESS`, resolve the
+  fixed transport contract, then bootstrap/configure/prepare and run the T230
+  ordinal-zero benchmark. Use its measured wall time for the fixed two-lane
+  panel decision; benchmark work must be reused, never rerun.
+
 ## Current handoff — 2026-08-25 17:48 UTC (sixty-fourth update)
 
 ### Fresh D reached the real Cloud Run smoke; still unaccepted
