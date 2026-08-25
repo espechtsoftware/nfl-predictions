@@ -1242,6 +1242,13 @@ def test_build_and_launcher_static_production_law() -> None:
     assert "preflight-g0" in cloudbuild
     assert "_T230_PHASE: candidate" in cloudbuild
     assert "candidate-real-four-law-smoke-or-release-gate" in cloudbuild
+    focused_step = next(
+        step for step in cloudbuild_config["steps"]
+        if step["id"] == "focused-tests-and-semantic-g0-preflight"
+    )
+    assert "apt-get install -y --no-install-recommends git jq libgomp1" in (
+        "\n".join(map(str, focused_step["args"]))
+    )
     assert "publish-prefreeze-smoke-launch" in cloudbuild
     assert "target_created'" in cloudbuild
     assert "resolve-prefreeze-release-gate" in cloudbuild

@@ -20,6 +20,46 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 20:00 UTC (seventy-first update)
+
+### First T230 v2 candidate stopped before image build on one missing test dependency
+
+- Candidate Cloud Build `56d64cbe-2d77-4f51-adf8-21b65dbe7b7c` reached
+  terminal `FAILURE` at `2026-08-25T19:55:05.869948Z`. Exact checkout of S2
+  passed. The focused test/G0 step reported 59 passed and one failed:
+  `test_launcher_runtime_flags_file_preserves_args_and_environment`. Its real
+  production-helper subprocess exited 2 because the `python:3.11-slim` test
+  step installed `git` and `libgomp1` but omitted the `jq` executable required
+  by `build_gcloud_execution_flags`. Step 1 ended before semantic G0 preflight.
+- The image-build, real Rule-1 smoke and both release-only steps never started.
+  No v2 image tag/digest, prefreeze launch/receipt/timing/execution/gate,
+  canonical evidence/contract, prepare, science, outcome or score exists. The
+  v2 output namespace is unconsumed; S2 and this candidate are forbidden for
+  release or compute.
+- The narrow S3 repair adds `jq` to only the focused-test container and a
+  static regression that the dependency remains present. It does not change
+  the runtime image, typed launch payload, T230 science, G0 panel, run ID,
+  prefixes or authority laws. The governing v2 restart amendment now records
+  this terminal build-only disposition. The prospectively frozen Core `*-v2`
+  transaction was bound to the failed candidate and is terminal-unused; a new
+  Core transaction incarnation must bind the successor candidate.
+- Focused validation passes the affected transport module 14/14, Bash syntax,
+  Python compilation, YAML parsing and scoped diff checks. Independent review
+  found one P2 in the initial static regression because it searched the whole
+  YAML; the final test now selects the exact focused step by ID and its
+  re-review is APPROVE with no remaining finding. Stable SHA-256 values are
+  Cloud Build
+  `af193cc3e780a6f3ea43fcbf82e39f8b0cc52ceca9ba8d677765aed7ffeb2296`,
+  transport test
+  `e8d4a6e142c6335606972a3b8656a803558df4d79373ae4138252ed9a8347770`,
+  v2 restart amendment
+  `b3a7836cab9992c288c0ef3b4f8d27a05357530eafa70e8bcda98e552ec1357f`
+  and terminal Core-v2 amendment
+  `b6b1ab169f9b35ec81613637f189620f3076aa7cdb8d2d918f8da38c1b1a03e2`.
+- Exact next action: commit/push S3 and submit a fresh candidate from S3 with
+  the same exact three G0 carriers. Require a fresh D2 and real smoke before
+  same-D2 release. No outcome or IAM census is involved.
+
 ## Current handoff — 2026-08-25 19:42 UTC (seventieth update)
 
 ### First-score transaction is prospectively rebound to T230 v2

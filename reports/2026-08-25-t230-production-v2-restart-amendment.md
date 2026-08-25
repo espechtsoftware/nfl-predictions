@@ -86,12 +86,35 @@ evidence, release gate and transport contract are mutually bound, v2 requires
 a fresh candidate D. Reusing the v1 digest or gate would violate the transport
 contract even though the scientific laws are unchanged.
 
+## First v2 candidate build-environment disposition
+
+Source S2 `501b68a4f7b842de1f59d55358540c9a615b6e40` was submitted as candidate
+build `56d64cbe-2d77-4f51-adf8-21b65dbe7b7c`. It failed in the focused-test
+step at `2026-08-25T19:55:05.869948Z`: 59 tests passed and the production
+typed-flags regression failed because that `python:3.11-slim` build step
+installed `git` and `libgomp1` but not the `jq` executable invoked by the real
+flags builder. This was a build test-container dependency omission, not a
+transport serialization or scientific failure.
+
+The image-build step never started, so S2 produced no v2 image tag or digest.
+The real Rule-1 smoke never started and no v2 prefreeze launch, receipt,
+timing, execution, release gate, image evidence, transport contract, prepare,
+benchmark, science, outcome, or score object was created. The v2 run namespace
+therefore remains unconsumed.
+
+The successor source S3 changes only the focused-test container dependency by
+installing `jq` and adds a static regression that the executable remains in
+that step. It does not change the runtime image dependencies, transport
+payload, T230 science, G0 inputs, run ID, output prefixes, or authority laws.
+S2 and its failed candidate are terminal build evidence and are never release
+or compute inputs.
+
 ## Required execution sequence
 
 1. Focused-validate the repaired source, exact G0 replay and argument
    round-trip law.
-2. Commit and push one exact source S2.
-3. Build a fresh candidate D2 from S2 and require its own real outcome-blind
+2. Commit and push one exact successor source S3.
+3. Build a fresh candidate D2 from S3 and require its own real outcome-blind
    Rule-1 smoke and terminal candidate success.
 4. Release the same D2 without rebuilding it; require v2 image evidence,
    prefreeze gate and transport contract.

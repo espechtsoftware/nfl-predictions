@@ -76,3 +76,13 @@ and the `r194:incumbent` baseline remain unchanged.
 
 The old `*-v1` Core transaction names remain unused historical declarations.
 They are not aliases, fallbacks, recovery targets, or valid inputs to v2.
+
+## Terminal operational disposition
+
+Candidate build `56d64cbe-2d77-4f51-adf8-21b65dbe7b7c` failed before the
+image-build and Rule-1-smoke steps. It produced no D2 and can never satisfy the
+frozen upstream binding above. Consequently these Core `*-v2` transaction
+identifiers are also unused terminal declarations and must never be launched,
+rebound, aliased, or recovered. A fresh prospective Core transaction
+incarnation must bind the successor T230 candidate before its outcome is
+known.
