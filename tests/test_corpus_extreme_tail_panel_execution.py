@@ -358,7 +358,17 @@ def authority_fixture(tmp_path, monkeypatch):
     monkeypatch.setattr(
         execution, "FROZEN_G0_PUBLICATION_RECEIPT_PATH", publication_path
     )
+    monkeypatch.setattr(
+        execution,
+        "FROZEN_G0_PUBLICATION_RECEIPT_RELATIVE_PATH",
+        "reports/fixture-panel-index-live/published.json",
+    )
     monkeypatch.setattr(execution, "FROZEN_G0_LANE_RECEIPT_PATHS", lane_paths)
+    monkeypatch.setattr(
+        execution,
+        "FROZEN_G0_LANE_RECEIPT_RELATIVE_PATHS",
+        ("reports/fixture-lane-a.json", "reports/fixture-lane-b.json"),
+    )
     lock_path = tmp_path / "g0-authority-lock-v1.json"
     monkeypatch.setattr(execution, "FROZEN_G0_AUTHORITY_LOCK_PATH", lock_path)
     monkeypatch.setattr(
@@ -723,7 +733,7 @@ def _publish_and_verify(fixture, ordinal: int) -> tuple[dict, dict, dict]:
 def _finalizer_runtime(fixture) -> dict[str, object]:
     _body, identity = _publish_runtime(
         fixture,
-        role="verifier",
+        role="finalizer",
         ordinal=None,
         process_ordinal=90_000,
     )
@@ -744,13 +754,18 @@ def test_public_contract_literals_bind_transitive_code_and_false_authority(
 ) -> None:
     worker = execution.frozen_t230_worker_implementation_v1()
     verifier = execution.frozen_t230_verifier_implementation_v1()
+    finalizer = execution.frozen_t230_finalizer_implementation_v1()
     assert worker["implementation_sha256"] == (
         execution.EXPECTED_WORKER_IMPLEMENTATION_SHA256
     )
     assert verifier["implementation_sha256"] == (
         execution.EXPECTED_VERIFIER_IMPLEMENTATION_SHA256
     )
+    assert finalizer["implementation_sha256"] == (
+        execution.EXPECTED_FINALIZER_IMPLEMENTATION_SHA256
+    )
     assert worker["implementation_sha256"] != verifier["implementation_sha256"]
+    assert finalizer["science_recomputation"] is False
     assert len(execution._IMPLEMENTATION_PATHS) == 25
     assert "src/nfl_dfs/research/corpus_v12_import.py" in execution._IMPLEMENTATION_PATHS
     assert "src/nfl_dfs/research/corpus_retrieval_engine.py" in (
@@ -930,6 +945,79 @@ def test_g0_lock_self_hash_exactly_binds_all_three_files_and_panel(
     assert lock["panel_object_identity"] == authority_fixture.panel_identity
 
 
+def test_g0_lock_replays_across_checkout_roots_and_secure_modes(
+    authority_fixture, monkeypatch, tmp_path
+) -> None:
+    cloud_root = tmp_path / "cloud-checkout"
+    publication_path = cloud_root / "panel-index-live" / "published.json"
+    publication_path.parent.mkdir(parents=True)
+    _write(publication_path, authority_fixture.publication)
+    publication_path.chmod(0o400)
+    lane_paths = (cloud_root / "lane-a.json", cloud_root / "lane-b.json")
+    for ordinal, lane_path in enumerate(lane_paths):
+        _write(
+            lane_path,
+            _lane_envelope(
+                authority_fixture.panel["lanes"][ordinal][
+                    "terminal_receipt_identity"
+                ],
+                authority_fixture.panel["lanes"][ordinal][
+                    "batch_completion_identity"
+                ],
+                ordinal,
+            ),
+        )
+        lane_path.chmod(0o400)
+    monkeypatch.setattr(
+        execution, "FROZEN_G0_PUBLICATION_RECEIPT_PATH", publication_path
+    )
+    monkeypatch.setattr(execution, "FROZEN_G0_LANE_RECEIPT_PATHS", lane_paths)
+    assert execution.build_g0_authority_lock_v1(
+        read_exact=authority_fixture.store.read
+    ) == authority_fixture.authority_lock
+    assert execution.validate_g0_authority_lock_v1(
+        authority_fixture.authority_lock,
+        read_exact=authority_fixture.store.read,
+    ) == authority_fixture.authority_lock
+
+
+def test_g0_portable_projection_excludes_host_path_owner_and_mode() -> None:
+    content = {"sha256": "a" * 64, "bytes": 17}
+    local = execution._portable_g0_file_projection(
+        {
+            "path": "/home/operator/reviewed.json",
+            **content,
+            "owner_uid": 1000,
+            "mode_octal": "0600",
+        },
+        relative_path="reports/reviewed.json",
+        label="local G0 receipt",
+    )
+    cloud = execution._portable_g0_file_projection(
+        {
+            "path": "/home/erich/projects/nfl-predictions/reports/reviewed.json",
+            **content,
+            "owner_uid": 0,
+            "mode_octal": "0400",
+        },
+        relative_path="reports/reviewed.json",
+        label="cloud G0 receipt",
+    )
+    assert local == cloud == {
+        "relative_path": "reports/reviewed.json",
+        **content,
+    }
+    with pytest.raises(
+        execution.CorpusExtremeTailPanelExecutionError,
+        match="relative path differs",
+    ):
+        execution._portable_g0_file_projection(
+            local,
+            relative_path="../reviewed.json",
+            label="adversarial G0 receipt",
+        )
+
+
 @pytest.mark.parametrize("attack", ["untracked", "dirty"])
 def test_prepare_rejects_untracked_or_dirty_g0_lock(
     authority_fixture, attack
@@ -1093,6 +1181,70 @@ def test_worker_result_is_nonterminal_and_distinct_verifier_recomputes(
     assert [name for name, _ in calls].count("reconstruct") == 2
 
 
+def test_shared_science_stack_uses_exact_authoritative_no_knob_calls(
+    authority_fixture, monkeypatch
+) -> None:
+    reconstructed_slate = _fake_reconstruction(authority_fixture.panel, 0)
+    world_ids = [{"block": "R0", "index": 0}]
+    calls: list[tuple[str, dict[str, object]]] = []
+    census_receipt = {"support_census_sha256": "1" * 64}
+    suite_receipt = {"suite_sha256": "2" * 64}
+    policy_receipt = {"support_switched_policy_sha256": "3" * 64}
+    monkeypatch.setattr(execution, "_world_ids", lambda _value: world_ids)
+
+    def build_census(**kwargs):
+        calls.append(("census", kwargs))
+        return census_receipt
+
+    def build_suite(**kwargs):
+        calls.append(("suite", kwargs))
+        return suite_receipt
+
+    def build_support(**kwargs):
+        calls.append(("support", kwargs))
+        return policy_receipt
+
+    monkeypatch.setattr(census, "build_extreme_tail_support_census", build_census)
+    monkeypatch.setattr(suite, "run_extreme_tail_retrieval_suite_v1", build_suite)
+    monkeypatch.setattr(
+        support, "build_extreme_tail_support_switched_policy_v1", build_support
+    )
+    monkeypatch.setattr(
+        execution,
+        "_support_observation",
+        lambda _value: pytest.fail("shared science helper inspected support effects"),
+    )
+
+    retained = execution._execute_t230_science_stack_v1(reconstructed_slate)
+    assert [name for name, _kwargs in calls] == ["census", "suite", "support"]
+    assert retained.support_census is census_receipt
+    assert retained.extreme_tail_suite is suite_receipt
+    assert retained.support_policy is policy_receipt
+    for _name, kwargs in calls:
+        assert kwargs["worlds_per_block"] is None
+        assert kwargs["require_authoritative"] is True
+    assert calls[0][1]["world_ids"] is world_ids
+    assert calls[1][1]["entry_budgets"] == execution.ENTRY_BUDGETS
+    assert calls[2][1]["support_census"] is census_receipt
+    assert calls[2][1]["extreme_tail_suite"] is suite_receipt
+
+
+def test_production_worker_delegates_to_shared_science_stack(
+    science_stubs, authority_fixture, monkeypatch
+) -> None:
+    original = execution._execute_t230_science_stack_v1
+    delegated: list[str] = []
+
+    def shared(reconstructed_slate):
+        delegated.append(reconstructed_slate.slate_id)
+        return original(reconstructed_slate)
+
+    monkeypatch.setattr(execution, "_execute_t230_science_stack_v1", shared)
+    result = _worker_result(authority_fixture, 0)
+    assert result["source_ordinal"] == 0
+    assert delegated == ["2023-w01"]
+
+
 def test_verifier_rejects_same_process_instance(
     science_stubs, authority_fixture
 ) -> None:
@@ -1238,16 +1390,17 @@ def test_acceptance_validation_reconstructs_source_and_rejects_clone(
         )
 
 
-def test_finalizer_recomputes_54_and_proves_exact_boundaries(
-    science_stubs, authority_fixture
+def test_finalizer_structurally_replays_54_without_third_science_pass(
+    science_stubs, authority_fixture, monkeypatch
 ) -> None:
-    state, _calls = science_stubs
+    state, calls = science_stubs
     state["boundary"] = "exact"
     identities = [
         _publish_and_verify(authority_fixture, ordinal)[2]
         for ordinal in range(54)
     ]
     finalizer_identity = _finalizer_runtime(authority_fixture)
+    before_finalizer = len(calls)
     release = execution.build_t230_panel_release_v1(
         execution_authority_identity=authority_fixture.authority_identity,
         finalizer_runtime_measurement_identity=finalizer_identity,
@@ -1259,6 +1412,8 @@ def test_finalizer_recomputes_54_and_proves_exact_boundaries(
     assert release["final_fit_boundary"]["passed"] == 44
     assert release["final_fit_boundary"]["total"] == 54
     assert release["joint_support_boundary_passed"] is True
+    assert release["verification"]["finalizer_science_recomputation_performed"] is False
+    assert len(calls) == before_finalizer
     assert execution.validate_t230_panel_release_v1(
         release,
         execution_authority_identity=authority_fixture.authority_identity,
@@ -1266,6 +1421,29 @@ def test_finalizer_recomputes_54_and_proves_exact_boundaries(
         acceptance_identities=identities,
         **_runtime_kwargs(authority_fixture),
     ) == release
+    assert len(calls) == before_finalizer
+    authority_fixture.process_state["ordinal"] = 90_001
+    with pytest.raises(
+        execution.CorpusExtremeTailPanelExecutionError,
+        match="fresh local replay",
+    ):
+        execution.validate_t230_panel_release_v1(
+            release,
+            execution_authority_identity=authority_fixture.authority_identity,
+            finalizer_runtime_measurement_identity=finalizer_identity,
+            acceptance_identities=identities,
+            **_runtime_kwargs(authority_fixture),
+        )
+    monkeypatch.setattr(
+        execution, "_runtime_facts", lambda: {"controller": "not-image-D"}
+    )
+    assert execution.validate_published_t230_panel_release_v1(
+        release,
+        execution_authority_identity=authority_fixture.authority_identity,
+        acceptance_identities=identities,
+        read_exact=authority_fixture.store.read,
+    ) == release
+    assert len(calls) == before_finalizer
 
 
 @pytest.mark.parametrize("attack", ["missing", "duplicate", "reordered"])

@@ -20,6 +20,47 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-25 16:02 UTC (fiftieth update)
+
+### T230 production transport is static-approved; no cloud launch yet
+
+- Branch `main` is at pushed commit `220b06c3` (`Add reusable Core v1
+  score-once foundation`) before this milestone. No historical outcome,
+  comparative T230 score, prospective k20 result or full-field contest result
+  has been opened. No IAM census or policy mutation was performed.
+- The default-off T230 production transport is FINAL-STABLE-2 and received an
+  independent static **APPROVE** with no P0/P1. The corrected candidate-image
+  check passes the expected source commit as an explicit container environment
+  value and Cloud Build escapes it for the inner strict shell; this closes the
+  only review blocker before reality contact.
+- The approved path builds immutable candidate image D exactly once, runs D on
+  the fixed ordinal-zero real four-law/support-switch Rule-1 smoke, and only
+  then releases that same D without rebuilding. Production remains exactly 54
+  worker plus 54 independent-verifier science calls; the finalizer is a
+  structural replay. Two reused jobs run concurrent lanes but remain sequential
+  within each lane, with retry zero and no per-cell deployment.
+- Focused local validation is green: 13 T230 transport tests, 6 prefreeze-smoke
+  CLI tests and 30 panel-execution tests, each run as its own targeted module.
+  Shell/syntax/static checks and the independent exact T230-to-Core consumer
+  audit are also green. Final transport SHA-256 is
+  `627cdc80289d8c4c0054ba6562b082ee03fb1f8418b974ed4fcc7bdb1696ddc9`;
+  Cloud Build SHA-256 is
+  `3e4bdd6a9258ce62cdf379c5da01dceba9bc21ca951f96fe550d36fe59fa747e`;
+  Dockerfile SHA-256 is
+  `148b8919d119c9e0f4812f0c6a3b8ef01f39a310a69240b513bbcedc1e0339ce`.
+- Outcome-blind Core catalog sharding is separately implemented and validated,
+  but its publication bridge and cloud CLI are still being finalized before
+  the candidate commit: the existing outcome snapshot/grader requires a
+  byte-valid logical-catalog identity, not merely the sharded root identity.
+  The narrow fix is to publish one byte-ceiling-bounded logical authority object
+  plus the 54 resumable shards, then publish the root last binding both forms.
+- Exact next action: commit/push the reviewed T230 transport; finish and review
+  the bounded Core catalog authority bridge, Core cloud CLI, recoverable
+  one-query outcome transaction and grade publisher in the same source commit.
+  Then submit candidate build D, run the real ordinal-zero smoke, release the
+  same D, benchmark/execute/finalize T230, materialize Core, read outcomes once
+  and publish actual DK grades without another deployment.
+
 ## Current handoff — 2026-08-25 14:18 UTC (forty-ninth update)
 
 ### Reusable Core v1 score-once foundation is complete and outcome-blind

@@ -1,8 +1,12 @@
 # Foundry v12 Gate G0 and first T230 smoke runbook
 
 **Frozen:** 2026-08-25 before either v12 lane completed
-**Scope:** outcome-blind lane closure, combined-panel publication, and one
-accepted-slate extreme-tail support census only
+**Amended:** 2026-08-25 after the Rule-1 gap was identified; the original
+support census remains Gate 5A and the mandatory full-stack reality contact is
+Gate 5B
+**Scope:** outcome-blind lane closure, combined-panel publication, one
+accepted-slate support census, and one disposable ordinal-zero full T230
+science-stack smoke before any canonical transport contract
 **Forbidden here:** realized outcomes, T230 effect inspection, retries,
 duplicate lane operators, corpus fill, graph mutation, production policy, or
 promotion decisions
@@ -139,7 +143,7 @@ and one `panel_object_identity` whose URI, SHA-256 and byte count match the
 frozen panel and publication receipt. An equal pre-existing object is an
 idempotent reopen; differing content is a hard collision.
 
-## Gate 5 — run one accepted-slate support census
+## Gate 5A — run one accepted-slate support census
 
 This reads only generation-pinned panel/source/world artifacts. It does not
 read historical contest outcomes. `/usr/bin/time -v` is the benchmark source;
@@ -170,6 +174,83 @@ per-slate publication acceptance and must never be promoted into the later
 54-slate authoritative join without that runner independently replaying the
 carrier-bound inputs.
 
+This census-only smoke does **not** satisfy `CLAUDE.md` Rule 1 for T230. It
+does not execute the four-law retrieval suite or support-switch path.
+
+## Gate 5B — mandatory disposable full-stack Rule-1 smoke
+
+Before image evidence E, the transport contract, execution authority, the
+canonical T230 benchmark, or any canonical T230 result is published, run the
+tracked candidate image on the reused ordinal-zero Cloud Run job. The
+candidate must already be resolved to digest D. If the smoke exposes a defect,
+repair the source, build a new D, and repeat this gate. Once this gate passes,
+that exact D becomes the release candidate and is never rebuilt.
+
+The only science command inside the one-task, retry-zero, 8-CPU/32-Gi Cloud
+Run execution is:
+
+```bash
+export FOUNDRY_T230_PREFREEZE_SMOKE_ENABLED=1
+export T230_PREFREEZE_CANDIDATE_IMAGE="$D"
+
+env LC_ALL=C PYTHONPATH=src \
+  /usr/bin/time -v \
+  -o /tmp/t230-prefreeze-ordinal-0.time-v.txt \
+  python scripts/run_corpus_extreme_tail_t230_prefreeze_smoke_v1.py \
+  --execute \
+  --receipt-output /tmp/t230-prefreeze-ordinal-0.structural.json
+```
+
+There is no slate, dose, threshold, strategy, budget, result URI, output
+prefix, or authority override. The command fixes source ordinal zero and
+requires `2023-w01`; exact-replays the raw G0 receipt, both lane terminals and
+the generation-pinned 54-member panel; reconstructs the accepted carrier and
+50,000-world matrix; and calls the same private no-knob census -> four-law
+suite -> support-switch helper used by the production worker.
+
+The science CLI writes only one local create-once compact structural receipt.
+It never publishes GCS, calls the canonical transport, records support
+observations, or serializes ranks, books, selected lineup IDs, metrics, scores
+or comparative effects. The receipt binds:
+
+- exact G0 panel object identity and ordinal-zero membership hashes;
+- candidate source commit and immutable image D;
+- whole-file hashes for the panel executor and smoke CLI, each verified equal
+  to its Git blob at that commit;
+- Cloud Run job/execution/task and Linux process identity;
+- reconstruction/matrix, census, four-law registry/implementation, suite and
+  support-switch structural hashes; and
+- all outcome, effect-inspection, publication, analytical, promotion,
+  decision and release authorities false.
+
+The outer candidate-D worker wrapper, not the science CLI, must strictly
+parse and create-once publish the raw GNU `time -v` mechanics, the compact
+receipt, and a captured successful Cloud execution projection under the
+separate prefreeze-smoke evidence namespace. That projection must bind D, the
+reused job, service account, 8 CPU, 32 GiB, one task, parallelism one,
+`maxRetries=0`, task index/attempt/count `0/0/1`, execution completion, compact
+receipt identity and `runtime_binding_sha256`.
+
+The release phase must exact-read both pinned identities and call the
+importable validator directly:
+
+```python
+validate_t230_prefreeze_smoke_receipt_v1(
+    receipt,
+    expected_panel_object_identity=g0_panel_identity,
+    expected_source_commit_sha=source_commit_sha,
+    expected_immutable_candidate_image=candidate_image_d,
+    require_release_runtime=True,
+)
+```
+
+It must then exact-match the external execution projection to the validated
+runtime binding and numeric GNU-time gate. Only that successful conjunction
+may allow the Cloud Build release phase to continue to image evidence E and
+`journal-evidence-and-contract`. A missing, fixture-only, failed, mismatched,
+effect-bearing or false-authority-drifting receipt stops the build. No
+canonical T230 object may exist before this gate passes.
+
 ## Gate 6 — support decision before selector effects
 
 Do not inspect T230 selector effects until the census-bound support-switch
@@ -190,8 +271,8 @@ Certification additionally requires the exact published-panel identity and
 54 generation/content-bound per-slate receipts proving full census-and-suite
 replay; do not substitute free-form or merely self-hashed policy JSON.
 
-Only after the one-slate runtime and memory gate passes should the raw four-law
-T230 suite run. All intended exact 4/14/80 final books must then be immutable
-before a controlled realized-outcome grade. The exact scale-out receipt and
-two-lane publication design is frozen in
+Only after the disposable full-stack runtime/memory gate passes may the same D
+enter canonical T230 preparation and scale-out. All intended exact 4/14/80
+final books must then be immutable before a controlled realized-outcome grade.
+The exact scale-out receipt and two-lane publication design is frozen in
 `reports/2026-08-25-t230-panel-release-and-authoritative-summary-plan.md`.

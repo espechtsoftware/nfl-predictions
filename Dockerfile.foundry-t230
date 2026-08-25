@@ -1,0 +1,32 @@
+FROM python:3.11-slim
+
+ARG SOURCE_COMMIT
+ENV PYTHONPATH=/home/erich/projects/nfl-predictions/src
+WORKDIR /home/erich/projects/nfl-predictions
+
+# Git is runtime evidence, GNU time produces the raw numeric benchmark, and
+# libgomp is required by the frozen scientific dependency tree.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git time jq libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# The dedicated Cloud Build context is an exact detached checkout.  It also
+# contains the three exact G0 raw receipts copied into their literal paths by
+# the build preflight.  Keep the real .git object database: the core runner
+# executes real git rev-parse/show/status and does not accept a manifest shim.
+COPY . /home/erich/projects/nfl-predictions
+
+RUN test -n "${SOURCE_COMMIT}" \
+    && git config --global --add safe.directory /home/erich/projects/nfl-predictions \
+    && test "$(git rev-parse HEAD)" = "${SOURCE_COMMIT}" \
+    && pip install --no-cache-dir ".[gcp,app,graph]" \
+    && mkdir -p /opt/nfl-dfs /etc/nfl-dfs \
+    && chmod 0700 /etc/nfl-dfs \
+    && python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+       build-source-snapshot \
+       --source-commit "${SOURCE_COMMIT}" \
+       --repository-root /home/erich/projects/nfl-predictions \
+       --output /opt/nfl-dfs/foundry-t230-source-snapshot-v1.json
+
+# Every execution uses explicit arguments.  The image itself is inert.
+CMD ["python", "scripts/run_corpus_extreme_tail_panel_transport_v1.py", "parked"]

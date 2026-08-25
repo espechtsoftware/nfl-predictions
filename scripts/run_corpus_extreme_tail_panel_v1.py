@@ -377,12 +377,14 @@ def _parser() -> argparse.ArgumentParser:
     run_slate = commands.add_parser("run-slate")
     run_slate.add_argument("--execution-authority-identity", required=True, type=Path)
     run_slate.add_argument("--source-ordinal", required=True, type=int)
+    run_slate.add_argument("--runtime-attempt-ordinal", type=int, default=0)
     run_slate.add_argument("--receipt-output", type=Path)
     run_slate.add_argument("--execute", action="store_true", required=True)
 
     verify_slate = commands.add_parser("verify-slate")
     verify_slate.add_argument("--execution-authority-identity", required=True, type=Path)
     verify_slate.add_argument("--source-ordinal", required=True, type=int)
+    verify_slate.add_argument("--runtime-attempt-ordinal", type=int, default=0)
     verify_slate.add_argument("--result-identity", required=True, type=Path)
     verify_slate.add_argument("--receipt-output", type=Path)
     verify_slate.add_argument("--execute", action="store_true", required=True)
@@ -400,6 +402,7 @@ def _parser() -> argparse.ArgumentParser:
         ),
     )
     finish.add_argument("--receipt-output", type=Path)
+    finish.add_argument("--runtime-attempt-ordinal", type=int, default=0)
     finish.add_argument("--execute", action="store_true", required=True)
     return parser
 
@@ -608,6 +611,7 @@ def _publish_current_runtime(
     authority_identity: Mapping[str, object],
     role: str,
     source_ordinal: int | None,
+    runtime_attempt_ordinal: int,
     store: ExactCreateOnceStore,
 ) -> dict[str, object]:
     authority = execution.reopen_t230_execution_authority_v1(
@@ -616,6 +620,7 @@ def _publish_current_runtime(
     )
     measurement = execution.measure_t230_runtime_v1(
         role=role,
+        runtime_attempt_ordinal=runtime_attempt_ordinal,
         output_prefix=str(authority["output_prefix"]),
         repository_root=REPOSITORY_ROOT,
         image_evidence_identity=authority["image_evidence_identity"],
@@ -630,6 +635,7 @@ def _publish_current_runtime(
         str(authority["output_prefix"]),
         role=role,
         source_ordinal=source_ordinal,
+        runtime_attempt_ordinal=runtime_attempt_ordinal,
     )
     return dict(store.publish_create_once(
         uri, batch.canonical_json_bytes(measurement)
@@ -649,6 +655,7 @@ def _run_slate(
             authority_identity=authority_identity,
             role="worker",
             source_ordinal=args.source_ordinal,
+            runtime_attempt_ordinal=args.runtime_attempt_ordinal,
             store=store,
         )
         result = execution.execute_t230_panel_slate_v1(
@@ -697,6 +704,7 @@ def _run_verify_slate(
             authority_identity=authority_identity,
             role="verifier",
             source_ordinal=args.source_ordinal,
+            runtime_attempt_ordinal=args.runtime_attempt_ordinal,
             store=store,
         )
         acceptance = execution.verify_t230_panel_slate_v1(
@@ -715,12 +723,10 @@ def _run_verify_slate(
             store=store,
             label="published T230 slate acceptance",
         )
-        execution.validate_t230_slate_acceptance_v1(
-            reopened,
-            execution_authority_identity=authority_identity,
-            source_ordinal=args.source_ordinal,
-            **_runtime_kwargs(store=store),
-        )
+        if batch.canonical_json_bytes(reopened) != batch.canonical_json_bytes(
+            acceptance
+        ):
+            _fail("published T230 slate acceptance differs on exact reopen")
     except execution.CorpusExtremeTailPanelExecutionError as exc:
         raise CorpusExtremeTailPanelCLIError(str(exc)) from exc
     return _workflow_receipt("verify-slate", {
@@ -738,7 +744,7 @@ def _run_verify_slate(
         "t230_slate_acceptance_sha256": acceptance[
             "t230_slate_acceptance_sha256"
         ],
-        "support_observation": acceptance["support_observation"],
+        "support_observation_withheld_until_panel_release": True,
         "published": True,
         "exact_reopen_verified": True,
     })
@@ -765,8 +771,9 @@ def _run_finish(
     try:
         finalizer_runtime_identity = _publish_current_runtime(
             authority_identity=authority_identity,
-            role="verifier",
+            role="finalizer",
             source_ordinal=None,
+            runtime_attempt_ordinal=args.runtime_attempt_ordinal,
             store=store,
         )
         release = execution.build_t230_panel_release_v1(
@@ -784,13 +791,11 @@ def _run_finish(
         release_identity, store=store, label="published T230 panel release"
     )
     try:
-        replayed = execution.validate_t230_panel_release_v1(
-            reopened_release,
-            execution_authority_identity=authority_identity,
-            finalizer_runtime_measurement_identity=finalizer_runtime_identity,
-            acceptance_identities=acceptance_identities,
-            **_runtime_kwargs(store=store),
-        )
+        if batch.canonical_json_bytes(reopened_release) != batch.canonical_json_bytes(
+            release
+        ):
+            _fail("published T230 panel release differs on exact reopen")
+        replayed = release
     except execution.CorpusExtremeTailPanelExecutionError as exc:
         raise CorpusExtremeTailPanelCLIError(str(exc)) from exc
     return _workflow_receipt("finish-panel", {
@@ -805,11 +810,7 @@ def _run_finish(
         "finalizer_runtime_measurement_identity": finalizer_runtime_identity,
         "t230_panel_release_sha256": replayed["t230_panel_release_sha256"],
         "accepted_slate_count": replayed["accepted_slate_count"],
-        "fold_boundary": replayed["fold_boundary"],
-        "final_fit_boundary": replayed["final_fit_boundary"],
-        "joint_support_boundary_passed": replayed[
-            "joint_support_boundary_passed"
-        ],
+        "support_conclusion_withheld_from_transport_receipt": True,
         "source_commit_sha": replayed["source_commit_sha"],
         "immutable_image": replayed["immutable_image"],
         "published": True,

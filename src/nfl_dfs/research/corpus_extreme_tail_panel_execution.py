@@ -45,20 +45,29 @@ AUTHORITY_FILENAME: Final = "foundry-t230-panel-execution-authority-v1.json"
 PANEL_RELEASE_FILENAME: Final = "foundry-t230-panel-release-v1.json"
 WORKER_RUNTIME_FILENAME: Final = "foundry-t230-worker-runtime-v1.json"
 VERIFIER_RUNTIME_FILENAME: Final = "foundry-t230-verifier-runtime-v1.json"
+FINALIZER_RUNTIME_FILENAME: Final = "foundry-t230-finalizer-runtime-v1.json"
 IMAGE_EVIDENCE_FILENAME: Final = "foundry-t230-image-evidence-v1.json"
 IMAGE_EVIDENCE_SCHEMA: Final = "foundry-t230-image-evidence/v1"
 RUNTIME_MEASUREMENT_SCHEMA: Final = "foundry-t230-runtime-measurement/v1"
 WORKER_IMPLEMENTATION_SCHEMA: Final = "foundry-t230-worker-implementation/v1"
 VERIFIER_IMPLEMENTATION_SCHEMA: Final = "foundry-t230-verifier-implementation/v1"
+FINALIZER_IMPLEMENTATION_SCHEMA: Final = "foundry-t230-finalizer-implementation/v1"
 EXECUTION_AUTHORITY_SCHEMA: Final = "foundry-t230-execution-authority/v1"
 SLATE_RESULT_SCHEMA: Final = "foundry-t230-slate-analysis/v1"
 SLATE_ACCEPTANCE_SCHEMA: Final = "foundry-t230-slate-acceptance/v1"
 PANEL_RELEASE_SCHEMA: Final = "foundry-t230-panel-release/v1"
+PREFREEZE_SMOKE_RECEIPT_SCHEMA: Final = (
+    "foundry-t230-prefreeze-real-artifact-smoke/v1"
+)
+PREFREEZE_SMOKE_RUNTIME_SCHEMA: Final = (
+    "foundry-t230-prefreeze-smoke-runtime/v1"
+)
+PREFREEZE_SMOKE_ID: Final = "foundry-t230-prefreeze-ordinal-0-v1"
 PUBLICATION_MODE: Final = "create_once"
 PANEL_PUBLICATION_RECEIPT_SCHEMA: Final = (
     "foundry-v12-panel-index-publication/v1"
 )
-G0_AUTHORITY_LOCK_SCHEMA: Final = "foundry-v12-g0-authority-lock/v1"
+G0_AUTHORITY_LOCK_SCHEMA: Final = "foundry-v12-g0-authority-lock/v2"
 FROZEN_G0_PANEL_URI: Final = (
     "gs://nfl-predictions-503414-corpus-parametric/research/"
     "corpus-parametric-research/panels/20260823-foundry-production-v12/"
@@ -67,6 +76,11 @@ FROZEN_G0_PANEL_URI: Final = (
 FROZEN_G0_PUBLICATION_RECEIPT_PATH: Final = Path(
     "/home/erich/projects/nfl-predictions/reports/corpus-parametric-runs/"
     "20260823-foundry-production-v12-panel-index/panel-index-live/published.json"
+)
+FROZEN_G0_PUBLICATION_RECEIPT_RELATIVE_PATH: Final = (
+    "reports/corpus-parametric-runs/"
+    "20260823-foundry-production-v12-panel-index/"
+    "panel-index-live/published.json"
 )
 FROZEN_G0_LANE_RECEIPT_PATHS: Final = (
     Path(
@@ -77,6 +91,14 @@ FROZEN_G0_LANE_RECEIPT_PATHS: Final = (
         "/home/erich/projects/nfl-predictions/reports/corpus-parametric-runs/"
         "20260823-foundry-production-v12b/transport-live-v12b/batch-accepted.json"
     ),
+)
+FROZEN_G0_LANE_RECEIPT_RELATIVE_PATHS: Final = (
+    "reports/corpus-parametric-runs/"
+    "20260823-foundry-production-v12a/transport-live-v12a/"
+    "batch-accepted.json",
+    "reports/corpus-parametric-runs/"
+    "20260823-foundry-production-v12b/transport-live-v12b/"
+    "batch-accepted.json",
 )
 FROZEN_G0_AUTHORITY_LOCK_PATH: Final = Path(
     "/home/erich/projects/nfl-predictions/reports/corpus-parametric-runs/"
@@ -100,6 +122,14 @@ FOLD_GATE_TOTAL: Final = 270
 FINAL_GATE_TOTAL: Final = 54
 FOLD_PASS_MINIMUM: Final = 216
 FINAL_PASS_MINIMUM: Final = 44
+MAX_RUNTIME_ATTEMPT_ORDINAL: Final = 7
+PREFREEZE_SMOKE_SOURCE_ORDINAL: Final = 0
+PREFREEZE_SMOKE_SLATE_ID: Final = "2023-w01"
+PREFREEZE_SMOKE_CLOUD_RUN_JOB: Final = "atlas-minimal-c-s2023-w1-v1"
+PREFREEZE_SMOKE_IMPLEMENTATION_PATHS: Final = (
+    "src/nfl_dfs/research/corpus_extreme_tail_panel_execution.py",
+    "scripts/run_corpus_extreme_tail_t230_prefreeze_smoke_v1.py",
+)
 
 _IMPLEMENTATION_PATHS: Final = (
     "src/nfl_dfs/research/corpus_extreme_tail_panel_execution.py",
@@ -151,7 +181,7 @@ _CRITICAL_CALLABLE_SPECS: Final = (
     (_IMPLEMENTATION_PATHS[16], "validate_retrieval_strategy_v2"),
     (_IMPLEMENTATION_PATHS[23], "validate_unlicensed_scientific_payload"),
 )
-_RUNTIME_ROLES: Final = ("worker", "verifier")
+_RUNTIME_ROLES: Final = ("worker", "verifier", "finalizer")
 _WORKER_IMPLEMENTATION_BODY: Final = {
     "schema_version": WORKER_IMPLEMENTATION_SCHEMA,
     "implementation_id": "t230-panel-worker-recompute-v1",
@@ -193,6 +223,23 @@ _VERIFIER_IMPLEMENTATION_BODY: Final = {
     "realized_outcomes_read": False,
     "outcome_verdict_authority": False,
 }
+_FINALIZER_IMPLEMENTATION_BODY: Final = {
+    "schema_version": FINALIZER_IMPLEMENTATION_SCHEMA,
+    "implementation_id": "t230-panel-structural-finalizer-v1",
+    "role": "finalizer",
+    "implementation_paths": list(_IMPLEMENTATION_PATHS),
+    "entrypoint": "build_t230_panel_release_v1",
+    "input_policy": "exact-read-54-independent-verifier-acceptances",
+    "verification_law": (
+        "structural-content-identity-replay-without-third-science-computation"
+    ),
+    "source_member_count": AUTHORITATIVE_SLATE_COUNT,
+    "fold_gate_total": FOLD_GATE_TOTAL,
+    "final_gate_total": FINAL_GATE_TOTAL,
+    "realized_outcomes_read": False,
+    "science_recomputation": False,
+    "outcome_verdict_authority": False,
+}
 # Independent protocol literals.  Import-time/public-contract replay fails if
 # either declarative implementation law drifts under the same implementation id.
 EXPECTED_WORKER_IMPLEMENTATION_SHA256: Final = (
@@ -200,6 +247,9 @@ EXPECTED_WORKER_IMPLEMENTATION_SHA256: Final = (
 )
 EXPECTED_VERIFIER_IMPLEMENTATION_SHA256: Final = (
     "118532c1752845e96254343242db13e6fd75c0e2f5d54901794c6da34dfcb851"
+)
+EXPECTED_FINALIZER_IMPLEMENTATION_SHA256: Final = (
+    "70f546436f7df6b5733689926fbcbd8d9bfaea08750f062931b6b6410a313cf0"
 )
 
 _FALSE_AUTHORITY_FIELDS: Final = (
@@ -214,6 +264,13 @@ _FALSE_AUTHORITY_FIELDS: Final = (
     "r6_freeze_authority",
     "promotion_authority",
     "decision_authority",
+)
+_PREFREEZE_SMOKE_FALSE_AUTHORITY_FIELDS: Final = (
+    *_FALSE_AUTHORITY_FIELDS,
+    "selector_effect_inspection_licensed",
+    "canonical_t230_publication_licensed",
+    "outcome_verdict_authority",
+    "release_authority",
 )
 _PANEL_RECEIPT_FALSE_FIELDS: Final = tuple(
     field for field in _FALSE_AUTHORITY_FIELDS if field != "r6_freeze_authority"
@@ -236,6 +293,9 @@ _PANEL_PUBLICATION_RECEIPT_KEYS: Final = frozenset({
 })
 _SECURE_FILE_BINDING_KEYS: Final = frozenset({
     "path", "sha256", "bytes", "owner_uid", "mode_octal"
+})
+_G0_PORTABLE_FILE_BINDING_KEYS: Final = frozenset({
+    "relative_path", "sha256", "bytes"
 })
 _G0_LANE_LOCK_KEYS: Final = frozenset({
     "lane_ordinal",
@@ -290,6 +350,7 @@ _RUNTIME_MEASUREMENT_KEYS: Final = frozenset({
     "schema_version",
     "publication_mode",
     "role",
+    "runtime_attempt_ordinal",
     "implementation_contract",
     "implementation_sha256",
     "measured_source_commit_sha",
@@ -333,6 +394,7 @@ _EXECUTION_AUTHORITY_KEYS: Final = frozenset({
     "image_evidence_sha256",
     "worker_implementation_sha256",
     "verifier_implementation_sha256",
+    "finalizer_implementation_sha256",
     "runtime_facts",
     "source_commit_sha",
     "immutable_image",
@@ -410,7 +472,7 @@ _PANEL_RELEASE_KEYS: Final = frozenset({
     "immutable_image",
     "output_prefix",
     "panel_release_uri",
-    "verifier_runtime_binding",
+    "finalizer_runtime_binding",
     "source_member_count",
     "accepted_slate_count",
     "ordered_slate_acceptances",
@@ -424,6 +486,79 @@ _PANEL_RELEASE_KEYS: Final = frozenset({
     "verification",
     *_FALSE_AUTHORITY_FIELDS,
     "t230_panel_release_sha256",
+})
+_PREFREEZE_SMOKE_RUNTIME_KEYS: Final = frozenset({
+    "schema_version",
+    "environment_class",
+    "cloud_run_job",
+    "cloud_run_execution",
+    "cloud_run_task_index",
+    "cloud_run_task_attempt",
+    "cloud_run_task_count",
+    "source_commit_sha",
+    "immutable_candidate_image",
+    "implementation_files",
+    "implementation_files_sha256",
+    "process_instance",
+    "process_instance_sha256",
+    "release_validation_eligible",
+    *_PREFREEZE_SMOKE_FALSE_AUTHORITY_FIELDS,
+    "runtime_binding_sha256",
+})
+_PREFREEZE_SMOKE_STRUCTURAL_HASH_KEYS: Final = frozenset({
+    "g0_publication_receipt_file_sha256",
+    "g0_publication_receipt_sha256",
+    "g0_lane_receipt_binding_set_sha256",
+    "panel_object_identity_sha256",
+    "panel_index_sha256",
+    "panel_member_sha256",
+    "task_acceptance_identity_sha256",
+    "carrier_identity_sha256",
+    "later_source_freeze_identity_sha256",
+    "world_artifact_identity_set_sha256",
+    "compatibility_import_sha256",
+    "candidate_provenance_sha256",
+    "reconstruction_sha256",
+    "matrix_binding_sha256",
+    "score_matrix_sha256",
+    "lineup_ids_sha256",
+    "world_ids_sha256",
+    "support_census_sha256",
+    "extreme_tail_suite_sha256",
+    "strategy_registry_sha256",
+    "selector_implementation_sha256",
+    "support_switched_policy_sha256",
+    "support_source_pair_sha256",
+})
+_PREFREEZE_SMOKE_VERIFICATION: Final = {
+    "raw_g0_two_lane_panel_replayed": True,
+    "accepted_member_reconstructed": True,
+    "authoritative_50000_world_matrix_verified": True,
+    "support_census_executed": True,
+    "four_law_suite_executed": True,
+    "five_cross_fit_scopes_executed": True,
+    "distinct_all_block_final_fit_executed": True,
+    "support_switch_executed": True,
+    "science_payloads_serialized": False,
+    "realized_outcomes_read": False,
+    "selector_effects_inspected": False,
+    "canonical_t230_write_performed": False,
+}
+_PREFREEZE_SMOKE_RECEIPT_KEYS: Final = frozenset({
+    "schema_version",
+    "smoke_id",
+    "execution_mode",
+    "source_ordinal",
+    "slate_id",
+    "panel_object_identity",
+    "source_commit_sha",
+    "immutable_candidate_image",
+    "runtime_binding",
+    "runtime_binding_sha256",
+    "structural_hashes",
+    "verification",
+    *_PREFREEZE_SMOKE_FALSE_AUTHORITY_FIELDS,
+    "prefreeze_smoke_receipt_sha256",
 })
 
 
@@ -449,6 +584,13 @@ class _AuthorityContext:
     authority_identity: dict[str, object]
     authority: dict[str, object]
     execution: _ExecutionContext
+
+
+@dataclass(frozen=True)
+class _T230ScienceStack:
+    support_census: dict[str, object]
+    extreme_tail_suite: dict[str, object]
+    support_policy: dict[str, object]
 
 
 def _fail(message: str) -> None:
@@ -485,6 +627,16 @@ def _sha(value: object, *, label: str) -> str:
         or any(character not in "0123456789abcdef" for character in value)
     ):
         _fail(f"{label} must be one lowercase SHA-256")
+    return value
+
+
+def _commit_sha(value: object, *, label: str) -> str:
+    if (
+        type(value) is not str
+        or len(value) != 40
+        or any(character not in "0123456789abcdef" for character in value)
+    ):
+        _fail(f"{label} must be one lowercase 40-character Git commit")
     return value
 
 
@@ -641,8 +793,11 @@ def _implementation_contract(role: str) -> dict[str, object]:
     elif role == "verifier":
         body = dict(_VERIFIER_IMPLEMENTATION_BODY)
         expected = EXPECTED_VERIFIER_IMPLEMENTATION_SHA256
+    elif role == "finalizer":
+        body = dict(_FINALIZER_IMPLEMENTATION_BODY)
+        expected = EXPECTED_FINALIZER_IMPLEMENTATION_SHA256
     else:
-        _fail("runtime role must be worker or verifier")
+        _fail("runtime role must be worker, verifier, or finalizer")
     actual = batch.canonical_sha256(body)
     if actual != expected:
         _fail(f"frozen {role} implementation contract drifted")
@@ -658,6 +813,11 @@ def frozen_t230_worker_implementation_v1() -> dict[str, object]:
 def frozen_t230_verifier_implementation_v1() -> dict[str, object]:
     """Return the literal, self-verifying independent verifier contract."""
     return _implementation_contract("verifier")
+
+
+def frozen_t230_finalizer_implementation_v1() -> dict[str, object]:
+    """Return the literal, self-verifying structural finalizer contract."""
+    return _implementation_contract("finalizer")
 
 
 def _runtime_facts() -> dict[str, object]:
@@ -758,7 +918,9 @@ def _measure_process_instance() -> dict[str, object]:
     return body
 
 
-def _validate_image_evidence(value: object) -> dict[str, object]:
+def _validate_image_evidence(
+    value: object, *, require_current_runtime: bool = True
+) -> dict[str, object]:
     item = dict(_mapping(value, label="immutable image evidence"))
     _exact_keys(item, _IMAGE_EVIDENCE_KEYS, label="immutable image evidence")
     _false_authorities(item, label="immutable image evidence")
@@ -817,7 +979,9 @@ def _validate_image_evidence(value: object) -> dict[str, object]:
         ):
             _fail("immutable image critical-callable row differs")
         _sha(row.get("source_sha256"), label="image critical callable SHA")
-    if item.get("runtime_facts") != _runtime_facts():
+    if type(require_current_runtime) is not bool:
+        _fail("image-evidence runtime-validation mode must be literal boolean")
+    if require_current_runtime and item.get("runtime_facts") != _runtime_facts():
         _fail("immutable image runtime facts differ from this runtime")
     provenance = _mapping(
         item.get("build_provenance"), label="image build provenance"
@@ -846,20 +1010,41 @@ def _validate_image_evidence(value: object) -> dict[str, object]:
 
 
 def runtime_measurement_uri_for_output_prefix(
-    output_prefix: str, *, role: str, source_ordinal: int | None = None
+    output_prefix: str,
+    *,
+    role: str,
+    source_ordinal: int | None = None,
+    runtime_attempt_ordinal: int = 0,
 ) -> str:
     if type(output_prefix) is not str or not output_prefix.endswith("/"):
         _fail("output prefix must be one canonical trailing-slash prefix")
     if role not in _RUNTIME_ROLES:
-        _fail("runtime role must be worker or verifier")
-    filename = (
-        WORKER_RUNTIME_FILENAME if role == "worker" else VERIFIER_RUNTIME_FILENAME
-    )
+        _fail("runtime role must be worker, verifier, or finalizer")
+    if (
+        type(runtime_attempt_ordinal) is not int
+        or not 0 <= runtime_attempt_ordinal <= MAX_RUNTIME_ATTEMPT_ORDINAL
+    ):
+        _fail("runtime attempt ordinal must be one exact integer in 0..7")
+    filename = {
+        "worker": WORKER_RUNTIME_FILENAME,
+        "verifier": VERIFIER_RUNTIME_FILENAME,
+        "finalizer": FINALIZER_RUNTIME_FILENAME,
+    }[role]
+    attempt = f"attempt-{runtime_attempt_ordinal:02d}/"
+    if role == "finalizer":
+        if source_ordinal is not None:
+            _fail("finalizer runtime cannot bind one source ordinal")
+        return output_prefix + "runtime/finalizer/" + attempt + filename
     if source_ordinal is None:
-        return output_prefix + "runtime/templates/" + filename
+        return output_prefix + "runtime/templates/" + attempt + filename
     if type(source_ordinal) is not int or not 0 <= source_ordinal < 54:
         _fail("runtime source ordinal must be one exact integer in 0..53")
-    return output_prefix + f"slates/{source_ordinal:02d}/runtime/" + filename
+    return (
+        output_prefix
+        + f"slates/{source_ordinal:02d}/runtime/"
+        + attempt
+        + filename
+    )
 
 
 def image_evidence_uri_for_output_prefix(output_prefix: str) -> str:
@@ -965,6 +1150,7 @@ def _read_local_exact(path: Path, *, label: str) -> bytes:
 def measure_t230_runtime_v1(
     *,
     role: str,
+    runtime_attempt_ordinal: int = 0,
     output_prefix: str,
     repository_root: Path,
     image_evidence_identity: Mapping[str, object],
@@ -980,6 +1166,11 @@ def measure_t230_runtime_v1(
     evidence and can never issue a slate acceptance or aggregate release.
     """
     contract = _implementation_contract(role)
+    if (
+        type(runtime_attempt_ordinal) is not int
+        or not 0 <= runtime_attempt_ordinal <= MAX_RUNTIME_ATTEMPT_ORDINAL
+    ):
+        _fail("runtime attempt ordinal must be one exact integer in 0..7")
     normalized_evidence_identity, evidence_body = _exact_read_json(
         image_evidence_identity,
         read_exact=read_exact,
@@ -1050,6 +1241,7 @@ def measure_t230_runtime_v1(
         "schema_version": RUNTIME_MEASUREMENT_SCHEMA,
         "publication_mode": PUBLICATION_MODE,
         "role": role,
+        "runtime_attempt_ordinal": runtime_attempt_ordinal,
         "implementation_contract": contract,
         "implementation_sha256": contract["implementation_sha256"],
         "measured_source_commit_sha": measured_commit,
@@ -1082,6 +1274,7 @@ def validate_t230_runtime_measurement_v1(
     value: object,
     *,
     role: str,
+    runtime_attempt_ordinal: int = 0,
     output_prefix: str,
     repository_root: Path,
     read_exact: ReadExact,
@@ -1098,6 +1291,7 @@ def validate_t230_runtime_measurement_v1(
     )
     expected = measure_t230_runtime_v1(
         role=role,
+        runtime_attempt_ordinal=runtime_attempt_ordinal,
         output_prefix=output_prefix,
         repository_root=repository_root,
         image_evidence_identity=_mapping(
@@ -1133,9 +1327,12 @@ def _validate_published_runtime_measurement_v1(
         item.get("schema_version") != RUNTIME_MEASUREMENT_SCHEMA
         or item.get("publication_mode") != PUBLICATION_MODE
         or item.get("role") != role
+        or type(item.get("runtime_attempt_ordinal")) is not int
+        or not 0
+        <= int(item["runtime_attempt_ordinal"])
+        <= MAX_RUNTIME_ATTEMPT_ORDINAL
         or item.get("implementation_contract") != contract
         or item.get("implementation_sha256") != contract["implementation_sha256"]
-        or item.get("runtime_facts") != _runtime_facts()
         or item.get("checkout_matches_git_blobs") is not True
         or item.get("critical_paths_clean") is not True
         or item.get("release_runtime_verified") is not True
@@ -1147,7 +1344,9 @@ def _validate_published_runtime_measurement_v1(
         read_exact=read_exact,
         label="published runtime image evidence",
     )
-    evidence = _validate_image_evidence(evidence_body)
+    evidence = _validate_image_evidence(
+        evidence_body, require_current_runtime=False
+    )
     if (
         evidence_identity["uri"] != image_evidence_uri_for_output_prefix(output_prefix)
         or item.get("image_evidence_sha256") != evidence.get("image_evidence_sha256")
@@ -1159,6 +1358,7 @@ def _validate_published_runtime_measurement_v1(
         or item.get("measured_callables") != evidence.get("critical_callables")
         or item.get("measured_callables_sha256")
         != evidence.get("critical_callables_sha256")
+        or item.get("runtime_facts") != evidence.get("runtime_facts")
         or item.get("git_status_porcelain_sha256") != sha256(b"").hexdigest()
     ):
         _fail(f"published {role} runtime code/image lineage differs")
@@ -1407,6 +1607,44 @@ def _secure_file_lock_projection(value: object, *, label: str) -> dict[str, obje
     return item
 
 
+def _portable_g0_file_projection(
+    value: object, *, relative_path: str, label: str
+) -> dict[str, object]:
+    """Project live secure-file evidence onto reviewable cross-host bytes.
+
+    The live reader still enforces absolute no-follow paths, current-owner
+    control, safe mode bits, link count, and stable metadata.  The committed
+    G0 lock intentionally retains only repository-relative location plus exact
+    content identity so the same reviewed lock replays under a different
+    checkout root or runtime UID.
+    """
+    if (
+        type(relative_path) is not str
+        or not relative_path
+        or relative_path.startswith("/")
+        or "//" in relative_path
+        or any(part in {"", ".", ".."} for part in relative_path.split("/"))
+    ):
+        _fail(f"{label} relative path differs")
+    item = dict(_mapping(value, label=label))
+    if frozenset(item) == _SECURE_FILE_BINDING_KEYS:
+        secure = _secure_file_lock_projection(item, label=label)
+        return {
+            "relative_path": relative_path,
+            "sha256": secure["sha256"],
+            "bytes": secure["bytes"],
+        }
+    _exact_keys(item, _G0_PORTABLE_FILE_BINDING_KEYS, label=label)
+    if (
+        item.get("relative_path") != relative_path
+        or type(item.get("bytes")) is not int
+        or int(item["bytes"]) < 1
+    ):
+        _fail(f"{label} portable content binding differs")
+    _sha(item.get("sha256"), label=f"{label} SHA")
+    return item
+
+
 def build_g0_authority_lock_v1(*, read_exact: ReadExact) -> dict[str, object]:
     """Build the reviewable lock from the official post-G0 raw files.
 
@@ -1417,8 +1655,9 @@ def build_g0_authority_lock_v1(*, read_exact: ReadExact) -> dict[str, object]:
     receipt_binding, receipt, published_panel, lane_bindings = (
         _replay_raw_published_v12_panel_v1(read_exact=read_exact)
     )
-    receipt_file = _secure_file_lock_projection(
+    receipt_file = _portable_g0_file_projection(
         {key: receipt_binding[key] for key in _SECURE_FILE_BINDING_KEYS},
+        relative_path=FROZEN_G0_PUBLICATION_RECEIPT_RELATIVE_PATH,
         label="official publication receipt file",
     )
     lanes = _sequence(published_panel.get("lanes"), label="published panel lanes")
@@ -1429,8 +1668,9 @@ def build_g0_authority_lock_v1(*, read_exact: ReadExact) -> dict[str, object]:
     ):
         lane = _mapping(lane_value, label=f"published panel lane[{ordinal}]")
         binding = _mapping(binding_value, label=f"lane binding[{ordinal}]")
-        file_binding = _secure_file_lock_projection(
+        file_binding = _portable_g0_file_projection(
             {key: binding[key] for key in _SECURE_FILE_BINDING_KEYS},
+            relative_path=FROZEN_G0_LANE_RECEIPT_RELATIVE_PATHS[ordinal],
             label=f"lane terminal receipt file[{ordinal}]",
         )
         terminal = _identity(
@@ -1488,8 +1728,9 @@ def validate_g0_authority_lock_v1(
         or item.get("review_and_git_commit_required_before_prepare") is not True
     ):
         _fail("G0 authority lock frozen surface differs")
-    _secure_file_lock_projection(
+    _portable_g0_file_projection(
         item.get("official_publication_receipt_file"),
+        relative_path=FROZEN_G0_PUBLICATION_RECEIPT_RELATIVE_PATH,
         label="locked official publication receipt file",
     )
     lane_rows = _sequence(
@@ -1504,8 +1745,9 @@ def validate_g0_authority_lock_v1(
             "v12a", "v12b"
         }:
             _fail("G0 authority lock lane order differs")
-        _secure_file_lock_projection(
+        _portable_g0_file_projection(
             row.get("terminal_receipt_file"),
+            relative_path=FROZEN_G0_LANE_RECEIPT_RELATIVE_PATHS[ordinal],
             label=f"locked lane file[{ordinal}]",
         )
         _identity(
@@ -1588,11 +1830,27 @@ def replay_published_v12_panel_v1(
     )
     if (
         lock["official_publication_receipt_file"]
-        != {key: receipt_binding[key] for key in _SECURE_FILE_BINDING_KEYS}
+        != _portable_g0_file_projection(
+            {key: receipt_binding[key] for key in _SECURE_FILE_BINDING_KEYS},
+            relative_path=FROZEN_G0_PUBLICATION_RECEIPT_RELATIVE_PATH,
+            label="replayed official publication receipt file",
+        )
         or lock["panel_object_identity"] != receipt["panel_object_identity"]
         or lock["panel_id"] != published_panel["panel_id"]
     ):
         _fail("tracked G0 lock differs from replayed publication/panel")
+    for ordinal, lane_binding in enumerate(lane_bindings):
+        if lock["lane_terminal_receipts"][ordinal][
+            "terminal_receipt_file"
+        ] != _portable_g0_file_projection(
+            {
+                key: lane_binding[key]
+                for key in _SECURE_FILE_BINDING_KEYS
+            },
+            relative_path=FROZEN_G0_LANE_RECEIPT_RELATIVE_PATHS[ordinal],
+            label=f"replayed lane receipt file[{ordinal}]",
+        ):
+            _fail("tracked G0 lock differs from replayed lane receipt bytes")
     return receipt_binding, receipt, published_panel, lane_bindings, git_binding
 
 
@@ -1697,6 +1955,7 @@ def build_t230_execution_authority_v1(
         "image_evidence_sha256": environment["image_evidence_sha256"],
         "worker_implementation_sha256": EXPECTED_WORKER_IMPLEMENTATION_SHA256,
         "verifier_implementation_sha256": EXPECTED_VERIFIER_IMPLEMENTATION_SHA256,
+        "finalizer_implementation_sha256": EXPECTED_FINALIZER_IMPLEMENTATION_SHA256,
         "runtime_facts": environment["runtime_facts"],
         "source_commit_sha": manifest["source_commit_sha"],
         "immutable_image": manifest["immutable_image"],
@@ -1765,6 +2024,196 @@ def _reopen_authority_context(
     )
 
 
+def _reopen_published_authority_context(
+    *,
+    execution_authority_identity: Mapping[str, object],
+    read_exact: ReadExact,
+) -> _AuthorityContext:
+    """Replay a durable authority without measuring the controller process.
+
+    The live constructor above is still the sole way to create an authority.
+    This path exists only so a controller can finish the transport receipt for
+    bytes already created by a digest-pinned runtime after that process exits.
+    It exact-reads every remote identity retained by the authority and checks
+    the image/runtime lineage recorded at creation; it never substitutes the
+    controller's Python, PID, checkout owner, or image evidence mount.
+    """
+    authority_identity, authority_body = _exact_read_json(
+        execution_authority_identity,
+        read_exact=read_exact,
+        label="published T230 execution authority",
+    )
+    authority = dict(
+        _mapping(authority_body, label="published T230 execution authority")
+    )
+    _exact_keys(
+        authority, _EXECUTION_AUTHORITY_KEYS, label="T230 execution authority"
+    )
+    _false_authorities(authority, label="T230 execution authority")
+    _guard_nested_authority_keys(authority, label="T230 execution authority")
+    _validate_self_hash(
+        authority,
+        field="execution_authority_sha256",
+        label="T230 execution authority",
+    )
+    output_prefix = str(authority.get("output_prefix"))
+    if (
+        authority.get("schema_version") != EXECUTION_AUTHORITY_SCHEMA
+        or authority.get("publication_mode") != PUBLICATION_MODE
+        or authority.get("panel_publication_cloud_attested") is not False
+        or authority.get("simulated_execution_only") is not True
+        or authority_identity["uri"]
+        != authority_uri_for_output_prefix(output_prefix)
+    ):
+        _fail("published T230 execution authority frozen surface differs")
+
+    execution = _reopen_context(
+        manifest_identity=_mapping(
+            authority.get("manifest_identity"), label="published manifest identity"
+        ),
+        read_exact=read_exact,
+    )
+    manifest = execution.manifest
+    evidence_identity, evidence_body = _exact_read_json(
+        authority.get("image_evidence_identity"),
+        read_exact=read_exact,
+        label="published authority image evidence",
+    )
+    evidence = _validate_image_evidence(
+        evidence_body, require_current_runtime=False
+    )
+
+    g0_binding = dict(
+        _mapping(
+            authority.get("g0_authority_lock_git_binding"),
+            label="published authority G0 binding",
+        )
+    )
+    _exact_keys(g0_binding, _G0_GIT_BINDING_KEYS, label="G0 lock Git binding")
+    _secure_file_lock_projection(
+        {key: g0_binding[key] for key in _SECURE_FILE_BINDING_KEYS},
+        label="published authority G0 lock file",
+    )
+    if (
+        g0_binding.get("path") != str(FROZEN_G0_AUTHORITY_LOCK_PATH)
+        or g0_binding.get("relative_path")
+        != FROZEN_G0_AUTHORITY_LOCK_RELATIVE_PATH
+        or g0_binding.get("source_commit_sha") != evidence.get("source_commit_sha")
+        or g0_binding.get("tracked_at_head") is not True
+        or g0_binding.get("clean_at_head") is not True
+        or authority.get("g0_authority_lock_git_binding_sha256")
+        != batch.canonical_sha256(g0_binding)
+        or authority.get("g0_authority_lock_sha256")
+        != g0_binding.get("g0_authority_lock_sha256")
+    ):
+        _fail("published authority G0/image lineage differs")
+    _sha(
+        g0_binding.get("g0_authority_lock_sha256"),
+        label="published authority G0 lock SHA",
+    )
+
+    receipt_binding = dict(
+        _mapping(
+            authority.get("panel_publication_receipt_binding"),
+            label="published authority panel receipt binding",
+        )
+    )
+    _exact_keys(
+        receipt_binding,
+        frozenset({*_SECURE_FILE_BINDING_KEYS, "publication_receipt_sha256"}),
+        label="published authority panel receipt binding",
+    )
+    _secure_file_lock_projection(
+        {key: receipt_binding[key] for key in _SECURE_FILE_BINDING_KEYS},
+        label="published authority panel receipt file",
+    )
+    _sha(
+        receipt_binding.get("publication_receipt_sha256"),
+        label="published authority panel receipt SHA",
+    )
+    if (
+        receipt_binding.get("path") != str(FROZEN_G0_PUBLICATION_RECEIPT_PATH)
+        or authority.get("panel_publication_receipt_sha256")
+        != receipt_binding.get("publication_receipt_sha256")
+    ):
+        _fail("published authority panel receipt binding differs")
+
+    lane_bindings = [
+        dict(_mapping(value, label=f"published authority lane[{ordinal}]"))
+        for ordinal, value in enumerate(
+            _sequence(
+                authority.get("fixed_lane_receipt_bindings"),
+                label="published authority lane bindings",
+            )
+        )
+    ]
+    if len(lane_bindings) != 2:
+        _fail("published authority must bind two fixed lane receipts")
+    for ordinal, lane in enumerate(lane_bindings):
+        _exact_keys(
+            lane,
+            frozenset(
+                {*_SECURE_FILE_BINDING_KEYS, "lane_ordinal", "terminal_receipt_identity"}
+            ),
+            label=f"published authority lane[{ordinal}]",
+        )
+        _secure_file_lock_projection(
+            {key: lane[key] for key in _SECURE_FILE_BINDING_KEYS},
+            label=f"published authority lane file[{ordinal}]",
+        )
+        _identity(
+            lane.get("terminal_receipt_identity"),
+            label=f"published authority lane terminal[{ordinal}]",
+        )
+        if (
+            lane.get("lane_ordinal") != ordinal
+            or lane.get("path") != str(FROZEN_G0_LANE_RECEIPT_PATHS[ordinal])
+        ):
+            _fail("published authority lane binding order differs")
+
+    seed = {
+        "manifest_identity": authority["manifest_identity"],
+        "panel_publication_receipt_binding": receipt_binding,
+        "fixed_lane_receipt_bindings": lane_bindings,
+        "g0_authority_lock_git_binding": g0_binding,
+        "image_evidence_identity": evidence_identity,
+    }
+    if (
+        authority.get("execution_authority_id")
+        != "foundry-t230-authority:" + batch.canonical_sha256(seed)
+        or authority.get("manifest_identity") != execution.manifest_identity
+        or authority.get("manifest_id") != manifest.get("manifest_id")
+        or authority.get("execution_manifest_sha256")
+        != manifest.get("execution_manifest_sha256")
+        or authority.get("panel_object_identity")
+        != manifest.get("panel_object_identity")
+        or authority.get("panel_index_sha256") != manifest.get("panel_index_sha256")
+        or authority.get("image_evidence_identity") != evidence_identity
+        or authority.get("image_evidence_sha256")
+        != evidence.get("image_evidence_sha256")
+        or authority.get("worker_implementation_sha256")
+        != EXPECTED_WORKER_IMPLEMENTATION_SHA256
+        or authority.get("verifier_implementation_sha256")
+        != EXPECTED_VERIFIER_IMPLEMENTATION_SHA256
+        or authority.get("finalizer_implementation_sha256")
+        != EXPECTED_FINALIZER_IMPLEMENTATION_SHA256
+        or authority.get("fixed_lane_receipt_bindings_sha256")
+        != batch.canonical_sha256(lane_bindings)
+        or authority.get("runtime_facts") != evidence.get("runtime_facts")
+        or authority.get("source_commit_sha") != evidence.get("source_commit_sha")
+        or authority.get("source_commit_sha") != manifest.get("source_commit_sha")
+        or authority.get("immutable_image") != evidence.get("immutable_image")
+        or authority.get("immutable_image") != manifest.get("immutable_image")
+        or output_prefix != manifest.get("output_prefix")
+    ):
+        _fail("published T230 execution authority durable replay differs")
+    return _AuthorityContext(
+        authority_identity=authority_identity,
+        authority=authority,
+        execution=execution,
+    )
+
+
 def reopen_t230_execution_authority_v1(
     *,
     execution_authority_identity: Mapping[str, object],
@@ -1782,6 +2231,18 @@ def reopen_t230_execution_authority_v1(
         git_head=git_head,
         git_blob=git_blob,
         git_status=git_status,
+    ).authority
+
+
+def reopen_published_t230_execution_authority_v1(
+    *,
+    execution_authority_identity: Mapping[str, object],
+    read_exact: ReadExact,
+) -> dict[str, object]:
+    """Reopen a live-created authority after its image process has exited."""
+    return _reopen_published_authority_context(
+        execution_authority_identity=execution_authority_identity,
+        read_exact=read_exact,
     ).authority
 
 
@@ -2041,6 +2502,305 @@ def _input_artifact_bindings(
     }
 
 
+def _prefreeze_smoke_false_authorities(
+    value: Mapping[str, object], *, label: str
+) -> None:
+    for field in _PREFREEZE_SMOKE_FALSE_AUTHORITY_FIELDS:
+        if value.get(field) is not False:
+            _fail(f"{label}.{field} must be false")
+
+
+def validate_t230_prefreeze_smoke_runtime_v1(
+    value: object, *, require_release_runtime: bool
+) -> dict[str, object]:
+    """Validate the mechanics-only runtime bound to the disposable smoke."""
+    if type(require_release_runtime) is not bool:
+        _fail("prefreeze smoke runtime validation mode must be literal boolean")
+    item = dict(_mapping(value, label="prefreeze smoke runtime binding"))
+    _exact_keys(
+        item,
+        _PREFREEZE_SMOKE_RUNTIME_KEYS,
+        label="prefreeze smoke runtime binding",
+    )
+    _prefreeze_smoke_false_authorities(
+        item, label="prefreeze smoke runtime binding"
+    )
+    _validate_self_hash(
+        item,
+        field="runtime_binding_sha256",
+        label="prefreeze smoke runtime binding",
+    )
+    commit = _commit_sha(
+        item.get("source_commit_sha"), label="prefreeze smoke source commit"
+    )
+    image = _image(
+        item.get("immutable_candidate_image"),
+        label="prefreeze smoke candidate image",
+    )
+    files = _sequence(
+        item.get("implementation_files"),
+        label="prefreeze smoke implementation files",
+    )
+    if len(files) != len(PREFREEZE_SMOKE_IMPLEMENTATION_PATHS):
+        _fail("prefreeze smoke implementation file count differs")
+    normalized_files: list[dict[str, object]] = []
+    for ordinal, expected_path in enumerate(PREFREEZE_SMOKE_IMPLEMENTATION_PATHS):
+        row = dict(
+            _mapping(
+                files[ordinal],
+                label=f"prefreeze smoke implementation file[{ordinal}]",
+            )
+        )
+        _exact_keys(
+            row,
+            _IMAGE_FILE_KEYS,
+            label=f"prefreeze smoke implementation file[{ordinal}]",
+        )
+        if (
+            row.get("path") != expected_path
+            or type(row.get("bytes")) is not int
+            or int(row["bytes"]) < 1
+        ):
+            _fail("prefreeze smoke implementation file binding differs")
+        _sha(
+            row.get("sha256"),
+            label=f"prefreeze smoke implementation file[{ordinal}] SHA",
+        )
+        normalized_files.append(row)
+    if item.get("implementation_files_sha256") != batch.canonical_sha256(
+        normalized_files
+    ):
+        _fail("prefreeze smoke implementation file-set SHA differs")
+    process = dict(
+        _mapping(
+            item.get("process_instance"),
+            label="prefreeze smoke process instance",
+        )
+    )
+    _exact_keys(
+        process,
+        frozenset({
+            "evidence_class",
+            "pid",
+            "process_start_ticks",
+            "boot_id",
+            "pid_namespace_inode",
+            "process_instance_sha256",
+        }),
+        label="prefreeze smoke process instance",
+    )
+    _validate_self_hash(
+        process,
+        field="process_instance_sha256",
+        label="prefreeze smoke process instance",
+    )
+    if (
+        process.get("evidence_class") != "linux-proc-pid-start-boot-v1"
+        or any(
+            type(process.get(field)) is not int or int(process[field]) < 1
+            for field in ("pid", "process_start_ticks", "pid_namespace_inode")
+        )
+        or type(process.get("boot_id")) is not str
+        or not str(process["boot_id"])
+        or item.get("process_instance_sha256")
+        != process.get("process_instance_sha256")
+    ):
+        _fail("prefreeze smoke process identity differs")
+    environment_class = item.get("environment_class")
+    if item.get("schema_version") != PREFREEZE_SMOKE_RUNTIME_SCHEMA:
+        _fail("prefreeze smoke runtime schema differs")
+    if require_release_runtime:
+        execution_name = item.get("cloud_run_execution")
+        if (
+            environment_class != "cloud-run-job-real-runtime-v1"
+            or item.get("cloud_run_job") != PREFREEZE_SMOKE_CLOUD_RUN_JOB
+            or type(execution_name) is not str
+            or not execution_name
+            or len(execution_name) > 255
+            or not execution_name.startswith(PREFREEZE_SMOKE_CLOUD_RUN_JOB + "-")
+            or any(
+                character not in "abcdefghijklmnopqrstuvwxyz0123456789-"
+                for character in execution_name
+            )
+            or item.get("cloud_run_task_index") != 0
+            or item.get("cloud_run_task_attempt") != 0
+            or item.get("cloud_run_task_count") != 1
+            or item.get("release_validation_eligible") is not True
+        ):
+            _fail("prefreeze smoke Cloud Run runtime binding differs")
+    elif (
+        environment_class != "offline-test-fixture-nonrelease-v1"
+        or any(
+            item.get(field) is not None
+            for field in (
+                "cloud_run_job",
+                "cloud_run_execution",
+                "cloud_run_task_index",
+                "cloud_run_task_attempt",
+                "cloud_run_task_count",
+            )
+        )
+        or item.get("release_validation_eligible") is not False
+    ):
+        _fail("prefreeze smoke nonrelease fixture runtime differs")
+    item["source_commit_sha"] = commit
+    item["immutable_candidate_image"] = image
+    item["implementation_files"] = normalized_files
+    item["process_instance"] = process
+    return item
+
+
+def build_t230_prefreeze_smoke_receipt_v1(
+    *,
+    panel_object_identity: Mapping[str, object],
+    source_commit_sha: str,
+    immutable_candidate_image: Mapping[str, object],
+    runtime_binding: Mapping[str, object],
+    structural_hashes: Mapping[str, object],
+    require_release_runtime: bool,
+) -> dict[str, object]:
+    """Build one compact receipt without accepting any science payload."""
+    panel_identity = _identity(
+        panel_object_identity, label="prefreeze smoke panel object"
+    )
+    commit = _commit_sha(source_commit_sha, label="prefreeze smoke source commit")
+    image = _image(
+        immutable_candidate_image, label="prefreeze smoke candidate image"
+    )
+    runtime = validate_t230_prefreeze_smoke_runtime_v1(
+        runtime_binding, require_release_runtime=require_release_runtime
+    )
+    hashes = dict(
+        _mapping(structural_hashes, label="prefreeze smoke structural hashes")
+    )
+    _exact_keys(
+        hashes,
+        _PREFREEZE_SMOKE_STRUCTURAL_HASH_KEYS,
+        label="prefreeze smoke structural hashes",
+    )
+    for field, retained in hashes.items():
+        _sha(retained, label=f"prefreeze smoke structural hashes.{field}")
+    if (
+        panel_identity["uri"] != FROZEN_G0_PANEL_URI
+        or hashes["panel_object_identity_sha256"]
+        != batch.canonical_sha256(panel_identity)
+        or runtime["source_commit_sha"] != commit
+        or runtime["immutable_candidate_image"] != image
+    ):
+        _fail("prefreeze smoke source/runtime bindings differ")
+    body: dict[str, object] = {
+        "schema_version": PREFREEZE_SMOKE_RECEIPT_SCHEMA,
+        "smoke_id": PREFREEZE_SMOKE_ID,
+        "execution_mode": "outcome-blind-real-artifact-disposable-structural-smoke",
+        "source_ordinal": PREFREEZE_SMOKE_SOURCE_ORDINAL,
+        "slate_id": PREFREEZE_SMOKE_SLATE_ID,
+        "panel_object_identity": panel_identity,
+        "source_commit_sha": commit,
+        "immutable_candidate_image": image,
+        "runtime_binding": runtime,
+        "runtime_binding_sha256": runtime["runtime_binding_sha256"],
+        "structural_hashes": hashes,
+        "verification": dict(_PREFREEZE_SMOKE_VERIFICATION),
+        **{field: False for field in _PREFREEZE_SMOKE_FALSE_AUTHORITY_FIELDS},
+    }
+    body["prefreeze_smoke_receipt_sha256"] = batch.canonical_sha256(body)
+    return validate_t230_prefreeze_smoke_receipt_v1(
+        body,
+        expected_panel_object_identity=panel_identity,
+        expected_source_commit_sha=commit,
+        expected_immutable_candidate_image=image,
+        require_release_runtime=require_release_runtime,
+    )
+
+
+def validate_t230_prefreeze_smoke_receipt_v1(
+    value: object,
+    *,
+    expected_panel_object_identity: Mapping[str, object],
+    expected_source_commit_sha: str,
+    expected_immutable_candidate_image: Mapping[str, object],
+    require_release_runtime: bool,
+) -> dict[str, object]:
+    """Validate one exact compact smoke receipt for a later release gate."""
+    item = dict(_mapping(value, label="prefreeze smoke receipt"))
+    _exact_keys(
+        item,
+        _PREFREEZE_SMOKE_RECEIPT_KEYS,
+        label="prefreeze smoke receipt",
+    )
+    _prefreeze_smoke_false_authorities(item, label="prefreeze smoke receipt")
+    _validate_self_hash(
+        item,
+        field="prefreeze_smoke_receipt_sha256",
+        label="prefreeze smoke receipt",
+    )
+    panel_identity = _identity(
+        item.get("panel_object_identity"), label="prefreeze smoke panel object"
+    )
+    expected_panel = _identity(
+        expected_panel_object_identity,
+        label="expected prefreeze smoke panel object",
+    )
+    commit = _commit_sha(
+        item.get("source_commit_sha"), label="prefreeze smoke source commit"
+    )
+    expected_commit = _commit_sha(
+        expected_source_commit_sha,
+        label="expected prefreeze smoke source commit",
+    )
+    image = _image(
+        item.get("immutable_candidate_image"),
+        label="prefreeze smoke candidate image",
+    )
+    expected_image = _image(
+        expected_immutable_candidate_image,
+        label="expected prefreeze smoke candidate image",
+    )
+    runtime = validate_t230_prefreeze_smoke_runtime_v1(
+        item.get("runtime_binding"),
+        require_release_runtime=require_release_runtime,
+    )
+    hashes = dict(
+        _mapping(
+            item.get("structural_hashes"),
+            label="prefreeze smoke structural hashes",
+        )
+    )
+    _exact_keys(
+        hashes,
+        _PREFREEZE_SMOKE_STRUCTURAL_HASH_KEYS,
+        label="prefreeze smoke structural hashes",
+    )
+    for field, retained in hashes.items():
+        _sha(retained, label=f"prefreeze smoke structural hashes.{field}")
+    if (
+        item.get("schema_version") != PREFREEZE_SMOKE_RECEIPT_SCHEMA
+        or item.get("smoke_id") != PREFREEZE_SMOKE_ID
+        or item.get("execution_mode")
+        != "outcome-blind-real-artifact-disposable-structural-smoke"
+        or item.get("source_ordinal") != PREFREEZE_SMOKE_SOURCE_ORDINAL
+        or item.get("slate_id") != PREFREEZE_SMOKE_SLATE_ID
+        or panel_identity != expected_panel
+        or panel_identity["uri"] != FROZEN_G0_PANEL_URI
+        or commit != expected_commit
+        or image != expected_image
+        or runtime["source_commit_sha"] != commit
+        or runtime["immutable_candidate_image"] != image
+        or item.get("runtime_binding_sha256")
+        != runtime["runtime_binding_sha256"]
+        or hashes["panel_object_identity_sha256"]
+        != batch.canonical_sha256(panel_identity)
+        or item.get("verification") != _PREFREEZE_SMOKE_VERIFICATION
+    ):
+        _fail("prefreeze smoke receipt bindings differ")
+    item["panel_object_identity"] = panel_identity
+    item["source_commit_sha"] = commit
+    item["immutable_candidate_image"] = image
+    item["runtime_binding"] = runtime
+    item["structural_hashes"] = hashes
+    return item
+
+
 def _runtime_receipt_binding(
     identity: Mapping[str, object],
     receipt: Mapping[str, object],
@@ -2048,9 +2808,10 @@ def _runtime_receipt_binding(
     role: str,
 ) -> dict[str, object]:
     if role not in _RUNTIME_ROLES or receipt.get("role") != role:
-        _fail("runtime role must be worker or verifier")
+        _fail("runtime role must be worker, verifier, or finalizer")
     return {
         "role": role,
+        "runtime_attempt_ordinal": receipt["runtime_attempt_ordinal"],
         "runtime_measurement_identity": dict(identity),
         "runtime_measurement_sha256": receipt["runtime_measurement_sha256"],
         "process_instance_sha256": receipt["process_instance_sha256"],
@@ -2061,42 +2822,10 @@ def _runtime_receipt_binding(
     }
 
 
-def _compute_t230_result(
-    *,
-    authority_context: _AuthorityContext,
-    worker_runtime_identity: Mapping[str, object],
-    worker_runtime_receipt: Mapping[str, object],
-    source_ordinal: int,
-    read_exact: ReadExact,
-) -> dict[str, object]:
-    """Reconstruct and compute one exact result from authoritative inputs."""
-    context = authority_context.execution
-    member, panel_member = _source_member(context, source_ordinal=source_ordinal)
-    worker_runtime = _runtime_receipt_binding(
-        worker_runtime_identity, worker_runtime_receipt, role="worker"
-    )
-    try:
-        reconstructed_slate = accepted.reconstruct_one_accepted_v12_slate(
-            validated_panel_index=context.panel,
-            panel_index_identity=context.manifest["panel_object_identity"],
-            accepted_slate_membership=panel_member,
-            task_acceptance_identity=member["task_acceptance_identity"],
-            carrier_identity=member["carrier_identity"],
-            read_exact=read_exact,
-            require_authoritative=True,
-        )
-    except accepted.CorpusR6V2OneSlateExecutionError as exc:
-        raise CorpusExtremeTailPanelExecutionError(str(exc)) from exc
-    if (
-        reconstructed_slate.slate_id != member["slate_id"]
-        or batch.canonical_sha256(reconstructed_slate.accepted_slate_membership)
-        != member["panel_member_sha256"]
-        or reconstructed_slate.task_acceptance_identity
-        != member["task_acceptance_identity"]
-        or reconstructed_slate.carrier_identity != member["carrier_identity"]
-    ):
-        _fail("accepted reconstruction differs from manifest source membership")
-
+def _execute_t230_science_stack_v1(
+    reconstructed_slate: accepted.AcceptedV12SlateReconstruction,
+) -> _T230ScienceStack:
+    """Execute the exact authoritative T230 science stack with no overrides."""
     reconstructed = reconstructed_slate.reconstructed
     world_ids = _world_ids(reconstructed)
     scores = np.asarray(reconstructed.union_scores)
@@ -2140,6 +2869,54 @@ def _compute_t230_result(
         support.CorpusExtremeTailSupportSwitchError,
     ) as exc:
         raise CorpusExtremeTailPanelExecutionError(str(exc)) from exc
+    return _T230ScienceStack(
+        support_census=support_census,
+        extreme_tail_suite=extreme_tail_suite,
+        support_policy=support_policy,
+    )
+
+
+def _compute_t230_result(
+    *,
+    authority_context: _AuthorityContext,
+    worker_runtime_identity: Mapping[str, object],
+    worker_runtime_receipt: Mapping[str, object],
+    source_ordinal: int,
+    read_exact: ReadExact,
+) -> dict[str, object]:
+    """Reconstruct and compute one exact result from authoritative inputs."""
+    context = authority_context.execution
+    member, panel_member = _source_member(context, source_ordinal=source_ordinal)
+    worker_runtime = _runtime_receipt_binding(
+        worker_runtime_identity, worker_runtime_receipt, role="worker"
+    )
+    try:
+        reconstructed_slate = accepted.reconstruct_one_accepted_v12_slate(
+            validated_panel_index=context.panel,
+            panel_index_identity=context.manifest["panel_object_identity"],
+            accepted_slate_membership=panel_member,
+            task_acceptance_identity=member["task_acceptance_identity"],
+            carrier_identity=member["carrier_identity"],
+            read_exact=read_exact,
+            require_authoritative=True,
+        )
+    except accepted.CorpusR6V2OneSlateExecutionError as exc:
+        raise CorpusExtremeTailPanelExecutionError(str(exc)) from exc
+    if (
+        reconstructed_slate.slate_id != member["slate_id"]
+        or batch.canonical_sha256(reconstructed_slate.accepted_slate_membership)
+        != member["panel_member_sha256"]
+        or reconstructed_slate.task_acceptance_identity
+        != member["task_acceptance_identity"]
+        or reconstructed_slate.carrier_identity != member["carrier_identity"]
+    ):
+        _fail("accepted reconstruction differs from manifest source membership")
+
+    reconstructed = reconstructed_slate.reconstructed
+    science_stack = _execute_t230_science_stack_v1(reconstructed_slate)
+    support_census = science_stack.support_census
+    extreme_tail_suite = science_stack.extreme_tail_suite
+    support_policy = science_stack.support_policy
     observation = _support_observation(support_policy)
     bindings = _input_artifact_bindings(
         reconstructed_slate, panel_member=panel_member
@@ -2245,6 +3022,7 @@ def execute_t230_panel_slate_v1(
     worker = validate_t230_runtime_measurement_v1(
         worker_body,
         role="worker",
+        runtime_attempt_ordinal=worker_body.get("runtime_attempt_ordinal", -1),
         output_prefix=str(authority_context.authority["output_prefix"]),
         repository_root=repository_root,
         read_exact=read_exact,
@@ -2258,6 +3036,7 @@ def execute_t230_panel_slate_v1(
             str(authority_context.authority["output_prefix"]),
             role="worker",
             source_ordinal=source_ordinal,
+            runtime_attempt_ordinal=int(worker["runtime_attempt_ordinal"]),
         )
         or worker["release_runtime_verified"] is not True
         or worker["measured_source_commit_sha"]
@@ -2516,13 +3295,14 @@ def _runtime_from_binding(
     value: object,
     *,
     role: str,
-    source_ordinal: int,
+    source_ordinal: int | None,
     authority_context: _AuthorityContext,
     read_exact: ReadExact,
 ) -> tuple[dict[str, object], dict[str, object]]:
     binding = dict(_mapping(value, label=f"{role} runtime binding"))
     if frozenset(binding) != {
-        "role", "runtime_measurement_identity", "runtime_measurement_sha256",
+        "role", "runtime_attempt_ordinal", "runtime_measurement_identity",
+        "runtime_measurement_sha256",
         "process_instance_sha256", "implementation_sha256",
         "source_commit_sha", "immutable_image", "release_runtime_verified",
     }:
@@ -2539,11 +3319,13 @@ def _runtime_from_binding(
         read_exact=read_exact,
     )
     if (
-        identity["uri"]
+        type(binding.get("runtime_attempt_ordinal")) is not int
+        or identity["uri"]
         != runtime_measurement_uri_for_output_prefix(
             str(authority_context.authority["output_prefix"]),
             role=role,
             source_ordinal=source_ordinal,
+            runtime_attempt_ordinal=int(binding["runtime_attempt_ordinal"]),
         )
         or binding != _runtime_receipt_binding(identity, receipt, role=role)
         or receipt["measured_source_commit_sha"]
@@ -2724,6 +3506,7 @@ def verify_t230_panel_slate_v1(
     verifier = validate_t230_runtime_measurement_v1(
         verifier_body,
         role="verifier",
+        runtime_attempt_ordinal=verifier_body.get("runtime_attempt_ordinal", -1),
         output_prefix=str(authority_context.authority["output_prefix"]),
         repository_root=repository_root,
         read_exact=read_exact,
@@ -2736,6 +3519,7 @@ def verify_t230_panel_slate_v1(
             str(authority_context.authority["output_prefix"]),
             role="verifier",
             source_ordinal=source_ordinal,
+            runtime_attempt_ordinal=int(verifier["runtime_attempt_ordinal"]),
         )
         or verifier["image_evidence_identity"]
         != authority_context.authority["image_evidence_identity"]
@@ -2779,6 +3563,7 @@ def _validate_acceptance_structure(
     authority_context: _AuthorityContext,
     source_ordinal: int,
     read_exact: ReadExact,
+    require_science_recomputation: bool,
 ) -> dict[str, object]:
     context = authority_context.execution
     item = dict(_mapping(value, label="T230 slate acceptance"))
@@ -2819,15 +3604,21 @@ def _validate_acceptance_structure(
         worker_runtime_receipt=worker,
         source_ordinal=source_ordinal,
     )
-    recomputed = _compute_t230_result(
-        authority_context=authority_context,
-        worker_runtime_identity=worker_identity,
-        worker_runtime_receipt=worker,
-        source_ordinal=source_ordinal,
-        read_exact=read_exact,
-    )
-    if batch.canonical_json_bytes(result) != batch.canonical_json_bytes(recomputed):
-        _fail("accepted T230 result differs from verifier recomputation")
+    if type(require_science_recomputation) is not bool:
+        _fail("acceptance science-recomputation mode must be literal boolean")
+    recomputed = result
+    if require_science_recomputation:
+        recomputed = _compute_t230_result(
+            authority_context=authority_context,
+            worker_runtime_identity=worker_identity,
+            worker_runtime_receipt=worker,
+            source_ordinal=source_ordinal,
+            read_exact=read_exact,
+        )
+        if batch.canonical_json_bytes(result) != batch.canonical_json_bytes(
+            recomputed
+        ):
+            _fail("accepted T230 result differs from verifier recomputation")
     expected = _acceptance_from_verified_result(
         authority_context=authority_context,
         source_ordinal=source_ordinal,
@@ -2873,59 +3664,48 @@ def validate_t230_slate_acceptance_v1(
         authority_context=context,
         source_ordinal=source_ordinal,
         read_exact=read_exact,
+        require_science_recomputation=True,
     )
 
 
-def build_t230_panel_release_v1(
+def _build_t230_panel_release_from_runtime_v1(
     *,
-    execution_authority_identity: Mapping[str, object],
-    finalizer_runtime_measurement_identity: Mapping[str, object],
+    authority_context: _AuthorityContext,
+    finalizer_runtime_identity: Mapping[str, object],
+    finalizer_runtime_receipt: Mapping[str, object],
     acceptance_identities: Sequence[Mapping[str, object]],
     read_exact: ReadExact,
-    repository_root: Path,
-    git_head: GitHead,
-    git_blob: GitBlob,
-    git_status: GitStatus,
 ) -> dict[str, object]:
-    """Exact-replay all 54 acceptances and apply frozen support arithmetic."""
-    authority_context = _reopen_authority_context(
-        execution_authority_identity=execution_authority_identity,
-        read_exact=read_exact,
-        repository_root=repository_root,
-        git_head=git_head,
-        git_blob=git_blob,
-        git_status=git_status,
-    )
+    """Build from an already validated live or durable finalizer runtime."""
     context = authority_context.execution
-    finalizer_identity, finalizer_body = _exact_read_json(
-        finalizer_runtime_measurement_identity,
-        read_exact=read_exact,
-        label="current panel finalizer runtime measurement",
+    finalizer_identity = _identity(
+        finalizer_runtime_identity, label="panel finalizer runtime identity"
     )
-    finalizer = validate_t230_runtime_measurement_v1(
-        finalizer_body,
-        role="verifier",
-        output_prefix=str(authority_context.authority["output_prefix"]),
-        repository_root=repository_root,
-        read_exact=read_exact,
-        git_head=git_head,
-        git_blob=git_blob,
-        git_status=git_status,
+    finalizer = dict(
+        _mapping(
+            finalizer_runtime_receipt, label="panel finalizer runtime receipt"
+        )
     )
     if (
         finalizer_identity["uri"]
         != runtime_measurement_uri_for_output_prefix(
-            str(authority_context.authority["output_prefix"]), role="verifier"
+            str(authority_context.authority["output_prefix"]),
+            role="finalizer",
+            runtime_attempt_ordinal=int(finalizer["runtime_attempt_ordinal"]),
         )
         or finalizer["image_evidence_identity"]
         != authority_context.authority["image_evidence_identity"]
         or finalizer["measured_source_commit_sha"]
         != authority_context.authority["source_commit_sha"]
         or finalizer["immutable_image"] != authority_context.authority["immutable_image"]
+        or finalizer["implementation_sha256"]
+        != authority_context.authority["finalizer_implementation_sha256"]
+        or finalizer["g0_authority_lock_git_binding"]
+        != authority_context.authority["g0_authority_lock_git_binding"]
     ):
         _fail("panel finalizer runtime differs from execution authority")
-    verifier_runtime = _runtime_receipt_binding(
-        finalizer_identity, finalizer, role="verifier"
+    finalizer_runtime = _runtime_receipt_binding(
+        finalizer_identity, finalizer, role="finalizer"
     )
     raw_identities = _sequence(
         acceptance_identities, label="ordered T230 acceptance identities"
@@ -2957,6 +3737,7 @@ def build_t230_panel_release_v1(
             authority_context=authority_context,
             source_ordinal=source_ordinal,
             read_exact=read_exact,
+            require_science_recomputation=False,
         )
         observation = _mapping(
             acceptance.get("support_observation"), label="support observation"
@@ -3022,7 +3803,7 @@ def build_t230_panel_release_v1(
         "panel_release_uri": panel_release_uri_for_output_prefix(
             str(context.manifest["output_prefix"])
         ),
-        "verifier_runtime_binding": verifier_runtime,
+        "finalizer_runtime_binding": finalizer_runtime,
         "source_member_count": AUTHORITATIVE_SLATE_COUNT,
         "accepted_slate_count": len(rows),
         "ordered_slate_acceptances": rows,
@@ -3060,6 +3841,8 @@ def build_t230_panel_release_v1(
             "all_54_result_identities_replayed": True,
             "all_54_members_and_carriers_reconstructed": True,
             "all_54_science_surfaces_independently_recomputed": True,
+            "all_54_independent_verifier_acceptances_replayed": True,
+            "finalizer_science_recomputation_performed": False,
             "all_source_ordinals_complete_and_ordered": True,
             "exact_270_fold_gates_verified": True,
             "exact_54_final_fit_gates_verified": True,
@@ -3070,6 +3853,94 @@ def build_t230_panel_release_v1(
     }
     body["t230_panel_release_sha256"] = batch.canonical_sha256(body)
     return body
+
+
+def build_t230_panel_release_v1(
+    *,
+    execution_authority_identity: Mapping[str, object],
+    finalizer_runtime_measurement_identity: Mapping[str, object],
+    acceptance_identities: Sequence[Mapping[str, object]],
+    read_exact: ReadExact,
+    repository_root: Path,
+    git_head: GitHead,
+    git_blob: GitBlob,
+    git_status: GitStatus,
+) -> dict[str, object]:
+    """Build a panel release while freshly measuring the live finalizer."""
+    authority_context = _reopen_authority_context(
+        execution_authority_identity=execution_authority_identity,
+        read_exact=read_exact,
+        repository_root=repository_root,
+        git_head=git_head,
+        git_blob=git_blob,
+        git_status=git_status,
+    )
+    finalizer_identity, finalizer_body = _exact_read_json(
+        finalizer_runtime_measurement_identity,
+        read_exact=read_exact,
+        label="current panel finalizer runtime measurement",
+    )
+    finalizer = validate_t230_runtime_measurement_v1(
+        finalizer_body,
+        role="finalizer",
+        runtime_attempt_ordinal=finalizer_body.get(
+            "runtime_attempt_ordinal", -1
+        ),
+        output_prefix=str(authority_context.authority["output_prefix"]),
+        repository_root=repository_root,
+        read_exact=read_exact,
+        git_head=git_head,
+        git_blob=git_blob,
+        git_status=git_status,
+    )
+    return _build_t230_panel_release_from_runtime_v1(
+        authority_context=authority_context,
+        finalizer_runtime_identity=finalizer_identity,
+        finalizer_runtime_receipt=finalizer,
+        acceptance_identities=acceptance_identities,
+        read_exact=read_exact,
+    )
+
+
+def validate_published_t230_panel_release_v1(
+    value: object,
+    *,
+    execution_authority_identity: Mapping[str, object],
+    acceptance_identities: Sequence[Mapping[str, object]],
+    read_exact: ReadExact,
+) -> dict[str, object]:
+    """Reopen a release after its original finalizer process has exited."""
+    item = dict(_mapping(value, label="published T230 panel release"))
+    _exact_keys(item, _PANEL_RELEASE_KEYS, label="published T230 panel release")
+    _false_authorities(item, label="published T230 panel release")
+    _nested_false_authorities(item, label="published T230 panel release")
+    _guard_nested_authority_keys(item, label="published T230 panel release")
+    _validate_self_hash(
+        item,
+        field="t230_panel_release_sha256",
+        label="published T230 panel release",
+    )
+    authority_context = _reopen_published_authority_context(
+        execution_authority_identity=execution_authority_identity,
+        read_exact=read_exact,
+    )
+    finalizer_identity, finalizer = _runtime_from_binding(
+        item.get("finalizer_runtime_binding"),
+        role="finalizer",
+        source_ordinal=None,
+        authority_context=authority_context,
+        read_exact=read_exact,
+    )
+    expected = _build_t230_panel_release_from_runtime_v1(
+        authority_context=authority_context,
+        finalizer_runtime_identity=finalizer_identity,
+        finalizer_runtime_receipt=finalizer,
+        acceptance_identities=acceptance_identities,
+        read_exact=read_exact,
+    )
+    if batch.canonical_json_bytes(item) != batch.canonical_json_bytes(expected):
+        _fail("published T230 panel release differs from exact durable replay")
+    return expected
 
 
 def validate_t230_panel_release_v1(
@@ -3117,20 +3988,32 @@ __all__ = [
     "FOLD_PASS_MINIMUM",
     "FINAL_GATE_TOTAL",
     "FINAL_PASS_MINIMUM",
+    "FINALIZER_RUNTIME_FILENAME",
     "MANIFEST_FILENAME",
+    "MAX_RUNTIME_ATTEMPT_ORDINAL",
     "EXECUTION_AUTHORITY_SCHEMA",
     "EXPECTED_BAKED_IMAGE_EVIDENCE_PATH",
+    "EXPECTED_FINALIZER_IMPLEMENTATION_SHA256",
     "EXPECTED_VERIFIER_IMPLEMENTATION_SHA256",
     "EXPECTED_WORKER_IMPLEMENTATION_SHA256",
     "FROZEN_G0_AUTHORITY_LOCK_PATH",
     "FROZEN_G0_AUTHORITY_LOCK_RELATIVE_PATH",
+    "FROZEN_G0_LANE_RECEIPT_RELATIVE_PATHS",
     "FROZEN_G0_LANE_RECEIPT_PATHS",
     "FROZEN_G0_PANEL_URI",
+    "FROZEN_G0_PUBLICATION_RECEIPT_RELATIVE_PATH",
     "FROZEN_G0_PUBLICATION_RECEIPT_PATH",
     "IMAGE_EVIDENCE_SCHEMA",
     "G0_AUTHORITY_LOCK_SCHEMA",
     "PANEL_RELEASE_FILENAME",
     "PANEL_RELEASE_SCHEMA",
+    "PREFREEZE_SMOKE_CLOUD_RUN_JOB",
+    "PREFREEZE_SMOKE_ID",
+    "PREFREEZE_SMOKE_IMPLEMENTATION_PATHS",
+    "PREFREEZE_SMOKE_RECEIPT_SCHEMA",
+    "PREFREEZE_SMOKE_RUNTIME_SCHEMA",
+    "PREFREEZE_SMOKE_SLATE_ID",
+    "PREFREEZE_SMOKE_SOURCE_ORDINAL",
     "PUBLICATION_MODE",
     "ReadExact",
     "RUNTIME_MEASUREMENT_SCHEMA",
@@ -3141,7 +4024,9 @@ __all__ = [
     "build_g0_authority_lock_v1",
     "build_t230_execution_authority_v1",
     "build_t230_panel_release_v1",
+    "build_t230_prefreeze_smoke_receipt_v1",
     "execute_t230_panel_slate_v1",
+    "frozen_t230_finalizer_implementation_v1",
     "frozen_t230_verifier_implementation_v1",
     "frozen_t230_worker_implementation_v1",
     "image_evidence_uri_for_output_prefix",
@@ -3150,9 +4035,13 @@ __all__ = [
     "panel_release_uri_for_output_prefix",
     "replay_published_v12_panel_v1",
     "reopen_t230_execution_authority_v1",
+    "reopen_published_t230_execution_authority_v1",
     "reopen_t230_panel_execution_manifest_v1",
     "runtime_measurement_uri_for_output_prefix",
+    "validate_published_t230_panel_release_v1",
     "validate_t230_panel_release_v1",
+    "validate_t230_prefreeze_smoke_receipt_v1",
+    "validate_t230_prefreeze_smoke_runtime_v1",
     "validate_g0_authority_lock_v1",
     "validate_t230_runtime_measurement_v1",
     "validate_t230_slate_acceptance_v1",

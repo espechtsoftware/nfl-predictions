@@ -1,0 +1,277 @@
+steps:
+  - name: gcr.io/cloud-builders/git
+    id: exact-detached-checkout
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        case '${_T230_PHASE}' in candidate|release) ;; *) exit 2 ;; esac
+        test -n '${_SOURCE_COMMIT}'
+        test ! -e /workspace/t230-checkout
+        git init /workspace/t230-checkout
+        cd /workspace/t230-checkout
+        git remote add origin https://github.com/espechtsoftware/nfl-predictions.git
+        git fetch --depth=1 origin '${_SOURCE_COMMIT}'
+        git checkout --detach FETCH_HEAD
+        test "$(git rev-parse HEAD)" = '${_SOURCE_COMMIT}'
+        for path in \
+          reports/corpus-parametric-runs/20260823-foundry-production-v12-panel-index/panel-index-live/published.json \
+          reports/corpus-parametric-runs/20260823-foundry-production-v12a/transport-live-v12a/batch-accepted.json \
+          reports/corpus-parametric-runs/20260823-foundry-production-v12b/transport-live-v12b/batch-accepted.json
+        do
+          test -f "/workspace/${path}"
+          test ! -L "/workspace/${path}"
+          mkdir -p "$(dirname "${path}")"
+          install -m 0644 "/workspace/${path}" "${path}"
+        done
+
+  - name: python:3.11-slim
+    id: focused-tests-and-semantic-g0-preflight
+    dir: /workspace/t230-checkout
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends git libgomp1
+        pip install --no-cache-dir '.[gcp,dev]'
+        PYTHONPATH=src python -m pytest -q \
+          tests/test_corpus_extreme_tail_panel_transport.py \
+          tests/test_corpus_extreme_tail_panel_execution.py \
+          tests/test_run_corpus_extreme_tail_t230_prefreeze_smoke_v1.py
+        mkdir -p /workspace/t230-release
+        FOUNDRY_T230_PRODUCTION_TRANSPORT_ENABLED=1 \
+          PYTHONPATH=src python \
+          scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+          preflight-g0 --repository-root /workspace/t230-checkout --execute \
+          > /workspace/t230-release/g0-preflight.json
+        test "$(python -c 'import json; print(json.load(open("/workspace/t230-release/g0-preflight.json"))["g0_preflight_passed"])')" = True
+
+  - name: gcr.io/cloud-builders/docker
+    id: select-one-immutable-candidate-d
+    dir: /workspace/t230-checkout
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        if [[ '${_T230_PHASE}' == candidate ]]; then
+          image_tag='${_IMAGE_REPOSITORY}:foundry-t230-production-v1-${_SOURCE_COMMIT}-${BUILD_ID}'
+          docker build --build-arg 'SOURCE_COMMIT=${_SOURCE_COMMIT}' \
+            -f Dockerfile.foundry-t230 -t "$image_tag" .
+          docker run --rm "$image_tag" \
+            python scripts/run_corpus_extreme_tail_panel_transport_v1.py parked
+          docker run --rm \
+            --env EXPECTED_SOURCE_COMMIT='${_SOURCE_COMMIT}' "$image_tag" \
+            bash -ceu 'test "$(git rev-parse HEAD)" = "$$EXPECTED_SOURCE_COMMIT"; test -f /opt/nfl-dfs/foundry-t230-source-snapshot-v1.json; bash -n scripts/run_t230_prefreeze_smoke_worker_v1.sh'
+          docker push "$image_tag"
+          image="$(docker image inspect --format='{{index .RepoDigests 0}}' "$image_tag")"
+          case "$image" in '${_IMAGE_REPOSITORY}@sha256:'????????????????????????????????????????????????????????????????) ;; *) exit 2 ;; esac
+        else
+          image='${_IMMUTABLE_IMAGE}'
+          case "$image" in '${_IMAGE_REPOSITORY}@sha256:'????????????????????????????????????????????????????????????????) ;; *) exit 2 ;; esac
+          docker pull "$image"
+        fi
+        printf '%s\n' "$image" > /workspace/t230-release/immutable-image.txt
+        docker run --rm \
+          -v /workspace/t230-release:/release "$image" \
+          cp /opt/nfl-dfs/foundry-t230-source-snapshot-v1.json /release/source-snapshot.json
+        test "$(docker run --rm "$image" python -c 'import json; print(json.load(open("/opt/nfl-dfs/foundry-t230-source-snapshot-v1.json"))["source_commit_sha"])')" = '${_SOURCE_COMMIT}'
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    id: candidate-real-four-law-smoke-or-release-gate
+    dir: /workspace/t230-checkout
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends git jq libgomp1
+        pip install --no-cache-dir '.[gcp]'
+        image="$(tr -d '\n' </workspace/t230-release/immutable-image.txt)"
+        common=(--source-snapshot /workspace/t230-release/source-snapshot.json
+          --immutable-image "$image"
+          --g0-preflight /workspace/t230-release/g0-preflight.json)
+        export FOUNDRY_T230_PRODUCTION_TRANSPORT_ENABLED=1
+        if [[ '${_T230_PHASE}' == candidate ]]; then
+          if PYTHONPATH=src python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+              resolve-prefreeze-release-gate "${common[@]}" \
+              --output /workspace/t230-release/prefreeze-release-gate.json \
+              --execute >/workspace/t230-release/prefreeze-reopen.json 2>/dev/null; then
+            printf '%s\n' 'exact prior smoke/execution gate reopened; no science relaunched'
+            exit 0
+          fi
+          receipt=/workspace/t230-release/prefreeze-smoke-receipt.json
+          if PYTHONPATH=src python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+              recover-prefreeze-smoke-receipt "${common[@]}" \
+              --output "$receipt" --execute >/workspace/t230-release/prefreeze-receipt-reopen.json 2>/dev/null; then
+            if ! PYTHONPATH=src python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+                recover-prefreeze-smoke-inputs "${common[@]}" \
+                --receipt-identity-output /workspace/t230-release/prefreeze-smoke-receipt-identity.json \
+                --receipt-body-output /workspace/t230-release/prefreeze-smoke-receipt-body.json \
+                --time-identity-output /workspace/t230-release/prefreeze-smoke-time-identity.json \
+                --time-body-output /workspace/t230-release/prefreeze-smoke-time-v.raw.txt \
+                --execute >/workspace/t230-release/prefreeze-input-reopen.json; then
+              printf '%s\n' 'smoke receipt exists without complete raw timing; science relaunch forbidden' >&2
+              exit 2
+            fi
+            execution="$(jq -er '.runtime_binding.cloud_run_execution' "$receipt")"
+          else
+            PYTHONPATH=src python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+              assert-prefreeze-smoke-absent --execute >/dev/null
+            PYTHONPATH=src python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+              publish-prefreeze-smoke-launch "${common[@]}" \
+              --service-account '${_SERVICE_ACCOUNT}' --execute \
+              >/workspace/t230-release/prefreeze-launch-publication.json
+            test "$(jq -er '.target_created' /workspace/t230-release/prefreeze-launch-publication.json)" = true
+            gcloud run jobs update '${_SMOKE_JOB}' --project '${PROJECT_ID}' --region '${_REGION}' \
+              --clear-volumes --clear-volume-mounts --clear-secrets \
+              --clear-cloudsql-instances --clear-vpc-connector --clear-network \
+              --clear-env-vars --quiet >/dev/null
+            gcloud run jobs update '${_SMOKE_JOB}' --project '${PROJECT_ID}' --region '${_REGION}' \
+              --image "$image" --service-account '${_SERVICE_ACCOUNT}' \
+              --cpu 8 --memory 32Gi --tasks 1 --parallelism 1 --max-retries 0 \
+              --task-timeout 21600s --command bash \
+              --args scripts/run_t230_prefreeze_smoke_worker_v1.sh \
+              --set-env-vars "FOUNDRY_T230_PREFREEZE_SMOKE_ENABLED=1,FOUNDRY_T230_PRODUCTION_TRANSPORT_ENABLED=1,T230_PREFREEZE_CANDIDATE_IMAGE=$image" \
+              --quiet >/dev/null
+            execution="$(gcloud run jobs execute '${_SMOKE_JOB}' \
+              --project '${PROJECT_ID}' --region '${_REGION}' --wait \
+              --tasks 1 --task-timeout 21600s --format='value(metadata.name)')"
+            [[ "$execution" =~ ^[a-z][a-z0-9-]+$ ]]
+            PYTHONPATH=src python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+              recover-prefreeze-smoke-inputs "${common[@]}" \
+              --receipt-identity-output /workspace/t230-release/prefreeze-smoke-receipt-identity.json \
+              --receipt-body-output /workspace/t230-release/prefreeze-smoke-receipt-body.json \
+              --time-identity-output /workspace/t230-release/prefreeze-smoke-time-identity.json \
+              --time-body-output /workspace/t230-release/prefreeze-smoke-time-v.raw.txt \
+              --execute >/workspace/t230-release/prefreeze-input-reopen.json
+            test "$execution" = "$(jq -er '.runtime_binding.cloud_run_execution' /workspace/t230-release/prefreeze-smoke-receipt-body.json)"
+          fi
+          gcloud run jobs executions describe "$execution" \
+            --project '${PROJECT_ID}' --region '${_REGION}' --format=json \
+            >/workspace/t230-release/prefreeze-execution-raw.json
+          jq -ce --arg execution "$execution" --arg job '${_SMOKE_JOB}' \
+            --arg image "$image" --arg service_account '${_SERVICE_ACCOUNT}' '
+            .spec as $outer | .spec.template.spec as $task
+            | $task.containers as $containers
+            | [.status.conditions[]? | select(.type == "Completed") | .status] as $completed
+            | ($containers[0].env // [] | map({key:.name,value:.value}) | from_entries) as $env
+            | if (
+                ((.metadata.name == $execution) or (.metadata.name | endswith("/" + $execution)))
+                and .metadata.labels["run.googleapis.com/job"] == $job
+                and $completed == ["True"]
+                and (.status.completionTime | type == "string" and endswith("Z"))
+                and $outer.taskCount == 1 and $outer.parallelism == 1
+                and ($containers | type == "array" and length == 1)
+                and $containers[0].image == $image
+                and $containers[0].command == ["bash"]
+                and $containers[0].args == ["scripts/run_t230_prefreeze_smoke_worker_v1.sh"]
+                and $containers[0].resources.limits == {cpu:"8",memory:"32Gi"}
+                and $env == {
+                  FOUNDRY_T230_PREFREEZE_SMOKE_ENABLED:"1",
+                  FOUNDRY_T230_PRODUCTION_TRANSPORT_ENABLED:"1",
+                  T230_PREFREEZE_CANDIDATE_IMAGE:$image
+                }
+                and ($containers[0].volumeMounts // []) == []
+                and $task.maxRetries == 0
+                and (($task.timeoutSeconds | tostring) == "21600")
+                and $task.serviceAccountName == $service_account
+                and ($task.volumes // []) == []
+              ) then {
+                job:$job,image:$image,service_account:$service_account,
+                cpu:"8",memory:"32Gi",task_count:1,parallelism:1,max_retries:0,
+                task_timeout_seconds:21600,command:["bash"],
+                args:["scripts/run_t230_prefreeze_smoke_worker_v1.sh"],
+                configured_environment:$env,volumes:[],secrets:[],
+                cloud_job_describe_exactly_validated:true,
+                execution_name:$execution,completed_status:$completed[0],
+                completion_time:.status.completionTime,
+                cloud_execution_describe_exactly_validated:true
+              } else error("prefreeze smoke execution envelope differs") end
+          ' /workspace/t230-release/prefreeze-execution-raw.json \
+            >/workspace/t230-release/prefreeze-observed-execution.json
+          PYTHONPATH=src python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+            publish-prefreeze-smoke-execution "${common[@]}" \
+            --observed-execution /workspace/t230-release/prefreeze-observed-execution.json \
+            --execute >/workspace/t230-release/prefreeze-execution-publication.json
+        fi
+        PYTHONPATH=src python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+          resolve-prefreeze-release-gate "${common[@]}" \
+          --output /workspace/t230-release/prefreeze-release-gate.json \
+          --execute >/workspace/t230-release/prefreeze-release-gate-reopen.json
+        if [[ '${_T230_PHASE}' == candidate ]]; then
+          jq -cn --arg phase candidate --arg image "$image" \
+            --slurpfile gate /workspace/t230-release/prefreeze-release-gate.json \
+            '{phase:$phase,immutable_candidate_image:$image,
+              prefreeze_release_gate_sha256:$gate[0].prefreeze_release_gate_sha256,
+              evidence_published:false,transport_contract_published:false}'
+        fi
+
+  - name: gcr.io/cloud-builders/docker
+    id: release-only-generate-evidence-inside-d
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        [[ '${_T230_PHASE}' == release ]] || exit 0
+        image="$(tr -d '\n' </workspace/t230-release/immutable-image.txt)"
+        docker run --rm -v /workspace/t230-release:/release "$image" \
+          python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+          build-image-evidence \
+          --source-snapshot /opt/nfl-dfs/foundry-t230-source-snapshot-v1.json \
+          --immutable-image "$image" --output /release/image-evidence.json
+
+  - name: python:3.11-slim
+    id: release-only-journal-evidence-and-contract
+    dir: /workspace/t230-checkout
+    entrypoint: bash
+    env:
+      - FOUNDRY_T230_PRODUCTION_TRANSPORT_ENABLED=1
+    args:
+      - -ceu
+      - |
+        [[ '${_T230_PHASE}' == release ]] || exit 0
+        apt-get update
+        apt-get install -y --no-install-recommends git jq libgomp1
+        pip install --no-cache-dir '.[gcp]'
+        image="$(tr -d '\n' </workspace/t230-release/immutable-image.txt)"
+        PYTHONPATH=src python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+          publish-image-evidence \
+          --source-snapshot /workspace/t230-release/source-snapshot.json \
+          --image-evidence /workspace/t230-release/image-evidence.json \
+          --g0-preflight /workspace/t230-release/g0-preflight.json \
+          --immutable-image "$image" --execute \
+          >/workspace/t230-release/image-evidence-publication.json
+        PYTHONPATH=src python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+          build-transport-contract \
+          --source-snapshot /workspace/t230-release/source-snapshot.json \
+          --immutable-image "$image" \
+          --image-evidence-uri "$(jq -er '.target_identity.uri' /workspace/t230-release/image-evidence-publication.json)" \
+          --image-evidence-generation "$(jq -er '.target_identity.generation' /workspace/t230-release/image-evidence-publication.json)" \
+          --image-evidence-sha256 "$(jq -er '.target_identity.sha256' /workspace/t230-release/image-evidence-publication.json)" \
+          --image-evidence-bytes "$(jq -er '.target_identity.bytes' /workspace/t230-release/image-evidence-publication.json)" \
+          --prefreeze-release-gate /workspace/t230-release/prefreeze-release-gate.json \
+          --output /workspace/t230-release/transport-contract.json
+        PYTHONPATH=src python scripts/run_corpus_extreme_tail_panel_transport_v1.py \
+          publish-transport-contract \
+          --source-snapshot /workspace/t230-release/source-snapshot.json \
+          --transport-contract /workspace/t230-release/transport-contract.json \
+          --execute >/workspace/t230-release/transport-contract-publication.json
+        jq -cn --arg phase release --arg image "$image" \
+          --slurpfile contract /workspace/t230-release/transport-contract-publication.json \
+          '{phase:$phase,immutable_image:$image,
+            transport_contract_identity:$contract[0].target_identity,
+            candidate_image_rebuilt:false}'
+
+substitutions:
+  _T230_PHASE: candidate
+  _SOURCE_COMMIT: required-explicit-40-character-commit
+  _IMAGE_REPOSITORY: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs
+  _IMMUTABLE_IMAGE: required-only-when-phase-is-release
+  _REGION: us-central1
+  _SMOKE_JOB: atlas-minimal-c-s2023-w1-v1
+  _SERVICE_ACCOUNT: required-explicit-cloud-run-service-account
+timeout: 28800s
+options:
+  logging: LEGACY
+  machineType: E2_HIGHCPU_8
