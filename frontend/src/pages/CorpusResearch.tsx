@@ -1,11 +1,16 @@
-/** Corpus Research — React 19 parity slice.
+/** Corpus Research — React table/foundation slice.
  *
- * Renders the read-only projection contract: authority banner, exact release
- * identity and staleness, the six required views, and honest non-ready
- * states. Provenance renders as sanitized identity metadata (generation,
- * hash prefixes, byte counts) — never as raw bucket links.
+ * A foundation slice, not full parity: the legacy page still owns the
+ * interactive heatmap, paired chart, scatter, promotion timeline, network
+ * controls, and named scenarios until the visualization and route-parity
+ * gates. Renders the read-only projection contract with per-section
+ * evidence tiers, paginated tables, and honest non-ready states.
+ * Provenance renders as sanitized identity metadata — never raw bucket
+ * links. Shape/binding validation happens in guards; the browser performs
+ * no cryptographic verification and never implies that it did.
  */
 
+import { useState } from "react";
 import { Availability, ProjectionPayload, ViewRow } from "../api/types";
 import {
   AvailabilityGate,
@@ -14,6 +19,8 @@ import {
   StaleBadge,
 } from "../app/states";
 import { GradeReportPreview } from "./GradeReportPreview";
+
+const PAGE_SIZE = 50;
 
 function shortHash(value: string | undefined): string {
   return value === undefined ? "—" : `${value.slice(0, 12)}…`;
@@ -70,7 +77,7 @@ function IdentityStrip({
         </dd>
       </div>
       <div>
-        <dt>projection sha256</dt>
+        <dt>projection sha256 (server-verified)</dt>
         <dd>
           <code>{shortHash(projection.projection_sha256)}</code>
         </dd>
@@ -123,6 +130,85 @@ function cell(value: unknown): string {
   return String(value);
 }
 
+/** Distinct evidence_tier values present in the rows, if any. */
+function sectionTiers(rows: readonly ViewRow[]): string[] {
+  const tiers = new Set<string>();
+  for (const row of rows) {
+    const tier = row["evidence_tier"];
+    if (typeof tier === "string" && tier.length > 0) tiers.add(tier);
+  }
+  return [...tiers].sort();
+}
+
+export function PaginatedTable({
+  label,
+  columns,
+  rows,
+  renderRow,
+}: {
+  label: string;
+  columns: readonly string[];
+  rows: readonly ViewRow[];
+  renderRow?: (row: ViewRow) => readonly string[];
+}) {
+  const [page, setPage] = useState(0);
+  const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  const clamped = Math.min(page, pageCount - 1);
+  const start = clamped * PAGE_SIZE;
+  const visible = rows.slice(start, start + PAGE_SIZE);
+  return (
+    <>
+      <div className="table-scroll">
+        <table>
+          <caption className="visually-hidden">{label}</caption>
+          <thead>
+            <tr>
+              {columns.map((column) => (
+                <th key={column} scope="col">
+                  {column}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {visible.map((row, index) => (
+              <tr key={start + index}>
+                {(renderRow?.(row) ?? columns.map((column) => cell(row[column]))).map(
+                  (text, columnIndex) => (
+                    <td key={columnIndex}>{text}</td>
+                  ),
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {rows.length > PAGE_SIZE ? (
+        <p className="pager" data-testid={`pager-${label}`}>
+          <button
+            type="button"
+            onClick={() => setPage(Math.max(0, clamped - 1))}
+            disabled={clamped === 0}
+            aria-label={`${label}: previous page`}
+          >
+            ◀ prev
+          </button>{" "}
+          showing {start + 1}–{Math.min(start + PAGE_SIZE, rows.length)} of{" "}
+          {rows.length.toLocaleString()}{" "}
+          <button
+            type="button"
+            onClick={() => setPage(Math.min(pageCount - 1, clamped + 1))}
+            disabled={clamped >= pageCount - 1}
+            aria-label={`${label}: next page`}
+          >
+            next ▶
+          </button>
+        </p>
+      ) : null}
+    </>
+  );
+}
+
 function ViewSection({
   name,
   rows,
@@ -133,16 +219,22 @@ function ViewSection({
   receipt?: { cypher_sha256: string; rows_sha256: string; row_count: number };
 }) {
   const columns = columnsFor(rows);
+  const tiers = sectionTiers(rows);
   return (
     <section className="view-section" data-testid={`view-${name}`}>
-      <h2>{VIEW_TITLES[name] ?? name}</h2>
+      <h2>
+        {VIEW_TITLES[name] ?? name}
+        {tiers.map((tier) => (
+          <EvidenceBadge key={tier} tier={tier} />
+        ))}
+      </h2>
       <p className="view-meta" data-testid={`view-meta-${name}`}>
         {rows.length.toLocaleString()} rows
         {receipt === undefined ? null : (
           <>
             {" "}
             · query <code>{shortHash(receipt.cypher_sha256)}</code> · rows hash{" "}
-            <code>{shortHash(receipt.rows_sha256)}</code>
+            <code>{shortHash(receipt.rows_sha256)}</code> (server-verified)
           </>
         )}
       </p>
@@ -151,29 +243,7 @@ function ViewSection({
           No rows in this view — shown as empty, not zero.
         </p>
       ) : (
-        <div className="table-scroll">
-          <table>
-            <caption className="visually-hidden">{name}</caption>
-            <thead>
-              <tr>
-                {columns.map((column) => (
-                  <th key={column} scope="col">
-                    {column}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, index) => (
-                <tr key={index}>
-                  {columns.map((column) => (
-                    <td key={column}>{cell(row[column])}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <PaginatedTable label={name} columns={columns} rows={rows} />
       )}
     </section>
   );
@@ -186,9 +256,7 @@ export function CorpusResearchPage({
 }) {
   return (
     <main className="corpus-research" data-testid="corpus-research-page">
-      <h1>
-        Corpus Research <EvidenceBadge tier="retrospective-simulated" />
-      </h1>
+      <h1>Corpus Research — foundation slice</h1>
       <AvailabilityGate availability={availability}>
         {(content) => {
           const projection = content.projection;
@@ -198,13 +266,15 @@ export function CorpusResearchPage({
               query,
             ]),
           );
+          const emptyList =
+            content.state === "ready" ? [] : content.emptyViews;
           return (
             <>
               {content.state === "stale" ? (
                 <StaleBadge ageSeconds={content.ageSeconds} />
               ) : null}
-              {content.state === "partial" ? (
-                <PartialNotice emptyViews={content.emptyViews} />
+              {emptyList.length > 0 ? (
+                <PartialNotice emptyViews={emptyList} />
               ) : null}
               <AuthorityBanner projection={projection} />
               <IdentityStrip

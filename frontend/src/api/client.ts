@@ -31,23 +31,24 @@ export async function fetchProjectionAvailability(
   const now = options.now ?? Date.now;
   let httpStatus: number;
   let body: unknown;
+  let response: Awaited<ReturnType<FetchLike>>;
   try {
-    const response = await fetchImpl(PROJECTION_URL, {
+    response = await fetchImpl(PROJECTION_URL, {
       headers: { Accept: "application/json" },
     });
-    httpStatus = response.status;
-    try {
-      body = await response.json();
-    } catch {
-      return {
-        state: "schema-mismatch",
-        detail: `HTTP ${httpStatus} body is not JSON`,
-      };
-    }
   } catch (error) {
     return {
+      state: "unreachable",
+      detail: `projection transport failed: ${String(error)}`,
+    };
+  }
+  httpStatus = response.status;
+  try {
+    body = await response.json();
+  } catch {
+    return {
       state: "schema-mismatch",
-      detail: `projection request failed: ${String(error)}`,
+      detail: `HTTP ${httpStatus} body is not JSON`,
     };
   }
   return classifyProjectionOutcome({

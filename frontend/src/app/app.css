@@ -191,6 +191,39 @@ tbody tr:last-child td {
   color: var(--muted);
 }
 
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--muted);
+  margin: 0.5rem 0 0;
+}
+
+.pager button {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+}
+
+.pager button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.pager button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.limitations {
+  color: var(--muted);
+  margin: 0.5rem 0 0;
+  padding-left: 1.2rem;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;

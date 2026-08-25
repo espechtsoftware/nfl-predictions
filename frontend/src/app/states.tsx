@@ -75,6 +75,22 @@ export function UnauthorizedState({ httpStatus }: { httpStatus: 401 | 403 }) {
   );
 }
 
+export function UnreachableState({ detail }: { detail: string }) {
+  return (
+    <div
+      className="state state-unreachable"
+      data-testid="state-unreachable"
+      role="alert"
+    >
+      <p>
+        The projection service could not be reached (transport failure, not
+        a schema problem).
+      </p>
+      <p className="state-detail">{detail}</p>
+    </div>
+  );
+}
+
 export function SchemaMismatchState({ detail }: { detail: string }) {
   return (
     <div
@@ -122,6 +138,8 @@ export function AvailabilityGate({
       return <DegradedState status={availability.status} />;
     case "unauthorized":
       return <UnauthorizedState httpStatus={availability.httpStatus} />;
+    case "unreachable":
+      return <UnreachableState detail={availability.detail} />;
     case "schema-mismatch":
       return <SchemaMismatchState detail={availability.detail} />;
     case "ready":

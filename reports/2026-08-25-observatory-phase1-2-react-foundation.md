@@ -76,14 +76,23 @@ No parallel heavy commands ran; the lane was checked idle before each.
 
 ## Proposed reversible integration (NOT applied — for lead review)
 
-Step 1 (additive, zero-risk): serve the compiled page on a NEW route,
-leaving `/corpus-research` (legacy) untouched:
+**Corrected per the lead checkpoint review (2026-08-25):** the earlier
+snippet referenced an undefined `_Path`; the corrected form imports
+`pathlib.Path` explicitly. The route must NOT be added until the nested
+`static/app/**` wheel-packaging gap is fixed and covered by an inventory
+test (Phase 8) — otherwise a built wheel would serve a missing page.
+
+Step 1 (additive, zero-risk, deferred behind packaging): serve the
+compiled page on a NEW route, leaving `/corpus-research` (legacy)
+untouched:
 
 ```python
 # src/nfl_dfs/app/corpus_research.py  — proposed diff, not applied
+from pathlib import Path
+
 @router.get("/corpus-research/next", response_class=HTMLResponse)
 def corpus_research_next_page() -> HTMLResponse:
-    index = _Path(__file__).parent / "static" / "app" / "index.html"
+    index = Path(__file__).parent / "static" / "app" / "index.html"
     return HTMLResponse(
         index.read_text(encoding="utf-8"),
         headers={"Cache-Control": "no-store"},
