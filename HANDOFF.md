@@ -20,6 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 12:03 UTC (one-hundred-thirty-fifth update)
+
+### Exact-commit R6 full-union freeze build is queued
+
+- The reviewed freeze/build/launcher stack is committed and pushed at exact
+  source commit `9a63292fc7df6229290bdf8c00c73b8564cacfc9`; local `main`
+  and `origin/main` matched that identity at submission. Unrelated modified
+  and untracked worktree files were not staged or consumed.
+- Cloud Build `d2d2da93-3e83-4fc7-8811-a542faa08c66` was submitted in
+  project `nfl-predictions-503414`, region `us-central1`, at
+  `2026-08-26T12:01:34.013557830Z`. Its initial state was `QUEUED`. The build
+  uses `--no-source`; the first step exact-fetches the pushed 40-character
+  source commit from GitHub into a detached clean checkout. It therefore does
+  not consume the unrelated dirty local tree.
+- The build will run the complete focused
+  `tests/test_corpus_r6_full_union_panel_freeze_v1.py` module, then build and
+  smoke the dedicated image. The intended tag is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:r6-full-union-freeze-9a63292fc7df6229290bdf8c00c73b8564cacfc9-d2d2da93-3e83-4fc7-8811-a542faa08c66`.
+  Do not launch from the mutable tag; resolve and use the successful build's
+  immutable digest.
+- A read-only cloud check immediately before submission found no active freeze
+  build and no active freeze/scoring Cloud Run execution. Current-system
+  historical scoring has **not** begun and there are no new historical scores.
+- The attempted full temporary clone failed because `/tmp` was at 100%; only
+  the exact failed 390 MB clone created for this operation was removed. This
+  did not affect the pushed source or cloud build. Exact next action: monitor
+  build `d2d2da93-3e83-4fc7-8811-a542faa08c66`; on success, record its digest,
+  update this handoff, then use a clean sparse exact-source checkout to publish
+  the manifest and run the one task-0 canary before the bounded 28+26 launch.
+
 ## Current handoff — 2026-08-26 11:55 UTC (one-hundred-thirty-fourth update)
 
 ### The 54-slate full-union freeze is implementation-complete and awaiting its clean build
