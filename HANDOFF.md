@@ -20,6 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 02:27 UTC (ninety-fourth update)
+
+### Ordinal 6 requires a true attempt-1 amendment; attempt 0 cannot be reused
+
+- A generation-pinned exact-name check found that failed execution
+  `atlas-minimal-c-s2023-w1-v1-rffts` did publish its stage-start object before
+  Cloud Run returned status code 13. The object is
+  `transport/stage-starts/run-slate/06/attempt-00.json`, generation
+  `1787709944159900`, 3,593 bytes, full-object SHA-256
+  `744f5f944089eb01ad5a100574e69734eeb9008c2977968a67f513936c91013b`,
+  and self-hash
+  `c8b65e04fac81cd8834596cdba50ae45ee825865650c706049230f038d397548`.
+  Its exact projection binds source ordinal 6, runtime attempt 0, the failed
+  execution, frozen D2, original launch request generation
+  `1787709788000394`, and `automatic_retry_licensed=false` /
+  `uses_realized_outcomes=false`.
+- The failed execution still created no ordinal-6 result and no canonical
+  run-slate stage receipt. Nevertheless, the existing attempt-0 stage-start
+  makes a same-attempt replay both mechanically colliding and contractually
+  invalid. No object will be deleted or overwritten and the original request
+  will not be reused.
+- The recovery design is therefore narrowed to a real attempt-1 amendment:
+  one separately authorized worker core execution under the unchanged frozen
+  science image, followed by a separately authorized bridge verifier. The
+  amended worker receipt, bridge, Lane-A ledger, and combined panel root must
+  retain the original failure and replacement identities. Standard ordinal-7
+  execution may resume only after the bridge is independently accepted. The
+  original v1 lane/finalizer receipt alone cannot conceal or validate this
+  exception.
+- Exact next action: finish the offline platform-replacement contract and
+  focused tests, independently review it, and only then publish a create-once
+  replacement intent. Lane B remains independent and continues under the
+  original frozen v1 transport. No realized outcome, score, fill, graph,
+  promotion, or production authority has been opened.
+
 ## Current handoff — 2026-08-26 02:16 UTC (ninety-third update)
 
 ### T230 reaches eleven acceptances; Lane A stops safely on a Cloud Run platform failure
