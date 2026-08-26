@@ -20,6 +20,47 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 16:13 UTC (one-hundred-forty-seventh update)
+
+### Immutable post-freeze image and exact 54-slate panel finish receipt are complete
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `a5a8eb41ca6188f6bad3af78c08cf902cf6361c6` (`Seal R6 post-freeze
+  scoring chain`). Cloud Build
+  `f7a4f835-40fd-4b75-becb-0d9b03211bdf` completed **SUCCESS** at
+  `2026-08-26T15:54:06.122109Z`; all six exact-checkout, 206-test, image,
+  push, immutable-digest smoke and metadata steps passed. The resulting
+  immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:c1215c4bd9baf97bbddca5f7e5a5e9d2923f212a81d6a899a9fccaf02ac292d4`.
+  Build metadata is at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/r6-full-union-post-freeze-builds/f7a4f835-40fd-4b75-becb-0d9b03211bdf/r6-post-freeze-build-metadata.json`,
+  generation `1787759640967204`, bytes `5982`, SHA-256
+  `5ac5562193083ba8d97a432e88c7a6af9ed3e5aa24a6c0b7ba71e41d105ffee5`.
+  Its source commit, focused-test and digest-smoke claims exact-match; all
+  outcome, lease, query, scoring, job/IAM/graph/production-mutation and
+  authority flags are false.
+- Direct `finish-panel` recovery from the clean detached pushed checkout and
+  that digest completed successfully without recomputing any corpus slate or
+  opening outcomes. It byte-matched the already-published panel root at
+  generation `1787756181440564`, bytes `89879`, object SHA-256
+  `57844386a3da86ddf05f8b3e6b19ae19c7327afcfc1057647b210e58caec2467`
+  and panel self-hash
+  `26d27abf5074ed20cbd401e1a93332b34449eb3ec9b3c7175330c1de10736f2d`.
+  The retained canonical finish receipt confirms exactly 54 slates, 2,592
+  rank-80 books and 7,776 prefixes, `outcome_key_projection_inputs_frozen=true`
+  and `uses_realized_outcomes=false`; its self-hash is
+  `de38b6247ee38aed6551e2cc6acb5212aa1b72374cb192e14574e11d7159363e`
+  and file SHA-256 is
+  `b816dc0e425a78369fb0138a9164eee02fbad95375d68a140cbf635f6da23076`.
+- Historical realized scoring has still not begun: no historical lease was
+  acquired, no BigQuery/outcome/Neo4j read or mutation occurred, and no
+  realized-run directory existed at receipt completion. Exact next action:
+  commit/push this durable receipt and handoff, run the one outcome-blind
+  actual-root smoke for frozen run ID
+  `20260826-foundry-v12-r6-full-union-realized-v1`, inspect its terminal and
+  two object identities, then acquire the lease for the single outcome query
+  and grade/release/report all eight frozen strategies including T230.
+
 ## Current handoff — 2026-08-26 15:15 UTC (one-hundred-forty-sixth update)
 
 ### Both R6 lanes are terminal 54/54; root exists but needs amended exact reopen
