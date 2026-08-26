@@ -203,9 +203,9 @@ def test_preflight_is_repeatable_and_retains_only_immutable_contract_shape() -> 
         "--clear-cloudsql-instances",
         "--clear-vpc-connector",
         "--clear-network",
-        "--clear-network-tags",
     ):
         assert clear_flag in preflight
+    assert "--clear-network-tags" not in preflight
     assert '--service-account "$SERVICE_ACCOUNT"' in preflight
     assert "$task.serviceAccountName == $service_account" in preflight
     assert "(($containers[0].args // []) == [])" in preflight
@@ -267,7 +267,10 @@ if args[:3] == ["run", "jobs", "describe"]:
         }}},
     }, sort_keys=True))
 elif args[:3] == ["run", "jobs", "update"]:
-    pass
+    if "--clear-network" not in args:
+        raise SystemExit("preflight did not clear direct VPC access")
+    if "--clear-network-tags" in args:
+        raise SystemExit("preflight passed mutually exclusive network clear flags")
 else:
     raise SystemExit(f"unexpected offline gcloud call: {args}")
 """,

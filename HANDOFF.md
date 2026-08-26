@@ -20,6 +20,37 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 16:18 UTC (one-hundred-forty-eighth update)
+
+### Actual-root smoke preflight exposed and closed one local gcloud flag incompatibility
+
+- The first smoke invocation stopped in local `gcloud run jobs update`
+  argument parsing before any job mutation or Cloud Run execution. The
+  installed SDK makes `--clear-network` mutually exclusive with the direct-VPC
+  subgroup containing `--clear-network-tags`; therefore the old command could
+  not reach the update API. No historical lease, query, outcome read, score,
+  graph mutation or smoke object was created.
+- The smallest fail-closed operator-launcher fix removes only
+  `--clear-network-tags` and retains both `--clear-network` and
+  `--clear-vpc-connector`. The SDK contract clears the whole direct-VPC
+  interface, including embedded tags, while the unchanged live post-update
+  assertion still requires `vpcAccess == {}` before any execution can launch.
+  The focused score-chain suite passes 17/17; `bash -n`, launcher help and
+  `git diff --check` pass; independent exact-diff review is **P0=0/P1=0**.
+  Final launcher/test SHA-256 values are
+  `58dd43dfe0819f47180b6e0ad09972d25b97bf4201377f3513ece8e8c714bdbf`
+  and
+  `98d46ba6ff20556aabb76e3b8d4779a8b105279717ee25b7e49588577a4d2c13`.
+- This is a local operator-launcher compatibility correction; the remote smoke
+  CLI and all scoring code remain the previously tested immutable commit
+  `a5a8eb41ca6188f6bad3af78c08cf902cf6361c6` and digest
+  `sha256:c1215c4bd9baf97bbddca5f7e5a5e9d2923f212a81d6a899a9fccaf02ac292d4`.
+  Rebuilding that image would not affect the local gcloud parser and is not
+  required. Exact next action: commit/push this launcher correction, rerun only
+  the smoke stage with the frozen identities, inspect its terminal envelope
+  and two outcome-blind object identities, and only then acquire the
+  historical lease for the one-query eight-strategy grade.
+
 ## Current handoff — 2026-08-26 16:13 UTC (one-hundred-forty-seventh update)
 
 ### Immutable post-freeze image and exact 54-slate panel finish receipt are complete

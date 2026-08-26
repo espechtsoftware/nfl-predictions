@@ -165,7 +165,7 @@ preflight() {
     --clear-env-vars --clear-secrets \
     --clear-volume-mounts --clear-volumes \
     --clear-cloudsql-instances --clear-vpc-connector \
-    --clear-network --clear-network-tags \
+    --clear-network \
     --service-account "$SERVICE_ACCOUNT" \
     --tasks 1 --parallelism 1 --max-retries 0 --task-timeout 8h \
     --cpu 8 --memory 32Gi --quiet >/dev/null
