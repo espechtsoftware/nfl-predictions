@@ -20,6 +20,39 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 05:29 UTC (one-hundred-twelfth update)
+
+### Failed T230 run takes terminal closure; independent accepted v12 G0 keeps R6 moving
+
+- The ordinal-6 replacement failure makes
+  `20260825-foundry-t230-production-v2` irrecoverably incomplete. A verifier-35
+  attempt 1 could not change that result and was never authorized or launched.
+  Its draft recovery law is now marked superseded before launch. No additional
+  T230 worker, verifier, boundary, finalizer, or panel execution is allowed.
+- New pre-publication law
+  `reports/2026-08-26-t230-current-run-terminal-panel-closure-amendment.md`
+  freezes the smaller truthful close: one seven-of-26 Lane-B terminal-invalid
+  receipt, followed by one combined 13-of-54 terminal panel index. It requires
+  the ordinal-6 six-of-28 terminal-invalid Lane-A root, exact mechanics replay,
+  metadata-only result handling, all authority false, and zero compute. The
+  new law and superseded verifier draft pass `git diff --check`; no test,
+  preflight, publication, result/outcome read, or scoring was performed.
+- This failed T230 extreme-tail run is not the accepted Foundry v12 G0 used by
+  the prepared R6 adapter. The independent source remains the complete
+  54-member panel `20260823-foundry-production-v12`, pinned by tracked lock
+  `reports/corpus-parametric-runs/20260823-foundry-production-v12-panel-index/g0-authority-lock-v1.json`
+  at evidence commit
+  `168bc70a9793dce729d7e7e0a5d809b046a7a254`. Its panel object is generation
+  `1787663639938214`, SHA-256
+  `4d41acd9277e525cd8521071b62390281c442d6324db1e3f5812bf59920c16f9`,
+  209,279 bytes. The fixed-G0 R6 candidate binds only that accepted source and
+  has no dependency on the failed T230 run.
+- Exact next actions: independently review and publish the ordinal-6 negative
+  closure; implement/review the Lane-B and combined negative closure; and, in
+  parallel, finish the R6 preliminary-lock → one outcome-blind real task-0
+  smoke → final-lock sequence against the accepted August-23 G0. Realized
+  scoring remains forbidden until all intended R6-v2 books are frozen.
+
 ## Current handoff — 2026-08-26 05:22 UTC (one-hundred-eleventh update)
 
 ### Ordinal-6 replacement worker fails terminally; no historical scoring has begun
