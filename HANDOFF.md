@@ -20,6 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 13:16 UTC (one-hundred-forty-second update)
+
+### Root-bound outcome snapshot contract is focused-green; actual-root smoke remains closed
+
+- Added the pure full-union post-freeze snapshot boundary and crash-safe local
+  CAS CLI. It exact-replays the complete structural root plus all 54
+  leaf/result chains, derives player/DST keys from every all-block final-fit
+  population, binds R0--R4 world identities to the common later-source freeze,
+  maps skill players by player ID and DSTs by team, and rejects missing, extra,
+  duplicate, reordered or non-integer micro-DK rows.
+- The new mandatory actual-root smoke receipt binds the explicit intended root
+  and projection content identities, all 54 real replays, nonempty R0--R4
+  containment, reviewed source commit, immutable image and all four
+  implementation/test identities. Its outcome, query, scoring, graph,
+  production, promotion and decision flags are hard false. The future supply
+  runner must validate this receipt before BigQuery, lease, table metadata or
+  query construction.
+- Independent static review required two correction rounds and is now
+  **P0=0/P1=0**. The two focused offline modules then passed **13 tests with
+  one intentional skip in 2.27 seconds**. The sole skip is the real 54/54 CAS
+  fixture smoke; it is unavailable until the production root/projection exist
+  and must pass before outcome access. Exact command/output are tracked in
+  `reports/2026-08-26-r6-full-union-outcome-snapshot-focused-test-output.txt`.
+- Final current SHA-256 values are snapshot source
+  `3cc859f6cbe22901adf0354c3b21c2f69beeba094e74a7b889e3e8d6d36f31bc`,
+  CLI `d8202bdd2cf5f88c9d0119235b7aefaf891bb7bf06a71e1a917183589687fec1`,
+  contract test `beea33cfd47b96812fe04e502fc63524b74fabc5a049dfb6750ba0095997dffd`,
+  and CLI test
+  `357630e86d0bf87b8a65abbcc39b2750f2db3c540fc0cb0837658259c48d5349`.
+- Current-system historical scoring has **not** begun. Freeze lanes remain
+  active; the latest validated artifact checkpoint before this update was
+  15/54 accepted with no failures. Exact next action: land these reviewed
+  bytes, continue lane monitoring, finish supply/grader static closure and
+  tests, then execute the mandatory actual-root smoke only after 54/54 root.
+
 ## Current handoff — 2026-08-26 13:03 UTC (one-hundred-forty-first update)
 
 ### Full-union freeze reaches 13/54 with no failure or partial artifacts

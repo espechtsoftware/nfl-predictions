@@ -1,0 +1,10 @@
+Command:
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -o addopts='' tests/test_corpus_r6_full_union_outcome_snapshot_v1.py tests/test_run_corpus_r6_full_union_outcome_snapshot_v1.py
+
+Output:
+.s............                                                           [100%]
+13 passed, 1 skipped in 2.27s
+
+The sole skip is the mandatory actual-root outcome-blind smoke. It requires
+the future persisted 54/54 production root/projection CAS fixture and must pass
+before the first realized-outcome supply invocation.
