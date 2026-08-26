@@ -20,6 +20,45 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 21:53 UTC (one-hundred-fifty-sixth update)
+
+### Observatory Phase 5 second correction is isolated and rejected on one bounded contract-integrity repair
+
+- The delegated worktree is clean and pushed on
+  `feature/neo4j-react-observatory` at second-correction commit
+  `a4dc08b1`. Its four-file diff remains limited to branch HANDOFF, the
+  Phase 5 report, pure offline capacity estimator and focused tests. It did
+  not access cloud/outcomes/Neo4j, merge/rebase main, mount a route, deploy,
+  choose a graph mode or alter active R6/T230/Core paths. The correction
+  materially closes the prior mutable `ESTIMATION_LAW`, count-matched release
+  identity, absent endpoint-population and false approval-authority findings.
+  Independent serial validation passes capacity **66/66**, graph contracts
+  **40/40**, Phase 4 fixture adapter **33/33**, with clean
+  `git diff --check`.
+- Lead and independent review verdict is **REJECT pending one bounded
+  correction**, P0=0, P1=2, P2=2. `RELATIONSHIP_ENDPOINTS` is still a mutable,
+  unhashed semantic registry: a fresh-process proof built a valid receipt,
+  changed `CONTAINS_PLAYER` target `PlayerSlate` to `Slate`, and the original
+  receipt still replayed with the identical self-hash. `RELEASE_MANIFESTS` is
+  likewise not frozen or receipt/law-bound: rebinding `world_releases` from
+  `world_release_count` to `science_release_count` left the old receipt valid
+  and allowed a new packet with `world_release_count=2` but only one world
+  identity. These are provenance failures even though all positive-path tests
+  pass.
+- Required repair: define one canonical versioned semantic-capacity contract
+  containing at least the complete endpoint map and release-manifest to
+  count/kind linkage (preferably every input/cardinality registry); deep-freeze
+  it, pin and live-rederive a literal digest at import/build/validation, embed
+  and verify its body/hash in each receipt, and add adversarial mutation/replay
+  tests for both attacks. P2 cleanup in that same edit: correct the stale
+  module docstring's Phase 4/nine-player and lead-confirmation claims, and
+  complete GCS bucket validation so IP-literal/reserved bucket names fail.
+- Exact next Observatory action: the delegated agent may make only this small
+  Phase 5 correction, rerun the same three suites serially, update its report
+  and HANDOFF, commit/push and stop for lead re-review. Do not merge,
+  provision, connect, deploy, mount routes, open outcomes or choose a graph
+  mode. This remains independent of R6-v2 scoring and must not block it.
+
 ## Current handoff — 2026-08-26 21:36 UTC (one-hundred-fifty-fifth update)
 
 ### Corrected Observatory Phase 5 remains isolated and is rejected on re-review
