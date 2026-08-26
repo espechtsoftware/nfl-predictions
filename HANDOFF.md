@@ -20,6 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 07:35 UTC (one-hundred-twenty-third update)
+
+### Bounded R6 task-0 smoke-recovery lock is built and tracked
+
+- Independent review reported P0/P1/P2 all zero and licensed exactly one
+  deterministic local recovery-lock build from clean detached commit
+  `1df12164f0595b937679a73a0ef3bf3b3174cb72`. The licensed command exited 0
+  without cloud, publication, outcome or scoring access.
+- The resulting create-once lock is tracked on `main` at commit `4ef17174` as
+  `reports/2026-08-26-r6-player-catalog-fixed-g0-task0-smoke-recovery-review-lock.json`,
+  outer SHA-256
+  `71e4dfee04ffcc9898009b051f8dc7cd1db9fcd4e9f4be61f852b8ace1910341`,
+  4,026 bytes, internal self-hash
+  `c3ce327b6d3ce484294b7d04014a3077f922c605997be299800ac5759e3c80a6`.
+  It preserves the zero-cloud v1 failure, permits at most one v2 read-only
+  task-0 smoke, prohibits a third attempt, and grants no historical-scoring,
+  source-publication, corpus, graph or decision authority.
+- No new Foundry/R6 historical scoring has begun and no scoring process is
+  active. The valid independent 54-slate G0 panel remains available; the
+  failed T230 incarnation remains terminal-invalid at 13/54 and is not the
+  R6 source.
+- Exact next action: push this handoff milestone, independently authorize and
+  run the sole v2 task-0 seven-object read smoke from a tracked-clean worktree,
+  then finalize/publish the fixed 54-slate player catalog and the R6-v2 source
+  release before freezing books and opening governed realized scoring.
+
 ## Current handoff — 2026-08-26 07:31 UTC (one-hundred-twenty-second update)
 
 ### R6 recovery suite passes from the tracked main implementation
