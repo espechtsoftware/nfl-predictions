@@ -20,6 +20,30 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 12:32 UTC (one-hundred-thirty-ninth update)
+
+### Both bounded 54-slate structural-freeze lanes are submitted
+
+- Launcher stage `launch` exited 0 after revalidating the one-slate canary
+  state and configuring only the two registered jobs with the immutable image.
+  The ambiguity-safe submission sentinels and exact execution-name files are
+  retained in the tracked run directory; do not delete or resubmit them.
+- Lane A durable execution is
+  `atlas-minimal-c-s2023-w1-v1-4fr2l`: **28 tasks**, parallelism four, zero
+  retries, 7,200-second task timeout. Lane B durable execution is
+  `atlas-cbc-32g-full-2023-w8-v1-wxgv9`: **26 tasks**, parallelism four, zero
+  retries, 7,200-second task timeout. Initial authenticated reads confirmed
+  those exact settings and both executions were provisioned/waiting to start.
+- `status-before-launch.json` still validates exactly completed ordinal `[0]`,
+  no result-only ordinal, 53 missing ordinals, 48 books, 144 prefixes, and
+  `root_ready=false`. Lane A intentionally includes ordinal 0 and must recover
+  its create-once canary artifacts rather than recomputing them.
+- Current-system historical scoring has **not** begun. Exact next action:
+  monitor both exact execution IDs and run launcher stage `status` at bounded
+  intervals. Do not invoke repair until both lane executions are terminal; if
+  all 54 accepted leaves exist and `root_ready=true`, invoke `finish` to
+  publish/verify the root before any realized-outcome snapshot.
+
 ## Current handoff — 2026-08-26 12:30 UTC (one-hundred-thirty-eighth update)
 
 ### One-slate production canary passes both execution and artifact gates
