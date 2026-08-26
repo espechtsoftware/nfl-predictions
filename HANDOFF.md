@@ -20,6 +20,57 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 01:28 UTC (ninety-first update)
+
+### T230 reaches nine acceptances; R6 structural catalog contract is accepted offline
+
+- Lane B ordinal 31 is independently accepted at generation
+  `1787706130867752`, SHA-256
+  `147736d8cd650e95bed4deaccbf0ffcca4b55575c2848275036367a0f834248a`,
+  5,351 bytes. Its verifier-stage receipt is generation
+  `1787706131390763`, SHA-256
+  `b77b097dcb4c137326c517fa8c38533f1f81f320d606188be71b63ddaf4a06e3`.
+  Lane A ordinal 4 is independently accepted at generation
+  `1787707306923750`, SHA-256
+  `c3b68bcc92a9cabb00b97c87a4aff9fa9469db14b44981dcc4ccdc4dd0628946`,
+  5,350 bytes. Its verifier-stage receipt is generation
+  `1787707307486176`, SHA-256
+  `11b15b796cf70d6cc695c62cc17b70acdd8749323b565407960eab669c2da616`.
+  Both exact acceptance reopens report `uses_realized_outcomes=false` and all
+  downstream authorities false.
+- T230 now has nine durable independent acceptances: 0, 1, 2, 3, 4, 28, 29,
+  30, and 31. Lane A worker 5 is
+  `atlas-minimal-c-s2023-w1-v1-4lgj9`. Lane B worker 32 completed and
+  published result generation `1787707425386770`, SHA-256
+  `369b304867336887ffaab2f9b5d1dde38ffbb3a4d5adca2335572cc64d93e573`,
+  15,071,248 bytes; distinct verifier 32 is
+  `atlas-cbc-32g-full-2023-w8-v1-kcvz9`. Unified controller session `77315`
+  remains active with no failure, retry, duplicate launch, realized read,
+  score, or promotion.
+- The new offline R6 structural catalog contract and tests are independently
+  approved with no remaining P0/P1/P2. Exact SHA-256 values are
+  `5da7905f3caa620597f22bfb348a12d099709feb26a409ecec8c5578c03d99b7`
+  and
+  `41d976095d3052f3c4d1f96a89c98fe12baeee6a37be4d75c54217f4fe8493e2`.
+  The project-environment focused run passed 51/51 in 2.85 seconds with no
+  failure, skip, or warning. An earlier system-Python command failed before
+  collection because that interpreter has no pytest; it executed zero tests
+  and was followed once by the authorized environment-corrected run. Durable
+  acceptance evidence is
+  `reports/2026-08-26-r6-player-catalog-contract-offline-acceptance.md`.
+- The contract enforces exact six-field structural rows, the frozen lane/task
+  mapping, ordered 54-member coverage, one expected code identity,
+  deterministic namespace and 108 child identities, resumable byte-identical
+  create-once behavior, and full false-authority closure. It is explicitly
+  `projection-only-pending-fixed-g0-replay`: authoritative publication fails.
+  Production remains blocked on a separate adapter that replays the tracked G0
+  root and exact completion/freeze bodies, uses generation-pinned reads and
+  atomic create-if-absent, measures committed code, and pins the final release.
+- Exact next action: commit/push only the two approved catalog-contract files,
+  their evidence report, and this handoff. Continue polling worker 5 and
+  verifier 32. Then build and independently review the fixed-G0 replay and
+  storage adapter; do not enable catalog/source execution or open outcomes.
+
 ## Current handoff — 2026-08-26 00:49 UTC (ninetieth update)
 
 ### R6 source validation boundary is accepted offline and remains execute-blocked
