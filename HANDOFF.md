@@ -20,6 +20,48 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 22:30 UTC (one-hundred-fifty-ninth update)
+
+### Observatory Phase 5 third correction remains isolated and is rejected pending one bounded integrity repair
+
+- The delegated Observatory worktree is clean and pushed at
+  `f2d049b030a43f7b8f627340c8cf19f1e9b5d647` on
+  `feature/neo4j-react-observatory`. Its four-file diff remains limited to
+  branch HANDOFF, the Phase 5 report, pure offline capacity estimator and
+  focused tests; it did not touch cloud/outcomes/Neo4j, merge/rebase main,
+  deploy, mount routes, choose a graph mode or alter R6/T230/Core. Serial
+  validation passes capacity **77/77**, graph contracts **40/40**, Phase 4
+  fixture adapter **33/33**, with clean `git diff --check`.
+- Lead and independent review verdict is **REJECT pending one bounded
+  correction**, P0=0, P1=2, P2=1. The previously demonstrated endpoint-map
+  and release-manifest/count attacks are materially closed: the new semantic
+  contract is deep-frozen, literally pinned, embedded and live-revalidated.
+  However, it is not yet the sole use-time authority. Cached/reassignable
+  `REQUIRED_*`, `MODES`, `CLOSED_*` and `EXCLUDED_FROM_GRAPH` values are still
+  consumed outside the contract. Fresh-process proofs set
+  `REQUIRED_IDENTITIES=()` / `REQUIRED_HASHES=()`, removed the corresponding
+  packet fields, and emitted plus replayed valid receipts whose unchanged
+  embedded contract still declared those inputs. Rebinding closed vocabulary
+  and exclusions likewise emitted/replayed a receipt contradicting its
+  contract.
+- The live graph contract is also not cross-bound. Adding an unregistered
+  `UNBOUND_NEW_EDGE` to live `graph.RELATIONSHIP_TYPES` left an existing
+  receipt valid with the identical hash. Changing live
+  `graph.GRAPH_SCHEMA_VERSION` to v2 emitted and replayed a receipt whose
+  embedded semantic contract remained v1 while its inputs claimed v2. P2:
+  bucket validation still accepts reserved close misspelling `g00gle` and its
+  whole-name 63-character regex rejects valid dotted names whose total may be
+  up to 222 characters.
+- Required repair: derive every required-input list, mode, closed-vocabulary
+  field and exclusion directly from `require_frozen_contract()` at every use;
+  include exclusions in the contract; require exact equality between the
+  frozen contract and live graph schema/version plus complete open+closed node
+  and relationship vocabularies; add regressions for every proof above and
+  the two bucket cases. Then rerun 77/40/33 serially, update branch evidence,
+  commit/push and stop for lead re-review. Do not merge/provision/connect/
+  deploy/mount/open outcomes or choose a mode. This review is independent of
+  the already-running R6-v2 supply execution and must not block it.
+
 ## Current handoff — 2026-08-26 22:19 UTC (one-hundred-fifty-eighth update)
 
 ### Sole R6-v2 lease-bound outcome supply execution is live
