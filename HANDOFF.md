@@ -20,6 +20,38 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 03:04 UTC (ninety-ninth update)
+
+### Lane B worker 34 succeeds; replacement candidate remains rejected pending two fixes
+
+- Lane B ordinal-34 worker execution
+  `atlas-cbc-32g-full-2023-w8-v1-fmqvx` completed successfully. Its exact
+  result is generation `1787712043576370`, SHA-256
+  `acc0c16796c49b94223673c858ec14a28164029007b1ed86f76c127adac6e854`,
+  15,119,733 bytes; its worker-stage receipt is generation
+  `1787712044536910`, SHA-256
+  `e163cb8211d9571a4dd91e27f1f01993244557ef4d66e11d0da2d08d3bfa85aa`,
+  2,054 bytes. Distinct verifier execution
+  `atlas-cbc-32g-full-2023-w8-v1-77wlg` is provisioning/running. Acceptance
+  count remains twelve until that verifier succeeds.
+- The first static replacement candidate was source SHA-256
+  `76487501cb4cf4d9c531ab922cf1f224be98a9562eb204bc4c4b94e223d05530`
+  and test SHA-256
+  `1b0797881cf3adc750eaed1ebd813d9ce40447448f459f60c8792b332f4113a8`;
+  pytest was not run. Independent review rejected publication/cloud authority
+  on two P1s: the operator measured but did not compare itself to a separate
+  authoritative reviewed-implementation lock, and its terminal-message regex
+  admitted near-miss case/punctuation/whitespace variants instead of the two
+  exact Cloud messages. No P0 was found.
+- The candidate remains offline and grants no replacement intent. Corrections
+  must require a fixed-path reviewed lock that binds exact implementation,
+  tests, amendment, and review/test disposition, and literal equality to the
+  exact execution and task terminal messages. Near-miss tests are required.
+- Exact next action: correct/reseal those two boundaries, finish independent
+  review, run one focused offline test invocation, then construct and review
+  the fixed implementation lock. Do not publish a replacement intent before
+  every gate is clean. Continue polling verifier 34 independently.
+
 ## Current handoff — 2026-08-26 02:53 UTC (ninety-eighth update)
 
 ### Pre-launch amendment is tightened for whole-surface absence and launch ownership
