@@ -31,11 +31,13 @@ RUN test -n "${SOURCE_COMMIT}" \
 # and importable. These are help/import checks only: they construct no cloud
 # clients, acquire no historical lease and read no outcome data.
 RUN for tool in bash git jq python sha256sum; do command -v "${tool}" >/dev/null; done \
-    && python -c "from nfl_dfs.research import corpus_r6_full_union_panel_freeze_v1, corpus_r6_full_union_panel_freeze_release_v1, corpus_r6_full_union_outcome_snapshot_v1, corpus_r6_full_union_outcome_supply_v1, corpus_r6_full_union_realized_grading_v1, corpus_r6_full_union_grade_release_v1, corpus_r6_full_union_score_report_v1" \
+    && python -c "from nfl_dfs.research import lr8_label_fit_adapter, lr8_label_score_map, lr8_later_period_evaluation, corpus_realized_outcome_transport, corpus_r6_full_union_panel_freeze_v1, corpus_r6_full_union_panel_freeze_release_v1, corpus_r6_full_union_outcome_snapshot_v1, corpus_r6_full_union_outcome_supply_v1, corpus_r6_full_union_realized_grading_v1, corpus_r6_full_union_grade_release_v1, corpus_r6_full_union_score_report_v1" \
     && python -m py_compile \
+        scripts/compile_corpus_r6_full_union_query_v1.py \
         scripts/run_corpus_r6_full_union_panel_freeze_v1.py \
         scripts/validate_r6_full_union_lane_terminal_v1.py \
         scripts/report_corpus_r6_full_union_scores_v1.py \
+    && python scripts/compile_corpus_r6_full_union_query_v1.py --help >/dev/null \
     && python scripts/run_corpus_r6_full_union_panel_freeze_v1.py --help >/dev/null \
     && python scripts/run_corpus_r6_full_union_outcome_snapshot_v1.py --help >/dev/null \
     && python scripts/run_corpus_r6_full_union_outcome_supply_v1.py --help >/dev/null \

@@ -658,11 +658,22 @@ def test_cli_validates_pin_and_shared_lease_without_clients(
 
 
 def test_frozen_query_has_only_player_dst_actuals() -> None:
-    sql = transport.AUTHORITATIVE_SCORE_SQL.lower()
+    exact_sql = transport.AUTHORITATIVE_SCORE_SQL
+    sql = exact_sql.lower()
     assert sql.count("select ") == 4
     assert "player_week_actuals" in sql
     assert "team_defense_week" in sql
     assert "for system_time as of @source_snapshot_at" in sql
+    assert (
+        f"FROM `{transport.SKILL_TABLE}` AS a "
+        "FOR SYSTEM_TIME AS OF @source_snapshot_at"
+    ) in exact_sql
+    assert (
+        f"FROM `{transport.DST_TABLE}` AS d "
+        "FOR SYSTEM_TIME AS OF @source_snapshot_at"
+    ) in exact_sql
+    assert "FOR SYSTEM_TIME AS OF @source_snapshot_at AS a" not in exact_sql
+    assert "FOR SYSTEM_TIME AS OF @source_snapshot_at AS d" not in exact_sql
     assert "contest" not in sql
     assert "standings" not in sql
     assert "payout" not in sql

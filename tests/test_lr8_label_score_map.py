@@ -265,10 +265,21 @@ def test_query_is_exact_frozen_35_slate_player_dst_boundary(monkeypatch):
         key.startswith(("2019|", "2021|"))
         for key in (*params["skill_keys"].value, *params["dst_keys"].value)
     )
-    sql = f" {spec.sql.lower()} "
+    exact_sql = spec.sql
+    sql = f" {exact_sql.lower()} "
     assert supplier.SKILL_TABLE.lower() in sql
     assert supplier.DST_TABLE.lower() in sql
     assert "for system_time as of @source_snapshot_at" in sql
+    assert (
+        f"FROM `{supplier.SKILL_TABLE}` AS a "
+        "FOR SYSTEM_TIME AS OF @source_snapshot_at"
+    ) in exact_sql
+    assert (
+        f"FROM `{supplier.DST_TABLE}` AS d "
+        "FOR SYSTEM_TIME AS OF @source_snapshot_at"
+    ) in exact_sql
+    assert "FOR SYSTEM_TIME AS OF @source_snapshot_at AS a" not in exact_sql
+    assert "FOR SYSTEM_TIME AS OF @source_snapshot_at AS d" not in exact_sql
     assert "union all" in sql
     for forbidden in (
         " contest", " ownership", " payout", " standing", " winner",

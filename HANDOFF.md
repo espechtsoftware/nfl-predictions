@@ -20,6 +20,70 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 20:12 UTC (one-hundred-fifty-second update)
+
+### V1 supply is closed before any outcome read; repair and enforced compile gate pass
+
+- This milestone entered on pushed `main`/`origin/main` commit `98c96c0c`.
+  Supply execution `atlas-minimal-c-s2023-w1-v1-qcvnf` terminally failed at
+  `2026-08-26T19:31:46.660152Z`: `Completed=False`, one failed task, zero
+  succeeded/running and `maxRetries=0`. The create-once read attempt exists at
+  generation `1787772701143485`, bytes `4804`, object SHA-256
+  `69ab97748dbfb43ea80a625e8fc11c45158a0dc6cf72af0304b725cc97afd0c9`.
+  Its fixed BigQuery job is `DONE` with `invalidQuery`: `Syntax error:
+  Expected ")" but got keyword AS at [5:108]`. Start and end are the same
+  millisecond, query statistics are empty and `totalBytesProcessed` is absent.
+  No query evidence, realized source, outcome snapshot, supply completion,
+  grade shard/root/completion or score exists. The job was submitted but no
+  historical row was successfully read and no lineup was scored.
+- V1 is permanently closed and must not be relaunched. Canonical failure
+  closure self-hash
+  `9f473fb2f132f466d4adb4bfeb3ced64af7a9886240c6059a66a478f20712c68`
+  was published create-once at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-full-union-realized/20260826-foundry-v12-r6-full-union-realized-v1/failure-closure.json`,
+  generation `1787773571634501`, bytes `3256`, object SHA-256
+  `28531038cf9276446e13df79ac1d4acfff7cf8ee72fda2c87f33a5c960ad7f44`.
+  The repair amendment is
+  `reports/2026-08-26-r6-full-union-realized-query-syntax-repair-amendment-v1.md`.
+- After the durable closure, the exact failed lease generation
+  `1787767352106912` was archived create-once and generation-match deleted.
+  Archive URI is
+  `gs://nfl-predictions-503414-raw/research-governance/archive/historical-outcome-stale-20260826-194751-r6-v1-invalid-query-syntax.json`,
+  generation `1787773671993832`, bytes `388`, SHA-256
+  `c389ce641c7d0696f9bbfd438622252d2ab54579cf96e5173d97b17aaf705b11`.
+  The live lease URI now returns 404; the local receipt moved under
+  `failed-supply-qcvnf/`. Canonical abandonment intent/receipt self-hashes are
+  `a03cdc891ac5dcf4a2cbd92ae2d29245131435d5a877164323d2f95a20b5e453`
+  and `3c1a479d9213840a2eec20506c1b1eaf66937378ae420a8f119e22b7b4e4937b`.
+- The mechanical defect is fixed across the complete class: all six shared
+  corpus/R6/LR8 temporal table aliases now precede `FOR SYSTEM_TIME AS OF`.
+  Corrected corpus/R6 SQL SHA-256 is
+  `03b5028dadbe4d92621103e2ccd6dcfe91e8e36fc351cf671f37e309951752cb`;
+  LR8 label SQL SHA-256 is
+  `85ba08f0ea06917ea1687b14cbabd25d0c85f6aa6eb57130fc310a9b00344364`.
+  Regression tests reject the invalid grammar, and the immutable build now
+  inventories/runs the shared sources/tests. A default-off BigQuery server
+  compile stage now executes from the exact immutable image before smoke,
+  proves clean exact Git HEAD plus query-module/compiler hashes, claims no
+  fixed job ID or lease, never calls `result()` or iterates rows, and publishes
+  one generation-pinned create-once receipt. The launcher exact-resolves and
+  canonically validates that receipt before smoke, supply, grade or lease work;
+  its URI/generation/object SHA/bytes/self-hash/SQL hash bind every subsequent
+  stage token and launch intent. Independent final review found P0=0, P1=0 and
+  no shell bypass. The seven-file focused repair/build suite passes 112/112;
+  final chain tests pass 30/30; `diff --check`, `bash -n` and `py_compile` pass.
+- A preliminary real BigQuery dry run of the corrected SQL succeeded with the
+  exact five-field schema, no error, `dry_run=true`, zero rows and estimated
+  bytes `8689314`. This probe intentionally used placeholder local identity
+  and is not the final build-bound receipt. No cloud scoring execution is live
+  and no T230 result exists yet. Exact next action: commit/push the repair and
+  closure, build one fresh immutable image, execute its enforced compile stage
+  into the v2 run directory, then execute fresh v2 smoke -> lease/supply ->
+  eight-strategy grade -> strict finish/release -> score report. Replacement
+  run ID is
+  `20260826-foundry-v12-r6-full-union-realized-v2`; panel root and all eight
+  strategies, including strict T230, remain unchanged.
+
 ## Current handoff — 2026-08-26 18:50 UTC (one-hundred-fifty-first update)
 
 ### Historical supply is live; exact replay census explains the pre-query wait

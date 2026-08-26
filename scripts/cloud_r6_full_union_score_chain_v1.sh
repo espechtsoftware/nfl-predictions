@@ -8,11 +8,12 @@ Usage: cloud_r6_full_union_score_chain_v1.sh <command>
 
 Commands:
   preflight  Validate inputs and update one already-existing Cloud Run job.
+  compile    Server-compile the exact outcome SQL without reading result rows.
   smoke      Run the outcome-blind actual-root smoke and retain its identities.
   supply     Acquire/resolve the lease and run exactly one fixed-ID query.
   grade      Canonically grade and publish 54 shards plus the root last.
   finish     Materialize strict evidence and generation-match release the lease.
-  run        Execute smoke, supply, grade, and finish in order.
+  run        Execute compile, smoke, supply, grade, and finish in order.
   status     Report retained local stage evidence without launching work.
   help       Show this text without reading environment or accessing cloud.
 
@@ -35,7 +36,7 @@ if [[ "$COMMAND" == "help" || "$COMMAND" == "--help" || "$COMMAND" == "-h" ]]; t
   exit 0
 fi
 case "$COMMAND" in
-  preflight|smoke|supply|grade|finish|run|status) ;;
+  preflight|compile|smoke|supply|grade|finish|run|status) ;;
   *) usage >&2; exit 2 ;;
 esac
 
@@ -65,6 +66,7 @@ SUPPLY_PREFIX="gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-f
 GRADE_PREFIX="gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-full-union-realized-grades/$RUN_ID"
 LEASE_URI="gs://nfl-predictions-503414-raw/research-governance/historical-outcome-active-v1.json"
 DEFAULT_COMPUTE_SERVICE_ACCOUNT="817589974517-compute@developer.gserviceaccount.com"
+COMPILE_SQL_SHA256="03b5028dadbe4d92621103e2ccd6dcfe91e8e36fc351cf671f37e309951752cb"
 
 die() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 
@@ -121,7 +123,7 @@ identity_arg() {
 }
 
 resolve_object() {
-  local uri="$1" target="$2" describe generation size exact_uri raw temp current
+  local uri="$1" target="$2" payload_target="${3:-}" describe generation size exact_uri raw temp current
   describe="$(mktemp)"; raw="$(mktemp)"; temp="$(mktemp)"
   gcloud storage objects describe "$uri" --project "$PROJECT" --format=json >"$describe"
   generation="$(jq -r '.generation // empty' "$describe")"
@@ -142,6 +144,9 @@ resolve_object() {
     --arg sha256 "$(sha256sum "$raw" | awk '{print $1}')" --argjson bytes "$size" \
     '{uri:$uri,generation:$generation,sha256:$sha256,bytes:$bytes}' >"$temp"
   write_equal "$target" "$(cat "$temp")"
+  if [[ -n "$payload_target" ]]; then
+    write_equal "$payload_target" "$(cat "$raw")"
+  fi
   rm -f -- "$describe" "$raw" "$temp"
 }
 
@@ -151,6 +156,7 @@ panel_args+=("--panel-freeze-sha256=$PANEL_SHA256" "--panel-freeze-bytes=$PANEL_
 smoke_args=(/opt/nfl-predictions/scripts/run_corpus_r6_full_union_outcome_supply_v1.py smoke --execute "--project=$PROJECT" "--run-id=$RUN_ID" "--job=$JOB" "--code-sha=$CODE_SHA" "--image=$IMAGE")
 smoke_args+=("${panel_args[@]}")
 smoke_args+=("--snapshot-module-sha256=$SNAPSHOT_MODULE_SHA" "--snapshot-cli-sha256=$SNAPSHOT_CLI_SHA" "--snapshot-test-sha256=$SNAPSHOT_TEST_SHA" "--snapshot-cli-test-sha256=$SNAPSHOT_CLI_TEST_SHA")
+compile_args=(/opt/nfl-predictions/scripts/compile_corpus_r6_full_union_query_v1.py --execute "--project=$PROJECT" --location=US "--code-sha=$CODE_SHA" "--image=$IMAGE" --receipt=/tmp/r6-query-compile-receipt.json "--receipt-uri=$SUPPLY_PREFIX/query-compile-receipt.json")
 
 preflight() {
   local after="$RUN_DIR/job-config.json" temp
@@ -213,10 +219,11 @@ preflight() {
 }
 
 stage_token() {
-  local stage="$1" gate="$2"; shift 2
+  local stage="$1" gate="$2" compile_binding; shift 2
+  compile_binding="$(compile_binding_json "$stage")"
   {
     printf '%s\0' "$PROJECT" "$REGION" "$RUN_ID" "$JOB" "$stage" "$gate" \
-      "$CODE_SHA" "$IMAGE" "$SERVICE_ACCOUNT"
+      "$CODE_SHA" "$IMAGE" "$SERVICE_ACCOUNT" "$compile_binding"
     printf '%s\0' "$@"
   } | sha256sum | awk '{print $1}'
 }
@@ -327,7 +334,7 @@ wait_terminal() {
 
 launch_stage() {
   local stage="$1" gate="$2"; shift 2
-  local stage_dir="$RUN_DIR/stages/$stage" token intent execution output status joined recovered argv_json argv_sha env_json intent_preexisted=false arg
+  local stage_dir="$RUN_DIR/stages/$stage" token intent execution output status joined recovered argv_json argv_sha env_json compile_binding intent_preexisted=false arg
   local args=("$@")
   mkdir -p "$stage_dir"
   for arg in "${args[@]}"; do
@@ -337,17 +344,19 @@ launch_stage() {
   argv_sha="$({ printf '%s\0' "${args[@]}"; } | sha256sum | awk '{print $1}')"
   token="$(stage_token "$stage" "$gate" "${args[@]}")"
   env_json="$(stage_env_json "$gate" "$token")"
+  compile_binding="$(compile_binding_json "$stage")"
   intent="$(jq -cnS --arg stage "$stage" --arg token "$token" --arg run "$RUN_ID" \
     --arg project "$PROJECT" --arg region "$REGION" --arg job "$JOB" \
     --arg code "$CODE_SHA" --arg image "$IMAGE" \
     --arg service_account "$SERVICE_ACCOUNT" --arg gate "$gate" \
     --arg argv_sha "$argv_sha" --argjson argv "$argv_json" \
-    --argjson env "$env_json" \
+    --argjson env "$env_json" --argjson compile_binding "$compile_binding" \
     '{schema_version:"r6-full-union-stage-launch-intent/v1",stage:$stage,
       token:$token,project:$project,region:$region,run_id:$run,job:$job,
       code_sha:$code,image:$image,
       service_account:$service_account,gate:$gate,argv:$argv,
       argv_sha256:$argv_sha,execution_env:$env,
+      query_compile_receipt:$compile_binding,
       all_panel_snapshot_upstream_identities_bound_in_argv:true,
       automatic_retry_licensed:false}')"
   write_equal "$stage_dir/launch-intent.json" "$intent"
@@ -382,7 +391,128 @@ launch_stage() {
   write_equal "$stage_dir/terminal-receipt.json" "$(jq -cnS --arg stage "$stage" --arg execution "$execution" --arg sha "$(sha256sum "$stage_dir/terminal-execution.json" | awk '{print $1}')" '{stage:$stage,execution:$execution,terminal_execution_sha256:$sha,complete:true}')"
 }
 
+validate_compile_receipt() {
+  local payload="$1" claimed_self observed_self parameter_sha compiled_epoch snapshot_epoch
+  [[ -f "$payload" && ! -L "$payload" ]] || die "query compile receipt payload is absent"
+  jq -cS . "$payload" | cmp -s - "$payload" || die "query compile receipt is not canonical"
+  jq -e --arg project "$PROJECT" --arg code "$CODE_SHA" --arg image "$IMAGE" \
+    --arg sql "$COMPILE_SQL_SHA256" '
+    keys == ([
+      "code_sha","compile_receipt_sha256","compile_script_sha256",
+      "compiled","compiled_at","decision_authority","dry_run",
+      "fixed_job_id_claimed","graph_mutation_licensed",
+      "historical_outcome_lease_acquired","image",
+      "lineup_scoring_performed","location","output_schema",
+      "parameter_contract","parameter_contract_sha256","production_change_licensed",
+      "project","query_executed","query_module_sha256","rows_read",
+      "runtime_git_head","runtime_git_worktree_clean","schema_version",
+      "source_snapshot_at","sql_sha256","total_bytes_processed_estimate",
+      "uses_realized_outcome_rows"
+    ] | sort)
+      and .schema_version == "r6-full-union-query-compile-receipt/v1"
+      and .project == $project
+      and .location == "US"
+      and .code_sha == $code
+      and .image == $image
+      and .runtime_git_head == $code
+      and .runtime_git_worktree_clean == true
+      and .sql_sha256 == $sql
+      and (.query_module_sha256 | type == "string" and test("^[0-9a-f]{64}$"))
+      and (.compile_script_sha256 | type == "string" and test("^[0-9a-f]{64}$"))
+      and (.compiled_at | type == "string")
+      and (.source_snapshot_at | type == "string")
+      and .parameter_contract == [
+        {array:false,name:"source_snapshot_at",type:"TIMESTAMP"},
+        {array:true,name:"target_seasons",type:"INT64"},
+        {array:true,name:"skill_keys",type:"STRING"},
+        {array:true,name:"dst_keys",type:"STRING"}
+      ]
+      and .output_schema == [
+        {field_type:"INTEGER",mode:"NULLABLE",name:"season"},
+        {field_type:"INTEGER",mode:"NULLABLE",name:"week"},
+        {field_type:"STRING",mode:"NULLABLE",name:"source_kind"},
+        {field_type:"STRING",mode:"NULLABLE",name:"source_key"},
+        {field_type:"NUMERIC",mode:"NULLABLE",name:"realized_score"}
+      ]
+      and (.total_bytes_processed_estimate | type == "number" and . >= 0 and floor == .)
+      and .compiled == true
+      and .dry_run == true
+      and .fixed_job_id_claimed == false
+      and .query_executed == false
+      and .rows_read == 0
+      and .historical_outcome_lease_acquired == false
+      and .uses_realized_outcome_rows == false
+      and .lineup_scoring_performed == false
+      and .graph_mutation_licensed == false
+      and .production_change_licensed == false
+      and .decision_authority == false
+  ' "$payload" >/dev/null || die "query compile receipt content differs"
+  compiled_epoch="$(date -d "$(jq -r .compiled_at "$payload")" +%s)" || die "query compile timestamp differs"
+  snapshot_epoch="$(date -d "$(jq -r .source_snapshot_at "$payload")" +%s)" || die "query compile snapshot timestamp differs"
+  (( compiled_epoch - snapshot_epoch == 60 )) || die "query compile timestamp relation differs"
+  parameter_sha="$(jq -cS .parameter_contract "$payload" | tr -d '\n' | sha256sum | awk '{print $1}')"
+  [[ "$(jq -r .parameter_contract_sha256 "$payload")" == "$parameter_sha" ]] || die "query compile parameter hash differs"
+  claimed_self="$(jq -r .compile_receipt_sha256 "$payload")"
+  observed_self="$(jq -cS 'del(.compile_receipt_sha256)' "$payload" | tr -d '\n' | sha256sum | awk '{print $1}')"
+  [[ "$claimed_self" =~ ^[0-9a-f]{64}$ && "$claimed_self" == "$observed_self" ]] || die "query compile receipt self-hash differs"
+}
+
+compile_binding_json() {
+  local stage="$1" identity="$RUN_DIR/objects/query-compile-receipt.json" \
+    payload="$RUN_DIR/objects/query-compile-receipt.payload.json" payload_sha payload_bytes
+  if [[ "$stage" == "compile" ]]; then
+    jq -cnS '{stage_creates_receipt:true}'
+    return
+  fi
+  [[ -f "$identity" && ! -L "$identity" ]] || die "query compile receipt identity is absent"
+  jq -e --arg uri "$SUPPLY_PREFIX/query-compile-receipt.json" '
+    keys == ["bytes","generation","sha256","uri"]
+      and .uri == $uri
+      and (.generation | type == "string" and test("^[1-9][0-9]*$"))
+      and (.sha256 | type == "string" and test("^[0-9a-f]{64}$"))
+      and (.bytes | type == "number" and . > 0 and floor == .)
+  ' "$identity" >/dev/null || die "query compile receipt identity fields differ"
+  validate_compile_receipt "$payload"
+  payload_sha="$(sha256sum "$payload" | awk '{print $1}')"
+  payload_bytes="$(wc -c <"$payload" | tr -d ' ')"
+  [[ "$(jq -r .sha256 "$identity")" == "$payload_sha" ]] || die "query compile receipt object SHA differs"
+  [[ "$(jq -r .bytes "$identity")" == "$payload_bytes" ]] || die "query compile receipt object bytes differ"
+  jq -cnS --arg uri "$(jq -r .uri "$identity")" \
+    --arg generation "$(jq -r .generation "$identity")" \
+    --arg sha256 "$(jq -r .sha256 "$identity")" \
+    --argjson bytes "$(jq -r .bytes "$identity")" \
+    --arg self_hash "$(jq -r .compile_receipt_sha256 "$payload")" \
+    --arg sql_sha256 "$COMPILE_SQL_SHA256" \
+    '{uri:$uri,generation:$generation,sha256:$sha256,bytes:$bytes,
+      compile_receipt_sha256:$self_hash,sql_sha256:$sql_sha256}'
+}
+
+compile_stage() {
+  preflight
+  launch_stage compile R6_FULL_UNION_QUERY_COMPILE_ENABLED "${compile_args[@]}"
+  resolve_object "$SUPPLY_PREFIX/query-compile-receipt.json" \
+    "$RUN_DIR/objects/query-compile-receipt.json" \
+    "$RUN_DIR/objects/query-compile-receipt.payload.json"
+  validate_compile_receipt "$RUN_DIR/objects/query-compile-receipt.payload.json"
+}
+
+ensure_compile_closed() {
+  local stage_dir="$RUN_DIR/stages/compile" execution token
+  [[ -f "$stage_dir/launch-intent.json" && ! -L "$stage_dir/launch-intent.json" ]] || die "query compile launch intent is absent"
+  [[ -f "$stage_dir/execution-name.txt" && ! -L "$stage_dir/execution-name.txt" ]] || die "query compile execution name is absent"
+  execution="$(tr -d '\n' <"$stage_dir/execution-name.txt")"
+  token="$(stage_token compile R6_FULL_UNION_QUERY_COMPILE_ENABLED "${compile_args[@]}")"
+  [[ "$(jq -r .token "$stage_dir/launch-intent.json")" == "$token" ]] || die "query compile launch intent token differs"
+  wait_terminal "$execution" "$stage_dir/terminal-execution.json" "$token" \
+    R6_FULL_UNION_QUERY_COMPILE_ENABLED "${compile_args[@]}"
+  resolve_object "$SUPPLY_PREFIX/query-compile-receipt.json" \
+    "$RUN_DIR/objects/query-compile-receipt.json" \
+    "$RUN_DIR/objects/query-compile-receipt.payload.json"
+  validate_compile_receipt "$RUN_DIR/objects/query-compile-receipt.payload.json"
+}
+
 smoke() {
+  ensure_compile_closed
   preflight
   launch_stage smoke R6_FULL_UNION_ACTUAL_ROOT_SMOKE_ENABLED "${smoke_args[@]}"
   resolve_object "$SUPPLY_PREFIX/outcome-key-projection.json" "$RUN_DIR/objects/outcome-key-projection.json"
@@ -415,6 +545,7 @@ acquire_or_resolve_lease() {
 }
 
 supply_stage() {
+  ensure_compile_closed
   preflight
   ensure_smoke_closed
   acquire_or_resolve_lease
@@ -432,6 +563,7 @@ supply_stage() {
 }
 
 grade_stage() {
+  ensure_compile_closed
   preflight
   [[ -f "$RUN_DIR/stages/supply/terminal-execution.json" ]] || die "supply must close first"
   local args=(/opt/nfl-predictions/scripts/run_corpus_r6_full_union_realized_grade_v1.py --execute "--project=$PROJECT" "--run-id=$RUN_ID" "--code-sha=$CODE_SHA" "--image=$IMAGE") item
@@ -449,6 +581,7 @@ grade_stage() {
 }
 
 finish() {
+  ensure_compile_closed
   [[ -f "$RUN_DIR/stages/grade/terminal-execution.json" ]] || die "grade must close first"
   resolve_object "$GRADE_PREFIX/realized-grade-root.json" "$RUN_DIR/objects/persisted-grade-root.json"
   resolve_object "$GRADE_PREFIX/grade-completion.json" "$RUN_DIR/objects/grade-completion.json"
@@ -474,7 +607,7 @@ finish() {
 
 status() {
   local stage
-  for stage in smoke supply grade; do
+  for stage in compile smoke supply grade; do
     if [[ -f "$RUN_DIR/stages/$stage/terminal-receipt.json" ]]; then
       jq -cS . "$RUN_DIR/stages/$stage/terminal-receipt.json"
     else
@@ -495,10 +628,11 @@ status() {
 
 case "$COMMAND" in
   preflight) preflight ;;
+  compile) compile_stage ;;
   smoke) smoke ;;
   supply) supply_stage ;;
   grade) grade_stage ;;
   finish) finish ;;
   status) status ;;
-  run) smoke; supply_stage; grade_stage; finish ;;
+  run) compile_stage; smoke; supply_stage; grade_stage; finish ;;
 esac

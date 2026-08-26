@@ -157,7 +157,7 @@ def authoritative_score_sql() -> str:
     'skill' AS source_kind,
     CAST(a.gsis_id AS STRING) AS source_key,
     CAST(a.dk_points AS NUMERIC) AS realized_score
-  FROM `{SKILL_TABLE}` FOR SYSTEM_TIME AS OF @source_snapshot_at AS a
+  FROM `{SKILL_TABLE}` AS a FOR SYSTEM_TIME AS OF @source_snapshot_at
   WHERE a.season IN UNNEST(@target_seasons)
     AND FORMAT('%d|%02d|%s', a.season, a.week, CAST(a.gsis_id AS STRING))
       IN UNNEST(@skill_keys)
@@ -168,7 +168,7 @@ def authoritative_score_sql() -> str:
     'dst' AS source_kind,
     UPPER(CAST(d.team AS STRING)) AS source_key,
     CAST(d.dst_dk_points AS NUMERIC) AS realized_score
-  FROM `{DST_TABLE}` FOR SYSTEM_TIME AS OF @source_snapshot_at AS d
+  FROM `{DST_TABLE}` AS d FOR SYSTEM_TIME AS OF @source_snapshot_at
   WHERE d.season IN UNNEST(@target_seasons)
     AND FORMAT('%d|%02d|%s', d.season, d.week, UPPER(CAST(d.team AS STRING)))
       IN UNNEST(@dst_keys)

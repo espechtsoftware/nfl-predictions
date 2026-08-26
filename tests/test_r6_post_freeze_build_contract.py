@@ -15,6 +15,10 @@ BUILD_CONFIG = ROOT / "cloudbuild.r6-post-freeze.yaml"
 BUILD_IGNORE = ROOT / "deploy" / "r6_post_freeze_build.gcloudignore"
 
 MODULES = (
+    "lr8_label_fit_adapter",
+    "lr8_label_score_map",
+    "lr8_later_period_evaluation",
+    "corpus_realized_outcome_transport",
     "corpus_r6_full_union_panel_freeze_v1",
     "corpus_r6_full_union_panel_freeze_release_v1",
     "corpus_r6_full_union_outcome_snapshot_v1",
@@ -24,6 +28,7 @@ MODULES = (
     "corpus_r6_full_union_score_report_v1",
 )
 RUNNERS = (
+    "scripts/compile_corpus_r6_full_union_query_v1.py",
     "scripts/run_corpus_r6_full_union_panel_freeze_v1.py",
     "scripts/run_corpus_r6_full_union_outcome_snapshot_v1.py",
     "scripts/run_corpus_r6_full_union_outcome_supply_v1.py",
@@ -36,6 +41,11 @@ ORCHESTRATOR = "scripts/cloud_r6_full_union_score_chain_v1.sh"
 FREEZE_LAUNCHER = "scripts/run_r6_full_union_freeze_cloud_v1.sh"
 SHELL_SCRIPTS = (FREEZE_LAUNCHER, ORCHESTRATOR)
 FOCUSED_TESTS = (
+    "tests/test_compile_corpus_r6_full_union_query_v1.py",
+    "tests/test_lr8_label_fit_adapter.py",
+    "tests/test_lr8_label_score_map.py",
+    "tests/test_lr8_later_period_evaluation.py",
+    "tests/test_corpus_realized_outcome_transport.py",
     "tests/test_corpus_r6_full_union_panel_freeze_v1.py",
     "tests/test_corpus_r6_full_union_outcome_snapshot_v1.py",
     "tests/test_run_corpus_r6_full_union_outcome_snapshot_v1.py",

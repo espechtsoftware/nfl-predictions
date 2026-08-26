@@ -449,10 +449,21 @@ def test_live_lease_must_be_unchanged_across_the_query():
 
 
 def test_sql_contains_only_exact_key_player_dst_sources():
-    lowered = later.AUTHORITATIVE_SCORE_SQL.lower()
+    exact_sql = later.AUTHORITATIVE_SCORE_SQL
+    lowered = exact_sql.lower()
     assert "player_week_actuals" in lowered
     assert "team_defense_week" in lowered
     assert "@skill_keys" in lowered and "@dst_keys" in lowered
+    assert (
+        f"FROM `{later.SKILL_TABLE}` AS a "
+        "FOR SYSTEM_TIME AS OF @source_snapshot_at"
+    ) in exact_sql
+    assert (
+        f"FROM `{later.DST_TABLE}` AS d "
+        "FOR SYSTEM_TIME AS OF @source_snapshot_at"
+    ) in exact_sql
+    assert "FOR SYSTEM_TIME AS OF @source_snapshot_at AS a" not in exact_sql
+    assert "FOR SYSTEM_TIME AS OF @source_snapshot_at AS d" not in exact_sql
     assert "actual_score" not in lowered
     for forbidden in ("winner", "ownership", "payout", "contest"):
         assert forbidden not in lowered

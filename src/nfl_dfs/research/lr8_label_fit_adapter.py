@@ -61,7 +61,7 @@ SCORE_OUTPUT_ROOT: Final = (
     "gs://nfl-predictions-503414-raw/research/lr8-authoritative-label-score-map"
 )
 AUTHORITATIVE_SQL_SHA256: Final = (
-    "f25fd4c3d0b4dd5d9317ca0aed53fe7a4b1180289f6c98c0a9e100586791b7eb"
+    "85ba08f0ea06917ea1687b14cbabd25d0c85f6aa6eb57130fc310a9b00344364"
 )
 
 SCORE_ROW_FIELDS: Final = (

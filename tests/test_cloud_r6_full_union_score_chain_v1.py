@@ -11,6 +11,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "cloud_r6_full_union_score_chain_v1.sh"
 DOCKERFILE = ROOT / "Dockerfile.r6-post-freeze"
+COMPILE_CLI = ROOT / "scripts" / "compile_corpus_r6_full_union_query_v1.py"
 
 
 def _source() -> str:
@@ -87,6 +88,146 @@ def test_smoke_closes_and_exact_known_objects_resolve_before_lease() -> None:
     assert "R6_FULL_UNION_OUTCOME_SUPPLY_ENABLED" in source
     assert "actual-root-smoke-receipt.json\" actual-root-smoke" in source
     assert "--expected-lease-generation" in source
+
+
+def test_server_compile_receipt_is_required_before_smoke_supply_or_grade() -> None:
+    source = _source()
+    compile_stage = source[
+        source.index("compile_stage()") : source.index("ensure_compile_closed()")
+    ]
+    ensure_compile = source[
+        source.index("ensure_compile_closed()") : source.index("smoke()")
+    ]
+    smoke = source[source.index("smoke()") : source.index("ensure_smoke_closed()")]
+    supply = source[source.index("supply_stage()") : source.index("grade_stage()")]
+    grade = source[source.index("grade_stage()") : source.index("finish()")]
+    finish = source[source.index("finish()") : source.index("status()")]
+
+    assert "R6_FULL_UNION_QUERY_COMPILE_ENABLED" in compile_stage
+    assert "query-compile-receipt.json" in compile_stage
+    assert "validate_compile_receipt" in compile_stage
+    assert "wait_terminal" in ensure_compile
+    assert "validate_compile_receipt" in ensure_compile
+    assert smoke.index("ensure_compile_closed") < smoke.index("preflight")
+    assert supply.index("ensure_compile_closed") < supply.index("preflight")
+    assert supply.index("ensure_compile_closed") < supply.index(
+        "acquire_or_resolve_lease"
+    )
+    assert grade.index("ensure_compile_closed") < grade.index("preflight")
+    assert "ensure_compile_closed" in finish
+    assert 'run) compile_stage; smoke; supply_stage; grade_stage; finish ;;' in source
+
+
+def test_compile_identity_is_bound_into_every_post_compile_stage_token() -> None:
+    source = _source()
+    token = source[source.index("stage_token()") : source.index("stage_env_json()")]
+    launch = source[source.index("launch_stage()") : source.index("validate_compile_receipt()")]
+    binding = source[
+        source.index("compile_binding_json()") : source.index("compile_stage()")
+    ]
+
+    assert 'compile_binding="$(compile_binding_json "$stage")"' in token
+    assert '"$SERVICE_ACCOUNT" "$compile_binding"' in token
+    assert "query_compile_receipt:$compile_binding" in launch
+    for field in (
+        "uri:$uri",
+        "generation:$generation",
+        "sha256:$sha256",
+        "bytes:$bytes",
+        "compile_receipt_sha256:$self_hash",
+        "sql_sha256:$sql_sha256",
+    ):
+        assert field in binding
+
+
+def test_compile_stage_argv_matches_packaged_cli_and_receipt_contract() -> None:
+    source = _source()
+    cli_source = COMPILE_CLI.read_text(encoding="utf-8")
+    compile_args = source[source.index("compile_args=(") : source.index(
+        "\n\npreflight()", source.index("compile_args=(")
+    )]
+    validator = source[
+        source.index("validate_compile_receipt()") : source.index(
+            "compile_stage()"
+        )
+    ]
+    for option in (
+        "--execute",
+        "--project",
+        "--location",
+        "--code-sha",
+        "--image",
+        "--receipt",
+        "--receipt-uri",
+    ):
+        assert option in compile_args
+        if option != "--execute":
+            assert f'add_argument("{option}"' in cli_source
+    for field in (
+        "runtime_git_head",
+        "runtime_git_worktree_clean",
+        "query_module_sha256",
+        "compile_script_sha256",
+        "compile_receipt_sha256",
+    ):
+        assert field in validator
+    assert "compiled_epoch - snapshot_epoch == 60" in validator
+    assert 'payload_sha="$(sha256sum "$payload"' in validator
+    assert 'payload_bytes="$(wc -c <"$payload"' in validator
+    assert '$SUPPLY_PREFIX/query-compile-receipt.json' in validator
+
+
+def test_missing_compile_evidence_fails_before_any_gcloud_call(
+    tmp_path: Path,
+) -> None:
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    marker = tmp_path / "gcloud-called"
+    fake_gcloud = fake_bin / "gcloud"
+    fake_gcloud.write_text(
+        "#!/usr/bin/env bash\nprintf called >\"$FAKE_GCLOUD_MARKER\"\nexit 99\n",
+        encoding="utf-8",
+    )
+    fake_gcloud.chmod(0o755)
+    env = {
+        **os.environ,
+        "PATH": f"{fake_bin}:{os.environ['PATH']}",
+        "FAKE_GCLOUD_MARKER": str(marker),
+        "R6_SCORE_RUN_ID": "offline-r6-score-run",
+        "R6_SCORE_JOB": "atlas-minimal-c-s2023-w1-v1",
+        "R6_SCORE_SERVICE_ACCOUNT": (
+            "817589974517-compute@developer.gserviceaccount.com"
+        ),
+        "R6_SCORE_CODE_SHA": "a" * 40,
+        "R6_SCORE_IMAGE": (
+            "us-central1-docker.pkg.dev/nfl-predictions-503414/"
+            "nfl-dfs/nfl-dfs@sha256:" + "b" * 64
+        ),
+        "R6_SCORE_RUN_DIR": str(tmp_path / "run"),
+        "R6_PANEL_FREEZE_URI": (
+            "gs://nfl-predictions-503414-corpus-retrieval/research/"
+            "corpus-r6-full-union-freezes/"
+            "20260826-foundry-v12-r6-full-union-freeze-v1/panel-freeze.json"
+        ),
+        "R6_PANEL_FREEZE_GENERATION": "1787759999999999",
+        "R6_PANEL_FREEZE_SHA256": "c" * 64,
+        "R6_PANEL_FREEZE_BYTES": "10",
+        "R6_SNAPSHOT_MODULE_SHA256": "d" * 64,
+        "R6_SNAPSHOT_CLI_SHA256": "e" * 64,
+        "R6_SNAPSHOT_TEST_SHA256": "f" * 64,
+        "R6_SNAPSHOT_CLI_TEST_SHA256": "0" * 64,
+    }
+    result = subprocess.run(
+        ["bash", str(SCRIPT), "smoke"],
+        cwd=ROOT,
+        env=env,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0
+    assert "query compile launch intent is absent" in result.stderr
+    assert not marker.exists()
 
 
 def test_ambiguous_launch_is_claimed_and_never_blindly_reinvoked() -> None:
@@ -235,7 +376,7 @@ def test_terminal_execution_name_accepts_only_short_or_qualified_exact_match(
 
 def test_one_supply_then_grade_then_strict_generation_matched_release() -> None:
     source = _source()
-    run_line = "run) smoke; supply_stage; grade_stage; finish ;;"
+    run_line = "run) compile_stage; smoke; supply_stage; grade_stage; finish ;;"
     assert run_line in source
     supply = source.index("supply_stage()")
     grade = source.index("grade_stage()")
