@@ -20,6 +20,30 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 02:36 UTC (ninety-sixth update)
+
+### Ordinal 6 reached measured runtime but produced no science result
+
+- Exact-name checks show that attempt 0 also published its worker-runtime
+  measurement at `slates/06/runtime/attempt-00/` before the platform failure:
+  generation `1787710039301316`, 13,520 bytes, full-object SHA-256
+  `80beaefc343166a3f06f9e1221f4f2126a76758114dc7c50a97838eb71623c0c`,
+  and self-hash
+  `163d5073ccc516ddc91612de9c5fd1f7d93b77a6dd6d4cfd3d126e3e7787622a`.
+  It reports role `worker`, runtime attempt 0,
+  `release_runtime_verified=true`, `uses_realized_outcomes=false`, and the
+  frozen D2 digest.
+- The exact expected science-result URI
+  `slates/06-2023-w07/foundry-t230-slate-analysis-v1.json` remains absent with
+  an unambiguous 404. Thus the failure occurred after immutable stage-start
+  and runtime evidence but before any result or terminal stage receipt. The
+  replacement contract must retain both attempt-0 receipts and use the
+  distinct attempt-1 runtime namespace; deleting or rewriting either is
+  forbidden.
+- Exact next action remains one reviewed attempt-1 core execution, one bridge
+  verifier, and an amended Lane-A/panel receipt that discloses the platform
+  exception. Lane B continues independently at worker 34.
+
 ## Current handoff — 2026-08-26 02:31 UTC (ninety-fifth update)
 
 ### Independent Lane B reaches acceptance 33 and advances to worker 34
