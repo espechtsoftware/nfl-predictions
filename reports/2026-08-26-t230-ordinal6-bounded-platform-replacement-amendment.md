@@ -34,6 +34,11 @@ The only recoverable path is one explicitly separate attempt-1 computation,
 followed by a bridge verifier and supplemental lane/panel receipts that retain
 the exception.
 
+No recovery operation may delete, overwrite, replace, or mutate any original
+launch, stage-start, runtime, result, stage, acceptance, lane, or panel object.
+All recovery and bridge publications are create-once at their exact declared
+URIs; an unequal collision is terminal.
+
 ## Frozen primary evidence
 
 The replacement is eligible only if exact replay proves all of the following.

@@ -20,6 +20,28 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 03:15 UTC (one-hundred-first update)
+
+### Exact platform message and no-mutation law are clarified before implementation seal
+
+- The authoritative task JSON reports
+  `lastAttemptResult.status={code:13,message:"Internal error."}` with the final
+  period. The task `Completed` condition also says exactly `Internal error.`;
+  the execution `Completed` message is exactly
+  `Task atlas-minimal-c-s2023-w1-v1-rffts-task0 failed with exit code: 0 and message: Internal error.`
+  Update 93's prose omitted the task-message punctuation and is superseded by
+  this exact literal. The operator must not accept a punctuation, case, or
+  whitespace variant.
+- The amendment now states explicitly that recovery may not delete, overwrite,
+  replace, or mutate any original launch, stage-start, runtime, result, stage,
+  acceptance, lane, or panel object; all new objects are exact-URI create-once
+  and an unequal collision is terminal. Its current/final pre-seal SHA-256 is
+  `72d4f85eeada11ab4148a82085837a6b4e6909d402b8084b232cebb618f3b7bd`,
+  10,286 bytes. This supersedes all earlier pre-launch amendment hashes.
+- No replacement intent, recovery execution, outcome read, or score has
+  occurred. Exact next action remains correction/reseal, final static review,
+  one focused test, then creation and review of the fixed implementation lock.
+
 ## Current handoff — 2026-08-26 03:10 UTC (one-hundredth update)
 
 ### Replacement law now requires an authoritative post-test review lock
