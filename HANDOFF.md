@@ -20,6 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 07:41 UTC (one-hundred-twenty-fourth update)
+
+### Sole R6 v2 task-0 smoke exposes one tracked publication-schema defect
+
+- Independent review reported P0/P1/P2 all zero and licensed exactly one v2
+  task-0 read smoke from clean detached commit `73946e19`. The invocation
+  reserved its create-once attempt marker, constructed the GCS client, then
+  exited 1 while validating the immutable publication receipt read from Git;
+  it failed before the first generation-pinned panel/lane/task/carrier body
+  read. No cloud mutation, publication, compute submission, outcome, lineup,
+  world-matrix, result or effect read occurred. No success receipt exists and
+  a third smoke is prohibited.
+- The exact defect is a synthetic-fixture literal: the receipt and all other
+  production consumers use `foundry-v12-panel-index-publication/v1`, while
+  the R6 adapter alone expected `foundry-v12-panel-publication-receipt/v1`.
+  Repository-wide sweep found only the adapter and its test fixture wrong.
+- The v2 marker is tracked at commit `68c08555` with outer SHA-256
+  `36e28956944cf3d9ed68152d773f381838c3385965d0bb47bfca0f068deaa6c5`,
+  3,904 bytes, internal self-hash
+  `8a2d364c711c047a6704c9e441cea7b9275671bad224428575c62b1ccbfa1115`.
+  Full evidence and the bounded no-v3 recovery boundary are tracked in
+  `reports/2026-08-26-r6-fixed-g0-v2-smoke-publication-schema-failure.md`.
+- Exact next action: freeze/review the one-literal adapter+fixture correction
+  and exact immutable-receipt regression; bind both failed markers plus the
+  prior successful outcome-blind `2023-w01` one-slate artifact smoke into a
+  truthful final-release amendment; then proceed directly to the designed
+  54-slate generation-pinned projection materialization. Historical scoring
+  has not started and remains downstream of the R6-v2 source/book freeze.
+
 ## Current handoff — 2026-08-26 07:35 UTC (one-hundred-twenty-third update)
 
 ### Bounded R6 task-0 smoke-recovery lock is built and tracked
