@@ -20,6 +20,28 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 12:41 UTC (one-hundred-fortieth update)
+
+### First full-freeze wave begins publishing accepted leaves
+
+- At approximately 12:40 UTC, exact artifact status validated **4/54 accepted
+  slate leaves**: source ordinals `[0, 28, 29, 30]`. The immutable census is
+  now 192 rank-80 books and 576 prefixes, with no result-only object, 50
+  missing ordinals, and `root_ready=false`.
+- Exact live execution counters at that checkpoint were lane A
+  `atlas-minimal-c-s2023-w1-v1-4fr2l`: 1 succeeded (the recovered canary
+  ordinal), 4 running, 0 failed; lane B
+  `atlas-cbc-32g-full-2023-w8-v1-wxgv9`: 3 succeeded, 1 running, 0 failed.
+  Thus the three newly accepted leaves are real lane-B progress, not duplicate
+  counting of the canary.
+- The exact status payload is tracked as
+  `status-20260826T1240Z.json` in the full-union freeze run directory. Both
+  executions remain active and require no repair or resubmission.
+- Current-system historical scoring has **not** begun. Exact next action:
+  continue bounded monitoring; only when all 54 leaves validate and both lanes
+  are terminal may `finish` publish the root. In parallel, complete synthetic
+  review/tests for the new root-bound outcome snapshot and score-once grader.
+
 ## Current handoff — 2026-08-26 12:32 UTC (one-hundred-thirty-ninth update)
 
 ### Both bounded 54-slate structural-freeze lanes are submitted
