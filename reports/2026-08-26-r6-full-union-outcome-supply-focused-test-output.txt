@@ -1,0 +1,25 @@
+UTC: 2026-08-26T13:32:30Z
+
+Command:
+.venv/bin/pytest -q tests/test_corpus_r6_full_union_outcome_supply_v1.py tests/test_run_corpus_r6_full_union_outcome_supply_v1.py
+
+Output:
+.....................                                                    [100%]
+
+Exit status: 0
+
+Collection confirmation:
+.venv/bin/pytest --collect-only -q tests/test_corpus_r6_full_union_outcome_supply_v1.py tests/test_run_corpus_r6_full_union_outcome_supply_v1.py
+
+tests/test_corpus_r6_full_union_outcome_supply_v1.py: 13
+tests/test_run_corpus_r6_full_union_outcome_supply_v1.py: 8
+
+Total: 21 focused tests passed. These tests use synthetic/in-memory fixtures;
+they did not access cloud resources, realized outcomes, BigQuery, GCS, Neo4j,
+or the historical-outcome lease.
+
+Validated file SHA-256 values:
+9a50fee4f23f97fe9686438eff9187a4bea37ddd311424e5e446dd475760699d  src/nfl_dfs/research/corpus_r6_full_union_outcome_supply_v1.py
+6f1d6d67b7301f8dc0eb1165b51d868befdb673e34eff8d8c5274b6bffb00bae  scripts/run_corpus_r6_full_union_outcome_supply_v1.py
+7f62a79476544f9c5a7708a2d52f1760112b499550afef6685bc02048a5fc6dc  tests/test_corpus_r6_full_union_outcome_supply_v1.py
+224673a9fe39d9d3f320d839bc376a7ac265b97d28adb2220e5def6029d2773b  tests/test_run_corpus_r6_full_union_outcome_supply_v1.py

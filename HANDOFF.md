@@ -20,6 +20,60 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 13:35 UTC (one-hundred-forty-fourth update)
+
+### Smoke-gated one-query outcome supply is reviewed and focused-green
+
+- On branch `main` after parent commit `6c028f1d`, added the default-off R6
+  full-union outcome-supply library and cloud runner. The outcome-blind
+  `smoke` operation exact-replays the future 54/54 root, publishes the
+  root-bound outcome-key projection and actual-root smoke receipt, and does
+  not construct BigQuery or historical-lease boundaries. The `supply`
+  operation requires and exact-replays that persisted smoke first, then
+  records a durable attempt and creates or recovers exactly one deterministic,
+  no-cache registered query whose fixed ID contains the complete run ID and
+  outer-root SHA.
+- Query evidence separately binds the fixed job receipt/disposition, exact
+  ordered integer-micro rows, stable before/after table receipts, and stable
+  before/after historical-lease generation. The chain then create-once
+  publishes and exact-recovers pure realized source, reusable outcome
+  snapshot, and completion objects. Recovery after ambiguous query creation
+  can resolve only the same fixed job and never submits a second query.
+- Independent static review of exact hashes is final at **P0=0/P1=0**. The
+  two focused offline modules passed **21/21** in 2.3 seconds, including
+  missing/wrong smoke, reordered rows, inexact scores, table drift, and lease
+  drift before and during the query. Evidence is tracked in
+  `reports/2026-08-26-r6-full-union-outcome-supply-focused-test-output.txt`.
+  Exact SHA-256 values are supply module
+  `9a50fee4f23f97fe9686438eff9187a4bea37ddd311424e5e446dd475760699d`,
+  runner
+  `6f1d6d67b7301f8dc0eb1165b51d868befdb673e34eff8d8c5274b6bffb00bae`,
+  supply test
+  `7f62a79476544f9c5a7708a2d52f1760112b499550afef6685bc02048a5fc6dc`,
+  and runner test
+  `224673a9fe39d9d3f320d839bc376a7ac265b97d28adb2220e5def6029d2773b`.
+  No test or review accessed cloud resources, outcomes, BigQuery, GCS,
+  Neo4j, or the historical-outcome lease.
+- Live immutable-freeze status at approximately 13:35 UTC is **25/54
+  accepted**, 1,200 books and 3,600 prefixes. Exact executions remain lane A
+  `atlas-minimal-c-s2023-w1-v1-4fr2l` at 13 succeeded/3 running and lane B
+  `atlas-cbc-32g-full-2023-w8-v1-wxgv9` at 12 succeeded/3 running, with no
+  reported failure. Source ordinal 42 is temporarily result-only and is not
+  counted as accepted; `root_ready=false`.
+- Current-system historical scoring has **not** begun. Remaining risks are the
+  incomplete 54-slate structural root, the intentionally unexecuted
+  actual-root smoke, and three operational launch gaps found by repo-only
+  audit: no CLI invokes the new grade/publish API; no R6-specific strict
+  completion verifier can authorize safe historical-lease release; and no
+  post-freeze launcher captures the exact smoke/supply/grade executions and
+  GCS identities. `finish` also needs an explicit operator-side check that
+  both named lane executions are terminal. Exact next action: commit/push
+  these reviewed supply bytes, close those launch gaps while monitoring both
+  exact lanes, then publish the root only after 54/54 and both executions are
+  terminal. Build one immutable post-freeze image, run the actual-root smoke,
+  and only after its exact receipt passes acquire the lease and open the
+  single outcome snapshot.
+
 ## Current handoff — 2026-08-26 13:24 UTC (one-hundred-forty-third update)
 
 ### Root-last full-union score-once grader is reviewed and focused-green
