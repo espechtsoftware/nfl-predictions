@@ -46,6 +46,39 @@ agent or developer:
 
 ## Neo4j/React observatory workstream — 2026-08-25 (delegated lane; branch-local entry, lead reconciles at integration)
 
+- **Phase 5 corrective commit (2026-08-26)** answering the lead's REJECT-
+  pending-repair review of `283bd3de` (P0=0); evidence in the regenerated
+  `reports/2026-08-26-observatory-phase5-capacity-estimator.md`. All nine
+  P1s landed in `src/nfl_dfs/research/corpus_graph_capacity.py`: the
+  standalone T230 input is replaced by `r6_full_union_panel_freeze_identity`
+  (accepted `corpus-r6-full-union-freezes/<freeze>/panel-freeze.json`
+  object identity) plus `r6_full_union_panel_self_sha256`; winner/outcome
+  kinds and relationships are derived as CLOSED from the contracts'
+  namespace schemas and contribute nothing (their counts are rejected);
+  `ADMITTED_BY`/`SELECTED_BY`/`MEMBER_OF_BOOK`/`CONTAINS_PLAYER` follow
+  Phase 4 endpoint cardinalities (bundles / bundles+books / memberships /
+  9×lineups) with a parity test over the adapter's own projected rows;
+  `LINEAGE_COMBINED` is gone — every open registered relationship type is
+  derived or an exact count (`exact ∪ derived == RELATIONSHIP_TYPES −
+  closed` tested); SlateSnapshot/WorldRelease/CorpusSnapshot/
+  CandidateSnapshot/ScienceRelease/VerifierRelease/DeploymentAttestation
+  counts added (`counted == NODE_KINDS − closed` tested); the lead
+  confirmation must equal `sha256(canonical {subject, inputs_sha256})`
+  via `lead_confirmation_for()` (unbound/transferred/fixture-carried
+  confirmations rejected); literal law digest
+  `5d20920d5c5e4a779230a966f29322c46e21a05a5c442422f0f9ad3884dc5fdc` is
+  pinned with an import-time drift check; `property_schema_version()`
+  hashes complete PropertyRule content and both namespace schemas
+  (size-only change tested); selected-lineup coherence completed
+  (selected ≤ full pairs, occurrences/arm supplies ≥ selected uniques,
+  books/memberships jointly zero-or-positive, memberships ≥ books, books
+  imply lineups and a bundle, GENERATED_BY ≥ books). Serial validation:
+  capacity 40/40, graph contracts 40/40, Phase 4 fixture adapter 33/33,
+  `git diff --check` clean. Still no mode decision (fixture receipts stay
+  `pending-lead-inputs`; lead receipts yield only an approval-requiring
+  recommendation); no merge/rebase/mount/cutover/cloud/Neo4j/infra/deploy;
+  active R6/T230/Core paths untouched. STOPPED for lead re-review.
+
 - **Phase 5 capacity estimator committed (2026-08-26)** on parent
   `3f656dfd` (accepted Phase 4), evidence in
   `reports/2026-08-26-observatory-phase5-capacity-estimator.md`:
