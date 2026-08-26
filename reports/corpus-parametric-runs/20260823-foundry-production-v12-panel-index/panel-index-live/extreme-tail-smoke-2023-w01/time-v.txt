@@ -1,0 +1,23 @@
+	Command being timed: "/home/erich/projects/nfl-predictions/.venv/bin/python /home/erich/projects/nfl-predictions/scripts/run_corpus_extreme_tail_one_slate_smoke_v1.py --panel-publication-receipt /home/erich/projects/nfl-predictions/reports/corpus-parametric-runs/20260823-foundry-production-v12-panel-index/panel-index-live/published.json --slate-id 2023-w01 --result-output /home/erich/projects/nfl-predictions/reports/corpus-parametric-runs/20260823-foundry-production-v12-panel-index/panel-index-live/extreme-tail-smoke-2023-w01/result.json"
+	User time (seconds): 48.26
+	System time (seconds): 1.50
+	Percent of CPU this job got: 65%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:15.48
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 2306396
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 186634
+	Voluntary context switches: 13720
+	Involuntary context switches: 182
+	Swaps: 0
+	File system inputs: 56
+	File system outputs: 1536
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
