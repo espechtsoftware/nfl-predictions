@@ -20,6 +20,51 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 01:44 UTC (ninety-second update)
+
+### T230 reaches ten acceptances; shortest corrected R6 capture path is audited
+
+- Lane B ordinal 32 is independently accepted at generation
+  `1787708560767175`, SHA-256
+  `86b76a1032ebd09cff1522aceb90ea1a7eac7e1d24027e60623a6f6460f809b0`,
+  5,351 bytes. Its verifier-stage receipt is generation
+  `1787708561363143`, SHA-256
+  `b46fc0915f36cd8f8971981be1470043acbfc3604d7fdbb061b36b4582520a3f`.
+  Exact generation-pinned reopen reports `uses_realized_outcomes=false` and
+  every downstream authority false. The panel now has ten durable independent
+  acceptances: 0 through 4 and 28 through 32.
+- Lane A worker 5 completed and published result generation
+  `1787708555359496`, SHA-256
+  `5db1f2af8c8d4168313d1bfe7b8ec2484c7213ba9585a7329db1df8bff829725`,
+  15,090,019 bytes; verifier 5 is
+  `atlas-minimal-c-s2023-w1-v1-w5vt7`. Lane B advanced to worker 33,
+  `atlas-cbc-32g-full-2023-w8-v1-2ffsv`. Session `77315` remains active with
+  no failure, retry, duplicate launch, outcome read, score, or promotion.
+- The read-only R6 capture audit is preserved in
+  `reports/2026-08-26-r6-matchup-capture-plan-audit.md`. It concludes that no
+  player-catalog, world-matrix, Fantasy Points export, SIS download, or
+  per-slate warehouse regeneration is required. The shortest path is roughly
+  five immutable warehouse source packs plus two projections of already
+  acquired FP/SIS data, deterministically sliced into 54 producer receipts and
+  pinned by one reviewed capture-plan lock.
+- The audit corrects two material assumptions. First, 2025 point-in-time QB
+  depth exists in `nfl_raw.depth_charts_snapshots`; the missing object is an
+  immutable exact extract/receipt, not new acquisition. Second, source v1
+  requires pre-lock event timestamps that the accepted historical catalog and
+  schedule sources cannot prove. Source v2 must use honest
+  `historical-source-period-only` provenance with nullable event times rather
+  than manufacture timestamps, and must bind exact source-pack objects instead
+  of caller-shaped BigQuery causality.
+- Before capture-plan freeze, one outcome-blind all-54 support census must
+  prove the literal QB-depth, at-least-two-supported-player, 50% completeness,
+  and at-least-80-qualifying-candidate gates using existing accepted v12
+  artifacts. No matrix regeneration or realized scoring is licensed.
+- Exact next action: commit/push this capture audit and handoff; keep polling
+  verifier 5 and worker 33. In parallel, finish independent review of the
+  fixed-G0 catalog adapter and build the offline source-v2 schemas/semantic
+  registry. Do not enable execute or open outcomes before the fixed plan and
+  source releases are frozen.
+
 ## Current handoff — 2026-08-26 01:28 UTC (ninety-first update)
 
 ### T230 reaches nine acceptances; R6 structural catalog contract is accepted offline
