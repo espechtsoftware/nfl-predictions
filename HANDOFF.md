@@ -64,9 +64,18 @@ agent or developer:
   `81ed1388c56d0062bccb29de72046d9c949922961fe661ab5454aeb395ac08f0`,
   6,588 bytes, internal SHA-256
   `7169a920402edf90939b874db836120d0f58c45d5ce94629d09ee4b0c72d806b`.
-- Exact next action: commit and push only the reviewed recovery files and
-  review lock; from the resulting clean commit build/publish the final lock,
-  then run the single licensed 54-slate structural catalog projection.
+- From pushed review-lock commit `335cee23`, the deterministic clean
+  builder created the final projection-only release lock at
+  `reports/2026-08-26-r6-player-catalog-fixed-g0-final-release-lock.json`.
+  Outer SHA-256 is
+  `6f9f0fc3d5672604013d62f82db1f9d4b0078514eeeb0f327be2d0ddbc3e3908`,
+  6,560 bytes; internal SHA-256 is
+  `de08f1b51d8a71df2fc0acd399f84b869f38367e8641d0d387aceadf434cf744`.
+  It licenses one projection-only publication that must derive all 54 inputs
+  before the first write; it grants no scoring, R6-source, retrieval, fill,
+  graph, decision, or production authority.
+- Exact next action: commit and push the final lock, then run the single
+  licensed 54-slate structural catalog projection from that clean commit.
   Matchup-source and candidate-authority corrections continue in parallel.
   Historical outcomes remain closed and current-system scoring has not begun.
 
