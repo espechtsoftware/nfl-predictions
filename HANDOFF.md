@@ -20,6 +20,30 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 12:15 UTC (one-hundred-thirty-sixth update)
+
+### R6 full-union freeze build passes; immutable launch image is ready
+
+- Exact-source Cloud Build `d2d2da93-3e83-4fc7-8811-a542faa08c66`
+  completed `SUCCESS` at `2026-08-26T12:13:33.140118Z`. Its detached
+  checkout was exact commit
+  `9a63292fc7df6229290bdf8c00c73b8564cacfc9`, and the complete focused
+  freeze module passed **14/14 in 371.83 seconds**.
+- The dedicated image was built, smoke-checked and pushed. Its immutable
+  digest is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:0a18d76de4e264b739c3d4274521755595e148db829128e029e7a49b350e66b3`.
+  Terminal build metadata and the exact test summary are tracked under
+  `reports/r6-full-union-freeze-runs/20260826-foundry-v12-r6-full-union-freeze-v1/`.
+- An isolated sparse checkout now exists at
+  `/home/erich/projects/nfl-predictions-r6-freeze-9a63292f`. It is clean and
+  detached at the exact reviewed source commit. It materializes only `src`,
+  `scripts`, and cone-mode root files on the main disk; `/tmp` is not used.
+- Current-system historical scoring still has **not** begun. Exact next
+  action: from that clean checkout, set the immutable digest and external run
+  directory, execute launcher stage `prepare`, then stage `canary`. Require the
+  one task-0 result to validate 48 books and 144 prefixes before submitting the
+  28+26 full structural-freeze lanes.
+
 ## Current handoff — 2026-08-26 12:03 UTC (one-hundred-thirty-fifth update)
 
 ### Exact-commit R6 full-union freeze build is queued

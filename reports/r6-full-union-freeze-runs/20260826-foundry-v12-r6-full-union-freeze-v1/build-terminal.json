@@ -1,0 +1,11 @@
+{
+  "build_id": "d2d2da93-3e83-4fc7-8811-a542faa08c66",
+  "finish_time": "2026-08-26T12:13:33.140118Z",
+  "image_digest": "sha256:0a18d76de4e264b739c3d4274521755595e148db829128e029e7a49b350e66b3",
+  "image_tag": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:r6-full-union-freeze-9a63292fc7df6229290bdf8c00c73b8564cacfc9-d2d2da93-3e83-4fc7-8811-a542faa08c66",
+  "project_id": "nfl-predictions-503414",
+  "region": "us-central1",
+  "source_commit": "9a63292fc7df6229290bdf8c00c73b8564cacfc9",
+  "start_time": "2026-08-26T12:02:39.663225587Z",
+  "status": "SUCCESS"
+}
