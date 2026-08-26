@@ -20,6 +20,29 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 02:45 UTC (ninety-seventh update)
+
+### Ordinal-6 bounded replacement law is frozen before any replacement launch
+
+- The pre-launch mechanical amendment is tracked at
+  `reports/2026-08-26-t230-ordinal6-bounded-platform-replacement-amendment.md`,
+  SHA-256
+  `00a63b2c81c0e2de65822cf0f240b60c8ecf46d1818ceaab9f135bc1055f6d1f`.
+  It binds the exact primary failure, consumed request, attempt-0 stage start
+  and runtime measurement, absent result/stage, D2, predecessor, envelope,
+  one attempt-1 worker maximum, one distinct verifier bridge, and mandatory
+  amended Lane-A/panel roots. It explicitly forbids object deletion,
+  attempt-0 replay, a second replacement, result-based launch selection, and
+  all outcome/scoring/downstream authorities.
+- This document was frozen before any replacement intent or execution. The
+  operator implementation and focused tests are still offline and under
+  construction; no recovery execution is yet licensed. Lane B remains live at
+  ordinal-34 worker execution `atlas-cbc-32g-full-2023-w8-v1-fmqvx`.
+- Exact next action: commit/push the amendment and this handoff, finish static
+  implementation, obtain independent review, and run the focused offline test
+  suite once. Only a clean reviewed disposition can authorize publication of
+  the create-once replacement intent.
+
 ## Current handoff — 2026-08-26 02:36 UTC (ninety-sixth update)
 
 ### Ordinal 6 reached measured runtime but produced no science result
