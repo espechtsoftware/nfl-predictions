@@ -1,64 +1,66 @@
-# Observatory workstream — Phase 5 capacity estimator and receipt contract (corrected)
+# Observatory workstream — Phase 5 capacity estimator and receipt contract (second correction)
 
 **Workstream:** Neo4j/React observatory (delegated lane)
 **Date:** 2026-08-26
 **Branch:** `feature/neo4j-react-observatory` (parent `3f656dfd`, accepted Phase 4)
-**Supersedes:** the rejected first Phase 5 commit `283bd3de`; this report
-describes the corrective commit that answers every P1 in the lead's review.
+**Supersedes:** rejected `283bd3de` and rejected-on-re-review `66e4575a`.
 **Scope executed:** Phase 5 corrective implementation ONLY — no mode
 decision, no merge/rebase, no router mount, no React cutover, no
 cloud/outcome access, no Neo4j connection/provisioning, no infrastructure
 or deployment change, no active R6/T230/Core path touched.
 
-## Corrections landed (mapped to the review)
+## Second-correction P1s (this commit)
 
-1. **R6 full-union identity replaces the standalone T230 input.** The
-   required identity is now `r6_full_union_panel_freeze_identity` — the
-   accepted `corpus-r6-full-union-freezes/<freeze>/panel-freeze.json`
-   object identity (outcome-blind, `complete=true`, 54 / 2,592 / 7,776
-   census) — plus the hash input `r6_full_union_panel_self_sha256` binding
-   the panel self-hash recorded inside that root. `t230_panel_release_identity`
-   is rejected as an unregistered identity.
-2. **Winner/outcome vocabulary stays out of the closed v1 realized
-   namespace.** Closed kinds and relationship types are DERIVED from the
-   contracts module (`ALLOWED − OFFLINE_ALLOWED` namespaces):
-   `OutcomeGrade, OutcomeRelease, WinnerObservation, WinnerRelease` and
-   `DERIVED_FROM_OUTCOME, GRADED_IN_CONTEST, OBSERVED_IN_WINNER_RELEASE`. They contribute no
-   elements, carry no count inputs (`winner_*` counts are rejected as
-   unregistered), and are listed in the receipt's `closed_vocabulary`.
-3. **Phase 4 endpoint cardinalities.** `ADMITTED_BY` = one per
-   StrategyBundle; `SELECTED_BY` = one per StrategyBundle + one per
-   SelectedBook; `MEMBER_OF_BOOK` = one per book membership;
-   `CONTAINS_PLAYER` = nine per loaded lineup. A parity test censuses the
-   Phase 4 fixture adapter's own projected rows and asserts these laws hold
-   there before asserting the estimator applies them.
-4. **`LINEAGE_COMBINED` removed.** Every open registered relationship type
-   is either derived (the four above) or an exact supplied count; a test
-   proves `exact ∪ derived == RELATIONSHIP_TYPES − closed` and that no
-   unregistered type can appear.
-5. **Omitted node kinds added:** SlateSnapshot, WorldRelease,
-   CorpusSnapshot, CandidateSnapshot, ScienceRelease, VerifierRelease,
-   DeploymentAttestation. A test proves the counted kinds equal
-   `NODE_KINDS − closed` (29 kinds).
-6. **Lead confirmation binds its canonical subject.**
-   `lead_confirmation_sha256 == sha256(canonical {"subject":
-   "foundry-graph-capacity-inputs/v1#lead-confirmation", "inputs_sha256": <digest of the
-   packet body>})`; any other well-formed hash, or a confirmation over
-   different counts, is rejected. Fixture-authority packets may not carry
-   one.
-7. **Literal law digest frozen:** `ESTIMATION_LAW_SHA256 =
-   5d20920d5c5e4a779230a966f29322c46e21a05a5c442422f0f9ad3884dc5fdc`; the module refuses to import if the law's
-   content drifts from it.
-8. **Complete PropertyRule content hashed.** `property_schema_version()`
-   now hashes value type, max string bytes, max list items, allowed
-   strings, and both namespace schemas — a size-only rule change changes
-   the version (tested). Current value:
-   `corpus-graph-vnext/v1+properties-547567d158f06448`.
-9. **Selected-lineup coherence completed:** selected ≤ full for every
-   selected/full pair; selected occurrences and arm supplies ≥ selected
-   unique lineups; books and book memberships jointly zero or positive;
-   memberships ≥ books ≥ 0; books imply selected lineups and a bundle;
-   `GENERATED_BY` ≥ books; full arm supply ≥ unique lineups.
+1. **Runtime-immutable, live-verified law.** `ESTIMATION_LAW` is a
+   `MappingProxyType` (item assignment raises `TypeError`), and the frozen
+   literal digest `5d20920d5c5e4a779230a966f29322c46e21a05a5c442422f0f9ad3884dc5fdc` is re-derived from the LIVE
+   law object at import and at every build/validate (`law_digest_now()`,
+   `require_frozen_law()`). A substituted law object cannot emit a receipt;
+   an existing receipt fails validation under a substituted law; and a
+   receipt whose embedded law body was altered while keeping the frozen
+   digest string is rejected because the validator re-hashes the embedded
+   body. All three are regression-tested.
+2. **Release/attestation counts bound to count-matched immutable
+   identities.** `release_manifests` supplies `world_releases`,
+   `science_releases`, `verifier_releases`, `deployment_attestations` as
+   lists of `{release_id, identity}`; each list length MUST equal its
+   count input, entries may not repeat an id or object identity, and each
+   identity is validated under the packet's authority class. The old
+   singleton `*_release_id` versions and `world_release_identity` are
+   removed.
+3. **Endpoint coherence.** `RELATIONSHIP_ENDPOINTS` registers required
+   source/target kinds for every open relationship type; a positive
+   relationship count with an empty required endpoint population fails
+   closed, per mode (summary-only evaluates against selected-lineup
+   populations). The Phase 4 parity test checks every adapter edge's
+   (source kind, target kind) against this schema.
+4. **Honest authority labeling.** `lead_confirmation_for()` is gone.
+   `inputs_assertion_digest()` / `inputs_assertion_sha256` bind content
+   only and are documented as authenticating nobody. Decision states are
+   `pending-lead-inputs` or `estimated-pending-approval` (never
+   "decidable"); every decision carries
+   `approval.status = "not-authenticated"` with a null
+   `receipt_identity`; the reserved `lead_approval_receipt_identity` slot
+   is rejected if non-null in this offline phase.
+
+P2 cleanup: Phase 4 parity is described truthfully (the synthetic fixture
+carries one `CONTAINS_PLAYER` per lineup and the test asserts exactly
+that; nine per lineup is the separate production Phase 5 law);
+`MEMBER_OF_BOOK` is a supplied count, not derived (derived set is
+`ADMITTED_BY, CONTAINS_PLAYER, SELECTED_BY`); unknown direct modes are
+rejected; identities require a real `gs://bucket/object` (bucket-name
+grammar, non-empty object, no trailing slash or empty segment); timestamps
+must be calendar-valid; identity byte counts are bounded to
+268,435,456.
+
+## Retained from the first correction
+
+R6 full-union panel-freeze identity + panel self-hash inputs; closed
+realized vocabulary derived from the contracts (OutcomeGrade, OutcomeRelease, WinnerObservation, WinnerRelease;
+DERIVED_FROM_OUTCOME, GRADED_IN_CONTEST, OBSERVED_IN_WINNER_RELEASE); Phase 4 bundle/book
+cardinalities; exact registered relationship counts; the seven previously
+omitted node kinds; complete PropertyRule-content hashing
+(`corpus-graph-vnext/v1+properties-547567d158f06448`); selected-lineup coherence.
 
 ## Fixture illustration (synthetic — decision PENDING by construction)
 
@@ -74,7 +76,8 @@ or deployment change, no active R6/T230/Core path touched.
 | feasible under fixture provisioning | True | True |
 | full-corpus traversal | True | False |
 
-`decision.state = pending-lead-inputs`, `recommended_mode = None`, `forced_mode = None`.
+`decision.state = pending-lead-inputs`, `recommended_mode = None`,
+`forced_mode = None`, `approval.status = not-authenticated`.
 
 ## Required inputs the lead must supply (exact list, from `required_inputs_manifest()`)
 
@@ -137,10 +140,10 @@ or deployment change, no active R6/T230/Core path touched.
 | `combined_panel_index_identity` | identity | full-lineup, summary-only | foundry-v12-combined-panel-index/v1 object identity |
 | `r6_full_union_panel_freeze_identity` | identity | full-lineup, summary-only | accepted R6 full-union panel-freeze/release object identity (corpus-r6-full-union-freezes/<freeze>/panel-freeze.json; outcome-blind, complete=true; 54 slates / 2,592 books / 7,776 prefixes census) |
 | `source_universe_release_identity` | identity | full-lineup, summary-only | artifact-supported source-universe release identity |
-| `world_release_identity` | identity | full-lineup, summary-only | world release identity (matrices never load; pointer only) |
-| `science_release_id` | version | full-lineup, summary-only | science release canonical id |
-| `verifier_release_id` | version | full-lineup, summary-only | verifier release canonical id |
-| `deployment_attestation_id` | version | full-lineup, summary-only | deployment attestation canonical id |
+| `world_releases` | release_manifest | full-lineup, summary-only | [WorldRelease] list of {release_id, identity} whose length equals world_release_count |
+| `science_releases` | release_manifest | full-lineup, summary-only | [ScienceRelease] list of {release_id, identity} whose length equals science_release_count |
+| `verifier_releases` | release_manifest | full-lineup, summary-only | [VerifierRelease] list of {release_id, identity} whose length equals verifier_release_count |
+| `deployment_attestations` | release_manifest | full-lineup, summary-only | [DeploymentAttestation] list of {release_id, identity} whose length equals deployment_attestation_count |
 | `predecessor_graph_release_id` | version | full-lineup, summary-only | predecessor graph release id or null |
 | `graph_schema_version` | version | full-lineup, summary-only | must equal corpus-graph-vnext/v1 |
 | `property_schema_version` | version | full-lineup, summary-only | must equal the content hash of the complete positive property schema |
@@ -151,12 +154,12 @@ or deployment change, no active R6/T230/Core path touched.
 | `load_deadline_seconds` | parameter | full-lineup, summary-only | zero-state streamed load deadline |
 | `rebuild_deadline_seconds` | parameter | full-lineup, summary-only | zero-state rebuild deadline incl. indexes |
 
-Plus, to make a decision at all: `authority = lead-supplied-terminal`, every
-identity non-synthetic (real `gs://` object identities with generation,
-sha256, bytes), and a `lead_confirmation_sha256` computed by
-`lead_confirmation_for(packet)` over that exact packet. Without these the
-receipt stays `pending-lead-inputs` regardless of the numbers; with them it
-yields a recommendation that still requires the lead's approval receipt.
+To reach `estimated-pending-approval`: `authority = lead-supplied-terminal`,
+every identity a real non-synthetic `gs://bucket/object` with generation,
+sha256, bytes; every release manifest count-matched; and
+`inputs_assertion_sha256 = inputs_assertion_digest(packet)`. That state is
+still NOT an approval: selecting a mode requires a detached immutable lead
+approval receipt identity, which this offline phase does not accept.
 
 ## Closed in v1 (contribute nothing; no inputs accepted)
 
@@ -174,18 +177,17 @@ yields a recommendation that still requires the lead's approval receipt.
 - mutable active-policy pointers
 - realized namespace (closed in v1): winner and outcome node kinds and relationships
 
-## Validation (serial, exact results recorded in the branch HANDOFF)
+## Validation (serial; exact results in the branch HANDOFF)
 
-- `pytest tests/test_corpus_graph_capacity.py` — 40 adversarial tests:
-  literal law digest; complete-rule property-schema hashing sensitivity;
-  vocabulary registration and closed-namespace firewall; Phase 4
-  endpoint-cardinality parity against the adapter's projected rows;
-  R6 identity replacement; lead-confirmation subject binding (unbound,
-  transferred, and fixture-carried confirmations rejected); identity-class
-  separation; coherence laws; forcing and none-feasible; ceilings and
-  deadlines; exact arithmetic replay; receipt tamper/forge/re-law rejection;
-  manifest coverage of every consumed input and of every open kind and
-  relationship type.
+- `pytest tests/test_corpus_graph_capacity.py` — adversarial: runtime law
+  immutability and substitution (emit, validate, altered-embedded-body);
+  count-matched release manifests (short, long, duplicate, malformed,
+  missing); endpoint coherence per relationship and per mode; Phase 4
+  parity stated truthfully with endpoint-pair checks; honest authority
+  labeling (assertion is not approval; reserved approval slot rejected);
+  real-bucket/object URIs, calendar-valid timestamps, bounded identity
+  bytes; unknown modes; all earlier coherence, forcing, ceiling,
+  arithmetic-replay, tamper/forge, and manifest-coverage laws.
 - `pytest tests/test_corpus_graph_vnext_contracts.py` — regression.
 - `pytest tests/test_corpus_graph_vnext_fixture_adapter.py` — Phase 4
   regression.
@@ -193,4 +195,4 @@ yields a recommendation that still requires the lead's approval receipt.
 
 ## Stop point
 
-Stopped for lead re-review. No mode was chosen.
+Stopped for lead re-review. No mode was chosen; nothing approves anything.

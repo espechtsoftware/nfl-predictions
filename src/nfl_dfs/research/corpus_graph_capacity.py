@@ -36,16 +36,21 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
+import datetime as _dt
 from hashlib import sha256
 import json
 import re
+from types import MappingProxyType
 from typing import Final, Literal
 
 from nfl_dfs.research import corpus_graph_vnext_contracts as graph
 
 CAPACITY_RECEIPT_SCHEMA: Final = "foundry-graph-capacity-receipt/v1"
 CAPACITY_INPUTS_SCHEMA: Final = "foundry-graph-capacity-inputs/v1"
-LEAD_CONFIRMATION_SUBJECT: Final = "foundry-graph-capacity-inputs/v1#lead-confirmation"
+# An assertion digest binds a packet's content. It is NOT an approval and
+# authenticates nobody: approval requires a detached immutable lead
+# approval receipt identity, which this offline phase does not accept.
+INPUTS_ASSERTION_SUBJECT: Final = "foundry-graph-capacity-inputs/v1#inputs-assertion"
 ESTIMATION_LAW_VERSION: Final = "foundry-graph-capacity-estimation-law/v1"
 
 InputAuthority = Literal["synthetic-fixture", "lead-supplied-terminal"]
@@ -54,6 +59,9 @@ MODES: Final[tuple[GraphMode, ...]] = ("full-lineup", "summary-only")
 
 MAX_COUNT: Final = 10**12
 MAX_URI_BYTES: Final = 2_048
+MAX_IDENTITY_OBJECT_BYTES: Final = 256 * 1024**2
+MAX_RELEASE_MANIFEST_ENTRIES: Final = 1_024
+_GCS_BUCKET: Final = re.compile(r"^[a-z0-9][a-z0-9._-]{1,61}[a-z0-9]$")
 SYNTHETIC_URI_PREFIX: Final = "gs://synthetic-fixture.invalid/"
 _ID: Final = re.compile(r"^[A-Za-z0-9][A-Za-z0-9:._/-]{0,199}$")
 _SHA: Final = re.compile(r"^[0-9a-f]{64}$")
@@ -82,7 +90,7 @@ def canonical_sha256(value: object) -> str:
 # Pre-registered estimation law (frozen; its LITERAL digest is pinned)  #
 # ------------------------------------------------------------------ #
 
-ESTIMATION_LAW: Final[dict[str, object]] = {
+_ESTIMATION_LAW_CONTENT: Final[dict[str, object]] = {
     "version": ESTIMATION_LAW_VERSION,
     # Store-size coefficients: pre-registered ESTIMATES of on-disk cost
     # per element (record-store family). Observed bytes replace estimates
@@ -107,15 +115,34 @@ ESTIMATION_LAW: Final[dict[str, object]] = {
     # Absolute element ceiling for any mode.
     "max_graph_elements": 50_000_000,
 }
-# Literal v1 digest, frozen by the lead. Any drift in the law above fails
-# at import: a changed law is a NEW law version with a new pinned digest.
+# Immutable view: item assignment raises TypeError.
+ESTIMATION_LAW: Final[Mapping[str, object]] = MappingProxyType(
+    dict(_ESTIMATION_LAW_CONTENT)
+)
+# Literal v1 digest, frozen by the lead. A changed law is a NEW law version
+# with a new pinned digest. The digest is re-derived from the LIVE law at
+# import AND at every build/validate, so a runtime substitution of the law
+# object cannot emit or validate a receipt under the frozen hash.
 ESTIMATION_LAW_SHA256: Final = (
     "5d20920d5c5e4a779230a966f29322c46e21a05a5c442422f0f9ad3884dc5fdc"
 )
-if canonical_sha256(ESTIMATION_LAW) != ESTIMATION_LAW_SHA256:  # pragma: no cover
-    raise CorpusGraphCapacityError(
-        "estimation law content drifted from its frozen v1 digest"
-    )
+
+
+def law_digest_now() -> str:
+    """Digest of the live law object, recomputed on every call."""
+
+    return canonical_sha256(dict(ESTIMATION_LAW))
+
+
+def require_frozen_law() -> Mapping[str, object]:
+    """Fail closed unless the live law still hashes to the frozen digest."""
+
+    if law_digest_now() != ESTIMATION_LAW_SHA256:
+        _fail("estimation law content drifted from its frozen v1 digest")
+    return ESTIMATION_LAW
+
+
+require_frozen_law()
 
 
 # ------------------------------------------------------------------ #
@@ -140,8 +167,39 @@ OPEN_RELATIONSHIP_TYPES: Final = graph.RELATIONSHIP_TYPES - CLOSED_RELATIONSHIP_
 # Structural relationships whose cardinality is derived from node counts,
 # mirroring the Phase 4 fixture adapter's endpoint law.
 DERIVED_RELATIONSHIP_TYPES: Final = frozenset({
-    "ADMITTED_BY", "SELECTED_BY", "MEMBER_OF_BOOK", "CONTAINS_PLAYER",
+    "ADMITTED_BY", "SELECTED_BY", "CONTAINS_PLAYER",
 })
+
+# Endpoint populations each open relationship type needs. A positive
+# relationship count with an empty required endpoint population cannot be
+# loaded and fails closed. Alternatives (tuple) need at least one populated.
+RELATIONSHIP_ENDPOINTS: Final[dict[str, tuple[tuple[str, ...], tuple[str, ...]]]] = {
+    "CONTAINS_PLAYER": (("Lineup",), ("PlayerSlate",)),
+    "MEMBER_OF_CORPUS": (("Lineup",), ("CorpusSnapshot",)),
+    "SUPPLIED_BY_ARM": (("Lineup",), ("FillPreset",)),
+    "HAS_TRAIT": (("Lineup",), ("Trait",)),
+    "MEMBER_OF_COHORT": (("Lineup",), ("Cohort",)),
+    "MEMBER_OF_BOOK": (("Lineup",), ("SelectedBook",)),
+    "PLAYS_FOR": (("PlayerSlate",), ("TeamSlate",)),
+    "IN_GAME": (("TeamSlate",), ("Game",)),
+    "ADMITTED_BY": (("StrategyBundle",), ("AdmissionPreset",)),
+    "SELECTED_BY": (("StrategyBundle", "SelectedBook"), ("RetrievalPreset",)),
+    "GENERATED_BY": (("SelectedBook",), ("StrategyBundle",)),
+    "DERIVED_FROM": (
+        ("VerificationReceipt", "StrategyBundle", "CorpusSnapshot", "CandidateSnapshot", "SelectedBook"),
+        ("SourceArtifact", "FillPreset", "CorpusSnapshot", "CandidateSnapshot"),
+    ),
+    "USES_SOURCE": (("ScienceRelease", "VerifierRelease", "CorpusSnapshot"), ("SourceArtifact",)),
+    "USES_WORLD_RELEASE": (("CorpusSnapshot", "CandidateSnapshot", "SelectedBook"), ("WorldRelease",)),
+    "VERIFIED_BY": (("SelectedBook", "CorpusSnapshot", "Attempt"), ("VerificationReceipt",)),
+    "RETRIED_AS": (("Attempt",), ("Attempt",)),
+    "EVALUATED_IN": (("Evaluation",), ("ExperimentRun", "Fold")),
+    "EVALUATES_BUNDLE": (("ExperimentRun",), ("StrategyBundle",)),
+    "HAS_METRIC": (("ExperimentRun", "ExperimentCell", "Evaluation"), ("MetricSet",)),
+    "PAIRED_AGAINST": (("ExperimentCell", "Evaluation", "StrategyBundle"), ("ExperimentCell", "StrategyBundle")),
+    "DECIDES_ON_BUNDLE": (("PromotionDecision",), ("StrategyBundle",)),
+    "HAS_INFERRED_DEFENDER_EXPOSURE": (("PlayerSlate",), ("PlayerSlate",)),
+}
 
 
 def property_schema_version() -> str:
@@ -192,7 +250,7 @@ def property_schema_version() -> str:
 @dataclass(frozen=True)
 class RequiredInput:
     name: str
-    kind: Literal["count", "identity", "parameter", "version", "hash"]
+    kind: Literal["count", "identity", "release_manifest", "parameter", "version", "hash"]
     description: str
     modes: tuple[GraphMode, ...]
 
@@ -278,14 +336,28 @@ REQUIRED_IDENTITIES: Final[tuple[RequiredInput, ...]] = tuple(
             "outcome-blind, complete=true; 54 slates / 2,592 books / 7,776 prefixes census)",
         ),
         ("source_universe_release_identity", "artifact-supported source-universe release identity"),
-        ("world_release_identity", "world release identity (matrices never load; pointer only)"),
     )
 )
 
+# Count-matched release manifests: each list's length MUST equal the
+# corresponding node count, every entry binds a canonical release id to an
+# immutable object identity, and ids/identities may not repeat.
+RELEASE_MANIFESTS: Final[tuple[tuple[str, str, str], ...]] = (
+    ("world_releases", "world_release_count", "WorldRelease"),
+    ("science_releases", "science_release_count", "ScienceRelease"),
+    ("verifier_releases", "verifier_release_count", "VerifierRelease"),
+    ("deployment_attestations", "deployment_attestation_count", "DeploymentAttestation"),
+)
+REQUIRED_RELEASE_MANIFESTS: Final[tuple[RequiredInput, ...]] = tuple(
+    RequiredInput(
+        name, "release_manifest",
+        f"[{kind}] list of {{release_id, identity}} whose length equals {count_name}",
+        MODES,
+    )
+    for name, count_name, kind in RELEASE_MANIFESTS
+)
+
 REQUIRED_VERSIONS: Final[tuple[RequiredInput, ...]] = (
-    RequiredInput("science_release_id", "version", "science release canonical id", MODES),
-    RequiredInput("verifier_release_id", "version", "verifier release canonical id", MODES),
-    RequiredInput("deployment_attestation_id", "version", "deployment attestation canonical id", MODES),
     RequiredInput("predecessor_graph_release_id", "version", "predecessor graph release id or null", MODES),
     RequiredInput("graph_schema_version", "version", f"must equal {graph.GRAPH_SCHEMA_VERSION}", MODES),
     RequiredInput("property_schema_version", "version", "must equal the content hash of the complete positive property schema", MODES),
@@ -321,8 +393,8 @@ def required_inputs_manifest() -> list[dict[str, object]]:
             "modes": list(item.modes),
         }
         for group in (
-            REQUIRED_COUNTS, REQUIRED_IDENTITIES, REQUIRED_VERSIONS,
-            REQUIRED_HASHES, REQUIRED_PARAMETERS,
+            REQUIRED_COUNTS, REQUIRED_IDENTITIES, REQUIRED_RELEASE_MANIFESTS,
+            REQUIRED_VERSIONS, REQUIRED_HASHES, REQUIRED_PARAMETERS,
         )
         for item in group
     ]
@@ -366,6 +438,15 @@ def _identity(value: object, *, label: str, authority: InputAuthority) -> dict[s
         or any(ch.isspace() or ord(ch) < 32 for ch in uri)
     ):
         _fail(f"{label}.uri is not a bounded gs:// uri")
+    bucket, separator, object_name = uri[5:].partition("/")
+    if (
+        not separator
+        or _GCS_BUCKET.fullmatch(bucket) is None
+        or not object_name
+        or object_name.endswith("/")
+        or "//" in object_name
+    ):
+        _fail(f"{label}.uri is not a real gs://bucket/object uri")
     synthetic = uri.startswith(SYNTHETIC_URI_PREFIX)
     if authority == "lead-supplied-terminal" and synthetic:
         _fail(f"{label} is a synthetic identity; lead-supplied inputs may not carry one")
@@ -387,10 +468,20 @@ def _identity(value: object, *, label: str, authority: InputAuthority) -> dict[s
     if (
         not isinstance(byte_count, int)
         or isinstance(byte_count, bool)
-        or byte_count <= 0
+        or not 0 < byte_count <= MAX_IDENTITY_OBJECT_BYTES
     ):
-        _fail(f"{label}.bytes is not positive")
+        _fail(f"{label}.bytes is not within (0, {MAX_IDENTITY_OBJECT_BYTES}]")
     return {"uri": uri, "generation": generation, "sha256": digest, "bytes": byte_count}
+
+
+def _utc(value: object, *, label: str) -> str:
+    if not isinstance(value, str) or _UTC.fullmatch(value) is None:
+        _fail(f"{label} is not second-precision UTC")
+    try:
+        _dt.datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError:
+        _fail(f"{label} is not a calendar-valid UTC timestamp")
+    return value
 
 
 def _canonical_id(value: object, *, label: str, nullable: bool = False) -> str | None:
@@ -460,16 +551,17 @@ def _coherence(counts: Mapping[str, int]) -> None:
     require(counts["mean_string_property_bytes"] > 0, "mean_string_property_bytes must be positive")
 
 
-def lead_confirmation_for(packet: Mapping[str, object]) -> str:
-    """The canonical subject a lead confirmation must bind.
+def inputs_assertion_digest(packet: Mapping[str, object]) -> str:
+    """Content-binding assertion digest for a packet — NOT an approval.
 
-    subject = sha256(canonical {"subject": ..., "inputs_sha256": <digest of
-    the packet body without confirmation or inputs hash>}).
+    digest = sha256(canonical {"subject": INPUTS_ASSERTION_SUBJECT,
+    "inputs_sha256": <digest of the packet body>}). Anyone holding the
+    packet can compute it; it authenticates nobody and grants nothing.
     """
 
     body = _canonical_body(packet)
     return canonical_sha256({
-        "subject": LEAD_CONFIRMATION_SUBJECT,
+        "subject": INPUTS_ASSERTION_SUBJECT,
         "inputs_sha256": canonical_sha256(body),
     })
 
@@ -478,10 +570,43 @@ def _canonical_body(packet: Mapping[str, object]) -> dict[str, object]:
     return {
         key: packet[key]
         for key in (
-            "schema_version", "authority", "counts", "identities", "versions",
-            "hashes", "parameters", "created_at_utc",
+            "schema_version", "authority", "counts", "identities",
+            "release_manifests", "versions", "hashes", "parameters",
+            "created_at_utc",
         )
     }
+
+
+def _release_manifest(
+    value: object, *, label: str, authority: InputAuthority, expected_count: int,
+) -> list[dict[str, object]]:
+    if not isinstance(value, (list, tuple)):
+        _fail(f"{label} is not a list")
+    if len(value) > MAX_RELEASE_MANIFEST_ENTRIES:
+        _fail(f"{label} exceeds {MAX_RELEASE_MANIFEST_ENTRIES} entries")
+    if len(value) != expected_count:
+        _fail(
+            f"{label} carries {len(value)} entries but its count input is "
+            f"{expected_count}; release counts must be bound to identities"
+        )
+    entries: list[dict[str, object]] = []
+    seen_ids: set[str] = set()
+    seen_identities: set[tuple[str, str]] = set()
+    for index, entry in enumerate(value):
+        if not isinstance(entry, Mapping) or set(entry) != {"release_id", "identity"}:
+            _fail(f"{label}[{index}] must carry exactly release_id/identity")
+        release_id = _canonical_id(entry["release_id"], label=f"{label}[{index}].release_id")
+        identity = _identity(
+            entry["identity"], label=f"{label}[{index}].identity", authority=authority
+        )
+        key = (str(identity["uri"]), str(identity["generation"]))
+        if release_id in seen_ids or key in seen_identities:
+            _fail(f"{label}[{index}] repeats a release id or object identity")
+        seen_ids.add(str(release_id))
+        seen_identities.add(key)
+        entries.append({"release_id": release_id, "identity": identity})
+    entries.sort(key=lambda item: str(item["release_id"]))
+    return entries
 
 
 def validate_capacity_inputs(value: Mapping[str, object]) -> dict[str, object]:
@@ -489,10 +614,14 @@ def validate_capacity_inputs(value: Mapping[str, object]) -> dict[str, object]:
 
     packet = dict(value)
     expected_keys = {
-        "schema_version", "authority", "counts", "identities", "versions",
-        "hashes", "parameters", "created_at_utc",
+        "schema_version", "authority", "counts", "identities",
+        "release_manifests", "versions", "hashes", "parameters",
+        "created_at_utc",
     }
-    optional_keys = {"lead_confirmation_sha256", "inputs_sha256"}
+    optional_keys = {
+        "inputs_assertion_sha256", "inputs_sha256",
+        "lead_approval_receipt_identity",
+    }
     if not expected_keys <= set(packet) or not set(packet) <= expected_keys | optional_keys:
         _fail("capacity inputs must carry exactly the registered packet keys")
     if packet["schema_version"] != CAPACITY_INPUTS_SCHEMA:
@@ -500,9 +629,7 @@ def validate_capacity_inputs(value: Mapping[str, object]) -> dict[str, object]:
     authority = packet["authority"]
     if authority not in ("synthetic-fixture", "lead-supplied-terminal"):
         _fail("capacity inputs authority is not registered")
-    created = packet["created_at_utc"]
-    if not isinstance(created, str) or _UTC.fullmatch(created) is None:
-        _fail("created_at_utc is not second-precision UTC")
+    created = _utc(packet["created_at_utc"], label="created_at_utc")
 
     counts_in = packet["counts"]
     if not isinstance(counts_in, Mapping):
@@ -528,6 +655,20 @@ def validate_capacity_inputs(value: Mapping[str, object]) -> dict[str, object]:
         for name in identity_names
     }
 
+    manifests_in = packet["release_manifests"]
+    if not isinstance(manifests_in, Mapping):
+        _fail("release_manifests is not a mapping")
+    manifest_names = [name for name, _, _ in RELEASE_MANIFESTS]
+    if set(manifests_in) != set(manifest_names):
+        _fail(f"release_manifests must carry exactly {manifest_names}")
+    release_manifests = {
+        name: _release_manifest(
+            manifests_in[name], label=f"release_manifests.{name}",
+            authority=authority, expected_count=counts[count_name],
+        )
+        for name, count_name, _ in RELEASE_MANIFESTS
+    }
+
     versions_in = packet["versions"]
     if not isinstance(versions_in, Mapping):
         _fail("versions is not a mapping")
@@ -539,9 +680,6 @@ def validate_capacity_inputs(value: Mapping[str, object]) -> dict[str, object]:
     if versions_in["property_schema_version"] != property_schema_version():
         _fail("property_schema_version differs from the contracts module")
     versions = {
-        "science_release_id": _canonical_id(versions_in["science_release_id"], label="versions.science_release_id"),
-        "verifier_release_id": _canonical_id(versions_in["verifier_release_id"], label="versions.verifier_release_id"),
-        "deployment_attestation_id": _canonical_id(versions_in["deployment_attestation_id"], label="versions.deployment_attestation_id"),
         "predecessor_graph_release_id": _canonical_id(
             versions_in["predecessor_graph_release_id"],
             label="versions.predecessor_graph_release_id", nullable=True,
@@ -574,26 +712,37 @@ def validate_capacity_inputs(value: Mapping[str, object]) -> dict[str, object]:
         "authority": authority,
         "counts": counts,
         "identities": identities,
+        "release_manifests": release_manifests,
         "versions": versions,
         "hashes": hashes,
         "parameters": parameters,
         "created_at_utc": created,
     }
-    confirmation = packet.get("lead_confirmation_sha256")
-    if confirmation is not None:
-        _sha(confirmation, label="lead_confirmation_sha256")
+    if packet.get("lead_approval_receipt_identity") is not None:
+        _fail(
+            "lead_approval_receipt_identity is reserved: this offline phase "
+            "cannot authenticate an approval; supply none"
+        )
+    assertion = packet.get("inputs_assertion_sha256")
+    if assertion is not None:
+        _sha(assertion, label="inputs_assertion_sha256")
         if authority == "synthetic-fixture":
-            _fail("fixture-authority inputs may not carry a lead confirmation")
-        if confirmation != lead_confirmation_for(body):
+            _fail("fixture-authority inputs may not carry an assertion digest")
+        if assertion != inputs_assertion_digest(body):
             _fail(
-                "lead_confirmation_sha256 does not bind the canonical inputs "
+                "inputs_assertion_sha256 does not bind the canonical inputs "
                 "subject"
             )
-    digest = canonical_sha256({**body, "lead_confirmation_sha256": confirmation})
+    digest = canonical_sha256({**body, "inputs_assertion_sha256": assertion})
     retained = packet.get("inputs_sha256")
     if retained is not None and retained != digest:
         _fail("inputs_sha256 differs from the canonical packet")
-    return {**body, "lead_confirmation_sha256": confirmation, "inputs_sha256": digest}
+    return {
+        **body,
+        "inputs_assertion_sha256": assertion,
+        "lead_approval_receipt_identity": None,
+        "inputs_sha256": digest,
+    }
 
 
 # ------------------------------------------------------------------ #
@@ -607,7 +756,9 @@ def _string_rule_count(rules: Mapping[str, object]) -> int:
     )
 
 
-def _mode_elements(counts: Mapping[str, int], mode: GraphMode) -> tuple[dict[str, int], dict[str, int]]:
+def _mode_elements(counts: Mapping[str, int], mode: str) -> tuple[dict[str, int], dict[str, int]]:
+    if mode not in MODES:
+        _fail(f"graph mode {mode!r} is not registered")
     full = mode == "full-lineup"
     lineups = counts["unique_lineup_count"] if full else counts["selected_unique_lineup_count"]
     nodes: dict[str, int] = {}
@@ -622,16 +773,16 @@ def _mode_elements(counts: Mapping[str, int], mode: GraphMode) -> tuple[dict[str
     bundles = counts["strategy_bundle_count"]
     books = counts["selected_book_count"]
     relationships: dict[str, int] = {
-        # Phase 4 endpoint law (structural, derived from node counts).
+        # Derived structural cardinalities. CONTAINS_PLAYER = nine per loaded
+        # lineup is the production Phase 5 law (the Phase 4 synthetic fixture
+        # carries one per lineup); ADMITTED_BY/SELECTED_BY follow the Phase 4
+        # bundle/book endpoint semantics exactly.
         "CONTAINS_PLAYER": ROSTER_SLOTS * lineups,
         "ADMITTED_BY": bundles,             # StrategyBundle -> AdmissionPreset
         "SELECTED_BY": bundles + books,     # bundle -> retrieval, book -> retrieval
-        "MEMBER_OF_BOOK": counts["selected_book_membership_count"],
     }
     for name, relationship, _, modes in _EXACT_RELATIONSHIP_INPUTS:
         if mode not in modes:
-            continue
-        if relationship == "MEMBER_OF_BOOK":
             continue
         relationships[relationship] = counts[name]
 
@@ -649,6 +800,23 @@ def _mode_elements(counts: Mapping[str, int], mode: GraphMode) -> tuple[dict[str
             f"estimator models closed realized vocabulary "
             f"{sorted(closed_nodes | closed_relationships)}"
         )
+    missing_endpoint_schema = set(relationships) - set(RELATIONSHIP_ENDPOINTS)
+    if missing_endpoint_schema:  # pragma: no cover - vocabulary drift guard
+        _fail(f"relationships lack an endpoint schema: {sorted(missing_endpoint_schema)}")
+    for relationship, count in relationships.items():
+        if count <= 0:
+            continue
+        sources, targets = RELATIONSHIP_ENDPOINTS[relationship]
+        if not any(nodes.get(kind, 0) > 0 for kind in sources):
+            _fail(
+                f"{relationship} has {count} relationships in {mode} but no "
+                f"populated source kind among {list(sources)}"
+            )
+        if not any(nodes.get(kind, 0) > 0 for kind in targets):
+            _fail(
+                f"{relationship} has {count} relationships in {mode} but no "
+                f"populated target kind among {list(targets)}"
+            )
     return nodes, relationships
 
 
@@ -656,8 +824,8 @@ def _ceil_div(numerator: int, denominator: int) -> int:
     return -(-numerator // denominator)
 
 
-def estimate_mode(counts: Mapping[str, int], parameters: Mapping[str, int], mode: GraphMode) -> dict[str, object]:
-    law = ESTIMATION_LAW
+def estimate_mode(counts: Mapping[str, int], parameters: Mapping[str, int], mode: str) -> dict[str, object]:
+    law = require_frozen_law()
     nodes, relationships = _mode_elements(counts, mode)
 
     node_count = sum(nodes.values())
@@ -761,8 +929,7 @@ def estimate_mode(counts: Mapping[str, int], parameters: Mapping[str, int], mode
 
 def build_capacity_receipt(inputs: Mapping[str, object], *, created_at_utc: str) -> dict[str, object]:
     retained = validate_capacity_inputs(inputs)
-    if not isinstance(created_at_utc, str) or _UTC.fullmatch(created_at_utc) is None:
-        _fail("receipt created_at_utc is not second-precision UTC")
+    created_at_utc = _utc(created_at_utc, label="receipt created_at_utc")
     counts = retained["counts"]
     parameters = retained["parameters"]
     estimates = {mode: estimate_mode(counts, parameters, mode) for mode in MODES}
@@ -775,11 +942,20 @@ def build_capacity_receipt(inputs: Mapping[str, object], *, created_at_utc: str)
     else:
         forced_mode = "none-feasible"
 
-    decidable = (
+    asserted = (
         retained["authority"] == "lead-supplied-terminal"
-        and retained["lead_confirmation_sha256"] is not None
+        and retained["inputs_assertion_sha256"] is not None
     )
-    if decidable:
+    approval = {
+        "status": "not-authenticated",
+        "receipt_identity": None,
+        "note": (
+            "the inputs assertion digest binds content only; a detached "
+            "immutable lead approval receipt identity is required to select "
+            "a mode and is not accepted in this offline phase"
+        ),
+    }
+    if asserted:
         if forced_mode == "none-feasible":
             recommended: str | None = None
         elif forced_mode == "summary-only":
@@ -787,24 +963,26 @@ def build_capacity_receipt(inputs: Mapping[str, object], *, created_at_utc: str)
         else:
             recommended = "full-lineup"
         decision = {
-            "state": "decidable",
+            "state": "estimated-pending-approval",
             "recommended_mode": recommended,
+            "approval": approval,
             "requires_lead_approval": True,
             "self_activating": False,
             "note": (
-                "a recommendation only; the lead's explicit approval receipt "
-                "selects the mode"
+                "an estimate-derived recommendation only; nothing here "
+                "approves, selects, or activates a mode"
             ),
         }
     else:
         decision = {
             "state": "pending-lead-inputs",
             "recommended_mode": None,
+            "approval": approval,
             "requires_lead_approval": True,
             "self_activating": False,
             "note": (
-                "no mode is chosen until the lead supplies exact terminal "
-                "release counts and identities with a bound lead confirmation"
+                "no mode is chosen until lead-authority terminal counts, "
+                "identities, and a bound inputs assertion are supplied"
             ),
         }
 
@@ -812,8 +990,8 @@ def build_capacity_receipt(inputs: Mapping[str, object], *, created_at_utc: str)
         "schema_version": CAPACITY_RECEIPT_SCHEMA,
         "created_at_utc": created_at_utc,
         "estimation_law": {
-            **ESTIMATION_LAW,
-            "estimation_law_sha256": ESTIMATION_LAW_SHA256,
+            **dict(require_frozen_law()),
+            "estimation_law_sha256": law_digest_now(),
         },
         "inputs": retained,
         "estimates": estimates,
@@ -845,8 +1023,15 @@ def validate_capacity_receipt(value: Mapping[str, object]) -> dict[str, object]:
     if retained_hash != canonical_sha256(body):
         _fail("receipt_sha256 differs from the canonical receipt body")
     law = receipt.get("estimation_law")
-    if not isinstance(law, Mapping) or law.get("estimation_law_sha256") != ESTIMATION_LAW_SHA256:
+    if not isinstance(law, Mapping):
+        _fail("receipt lacks an estimation law")
+    embedded = {key: item for key, item in law.items() if key != "estimation_law_sha256"}
+    if (
+        law.get("estimation_law_sha256") != ESTIMATION_LAW_SHA256
+        or canonical_sha256(embedded) != ESTIMATION_LAW_SHA256
+    ):
         _fail("receipt was produced under a different estimation law")
+    require_frozen_law()
     rebuilt = build_capacity_receipt(
         dict(receipt["inputs"]), created_at_utc=str(receipt.get("created_at_utc")),
     )
@@ -939,12 +1124,22 @@ def fixture_capacity_inputs(*, scale: int = 1) -> dict[str, object]:
             "combined_panel_index_identity": identity("combined-panel-index", 1),
             "r6_full_union_panel_freeze_identity": identity("r6-full-union-panel-freeze", 2),
             "source_universe_release_identity": identity("source-universe", 3),
-            "world_release_identity": identity("world-release", 4),
+        },
+        "release_manifests": {
+            "world_releases": [
+                {"release_id": "world-release-fixture-001", "identity": identity("world-release", 4)},
+            ],
+            "science_releases": [
+                {"release_id": "science-release-fixture-001", "identity": identity("science-release", 5)},
+            ],
+            "verifier_releases": [
+                {"release_id": "verifier-release-fixture-001", "identity": identity("verifier-release", 6)},
+            ],
+            "deployment_attestations": [
+                {"release_id": "deployment-attestation-fixture-001", "identity": identity("deployment-attestation", 7)},
+            ],
         },
         "versions": {
-            "science_release_id": "science-release-fixture-001",
-            "verifier_release_id": "verifier-release-fixture-001",
-            "deployment_attestation_id": "deployment-attestation-fixture-001",
             "predecessor_graph_release_id": None,
             "graph_schema_version": graph.GRAPH_SCHEMA_VERSION,
             "property_schema_version": property_schema_version(),

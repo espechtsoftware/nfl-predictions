@@ -46,6 +46,38 @@ agent or developer:
 
 ## Neo4j/React observatory workstream — 2026-08-25 (delegated lane; branch-local entry, lead reconciles at integration)
 
+- **Phase 5 second correction (2026-08-26)** answering the lead's re-review
+  REJECT of `66e4575a` (P0=0); evidence in the regenerated
+  `reports/2026-08-26-observatory-phase5-capacity-estimator.md`. Four P1s:
+  (1) `ESTIMATION_LAW` is now a `MappingProxyType` and the frozen literal
+  digest `5d20920d…cfdc` is re-derived from the LIVE law at import and at
+  every build/validate (`law_digest_now()`/`require_frozen_law()`); a
+  substituted law can neither emit nor validate a receipt, and a receipt
+  whose embedded law body was altered under the frozen digest string is
+  rejected because the validator re-hashes the embedded body — all three
+  regression-tested; (2) world/science/verifier/attestation counts are
+  bound to count-matched `release_manifests` of `{release_id, identity}`
+  (length must equal the count; duplicate ids/identities, malformed
+  entries, and missing manifests rejected); (3) `RELATIONSHIP_ENDPOINTS`
+  registers required source/target kinds for every open relationship
+  type and a positive count with an empty endpoint population fails
+  closed per mode, with Phase 4 edge (source kind, target kind) pairs
+  checked against the schema; (4) `lead_confirmation_for()` is removed —
+  `inputs_assertion_digest()` binds content only, decision states are
+  `pending-lead-inputs` / `estimated-pending-approval` (never
+  "decidable"), every decision carries `approval.status =
+  "not-authenticated"`, and the reserved `lead_approval_receipt_identity`
+  slot is rejected if non-null offline. P2s: Phase 4 parity stated
+  truthfully (fixture has one CONTAINS_PLAYER per lineup, asserted; nine
+  is the production law); `MEMBER_OF_BOOK` is a supplied count, not
+  derived; unknown direct modes rejected; real `gs://bucket/object` URIs,
+  calendar-valid UTC timestamps (inputs and receipt), and identity bytes
+  bounded to 256 MiB. Serial validation: capacity **66/66**; graph
+  contracts and Phase 4 fixture adapter regressions rerun serially
+  — graph contracts **40/40**, Phase 4 fixture adapter **33/33**; `git diff --check` clean. Still no mode decision;
+  no merge/rebase/mount/cutover/cloud/Neo4j/infra/deploy; active
+  R6/T230/Core paths untouched. STOPPED for lead re-review.
+
 - **Phase 5 corrective commit (2026-08-26)** answering the lead's REJECT-
   pending-repair review of `283bd3de` (P0=0); evidence in the regenerated
   `reports/2026-08-26-observatory-phase5-capacity-estimator.md`. All nine

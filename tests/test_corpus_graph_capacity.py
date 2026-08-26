@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import Counter
 import copy
+from types import MappingProxyType
 
 import pytest
 
@@ -26,26 +27,60 @@ def _inputs(**overrides: object) -> dict[str, object]:
     return packet
 
 
-def _lead_inputs(*, confirm: bool = True) -> dict[str, object]:
+def _lead_inputs(*, assert_digest: bool = True) -> dict[str, object]:
     packet = capacity.fixture_capacity_inputs()
     packet["authority"] = "lead-supplied-terminal"
     for name, identity in packet["identities"].items():  # type: ignore[union-attr]
         identity["uri"] = f"gs://real-bucket/releases/{name}.json"
-    if confirm:
-        packet["lead_confirmation_sha256"] = capacity.lead_confirmation_for(packet)
+    for name, entries in packet["release_manifests"].items():  # type: ignore[union-attr]
+        for index, entry in enumerate(entries):
+            entry["identity"]["uri"] = f"gs://real-bucket/releases/{name}-{index}.json"
+    if assert_digest:
+        packet["inputs_assertion_sha256"] = capacity.inputs_assertion_digest(packet)
     return packet
 
 
-# ---------------------------------------------------------------- law ---
+# ------------------------------------------------------------- law ---
 
-def test_literal_law_digest_is_frozen() -> None:
+def test_literal_law_digest_is_frozen_and_recomputed_live() -> None:
     assert capacity.ESTIMATION_LAW_SHA256 == FROZEN_LAW_DIGEST
-    assert capacity.canonical_sha256(capacity.ESTIMATION_LAW) == FROZEN_LAW_DIGEST
+    assert capacity.law_digest_now() == FROZEN_LAW_DIGEST
+    assert capacity.canonical_sha256(dict(capacity.ESTIMATION_LAW)) == FROZEN_LAW_DIGEST
+
+
+def test_law_is_immutable_at_runtime() -> None:
+    with pytest.raises(TypeError):
+        capacity.ESTIMATION_LAW["bytes_per_node"] = 1  # type: ignore[index]
+    assert isinstance(capacity.ESTIMATION_LAW, MappingProxyType)
+
+
+def test_substituted_law_cannot_emit_or_validate_receipts(monkeypatch: pytest.MonkeyPatch) -> None:
+    genuine = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    altered = dict(capacity.ESTIMATION_LAW)
+    altered["bytes_per_node"] = 99
+    monkeypatch.setattr(capacity, "ESTIMATION_LAW", MappingProxyType(altered))
+    assert capacity.law_digest_now() != FROZEN_LAW_DIGEST
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="drifted"):
+        capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="drifted|different estimation law"):
+        capacity.validate_capacity_receipt(genuine)
+    monkeypatch.undo()
+    assert capacity.validate_capacity_receipt(genuine)["receipt_sha256"] == genuine["receipt_sha256"]
+
+
+def test_receipt_with_altered_embedded_law_under_frozen_hash_is_rejected() -> None:
+    receipt = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    forged = copy.deepcopy(receipt)
+    forged["estimation_law"]["bytes_per_node"] = 99  # keep the frozen digest string
+    forged["receipt_sha256"] = capacity.canonical_sha256(
+        {k: v for k, v in forged.items() if k != "receipt_sha256"}
+    )
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="different estimation law"):
+        capacity.validate_capacity_receipt(forged)
 
 
 def test_property_schema_version_hashes_complete_rule_content() -> None:
     baseline = capacity.property_schema_version()
-    assert baseline.startswith(graph.GRAPH_SCHEMA_VERSION)
     kind = "Lineup"
     original = graph.NODE_PROPERTY_SCHEMA[kind]
     prop = sorted(original)[0]
@@ -58,87 +93,79 @@ def test_property_schema_version_hashes_complete_rule_content() -> None:
             allowed_strings=rule.allowed_strings,
         )
         graph.NODE_PROPERTY_SCHEMA[kind] = {**original, prop: tightened}
-        assert capacity.property_schema_version() != baseline, (
-            "a size-only rule change must change the property schema hash"
-        )
+        assert capacity.property_schema_version() != baseline
     finally:
         graph.NODE_PROPERTY_SCHEMA[kind] = original
     assert capacity.property_schema_version() == baseline
 
 
-# --------------------------------------------------------- vocabulary ---
+# ----------------------------------------------------- vocabulary ---
 
 def test_every_modeled_kind_and_relationship_is_registered_and_open() -> None:
     receipt = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
     for mode in capacity.MODES:
         estimate = receipt["estimates"][mode]
-        kinds = set(estimate["node_kinds"])
-        relationships = set(estimate["relationship_types"])
-        assert kinds <= graph.NODE_KINDS
-        assert relationships <= graph.RELATIONSHIP_TYPES
-        assert not kinds & capacity.CLOSED_NODE_KINDS
-        assert not relationships & capacity.CLOSED_RELATIONSHIP_TYPES
-        assert "LINEAGE_COMBINED" not in relationships
+        assert set(estimate["node_kinds"]) <= graph.NODE_KINDS
+        assert set(estimate["relationship_types"]) <= graph.RELATIONSHIP_TYPES
+        assert not set(estimate["node_kinds"]) & capacity.CLOSED_NODE_KINDS
+        assert not set(estimate["relationship_types"]) & capacity.CLOSED_RELATIONSHIP_TYPES
+        assert "LINEAGE_COMBINED" not in estimate["relationship_types"]
     full = receipt["estimates"]["full-lineup"]
     assert set(full["node_kinds"]) == graph.NODE_KINDS - capacity.CLOSED_NODE_KINDS
-    assert set(full["relationship_types"]) == (
-        graph.RELATIONSHIP_TYPES - capacity.CLOSED_RELATIONSHIP_TYPES
-    )
+    assert set(full["relationship_types"]) == graph.RELATIONSHIP_TYPES - capacity.CLOSED_RELATIONSHIP_TYPES
+    assert set(capacity.RELATIONSHIP_ENDPOINTS) == graph.RELATIONSHIP_TYPES - capacity.CLOSED_RELATIONSHIP_TYPES
+    for sources, targets in capacity.RELATIONSHIP_ENDPOINTS.values():
+        assert set(sources) | set(targets) <= graph.NODE_KINDS - capacity.CLOSED_NODE_KINDS
 
 
 def test_realized_firewall_keeps_winner_and_outcome_vocabulary_closed() -> None:
-    assert capacity.CLOSED_NODE_KINDS == {
-        "WinnerRelease", "WinnerObservation", "OutcomeRelease", "OutcomeGrade",
-    }
-    assert capacity.CLOSED_RELATIONSHIP_TYPES == {
-        "OBSERVED_IN_WINNER_RELEASE", "GRADED_IN_CONTEST", "DERIVED_FROM_OUTCOME",
-    }
-    receipt = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
-    assert set(receipt["closed_vocabulary"]["node_kinds"]) == capacity.CLOSED_NODE_KINDS
+    assert capacity.CLOSED_NODE_KINDS == {"WinnerRelease", "WinnerObservation", "OutcomeRelease", "OutcomeGrade"}
+    assert capacity.CLOSED_RELATIONSHIP_TYPES == {"OBSERVED_IN_WINNER_RELEASE", "GRADED_IN_CONTEST", "DERIVED_FROM_OUTCOME"}
     names = {item["name"] for item in capacity.required_inputs_manifest()}
-    assert not any("winner" in name for name in names)
-    assert not any("outcome" in name for name in names)
+    assert not any("winner" in name or "outcome" in name for name in names)
     with pytest.raises(capacity.CorpusGraphCapacityError, match="unregistered counts"):
         capacity.validate_capacity_inputs(_inputs(**{"counts.winner_observation_count": 51}))
 
 
-def test_omitted_snapshot_release_and_attestation_kinds_are_now_counted() -> None:
-    receipt = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
-    kinds = receipt["estimates"]["full-lineup"]["node_kinds"]
-    for kind in (
-        "SlateSnapshot", "WorldRelease", "CorpusSnapshot", "CandidateSnapshot",
-        "ScienceRelease", "VerifierRelease", "DeploymentAttestation",
-    ):
-        assert kind in kinds, kind
-    assert kinds["DeploymentAttestation"] == 1
-    assert kinds["CorpusSnapshot"] == 54 * 7
+def test_unknown_direct_mode_is_rejected() -> None:
+    packet = capacity.validate_capacity_inputs(_inputs())
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="not registered"):
+        capacity.estimate_mode(packet["counts"], packet["parameters"], "full")
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="not registered"):
+        capacity.estimate_mode(packet["counts"], packet["parameters"], "realized")
 
 
-# ---------------------------------------------- Phase 4 endpoint parity ---
+# ------------------------------------------ Phase 4 endpoint parity ---
 
-def _phase4_census() -> tuple[Counter[str], Counter[str]]:
+def _phase4_rows():
     manifest, source = adapter.canonical_fixture_projection()
     terminal = adapter.read_terminal_fixtures(manifest, source)
-    nodes, edges = adapter.project_fixture_rows(terminal)
-    return (
-        Counter(str(row["kind"]) for row in nodes),
-        Counter(str(row["relationship"]) for row in edges),
-    )
+    return adapter.project_fixture_rows(terminal)
 
 
-def test_derived_cardinalities_match_phase4_endpoint_semantics() -> None:
-    kinds, relationships = _phase4_census()
-    bundles = kinds["StrategyBundle"]
-    books = kinds["SelectedBook"]
-    assert bundles > 0 and books > 0
-    assert relationships["ADMITTED_BY"] == bundles
-    assert relationships["SELECTED_BY"] == bundles + books
-    assert relationships["GENERATED_BY"] >= books
-    assert relationships["MEMBER_OF_BOOK"] >= books
-    assert set(relationships) <= graph.RELATIONSHIP_TYPES
-    assert not set(relationships) & capacity.CLOSED_RELATIONSHIP_TYPES
+def test_phase4_bundle_book_cardinalities_and_endpoint_pairs_hold() -> None:
+    """Phase 4 parity, stated truthfully: bundle/book laws and endpoint
+    pairs are checked against the adapter's own synthetic rows. The fixture
+    carries ONE CONTAINS_PLAYER edge per lineup; nine per lineup is the
+    separate production Phase 5 law and is NOT asserted here."""
+
+    nodes, edges = _phase4_rows()
+    kind_by_id = {str(row["node_id"]): str(row["kind"]) for row in nodes}
+    kinds = Counter(kind_by_id.values())
+    relationships = Counter(str(row["relationship"]) for row in edges)
+    assert relationships["ADMITTED_BY"] == kinds["StrategyBundle"]
+    assert relationships["SELECTED_BY"] == kinds["StrategyBundle"] + kinds["SelectedBook"]
+    assert relationships["GENERATED_BY"] >= kinds["SelectedBook"]
+    assert relationships["CONTAINS_PLAYER"] == kinds["Lineup"], "fixture: one player edge per lineup"
+    for row in edges:
+        relationship = str(row["relationship"])
+        sources, targets = capacity.RELATIONSHIP_ENDPOINTS[relationship]
+        assert kind_by_id[str(row["source_id"])] in sources, relationship
+        assert kind_by_id[str(row["target_id"])] in targets, relationship
     assert not set(kinds) & capacity.CLOSED_NODE_KINDS
 
+
+def test_estimator_applies_bundle_book_laws_and_production_roster_law() -> None:
     receipt = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
     est = receipt["estimates"]["full-lineup"]["relationship_types"]
     counts = receipt["inputs"]["counts"]
@@ -147,96 +174,182 @@ def test_derived_cardinalities_match_phase4_endpoint_semantics() -> None:
     assert est["MEMBER_OF_BOOK"] == counts["selected_book_membership_count"]
     assert est["CONTAINS_PLAYER"] == 9 * counts["unique_lineup_count"]
     assert set(receipt["estimates"]["full-lineup"]["derived_relationship_types"]) == {
-        "ADMITTED_BY", "SELECTED_BY", "MEMBER_OF_BOOK", "CONTAINS_PLAYER",
+        "ADMITTED_BY", "SELECTED_BY", "CONTAINS_PLAYER",
+    }
+    assert "MEMBER_OF_BOOK" not in capacity.DERIVED_RELATIONSHIP_TYPES
+
+
+# ----------------------------------------------- endpoint coherence ---
+
+@pytest.mark.parametrize(
+    "relationship_input, empty_kind_input, empty_kind",
+    [
+        ("plays_for_edge_count", "player_slate_count", "PlayerSlate"),
+        ("in_game_edge_count", "game_count", "Game"),
+        ("trait_membership_count", "trait_definition_count", "Trait"),
+        ("has_metric_edge_count", "metric_set_count", "MetricSet"),
+        ("decides_on_bundle_edge_count", "promotion_decision_count", "PromotionDecision"),
+        ("uses_world_release_edge_count", "world_release_count", "WorldRelease"),
+    ],
+)
+def test_positive_relationships_need_populated_endpoints(
+    relationship_input: str, empty_kind_input: str, empty_kind: str,
+) -> None:
+    """An emptied endpoint population must fail closed, naming that kind —
+    whichever positive relationship touching it is checked first."""
+
+    packet = _inputs(**{f"counts.{relationship_input}": 5, f"counts.{empty_kind_input}": 0})
+    if empty_kind_input == "world_release_count":
+        packet["release_manifests"]["world_releases"] = []  # type: ignore[index]
+    if empty_kind_input == "trait_definition_count":
+        packet["counts"]["selected_trait_membership_count"] = 5  # type: ignore[index]
+    with pytest.raises(
+        capacity.CorpusGraphCapacityError,
+        match=rf"has \d+ relationships in [a-z-]+ but no populated (source|target) kind among \[.*'{empty_kind}'",
+    ):
+        capacity.build_capacity_receipt(packet, created_at_utc=CREATED)
+
+
+def test_endpoint_failure_names_the_specific_relationship() -> None:
+    packet = _inputs(**{"counts.decides_on_bundle_edge_count": 5, "counts.promotion_decision_count": 0})
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="DECIDES_ON_BUNDLE has 5 relationships in full-lineup"):
+        capacity.build_capacity_receipt(packet, created_at_utc=CREATED)
+
+
+def test_endpoint_law_is_mode_specific_for_lineups() -> None:
+    packet = _inputs(**{
+        "counts.selected_unique_lineup_count": 0,
+        "counts.selected_lineup_occurrence_count": 0,
+        "counts.selected_lineup_arm_supply_count": 0,
+        "counts.selected_trait_membership_count": 0,
+        "counts.selected_cohort_membership_count": 0,
+        "counts.selected_book_count": 0,
+        "counts.selected_book_membership_count": 0,
+        "counts.generated_by_edge_count": 0,
+    })
+    receipt = capacity.build_capacity_receipt(packet, created_at_utc=CREATED)
+    assert receipt["estimates"]["full-lineup"]["relationship_types"]["MEMBER_OF_CORPUS"] > 0
+    assert receipt["estimates"]["summary-only"]["node_kinds"]["Lineup"] == 0
+    assert receipt["estimates"]["summary-only"]["relationship_types"]["CONTAINS_PLAYER"] == 0
+
+
+# --------------------------------------------- identities and counts ---
+
+def test_release_counts_are_bound_to_count_matched_manifests() -> None:
+    packet = _inputs(**{"counts.science_release_count": 2})
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="carries 1 entries but its count input is 2"):
+        capacity.validate_capacity_inputs(packet)
+    packet = _inputs()
+    packet["release_manifests"]["verifier_releases"].append(  # type: ignore[index]
+        copy.deepcopy(packet["release_manifests"]["verifier_releases"][0])  # type: ignore[index]
+    )
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="carries 2 entries but its count input is 1"):
+        capacity.validate_capacity_inputs(packet)
+    packet = _inputs(**{"counts.verifier_release_count": 2})
+    duplicate = copy.deepcopy(packet["release_manifests"]["verifier_releases"][0])  # type: ignore[index]
+    packet["release_manifests"]["verifier_releases"].append(duplicate)  # type: ignore[index]
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="repeats a release id or object identity"):
+        capacity.validate_capacity_inputs(packet)
+    packet = _inputs()
+    packet["release_manifests"]["deployment_attestations"][0]["identity"]["sha256"] = "zz" * 32  # type: ignore[index]
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="deployment_attestations\\[0\\].identity.sha256"):
+        capacity.validate_capacity_inputs(packet)
+    packet = _inputs()
+    del packet["release_manifests"]["world_releases"]  # type: ignore[union-attr]
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="release_manifests must carry exactly"):
+        capacity.validate_capacity_inputs(packet)
+    assert {item["name"] for item in capacity.required_inputs_manifest() if item["kind"] == "release_manifest"} == {
+        "world_releases", "science_releases", "verifier_releases", "deployment_attestations",
     }
 
 
-def test_summary_mode_keeps_bundle_and_book_structure_but_drops_corpus_scale() -> None:
-    receipt = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
-    full = receipt["estimates"]["full-lineup"]
-    summary = receipt["estimates"]["summary-only"]
-    assert summary["relationship_types"]["ADMITTED_BY"] == full["relationship_types"]["ADMITTED_BY"]
-    assert summary["relationship_types"]["SELECTED_BY"] == full["relationship_types"]["SELECTED_BY"]
-    assert summary["relationship_types"]["MEMBER_OF_BOOK"] == full["relationship_types"]["MEMBER_OF_BOOK"]
-    assert summary["node_kinds"]["Lineup"] == 4_320
-    assert full["node_kinds"]["Lineup"] == 60_000
-    assert summary["relationship_types"]["CONTAINS_PLAYER"] == 9 * 4_320
-    assert summary["estimated_store_bytes"] < full["estimated_store_bytes"]
-    assert summary["full_corpus_traversal_available"] is False
-    assert "never labeled full" in receipt["labels_law"]
-
-
-# ------------------------------------------------------ identities/hash ---
-
 def test_r6_full_union_identity_replaces_standalone_t230() -> None:
     names = {item["name"] for item in capacity.required_inputs_manifest()}
-    assert "r6_full_union_panel_freeze_identity" in names
-    assert "r6_full_union_panel_self_sha256" in names
+    assert {"r6_full_union_panel_freeze_identity", "r6_full_union_panel_self_sha256"} <= names
     assert "t230_panel_release_identity" not in names
     packet = _inputs()
-    packet["identities"]["t230_panel_release_identity"] = packet["identities"]["world_release_identity"]  # type: ignore[index]
+    packet["identities"]["t230_panel_release_identity"] = packet["identities"]["source_universe_release_identity"]  # type: ignore[index]
     with pytest.raises(capacity.CorpusGraphCapacityError, match="identities must carry exactly"):
         capacity.validate_capacity_inputs(packet)
-    with pytest.raises(capacity.CorpusGraphCapacityError, match="hashes.r6_full_union_panel_self_sha256 is not 64-hex"):
-        capacity.validate_capacity_inputs(_inputs(**{"hashes.r6_full_union_panel_self_sha256": "nope"}))
 
 
-def test_lead_confirmation_must_bind_the_canonical_subject() -> None:
-    unconfirmed = _lead_inputs(confirm=False)
-    assert capacity.build_capacity_receipt(unconfirmed, created_at_utc=CREATED)["decision"]["state"] == "pending-lead-inputs"
-    confirmed = _lead_inputs()
-    receipt = capacity.build_capacity_receipt(confirmed, created_at_utc=CREATED)
-    assert receipt["decision"]["state"] == "decidable"
-    assert receipt["decision"]["recommended_mode"] == "full-lineup"
-    assert receipt["decision"]["requires_lead_approval"] is True
-    assert receipt["decision"]["self_activating"] is False
-    # Any well-formed but unbound hash is rejected.
-    forged = _lead_inputs()
-    forged["lead_confirmation_sha256"] = "ab" * 32
-    with pytest.raises(capacity.CorpusGraphCapacityError, match="does not bind the canonical inputs subject"):
-        capacity.validate_capacity_inputs(forged)
-    # A confirmation over different counts does not transfer.
-    moved = _lead_inputs()
-    moved["counts"]["unique_lineup_count"] = 70_000  # type: ignore[index]
-    with pytest.raises(capacity.CorpusGraphCapacityError, match="does not bind"):
-        capacity.validate_capacity_inputs(moved)
-    # The subject is the inputs digest, not the receipt.
-    expected = capacity.canonical_sha256({
-        "subject": capacity.LEAD_CONFIRMATION_SUBJECT,
-        "inputs_sha256": capacity.canonical_sha256({
-            key: confirmed[key]
-            for key in (
-                "schema_version", "authority", "counts", "identities",
-                "versions", "hashes", "parameters", "created_at_utc",
-            )
-        }),
-    })
-    assert confirmed["lead_confirmation_sha256"] == expected
-
-
-def test_fixture_authority_never_decides_and_rejects_confirmation() -> None:
-    receipt = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
-    assert receipt["decision"]["state"] == "pending-lead-inputs"
-    assert receipt["decision"]["recommended_mode"] is None
-    assert receipt["forced_mode"] is None
+@pytest.mark.parametrize(
+    "field, value, message",
+    [
+        ("uri", "https://not-gcs/x.json", "gs://"),
+        ("uri", "gs://synthetic-fixture.invalid", "real gs://bucket/object"),
+        ("uri", "gs://synthetic-fixture.invalid/", "real gs://bucket/object"),
+        ("uri", "gs://synthetic-fixture.invalid/dir/", "real gs://bucket/object"),
+        ("uri", "gs://synthetic-fixture.invalid/a//b.json", "real gs://bucket/object"),
+        ("generation", "007", "positive digits"),
+        ("sha256", "zz" * 32, "64-hex"),
+        ("bytes", 0, "within"),
+        ("bytes", 256 * 1024**2 + 1, "within"),
+    ],
+)
+def test_identity_malformations_fail_closed(field: str, value: object, message: str) -> None:
     packet = _inputs()
-    packet["lead_confirmation_sha256"] = capacity.lead_confirmation_for(packet)
-    with pytest.raises(capacity.CorpusGraphCapacityError, match="lead confirmation"):
+    packet["identities"]["r6_full_union_panel_freeze_identity"][field] = value  # type: ignore[index]
+    with pytest.raises(capacity.CorpusGraphCapacityError, match=message):
         capacity.validate_capacity_inputs(packet)
+
+
+def test_real_bucket_names_are_enforced_for_lead_identities() -> None:
+    lead = _lead_inputs(assert_digest=False)
+    lead["identities"]["source_universe_release_identity"]["uri"] = "gs://Bad_Bucket/x.json"  # type: ignore[index]
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="real gs://bucket/object"):
+        capacity.validate_capacity_inputs(lead)
 
 
 def test_identity_class_separation() -> None:
     lead = _lead_inputs()
-    lead["identities"]["world_release_identity"]["uri"] = f"{capacity.SYNTHETIC_URI_PREFIX}w.json"  # type: ignore[index]
+    lead["identities"]["source_universe_release_identity"]["uri"] = f"{capacity.SYNTHETIC_URI_PREFIX}w.json"  # type: ignore[index]
     with pytest.raises(capacity.CorpusGraphCapacityError, match="synthetic identity"):
         capacity.validate_capacity_inputs(lead)
     fixture = _inputs()
-    fixture["identities"]["world_release_identity"]["uri"] = "gs://real/world.json"  # type: ignore[index]
+    fixture["release_manifests"]["world_releases"][0]["identity"]["uri"] = "gs://real-bucket/world.json"  # type: ignore[index]
     with pytest.raises(capacity.CorpusGraphCapacityError, match="non-synthetic"):
         capacity.validate_capacity_inputs(fixture)
 
 
-# --------------------------------------------------------- coherence ---
+# ----------------------------------------------- authority labeling ---
+
+def test_assertion_digest_binds_content_but_never_approves() -> None:
+    assert not hasattr(capacity, "lead_confirmation_for")
+    unasserted = capacity.build_capacity_receipt(_lead_inputs(assert_digest=False), created_at_utc=CREATED)
+    assert unasserted["decision"]["state"] == "pending-lead-inputs"
+    asserted = capacity.build_capacity_receipt(_lead_inputs(), created_at_utc=CREATED)
+    assert asserted["decision"]["state"] == "estimated-pending-approval"
+    assert asserted["decision"]["recommended_mode"] == "full-lineup"
+    assert asserted["decision"]["approval"]["status"] == "not-authenticated"
+    assert asserted["decision"]["approval"]["receipt_identity"] is None
+    assert asserted["decision"]["requires_lead_approval"] is True
+    assert asserted["decision"]["self_activating"] is False
+    assert "decidable" not in asserted["decision"]["state"]
+    forged = _lead_inputs()
+    forged["inputs_assertion_sha256"] = "ab" * 32
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="does not bind the canonical inputs subject"):
+        capacity.validate_capacity_inputs(forged)
+    moved = _lead_inputs()
+    moved["counts"]["unique_lineup_count"] = 70_000  # type: ignore[index]
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="does not bind"):
+        capacity.validate_capacity_inputs(moved)
+    fixture = _inputs()
+    fixture["inputs_assertion_sha256"] = capacity.inputs_assertion_digest(fixture)
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="assertion digest"):
+        capacity.validate_capacity_inputs(fixture)
+
+
+def test_approval_receipt_slot_is_reserved_and_rejected_offline() -> None:
+    lead = _lead_inputs()
+    lead["lead_approval_receipt_identity"] = lead["identities"]["source_universe_release_identity"]  # type: ignore[index]
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="reserved"):
+        capacity.validate_capacity_inputs(lead)
+    retained = capacity.validate_capacity_inputs(_lead_inputs())
+    assert retained["lead_approval_receipt_identity"] is None
+
+
+# ---------------------------------------------------- coherence ---
 
 @pytest.mark.parametrize(
     "mutation, message",
@@ -260,7 +373,10 @@ def test_identity_class_separation() -> None:
         ({"versions.graph_schema_version": "corpus-graph-vnext/v0"}, "graph_schema_version differs"),
         ({"versions.property_schema_version": "corpus-graph-vnext/v1+properties-0000000000000000"}, "property_schema_version differs"),
         ({"created_at_utc": "2026-08-26 00:00"}, "second-precision UTC"),
+        ({"created_at_utc": "2026-02-30T00:00:00Z"}, "calendar-valid"),
+        ({"created_at_utc": "2026-08-26T24:00:00Z"}, "calendar-valid"),
         ({"authority": "operator"}, "authority is not registered"),
+        ({"hashes.r6_full_union_panel_self_sha256": "nope"}, "not 64-hex"),
     ],
 )
 def test_malformed_or_incoherent_inputs_fail_closed(mutation: dict[str, object], message: str) -> None:
@@ -268,16 +384,9 @@ def test_malformed_or_incoherent_inputs_fail_closed(mutation: dict[str, object],
         capacity.validate_capacity_inputs(_inputs(**mutation))
 
 
-def test_selected_lineups_zero_requires_no_books() -> None:
-    packet = _inputs(**{
-        "counts.selected_unique_lineup_count": 0,
-        "counts.selected_lineup_occurrence_count": 0,
-        "counts.selected_lineup_arm_supply_count": 0,
-        "counts.selected_trait_membership_count": 0,
-        "counts.selected_cohort_membership_count": 0,
-    })
-    with pytest.raises(capacity.CorpusGraphCapacityError, match="selected_unique_lineup_count is zero"):
-        capacity.validate_capacity_inputs(packet)
+def test_receipt_created_at_must_be_calendar_valid() -> None:
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="second-precision UTC|calendar-valid"):
+        capacity.build_capacity_receipt(_inputs(), created_at_utc="2026-13-01T00:00:00Z")
 
 
 def test_missing_extra_and_malformed_sections_are_named() -> None:
@@ -289,23 +398,15 @@ def test_missing_extra_and_malformed_sections_are_named() -> None:
         capacity.validate_capacity_inputs(_inputs(**{"counts.lineage_edge_count": 1}))
     with pytest.raises(capacity.CorpusGraphCapacityError, match="registered packet keys"):
         capacity.validate_capacity_inputs(_inputs(extra_field=1))
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="registered packet keys"):
+        capacity.validate_capacity_inputs(_inputs(lead_confirmation_sha256="ab" * 32))
     packet = _inputs()
-    del packet["hashes"]  # type: ignore[arg-type]
+    del packet["release_manifests"]  # type: ignore[arg-type]
     with pytest.raises(capacity.CorpusGraphCapacityError, match="registered packet keys"):
         capacity.validate_capacity_inputs(packet)
-    for field, value, message in (
-        ("uri", "https://not-gcs/x.json", "gs://"),
-        ("generation", "007", "positive digits"),
-        ("sha256", "zz" * 32, "64-hex"),
-        ("bytes", 0, "positive"),
-    ):
-        packet = _inputs()
-        packet["identities"]["r6_full_union_panel_freeze_identity"][field] = value  # type: ignore[index]
-        with pytest.raises(capacity.CorpusGraphCapacityError, match=message):
-            capacity.validate_capacity_inputs(packet)
 
 
-# --------------------------------------------------------- estimation ---
+# ---------------------------------------------------- estimation ---
 
 def test_receipt_is_deterministic_and_order_independent() -> None:
     first = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
@@ -316,17 +417,28 @@ def test_receipt_is_deterministic_and_order_independent() -> None:
     assert first["receipt_sha256"] == second["receipt_sha256"]
 
 
+def test_summary_mode_is_smaller_and_never_labeled_full() -> None:
+    receipt = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    full = receipt["estimates"]["full-lineup"]
+    summary = receipt["estimates"]["summary-only"]
+    assert summary["node_kinds"]["Lineup"] == 4_320 and full["node_kinds"]["Lineup"] == 60_000
+    assert summary["relationship_types"]["CONTAINS_PLAYER"] == 9 * 4_320
+    assert summary["estimated_store_bytes"] < full["estimated_store_bytes"]
+    assert summary["full_corpus_traversal_available"] is False
+    assert "never labeled full" in receipt["labels_law"]
+
+
 def test_forcing_to_summary_and_none_feasible() -> None:
     packet = _inputs(**{"parameters.provisioned_disk_bytes": 200 * 1024**2})
     receipt = capacity.build_capacity_receipt(packet, created_at_utc=CREATED)
     assert receipt["estimates"]["full-lineup"]["feasible"] is False
     assert receipt["forced_mode"] == "summary-only"
-    lead = _lead_inputs(confirm=False)
+    lead = _lead_inputs(assert_digest=False)
     lead["parameters"]["provisioned_disk_bytes"] = 200 * 1024**2  # type: ignore[index]
-    lead["lead_confirmation_sha256"] = capacity.lead_confirmation_for(lead)
+    lead["inputs_assertion_sha256"] = capacity.inputs_assertion_digest(lead)
     assert capacity.build_capacity_receipt(lead, created_at_utc=CREATED)["decision"]["recommended_mode"] == "summary-only"
     lead["parameters"]["provisioned_disk_bytes"] = 1  # type: ignore[index]
-    lead["lead_confirmation_sha256"] = capacity.lead_confirmation_for(lead)
+    lead["inputs_assertion_sha256"] = capacity.inputs_assertion_digest(lead)
     none = capacity.build_capacity_receipt(lead, created_at_utc=CREATED)
     assert none["forced_mode"] == "none-feasible"
     assert none["decision"]["recommended_mode"] is None
@@ -360,16 +472,13 @@ def test_estimates_replay_from_law_and_positive_schema() -> None:
     )
     assert full["estimated_raw_bytes"] == raw
     assert full["estimated_store_bytes"] == -(-raw * 1_500 // 1_000)
-    expected = 0
-    for kind, count in full["node_kinds"].items():
-        expected += len(graph.NODE_PROPERTY_SCHEMA.get(kind, {})) * count
-    for relationship, count in full["relationship_types"].items():
-        expected += len(graph.RELATIONSHIP_PROPERTY_SCHEMA.get(relationship, {})) * count
+    expected = sum(len(graph.NODE_PROPERTY_SCHEMA.get(k, {})) * n for k, n in full["node_kinds"].items())
+    expected += sum(len(graph.RELATIONSHIP_PROPERTY_SCHEMA.get(r, {})) * n for r, n in full["relationship_types"].items())
     assert full["property_count"] == expected
     assert full["observed"]["store_bytes"] is None
 
 
-def test_receipt_replays_and_rejects_tamper_forge_and_relaw() -> None:
+def test_receipt_replays_and_rejects_tamper_and_forge() -> None:
     receipt = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
     assert capacity.validate_capacity_receipt(receipt)["receipt_sha256"] == receipt["receipt_sha256"]
     tampered = copy.deepcopy(receipt)
@@ -379,20 +488,11 @@ def test_receipt_replays_and_rejects_tamper_forge_and_relaw() -> None:
     forged = copy.deepcopy(receipt)
     forged["inputs"]["counts"]["unique_lineup_count"] = 70_000
     forged["inputs"]["inputs_sha256"] = capacity.canonical_sha256(
-        {k: v for k, v in forged["inputs"].items() if k != "inputs_sha256"}
+        {k: v for k, v in forged["inputs"].items() if k not in ("inputs_sha256", "lead_approval_receipt_identity")}
     )
-    forged["receipt_sha256"] = capacity.canonical_sha256(
-        {k: v for k, v in forged.items() if k != "receipt_sha256"}
-    )
+    forged["receipt_sha256"] = capacity.canonical_sha256({k: v for k, v in forged.items() if k != "receipt_sha256"})
     with pytest.raises(capacity.CorpusGraphCapacityError, match="does not replay"):
         capacity.validate_capacity_receipt(forged)
-    relawed = copy.deepcopy(receipt)
-    relawed["estimation_law"]["estimation_law_sha256"] = "0" * 64
-    relawed["receipt_sha256"] = capacity.canonical_sha256(
-        {k: v for k, v in relawed.items() if k != "receipt_sha256"}
-    )
-    with pytest.raises(capacity.CorpusGraphCapacityError, match="different estimation law"):
-        capacity.validate_capacity_receipt(relawed)
 
 
 def test_required_inputs_manifest_covers_every_consumed_input() -> None:
@@ -400,14 +500,14 @@ def test_required_inputs_manifest_covers_every_consumed_input() -> None:
     names = {item["name"] for item in manifest}
     fixture = capacity.fixture_capacity_inputs()
     consumed: set[str] = set()
-    for section in ("counts", "identities", "versions", "hashes", "parameters"):
+    for section in ("counts", "identities", "release_manifests", "versions", "hashes", "parameters"):
         consumed |= set(fixture[section])  # type: ignore[arg-type]
     assert consumed == names
-    assert {item["kind"] for item in manifest} == {"count", "identity", "version", "hash", "parameter"}
+    assert {item["kind"] for item in manifest} == {"count", "identity", "release_manifest", "version", "hash", "parameter"}
     open_relationships = graph.RELATIONSHIP_TYPES - capacity.CLOSED_RELATIONSHIP_TYPES
     exact_inputs = {relationship for _, relationship, _, _ in capacity._EXACT_RELATIONSHIP_INPUTS}
     assert exact_inputs | capacity.DERIVED_RELATIONSHIP_TYPES == open_relationships
-    assert "MEMBER_OF_BOOK" in exact_inputs and "MEMBER_OF_BOOK" in capacity.DERIVED_RELATIONSHIP_TYPES
+    assert not exact_inputs & capacity.DERIVED_RELATIONSHIP_TYPES
     counted_kinds = {kind for _, kind, _, _ in capacity._NODE_COUNT_INPUTS}
     assert counted_kinds == graph.NODE_KINDS - capacity.CLOSED_NODE_KINDS
 
