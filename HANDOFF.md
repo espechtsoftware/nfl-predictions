@@ -20,6 +20,28 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 12:18 UTC (one-hundred-thirty-seventh update)
+
+### Create-once 54-slate full-union execution manifest is published
+
+- Launcher stage `prepare` ran from clean detached checkout
+  `/home/erich/projects/nfl-predictions-r6-freeze-9a63292f` at exact reviewed
+  source commit `9a63292fc7df6229290bdf8c00c73b8564cacfc9`, using immutable image
+  digest `sha256:0a18d76de4e264b739c3d4274521755595e148db829128e029e7a49b350e66b3`.
+- The stage exited 0 and create-once published the execution manifest at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-full-union-freezes/20260826-foundry-v12-r6-full-union-freeze-v1/execution-manifest.json`,
+  generation `1787746507302671`, SHA-256
+  `ccae29995486f4ce9f598ce3f4d8d956d5a2cf1e6c3026eb4c2a8570f9f47f49`,
+  73,163 bytes.
+- The tracked prepare receipt validates exactly **54 slates, 2,592 rank-80
+  books, and 7,776 prefixes**. It records `uses_realized_outcomes=false`,
+  `historical_scoring_licensed=false`, `graph_mutation_licensed=false`, and
+  `production_change_licensed=false`.
+- Current-system historical scoring has **not** begun. Exact next action: run
+  launcher stage `canary`, wait for the sole ordinal-0 Cloud Run task to
+  terminate, and require exactly one accepted leaf with 48 books and 144
+  prefixes before the full 28+26 launch.
+
 ## Current handoff — 2026-08-26 12:15 UTC (one-hundred-thirty-sixth update)
 
 ### R6 full-union freeze build passes; immutable launch image is ready
