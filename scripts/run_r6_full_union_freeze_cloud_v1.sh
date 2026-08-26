@@ -132,21 +132,98 @@ configure_job() {
 require_terminal_execution() {
   local execution_file="$1"
   local label="$2"
+  local expected_job="$3"
+  local expected_task_count="$4"
+  local expected_parallelism="$5"
+  local expected_cloud_args="$6"
+  local require_success="${7:-1}"
   test -s "$execution_file"
-  local execution
+  local execution observed expected_args success_arg=()
   execution="$(tr -d '\n' <"$execution_file")"
+  [[ "$execution" == "${expected_job}-"* ]]
+  observed="$(mktemp)"
   gcloud run jobs executions describe "$execution" \
     --project "$project" --region "$region" --format=json \
-    >"${R6_FREEZE_RUN_DIR}/${label}-terminal.json"
-  jq -e '
-    (.status.completionTime | type == "string" and endswith("Z"))
-    and ([.status.conditions[]? | select(.type == "Completed") | .status]
-      | length == 1 and (.[0] == "True" or .[0] == "False"))
-  ' "${R6_FREEZE_RUN_DIR}/${label}-terminal.json" >/dev/null
+    >"$observed"
+  expected_args="$(jq -cn --arg csv "$expected_cloud_args" '$csv | split(",")')"
+  [[ "$require_success" == "1" ]] && success_arg=(--require-success)
+  "$R6_FREEZE_PYTHON" scripts/validate_r6_full_union_lane_terminal_v1.py \
+    --envelope "$observed" \
+    --receipt "${R6_FREEZE_RUN_DIR}/${label}-terminal-receipt.json" \
+    --lane "$label" --execution "$execution" --job "$expected_job" \
+    --image "$R6_FREEZE_IMAGE" --code-sha "$R6_FREEZE_CODE_SHA" \
+    --service-account "$service_account" --task-count "$expected_task_count" \
+    --parallelism "$expected_parallelism" --expected-args-json "$expected_args" \
+    "${success_arg[@]}" >/dev/null
+  rm -f -- "$observed"
+}
+
+require_lane_success_or_exact_repairs() {
+  local execution_file="$1" label="$2" expected_job="$3"
+  local task_count="$4" parallelism="$5" cloud_args="$6"
+  local source_offset="$7" declared_name="$8" receipt failed_count raw ordinal
+  local repair_job repair_csv retained_sha calculated_sha
+  require_terminal_execution "$execution_file" "$label" "$expected_job" \
+    "$task_count" "$parallelism" "$cloud_args" 0
+  receipt="${R6_FREEZE_RUN_DIR}/${label}-terminal-receipt.json"
+  if [[ "$(jq -r .terminal_success "$receipt")" == "true" ]]; then
+    return 0
+  fi
+  failed_count="$(jq -er .failed_count "$receipt")"
+  raw="${!declared_name:-}"
+  [[ "$raw" =~ ^[0-9]+(,[0-9]+)*$ ]] || {
+    echo "$declared_name must declare exact repaired ordinals" >&2
+    return 1
+  }
+  IFS=',' read -r -a repaired_ordinals <<<"$raw"
+  [[ "${#repaired_ordinals[@]}" == "$failed_count" ]] || {
+    echo "declared repair count differs from failed task count" >&2
+    return 1
+  }
+  [[ "$(printf '%s\n' "${repaired_ordinals[@]}" | sort -nu | wc -l | tr -d ' ')" == "$failed_count" ]]
+  for ordinal in "${repaired_ordinals[@]}"; do
+    (( ordinal >= source_offset && ordinal < source_offset + task_count )) || return 1
+    repair_job="$job_a"
+    if (( ordinal >= 28 )); then repair_job="$job_b"; fi
+    repair_csv="${common_csv},--source-ordinal,${ordinal},${binding_csv}"
+    require_terminal_execution \
+      "${R6_FREEZE_RUN_DIR}/repair-${ordinal}-execution.txt" \
+      "repair-${ordinal}" "$repair_job" 1 1 "$repair_csv" 1
+    validate_post_repair_status \
+      "${R6_FREEZE_RUN_DIR}/status-after-repair-${ordinal}.json" "$ordinal"
+    jq -e --argjson ordinal "$ordinal" --arg job "$repair_job" \
+      --arg image "$R6_FREEZE_IMAGE" --arg code_sha "$R6_FREEZE_CODE_SHA" \
+      --arg service_account "$service_account" \
+      --argjson args "$(jq -cn --arg csv "$repair_csv" '$csv | split(",")')" '
+      .schema_version == "r6-full-union-lane-terminal-receipt/v1"
+      and .lane == ("repair-" + ($ordinal|tostring))
+      and .job == $job and .image == $image and .code_sha == $code_sha
+      and .service_account == $service_account
+      and .max_retries == 0 and .command == ["python"] and .args == $args
+      and .task_count == 1 and .parallelism == 1
+      and .completed_condition == "True" and .terminal_success == true
+      and .succeeded_count == 1 and .failed_count == 0 and .running_count == 0
+      and (.terminal_receipt_sha256 | type == "string" and length == 64)
+    ' "${R6_FREEZE_RUN_DIR}/repair-${ordinal}-terminal-receipt.json" >/dev/null
+    retained_sha="$(jq -er .terminal_receipt_sha256 "${R6_FREEZE_RUN_DIR}/repair-${ordinal}-terminal-receipt.json")"
+    calculated_sha="$(jq -cS 'del(.terminal_receipt_sha256)' "${R6_FREEZE_RUN_DIR}/repair-${ordinal}-terminal-receipt.json" | tr -d '\n' | sha256sum | awk '{print $1}')"
+    [[ "$retained_sha" == "$calculated_sha" ]]
+  done
+}
+
+validate_post_repair_status() {
+  local status_file="$1" ordinal="$2"
+  jq -e --argjson ordinal "$ordinal" '
+    (.completed_source_ordinals | index($ordinal)) != null
+    and (.missing_source_ordinals | index($ordinal)) == null
+    and (.result_only_source_ordinals | index($ordinal)) == null
+  ' "$status_file" >/dev/null
 }
 
 common_csv="${freeze_cli},--project,${project},run-slate,--execute,--manifest-uri,${manifest_uri},--manifest-generation,${manifest_generation},--manifest-sha256,${manifest_sha256},--manifest-bytes,${manifest_bytes}"
 binding_csv="--expected-source-commit-sha,${R6_FREEZE_CODE_SHA},--expected-immutable-image,${R6_FREEZE_IMAGE},--expected-project-number,${project_number},--expected-region,${region}"
+lane_a_csv="${common_csv},--source-offset,0,${binding_csv}"
+lane_b_csv="${common_csv},--source-offset,28,${binding_csv}"
 
 if [[ "$stage" == "canary" ]]; then
   clear_job "$job_a"
@@ -193,10 +270,10 @@ if [[ "$stage" == "launch" ]]; then
     ' "${R6_FREEZE_RUN_DIR}/status-before-launch.json" >/dev/null
   fi
   configure_job "$job_a" 28 4 \
-    "${common_csv},--source-offset,0,${binding_csv}"
+    "$lane_a_csv"
   clear_job "$job_b"
   configure_job "$job_b" 26 4 \
-    "${common_csv},--source-offset,28,${binding_csv}"
+    "$lane_b_csv"
   if [[ ! -s "${R6_FREEZE_RUN_DIR}/lane-a-execution.txt" ]]; then
     test ! -e "${R6_FREEZE_RUN_DIR}/lane-a-submission-pending.json"
     jq -cn --arg job "$job_a" --arg code_sha "$R6_FREEZE_CODE_SHA" \
@@ -238,9 +315,11 @@ if [[ "$stage" == "repair" ]]; then
   repair_ordinal="${2:-}"
   [[ "$repair_ordinal" =~ ^([0-9]|[1-4][0-9]|5[0-3])$ ]]
   require_terminal_execution \
-    "${R6_FREEZE_RUN_DIR}/lane-a-execution.txt" "lane-a"
+    "${R6_FREEZE_RUN_DIR}/lane-a-execution.txt" "lane-a" \
+    "$job_a" 28 4 "$lane_a_csv" 0
   require_terminal_execution \
-    "${R6_FREEZE_RUN_DIR}/lane-b-execution.txt" "lane-b"
+    "${R6_FREEZE_RUN_DIR}/lane-b-execution.txt" "lane-b" \
+    "$job_b" 26 4 "$lane_b_csv" 0
   run_cli status "${manifest_args[@]}" \
     >"${R6_FREEZE_RUN_DIR}/status-before-repair-${repair_ordinal}.json"
   jq -e --argjson ordinal "$repair_ordinal" '
@@ -259,9 +338,24 @@ if [[ "$stage" == "repair" ]]; then
     --project "$project" --region "$region" --wait \
     --tasks 1 --task-timeout 7200s --format='value(metadata.name)' \
     >"${R6_FREEZE_RUN_DIR}/repair-${repair_ordinal}-execution.txt"
+  repair_csv="${common_csv},--source-ordinal,${repair_ordinal},${binding_csv}"
+  require_terminal_execution \
+    "${R6_FREEZE_RUN_DIR}/repair-${repair_ordinal}-execution.txt" \
+    "repair-${repair_ordinal}" "$repair_job" 1 1 "$repair_csv" 1
+  run_cli status "${manifest_args[@]}" \
+    >"${R6_FREEZE_RUN_DIR}/status-after-repair-${repair_ordinal}.json"
+  validate_post_repair_status \
+    "${R6_FREEZE_RUN_DIR}/status-after-repair-${repair_ordinal}.json" \
+    "$repair_ordinal"
   exit 0
 fi
 
+require_lane_success_or_exact_repairs \
+  "${R6_FREEZE_RUN_DIR}/lane-a-execution.txt" "lane-a" \
+  "$job_a" 28 4 "$lane_a_csv" 0 R6_FREEZE_LANE_A_REPAIRED_ORDINALS
+require_lane_success_or_exact_repairs \
+  "${R6_FREEZE_RUN_DIR}/lane-b-execution.txt" "lane-b" \
+  "$job_b" 26 4 "$lane_b_csv" 28 R6_FREEZE_LANE_B_REPAIRED_ORDINALS
 run_cli status "${manifest_args[@]}" >"${R6_FREEZE_RUN_DIR}/status-before-finish.json"
 jq -e '
   .completed_slate_count == 54

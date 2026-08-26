@@ -1,0 +1,55 @@
+FROM python:3.11-slim
+
+ARG SOURCE_COMMIT
+ENV PYTHONPATH=/opt/nfl-predictions/src \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+WORKDIR /opt/nfl-predictions
+
+# Git is retained as runtime provenance evidence, jq supports the packaged
+# orchestration contract, and libgomp remains part of the frozen scientific
+# dependency stack even though this release path does no model fitting.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends bash ca-certificates git jq libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Cloud Build supplies a clean detached checkout fetched by its exact pushed
+# commit. Keeping the real Git database lets every execution prove the bytes
+# it is running rather than trusting a mutable image tag.
+COPY . /opt/nfl-predictions
+
+RUN test -n "${SOURCE_COMMIT}" \
+    && git config --global --add safe.directory /opt/nfl-predictions \
+    && test "$(git rev-parse --verify HEAD)" = "${SOURCE_COMMIT}" \
+    && test -z "$(git status --porcelain=v1 --untracked-files=all)" \
+    && pip install --no-cache-dir ".[gcp]" \
+    && git clean -ffdX \
+    && test "$(git rev-parse --verify HEAD)" = "${SOURCE_COMMIT}" \
+    && test -z "$(git status --porcelain=v1 --untracked-files=all)"
+
+# Fail the image build unless the complete post-freeze boundary is present
+# and importable. These are help/import checks only: they construct no cloud
+# clients, acquire no historical lease and read no outcome data.
+RUN for tool in bash git jq python sha256sum; do command -v "${tool}" >/dev/null; done \
+    && python -c "from nfl_dfs.research import corpus_r6_full_union_panel_freeze_v1, corpus_r6_full_union_panel_freeze_release_v1, corpus_r6_full_union_outcome_snapshot_v1, corpus_r6_full_union_outcome_supply_v1, corpus_r6_full_union_realized_grading_v1, corpus_r6_full_union_grade_release_v1, corpus_r6_full_union_score_report_v1" \
+    && python -m py_compile \
+        scripts/run_corpus_r6_full_union_panel_freeze_v1.py \
+        scripts/validate_r6_full_union_lane_terminal_v1.py \
+        scripts/report_corpus_r6_full_union_scores_v1.py \
+    && python scripts/run_corpus_r6_full_union_panel_freeze_v1.py --help >/dev/null \
+    && python scripts/run_corpus_r6_full_union_outcome_snapshot_v1.py --help >/dev/null \
+    && python scripts/run_corpus_r6_full_union_outcome_supply_v1.py --help >/dev/null \
+    && python scripts/run_corpus_r6_full_union_realized_grade_v1.py --help >/dev/null \
+    && python scripts/validate_r6_full_union_lane_terminal_v1.py --help >/dev/null \
+    && python scripts/report_corpus_r6_full_union_scores_v1.py --help >/dev/null \
+    && python scripts/historical_outcome_lease.py --help >/dev/null \
+    && bash -n scripts/run_r6_full_union_freeze_cloud_v1.sh \
+    && bash -n scripts/cloud_r6_full_union_score_chain_v1.sh \
+    && bash scripts/cloud_r6_full_union_score_chain_v1.sh help >/dev/null \
+    && git clean -ffdX \
+    && test "$(git rev-parse --verify HEAD)" = "${SOURCE_COMMIT}" \
+    && test -z "$(git status --porcelain=v1 --untracked-files=all)"
+
+# The orchestrator always supplies an explicit operation. A bare container is
+# deliberately inert and cannot open the historical-outcome boundary.
+CMD ["python", "-c", "print('r6-post-freeze: explicit command required')"]

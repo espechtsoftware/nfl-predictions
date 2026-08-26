@@ -631,6 +631,12 @@ def test_panel_root_requires_complete_ordered_54_leaf_census(
         "4": 10_368, "14": 36_288, "80": 207_360,
     }
     assert root["outcome_key_projection_inputs_frozen"] is True
+    root_identity = store.add(str(root["target_uri"]), root)
+    reopened, reopened_identity = freeze.reopen_panel_freeze_v1(
+        root_identity, read_exact=store.read_exact
+    )
+    assert reopened_identity == root_identity
+    assert batch.canonical_json_bytes(reopened) == batch.canonical_json_bytes(root)
     copied_root_identity = store.add("gs://fixture/copied-panel-freeze.json", root)
     with pytest.raises(freeze.CorpusR6FullUnionPanelFreezeV1Error):
         freeze.reopen_panel_freeze_v1(
@@ -644,6 +650,50 @@ def test_panel_root_requires_complete_ordered_54_leaf_census(
             ordered_slate_freeze_identities=reordered,
             read_exact=store.read_exact,
         )
+
+
+def test_panel_root_rejects_wrong_extra_and_nested_outcome_flags(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, panel, _, manifest, manifest_identity, _, _ = _prepared_fixture(monkeypatch)
+    fake = [
+        _fake_leaf(
+            source_ordinal=ordinal,
+            manifest=manifest,
+            manifest_identity=manifest_identity,
+        )
+        for ordinal in range(54)
+    ]
+    by_uri = {row[2]["uri"]: row for row in fake}
+
+    def reopen(identity: object, *, read_exact: object):
+        row = by_uri[dict(identity)["uri"]]
+        return row[0], manifest, panel, panel["accepted_slates"], row[1], row[2]
+
+    monkeypatch.setattr(freeze, "reopen_slate_freeze_v1", reopen)
+    root = freeze.build_panel_freeze_v1(
+        manifest_identity=manifest_identity,
+        ordered_slate_freeze_identities=[row[2] for row in fake],
+        read_exact=store.read_exact,
+    )
+
+    wrong_value = deepcopy(root)
+    wrong_value["outcome_key_projection_inputs_frozen"] = False
+    near_name = deepcopy(root)
+    near_name["outcome_key_projection_inputs_frozen_extra"] = True
+    nested = deepcopy(root)
+    nested["prefix_roster_occurrence_counts"][
+        "outcome_key_projection_inputs_frozen"
+    ] = True
+    for mutated in (wrong_value, near_name, nested):
+        _rehash(mutated, "panel_freeze_sha256")
+        with pytest.raises(
+            freeze.CorpusR6FullUnionPanelFreezeV1Error,
+            match="outcome|top-level",
+        ):
+            freeze.validate_panel_freeze_structure_v1(
+                mutated, read_exact=store.read_exact
+            )
 
 
 def test_manifest_rejects_mutable_image_and_incomplete_panel(

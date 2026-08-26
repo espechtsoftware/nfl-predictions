@@ -20,6 +20,91 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 15:15 UTC (one-hundred-forty-sixth update)
+
+### Both R6 lanes are terminal 54/54; root exists but needs amended exact reopen
+
+- Branch `main` and `origin/main` are both at pushed commit `97eadcf3`. The
+  exact immutable source executions completed successfully: lane A
+  `atlas-minimal-c-s2023-w1-v1-4fr2l` is 28/28, `Completed=True`, completion
+  `2026-08-26T14:42:26.858243Z`; lane B
+  `atlas-cbc-32g-full-2023-w8-v1-wxgv9` is 26/26, `Completed=True`, completion
+  `2026-08-26T14:37:46.926851Z`. Both have zero failed/running tasks. Their
+  exact terminal envelopes are retained locally in this run directory as
+  `lane-a-terminal.json` and `lane-b-terminal.json` and passed direct checks
+  for the exact execution/job, 28/26 tasks, parallelism 4, max retries 0,
+  source argv, digest image, service account, 4 CPU/16 GiB, 7,200-second
+  timeout, exact two-variable environment, and empty mount/network state.
+- The artifact ledger is **54/54 accepted**, with no missing or result-only
+  ordinals, 2,592 books, 7,776 prefixes, and `root_ready=true`. The exact
+  outcome-blind root was create-once published at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-full-union-freezes/20260826-foundry-v12-r6-full-union-freeze-v1/panel-freeze.json`,
+  generation `1787756181440564`, bytes `89879`, object SHA-256
+  `57844386a3da86ddf05f8b3e6b19ae19c7327afcfc1057647b210e58caec2467`,
+  and panel self-hash
+  `26d27abf5074ed20cbd401e1a93332b34449eb3ec9b3c7175330c1de10736f2d`.
+  It reports the exact 54/2,592/7,776 census,
+  `outcome_key_projection_inputs_frozen=true`, `uses_realized_outcomes=false`,
+  and `complete=true`.
+- The original exact `finish` attempt published that root, then correctly
+  withheld a finish receipt when exact reopen hit a source validator
+  contradiction: the builder emits the registered top-level structural flag
+  `outcome_key_projection_inputs_frozen=true`, while the generic nested-name
+  filter rejected any otherwise-unregistered key containing `outcome`. The
+  local `finish.json` is therefore zero bytes and is not authority. A minimal
+  current-main fix admits only that exact top-level Boolean-true flag; wrong,
+  near-name, and nested forms still fail. The repaired module/test hashes are
+  `a88108263f88d0bb57445270f004bad97213cd4dcdfb4929fa32fe1fc8776255`
+  and `f89f971160513013611744778fc4971a4876758ef874e2c819508a896ea5d9c9`.
+  The targeted tests and the full existing panel-freeze test module pass, and
+  independent static review is **P0=0/P1=0**. Recovery must run the direct
+  `finish-panel` CLI from a clean pushed patched commit and its immutable
+  image; create-or-recover must byte-match the existing root before the fixed
+  exact reopen can emit a finish receipt.
+- The R6 lease release/cloud orchestrator is independently reviewed
+  **P0=0/P1=0**. Its final actual-run integration accepts the explicitly
+  configured default-compute service account used by the registered job (or
+  an exact project-local IAM account), binds that value end to end without
+  discovery/fallback, and confines the panel URI to the exact R6 freeze
+  namespace. The final shell/test hashes are
+  `9f5cd0e30a7c488d400587a8a1b38f28b80845a3277230c6c60a4b3ff0bbdc67`
+  and `a1f30c7a49a84a92d6b39d23b2888a08efe8081d19329366e95a4f3516bdf491`;
+  lease/test hashes are
+  `84aa06819d321f32b8451b0f86437ad64b062aa75903393d10951dee04b6b27e`
+  and `f39c96d2768599927113afb6caabb024c7c349d71168c642cc0046da6441af38`.
+  The repaired aggregate-only score
+  reporter is 13/13 focused-green and independently reviewed **P0=0/P1=0**;
+  it confines every read to the exact grade-run prefix, validates the full
+  grade/supply lineage and exact eight-strategy registry including T230, and
+  canonical-reopens the root plus 54 shards without source/query/lease reads.
+  The expanded immutable-build scaffold is locally 9/9 contract-green and
+  independently reviewed **P0=0/P1=0**; its exact pushed-checkout test and
+  metadata inventories explicitly include the panel root/release, terminal,
+  reporter, supply, grader, release, lease and orchestrator boundaries.
+- Canonical terminal receipts are now safely published locally from the two
+  captured envelopes. Lane A self-hash is
+  `6f3dc96da82a77d69b5b9616ddbca54a191bb50ba7e4f557c1ddf7c102239de2`
+  (file SHA-256
+  `e29abc759163cff9212b3c45e09605e27484a5cc58611af13c0a0233186c6f60`)
+  and lane B self-hash is
+  `d0eec967f30fe3be8a5994b6896980c6499be98978b2d7686cc288b4ddeef513`
+  (file SHA-256
+  `933e076f6dbd40233bafdb78ec2f63ae324960bd5edfd717397a09405e7a2f7c`).
+  The single Python producer uses private-temp write+fsync, atomic hard-link,
+  directory fsync and descriptor/inode-safe equal recovery; repair lanes are
+  freshly re-described and post-status checked, while this all-success run
+  takes the direct path. Its final four artifacts are independently reviewed
+  **P0=0/P1=0** and the focused terminal suite passes 16/16.
+- The exact complete local test command declared by the final Cloud Build
+  passed **206/206 executed tests**, with one expected actual-root/cloud-only
+  skip, in 530.80 seconds. Historical realized scoring has not begun, no
+  historical lease has been acquired, and no BigQuery/outcome/Neo4j read or
+  mutation occurred. Exact next action: commit/push only these reviewed bytes
+  and durable terminal evidence, build one immutable digest, recover and
+  exact-reopen the byte-identical root to emit the finish receipt, run the
+  actual-root outcome-blind smoke, and only then acquire the lease for the
+  single outcome query and eight-strategy grade.
+
 ## Current handoff — 2026-08-26 14:26 UTC (one-hundred-forty-fifth update)
 
 ### R6 realized grade release is independently reviewed while the freeze advances

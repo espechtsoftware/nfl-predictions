@@ -1,0 +1,244 @@
+steps:
+  - name: gcr.io/cloud-builders/git
+    id: exact-pushed-detached-checkout
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        [[ '${_SOURCE_COMMIT}' =~ ^[0-9a-f]{40}$ ]]
+        test ! -e /workspace/r6-post-freeze-checkout
+        git init /workspace/r6-post-freeze-checkout
+        cd /workspace/r6-post-freeze-checkout
+        git remote add origin https://github.com/espechtsoftware/nfl-predictions.git
+        git fetch --depth=1 origin '${_SOURCE_COMMIT}'
+        git checkout --detach FETCH_HEAD
+        test "$(git rev-parse --verify HEAD)" = '${_SOURCE_COMMIT}'
+        test -z "$(git status --porcelain=v1 --untracked-files=all)"
+
+  - name: python:3.11-slim
+    id: focused-post-freeze-contract-tests
+    dir: /workspace/r6-post-freeze-checkout
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends git jq libgomp1
+        required_tools=(
+          awk bash cat chmod cmp date dirname env git jq ln mkdir mktemp pip
+          python python3 rm sha256sum sleep tr wc
+        )
+        for tool in "$${required_tools[@]}"; do
+          command -v "$${tool}" >/dev/null
+        done
+        pip install --no-cache-dir '.[gcp,dev]'
+        PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src \
+          python -m pytest -q -o addopts='' \
+          tests/test_corpus_r6_full_union_panel_freeze_v1.py \
+          tests/test_corpus_r6_full_union_outcome_snapshot_v1.py \
+          tests/test_run_corpus_r6_full_union_outcome_snapshot_v1.py \
+          tests/test_corpus_r6_full_union_outcome_supply_v1.py \
+          tests/test_run_corpus_r6_full_union_outcome_supply_v1.py \
+          tests/test_corpus_r6_full_union_realized_grading_v1.py \
+          tests/test_corpus_r6_full_union_grade_release_v1.py \
+          tests/test_run_corpus_r6_full_union_realized_grade_v1.py \
+          tests/test_corpus_r6_full_union_score_report_v1.py \
+          tests/test_validate_r6_full_union_lane_terminal_v1.py \
+          tests/test_run_r6_full_union_freeze_terminal_contract.py \
+          tests/test_historical_outcome_lease.py \
+          tests/test_cloud_r6_full_union_score_chain_v1.py \
+          tests/test_r6_post_freeze_build_contract.py
+
+  - name: gcr.io/cloud-builders/docker
+    id: build-exact-commit-tag
+    dir: /workspace/r6-post-freeze-checkout
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        # The focused test step may leave only Git-ignored caches/egg-info.
+        # Remove them from this isolated checkout before constructing the
+        # image context so COPY contains the exact tracked commit plus .git.
+        git clean -ffdX
+        test "$$(git rev-parse --verify HEAD)" = '${_SOURCE_COMMIT}'
+        test -z "$$(git status --porcelain=v1 --untracked-files=all)"
+        image_tag='${_IMAGE_REPOSITORY}:r6-post-freeze-${_SOURCE_COMMIT}-${BUILD_ID}'
+        docker build \
+          --build-arg 'SOURCE_COMMIT=${_SOURCE_COMMIT}' \
+          -f Dockerfile.r6-post-freeze \
+          -t "$${image_tag}" .
+        printf '%s\n' "$${image_tag}" > /workspace/r6-post-freeze-image-tag.txt
+
+  - name: gcr.io/cloud-builders/docker
+    id: push-tag-and-resolve-immutable-digest
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        image_tag="$$(cat /workspace/r6-post-freeze-image-tag.txt)"
+        test "$${image_tag}" = '${_IMAGE_REPOSITORY}:r6-post-freeze-${_SOURCE_COMMIT}-${BUILD_ID}'
+        docker push "$${image_tag}"
+        digest_ref="$$(docker image inspect --format='{{index .RepoDigests 0}}' "$${image_tag}")"
+        [[ "$${digest_ref}" =~ ^${_IMAGE_REPOSITORY}@sha256:[0-9a-f]{64}$ ]]
+        printf '%s\n' "$${digest_ref}" > /workspace/r6-post-freeze-immutable-image.txt
+
+  - name: gcr.io/cloud-builders/docker
+    id: smoke-import-immutable-digest
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        digest_ref="$$(cat /workspace/r6-post-freeze-immutable-image.txt)"
+        [[ "$${digest_ref}" =~ ^${_IMAGE_REPOSITORY}@sha256:[0-9a-f]{64}$ ]]
+        docker pull "$${digest_ref}"
+        docker run --rm \
+          --env 'EXPECTED_SOURCE_COMMIT=${_SOURCE_COMMIT}' \
+          "$${digest_ref}" bash -ceu '
+            test "$$(git rev-parse --verify HEAD)" = "$${EXPECTED_SOURCE_COMMIT}"
+            test -z "$$(git status --porcelain=v1 --untracked-files=all)"
+            for tool in bash git jq python sha256sum; do command -v "$${tool}" >/dev/null; done
+            python -c "from nfl_dfs.research import corpus_r6_full_union_panel_freeze_v1, corpus_r6_full_union_panel_freeze_release_v1, corpus_r6_full_union_outcome_snapshot_v1, corpus_r6_full_union_outcome_supply_v1, corpus_r6_full_union_realized_grading_v1, corpus_r6_full_union_grade_release_v1, corpus_r6_full_union_score_report_v1"
+            python -m py_compile \
+              scripts/run_corpus_r6_full_union_panel_freeze_v1.py \
+              scripts/validate_r6_full_union_lane_terminal_v1.py \
+              scripts/report_corpus_r6_full_union_scores_v1.py
+            python scripts/run_corpus_r6_full_union_panel_freeze_v1.py --help >/dev/null
+            python scripts/run_corpus_r6_full_union_outcome_snapshot_v1.py --help >/dev/null
+            python scripts/run_corpus_r6_full_union_outcome_supply_v1.py --help >/dev/null
+            python scripts/run_corpus_r6_full_union_realized_grade_v1.py --help >/dev/null
+            python scripts/validate_r6_full_union_lane_terminal_v1.py --help >/dev/null
+            python scripts/report_corpus_r6_full_union_scores_v1.py --help >/dev/null
+            python scripts/historical_outcome_lease.py --help >/dev/null
+            bash -n scripts/run_r6_full_union_freeze_cloud_v1.sh
+            bash -n scripts/cloud_r6_full_union_score_chain_v1.sh
+            bash scripts/cloud_r6_full_union_score_chain_v1.sh help >/dev/null
+          '
+
+  - name: python:3.11-slim
+    id: write-machine-readable-build-metadata
+    dir: /workspace/r6-post-freeze-checkout
+    entrypoint: bash
+    env:
+      - 'R6_BUILD_ID=${BUILD_ID}'
+      - 'R6_SOURCE_COMMIT=${_SOURCE_COMMIT}'
+      - 'R6_IMAGE_REPOSITORY=${_IMAGE_REPOSITORY}'
+      - 'R6_METADATA_PREFIX=${_BUILD_METADATA_PREFIX}'
+    args:
+      - -ceu
+      - |
+        export R6_IMAGE_TAG="$$(cat /workspace/r6-post-freeze-image-tag.txt)"
+        export R6_IMMUTABLE_IMAGE="$$(cat /workspace/r6-post-freeze-immutable-image.txt)"
+        python - <<'PY'
+        from hashlib import sha256
+        import json
+        import os
+        from pathlib import Path
+        import re
+
+        sources = (
+            "Dockerfile.r6-post-freeze",
+            "cloudbuild.r6-post-freeze.yaml",
+            "deploy/r6_post_freeze_build.gcloudignore",
+            "src/nfl_dfs/research/corpus_r6_full_union_panel_freeze_v1.py",
+            "src/nfl_dfs/research/corpus_r6_full_union_panel_freeze_release_v1.py",
+            "src/nfl_dfs/research/corpus_r6_full_union_outcome_snapshot_v1.py",
+            "src/nfl_dfs/research/corpus_r6_full_union_outcome_supply_v1.py",
+            "src/nfl_dfs/research/corpus_r6_full_union_realized_grading_v1.py",
+            "src/nfl_dfs/research/corpus_r6_full_union_grade_release_v1.py",
+            "src/nfl_dfs/research/corpus_r6_full_union_score_report_v1.py",
+            "scripts/run_corpus_r6_full_union_panel_freeze_v1.py",
+            "scripts/run_corpus_r6_full_union_outcome_snapshot_v1.py",
+            "scripts/run_corpus_r6_full_union_outcome_supply_v1.py",
+            "scripts/run_corpus_r6_full_union_realized_grade_v1.py",
+            "scripts/validate_r6_full_union_lane_terminal_v1.py",
+            "scripts/report_corpus_r6_full_union_scores_v1.py",
+            "scripts/historical_outcome_lease.py",
+            "scripts/run_r6_full_union_freeze_cloud_v1.sh",
+            "scripts/cloud_r6_full_union_score_chain_v1.sh",
+            "tests/test_r6_post_freeze_build_contract.py",
+        )
+        tests = (
+            "tests/test_corpus_r6_full_union_panel_freeze_v1.py",
+            "tests/test_corpus_r6_full_union_outcome_snapshot_v1.py",
+            "tests/test_run_corpus_r6_full_union_outcome_snapshot_v1.py",
+            "tests/test_corpus_r6_full_union_outcome_supply_v1.py",
+            "tests/test_run_corpus_r6_full_union_outcome_supply_v1.py",
+            "tests/test_corpus_r6_full_union_realized_grading_v1.py",
+            "tests/test_corpus_r6_full_union_grade_release_v1.py",
+            "tests/test_run_corpus_r6_full_union_realized_grade_v1.py",
+            "tests/test_corpus_r6_full_union_score_report_v1.py",
+            "tests/test_validate_r6_full_union_lane_terminal_v1.py",
+            "tests/test_run_r6_full_union_freeze_terminal_contract.py",
+            "tests/test_historical_outcome_lease.py",
+            "tests/test_cloud_r6_full_union_score_chain_v1.py",
+            "tests/test_r6_post_freeze_build_contract.py",
+        )
+        source_commit = os.environ["R6_SOURCE_COMMIT"]
+        image_repository = os.environ["R6_IMAGE_REPOSITORY"]
+        image_tag = os.environ["R6_IMAGE_TAG"]
+        immutable_image = os.environ["R6_IMMUTABLE_IMAGE"]
+        if re.fullmatch(r"[0-9a-f]{40}", source_commit) is None:
+            raise SystemExit("source commit differs")
+        match = re.fullmatch(
+            re.escape(image_repository) + r"@(sha256:[0-9a-f]{64})",
+            immutable_image,
+        )
+        if match is None or ":latest" in image_tag:
+            raise SystemExit("immutable image differs")
+        identity_paths = tuple(dict.fromkeys((*sources, *tests)))
+        for name in identity_paths:
+            path = Path(name)
+            if not path.is_file() or path.is_symlink():
+                raise SystemExit(f"build input is absent or unsafe: {name}")
+        identities = {
+            name: sha256(Path(name).read_bytes()).hexdigest()
+            for name in identity_paths
+        }
+        build_id = os.environ["R6_BUILD_ID"]
+        metadata_prefix = os.environ["R6_METADATA_PREFIX"].rstrip("/")
+        payload = {
+            "schema_version": "r6-full-union-post-freeze-build/v1",
+            "build_id": build_id,
+            "source_commit": source_commit,
+            "image_repository": image_repository,
+            "build_tag": image_tag,
+            "immutable_image": immutable_image,
+            "image_digest": match.group(1),
+            "focused_tests": list(tests),
+            "focused_tests_passed": True,
+            "immutable_digest_smoke_passed": True,
+            "source_sha256": identities,
+            "metadata_uri": (
+                f"{metadata_prefix}/{build_id}/"
+                "r6-post-freeze-build-metadata.json"
+            ),
+            "uses_realized_outcomes": False,
+            "historical_outcome_lease_acquired": False,
+            "query_executed": False,
+            "scoring_executed": False,
+            "job_mutation_licensed": False,
+            "iam_mutation_licensed": False,
+            "graph_mutation_licensed": False,
+            "production_change_licensed": False,
+            "decision_authority": False,
+        }
+        raw = (json.dumps(payload, sort_keys=True, separators=(",", ":")) + "\n").encode()
+        Path("/workspace/r6-post-freeze-build-metadata.json").write_bytes(raw)
+        print(raw.decode(), end="")
+        PY
+
+substitutions:
+  _SOURCE_COMMIT: required-explicit-40-character-pushed-commit
+  _IMAGE_REPOSITORY: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs
+  _BUILD_METADATA_PREFIX: gs://nfl-predictions-503414-corpus-retrieval/research/r6-full-union-post-freeze-builds
+
+artifacts:
+  objects:
+    location: '${_BUILD_METADATA_PREFIX}/${BUILD_ID}/'
+    paths:
+      - /workspace/r6-post-freeze-build-metadata.json
+
+timeout: 3600s
+options:
+  logging: LEGACY
+  machineType: E2_HIGHCPU_8

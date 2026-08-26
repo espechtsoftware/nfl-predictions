@@ -360,12 +360,22 @@ def _false_fields(value: Mapping[str, object], *, label: str) -> None:
         _fail(f"{label} carries forbidden outcome or decision authority")
 
 
-def _reject_nested_result_or_authority(value: object, *, label: str) -> None:
+def _reject_nested_result_or_authority(
+    value: object,
+    *,
+    label: str,
+    allow_outcome_key_projection_inputs_frozen: bool = False,
+) -> None:
     """Reject any unregistered realized/contest/authority field at any depth."""
     if isinstance(value, Mapping):
         for key, item in value.items():
             if type(key) is not str:
                 _fail(f"{label} contains a non-string key")
+            if key == "outcome_key_projection_inputs_frozen":
+                if not allow_outcome_key_projection_inputs_frozen or item is not True:
+                    _fail(
+                        f"{label}.{key} must be the top-level boolean true flag"
+                    )
             if key == "uses_realized_outcomes" and item is not False:
                 _fail(f"{label}.{key} must be false")
             if key in _FALSE_FIELDS and item is not False:
@@ -374,7 +384,11 @@ def _reject_nested_result_or_authority(value: object, *, label: str) -> None:
                 _fail(f"{label}.{key} must be true")
             if (
                 "outcome" in key
-                and key not in {"uses_realized_outcomes", "realized_outcomes_not_read"}
+                and key not in {
+                    "uses_realized_outcomes",
+                    "realized_outcomes_not_read",
+                    "outcome_key_projection_inputs_frozen",
+                }
                 and not key.startswith("simulated_outcome")
             ):
                 _fail(f"{label} contains an unregistered outcome field")
@@ -1934,7 +1948,11 @@ def validate_panel_freeze_structure_v1(
     item = _mapping(value, label="panel freeze")
     _self_hash(item, field="panel_freeze_sha256", label="panel freeze")
     _false_fields(item, label="panel freeze")
-    _reject_nested_result_or_authority(item, label="panel freeze")
+    _reject_nested_result_or_authority(
+        item,
+        label="panel freeze",
+        allow_outcome_key_projection_inputs_frozen=True,
+    )
     rows = _sequence(item.get("slate_freezes"), label="panel slate descriptors")
     identities = [
         _identity(
