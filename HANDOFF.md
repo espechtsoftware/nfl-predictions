@@ -20,6 +20,47 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 14:26 UTC (one-hundred-forty-fifth update)
+
+### R6 realized grade release is independently reviewed while the freeze advances
+
+- On branch `main` after commit `c12cd0ae`, the default-off R6 realized-grade
+  release module and its cloud CLI are stable and ready to land. The CLI first
+  replays only outcome-blind structure and persisted attempt coordinates, then
+  verifies the live historical-outcome lease by exact generation and bytes
+  before reading any query evidence, realized source, or outcome snapshot. It
+  independently pins the supply execution/job/code/image and all four reviewed
+  snapshot-code identities, keeps those upstream identities separate from the
+  grade runtime, canonically replays all 54 persisted grade shards, and
+  publishes the terminal grade root last with create-once/equal recovery.
+- The focused release/CLI tests passed **37/37** locally. Independent static
+  review of the exact four hashes is final at **P0=0/P1=0**. Exact SHA-256
+  values are release module
+  `63363cdbbe4e24d0b3a5fb352923daf851dbb84dd0e405e953f3f01e4ac8114f`,
+  CLI `74f8c7ffbf0750964deb8c7ab3eab6c7846a243b1fd8a5ee9f4969d2f7c60146`,
+  release test
+  `9744bfaf4075a48a3005c885d5c52b88a586b874931427079559a90dca093620`,
+  and CLI test
+  `b6fad5c52624805fcb15ed523804fbad0eac50b83c957b019a2016c0d4c3630b`.
+  The stale/newer-lease case proves zero outcome-bearing reads and zero
+  publication. No test or review accessed cloud resources, outcomes, BigQuery,
+  GCS, Neo4j, or the historical-outcome lease.
+- Live immutable-freeze status at approximately 14:25 UTC is **48/54
+  accepted**, 2,304 books and 6,912 prefixes, with no result-only objects.
+  Missing source ordinals are exactly `24,25,26,27,52,53` and
+  `root_ready=false`. Exact lane A execution
+  `atlas-minimal-c-s2023-w1-v1-4fr2l` reports 24 succeeded/3 running and lane B
+  `atlas-cbc-32g-full-2023-w8-v1-wxgv9` reports 22 succeeded/2 running, with no
+  reported failure. Historical realized scoring has not begun.
+- The R6-specific lease-release/cloud orchestrator is still being hardened and
+  retested for durable pre-delete intent, crash-after-delete recovery, exact
+  terminal job-envelope validation, and clean job reconfiguration. Exact next
+  action: monitor both immutable executions to terminal 54/54, validate and
+  persist both terminal lane receipts, publish/exact-reopen the outcome-blind
+  combined root, finish and independently review the release orchestrator,
+  build one immutable post-freeze image, and run the actual-root smoke before
+  acquiring the lease for the single outcome query and eight-strategy grade.
+
 ## Current handoff — 2026-08-26 13:35 UTC (one-hundred-forty-fourth update)
 
 ### Smoke-gated one-query outcome supply is reviewed and focused-green
