@@ -20,6 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 21:11 UTC (one-hundred-fifty-fourth update)
+
+### Observatory Phase 5 is safely isolated but rejected pending capacity-contract repair
+
+- The delegated observatory worktree is clean and pushed on
+  `feature/neo4j-react-observatory` at
+  `283bd3debe7bb32dba78b69f82d86dea914e9bce`, exactly one parent after the
+  accepted Phase 4 commit
+  `3f656dfd845d082ba47b8eea551269592f3095b8`. Its diff is limited to the
+  branch HANDOFF, Phase 5 report, pure offline estimator and focused test.
+  It did not merge/rebase main, mount a route, access cloud/outcomes, connect
+  or provision Neo4j, change infrastructure/deployment, select a graph mode,
+  or touch active R6/T230/Core paths. Focused validation passes 30/30 with
+  `PYTHONPATH=src`; `git diff --check` is clean.
+- Lead and independent review verdict is **REJECT pending repair**, P0=0.
+  Required P1 corrections are: replace the terminal-invalid standalone T230
+  release input with the accepted R6 full-union panel-freeze/release identity;
+  keep WinnerRelease/WinnerObservation and their edge out of the closed v1
+  realized namespace; make ADMITTED_BY/SELECTED_BY/MEMBER_OF_BOOK counts match
+  Phase 4 endpoint semantics; replace unregistered `LINEAGE_COMBINED` with
+  exact registered relationship-type counts; include the omitted snapshot,
+  world/science/verifier and deployment-attestation nodes; make the lead
+  confirmation hash actually bind its canonical subject; pin the literal v1
+  estimation-law digest; hash complete PropertyRule content rather than only
+  property names; and complete selected-lineup count coherence. Add tests for
+  relationship vocabulary, realized firewall, Phase 4 census/cardinality
+  parity and the corrected hashes.
+- Exact next observatory action: the delegated agent may make only that
+  bounded Phase 5 corrective commit in the same isolated branch, rerun the
+  capacity and graph-contract/fixture regressions serially, update its report
+  and HANDOFF, commit/push and stop for lead re-review. No mode decision,
+  merge, live graph, router/React cutover, cloud/outcome access, infrastructure
+  or deployment is authorized. This correction remains independent of the
+  live R6-v2 smoke and must not block scoring.
+
 ## Current handoff — 2026-08-26 20:38 UTC (one-hundred-fifty-third update)
 
 ### Corrected image and server compile pass; exact v2 actual-root smoke is live
