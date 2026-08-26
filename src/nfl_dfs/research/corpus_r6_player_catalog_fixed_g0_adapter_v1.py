@@ -44,8 +44,17 @@ ADAPTER_REVIEW_LOCK_SCHEMA: Final = (
 TASK0_REAL_ARTIFACT_SMOKE_SCHEMA: Final = (
     "corpus-r6-player-catalog-fixed-g0-task0-real-artifact-smoke/v1"
 )
+TASK0_REAL_ARTIFACT_SMOKE_V2_SCHEMA: Final = (
+    "corpus-r6-player-catalog-fixed-g0-task0-real-artifact-smoke/v2"
+)
 TASK0_REAL_ARTIFACT_SMOKE_ATTEMPT_SCHEMA: Final = (
     "corpus-r6-player-catalog-fixed-g0-task0-real-artifact-smoke-attempt/v1"
+)
+TASK0_REAL_ARTIFACT_SMOKE_ATTEMPT_V2_SCHEMA: Final = (
+    "corpus-r6-player-catalog-fixed-g0-task0-real-artifact-smoke-attempt/v2"
+)
+TASK0_SMOKE_RECOVERY_REVIEW_LOCK_SCHEMA: Final = (
+    "corpus-r6-player-catalog-fixed-g0-task0-smoke-recovery-review-lock/v1"
 )
 FINAL_RELEASE_LOCK_SCHEMA: Final = (
     "corpus-r6-player-catalog-fixed-g0-final-release-lock/v1"
@@ -91,6 +100,29 @@ FIXED_TASK0_SMOKE_RECEIPT_PATH: Final = (
 FIXED_TASK0_SMOKE_ATTEMPT_PATH: Final = (
     "reports/2026-08-26-r6-player-catalog-fixed-g0-task0-real-artifact-smoke-attempt.json"
 )
+FIXED_TASK0_SMOKE_ATTEMPT_V2_PATH: Final = (
+    "reports/2026-08-26-r6-player-catalog-fixed-g0-"
+    "task0-real-artifact-smoke-attempt-v2.json"
+)
+FIXED_TASK0_SMOKE_RECOVERY_AMENDMENT_PATH: Final = (
+    "reports/2026-08-26-r6-fixed-g0-task0-smoke-"
+    "preclient-recovery-amendment.md"
+)
+FIXED_TASK0_SMOKE_RECOVERY_AMENDMENT_SHA256: Final = (
+    "a53e9a2cf973a2ee29631a4743faff1c99aa6698c91106c66e1d67349dcab82c"
+)
+FIXED_TASK0_SMOKE_RECOVERY_AMENDMENT_BYTES: Final = 3646
+FIXED_TASK0_SMOKE_RECOVERY_REVIEW_LOCK_PATH: Final = (
+    "reports/2026-08-26-r6-player-catalog-fixed-g0-"
+    "task0-smoke-recovery-review-lock.json"
+)
+FIXED_TASK0_SMOKE_ATTEMPT_V1_SHA256: Final = (
+    "35d2a32334f7b06074a8f37245042881f4dd100796e3093b1e09639a6d81ae48"
+)
+FIXED_TASK0_SMOKE_ATTEMPT_V1_BYTES: Final = 3278
+FIXED_TASK0_SMOKE_ATTEMPT_V1_INTERNAL_SHA256: Final = (
+    "2e3adc38313f2811cf7d245e77d7838915cb9602cc416e3c581e20d029d57eff"
+)
 FIXED_FINAL_RELEASE_LOCK_PATH: Final = (
     "reports/2026-08-26-r6-player-catalog-fixed-g0-final-release-lock.json"
 )
@@ -125,6 +157,23 @@ FIXED_TASK0_SMOKE_COMMAND: Final = (
     "nfl_dfs.research.corpus_r6_player_catalog_fixed_g0_adapter_v1",
     "preflight-task0",
     "--preflight",
+)
+FIXED_TASK0_SMOKE_V2_COMMAND: Final = (
+    ".venv/bin/python",
+    "-m",
+    "nfl_dfs.research.corpus_r6_player_catalog_fixed_g0_adapter_v1",
+    "preflight-task0-v2",
+    "--preflight",
+)
+FIXED_TASK0_SMOKE_RECOVERY_LOCK_BUILD_COMMAND: Final = (
+    ".venv/bin/python",
+    "-m",
+    "nfl_dfs.research.corpus_r6_player_catalog_fixed_g0_adapter_v1",
+    "build-task0-smoke-recovery-lock",
+    "--output",
+    FIXED_TASK0_SMOKE_RECOVERY_REVIEW_LOCK_PATH,
+    "--static-review-approved",
+    "--build",
 )
 FIXED_PRELIMINARY_LOCK_BUILD_COMMAND: Final = (
     ".venv/bin/python",
@@ -419,6 +468,64 @@ _TASK0_SMOKE_ATTEMPT_FIELDS: Final = frozenset({
     "uses_realized_outcomes",
     *_TASK0_SMOKE_ATTEMPT_FALSE_FIELDS,
     "task0_real_artifact_smoke_attempt_sha256",
+})
+_TASK0_SMOKE_RECOVERY_LOCK_FIELDS: Final = frozenset({
+    "schema_version",
+    "implementation_commit_sha",
+    "implementation_measurements",
+    "recovery_amendment_measurement",
+    "v1_attempt_measurement",
+    "v1_attempt_internal_sha256",
+    "v1_review_binding",
+    "v1_invocation_count",
+    "v1_exit_before_gcs_client_construction",
+    "v1_exit_before_cloud_read",
+    "v1_failure_classification",
+    "v1_cloud_read_count",
+    "v1_cloud_mutation_count",
+    "v1_gcs_publication_count",
+    "v1_outcomes_read",
+    "v1_success_receipt_absent",
+    "v2_command",
+    "v2_invocation_count_max",
+    "lifetime_invocation_count_max",
+    "third_invocation_allowed",
+    "v2_marker_create_once_before_client",
+    "v2_success_receipt_path",
+    "independent_static_review_passed",
+    "p0_open_count",
+    "p1_open_count",
+    "p2_open_count",
+    "cloud_read_only_smoke_licensed",
+    "gcs_mutation_licensed",
+    "uses_realized_outcomes",
+    *_TASK0_SMOKE_ATTEMPT_FALSE_FIELDS,
+    "task0_smoke_recovery_review_lock_sha256",
+})
+_TASK0_SMOKE_ATTEMPT_V2_FIELDS: Final = frozenset({
+    "schema_version",
+    "command",
+    "attempt_relative_path",
+    "success_receipt_relative_path",
+    "recovery_review_lock_file",
+    "recovery_review_lock_internal_sha256",
+    "v1_attempt_measurement",
+    "v1_attempt_internal_sha256",
+    "adapter_review_binding",
+    "implementation_measurements",
+    "v1_invocation_count",
+    "v2_invocation_count",
+    "lifetime_invocation_count",
+    "state",
+    "reserved_before_gcs_client_construction",
+    "cloud_read_performed",
+    "cloud_mutation_executed",
+    "gcs_publication_count",
+    "local_attempt_marker_create_count",
+    "outcome_columns_read",
+    "uses_realized_outcomes",
+    *_TASK0_SMOKE_ATTEMPT_FALSE_FIELDS,
+    "task0_real_artifact_smoke_attempt_v2_sha256",
 })
 _TASK0_SMOKE_FALSE_FIELDS: Final = tuple(catalog.FALSE_AUTHORITY_FIELDS)
 _TASK0_SMOKE_RECEIPT_FIELDS: Final = frozenset({
@@ -3736,6 +3843,221 @@ def _validate_task0_smoke_attempt_v1(
     return expected
 
 
+def build_task0_smoke_recovery_review_lock_v1(
+    *,
+    implementation_commit_sha: str,
+    implementation_measurements: Sequence[Mapping[str, object]],
+    v1_attempt_raw: bytes,
+    independent_static_review_passed: bool,
+) -> dict[str, object]:
+    """Build the pure reviewed boundary for one pre-client v2 correction."""
+    implementation_commit = _commit(
+        implementation_commit_sha, label="smoke-recovery implementation commit"
+    )
+    measurements = [
+        _normalize_file_binding(
+            row, label=f"smoke-recovery implementation[{ordinal}]"
+        )
+        for ordinal, row in enumerate(implementation_measurements)
+    ]
+    if [row["relative_path"] for row in measurements] != list(
+        FIXED_ADAPTER_IMPLEMENTATION_PATHS
+    ):
+        _fail("smoke-recovery implementation measurement order differs")
+    _require_fixed_catalog_runtime_measurement_v1(measurements)
+    if (
+        type(v1_attempt_raw) is not bytes
+        or len(v1_attempt_raw) != FIXED_TASK0_SMOKE_ATTEMPT_V1_BYTES
+        or sha256(v1_attempt_raw).hexdigest()
+        != FIXED_TASK0_SMOKE_ATTEMPT_V1_SHA256
+    ):
+        _fail("preserved v1 smoke-attempt bytes differ")
+    v1_attempt = _validate_task0_smoke_attempt_v1(
+        _parse_canonical_json(
+            v1_attempt_raw,
+            label="preserved v1 smoke attempt",
+            allow_one_newline=True,
+        )
+    )
+    if (
+        v1_attempt["task0_real_artifact_smoke_attempt_sha256"]
+        != FIXED_TASK0_SMOKE_ATTEMPT_V1_INTERNAL_SHA256
+        or independent_static_review_passed is not True
+    ):
+        _fail("smoke-recovery v1 history or static review differs")
+    body: dict[str, object] = {
+        "schema_version": TASK0_SMOKE_RECOVERY_REVIEW_LOCK_SCHEMA,
+        "implementation_commit_sha": implementation_commit,
+        "implementation_measurements": measurements,
+        "recovery_amendment_measurement": {
+            "relative_path": FIXED_TASK0_SMOKE_RECOVERY_AMENDMENT_PATH,
+            "sha256": FIXED_TASK0_SMOKE_RECOVERY_AMENDMENT_SHA256,
+            "bytes": FIXED_TASK0_SMOKE_RECOVERY_AMENDMENT_BYTES,
+        },
+        "v1_attempt_measurement": {
+            "relative_path": FIXED_TASK0_SMOKE_ATTEMPT_PATH,
+            "sha256": FIXED_TASK0_SMOKE_ATTEMPT_V1_SHA256,
+            "bytes": FIXED_TASK0_SMOKE_ATTEMPT_V1_BYTES,
+        },
+        "v1_attempt_internal_sha256": (
+            FIXED_TASK0_SMOKE_ATTEMPT_V1_INTERNAL_SHA256
+        ),
+        "v1_review_binding": v1_attempt["adapter_review_binding"],
+        "v1_invocation_count": 1,
+        "v1_exit_before_gcs_client_construction": True,
+        "v1_exit_before_cloud_read": True,
+        "v1_failure_classification": (
+            "incomplete-temporary-venv-google-storage-import-failure"
+        ),
+        "v1_cloud_read_count": 0,
+        "v1_cloud_mutation_count": 0,
+        "v1_gcs_publication_count": 0,
+        "v1_outcomes_read": False,
+        "v1_success_receipt_absent": True,
+        "v2_command": list(FIXED_TASK0_SMOKE_V2_COMMAND),
+        "v2_invocation_count_max": 1,
+        "lifetime_invocation_count_max": 2,
+        "third_invocation_allowed": False,
+        "v2_marker_create_once_before_client": True,
+        "v2_success_receipt_path": FIXED_TASK0_SMOKE_RECEIPT_PATH,
+        "independent_static_review_passed": True,
+        "p0_open_count": 0,
+        "p1_open_count": 0,
+        "p2_open_count": 0,
+        "cloud_read_only_smoke_licensed": True,
+        "gcs_mutation_licensed": False,
+        "uses_realized_outcomes": False,
+        **{field: False for field in _TASK0_SMOKE_ATTEMPT_FALSE_FIELDS},
+    }
+    body["task0_smoke_recovery_review_lock_sha256"] = canonical_sha256(body)
+    return body
+
+
+def validate_task0_smoke_recovery_review_lock_v1(
+    value: object,
+    *,
+    expected_implementation_commit_sha: str,
+    expected_implementation_measurements: Sequence[Mapping[str, object]],
+    expected_v1_attempt_raw: bytes,
+) -> dict[str, object]:
+    item = _mapping(value, label="task-0 smoke-recovery review lock")
+    _exact_keys(
+        item,
+        _TASK0_SMOKE_RECOVERY_LOCK_FIELDS,
+        label="task-0 smoke-recovery review lock",
+    )
+    _false_fields(
+        item,
+        _TASK0_SMOKE_ATTEMPT_FALSE_FIELDS,
+        label="task-0 smoke-recovery review lock",
+    )
+    _validate_self_hash(
+        item,
+        field="task0_smoke_recovery_review_lock_sha256",
+        label="task-0 smoke-recovery review lock",
+    )
+    expected = build_task0_smoke_recovery_review_lock_v1(
+        implementation_commit_sha=expected_implementation_commit_sha,
+        implementation_measurements=expected_implementation_measurements,
+        v1_attempt_raw=expected_v1_attempt_raw,
+        independent_static_review_passed=True,
+    )
+    if canonical_json_bytes(item) != canonical_json_bytes(expected):
+        _fail("task-0 smoke-recovery review lock differs")
+    return expected
+
+
+def _build_task0_smoke_attempt_v2(
+    *,
+    recovery_review_lock: Mapping[str, object],
+    recovery_review_lock_file: Mapping[str, object],
+    v1_attempt_raw: bytes,
+) -> dict[str, object]:
+    lock = _mapping(
+        recovery_review_lock, label="task-0 smoke-recovery review lock"
+    )
+    _exact_keys(
+        lock,
+        _TASK0_SMOKE_RECOVERY_LOCK_FIELDS,
+        label="task-0 smoke-recovery review lock",
+    )
+    lock_sha = _validate_self_hash(
+        lock,
+        field="task0_smoke_recovery_review_lock_sha256",
+        label="task-0 smoke-recovery review lock",
+    )
+    lock_file = _normalize_file_binding(
+        recovery_review_lock_file, label="smoke-recovery review-lock file"
+    )
+    if lock_file["relative_path"] != FIXED_TASK0_SMOKE_RECOVERY_REVIEW_LOCK_PATH:
+        _fail("smoke-recovery review-lock path differs")
+    if (
+        len(v1_attempt_raw) != FIXED_TASK0_SMOKE_ATTEMPT_V1_BYTES
+        or sha256(v1_attempt_raw).hexdigest()
+        != FIXED_TASK0_SMOKE_ATTEMPT_V1_SHA256
+    ):
+        _fail("preserved v1 smoke-attempt bytes differ")
+    body: dict[str, object] = {
+        "schema_version": TASK0_REAL_ARTIFACT_SMOKE_ATTEMPT_V2_SCHEMA,
+        "command": list(FIXED_TASK0_SMOKE_V2_COMMAND),
+        "attempt_relative_path": FIXED_TASK0_SMOKE_ATTEMPT_V2_PATH,
+        "success_receipt_relative_path": FIXED_TASK0_SMOKE_RECEIPT_PATH,
+        "recovery_review_lock_file": lock_file,
+        "recovery_review_lock_internal_sha256": lock_sha,
+        "v1_attempt_measurement": lock["v1_attempt_measurement"],
+        "v1_attempt_internal_sha256": lock["v1_attempt_internal_sha256"],
+        "adapter_review_binding": lock["v1_review_binding"],
+        "implementation_measurements": lock["implementation_measurements"],
+        "v1_invocation_count": 1,
+        "v2_invocation_count": 1,
+        "lifetime_invocation_count": 2,
+        "state": "v2-attempt-reserved-after-recovery-lock-before-client",
+        "reserved_before_gcs_client_construction": True,
+        "cloud_read_performed": False,
+        "cloud_mutation_executed": False,
+        "gcs_publication_count": 0,
+        "local_attempt_marker_create_count": 1,
+        "outcome_columns_read": [],
+        "uses_realized_outcomes": False,
+        **{field: False for field in _TASK0_SMOKE_ATTEMPT_FALSE_FIELDS},
+    }
+    body["task0_real_artifact_smoke_attempt_v2_sha256"] = canonical_sha256(body)
+    return body
+
+
+def _validate_task0_smoke_attempt_v2(
+    value: object,
+    *,
+    expected_recovery_review_lock: Mapping[str, object],
+    expected_recovery_review_lock_file: Mapping[str, object],
+    expected_v1_attempt_raw: bytes,
+) -> dict[str, object]:
+    item = _mapping(value, label="task-0 real-artifact smoke attempt v2")
+    _exact_keys(
+        item,
+        _TASK0_SMOKE_ATTEMPT_V2_FIELDS,
+        label="task-0 real-artifact smoke attempt v2",
+    )
+    _false_fields(
+        item,
+        _TASK0_SMOKE_ATTEMPT_FALSE_FIELDS,
+        label="task-0 real-artifact smoke attempt v2",
+    )
+    _validate_self_hash(
+        item,
+        field="task0_real_artifact_smoke_attempt_v2_sha256",
+        label="task-0 real-artifact smoke attempt v2",
+    )
+    expected = _build_task0_smoke_attempt_v2(
+        recovery_review_lock=expected_recovery_review_lock,
+        recovery_review_lock_file=expected_recovery_review_lock_file,
+        v1_attempt_raw=expected_v1_attempt_raw,
+    )
+    if canonical_json_bytes(item) != canonical_json_bytes(expected):
+        _fail("task-0 real-artifact smoke attempt v2 differs")
+    return expected
+
+
 def _task0_smoke_attempt_file_binding_v1(
     *, adapter_review_binding: Mapping[str, object],
 ) -> tuple[dict[str, object], str]:
@@ -3852,6 +4174,44 @@ def _build_task0_real_artifact_smoke_receipt_v1(
         "uses_realized_outcomes": False,
         **{field: False for field in _TASK0_SMOKE_FALSE_FIELDS},
     }
+    body["task0_real_artifact_smoke_sha256"] = canonical_sha256(body)
+    return body
+
+
+def _build_task0_real_artifact_smoke_receipt_v2(
+    *, inputs: ReplayedProjectionInputsV1, v2_attempt: Mapping[str, object],
+) -> dict[str, object]:
+    attempt = _mapping(v2_attempt, label="task-0 smoke attempt v2")
+    _exact_keys(
+        attempt,
+        _TASK0_SMOKE_ATTEMPT_V2_FIELDS,
+        label="task-0 smoke attempt v2",
+    )
+    _validate_self_hash(
+        attempt,
+        field="task0_real_artifact_smoke_attempt_v2_sha256",
+        label="task-0 smoke attempt v2",
+    )
+    base = _build_task0_real_artifact_smoke_receipt_v1(inputs=inputs)
+    body = {
+        key: value
+        for key, value in base.items()
+        if key != "task0_real_artifact_smoke_sha256"
+    }
+    attempt_raw = canonical_json_bytes(attempt) + b"\n"
+    body.update({
+        "schema_version": TASK0_REAL_ARTIFACT_SMOKE_V2_SCHEMA,
+        "command": list(FIXED_TASK0_SMOKE_V2_COMMAND),
+        "invocation_count": 2,
+        "task0_smoke_attempt_file": {
+            "relative_path": FIXED_TASK0_SMOKE_ATTEMPT_V2_PATH,
+            "sha256": sha256(attempt_raw).hexdigest(),
+            "bytes": len(attempt_raw),
+        },
+        "task0_smoke_attempt_internal_sha256": attempt[
+            "task0_real_artifact_smoke_attempt_v2_sha256"
+        ],
+    })
     body["task0_real_artifact_smoke_sha256"] = canonical_sha256(body)
     return body
 
@@ -5206,6 +5566,19 @@ def _fixed_task0_smoke_attempt_path_v1() -> Path:
     )
 
 
+def _fixed_task0_smoke_attempt_v2_path_v1() -> Path:
+    return _fixed_absent_local_report_path_v1(
+        FIXED_TASK0_SMOKE_ATTEMPT_V2_PATH, label="task-0 smoke attempt v2"
+    )
+
+
+def _fixed_task0_smoke_recovery_lock_output_path_v1() -> Path:
+    return _fixed_absent_local_report_path_v1(
+        FIXED_TASK0_SMOKE_RECOVERY_REVIEW_LOCK_PATH,
+        label="task-0 smoke-recovery review lock",
+    )
+
+
 def _fixed_task0_smoke_receipt_path_v1() -> Path:
     return _fixed_absent_local_report_path_v1(
         FIXED_TASK0_SMOKE_RECEIPT_PATH, label="task-0 smoke receipt"
@@ -5500,6 +5873,171 @@ def _write_task0_smoke_receipt_once_v1(
     )
 
 
+def write_task0_smoke_recovery_review_lock_production_v1(
+    *, output_relative_path: str, independent_static_review_passed: bool,
+) -> dict[str, object]:
+    """Build one fixed local v2 recovery lock without constructing a client."""
+    if output_relative_path != FIXED_TASK0_SMOKE_RECOVERY_REVIEW_LOCK_PATH:
+        _fail("task-0 smoke-recovery lock output path differs")
+    output_path = _fixed_task0_smoke_recovery_lock_output_path_v1()
+    _fixed_task0_smoke_receipt_path_v1()
+    repository = SubprocessGitRepositoryV1()
+    head = repository.require_current_clean_head()
+    measurements = _measure_current_implementation_v1(
+        repository=repository, head=head
+    )
+    v1_raw = repository.read_tracked(head, FIXED_TASK0_SMOKE_ATTEMPT_PATH)
+    amendment_raw = repository.read_tracked(
+        head, FIXED_TASK0_SMOKE_RECOVERY_AMENDMENT_PATH
+    )
+    if (
+        sha256(amendment_raw).hexdigest()
+        != FIXED_TASK0_SMOKE_RECOVERY_AMENDMENT_SHA256
+        or len(amendment_raw) != FIXED_TASK0_SMOKE_RECOVERY_AMENDMENT_BYTES
+    ):
+        _fail("task-0 smoke-recovery amendment differs")
+    lock = build_task0_smoke_recovery_review_lock_v1(
+        implementation_commit_sha=head,
+        implementation_measurements=measurements,
+        v1_attempt_raw=v1_raw,
+        independent_static_review_passed=independent_static_review_passed,
+    )
+    _write_fixed_local_json_once_v1(
+        path=output_path, value=lock, label="task-0 smoke-recovery review lock"
+    )
+    return lock
+
+
+def _resolve_current_task0_smoke_recovery_review_v1(
+    repository: SubprocessGitRepositoryV1,
+) -> tuple[dict[str, object], dict[str, object], bytes, AdapterReviewBindingV1]:
+    head = repository.require_current_clean_head()
+    lock_raw = repository.read_tracked(
+        head, FIXED_TASK0_SMOKE_RECOVERY_REVIEW_LOCK_PATH
+    )
+    v1_raw = repository.read_tracked(head, FIXED_TASK0_SMOKE_ATTEMPT_PATH)
+    amendment_raw = repository.read_tracked(
+        head, FIXED_TASK0_SMOKE_RECOVERY_AMENDMENT_PATH
+    )
+    if (
+        len(amendment_raw) != FIXED_TASK0_SMOKE_RECOVERY_AMENDMENT_BYTES
+        or sha256(amendment_raw).hexdigest()
+        != FIXED_TASK0_SMOKE_RECOVERY_AMENDMENT_SHA256
+    ):
+        _fail("task-0 smoke-recovery amendment differs")
+    lock_value = _mapping(
+        _parse_canonical_json(
+            lock_raw,
+            label="task-0 smoke-recovery review lock",
+            allow_one_newline=True,
+        ),
+        label="task-0 smoke-recovery review lock",
+    )
+    implementation_commit = _commit(
+        lock_value.get("implementation_commit_sha"),
+        label="smoke-recovery implementation commit",
+    )
+    measurements = [
+        _normalize_file_binding(
+            row, label=f"smoke-recovery implementation[{ordinal}]"
+        )
+        for ordinal, row in enumerate(
+            _sequence(
+                lock_value.get("implementation_measurements"),
+                label="smoke-recovery implementation measurements",
+            )
+        )
+    ]
+    lock = validate_task0_smoke_recovery_review_lock_v1(
+        lock_value,
+        expected_implementation_commit_sha=implementation_commit,
+        expected_implementation_measurements=measurements,
+        expected_v1_attempt_raw=v1_raw,
+    )
+    for ordinal, measurement in enumerate(measurements):
+        for commit, label in (
+            (implementation_commit, "reviewed"),
+            (head, "current"),
+        ):
+            _read_tracked_exact(
+                commit=commit,
+                path=str(measurement["relative_path"]),
+                expected_sha256=str(measurement["sha256"]),
+                expected_bytes=int(measurement["bytes"]),
+                read_tracked=repository.read_tracked,
+                label=f"{label} smoke-recovery implementation[{ordinal}]",
+            )
+    lock_file = {
+        "relative_path": FIXED_TASK0_SMOKE_RECOVERY_REVIEW_LOCK_PATH,
+        "sha256": sha256(lock_raw).hexdigest(),
+        "bytes": len(lock_raw),
+    }
+    review = _adapter_review_binding_from_normalized_v1(
+        _mapping(lock["v1_review_binding"], label="v1 review binding")
+    )
+    _reopen_adapter_review_binding_v1(
+        review=review, read_tracked=repository.read_tracked
+    )
+    return lock, lock_file, v1_raw, review
+
+
+def _write_task0_smoke_attempt_v2_once_v1(
+    path: Path,
+    attempt: Mapping[str, object],
+    *,
+    recovery_review_lock: Mapping[str, object],
+    recovery_review_lock_file: Mapping[str, object],
+    v1_attempt_raw: bytes,
+) -> None:
+    fixed_path = _fixed_task0_smoke_attempt_v2_path_v1()
+    if path != fixed_path:
+        _fail("task-0 smoke attempt v2 path differs")
+    _validate_task0_smoke_attempt_v2(
+        attempt,
+        expected_recovery_review_lock=recovery_review_lock,
+        expected_recovery_review_lock_file=recovery_review_lock_file,
+        expected_v1_attempt_raw=v1_attempt_raw,
+    )
+    _write_fixed_local_json_once_v1(
+        path=path, value=attempt, label="task-0 smoke attempt v2"
+    )
+
+
+def run_task0_real_artifact_smoke_production_v2() -> dict[str, object]:
+    """Run only the reviewed v2 correction after reserving its own marker."""
+    attempt_path = _fixed_task0_smoke_attempt_v2_path_v1()
+    receipt_path = _fixed_task0_smoke_receipt_path_v1()
+    repository = SubprocessGitRepositoryV1()
+    lock, lock_file, v1_raw, review = (
+        _resolve_current_task0_smoke_recovery_review_v1(repository)
+    )
+    attempt = _build_task0_smoke_attempt_v2(
+        recovery_review_lock=lock,
+        recovery_review_lock_file=lock_file,
+        v1_attempt_raw=v1_raw,
+    )
+    _write_task0_smoke_attempt_v2_once_v1(
+        attempt_path,
+        attempt,
+        recovery_review_lock=lock,
+        recovery_review_lock_file=lock_file,
+        v1_attempt_raw=v1_raw,
+    )
+    backend = GCSGenerationBackendV1.from_default_client()
+    inputs = _derive_pinned_projection_inputs_v1(
+        pins=FIXED_PINS,
+        adapter_review=review,
+        read_tracked=repository.read_tracked,
+        transport=backend.transport(),
+        task_evidence_ordinals=(0,),
+    )
+    receipt = _build_task0_real_artifact_smoke_receipt_v2(
+        inputs=inputs, v2_attempt=attempt
+    )
+    _write_task0_smoke_receipt_once_v1(receipt_path, receipt)
+    return receipt
+
+
 def run_task0_real_artifact_smoke_production_v1() -> dict[str, object]:
     """Run the single reviewed read-only smoke and create its local receipt."""
     attempt_path = _fixed_task0_smoke_attempt_path_v1()
@@ -5581,6 +6119,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     final.add_argument("--build", action="store_true", required=True)
     preflight = subparsers.add_parser("preflight-task0")
     preflight.add_argument("--preflight", action="store_true", required=True)
+    recovery_lock = subparsers.add_parser("build-task0-smoke-recovery-lock")
+    recovery_lock.add_argument("--output", required=True)
+    recovery_lock.add_argument(
+        "--static-review-approved", action="store_true", required=True
+    )
+    recovery_lock.add_argument("--build", action="store_true", required=True)
+    preflight_v2 = subparsers.add_parser("preflight-task0-v2")
+    preflight_v2.add_argument("--preflight", action="store_true", required=True)
     publish = subparsers.add_parser("publish-projection")
     publish.add_argument("--execute", action="store_true")
     args = parser.parse_args(list(argv) if argv is not None else None)
@@ -5588,6 +6134,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(json.dumps({
             "adapter_review_lock_path": FIXED_ADAPTER_REVIEW_LOCK_PATH,
             "task0_smoke_attempt_path": FIXED_TASK0_SMOKE_ATTEMPT_PATH,
+            "task0_smoke_attempt_v2_path": FIXED_TASK0_SMOKE_ATTEMPT_V2_PATH,
+            "task0_smoke_recovery_review_lock_path": (
+                FIXED_TASK0_SMOKE_RECOVERY_REVIEW_LOCK_PATH
+            ),
             "task0_smoke_receipt_path": FIXED_TASK0_SMOKE_RECEIPT_PATH,
             "final_release_lock_path": FIXED_FINAL_RELEASE_LOCK_PATH,
             "default_state": "parked",
@@ -5617,6 +6167,17 @@ def main(argv: Sequence[str] | None = None) -> int:
         result = run_task0_real_artifact_smoke_production_v1()
         print(canonical_json_bytes(result).decode("ascii"))
         return 0
+    if args.command == "build-task0-smoke-recovery-lock":
+        result = write_task0_smoke_recovery_review_lock_production_v1(
+            output_relative_path=args.output,
+            independent_static_review_passed=args.static_review_approved,
+        )
+        print(canonical_json_bytes(result).decode("ascii"))
+        return 0
+    if args.command == "preflight-task0-v2":
+        result = run_task0_real_artifact_smoke_production_v2()
+        print(canonical_json_bytes(result).decode("ascii"))
+        return 0
     if args.command != "publish-projection" or args.execute is not True:
         _fail("projection publication requires the explicit execute gate")
     result = run_reviewed_fixed_g0_projection_release_production_v1()
@@ -5629,7 +6190,10 @@ __all__ = [
     "ADAPTER_REVIEW_LOCK_SCHEMA",
     "FINAL_RELEASE_LOCK_SCHEMA",
     "TASK0_REAL_ARTIFACT_SMOKE_ATTEMPT_SCHEMA",
+    "TASK0_REAL_ARTIFACT_SMOKE_ATTEMPT_V2_SCHEMA",
     "TASK0_REAL_ARTIFACT_SMOKE_SCHEMA",
+    "TASK0_REAL_ARTIFACT_SMOKE_V2_SCHEMA",
+    "TASK0_SMOKE_RECOVERY_REVIEW_LOCK_SCHEMA",
     "AdapterReviewBindingV1",
     "CorpusR6FixedG0AdapterV1Error",
     "FIXED_ADAPTER_REVIEW_LOCK_PATH",
@@ -5643,7 +6207,14 @@ __all__ = [
     "FIXED_PROJECTION_RELEASE_COMMAND",
     "FIXED_TASK0_SMOKE_RECEIPT_PATH",
     "FIXED_TASK0_SMOKE_ATTEMPT_PATH",
+    "FIXED_TASK0_SMOKE_ATTEMPT_V2_PATH",
     "FIXED_TASK0_SMOKE_COMMAND",
+    "FIXED_TASK0_SMOKE_V2_COMMAND",
+    "FIXED_TASK0_SMOKE_RECOVERY_AMENDMENT_PATH",
+    "FIXED_TASK0_SMOKE_RECOVERY_AMENDMENT_SHA256",
+    "FIXED_TASK0_SMOKE_RECOVERY_AMENDMENT_BYTES",
+    "FIXED_TASK0_SMOKE_RECOVERY_REVIEW_LOCK_PATH",
+    "FIXED_TASK0_SMOKE_RECOVERY_LOCK_BUILD_COMMAND",
     "FIXED_CATALOG_NAMESPACE",
     "FIXED_G0_LOCK_PATH",
     "FIXED_LANE_COMPLETION_IDENTITIES",
@@ -5664,16 +6235,20 @@ __all__ = [
     "derive_fixed_g0_projection_inputs_v1",
     "build_final_release_lock_v1",
     "build_preliminary_adapter_review_lock_v1",
+    "build_task0_smoke_recovery_review_lock_v1",
     "publish_create_once_resumable_v1",
     "publish_fixed_g0_projection_release_v1",
     "read_generation_exact_v1",
     "reopen_fixed_g0_replay_receipt_v1",
     "run_reviewed_fixed_g0_projection_release_production_v1",
     "run_task0_real_artifact_smoke_production_v1",
+    "run_task0_real_artifact_smoke_production_v2",
     "validate_final_release_lock_candidate_v1",
     "validate_preliminary_adapter_review_lock_candidate_v1",
+    "validate_task0_smoke_recovery_review_lock_v1",
     "write_final_release_lock_production_v1",
     "write_preliminary_adapter_review_lock_production_v1",
+    "write_task0_smoke_recovery_review_lock_production_v1",
 ]
 
 

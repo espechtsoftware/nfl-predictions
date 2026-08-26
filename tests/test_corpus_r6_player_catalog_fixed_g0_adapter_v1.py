@@ -1501,6 +1501,15 @@ def test_fixed_public_surface_has_no_caller_selected_pins() -> None:
         adapter.validate_final_release_lock_candidate_v1,
     ):
         assert "expected_smoke_inputs" not in inspect.signature(function).parameters
+    for function in (
+        adapter.run_task0_real_artifact_smoke_production_v2,
+        adapter.write_task0_smoke_recovery_review_lock_production_v1,
+    ):
+        parameters = inspect.signature(function).parameters
+        assert "pins" not in parameters
+        assert "backend" not in parameters
+        assert "transport" not in parameters
+        assert "v1_attempt_raw" not in parameters
 
 
 def test_public_entry_point_rejects_coherent_fixture_root(
@@ -2451,6 +2460,230 @@ def test_task0_smoke_production_writes_one_fixed_local_receipt(
         adapter.run_task0_real_artifact_smoke_production_v1()
 
 
+def _preserved_v1_smoke_attempt_raw() -> bytes:
+    return Path(adapter.FIXED_TASK0_SMOKE_ATTEMPT_PATH).read_bytes()
+
+
+def _smoke_recovery_lock_fixture(
+    graph: FixtureGraph,
+) -> tuple[dict[str, object], dict[str, object], bytes]:
+    raw = _preserved_v1_smoke_attempt_raw()
+    lock = adapter.build_task0_smoke_recovery_review_lock_v1(
+        implementation_commit_sha="d" * 40,
+        implementation_measurements=graph.review.implementation_measurements,
+        v1_attempt_raw=raw,
+        independent_static_review_passed=True,
+    )
+    lock_raw = batch.canonical_json_bytes(lock) + b"\n"
+    lock_file = {
+        "relative_path": adapter.FIXED_TASK0_SMOKE_RECOVERY_REVIEW_LOCK_PATH,
+        "sha256": sha256(lock_raw).hexdigest(),
+        "bytes": len(lock_raw),
+    }
+    return lock, lock_file, raw
+
+
+def test_task0_smoke_recovery_lock_preserves_preclient_v1_failure(
+    graph: FixtureGraph,
+) -> None:
+    lock, _, raw = _smoke_recovery_lock_fixture(graph)
+    assert adapter.validate_task0_smoke_recovery_review_lock_v1(
+        lock,
+        expected_implementation_commit_sha="d" * 40,
+        expected_implementation_measurements=graph.review.implementation_measurements,
+        expected_v1_attempt_raw=raw,
+    ) == lock
+    assert lock["v1_invocation_count"] == 1
+    assert lock["v1_exit_before_gcs_client_construction"] is True
+    assert lock["v1_exit_before_cloud_read"] is True
+    assert lock["v1_cloud_read_count"] == 0
+    assert lock["v2_invocation_count_max"] == 1
+    assert lock["lifetime_invocation_count_max"] == 2
+    assert lock["third_invocation_allowed"] is False
+    assert lock["gcs_mutation_licensed"] is False
+    assert lock["uses_realized_outcomes"] is False
+
+
+@pytest.mark.parametrize(
+    ("field", "changed"),
+    [
+        ("v1_exit_before_cloud_read", False),
+        ("v1_cloud_read_count", 1),
+        ("v2_invocation_count_max", 2),
+        ("lifetime_invocation_count_max", 3),
+        ("third_invocation_allowed", True),
+        ("gcs_mutation_licensed", True),
+    ],
+)
+def test_task0_smoke_recovery_lock_rejects_coherent_history_widening(
+    graph: FixtureGraph, field: str, changed: object,
+) -> None:
+    lock, _, raw = _smoke_recovery_lock_fixture(graph)
+    lock[field] = changed
+    lock["task0_smoke_recovery_review_lock_sha256"] = batch.canonical_sha256(
+        {
+            key: retained
+            for key, retained in lock.items()
+            if key != "task0_smoke_recovery_review_lock_sha256"
+        }
+    )
+    with pytest.raises(adapter.CorpusR6FixedG0AdapterV1Error):
+        adapter.validate_task0_smoke_recovery_review_lock_v1(
+            lock,
+            expected_implementation_commit_sha="d" * 40,
+            expected_implementation_measurements=(
+                graph.review.implementation_measurements
+            ),
+            expected_v1_attempt_raw=raw,
+        )
+
+
+def test_task0_smoke_attempt_v2_binds_both_lifetime_attempts(
+    graph: FixtureGraph,
+) -> None:
+    lock, lock_file, raw = _smoke_recovery_lock_fixture(graph)
+    attempt = adapter._build_task0_smoke_attempt_v2(
+        recovery_review_lock=lock,
+        recovery_review_lock_file=lock_file,
+        v1_attempt_raw=raw,
+    )
+    assert adapter._validate_task0_smoke_attempt_v2(
+        attempt,
+        expected_recovery_review_lock=lock,
+        expected_recovery_review_lock_file=lock_file,
+        expected_v1_attempt_raw=raw,
+    ) == attempt
+    assert attempt["v1_invocation_count"] == 1
+    assert attempt["v2_invocation_count"] == 1
+    assert attempt["lifetime_invocation_count"] == 2
+    assert attempt["reserved_before_gcs_client_construction"] is True
+
+
+def test_task0_smoke_receipt_v2_binds_distinct_v2_attempt(
+    graph: FixtureGraph,
+) -> None:
+    lock, lock_file, raw = _smoke_recovery_lock_fixture(graph)
+    attempt = adapter._build_task0_smoke_attempt_v2(
+        recovery_review_lock=lock,
+        recovery_review_lock_file=lock_file,
+        v1_attempt_raw=raw,
+    )
+    receipt = adapter._build_task0_real_artifact_smoke_receipt_v2(
+        inputs=_fixture_task0_smoke_inputs(graph), v2_attempt=attempt
+    )
+    attempt_raw = batch.canonical_json_bytes(attempt) + b"\n"
+    assert receipt["schema_version"] == (
+        adapter.TASK0_REAL_ARTIFACT_SMOKE_V2_SCHEMA
+    )
+    assert receipt["invocation_count"] == 2
+    assert receipt["task0_smoke_attempt_file"] == {
+        "relative_path": adapter.FIXED_TASK0_SMOKE_ATTEMPT_V2_PATH,
+        "sha256": sha256(attempt_raw).hexdigest(),
+        "bytes": len(attempt_raw),
+    }
+    assert receipt["task0_smoke_attempt_internal_sha256"] == attempt[
+        "task0_real_artifact_smoke_attempt_v2_sha256"
+    ]
+    with pytest.raises(adapter.CorpusR6FixedG0AdapterV1Error):
+        adapter._validate_task0_real_artifact_smoke_receipt_v1(
+            receipt,
+            expected_inputs=_fixture_task0_smoke_inputs(graph),
+        )
+
+
+def test_task0_smoke_v2_reserves_before_client_and_cannot_retry(
+    graph: FixtureGraph,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "reports").mkdir()
+    lock, lock_file, raw = _smoke_recovery_lock_fixture(graph)
+    resolver_calls = 0
+    client_calls = 0
+
+    def resolve(_repository):
+        nonlocal resolver_calls
+        resolver_calls += 1
+        return lock, lock_file, raw, graph.review
+
+    def fail_client():
+        nonlocal client_calls
+        client_calls += 1
+        marker = tmp_path / adapter.FIXED_TASK0_SMOKE_ATTEMPT_V2_PATH
+        assert marker.is_file()
+        raise RuntimeError("injected pre-client boundary")
+
+    monkeypatch.setattr(adapter, "REPOSITORY_ROOT", tmp_path)
+    monkeypatch.setattr(
+        adapter, "_resolve_current_task0_smoke_recovery_review_v1", resolve
+    )
+    monkeypatch.setattr(
+        adapter.GCSGenerationBackendV1, "from_default_client", fail_client
+    )
+    with pytest.raises(RuntimeError, match="pre-client boundary"):
+        adapter.run_task0_real_artifact_smoke_production_v2()
+    assert resolver_calls == 1
+    assert client_calls == 1
+    with pytest.raises(adapter.CorpusR6FixedG0AdapterV1Error):
+        adapter.run_task0_real_artifact_smoke_production_v2()
+    assert resolver_calls == 1
+    assert client_calls == 1
+
+
+def test_task0_smoke_v2_dangling_marker_blocks_before_git_or_client(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    (tmp_path / "reports").mkdir()
+    marker = tmp_path / adapter.FIXED_TASK0_SMOKE_ATTEMPT_V2_PATH
+    target = tmp_path / "outside-v2.json"
+    marker.symlink_to(target)
+    monkeypatch.setattr(adapter, "REPOSITORY_ROOT", tmp_path)
+    monkeypatch.setattr(
+        adapter,
+        "SubprocessGitRepositoryV1",
+        lambda: (_ for _ in ()).throw(AssertionError("unexpected Git access")),
+    )
+    monkeypatch.setattr(
+        adapter.GCSGenerationBackendV1,
+        "from_default_client",
+        lambda: (_ for _ in ()).throw(AssertionError("unexpected client")),
+    )
+    with pytest.raises(adapter.CorpusR6FixedG0AdapterV1Error):
+        adapter.run_task0_real_artifact_smoke_production_v2()
+    assert not target.exists()
+
+
+def test_task0_smoke_v2_missing_recovery_lock_writes_no_marker_or_client(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    (tmp_path / "reports").mkdir()
+    client_calls = 0
+
+    def missing(_repository):
+        raise adapter.CorpusR6FixedG0AdapterV1Error("recovery lock absent")
+
+    def forbidden_client():
+        nonlocal client_calls
+        client_calls += 1
+        raise AssertionError("client constructed before recovery lock")
+
+    monkeypatch.setattr(adapter, "REPOSITORY_ROOT", tmp_path)
+    monkeypatch.setattr(
+        adapter, "_resolve_current_task0_smoke_recovery_review_v1", missing
+    )
+    monkeypatch.setattr(
+        adapter.GCSGenerationBackendV1,
+        "from_default_client",
+        forbidden_client,
+    )
+    with pytest.raises(
+        adapter.CorpusR6FixedG0AdapterV1Error, match="recovery lock absent"
+    ):
+        adapter.run_task0_real_artifact_smoke_production_v2()
+    assert client_calls == 0
+    assert not (tmp_path / adapter.FIXED_TASK0_SMOKE_ATTEMPT_V2_PATH).exists()
+
+
 def test_task0_smoke_missing_review_writes_no_marker_and_contacts_no_cloud(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -3289,9 +3522,12 @@ def test_production_cli_status_is_closed_and_outcome_blind(capsys) -> None:
         + '","final_release_lock_required":true,"r6_source_authority":false,'
         '"task0_smoke_attempt_path":"'
         + adapter.FIXED_TASK0_SMOKE_ATTEMPT_PATH
-        + '",'
-        '"task0_smoke_receipt_path":"'
+        + '","task0_smoke_attempt_v2_path":"'
+        + adapter.FIXED_TASK0_SMOKE_ATTEMPT_V2_PATH
+        + '","task0_smoke_receipt_path":"'
         + adapter.FIXED_TASK0_SMOKE_RECEIPT_PATH
+        + '","task0_smoke_recovery_review_lock_path":"'
+        + adapter.FIXED_TASK0_SMOKE_RECOVERY_REVIEW_LOCK_PATH
         + '","uses_realized_outcomes":false}\n'
     )
 
@@ -3312,6 +3548,12 @@ def test_production_cli_status_is_closed_and_outcome_blind(capsys) -> None:
             adapter.FIXED_FINAL_RELEASE_LOCK_PATH,
             "--static-review-approved",
             "--publication-approved",
+        ],
+        [
+            "build-task0-smoke-recovery-lock",
+            "--output",
+            adapter.FIXED_TASK0_SMOKE_RECOVERY_REVIEW_LOCK_PATH,
+            "--static-review-approved",
         ],
     ],
 )
@@ -3342,6 +3584,34 @@ def test_preliminary_lock_cli_uses_fixed_noncloud_builder(
     }]
     assert capsys.readouterr().out == (
         '{"lock":"preliminary","uses_realized_outcomes":false}\n'
+    )
+
+
+def test_smoke_recovery_lock_cli_uses_fixed_noncloud_builder(
+    monkeypatch: pytest.MonkeyPatch, capsys,
+) -> None:
+    calls: list[dict[str, object]] = []
+
+    def reviewed_builder(**kwargs) -> dict[str, object]:
+        calls.append(kwargs)
+        return {"lock": "smoke-recovery", "uses_realized_outcomes": False}
+
+    monkeypatch.setattr(
+        adapter,
+        "write_task0_smoke_recovery_review_lock_production_v1",
+        reviewed_builder,
+    )
+    assert adapter.main(list(
+        adapter.FIXED_TASK0_SMOKE_RECOVERY_LOCK_BUILD_COMMAND[3:]
+    )) == 0
+    assert calls == [{
+        "output_relative_path": (
+            adapter.FIXED_TASK0_SMOKE_RECOVERY_REVIEW_LOCK_PATH
+        ),
+        "independent_static_review_passed": True,
+    }]
+    assert capsys.readouterr().out == (
+        '{"lock":"smoke-recovery","uses_realized_outcomes":false}\n'
     )
 
 
@@ -3386,6 +3656,26 @@ def test_production_cli_requires_explicit_execute_before_entry(
     with pytest.raises(adapter.CorpusR6FixedG0AdapterV1Error):
         adapter.main(["publish-projection"])
     assert calls == 0
+
+
+def test_task0_smoke_v2_cli_requires_fixed_preflight_gate(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls = 0
+
+    def reviewed_entry() -> dict[str, object]:
+        nonlocal calls
+        calls += 1
+        return {"passed": True, "uses_realized_outcomes": False}
+
+    monkeypatch.setattr(
+        adapter, "run_task0_real_artifact_smoke_production_v2", reviewed_entry
+    )
+    with pytest.raises(SystemExit):
+        adapter.main(["preflight-task0-v2"])
+    assert calls == 0
+    assert adapter.main(["preflight-task0-v2", "--preflight"]) == 0
+    assert calls == 1
 
 
 def test_task0_smoke_cli_requires_exact_preflight_gate(
