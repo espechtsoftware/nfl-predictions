@@ -1171,6 +1171,7 @@ _SOURCE_COMPLETION_FIELDS: Final = frozenset({
     "task_manifest_sha256",
     "salary_coverage_summary",
     "artifact_supported_universe_complete",
+    "complete_dk_salary_coverage_claimed",
     "complete_dk_salary_universe_claimed",
     "salary_coverage_is_predeclared_query_relative",
     "salary_query_result_independently_verified",
@@ -3259,6 +3260,7 @@ def _validate_source_completion(
         or item["artifact_validation_manifest_sha256"]
         != canonical_sha256(validation_manifest)
         or item["artifact_supported_universe_complete"] is not True
+        or item["complete_dk_salary_coverage_claimed"] is not False
         or item["complete_dk_salary_universe_claimed"] is not False
         or item["salary_coverage_is_predeclared_query_relative"] is not True
         or item["salary_query_result_independently_verified"] is not False

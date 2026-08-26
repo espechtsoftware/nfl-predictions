@@ -704,6 +704,7 @@ def _fixture_graph() -> FixtureGraph:
             "complete_dk_salary_coverage_claimed": False,
         },
         "artifact_supported_universe_complete": True,
+        "complete_dk_salary_coverage_claimed": False,
         "complete_dk_salary_universe_claimed": False,
         "salary_coverage_is_predeclared_query_relative": True,
         "salary_query_result_independently_verified": False,
@@ -3241,6 +3242,25 @@ def test_completion_task_catalog_mutation_fails_against_later_source(
     with pytest.raises(adapter.CorpusR6FixedG0AdapterV1Error):
         adapter._validate_source_completion(
             completion,
+            normalized_pins=pins,
+            later_source=later,
+            later_slates=slates,
+            source_artifacts=artifacts,
+        )
+
+    top_level_claim = deepcopy(graph.bodies["source_completion"])
+    top_level_claim["complete_dk_salary_coverage_claimed"] = True
+    top_level_claim = _with_hash(
+        {
+            key: value
+            for key, value in top_level_claim.items()
+            if key != "completion_sha256"
+        },
+        "completion_sha256",
+    )
+    with pytest.raises(adapter.CorpusR6FixedG0AdapterV1Error):
+        adapter._validate_source_completion(
+            top_level_claim,
             normalized_pins=pins,
             later_source=later,
             later_slates=slates,
