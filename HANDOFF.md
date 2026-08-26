@@ -20,6 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 04:18 UTC (one-hundred-seventh update)
+
+### Truthful R6 fixed-G0 source replay is unblocked at a new evidence commit
+
+- Independent read-only review rejected the current untracked fixed-G0 R6
+  adapter with four P1s and no P0/P2. Its pinned commit lacked the three local
+  G0 envelope files it unconditionally Git-read; it omitted exact replay of
+  the 54 task acceptances and 54 carrier bodies; its code identity excluded
+  the material adapter; and it exposed only injected fake transports rather
+  than a closed Git/GCS production boundary. Its focused test remains
+  unauthorized because the fakes mask these defects.
+- The three omitted envelopes are small, outcome-blind, and already bound by
+  the tracked G0 lock. Their exact bytes are now tracked in pushed evidence
+  commit `168bc70a9793dce729d7e7e0a5d809b046a7a254`: panel publication receipt
+  SHA-256 `70dfc8e9773958272d10d9dc58d9300556f401bfe08c1e352e36746cd23ed2e5`,
+  Lane-A accepted envelope
+  `9f7382cff2c4b0093cc00ca3b6c904e80ac784a93194685ac258bbe47e4e8279`,
+  and Lane-B accepted envelope
+  `ecc24433ca32d6bb23e73ee25b76745edb347d714a03415674a8ffca0f0e7db8`.
+  No science artifact, world matrix, result, or outcome was added or opened.
+- A bounded adapter correction is active against that evidence commit: exact
+  reopen of all task-acceptance and carrier bodies without NPZs/outcomes;
+  separate tracked adapter-code review lock; and a closed production Git/GCS
+  backend with offline generation/404/412/create-once adversaries. No R6
+  pytest, cloud publication, source authority, or execution is authorized.
+- Exact next action: statically reseal and independently rereview the corrected
+  adapter before its one focused offline test. In parallel, finish review of
+  the ordinal-6 focused-test correction addendum; neither path opens outcomes.
+
 ## Current handoff — 2026-08-26 04:07 UTC (one-hundred-sixth update)
 
 ### First ordinal-6 focused test run fails safely; correction addendum required
