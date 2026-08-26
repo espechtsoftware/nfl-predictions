@@ -20,6 +20,46 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 13:24 UTC (one-hundred-forty-third update)
+
+### Root-last full-union score-once grader is reviewed and focused-green
+
+- Added the pure realized grader for the new 54-slate structural freeze. It
+  sums every distinct final-union roster exactly once per slate, builds the
+  `(source_ordinal,lineup_id)` score map, projects all 6 scopes x 8 strategies
+  x first-4/14/80 prefixes by lookup only, and aggregates exactly 144 cells
+  with 54 slate rows each. Thresholds are 187/194/200/210/220/230/240; tail
+  identities retain `>=200`, strict `>200`, and strict `>230`. Contest rank
+  and ROI remain explicitly unavailable.
+- The create-once publisher emits 54 generation-bound shards, exact-reopens
+  and byte-compares every shard before making the terminal root visible, then
+  exact-reopens/canonically validates that root before success. The persisted
+  validator exact-opens the freeze, snapshot, root and all shards and
+  canonically regrades. Partial equal-byte recovery is idempotent; differing
+  collisions and identity/content splices fail closed.
+- Independent review required two correction rounds and is now
+  **P0=0/P1=0**. The full production-shaped focused suite produced 29 passes
+  and one failure caused only by an incomplete expected-message regex; the
+  implementation had correctly rejected the malformed 47-book slate. After
+  correcting that expectation, the exact failed case passed in 3.08 seconds.
+  Exact evidence is tracked in
+  `reports/2026-08-26-r6-full-union-realized-grader-focused-test-output.txt`.
+- Final SHA-256 values are grader
+  `87e2f20bbaf0f277b54de6d53b1ae31490ce502613fa6d972fcdec0e81c24072`
+  and test
+  `2e8715c0e44887057f4e2c32b8ea968bffc5e264e58442817951b2c8c11e56d2`.
+  No realized outcome, cloud resource, graph or score was accessed by these
+  tests; all score rows were synthetic.
+- Live freeze status separately reached **20/54 accepted**, 960 books and
+  2,880 prefixes at approximately 13:23 UTC. The prior transient result-only
+  ordinals 36/37 both closed into valid leaves; current result-only is empty
+  and both lanes have zero failures.
+- Current-system historical scoring has **not** begun. Exact next action:
+  land the reviewed grader; finish independent review/tests for the mandatory
+  smoke-gated one-query supply; keep monitoring to 54/54; then publish root,
+  execute the actual-root smoke receipt, and only then open the single outcome
+  snapshot and publish grades.
+
 ## Current handoff — 2026-08-26 13:16 UTC (one-hundred-forty-second update)
 
 ### Root-bound outcome snapshot contract is focused-green; actual-root smoke remains closed

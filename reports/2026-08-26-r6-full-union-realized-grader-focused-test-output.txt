@@ -1,0 +1,16 @@
+Initial focused command:
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -o addopts='' tests/test_corpus_r6_full_union_realized_grading_v1.py
+
+Initial terminal summary:
+1 failed, 29 passed in 327.42s (0:05:27)
+
+The sole failure was a test-regex mismatch. The implementation correctly
+rejected the malformed slate with:
+slate[0] does not contain complete 48-book coverage
+
+Corrected exact-case command:
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -o addopts='' 'tests/test_corpus_r6_full_union_realized_grading_v1.py::test_incomplete_54_by_48_is_rejected[book]'
+
+Corrected exact-case output:
+.                                                                        [100%]
+1 passed in 3.08s
