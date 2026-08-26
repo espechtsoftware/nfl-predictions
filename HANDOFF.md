@@ -20,6 +20,50 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 06:33 UTC (one-hundred-fourteenth update)
+
+### Ordinal-6 terminal closure tests pass; R6 adapter exposes two remaining fixture classes
+
+- The independently reviewed ordinal-6 terminal-closure candidate now passes
+  its sole focused offline invocation. Exact command:
+  `.venv/bin/python -m pytest -q
+  tests/test_corpus_extreme_tail_panel_platform_replacement_terminal_v1.py
+  tests/test_run_corpus_extreme_tail_panel_platform_replacement_terminal_v1.py`.
+  It exited 0 and emitted one 100-percent progress line containing 51 dots;
+  exact output is retained at
+  `reports/2026-08-26-t230-ordinal6-terminal-closure-focused-test-output.txt`
+  (SHA-256
+  `fbdc38bb22ab9d4d108abbac2db93d82b0ba41432f10b852f0bcab0f5bdcf50b`,
+  80 bytes). No cloud, preflight, result, acceptance, or outcome read occurred.
+- The R6 fixed-G0 adapter's single post-fix invocation was also consumed, but
+  exited 1 with 13 listed failures. The original all-54 carrier/completion
+  world-set-hash defect is gone. Ten failures converge at the final-lock
+  fixture validating a coherent fixture smoke against production fixed pins;
+  three production-smoke tests omitted the fixture `FIXED_PINS` substitution
+  and failed before their intended GCS boundary. No exact collected/pass
+  count or raw-output hash is claimed. The failed candidate identities were
+  source
+  `b31e39eecdcabb8e92f7833e871bb7f88414264e7150460f476f5030fad777ef`,
+  test
+  `01610f9692039df207102b3e01b032d359b90bc4c60f71373690fb145e1e9f3c`,
+  and correction addendum
+  `d54228ed919c10a10558f9704082e7a4011c639e73ecd8ac49c64fbcd8cb3ed1`.
+  The command made no cloud call, created no task-0 marker/receipt/lock, and
+  read no outcomes.
+- The R6 defect-class correction is active without another test: production
+  fixed receipt expectations now derive from the single normalized
+  `FIXED_PINS` object; pure final-lock replay accepts explicit expected smoke
+  inputs only for fixture validation; and the three production-smoke fixtures
+  install their exact fixture pins. A new additive failure/correction record
+  and truthful three-invocation preliminary-lock accounting are required
+  before fresh independent review can authorize another focused run.
+- Historical outcomes remain closed. Exact next actions: commit the passing
+  terminal-closure implementation as its earlier implementation-source
+  commit, run its one reviewed metadata-only preflight, then build the later
+  two-commit review lock and publish the negative Lane-A root. In parallel,
+  finish/refreeze the R6 second correction and source-v2 producer; do not
+  launch scoring until the complete R6 books are frozen.
+
 ## Current handoff — 2026-08-26 06:09 UTC (one-hundred-thirteenth update)
 
 ### R6 fixed-G0 focused test fails in one common carrier-fixture boundary
