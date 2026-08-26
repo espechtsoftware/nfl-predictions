@@ -20,6 +20,39 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 06:09 UTC (one-hundred-thirteenth update)
+
+### R6 fixed-G0 focused test fails in one common carrier-fixture boundary
+
+- Independent static rereview accepted the fixed-G0 adapter candidate with
+  P0/P1/P2 all zero and licensed exactly one offline invocation of
+  `.venv/bin/python -m pytest -q
+  tests/test_corpus_r6_player_catalog_fixed_g0_adapter_v1.py`. The exact
+  candidate identities were source
+  `9878c3db99f1ab62bc2d1e143131c37470719854d7a58788f687a376c28f094e`
+  (213,447 bytes) and test
+  `446a36be64c1b368ef5f574cc1043e80c658ec451b65f99cb60d554ec04d484f`
+  (123,862 bytes).
+- That sole invocation exited 1. Pytest listed 27 failed nodes, all converging
+  on the same exact exception:
+  `CorpusR6FixedG0AdapterV1Error: task evidence[0] carrier differs` in
+  `_reopen_task_acceptance_and_carrier_v1`, reached through the shared
+  `_derive_pinned_projection_inputs_v1` fixture path. Task-0 smoke, final-lock,
+  full replay, projection publication/resume, and receipt-reopen tests all use
+  that common fixture. Treat this as one defect class pending diagnosis, not
+  as 27 independent failures.
+- The command performed no cloud operation, created no real-artifact smoke
+  attempt/receipt, and accessed no result, matrix, acceptance, effect, lineup,
+  or realized-outcome body. Tool output was truncated, so no exact collected
+  or passed count and no raw-output hash is claimed. The exact durable summary
+  is tracked at
+  `reports/2026-08-26-r6-fixed-g0-focused-test-failure-summary.md`.
+- The invocation is consumed. Exact next action: correct and sweep the shared
+  carrier fixture/validator mismatch, freeze new source/test identities and an
+  additive correction, obtain fresh independent static approval, and only
+  then run at most one post-fix focused invocation. The task-0 real-artifact
+  smoke and fixed-G0 projection publication remain unauthorized.
+
 ## Current handoff — 2026-08-26 05:29 UTC (one-hundred-twelfth update)
 
 ### Failed T230 run takes terminal closure; independent accepted v12 G0 keeps R6 moving
