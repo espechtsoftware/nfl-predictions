@@ -20,6 +20,52 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 09:47 UTC (one-hundred-twenty-ninth update)
+
+### Catalog attempt two is terminal; direct accepted-G0 R6 lane becomes critical path
+
+- Main and `origin/main` are pushed at
+  `3c60aca22adbea768f24c3248385a44523dbb9bf`. From a clean detached
+  checkout at that commit, the successor reserved its durable ordinal-2 marker
+  and entered the generation-pinned 54-slate catalog replay. It exited 1 while
+  validating the first accepted task's small carrier, before all inputs were
+  derived and before the first catalog output create. No catalog, derivation
+  receipt, release, replay receipt, world/arm-result body, realized outcome,
+  graph mutation, or score was read or written.
+- The consumed create-once attempt marker is
+  `reports/2026-08-26-r6-player-catalog-fixed-g0-projection-successor-attempt.json`,
+  outer SHA-256
+  `8af71640248bbb67d4210227a529c450fb1645c0b76a01e8dd24b7d8c1c3abdc`,
+  3,907 bytes; internal SHA-256 is
+  `fef7b15fe1c5b4c566153f2f7d22b130f519ee012f49a35690294c4f25a0a02c`.
+  Do not delete it or rerun the consumed projection entry.
+- Exact diagnosis: task-0 carrier generation `1787521590972723`, SHA-256
+  `8149de8f...ce20548`, 12,023 bytes, correctly carries `world_schedule` as
+  a content-addressed object identity. The adapter fixture and predicate
+  incorrectly require that field to be a Python `Sequence`; the accepted
+  one-slate reconstruction had already consumed the same real carrier
+  successfully. This is an adapter schema defect, not a G0/science failure.
+  Full record is
+  `reports/2026-08-26-r6-catalog-successor-attempt-2-carrier-schema-failure.md`,
+  SHA-256 `13ac388fa2813070b107b3f545477404b6cac85008480c86a50d367e6305d50f`,
+  3,094 bytes.
+- The catalog publication is no longer allowed to block first scores. The
+  accepted 54-slate G0 carriers/world objects remain the direct R6 source, and
+  their common frozen later-source catalog can close the exact player/DST
+  outcome-key union after books freeze. Repair the catalog adapter independently.
+- Independent review of the first full-union/T230 fast-lane candidate found
+  P0=0, P1=1, P2=4. The production 10k path is not contradicted, but the small
+  fixture failed to align the block-aware selector's global block width and
+  omitted exact-230, multi-origin holdout, authoritative-dose, and wrapper
+  forwarding coverage. A bounded correction is active; no fast-lane test or
+  outcome has run. The corrected matchup-source four-file candidate is also
+  complete static-only and awaits independent review.
+- Exact next action: commit/push this terminal failure evidence; finish the
+  fast-lane correction and independent review; run its sole focused offline
+  suite; then execute one outcome-blind real task-0 48-book smoke directly from
+  accepted G0 and freeze the complete 54-slate book panel. Only after all books
+  are immutable may the one historical outcome snapshot and score pass open.
+
 ## Current handoff — 2026-08-26 09:40 UTC (one-hundred-twenty-eighth update)
 
 ### Bounded catalog successor passes its sole focused offline suite
