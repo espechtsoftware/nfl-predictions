@@ -20,6 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 10:04 UTC (one-hundred-thirtieth update)
+
+### Direct-G0 full-union fast lane passes independent static review
+
+- Main and `origin/main` are pushed at
+  `5d7061dd39c45976ef644be0ac71d7fa5ddc515d`, which durably records the
+  consumed catalog-successor attempt and its carrier-schema failure. Catalog
+  publication is now independent repair work and cannot block first scores.
+- Independent static review of the exact full-union fast-lane candidate found
+  P0=0, P1=0, and P2=0. The reviewed source is
+  `src/nfl_dfs/research/corpus_r6_full_union_fast_lane_v1.py`, SHA-256
+  `bb17e4a914148d05b1475d34154e56fe960c368d8e75418710edee4235a73ebc`,
+  20,230 bytes; its sole test file is
+  `tests/test_corpus_r6_full_union_fast_lane_v1.py`, SHA-256
+  `e5764f217b4acac178206451ffb20d5697fd67ef94a1b9ac28cfd1a6bfcb8a11`,
+  18,753 bytes with eight test definitions.
+- The review confirms the production five-by-10,000 simulated-world dose,
+  seven unchanged R6-v2 strategies plus strict `> 230`, five rotated holdouts
+  plus a distinct all-block final fit, held-out provenance/score exclusion,
+  complete fold-eligible union admission, exact-80 books, predecessor lineage,
+  deterministic replay, and fail-closed dose/matrix handling.
+- Exactly one offline invocation of only
+  `tests/test_corpus_r6_full_union_fast_lane_v1.py` is licensed. No test,
+  import, cloud access, realized outcome, or score has yet occurred.
+- Exact next action: land these reviewed bytes, invoke the one focused test
+  from that clean commit, then build and review the create-once task-0
+  production smoke operator. The smoke must materialize all 48 outcome-blind
+  books directly from accepted G0 at the authoritative dose before the
+  complete 54-slate freeze can begin.
+
 ## Current handoff — 2026-08-26 09:47 UTC (one-hundred-twenty-ninth update)
 
 ### Catalog attempt two is terminal; direct accepted-G0 R6 lane becomes critical path
