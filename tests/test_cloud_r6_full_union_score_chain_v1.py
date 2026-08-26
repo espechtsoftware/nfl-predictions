@@ -157,6 +157,82 @@ def test_terminal_receipts_and_known_gcs_identities_are_retained() -> None:
         assert name in source
 
 
+@pytest.mark.parametrize(
+    ("metadata_name", "accepted"),
+    [
+        ("atlas-minimal-c-s2023-w1-v1-fplqf", True),
+        (
+            "projects/nfl-predictions-503414/locations/us-central1/jobs/"
+            "atlas-minimal-c-s2023-w1-v1/executions/"
+            "atlas-minimal-c-s2023-w1-v1-fplqf",
+            True,
+        ),
+        ("atlas-minimal-c-s2023-w1-v1-fplqf-extra", False),
+        ("prefix-atlas-minimal-c-s2023-w1-v1-fplqf", False),
+        ("atlas-minimal-c-s2023-w1-v1-fplqf/extra", False),
+        (
+            "projects/other-project/locations/us-central1/jobs/"
+            "atlas-minimal-c-s2023-w1-v1/executions/"
+            "atlas-minimal-c-s2023-w1-v1-fplqf",
+            False,
+        ),
+        (
+            "projects/nfl-predictions-503414/locations/us-east1/jobs/"
+            "atlas-minimal-c-s2023-w1-v1/executions/"
+            "atlas-minimal-c-s2023-w1-v1-fplqf",
+            False,
+        ),
+        (
+            "projects/nfl-predictions-503414/locations/us-central1/jobs/"
+            "other-job/executions/atlas-minimal-c-s2023-w1-v1-fplqf",
+            False,
+        ),
+        (
+            "projects/nfl-predictions-503414/locations/us-central1/jobs/"
+            "atlas-minimal-c-s2023-w1-v1/executions/"
+            "atlas-minimal-c-s2023-w1-v1-fplqf-extra",
+            False,
+        ),
+    ],
+)
+def test_terminal_execution_name_accepts_only_short_or_qualified_exact_match(
+    metadata_name: str, accepted: bool,
+) -> None:
+    source = _source()
+    name_filter = (
+        '(.metadata.name == $execution)\n'
+        '          or (.metadata.name == (\n'
+        '            "projects/" + $project + "/locations/" + $region\n'
+        '            + "/jobs/" + $job + "/executions/" + $execution\n'
+        '          ))'
+    )
+    assert name_filter in source
+    result = subprocess.run(
+        [
+            "jq",
+            "-e",
+            "--arg",
+            "execution",
+            "atlas-minimal-c-s2023-w1-v1-fplqf",
+            "--arg",
+            "project",
+            "nfl-predictions-503414",
+            "--arg",
+            "region",
+            "us-central1",
+            "--arg",
+            "job",
+            "atlas-minimal-c-s2023-w1-v1",
+            name_filter,
+        ],
+        input=json.dumps({"metadata": {"name": metadata_name}}),
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert (result.returncode == 0) is accepted
+
+
 def test_one_supply_then_grade_then_strict_generation_matched_release() -> None:
     source = _source()
     run_line = "run) smoke; supply_stage; grade_stage; finish ;;"

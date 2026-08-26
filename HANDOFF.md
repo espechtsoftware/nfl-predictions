@@ -20,6 +20,43 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 17:59 UTC (one-hundred-forty-ninth update)
+
+### Outcome-blind actual-root smoke completed; exact local name-form recovery is ready
+
+- The corrected local preflight at pushed operator commit `9350f96d` updated
+  the already-registered job `atlas-minimal-c-s2023-w1-v1` to the frozen
+  immutable digest and launched exactly one smoke execution,
+  `atlas-minimal-c-s2023-w1-v1-fplqf`. Its retained terminal envelope reports
+  `Completed=True`, one succeeded task, zero failed/running tasks,
+  `maxRetries=0`, and completion `2026-08-26T17:55:46.243534Z` after
+  1h36m5.68s. The image, argv, four snapshot hashes, panel identity, stage
+  token, service account and 8 CPU/32 GiB resource contract all exact-match.
+- The outcome-blind projection published create-once at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-full-union-realized/20260826-foundry-v12-r6-full-union-realized-v1/outcome-key-projection.json`,
+  generation `1787762506836805`, bytes `2563921`; the smoke receipt published
+  create-once at the same prefix as `actual-root-smoke-receipt.json`,
+  generation `1787764720711291`, bytes `67127`. Their exact content SHA-256
+  identities have not yet been resolved locally because the operator launcher
+  stopped only after terminal retention on a metadata-name representation
+  check. No lease, BigQuery query, realized score, grading or graph mutation
+  occurred.
+- The installed gcloud v1 envelope uses the exact short
+  `.metadata.name=atlas-minimal-c-s2023-w1-v1-fplqf`, while the old local
+  terminal validator accepted only a slash-qualified suffix. The reviewed fix
+  accepts exactly either that short name or the one canonical
+  `projects/$PROJECT/locations/$REGION/jobs/$JOB/executions/$execution` form;
+  it rejects arbitrary suffix, prefix, wrong-project, wrong-region, wrong-job
+  and near-name collisions. All other terminal checks are unchanged. The
+  focused module passes 26/26; shell syntax/help and diff checks pass;
+  independent review is **P0=0/P1=0**. Corrected launcher/test SHA-256 values
+  are `6f708f2d0fed1c978b433ac34625c9acc2a3f963a1e7042367681e0065cf2977`
+  and `e5d5fdc8781e53787926e288f730d8f7ea57c1baa1df1011b0464d2f3b4357b3`.
+  Exact next action: commit/push this local validator correction, rerun only
+  `smoke` to recover the already-claimed successful execution without a new
+  launch, resolve/inspect both object identities, then acquire the historical
+  lease for the single outcome query and eight-strategy grade including T230.
+
 ## Current handoff — 2026-08-26 16:18 UTC (one-hundred-forty-eighth update)
 
 ### Actual-root smoke preflight exposed and closed one local gcloud flag incompatibility

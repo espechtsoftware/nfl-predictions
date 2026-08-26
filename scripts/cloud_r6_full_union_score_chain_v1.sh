@@ -285,8 +285,13 @@ wait_terminal() {
       write_equal "$target" "$(jq -cS . "$temp")"
       rm -f -- "$temp"
       [[ "$state" == "True" ]] || die "Cloud Run execution failed: $execution"
-      jq -e --arg execution "$execution" --arg image "$IMAGE" '
-        .metadata.name | endswith("/"+$execution)
+      jq -e --arg execution "$execution" --arg project "$PROJECT" \
+        --arg region "$REGION" --arg job "$JOB" '
+        (.metadata.name == $execution)
+          or (.metadata.name == (
+            "projects/" + $project + "/locations/" + $region
+            + "/jobs/" + $job + "/executions/" + $execution
+          ))
       ' "$target" >/dev/null || die "terminal execution name differs"
       jq -e --arg image "$IMAGE" --arg token "$token" --arg job "$JOB" \
         --arg service_account "$SERVICE_ACCOUNT" \
