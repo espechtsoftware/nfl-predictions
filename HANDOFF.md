@@ -20,6 +20,45 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 00:20 UTC (eighty-eighth update)
+
+### Observatory Phase 4 is accepted offline while T230 verification continues
+
+- The isolated Observatory Phase 4 correction passed independent review with
+  no remaining P0/P1/P2 findings and one focused Python 3.11 validation of
+  33/33 tests. The accepted adapter and test SHA-256 values are respectively
+  `79defa0963e425eb636a219c0e38f170d1100da8cdf0b5f3fc85f228266df956`
+  and
+  `c66fd8ceb3f71e530c6f1596bbb912b10d53702c72f9a105bedfa355caa60821`.
+- Commit `3f656dfd845d082ba47b8eea551269592f3095b8` (`Observatory Phase 4:
+  exact fixture graph rebuild contract`) is pushed on
+  `origin/feature/neo4j-react-observatory`; local and remote heads match and
+  the isolated worktree is clean. Its durable evidence is
+  `reports/2026-08-26-observatory-phase4-offline-acceptance.md` on that
+  branch. This approves the fixture-backed graph rebuild contract only: it
+  does not approve a merge, router mount, live Neo4j, governed source read,
+  realized outcome, React cutover, infrastructure, or deployment.
+- T230 still has five durable independent acceptances: ordinals 0, 1, 2, 28,
+  and 29. Worker 3 (`atlas-minimal-c-s2023-w1-v1-stg7g`) completed
+  successfully and published result generation `1787703082107204`, SHA-256
+  `0f2982bd8bcc148fb6fefce63ff505e5a8de4a327e02512b56285f4d9688b3a0`,
+  15,045,646 bytes. Its distinct verifier is
+  `atlas-minimal-c-s2023-w1-v1-hsbmw`. Worker 30
+  (`atlas-cbc-32g-full-2023-w8-v1-p9qk7`) completed successfully and
+  published result generation `1787702711584553`, SHA-256
+  `0fce85ed7a46013804fef3470d21733c3cc725a9a23316a2b0f96de164ebdd25`,
+  15,109,535 bytes. Its distinct verifier is
+  `atlas-cbc-32g-full-2023-w8-v1-kfzbq`. Both verifiers are running; worker
+  success is not acceptance.
+- Unified controller session `77315` remains active with no duplicate launch,
+  retry, realized read, score, or promotion. The corrected R6 source operator
+  has one author validation of 27/27 and is now in independent static
+  rereview; it remains untracked and uncommitted.
+- Exact next action: keep polling session `77315`; require the exact durable
+  verifier stages and acceptances for ordinals 3 and 30 before incrementing
+  the panel count or allowing either lane to advance. Keep Phase 4 isolated
+  and disposition the R6 source-operator rereview before any commit.
+
 ## Current handoff — 2026-08-25 23:48 UTC (eighty-seventh update)
 
 ### T230 ordinal 2 is accepted and both receipt-safe lane controllers are resumed
