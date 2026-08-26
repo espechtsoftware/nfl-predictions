@@ -20,6 +20,28 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 03:37 UTC (one-hundred-fourth update)
+
+### Lane B ordinal-35 worker succeeds and enters distinct verification
+
+- Ordinal-35 worker execution `atlas-cbc-32g-full-2023-w8-v1-bg5kv`
+  completed successfully. Its exact result is generation
+  `1787715331922729`, SHA-256
+  `b9e8e344bb3e6043a84654e2a277a0137c406f6c67f76d5911293b3df1d517f6`,
+  15,352,504 bytes; its worker-stage receipt is generation
+  `1787715332909235`, SHA-256
+  `6065524e64d669864b9646e71347b54025a21a9318333095081f1ffcf516d387`,
+  2,054 bytes. The worker receipt reports `uses_realized_outcomes=false` and
+  `historical_scoring_licensed=false`.
+- Distinct verifier execution `atlas-cbc-32g-full-2023-w8-v1-sqs7z` was
+  created at `2026-08-26T03:36:00.712848Z` and is provisioning/running.
+  Acceptance remains thirteen of 54 until that verifier succeeds and the
+  generation-pinned acceptance reopens. No realized historical scoring has
+  begun.
+- Exact next action: continue polling verifier 35 while the ordinal-6
+  replacement implementation reaches its bounded joint static seal. Do not
+  increment the accepted count or advance Lane B on worker success alone.
+
 ## Current handoff — 2026-08-26 03:15 UTC (one-hundred-third update)
 
 ### T230 ordinal 34 is accepted; Lane B advances once to ordinal 35
