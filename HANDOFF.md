@@ -20,6 +20,27 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 02:31 UTC (ninety-fifth update)
+
+### Independent Lane B reaches acceptance 33 and advances to worker 34
+
+- Ordinal 33 is independently accepted at generation `1787710845913388`,
+  SHA-256
+  `2e37ec88b4430ce040094873b3f7325116d15f2a66a9144080059f35056ce937`,
+  5,351 bytes. Its verifier-stage receipt is generation
+  `1787710846481102`, SHA-256
+  `48afbc338ea27a24fc40b3c3db91382bd8522e0b776de7239f1349b38226deb1`,
+  2,066 bytes. A generation-pinned reopen confirms
+  `uses_realized_outcomes=false` and no promotion authority.
+- T230 now has twelve exact acceptances: 0 through 5 and 28 through 33.
+  Lane B advanced exactly once to ordinal-34 worker execution
+  `atlas-cbc-32g-full-2023-w8-v1-fmqvx`, which is running. Unified controller
+  session `77315` remains active. Lane A remains stopped at the ordinal-6
+  platform failure and has not been relaunched.
+- Exact next action: keep polling worker 34 while the offline attempt-1
+  replacement/bridge contract is completed and independently reviewed. No
+  original launch request or attempt-0 stage-start will be reused.
+
 ## Current handoff — 2026-08-26 02:27 UTC (ninety-fourth update)
 
 ### Ordinal 6 requires a true attempt-1 amendment; attempt 0 cannot be reused
