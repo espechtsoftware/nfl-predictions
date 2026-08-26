@@ -49,11 +49,19 @@ agent or developer:
 - The invocation was offline. No cloud client, GCS object, world/result body,
   realized outcome, or score was opened. Historical outcomes remain closed and
   current-system scoring has not begun.
-- Exact next action: commit and push this test evidence and handoff; build and
-  commit the create-once successor review lock from that clean commit; build
-  and commit its final lock from the next clean commit; then invoke the one
-  corrected generation-pinned 54-slate catalog projection. Full-union/T230
-  fast-lane and corrected matchup-source review continue independently.
+- From pushed clean validation commit
+  `aa896f26e36c7465a04b0eac6e7d24fb87d72f5f`, the deterministic local
+  builder created the create-once successor review lock at
+  `reports/2026-08-26-r6-player-catalog-fixed-g0-projection-successor-review-lock.json`.
+  Outer SHA-256 is
+  `234a5d9411fa837913298655c031412b82f81afc357550dfa7a1decd682258c3`,
+  6,512 bytes; internal SHA-256 is
+  `2e9d1fc6c9337e5e31259ea4a298145401246adbbd977db238065f8ec4c79369`.
+  The build was local-only and made no cloud or outcome access.
+- Exact next action: commit and push the review lock; build and commit its
+  final lock from the next clean commit; then invoke the one corrected
+  generation-pinned 54-slate catalog projection. Full-union/T230 fast-lane
+  correction and corrected matchup-source review continue independently.
 
 ## Current handoff — 2026-08-26 09:16 UTC (one-hundred-twenty-seventh update)
 
