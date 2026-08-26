@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 05:22 UTC (one-hundred-eleventh update)
+
+### Ordinal-6 replacement worker fails terminally; no historical scoring has begun
+
+- `main` remains at pushed commit
+  `c7c035d4` (`Record ordinal 6 replacement launch`). The exactly-once
+  replacement execution `atlas-minimal-c-s2023-w1-v1-67669` is now terminal:
+  Cloud Run reports `Completed=False`, reason `NonZeroExitCode`, task-0 exit
+  code 1, `failedCount=1`, start time `2026-08-26T05:15:51.761279Z`, and
+  completion time `2026-08-26T05:18:35.473406Z`.
+- This was the sole licensed ordinal-6 replacement. Never relaunch it. No
+  result body, realized outcome, world matrix, or scoring artifact was opened
+  during the status-only observation. The recovery generated no ordinal-6
+  acceptance and creates no panel, G0, R6, score, or deployment authority.
+- T230 therefore remains at thirteen of 54 accepted ordinals (0–5 and 28–34),
+  and the new Foundry/T230 historical-scoring pass has **not** begun. Older
+  frozen baseline score analyses remain available, but they are not output
+  from this incomplete T230 panel.
+- Unresolved risk: the outcome-blind terminal-failure receipt and supplemental
+  Lane-A exception root are not yet published, Lane B still requires its
+  separately reviewed ordinal-35 verifier exception, and a truthful fixed-G0
+  R6 source cannot be released from the incomplete all-54 panel.
+- Exact next action: without reopening result bodies or submitting another
+  worker, finalize the separately reviewed ordinal-6 post-worker amendment,
+  publish the immutable terminal-failure receipt and supplemental Lane-A
+  root, then complete the Lane-B exception and joint G0 disposition before
+  authorizing any R6-v2 realized historical scoring.
+
 ## Current handoff — 2026-08-26 05:16 UTC (one-hundred-tenth update)
 
 ### Ordinal-6 replacement worker is submitted exactly once and provisioning
