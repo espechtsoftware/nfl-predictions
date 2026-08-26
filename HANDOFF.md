@@ -20,6 +20,48 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 02:16 UTC (ninety-third update)
+
+### T230 reaches eleven acceptances; Lane A stops safely on a Cloud Run platform failure
+
+- Lane A ordinal 5 is independently accepted at generation
+  `1787709753896454`, SHA-256
+  `8ad092fe9deb7c3987cd773013b97b7577b59d9430be63b3fb7c44e98d7eece8`,
+  5,350 bytes. Its verifier-stage receipt is generation
+  `1787709754573677`, SHA-256
+  `6dd46009316b4ef6f0429d21287df329fefb926632e020e942998fc668ce5693`.
+  The exact generation-pinned reopen reports `uses_realized_outcomes=false`
+  and every downstream authority false. T230 therefore has eleven durable
+  independent acceptances: 0 through 5 and 28 through 32.
+- Lane A ordinal 6 was launched exactly once as Cloud Run execution
+  `atlas-minimal-c-s2023-w1-v1-rffts`. The execution reached terminal
+  `FAILED` with `failedCount=1`, status code 13, task message
+  `Internal error`, and the contradictory platform message `exit code: 0`.
+  `maxRetries=0` remained in force. There is no result, run-slate stage
+  receipt, or application/container log for ordinal 6; only the durable
+  attempt-0 launch intent and gcloud response exist locally. The transport
+  found the launch request consumed, exact recovery found no stage at
+  `transport/stages/run-slate/06.json`, and the controller correctly refused
+  to relaunch. This evidence points to a Cloud Run platform failure rather
+  than a science/application failure, but it grants no authority to reuse the
+  consumed intent.
+- Lane B ordinal 33 worker execution
+  `atlas-cbc-32g-full-2023-w8-v1-2ffsv` completed successfully. Its result is
+  generation `1787709634703799`, SHA-256
+  `ba8c225452e3c04ddb7e1e0f091b4040e323065c1bdd4e4389d030c9463eb4ac`,
+  14,980,594 bytes; its worker-stage receipt is generation
+  `1787709635700661`, SHA-256
+  `26f81bfba743ae8d01b5def55f4be1c27827317c2d88060468225184f23049a6`.
+  Distinct verifier 33, `atlas-cbc-32g-full-2023-w8-v1-fpwdk`, is running.
+  Unified session `77315` remains active for the independent Lane B path.
+- Exact next action: keep polling Lane B without relaunching any consumed
+  request. Design and independently review a fail-closed, one-time
+  platform-failure replacement amendment for ordinal 6 that binds the exact
+  failed execution/status, missing result/stage, frozen D2, predecessor,
+  resources, and service account, and mints a new attempt-1 request namespace.
+  It must retain `maxRetries=0`, outcome blindness, and no automatic retry.
+  Do not resume Lane A until that replacement contract is tested and accepted.
+
 ## Current handoff — 2026-08-26 01:44 UTC (ninety-second update)
 
 ### T230 reaches ten acceptances; shortest corrected R6 capture path is audited
