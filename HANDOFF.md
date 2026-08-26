@@ -20,6 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 08:00 UTC (one-hundred-twenty-fifth update)
+
+### Prior real-artifact smoke is durable; terminal recovery and T230 closure advance
+
+- The successful production `2023-w01` outcome-blind one-slate smoke is now
+  tracked and pushed at commit `d92f50a3`. Its result has outer SHA-256
+  `73464ee66c358dbedf30d34b6348e049e5e218a28f542428053a0d6e6674ac99`,
+  386,371 bytes, internal self-hash
+  `ceddab226e3ff66e5668e227d144c1431cb889da95e90570d9b7619d35fd346e`;
+  the `/usr/bin/time -v` record is SHA-256
+  `89261ccb4fe08d7ae137c07f45979e49e1fd48a136e7042840f496b61da0e3cc`,
+  1,251 bytes, and records exit 0. It exact-binds the same accepted G0 panel,
+  task-0 acceptance, carrier, source and five world objects; all verification
+  flags are true and all outcome/authority fields are false.
+- A frozen terminal-recovery candidate at detached commit `d84df6cf` corrects
+  only the panel-publication schema literal and adds a two-phase finalizer that
+  binds both failed adapter attempts plus that prior real-artifact smoke. It
+  exposes no third smoke and can license only the existing 54-slate
+  generation-pinned catalog projection after review. Independent static
+  review is active; no candidate import, test, cloud action or outcome read
+  has occurred.
+- The corrected T230 Lane-B/13-of-54 terminal closer reached P0/P1/P2 zero in
+  static review, but its first focused offline invocation finished 44 passed /
+  1 failed. The sole failure was a Python 3.14 `runpy` test-fixture namespace
+  patch that left the production preliminary-lock path in place; execution
+  stopped on that missing local file before backend construction. Production
+  code was not called and there was zero cloud/body/outcome/publication work.
+  The bounded test-only correction and truthful two-invocation final-lock
+  accounting are being frozen before any rerun.
+- Exact next actions: finish the two independent reviews; run at most one
+  corrected T230 focused test if reauthorized; run the single R6 terminal-
+  recovery focused test if authorized; land both reviewed candidates; then
+  build the recovery review/final locks and execute the actual 54-slate catalog
+  projection. Historical scoring has not begun.
+
 ## Current handoff — 2026-08-26 07:41 UTC (one-hundred-twenty-fourth update)
 
 ### Sole R6 v2 task-0 smoke exposes one tracked publication-schema defect
