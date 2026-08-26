@@ -20,6 +20,50 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 21:36 UTC (one-hundred-fifty-fifth update)
+
+### Corrected Observatory Phase 5 remains isolated and is rejected on re-review
+
+- The delegated worktree is clean and pushed on
+  `feature/neo4j-react-observatory` at corrective commit
+  `66e4575a57f31707eccf7d0e2fff87353cde50b8`, a direct child of rejected
+  `283bd3debe7bb32dba78b69f82d86dea914e9bce`. Its diff remains limited to
+  the branch HANDOFF, Phase 5 report, pure offline estimator and focused test.
+  It did not merge/rebase main, access cloud or outcomes, connect to Neo4j,
+  mount routes, deploy infrastructure, choose a graph mode, or alter active
+  R6/T230/Core paths. Independent serial validation passes capacity **40/40**,
+  graph contracts **40/40**, Phase 4 fixture adapter **33/33**, with clean
+  `git diff --check`.
+- Lead plus two independent semantic reviews return **REJECT pending one more
+  bounded correction**, P0=0. The earlier nine P1s are materially corrected,
+  including the R6 full-union identity field, closed realized vocabulary,
+  registered relationship census, Phase 4 bundle/book cardinalities, omitted
+  node kinds, canonical-subject binding, complete property-rule hashing and
+  selected-lineup coherence. Four P1s remain: (1) `ESTIMATION_LAW` is a
+  mutable dictionary whose import-only digest check can be bypassed at runtime;
+  a fresh-process proof changed `bytes_per_node`, emitted the old frozen hash,
+  and still passed receipt validation; (2) release/attestation counts are not
+  bound to count-matched immutable identities/manifests; (3) endpoint
+  coherence permits unloadable positive relationships with absent node
+  populations; and (4) the public `lead_confirmation_for()` digest binds but
+  does not authenticate lead authority despite the plan's signed-receipt
+  language. Either add a detached/immutable approval identity or rename and
+  downgrade it honestly to a non-authoritative assertion digest; it must not
+  imply approval.
+- Required P2 cleanup in the same correction: describe Phase 4 parity
+  truthfully (its synthetic fixture has one `CONTAINS_PLAYER` edge per lineup;
+  nine is the separate production Phase 5 law), stop labeling the supplied
+  `MEMBER_OF_BOOK` count as derived, reject unknown direct modes, and require
+  real bucket/object GCS URIs, calendar-valid UTC timestamps and bounded
+  identity byte counts.
+- Exact next Observatory action: make only this bounded Phase 5 correction in
+  the isolated branch; add runtime-law mutation, identity/count, endpoint,
+  authority-label/signature and malformed-input regressions; rerun the same
+  three focused suites serially; update the branch report/HANDOFF; commit/push
+  and stop for lead re-review. Do not merge, provision, connect, deploy, mount
+  routes, open outcomes or choose a mode. This remains independent of R6-v2
+  scoring and must not block it.
+
 ## Current handoff — 2026-08-26 21:11 UTC (one-hundred-fifty-fourth update)
 
 ### Observatory Phase 5 is safely isolated but rejected pending capacity-contract repair
