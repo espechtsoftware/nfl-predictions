@@ -56,12 +56,19 @@ agent or developer:
 - The T230 Lane-B/combined negative closer correction is frozen with author
   P0/P1/P2 zero and awaits independent rereview. It remains negative evidence
   only and is not allowed to delay the valid 54-slate G0/R6 path.
+- From pushed implementation commit `06683710`, the deterministic
+  clean-worktree builder created the terminal-recovery review lock with no
+  cloud or outcome access. The create-once file is
+  `reports/2026-08-26-r6-player-catalog-fixed-g0-terminal-recovery-review-lock.json`,
+  outer SHA-256
+  `81ed1388c56d0062bccb29de72046d9c949922961fe661ab5454aeb395ac08f0`,
+  6,588 bytes, internal SHA-256
+  `7169a920402edf90939b874db836120d0f58c45d5ce94629d09ee4b0c72d806b`.
 - Exact next action: commit and push only the reviewed recovery files and
-  evidence; from that clean commit build/publish the terminal recovery review
-  and final locks, then run the single licensed 54-slate structural catalog
-  projection. Matchup-source and candidate-authority corrections continue in
-  parallel. Historical outcomes remain closed and current-system scoring has
-  not begun.
+  review lock; from the resulting clean commit build/publish the final lock,
+  then run the single licensed 54-slate structural catalog projection.
+  Matchup-source and candidate-authority corrections continue in parallel.
+  Historical outcomes remain closed and current-system scoring has not begun.
 
 ## Current handoff — 2026-08-26 08:00 UTC (one-hundred-twenty-fifth update)
 
