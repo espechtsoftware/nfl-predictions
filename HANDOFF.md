@@ -20,6 +20,51 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 11:04 UTC (one-hundred-thirty-third update)
+
+### Real accepted-G0 task-0 smoke passes all 48 books at production dose
+
+- Local main is at `1348f924c94bf6f1c2ec4c8cffb24bb85cca2297`;
+  `origin/main` remains at `8b485deb` until this passing evidence is committed
+  with the handoff. The exact task-0 smoke source/test remained at their
+  independently reviewed identities `8eb24621...f80258` and
+  `8f60a5b9...7c65cc1`.
+- From clean isolated checkout
+  `/home/erich/projects/nfl-predictions-task0-smoke-1348f924`, the sole
+  licensed offline invocation exited 0 with **17 passed in 5.90s**. Exact
+  command and stdout are tracked at
+  `reports/2026-08-26-r6-full-union-task0-smoke-focused-test-output.txt`,
+  SHA-256 `391ca64a122471c572b1328c63efb56518f5ab187f3f5c4b086bf6ce8f6aa362`,
+  485 bytes.
+- The one licensed real-artifact smoke then ran from that same still-clean
+  checkout and exited 0. It exact-opened the immutable accepted panel/member,
+  task acceptance, carrier, common later source, five world matrices and seven
+  arm results, then materialized all six scopes and all eight strategies at
+  10,000 worlds per block. It produced **48 unique exact-80 books** with
+  holdout order `R0,R1,R2,R3,R4,null` and prefix law `4/14/80`.
+- Create-once receipt is
+  `reports/corpus-parametric-runs/20260823-foundry-production-v12-panel-index/panel-index-live/full-union-task0-smoke-2023-w01/receipt.json`,
+  outer SHA-256
+  `a6478c0a4c99ae68203d3a86055aea916d0e17db6cde8d2b29a8ce3707aa5dc8`,
+  19,414,744 bytes; internal receipt SHA-256 is
+  `349ffd472c2e985f8e08187e11bf57b16e4fa1c2d97979be4e287f61075ce10f`.
+  Embedded execution-result SHA-256 is
+  `bfffe153c878fa0f5e8e98baf9a454be6739779e15d6228b08fea520beb7316d`.
+- Wall time was **10m20.61s**, maximum RSS 6,615,476 KiB (about 6.31 GiB),
+  CPU 104%, and swap zero. Exact `/usr/bin/time -v` output is tracked beside
+  the receipt as `time-v.txt`, SHA-256
+  `c9c03e51ce6ef752e73ba09e9be5fc7d114002c0dcb8b7e1b2dcaf8fed5b0207`,
+  1,054 bytes. This supports parallel slate workers with at
+  least 8 GiB memory each; do not serialize all 54 slates on one worker.
+- Every outcome/authority flag remains false; verification explicitly records
+  that the catalog projection and matchup source were not used and realized
+  outcomes were not read. Current-system historical scoring therefore has
+  still not begun, but the real-artifact smoke gate is now passed.
+- Exact next action: land/push this evidence, then implement the thin 54-slate
+  leaf/root freeze and launch bounded parallel outcome-blind slate workers from
+  accepted G0. Once all 2,592 rank-80 books and 7,776 prefixes are immutable,
+  derive the common player/DST key union and open the single realized snapshot.
+
 ## Current handoff — 2026-08-26 10:42 UTC (one-hundred-thirty-second update)
 
 ### Task-0 48-book real-artifact smoke operator passes static review

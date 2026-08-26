@@ -1,0 +1,23 @@
+	Command being timed: "/home/erich/projects/nfl-predictions/.venv/bin/python -m nfl_dfs.research.corpus_r6_full_union_task0_smoke_v1 --execute --result-output /home/erich/projects/nfl-predictions/reports/corpus-parametric-runs/20260823-foundry-production-v12-panel-index/panel-index-live/full-union-task0-smoke-2023-w01/receipt.json"
+	User time (seconds): 536.48
+	System time (seconds): 114.93
+	Percent of CPU this job got: 104%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 10:20.61
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 6615476
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 731
+	Minor (reclaiming a frame) page faults: 3306303
+	Voluntary context switches: 24395
+	Involuntary context switches: 5990
+	Swaps: 0
+	File system inputs: 1465344
+	File system outputs: 40504
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

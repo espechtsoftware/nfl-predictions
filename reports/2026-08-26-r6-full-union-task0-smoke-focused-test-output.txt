@@ -1,0 +1,6 @@
+commit: 1348f924c94bf6f1c2ec4c8cffb24bb85cca2297
+worktree: /home/erich/projects/nfl-predictions-task0-smoke-1348f924
+command: PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/home/erich/projects/nfl-predictions-task0-smoke-1348f924/src /home/erich/projects/nfl-predictions/.venv/bin/python -m pytest -q -o addopts= -p no:cacheprovider --color=no tests/test_corpus_r6_full_union_task0_smoke_v1.py
+
+.................                                                        [100%]
+17 passed in 5.90s
