@@ -20,6 +20,68 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 05:05 UTC (one-hundred-ninth update)
+
+### Ordinal-6 corrected test and real preflight pass; final review lock is next
+
+- Independent static review accepted the additive v2 ordinal-6 recovery
+  candidate with P0/P1/P2 all zero. The frozen measurements are module
+  `01635e99ea41d9ecd11a2ed11622d41ece815d9e780eed3ebf88f52fb8f681c8`
+  (122,367 bytes), module tests
+  `e28c09112dfd00cf9b4420b5c138f26940c4607295840959af33f5bbf43f5e6e`
+  (74,213), controller
+  `11865ff59e7b919faa1ef250f31bd94162fb429a0e8684f20b76f9b01a299aad`
+  (119,206), controller tests
+  `01996419ef22a135e7089160fd3b950b27ee644a3cc244b1f8f17af317a58cc8`
+  (58,106), and additive correction law
+  `cd214ca1ad36c827f42520da0666dfd44236d7a43376c17d5dc9845000cbf330`
+  (8,645).
+- The sole authorized post-preflight-fix focused invocation passed exit 0:
+  295 collected and passed, zero failures/skips/warnings. Its exact five-line
+  output is retained at
+  `reports/2026-08-26-t230-ordinal6-post-preflight-fix-focused-test-output.txt`,
+  SHA-256
+  `a453ac9650ec8dea340fa9e2613d3fcd77518cb84b7398ce86b3b9dd411cf102`,
+  400 bytes. The runner reported 3.796 seconds wall time; that timing is
+  non-authoritative and is not a field in the already-frozen v2 review-lock
+  schema. This truthfully consumes focused invocation three of the lifetime
+  maximum three. The invocation made no cloud call or outcome read.
+- Independent narrow review then licensed the sole corrected read-only
+  preflight. Exact command
+  `.venv/bin/python
+  scripts/run_corpus_extreme_tail_panel_platform_replacement_v1.py
+  preflight-worker --preflight` passed exit 0 and created the fixed canonical
+  v2 receipt at
+  `reports/2026-08-26-t230-ordinal6-platform-replacement-real-artifact-preflight.json`.
+  Its outer file SHA-256 is
+  `1ce714aea135d5f230b55cfb121cd48bdf455bc46681e31c968d2322311a5881`,
+  60,774 bytes; its internal self-hash is
+  `13592275522b479cceefa477c0a5931fa4fcce8c0c5285d229c40626133de692`.
+- The receipt records invocation two of maximum two, 38 exact-name probes for
+  19 surfaces, all absent; exact frozen lineage, live job and contradictory
+  code-13 platform signature; real task `spec={}` and absence of task
+  index/retried/exit-code fields; and zero Cloud/GCS mutations,
+  publications, submissions, intent actions, result/effect reads, or realized
+  outcome reads. No third preflight is licensed.
+- The fixed v2 review lock now exists at
+  `reports/2026-08-26-t230-ordinal6-platform-replacement-review-lock.json`,
+  outer SHA-256
+  `6279b8b06e79101a7692e00b3c221d9aada34e8f403ad74c46a5dc267a0523c0`,
+  8,760 bytes, with internal self-hash
+  `f283138560f70155549744ddf5f46a836a153b634df02f6ea401d0b83520f682`.
+  Independent read-only audit reports P0/P1/P2 all zero; independently
+  recomputed lock/receipt self-hashes, all history and measurement-set hashes,
+  both pure validators, current four-file identities, and all 17 false
+  authorities match. The final runner wall timing is deliberately not part of
+  the frozen v2 schema; the authoritative result facts are 295/295, exit 0,
+  zero failures/skips/warnings, and the exact output identity above.
+- T230 remains at thirteen of 54 accepted and no historical scoring has begun.
+  No replacement execution has launched. Exact next action: create and
+  push the lock plus all sealed recovery evidence at tracked-clean `HEAD`,
+  exact-reopen the production-scoped eleven paths from that commit, and only
+  then create the one replacement intent and submit the single ordinal-6
+  attempt-1 worker.
+
 ## Current handoff — 2026-08-26 04:39 UTC (one-hundred-eighth update)
 
 ### Corrected ordinal-6 tests pass; first real preflight fails closed on the live task shape
