@@ -20,6 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 18:01 UTC (one-hundred-fiftieth update)
+
+### Actual-root smoke gate is terminal, exact-recovered and outcome-blind
+
+- Operator validator commit `c98331d2` is pushed on `main`/`origin/main`.
+  Rerunning only the `smoke` command exact-recovered the already-completed
+  execution `atlas-minimal-c-s2023-w1-v1-fplqf`; it did not create another
+  execution. The retained canonical terminal envelope SHA-256 is
+  `b279ca7a1d1f60c88625ce4838356949fea6daf4759b8f1cab50bba8e60c06bc`;
+  terminal receipt file SHA-256 is
+  `12bec9fc4e8f2fe43e58e00a9eba80b52e210c8582397238e9a4a00d8f5349df`.
+  The envelope is `Completed=True`, one succeeded/zero failed/zero running,
+  and exact-matches the frozen image, code, argv, environment, service account,
+  task/retry/timeout and resource contract.
+- The exact outcome-key projection identity is generation
+  `1787762506836805`, bytes `2563921`, SHA-256
+  `88d292c31caf2b2f8b14f58fcc9cc7973893e0ea21832e02c85e9bc481083d08`.
+  The exact actual-root smoke receipt identity is generation
+  `1787764720711291`, bytes `67127`, SHA-256
+  `b513e7c93b95f3fab50edf76361ff2d5720e41339cc01b7f874153cfef1e50fe`.
+  Both were exact generation-read and independently byte/SHA checked locally.
+  They bind the same 54-slate panel root, enumerate 14,247 required player/DST
+  outcome keys, and the receipt exact-binds source commit
+  `a5a8eb41ca6188f6bad3af78c08cf902cf6361c6` plus immutable digest
+  `sha256:c1215c4bd9baf97bbddca5f7e5a5e9d2923f212a81d6a899a9fccaf02ac292d4`.
+- The persisted smoke explicitly reports `uses_realized_outcomes=false`,
+  `historical_outcome_lease_acquired=false`,
+  `bigquery_client_constructed=false`, `query_executed=false` and
+  `lineup_scoring_performed=false`. Historical scoring has therefore still
+  not begun. Exact next action: commit/push this terminal smoke evidence and
+  handoff, then invoke only `supply` to acquire/resolve the registered
+  historical lease and execute the one fixed-ID 14,247-key outcome query.
+  After exact supply completion, run the 54-shard eight-strategy grade,
+  strict release, and aggregate score reporter including T230.
+
 ## Current handoff — 2026-08-26 17:59 UTC (one-hundred-forty-ninth update)
 
 ### Outcome-blind actual-root smoke completed; exact local name-form recovery is ready
