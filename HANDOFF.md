@@ -20,6 +20,26 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 07:31 UTC (one-hundred-twenty-second update)
+
+### R6 recovery suite passes from the tracked main implementation
+
+- Independent review of the isolated collection failure found P0/P1/P2 all
+  zero and licensed one corrected invocation from main, where the editable
+  environment resolves the reviewed source. Exact command `.venv/bin/python
+  -m pytest -q
+  tests/test_corpus_r6_player_catalog_fixed_g0_adapter_v1.py` exited 0 with
+  123 passing progress markers and no failure, skip, warning or error marker.
+- Exact output is retained at
+  `reports/2026-08-26-r6-fixed-g0-recovery-focused-test-output.txt`, SHA-256
+  `cc04481442ecdbeb5d5ed7d893dfdab1c99c1a42b8937094a2927f3a5c979f0b`,
+  160 bytes. The invocation was offline and made no cloud, marker, lock,
+  publication or outcome action.
+- Exact next action: commit/push this successful evidence, deterministically
+  build the fixed recovery review lock at a tracked-clean HEAD, commit/push
+  that lock, and independently authorize the sole v2 task-0 read smoke. No
+  third task-0 smoke exists and realized outcomes remain closed.
+
 ## Current handoff — 2026-08-26 07:29 UTC (one-hundred-twenty-first update)
 
 ### Bounded R6 smoke recovery is tracked; isolated test environment misresolved main
