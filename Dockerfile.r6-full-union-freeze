@@ -1,0 +1,28 @@
+FROM python:3.11-slim
+
+ARG SOURCE_COMMIT
+ENV PYTHONPATH=/opt/nfl-predictions/src \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+WORKDIR /opt/nfl-predictions
+
+# Git is runtime provenance evidence. libgomp is required by the frozen
+# scientific dependency tree used by the outcome-blind full-union selector.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Cloud Build supplies an exact detached checkout and retains its real .git
+# database so the production CLI can prove both HEAD and tracked cleanliness.
+COPY . /opt/nfl-predictions
+
+RUN test -n "${SOURCE_COMMIT}" \
+    && git config --global --add safe.directory /opt/nfl-predictions \
+    && test "$(git rev-parse --verify HEAD)" = "${SOURCE_COMMIT}" \
+    && test -z "$(git status --porcelain=v1 --untracked-files=all)" \
+    && pip install --no-cache-dir ".[gcp]" \
+    && test "$(git rev-parse --verify HEAD)" = "${SOURCE_COMMIT}" \
+    && test -z "$(git status --porcelain=v1 --untracked-files=all)"
+
+# Every production execution supplies an explicit command and exact manifest.
+CMD ["python", "-c", "print('r6-full-union-freeze: explicit command required')"]

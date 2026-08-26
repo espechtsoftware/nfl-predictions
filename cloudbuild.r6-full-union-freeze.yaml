@@ -1,0 +1,62 @@
+steps:
+  - name: gcr.io/cloud-builders/git
+    id: exact-detached-checkout
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        [[ '${_SOURCE_COMMIT}' =~ ^[0-9a-f]{40}$ ]]
+        test ! -e /workspace/r6-full-union-freeze-checkout
+        git init /workspace/r6-full-union-freeze-checkout
+        cd /workspace/r6-full-union-freeze-checkout
+        git remote add origin https://github.com/espechtsoftware/nfl-predictions.git
+        git fetch --depth=1 origin '${_SOURCE_COMMIT}'
+        git checkout --detach FETCH_HEAD
+        test "$(git rev-parse --verify HEAD)" = '${_SOURCE_COMMIT}'
+        test -z "$(git status --porcelain=v1 --untracked-files=all)"
+
+  - name: python:3.11-slim
+    id: one-focused-freeze-suite
+    dir: /workspace/r6-full-union-freeze-checkout
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends git libgomp1
+        pip install --no-cache-dir '.[gcp,dev]'
+        PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src \
+          python -m pytest -q -o addopts='' \
+          tests/test_corpus_r6_full_union_panel_freeze_v1.py
+
+  - name: gcr.io/cloud-builders/docker
+    id: build-and-smoke-immutable-image
+    dir: /workspace/r6-full-union-freeze-checkout
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        image='${_IMAGE_REPOSITORY}:r6-full-union-freeze-${_SOURCE_COMMIT}-${BUILD_ID}'
+        docker build \
+          --build-arg 'SOURCE_COMMIT=${_SOURCE_COMMIT}' \
+          -f Dockerfile.r6-full-union-freeze \
+          -t "$image" .
+        docker run --rm \
+          --env 'EXPECTED_SOURCE_COMMIT=${_SOURCE_COMMIT}' \
+          "$image" bash -ceu '
+            test "$(git rev-parse --verify HEAD)" = "$$EXPECTED_SOURCE_COMMIT"
+            test -z "$(git status --porcelain=v1 --untracked-files=all)"
+            python scripts/run_corpus_r6_full_union_panel_freeze_v1.py --help >/dev/null
+          '
+
+images:
+  - '${_IMAGE_REPOSITORY}:r6-full-union-freeze-${_SOURCE_COMMIT}-${BUILD_ID}'
+
+substitutions:
+  _SOURCE_COMMIT: required-explicit-40-character-commit
+  _IMAGE_REPOSITORY: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs
+
+timeout: 3600s
+options:
+  logging: LEGACY
+  machineType: E2_HIGHCPU_8

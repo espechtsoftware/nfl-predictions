@@ -20,6 +20,57 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 11:55 UTC (one-hundred-thirty-fourth update)
+
+### The 54-slate full-union freeze is implementation-complete and awaiting its clean build
+
+- Main and `origin/main` remain at pushed commit
+  `dba6752055965aa4b627957eeded33b85e0c7053`, which records the passing
+  production-dose task-0 smoke. No Cloud Run execution is active, and an exact
+  read-only check at 11:20 UTC found no object under the new deterministic
+  freeze prefix. Current-system historical scoring therefore has **not**
+  begun; there are no new historical scores yet.
+- The outcome-blind freeze implementation now uses the chain
+  `manifest -> 54 manifest-bound task-result envelopes -> 54 compact leaves ->
+  one root`. It exact-replays the fixed 54/54 G0 panel, the six-scope by
+  eight-strategy lattice, all 2,592 rank-80 books and all 7,776 first-4/14/80
+  prefixes. Every outer object is bound to its designated create-once URI.
+  The root truthfully states only `outcome_key_projection_inputs_frozen=true`;
+  it does not claim that an outcome snapshot already exists.
+- The worker now authenticated-reads its own Cloud Run execution resource
+  before science. The pure contract binds the actual digest, fixed project and
+  project number, exact existing job UID, fixed service account, exact
+  manifest/command/source mapping, 4 CPU/16 GiB, 7,200-second timeout,
+  `maxRetries=0`, `CLOUD_RUN_TASK_ATTEMPT=0`, the exact two configured
+  environment variables, registered execution/task/container shapes, and
+  zero secret, volume, mount, or network/VPC/Cloud SQL attachment. No IAM
+  policy/role census is used.
+- The focused module first passed 11/11 after envelope/URI hardening. After
+  runtime-evidence and fresh-publication coverage were added, 12 tests passed
+  and the sole failure was a synthetic root fixture missing the new evidence
+  hash; that exact corrected test then passed. The two newest authenticated
+  response/authority-surface adversaries pass 2/2. Full exact output and the
+  required clean-build rerun are recorded in
+  `reports/2026-08-26-r6-full-union-panel-freeze-focused-test-output.txt`.
+- Dedicated clean-build and launch candidates now exist:
+  `Dockerfile.r6-full-union-freeze`,
+  `cloudbuild.r6-full-union-freeze.yaml`,
+  `scripts/run_r6_full_union_freeze_cloud_v1.sh`, and the thin Python CLI.
+  The launcher reuses only the two known jobs, requires the task-0 canary,
+  retains ambiguity-safe per-lane submission state, launches 28+26 tasks at
+  parallelism four per lane, and permits repair only after both exact lane
+  executions are terminal and status identifies that ordinal as missing or
+  result-only. It creates no job and performs no IAM census.
+- These new files and this milestone are not yet committed. Independent final
+  static review reports P0=0/P1=0 for both the scientific freeze chain and the
+  build/launcher. Exact next action: stage only the new
+  freeze/build/launcher/test/report plus this handoff, commit and push, then
+  build the immutable image. From a disposable
+  clean checkout of that commit: publish the manifest, run the one task-0
+  cloud canary, require 1/54 with 48 books and 144 prefixes, then submit the
+  bounded 28+26 freeze. Realized outcomes remain closed until the exact 54/54
+  root exists.
+
 ## Current handoff — 2026-08-26 11:04 UTC (one-hundred-thirty-third update)
 
 ### Real accepted-G0 task-0 smoke passes all 48 books at production dose

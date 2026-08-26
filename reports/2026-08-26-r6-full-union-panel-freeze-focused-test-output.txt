@@ -1,0 +1,49 @@
+Initial manifest-envelope and outer-URI hardening:
+
+Command:
+.venv/bin/python -m py_compile src/nfl_dfs/research/corpus_r6_full_union_panel_freeze_v1.py src/nfl_dfs/research/corpus_r6_full_union_panel_freeze_release_v1.py scripts/run_corpus_r6_full_union_panel_freeze_v1.py && .venv/bin/pytest -q -o addopts='' tests/test_corpus_r6_full_union_panel_freeze_v1.py
+
+Result:
+...........                                                              [100%]
+11 passed in 128.75s (0:02:08)
+
+Authenticated Cloud Run execution evidence and fresh-publication coverage:
+
+Command:
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/pytest -q -o addopts='' tests/test_corpus_r6_full_union_panel_freeze_v1.py
+
+Result:
+......F......                                                            [100%]
+1 failed, 12 passed in 162.13s (0:02:42)
+
+The sole failure was a synthetic root fixture missing the newly mandatory
+runtime_execution_evidence_sha256 field. No production source failed. The
+fixture was corrected and the exact failed test was rerun:
+
+Command:
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/pytest -q -o addopts='' tests/test_corpus_r6_full_union_panel_freeze_v1.py::test_panel_root_requires_complete_ordered_54_leaf_census
+
+Result:
+.                                                                        [100%]
+1 passed in 5.44s
+
+All 13 then-current test cases therefore passed on that source state. The
+execution-response adversary added below is the fourteenth current case. The
+dedicated Cloud Build contract must run the complete focused module once from
+the clean committed SHA before it emits an immutable image.
+
+Final authenticated execution-surface additions:
+
+Command:
+.venv/bin/python -m py_compile src/nfl_dfs/research/corpus_r6_full_union_panel_freeze_v1.py src/nfl_dfs/research/corpus_r6_full_union_panel_freeze_release_v1.py scripts/run_corpus_r6_full_union_panel_freeze_v1.py && bash -n scripts/run_r6_full_union_freeze_cloud_v1.sh && PYTHONDONTWRITEBYTECODE=1 .venv/bin/pytest -q -o addopts='' tests/test_corpus_r6_full_union_panel_freeze_v1.py::test_runtime_execution_evidence_rejects_retry_or_wrong_actual_image tests/test_corpus_r6_full_union_panel_freeze_v1.py::test_authenticated_execution_projection_rejects_expanded_authority_surface
+
+Result:
+..                                                                       [100%]
+2 passed in 10.33s
+
+After binding the intermediate execution-template shape, the exact response
+projection adversary was rerun:
+
+Result:
+.                                                                        [100%]
+1 passed in 5.71s
