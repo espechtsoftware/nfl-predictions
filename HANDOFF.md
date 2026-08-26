@@ -20,6 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 03:10 UTC (one-hundredth update)
+
+### Replacement law now requires an authoritative post-test review lock
+
+- Before any intent or replacement execution, the amendment was tightened a
+  second time to make the reviewed-code boundary executable. Its current and
+  superseding SHA-256 is
+  `374335dc8a50d14f14218fb6a9cb7eddf9c112e48e910d3c139de92136719bae`,
+  10,011 bytes. It requires a fixed-path tracked lock created only after final
+  independent review and the single focused test run. That lock must bind the
+  exact amendment, source, and test hashes/bytes; review disposition; test
+  command/count/result; and false-authority closure. The operator must compare
+  current local bytes to the lock before returning launch permission.
+- Independent review also requires the intent to state the replacement
+  attempt's 8-CPU, 32-GiB, one-task, one-way-parallelism, 21,600-second,
+  `maxRetries=0`, D2, service-account, and evidence-volume envelope directly,
+  rather than relying only on the embedded primary execution projection.
+- All earlier amendment hashes in updates 97-98 are historical pre-launch
+  revisions and grant no authority. The implementation is changing to bind
+  this current revision and remains rejected/unexecuted until resealed and
+  reviewed.
+- Exact next action: commit/push this amendment revision and handoff; finish
+  implementation/test corrections; reseal; obtain final independent approval;
+  run one focused test; then create and separately review the lock. Lane B
+  verifier 34 continues independently.
+
 ## Current handoff — 2026-08-26 03:04 UTC (ninety-ninth update)
 
 ### Lane B worker 34 succeeds; replacement candidate remains rejected pending two fixes

@@ -102,6 +102,11 @@ directly known execution identity or already-created terminal objects; it may
 not be submitted again. That intent must bind:
 
 - this amendment and the reviewed recovery implementation hashes;
+- a fixed-path tracked review lock created only after independent review and
+  the single focused offline test run; the lock must bind the exact amendment,
+  implementation, test-file hashes and byte lengths, review disposition, test
+  command/count/result, and false-authority closure, and the operator must
+  compare current local bytes to it before granting launch permission;
 - every identity and terminal fact above;
 - the exact expected attempt-1 runtime and unchanged result URIs;
 - runtime attempt `1`;
