@@ -20,6 +20,38 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 06:54 UTC (one-hundred-fifteenth update)
+
+### R6 fixed-G0 corrective suite passes and is ready for its implementation commit
+
+- Fresh independent review accepted the R6 fixed-G0 adapter v3 correction
+  with P0/P1/P2 all zero and licensed exactly one final corrective invocation
+  of `.venv/bin/python -m pytest -q
+  tests/test_corpus_r6_player_catalog_fixed_g0_adapter_v1.py`.
+  The command exited 0 and emitted 108 passing progress markers across two
+  lines. Its exact output is retained at
+  `reports/2026-08-26-r6-fixed-g0-final-corrective-focused-test-output.txt`
+  (SHA-256
+  `a9d6c55ed9d807b32d5bf39b92352c1be384488db2b8135a515cc9266b970a29`,
+  160 bytes). It made no cloud call and created no preliminary/final lock,
+  smoke attempt, smoke receipt, catalog projection, or outcome read.
+- The passing candidate identities are source
+  `56eaaf1e48736d684d8504fd82eaba1e7071e3ff6261a80b9f75e4f3442ffdd7`
+  (222,714 bytes), test
+  `1f3612146c51546b95975fddeae430475e428ef812cfed7a0ce65e81ecd9f510`
+  (131,576), first correction addendum
+  `a933d408e34dbf7fed353196fffe75f3d5160ecfbc8d1a42be81a90a742acf50`
+  (6,699), and second correction addendum
+  `9257cabbc9ef2a70969ca637d4addbad1078744ad75614b0c339a9aba052845f`
+  (5,299). The v3 preliminary lock records the complete three-invocation
+  history: initial 27-failure fixture class, second 13-failure fixture class,
+  and this final pass; public lock builders cannot accept fixture-selected
+  smoke inputs and force the normalized fixed production pins.
+- Exact next action: commit/push these R6 implementation/evidence bytes, build
+  the deterministic preliminary lock from that clean implementation commit,
+  commit/push the lock, then seek separate authorization for the one
+  outcome-blind real task-0 smoke. Realized outcomes remain closed.
+
 ## Current handoff — 2026-08-26 06:33 UTC (one-hundred-fourteenth update)
 
 ### Ordinal-6 terminal closure tests pass; R6 adapter exposes two remaining fixture classes
