@@ -228,7 +228,7 @@ def _measurement(relative_path: str, marker: str) -> dict[str, object]:
 
 
 def _review_lock(
-    *, focused_count: int = 52,
+    *, focused_count: int = 92,
     focused_output: dict[str, object] | None = None,
 ) -> tuple[
     dict[str, object],
@@ -297,11 +297,32 @@ def test_focused_output_correction_addendum_identity_is_exact() -> None:
     )
 
 
+def test_wrapped_output_correction_addendum_identity_is_exact() -> None:
+    raw = Path(closure.WRAPPED_OUTPUT_CORRECTION_ADDENDUM_RELATIVE_PATH).read_bytes()
+    assert len(raw) == closure.WRAPPED_OUTPUT_CORRECTION_ADDENDUM_BYTES
+    assert sha256(raw).hexdigest() == (
+        closure.WRAPPED_OUTPUT_CORRECTION_ADDENDUM_SHA256
+    )
+
+
 def test_focused_output_accepts_exact_preserved_progress_line() -> None:
     raw = b"." * 51 + b" " * 22 + b"[100%]\n"
     assert len(raw) == closure.PRIOR_FOCUSED_TEST_OUTPUT_BYTES == 80
     assert sha256(raw).hexdigest() == closure.PRIOR_FOCUSED_TEST_OUTPUT_SHA256
     assert closure.focused_test_pass_count_v1(raw) == 51
+
+
+def test_focused_output_accepts_exact_preserved_wrapped_progress() -> None:
+    raw = (
+        b"." * 72
+        + b" [ 79%]\n"
+        + b"." * 19
+        + b" " * 54
+        + b"[100%]\n"
+    )
+    assert len(raw) == closure.SECOND_FOCUSED_TEST_OUTPUT_BYTES == 160
+    assert sha256(raw).hexdigest() == closure.SECOND_FOCUSED_TEST_OUTPUT_SHA256
+    assert closure.focused_test_pass_count_v1(raw) == 91
 
 
 @pytest.mark.parametrize(
@@ -325,6 +346,26 @@ def test_focused_output_accepts_exact_preserved_progress_line() -> None:
     ],
 )
 def test_focused_output_rejects_malformed_progress_only_forms(raw: bytes) -> None:
+    with pytest.raises(closure.T230PlatformReplacementTerminalError):
+        closure.focused_test_pass_count_v1(raw)
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        b". [ 79%]\n. [ 79%]\n. [100%]\n",
+        b". [ 79%]\n. [ 50%]\n. [100%]\n",
+        b". [100%]\n. [100%]\n",
+        b". [ 79%]\n. [ 99%]\n",
+        b". [ 01%]\n. [100%]\n",
+        b". [  0%]\n. [100%]\n",
+        b". [101%]\n",
+        b". [79%]\n. [100%]\n",
+        b". [ 79%]\n\n. [100%]\n",
+        b". [ 79%]\ndiagnostic\n. [100%]\n",
+    ],
+)
+def test_focused_output_rejects_malformed_wrapped_progress(raw: bytes) -> None:
     with pytest.raises(closure.T230PlatformReplacementTerminalError):
         closure.focused_test_pass_count_v1(raw)
 
@@ -385,6 +426,53 @@ def test_prior_focused_output_rejects_committed_byte_drift(
         closure._reopen_prior_focused_test_output_v1(repository_root=tmp_path)
 
 
+def test_second_focused_output_reopens_from_exact_preserved_commit(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    raw = (
+        b"." * 72
+        + b" [ 79%]\n"
+        + b"." * 19
+        + b" " * 54
+        + b"[100%]\n"
+    )
+    calls: list[list[str]] = []
+
+    def fake_run(argv: list[str], **_kwargs: object):
+        calls.append(argv)
+        return closure.subprocess.CompletedProcess(argv, 0, stdout=raw, stderr=b"")
+
+    monkeypatch.setattr(closure.subprocess, "run", fake_run)
+    assert closure._reopen_second_focused_test_output_v1(
+        repository_root=tmp_path
+    ) == raw
+    assert calls == [[
+        "git",
+        "show",
+        f"{closure.SECOND_FOCUSED_TEST_IMPLEMENTATION_COMMIT}:"
+        f"{closure.FOCUSED_TEST_OUTPUT_RELATIVE_PATH}",
+    ]]
+
+
+def test_second_focused_output_rejects_committed_byte_drift(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    raw = (
+        b"." * 72
+        + b" [ 79%]\n"
+        + b"." * 18
+        + b" " * 55
+        + b"[100%]\n"
+    )
+
+    def fake_run(argv: list[str], **_kwargs: object):
+        return closure.subprocess.CompletedProcess(argv, 0, stdout=raw, stderr=b"")
+
+    monkeypatch.setattr(closure.subprocess, "run", fake_run)
+    with pytest.raises(closure.T230PlatformReplacementTerminalError):
+        closure._reopen_second_focused_test_output_v1(repository_root=tmp_path)
+
+
 def test_preflight_attempt_marker_consumes_failure_and_rejects_retry_flip() -> None:
     value = _marker()
     assert closure.validate_preflight_attempt_marker_v1(value) == value
@@ -420,20 +508,26 @@ def test_review_lock_is_exact_and_rejects_coherently_rehashed_extra() -> None:
         expected_preflight_measurement=preflight_measurement,
         expected_preflight=preflight,
         expected_focused_test_output_measurement=output,
-        expected_focused_test_collected=52,
+        expected_focused_test_collected=92,
     ) == value
-    assert value["focused_test_total_invocation_count"] == 2
-    assert value["focused_test_total_invocation_count_max"] == 2
-    assert value["third_focused_test_invocation_allowed"] is False
+    assert value["focused_test_total_invocation_count"] == 3
+    assert value["focused_test_total_invocation_count_max"] == 3
+    assert value["fourth_focused_test_invocation_allowed"] is False
     assert value["prior_focused_test_invocation_count"] == 1
     assert value["prior_focused_test_implementation_commit"] == (
         closure.PRIOR_FOCUSED_TEST_IMPLEMENTATION_COMMIT
     )
     assert value["prior_focused_test_pass_count"] == 51
     assert value["prior_focused_test_exit_code"] == 0
-    assert value["corrected_focused_test_invocation_count"] == 1
-    assert value["corrected_focused_test_passed"] == 52
-    assert value["corrected_focused_test_exit_code"] == 0
+    assert value["second_focused_test_invocation_count"] == 1
+    assert value["second_focused_test_implementation_commit"] == (
+        closure.SECOND_FOCUSED_TEST_IMPLEMENTATION_COMMIT
+    )
+    assert value["second_focused_test_pass_count"] == 91
+    assert value["second_focused_test_exit_code"] == 0
+    assert value["final_corrected_focused_test_invocation_count"] == 1
+    assert value["final_corrected_focused_test_passed"] == 92
+    assert value["final_corrected_focused_test_exit_code"] == 0
     value["extra"] = False
     value["terminal_closure_review_lock_sha256"] = batch.canonical_sha256(
         {
@@ -451,7 +545,7 @@ def test_review_lock_is_exact_and_rejects_coherently_rehashed_extra() -> None:
             expected_preflight_measurement=preflight_measurement,
             expected_preflight=preflight,
             expected_focused_test_output_measurement=output,
-            expected_focused_test_collected=52,
+            expected_focused_test_collected=92,
         )
 
 
@@ -465,15 +559,27 @@ def test_review_lock_cannot_relabel_prior_output_as_corrected_invocation() -> No
         _review_lock(focused_count=51, focused_output=prior)
 
 
+def test_review_lock_cannot_relabel_second_output_as_final_invocation() -> None:
+    second = {
+        "relative_path": closure.FOCUSED_TEST_OUTPUT_RELATIVE_PATH,
+        "sha256": closure.SECOND_FOCUSED_TEST_OUTPUT_SHA256,
+        "bytes": closure.SECOND_FOCUSED_TEST_OUTPUT_BYTES,
+    }
+    with pytest.raises(closure.T230PlatformReplacementTerminalError):
+        _review_lock(focused_count=91, focused_output=second)
+
+
 @pytest.mark.parametrize(
     ("field", "changed"),
     [
-        ("focused_test_total_invocation_count", 1),
-        ("focused_test_total_invocation_count_max", 3),
-        ("third_focused_test_invocation_allowed", True),
+        ("focused_test_total_invocation_count", 2),
+        ("focused_test_total_invocation_count_max", 4),
+        ("fourth_focused_test_invocation_allowed", True),
         ("prior_focused_test_pass_count", 50),
         ("prior_focused_test_exit_code", 1),
-        ("corrected_focused_test_invocation_count", 0),
+        ("second_focused_test_pass_count", 90),
+        ("second_focused_test_exit_code", 1),
+        ("final_corrected_focused_test_invocation_count", 0),
     ],
 )
 def test_review_lock_rejects_coherently_rehashed_history_erasure(
@@ -505,7 +611,7 @@ def test_review_lock_rejects_coherently_rehashed_history_erasure(
             expected_preflight_measurement=preflight_measurement,
             expected_preflight=preflight,
             expected_focused_test_output_measurement=output,
-            expected_focused_test_collected=52,
+            expected_focused_test_collected=92,
         )
 
 

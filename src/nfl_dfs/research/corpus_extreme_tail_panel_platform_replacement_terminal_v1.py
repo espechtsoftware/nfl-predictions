@@ -38,7 +38,7 @@ PREFLIGHT_ATTEMPT_SCHEMA: Final = (
     "foundry-t230-ordinal-6-terminal-closure-preflight-attempt/v1"
 )
 REVIEW_LOCK_SCHEMA: Final = (
-    "foundry-t230-ordinal-6-terminal-closure-review-lock/v2"
+    "foundry-t230-ordinal-6-terminal-closure-review-lock/v3"
 )
 RECOVERY_TERMINAL_SCHEMA: Final = (
     "foundry-t230-ordinal-6-replacement-execution-terminal/v1"
@@ -65,6 +65,14 @@ FOCUSED_OUTPUT_CORRECTION_ADDENDUM_SHA256: Final = (
     "6132f2205f96eb11af1695c63e95cbd35cbd70aadc66160afdf07ca0e38ebf72"
 )
 FOCUSED_OUTPUT_CORRECTION_ADDENDUM_BYTES: Final = 4134
+WRAPPED_OUTPUT_CORRECTION_ADDENDUM_RELATIVE_PATH: Final = (
+    "reports/2026-08-26-t230-ordinal6-terminal-closure-"
+    "wrapped-output-correction-addendum.md"
+)
+WRAPPED_OUTPUT_CORRECTION_ADDENDUM_SHA256: Final = (
+    "26d5dd3fb507b3737b1a719c645618699ea990358dc2b6e3b250cb736826b9f7"
+)
+WRAPPED_OUTPUT_CORRECTION_ADDENDUM_BYTES: Final = 4228
 PANEL_CLOSURE_AMENDMENT_RELATIVE_PATH: Final = (
     "reports/2026-08-26-t230-current-run-terminal-panel-closure-amendment.md"
 )
@@ -113,6 +121,14 @@ PRIOR_FOCUSED_TEST_OUTPUT_SHA256: Final = (
 )
 PRIOR_FOCUSED_TEST_OUTPUT_BYTES: Final = 80
 PRIOR_FOCUSED_TEST_PASS_COUNT: Final = 51
+SECOND_FOCUSED_TEST_IMPLEMENTATION_COMMIT: Final = (
+    "25ea2a372590d69ad5cb3e84e39358ec23080d6a"
+)
+SECOND_FOCUSED_TEST_OUTPUT_SHA256: Final = (
+    "d5909c51985bd5db202843a4382250d792189dd73767b52e1fa90d69193bf46c"
+)
+SECOND_FOCUSED_TEST_OUTPUT_BYTES: Final = 160
+SECOND_FOCUSED_TEST_PASS_COUNT: Final = 91
 PREFLIGHT_COMMAND: Final = (
     ".venv/bin/python",
     CONTROLLER_RELATIVE_PATH,
@@ -342,6 +358,11 @@ def frozen_terminal_closure_contract_v1() -> dict[str, object]:
             "sha256": FOCUSED_OUTPUT_CORRECTION_ADDENDUM_SHA256,
             "bytes": FOCUSED_OUTPUT_CORRECTION_ADDENDUM_BYTES,
         },
+        "wrapped_output_correction_addendum_measurement": {
+            "relative_path": WRAPPED_OUTPUT_CORRECTION_ADDENDUM_RELATIVE_PATH,
+            "sha256": WRAPPED_OUTPUT_CORRECTION_ADDENDUM_SHA256,
+            "bytes": WRAPPED_OUTPUT_CORRECTION_ADDENDUM_BYTES,
+        },
         "current_run_panel_closure_amendment_measurement": {
             "relative_path": PANEL_CLOSURE_AMENDMENT_RELATIVE_PATH,
             "sha256": PANEL_CLOSURE_AMENDMENT_SHA256,
@@ -492,6 +513,33 @@ def _reopen_prior_focused_test_output_v1(*, repository_root: Path) -> bytes:
     return raw
 
 
+def _reopen_second_focused_test_output_v1(*, repository_root: Path) -> bytes:
+    try:
+        raw = subprocess.run(
+            [
+                "git",
+                "show",
+                f"{SECOND_FOCUSED_TEST_IMPLEMENTATION_COMMIT}:"
+                f"{FOCUSED_TEST_OUTPUT_RELATIVE_PATH}",
+            ],
+            cwd=repository_root,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise T230PlatformReplacementTerminalError(
+            "second focused-test output replay failed"
+        ) from exc
+    if (
+        len(raw) != SECOND_FOCUSED_TEST_OUTPUT_BYTES
+        or sha256(raw).hexdigest() != SECOND_FOCUSED_TEST_OUTPUT_SHA256
+        or focused_test_pass_count_v1(raw) != SECOND_FOCUSED_TEST_PASS_COUNT
+    ):
+        _fail("second focused-test output history differs")
+    return raw
+
+
 def verify_terminal_closure_implementation_commit_v1(
     *,
     implementation_source_commit_sha: str,
@@ -513,6 +561,7 @@ def verify_terminal_closure_implementation_commit_v1(
         *(str(row["relative_path"]) for row in current),
         AMENDMENT_RELATIVE_PATH,
         FOCUSED_OUTPUT_CORRECTION_ADDENDUM_RELATIVE_PATH,
+        WRAPPED_OUTPUT_CORRECTION_ADDENDUM_RELATIVE_PATH,
         PANEL_CLOSURE_AMENDMENT_RELATIVE_PATH,
     ]
     try:
@@ -549,6 +598,11 @@ def verify_terminal_closure_implementation_commit_v1(
             "bytes": FOCUSED_OUTPUT_CORRECTION_ADDENDUM_BYTES,
         },
         {
+            "relative_path": WRAPPED_OUTPUT_CORRECTION_ADDENDUM_RELATIVE_PATH,
+            "sha256": WRAPPED_OUTPUT_CORRECTION_ADDENDUM_SHA256,
+            "bytes": WRAPPED_OUTPUT_CORRECTION_ADDENDUM_BYTES,
+        },
+        {
             "relative_path": PANEL_CLOSURE_AMENDMENT_RELATIVE_PATH,
             "sha256": PANEL_CLOSURE_AMENDMENT_SHA256,
             "bytes": PANEL_CLOSURE_AMENDMENT_BYTES,
@@ -579,6 +633,7 @@ def verify_terminal_closure_implementation_commit_v1(
         ):
             _fail("implementation source commit bytes differ")
     _reopen_prior_focused_test_output_v1(repository_root=repository_root)
+    _reopen_second_focused_test_output_v1(repository_root=repository_root)
     return implementation_source_commit_sha
 
 
@@ -629,6 +684,11 @@ def build_preflight_attempt_marker_v1(
             "sha256": FOCUSED_OUTPUT_CORRECTION_ADDENDUM_SHA256,
             "bytes": FOCUSED_OUTPUT_CORRECTION_ADDENDUM_BYTES,
         },
+        "wrapped_output_correction_addendum_measurement": {
+            "relative_path": WRAPPED_OUTPUT_CORRECTION_ADDENDUM_RELATIVE_PATH,
+            "sha256": WRAPPED_OUTPUT_CORRECTION_ADDENDUM_SHA256,
+            "bytes": WRAPPED_OUTPUT_CORRECTION_ADDENDUM_BYTES,
+        },
         "current_run_panel_closure_amendment_measurement": {
             "relative_path": PANEL_CLOSURE_AMENDMENT_RELATIVE_PATH,
             "sha256": PANEL_CLOSURE_AMENDMENT_SHA256,
@@ -670,9 +730,37 @@ def validate_preflight_attempt_marker_v1(value: object) -> dict[str, object]:
 
 
 def focused_test_pass_count_v1(raw: bytes) -> int:
-    progress = re.fullmatch(rb"(\.+) +\[100%\]\n", raw)
-    if progress is not None:
-        return len(progress.group(1))
+    progress_lines = raw.splitlines(keepends=True)
+    progress_count = 0
+    prior_percentage = 0
+    progress_only = bool(progress_lines)
+    for index, line in enumerate(progress_lines):
+        progress = re.fullmatch(
+            rb"(\.+) +\[([ 0-9]{3})%\]\n",
+            line,
+        )
+        if progress is None:
+            progress_only = False
+            break
+        percentage_field = progress.group(2)
+        stripped = percentage_field.strip(b" ")
+        if not stripped.isdigit():
+            progress_only = False
+            break
+        percentage = int(stripped)
+        if (
+            percentage < 1
+            or percentage > 100
+            or percentage_field != str(percentage).encode("ascii").rjust(3, b" ")
+            or percentage <= prior_percentage
+            or (percentage == 100 and index != len(progress_lines) - 1)
+        ):
+            progress_only = False
+            break
+        progress_count += len(progress.group(1))
+        prior_percentage = percentage
+    if progress_only and prior_percentage == 100:
+        return progress_count
     try:
         text = raw.decode("utf-8")
     except UnicodeError as exc:
@@ -743,13 +831,20 @@ def build_terminal_closure_review_lock_v1(
         or preflight["preflight_attempt_marker_sha256"]
         != marker["preflight_attempt_marker_sha256"]
         or type(focused_test_collected) is not int
-        or focused_test_collected <= PRIOR_FOCUSED_TEST_PASS_COUNT
+        or focused_test_collected <= SECOND_FOCUSED_TEST_PASS_COUNT
         or output_measurement
-        == {
-            "relative_path": FOCUSED_TEST_OUTPUT_RELATIVE_PATH,
-            "sha256": PRIOR_FOCUSED_TEST_OUTPUT_SHA256,
-            "bytes": PRIOR_FOCUSED_TEST_OUTPUT_BYTES,
-        }
+        in (
+            {
+                "relative_path": FOCUSED_TEST_OUTPUT_RELATIVE_PATH,
+                "sha256": PRIOR_FOCUSED_TEST_OUTPUT_SHA256,
+                "bytes": PRIOR_FOCUSED_TEST_OUTPUT_BYTES,
+            },
+            {
+                "relative_path": FOCUSED_TEST_OUTPUT_RELATIVE_PATH,
+                "sha256": SECOND_FOCUSED_TEST_OUTPUT_SHA256,
+                "bytes": SECOND_FOCUSED_TEST_OUTPUT_BYTES,
+            },
+        )
     ):
         _fail("review-lock receipt/history binding differs")
     body = {
@@ -771,6 +866,11 @@ def build_terminal_closure_review_lock_v1(
             "sha256": FOCUSED_OUTPUT_CORRECTION_ADDENDUM_SHA256,
             "bytes": FOCUSED_OUTPUT_CORRECTION_ADDENDUM_BYTES,
         },
+        "wrapped_output_correction_addendum_measurement": {
+            "relative_path": WRAPPED_OUTPUT_CORRECTION_ADDENDUM_RELATIVE_PATH,
+            "sha256": WRAPPED_OUTPUT_CORRECTION_ADDENDUM_SHA256,
+            "bytes": WRAPPED_OUTPUT_CORRECTION_ADDENDUM_BYTES,
+        },
         "current_run_panel_closure_amendment_measurement": {
             "relative_path": PANEL_CLOSURE_AMENDMENT_RELATIVE_PATH,
             "sha256": PANEL_CLOSURE_AMENDMENT_SHA256,
@@ -790,9 +890,9 @@ def build_terminal_closure_review_lock_v1(
         "p1_count": 0,
         "p2_count": 0,
         "focused_test_command": list(FOCUSED_TEST_COMMAND),
-        "focused_test_total_invocation_count": 2,
-        "focused_test_total_invocation_count_max": 2,
-        "third_focused_test_invocation_allowed": False,
+        "focused_test_total_invocation_count": 3,
+        "focused_test_total_invocation_count_max": 3,
+        "fourth_focused_test_invocation_allowed": False,
         "prior_focused_test_invocation_count": 1,
         "prior_focused_test_implementation_commit": (
             PRIOR_FOCUSED_TEST_IMPLEMENTATION_COMMIT
@@ -809,15 +909,31 @@ def build_terminal_closure_review_lock_v1(
         "prior_focused_test_skipped": 0,
         "prior_focused_test_warnings": 0,
         "prior_focused_test_exit_code": 0,
-        "corrected_focused_test_invocation_count": 1,
-        "corrected_focused_test_command": list(FOCUSED_TEST_COMMAND),
-        "corrected_focused_test_collected": focused_test_collected,
-        "corrected_focused_test_passed": focused_test_collected,
-        "corrected_focused_test_failed": 0,
-        "corrected_focused_test_skipped": 0,
-        "corrected_focused_test_warnings": 0,
-        "corrected_focused_test_exit_code": 0,
-        "corrected_focused_test_output_measurement": output_measurement,
+        "second_focused_test_invocation_count": 1,
+        "second_focused_test_implementation_commit": (
+            SECOND_FOCUSED_TEST_IMPLEMENTATION_COMMIT
+        ),
+        "second_focused_test_output_measurement": {
+            "relative_path": FOCUSED_TEST_OUTPUT_RELATIVE_PATH,
+            "sha256": SECOND_FOCUSED_TEST_OUTPUT_SHA256,
+            "bytes": SECOND_FOCUSED_TEST_OUTPUT_BYTES,
+        },
+        "second_focused_test_command": list(FOCUSED_TEST_COMMAND),
+        "second_focused_test_collected": SECOND_FOCUSED_TEST_PASS_COUNT,
+        "second_focused_test_pass_count": SECOND_FOCUSED_TEST_PASS_COUNT,
+        "second_focused_test_failed": 0,
+        "second_focused_test_skipped": 0,
+        "second_focused_test_warnings": 0,
+        "second_focused_test_exit_code": 0,
+        "final_corrected_focused_test_invocation_count": 1,
+        "final_corrected_focused_test_command": list(FOCUSED_TEST_COMMAND),
+        "final_corrected_focused_test_collected": focused_test_collected,
+        "final_corrected_focused_test_passed": focused_test_collected,
+        "final_corrected_focused_test_failed": 0,
+        "final_corrected_focused_test_skipped": 0,
+        "final_corrected_focused_test_warnings": 0,
+        "final_corrected_focused_test_exit_code": 0,
+        "final_corrected_focused_test_output_measurement": output_measurement,
         "preflight_attempt_marker_measurement": marker_measurement,
         "preflight_attempt_marker_sha256": marker[
             "preflight_attempt_marker_sha256"
@@ -893,6 +1009,11 @@ def reopen_terminal_closure_review_lock_v1(
         FOCUSED_OUTPUT_CORRECTION_ADDENDUM_RELATIVE_PATH,
         label="focused-output correction addendum",
     )
+    wrapped_correction_addendum = _regular_file_measurement(
+        repository_root,
+        WRAPPED_OUTPUT_CORRECTION_ADDENDUM_RELATIVE_PATH,
+        label="wrapped-output correction addendum",
+    )
     panel_amendment = _regular_file_measurement(
         repository_root,
         PANEL_CLOSURE_AMENDMENT_RELATIVE_PATH,
@@ -906,6 +1027,10 @@ def reopen_terminal_closure_review_lock_v1(
         "relative_path": FOCUSED_OUTPUT_CORRECTION_ADDENDUM_RELATIVE_PATH,
         "sha256": FOCUSED_OUTPUT_CORRECTION_ADDENDUM_SHA256,
         "bytes": FOCUSED_OUTPUT_CORRECTION_ADDENDUM_BYTES,
+    } or wrapped_correction_addendum != {
+        "relative_path": WRAPPED_OUTPUT_CORRECTION_ADDENDUM_RELATIVE_PATH,
+        "sha256": WRAPPED_OUTPUT_CORRECTION_ADDENDUM_SHA256,
+        "bytes": WRAPPED_OUTPUT_CORRECTION_ADDENDUM_BYTES,
     } or panel_amendment != {
         "relative_path": PANEL_CLOSURE_AMENDMENT_RELATIVE_PATH,
         "sha256": PANEL_CLOSURE_AMENDMENT_SHA256,
@@ -1002,6 +1127,7 @@ def reopen_terminal_closure_review_lock_v1(
         ),
         AMENDMENT_RELATIVE_PATH,
         FOCUSED_OUTPUT_CORRECTION_ADDENDUM_RELATIVE_PATH,
+        WRAPPED_OUTPUT_CORRECTION_ADDENDUM_RELATIVE_PATH,
         PANEL_CLOSURE_AMENDMENT_RELATIVE_PATH,
         PREFLIGHT_ATTEMPT_RELATIVE_PATH,
         PREFLIGHT_RELATIVE_PATH,
@@ -1043,6 +1169,7 @@ def reopen_terminal_closure_review_lock_v1(
         *implementations,
         amendment,
         correction_addendum,
+        wrapped_correction_addendum,
         panel_amendment,
         marker_measurement,
         preflight_measurement,
@@ -1069,6 +1196,7 @@ def reopen_terminal_closure_review_lock_v1(
         if committed != local:
             _fail("terminal-closure local bytes differ from committed bytes")
     _reopen_prior_focused_test_output_v1(repository_root=repository_root)
+    _reopen_second_focused_test_output_v1(repository_root=repository_root)
     return lock_measurement, retained
 
 
@@ -1702,6 +1830,11 @@ def build_terminal_closure_preflight_v1(
             "sha256": FOCUSED_OUTPUT_CORRECTION_ADDENDUM_SHA256,
             "bytes": FOCUSED_OUTPUT_CORRECTION_ADDENDUM_BYTES,
         },
+        "wrapped_output_correction_addendum_measurement": {
+            "relative_path": WRAPPED_OUTPUT_CORRECTION_ADDENDUM_RELATIVE_PATH,
+            "sha256": WRAPPED_OUTPUT_CORRECTION_ADDENDUM_SHA256,
+            "bytes": WRAPPED_OUTPUT_CORRECTION_ADDENDUM_BYTES,
+        },
         "current_run_panel_closure_amendment_measurement": {
             "relative_path": PANEL_CLOSURE_AMENDMENT_RELATIVE_PATH,
             "sha256": PANEL_CLOSURE_AMENDMENT_SHA256,
@@ -2022,6 +2155,13 @@ __all__ = [
     "PRIOR_FOCUSED_TEST_OUTPUT_BYTES",
     "PRIOR_FOCUSED_TEST_OUTPUT_SHA256",
     "PRIOR_FOCUSED_TEST_PASS_COUNT",
+    "SECOND_FOCUSED_TEST_IMPLEMENTATION_COMMIT",
+    "SECOND_FOCUSED_TEST_OUTPUT_BYTES",
+    "SECOND_FOCUSED_TEST_OUTPUT_SHA256",
+    "SECOND_FOCUSED_TEST_PASS_COUNT",
+    "WRAPPED_OUTPUT_CORRECTION_ADDENDUM_BYTES",
+    "WRAPPED_OUTPUT_CORRECTION_ADDENDUM_RELATIVE_PATH",
+    "WRAPPED_OUTPUT_CORRECTION_ADDENDUM_SHA256",
     "IMPLEMENTATION_RELATIVE_PATH",
     "IMPLEMENTATION_COMMIT_ENV",
     "LANE_A_CLOSURE_SCHEMA",

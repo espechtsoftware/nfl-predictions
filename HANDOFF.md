@@ -20,6 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 07:17 UTC (one-hundred-eighteenth update)
+
+### Final terminal-closure parser correction passes all 114 focused cases
+
+- A second pre-publication correction is frozen at
+  `reports/2026-08-26-t230-ordinal6-terminal-closure-wrapped-output-correction-addendum.md`,
+  SHA-256
+  `26d5dd3fb507b3737b1a719c645618699ea990358dc2b6e3b250cb736826b9f7`,
+  4,228 bytes. It preserves the first 51-marker success at commit `c7556b4a`
+  and the wrapped 91-marker success at commit `25ea2a37`, and permits no
+  fourth invocation.
+- Independent static review of the resulting v3 candidate reported P0/P1/P2
+  all zero. Exact reviewed identities were module
+  `ea1beea5c364f795ff536a8ef9bb339a0b66c4133b9335803c7ab02ae0fdd8a3`
+  (87,544 bytes), module test
+  `445936ea71faf15045e999b8360c35758c77f897211f51301e6a4e4a73c9bc33`
+  (31,238), unchanged controller
+  `31c9210cb0323ad64bd4e9d250857085aec4be724266062b3670da371a80af85`
+  (37,289), and controller test
+  `6a4abfdbad52f3302bb377be62b0b2377147eb347d1ec6865ad8a7ba044a8423`
+  (26,986).
+- The sole licensed final command `.venv/bin/python -m pytest -q
+  tests/test_corpus_extreme_tail_panel_platform_replacement_terminal_v1.py
+  tests/test_run_corpus_extreme_tail_panel_platform_replacement_terminal_v1.py`
+  exited 0 with 114 pass markers. Its exact two-line output is retained at
+  `reports/2026-08-26-t230-ordinal6-terminal-closure-focused-test-output.txt`,
+  SHA-256
+  `ec055756592c1bb329da72c4e5089f85afc5e27d0c065575c1f11962c207f5b1`,
+  160 bytes. It made no cloud call and read no result, acceptance, realized
+  outcome or score.
+- Exact next action: commit/push these reviewed bytes, run the separately
+  reviewed metadata-only terminal preflight once, build and commit its v3
+  final lock, then publish the ordinal-6 terminal receipt and six-of-28 Lane-A
+  negative root. Historical outcomes remain closed.
+
 ## Current handoff — 2026-08-26 07:10 UTC (one-hundred-seventeenth update)
 
 ### Terminal-closure correction passes; wrapped output needs one additive parser amendment
