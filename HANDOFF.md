@@ -20,6 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 09:40 UTC (one-hundred-twenty-eighth update)
+
+### Bounded catalog successor passes its sole focused offline suite
+
+- Main is at local commit `302a33d45712bcd535e832d7d88a2136da3f0d9b`
+  and is one commit ahead of `origin/main`. That commit lands only the corrected
+  adapter/fixture, the first-projection failure report, and the separately
+  versioned catalog-projection successor/source test. The successor now creates
+  a durable ordinal-2 attempt reservation after exact final-lock validation and
+  before cloud-client construction. The marker binds the final lock, reviewed
+  implementation measurements, current clean commit/source identity, exact
+  command, and lifetime maximum of two projection attempts; an existing marker
+  fails closed before a second cloud contact.
+- Independent review of the exact candidate reported P0=0, P1=0, P2=0. The
+  landed source identities are adapter
+  `4378f7b6...9e81885`, adapter test `447e24b0...890a0a0`, failure
+  report `9641b731...75208c`, successor `0f034cad...34837` (41,643
+  bytes), and successor test `acb3c256...ed6677` (25,349 bytes).
+- The sole reviewed focused invocation ran from detached clean worktree
+  `/tmp/nfl-r6-catalog-projection-successor-v1` at that commit with the exact
+  absolute interpreter, isolated `PYTHONPATH`, cleared repository addopts, and
+  exactly the adapter plus successor tests. It exited 0 with **150 passed in
+  16.16s** and no failure, skip, warning, or error marker. Exact output is
+  `reports/2026-08-26-r6-fixed-g0-projection-successor-focused-test-output.txt`,
+  SHA-256 `634e423c238fe09820d8990f337f810be73fa206c4c4efe86b000c677c4bc668`,
+  261 bytes.
+- The invocation was offline. No cloud client, GCS object, world/result body,
+  realized outcome, or score was opened. Historical outcomes remain closed and
+  current-system scoring has not begun.
+- Exact next action: commit and push this test evidence and handoff; build and
+  commit the create-once successor review lock from that clean commit; build
+  and commit its final lock from the next clean commit; then invoke the one
+  corrected generation-pinned 54-slate catalog projection. Full-union/T230
+  fast-lane and corrected matchup-source review continue independently.
+
 ## Current handoff — 2026-08-26 09:16 UTC (one-hundred-twenty-seventh update)
 
 ### First locked 54-slate catalog projection fails before any output write
