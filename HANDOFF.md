@@ -20,6 +20,42 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 10:42 UTC (one-hundred-thirty-second update)
+
+### Task-0 48-book real-artifact smoke operator passes static review
+
+- Main and `origin/main` remain pushed at `8b485deb`. The validated
+  full-union fast lane itself passed 8/8 focused tests; current-system realized
+  historical scoring has not begun and no outcome or score process is active.
+- A fixed task-0 production-smoke candidate now exact-opens the accepted G0
+  panel, binds the immutable ordinal-0 `2023-w01` member, invokes only the
+  full-union lane at the literal five-by-10,000-world authoritative dose,
+  validates the six-scope/eight-strategy/48-book exact-80 lattice, and writes
+  one local create-once receipt. It has no catalog-projection or realized-
+  outcome seam.
+- After two bounded correction rounds, independent final static review found
+  P0=0 and P1=0. Exact source is
+  `src/nfl_dfs/research/corpus_r6_full_union_task0_smoke_v1.py`, SHA-256
+  `8eb246213aaa85401320b9ef8e3ad0ef0b8e67921d30c97e85b623d160f80258`,
+  38,847 bytes. Exact test is
+  `tests/test_corpus_r6_full_union_task0_smoke_v1.py`, SHA-256
+  `8f60a5b921794d47b6afb964903ed86c9eef4dbb4f917de89749e6f197c65cc1`,
+  23,607 bytes.
+- The final validator exact-replays candidate and admission schemas, complete
+  eligible-to-admitted union membership, selected lineup/roster binding,
+  full-union/final-refit laws, fixed member and world identities, nested
+  outcome/authority exclusion, and output-path safety before cloud-client
+  construction. Exact adversaries cover schema/admission-law drift, subsets,
+  roster mismatch, outcome aliases, wrong world roles, and verification drift.
+- Exactly one offline invocation of only
+  `tests/test_corpus_r6_full_union_task0_smoke_v1.py` is licensed. No module
+  import, test, cloud read, world body, realized outcome, or score has occurred
+  from this operator yet.
+- Exact next action: land these reviewed bytes, run the one focused test from
+  its clean commit, then invoke the one real task-0 smoke from a clean isolated
+  checkout with its result path outside that checkout. A passing receipt opens
+  the 54-slate outcome-blind book freeze, not historical outcome access.
+
 ## Current handoff — 2026-08-26 10:08 UTC (one-hundred-thirty-first update)
 
 ### Full-union fast lane passes its sole reviewed offline suite
