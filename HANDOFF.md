@@ -20,6 +20,42 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 09:16 UTC (one-hundred-twenty-seventh update)
+
+### First locked 54-slate catalog projection fails before any output write
+
+- Main and `origin/main` are both pushed at `8660373b`. From a clean detached
+  worktree at that commit, the single projection licensed by the v2 final lock
+  was invoked with `R6_FIXED_G0_ADAPTER_PRODUCTION_ENABLED=1` and exited `1`.
+  It generation-pinned and exact-opened the real artifact-source completion,
+  then failed in `_validate_source_completion` before all projection inputs
+  were derived and before the first output publisher call. No catalog,
+  derivation receipt, release, replay receipt, world/result body, realized
+  outcome, or score was read or written.
+- The only observed mismatch is one real top-level field omitted from the
+  adapter fixture: `complete_dk_salary_coverage_claimed: false`. Task 0 and
+  task 53 retained the exact expected task-level fields. The bounded successor
+  admits precisely that field, requires literal false, and adds a coherently
+  rehashed true-value rejection without widening the key policy.
+- The failure record is being finalized at
+  `reports/2026-08-26-r6-fixed-g0-catalog-projection-source-completion-schema-failure.md`.
+  A separately versioned recovery module and two new create-once locks are
+  required before one corrected projection rerun; the failed v2 final lock is
+  consumed and will not be overwritten or reused.
+- In parallel, the complete 54-slate candidate-authority correction now
+  exact-reads every candidate generation and binds the terminal catalog
+  release/replay/source chain. The matchup-source correction is replacing
+  postgame participant-derived roles and season/week-only ordering with
+  pregame depth/fallback roles and exact kickoff ordering, while freezing the
+  SIS formula/family registry and per-component missing reasons. Neither
+  candidate has been imported or executed yet.
+- Historical outcomes remain closed. Current-system historical scoring has
+  not begun, and no score process is active. The exact next action is to
+  independently review and run the bounded catalog successor suite, land and
+  push it, build the new review/final locks from clean commits, and run the
+  sole corrected 54-slate projection. Candidate authority and matchup-source
+  corrections continue in parallel.
+
 ## Current handoff — 2026-08-26 09:00 UTC (one-hundred-twenty-sixth update)
 
 ### Fixed-G0 catalog terminal recovery passes its complete reviewed suite
