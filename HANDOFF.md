@@ -20,6 +20,30 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 06:56 UTC (one-hundred-sixteenth update)
+
+### R6 fixed-G0 preliminary smoke lock is deterministically built
+
+- From clean implementation commit
+  `443f074669f664f0383022cd340e14ad046f65e5`, the reviewed production lock
+  builder created
+  `reports/2026-08-26-r6-player-catalog-fixed-g0-adapter-review-lock.json`.
+  Its outer file SHA-256 is
+  `2785f5a31391f8da20aa7bc7daf44b315ba125502cd4d9d765ce25df22773083`,
+  3,683 bytes; its internal self-hash is
+  `b87fd596d5795db943337cb17204ebcc99cce0d32b39dc7011af0d463eec2710`.
+- The v3 lock exact-binds the passing source/test identities, the complete
+  27-failure → 13-failure → 108-pass history and four evidence files. It
+  grants only one outcome-blind task-0 read smoke and one local create-once
+  attempt/receipt; projection publication, R6 source authority, scoring,
+  corpus fill/retrieval, graph mutation, promotion and decision authority all
+  remain false.
+- This was a deterministic local build in an isolated clean worktree. It made
+  no cloud call, created no smoke attempt/receipt/final lock or projection,
+  and read no outcomes. Exact next action: commit/push this later preliminary
+  lock HEAD, independently review its exact reopen and the one-shot command,
+  then run the task-0 real-artifact smoke exactly once if licensed.
+
 ## Current handoff — 2026-08-26 06:54 UTC (one-hundred-fifteenth update)
 
 ### R6 fixed-G0 corrective suite passes and is ready for its implementation commit
