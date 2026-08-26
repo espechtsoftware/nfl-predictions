@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 07:25 UTC (one-hundred-twentieth update)
+
+### Ordinal-6 and Lane-A terminal-invalid receipts are published
+
+- From pushed lock-containing commit `fc340204`, the reviewed negative-only
+  publisher created and exact-reopened the ordinal-6 replacement execution
+  terminal at
+  `transport/platform-replacements/run-slate/06/attempt-01/execution-terminal-v1.json`.
+  Durable identity: generation `1787729070534530`, SHA-256
+  `e593562f149f33c8afb5979f8c5e30d5ca859db2c2631d826fa2b520f2556896`,
+  108,747 bytes; internal self-hash
+  `5582afadc4cb579a7a974e96e2e88de6361f24a648263a7f2c1d1a6bfcf025bf`.
+- The same locked closer then performed its two exact-name absence censuses
+  and created/exact-reopened the six-of-28 Lane-A terminal-invalid root at
+  `transport/platform-replacements/lanes/lane-0-ordinal-06-amendment-v1.json`.
+  Durable identity: generation `1787729095827048`, SHA-256
+  `5b609cde2f2d1b3fafbaf66d376adc0c5e225bcae5cb52cde72da2e6c3eefa1d`,
+  151,983 bytes; internal self-hash
+  `840f7190cacd0951051d7ec8ee1672ec23fa09be751bf6e3134c8a2d754c0dd5`.
+- Both operations submitted zero Cloud Run executions and read zero result,
+  acceptance or realized-outcome bodies. Lane A is durably terminal-invalid
+  with accepted ordinals 0 through 5 and first incomplete ordinal 6. No retry,
+  bridge verifier, G0, R6 or scoring authority was created.
+- Exact next action: implement/review the independent seven-of-26 Lane-B
+  terminal receipt and 13-of-54 combined terminal panel index from the frozen
+  panel-closure amendment; publish each once and exact-reopen it. The valid
+  August-23 54-slate G0 remains the separate R6 source.
+
 ## Current handoff — 2026-08-26 07:23 UTC (one-hundred-nineteenth update)
 
 ### Ordinal-6 terminal preflight passes and v3 publication lock is built
