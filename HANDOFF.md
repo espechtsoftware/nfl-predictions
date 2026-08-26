@@ -20,6 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 03:45 UTC (one-hundred-fifth update)
+
+### Lane B stops safely on a second Cloud Run code-13 platform failure
+
+- Ordinal-35 verifier execution `atlas-cbc-32g-full-2023-w8-v1-sqs7z`
+  reached terminal failure with `failedCount=1`, `maxRetries=0`, task status
+  code 13 and exact message `Internal error.`, and execution message
+  `Task atlas-cbc-32g-full-2023-w8-v1-sqs7z-task0 failed with exit code: 0 and message: Internal error.`
+  The only execution log is the Cloud Run system event; there is no
+  application error log. This is the same contradictory platform signature
+  as ordinal-6 worker attempt 0, not a verifier rejection receipt.
+- Verifier attempt 0 published its immutable stage start at generation
+  `1787715526710581`, 3,611 bytes, full-object SHA-256
+  `2bd29614608c18a0d5f5bd6e8d9c814c03ed080da9288ee8c1bb0e64d6c75f0d`
+  and self-hash
+  `04634a21e98123736ee522eede9bfac2b97b8f762c8e6da6c69d6a755bb9a232`.
+  It also published its runtime measurement at generation
+  `1787715612475399`, 13,647 bytes, full-object SHA-256
+  `bb477a4a2b8be8aaf211bf4ab6c3b60166eacd9b3f96af3ce92f03741c3aa03a`
+  and self-hash
+  `9c3954a6213f602bf2efdb00c384ab6d493dab2a46f06fc61aff067557938bf9`.
+  Both bind verifier role, attempt 0, frozen D2, and
+  `uses_realized_outcomes=false`.
+- Exact-name checks find no ordinal-35 acceptance and no terminal verifier
+  stage. The verifier request is consumed and will not be relaunched. Unified
+  session `77315` exited fail-closed with code 2 after confirming the missing
+  stage. T230 remains at thirteen of 54 accepted; both lane controllers are
+  now stopped, and no realized historical scoring has begun.
+- The already-static ordinal-6 recovery candidate remains frozen to ordinal 6
+  and is not being widened mid-review. Exact next action: finish its joint
+  review/test/preflight/lock sequence, then write and review a separate
+  verifier-35 amendment that may reuse only the approved mechanism with its
+  own terminal lineage, absence surface, hashes, and launch authority. Never
+  reuse either consumed attempt-0 request.
+
 ## Current handoff — 2026-08-26 03:37 UTC (one-hundred-fourth update)
 
 ### Lane B ordinal-35 worker succeeds and enters distinct verification
