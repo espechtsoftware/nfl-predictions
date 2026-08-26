@@ -20,6 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 07:29 UTC (one-hundred-twenty-first update)
+
+### Bounded R6 smoke recovery is tracked; isolated test environment misresolved main
+
+- Independently reviewed R6 pre-client recovery is now tracked on main at
+  commit `57ff477a1da65929c29837ae55ee8bd6f4dd443e`. Exact reviewed bytes remain
+  adapter
+  `4eb3df79dd670c693817211d4936b25b1d69c75ce182658283c4aa3397f26dd2`
+  (244,701 bytes), test
+  `f4249aeac2a22101b6f2e9fc92cb192b7b3ad5e0888b3019a49d80fd0031f669`
+  (141,939), and recovery amendment
+  `a53e9a2cf973a2ee29631a4743faff1c99aa6698c91106c66e1d67349dcab82c`
+  (3,646). The original v1 attempt marker is finally durable at its exact
+  outer SHA `35d2a323...`, 3,278 bytes, internal self-hash `2e3adc38...`.
+- The one isolated focused command exited 2 during collection because that
+  worktree's linked editable virtual environment imported the older adapter
+  from main. It therefore saw no recovery constant, ran zero candidate test
+  items, and made no cloud/outcome call or recovery-lock/marker write. The
+  exact failure is tracked at
+  `reports/2026-08-26-r6-fixed-g0-recovery-focused-test-environment-failure.md`,
+  SHA-256
+  `cf1233dcaa4aadbdc69b264fddde320086a14afb78db20bd74c57777b75034ab`,
+  1,533 bytes.
+- The environment correction is now structural rather than another symlink:
+  the reviewed source and test are in the same main worktree targeted by the
+  editable install. No recovery/science/pin rule changed. Exact next action:
+  obtain independent authorization for one corrected focused invocation from
+  main; on pass, build/commit the fixed recovery review lock, then run at most
+  one v2 task-0 smoke. Historical outcomes remain closed.
+
 ## Current handoff — 2026-08-26 07:25 UTC (one-hundred-twentieth update)
 
 ### Ordinal-6 and Lane-A terminal-invalid receipts are published
