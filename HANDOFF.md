@@ -20,6 +20,43 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 18:50 UTC (one-hundred-fifty-first update)
+
+### Historical supply is live; exact replay census explains the pre-query wait
+
+- The frozen realized run ID is
+  `20260826-foundry-v12-r6-full-union-realized-v1`. The historical lease was
+  acquired at exact generation `1787767352106912`, bytes `388`, SHA-256
+  `c389ce641c7d0696f9bbfd438622252d2ab54579cf96e5173d97b17aaf705b11`.
+  The sole `supply` execution is
+  `atlas-minimal-c-s2023-w1-v1-qcvnf`, created
+  `2026-08-26T18:02:33.516362Z` and started
+  `2026-08-26T18:04:18.092862Z`. Its live envelope remains one running task,
+  zero retries/failures, exact immutable image, service account, argv,
+  environment, 8 CPU/32 GiB, `maxRetries=0` and the exact panel/smoke/lease
+  identities. Do not relaunch it: crash-safe launch intent and execution name
+  are retained under the run directory's `stages/supply/`.
+- As of `2026-08-26T18:49:56Z`, create-once `read-attempt.json` was absent.
+  Therefore the one fixed-ID historical query had not begun and no lineup had
+  been scored. This is not a query stall. A source-level replay census shows
+  ten complete 54-slate semantic passes before the attempt (540 leaf/result
+  reopens) and eight afterward (432 reopens). Smoke timings measure about
+  9.3 minutes per pass, predicting the attempt/query near 19:37 UTC and supply
+  terminal near 20:55–21:10 UTC. The byte cache already avoids redownloads;
+  repeated JSON parsing, canonical reconstruction and semantic validation are
+  the bottleneck.
+- The exact post-supply runbook is ready: retain the supply terminal envelope,
+  terminal receipt and five generation-pinned object identities; launch only
+  `grade`; then `finish`, generation-match release lease generation
+  `1787767352106912`, run `status`, and generate the grade-artifact-only score
+  report. Grade contains all eight frozen strategies, including
+  `strict-230-coverage-v1` with strict `score > 230`. A read-only call-path
+  audit counts roughly 21 full-panel semantic replays in grade and estimates
+  four to five hours under the eight-hour timeout. Exact next action: keep
+  polling existing execution `qcvnf` without relaunch; after its launcher exits
+  zero and all five objects exact-resolve, commit that milestone and invoke the
+  prepared grade immediately.
+
 ## Current handoff — 2026-08-26 18:01 UTC (one-hundred-fiftieth update)
 
 ### Actual-root smoke gate is terminal, exact-recovered and outcome-blind
