@@ -20,6 +20,29 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 12:30 UTC (one-hundred-thirty-eighth update)
+
+### One-slate production canary passes both execution and artifact gates
+
+- Launcher stage `canary` configured only registered lane-A job
+  `atlas-minimal-c-s2023-w1-v1` with immutable digest
+  `sha256:0a18d76de4e264b739c3d4274521755595e148db829128e029e7a49b350e66b3`,
+  4 CPU, 16 GiB, one task, parallelism one, zero retries and a 7,200-second
+  timeout. It did not create a job or read realized outcomes.
+- Durable Cloud Run execution `atlas-minimal-c-s2023-w1-v1-vg6r7` completed
+  successfully at `2026-08-26T12:27:57.466189Z`: **1 succeeded, 0 failed**,
+  total Cloud Run duration 11m05s. The launcher itself exited 0 only after its
+  stronger artifact-status validation.
+- `status-after-canary.json` validates completed ordinals exactly `[0]`, no
+  result-only ordinal, 53 exact missing ordinals, **48 rank-80 books**, **144
+  prefixes**, and `root_ready=false`. It explicitly retains
+  `uses_realized_outcomes=false` and `historical_scoring_licensed=false`.
+- Current-system historical scoring has **not** begun. Exact next action:
+  invoke launcher stage `launch` once. It must recover ordinal 0 rather than
+  recompute it, submit lane A at 28 tasks/parallelism four and lane B at 26
+  tasks/parallelism four, persist both exact execution names, then monitor the
+  structural freeze toward 54/54.
+
 ## Current handoff — 2026-08-26 12:18 UTC (one-hundred-thirty-seventh update)
 
 ### Create-once 54-slate full-union execution manifest is published
