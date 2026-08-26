@@ -20,6 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 22:16 UTC (one-hundred-fifty-seventh update)
+
+### Exact R6-v2 outcome-blind actual-root smoke is terminal-successful
+
+- Run `20260826-foundry-v12-r6-full-union-realized-v2` smoke execution
+  `atlas-minimal-c-s2023-w1-v1-jn924` completed successfully at
+  `2026-08-26T22:14:13.773252Z` after `1h36m46.81s`: one succeeded task,
+  zero failed/running tasks, `maxRetries=0`, one task/parallelism one. The
+  retained terminal execution envelope SHA-256 is
+  `9c6c174abfc9442623e37d2336f52119a653dfdf9be4694576aaad94ac2d54d9`;
+  its terminal receipt binds the exact execution and reports `complete=true`.
+  The envelope exactly retains reviewed code
+  `16356b246817ea4777426b4e8a8b82e0737210df`, immutable image digest
+  `8be07290476cb88a584eb20adacc020598255855c9f305102bf3fe8f5f089de8`,
+  frozen panel generation `1787756181440564` / object SHA-256
+  `57844386a3da86ddf05f8b3e6b19ae19c7327afcfc1057647b210e58caec2467`,
+  all four snapshot-code hashes and launch token
+  `fd33dafe1077e46e68a539f3886e6cf31329e9780629baea896173ea4cc40ecf`.
+- Outcome-blind projection identity is generation `1787777900321498`, bytes
+  `2563921`, SHA-256
+  `88d292c31caf2b2f8b14f58fcc9cc7973893e0ea21832e02c85e9bc481083d08`.
+  Actual-root smoke receipt identity is generation `1787780169874584`, bytes
+  `67127`, SHA-256
+  `7e2db3d420d1e5027a566455a8614b11e941a478215ce34909b959758db9ac4a`.
+  Both are create-once objects under the exact v2 supply prefix. Their
+  publication preceded terminal completion because the runner replays all 54
+  roots again to validate the persisted smoke receipt before returning.
+- No historical-outcome lease has been acquired, no outcome query has run and
+  no lineup has been scored in v2 yet. Exact next action: from the retained v2
+  run directory and identities, invoke only
+  `scripts/cloud_r6_full_union_score_chain_v1.sh supply` with the frozen v2
+  environment. It must acquire/resolve the one lease, use the fixed query job
+  ID, launch at most one supply execution and wait terminal. Never invoke
+  `run`, relaunch smoke, or open outcome artifacts manually.
+
 ## Current handoff — 2026-08-26 21:53 UTC (one-hundred-fifty-sixth update)
 
 ### Observatory Phase 5 second correction is isolated and rejected on one bounded contract-integrity repair
