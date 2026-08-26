@@ -20,6 +20,54 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 20:38 UTC (one-hundred-fifty-third update)
+
+### Corrected image and server compile pass; exact v2 actual-root smoke is live
+
+- Pushed `main`/`origin/main` source commit
+  `16356b246817ea4777426b4e8a8b82e0737210df`. Regional Cloud Build
+  `b635bb26-1571-40ed-8163-678dbd0d284f` completed **SUCCESS** from
+  `2026-08-26T20:15:05.457812206Z` through
+  `2026-08-26T20:31:52.558483Z`; all six steps succeeded. Exact immutable
+  image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:8be07290476cb88a584eb20adacc020598255855c9f305102bf3fe8f5f089de8`.
+  Its machine-readable metadata is generation `1787776308545533`, bytes
+  `7355`, SHA-256
+  `9cfd2c821469683507407e4d04ae8ddccd886f87e6c9ad8871cc5797988b89f7`
+  at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/r6-full-union-post-freeze-builds/b635bb26-1571-40ed-8163-678dbd0d284f/r6-post-freeze-build-metadata.json`.
+  It binds the exact commit/source hashes and asserts focused tests and
+  immutable-digest smoke passed, with no query, score or lease use.
+- Replacement run ID is
+  `20260826-foundry-v12-r6-full-union-realized-v2`. Exact immutable-image
+  compile execution `atlas-minimal-c-s2023-w1-v1-bknc5` completed successfully
+  at `2026-08-26T20:36:04.309312Z`, one succeeded task, zero failed/running.
+  The corrected SQL hash is
+  `03b5028dadbe4d92621103e2ccd6dcfe91e8e36fc351cf671f37e309951752cb`;
+  BigQuery returned the exact five-field schema and estimated `8689314`
+  bytes. The canonical compile receipt self-hash is
+  `5407ce24cb4acdb7b78b4571da7b83449c874920b31685b36e3d77d4d71c0551`.
+  It was published create-once at generation `1787776558889920`, bytes
+  `1869`, object SHA-256
+  `67df13c7d292ac93f64250ac635300655290f60075593aa1f366ad1fe76d868e`.
+  Receipt flags prove `dry_run=true`, `query_executed=false`, `rows_read=0`,
+  no historical lease, no realized-row use and no lineup scoring.
+- The exact v2 outcome-blind actual-root smoke execution is now
+  `atlas-minimal-c-s2023-w1-v1-jn924`, created
+  `2026-08-26T20:37:12.294008Z`. Its retained launch token is
+  `fd33dafe1077e46e68a539f3886e6cf31329e9780629baea896173ea4cc40ecf`;
+  envelope binds the new digest, commit, frozen panel generation
+  `1787756181440564` / SHA-256
+  `57844386a3da86ddf05f8b3e6b19ae19c7327afcfc1057647b210e58caec2467`,
+  all four snapshot hashes, one task, one-way execution, 8 CPU/32 GiB,
+  `maxRetries=0` and the expected compute service account. It was still
+  provisioning at this handoff. Do **not** relaunch it; the crash-safe local
+  launch intent/name/output are under the v2 run directory. No historical
+  lease is open and no v2 lineup score exists yet. Exact next action: poll
+  `jn924` to terminal; after launcher exit zero and exact resolution of the
+  projection plus actual-root smoke receipt, retain/commit that evidence and
+  invoke only v2 `supply`.
+
 ## Current handoff — 2026-08-26 20:12 UTC (one-hundred-fifty-second update)
 
 ### V1 supply is closed before any outcome read; repair and enforced compile gate pass
