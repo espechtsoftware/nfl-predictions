@@ -20,6 +20,45 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 07:10 UTC (one-hundred-seventeenth update)
+
+### Terminal-closure correction passes; wrapped output needs one additive parser amendment
+
+- Independent exact-byte review of the ordinal-6 terminal-closure focused-
+  output correction found P0/P1/P2 all zero and licensed exactly one corrected
+  invocation of `.venv/bin/python -m pytest -q
+  tests/test_corpus_extreme_tail_panel_platform_replacement_terminal_v1.py
+  tests/test_run_corpus_extreme_tail_panel_platform_replacement_terminal_v1.py`.
+  It exited 0 in about 2.5 seconds with 91 passing progress markers. The exact
+  two-line output is retained at
+  `reports/2026-08-26-t230-ordinal6-terminal-closure-focused-test-output.txt`,
+  SHA-256
+  `d5909c51985bd5db202843a4382250d792189dd73767b52e1fa90d69193bf46c`,
+  160 bytes. No cloud client, preflight, result/acceptance body, realized
+  outcome or score was accessed.
+- Pytest wrapped the 91 markers into a 79-percent line followed by a
+  100-percent line. The reviewed parser correction accepts the preserved
+  prior single-line 51-marker form but not this truthful two-line form, so no
+  terminal preflight marker was created and no review lock or terminal receipt
+  can yet be built. The corrected invocation is consumed despite exit 0.
+  Before any third invocation, freeze a second additive amendment that binds
+  this exact successful output and narrowly accepts monotone period-only
+  progress chunks ending at 100 percent; independently review the new bytes.
+- Separately, the one licensed R6 fixed-G0 task-0 smoke reserved its v1 local
+  attempt marker, then failed before constructing a GCS client because the
+  isolated worktree's `.venv` lacked its `pyvenv.cfg`/library link and could
+  not import `google.cloud.storage`. The consumed marker is 3,278 bytes with
+  outer SHA-256
+  `35d2a32334f7b06074a8f37245042881f4dd100796e3093b1e09639a6d81ae48`;
+  the success receipt is absent. There was zero cloud contact and zero outcome
+  access. Preserve the v1 marker and use only a separately reviewed,
+  versioned v2 recovery marker after an environment-only preflight.
+- Historical outcomes remain closed and no new scoring execution is active.
+  Exact next actions: commit this evidence; freeze/review the two bounded
+  parser/environment recoveries; complete the terminal-invalid 13/54 T230
+  index independently; and finish the valid 54-slate fixed-G0 R6-v2 source
+  path before freezing books.
+
 ## Current handoff — 2026-08-26 06:56 UTC (one-hundred-sixteenth update)
 
 ### R6 fixed-G0 preliminary smoke lock is deterministically built

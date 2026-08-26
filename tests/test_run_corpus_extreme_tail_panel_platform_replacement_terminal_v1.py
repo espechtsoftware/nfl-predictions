@@ -725,8 +725,16 @@ def test_review_lock_cli_is_fixed_path_deterministic_and_cloud_free(
     ("text", "accepted"),
     [
         ("...\n12 passed in 1.23s\n", 12),
+        ("." * 51 + " " * 22 + "[100%]\n", 51),
         ("...\n11 passed, 1 skipped in 1.23s\n", None),
         ("...\n1 failed, 11 passed in 1.23s\n", None),
+        ("F [100%]\n", None),
+        (". [100%]\nextra\n", None),
+        (". [100%]", None),
+        (". [99%]\n", None),
+        (".\t[100%]\n", None),
+        (".[100%]\n", None),
+        (" [100%]\n", None),
     ],
 )
 def test_review_lock_builder_derives_clean_pass_count_from_output(

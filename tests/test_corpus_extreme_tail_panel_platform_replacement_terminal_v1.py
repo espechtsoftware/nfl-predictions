@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from hashlib import sha256
+from pathlib import Path
 
 import pytest
 
@@ -226,7 +227,10 @@ def _measurement(relative_path: str, marker: str) -> dict[str, object]:
     return {"relative_path": relative_path, "sha256": marker * 64, "bytes": 10}
 
 
-def _review_lock() -> tuple[
+def _review_lock(
+    *, focused_count: int = 52,
+    focused_output: dict[str, object] | None = None,
+) -> tuple[
     dict[str, object],
     list[dict[str, object]],
     dict[str, object],
@@ -245,7 +249,9 @@ def _review_lock() -> tuple[
         "sha256": sha256(preflight_raw).hexdigest(),
         "bytes": len(preflight_raw),
     }
-    output = _measurement(closure.FOCUSED_TEST_OUTPUT_RELATIVE_PATH, "6")
+    output = focused_output or _measurement(
+        closure.FOCUSED_TEST_OUTPUT_RELATIVE_PATH, "6"
+    )
     body = closure.build_terminal_closure_review_lock_v1(
         implementation_source_commit_sha="a" * 40,
         reviewed_implementation_measurements=implementations,
@@ -254,7 +260,7 @@ def _review_lock() -> tuple[
         real_artifact_preflight_measurement=preflight_measurement,
         real_artifact_preflight=preflight_body,
         focused_test_output_measurement=output,
-        focused_test_collected=1,
+        focused_test_collected=focused_count,
     )
     return (
         body,
@@ -276,6 +282,107 @@ def test_contract_is_terminal_and_grants_no_execution_or_scoring() -> None:
     assert value["bridge_verifier_allowed"] is False
     assert value["current_panel_terminal_invalid"] is True
     assert value["historical_scoring_licensed"] is False
+    assert value["focused_output_correction_addendum_measurement"] == {
+        "relative_path": closure.FOCUSED_OUTPUT_CORRECTION_ADDENDUM_RELATIVE_PATH,
+        "sha256": closure.FOCUSED_OUTPUT_CORRECTION_ADDENDUM_SHA256,
+        "bytes": closure.FOCUSED_OUTPUT_CORRECTION_ADDENDUM_BYTES,
+    }
+
+
+def test_focused_output_correction_addendum_identity_is_exact() -> None:
+    raw = Path(closure.FOCUSED_OUTPUT_CORRECTION_ADDENDUM_RELATIVE_PATH).read_bytes()
+    assert len(raw) == closure.FOCUSED_OUTPUT_CORRECTION_ADDENDUM_BYTES
+    assert sha256(raw).hexdigest() == (
+        closure.FOCUSED_OUTPUT_CORRECTION_ADDENDUM_SHA256
+    )
+
+
+def test_focused_output_accepts_exact_preserved_progress_line() -> None:
+    raw = b"." * 51 + b" " * 22 + b"[100%]\n"
+    assert len(raw) == closure.PRIOR_FOCUSED_TEST_OUTPUT_BYTES == 80
+    assert sha256(raw).hexdigest() == closure.PRIOR_FOCUSED_TEST_OUTPUT_SHA256
+    assert closure.focused_test_pass_count_v1(raw) == 51
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        b"F [100%]\n",
+        b"E [100%]\n",
+        b"s [100%]\n",
+        b"x [100%]\n",
+        b"X [100%]\n",
+        b". [100%]\nextra\n",
+        b". diagnostic [100%]\n",
+        b". [100%]",
+        b". [100%]\r\n",
+        b". [99%]\n",
+        b".\t[100%]\n",
+        b".[100%]\n",
+        b" [100%]\n",
+        b"[100%]\n",
+        b"\xff [100%]\n",
+    ],
+)
+def test_focused_output_rejects_malformed_progress_only_forms(raw: bytes) -> None:
+    with pytest.raises(closure.T230PlatformReplacementTerminalError):
+        closure.focused_test_pass_count_v1(raw)
+
+
+def test_focused_output_retains_clean_summary_grammar() -> None:
+    assert closure.focused_test_pass_count_v1(b"...\n12 passed in 1.23s\n") == 12
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        b"F\n1 passed in 0.1s\n",
+        b"...\n1 passed in 0.1s\nextra\n",
+        b"diagnostic\n1 passed in 0.1s\n",
+        b"...\n1 passed, 1 skipped in 0.1s\n",
+        b"...\n1 failed, 1 passed in 0.1s\n",
+    ],
+)
+def test_focused_output_clean_summary_rejects_outcomes_and_diagnostics(
+    raw: bytes,
+) -> None:
+    with pytest.raises(closure.T230PlatformReplacementTerminalError):
+        closure.focused_test_pass_count_v1(raw)
+
+
+def test_prior_focused_output_reopens_from_exact_preserved_commit(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    raw = b"." * 51 + b" " * 22 + b"[100%]\n"
+    calls: list[list[str]] = []
+
+    def fake_run(argv: list[str], **_kwargs: object):
+        calls.append(argv)
+        return closure.subprocess.CompletedProcess(argv, 0, stdout=raw, stderr=b"")
+
+    monkeypatch.setattr(closure.subprocess, "run", fake_run)
+    assert closure._reopen_prior_focused_test_output_v1(
+        repository_root=tmp_path
+    ) == raw
+    assert calls == [[
+        "git",
+        "show",
+        f"{closure.PRIOR_FOCUSED_TEST_IMPLEMENTATION_COMMIT}:"
+        f"{closure.FOCUSED_TEST_OUTPUT_RELATIVE_PATH}",
+    ]]
+
+
+def test_prior_focused_output_rejects_committed_byte_drift(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    raw = b"." * 50 + b" " * 23 + b"[100%]\n"
+
+    def fake_run(argv: list[str], **_kwargs: object):
+        return closure.subprocess.CompletedProcess(argv, 0, stdout=raw, stderr=b"")
+
+    monkeypatch.setattr(closure.subprocess, "run", fake_run)
+    with pytest.raises(closure.T230PlatformReplacementTerminalError):
+        closure._reopen_prior_focused_test_output_v1(repository_root=tmp_path)
 
 
 def test_preflight_attempt_marker_consumes_failure_and_rejects_retry_flip() -> None:
@@ -313,8 +420,20 @@ def test_review_lock_is_exact_and_rejects_coherently_rehashed_extra() -> None:
         expected_preflight_measurement=preflight_measurement,
         expected_preflight=preflight,
         expected_focused_test_output_measurement=output,
-        expected_focused_test_collected=1,
+        expected_focused_test_collected=52,
     ) == value
+    assert value["focused_test_total_invocation_count"] == 2
+    assert value["focused_test_total_invocation_count_max"] == 2
+    assert value["third_focused_test_invocation_allowed"] is False
+    assert value["prior_focused_test_invocation_count"] == 1
+    assert value["prior_focused_test_implementation_commit"] == (
+        closure.PRIOR_FOCUSED_TEST_IMPLEMENTATION_COMMIT
+    )
+    assert value["prior_focused_test_pass_count"] == 51
+    assert value["prior_focused_test_exit_code"] == 0
+    assert value["corrected_focused_test_invocation_count"] == 1
+    assert value["corrected_focused_test_passed"] == 52
+    assert value["corrected_focused_test_exit_code"] == 0
     value["extra"] = False
     value["terminal_closure_review_lock_sha256"] = batch.canonical_sha256(
         {
@@ -332,7 +451,61 @@ def test_review_lock_is_exact_and_rejects_coherently_rehashed_extra() -> None:
             expected_preflight_measurement=preflight_measurement,
             expected_preflight=preflight,
             expected_focused_test_output_measurement=output,
-            expected_focused_test_collected=1,
+            expected_focused_test_collected=52,
+        )
+
+
+def test_review_lock_cannot_relabel_prior_output_as_corrected_invocation() -> None:
+    prior = {
+        "relative_path": closure.FOCUSED_TEST_OUTPUT_RELATIVE_PATH,
+        "sha256": closure.PRIOR_FOCUSED_TEST_OUTPUT_SHA256,
+        "bytes": closure.PRIOR_FOCUSED_TEST_OUTPUT_BYTES,
+    }
+    with pytest.raises(closure.T230PlatformReplacementTerminalError):
+        _review_lock(focused_count=51, focused_output=prior)
+
+
+@pytest.mark.parametrize(
+    ("field", "changed"),
+    [
+        ("focused_test_total_invocation_count", 1),
+        ("focused_test_total_invocation_count_max", 3),
+        ("third_focused_test_invocation_allowed", True),
+        ("prior_focused_test_pass_count", 50),
+        ("prior_focused_test_exit_code", 1),
+        ("corrected_focused_test_invocation_count", 0),
+    ],
+)
+def test_review_lock_rejects_coherently_rehashed_history_erasure(
+    field: str, changed: object,
+) -> None:
+    (
+        value,
+        implementations,
+        marker_measurement,
+        marker,
+        preflight_measurement,
+        preflight,
+        output,
+    ) = _review_lock()
+    value[field] = changed
+    value["terminal_closure_review_lock_sha256"] = batch.canonical_sha256(
+        {
+            key: retained
+            for key, retained in value.items()
+            if key != "terminal_closure_review_lock_sha256"
+        }
+    )
+    with pytest.raises(closure.T230PlatformReplacementTerminalError):
+        closure.validate_terminal_closure_review_lock_v1(
+            value,
+            expected_implementation_measurements=implementations,
+            expected_preflight_attempt_marker_measurement=marker_measurement,
+            expected_preflight_attempt_marker=marker,
+            expected_preflight_measurement=preflight_measurement,
+            expected_preflight=preflight,
+            expected_focused_test_output_measurement=output,
+            expected_focused_test_collected=52,
         )
 
 
