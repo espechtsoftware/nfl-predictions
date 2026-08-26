@@ -20,6 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 04:07 UTC (one-hundred-sixth update)
+
+### First ordinal-6 focused test run fails safely; correction addendum required
+
+- Independent static review approved the ordinal-6 recovery candidate with no
+  P0/P1/P2 and authorized exactly one offline invocation of
+  `.venv/bin/python -m pytest -q
+  tests/test_corpus_extreme_tail_panel_platform_replacement_v1.py
+  tests/test_run_corpus_extreme_tail_panel_platform_replacement_v1.py`.
+  That invocation was run once and exited 1 with three failures. It performed
+  no cloud read, preflight, publication, submission, outcome read, intent, or
+  recovery execution.
+- The exact failing nodes were:
+  `test_review_lock_rejects_changed_preflight_receipt_measurement[sha256-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee]`,
+  `test_production_cli_wires_only_reviewed_live_entry`, and
+  `test_preflight_cli_uses_fixed_tracked_output_and_blocks_second_invocation`.
+  No exact collected/passed count or stdout SHA was durably captured, so none
+  is claimed.
+- Static diagnosis classifies the first as an invalid test expectation: the
+  pure lock validator can format-check but cannot know whether a different
+  well-formed SHA is the future receipt's content; production reopen separately
+  compares the lock to the actual tracked receipt bytes. The replacement test
+  will use malformed SHA input and add actual-file mismatch coverage at that
+  production reopen boundary. The other two are fixture defects: one assumes
+  the `google.cloud` namespace already exposes `storage`, and one fails to
+  create the safe lexical `reports/` parent now intentionally required by the
+  symlink-hardening check. Production code is not being weakened.
+- The failed invocation consumed the original single-test allowance. A silent
+  rerun is forbidden. Before any corrected invocation, freeze and independently
+  approve a new pre-launch correction addendum that binds the failed candidate,
+  command, exit and three node IDs, zero-action closure, corrected hashes, and
+  exactly one corrected-candidate invocation (`prior_failed=1`,
+  `corrected_max=1`, `total_max=2`). The revised review lock must retain this
+  full history. No intent, preflight, launch, or outcome access is authorized.
+
 ## Current handoff — 2026-08-26 03:45 UTC (one-hundred-fifth update)
 
 ### Lane B stops safely on a second Cloud Run code-13 platform failure
