@@ -20,6 +20,30 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Observatory Phase 4 offline fixture graph — 2026-08-26
+
+- Branch `feature/neo4j-react-observatory`; pre-commit parent
+  `3baf659fbaca4fbba91907891187a77a7acc5103`. Phase 4 adds only the offline
+  deterministic fixture graph adapter, its focused tests, and acceptance
+  evidence. It does not integrate with main or mount any production route.
+- Independent final static review: **APPROVE**, with no P0, P1, or P2
+  findings. Accepted pre-commit SHA-256 identities are
+  `79defa0963e425eb636a219c0e38f170d1100da8cdf0b5f3fc85f228266df956`
+  for `src/nfl_dfs/research/corpus_graph_vnext_fixture_adapter.py` and
+  `c66fd8ceb3f71e530c6f1596bbb912b10d53702c72f9a105bedfa355caa60821`
+  for `tests/test_corpus_graph_vnext_fixture_adapter.py`.
+- Validation: implementing agent's single second-pass focused invocation was
+  `33 passed in 3.18s`; final independent review was static and did not rerun
+  tests. Evidence:
+  `reports/2026-08-26-observatory-phase4-offline-acceptance.md`.
+- Boundaries: offline fixture evidence only; no live Neo4j driver, cloud or
+  outcome access, graph mutation, router mount, deploy, merge, or production
+  authority. Live Neo4j edition compatibility and integration remain later
+  explicitly authorized gates.
+- Next concrete action: lead reviews this isolated commit and separately
+  decides whether to authorize the next integration gate; do not merge by
+  implication.
+
 ## Neo4j/React observatory workstream — 2026-08-25 (delegated lane; branch-local entry, lead reconciles at integration)
 
 - **Phase 3 corrective commit landed and pushed** (`c1f6af83`, evidence in
