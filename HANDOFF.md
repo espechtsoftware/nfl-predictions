@@ -20,6 +20,39 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 03:22 UTC (one-hundred-second update)
+
+### Attempt-1 recovery is feasible in D2; same-process controller is now the gate
+
+- Independent read-only feasibility review confirms that frozen D2's core CLI
+  supports `run-slate --runtime-attempt-ordinal 1` and that its verifier
+  accepts the resulting worker result. Only the v1 production transport
+  wrapper rejects nonzero attempts. No image rebuild or job reconfiguration is
+  required.
+- The safe sequence is: one reviewed same-process controller creates the
+  intent and makes at most one async Cloud Run submission; the payload waits
+  for exact launch-ownership and attempt-1 start receipts before invoking the
+  frozen core; terminal success produces the canonical worker stage plus a
+  supplemental amendment; a distinct direct-core verifier at attempt 0
+  publishes a standard v1-compatible verifier-6 stage; only then may ordinary
+  v1 ordinal 7 resume.
+- The original v1 Lane-A ledger recursively rejects the attempt-1 worker start.
+  Therefore the existing full `run_lane 0`, canonical Lane-A ledger, and v1
+  transport panel finalizer must not run. Resume must be members-only for
+  ordinals 7-27, followed by a supplemental Lane-A root. After ordinary Lane B
+  completes, a separately frozen direct-core finalizer and supplemental panel
+  root must bind all 54 acceptances and the entire exception chain.
+- Final publication review must cover one joint clean set: amendment, intent
+  module/tests, same-process controller/tests, deterministic payload/flags,
+  and the post-test tracked review lock. Existing/equal/racing intent paths
+  must make zero gcloud calls; ambiguous submission consumes the sole attempt.
+  The controller implementation has been assigned in two isolated new files;
+  no cloud action or focused pytest has run.
+- Exact next action: jointly seal those four code/test files against the final
+  amendment, independently review them, run the focused offline suite once,
+  then create/review the tracked lock before any intent publication. Continue
+  polling Lane B verifier 34 independently.
+
 ## Current handoff — 2026-08-26 03:15 UTC (one-hundred-first update)
 
 ### Exact platform message and no-mutation law are clarified before implementation seal
