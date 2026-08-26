@@ -20,6 +20,29 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 02:53 UTC (ninety-eighth update)
+
+### Pre-launch amendment is tightened for whole-surface absence and launch ownership
+
+- Independent static review found that the first amendment revision did not
+  explicitly require absence of the entire verifier/recovery surface or state
+  which equal-intent caller owns launch permission. Before any replacement
+  intent or execution, the amendment was corrected and re-frozen at SHA-256
+  `8ecd2642c3032a2f22137d74d9ae1bf65fa1ec324e26c1a2a8d7bc0cdb6aa3a6`,
+  9,631 bytes. This supersedes the pre-launch SHA recorded in update 97.
+- The corrected law requires exact-name 404s for attempt-1 worker mechanics,
+  all canonical verifier-6 objects, recovery terminals/completions, and the
+  supplemental roots in addition to result/stage absence. Only the invocation
+  that creates the intent may submit. Equal pre-existing/racing intents are
+  resolve-only; an ambiguous submission consumes the sole attempt and may be
+  resolved only by its directly known execution or terminal objects.
+- The offline operator has incorporated this class of finding but is not yet
+  sealed, tested, or licensed for cloud execution. Lane B worker 34 remains
+  independent and live.
+- Exact next action: bind the corrected amendment hash/bytes in the operator,
+  finish its focused tests, obtain the final independent disposition, then run
+  exactly one offline focused test invocation before any create-once intent.
+
 ## Current handoff — 2026-08-26 02:45 UTC (ninety-seventh update)
 
 ### Ordinal-6 bounded replacement law is frozen before any replacement launch

@@ -73,11 +73,15 @@ The replacement is eligible only if exact replay proves all of the following.
    one task, one-way parallelism, `maxRetries=0`, 21,600-second timeout, the
    in-memory evidence mount, source ordinal 6, attempt 0, original launch
    request, exact predecessor, execution authority, and compute release.
-7. The canonical ordinal-6 science-result URI
-   `slates/06-2023-w07/foundry-t230-slate-analysis-v1.json` is absent by an
-   unambiguous exact-name 404 immediately before replacement authorization.
-   The canonical ordinal-6 run-slate stage receipt is likewise absent. No
-   bucket listing or latest alias may establish absence.
+7. The entire not-yet-authorized recovery surface is absent by unambiguous
+   exact-name 404s immediately before replacement authorization. This includes
+   the canonical ordinal-6 science result and run-slate stage receipt; the
+   attempt-1 worker stage-start, runtime measurement, recovery terminal, and
+   success completion; the canonical verifier-6 launch request, attempt-0
+   stage-start, runtime measurement, verify-slate stage receipt, and
+   acceptance; the verifier recovery terminal and bridge completion; and the
+   supplemental Lane-A and panel roots. No bucket listing or latest alias may
+   establish absence.
 8. The failure evidence and absence checks use no lineup effects, support-rank
    observations, realized outcomes, or scores.
 
@@ -90,7 +94,12 @@ not replacement eligible.
 
 After an independently reviewed implementation validates all frozen evidence,
 it may publish one create-once replacement intent in a new, ordinal-6-specific
-namespace. That intent must bind:
+namespace. Only the invocation that proves it created the target may launch.
+An equal pre-existing or concurrently created intent is resolve-only and
+grants no launch permission to that invocation. A lost or ambiguous Cloud Run
+submission consumes the sole attempt and may be resolved only through its
+directly known execution identity or already-created terminal objects; it may
+not be submitted again. That intent must bind:
 
 - this amendment and the reviewed recovery implementation hashes;
 - every identity and terminal fact above;
@@ -106,7 +115,9 @@ Only after the intent is durable may one separately named Cloud Run execution
 run the frozen core `run-slate` implementation for source ordinal 6 and
 runtime attempt 1. It must use the existing immutable image and write to the
 existing deterministic create-once science-result URI. It may not run any
-other slate or inspect any result before launch.
+other slate or inspect any result before launch. A create-once launch-ownership
+receipt must bind the first creator, the exact submission response, and the
+single replacement execution identity before the result can be accepted.
 
 If the replacement fails for any reason, publishes an unequal object, changes
 the envelope, or does not produce its exact result and attempt-1 runtime
@@ -120,9 +131,11 @@ bridge verifier is required before ordinal 7 may run.
 
 The verifier authorization must bind the accepted attempt-1 worker receipt,
 the exact replacement result, source ordinal 6, frozen D2, and a new
-create-once verifier launch request. The verifier runs the frozen core
-`verify-slate` implementation, publishes the canonical ordinal-6 acceptance,
-and remains a distinct Cloud Run execution from both worker executions.
+create-once verifier launch request. It uses the same first-creator-only and
+ambiguous-submission-consumes rules as the worker authorization. The verifier
+runs the frozen core `verify-slate` implementation, publishes the canonical
+ordinal-6 acceptance, and remains a distinct Cloud Run execution from both
+worker executions.
 
 The bridge may expose a v1-compatible verifier stage only after the recovery
 operator has replayed and validated the attempt-1 worker exception. This lets
