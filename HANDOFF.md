@@ -46,6 +46,28 @@ agent or developer:
 
 ## Neo4j/React observatory workstream — 2026-08-25 (delegated lane; branch-local entry, lead reconciles at integration)
 
+- **Phase 5 capacity estimator committed (2026-08-26)** on parent
+  `3f656dfd` (accepted Phase 4), evidence in
+  `reports/2026-08-26-observatory-phase5-capacity-estimator.md`:
+  `src/nfl_dfs/research/corpus_graph_capacity.py` — a pure offline,
+  deterministic, identity-bound estimator with a frozen pre-registered
+  estimation law (hashed), an exact input packet contract
+  (`foundry-graph-capacity-inputs/v1`: counts, gs:// object identities,
+  release ids, provisioning parameters, authority, self-hash), estimates
+  for BOTH graph modes every time, named ceiling violations, forcing
+  (`summary-only` / `none-feasible`), and a receipt
+  (`foundry-graph-capacity-receipt/v1`) that replays from its bound inputs
+  and rejects tamper/forge/re-law. **No mode was chosen**: fixture
+  inputs always yield `pending-lead-inputs`; a recommendation appears only
+  for lead-authority inputs with non-synthetic identities and a
+  `lead_confirmation_sha256`, and it still requires the lead's explicit
+  approval receipt (never self-activating). The exact required counts,
+  identities, versions, and parameters are enumerated in the report and by
+  `required_inputs_manifest()`. Validation: capacity 30/30 (adversarial),
+  graph contracts 40/40 regression, `git diff --check` clean. Nothing
+  live, cloud, governed, infrastructural, or on active R6/T230/Core paths
+  was touched; no merge/rebase/mount/cutover. STOPPED for lead review.
+
 - **Phase 3 corrective commit landed and pushed** (`c1f6af83`, evidence in
   `reports/2026-08-25-observatory-phase3-corrective-commit.md`): every P1
   from the Phase 3 lead review is implemented — full-surface sanitized
