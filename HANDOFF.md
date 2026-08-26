@@ -20,6 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 22:19 UTC (one-hundred-fifty-eighth update)
+
+### Sole R6-v2 lease-bound outcome supply execution is live
+
+- After the terminal-successful smoke was durably committed/pushed, the exact
+  v2 `supply` command updated the one existing Cloud Run job to the immutable
+  contract and launched one unambiguous execution:
+  `atlas-minimal-c-s2023-w1-v1-cc8xf`. Launch status is zero; its create/equal
+  intent binds run `20260826-foundry-v12-r6-full-union-realized-v2`, reviewed
+  code `16356b246817ea4777426b4e8a8b82e0737210df`, image digest
+  `8be07290476cb88a584eb20adacc020598255855c9f305102bf3fe8f5f089de8`,
+  exact frozen panel and snapshot hashes, compile-receipt generation
+  `1787776558889920`, smoke receipt generation `1787780169874584` and argv SHA-256
+  `98b0182e95b6f7c37ac4d1ac14494405a94bfb2822f2e80e60aef56824ae1577`.
+  Automatic retry is explicitly unlicensed.
+- The single historical-outcome lease was acquired at
+  `2026-08-26T22:17:29.021713+00:00` for that exact run/job/code/image. Its
+  create-only object is generation `1787782649649091`, bytes `388`, SHA-256
+  `c85694a96ece0923ed470820cb704f6f9e1b4f38cdb2bf1598b8cf276600e867`
+  at
+  `gs://nfl-predictions-503414-raw/research-governance/historical-outcome-active-v1.json`.
+  The fixed non-overridable BigQuery job ID is
+  `r6_full_union_realized_20260826_foundry_v12_r6_full_union_realized_v2_57844386a3da86ddf05f8b3e6b19ae19c7327afcfc1057647b210e58caec2467`.
+- No score is reported until this exact supply execution reaches terminal
+  success and its create-once completion/source/snapshot identities resolve.
+  Exact next action: poll only `cc8xf` and the retained launcher to terminal;
+  never relaunch or open source/outcome rows manually. On success, commit the
+  terminal supply evidence, invoke only `grade`, then `finish` to release the
+  lease before running the bounded grade-only reporter.
+
 ## Current handoff — 2026-08-26 22:16 UTC (one-hundred-fifty-seventh update)
 
 ### Exact R6-v2 outcome-blind actual-root smoke is terminal-successful
@@ -36,8 +66,7 @@ agent or developer:
   `8be07290476cb88a584eb20adacc020598255855c9f305102bf3fe8f5f089de8`,
   frozen panel generation `1787756181440564` / object SHA-256
   `57844386a3da86ddf05f8b3e6b19ae19c7327afcfc1057647b210e58caec2467`,
-  all four snapshot-code hashes and launch token
-  `fd33dafe1077e46e68a539f3886e6cf31329e9780629baea896173ea4cc40ecf`.
+  all four snapshot-code hashes and the exact create/equal stage binding.
 - Outcome-blind projection identity is generation `1787777900321498`, bytes
   `2563921`, SHA-256
   `88d292c31caf2b2f8b14f58fcc9cc7973893e0ea21832e02c85e9bc481083d08`.
@@ -207,9 +236,7 @@ agent or developer:
   no historical lease, no realized-row use and no lineup scoring.
 - The exact v2 outcome-blind actual-root smoke execution is now
   `atlas-minimal-c-s2023-w1-v1-jn924`, created
-  `2026-08-26T20:37:12.294008Z`. Its retained launch token is
-  `fd33dafe1077e46e68a539f3886e6cf31329e9780629baea896173ea4cc40ecf`;
-  envelope binds the new digest, commit, frozen panel generation
+  `2026-08-26T20:37:12.294008Z`. Its envelope binds the new digest, commit, frozen panel generation
   `1787756181440564` / SHA-256
   `57844386a3da86ddf05f8b3e6b19ae19c7327afcfc1057647b210e58caec2467`,
   all four snapshot hashes, one task, one-way execution, 8 CPU/32 GiB,
