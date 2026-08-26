@@ -20,6 +20,42 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 07:23 UTC (one-hundred-nineteenth update)
+
+### Ordinal-6 terminal preflight passes and v3 publication lock is built
+
+- At pushed clean implementation commit
+  `1d0ca2d92b3ae46c706ec68641187cc460852ba3`, independent narrow review
+  reported P0/P1/P2 all zero and licensed one metadata-only terminal
+  preflight. The exact command completed exit 0. It generation-pinned the
+  replacement intent, ownership and stage-start mechanics; exact-described
+  the failed execution/task; and performed two 16-name metadata-only absence
+  censuses. It opened no result, acceptance, effect, lineup, world, log or
+  outcome body and made no mutation, publication or execution submission.
+- The consumed attempt marker is
+  `reports/2026-08-26-t230-ordinal6-terminal-closure-preflight-attempt.json`,
+  outer SHA-256
+  `0a776785b508b82cb88677392b38350ea8b70a49cab39f43badd40d636d77d2d`,
+  3,326 bytes, internal self-hash `a58194ab...`. The passing receipt is
+  `reports/2026-08-26-t230-ordinal6-terminal-closure-real-artifact-preflight.json`,
+  outer SHA-256
+  `bb4e2ff90b94affc6a20edde06de60b4b6cf4bb140c591e295651772ce6ef84a`,
+  74,929 bytes, internal self-hash `e097ebc1...`.
+- Independent receipt review again found P0/P1/P2 all zero and licensed the
+  deterministic local lock builder. It created
+  `reports/2026-08-26-t230-ordinal6-terminal-closure-review-lock.json`, outer
+  SHA-256
+  `b7b5f6171641565ab3d69d87cb6d1fa0252e48b82d31176d86202a9ec6695728`,
+  6,986 bytes, internal self-hash
+  `5764f89b4c7b78fffa50c9c43c711630d5388993a00af313867eb2c214a50afa`.
+  The v3 lock separately records all three successful focused invocations,
+  the single passing preflight, false scoring/outcome authority, and only the
+  two negative terminal-publication permissions.
+- Exact next action: commit/push marker, receipt, lock and this handoff;
+  independently reopen that later clean HEAD; publish and exact-reopen the
+  ordinal-6 terminal receipt once, then publish and exact-reopen the six-of-28
+  Lane-A terminal-invalid root once. No realized outcomes may be opened.
+
 ## Current handoff — 2026-08-26 07:17 UTC (one-hundred-eighteenth update)
 
 ### Final terminal-closure parser correction passes all 114 focused cases
