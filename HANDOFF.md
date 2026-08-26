@@ -20,6 +20,60 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 00:39 UTC (eighty-ninth update)
+
+### T230 reaches seven acceptances; the real R6 catalog root is identified
+
+- Lane B ordinal 30 is independently accepted at generation
+  `1787703949123014`, SHA-256
+  `ce7aa68b29a645c52b636562870cafb0921d8b659bcf3c4af7500ee8bd3c526a`,
+  5,351 bytes. Its verifier-stage receipt is generation
+  `1787703949685448`, SHA-256
+  `cbfed72f76dce31b9b78f6aea7d0d3073213e0c1daf39740ba02ed775e479e62`.
+  The exact acceptance reopen reports `uses_realized_outcomes=false` and all
+  scoring, fill, graph, promotion, decision, and production authorities false.
+  Lane B advanced exactly once to worker 31,
+  `atlas-cbc-32g-full-2023-w8-v1-dd997`.
+- Lane A ordinal 3 is independently accepted at generation
+  `1787704615730309`, SHA-256
+  `12cea613dede34f17abde9dedd4628637fe7f6da076481432fb4688d6ae16b40`,
+  5,350 bytes. Its verifier-stage receipt is generation
+  `1787704616325454`, SHA-256
+  `258c0421286a5611557e130d596887f7e6a77f2135c353b99e3f5448117119a4`.
+  The exact acceptance reopen is likewise outcome-blind and authority-closed.
+  Lane A advanced exactly once to worker 4,
+  `atlas-minimal-c-s2023-w1-v1-pmwgl`.
+- T230 therefore has seven durable independent acceptances: 0, 1, 2, 3, 28,
+  29, and 30. Unified controller session `77315` remains active; there have
+  been no failed tasks, automatic retries, duplicate requests, realized reads,
+  scores, or promotions.
+- The R6 catalog-spine audit is preserved in
+  `reports/2026-08-26-r6-player-catalog-spine-audit.md`. It proves that the
+  accepted v12 chain already binds all 54 ordered structural player catalogs;
+  no new structural BigQuery query or world-matrix regeneration is needed.
+  The shared later-source freeze is generation `1787367678830738`, SHA-256
+  `c63251a3dee0b455502a8e37d03c731c671457b9b17ff41dd9249edb0bae654a`,
+  4,566,802 bytes, and artifact-source completion is generation
+  `1787367915631771`, SHA-256
+  `2d3a97e524fb0f592f0c57ed67643a84281fc97203e348f01031e3c356bded6c`.
+  R6 must use a new exact six-field structural catalog schema rather than
+  fabricate the legacy unused `name`/`proj` fields.
+- Independent review of source-operator artifact SHA
+  `1cff827f90443ff97ac24c040f984a1f4f9f4be0ca0c65e10d8bc1f11df91ff5`
+  is preserved in
+  `reports/2026-08-26-r6-source-operator-independent-review.md` and rejects it
+  as an execute boundary: a caller could coherently select and self-mint a
+  matching carrier chain. The subsequent bounded candidate now keeps
+  validate-only non-authoritative and hard-blocks execute until a pinned
+  54-member catalog/root exists. Its one focused validation passed 26/26 with
+  no warnings; independent rereview remains pending, so none of its three
+  untracked files is approved or staged.
+- Exact next action: keep polling session `77315`; require worker, distinct
+  verifier, and durable exact acceptance for ordinals 4 and 31 before either
+  lane advances. In parallel, finish and independently review the offline
+  54-member structural catalog spine and the hard-blocked source boundary;
+  do not open realized outcomes or claim R6 execution authority.
+
 ## Current handoff — 2026-08-26 00:20 UTC (eighty-eighth update)
 
 ### Observatory Phase 4 is accepted offline while T230 verification continues
