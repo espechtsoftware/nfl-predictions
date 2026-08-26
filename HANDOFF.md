@@ -20,6 +20,38 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 03:15 UTC (one-hundred-third update)
+
+### T230 ordinal 34 is accepted; Lane B advances once to ordinal 35
+
+- Lane B verifier execution `atlas-cbc-32g-full-2023-w8-v1-77wlg`
+  completed successfully. Ordinal 34 is independently accepted at generation
+  `1787713611343759`, SHA-256
+  `8e519ea1dc5f7f2936d3a735c833fa0f88129b4a0d3a1bdfe5c178bbdaa3d0df`,
+  5,351 bytes. Its verifier-stage receipt is generation
+  `1787713611877693`, SHA-256
+  `75a95e73b158392517a3b3877ec19a9453c26c7e563852c95dcff6cc7ae58ca9`,
+  2,066 bytes. A generation-pinned reopen confirms
+  `uses_realized_outcomes=false`, `historical_scoring_licensed=false`, and all
+  graph, fill, R6-freeze, promotion, decision, and production authorities
+  false.
+- T230 now has thirteen exact acceptances: ordinals 0 through 5 and 28
+  through 34. The existing receipt-safe controller advanced exactly once to
+  ordinal-35 worker execution `atlas-cbc-32g-full-2023-w8-v1-bg5kv`, created
+  at `2026-08-26T03:13:40.482939Z`; it is provisioning/running. Unified
+  controller session `77315` remains active. No consumed request was
+  relaunched and no realized outcome or score was opened.
+- Ordinal-6 attempt-1 recovery remains offline. Joint module/controller review
+  now requires a two-phase exact launch binding and a create-once mechanical
+  terminal receipt for every ambiguous, nonzero, or known-but-unverified
+  submission result, so a restart can distinguish a pre-submit crash from a
+  consumed sole attempt without licensing resubmission. No replacement intent
+  or recovery execution exists yet.
+- Exact next action: keep polling worker 35 without disturbing Lane B. Finish
+  and independently approve the four-file recovery implementation, run its
+  single focused offline test, create/review the tracked implementation lock,
+  and only then authorize the one bounded ordinal-6 replacement.
+
 ## Current handoff — 2026-08-26 02:52 UTC (one-hundred-second update)
 
 ### Attempt-1 recovery is feasible in D2; same-process controller is now the gate
