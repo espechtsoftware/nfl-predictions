@@ -20,6 +20,50 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 04:39 UTC (one-hundred-eighth update)
+
+### Corrected ordinal-6 tests pass; first real preflight fails closed on the live task shape
+
+- The independently authorized corrected focused invocation
+  `.venv/bin/python -m pytest -q
+  tests/test_corpus_extreme_tail_panel_platform_replacement_v1.py
+  tests/test_run_corpus_extreme_tail_panel_platform_replacement_v1.py` passed
+  all 271 collected tests with zero failures, skips or warnings and exit 0.
+  Its exact four-line output is preserved at
+  `reports/2026-08-26-t230-ordinal6-corrected-focused-test-output.txt`
+  (SHA-256
+  `194407658363bec291839dce28931401bad3c2658310563edd3ba16380809fbc`,
+  320 bytes). This was lifetime focused invocation two: one prior failed and
+  one corrected pass. It performed no cloud, preflight, publication,
+  submission or outcome action.
+- The single then-authorized real-artifact read-only preflight was run as
+  `.venv/bin/python
+  scripts/run_corpus_extreme_tail_panel_platform_replacement_v1.py
+  preflight-worker --preflight`. It exited 1 before creating its fixed receipt
+  with exact failure label `primary execution/task terminal literals differ`
+  followed by `real-artifact preflight failed closed`. The fixed receipt
+  `reports/2026-08-26-t230-ordinal6-platform-replacement-real-artifact-preflight.json`
+  remains absent. There was no intent, publication, Cloud Run update or
+  submission, recovery launch, outcome read, graph mutation, or historical
+  scoring.
+- The failure exposes an availability defect in the preflight model rather
+  than any mismatch in the frozen platform failure. The real beta task-list
+  row has exact empty `spec={}` and omits optional `status.index`,
+  `status.retried`, and `lastAttemptResult.exitCode`; exit code 0 appears only
+  in the execution's exact terminal message. The execution/task names and
+  labels, code 13, `Internal error.` messages, attempt count, and
+  `maxRetries=0` remain exact. The controller had incorrectly copied execution
+  spec fields into the task fixture and required those absent optional fields.
+- The passed 271-test candidate is now superseded for production purposes.
+  Preserve both the earlier failed test and this passed-test/failed-preflight
+  history. Correct the controller and fixtures to the exact real task shape,
+  add absence-surface adversaries, revise the additive correction law, then
+  obtain independent static approval for at most one post-fix focused
+  invocation (lifetime maximum three). Only a clean post-fix pass may license
+  at most one corrected read-only preflight (lifetime maximum two). No cloud
+  write, recovery execution, outcome access, or historical scoring is
+  authorized meanwhile.
+
 ## Current handoff — 2026-08-26 04:18 UTC (one-hundred-seventh update)
 
 ### Truthful R6 fixed-G0 source replay is unblocked at a new evidence commit
