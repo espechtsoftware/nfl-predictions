@@ -46,6 +46,38 @@ agent or developer:
 
 ## Neo4j/React observatory workstream — 2026-08-25 (delegated lane; branch-local entry, lead reconciles at integration)
 
+- **Phase 5 third correction (2026-08-26)** answering the lead's re-review
+  REJECT of `a4dc08b1` (P0=0, P1=2, P2=2 — mutable unhashed
+  `RELATIONSHIP_ENDPOINTS` and `RELEASE_MANIFESTS` registries let a
+  fresh-process substitution keep old receipts valid); evidence in the
+  regenerated `reports/2026-08-26-observatory-phase5-capacity-estimator.md`.
+  Repair: ONE canonical versioned deep-frozen `SEMANTIC_CONTRACT`
+  (`foundry-graph-capacity-semantic-contract/v1`) now holds every registry
+  the estimator consults — node-count and exact-relationship input
+  registries, the derived relationship set, the complete endpoint map,
+  the release-manifest→count/kind linkage, identity/version/hash/parameter
+  input names, closed realized vocabulary, modes, roster-slot law — with
+  literal digest `c9e6994a0a73fa612b707205fcf057321189e40918f8ab7a053cde83adf1662d`
+  pinned and re-derived from the live object at import and at every
+  build/validate; the estimator reads registries through the contract at
+  use time; every receipt embeds the contract body + digest and the
+  validator requires the embedded digest, the re-hashed embedded body,
+  and the live contract all to equal the pin. Adversarial regressions
+  reproduce both review attacks (endpoint target `PlayerSlate`→`Slate`;
+  `world_releases` rebound to `science_release_count`) and prove neither
+  can emit nor replay, plus deep-freeze `TypeError`s, altered-embedded-
+  body and stripped-contract rejection, and the genuine-contract rejection
+  of `world_release_count=2` with one identity. P2s: stale docstring
+  corrected (nine-slot roster = production law, Phase 4 fixture carries
+  one per lineup; assertion digest / not-authenticated approval, no
+  "lead confirmation"); bucket validation rejects IP-literal, `goog`-
+  prefixed, `google`-containing, and adjacent-separator names. Serial
+  validation: capacity **77/77**; graph contracts and Phase 4 fixture
+  adapter regressions rerun serially — graph contracts **40/40**, Phase 4 fixture adapter **33/33**;
+  `git diff --check` clean. Still no mode decision; no
+  merge/rebase/mount/cutover/cloud/Neo4j/infra/deploy; active
+  R6/T230/Core paths untouched. STOPPED for lead re-review.
+
 - **Phase 5 second correction (2026-08-26)** answering the lead's re-review
   REJECT of `66e4575a` (P0=0); evidence in the regenerated
   `reports/2026-08-26-observatory-phase5-capacity-estimator.md`. Four P1s:

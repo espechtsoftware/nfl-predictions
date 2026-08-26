@@ -14,6 +14,24 @@ from nfl_dfs.research import corpus_graph_vnext_fixture_adapter as adapter
 
 CREATED = "2026-08-26T00:05:00Z"
 FROZEN_LAW_DIGEST = "5d20920d5c5e4a779230a966f29322c46e21a05a5c442422f0f9ad3884dc5fdc"
+FROZEN_CONTRACT_DIGEST = "c9e6994a0a73fa612b707205fcf057321189e40918f8ab7a053cde83adf1662d"
+
+
+def _altered_contract(**changes) -> MappingProxyType:
+    """A substituted contract object with targeted semantic edits."""
+
+    body = capacity._plain(capacity.SEMANTIC_CONTRACT)
+    for path, value in changes.items():
+        cursor = body
+        parts = path.split("/")
+        for part in parts[:-1]:
+            cursor = cursor[int(part)] if isinstance(cursor, list) else cursor[part]
+        last = parts[-1]
+        if isinstance(cursor, list):
+            cursor[int(last)] = value
+        else:
+            cursor[last] = value
+    return capacity._freeze(body)  # type: ignore[return-value]
 
 
 def _inputs(**overrides: object) -> dict[str, object]:
@@ -99,6 +117,89 @@ def test_property_schema_version_hashes_complete_rule_content() -> None:
     assert capacity.property_schema_version() == baseline
 
 
+# ------------------------------------------------ semantic contract ---
+
+def test_semantic_contract_digest_is_pinned_frozen_and_live_rederived() -> None:
+    assert capacity.SEMANTIC_CONTRACT_SHA256 == FROZEN_CONTRACT_DIGEST
+    assert capacity.contract_digest_now() == FROZEN_CONTRACT_DIGEST
+    assert isinstance(capacity.SEMANTIC_CONTRACT, MappingProxyType)
+    assert capacity.SEMANTIC_CONTRACT["version"] == capacity.SEMANTIC_CONTRACT_VERSION
+    for key in (
+        "node_count_inputs", "exact_relationship_inputs", "derived_relationship_types",
+        "relationship_endpoints", "release_manifests", "identity_inputs",
+        "version_inputs", "hash_inputs", "parameter_inputs", "closed_node_kinds",
+        "closed_relationship_types", "modes", "roster_slots",
+    ):
+        assert key in capacity.SEMANTIC_CONTRACT, key
+
+
+def test_semantic_registries_are_deep_frozen() -> None:
+    with pytest.raises(TypeError):
+        capacity.RELATIONSHIP_ENDPOINTS["CONTAINS_PLAYER"]["targets"] = ("Slate",)  # type: ignore[index]
+    with pytest.raises(TypeError):
+        capacity.RELATIONSHIP_ENDPOINTS["CONTAINS_PLAYER"] = {"sources": (), "targets": ()}  # type: ignore[index]
+    with pytest.raises(TypeError):
+        capacity.RELEASE_MANIFESTS[0]["count_input"] = "science_release_count"  # type: ignore[index]
+    with pytest.raises(TypeError):
+        capacity.SEMANTIC_CONTRACT["roster_slots"] = 1  # type: ignore[index]
+    with pytest.raises(AttributeError):
+        capacity.SEMANTIC_CONTRACT["modes"].append("realized")  # type: ignore[union-attr]
+
+
+def test_endpoint_map_substitution_cannot_emit_or_replay(monkeypatch: pytest.MonkeyPatch) -> None:
+    genuine = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    altered = _altered_contract(**{"relationship_endpoints/CONTAINS_PLAYER/targets": ["Slate"]})
+    monkeypatch.setattr(capacity, "SEMANTIC_CONTRACT", altered)
+    assert capacity.contract_digest_now() != FROZEN_CONTRACT_DIGEST
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="semantic contract content drifted"):
+        capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="drifted|different semantic contract"):
+        capacity.validate_capacity_receipt(genuine)
+    monkeypatch.undo()
+    assert capacity.validate_capacity_receipt(genuine)["receipt_sha256"] == genuine["receipt_sha256"]
+
+
+def test_release_manifest_rebinding_cannot_emit_or_replay(monkeypatch: pytest.MonkeyPatch) -> None:
+    genuine = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    altered = _altered_contract(**{"release_manifests/0/count_input": "science_release_count"})
+    monkeypatch.setattr(capacity, "SEMANTIC_CONTRACT", altered)
+    rebound = _inputs(**{"counts.world_release_count": 2})
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="semantic contract content drifted"):
+        capacity.validate_capacity_inputs(rebound)
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="drifted|different semantic contract"):
+        capacity.validate_capacity_receipt(genuine)
+    monkeypatch.undo()
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="carries 1 entries but its count input is 2"):
+        capacity.validate_capacity_inputs(rebound)
+
+
+def test_receipt_with_altered_embedded_contract_under_pinned_digest_is_rejected() -> None:
+    receipt = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    forged = copy.deepcopy(receipt)
+    forged["semantic_contract"]["relationship_endpoints"]["CONTAINS_PLAYER"]["targets"] = ["Slate"]
+    forged["receipt_sha256"] = capacity.canonical_sha256(
+        {k: v for k, v in forged.items() if k != "receipt_sha256"}
+    )
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="different semantic contract"):
+        capacity.validate_capacity_receipt(forged)
+    stripped = copy.deepcopy(receipt)
+    del stripped["semantic_contract"]
+    stripped["receipt_sha256"] = capacity.canonical_sha256(
+        {k: v for k, v in stripped.items() if k != "receipt_sha256"}
+    )
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="lacks a semantic contract"):
+        capacity.validate_capacity_receipt(stripped)
+
+
+def test_receipt_embeds_contract_body_and_digest() -> None:
+    receipt = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    embedded = receipt["semantic_contract"]
+    assert embedded["semantic_contract_sha256"] == FROZEN_CONTRACT_DIGEST
+    body = {k: v for k, v in embedded.items() if k != "semantic_contract_sha256"}
+    assert capacity.canonical_sha256(body) == FROZEN_CONTRACT_DIGEST
+    assert body == capacity._plain(capacity.SEMANTIC_CONTRACT)
+
+
 # ----------------------------------------------------- vocabulary ---
 
 def test_every_modeled_kind_and_relationship_is_registered_and_open() -> None:
@@ -114,8 +215,8 @@ def test_every_modeled_kind_and_relationship_is_registered_and_open() -> None:
     assert set(full["node_kinds"]) == graph.NODE_KINDS - capacity.CLOSED_NODE_KINDS
     assert set(full["relationship_types"]) == graph.RELATIONSHIP_TYPES - capacity.CLOSED_RELATIONSHIP_TYPES
     assert set(capacity.RELATIONSHIP_ENDPOINTS) == graph.RELATIONSHIP_TYPES - capacity.CLOSED_RELATIONSHIP_TYPES
-    for sources, targets in capacity.RELATIONSHIP_ENDPOINTS.values():
-        assert set(sources) | set(targets) <= graph.NODE_KINDS - capacity.CLOSED_NODE_KINDS
+    for spec in capacity.RELATIONSHIP_ENDPOINTS.values():
+        assert set(spec["sources"]) | set(spec["targets"]) <= graph.NODE_KINDS - capacity.CLOSED_NODE_KINDS
 
 
 def test_realized_firewall_keeps_winner_and_outcome_vocabulary_closed() -> None:
@@ -159,9 +260,9 @@ def test_phase4_bundle_book_cardinalities_and_endpoint_pairs_hold() -> None:
     assert relationships["CONTAINS_PLAYER"] == kinds["Lineup"], "fixture: one player edge per lineup"
     for row in edges:
         relationship = str(row["relationship"])
-        sources, targets = capacity.RELATIONSHIP_ENDPOINTS[relationship]
-        assert kind_by_id[str(row["source_id"])] in sources, relationship
-        assert kind_by_id[str(row["target_id"])] in targets, relationship
+        spec = capacity.RELATIONSHIP_ENDPOINTS[relationship]
+        assert kind_by_id[str(row["source_id"])] in spec["sources"], relationship
+        assert kind_by_id[str(row["target_id"])] in spec["targets"], relationship
     assert not set(kinds) & capacity.CLOSED_NODE_KINDS
 
 
@@ -281,6 +382,11 @@ def test_r6_full_union_identity_replaces_standalone_t230() -> None:
         ("uri", "gs://synthetic-fixture.invalid/", "real gs://bucket/object"),
         ("uri", "gs://synthetic-fixture.invalid/dir/", "real gs://bucket/object"),
         ("uri", "gs://synthetic-fixture.invalid/a//b.json", "real gs://bucket/object"),
+        ("uri", "gs://192.168.5.4/x.json", "real gs://bucket/object"),
+        ("uri", "gs://goog-bucket/x.json", "real gs://bucket/object"),
+        ("uri", "gs://my-google-bucket/x.json", "real gs://bucket/object"),
+        ("uri", "gs://my..bucket/x.json", "real gs://bucket/object"),
+        ("uri", "gs://my.-bucket/x.json", "real gs://bucket/object"),
         ("generation", "007", "positive digits"),
         ("sha256", "zz" * 32, "64-hex"),
         ("bytes", 0, "within"),
@@ -505,11 +611,13 @@ def test_required_inputs_manifest_covers_every_consumed_input() -> None:
     assert consumed == names
     assert {item["kind"] for item in manifest} == {"count", "identity", "release_manifest", "version", "hash", "parameter"}
     open_relationships = graph.RELATIONSHIP_TYPES - capacity.CLOSED_RELATIONSHIP_TYPES
-    exact_inputs = {relationship for _, relationship, _, _ in capacity._EXACT_RELATIONSHIP_INPUTS}
+    exact_inputs = {str(e["relationship"]) for e in capacity.EXACT_RELATIONSHIP_INPUTS}
     assert exact_inputs | capacity.DERIVED_RELATIONSHIP_TYPES == open_relationships
     assert not exact_inputs & capacity.DERIVED_RELATIONSHIP_TYPES
-    counted_kinds = {kind for _, kind, _, _ in capacity._NODE_COUNT_INPUTS}
+    counted_kinds = {str(e["kind"]) for e in capacity.NODE_COUNT_INPUTS}
     assert counted_kinds == graph.NODE_KINDS - capacity.CLOSED_NODE_KINDS
+    assert set(capacity.SEMANTIC_CONTRACT["closed_node_kinds"]) == capacity.CLOSED_NODE_KINDS
+    assert set(capacity.SEMANTIC_CONTRACT["closed_relationship_types"]) == capacity.CLOSED_RELATIONSHIP_TYPES
 
 
 def test_fixture_scale_is_bounded() -> None:

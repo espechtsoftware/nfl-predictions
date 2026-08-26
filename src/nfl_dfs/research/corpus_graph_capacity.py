@@ -4,30 +4,45 @@ Decides NOTHING by itself. The estimator turns an exact, identity-bound
 input packet (terminal release counts, release identities, provisioning
 parameters) into pre-registered estimates for BOTH candidate graph modes:
 
-- ``full-lineup``  — one node per accepted unique roster, nine bounded
-  lineup-player relationships each, sparse trait/cohort memberships, and
-  the Phase 4 bundle/book membership relationships;
+- ``full-lineup``  — one node per accepted unique roster, sparse
+  trait/cohort memberships, and the Phase 4 bundle/book membership
+  relationships;
 - ``summary-only`` — strategy/run/book/cohort/trait aggregates plus
   selected-lineup detail only; full-corpus traversal is explicitly
   UNAVAILABLE and is never labeled "full".
 
-Vocabulary law: every node kind and relationship type the estimator
-models is registered in ``corpus_graph_vnext_contracts``; kinds and
-relationship types whose only namespace is ``realized`` (winner and
-outcome vocabulary) are CLOSED in v1 and contribute nothing. Structural
-relationship cardinalities follow the Phase 4 fixture adapter exactly:
-``ADMITTED_BY`` = one per StrategyBundle, ``SELECTED_BY`` = one per
-StrategyBundle plus one per SelectedBook, ``MEMBER_OF_BOOK`` = one per
-book membership, ``CONTAINS_PLAYER`` = nine per loaded lineup. Every
-other registered relationship type is an exact supplied count.
+Every semantic registry the estimator consults — the node-count and
+exact-relationship input registries, the derived relationship set, the
+endpoint map, the release-manifest to count/kind linkage, the identity/
+version/hash/parameter input names, the closed realized vocabulary, the
+modes, and the roster-slot law — lives in ONE deep-frozen versioned
+``SEMANTIC_CONTRACT`` whose literal digest is pinned and re-derived from
+the live object at import and at every build/validate, and whose body and
+digest are embedded in and verified from every receipt. The estimation
+law is frozen and pinned the same way. Substituting or altering either
+registry cannot emit a receipt nor keep an existing one valid.
 
-A receipt (``foundry-graph-capacity-receipt/v1``) binds the estimation law
-(literal frozen digest), the inputs (hashed, with authority, identities,
-and a lead confirmation bound to the canonical inputs digest), both
-estimates, the pre-registered thresholds, per-mode feasibility, and the
-forcing result. The mode DECISION is withheld: fixture-authority inputs
-always yield ``pending-lead-inputs``; lead-authority inputs produce only a
-recommendation that requires lead approval and never self-activates.
+Cardinality laws: ``ADMITTED_BY`` = one per StrategyBundle and
+``SELECTED_BY`` = one per StrategyBundle plus one per SelectedBook follow
+the Phase 4 fixture adapter's endpoint semantics exactly.
+``CONTAINS_PLAYER`` = nine per loaded lineup is the separate PRODUCTION
+Phase 5 law — the Phase 4 synthetic fixture carries one per lineup, and
+the parity test asserts exactly that. Every other open relationship type
+is an exact supplied count. Kinds and relationship types whose only
+namespace is ``realized`` (winner and outcome vocabulary) are CLOSED in
+v1 and contribute nothing.
+
+A receipt (``foundry-graph-capacity-receipt/v1``) binds the estimation
+law, the semantic contract, the inputs (hashed, with authority,
+identities, count-matched release manifests, and an optional
+content-only assertion digest), both estimates, the pre-registered
+thresholds, per-mode feasibility, and the forcing result. The mode
+DECISION is withheld: fixture-authority inputs always yield
+``pending-lead-inputs``; lead-authority inputs with a bound assertion
+yield ``estimated-pending-approval`` — a recommendation whose approval
+status is ``not-authenticated`` (a detached immutable lead approval
+receipt identity is required and is not accepted in this offline phase).
+Nothing here approves, selects, or activates a mode.
 
 Everything here is pure and offline: no cloud read, no driver, no I/O.
 """
@@ -78,10 +93,33 @@ def _fail(message: str) -> None:
     raise CorpusGraphCapacityError(message)
 
 
+def _plain(value: object) -> object:
+    """Recursively convert frozen views back to JSON-serializable plain data."""
+
+    if isinstance(value, Mapping):
+        return {str(key): _plain(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple, frozenset, set)):
+        items = [_plain(item) for item in value]
+        return sorted(items, key=json.dumps) if isinstance(value, (frozenset, set)) else items
+    return value
+
+
+def _freeze(value: object) -> object:
+    """Recursively deep-freeze: mappings -> MappingProxyType, sequences -> tuple."""
+
+    if isinstance(value, Mapping):
+        return MappingProxyType({str(key): _freeze(item) for key, item in value.items()})
+    if isinstance(value, (list, tuple)):
+        return tuple(_freeze(item) for item in value)
+    if isinstance(value, (set, frozenset)):
+        return tuple(sorted(_freeze(item) for item in value))  # type: ignore[type-var]
+    return value
+
+
 def canonical_sha256(value: object) -> str:
     return sha256(
         json.dumps(
-            value, sort_keys=True, separators=(",", ":"), allow_nan=False
+            _plain(value), sort_keys=True, separators=(",", ":"), allow_nan=False
         ).encode("utf-8")
     ).hexdigest()
 
@@ -116,9 +154,7 @@ _ESTIMATION_LAW_CONTENT: Final[dict[str, object]] = {
     "max_graph_elements": 50_000_000,
 }
 # Immutable view: item assignment raises TypeError.
-ESTIMATION_LAW: Final[Mapping[str, object]] = MappingProxyType(
-    dict(_ESTIMATION_LAW_CONTENT)
-)
+ESTIMATION_LAW: Final[Mapping[str, object]] = _freeze(_ESTIMATION_LAW_CONTENT)  # type: ignore[assignment]
 # Literal v1 digest, frozen by the lead. A changed law is a NEW law version
 # with a new pinned digest. The digest is re-derived from the LIVE law at
 # import AND at every build/validate, so a runtime substitution of the law
@@ -164,42 +200,166 @@ CLOSED_RELATIONSHIP_TYPES: Final = frozenset(
 OPEN_NODE_KINDS: Final = graph.NODE_KINDS - CLOSED_NODE_KINDS
 OPEN_RELATIONSHIP_TYPES: Final = graph.RELATIONSHIP_TYPES - CLOSED_RELATIONSHIP_TYPES
 
-# Structural relationships whose cardinality is derived from node counts,
-# mirroring the Phase 4 fixture adapter's endpoint law.
-DERIVED_RELATIONSHIP_TYPES: Final = frozenset({
-    "ADMITTED_BY", "SELECTED_BY", "CONTAINS_PLAYER",
-})
+# ------------------------------------------------------------------ #
+# ONE canonical, versioned, deep-frozen semantic contract.             #
+# Every registry the estimator consults lives here; its literal digest #
+# is pinned below and re-derived from the LIVE object at import and at #
+# every build/validate; its body and digest travel inside each receipt.#
+# ------------------------------------------------------------------ #
 
-# Endpoint populations each open relationship type needs. A positive
-# relationship count with an empty required endpoint population cannot be
-# loaded and fails closed. Alternatives (tuple) need at least one populated.
-RELATIONSHIP_ENDPOINTS: Final[dict[str, tuple[tuple[str, ...], tuple[str, ...]]]] = {
-    "CONTAINS_PLAYER": (("Lineup",), ("PlayerSlate",)),
-    "MEMBER_OF_CORPUS": (("Lineup",), ("CorpusSnapshot",)),
-    "SUPPLIED_BY_ARM": (("Lineup",), ("FillPreset",)),
-    "HAS_TRAIT": (("Lineup",), ("Trait",)),
-    "MEMBER_OF_COHORT": (("Lineup",), ("Cohort",)),
-    "MEMBER_OF_BOOK": (("Lineup",), ("SelectedBook",)),
-    "PLAYS_FOR": (("PlayerSlate",), ("TeamSlate",)),
-    "IN_GAME": (("TeamSlate",), ("Game",)),
-    "ADMITTED_BY": (("StrategyBundle",), ("AdmissionPreset",)),
-    "SELECTED_BY": (("StrategyBundle", "SelectedBook"), ("RetrievalPreset",)),
-    "GENERATED_BY": (("SelectedBook",), ("StrategyBundle",)),
-    "DERIVED_FROM": (
-        ("VerificationReceipt", "StrategyBundle", "CorpusSnapshot", "CandidateSnapshot", "SelectedBook"),
-        ("SourceArtifact", "FillPreset", "CorpusSnapshot", "CandidateSnapshot"),
-    ),
-    "USES_SOURCE": (("ScienceRelease", "VerifierRelease", "CorpusSnapshot"), ("SourceArtifact",)),
-    "USES_WORLD_RELEASE": (("CorpusSnapshot", "CandidateSnapshot", "SelectedBook"), ("WorldRelease",)),
-    "VERIFIED_BY": (("SelectedBook", "CorpusSnapshot", "Attempt"), ("VerificationReceipt",)),
-    "RETRIED_AS": (("Attempt",), ("Attempt",)),
-    "EVALUATED_IN": (("Evaluation",), ("ExperimentRun", "Fold")),
-    "EVALUATES_BUNDLE": (("ExperimentRun",), ("StrategyBundle",)),
-    "HAS_METRIC": (("ExperimentRun", "ExperimentCell", "Evaluation"), ("MetricSet",)),
-    "PAIRED_AGAINST": (("ExperimentCell", "Evaluation", "StrategyBundle"), ("ExperimentCell", "StrategyBundle")),
-    "DECIDES_ON_BUNDLE": (("PromotionDecision",), ("StrategyBundle",)),
-    "HAS_INFERRED_DEFENDER_EXPOSURE": (("PlayerSlate",), ("PlayerSlate",)),
+SEMANTIC_CONTRACT_VERSION: Final = "foundry-graph-capacity-semantic-contract/v1"
+
+_SEMANTIC_CONTRACT_CONTENT: Final[dict[str, object]] = {
+    "version": SEMANTIC_CONTRACT_VERSION,
+    "graph_schema_version": graph.GRAPH_SCHEMA_VERSION,
+    "modes": ["full-lineup", "summary-only"],
+    "roster_slots": ROSTER_SLOTS,
+    "closed_node_kinds": sorted(CLOSED_NODE_KINDS),
+    "closed_relationship_types": sorted(CLOSED_RELATIONSHIP_TYPES),
+    # Node-count inputs: name -> {kind, modes}. Lineup counts are mode-bound.
+    "node_count_inputs": [
+        {"name": "accepted_slate_count", "kind": "Slate", "modes": ["full-lineup", "summary-only"]},
+        {"name": "slate_snapshot_count", "kind": "SlateSnapshot", "modes": ["full-lineup", "summary-only"]},
+        {"name": "contest_count", "kind": "Contest", "modes": ["full-lineup", "summary-only"]},
+        {"name": "game_count", "kind": "Game", "modes": ["full-lineup", "summary-only"]},
+        {"name": "team_slate_count", "kind": "TeamSlate", "modes": ["full-lineup", "summary-only"]},
+        {"name": "player_slate_count", "kind": "PlayerSlate", "modes": ["full-lineup", "summary-only"]},
+        {"name": "world_release_count", "kind": "WorldRelease", "modes": ["full-lineup", "summary-only"]},
+        {"name": "corpus_snapshot_count", "kind": "CorpusSnapshot", "modes": ["full-lineup", "summary-only"]},
+        {"name": "candidate_snapshot_count", "kind": "CandidateSnapshot", "modes": ["full-lineup", "summary-only"]},
+        {"name": "unique_lineup_count", "kind": "Lineup", "modes": ["full-lineup"]},
+        {"name": "selected_unique_lineup_count", "kind": "Lineup", "modes": ["summary-only"]},
+        {"name": "selected_book_count", "kind": "SelectedBook", "modes": ["full-lineup", "summary-only"]},
+        {"name": "science_release_count", "kind": "ScienceRelease", "modes": ["full-lineup", "summary-only"]},
+        {"name": "verifier_release_count", "kind": "VerifierRelease", "modes": ["full-lineup", "summary-only"]},
+        {"name": "deployment_attestation_count", "kind": "DeploymentAttestation", "modes": ["full-lineup", "summary-only"]},
+        {"name": "fill_preset_count", "kind": "FillPreset", "modes": ["full-lineup", "summary-only"]},
+        {"name": "admission_preset_count", "kind": "AdmissionPreset", "modes": ["full-lineup", "summary-only"]},
+        {"name": "retrieval_preset_count", "kind": "RetrievalPreset", "modes": ["full-lineup", "summary-only"]},
+        {"name": "strategy_bundle_count", "kind": "StrategyBundle", "modes": ["full-lineup", "summary-only"]},
+        {"name": "experiment_run_count", "kind": "ExperimentRun", "modes": ["full-lineup", "summary-only"]},
+        {"name": "experiment_cell_count", "kind": "ExperimentCell", "modes": ["full-lineup", "summary-only"]},
+        {"name": "evaluation_count", "kind": "Evaluation", "modes": ["full-lineup", "summary-only"]},
+        {"name": "fold_count", "kind": "Fold", "modes": ["full-lineup", "summary-only"]},
+        {"name": "metric_set_count", "kind": "MetricSet", "modes": ["full-lineup", "summary-only"]},
+        {"name": "trait_definition_count", "kind": "Trait", "modes": ["full-lineup", "summary-only"]},
+        {"name": "cohort_count", "kind": "Cohort", "modes": ["full-lineup", "summary-only"]},
+        {"name": "source_artifact_count", "kind": "SourceArtifact", "modes": ["full-lineup", "summary-only"]},
+        {"name": "verification_receipt_count", "kind": "VerificationReceipt", "modes": ["full-lineup", "summary-only"]},
+        {"name": "attempt_count", "kind": "Attempt", "modes": ["full-lineup", "summary-only"]},
+        {"name": "promotion_decision_count", "kind": "PromotionDecision", "modes": ["full-lineup", "summary-only"]},
+    ],
+    # Exact relationship-count inputs: name -> {relationship, modes}.
+    "exact_relationship_inputs": [
+        {"name": "lineup_occurrence_count", "relationship": "MEMBER_OF_CORPUS", "modes": ["full-lineup"]},
+        {"name": "lineup_arm_supply_count", "relationship": "SUPPLIED_BY_ARM", "modes": ["full-lineup"]},
+        {"name": "trait_membership_count", "relationship": "HAS_TRAIT", "modes": ["full-lineup"]},
+        {"name": "cohort_membership_count", "relationship": "MEMBER_OF_COHORT", "modes": ["full-lineup"]},
+        {"name": "selected_lineup_occurrence_count", "relationship": "MEMBER_OF_CORPUS", "modes": ["summary-only"]},
+        {"name": "selected_lineup_arm_supply_count", "relationship": "SUPPLIED_BY_ARM", "modes": ["summary-only"]},
+        {"name": "selected_trait_membership_count", "relationship": "HAS_TRAIT", "modes": ["summary-only"]},
+        {"name": "selected_cohort_membership_count", "relationship": "MEMBER_OF_COHORT", "modes": ["summary-only"]},
+        {"name": "selected_book_membership_count", "relationship": "MEMBER_OF_BOOK", "modes": ["full-lineup", "summary-only"]},
+        {"name": "plays_for_edge_count", "relationship": "PLAYS_FOR", "modes": ["full-lineup", "summary-only"]},
+        {"name": "in_game_edge_count", "relationship": "IN_GAME", "modes": ["full-lineup", "summary-only"]},
+        {"name": "derived_from_edge_count", "relationship": "DERIVED_FROM", "modes": ["full-lineup", "summary-only"]},
+        {"name": "uses_source_edge_count", "relationship": "USES_SOURCE", "modes": ["full-lineup", "summary-only"]},
+        {"name": "uses_world_release_edge_count", "relationship": "USES_WORLD_RELEASE", "modes": ["full-lineup", "summary-only"]},
+        {"name": "generated_by_edge_count", "relationship": "GENERATED_BY", "modes": ["full-lineup", "summary-only"]},
+        {"name": "verified_by_edge_count", "relationship": "VERIFIED_BY", "modes": ["full-lineup", "summary-only"]},
+        {"name": "retried_as_edge_count", "relationship": "RETRIED_AS", "modes": ["full-lineup", "summary-only"]},
+        {"name": "evaluated_in_edge_count", "relationship": "EVALUATED_IN", "modes": ["full-lineup", "summary-only"]},
+        {"name": "evaluates_bundle_edge_count", "relationship": "EVALUATES_BUNDLE", "modes": ["full-lineup", "summary-only"]},
+        {"name": "has_metric_edge_count", "relationship": "HAS_METRIC", "modes": ["full-lineup", "summary-only"]},
+        {"name": "paired_against_edge_count", "relationship": "PAIRED_AGAINST", "modes": ["full-lineup", "summary-only"]},
+        {"name": "decides_on_bundle_edge_count", "relationship": "DECIDES_ON_BUNDLE", "modes": ["full-lineup", "summary-only"]},
+        {"name": "inferred_defender_exposure_edge_count", "relationship": "HAS_INFERRED_DEFENDER_EXPOSURE", "modes": ["full-lineup", "summary-only"]},
+    ],
+    "scalar_count_inputs": ["mean_string_property_bytes"],
+    # Derived structural cardinalities (Phase 4 bundle/book law; production
+    # nine-slot roster law for CONTAINS_PLAYER).
+    "derived_relationship_types": ["ADMITTED_BY", "SELECTED_BY", "CONTAINS_PLAYER"],
+    # Required endpoint populations per open relationship type.
+    "relationship_endpoints": {
+        "CONTAINS_PLAYER": {"sources": ["Lineup"], "targets": ["PlayerSlate"]},
+        "MEMBER_OF_CORPUS": {"sources": ["Lineup"], "targets": ["CorpusSnapshot"]},
+        "SUPPLIED_BY_ARM": {"sources": ["Lineup"], "targets": ["FillPreset"]},
+        "HAS_TRAIT": {"sources": ["Lineup"], "targets": ["Trait"]},
+        "MEMBER_OF_COHORT": {"sources": ["Lineup"], "targets": ["Cohort"]},
+        "MEMBER_OF_BOOK": {"sources": ["Lineup"], "targets": ["SelectedBook"]},
+        "PLAYS_FOR": {"sources": ["PlayerSlate"], "targets": ["TeamSlate"]},
+        "IN_GAME": {"sources": ["TeamSlate"], "targets": ["Game"]},
+        "ADMITTED_BY": {"sources": ["StrategyBundle"], "targets": ["AdmissionPreset"]},
+        "SELECTED_BY": {"sources": ["StrategyBundle", "SelectedBook"], "targets": ["RetrievalPreset"]},
+        "GENERATED_BY": {"sources": ["SelectedBook"], "targets": ["StrategyBundle"]},
+        "DERIVED_FROM": {
+            "sources": ["VerificationReceipt", "StrategyBundle", "CorpusSnapshot", "CandidateSnapshot", "SelectedBook"],
+            "targets": ["SourceArtifact", "FillPreset", "CorpusSnapshot", "CandidateSnapshot"],
+        },
+        "USES_SOURCE": {"sources": ["ScienceRelease", "VerifierRelease", "CorpusSnapshot"], "targets": ["SourceArtifact"]},
+        "USES_WORLD_RELEASE": {"sources": ["CorpusSnapshot", "CandidateSnapshot", "SelectedBook"], "targets": ["WorldRelease"]},
+        "VERIFIED_BY": {"sources": ["SelectedBook", "CorpusSnapshot", "Attempt"], "targets": ["VerificationReceipt"]},
+        "RETRIED_AS": {"sources": ["Attempt"], "targets": ["Attempt"]},
+        "EVALUATED_IN": {"sources": ["Evaluation"], "targets": ["ExperimentRun", "Fold"]},
+        "EVALUATES_BUNDLE": {"sources": ["ExperimentRun"], "targets": ["StrategyBundle"]},
+        "HAS_METRIC": {"sources": ["ExperimentRun", "ExperimentCell", "Evaluation"], "targets": ["MetricSet"]},
+        "PAIRED_AGAINST": {"sources": ["ExperimentCell", "Evaluation", "StrategyBundle"], "targets": ["ExperimentCell", "StrategyBundle"]},
+        "DECIDES_ON_BUNDLE": {"sources": ["PromotionDecision"], "targets": ["StrategyBundle"]},
+        "HAS_INFERRED_DEFENDER_EXPOSURE": {"sources": ["PlayerSlate"], "targets": ["PlayerSlate"]},
+    },
+    # Count-matched release manifests: name -> {count_input, kind}.
+    "release_manifests": [
+        {"name": "world_releases", "count_input": "world_release_count", "kind": "WorldRelease"},
+        {"name": "science_releases", "count_input": "science_release_count", "kind": "ScienceRelease"},
+        {"name": "verifier_releases", "count_input": "verifier_release_count", "kind": "VerifierRelease"},
+        {"name": "deployment_attestations", "count_input": "deployment_attestation_count", "kind": "DeploymentAttestation"},
+    ],
+    "identity_inputs": [
+        "combined_panel_index_identity",
+        "r6_full_union_panel_freeze_identity",
+        "source_universe_release_identity",
+    ],
+    "version_inputs": [
+        "predecessor_graph_release_id", "graph_schema_version", "property_schema_version",
+    ],
+    "hash_inputs": ["r6_full_union_panel_self_sha256"],
+    "parameter_inputs": [
+        "provisioned_disk_bytes", "provisioned_heap_bytes",
+        "provisioned_page_cache_bytes", "load_deadline_seconds",
+        "rebuild_deadline_seconds",
+    ],
 }
+SEMANTIC_CONTRACT: Final[Mapping[str, object]] = _freeze(_SEMANTIC_CONTRACT_CONTENT)  # type: ignore[assignment]
+# Literal v1 digest of the semantic contract, pinned. A changed registry is
+# a NEW contract version with a new pinned digest.
+SEMANTIC_CONTRACT_SHA256: Final = "c9e6994a0a73fa612b707205fcf057321189e40918f8ab7a053cde83adf1662d"
+
+
+def contract_digest_now() -> str:
+    """Digest of the live semantic contract, recomputed on every call."""
+
+    return canonical_sha256(SEMANTIC_CONTRACT)
+
+
+def require_frozen_contract() -> Mapping[str, object]:
+    """Fail closed unless the live contract still hashes to its pinned digest."""
+
+    if contract_digest_now() != SEMANTIC_CONTRACT_SHA256:
+        _fail("semantic contract content drifted from its frozen v1 digest")
+    return SEMANTIC_CONTRACT
+
+
+require_frozen_contract()
+
+# Frozen read-only views (for callers and tests). The estimator itself
+# consults require_frozen_contract() at use time.
+RELATIONSHIP_ENDPOINTS: Final[Mapping[str, Mapping[str, tuple[str, ...]]]] = (
+    SEMANTIC_CONTRACT["relationship_endpoints"]  # type: ignore[assignment]
+)
+DERIVED_RELATIONSHIP_TYPES: Final = frozenset(SEMANTIC_CONTRACT["derived_relationship_types"])  # type: ignore[arg-type]
+RELEASE_MANIFESTS: Final[tuple[Mapping[str, str], ...]] = SEMANTIC_CONTRACT["release_manifests"]  # type: ignore[assignment]
+NODE_COUNT_INPUTS: Final[tuple[Mapping[str, object], ...]] = SEMANTIC_CONTRACT["node_count_inputs"]  # type: ignore[assignment]
+EXACT_RELATIONSHIP_INPUTS: Final[tuple[Mapping[str, object], ...]] = SEMANTIC_CONTRACT["exact_relationship_inputs"]  # type: ignore[assignment]
 
 
 def property_schema_version() -> str:
@@ -255,130 +415,123 @@ class RequiredInput:
     modes: tuple[GraphMode, ...]
 
 
-_NODE_COUNT_INPUTS: Final[tuple[tuple[str, str, str, tuple[GraphMode, ...]], ...]] = (
-    ("accepted_slate_count", "Slate", "terminal accepted slates in the panel", MODES),
-    ("slate_snapshot_count", "SlateSnapshot", "slate snapshots (source/pricing snapshots) bound to accepted slates", MODES),
-    ("contest_count", "Contest", "registered contests bound to accepted slates", MODES),
-    ("game_count", "Game", "games across accepted slates", MODES),
-    ("team_slate_count", "TeamSlate", "team-slate rows across accepted slates", MODES),
-    ("player_slate_count", "PlayerSlate", "player-slate rows across accepted slates", MODES),
-    ("world_release_count", "WorldRelease", "world releases (identity pointers; matrices never load)", MODES),
-    ("corpus_snapshot_count", "CorpusSnapshot", "corpus snapshots", MODES),
-    ("candidate_snapshot_count", "CandidateSnapshot", "candidate (admitted) snapshots", MODES),
-    ("unique_lineup_count", "Lineup", "distinct roster_ids across the accepted corpus", ("full-lineup",)),
-    ("selected_unique_lineup_count", "Lineup", "distinct lineups appearing in any selected book", MODES),
-    ("selected_book_count", "SelectedBook", "exact selected books (bundle x slate x budget)", MODES),
-    ("science_release_count", "ScienceRelease", "science releases", MODES),
-    ("verifier_release_count", "VerifierRelease", "verifier releases", MODES),
-    ("deployment_attestation_count", "DeploymentAttestation", "deployment attestations", MODES),
-    ("fill_preset_count", "FillPreset", "registered fill presets", MODES),
-    ("admission_preset_count", "AdmissionPreset", "registered admission presets", MODES),
-    ("retrieval_preset_count", "RetrievalPreset", "registered retrieval presets", MODES),
-    ("strategy_bundle_count", "StrategyBundle", "registered strategy bundles", MODES),
-    ("experiment_run_count", "ExperimentRun", "experiment runs bound to the release", MODES),
-    ("experiment_cell_count", "ExperimentCell", "experiment cells", MODES),
-    ("evaluation_count", "Evaluation", "evaluations (books-frozen or later)", MODES),
-    ("fold_count", "Fold", "fold definitions", MODES),
-    ("metric_set_count", "MetricSet", "metric-set nodes", MODES),
-    ("trait_definition_count", "Trait", "versioned trait definitions", MODES),
-    ("cohort_count", "Cohort", "cohort definitions", MODES),
-    ("source_artifact_count", "SourceArtifact", "source artifact identities", MODES),
-    ("verification_receipt_count", "VerificationReceipt", "verification receipts", MODES),
-    ("attempt_count", "Attempt", "attempt records", MODES),
-    ("promotion_decision_count", "PromotionDecision", "promotion decisions", MODES),
-)
+# Human descriptions are documentation, not semantics: they are keyed by
+# name here and deliberately excluded from the semantic contract digest.
+_DESCRIPTIONS: Final[dict[str, str]] = {
+    "accepted_slate_count": "terminal accepted slates in the panel",
+    "slate_snapshot_count": "slate snapshots (source/pricing snapshots) bound to accepted slates",
+    "contest_count": "registered contests bound to accepted slates",
+    "game_count": "games across accepted slates",
+    "team_slate_count": "team-slate rows across accepted slates",
+    "player_slate_count": "player-slate rows across accepted slates",
+    "world_release_count": "world releases (identity pointers; matrices never load)",
+    "corpus_snapshot_count": "corpus snapshots",
+    "candidate_snapshot_count": "candidate (admitted) snapshots",
+    "unique_lineup_count": "distinct roster_ids across the accepted corpus",
+    "selected_unique_lineup_count": "distinct lineups appearing in any selected book",
+    "selected_book_count": "exact selected books (bundle x slate x budget)",
+    "science_release_count": "science releases",
+    "verifier_release_count": "verifier releases",
+    "deployment_attestation_count": "deployment attestations",
+    "fill_preset_count": "registered fill presets",
+    "admission_preset_count": "registered admission presets",
+    "retrieval_preset_count": "registered retrieval presets",
+    "strategy_bundle_count": "registered strategy bundles",
+    "experiment_run_count": "experiment runs bound to the release",
+    "experiment_cell_count": "experiment cells",
+    "evaluation_count": "evaluations (books-frozen or later)",
+    "fold_count": "fold definitions",
+    "metric_set_count": "metric-set nodes",
+    "trait_definition_count": "versioned trait definitions",
+    "cohort_count": "cohort definitions",
+    "source_artifact_count": "source artifact identities",
+    "verification_receipt_count": "verification receipts",
+    "attempt_count": "attempt records",
+    "promotion_decision_count": "promotion decisions",
+    "lineup_occurrence_count": "corpus memberships incl. cross-arm duplicates",
+    "lineup_arm_supply_count": "(lineup, source arm) supply pairs",
+    "trait_membership_count": "(lineup, trait) memberships, sparse",
+    "cohort_membership_count": "(lineup, cohort) memberships",
+    "selected_lineup_occurrence_count": "corpus memberships of selected lineups only",
+    "selected_lineup_arm_supply_count": "(selected lineup, source arm) supply pairs",
+    "selected_trait_membership_count": "(selected lineup, trait) memberships",
+    "selected_cohort_membership_count": "(selected lineup, cohort) memberships",
+    "selected_book_membership_count": "(book, lineup) memberships across all books",
+    "plays_for_edge_count": "PLAYS_FOR relationships (player-slate -> team-slate)",
+    "in_game_edge_count": "IN_GAME relationships (team-slate -> game)",
+    "derived_from_edge_count": "DERIVED_FROM lineage relationships",
+    "uses_source_edge_count": "USES_SOURCE lineage relationships",
+    "uses_world_release_edge_count": "USES_WORLD_RELEASE lineage relationships",
+    "generated_by_edge_count": "GENERATED_BY relationships (book -> bundle, ...)",
+    "verified_by_edge_count": "VERIFIED_BY relationships",
+    "retried_as_edge_count": "RETRIED_AS relationships",
+    "evaluated_in_edge_count": "EVALUATED_IN relationships",
+    "evaluates_bundle_edge_count": "EVALUATES_BUNDLE relationships",
+    "has_metric_edge_count": "HAS_METRIC relationships",
+    "paired_against_edge_count": "PAIRED_AGAINST relationships",
+    "decides_on_bundle_edge_count": "DECIDES_ON_BUNDLE relationships",
+    "inferred_defender_exposure_edge_count": "HAS_INFERRED_DEFENDER_EXPOSURE relationships (qualified)",
+    "mean_string_property_bytes": "measured mean UTF-8 bytes of string properties in the release",
+    "combined_panel_index_identity": "foundry-v12-combined-panel-index/v1 object identity",
+    "r6_full_union_panel_freeze_identity": (
+        "accepted R6 full-union panel-freeze/release object identity "
+        "(corpus-r6-full-union-freezes/<freeze>/panel-freeze.json; "
+        "outcome-blind, complete=true; 54 slates / 2,592 books / 7,776 prefixes census)"
+    ),
+    "source_universe_release_identity": "artifact-supported source-universe release identity",
+    "predecessor_graph_release_id": "predecessor graph release id or null",
+    "graph_schema_version": f"must equal {graph.GRAPH_SCHEMA_VERSION}",
+    "property_schema_version": "must equal the content hash of the complete positive property schema",
+    "r6_full_union_panel_self_sha256": "panel self-hash recorded inside the accepted R6 full-union panel-freeze root",
+    "provisioned_disk_bytes": "disk available to the graph store",
+    "provisioned_heap_bytes": "JVM heap for the graph service",
+    "provisioned_page_cache_bytes": "page cache for the graph store",
+    "load_deadline_seconds": "zero-state streamed load deadline",
+    "rebuild_deadline_seconds": "zero-state rebuild deadline incl. indexes",
+}
 
-_EXACT_RELATIONSHIP_INPUTS: Final[tuple[tuple[str, str, str, tuple[GraphMode, ...]], ...]] = (
-    ("lineup_occurrence_count", "MEMBER_OF_CORPUS", "corpus memberships incl. cross-arm duplicates", ("full-lineup",)),
-    ("lineup_arm_supply_count", "SUPPLIED_BY_ARM", "(lineup, source arm) supply pairs", ("full-lineup",)),
-    ("trait_membership_count", "HAS_TRAIT", "(lineup, trait) memberships, sparse", ("full-lineup",)),
-    ("cohort_membership_count", "MEMBER_OF_COHORT", "(lineup, cohort) memberships", ("full-lineup",)),
-    ("selected_lineup_occurrence_count", "MEMBER_OF_CORPUS", "corpus memberships of selected lineups only", ("summary-only",)),
-    ("selected_lineup_arm_supply_count", "SUPPLIED_BY_ARM", "(selected lineup, source arm) supply pairs", ("summary-only",)),
-    ("selected_trait_membership_count", "HAS_TRAIT", "(selected lineup, trait) memberships", ("summary-only",)),
-    ("selected_cohort_membership_count", "MEMBER_OF_COHORT", "(selected lineup, cohort) memberships", ("summary-only",)),
-    ("selected_book_membership_count", "MEMBER_OF_BOOK", "(book, lineup) memberships across all books", MODES),
-    ("plays_for_edge_count", "PLAYS_FOR", "PLAYS_FOR relationships (player-slate -> team-slate)", MODES),
-    ("in_game_edge_count", "IN_GAME", "IN_GAME relationships (team-slate -> game)", MODES),
-    ("derived_from_edge_count", "DERIVED_FROM", "DERIVED_FROM lineage relationships", MODES),
-    ("uses_source_edge_count", "USES_SOURCE", "USES_SOURCE lineage relationships", MODES),
-    ("uses_world_release_edge_count", "USES_WORLD_RELEASE", "USES_WORLD_RELEASE lineage relationships", MODES),
-    ("generated_by_edge_count", "GENERATED_BY", "GENERATED_BY relationships (book -> bundle, ...)", MODES),
-    ("verified_by_edge_count", "VERIFIED_BY", "VERIFIED_BY relationships", MODES),
-    ("retried_as_edge_count", "RETRIED_AS", "RETRIED_AS relationships", MODES),
-    ("evaluated_in_edge_count", "EVALUATED_IN", "EVALUATED_IN relationships", MODES),
-    ("evaluates_bundle_edge_count", "EVALUATES_BUNDLE", "EVALUATES_BUNDLE relationships", MODES),
-    ("has_metric_edge_count", "HAS_METRIC", "HAS_METRIC relationships", MODES),
-    ("paired_against_edge_count", "PAIRED_AGAINST", "PAIRED_AGAINST relationships", MODES),
-    ("decides_on_bundle_edge_count", "DECIDES_ON_BUNDLE", "DECIDES_ON_BUNDLE relationships", MODES),
-    ("inferred_defender_exposure_edge_count", "HAS_INFERRED_DEFENDER_EXPOSURE", "HAS_INFERRED_DEFENDER_EXPOSURE relationships (qualified)", MODES),
-)
+
+def _modes_of(entry: Mapping[str, object]) -> tuple[GraphMode, ...]:
+    return tuple(entry["modes"])  # type: ignore[arg-type,return-value]
+
 
 REQUIRED_COUNTS: Final[tuple[RequiredInput, ...]] = (
-    *(RequiredInput(name, "count", f"[{kind}] {description}", modes)
-      for name, kind, description, modes in _NODE_COUNT_INPUTS),
-    *(RequiredInput(name, "count", f"[{relationship}] {description}", modes)
-      for name, relationship, description, modes in _EXACT_RELATIONSHIP_INPUTS),
-    RequiredInput(
-        "mean_string_property_bytes", "count",
-        "measured mean UTF-8 bytes of string properties in the release", MODES,
+    *(
+        RequiredInput(str(e["name"]), "count", f"[{e['kind']}] {_DESCRIPTIONS[str(e['name'])]}", _modes_of(e))
+        for e in NODE_COUNT_INPUTS
+    ),
+    *(
+        RequiredInput(str(e["name"]), "count", f"[{e['relationship']}] {_DESCRIPTIONS[str(e['name'])]}", _modes_of(e))
+        for e in EXACT_RELATIONSHIP_INPUTS
+    ),
+    *(
+        RequiredInput(name, "count", _DESCRIPTIONS[name], MODES)
+        for name in SEMANTIC_CONTRACT["scalar_count_inputs"]  # type: ignore[union-attr]
     ),
 )
-
 REQUIRED_IDENTITIES: Final[tuple[RequiredInput, ...]] = tuple(
-    RequiredInput(name, "identity", description, MODES)
-    for name, description in (
-        ("combined_panel_index_identity", "foundry-v12-combined-panel-index/v1 object identity"),
-        (
-            "r6_full_union_panel_freeze_identity",
-            "accepted R6 full-union panel-freeze/release object identity "
-            "(corpus-r6-full-union-freezes/<freeze>/panel-freeze.json; "
-            "outcome-blind, complete=true; 54 slates / 2,592 books / 7,776 prefixes census)",
-        ),
-        ("source_universe_release_identity", "artifact-supported source-universe release identity"),
-    )
-)
-
-# Count-matched release manifests: each list's length MUST equal the
-# corresponding node count, every entry binds a canonical release id to an
-# immutable object identity, and ids/identities may not repeat.
-RELEASE_MANIFESTS: Final[tuple[tuple[str, str, str], ...]] = (
-    ("world_releases", "world_release_count", "WorldRelease"),
-    ("science_releases", "science_release_count", "ScienceRelease"),
-    ("verifier_releases", "verifier_release_count", "VerifierRelease"),
-    ("deployment_attestations", "deployment_attestation_count", "DeploymentAttestation"),
+    RequiredInput(name, "identity", _DESCRIPTIONS[name], MODES)
+    for name in SEMANTIC_CONTRACT["identity_inputs"]  # type: ignore[union-attr]
 )
 REQUIRED_RELEASE_MANIFESTS: Final[tuple[RequiredInput, ...]] = tuple(
     RequiredInput(
-        name, "release_manifest",
-        f"[{kind}] list of {{release_id, identity}} whose length equals {count_name}",
+        str(e["name"]), "release_manifest",
+        f"[{e['kind']}] list of {{release_id, identity}} whose length equals {e['count_input']}",
         MODES,
     )
-    for name, count_name, kind in RELEASE_MANIFESTS
+    for e in RELEASE_MANIFESTS
 )
-
-REQUIRED_VERSIONS: Final[tuple[RequiredInput, ...]] = (
-    RequiredInput("predecessor_graph_release_id", "version", "predecessor graph release id or null", MODES),
-    RequiredInput("graph_schema_version", "version", f"must equal {graph.GRAPH_SCHEMA_VERSION}", MODES),
-    RequiredInput("property_schema_version", "version", "must equal the content hash of the complete positive property schema", MODES),
+REQUIRED_VERSIONS: Final[tuple[RequiredInput, ...]] = tuple(
+    RequiredInput(name, "version", _DESCRIPTIONS[name], MODES)
+    for name in SEMANTIC_CONTRACT["version_inputs"]  # type: ignore[union-attr]
 )
-
-REQUIRED_HASHES: Final[tuple[RequiredInput, ...]] = (
-    RequiredInput(
-        "r6_full_union_panel_self_sha256", "hash",
-        "panel self-hash recorded inside the accepted R6 full-union panel-freeze root", MODES,
-    ),
+REQUIRED_HASHES: Final[tuple[RequiredInput, ...]] = tuple(
+    RequiredInput(name, "hash", _DESCRIPTIONS[name], MODES)
+    for name in SEMANTIC_CONTRACT["hash_inputs"]  # type: ignore[union-attr]
 )
-
 REQUIRED_PARAMETERS: Final[tuple[RequiredInput, ...]] = tuple(
-    RequiredInput(name, "parameter", description, MODES)
-    for name, description in (
-        ("provisioned_disk_bytes", "disk available to the graph store"),
-        ("provisioned_heap_bytes", "JVM heap for the graph service"),
-        ("provisioned_page_cache_bytes", "page cache for the graph store"),
-        ("load_deadline_seconds", "zero-state streamed load deadline"),
-        ("rebuild_deadline_seconds", "zero-state rebuild deadline incl. indexes"),
-    )
+    RequiredInput(name, "parameter", _DESCRIPTIONS[name], MODES)
+    for name in SEMANTIC_CONTRACT["parameter_inputs"]  # type: ignore[union-attr]
 )
 
 
@@ -442,6 +595,13 @@ def _identity(value: object, *, label: str, authority: InputAuthority) -> dict[s
     if (
         not separator
         or _GCS_BUCKET.fullmatch(bucket) is None
+        or ".." in bucket
+        or ".-" in bucket
+        or "-." in bucket
+        or re.fullmatch(r"\d{1,3}(?:\.\d{1,3}){3}", bucket) is not None
+        or bucket.startswith("goog")
+        or "google" in bucket
+        or any(len(part) > 63 for part in bucket.split("."))
         or not object_name
         or object_name.endswith("/")
         or "//" in object_name
@@ -655,18 +815,20 @@ def validate_capacity_inputs(value: Mapping[str, object]) -> dict[str, object]:
         for name in identity_names
     }
 
+    contract = require_frozen_contract()
     manifests_in = packet["release_manifests"]
     if not isinstance(manifests_in, Mapping):
         _fail("release_manifests is not a mapping")
-    manifest_names = [name for name, _, _ in RELEASE_MANIFESTS]
+    manifest_specs = contract["release_manifests"]
+    manifest_names = [str(spec["name"]) for spec in manifest_specs]  # type: ignore[index,union-attr]
     if set(manifests_in) != set(manifest_names):
         _fail(f"release_manifests must carry exactly {manifest_names}")
     release_manifests = {
-        name: _release_manifest(
-            manifests_in[name], label=f"release_manifests.{name}",
-            authority=authority, expected_count=counts[count_name],
+        str(spec["name"]): _release_manifest(  # type: ignore[index]
+            manifests_in[str(spec["name"])], label=f"release_manifests.{spec['name']}",  # type: ignore[index]
+            authority=authority, expected_count=counts[str(spec["count_input"])],  # type: ignore[index]
         )
-        for name, count_name, _ in RELEASE_MANIFESTS
+        for spec in manifest_specs  # type: ignore[union-attr]
     }
 
     versions_in = packet["versions"]
@@ -757,56 +919,58 @@ def _string_rule_count(rules: Mapping[str, object]) -> int:
 
 
 def _mode_elements(counts: Mapping[str, int], mode: str) -> tuple[dict[str, int], dict[str, int]]:
-    if mode not in MODES:
+    contract = require_frozen_contract()
+    if mode not in contract["modes"]:  # type: ignore[operator]
         _fail(f"graph mode {mode!r} is not registered")
     full = mode == "full-lineup"
+    slots = int(contract["roster_slots"])  # type: ignore[arg-type]
     lineups = counts["unique_lineup_count"] if full else counts["selected_unique_lineup_count"]
     nodes: dict[str, int] = {}
-    for name, kind, _, modes in _NODE_COUNT_INPUTS:
-        if name == "unique_lineup_count" or name == "selected_unique_lineup_count":
+    for entry in contract["node_count_inputs"]:  # type: ignore[union-attr]
+        name = str(entry["name"])  # type: ignore[index]
+        if entry["kind"] == "Lineup":  # type: ignore[index]
             continue
-        if mode not in modes:
+        if mode not in entry["modes"]:  # type: ignore[index,operator]
             continue
-        nodes[kind] = counts[name]
+        nodes[str(entry["kind"])] = counts[name]  # type: ignore[index]
     nodes["Lineup"] = lineups
 
     bundles = counts["strategy_bundle_count"]
     books = counts["selected_book_count"]
     relationships: dict[str, int] = {
-        # Derived structural cardinalities. CONTAINS_PLAYER = nine per loaded
-        # lineup is the production Phase 5 law (the Phase 4 synthetic fixture
-        # carries one per lineup); ADMITTED_BY/SELECTED_BY follow the Phase 4
-        # bundle/book endpoint semantics exactly.
-        "CONTAINS_PLAYER": ROSTER_SLOTS * lineups,
+        # Derived structural cardinalities. CONTAINS_PLAYER = roster_slots per
+        # loaded lineup is the production Phase 5 law (the Phase 4 synthetic
+        # fixture carries one per lineup); ADMITTED_BY/SELECTED_BY follow the
+        # Phase 4 bundle/book endpoint semantics exactly.
+        "CONTAINS_PLAYER": slots * lineups,
         "ADMITTED_BY": bundles,             # StrategyBundle -> AdmissionPreset
         "SELECTED_BY": bundles + books,     # bundle -> retrieval, book -> retrieval
     }
-    for name, relationship, _, modes in _EXACT_RELATIONSHIP_INPUTS:
-        if mode not in modes:
+    if set(relationships) != set(contract["derived_relationship_types"]):  # type: ignore[arg-type]
+        _fail("derived relationship set differs from the semantic contract")
+    for entry in contract["exact_relationship_inputs"]:  # type: ignore[union-attr]
+        if mode not in entry["modes"]:  # type: ignore[index,operator]
             continue
-        relationships[relationship] = counts[name]
+        relationships[str(entry["relationship"])] = counts[str(entry["name"])]  # type: ignore[index]
 
-    unknown_nodes = set(nodes) - graph.NODE_KINDS
-    unknown_relationships = set(relationships) - graph.RELATIONSHIP_TYPES
-    if unknown_nodes or unknown_relationships:  # pragma: no cover - vocabulary drift guard
-        _fail(
-            f"estimator references unregistered vocabulary "
-            f"{sorted(unknown_nodes | unknown_relationships)}"
-        )
-    closed_nodes = set(nodes) & CLOSED_NODE_KINDS
-    closed_relationships = set(relationships) & CLOSED_RELATIONSHIP_TYPES
-    if closed_nodes or closed_relationships:  # pragma: no cover - firewall guard
-        _fail(
-            f"estimator models closed realized vocabulary "
-            f"{sorted(closed_nodes | closed_relationships)}"
-        )
-    missing_endpoint_schema = set(relationships) - set(RELATIONSHIP_ENDPOINTS)
+    closed_kinds = set(contract["closed_node_kinds"])  # type: ignore[arg-type]
+    closed_relationships = set(contract["closed_relationship_types"])  # type: ignore[arg-type]
+    unknown = (set(nodes) - graph.NODE_KINDS) | (set(relationships) - graph.RELATIONSHIP_TYPES)
+    if unknown:  # pragma: no cover - vocabulary drift guard
+        _fail(f"estimator references unregistered vocabulary {sorted(unknown)}")
+    closed = (set(nodes) & closed_kinds) | (set(relationships) & closed_relationships)
+    if closed:  # pragma: no cover - firewall guard
+        _fail(f"estimator models closed realized vocabulary {sorted(closed)}")
+    endpoints = contract["relationship_endpoints"]
+    missing_endpoint_schema = set(relationships) - set(endpoints)  # type: ignore[arg-type]
     if missing_endpoint_schema:  # pragma: no cover - vocabulary drift guard
         _fail(f"relationships lack an endpoint schema: {sorted(missing_endpoint_schema)}")
     for relationship, count in relationships.items():
         if count <= 0:
             continue
-        sources, targets = RELATIONSHIP_ENDPOINTS[relationship]
+        spec = endpoints[relationship]  # type: ignore[index]
+        sources = tuple(spec["sources"])  # type: ignore[index]
+        targets = tuple(spec["targets"])  # type: ignore[index]
         if not any(nodes.get(kind, 0) > 0 for kind in sources):
             _fail(
                 f"{relationship} has {count} relationships in {mode} but no "
@@ -895,7 +1059,7 @@ def estimate_mode(counts: Mapping[str, int], parameters: Mapping[str, int], mode
             relationship: relationships[relationship]
             for relationship in sorted(relationships)
         },
-        "derived_relationship_types": sorted(DERIVED_RELATIONSHIP_TYPES),
+        "derived_relationship_types": sorted(require_frozen_contract()["derived_relationship_types"]),  # type: ignore[arg-type]
         "estimated_raw_bytes": raw_bytes,
         "estimated_store_bytes": estimated_store_bytes,
         "batch_count": batch_count,
@@ -993,6 +1157,10 @@ def build_capacity_receipt(inputs: Mapping[str, object], *, created_at_utc: str)
             **dict(require_frozen_law()),
             "estimation_law_sha256": law_digest_now(),
         },
+        "semantic_contract": {
+            **_plain(require_frozen_contract()),  # type: ignore[dict-item]
+            "semantic_contract_sha256": contract_digest_now(),
+        },
         "inputs": retained,
         "estimates": estimates,
         "forced_mode": forced_mode,
@@ -1032,6 +1200,18 @@ def validate_capacity_receipt(value: Mapping[str, object]) -> dict[str, object]:
     ):
         _fail("receipt was produced under a different estimation law")
     require_frozen_law()
+    contract = receipt.get("semantic_contract")
+    if not isinstance(contract, Mapping):
+        _fail("receipt lacks a semantic contract")
+    embedded_contract = {
+        key: item for key, item in contract.items() if key != "semantic_contract_sha256"
+    }
+    if (
+        contract.get("semantic_contract_sha256") != SEMANTIC_CONTRACT_SHA256
+        or canonical_sha256(embedded_contract) != SEMANTIC_CONTRACT_SHA256
+    ):
+        _fail("receipt was produced under a different semantic contract")
+    require_frozen_contract()
     rebuilt = build_capacity_receipt(
         dict(receipt["inputs"]), created_at_utc=str(receipt.get("created_at_utc")),
     )
