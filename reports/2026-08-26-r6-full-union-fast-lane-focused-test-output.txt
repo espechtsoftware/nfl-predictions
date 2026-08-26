@@ -1,0 +1,6 @@
+commit: 8e4de866cb549f19ed82cc7c57bc5c886d5f36c8
+worktree: /tmp/nfl-r6-fast-lane-8e4de866
+command: /home/erich/projects/nfl-predictions/.venv/bin/python -m pytest -q -o addopts= --color=no tests/test_corpus_r6_full_union_fast_lane_v1.py
+
+........                                                                 [100%]
+8 passed in 13.27s

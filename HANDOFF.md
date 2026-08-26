@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 10:08 UTC (one-hundred-thirty-first update)
+
+### Full-union fast lane passes its sole reviewed offline suite
+
+- The exact independently reviewed fast-lane source and test are landed at
+  local commit `8e4de866cb549f19ed82cc7c57bc5c886d5f36c8`; `origin/main`
+  remains at the prior durable checkpoint `5d7061dd` until this validation
+  evidence is committed with the handoff.
+- From isolated detached worktree `/tmp/nfl-r6-fast-lane-8e4de866`, exactly
+  the one licensed test file ran with repository addopts cleared. It exited 0
+  with **8 passed in 13.27s**. No broader suite, cloud client, GCS object,
+  realized outcome, graph, or score was opened.
+- Exact invocation and stdout are tracked at
+  `reports/2026-08-26-r6-full-union-fast-lane-focused-test-output.txt`,
+  SHA-256 `9c788ffa1a04cf41a138748cc5e4e4cc0173899edcc4d8ce0ee91a3642db7d50`,
+  337 bytes.
+  The source and test retained the reviewed SHA-256 identities
+  `bb17e4a9...3a73ebc` and `e5764f21...fcb8a11` respectively.
+- The validated unit now deterministically materializes six scopes by eight
+  strategies, or 48 exact-80 books per accepted slate. This is outcome-blind
+  selection machinery only; current-system historical scoring has still not
+  begun and no score process is active.
+- Exact next action: finish the static task-0 operator reconnaissance, build
+  and independently review the smallest create-once production smoke wrapper,
+  then invoke it once at the authoritative five-by-10,000 world dose. A passing
+  real task-0 smoke licenses the complete 54-slate book freeze; realized
+  outcomes remain closed until that freeze is complete.
+
 ## Current handoff — 2026-08-26 10:04 UTC (one-hundred-thirtieth update)
 
 ### Direct-G0 full-union fast lane passes independent static review
