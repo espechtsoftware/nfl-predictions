@@ -20,6 +20,45 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 05:16 UTC (one-hundred-tenth update)
+
+### Ordinal-6 replacement worker is submitted exactly once and provisioning
+
+- The complete sealed recovery set is pushed on `main` at commit
+  `12ef2152357335cd5934a4ca12c1c58a7f5bca25`. Production-scoped replay of
+  all eleven lock paths passed clean/equal at that exact `HEAD`; it returned
+  review-lock binding SHA-256
+  `6279b8b06e79101a7692e00b3c221d9aada34e8f403ad74c46a5dc267a0523c0`,
+  8,760 bytes, and lock self-hash
+  `f283138560f70155549744ddf5f46a836a153b634df02f6ea401d0b83520f682`.
+- The independently approved exact command
+  `FOUNDRY_T230_PRODUCTION_TRANSPORT_ENABLED=1 .venv/bin/python
+  scripts/run_corpus_extreme_tail_panel_platform_replacement_v1.py
+  launch-worker --execute` made its sole submission call and returned
+  `replacement-worker-submitted-once-handshake-durable`. The replacement is
+  Cloud Run execution `atlas-minimal-c-s2023-w1-v1-67669`; the request is
+  consumed, `submission_call_count=1`, `submission_returncode=0`, and
+  `second_replacement_allowed=false`.
+- Durable first-creator chain:
+  - replacement intent generation `1787721338174308`, SHA-256
+    `86f34d3c755b68a925e354c7379c1e6c54b7e4856b2dfc632009cc84de45133d`,
+    85,600 bytes;
+  - launch ownership generation `1787721341183601`, SHA-256
+    `15f0881fe9254bd765e2ed6278a6dd71b88ed579818b1d5734601b9256784fdf`,
+    145,712 bytes; and
+  - attempt-1 stage start generation `1787721341713255`, SHA-256
+    `468e278eb078395f6ebef9479a72f01247834b1d56a9aeb1a790662c4ef2cbb0`,
+    192,151 bytes.
+- First status-only observation reports `Completed=Unknown` with message
+  `Waiting for execution to start.` The worker has not been accepted; no
+  bridge verifier, lane resume, panel root, outcome read, or historical
+  scoring is authorized or active. Never submit this replacement again.
+- Exact next action: poll terminal metadata only. On success, exact-reopen the
+  attempt-1 runtime/result/canonical worker stage through the separately
+  reviewed recovery completion, then launch one distinct bridge verifier.
+  On any failure, record its immutable terminal receipt and close the panel;
+  no second replacement exists.
+
 ## Current handoff — 2026-08-26 05:05 UTC (one-hundred-ninth update)
 
 ### Ordinal-6 corrected test and real preflight pass; final review lock is next
