@@ -20,6 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 00:49 UTC (ninetieth update)
+
+### R6 source validation boundary is accepted offline and remains execute-blocked
+
+- The corrected source operator, CLI, and focused tests are independently
+  approved with no remaining P0/P1/P2 for an **offline validate-only commit**.
+  Exact SHA-256 values are respectively
+  `3a1ebd4fab2b4fecffecba1785c6f4a237718f173a64c779e79ea18ca1b95cc3`,
+  `cc1ea47d311d4c8e769fa927c7a43b452bfc42691c0035f46daf40f0d39e9f00`,
+  and
+  `7840d16c0c6d82fb24d5469f7812fde73518d01d75dfab4a4bae3e14647f5bfb`.
+  One final focused invocation passed 28/28 in 1.05 seconds with no warnings;
+  static compilation and diff checks are clean. Durable acceptance evidence is
+  `reports/2026-08-26-r6-source-operator-offline-acceptance.md`.
+- Public execute is unconditionally unavailable until the separately reviewed,
+  pinned 54-member source-authority catalog exists. No caller-supplied bundle,
+  carrier, project, storage client, or coherently rehashed receipt can enable
+  mechanics authority. Validate-only uses an in-memory replay, publishes no
+  result identity, and retains false outcome, scoring, graph, fill, retrieval,
+  promotion, and production authorities. This acceptance therefore grants no
+  catalog integration, GCS execution, mechanics authority, outcome access, or
+  R6 freeze authority.
+- T230 remains at seven exact acceptances. Lane A worker 4 is
+  `atlas-minimal-c-s2023-w1-v1-pmwgl`. Lane B worker 31 completed and
+  published result generation `1787704999033381`, SHA-256
+  `4bde97e7b43fa4a59d4785e764f3d5a172b2f6380eaaeb84ad5dd05c3b06b86a`,
+  14,810,430 bytes; distinct verifier 31 is
+  `atlas-cbc-32g-full-2023-w8-v1-zsnjt`. Both active paths retain the frozen
+  D2 and `maxRetries=0`; worker success is not acceptance.
+- Exact next action: commit/push only the three reviewed source-boundary files,
+  their acceptance report, and this handoff while leaving the active T230
+  controller untouched. Continue polling worker 4 and verifier 31. Finish and
+  independently review the structural 54-member catalog before changing the
+  source boundary's execute gate.
+
 ## Current handoff — 2026-08-26 00:39 UTC (eighty-ninth update)
 
 ### T230 reaches seven acceptances; the real R6 catalog root is identified
