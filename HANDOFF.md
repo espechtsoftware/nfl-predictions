@@ -58,10 +58,20 @@ agent or developer:
   6,512 bytes; internal SHA-256 is
   `2e9d1fc6c9337e5e31259ea4a298145401246adbbd977db238065f8ec4c79369`.
   The build was local-only and made no cloud or outcome access.
-- Exact next action: commit and push the review lock; build and commit its
-  final lock from the next clean commit; then invoke the one corrected
-  generation-pinned 54-slate catalog projection. Full-union/T230 fast-lane
-  correction and corrected matchup-source review continue independently.
+- From pushed review-lock commit `4c1559c2`, the next clean local builder
+  created the create-once final lock at
+  `reports/2026-08-26-r6-player-catalog-fixed-g0-projection-successor-final-lock.json`.
+  Outer SHA-256 is
+  `c73de3901ccb3eb228aeb1a18a9b28d9a833ab66632abc0763d94782b408eb32`,
+  7,852 bytes; internal SHA-256 is
+  `0c9cf97589ade08b92487b6cca51d8c91643dc06912510d0d608f870a8d6715f`.
+  It licenses only the corrected ordinal-2 projection after reserving its
+  create-once marker; it grants no scoring, outcome, selection, graph,
+  promotion, or production-policy authority. The build was local-only.
+- Exact next action: commit and push the final lock, then invoke the sole
+  corrected generation-pinned 54-slate catalog projection from that clean
+  commit. Full-union/T230 fast-lane correction and corrected matchup-source
+  review continue independently.
 
 ## Current handoff — 2026-08-26 09:16 UTC (one-hundred-twenty-seventh update)
 
