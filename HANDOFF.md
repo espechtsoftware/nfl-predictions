@@ -20,6 +20,49 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 09:00 UTC (one-hundred-twenty-sixth update)
+
+### Fixed-G0 catalog terminal recovery passes its complete reviewed suite
+
+- Main remains at pushed commit `511b1ef4` while the reviewed recovery
+  delta is being landed. The independently reviewed implementation candidate
+  had P0/P1/P2 all zero. Its exact six runtime identities are adapter
+  `46a523ba...7882cd8` (244,699 bytes), adapter test
+  `e448003a...6edd8` (142,528), catalog `5da7905f...99b7` (68,934),
+  batch `4cb7b3d6...99bae` (62,260), recovery
+  `bc0761eb...77776` (39,383), and recovery test
+  `3aca6165...9068` (18,814).
+- The first exact 148-case invocation from the isolated worktree exited 1
+  with 137 passed and 11 failed because the 11 expanded tests that inspect
+  Git correctly rejected the three reviewed-but-uncommitted candidate
+  modifications. All 124 adapter cases and the other 13 recovery cases
+  passed. It made no cloud or outcome access. Independent bounded review
+  licensed only committing those exact unchanged blobs and one identical
+  clean-head rerun.
+- Isolated clean-head commit
+  `dbc0606fa81ef0b48e9bccba9d595a3455755e65` contains those exact
+  unchanged bytes. The sole corrected invocation exited 0 with **148 passed
+  in 15.18s**. Exact stdout is
+  `reports/2026-08-26-r6-fixed-g0-terminal-recovery-focused-test-output.txt`,
+  SHA-256 `8ce5c8735b888c9d02439a5a5259d6c4834ea8170952441da5c43b8a81ec017a`,
+  261 bytes. The additive clean-head failure report truthfully fixes lifetime
+  exact-argv accounting at one failed plus one passed; a third invocation is
+  forbidden.
+- Independent review of the first fixed-G0 all-arm candidate-authority
+  candidate found P0=0, P1=2, P2=1: catalog source/completion authority could
+  be coherently spliced, and the build boundary did not exact-read supplied
+  create-once generations. A bounded correction is active; none of those
+  candidate bytes has been executed or granted authority.
+- The T230 Lane-B/combined negative closer correction is frozen with author
+  P0/P1/P2 zero and awaits independent rereview. It remains negative evidence
+  only and is not allowed to delay the valid 54-slate G0/R6 path.
+- Exact next action: commit and push only the reviewed recovery files and
+  evidence; from that clean commit build/publish the terminal recovery review
+  and final locks, then run the single licensed 54-slate structural catalog
+  projection. Matchup-source and candidate-authority corrections continue in
+  parallel. Historical outcomes remain closed and current-system scoring has
+  not begun.
+
 ## Current handoff — 2026-08-26 08:00 UTC (one-hundred-twenty-fifth update)
 
 ### Prior real-artifact smoke is durable; terminal recovery and T230 closure advance

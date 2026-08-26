@@ -1122,7 +1122,7 @@ def _fixture_graph() -> FixtureGraph:
     bodies["panel"] = panel_body
 
     publication_body = {
-        "schema_version": "foundry-v12-panel-publication-receipt/v1",
+        "schema_version": "foundry-v12-panel-index-publication/v1",
         "mode": "create_once",
         "panel_uri": panel_identity["uri"],
         "panel_object_identity": panel_identity,
@@ -3393,6 +3393,21 @@ def test_projection_semantic_failure_occurs_before_first_write(
     graph: FixtureGraph,
 ) -> None:
     identity = graph.pins.later_source_identity
+    graph.store.objects[(str(identity["uri"]), str(identity["generation"]))] = b"{}"
+    with pytest.raises(adapter.CorpusR6FixedG0AdapterV1Error):
+        adapter._publish_pinned_projection_release_v1(
+            pins=graph.pins,
+            adapter_review=graph.review,
+            read_tracked=graph.read_tracked,
+            transport=graph.store.transport(),
+        )
+    assert graph.store.create_calls == []
+
+
+def test_projection_last_task_failure_occurs_before_first_write(
+    graph: FixtureGraph,
+) -> None:
+    identity = graph.bodies["members"][53]["task_acceptance_identity"]
     graph.store.objects[(str(identity["uri"]), str(identity["generation"]))] = b"{}"
     with pytest.raises(adapter.CorpusR6FixedG0AdapterV1Error):
         adapter._publish_pinned_projection_release_v1(

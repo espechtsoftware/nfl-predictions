@@ -1926,7 +1926,7 @@ def _validate_publication_receipt(
         item["panel_object_identity"], label="publication panel identity"
     )
     if (
-        item["schema_version"] != "foundry-v12-panel-publication-receipt/v1"
+        item["schema_version"] != "foundry-v12-panel-index-publication/v1"
         or item["mode"] != "create_once"
         or item["published"] is not True
         or item["exact_input_replay_verified"] is not True
