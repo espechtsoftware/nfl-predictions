@@ -20,6 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-26 13:03 UTC (one-hundred-forty-first update)
+
+### Full-union freeze reaches 13/54 with no failure or partial artifacts
+
+- At approximately 13:02 UTC, exact artifact status validated **13/54
+  accepted leaves**, **624 rank-80 books**, and **1,872 prefixes**. There are
+  no result-only ordinals, 41 exact missing ordinals, and `root_ready=false`.
+  The accepted ordinals are `[0,1,2,3,4,7,28,29,30,31,32,33,34]`.
+- At the immediately preceding execution read, lane A reported 6 succeeded/3
+  running/0 failed and lane B 6 succeeded/2 running/0 failed; the thirteenth
+  accepted leaf was one valid artifact publication ahead of the lagging Cloud
+  Run success counters. Both exact lane executions remain active and need no
+  repair or resubmission.
+- Offline post-freeze work remains outcome-closed. Snapshot static review has
+  P0=0; its crash-safe CAS fix is closed. Its remaining P1 is being closed by
+  a mandatory create-once actual-root smoke receipt bound to the intended root,
+  reviewed source/image and full 54 root/leaf/result replay. The one-query
+  supply runner must validate that receipt before constructing BigQuery,
+  lease, table-metadata or query machinery. The score-once grader is also
+  repairing identity-bound shard/root replay and stronger fixtures.
+- Current-system historical scoring has **not** begun. The exact checkpoint is
+  tracked as `status-20260826T1302Z.json`. Exact next action: continue bounded
+  lane monitoring and offline P1 closure; publish the root only after 54/54 and
+  both lanes are terminal, then run the mandatory outcome-blind actual-root
+  smoke before opening the sole historical snapshot.
+
 ## Current handoff — 2026-08-26 12:41 UTC (one-hundred-fortieth update)
 
 ### First full-freeze wave begins publishing accepted leaves
