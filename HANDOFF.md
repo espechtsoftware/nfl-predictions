@@ -20,6 +20,74 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 18:06 UTC (one-hundred-eightieth update)
+
+### Full-union attribution release is terminally published and reopened
+
+- Branch `main`; predecessor/remote head is `6153513f`. The guarded
+  attribution publisher resumed the existing create-once prefix, byte-compared
+  shards 00--25, successfully crossed the prior missing-shard boundary, and
+  published shards 26--53 followed by the single terminal root. Independent
+  census found exactly **54 slate shards plus one root**; no object was
+  overwritten or deleted.
+- Terminal root identity is
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-full-union-attributions/20260827-foundry-v12-r6-full-union-attribution-v1/attribution-release.json`,
+  generation `1787852572673874`, object SHA-256
+  `caaddba5ef709b1e4df8c60480e2a50a37063917ef9b8d3c788f5e107133722b`,
+  bytes `114551`. Internal attribution-release SHA-256 is
+  `ca23f552ac7aec6667151e9a3eb240e369e5ae04997a11af3b75e1ca8b90bf80`.
+- The separate generation-pinned `reopen` command passed with the identical
+  root identity and internal hash. Both publish and reopen report 54 slates,
+  199,244 lineups, 2,592 books, 1,195,464 scope memberships, and 207,360
+  selections. Both explicitly report no lineup rescore, no outcome-snapshot
+  read, no outcome-source read, and freeze/grade-artifact-only reads. The first
+  reopen invocation was rejected before reads because the explicit enablement
+  environment gate was absent; rerunning with the required gate performed the
+  successful independent reopen and changed no cloud state.
+- Durable bounded local evidence is tracked under
+  `reports/r6-full-union-attribution-runs/20260827-foundry-v12-r6-full-union-attribution-v1/`.
+  `publish-summary.json` SHA-256 is
+  `ebb31a23f48df8024acb0d73334e11478c1dc995b66a4b4a5dcd6d88f579f6c4`;
+  `reopen-summary.json` SHA-256 is
+  `054f9e2442ff7fe597dc0947ed3eda1bd65e3c957587f862244e34750aa005fc`;
+  `object-census.json` records the one-root/54-shard check. All three parse as
+  JSON.
+
+### Aggressive parallel roadmap is adopted; Lane 3 authority seam is repaired
+
+- The execution posture in commit `6153513f` is adopted: broad outcome-free
+  construction and screening may proceed in parallel, while the one active
+  historical-outcome experiment lease, sparse labeled comparison, and
+  prospective promotion decision remain serialized. UI/Neo4j and optional
+  sidecars are not score-improvement prerequisites.
+- The untracked Lane 3 implementation now closes the previously identified
+  candidate-population authority seams. Candidate authority exact-replays G0
+  and occurrence schedules; component publication v2 accepts only the
+  candidate-authority root; source-release v2 accepts only the full hardened
+  component-v2 result and derives the producer root internally; the final
+  v2-only consumer proves exact candidate IDs and nine-player roster order
+  against the scored matrix before replaying all fold/final retrieval laws.
+- Independent adversarial review found no residual P0/P1/P2 in the hardened
+  component-v2 contract. Focused validations reported: candidate authority 44
+  passed; hardened component v1/v2 30 passed plus an unmocked complete 54-task
+  producer-release validation; component/source v1/v2 44 passed; and final
+  source-v2/comparator/consumer 25 passed. No outcome or cloud access occurred
+  in those tests.
+- The Lane 3 source code and tests remain untracked shared-worktree files and
+  are **not yet accepted or committed by the lead**. The next local action is a
+  lead-owned combined serial regression, compilation/whitespace review, exact
+  staging, then commit/push if clean. The operational successor still needs a
+  trusted 54-slate batch wrapper, one-time candidate-root validation/cache,
+  code/hash pins, real immutable-artifact smoke, 54 source triples, terminal
+  source-v2 root publication, and result-panel/root-last publication. No real
+  source-v2 root or new scoring run has been produced yet.
+- In parallel, read-only Lane 1 scheduler, Lane 2 belief-law, and Lane 4
+  independent-evaluation-bank audits are active. After the Lane 3 slice is
+  durably integrated, follow the adopted plan: publish the Lane 0 deterministic
+  no-rescore funnel; build outcome-free scheduler/belief/archive/retrieval
+  challengers; then converge to one sparse frozen historical-development
+  comparison and a preregistered 2026 prospective confirmation family.
+
 ## Current handoff — 2026-08-27 17:41 UTC (one-hundred-seventy-ninth update)
 
 ### R6 score-improvement roadmap now authorizes aggressive parallel research

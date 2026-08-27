@@ -1,0 +1,22 @@
+{
+  "attribution_release_sha256": "ca23f552ac7aec6667151e9a3eb240e369e5ae04997a11af3b75e1ca8b90bf80",
+  "book_count": 2592,
+  "command": "publish",
+  "complete": true,
+  "lineup_count": 199244,
+  "lineup_rescore_performed": false,
+  "outcome_snapshot_read": false,
+  "outcome_source_read": false,
+  "reads_freeze_and_grade_artifacts_only": true,
+  "root_identity": {
+    "bytes": 114551,
+    "generation": "1787852572673874",
+    "sha256": "caaddba5ef709b1e4df8c60480e2a50a37063917ef9b8d3c788f5e107133722b",
+    "uri": "gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-full-union-attributions/20260827-foundry-v12-r6-full-union-attribution-v1/attribution-release.json"
+  },
+  "run_id": "20260827-foundry-v12-r6-full-union-attribution-v1",
+  "schema_version": "corpus-r6-full-union-attribution-cli-summary/v1",
+  "scope_membership_count": 1195464,
+  "selection_count": 207360,
+  "source_slate_count": 54
+}
