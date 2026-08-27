@@ -20,6 +20,56 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 07:13 UTC (one-hundred-seventieth update)
+
+### Ordinal-2 supply recovery succeeded; the full eight-strategy grade is next
+
+- Sole recovery execution `atlas-minimal-c-s2023-w1-v1-vqpfc`, UID
+  `45fb98f0-3f65-49cb-a345-3e23d05508d5`, completed `True` at
+  `2026-08-27T07:11:03.180526Z` with one succeeded task, zero failed/running
+  tasks and no retry. Its terminal-envelope SHA-256 is
+  `c1a105a2db7714b3195ddb2a9a6e1defc0a6f44269602b3b384d51b9efba5404`.
+  The retained controller finalized all receipts, restored the original image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:8be07290476cb88a584eb20adacc020598255855c9f305102bf3fe8f5f089de8`
+  and exited 0; targeted job reopen confirms generation 59 and the original
+  service account.
+- Row-silent result structure is generation `1787814655975504`, SHA-256
+  `7eb8fe782e4b355e73411e23b056694cf2f452169e50a59427ba9fe016fb85a6`,
+  1,958 bytes. The expected/final union has exactly 14,247 keys: 12,954 were
+  observed from the fixed job, 1,293 missing skill keys were settled to exact
+  zero under the frozen law, zero DST keys were missing, and rows required no
+  reorder. The receipt contains no player IDs, rows or scores.
+- Worker completion is generation `1787814656192344`, SHA-256
+  `8006976cf2c65dc2f3081a7ae283cb7b7d30e48ebe8bdc94445c4c1bc80891d8`,
+  6,272 bytes. Final recovery receipt is generation `1787814679858846`,
+  SHA-256
+  `4759fca533924b6a31b31d87e4cb4d81f20a3d570e92e9d0177aa1c21171d1fe`,
+  8,143 bytes. It closes one fixed query job, one total query submission, zero
+  recovery submissions/new jobs, two physical result retrievals, one failed
+  and one successful structural validation, and one outcome snapshot. It
+  explicitly licenses no automatic/additional recovery.
+- Standard supply identities now close: preserved read attempt generation
+  `1787788728079549` / SHA-256
+  `a5da1cb1000d1f4c4084e02598127724c77342a235e691f8ef13954fac9db2c4`;
+  query evidence generation
+  `1787810538145204` / SHA-256
+  `6789f04affe1d1666af8f805ae3ca49aa1620cc9aef5e40f242ee7e218acd403`
+  / 1,468,328 bytes; realized source generation `1787811559502887` /
+  SHA-256
+  `2c8a79fd81bcc98b5ceaeef0e52bc4b3ed0bd74434564b1a98b06ba56427df09`
+  / 2,412,590 bytes; outcome snapshot generation `1787813630972164` /
+  SHA-256
+  `3e03387372bb9326d260d951059f8b6bfb56104207d88656ec4ec158c89d54ce`
+  / 1,735,490 bytes; completion generation `1787814655766038` / SHA-256
+  `ae0c8c8b5059399a77fb8591238f75207f8d70e5b35fd5314a283b8f3d796090`
+  / 4,032 bytes.
+- Chain status validates compile/smoke/recovery closed, grade absent and lease
+  still live. No score exists yet. Exact next action is invoke `grade` once
+  with the unchanged original code/image and frozen hashes. On terminal
+  success, record its root/completion identities, invoke strict `finish` to
+  release the lease, then run the exact bounded reporter for all eight frozen
+  strategies including T230. Do not run recovery/supply/query again.
+
 ## Current handoff — 2026-08-27 05:08 UTC (one-hundred-sixty-ninth update)
 
 ### The sole ordinal-2 recovery execution is live and exactly claimed
