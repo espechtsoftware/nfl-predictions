@@ -20,6 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 07:17 UTC (one-hundred-seventy-first update)
+
+### The one full 54-slate, eight-strategy grade execution is live
+
+- With ordinal-2 supply strictly closed and the original immutable job
+  restored, the grade controller created exactly one execution:
+  `atlas-minimal-c-s2023-w1-v1-b2qg6`, UID
+  `6b85360b-ff2f-46d5-9847-36ae9113e02f`, at
+  `2026-08-27T07:16:13.275825Z`. Initial metadata shows the original image was
+  imported and resources provisioned; the task was waiting to start.
+- The grade launch intent binds original code
+  `16356b246817ea4777426b4e8a8b82e0737210df`, original image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:8be07290476cb88a584eb20adacc020598255855c9f305102bf3fe8f5f089de8`,
+  stage token
+  `51ce4cf07b87a9724d166d150bc42af93c7151de79d0ea9d1d88f9e91db7601d`
+  and argv SHA-256
+  `330fde238fef43453131dd0ee5f3083612c9df4464c72d093fdd6f7838019c6f`.
+  It grades all 54 frozen slates and all eight frozen strategies, including
+  T230. No second grade or scoring read is licensed.
+- Exact next action: poll only `b2qg6` and the retained controller to terminal.
+  No authoritative score exists until the grade root and completion publish
+  and exact-reopen. On success, record/push the terminal/root/completion
+  identities, run strict `finish` once to release the lease, and execute the
+  bounded grade-completion reporter. On failure, stop without finish/release
+  or another grade.
+
 ## Current handoff — 2026-08-27 07:13 UTC (one-hundred-seventieth update)
 
 ### Ordinal-2 supply recovery succeeded; the full eight-strategy grade is next
