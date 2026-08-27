@@ -20,6 +20,98 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 16:16 UTC (one-hundred-seventy-sixth update)
+
+### Deep R6 corpus/population and final-fit selection review is complete
+
+- Branch `main`; reviewed predecessor/remote head is
+  `3e28b54656590284e2a7044ac67dfe35b5b9410b`. Added the shareable analysis
+  `reports/2026-08-27-r6-corpus-selection-deep-review.md`. It reviews current
+  attribution commits `07566839`/`3e28b546`, the realized score release, the
+  generation/world scheduler, all seven fill arms, all eight final-fit
+  selectors, exact high-score misses, and primary literature spanning DFS
+  portfolios, robust subset selection, rare-target search, quality-diversity,
+  rare-event simulation, and multivariate forecast validation.
+- This was a no-rescore, no-regeneration analysis of the already-spent panel.
+  It read the generation-pinned realized grade root generation
+  `1787823913707002` / SHA-256
+  `7e5da240f6ad3978553fa3101e12d4414c993f9547bb76cfa999cf32acdb6dfc`,
+  panel freeze generation `1787756181440564` / SHA-256
+  `57844386a3da86ddf05f8b3e6b19ae19c7327afcfc1057647b210e58caec2467`,
+  all 54 grade shards, all 54 frozen task results for a bounded streamed
+  population census, and frozen task/world bodies for `2023-w02`,
+  `2023-w03`, `2023-w04`, and `2025-w09`. One names-only BigQuery lookup was
+  used; no score/outcome query, cloud write, execution, or release was made.
+- Exact population result: 378,000 nominal generation outputs collapse to
+  199,244 distinct slate-lineup occurrences (52.71% unique yield), averaging
+  3,689.70 per slate. The corpus oracle averages 202.66 and provides at least
+  one 200/220/230 lineup on 29/10/3 of 54 slates. There are 279/34/7 lineup
+  occurrences at those thresholds. Six of seven 230+ rows are exclusive to
+  one relaxed arm; all seven spend at least $49,500 and have exactly six
+  realized 20+ players, but their stack/bring-back/game structures are
+  heterogeneous and must not become hindsight rules.
+- Exact winning-line result: among 51 governed comparable slates, the corpus
+  reaches the recorded winner score once, is within ten points twice, and
+  trails by 30.03 points on average. The sole recoverable week is `2023-w02`:
+  corpus 197.24 and 195.64 versus recorded winner 193.94, while the union of
+  all eight final-fit books tops out at 176.12. None of the seven 230+ rows
+  beats its week's recorded winner, proving that fixed 230 and winning are
+  separate objectives.
+- Exact retrieval result: the diagnostic union of all eight final-fit 80
+  books hits a 200+ lineup on only 10 of the 29 corpus-opportunity weeks; the
+  best single 80 book hits seven. The union mean weekly max is 186.03 versus
+  corpus oracle 202.66, with mean regret 16.63 and exact oracle capture on
+  9/54 slates. At 230 the corpus supplies three weeks and the broad tail
+  ladder captures two; strict T230 captures one. Ordinary and block-supported
+  tail books overlap by 79.78/80 on average and are identical sets on 48/54
+  slates, so the apparent eight-selector ensemble contains little independent
+  tail diversity.
+- Miss attribution separates model-support failure from simulated portfolio
+  crowding. Some eventual tail rows rank 1,696-3,106 by simulated mean and
+  receive only 1-4 simulated >230 events out of 50,000; others have credible
+  individual support but lose exact pick-80 marginal comparisons because
+  their modeled worlds are already covered. The report records all seven
+  230+ rows, both recorded-winner-score-beating rows, model ranks, tail counts,
+  final-fit membership, and representative boundary gains.
+- Static review found no P0/P1 correctness or no-rescore defect in the latest
+  attribution commits. It found two P2 analytical cautions: attribution
+  `selected_any` aggregates all 48 holdout/final-fit books and must be filtered
+  to `scope_ordinal == 5` / `all-block-final-fit` for deployment analysis; and
+  unselected rows do not carry counterfactual selector marginal gains, so
+  miss-cause analysis still needs frozen task/world bodies or a separately
+  versioned outcome-blind sidecar. All numbers in the report use final-fit.
+- Recommended order is stage-gated: first publish population availability and
+  conditional retrieval metrics; then run one equal-compute treatment that
+  ranks worlds by a legal-attainable ceiling rather than total all-player
+  slate draw; then add independently calibrated rare-mode belief producers
+  and quality-diverse alternatives; finally build one joint exact-80 book
+  robust across genuinely different belief laws and, when available, a
+  point-in-time opponent/duplication field model. Raw candidate multiplication,
+  another selector sweep on known outcomes, rigid ex-post stack rules, and a
+  pure-T230 whole book are explicitly not recommended.
+- Validation: report is 482 lines / 6,150 words with SHA-256
+  `b1adf9246e8ebf5c585c6edb957d7f727e91fc245bfc3e97a48628bb931bd572`;
+  the 54-shard grade replay, exact four-slate target attribution, final-fit
+  strategy-overlap replay and all-task streamed census reproduce the retained
+  tables; whitespace/diff checks pass. No code path changed, so no test suite
+  or cloud execution was required. The
+  temporary local analysis scripts and downloaded artifacts under
+  `/tmp/nfl-r6-attribution-20260827` are non-authoritative and may be deleted;
+  all essential results and immutable identities are retained in the tracked
+  report and this handoff.
+- Unresolved risks: the 230+ sample is only seven rows on three slates;
+  candidate rows within a slate are dependent; arm ancestry is descriptive,
+  not causal; full contest fields/duplication/payout are unavailable; and the
+  54-slate attribution output remained unpublished at reviewed HEAD. No
+  treatment is promoted from this outcome-viewed audit.
+- Exact next action: commit/push this report and handoff without staging the
+  unrelated dirty/untracked worktree. Then retain the prior root-last
+  attribution publication/reopen as the separate governed operational action.
+  The next scientific implementation should be a reusable no-rescore funnel
+  aggregator with final-fit-specific fields, followed by one preregistered
+  equal-compute legal-attainable scheduler shadow; do not query or rescore the
+  historical panel.
+
 ## Current handoff — 2026-08-27 15:49 UTC (one-hundred-seventy-fifth update)
 
 ### Root-last 54-slate attribution release is implementation-complete and focused-green
