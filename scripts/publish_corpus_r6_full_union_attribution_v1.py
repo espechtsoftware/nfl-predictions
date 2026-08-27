@@ -17,6 +17,7 @@ from nfl_dfs.research import corpus_r6_full_union_grade_release_v1 as grade_rele
 PROJECT = "nfl-predictions-503414"
 ENABLED_ENV = "R6_FULL_UNION_ATTRIBUTION_RELEASE_ENABLED"
 DEFAULT_CACHE_BYTES = 2_500_000_000
+CREATE_ONCE_ATTEMPTS = 3
 
 
 class PublishCorpusR6FullUnionAttributionV1Error(ValueError):
@@ -181,22 +182,40 @@ class GenerationPinnedGCSV1:
         if type(raw) is not bytes or not raw:
             _fail("attribution publication payload differs")
         bucket_name, object_name = _gcs_parts(uri)
-        try:
-            blob = self.client.bucket(bucket_name).blob(object_name)
-            blob.upload_from_string(
-                raw, content_type="application/json", if_generation_match=0
-            )
-        except Exception:
-            # A real collision and an ambiguous successful write are both
-            # resolved by the exact current-generation comparison below.
-            pass
-        reopened = self.resolve_current(uri, absent_ok=False)
-        if reopened is None:  # pragma: no cover - absent_ok=False
-            raise AssertionError("required attribution object resolved absent")
-        identity, existing = reopened
-        if existing != raw:
-            _fail("existing attribution object differs")
-        return identity
+        last_error: Exception | None = None
+        for attempt in range(CREATE_ONCE_ATTEMPTS):
+            try:
+                blob = self.client.bucket(bucket_name).blob(object_name)
+                blob.upload_from_string(
+                    raw, content_type="application/json", if_generation_match=0
+                )
+                last_error = None
+            except Exception as exc:
+                # A precondition collision, a failed transfer and an
+                # ambiguous successful write are all resolved by the exact
+                # current-generation comparison below. If no object exists,
+                # only a bounded retry of the same create-if-absent bytes is
+                # allowed.
+                last_error = exc
+            try:
+                reopened = self.resolve_current(uri, absent_ok=True)
+            except PublishCorpusR6FullUnionAttributionV1Error as exc:
+                last_error = exc
+                if attempt + 1 < CREATE_ONCE_ATTEMPTS:
+                    continue
+                raise
+            if reopened is None:
+                if attempt + 1 < CREATE_ONCE_ATTEMPTS:
+                    continue
+                raise PublishCorpusR6FullUnionAttributionV1Error(
+                    "attribution object remained absent after bounded "
+                    "create-once retries"
+                ) from last_error
+            identity, existing = reopened
+            if existing != raw:
+                _fail("existing attribution object differs")
+            return identity
+        raise AssertionError("bounded attribution create loop did not return")
 
 
 def _add_grade_arguments(parser: argparse.ArgumentParser) -> None:

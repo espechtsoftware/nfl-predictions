@@ -412,3 +412,138 @@ def test_cli_exposes_no_outcome_source_or_rescore_boundary() -> None:
         "grade_release_config",
         "read_exact",
     }
+
+
+class _CreateBlob:
+    def __init__(self, state: dict[str, object]) -> None:
+        self.state = state
+
+    def upload_from_string(
+        self, raw: bytes, *, content_type: str, if_generation_match: int,
+    ) -> None:
+        assert content_type == "application/json"
+        assert if_generation_match == 0
+        self.state["upload_calls"] = int(self.state["upload_calls"]) + 1
+        behaviors = self.state["behaviors"]
+        assert isinstance(behaviors, list) and behaviors
+        behavior = behaviors.pop(0)
+        if behavior == "ambiguous-success":
+            self.state["raw"] = raw
+            raise RuntimeError("transport lost the successful response")
+        if behavior == "fail":
+            raise RuntimeError("upload failed before object creation")
+        assert behavior == "success"
+        self.state["raw"] = raw
+
+
+class _CreateBucket:
+    def __init__(self, state: dict[str, object]) -> None:
+        self.state = state
+
+    def blob(self, object_name: str) -> _CreateBlob:
+        assert object_name == "attribution/test.json"
+        return _CreateBlob(self.state)
+
+
+class _CreateClient:
+    def __init__(self, state: dict[str, object]) -> None:
+        self.state = state
+
+    def bucket(self, bucket_name: str) -> _CreateBucket:
+        assert bucket_name == "test-bucket"
+        return _CreateBucket(self.state)
+
+
+def _create_store(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    behaviors: list[str],
+    initial_raw: bytes | None = None,
+) -> tuple[cli.GenerationPinnedGCSV1, dict[str, object]]:
+    state: dict[str, object] = {
+        "behaviors": list(behaviors),
+        "upload_calls": 0,
+        "raw": initial_raw,
+    }
+    store = cli.GenerationPinnedGCSV1(
+        _CreateClient(state), cache_bytes=100_000_000
+    )
+
+    def resolve_current(
+        uri: str, *, absent_ok: bool,
+    ) -> tuple[dict[str, object], bytes] | None:
+        assert absent_ok is True
+        raw = state["raw"]
+        if raw is None:
+            return None
+        assert isinstance(raw, bytes)
+        return {
+            "uri": uri,
+            "generation": "71",
+            "sha256": sha256(raw).hexdigest(),
+            "bytes": len(raw),
+        }, raw
+
+    monkeypatch.setattr(store, "resolve_current", resolve_current)
+    return store, state
+
+
+def test_create_once_retries_only_while_object_remains_absent(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    raw = b'{"complete":true}'
+    store, state = _create_store(
+        monkeypatch, behaviors=["fail", "success"]
+    )
+    identity = store.publish_create_once(
+        "gs://test-bucket/attribution/test.json", raw
+    )
+    assert state["upload_calls"] == 2
+    assert identity["sha256"] == sha256(raw).hexdigest()
+    assert identity["bytes"] == len(raw)
+
+
+def test_create_once_recovers_ambiguous_success_without_second_upload(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    raw = b'{"complete":true}'
+    store, state = _create_store(
+        monkeypatch, behaviors=["ambiguous-success"]
+    )
+    identity = store.publish_create_once(
+        "gs://test-bucket/attribution/test.json", raw
+    )
+    assert state["upload_calls"] == 1
+    assert identity["sha256"] == sha256(raw).hexdigest()
+
+
+def test_create_once_rejects_existing_different_bytes_without_retry(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, state = _create_store(
+        monkeypatch, behaviors=["fail"], initial_raw=b'{"different":true}'
+    )
+    with pytest.raises(
+        cli.PublishCorpusR6FullUnionAttributionV1Error,
+        match="existing attribution object differs",
+    ):
+        store.publish_create_once(
+            "gs://test-bucket/attribution/test.json", b'{"complete":true}'
+        )
+    assert state["upload_calls"] == 1
+
+
+def test_create_once_fails_after_bounded_absent_retries(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, state = _create_store(
+        monkeypatch, behaviors=["fail"] * cli.CREATE_ONCE_ATTEMPTS
+    )
+    with pytest.raises(
+        cli.PublishCorpusR6FullUnionAttributionV1Error,
+        match="remained absent after bounded create-once retries",
+    ):
+        store.publish_create_once(
+            "gs://test-bucket/attribution/test.json", b'{"complete":true}'
+        )
+    assert state["upload_calls"] == cli.CREATE_ONCE_ATTEMPTS

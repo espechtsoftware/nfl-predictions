@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 16:33 UTC (one-hundred-seventy-eighth update)
+
+### Attribution GCS create-once recovery is repaired and focused-green
+
+- Branch `main`; predecessor commit is `7be922ba`. The first real attribution
+  publication exposed a safe but unnecessarily terminal adapter case: an
+  upload failed before object creation, then the single required reopen saw
+  `NotFound`. `GenerationPinnedGCSV1.publish_create_once` now performs at most
+  three identical create-if-absent attempts. After every attempt it resolves
+  the current generation and returns only if the bytes are exact.
+- The repair does not weaken create-once semantics. An ambiguous successful
+  write is recovered without another upload; an existing different object
+  fails immediately; a genuinely absent object receives only bounded
+  byte-identical retries; and persistent absence or current-generation read
+  failure remains terminal. No overwrite, delete, alternate payload, or
+  unpinned read was added.
+- Added four direct adapter tests covering failed-upload/absent retry,
+  ambiguous-success recovery, different-byte collision, and bounded retry
+  exhaustion. Combined attribution core/release/CLI validation is **53
+  passed** in 20.6 seconds; CLI-only validation is 13 passed; `py_compile` and
+  `git diff --check` pass.
+- Exact next action: commit/push this adapter repair, then invoke the identical
+  guarded `publish` command for
+  `20260827-foundry-v12-r6-full-union-attribution-v1`. It must byte-compare
+  existing shards 00--25 and resume at absent shard 26. After all 54 and the
+  root publish, invoke the independent full `reopen`; do not delete or fork
+  the partial prefix.
+
 ## Current handoff — 2026-08-27 16:29 UTC (one-hundred-seventy-seventh update)
 
 ### Lead-architect review amends the proposed R6 adoption sequence
