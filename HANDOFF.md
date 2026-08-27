@@ -67,6 +67,27 @@ agent or developer:
   On success, let the controller finalize/restore, commit terminal evidence,
   then invoke only `grade`, `finish` and the bounded eight-strategy reporter.
   No retry, new run, graph or production action is licensed.
+- Execution `n86rn` later reached terminal **failure** at
+  `2026-08-27T03:05:58.415659Z`: one failed task, zero retries and exit code
+  1. Its exact retained terminal-envelope SHA-256 is
+  `9bda0956e0e2623a1d287a33237b1bafa45dea71dc3f3489ada3a223246abfb3`.
+  The row-silent terminal log contains one structural error:
+  `authoritative query is not the exact ordered player/DST union`. The
+  controller restored original image digest `8be07290...89de8` at registered
+  job generation 57. Query evidence, realized source, outcome snapshot,
+  supply completion, worker completion and recovery receipt are all absent;
+  the live lease and completed fixed job remain unchanged.
+- This failure occurs after the existing fixed job result is obtained. Every
+  returned row was already proven unique and inside the frozen union; the
+  final check therefore indicates missing expected keys or ordering drift.
+  Frozen SQL already orders by the exact four keys but selects only source
+  rows that exist, so absent weekly-stat rows for rostered inactive players
+  are the leading offline defect hypothesis. Do not retry `n86rn` or reuse its
+  one-call marker. Exact next action is finish the offline validator/SQL
+  defect-class review and, only under a separate bounded amendment, build an
+  immutable second recovery ordinal against the same completed fixed job—no
+  new query—with explicit missing-key semantics and diagnostics. Grade and
+  finish remain blocked until standard supply outputs close successfully.
 
 ## Current handoff — 2026-08-27 01:36 UTC (one-hundred-sixty-second update)
 

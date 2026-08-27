@@ -250,3 +250,32 @@ by `recover-supply`; any ambiguous response consumes the call and fails
 closed. This narrow continuation does not authorize a query submission,
 automatic retry, second recovery execution, new run, retuning, graph change or
 production change.
+
+### Terminal disposition of recovery ordinal 1
+
+The single authorized execution
+`atlas-minimal-c-s2023-w1-v1-n86rn` (UID
+`2d630941-96e7-43c1-a066-20515923dd16`) reached terminal failure at
+`2026-08-27T03:05:58.415659Z`, with one failed task, `maxRetries=0`, and exit
+code 1. Its retained terminal-envelope SHA-256 is
+`9bda0956e0e2623a1d287a33237b1bafa45dea71dc3f3489ada3a223246abfb3`.
+The exact row-silent error is:
+
+```text
+authoritative query is not the exact ordered player/DST union
+```
+
+The controller restored the original immutable job image. No query-evidence,
+realized-source, outcome-snapshot, supply-completion, worker-completion or
+recovery-receipt object exists. The fixed BigQuery job remains the same
+completed, error-null, uncached job; no new query was submitted.
+
+This ordinal is consumed and must never be retried or reused. The failure is a
+new result-normalization defect class: frozen SQL orders the correct four-key
+tuple but emits only source rows that exist, whereas the frozen lineup union
+can include rostered players absent from weekly statistics. A second recovery
+ordinal is not authorized by this amendment. It requires a separate reviewed
+amendment that defines fail-closed missing-skill/DST semantics and row-blind
+diagnostics, binds this exact terminal failure, uses a fresh immutable
+code/image, intent/worker/receipt URI namespace, token and one-call marker,
+and still only gets the existing fixed job. Grading remains blocked.
