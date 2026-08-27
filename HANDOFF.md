@@ -20,6 +20,40 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 01:36 UTC (one-hundred-sixty-second update)
+
+### Latest Observatory Phase 5 correction remains isolated and is rejected; R6 recovery build continues
+
+- The latest locally available and origin-tracking Observatory branch tip is
+  `36c503d83331b71f8cc18f2c26aada1567f57a9d`, directly after rejected
+  `f2d049b030a43f7b8f627340c8cf19f1e9b5d647`. It remains only on
+  `feature/neo4j-react-observatory`; `main` does not contain it. Its clean
+  four-file change is limited to branch HANDOFF/report, the pure offline
+  capacity estimator and focused tests. Focused capacity validation passes
+  **90/90** and diff hygiene is clean. This was a local-ref review, not a
+  fresh network fetch.
+- Lead review disposition is **REJECT pending correction**, P0=0, P1=2,
+  P2=1. First P1: `graph_binding_now()` omits the live
+  `OUTCOME_NODE_KINDS` and `OUTCOME_RELATIONSHIP_TYPES` closure sets. A
+  reproduced adversarial change leaves the binding byte-identical and an old
+  receipt replay-valid while the graph row validator rejects the modeled
+  `Lineup` node. Both explicit closure sets must be embedded and exact-live
+  checked, with build-and-replay drift tests.
+- Second P1: full-lineup mode is called feasible at **2,354** streamed
+  batches, while the current versioned fixture/loader contract caps a load at
+  **600** total batches. The estimator computes the larger batch count but
+  does not reject it. Bind and enforce the actual production-loader ceiling,
+  or version and validate a different loader contract, before claiming that
+  mode is load-feasible. P2: bind the remaining semantically relevant global
+  graph/property/byte/list/integer and batch limits as well.
+- This correction is not merged and cannot affect or delay scoring. Immutable
+  R6 recovery build `b953bcff-5e55-40af-a778-64c6503675d1` remains active:
+  exact pushed checkout passed and its 315-test focused gate is running with
+  no failure. Exact next scoring action remains metadata-only polling to
+  terminal; on success, validate the emitted immutable digest, durably record
+  it, invoke the single get-only `recover-supply`, then run only `grade`,
+  `finish`, and the bounded eight-strategy score reporter including T230.
+
 ## Current handoff — 2026-08-27 01:07 UTC (one-hundred-sixty-first update)
 
 ### Recover-only R6-v2 continuation is implemented and awaiting immutable build
