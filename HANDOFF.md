@@ -20,6 +20,39 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 20:04 UTC (one-hundred-eighty-fourth update)
+
+### The deterministic no-rescore funnel is terminally published and independently reopened
+
+- Branch `main`; code predecessor and remote head at launch were `eed8bb4f`.
+  The guarded `publish` command produced the complete deterministic funnel and
+  immediately rebuilt it from its immutable predecessors. A separate fresh
+  `reopen` invocation then generation-exact-read the terminal root, rebuilt all
+  aggregates from the attribution release and winner registry, and required
+  byte-for-byte equality. Both commands completed successfully.
+- Terminal root identity is
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-no-rescore-funnels/20260827-r6-no-rescore-funnel-v1/no-rescore-funnel-release.json`,
+  generation `1787859076719874`, bytes `2448874`, exact object SHA-256
+  `782a1d88c27b3160e3f91f8c8efcf07d92ab7d5f5ef60c90bca4712449bdfcbb`,
+  and internal release SHA-256
+  `4bb8dc9ba83a52c46604354f77549d98c21d3e1751bcdbe1695cc1de62196965`.
+- Both summaries report 54 source slates, 199,244 lineup occurrences, and 51
+  winner-target slates. They explicitly report `lineup_rescore_performed=false`,
+  `outcome_source_read=false`, `graph_mutation_performed=false`, and
+  `production_change_performed=false`. The funnel uses only realized labels
+  already persisted in the immutable attribution predecessor; it performed no
+  new scoring or raw-outcome access.
+- Durable bounded command summaries are now tracked under
+  `reports/r6-no-rescore-funnel-runs/20260827-r6-no-rescore-funnel-v1/` beside
+  the winner-registry authority. The first attempted separate reopen was
+  interrupted before process start and performed no read or mutation; the
+  completed invocation above is the authoritative reopen.
+- Next concrete action: use this exact root for the already-planned exact
+  random-book-null and conversion analysis; finish independent-bank and legal-
+  scheduler authority hardening; then complete the missing fixed-G0 candidate
+  root, seven immutable matchup source packs, source-v2 batch publication, and
+  immutable consumer smoke before the sparse historical comparison.
+
 ## Current handoff — 2026-08-27 19:21 UTC (one-hundred-eighty-third update)
 
 ### The deterministic no-rescore funnel is authority-pinned and publication-ready
