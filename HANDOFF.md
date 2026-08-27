@@ -20,6 +20,45 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 18:35 UTC (one-hundred-eighty-first update)
+
+### Lane 2 outcome-free belief-world substrate is ready for integration
+
+- Branch `main`; predecessor/remote head is `5d4a560a`. The adopted aggressive
+  roadmap is now being executed as parallel, isolated implementation lanes.
+  This milestone adds only the first Lane 2 substrate in
+  `belief_world_v1.py` and `weighted_belief_selection_v1.py`; it does not alter
+  the served engine, frozen R6 candidates/books, deployment, cloud state,
+  historical-outcome authority, or production selection.
+- The belief-world receipt exact-binds the ordered player/world axes, finite
+  player-by-world matrix, target law, sampling proposal, calibration identity,
+  and complete sampling design. Importance weights use stable full-mixture
+  log-sum-exp and exact normalized `p/q`; diagnostics report effective sample
+  size/fraction, maximum weight, top-one-percent mass, and entropy. Adaptive
+  elites, reused adaptation/evaluation banks, stale evaluation samples,
+  unfrozen proposals, missing target support, and selected-component-only
+  denominators fail closed.
+- The served-baseline adapter separates player-outcome-law settings from
+  candidate-generation settings. The frozen calibration registry names
+  `CAL19`, `WF21`, and `HOLD22`, keeps 2020 as an explicitly excluded
+  sensitivity regime, and separates all calibration labels from the 2023--25
+  lineup-development panel. The support-census contract is outcome-denying and
+  permits only registered point-in-time support counts.
+- Research-only weighted tail-coverage and ladder selectors use world
+  probability mass for nonuniform proposals. Uniform weights delegate exactly
+  to the incumbent production selector, preserving parity and avoiding a
+  second nominal implementation. The served production selector is unchanged.
+- Focused validation reported **30 passed** across
+  `tests/test_belief_world_v1.py` and
+  `tests/test_weighted_belief_selection_v1.py`; lead compilation of both
+  modules also passes. No cloud or historical-outcome access occurred.
+- Boundaries and next action: this is infrastructure, not a completed belief
+  experiment. No role-state mixture, correlated game-environment law,
+  rare-breakout proposal, real support census, calibrated release, or weighted
+  production integration exists yet. Freeze support minimums after the
+  outcome-free census, then implement and calibrate the bounded law family on
+  the pre-2023 folds before any sparse 54-slate development comparison.
+
 ## Current handoff — 2026-08-27 18:06 UTC (one-hundred-eightieth update)
 
 ### Full-union attribution release is terminally published and reopened
