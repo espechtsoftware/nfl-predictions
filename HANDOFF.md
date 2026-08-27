@@ -24,7 +24,8 @@ agent or developer:
 
 ### Deep R6 corpus/population and final-fit selection review is complete
 
-- Branch `main`; reviewed predecessor/remote head is
+- Branch `main`; report milestone commit is `6974b74a` from reviewed
+  predecessor/remote head
   `3e28b54656590284e2a7044ac67dfe35b5b9410b`. Added the shareable analysis
   `reports/2026-08-27-r6-corpus-selection-deep-review.md`. It reviews current
   attribution commits `07566839`/`3e28b546`, the realized score release, the
@@ -104,13 +105,12 @@ agent or developer:
   not causal; full contest fields/duplication/payout are unavailable; and the
   54-slate attribution output remained unpublished at reviewed HEAD. No
   treatment is promoted from this outcome-viewed audit.
-- Exact next action: commit/push this report and handoff without staging the
-  unrelated dirty/untracked worktree. Then retain the prior root-last
-  attribution publication/reopen as the separate governed operational action.
-  The next scientific implementation should be a reusable no-rescore funnel
-  aggregator with final-fit-specific fields, followed by one preregistered
-  equal-compute legal-attainable scheduler shadow; do not query or rescore the
-  historical panel.
+- Exact next action: retain the prior root-last attribution publication/reopen
+  as the separate governed operational action. The next scientific
+  implementation should be a reusable no-rescore funnel aggregator with
+  final-fit-specific fields, followed by one preregistered equal-compute
+  legal-attainable scheduler shadow; do not query or rescore the historical
+  panel. Preserve the unrelated dirty/untracked worktree.
 
 ## Current handoff — 2026-08-27 15:49 UTC (one-hundred-seventy-fifth update)
 
