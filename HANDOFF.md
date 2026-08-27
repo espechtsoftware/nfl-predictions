@@ -20,6 +20,37 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 10:21 UTC (one-hundred-seventy-second update)
+
+### The full 54-slate, eight-strategy grade completed successfully
+
+- Sole grade execution `atlas-minimal-c-s2023-w1-v1-b2qg6`, UID
+  `6b85360b-ff2f-46d5-9847-36ae9113e02f`, completed successfully at
+  `2026-08-27T10:20:29.969864Z` after 3h04m06s. Cloud Run and the retained
+  local terminal envelope both show `Completed=True`, one succeeded task,
+  zero failed/running tasks and no retry. The retained terminal-envelope
+  SHA-256 is
+  `a15499b40314f74f2760d01dea1be622499ccdd1ea3badc6458c1c957e20b061`;
+  its terminal receipt exact-binds that hash and execution.
+- The root-last grade published and exact-reopened the realized grade root at
+  generation `1787823913707002`, 5,480,030 bytes, SHA-256
+  `7e5da240f6ad3978553fa3101e12d4414c993f9547bb76cfa999cf32acdb6dfc`.
+  Grade completion is generation `1787826022031380`, 7,429 bytes, SHA-256
+  `916c902650d92698a4502bfb8d6632a4b1994acbb48d1695c77cb67b386c039d`.
+  Both are under the registered v2 grade prefix and bind original code
+  `16356b246817ea4777426b4e8a8b82e0737210df` plus original immutable image
+  `sha256:8be07290476cb88a584eb20adacc020598255855c9f305102bf3fe8f5f089de8`.
+- No partial grade shard was opened and the aggregate score reporter has not
+  run, so no score is being inferred from incomplete artifacts. The live
+  historical-outcome lease remains held until strict finish validates the
+  terminal completion and ordinal-2 recovery receipt.
+- Exact next action: commit and push this terminal milestone, then run
+  `cloud_r6_full_union_score_chain_v1.sh finish` exactly once with the
+  unchanged original grade environment. Validate the durable release with
+  `status`; only then run the generation-pinned bounded reporter for all
+  eight strategies, including T230. Do not launch another grade, supply,
+  recovery or query.
+
 ## Current handoff — 2026-08-27 07:17 UTC (one-hundred-seventy-first update)
 
 ### The one full 54-slate, eight-strategy grade execution is live
