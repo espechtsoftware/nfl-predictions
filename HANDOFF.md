@@ -20,6 +20,51 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 19:21 UTC (one-hundred-eighty-third update)
+
+### The deterministic no-rescore funnel is authority-pinned and publication-ready
+
+- Branch `main`; predecessor/remote head is `465eaa23`. The lead prepared the
+  pure deterministic R6 funnel, guarded GCS transport, direct transport tests,
+  and a tracked winner-registry authority. These files are not yet committed
+  or published. The funnel consumes only the terminal attribution root, the 54
+  identities named by that root, and the adopted immutable winner registry. It
+  derives from already-persisted realized labels, but has no scorer, raw
+  outcome-source/query seam, graph mutation, served-policy change, or promotion
+  authority.
+- The adopted winner registry was create-once published at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-winner-registry/20260827-adopted-milly-winner-registry-v1/winner-registry-v1.json`,
+  generation `1787857632161809`, bytes `74045`, exact object SHA-256
+  `13286cd428cecfcdb27544d4f590a970f526a2474f04b83b8a4328859866bdab`,
+  internal registry SHA-256
+  `b8fc84eeeab18f64bdf1b4bef0888301c5c1434227d6b8066baef4fe7597e302`.
+  A generation-pinned exact read matched the object SHA. The tracked authority
+  file has canonical-file SHA-256
+  `e761be802242a4b6a28ba61abaf386871a9e0e88136d50b199f4f8b04150cb10`
+  and internal authority SHA-256
+  `91087f3b8d6328d8254d2c97f91c193b913730b87e31756be81c494b14a8689e`.
+- Independent review found that a merely self-hashed caller authority and the
+  old winner-source wording were insufficient. The repair now fixes the exact
+  registry identity and authority SHA in the scientific contract independently
+  of callers, and records three explicit laws: pre-pinned identity required,
+  generation-exact read, and internal registry self-hash verified. A coherent
+  URI/generation replacement is rejected even after rehashing.
+- The guarded CLI independently pins the adopted terminal attribution root
+  identity, project, winner-authority file bytes, and output namespace. It uses
+  generation-pinned reads, bounded byte-identical create-once recovery, exact
+  collision comparison, conventional subcommand-first parsing, an absolute
+  repository authority path, and a full predecessor rebuild immediately after
+  either publish or reopen.
+- Validation is **12 passed** for the funnel core and **12 passed** for the
+  transport/CLI, plus `py_compile`, authority validation, exact local registry
+  byte/hash comparison, and scoped `git diff --check`. All tests were hermetic;
+  no cloud call, external outcome query, lineup rescore, or deployment occurred.
+- Exact next action: obtain the short post-repair independent rereview, commit
+  and push only the funnel files plus this handoff, invoke the guarded
+  `publish` command for run `20260827-r6-no-rescore-funnel-v1`, capture its
+  terminal identity, then run the separate exact `reopen` command and track
+  both summaries before advancing the legal scheduler and source-v2 batch.
+
 ## Current handoff — 2026-08-27 18:40 UTC (one-hundred-eighty-second update)
 
 ### Lane 3 fixed-G0 candidate and matchup source-v2 authority chain is accepted
