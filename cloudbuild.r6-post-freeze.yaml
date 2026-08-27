@@ -44,6 +44,7 @@ steps:
           tests/test_run_corpus_r6_full_union_outcome_snapshot_v1.py \
           tests/test_corpus_r6_full_union_outcome_supply_v1.py \
           tests/test_run_corpus_r6_full_union_outcome_supply_v1.py \
+          tests/test_recover_corpus_r6_full_union_outcome_supply_v1.py \
           tests/test_corpus_r6_full_union_realized_grading_v1.py \
           tests/test_corpus_r6_full_union_grade_release_v1.py \
           tests/test_run_corpus_r6_full_union_realized_grade_v1.py \
@@ -106,12 +107,14 @@ steps:
             python -m py_compile \
               scripts/compile_corpus_r6_full_union_query_v1.py \
               scripts/run_corpus_r6_full_union_panel_freeze_v1.py \
+              scripts/recover_corpus_r6_full_union_outcome_supply_v1.py \
               scripts/validate_r6_full_union_lane_terminal_v1.py \
               scripts/report_corpus_r6_full_union_scores_v1.py
             python scripts/compile_corpus_r6_full_union_query_v1.py --help >/dev/null
             python scripts/run_corpus_r6_full_union_panel_freeze_v1.py --help >/dev/null
             python scripts/run_corpus_r6_full_union_outcome_snapshot_v1.py --help >/dev/null
             python scripts/run_corpus_r6_full_union_outcome_supply_v1.py --help >/dev/null
+            python scripts/recover_corpus_r6_full_union_outcome_supply_v1.py --help >/dev/null
             python scripts/run_corpus_r6_full_union_realized_grade_v1.py --help >/dev/null
             python scripts/validate_r6_full_union_lane_terminal_v1.py --help >/dev/null
             python scripts/report_corpus_r6_full_union_scores_v1.py --help >/dev/null
@@ -161,6 +164,7 @@ steps:
             "scripts/run_corpus_r6_full_union_panel_freeze_v1.py",
             "scripts/run_corpus_r6_full_union_outcome_snapshot_v1.py",
             "scripts/run_corpus_r6_full_union_outcome_supply_v1.py",
+            "scripts/recover_corpus_r6_full_union_outcome_supply_v1.py",
             "scripts/run_corpus_r6_full_union_realized_grade_v1.py",
             "scripts/validate_r6_full_union_lane_terminal_v1.py",
             "scripts/report_corpus_r6_full_union_scores_v1.py",
@@ -180,6 +184,7 @@ steps:
             "tests/test_run_corpus_r6_full_union_outcome_snapshot_v1.py",
             "tests/test_corpus_r6_full_union_outcome_supply_v1.py",
             "tests/test_run_corpus_r6_full_union_outcome_supply_v1.py",
+            "tests/test_recover_corpus_r6_full_union_outcome_supply_v1.py",
             "tests/test_corpus_r6_full_union_realized_grading_v1.py",
             "tests/test_corpus_r6_full_union_grade_release_v1.py",
             "tests/test_run_corpus_r6_full_union_realized_grade_v1.py",

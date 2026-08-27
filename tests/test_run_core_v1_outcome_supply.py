@@ -420,12 +420,14 @@ class _FakeBQClient:
         return self.job
 
 
-def _query_spec() -> registered.QuerySpec:
+def _query_spec(
+    source_snapshot_at: object = "2026-08-25T12:00:00.123456+00:00",
+) -> registered.QuerySpec:
     parameters = (
         shared.QueryParameter(
             "source_snapshot_at",
             "TIMESTAMP",
-            datetime(2026, 8, 25, 12, tzinfo=timezone.utc),
+            source_snapshot_at,
         ),
         shared.QueryParameter("target_seasons", "INT64", [2023], True),
     )
@@ -435,9 +437,97 @@ def _query_spec() -> registered.QuerySpec:
         job_id="corpus_realized_core_v1_fixture_deadbeef1234",
         location="US",
         sql_sha256=sha256(b"fixture sql").hexdigest(),
-        parameters_sha256=sha256(b"fixture parameters").hexdigest(),
+        parameters_sha256=registered.canonical_sha256(
+            registered._parameter_payload(parameters)
+        ),
         union_keys_sha256=sha256(b"fixture keys").hexdigest(),
     )
+
+
+def _server_round_tripped_job(
+    spec: registered.QuerySpec,
+    parameters: list[object],
+):
+    from google.auth.credentials import AnonymousCredentials
+    from google.cloud import bigquery
+
+    resource = {
+        "kind": "bigquery#job",
+        "jobReference": {
+            "projectId": "fixture-project",
+            "jobId": spec.job_id,
+            "location": spec.location,
+        },
+        "configuration": {
+            "query": {
+                "query": spec.sql,
+                "useLegacySql": False,
+                "useQueryCache": False,
+                "queryParameters": [
+                    parameter.to_api_repr() for parameter in parameters
+                ],
+            }
+        },
+        "status": {"state": "DONE"},
+    }
+    client = bigquery.Client(
+        project="fixture-project", credentials=AnonymousCredentials()
+    )
+    return bigquery.QueryJob.from_api_repr(resource, client)
+
+
+def test_query_parameters_survive_full_bigquery_job_round_trip() -> None:
+    from google.cloud import bigquery
+
+    spec = _query_spec()
+    frozen_parameters = spec.parameters
+    frozen_parameters_sha256 = spec.parameters_sha256
+    frozen_contract = registered._query_contract(spec)
+    expected = cli._query_parameters(spec)
+    round_tripped = _server_round_tripped_job(spec, expected)
+
+    assert isinstance(expected[0].value, datetime)
+    assert expected[0].value.tzinfo is not None
+    assert expected[0].value.microsecond == 123456
+    assert isinstance(round_tripped.query_parameters[0].value, datetime)
+    cli._validate_job(round_tripped, spec=spec, parameters=expected)
+
+    assert spec.parameters == frozen_parameters
+    assert spec.parameters[0].value == "2026-08-25T12:00:00.123456+00:00"
+    assert spec.parameters_sha256 == frozen_parameters_sha256
+    assert spec.parameters_sha256 == registered.canonical_sha256(
+        registered._parameter_payload(spec.parameters)
+    )
+    assert registered._query_contract(spec) == frozen_contract
+
+    drifted = list(expected)
+    drifted[0] = bigquery.ScalarQueryParameter(
+        "source_snapshot_at",
+        "TIMESTAMP",
+        expected[0].value + timedelta(microseconds=1),
+    )
+    drifted_job = _server_round_tripped_job(spec, drifted)
+    with pytest.raises(
+        cli.CoreV1OutcomeRunnerError,
+        match="job configuration differs",
+    ):
+        cli._validate_job(drifted_job, spec=spec, parameters=expected)
+
+
+@pytest.mark.parametrize(
+    "source_snapshot_at, message",
+    [
+        ("not-a-timestamp", "TIMESTAMP parameter differs"),
+        ("2026-08-25T12:00:00", "TIMESTAMP parameter is naive"),
+        (123, "TIMESTAMP parameter differs"),
+    ],
+)
+def test_query_timestamp_parameters_fail_closed(
+    source_snapshot_at: object,
+    message: str,
+) -> None:
+    with pytest.raises(cli.CoreV1OutcomeRunnerError, match=message):
+        cli._query_parameters(_query_spec(source_snapshot_at))
 
 
 def test_bigquery_fixed_job_is_created_once_and_exactly_recovered() -> None:

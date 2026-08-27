@@ -617,3 +617,248 @@ def test_grade_runtime_name_is_not_predicted_by_launcher() -> None:
     assert "CLOUD_RUN_JOB" not in source
     assert "--code-sha=$CODE_SHA" in grade
     assert "--image=$IMAGE" in grade
+
+
+def test_recover_supply_is_explicit_isolated_and_absent_from_ordinary_run() -> None:
+    source = _source()
+    assert "preflight|compile|smoke|supply|recover-supply|grade" in source
+    assert "recover-supply) recover_failed_supply ;;" in source
+    assert 'run) compile_stage; smoke; supply_stage; grade_stage; finish ;;' in source
+    assert "run) compile_stage; smoke; supply_stage; recover" not in source
+    assert 'RECOVERY_STAGE="supply-recovery-01"' in source
+    assert 'local stage_dir="$RUN_DIR/stages/$RECOVERY_STAGE"' in source
+    assert 'local stage_dir="$RUN_DIR/stages/supply"' in source
+    assert source.count(
+        "/opt/nfl-predictions/scripts/"
+        "run_corpus_r6_full_union_outcome_supply_v1.py supply"
+    ) == 1
+
+
+def test_recovery_launch_binds_dual_runtime_and_exact_dedicated_env() -> None:
+    source = _source()
+    recovery_env = source[
+        source.index("recovery_env_json()") : source.index(
+            "recovery_stage_token()"
+        )
+    ]
+    recovery_token = source[
+        source.index("recovery_stage_token()") : source.index(
+            "recover_recovery_execution()"
+        )
+    ]
+    launch = source[
+        source.index("launch_recovery_stage()") : source.index(
+            "validate_compile_receipt()"
+        )
+    ]
+    assert 'RECOVERY_GATE="R6_FULL_UNION_OUTCOME_RECOVERY_ENABLED"' in source
+    assert '--arg gate "$RECOVERY_GATE"' in recovery_env
+    assert "R6_RECOVERY_STAGE_TOKEN" in recovery_env
+    assert "R6_FULL_UNION_RECOVERY_CODE_SHA" in recovery_env
+    assert "R6_FULL_UNION_RECOVERY_RUNTIME_IMAGE" in recovery_env
+    assert "R6_CHAIN_STAGE_TOKEN" not in recovery_env
+    assert "R6_FULL_UNION_REVIEWED_CODE_SHA" not in recovery_env
+    assert '"$CODE_SHA" "$IMAGE"' in recovery_token
+    assert '"$RECOVERY_CODE_SHA" "$RECOVERY_IMAGE"' in recovery_token
+    assert '"$compile_binding" "$intent_binding"' in recovery_token
+    for field in (
+        "original_code_sha:$original_code",
+        "original_image:$original_image",
+        "recovery_code_sha:$recovery_code",
+        "recovery_image:$recovery_image",
+        "fixed_job_lookup_only:true",
+        "query_submission_licensed:false",
+        "ordinary_supply_relaunch_licensed:false",
+        "automatic_retry_licensed:false",
+    ):
+        assert field in launch
+    assert '--image "$RECOVERY_IMAGE"' in source
+    assert "prior recovery launch remains ambiguous; blind relaunch is forbidden" in launch
+    assert "recover_recovery_execution" in launch
+
+
+def test_recovery_scans_cloud_before_launch_when_local_stage_was_recreated() -> None:
+    source = _source()
+    launch = source[
+        source.index("launch_recovery_stage()") : source.index(
+            "validate_compile_receipt()"
+        )
+    ]
+    scan = 'recovered="$(recover_recovery_execution "$token" "${args[@]}")"'
+    execute = 'gcloud run jobs execute "$JOB"'
+
+    assert launch.count(scan) == 1
+    assert launch.index(scan) < launch.index(execute)
+    assert 'if [[ -n "$recovered" ]]; then' in launch
+    assert 'elif [[ "$intent_preexisted" == true ]]; then' in launch
+    assert "this local\n    # stage directory was recreated on another machine" in launch
+
+
+def test_recovery_preconditions_precede_mutation_and_restore_original_job() -> None:
+    source = _source()
+    recover = source[
+        source.index("recover_failed_supply()") : source.index(
+            "ensure_supply_closed()"
+        )
+    ]
+    assert recover.index("validate_original_supply_failure") < recover.index(
+        "ensure_compile_closed"
+    )
+    assert recover.index("resolve_existing_recovery_lease") < recover.index(
+        "prepare_recovery_intent"
+    )
+    assert recover.index("resolve_object \"$SUPPLY_PREFIX/read-attempt.json\"") < (
+        recover.index("prepare_recovery_intent")
+    )
+    assert recover.index("prepare_recovery_intent") < recover.index(
+        "preflight_recovery"
+    )
+    assert recover.index("preflight_recovery") < recover.index(
+        "launch_recovery_stage"
+    )
+    assert recover.index("launch_recovery_stage") < recover.index(
+        "finalize_recovery_receipt"
+    )
+    assert recover.index("finalize_recovery_receipt") < recover.index(
+        "resolve_supply_outputs"
+    )
+    assert "acquire_or_resolve_lease" not in recover
+    assert "launch_stage supply" not in recover
+    assert "supply_stage" not in recover
+    assert "RECOVERY_RESTORE_ARMED=true" in recover
+    assert "trap restore_original_job_on_exit EXIT" in recover
+    assert '(preflight) || die "failed to restore' in recover
+    preflight_recovery = source[
+        source.index("preflight_recovery()") : source.index("stage_token()")
+    ]
+    assert 'local after="$RUN_DIR/job-config-recovery.json"' in preflight_recovery
+    assert 'write_equal "$after"' in preflight_recovery
+    assert '"$RUN_DIR/job-config.json"' not in preflight_recovery
+
+
+def test_recovery_prepare_binds_failure_attempt_metadata_and_absence() -> None:
+    source = _source()
+    failure = source[
+        source.index("validate_original_supply_failure()") : source.index(
+            "resolve_existing_recovery_lease()"
+        )
+    ]
+    prepare = source[
+        source.index("prepare_recovery_intent()") : source.index(
+            "recovery_worker_args()"
+        )
+    ]
+    absence = source[
+        source.index("require_local_recovery_downstream_absence()") : source.index(
+            "prepare_recovery_intent()"
+        )
+    ]
+    for marker in (
+        'status == "False"',
+        'reason == "NonZeroExitCode"',
+        ".status.failedCount == 1",
+        "automatic_retry_licensed == false",
+        'argv[1] == "supply"',
+    ):
+        assert marker in failure
+    for option in (
+        "--original-launch-intent=",
+        "--original-terminal-execution=",
+        "--snapshot-module-sha256=",
+    ):
+        assert option in prepare
+    for prefix in (
+        "expected-lease",
+        "read-attempt",
+        "query-compile",
+        "outcome-key-projection",
+        "actual-root-smoke",
+    ):
+        assert f" {prefix})" in prepare
+    for identity in (
+        "query-evidence.json",
+        "realized-source.json",
+        "outcome-snapshot.json",
+        "supply-completion.json",
+        "supply-recovery-worker-completion.json",
+        "supply-recovery-receipt.json",
+    ):
+        assert identity in absence
+    assert "historical_outcome_lease.py acquire" not in source[
+        source.index("resolve_existing_recovery_lease()") : source.index(
+            "require_local_recovery_downstream_absence()"
+        )
+    ]
+
+
+def test_grade_accepts_only_true_original_or_finalized_recovery_success() -> None:
+    source = _source()
+    grade = source[source.index("grade_stage()") : source.index("finish()")]
+    ensure = source[
+        source.index("ensure_supply_closed()") : source.index("compile_stage()")
+    ]
+    assert grade.index("ensure_supply_closed") < grade.index("preflight")
+    assert "validate_original_supply_success" in ensure
+    assert "validate_original_supply_failure" in ensure
+    assert "finalize_recovery_receipt" in ensure
+    assert "resolve_supply_outputs" in ensure
+    assert "failed supply lacks a recovery launch intent" in ensure
+    for field in (
+        "fixed_job_lookup_only == true",
+        "query_submission_licensed == false",
+        "ordinary_supply_relaunch_licensed == false",
+        "automatic_retry_licensed == false",
+    ):
+        assert field in ensure
+
+
+def test_missing_failed_supply_evidence_blocks_recovery_before_gcloud(
+    tmp_path: Path,
+) -> None:
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    marker = tmp_path / "gcloud-called"
+    fake_gcloud = fake_bin / "gcloud"
+    fake_gcloud.write_text(
+        "#!/usr/bin/env bash\nprintf called >\"$FAKE_GCLOUD_MARKER\"\nexit 99\n",
+        encoding="utf-8",
+    )
+    fake_gcloud.chmod(0o755)
+    env = {
+        **os.environ,
+        "PATH": f"{fake_bin}:{os.environ['PATH']}",
+        "FAKE_GCLOUD_MARKER": str(marker),
+        "R6_SCORE_RUN_ID": "offline-r6-recovery-run",
+        "R6_SCORE_JOB": "atlas-minimal-c-s2023-w1-v1",
+        "R6_SCORE_SERVICE_ACCOUNT": (
+            "817589974517-compute@developer.gserviceaccount.com"
+        ),
+        "R6_SCORE_CODE_SHA": "a" * 40,
+        "R6_SCORE_IMAGE": "fixture/original@sha256:" + "b" * 64,
+        "R6_SCORE_RECOVERY_CODE_SHA": "c" * 40,
+        "R6_SCORE_RECOVERY_IMAGE": "fixture/recovery@sha256:" + "d" * 64,
+        "R6_SCORE_RUN_DIR": str(tmp_path / "run"),
+        "R6_PANEL_FREEZE_URI": (
+            "gs://nfl-predictions-503414-corpus-retrieval/research/"
+            "corpus-r6-full-union-freezes/"
+            "20260826-foundry-v12-r6-full-union-freeze-v1/panel-freeze.json"
+        ),
+        "R6_PANEL_FREEZE_GENERATION": "1787759999999999",
+        "R6_PANEL_FREEZE_SHA256": "e" * 64,
+        "R6_PANEL_FREEZE_BYTES": "10",
+        "R6_SNAPSHOT_MODULE_SHA256": "1" * 64,
+        "R6_SNAPSHOT_CLI_SHA256": "2" * 64,
+        "R6_SNAPSHOT_TEST_SHA256": "3" * 64,
+        "R6_SNAPSHOT_CLI_TEST_SHA256": "4" * 64,
+    }
+    result = subprocess.run(
+        ["bash", str(SCRIPT), "recover-supply"],
+        cwd=ROOT,
+        env=env,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0
+    assert "original failed supply evidence is absent" in result.stderr
+    assert not marker.exists()

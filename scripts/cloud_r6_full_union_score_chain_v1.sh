@@ -11,6 +11,9 @@ Commands:
   compile    Server-compile the exact outcome SQL without reading result rows.
   smoke      Run the outcome-blind actual-root smoke and retain its identities.
   supply     Acquire/resolve the lease and run exactly one fixed-ID query.
+  recover-supply
+             Recover one already-successful fixed-ID query after an exact
+             terminal supply failure; query submission is impossible.
   grade      Canonically grade and publish 54 shards plus the root last.
   finish     Materialize strict evidence and generation-match release the lease.
   run        Execute compile, smoke, supply, grade, and finish in order.
@@ -24,6 +27,10 @@ Required environment for commands other than help:
   R6_PANEL_FREEZE_SHA256, R6_PANEL_FREEZE_BYTES, and the four
   R6_SNAPSHOT_{MODULE,CLI,TEST,CLI_TEST}_SHA256 values.
 
+recover-supply additionally requires the fresh immutable repair runtime in
+R6_SCORE_RECOVERY_CODE_SHA and R6_SCORE_RECOVERY_IMAGE. The ordinary
+R6_SCORE_CODE_SHA and R6_SCORE_IMAGE remain the original smoke/lease identity.
+
 The job must already exist. This launcher never creates a job, retries an
 ambiguous execution, opens a second outcome query, mutates Neo4j/production,
 or performs an IAM census.
@@ -36,7 +43,7 @@ if [[ "$COMMAND" == "help" || "$COMMAND" == "--help" || "$COMMAND" == "-h" ]]; t
   exit 0
 fi
 case "$COMMAND" in
-  preflight|compile|smoke|supply|grade|finish|run|status) ;;
+  preflight|compile|smoke|supply|recover-supply|grade|finish|run|status) ;;
   *) usage >&2; exit 2 ;;
 esac
 
@@ -67,6 +74,14 @@ GRADE_PREFIX="gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-fu
 LEASE_URI="gs://nfl-predictions-503414-raw/research-governance/historical-outcome-active-v1.json"
 DEFAULT_COMPUTE_SERVICE_ACCOUNT="817589974517-compute@developer.gserviceaccount.com"
 COMPILE_SQL_SHA256="03b5028dadbe4d92621103e2ccd6dcfe91e8e36fc351cf671f37e309951752cb"
+RECOVERY_STAGE="supply-recovery-01"
+RECOVERY_GATE="R6_FULL_UNION_OUTCOME_RECOVERY_ENABLED"
+RECOVERY_PREFIX="$SUPPLY_PREFIX/recoveries/supply-attempt-01"
+RECOVERY_INTENT_URI="$RECOVERY_PREFIX/recovery-intent.json"
+RECOVERY_WORKER_COMPLETION_URI="$RECOVERY_PREFIX/worker-completion.json"
+RECOVERY_RECEIPT_URI="$RECOVERY_PREFIX/recovery-receipt.json"
+RECOVERY_CONTROLLER="scripts/recover_corpus_r6_full_union_outcome_supply_v1.py"
+RECOVERY_RUNTIME_CONTROLLER="/opt/nfl-predictions/scripts/recover_corpus_r6_full_union_outcome_supply_v1.py"
 
 die() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 
@@ -120,6 +135,47 @@ identity_arg() {
   printf -- '--%s-generation=%s\n' "$prefix" "$(jq -r .generation "$file")"
   printf -- '--%s-sha256=%s\n' "$prefix" "$(jq -r .sha256 "$file")"
   printf -- '--%s-bytes=%s\n' "$prefix" "$(jq -r .bytes "$file")"
+}
+
+validate_identity_receipt() {
+  local file="$1" expected_uri="$2" label="$3"
+  [[ -f "$file" && ! -L "$file" ]] || die "$label identity is absent"
+  jq -e --arg uri "$expected_uri" '
+    keys == ["bytes","generation","sha256","uri"]
+      and .uri == $uri
+      and (.generation | type == "string" and test("^[1-9][0-9]*$"))
+      and (.sha256 | type == "string" and test("^[0-9a-f]{64}$"))
+      and (.bytes | type == "number" and . > 0 and floor == .)
+  ' "$file" >/dev/null || die "$label identity fields differ"
+}
+
+identity_from_recovery_cli_summary() {
+  local raw="$1" expected_status="$2" expected_uri="$3" label="$4"
+  jq -ceS --arg status "$expected_status" --arg uri "$expected_uri" \
+    --arg run "$RUN_ID" --arg job "$JOB" '
+    select(keys == ([
+      "automatic_retry_licensed","cloud_run_job","decision_authority",
+      "job_submission_count","new_job_count","object_identity",
+      "outcome_rows_in_stdout","run_id","schema_version","status"
+    ] | sort))
+    | select(.schema_version == "r6-full-union-outcome-supply-recovery-cli/v1")
+    | select(.run_id == $run and .cloud_run_job == $job)
+    | select(.status == $status and .outcome_rows_in_stdout == false)
+    | select(.job_submission_count == 0 and .new_job_count == 0)
+    | select(.automatic_retry_licensed == false and .decision_authority == false)
+    | select(.object_identity.uri == $uri)
+    | .object_identity
+  ' <<<"$raw" || die "$label CLI receipt differs"
+}
+
+load_recovery_runtime() {
+  RECOVERY_CODE_SHA="${R6_SCORE_RECOVERY_CODE_SHA:?R6_SCORE_RECOVERY_CODE_SHA is required}"
+  RECOVERY_IMAGE="${R6_SCORE_RECOVERY_IMAGE:?R6_SCORE_RECOVERY_IMAGE is required}"
+  [[ "$RECOVERY_CODE_SHA" =~ ^[0-9a-f]{40}$ ]] || die "recovery code SHA differs"
+  [[ "$RECOVERY_IMAGE" =~ @sha256:[0-9a-f]{64}$ ]] || die "recovery image must be immutable"
+  [[ "$RECOVERY_CODE_SHA" != "$CODE_SHA" ]] || die "recovery code must differ from original code"
+  [[ "$RECOVERY_IMAGE" != "$IMAGE" ]] || die "recovery image must differ from original image"
+  [[ -f "$RECOVERY_CONTROLLER" && ! -L "$RECOVERY_CONTROLLER" ]] || die "recovery controller is absent"
 }
 
 resolve_object() {
@@ -214,6 +270,74 @@ preflight() {
        vpc_access:($task.vpcAccess // {}),
        expected_image:$image,expected_service_account:$service_account,
        inherited_runtime_state_cleared:true}
+  ' "$temp")"
+  rm -f -- "$temp"
+}
+
+preflight_recovery() {
+  local after="$RUN_DIR/job-config-recovery.json" temp
+  temp="$(mktemp)"
+  gcloud run jobs describe "$JOB" --project "$PROJECT" --region "$REGION" --format=json >"$temp" || {
+    rm -f -- "$temp"; die "registered Cloud Run job does not already exist";
+  }
+  rm -f -- "$temp"
+  # This isolated mutation installs only the reviewed repair image. The
+  # original create/equal job-config.json remains untouched and is restored
+  # before recover-supply returns, including through the EXIT trap.
+  gcloud run jobs update "$JOB" --project "$PROJECT" --region "$REGION" \
+    --image "$RECOVERY_IMAGE" --command python --args="" \
+    --clear-env-vars --clear-secrets \
+    --clear-volume-mounts --clear-volumes \
+    --clear-cloudsql-instances --clear-vpc-connector \
+    --clear-network \
+    --service-account "$SERVICE_ACCOUNT" \
+    --tasks 1 --parallelism 1 --max-retries 0 --task-timeout 8h \
+    --cpu 8 --memory 32Gi --quiet >/dev/null
+  temp="$(mktemp)"
+  gcloud run jobs describe "$JOB" --project "$PROJECT" --region "$REGION" --format=json >"$temp"
+  jq -e --arg job "$JOB" --arg image "$RECOVERY_IMAGE" \
+    --arg service_account "$SERVICE_ACCOUNT" '
+    .spec.template.spec as $outer
+    | $outer.template.spec as $task
+    | $task.containers as $containers
+    | ((.metadata.name | split("/")[-1]) == $job)
+      and $outer.taskCount == 1
+      and $outer.parallelism == 1
+      and $task.maxRetries == 0
+      and (($task.timeoutSeconds | tostring) == "28800")
+      and ($containers | length) == 1
+      and $containers[0].image == $image
+      and $containers[0].command == ["python"]
+      and (($containers[0].args // []) == [])
+      and (($containers[0].env // []) == [])
+      and (($containers[0].volumeMounts // []) == [])
+      and (($task.volumes // []) == [])
+      and (($task.vpcAccess // {}) == {})
+      and $task.serviceAccountName == $service_account
+      and $containers[0].resources.limits == {cpu:"8",memory:"32Gi"}
+  ' "$temp" >/dev/null || { rm -f -- "$temp"; die "registered recovery job contract differs"; }
+  write_equal "$after" "$(jq -cS --arg job "$JOB" --arg image "$RECOVERY_IMAGE" \
+    --arg original_code "$CODE_SHA" --arg original_image "$IMAGE" \
+    --arg recovery_code "$RECOVERY_CODE_SHA" \
+    --arg service_account "$SERVICE_ACCOUNT" '
+    .spec.template.spec as $outer
+    | $outer.template.spec as $task
+    | $task.containers[0] as $container
+    | {schema_version:"r6-full-union-isolated-recovery-job-contract/v1",
+       job:$job,image:$container.image,command:$container.command,
+       args:($container.args // []),env:($container.env // []),
+       volume_mounts:($container.volumeMounts // []),
+       resources:$container.resources.limits,
+       task_count:$outer.taskCount,parallelism:$outer.parallelism,
+       max_retries:$task.maxRetries,timeout_seconds:($task.timeoutSeconds|tostring),
+       service_account:$task.serviceAccountName,volumes:($task.volumes // []),
+       vpc_access:($task.vpcAccess // {}),
+       original_code_sha:$original_code,original_image:$original_image,
+       recovery_code_sha:$recovery_code,recovery_image:$image,
+       expected_service_account:$service_account,
+       inherited_runtime_state_cleared:true,
+       query_submission_licensed:false,
+       ordinary_supply_relaunch_licensed:false}
   ' "$temp")"
   rm -f -- "$temp"
 }
@@ -391,6 +515,194 @@ launch_stage() {
   write_equal "$stage_dir/terminal-receipt.json" "$(jq -cnS --arg stage "$stage" --arg execution "$execution" --arg sha "$(sha256sum "$stage_dir/terminal-execution.json" | awk '{print $1}')" '{stage:$stage,execution:$execution,terminal_execution_sha256:$sha,complete:true}')"
 }
 
+recovery_env_json() {
+  local token="$1"
+  jq -cnS --arg gate "$RECOVERY_GATE" --arg token "$token" \
+    --arg code "$RECOVERY_CODE_SHA" --arg image "$RECOVERY_IMAGE" '
+    [{name:$gate,value:"1"},
+     {name:"R6_RECOVERY_STAGE_TOKEN",value:$token},
+     {name:"R6_FULL_UNION_RECOVERY_CODE_SHA",value:$code},
+     {name:"R6_FULL_UNION_RECOVERY_RUNTIME_IMAGE",value:$image}]
+    | sort_by(.name)
+  '
+}
+
+recovery_stage_token() {
+  local intent_file="$1" compile_binding intent_binding; shift
+  compile_binding="$(compile_binding_json "$RECOVERY_STAGE")"
+  intent_binding="$(jq -cS . "$intent_file")"
+  {
+    printf '%s\0' "$PROJECT" "$REGION" "$RUN_ID" "$JOB" \
+      "$RECOVERY_STAGE" "$RECOVERY_GATE" "$CODE_SHA" "$IMAGE" \
+      "$RECOVERY_CODE_SHA" "$RECOVERY_IMAGE" "$SERVICE_ACCOUNT" \
+      "$compile_binding" "$intent_binding"
+    printf '%s\0' "$@"
+  } | sha256sum | awk '{print $1}'
+}
+
+recover_recovery_execution() {
+  local token="$1"; shift
+  local names candidate temp argv_json env_json matches=()
+  argv_json="$(printf '%s\n' "$@" | jq -Rsc 'split("\n")[:-1]')"
+  env_json="$(recovery_env_json "$token")"
+  names="$(gcloud run jobs executions list --job "$JOB" --project "$PROJECT" --region "$REGION" --format='value(metadata.name)')"
+  while IFS= read -r candidate; do
+    [[ -n "$candidate" ]] || continue
+    candidate="${candidate##*/}"
+    temp="$(mktemp)"
+    gcloud run jobs executions describe "$candidate" --project "$PROJECT" --region "$REGION" --format=json >"$temp"
+    if jq -e --arg image "$RECOVERY_IMAGE" --arg job "$JOB" \
+      --arg service_account "$SERVICE_ACCOUNT" \
+      --argjson argv "$argv_json" --argjson expected_env "$env_json" '
+      .spec.template.spec.containers as $containers
+      | .metadata.labels["run.googleapis.com/job"] == $job
+        and .spec.taskCount == 1 and .spec.parallelism == 1
+        and .spec.template.spec.maxRetries == 0
+        and ((.spec.template.spec.timeoutSeconds | tostring) == "28800")
+        and ($containers | length) == 1
+        and $containers[0].image == $image
+        and $containers[0].command == ["python"]
+        and $containers[0].args == $argv
+        and ([($containers[0].env // [])[] | {name,value}] | sort_by(.name))
+          == $expected_env
+        and (($containers[0].volumeMounts // []) == [])
+        and ((.spec.template.spec.volumes // []) == [])
+        and ((.spec.template.spec.vpcAccess // {}) == {})
+        and .spec.template.spec.serviceAccountName == $service_account
+        and $containers[0].resources.limits == {cpu:"8",memory:"32Gi"}
+    ' "$temp" >/dev/null; then
+      matches+=("$candidate")
+    fi
+    rm -f -- "$temp"
+  done <<<"$names"
+  [[ "${#matches[@]}" -le 1 ]] || die "execution-name recovery is ambiguous for $RECOVERY_STAGE"
+  [[ "${#matches[@]}" -eq 1 ]] && printf '%s\n' "${matches[0]}"
+}
+
+wait_recovery_terminal() {
+  local execution="$1" target="$2" token="$3"; shift 3
+  local temp state started now argv_json env_json
+  argv_json="$(printf '%s\n' "$@" | jq -Rsc 'split("\n")[:-1]')"
+  env_json="$(recovery_env_json "$token")"
+  started="$(date +%s)"
+  while true; do
+    temp="$(mktemp)"
+    gcloud run jobs executions describe "$execution" --project "$PROJECT" --region "$REGION" --format=json >"$temp"
+    state="$(jq -r '[.status.conditions[]? | select(.type=="Completed") | .status] | if length==1 then .[0] else "" end' "$temp")"
+    if [[ "$state" == "True" || "$state" == "False" ]]; then
+      write_equal "$target" "$(jq -cS . "$temp")"
+      rm -f -- "$temp"
+      [[ "$state" == "True" ]] || die "Cloud Run recovery execution failed: $execution"
+      jq -e --arg execution "$execution" --arg project "$PROJECT" \
+        --arg region "$REGION" --arg job "$JOB" '
+        (.metadata.name == $execution)
+          or (.metadata.name == (
+            "projects/" + $project + "/locations/" + $region
+            + "/jobs/" + $job + "/executions/" + $execution
+          ))
+      ' "$target" >/dev/null || die "recovery terminal execution name differs"
+      jq -e --arg image "$RECOVERY_IMAGE" --arg job "$JOB" \
+        --arg service_account "$SERVICE_ACCOUNT" \
+        --argjson argv "$argv_json" --argjson expected_env "$env_json" '
+        .spec.template.spec.containers as $containers
+        | .metadata.labels["run.googleapis.com/job"] == $job
+          and .spec.taskCount == 1 and .spec.parallelism == 1
+          and .spec.template.spec.maxRetries == 0
+          and ((.spec.template.spec.timeoutSeconds | tostring) == "28800")
+          and ($containers | length) == 1
+          and $containers[0].image == $image
+          and $containers[0].command == ["python"]
+          and $containers[0].args == $argv
+          and ([($containers[0].env // [])[] | {name,value}]
+            | sort_by(.name)) == $expected_env
+          and (($containers[0].volumeMounts // []) == [])
+          and ((.spec.template.spec.volumes // []) == [])
+          and ((.spec.template.spec.vpcAccess // {}) == {})
+          and .spec.template.spec.serviceAccountName == $service_account
+          and $containers[0].resources.limits == {cpu:"8",memory:"32Gi"}
+          and .status.succeededCount == 1
+          and ((.status.failedCount // 0) == 0)
+          and ((.status.runningCount // 0) == 0)
+          and (.status.completionTime | type == "string")
+      ' "$target" >/dev/null || die "recovery terminal execution envelope differs"
+      return
+    fi
+    rm -f -- "$temp"
+    now="$(date +%s)"; (( now - started < 32400 )) || die "recovery execution timeout: $execution"
+    sleep 20
+  done
+}
+
+launch_recovery_stage() {
+  local intent_file="$1"; shift
+  local stage_dir="$RUN_DIR/stages/$RECOVERY_STAGE" token launch_intent execution output status joined recovered argv_json argv_sha env_json compile_binding semantic_intent intent_preexisted=false arg
+  local args=("$@")
+  mkdir -p "$stage_dir"
+  for arg in "${args[@]}"; do
+    [[ "$arg" != *,* ]] || die "recovery CLI argument contains a comma"
+  done
+  argv_json="$(printf '%s\n' "${args[@]}" | jq -Rsc 'split("\n")[:-1]')"
+  argv_sha="$({ printf '%s\0' "${args[@]}"; } | sha256sum | awk '{print $1}')"
+  token="$(recovery_stage_token "$intent_file" "${args[@]}")"
+  env_json="$(recovery_env_json "$token")"
+  compile_binding="$(compile_binding_json "$RECOVERY_STAGE")"
+  semantic_intent="$(jq -cS . "$intent_file")"
+  launch_intent="$(jq -cnS --arg stage "$RECOVERY_STAGE" --arg token "$token" \
+    --arg run "$RUN_ID" --arg project "$PROJECT" --arg region "$REGION" \
+    --arg job "$JOB" --arg original_code "$CODE_SHA" \
+    --arg original_image "$IMAGE" --arg recovery_code "$RECOVERY_CODE_SHA" \
+    --arg recovery_image "$RECOVERY_IMAGE" \
+    --arg service_account "$SERVICE_ACCOUNT" --arg gate "$RECOVERY_GATE" \
+    --arg argv_sha "$argv_sha" --argjson argv "$argv_json" \
+    --argjson env "$env_json" --argjson compile_binding "$compile_binding" \
+    --argjson semantic_intent "$semantic_intent" '
+    {schema_version:"r6-full-union-recovery-stage-launch-intent/v1",
+     stage:$stage,token:$token,project:$project,region:$region,run_id:$run,
+     job:$job,original_code_sha:$original_code,original_image:$original_image,
+     recovery_code_sha:$recovery_code,recovery_image:$recovery_image,
+     service_account:$service_account,gate:$gate,argv:$argv,
+     argv_sha256:$argv_sha,execution_env:$env,
+     query_compile_receipt:$compile_binding,recovery_intent:$semantic_intent,
+     fixed_job_lookup_only:true,query_submission_licensed:false,
+     ordinary_supply_relaunch_licensed:false,automatic_retry_licensed:false}')"
+  write_equal "$stage_dir/launch-intent.json" "$launch_intent"
+  [[ "$WRITE_EQUAL_CREATED" == true ]] || intent_preexisted=true
+  if [[ -e "$stage_dir/execution-name.txt" || -L "$stage_dir/execution-name.txt" ]]; then
+    [[ -f "$stage_dir/execution-name.txt" && ! -L "$stage_dir/execution-name.txt" ]] || die "unsafe recovery execution-name claim"
+    execution="$(tr -d '\n' <"$stage_dir/execution-name.txt")"
+  else
+    # The semantic recovery intent is durable in GCS. Always scan for its
+    # exact argv/env/token execution before launching, even when this local
+    # stage directory was recreated on another machine.
+    recovered="$(recover_recovery_execution "$token" "${args[@]}")"
+    if [[ -n "$recovered" ]]; then
+      execution="$recovered"
+      write_equal "$stage_dir/execution-name.txt" "$execution"
+    elif [[ "$intent_preexisted" == true ]]; then
+      die "prior recovery launch remains ambiguous; blind relaunch is forbidden"
+    else
+      joined="$(IFS=,; printf '%s' "${args[*]}")"
+      output="$(mktemp)"
+      set +e
+      gcloud run jobs execute "$JOB" --project "$PROJECT" --region "$REGION" \
+        --args="$joined" \
+        --update-env-vars="R6_RECOVERY_STAGE_TOKEN=$token,$RECOVERY_GATE=1,R6_FULL_UNION_RECOVERY_CODE_SHA=$RECOVERY_CODE_SHA,R6_FULL_UNION_RECOVERY_RUNTIME_IMAGE=$RECOVERY_IMAGE" \
+        --async --quiet --format='value(metadata.name)' >"$output"
+      status=$?
+      set -e
+      write_equal "$stage_dir/launch-output.txt" "$(tr -d '\r\n' <"$output")"
+      write_equal "$stage_dir/launch-exit-status.txt" "$status"
+      execution="$(tr -d '\r\n' <"$output")"
+      rm -f -- "$output"
+      [[ "$status" -eq 0 && "$execution" =~ ^[a-z0-9][a-z0-9-]{2,127}$ ]] || die "recovery launch response is ambiguous; rerun only for exact recovery"
+      write_equal "$stage_dir/execution-name.txt" "$execution"
+    fi
+  fi
+  [[ "$execution" =~ ^[a-z0-9][a-z0-9-]{2,127}$ ]] || die "recovery execution-name claim differs"
+  wait_recovery_terminal "$execution" "$stage_dir/terminal-execution.json" "$token" "${args[@]}"
+  write_equal "$stage_dir/terminal-receipt.json" "$(jq -cnS --arg stage "$RECOVERY_STAGE" --arg execution "$execution" --arg sha "$(sha256sum "$stage_dir/terminal-execution.json" | awk '{print $1}')" '{stage:$stage,execution:$execution,terminal_execution_sha256:$sha,complete:true}')"
+}
+
 validate_compile_receipt() {
   local payload="$1" claimed_self observed_self parameter_sha compiled_epoch snapshot_epoch
   [[ -f "$payload" && ! -L "$payload" ]] || die "query compile receipt payload is absent"
@@ -487,6 +799,283 @@ compile_binding_json() {
       compile_receipt_sha256:$self_hash,sql_sha256:$sql_sha256}'
 }
 
+validate_original_supply_failure() {
+  local stage_dir="$RUN_DIR/stages/supply"
+  local intent="$stage_dir/launch-intent.json" \
+    terminal="$stage_dir/terminal-execution.json" \
+    name_file="$stage_dir/execution-name.txt" execution token argv_json env_json \
+    compile_binding
+  for file in "$intent" "$terminal" "$name_file"; do
+    [[ -f "$file" && ! -L "$file" ]] || die "original failed supply evidence is absent or unsafe: $file"
+  done
+  [[ ! -e "$stage_dir/terminal-receipt.json" && ! -L "$stage_dir/terminal-receipt.json" ]] || die "original supply has a success receipt and is not recoverable as failed"
+  execution="$(tr -d '\n' <"$name_file")"
+  [[ "$execution" =~ ^[a-z0-9][a-z0-9-]{2,127}$ ]] || die "original failed supply execution name differs"
+  token="$(jq -r '.token // empty' "$intent")"
+  [[ "$token" =~ ^[0-9a-f]{64}$ ]] || die "original failed supply stage token differs"
+  argv_json="$(jq -cS '.argv' "$intent")"
+  env_json="$(stage_env_json R6_FULL_UNION_OUTCOME_SUPPLY_ENABLED "$token")"
+  compile_binding="$(compile_binding_json supply)"
+  jq -e --arg project "$PROJECT" --arg region "$REGION" --arg run "$RUN_ID" \
+    --arg job "$JOB" --arg code "$CODE_SHA" --arg image "$IMAGE" \
+    --arg service_account "$SERVICE_ACCOUNT" --arg token "$token" \
+    --argjson expected_env "$env_json" \
+    --argjson compile_binding "$compile_binding" '
+    .schema_version == "r6-full-union-stage-launch-intent/v1"
+      and .stage == "supply" and .token == $token
+      and .project == $project and .region == $region and .run_id == $run
+      and .job == $job and .code_sha == $code and .image == $image
+      and .service_account == $service_account
+      and .gate == "R6_FULL_UNION_OUTCOME_SUPPLY_ENABLED"
+      and (.argv | type == "array" and length > 2)
+      and .argv[0] == "/opt/nfl-predictions/scripts/run_corpus_r6_full_union_outcome_supply_v1.py"
+      and .argv[1] == "supply"
+      and (.argv_sha256 | type == "string" and test("^[0-9a-f]{64}$"))
+      and .execution_env == $expected_env
+      and .query_compile_receipt == $compile_binding
+      and .automatic_retry_licensed == false
+  ' "$intent" >/dev/null || die "original failed supply launch intent differs"
+  jq -e --arg execution "$execution" --arg project "$PROJECT" \
+    --arg region "$REGION" --arg job "$JOB" --arg image "$IMAGE" \
+    --arg service_account "$SERVICE_ACCOUNT" \
+    --argjson argv "$argv_json" --argjson expected_env "$env_json" '
+    .spec.template.spec.containers as $containers
+    | ((.metadata.name == $execution)
+        or (.metadata.name == (
+          "projects/" + $project + "/locations/" + $region
+          + "/jobs/" + $job + "/executions/" + $execution
+        )))
+      and .metadata.labels["run.googleapis.com/job"] == $job
+      and .spec.taskCount == 1 and .spec.parallelism == 1
+      and .spec.template.spec.maxRetries == 0
+      and ((.spec.template.spec.timeoutSeconds | tostring) == "28800")
+      and ($containers | length) == 1
+      and $containers[0].image == $image
+      and $containers[0].command == ["python"]
+      and $containers[0].args == $argv
+      and ([($containers[0].env // [])[] | {name,value}] | sort_by(.name))
+        == $expected_env
+      and (($containers[0].volumeMounts // []) == [])
+      and ((.spec.template.spec.volumes // []) == [])
+      and ((.spec.template.spec.vpcAccess // {}) == {})
+      and .spec.template.spec.serviceAccountName == $service_account
+      and $containers[0].resources.limits == {cpu:"8",memory:"32Gi"}
+      and ([.status.conditions[]? | select(.type == "Completed")] | length) == 1
+      and ([.status.conditions[]? | select(.type == "Completed")][0].status == "False")
+      and ([.status.conditions[]? | select(.type == "Completed")][0].reason == "NonZeroExitCode")
+      and ((.status.succeededCount // 0) == 0)
+      and .status.failedCount == 1
+      and ((.status.runningCount // 0) == 0)
+      and (.status.completionTime | type == "string")
+  ' "$terminal" >/dev/null || die "original failed supply terminal envelope differs"
+}
+
+validate_original_supply_success() {
+  local stage_dir="$RUN_DIR/stages/supply"
+  local intent="$stage_dir/launch-intent.json" \
+    name_file="$stage_dir/execution-name.txt" \
+    terminal="$stage_dir/terminal-execution.json" execution token expected_token
+  local args=()
+  for file in "$intent" "$name_file" "$terminal" "$stage_dir/terminal-receipt.json"; do
+    [[ -f "$file" && ! -L "$file" ]] || die "successful supply evidence is absent or unsafe: $file"
+  done
+  mapfile -t args < <(jq -er '.argv[]' "$intent")
+  [[ "${#args[@]}" -gt 2 ]] || die "successful supply argv differs"
+  token="$(jq -r '.token // empty' "$intent")"
+  expected_token="$(stage_token supply R6_FULL_UNION_OUTCOME_SUPPLY_ENABLED "${args[@]}")"
+  [[ "$token" == "$expected_token" ]] || die "successful supply launch token differs"
+  execution="$(tr -d '\n' <"$name_file")"
+  [[ "$execution" =~ ^[a-z0-9][a-z0-9-]{2,127}$ ]] || die "successful supply execution name differs"
+  # Reopen only the already-claimed execution. wait_terminal cannot launch.
+  wait_terminal "$execution" "$terminal" "$token" \
+    R6_FULL_UNION_OUTCOME_SUPPLY_ENABLED "${args[@]}"
+  jq -e --arg execution "$execution" \
+    --arg sha "$(sha256sum "$terminal" | awk '{print $1}')" '
+    .stage == "supply" and .execution == $execution and .complete == true
+      and .terminal_execution_sha256 == $sha
+  ' "$stage_dir/terminal-receipt.json" >/dev/null || die "successful supply terminal receipt differs"
+}
+
+resolve_existing_recovery_lease() {
+  local receipt="$RUN_DIR/historical-outcome-lease.json" identity="$RUN_DIR/objects/historical-outcome-lease.json"
+  [[ -f "$receipt" && ! -L "$receipt" ]] || die "existing historical-outcome lease receipt is absent"
+  "$PYTHON" scripts/historical_outcome_lease.py resolve --run-id "$RUN_ID" \
+    --job "$JOB" --code-sha "$CODE_SHA" --image "$IMAGE" \
+    --receipt "$receipt" >/dev/null
+  jq -e --arg uri "$LEASE_URI" --arg run "$RUN_ID" --arg job "$JOB" \
+    --arg code "$CODE_SHA" --arg image "$IMAGE" '
+    .object.uri == $uri and .object.create_only == true
+      and (.object.generation | type == "string" and test("^[1-9][0-9]*$"))
+      and (.object.sha256 | type == "string" and test("^[0-9a-f]{64}$"))
+      and (.object.bytes | type == "number" and . > 0 and floor == .)
+      and .lease.run_id == $run and .lease.job == $job
+      and .lease.code_sha == $code and .lease.image == $image
+  ' "$receipt" >/dev/null || die "existing recovery lease receipt differs"
+  write_equal "$identity" "$(jq -cS '.object | {uri,generation,sha256,bytes}' "$receipt")"
+  validate_identity_receipt "$identity" "$LEASE_URI" "historical-outcome lease"
+}
+
+require_local_recovery_downstream_absence() {
+  local file
+  for file in \
+    "$RUN_DIR/objects/query-evidence.json" \
+    "$RUN_DIR/objects/realized-source.json" \
+    "$RUN_DIR/objects/outcome-snapshot.json" \
+    "$RUN_DIR/objects/supply-completion.json" \
+    "$RUN_DIR/objects/supply-recovery-worker-completion.json" \
+    "$RUN_DIR/objects/supply-recovery-receipt.json"; do
+    [[ ! -e "$file" && ! -L "$file" ]] || die "recovery downstream evidence already exists before intent: $file"
+  done
+}
+
+prepare_recovery_intent() {
+  local target="$RUN_DIR/objects/supply-recovery-intent.json" raw identity item
+  local args=("$RECOVERY_CONTROLLER" prepare --execute "--project=$PROJECT" \
+    "--region=$REGION" "--run-id=$RUN_ID" "--job=$JOB" \
+    "--original-code-sha=$CODE_SHA" "--original-image=$IMAGE" \
+    "--recovery-code-sha=$RECOVERY_CODE_SHA" "--recovery-image=$RECOVERY_IMAGE" \
+    "--service-account=$SERVICE_ACCOUNT" \
+    "--original-launch-intent=$RUN_DIR/stages/supply/launch-intent.json" \
+    "--original-terminal-execution=$RUN_DIR/stages/supply/terminal-execution.json")
+  args+=("${panel_args[@]}")
+  while IFS= read -r item; do args+=("$item"); done < <(identity_arg "$RUN_DIR/objects/outcome-key-projection.json" outcome-key-projection)
+  while IFS= read -r item; do args+=("$item"); done < <(identity_arg "$RUN_DIR/objects/actual-root-smoke-receipt.json" actual-root-smoke)
+  while IFS= read -r item; do args+=("$item"); done < <(identity_arg "$RUN_DIR/objects/query-compile-receipt.json" query-compile)
+  while IFS= read -r item; do args+=("$item"); done < <(identity_arg "$RUN_DIR/objects/historical-outcome-lease.json" expected-lease)
+  while IFS= read -r item; do args+=("$item"); done < <(identity_arg "$RUN_DIR/objects/read-attempt.json" read-attempt)
+  args+=("--snapshot-module-sha256=$SNAPSHOT_MODULE_SHA" \
+    "--snapshot-cli-sha256=$SNAPSHOT_CLI_SHA" \
+    "--snapshot-test-sha256=$SNAPSHOT_TEST_SHA" \
+    "--snapshot-cli-test-sha256=$SNAPSHOT_CLI_TEST_SHA")
+  raw="$("$PYTHON" "${args[@]}")" || die "recovery intent preparation failed"
+  identity="$(identity_from_recovery_cli_summary "$raw" \
+    R6_FULL_UNION_RECOVERY_INTENT_CLOSED "$RECOVERY_INTENT_URI" \
+    "recovery intent")"
+  write_equal "$target" "$identity"
+  validate_identity_receipt "$target" "$RECOVERY_INTENT_URI" "supply recovery intent"
+  resolve_object "$RECOVERY_INTENT_URI" "$target"
+}
+
+recovery_worker_args() {
+  local intent="$RUN_DIR/objects/supply-recovery-intent.json" item
+  RECOVERY_ARGS=("$RECOVERY_RUNTIME_CONTROLLER" recover --execute \
+    "--project=$PROJECT" "--run-id=$RUN_ID" "--job=$JOB" \
+    "--original-code-sha=$CODE_SHA" "--original-image=$IMAGE" \
+    "--recovery-code-sha=$RECOVERY_CODE_SHA" "--recovery-image=$RECOVERY_IMAGE")
+  while IFS= read -r item; do RECOVERY_ARGS+=("$item"); done < <(identity_arg "$intent" recovery-intent)
+}
+
+finalize_recovery_receipt() {
+  local intent="$RUN_DIR/objects/supply-recovery-intent.json" \
+    terminal="$RUN_DIR/stages/$RECOVERY_STAGE/terminal-execution.json" \
+    target="$RUN_DIR/objects/supply-recovery-receipt.json" raw identity token item
+  local args=("$RECOVERY_CONTROLLER" finalize --execute "--project=$PROJECT" \
+    "--region=$REGION" "--run-id=$RUN_ID" "--job=$JOB" \
+    "--original-code-sha=$CODE_SHA" "--original-image=$IMAGE" \
+    "--recovery-code-sha=$RECOVERY_CODE_SHA" "--recovery-image=$RECOVERY_IMAGE" \
+    "--service-account=$SERVICE_ACCOUNT" \
+    "--recovery-terminal-execution=$terminal")
+  [[ -f "$RUN_DIR/stages/$RECOVERY_STAGE/launch-intent.json" ]] || die "recovery launch intent is absent"
+  token="$(jq -r '.token // empty' "$RUN_DIR/stages/$RECOVERY_STAGE/launch-intent.json")"
+  [[ "$token" =~ ^[0-9a-f]{64}$ ]] || die "recovery stage token differs"
+  args+=("--recovery-stage-token=$token")
+  while IFS= read -r item; do args+=("$item"); done < <(identity_arg "$intent" recovery-intent)
+  raw="$("$PYTHON" "${args[@]}")" || die "recovery receipt finalization failed"
+  identity="$(identity_from_recovery_cli_summary "$raw" \
+    R6_FULL_UNION_RECOVERY_CLOSED "$RECOVERY_RECEIPT_URI" \
+    "recovery finalize")"
+  write_equal "$target" "$identity"
+  validate_identity_receipt "$target" "$RECOVERY_RECEIPT_URI" "supply recovery receipt"
+  resolve_object "$RECOVERY_WORKER_COMPLETION_URI" "$RUN_DIR/objects/supply-recovery-worker-completion.json"
+  resolve_object "$RECOVERY_RECEIPT_URI" "$target"
+}
+
+resolve_supply_outputs() {
+  resolve_object "$SUPPLY_PREFIX/read-attempt.json" "$RUN_DIR/objects/read-attempt.json"
+  resolve_object "$SUPPLY_PREFIX/query-evidence.json" "$RUN_DIR/objects/query-evidence.json"
+  resolve_object "$SUPPLY_PREFIX/completion.json" "$RUN_DIR/objects/supply-completion.json"
+  resolve_object "$SUPPLY_PREFIX/realized-source.json" "$RUN_DIR/objects/realized-source.json"
+  resolve_object "$SUPPLY_PREFIX/outcome-snapshot.json" "$RUN_DIR/objects/outcome-snapshot.json"
+}
+
+RECOVERY_RESTORE_ARMED=false
+restore_original_job_on_exit() {
+  local status=$?
+  trap - EXIT
+  if [[ "$RECOVERY_RESTORE_ARMED" == true ]]; then
+    if ! (preflight); then
+      printf 'ERROR: failed to restore the original immutable Cloud Run job contract\n' >&2
+      status=1
+    fi
+  fi
+  exit "$status"
+}
+
+recover_failed_supply() {
+  load_recovery_runtime
+  validate_original_supply_failure
+  ensure_compile_closed
+  ensure_smoke_closed
+  resolve_existing_recovery_lease
+  resolve_object "$SUPPLY_PREFIX/read-attempt.json" "$RUN_DIR/objects/read-attempt.json"
+  if [[ ! -e "$RUN_DIR/objects/supply-recovery-intent.json" && ! -L "$RUN_DIR/objects/supply-recovery-intent.json" ]]; then
+    require_local_recovery_downstream_absence
+    prepare_recovery_intent
+  else
+    validate_identity_receipt "$RUN_DIR/objects/supply-recovery-intent.json" \
+      "$RECOVERY_INTENT_URI" "supply recovery intent"
+    resolve_object "$RECOVERY_INTENT_URI" "$RUN_DIR/objects/supply-recovery-intent.json"
+  fi
+  recovery_worker_args
+  RECOVERY_RESTORE_ARMED=true
+  trap restore_original_job_on_exit EXIT
+  preflight_recovery
+  launch_recovery_stage "$RUN_DIR/objects/supply-recovery-intent.json" "${RECOVERY_ARGS[@]}"
+  finalize_recovery_receipt
+  resolve_supply_outputs
+  (preflight) || die "failed to restore the original immutable Cloud Run job contract"
+  RECOVERY_RESTORE_ARMED=false
+  trap - EXIT
+}
+
+ensure_supply_closed() {
+  local original_terminal="$RUN_DIR/stages/supply/terminal-execution.json" state \
+    recovery_launch="$RUN_DIR/stages/$RECOVERY_STAGE/launch-intent.json"
+  [[ -f "$original_terminal" && ! -L "$original_terminal" ]] || die "supply terminal execution is absent"
+  state="$(jq -r '[.status.conditions[]? | select(.type=="Completed") | .status] | if length==1 then .[0] else "" end' "$original_terminal")"
+  if [[ "$state" == "True" ]]; then
+    validate_original_supply_success
+    return
+  fi
+  [[ "$state" == "False" ]] || die "supply is not terminal"
+  validate_original_supply_failure
+  [[ -f "$recovery_launch" && ! -L "$recovery_launch" ]] || die "failed supply lacks a recovery launch intent"
+  RECOVERY_CODE_SHA="$(jq -r '.recovery_code_sha // empty' "$recovery_launch")"
+  RECOVERY_IMAGE="$(jq -r '.recovery_image // empty' "$recovery_launch")"
+  [[ "$RECOVERY_CODE_SHA" =~ ^[0-9a-f]{40}$ ]] || die "retained recovery code SHA differs"
+  [[ "$RECOVERY_IMAGE" =~ @sha256:[0-9a-f]{64}$ ]] || die "retained recovery image differs"
+  validate_identity_receipt "$RUN_DIR/objects/supply-recovery-intent.json" \
+    "$RECOVERY_INTENT_URI" "supply recovery intent"
+  recovery_worker_args
+  jq -e --arg original_code "$CODE_SHA" --arg original_image "$IMAGE" \
+    --arg recovery_code "$RECOVERY_CODE_SHA" --arg recovery_image "$RECOVERY_IMAGE" \
+    --argjson intent "$(jq -cS . "$RUN_DIR/objects/supply-recovery-intent.json")" \
+    --argjson argv "$(printf '%s\n' "${RECOVERY_ARGS[@]}" | jq -Rsc 'split("\n")[:-1]')" '
+    .schema_version == "r6-full-union-recovery-stage-launch-intent/v1"
+      and .original_code_sha == $original_code
+      and .original_image == $original_image
+      and .recovery_code_sha == $recovery_code
+      and .recovery_image == $recovery_image
+      and .recovery_intent == $intent and .argv == $argv
+      and .fixed_job_lookup_only == true
+      and .query_submission_licensed == false
+      and .ordinary_supply_relaunch_licensed == false
+      and .automatic_retry_licensed == false
+  ' "$recovery_launch" >/dev/null || die "retained recovery launch intent differs"
+  finalize_recovery_receipt
+  resolve_supply_outputs
+}
+
 compile_stage() {
   preflight
   launch_stage compile R6_FULL_UNION_QUERY_COMPILE_ENABLED "${compile_args[@]}"
@@ -564,8 +1153,8 @@ supply_stage() {
 
 grade_stage() {
   ensure_compile_closed
+  ensure_supply_closed
   preflight
-  [[ -f "$RUN_DIR/stages/supply/terminal-execution.json" ]] || die "supply must close first"
   local args=(/opt/nfl-predictions/scripts/run_corpus_r6_full_union_realized_grade_v1.py --execute "--project=$PROJECT" "--run-id=$RUN_ID" "--code-sha=$CODE_SHA" "--image=$IMAGE") item
   args+=("${panel_args[@]}")
   while IFS= read -r item; do args+=("$item"); done < <(identity_arg "$RUN_DIR/objects/supply-completion.json" outcome-supply-completion)
@@ -607,7 +1196,7 @@ finish() {
 
 status() {
   local stage
-  for stage in compile smoke supply grade; do
+  for stage in compile smoke supply "$RECOVERY_STAGE" grade; do
     if [[ -f "$RUN_DIR/stages/$stage/terminal-receipt.json" ]]; then
       jq -cS . "$RUN_DIR/stages/$stage/terminal-receipt.json"
     else
@@ -631,6 +1220,7 @@ case "$COMMAND" in
   compile) compile_stage ;;
   smoke) smoke ;;
   supply) supply_stage ;;
+  recover-supply) recover_failed_supply ;;
   grade) grade_stage ;;
   finish) finish ;;
   status) status ;;

@@ -305,15 +305,43 @@ def _table_metadata(client: object, table_id: str) -> dict[str, object]:
 def _query_parameters(spec: registered.QuerySpec) -> list[object]:
     from google.cloud import bigquery
 
+    def parameter_value(value: registered.QueryParameter) -> object:
+        raw = value.value
+        if value.bq_type != "TIMESTAMP":
+            return raw
+
+        def timestamp(item: object) -> datetime:
+            if isinstance(item, datetime):
+                parsed = item
+            elif type(item) is str:
+                try:
+                    parsed = datetime.fromisoformat(item)
+                except ValueError as exc:
+                    raise CoreV1OutcomeRunnerError(
+                        "Core v1 BigQuery TIMESTAMP parameter differs"
+                    ) from exc
+            else:
+                _fail("Core v1 BigQuery TIMESTAMP parameter differs")
+            if parsed.tzinfo is None:
+                _fail("Core v1 BigQuery TIMESTAMP parameter is naive")
+            return parsed.astimezone(timezone.utc)
+
+        if value.array:
+            if isinstance(raw, (str, bytes)) or not isinstance(raw, Sequence):
+                _fail("Core v1 BigQuery TIMESTAMP array differs")
+            return [timestamp(item) for item in raw]
+        return timestamp(raw)
+
     result: list[object] = []
     for value in spec.parameters:
+        retained = parameter_value(value)
         if value.array:
             result.append(bigquery.ArrayQueryParameter(
-                value.name, value.bq_type, list(value.value)  # type: ignore[arg-type]
+                value.name, value.bq_type, list(retained)  # type: ignore[arg-type]
             ))
         else:
             result.append(bigquery.ScalarQueryParameter(
-                value.name, value.bq_type, value.value
+                value.name, value.bq_type, retained
             ))
     return result
 

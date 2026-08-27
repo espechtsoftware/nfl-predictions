@@ -20,6 +20,65 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 01:07 UTC (one-hundred-sixty-first update)
+
+### Recover-only R6-v2 continuation is implemented and awaiting immutable build
+
+- On `main` from parent `78b4ffc76fc24115df6049f212b1c4407b1429ca`,
+  the bounded TIMESTAMP SDK repair now converts registered TIMESTAMP strings
+  to timezone-aware UTC `datetime` values only when building BigQuery SDK
+  parameters. The frozen `QuerySpec`, ISO text, canonical parameter payload
+  and hash remain unchanged. Full server-style `QueryJob.from_api_repr`
+  regressions cover fractional seconds, one-microsecond drift and malformed,
+  naive or wrong-type timestamps in both R6 and Core runners.
+- A new dedicated
+  `scripts/recover_corpus_r6_full_union_outcome_supply_v1.py` has separate
+  `prepare`, remote `recover` and local `finalize` boundaries. Its source has
+  no `client.query`, `query_and_wait`, `QueryJobConfig`, ordinary supply-runner
+  import or create helper. Recovery calls only `get_job` for the exact frozen
+  ID, validates terminal metadata plus exact SQL/parameters, and consumes the
+  existing result once with `job.result(job_retry=None)`. Original and repair
+  code/image identities stay distinct; intent, worker completion and recovery
+  receipt are create-only; standard output is receipt-only.
+- `scripts/cloud_r6_full_union_score_chain_v1.sh` now exposes only an explicit
+  `recover-supply` command. Normal `run` remains compile, smoke, ordinary
+  supply, grade, finish and cannot enter recovery. The controller strictly
+  replays the original failed supply envelope and live lease, resolves rather
+  than acquires the lease, uses a separate one-task/max-retries-zero repair
+  stage, forbids blind relaunch, finalizes the recovery receipt, and restores
+  the original immutable job image through success or failure. Grade now
+  requires either a genuinely successful original supply or an exact closed
+  recovery; the mere presence of the known failed terminal file is rejected.
+- Exact existing recovery input is read-attempt generation
+  `1787788728079549`, bytes `4804`, object SHA-256
+  `a5da1cb1000d1f4c4084e02598127724c77342a235e691f8ef13954fac9db2c4`,
+  body self-hash
+  `ee6438c401fc62f3821ea3509b24be23e36f2aaf47898c123626f04f65a010ce`
+  and query-contract SHA-256
+  `bac121a31c1a0e8a29ebb16432f83dd73ac97b006f6c40aacc38d0ba1a7b066c`.
+  The fixed BigQuery job remains `DONE`, error-null, uncached and exact; it
+  processed `8689314` bytes. These checks were metadata/outcome-blind. No
+  result row was opened, no new query was submitted and the original lease
+  generation `1787782649649091` remains live.
+- Dedicated build/image coverage and the reviewed amendment are in
+  `Dockerfile.r6-post-freeze`, `cloudbuild.r6-post-freeze.yaml`,
+  `tests/test_r6_post_freeze_build_contract.py` and
+  `reports/2026-08-26-r6-full-union-fixed-job-recovery-amendment.md`.
+  Serial focused validation passes **128/128**; the recovery CLI is **11/11**,
+  shell/controller **37/37**, timestamp pair **23/23**; Ruff, Python compile,
+  shell parse and `git diff --check` pass. Independent review found no P0/P1.
+  Its sole P2 restart observation was closed: recovery now scans and claims an
+  exact existing Cloud Run execution before every possible first launch even
+  if a different machine recreated the local recovery-stage directory.
+- Exact next action: close independent review, commit only the bounded files
+  plus this HANDOFF and push; submit `cloudbuild.r6-post-freeze.yaml` against
+  that exact commit; record the build and immutable repair digest; invoke the
+  single explicit `recover-supply` command for the retained v2 run. On
+  terminal success, run only `grade`, then `finish`, and invoke the exact
+  grade-completion score reporter for all eight frozen strategies including
+  T230. Do not run ordinary `supply`, `run`, acquire/replace the lease, or open
+  outcome rows manually.
+
 ## Current handoff — 2026-08-27 00:33 UTC (one-hundred-sixtieth update)
 
 ### R6-v2 supply failure is classified; exact-job recovery remains the next scoring action
