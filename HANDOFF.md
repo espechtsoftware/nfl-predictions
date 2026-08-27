@@ -20,6 +20,68 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 00:33 UTC (one-hundred-sixtieth update)
+
+### R6-v2 supply failure is classified; exact-job recovery remains the next scoring action
+
+- The sole lease-bound supply execution
+  `atlas-minimal-c-s2023-w1-v1-cc8xf` is terminal-failed, not live:
+  `Completed=False`, one failed task, zero succeeded tasks, exit code 1 and
+  `maxRetries=0`. Its retained terminal execution-envelope SHA-256 is
+  `d05efa4a4f5881f35f78809d562a719c0bde4be3449de69d34f30bfd8b9727c1`.
+  The create-once read attempt exists at generation `1787788728079549`, but
+  query evidence, source/snapshot/completion and grade artifacts are absent.
+- Metadata-only inspection proves the fixed BigQuery job is `DONE` without an
+  error, cache use or configuration drift; it processed `8689314` bytes. The
+  container failed before `job.result()` because BigQuery round-tripped the
+  first TIMESTAMP parameter from ISO `T` notation to a space-separated SDK
+  representation and the runner compared the two raw API representations.
+  No result row was requested or iterated by the failed container. Do not
+  relaunch `supply`, run `grade`/`finish`, open outcome rows manually, abandon
+  the consumed look or release the live lease.
+- The bounded defect-class repair is present but uncommitted in
+  `scripts/run_corpus_r6_full_union_outcome_supply_v1.py`, its Core sibling and
+  focused tests. It converts TIMESTAMP strings to timezone-aware UTC datetimes
+  at the BigQuery execution boundary while preserving the frozen query-spec
+  hash. The two focused modules pass **17/17**, `git diff --check` is clean and
+  metadata-only validation of the exact fixed job passes after the repair.
+  Exact next scoring action: implement/review a recover-only controller that
+  binds the failed execution/read attempt/fixed job and original plus recovery
+  runtimes, can only `get_job` (never submit a second query), then build one
+  immutable repair image, recover the successful fixed job once, grade all
+  eight strategies including T230, and release the lease through strict
+  success completion.
+
+### Observatory Phase 5 branch still ends at rejected `f2d049b0`
+
+- A fresh fetch of `feature/neo4j-react-observatory` confirms its local and
+  remote tip is still
+  `f2d049b030a43f7b8f627340c8cf19f1e9b5d647`; there is no later commit or
+  uncommitted branch-worktree change to review. The focused capacity suite is
+  green **77/77**, but independent fresh-process reproductions confirm the
+  commit remains **REJECT pending one bounded correction**: P0=0, P1=2.
+- P1: the pinned `SEMANTIC_CONTRACT` is not the sole use-time authority.
+  Rebinding cached `REQUIRED_IDENTITIES`/`REQUIRED_HASHES`, then removing the
+  corresponding packet fields, emits and replays a valid receipt whose
+  unchanged embedded contract still declares those fields required. Cached
+  modes/closed vocabulary and the out-of-contract exclusion list can likewise
+  make receipt metadata contradict the embedded contract.
+- P1: the frozen contract is not cross-bound to the live graph contract.
+  Adding `UNBOUND_NEW_EDGE` to live relationship vocabulary leaves an old
+  receipt replay-valid while omitting that edge; changing live graph schema to
+  v2 emits and replays a receipt whose inputs say v2 while its embedded
+  semantic contract says v1. Require exact live equality for graph version,
+  complete open+closed node/relationship vocabularies and namespace/property
+  semantics at every build and validation.
+- P2 corrections in the same bounded edit: `inputs_assertion_digest()` must
+  canonicalize release-manifest ordering consistently with validation; the
+  fixture scale helper must either scale book memberships coherently or reject
+  unsupported scales; GCS validation must accept legal long dotted bucket
+  names while rejecting reserved close misspellings such as `g00gle`. Add
+  adversarial build-and-replay regressions for all substitutions. Do not merge,
+  provision, connect, deploy, mount routes, choose a graph mode or let this
+  isolated work block R6/T230 scoring.
+
 ## Current handoff — 2026-08-26 22:30 UTC (one-hundred-fifty-ninth update)
 
 ### Observatory Phase 5 third correction remains isolated and is rejected pending one bounded integrity repair
