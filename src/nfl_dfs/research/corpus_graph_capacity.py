@@ -289,6 +289,31 @@ def graph_binding_now() -> dict[str, object]:
         "closed_relationship_types": closed_relationships,
         "open_node_kinds": sorted(graph.NODE_KINDS - set(closed_kinds)),
         "open_relationship_types": sorted(graph.RELATIONSHIP_TYPES - set(closed_relationships)),
+        # Explicit closure sets the row validators consult directly.
+        "outcome_node_kinds": sorted(graph.OUTCOME_NODE_KINDS),
+        "outcome_relationship_types": sorted(graph.OUTCOME_RELATIONSHIP_TYPES),
+        "offline_metric_scopes": sorted(graph.OFFLINE_METRIC_SCOPES),
+        "load_manifest_schema": graph.LOAD_MANIFEST_SCHEMA,
+        # The versioned production loader contract and every global bound.
+        "loader_limits": {
+            "batch_size": graph.BATCH_SIZE,
+            "max_node_rows": graph.MAX_NODE_ROWS,
+            "max_edge_rows": graph.MAX_EDGE_ROWS,
+            "max_total_batches": graph.MAX_TOTAL_BATCHES,
+            "max_source_releases": graph.MAX_SOURCE_RELEASES,
+            "max_source_identity_bytes": graph.MAX_SOURCE_IDENTITY_BYTES,
+            "max_source_uri_bytes": graph.MAX_SOURCE_URI_BYTES,
+            "max_source_object_bytes": graph.MAX_SOURCE_OBJECT_BYTES,
+        },
+        "property_limits": {
+            "max_properties": graph.MAX_PROPERTIES,
+            "max_property_key_bytes": graph.MAX_PROPERTY_KEY_BYTES,
+            "max_property_string_bytes": graph.MAX_PROPERTY_STRING_BYTES,
+            "max_property_list_length": graph.MAX_PROPERTY_LIST_LENGTH,
+            "max_property_list_item_bytes": graph.MAX_PROPERTY_LIST_ITEM_BYTES,
+            "max_property_list_bytes": graph.MAX_PROPERTY_LIST_BYTES,
+            "max_property_bytes": graph.MAX_PROPERTY_BYTES,
+        },
         "node_namespace_schema": {
             kind: sorted(namespaces)
             for kind, namespaces in sorted(graph.NODE_NAMESPACE_SCHEMA.items())
@@ -432,9 +457,10 @@ _SEMANTIC_CONTRACT_CONTENT: Final[dict[str, object]] = {
 }
 SEMANTIC_CONTRACT: Final[Mapping[str, object]] = _freeze(_SEMANTIC_CONTRACT_CONTENT)  # type: ignore[assignment]
 # Literal v1 digest of the semantic contract (including its live graph
-# binding), pinned. A changed registry or graph contract is a NEW contract
-# version with a new pinned digest.
-SEMANTIC_CONTRACT_SHA256: Final = "18a0ddb1cb97fa674ed3cd7ce8a2491d16e373d9e49ef172a39b266916183bee"
+# binding with explicit closure sets and loader/property limits), pinned. A
+# changed registry or graph contract is a NEW contract version with a new
+# pinned digest.
+SEMANTIC_CONTRACT_SHA256: Final = "c9f8e7ce1d83e4ba85ae58c2dc80af1046594654ce5c5272b2ac753c5d458674"
 
 
 def contract_digest_now() -> str:
@@ -452,8 +478,19 @@ def require_frozen_contract() -> Mapping[str, object]:
     if _plain(SEMANTIC_CONTRACT["graph_binding"]) != graph_binding_now():
         _fail(
             "live graph contract differs from the semantic contract's graph "
-            "binding (version, vocabulary, namespace, or property semantics)"
+            "binding (version, vocabulary, closure sets, namespace, property "
+            "semantics, or loader/property limits)"
         )
+    binding = SEMANTIC_CONTRACT["graph_binding"]
+    if set(binding["outcome_node_kinds"]) != set(binding["closed_node_kinds"]) or set(  # type: ignore[index]
+        binding["outcome_relationship_types"]  # type: ignore[index]
+    ) != set(binding["closed_relationship_types"]):  # type: ignore[index]
+        _fail(
+            "explicit outcome closure sets differ from the namespace-derived "
+            "closed vocabulary"
+        )
+    if int(binding["loader_limits"]["batch_size"]) != int(ESTIMATION_LAW["batch_size"]):  # type: ignore[index]
+        _fail("estimation law batch size differs from the loader contract")
     return SEMANTIC_CONTRACT
 
 
@@ -798,6 +835,11 @@ def _coherence(counts: Mapping[str, int]) -> None:
         "selected books exist without any strategy bundle",
     )
     require(counts["mean_string_property_bytes"] > 0, "mean_string_property_bytes must be positive")
+    string_limit = int(require_frozen_contract()["graph_binding"]["property_limits"]["max_property_string_bytes"])  # type: ignore[index]
+    require(
+        counts["mean_string_property_bytes"] <= string_limit,
+        f"mean_string_property_bytes exceeds the property string limit {string_limit}",
+    )
 
 
 def inputs_assertion_digest(packet: Mapping[str, object]) -> str:
@@ -1113,8 +1155,10 @@ def estimate_mode(counts: Mapping[str, int], parameters: Mapping[str, int], mode
         raw_bytes * int(law["index_and_overhead_factor_permille"]), 1_000
     )
     element_count = node_count + relationship_count
-    batch_count = _ceil_div(node_count, int(law["batch_size"])) + _ceil_div(
-        relationship_count, int(law["batch_size"])
+    limits = require_frozen_contract()["graph_binding"]["loader_limits"]  # type: ignore[index]
+    batch_size = int(limits["batch_size"])  # type: ignore[index]
+    batch_count = _ceil_div(node_count, batch_size) + _ceil_div(
+        relationship_count, batch_size
     )
     estimated_load_seconds = _ceil_div(batch_count * int(law["batch_deadline_ms"]), 1_000)
     estimated_index_seconds = _ceil_div(
@@ -1129,6 +1173,18 @@ def estimate_mode(counts: Mapping[str, int], parameters: Mapping[str, int], mode
         parameters["provisioned_page_cache_bytes"] * int(law["page_cache_fraction_permille"]), 1_000
     )
     violations: list[str] = []
+    if node_count > int(limits["max_node_rows"]):  # type: ignore[index]
+        violations.append(
+            f"node_count exceeds the loader contract max_node_rows ({limits['max_node_rows']})"  # type: ignore[index]
+        )
+    if relationship_count > int(limits["max_edge_rows"]):  # type: ignore[index]
+        violations.append(
+            f"relationship_count exceeds the loader contract max_edge_rows ({limits['max_edge_rows']})"  # type: ignore[index]
+        )
+    if batch_count > int(limits["max_total_batches"]):  # type: ignore[index]
+        violations.append(
+            f"batch_count exceeds the loader contract max_total_batches ({limits['max_total_batches']})"  # type: ignore[index]
+        )
     if estimated_store_bytes > disk_ceiling:
         violations.append("estimated_store_bytes exceeds the disk safety ceiling")
     if estimated_store_bytes > page_cache_ceiling:
@@ -1163,6 +1219,10 @@ def estimate_mode(counts: Mapping[str, int], parameters: Mapping[str, int], mode
         "estimated_index_seconds": estimated_index_seconds,
         "estimated_rebuild_seconds": estimated_rebuild_seconds,
         "ceilings": {
+            "loader_max_node_rows": int(limits["max_node_rows"]),  # type: ignore[index]
+            "loader_max_edge_rows": int(limits["max_edge_rows"]),  # type: ignore[index]
+            "loader_max_total_batches": int(limits["max_total_batches"]),  # type: ignore[index]
+            "loader_batch_size": batch_size,
             "disk_ceiling_bytes": disk_ceiling,
             "page_cache_ceiling_bytes": page_cache_ceiling,
             "heap_floor_bytes": int(law["heap_floor_bytes"]),

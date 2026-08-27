@@ -14,7 +14,7 @@ from nfl_dfs.research import corpus_graph_vnext_fixture_adapter as adapter
 
 CREATED = "2026-08-26T00:05:00Z"
 FROZEN_LAW_DIGEST = "5d20920d5c5e4a779230a966f29322c46e21a05a5c442422f0f9ad3884dc5fdc"
-FROZEN_CONTRACT_DIGEST = "18a0ddb1cb97fa674ed3cd7ce8a2491d16e373d9e49ef172a39b266916183bee"
+FROZEN_CONTRACT_DIGEST = "c9f8e7ce1d83e4ba85ae58c2dc80af1046594654ce5c5272b2ac753c5d458674"
 
 
 def _altered_contract(**changes) -> MappingProxyType:
@@ -36,6 +36,28 @@ def _altered_contract(**changes) -> MappingProxyType:
 
 def _inputs(**overrides: object) -> dict[str, object]:
     packet = capacity.fixture_capacity_inputs()
+    for key, value in overrides.items():
+        section, _, name = key.partition(".")
+        if name:
+            packet[section][name] = value  # type: ignore[index]
+        else:
+            packet[key] = value
+    return packet
+
+
+def _small_inputs(**overrides: object) -> dict[str, object]:
+    """Fixture shrunk so BOTH modes fit the v1 loader contract."""
+
+    packet = _inputs(**{
+        "counts.unique_lineup_count": 6_000,
+        "counts.lineup_occurrence_count": 12_000,
+        "counts.lineup_arm_supply_count": 12_000,
+        "counts.trait_membership_count": 18_000,
+        "counts.cohort_membership_count": 6_000,
+        "counts.player_slate_count": 2_000,
+        "counts.plays_for_edge_count": 2_000,
+        "counts.inferred_defender_exposure_edge_count": 500,
+    })
     for key, value in overrides.items():
         section, _, name = key.partition(".")
         if name:
@@ -297,6 +319,126 @@ def test_live_property_rule_drift_is_detected(monkeypatch: pytest.MonkeyPatch) -
     loosened = graph.PropertyRule(rule.value_type, max_string_bytes=rule.max_string_bytes + 1,
                                   max_list_items=rule.max_list_items, allowed_strings=rule.allowed_strings)
     monkeypatch.setitem(graph.NODE_PROPERTY_SCHEMA, "Lineup", {**original, prop: loosened})
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="live graph contract differs"):
+        capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="live graph contract differs"):
+        capacity.validate_capacity_receipt(genuine)
+
+
+# ------------------------------------------------ loader contract ceilings ---
+
+def test_full_mode_is_infeasible_when_it_breaches_the_loader_contract() -> None:
+    receipt = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    full = receipt["estimates"]["full-lineup"]
+    assert full["feasible"] is False
+    assert full["batch_count"] > graph.MAX_TOTAL_BATCHES
+    assert full["relationship_count"] > graph.MAX_EDGE_ROWS
+    assert any(f"max_total_batches ({graph.MAX_TOTAL_BATCHES})" in item for item in full["violations"])
+    assert any(f"max_edge_rows ({graph.MAX_EDGE_ROWS})" in item for item in full["violations"])
+    assert full["ceilings"]["loader_max_total_batches"] == graph.MAX_TOTAL_BATCHES
+    assert full["ceilings"]["loader_batch_size"] == graph.BATCH_SIZE
+    summary = receipt["estimates"]["summary-only"]
+    assert summary["feasible"] is True
+    assert summary["batch_count"] <= graph.MAX_TOTAL_BATCHES
+    assert summary["relationship_count"] <= graph.MAX_EDGE_ROWS
+    assert summary["node_count"] <= graph.MAX_NODE_ROWS
+    assert receipt["forced_mode"] == "summary-only"
+
+
+def test_full_mode_is_feasible_when_it_fits_the_loader_contract() -> None:
+    receipt = capacity.build_capacity_receipt(_small_inputs(), created_at_utc=CREATED)
+    full = receipt["estimates"]["full-lineup"]
+    assert full["feasible"] is True, full["violations"]
+    assert full["batch_count"] <= graph.MAX_TOTAL_BATCHES
+    assert receipt["forced_mode"] is None
+    lead = _lead_inputs(assert_digest=False)
+    for key, value in _small_inputs()["counts"].items():  # type: ignore[union-attr]
+        lead["counts"][key] = value  # type: ignore[index]
+    lead["inputs_assertion_sha256"] = capacity.inputs_assertion_digest(lead)
+    assert capacity.build_capacity_receipt(lead, created_at_utc=CREATED)["decision"]["recommended_mode"] == "full-lineup"
+
+
+def test_node_row_ceiling_is_enforced() -> None:
+    packet = _small_inputs(**{"counts.player_slate_count": graph.MAX_NODE_ROWS + 1,
+                              "counts.plays_for_edge_count": 1})
+    violations = capacity.build_capacity_receipt(packet, created_at_utc=CREATED)["estimates"]["summary-only"]["violations"]
+    assert any(f"max_node_rows ({graph.MAX_NODE_ROWS})" in item for item in violations)
+
+
+def test_mean_string_bytes_is_bounded_by_the_property_limit() -> None:
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="property string limit"):
+        capacity.validate_capacity_inputs(_inputs(**{"counts.mean_string_property_bytes": graph.MAX_PROPERTY_STRING_BYTES + 1}))
+    capacity.validate_capacity_inputs(_inputs(**{"counts.mean_string_property_bytes": graph.MAX_PROPERTY_STRING_BYTES}))
+
+
+def test_binding_embeds_closure_sets_and_every_global_limit() -> None:
+    binding = capacity.graph_binding_now()
+    assert set(binding["outcome_node_kinds"]) == graph.OUTCOME_NODE_KINDS
+    assert set(binding["outcome_relationship_types"]) == graph.OUTCOME_RELATIONSHIP_TYPES
+    assert set(binding["outcome_node_kinds"]) == set(binding["closed_node_kinds"])
+    assert binding["loader_limits"] == {
+        "batch_size": graph.BATCH_SIZE, "max_node_rows": graph.MAX_NODE_ROWS,
+        "max_edge_rows": graph.MAX_EDGE_ROWS, "max_total_batches": graph.MAX_TOTAL_BATCHES,
+        "max_source_releases": graph.MAX_SOURCE_RELEASES,
+        "max_source_identity_bytes": graph.MAX_SOURCE_IDENTITY_BYTES,
+        "max_source_uri_bytes": graph.MAX_SOURCE_URI_BYTES,
+        "max_source_object_bytes": graph.MAX_SOURCE_OBJECT_BYTES,
+    }
+    assert binding["property_limits"] == {
+        "max_properties": graph.MAX_PROPERTIES,
+        "max_property_key_bytes": graph.MAX_PROPERTY_KEY_BYTES,
+        "max_property_string_bytes": graph.MAX_PROPERTY_STRING_BYTES,
+        "max_property_list_length": graph.MAX_PROPERTY_LIST_LENGTH,
+        "max_property_list_item_bytes": graph.MAX_PROPERTY_LIST_ITEM_BYTES,
+        "max_property_list_bytes": graph.MAX_PROPERTY_LIST_BYTES,
+        "max_property_bytes": graph.MAX_PROPERTY_BYTES,
+    }
+    assert binding["load_manifest_schema"] == graph.LOAD_MANIFEST_SCHEMA
+    assert set(binding["offline_metric_scopes"]) == graph.OFFLINE_METRIC_SCOPES
+    receipt = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    assert receipt["semantic_contract"]["graph_binding"]["loader_limits"]["max_total_batches"] == graph.MAX_TOTAL_BATCHES
+
+
+@pytest.mark.parametrize(
+    "attribute, mutate",
+    [
+        ("OUTCOME_NODE_KINDS", lambda value: value - {"WinnerRelease"}),
+        ("OUTCOME_NODE_KINDS", lambda value: value | {"Lineup"}),
+        ("OUTCOME_RELATIONSHIP_TYPES", lambda value: value | {"CONTAINS_PLAYER"}),
+        ("OUTCOME_RELATIONSHIP_TYPES", lambda value: value - {"GRADED_IN_CONTEST"}),
+        ("MAX_TOTAL_BATCHES", lambda value: value * 10),
+        ("MAX_EDGE_ROWS", lambda value: value * 10),
+        ("MAX_NODE_ROWS", lambda value: value + 1),
+        ("BATCH_SIZE", lambda value: value + 1),
+        ("MAX_PROPERTY_STRING_BYTES", lambda value: value * 2),
+        ("MAX_PROPERTIES", lambda value: value + 1),
+        ("MAX_SOURCE_RELEASES", lambda value: value + 1),
+        ("OFFLINE_METRIC_SCOPES", lambda value: value | {"realized"}),
+        ("LOAD_MANIFEST_SCHEMA", lambda value: value + "-x"),
+    ],
+)
+def test_live_closure_set_or_limit_drift_cannot_emit_or_replay(monkeypatch: pytest.MonkeyPatch, attribute: str, mutate) -> None:
+    genuine = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    monkeypatch.setattr(graph, attribute, mutate(getattr(graph, attribute)))
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="live graph contract differs"):
+        capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="live graph contract differs"):
+        capacity.validate_capacity_receipt(genuine)
+    monkeypatch.undo()
+    assert capacity.validate_capacity_receipt(genuine)["receipt_sha256"] == genuine["receipt_sha256"]
+
+
+def test_reproduced_review_attack_lineup_marked_outcome_kind(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The review's exact attack: adding Lineup to the live OUTCOME_NODE_KINDS
+    made the row validator reject modeled Lineup nodes while the old binding
+    stayed byte-identical. Now the binding differs and both paths fail."""
+
+    genuine = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    before = capacity.graph_binding_now()
+    monkeypatch.setattr(graph, "OUTCOME_NODE_KINDS", graph.OUTCOME_NODE_KINDS | {"Lineup"})
+    assert capacity.graph_binding_now() != before
+    with pytest.raises(graph.CorpusGraphVNextError):
+        graph.validate_node_row({"kind": "Lineup", "node_id": "lineup:x", "namespace": "identity", "properties": {}})
     with pytest.raises(capacity.CorpusGraphCapacityError, match="live graph contract differs"):
         capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
     with pytest.raises(capacity.CorpusGraphCapacityError, match="live graph contract differs"):
@@ -570,7 +712,7 @@ def test_assertion_digest_binds_content_but_never_approves() -> None:
     assert unasserted["decision"]["state"] == "pending-lead-inputs"
     asserted = capacity.build_capacity_receipt(_lead_inputs(), created_at_utc=CREATED)
     assert asserted["decision"]["state"] == "estimated-pending-approval"
-    assert asserted["decision"]["recommended_mode"] == "full-lineup"
+    assert asserted["decision"]["recommended_mode"] == "summary-only"  # forced by the v1 loader contract
     assert asserted["decision"]["approval"]["status"] == "not-authenticated"
     assert asserted["decision"]["approval"]["receipt_identity"] is None
     assert asserted["decision"]["requires_lead_approval"] is True
@@ -679,9 +821,13 @@ def test_summary_mode_is_smaller_and_never_labeled_full() -> None:
 
 
 def test_forcing_to_summary_and_none_feasible() -> None:
-    packet = _inputs(**{"parameters.provisioned_disk_bytes": 200 * 1024**2})
+    # 100 MiB disk -> 50 MiB ceiling: between the small fixture's summary-only
+    # (~43 MiB) and full-lineup (~54 MiB) store estimates.
+    packet = _small_inputs(**{"parameters.provisioned_disk_bytes": 100 * 1024**2})
     receipt = capacity.build_capacity_receipt(packet, created_at_utc=CREATED)
     assert receipt["estimates"]["full-lineup"]["feasible"] is False
+    assert any("disk safety ceiling" in item for item in receipt["estimates"]["full-lineup"]["violations"])
+    assert receipt["estimates"]["summary-only"]["feasible"] is True
     assert receipt["forced_mode"] == "summary-only"
     lead = _lead_inputs(assert_digest=False)
     lead["parameters"]["provisioned_disk_bytes"] = 200 * 1024**2  # type: ignore[index]
@@ -732,7 +878,12 @@ def test_receipt_replays_and_rejects_tamper_and_forge() -> None:
     receipt = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
     assert capacity.validate_capacity_receipt(receipt)["receipt_sha256"] == receipt["receipt_sha256"]
     tampered = copy.deepcopy(receipt)
-    tampered["estimates"]["full-lineup"]["feasible"] = False
+    assert tampered["estimates"]["summary-only"]["feasible"] is True
+    tampered["estimates"]["summary-only"]["feasible"] = False
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="receipt_sha256 differs"):
+        capacity.validate_capacity_receipt(tampered)
+    tampered = copy.deepcopy(receipt)
+    tampered["estimates"]["full-lineup"]["violations"] = []
     with pytest.raises(capacity.CorpusGraphCapacityError, match="receipt_sha256 differs"):
         capacity.validate_capacity_receipt(tampered)
     forged = copy.deepcopy(receipt)

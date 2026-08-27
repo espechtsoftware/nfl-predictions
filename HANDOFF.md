@@ -46,6 +46,35 @@ agent or developer:
 
 ## Neo4j/React observatory workstream — 2026-08-25 (delegated lane; branch-local entry, lead reconciles at integration)
 
+- **Phase 5 fifth correction (2026-08-27)** answering the lead's re-review
+  REJECT of `36c503d8` (P0=0, P1=2, P2=1); evidence in the regenerated
+  `reports/2026-08-26-observatory-phase5-capacity-estimator.md`. P1
+  (closure sets): `graph_binding_now()` now embeds the contracts module's
+  explicit `OUTCOME_NODE_KINDS`/`OUTCOME_RELATIONSHIP_TYPES` (the sets the
+  row validators consult) and `require_frozen_contract()` requires them
+  to agree with the namespace-derived closed vocabulary; the review's
+  reproduced attack (adding `Lineup` to live `OUTCOME_NODE_KINDS`) now
+  changes the binding and fails every build and replay, with additions/
+  removals on both sets regression-tested. P1 (loader contract): the
+  versioned production loader limits (`BATCH_SIZE` 500, `MAX_NODE_ROWS`
+  100,000, `MAX_EDGE_ROWS` 200,000, `MAX_TOTAL_BATCHES` 600 — the same
+  limits the Phase 4 adapter enforces) are bound and enforced in every
+  estimate as named violations; under that contract the synthetic
+  fixture's full-lineup mode is honestly INFEASIBLE (1,101,856
+  relationships; 2,354 batches) and summary-only is forced, while a
+  shrunk packet that fits is feasible in full mode (tested). P2: every
+  remaining global limit (`MAX_SOURCE_*`, all `MAX_PROPERTY_*`,
+  `MAX_PROPERTIES`, `LOAD_MANIFEST_SCHEMA`, `OFFLINE_METRIC_SCOPES`) is
+  embedded; drift in any fails build and replay (parametrized), and
+  `mean_string_property_bytes` is bounded by `MAX_PROPERTY_STRING_BYTES`.
+  New pinned contract digest
+  `c9f8e7ce1d83e4ba85ae58c2dc80af1046594654ce5c5272b2ac753c5d458674`.
+  Serial validation: capacity **109/109**; graph contracts and
+  Phase 4 fixture adapter regressions rerun serially
+  — graph contracts **40/40**, Phase 4 fixture adapter **33/33**; `git diff --check` clean. Still no mode decision;
+  no merge/rebase/mount/cutover/cloud/Neo4j/infra/deploy; active
+  R6/T230/Core paths untouched. STOPPED for lead re-review.
+
 - **Phase 5 fourth correction (2026-08-27)** answering the lead's re-review
   REJECT of `f2d049b0` (P0=0, P1=2); evidence in the regenerated
   `reports/2026-08-26-observatory-phase5-capacity-estimator.md`. P1

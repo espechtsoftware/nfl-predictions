@@ -1,79 +1,70 @@
-# Observatory workstream — Phase 5 capacity estimator and receipt contract (fourth correction)
+# Observatory workstream — Phase 5 capacity estimator and receipt contract (fifth correction)
 
 **Workstream:** Neo4j/React observatory (delegated lane)
 **Date:** 2026-08-27
 **Branch:** `feature/neo4j-react-observatory` (parent `3f656dfd`, accepted Phase 4)
-**Supersedes:** `283bd3de`, `66e4575a`, `a4dc08b1`, `f2d049b0` (each rejected
-pending the next bounded correction).
+**Supersedes:** `283bd3de`, `66e4575a`, `a4dc08b1`, `f2d049b0`, `36c503d8`
+(each rejected pending the next bounded correction).
 **Scope executed:** Phase 5 corrective implementation ONLY — no mode
 decision, no merge/rebase, no router mount, no React cutover, no
 cloud/outcome access, no Neo4j connection/provisioning, no infrastructure
 or deployment change, no active R6/T230/Core path touched.
 
-## Fourth-correction repair
+## Fifth-correction repair
 
-### P1 — the semantic contract is the sole use-time authority
+### P1 — explicit outcome closure sets are bound and exact-live checked
 
-The re-review showed cached module registries (`REQUIRED_IDENTITIES`,
-`REQUIRED_HASHES`, `MODES`, closed vocabulary, the out-of-contract
-exclusion list) could be rebound to relax validation or contradict the
-embedded contract. Now every use-time read goes through
-`require_frozen_contract()`: `_normalize_packet()` derives every required
-count, identity, release-manifest, version, hash and parameter name from
-the contract; the receipt's modes, closed vocabulary and exclusion list
-are taken from the contract (the exclusion list moved INTO the contract);
-`required_inputs_manifest()` is generated from the contract. The
-`REQUIRED_*` tuples and other module-level names remain as read-only
-views only. Regressions rebind those cached names and prove validation
-still rejects stripped identities/hashes/counts, and that receipts and
-the manifest are byte-identical to the genuine ones.
+`graph_binding_now()` now embeds the contracts module's explicit
+`OUTCOME_NODE_KINDS` and `OUTCOME_RELATIONSHIP_TYPES` — the sets the row
+validators consult directly — alongside the namespace-derived closed
+vocabulary, and `require_frozen_contract()` additionally requires the two
+to agree. The review's reproduced attack (adding `Lineup` to the live
+`OUTCOME_NODE_KINDS`, which made the row validator reject modeled `Lineup`
+nodes while the old binding stayed byte-identical) now changes the
+binding, fails every build, and fails replay of every earlier receipt;
+removals and additions on both sets are regression-tested.
 
-### P1 — cross-binding to the live graph contract
+### P1 — the production loader contract is bound and enforced
 
-`graph_binding_now()` recomputes, from the live `corpus_graph_vnext_contracts`
-module at every call: graph schema version (`corpus-graph-vnext/v1`),
-complete-property-rule version (`corpus-graph-vnext/v1+properties-547567d158f06448`),
-allowed/offline/closed namespaces, the complete node and relationship
-vocabularies (33 kinds / 25 types), the
-closed/open splits, forbidden and qualified-inferred relationship laws, and
-both namespace schemas. The contract embeds this binding, so the pinned
-digest `18a0ddb1cb97fa674ed3cd7ce8a2491d16e373d9e49ef172a39b266916183bee` covers it, and
-`require_frozen_contract()` additionally requires exact equality between
-the embedded binding and the live module at every build and validation.
-Regressions reproduce the review's attacks — adding `UNBOUND_NEW_EDGE` to
-the live relationship vocabulary, changing the live graph schema to v2 —
-and prove neither can emit a receipt nor replay an existing one; further
-cases cover node-kind additions, namespace-schema edits, opening the
-realized namespace, dropping the forbidden/qualified laws, and a
-property-rule size change.
+The versioned loader contract (`BATCH_SIZE=500`,
+`MAX_NODE_ROWS=100,000`, `MAX_EDGE_ROWS=200,000`,
+`MAX_TOTAL_BATCHES=600` — the same limits the Phase 4
+adapter enforces) is embedded in the binding and enforced in every
+estimate: node rows, relationship rows, and total streamed batches beyond
+the contract are named violations, and the batch size used for the
+estimate is the contract's (asserted equal to the frozen law's). Under this
+contract the synthetic fixture's full-lineup mode is honestly
+**infeasible** (1,101,856 relationships > 200,000;
+2,354 batches > 600) and summary-only is
+forced; a shrunk packet that fits the contract is feasible in full mode
+(tested). Claiming full-lineup load feasibility at the previous scale
+would require versioning and validating a different loader contract.
 
-### P2s
+### P2 — every remaining global limit is bound
 
-- `inputs_assertion_digest()` now hashes the packet exactly as validation
-  normalizes it (release manifests sorted by release id, canonical key
-  order), so manifest entry order never changes the digest and validation
-  agrees (tested with a two-entry manifest in both orders).
-- `fixture_capacity_inputs(scale)` scales only corpus counts; the
-  selected/book lattice is fixed (54×12×3) so every supported scale
-  validates coherently; scales outside `[1, 1000]` and
-  booleans are rejected.
-- `_valid_gcs_bucket()` accepts legal dotted names up to 222 chars with
-  each component ≤ 63, rejects `goog` prefixes and `google` including
-  digit-for-letter misspellings such as `g00gle`/`g0ogle`/`go0g1e`,
-  IP-literal names, adjacent separators, and out-of-range lengths.
+The binding also embeds `MAX_SOURCE_RELEASES`, `MAX_SOURCE_IDENTITY_BYTES`,
+`MAX_SOURCE_URI_BYTES`, `MAX_SOURCE_OBJECT_BYTES`, `MAX_PROPERTIES`,
+`MAX_PROPERTY_KEY_BYTES`, `MAX_PROPERTY_STRING_BYTES`,
+`MAX_PROPERTY_LIST_LENGTH`, `MAX_PROPERTY_LIST_ITEM_BYTES`,
+`MAX_PROPERTY_LIST_BYTES`, `MAX_PROPERTY_BYTES`, `LOAD_MANIFEST_SCHEMA`
+and `OFFLINE_METRIC_SCOPES`; drift in any of them fails build and replay
+(parametrized regressions), and `mean_string_property_bytes` is bounded
+by `MAX_PROPERTY_STRING_BYTES`. New pinned contract digest:
+`c9f8e7ce1d83e4ba85ae58c2dc80af1046594654ce5c5272b2ac753c5d458674`.
 
 ## Retained from earlier corrections
 
-Deep-frozen `SEMANTIC_CONTRACT` with pinned live-rederived digest embedded
-and re-hashed in every receipt; runtime-immutable estimation law
+Contract as sole use-time authority; live graph cross-binding (version,
+complete vocabularies, namespace schemas, complete-property-rule version
+`corpus-graph-vnext/v1+properties-547567d158f06448`); deep-frozen contract embedded and
+re-hashed in every receipt; runtime-immutable estimation law
 `5d20920d5c5e4a77…`; count-matched release manifests; endpoint
-coherence per mode; honest authority labeling (`pending-lead-inputs` /
-`estimated-pending-approval`, `approval.status = not-authenticated`);
-R6 full-union identity + panel self-hash; closed realized vocabulary
-(OutcomeGrade, OutcomeRelease, WinnerObservation, WinnerRelease; DERIVED_FROM_OUTCOME, GRADED_IN_CONTEST, OBSERVED_IN_WINNER_RELEASE);
-Phase 4 bundle/book cardinalities with truthful parity; exact registered
-relationship counts; selected-lineup coherence; calendar-valid timestamps;
-bounded identity bytes.
+coherence per mode; honest authority labeling; R6 full-union identity +
+panel self-hash; closed realized vocabulary; Phase 4 bundle/book
+cardinalities with truthful parity; exact registered relationship counts;
+selected-lineup coherence; normalized assertion digest; coherent bounded
+fixture scale; full GCS bucket grammar; calendar-valid timestamps; bounded
+identity bytes.
 
 ## Fixture illustration (synthetic — decision PENDING by construction)
 
@@ -84,13 +75,15 @@ bounded identity bytes.
 | relationships | 1,101,856 | 155,296 |
 | properties | 2,232,485 | 339,365 |
 | estimated store | 414 MiB | 62 MiB |
-| streamed batches | 2354 | 350 |
+| streamed batches (contract cap 600) | 2354 | 350 |
 | est. load / rebuild (s) | 4708 / 4713 | 700 / 702 |
-| feasible under fixture provisioning | True | True |
+| feasible under fixture provisioning AND the v1 loader contract | False | True |
 | full-corpus traversal | True | False |
 
+Full-lineup violations: relationship_count exceeds the loader contract max_edge_rows (200000); batch_count exceeds the loader contract max_total_batches (600).
+
 `decision.state = pending-lead-inputs`, `recommended_mode = None`,
-`forced_mode = None`, `approval.status = not-authenticated`.
+`forced_mode = summary-only`, `approval.status = not-authenticated`.
 
 ## Required inputs the lead must supply (exact list, from `required_inputs_manifest()`)
 
@@ -193,7 +186,7 @@ approval receipt identity, which this offline phase does not accept.
 ## Validation (serial; exact results in the branch HANDOFF)
 
 - `pytest tests/test_corpus_graph_capacity.py` — adversarial suite incl.
-  sole-authority and live-graph cross-binding regressions and every
+  closure-set and limit drift, loader-contract ceilings, and every
   earlier law.
 - `pytest tests/test_corpus_graph_vnext_contracts.py` — regression.
 - `pytest tests/test_corpus_graph_vnext_fixture_adapter.py` — Phase 4
