@@ -91,6 +91,16 @@ agent or developer:
   `supply`/`run`, create a query, replace the lease, or launch a second
   ordinal. On terminal success: run `grade`, `finish`, and the exact
   aggregate-only eight-strategy score reporter including T230.
+- Source/HANDOFF tip `9108bce5395b2f206c44f848a63dd3d3c56ce9ac` is
+  pushed. Exactly one detached-source immutable build was submitted at
+  `2026-08-27T04:09:11.808639686Z`: Cloud Build
+  `76877cf4-9b0f-4f31-bd24-70a387f07988`, initially `QUEUED`, against that
+  exact commit. Its metadata prefix is
+  `gs://nfl-predictions-503414-corpus-retrieval/research/r6-full-union-post-freeze-builds/76877cf4-9b0f-4f31-bd24-70a387f07988/`.
+  This build is outcome-blind and cannot use the historical lease or query.
+  Immediate action is metadata-only polling to terminal; do not submit a
+  second build. On success, generation-read its machine receipt to obtain the
+  immutable recovery digest, then perform the single `recover-supply` launch.
 
 ## Current handoff — 2026-08-27 02:04 UTC (one-hundred-sixty-third update)
 
