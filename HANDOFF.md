@@ -20,6 +20,42 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 05:08 UTC (one-hundred-sixty-ninth update)
+
+### The sole ordinal-2 recovery execution is live and exactly claimed
+
+- The controller used accepted source
+  `a99218f850b2c4f75369edfafd14682816c82b92` and image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:8a06aff5826810de488afb27420c5d528967445b6d7def9a8e436a420a1be35b`,
+  explicitly pinned the repository virtualenv, passed the exact legacy marker
+  and created the ordinal-1 terminal-failure closure (generation
+  `1787807194731772`, SHA-256
+  `cc94ccd83d5682804735a102d77489c8e93ae385adce2f988eed69dfab4cc5e5`,
+  2,451 bytes), ordinal-2
+  amendment (generation `1787807195235989`, SHA-256
+  `484ff9636136284645af792b97020d7d2135ce7efb969f34579fe790754e0b6d`,
+  1,014 bytes), and ordinal-2 recovery intent (generation
+  `1787807196994234`, SHA-256
+  `aa8406ba95445b74ec789f9b2171539a5bd041970ba9d51dfb7a143bc711e6af`,
+  8,812 bytes).
+- Create-only launch ownership is generation `1787807218480154`, SHA-256
+  `af608bc0bbb22b0f7a50d339766183153a0106b10be2c346954b42b85eb45a97`,
+  1,728 bytes. Its launch intent token is
+  `ab9d0d60c32f021d9610ed544b0818c0c50cafac7da02628df955389bc2e5f17`
+  and argv SHA-256 is
+  `30c8f69dd1990e1590cddeef84cc44539b3ba6c82f502e5e336bbe7d29dd6b2f`.
+  The marker creator updated the reused job and made the sole execute call.
+- Exact Cloud Run execution `atlas-minimal-c-s2023-w1-v1-vqpfc`, UID
+  `45fb98f0-3f65-49cb-a345-3e23d05508d5`, was created at
+  `2026-08-27T05:07:05.510815Z`. It was importing the immutable image at the
+  first poll. The retained controller is monitoring this exact execution and
+  will restore the original image on either terminal state. No second execute,
+  ordinary supply or query is licensed.
+- Exact next action: poll only `vqpfc` and the retained controller to terminal.
+  On success, validate and record result-structure/worker/recovery plus the
+  five standard supply identities and restored original job, then invoke only
+  grade. On failure, stop; do not relaunch, query, grade or release the lease.
+
 ## Current handoff — 2026-08-27 05:05 UTC (one-hundred-sixty-eighth update)
 
 ### Replacement image is accepted; the single ordinal-2 recovery launch is next
