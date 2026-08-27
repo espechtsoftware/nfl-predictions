@@ -1,0 +1,6 @@
+{"complete":true,"execution":"atlas-minimal-c-s2023-w1-v1-bknc5","stage":"compile","terminal_execution_sha256":"c1912df56db5a2b310a5ba6bfb6687c0c7956a3a36f978567d43ebabfdfcd79a"}
+{"complete":true,"execution":"atlas-minimal-c-s2023-w1-v1-jn924","stage":"smoke","terminal_execution_sha256":"9c6c174abfc9442623e37d2336f52119a653dfdf9be4694576aaad94ac2d54d9"}
+{"stage":"supply","complete":false}
+{"complete":true,"execution":"atlas-minimal-c-s2023-w1-v1-vqpfc","stage":"supply-recovery-02","terminal_execution_sha256":"c1a105a2db7714b3195ddb2a9a6e1defc0a6f44269602b3b384d51b9efba5404"}
+{"complete":true,"execution":"atlas-minimal-c-s2023-w1-v1-b2qg6","stage":"grade","terminal_execution_sha256":"a15499b40314f74f2760d01dea1be622499ccdd1ea3badc6458c1c957e20b061"}
+{"deleted_generation":"1787782649649091","execution":"atlas-minimal-c-s2023-w1-v1-b2qg6","lease_released":true,"release_intent_sha256":"1638d8cb4b1e035af5a167a1abce717790d93d001834d133ac3e6ef18214dae9","release_receipt_sha256":"d3a57ab3eceed712e6e31f832f7956f666eacbd1e8263f51733afddd1f6d373b"}
