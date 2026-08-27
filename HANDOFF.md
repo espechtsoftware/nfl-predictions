@@ -20,6 +20,62 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 15:27 UTC (one-hundred-seventy-fourth update)
+
+### No-rescore R6 lineup attribution core passes a real frozen-slate smoke
+
+- Branch `main`; predecessor commit before this milestone is
+  `2d80c115b22e3ab67ebb38a6cb8e3c523a724d5c`. Added the pure
+  `corpus_r6_full_union_attribution_v1` join and an 18-test adversarial suite.
+  The join does not score lineups or own an outcome/object-store reader. It
+  binds one frozen task result to one already-published realized grade and
+  emits every final-union lineup, its roster and persisted score, descriptive
+  fill-arm/world-block ancestry, six scope membership rows, all 48 books, and
+  all 3,840 ranked selector traces with realized threshold capture/regret.
+- Focused validation is **18 passed** in 20.1 seconds. It covers canonical
+  replay/self-hash, exact lineup/roster/score and selector-rank joins, the
+  6x8x80 census, missing/duplicate candidates, roster/rank/trace drift,
+  cross-run identity substitution, forbidden authority mutations, and
+  fail-if-called outcome-reader/rescore seams. `py_compile` also passed.
+- A production-shaped smoke used the immutable 2023 week 2 task-result
+  identity generation `1787748564672227`, 19,491,290 bytes, SHA-256
+  `46ca9edc5065c1ff2c747adf67332090d125be7248f23d69c6afb9d610895e6b`
+  and its already-published grade shard generation `1787823885766744`,
+  1,999,076 bytes, object SHA-256
+  `e635b92ab4d5df8f45f0e90694fea8cbeb15c01005456df279fc9fec069fc23b`.
+  It completed locally in 3.072 seconds with 3,835 lineup rows, 23,010 scope
+  rows, 48 books and 3,840 selection rows. The canonical 27,646,460-byte
+  result has internal SHA-256
+  `7a4fb5bac2a5869c82c3dfb6671c7a747d0d991a8d053682fb74f3b3dd73f77e`,
+  `no_rescore=true` and `outcome_source_read=false`. No cloud object was
+  created or changed; only immutable grade metadata was read.
+- Review found and the implementation fixed a quadratic tie-count path by
+  using one score `Counter`. It also now states explicitly that
+  `realized_union_rank` is a zero-based score-descending/lineup-ID-tiebroken
+  order, not contest rank, and that selector regret is the descriptive
+  realized eligible-maximum minus selected-maximum gap. Fill-arm attribution
+  remains descriptive because seven generation arms were pooled and many
+  lineups have multiple origins.
+- Analysis boundary: exact selector/world-objective attribution and pooled
+  arm/block ancestry are now reproducible without rescoring. Per-player
+  realized contributions, exact generation occurrence/world lineage,
+  point-in-time ownership/boom/coverage/SIS/Fantasy Points traits, contest
+  field rank, duplication, payout and ROI are not present in this shard and
+  must not be inferred. The current full-union books explicitly did not read
+  matchup values.
+- Unresolved publication work: structure-only shard validation is not
+  authoritative. The root-last release must stream one slate at a time,
+  exact-open and validate the panel leaf/task plus persisted grade shard, call
+  full predecessor replay, publish create-once shards, then publish a root
+  only after all 54 exact-reopen. Do not retain all approximately 27 MB x 54
+  bodies in memory and do not open the outcome snapshot or rescore.
+- Exact next action: implement and adversarially test that generation-pinned
+  root-last attribution publisher/reopener, smoke one real slate through the
+  exact validators, then publish the 54-slate descriptive release. Afterward,
+  add separately versioned player/trait sidecars and exact candidate occurrence
+  lineage; continue the fixed-G0/source/publisher/consumer repairs before the
+  original matchup-inclusive R6-v2 run.
+
 ## Current handoff — 2026-08-27 14:48 UTC (one-hundred-seventy-third update)
 
 ### R6 full-union release is sealed and all eight realized score summaries are published
