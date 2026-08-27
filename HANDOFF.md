@@ -20,6 +20,90 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 14:48 UTC (one-hundred-seventy-third update)
+
+### R6 full-union release is sealed and all eight realized score summaries are published
+
+- Branch `main`; the durable release/report bundle is commit `9d37548d`
+  (`Publish R6 full-union realized scores`). It preserves the exact strict
+  completion, grade execution carrier, generation-delete intent/receipt,
+  post-finish status, canonical aggregate report and human-readable analysis.
+- The sole strict `finish` invocation returned 0 after two independent full
+  replays of the generation-pinned completion/root/54 shards. The retained
+  v2 strict completion is 6,500 bytes with SHA-256
+  `d9c25bc6dc7f39d9372e6e492283299d7b25871a223fec52014a0287abb53839`.
+  It validates the original failed supply, ordinal-2 recovery, sole successful
+  grade execution `atlas-minimal-c-s2023-w1-v1-b2qg6`, grade root generation
+  `1787823913707002` / SHA-256
+  `7e5da240f6ad3978553fa3101e12d4414c993f9547bb76cfa999cf32acdb6dfc`,
+  and completion generation `1787826022031380` / SHA-256
+  `916c902650d92698a4502bfb8d6632a4b1994acbb48d1695c77cb67b386c039d`.
+- Generation-delete intent was created at `2026-08-27T14:40:46Z`. Its file
+  SHA-256 is
+  `a4a2b2b5ccdd67b5e5e3ae5219f27e42eef816b32cddc6226d561dee25f8d846`
+  and internal intent SHA-256 is
+  `1638d8cb4b1e035af5a167a1abce717790d93d001834d133ac3e6ef18214dae9`.
+  The receipt exact-binds historical-outcome lease generation
+  `1787782649649091`, records `generation_delete_complete=true`,
+  `exact_deleted_generation_absent=true` and `recovered_after_delete=false`.
+  Its file SHA-256 is
+  `f633802d63c277692e24529e80ca658a288bc15bf287f70adbf46f339364800a`;
+  internal receipt SHA-256 is
+  `d3a57ab3eceed712e6e31f832f7956f666eacbd1e8263f51733afddd1f6d373b`.
+- The exact one-time post-finish `status` invocation exited 0 and reports the
+  compile/smoke/recovery/grade identities plus `lease_released=true`, deleted
+  generation `1787782649649091`, and the same intent/receipt hashes. Exact
+  JSONL is tracked as `status-after-finish.jsonl`, SHA-256
+  `4f8c7eb321b5ae32113b48cd26e97a61c6998270402241e1f2640a92b081d8fd`.
+- The bounded generation-pinned reporter ran exactly once and exited 0 in
+  28.29 seconds. It read only the selected grade completion, root and 54
+  shards. Its canonical 350,520-byte report has file SHA-256
+  `b0ccc59416b61c46b586a4b477639d95664870db1d2c466c390b88c1af62395d`
+  and internal report SHA-256
+  `bebe8688f73bcd5a497c2617aaee642e33c378830586c89d36444bc29cac3638`.
+  Direct validation proves schema
+  `corpus-r6-full-union-score-report/v1`, 54 slates/54 shards, eight exact
+  strategies, six scopes, 4/14/80 prefixes, 144 cells, 1,008 threshold
+  observations, exactly one T230 strategy, canonical bytes/self-hash and no
+  row-level IDs, rosters or score rows. It records grade-artifact-only reads,
+  no outcome-source/BigQuery/lease read, and complete true.
+- Intended all-block final-fit, 80-entry mean weekly maxima are:
+  `coverage-194` 176.882; `strict-200` 176.359; `tail-ladder` **178.435**;
+  `mean-score` 176.003; `expected-max` 176.537; block-supported tail ladder
+  **178.435**; regime-robust 177.103; T230 177.462. The two tail ladders lead
+  coverage-194 by +1.553 on this exact paired panel. Tail-ladder final books
+  have six 200+ weeks, five 210+, four 220+, two 230+ and two 240+; regime
+  robust and T230 each reach 200+ in seven weeks, but T230 has only one
+  230+/240+ week. The ordinary tail ladder also leads mean weekly maximum
+  across the five rotated fits (178.628).
+- Entry-count results differ: expected-max leads the four-entry average
+  maximum at 148.543; coverage-194 leads 14 entries at 163.197; the tail
+  ladders lead 80 at 178.435. Mean-score supplies the most total 200+ lineup
+  occurrences at 80 (22) but covers only six weeks, showing realized tail
+  clustering rather than broader weekly maximum capture. Complete results and
+  interpretation are in
+  `reports/2026-08-27-r6-full-union-realized-score-results.md`.
+- Boundaries: contest rank/duplication/payout/ROI remain unavailable; the
+  seven fill arms were pooled, so this isolates retrieval rather than fill;
+  and boom, ownership, matchup/SIS/Fantasy Points coverage and winner likeness
+  were not selection inputs. The aggregate-only release cannot attribute
+  successful lineups to player traits without a separately authorized join.
+- The strict active goal is not fully complete. The original canonical
+  matchup-inclusive R6-v2 lattice (14,904 books / 44,712 prefixes) remains
+  `complete-source-blocked`; the successful full-union successor has 2,592
+  books and does not estimate matchup admission versus 32 neutral controls.
+  New untracked matchup-v2 modules are offline contracts/reducers only and
+  contain a fixed-G0 candidate-lineage bypass at their capture-plan boundary;
+  they own no capture/publishing operator or successor R6 consumer.
+- Exact next action: first build a read-only attribution release from the
+  existing frozen candidate/book artifacts plus already published grade
+  shards—no regeneration, rescore or additional outcome query. It should join
+  `(slate,lineup_id)` to fill/world provenance, selector/rank, realized score
+  and later point-in-time traits. Separately repair and review the fixed-G0
+  candidate authority, upstream provenance-body validation, source publisher
+  and successor consumer before attempting the original matchup R6-v2 panel.
+  Do not retune or promote from this one realized report.
+
 ## Current handoff — 2026-08-27 10:21 UTC (one-hundred-seventy-second update)
 
 ### The full 54-slate, eight-strategy grade completed successfully
