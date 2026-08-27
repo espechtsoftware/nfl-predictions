@@ -20,6 +20,60 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 15:49 UTC (one-hundred-seventy-fifth update)
+
+### Root-last 54-slate attribution release is implementation-complete and focused-green
+
+- Branch `main`; predecessor commit is `07566839a8ccca90e6f3eef98ddafef1780203a6`.
+  Added `corpus_r6_full_union_attribution_release_v1` plus the guarded
+  `publish_corpus_r6_full_union_attribution_v1.py` publish/reopen CLI. The
+  public publisher has no caller-supplied shard parameter: it must exact-open
+  the terminal grade completion/root/54 grade shards and frozen panel, derive
+  each attribution, validate it before create-once publication, exact-reopen
+  the intended bytes, and publish the 54-entry root last. Existing identical
+  bytes are a valid resume; different bytes fail before the root.
+- Combined core/release/CLI validation is **49 passed** in 19.9 seconds;
+  `py_compile` and diff checks pass. Adversarial coverage includes no arbitrary
+  shard bypass, identical second-run recovery, different-byte collision,
+  no root before all 54 validate, generation-pinned reopen despite a newer
+  URI head, ordinal and upstream-identity swaps, root/descriptor rehash
+  attacks, structure-only non-authority, default-off CLI/project/namespace
+  gates, and exact publish/reopen summaries.
+- Freeze access is now mechanically closed. Before following panel metadata,
+  the module exact-opens only the pinned root, verifies its self-hash and
+  deterministic URI layout, and constructs an exact 111-identity allowlist:
+  panel root, execution manifest, fixed panel index, 54 leaves and 54 task
+  results. Escaped leaf/task URIs, outcome snapshot/source/lease identities,
+  generation splices, and missing/extra allowlist members fail before the
+  backing reader is called. Grade reads remain isolated to the selected grade
+  prefix. No public path accepts or opens the outcome snapshot, outcome source,
+  query evidence or historical lease, and no scoring function is invoked.
+- A production root-only preflight exact-read panel-freeze generation
+  `1787756181440564`, 89,879 bytes, SHA-256
+  `57844386a3da86ddf05f8b3e6b19ae19c7327afcfc1057647b210e58caec2467`.
+  The production URI layout produced exactly 111 allowed identities from the
+  expected root through `slates/53-2025-w18/task-result.json`. No dependent
+  task, grade, output or outcome object was read or mutated by that preflight.
+- Publisher shards are predecessor-validated before the irreversible
+  create-once call, preventing an invalid derived shard from poisoning a
+  resumable prefix. The authoritative reopener independently predecessor-
+  replays every exact shard. During publication a one-item derivation cache
+  avoids reopening the same approximately 19 MB task envelope twice; the
+  cache must drain before root construction. The GCS CLI uses a bounded
+  2.5 GB LRU and implements create-or-existing-byte-identical recovery.
+- The release retains all 54 validated grade bodies during terminal root
+  validation (observed total approximately 107 MB) but never retains all 54
+  approximately 27 MB attribution outputs. A future incremental logical-grade
+  validator can reduce that modest peak; it is not required for the present
+  32 GiB runtime and must not delay the descriptive release.
+- Nothing under the attribution output namespace has been published yet.
+  Exact next action: commit/push this implementation, invoke the guarded CLI
+  once with output run ID
+  `20260827-foundry-v12-r6-full-union-attribution-v1` and the existing terminal
+  grade pins, retain its bounded root summary, then execute the independent
+  `reopen` command against that root identity. Record all 54/root identities
+  and validation in this handoff; do not access outcome artifacts or rescore.
+
 ## Current handoff — 2026-08-27 15:27 UTC (one-hundred-seventy-fourth update)
 
 ### No-rescore R6 lineup attribution core passes a real frozen-slate smoke
