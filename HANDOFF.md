@@ -24,12 +24,11 @@ agent or developer:
 
 ### R6 recovery ordinal 2 is approved and ready for immutable build
 
-- Branch `main` and `origin/main` remain at
-  `555137ebd9e030929ddd7ad60f5174637632a68c` while this bounded working-tree
-  milestone is prepared. No cloud mutation, BigQuery call, outcome-row read,
-  score, lease change, graph change or production change occurred during this
-  implementation/review block. The exact milestone commit must be recorded
-  in the next HANDOFF update immediately after commit/push.
+- The reviewed milestone is commit
+  `f003331806855f62788a14df6f681e84f23ca4fe` (`Authorize bounded R6
+  recovery ordinal 2`) on pushed `main`/`origin/main`. No cloud mutation,
+  BigQuery call, outcome-row read, score, lease change, graph change or
+  production change occurred during its implementation/review block.
 - Recovery ordinal 1 remains terminal-consumed: execution
   `atlas-minimal-c-s2023-w1-v1-n86rn`, UID
   `2d630941-96e7-43c1-a066-20515923dd16`, terminal-envelope SHA-256
