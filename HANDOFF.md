@@ -20,6 +20,61 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 17:41 UTC (one-hundred-seventy-ninth update)
+
+### R6 score-improvement roadmap now authorizes aggressive parallel research
+
+- Branch `main`; predecessor/remote head is `dbb38e49`. Revised the
+  lead-architect portion of
+  `reports/2026-08-27-r6-corpus-selection-deep-review.md` at the operator's
+  direction. The other agent remains the implementer; this milestone changes
+  only the research plan and this handoff, not implementation, cloud state,
+  production defaults, outcome access, deployment, or contest entries.
+- The plan now explicitly separates **safe to test now** from **eligible to
+  promote**. Outcome-free scheduler proxies, rare-mode belief laws,
+  matchup-source repair, quality-diverse archives, independent simulation-bank
+  tooling, and prospective field capture should proceed in parallel. Durable
+  no-rescore evidence plumbing remains required before a labeled comparison,
+  but optional sidecars, Neo4j/UI, and a complete field model may not delay
+  score-improvement implementation.
+- Scientific corrections are incorporated: true top-200 scheduler recall
+  requires all 10,000 feasible optima on frozen profile-specific benchmark
+  cells and development/validation/test simulation banks; the random-book null
+  uses `K=80` only for an exact-80 book and the actual `K_s` for the diagnostic
+  union; calibration is outcome-bearing walk-forward development; current
+  017r remains non-PIT and matchup is admission/features until it changes the
+  outcome law; ownership belongs to field/utility; and raw recurrence is
+  conditional stability, not probability mass.
+- Population and retrieval now use hierarchical gates. One frozen primary
+  population endpoint or lexicographic utility alone determines advancement,
+  required supply guardrails must be non-inferior, retrieval cannot rescue a
+  worse corpus, and production promotion requires a preregistered 2026 primary
+  challenger or closed multiplicity-adjusted family. Exploratory shadow winners
+  require a new prospective confirmation clock.
+- Monte Carlo and compute laws are explicit: selectors are frozen and audited
+  on an independent common-random-number bank under a predeclared precision/
+  stopping rule; the audit bank cannot choose a seed/book/weight; each
+  experiment chooses one enforceable solver-work budget and reports other
+  resource measures as guardrails. Outcome-bearing player-contribution
+  payloads remain sealed pending separate immutable-source/lease authority.
+- The final report is 1,002 lines / 10,069 words with SHA-256
+  `aa299baf4276a54b6727b5fc611059cfaf060c9055172b4dcd46fee7144e3e14`.
+  `git diff --check` passes. Two independent read-only rereviews report no
+  remaining factual or methodological blocker. No tests or cloud operation
+  were needed for this documentation-only change.
+- Unresolved boundaries: the existing one-active-historical-outcome-experiment
+  lease remains binding; settled/full-field capture still requires the
+  existing operator confirmations; the viewed 54 slates are development only;
+  and unrelated dirty/untracked implementation and live-run artifacts belong
+  to the other agent and remain untouched.
+- Exact next action for the implementer: continue the already-governed
+  attribution publish/reopen, while starting the outcome-free Lane 1--4 work
+  in parallel and preserving current matchup repairs. Converge the screens to
+  one sparse producer-by-belief historical development comparison, then freeze
+  the primary/closed 2026 prospective shadow family before its first eligible
+  outcome. Do not wait on UI/Neo4j, optional sidecars, or field-model
+  completion.
+
 ## Current handoff — 2026-08-27 16:33 UTC (one-hundred-seventy-eighth update)
 
 ### Attribution GCS create-once recovery is repaired and focused-green

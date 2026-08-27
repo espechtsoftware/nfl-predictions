@@ -514,6 +514,24 @@ The objections below concern what the evidence proves, how the next tests
 should be ordered, and what must be made durable before this becomes an
 implementation authority.
 
+### Execution posture — aggressive research, narrow promotion
+
+This plan authorizes immediate implementation, real-artifact smoke testing,
+and outcome-free benchmarking of the challenger mechanisms below. It does not
+authorize another historical-outcome read, a production-default change, or a
+contest-entry change. The governing distinction is **safe to test now versus
+eligible to promote**, not test versus defer.
+
+Work that does not open outcomes for a new treatment comparison should proceed
+in parallel. In particular, no-rescore evidence plumbing over already-
+authorized immutable results, the legal-scheduler proxy benchmark,
+matchup-source repair, rare-mode belief implementation, quality-diverse
+archive, independent simulation-bank tooling, and prospective field-data
+capture must not wait on one another. Only the bounded scientific comparison
+of a new treatment against historical outcomes remains serialized and scarce.
+Neo4j, UI work, optional diagnostic sidecars, and completion of a contest-field
+model are not prerequisites for score-improvement research.
+
 ### A0 — the numerical review is not yet a reproducible evidence release
 
 The report is careful and the numbers are plausible, but commit `6974b74a`
@@ -533,7 +551,9 @@ That release should retain:
 - one row per slate with corpus size, threshold opportunity counts, each
   selector's hits, corpus oracle, selected maximum, and regret;
 - a machine-readable winner-target census with the 51 included slates, every
-  exclusion/reason code, contest identity, target score, and source identity;
+  exclusion/reason code, nullable contest identity, target score, and source
+  identity; absent contest IDs must retain the existing
+  `contest-id-absent` provenance gap rather than inventing an identifier;
 - exact candidate-occurrence provenance for arm/visit/world claims rather
   than only pooled arm/block summaries;
 - all formulas, denominator counts, canonical hashes, and a root-last
@@ -541,8 +561,12 @@ That release should retain:
 
 I am not disputing the current calculations. I am requiring the same replay
 standard for the scientific conclusion that we require for generation and
-grading. Until that exists, this document should nominate experiments, not
-authorize a production default.
+grading. Until that exists, the exact retrospective numbers cannot become
+promotion gates or authorize a production default. They do not block the
+outcome-free implementation and benchmarking authorized above. The core
+funnel release is required before a labeled comparison; exact-occurrence,
+point-in-time trait, and player-contribution sidecars may proceed in parallel
+and should block only the claims that specifically require them.
 
 ### A1 — population absence is proven; the cause and best intervention are not
 
@@ -556,13 +580,21 @@ There are at least four competing explanations:
 1. the scheduler chooses the wrong simulated worlds;
 2. the player marginals understate breakout/role uncertainty;
 3. the joint dependence law omits the relevant game modes;
-4. roughly 3,690 distinct candidates per slate are simply too few or too
-   concentrated relative to the much larger contest field.
+4. roughly 3,690 distinct candidates per slate provide too little effective
+   coverage of the high-quality legal-lineup space, or are too concentrated
+   under the current proposal law. Contest-field size is not the denominator
+   for this diagnosis because field entries are neither independent nor
+   uniform draws from the legal lineup universe.
 
 The legal-aware scheduler remains a strong candidate, but it needs an
 **outcome-blind scheduler benchmark** before consuming a full historical
-experiment. On a bounded sample of simulated worlds, exact-solve enough
-scheduled and unscheduled worlds to measure:
+experiment. On a small, preregistered sample of slate/block/profile cells,
+exact-solve all 10,000 worlds if the metric is called recall of the true top
+200. If compute permits only a sampled set of worlds, label the result
+estimated sampled agreement and report design-weighted uncertainty; do not
+call it true top-200 recall. Because the seven constraint profiles define
+different feasible sets, report profile-specific optima or freeze an explicit
+cross-profile aggregation before screening proxies. Measure:
 
 - rank correlation between total-slate draw, each cheap legal proxy, and the
   exact feasible optimum;
@@ -571,25 +603,31 @@ scheduled and unscheduled worlds to measure:
 - distinct-optimum yield and concentration;
 - solver/runtime cost and sensitivity by slate size.
 
-Several cheap proxies may be screened against simulated feasible optima
-without consulting realized outcomes. Freeze the best one or two after that
-screen, then expose them to the historical evaluation. The current wording
-"predeclare one version, not a grid" is too restrictive for aggressive
-offseason research; the correct restriction is **no broad grid against the
+Several cheap proxies should be screened aggressively against simulated
+feasible optima without consulting realized outcomes. Use separate simulated
+development and evaluation banks so the selected proxy is not reported on the
+same worlds that chose it. Freeze the best one or two after that screen, then
+expose only those to the historical development evaluation. The current
+wording "predeclare one version, not a grid" is too restrictive for
+outcome-free research; the correct restriction is **no broad grid against the
 realized holdout**.
 
 ### A2 — binary conditional conversion needs an opportunity adjustment
 
-`10 of 29 opportunity weeks` is a useful headline, but a slate containing one
-qualifying lineup among 4,000 candidates is not the same retrieval problem as
-a slate containing 40. For slate `s`, threshold `t`, corpus size `N_s`,
-qualifying count `M_s(t)`, and book size `K = 80`, the report should add the
-random-book reference probability
+`10 of 29 opportunity weeks` is a useful diagnostic-union headline, but a
+slate containing one qualifying lineup among 4,000 candidates is not the same
+retrieval problem as a slate containing 40. For slate `s`, threshold `t`,
+corpus size `N_s`, qualifying count `M_s(t)`, and one exact-80 strategy with
+`K = 80`, the report should add the uniform-random-book reference probability
 
 `1 - C(N_s - M_s(t), K) / C(N_s, K)`
 
-alongside the observed hit. This does not become a production benchmark; it
-provides the necessary denominator for interpreting selector lift.
+alongside the observed hit. This is a descriptive null, not a production
+benchmark or a substitute for absolute conversion and regret. The `10/29`
+union itself averages 204.85 distinct lineups and ranges from 181 to 229; it
+must not be compared with a `K=80` null. Either report the reference separately
+for each exact-80 strategy or use the union's actual slate-specific cardinality
+`K_s` and label that comparison diagnostic.
 
 The funnel should also report:
 
@@ -597,12 +635,18 @@ The funnel should also report:
 - recall of the top `q` corpus lineups and of all available threshold rows;
 - exact-oracle capture and normalized regret;
 - selected qualifying-lineup count, not only whether one was present;
-- lift over the random-book reference, stratified by opportunity count;
+- additive lift over the random-book reference, stratified by opportunity
+  count; ratio lift is unstable when the reference probability is tiny;
 - paired slate deltas, confidence intervals, and leave-one-season-out
   sensitivity.
 
 All inference must remain at the slate level or use slate-clustered methods.
-The 199,244 lineups are not 199,244 independent observations.
+The 199,244 lineups are not 199,244 independent observations. With only three
+230-opportunity slates and three seasons, 230-level intervals, stratification,
+and leave-one-season-out summaries are descriptive exact-case diagnostics,
+not promotion evidence. Use denser thresholds and paired weekly maximum/regret
+as the powered endpoints while retaining 230 as the operator-facing tail
+target.
 
 ### A3 — this 54-slate panel is a development panel, not a fresh confirmation
 
@@ -611,70 +655,98 @@ recommended selector composition were all informed by these realized
 outcomes. Freezing a new implementation now prevents further mutation, but it
 does not make another read of the same 54 outcomes confirmatory.
 
-Adoption needs three explicit tiers:
+Adoption needs four explicit tiers:
 
-1. **outcome-blind screening:** simulated feasibility, calibration, runtime,
-   and candidate-quality tests may be broad;
-2. **development evidence:** the spent 54-slate panel may compare and diagnose
-   a bounded set of treatments, with full disclosure that it influenced the
-   hypotheses;
-3. **confirmation:** an untouched, source-complete historical panel hidden
-   during design, or a preregistered outer season holdout that was not used to
-   choose the treatment.
+1. **outcome-free screening:** simulated feasibility, support, runtime,
+   approximation accuracy, and candidate-quality tests may be broad; no
+   empirical calibration, proper score, treatment effect, or realized score
+   belongs in this tier;
+2. **walk-forward calibration/development:** prior-season labeled outcomes may
+   calibrate a belief law under the repository's season-forward rules, but
+   those labels are spent development data and the exact folds must be named;
+3. **retrospective lineup development:** the spent 54-slate panel may compare
+   and diagnose only a small frozen set of treatments, with full disclosure
+   that it influenced the hypotheses;
+4. **confirmation:** a genuinely unseen, source-complete panel whose outcomes
+   influenced none of the treatment choices, normally the preregistered 2026
+   prospective shadow.
 
-If no untouched historical panel can be assembled, the result may still
-justify a production **shadow**, but not a silent incumbent replacement. This
-is compatible with testing aggressively before Week 1: screen many ideas
-without outcome labels, then spend scarce realized labels on a small frozen
-set.
+No repartition of the already-viewed 54 slates becomes untouched. If no other
+genuinely unseen historical panel can be proven, retrospective results may
+still justify a production **shadow**, but not a silent incumbent replacement.
+This is compatible with testing aggressively before Week 1: screen many ideas
+without evaluation labels, then spend scarce realized labels on a small frozen
+set and confirm prospectively.
 
 ### A4 — do not make the scheduler a prerequisite for the existing matchup path
 
 The proposed sequence places a new belief producer after the scheduler result.
-I disagree with that dependency. The repository already has substantial,
-separately developed receiver/RB/QB matchup work, point-in-time component
-contracts, and an unfinished matchup-inclusive R6-v2 successor. Scheduler
-quality and matchup/role information test different failure mechanisms and
-should advance in parallel.
+I disagree with that dependency. The repository already has substantial
+receiver/RB/QB matchup mechanics and an unfinished matchup-inclusive R6-v2
+successor, but the current 017r source is authoritatively classified
+`non-pit-retrospective` and the corrected source/candidate-authority/consumer
+path remains incomplete. It must not be called a frozen PIT belief source.
+Scheduler quality and matchup/role information test different failure
+mechanisms, so scheduler research and the source repair should advance in
+parallel.
 
-The immediate experiment program should therefore have at least two
-independent tracks:
+The immediate experiment program should therefore have separate parallel
+tracks:
 
 - **population mechanics:** current scheduler versus legal-aware scheduling
   and quality-diverse alternatives;
-- **belief/features:** current simulated law versus the frozen matchup/role
-  source, boom/ceiling, ownership, odds/game environment, and later calibrated
-  rare-mode laws.
+- **player-outcome beliefs:** current simulated law versus role/playing-time
+  uncertainty, boom/ceiling, odds/game-environment, and later calibrated
+  rare-mode laws;
+- **matchup/admission:** finish the valid retrospective-prior-period source
+  and consumer, then test matchup values as candidate admission/features
+  unless and until they explicitly alter the simulated player-outcome law;
+- **field/utility:** projected ownership, opponent-lineup generation,
+  duplication, and payout belong here rather than inside a player-points law.
 
-Their intersection should then be tested factorially. Otherwise a scheduler
-gain could be credited for a player-belief improvement, or a strong matchup
-signal could be delayed by an unrelated scheduler miss. The point-in-time
+Build and screen many cheap challengers outcome-free, but expose only a sparse,
+preregistered crossing to the spent lineup panel—for example, the incumbent
+and one scheduler crossed with the incumbent and one new belief law under
+fixed selector controls. A broader producer-by-belief-by-selector lattice is
+development inventory, not one undifferentiated historical promotion grid.
+Where a belief law also generates its own candidates, retain explicit native
+generation and cross-scoring cells so the estimand is not mislabeled. The
 receiver/defender plan in
 `reports/2026-08-22-receiver-defender-matchup-intelligence-implementation-plan.md`
-should be treated as a parallel predecessor, not a post-scheduler optional
-idea.
+should be treated as a parallel source-repair and challenger path, not a
+post-scheduler optional idea or already-valid PIT authority.
 
 ### A5 — repeated optima are not automatically wasted solves
 
 The 52.71% unique yield proves substantial repetition after deduplication.
 It does not prove that every repeated solve should be redirected. A lineup
-that is optimal across many worlds, blocks, or arms carries stability and
-probability-mass information. The current union largely discards that
-multiplicity as a selection feature even though provenance retains summaries.
+that is optimal across many worlds may carry conditional stability
+information. Raw recurrence across the current top-total-draw schedule,
+blocks, and nested arms is **not** unconditional probability mass: it
+conflates unequal scheduler exposure with overlapping feasible sets. The
+current union largely discards that conditional multiplicity as a selection
+feature even though provenance retains summaries.
 
 A quality-diverse archive treatment should preserve and test both signals:
 
-- primary optimum and exact occurrence multiplicity;
+- primary optimum and exact occurrence multiplicity, disaggregated by unique
+  world, block, arm, scheduler and proposal law;
 - bounded second/next-best alternatives when the primary is already archived;
 - marginal simulated quality loss for each alternative;
 - unique-candidate gain per solver second/node, not only per nominal visit;
-- a multiplicity-aware retrieval control.
+- a multiplicity-aware retrieval control using exposure denominators and,
+  where proposals are tilted, valid likelihood weights.
 
-Equal compute must be defined in solver stages **and** measured wall time or
-solver-node budget. A no-good second solve can cost much more than a primary
-solve. Do not reduce primary world coverage merely to force a larger unique
-row count, and do not credit a larger corpus oracle without size-standardized
-and compute-efficiency comparisons.
+Each experiment must predeclare one enforceable work budget—for example fixed
+solver stages under identical per-stage settings, or a fixed solver-node
+budget—and pin solver version/options. Solve count, node count, and wall time
+cannot all be held equal simultaneously; report the non-governing measures as
+resource outcomes and guardrails. A no-good second solve can cost much more
+than a primary solve. Do not reduce primary world coverage merely to force a
+larger unique row count, and do not credit a larger corpus oracle without
+size-standardized and compute-efficiency comparisons. Treat multiplicity-aware
+retrieval as a challenger to validate on independent worlds, not as a
+probability-bearing default.
 
 ### A6 — population-first reporting is right; a hard population veto is not
 
@@ -685,18 +757,25 @@ more independent modes, or candidates whose support is easier for an
 outcome-blind selector to recognize. Conversely, one accidental new oracle
 can improve the ceiling without creating a deployable book.
 
-Use a Pareto gate instead:
+Use hierarchical gates rather than either a single-oracle veto or one combined
+population/retrieval Pareto set:
 
-- population ceiling and winner-gap diagnostics;
-- 200/210/220/230 opportunity density and mode diversity;
-- unique yield and compute efficiency;
-- selector conversion and selected-book maximum/regret.
+1. **Supply gate:** predeclare one primary population endpoint or fixed
+   lexicographic tail utility, its minimum practical effect, uncertainty rule,
+   exact ties/order, explicit non-inferiority margins, and a bounded secondary
+   set covering corpus ceiling/winner gap, 200/210/220/230 opportunity density,
+   outcome-free mode diversity, unique yield, and compute efficiency. The
+   primary alone determines advancement and every required guardrail must be
+   non-inferior; a secondary win cannot rescue a failed primary.
+2. **Retrieval gate:** only then compare selector conversion, selected weekly
+   maximum, and regret on the fixed corpora. Retrieval success cannot rescue a
+   materially worse corpus.
+3. **Promotion gate:** require the frozen exact-80 book to improve on genuine
+   prospective confirmation. The spent panel supplies development evidence
+   only.
 
-Population metrics must be published first so attribution remains clear, but
-a treatment that is non-inferior on the supply guardrails and improves a
-different preregistered supply dimension should still reach the retrieval
-stage. Final promotion still requires improvement in the selected book on the
-confirmation panel.
+This preserves causal attribution without rejecting a producer merely because
+one accidental corpus maximum stays unchanged.
 
 ### A7 — preserve diagnostic books when adding a joint multi-law book
 
@@ -714,9 +793,17 @@ manual sleeve allocation selected after outcomes.
 The strict-tail channels also need Monte Carlo uncertainty diagnostics. A
 lineup with 1–22 observed `>230` events in 50,000 worlds has a noisy tail-rate
 estimate; a pick-80 difference such as 10 versus 12 newly covered events may
-not be stable under another draw bank. Report block/seed stability, smoothed
-tail estimates, and effective sample size before classifying every close miss
-as structural portfolio crowding.
+not be stable under another draw bank. The frozen score matrix still explains
+the bank-conditional decision, but structural claims require more: freeze the
+book, evaluate it on an independent draw bank using common random numbers
+across books, and repeat the complete selection procedure across seeds.
+Report raw counts and block/seed stability. Any smoothing law is a new model
+that must be preregistered; effective sample size is most relevant once
+weighted proposals exist and is not a substitute for independent evaluation.
+Before generating the audit bank, freeze the minimum meaningful portfolio
+difference, paired-discordance precision/sample-size target, and any sequential
+stopping rule. The audit bank may not choose a seed, book, weight, or stopping
+point.
 
 ### A8 — elevate the contest-field model to a parallel P1 track
 
@@ -737,12 +824,15 @@ Keep two surfaces separate:
 This is also the main practical implication of the DFS portfolio literature:
 probability of a high raw score and expected reward against an opponent field
 are related but different objectives. Raw 200/220/230 thresholds should remain
-stable diagnostics while the field model matures.
+stable diagnostics while the field model matures. P1 means immediate source
+capture, model construction, and prospective shadowing; it does not authorize
+field-aware promotion before classic-format calibration and must not outrank
+repairing the roughly 30-point recorded-winner corpus gap.
 
 ### A9 — refine the miss taxonomy before using it to change player beliefs
 
 "Model-support failure" is currently too broad. With the point-in-time sidecar
-available, split it into at least:
+available, record at least these diagnostic flags:
 
 - marginal mean/ceiling miss;
 - role, injury, or playing-time uncertainty miss;
@@ -751,10 +841,13 @@ available, split it into at least:
 - supported but portfolio-redundant miss;
 - boundary/tie-break miss.
 
-That distinction determines whether to repair projections, variance, player
-correlation, world sampling, or the set objective. Player examples from the
-viewed outcomes should diagnose these classes; they must not become named
-future-player overrides.
+Add `indeterminate` and `multiple-mechanisms` rather than forcing mutually
+exclusive labels. A point-in-time sidecar and one realized lineup cannot by
+themselves identify whether marginal calibration, role uncertainty,
+dependence, or Monte Carlo resolution caused a miss. Use the flags to nominate
+targeted interventions, then distinguish them with calibration tests,
+independent simulations, and frozen ablations. Player examples from the viewed
+outcomes remain diagnostic and must not become named future-player overrides.
 
 ### A10 — arm exclusivity is useful description, not an allocation score
 
@@ -773,49 +866,137 @@ Retain the incumbent sentinel as the report recommends. Any causal statement
 about an arm requires a prospective equal-compute treatment; ancestry alone
 cannot provide it.
 
-## Amended adoption sequence
+## Aggressive parallel execution plan
 
-1. Complete and independently reopen the 54-slate attribution release.
-2. Publish the deterministic no-rescore funnel/winner-target release and
-   reproduce every headline number in this review.
-3. Publish separately versioned exact occurrence, point-in-time trait, and
-   player-contribution sidecars; keep realized evaluation fields unavailable
-   to generation and selection code.
-4. In an outcome-blind sandbox, benchmark several legal-aware scheduler
-   proxies against exact feasible simulated-world optima; freeze the best one
-   or two rather than choosing from realized results.
-5. In parallel, finish the matchup source-v2/candidate-authority/consumer path
-   and register matchup/role, boom/ceiling, ownership, odds, and game-context
-   challengers with explicit missingness.
-6. Freeze an equal-compute factorial experiment over population producer,
-   belief law, and selector. Preserve the incumbent books as controls and add
-   new strategies; do not choose the winner after inspecting the same panel.
-7. Report population and retrieval stages separately with opportunity-adjusted
-   lift, corpus-size normalization, paired slate uncertainty, season
-   sensitivity, and an untouched confirmation partition.
-8. Add a joint multi-law exact-80 shadow only after at least two laws pass
-   calibration. Preserve per-law books for diagnosis.
-9. Build the point-in-time contest-field/duplication/payout research track in
-   parallel, then evaluate whether the raw-score leader remains the
-   contest-objective leader.
-10. Project immutable releases into Neo4j and the web UI for exploration;
-    neither becomes the source of truth or a prerequisite for running the
-    experiments.
+The implementation program should start the following lanes immediately.
+Their outcome-free work is parallel; numbering does not create a dependency.
+
+### Lane 0 — durable evidence and funnel
+
+- Complete and independently reopen the 54-slate attribution release.
+- Publish the deterministic no-rescore funnel/winner-target release and
+  reproduce every headline number in this review.
+- Report each exact-80 strategy against its `K=80` descriptive random null;
+  report the diagnostic union only with its actual `K_s`.
+- Build exact-occurrence, point-in-time trait, and **simulated-only**
+  counterfactual-marginal sidecars as separately versioned products. Their
+  outcome-free tooling may proceed concurrently and gates only analyses that
+  consume those fields. A player-contribution schema/tool may also be built,
+  but populating or opening its realized payload requires separate immutable
+  outcome-source authority and the historical lease; keep it sealed from
+  treatment designers until the sparse comparison is frozen.
+
+### Lane 1 — world scheduling and legal discovery
+
+- Implement several inexpensive legal-attainable proxy families, including a
+  position/salary relaxation and a bounded feasible-core heuristic.
+- On a small frozen set of slate/block/profile cells, exact-solve all 10,000
+  worlds or use certified bounds if claiming true top-200 recall. Screen proxy
+  variants on a simulated development bank, choose the best one or two using a
+  separate validation bank under frozen gates, and report them once on a third
+  untouched simulation test bank.
+- Freeze those one or two schedulers under the protocol's single enforced work
+  budget and report exact-solve count, wall time, and nodes. Do not tune from
+  the test bank or consult realized lineup scores while choosing them.
+
+### Lane 2 — genuinely different player-outcome beliefs
+
+- Implement a small library of clearly distinct laws: calibrated baseline,
+  role/playing-time uncertainty, correlated game-environment ceiling, and a
+  properly weighted rare-breakout proposal. More than one implementation may
+  be built and outcome-free-smoked; only a bounded set reaches labeled
+  development.
+- Run the required outcome-free support census first, then walk-forward
+  calibration on explicitly named prior-season folds. Keep calibration labels
+  distinct from the 54-slate lineup-development read.
+- Retain proposal probabilities/likelihood weights. A tilted law without valid
+  weights is a discovery heuristic, not a calibrated probability law.
+
+### Lane 3 — matchup/admission and quality-diverse archives
+
+- Finish the matchup source-v2, fixed-G0 candidate-authority, publication, and
+  consumer repairs now. Do not use current 017r as PIT authority and do not
+  delay scheduler or matchup-free belief work while this source is repaired.
+- Test matchup as candidate admission/features first. Promote it to a belief
+  factor only if it actually changes and calibrates the player-outcome law.
+- Implement a fixed-budget archive retaining the primary optimum, normalized
+  occurrence evidence, and bounded next-best or quality-niche alternatives.
+  Measure quality loss, unique high-quality yield, solver nodes, and wall time.
+
+### Lane 4 — retrieval and Monte Carlo stability
+
+- Preserve the eight existing exact-80 books as controls. Add new retrieval
+  challengers rather than deleting diagnostic channels.
+- Build independent evaluation-draw-bank tooling now. Every serious selector
+  comparison must freeze books on one bank and evaluate them with common
+  random numbers on another; repeat the full selection across seeds.
+- After at least two distinct laws pass calibration, add one joint multi-law
+  exact-80 shadow with calibration-derived weights. Per-law books remain
+  diagnostics, not eight deployable 80-entry allocations.
+
+### Lane 5 — contest-field capture and utility
+
+- Begin point-in-time ownership, settled full-field, duplication, contest, and
+  payout capture immediately because these data expire quickly, following the
+  existing operator confirmations for settlement and full-field completeness.
+- Build and shadow the field model in parallel. It must not block improving the
+  raw weekly maximum, and it cannot enter production selection until its
+  classic-format prospective calibration passes.
+
+### Bounded labeled development and confirmation
+
+The repository's one-active-historical-outcome-experiment lease remains
+binding. Parallel implementation converges to one bounded labeled comparison;
+it does not authorize concurrent outcome experiments.
+
+1. Finish outcome-free screens and freeze a small primary comparison. The
+   default design is a sparse producer-by-belief crossing with fixed selector
+   controls, plus separately named retrieval challengers—not an open lattice.
+2. Freeze all candidates, worlds, exact-80 books, identities, primary endpoint
+   or lexicographic utility, non-inferiority margins, and outcome interpretation
+   before the historical join.
+3. Use the spent 54 slates once as labeled **development** evidence. Publish
+   population results first; require the supply gate before retrieval; retain
+   paired slate results, corpus-size/compute normalization, and exact sparse
+   230 cases.
+4. Before the first eligible 2026 outcome, designate one primary confirmatory
+   challenger or freeze a finite ordered family with multiplicity-adjusted
+   promotion rules, activation dates, minimum practical effect, uncertainty,
+   and exact stopping law. Additional credible finalists may run as exploratory
+   shadows, but an outcome-selected exploratory winner starts a new prospective
+   confirmation clock. Weeks before a version's immutable activation never
+   count for it. No split of the viewed 54 and no already-mined legacy panel is
+   called untouched confirmation.
+5. Promote only the frozen primary/closed-family winner after prospective
+   exact-80 improvement and all PIT, legality, calibration, and contest-surface
+   guardrails pass.
+
+### What must not be deferred
+
+- outcome-free scheduler, archive, belief-law, and independent-bank code;
+- real-artifact smokes and source-lineage repairs;
+- matchup and field-data acquisition that would otherwise expire;
+- a cheap challenger merely because durable scoring evidence is not yet ready;
+- score-improvement work behind Neo4j, UI, optional sidecars, or a complete
+  field model.
+
+The constraints remain equally explicit: do not run a broad grid against the
+known outcomes, do not manufacture an untouched holdout, do not treat raw
+multiplicity as probability, and do not promote from this spent panel.
 
 ### Final recommendation on adoption
 
 Adopt the report's **stage decomposition, multi-belief direction, relaxed-law
 diversity, joint-portfolio goal, and rejection of pure-T230/hindsight rules**.
-Modify its plan in four material ways:
+The revised plan deliberately supports aggressive experimentation: many cheap
+ideas may be built, smoked, and screened without evaluation outcomes; the best
+one or two from each mechanism class advance to a sparse labeled development
+comparison; credible finalists enter 2026 shadows immediately under frozen
+primary, closed-family, or exploratory roles.
 
-1. make the calculations durable before using them as gates;
-2. adjust retrieval conversion for opportunity density;
-3. screen aggressively without outcomes, then confirm on an untouched
-   partition rather than limiting the entire research program to one idea;
-4. run the existing matchup/trait and field-model work in parallel with the
-   scheduler experiment.
-
-With those amendments, this is a strong roadmap. Without them, it risks
-over-crediting one plausible scheduler hypothesis, underestimating the value
-of already-built point-in-time matchup intelligence, and converting a careful
-descriptive audit into another outcome-tuned production decision.
+This document is implementation authority for the outcome-free research lanes
+and no-rescore evidence plumbing already separately authorized above. It is
+not new historical-outcome access, promotion, deployment, or contest-entry
+authority. The fastest valid route is parallel construction and broad
+outcome-free screening followed by a small, frozen, high-information outcome
+read—not serial paperwork and not an outcome-tuned grid.
