@@ -20,6 +20,33 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 05:05 UTC (one-hundred-sixty-eighth update)
+
+### Replacement image is accepted; the single ordinal-2 recovery launch is next
+
+- Replacement Cloud Build `2bb2926f-1b9d-46dd-843a-19f9917bdfa4`
+  reached terminal `SUCCESS` at `2026-08-27T05:03:41.354687Z` against exact
+  pushed source `a99218f850b2c4f75369edfafd14682816c82b92`.
+  All six stages passed; the exact build suite was **364 passed / 1 skipped**
+  in 687.48 seconds and the immutable-digest smoke passed.
+- The accepted recovery-only image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:8a06aff5826810de488afb27420c5d528967445b6d7def9a8e436a420a1be35b`.
+  Its machine receipt is generation `1787807017172287`, 7,675 bytes and
+  object SHA-256
+  `806b35bdec75e0eb40eae331be4aa02d531793b2b60705e30bb1c00a4f74f5c0`
+  at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/r6-full-union-post-freeze-builds/2bb2926f-1b9d-46dd-843a-19f9917bdfa4/r6-post-freeze-build-metadata.json`.
+  It binds the corrected controller source and records no outcome use, lease
+  acquisition, query/scoring, job/IAM/graph or production mutation.
+- Exact next action: use this digest and source SHA only, explicitly pin
+  `R6_SCORE_PYTHON=/home/erich/projects/nfl-predictions/.venv/bin/python`, and
+  invoke `recover-supply` once. Ordinal-2 intent/ownership/execution remain
+  absent and its one-call authority remains intact. Do not use either prior
+  recovery digest, submit a query/build, run ordinary supply/run, alter the
+  live lease/legacy marker or launch another ordinal. On success, record and
+  push recovery evidence, then run only grade, finish and the eight-strategy
+  reporter including T230.
+
 ## Current handoff — 2026-08-27 04:48 UTC (one-hundred-sixty-seventh update)
 
 ### Exact legacy-marker correction is pushed and one replacement build is queued
