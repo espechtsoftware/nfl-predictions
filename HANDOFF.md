@@ -20,6 +20,39 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 18:40 UTC (one-hundred-eighty-second update)
+
+### Lane 3 fixed-G0 candidate and matchup source-v2 authority chain is accepted
+
+- Branch `main`; predecessor/remote head is `316635b0`. The lead accepted the
+  isolated Lane 3 candidate-authority, matchup capture/component/source-v2,
+  root-last release, scored-union comparator, and final consumer slice. It
+  changes no production default and performed no cloud, historical-outcome,
+  deployment, or scoring operation.
+- Candidate authority now exact-replays the frozen G0 carrier/world schedules
+  and preserves exact block/world occurrence coordinates. Component
+  publication v2 accepts only the candidate-authority root and full exact
+  materialization; source-release v2 accepts only the hardened component-v2
+  result and derives upstream authority internally. Caller-supplied candidate
+  rows, release bodies, artifact lists, annotations, admissions, scores, and
+  outcomes are not accepted as authority inputs.
+- The final v2 consumer exact-reopens the terminal source release and candidate
+  authority, reconstructs candidate IDs and ordered nine-player rosters, and
+  requires exact equality with the scored-matrix row axis before replaying all
+  fold/final retrieval laws. The v1 source consumer is explicitly marked
+  non-candidate-authoritative so it cannot be mistaken for the successor gate.
+- The lead-owned combined regression reached 100% with no failures across
+  **158 collected cases** in the 12 Lane 3 test modules. Independent earlier
+  adversarial review found no residual P0/P1/P2 after the component-v2
+  hardening. All 13 source modules pass `py_compile`; staged whitespace review
+  passes. These checks used only hermetic fixtures and no outcome/cloud reads.
+- Remaining operational seam: no real 54-slate source-v2 root or successor
+  score exists yet. The next action is the already-active isolated batch
+  orchestrator: validate/cache the terminal candidate root once, materialize
+  all 54 source triples, publish create-once shards and the terminal root last,
+  bind code/source identities, and run one immutable-artifact smoke before any
+  sparse historical-development comparison.
+
 ## Current handoff — 2026-08-27 18:35 UTC (one-hundred-eighty-first update)
 
 ### Lane 2 outcome-free belief-world substrate is ready for integration
