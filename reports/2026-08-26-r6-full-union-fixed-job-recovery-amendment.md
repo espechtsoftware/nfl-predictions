@@ -196,3 +196,57 @@ After the single recovery execution succeeds:
 No recovery result licenses production selection changes by itself. The first
 read is comparative historical evidence for the already-frozen strategies and
 the starting point for the faster Foundry experiment loop.
+
+## 2026-08-27 prelaunch controller correction and one-call continuation
+
+The first `recover-supply` controller invocation stopped before submitting a
+Cloud Run execution. The exact defect was shell status propagation: when the
+exact execution scan correctly found zero prior recovery executions,
+`recover_recovery_execution()` ended with a false `[[ count == 1 ]]` command.
+Under `set -e`, the surrounding assignment exited before entering the branch
+that contains the sole `gcloud run jobs execute` call. The EXIT trap restored
+the original immutable job image. No launch output, launch status, execution
+name, terminal envelope or terminal receipt was created.
+
+This is a pre-submission controller defect, not a failed recovery execution.
+The semantic recovery intent and exact local launch intent remain unchanged.
+The standard no-blind-relaunch law remains in force; neither intent may be
+deleted, renamed or recreated under a different run directory.
+
+The bounded controller correction:
+
+1. returns success with empty output for a complete zero-match scan;
+2. fails explicitly if the inventory request or inventory shape fails;
+3. obtains one complete JSON execution inventory instead of making 359
+   sequential per-execution describe calls; and
+4. applies the same shell-status correction to the ordinary sibling recovery
+   scanner, without changing any normal launch sequence or scientific input.
+
+Focused controller validation passes 38/38, including an executable
+zero-match regression under `set -e` and a failed-inventory regression.
+Shell parsing, Python compilation and diff hygiene pass.
+
+Before any one-call continuation, two complete settled execution inventories
+were observed at `2026-08-27T02:02:45Z` and `2026-08-27T02:03:10Z`, more than
+18 minutes after server creation of the semantic recovery intent at
+`2026-08-27T01:44:18Z`. Both inventories are byte-identical: 359 executions,
+raw SHA-256
+`684ad5fcc8342ad0371f99385381a624452865e7083432b7a77dca15ed1a2836`,
+bytes `1948398`; both have zero executions created at or after the recovery
+intent. The latest remains original failed supply
+`atlas-minimal-c-s2023-w1-v1-cc8xf`, UID
+`9e1edce6-10e9-4e32-bc01-8178e8f9217f`, created
+`2026-08-26T22:17:31.421617Z`. The registered job UID remains
+`d6e4b8c1-5950-46b7-8869-7e34dbf29ad2`, and its original immutable image was
+restored before both observations.
+
+A create-only prelaunch ownership marker must bind those two inventories, the
+unchanged semantic and launch intents, the live lease/read-attempt identities,
+the original and repaired controller measurements, absence of every launch
+result and downstream object, and exactly one authorized Cloud Run submission
+call. Only that exact call may use the already-frozen argv, environment, token
+and recovery image. Its returned execution must then be claimed and monitored
+by `recover-supply`; any ambiguous response consumes the call and fails
+closed. This narrow continuation does not authorize a query submission,
+automatic retry, second recovery execution, new run, retuning, graph change or
+production change.

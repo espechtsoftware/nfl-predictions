@@ -694,6 +694,75 @@ def test_recovery_scans_cloud_before_launch_when_local_stage_was_recreated() -> 
     assert "this local\n    # stage directory was recreated on another machine" in launch
 
 
+def test_recovery_zero_match_scan_returns_success_and_scan_errors_fail_closed(
+    tmp_path: Path,
+) -> None:
+    source = _source()
+    function = source[
+        source.index("recover_recovery_execution()") : source.index(
+            "wait_recovery_terminal()"
+        )
+    ]
+    harness = tmp_path / "scan-harness.sh"
+    harness.write_text(
+        "#!/usr/bin/env bash\n"
+        "set -euo pipefail\n"
+        'PROJECT="fixture-project"\n'
+        'REGION="fixture-region"\n'
+        'RUN_ID="fixture-run"\n'
+        'JOB="fixture-job"\n'
+        'RECOVERY_STAGE="supply-recovery-01"\n'
+        'RECOVERY_IMAGE="fixture/recovery@sha256:' + "a" * 64 + '"\n'
+        'SERVICE_ACCOUNT="fixture@example.invalid"\n'
+        'recovery_env_json() { printf "[]\\n"; }\n'
+        'die() { printf "ERROR: %s\\n" "$*" >&2; exit 1; }\n'
+        + function
+        + '\nresult="$(recover_recovery_execution token arg-one)"\n'
+        + 'test -z "$result"\n',
+        encoding="utf-8",
+    )
+    harness.chmod(0o755)
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    fake_gcloud = fake_bin / "gcloud"
+    fake_gcloud.write_text(
+        "#!/usr/bin/env bash\n"
+        'test "$1 $2 $3 $4" = "run jobs executions list"\n'
+        'printf "[]\\n"\n'
+        "exit 0\n",
+        encoding="utf-8",
+    )
+    fake_gcloud.chmod(0o755)
+
+    empty = subprocess.run(
+        ["bash", str(harness)],
+        cwd=ROOT,
+        env={**os.environ, "PATH": f"{fake_bin}:{os.environ['PATH']}"},
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert empty.returncode == 0, empty.stderr
+    assert empty.stdout == ""
+
+    fake_gcloud.write_text(
+        "#!/usr/bin/env bash\n"
+        'test "$1 $2 $3 $4" = "run jobs executions list"\n'
+        "exit 17\n",
+        encoding="utf-8",
+    )
+    failed = subprocess.run(
+        ["bash", str(harness)],
+        cwd=ROOT,
+        env={**os.environ, "PATH": f"{fake_bin}:{os.environ['PATH']}"},
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert failed.returncode != 0
+    assert "recovery execution inventory failed" in failed.stderr
+
+
 def test_recovery_preconditions_precede_mutation_and_restore_original_job() -> None:
     source = _source()
     recover = source[

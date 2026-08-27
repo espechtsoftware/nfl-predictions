@@ -20,6 +20,40 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 02:04 UTC (one-hundred-sixty-third update)
+
+### R6 recovery stopped safely before launch; bounded controller correction is ready
+
+- The first `recover-supply` invocation created the unchanged semantic
+  recovery intent (generation `1787795058875426`, SHA-256
+  `11d50853f8c378bbead7abfaef1cb97b932b6fdf1d5450442daff420bb7e1ccc`)
+  and exact local launch intent (SHA-256
+  `d380b09c6e4658d553adbd181164b59ab41131e448653fca77d3e63d507bde95`,
+  bytes `3453`), then stopped before the only execute call. The zero-match
+  scanner returned shell status 1 from its final false conditional under
+  `set -e`. There is no launch-output/status/name/terminal evidence, and the
+  EXIT trap restored original image digest `8be07290...89de8`.
+- Two complete settled Cloud Run inventories at `02:02:45Z` and `02:03:10Z`
+  are byte-identical (359 executions; SHA-256
+  `684ad5fcc8342ad0371f99385381a624452865e7083432b7a77dca15ed1a2836`,
+  bytes `1948398`) and contain zero executions created at or after the semantic
+  intent's server time `01:44:18Z`. Latest remains original `cc8xf`, UID
+  `9e1edce6-10e9-4e32-bc01-8178e8f9217f`, created
+  `2026-08-26T22:17:31.421617Z`. This closes the pre-submit visibility race;
+  no recovery execution exists.
+- The bounded shell correction makes a valid zero-match scan return success,
+  fails closed on inventory errors/shape drift and replaces 359 sequential
+  describes with one complete JSON inventory. The same status defect is
+  swept in the ordinary sibling scanner. Focused shell tests pass **38/38**;
+  shell parse, Python compile and diff checks pass. The frozen semantic/launch
+  intent bytes and remote recovery executable/image are unchanged.
+- Exact next action: commit/push this controller-only correction and amended
+  law; create/equal one prelaunch ownership marker binding the two censuses,
+  intent, controller, lease/read-attempt, absence and one-call authority; issue
+  exactly the frozen recovery execution call, then have `recover-supply`
+  claim/monitor it. No query, retry, second execution, intent deletion, new
+  run directory, graph or production action is licensed.
+
 ## Current handoff — 2026-08-27 01:36 UTC (one-hundred-sixty-second update)
 
 ### Latest Observatory Phase 5 correction remains isolated and is rejected; R6 recovery build continues

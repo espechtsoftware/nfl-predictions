@@ -365,15 +365,27 @@ stage_env_json() {
 
 recover_execution() {
   local stage="$1" token="$2" gate="$3"; shift 3
-  local names candidate temp argv_json env_json matches=()
+  local inventory candidate candidate_name argv_json env_json matches=()
   argv_json="$(printf '%s\n' "$@" | jq -Rsc 'split("\n")[:-1]')"
   env_json="$(stage_env_json "$gate" "$token")"
-  names="$(gcloud run jobs executions list --job "$JOB" --project "$PROJECT" --region "$REGION" --format='value(metadata.name)')"
+  inventory="$(mktemp)"
+  if ! gcloud run jobs executions list --job "$JOB" \
+    --project "$PROJECT" --region "$REGION" \
+    --format=json >"$inventory"; then
+    rm -f -- "$inventory"
+    die "recovery execution inventory failed"
+  fi
+  jq -e 'type == "array"' "$inventory" >/dev/null || {
+    rm -f -- "$inventory"
+    die "recovery execution inventory shape differs"
+  }
   while IFS= read -r candidate; do
     [[ -n "$candidate" ]] || continue
-    candidate="${candidate##*/}"
-    temp="$(mktemp)"
-    gcloud run jobs executions describe "$candidate" --project "$PROJECT" --region "$REGION" --format=json >"$temp"
+    candidate_name="$(jq -r '.metadata.name | split("/")[-1]' <<<"$candidate")"
+    [[ "$candidate_name" =~ ^[a-z0-9][a-z0-9-]{2,127}$ ]] || {
+      rm -f -- "$inventory"
+      die "recovery execution inventory name differs"
+    }
     if jq -e --arg token "$token" --arg image "$IMAGE" --arg job "$JOB" \
       --arg service_account "$SERVICE_ACCOUNT" \
       --argjson argv "$argv_json" --argjson expected_env "$env_json" '
@@ -393,13 +405,16 @@ recover_execution() {
         and ((.spec.template.spec.vpcAccess // {}) == {})
         and .spec.template.spec.serviceAccountName == $service_account
         and $containers[0].resources.limits == {cpu:"8",memory:"32Gi"}
-    ' "$temp" >/dev/null; then
-      matches+=("$candidate")
+    ' <<<"$candidate" >/dev/null; then
+      matches+=("$candidate_name")
     fi
-    rm -f -- "$temp"
-  done <<<"$names"
+  done < <(jq -c '.[]' "$inventory")
+  rm -f -- "$inventory"
   [[ "${#matches[@]}" -le 1 ]] || die "execution-name recovery is ambiguous for $stage"
-  [[ "${#matches[@]}" -eq 1 ]] && printf '%s\n' "${matches[0]}"
+  if [[ "${#matches[@]}" -eq 1 ]]; then
+    printf '%s\n' "${matches[0]}"
+  fi
+  return 0
 }
 
 wait_terminal() {
@@ -542,15 +557,27 @@ recovery_stage_token() {
 
 recover_recovery_execution() {
   local token="$1"; shift
-  local names candidate temp argv_json env_json matches=()
+  local inventory candidate candidate_name argv_json env_json matches=()
   argv_json="$(printf '%s\n' "$@" | jq -Rsc 'split("\n")[:-1]')"
   env_json="$(recovery_env_json "$token")"
-  names="$(gcloud run jobs executions list --job "$JOB" --project "$PROJECT" --region "$REGION" --format='value(metadata.name)')"
+  inventory="$(mktemp)"
+  if ! gcloud run jobs executions list --job "$JOB" \
+    --project "$PROJECT" --region "$REGION" \
+    --format=json >"$inventory"; then
+    rm -f -- "$inventory"
+    die "recovery execution inventory failed"
+  fi
+  jq -e 'type == "array"' "$inventory" >/dev/null || {
+    rm -f -- "$inventory"
+    die "recovery execution inventory shape differs"
+  }
   while IFS= read -r candidate; do
     [[ -n "$candidate" ]] || continue
-    candidate="${candidate##*/}"
-    temp="$(mktemp)"
-    gcloud run jobs executions describe "$candidate" --project "$PROJECT" --region "$REGION" --format=json >"$temp"
+    candidate_name="$(jq -r '.metadata.name | split("/")[-1]' <<<"$candidate")"
+    [[ "$candidate_name" =~ ^[a-z0-9][a-z0-9-]{2,127}$ ]] || {
+      rm -f -- "$inventory"
+      die "recovery execution inventory name differs"
+    }
     if jq -e --arg image "$RECOVERY_IMAGE" --arg job "$JOB" \
       --arg service_account "$SERVICE_ACCOUNT" \
       --argjson argv "$argv_json" --argjson expected_env "$env_json" '
@@ -570,13 +597,16 @@ recover_recovery_execution() {
         and ((.spec.template.spec.vpcAccess // {}) == {})
         and .spec.template.spec.serviceAccountName == $service_account
         and $containers[0].resources.limits == {cpu:"8",memory:"32Gi"}
-    ' "$temp" >/dev/null; then
-      matches+=("$candidate")
+    ' <<<"$candidate" >/dev/null; then
+      matches+=("$candidate_name")
     fi
-    rm -f -- "$temp"
-  done <<<"$names"
+  done < <(jq -c '.[]' "$inventory")
+  rm -f -- "$inventory"
   [[ "${#matches[@]}" -le 1 ]] || die "execution-name recovery is ambiguous for $RECOVERY_STAGE"
-  [[ "${#matches[@]}" -eq 1 ]] && printf '%s\n' "${matches[0]}"
+  if [[ "${#matches[@]}" -eq 1 ]]; then
+    printf '%s\n' "${matches[0]}"
+  fi
+  return 0
 }
 
 wait_recovery_terminal() {
