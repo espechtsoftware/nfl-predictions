@@ -20,6 +20,57 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 16:29 UTC (one-hundred-seventy-seventh update)
+
+### Lead-architect review amends the proposed R6 adoption sequence
+
+- Branch `main`; reviewed predecessor is `6974b74a`. Appended a 339-line
+  `Lead-architect adoption review` to
+  `reports/2026-08-27-r6-corpus-selection-deep-review.md`. The disposition is
+  **adopt with amendments**: retain the population/retrieval funnel,
+  multi-belief direction, relaxed-law diversity, joint-portfolio goal, and
+  rejection of pure-T230/hindsight rules, but do not treat the exact sequence
+  as promotion authority yet.
+- The principal amendments are: publish the numerical analysis as a durable
+  deterministic release; opportunity-adjust binary selector conversion;
+  treat the viewed 54 slates as development rather than fresh confirmation;
+  benchmark multiple scheduler proxies without realized outcomes before
+  freezing one or two; run the existing matchup/trait and field-model tracks
+  in parallel; preserve repeated-optimum multiplicity; use a Pareto rather
+  than hard population veto; retain the eight books as controls when adding a
+  joint multi-law shadow; and require arm-isolated equal-compute evidence
+  before causal allocation claims.
+- The amended sequence explicitly prioritizes exact occurrence, PIT trait,
+  and player-contribution sidecars; factorial fill/belief/selector experiments;
+  corpus-size/compute normalization; slate-paired uncertainty; and an
+  untouched confirmation partition. Neo4j/UI remain downstream projections,
+  not evidence authority or an experiment prerequisite.
+- Validation: the edited report is 821 lines / 8,503 words with SHA-256
+  `cd949599dc3d0ee455189e185d74651e8eba9a2c5f8520692369507aeb8f6667`;
+  `git diff --check` passes. This review opened no realized-outcome source and
+  performed no score query, rescore, cloud write, or production decision.
+
+### Attribution publication stopped safely at a resumable partial prefix
+
+- The guarded publisher for output run
+  `20260827-foundry-v12-r6-full-union-attribution-v1` created and exact-reopened
+  immutable shards `00-2023-w01.json` through `25-2024-w08.json` (26/54).
+  Shard 26 and the terminal root are absent. No object was deleted or
+  overwritten.
+- The process then exited nonzero while publishing shard 26. The GCS adapter
+  swallowed an upload exception as an intentionally ambiguous write, but the
+  immediate exact current-object resolution returned `NotFound`; because the
+  object was genuinely absent, the adapter raised
+  `attribution current object resolution failed`. The prefix remains valid
+  for the implemented create-or-existing-byte-identical resume law.
+- Exact next operational action: add and test a bounded create/recheck retry
+  for the GCS adapter without weakening collision checks, commit/push it, then
+  rerun the identical guarded publish command against the same output run ID.
+  Existing 26 shards must compare byte-identically; different bytes fail. Do
+  not delete the prefix or launch a second concurrent writer. On terminal
+  publication, run the separate full authoritative `reopen` and record the
+  root identity and 54+root census.
+
 ## Current handoff — 2026-08-27 16:16 UTC (one-hundred-seventy-sixth update)
 
 ### Deep R6 corpus/population and final-fit selection review is complete
