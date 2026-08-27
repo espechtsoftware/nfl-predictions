@@ -47,12 +47,22 @@ agent or developer:
   mode is load-feasible. P2: bind the remaining semantically relevant global
   graph/property/byte/list/integer and batch limits as well.
 - This correction is not merged and cannot affect or delay scoring. Immutable
-  R6 recovery build `b953bcff-5e55-40af-a778-64c6503675d1` remains active:
-  exact pushed checkout passed and its 315-test focused gate is running with
-  no failure. Exact next scoring action remains metadata-only polling to
-  terminal; on success, validate the emitted immutable digest, durably record
-  it, invoke the single get-only `recover-supply`, then run only `grade`,
-  `finish`, and the bounded eight-strategy score reporter including T230.
+  R6 recovery build `b953bcff-5e55-40af-a778-64c6503675d1` reached terminal
+  **SUCCESS** at `2026-08-27T01:41:56.407256Z` from exact pushed source
+  `066bc10a79ddf13b02e6efb795c1ffb121c560a5`. All six stages passed;
+  focused validation was **314 passed, 1 skipped** and the immutable-digest
+  smoke passed. The recovery image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:5546234a0e06156093aa2685a4078ad713e8b0c8087f4623046c9377a00e0c71`.
+  Its machine receipt is generation `1787794911405744`, bytes `7675`, object
+  SHA-256
+  `bec4bd47aa04a2d1843b5158a678c64c1da6ad83975ee7719901853135efcfc7`
+  at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/r6-full-union-post-freeze-builds/b953bcff-5e55-40af-a778-64c6503675d1/r6-post-freeze-build-metadata.json`.
+  It explicitly records no query, scoring, lease, IAM, graph or production
+  mutation. Exact next action is invoke the single get-only `recover-supply`
+  against the retained failed supply and fixed successful BigQuery job; on
+  terminal success, run only `grade`, `finish`, and the bounded
+  eight-strategy score reporter including T230.
 
 ## Current handoff — 2026-08-27 01:07 UTC (one-hundred-sixty-first update)
 
