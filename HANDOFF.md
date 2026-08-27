@@ -20,6 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 04:36 UTC (one-hundred-sixty-fifth update)
+
+### R6 recovery ordinal-2 immutable image is accepted; one recovery launch is next
+
+- Exact pushed source `9108bce5395b2f206c44f848a63dd3d3c56ce9ac`
+  completed the sole detached-source Cloud Build
+  `76877cf4-9b0f-4f31-bd24-70a387f07988` at
+  `2026-08-27T04:34:57.716221Z`. All six stages succeeded: exact detached
+  checkout, the full **349 passed / 1 skipped** contract, image build,
+  registry push/digest resolution, immutable-digest smoke and machine receipt.
+- The accepted recovery-only image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:6ae155d64d9511258c4a86f960c992b943def1af3cb547e43a198c775afa994f`.
+  Its machine receipt is generation `1787805292952818`, 7,675 bytes and
+  object SHA-256
+  `2e859769fb376b7ad51f31b3794f9c295308fb07f624afb6ec1cadbc5886da33`
+  at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/r6-full-union-post-freeze-builds/76877cf4-9b0f-4f31-bd24-70a387f07988/r6-post-freeze-build-metadata.json`.
+  The receipt binds the exact source commit and records no outcome use,
+  historical lease acquisition, query, scoring, job/IAM/graph or production
+  mutation.
+- Exact next action is set recovery code SHA to that exact source and recovery
+  image to that immutable digest, then invoke `recover-supply` exactly once for
+  retained run `20260826-foundry-v12-r6-full-union-realized-v2`. This may only
+  retrieve the already-completed fixed BigQuery job; do not submit a query,
+  run ordinary `supply`/`run`, replace the live lease or launch another
+  recovery ordinal. On terminal success, record the execution/receipt,
+  restore the original image, then run only `grade`, `finish`, and the exact
+  eight-strategy aggregate reporter including T230.
+
 ## Current handoff — 2026-08-27 04:07 UTC (one-hundred-sixty-fourth update)
 
 ### R6 recovery ordinal 2 is approved and ready for immutable build
