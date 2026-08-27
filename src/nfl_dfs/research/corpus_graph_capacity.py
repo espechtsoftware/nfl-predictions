@@ -76,6 +76,7 @@ MAX_COUNT: Final = 10**12
 MAX_URI_BYTES: Final = 2_048
 MAX_IDENTITY_OBJECT_BYTES: Final = 256 * 1024**2
 MAX_RELEASE_MANIFEST_ENTRIES: Final = 1_024
+MAX_FIXTURE_SCALE: Final = 1_000
 _GCS_BUCKET: Final = re.compile(r"^[a-z0-9][a-z0-9._-]{1,61}[a-z0-9]$")
 SYNTHETIC_URI_PREFIX: Final = "gs://synthetic-fixture.invalid/"
 _ID: Final = re.compile(r"^[A-Za-z0-9][A-Za-z0-9:._/-]{0,199}$")
@@ -200,6 +201,49 @@ CLOSED_RELATIONSHIP_TYPES: Final = frozenset(
 OPEN_NODE_KINDS: Final = graph.NODE_KINDS - CLOSED_NODE_KINDS
 OPEN_RELATIONSHIP_TYPES: Final = graph.RELATIONSHIP_TYPES - CLOSED_RELATIONSHIP_TYPES
 
+
+def property_schema_version() -> str:
+    """Bind the positive property schema by COMPLETE rule content."""
+
+    def rule_image(rule: object) -> dict[str, object]:
+        allowed = getattr(rule, "allowed_strings", None)
+        return {
+            "value_type": getattr(rule, "value_type", None),
+            "max_string_bytes": getattr(rule, "max_string_bytes", None),
+            "max_list_items": getattr(rule, "max_list_items", None),
+            "allowed_strings": (
+                None if allowed is None else sorted(allowed)
+            ),
+        }
+
+    schema_image = {
+        "nodes": {
+            kind: {name: rule_image(rule) for name, rule in sorted(rules.items())}
+            for kind, rules in sorted(graph.NODE_PROPERTY_SCHEMA.items())
+        },
+        "relationships": {
+            relationship: {
+                name: rule_image(rule) for name, rule in sorted(rules.items())
+            }
+            for relationship, rules in sorted(
+                graph.RELATIONSHIP_PROPERTY_SCHEMA.items()
+            )
+        },
+        "node_namespaces": {
+            kind: sorted(namespaces)
+            for kind, namespaces in sorted(graph.NODE_NAMESPACE_SCHEMA.items())
+        },
+        "relationship_namespaces": {
+            relationship: sorted(namespaces)
+            for relationship, namespaces in sorted(
+                graph.RELATIONSHIP_NAMESPACE_SCHEMA.items()
+            )
+        },
+    }
+    return f"{graph.GRAPH_SCHEMA_VERSION}+properties-{canonical_sha256(schema_image)[:16]}"
+
+
+
 # ------------------------------------------------------------------ #
 # ONE canonical, versioned, deep-frozen semantic contract.             #
 # Every registry the estimator consults lives here; its literal digest #
@@ -209,13 +253,70 @@ OPEN_RELATIONSHIP_TYPES: Final = graph.RELATIONSHIP_TYPES - CLOSED_RELATIONSHIP_
 
 SEMANTIC_CONTRACT_VERSION: Final = "foundry-graph-capacity-semantic-contract/v1"
 
+
+def graph_binding_now() -> dict[str, object]:
+    """Exact image of the LIVE graph contract this estimator is bound to.
+
+    Recomputed on every call from ``corpus_graph_vnext_contracts``: graph
+    schema version, the complete node/relationship vocabularies, the
+    closed/open split, every namespace schema, the forbidden and qualified
+    relationship laws, and the complete-property-rule version. Any live
+    drift makes the semantic contract's embedded binding stale and fails
+    every build and validation.
+    """
+
+    closed_namespaces = frozenset(graph.ALLOWED_NAMESPACES - graph.OFFLINE_ALLOWED_NAMESPACES)
+    closed_kinds = sorted(
+        kind for kind, namespaces in graph.NODE_NAMESPACE_SCHEMA.items()
+        if namespaces <= closed_namespaces
+    )
+    closed_relationships = sorted(
+        relationship
+        for relationship, namespaces in graph.RELATIONSHIP_NAMESPACE_SCHEMA.items()
+        if namespaces <= closed_namespaces
+    )
+    return {
+        "graph_schema_version": graph.GRAPH_SCHEMA_VERSION,
+        "property_schema_version": property_schema_version(),
+        "allowed_namespaces": sorted(graph.ALLOWED_NAMESPACES),
+        "offline_allowed_namespaces": sorted(graph.OFFLINE_ALLOWED_NAMESPACES),
+        "closed_namespaces": sorted(closed_namespaces),
+        "node_kinds": sorted(graph.NODE_KINDS),
+        "relationship_types": sorted(graph.RELATIONSHIP_TYPES),
+        "forbidden_relationship_types": sorted(graph.FORBIDDEN_RELATIONSHIP_TYPES),
+        "qualified_inferred_types": sorted(graph.QUALIFIED_INFERRED_TYPES),
+        "closed_node_kinds": closed_kinds,
+        "closed_relationship_types": closed_relationships,
+        "open_node_kinds": sorted(graph.NODE_KINDS - set(closed_kinds)),
+        "open_relationship_types": sorted(graph.RELATIONSHIP_TYPES - set(closed_relationships)),
+        "node_namespace_schema": {
+            kind: sorted(namespaces)
+            for kind, namespaces in sorted(graph.NODE_NAMESPACE_SCHEMA.items())
+        },
+        "relationship_namespace_schema": {
+            relationship: sorted(namespaces)
+            for relationship, namespaces in sorted(graph.RELATIONSHIP_NAMESPACE_SCHEMA.items())
+        },
+    }
+
+
 _SEMANTIC_CONTRACT_CONTENT: Final[dict[str, object]] = {
     "version": SEMANTIC_CONTRACT_VERSION,
-    "graph_schema_version": graph.GRAPH_SCHEMA_VERSION,
+    "graph_binding": graph_binding_now(),
     "modes": ["full-lineup", "summary-only"],
     "roster_slots": ROSTER_SLOTS,
     "closed_node_kinds": sorted(CLOSED_NODE_KINDS),
     "closed_relationship_types": sorted(CLOSED_RELATIONSHIP_TYPES),
+    "excluded_from_graph": [
+        "world score matrices",
+        "per-world nodes or relationships",
+        "dense pairwise player/lineup networks (quadratic)",
+        "raw licensed Fantasy Points or SIS rows",
+        "raw contest standings and contestant identifiers",
+        "credentials or secrets",
+        "mutable active-policy pointers",
+        "realized namespace (closed in v1): winner and outcome node kinds and relationships",
+    ],
     # Node-count inputs: name -> {kind, modes}. Lineup counts are mode-bound.
     "node_count_inputs": [
         {"name": "accepted_slate_count", "kind": "Slate", "modes": ["full-lineup", "summary-only"]},
@@ -330,9 +431,10 @@ _SEMANTIC_CONTRACT_CONTENT: Final[dict[str, object]] = {
     ],
 }
 SEMANTIC_CONTRACT: Final[Mapping[str, object]] = _freeze(_SEMANTIC_CONTRACT_CONTENT)  # type: ignore[assignment]
-# Literal v1 digest of the semantic contract, pinned. A changed registry is
-# a NEW contract version with a new pinned digest.
-SEMANTIC_CONTRACT_SHA256: Final = "c9e6994a0a73fa612b707205fcf057321189e40918f8ab7a053cde83adf1662d"
+# Literal v1 digest of the semantic contract (including its live graph
+# binding), pinned. A changed registry or graph contract is a NEW contract
+# version with a new pinned digest.
+SEMANTIC_CONTRACT_SHA256: Final = "18a0ddb1cb97fa674ed3cd7ce8a2491d16e373d9e49ef172a39b266916183bee"
 
 
 def contract_digest_now() -> str:
@@ -342,10 +444,16 @@ def contract_digest_now() -> str:
 
 
 def require_frozen_contract() -> Mapping[str, object]:
-    """Fail closed unless the live contract still hashes to its pinned digest."""
+    """Fail closed unless the live contract hashes to its pinned digest AND
+    its embedded graph binding equals the live graph contract exactly."""
 
     if contract_digest_now() != SEMANTIC_CONTRACT_SHA256:
         _fail("semantic contract content drifted from its frozen v1 digest")
+    if _plain(SEMANTIC_CONTRACT["graph_binding"]) != graph_binding_now():
+        _fail(
+            "live graph contract differs from the semantic contract's graph "
+            "binding (version, vocabulary, namespace, or property semantics)"
+        )
     return SEMANTIC_CONTRACT
 
 
@@ -360,47 +468,6 @@ DERIVED_RELATIONSHIP_TYPES: Final = frozenset(SEMANTIC_CONTRACT["derived_relatio
 RELEASE_MANIFESTS: Final[tuple[Mapping[str, str], ...]] = SEMANTIC_CONTRACT["release_manifests"]  # type: ignore[assignment]
 NODE_COUNT_INPUTS: Final[tuple[Mapping[str, object], ...]] = SEMANTIC_CONTRACT["node_count_inputs"]  # type: ignore[assignment]
 EXACT_RELATIONSHIP_INPUTS: Final[tuple[Mapping[str, object], ...]] = SEMANTIC_CONTRACT["exact_relationship_inputs"]  # type: ignore[assignment]
-
-
-def property_schema_version() -> str:
-    """Bind the positive property schema by COMPLETE rule content."""
-
-    def rule_image(rule: object) -> dict[str, object]:
-        allowed = getattr(rule, "allowed_strings", None)
-        return {
-            "value_type": getattr(rule, "value_type", None),
-            "max_string_bytes": getattr(rule, "max_string_bytes", None),
-            "max_list_items": getattr(rule, "max_list_items", None),
-            "allowed_strings": (
-                None if allowed is None else sorted(allowed)
-            ),
-        }
-
-    schema_image = {
-        "nodes": {
-            kind: {name: rule_image(rule) for name, rule in sorted(rules.items())}
-            for kind, rules in sorted(graph.NODE_PROPERTY_SCHEMA.items())
-        },
-        "relationships": {
-            relationship: {
-                name: rule_image(rule) for name, rule in sorted(rules.items())
-            }
-            for relationship, rules in sorted(
-                graph.RELATIONSHIP_PROPERTY_SCHEMA.items()
-            )
-        },
-        "node_namespaces": {
-            kind: sorted(namespaces)
-            for kind, namespaces in sorted(graph.NODE_NAMESPACE_SCHEMA.items())
-        },
-        "relationship_namespaces": {
-            relationship: sorted(namespaces)
-            for relationship, namespaces in sorted(
-                graph.RELATIONSHIP_NAMESPACE_SCHEMA.items()
-            )
-        },
-    }
-    return f"{graph.GRAPH_SCHEMA_VERSION}+properties-{canonical_sha256(schema_image)[:16]}"
 
 
 # ------------------------------------------------------------------ #
@@ -538,31 +605,36 @@ REQUIRED_PARAMETERS: Final[tuple[RequiredInput, ...]] = tuple(
 def required_inputs_manifest() -> list[dict[str, object]]:
     """The exact, ordered list of inputs the lead must supply."""
 
-    return [
-        {
-            "name": item.name,
-            "kind": item.kind,
-            "description": item.description,
-            "modes": list(item.modes),
-        }
-        for group in (
-            REQUIRED_COUNTS, REQUIRED_IDENTITIES, REQUIRED_RELEASE_MANIFESTS,
-            REQUIRED_VERSIONS, REQUIRED_HASHES, REQUIRED_PARAMETERS,
-        )
-        for item in group
-    ]
+    contract = require_frozen_contract()
+    all_modes = list(contract["modes"])  # type: ignore[arg-type]
+    manifest: list[dict[str, object]] = []
+    for entry in contract["node_count_inputs"]:  # type: ignore[union-attr]
+        name = str(entry["name"])  # type: ignore[index]
+        manifest.append({"name": name, "kind": "count", "description": f"[{entry['kind']}] {_DESCRIPTIONS[name]}", "modes": list(entry["modes"])})  # type: ignore[index]
+    for entry in contract["exact_relationship_inputs"]:  # type: ignore[union-attr]
+        name = str(entry["name"])  # type: ignore[index]
+        manifest.append({"name": name, "kind": "count", "description": f"[{entry['relationship']}] {_DESCRIPTIONS[name]}", "modes": list(entry["modes"])})  # type: ignore[index]
+    for name in contract["scalar_count_inputs"]:  # type: ignore[union-attr]
+        manifest.append({"name": str(name), "kind": "count", "description": _DESCRIPTIONS[str(name)], "modes": all_modes})
+    for name in contract["identity_inputs"]:  # type: ignore[union-attr]
+        manifest.append({"name": str(name), "kind": "identity", "description": _DESCRIPTIONS[str(name)], "modes": all_modes})
+    for entry in contract["release_manifests"]:  # type: ignore[union-attr]
+        manifest.append({
+            "name": str(entry["name"]), "kind": "release_manifest",  # type: ignore[index]
+            "description": f"[{entry['kind']}] list of {{release_id, identity}} whose length equals {entry['count_input']}",  # type: ignore[index]
+            "modes": all_modes,
+        })
+    for name in contract["version_inputs"]:  # type: ignore[union-attr]
+        manifest.append({"name": str(name), "kind": "version", "description": _DESCRIPTIONS[str(name)], "modes": all_modes})
+    for name in contract["hash_inputs"]:  # type: ignore[union-attr]
+        manifest.append({"name": str(name), "kind": "hash", "description": _DESCRIPTIONS[str(name)], "modes": all_modes})
+    for name in contract["parameter_inputs"]:  # type: ignore[union-attr]
+        manifest.append({"name": str(name), "kind": "parameter", "description": _DESCRIPTIONS[str(name)], "modes": all_modes})
+    return manifest
 
 
-EXCLUDED_FROM_GRAPH: Final = (
-    "world score matrices",
-    "per-world nodes or relationships",
-    "dense pairwise player/lineup networks (quadratic)",
-    "raw licensed Fantasy Points or SIS rows",
-    "raw contest standings and contestant identifiers",
-    "credentials or secrets",
-    "mutable active-policy pointers",
-    "realized namespace (closed in v1): winner and outcome node kinds and relationships",
-)
+def excluded_from_graph() -> tuple[str, ...]:
+    return tuple(require_frozen_contract()["excluded_from_graph"])  # type: ignore[arg-type]
 
 
 # ------------------------------------------------------------------ #
@@ -592,20 +664,7 @@ def _identity(value: object, *, label: str, authority: InputAuthority) -> dict[s
     ):
         _fail(f"{label}.uri is not a bounded gs:// uri")
     bucket, separator, object_name = uri[5:].partition("/")
-    if (
-        not separator
-        or _GCS_BUCKET.fullmatch(bucket) is None
-        or ".." in bucket
-        or ".-" in bucket
-        or "-." in bucket
-        or re.fullmatch(r"\d{1,3}(?:\.\d{1,3}){3}", bucket) is not None
-        or bucket.startswith("goog")
-        or "google" in bucket
-        or any(len(part) > 63 for part in bucket.split("."))
-        or not object_name
-        or object_name.endswith("/")
-        or "//" in object_name
-    ):
+    if not separator or not _valid_gcs_bucket(bucket) or not object_name or object_name.endswith("/") or "//" in object_name:
         _fail(f"{label}.uri is not a real gs://bucket/object uri")
     synthetic = uri.startswith(SYNTHETIC_URI_PREFIX)
     if authority == "lead-supplied-terminal" and synthetic:
@@ -632,6 +691,36 @@ def _identity(value: object, *, label: str, authority: InputAuthority) -> dict[s
     ):
         _fail(f"{label}.bytes is not within (0, {MAX_IDENTITY_OBJECT_BYTES}]")
     return {"uri": uri, "generation": generation, "sha256": digest, "bytes": byte_count}
+
+
+_GCS_BUCKET_CHARS: Final = re.compile(r"^[a-z0-9][a-z0-9._-]*[a-z0-9]$")
+_GCS_MISSPELLING_MAP: Final = str.maketrans({"0": "o", "1": "l", "3": "e", "4": "a", "5": "s", "7": "t"})
+
+
+def _valid_gcs_bucket(bucket: str) -> bool:
+    """GCS bucket-name grammar: 3-63 chars, or up to 222 when dotted with
+    every dot component 1-63 chars; lowercase letters, digits, dashes,
+    underscores, dots; no IP-literal names; no ``goog`` prefix; no
+    ``google`` or close misspellings (digit-for-letter substitutions)."""
+
+    if _GCS_BUCKET_CHARS.fullmatch(bucket) is None:
+        return False
+    components = bucket.split(".")
+    if any(not 1 <= len(part) <= 63 for part in components):
+        return False
+    limit = 222 if len(components) > 1 else 63
+    if not 3 <= len(bucket) <= limit:
+        return False
+    if ".." in bucket or ".-" in bucket or "-." in bucket:
+        return False
+    if re.fullmatch(r"\d{1,3}(?:\.\d{1,3}){3}", bucket) is not None:
+        return False
+    normalized = bucket.translate(_GCS_MISSPELLING_MAP)
+    if bucket.startswith("goog") or normalized.startswith("goog"):
+        return False
+    if "google" in bucket or "google" in normalized:
+        return False
+    return True
 
 
 def _utc(value: object, *, label: str) -> str:
@@ -715,26 +804,18 @@ def inputs_assertion_digest(packet: Mapping[str, object]) -> str:
     """Content-binding assertion digest for a packet — NOT an approval.
 
     digest = sha256(canonical {"subject": INPUTS_ASSERTION_SUBJECT,
-    "inputs_sha256": <digest of the packet body>}). Anyone holding the
-    packet can compute it; it authenticates nobody and grants nothing.
+    "inputs_sha256": <digest of the NORMALIZED packet body>}). The body is
+    normalized exactly as validation normalizes it (release manifests
+    sorted by release id, canonical key order), so entry order never
+    changes the digest. Anyone holding the packet can compute it; it
+    authenticates nobody and grants nothing.
     """
 
-    body = _canonical_body(packet)
+    body = _normalize_packet(packet)
     return canonical_sha256({
         "subject": INPUTS_ASSERTION_SUBJECT,
         "inputs_sha256": canonical_sha256(body),
     })
-
-
-def _canonical_body(packet: Mapping[str, object]) -> dict[str, object]:
-    return {
-        key: packet[key]
-        for key in (
-            "schema_version", "authority", "counts", "identities",
-            "release_manifests", "versions", "hashes", "parameters",
-            "created_at_utc",
-        )
-    }
 
 
 def _release_manifest(
@@ -769,9 +850,12 @@ def _release_manifest(
     return entries
 
 
-def validate_capacity_inputs(value: Mapping[str, object]) -> dict[str, object]:
-    """Validate the input packet; every required name must be present."""
+def _normalize_packet(value: Mapping[str, object]) -> dict[str, object]:
+    """Validate and canonicalize the packet body against the frozen
+    contract (the sole use-time authority). Assertion and approval-slot
+    checks are applied by validate_capacity_inputs on top of this."""
 
+    contract = require_frozen_contract()
     packet = dict(value)
     expected_keys = {
         "schema_version", "authority", "counts", "identities",
@@ -794,7 +878,11 @@ def validate_capacity_inputs(value: Mapping[str, object]) -> dict[str, object]:
     counts_in = packet["counts"]
     if not isinstance(counts_in, Mapping):
         _fail("counts is not a mapping")
-    required_count_names = [item.name for item in REQUIRED_COUNTS]
+    required_count_names = [
+        *(str(e["name"]) for e in contract["node_count_inputs"]),  # type: ignore[index,union-attr]
+        *(str(e["name"]) for e in contract["exact_relationship_inputs"]),  # type: ignore[index,union-attr]
+        *(str(n) for n in contract["scalar_count_inputs"]),  # type: ignore[union-attr]
+    ]
     missing = [name for name in required_count_names if name not in counts_in]
     if missing:
         _fail(f"required counts absent: {missing}")
@@ -807,7 +895,7 @@ def validate_capacity_inputs(value: Mapping[str, object]) -> dict[str, object]:
     identities_in = packet["identities"]
     if not isinstance(identities_in, Mapping):
         _fail("identities is not a mapping")
-    identity_names = [item.name for item in REQUIRED_IDENTITIES]
+    identity_names = [str(n) for n in contract["identity_inputs"]]  # type: ignore[union-attr]
     if set(identities_in) != set(identity_names):
         _fail(f"identities must carry exactly {identity_names}")
     identities = {
@@ -815,7 +903,6 @@ def validate_capacity_inputs(value: Mapping[str, object]) -> dict[str, object]:
         for name in identity_names
     }
 
-    contract = require_frozen_contract()
     manifests_in = packet["release_manifests"]
     if not isinstance(manifests_in, Mapping):
         _fail("release_manifests is not a mapping")
@@ -834,26 +921,27 @@ def validate_capacity_inputs(value: Mapping[str, object]) -> dict[str, object]:
     versions_in = packet["versions"]
     if not isinstance(versions_in, Mapping):
         _fail("versions is not a mapping")
-    version_names = [item.name for item in REQUIRED_VERSIONS]
+    version_names = [str(n) for n in contract["version_inputs"]]  # type: ignore[union-attr]
     if set(versions_in) != set(version_names):
         _fail(f"versions must carry exactly {version_names}")
-    if versions_in["graph_schema_version"] != graph.GRAPH_SCHEMA_VERSION:
+    binding = contract["graph_binding"]
+    if versions_in["graph_schema_version"] != binding["graph_schema_version"]:  # type: ignore[index]
         _fail("graph_schema_version differs from the contracts module")
-    if versions_in["property_schema_version"] != property_schema_version():
+    if versions_in["property_schema_version"] != binding["property_schema_version"]:  # type: ignore[index]
         _fail("property_schema_version differs from the contracts module")
     versions = {
         "predecessor_graph_release_id": _canonical_id(
             versions_in["predecessor_graph_release_id"],
             label="versions.predecessor_graph_release_id", nullable=True,
         ),
-        "graph_schema_version": graph.GRAPH_SCHEMA_VERSION,
-        "property_schema_version": property_schema_version(),
+        "graph_schema_version": str(binding["graph_schema_version"]),  # type: ignore[index]
+        "property_schema_version": str(binding["property_schema_version"]),  # type: ignore[index]
     }
 
     hashes_in = packet["hashes"]
     if not isinstance(hashes_in, Mapping):
         _fail("hashes is not a mapping")
-    hash_names = [item.name for item in REQUIRED_HASHES]
+    hash_names = [str(n) for n in contract["hash_inputs"]]  # type: ignore[union-attr]
     if set(hashes_in) != set(hash_names):
         _fail(f"hashes must carry exactly {hash_names}")
     hashes = {name: _sha(hashes_in[name], label=f"hashes.{name}") for name in hash_names}
@@ -861,7 +949,7 @@ def validate_capacity_inputs(value: Mapping[str, object]) -> dict[str, object]:
     parameters_in = packet["parameters"]
     if not isinstance(parameters_in, Mapping):
         _fail("parameters is not a mapping")
-    parameter_names = [item.name for item in REQUIRED_PARAMETERS]
+    parameter_names = [str(n) for n in contract["parameter_inputs"]]  # type: ignore[union-attr]
     if set(parameters_in) != set(parameter_names):
         _fail(f"parameters must carry exactly {parameter_names}")
     parameters = {name: _count(parameters_in[name], label=f"parameters.{name}") for name in parameter_names}
@@ -869,7 +957,7 @@ def validate_capacity_inputs(value: Mapping[str, object]) -> dict[str, object]:
         if parameters[name] <= 0:
             _fail(f"parameters.{name} must be positive")
 
-    body = {
+    return {
         "schema_version": CAPACITY_INPUTS_SCHEMA,
         "authority": authority,
         "counts": counts,
@@ -880,6 +968,14 @@ def validate_capacity_inputs(value: Mapping[str, object]) -> dict[str, object]:
         "parameters": parameters,
         "created_at_utc": created,
     }
+
+
+def validate_capacity_inputs(value: Mapping[str, object]) -> dict[str, object]:
+    """Validate the input packet; every contract-required name must be present."""
+
+    packet = dict(value)
+    body = _normalize_packet(packet)
+    authority = body["authority"]
     if packet.get("lead_approval_receipt_identity") is not None:
         _fail(
             "lead_approval_receipt_identity is reserved: this offline phase "
@@ -1094,9 +1190,13 @@ def estimate_mode(counts: Mapping[str, int], parameters: Mapping[str, int], mode
 def build_capacity_receipt(inputs: Mapping[str, object], *, created_at_utc: str) -> dict[str, object]:
     retained = validate_capacity_inputs(inputs)
     created_at_utc = _utc(created_at_utc, label="receipt created_at_utc")
+    contract = require_frozen_contract()
     counts = retained["counts"]
     parameters = retained["parameters"]
-    estimates = {mode: estimate_mode(counts, parameters, mode) for mode in MODES}
+    estimates = {
+        str(mode): estimate_mode(counts, parameters, str(mode))
+        for mode in contract["modes"]  # type: ignore[union-attr]
+    }
     full_ok = bool(estimates["full-lineup"]["feasible"])
     summary_ok = bool(estimates["summary-only"]["feasible"])
     if full_ok and summary_ok:
@@ -1167,11 +1267,11 @@ def build_capacity_receipt(inputs: Mapping[str, object], *, created_at_utc: str)
         "decision": decision,
         "required_inputs_manifest": required_inputs_manifest(),
         "closed_vocabulary": {
-            "node_kinds": sorted(CLOSED_NODE_KINDS),
-            "relationship_types": sorted(CLOSED_RELATIONSHIP_TYPES),
+            "node_kinds": list(contract["closed_node_kinds"]),  # type: ignore[arg-type]
+            "relationship_types": list(contract["closed_relationship_types"]),  # type: ignore[arg-type]
             "note": "realized-only vocabulary is closed in v1 and contributes no elements",
         },
-        "excluded_from_graph": list(EXCLUDED_FROM_GRAPH),
+        "excluded_from_graph": list(contract["excluded_from_graph"]),  # type: ignore[arg-type]
         "labels_law": (
             "summary-only is never labeled full; full-lineup applies only "
             "when every declared accepted lineup loads"
@@ -1227,8 +1327,8 @@ def validate_capacity_receipt(value: Mapping[str, object]) -> dict[str, object]:
 def fixture_capacity_inputs(*, scale: int = 1) -> dict[str, object]:
     """Deterministic synthetic inputs; authority is always fixture."""
 
-    if not isinstance(scale, int) or isinstance(scale, bool) or scale < 1:
-        _fail("fixture scale must be a positive integer")
+    if not isinstance(scale, int) or isinstance(scale, bool) or not 1 <= scale <= MAX_FIXTURE_SCALE:
+        _fail(f"fixture scale must be an integer in [1, {MAX_FIXTURE_SCALE}]")
 
     def identity(name: str, seed: int) -> dict[str, object]:
         return {
@@ -1238,8 +1338,11 @@ def fixture_capacity_inputs(*, scale: int = 1) -> dict[str, object]:
             "bytes": 4_096 + seed,
         }
 
+    # Corpus-scale counts scale; selected/book counts are bounded by the
+    # fixed 54x12x3 book lattice and therefore do NOT scale (coherent at
+    # every supported scale).
     unique = 60_000 * scale
-    selected = 4_320 * scale  # 54 slates x 80 entries
+    selected = 4_320  # 54 slates x 80 entries
     books = 54 * 12 * 3
     return {
         "schema_version": CAPACITY_INPUTS_SCHEMA,

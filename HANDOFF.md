@@ -46,6 +46,38 @@ agent or developer:
 
 ## Neo4j/React observatory workstream — 2026-08-25 (delegated lane; branch-local entry, lead reconciles at integration)
 
+- **Phase 5 fourth correction (2026-08-27)** answering the lead's re-review
+  REJECT of `f2d049b0` (P0=0, P1=2); evidence in the regenerated
+  `reports/2026-08-26-observatory-phase5-capacity-estimator.md`. P1
+  (sole use-time authority): every required count/identity/manifest/
+  version/hash/parameter name, the modes, the closed vocabulary, the
+  exclusion list (moved INTO the contract) and `required_inputs_manifest()`
+  are now read through `require_frozen_contract()` at use time; the
+  cached `REQUIRED_*`/`MODES`/closed-vocabulary names are read-only views
+  only — regressions rebind them and prove stripped identities/hashes/
+  counts still fail and receipts/manifest stay byte-identical. P1 (live
+  graph cross-binding): `graph_binding_now()` recomputes graph schema
+  version, complete-property-rule version, allowed/offline/closed
+  namespaces, complete node/relationship vocabularies with open/closed
+  splits, forbidden/qualified laws and both namespace schemas from the
+  live contracts module; the contract embeds it (new pinned digest
+  `18a0ddb1cb97fa674ed3cd7ce8a2491d16e373d9e49ef172a39b266916183bee`)
+  and `require_frozen_contract()` requires exact live equality at every
+  build/validate — regressions reproduce the review's `UNBOUND_NEW_EDGE`
+  and schema-v2 attacks plus node-kind, namespace-schema, realized-
+  opening, law-dropping and property-rule drifts, none of which can
+  emit or replay. P2s: `inputs_assertion_digest()` hashes the
+  validation-normalized body (manifest order independent, tested);
+  fixture scale scales corpus counts only against the fixed 54×12×3 book
+  lattice and rejects scales outside [1, 1000]; bucket grammar accepts
+  legal dotted names to 222 chars and rejects `goog`/`google` including
+  digit misspellings (`g00gle`, `go0g1e`), IP literals and adjacent
+  separators. Serial validation: capacity **90/90**; graph contracts and
+  Phase 4 fixture adapter regressions rerun serially
+  — graph contracts **40/40**, Phase 4 fixture adapter **33/33**; `git diff --check` clean. Still no mode
+  decision; no merge/rebase/mount/cutover/cloud/Neo4j/infra/deploy;
+  active R6/T230/Core paths untouched. STOPPED for lead re-review.
+
 - **Phase 5 third correction (2026-08-26)** answering the lead's re-review
   REJECT of `a4dc08b1` (P0=0, P1=2, P2=2 — mutable unhashed
   `RELATIONSHIP_ENDPOINTS` and `RELEASE_MANIFESTS` registries let a

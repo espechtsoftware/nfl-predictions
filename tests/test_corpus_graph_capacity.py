@@ -14,7 +14,7 @@ from nfl_dfs.research import corpus_graph_vnext_fixture_adapter as adapter
 
 CREATED = "2026-08-26T00:05:00Z"
 FROZEN_LAW_DIGEST = "5d20920d5c5e4a779230a966f29322c46e21a05a5c442422f0f9ad3884dc5fdc"
-FROZEN_CONTRACT_DIGEST = "c9e6994a0a73fa612b707205fcf057321189e40918f8ab7a053cde83adf1662d"
+FROZEN_CONTRACT_DIGEST = "18a0ddb1cb97fa674ed3cd7ce8a2491d16e373d9e49ef172a39b266916183bee"
 
 
 def _altered_contract(**changes) -> MappingProxyType:
@@ -128,9 +128,11 @@ def test_semantic_contract_digest_is_pinned_frozen_and_live_rederived() -> None:
         "node_count_inputs", "exact_relationship_inputs", "derived_relationship_types",
         "relationship_endpoints", "release_manifests", "identity_inputs",
         "version_inputs", "hash_inputs", "parameter_inputs", "closed_node_kinds",
-        "closed_relationship_types", "modes", "roster_slots",
+        "closed_relationship_types", "modes", "roster_slots", "graph_binding",
+        "excluded_from_graph",
     ):
         assert key in capacity.SEMANTIC_CONTRACT, key
+    assert capacity._plain(capacity.SEMANTIC_CONTRACT["graph_binding"]) == capacity.graph_binding_now()
 
 
 def test_semantic_registries_are_deep_frozen() -> None:
@@ -198,6 +200,135 @@ def test_receipt_embeds_contract_body_and_digest() -> None:
     body = {k: v for k, v in embedded.items() if k != "semantic_contract_sha256"}
     assert capacity.canonical_sha256(body) == FROZEN_CONTRACT_DIGEST
     assert body == capacity._plain(capacity.SEMANTIC_CONTRACT)
+    assert receipt["excluded_from_graph"] == list(embedded["excluded_from_graph"])
+    assert receipt["closed_vocabulary"]["node_kinds"] == list(embedded["closed_node_kinds"])
+    assert set(receipt["estimates"]) == set(embedded["modes"])
+
+
+# ------------------------------------ contract is the sole use-time authority ---
+
+def test_rebinding_cached_registries_cannot_relax_required_fields(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(capacity, "REQUIRED_IDENTITIES", ())
+    monkeypatch.setattr(capacity, "REQUIRED_HASHES", ())
+    monkeypatch.setattr(capacity, "REQUIRED_COUNTS", ())
+    stripped = _inputs()
+    stripped["identities"] = {}
+    stripped["hashes"] = {}
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="identities must carry exactly"):
+        capacity.validate_capacity_inputs(stripped)
+    stripped = _inputs()
+    stripped["hashes"] = {}
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="hashes must carry exactly"):
+        capacity.validate_capacity_inputs(stripped)
+    stripped = _inputs()
+    del stripped["counts"]["fold_count"]  # type: ignore[index]
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="fold_count"):
+        capacity.validate_capacity_inputs(stripped)
+
+
+def test_rebinding_cached_metadata_cannot_change_receipts(monkeypatch: pytest.MonkeyPatch) -> None:
+    genuine = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    monkeypatch.setattr(capacity, "MODES", ("full-lineup",))
+    monkeypatch.setattr(capacity, "CLOSED_NODE_KINDS", frozenset())
+    monkeypatch.setattr(capacity, "CLOSED_RELATIONSHIP_TYPES", frozenset())
+    monkeypatch.setattr(capacity, "DERIVED_RELATIONSHIP_TYPES", frozenset({"CONTAINS_PLAYER"}))
+    monkeypatch.setattr(capacity, "RELATIONSHIP_ENDPOINTS", MappingProxyType({}))
+    monkeypatch.setattr(capacity, "RELEASE_MANIFESTS", ())
+    rebuilt = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    assert rebuilt["receipt_sha256"] == genuine["receipt_sha256"]
+    assert set(rebuilt["estimates"]) == {"full-lineup", "summary-only"}
+    assert rebuilt["closed_vocabulary"]["node_kinds"] == sorted({"WinnerRelease", "WinnerObservation", "OutcomeRelease", "OutcomeGrade"})
+    assert len(rebuilt["excluded_from_graph"]) == 8
+    assert capacity.required_inputs_manifest() == genuine["required_inputs_manifest"]
+    assert capacity.validate_capacity_receipt(genuine)["receipt_sha256"] == genuine["receipt_sha256"]
+
+
+# ------------------------------------------ live graph contract cross-binding ---
+
+def test_live_graph_vocabulary_drift_cannot_emit_or_replay(monkeypatch: pytest.MonkeyPatch) -> None:
+    genuine = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    monkeypatch.setattr(graph, "RELATIONSHIP_TYPES", graph.RELATIONSHIP_TYPES | {"UNBOUND_NEW_EDGE"})
+    assert capacity.graph_binding_now() != capacity._plain(capacity.SEMANTIC_CONTRACT["graph_binding"])
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="live graph contract differs"):
+        capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="live graph contract differs"):
+        capacity.validate_capacity_receipt(genuine)
+    monkeypatch.undo()
+    assert capacity.validate_capacity_receipt(genuine)["receipt_sha256"] == genuine["receipt_sha256"]
+
+
+def test_live_graph_schema_version_drift_cannot_emit_or_replay(monkeypatch: pytest.MonkeyPatch) -> None:
+    genuine = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    monkeypatch.setattr(graph, "GRAPH_SCHEMA_VERSION", "corpus-graph-vnext/v2")
+    v2_packet = _inputs(**{"versions.graph_schema_version": "corpus-graph-vnext/v2"})
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="live graph contract differs"):
+        capacity.validate_capacity_inputs(v2_packet)
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="live graph contract differs"):
+        capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="live graph contract differs"):
+        capacity.validate_capacity_receipt(genuine)
+
+
+@pytest.mark.parametrize(
+    "attribute, mutate",
+    [
+        ("NODE_KINDS", lambda value: value | {"UnboundKind"}),
+        ("RELATIONSHIP_NAMESPACE_SCHEMA", lambda value: {**value, "PLAYS_FOR": frozenset({"realized"})}),
+        ("NODE_NAMESPACE_SCHEMA", lambda value: {**value, "Lineup": frozenset({"realized"})}),
+        ("OFFLINE_ALLOWED_NAMESPACES", lambda value: value | {"realized"}),
+        ("FORBIDDEN_RELATIONSHIP_TYPES", lambda value: frozenset()),
+        ("QUALIFIED_INFERRED_TYPES", lambda value: frozenset()),
+    ],
+)
+def test_live_graph_semantic_drift_is_detected(monkeypatch: pytest.MonkeyPatch, attribute: str, mutate) -> None:
+    genuine = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    monkeypatch.setattr(graph, attribute, mutate(getattr(graph, attribute)))
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="live graph contract differs"):
+        capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="live graph contract differs"):
+        capacity.validate_capacity_receipt(genuine)
+
+
+def test_live_property_rule_drift_is_detected(monkeypatch: pytest.MonkeyPatch) -> None:
+    genuine = capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    original = graph.NODE_PROPERTY_SCHEMA["Lineup"]
+    prop = sorted(original)[0]
+    rule = original[prop]
+    loosened = graph.PropertyRule(rule.value_type, max_string_bytes=rule.max_string_bytes + 1,
+                                  max_list_items=rule.max_list_items, allowed_strings=rule.allowed_strings)
+    monkeypatch.setitem(graph.NODE_PROPERTY_SCHEMA, "Lineup", {**original, prop: loosened})
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="live graph contract differs"):
+        capacity.build_capacity_receipt(_inputs(), created_at_utc=CREATED)
+    with pytest.raises(capacity.CorpusGraphCapacityError, match="live graph contract differs"):
+        capacity.validate_capacity_receipt(genuine)
+
+
+# --------------------------------------------- assertion digest canonical order ---
+
+def test_assertion_digest_is_manifest_order_independent_and_validation_agrees() -> None:
+    lead = _lead_inputs(assert_digest=False)
+    lead["counts"]["science_release_count"] = 2  # type: ignore[index]
+    lead["release_manifests"]["science_releases"].append({  # type: ignore[index]
+        "release_id": "science-release-fixture-000",
+        "identity": {
+            "uri": "gs://real-bucket/releases/science-0.json",
+            "generation": "1788000000000099",
+            "sha256": "cd" * 32,
+            "bytes": 5_000,
+        },
+    })
+    forward = copy.deepcopy(lead)
+    reversed_order = copy.deepcopy(lead)
+    reversed_order["release_manifests"]["science_releases"].reverse()  # type: ignore[index]
+    assert capacity.inputs_assertion_digest(forward) == capacity.inputs_assertion_digest(reversed_order)
+    forward["inputs_assertion_sha256"] = capacity.inputs_assertion_digest(forward)
+    reversed_order["inputs_assertion_sha256"] = forward["inputs_assertion_sha256"]
+    a = capacity.validate_capacity_inputs(forward)
+    b = capacity.validate_capacity_inputs(reversed_order)
+    assert a["inputs_sha256"] == b["inputs_sha256"]
+    assert [e["release_id"] for e in a["release_manifests"]["science_releases"]] == sorted(
+        e["release_id"] for e in a["release_manifests"]["science_releases"]
+    )
 
 
 # ----------------------------------------------------- vocabulary ---
@@ -405,6 +536,19 @@ def test_real_bucket_names_are_enforced_for_lead_identities() -> None:
     lead["identities"]["source_universe_release_identity"]["uri"] = "gs://Bad_Bucket/x.json"  # type: ignore[index]
     with pytest.raises(capacity.CorpusGraphCapacityError, match="real gs://bucket/object"):
         capacity.validate_capacity_inputs(lead)
+
+
+def test_bucket_grammar_accepts_legal_long_dotted_names_and_rejects_misspellings() -> None:
+    long_dotted = ".".join(["a" * 63] * 3 + ["b" * 20])  # 212 chars, each component <= 63
+    assert len(long_dotted) > 63
+    assert capacity._valid_gcs_bucket(long_dotted)
+    assert capacity._valid_gcs_bucket("nfl-predictions-503414-corpus-retrieval")
+    assert capacity._valid_gcs_bucket("synthetic-fixture.invalid")
+    for bad in (
+        "a" * 64, ".".join(["a" * 64, "b"]), "g00gle-bucket", "my-g0ogle-data", "go0g1e",
+        "goog-le", "192.168.5.4", "my..bucket", "my.-bucket", "ab", "-abc", "abc-",
+    ):
+        assert not capacity._valid_gcs_bucket(bad), bad
 
 
 def test_identity_class_separation() -> None:
@@ -620,7 +764,13 @@ def test_required_inputs_manifest_covers_every_consumed_input() -> None:
     assert set(capacity.SEMANTIC_CONTRACT["closed_relationship_types"]) == capacity.CLOSED_RELATIONSHIP_TYPES
 
 
-def test_fixture_scale_is_bounded() -> None:
-    with pytest.raises(capacity.CorpusGraphCapacityError, match="positive integer"):
-        capacity.fixture_capacity_inputs(scale=0)
-    assert capacity.fixture_capacity_inputs(scale=3)["counts"]["unique_lineup_count"] == 180_000  # type: ignore[index]
+def test_fixture_scale_is_bounded_and_coherent() -> None:
+    for bad in (0, -1, capacity.MAX_FIXTURE_SCALE + 1, True):
+        with pytest.raises(capacity.CorpusGraphCapacityError, match="fixture scale"):
+            capacity.fixture_capacity_inputs(scale=bad)  # type: ignore[arg-type]
+    scaled = capacity.fixture_capacity_inputs(scale=3)
+    assert scaled["counts"]["unique_lineup_count"] == 180_000  # type: ignore[index]
+    assert scaled["counts"]["selected_unique_lineup_count"] == 4_320  # type: ignore[index]
+    assert scaled["counts"]["selected_book_membership_count"] == 54 * 12 * 98  # type: ignore[index]
+    for scale in (1, 7, capacity.MAX_FIXTURE_SCALE):
+        capacity.validate_capacity_inputs(capacity.fixture_capacity_inputs(scale=scale))

@@ -1,72 +1,79 @@
-# Observatory workstream — Phase 5 capacity estimator and receipt contract (third correction)
+# Observatory workstream — Phase 5 capacity estimator and receipt contract (fourth correction)
 
 **Workstream:** Neo4j/React observatory (delegated lane)
-**Date:** 2026-08-26
+**Date:** 2026-08-27
 **Branch:** `feature/neo4j-react-observatory` (parent `3f656dfd`, accepted Phase 4)
-**Supersedes:** `283bd3de`, `66e4575a`, `a4dc08b1` (each rejected pending
-the next bounded correction).
+**Supersedes:** `283bd3de`, `66e4575a`, `a4dc08b1`, `f2d049b0` (each rejected
+pending the next bounded correction).
 **Scope executed:** Phase 5 corrective implementation ONLY — no mode
 decision, no merge/rebase, no router mount, no React cutover, no
 cloud/outcome access, no Neo4j connection/provisioning, no infrastructure
 or deployment change, no active R6/T230/Core path touched.
 
-## Third-correction repair: one frozen, pinned, receipt-bound semantic contract
+## Fourth-correction repair
 
-The re-review proved two provenance failures: `RELATIONSHIP_ENDPOINTS` and
-`RELEASE_MANIFESTS` were mutable, unhashed registries — changing
-`CONTAINS_PLAYER`'s target to `Slate`, or rebinding `world_releases` to
-`science_release_count`, left old receipts valid. Both attacks are now
-closed and regression-tested:
+### P1 — the semantic contract is the sole use-time authority
 
-- **`SEMANTIC_CONTRACT`** (`foundry-graph-capacity-semantic-contract/v1`) is ONE canonical,
-  versioned, deep-frozen registry (nested `MappingProxyType`/tuples; item
-  assignment and list mutation raise) holding every semantic registry the
-  estimator consults: node-count inputs (name→kind→modes), exact
-  relationship inputs (name→relationship→modes), the derived relationship
-  set, the complete endpoint map, the release-manifest→count/kind linkage,
-  the identity/version/hash/parameter input names, the closed realized
-  vocabulary, the modes, and the roster-slot law. Human descriptions are
-  excluded from the digest as documentation.
-- Its literal digest `c9e6994a0a73fa612b707205fcf057321189e40918f8ab7a053cde83adf1662d` is pinned and
-  re-derived from the LIVE object at import and at every build/validate
-  (`contract_digest_now()` / `require_frozen_contract()`), and the
-  estimator reads registries through the contract at use time — the
-  frozen module-level views (`RELATIONSHIP_ENDPOINTS`, `RELEASE_MANIFESTS`,
-  …) are read-only conveniences.
-- Every receipt embeds the contract body plus its digest; the validator
-  requires the embedded digest to equal the pin, re-hashes the embedded
-  body to the pin, and requires the live contract to match — so a
-  substituted contract cannot emit or replay, and a receipt whose embedded
-  contract body was edited under the pinned digest string is rejected.
-- Tests: pinned/live digest; deep-freeze `TypeError`s on the endpoint map,
-  release manifests, and nested contract; the exact endpoint-substitution
-  attack (`CONTAINS_PLAYER` target → `Slate`) fails to emit and fails to
-  replay; the exact manifest-rebinding attack (`world_releases` →
-  `science_release_count`) fails to emit and fails to replay, and under
-  the genuine contract `world_release_count=2` with one identity is
-  rejected; altered-embedded-body and stripped-contract receipts are
-  rejected; the embedded body equals the live contract.
+The re-review showed cached module registries (`REQUIRED_IDENTITIES`,
+`REQUIRED_HASHES`, `MODES`, closed vocabulary, the out-of-contract
+exclusion list) could be rebound to relax validation or contradict the
+embedded contract. Now every use-time read goes through
+`require_frozen_contract()`: `_normalize_packet()` derives every required
+count, identity, release-manifest, version, hash and parameter name from
+the contract; the receipt's modes, closed vocabulary and exclusion list
+are taken from the contract (the exclusion list moved INTO the contract);
+`required_inputs_manifest()` is generated from the contract. The
+`REQUIRED_*` tuples and other module-level names remain as read-only
+views only. Regressions rebind those cached names and prove validation
+still rejects stripped identities/hashes/counts, and that receipts and
+the manifest are byte-identical to the genuine ones.
 
-P2 cleanup: the module docstring now states the nine-slot roster law as
-the production Phase 5 law with the Phase 4 fixture carrying one
-`CONTAINS_PLAYER` per lineup, and describes the content-only assertion
-digest and `not-authenticated` approval status (no "lead confirmation");
-GCS bucket validation additionally rejects IP-literal buckets, `goog`
-prefixes, `google` substrings, consecutive/adjacent dot-dash separators,
-and over-long dot components.
+### P1 — cross-binding to the live graph contract
+
+`graph_binding_now()` recomputes, from the live `corpus_graph_vnext_contracts`
+module at every call: graph schema version (`corpus-graph-vnext/v1`),
+complete-property-rule version (`corpus-graph-vnext/v1+properties-547567d158f06448`),
+allowed/offline/closed namespaces, the complete node and relationship
+vocabularies (33 kinds / 25 types), the
+closed/open splits, forbidden and qualified-inferred relationship laws, and
+both namespace schemas. The contract embeds this binding, so the pinned
+digest `18a0ddb1cb97fa674ed3cd7ce8a2491d16e373d9e49ef172a39b266916183bee` covers it, and
+`require_frozen_contract()` additionally requires exact equality between
+the embedded binding and the live module at every build and validation.
+Regressions reproduce the review's attacks — adding `UNBOUND_NEW_EDGE` to
+the live relationship vocabulary, changing the live graph schema to v2 —
+and prove neither can emit a receipt nor replay an existing one; further
+cases cover node-kind additions, namespace-schema edits, opening the
+realized namespace, dropping the forbidden/qualified laws, and a
+property-rule size change.
+
+### P2s
+
+- `inputs_assertion_digest()` now hashes the packet exactly as validation
+  normalizes it (release manifests sorted by release id, canonical key
+  order), so manifest entry order never changes the digest and validation
+  agrees (tested with a two-entry manifest in both orders).
+- `fixture_capacity_inputs(scale)` scales only corpus counts; the
+  selected/book lattice is fixed (54×12×3) so every supported scale
+  validates coherently; scales outside `[1, 1000]` and
+  booleans are rejected.
+- `_valid_gcs_bucket()` accepts legal dotted names up to 222 chars with
+  each component ≤ 63, rejects `goog` prefixes and `google` including
+  digit-for-letter misspellings such as `g00gle`/`g0ogle`/`go0g1e`,
+  IP-literal names, adjacent separators, and out-of-range lengths.
 
 ## Retained from earlier corrections
 
-Runtime-immutable estimation law with live-rederived pinned digest
+Deep-frozen `SEMANTIC_CONTRACT` with pinned live-rederived digest embedded
+and re-hashed in every receipt; runtime-immutable estimation law
 `5d20920d5c5e4a77…`; count-matched release manifests; endpoint
 coherence per mode; honest authority labeling (`pending-lead-inputs` /
-`estimated-pending-approval`, `approval.status = not-authenticated`,
-reserved approval slot rejected offline); R6 full-union identity + panel
-self-hash; closed realized vocabulary (OutcomeGrade, OutcomeRelease, WinnerObservation, WinnerRelease;
-DERIVED_FROM_OUTCOME, GRADED_IN_CONTEST, OBSERVED_IN_WINNER_RELEASE); Phase 4 bundle/book
-cardinalities; exact registered relationship counts; complete
-PropertyRule-content hashing (`corpus-graph-vnext/v1+properties-547567d158f06448`); selected-lineup
-coherence; calendar-valid timestamps; bounded identity bytes.
+`estimated-pending-approval`, `approval.status = not-authenticated`);
+R6 full-union identity + panel self-hash; closed realized vocabulary
+(OutcomeGrade, OutcomeRelease, WinnerObservation, WinnerRelease; DERIVED_FROM_OUTCOME, GRADED_IN_CONTEST, OBSERVED_IN_WINNER_RELEASE);
+Phase 4 bundle/book cardinalities with truthful parity; exact registered
+relationship counts; selected-lineup coherence; calendar-valid timestamps;
+bounded identity bytes.
 
 ## Fixture illustration (synthetic — decision PENDING by construction)
 
@@ -172,7 +179,7 @@ approval receipt identity, which this offline phase does not accept.
 - node kinds: OutcomeGrade, OutcomeRelease, WinnerObservation, WinnerRelease
 - relationship types: DERIVED_FROM_OUTCOME, GRADED_IN_CONTEST, OBSERVED_IN_WINNER_RELEASE
 
-## Excluded from Neo4j in BOTH modes
+## Excluded from Neo4j in BOTH modes (from the contract)
 
 - world score matrices
 - per-world nodes or relationships
@@ -186,7 +193,8 @@ approval receipt identity, which this offline phase does not accept.
 ## Validation (serial; exact results in the branch HANDOFF)
 
 - `pytest tests/test_corpus_graph_capacity.py` — adversarial suite incl.
-  the semantic-contract integrity tests above and every earlier law.
+  sole-authority and live-graph cross-binding regressions and every
+  earlier law.
 - `pytest tests/test_corpus_graph_vnext_contracts.py` — regression.
 - `pytest tests/test_corpus_graph_vnext_fixture_adapter.py` — Phase 4
   regression.
