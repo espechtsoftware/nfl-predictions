@@ -20,6 +20,27 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 04:48 UTC (one-hundred-sixty-seventh update)
+
+### Exact legacy-marker correction is pushed and one replacement build is queued
+
+- Independently approved correction commit
+  `a99218f850b2c4f75369edfafd14682816c82b92` is pushed on
+  `main`/`origin/main`. Its focused recovery/controller/build-contract
+  validation is 78/78, exact real-artifact smoke passes, Python compilation
+  and diff hygiene pass, and review closes at P0=0/P1=0.
+- Exactly one detached-source replacement Cloud Build was submitted at
+  `2026-08-27T04:47:21Z`: build
+  `2bb2926f-1b9d-46dd-843a-19f9917bdfa4`, initially `QUEUED`, against that
+  exact source commit. Its expected machine-receipt prefix is
+  `gs://nfl-predictions-503414-corpus-retrieval/research/r6-full-union-post-freeze-builds/2bb2926f-1b9d-46dd-843a-19f9917bdfa4/`.
+  No ordinal-2 object or execution exists; its one-call launch authority is
+  unconsumed. Immediate action is poll this build only. On success, exact-read
+  its immutable digest, record the receipt identity, pin `R6_SCORE_PYTHON` to
+  the repository virtualenv and invoke `recover-supply` once. Never reuse
+  prior digest `6ae155...994f`, submit a second replacement build/query, or
+  alter the lease/legacy marker.
+
 ## Current handoff — 2026-08-27 04:44 UTC (one-hundred-sixty-sixth update)
 
 ### Ordinal-2 launch remains unconsumed; exact legacy-marker adapter is focused-green
