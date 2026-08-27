@@ -24,7 +24,10 @@ agent or developer:
 
 ### Recover-only R6-v2 continuation is implemented and awaiting immutable build
 
-- On `main` from parent `78b4ffc76fc24115df6049f212b1c4407b1429ca`,
+- Implementation commit `a57812b4` on `main` is the reviewed recovery
+  changeset (parent `78b4ffc76fc24115df6049f212b1c4407b1429ca`); the
+  immediately following HANDOFF-only commit is the intended immutable build
+  source. In that changeset,
   the bounded TIMESTAMP SDK repair now converts registered TIMESTAMP strings
   to timezone-aware UTC `datetime` values only when building BigQuery SDK
   parameters. The frozen `QuerySpec`, ISO text, canonical parameter payload
