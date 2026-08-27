@@ -20,6 +20,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from hashlib import sha256
 import json
+from math import isfinite
 import os
 from pathlib import Path
 import re
@@ -389,6 +390,88 @@ def _json(raw: bytes, *, label: str, newline_ok: bool = False) -> dict[str, obje
     if _canonical(value) != retained:
         _fail(f"{label} is not canonical JSON")
     return dict(value)
+
+
+def _content_identity_json(raw: bytes, *, label: str) -> dict[str, object]:
+    """Parse one immutable legacy object without imposing a byte rendering.
+
+    The ordinal-1 prelaunch ownership object predates this controller and was
+    retained as indented JSON.  Its generation, byte count, and SHA-256 are
+    already verified by ``GenerationPinnedGCSV1.require_identity``.  Treating
+    JSON whitespace as an authority property would therefore violate the
+    repository's content-identity rule.  This parser stays deliberately
+    separate from ``_json`` so every object created by this controller remains
+    canonical.  Duplicate keys and non-finite JSON constants are rejected.
+    """
+
+    if type(raw) is not bytes or not raw:
+        _fail(f"{label} bytes differ")
+
+    def unique_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+        retained: dict[str, object] = {}
+        for key, value in pairs:
+            if key in retained:
+                raise ValueError("duplicate JSON object key")
+            retained[key] = value
+        return retained
+
+    def reject_constant(_value: str) -> object:
+        raise ValueError("non-finite JSON constant")
+
+    def finite_float(value: str) -> float:
+        retained = float(value)
+        if not isfinite(retained):
+            raise ValueError("non-finite JSON number")
+        return retained
+
+    try:
+        value = json.loads(
+            raw.decode("utf-8"),
+            object_pairs_hook=unique_object,
+            parse_constant=reject_constant,
+            parse_float=finite_float,
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+        raise R6FullUnionRecoveryV1Error(f"{label} JSON differs") from exc
+    if not isinstance(value, Mapping):
+        _fail(f"{label} must be one JSON object")
+    return dict(value)
+
+
+def _previous_prelaunch_ownership_v1(
+    raw: bytes,
+    *,
+    previous_intent_identity: Mapping[str, object],
+    run_id: str,
+    job: str,
+) -> dict[str, object]:
+    ownership = _content_identity_json(
+        raw, label="previous prelaunch ownership"
+    )
+    ownership_intent = _mapping(
+        ownership.get("recovery_intent"),
+        label="previous prelaunch ownership recovery intent",
+    )
+    if (
+        ownership.get("schema_version")
+        != "r6-full-union-recovery-prelaunch-resumption-ownership/v1"
+        or ownership.get("run_id") != run_id
+        or ownership.get("job") != job
+        or ownership.get("recovery_ordinal") != 1
+        or ownership_intent.get("uri") != previous_intent_identity["uri"]
+        or ownership_intent.get("generation")
+        != previous_intent_identity["generation"]
+        or ownership_intent.get("sha256")
+        != previous_intent_identity["sha256"]
+        or ownership_intent.get("bytes") != previous_intent_identity["bytes"]
+        or ownership.get("max_recovery_execution_submission_calls") != 1
+        or ownership.get("first_recovery_execution_submission_licensed")
+        is not True
+        or ownership.get("automatic_retry_licensed") is not False
+        or ownership.get("query_submission_licensed") is not False
+    ):
+        _fail("previous prelaunch ownership differs")
+    return ownership
 
 
 def _gcs_parts(uri: str) -> tuple[str, str]:
@@ -1414,34 +1497,12 @@ def prepare_recovery_intent_v1(
     ownership_object = store.require_identity(
         previous_ownership_identity, label="previous prelaunch ownership"
     )
-    ownership = _json(
-        ownership_object.reopened_raw, label="previous prelaunch ownership"
+    ownership = _previous_prelaunch_ownership_v1(
+        ownership_object.reopened_raw,
+        previous_intent_identity=previous_intent_identity,
+        run_id=run_id,
+        job=job,
     )
-    ownership_intent = _mapping(
-        ownership.get("recovery_intent"),
-        label="previous prelaunch ownership recovery intent",
-    )
-    if (
-        ownership.get("schema_version")
-        != "r6-full-union-recovery-prelaunch-resumption-ownership/v1"
-        or ownership.get("run_id") != run_id
-        or ownership.get("job") != job
-        or ownership.get("recovery_ordinal") != 1
-        or ownership_intent.get("uri")
-        != previous_intent_identity["uri"]
-        or ownership_intent.get("generation")
-        != previous_intent_identity["generation"]
-        or ownership_intent.get("sha256")
-        != previous_intent_identity["sha256"]
-        or ownership_intent.get("bytes")
-        != previous_intent_identity["bytes"]
-        or ownership.get("max_recovery_execution_submission_calls") != 1
-        or ownership.get("first_recovery_execution_submission_licensed")
-        is not True
-        or ownership.get("automatic_retry_licensed") is not False
-        or ownership.get("query_submission_licensed") is not False
-    ):
-        _fail("previous prelaunch ownership differs")
     previous_failure = _previous_recovery_failure(
         launch_path=previous_recovery_launch_intent_path,
         terminal_path=previous_recovery_terminal_execution_path,

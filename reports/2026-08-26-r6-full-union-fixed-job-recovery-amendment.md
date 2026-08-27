@@ -344,6 +344,26 @@ the marker, a blind relaunch, ordinal 3, an ordinary supply run or a new
 query. This is the accepted safety tradeoff for an external API call that
 cannot share a transaction with the create-only ownership object.
 
+### Exact legacy-marker representation compatibility
+
+The retained ordinal-1 prelaunch ownership marker is immutable, generation-
+and SHA-bound, structurally valid JSON, but its historical producer wrote
+indented JSON with a trailing newline rather than the canonical compact
+rendering used by ordinal 2. The first ordinal-2 controller build incorrectly
+treated that harmless whitespace representation as an authority property and
+stopped during intent preparation, before creating any ordinal-2 object,
+mutating the shared job or calling Cloud Run execute.
+
+The bounded compatibility correction parses only this exact generation-pinned
+legacy marker by content. It rejects duplicate keys, non-finite constants,
+finite-parser overflow, non-object documents, invalid UTF-8 and structural or
+lineage drift. Every ordinal-2 object remains canonical, create-only and
+equal-byte reopenable. The old marker is not canonicalized, republished or
+assigned a new identity. Because the recovery intent binds the recovery
+executable's source hash and the remote worker rechecks that hash, this
+correction requires a fresh exact-source immutable image; using the prior
+image with locally changed controller bytes is forbidden.
+
 ### Candid fixed-job accounting and release
 
 The original supply submitted the sole query but failed before consuming its

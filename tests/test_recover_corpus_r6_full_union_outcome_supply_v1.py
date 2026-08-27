@@ -544,6 +544,103 @@ def test_source_has_no_bigquery_submission_capability() -> None:
     assert "run_corpus_r6_full_union_outcome_supply_v1" not in source
 
 
+def test_legacy_prelaunch_ownership_is_content_bound_not_rendering_bound() -> None:
+    previous_intent = {
+        "bytes": 7342,
+        "generation": "1787795058875426",
+        "sha256": "1" * 64,
+        "uri": "gs://fixture/recovery-intent.json",
+    }
+    body = {
+        "automatic_retry_licensed": False,
+        "first_recovery_execution_submission_licensed": True,
+        "job": JOB,
+        "max_recovery_execution_submission_calls": 1,
+        "query_submission_licensed": False,
+        "recovery_intent": previous_intent,
+        "recovery_ordinal": 1,
+        "run_id": RUN_ID,
+        "schema_version": (
+            "r6-full-union-recovery-prelaunch-resumption-ownership/v1"
+        ),
+    }
+    pretty = (json.dumps(body, indent=2, sort_keys=True) + "\n").encode()
+    assert pretty != _canonical(body)
+    assert cli._previous_prelaunch_ownership_v1(
+        pretty,
+        previous_intent_identity=previous_intent,
+        run_id=RUN_ID,
+        job=JOB,
+    ) == body
+    with pytest.raises(cli.R6FullUnionRecoveryV1Error, match="not canonical"):
+        cli._json(pretty, label="controller-created object")
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        b'{"duplicate":1,"duplicate":2}',
+        b'{"nested":{"duplicate":1,"duplicate":2}}',
+        b'{"not_finite":NaN}',
+        b'{"not_finite":1e999}',
+        b'{"not_finite":-1e999}',
+        b'{"valid":true} trailing-junk',
+        b'\xef\xbb\xbf{"bom":true}',
+        b'{"invalid_utf8":"\xff"}',
+        b"[]",
+    ],
+)
+def test_legacy_content_identity_parser_rejects_ambiguous_json(raw: bytes) -> None:
+    with pytest.raises(cli.R6FullUnionRecoveryV1Error):
+        cli._content_identity_json(raw, label="previous prelaunch ownership")
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("run_id", "different-run-id"),
+        ("recovery_ordinal", 2),
+        ("max_recovery_execution_submission_calls", 2),
+        ("first_recovery_execution_submission_licensed", False),
+        ("query_submission_licensed", True),
+    ],
+)
+def test_legacy_prelaunch_ownership_semantic_drift_is_rejected(
+    field: str, value: object,
+) -> None:
+    previous_intent = {
+        "bytes": 7342,
+        "generation": "1787795058875426",
+        "sha256": "1" * 64,
+        "uri": "gs://fixture/recovery-intent.json",
+    }
+    body = {
+        "automatic_retry_licensed": False,
+        "first_recovery_execution_submission_licensed": True,
+        "job": JOB,
+        "max_recovery_execution_submission_calls": 1,
+        "query_submission_licensed": False,
+        "recovery_intent": previous_intent,
+        "recovery_ordinal": 1,
+        "run_id": RUN_ID,
+        "schema_version": (
+            "r6-full-union-recovery-prelaunch-resumption-ownership/v1"
+        ),
+    }
+    body[field] = value
+    raw = (json.dumps(body, indent=2, sort_keys=True) + "\n").encode()
+    with pytest.raises(
+        cli.R6FullUnionRecoveryV1Error,
+        match="previous prelaunch ownership differs",
+    ):
+        cli._previous_prelaunch_ownership_v1(
+            raw,
+            previous_intent_identity=previous_intent,
+            run_id=RUN_ID,
+            job=JOB,
+        )
+
+
 def test_fixed_job_helper_is_get_only_and_disables_job_retry() -> None:
     spec = _spec()
     job = _FakeJob(spec)

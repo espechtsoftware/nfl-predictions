@@ -20,6 +20,44 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 04:44 UTC (one-hundred-sixty-sixth update)
+
+### Ordinal-2 launch remains unconsumed; exact legacy-marker adapter is focused-green
+
+- Two operator invocations stopped before ordinal-2 intent creation, ownership,
+  shared-job mutation or Cloud Run execute. The first stopped at the initial
+  local lease resolve because the elevated shell lacked `python`; all future
+  invocations pin
+  `/home/erich/projects/nfl-predictions/.venv/bin/python` through
+  `R6_SCORE_PYTHON`. The second reached outcome-blind intent preparation and
+  rejected the exact retained ordinal-1 prelaunch marker only because its
+  historical bytes are indented JSON rather than compact canonical JSON.
+  The attempt-02 GCS prefix remains absent, so execution authority is intact.
+- The exact legacy marker remains generation `1787796529153761`, 4,239 bytes,
+  SHA-256
+  `a47c864e62fb06598625dfa2d287bb0190e3c44095f6f34cbb69a432f861954e`.
+  It is valid JSON with the expected run/job/ordinal-1 and prior-intent
+  lineage. Canonicalizing or republishing it is forbidden. The correction
+  uses a separate content-identity parser only after exact generation/bytes/
+  SHA reopening, rejects duplicate keys, non-finite constants or exponent
+  overflow, invalid encodings/documents and semantic drift, while retaining
+  strict canonical bytes for every ordinal-2 object.
+- Focused validation is **28/28** for the recovery executable and **50/50**
+  for the cloud controller plus immutable-build contract. Python compilation,
+  diff hygiene and an exact 4,239-byte real-artifact smoke pass. A fresh image
+  is mandatory because the intent and worker bind the recovery executable
+  hash; prior accepted digest `6ae155...994f` cannot be combined with changed
+  local bytes. Independent adversarial review is **APPROVE**, P0=0/P1=0. The
+  full prepare/recover/finalize representation sweep found no other mismatch:
+  every sibling artifact is canonical or explicitly canonical-plus-newline.
+- Exact next action: commit and push only the bounded controller, tests,
+  amendment and HANDOFF, then submit one replacement detached-source immutable
+  build. Do not invoke
+  recovery with the prior image, create/alter the legacy marker, run a query,
+  ordinary supply/run, grade, lease release or another recovery ordinal. Once
+  the replacement digest is accepted, invoke the still-single ordinal-2
+  `recover-supply` with `R6_SCORE_PYTHON` pinned.
+
 ## Current handoff — 2026-08-27 04:36 UTC (one-hundred-sixty-fifth update)
 
 ### R6 recovery ordinal-2 immutable image is accepted; one recovery launch is next
