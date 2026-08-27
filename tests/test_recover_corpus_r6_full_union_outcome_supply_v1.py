@@ -36,9 +36,11 @@ NOW = datetime(2026, 8, 27, 1, 0, tzinfo=timezone.utc)
 RUN_ID = "20260826-foundry-v12-r6-full-union-realized-v2"
 JOB = "atlas-minimal-c-s2023-w1-v1"
 ORIGINAL_CODE = "1" * 40
-RECOVERY_CODE = "2" * 40
+PREVIOUS_RECOVERY_CODE = "2" * 40
+RECOVERY_CODE = "a" * 40
 ORIGINAL_IMAGE = f"fixture/original@sha256:{'3' * 64}"
-RECOVERY_IMAGE = f"fixture/recovery@sha256:{'4' * 64}"
+PREVIOUS_RECOVERY_IMAGE = f"fixture/previous-recovery@sha256:{'4' * 64}"
+RECOVERY_IMAGE = f"fixture/recovery@sha256:{'b' * 64}"
 SERVICE_ACCOUNT = "fixture@nfl-predictions-503414.iam.gserviceaccount.com"
 TOKEN = "5" * 64
 SNAPSHOT_CODE = {
@@ -186,8 +188,8 @@ class _FakeJob:
             "source_key": "fixture", "realized_score": "20.0",
         },)
 
-    def result(self, *, job_retry: object):
-        self.result_calls.append(job_retry)
+    def result(self, *, retry: object, job_retry: object):
+        self.result_calls.append((retry, job_retry))
         return self.rows
 
 
@@ -266,10 +268,15 @@ def _build_intent(
         "region": cli.REGION,
         "run_id": RUN_ID,
         "cloud_run_job": JOB,
-        "recovery_ordinal": 1,
+        "recovery_ordinal": cli.RECOVERY_ORDINAL,
         "operation": cli.OPERATION,
         "original_runtime": {
             "code_sha": ORIGINAL_CODE, "image": ORIGINAL_IMAGE,
+            "service_account": SERVICE_ACCOUNT,
+        },
+        "previous_recovery_runtime": {
+            "code_sha": PREVIOUS_RECOVERY_CODE,
+            "image": PREVIOUS_RECOVERY_IMAGE,
             "service_account": SERVICE_ACCOUNT,
         },
         "recovery_runtime": {
@@ -277,6 +284,10 @@ def _build_intent(
             "service_account": SERVICE_ACCOUNT,
         },
         "original_supply_failure": _failure(),
+        "previous_recovery_failure_closure_identity": identities[
+            "failure_closure"
+        ],
+        "recovery_amendment_identity": identities["amendment"],
         "panel_freeze_identity": identities["panel"],
         "outcome_key_projection_identity": identities["projection"],
         "actual_root_smoke_receipt_identity": identities["smoke"],
@@ -303,6 +314,12 @@ def _build_intent(
             "expected_get_job_calls": 1,
             "expected_result_calls": 1,
             "result_job_retry_disabled": True,
+            "distinct_query_job_count": 1,
+            "total_query_submission_count": 1,
+            "cumulative_fixed_job_result_retrieval_count": 2,
+            "failed_result_validation_count": 1,
+            "expected_successful_validation_count": 1,
+            "expected_distinct_outcome_snapshot_count": 1,
             "query_submission_licensed": False,
             "new_job_creation_licensed": False,
             "read_attempt_creation_licensed": False,
@@ -314,6 +331,67 @@ def _build_intent(
             "decision_authority": False,
         },
     }, field="recovery_intent_sha256")
+
+
+def _failure_closure_body(
+    *, previous_intent: dict[str, object], previous_ownership: dict[str, object],
+) -> dict[str, object]:
+    return cli._self_hashed({
+        "schema_version": cli.FAILURE_CLOSURE_SCHEMA,
+        "closed_at": NOW.isoformat(),
+        "project": cli.PROJECT,
+        "region": cli.REGION,
+        "run_id": RUN_ID,
+        "cloud_run_job": JOB,
+        "recovery_ordinal": 1,
+        "recovery_runtime": {
+            "code_sha": PREVIOUS_RECOVERY_CODE,
+            "image": PREVIOUS_RECOVERY_IMAGE,
+            "service_account": SERVICE_ACCOUNT,
+        },
+        "recovery_intent_identity": previous_intent,
+        "prelaunch_ownership_identity": previous_ownership,
+        **_failure(),
+        "terminal_error_class": (
+            "authoritative-query-not-exact-ordered-player-dst-union"
+        ),
+        "worker_completion_absent": True,
+        "recovery_receipt_absent": True,
+        "standard_supply_outputs_absent": True,
+        "fixed_job_result_retrieval_count": 1,
+        "failed_result_validation_count": 1,
+        "automatic_retry_licensed": False,
+        "additional_recovery_licensed": False,
+        "query_submission_licensed": False,
+        "decision_authority": False,
+    }, field="terminal_failure_sha256")
+
+
+def _amendment_body() -> dict[str, object]:
+    return cli._self_hashed({
+        "schema_version": cli.AMENDMENT_SCHEMA,
+        "created_at": NOW.isoformat(),
+        "run_id": RUN_ID,
+        "recovery_ordinal": cli.RECOVERY_ORDINAL,
+        "skill_zero_completion_law": supply.SKILL_ZERO_COMPLETION_LAW,
+        "skill_zero_law_source_sha256": supply.SKILL_ZERO_LAW_SOURCE_SHA256,
+        "salary_catalog_settlement_bridge": (
+            supply.SALARY_CATALOG_SETTLEMENT_BRIDGE
+        ),
+        "salary_catalog_bridge_source_sha256": (
+            supply.SALARY_CATALOG_BRIDGE_SOURCE_SHA256
+        ),
+        "missing_skill_score_micro": 0,
+        "missing_dst_is_fatal": True,
+        "requires_observed_skill_per_slate": True,
+        "keeps_snapshot_normalizer_strict": True,
+        "fixed_query_job_only": True,
+        "query_submission_licensed": False,
+        "new_job_creation_licensed": False,
+        "automatic_retry_licensed": False,
+        "additional_recovery_licensed": False,
+        "decision_authority": False,
+    }, field="recovery_amendment_sha256")
 
 
 def _seed_recovery_fixture() -> tuple[
@@ -341,6 +419,28 @@ def _seed_recovery_fixture() -> tuple[
         label: gcs.seed(uri, raw_values[label], generation=10 + ordinal)
         for ordinal, (label, uri) in enumerate(uris.items())
     }
+    previous_root = cli._previous_recovery_root(RUN_ID)
+    previous_intent_raw = _canonical({"fixture": "previous-intent"})
+    previous_ownership_raw = _canonical({"fixture": "previous-ownership"})
+    identities["previous_intent"] = gcs.seed(
+        f"{previous_root}/recovery-intent.json", previous_intent_raw, 21
+    )
+    identities["previous_ownership"] = gcs.seed(
+        f"{previous_root}/recovery-prelaunch-resumption-ownership-v1.json",
+        previous_ownership_raw,
+        22,
+    )
+    closure_raw = _canonical(_failure_closure_body(
+        previous_intent=identities["previous_intent"],
+        previous_ownership=identities["previous_ownership"],
+    ))
+    identities["failure_closure"] = gcs.seed(
+        cli._failure_closure_uri(RUN_ID), closure_raw, 23
+    )
+    amendment_raw = _canonical(_amendment_body())
+    identities["amendment"] = gcs.seed(
+        cli._amendment_uri(RUN_ID), amendment_raw, 24
+    )
     spec = _spec()
     job = _FakeJob(spec)
     bq = _GetOnlyBQ(job)
@@ -372,10 +472,36 @@ def _fake_pure_supplier(
         recovered = kwargs["get_or_create_query"](expected_spec)
         assert recovered.disposition == "recovered"
         published = {}
+        structure_facts = {
+            "observed_integer_micro_row_count": 2,
+            "observed_integer_micro_rows_sha256": "1" * 64,
+            "observed_query_keys_sha256": "2" * 64,
+            "observed_rows_reordered": False,
+            "synthesized_skill_keys": [{
+                "season": 2023, "week": 1, "source_kind": "skill",
+                "source_key": "missing-fixture",
+            }],
+            "synthesized_skill_key_count": 1,
+            "synthesized_skill_keys_sha256": "3" * 64,
+            "missing_dst_key_count": 0,
+            "final_query_key_union_sha256": "4" * 64,
+            "skill_zero_completion_law": supply.SKILL_ZERO_COMPLETION_LAW,
+            "skill_zero_law_source_sha256": (
+                supply.SKILL_ZERO_LAW_SOURCE_SHA256
+            ),
+            "salary_catalog_settlement_bridge": (
+                supply.SALARY_CATALOG_SETTLEMENT_BRIDGE
+            ),
+            "salary_catalog_bridge_source_sha256": (
+                supply.SALARY_CATALOG_BRIDGE_SOURCE_SHA256
+            ),
+            "query_returned_exact_union": False,
+        }
         for key in ("query_evidence", "realized_source", "outcome_snapshot", "completion"):
             body = {"fixture": key}
             if key == "query_evidence":
                 body["query_job_disposition"] = "recovered"
+                body["row_count"] = 3
             if key == "completion":
                 body["query_job_id"] = expected_spec.job_id
             value = kwargs["publish"](outputs[key], _canonical(body))
@@ -393,6 +519,7 @@ def _fake_pure_supplier(
             outcome_snapshot_identity=published["outcome_snapshot"][1],
             completion=published["completion"][0],
             completion_identity=published["completion"][1],
+            recovery_result_structure=structure_facts,
         )
 
     return run
@@ -429,7 +556,7 @@ def test_fixed_job_helper_is_get_only_and_disables_job_retry() -> None:
     assert value.disposition == "recovered"
     assert tuple(value.result.rows) == job.rows
     assert client.get_calls == [(spec.job_id, "US")]
-    assert job.result_calls == [None]
+    assert job.result_calls == [(None, None)]
     assert counters == {"get_job": 1, "result": 1}
     assert not hasattr(client, "query")
 
@@ -492,7 +619,7 @@ def test_recover_binds_original_and_recovery_runtimes_and_closes_worker(
     assert worker.body["job_submission_count"] == 0
     assert worker.body["new_job_count"] == 0
     assert bq.get_calls == [(_spec().job_id, "US")]
-    assert job.result_calls == [None]
+    assert job.result_calls == [(None, None)]
     assert gcs.upload_preconditions and set(gcs.upload_preconditions) == {0}
 
 
@@ -597,6 +724,107 @@ def _terminal_envelope(
     }
 
 
+def _launch_intent(
+    *, intent: dict[str, object], intent_identity: dict[str, object],
+) -> dict[str, object]:
+    argv = cli._recover_argv(intent, intent_identity)
+    argv_sha = sha256(
+        b"".join(item.encode() + b"\0" for item in argv)
+    ).hexdigest()
+    return {
+        "schema_version": "r6-full-union-recovery-stage-launch-intent/v2",
+        "stage": "supply-recovery-02",
+        "token": TOKEN,
+        "project": cli.PROJECT,
+        "region": cli.REGION,
+        "run_id": RUN_ID,
+        "job": JOB,
+        "original_code_sha": ORIGINAL_CODE,
+        "original_image": ORIGINAL_IMAGE,
+        "recovery_code_sha": RECOVERY_CODE,
+        "recovery_image": RECOVERY_IMAGE,
+        "service_account": SERVICE_ACCOUNT,
+        "gate": cli.RECOVERY_ENABLED_ENV,
+        "argv": argv,
+        "argv_sha256": argv_sha,
+        "execution_env": sorted([
+            {"name": cli.RECOVERY_ENABLED_ENV, "value": "1"},
+            {"name": cli.RECOVERY_STAGE_TOKEN_ENV, "value": TOKEN},
+            {"name": cli.RECOVERY_CODE_ENV, "value": RECOVERY_CODE},
+            {"name": cli.RECOVERY_IMAGE_ENV, "value": RECOVERY_IMAGE},
+        ], key=lambda item: item["name"]),
+        "query_compile_receipt": {"fixture": True},
+        "recovery_intent": intent_identity,
+        "fixed_job_lookup_only": True,
+        "query_submission_licensed": False,
+        "ordinary_supply_relaunch_licensed": False,
+        "automatic_retry_licensed": False,
+    }
+
+
+def test_launch_ownership_is_create_only_and_reopen_never_relicenses(
+    tmp_path: Path,
+) -> None:
+    gcs, intent_identity, _, _, _ = _seed_recovery_fixture()
+    intent = cli.validate_recovery_intent_v1(
+        json.loads(cli.GenerationPinnedGCSV1(gcs).read_exact(intent_identity))
+    )
+    launch_path = tmp_path / "launch-intent.json"
+    launch_path.write_bytes(_canonical(_launch_intent(
+        intent=intent, intent_identity=intent_identity,
+    )))
+    first = cli.claim_recovery_launch_v1(
+        project=cli.PROJECT, region=cli.REGION, run_id=RUN_ID, job=JOB,
+        original_code_sha=ORIGINAL_CODE, original_image=ORIGINAL_IMAGE,
+        recovery_code_sha=RECOVERY_CODE, recovery_image=RECOVERY_IMAGE,
+        service_account=SERVICE_ACCOUNT, recovery_stage_token=TOKEN,
+        recovery_intent_identity=intent_identity,
+        recovery_launch_intent_path=launch_path, storage_client=gcs,
+        clock=lambda: NOW,
+    )
+    assert first.created is True
+    assert first.body["max_recovery_execution_submission_calls"] == 1
+    second = cli.claim_recovery_launch_v1(
+        project=cli.PROJECT, region=cli.REGION, run_id=RUN_ID, job=JOB,
+        original_code_sha=ORIGINAL_CODE, original_image=ORIGINAL_IMAGE,
+        recovery_code_sha=RECOVERY_CODE, recovery_image=RECOVERY_IMAGE,
+        service_account=SERVICE_ACCOUNT, recovery_stage_token=TOKEN,
+        recovery_intent_identity=intent_identity,
+        recovery_launch_intent_path=launch_path, storage_client=gcs,
+        clock=lambda: NOW + timedelta(days=1),
+    )
+    assert second.created is False
+    assert second.identity == first.identity
+    assert second.body == first.body
+
+
+def test_ambiguous_launch_ownership_create_consumes_authority(
+    tmp_path: Path,
+) -> None:
+    gcs, intent_identity, _, _, _ = _seed_recovery_fixture()
+    intent = cli.validate_recovery_intent_v1(
+        json.loads(cli.GenerationPinnedGCSV1(gcs).read_exact(intent_identity))
+    )
+    launch_path = tmp_path / "launch-intent.json"
+    launch_path.write_bytes(_canonical(_launch_intent(
+        intent=intent, intent_identity=intent_identity,
+    )))
+    gcs.ambiguous_upload = True
+    ownership = cli.claim_recovery_launch_v1(
+        project=cli.PROJECT, region=cli.REGION, run_id=RUN_ID, job=JOB,
+        original_code_sha=ORIGINAL_CODE, original_image=ORIGINAL_IMAGE,
+        recovery_code_sha=RECOVERY_CODE, recovery_image=RECOVERY_IMAGE,
+        service_account=SERVICE_ACCOUNT, recovery_stage_token=TOKEN,
+        recovery_intent_identity=intent_identity,
+        recovery_launch_intent_path=launch_path, storage_client=gcs,
+        clock=lambda: NOW,
+    )
+    assert ownership.created is False
+    assert cli.GenerationPinnedGCSV1(gcs).resolve_required(
+        cli._launch_ownership_uri(RUN_ID)
+    ) is not None
+
+
 def test_finalize_reopens_all_standard_objects_and_replays_receipt_exactly(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
 ) -> None:
@@ -616,6 +844,19 @@ def test_finalize_reopens_all_standard_objects_and_replays_receipt_exactly(
     intent = cli.validate_recovery_intent_v1(
         json.loads(cli.GenerationPinnedGCSV1(gcs).read_exact(intent_identity))
     )
+    launch_path = tmp_path / "launch-intent.json"
+    launch_path.write_bytes(_canonical(_launch_intent(
+        intent=intent, intent_identity=intent_identity,
+    )))
+    ownership = cli.claim_recovery_launch_v1(
+        project=cli.PROJECT, region=cli.REGION, run_id=RUN_ID, job=JOB,
+        original_code_sha=ORIGINAL_CODE, original_image=ORIGINAL_IMAGE,
+        recovery_code_sha=RECOVERY_CODE, recovery_image=RECOVERY_IMAGE,
+        service_account=SERVICE_ACCOUNT, recovery_stage_token=TOKEN,
+        recovery_intent_identity=intent_identity,
+        recovery_launch_intent_path=launch_path, storage_client=gcs,
+        clock=lambda: NOW,
+    )
     terminal_path = tmp_path / "terminal-execution.json"
     terminal_path.write_bytes(_canonical(_terminal_envelope(
         intent=intent, intent_identity=intent_identity,
@@ -627,6 +868,8 @@ def test_finalize_reopens_all_standard_objects_and_replays_receipt_exactly(
         recovery_code_sha=RECOVERY_CODE, recovery_image=RECOVERY_IMAGE,
         service_account=SERVICE_ACCOUNT, recovery_stage_token=TOKEN,
         recovery_intent_identity=intent_identity,
+        recovery_launch_intent_path=launch_path,
+        launch_ownership_identity=ownership.identity,
         recovery_terminal_execution_path=terminal_path, storage_client=gcs,
         clock=lambda: NOW + timedelta(minutes=3),
     )
@@ -639,6 +882,8 @@ def test_finalize_reopens_all_standard_objects_and_replays_receipt_exactly(
         recovery_code_sha=RECOVERY_CODE, recovery_image=RECOVERY_IMAGE,
         service_account=SERVICE_ACCOUNT, recovery_stage_token=TOKEN,
         recovery_intent_identity=intent_identity,
+        recovery_launch_intent_path=launch_path,
+        launch_ownership_identity=ownership.identity,
         recovery_terminal_execution_path=terminal_path, storage_client=gcs,
         clock=lambda: NOW + timedelta(days=1),
     )

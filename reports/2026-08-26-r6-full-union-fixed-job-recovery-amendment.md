@@ -279,3 +279,96 @@ amendment that defines fail-closed missing-skill/DST semantics and row-blind
 diagnostics, binds this exact terminal failure, uses a fresh immutable
 code/image, intent/worker/receipt URI namespace, token and one-call marker,
 and still only gets the existing fixed job. Grading remains blocked.
+
+## 2026-08-27 recovery ordinal 2: closed-world skill-zero amendment
+
+Recovery ordinal 2 is authorized as the sole correction for the consumed
+ordinal-1 structural failure. It is not an automatic retry. It preserves the
+same run, panel, lease, read attempt, fixed BigQuery job, SQL, parameters,
+source snapshot, lineup books, strategies and score laws. It uses a third,
+fresh immutable runtime and the distinct
+`recoveries/supply-attempt-02/` namespace. Ordinal 1 remains immutable and is
+closed by a create-only terminal-failure receipt; its worker and success
+receipt must remain absent forever.
+
+The returned fixed-job rows must first pass the existing exact field, type,
+score-micro, duplicate and frozen-union membership checks. They are then
+treated as a canonically ordered subset of the frozen union. The only
+permitted completion is:
+
+1. every expected DST key must be present; a missing DST is terminal-fatal;
+2. every slate with expected skill players must retain at least one observed
+   skill row, so an absent partition cannot be silently completed;
+3. a missing skill-player key may be inserted at exactly zero DK points under
+   `salary-catalog-closed-world-missing-skill-zero/v1` only because the
+   positive-salary frozen DK catalog is explicitly bridged to the established
+   salary-listed-player zero-label law in
+   `sql/features/013_player_week_actuals.sql`;
+4. the final completed rows must pass the unchanged strict full-union snapshot
+   normalizer in exact canonical order.
+
+This law does not classify a missing player as inactive and does not infer a
+DST score. The amendment pins the source hashes for both the salary-zero law
+and the frozen-catalog settlement bridge. Missing, extra, duplicate,
+malformed, null-score or whole-slate-deficient input still fails closed.
+
+### Standard-artifact and grade compatibility
+
+The standard `query-evidence.json` remains byte-contract compatible with
+`corpus-r6-full-union-outcome-query-evidence/v1`, including the final strict
+union rows. This is required because the restored original immutable grade
+image validates that exact v1 schema before scoring. Ordinal-2-only
+provenance—observed count/key hash, synthesized skill count/key hash, zero DST
+misses, final-union hash and the two pinned laws—is written separately to the
+row-silent create-only
+`result-structure-receipt.json`. The worker and final recovery receipts bind
+that structure receipt to all standard artifact identities. The structure
+receipt contains no player IDs, rows or scores.
+
+### Exactly-once launch and failure law
+
+Before the only Cloud Run execute call, the controller creates
+`recoveries/supply-attempt-02/launch-ownership.json` with a generation-zero
+precondition. It binds the ordinal-2 intent, fresh runtime, exact launch-intent
+measurement, stage token and argv hash and licenses at most one execution
+submission call. Only the process that receives `created=true` may make that
+call. An existing marker never relicenses a zero-match launch; an ambiguous
+marker or execute response consumes authority. A later invocation may only
+claim one already-visible execution with the exact image/argv/env/token and
+one-task, zero-retry envelope.
+
+There is deliberately no automatic progress-preserving action for a process
+death between marker creation and the execute call. That narrow failure mode
+stops for manual evidence review. It does not authorize deletion or reuse of
+the marker, a blind relaunch, ordinal 3, an ordinary supply run or a new
+query. This is the accepted safety tradeoff for an external API call that
+cannot share a transaction with the create-only ownership object.
+
+### Candid fixed-job accounting and release
+
+The original supply submitted the sole query but failed before consuming its
+result. Ordinal 1 performed the first physical fixed-job result retrieval and
+failed structural validation. Ordinal 2 may perform one more
+`job.result(retry=None, job_retry=None)` on that same completed job. A
+successful closure therefore records exactly:
+
+- distinct query jobs: 1;
+- total query submissions: 1 (the original submission);
+- recovery query submissions and new jobs: 0;
+- physical fixed-job result retrievals: 2;
+- failed structural validations: 1;
+- successful structural validations: 1;
+- distinct outcome snapshots: 1.
+
+Strict lease release must use the version-2 R6 completion and bind the exact
+ordinal-2 recovery receipt plus these counts. Any statement of “one historical
+outcome read” refers only to one logical fixed-query snapshot, never to the
+number of physical result retrieval calls. The v1 non-recovery release
+contract remains unchanged for other runs.
+
+If uninterrupted ordinal 2 succeeds, the controller restores the original
+immutable job image. The original grade runtime then scores all 54 frozen
+slates and eight frozen strategies, including T230, after which the v2 strict
+release and bounded aggregate-only score reporter may run. If ordinal 2
+fails, stop: no further recovery, query, grading, retuning, graph mutation or
+production action is licensed by this amendment.

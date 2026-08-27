@@ -56,7 +56,10 @@ class _FakeBlob:
         key = (self._bucket, self._name)
         generation = self.generation
         if generation is None:
-            generation = self._client.current[key]
+            try:
+                generation = self._client.current[key]
+            except KeyError as exc:
+                raise lease_tool.NotFound("object absent") from exc
             self.generation = generation
             self._client.current_resolutions.append(key)
         if if_generation_match is not None and generation != if_generation_match:
@@ -197,6 +200,136 @@ def _r6_strict_rows(
     return rows
 
 
+def _r6_recovery_strict_rows(
+    lease_body: dict[str, object], lease_identity: dict[str, object],
+) -> dict[str, str]:
+    rows = _r6_strict_rows(lease_body, lease_identity)
+    recovery_root = (
+        f"{lease_tool.R6_OUTCOME_PREFIX}/{lease_body['run_id']}"
+        "/recoveries/supply-attempt-02"
+    )
+    rows.update({
+        "schema_version": lease_tool.R6_RECOVERY_STRICT_COMPLETION_SCHEMA,
+        "disposition": lease_tool.R6_RECOVERY_STRICT_DISPOSITION,
+        "recovery_intent_uri": f"{recovery_root}/recovery-intent.json",
+        "recovery_intent_generation": "10",
+        "recovery_intent_sha256": "2" * 64,
+        "recovery_intent_bytes": "11",
+        "recovery_intent_self_sha256": "3" * 64,
+        "recovery_receipt_uri": f"{recovery_root}/recovery-receipt.json",
+        "recovery_receipt_generation": "12",
+        "recovery_receipt_sha256": "4" * 64,
+        "recovery_receipt_bytes": "13",
+        "recovery_receipt_self_sha256": "5" * 64,
+        "recovery_ordinal": "2",
+        "recovery_receipt_required": "true",
+        "distinct_query_job_count": "1",
+        "total_query_submission_count": "1",
+        "recovery_query_submission_count": "0",
+        "new_job_count": "0",
+        "physical_fixed_job_result_retrieval_count": "2",
+        "failed_result_validation_count": "1",
+        "successful_result_validation_count": "1",
+        "distinct_outcome_snapshot_count": "1",
+        "one_historical_outcome_read_definition": (
+            lease_tool.R6_LOGICAL_OUTCOME_READ_DEFINITION
+        ),
+    })
+    assert set(rows) == (  # noqa: SLF001
+        lease_tool._R6_RECOVERY_STRICT_COMPLETION_KEYS
+    )
+    return rows
+
+
+def _recovery_evidence_fixture(
+    client: _FakeStorage,
+    lease_body: dict[str, object],
+    lease_identity: dict[str, object],
+) -> tuple[str, dict[str, object], dict[str, object]]:
+    recovery_root = (
+        f"{lease_tool.R6_OUTCOME_PREFIX}/{lease_body['run_id']}"
+        "/recoveries/supply-attempt-02"
+    )
+    intent_uri = f"{recovery_root}/recovery-intent.json"
+    receipt_uri = f"{recovery_root}/recovery-receipt.json"
+    supply_replay: dict[str, object] = {
+        "attempt_identity": _placeholder(
+            f"{lease_tool.R6_OUTCOME_PREFIX}/{lease_body['run_id']}"
+            "/read-attempt.json",
+            "1",
+        ),
+        "query_evidence_identity": _placeholder(
+            f"{lease_tool.R6_OUTCOME_PREFIX}/{lease_body['run_id']}"
+            "/query-evidence.json",
+            "2",
+        ),
+        "realized_source_identity": _placeholder(
+            f"{lease_tool.R6_OUTCOME_PREFIX}/{lease_body['run_id']}"
+            "/realized-source.json",
+            "3",
+        ),
+        "outcome_snapshot_identity": _placeholder(
+            f"{lease_tool.R6_OUTCOME_PREFIX}/{lease_body['run_id']}"
+            "/outcome-snapshot.json",
+            "4",
+        ),
+        "completion_identity": _placeholder(
+            f"{lease_tool.R6_OUTCOME_PREFIX}/{lease_body['run_id']}"
+            "/completion.json",
+            "5",
+        ),
+        "query_evidence": {
+            "query_job_receipt": {"job_id": "fixed-job"},
+            "query_job_disposition": "recovered",
+        },
+    }
+    retained_lease_identity = {
+        key: lease_identity[key]
+        for key in ("uri", "generation", "sha256", "bytes")
+    }
+    intent: dict[str, object] = {
+        "recovery_intent_sha256": "6" * 64,
+        "recovery_ordinal": 2,
+        "run_id": lease_body["run_id"],
+        "cloud_run_job": lease_body["job"],
+        "original_runtime": {
+            "code_sha": lease_body["code_sha"],
+            "image": lease_body["image"],
+            "service_account": lease_tool.R6_DEFAULT_COMPUTE_SERVICE_ACCOUNT,
+        },
+        "historical_outcome_lease_identity": retained_lease_identity,
+    }
+    intent_raw = batch.canonical_json_bytes(intent)
+    client.put(intent_uri, 101, intent_raw)
+    intent_identity = _identity(intent_uri, 101, intent_raw)
+    standard = {
+        label: supply_replay[f"{label}_identity"]
+        for label in (
+            "attempt", "query_evidence", "realized_source",
+            "outcome_snapshot", "completion",
+        )
+    }
+    receipt: dict[str, object] = {
+        "recovery_receipt_sha256": "7" * 64,
+        "recovery_intent_identity": intent_identity,
+        "standard_artifact_identities": standard,
+        "fixed_query_job": {"job_id": "fixed-job"},
+        "distinct_query_job_count": 1,
+        "total_query_submission_count": 1,
+        "job_submission_count": 0,
+        "new_job_count": 0,
+        "cumulative_fixed_job_result_retrieval_count": 2,
+        "failed_result_validation_count": 1,
+        "successful_result_validation_count": 1,
+        "distinct_outcome_snapshot_count": 1,
+        "recovery_closed": True,
+        "automatic_retry_licensed": False,
+        "additional_recovery_licensed": False,
+    }
+    client.put(receipt_uri, 102, batch.canonical_json_bytes(receipt))
+    return receipt_uri, supply_replay, receipt
+
+
 @pytest.mark.parametrize(
     ("service_account", "accepted"),
     [
@@ -214,6 +347,103 @@ def test_r6_service_account_contract_accepts_only_explicit_project_forms(
     service_account: str, accepted: bool,
 ) -> None:
     assert lease_tool._valid_r6_service_account(service_account) is accepted
+
+
+def test_r6_recovery_release_evidence_exact_reopens_and_binds_accounting(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import recover_corpus_r6_full_union_outcome_supply_v1 as recovery
+
+    client, receipt_path, _, _ = _fixture(tmp_path)
+    lease_receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    lease_body = lease_receipt["lease"]
+    lease_identity = lease_receipt["object"]
+    receipt_uri, supply_replay, _ = _recovery_evidence_fixture(
+        client, lease_body, lease_identity
+    )
+    validations: list[str] = []
+
+    def validate_intent(value: object) -> dict[str, object]:
+        validations.append("intent")
+        return dict(value)  # type: ignore[arg-type]
+
+    def validate_receipt(
+        value: object, **_: object,
+    ) -> dict[str, object]:
+        validations.append("receipt")
+        return dict(value)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(recovery, "validate_recovery_intent_v1", validate_intent)
+    monkeypatch.setattr(
+        recovery, "validate_recovery_receipt_v1", validate_receipt
+    )
+    replay = lease_tool._validate_r6_recovery_evidence(  # noqa: SLF001
+        client=client,
+        required_recovery_receipt_uri=receipt_uri,
+        supply_replay=supply_replay,
+        lease=lease_body,
+        lease_object=lease_identity,
+        expected_service_account=lease_tool.R6_DEFAULT_COMPUTE_SERVICE_ACCOUNT,
+    )
+
+    assert validations == ["intent", "receipt"]
+    assert replay["intent_identity"]["generation"] == "101"
+    assert replay["receipt_identity"]["generation"] == "102"
+    assert _parts(receipt_uri) in client.current_resolutions
+    assert _parts(receipt_uri.replace(
+        "recovery-receipt.json", "recovery-intent.json"
+    )) in client.current_resolutions
+    assert (
+        (_parts(receipt_uri), 102) in client.pinned_downloads
+    )
+
+
+@pytest.mark.parametrize(
+    ("field", "wrong"),
+    [
+        ("distinct_query_job_count", 2),
+        ("total_query_submission_count", 2),
+        ("job_submission_count", 1),
+        ("new_job_count", 1),
+        ("cumulative_fixed_job_result_retrieval_count", 1),
+        ("failed_result_validation_count", 0),
+        ("successful_result_validation_count", 0),
+        ("distinct_outcome_snapshot_count", 2),
+    ],
+)
+def test_r6_recovery_release_evidence_rejects_false_accounting(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    field: str, wrong: int,
+) -> None:
+    import recover_corpus_r6_full_union_outcome_supply_v1 as recovery
+
+    client, receipt_path, _, _ = _fixture(tmp_path)
+    lease_receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    receipt_uri, supply_replay, receipt = _recovery_evidence_fixture(
+        client, lease_receipt["lease"], lease_receipt["object"]
+    )
+    receipt[field] = wrong
+    client.put(receipt_uri, 103, batch.canonical_json_bytes(receipt))
+    monkeypatch.setattr(
+        recovery, "validate_recovery_intent_v1", lambda value: dict(value)
+    )
+    monkeypatch.setattr(
+        recovery,
+        "validate_recovery_receipt_v1",
+        lambda value, **_: dict(value),
+    )
+
+    with pytest.raises(RuntimeError, match="release binding differs"):
+        lease_tool._validate_r6_recovery_evidence(  # noqa: SLF001
+            client=client,
+            required_recovery_receipt_uri=receipt_uri,
+            supply_replay=supply_replay,
+            lease=lease_receipt["lease"],
+            lease_object=lease_receipt["object"],
+            expected_service_account=(
+                lease_tool.R6_DEFAULT_COMPUTE_SERVICE_ACCOUNT
+            ),
+        )
 
 
 def _write_rows(path: Path, rows: dict[str, str]) -> None:
@@ -712,6 +942,196 @@ def test_r6_query_ending_before_durable_attempt_publication_is_rejected(
     assert observed["smoke_snapshot_pins"] == independent_pins
 
 
+def test_r6_materializer_emits_opt_in_recovery_v2_and_preserves_v1(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    receipt_path = tmp_path / "lease.json"
+    receipt_path.write_text("{}\n", encoding="utf-8")
+    lease = {
+        "version": "historical-outcome-active-v1",
+        "run_id": RUN_ID,
+        "job": JOB,
+        "code_sha": CODE_SHA,
+        "image": IMAGE,
+        "acquired_at": "2026-08-26T12:00:00+00:00",
+    }
+    lease_identity = {
+        **_placeholder(lease_tool.LEASE_URI, "a"),
+        "create_only": True,
+    }
+    expected_code = {
+        "snapshot_module_sha256": "e" * 64,
+        "snapshot_cli_sha256": "f" * 64,
+        "snapshot_test_sha256": "0" * 64,
+        "snapshot_cli_test_sha256": "1" * 64,
+    }
+    supply_uri = f"{lease_tool.R6_OUTCOME_PREFIX}/{RUN_ID}/completion.json"
+    grade_uri = (
+        "gs://nfl-predictions-503414-corpus-retrieval/research/"
+        f"corpus-r6-full-union-realized-grades/{RUN_ID}/grade-completion.json"
+    )
+    recovery_uri = lease_tool._r6_recovery_receipt_uri(RUN_ID)  # noqa: SLF001
+    grade_shallow = {
+        "expected_supply_run_id": RUN_ID,
+        "expected_supply_job": JOB,
+        "expected_supply_code_sha": CODE_SHA,
+        "expected_supply_image": IMAGE,
+        **expected_code,
+    }
+    grade_raw = batch.canonical_json_bytes(grade_shallow)
+    supply_raw = batch.canonical_json_bytes({"fixture": "supply"})
+    supply_identity = _identity(supply_uri, 201, supply_raw)
+    grade_identity = _identity(grade_uri, 202, grade_raw)
+    supply_replay: dict[str, object] = {
+        "completion": {"completion_sha256": "1" * 64},
+        "query_evidence": {"query_job_disposition": "created"},
+        "attempt_identity": _placeholder("gs://fixture/attempt.json", "2"),
+        "query_evidence_identity": _placeholder(
+            "gs://fixture/query-evidence.json", "3"
+        ),
+        "panel_freeze_identity": _placeholder(
+            "gs://fixture/panel-freeze.json", "4"
+        ),
+        "smoke_identity": _placeholder("gs://fixture/smoke.json", "5"),
+        "projection_identity": _placeholder(
+            "gs://fixture/projection.json", "6"
+        ),
+        "realized_source_identity": _placeholder(
+            "gs://fixture/realized-source.json", "7"
+        ),
+        "outcome_snapshot_identity": _placeholder(
+            "gs://fixture/outcome-snapshot.json", "8"
+        ),
+        "completion_identity": supply_identity,
+        "snapshot_code_identities": expected_code,
+    }
+    grade_replay: dict[str, object] = {
+        "completion": {
+            "execution": f"{JOB}-execution-00001",
+            "grade_completion_sha256": "9" * 64,
+        },
+        "persisted_root": {"persisted_grade_root_sha256": "a" * 64},
+        "persisted_root_identity": _placeholder(
+            "gs://fixture/persisted-grade-root.json", "b"
+        ),
+    }
+    recovery_root = recovery_uri.rsplit("/", 1)[0]
+    recovery_replay: dict[str, object] = {
+        "intent": {"recovery_intent_sha256": "c" * 64},
+        "intent_identity": _placeholder(
+            f"{recovery_root}/recovery-intent.json", "d"
+        ),
+        "receipt": {"recovery_receipt_sha256": "e" * 64},
+        "receipt_identity": _placeholder(recovery_uri, "f"),
+    }
+    recovery_calls: list[str] = []
+    materializer_client = _FakeStorage()
+
+    monkeypatch.setattr(
+        lease_tool,
+        "_verified_lease_blob",
+        lambda *args, **kwargs: (
+            materializer_client, lease, lease_identity, object(), b"lease"
+        ),
+    )
+
+    def resolve(_client: object, uri: str, **_: object):
+        if uri == grade_uri:
+            return grade_identity, grade_raw
+        if uri == supply_uri:
+            return supply_identity, supply_raw
+        raise AssertionError(f"unexpected URI {uri}")
+
+    monkeypatch.setattr(lease_tool, "_resolve_current_exact", resolve)
+    monkeypatch.setattr(
+        lease_tool, "_validate_r6_supply_evidence",
+        lambda **_: supply_replay,
+    )
+    monkeypatch.setattr(
+        lease_tool, "_validate_r6_grade_evidence",
+        lambda **_: grade_replay,
+    )
+
+    def validate_recovery(**kwargs: object) -> dict[str, object]:
+        recovery_calls.append(str(kwargs["required_recovery_receipt_uri"]))
+        return recovery_replay
+
+    monkeypatch.setattr(
+        lease_tool, "_validate_r6_recovery_evidence", validate_recovery
+    )
+    common = {
+        "receipt_path": receipt_path,
+        "supply_completion_uri": supply_uri,
+        "grade_completion_uri": grade_uri,
+        "expected_service_account": lease_tool.R6_DEFAULT_COMPUTE_SERVICE_ACCOUNT,
+        "expected_grade_stage_token": "7" * 64,
+        "expected_snapshot_module_sha256": expected_code[
+            "snapshot_module_sha256"
+        ],
+        "expected_snapshot_cli_sha256": expected_code["snapshot_cli_sha256"],
+        "expected_snapshot_test_sha256": expected_code[
+            "snapshot_test_sha256"
+        ],
+        "expected_snapshot_cli_test_sha256": expected_code[
+            "snapshot_cli_test_sha256"
+        ],
+    }
+    v1 = lease_tool.materialize_r6_full_union_completion(
+        **common, output_path=tmp_path / "strict-v1.txt"
+    )
+    supply_replay["query_evidence"] = {
+        "query_job_disposition": "recovered"
+    }
+    recovered_v1 = lease_tool.materialize_r6_full_union_completion(
+        **common, output_path=tmp_path / "recovered-v1.txt"
+    )
+    supply_replay["query_evidence"] = {"query_job_disposition": "created"}
+    with pytest.raises(RuntimeError, match="cannot bind ordinal-2"):
+        lease_tool.materialize_r6_full_union_completion(
+            **common,
+            required_recovery_receipt_uri=recovery_uri,
+            output_path=tmp_path / "created-as-v2.txt",
+        )
+    supply_replay["query_evidence"] = {
+        "query_job_disposition": "recovered"
+    }
+    with pytest.raises(RuntimeError, match="required.*receipt is absent"):
+        lease_tool.materialize_r6_full_union_completion(
+            **common,
+            required_recovery_receipt_uri=recovery_uri,
+            output_path=tmp_path / "absent-recovery-v2.txt",
+        )
+    materializer_client.put(
+        recovery_uri, 203, batch.canonical_json_bytes({"receipt": "present"})
+    )
+    with pytest.raises(RuntimeError, match="cannot downgrade to v1"):
+        lease_tool.materialize_r6_full_union_completion(
+            **common, output_path=tmp_path / "recovery-downgrade.txt"
+        )
+    v2 = lease_tool.materialize_r6_full_union_completion(
+        **common,
+        required_recovery_receipt_uri=recovery_uri,
+        output_path=tmp_path / "strict-v2.txt",
+    )
+
+    assert set(v1) == lease_tool._R6_STRICT_COMPLETION_KEYS  # noqa: SLF001
+    assert v1["schema_version"] == lease_tool.R6_STRICT_COMPLETION_SCHEMA
+    assert recovered_v1 == v1
+    assert set(v2) == (  # noqa: SLF001
+        lease_tool._R6_RECOVERY_STRICT_COMPLETION_KEYS
+    )
+    assert v2["schema_version"] == (
+        lease_tool.R6_RECOVERY_STRICT_COMPLETION_SCHEMA
+    )
+    assert v2["one_historical_outcome_read"] == "true"
+    assert v2["one_historical_outcome_read_definition"] == (
+        lease_tool.R6_LOGICAL_OUTCOME_READ_DEFINITION
+    )
+    assert v2["physical_fixed_job_result_retrieval_count"] == "2"
+    assert v2["recovery_query_submission_count"] == "0"
+    assert recovery_calls == [recovery_uri]
+
+
 def test_r6_materializer_rejects_grade_snapshot_hash_self_expectation(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -1002,6 +1422,118 @@ def test_r6_release_never_falls_through_legacy_and_checks_terminal_envelope(
     )
     assert replay_calls == [rows]
     assert client.deleted == [(_parts(lease_tool.LEASE_URI), 71)]
+
+
+def test_r6_recovery_v2_is_required_replayed_and_durably_bound(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    client, receipt_path, _, _ = _fixture(tmp_path)
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    v1_rows = _r6_strict_rows(receipt["lease"], receipt["object"])
+    v2_rows = _r6_recovery_strict_rows(
+        receipt["lease"], receipt["object"]
+    )
+    recovery_uri = v2_rows["recovery_receipt_uri"]
+    strict = tmp_path / "r6-strict.txt"
+    execution = tmp_path / "grade-execution.json"
+    release_intent = tmp_path / "release-intent.json"
+    release_receipt = tmp_path / "release-receipt.json"
+    _write_rows(strict, v1_rows)
+    _execution(execution, r6_rows=v1_rows)
+
+    with pytest.raises(RuntimeError, match="required recovery strict"):
+        lease_tool.release(
+            receipt_path=receipt_path,
+            execution_path=execution,
+            completion_path=strict,
+            storage_client=client,
+            required_contract="r6-full-union",
+            release_intent_path=release_intent,
+            release_receipt_path=release_receipt,
+            required_recovery_receipt_uri=recovery_uri,
+        )
+    assert not release_intent.exists()
+    assert not client.deleted
+
+    client.put(
+        recovery_uri, 80, batch.canonical_json_bytes({"receipt": "present"})
+    )
+    monkeypatch.setattr(
+        lease_tool,
+        "materialize_r6_full_union_completion",
+        lambda **_: v1_rows,
+    )
+    with pytest.raises(RuntimeError, match="cannot release through v1"):
+        lease_tool.release(
+            receipt_path=receipt_path,
+            execution_path=execution,
+            completion_path=strict,
+            storage_client=client,
+            required_contract="r6-full-union",
+            release_intent_path=release_intent,
+            release_receipt_path=release_receipt,
+        )
+    assert not release_intent.exists()
+    assert not client.deleted
+
+    wrong_rows = dict(v2_rows)
+    wrong_rows["physical_fixed_job_result_retrieval_count"] = "1"
+    _write_rows(strict, wrong_rows)
+    _execution(execution, r6_rows=wrong_rows)
+    with pytest.raises(RuntimeError, match="recovery strict completion law"):
+        lease_tool.release(
+            receipt_path=receipt_path,
+            execution_path=execution,
+            completion_path=strict,
+            storage_client=client,
+            required_contract="r6-full-union",
+            release_intent_path=release_intent,
+            release_receipt_path=release_receipt,
+            required_recovery_receipt_uri=recovery_uri,
+        )
+    assert not release_intent.exists()
+    assert not client.deleted
+
+    _write_rows(strict, v2_rows)
+    _execution(execution, r6_rows=v2_rows)
+    replay_uris: list[object] = []
+
+    def replay(**kwargs: object) -> dict[str, str]:
+        replay_uris.append(kwargs.get("required_recovery_receipt_uri"))
+        return v2_rows
+
+    monkeypatch.setattr(
+        lease_tool, "materialize_r6_full_union_completion", replay
+    )
+    lease_tool.release(
+        receipt_path=receipt_path,
+        execution_path=execution,
+        completion_path=strict,
+        storage_client=client,
+        required_contract="r6-full-union",
+        release_intent_path=release_intent,
+        release_receipt_path=release_receipt,
+        required_recovery_receipt_uri=recovery_uri,
+    )
+
+    assert replay_uris == [recovery_uri]
+    assert client.deleted == [(_parts(lease_tool.LEASE_URI), 71)]
+    intent = json.loads(release_intent.read_text(encoding="utf-8"))
+    assert intent["recovery_accounting_required"] is True
+    assert intent["required_recovery_receipt"] == {
+        "uri": recovery_uri,
+        "generation": v2_rows["recovery_receipt_generation"],
+        "sha256": v2_rows["recovery_receipt_sha256"],
+        "bytes": int(v2_rows["recovery_receipt_bytes"]),
+    }
+    assert lease_tool.validate_release_receipt_local(
+        lease_receipt_path=receipt_path,
+        execution_path=execution,
+        completion_path=strict,
+        release_intent_path=release_intent,
+        release_receipt_path=release_receipt,
+        required_recovery_receipt_uri=recovery_uri,
+    )["generation_delete_complete"] is True
 
 
 def test_required_r6_contract_rejects_legacy_and_downgraded_r6(

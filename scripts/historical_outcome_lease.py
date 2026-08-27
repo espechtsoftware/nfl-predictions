@@ -41,6 +41,15 @@ R6_STRICT_COMPLETION_SCHEMA = (
     "r6-full-union-historical-outcome-strict-completion/v1"
 )
 R6_STRICT_DISPOSITION = "r6-full-union-realized-grade-closed"
+R6_RECOVERY_STRICT_COMPLETION_SCHEMA = (
+    "r6-full-union-historical-outcome-strict-completion/v2"
+)
+R6_RECOVERY_STRICT_DISPOSITION = (
+    "r6-full-union-realized-grade-recovery-closed"
+)
+R6_LOGICAL_OUTCOME_READ_DEFINITION = (
+    "one-logical-fixed-query-snapshot-not-physical-result-retrieval-count"
+)
 R6_DEFAULT_COMPUTE_SERVICE_ACCOUNT = (
     "817589974517-compute@developer.gserviceaccount.com"
 )
@@ -108,6 +117,26 @@ _R6_STRICT_COMPLETION_KEYS = frozenset({
     "terminal_execution_envelope_validation_required",
     "historical_outcome_lease_release_required",
 })
+_R6_RECOVERY_STRICT_COMPLETION_KEYS = frozenset({
+    *_R6_STRICT_COMPLETION_KEYS,
+    "recovery_intent_uri", "recovery_intent_generation",
+    "recovery_intent_sha256", "recovery_intent_bytes",
+    "recovery_intent_self_sha256",
+    "recovery_receipt_uri", "recovery_receipt_generation",
+    "recovery_receipt_sha256", "recovery_receipt_bytes",
+    "recovery_receipt_self_sha256",
+    "recovery_ordinal", "recovery_receipt_required",
+    "distinct_query_job_count", "total_query_submission_count",
+    "recovery_query_submission_count", "new_job_count",
+    "physical_fixed_job_result_retrieval_count",
+    "failed_result_validation_count",
+    "successful_result_validation_count",
+    "distinct_outcome_snapshot_count",
+    "one_historical_outcome_read_definition",
+})
+_R6_RECOVERY_ONLY_KEYS = (
+    _R6_RECOVERY_STRICT_COMPLETION_KEYS - _R6_STRICT_COMPLETION_KEYS
+)
 
 
 def _valid_r6_service_account(value: object) -> bool:
@@ -975,6 +1004,172 @@ def _identity_rows(prefix: str, identity: Mapping[str, object]) -> dict[str, str
     }
 
 
+def _r6_recovery_receipt_uri(run_id: str) -> str:
+    return (
+        f"{R6_OUTCOME_PREFIX}/{run_id}/recoveries/supply-attempt-02/"
+        "recovery-receipt.json"
+    )
+
+
+def _resolve_r6_recovery_receipt_if_present(client, run_id: str):
+    """Generation-pin the one known ordinal-2 receipt name, or prove absence."""
+    uri = _r6_recovery_receipt_uri(run_id)
+    bucket_name, name = _parse_gcs(uri)
+    try:
+        current = client.bucket(bucket_name).blob(name)
+        current.reload()
+    except NotFound:
+        return None
+    except Exception as exc:
+        raise RuntimeError(
+            "R6 ordinal-2 recovery receipt presence check failed"
+        ) from exc
+    generation_text = str(current.generation)
+    if not generation_text.isdigit() or generation_text.startswith("0"):
+        raise RuntimeError("R6 ordinal-2 recovery receipt generation differs")
+    generation = int(generation_text)
+    try:
+        pinned = client.bucket(bucket_name).blob(name, generation=generation)
+        pinned.reload(if_generation_match=generation)
+        raw = pinned.download_as_bytes(if_generation_match=generation)
+    except Exception as exc:
+        raise RuntimeError(
+            "R6 ordinal-2 recovery receipt generation-pinned read failed"
+        ) from exc
+    if type(raw) is not bytes or not raw:
+        raise RuntimeError("R6 ordinal-2 recovery receipt is empty")
+    return _object_identity({
+        "uri": uri,
+        "generation": generation_text,
+        "sha256": sha256(raw).hexdigest(),
+        "bytes": len(raw),
+    }, label="R6 ordinal-2 recovery receipt identity"), raw
+
+
+def _validate_r6_recovery_evidence(
+    *, client, required_recovery_receipt_uri: str,
+    supply_replay: Mapping[str, object], lease: Mapping[str, object],
+    lease_object: Mapping[str, object], expected_service_account: str,
+) -> dict[str, object]:
+    """Exact-replay the separately authorized ordinal-2 recovery closure."""
+    from recover_corpus_r6_full_union_outcome_supply_v1 import (
+        validate_recovery_intent_v1,
+        validate_recovery_receipt_v1,
+    )
+
+    run_id = str(lease["run_id"])
+    expected_receipt_uri = _r6_recovery_receipt_uri(run_id)
+    if required_recovery_receipt_uri != expected_receipt_uri:
+        raise RuntimeError("R6 ordinal-2 recovery receipt URI differs")
+    receipt_identity, receipt_raw = _resolve_current_exact(
+        client, required_recovery_receipt_uri,
+        label="R6 ordinal-2 recovery receipt",
+    )
+    receipt = _canonical_json_object(
+        receipt_raw, label="R6 ordinal-2 recovery receipt"
+    )
+    intent_identity_value = receipt.get("recovery_intent_identity")
+    expected_intent_uri = (
+        f"{R6_OUTCOME_PREFIX}/{run_id}/recoveries/supply-attempt-02/"
+        "recovery-intent.json"
+    )
+    (
+        intent_identity,
+        intent,
+        _,
+        _,
+    ) = _resolve_referenced_current(
+        client,
+        intent_identity_value,
+        expected_uri=expected_intent_uri,
+        label="R6 ordinal-2 recovery intent",
+    )
+    try:
+        retained_intent = validate_recovery_intent_v1(intent)
+        retained_receipt = validate_recovery_receipt_v1(
+            receipt, intent=retained_intent, intent_identity=intent_identity
+        )
+    except Exception as exc:
+        raise RuntimeError(
+            "R6 ordinal-2 recovery canonical replay failed"
+        ) from exc
+    expected_standard = {
+        "attempt": _object_identity(
+            supply_replay["attempt_identity"], label="R6 recovery attempt"
+        ),
+        "query_evidence": _object_identity(
+            supply_replay["query_evidence_identity"],
+            label="R6 recovery query evidence",
+        ),
+        "realized_source": _object_identity(
+            supply_replay["realized_source_identity"],
+            label="R6 recovery realized source",
+        ),
+        "outcome_snapshot": _object_identity(
+            supply_replay["outcome_snapshot_identity"],
+            label="R6 recovery outcome snapshot",
+        ),
+        "completion": _object_identity(
+            supply_replay["completion_identity"],
+            label="R6 recovery supply completion",
+        ),
+    }
+    retained_lease_identity = _object_identity(
+        {
+            key: lease_object[key]
+            for key in ("uri", "generation", "sha256", "bytes")
+        },
+        label="R6 recovery historical-outcome lease",
+    )
+    original_runtime = retained_intent.get("original_runtime")
+    query_evidence = supply_replay.get("query_evidence")
+    query_job_receipt = (
+        query_evidence.get("query_job_receipt")
+        if isinstance(query_evidence, Mapping)
+        else None
+    )
+    fixed_job = retained_receipt.get("fixed_query_job")
+    if (
+        retained_intent != intent
+        or retained_receipt != receipt
+        or retained_intent.get("recovery_ordinal") != 2
+        or retained_intent.get("run_id") != lease.get("run_id")
+        or retained_intent.get("cloud_run_job") != lease.get("job")
+        or not isinstance(original_runtime, Mapping)
+        or original_runtime.get("code_sha") != lease.get("code_sha")
+        or original_runtime.get("image") != lease.get("image")
+        or original_runtime.get("service_account") != expected_service_account
+        or retained_intent.get("historical_outcome_lease_identity")
+        != retained_lease_identity
+        or retained_receipt.get("recovery_intent_identity") != intent_identity
+        or retained_receipt.get("standard_artifact_identities")
+        != expected_standard
+        or not isinstance(query_job_receipt, Mapping)
+        or not isinstance(fixed_job, Mapping)
+        or fixed_job.get("job_id") != query_job_receipt.get("job_id")
+        or retained_receipt.get("distinct_query_job_count") != 1
+        or retained_receipt.get("total_query_submission_count") != 1
+        or retained_receipt.get("job_submission_count") != 0
+        or retained_receipt.get("new_job_count") != 0
+        or retained_receipt.get(
+            "cumulative_fixed_job_result_retrieval_count"
+        ) != 2
+        or retained_receipt.get("failed_result_validation_count") != 1
+        or retained_receipt.get("successful_result_validation_count") != 1
+        or retained_receipt.get("distinct_outcome_snapshot_count") != 1
+        or retained_receipt.get("recovery_closed") is not True
+        or retained_receipt.get("automatic_retry_licensed") is not False
+        or retained_receipt.get("additional_recovery_licensed") is not False
+    ):
+        raise RuntimeError("R6 ordinal-2 recovery release binding differs")
+    return {
+        "intent": retained_intent,
+        "intent_identity": intent_identity,
+        "receipt": retained_receipt,
+        "receipt_identity": receipt_identity,
+    }
+
+
 def materialize_r6_full_union_completion(
     *, receipt_path: Path, supply_completion_uri: str,
     grade_completion_uri: str, output_path: Path,
@@ -983,6 +1178,7 @@ def materialize_r6_full_union_completion(
     expected_snapshot_cli_sha256: str,
     expected_snapshot_test_sha256: str,
     expected_snapshot_cli_test_sha256: str,
+    required_recovery_receipt_uri: str | None = None,
     storage_client=None,
 ) -> dict[str, str]:
     """Materialize the only strict release proof for the R6 score chain."""
@@ -1044,6 +1240,33 @@ def materialize_r6_full_union_completion(
         lease_object=lease_object,
         expected_snapshot_code_identities=expected_code,
     )
+    query_evidence = supply_replay.get("query_evidence")
+    query_disposition = (
+        query_evidence.get("query_job_disposition")
+        if isinstance(query_evidence, Mapping)
+        else None
+    )
+    if query_disposition not in {"created", "recovered"}:
+        raise RuntimeError("R6 full-union query disposition differs")
+    recovery_receipt_observed = _resolve_r6_recovery_receipt_if_present(
+        client, run_id
+    )
+    if required_recovery_receipt_uri is None and (
+        recovery_receipt_observed is not None
+    ):
+        raise RuntimeError(
+            "R6 ordinal-2 recovery receipt cannot downgrade to v1"
+        )
+    if required_recovery_receipt_uri is not None and (
+        query_disposition != "recovered"
+    ):
+        raise RuntimeError(
+            "R6 created supply cannot bind ordinal-2 recovery receipt"
+        )
+    if required_recovery_receipt_uri is not None and (
+        recovery_receipt_observed is None
+    ):
+        raise RuntimeError("R6 required ordinal-2 recovery receipt is absent")
     grade_replay = _validate_r6_grade_evidence(
         client=client,
         supply_replay=supply_replay,
@@ -1058,8 +1281,22 @@ def materialize_r6_full_union_completion(
         supply_completion, grade_completion, persisted_root,
     )):
         raise AssertionError("R6 strict replay return type differs")
+    recovery_replay = None
+    if required_recovery_receipt_uri is not None:
+        recovery_replay = _validate_r6_recovery_evidence(
+            client=client,
+            required_recovery_receipt_uri=required_recovery_receipt_uri,
+            supply_replay=supply_replay,
+            lease=lease,
+            lease_object=lease_object,
+            expected_service_account=expected_service_account,
+        )
     rows: dict[str, str] = {
-        "schema_version": R6_STRICT_COMPLETION_SCHEMA,
+        "schema_version": (
+            R6_RECOVERY_STRICT_COMPLETION_SCHEMA
+            if recovery_replay is not None
+            else R6_STRICT_COMPLETION_SCHEMA
+        ),
         "run_id": run_id,
         "job": str(lease["job"]),
         "execution": str(grade_completion["execution"]),
@@ -1068,7 +1305,11 @@ def materialize_r6_full_union_completion(
         "service_account": expected_service_account,
         "grade_stage_token": expected_grade_stage_token,
         "uses_realized_outcomes": "true",
-        "disposition": R6_STRICT_DISPOSITION,
+        "disposition": (
+            R6_RECOVERY_STRICT_DISPOSITION
+            if recovery_replay is not None
+            else R6_STRICT_DISPOSITION
+        ),
         "supply_completion_self_sha256": str(
             supply_completion["completion_sha256"]
         ),
@@ -1124,7 +1365,48 @@ def materialize_r6_full_union_completion(
             ].items()
         },
     }
-    if set(rows) != _R6_STRICT_COMPLETION_KEYS:
+    if recovery_replay is not None:
+        recovery_intent = recovery_replay["intent"]
+        recovery_receipt = recovery_replay["receipt"]
+        if not isinstance(recovery_intent, Mapping) or not isinstance(
+            recovery_receipt, Mapping
+        ):
+            raise AssertionError("R6 recovery strict replay return type differs")
+        rows.update({
+            "recovery_intent_self_sha256": str(
+                recovery_intent["recovery_intent_sha256"]
+            ),
+            "recovery_receipt_self_sha256": str(
+                recovery_receipt["recovery_receipt_sha256"]
+            ),
+            "recovery_ordinal": "2",
+            "recovery_receipt_required": "true",
+            "distinct_query_job_count": "1",
+            "total_query_submission_count": "1",
+            "recovery_query_submission_count": "0",
+            "new_job_count": "0",
+            "physical_fixed_job_result_retrieval_count": "2",
+            "failed_result_validation_count": "1",
+            "successful_result_validation_count": "1",
+            "distinct_outcome_snapshot_count": "1",
+            "one_historical_outcome_read_definition": (
+                R6_LOGICAL_OUTCOME_READ_DEFINITION
+            ),
+            **_identity_rows(
+                "recovery_intent",
+                recovery_replay["intent_identity"],  # type: ignore[arg-type]
+            ),
+            **_identity_rows(
+                "recovery_receipt",
+                recovery_replay["receipt_identity"],  # type: ignore[arg-type]
+            ),
+        })
+    expected_keys = (
+        _R6_RECOVERY_STRICT_COMPLETION_KEYS
+        if recovery_replay is not None
+        else _R6_STRICT_COMPLETION_KEYS
+    )
+    if set(rows) != expected_keys:
         raise AssertionError("R6 strict completion row construction differs")
     raw_rows = "".join(
         f"{key}={rows[key]}\n" for key in sorted(rows)
@@ -1141,13 +1423,24 @@ def _completion_rows(path: Path) -> tuple[dict[str, str], str]:
         "schema_version", "run_id", "uses_realized_outcomes", "disposition",
     }
     core_only_keys = (
-        _CORE_STRICT_COMPLETION_KEYS - _R6_STRICT_COMPLETION_KEYS - common_keys
+        _CORE_STRICT_COMPLETION_KEYS
+        - _R6_RECOVERY_STRICT_COMPLETION_KEYS
+        - common_keys
     )
     r6_only_keys = (
-        _R6_STRICT_COMPLETION_KEYS - _CORE_STRICT_COMPLETION_KEYS - common_keys
+        _R6_RECOVERY_STRICT_COMPLETION_KEYS
+        - _CORE_STRICT_COMPLETION_KEYS
+        - common_keys
+    )
+    r6_recovery = (
+        loose_rows.get("disposition") == R6_RECOVERY_STRICT_DISPOSITION
+        or loose_rows.get("schema_version")
+        == R6_RECOVERY_STRICT_COMPLETION_SCHEMA
+        or bool(set(loose_rows) & _R6_RECOVERY_ONLY_KEYS)
     )
     r6 = (
-        loose_rows.get("disposition") == R6_STRICT_DISPOSITION
+        r6_recovery
+        or loose_rows.get("disposition") == R6_STRICT_DISPOSITION
         or bool(set(loose_rows) & r6_only_keys)
         or loose_rows.get("schema_version") == R6_STRICT_COMPLETION_SCHEMA
     )
@@ -1168,7 +1461,11 @@ def _completion_rows(path: Path) -> tuple[dict[str, str], str]:
         raise RuntimeError("historical-outcome strict completion has duplicate keys")
     rows = dict(pairs)
     expected = (
-        _R6_STRICT_COMPLETION_KEYS if r6 else _CORE_STRICT_COMPLETION_KEYS
+        _R6_RECOVERY_STRICT_COMPLETION_KEYS
+        if r6_recovery
+        else _R6_STRICT_COMPLETION_KEYS
+        if r6
+        else _CORE_STRICT_COMPLETION_KEYS
     )
     if set(rows) != expected:
         family = "R6 full-union" if r6 else "Core v1"
@@ -1255,22 +1552,87 @@ def _r6_identity_from_rows(
     }, label=f"R6 strict completion {prefix} identity")
 
 
+def _r6_recovery_uri_from_rows(
+    *, rows: Mapping[str, str], lease: Mapping[str, object],
+    required_recovery_receipt_uri: str | None,
+) -> str | None:
+    recovery = (
+        rows.get("schema_version") == R6_RECOVERY_STRICT_COMPLETION_SCHEMA
+        or rows.get("disposition") == R6_RECOVERY_STRICT_DISPOSITION
+        or bool(set(rows) & _R6_RECOVERY_ONLY_KEYS)
+    )
+    if not recovery:
+        if required_recovery_receipt_uri is not None:
+            raise RuntimeError(
+                "R6 full-union required recovery strict completion differs"
+            )
+        return None
+    intent_identity = _r6_identity_from_rows(rows, "recovery_intent")
+    receipt_identity = _r6_identity_from_rows(rows, "recovery_receipt")
+    expected_receipt_uri = _r6_recovery_receipt_uri(str(lease["run_id"]))
+    expected_intent_uri = expected_receipt_uri.replace(
+        "recovery-receipt.json", "recovery-intent.json"
+    )
+    if (
+        set(rows) != _R6_RECOVERY_STRICT_COMPLETION_KEYS
+        or rows.get("schema_version") != R6_RECOVERY_STRICT_COMPLETION_SCHEMA
+        or rows.get("disposition") != R6_RECOVERY_STRICT_DISPOSITION
+        or intent_identity["uri"] != expected_intent_uri
+        or receipt_identity["uri"] != expected_receipt_uri
+        or rows.get("recovery_ordinal") != "2"
+        or rows.get("recovery_receipt_required") != "true"
+        or rows.get("distinct_query_job_count") != "1"
+        or rows.get("total_query_submission_count") != "1"
+        or rows.get("recovery_query_submission_count") != "0"
+        or rows.get("new_job_count") != "0"
+        or rows.get("physical_fixed_job_result_retrieval_count") != "2"
+        or rows.get("failed_result_validation_count") != "1"
+        or rows.get("successful_result_validation_count") != "1"
+        or rows.get("distinct_outcome_snapshot_count") != "1"
+        or rows.get("one_historical_outcome_read") != "true"
+        or rows.get("one_historical_outcome_read_definition")
+        != R6_LOGICAL_OUTCOME_READ_DEFINITION
+        or required_recovery_receipt_uri not in (None, expected_receipt_uri)
+    ):
+        raise RuntimeError(
+            "R6 full-union recovery strict completion law differs"
+        )
+    return expected_receipt_uri
+
+
 def _validate_r6_strict_rows(
     *, rows: Mapping[str, str], receipt_path: Path, completion_path: Path,
     client, lease: Mapping[str, object], lease_object: Mapping[str, object],
+    required_recovery_receipt_uri: str | None = None,
 ) -> None:
+    recovery = (
+        rows.get("schema_version") == R6_RECOVERY_STRICT_COMPLETION_SCHEMA
+        or rows.get("disposition") == R6_RECOVERY_STRICT_DISPOSITION
+        or bool(set(rows) & _R6_RECOVERY_ONLY_KEYS)
+    )
+    expected_keys = (
+        _R6_RECOVERY_STRICT_COMPLETION_KEYS
+        if recovery else _R6_STRICT_COMPLETION_KEYS
+    )
     expected_lease = {
         **_r6_identity_from_rows(rows, "historical_outcome_lease"),
         "create_only": True,
     }
     if (
-        rows.get("schema_version") != R6_STRICT_COMPLETION_SCHEMA
+        set(rows) != expected_keys
+        or rows.get("schema_version") != (
+            R6_RECOVERY_STRICT_COMPLETION_SCHEMA
+            if recovery else R6_STRICT_COMPLETION_SCHEMA
+        )
         or rows.get("run_id") != lease.get("run_id")
         or rows.get("job") != lease.get("job")
         or rows.get("code_sha") != lease.get("code_sha")
         or rows.get("image") != lease.get("image")
         or rows.get("uses_realized_outcomes") != "true"
-        or rows.get("disposition") != R6_STRICT_DISPOSITION
+        or rows.get("disposition") != (
+            R6_RECOVERY_STRICT_DISPOSITION
+            if recovery else R6_STRICT_DISPOSITION
+        )
         or rows.get("one_historical_outcome_read") != "true"
         or rows.get("one_exact_query_job") != "true"
         or rows.get("canonical_persisted_grade_replay_complete") != "true"
@@ -1279,6 +1641,11 @@ def _validate_r6_strict_rows(
         or expected_lease != dict(lease_object)
     ):
         raise RuntimeError("R6 full-union strict completion lease law differs")
+    replay_recovery_uri = _r6_recovery_uri_from_rows(
+        rows=rows,
+        lease=lease,
+        required_recovery_receipt_uri=required_recovery_receipt_uri,
+    )
     replayed = materialize_r6_full_union_completion(
         receipt_path=receipt_path,
         supply_completion_uri=str(rows["supply_completion_uri"]),
@@ -1292,6 +1659,7 @@ def _validate_r6_strict_rows(
         expected_snapshot_cli_test_sha256=str(
             rows["snapshot_cli_test_sha256"]
         ),
+        required_recovery_receipt_uri=replay_recovery_uri,
         storage_client=client,
     )
     if dict(rows) != replayed:
@@ -1478,6 +1846,16 @@ def _release_intent_payload(
         "generation_matched_delete_only": True,
         "automatic_retry_licensed": False,
     }
+    if completion.get("schema_version") == R6_RECOVERY_STRICT_COMPLETION_SCHEMA:
+        body.update({
+            "required_recovery_receipt": _r6_identity_from_rows(
+                completion, "recovery_receipt"
+            ),
+            "one_historical_outcome_read_definition": completion.get(
+                "one_historical_outcome_read_definition"
+            ),
+            "recovery_accounting_required": True,
+        })
     body["release_intent_sha256"] = sha256(
         json.dumps(body, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
@@ -1576,6 +1954,7 @@ def validate_release_receipt_local(
     *, lease_receipt_path: Path, execution_path: Path,
     completion_path: Path, release_intent_path: Path,
     release_receipt_path: Path,
+    required_recovery_receipt_uri: str | None = None,
 ) -> dict[str, object]:
     """Validate the durable R6 delete receipt from local immutable evidence."""
     try:
@@ -1586,6 +1965,11 @@ def validate_release_receipt_local(
     completion, contract = _completion_rows(completion_path)
     if contract != "r6-full-union":
         raise RuntimeError("R6 full-union durable release contract differs")
+    _r6_recovery_uri_from_rows(
+        rows=completion,
+        lease=lease,
+        required_recovery_receipt_uri=required_recovery_receipt_uri,
+    )
     expected_intent = _release_intent_payload(
         lease=lease,
         lease_object=lease_object,
@@ -1607,6 +1991,7 @@ def release(
     storage_client=None, required_contract: str = "auto",
     release_intent_path: Path | None = None,
     release_receipt_path: Path | None = None,
+    required_recovery_receipt_uri: str | None = None,
 ) -> None:
     if required_contract not in {"auto", "core-v1", "r6-full-union"}:
         raise RuntimeError("historical-outcome required completion contract differs")
@@ -1616,6 +2001,16 @@ def release(
     completion, contract = _completion_rows(completion_path)
     if required_contract != "auto" and contract != required_contract:
         raise RuntimeError("historical-outcome required strict contract differs")
+    if contract == "r6-full-union":
+        _r6_recovery_uri_from_rows(
+            rows=completion,
+            lease=lease,
+            required_recovery_receipt_uri=required_recovery_receipt_uri,
+        )
+    elif required_recovery_receipt_uri is not None:
+        raise RuntimeError(
+            "R6 full-union required recovery strict completion differs"
+        )
     r6_release = contract == "r6-full-union"
     if r6_release and (
         release_intent_path is None or release_receipt_path is None
@@ -1700,10 +2095,20 @@ def release(
             client=client,
             lease=lease,
             lease_object=expected_object,
+            required_recovery_receipt_uri=required_recovery_receipt_uri,
         )
         _validate_r6_execution_envelope(
             execution=execution, rows=completion, lease=lease
         )
+        if (
+            completion.get("schema_version") == R6_STRICT_COMPLETION_SCHEMA
+            and _resolve_r6_recovery_receipt_if_present(
+                client, str(lease["run_id"])
+            ) is not None
+        ):
+            raise RuntimeError(
+                "R6 ordinal-2 recovery receipt cannot release through v1"
+            )
         assert release_intent_path is not None
         assert release_receipt_path is not None
         assert expected_intent is not None
@@ -1750,6 +2155,7 @@ def main() -> None:
     release_parser.add_argument("--completion", type=Path, required=True)
     release_parser.add_argument("--release-intent", type=Path)
     release_parser.add_argument("--release-receipt", type=Path)
+    release_parser.add_argument("--required-recovery-receipt-uri")
     release_parser.add_argument(
         "--required-contract",
         choices=("auto", "core-v1", "r6-full-union"),
@@ -1771,6 +2177,7 @@ def main() -> None:
     validate_release_parser.add_argument(
         "--release-receipt", type=Path, required=True
     )
+    validate_release_parser.add_argument("--required-recovery-receipt-uri")
     materialize_parser = sub.add_parser("materialize-core-v1-completion")
     materialize_parser.add_argument("--receipt", type=Path, required=True)
     materialize_parser.add_argument("--completion-uri", required=True)
@@ -1799,6 +2206,7 @@ def main() -> None:
     materialize_r6_parser.add_argument(
         "--expected-snapshot-cli-test-sha256", required=True
     )
+    materialize_r6_parser.add_argument("--required-recovery-receipt-uri")
     materialize_r6_parser.add_argument("--output", type=Path, required=True)
     abandon_parser = sub.add_parser("abandon")
     abandon_parser.add_argument("--receipt", type=Path, required=True)
@@ -1856,6 +2264,9 @@ def main() -> None:
             expected_snapshot_cli_test_sha256=(
                 args.expected_snapshot_cli_test_sha256
             ),
+            required_recovery_receipt_uri=(
+                args.required_recovery_receipt_uri
+            ),
         )
         print("HISTORICAL_OUTCOME_R6_FULL_UNION_COMPLETION_MATERIALIZED " + json.dumps({
             "supply_completion_uri": rows["supply_completion_uri"],
@@ -1871,6 +2282,9 @@ def main() -> None:
             completion_path=args.completion,
             release_intent_path=args.release_intent,
             release_receipt_path=args.release_receipt,
+            required_recovery_receipt_uri=(
+                args.required_recovery_receipt_uri
+            ),
         )
         print(json.dumps({
             "lease_released": True,
@@ -1886,6 +2300,9 @@ def main() -> None:
             required_contract=args.required_contract,
             release_intent_path=args.release_intent,
             release_receipt_path=args.release_receipt,
+            required_recovery_receipt_uri=(
+                args.required_recovery_receipt_uri
+            ),
         )
         print("HISTORICAL_OUTCOME_LEASE_RELEASED")
 

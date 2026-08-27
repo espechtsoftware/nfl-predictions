@@ -625,7 +625,11 @@ def test_recover_supply_is_explicit_isolated_and_absent_from_ordinary_run() -> N
     assert "recover-supply) recover_failed_supply ;;" in source
     assert 'run) compile_stage; smoke; supply_stage; grade_stage; finish ;;' in source
     assert "run) compile_stage; smoke; supply_stage; recover" not in source
-    assert 'RECOVERY_STAGE="supply-recovery-01"' in source
+    assert 'RECOVERY_STAGE="supply-recovery-02"' in source
+    assert (
+        'PREVIOUS_RECOVERY_PREFIX="$SUPPLY_PREFIX/recoveries/supply-attempt-01"'
+        in source
+    )
     assert 'local stage_dir="$RUN_DIR/stages/$RECOVERY_STAGE"' in source
     assert 'local stage_dir="$RUN_DIR/stages/supply"' in source
     assert source.count(
@@ -651,7 +655,7 @@ def test_recovery_launch_binds_dual_runtime_and_exact_dedicated_env() -> None:
             "validate_compile_receipt()"
         )
     ]
-    assert 'RECOVERY_GATE="R6_FULL_UNION_OUTCOME_RECOVERY_ENABLED"' in source
+    assert 'RECOVERY_GATE="R6_FULL_UNION_OUTCOME_RECOVERY_02_ENABLED"' in source
     assert '--arg gate "$RECOVERY_GATE"' in recovery_env
     assert "R6_RECOVERY_STAGE_TOKEN" in recovery_env
     assert "R6_FULL_UNION_RECOVERY_CODE_SHA" in recovery_env
@@ -673,8 +677,10 @@ def test_recovery_launch_binds_dual_runtime_and_exact_dedicated_env() -> None:
     ):
         assert field in launch
     assert '--image "$RECOVERY_IMAGE"' in source
-    assert "prior recovery launch remains ambiguous; blind relaunch is forbidden" in launch
     assert "recover_recovery_execution" in launch
+    assert "claim_recovery_launch_ownership" in launch
+    assert "recovery launch authority was already consumed" in launch
+    assert 'RECOVERY_LAUNCH_OWNERSHIP_URI="$RECOVERY_PREFIX/launch-ownership.json"' in source
 
 
 def test_recovery_scans_cloud_before_launch_when_local_stage_was_recreated() -> None:
@@ -690,8 +696,41 @@ def test_recovery_scans_cloud_before_launch_when_local_stage_was_recreated() -> 
     assert launch.count(scan) == 1
     assert launch.index(scan) < launch.index(execute)
     assert 'if [[ -n "$recovered" ]]; then' in launch
-    assert 'elif [[ "$intent_preexisted" == true ]]; then' in launch
+    assert "claim_recovery_launch_ownership" in launch
+    assert launch.index("claim_recovery_launch_ownership") < launch.index(execute)
+    assert "RECOVERY_LAUNCH_OWNERSHIP_URI" in launch
     assert "this local\n    # stage directory was recreated on another machine" in launch
+
+
+def test_recovery_ownership_uses_distinct_identity_sidecars_and_final_binding() -> None:
+    source = _source()
+    assert (
+        'PREVIOUS_RECOVERY_OWNERSHIP_LOCAL="$RUN_DIR/objects/'
+        'recovery-prelaunch-resumption-ownership-v1.identity.json"'
+    ) in source
+    assert (
+        'RECOVERY_LAUNCH_OWNERSHIP_LOCAL="$RUN_DIR/objects/'
+        'supply-recovery-02-launch-ownership.identity.json"'
+    ) in source
+    assert (
+        'resolve_object "$PREVIOUS_RECOVERY_OWNERSHIP_URI" '
+        '\\\n    "$PREVIOUS_RECOVERY_OWNERSHIP_LOCAL"'
+    ) in source
+    claim = source[
+        source.index("claim_recovery_launch_ownership()") : source.index(
+            "launch_recovery_stage()"
+        )
+    ]
+    assert "claim-launch --execute" in claim
+    assert "R6_FULL_UNION_RECOVERY_LAUNCH_OWNED" in claim
+    assert ".object_created" in claim
+    finalize = source[
+        source.index("finalize_recovery_receipt()") : source.index(
+            "resolve_supply_outputs()"
+        )
+    ]
+    assert "--recovery-launch-intent=" in finalize
+    assert "launch-ownership" in finalize
 
 
 def test_recovery_zero_match_scan_returns_success_and_scan_errors_fail_closed(
@@ -780,9 +819,6 @@ def test_recovery_preconditions_precede_mutation_and_restore_original_job() -> N
         recover.index("prepare_recovery_intent")
     )
     assert recover.index("prepare_recovery_intent") < recover.index(
-        "preflight_recovery"
-    )
-    assert recover.index("preflight_recovery") < recover.index(
         "launch_recovery_stage"
     )
     assert recover.index("launch_recovery_stage") < recover.index(
@@ -794,15 +830,32 @@ def test_recovery_preconditions_precede_mutation_and_restore_original_job() -> N
     assert "acquire_or_resolve_lease" not in recover
     assert "launch_stage supply" not in recover
     assert "supply_stage" not in recover
-    assert "RECOVERY_RESTORE_ARMED=true" in recover
-    assert "trap restore_original_job_on_exit EXIT" in recover
+    assert "preflight_recovery" not in recover
+    assert "RECOVERY_RESTORE_ARMED=true" not in recover
     assert '(preflight) || die "failed to restore' in recover
     preflight_recovery = source[
         source.index("preflight_recovery()") : source.index("stage_token()")
     ]
-    assert 'local after="$RUN_DIR/job-config-recovery.json"' in preflight_recovery
+    assert 'local after="$RUN_DIR/job-config-recovery-02.json"' in preflight_recovery
     assert 'write_equal "$after"' in preflight_recovery
     assert '"$RUN_DIR/job-config.json"' not in preflight_recovery
+
+
+def test_only_ordinal2_ownership_creator_mutates_job_before_execute() -> None:
+    source = _source()
+    launch = source[
+        source.index("launch_recovery_stage()") : source.index(
+            "validate_compile_receipt()"
+        )
+    ]
+    claim = launch.index("claim_recovery_launch_ownership")
+    non_owner_stop = launch.index("recovery launch authority was already consumed")
+    arm = launch.index("RECOVERY_RESTORE_ARMED=true")
+    configure = launch.index("preflight_recovery", arm)
+    execute = launch.index('gcloud run jobs execute "$JOB"', configure)
+    assert claim < non_owner_stop < arm < configure < execute
+    assert launch.index("trap restore_original_job_on_exit EXIT", arm) < configure
+    assert "concurrent non-owner exits above" in launch
 
 
 def test_recovery_prepare_binds_failure_attempt_metadata_and_absence() -> None:
@@ -833,6 +886,8 @@ def test_recovery_prepare_binds_failure_attempt_metadata_and_absence() -> None:
     for option in (
         "--original-launch-intent=",
         "--original-terminal-execution=",
+        "--previous-recovery-launch-intent=",
+        "--previous-recovery-terminal-execution=",
         "--snapshot-module-sha256=",
     ):
         assert option in prepare
@@ -842,15 +897,18 @@ def test_recovery_prepare_binds_failure_attempt_metadata_and_absence() -> None:
         "query-compile",
         "outcome-key-projection",
         "actual-root-smoke",
+        "previous-recovery-intent",
     ):
         assert f" {prefix})" in prepare
+    assert "previous-prelaunch-ownership" in prepare
     for identity in (
         "query-evidence.json",
         "realized-source.json",
         "outcome-snapshot.json",
         "supply-completion.json",
-        "supply-recovery-worker-completion.json",
-        "supply-recovery-receipt.json",
+        "supply-recovery-02-result-structure.json",
+        "RECOVERY_WORKER_LOCAL",
+        "RECOVERY_RECEIPT_LOCAL",
     ):
         assert identity in absence
     assert "historical_outcome_lease.py acquire" not in source[
@@ -879,6 +937,20 @@ def test_grade_accepts_only_true_original_or_finalized_recovery_success() -> Non
         "automatic_retry_licensed == false",
     ):
         assert field in ensure
+
+
+def test_recovered_finish_requires_versioned_recovery_receipt_accounting() -> None:
+    source = _source()
+    finish = source[source.index("finish()") : source.index("status()")]
+    status_start = source.index("status()")
+    status = source[status_start : source.index('case "$COMMAND"', status_start)]
+    assert 'supply_state" == "False"' in finish
+    assert "validate_identity_receipt" in finish
+    assert finish.count("--required-recovery-receipt-uri") == 1
+    assert finish.count('"${recovery_release_args[@]}"') == 2
+    assert "RECOVERY_RECEIPT_URI" in finish
+    assert "--required-recovery-receipt-uri" in status
+    assert '"${recovery_release_args[@]}"' in status
 
 
 def test_missing_failed_supply_evidence_blocks_recovery_before_gcloud(

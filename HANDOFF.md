@@ -20,6 +20,79 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-27 04:07 UTC (one-hundred-sixty-fourth update)
+
+### R6 recovery ordinal 2 is approved and ready for immutable build
+
+- Branch `main` and `origin/main` remain at
+  `555137ebd9e030929ddd7ad60f5174637632a68c` while this bounded working-tree
+  milestone is prepared. No cloud mutation, BigQuery call, outcome-row read,
+  score, lease change, graph change or production change occurred during this
+  implementation/review block. The exact milestone commit must be recorded
+  in the next HANDOFF update immediately after commit/push.
+- Recovery ordinal 1 remains terminal-consumed: execution
+  `atlas-minimal-c-s2023-w1-v1-n86rn`, UID
+  `2d630941-96e7-43c1-a066-20515923dd16`, terminal-envelope SHA-256
+  `9bda0956e0e2623a1d287a33237b1bafa45dea71dc3f3489ada3a223246abfb3`.
+  It submitted no query but performed the first physical retrieval of the
+  already-completed fixed job and failed exact-union validation. Its success
+  objects remain absent. The original fixed query, live lease, read attempt,
+  panel and registered job identity remain unchanged.
+- The sole authorized ordinal-2 correction is implemented in
+  `src/nfl_dfs/research/corpus_r6_full_union_outcome_supply_v1.py` and
+  `scripts/recover_corpus_r6_full_union_outcome_supply_v1.py`. Returned rows
+  remain strictly validated as a canonical subset. Missing DST is fatal; a
+  whole missing skill slate is fatal; only missing frozen positive-salary
+  skill keys are completed to exact zero under the pinned salary-catalog
+  bridge and salary-zero source law. The unchanged strict snapshot normalizer
+  must then accept the completed full union.
+- Standard query evidence intentionally remains the exact
+  `corpus-r6-full-union-outcome-query-evidence/v1` schema/key contract, so the
+  restored original immutable grade image can validate and score it. The
+  ordinal-2 observed/synthesized counts, key hashes and law pins are isolated
+  in a row-silent result-structure receipt and bound by the worker/final
+  recovery receipts. Independent comparison confirmed the original validator
+  accepts disposition `recovered` and the v1 evidence contract.
+- `scripts/cloud_r6_full_union_score_chain_v1.sh` now uses distinct local
+  identity sidecars for the ordinal-1 ownership payload and implements
+  create-only ordinal-2 `launch-ownership.json`. A zero-match controller must
+  win that ownership before any shared job mutation; only that creator arms
+  restore, configures the recovery image and makes the sole execute call.
+  Concurrent non-owners do not mutate or restore the job. Once one exact
+  immutable execution is visible, an observer may monitor/finalize it and
+  restore the registered job without affecting the execution. An ambiguous
+  response or owner death after ownership but before visible execution stops
+  for manual review and does not relicense a launch, query or ordinal 3.
+- `scripts/historical_outcome_lease.py` adds a versioned recovery strict
+  completion and exact receipt replay. Attempt-02 receipt presence plus the
+  explicit exact URI distinguishes ordinal 2; legitimate original-runner v1
+  recovery without that receipt remains supported. Receipt presence cannot
+  downgrade to v1, and v1 release rechecks absence immediately before its
+  durable delete intent. Ordinal-2 accounting is exact: one distinct query
+  job, one original query submission, zero recovery submissions/new jobs, two
+  physical fixed-job result retrievals, one failed and one successful
+  structural validation, and one outcome snapshot. “One historical read” is
+  explicitly one logical fixed-query snapshot, not a physical-call count.
+- The data-deficiency log and
+  `reports/2026-08-26-r6-full-union-fixed-job-recovery-amendment.md` record the
+  source/settlement rationale, exact safety boundary, original-grade
+  compatibility, release accounting and no-ordinal-3 law.
+- Exact local validation passed: the complete immutable-build contract is
+  **349 passed, 1 skipped** in 572.32 seconds; the latest combined
+  supply/recovery/controller/grade compatibility run is **100/100**; lease
+  release is **46/46**; shell/controller is **41/41**. Python compilation,
+  shell parsing and `git diff --check` pass. Ruff is not installed locally.
+  Independent adversarial review gives **APPROVE**, P0=0/P1=0.
+- Exact next action: commit only the bounded ordinal-2 files plus this HANDOFF,
+  push `main`, then submit exactly one detached-source
+  `cloudbuild.r6-post-freeze.yaml` build against that pushed commit. Resolve
+  its immutable digest, set only `R6_SCORE_RECOVERY_CODE_SHA` and
+  `R6_SCORE_RECOVERY_IMAGE`, and invoke `recover-supply` once for retained run
+  `20260826-foundry-v12-r6-full-union-realized-v2`. Do not run ordinary
+  `supply`/`run`, create a query, replace the lease, or launch a second
+  ordinal. On terminal success: run `grade`, `finish`, and the exact
+  aggregate-only eight-strategy score reporter including T230.
+
 ## Current handoff — 2026-08-27 02:04 UTC (one-hundred-sixty-third update)
 
 ### R6 recovery stopped safely before launch; bounded controller correction is ready

@@ -41,15 +41,25 @@ from nfl_dfs.research import lr8_label_score_map as shared  # noqa: E402
 
 PROJECT: Final = "nfl-predictions-503414"
 REGION: Final = "us-central1"
-RECOVERY_ORDINAL: Final = 1
-RECOVERY_ENABLED_ENV: Final = "R6_FULL_UNION_OUTCOME_RECOVERY_ENABLED"
+RECOVERY_ORDINAL: Final = 2
+RECOVERY_ENABLED_ENV: Final = "R6_FULL_UNION_OUTCOME_RECOVERY_02_ENABLED"
 RECOVERY_STAGE_TOKEN_ENV: Final = "R6_RECOVERY_STAGE_TOKEN"
 RECOVERY_CODE_ENV: Final = "R6_FULL_UNION_RECOVERY_CODE_SHA"
 RECOVERY_IMAGE_ENV: Final = "R6_FULL_UNION_RECOVERY_RUNTIME_IMAGE"
-INTENT_SCHEMA: Final = "r6-full-union-outcome-supply-recovery-intent/v1"
-WORKER_SCHEMA: Final = "r6-full-union-outcome-supply-recovery-worker/v1"
-RECEIPT_SCHEMA: Final = "r6-full-union-outcome-supply-recovery-receipt/v1"
-OPERATION: Final = "recover-terminal-successful-fixed-query-job"
+INTENT_SCHEMA: Final = "r6-full-union-outcome-supply-recovery-intent/v2"
+WORKER_SCHEMA: Final = "r6-full-union-outcome-supply-recovery-worker/v2"
+RECEIPT_SCHEMA: Final = "r6-full-union-outcome-supply-recovery-receipt/v2"
+FAILURE_CLOSURE_SCHEMA: Final = (
+    "r6-full-union-outcome-supply-recovery-terminal-failure/v1"
+)
+AMENDMENT_SCHEMA: Final = "r6-full-union-outcome-supply-recovery-amendment/v1"
+RESULT_STRUCTURE_SCHEMA: Final = (
+    "r6-full-union-outcome-result-structure-receipt/v1"
+)
+LAUNCH_OWNERSHIP_SCHEMA: Final = (
+    "r6-full-union-outcome-supply-recovery-launch-ownership/v1"
+)
+OPERATION: Final = "recover-fixed-job-with-closed-world-skill-zero-completion"
 
 _RUN_ID: Final = re.compile(r"[a-z0-9][a-z0-9-]{7,80}")
 _JOB: Final = re.compile(r"[a-z0-9][a-z0-9-]{2,62}")
@@ -88,11 +98,16 @@ _FIXED_JOB_KEYS: Final = frozenset({
 })
 _OUTPUT_URI_KEYS: Final = frozenset({
     "query_evidence", "realized_source", "outcome_snapshot", "completion",
-    "grade_root", "grade_completion", "worker_completion", "recovery_receipt",
+    "grade_root", "grade_completion", "result_structure",
+    "worker_completion", "recovery_receipt",
 })
 _SAFETY_KEYS: Final = frozenset({
     "existing_job_lookup_only", "expected_get_job_calls",
     "expected_result_calls", "result_job_retry_disabled",
+    "distinct_query_job_count", "total_query_submission_count",
+    "cumulative_fixed_job_result_retrieval_count",
+    "failed_result_validation_count", "expected_successful_validation_count",
+    "expected_distinct_outcome_snapshot_count",
     "query_submission_licensed", "new_job_creation_licensed",
     "read_attempt_creation_licensed", "automatic_retry_licensed",
     "additional_recovery_licensed", "historical_retune_licensed",
@@ -103,6 +118,8 @@ _INTENT_KEYS: Final = frozenset({
     "schema_version", "recovery_intent_sha256", "created_at", "project",
     "region", "run_id", "cloud_run_job", "recovery_ordinal", "operation",
     "original_runtime", "recovery_runtime", "original_supply_failure",
+    "previous_recovery_runtime", "previous_recovery_failure_closure_identity",
+    "recovery_amendment_identity",
     "panel_freeze_identity", "outcome_key_projection_identity",
     "actual_root_smoke_receipt_identity", "query_compile_receipt_identity",
     "snapshot_code_identities", "historical_outcome_lease_identity",
@@ -122,7 +139,13 @@ _WORKER_KEYS: Final = frozenset({
     "schema_version", "worker_completion_sha256", "completed_at", "run_id",
     "cloud_run_job", "recovery_intent_identity", "recovery_intent_sha256",
     "original_runtime", "recovery_runtime", "runtime_envelope",
+    "previous_recovery_runtime", "previous_recovery_failure_closure_identity",
+    "recovery_amendment_identity",
     "read_attempt_identity", "fixed_query_job", "standard_artifact_identities",
+    "result_structure_identity", "distinct_query_job_count",
+    "total_query_submission_count", "cumulative_fixed_job_result_retrieval_count",
+    "failed_result_validation_count", "successful_result_validation_count",
+    "distinct_outcome_snapshot_count",
     "query_job_disposition", "get_job_call_count", "result_call_count",
     "job_submission_count", "new_job_count", "one_existing_result_consumed",
     "result_job_retry_disabled", "automatic_retry_licensed",
@@ -139,14 +162,79 @@ _RECEIPT_KEYS: Final = frozenset({
     "cloud_run_job", "recovery_intent_identity", "recovery_intent_sha256",
     "worker_completion_identity", "worker_completion_sha256",
     "original_runtime", "recovery_runtime", "original_supply_failure",
+    "previous_recovery_runtime", "previous_recovery_failure_closure_identity",
+    "recovery_amendment_identity", "result_structure_identity",
+    "launch_ownership_identity",
     "recovery_terminal_execution_measurement", "recovery_terminal_projection",
     "runtime_envelope", "read_attempt_identity", "fixed_query_job",
     "standard_artifact_identities", "query_job_disposition",
     "get_job_call_count", "result_call_count", "job_submission_count",
     "new_job_count", "same_fixed_job_recovered", "recovery_closed",
+    "distinct_query_job_count", "total_query_submission_count",
+    "cumulative_fixed_job_result_retrieval_count",
+    "failed_result_validation_count", "successful_result_validation_count",
+    "distinct_outcome_snapshot_count",
     "automatic_retry_licensed", "additional_recovery_licensed",
     "historical_retune_licensed", "graph_mutation_licensed",
     "production_change_licensed", "decision_authority",
+})
+
+_FAILURE_CLOSURE_KEYS: Final = frozenset({
+    "schema_version", "terminal_failure_sha256", "closed_at", "project",
+    "region", "run_id", "cloud_run_job", "recovery_ordinal",
+    "recovery_runtime", "recovery_intent_identity",
+    "prelaunch_ownership_identity", "launch_intent_measurement",
+    "launch_stage_token", "launch_argv_sha256", "execution_name",
+    "execution_uid", "terminal_execution_measurement", "terminal_projection",
+    "terminal_error_class", "worker_completion_absent",
+    "recovery_receipt_absent", "standard_supply_outputs_absent",
+    "fixed_job_result_retrieval_count", "failed_result_validation_count",
+    "automatic_retry_licensed", "additional_recovery_licensed",
+    "query_submission_licensed", "decision_authority",
+})
+_AMENDMENT_KEYS: Final = frozenset({
+    "schema_version", "recovery_amendment_sha256", "created_at", "run_id",
+    "recovery_ordinal", "skill_zero_completion_law",
+    "skill_zero_law_source_sha256", "salary_catalog_settlement_bridge",
+    "salary_catalog_bridge_source_sha256", "missing_skill_score_micro",
+    "missing_dst_is_fatal", "requires_observed_skill_per_slate",
+    "keeps_snapshot_normalizer_strict", "fixed_query_job_only",
+    "query_submission_licensed", "new_job_creation_licensed",
+    "automatic_retry_licensed", "additional_recovery_licensed",
+    "decision_authority",
+})
+_RESULT_STRUCTURE_KEYS: Final = frozenset({
+    "schema_version", "result_structure_sha256", "created_at", "run_id",
+    "recovery_ordinal", "recovery_intent_identity",
+    "recovery_amendment_identity", "expected_key_count",
+    "observed_key_count", "observed_query_keys_sha256",
+    "observed_rows_reordered", "missing_skill_zero_count",
+    "missing_skill_keys_sha256", "missing_dst_count",
+    "final_union_key_count", "final_query_key_union_sha256",
+    "skill_zero_completion_law", "skill_zero_law_source_sha256",
+    "salary_catalog_settlement_bridge",
+    "salary_catalog_bridge_source_sha256", "query_returned_exact_union",
+    "contains_player_ids", "contains_rows", "contains_scores",
+    "decision_authority",
+})
+_LAUNCH_OWNERSHIP_KEYS: Final = frozenset({
+    "schema_version", "launch_ownership_sha256", "created_at", "project",
+    "region", "run_id", "cloud_run_job", "recovery_ordinal",
+    "recovery_intent_identity", "recovery_intent_sha256",
+    "recovery_runtime", "launch_intent_measurement", "launch_stage_token",
+    "launch_argv_sha256", "max_recovery_execution_submission_calls",
+    "first_recovery_execution_submission_licensed",
+    "ambiguous_response_consumes_authority", "query_submission_licensed",
+    "new_job_creation_licensed", "automatic_retry_licensed",
+    "additional_recovery_licensed", "decision_authority",
+})
+_RECOVERY_LAUNCH_INTENT_KEYS: Final = frozenset({
+    "schema_version", "stage", "token", "project", "region", "run_id",
+    "job", "original_code_sha", "original_image", "recovery_code_sha",
+    "recovery_image", "service_account", "gate", "argv", "argv_sha256",
+    "execution_env", "query_compile_receipt", "recovery_intent",
+    "fixed_job_lookup_only", "query_submission_licensed",
+    "ordinary_supply_relaunch_licensed", "automatic_retry_licensed",
 })
 
 _ATTEMPT_KEYS: Final = frozenset({
@@ -179,6 +267,7 @@ class R6FullUnionRecoveryV1Error(RuntimeError):
 class RecoveryObjectV1:
     body: Mapping[str, object]
     identity: Mapping[str, object]
+    created: bool = False
 
 
 def _fail(message: str) -> None:
@@ -442,7 +531,7 @@ def _output_roots(run_id: str) -> tuple[str, str, str]:
         "gs://nfl-predictions-503414-corpus-retrieval/research/"
         f"corpus-r6-full-union-realized-grades/{run_id}"
     )
-    recovery_root = f"{supply_root}/recoveries/supply-attempt-01"
+    recovery_root = f"{supply_root}/recoveries/supply-attempt-02"
     return supply_root, grade_root, recovery_root
 
 
@@ -455,6 +544,7 @@ def _output_uris(run_id: str) -> dict[str, object]:
         "completion": f"{supply_root}/completion.json",
         "grade_root": f"{grade_root}/realized-grade-root.json",
         "grade_completion": f"{grade_root}/grade-completion.json",
+        "result_structure": f"{recovery_root}/result-structure-receipt.json",
         "worker_completion": f"{recovery_root}/worker-completion.json",
         "recovery_receipt": f"{recovery_root}/recovery-receipt.json",
     }
@@ -462,6 +552,23 @@ def _output_uris(run_id: str) -> dict[str, object]:
 
 def _intent_uri(run_id: str) -> str:
     return f"{_output_roots(run_id)[2]}/recovery-intent.json"
+
+
+def _previous_recovery_root(run_id: str) -> str:
+    supply_root = _output_roots(run_id)[0]
+    return f"{supply_root}/recoveries/supply-attempt-01"
+
+
+def _failure_closure_uri(run_id: str) -> str:
+    return f"{_previous_recovery_root(run_id)}/terminal-failure-closure.json"
+
+
+def _amendment_uri(run_id: str) -> str:
+    return f"{_output_roots(run_id)[2]}/recovery-amendment.json"
+
+
+def _launch_ownership_uri(run_id: str) -> str:
+    return f"{_output_roots(run_id)[2]}/launch-ownership.json"
 
 
 def _measurement(raw: bytes) -> dict[str, object]:
@@ -564,6 +671,231 @@ def _failed_execution(
         "terminal_execution_measurement": _measurement(terminal_raw),
         "terminal_projection": projection,
     }
+
+
+def _previous_recovery_failure(
+    *,
+    launch_path: Path,
+    terminal_path: Path,
+    run_id: str,
+    job: str,
+    project: str,
+    region: str,
+    runtime: Mapping[str, object],
+    intent_identity: Mapping[str, object],
+) -> dict[str, object]:
+    launch, launch_raw = _read_local_object(
+        launch_path, label="previous recovery launch intent"
+    )
+    terminal, terminal_raw = _read_local_object(
+        terminal_path, label="previous recovery terminal execution"
+    )
+    metadata = _mapping(
+        terminal.get("metadata"), label="previous recovery metadata"
+    )
+    spec = _mapping(terminal.get("spec"), label="previous recovery spec")
+    status = _mapping(terminal.get("status"), label="previous recovery status")
+    template = _mapping(spec.get("template"), label="previous recovery template")
+    task = _mapping(template.get("spec"), label="previous recovery task")
+    containers = task.get("containers")
+    conditions = status.get("conditions")
+    labels = _mapping(metadata.get("labels"), label="previous recovery labels")
+    if (
+        not isinstance(containers, list)
+        or len(containers) != 1
+        or not isinstance(containers[0], Mapping)
+        or not isinstance(conditions, list)
+    ):
+        _fail("previous recovery execution envelope differs")
+    completed = [
+        item for item in conditions
+        if isinstance(item, Mapping) and item.get("type") == "Completed"
+    ]
+    name = str(metadata.get("name", "")).rsplit("/", 1)[-1]
+    message = str(completed[0].get("message", "")) if len(completed) == 1 else ""
+    match = re.search(r"exit code:\s*([0-9]+)", message)
+    projection = {
+        "completed_status": completed[0].get("status") if len(completed) == 1 else None,
+        "failed_count": status.get("failedCount", 0),
+        "succeeded_count": status.get("succeededCount", 0),
+        "running_count": status.get("runningCount", 0),
+        "max_retries": task.get("maxRetries"),
+        "exit_code": int(match.group(1)) if match else None,
+    }
+    container = dict(containers[0])
+    if (
+        launch.get("schema_version")
+        != "r6-full-union-recovery-stage-launch-intent/v1"
+        or launch.get("stage") != "supply-recovery-01"
+        or launch.get("run_id") != run_id
+        or launch.get("job") != job
+        or launch.get("project") != project
+        or launch.get("region") != region
+        or launch.get("recovery_code_sha") != runtime["code_sha"]
+        or launch.get("recovery_image") != runtime["image"]
+        or launch.get("service_account") != runtime["service_account"]
+        or launch.get("recovery_intent") != intent_identity
+        or launch.get("fixed_job_lookup_only") is not True
+        or launch.get("query_submission_licensed") is not False
+        or launch.get("ordinary_supply_relaunch_licensed") is not False
+        or launch.get("automatic_retry_licensed") is not False
+        or type(launch.get("token")) is not str
+        or _SHA256.fullmatch(str(launch.get("token"))) is None
+        or type(launch.get("argv_sha256")) is not str
+        or _SHA256.fullmatch(str(launch.get("argv_sha256"))) is None
+        or _EXECUTION.fullmatch(name) is None
+        or metadata.get("uid") in (None, "")
+        or labels.get("run.googleapis.com/job") != job
+        or projection != {
+            "completed_status": "False", "failed_count": 1,
+            "succeeded_count": 0, "running_count": 0,
+            "max_retries": 0, "exit_code": 1,
+        }
+        or container.get("image") != runtime["image"]
+        or task.get("serviceAccountName") != runtime["service_account"]
+    ):
+        _fail("previous recovery terminal-failure binding differs")
+    return {
+        "launch_intent_measurement": _measurement(launch_raw),
+        "launch_stage_token": launch["token"],
+        "launch_argv_sha256": launch["argv_sha256"],
+        "execution_name": name,
+        "execution_uid": str(metadata["uid"]),
+        "terminal_execution_measurement": _measurement(terminal_raw),
+        "terminal_projection": projection,
+    }
+
+
+def _validate_failure_closure(value: object) -> dict[str, object]:
+    closure = _mapping(value, label="previous recovery failure closure")
+    _exact_keys(closure, _FAILURE_CLOSURE_KEYS, label="failure closure")
+    _validate_self_hash(
+        closure, field="terminal_failure_sha256", label="failure closure"
+    )
+    _runtime(
+        **{
+            "code_sha": _mapping(
+                closure["recovery_runtime"], label="previous runtime"
+            ).get("code_sha"),
+            "image": _mapping(
+                closure["recovery_runtime"], label="previous runtime"
+            ).get("image"),
+            "service_account": _mapping(
+                closure["recovery_runtime"], label="previous runtime"
+            ).get("service_account"),
+            "label": "previous runtime",
+        }
+    )
+    _identity(closure["recovery_intent_identity"], label="previous intent")
+    _identity(closure["prelaunch_ownership_identity"], label="previous ownership")
+    if (
+        closure.get("schema_version") != FAILURE_CLOSURE_SCHEMA
+        or closure.get("recovery_ordinal") != 1
+        or closure.get("terminal_error_class")
+        != "authoritative-query-not-exact-ordered-player-dst-union"
+        or closure.get("worker_completion_absent") is not True
+        or closure.get("recovery_receipt_absent") is not True
+        or closure.get("standard_supply_outputs_absent") is not True
+        or closure.get("fixed_job_result_retrieval_count") != 1
+        or closure.get("failed_result_validation_count") != 1
+        or any(closure.get(field) is not False for field in (
+            "automatic_retry_licensed", "additional_recovery_licensed",
+            "query_submission_licensed", "decision_authority",
+        ))
+    ):
+        _fail("previous recovery failure closure differs")
+    _iso_text(closure.get("closed_at"), label="failure closure")
+    return closure
+
+
+def _validate_amendment(value: object) -> dict[str, object]:
+    amendment = _mapping(value, label="recovery amendment")
+    _exact_keys(amendment, _AMENDMENT_KEYS, label="recovery amendment")
+    _validate_self_hash(
+        amendment, field="recovery_amendment_sha256", label="recovery amendment"
+    )
+    if (
+        amendment.get("schema_version") != AMENDMENT_SCHEMA
+        or amendment.get("recovery_ordinal") != RECOVERY_ORDINAL
+        or amendment.get("skill_zero_completion_law")
+        != supply.SKILL_ZERO_COMPLETION_LAW
+        or amendment.get("skill_zero_law_source_sha256")
+        != supply.SKILL_ZERO_LAW_SOURCE_SHA256
+        or amendment.get("salary_catalog_settlement_bridge")
+        != supply.SALARY_CATALOG_SETTLEMENT_BRIDGE
+        or amendment.get("salary_catalog_bridge_source_sha256")
+        != supply.SALARY_CATALOG_BRIDGE_SOURCE_SHA256
+        or amendment.get("missing_skill_score_micro") != 0
+        or amendment.get("missing_dst_is_fatal") is not True
+        or amendment.get("requires_observed_skill_per_slate") is not True
+        or amendment.get("keeps_snapshot_normalizer_strict") is not True
+        or amendment.get("fixed_query_job_only") is not True
+        or any(amendment.get(field) is not False for field in (
+            "query_submission_licensed", "new_job_creation_licensed",
+            "automatic_retry_licensed", "additional_recovery_licensed",
+            "decision_authority",
+        ))
+    ):
+        _fail("recovery amendment differs")
+    _iso_text(amendment.get("created_at"), label="recovery amendment")
+    return amendment
+
+
+def _validate_result_structure(
+    value: object,
+    *,
+    run_id: str,
+    intent_identity: Mapping[str, object],
+    amendment_identity: Mapping[str, object],
+) -> dict[str, object]:
+    structure = _mapping(value, label="result structure receipt")
+    _exact_keys(structure, _RESULT_STRUCTURE_KEYS, label="result structure")
+    _validate_self_hash(
+        structure, field="result_structure_sha256", label="result structure"
+    )
+    expected = structure.get("expected_key_count")
+    observed = structure.get("observed_key_count")
+    missing = structure.get("missing_skill_zero_count")
+    final = structure.get("final_union_key_count")
+    if (
+        structure.get("schema_version") != RESULT_STRUCTURE_SCHEMA
+        or structure.get("run_id") != run_id
+        or structure.get("recovery_ordinal") != RECOVERY_ORDINAL
+        or structure.get("recovery_intent_identity") != intent_identity
+        or structure.get("recovery_amendment_identity") != amendment_identity
+        or type(expected) is not int or expected < 1
+        or type(observed) is not int or observed < 1
+        or type(missing) is not int or missing < 0
+        or type(final) is not int or final != expected
+        or observed + missing != expected
+        or structure.get("observed_rows_reordered") is not False
+        or type(structure.get("missing_dst_count")) is not int
+        or structure.get("missing_dst_count") != 0
+        or structure.get("query_returned_exact_union") is not (missing == 0)
+        or structure.get("skill_zero_completion_law")
+        != supply.SKILL_ZERO_COMPLETION_LAW
+        or structure.get("skill_zero_law_source_sha256")
+        != supply.SKILL_ZERO_LAW_SOURCE_SHA256
+        or structure.get("salary_catalog_settlement_bridge")
+        != supply.SALARY_CATALOG_SETTLEMENT_BRIDGE
+        or structure.get("salary_catalog_bridge_source_sha256")
+        != supply.SALARY_CATALOG_BRIDGE_SOURCE_SHA256
+        or any(
+            type(structure.get(field)) is not str
+            or _SHA256.fullmatch(str(structure.get(field))) is None
+            for field in (
+                "observed_query_keys_sha256", "missing_skill_keys_sha256",
+                "final_query_key_union_sha256",
+            )
+        )
+        or any(structure.get(field) is not False for field in (
+            "contains_player_ids", "contains_rows", "contains_scores",
+            "decision_authority",
+        ))
+    ):
+        _fail("result structure receipt differs")
+    _iso_text(structure.get("created_at"), label="result structure")
+    return structure
 
 
 def _validate_attempt(
@@ -695,6 +1027,9 @@ def validate_recovery_intent_v1(value: object) -> dict[str, object]:
     _exact_keys(intent, _INTENT_KEYS, label="recovery intent")
     _validate_self_hash(intent, field="recovery_intent_sha256", label="recovery intent")
     original = _mapping(intent.get("original_runtime"), label="original runtime")
+    previous = _mapping(
+        intent.get("previous_recovery_runtime"), label="previous recovery runtime"
+    )
     recovery = _mapping(intent.get("recovery_runtime"), label="recovery runtime")
     failure = _mapping(intent.get("original_supply_failure"), label="original failure")
     claims = _mapping(intent.get("read_attempt_claims"), label="read-attempt claims")
@@ -702,7 +1037,11 @@ def validate_recovery_intent_v1(value: object) -> dict[str, object]:
     code = _mapping(intent.get("snapshot_code_identities"), label="snapshot code")
     outputs = _mapping(intent.get("output_uris"), label="recovery output URIs")
     safety = _mapping(intent.get("safety"), label="recovery safety law")
-    for runtime, label in ((original, "original runtime"), (recovery, "recovery runtime")):
+    for runtime, label in (
+        (original, "original runtime"),
+        (previous, "previous recovery runtime"),
+        (recovery, "recovery runtime"),
+    ):
         _exact_keys(runtime, _RUNTIME_KEYS, label=label)
         _runtime(
             code_sha=runtime.get("code_sha"), image=runtime.get("image"),
@@ -736,7 +1075,17 @@ def validate_recovery_intent_v1(value: object) -> dict[str, object]:
         or type(job) is not str or _JOB.fullmatch(job) is None
         or intent.get("recovery_ordinal") != RECOVERY_ORDINAL
         or intent.get("operation") != OPERATION
-        or original["service_account"] != recovery["service_account"]
+        or len({
+            original["code_sha"], previous["code_sha"], recovery["code_sha"]
+        }) != 3
+        or len({
+            original["image"], previous["image"], recovery["image"]
+        }) != 3
+        or not (
+            original["service_account"]
+            == previous["service_account"]
+            == recovery["service_account"]
+        )
         or claims["query_job_id"] != fixed["job_id"]
         or claims["query_location"] != fixed["location"]
         or claims["sql_sha256"] != fixed["sql_sha256"]
@@ -751,6 +1100,12 @@ def validate_recovery_intent_v1(value: object) -> dict[str, object]:
             "expected_get_job_calls": 1,
             "expected_result_calls": 1,
             "result_job_retry_disabled": True,
+            "distinct_query_job_count": 1,
+            "total_query_submission_count": 1,
+            "cumulative_fixed_job_result_retrieval_count": 2,
+            "failed_result_validation_count": 1,
+            "expected_successful_validation_count": 1,
+            "expected_distinct_outcome_snapshot_count": 1,
             "query_submission_licensed": False,
             "new_job_creation_licensed": False,
             "read_attempt_creation_licensed": False,
@@ -772,6 +1127,8 @@ def validate_recovery_intent_v1(value: object) -> dict[str, object]:
         "panel_freeze_identity", "outcome_key_projection_identity",
         "actual_root_smoke_receipt_identity", "query_compile_receipt_identity",
         "historical_outcome_lease_identity", "read_attempt_identity",
+        "previous_recovery_failure_closure_identity",
+        "recovery_amendment_identity",
     ):
         intent[field] = _identity(intent.get(field), label=field)
     _iso_text(intent.get("created_at"), label="recovery intent creation")
@@ -793,11 +1150,216 @@ def _existing_intent(
     )
 
 
+def _validate_recovery_launch_intent(
+    value: object, *, raw: bytes, intent: Mapping[str, object],
+    intent_identity: Mapping[str, object], recovery_stage_token: str,
+) -> dict[str, object]:
+    launch = _mapping(value, label="recovery launch intent")
+    _exact_keys(
+        launch, _RECOVERY_LAUNCH_INTENT_KEYS, label="recovery launch intent"
+    )
+    original = _mapping(intent["original_runtime"], label="original runtime")
+    recovery = _mapping(intent["recovery_runtime"], label="recovery runtime")
+    argv = _recover_argv(intent, intent_identity)
+    argv_sha256 = sha256(
+        b"".join(str(item).encode() + b"\0" for item in argv)
+    ).hexdigest()
+    expected_env = sorted([
+        {"name": RECOVERY_ENABLED_ENV, "value": "1"},
+        {"name": RECOVERY_STAGE_TOKEN_ENV, "value": recovery_stage_token},
+        {"name": RECOVERY_CODE_ENV, "value": recovery["code_sha"]},
+        {"name": RECOVERY_IMAGE_ENV, "value": recovery["image"]},
+    ], key=lambda item: item["name"])
+    if (
+        launch.get("schema_version")
+        != "r6-full-union-recovery-stage-launch-intent/v2"
+        or launch.get("stage") != "supply-recovery-02"
+        or launch.get("token") != recovery_stage_token
+        or launch.get("project") != intent["project"]
+        or launch.get("region") != intent["region"]
+        or launch.get("run_id") != intent["run_id"]
+        or launch.get("job") != intent["cloud_run_job"]
+        or launch.get("original_code_sha") != original["code_sha"]
+        or launch.get("original_image") != original["image"]
+        or launch.get("recovery_code_sha") != recovery["code_sha"]
+        or launch.get("recovery_image") != recovery["image"]
+        or launch.get("service_account") != recovery["service_account"]
+        or launch.get("gate") != RECOVERY_ENABLED_ENV
+        or launch.get("argv") != argv
+        or launch.get("argv_sha256") != argv_sha256
+        or launch.get("execution_env") != expected_env
+        or not isinstance(launch.get("query_compile_receipt"), Mapping)
+        or launch.get("recovery_intent") != intent_identity
+        or launch.get("fixed_job_lookup_only") is not True
+        or launch.get("query_submission_licensed") is not False
+        or launch.get("ordinary_supply_relaunch_licensed") is not False
+        or launch.get("automatic_retry_licensed") is not False
+        or _measurement(raw)["bytes"] <= 0
+    ):
+        _fail("recovery launch intent contract differs")
+    return launch
+
+
+def validate_launch_ownership_v1(
+    value: object, *, intent: Mapping[str, object],
+    intent_identity: Mapping[str, object], launch_intent_measurement: object,
+    recovery_stage_token: str, launch_argv_sha256: str,
+) -> dict[str, object]:
+    ownership = _mapping(value, label="recovery launch ownership")
+    _exact_keys(
+        ownership, _LAUNCH_OWNERSHIP_KEYS, label="recovery launch ownership"
+    )
+    _validate_self_hash(
+        ownership, field="launch_ownership_sha256",
+        label="recovery launch ownership",
+    )
+    measurement = _mapping(
+        ownership.get("launch_intent_measurement"),
+        label="recovery launch intent measurement",
+    )
+    _exact_keys(
+        measurement, _MEASUREMENT_KEYS,
+        label="recovery launch intent measurement",
+    )
+    recovery = _mapping(intent["recovery_runtime"], label="recovery runtime")
+    if (
+        ownership.get("schema_version") != LAUNCH_OWNERSHIP_SCHEMA
+        or ownership.get("project") != intent["project"]
+        or ownership.get("region") != intent["region"]
+        or ownership.get("run_id") != intent["run_id"]
+        or ownership.get("cloud_run_job") != intent["cloud_run_job"]
+        or ownership.get("recovery_ordinal") != RECOVERY_ORDINAL
+        or ownership.get("recovery_intent_identity") != intent_identity
+        or ownership.get("recovery_intent_sha256")
+        != intent["recovery_intent_sha256"]
+        or ownership.get("recovery_runtime") != recovery
+        or measurement != launch_intent_measurement
+        or ownership.get("launch_stage_token") != recovery_stage_token
+        or ownership.get("launch_argv_sha256") != launch_argv_sha256
+        or ownership.get("max_recovery_execution_submission_calls") != 1
+        or ownership.get("first_recovery_execution_submission_licensed")
+        is not True
+        or ownership.get("ambiguous_response_consumes_authority") is not True
+        or any(ownership.get(field) is not False for field in (
+            "query_submission_licensed", "new_job_creation_licensed",
+            "automatic_retry_licensed", "additional_recovery_licensed",
+            "decision_authority",
+        ))
+    ):
+        _fail("recovery launch ownership contract differs")
+    _iso_text(ownership.get("created_at"), label="launch ownership creation")
+    return ownership
+
+
+def claim_recovery_launch_v1(
+    *, project: str, region: str, run_id: str, job: str,
+    original_code_sha: str, original_image: str,
+    recovery_code_sha: str, recovery_image: str, service_account: str,
+    recovery_stage_token: str, recovery_intent_identity: Mapping[str, object],
+    recovery_launch_intent_path: Path, storage_client: object,
+    clock: Callable[[], datetime] = lambda: datetime.now(timezone.utc),
+) -> RecoveryObjectV1:
+    if project != PROJECT or region != REGION:
+        _fail("recovery launch ownership location differs")
+    store = GenerationPinnedGCSV1(storage_client)
+    retained = _load_intent(store, recovery_intent_identity)
+    intent = dict(retained.body)
+    original = _mapping(intent["original_runtime"], label="original runtime")
+    recovery = _mapping(intent["recovery_runtime"], label="recovery runtime")
+    if (
+        intent["run_id"] != run_id or intent["cloud_run_job"] != job
+        or original != _runtime(
+            code_sha=original_code_sha, image=original_image,
+            service_account=service_account, label="original runtime",
+        )
+        or recovery != _runtime(
+            code_sha=recovery_code_sha, image=recovery_image,
+            service_account=service_account, label="recovery runtime",
+        )
+        or _SHA256.fullmatch(recovery_stage_token) is None
+    ):
+        _fail("recovery launch ownership runtime binding differs")
+    launch, launch_raw = _read_local_object(
+        recovery_launch_intent_path, label="recovery launch intent"
+    )
+    launch = _validate_recovery_launch_intent(
+        launch, raw=launch_raw, intent=intent, intent_identity=retained.identity,
+        recovery_stage_token=recovery_stage_token,
+    )
+    launch_measurement = _measurement(launch_raw)
+    launch_argv_sha256 = str(launch["argv_sha256"])
+    uri = _launch_ownership_uri(run_id)
+    existing = store.resolve_known(uri)
+    if existing is not None:
+        body = validate_launch_ownership_v1(
+            _json(existing.reopened_raw, label="recovery launch ownership"),
+            intent=intent, intent_identity=retained.identity,
+            launch_intent_measurement=launch_measurement,
+            recovery_stage_token=recovery_stage_token,
+            launch_argv_sha256=launch_argv_sha256,
+        )
+        return RecoveryObjectV1(
+            body=body,
+            identity=_identity_from_published(
+                existing, label="recovery launch ownership"
+            ),
+            created=False,
+        )
+    ownership = _self_hashed({
+        "schema_version": LAUNCH_OWNERSHIP_SCHEMA,
+        "created_at": _iso(clock(), label="launch ownership creation"),
+        "project": project,
+        "region": region,
+        "run_id": run_id,
+        "cloud_run_job": job,
+        "recovery_ordinal": RECOVERY_ORDINAL,
+        "recovery_intent_identity": dict(retained.identity),
+        "recovery_intent_sha256": intent["recovery_intent_sha256"],
+        "recovery_runtime": recovery,
+        "launch_intent_measurement": launch_measurement,
+        "launch_stage_token": recovery_stage_token,
+        "launch_argv_sha256": launch_argv_sha256,
+        "max_recovery_execution_submission_calls": 1,
+        "first_recovery_execution_submission_licensed": True,
+        "ambiguous_response_consumes_authority": True,
+        "query_submission_licensed": False,
+        "new_job_creation_licensed": False,
+        "automatic_retry_licensed": False,
+        "additional_recovery_licensed": False,
+        "decision_authority": False,
+    }, field="launch_ownership_sha256")
+    validate_launch_ownership_v1(
+        ownership, intent=intent, intent_identity=retained.identity,
+        launch_intent_measurement=launch_measurement,
+        recovery_stage_token=recovery_stage_token,
+        launch_argv_sha256=launch_argv_sha256,
+    )
+    published = store.publish(uri, _canonical(ownership))
+    reopened = validate_launch_ownership_v1(
+        _json(published.reopened_raw, label="recovery launch ownership"),
+        intent=intent, intent_identity=retained.identity,
+        launch_intent_measurement=launch_measurement,
+        recovery_stage_token=recovery_stage_token,
+        launch_argv_sha256=launch_argv_sha256,
+    )
+    return RecoveryObjectV1(
+        body=reopened,
+        identity=_identity_from_published(
+            published, label="recovery launch ownership"
+        ),
+        created=published.created,
+    )
+
+
 def prepare_recovery_intent_v1(
     *, project: str, region: str, run_id: str, job: str,
     original_code_sha: str, original_image: str,
     recovery_code_sha: str, recovery_image: str, service_account: str,
     original_launch_intent_path: Path, original_terminal_execution_path: Path,
+    previous_recovery_launch_intent_path: Path,
+    previous_recovery_terminal_execution_path: Path,
+    previous_recovery_intent_identity: Mapping[str, object],
+    previous_prelaunch_ownership_identity: Mapping[str, object],
     panel_freeze_identity: Mapping[str, object],
     outcome_key_projection_identity: Mapping[str, object],
     actual_root_smoke_receipt_identity: Mapping[str, object],
@@ -821,6 +1383,16 @@ def prepare_recovery_intent_v1(
         code_sha=recovery_code_sha, image=recovery_image,
         service_account=service_account, label="recovery runtime",
     )
+    previous_launch, _ = _read_local_object(
+        previous_recovery_launch_intent_path,
+        label="previous recovery launch intent",
+    )
+    previous = _runtime(
+        code_sha=previous_launch.get("recovery_code_sha"),
+        image=previous_launch.get("recovery_image"),
+        service_account=previous_launch.get("service_account"),
+        label="previous recovery runtime",
+    )
     original_with_job = {**original, "job": job}
     failure = _failed_execution(
         launch_path=original_launch_intent_path,
@@ -829,6 +1401,57 @@ def prepare_recovery_intent_v1(
         original_runtime=original,
     )
     store = GenerationPinnedGCSV1(storage_client)
+    previous_intent_identity = _identity(
+        previous_recovery_intent_identity, label="previous recovery intent"
+    )
+    previous_ownership_identity = _identity(
+        previous_prelaunch_ownership_identity,
+        label="previous prelaunch ownership",
+    )
+    store.require_identity(
+        previous_intent_identity, label="previous recovery intent"
+    )
+    ownership_object = store.require_identity(
+        previous_ownership_identity, label="previous prelaunch ownership"
+    )
+    ownership = _json(
+        ownership_object.reopened_raw, label="previous prelaunch ownership"
+    )
+    ownership_intent = _mapping(
+        ownership.get("recovery_intent"),
+        label="previous prelaunch ownership recovery intent",
+    )
+    if (
+        ownership.get("schema_version")
+        != "r6-full-union-recovery-prelaunch-resumption-ownership/v1"
+        or ownership.get("run_id") != run_id
+        or ownership.get("job") != job
+        or ownership.get("recovery_ordinal") != 1
+        or ownership_intent.get("uri")
+        != previous_intent_identity["uri"]
+        or ownership_intent.get("generation")
+        != previous_intent_identity["generation"]
+        or ownership_intent.get("sha256")
+        != previous_intent_identity["sha256"]
+        or ownership_intent.get("bytes")
+        != previous_intent_identity["bytes"]
+        or ownership.get("max_recovery_execution_submission_calls") != 1
+        or ownership.get("first_recovery_execution_submission_licensed")
+        is not True
+        or ownership.get("automatic_retry_licensed") is not False
+        or ownership.get("query_submission_licensed") is not False
+    ):
+        _fail("previous prelaunch ownership differs")
+    previous_failure = _previous_recovery_failure(
+        launch_path=previous_recovery_launch_intent_path,
+        terminal_path=previous_recovery_terminal_execution_path,
+        run_id=run_id,
+        job=job,
+        project=project,
+        region=region,
+        runtime=previous,
+        intent_identity=previous_intent_identity,
+    )
     retained_identities = {
         "panel_freeze_identity": _identity(panel_freeze_identity, label="panel freeze"),
         "outcome_key_projection_identity": _identity(
@@ -876,6 +1499,105 @@ def prepare_recovery_intent_v1(
     )
     outputs = _output_uris(run_id)
     store.require_absent(list(outputs.values()), label="pre-recovery downstream object")
+    previous_root = _previous_recovery_root(run_id)
+    store.require_absent(
+        [
+            f"{previous_root}/worker-completion.json",
+            f"{previous_root}/recovery-receipt.json",
+        ],
+        label="failed ordinal-1 success object",
+    )
+    existing_closure = store.resolve_known(_failure_closure_uri(run_id))
+    if existing_closure is None:
+        closure = _self_hashed({
+            "schema_version": FAILURE_CLOSURE_SCHEMA,
+            "closed_at": _iso(clock(), label="failure closure"),
+            "project": project,
+            "region": region,
+            "run_id": run_id,
+            "cloud_run_job": job,
+            "recovery_ordinal": 1,
+            "recovery_runtime": previous,
+            "recovery_intent_identity": previous_intent_identity,
+            "prelaunch_ownership_identity": previous_ownership_identity,
+            **previous_failure,
+            "terminal_error_class": (
+                "authoritative-query-not-exact-ordered-player-dst-union"
+            ),
+            "worker_completion_absent": True,
+            "recovery_receipt_absent": True,
+            "standard_supply_outputs_absent": True,
+            "fixed_job_result_retrieval_count": 1,
+            "failed_result_validation_count": 1,
+            "automatic_retry_licensed": False,
+            "additional_recovery_licensed": False,
+            "query_submission_licensed": False,
+            "decision_authority": False,
+        }, field="terminal_failure_sha256")
+        _validate_failure_closure(closure)
+        existing_closure = store.publish(
+            _failure_closure_uri(run_id), _canonical(closure)
+        )
+    failure_closure = _validate_failure_closure(
+        _json(existing_closure.reopened_raw, label="failure closure")
+    )
+    if (
+        failure_closure["run_id"] != run_id
+        or failure_closure["cloud_run_job"] != job
+        or failure_closure["recovery_runtime"] != previous
+        or failure_closure["recovery_intent_identity"]
+        != previous_intent_identity
+        or failure_closure["prelaunch_ownership_identity"]
+        != previous_ownership_identity
+        or any(
+            failure_closure.get(field) != previous_failure[field]
+            for field in _FAILURE_KEYS
+        )
+    ):
+        _fail("previous recovery failure closure binding differs")
+    failure_closure_identity = _identity_from_published(
+        existing_closure, label="previous recovery failure closure"
+    )
+    existing_amendment = store.resolve_known(_amendment_uri(run_id))
+    if existing_amendment is None:
+        amendment = _self_hashed({
+            "schema_version": AMENDMENT_SCHEMA,
+            "created_at": _iso(clock(), label="recovery amendment"),
+            "run_id": run_id,
+            "recovery_ordinal": RECOVERY_ORDINAL,
+            "skill_zero_completion_law": supply.SKILL_ZERO_COMPLETION_LAW,
+            "skill_zero_law_source_sha256": (
+                supply.SKILL_ZERO_LAW_SOURCE_SHA256
+            ),
+            "salary_catalog_settlement_bridge": (
+                supply.SALARY_CATALOG_SETTLEMENT_BRIDGE
+            ),
+            "salary_catalog_bridge_source_sha256": (
+                supply.SALARY_CATALOG_BRIDGE_SOURCE_SHA256
+            ),
+            "missing_skill_score_micro": 0,
+            "missing_dst_is_fatal": True,
+            "requires_observed_skill_per_slate": True,
+            "keeps_snapshot_normalizer_strict": True,
+            "fixed_query_job_only": True,
+            "query_submission_licensed": False,
+            "new_job_creation_licensed": False,
+            "automatic_retry_licensed": False,
+            "additional_recovery_licensed": False,
+            "decision_authority": False,
+        }, field="recovery_amendment_sha256")
+        _validate_amendment(amendment)
+        existing_amendment = store.publish(
+            _amendment_uri(run_id), _canonical(amendment)
+        )
+    amendment = _validate_amendment(
+        _json(existing_amendment.reopened_raw, label="recovery amendment")
+    )
+    if amendment["run_id"] != run_id:
+        _fail("recovery amendment run differs")
+    amendment_identity = _identity_from_published(
+        existing_amendment, label="recovery amendment"
+    )
     try:
         bq_client = bq_client_factory()
     except Exception as exc:
@@ -895,8 +1617,13 @@ def prepare_recovery_intent_v1(
             "run_id": run_id,
             "cloud_run_job": job,
             "original_runtime": original,
+            "previous_recovery_runtime": previous,
             "recovery_runtime": recovery,
             "original_supply_failure": failure,
+            "previous_recovery_failure_closure_identity": (
+                failure_closure_identity
+            ),
+            "recovery_amendment_identity": amendment_identity,
             **retained_identities,
             "read_attempt_claims": claims,
             "fixed_query_job": fixed,
@@ -917,8 +1644,13 @@ def prepare_recovery_intent_v1(
         "recovery_ordinal": RECOVERY_ORDINAL,
         "operation": OPERATION,
         "original_runtime": original,
+        "previous_recovery_runtime": previous,
         "recovery_runtime": recovery,
         "original_supply_failure": failure,
+        "previous_recovery_failure_closure_identity": (
+            failure_closure_identity
+        ),
+        "recovery_amendment_identity": amendment_identity,
         **retained_identities,
         "read_attempt_claims": claims,
         "fixed_query_job": fixed,
@@ -931,6 +1663,12 @@ def prepare_recovery_intent_v1(
             "expected_get_job_calls": 1,
             "expected_result_calls": 1,
             "result_job_retry_disabled": True,
+            "distinct_query_job_count": 1,
+            "total_query_submission_count": 1,
+            "cumulative_fixed_job_result_retrieval_count": 2,
+            "failed_result_validation_count": 1,
+            "expected_successful_validation_count": 1,
+            "expected_distinct_outcome_snapshot_count": 1,
             "query_submission_licensed": False,
             "new_job_creation_licensed": False,
             "read_attempt_creation_licensed": False,
@@ -1034,7 +1772,7 @@ def _recover_existing_fixed_job(
     if counters["result"] != 1:
         _fail("fixed job result-consumption count differs")
     try:
-        completed = job.result(job_retry=None)  # type: ignore[attr-defined]
+        completed = job.result(retry=None, job_retry=None)  # type: ignore[attr-defined]
         rows = tuple(
             dict(row.items()) if hasattr(row, "items") else dict(row)
             for row in completed
@@ -1196,6 +1934,9 @@ def recover_supply_v1(
     retained = _load_intent(store, recovery_intent_identity)
     intent = dict(retained.body)
     original = _mapping(intent["original_runtime"], label="original runtime")
+    previous = _mapping(
+        intent["previous_recovery_runtime"], label="previous recovery runtime"
+    )
     recovery = _mapping(intent["recovery_runtime"], label="recovery runtime")
     if (
         intent["run_id"] != run_id or intent["cloud_run_job"] != job
@@ -1213,13 +1954,40 @@ def recover_supply_v1(
         [
             str(outputs[key]) for key in (
                 "query_evidence", "realized_source", "outcome_snapshot",
-                "completion", "worker_completion", "recovery_receipt",
+                "completion", "result_structure", "worker_completion",
+                "recovery_receipt",
             )
         ],
         label="recover-only downstream object",
     )
     attempt_identity = _identity(intent["read_attempt_identity"], label="read attempt")
     store.require_identity(attempt_identity, label="read attempt")
+    failure_closure_identity = _identity(
+        intent["previous_recovery_failure_closure_identity"],
+        label="previous recovery failure closure",
+    )
+    failure_object = store.require_identity(
+        failure_closure_identity, label="previous recovery failure closure"
+    )
+    failure_closure = _validate_failure_closure(
+        _json(failure_object.reopened_raw, label="previous failure closure")
+    )
+    amendment_identity = _identity(
+        intent["recovery_amendment_identity"], label="recovery amendment"
+    )
+    amendment_object = store.require_identity(
+        amendment_identity, label="recovery amendment"
+    )
+    amendment = _validate_amendment(
+        _json(amendment_object.reopened_raw, label="recovery amendment")
+    )
+    if (
+        failure_closure["run_id"] != run_id
+        or failure_closure["cloud_run_job"] != job
+        or failure_closure["recovery_runtime"] != previous
+        or amendment["run_id"] != run_id
+    ):
+        _fail("ordinal-2 authority objects differ")
     try:
         bq_client = bq_client_factory()
     except Exception as exc:
@@ -1286,6 +2054,69 @@ def recover_supply_v1(
         or supplied.completion.get("query_job_id") != fixed["job_id"]
     ):
         _fail("recover-only supply closure differs")
+    evidence = supplied.query_evidence
+    structure_facts = _mapping(
+        supplied.recovery_result_structure,
+        label="recovery result structure facts",
+    )
+    structure = _self_hashed({
+        "schema_version": RESULT_STRUCTURE_SCHEMA,
+        "created_at": _iso(clock(), label="result structure"),
+        "run_id": run_id,
+        "recovery_ordinal": RECOVERY_ORDINAL,
+        "recovery_intent_identity": dict(retained.identity),
+        "recovery_amendment_identity": amendment_identity,
+        "expected_key_count": evidence["row_count"],
+        "observed_key_count": structure_facts[
+            "observed_integer_micro_row_count"
+        ],
+        "observed_query_keys_sha256": structure_facts[
+            "observed_query_keys_sha256"
+        ],
+        "observed_rows_reordered": structure_facts["observed_rows_reordered"],
+        "missing_skill_zero_count": structure_facts[
+            "synthesized_skill_key_count"
+        ],
+        "missing_skill_keys_sha256": structure_facts[
+            "synthesized_skill_keys_sha256"
+        ],
+        "missing_dst_count": structure_facts["missing_dst_key_count"],
+        "final_union_key_count": evidence["row_count"],
+        "final_query_key_union_sha256": structure_facts[
+            "final_query_key_union_sha256"
+        ],
+        "skill_zero_completion_law": structure_facts[
+            "skill_zero_completion_law"
+        ],
+        "skill_zero_law_source_sha256": structure_facts[
+            "skill_zero_law_source_sha256"
+        ],
+        "salary_catalog_settlement_bridge": structure_facts[
+            "salary_catalog_settlement_bridge"
+        ],
+        "salary_catalog_bridge_source_sha256": structure_facts[
+            "salary_catalog_bridge_source_sha256"
+        ],
+        "query_returned_exact_union": structure_facts[
+            "query_returned_exact_union"
+        ],
+        "contains_player_ids": False,
+        "contains_rows": False,
+        "contains_scores": False,
+        "decision_authority": False,
+    }, field="result_structure_sha256")
+    _validate_result_structure(
+        structure,
+        run_id=run_id,
+        intent_identity=retained.identity,
+        amendment_identity=amendment_identity,
+    )
+    structure_object = store.publish(
+        str(outputs["result_structure"]), _canonical(structure)
+    )
+    structure_identity = _identity_from_published(
+        structure_object, label="result structure"
+    )
     completed_at = _iso(clock(), label="worker completion")
     worker = _self_hashed({
         "schema_version": WORKER_SCHEMA,
@@ -1295,11 +2126,21 @@ def recover_supply_v1(
         "recovery_intent_identity": dict(retained.identity),
         "recovery_intent_sha256": intent["recovery_intent_sha256"],
         "original_runtime": original,
+        "previous_recovery_runtime": previous,
         "recovery_runtime": recovery,
+        "previous_recovery_failure_closure_identity": failure_closure_identity,
+        "recovery_amendment_identity": amendment_identity,
         "runtime_envelope": runtime_envelope,
         "read_attempt_identity": attempt_identity,
         "fixed_query_job": fixed,
         "standard_artifact_identities": standard,
+        "result_structure_identity": structure_identity,
+        "distinct_query_job_count": 1,
+        "total_query_submission_count": 1,
+        "cumulative_fixed_job_result_retrieval_count": 2,
+        "failed_result_validation_count": 1,
+        "successful_result_validation_count": 1,
+        "distinct_outcome_snapshot_count": 1,
         "query_job_disposition": "recovered",
         "get_job_call_count": 1,
         "result_call_count": 1,
@@ -1346,10 +2187,22 @@ def validate_worker_completion_v1(
         or worker.get("recovery_intent_identity") != intent_identity
         or worker.get("recovery_intent_sha256") != intent["recovery_intent_sha256"]
         or worker.get("original_runtime") != intent["original_runtime"]
+        or worker.get("previous_recovery_runtime")
+        != intent["previous_recovery_runtime"]
         or worker.get("recovery_runtime") != intent["recovery_runtime"]
+        or worker.get("previous_recovery_failure_closure_identity")
+        != intent["previous_recovery_failure_closure_identity"]
+        or worker.get("recovery_amendment_identity")
+        != intent["recovery_amendment_identity"]
         or worker.get("read_attempt_identity") != intent["read_attempt_identity"]
         or worker.get("fixed_query_job") != intent["fixed_query_job"]
         or standard["attempt"] != intent["read_attempt_identity"]
+        or worker.get("distinct_query_job_count") != 1
+        or worker.get("total_query_submission_count") != 1
+        or worker.get("cumulative_fixed_job_result_retrieval_count") != 2
+        or worker.get("failed_result_validation_count") != 1
+        or worker.get("successful_result_validation_count") != 1
+        or worker.get("distinct_outcome_snapshot_count") != 1
         or worker.get("query_job_disposition") != "recovered"
         or worker.get("get_job_call_count") != 1
         or worker.get("result_call_count") != 1
@@ -1364,6 +2217,7 @@ def validate_worker_completion_v1(
         ))
     ):
         _fail("recovery worker completion differs")
+    _identity(worker.get("result_structure_identity"), label="result structure")
     _iso_text(worker.get("completed_at"), label="worker completion")
     return worker
 
@@ -1466,6 +2320,8 @@ def finalize_recovery_v1(
     original_code_sha: str, original_image: str,
     recovery_code_sha: str, recovery_image: str, service_account: str,
     recovery_stage_token: str, recovery_intent_identity: Mapping[str, object],
+    recovery_launch_intent_path: Path,
+    launch_ownership_identity: Mapping[str, object],
     recovery_terminal_execution_path: Path, storage_client: object,
     clock: Callable[[], datetime] = lambda: datetime.now(timezone.utc),
 ) -> RecoveryObjectV1:
@@ -1475,6 +2331,9 @@ def finalize_recovery_v1(
     retained = _load_intent(store, recovery_intent_identity)
     intent = dict(retained.body)
     original = _mapping(intent["original_runtime"], label="original runtime")
+    previous = _mapping(
+        intent["previous_recovery_runtime"], label="previous recovery runtime"
+    )
     recovery = _mapping(intent["recovery_runtime"], label="recovery runtime")
     if (
         intent["run_id"] != run_id or intent["cloud_run_job"] != job
@@ -1489,6 +2348,30 @@ def finalize_recovery_v1(
         or _SHA256.fullmatch(recovery_stage_token) is None
     ):
         _fail("recovery finalizer runtime binding differs")
+    launch, launch_raw = _read_local_object(
+        recovery_launch_intent_path, label="recovery launch intent"
+    )
+    launch = _validate_recovery_launch_intent(
+        launch, raw=launch_raw, intent=intent, intent_identity=retained.identity,
+        recovery_stage_token=recovery_stage_token,
+    )
+    ownership_identity = _identity(
+        launch_ownership_identity, label="recovery launch ownership"
+    )
+    if ownership_identity["uri"] != _launch_ownership_uri(run_id):
+        _fail("recovery launch ownership URI differs")
+    ownership_object = store.require_identity(
+        ownership_identity, label="recovery launch ownership"
+    )
+    validate_launch_ownership_v1(
+        _json(
+            ownership_object.reopened_raw, label="recovery launch ownership"
+        ),
+        intent=intent, intent_identity=retained.identity,
+        launch_intent_measurement=_measurement(launch_raw),
+        recovery_stage_token=recovery_stage_token,
+        launch_argv_sha256=str(launch["argv_sha256"]),
+    )
     outputs = _mapping(intent["output_uris"], label="recovery output URIs")
     worker_object = store.resolve_required(str(outputs["worker_completion"]))
     worker_identity = _identity_from_published(worker_object, label="worker completion")
@@ -1511,6 +2394,20 @@ def finalize_recovery_v1(
         if identity["uri"] != expected_uri:
             _fail(f"standard {label} URI differs")
         store.require_identity(identity, label=f"standard {label}")
+    structure_identity = _identity(
+        worker["result_structure_identity"], label="result structure"
+    )
+    if structure_identity["uri"] != outputs["result_structure"]:
+        _fail("result structure URI differs")
+    structure_object = store.require_identity(
+        structure_identity, label="result structure"
+    )
+    _validate_result_structure(
+        _json(structure_object.reopened_raw, label="result structure"),
+        run_id=run_id,
+        intent_identity=retained.identity,
+        amendment_identity=intent["recovery_amendment_identity"],
+    )
     terminal, terminal_raw = _read_local_object(
         recovery_terminal_execution_path, label="recovery terminal execution"
     )
@@ -1524,6 +2421,7 @@ def finalize_recovery_v1(
         existing_body = validate_recovery_receipt_v1(
             _json(existing.reopened_raw, label="recovery receipt"), intent=intent,
             intent_identity=retained.identity,
+            launch_ownership_identity=ownership_identity,
         )
     closed_at = (
         str(existing_body["closed_at"])
@@ -1540,8 +2438,15 @@ def finalize_recovery_v1(
         "worker_completion_identity": worker_identity,
         "worker_completion_sha256": worker["worker_completion_sha256"],
         "original_runtime": original,
+        "previous_recovery_runtime": previous,
         "recovery_runtime": recovery,
         "original_supply_failure": intent["original_supply_failure"],
+        "previous_recovery_failure_closure_identity": intent[
+            "previous_recovery_failure_closure_identity"
+        ],
+        "recovery_amendment_identity": intent["recovery_amendment_identity"],
+        "result_structure_identity": structure_identity,
+        "launch_ownership_identity": ownership_identity,
         "recovery_terminal_execution_measurement": _measurement(terminal_raw),
         "recovery_terminal_projection": projection,
         "runtime_envelope": worker["runtime_envelope"],
@@ -1553,6 +2458,12 @@ def finalize_recovery_v1(
         "result_call_count": 1,
         "job_submission_count": 0,
         "new_job_count": 0,
+        "distinct_query_job_count": 1,
+        "total_query_submission_count": 1,
+        "cumulative_fixed_job_result_retrieval_count": 2,
+        "failed_result_validation_count": 1,
+        "successful_result_validation_count": 1,
+        "distinct_outcome_snapshot_count": 1,
         "same_fixed_job_recovered": True,
         "recovery_closed": True,
         "automatic_retry_licensed": False,
@@ -1563,7 +2474,8 @@ def finalize_recovery_v1(
         "decision_authority": False,
     }, field="recovery_receipt_sha256")
     validate_recovery_receipt_v1(
-        receipt, intent=intent, intent_identity=retained.identity
+        receipt, intent=intent, intent_identity=retained.identity,
+        launch_ownership_identity=ownership_identity,
     )
     if existing is not None:
         assert existing_body is not None
@@ -1583,6 +2495,7 @@ def finalize_recovery_v1(
 def validate_recovery_receipt_v1(
     value: object, *, intent: Mapping[str, object],
     intent_identity: Mapping[str, object],
+    launch_ownership_identity: Mapping[str, object] | None = None,
 ) -> dict[str, object]:
     receipt = _mapping(value, label="recovery receipt")
     _exact_keys(receipt, _RECEIPT_KEYS, label="recovery receipt")
@@ -1605,6 +2518,10 @@ def validate_recovery_receipt_v1(
     for label, identity in standard.items():
         standard[label] = _identity(identity, label=f"receipt standard {label}")
     recovery = _mapping(intent["recovery_runtime"], label="recovery runtime")
+    retained_ownership = _identity(
+        receipt.get("launch_ownership_identity"),
+        label="receipt launch ownership",
+    )
     if (
         receipt.get("schema_version") != RECEIPT_SCHEMA
         or receipt.get("run_id") != intent["run_id"]
@@ -1612,8 +2529,21 @@ def validate_recovery_receipt_v1(
         or receipt.get("recovery_intent_identity") != intent_identity
         or receipt.get("recovery_intent_sha256") != intent["recovery_intent_sha256"]
         or receipt.get("original_runtime") != intent["original_runtime"]
+        or receipt.get("previous_recovery_runtime")
+        != intent["previous_recovery_runtime"]
         or receipt.get("recovery_runtime") != intent["recovery_runtime"]
         or receipt.get("original_supply_failure") != intent["original_supply_failure"]
+        or receipt.get("previous_recovery_failure_closure_identity")
+        != intent["previous_recovery_failure_closure_identity"]
+        or receipt.get("recovery_amendment_identity")
+        != intent["recovery_amendment_identity"]
+        or (
+            launch_ownership_identity is not None
+            and retained_ownership != _identity(
+                launch_ownership_identity,
+                label="expected receipt launch ownership",
+            )
+        )
         or receipt.get("read_attempt_identity") != intent["read_attempt_identity"]
         or receipt.get("fixed_query_job") != intent["fixed_query_job"]
         or standard["attempt"] != intent["read_attempt_identity"]
@@ -1631,6 +2561,12 @@ def validate_recovery_receipt_v1(
         or receipt.get("result_call_count") != 1
         or receipt.get("job_submission_count") != 0
         or receipt.get("new_job_count") != 0
+        or receipt.get("distinct_query_job_count") != 1
+        or receipt.get("total_query_submission_count") != 1
+        or receipt.get("cumulative_fixed_job_result_retrieval_count") != 2
+        or receipt.get("failed_result_validation_count") != 1
+        or receipt.get("successful_result_validation_count") != 1
+        or receipt.get("distinct_outcome_snapshot_count") != 1
         or receipt.get("same_fixed_job_recovered") is not True
         or receipt.get("recovery_closed") is not True
         or projection.get("completed_status") != "True"
@@ -1646,6 +2582,7 @@ def validate_recovery_receipt_v1(
     ):
         _fail("recovery receipt contract differs")
     _identity(receipt.get("worker_completion_identity"), label="worker completion")
+    _identity(receipt.get("result_structure_identity"), label="result structure")
     _digest(receipt.get("worker_completion_sha256"), label="worker completion self hash")
     _iso_text(receipt.get("closed_at"), label="recovery receipt closure")
     return receipt
@@ -1689,9 +2626,16 @@ def _parser() -> argparse.ArgumentParser:
     prepare.add_argument("--service-account", required=True)
     prepare.add_argument("--original-launch-intent", type=Path, required=True)
     prepare.add_argument("--original-terminal-execution", type=Path, required=True)
+    prepare.add_argument(
+        "--previous-recovery-launch-intent", type=Path, required=True
+    )
+    prepare.add_argument(
+        "--previous-recovery-terminal-execution", type=Path, required=True
+    )
     for prefix in (
         "panel-freeze", "outcome-key-projection", "actual-root-smoke",
         "query-compile", "expected-lease", "read-attempt",
+        "previous-recovery-intent", "previous-prelaunch-ownership",
     ):
         _add_identity(prepare, prefix)
     prepare.add_argument("--snapshot-module-sha256", required=True)
@@ -1703,17 +2647,29 @@ def _parser() -> argparse.ArgumentParser:
     for prefix in ("recovery-intent",):
         _add_identity(recover, prefix)
 
+    claim_launch = runtime("claim-launch")
+    claim_launch.add_argument("--service-account", required=True)
+    claim_launch.add_argument("--recovery-stage-token", required=True)
+    claim_launch.add_argument(
+        "--recovery-launch-intent", type=Path, required=True
+    )
+    _add_identity(claim_launch, "recovery-intent")
+
     finalize = runtime("finalize")
     finalize.add_argument("--service-account", required=True)
     finalize.add_argument("--recovery-stage-token", required=True)
+    finalize.add_argument(
+        "--recovery-launch-intent", type=Path, required=True
+    )
     finalize.add_argument("--recovery-terminal-execution", type=Path, required=True)
     _add_identity(finalize, "recovery-intent")
+    _add_identity(finalize, "launch-ownership")
     return parser
 
 
 def _summary(value: RecoveryObjectV1, *, status: str) -> dict[str, object]:
     return {
-        "schema_version": "r6-full-union-outcome-supply-recovery-cli/v1",
+        "schema_version": "r6-full-union-outcome-supply-recovery-cli/v2",
         "status": status,
         "object_identity": dict(value.identity),
         "run_id": value.body["run_id"],
@@ -1723,6 +2679,7 @@ def _summary(value: RecoveryObjectV1, *, status: str) -> dict[str, object]:
         "new_job_count": 0,
         "automatic_retry_licensed": False,
         "decision_authority": False,
+        "object_created": value.created,
     }
 
 
@@ -1757,6 +2714,18 @@ def main(
             **common, region=args.region, service_account=args.service_account,
             original_launch_intent_path=args.original_launch_intent,
             original_terminal_execution_path=args.original_terminal_execution,
+            previous_recovery_launch_intent_path=(
+                args.previous_recovery_launch_intent
+            ),
+            previous_recovery_terminal_execution_path=(
+                args.previous_recovery_terminal_execution
+            ),
+            previous_recovery_intent_identity=_arg_identity(
+                args, "previous-recovery-intent"
+            ),
+            previous_prelaunch_ownership_identity=_arg_identity(
+                args, "previous-prelaunch-ownership"
+            ),
             panel_freeze_identity=_arg_identity(args, "panel-freeze"),
             outcome_key_projection_identity=_arg_identity(args, "outcome-key-projection"),
             actual_root_smoke_receipt_identity=_arg_identity(args, "actual-root-smoke"),
@@ -1783,11 +2752,22 @@ def main(
             storage_client=storage_client, bq_client_factory=bq_client_factory,
         )
         status = "R6_FULL_UNION_FIXED_JOB_RECOVERED"
+    elif args.operation == "claim-launch":
+        value = claim_recovery_launch_v1(
+            **common, region=args.region, service_account=args.service_account,
+            recovery_stage_token=args.recovery_stage_token,
+            recovery_intent_identity=_arg_identity(args, "recovery-intent"),
+            recovery_launch_intent_path=args.recovery_launch_intent,
+            storage_client=storage_client,
+        )
+        status = "R6_FULL_UNION_RECOVERY_LAUNCH_OWNED"
     elif args.operation == "finalize":
         value = finalize_recovery_v1(
             **common, region=args.region, service_account=args.service_account,
             recovery_stage_token=args.recovery_stage_token,
             recovery_intent_identity=_arg_identity(args, "recovery-intent"),
+            recovery_launch_intent_path=args.recovery_launch_intent,
+            launch_ownership_identity=_arg_identity(args, "launch-ownership"),
             recovery_terminal_execution_path=args.recovery_terminal_execution,
             storage_client=storage_client,
         )

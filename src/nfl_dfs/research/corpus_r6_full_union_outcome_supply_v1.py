@@ -36,6 +36,18 @@ QUERY_EVIDENCE_SCHEMA: Final = (
     "corpus-r6-full-union-outcome-query-evidence/v1"
 )
 COMPLETION_SCHEMA: Final = "corpus-r6-full-union-outcome-completion/v1"
+SKILL_ZERO_COMPLETION_LAW: Final = (
+    "salary-catalog-closed-world-missing-skill-zero/v1"
+)
+SKILL_ZERO_LAW_SOURCE_SHA256: Final = (
+    "62af83985d9a9c09315167b7d4b7c7f48c36292ac61d86c525130d0187bba8de"
+)
+SALARY_CATALOG_SETTLEMENT_BRIDGE: Final = (
+    "positive-salary-frozen-dk-catalog-is-salary-listed-for-settlement/v1"
+)
+SALARY_CATALOG_BRIDGE_SOURCE_SHA256: Final = (
+    "becb3b7db31d7006e3f4b21584129af7ca963c86adde39a5ff4b653db33a498f"
+)
 OUTPUT_BUCKET: Final = "nfl-predictions-503414-corpus-retrieval"
 OUTPUT_NAMESPACE: Final = "research/corpus-r6-full-union-realized"
 LEASE_RELEASE_OWNER: Final = "external-launcher-watcher"
@@ -136,6 +148,27 @@ class FullUnionOutcomeQueryResultV1:
 
 
 @dataclass(frozen=True, slots=True)
+class RegisteredIntegerMicroRowsV1:
+    """Validated fixed-job rows plus explicit closed-world completion facts."""
+
+    rows: tuple[Mapping[str, object], ...]
+    observed_integer_micro_row_count: int
+    observed_integer_micro_rows_sha256: str
+    observed_query_keys_sha256: str
+    observed_rows_reordered: bool
+    final_query_key_union_sha256: str
+    synthesized_skill_keys: tuple[Mapping[str, object], ...]
+    synthesized_skill_key_count: int
+    synthesized_skill_keys_sha256: str
+    query_returned_exact_union: bool
+    missing_dst_key_count: int
+    skill_zero_completion_law: str
+    skill_zero_law_source_sha256: str
+    salary_catalog_settlement_bridge: str
+    salary_catalog_bridge_source_sha256: str
+
+
+@dataclass(frozen=True, slots=True)
 class FullUnionOutcomeSupplyV1:
     outcome_key_projection: Mapping[str, object]
     outcome_key_projection_identity: Mapping[str, object]
@@ -149,6 +182,7 @@ class FullUnionOutcomeSupplyV1:
     outcome_snapshot_identity: Mapping[str, object]
     completion: Mapping[str, object]
     completion_identity: Mapping[str, object]
+    recovery_result_structure: Mapping[str, object] | None = None
 
 
 LeaseVerifier = Callable[[], Mapping[str, object]]
@@ -542,7 +576,7 @@ def _job_receipt(
 
 def _registered_integer_micro_rows(
     value: object, *, outcome_keys: Sequence[snapshot.OutcomeKeyV1],
-) -> list[dict[str, object]]:
+) -> RegisteredIntegerMicroRowsV1:
     raw_rows = _sequence(value, label="authoritative query rows")
     expected = {
         (row.season, row.week, row.source_kind, row.source_key): row
@@ -550,7 +584,7 @@ def _registered_integer_micro_rows(
     }
     if len(expected) != len(outcome_keys):
         _fail("projected query-key union contains duplicates")
-    result: list[dict[str, object]] = []
+    returned: list[dict[str, object]] = []
     observed: set[tuple[int, int, str, str]] = set()
     for ordinal, raw in enumerate(raw_rows):
         item = _mapping(raw, label=f"authoritative query row[{ordinal}]")
@@ -581,7 +615,7 @@ def _registered_integer_micro_rows(
             )
         except shared.LR8ScoreMapError as exc:
             raise CorpusR6FullUnionOutcomeSupplyV1Error(str(exc)) from exc
-        result.append({
+        returned.append({
             "season": season,
             "week": week,
             "source_kind": kind,
@@ -591,17 +625,229 @@ def _registered_integer_micro_rows(
     expected_order = sorted(expected)
     observed_order = [
         (row["season"], row["week"], row["source_kind"], row["source_key"])
-        for row in result
+        for row in returned
     ]
-    if observed_order != expected_order or observed != set(expected):
-        _fail("authoritative query is not the exact ordered player/DST union")
+    if observed_order != sorted(observed):
+        _fail("authoritative query rows are not a canonically ordered subset")
+    missing = set(expected) - observed
+    missing_dst = sorted(key for key in missing if key[2] != "skill")
+    if missing_dst:
+        _fail("authoritative query is missing one or more DST union keys")
+    expected_skill_slates = {
+        (season, week)
+        for season, week, kind, _ in expected
+        if kind == "skill"
+    }
+    observed_skill_slates = {
+        (season, week)
+        for season, week, kind, _ in observed
+        if kind == "skill"
+    }
+    if expected_skill_slates - observed_skill_slates:
+        _fail("authoritative query is missing every skill row for a slate")
+    returned_by_key = {
+        (
+            int(row["season"]), int(row["week"]), str(row["source_kind"]),
+            str(row["source_key"]),
+        ): row
+        for row in returned
+    }
+    missing_skill = sorted(missing)
+    result: list[dict[str, object]] = []
+    for key in expected_order:
+        row = returned_by_key.get(key)
+        if row is None:
+            season, week, kind, key_value = key
+            if kind != "skill":  # pragma: no cover - rejected above
+                raise AssertionError("missing DST escaped the fail-closed check")
+            row = {
+                "season": season,
+                "week": week,
+                "source_kind": kind,
+                "source_key": key_value,
+                "realized_score_micro": 0,
+            }
+        result.append(dict(row))
     try:
         snapshot.normalize_registered_integer_micro_rows_v1(
             result, outcome_keys=outcome_keys
         )
     except snapshot.CorpusR6FullUnionOutcomeSnapshotV1Error as exc:
         raise CorpusR6FullUnionOutcomeSupplyV1Error(str(exc)) from exc
-    return result
+    synthesized_keys = [
+        {
+            "season": season,
+            "week": week,
+            "source_kind": kind,
+            "source_key": key_value,
+        }
+        for season, week, kind, key_value in missing_skill
+    ]
+    observed_keys = [
+        {
+            "season": season,
+            "week": week,
+            "source_kind": kind,
+            "source_key": key_value,
+        }
+        for season, week, kind, key_value in observed_order
+    ]
+    final_keys = [
+        {
+            "season": season,
+            "week": week,
+            "source_kind": kind,
+            "source_key": key_value,
+        }
+        for season, week, kind, key_value in expected_order
+    ]
+    return RegisteredIntegerMicroRowsV1(
+        rows=tuple(result),
+        observed_integer_micro_row_count=len(returned),
+        observed_integer_micro_rows_sha256=canonical_sha256(returned),
+        observed_query_keys_sha256=canonical_sha256(observed_keys),
+        observed_rows_reordered=False,
+        final_query_key_union_sha256=canonical_sha256(final_keys),
+        synthesized_skill_keys=tuple(synthesized_keys),
+        synthesized_skill_key_count=len(synthesized_keys),
+        synthesized_skill_keys_sha256=canonical_sha256(synthesized_keys),
+        query_returned_exact_union=not synthesized_keys,
+        missing_dst_key_count=0,
+        skill_zero_completion_law=SKILL_ZERO_COMPLETION_LAW,
+        skill_zero_law_source_sha256=SKILL_ZERO_LAW_SOURCE_SHA256,
+        salary_catalog_settlement_bridge=SALARY_CATALOG_SETTLEMENT_BRIDGE,
+        salary_catalog_bridge_source_sha256=(
+            SALARY_CATALOG_BRIDGE_SOURCE_SHA256
+        ),
+    )
+
+
+def _validate_skill_zero_completion_evidence(
+    evidence: Mapping[str, object],
+    *,
+    rows: Sequence[Mapping[str, object]],
+    outcome_keys: Sequence[snapshot.OutcomeKeyV1],
+) -> None:
+    raw_keys = _sequence(
+        evidence.get("synthesized_skill_keys"),
+        label="synthesized skill keys",
+    )
+    synthesized_keys: list[dict[str, object]] = []
+    synthesized_tuples: list[tuple[int, int, str, str]] = []
+    for ordinal, raw in enumerate(raw_keys):
+        key = _mapping(raw, label=f"synthesized skill key[{ordinal}]")
+        if frozenset(key) != frozenset({
+            "season", "week", "source_kind", "source_key",
+        }):
+            _fail("synthesized skill key fields differ")
+        season = key["season"]
+        week = key["week"]
+        kind = key["source_kind"]
+        source_key = key["source_key"]
+        if (
+            type(season) is not int
+            or season < 2000
+            or type(week) is not int
+            or not 1 <= week <= 18
+            or kind != "skill"
+            or type(source_key) is not str
+            or not source_key
+        ):
+            _fail("synthesized skill key differs")
+        retained = (season, week, kind, source_key)
+        synthesized_tuples.append(retained)
+        synthesized_keys.append(key)
+    if synthesized_tuples != sorted(set(synthesized_tuples)):
+        _fail("synthesized skill keys are not unique canonical keys")
+    expected = {
+        (key.season, key.week, key.source_kind, key.source_key)
+        for key in outcome_keys
+    }
+    if any(key not in expected for key in synthesized_tuples):
+        _fail("synthesized skill key is outside the frozen union")
+    row_by_key: dict[tuple[int, int, str, str], Mapping[str, object]] = {}
+    for row in rows:
+        key = (
+            int(row["season"]), int(row["week"]), str(row["source_kind"]),
+            str(row["source_key"]),
+        )
+        row_by_key[key] = row
+    if any(
+        row_by_key.get(key, {}).get("realized_score_micro") != 0
+        for key in synthesized_tuples
+    ):
+        _fail("synthesized skill row is absent or nonzero")
+    synthesized_set = set(synthesized_tuples)
+    expected_skill_slates = {
+        (season, week)
+        for season, week, kind, _ in expected
+        if kind == "skill"
+    }
+    observed_skill_slates = {
+        (season, week)
+        for season, week, kind, source_key in expected - synthesized_set
+        if kind == "skill" and (season, week, kind, source_key) in row_by_key
+    }
+    if expected_skill_slates - observed_skill_slates:
+        _fail("skill-zero evidence removes every observed skill row for a slate")
+    observed_rows = [
+        dict(row)
+        for row in rows
+        if (
+            int(row["season"]), int(row["week"]), str(row["source_kind"]),
+            str(row["source_key"]),
+        ) not in synthesized_set
+    ]
+    observed_keys = [
+        {
+            "season": row["season"],
+            "week": row["week"],
+            "source_kind": row["source_kind"],
+            "source_key": row["source_key"],
+        }
+        for row in observed_rows
+    ]
+    final_keys = [
+        {
+            "season": row["season"],
+            "week": row["week"],
+            "source_kind": row["source_kind"],
+            "source_key": row["source_key"],
+        }
+        for row in rows
+    ]
+    count = evidence.get("synthesized_skill_key_count")
+    observed_count = evidence.get("observed_integer_micro_row_count")
+    exact_union = evidence.get("query_returned_exact_union")
+    if (
+        type(count) is not int
+        or count != len(synthesized_keys)
+        or type(observed_count) is not int
+        or observed_count != len(observed_rows)
+        or observed_count + count != len(rows)
+        or evidence.get("synthesized_skill_keys_sha256")
+        != canonical_sha256(synthesized_keys)
+        or evidence.get("observed_integer_micro_rows_sha256")
+        != canonical_sha256(observed_rows)
+        or evidence.get("observed_query_keys_sha256")
+        != canonical_sha256(observed_keys)
+        or evidence.get("observed_rows_reordered") is not False
+        or evidence.get("final_query_key_union_sha256")
+        != canonical_sha256(final_keys)
+        or type(exact_union) is not bool
+        or exact_union is not (count == 0)
+        or type(evidence.get("missing_dst_key_count")) is not int
+        or evidence.get("missing_dst_key_count") != 0
+        or evidence.get("skill_zero_completion_law")
+        != SKILL_ZERO_COMPLETION_LAW
+        or evidence.get("skill_zero_law_source_sha256")
+        != SKILL_ZERO_LAW_SOURCE_SHA256
+        or evidence.get("salary_catalog_settlement_bridge")
+        != SALARY_CATALOG_SETTLEMENT_BRIDGE
+        or evidence.get("salary_catalog_bridge_source_sha256")
+        != SALARY_CATALOG_BRIDGE_SOURCE_SHA256
+    ):
+        _fail("skill-zero completion evidence differs")
 
 
 def validate_outcome_attempt_v1(
@@ -1163,6 +1409,7 @@ def supply_full_union_outcome_snapshot_v1(
         before, lease_before,
     ) = replay_attempt(known["attempt"])
 
+    recovery_result_structure: Mapping[str, object] | None = None
     if known["query_evidence"] is None:
         lease_current = _validated_lease(
             verify_lease(), legacy_config=legacy_config
@@ -1197,8 +1444,48 @@ def supply_full_union_outcome_snapshot_v1(
         )
         if job_receipt["cache_hit"] is not False:
             _fail("R6 full-union outcome query used cache")
-        rows = _registered_integer_micro_rows(
+        normalized = _registered_integer_micro_rows(
             queried.rows, outcome_keys=outcome_keys
+        )
+        rows = [dict(row) for row in normalized.rows]
+        recovery_result_structure = {
+            "observed_integer_micro_row_count": (
+                normalized.observed_integer_micro_row_count
+            ),
+            "observed_integer_micro_rows_sha256": (
+                normalized.observed_integer_micro_rows_sha256
+            ),
+            "observed_query_keys_sha256": (
+                normalized.observed_query_keys_sha256
+            ),
+            "observed_rows_reordered": normalized.observed_rows_reordered,
+            "final_query_key_union_sha256": (
+                normalized.final_query_key_union_sha256
+            ),
+            "synthesized_skill_keys": [
+                dict(key) for key in normalized.synthesized_skill_keys
+            ],
+            "synthesized_skill_key_count": (
+                normalized.synthesized_skill_key_count
+            ),
+            "synthesized_skill_keys_sha256": (
+                normalized.synthesized_skill_keys_sha256
+            ),
+            "query_returned_exact_union": normalized.query_returned_exact_union,
+            "missing_dst_key_count": normalized.missing_dst_key_count,
+            "skill_zero_completion_law": normalized.skill_zero_completion_law,
+            "skill_zero_law_source_sha256": (
+                normalized.skill_zero_law_source_sha256
+            ),
+            "salary_catalog_settlement_bridge": (
+                normalized.salary_catalog_settlement_bridge
+            ),
+            "salary_catalog_bridge_source_sha256": (
+                normalized.salary_catalog_bridge_source_sha256
+            ),
+        }
+        _validate_skill_zero_completion_evidence(
+            recovery_result_structure, rows=rows, outcome_keys=outcome_keys
         )
         after = [
             _table_receipt(read_table_metadata(table), table=table)
@@ -1482,6 +1769,7 @@ def supply_full_union_outcome_snapshot_v1(
         outcome_snapshot_identity=outcome_snapshot_identity,
         completion=completion,
         completion_identity=completion_identity,
+        recovery_result_structure=recovery_result_structure,
     )
 
 

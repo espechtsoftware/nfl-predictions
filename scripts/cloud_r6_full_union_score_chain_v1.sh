@@ -74,12 +74,24 @@ GRADE_PREFIX="gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-fu
 LEASE_URI="gs://nfl-predictions-503414-raw/research-governance/historical-outcome-active-v1.json"
 DEFAULT_COMPUTE_SERVICE_ACCOUNT="817589974517-compute@developer.gserviceaccount.com"
 COMPILE_SQL_SHA256="03b5028dadbe4d92621103e2ccd6dcfe91e8e36fc351cf671f37e309951752cb"
-RECOVERY_STAGE="supply-recovery-01"
-RECOVERY_GATE="R6_FULL_UNION_OUTCOME_RECOVERY_ENABLED"
-RECOVERY_PREFIX="$SUPPLY_PREFIX/recoveries/supply-attempt-01"
+RECOVERY_STAGE="supply-recovery-02"
+RECOVERY_GATE="R6_FULL_UNION_OUTCOME_RECOVERY_02_ENABLED"
+RECOVERY_PREFIX="$SUPPLY_PREFIX/recoveries/supply-attempt-02"
 RECOVERY_INTENT_URI="$RECOVERY_PREFIX/recovery-intent.json"
+RECOVERY_AMENDMENT_URI="$RECOVERY_PREFIX/recovery-amendment.json"
+RECOVERY_RESULT_STRUCTURE_URI="$RECOVERY_PREFIX/result-structure-receipt.json"
+RECOVERY_LAUNCH_OWNERSHIP_URI="$RECOVERY_PREFIX/launch-ownership.json"
 RECOVERY_WORKER_COMPLETION_URI="$RECOVERY_PREFIX/worker-completion.json"
 RECOVERY_RECEIPT_URI="$RECOVERY_PREFIX/recovery-receipt.json"
+PREVIOUS_RECOVERY_PREFIX="$SUPPLY_PREFIX/recoveries/supply-attempt-01"
+PREVIOUS_RECOVERY_INTENT_URI="$PREVIOUS_RECOVERY_PREFIX/recovery-intent.json"
+PREVIOUS_RECOVERY_OWNERSHIP_URI="$PREVIOUS_RECOVERY_PREFIX/recovery-prelaunch-resumption-ownership-v1.json"
+PREVIOUS_RECOVERY_FAILURE_CLOSURE_URI="$PREVIOUS_RECOVERY_PREFIX/terminal-failure-closure.json"
+RECOVERY_INTENT_LOCAL="$RUN_DIR/objects/supply-recovery-02-intent.json"
+RECOVERY_LAUNCH_OWNERSHIP_LOCAL="$RUN_DIR/objects/supply-recovery-02-launch-ownership.identity.json"
+PREVIOUS_RECOVERY_OWNERSHIP_LOCAL="$RUN_DIR/objects/recovery-prelaunch-resumption-ownership-v1.identity.json"
+RECOVERY_WORKER_LOCAL="$RUN_DIR/objects/supply-recovery-02-worker-completion.json"
+RECOVERY_RECEIPT_LOCAL="$RUN_DIR/objects/supply-recovery-02-receipt.json"
 RECOVERY_CONTROLLER="scripts/recover_corpus_r6_full_union_outcome_supply_v1.py"
 RECOVERY_RUNTIME_CONTROLLER="/opt/nfl-predictions/scripts/recover_corpus_r6_full_union_outcome_supply_v1.py"
 
@@ -156,13 +168,15 @@ identity_from_recovery_cli_summary() {
     select(keys == ([
       "automatic_retry_licensed","cloud_run_job","decision_authority",
       "job_submission_count","new_job_count","object_identity",
-      "outcome_rows_in_stdout","run_id","schema_version","status"
+      "object_created","outcome_rows_in_stdout","run_id",
+      "schema_version","status"
     ] | sort))
-    | select(.schema_version == "r6-full-union-outcome-supply-recovery-cli/v1")
+    | select(.schema_version == "r6-full-union-outcome-supply-recovery-cli/v2")
     | select(.run_id == $run and .cloud_run_job == $job)
     | select(.status == $status and .outcome_rows_in_stdout == false)
     | select(.job_submission_count == 0 and .new_job_count == 0)
     | select(.automatic_retry_licensed == false and .decision_authority == false)
+    | select(.object_created == true or .object_created == false)
     | select(.object_identity.uri == $uri)
     | .object_identity
   ' <<<"$raw" || die "$label CLI receipt differs"
@@ -275,7 +289,7 @@ preflight() {
 }
 
 preflight_recovery() {
-  local after="$RUN_DIR/job-config-recovery.json" temp
+  local after="$RUN_DIR/job-config-recovery-02.json" temp
   temp="$(mktemp)"
   gcloud run jobs describe "$JOB" --project "$PROJECT" --region "$REGION" --format=json >"$temp" || {
     rm -f -- "$temp"; die "registered Cloud Run job does not already exist";
@@ -323,7 +337,7 @@ preflight_recovery() {
     .spec.template.spec as $outer
     | $outer.template.spec as $task
     | $task.containers[0] as $container
-    | {schema_version:"r6-full-union-isolated-recovery-job-contract/v1",
+    | {schema_version:"r6-full-union-isolated-recovery-job-contract/v2",
        job:$job,image:$container.image,command:$container.command,
        args:($container.args // []),env:($container.env // []),
        volume_mounts:($container.volumeMounts // []),
@@ -663,9 +677,34 @@ wait_recovery_terminal() {
   done
 }
 
+claim_recovery_launch_ownership() {
+  local token="$1" launch_intent="$2" raw identity created item
+  local args=("$RECOVERY_CONTROLLER" claim-launch --execute \
+    "--project=$PROJECT" "--region=$REGION" "--run-id=$RUN_ID" \
+    "--job=$JOB" "--original-code-sha=$CODE_SHA" \
+    "--original-image=$IMAGE" "--recovery-code-sha=$RECOVERY_CODE_SHA" \
+    "--recovery-image=$RECOVERY_IMAGE" \
+    "--service-account=$SERVICE_ACCOUNT" \
+    "--recovery-stage-token=$token" \
+    "--recovery-launch-intent=$launch_intent")
+  while IFS= read -r item; do args+=("$item"); done < <(
+    identity_arg "$RECOVERY_INTENT_LOCAL" recovery-intent
+  )
+  raw="$("$PYTHON" "${args[@]}")" || die "recovery launch ownership failed"
+  identity="$(identity_from_recovery_cli_summary "$raw" \
+    R6_FULL_UNION_RECOVERY_LAUNCH_OWNED "$RECOVERY_LAUNCH_OWNERSHIP_URI" \
+    "recovery launch ownership")"
+  created="$(jq -er '.object_created | if . then "true" else "false" end' \
+    <<<"$raw")" || die "recovery launch ownership creation flag differs"
+  write_equal "$RECOVERY_LAUNCH_OWNERSHIP_LOCAL" "$identity"
+  validate_identity_receipt "$RECOVERY_LAUNCH_OWNERSHIP_LOCAL" \
+    "$RECOVERY_LAUNCH_OWNERSHIP_URI" "recovery launch ownership"
+  [[ "$created" == true ]]
+}
+
 launch_recovery_stage() {
   local intent_file="$1"; shift
-  local stage_dir="$RUN_DIR/stages/$RECOVERY_STAGE" token launch_intent execution output status joined recovered argv_json argv_sha env_json compile_binding semantic_intent intent_preexisted=false arg
+  local stage_dir="$RUN_DIR/stages/$RECOVERY_STAGE" token launch_intent execution output status joined recovered argv_json argv_sha env_json compile_binding semantic_intent arg
   local args=("$@")
   mkdir -p "$stage_dir"
   for arg in "${args[@]}"; do
@@ -686,7 +725,7 @@ launch_recovery_stage() {
     --arg argv_sha "$argv_sha" --argjson argv "$argv_json" \
     --argjson env "$env_json" --argjson compile_binding "$compile_binding" \
     --argjson semantic_intent "$semantic_intent" '
-    {schema_version:"r6-full-union-recovery-stage-launch-intent/v1",
+    {schema_version:"r6-full-union-recovery-stage-launch-intent/v2",
      stage:$stage,token:$token,project:$project,region:$region,run_id:$run,
      job:$job,original_code_sha:$original_code,original_image:$original_image,
      recovery_code_sha:$recovery_code,recovery_image:$recovery_image,
@@ -696,7 +735,6 @@ launch_recovery_stage() {
      fixed_job_lookup_only:true,query_submission_licensed:false,
      ordinary_supply_relaunch_licensed:false,automatic_retry_licensed:false}')"
   write_equal "$stage_dir/launch-intent.json" "$launch_intent"
-  [[ "$WRITE_EQUAL_CREATED" == true ]] || intent_preexisted=true
   if [[ -e "$stage_dir/execution-name.txt" || -L "$stage_dir/execution-name.txt" ]]; then
     [[ -f "$stage_dir/execution-name.txt" && ! -L "$stage_dir/execution-name.txt" ]] || die "unsafe recovery execution-name claim"
     execution="$(tr -d '\n' <"$stage_dir/execution-name.txt")"
@@ -707,10 +745,20 @@ launch_recovery_stage() {
     recovered="$(recover_recovery_execution "$token" "${args[@]}")"
     if [[ -n "$recovered" ]]; then
       execution="$recovered"
+      resolve_object "$RECOVERY_LAUNCH_OWNERSHIP_URI" \
+        "$RECOVERY_LAUNCH_OWNERSHIP_LOCAL"
       write_equal "$stage_dir/execution-name.txt" "$execution"
-    elif [[ "$intent_preexisted" == true ]]; then
-      die "prior recovery launch remains ambiguous; blind relaunch is forbidden"
     else
+      if ! claim_recovery_launch_ownership \
+        "$token" "$stage_dir/launch-intent.json"; then
+        die "recovery launch authority was already consumed; wait for exact execution visibility"
+      fi
+      # Only the create-only ownership winner may mutate the shared registered
+      # job before the sole execute call. A concurrent non-owner exits above
+      # without restoring or otherwise touching that shared job.
+      RECOVERY_RESTORE_ARMED=true
+      trap restore_original_job_on_exit EXIT
+      preflight_recovery
       joined="$(IFS=,; printf '%s' "${args[*]}")"
       output="$(mktemp)"
       set +e
@@ -729,6 +777,12 @@ launch_recovery_stage() {
     fi
   fi
   [[ "$execution" =~ ^[a-z0-9][a-z0-9-]{2,127}$ ]] || die "recovery execution-name claim differs"
+  # Once the exact immutable execution is visible, any observer may safely
+  # restore the registered job on exit; that cannot alter the execution.
+  if [[ "$RECOVERY_RESTORE_ARMED" != true ]]; then
+    RECOVERY_RESTORE_ARMED=true
+    trap restore_original_job_on_exit EXIT
+  fi
   wait_recovery_terminal "$execution" "$stage_dir/terminal-execution.json" "$token" "${args[@]}"
   write_equal "$stage_dir/terminal-receipt.json" "$(jq -cnS --arg stage "$RECOVERY_STAGE" --arg execution "$execution" --arg sha "$(sha256sum "$stage_dir/terminal-execution.json" | awk '{print $1}')" '{stage:$stage,execution:$execution,terminal_execution_sha256:$sha,complete:true}')"
 }
@@ -952,27 +1006,35 @@ require_local_recovery_downstream_absence() {
     "$RUN_DIR/objects/realized-source.json" \
     "$RUN_DIR/objects/outcome-snapshot.json" \
     "$RUN_DIR/objects/supply-completion.json" \
-    "$RUN_DIR/objects/supply-recovery-worker-completion.json" \
-    "$RUN_DIR/objects/supply-recovery-receipt.json"; do
+    "$RUN_DIR/objects/supply-recovery-02-result-structure.json" \
+    "$RECOVERY_WORKER_LOCAL" \
+    "$RECOVERY_RECEIPT_LOCAL"; do
     [[ ! -e "$file" && ! -L "$file" ]] || die "recovery downstream evidence already exists before intent: $file"
   done
 }
 
 prepare_recovery_intent() {
-  local target="$RUN_DIR/objects/supply-recovery-intent.json" raw identity item
+  local target="$RECOVERY_INTENT_LOCAL" raw identity item
   local args=("$RECOVERY_CONTROLLER" prepare --execute "--project=$PROJECT" \
     "--region=$REGION" "--run-id=$RUN_ID" "--job=$JOB" \
     "--original-code-sha=$CODE_SHA" "--original-image=$IMAGE" \
     "--recovery-code-sha=$RECOVERY_CODE_SHA" "--recovery-image=$RECOVERY_IMAGE" \
     "--service-account=$SERVICE_ACCOUNT" \
     "--original-launch-intent=$RUN_DIR/stages/supply/launch-intent.json" \
-    "--original-terminal-execution=$RUN_DIR/stages/supply/terminal-execution.json")
+    "--original-terminal-execution=$RUN_DIR/stages/supply/terminal-execution.json" \
+    "--previous-recovery-launch-intent=$RUN_DIR/stages/supply-recovery-01/launch-intent.json" \
+    "--previous-recovery-terminal-execution=$RUN_DIR/stages/supply-recovery-01/terminal-execution.json")
   args+=("${panel_args[@]}")
   while IFS= read -r item; do args+=("$item"); done < <(identity_arg "$RUN_DIR/objects/outcome-key-projection.json" outcome-key-projection)
   while IFS= read -r item; do args+=("$item"); done < <(identity_arg "$RUN_DIR/objects/actual-root-smoke-receipt.json" actual-root-smoke)
   while IFS= read -r item; do args+=("$item"); done < <(identity_arg "$RUN_DIR/objects/query-compile-receipt.json" query-compile)
   while IFS= read -r item; do args+=("$item"); done < <(identity_arg "$RUN_DIR/objects/historical-outcome-lease.json" expected-lease)
   while IFS= read -r item; do args+=("$item"); done < <(identity_arg "$RUN_DIR/objects/read-attempt.json" read-attempt)
+  while IFS= read -r item; do args+=("$item"); done < <(identity_arg "$RUN_DIR/objects/supply-recovery-intent.json" previous-recovery-intent)
+  while IFS= read -r item; do args+=("$item"); done < <(
+    identity_arg "$PREVIOUS_RECOVERY_OWNERSHIP_LOCAL" \
+      previous-prelaunch-ownership
+  )
   args+=("--snapshot-module-sha256=$SNAPSHOT_MODULE_SHA" \
     "--snapshot-cli-sha256=$SNAPSHOT_CLI_SHA" \
     "--snapshot-test-sha256=$SNAPSHOT_TEST_SHA" \
@@ -987,7 +1049,7 @@ prepare_recovery_intent() {
 }
 
 recovery_worker_args() {
-  local intent="$RUN_DIR/objects/supply-recovery-intent.json" item
+  local intent="$RECOVERY_INTENT_LOCAL" item
   RECOVERY_ARGS=("$RECOVERY_RUNTIME_CONTROLLER" recover --execute \
     "--project=$PROJECT" "--run-id=$RUN_ID" "--job=$JOB" \
     "--original-code-sha=$CODE_SHA" "--original-image=$IMAGE" \
@@ -996,27 +1058,37 @@ recovery_worker_args() {
 }
 
 finalize_recovery_receipt() {
-  local intent="$RUN_DIR/objects/supply-recovery-intent.json" \
+  local intent="$RECOVERY_INTENT_LOCAL" \
     terminal="$RUN_DIR/stages/$RECOVERY_STAGE/terminal-execution.json" \
-    target="$RUN_DIR/objects/supply-recovery-receipt.json" raw identity token item
+    target="$RECOVERY_RECEIPT_LOCAL" raw identity token item
   local args=("$RECOVERY_CONTROLLER" finalize --execute "--project=$PROJECT" \
     "--region=$REGION" "--run-id=$RUN_ID" "--job=$JOB" \
     "--original-code-sha=$CODE_SHA" "--original-image=$IMAGE" \
     "--recovery-code-sha=$RECOVERY_CODE_SHA" "--recovery-image=$RECOVERY_IMAGE" \
     "--service-account=$SERVICE_ACCOUNT" \
+    "--recovery-launch-intent=$RUN_DIR/stages/$RECOVERY_STAGE/launch-intent.json" \
     "--recovery-terminal-execution=$terminal")
   [[ -f "$RUN_DIR/stages/$RECOVERY_STAGE/launch-intent.json" ]] || die "recovery launch intent is absent"
   token="$(jq -r '.token // empty' "$RUN_DIR/stages/$RECOVERY_STAGE/launch-intent.json")"
   [[ "$token" =~ ^[0-9a-f]{64}$ ]] || die "recovery stage token differs"
   args+=("--recovery-stage-token=$token")
   while IFS= read -r item; do args+=("$item"); done < <(identity_arg "$intent" recovery-intent)
+  if [[ ! -e "$RECOVERY_LAUNCH_OWNERSHIP_LOCAL" \
+        && ! -L "$RECOVERY_LAUNCH_OWNERSHIP_LOCAL" ]]; then
+    resolve_object "$RECOVERY_LAUNCH_OWNERSHIP_URI" \
+      "$RECOVERY_LAUNCH_OWNERSHIP_LOCAL"
+  fi
+  while IFS= read -r item; do args+=("$item"); done < <(
+    identity_arg "$RECOVERY_LAUNCH_OWNERSHIP_LOCAL" launch-ownership
+  )
   raw="$("$PYTHON" "${args[@]}")" || die "recovery receipt finalization failed"
   identity="$(identity_from_recovery_cli_summary "$raw" \
     R6_FULL_UNION_RECOVERY_CLOSED "$RECOVERY_RECEIPT_URI" \
     "recovery finalize")"
   write_equal "$target" "$identity"
   validate_identity_receipt "$target" "$RECOVERY_RECEIPT_URI" "supply recovery receipt"
-  resolve_object "$RECOVERY_WORKER_COMPLETION_URI" "$RUN_DIR/objects/supply-recovery-worker-completion.json"
+  resolve_object "$RECOVERY_RESULT_STRUCTURE_URI" "$RUN_DIR/objects/supply-recovery-02-result-structure.json"
+  resolve_object "$RECOVERY_WORKER_COMPLETION_URI" "$RECOVERY_WORKER_LOCAL"
   resolve_object "$RECOVERY_RECEIPT_URI" "$target"
 }
 
@@ -1048,19 +1120,21 @@ recover_failed_supply() {
   ensure_smoke_closed
   resolve_existing_recovery_lease
   resolve_object "$SUPPLY_PREFIX/read-attempt.json" "$RUN_DIR/objects/read-attempt.json"
-  if [[ ! -e "$RUN_DIR/objects/supply-recovery-intent.json" && ! -L "$RUN_DIR/objects/supply-recovery-intent.json" ]]; then
+  resolve_object "$PREVIOUS_RECOVERY_INTENT_URI" "$RUN_DIR/objects/supply-recovery-intent.json"
+  resolve_object "$PREVIOUS_RECOVERY_OWNERSHIP_URI" \
+    "$PREVIOUS_RECOVERY_OWNERSHIP_LOCAL"
+  if [[ ! -e "$RECOVERY_INTENT_LOCAL" && ! -L "$RECOVERY_INTENT_LOCAL" ]]; then
     require_local_recovery_downstream_absence
     prepare_recovery_intent
   else
-    validate_identity_receipt "$RUN_DIR/objects/supply-recovery-intent.json" \
+    validate_identity_receipt "$RECOVERY_INTENT_LOCAL" \
       "$RECOVERY_INTENT_URI" "supply recovery intent"
-    resolve_object "$RECOVERY_INTENT_URI" "$RUN_DIR/objects/supply-recovery-intent.json"
+    resolve_object "$RECOVERY_INTENT_URI" "$RECOVERY_INTENT_LOCAL"
   fi
+  resolve_object "$PREVIOUS_RECOVERY_FAILURE_CLOSURE_URI" "$RUN_DIR/objects/supply-recovery-01-terminal-failure-closure.json"
+  resolve_object "$RECOVERY_AMENDMENT_URI" "$RUN_DIR/objects/supply-recovery-02-amendment.json"
   recovery_worker_args
-  RECOVERY_RESTORE_ARMED=true
-  trap restore_original_job_on_exit EXIT
-  preflight_recovery
-  launch_recovery_stage "$RUN_DIR/objects/supply-recovery-intent.json" "${RECOVERY_ARGS[@]}"
+  launch_recovery_stage "$RECOVERY_INTENT_LOCAL" "${RECOVERY_ARGS[@]}"
   finalize_recovery_receipt
   resolve_supply_outputs
   (preflight) || die "failed to restore the original immutable Cloud Run job contract"
@@ -1084,14 +1158,14 @@ ensure_supply_closed() {
   RECOVERY_IMAGE="$(jq -r '.recovery_image // empty' "$recovery_launch")"
   [[ "$RECOVERY_CODE_SHA" =~ ^[0-9a-f]{40}$ ]] || die "retained recovery code SHA differs"
   [[ "$RECOVERY_IMAGE" =~ @sha256:[0-9a-f]{64}$ ]] || die "retained recovery image differs"
-  validate_identity_receipt "$RUN_DIR/objects/supply-recovery-intent.json" \
+  validate_identity_receipt "$RECOVERY_INTENT_LOCAL" \
     "$RECOVERY_INTENT_URI" "supply recovery intent"
   recovery_worker_args
   jq -e --arg original_code "$CODE_SHA" --arg original_image "$IMAGE" \
     --arg recovery_code "$RECOVERY_CODE_SHA" --arg recovery_image "$RECOVERY_IMAGE" \
-    --argjson intent "$(jq -cS . "$RUN_DIR/objects/supply-recovery-intent.json")" \
+    --argjson intent "$(jq -cS . "$RECOVERY_INTENT_LOCAL")" \
     --argjson argv "$(printf '%s\n' "${RECOVERY_ARGS[@]}" | jq -Rsc 'split("\n")[:-1]')" '
-    .schema_version == "r6-full-union-recovery-stage-launch-intent/v1"
+    .schema_version == "r6-full-union-recovery-stage-launch-intent/v2"
       and .original_code_sha == $original_code
       and .original_image == $original_image
       and .recovery_code_sha == $recovery_code
@@ -1200,8 +1274,23 @@ grade_stage() {
 }
 
 finish() {
+  local supply_state recovery_release_args=()
   ensure_compile_closed
   [[ -f "$RUN_DIR/stages/grade/terminal-execution.json" ]] || die "grade must close first"
+  supply_state="$(jq -r '[.status.conditions[]? | select(.type=="Completed") | .status] | if length==1 then .[0] else "" end' \
+    "$RUN_DIR/stages/supply/terminal-execution.json")"
+  if [[ "$supply_state" == "False" ]]; then
+    if [[ ! -e "$RECOVERY_RECEIPT_LOCAL" && ! -L "$RECOVERY_RECEIPT_LOCAL" ]]; then
+      resolve_object "$RECOVERY_RECEIPT_URI" "$RECOVERY_RECEIPT_LOCAL"
+    fi
+    validate_identity_receipt "$RECOVERY_RECEIPT_LOCAL" \
+      "$RECOVERY_RECEIPT_URI" "supply recovery receipt"
+    recovery_release_args=(
+      --required-recovery-receipt-uri "$RECOVERY_RECEIPT_URI"
+    )
+  elif [[ "$supply_state" != "True" ]]; then
+    die "supply terminal state differs before finish"
+  fi
   resolve_object "$GRADE_PREFIX/realized-grade-root.json" "$RUN_DIR/objects/persisted-grade-root.json"
   resolve_object "$GRADE_PREFIX/grade-completion.json" "$RUN_DIR/objects/grade-completion.json"
   "$PYTHON" scripts/historical_outcome_lease.py materialize-r6-full-union-completion \
@@ -1214,6 +1303,7 @@ finish() {
     --expected-snapshot-cli-sha256 "$SNAPSHOT_CLI_SHA" \
     --expected-snapshot-test-sha256 "$SNAPSHOT_TEST_SHA" \
     --expected-snapshot-cli-test-sha256 "$SNAPSHOT_CLI_TEST_SHA" \
+    "${recovery_release_args[@]}" \
     --output "$RUN_DIR/r6-strict-completion.txt" >"$RUN_DIR/materialize-receipt.txt"
   "$PYTHON" scripts/historical_outcome_lease.py release \
     --receipt "$RUN_DIR/historical-outcome-lease.json" \
@@ -1221,11 +1311,12 @@ finish() {
     --completion "$RUN_DIR/r6-strict-completion.txt" \
     --release-intent "$RUN_DIR/lease-release-intent.json" \
     --release-receipt "$RUN_DIR/lease-release-receipt.json" \
+    "${recovery_release_args[@]}" \
     --required-contract r6-full-union >"$RUN_DIR/lease-release-command.txt"
 }
 
 status() {
-  local stage
+  local stage recovery_release_args=()
   for stage in compile smoke supply "$RECOVERY_STAGE" grade; do
     if [[ -f "$RUN_DIR/stages/$stage/terminal-receipt.json" ]]; then
       jq -cS . "$RUN_DIR/stages/$stage/terminal-receipt.json"
@@ -1234,12 +1325,19 @@ status() {
     fi
   done
   if [[ -f "$RUN_DIR/lease-release-receipt.json" ]]; then
+    if [[ -f "$RECOVERY_RECEIPT_LOCAL" \
+          && ! -L "$RECOVERY_RECEIPT_LOCAL" ]]; then
+      recovery_release_args=(
+        --required-recovery-receipt-uri "$RECOVERY_RECEIPT_URI"
+      )
+    fi
     "$PYTHON" scripts/historical_outcome_lease.py validate-release-receipt \
       --lease-receipt "$RUN_DIR/historical-outcome-lease.json" \
       --execution "$RUN_DIR/stages/grade/terminal-execution.json" \
       --completion "$RUN_DIR/r6-strict-completion.txt" \
       --release-intent "$RUN_DIR/lease-release-intent.json" \
-      --release-receipt "$RUN_DIR/lease-release-receipt.json"
+      --release-receipt "$RUN_DIR/lease-release-receipt.json" \
+      "${recovery_release_args[@]}"
   else
     printf '{"lease_released":false}\n'
   fi
