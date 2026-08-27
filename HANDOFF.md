@@ -81,6 +81,13 @@ agent or developer:
   grade-completion score reporter for all eight frozen strategies including
   T230. Do not run ordinary `supply`, `run`, acquire/replace the lease, or open
   outcome rows manually.
+- Commit `066bc10a79ddf13b02e6efb795c1ffb121c560a5` is pushed to
+  `origin/main`. Dedicated exact-commit Cloud Build
+  `b953bcff-5e55-40af-a778-64c6503675d1` was submitted asynchronously with
+  the scoped R6 ignore file and is the only active build for this repair.
+  Exact immediate action is metadata-only polling of this build to terminal;
+  on success, resolve its emitted immutable image digest and update the two
+  recovery runtime environment values before invoking `recover-supply` once.
 
 ## Current handoff — 2026-08-27 00:33 UTC (one-hundred-sixtieth update)
 
