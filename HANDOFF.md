@@ -47,12 +47,26 @@ agent or developer:
   swept in the ordinary sibling scanner. Focused shell tests pass **38/38**;
   shell parse, Python compile and diff checks pass. The frozen semantic/launch
   intent bytes and remote recovery executable/image are unchanged.
-- Exact next action: commit/push this controller-only correction and amended
-  law; create/equal one prelaunch ownership marker binding the two censuses,
-  intent, controller, lease/read-attempt, absence and one-call authority; issue
-  exactly the frozen recovery execution call, then have `recover-supply`
-  claim/monitor it. No query, retry, second execution, intent deletion, new
-  run directory, graph or production action is licensed.
+- Controller correction/amendment commit
+  `15b7b4732c1ca147bdebe7b53f30f96a6751d072` is pushed on `main`. The
+  create-only prelaunch ownership marker is generation `1787796529153761`,
+  bytes `4239`, SHA-256
+  `a47c864e62fb06598625dfa2d287bb0190e3c44095f6f34cbb69a432f861954e`
+  at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-full-union-realized/20260826-foundry-v12-r6-full-union-realized-v2/recoveries/supply-attempt-01/recovery-prelaunch-resumption-ownership-v1.json`.
+  It was exact-reopened before consuming its single submission authority.
+- The one authorized call created execution
+  `atlas-minimal-c-s2023-w1-v1-n86rn`, UID
+  `2d630941-96e7-43c1-a066-20515923dd16`, at
+  `2026-08-27T02:10:26.084679Z`. The corrected controller claimed that exact
+  signature into the unchanged recovery stage and is monitoring it; no second
+  execute call occurred. Cloud Run imported the reviewed recovery container
+  and was waiting for task start at the last metadata poll. Exact next action
+  is poll only `n86rn` and its retained controller to terminal. Never relaunch,
+  run ordinary supply/query, release the lease or open outcome rows manually.
+  On success, let the controller finalize/restore, commit terminal evidence,
+  then invoke only `grade`, `finish` and the bounded eight-strategy reporter.
+  No retry, new run, graph or production action is licensed.
 
 ## Current handoff — 2026-08-27 01:36 UTC (one-hundred-sixty-second update)
 
