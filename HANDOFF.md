@@ -20,6 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 19:57 UTC (three-hundredth update)
+
+### L1 shootout law now has a deterministic simulator-component adapter
+
+- Branch `main` and `origin/main` entered this milestone at `9d702ecb`. A new
+  score-free adapter generates an ordinary component bank under the exact
+  served law and an independent L1 component bank under possession simulation,
+  Vegas pace, shared cross-team game factors, team Dirichlet usage and the TD
+  event ledger. It binds exact seeds, environment, component/player metadata,
+  source identities and both matrix hashes, then feeds the game-wide mixture
+  core from update 299. It reads no calibration label or lineup outcome and
+  has no historical-scoring or production authority.
+- Source and test SHA-256 are respectively
+  `6f5676cb33c36a8828e1e0e45574de6dee64c9e5aebc1765f8663a72df3ad712`
+  and
+  `ae124542f0e90d544ae3d79b9d55073ed8250e35b89d936b31a9ffdd0b8b3bd3`.
+  Validation is 60/60 across the new adapter, L1/L2 bank, belief-world,
+  game-simulator and TD-ledger suites, plus compilation and whitespace.
+- V7 projection execution `atlas-cbc-32g-full-2023-w8-v1-r8lwq` remains
+  `ACTIVE` after four status-only polls with no terminal failure. No log,
+  scientific output, realized outcome or score was read.
+- Exact next actions: freeze/build the L1 walk-forward probability and
+  co-exceedance calibration seam, continue the L2 empirical role-jump
+  component adapter, and finalize V7 projection immediately on terminal
+  success. None of this next-bank work delays the active control chain.
+
 ## Current handoff — 2026-08-28 19:51 UTC (two-hundred-ninety-ninth update)
 
 ### L1 shootout and L2 role-jump law sampling cores are implemented
