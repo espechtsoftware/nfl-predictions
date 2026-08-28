@@ -20,6 +20,28 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 07:21 UTC (two-hundred-nineteenth update)
+
+### The first v2 build exposed and closed one test-only Python 3.11 incompatibility
+
+- Repair commit `b4284362dec13c43265f86d963151785fdf8edb0` is pushed to
+  `origin/main`. Exact clean-archive Cloud Build
+  `b9e3cfea-fb79-408a-b3a8-4d587ce2c5ea` reached terminal **FAILURE** in step
+  0 during pytest collection; Docker build/publication never started, and no
+  image, prefix, job configuration or execution was created from that build.
+- The only failure was an optional adversarial test referring to
+  `fcntl.F_SEAL_FUTURE_WRITE`, a Python constant available in the local 3.14
+  interpreter but absent from the build's Python 3.11 `fcntl` module. Runtime
+  code uses only the four portable required constants and had already compiled
+  successfully in that exact build environment. The minimal correction removes
+  only the optional extra-seal parameter; exact runtime seal equality and all
+  missing-required-seal adversaries remain. Focused seal plus canonical-child
+  validation is **6/6** green after the correction.
+- Exact next action: commit/push this test-only portability correction with
+  this handoff, archive that exact commit, and submit a fresh immutable build.
+  Continue only after the replacement build reruns the complete Python 3.11
+  release slice and publishes a digest. No crossed-screen score exists yet.
+
 ## Current handoff — 2026-08-28 07:16 UTC (two-hundred-eighteenth update)
 
 ### The v2 projection/selector repair is release-green locally

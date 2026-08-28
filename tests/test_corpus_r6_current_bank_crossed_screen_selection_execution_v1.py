@@ -937,7 +937,6 @@ def test_inherited_matrix_fd_rejects_writable_anonymous_file() -> None:
         worker.MATRIX_REQUIRED_SEALS & ~fcntl.F_SEAL_GROW,
         worker.MATRIX_REQUIRED_SEALS & ~fcntl.F_SEAL_SHRINK,
         worker.MATRIX_REQUIRED_SEALS & ~fcntl.F_SEAL_SEAL,
-        worker.MATRIX_REQUIRED_SEALS | fcntl.F_SEAL_FUTURE_WRITE,
     ],
 )
 def test_inherited_matrix_fd_rejects_missing_or_incomplete_seals(
