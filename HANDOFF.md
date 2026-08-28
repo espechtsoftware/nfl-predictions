@@ -20,6 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 05:50 UTC (two-hundred-sixteenth update)
+
+### The fresh current-bank crossed screen is running its projection layer
+
+- Host-operator commit `df2209a7` is pushed and archived at
+  `/tmp/r6-current-bank-host-df2209a7/context`; its exact corrected operator
+  configured the reused job successfully. Exact post-update validation records
+  job generation 11, unchanged UID
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275`, science commit `6b69b3f7`, immutable
+  digest `sha256:82df9201ce02a7807d916705e25157218d91afd59fe3fc98958483d5bbd3f493`,
+  task count/parallelism 1/1, 8 CPU, 32 GiB, zero retries, 7,260-second timeout,
+  fixed isolated dispatcher command/args, no network, secrets, volumes or
+  mounts; exact job-projection SHA-256 is
+  `c0ea09e47193326dcd2d29af5ac648266b3f21cb140db9d0dfd4d3eef4b36ee3`.
+- Create-once projection launch intent identity is generation
+  `1787896140668003`, SHA-256
+  `c5895b1268b145d385f72cf6f56c306e21ce1f765b2378bfaba75389f15b0a87`,
+  2,921 bytes at
+  `authorities/cloud-run-launch-intents/00-projection.json`. It was consumed
+  exactly once; submission count moved 76→77. Cloud Run execution
+  `atlas-cbc-32g-full-2023-w8-v1-x2hr4` has UID
+  `d77d56b8-b158-4d5b-b7e5-f2ef2d48851b`, generation 1. Initial bounded
+  status reports its only task ACTIVE, not terminal. Do not rerun `launch`.
+- The run directory is `/tmp/r6-current-bank-operator-6b69b3f7`; preserve its
+  mode-0600 request/results. Exact next action: poll with `status` and a fresh
+  nonexistent output filename until the one task is terminal-successful; then
+  `finalize` this projection, preserve the layer receipt, and immediately
+  prepare/configure/arm/launch `broad-selection-receipt` (54 tasks). No outcome
+  read or realized score has occurred.
+
 ## Current handoff — 2026-08-28 05:46 UTC (two-hundred-fifteenth update)
 
 ### Provider-injected job identity is separated from configurable environment
