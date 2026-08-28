@@ -20,6 +20,43 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 16:19 UTC (two-hundred-seventy-eighth update)
+
+### V6 repair is pushed and its immutable image build is queued
+
+- Branch `main` and `origin/main` are at repair commit
+  `bd59aee6` (`fix: bind evaluation folds to full player game root`). The
+  commit contains only the crossed-screen contract repair, its regressions and
+  this authoritative handoff; the other agent's Foundry/strategy work remains
+  unstaged and untouched.
+- Release validation is clean: contract 26/26, evaluator execution 30/30,
+  task-manifest execution 7/7, Python compilation and diff-check. Independent
+  post-patch review found no correctness issue and confirmed the five-fold
+  fixture traverses result assembly/validation with genuinely different
+  player unions.
+- Exact clean archive is
+  `/tmp/r6-current-bank-v6-build-bd59aee6-Lxyxrt/source.tar`, SHA-256
+  `8e44f42f2394a00555c7521801248e354939024efbcee295407bac7f9b122ec8`;
+  extracted source/operator root is the sibling `src/` directory. Frozen
+  contract and regression source hashes are respectively
+  `729e1d4302bda62a7000d747c7dc869abb10a0a1a65f98fbcdf2e4409686c846`
+  and
+  `88232625cd9eeba12051f34e6d86b2e6110142a8b80b6e60d1f560e57af0a7ff`.
+- Cloud Build `ef68ce8e-1c06-4985-8438-bc6878d62aef` was submitted once and
+  captured **QUEUED** at `2026-08-28T16:19:27.059254333Z`. Exact source object
+  is
+  `gs://nfl-predictions-503414_cloudbuild/source/1787933959.847335-f4a12090add14bbeacd6bf133cef782c.tgz`,
+  generation `1787933966633510`. It targets mutable build tag
+  `r6-current-bank-crossed-screen-bd59aee6`, which is never launch authority.
+- V5 stays sealed. Exact next action: poll only build
+  `ef68ce8e-1c06-4985-8438-bc6878d62aef` to terminal. On success, resolve and
+  record the immutable image digest, prepare untouched
+  `20260828-r6-current-bank-crossed-screen-v6/` from the clean archive, and
+  replay image-bound layers 0--2. No score/outcome body may be read before a
+  successful terminal root. The separately incoming strategy-test package is
+  expected in about one day and must be reviewed as candidate population and
+  selection arms without mutating this baseline chain.
+
 ## Current handoff — 2026-08-28 16:10 UTC (two-hundred-seventy-seventh update)
 
 ### V5 result-root defect is isolated and repaired locally
@@ -58,7 +95,7 @@ agent or developer:
   and the unmeasured 256 MB result ceiling.
 - Branch is `main`, current pushed HEAD is `71f13ca1`; the repair is not yet
   committed. V5 remains sealed and must never be finalized or relaunched.
-  Exact next action: finish the full contract validation, commit/push only the
+  Exact next action: commit/push only the
   contract, its focused regression and this handoff, build one immutable V6
   image, then use an untouched prefix to replay the legally image-bound layers
   0--2. Do not read score/outcome bodies until a successful terminal root
