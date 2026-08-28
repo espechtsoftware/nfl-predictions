@@ -20,6 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 19:39 UTC (two-hundred-ninety-sixth update)
+
+### Repaired V7 control image is immutable and ready to run
+
+- Branch `main` and `origin/main` are at `01e73465`; the exact image source is
+  still commit `5a293157e9ed9d14c9ba2f7d96d020db845442d3` and the clean archive/root
+  recorded in update 294. Cloud Build
+  `eeedb00f-0c54-4b2b-8f7c-a0b994eb6ea5` reached terminal **SUCCESS** at
+  `2026-08-28T19:37:50.817923Z` without opening build logs.
+- Focused contract tests passed from `19:21:21.748474913Z` through
+  `19:35:19.855403801Z`; the runtime image built through
+  `19:36:34.352515431Z`; the isolated dispatcher smoke passed through
+  `19:36:37.920973265Z`. Exact submitted source generation is
+  `1787944815651299` with provider SHA-256 base64
+  `aeRRt3qMtgFrj5qakYWcJ45cRuiNmqr-DB2A3uz_nV4=`.
+- Immutable runtime authority is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:440e910df2ca8aafd7a6055922327f76c7bd5b480ecb84cd6adeb1cc4c1f00bf`.
+  Artifact Registry independently resolved the mutable V7 tag to this digest.
+- Outcome-blind real-artifact smoke passed outside the build against exact
+  frozen slate `2023-w01` R0 generation `1786843060343205`, SHA-256
+  `c35ecb83ecc8cacb802735f5b4f44c64b8733822e0d36e9475bab1b68de65498`:
+  the repaired evaluator decoded 773 ordered players x 10,000 float32 worlds
+  under the 1,024-player resource ceiling. No score, outcome or candidate
+  total was inspected.
+- Exact next action: run `prepare` once from the clean extracted source against
+  untouched prefix `20260828-r6-current-bank-crossed-screen-v7/`, then
+  configure/arm/launch projection with the immutable digest and reused job UID
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275`.
+
 ## Current handoff — 2026-08-28 19:31 UTC (two-hundred-ninety-fifth update)
 
 ### Exact 80/100/150 evidence and one diversity challenger are implemented
