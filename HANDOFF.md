@@ -20,6 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 16:45 UTC (two-hundred-eightieth update)
+
+### V6 build-gate failure is reproduced and minimally repaired
+
+- Branch `main` and `origin/main` are at `dfbf31ca`; the only new tracked
+  source edit is in
+  `corpus_r6_current_bank_crossed_screen_projection_preparation_v1.py`.
+  Failed-build source contained the repaired contract at exactly 374,457
+  bytes and SHA-256
+  `729e1d4302bda62a7000d747c7dc869abb10a0a1a65f98fbcdf2e4409686c846`,
+  while first-layer preparation still froze the V5 authority at 374,178 bytes
+  and SHA-256
+  `1ea3f25ee1625e2a550a8c5d46ca649731c3da974be52b489ad6e75d8c11a266`.
+- Exact clean-source reproduction failed at
+  `test_fresh_projection_preparation_publishes_exact_acyclic_chain`: source
+  validation rejected the repaired contract before creating any authority.
+  The same stale pin would have blocked the real production `prepare` mode.
+- Minimal repair advances only `FROZEN_CONTRACT_MODULE_BYTES` and
+  `FROZEN_CONTRACT_MODULE_SHA256` to the exact repaired source identity.
+  Independent audit confirmed the values byte-for-byte, found no remaining
+  old literal or downstream source-pin cascade, and made no edits.
+- Validation is clean: projection-preparation 8/8 and the exact Cloud Build
+  focused slice 175/175 in 384.25 seconds. Diff-check is clean. No cloud job,
+  scientific artifact, score or outcome was opened or launched during the
+  diagnosis.
+- Exact next action: commit/push only the two-constant authority advancement
+  with this handoff, create a clean archive from that commit, then submit one
+  new image build under a new commit-derived tag. Launch remains forbidden
+  until the new build succeeds and its target runtime digest is resolved.
+
 ## Current handoff — 2026-08-28 16:34 UTC (two-hundred-seventy-ninth update)
 
 ### V6 image build failed closed in focused validation; no runtime image exists
