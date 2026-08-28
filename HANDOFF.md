@@ -20,6 +20,28 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 10:45 UTC (two-hundred-forty-second update)
+
+### Exact selection-terminal repair image build is queued
+
+- Branch `main`; repair commit
+  `976d1b295e139c0b76b53bdfba00db8bd91320e0` is pushed to `origin/main`.
+  Its exact `git archive` SHA-256 is
+  `94c0e5a4211e7b80c32a97defcc8b57671355ebbb5a59e158e6b40781e07d185`;
+  clean extracted source is supporting evidence at
+  `/tmp/r6-current-bank-v4-build-976d1b29-Nx3NG2dW/src`.
+- Cloud Build `a27c8441-1e95-4db1-8e70-c8e78f957cba` was submitted
+  asynchronously and is **QUEUED**. Its exact source object is
+  `gs://nfl-predictions-503414_cloudbuild/source/1787913929.09226-b429468596284be5bec16fa9d0d2328f.tgz`,
+  generation `1787913936102139`. It will run the complete Python 3.11 focused
+  release slice, Docker build and isolated dispatcher smoke before publishing
+  tag `r6-current-bank-crossed-screen-976d1b29`; that mutable tag is not launch
+  authority.
+- Exact next action: poll this build to terminal without reading experiment
+  outcomes. On success, record the immutable image digest and prepare an
+  untouched `20260828-r6-current-bank-crossed-screen-v4/` projection layer.
+  On failure, inspect only build/test evidence and do not prepare or launch.
+
 ## Current handoff — 2026-08-28 10:35 UTC (two-hundred-forty-first update)
 
 ### V3 broad selection is sealed failed; deterministic terminalizer defects are fixed locally
