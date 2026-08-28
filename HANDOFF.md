@@ -20,6 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 20:52 UTC (three-hundred-eighth update)
+
+### Hard-230 launch and L1/L2 evidence extraction are ready for the score sprint
+
+- Branch `main` and `origin/main` entered this milestone at `277b56d5`.
+  Hard-230 now has one fixed cloud launch seam for 54 all-block final-fit
+  slates. It derives each exact P0 target from the accepted Foundry-v12
+  incumbent result, decodes the pinned R6 player/world source, applies a
+  score-blind SHA-ordered R0 world schedule, and invokes the already-committed
+  replenishing generator. One manifest, one reused 54-task job, and compact
+  create-once results replace any per-slate deployment or IAM workflow.
+- The lead reviewed the three new hard-230 files and reran the combined
+  entrypoint/decoder/successor slice: **21/21 passed**, including the real CBC
+  proof path. Exact next action is to include the route in the consolidated
+  challenger image, run one real-artifact task-0 smoke, then fan out all 54
+  tasks only if that smoke succeeds.
+- The minimum real-player evidence extractor for the two new belief laws is
+  also complete. L1 emits QB1/WR1/RB1 co-exceedance rows and opposing-WR1
+  moments from aligned ordinary/shootout banks. L2 forms 2018--2022 all-game
+  lagged role history before Sunday-main filtering and joins exact player
+  actual-minus-frozen-ordinary-mean residuals; 216 unmatched warehouse rows
+  are explicitly excluded rather than imputed. It never reads lineup
+  outcomes. The lead reran the belief/evidence/law/component suites and the
+  latent-role suite successfully (**19/19 plus 14/14**).
+- One real input gap remains for L1: the PIT snapshot's 40,387
+  `component_mean_*` values are all null and no paired CAL19/WF21/HOLD22
+  conditional shards exist locally. The next L1 action is therefore to run
+  the committed component simulator to produce 53 aligned ordinary/shootout
+  shards; do not fabricate them from the snapshot. L2 has no corresponding
+  source blocker.
+- V7 broad selection remains the active shared cloud execution. Do not start
+  a hard-230 smoke or challenger launch on the reused job until V7 releases
+  it; continue status-only polling and advance V7 immediately at terminal
+  success.
+
 ## Current handoff — 2026-08-28 20:48 UTC (three-hundred-seventh update)
 
 ### September 4 is the hard system-freeze target; scores now define throughput
