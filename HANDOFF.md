@@ -20,6 +20,30 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 17:04 UTC (two-hundred-eighty-fifth update)
+
+### V6 projection launched exactly once and is active
+
+- Branch `main` and `origin/main` are at `65f9c5e8`. Exact projection launch
+  request SHA-256 is
+  `7fdc46bcd7c543574ddca0dfc24700b176a35a0ae22acdb13a6b602a1edfcb43`;
+  it adds only the preserved intent identity from update 284 to the common
+  manifest/job/image authority.
+- `launch` submitted once asynchronously and returned active execution
+  `atlas-cbc-32g-full-2023-w8-v1-8fqck`, UID
+  `0292b5b4-632d-4f61-bdc8-dfe4124eb684`, provider generation `1`.
+  It is layer `projection` and binds manifest generation
+  `1787936525121391` / SHA-256
+  `72d8583410680298897194237bb5f21e11666091e1806ce908e2ae2550191bc8`.
+- Launch result used the designed `exclusive-local-fsync-only` capture and
+  names the V6 submission-marker URI. Local launch-result SHA-256 is
+  `cb218e5d339047a9f86af28ffdc0c0b2dc8ec2616bde73f24ca61d3e85ee34bf`.
+  Never re-arm, relaunch or recover this execution.
+- Exact next action: create the status request by adding only execution name
+  `atlas-cbc-32g-full-2023-w8-v1-8fqck` to the projection common request and
+  poll status to terminal. On all-task success finalize once; on failure seal
+  without opening logs/scientific bodies/scores/outcomes.
+
 ## Current handoff — 2026-08-28 17:03 UTC (two-hundred-eighty-fourth update)
 
 ### V6 projection is configured and armed; launch intent is preserved
