@@ -20,6 +20,29 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 09:36 UTC (two-hundred-thirty-fifth update)
+
+### V3 projection finalized successfully and its receipt is sealed
+
+- Exact archive finalizer passed against successful execution `...-zxn9z`.
+  It exact-opened terminal evidence and published the observation source at
+  generation `1787909782641332`, SHA-256
+  `b24317c57b1c923c53b5da79dbfe81f78c8c81c9028fe9fb122ddef9f2e87517`,
+  7,775 bytes, URI
+  `authorities/cloud-run-execution-observations/00-projection/initial.json`.
+- Projection layer-receipt identity is generation `1787909783376188`,
+  SHA-256 `797c2d72c5abfdb60b3d57982371a871c8a8eeca1dd5b09f0e8608f86ece668c`,
+  29,411 bytes at `authorities/layer-execution-receipts/00-projection.json`.
+  Its body self-hash is
+  `6ab247bc5dd89e89823b8c520e0f1271569d348cac8dd27cf332ab245b8fda8c`;
+  finalize-result self-hash is
+  `0b62a148c77ebc1632314db6a904bf90ab887ffc789d6a01e5da53802739dcab`.
+- Finalizer reports all tasks terminal/successful, terminal evidence exact-opened
+  and all log/science/outcome read flags false. Exact next action: commit/push
+  this receipt identity and prepare broad-selection with it as the sole exact
+  predecessor plus projection preparation receipt generation
+  `1787907273936375`. Do not rerun projection finalize.
+
 ## Current handoff — 2026-08-28 09:35 UTC (two-hundred-thirty-fourth update)
 
 ### V3 projection execution succeeded cleanly
