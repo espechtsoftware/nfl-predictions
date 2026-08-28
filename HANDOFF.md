@@ -20,6 +20,23 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 08:42 UTC (two-hundred-twenty-seventh update)
+
+### The exact finalizer-repair image build is queued
+
+- Branch `main`; repair commit
+  `8888930180cfe0ddae9efcf0c8057b6a48c6d951` is pushed to `origin/main`.
+  Exact clean-archive Cloud Build
+  `bcf0f31a-9f9e-4a19-ad11-7545a9643d12` was submitted asynchronously from
+  source object
+  `gs://nfl-predictions-503414_cloudbuild/source/1787906497.025969-9d31d40ac74148bbb66d046cb2386e7b.tgz`,
+  generation `1787906504214844`. Initial state is **QUEUED**.
+- Local archive is `/tmp/r6-current-bank-v3-build-88889301-RUKYiJn5` and is
+  nondurable supporting evidence only. Exact next action: poll the build to a
+  terminal state. On success, record the immutable image digest and prepare the
+  untouched v3 prefix; on failure, inspect only build/test evidence and do not
+  prepare, configure or launch. V2 remains sealed and no score exists yet.
+
 ## Current handoff — 2026-08-28 08:39 UTC (two-hundred-twenty-sixth update)
 
 ### The finalizer hash-domain repair is release-green and requires a fresh v3 chain
