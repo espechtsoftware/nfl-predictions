@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 13:37 UTC (two-hundred-sixty-second update)
+
+### Fresh v5 projection authorities are prepared create-once
+
+- The exact `bc6ac55b` clean-archive operator prepared untouched prefix
+  `20260828-r6-current-bank-crossed-screen-v5/` successfully against immutable
+  image digest
+  `sha256:2df63886830f561c819bf45392a51ee763873ba6eff39a169f50b79bf3e68caa`.
+  Never rerun `prepare` for this prefix.
+- Projection manifest identity is generation `1787924194040660`, SHA-256
+  `0e79dff60e4c119e0edaf3d37268dc6e5808c1c60010bd0f4699ffd03388bfac`,
+  26,202 bytes. Projection preparation receipt is generation
+  `1787924195372340`, SHA-256
+  `bffc9dad6928a25e349003ed865d22eb54cf7791d6e4de937548c7934429e162`,
+  130,717 bytes. Process budget generation is `1787924193415256`, SHA-256
+  `cf40f69a0d0f25fbe0297dfe7c543b42b58b055fb81881842a7153c155da2295`;
+  task request generation is `1787924193694167`, SHA-256
+  `9c36030daf1fb88d5a46160d7b9325c45154e3a3a6826404dfca55ba66b6bda8`.
+- Structural identity count is 111; frozen contract/report hashes remain
+  `1ea3f25ee1625e2a550a8c5d46ca649731c3da974be52b489ad6e75d8c11a266`
+  and `83d6c9d40e709a75615ddc87288a7133e1a24e9d2106ffcda76f6e47113c4f0d`.
+  Local prepare-result SHA-256 is
+  `85efaec012f3930aa27c8e48e00ec5e42d8856795a924eb80b2cc6438a5f723c`.
+- Exact next action: commit/push, configure the reused UID-bound job for one
+  v5 projection task, arm once, consume its intent exactly once, then poll
+  only the returned execution. No score, log, scientific output, or realized
+  outcome has been read.
+
 ## Current handoff — 2026-08-28 13:34 UTC (two-hundred-sixty-first update)
 
 ### Evaluator-repair v5 image is immutable and release-green
