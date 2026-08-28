@@ -20,6 +20,53 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 22:51 UTC (three-hundred-twelfth update)
+
+### Score-first September 4 freeze is active; one-image challenger build is ready
+
+- Branch `main` and `origin/main` entered this milestone at `4835d104`. The
+  user set September 4 as the hard production-choice freeze: historical
+  realized-score comparisons are the deliverable, and next week is reserved
+  only for rehearsal and critical fixes. L1 rematerialization and any other
+  lane that cannot affect a 54-slate score table by that date are off the
+  critical path. The execution order is control completion, one consolidated
+  challenger image, real task-0 smokes, parallel 54-slate fan-out, realized
+  grading/attribution, pruning, then integration of the external agent's
+  independently tested finalists.
+- Confirmation-selection execution
+  `atlas-cbc-32g-full-2023-w8-v1-j2zhg`, UID
+  `1b173bc8-e338-4f79-ae9e-cb11cb9c6b27`, remains immutable and active. The
+  22:49 UTC status poll observed **18/54 succeeded, 36 active, zero failed**;
+  local administrative receipt SHA-256 is
+  `301c5a57840c4d238e93f3366365384a9ce1dc2994118aa41a43ef0af809f5f6`.
+  No logs, scientific outputs or realized outcomes were read. Status-poll
+  only; never reconfigure, rearm or relaunch it.
+- The consolidated image boundary now packages F7/F8/F9 population crossing,
+  grouped/rank-150/DPP selection, the realized bridge, hard-230 and L2b in one
+  build. Its focused build contract contains both runtime entrypoints and the
+  local PIT-panel materializer. Local validation is **35/35** across the image
+  contract, population scoring/cloud and L2b panel/materializer suites.
+- L2b's treatment is now accurately named `l2b-quarter-world-mixture`: it
+  replaces a fixed 25% of world columns rather than claiming a 20-of-80 lineup
+  sleeve. Controller writes are atomic-exclusive. Finalization exact-opens and
+  binds all 54 task results and 540 world receipts to the manifest calibration,
+  PIT panel, target slate, ordinary bank, block/fraction and artifact
+  identities. Build success/commit/image/project/region and reused job UID
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275` are exact-bound. The remaining L2b
+  input is an honestly point-in-time 2025 target frame; it must not delay the
+  already-scoreable population and hard-230 lanes.
+- The real hard-230 artifact smoke used the 2023-w01 773-by-50,000 matrix
+  (309.2 MB): **20/20** CBC solves were optimal with proofs, produced 20
+  distinct rosters, and 14/20 simulation targets contained an inclusive-230
+  roster. Mean solve time was 1.254 seconds and peak RSS was 776 MiB. Its real
+  54-task manifest prepare/create-once/tamper/no-retry checks passed. This is a
+  mechanism smoke, not a historical realized-score result.
+- No new realized score has been read. Exact next action is to commit and push
+  this consolidated boundary, build one immutable image from a clean snapshot,
+  run population and hard-230 real task-0 smokes, then fan both across all 54
+  slates while the control advances through layers 05--07. Do not wait for L2b
+  or L1 before launching those scoreable arms.
+
 ## Current handoff — 2026-08-28 22:11 UTC (three-hundred-eleventh update)
 
 ### Confirmation selection is live; population and belief runtimes are closed

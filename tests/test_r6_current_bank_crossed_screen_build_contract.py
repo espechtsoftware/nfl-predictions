@@ -40,6 +40,12 @@ MODULE_PATHS = (
     "src/nfl_dfs/research/corpus_extreme_tail_hard230_population_process_v1.py",
     "src/nfl_dfs/research/corpus_extreme_tail_hard230_r6_source_decoder_v1.py",
     "src/nfl_dfs/research/corpus_extreme_tail_hard230_r6_cloud_entrypoint_v1.py",
+    "src/nfl_dfs/research/corpus_r6_population_crossed_scoring_v1.py",
+    "src/nfl_dfs/research/corpus_r6_population_crossed_cloud_v1.py",
+    "src/nfl_dfs/research/corpus_r6_l2_base_rate_v1.py",
+    "src/nfl_dfs/research/corpus_r6_l2_base_rate_runtime_v1.py",
+    "src/nfl_dfs/research/corpus_r6_l2b_panel_cloud_v1.py",
+    "src/nfl_dfs/research/corpus_r6_l2b_pit_target_panel_v1.py",
 )
 MODULE_NAMES = tuple(Path(path).stem for path in MODULE_PATHS)
 RUNNERS = (
@@ -54,6 +60,11 @@ RUNNERS = (
     "scripts/run_corpus_r6_current_bank_selector_rank150_dpp_v1.py",
     "scripts/run_corpus_r6_current_bank_selector_successor_realized_bridge_v1.py",
     "scripts/run_corpus_extreme_tail_hard230_r6_cloud_v1.py",
+    "scripts/run_corpus_r6_population_crossed_cloud_v1.py",
+    "scripts/run_corpus_r6_l2b_panel_cloud_v1.py",
+)
+BUILD_ONLY_SCRIPTS = (
+    "scripts/materialize_corpus_r6_l2b_pit_target_panel_v1.py",
 )
 OPERATOR = "scripts/run_corpus_r6_current_bank_crossed_screen_cloud_v1.py"
 DISPATCHER = "scripts/run_corpus_r6_current_bank_crossed_screen_task_dispatcher_v1.py"
@@ -80,6 +91,10 @@ FOCUSED_TESTS = (
     "tests/test_corpus_r6_current_bank_selector_successor_realized_bridge_v1.py",
     "tests/test_run_corpus_r6_current_bank_selector_successor_realized_bridge_v1.py",
     "tests/test_corpus_extreme_tail_hard230_r6_cloud_entrypoint_v1.py",
+    "tests/test_corpus_r6_population_crossed_scoring_v1.py",
+    "tests/test_corpus_r6_population_crossed_cloud_v1.py",
+    "tests/test_corpus_r6_l2b_panel_cloud_v1.py",
+    "tests/test_corpus_r6_l2b_pit_target_panel_v1.py",
     "tests/test_r6_current_bank_crossed_screen_build_contract.py",
     "tests/test_run_corpus_r6_current_bank_crossed_screen_cloud_v1.py",
 )
@@ -137,7 +152,7 @@ def test_cloud_build_compiles_and_import_smokes_the_complete_boundary() -> None:
     compile_section = source.split("-m py_compile", 1)[1].split(
         "/usr/local/bin/python3.11 -I -c", 1
     )[0]
-    for path in (*MODULE_PATHS, *RUNNERS, OPERATOR):
+    for path in (*MODULE_PATHS, *RUNNERS, *BUILD_ONLY_SCRIPTS, OPERATOR):
         assert compile_section.count(path) == 1
     import_section = source.split(
         '/usr/local/bin/python3.11 -I -c "from nfl_dfs.research import ', 1
@@ -226,6 +241,7 @@ def test_dedicated_build_context_is_an_exact_small_allowlist() -> None:
         "!scripts/",
         "!scripts/__init__.py",
         *(f"!{path}" for path in RUNNERS),
+        *(f"!{path}" for path in BUILD_ONLY_SCRIPTS),
         f"!{OPERATOR}",
         "!reports/",
         f"!{REPORT}",

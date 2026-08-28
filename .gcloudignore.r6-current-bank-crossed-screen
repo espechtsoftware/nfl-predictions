@@ -22,6 +22,9 @@
 !scripts/run_corpus_r6_current_bank_selector_rank150_dpp_v1.py
 !scripts/run_corpus_r6_current_bank_selector_successor_realized_bridge_v1.py
 !scripts/run_corpus_extreme_tail_hard230_r6_cloud_v1.py
+!scripts/run_corpus_r6_population_crossed_cloud_v1.py
+!scripts/run_corpus_r6_l2b_panel_cloud_v1.py
+!scripts/materialize_corpus_r6_l2b_pit_target_panel_v1.py
 !reports/
 !reports/2026-08-27-r6-current-bank-crossed-screen-preoutput-contract.md
 !tests/
@@ -45,3 +48,7 @@
 !tests/test_corpus_r6_current_bank_selector_successor_realized_bridge_v1.py
 !tests/test_run_corpus_r6_current_bank_selector_successor_realized_bridge_v1.py
 !tests/test_corpus_extreme_tail_hard230_r6_cloud_entrypoint_v1.py
+!tests/test_corpus_r6_population_crossed_scoring_v1.py
+!tests/test_corpus_r6_population_crossed_cloud_v1.py
+!tests/test_corpus_r6_l2b_panel_cloud_v1.py
+!tests/test_corpus_r6_l2b_pit_target_panel_v1.py

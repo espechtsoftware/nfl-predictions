@@ -25,6 +25,8 @@ COPY scripts/run_corpus_r6_current_bank_selector_successor_cloud_v1.py \
      scripts/run_corpus_r6_current_bank_selector_rank150_dpp_v1.py \
      scripts/run_corpus_r6_current_bank_selector_successor_realized_bridge_v1.py \
      scripts/run_corpus_extreme_tail_hard230_r6_cloud_v1.py \
+     scripts/run_corpus_r6_population_crossed_cloud_v1.py \
+     scripts/run_corpus_r6_l2b_panel_cloud_v1.py \
      /app/scripts/
 COPY reports/2026-08-27-r6-current-bank-crossed-screen-preoutput-contract.md \
      /app/reports/2026-08-27-r6-current-bank-crossed-screen-preoutput-contract.md
