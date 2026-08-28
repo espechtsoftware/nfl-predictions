@@ -20,6 +20,29 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 12:52 UTC (two-hundred-fifty-fourth update)
+
+### V4 broad-evaluation authorities are prepared create-once
+
+- Exact archive operator prepared layer ordinal 2,
+  `broad-evaluation-result`, from predecessor receipts `[projection,
+  broad-selection-receipt]` in registry order. It published exactly 109
+  authorities: 54 evaluator budgets, 54 task requests and one manifest.
+  Never rerun this `prepare-layer`.
+- Broad-evaluation manifest identity is generation `1787921492772147`,
+  SHA-256
+  `3736d9fcbce22588e073b7b104da2942b95e66f300f44d1511bff8cce1d195b5`,
+  256,856 bytes, at
+  `authorities/task-manifests/02-broad-evaluation-result.json`. Its preparation
+  receipt is generation `1787921532133936`, SHA-256
+  `0d190d51997a33eadeefcc54ad613a012a595cb9fc99c261ca71cf79b7ca6cde`,
+  70,505 bytes. Exact local prepare-result SHA-256 is
+  `68c67ea65658a4ab26d9baf41da838e3d1b8d77708e3e90ba137041fe2374030`.
+- Exact next action: commit/push, configure the reused job from this manifest
+  for 54 tasks / 54-way parallelism, arm once, consume the intent exactly
+  once, then poll only the returned execution. No score, log, scientific
+  output, or realized outcome has been read.
+
 ## Current handoff — 2026-08-28 12:29 UTC (two-hundred-fifty-third update)
 
 ### Corrected v4 broad selection succeeded 54/54 and is finalized
