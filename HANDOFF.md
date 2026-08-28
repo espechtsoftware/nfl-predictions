@@ -20,6 +20,26 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 07:46 UTC (two-hundred-twenty-third update)
+
+### The v2 projection launch is armed and not yet submitted
+
+- The exact operator revalidated job generation 12 and published the sole
+  create-once projection launch intent at
+  `authorities/cloud-run-launch-intents/00-projection.json`. Identity is
+  generation `1787903167138548`, SHA-256
+  `278058f7df04f4703ad05460e2760c2c1d7c7aeb0335a4d2281385b3dece39ef`,
+  2,918 bytes; launch-intent body SHA-256 is
+  `29a47a0f8cab5e205a80dd7c12b07b8a932d6cf77adffb330722e82dc2c05db6`.
+  The arm result states `launch_armed=true`, `submission_call_count=0` and
+  `caller_must_preserve_exact_intent_identity_before_submission=true`.
+- No v2 execution exists yet and the reused job execution count remains 77.
+  Exact next action: commit/push this preserved intent identity, construct the
+  launch request with that exact generation-pinned identity, invoke `launch`
+  exactly once, preserve its result and execution UID/name, then poll only via
+  fresh status output files. Never rerun `arm-launch` or reuse an output path.
+  No crossed-screen score exists yet.
+
 ## Current handoff — 2026-08-28 07:45 UTC (two-hundred-twenty-second update)
 
 ### The reused job is exactly configured for v2 projection and remains unlaunched
