@@ -20,6 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 15:01 UTC (two-hundred-seventy-first update)
+
+### V5 broad selection succeeded and is finalized
+
+- Exact execution `atlas-cbc-32g-full-2023-w8-v1-s9kzv`, UID
+  `cb2da896-5d6f-430a-ad48-9c426d2e695c`, completed **SUCCEEDED** at
+  `2026-08-28T14:56:27.574796Z`: 54/54 tasks succeeded on attempt 0 with
+  exit code 0 in 24m17.89s. Exact status-file SHA-256 is
+  `8a12181b2b6ed0af9085b1d92a3c46679e13ba14b7130758621303f008e8ac56`;
+  status-body SHA-256 is
+  `fee0d3a5706aefa836dfe3cc1470d7f068e415412aa40357d32fc1bd8b4161b7`.
+- Create-once layer execution receipt is
+  `authorities/layer-execution-receipts/01-broad-selection-receipt.json`,
+  generation `1787929271001886`, SHA-256
+  `4b11d1382af2379138d8a30fdd5024eb4b342e5acb493ad64480e3beed3d39f1`,
+  119,094 bytes. Finalize body SHA-256 is
+  `ebae60c4db135072317f3a33a8e16c82e677f16a9f0bd529a61ece1aa1e74c51`;
+  local file SHA-256 is
+  `ae9558ca4a8723ee3fe9726e5c14c6c0bd4b09f36264d96a397461aae3b2def7`.
+  All terminal/success flags are true and exact terminal evidence opened;
+  logs, scientific outputs and realized outcomes remain unread.
+- Exact next action: prepare v5 `broad-evaluation-result` from the projection
+  preparation receipt plus finalized projection and broad-selection receipts,
+  configure 54 tasks, arm/launch exactly once, and use that run to exercise
+  the repaired 3,993-candidate evaluator boundary.
+
 ## Current handoff — 2026-08-28 14:32 UTC (two-hundred-seventieth update)
 
 ### V5 broad selection launched exactly once
