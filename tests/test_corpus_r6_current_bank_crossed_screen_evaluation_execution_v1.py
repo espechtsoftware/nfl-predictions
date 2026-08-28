@@ -401,6 +401,51 @@ def test_solver_free_world_decoder_is_real_and_resource_bounded() -> None:
         evaluator._load_artifact_worlds_v1(oversized, raw)
 
 
+def test_world_decoder_accepts_frozen_panel_candidate_capacity_without_huge_matrix(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Exercise the real receipt path at 3,993 without allocating its totals."""
+    raw, player_ids = _world_npz()
+    original_header = evaluator._npy_member_header_v1
+
+    def frozen_panel_header(
+        archive: object, *, name: str,
+    ) -> tuple[tuple[int, ...], bool, np.dtype, int]:
+        shape, fortran_order, dtype, member_bytes = original_header(
+            archive, name=name
+        )
+        if name == "cand_ix.npy":
+            shape = (contract.MAX_SELECTION_CANDIDATES_PER_FOLD,)
+        elif name == "totals.npy":
+            shape = (
+                contract.MAX_SELECTION_CANDIDATES_PER_FOLD,
+                contract.WORLDS_PER_BLOCK,
+            )
+        return shape, fortran_order, dtype, member_bytes
+
+    monkeypatch.setattr(
+        evaluator, "_npy_member_header_v1", frozen_panel_header
+    )
+    receipt = {
+        "block": "R0",
+        "candidate_rows": contract.MAX_SELECTION_CANDIDATES_PER_FOLD,
+        "bytes": len(raw),
+        "sha256": sha256(raw).hexdigest(),
+    }
+
+    loaded = evaluator._load_artifact_worlds_v1(receipt, raw)
+    assert loaded.player_ids == player_ids
+    assert evaluator.MAXIMUM_SOURCE_CANDIDATE_ROWS == 3_993
+
+    oversized = dict(receipt)
+    oversized["candidate_rows"] = 3_994
+    with pytest.raises(
+        evaluator.CorpusR6CurrentBankCrossedScreenEvaluationV1Error,
+        match="resource authority",
+    ):
+        evaluator._load_artifact_worlds_v1(oversized, raw)
+
+
 def _install_orchestration_contract(
     monkeypatch: pytest.MonkeyPatch,
     *, phase: str, invalid_nomination: bool = False,
@@ -993,6 +1038,13 @@ def test_resource_precharge_accepts_recorded_real_later_source_size() -> None:
     precharge = evaluator._compile_resource_precharge_v1(
         bundle=bundle, scientific_rows=scientific_rows
     )
+    assert precharge["maximum_source_candidate_rows"] == (
+        contract.MAX_SELECTION_CANDIDATES_PER_FOLD
+    )
+    assert (
+        runner.task_manifest._EVALUATOR_MAXIMUM_SOURCE_CANDIDATE_ROWS
+        == contract.MAX_SELECTION_CANDIDATES_PER_FOLD
+    )
     assert precharge["maximum_later_source_bytes"] == 8_000_000
     assert later_identity["bytes"] <= precharge["maximum_later_source_bytes"]
 
@@ -1108,6 +1160,240 @@ def test_bound_evaluator_envelope_self_hashes_child_task_evidence() -> None:
         match="task binding evidence differs",
     ):
         runner.bind_task_evidence_to_envelope_v1(envelope, spliced, request)
+
+
+def test_successful_evaluator_envelope_terminalizes_exact_publication(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, initial_request, observed_runtime, _ = _install_orchestration_contract(
+        monkeypatch, phase=contract.BROAD_SCREEN_PHASE
+    )
+    initial_budget_identity = initial_request["process_budget_identity"]
+    initial_budget = evaluator.strict_json_v1(
+        store.objects[(
+            str(initial_budget_identity["uri"]),
+            str(initial_budget_identity["generation"]),
+        )],
+        label="initial evaluator budget",
+    )
+    budget_body = {
+        "schema_version": contract.EVALUATOR_PROCESS_BUDGET_SCHEMA,
+        "contract_id": contract.CONTRACT_ID,
+        "process_role": "broad-evaluator",
+        "phase": contract.BROAD_SCREEN_PHASE,
+        "source_ordinal": initial_request["source_ordinal"],
+        "process_ordinal": initial_request["process_ordinal"],
+        "read_allowlist": initial_budget["read_allowlist"],
+        "read_object_count_excluding_budget_authority": len(
+            initial_budget["read_allowlist"]
+        ),
+        "read_byte_ceiling_excluding_budget_authority": sum(
+            int(row["identity"]["bytes"])
+            for row in initial_budget["read_allowlist"]
+        ),
+        "write_allowlist": initial_budget["write_allowlist"],
+        "write_object_count": 1,
+        "write_byte_ceiling": initial_budget["write_allowlist"][0][
+            "max_bytes"
+        ],
+        "compute_fit_precharge": 0,
+        "process_budget_authority_added_at_runtime": True,
+        "current_generation_lookup_allowed": False,
+        "environment_redirect_allowed": False,
+        "git_ref_redirect_allowed": False,
+        "policy": dict(contract.POLICY_CLAIMS),
+    }
+    budget = _self_hashed(
+        budget_body, "evaluator_process_budget_sha256"
+    )
+    budget_identity = store.add_json(
+        "gs://fixture/terminal-evaluator-process-budget.json", budget
+    )
+    request = evaluator.build_evaluator_request_v1(
+        phase=contract.BROAD_SCREEN_PHASE,
+        source_ordinal=int(initial_request["source_ordinal"]),
+        design_identity=initial_request["design_identity"],
+        topology_identity=initial_request["topology_identity"],
+        projection_bundle_identity=initial_request["projection_bundle_identity"],
+        selection_receipt_identity=initial_request["selection_receipt_identity"],
+        process_budget_identity=budget_identity,
+        bootstrap_manifest_identity=initial_request[
+            "bootstrap_manifest_identity"
+        ],
+        launch_intent_identity=initial_request["launch_intent_identity"],
+    )
+    component = {
+        "component_role": "main",
+        "command": evaluator.canonical_evaluator_command_v1(),
+        "entrypoint_path": evaluator.canonical_evaluator_command_v1()[1],
+        "entrypoint_sha256": sha256(
+            Path(evaluator.canonical_evaluator_command_v1()[1]).read_bytes()
+        ).hexdigest(),
+    }
+    bootstrap_sha256 = "8" * 64
+    runtime_body = {
+        "schema_version": contract.RUNTIME_OBSERVATION_SCHEMA,
+        "contract_id": contract.CONTRACT_ID,
+        "process_role": "broad-evaluator",
+        "bootstrap_manifest_identity": request["bootstrap_manifest_identity"],
+        "bootstrap_manifest_sha256": bootstrap_sha256,
+        "process_budget_identity": budget_identity,
+        "process_budget_sha256": budget["evaluator_process_budget_sha256"],
+        "launch_intent_identity": request["launch_intent_identity"],
+        "observed_code_commit": "a" * 40,
+        "observed_image_digest": "sha256:" + "b" * 64,
+        "observed_command": component["command"],
+        "observed_entrypoint_sha256": component["entrypoint_sha256"],
+        "cloud_job_name_observed": "fixture-evaluator",
+        "cloud_execution_name_observed": "fixture-execution",
+        "cloud_task_index_observed": request["source_ordinal"],
+        "read_object_count_including_process_budget_authority": (
+            budget["read_object_count_excluding_budget_authority"] + 1
+        ),
+        "read_byte_ceiling_including_process_budget_authority": (
+            budget["read_byte_ceiling_excluding_budget_authority"]
+            + budget_identity["bytes"]
+        ),
+        "cloud_values_are_unattested_observations": True,
+        "terminal_execution_attestation_required": True,
+        "policy": dict(contract.POLICY_CLAIMS),
+    }
+    runtime_observation = _self_hashed(
+        runtime_body, "runtime_observation_sha256"
+    )
+    monkeypatch.setattr(
+        evaluator, "_compile_evaluator_budget_v1", lambda **_kwargs: budget
+    )
+    monkeypatch.setattr(
+        evaluator,
+        "_build_runtime_observation_v1",
+        lambda **_kwargs: runtime_observation,
+    )
+    envelope = evaluator.run_evaluator_v1(
+        request,
+        observed_runtime=observed_runtime,
+        read_exact=store.read_exact,
+        publish_create_once=store.publish_create_once,
+    )
+    assert envelope["resource_precharge"][
+        "maximum_source_candidate_rows"
+    ] == contract.MAX_SELECTION_CANDIDATES_PER_FOLD
+
+    binding = _binding_evidence(request)
+    bound_envelope = runner.bind_task_evidence_to_envelope_v1(
+        envelope, binding, request
+    )
+    child_stdout = runner.framed_envelope_bytes_v1(bound_envelope)
+    write = budget["write_allowlist"][0]
+    output = {
+        "topology_ordinal": 0,
+        "role": write["role"],
+        "source_ordinal": write["source_ordinal"],
+        "uri": write["uri"],
+        "maximum_bytes": write["max_bytes"],
+        "create_once": True,
+        "prior_identity": None,
+    }
+    request_raw = contract.canonical_json_bytes_v1(request)
+    task = {
+        "task_index": request["source_ordinal"],
+        "source_ordinal": request["source_ordinal"],
+        "process_ordinal": request["process_ordinal"],
+        "phase": contract.BROAD_SCREEN_PHASE,
+        "process_role": "broad-evaluator",
+        "task_binding_sha256": "5" * 64,
+        "task_science_binding_sha256": "9" * 64,
+        "request": request,
+        "request_sha256": sha256(request_raw).hexdigest(),
+        "request_bytes": len(request_raw),
+        "expected_outputs": [output],
+        "expected_outputs_sha256": "6" * 64,
+        "child_command_sha256": "7" * 64,
+        "child_stdout_byte_ceiling": evaluator.MAXIMUM_ENVELOPE_BYTES,
+        "child_stderr_byte_ceiling": 256_000,
+        "maximum_wall_seconds": evaluator.MAXIMUM_EVALUATOR_WALL_SECONDS,
+        "maximum_peak_rss_bytes": evaluator.MAXIMUM_EVALUATOR_PEAK_RSS_BYTES,
+    }
+    task_index = int(request["source_ordinal"])
+    manifest = {
+        "task_count": task_index + 1,
+        "layer_id": "broad-evaluation-result",
+        "task_manifest_sha256": "4" * 64,
+        "task_bindings": [*({} for _ in range(task_index)), task],
+        "required_process_specs": [{
+            "process_role": "broad-evaluator",
+            "process_chain": [component],
+        }],
+        "bootstrap_manifest_identity": request["bootstrap_manifest_identity"],
+        "bootstrap_manifest_sha256": bootstrap_sha256,
+        "pre_design_run_authorization_identity": request[
+            "launch_intent_identity"
+        ],
+        "code_commit": "a" * 40,
+        "image_digest": "sha256:" + "b" * 64,
+        "reused_job_name": "fixture-evaluator",
+    }
+    original_bind_body = runner.task_manifest._bind_body
+
+    def bind_manifest_or_exact_body(
+        value: object, identity: object, *, label: str,
+    ) -> dict[str, object]:
+        if label in {"terminal task manifest", "child evidence task manifest"}:
+            return dict(identity)
+        return original_bind_body(value, identity, label=label)
+
+    def prove_exact(identity_value: Mapping[str, object]) -> dict[str, object]:
+        identity = contract._safe_object_identity(
+            identity_value, label="terminal evaluator publication"
+        )
+        raw = store.read_exact(identity)
+        assert len(raw) == identity["bytes"]
+        assert sha256(raw).hexdigest() == identity["sha256"]
+        return identity
+
+    monkeypatch.setattr(
+        runner.task_manifest,
+        "validate_task_manifest_v1",
+        lambda value: dict(value),
+    )
+    monkeypatch.setattr(
+        runner.task_manifest, "_bind_body", bind_manifest_or_exact_body
+    )
+    monkeypatch.setattr(
+        runner.task_manifest,
+        "build_dispatcher_runtime_evidence_v1",
+        lambda **_kwargs: {
+            "task_index": task_index,
+            "cloud_execution_name": "fixture-execution",
+            "dispatcher_runtime_evidence_sha256": "a" * 64,
+        },
+    )
+    terminal = runner.task_manifest.build_task_terminal_evidence_v1(
+        manifest=manifest,
+        manifest_identity=binding["manifest_identity"],
+        task_index=task_index,
+        cloud_execution_name="fixture-execution",
+        child_exit_code=0,
+        child_stdout=child_stdout,
+        child_stderr=b"",
+        elapsed_milliseconds=max(
+            1_000, int(envelope["observed_elapsed_milliseconds"]) + 1
+        ),
+        read_exact=store.read_exact,
+        prove_exact_identity=prove_exact,
+        dispatcher_kernel_observed_command=["fixture-dispatcher"],
+        dispatcher_selected_environment={"FIXTURE": "1"},
+    )
+
+    assert terminal["task_completed"] is True
+    assert terminal["child_exit_code"] == 0
+    assert terminal["child_task_binding_evidence"] == binding
+    assert terminal["publication_identities"] == [
+        bound_envelope["evaluation_publication_identity"]
+    ]
+    assert terminal["publication_evidence"][0][
+        "publication_generation_exact_reopen_proved"
+    ] is True
 
 
 def test_cli_rejects_missing_child_binding_before_cloud_transport(

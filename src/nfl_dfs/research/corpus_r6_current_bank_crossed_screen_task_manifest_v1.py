@@ -96,10 +96,12 @@ MAXIMUM_CHILD_STDERR_BYTES: Final = 256_000
 MAXIMUM_DISPATCHER_EXACT_IDENTITY_PROOFS: Final = 64
 MAXIMUM_DISPATCHER_EXACT_PROOF_BYTES: Final = 1_000_000_000
 MAXIMUM_DISPATCHER_WALL_SECONDS: Final = 7_260
-# These evaluator limits are duplicated as inert integers so this controller
-# can bind the child envelope without importing the scientific evaluator.
+# These evaluator limits are mirrored here so this controller can bind the
+# child envelope without importing the scientific evaluator.
 _EVALUATOR_MAXIMUM_PLAYER_COUNT: Final = 512
-_EVALUATOR_MAXIMUM_SOURCE_CANDIDATE_ROWS: Final = 512
+_EVALUATOR_MAXIMUM_SOURCE_CANDIDATE_ROWS: Final = (
+    contract.MAX_SELECTION_CANDIDATES_PER_FOLD
+)
 _EVALUATOR_MAXIMUM_EVALUATION_CANDIDATES: Final = 8_192
 _EVALUATOR_MAXIMUM_LATER_SOURCE_BYTES: Final = 8_000_000
 _EVALUATOR_MAXIMUM_COMPRESSED_WORLD_BYTES: Final = 128_000_000
