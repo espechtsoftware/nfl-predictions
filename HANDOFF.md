@@ -20,6 +20,24 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 09:49 UTC (two-hundred-thirty-eighth update)
+
+### Broad-selection launch is armed and not submitted
+
+- Create-once launch intent for `broad-selection-receipt` is generation
+  `1787910561911110`, SHA-256
+  `8d85b9d430848b076cd828abd8c27ee4bc474e7fab00fc42135cbac85b31eeda`,
+  2,961 bytes at
+  `authorities/cloud-run-launch-intents/01-broad-selection-receipt.json`.
+  Intent body self-hash is
+  `db5f4cd6fcfbd934d5f54e2d52c31b1e5acae111bcb1fb43af3a4b5da957ffc6`;
+  arm-result file SHA-256 is
+  `b9ddc39d802b6e9436785ca36488956a49cde13c8360b4c62e9595f21f96e900`.
+- `launch_armed=true`, submission count is **0**, and execution count remains
+  79. Exact next action: commit/push this intent, construct the broad launch
+  request with this generation-pinned identity, submit exactly once, and never
+  retry launch after its marker exists.
+
 ## Current handoff — 2026-08-28 09:48 UTC (two-hundred-thirty-seventh update)
 
 ### Reused job is exactly configured for 54-way broad selection
