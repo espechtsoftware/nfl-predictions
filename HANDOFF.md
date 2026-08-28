@@ -20,6 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 17:00 UTC (two-hundred-eighty-second update)
+
+### Corrected V6 runtime image passed all build gates and is immutable
+
+- Branch `main` and `origin/main` are at `e5f916d1`; image source remains
+  exact repair commit `8ae6c22a1d898c2fa4517be15f44d197da9082bf` from the
+  clean archive recorded in update 281.
+- Cloud Build `cdd1f0a4-0210-4ee7-8cd6-692b87865006` reached terminal
+  **SUCCESS** at `2026-08-28T17:00:02.411212Z`. Focused tests, runtime image
+  build and isolated dispatcher smoke all passed; their exact step windows
+  were respectively `16:48:46.861544641Z`--`16:57:41.662925935Z`,
+  `16:57:41.663152605Z`--`16:58:59.124064879Z` and
+  `16:58:59.124469760Z`--`16:59:01.649617463Z`.
+- Target runtime authority is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:c491ad9e88929d359539d2a713f01b8a7f777ea15725910883a343bdd45a766d`.
+  Artifact Registry independently resolved mutable build tag
+  `r6-current-bank-crossed-screen-8ae6c22a-v2` to the same digest. Builder
+  image digests are not launch authority.
+- Submitted source is generation-exact at
+  `gs://nfl-predictions-503414_cloudbuild/source/1787935647.532217-ebf48ce4b9c8408689aa2e458b0c4bd6.tgz#1787935654588405`,
+  provider SHA-256 base64
+  `Nhmm9UiDjE_zb4wS8lvIGJVunpnQAlAXLsU7uQgbbkk=`. No build logs,
+  scientific artifacts, scores or outcomes were opened.
+- Exact next action: create the exact V6 `prepare` request in
+  `/tmp/r6-current-bank-operator-8ae6c22a` for untouched prefix
+  `20260828-r6-current-bank-crossed-screen-v6/`, run `prepare` once from the
+  clean archive, and then configure/arm/launch projection with the immutable
+  digest. Never use the mutable tag.
+
 ## Current handoff — 2026-08-28 16:47 UTC (two-hundred-eighty-first update)
 
 ### Corrected V6 build is queued asynchronously from exact commit archive
