@@ -20,6 +20,30 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 05:28 UTC (two-hundred-twelfth update)
+
+### Corrected exact-commit immutable build is queued
+
+- Commit `6b69b3f7a5f0b77f94943b4115291c7d5e30195e` is pushed on `main`.
+  It contains only the stale publisher-fixture repair, the independently
+  reviewed host-only realized-score bridge and this handoff relative to
+  `fefc211d`. An exact `git archive` of that commit was extracted into
+  `/tmp/r6-current-bank-build-d8w82gNS/context`; the dedicated allowlist
+  selected 437 files / 14.1 MiB and excludes the host-only bridge from the
+  execution image.
+- Corrected Cloud Build `15ab6cb0-45d3-4d69-a6f5-bb49c1b266b7` was submitted
+  with image tag
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:r6-current-bank-crossed-screen-6b69b3f7`.
+  Its exact source object is
+  `gs://nfl-predictions-503414_cloudbuild/source/1787894881.194673-13962fdb90bf4df79c97d6ff1690b0db.tgz`
+  at generation `1787894888157447`. It was queued at
+  `2026-08-28T05:28:08.628108723Z`.
+- No Cloud Run job mutation/execution, output-prefix write, outcome read or
+  score has occurred. Exact next action: poll only this build ID; if and only
+  if all validation/build/smoke steps pass, bind its immutable digest into the
+  untouched prefix's prepare request and proceed through configure, arm and
+  one-task projection launch.
+
 ## Current handoff — 2026-08-28 05:25 UTC (two-hundred-eleventh update)
 
 ### The corrected build exposed and closed one stale publisher test fixture
