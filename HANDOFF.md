@@ -20,6 +20,30 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 13:38 UTC (two-hundred-sixty-third update)
+
+### Reused job is exactly configured for v5 projection
+
+- Exact clean-archive operator configured job
+  `atlas-cbc-32g-full-2023-w8-v1`; immutable UID remains
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275`, generation is now **18**, and job-
+  projection SHA-256 is
+  `63679f99830db8b39cc3fd2dc458591e54b30bb657bd33496a82c2b94327631b`.
+  `job_created=false` and exact post-update projection validation passed.
+- Exact projection is one task / one worker, 8 CPU / 32 GiB, zero retries,
+  7,260-second timeout, commit `bc6ac55b`, immutable image digest
+  `sha256:2df63886830f561c819bf45392a51ee763873ba6eff39a169f50b79bf3e68caa`,
+  and v5 manifest generation `1787924194040660`. Network, Cloud SQL, secrets,
+  volumes and mounts are absent. Execution count remains **83**; latest is the
+  sealed failed v4 evaluation `...-cwm7l`.
+- Configuration result local SHA-256 is
+  `788c69505e10461537199192fd6b677095c2a87e0a4f3641221946ca916fff0e`;
+  body self-hash is
+  `9be02e0d0f2088fff21af93b47fde19ba743465bc4f2e5289e3a9255b503be9d`.
+  Exact next action: commit/push, arm v5 projection once, preserve the exact
+  intent identity, consume it with one launch call, and never retry after
+  marker creation.
+
 ## Current handoff — 2026-08-28 13:37 UTC (two-hundred-sixty-second update)
 
 ### Fresh v5 projection authorities are prepared create-once
