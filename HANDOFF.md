@@ -20,6 +20,27 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 11:03 UTC (two-hundred-forty-third update)
+
+### Selection-terminal repair image is immutable and release-green
+
+- Exact Cloud Build `a27c8441-1e95-4db1-8e70-c8e78f957cba` completed
+  **SUCCESS** from repair commit
+  `976d1b295e139c0b76b53bdfba00db8bd91320e0`. It ran from source object
+  `source/1787913929.09226-b429468596284be5bec16fa9d0d2328f.tgz`, generation
+  `1787913936102139`, and passed the complete Python 3.11 focused release
+  slice, Docker build and isolated no-network dispatcher smoke. Start/finish
+  were `10:46:36Z` / `11:02:38Z`.
+- Verified immutable runtime is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:6e57fd1e2150fc540b62e78052b940e1581a92d49194e5d2b68290824975d988`.
+  Do not launch from mutable tag `r6-current-bank-crossed-screen-976d1b29`.
+- Exact next action: prepare projection create-once under untouched prefix
+  `20260828-r6-current-bank-crossed-screen-v4/` with the exact clean archive
+  operator at `/tmp/r6-current-bank-v4-build-976d1b29-Nx3NG2dW/src`, preserve
+  its manifest/preparation identities, then configure/arm/launch projection
+  exactly once. No v4 object, job mutation, execution or outcome read exists
+  at this checkpoint.
+
 ## Current handoff — 2026-08-28 10:45 UTC (two-hundred-forty-second update)
 
 ### Exact selection-terminal repair image build is queued
