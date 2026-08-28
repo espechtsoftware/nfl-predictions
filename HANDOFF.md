@@ -20,6 +20,30 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 13:24 UTC (two-hundred-sixtieth update)
+
+### Exact evaluator-repair v5 image build is queued
+
+- Exact repair code commit is
+  `bc6ac55b5d24b2515ece9c95891b8e11eabd50d0`; its `git archive` SHA-256
+  is `92762bec4f6f374370e6501c238b5fdd8bc553962831f922ed7c6a32dbc69d64`.
+  Clean extracted build/operator source is supporting evidence at
+  `/tmp/r6-current-bank-v5-build-bc6ac55b-zPTctS/src`.
+- Cloud Build `d25a2ce7-88ad-4d7e-a3f1-d47cdaa76624` was submitted
+  asynchronously and captured **QUEUED**. Exact source object is
+  `gs://nfl-predictions-503414_cloudbuild/source/1787923416.36184-696df56a7ffe47838fe2a9dccc97a9ab.tgz`,
+  generation `1787923423655736`. It will run the complete Python 3.11 focused
+  release slice (including the new evaluator terminal regression), Docker
+  build and isolated no-network dispatcher smoke before publishing mutable
+  tag `r6-current-bank-crossed-screen-bc6ac55b`; that tag is not launch
+  authority.
+- Exact next action: commit/push this build identity and poll only build
+  `d25a2ce7-88ad-4d7e-a3f1-d47cdaa76624` to terminal without reading
+  experiment outputs. On success, resolve and record the immutable image
+  digest, prepare untouched prefix
+  `20260828-r6-current-bank-crossed-screen-v5/`, and start the fresh projection
+  replay. No score, log, scientific output, or realized outcome has been read.
+
 ## Current handoff — 2026-08-28 13:22 UTC (two-hundred-fifty-ninth update)
 
 ### Evaluator capacity repair is pushed; v5 must replay layers 0–2
