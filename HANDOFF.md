@@ -20,6 +20,25 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 09:48 UTC (two-hundred-thirty-seventh update)
+
+### Reused job is exactly configured for 54-way broad selection
+
+- Job UID remains `1f4bcf0a-2300-4afa-9fc1-9981844c8275`; generation is now
+  **14** and exact job-projection SHA-256 is
+  `5c2f2ff811d25460e79b0a62f64413245d130a5639930e4487f5ed4c7e83d4ae`.
+  `job_created=false`, `exact_post_update_projection_validated=true`, and
+  execution count remains **79** with successful projection `...-zxn9z`
+  latest. Broad has not launched.
+- Exact configuration is 54 tasks / parallelism 54, 8 CPU / 32 GiB each,
+  zero retries, 7,260-second timeout, corrected immutable digest, commit
+  `88889301` and broad manifest generation `1787910423789642`. Network,
+  Cloud SQL, secret environment, volumes and mounts are absent.
+- Configuration result is mode 0600, 3,508 bytes, SHA-256
+  `3f44dd669fd2fdfe894445c54590259c3e1bbf5765977934aada7ad84b7c2e5c`.
+  Exact next action: commit/push, arm broad launch once, preserve the exact
+  intent, then consume it exactly once and status-poll all 54 tasks.
+
 ## Current handoff — 2026-08-28 09:47 UTC (two-hundred-thirty-sixth update)
 
 ### Broad-selection authority layer is prepared create-once
