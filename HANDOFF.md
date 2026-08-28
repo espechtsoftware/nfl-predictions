@@ -20,6 +20,28 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 05:37 UTC (two-hundred-thirteenth update)
+
+### The corrected immutable current-bank image is release-green
+
+- Exact-commit Cloud Build `15ab6cb0-45d3-4d69-a6f5-bb49c1b266b7`
+  succeeded from code commit
+  `6b69b3f7a5f0b77f94943b4115291c7d5e30195e` and source-object generation
+  `1787894888157447`. The focused release suite passed **150/150** in
+  356.76 seconds, the runtime image built, the network-disabled isolated
+  dispatcher smoke passed, and the image push completed. Build start/finish
+  were `2026-08-28T05:28:53.569029539Z` and
+  `2026-08-28T05:37:07.008265Z`.
+- The immutable execution image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:82df9201ce02a7807d916705e25157218d91afd59fe3fc98958483d5bbd3f493`.
+  The mutable tag is evidence only and must not be placed in a manifest or job
+  projection.
+- No Cloud Run job mutation/execution, output-prefix write, outcome read or
+  score occurred in the build. Exact next action: use the exact `6b69b3f7`
+  archive operator to prepare the untouched prefix with this digest, bind the
+  returned manifest identity into the idle reused job, durably arm the launch,
+  and submit the one-task projection layer exactly once.
+
 ## Current handoff — 2026-08-28 05:28 UTC (two-hundred-twelfth update)
 
 ### Corrected exact-commit immutable build is queued
