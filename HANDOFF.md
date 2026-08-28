@@ -20,6 +20,39 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 10:10 UTC (two-hundred-fortieth update)
+
+### Broad execution remains active; status-reader failures were local DNS/auth transport
+
+- Branch `main` is at pushed commit `263b7c470fc2c5d0259c2013bf68c08586f73c9c`.
+  The one and only broad-selection execution remains
+  `atlas-cbc-32g-full-2023-w8-v1-jvkdg`, UID
+  `bf35c269-b41d-48e0-897a-be5c2154c502`; never launch it again.
+- Status attempts 002--004 failed before producing results with the generic
+  `operator manifest exact reopen failed`. Read-only tracing established that
+  the first Python GCS read was exhausting its 120-second credential retry
+  because the sandbox could not resolve `oauth2.googleapis.com`; this was not
+  a manifest, task, or scientific failure. A direct generation-pinned fetch of
+  broad manifest generation `1787910423789642` completed in 1.8 seconds and
+  verified 295,788 bytes with the expected SHA-256
+  `dbc7cbd40f2825d2d9ffadc5358ffdfbdec9edd88fbb3f1fe33165de6c24abe2`.
+- Repeating the unchanged read-only status request with network permission
+  succeeded as fresh local status 005. It reports execution state **ACTIVE**
+  and all 54 tasks **ACTIVE**, attempt 0, with no terminal failures. Its
+  exact file SHA-256 is
+  `d82e4ca688504c54a15bce5ed0bef3b4556ffdde53e381989bc787cc971ff351`,
+  status self-hash is
+  `0318097a4190971a1e9d5dd05c2355e22e3490b380dc1290e7f5a7ddcd2574a4`,
+  and task-status-array hash is
+  `034317d60a916370678fb33170c48d022e4eb934a72aa92e8a8092d9d7d14ac0`.
+  `logs_read=false`, `scientific_outputs_read=false`, and
+  `realized_outcomes_read=false` remain exact.
+- Exact next action: continue bounded network-enabled status polls against the
+  same request and fresh exclusive output paths. On 54/54 success, finalize
+  broad exactly once, retain its generation-exact receipt, and immediately
+  prepare ordinal-2 `broad-evaluation-result`. Do not relaunch, list objects,
+  read logs/science/outcomes, or treat a transport failure as a task failure.
+
 ## Current handoff — 2026-08-28 09:51 UTC (two-hundred-thirty-ninth update)
 
 ### Broad-selection execution was submitted exactly once
