@@ -20,6 +20,28 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 11:55 UTC (two-hundred-forty-ninth update)
+
+### Corrected v4 broad-selection authorities are prepared create-once
+
+- The exact archive operator prepared layer ordinal 1,
+  `broad-selection-receipt`, from the finalized v4 projection receipt. It
+  published exactly 379 authorities: 54 task requests, 54 assembler budgets,
+  270 worker budgets, and one manifest. Never rerun this `prepare-layer`.
+- Broad-selection manifest identity is generation `1787918108160530`,
+  SHA-256
+  `a4e48ac6d952bf78a33dd6bfb6270696f19db9bf8ca5e46cbeef5bcefd95d4de`,
+  295,788 bytes, at
+  `authorities/task-manifests/01-broad-selection-receipt.json`. Its preparation
+  receipt is generation `1787918110472095`, SHA-256
+  `1978fa1598fe3b8971b9d1e32d89b2babe74444f044c29fd146988fb70edcc31`,
+  233,795 bytes. Exact local prepare-result SHA-256 is
+  `597027fa2e5973b8114a344ffab9bc24a7e13471ba55c02fcda6ee7f683aa348`.
+- Exact next action: commit/push, configure the reused job from this manifest
+  for 54 tasks and 54-way parallelism, arm once, consume the resulting intent
+  exactly once, then poll only the returned execution. No score, log,
+  scientific output, or realized outcome has been read.
+
 ## Current handoff — 2026-08-28 11:44 UTC (two-hundred-forty-eighth update)
 
 ### Corrected v4 projection succeeded and is finalized
