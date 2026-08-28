@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 08:39 UTC (two-hundred-twenty-sixth update)
+
+### The finalizer hash-domain repair is release-green and requires a fresh v3 chain
+
+- Branch `main`; pushed predecessor is
+  `3ea7c7c73b69a8fc27ef5b9eb1a020044978ce94`. The finalizer now keeps the
+  terminal-evidence embedded self-hash and exact-object identity SHA-256 as
+  separate authority domains. It removed only the impossible requirement that
+  those two hashes equal each other. Exact canonical body/identity binding,
+  generation, manifest URI, byte ceiling, execution identity, completion state
+  and kernel command/environment checks remain unchanged.
+- The regression fixture now computes a real complete-object identity whose
+  SHA differs from the embedded self-hash. Correct self-hash observation is
+  accepted; substituting the object SHA and recomputing every enclosing hash is
+  rejected. Focused finalizer/operator validation passes **32/32**. The exact
+  Cloud-Build-equivalent release slice passes **171/171** in 388.24 seconds;
+  pycompile and `git diff --check` pass. Independent review reports no P0/P1.
+- V2 remains immutable and unmodified: its projection computation succeeded,
+  but no observation source or layer receipt was published. A host-only
+  finalize would not be chain-safe because every later a9ff runtime reopens
+  predecessor receipts with its frozen defective validator. Do not finalize,
+  prepare broad from, or relaunch v2.
+- Exact next action: commit/push only this validator, regression and handoff;
+  build a new immutable image; then prepare an untouched
+  `20260828-r6-current-bank-crossed-screen-v3/` prefix bound to that commit and
+  digest. Run/finalize its one-task projection and advance immediately to the
+  54-task broad-selection layer. No outcomes or scores have been read.
+
 ## Current handoff — 2026-08-28 08:22 UTC (two-hundred-twenty-fifth update)
 
 ### V2 projection succeeded; finalization exposed one deterministic hash-domain bug

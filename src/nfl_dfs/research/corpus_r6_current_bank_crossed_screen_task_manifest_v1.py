@@ -5783,7 +5783,7 @@ def validate_cloud_run_execution_observation_source_v1(
     for index, (raw_record, observation) in enumerate(zip(
         raw_terminal_records, observations, strict=True
     )):
-        evidence, evidence_identity = _validated_terminal_record_v1(
+        evidence, _evidence_identity = _validated_terminal_record_v1(
             raw_record,
             manifest=retained_manifest,
             manifest_identity=retained_manifest_identity,
@@ -5795,8 +5795,6 @@ def validate_cloud_run_execution_observation_source_v1(
             evidence["task_completed"] is not True
             or evidence["cloud_execution_name"] != execution
             or evidence["task_terminal_evidence_sha256"]
-            != observation["task_terminal_evidence_sha256"]
-            or evidence_identity["sha256"]
             != observation["task_terminal_evidence_sha256"]
             or runtime["kernel_observed_command"]
             != observation["kernel_dispatcher_command"]

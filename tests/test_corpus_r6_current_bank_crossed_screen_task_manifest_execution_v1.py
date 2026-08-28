@@ -279,7 +279,7 @@ def test_pre_design_authorization_exact_stream_proof_budget_for_all_layers() -> 
 
 def _observation_fixture(
     monkeypatch: pytest.MonkeyPatch,
-) -> tuple[dict[str, object], dict[str, object], dict[str, object]]:
+) -> tuple[dict[str, object], dict[str, object], dict[str, object], str]:
     command = manifest.canonical_dispatcher_process_spec_v1()["command"]
     fake_manifest = {
         "task_manifest_sha256": "d" * 64,
@@ -326,14 +326,6 @@ def _observation_fixture(
         "CLOUD_RUN_TASK_ATTEMPT": "0",
     }
     terminal_sha = "c" * 64
-    terminal_identity = {
-        "uri": contract.OUTPUT_NAMESPACE
-        + "controller-focused/authorities/task-terminal-evidence/"
-        "projection/task-000.json",
-        "generation": "8",
-        "sha256": terminal_sha,
-        "bytes": 1,
-    }
     terminal_evidence = {
         "task_completed": True,
         "cloud_execution_name": execution_name,
@@ -347,6 +339,14 @@ def _observation_fixture(
             ),
         },
     }
+    terminal_identity = _identity(
+        contract.OUTPUT_NAMESPACE
+        + "controller-focused/authorities/task-terminal-evidence/"
+        "projection/task-000.json",
+        terminal_evidence,
+        generation="8",
+    )
+    assert terminal_identity["sha256"] != terminal_sha
     monkeypatch.setattr(
         manifest, "validate_task_manifest_v1", lambda value: dict(value)
     )
@@ -464,19 +464,47 @@ def _observation_fixture(
         "provider_attestation_claimed": False,
     }
     _rehash(source, "cloud_run_execution_observation_source_sha256")
-    return source, fake_manifest, manifest_identity
+    return source, fake_manifest, manifest_identity, str(terminal_identity["sha256"])
 
 
 def test_observation_source_derives_no_execution_overrides_from_exact_subtrees(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    source, fake_manifest, manifest_identity = _observation_fixture(monkeypatch)
+    (
+        source,
+        fake_manifest,
+        manifest_identity,
+        terminal_object_sha256,
+    ) = _observation_fixture(monkeypatch)
     assert manifest.validate_cloud_run_execution_observation_source_v1(
         source,
         manifest=fake_manifest,
         manifest_identity=manifest_identity,
         task_terminal_records=[{"fixture": True}],
     ) == source
+    assert (
+        source["task_observations"][0]["task_terminal_evidence_sha256"]
+        != terminal_object_sha256
+    )
+
+    drifted = deepcopy(source)
+    drifted["task_observations"][0][
+        "task_terminal_evidence_sha256"
+    ] = terminal_object_sha256
+    drifted["task_observations_sha256"] = contract.canonical_sha256_v1(
+        drifted["task_observations"]
+    )
+    _rehash(drifted, "cloud_run_execution_observation_source_sha256")
+    with pytest.raises(
+        manifest.CorpusR6CurrentBankCrossedScreenTaskManifestV1Error,
+        match="observation source differs from exact terminal runtime evidence",
+    ):
+        manifest.validate_cloud_run_execution_observation_source_v1(
+            drifted,
+            manifest=fake_manifest,
+            manifest_identity=manifest_identity,
+            task_terminal_records=[{"fixture": True}],
+        )
 
     assert source["task_terminal_generation_resolution_scope"] == {
         "resolver_role": "host-finalizer-only",
