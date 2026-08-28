@@ -20,6 +20,29 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 07:47 UTC (two-hundred-twenty-fourth update)
+
+### The one-task v2 projection is running from the consumed launch intent
+
+- The preserved launch intent was consumed exactly once. Submission count is
+  **1** and execution count moved **77→78**. Cloud Run execution is
+  `atlas-cbc-32g-full-2023-w8-v1-x8mql`, UID
+  `3d6e484b-0f60-4f25-be93-4175e3d78037`, generation 1; captured state is
+  **ACTIVE**. Launch-result SHA-256 is
+  `e39df9bfd59bba28fb3d87a4b67e81987a09c2ff6a47ffaf4069737b14b80926`.
+- The launch submission marker is create-once at
+  `authorities/cloud-run-launch-submission-markers/00-projection.json`, body
+  SHA-256 `4dbe568b9c3ce6d8fa048b35c797c71519c70a11086ce4d4fd993f57c95a3874`.
+  `launch_request_consumed=true`, `blind_relaunch_allowed=false`, no execution
+  override was present, and the exact provider task-template SHA-256 is
+  `e59f11e013a3d5071f028441b948517ff63c0481b3f8310dda3b17a67b1955ba`.
+  Never rerun `launch` for this projection.
+- Exact next action: commit/push this execution identity, create one immutable
+  status request for `...-x8mql`, and poll with a fresh nonexistent local
+  output path each time until terminal. On success, finalize projection and
+  immediately prepare broad selection; on failure, use the now-valid terminal
+  evidence rather than task logs. No crossed-screen score exists yet.
+
 ## Current handoff — 2026-08-28 07:46 UTC (two-hundred-twenty-third update)
 
 ### The v2 projection launch is armed and not yet submitted
