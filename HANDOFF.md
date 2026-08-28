@@ -20,6 +20,31 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 20:00 UTC (three-hundred-first update)
+
+### L2 role-jump law now has an empirical component adapter
+
+- Branch `main` and `origin/main` entered this milestone at `4cef26ec`. A new
+  isolated adapter consumes generation-pinned, walk-forward empirical player
+  residual groups, verifies exact finite support and positive conditional-jump
+  behavior, and deterministically bootstraps one role-jump component draw per
+  player/world around the ordinary bank. The update-299 L2 core then applies
+  calibrated jump probabilities with at most one jump per team/world.
+- The receipt explicitly states that derived historical player residuals were
+  consumed but not revalidated inside this boundary; it reads no lineup
+  outcome and grants no historical lineup-scoring or production authority.
+  Source and test SHA-256 are respectively
+  `55f3f708b3e6932ed2125eb7d86e119cd8b57bcc1c602d1d1f105719360a3fc0`
+  and
+  `f5486a995094bd7d414b33fc5a8d0fa84bf309004f4f6ecdb1fb82e95463ea28`.
+  Validation is 26/26 across the new component, L1/L2 bank and belief-world
+  suites, plus compilation and whitespace.
+- V7 projection `atlas-cbc-32g-full-2023-w8-v1-r8lwq` remains `ACTIVE` after
+  five status-only polls with no terminal failure. Exact next actions: bind
+  the separately frozen walk-forward probability/residual-calibration output
+  to L1/L2, continue status-only polling, and finalize the control projection
+  immediately on success.
+
 ## Current handoff — 2026-08-28 19:57 UTC (three-hundredth update)
 
 ### L1 shootout law now has a deterministic simulator-component adapter
