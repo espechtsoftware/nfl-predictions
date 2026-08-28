@@ -20,6 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 20:06 UTC (three-hundred-second update)
+
+### Hard-230 is now a genuine replenishing population challenger
+
+- Branch `main` and `origin/main` entered this milestone at `0b6b20b3`. Five
+  new isolated files replace the earlier stop-at-control-target experiment
+  with one shared incumbent-optimizer stream: the score-blind control is the
+  first P0-sized unique legal prefix, while the challenger continues the same
+  stream until it retains the same number of unique legal lineups with an
+  inclusive 230-DK hit in permitted fit worlds or reaches its fixed ceiling.
+  This is population generation, not a selector, and it consumes no realized
+  or held-out outcome.
+- The successor admits the observed real-source envelope of 773 players under
+  an explicit 1,024-player maximum. It binds the exact P0 target, source/world
+  order, shared solver calls, CBC proof, deterministic shortfall, fit-only
+  200/220/230 diagnostics and bounded create-once evidence shards. Validation
+  is 20/20 across the original and successor adapters, including two real CBC
+  proof smokes; compilation and whitespace checks are clean.
+- It is not yet launchable from the R6 artifact bank. The smallest truthful
+  remaining integration is an immutable decoder that maps each generation-
+  pinned float32 R-block NPZ plus point-in-time player metadata to the exact
+  sorted player registry and little-endian int64 milli-DK matrix, followed by
+  exact P0, world-permutation and runtime identities. Add that adapter to the
+  single consolidated challenger image; do not create a hard-230-only build.
+- V7 control projection `atlas-cbc-32g-full-2023-w8-v1-r8lwq` remains
+  `ACTIVE` after seven status-only polls with no terminal failure. Exact next
+  actions: continue status-only polling and finalize it immediately on
+  success; in parallel implement the decoder seam and merge the population,
+  selector and belief challengers into one image.
+
 ## Current handoff — 2026-08-28 20:00 UTC (three-hundred-first update)
 
 ### L2 role-jump law now has an empirical component adapter
