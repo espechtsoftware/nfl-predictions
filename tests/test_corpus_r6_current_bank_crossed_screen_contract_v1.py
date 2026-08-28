@@ -499,11 +499,21 @@ def authorities() -> dict[str, object]:
         [f"lineup-{index:03d}" for index in range(80)], training_scores
     )
     candidates = _candidates()
-    later_source_body, later_source_identity = _later_source_fixture(candidates)
+    candidates_by_fold = [deepcopy(candidates) for _ in contract.WORLD_BLOCKS]
+    for fold, fold_candidates in enumerate(candidates_by_fold):
+        # Production fold projections need not use identical player unions.
+        # Keep lineup IDs and the 79-roster/80-lineup alias fixture stable while
+        # making the final candidate in each fold depend on one distinct player.
+        fold_candidates[-1]["roster_player_ids"][-1] = f"z-fold-{fold}-player"
+    later_source_body, later_source_identity = _later_source_fixture([
+        candidate
+        for fold_candidates in candidates_by_fold
+        for candidate in fold_candidates
+    ])
     projections = [
         _projection(
             fold,
-            candidates=candidates,
+            candidates=candidates_by_fold[fold],
             score_matrix_sha256=str(ledger["score_matrix_sha256"]),
             later_source_identity=later_source_identity,
         )
@@ -932,6 +942,47 @@ def test_projection_bundle_is_exact_five_fold_self_hashed_authority(
     ):
         contract.build_projection_bundle_v1(
             source_ordinal=0, fold_projections=changed["fold_projections"]
+        )
+
+
+def test_player_game_root_is_stable_across_fold_specific_required_players() -> None:
+    catalog = [
+        {"id": "p-001", "game_id": "game-a"},
+        {"id": "p-002", "game_id": "game-b"},
+    ]
+    later_source = {
+        "slates": [{
+            "slate_id": "fixture-slate",
+            "catalog": catalog,
+            "catalog_sha256": contract.canonical_sha256_v1(catalog),
+        }],
+    }
+    identity = _body_identity("gs://fixture/later-source.json", later_source)
+
+    first_map, first_source_hash = contract._later_source_player_game_map_v1(
+        later_source_body=later_source,
+        later_source_identity=identity,
+        slate_id="fixture-slate",
+        required_player_ids=["p-001"],
+    )
+    second_map, second_source_hash = contract._later_source_player_game_map_v1(
+        later_source_body=later_source,
+        later_source_identity=identity,
+        slate_id="fixture-slate",
+        required_player_ids=["p-002"],
+    )
+
+    assert first_map == second_map == {"p-001": "game-a", "p-002": "game-b"}
+    assert first_source_hash == second_source_hash == identity["sha256"]
+    with pytest.raises(
+        contract.CorpusR6CurrentBankCrossedScreenContractV1Error,
+        match="omits a candidate roster player",
+    ):
+        contract._later_source_player_game_map_v1(
+            later_source_body=later_source,
+            later_source_identity=identity,
+            slate_id="fixture-slate",
+            required_player_ids=["p-003"],
         )
 
 

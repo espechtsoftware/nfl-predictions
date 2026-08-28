@@ -2883,7 +2883,7 @@ def _later_source_player_game_map_v1(
     *, later_source_body: object, later_source_identity: object,
     slate_id: str, required_player_ids: Sequence[str],
 ) -> tuple[dict[str, str], str]:
-    """Read only player/game identity from exact generation-pinned source bytes."""
+    """Bind one full-slate player/game root after checking required players."""
     body = _mapping(later_source_body, label="later-source body")
     authority = _bind_canonical_body_to_identity_v1(
         body, later_source_identity, label="later-source body"
@@ -2915,8 +2915,12 @@ def _later_source_player_game_map_v1(
     required = [_string(value, label="required player id") for value in required_player_ids]
     if not set(required) <= set(player_game):
         _fail("later-source catalog omits a candidate roster player")
-    retained = {player_id: player_game[player_id] for player_id in sorted(set(required))}
-    return retained, str(authority["sha256"])
+    # Every fold must bind the same durable player/game root.  Returning only
+    # the fold-specific required subset made otherwise valid folds produce
+    # different hashes, which the result-level single-root invariant correctly
+    # rejects.  Extra catalog rows cannot affect overlap metrics: those index
+    # this map only with the selected roster players.
+    return dict(player_game), str(authority["sha256"])
 
 
 def _quantile_micro_v1(values: np.ndarray, probability: float, *, label: str) -> int:

@@ -20,6 +20,50 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 16:10 UTC (two-hundred-seventy-seventh update)
+
+### V5 result-root defect is isolated and repaired locally
+
+- Correction to update 276: not every V5 task materially cleared the former
+  boundary. Generation-exact, body-free terminal evidence shows task 0 exited
+  1 after **82,841 ms**, only 1,180 ms beyond V4 task 0; task 42 exited 1
+  after 197,845 ms. Both had zero stdout, no envelope/publication, no timeout
+  or stream overflow, and terminalization itself succeeded. Stderr content,
+  logs, scientific bodies, scores and outcomes were not read.
+- The exact task-0 evaluator process budget (generation
+  `1787929418846812`, SHA-256
+  `3318a3d9693b1a0f042082fea91de2d67a172478460e1a8c2156f4ce8f38ae92`)
+  binds five world objects of only 31.71--31.83 MB; task 42 binds five of
+  24.19--24.27 MB. This directly falsifies the proposed 128 MB per-world
+  ceiling as the V5 blocker.
+- The shared result-stage defect is in
+  `_later_source_player_game_map_v1`: every fold validated the full catalog
+  but returned and hashed only that fold's required-player subset. After all
+  five held-out matrices were scored, result assembly required those five
+  subset hashes to equal one durable `player_game_map_sha256`. Different fold
+  candidate/player unions therefore failed deterministically before
+  publication. This late invariant matches the slate-dependent V5 runtimes.
+- Local repair returns the full ascending slate player/game map after still
+  proving every required player is present. The singular result root and all
+  downstream schemas remain unchanged; overlap metrics still index only
+  selected players. The contract fixture now gives all five folds distinct
+  player unions, and a focused regression proves disjoint required subsets
+  bind the same full map while a missing required player still fails.
+- Validation is clean: full contract 26/26 (including the direct root and
+  production-shaped differing-fold-universe regressions), evaluator execution
+  30/30, task-manifest execution 7/7, and Python compilation. Independent
+  static audits found no second
+  guaranteed production blocker. Latent/nonblocking risks are the unreachable
+  duplicate-roster seam under canonical lineup IDs, numerical PSD tolerance,
+  and the unmeasured 256 MB result ceiling.
+- Branch is `main`, current pushed HEAD is `71f13ca1`; the repair is not yet
+  committed. V5 remains sealed and must never be finalized or relaunched.
+  Exact next action: finish the full contract validation, commit/push only the
+  contract, its focused regression and this handoff, build one immutable V6
+  image, then use an untouched prefix to replay the legally image-bound layers
+  0--2. Do not read score/outcome bodies until a successful terminal root
+  licenses them.
+
 ## Current handoff — 2026-08-28 15:39 UTC (two-hundred-seventy-sixth update)
 
 ### Repaired v5 broad evaluation is sealed failed downstream of old cap
