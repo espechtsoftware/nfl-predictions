@@ -20,6 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 13:40 UTC (two-hundred-sixty-fifth update)
+
+### V5 projection launched exactly once
+
+- Submission count is **1** and job execution count moved **83→84**. Cloud Run
+  execution is `atlas-cbc-32g-full-2023-w8-v1-2tpb5`, UID
+  `f50fb78e-9a1d-4b6d-afc4-f21039518745`, generation 1; captured state is
+  **ACTIVE**. Launch-result self-hash is
+  `1022323de47caf9409eca14c6b23ce90b744109c6dec1d9d8bba8a2702a5658d`;
+  operation self-hash is
+  `18a4331b80aff09622f454654e38225b580b9973f02ce04987f2c83df14dc753`;
+  local result-file SHA-256 is
+  `aa1920576a89e22daeb570afb895fac755a86e93b8daac85afc449bb6e43920c`.
+- Create-once submission marker is
+  `authorities/cloud-run-launch-submission-markers/00-projection.json`, body
+  self-hash
+  `196714ef1c93febd8944de31cc8e4199504f24ea4096d59e3df966375c1dc26a`.
+  `launch_request_consumed=true`, `blind_relaunch_allowed=false`, no run-job
+  overrides were present, and provider task-template SHA-256 is
+  `fc6bcdc1c1e5c793244a19f489fb9d4e7344f46d1f1255bcd36960f48a6809ea`.
+  Never invoke v5 projection `launch` again.
+- Exact next action: commit/push and poll only this execution. On terminal
+  success, exact-status/finalize and prepare v5 broad selection immediately;
+  on failure, seal v5 and diagnose without relaunching. No score, log,
+  scientific output, or realized outcome has been read.
+
 ## Current handoff — 2026-08-28 13:39 UTC (two-hundred-sixty-fourth update)
 
 ### V5 projection launch is armed and not submitted
