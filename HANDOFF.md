@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 15:30 UTC (two-hundred-seventy-fifth update)
+
+### Repaired v5 broad evaluation launched exactly once
+
+- Submission count is **1** and job execution count moved **85→86**. Cloud
+  Run execution is `atlas-cbc-32g-full-2023-w8-v1-mkgmn`, UID
+  `0622de0a-0a91-407c-b3d5-527f618a2c43`, generation 1; captured state is
+  **ACTIVE**. Launch-result body SHA-256 is
+  `75475fd03e1838656c290c666151d0cd5289f415ffc67bac36a315b97d81f46c`;
+  operation-result SHA-256 is
+  `22e402861864c411a16dfc8350a5d4cf80642c9930fc7b9fa0b499a57220f74a`;
+  local result-file SHA-256 is
+  `3a45fe6f2fe39a282af70989799673b6792be07184125696693c5a1b77186758`.
+- Create-once submission marker is
+  `authorities/cloud-run-launch-submission-markers/02-broad-evaluation-result.json`,
+  body SHA-256
+  `27e48259d095e2139ca8d5f0d0436ed856ba7733b265bb127da8dfd6648d805e`.
+  `launch_request_consumed=true`, `blind_relaunch_allowed=false`, no run-job
+  overrides were present, and provider task-template SHA-256 is
+  `518ff3fde080ecbb69edd5ad87dbdc1370f2da5702fcff1ee34730152f9099f9`.
+  Never invoke v5 broad-evaluation `launch` again.
+- Exact next action: commit/push and poll only this execution. V4 failed all
+  tasks after ~82 seconds at the invalid 512-candidate boundary; sustained v5
+  execution beyond that point is the first live repair signal. On terminal
+  54/54 success, exact-status/finalize and proceed to nomination; on failure,
+  seal and diagnose without relaunching. No log, science, score, or realized
+  outcome has been read.
+
 ## Current handoff — 2026-08-28 15:28 UTC (two-hundred-seventy-fourth update)
 
 ### Repaired v5 broad-evaluation launch is armed and not submitted
