@@ -20,6 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 20:12 UTC (three-hundred-fourth update)
+
+### F7/F8/F9 can generate one shared relaxed-profile challenger bank
+
+- Branch `main` and `origin/main` entered this milestone at `5ca3eb66`. Seven
+  new isolated files define and execute `F7-qb-and-bringback-relaxed`,
+  `F8-game-cap-3`, and `F9-single-partner` in one 54-task image. Each slate
+  uses the same pinned R0--R4 schedule and exactly 1,000 solver cells/profile;
+  outputs are distinct create-once lineup objects that can be crossed with
+  selectors instead of requiring one deployment per profile.
+- A material hidden-rule defect was found and closed: the inherited outcome
+  normalizer still evaluated any positive QB-partner minimum against the
+  incumbent QB+2 house rule, so an otherwise valid F9 exactly-QB+1 roster was
+  rejected. The new runtime strictly reconstructs DK legality, objective,
+  rank/radix and CBC proof, then applies only the complete named-profile audit.
+  It also rejects inherited QB/bring-back/opposing-WR/game-stack settings.
+- Validation is 112/112 across focused and shared suites; the lead reran the
+  37 new tests successfully. Exact CBC proof paths pass for F7, F8 and F9, and
+  outcome-blind real 54-slate manifest plus 2023-w01 schema smokes pass.
+- Exact next action: place these files in the single challenger image and run
+  one full task-0, 3,000-cell outcome-blind benchmark. If that measured task
+  is too slow, shard profile/visit work without changing the 162,000-cell
+  scientific design; otherwise launch all 54 and feed each immutable bank to
+  the shared selector/evaluator chain. These outputs are research-scoreable
+  but do not yet preserve raw promotion-grade CBC evidence bodies.
+
 ## Current handoff — 2026-08-28 20:11 UTC (three-hundred-third update)
 
 ### Grouped selector challengers can now run and reach held-out aggregation
