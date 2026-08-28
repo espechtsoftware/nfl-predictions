@@ -20,6 +20,26 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 08:56 UTC (two-hundred-thirtieth update)
+
+### Reused Cloud Run job is exactly configured for v3 projection
+
+- Exact archive operator configured job `atlas-cbc-32g-full-2023-w8-v1`;
+  immutable UID remains `1f4bcf0a-2300-4afa-9fc1-9981844c8275`, generation is
+  now **13**, and job-projection SHA-256 is
+  `42db7e31fcaeb382582a23a8e2801f220701aab0e7111c49d344ed22f1167c1b`.
+  `job_created=false` and `exact_post_update_projection_validated=true`.
+- Exact projection is one task / one parallel worker, 8 CPU / 32 GiB, zero
+  retries, 7,260-second timeout, commit `88889301`, corrected immutable image
+  digest `sha256:aed719b0a369dbd7f3a38177110440c1a0fa075cd21cd3c228f33265ac4e9ddb`,
+  and v3 manifest generation
+  `1787907272597911`. It has no network attachment, Cloud SQL, secret
+  environment, volumes or mounts. Execution count remains **78**; latest is
+  the sealed successful v2 projection `...-x8mql`. V3 has not launched.
+- Exact next action: commit/push this configuration, arm v3 projection once,
+  preserve its create-once launch-intent identity, then construct and consume
+  the launch request exactly once. No outcome or score exists yet.
+
 ## Current handoff — 2026-08-28 08:54 UTC (two-hundred-twenty-ninth update)
 
 ### Fresh v3 projection authorities are prepared create-once
