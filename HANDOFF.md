@@ -20,6 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 14:32 UTC (two-hundred-seventieth update)
+
+### V5 broad selection launched exactly once
+
+- Submission count is **1** and job execution count moved **84→85**. Cloud
+  Run execution is `atlas-cbc-32g-full-2023-w8-v1-s9kzv`, UID
+  `cb2da896-5d6f-430a-ad48-9c426d2e695c`, generation 1; captured state is
+  **ACTIVE**. Launch-result body SHA-256 is
+  `de5acf72202ce127dceff086c6aa30591bed595d4e7318cd142ed4214f4eb14c`;
+  operation-result SHA-256 is
+  `112f543f38aa0d29b8e8001f7fb046559bad6c980817946bd7698e3c8f27f125`;
+  local result-file SHA-256 is
+  `a3c08e4b429f445241a59e7dd4e4ebb8b76e3d3987f9d1c96dec554963f81134`.
+- Create-once submission marker is
+  `authorities/cloud-run-launch-submission-markers/01-broad-selection-receipt.json`,
+  body SHA-256
+  `2d04f3a56f6813822749e81f4a74a332d6b060724aff8f78d3f0ba6d70129c5b`.
+  `launch_request_consumed=true`, `blind_relaunch_allowed=false`, no run-job
+  overrides were present, and provider task-template SHA-256 is
+  `9a4e2cfc441dea52e3362f0774594aaf30e7f86edd4b13c630af8fb7bc4fa236`.
+  Never invoke v5 broad-selection `launch` again.
+- Exact next action: commit/push and poll only this execution. On terminal
+  54/54 success, exact-status/finalize and prepare v5 broad evaluation
+  immediately; on failure, seal v5 and diagnose without relaunching. No log,
+  scientific output, score, or realized outcome has been read.
+
 ## Current handoff — 2026-08-28 14:30 UTC (two-hundred-sixty-ninth update)
 
 ### V5 broad-selection launch is armed and not submitted
