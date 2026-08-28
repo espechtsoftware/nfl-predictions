@@ -20,6 +20,28 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 14:29 UTC (two-hundred-sixty-eighth update)
+
+### Reused job is exactly configured for v5 broad selection
+
+- Exact v5 operator configured job `atlas-cbc-32g-full-2023-w8-v1`; immutable
+  UID remains `1f4bcf0a-2300-4afa-9fc1-9981844c8275`, generation is now
+  **19**, and job-projection SHA-256 is
+  `fa8f0b6ede97152fb2206182f07d9c4b0b573ecce02e6bc7afde23da04262dfb`.
+  `job_created=false` and exact post-update projection validation passed.
+- Configuration is 54 tasks / parallelism 54, 8 CPU / 32 GiB, zero retries,
+  7,260-second timeout, exact v5 manifest generation `1787927226544218`,
+  commit `bc6ac55b`, and immutable image digest
+  `sha256:2df63886830f561c819bf45392a51ee763873ba6eff39a169f50b79bf3e68caa`.
+  Network, Cloud SQL, secrets, volumes and resume authority are absent;
+  execution count remains 84. Configuration body SHA-256 is
+  `83c94844013ed3a8cac53b17ec53425aad81bf1f87bd49b9d8104d7af432eb55`;
+  local file SHA-256 is
+  `1c5e425129adf8eaea2bfe72d06479d92beb6edd0178afed0f3ed7b7fa789bd5`.
+- Exact next action: arm v5 broad selection exactly once, commit/push its
+  generation-pinned intent, consume it with exactly one launch call, and
+  never retry after a submission marker exists.
+
 ## Current handoff — 2026-08-28 14:27 UTC (two-hundred-sixty-seventh update)
 
 ### V5 broad-selection authorities are prepared create-once
