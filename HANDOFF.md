@@ -20,6 +20,24 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 08:57 UTC (two-hundred-thirty-first update)
+
+### V3 projection launch is armed and not submitted
+
+- Exact operator published the sole create-once launch intent at
+  `authorities/cloud-run-launch-intents/00-projection.json` under v3.
+  Identity is generation `1787907424540662`, SHA-256
+  `391dc56132b479419075cc22acd4757f3ad02c4baf08f3ad17507cfc3b03d633`,
+  2,924 bytes; body self-hash is
+  `49a0f277a38f236d2939df2a71e2c3eed18daca3e6712e0603b38afc65f2a834`.
+  Arm-result SHA-256 is
+  `f0301901f39ee5f1b014b5dfa3f40d0752339eb97c562eb995d48d910ada1dd4`.
+- `launch_armed=true`, `submission_call_count=0`, and the execution count
+  remains 78. Exact next action: commit/push this intent, build the launch
+  request with that exact generation-pinned identity, consume it once, and
+  preserve the returned execution name/UID. Never rerun arm or launch after
+  submission-marker creation.
+
 ## Current handoff — 2026-08-28 08:56 UTC (two-hundred-thirtieth update)
 
 ### Reused Cloud Run job is exactly configured for v3 projection
