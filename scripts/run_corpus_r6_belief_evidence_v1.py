@@ -22,6 +22,11 @@ from nfl_dfs.research.corpus_r6_belief_evidence_v1 import (
     local_file_identity,
     snapshot_schema_smoke_v1,
 )
+from nfl_dfs.research.corpus_r6_belief_calibration_v1 import (
+    build_l2_role_jump_calibration_release_v1,
+)
+from nfl_dfs.research.latent_role_state import transition_frame_sha256
+from nfl_dfs.research import corpus_r6_belief_evidence_v1 as evidence_contract
 
 
 class BeliefEvidenceCliError(ValueError):
@@ -176,6 +181,51 @@ def _extract_l2(args: argparse.Namespace) -> int:
     return 0
 
 
+def _calibrate_l2(args: argparse.Namespace) -> int:
+    evidence_dir = Path(args.evidence_dir).resolve(strict=True)
+    role_path = evidence_dir / "l2-role-history.parquet"
+    residual_path = evidence_dir / "l2-residual-history.parquet"
+    receipt_path = evidence_dir / "l2-evidence-receipt.json"
+    for path in (role_path, residual_path, receipt_path):
+        if not path.is_file():
+            raise BeliefEvidenceCliError(f"L2 evidence file is absent: {path}")
+    receipt = _read_json(receipt_path)
+    if (
+        not isinstance(receipt, dict)
+        or receipt.get("schema") != evidence_contract.L2_EVIDENCE_SCHEMA
+        or receipt.get("uses_player_outcomes") is not True
+        or receipt.get("uses_lineup_outcomes") is not False
+        or receipt.get("historical_lineup_scoring_licensed") is not False
+    ):
+        raise BeliefEvidenceCliError("L2 evidence receipt boundary differs")
+    roles = pd.read_parquet(role_path)
+    residuals = pd.read_parquet(residual_path)
+    if receipt.get("role_history_sha256") != transition_frame_sha256(roles):
+        raise BeliefEvidenceCliError("L2 role evidence/receipt hash differs")
+    if receipt.get("residual_history_sha256") != evidence_contract._records_sha256(
+        residuals, evidence_contract.L2_RESIDUAL_COLUMNS
+    ):
+        raise BeliefEvidenceCliError("L2 residual evidence/receipt hash differs")
+    release = build_l2_role_jump_calibration_release_v1(
+        role_history=roles,
+        residual_history=residuals,
+        source_identities={
+            "evidence_receipt": local_file_identity(receipt_path),
+            "role_history": local_file_identity(role_path),
+            "residual_history": local_file_identity(residual_path),
+        },
+        code_sha=str(args.code_sha),
+    )
+    output = Path(args.output_file).resolve()
+    if output.exists() or not output.parent.is_dir():
+        raise BeliefEvidenceCliError(
+            "L2 calibration output must be a new file in an existing directory"
+        )
+    _write_json(output, release)
+    sys.stdout.buffer.write(canonical_json_bytes(release) + b"\n")
+    return 0
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -199,6 +249,12 @@ def _parser() -> argparse.ArgumentParser:
     l2.add_argument("--role-source-identity")
     l2.add_argument("--output-dir", required=True)
     l2.set_defaults(func=_extract_l2)
+
+    calibrate_l2 = subparsers.add_parser("calibrate-l2")
+    calibrate_l2.add_argument("--evidence-dir", required=True)
+    calibrate_l2.add_argument("--code-sha", required=True)
+    calibrate_l2.add_argument("--output-file", required=True)
+    calibrate_l2.set_defaults(func=_calibrate_l2)
     return parser
 
 

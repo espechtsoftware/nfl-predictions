@@ -229,8 +229,14 @@ def _validate_snapshot(
         | (out["game_id"].str.len() == 0)
     ).any():
         raise BeliefEvidenceError("player snapshot identities are empty")
-    if out.duplicated(["gsis_id", "season", "week"]).any():
-        raise BeliefEvidenceError("player snapshot identities repeat")
+    # The frozen player snapshot represents every DST with the shared legacy
+    # placeholder ``gsis_id=0.0``.  DST is not consumed by either belief-law
+    # extractor, so its repeated placeholder must not invalidate otherwise
+    # exact offensive-player evidence.  All positions that can enter L1/L2
+    # remain one-row-per-player-week and fail closed on a duplicate.
+    skill_identity_rows = out[out["pos"].isin(("QB", "RB", "WR", "TE"))]
+    if skill_identity_rows.duplicated(["gsis_id", "season", "week"]).any():
+        raise BeliefEvidenceError("skill-player snapshot identities repeat")
     for name in ("mean_projection", "actual"):
         values = pd.to_numeric(out[name], errors="raise").astype(float)
         if not np.isfinite(values).all():

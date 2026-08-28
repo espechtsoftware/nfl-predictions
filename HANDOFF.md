@@ -20,6 +20,47 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 21:15 UTC (three-hundred-ninth update)
+
+### Repaired control selection is sealed 54/54 and realized evaluation is live
+
+- Branch `main` and `origin/main` entered this milestone at `b2781025`.
+  V7 broad selection execution `atlas-cbc-32g-full-2023-w8-v1-j7hgz`, UID
+  `4bb6f84e-dd1d-406f-98e0-0f68ab5a6a0f`, reached terminal **SUCCESS** with
+  all 54 tasks successful and zero failures. Its final status SHA-256 is
+  `b7308a0c6c80eb77efd7244eaeb712303d82628419f837fe3ff48e2e78a64c97`.
+  It was finalized exactly once to receipt generation `1787951032623189`,
+  SHA-256
+  `a0a7c15fd2b613f954ae6fda11a36e22c68c0474017dd58500e7934d4ebd7de5`,
+  119,094 bytes. Never refinalize or relaunch that selection.
+- Broad evaluation was prepared from the exact projection and selection
+  receipts. Its 54-task manifest is generation `1787951160159511`, SHA-256
+  `31a8b865dcaf9b4de79d348446b670582cbfd0bfe8c45adf25347c1f60731c7e`,
+  256,856 bytes. Launch intent generation `1787951337235470`, SHA-256
+  `010a6128a5d96fac692e180006d4407f57883b129f29b403ec5d86bdcdbe03b0`
+  was consumed exactly once. Active execution is
+  `atlas-cbc-32g-full-2023-w8-v1-5xffd`, UID
+  `2dd2d832-324f-489c-928e-83f2ea02ea6c`, generation 1. Its first status has
+  all 54 tasks active. Status-poll only; do not reconfigure, rearm or relaunch.
+- The real L2 evidence extraction now accepts only the frozen snapshot's
+  repeated DST placeholder identity while continuing to fail closed on any
+  repeated QB/RB/WR/TE identity. Exact evidence contains 23,388 role rows and
+  15,648 residual rows; 216 rows without an exact ordinary mean were excluded.
+  Validation is **20/20** across evidence, calibration, law and component
+  suites.
+- The exact L2 role-jump law failed the untouched HOLD22 calibration gate:
+  model log loss `1.4709444692` versus base rate `1.0126033603`, and model
+  multiclass Brier `0.7833361043` versus base rate `0.5226901305`. It is not a
+  production finalist and must not consume 54-slate lineup compute. A simpler
+  prespecified base-rate candidate may proceed only if it passes HOLD22 before
+  lineup generation.
+- No realized score has been read. Exact next action is to status-poll only
+  `...-5xffd`, finalize once at 54/54 success, then advance nomination,
+  confirmation, aggregation and the terminal root before the first realized
+  read. In parallel, review and package the completed rank-150/DPP,
+  F7/F8/F9-crossed and successor-native realized bridges into one challenger
+  image.
+
 ## Current handoff — 2026-08-28 20:52 UTC (three-hundred-eighth update)
 
 ### Hard-230 launch and L1/L2 evidence extraction are ready for the score sprint

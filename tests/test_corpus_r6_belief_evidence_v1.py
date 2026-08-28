@@ -150,6 +150,43 @@ def test_l1_fails_closed_on_missing_bank_support_or_lineup_outcome():
         )
 
 
+def test_snapshot_allows_shared_dst_placeholder_but_not_skill_duplicates():
+    snapshot, shards = _l1_snapshot_and_shards()
+    template = snapshot.iloc[0].to_dict()
+    dst_rows = []
+    for team in ("A0", "B0"):
+        row = dict(template)
+        row.update({
+            "gsis_id": "0.0",
+            "pos": "DST",
+            "team": team,
+            "opp": "B0" if team == "A0" else "A0",
+            "game_id": "2019-g0",
+            "season": 2019,
+            "week": 1,
+        })
+        dst_rows.append(row)
+    with_dst = pd.concat(
+        [snapshot, pd.DataFrame(dst_rows)], ignore_index=True
+    )
+    result = build_l1_real_player_evidence_v1(
+        player_snapshot=with_dst,
+        bank_shards=shards,
+        snapshot_source_identity=_identity("snapshot"),
+    )
+    assert result.receipt["team_game_count"] == 12
+
+    duplicated_skill = pd.concat(
+        [snapshot, snapshot.iloc[[0]]], ignore_index=True
+    )
+    with pytest.raises(BeliefEvidenceError, match="skill-player.*repeat"):
+        build_l1_real_player_evidence_v1(
+            player_snapshot=duplicated_skill,
+            bank_shards=shards,
+            snapshot_source_identity=_identity("snapshot"),
+        )
+
+
 def _feature_values(position: str) -> dict[str, object]:
     values: dict[str, object] = {
         "target_share_last": 0.18,
