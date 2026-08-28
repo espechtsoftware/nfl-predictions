@@ -20,6 +20,27 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 13:34 UTC (two-hundred-sixty-first update)
+
+### Evaluator-repair v5 image is immutable and release-green
+
+- Exact Cloud Build `d25a2ce7-88ad-4d7e-a3f1-d47cdaa76624` completed
+  **SUCCESS** from repair commit
+  `bc6ac55b5d24b2515ece9c95891b8e11eabd50d0`. It used source object
+  `source/1787923416.36184-696df56a7ffe47838fe2a9dccc97a9ab.tgz`, generation
+  `1787923423655736`, and passed the complete focused Python 3.11 release
+  slice, Docker build and isolated no-network dispatcher smoke. Start/finish
+  were `13:24:37.988716239Z` / `13:33:52.870430Z` (~9m15s).
+- Build result and independent tag resolution agree on immutable runtime
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:2df63886830f561c819bf45392a51ee763873ba6eff39a169f50b79bf3e68caa`.
+  Never launch from mutable tag `r6-current-bank-crossed-screen-bc6ac55b`.
+- Exact next action: commit/push, prepare projection create-once under
+  untouched prefix `20260828-r6-current-bank-crossed-screen-v5/` using the
+  clean archive operator at
+  `/tmp/r6-current-bank-v5-build-bc6ac55b-zPTctS/src`, preserve its exact
+  identities, then configure/arm/launch projection once. No score, log,
+  scientific output, or realized outcome has been read.
+
 ## Current handoff — 2026-08-28 13:24 UTC (two-hundred-sixtieth update)
 
 ### Exact evaluator-repair v5 image build is queued
