@@ -20,6 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 20:35 UTC (three-hundred-sixth update)
+
+### V7 17,280-fit broad selection is live across all 54 slates
+
+- Branch `main` and `origin/main` entered this milestone at `81204d1b`.
+  Projection execution `atlas-cbc-32g-full-2023-w8-v1-r8lwq` reached terminal
+  **SUCCESS** and finalized exactly once. Its layer receipt is generation
+  `1787948369433750`, SHA-256
+  `eaf0606fd2f21f7c3a12dcb14ec5971cd029512d13391b1172dfacfadee94daa`,
+  29,411 bytes. Never refinalize or relaunch that projection.
+- Broad selection prepared once from the terminal receipt. The 54-task
+  manifest is generation `1787949078843910`, SHA-256
+  `daba17d22c019450bf90031271d6399e6ab5f227ab88e45bc9b07247d8e715fb`,
+  295,788 bytes; its preparation receipt is generation `1787949079913207`,
+  SHA-256
+  `c4789798b9e06bdeeea75df9b1971eb847f7c44bba9e116724c8a60dc273e998`,
+  233,795 bytes.
+- Reused job generation 25 passed exact post-update projection. Launch intent
+  generation `1787949144493142`, SHA-256
+  `fd5f401f51f4fcf597377c760be14de1741d52b4f54e8b2198bbd163d0613d38`
+  was consumed exactly once. The active selection execution is
+  `atlas-cbc-32g-full-2023-w8-v1-j7hgz`, UID
+  `4bb6f84e-dd1d-406f-98e0-0f68ab5a6a0f`, generation 1. Its first status has
+  all 54 tasks active and zero terminal failures.
+- Exact next action: status-poll only `...-j7hgz`, finalize once on 54/54
+  success, and move immediately through broad evaluation, nomination,
+  confirmation, aggregate and terminal-root layers. Do not read a partial
+  ranking or relaunch this execution.
+
 ## Current handoff — 2026-08-28 20:23 UTC (three-hundred-fifth update)
 
 ### Hard-230 source decoding and L1/L2 calibration seams are executable
