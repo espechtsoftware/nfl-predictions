@@ -20,6 +20,29 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 12:54 UTC (two-hundred-fifty-fifth update)
+
+### Reused job is exactly configured for v4 broad evaluation
+
+- Exact archive operator configured job `atlas-cbc-32g-full-2023-w8-v1`;
+  immutable UID remains `1f4bcf0a-2300-4afa-9fc1-9981844c8275`, generation is
+  now **17**, and job-projection SHA-256 is
+  `9e5c6cd2ced8c8c98a0d3790ed30375acfb3843ef57eb13c3691df1bc48f85ab`.
+  `job_created=false` and exact post-update projection validation passed.
+- The job remains bound to commit `976d1b29`, immutable image digest
+  `sha256:6e57fd1e2150fc540b62e78052b940e1581a92d49194e5d2b68290824975d988`,
+  v4 evaluation manifest generation `1787921492772147`, 54 tasks / 54-way
+  parallelism, 8 CPU / 32 GiB, zero retries and 7,260-second provider timeout.
+  Network, Cloud SQL, secrets, volumes and mounts are absent. Execution count
+  remains **82**; latest is the succeeded broad selection `...-4cql9`.
+- Configuration result local SHA-256 is
+  `16557a91b396f881bc6d351485e180513e02fc8ecb71bdc7d5fe5bc940ba7a0d`;
+  body self-hash is
+  `54e632ccd8165711c7fa73da6ce00218efdd040545967cb1e6d29fb24bbe7526`.
+  Exact next action: commit/push, arm broad evaluation once, preserve the
+  create-once intent identity, consume it with exactly one launch call, and
+  never retry after submission-marker creation.
+
 ## Current handoff — 2026-08-28 12:52 UTC (two-hundred-fifty-fourth update)
 
 ### V4 broad-evaluation authorities are prepared create-once
