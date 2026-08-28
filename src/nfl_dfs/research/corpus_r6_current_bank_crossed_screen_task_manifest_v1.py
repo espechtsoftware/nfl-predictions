@@ -98,7 +98,9 @@ MAXIMUM_DISPATCHER_EXACT_PROOF_BYTES: Final = 1_000_000_000
 MAXIMUM_DISPATCHER_WALL_SECONDS: Final = 7_260
 # These evaluator limits are mirrored here so this controller can bind the
 # child envelope without importing the scientific evaluator.
-_EVALUATOR_MAXIMUM_PLAYER_COUNT: Final = 512
+# Must equal the evaluator's bounded salary-listed catalog ceiling.  The
+# frozen panel reaches 773 players on one valid slate.
+_EVALUATOR_MAXIMUM_PLAYER_COUNT: Final = 1_024
 _EVALUATOR_MAXIMUM_SOURCE_CANDIDATE_ROWS: Final = (
     contract.MAX_SELECTION_CANDIDATES_PER_FOLD
 )

@@ -89,7 +89,10 @@ ROSTER_SIZE: Final = 9
 SALARY_CAP: Final = 50_000
 MAX_FROM_TEAM: Final = 8
 MIN_GAMES: Final = 2
-MAXIMUM_PLAYER_COUNT: Final = 512
+# The frozen 54-slate source authority contains up to 773 salary-listed
+# players on a slate.  Keep a power-of-two resource ceiling above that real
+# surface; 512 rejected 33 valid slates before any held-out world was scored.
+MAXIMUM_PLAYER_COUNT: Final = 1_024
 MAXIMUM_SOURCE_CANDIDATE_ROWS: Final = (
     contract.MAX_SELECTION_CANDIDATES_PER_FOLD
 )

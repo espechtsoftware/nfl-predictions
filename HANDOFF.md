@@ -20,6 +20,40 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 19:14 UTC (two-hundred-ninety-first update)
+
+### V6 evaluation failed on one false resource cap; V7 repair passes real-source smoke
+
+- Branch `main` and `origin/main` entered this milestone at `09485715`. V6
+  broad-evaluation execution `atlas-cbc-32g-full-2023-w8-v1-ssbh4`, UID
+  `1a62f25e-c9cc-4c80-8f7b-e38385f74553`, is terminal **FAILED**: 21/54
+  tasks succeeded and 33/54 exited 1, with no timeout or stream overflow.
+  Terminal status SHA-256 is
+  `33a1bf46d58e10803701584c3df5bdb2a31ef4251505ede2950882f495b9a410`;
+  task-status SHA-256 is
+  `d80a215bf5957a7d2acbc08c13ae0970b35187cb07a1dd186919da189e0bc931`.
+  V6 is sealed and cannot be finalized or relaunched.
+- The deliberately sanitized dispatcher diagnostic for failed task 0 names
+  `_later_slate_v1` and `later source evaluator slate scoring surface differs`.
+  Exact outcome-blind source inspection proves the defect class completely:
+  exactly 33 of 54 valid slate catalogs exceed the evaluator's hard-coded 512
+  player ceiling; the other 21 are at or below 512. The frozen source maximum
+  is 773. Artifact-receipt count is exactly five on every slate. No score,
+  realized outcome or scientific result body was read.
+- The evaluator and its independent child-envelope validator now use a bounded
+  1,024-player ceiling. This is a resource-envelope repair, not a strategy or
+  score change. A focused regression accepts the real 773-player surface and
+  rejects 1,025. Outcome-blind validation against the exact frozen source
+  passes all 54/54 slates with observed maximum 773. The full evaluator suite
+  passes 31/31 and task-manifest execution passes 7/7.
+- Exact next action: commit/push only this two-module repair, its regression and
+  this handoff. Include the already validated preparation fast path in the next
+  consolidated immutable build, run one real-artifact header/resource smoke,
+  then create a fresh V7 prefix and replay projection/selection/evaluation. Do
+  not build once per challenger; the next build is also the integration target
+  for grouped selectors and exact 100/150 entry comparisons if their dispatcher
+  work is ready in time.
+
 ## Current handoff — 2026-08-28 19:03 UTC (two-hundred-ninetieth update)
 
 ### V6 held-out evaluation is running; seven-day production freeze is active

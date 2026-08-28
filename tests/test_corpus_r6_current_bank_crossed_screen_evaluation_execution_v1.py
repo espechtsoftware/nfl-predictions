@@ -265,6 +265,67 @@ def test_scientific_capability_is_exact_ordered_and_exhaustive() -> None:
         )
 
 
+def _later_source_with_catalog_size(player_count: int) -> dict[str, object]:
+    catalog = [
+        {
+            "id": f"p-{index:04d}",
+            "pos": "WR",
+            "team": "AAA",
+            "opp": "BBB",
+            "game_id": "AAA-BBB",
+            "salary": 3_000,
+        }
+        for index in range(player_count)
+    ]
+    receipts = [
+        {"block": block, "fixture": True}
+        for block in contract.WORLD_BLOCKS
+    ]
+    slates = [
+        {
+            "slate_id": f"fixture-{source:02d}",
+            "catalog": catalog,
+            "catalog_sha256": contract.canonical_sha256_v1(catalog),
+            "artifact_receipts": receipts,
+            "artifact_receipts_sha256": contract.canonical_sha256_v1(receipts),
+        }
+        for source in range(contract.PANEL_SLATE_COUNT)
+    ]
+    body = {
+        "world_blocks": list(contract.WORLD_BLOCKS),
+        "worlds_per_block": contract.WORLDS_PER_BLOCK,
+        "slate_count": contract.PANEL_SLATE_COUNT,
+        "slates": slates,
+        "uses_realized_outcomes": False,
+        "candidate_or_lineup_scores_read": False,
+        "b1_inputs_used": False,
+        "a2a_inputs_used": False,
+        "production_inputs_used": False,
+        "historical_scoring_licensed": False,
+        "production_change_licensed": False,
+    }
+    return _self_hashed(body, "freeze_sha256")
+
+
+def test_real_773_player_later_source_surface_is_inside_resource_ceiling() -> None:
+    assert evaluator.MAXIMUM_PLAYER_COUNT == 1_024
+    source = _later_source_with_catalog_size(773)
+    slate, players = evaluator._later_slate_v1(
+        source, slate_id="fixture-00"
+    )
+    assert slate["slate_id"] == "fixture-00"
+    assert len(players) == 773
+
+    oversized = _later_source_with_catalog_size(
+        evaluator.MAXIMUM_PLAYER_COUNT + 1
+    )
+    with pytest.raises(
+        evaluator.CorpusR6CurrentBankCrossedScreenEvaluationV1Error,
+        match="scoring surface differs",
+    ):
+        evaluator._later_slate_v1(oversized, slate_id="fixture-00")
+
+
 def _players() -> tuple[evaluator.ScoringPlayerV1, ...]:
     positions = ["QB", "RB", "RB", "WR", "WR", "WR", "WR", "TE", "DST"]
     rows = []
