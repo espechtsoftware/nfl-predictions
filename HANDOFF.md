@@ -20,6 +20,29 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 11:07 UTC (two-hundred-forty-fifth update)
+
+### Reused job is exactly configured for v4 projection
+
+- Exact archive operator configured job `atlas-cbc-32g-full-2023-w8-v1`;
+  immutable UID remains `1f4bcf0a-2300-4afa-9fc1-9981844c8275`, generation is
+  now **15**, and job-projection SHA-256 is
+  `271e40b144a065cee795ca6a748275dc5c567172e3f8d107ef73cda25a848766`.
+  `job_created=false` and `exact_post_update_projection_validated=true`.
+- Exact projection is one task / one parallel worker, 8 CPU / 32 GiB, zero
+  retries, 7,260-second timeout, commit `976d1b29`, immutable image digest
+  `sha256:6e57fd1e2150fc540b62e78052b940e1581a92d49194e5d2b68290824975d988`,
+  and v4 manifest generation `1787915100113957`. Network, Cloud SQL, secret
+  environment, volumes and mounts are absent. Execution count remains **80**;
+  latest is the sealed failed v3 broad execution `...-jvkdg`. V4 has not
+  launched.
+- Configuration result is mode 0600, SHA-256
+  `07f487811db8850ff7377b139b8669596caa6b4e4972f14c8695093a37530207`;
+  configuration self-hash is
+  `30c6b213fd352d50631381174c22b0dc511375f6a9e49818857a29baf004f4df`.
+  Exact next action: commit/push, arm projection once, preserve its create-once
+  intent identity, then build and consume the launch request exactly once.
+
 ## Current handoff — 2026-08-28 11:05 UTC (two-hundred-forty-fourth update)
 
 ### Fresh v4 projection authorities are prepared create-once
