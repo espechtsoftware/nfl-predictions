@@ -20,6 +20,30 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 14:15 UTC (two-hundred-sixty-sixth update)
+
+### V5 projection succeeded and is finalized
+
+- Exact Cloud Run execution `atlas-cbc-32g-full-2023-w8-v1-2tpb5`, UID
+  `f50fb78e-9a1d-4b6d-afc4-f21039518745`, completed **SUCCEEDED** at
+  `2026-08-28T14:12:32.274215Z`: 1/1 task succeeded on attempt 0 with exit
+  code 0 in 31m26.64s. Exact status-file SHA-256 is
+  `f3364d78757306552a21a4659840bb30f4442170e529e8ca8241430850f2660a`;
+  status-body SHA-256 is
+  `a2ee801eb201aa2740a4311e7fc247dfe0718b99cc89d87b9a6d1c45b30f57b8`.
+- Create-once layer execution receipt is
+  `authorities/layer-execution-receipts/00-projection.json`, generation
+  `1787926511175568`, SHA-256
+  `3d06166ec7e070c527b9ae6bc8888d7b16a01a00c3cac6a08eab330e56bd23f4`,
+  29,411 bytes. Finalize-result local SHA-256 is
+  `49f2386c675f7fad694fd2bac2e444cac0dc497808e8a875163eb16cf68e8271`.
+  All terminal/success flags are true; logs, scientific outputs and realized
+  outcomes remain unread.
+- Exact next action: prepare v5 `broad-selection-receipt` from the immutable
+  projection preparation receipt plus this projection execution receipt;
+  configure the reused job for 54 tasks, arm/launch exactly once, then poll
+  only the returned execution. Never launch v5 projection again.
+
 ## Current handoff — 2026-08-28 13:40 UTC (two-hundred-sixty-fifth update)
 
 ### V5 projection launched exactly once
