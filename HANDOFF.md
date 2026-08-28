@@ -20,6 +20,27 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 09:03 UTC (two-hundred-thirty-third update)
+
+### Real terminal evidence now passes the full repaired finalization replay
+
+- A publication-free local replay used the exact successful v2 manifest,
+  normalized provider status/job projection and generation-pinned 82,570-byte
+  terminal object. Observation construction/validation, observed-execution
+  derivation, layer-receipt construction and full exact receipt reopen all pass
+  with the repaired validator. Embedded terminal self-hash remains
+  `daea328d182b63ebfb51649a853da5eb2290a854a489bcabd184488b850c1000`;
+  distinct full-object hash remains
+  `19f47054e7e43a3db5f7d0ae37ab8cabec9b175270d7d31d42a12613631aec99`.
+  Derived observation/observed-execution/receipt self-hashes are respectively
+  `9ed4925540c26e7e576c9a8728fcd34a2b44a9c27618aaf36450ec90d5b91134`,
+  `338e215f3bfb2a93b7bdb11446700e9332986890c83ef2bac7325322ca219c37`,
+  and `95bbf257468344fd955f0c5f1f43e994b41a5c6327e2d4ecc0cece95fc59c6d3`.
+- This replay published nothing and read no cloud logs, scientific outputs,
+  outcomes or scores. V3 status polls 001/002 remain clean and **ACTIVE** on
+  task 0 attempt 0; all forbidden read flags are false. Continue fresh status
+  polling until terminal, then finalize v3 once and prepare broad selection.
+
 ## Current handoff — 2026-08-28 08:58 UTC (two-hundred-thirty-second update)
 
 ### V3 projection launch intent was consumed exactly once
