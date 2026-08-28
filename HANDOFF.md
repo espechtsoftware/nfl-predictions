@@ -20,6 +20,30 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 15:39 UTC (two-hundred-seventy-sixth update)
+
+### Repaired v5 broad evaluation is sealed failed downstream of old cap
+
+- Exact execution `atlas-cbc-32g-full-2023-w8-v1-mkgmn`, UID
+  `0622de0a-0a91-407c-b3d5-527f618a2c43`, completed terminal **FAILED** at
+  `2026-08-28T15:36:43.261468Z`: 54/54 tasks failed on attempt 0 with exit
+  code 1 after ~6m17.50s. Exact status-file SHA-256 is
+  `3c247dcf1e706f3059009bb118c105d932a9ee6ce38fc881aef80d8f29d4aaaa`;
+  status-body SHA-256 is
+  `dc92176faa9b50beb28b65d23a9c78771cd1debe3b5de37d290662f305e7d7a9`.
+  All 54 tasks materially survived beyond v4's ~82-second 512-candidate
+  rejection window before failing at slate-dependent times, so the 3,993-cap
+  repair advanced execution but exposed another shared downstream defect.
+- V5 is sealed at layer 2: never finalize or relaunch this evaluator and do
+  not configure the reused job until diagnosis selects a legal fresh-prefix
+  continuation. Logs, stderr content, scientific outputs, scores and realized
+  outcomes remain unread.
+- Exact next action: in parallel, statically audit the evaluator path after
+  candidate acceptance and inspect only generation-exact, bounded terminal
+  envelope metadata (no logs/stderr/science/outcomes). Identify the next
+  common invariant, add a production-shaped regression, repair once, then
+  determine the minimum legal replay under the frozen contract.
+
 ## Current handoff — 2026-08-28 15:30 UTC (two-hundred-seventy-fifth update)
 
 ### Repaired v5 broad evaluation launched exactly once
