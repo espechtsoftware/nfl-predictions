@@ -52,6 +52,17 @@ def _parse_identity_text(value: str, *, label: str) -> dict[str, object]:
     )
 
 
+def _canonical_decimal_environment_v1(
+    environment: Mapping[str, str], *, name: str,
+) -> int:
+    value = environment.get(name, "")
+    if not value.isdecimal() or value.startswith("+") or (
+        len(value) > 1 and value.startswith("0")
+    ):
+        _fail(f"{name} must be a canonical decimal integer")
+    return int(value)
+
+
 def observed_dispatcher_command_v1(raw_cmdline: bytes | None = None) -> list[str]:
     if raw_cmdline is None:
         try:
@@ -189,10 +200,9 @@ def execute_environment_task_v1(
         env.get(authority.MANIFEST_IDENTITY_ENV, ""),
         label="challenger manifest identity",
     )
-    task_index_raw = env.get("CLOUD_RUN_TASK_INDEX", "")
-    if not task_index_raw.isdecimal() or task_index_raw.startswith("+"):
-        _fail("CLOUD_RUN_TASK_INDEX must be a canonical decimal integer")
-    task_index = int(task_index_raw)
+    task_index = _canonical_decimal_environment_v1(
+        env, name="CLOUD_RUN_TASK_INDEX"
+    )
     transport = GCSExactTransportV1() if store is None else store
     raw_manifest = transport.read_exact(manifest_identity)
     manifest = authority.validate_task_manifest_v1(
@@ -201,6 +211,23 @@ def execute_environment_task_v1(
     authority.bind_body_to_identity_v1(
         manifest, manifest_identity, label="challenger task manifest"
     )
+    task_count = _canonical_decimal_environment_v1(
+        env, name="CLOUD_RUN_TASK_COUNT"
+    )
+    task_attempt = _canonical_decimal_environment_v1(
+        env, name="CLOUD_RUN_TASK_ATTEMPT"
+    )
+    if (
+        task_count not in {1, authority.TASK_COUNT}
+        or task_attempt != 0
+        or task_index >= task_count
+        or (task_count == 1 and task_index != 0)
+        or env.get("GOOGLE_CLOUD_PROJECT") != authority.FIXED_GCP_PROJECT
+        or env.get("CODE_SHA") != manifest["code_commit"]
+        or env.get("R6_RUNTIME_IMAGE_DIGEST") != manifest["image_digest"]
+        or env.get("CLOUD_RUN_JOB") != manifest["reused_job_name"]
+    ):
+        _fail("Cloud Run task/code/image/job authority differs")
     command = observed_dispatcher_command_v1() if observed_command is None else list(
         observed_command
     )

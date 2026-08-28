@@ -26,6 +26,7 @@ from nfl_dfs.research import (
 from nfl_dfs.research import (
     corpus_r6_population_challenger_runtime_v1 as population_runtime,
 )
+from nfl_dfs.research import corpus_r6_novel_roster_realized_grader_v1 as grader
 from nfl_dfs.research import corpus_r6_population_crossed_cloud_v1 as cloud
 from nfl_dfs.research import (
     corpus_r6_population_crossed_scoring_v1 as crossed,
@@ -433,6 +434,49 @@ def _fold_plan(heldout: str) -> dict[str, object]:
     }
 
 
+def _real_shaped_slate_result(monkeypatch: pytest.MonkeyPatch) -> dict[str, object]:
+    def _materialize(*, plan, prepared, profile_id):
+        del prepared
+        heldout = next(
+            block for block in rw.WORLD_BLOCKS
+            if plan["plan_sha256"]
+            == sha256(f"plan-{block}".encode()).hexdigest()
+        )
+        return _fold_inputs(profile_id, heldout)
+
+    monkeypatch.setattr(
+        crossed,
+        "build_population_crossed_fold_plan_v1",
+        lambda **kwargs: _fold_plan(str(kwargs["heldout_block"])),
+    )
+    monkeypatch.setattr(
+        crossed, "materialize_population_crossed_profile_fold_v1", _materialize
+    )
+    monkeypatch.setattr(
+        crossed,
+        "run_population_crossed_selectors_v1",
+        lambda value: _selector_result(value.profile_id, value.sampled_lineup_ids),
+    )
+    source = {
+        "slate_id": "2023-w01",
+        "source_authority_sha256": "7" * 64,
+        "later_source_identity": _object_identity("later"),
+        "world_artifact_identities": {
+            f"world_artifact_{block.casefold()}": _object_identity(block)
+            for block in rw.WORLD_BLOCKS
+        },
+    }
+    return cloud.build_slate_result_v1(
+        request=_task_request(),
+        task_binding_sha256="8" * 64,
+        prepared=object(),
+        profile_lineups_by_id={
+            profile_id: {} for profile_id in profiles.PROFILE_ORDER
+        },
+        source=source,
+    )
+
+
 def test_slate_task_runs_all_five_by_three_crosses_and_emits_evaluator_recipes(
     monkeypatch: pytest.MonkeyPatch,
 ):
@@ -514,6 +558,85 @@ def test_slate_task_runs_all_five_by_three_crosses_and_emits_evaluator_recipes(
     )
     assert replay_inputs.evaluation.heldout_block == "R3"
     assert replay_inputs.selection.profile_id == profiles.PROFILE_ORDER[1]
+
+
+def test_known_result_collector_feeds_real_shaped_generic_grader_adapter(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    manifest, *_ = _manifest_fixture(monkeypatch)
+    base_result = _real_shaped_slate_result(monkeypatch)
+    objects: dict[tuple[str, str], bytes] = {}
+    by_uri: dict[str, tuple[bytes, dict[str, object]]] = {}
+    manifest_identity = _identity(
+        "gs://fixture/population-crossed/task-manifest.json",
+        manifest,
+        generation=70_000,
+    )
+    objects[(manifest_identity["uri"], manifest_identity["generation"])] = (
+        population_authority.canonical_bytes_v1(manifest)
+    )
+
+    expected_identities: list[dict[str, object]] = []
+    for source_ordinal, binding in enumerate(manifest["task_bindings"]):
+        result = deepcopy(base_result)
+        result["source_ordinal"] = source_ordinal
+        result["slate_id"] = binding["slate_id"]
+        result["task_request_sha256"] = binding["request_sha256"]
+        result["task_binding_sha256"] = binding["task_binding_sha256"]
+        _rehash(result, "slate_result_sha256")
+        assert cloud.validate_slate_result_v1(result) == result
+        identity = _identity(
+            binding["result_uri"], result, generation=80_000 + source_ordinal
+        )
+        raw = population_authority.canonical_bytes_v1(result)
+        objects[(identity["uri"], identity["generation"])] = raw
+        by_uri[str(identity["uri"])] = (raw, identity)
+        expected_identities.append(identity)
+
+    opened_names: list[str] = []
+
+    def _read_exact(identity):
+        return objects[(str(identity["uri"]), str(identity["generation"]))]
+
+    def _open_known(uri: str, maximum_bytes: int):
+        opened_names.append(uri)
+        raw, identity = by_uri[uri]
+        assert len(raw) <= maximum_bytes
+        return raw, identity
+
+    collection = cloud.collect_slate_result_identities_v1(
+        task_manifest_identity=manifest_identity,
+        read_exact=_read_exact,
+        open_known=_open_known,
+    )
+    assert cloud.validate_slate_result_identity_collection_v1(
+        collection
+    ) == collection
+    assert opened_names == [
+        str(binding["result_uri"]) for binding in manifest["task_bindings"]
+    ]
+    assert collection["task_result_identities"] == expected_identities
+    assert collection["bucket_listing_performed"] is False
+    grader_request = cloud.build_novel_roster_grader_request_v1(
+        collection=collection,
+        output_uri="gs://fixture/population-crossed/terminal-root.json",
+    )
+    assert set(grader_request) == {
+        "adapter_id", "task_manifest_identity", "task_result_identities",
+        "output_uri",
+    }
+    assert grader_request["adapter_id"] == grader.POPULATION_CROSSED_ADAPTER
+
+    opened = grader._open_population_crossed_terminal(
+        task_manifest_identity=grader_request["task_manifest_identity"],
+        task_result_identities=grader_request["task_result_identities"],
+        read_exact=_read_exact,
+    )
+    assert opened.adapter_id == grader.POPULATION_CROSSED_ADAPTER
+    assert len(opened.task_results) == cloud.TASK_COUNT
+    assert len(opened.slates) == cloud.TASK_COUNT
+    assert all(len(slate["populations"]) == 15 for slate in opened.slates)
+    assert all(len(slate["books"]) == 315 for slate in opened.slates)
 
 
 def _load_cli_module():

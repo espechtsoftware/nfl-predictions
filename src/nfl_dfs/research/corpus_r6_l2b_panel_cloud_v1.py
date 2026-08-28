@@ -112,8 +112,8 @@ OUTPUT_NAMESPACE: Final = (
 )
 REUSED_JOB_CPU: Final = "8"
 REUSED_JOB_MEMORY: Final = "32Gi"
-REUSED_JOB_NAME: Final = "atlas-cbc-32g-full-2023-w8-v1"
-REUSED_JOB_UID: Final = "1f4bcf0a-2300-4afa-9fc1-9981844c8275"
+REUSED_JOB_NAME: Final = "atlas-minimal-c-s2023-w3-v1"
+REUSED_JOB_UID: Final = "064df315-0fb5-4b86-a5f9-6c73ac1c5eb3"
 TASK_TIMEOUT_SECONDS: Final = 86_400
 ENTRYPOINT_RELATIVE_PATH: Final = "scripts/run_corpus_r6_l2b_panel_cloud_v1.py"
 ENTRYPOINT_IMAGE_PATH: Final = f"/app/{ENTRYPOINT_RELATIVE_PATH}"
@@ -123,6 +123,9 @@ ENTRYPOINT_COMMAND: Final = (
 ENABLE_ENV: Final = "CORPUS_R6_L2B_PANEL_ENABLE"
 MANIFEST_IDENTITY_ENV: Final = "CORPUS_R6_L2B_PANEL_MANIFEST_IDENTITY"
 REUSED_JOB_UID_ENV: Final = "CORPUS_R6_L2B_PANEL_REUSED_JOB_UID"
+EXECUTION_SCOPE_ENV: Final = "CORPUS_R6_L2B_PANEL_EXECUTION_SCOPE"
+TASK0_SCOPE: Final = "task0"
+FULL54_SCOPE: Final = "full54"
 
 MAXIMUM_JSON_INPUT_BYTES: Final = 16_000_000
 MAXIMUM_WORLD_ARTIFACT_BYTES: Final = 96_000_000
@@ -888,6 +891,7 @@ def prepare_54_task_manifest_v1(
             "CODE_SHA": source_commit_sha,
             "R6_RUNTIME_IMAGE_DIGEST": immutable_image_digest,
             REUSED_JOB_UID_ENV: reused_job_uid,
+            EXECUTION_SCOPE_ENV: FULL54_SCOPE,
         },
         "new_job_creation_allowed": False,
         "iam_mutation_required": False,
@@ -1841,14 +1845,17 @@ __all__ = [
     "CONTRACT_ID",
     "CONTROL_REFERENCE",
     "ENABLE_ENV",
+    "EXECUTION_SCOPE_ENV",
     "EXPECTED_SLATES",
     "FRACTION_REGISTRY",
+    "FULL54_SCOPE",
     "L2BPanelTaskExecutionV1",
     "MANIFEST_IDENTITY_ENV",
     "REUSED_JOB_UID_ENV",
     "REUSED_JOB_NAME",
     "REUSED_JOB_UID",
     "TASK_COUNT",
+    "TASK0_SCOPE",
     "WORLD_BLOCKS",
     "WORLDS_PER_BLOCK",
     "build_pit_target_panel_v1",

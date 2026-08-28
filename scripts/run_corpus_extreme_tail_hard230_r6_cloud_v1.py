@@ -15,6 +15,9 @@ from nfl_dfs.research import corpus_legal_feasibility as legal
 from nfl_dfs.research import (
     corpus_extreme_tail_hard230_r6_cloud_entrypoint_v1 as entrypoint,
 )
+from nfl_dfs.research import (
+    corpus_extreme_tail_hard230_r6_run_controller_v1 as controller,
+)
 
 
 class RunHard230R6CloudV1Error(RuntimeError):
@@ -147,6 +150,47 @@ class GCSExactTransportV1:
             _fail("create-once publication exact reopen differs")
         return identity
 
+    def open_known(self, uri: str, maximum_bytes: int) -> tuple[
+        bytes, dict[str, object]
+    ]:
+        """Resolve and immediately pin one manifest-known create-once output."""
+        if (
+            type(uri) is not str
+            or not uri.startswith(entrypoint.OUTPUT_NAMESPACE)
+            or type(maximum_bytes) is not int
+            or maximum_bytes < 1
+        ):
+            _fail("known-output generation resolution scope differs")
+        bucket_name, object_name = self._parts(uri)
+        current = self._client.bucket(bucket_name).blob(object_name)
+        current.reload(retry=None)
+        if (
+            current.generation is None
+            or current.size is None
+            or int(current.size) < 1
+            or int(current.size) > maximum_bytes
+        ):
+            _fail("known-output current generation metadata differs")
+        generation = int(str(current.generation))
+        pinned = self._client.bucket(bucket_name).blob(
+            object_name, generation=generation
+        )
+        raw = pinned.download_as_bytes(
+            if_generation_match=generation, retry=None
+        )
+        if type(raw) is not bytes or not 0 < len(raw) <= maximum_bytes:
+            _fail("known-output generation-pinned bytes differ")
+        identity = {
+            "uri": uri,
+            "generation": str(generation),
+            "sha256": sha256(raw).hexdigest(),
+            "bytes": len(raw),
+        }
+        self._cache[(
+            uri, str(generation), str(identity["sha256"]), len(raw)
+        )] = raw
+        return raw, identity
+
 
 def _parse_identity_environment(value: str, *, label: str) -> dict[str, object]:
     if not value or len(value.encode("utf-8")) > 2_048:
@@ -199,6 +243,80 @@ def _execute_cloud_task(store: GCSExactTransportV1) -> dict[str, object]:
     }
 
 
+def _execute_controller_cloud_task(
+    store: GCSExactTransportV1,
+) -> dict[str, object]:
+    if os.environ.get(entrypoint.ENABLE_ENV) != "1":
+        _fail("hard230 R6 controller execution is not explicitly enabled")
+    controller_identity = _parse_identity_environment(
+        os.environ.get(controller.CONTROLLER_MANIFEST_IDENTITY_ENV, ""),
+        label="hard230 controller manifest identity environment",
+    )
+    try:
+        cloud_task_index = int(os.environ.get("CLOUD_RUN_TASK_INDEX", ""))
+        cloud_task_count = int(os.environ.get("CLOUD_RUN_TASK_COUNT", ""))
+        task_attempt = int(os.environ.get("CLOUD_RUN_TASK_ATTEMPT", ""))
+    except ValueError as exc:
+        raise RunHard230R6CloudV1Error(
+            "Cloud Run controller task environment is not exact integer text"
+        ) from exc
+    manifest, retained_controller_identity, source_manifest = (
+        controller.open_controller_manifest_v1(
+            controller_manifest_identity=controller_identity,
+            read_exact=store.read_exact,
+        )
+    )
+    indices = list(manifest["scientific_task_indices"])
+    if (
+        cloud_task_count != manifest["cloud_task_count"]
+        or task_attempt != 0
+        or not 0 <= cloud_task_index < len(indices)
+    ):
+        _fail("Cloud Run controller task count/index/attempt differs")
+    if (
+        os.environ.get("CODE_SHA") != manifest["source_commit_sha"]
+        or os.environ.get("R6_RUNTIME_IMAGE_DIGEST")
+        != manifest["immutable_image_digest"]
+        or os.environ.get("CLOUD_RUN_JOB") != manifest["reused_job_name"]
+    ):
+        _fail("Cloud Run controller code/image/job environment differs")
+    scientific_task_index = int(indices[cloud_task_index])
+    if (
+        manifest["scope_id"] == controller.FULL_54_SCOPE
+        and scientific_task_index == 0
+    ):
+        task_result, task_result_identity = (
+            controller.reopen_required_smoke_task0_result_v1(
+                full_controller_manifest=manifest,
+                source_task_manifest=source_manifest,
+                read_exact=store.read_exact,
+            )
+        )
+        reused_smoke_result = True
+    else:
+        result = entrypoint.execute_manifest_task_v1(
+            manifest_identity=manifest["source_task_manifest_identity"],
+            task_index=scientific_task_index,
+            read_exact=store.read_exact,
+            publish_create_once=store.publish_create_once,
+        )
+        task_result = result.task_result
+        task_result_identity = result.task_result_identity
+        reused_smoke_result = False
+    return {
+        "schema_version": "hard230-r6-controller-cloud-task-completion/v1",
+        "scope_id": manifest["scope_id"],
+        "controller_manifest_identity": retained_controller_identity,
+        "cloud_task_index": cloud_task_index,
+        "scientific_task_index": scientific_task_index,
+        "slate_id": task_result["slate_id"],
+        "task_result_identity": task_result_identity,
+        "task_result_sha256": task_result["task_result_sha256"],
+        "reused_required_smoke_task0_result": reused_smoke_result,
+        "complete": True,
+    }
+
+
 def _prepare(request_file: Path, store: GCSExactTransportV1) -> dict[str, object]:
     request = _strict_json(request_file.read_bytes(), label="preparation request")
     expected = {
@@ -225,6 +343,30 @@ def _prepare(request_file: Path, store: GCSExactTransportV1) -> dict[str, object
     )
 
 
+def _prepare_controller(
+    request_file: Path, store: GCSExactTransportV1
+) -> dict[str, object]:
+    request = _strict_json(
+        request_file.read_bytes(), label="controller preparation request"
+    )
+    expected = {
+        "source_task_manifest_identity",
+        "scope_id",
+        "required_smoke_final_root_identity",
+    }
+    if set(request) != expected:
+        _fail("controller preparation request fields differ")
+    return controller.prepare_controller_manifest_v1(
+        source_task_manifest_identity=request["source_task_manifest_identity"],
+        scope_id=str(request["scope_id"]),
+        required_smoke_final_root_identity=request[
+            "required_smoke_final_root_identity"
+        ],
+        read_exact=store.read_exact,
+        publish_create_once=store.publish_create_once,
+    )
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Prepare or execute the fixed 54-task R6 hard230 batch"
@@ -233,15 +375,23 @@ def _parser() -> argparse.ArgumentParser:
     prepare = sub.add_parser("prepare")
     prepare.add_argument("--request-file", type=Path, required=True)
     prepare.add_argument("--output-file", type=Path, required=True)
+    prepare_controller = sub.add_parser("prepare-controller")
+    prepare_controller.add_argument("--request-file", type=Path, required=True)
+    prepare_controller.add_argument("--output-file", type=Path, required=True)
     sub.add_parser("execute-task")
+    sub.add_parser("execute-controller-task")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     store = GCSExactTransportV1()
-    if args.command == "prepare":
-        result = _prepare(args.request_file, store)
+    if args.command in {"prepare", "prepare-controller"}:
+        result = (
+            _prepare(args.request_file, store)
+            if args.command == "prepare"
+            else _prepare_controller(args.request_file, store)
+        )
         raw = _canonical(result)
         if args.output_file.exists():
             _fail("preparation output file already exists")
@@ -252,6 +402,10 @@ def main(argv: list[str] | None = None) -> int:
         raw = _canonical(_execute_cloud_task(store))
         sys.stdout.buffer.write(raw + b"\n")
         return 0
+    if args.command == "execute-controller-task":
+        raw = _canonical(_execute_controller_cloud_task(store))
+        sys.stdout.buffer.write(raw + b"\n")
+        return 0
     _fail("unknown command")
     return 2
 
@@ -259,6 +413,10 @@ def main(argv: list[str] | None = None) -> int:
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
-    except (RunHard230R6CloudV1Error, entrypoint.Hard230R6CloudEntrypointV1Error) as exc:
+    except (
+        RunHard230R6CloudV1Error,
+        entrypoint.Hard230R6CloudEntrypointV1Error,
+        controller.Hard230R6RunControllerV1Error,
+    ) as exc:
         print(str(exc), file=sys.stderr)
         raise SystemExit(2) from exc

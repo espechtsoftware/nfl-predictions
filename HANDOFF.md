@@ -20,6 +20,66 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 23:44 UTC (three-hundred-thirteenth update)
+
+### Score sprint is executing: control 54/54 sealed; three challengers launch-ready
+
+- Branch `main` and `origin/main` entered this milestone at `5aabe2c8`. The
+  September 4 production-choice freeze remains hard. The deliverable is a
+  common 54-slate realized-score table with weekly max/mean, inclusive
+  200/210/220/230 hit rates, ceiling capture and regret. Neo4j/UI expansion,
+  L1 source rematerialization and broad parameter grids remain off the score
+  critical path. The external agent's independently tested finalists are to
+  be integrated only after their results arrive and pass the same grader.
+- V7 confirmation-selection execution
+  `atlas-cbc-32g-full-2023-w8-v1-j2zhg`, execution UID
+  `1b173bc8-e338-4f79-ae9e-cb11cb9c6b27`, completed **54/54 successful with
+  zero failures** and was finalized exactly once. Its immutable layer-04
+  receipt is generation `1787959833133827`, SHA-256
+  `d6f46371380ca74842f615c403ed181ca9e4198768a743843bd8bf6a65457a9a`,
+  122,166 bytes. No logs, scientific outputs or realized outcomes were read.
+  Layer-05 `confirmation-evaluation-result` preparation was then started from
+  the exact cumulative layer-00--04 receipts. Do not prepare layer 05 again;
+  when its preparation result appears, configure/arm/launch it once on the
+  same control job, then advance the one-task aggregate and terminal layers.
+- First consolidated Cloud Build
+  `68aa0f1a-eaca-48a1-b933-2b97c1e34237` failed safely in its focused-test
+  step before producing an image: the narrow upload allowlist omitted a
+  transitive test fixture. The source closure is now explicit, including the
+  hard-230 controller/operator, L2b operator, population collector and generic
+  realized grader CLI. The population collector exact-opens the 54 manifest-
+  known result identities and projects them into the common grader. Combined
+  lead validation is **52/52 passed**; the focused packaging/collector audit
+  separately passed 46/46 plus compilation and `git diff --check`.
+- Three distinct idle Cloud Run jobs are fixed for parallel task-0 then
+  full-54 launch without creating jobs: population/crossed uses
+  `atlas-minimal-c-s2023-w1-v1` UID
+  `d6e4b8c1-5950-46b7-8869-7e34dbf29ad2`; hard-230 uses
+  `atlas-minimal-c-s2023-w2-v1` UID
+  `a9389eb4-da2b-4e4a-90a4-9ef769043e1d`; L2b uses
+  `atlas-minimal-c-s2023-w3-v1` UID
+  `064df315-0fb5-4b86-a5f9-6c73ac1c5eb3`. Reconfirm each is idle and the UID
+  is exact immediately before configuration; never interfere with an active
+  execution.
+- L2b's outcome-free PIT target is durably frozen. Source parquet identity is
+  generation `1787958037039226`, SHA-256
+  `fd5c49bcbcf4b9e714e7e03a0c8e1791759945e18e4aeb629eaff4d2e1c2434b`,
+  74,160 bytes. Target-panel identity is generation `1787958077769438`,
+  SHA-256
+  `482ac35706514b0c5bb9a79d23756e8336de84655b6412a7cee3723ff1d48446`,
+  2,525,733 bytes; its panel self-hash is
+  `d53114288dd898ae73bc9246761050e08fd01d3790c00c33b9ac94f824318e53`.
+  Freeze receipt is generation `1787958148632926`, SHA-256
+  `0f7a8d72b2517387ef16a9ede86440998d6401bdc393a53dddec60a4dee0b8a2`,
+  1,718 bytes. Regenerate/publish the calibration release from the final
+  committed code SHA before L2b launch.
+- No new realized score has been read. Exact next action is: finish layer-05
+  preparation; commit and push the corrected single-image boundary; submit
+  one clean-snapshot Cloud Build; publish its terminal build receipt; run the
+  three task-0 smokes in parallel; on green gates fan all three to 54 slates
+  while the control advances through layers 05--07; then grade every terminal
+  root through the common outcome snapshot exactly once.
+
 ## Current handoff — 2026-08-28 22:51 UTC (three-hundred-twelfth update)
 
 ### Score-first September 4 freeze is active; one-image challenger build is ready

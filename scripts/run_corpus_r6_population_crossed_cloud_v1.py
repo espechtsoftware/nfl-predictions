@@ -141,6 +141,41 @@ class GCSExactTransportV1:
         self._cache[key] = raw
         return raw
 
+    def open_known(
+        self, uri: str, maximum_bytes: int,
+    ) -> tuple[bytes, Mapping[str, object]]:
+        """Resolve one manifest-known name, then read its pinned generation."""
+        if type(maximum_bytes) is not int or maximum_bytes < 1:
+            _fail("known-object byte ceiling differs")
+        bucket_name, object_name = self._parts(uri)
+        metadata = self._client.bucket(bucket_name).blob(object_name)
+        metadata.reload(retry=None, timeout=120)
+        if metadata.generation is None or metadata.size is None:
+            _fail("known object lacks generation or size")
+        generation = int(metadata.generation)
+        size = int(metadata.size)
+        if size < 1 or size > maximum_bytes:
+            _fail("known object exceeds its byte ceiling")
+        pinned = self._client.bucket(bucket_name).blob(
+            object_name, generation=generation
+        )
+        raw = pinned.download_as_bytes(
+            if_generation_match=generation, retry=None, timeout=300
+        )
+        if type(raw) is not bytes or len(raw) != size:
+            _fail("known object generation-exact bytes differ")
+        identity = _identity({
+            "uri": uri,
+            "generation": str(generation),
+            "sha256": sha256(raw).hexdigest(),
+            "bytes": size,
+        }, label="known population-crossed result")
+        self._cache[(
+            str(identity["uri"]), str(identity["generation"]),
+            str(identity["sha256"]), int(identity["bytes"]),
+        )] = raw
+        return raw, identity
+
     def publish_create_once(self, uri: str, raw: bytes) -> dict[str, object]:
         if type(raw) is not bytes or not raw:
             _fail("create-once publication bytes differ")
@@ -270,10 +305,43 @@ def _prepare_mode(argv: list[str]) -> int:
     return 0
 
 
+def _collect_mode(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--request-file", required=True)
+    parser.add_argument("--output-file", required=True)
+    parser.add_argument("--grader-request-file", required=True)
+    args = parser.parse_args(argv)
+    request = _strict_json(
+        Path(args.request_file).read_bytes(),
+        label="population-crossed collection request",
+    )
+    if set(request) != {
+        "task_manifest_identity", "terminal_root_output_uri",
+    }:
+        _fail("population-crossed collection request fields differ")
+    store = GCSExactTransportV1()
+    collection = cloud.collect_slate_result_identities_v1(
+        task_manifest_identity=request["task_manifest_identity"],
+        read_exact=store.read_exact,
+        open_known=store.open_known,
+    )
+    grader_request = cloud.build_novel_roster_grader_request_v1(
+        collection=collection,
+        output_uri=str(request["terminal_root_output_uri"]),
+    )
+    _write_local_create_once(Path(args.output_file), _canonical(collection))
+    _write_local_create_once(
+        Path(args.grader_request_file), _canonical(grader_request)
+    )
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
     if args and args[0] == "prepare":
         return _prepare_mode(args[1:])
+    if args and args[0] == "collect":
+        return _collect_mode(args[1:])
     if args == ["task"]:
         completion = execute_environment_task_v1()
         raw = _canonical(completion)
@@ -284,7 +352,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     raise SystemExit(
         "usage: ...population_crossed_cloud_v1.py "
-        "task | prepare --request-file PATH --output-file PATH"
+        "task | prepare --request-file PATH --output-file PATH | "
+        "collect --request-file PATH --output-file PATH "
+        "--grader-request-file PATH"
     )
 
 

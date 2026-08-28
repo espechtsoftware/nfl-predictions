@@ -58,6 +58,9 @@ FOLD_RESULT_SCHEMA: Final = "corpus-r6-population-crossed-fold-result/v1"
 PROFILE_RESULT_SCHEMA: Final = "corpus-r6-population-crossed-profile-result/v1"
 TASK_COMPLETION_SCHEMA: Final = "corpus-r6-population-crossed-task-completion/v1"
 PREPARATION_SCHEMA: Final = "corpus-r6-population-crossed-preparation/v1"
+RESULT_IDENTITY_COLLECTION_SCHEMA: Final = (
+    "corpus-r6-population-crossed-result-identity-collection/v1"
+)
 JOB_CONFIGURATION_SCHEMA: Final = (
     "corpus-r6-population-crossed-cloud-run-job-configuration/v1"
 )
@@ -84,6 +87,7 @@ DISPATCHER_COMMAND: Final = (
 )
 MANIFEST_IDENTITY_ENV: Final = "R6_POPULATION_CROSSED_MANIFEST_IDENTITY"
 ENABLE_ENV: Final = "R6_POPULATION_CROSSED_ENABLE"
+NOVEL_ROSTER_GRADER_ADAPTER_ID: Final = "population-crossed-v1"
 
 MAXIMUM_POPULATION_MANIFEST_BYTES: Final = 16_000_000
 MAXIMUM_POPULATION_TASK_RESULT_BYTES: Final = (
@@ -98,6 +102,7 @@ MAXIMUM_TASK_COMPLETION_BYTES: Final = 256_000
 TASK_TIMEOUT_SECONDS: Final = 7_200
 
 ReadExact = Callable[[Mapping[str, object]], bytes]
+OpenKnown = Callable[[str, int], tuple[bytes, Mapping[str, object]]]
 PublishCreateOnce = Callable[[str, bytes], Mapping[str, object]]
 
 _COMMIT_RE: Final = re.compile(r"[0-9a-f]{40}\Z")
@@ -1329,6 +1334,163 @@ def validate_task_completion_v1(value: object) -> dict[str, object]:
     return completion
 
 
+def collect_slate_result_identities_v1(
+    *, task_manifest_identity: object, read_exact: ReadExact,
+    open_known: OpenKnown,
+) -> dict[str, object]:
+    """Exact-open all 54 manifest-known results without listing storage."""
+    manifest_body, retained_manifest_identity = _read_json(
+        task_manifest_identity,
+        read_exact=read_exact,
+        label="population-crossed task manifest",
+        maximum_bytes=MAXIMUM_TASK_MANIFEST_BYTES,
+    )
+    manifest = validate_task_manifest_v1(manifest_body)
+    retained_manifest_identity = _bind(
+        manifest,
+        retained_manifest_identity,
+        label="population-crossed task manifest",
+    )
+    identities: list[dict[str, object]] = []
+    result_sha256s: list[str] = []
+    for source_ordinal, binding in enumerate(manifest["task_bindings"]):
+        uri = str(binding["result_uri"])
+        try:
+            raw, identity_value = open_known(uri, MAXIMUM_SLATE_RESULT_BYTES)
+        except Exception as exc:
+            raise CorpusR6PopulationCrossedCloudV1Error(
+                f"population-crossed result[{source_ordinal}] known-name open failed"
+            ) from exc
+        identity = _identity(
+            identity_value,
+            label=f"population-crossed result[{source_ordinal}]",
+        )
+        if (
+            identity["uri"] != uri
+            or type(raw) is not bytes
+            or not raw
+            or len(raw) != identity["bytes"]
+            or len(raw) > MAXIMUM_SLATE_RESULT_BYTES
+            or sha256(raw).hexdigest() != identity["sha256"]
+        ):
+            _fail("population-crossed known result content identity differs")
+        try:
+            parsed = population_authority.strict_json_bytes_v1(
+                raw, label=f"population-crossed result[{source_ordinal}]"
+            )
+        except population_authority.CorpusR6PopulationChallengerAuthorityV1Error as exc:
+            raise CorpusR6PopulationCrossedCloudV1Error(str(exc)) from exc
+        result = validate_slate_result_v1(parsed)
+        if (
+            result["source_ordinal"] != source_ordinal
+            or result["slate_id"] != binding["slate_id"]
+            or result["task_request_sha256"] != binding["request_sha256"]
+            or result["task_binding_sha256"] != binding["task_binding_sha256"]
+        ):
+            _fail("population-crossed result/manifest binding differs")
+        identities.append(identity)
+        result_sha256s.append(str(result["slate_result_sha256"]))
+    collection = _with_hash({
+        "schema": RESULT_IDENTITY_COLLECTION_SCHEMA,
+        "grader_adapter_id": NOVEL_ROSTER_GRADER_ADAPTER_ID,
+        "task_manifest_identity": retained_manifest_identity,
+        "task_manifest_sha256": manifest["task_manifest_sha256"],
+        "task_result_count": TASK_COUNT,
+        "task_result_identities": identities,
+        "task_result_identities_sha256": _hash(identities),
+        "task_result_sha256s": result_sha256s,
+        "all_task_results_exact_opened": True,
+        "deterministic_names_only": True,
+        "bucket_listing_performed": False,
+        "realized_outcomes_read": False,
+    }, field="collection_sha256")
+    return validate_slate_result_identity_collection_v1(collection)
+
+
+def validate_slate_result_identity_collection_v1(
+    value: object,
+) -> dict[str, object]:
+    item = _mapping(value, label="population-crossed result collection")
+    expected = {
+        "schema", "grader_adapter_id", "task_manifest_identity",
+        "task_manifest_sha256", "task_result_count", "task_result_identities",
+        "task_result_identities_sha256", "task_result_sha256s",
+        "all_task_results_exact_opened", "deterministic_names_only",
+        "bucket_listing_performed", "realized_outcomes_read",
+        "collection_sha256",
+    }
+    if (
+        set(item) != expected
+        or item.get("schema") != RESULT_IDENTITY_COLLECTION_SCHEMA
+        or item.get("collection_sha256") != _hash({
+            key: row for key, row in item.items() if key != "collection_sha256"
+        })
+    ):
+        _fail("population-crossed result collection fields/hash differ")
+    manifest_identity = _identity(
+        item.get("task_manifest_identity"),
+        label="population-crossed collected task manifest",
+    )
+    identities = [
+        _identity(row, label=f"population-crossed collected result[{ordinal}]")
+        for ordinal, row in enumerate(_sequence(
+            item.get("task_result_identities"), label="collected result identities"
+        ))
+    ]
+    result_sha256s = [
+        _sha(row, label=f"population-crossed collected result SHA[{ordinal}]")
+        for ordinal, row in enumerate(_sequence(
+            item.get("task_result_sha256s"), label="collected result SHA-256s"
+        ))
+    ]
+    if (
+        item.get("grader_adapter_id") != NOVEL_ROSTER_GRADER_ADAPTER_ID
+        or item.get("task_manifest_identity") != manifest_identity
+        or item.get("task_manifest_sha256") is None
+        or _sha(
+            item.get("task_manifest_sha256"),
+            label="population-crossed collected manifest SHA-256",
+        ) != item.get("task_manifest_sha256")
+        or item.get("task_result_count") != TASK_COUNT
+        or len(identities) != TASK_COUNT
+        or len(result_sha256s) != TASK_COUNT
+        or len({
+            (row["uri"], row["generation"], row["sha256"], row["bytes"])
+            for row in identities
+        }) != TASK_COUNT
+        or item.get("task_result_identities") != identities
+        or item.get("task_result_identities_sha256") != _hash(identities)
+        or item.get("task_result_sha256s") != result_sha256s
+        or item.get("all_task_results_exact_opened") is not True
+        or item.get("deterministic_names_only") is not True
+        or item.get("bucket_listing_performed") is not False
+        or item.get("realized_outcomes_read") is not False
+    ):
+        _fail("population-crossed result collection authority differs")
+    return item
+
+
+def build_novel_roster_grader_request_v1(
+    *, collection: object, output_uri: str,
+) -> dict[str, object]:
+    """Project the collector output into the generic grader's exact request."""
+    retained = validate_slate_result_identity_collection_v1(collection)
+    if (
+        type(output_uri) is not str
+        or not output_uri.startswith("gs://")
+        or output_uri.endswith("/")
+        or "?" in output_uri
+        or "#" in output_uri
+    ):
+        _fail("population-crossed grader output URI must name one GCS object")
+    return {
+        "adapter_id": NOVEL_ROSTER_GRADER_ADAPTER_ID,
+        "task_manifest_identity": retained["task_manifest_identity"],
+        "task_result_identities": retained["task_result_identities"],
+        "output_uri": output_uri,
+    }
+
+
 def build_cloud_run_job_configuration_v1(
     *,
     task_manifest: object,
@@ -1425,20 +1587,25 @@ __all__ = [
     "MAXIMUM_SLATE_RESULT_BYTES",
     "MAXIMUM_TASK_COMPLETION_BYTES",
     "MAXIMUM_TASK_MANIFEST_BYTES",
+    "NOVEL_ROSTER_GRADER_ADAPTER_ID",
     "PROFILE_COUNT",
     "SELECTOR_CELLS_PER_SLATE",
     "SLATE_RESULT_SCHEMA",
     "TASK_COUNT",
     "TASK_MANIFEST_SCHEMA",
+    "RESULT_IDENTITY_COLLECTION_SCHEMA",
+    "build_novel_roster_grader_request_v1",
     "build_cloud_run_job_configuration_v1",
     "build_slate_result_v1",
     "build_task_manifest_v1",
+    "collect_slate_result_identities_v1",
     "dispatcher_process_spec_v1",
     "execute_task_v1",
     "prepare_task_manifest_v1",
     "reconstruct_profile_fold_for_evaluation_v1",
     "task_request_v1",
     "validate_slate_result_v1",
+    "validate_slate_result_identity_collection_v1",
     "validate_task_completion_v1",
     "validate_task_manifest_v1",
     "validate_task_request_v1",

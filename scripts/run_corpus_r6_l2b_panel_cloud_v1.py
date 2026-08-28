@@ -3,16 +3,19 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 import argparse
 from hashlib import sha256
 import json
 import os
 from pathlib import Path
+import subprocess
 import sys
+import tempfile
 
 from nfl_dfs.research import corpus_legal_feasibility as legal
 from nfl_dfs.research import corpus_r6_l2b_panel_cloud_v1 as panel
+from nfl_dfs.research import corpus_r6_l2b_panel_operator_v1 as operator
 
 
 class RunCorpusR6L2BPanelCloudV1Error(RuntimeError):
@@ -148,6 +151,107 @@ class GCSExactTransportV1:
             _fail("create-once publication exact reopen differs")
         return identity
 
+    def open_known(
+        self, uri: str, maximum_bytes: int,
+    ) -> tuple[bytes, Mapping[str, object]]:
+        if type(maximum_bytes) is not int or maximum_bytes < 1:
+            _fail("known-object byte ceiling differs")
+        bucket_name, object_name = self._parts(uri)
+        metadata = self._client.bucket(bucket_name).blob(object_name)
+        metadata.reload(retry=None)
+        if metadata.generation is None or metadata.size is None:
+            _fail("known object lacks generation or size")
+        generation = int(metadata.generation)
+        size = int(metadata.size)
+        if size < 1 or size > maximum_bytes:
+            _fail("known object exceeds its byte ceiling")
+        pinned = self._client.bucket(bucket_name).blob(
+            object_name, generation=generation
+        )
+        raw = pinned.download_as_bytes(
+            if_generation_match=generation, retry=None
+        )
+        identity = _identity({
+            "uri": uri,
+            "generation": str(generation),
+            "sha256": sha256(raw).hexdigest(),
+            "bytes": len(raw),
+        }, label="known object")
+        if len(raw) != size:
+            _fail("known object generation-exact size differs")
+        self._cache[(
+            str(identity["uri"]), str(identity["generation"]),
+            str(identity["sha256"]), int(identity["bytes"]),
+        )] = raw
+        return raw, identity
+
+
+class SubprocessRunnerV1:
+    """Bounded argv-only gcloud runner with no shell invocation."""
+
+    def __call__(self, argv: Sequence[str]) -> Mapping[str, object]:
+        with tempfile.TemporaryFile(mode="w+b") as stdout_file, tempfile.TemporaryFile(
+            mode="w+b"
+        ) as stderr_file:
+            completed = subprocess.run(
+                list(argv),
+                stdin=subprocess.DEVNULL,
+                stdout=stdout_file,
+                stderr=stderr_file,
+                check=False,
+                timeout=300,
+            )
+            stdout_file.seek(0)
+            stderr_file.seek(0)
+            stdout = stdout_file.read(operator.MAXIMUM_PROVIDER_JSON_BYTES + 1)
+            stderr = stderr_file.read(operator.MAXIMUM_PROVIDER_STDERR_BYTES + 1)
+        return {
+            "returncode": int(completed.returncode),
+            "stdout": bytes(stdout),
+            "stderr": bytes(stderr),
+        }
+
+
+def _run_checked(
+    runner: SubprocessRunnerV1, argv: Sequence[str], *, label: str,
+    stdout_ceiling: int,
+) -> bytes:
+    result = runner(argv)
+    if set(result) != {"returncode", "stdout", "stderr"}:
+        _fail(f"{label} subprocess result fields differ")
+    if (
+        type(result["returncode"]) is not int
+        or type(result["stdout"]) is not bytes
+        or type(result["stderr"]) is not bytes
+        or len(result["stdout"]) > stdout_ceiling
+        or len(result["stderr"]) > operator.MAXIMUM_PROVIDER_STDERR_BYTES
+        or result["returncode"] != 0
+    ):
+        _fail(f"{label} subprocess failed or exceeded its framing")
+    return result["stdout"]
+
+
+def _provider_json(raw: bytes, *, label: str) -> dict[str, object]:
+    try:
+        value = json.loads(raw.decode("utf-8", errors="strict"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RunCorpusR6L2BPanelCloudV1Error(
+            f"{label} is not provider JSON"
+        ) from exc
+    return _mapping(value, label=label)
+
+
+def _run_json(
+    runner: SubprocessRunnerV1, argv: Sequence[str], *, label: str,
+) -> dict[str, object]:
+    return _provider_json(
+        _run_checked(
+            runner, argv, label=label,
+            stdout_ceiling=operator.MAXIMUM_PROVIDER_JSON_BYTES,
+        ),
+        label=f"{label} JSON",
+    )
+
 
 def _identity_environment(value: str, *, label: str) -> dict[str, object]:
     if not value or len(value.encode("utf-8")) > 2_048:
@@ -199,7 +303,16 @@ def _execute_task(store: GCSExactTransportV1) -> dict[str, object]:
         raise RunCorpusR6L2BPanelCloudV1Error(
             "Cloud Run task environment is not exact integer text"
         ) from exc
-    if task_count != panel.TASK_COUNT or task_attempt != 0:
+    scope = os.environ.get(panel.EXECUTION_SCOPE_ENV)
+    if scope == panel.TASK0_SCOPE:
+        expected_task_count = 1
+        if task_index != 0:
+            _fail("L2b task0 smoke may execute only task index zero")
+    elif scope == panel.FULL54_SCOPE:
+        expected_task_count = panel.TASK_COUNT
+    else:
+        _fail("L2b execution scope must be task0 or full54")
+    if task_count != expected_task_count or task_attempt != 0:
         _fail("Cloud Run task count/attempt differs from the no-retry law")
     manifest, _ = panel._open_manifest(
         manifest_identity=manifest_identity, read_exact=store.read_exact
@@ -243,6 +356,152 @@ def _finalize(request_file: Path, store: GCSExactTransportV1) -> dict[str, objec
     )
 
 
+def _read_local(path: Path, *, label: str) -> dict[str, object]:
+    if not path.is_absolute() or not path.is_file():
+        _fail(f"{label} must be an existing absolute file")
+    try:
+        return _strict_json(path.read_bytes(), label=label)
+    except OSError as exc:
+        raise RunCorpusR6L2BPanelCloudV1Error(f"{label} read failed") from exc
+
+
+def _scope_from_execution(value: Mapping[str, object]) -> str:
+    spec = value.get("spec")
+    count = spec.get("taskCount") if isinstance(spec, Mapping) else None
+    if count == 1:
+        return operator.TASK0_SCOPE
+    if count == panel.TASK_COUNT:
+        return operator.FULL54_SCOPE
+    _fail("latest L2b execution task count is not task0 or full54")
+
+
+def _status(
+    launch: Mapping[str, object], *, runner: SubprocessRunnerV1,
+) -> dict[str, object]:
+    retained = operator.validate_launch_result_v1(launch)
+    raw = _run_json(
+        runner,
+        operator.execution_describe_argv_v1(str(retained["execution_name"])),
+        label="L2b execution describe",
+    )
+    return operator.build_execution_status_v1(
+        raw,
+        execution_name=str(retained["execution_name"]),
+        scope=str(retained["scope"]),
+    )
+
+
+def _assert_latest_not_active(
+    job_description: Mapping[str, object], *, runner: SubprocessRunnerV1,
+) -> dict[str, object] | None:
+    job = operator.validate_job_identity_v1(job_description)
+    latest = job["latest_execution_name"]
+    if latest is None:
+        return None
+    raw = _run_json(
+        runner,
+        operator.execution_describe_argv_v1(str(latest)),
+        label="latest L2b execution describe",
+    )
+    status = operator.build_execution_status_v1(
+        raw,
+        execution_name=str(latest),
+        scope=_scope_from_execution(raw),
+    )
+    if status["terminal_state"] == "ACTIVE":
+        _fail("reused L2b job has an active execution")
+    return status
+
+
+def configure_operator_v1(
+    *, preparation: object, scope: str, store: GCSExactTransportV1,
+    runner: SubprocessRunnerV1,
+) -> dict[str, object]:
+    retained = operator.validate_preparation_v1(preparation)
+    configuration = operator.build_job_configuration_v1(
+        preparation=retained, scope=scope, read_exact=store.read_exact
+    )
+    before_raw = _run_json(
+        runner, operator.job_describe_argv_v1(),
+        label="preconfigure L2b job describe",
+    )
+    before = operator.validate_job_identity_v1(before_raw)
+    latest = _assert_latest_not_active(before_raw, runner=runner)
+    with tempfile.TemporaryDirectory(prefix="r6-l2b-flags-", dir="/tmp") as directory:
+        flags_path = Path(directory) / "configure-flags.json"
+        flags_path.write_bytes(_canonical(configuration["gcloud_update_flags"]))
+        os.chmod(flags_path, 0o600)
+        updated_raw = _run_json(
+            runner,
+            operator.configure_argv_v1(flags_path=str(flags_path)),
+            label="L2b job update",
+        )
+    after = operator.validate_exact_job_configuration_v1(
+        updated_raw, configuration=configuration
+    )
+    if before["job_uid"] != after["job_uid"]:
+        _fail("reused L2b job UID changed during update")
+    body = {
+        "schema_version": "corpus-r6-l2b-operator-configure/v1",
+        "scope": scope,
+        "job_configuration_sha256": configuration[
+            "job_configuration_sha256"
+        ],
+        "job_identity_before": before,
+        "latest_execution_before": latest,
+        "job_identity_after": after,
+        "job_created": False,
+        "outcomes_read": False,
+    }
+    return {**body, "configure_result_sha256": operator.canonical_sha256_v1(body)}
+
+
+def launch_operator_v1(
+    *, preparation: object, scope: str, store: GCSExactTransportV1,
+    runner: SubprocessRunnerV1,
+) -> dict[str, object]:
+    retained = operator.validate_preparation_v1(preparation)
+    configuration = operator.build_job_configuration_v1(
+        preparation=retained, scope=scope, read_exact=store.read_exact
+    )
+    job_raw = _run_json(
+        runner, operator.job_describe_argv_v1(), label="prelaunch L2b job describe"
+    )
+    operator.validate_exact_job_configuration_v1(
+        job_raw, configuration=configuration
+    )
+    _assert_latest_not_active(job_raw, runner=runner)
+    raw_name = _run_checked(
+        runner,
+        operator.execute_argv_v1(),
+        label="L2b asynchronous launch",
+        stdout_ceiling=4_096,
+    )
+    try:
+        execution_name = raw_name.decode("utf-8", errors="strict").strip()
+    except UnicodeDecodeError as exc:
+        raise RunCorpusR6L2BPanelCloudV1Error(
+            "L2b launch result is not UTF-8"
+        ) from exc
+    return operator.build_launch_result_v1(
+        execution_name=execution_name, scope=scope
+    )
+
+
+def collect_operator_v1(
+    *, preparation: object, launch: object, store: GCSExactTransportV1,
+    runner: SubprocessRunnerV1,
+) -> dict[str, object]:
+    status = _status(_mapping(launch, label="L2b launch"), runner=runner)
+    return operator.collect_task_results_v1(
+        preparation=preparation,
+        launch_result=launch,
+        execution_status=status,
+        read_exact=store.read_exact,
+        open_known=store.open_known,
+    )
+
+
 def _write_create_once(path: Path, value: Mapping[str, object]) -> None:
     raw = _canonical(value)
     if not path.is_absolute() or not path.parent.is_dir():
@@ -271,23 +530,67 @@ def _parser() -> argparse.ArgumentParser:
     finalize = sub.add_parser("finalize")
     finalize.add_argument("--request-file", type=Path, required=True)
     finalize.add_argument("--output-file", type=Path, required=True)
+    for command in ("configure", "launch"):
+        child = sub.add_parser(command)
+        child.add_argument("--preparation-file", type=Path, required=True)
+        child.add_argument("--scope", choices=operator.SCOPES, required=True)
+        child.add_argument("--output-file", type=Path, required=True)
+    status = sub.add_parser("status")
+    status.add_argument("--launch-file", type=Path, required=True)
+    status.add_argument("--output-file", type=Path, required=True)
+    collect = sub.add_parser("collect")
+    collect.add_argument("--preparation-file", type=Path, required=True)
+    collect.add_argument("--launch-file", type=Path, required=True)
+    collect.add_argument("--output-file", type=Path, required=True)
+    collect.add_argument("--finalization-request-file", type=Path)
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
-    store = GCSExactTransportV1()
     if args.command == "prepare":
+        store = GCSExactTransportV1()
         _write_create_once(args.output_file, _prepare(args.request_file, store))
         return 0
     if args.command == "execute-task":
+        store = GCSExactTransportV1()
         sys.stdout.buffer.write(_canonical(_execute_task(store)) + b"\n")
         return 0
     if args.command == "finalize":
+        store = GCSExactTransportV1()
         _write_create_once(args.output_file, _finalize(args.request_file, store))
         return 0
-    _fail("unknown command")
-    return 2
+    runner = SubprocessRunnerV1()
+    if args.command == "status":
+        launch = _read_local(args.launch_file, label="L2b launch result")
+        _write_create_once(args.output_file, _status(launch, runner=runner))
+        return 0
+    preparation = _read_local(args.preparation_file, label="L2b preparation")
+    store = GCSExactTransportV1()
+    if args.command == "configure":
+        result = configure_operator_v1(
+            preparation=preparation, scope=args.scope, store=store, runner=runner
+        )
+    elif args.command == "launch":
+        result = launch_operator_v1(
+            preparation=preparation, scope=args.scope, store=store, runner=runner
+        )
+    elif args.command == "collect":
+        launch = _read_local(args.launch_file, label="L2b launch result")
+        result = collect_operator_v1(
+            preparation=preparation, launch=launch, store=store, runner=runner
+        )
+        if args.finalization_request_file is not None:
+            if result["panel_finalization_ready"] is not True:
+                _fail("task0 collection cannot create a panel finalization request")
+            _write_create_once(args.finalization_request_file, {
+                "manifest_identity": result["task_manifest_identity"],
+                "task_result_identities": result["task_result_identities"],
+            })
+    else:  # pragma: no cover - argparse owns the command registry
+        _fail("unknown command")
+    _write_create_once(args.output_file, result)
+    return 0
 
 
 if __name__ == "__main__":
@@ -296,6 +599,7 @@ if __name__ == "__main__":
     except (
         RunCorpusR6L2BPanelCloudV1Error,
         panel.CorpusR6L2BPanelCloudV1Error,
+        operator.CorpusR6L2BPanelOperatorV1Error,
     ) as exc:
         print(str(exc), file=sys.stderr)
         raise SystemExit(2) from exc
