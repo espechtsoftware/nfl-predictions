@@ -675,7 +675,14 @@ def _scenario_rank(
     event_counts: np.ndarray,
     means: np.ndarray,
     lineup_ids: Sequence[str],
+    ranking_depth: int = RANKING_DEPTH,
 ) -> tuple[list[int], list[dict[str, object]]]:
+    if (
+        type(ranking_depth) is not int
+        or ranking_depth < 1
+        or ranking_depth > len(lineup_ids)
+    ):
+        _fail("scenario-ticket ranking depth is infeasible")
     covered = np.zeros(packed.shape[1], dtype=np.uint8)
     already_selected = np.zeros(packed.shape[0], dtype=bool)
     selected: list[int] = []
@@ -746,11 +753,11 @@ def _scenario_rank(
 
     breadth_order = sorted(components, key=_component_order_key)
     for component in breadth_order:
-        if len(selected) == RANKING_DEPTH:
+        if len(selected) == ranking_depth:
             break
         if component.key in active:
             visit(component, "breadth")
-    while len(selected) < RANKING_DEPTH and active:
+    while len(selected) < ranking_depth and active:
         best: _Component | None = None
         for component in active.values():
             if best is None or _dhondt_better(component, best):

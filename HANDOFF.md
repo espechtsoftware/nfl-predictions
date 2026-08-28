@@ -20,6 +20,37 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 19:31 UTC (two-hundred-ninety-fifth update)
+
+### Exact 80/100/150 evidence and one diversity challenger are implemented
+
+- Branch `main` and `origin/main` are at `5ae313c8`; active V7 Cloud Build
+  `eeedb00f-0c54-4b2b-8f7c-a0b994eb6ea5` remains a control-only repair build
+  and does not contain this milestone.
+- A new adjacent rank-150 contract runs each of the three grouped native laws
+  once to an exact depth of 150 and emits literal nested 80-, 100- and
+  150-entry books. The three private native kernels accept an optional ranking
+  depth whose default remains 80; frozen successor golden bytes/order are
+  unchanged. No score is extrapolated. Candidate views with fewer than 150
+  lineups fail closed, and 100/150 require distinct authority/evaluation cells
+  rather than broadening the exact-80 legacy schema in place.
+- One mechanism-distinct diversity challenger is now fixed: a quality-weighted
+  DPP using inclusive-230 training-hit cosine and nine-player roster-overlap
+  cosine, ranked by deterministic greedy Cholesky MAP. It emits one nested
+  80/100/150 order, explicitly disclaims global optimality, and has no outcome,
+  publication, promotion or production authority. Production-shape 250 x
+  40,000 benchmarking selected 150 in 0.541 seconds (1.83-second process) at
+  289,688 KiB peak RSS.
+- Validation is 100/100 across four rank-150, eight diversity, 16 unchanged
+  successor-golden, 43 preweek and 29 scenario-ticket tests; compilation and
+  whitespace are clean. The roadmap module's six older assertion/message
+  failures remain pre-existing and are not attributed to this change.
+- Exact next action: commit/push the two new contracts/tests and the three
+  minimal default-preserving native-kernel edits with this handoff. Then bind
+  both rank-150 and diversity results through the validated current-bank
+  authority and successor-specific cloud dispatcher; run a real-artifact
+  outcome-blind smoke before adding them to the single challenger image.
+
 ## Current handoff — 2026-08-28 19:20 UTC (two-hundred-ninety-fourth update)
 
 ### Consolidated V7 repair build is queued

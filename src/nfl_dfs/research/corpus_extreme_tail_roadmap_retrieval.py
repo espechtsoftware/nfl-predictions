@@ -1175,7 +1175,14 @@ def _select_correlation_aware_expected_max(
     worlds_per_block: int,
     lineup_ids: Sequence[str],
     means: np.ndarray,
+    ranking_depth: int = RANKING_DEPTH,
 ) -> tuple[list[int], list[dict[str, object]]]:
+    if (
+        type(ranking_depth) is not int
+        or ranking_depth < 1
+        or ranking_depth > len(lineup_ids)
+    ):
+        _fail("correlation-aware expected-max ranking depth is infeasible")
     world_count = len(training_blocks) * worlds_per_block
     individual_totals = sum(
         (_packed_row_counts(packed) for packed in packed_by_block),
@@ -1189,7 +1196,7 @@ def _select_correlation_aware_expected_max(
     selected: list[int] = []
     trace: list[dict[str, object]] = []
 
-    while len(selected) < RANKING_DEPTH:
+    while len(selected) < ranking_depth:
         expected_before = (
             0.0
             if current_max is None
@@ -1252,7 +1259,9 @@ def _select_correlation_aware_expected_max(
                     best_adjusted = float(adjusted[offset])
 
         if best is None:
-            _fail("correlation-aware expected-max rank ended before 80")
+            _fail(
+                "correlation-aware expected-max rank ended before requested depth"
+            )
         selected_scores = _score_rows(
             scores, canonical_source_rows, best, best + 1
         )[0]

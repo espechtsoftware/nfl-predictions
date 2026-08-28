@@ -784,14 +784,21 @@ def _select_convex_expected_max(
     lineup_ids: Sequence[str],
     means: np.ndarray,
     primary_counts: np.ndarray,
+    ranking_depth: int = RANKING_DEPTH,
 ) -> tuple[list[int], list[dict[str, object]]]:
+    if (
+        type(ranking_depth) is not int
+        or ranking_depth < 1
+        or ranking_depth > len(lineup_ids)
+    ):
+        _fail("convex expected-max ranking depth is infeasible")
     world_count = scores.shape[1]
     current_scores = np.full(world_count, CONVEX_PIVOT, dtype=np.float64)
     current_utility = np.zeros(world_count, dtype=np.float64)
     remaining = np.ones(len(lineup_ids), dtype=bool)
     selected: list[int] = []
     trace: list[dict[str, object]] = []
-    while len(selected) < RANKING_DEPTH:
+    while len(selected) < ranking_depth:
         best: int | None = None
         best_gain = -1.0
         best_key: tuple[object, ...] | None = None
@@ -821,7 +828,7 @@ def _select_convex_expected_max(
                     best_gain = gain
                     best_key = key
         if best is None:
-            _fail("convex expected-max rank ended before 80")
+            _fail("convex expected-max rank ended before requested depth")
         selected.append(best)
         trace.append(
             {
