@@ -20,6 +20,28 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 15:24 UTC (two-hundred-seventy-second update)
+
+### V5 broad-evaluation authorities are prepared create-once
+
+- Exact v5 operator prepared layer ordinal 2, `broad-evaluation-result`, from
+  finalized predecessor receipts `[projection, broad-selection-receipt]` in
+  registry order. It published exactly 109 authorities: 54 evaluator budgets,
+  54 task requests and one manifest. Never rerun this `prepare-layer` call.
+- Broad-evaluation manifest is
+  `authorities/task-manifests/02-broad-evaluation-result.json`, generation
+  `1787930601172830`, SHA-256
+  `7c80953d21a66a2ad2a6478c629d076570fedd408e76f3628991dc20933c0d08`,
+  256,856 bytes. Preparation receipt generation is `1787930639206903`,
+  SHA-256
+  `a9fe112ee14c05c8374fa803fbad888e250320e4495d91aca95304fe4552969d`,
+  70,505 bytes. Local prepare-layer result SHA-256 is
+  `adb5cfcb46e99285f7682c18c3a4afcd971191136ffe6a98b16dbf9937e3dddd`.
+- Exact next action: configure the reused job for this 54-task v5 evaluator
+  manifest, arm/launch exactly once, and verify the repaired evaluator passes
+  the former 512-vs-3,993 candidate-cap boundary. No log, scientific output,
+  score, or realized outcome has been read.
+
 ## Current handoff — 2026-08-28 15:01 UTC (two-hundred-seventy-first update)
 
 ### V5 broad selection succeeded and is finalized
