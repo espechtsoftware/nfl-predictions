@@ -20,6 +20,24 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 08:52 UTC (two-hundred-twenty-eighth update)
+
+### The corrected v3 runtime image is immutable and release-green
+
+- Exact clean-archive Cloud Build
+  `bcf0f31a-9f9e-4a19-ad11-7545a9643d12` completed **SUCCESS** from repair
+  commit `8888930180cfe0ddae9efcf0c8057b6a48c6d951`. It ran the full Python
+  3.11 focused release slice, Docker build and isolated no-network dispatcher
+  smoke successfully. Build start/finish were `08:42:32Z` / `08:52:32Z`.
+- The immutable runtime is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:aed719b0a369dbd7f3a38177110440c1a0fa075cd21cd3c228f33265ac4e9ddb`.
+  Do not use the mutable tag as launch authority. The separate exhaustive
+  local contract suite also passed **25/25** in 788.92 seconds.
+- Exact next action: commit/push this digest, prepare the untouched v3 prefix
+  with the exact 88889301 archive operator, preserve its manifest and
+  preparation-receipt identities, then configure the reused UID-bound job.
+  No v3 object, job mutation, launch, outcome read or score exists yet.
+
 ## Current handoff — 2026-08-28 08:42 UTC (two-hundred-twenty-seventh update)
 
 ### The exact finalizer-repair image build is queued
