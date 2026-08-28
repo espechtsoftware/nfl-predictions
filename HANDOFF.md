@@ -20,6 +20,45 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 05:42 UTC (two-hundred-fourteenth update)
+
+### Projection preparation is durable; one real-provider flag conflict is closed
+
+- The exact `6b69b3f7` archive operator prepared the previously untouched
+  `20260828-r6-current-bank-crossed-screen-v1` prefix successfully. Projection
+  manifest identity is generation `1787895518115089`, SHA-256
+  `a90266407de0ba1fcaa0ee2917ce1bae535f923573a83843019e15b50dff1a38`,
+  26,202 bytes at
+  `authorities/task-manifests/00-projection.json`. Projection preparation
+  receipt identity is generation `1787895519307274`, SHA-256
+  `9a4e05809a9560146b5a00d36f5a98b52231790cf8f8f815a3fac9788bfebb88`,
+  130,717 bytes at
+  `authorities/preparation-receipts/00-projection.json`. All preparation
+  objects are create-once; do not re-run `prepare` on this prefix.
+- The first `configure` call failed closed before mutation because the real
+  `gcloud` parser prohibits specifying `--clear-network` and
+  `--clear-network-tags` together. A direct replay of the identical durable
+  flags file exposed that exact parser error. A post-attempt exact job describe
+  proves generation/observed-generation remain 10, task count 26, parallelism
+  4, old digest/command/environment remain intact, latest execution remains
+  terminal-successful, and no new execution exists. Nothing was armed or
+  launched.
+- The minimal host-only correction removes `--clear-network-tags` while
+  retaining `--clear-network`; the latter removes the network to which tags
+  could attach. No scientific/image byte changes. Patched operator SHA-256 is
+  `85d620fe7523ff080955dc2a64d35141be04108362fdcba81363a98b9eab04bb`;
+  patched focused-test SHA-256 is
+  `65d854b7771a9a72890e1fc7ac96149a3a7d9f47317504ec3c09f413e2c3b4a6`.
+  Operator tests pass **25/25** and the operator plus build-contract slice
+  passes **34/34** in 0.94 seconds.
+- Exact next action: commit/push this two-line host correction with the
+  handoff, archive that host commit, run `configure` against the already
+  published projection manifest, validate the exact post-update projection,
+  then arm and launch it once. Continue using immutable science image digest
+  `sha256:82df9201ce02a7807d916705e25157218d91afd59fe3fc98958483d5bbd3f493`;
+  no image rebuild is required because the host operator is not copied into
+  the runtime image.
+
 ## Current handoff — 2026-08-28 05:37 UTC (two-hundred-thirteenth update)
 
 ### The corrected immutable current-bank image is release-green

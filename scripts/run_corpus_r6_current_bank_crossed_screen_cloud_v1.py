@@ -320,7 +320,6 @@ def configure_flags_v1(
         "--args": f"^{ENV_DELIMITER}^-I{ENV_DELIMITER}{DISPATCHER_SCRIPT}",
         "--clear-cloudsql-instances": True,
         "--clear-network": True,
-        "--clear-network-tags": True,
         "--clear-secrets": True,
         "--clear-volume-mounts": True,
         "--clear-volumes": True,

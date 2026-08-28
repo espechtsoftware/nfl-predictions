@@ -350,10 +350,10 @@ def test_configure_uses_exact_flags_file_and_validates_post_projection() -> None
     assert path == "/tmp/r6-configure-flags.json"
     assert set(flags) == {
         "--args", "--clear-cloudsql-instances", "--clear-network",
-        "--clear-network-tags", "--clear-secrets", "--clear-volume-mounts",
-        "--clear-volumes", "--clear-vpc-connector", "--command", "--cpu",
-        "--image", "--max-retries", "--memory", "--parallelism",
-        "--set-env-vars", "--task-timeout", "--tasks", "--workdir",
+        "--clear-secrets", "--clear-volume-mounts", "--clear-volumes",
+        "--clear-vpc-connector", "--command", "--cpu", "--image",
+        "--max-retries", "--memory", "--parallelism", "--set-env-vars",
+        "--task-timeout", "--tasks", "--workdir",
     }
     assert flags["--set-env-vars"].startswith("^|^")
     assert cloud._canonical_bytes(MANIFEST_IDENTITY).decode() in flags["--set-env-vars"]
