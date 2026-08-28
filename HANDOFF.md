@@ -20,6 +20,45 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 17:52 UTC (two-hundred-eighty-sixth update)
+
+### V6 projection is finalized; 17,280-fit broad selection is armed
+
+- Branch `main` and `origin/main` are at `5d34cffa`. The operator has set a
+  seven-day production-freeze target: finish every mechanism-distinct,
+  decision-changing preseason population/selection test, then reserve the
+  second week before kickoff for rehearsal and critical fixes. Redundant
+  sweeps, Neo4j/UI and incomplete-data matchup arms may not gate scoring.
+- Projection execution `atlas-cbc-32g-full-2023-w8-v1-8fqck` reached terminal
+  **SUCCESS** with status SHA-256
+  `761688f5e1ecee268eacc853f7b2c8ae1f0206a685b505f5b379c022d7999a8f`
+  and task-status SHA-256
+  `cb9a0af5dd99dbac5f978a258bf606137c01d74877043dc7654a6fcac6e012a6`.
+  It finalized once to layer receipt generation `1787938866704008`, SHA-256
+  `b623b6da33b812e792a95dda05a06d1e001e612c50c3e871f0d38633adc85073`,
+  29,411 bytes at `.../v6/authorities/layer-execution-receipts/00-projection.json`.
+- Broad selection prepared once from that receipt: 54 tasks / 54 requests and
+  the frozen 17,280 broad fits. Task-manifest identity is generation
+  `1787939485790168`, SHA-256
+  `ae8571ba9d2787e87a8f4820415b9c6d534b8181ee47d88d2566cbeed2745eb5`,
+  295,788 bytes; preparation receipt is generation `1787939488187396`,
+  SHA-256
+  `66e854d7f30acfe773593ae7929ebaa596abb9786434556da5b558b293abe4ad`,
+  233,795 bytes.
+- Selection configuration succeeded with job UID
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275`. It armed once with zero submission
+  calls; launch-intent identity is generation `1787939541319820`, SHA-256
+  `cd1a6d007b2daafadc8a3f591e073dde6852a3676edfe8f9bacbd4635aba5812`,
+  2,961 bytes at
+  `.../v6/authorities/cloud-run-launch-intents/01-broad-selection-receipt.json`.
+- In parallel, a pure grouped selector successor is being implemented in new
+  files only. It will reuse completed V6 projection identities and run four
+  existing mechanism-distinct challengers with one shared matrix
+  preprocessing pass; it does not modify this active V6 registry or execution.
+- Exact next action: persist this milestone, add only the exact selection
+  launch-intent identity to the common request, launch broad selection once,
+  and status-poll to terminal. No log/scientific body/score/outcome was read.
+
 ## Current handoff — 2026-08-28 17:04 UTC (two-hundred-eighty-fifth update)
 
 ### V6 projection launched exactly once and is active
