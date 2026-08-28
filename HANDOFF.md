@@ -20,6 +20,29 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 11:56 UTC (two-hundred-fiftieth update)
+
+### Reused job is exactly configured for corrected v4 broad selection
+
+- Exact archive operator configured job `atlas-cbc-32g-full-2023-w8-v1`;
+  immutable UID remains `1f4bcf0a-2300-4afa-9fc1-9981844c8275`, generation is
+  now **16**, and job-projection SHA-256 is
+  `9ee9eaaa12aed65f80e46852b0470ab3b1af5049df7218e1fc8e9e3382b6c46d`.
+  `job_created=false` and exact post-update projection validation passed.
+- The job is bound to commit `976d1b29`, immutable image digest
+  `sha256:6e57fd1e2150fc540b62e78052b940e1581a92d49194e5d2b68290824975d988`,
+  v4 broad manifest generation `1787918108160530`, 54 tasks / 54-way
+  parallelism, 8 CPU / 32 GiB, zero retries, and a 7,260-second timeout.
+  Network, Cloud SQL, secrets, volumes and mounts are absent. Execution count
+  remains **81**; latest is the succeeded v4 projection `...-qmxvn`.
+- Configuration result is mode 0600, local SHA-256
+  `d62924299860fcbc43a31dc84756a42a00e1f136996143d07328c50422ba49be`,
+  with body self-hash
+  `af95da1831572c57e79ea2dfeee96a615e0c6ed01a965308cb803ca8068c7104`.
+  Exact next action: commit/push, arm broad selection exactly once, preserve
+  the create-once intent generation, consume it with one launch call, and
+  never retry launch after marker creation.
+
 ## Current handoff — 2026-08-28 11:55 UTC (two-hundred-forty-ninth update)
 
 ### Corrected v4 broad-selection authorities are prepared create-once
