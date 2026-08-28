@@ -287,10 +287,24 @@ def common_job_environment_v1(
     return retained
 
 
+def configured_job_environment_v1(
+    *, manifest: Mapping[str, object], manifest_identity: object,
+) -> dict[str, str]:
+    """Return only caller-configurable env; Cloud Run injects its job name."""
+    retained = common_job_environment_v1(
+        manifest=manifest, manifest_identity=manifest_identity
+    )
+    injected_job = retained.pop("CLOUD_RUN_JOB", None)
+    if injected_job != manifest.get("reused_job_name") or len(retained) != 6:
+        _fail("configured job environment differs from provider injection law")
+    return retained
+
+
 def environment_flag_v1(environment: Mapping[str, str]) -> str:
     retained = _mapping(environment, label="job environment flag")
     if (
-        len(retained) != 7
+        len(retained) != 6
+        or "CLOUD_RUN_JOB" in retained
         or any(type(value) is not str for value in retained.values())
         or any(
             ENV_DELIMITER in key
@@ -312,7 +326,7 @@ def configure_flags_v1(
         manifest.get("task_count"), label="manifest task count", minimum=1,
         maximum=220,
     )
-    environment = common_job_environment_v1(
+    environment = configured_job_environment_v1(
         manifest=manifest, manifest_identity=manifest_identity
     )
     retained_image = _image_uri(image_uri, manifest=manifest)
@@ -535,6 +549,9 @@ def validate_exact_job_projection_v1(
         _mapping(item.get("metadata"), label="job metadata").get("annotations", {}),
         label="job annotations",
     )
+    configured_environment = configured_job_environment_v1(
+        manifest=manifest, manifest_identity=manifest_identity
+    )
     expected_environment = common_job_environment_v1(
         manifest=manifest, manifest_identity=manifest_identity
     )
@@ -553,7 +570,7 @@ def validate_exact_job_projection_v1(
         or container.get("image") != image
         or command != [DISPATCHER_PYTHON]
         or arguments != ["-I", DISPATCHER_SCRIPT]
-        or environment != expected_environment
+        or environment != configured_environment
         or limits != {"cpu": CPU, "memory": MEMORY}
         or container.get("workingDir", "") != ""
         or volume_mounts
@@ -719,6 +736,9 @@ def _execution_task_template_v1(
         resources.get("limits", {}), label="execution resource limits"
     )
     timeout = str(task.get("timeoutSeconds", "")).removesuffix("s")
+    configured_environment = configured_job_environment_v1(
+        manifest=manifest, manifest_identity=manifest_identity
+    )
     expected_environment = common_job_environment_v1(
         manifest=manifest, manifest_identity=manifest_identity
     )
@@ -732,7 +752,7 @@ def _execution_task_template_v1(
         or container.get("image") != image
         or container.get("command", []) != [DISPATCHER_PYTHON]
         or container.get("args", []) != ["-I", DISPATCHER_SCRIPT]
-        or environment != expected_environment
+        or environment != configured_environment
         or limits != {"cpu": CPU, "memory": MEMORY}
         or container.get("workingDir", "") != ""
         or container.get("volumeMounts", []) != []

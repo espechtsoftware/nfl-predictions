@@ -20,6 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 05:46 UTC (two-hundred-fifteenth update)
+
+### Provider-injected job identity is separated from configurable environment
+
+- The first host correction reached the real update API and exposed the next
+  exact provider constraint: `CLOUD_RUN_JOB` is a reserved, system-injected
+  variable and cannot appear in `--set-env-vars`. The provider rejected the
+  update; a second exact job describe again proves generation 10, observed
+  generation 10, old 26-task/4-parallel spec and image, execution count 76,
+  terminal-successful latest execution and Ready status. No configuration,
+  arm or launch occurred.
+- The host operator now distinguishes the six caller-configurable dispatcher
+  variables from the seven-variable effective common runtime environment.
+  Configure and provider job/execution-spec validation use the exact six-row
+  configured set; the synthesized projection/observation authority and
+  dispatcher kernel evidence retain `CLOUD_RUN_JOB`, whose exact value is
+  injected by Cloud Run and observed at runtime. Thus no scientific manifest,
+  dispatcher or image byte changes are required. Operator SHA-256 is now
+  `69b7c6662d136348651fa77232891fd5aac9fbbb6ddab5bb994caa9af4ff1dfc`;
+  focused-test SHA-256 is
+  `6bff9a606a7f2bd9b659557897c92d8d1ac8ab019f01fa3f94689428503df262`.
+  Operator plus build-contract tests pass **34/34** in 0.99 seconds and now
+  explicitly prove the reserved key is absent from update flags while present
+  in the effective validated projection.
+- Exact next action: commit/push/archive this host-only provider correction,
+  retry `configure` against the durable projection manifest, and inspect the
+  exact post-update job before arming. Continue using science commit `6b69b3f7`
+  and immutable digest
+  `sha256:82df9201ce02a7807d916705e25157218d91afd59fe3fc98958483d5bbd3f493`.
+
 ## Current handoff — 2026-08-28 05:42 UTC (two-hundred-fourteenth update)
 
 ### Projection preparation is durable; one real-provider flag conflict is closed

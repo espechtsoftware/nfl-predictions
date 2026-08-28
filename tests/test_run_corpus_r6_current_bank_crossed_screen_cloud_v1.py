@@ -91,8 +91,14 @@ def _common_environment(manifest: Mapping[str, object]) -> dict[str, str]:
     )
 
 
+def _configured_environment(manifest: Mapping[str, object]) -> dict[str, str]:
+    return cloud.configured_job_environment_v1(
+        manifest=manifest, manifest_identity=MANIFEST_IDENTITY
+    )
+
+
 def _task_template(manifest: Mapping[str, object]) -> dict[str, object]:
-    environment = _common_environment(manifest)
+    environment = _configured_environment(manifest)
     return {
         "containers": [
             {
@@ -345,6 +351,12 @@ def test_configure_uses_exact_flags_file_and_validates_post_projection() -> None
     )
     assert result["job_created"] is False
     assert result["exact_post_update_projection_validated"] is True
+    assert result["job_projection"]["environment"] == _common_environment(manifest)
+    assert _configured_environment(manifest) == {
+        key: value
+        for key, value in _common_environment(manifest).items()
+        if key != "CLOUD_RUN_JOB"
+    }
     assert len(written) == 1
     path, flags = written[0]
     assert path == "/tmp/r6-configure-flags.json"
@@ -357,6 +369,7 @@ def test_configure_uses_exact_flags_file_and_validates_post_projection() -> None
     }
     assert flags["--set-env-vars"].startswith("^|^")
     assert cloud._canonical_bytes(MANIFEST_IDENTITY).decode() in flags["--set-env-vars"]
+    assert "CLOUD_RUN_JOB=" not in flags["--set-env-vars"]
     assert flags["--tasks"] == flags["--parallelism"] == 2
     assert flags["--max-retries"] == 0
     assert flags["--task-timeout"] == "7260s"
