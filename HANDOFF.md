@@ -20,6 +20,38 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 20:48 UTC (three-hundred-seventh update)
+
+### September 4 is the hard system-freeze target; scores now define throughput
+
+- Branch `main` and `origin/main` entered this milestone at `6d521a6b`. The
+  operator set a one-week deadline: finish every feasible, mechanism-distinct
+  preseason test that can change the 2026 lineup-generation or portfolio-
+  selection decision, freeze the system by **2026-09-04**, and use the
+  following week for production rehearsal and critical repairs rather than
+  first-pass research.
+- The critical path is now: repaired current-bank control and realized grade;
+  grouped selectors plus exact 80/100/150 and DPP; `F7`/`F8`/`F9` population
+  banks crossed with retrieval; replenishing hard-230 population; calibrated
+  `L1` shootout and `L2` role-jump laws crossed fractionally with population
+  and retrieval; recourse; then one sparse historical finalist grade and
+  frozen prospective shadows. Redundant parameter grids, Neo4j/UI work,
+  optional exposition, and non-decision evidence products do not gate this
+  deadline.
+- V7 broad selection execution
+  `atlas-cbc-32g-full-2023-w8-v1-j7hgz` remains `ACTIVE` after three status
+  snapshots. All 54 tasks remain active and no terminal failure is reported;
+  status SHA-256 remains
+  `43326dd4d8e951f7dc25bff0a486adddfc7c0050f15a0516c76dc8add6a8050b`.
+  No realized score has been read. Continue status-only polling, finalize once
+  on 54/54 success, and immediately launch broad evaluation.
+- Three implementation lanes remain active in parallel: truthful 32-cell/fold
+  rank-150 plus DPP cloud wiring, the minimum real calibration-evidence
+  extractor for `L1`/`L2`, and the consolidated hard-230 cloud entrypoint.
+  Their next owner action is focused review/test/commit, followed by one
+  consolidated challenger image and grouped cloud launches after the shared
+  job is released.
+
 ## Current handoff — 2026-08-28 20:35 UTC (three-hundred-sixth update)
 
 ### V7 17,280-fit broad selection is live across all 54 slates
