@@ -20,6 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 18:10 UTC (two-hundred-eighty-eighth update)
+
+### Three valid grouped selector challengers are ready for authority integration
+
+- Branch `main` and `origin/main` are at `036813cf`. Two new, otherwise
+  isolated files implement and test a pure grouped current-bank selector core:
+  `src/nfl_dfs/research/corpus_r6_current_bank_selector_successor_v1.py` and
+  `tests/test_corpus_r6_current_bank_selector_successor_v1.py`.
+- Independent review found that the proposed tail-LCB adapter could not claim
+  independent calibration after current-bank view admission/equal-count
+  sampling. It was removed rather than scored misleadingly. The retained
+  registry is exactly convex excess expected max, correlation-aware expected
+  max, and support-switched scenario tickets; tail-LCB is explicitly deferred
+  until a rank-only view/sample authority exists.
+- The core now exposes exact replay/tamper validation and states that caller
+  inputs are not production-authoritative. Validation is 16 focused tests
+  passing plus compilation and new-file whitespace checks. A synthetic
+  production-shape 250 x 40,000 benchmark completed all three selectors in
+  10.208 seconds at 416.4 MiB peak RSS. Source SHA-256 is
+  `42648d535822bde2013900c1d286b14bc0d213dcdbb234886412167bba5ea14e`;
+  test SHA-256 is
+  `dc88cb90f452f3f97b6daed2c840063bbc27deb1b582b90944f2fe19e8fed984`.
+- The V6 broad-selection execution from update 287 remains ACTIVE with 54/54
+  tasks administratively active and zero terminal failures. No scientific
+  output, score, log or realized outcome has been read.
+- Exact next action: commit these two files with this handoff, then bind the
+  core to the already validated projection, sample, score-ledger, matrix and
+  runtime authorities before any deployment. Continue status-only polling of
+  V6 and finalize it once on terminal success.
+
 ## Current handoff — 2026-08-28 17:55 UTC (two-hundred-eighty-seventh update)
 
 ### V6 broad selection is running across all 54 slates
