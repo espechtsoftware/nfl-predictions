@@ -20,6 +20,29 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 08:58 UTC (two-hundred-thirty-second update)
+
+### V3 projection launch intent was consumed exactly once
+
+- Submission count is **1** and job execution count moved **78→79**. New
+  Cloud Run execution is `atlas-cbc-32g-full-2023-w8-v1-zxn9z`, UID
+  `f73d5308-6723-49b6-bfd5-4d27f52af064`, generation 1; captured state is
+  **ACTIVE**. Launch-result self-hash is
+  `7160425b54f4fdff5cd9fe5162e59fd63155473006b987f0d47da70201b6dfad`;
+  exact local result-file SHA-256 is
+  `e863cbd83860b96f4ee5722329b7fbaae8ddedc408be1d0d82a572059402e38a`.
+- The create-once submission marker is
+  `authorities/cloud-run-launch-submission-markers/00-projection.json`, body
+  self-hash `518d21960184c02cfc2a1f33440f8af82f334c3056d0528e263c8e6f3903226b`.
+  `launch_request_consumed=true`, `blind_relaunch_allowed=false`, no execution
+  overrides were present, and exact provider task-template SHA-256 is
+  `2bd7a290192984a04e7d75ac3c50f3e3f4dbb15ca823fcad138a9fd40fbacdeb`.
+  Never invoke v3 projection `launch` again.
+- Exact next action: commit/push this execution identity and poll it only via
+  fresh status outputs. On terminal success, finalize projection and prepare
+  broad selection immediately; on failure, use terminal evidence without logs
+  and do not relaunch. No score exists yet.
+
 ## Current handoff — 2026-08-28 08:57 UTC (two-hundred-thirty-first update)
 
 ### V3 projection launch is armed and not submitted
