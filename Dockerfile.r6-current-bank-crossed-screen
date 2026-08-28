@@ -1,0 +1,33 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# libgomp is the only additional runtime library required by the frozen
+# scientific dependency closure (LightGBM is installed through pyproject).
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Keep the runtime surface deliberately narrow.  The complete src tree is the
+# transitive scientific package closure; only the five canonical A--D and
+# controller entrypoints are executable in this image.
+COPY pyproject.toml README.md /app/
+COPY src /app/src
+COPY scripts/run_corpus_r6_current_bank_crossed_screen_projection_v1.py \
+     scripts/run_corpus_r6_current_bank_crossed_screen_selection_v1.py \
+     scripts/run_corpus_r6_current_bank_crossed_screen_evaluation_v1.py \
+     scripts/run_corpus_r6_current_bank_crossed_screen_aggregate_v1.py \
+     scripts/run_corpus_r6_current_bank_crossed_screen_task_dispatcher_v1.py \
+     /app/scripts/
+COPY reports/2026-08-27-r6-current-bank-crossed-screen-preoutput-contract.md \
+     /app/reports/2026-08-27-r6-current-bank-crossed-screen-preoutput-contract.md
+
+# Editable installation is intentional inside this immutable image: isolated
+# Python (-I) must import the exact /app/src bytes whose paths and hashes are
+# bound by the task manifest.  Runtime extras are restricted to GCP only.
+RUN pip install --no-cache-dir --editable ".[gcp]"
+
+# A bare container is the fixed dispatcher.  Every child role is selected by
+# an exact, generation-pinned task manifest rather than an image command
+# override supplied by an operator.
+CMD ["/usr/local/bin/python3.11", "-I", "/app/scripts/run_corpus_r6_current_bank_crossed_screen_task_dispatcher_v1.py"]

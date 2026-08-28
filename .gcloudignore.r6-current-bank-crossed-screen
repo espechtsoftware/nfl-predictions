@@ -1,0 +1,32 @@
+# Dedicated allowlist for:
+# gcloud builds submit --ignore-file=.gcloudignore.r6-current-bank-crossed-screen
+**
+!.gcloudignore.r6-current-bank-crossed-screen
+!pyproject.toml
+!README.md
+!Dockerfile.r6-current-bank-crossed-screen
+!cloudbuild.r6-current-bank-crossed-screen.yaml
+!src/
+!src/**
+!scripts/
+!scripts/__init__.py
+!scripts/run_corpus_r6_current_bank_crossed_screen_projection_v1.py
+!scripts/run_corpus_r6_current_bank_crossed_screen_selection_v1.py
+!scripts/run_corpus_r6_current_bank_crossed_screen_evaluation_v1.py
+!scripts/run_corpus_r6_current_bank_crossed_screen_aggregate_v1.py
+!scripts/run_corpus_r6_current_bank_crossed_screen_task_dispatcher_v1.py
+!scripts/run_corpus_r6_current_bank_crossed_screen_cloud_v1.py
+!reports/
+!reports/2026-08-27-r6-current-bank-crossed-screen-preoutput-contract.md
+!tests/
+!tests/test_corpus_r6_current_bank_crossed_screen_selector_v1.py
+!tests/test_corpus_r6_current_bank_crossed_screen_projection_preparation_execution_v1.py
+!tests/test_corpus_r6_current_bank_crossed_screen_layer_preparation_v1.py
+!tests/test_corpus_r6_current_bank_crossed_screen_projection_v1.py
+!tests/test_corpus_r6_current_bank_crossed_screen_selection_execution_v1.py
+!tests/test_corpus_r6_current_bank_crossed_screen_evaluation_execution_v1.py
+!tests/test_corpus_r6_current_bank_crossed_screen_aggregate_execution_v1.py
+!tests/test_corpus_r6_current_bank_crossed_screen_task_manifest_execution_v1.py
+!tests/test_corpus_r6_current_bank_crossed_screen_task_dispatcher_v1.py
+!tests/test_r6_current_bank_crossed_screen_build_contract.py
+!tests/test_run_corpus_r6_current_bank_crossed_screen_cloud_v1.py

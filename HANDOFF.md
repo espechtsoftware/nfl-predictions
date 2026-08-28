@@ -20,6 +20,1078 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 05:00 UTC (two-hundred-ninth update)
+
+### The real-provider launch/finalization boundary is release-GO
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. The final
+  host operator is
+  `scripts/run_corpus_r6_current_bank_crossed_screen_cloud_v1.py` SHA-256
+  `ff8486d3eb77606e2ec00dead7f9c5519a5d9af98690ed2321a74be4edea0779`
+  (2,961 lines), and its focused test is
+  `96d3ce33a1d1bce55f4932267478752d695a63d23c979ae506e039e9dc89f0d6`
+  (1,224 lines). It exposes prepare, prepare-layer, configure, arm-launch,
+  launch, recover-launch, status and finalize. Arm-launch durably returns the
+  exact intent identity before submission; the create-once marker permits one
+  provider call; recovery uses only that pinned intent plus exact job and
+  execution descriptions and never resubmits, lists, reads logs or resolves a
+  GCS control head. There is deliberately no cloud launch-result object. A
+  host death after marker creation but before execute fails closed and requires
+  a fresh prefix, preventing a blind duplicate submission.
+- A read-only describe of the last successful real Cloud Run task proved that
+  Cloud Run v1 omits `status.index`, `status.retried` and, on success,
+  `lastAttemptResult.exitCode`; it supplies the deterministic task name,
+  execution/running-state labels and completed condition. The operator now
+  binds the loop index to that exact task name and derives a zero exit only
+  from provider success. The actual job status also proved the bounded
+  recovery surface: `executionCount` plus the full `latestCreatedExecution`
+  record. No provider resource was changed by those describes.
+- The shared task manifest is now
+  `2c0aed08fef22d2275bacf021d46b39db14e1a1aff410de9bcb7ad6a8f005fa8`.
+  Scientific/task input authorities remain generation-pinned and forbid
+  current resolution. A separate pre-design budget now authorizes the host
+  finalizer to resolve only the exact 220 manifest-declared create-once task
+  terminal-evidence URIs across all eight layers, one metadata lookup per URI
+  followed immediately by a generation-pinned hash-verified read; listing,
+  logs and scientific-output resolution remain forbidden. This method and its
+  ordered URI ledger propagate through observation source, observed execution
+  and layer receipt. The amended pre-output report is 40,877 bytes at SHA-256
+  `6f7ed29b75aa4ce5e74bee412493a5776ed5fdbaff3f8e20c893dc8911dc01a7`;
+  projection preparation was updated only for that frozen byte/SHA authority
+  and is now
+  `0019e741d649dc2493c4e3333cf168f7994a111b4a0d6d9c3b2259cb55fb2eee`.
+- The GCS operator no longer caches exact-read bodies, so later-layer
+  preparation's sequential release is real rather than defeated by transport
+  retention. Integrated lead validation passes **64/64** in 6.47 seconds;
+  the final operator/build rerun passes **34/34** in 0.99 seconds; py-compile
+  and scoped diff checks are clean. Independent static/call-graph review is
+  **GO with P0=0/P1=0** on the final executable code; the only post-review
+  operator delta is the four-line docstring that explicitly records the
+  marker-to-execute fail-closed window, plus six static assertions in its
+  test. The post-terminal realized-score bridge is separately P0-clean and
+  does not hold launch; it correctly preserves all 160 confirmation paths
+  because this terminal has no all-block final-fit finalist book.
+- No image build, cloud write, job update/execution, outcome read, score, graph
+  mutation or Git-ref mutation occurred in this milestone. Exact next action:
+  stage only the reviewed current-bank release, inspect/commit/push it, build
+  from an archive of that exact commit, then prepare/configure/arm/launch the
+  one-task projection layer at the untouched `20260828-r6-current-bank-crossed-screen-v1`
+  prefix.
+
+## Current handoff — 2026-08-28 04:30 UTC (two-hundred-eighth update)
+
+### Shared manifest controller is frozen for the immutable build
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. The shared
+  current-bank task-manifest/controller is now frozen at SHA-256
+  `35d6347dd73e295fe7ce323cfb743574832d99ced1cde93b06101224e45b867b`
+  (6,513 lines). Its only post-GO change is three public identity-only
+  canonical builders for selection, evaluation and publisher requests; the
+  existing private validators replay those same builders and the three names
+  are exported. No contract or A--D science field/schema changed.
+- Exact equivalence against the existing selection/evaluation/aggregate
+  execution request constructors, all seven later-layer URI plans and
+  outcome-field rejection passes **9/9** in 1.7 seconds. Py-compile is green,
+  and the existing manifest-plus-dispatcher focused regression remains green
+  **10/10** in 1.9 seconds. The owner has frozen the shared file and will not
+  edit it again before build.
+- The host-only later-layer preparation controller is in final focused
+  validation; it does not hold the image build. The integrated five-command
+  cloud operator and its nine adversarial tests are also at final validation,
+  with the dedicated small build-context allowlist remaining. Exact next
+  action: receive those hashes, run lead/cross-review on the scoped release,
+  then stage/commit/push and build from an archive of that exact commit. No
+  cloud write, job update/execution, outcome read or score occurred here.
+
+## Current handoff — 2026-08-28 04:23 UTC (two-hundred-seventh update)
+
+### The exact fresh projection authority graph can now be prepared
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. The pure
+  first-layer preparation controller is final at
+  `src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_projection_preparation_v1.py`
+  SHA-256
+  `601f222a5e773af1eadbdebb8a04be501a2e9e633c2f115b236663cf6ac13cc6`;
+  projection A now exports the shared exact panel-root-to-111-object helper at
+  module SHA-256
+  `17e7df2028e49992e10d9807d2235f16075876b32cfb8000ce59b2a35bfc7e55`.
+  Its focused test is
+  `5de1885488954194027003d4972bd26507ffe66bc5cdaa60031fb83e95b555b1`.
+  Independent disposition is **P0=0/P1=0/P2=0**; owner and lead focused runs
+  pass **8/8** (2.42 and 1.60 seconds), full A projection regression is green,
+  and py-compile/static capability audit are clean.
+- Preparation exact-binds and publishes the real frozen contract-module and
+  pre-output-report bytes rather than accepting fabricated source identities;
+  exact-reopens the generation-pinned panel root; derives all 111 unique
+  structural identities; then create-once publishes sources, pre-design
+  authorization, topology, bootstrap, design, projection budget, request,
+  manifest and its preparation receipt in fixed acyclic order. The real-panel
+  in-memory smoke created ten objects, a 130,593-byte receipt, structural-ledger
+  SHA-256
+  `5c4bf65473a845395a35164b951eeb266825931591e4324a449783c2d3056737`,
+  54 explicit absent-prior slots and the exact registry manifest URI. A
+  re-self-hashed panel/source mutation and a mid-chain collision fail closed;
+  the collision permits no later write.
+- The intended untouched prefix is
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-current-bank-crossed-screens/20260828-r6-current-bank-crossed-screen-v1/`;
+  its exact `design.json` lookup returned 404. The downloaded read-only panel
+  body at generation `1787756181440564` byte/SHA matched the frozen 89,879-byte
+  identity and 54-slate self-hash. No output object has been written. The
+  integrated production `prepare/configure/launch/status/finalize` adapter,
+  later-layer manifest builder and build-context allowlist remain active in
+  parallel. Exact next action is their focused review, then one scoped
+  commit/push and immutable build from that commit archive.
+
+## Current handoff — 2026-08-28 04:07 UTC (two-hundred-sixth update)
+
+### Dedicated immutable image surface is green and the reusable job is idle
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. The dedicated
+  current-bank image/build surface now consists of
+  `Dockerfile.r6-current-bank-crossed-screen` SHA-256
+  `59f502e6c6b0751b82f83890873423b832e6db509f5207dd9aed5c2a45d20650`,
+  `cloudbuild.r6-current-bank-crossed-screen.yaml` SHA-256
+  `6d797e39d440bbfc4b415ba4d1b84d39f4e370898915ca087bca90bc86c40170`,
+  and its static contract test SHA-256
+  `9a063c92878616996afb00be0178cec0855489826d6cb2ce86db81086f9073b7`.
+  The independent static run and lead rerun are green **8/8** (0.67 and 0.08
+  seconds respectively). The Python 3.11 `/app` image installs only `.[gcp]`,
+  sets neither `PYTHONPATH` nor `PYTHONHOME`, copies the frozen source closure
+  and five exact entrypoints, and image-smokes isolated package provenance,
+  every bootstrap process path and the fail-closed dispatcher under
+  `python3.11 -I` with no network.
+- A read-only targeted provider check used the repository-recorded project
+  `nfl-predictions-503414`; the earlier guessed `tesla-v100` check only returned
+  API-disabled and changed nothing. Reusable job
+  `atlas-cbc-32g-full-2023-w8-v1` remains UID
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275`, generation 10, Ready, with no active
+  execution. Its latest execution `atlas-cbc-32g-full-2023-w8-v1-wxgv9`
+  completed successfully at `2026-08-26T14:37:46.926851Z` with 26/26 tasks.
+  The idle job still carries the old panel-freeze command and 4 CPU/16 GiB;
+  it has not been reconfigured. The exact current-bank reconfiguration remains
+  8 CPU/32 GiB, retries zero, 7,260-second timeout and digest-only image after
+  the source commit and immutable build exist.
+- The pure first-layer create-once preparation controller and the thin
+  configure/launch/status/finalize operator are active in parallel. No build,
+  image publication, job mutation, cloud execution, result/outcome read,
+  scoring, graph mutation, IAM census or Git-ref mutation occurred in this
+  milestone. Exact next action: finish and focused-test both controllers,
+  review/stage only the current-bank release, commit/push it, build the exact
+  digest and prepare/launch the one-task projection layer.
+
+## Current handoff — 2026-08-28 04:00 UTC (two-hundred-fifth update)
+
+### Fresh-run A--D boundary is integrated-GO; launch preparation is now the critical path
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. The frozen
+  task manifest is
+  `5dfcff22e1eef787dc9c3bb99ae743c721a455515f336562b1998da4572878da`
+  (6,401 lines), the science contract is
+  `fcddb8887701c9eaf0be69b6be1b238f5c3001369e22e2297d69ac7a600a4301`,
+  the dispatcher is
+  `ec926aa25ebd85c638d52dfa93bfb45e6acc37a2b69f41ff1c830de10540c050`,
+  and D core/CLI are respectively
+  `075c0b29c17b7d8376a775f80ce7863fd1f060ed2f9522eb10561a2d6f93ff35`
+  and `e8d272226f493e1eee541a0c7e5009b16e666d103b673dfd8e91c1180df2008d`.
+  Independent exact-SHA review is **GO with P0=0/P1=0/P2=0** for an explicit
+  fresh initial A--D execution; recovery remains deliberately deferred.
+- Final serialized validation is green: manifest/dispatcher **10/10** in 1.9
+  seconds, B **21/21** in 53.37 seconds, D **17/17** in 3.44 seconds, the A
+  exact process-budget test plus full in-memory main/controller path pass, and
+  the affected C integration/resource/envelope slice passes **6/6**. A's
+  post-execution assertion was updated only for the controller's frozen
+  private validator signature; production A completed before that test-only
+  mismatch and the corrected rerun is green. One full 274-object contract
+  test invocation lost its process while its PTY remained open and was
+  terminated without a result; D's focused terminal test covers all 274
+  checkpoints, while the existing full contract test remains available for a
+  later bounded run.
+- The last resource contradictions are closed: D exact-range reads request
+  identity bytes plus one and reject length drift before JSON decode; its
+  address-space/RSS ceiling is 24 GiB inside the exact 32 GiB provider
+  container; the precharge algebra totals 20,010,450,944 bytes; terminal
+  reconstruction retains one full body, immediately releases the `opened`
+  tuple/body, accumulates one canonical minimal 108-record array under 64 MB,
+  checkpoints every predecessor and binds the observed compact byte count.
+  Provider working directory, mounts, volumes, command/environment, resource
+  limits and absent RunJob overrides are exact-bound.
+- A narrow review proved there is no operator/orchestrator entrypoint yet:
+  stdin A--D scripts and immutable task-manifest builders exist, but nothing
+  prepares the initial authority graph, configures/executes the one reused
+  Cloud Run job layer by layer, captures provider observations and publishes
+  receipts. Two bounded tasks are active: a pure create-once first-layer
+  preparation controller and a dedicated `/app` immutable image/Cloud Build
+  surface. The lead is implementing the reusable-job launch/observation path,
+  then the remaining layer state machine. No sealed/scoring/realized body,
+  cloud object, deployment, IAM, graph, or Git ref was read or changed in this
+  milestone; no new historical score exists yet.
+
+## Current handoff — 2026-08-28 03:30 UTC (two-hundred-fourth update)
+
+### Fresh-run controller schema is stable after exact-budget replay
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. The refreshed
+  task-manifest/controller SHA-256 is
+  `db5a0e13f0d43fb657057f76d5706f6e78df7d673799920d2777252ca91c4402`
+  (6,218 lines); its focused test SHA-256 is
+  `d5d5d8740380115eb4b99dcc543ed2b6598c259b47611de6ce85c2ea458ed251`.
+  Py-compile and the combined focused manifest/dispatcher run pass 10/10 in
+  1.9 seconds. The AST unresolved-direct-call audit is empty.
+- The controller now exact-opens and replays each selected A--D process budget
+  rather than trusting child claims: exact read/write allowlists, counts and
+  bytes; B fold training identities, fit precharge and child ceiling; C fixed
+  matrix/candidate/addition/RSS maxima; and D publisher resource/retention
+  precharge. The observation source derives command/environment equality and
+  absence of RunJob overrides from bounded provider job-container, effective
+  execution TaskTemplate and empty override structures. Sequential predecessor
+  reopen releases the full prior layer before opening the next.
+- The dispatcher uses one exported 7,260-second monotonic deadline from main
+  entry through every authority GET, child execution/one shared ten-second
+  kill-and-pipe cleanup, streamed output proof, terminal create/reopen and
+  compact stdout flush. Transport requests receive only the remaining timeout
+  and retry deadline. The D owner has compile-clean one-full-body-at-a-time
+  aggregation plus compact 54/108-record resource evidence; the B owner has
+  compile-clean scalar envelope replay and maximum-shape/RSS tests. Their
+  focused B then D pytest runs are the immediate serialized action, followed
+  by A/C affected integration and final exact-SHA static GO. No scoring or
+  realized body, cloud object, deployment, IAM, graph or Git ref was read or
+  changed in this milestone; no new historical score exists yet.
+
+## Current handoff — 2026-08-28 03:09 UTC (two-hundred-third update)
+
+### Opaque output verification is streamed and fixed-panel size authority is bounded
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. The fresh-run
+  dispatcher no longer materializes topology-sized child publications while
+  constructing terminal evidence. It generation-pins each opaque output,
+  streams at most the claimed bytes plus one through a discard/SHA-256 sink,
+  requires exact length/hash/identity, caps the proof count at 64 and retains
+  only the identity. Byte-returning JSON authority reads are separately capped
+  at 64 MB. The canonical dispatcher command now uses isolated Python mode;
+  A--D child commands keep their existing argv shape and inherit only the
+  dispatcher's strict sanitized environment. `LD_AUDIT` and
+  `LD_LIBRARY_PATH` join the runtime redirect denylist. Focused dispatcher
+  tests are green 6/6; independent rereview accepted the streaming/range/hash
+  implementation.
+- The science contract now freezes the accepted current-bank resource domain
+  instead of permitting arbitrary receipt amplification: at most 250
+  candidates/equal-count samples (the exact observed 54-slate panel maximum),
+  71-byte safe-ASCII lineup IDs, 32-byte safe-ASCII player IDs, exactly nine
+  players, bounded occurrence/URI/generation/identity scalars, and 32 MB broad
+  / 96 MB confirmation selection-receipt ceilings. A 250/251 and identifier
+  boundary test passed; the B owner measured adversarial maximum-shape bodies
+  below 29 MB broad and about 85 MB confirmation and is adding serialized-size
+  plus RSS algebra tests after the shared manifest schema freezes.
+- Remaining pre-output work is narrow and active: bind the new streamed-proof
+  count/per-object/per-task byte budgets in pre-design authority; prove the
+  effective Cloud Run execution TaskTemplate had no command/environment
+  overrides relative to the exact job spec; finish the controller schema
+  stable signal; then apply the B scalar-envelope replay repair and run the
+  already-planned controller/D/B/A/C validation sequence. No scoring/realized
+  body, cloud object, deployment, IAM, graph or Git ref was read or changed in
+  this milestone, and no new historical score exists yet.
+
+## Current handoff — 2026-08-28 02:41 UTC (two-hundred-second update)
+
+### Fresh-run scoring is separated from deferred recovery orchestration
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. A new static
+  controller audit found initial-execution risks beyond the resume design:
+  observed Cloud execution evidence was still caller-derived rather than
+  exact-source-derived; nested child runtime/budget/read evidence was not fully
+  role-bound; synchronous child stdin could evade the timeout; selection's
+  512 MB stdout plus duplicate copy exceeded the 512 MiB RSS budget; sequential
+  cloud reopens retained too much body state; and recorded `/app` image
+  authority did not yet prevent ambient host-path commands.
+- Lead triage now **defers operational resume orchestration until after the
+  first one-slate smoke**. This pre-output release must explicitly freeze
+  fresh-run-only / `recovery_allowed=false` behavior. The monotone epoch chain
+  and create-once resume publisher cannot hold the first score path. This
+  supersedes the immediately preceding update's statement that an operational
+  layer-resume authority is required before the smoke; its design remains the
+  intended post-smoke recovery direction.
+- The real fresh-run blockers remain release gates and are being split in
+  parallel: the controller owner handles exact observed-source derivation,
+  deep role-specific envelope validation, bounded child transport and
+  image-canonical commands; the B owner handles the selection stdout/RSS
+  ceiling with a realistic cap/single-copy path and focused boundary tests.
+  Recovery-only audit findings are explicitly out of this pre-score scope.
+- Exact next action: land and focused-test those fresh-run repairs, receive the
+  shared schema-stable signal, then run controller/D/B/A/C serially and obtain
+  integrated GO before commit/push and the one-slate smoke. No sealed/scoring/
+  realized body, cloud object, deployment, IAM, graph, or Git ref was read or
+  changed in this milestone.
+
+## Current handoff — 2026-08-28 02:32 UTC (two-hundred-first update)
+
+### Recovery authority is separated from immutable task manifests
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. Controller
+  review proved that embedding prior terminal evidence in a replacement
+  manifest is operationally impossible under the simultaneously required
+  fixed manifest URI and create-once publication: the old evidence binds the
+  old manifest, while the new manifest cannot occupy its URI. A same-manifest
+  embedded prior is also a hash/causality cycle.
+- The architectural decision is an explicit immutable **layer-resume
+  authority**, separate from the unchanged task manifest. A recovery launch
+  supplies its exact identity through externally observed dispatcher launch
+  binding. It self-binds the same manifest/layer, a bounded recovery epoch,
+  prior execution/receipt authority where available, and exact completed
+  terminal-evidence identities. The dispatcher may skip only those completed
+  tasks after exact replay; every missing task runs the original manifest.
+  Receipts retain the resume-authority identity and each terminal evidence's
+  original manifest identity. Pre-design authorizes a finite layer/epoch URI
+  lattice. This avoids replacement manifests, dead cross-manifest paths and a
+  second deployed job.
+- Projection A's three requested adversarial closures are implemented and
+  green together: manifest identity/body and scalar/full-argv/runtime drift
+  reject before science; supplied-prior output performs exactly one gate-owned
+  reopen and corrupt bodies block the next write; and re-self-hashed ledger
+  identity/order/reopen/count/exhaustion mutations all reject. A awaits final
+  rereview after the shared controller schema freeze.
+- Exact next action: controller owner implements and tests the minimal separate
+  resume authority, then signals schema stability; run controller/D/B/A/C
+  serially and proceed to integrated review, commit/push and the one-slate
+  historical scoring smoke. No sealed/scoring/realized body, cloud object,
+  deployment, IAM, graph, or Git ref was read or changed in this milestone.
+
+## Current handoff — 2026-08-28 02:27 UTC (two-hundredth update)
+
+### Projection A completes its real controller/runtime/main path in memory
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. Independent
+  review found and root closed a real first-publication blocker: projection
+  core generation-reopens each output through the supplied read capability,
+  so the budget gate must classify exactly one immediate matching reopen as a
+  write proof rather than as a 114th scientific read. The gate now requires
+  that proof before the next write and requires all 54 before completion.
+- The strict storage adapter no longer performs a redundant hidden output GET.
+  Its only output read is now the budget/core-owned generation-pinned proof.
+  The full projection-core test asserts exactly **113 + 54 underlying reads**,
+  exactly one per output identity, 54 writes and exact output-ledger identity
+  equality. Focused strict resume/collision validation proves the adapter adds
+  zero GETs before that proof. The independent rereview found no remaining P0
+  in A and accepted this physical-read accounting repair.
+- A new successful `main()` integration uses real in-memory design, topology,
+  bootstrap, authorization, publisher budget and projection task-manifest
+  bodies. It proves the first post-client read is the selected manifest; full
+  authority replay and runtime binding precede exactly 113 core reads; output
+  activity is exactly 54 adjacent publish/read pairs; and the emitted stdout
+  passes the controller's exact projection-envelope transport validator. That
+  test is green in **45.92 seconds**. Focused budget/core, strict store,
+  summary, and command-boundary tests are also green.
+- Exact next action remains the controller schema-stable signal. Its owner is
+  closing cross-manifest create/resume evidence and compact receipt replay;
+  B/D remain deliberately held. Once frozen, run controller, D, B, A and C
+  serially, add the remaining one-at-a-time A mutation tests, obtain integrated
+  GO review, then commit/push and execute the one-slate historical scoring
+  smoke. No sealed/scoring/realized body, cloud object, deployment, IAM,
+  graph, or Git ref was read or changed in this milestone.
+
+## Current handoff — 2026-08-28 02:19 UTC (one-hundred-ninety-ninth update)
+
+### Projection A now executes through its exact process budget
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. Projection A
+  now exact-reopens the selected controller task before science, obtains the
+  manifest-bound projection-publisher budget, and runs the projection core
+  through a capability that permits exactly **113 ordered core reads**
+  (design, topology, 111 root-derived structural objects) and **54 ordered
+  projection writes**. Publication cannot begin before read exhaustion; every
+  returned generation is independently exact-reopened; the exact ledgers,
+  counts, hashes and exhaustion flags are embedded in the summary hash.
+- A's runtime record binds the immutable bootstrap two-token component command
+  while its separate child-task proof binds the complete kernel-observed argv
+  and dynamic identities. The process-budget body/identity/self-hash, runtime
+  record, 113-row read ledger and 54-row write ledger are jointly checked
+  before the final envelope is emitted. The test-only Neo4j identity import was
+  removed. A and C kernel command reads are now bounded `cap+1` binary reads
+  with EOF proof; B/D received the same repair from their owner and compile.
+- Focused validation is green for A's budget enforcement, summary binding and
+  exact/+1 kernel-command boundary, and for C's exact/+1 kernel-command
+  boundary. A/C CLIs and tests compile. This is not a claim that the full A--D
+  boundary is green: the controller owner is still freezing the exact child
+  envelope/receipt schemas, B/D remain deliberately held, and A still needs a
+  real manifest/main happy path plus full-suite rerun against that stable
+  schema.
+- Exact next action: receive the controller schema-stable signal; run
+  controller, D, B, A and C suites serially; add real in-memory exact-manifest
+  happy-path/mutation coverage; obtain an independent integrated GO review;
+  then commit/push the pre-output authority and run the one-slate historical
+  scoring smoke. No sealed/scoring/realized body, cloud object, deployment,
+  IAM policy, graph, or Git ref was read or changed in this milestone.
+
+## Current handoff — 2026-08-28 02:04 UTC (one-hundred-ninety-eighth update)
+
+### A--C child boundaries are green; D isolated one shared manifest defect
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. Projection A
+  passed its expanded exact suite **14/14** after adding controller binding,
+  bounded kernel command evidence and removing its Neo4j transport import. A
+  subsequent static review exposed and root repaired another real resume bug:
+  a supplied prior now compares URI/bytes/SHA before generation-exact read and
+  can never fall through to a new create; fresh-create collision without prior
+  always fails. Canonical resume JSON and preclient raw-request/command hashes
+  are now enforced. Those latest small changes compile but need the next A
+  rerun after the pending shared projection process-budget seam lands.
+- B passed its integrated child-binding suite **17/17** in approximately
+  **36.4 seconds**. Post-green hardening now additionally requires the exact
+  child-evidence schema/field set/self-hash/policy and preclient raw request /
+  kernel command hashes; those post-green edits compile and await final rerun.
+  C is green **28/28** after the same full evidence and preclient hash checks.
+- D reached **9 passing / 2 failing** tests. Both failures are one shared
+  task-manifest bug, not D science: `_request_authority_gate` demanded a
+  literal request `phase` from every non-projection role even though canonical
+  publisher requests intentionally omit that field and derive phase from the
+  registered mode/role. The controller owner is restricting explicit phase
+  equality to selection/evaluation and binding publisher phase through its
+  layer/mode/process role; D remains queued for immediate rerun afterward.
+- A's independent review also identified the last shared A execution seam:
+  the projection task request has no identity for the final contract's
+  projection-publisher process budget, so A cannot yet exact-open and enforce
+  the 111-read/54-write precharge before work. The pure request/manifest is
+  being extended with that identity and exact topology-slot prior binding;
+  root will then add the budgeted A read/write capability and runtime proof.
+- Exact next action: finish the single-owner controller repair, adapt A to the
+  projection process budget, rerun D/B/A/C and controller tests serially, then
+  perform real in-memory manifest-reopen mutation coverage and a final
+  independent integrated review. No sealed body, simulated metric, realized
+  outcome, cloud object, deployment, IAM policy, graph, or Git ref was read or
+  changed.
+
+## Current handoff — 2026-08-28 01:50 UTC (one-hundred-ninety-seventh update)
+
+### Controller blockers are mapped; A/C child bindings are implemented
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. Independent
+  adversarial review of the 2,073-line first task-manifest/controller returned
+  **NO-GO**. The release blockers are concrete: dynamic imports give the pure
+  validator executor/scoring capability; predecessor receipt identities and
+  embedded authority graphs can be spliced; child stdout is only generically
+  self-hash checked; caller strings are mislabeled as external Cloud Run
+  attestation; and the dispatcher synthesizes its command, passes trust
+  redirects, and emits rather than durably create-once publishing terminal
+  task evidence. Projection A also lacked controller child binding. Required
+  P1 closure includes role-specific pre-read ceilings, metadata-before-resume,
+  image-canonical entrypoints, explicit dispatcher resource accounting and a
+  compact identity-ledger layer receipt. A narrowly scoped manifest,
+  dispatcher and controller-test repair is active.
+- C now parses its scalar child binding before cloud construction, exact-opens
+  and validates the manifest-selected request/command/output before evaluator
+  authority or science, and embeds a full schema/self-hash/role/layer/task/
+  request-byte proof inside the evaluator envelope self-hash. The distinction
+  between the full canonical request SHA-256 and the request's inner self-hash
+  is explicit. Its focused suite is green **28/28**; current CLI / test hashes
+  are `69a1e210998b0b82169a040b9165827dc3af6b26a759449d0f4bbb3c528eeb0d`
+  and `d8dd31ee32d4a0882829b465f831e32cd163f82a6feee861aa6f63f907d43140`
+  at 372 / 1,183 lines. C remains controller-NO-GO until the shared manifest
+  purity defect and missing dispatcher evaluator ordinal are closed, then it
+  needs a real exact-authority integration test and rereview.
+- A now has the analogous bounded stdin, scalar preclient binding, bounded
+  kernel `/proc/self/cmdline`, full redirect denial, exact manifest reopen,
+  request/argument/resume equality and self-hashed terminal evidence path.
+  Its CLI no longer imports the Neo4j transport merely to parse identities.
+  The original 12-test suite passed after one synthetic main-fixture repair;
+  two new binding/kernel/dependency tests have since been added and are
+  compile-clean but still require the next serial A rerun. Current CLI / test
+  hashes are `387e019c25a351452978afc23beefd2bfe5de18045d9baded2048ae90532f896`
+  and `8abb0308d43ca067f0ff216e8a7329d4a7d7ceb996cce4a7cff3152369571de7`
+  at 500 / 753 lines.
+- B/D binding integration is compile-clean and its serial tests are pending.
+  Exact next action: finish the controller repair, run B/D then current A and
+  controller tests serially, add real in-memory manifest-reopen coverage for
+  A--D, obtain independent integrated GO, and commit the pre-output authority
+  before the one-slate outcome-blind smoke. No sealed body, simulated metric,
+  realized outcome, cloud object, deployment, IAM policy, graph, or Git ref
+  was read or changed.
+
+## Current handoff — 2026-08-28 01:33 UTC (one-hundred-ninety-sixth update)
+
+### All four pre-controller executable suites are green; controller review is active
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. Projection A
+  was repaired only at its synthetic final-contract fixture boundary and its
+  exact focused suite then passed **12/12** in **38.84 seconds**, followed by
+  clean compile and whitespace checks with no post-green source edits. Its
+  module / CLI / test SHA-256s are respectively
+  `164e16904ac7372cc7cce60f2460e0119461043556447b57f1f922daba5683c2`,
+  `a3fa1c13028b03d6de08eef6a7b47e5b55aa15d69404e5903ccc1c745de7f9fe`,
+  and `a42937feeb51c9088c708598896d6409939634a7b19b10dba8bd806f48e846ae`;
+  line counts are 749 / 270 / 624.
+- Selection B and aggregate D have also completed their exact frozen-contract
+  reruns: B passed **12/12** in **46.25 seconds** and D passed **11/11** in
+  **2.34 seconds**, with a clean seven-file compile and no source edits. C
+  remains green **26/26** in **1.09 seconds**. Thus A--D are all green against
+  frozen contract SHA-256
+  `e7b1fa166166575b5df19516b7278a7815431a64144c92cd4f25ebb59a4f6fae`
+  before controller child binding is added.
+- The pure task-manifest and dispatcher now both exist, but they remain
+  pre-freeze. Independent review found one concrete controller **P0**: the
+  otherwise transport-free manifest validator dynamically imports B/C/D
+  executor modules to validate child requests, thereby acquiring prohibited
+  scientific/executor capability. Review is continuing for alternate graph,
+  receipt-URI, resume and index-binding gaps. No controller test suite exists
+  yet, and controller authorship remains paused until the complete read-only
+  findings are returned.
+- B/D child-binding integration is now proceeding independently without
+  touching the controller. Exact next action: complete the manifest review,
+  replace dynamic request validation with local pure canonical validators,
+  independently rereview and test the controller, integrate child binding
+  into A--D, then rerun all focused suites before the pre-output commit and
+  one-slate real outcome-blind smoke. No sealed body, simulated metric,
+  realized outcome, cloud object, deployment, IAM policy, graph, or Git ref
+  was read or changed.
+
+## Current handoff — 2026-08-28 01:25 UTC (one-hundred-ninety-fifth update)
+
+### Frozen contract and repaired evaluator suites are green
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. The exact
+  contract/selector command
+  `.venv/bin/python -m pytest -q tests/test_corpus_r6_current_bank_crossed_screen_contract_v1.py tests/test_corpus_r6_current_bank_crossed_screen_selector_v1.py`
+  passed **27/27** in approximately **780 seconds** with no post-green edits.
+  The long interval was deterministic 54-slate aggregate/bootstrap and
+  terminal-root reconstruction, not a stalled process. A targeted two-node
+  diagnostic first passed **2/2** in approximately **122 seconds** after one
+  mis-targeted synthetic fixture patch was corrected.
+- Final contract module, focused test and frozen protocol-report SHA-256s are
+  respectively
+  `e7b1fa166166575b5df19516b7278a7815431a64144c92cd4f25ebb59a4f6fae`,
+  `33a35d2c55380a42a2691c1604b12036bb664d25f4e3c7f1eafdd90031c8274d`,
+  and `243f636beec4afd7b5a3f5ef1a02c861aab710efa60c2c900e5a9b4d3de6ffb2`;
+  line counts are 8,511 / 1,788 / 686. Compile, whitespace, 106-export and
+  logical-count checks are green; the phase contract proves 270 logical fold
+  selections / 540 broker-plus-matrix OS processes.
+- The repaired evaluator C suite then passed **26/26** in **1.09 seconds**
+  against that final contract. Before the clean run, an independent static
+  review found and root repaired the real 4,566,802-byte later-source ceiling,
+  tautological synthesized argv, unbounded prior-resume download, ambient
+  proxy/trust/ADC redirects, stdout newline off-by-one and synthetic NPZ wire
+  drift. The same reviewer now reports GO with `P0=0/P1=0/P2=0` for the
+  non-controller C boundaries. C exact-opens no solver tree, validates
+  kernel-observed command and bootstrap runtime before science, metadata-checks
+  bounded NPZ members before materialization, and precharges candidate/world,
+  matrix, memory, wall-time and framed-envelope resources.
+- The first pure task-manifest/controller module is present and compiles. It
+  now contains the fixed eight-layer registry, exact design/topology/bootstrap
+  and parsed pre-design run authority, topology-derived task outputs, bounded
+  child environment/reopen evidence, task terminal evidence, external layer
+  receipt, exact create/resume helper and exports. It has not yet been tested
+  or independently reviewed; dispatcher and focused tests do not yet exist,
+  so the original controller P0 remains open until those are complete and C
+  validates its exact child binding.
+- Because the final contract hash changed after the prior component runs, A,
+  B and D must be rerun against it and receive one final integrated
+  adversarial review. C must rerun after controller binding is added. No sealed
+  body, simulated metric, realized outcome, cloud object, deployment, IAM
+  policy, graph, or Git ref was read or changed. Exact next action: freeze and
+  test the task-manifest module/dispatcher, integrate child bindings into A--D,
+  rerun A/B/C/D serially, then commit the complete pre-output authority before
+  the real one-slate outcome-blind smoke.
+
+## Current handoff — 2026-08-28 01:05 UTC (one-hundred-ninety-fourth update)
+
+### Selection integration is green; evaluator/controller closure is in progress
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. Executable B
+  now closes both post-suite integration findings and passed its exact focused
+  suite **12/12** in approximately **50.12 seconds**, followed by clean compile
+  and whitespace checks with no post-green edits. Selection publication now
+  treats a supplied prior identity as an exact-generation resume rather than
+  a license to create a replacement generation. Missing generation,
+  wrong-generation/body, absent prior on collision and fresh-create paths are
+  adversarially covered.
+- The combined B CLI now lazy-loads scientific broker/matrix dependencies;
+  the slate-assembler process is statically and runtime dependency-closed.
+  Current launch/run authorization, normalized four-read broker evidence,
+  bounded child evidence and the strengthened fold/slate receipt API are
+  integrated against contract SHA-256
+  `4cbbaa35047491f06662b260a6874569314cdf49afb160b86deb68a52545d0c3`.
+  Assembler, matrix worker, CLI and test SHA-256s are respectively
+  `95a5440a7c3f48b289fe22d8eabbcf900033d05e0f160622bfa004f15b0048ff`,
+  `f25e321a176c2c2aa2b9b854235a03c77d5973a08ebdfbdefa26f7fac6c024fe`,
+  `2d7efa7aa00679d539655ef04f6aef2b6f13f09704abd2c13f8fe354b37f22ce`,
+  and `8022fd51742b784fca88505527c62cc0da3b087fe64ea88c1ebad0e811f24699`;
+  line counts are 1,556 / 550 / 581 / 1,109.
+- Root repaired the non-controller C findings, but C has not yet earned a
+  post-repair green run. It no longer imports later-source/residual-world
+  solver trees; instead it has a bounded scorer-only player/NPZ reader that
+  inspects exact ZIP/NPY metadata before materializing only player IDs and
+  float32 draws. Runtime/bootstrap validation now precedes construction of
+  the scientific capability. A supplied prior evaluation identity forces an
+  exact reopen and can never upload. Candidate/world additions, matrix bytes,
+  compressed/decompressed members, player/source counts, wall time, peak RSS
+  and stdout envelope size now have code-pinned ceilings and adversarial test
+  cases. Compile and scoped whitespace checks pass; the focused suite waits
+  behind the contract suite.
+- A separate owner is implementing the missing immutable task-manifest
+  controller in three new isolated files. The frozen layer registry reuses one
+  job/image across projection, broad selection/evaluation/nomination,
+  confirmation selection/evaluation, aggregate/finalists and root. Each
+  manifest binds the exact design/topology/bootstrap/run authorization,
+  image/commit/job/command, ordered task requests and topology-derived outputs;
+  task index selects one request. A bounded child environment binding lets
+  A--D prove the request/command/output came from that exact task rather than
+  trusting arbitrary stdin.
+- The first long contract/selector diagnostic was not green and is not being
+  represented as one. Two early fixture failures were mapped to one
+  mis-targeted test patch; the full PTY was then interrupted while expensive
+  root reconstruction was still executing. The owner corrected the fixture
+  placement and is running the two exact failing nodes before a complete
+  uninterrupted rerun. No sealed body, simulated metric, realized outcome,
+  cloud object, deployment, IAM policy, graph, or Git ref was read or changed.
+  Exact next action: obtain the full contract green result, integrate the
+  controller child binding into C, run/review C and controller suites, then
+  rerun A/D against the frozen contract before the real one-slate smoke.
+
+## Current handoff — 2026-08-28 00:53 UTC (one-hundred-ninety-third update)
+
+### Aggregate publication is green; independent evaluator review is correctly NO-GO
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. Executable D
+  now exists in its isolated aggregate module, guarded CLI and adversarial
+  test. Its first diagnostic run was **2 passed / 9 failed** in **2.73
+  seconds** because the live contract had strengthened launch authority to
+  require exact equality with the bootstrap run authorization while the
+  synthetic fixture still used an unrelated tag. Only that fixture was
+  corrected; production validation was not weakened. The clean rerun passed
+  **11/11** in **2.45 seconds**, followed by clean compile and whitespace
+  checks with no post-green edits.
+- D provides separate nomination, aggregate/finalist and terminal-root modes.
+  It exact-reopens the precharged 54/109/274 predecessor lattices, binds
+  runtime and publisher budgets, uses create-once/exact-resume publication,
+  and constructs the terminal root through one 274-object streaming pass.
+  Aggregate module, CLI and focused-test SHA-256s are respectively
+  `d4692c226abd98dd8641200decc1533116b4e609c86e784ab93b46fd95a2a1ab`,
+  `f0ea7dbec010653aef6af74f02f8a3cbe17f84825648683dac5139822a2e4255`,
+  and `9de2918f675b04db86a6855b2a0966546610f176ea869e93da48b2e852646176`;
+  line counts are 1,221 / 243 / 839. The mirrored terminal validator remains
+  an independent-audit boundary: invoking it in the same publisher after the
+  builder would consume an unbudgeted second 274-read pass.
+- Fresh independent static review of executable C is **NO-GO** at `P0=1`,
+  `P1=4`, `P2=2`. The P0 is the already-planned but not-yet-implemented
+  controller boundary: stdin can supply a coherent alternate design,
+  topology, projection, receipt, budget, launch and output graph because no
+  independently pinned task/request manifest binds the complete evaluator
+  request. This must be fixed before any broad cloud score run, not waived.
+- C also imports the later-source and residual-world modules transitively,
+  making its no-selector/solver claim false; validates observed runtime after
+  opening the first scientific object; permits a supplied prior identity to
+  create a new generation when the target is absent; and has no precharged
+  decompressed-artifact, candidate-matrix, operation, memory or time ceiling.
+  Its stdout envelope is not explicitly byte-capped. The current synthetic
+  suite misses these boundaries because it checks only direct imports and
+  monkeypatches the decoder, runtime and metric builder.
+- The selector owner is repairing B's exact prior-resume path and lazy import
+  closure without touching the evolving contract. The contract owner has the
+  single pytest slot for the final contract/selector suite. No sealed body,
+  simulated metric, realized outcome, cloud object, deployment, IAM policy,
+  graph, or Git ref was read or changed. Exact next action: add the immutable
+  task-manifest/controller authority, repair C's runtime-before-science,
+  solver-free bounded decoder, strict resume and envelope/resource ceilings,
+  then rerun C against the real contract and obtain a fresh stable-hash
+  independent review before the one-slate outcome-blind smoke.
+
+## Current handoff — 2026-08-28 00:38 UTC (one-hundred-ninety-second update)
+
+### Held-out evaluator is sequential, generation-exact, and focused-test green
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. Executable C
+  now exists in its isolated evaluator module, guarded CLI, and adversarial
+  test. The exact focused command
+  `.venv/bin/pytest -q tests/test_corpus_r6_current_bank_crossed_screen_evaluation_execution_v1.py`
+  passed **15/15** in **2.29 seconds** with no post-test edits.
+- The evaluator validates and exact-reopens design/topology/bootstrap,
+  launch-intent, immutable selection receipt, ordinal-163 confirmation wrapper
+  when required, and its exact process budget before exposing scientific
+  reads. Only then does it allow the later source and exactly five held-out
+  artifacts. R0–R4 matrices are finite float64, candidate-order/hash bound,
+  consumed once, reduced through the contract's metric builder, and released
+  sequentially. The evaluator imports no selector/optimizer/solver and accepts
+  no caller lineup, matrix, metric, grid, output URI or selection command.
+- The CLI rejects duplicate/nonfinite JSON, command/interpreter/project/task
+  mismatch, endpoint and Python-loader redirects, invalid output/prior URI,
+  and missing execution authority before client construction or held-out
+  access. Publication is create-once with an exact-generation reopen; a
+  collision requires a supplied prior identity and identical canonical bytes.
+  The output envelope is bounded and contains only authority/evidence, not the
+  full result body.
+- Module, CLI and focused-test SHA-256s are respectively
+  `f16d7e2f1d4b2026842b4bf35c36349a02a51ab38d0a7127100a981db500815b`,
+  `f124b5e2fd10c5d426047938bb766772e7a533215a7c1f97ecfb5c97b9d78302`,
+  and `8c19b0adbc65a5b74c34d2ec29d03ab25e10808f530fd3b78d706592b9ebe7a3`;
+  line counts are 1,042 / 202 / 727. The implementing agent's final
+  line-evidence self-review reports `P0=0`, `P1=0`, `P2=0`; this is useful but
+  is not a substitute for a fresh independent review. The contract's final
+  dependency changes also require a post-integration rerun before pre-output
+  authority is frozen.
+- No sealed body, simulated metric, realized outcome, cloud object,
+  deployment, IAM policy, graph, or Git ref was read or changed. Exact next
+  action: finish C's static review, complete the contract selection/root
+  integration and D implementation, then rerun A/B/C plus contract/selector
+  suites serially and obtain fresh independent closure review.
+
+## Current handoff — 2026-08-28 00:30 UTC (one-hundred-ninety-first update)
+
+### Selection execution is capability-split and green; receipt integration remains
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. Executable B
+  has completed its first clean post-repair focused validation: **10/10
+  passed** in **29.25 seconds**, final compile passed, and there were no
+  post-green edits. The prior diagnostic runs were intentionally nonfinal: one
+  found a test-only ledger nesting typo and one exposed the live contract's
+  migration from separate broad/nomination arguments to the exact ordinal-163
+  nomination publication. Both were corrected and the complete suite rerun.
+- The exact-read broker and transport-free matrix selector are now separate OS
+  processes under fixed commands and live entrypoint hashes. The matrix child
+  receives only a bounded sanitized four-block matrix capability—no URI,
+  generation, object identity, read callable or fifth-artifact identity. The
+  suite attacks arbitrary commands, runtime tamper, raw fifth access,
+  subprocess output overflow, redirects before client construction,
+  nomination publication splicing, no-artifact five-child assembly, and the
+  complete phase lattice of 270 logical folds / 540 OS processes.
+- Assembler, matrix worker, broker CLI, and focused-test SHA-256s are
+  respectively
+  `0bb4f96e02226feceab1e18936616bf1679fe68334e3d20b0dd98a0849e7476e`,
+  `f25e321a176c2c2aa2b9b854235a03c77d5973a08ebdfbdefa26f7fac6c024fe`,
+  `2b3a11c59689d54c644ec65a055634fa209a90692a7cca1406068f66f5ffa1db`,
+  and `09623fd8c388e69ff3fe69be64cd1998df06142575c45c4155f4415eea968d4b`;
+  line counts are 1,490 / 550 / 532 / 876.
+- This is not yet final executable-B authority. The contract owner is now
+  embedding each ordered broker→matrix child evidence object into the durable
+  fold receipt, including bootstrap/process-budget/launch-intent bindings,
+  four-read ledger, fit and output-byte accounting, and both runtime hashes.
+  Slate receipts will bind five logical / ten OS children; aggregate/root
+  authority will prove 270 logical / 540 OS children per phase. After that
+  dependency change, rerun B and obtain a fresh independent zero-finding
+  review.
+- Root inspection also found one fail-closed but operational B gap not covered
+  by the green suite: new selection publication exact-reopens correctly, but
+  an explicit collision has no caller-supplied prior identity/resume path.
+  The later integration patch must add an optional prior receipt identity and
+  accept a collision only after generation-pinned URI/size/hash/canonical-body
+  equality—never list/current/reload resolution—with new-create, exact-resume,
+  missing-prior, wrong-generation and changed-body tests.
+- The combined broker/assembler CLI also eagerly imports legal, later-source,
+  world-decoder and matrix-worker modules. Although the assembler code path
+  does not call them, the actual assembler process is therefore not yet the
+  claimed dependency-closed process. The same later B patch must lazy-load
+  scientific modules only in broker/matrix modes and prove the assembler-mode
+  import closure statically and at runtime.
+- Executable C is concurrently being implemented in three isolated evaluator
+  files against the new sequential-fold contract. No sealed body, simulated
+  metric, realized outcome, cloud object, deployment, IAM policy, graph, or
+  Git ref was read or changed in this milestone. Exact next action: finish the
+  contract receipt/runtime/streaming repairs, rerun contract+A+B+C focused
+  suites serially, and independently review the complete pre-output closure.
+
+## Current handoff — 2026-08-28 00:14 UTC (one-hundred-ninetieth update)
+
+### Evaluator/terminal execution gaps are isolated before another cloud cycle
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. A bounded
+  read-only survey of the remaining current-bank evaluator, nomination,
+  aggregate/finalist, and terminal-root surfaces is durable at
+  `reports/2026-08-27-r6-current-bank-evaluator-aggregate-execution-review.md`
+  (225 lines / 1,499 words; SHA-256
+  `83db682bf4e86a0447d75f6cf3207304039e1a0eec6641a29d1d0e845c79d727`).
+- The survey found four authority defects before executable C/D or cloud
+  execution: ordinal 163 did not materialize the broad authority used by
+  confirmation; publisher roles lacked cumulative process budgets; design
+  and evaluation bodies lacked complete runtime/bootstrap bindings; and the
+  root API list-materialized 274 predecessor bodies whose frozen ceilings sum
+  to roughly 105.7 GB. The streaming repair must reduce and discard each of
+  the 108 evaluation bodies too, not merely omit projections/receipts, because
+  evaluation ceilings alone are tens of gigabytes. It also requires sequential
+  fifth-block evaluation so all five full matrices are not retained together.
+- The contract owner accepted all findings and is repairing them in its owned
+  module/report/tests: ordinal 163 will embed the broad authority rebuilt from
+  the exact 54 broad evaluations; all D publisher roles will be precharged;
+  environment-observed runtime evidence will remain distinct from the outer
+  Cloud Run attestation; and terminal reconstruction will consume exact
+  predecessors through a streaming ordinal interface. The selection owner is
+  adapting confirmation to trust only the exact ordinal-163 publication.
+- These contract/design schema repairs reopen the dependency closure of the
+  otherwise zero-finding projection executable and the in-progress selection
+  executable. The projection's prior 12/12 and independent review remain valid
+  evidence for its transport repair, but they are not the final post-contract
+  acceptance. Rerun A and obtain a fresh bounded review against the final
+  contract before the one-slate smoke.
+- The review fixes the minimal C/D shape: 108 sequential five-fold evaluator
+  processes/results, then separate nomination, aggregate/finalist, and fresh
+  terminal-root modes. All use fixed-endpoint create-once publication and
+  caller-authorized generation-exact resume. D has no world/matrix/selector or
+  outcome capability. A targeted adversarial matrix and initial resource
+  envelopes are recorded in the report.
+- The report now records the still-required reusable cloud orchestration
+  surface. Stdin entrypoints are test/smoke boundaries, not a 54-task launch
+  contract. Before the broad screen, a controller must create exact
+  task-indexed request manifests and launch/terminal receipts, reuse one
+  reviewed job/image, and enforce global layer barriers. This is specifically
+  what prevents per-strategy/per-slate rebuilds or deployments while retaining
+  generation-exact resume and comparable experiment lineage.
+- No sealed input/result body, raw or persisted realized outcome, cloud
+  object, deployment, IAM policy, graph, or Git ref was read or changed. Exact
+  next action: finish and rerun the contract/selector suite after these
+  repairs, integrate the hardened selection child evidence, obtain fresh
+  zero-finding reviews, and only then commit the pre-output authority and run
+  the one-slate outcome-blind smoke.
+
+## Current handoff — 2026-08-28 00:04 UTC (one-hundred-eighty-ninth update)
+
+### Projection publication is generation-exact; evaluation and selection hardening continue
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. After the IDE
+  restart, the executable-A projection publisher was repaired to remove its
+  last current-generation resume path. It now uses a private fixed-endpoint
+  transport, attempts create-once publication, and permits a collision resume
+  only when the request supplies the prior generation, size, object SHA-256,
+  and internal SHA-256. It then reopens that exact generation and accepts it
+  only when the canonical body is identical. It has no list,
+  `resolve_optional`, reload, or current-generation read path.
+- Semantic request validation, the explicit execute/project gate, and storage
+  redirect-environment rejection now happen before cloud-client construction.
+  Adversarial tests prove that a collision without a prior exact identity
+  performs no read and that invalid JSON, missing execution authority, and a
+  hostile endpoint override fail before a client can be created.
+- Exact focused validation is **12/12 passed** in **49.15 seconds**, with no
+  post-test edits. Projection module, CLI, and test SHA-256s are respectively
+  `164e16904ac7372cc7cce60f2460e0119461043556447b57f1f922daba5683c2`,
+  `a3fa1c13028b03d6de08eef6a7b47e5b55aa15d69404e5903ccc1c745de7f9fe`,
+  and `dd90a0ed90a6c70ee960dbf85b5b19a5c4429335e05aa6b2bbbb9a784b826d19`.
+  Compile and scoped whitespace checks pass. The independent narrow static
+  re-review returns **GO** with `P0=0`, `P1=0`, and `P2=0`: it independently
+  confirmed pre-client validation, fixed-endpoint exact reads, collision
+  refusal without recorded identity, generation-pinned body/hash replay, and
+  the absence of list/current/`resolve_optional` access. This closes
+  executable A, but it does not yet authorize opening simulated metrics while
+  the selection and terminal authorities remain under repair.
+- The contract/evaluation agent is completing matrix-derived held-out rows,
+  exact 54-slate broad and confirmation grids, keyed comparison ledgers,
+  deterministic slate-cluster bootstraps, and terminal-root reconstruction.
+  The selection-execution agent is closing caller-command/selector injection,
+  fifth-artifact capability leakage, self-attested runtime identity, missing
+  child-output-byte enforcement, and pre-client validation. The local serial
+  test slot is coordinated between them.
+- No sealed input body, realized outcome, simulated score, cloud object,
+  deployment, IAM policy, or Git ref was read or changed in this milestone.
+  Exact next action: obtain zero-finding independent reviews for projection,
+  selection, and the terminal contract; bind the 270 canonical child-execution
+  receipts into the contract; rerun the exact focused suites; then update and
+  commit the complete pre-output authority before opening the one-slate smoke.
+
+## Current handoff — 2026-08-27 23:29 UTC (one-hundred-eighty-eighth update)
+
+### The current-bank selector is now matrix-derived; terminal reconstruction remains the Lane-A gate
+
+- Branch `main`; local and remote predecessor remain `a3fd6a93`. The IDE
+  restarted after the latest local validation, but the shared worktree and
+  files survived intact and no pytest or cloud process was left running.
+- The current-bank contract's first fresh final review was correctly **NO-GO**
+  (`P0=1`, `P1=4`, `P2=3`). It proved that the earlier self-hashed selection
+  cells could admit arbitrary exact-80 orders, evaluation and aggregate grids
+  were caller attestations rather than derivations, 59 of 275 durable objects
+  lacked publication budgets, and no topology-bearing design or exact terminal
+  root reconstruction existed. No simulated output was opened under that
+  invalid boundary.
+- The P0 selection repair is now implemented locally in the new selector-only
+  module
+  `src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_selector_v1.py`.
+  The schema/contract module no longer imports selector code; the authoritative
+  selector seam accepts the finite training matrix and exact authorities,
+  derives full and sampled row ledgers, runs the registered dispatcher, and
+  does not accept caller-provided selected IDs, cells, or row hashes. It also
+  closes broad-fold-to-confirmation splicing. The exact focused contract plus
+  selector slice last passed **22 tests** in **29.56 seconds**. This is not yet
+  execution authority: evaluation-derived metric rows, exact 54-body phase
+  aggregation and keyed bootstrap reconstruction, complete publication/child
+  budgets, topology-bearing design, finalist authority, terminal root replay,
+  and their adversarial tests are still being implemented.
+- Executable A, the selector-free projection builder, is complete locally in
+  `corpus_r6_current_bank_crossed_screen_projection_v1.py` plus its CLI and
+  focused test. It exact-reopens the 111-object structural allowlist, replays
+  all 54 leaves, emits five ordered fold projections per slate directly from
+  `candidate_view.eligible_candidates`, proves the eight frozen books share
+  candidate/input/shape/matrix authority, and publishes only through
+  precharged create-once topology URIs. Its final post-CLI-change validation is
+  **10/10 passed** in **46.68 seconds**, with no post-test edits. Module, CLI,
+  and test SHA-256s are respectively
+  `164e16904ac7372cc7cce60f2460e0119461043556447b57f1f922daba5683c2`,
+  `8149a52765835f3218f7d6e0fe6eb8cf605bb9e7160822731a18401dda06e363`,
+  and `0768ec638d33c21ea72eb3fccecebc084fd262af2d0c32e67c599d77b080f714`.
+  No sealed input or simulated result has yet been opened by this executable.
+- Executable B is also complete locally in four isolated files: the one-fold
+  worker, selector-free five-fold assembler, lazy CLI, and focused test. The
+  worker exact-reopens design/topology/bundle/budget authorities, restricts
+  reads to the later source and four training artifacts, aligns players,
+  proves the finite float64 `N x 40,000` matrix hash, and invokes only the
+  matrix-derived selector seam. The assembler validates five canonical child
+  envelopes and their command/runtime/read/fit/receipt bindings while reading
+  zero world bodies and importing no selector. Focused validation is **6/6
+  passed** in **15.68 seconds**, with final compile/diff checks and no post-test
+  edits. Assembler, fold-worker, CLI, and test SHA-256s are respectively
+  `e6cd9a4d6acc50f4bc00b74e4772f22d946ab2c1082dfcc2b24b5230e91cc410`,
+  `acf3c5e5c3dd5d765c0fb69291f02d6e4e658c5d1eebd7e64c32fc00f7020a99`,
+  `86527c744151fdd0b8a4525c11cf1568d0dd166850adafce7f04db305cac2c4b`,
+  and `468fc09f503f9d8c257a556b1fa4613ce095b77f2d4c14aa0d78a376609c73cd`.
+- The fixed-G0 catalog recovery's exact isolated three-suite evidence last
+  passed **199/199** in **16.27 seconds**, with zero failures/errors/skips and
+  unchanged testcase-inventory SHA-256
+  `dacc996b64c0f6188643deea0e7929ee0902b313e7c13f5d3e581b5a11e36466`.
+  Its final preload-order repair authenticates pytest with the repository
+  absent, authenticates the `nfl_dfs` closure under source-only precedence,
+  removes that path, exact-preloads the measured `scripts` package and both
+  runner modules from repository-root-only paths, and only then exposes the
+  final paths. The hostile `src/scripts.py` fixture must not execute. The
+  bounded post-restart read-only review now returns **GO**, with
+  `P0=0`, `P1=0`, and `P2=0`; it independently inspected the existing JUnit
+  as 199 unique cases split 125/26/48 with the same inventory hash. This closes
+  the local recovery implementation/evidence slice. Cloud publication remains
+  deliberately unperformed until the downstream outer-bound authority chain
+  is ready.
+- No raw or persisted realized outcome, grade, no-rescore funnel, matchup body,
+  graph, deployment, production policy, or new cloud object was read or changed
+  in these milestones. The sealed G0 panel, no-rescore release, and current R6
+  panel identities recorded below remain unchanged.
+- Exact next action: finish every remaining Lane-A derivation/root/budget seam,
+  rerun the focused contract and selector tests, obtain a fresh zero-finding
+  read-only review, update this record with final hashes, and commit the
+  pre-output authority before any one-slate simulated metric is opened. In
+  parallel, commit the now-zero-finding catalog recovery slice without
+  publishing it until the downstream outer-bound authority chain is ready.
+
+## Current handoff — 2026-08-27 21:43 UTC (one-hundred-eighty-seventh update)
+
+### The sealed-bank crossed-screen contract is executable; two next-bank authority gaps are now durable
+
+- Branch `main`; predecessor and remote head remain `a3fd6a93`. Added the
+  pre-output design
+  `reports/2026-08-27-r6-current-bank-crossed-screen-preoutput-contract.md`
+  and pure executable core
+  `src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_contract_v1.py`
+  with focused synthetic tests. The contract binds panel generation
+  `1787756181440564`, its object and internal hashes, the exact seven-profile
+  and eight-selector registries, rotated R0-R4 roles, nested 4/14/80 prefixes,
+  32 deterministic common-count samples, effective independent tail-shot
+  measures, and a deterministic no-human-finalist function. It explicitly
+  excludes ungenerated F7-F10 profiles and undefined selector challengers.
+- Synthetic-only focused validation is **11 passed**. It covers exact panel
+  identity, live registry drift, training-provenance view derivation,
+  infeasible/unknown arms, deterministic equal-count sampling, degenerate and
+  correlated tail-event matrices, complete finalist-lattice enforcement,
+  ascending identity ties, the simulated 200-point guard, and no backfill.
+  New-file whitespace checks are clean. The contract report SHA-256 is
+  `fbc1536870ce268918944329a39666c0d9fccf56c049e229bb6c5b95447e94ff`;
+  module SHA-256 is
+  `a48b57f51cf0ca358a6d9e3f51ba0fb6f4c40d959fe5e7c30c2aa2a4ff0fa890`;
+  test SHA-256 is
+  `73561b06b2a82eab8a38b204734a2af516fdc33138c939807246742347ec7e12`.
+  An independent adversarial review of reconstructibility, leakage, fairness,
+  and workload is still active; no sealed-bank metric may be opened before it
+  is dispositioned and the contract is committed.
+- The downstream catalog trust audit is durable at
+  `reports/2026-08-27-r6-outer-catalog-downstream-binding-audit.md`, 596 lines,
+  SHA-256
+  `44f41b376a51e6101900ae94f4673311a0b13411eb9a0f3078f8b8184418fdc7`.
+  It proves that candidate, capture-plan, component, source, batch, and
+  consumer authority still pin the old inner receipt/release rather than the
+  new recovery outer. Required order is recovery schema/API and count
+  semantics, candidate core/release schema bump, new candidate root, tracked
+  outer-bound capture plan, component, source, batch, then consumer. No
+  downstream root may publish before that chain is repaired and reopened.
+- The scheduler/source-batch independent review is durable at
+  `reports/2026-08-27-r6-scheduler-source-batch-independent-review.md`, 360
+  lines, SHA-256
+  `371125bcd78b17bf7f61fe87bc11c9aa486b4a3792fff2f899d374468024a274`.
+  Its P0 is that batch publication skips the capture plan's authoritative Git
+  predecessor replay and accepts caller-supplied final-lock bytes. P1 findings
+  are disk-file rather than loaded-runtime code identity and publication
+  without cumulative write precharge or an exact URI inventory. Partial
+  resume is same-commit-only but was described more broadly. The legal
+  scheduler remains honestly generic, source-unattested, and
+  promotion-ineligible; it is not yet a feasible-optimum benchmark.
+- No sealed task/world body, raw or persisted realized outcome, grade,
+  no-rescore funnel, graph, deployment, production policy, or cloud object was
+  read or changed in this milestone. Exact next action: disposition the
+  independent contract review, correct all findings, commit the design/core
+  before output, and implement the exact 111-object reopener plus a one-slate
+  outcome-blind smoke. In parallel, finish the recovery outer and repair the
+  downstream outer-first authority chain; do not publish the present draft
+  source batch.
+
+## Current handoff — 2026-08-27 21:27 UTC (one-hundred-eighty-sixth update)
+
+### The crossed-arm plan now runs the sealed-bank screen in parallel with next-bank provenance
+
+- Branch `main`; predecessor and remote head remain `a3fd6a93`. The independent
+  review in
+  `reports/2026-08-27-crossed-arm-retest-plan-review.md` was dispositioned in
+  `reports/2026-08-27-foundry-crossed-arm-retest-and-simulated-scoring-plan.md`.
+  Its central sequencing correction is adopted: the first profile-by-selector
+  screen starts directly from the sealed R6 full-union freeze generation
+  `1787756181440564`; fixed-G0 catalog recovery, candidate authority, matchup
+  packs, and source-v2 continue concurrently as prerequisites for the next
+  generated bank rather than blockers for the current-bank screen.
+- The controlling addendum adopts rotated-block screening for bounded pure
+  selectors, effective independent tail-shot metrics, 32 deterministic
+  equal-size corpus subsamples, a pre-output deterministic finalist rule, a
+  fractional-factor design, and an explicit ten-day target. It preserves the
+  independent-bank re-emission requirement and separates outcome-blind work
+  from historical law calibration, recourse grading, and prospective shadow
+  activation.
+- The addendum corrects three material shortcuts in the review: the exact
+  paired result is 178.435 versus 176.882 (+1.553), only 4/14/80 prefixes are
+  currently frozen, and player co-exceedance/base-rate calibration consumes
+  realized player outcomes rather than being outcome-blind. Proposed
+  `F7`-`F10` cells require a new generated bank; proposed `S1`/`S2` shadows are
+  not deployment-ready until they pass exact production-path gates.
+- Documentation validation passes: the revised plan is 627 lines / 4,398
+  words, SHA-256
+  `efe1f18f4f9dd57b59664f7d93327ed596fc3324c3d3503ae872e214a22d919e`,
+  and scoped `git diff --check` is clean. No cloud object, raw outcome, score,
+  deployment, or production policy was read or changed for this milestone.
+- Exact next action: commit the Lane A experiment contract—sealed identities,
+  current profiles, selector registry, 4/14/80 prefixes, rotated folds,
+  equal-size seed law, effective-tail metrics, and finalist function—before
+  inspecting any new simulated output. In parallel, finish independent repair
+  and review of the fixed-G0 catalog/source chain. This documentation remains
+  local until the active shared-worktree reviews reach a safe commit boundary.
+
+## Current handoff — 2026-08-27 21:12 UTC (one-hundred-eighty-fifth update)
+
+### Real fixed-G0 catalog prerequisite is absent; the carrier-shape defect is corrected locally
+
+- Branch `main`; predecessor and remote head are `a3fd6a93`. The terminal G0
+  panel, attribution release, and no-rescore funnel remain unchanged. A
+  read-only exact-object lookup proved that the required fixed catalog replay
+  receipt is absent, and a read-only prefix census found zero objects under
+  `gs://nfl-predictions-503414-corpus-source/research/source/20260826-r6-player-catalog-fixed-g0-v1/`.
+  Therefore the fixed-G0 candidate root and real source-v2 batch cannot yet be
+  published; neither has been silently treated as complete.
+- The prior projection failure is one bounded reality-contract defect. The
+  real task-0 carrier at generation `1787521590972723`, SHA-256
+  `8149de8f5ca66c89d1137b92328f0add7f76c46aeff281d9323ca6ac5ce20548`,
+  and 12,023 bytes carries `world_schedule` as a canonical GCS object identity.
+  The adapter and its synthetic fixture instead required an array. The local
+  correction now generation-identity-validates that field, and the fixture
+  uses the same identity shape. It does not widen any other carrier field,
+  catalog law, source input, outcome boundary, or publication rule.
+- Focused validation is **124 passed** in 15.69 seconds for
+  `tests/test_corpus_r6_player_catalog_fixed_g0_adapter_v1.py`; scoped
+  `git diff --check` also passes. The old implementation would fail this
+  updated fixture, so the test now covers the exact real-artifact mismatch.
+  The only cloud actions were outcome-blind generation-pinned reads and exact
+  absence/list checks. No object was created, overwritten, or deleted; no
+  world matrix, arm-result body, realized outcome, score, graph, deployment,
+  or production policy was accessed or changed.
+- Three disjoint hardening reviews remain active for the legal scheduler,
+  independent evaluation banks, and trusted 54-slate source batch. Exact next
+  action: obtain a short independent review of this two-file correction, land
+  and push it, run one read-only real task-0 replay from a clean checkout, then
+  publish/reopen the create-once catalog, fixed-G0 candidate root, and source-v2
+  batch root-last. Do not launch the source batch while its required catalog
+  and candidate roots are absent.
+
 ## Current handoff — 2026-08-27 20:04 UTC (one-hundred-eighty-fourth update)
 
 ### The deterministic no-rescore funnel is terminally published and independently reopened

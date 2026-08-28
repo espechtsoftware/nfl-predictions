@@ -1,0 +1,94 @@
+# Submit only with:
+# gcloud builds submit --ignore-file=.gcloudignore.r6-current-bank-crossed-screen \
+#   --config=cloudbuild.r6-current-bank-crossed-screen.yaml .
+steps:
+  - name: python:3.11-slim
+    id: focused-current-bank-contract-tests
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends libgomp1
+        pip install --no-cache-dir --editable '.[gcp,dev]'
+        PYTHONDONTWRITEBYTECODE=1 /usr/local/bin/python3.11 -m py_compile \
+          src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_contract_v1.py \
+          src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_projection_preparation_v1.py \
+          src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_layer_preparation_v1.py \
+          src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_selector_v1.py \
+          src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_projection_v1.py \
+          src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_selection_assembler_v1.py \
+          src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_selection_fold_worker_v1.py \
+          src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_evaluation_v1.py \
+          src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_aggregate_v1.py \
+          src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_task_manifest_v1.py \
+          scripts/run_corpus_r6_current_bank_crossed_screen_projection_v1.py \
+          scripts/run_corpus_r6_current_bank_crossed_screen_selection_v1.py \
+          scripts/run_corpus_r6_current_bank_crossed_screen_evaluation_v1.py \
+          scripts/run_corpus_r6_current_bank_crossed_screen_aggregate_v1.py \
+          scripts/run_corpus_r6_current_bank_crossed_screen_task_dispatcher_v1.py \
+          scripts/run_corpus_r6_current_bank_crossed_screen_cloud_v1.py
+        /usr/local/bin/python3.11 -I -c "from nfl_dfs.research import corpus_r6_current_bank_crossed_screen_contract_v1, corpus_r6_current_bank_crossed_screen_projection_preparation_v1, corpus_r6_current_bank_crossed_screen_layer_preparation_v1, corpus_r6_current_bank_crossed_screen_selector_v1, corpus_r6_current_bank_crossed_screen_projection_v1, corpus_r6_current_bank_crossed_screen_selection_assembler_v1, corpus_r6_current_bank_crossed_screen_selection_fold_worker_v1, corpus_r6_current_bank_crossed_screen_evaluation_v1, corpus_r6_current_bank_crossed_screen_aggregate_v1, corpus_r6_current_bank_crossed_screen_task_manifest_v1"
+        PYTHONDONTWRITEBYTECODE=1 /usr/local/bin/python3.11 -m pytest -q -o addopts='' \
+          tests/test_corpus_r6_current_bank_crossed_screen_selector_v1.py \
+          tests/test_corpus_r6_current_bank_crossed_screen_projection_preparation_execution_v1.py \
+          tests/test_corpus_r6_current_bank_crossed_screen_layer_preparation_v1.py \
+          tests/test_corpus_r6_current_bank_crossed_screen_projection_v1.py \
+          tests/test_corpus_r6_current_bank_crossed_screen_selection_execution_v1.py \
+          tests/test_corpus_r6_current_bank_crossed_screen_evaluation_execution_v1.py \
+          tests/test_corpus_r6_current_bank_crossed_screen_aggregate_execution_v1.py \
+          tests/test_corpus_r6_current_bank_crossed_screen_task_manifest_execution_v1.py \
+          tests/test_corpus_r6_current_bank_crossed_screen_task_dispatcher_v1.py \
+          tests/test_r6_current_bank_crossed_screen_build_contract.py \
+          tests/test_run_corpus_r6_current_bank_crossed_screen_cloud_v1.py
+
+  - name: gcr.io/cloud-builders/docker
+    id: build-current-bank-runtime
+    args:
+      - build
+      - --pull
+      - -f
+      - Dockerfile.r6-current-bank-crossed-screen
+      - -t
+      - '${_IMAGE}'
+      - .
+
+  - name: gcr.io/cloud-builders/docker
+    id: smoke-isolated-dispatcher-boundary
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        docker run --rm --network=none '${_IMAGE}' \
+          /usr/local/bin/python3.11 -I -c \
+          "import os; from pathlib import Path; import nfl_dfs; from nfl_dfs.research import corpus_r6_current_bank_crossed_screen_contract_v1 as c, corpus_r6_current_bank_crossed_screen_task_manifest_v1 as m; root=Path('/app'); assert Path(nfl_dfs.__file__).resolve() == root/'src/nfl_dfs/__init__.py'; assert Path(c.__file__).resolve() == root/'src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_contract_v1.py'; assert Path(m.__file__).resolve() == root/'src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_task_manifest_v1.py'; assert 'PYTHONPATH' not in os.environ and 'PYTHONHOME' not in os.environ; assert (root/c.CONTRACT_REPORT_PATH).is_file(); assert m.canonical_dispatcher_process_spec_v1()['command'] == ['/usr/local/bin/python3.11','-I','/app/scripts/run_corpus_r6_current_bank_crossed_screen_task_dispatcher_v1.py']; specs=m.canonical_bootstrap_process_specs_v1(); assert len(specs) == len(c.PROCESS_ROLES); assert all(component['entrypoint_path'].startswith('/app/') for spec in specs for component in spec['process_chain'])"
+        set +e
+        help_output="$$(docker run --rm --network=none '${_IMAGE}' \
+          /usr/local/bin/python3.11 -I \
+          /app/scripts/run_corpus_r6_current_bank_crossed_screen_task_dispatcher_v1.py \
+          --help 2>&1)"
+        help_status="$$?"
+        closed_output="$$(docker run --rm --network=none '${_IMAGE}' 2>&1)"
+        closed_status="$$?"
+        set -e
+        test "$$help_status" -eq 1
+        test "$$closed_status" -eq 1
+        case "$$help_output" in
+          *"task dispatcher failed closed: dispatcher kernel command token count differs"*) ;;
+          *) printf '%s\n' "$$help_output" >&2; exit 1 ;;
+        esac
+        case "$$closed_output" in
+          *"task dispatcher failed closed: dispatcher requires exact R6_CURRENT_BANK_TASK_DISPATCH_ENABLED=1"*) ;;
+          *) printf '%s\n' "$$closed_output" >&2; exit 1 ;;
+        esac
+
+images:
+  - '${_IMAGE}'
+
+substitutions:
+  _IMAGE: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:r6-current-bank-crossed-screen
+
+timeout: 3600s
+options:
+  logging: LEGACY
+  machineType: E2_HIGHCPU_8
