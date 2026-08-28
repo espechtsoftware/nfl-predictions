@@ -43,6 +43,9 @@ _JOB_RE: Final = re.compile(r"[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?\Z")
 ReadExact = Callable[[Mapping[str, object]], bytes]
 PublishCreateOnce = Callable[[str, bytes], object]
 
+MAXIMUM_REQUEST_SCOPED_MEMO_OBJECT_BYTES: Final = 4_000_000
+MAXIMUM_REQUEST_SCOPED_MEMO_TOTAL_BYTES: Final = 128_000_000
+
 
 class CorpusR6CurrentBankCrossedScreenLayerPreparationV1Error(ValueError):
     """A later-layer immutable preparation authority could not be proven."""
@@ -73,6 +76,51 @@ def _identity(value: object, *, label: str) -> dict[str, object]:
         raise CorpusR6CurrentBankCrossedScreenLayerPreparationV1Error(
             str(exc)
         ) from exc
+
+
+class _GenerationPinnedReadMemoV1:
+    """Memoize only small, immutable exact reads during one preparation call."""
+
+    def __init__(self, read_exact: ReadExact) -> None:
+        self._read_exact = read_exact
+        self._values: dict[tuple[str, str, str, int], bytes] = {}
+        self._retained_bytes = 0
+        self.underlying_read_count = 0
+        self.cache_hit_count = 0
+
+    @staticmethod
+    def _key(identity: Mapping[str, object]) -> tuple[str, str, str, int]:
+        return (
+            str(identity["uri"]),
+            str(identity["generation"]),
+            str(identity["sha256"]),
+            int(identity["bytes"]),
+        )
+
+    def read_exact(self, identity_value: Mapping[str, object]) -> bytes:
+        identity = _identity(
+            identity_value, label="request-scoped memo exact identity"
+        )
+        key = self._key(identity)
+        retained = self._values.get(key)
+        if retained is not None:
+            self.cache_hit_count += 1
+            return retained
+        raw = self._read_exact(identity)
+        self.underlying_read_count += 1
+        if (
+            type(raw) is bytes
+            and len(raw) == int(identity["bytes"])
+            and sha256(raw).hexdigest() == identity["sha256"]
+            and len(raw) <= MAXIMUM_REQUEST_SCOPED_MEMO_OBJECT_BYTES
+            and self._retained_bytes + len(raw)
+            <= MAXIMUM_REQUEST_SCOPED_MEMO_TOTAL_BYTES
+        ):
+            retained = bytes(raw)
+            self._values[key] = retained
+            self._retained_bytes += len(retained)
+            return retained
+        return raw
 
 
 def _canonical_bytes(value: object) -> bytes:
@@ -432,7 +480,7 @@ def _reopen_predecessor_chain(
     core: Mapping[str, object], read_exact: ReadExact,
 ) -> tuple[
     list[dict[str, object]], list[dict[str, object]],
-    dict[str, list[dict[str, object]]],
+    dict[str, list[dict[str, object]]], dict[str, object],
 ]:
     raw_records = _sequence(
         predecessor_records_value, label="predecessor layer receipt records"
@@ -442,6 +490,7 @@ def _reopen_predecessor_chain(
         _fail("predecessor layer receipt count differs from registry")
     receipts: list[dict[str, object]] = []
     bindings: list[dict[str, object]] = []
+    manifests_by_layer: dict[str, dict[str, object]] = {}
     registry = {
         str(row["layer_id"]): row
         for row in task_manifest.layer_registry_v1(
@@ -535,6 +584,7 @@ def _reopen_predecessor_chain(
         ):
             _fail("predecessor layer receipt authority graph differs")
         receipts.append(receipt)
+        manifests_by_layer[expected_layer] = deepcopy(manifest)
         bindings.append({
             "layer_id": expected_layer,
             "receipt_identity": receipt_identity,
@@ -546,7 +596,10 @@ def _reopen_predecessor_chain(
     outputs = _expected_output_identities(
         topology=core["topology"], receipts=receipts
     )
-    return receipts, bindings, outputs
+    return receipts, bindings, outputs, {
+        "manifests_by_layer": manifests_by_layer,
+        "terminal_publication_identities_generation_exact": True,
+    }
 
 
 def _read_scientific_body(
@@ -560,6 +613,250 @@ def _read_scientific_body(
         maximum_bytes=maximum_bytes,
     )
     return body
+
+
+def _broad_evaluator_process_budget_from_administrative_authorities_v1(
+    *, core: Mapping[str, object], source_ordinal: int,
+    projection_bundle_identity: object, selection_receipt_identity: object,
+    selection_request: object, read_exact: ReadExact,
+) -> dict[str, object]:
+    """Compile the legacy evaluator budget without reopening science bodies.
+
+    A successfully finalized selection task already proves that its immutable
+    assembler exact-opened and fully validated the projection and published
+    selection receipt.  The first two exact worker-budget authorities contain
+    the common later-source identity and, together, all five world identities.
+    Reconstructing the evaluator allowlist from those manifest-bound compact
+    authorities preserves the exact legacy budget while leaving the evaluator's
+    runtime science-body reads and validation unchanged.
+    """
+    source = int(source_ordinal)
+    if not 0 <= source < contract.PANEL_SLATE_COUNT:
+        _fail("administrative evaluator source ordinal differs")
+    try:
+        request = task_manifest._validate_selection_request_v1(
+            selection_request
+        )
+    except task_manifest.CorpusR6CurrentBankCrossedScreenTaskManifestV1Error as exc:
+        raise CorpusR6CurrentBankCrossedScreenLayerPreparationV1Error(
+            str(exc)
+        ) from exc
+    manifest = _mapping(core.get("manifest"), label="evaluator core manifest")
+    topology = _mapping(core.get("topology"), label="evaluator core topology")
+    projection_identity = _identity(
+        projection_bundle_identity,
+        label="administrative evaluator projection identity",
+    )
+    selection_identity = _identity(
+        selection_receipt_identity,
+        label="administrative evaluator selection identity",
+    )
+    if (
+        request["phase"] != contract.BROAD_SCREEN_PHASE
+        or request["source_ordinal"] != source
+        or request["projection_bundle_identity"] != projection_identity
+        or request["design_identity"] != manifest.get("design_identity")
+        or request["topology_identity"] != manifest.get("topology_identity")
+        or request["nomination_identity"] is not None
+        or request["prior_selection_receipt_identity"] is not None
+    ):
+        _fail("administrative evaluator selection request differs")
+    projection_rows = [
+        row for row in topology.get("objects", [])
+        if row.get("role") == "projection"
+    ]
+    selection_rows = [
+        row for row in topology.get("objects", [])
+        if row.get("role") == "broad-selection-receipt"
+    ]
+    evaluation_rows = [
+        row for row in topology.get("objects", [])
+        if row.get("role") == "broad-evaluation-result"
+    ]
+    if (
+        len(projection_rows) != contract.PANEL_SLATE_COUNT
+        or len(selection_rows) != contract.PANEL_SLATE_COUNT
+        or len(evaluation_rows) != contract.PANEL_SLATE_COUNT
+        or projection_identity["uri"] != projection_rows[source]["uri"]
+        or selection_identity["uri"] != selection_rows[source]["uri"]
+    ):
+        _fail("administrative evaluator topology identity lattice differs")
+
+    worker_identities = list(request["worker_process_budget_identities"])
+    retained_budgets: list[dict[str, object]] = []
+    for fold in (0, 1):
+        body, retained_identity = _read_json_exact(
+            worker_identities[fold],
+            read_exact=read_exact,
+            label=f"administrative evaluator worker budget[{fold}]",
+            maximum_bytes=task_manifest.MAXIMUM_PROCESS_BUDGET_BYTES,
+        )
+        try:
+            budget = contract.validate_process_budget_v1(body)
+        except contract.CorpusR6CurrentBankCrossedScreenContractV1Error as exc:
+            raise CorpusR6CurrentBankCrossedScreenLayerPreparationV1Error(
+                str(exc)
+            ) from exc
+        if (
+            retained_identity != worker_identities[fold]
+            or budget["process_role"] != "broad-fold-selector"
+            or budget["phase"] != contract.BROAD_SCREEN_PHASE
+            or budget["source_ordinal"] != source
+            or budget["process_ordinal"]
+            != source * contract.FOLDS_PER_SLATE + fold
+            or budget["projection_bundle_identity"] != projection_identity
+        ):
+            _fail("administrative evaluator worker budget binding differs")
+        retained_budgets.append(budget)
+
+    later_source_identity: dict[str, object] | None = None
+    world_identity_by_block: dict[str, dict[str, object]] = {}
+    for budget in retained_budgets:
+        for row in budget["read_allowlist"]:
+            role = str(row["role"])
+            identity = _identity(
+                row["identity"], label=f"administrative evaluator {role}"
+            )
+            if role == "projection-bundle":
+                if identity != projection_identity:
+                    _fail("administrative evaluator projection read differs")
+            elif role == "later-source":
+                if (
+                    later_source_identity is not None
+                    and later_source_identity != identity
+                ):
+                    _fail("administrative evaluator later-source identity differs")
+                later_source_identity = identity
+            elif role.startswith("training-world-"):
+                block = role.removeprefix("training-world-")
+                if block not in contract.WORLD_BLOCKS:
+                    _fail("administrative evaluator world role differs")
+                prior = world_identity_by_block.get(block)
+                if prior is not None and prior != identity:
+                    _fail("administrative evaluator world identity differs")
+                world_identity_by_block[block] = identity
+    if (
+        later_source_identity is None
+        or set(world_identity_by_block) != set(contract.WORLD_BLOCKS)
+    ):
+        _fail("administrative evaluator compact read lattice is incomplete")
+
+    base_reads = [
+        {"role": "projection-bundle", "identity": projection_identity},
+        {"role": "selection-receipt", "identity": selection_identity},
+        {"role": "later-source", "identity": later_source_identity},
+        *[
+            {
+                "role": f"heldout-world-{block}",
+                "identity": world_identity_by_block[block],
+            }
+            for block in contract.WORLD_BLOCKS
+        ],
+    ]
+    output_ceiling = int(
+        contract._ROLE_OUTPUT_BYTE_CEILINGS["broad-evaluator"]
+    )
+    base = _with_hash({
+        "schema_version": contract.PROCESS_BUDGET_SCHEMA,
+        "contract_id": contract.CONTRACT_ID,
+        "process_role": "broad-evaluator",
+        "phase": contract.BROAD_SCREEN_PHASE,
+        "source_ordinal": source,
+        "process_ordinal": source,
+        "child_run_prefix": topology["child_run_prefix"],
+        "topology_identity": manifest["topology_identity"],
+        "projection_bundle_identity": projection_identity,
+        "read_allowlist": base_reads,
+        "read_object_count": len(base_reads),
+        "read_byte_ceiling": sum(
+            int(row["identity"]["bytes"]) for row in base_reads
+        ),
+        "write_allowlist": [{
+            "role": "broad-evaluation-result",
+            "source_ordinal": source,
+            "uri": evaluation_rows[source]["uri"],
+            "max_bytes": output_ceiling,
+            "create_once": True,
+        }],
+        "write_object_count": 1,
+        "write_byte_ceiling": output_ceiling,
+        "child_output_byte_ceiling": 0,
+        "compute_fit_precharge": 0,
+        "all_block_fit_count": 0,
+        "current_generation_lookup_allowed": False,
+        "endpoint_override_allowed": False,
+        "environment_redirect_allowed": False,
+        "git_ref_redirect_allowed": False,
+        "policy": dict(contract.POLICY_CLAIMS),
+    }, field="process_budget_sha256")
+    try:
+        base = contract.validate_process_budget_v1(base)
+    except contract.CorpusR6CurrentBankCrossedScreenContractV1Error as exc:
+        raise CorpusR6CurrentBankCrossedScreenLayerPreparationV1Error(
+            str(exc)
+        ) from exc
+    common = [
+        {"role": "design", "identity": manifest["design_identity"]},
+        {"role": "topology", "identity": manifest["topology_identity"]},
+        {
+            "role": "bootstrap-manifest",
+            "identity": manifest["bootstrap_manifest_identity"],
+        },
+        {
+            "role": "launch-intent",
+            "identity": manifest["pre_design_run_authorization_identity"],
+        },
+    ]
+    reads = [*common, *base["read_allowlist"]]
+    evaluator = _with_hash({
+        "schema_version": contract.EVALUATOR_PROCESS_BUDGET_SCHEMA,
+        "contract_id": contract.CONTRACT_ID,
+        "process_role": "broad-evaluator",
+        "phase": contract.BROAD_SCREEN_PHASE,
+        "source_ordinal": source,
+        "process_ordinal": source,
+        "design_publication_identity": common[0]["identity"],
+        "topology_identity": common[1]["identity"],
+        "bootstrap_manifest_identity": common[2]["identity"],
+        "bootstrap_manifest_sha256": core["bootstrap_manifest"][
+            "bootstrap_manifest_sha256"
+        ],
+        "launch_intent_identity": common[3]["identity"],
+        "projection_bundle_identity": projection_identity,
+        "base_process_budget": base,
+        "base_process_budget_sha256": base["process_budget_sha256"],
+        "read_allowlist": reads,
+        "read_object_count_excluding_budget_authority": len(reads),
+        "read_byte_ceiling_excluding_budget_authority": sum(
+            int(row["identity"]["bytes"]) for row in reads
+        ),
+        "write_allowlist": base["write_allowlist"],
+        "write_object_count": base["write_object_count"],
+        "write_byte_ceiling": base["write_byte_ceiling"],
+        "compute_fit_precharge": 0,
+        "process_budget_authority_added_at_runtime": True,
+        "current_generation_lookup_allowed": False,
+        "environment_redirect_allowed": False,
+        "git_ref_redirect_allowed": False,
+        "policy": dict(contract.POLICY_CLAIMS),
+    }, field="evaluator_process_budget_sha256")
+    try:
+        return contract.validate_evaluator_process_budget_v1(
+            evaluator,
+            design=core["design"],
+            design_publication_identity=manifest["design_identity"],
+            bootstrap_manifest=core["bootstrap_manifest"],
+            bootstrap_manifest_identity=manifest[
+                "bootstrap_manifest_identity"
+            ],
+            launch_intent_identity=manifest[
+                "pre_design_run_authorization_identity"
+            ],
+        )
+    except contract.CorpusR6CurrentBankCrossedScreenContractV1Error as exc:
+        raise CorpusR6CurrentBankCrossedScreenLayerPreparationV1Error(
+            str(exc)
+        ) from exc
 
 
 def _publish_selection_task_authorities(
@@ -680,6 +977,7 @@ def _publish_selection_task_authorities(
 def _publish_evaluation_task_authorities(
     *, descriptor: Mapping[str, object], core: Mapping[str, object],
     outputs: Mapping[str, list[dict[str, object]]],
+    predecessor_context: Mapping[str, object],
     plan: Sequence[Mapping[str, object]], plan_cursor: int,
     authority_records: list[dict[str, object]],
     publish_create_once: PublishCreateOnce, read_exact: ReadExact,
@@ -703,26 +1001,50 @@ def _publish_evaluation_task_authorities(
         if len(nominations) != 1:
             _fail("confirmation evaluation nomination lattice differs")
         nomination_identity = nominations[0]
+    manifests_by_layer = _mapping(
+        predecessor_context.get("manifests_by_layer", {}),
+        label="evaluation predecessor manifest context",
+    )
+    selection_manifest = manifests_by_layer.get(receipt_role)
+    administrative_broad_path = (
+        phase == contract.BROAD_SCREEN_PHASE
+        and isinstance(selection_manifest, Mapping)
+        and predecessor_context.get(
+            "terminal_publication_identities_generation_exact"
+        ) is True
+    )
+    selection_tasks = (
+        list(selection_manifest.get("task_bindings", []))
+        if administrative_broad_path
+        else []
+    )
+    if administrative_broad_path and len(selection_tasks) != (
+        contract.PANEL_SLATE_COUNT
+    ):
+        _fail("administrative evaluator selection task lattice differs")
     requests: list[dict[str, object]] = []
     for source, (projection_identity, selection_identity) in enumerate(zip(
         projections, selection_identities, strict=True
     )):
-        projection = _read_scientific_body(
-            projection_identity,
-            read_exact=read_exact,
-            label=f"evaluation projection[{source}]",
-            maximum_bytes=MAXIMUM_PROJECTION_BUNDLE_BYTES,
-        )
-        selection = _read_scientific_body(
-            selection_identity,
-            read_exact=read_exact,
-            label=f"evaluation selection receipt[{source}]",
-            maximum_bytes=(
-                contract.BROAD_SELECTION_RECEIPT_MAX_BYTES
-                if phase == contract.BROAD_SCREEN_PHASE
-                else contract.CONFIRMATION_SELECTION_RECEIPT_MAX_BYTES
-            ),
-        )
+        projection = None
+        selection = None
+        if not administrative_broad_path:
+            projection = _read_scientific_body(
+                projection_identity,
+                read_exact=read_exact,
+                label=f"evaluation projection[{source}]",
+                maximum_bytes=MAXIMUM_PROJECTION_BUNDLE_BYTES,
+            )
+            selection = _read_scientific_body(
+                selection_identity,
+                read_exact=read_exact,
+                label=f"evaluation selection receipt[{source}]",
+                maximum_bytes=(
+                    contract.BROAD_SELECTION_RECEIPT_MAX_BYTES
+                    if phase == contract.BROAD_SCREEN_PHASE
+                    else contract.CONFIRMATION_SELECTION_RECEIPT_MAX_BYTES
+                ),
+            )
         nomination = None
         if nomination_identity is not None:
             nomination = _read_scientific_body(
@@ -731,42 +1053,67 @@ def _publish_evaluation_task_authorities(
                 label="evaluation nomination",
                 maximum_bytes=MAXIMUM_NOMINATION_BYTES,
             )
-        try:
-            budget = contract.compile_evaluator_process_budget_v1(
-                design=core["design"],
-                design_publication_identity=core["manifest"]["design_identity"],
-                bootstrap_manifest=core["bootstrap_manifest"],
-                bootstrap_manifest_identity=core["manifest"][
-                    "bootstrap_manifest_identity"
-                ],
-                launch_intent_identity=core["manifest"][
-                    "pre_design_run_authorization_identity"
-                ],
-                projection_bundle=projection,
-                projection_bundle_identity=projection_identity,
-                topology_identity=core["manifest"]["topology_identity"],
-                source_ordinal=source,
-                selection_receipt=selection,
-                selection_receipt_identity=selection_identity,
-                nomination_publication=nomination,
-                nomination_publication_identity=nomination_identity,
+        if administrative_broad_path:
+            task = _mapping(
+                selection_tasks[source],
+                label=f"administrative selection task[{source}]",
             )
-            contract.validate_evaluator_process_budget_v1(
-                budget,
-                design=core["design"],
-                design_publication_identity=core["manifest"]["design_identity"],
-                bootstrap_manifest=core["bootstrap_manifest"],
-                bootstrap_manifest_identity=core["manifest"][
-                    "bootstrap_manifest_identity"
-                ],
-                launch_intent_identity=core["manifest"][
-                    "pre_design_run_authorization_identity"
-                ],
+            if (
+                task.get("task_index") != source
+                or task.get("source_ordinal") != source
+                or task.get("phase") != contract.BROAD_SCREEN_PHASE
+                or task.get("process_role") != "broad-slate-assembler"
+            ):
+                _fail("administrative evaluator selection task differs")
+            budget = (
+                _broad_evaluator_process_budget_from_administrative_authorities_v1(
+                    core=core,
+                    source_ordinal=source,
+                    projection_bundle_identity=projection_identity,
+                    selection_receipt_identity=selection_identity,
+                    selection_request=task.get("request"),
+                    read_exact=read_exact,
+                )
             )
-        except contract.CorpusR6CurrentBankCrossedScreenContractV1Error as exc:
-            raise CorpusR6CurrentBankCrossedScreenLayerPreparationV1Error(
-                str(exc)
-            ) from exc
+        else:
+            try:
+                budget = contract.compile_evaluator_process_budget_v1(
+                    design=core["design"],
+                    design_publication_identity=core["manifest"][
+                        "design_identity"
+                    ],
+                    bootstrap_manifest=core["bootstrap_manifest"],
+                    bootstrap_manifest_identity=core["manifest"][
+                        "bootstrap_manifest_identity"
+                    ],
+                    launch_intent_identity=core["manifest"][
+                        "pre_design_run_authorization_identity"
+                    ],
+                    projection_bundle=projection,
+                    projection_bundle_identity=projection_identity,
+                    topology_identity=core["manifest"]["topology_identity"],
+                    source_ordinal=source,
+                    selection_receipt=selection,
+                    selection_receipt_identity=selection_identity,
+                    nomination_publication=nomination,
+                    nomination_publication_identity=nomination_identity,
+                )
+                contract.validate_evaluator_process_budget_v1(
+                    budget,
+                    design=core["design"],
+                    design_publication_identity=core["manifest"]["design_identity"],
+                    bootstrap_manifest=core["bootstrap_manifest"],
+                    bootstrap_manifest_identity=core["manifest"][
+                        "bootstrap_manifest_identity"
+                    ],
+                    launch_intent_identity=core["manifest"][
+                        "pre_design_run_authorization_identity"
+                    ],
+                )
+            except contract.CorpusR6CurrentBankCrossedScreenContractV1Error as exc:
+                raise CorpusR6CurrentBankCrossedScreenLayerPreparationV1Error(
+                    str(exc)
+                ) from exc
         budget_identity = _publish_planned_authority(
             plan=plan,
             publication_ordinal=plan_cursor,
@@ -1268,21 +1615,23 @@ def prepare_registered_layer_v1(
     publish_create_once: PublishCreateOnce, read_exact: ReadExact,
 ) -> dict[str, object]:
     """Prepare one exact registered later layer, fresh-run only."""
+    read_memo = _GenerationPinnedReadMemoV1(read_exact)
+    request_read_exact = read_memo.read_exact
     core = _reopen_projection_preparation(
         receipt_value=projection_preparation_receipt,
         receipt_identity_value=projection_preparation_receipt_identity,
-        read_exact=read_exact,
+        read_exact=request_read_exact,
     )
     descriptor = _target_descriptor(
         output_prefix=str(core["manifest"]["output_prefix"]),
         layer_id=target_layer_id,
         layer_ordinal=target_layer_ordinal,
     )
-    receipts, bindings, outputs = _reopen_predecessor_chain(
+    receipts, bindings, outputs, predecessor_context = _reopen_predecessor_chain(
         target_descriptor=descriptor,
         predecessor_records_value=predecessor_layer_receipts,
         core=core,
-        read_exact=read_exact,
+        read_exact=request_read_exact,
     )
     plan = layer_preparation_authority_plan_v1(
         output_prefix=str(core["manifest"]["output_prefix"]),
@@ -1300,18 +1649,19 @@ def prepare_registered_layer_v1(
             plan_cursor=plan_cursor,
             authority_records=authority_records,
             publish_create_once=publish_create_once,
-            read_exact=read_exact,
+            read_exact=request_read_exact,
         )
     elif descriptor["request_kind"] == "evaluation":
         requests, plan_cursor = _publish_evaluation_task_authorities(
             descriptor=descriptor,
             core=core,
             outputs=outputs,
+            predecessor_context=predecessor_context,
             plan=plan,
             plan_cursor=plan_cursor,
             authority_records=authority_records,
             publish_create_once=publish_create_once,
-            read_exact=read_exact,
+            read_exact=request_read_exact,
         )
     else:
         requests, plan_cursor = _publish_publisher_task_authorities(
@@ -1322,7 +1672,7 @@ def prepare_registered_layer_v1(
             plan_cursor=plan_cursor,
             authority_records=authority_records,
             publish_create_once=publish_create_once,
-            read_exact=read_exact,
+            read_exact=request_read_exact,
         )
     if plan_cursor != len(plan) - 1:
         _fail("layer request/budget publication plan is incomplete")
@@ -1359,11 +1709,11 @@ def prepare_registered_layer_v1(
         publication_ordinal=plan_cursor,
         value=manifest,
         publish_create_once=publish_create_once,
-        read_exact=read_exact,
+        read_exact=request_read_exact,
         authority_records=authority_records,
     )
     reopened = task_manifest.reopen_task_manifest_authority_v1(
-        manifest_identity, read_exact=read_exact
+        manifest_identity, read_exact=request_read_exact
     )
     if (
         reopened["manifest"] != manifest
@@ -1389,7 +1739,7 @@ def prepare_registered_layer_v1(
         value=preparation_receipt,
         maximum_bytes=MAXIMUM_LAYER_PREPARATION_RECEIPT_BYTES,
         publish_create_once=publish_create_once,
-        read_exact=read_exact,
+        read_exact=request_read_exact,
     )
     return {
         "layer_id": target_layer_id,

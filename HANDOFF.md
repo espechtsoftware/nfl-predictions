@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 19:16 UTC (two-hundred-ninety-second update)
+
+### V7 preparation fast path is validated for the consolidated rebuild
+
+- Branch `main` and `origin/main` are at `bf898c3c`. The broad-evaluation
+  layer preparer now compiles byte-identical evaluator budgets from the
+  terminal selection manifest plus two compact, generation-exact worker-budget
+  authorities per slate. It no longer reopens and replays 54 large projection
+  bundles plus 54 large selection receipts during administrative preparation.
+  Evaluator runtime science reads and validations are unchanged.
+- The fast path requires a validated terminal predecessor manifest, checks the
+  complete R0--R4 world-identity union and common later-source identity, and
+  falls back to the legacy compiler outside the broad phase. Exact reads are
+  memoized only within one preparation call, generation-pinned, with 4 MB per
+  object and 128 MB total caps; there is no mutable cross-run cache.
+- Validation is 50/50 across the dedicated layer-preparation, immutable cloud
+  runner and task-manifest execution suites. A real authority-graph replay was
+  byte-identical and reduced 12 logical reads to six underlying reads. Static
+  broad-preparation work falls from about 370 to about 285 GCS reads, while 108
+  large science-body reads become 108 small administrative-budget reads. The
+  expected preparation wall time is roughly 3--6 minutes rather than 22.5;
+  confirm that estimate on the next immutable run.
+- Exact next action: commit/push only the preparer, its focused tests and this
+  handoff. Then finish review of the grouped-selector cloud integration and
+  produce one immutable build containing the evaluator cap repair, this fast
+  path, and every challenger whose execution binding is ready. Do not perform
+  separate builds for individual parameter arms.
+
 ## Current handoff — 2026-08-28 19:14 UTC (two-hundred-ninety-first update)
 
 ### V6 evaluation failed on one false resource cap; V7 repair passes real-source smoke

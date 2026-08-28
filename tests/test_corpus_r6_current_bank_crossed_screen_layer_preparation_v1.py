@@ -378,7 +378,7 @@ def _install_structural_preparation_stubs(
         *, target_descriptor: dict[str, object], **_kwargs: Any,
     ) -> tuple[
         list[dict[str, object]], list[dict[str, object]],
-        dict[str, list[dict[str, object]]],
+        dict[str, list[dict[str, object]]], dict[str, object],
     ]:
         count = int(target_descriptor["layer_ordinal"])
         selected_receipts = deepcopy(receipts[:count])
@@ -388,6 +388,7 @@ def _install_structural_preparation_stubs(
             preparation._expected_output_identities(
                 topology=core["topology"], receipts=selected_receipts
             ),
+            {"manifests_by_layer": {}},
         )
 
     monkeypatch.setattr(
@@ -638,7 +639,7 @@ def test_exact_predecessor_chain_rejects_order_drift_and_outcome_keys(
         {"identity": projection_identity, "receipt": projection_receipt},
         {"identity": broad_identity, "receipt": broad_receipt},
     ]
-    receipts, bindings, outputs = preparation._reopen_predecessor_chain(
+    receipts, bindings, outputs, context = preparation._reopen_predecessor_chain(
         target_descriptor=target,
         predecessor_records_value=correct,
         core=core,
@@ -648,6 +649,12 @@ def test_exact_predecessor_chain_rejects_order_drift_and_outcome_keys(
     assert bindings == [projection_binding, broad_binding]
     assert len(outputs["projection"]) == 54
     assert len(outputs["broad-selection-receipt"]) == 54
+    assert context["manifests_by_layer"][
+        "broad-selection-receipt"
+    ] == broad_manifest
+    assert context[
+        "terminal_publication_identities_generation_exact"
+    ] is True
 
     with pytest.raises(
         preparation.CorpusR6CurrentBankCrossedScreenLayerPreparationV1Error,
@@ -727,5 +734,393 @@ def test_layer_authority_collision_fails_create_once(
                 "receipt": receipts[0],
             }],
             publish_create_once=store.publish_create_once,
+            read_exact=store.read_exact,
+        )
+
+
+def test_request_scoped_exact_read_memo_is_generation_pinned() -> None:
+    store = _MemoryStore()
+    first = store.seed_body(
+        "gs://fixture-layer-preparation/memo.json",
+        {"generation": 1},
+        generation=1,
+    )
+    second = store.seed_body(
+        "gs://fixture-layer-preparation/memo.json",
+        {"generation": 2},
+        generation=2,
+    )
+    calls: list[dict[str, object]] = []
+
+    def counted(identity: Any) -> bytes:
+        calls.append(dict(identity))
+        return store.read_exact(identity)
+
+    memo = preparation._GenerationPinnedReadMemoV1(counted)
+    assert memo.read_exact(first) == memo.read_exact(first)
+    assert memo.read_exact(second) == memo.read_exact(second)
+    assert calls == [first, second]
+    assert memo.underlying_read_count == 2
+    assert memo.cache_hit_count == 2
+
+
+def test_request_scoped_exact_read_memo_does_not_retain_large_objects(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = _MemoryStore()
+    identity = store.seed_body(
+        "gs://fixture-layer-preparation/not-retained.json",
+        {"larger": "than-one-byte"},
+    )
+    monkeypatch.setattr(
+        preparation, "MAXIMUM_REQUEST_SCOPED_MEMO_OBJECT_BYTES", 1
+    )
+    memo = preparation._GenerationPinnedReadMemoV1(store.read_exact)
+
+    assert memo.read_exact(identity) == memo.read_exact(identity)
+    assert memo.underlying_read_count == 2
+    assert memo.cache_hit_count == 0
+
+
+def test_request_scoped_memo_reuses_real_projection_authority_graph(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, projected, _core, _root_identity = _projection_root_fixture(
+        monkeypatch
+    )
+    calls: list[dict[str, object]] = []
+
+    def counted(identity: Any) -> bytes:
+        calls.append(dict(identity))
+        return store.read_exact(identity)
+
+    memo = preparation._GenerationPinnedReadMemoV1(counted)
+    first = task_manifest.reopen_task_manifest_authority_v1(
+        projected["manifest_identity"], read_exact=memo.read_exact
+    )
+    first_underlying = memo.underlying_read_count
+    second = task_manifest.reopen_task_manifest_authority_v1(
+        projected["manifest_identity"], read_exact=memo.read_exact
+    )
+
+    assert first == second
+    assert first_underlying == 6
+    assert memo.underlying_read_count == first_underlying
+    assert memo.cache_hit_count == first_underlying
+    assert len(calls) == first_underlying
+
+
+def test_broad_evaluation_publication_uses_terminal_administrative_path(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, _projected, core, _root_identity = _projection_root_fixture(
+        monkeypatch
+    )
+    projections = [
+        _identity(f"administrative-projection-{source}")
+        for source in range(contract.PANEL_SLATE_COUNT)
+    ]
+    selections = [
+        _identity(f"administrative-selection-{source}")
+        for source in range(contract.PANEL_SLATE_COUNT)
+    ]
+    task_bindings = [
+        {
+            "task_index": source,
+            "source_ordinal": source,
+            "phase": contract.BROAD_SCREEN_PHASE,
+            "process_role": "broad-slate-assembler",
+            "request": {"source": source},
+        }
+        for source in range(contract.PANEL_SLATE_COUNT)
+    ]
+    administrative_calls: list[int] = []
+
+    def compile_administrative(**kwargs: Any) -> dict[str, object]:
+        administrative_calls.append(int(kwargs["source_ordinal"]))
+        return _fake_budget(
+            process_role="broad-evaluator",
+            hash_field="evaluator_process_budget_sha256",
+            source=int(kwargs["source_ordinal"]),
+        )
+
+    monkeypatch.setattr(
+        preparation,
+        "_broad_evaluator_process_budget_from_administrative_authorities_v1",
+        compile_administrative,
+    )
+    monkeypatch.setattr(
+        preparation,
+        "_read_scientific_body",
+        lambda *_args, **_kwargs: pytest.fail(
+            "administrative broad preparation reopened a science body"
+        ),
+    )
+    descriptor = task_manifest.layer_registry_v1(OUTPUT_PREFIX)[2]
+    plan = preparation.layer_preparation_authority_plan_v1(
+        output_prefix=OUTPUT_PREFIX,
+        layer_id="broad-evaluation-result",
+        layer_ordinal=2,
+    )
+    authority_records: list[dict[str, object]] = []
+    requests, cursor = preparation._publish_evaluation_task_authorities(
+        descriptor=descriptor,
+        core=core,
+        outputs={
+            "projection": projections,
+            "broad-selection-receipt": selections,
+        },
+        predecessor_context={
+            "manifests_by_layer": {
+                "broad-selection-receipt": {
+                    "task_bindings": task_bindings,
+                },
+            },
+            "terminal_publication_identities_generation_exact": True,
+        },
+        plan=plan,
+        plan_cursor=0,
+        authority_records=authority_records,
+        publish_create_once=store.publish_create_once,
+        read_exact=store.read_exact,
+    )
+
+    assert len(requests) == contract.PANEL_SLATE_COUNT
+    assert cursor == len(plan) - 1
+    assert len(authority_records) == contract.PANEL_SLATE_COUNT * 2
+    assert administrative_calls == list(range(contract.PANEL_SLATE_COUNT))
+
+
+def test_administrative_broad_evaluator_budget_is_legacy_byte_exact(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, _projected, core, _root_identity = _projection_root_fixture(
+        monkeypatch
+    )
+    topology = core["topology"]
+    source = 0
+    projection_uri = next(
+        str(row["uri"])
+        for row in topology["objects"]
+        if row["role"] == "projection"
+    )
+    selection_uri = next(
+        str(row["uri"])
+        for row in topology["objects"]
+        if row["role"] == "broad-selection-receipt"
+    )
+    projection_identity = store.seed_body(
+        projection_uri, {"fixture": "projection"}, generation=70_000
+    )
+    selection_identity = store.seed_body(
+        selection_uri, {"fixture": "selection"}, generation=70_001
+    )
+    later_source_identity = _identity("administrative-later-source")
+    world_identities = {
+        block: _identity(f"administrative-world-{block}")
+        for block in contract.WORLD_BLOCKS
+    }
+    fake_bundle = {
+        "source_ordinal": source,
+        "fold_projections": [
+            {
+                "training_blocks": [
+                    block for block in contract.WORLD_BLOCKS
+                    if block != contract.WORLD_BLOCKS[fold]
+                ],
+                "later_source_identity": later_source_identity,
+                "world_artifact_identities": {
+                    f"world_artifact_{block.lower()}": identity
+                    for block, identity in world_identities.items()
+                },
+            }
+            for fold in range(contract.FOLDS_PER_SLATE)
+        ],
+    }
+    monkeypatch.setattr(
+        contract,
+        "validate_projection_bundle_authority_v1",
+        lambda *_args, **_kwargs: deepcopy(fake_bundle),
+    )
+    monkeypatch.setattr(
+        contract,
+        "validate_selection_receipt_authority_v1",
+        lambda *_args, **_kwargs: {
+            "phase": contract.BROAD_SCREEN_PHASE,
+        },
+    )
+    worker_budgets = [
+        contract.compile_process_budget_v1(
+            process_role="broad-fold-selector",
+            projection_bundle={"fixture": "projection"},
+            projection_bundle_identity=projection_identity,
+            topology=topology,
+            topology_identity=core["manifest"]["topology_identity"],
+            source_ordinal=source,
+            fold_ordinal=fold,
+        )
+        for fold in range(contract.FOLDS_PER_SLATE)
+    ]
+    worker_identities = [
+        store.seed_body(
+            f"gs://fixture-layer-preparation/worker-{fold}.json",
+            budget,
+            generation=71_000 + fold,
+        )
+        for fold, budget in enumerate(worker_budgets)
+    ]
+    assembler_identity = store.seed_body(
+        "gs://fixture-layer-preparation/assembler.json",
+        {"fixture": "assembler"},
+        generation=72_000,
+    )
+    selection_request = task_manifest.build_selection_task_request_v1(
+        phase=contract.BROAD_SCREEN_PHASE,
+        source_ordinal=source,
+        design_identity=core["manifest"]["design_identity"],
+        topology_identity=core["manifest"]["topology_identity"],
+        projection_bundle_identity=projection_identity,
+        assembler_process_budget_identity=assembler_identity,
+        worker_process_budget_identities=worker_identities,
+    )
+    legacy = contract.compile_evaluator_process_budget_v1(
+        design=core["design"],
+        design_publication_identity=core["manifest"]["design_identity"],
+        bootstrap_manifest=core["bootstrap_manifest"],
+        bootstrap_manifest_identity=core["manifest"][
+            "bootstrap_manifest_identity"
+        ],
+        launch_intent_identity=core["manifest"][
+            "pre_design_run_authorization_identity"
+        ],
+        projection_bundle={"fixture": "projection"},
+        projection_bundle_identity=projection_identity,
+        topology_identity=core["manifest"]["topology_identity"],
+        source_ordinal=source,
+        selection_receipt={"phase": contract.BROAD_SCREEN_PHASE},
+        selection_receipt_identity=selection_identity,
+    )
+    reads: list[dict[str, object]] = []
+
+    def counted(identity: Any) -> bytes:
+        reads.append(dict(identity))
+        return store.read_exact(identity)
+
+    administrative = (
+        preparation._broad_evaluator_process_budget_from_administrative_authorities_v1(
+            core=core,
+            source_ordinal=source,
+            projection_bundle_identity=projection_identity,
+            selection_receipt_identity=selection_identity,
+            selection_request=selection_request,
+            read_exact=counted,
+        )
+    )
+    assert contract.canonical_json_bytes_v1(administrative) == (
+        contract.canonical_json_bytes_v1(legacy)
+    )
+    assert reads == worker_identities[:2]
+    assert projection_identity not in reads
+    assert selection_identity not in reads
+
+
+def test_administrative_broad_evaluator_rejects_cross_fold_world_drift(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, _projected, core, _root_identity = _projection_root_fixture(
+        monkeypatch
+    )
+    topology = core["topology"]
+    projection_identity = store.seed_body(
+        next(
+            str(row["uri"])
+            for row in topology["objects"] if row["role"] == "projection"
+        ),
+        {"fixture": "projection"},
+        generation=80_000,
+    )
+    selection_identity = store.seed_body(
+        next(
+            str(row["uri"])
+            for row in topology["objects"]
+            if row["role"] == "broad-selection-receipt"
+        ),
+        {"fixture": "selection"},
+        generation=80_001,
+    )
+    later_source_identity = _identity("drift-later-source")
+    worlds = {
+        block: _identity(f"drift-world-{block}")
+        for block in contract.WORLD_BLOCKS
+    }
+
+    def bundle_for_fold(fold: int) -> dict[str, object]:
+        return {
+            "source_ordinal": 0,
+            "fold_projections": [
+                {
+                    "training_blocks": [
+                        block for block in contract.WORLD_BLOCKS
+                        if block != contract.WORLD_BLOCKS[index]
+                    ],
+                    "later_source_identity": later_source_identity,
+                    "world_artifact_identities": {
+                        f"world_artifact_{block.lower()}": (
+                            _identity("drifted-world-R2")
+                            if fold == 1 and index == 1 and block == "R2"
+                            else identity
+                        )
+                        for block, identity in worlds.items()
+                    },
+                }
+                for index in range(contract.FOLDS_PER_SLATE)
+            ],
+        }
+
+    active_bundle = bundle_for_fold(0)
+    monkeypatch.setattr(
+        contract,
+        "validate_projection_bundle_authority_v1",
+        lambda *_args, **_kwargs: deepcopy(active_bundle),
+    )
+    worker_budgets = []
+    for fold in range(contract.FOLDS_PER_SLATE):
+        active_bundle = bundle_for_fold(fold)
+        worker_budgets.append(contract.compile_process_budget_v1(
+            process_role="broad-fold-selector",
+            projection_bundle={},
+            projection_bundle_identity=projection_identity,
+            topology=topology,
+            topology_identity=core["manifest"]["topology_identity"],
+            source_ordinal=0,
+            fold_ordinal=fold,
+        ))
+    worker_identities = [
+        store.seed_body(
+            f"gs://fixture-layer-preparation/drift-worker-{fold}.json",
+            budget,
+            generation=81_000 + fold,
+        )
+        for fold, budget in enumerate(worker_budgets)
+    ]
+    request = task_manifest.build_selection_task_request_v1(
+        phase=contract.BROAD_SCREEN_PHASE,
+        source_ordinal=0,
+        design_identity=core["manifest"]["design_identity"],
+        topology_identity=core["manifest"]["topology_identity"],
+        projection_bundle_identity=projection_identity,
+        assembler_process_budget_identity=_identity("drift-assembler"),
+        worker_process_budget_identities=worker_identities,
+    )
+    with pytest.raises(
+        preparation.CorpusR6CurrentBankCrossedScreenLayerPreparationV1Error,
+        match="world identity differs",
+    ):
+        preparation._broad_evaluator_process_budget_from_administrative_authorities_v1(
+            core=core,
+            source_ordinal=0,
+            projection_bundle_identity=projection_identity,
+            selection_receipt_identity=selection_identity,
+            selection_request=request,
             read_exact=store.read_exact,
         )
