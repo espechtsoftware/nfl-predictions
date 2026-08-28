@@ -20,6 +20,58 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 22:11 UTC (three-hundred-eleventh update)
+
+### Confirmation selection is live; population and belief runtimes are closed
+
+- Branch `main` and `origin/main` entered this milestone at `ceefb109`.
+  Nomination execution `atlas-cbc-32g-full-2023-w8-v1-lw6d2`, UID
+  `fac02630-0845-468d-bfbd-7dde0a3ed2a3`, reached terminal **SUCCESS** and was
+  finalized exactly once. Its receipt is generation `1787953734171852`,
+  SHA-256
+  `10b7e83378ab92743129fc91178aac37d48fccc0ff40738f33743be5b2d54609`,
+  12,274 bytes. Never refinalize or relaunch nomination.
+- Confirmation-selection layer 04 was prepared once from all four preceding
+  receipts. Its manifest is generation `1787954499717223`, SHA-256
+  `7a5dcda57da709b54555f8f1aea126f4bd0d1af820fd841a9cdcb328cf48559d`,
+  317,544 bytes; its preparation receipt is generation `1787954555590884`,
+  SHA-256
+  `4b325dad43dbe5cf7093b8b7d10da0de28ca88fea70389e8ac4f4676caf91a99`,
+  237,942 bytes. Launch intent generation `1787954740920704`, SHA-256
+  `ad2e894bab368e83bd852721b99d11838e9440ac9360038b394372b0c29b9379`
+  was consumed exactly once. Active 54-task execution is
+  `atlas-cbc-32g-full-2023-w8-v1-j2zhg`, UID
+  `1b173bc8-e338-4f79-ae9e-cb11cb9c6b27`, generation 1. Status-poll only;
+  do not reconfigure, rearm or relaunch it.
+- The population-crossed cloud lane is complete. One distinct 54-task manifest
+  processes five folds by F7/F8/F9 sequentially, runs grouped, exact rank-150
+  and DPP kernels (105 selector cells/slate), emits normalized evaluator books
+  at 4/14/80/100/150 entries and persists no held-out score values. It reuses
+  the consolidated image/job and needs only packaging plus one real task-0
+  smoke before launch. Lead validation across population cloud/core plus L1/L2
+  was **32/32**; the focused population suite was **29/29**.
+- The simpler L2b candidate is a Dirichlet-one empirical transition law by
+  `(position, previous_state)` against an identically smoothed position-only
+  comparator. It passed untouched WF21/HOLD22 proper-score gates. Its runtime
+  has non-confusable calibration-fold and 2023-plus paths: the 54-slate panel
+  uses one fixed 2018--2022 fit with PIT target features; no 2023/2024 refit or
+  actual outcome field is allowed. Leakage perturbations leave generated
+  worlds byte-identical, and real provisional-release smokes passed. Regenerate
+  the release after its committed code SHA before any cloud run.
+- L1 now has an exact served-world adapter that applies shaping, replay
+  float32 freeze, market blend, tail and position scales, and requires the
+  reconstructed ordinary bank to equal retained bytes before admitting a
+  shootout bank. It cannot yet run: all 19,601 calibration skill rows have null
+  values for all 11 component inputs and the frozen TabPFN quantile-cache rows
+  are absent. Final worlds cannot invert those inputs. The conditional shard
+  materializer and parity gate are ready; only exact source rematerialization
+  can unblock L1, never a raw-world proxy.
+- No realized score has been read. Exact next action is status-poll only
+  confirmation selection `...-j2zhg`, finalize once at 54/54 success, then run
+  confirmation evaluation, aggregate/finalists and terminal root. In parallel,
+  package the new population/L2b routes into the one consolidated image and
+  execute real task-0 smokes before broad challenger fan-out.
+
 ## Current handoff — 2026-08-28 21:42 UTC (three-hundred-tenth update)
 
 ### Control evaluation is sealed; one-image challenger selection is ready
