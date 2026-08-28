@@ -427,6 +427,9 @@ def _publisher_task_binding_fixture(
         )
     dispatcher = task_manifest.canonical_dispatcher_process_spec_v1()
     required_specs = task_manifest._required_process_specs(layer)
+    host_terminal_resolution = (
+        task_manifest._host_terminal_generation_resolution_authority_v1([task])
+    )
     manifest_body = {
         "schema_version": task_manifest.TASK_MANIFEST_SCHEMA,
         "contract_id": contract.CONTRACT_ID,
@@ -475,6 +478,15 @@ def _publisher_task_binding_fixture(
         "one_reused_job_across_layers": True,
         "per_task_deploy_allowed": False,
         "current_generation_resolution_allowed": False,
+        "current_generation_resolution_policy_scope": (
+            "scientific-and-task-input-authorities-only"
+        ),
+        "host_terminal_evidence_generation_resolution_authority": (
+            host_terminal_resolution
+        ),
+        "host_terminal_evidence_generation_resolution_authority_sha256": (
+            task_manifest._canonical_sha(host_terminal_resolution)
+        ),
         "listing_allowed": False,
         "uses_realized_outcomes": False,
         "graph_capability_allowed": False,

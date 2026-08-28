@@ -20,6 +20,50 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 05:25 UTC (two-hundred-eleventh update)
+
+### The corrected build exposed and closed one stale publisher test fixture
+
+- Branch `main`; local and remote predecessor are
+  `fefc211d064848a27ce5814276376dc1d779abff`. Corrected Cloud Build
+  `c89163c7-f05f-4afc-b5ac-ac9c317d031e` used exact source-object generation
+  `1787893848929399` and ran the intended focused suite. It completed step
+  zero with **148 passed / 2 failed** in 646.19 seconds. Both failures were
+  test-construction failures in the same publisher fixture: its hand-built
+  task manifest omitted the four host-terminal-evidence generation-resolution
+  fields added to the production manifest. The manifest validator rejected
+  that stale shape before publisher execution. No image was built or pushed;
+  the reused Cloud Run job remains untouched and idle; no outcome or score was
+  read.
+- The minimal repair changes only
+  `tests/test_corpus_r6_current_bank_crossed_screen_aggregate_execution_v1.py`
+  (now SHA-256
+  `41c4f3288bed1b1d941c26f6dd2bfd07f2f2a8706d7ec817ed38352de1721eb2`):
+  the fixture now derives the same host terminal-resolution authority from
+  its single task binding and includes the exact production policy scope and
+  authority hash. The two failed tests pass **2/2**, and the complete affected
+  aggregate execution file passes **17/17** in 2.89 seconds. The other 148
+  release tests already passed in the immutable build attempt.
+- The isolated post-terminal realized-score bridge is now implemented in four
+  new files: the pure persisted-score authority adapter, terminal-first bridge,
+  generation-exact CLI and 14 focused tests. Their respective SHA-256 values
+  are `8c92eaa00565457fcf5a18b12b10c9ab78caf67da8a7cc7215f702f77b27d712`,
+  `e8d423029f41f68109c498689aa0c89c333fa0331d5215a53400369a3c0d9947`,
+  `65cf3f8db5de9052decfd725bc3054db56e2021ad28a4c9aa8c0c693bd347a95`
+  and `fcdabb317faf8183e2741755f4f141efd01e5c5b6d1c9cd230537d2b738613e5`.
+  Two independent reviews are GO with no P0/P1 finding, and the lead rerun
+  passes **14/14** in 7.0 seconds. It validates the complete terminal and all 54
+  confirmation selection/evaluation pairs before the first attribution read,
+  preserves all 160 fold/replicate paths without choosing or unioning them,
+  and consumes only already-persisted `realized_score_micro` rows without a
+  scorer or raw-outcome read. It is a host-only post-terminal tool and does not
+  change the in-container scientific execution closure.
+- Exact next action: commit/push only this fixture repair, bridge and handoff;
+  archive that commit into the same dedicated allowlisted context; resubmit the
+  gated immutable build; then, only after its digest exists, prepare/configure/
+  arm/launch the one-task projection layer at the still-untouched
+  `20260828-r6-current-bank-crossed-screen-v1` prefix.
+
 ## Current handoff — 2026-08-28 05:09 UTC (two-hundred-tenth update)
 
 ### The first immutable build failed safely on one omitted test fixture
