@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 19:51 UTC (two-hundred-ninety-ninth update)
+
+### L1 shootout and L2 role-jump law sampling cores are implemented
+
+- Branch `main` and `origin/main` entered this milestone at `f8923abf`. Two
+  new isolated files implement the score-free sampling boundary for the two
+  highest-priority belief challengers. L1 selects one ordinary/shootout state
+  per game/world and applies it jointly to both teams. L2 selects at most one
+  calibrated role-jump player per team/world. Both retain direct-target world
+  weights, exact player/world/matrix/latent-state identities, immutable input
+  identities and explicit false calibration/scoring/production authority.
+- This is the law-composition core, not a fitted law: the separate walk-forward
+  `CAL19/WF21/HOLD22` activity must supply probabilities and component banks
+  before either challenger can generate a candidate corpus. Source and test
+  SHA-256 are respectively
+  `49ac151e999c9bed97148b7ef91fb33d46d05087f383d2b420dff66d83437ba4`
+  and
+  `f8e9348f2ee6c0575e8238011760906e91e78826e32c784257fa038315299180`.
+- Validation is 23/23 across the new six-test suite and the 17 existing
+  belief-world tests, plus compilation and whitespace checks. The active V7
+  projection `atlas-cbc-32g-full-2023-w8-v1-r8lwq` remains `ACTIVE` after
+  three status polls with the same active dispatcher task and no terminal
+  failure; no logs, scientific outputs, realized outcomes or scores were read.
+- Exact next actions: integrate/freeze the L1/L2 component generators and
+  walk-forward calibrators for the consolidated challenger image while
+  continuing status-only polling of V7. Do not claim either law calibrated or
+  delay the current control score on this next-bank work.
+
 ## Current handoff — 2026-08-28 19:47 UTC (two-hundred-ninety-eighth update)
 
 ### Repaired V7 projection is running
