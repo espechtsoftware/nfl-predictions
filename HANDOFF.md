@@ -20,6 +20,37 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 16:47 UTC (two-hundred-eighty-first update)
+
+### Corrected V6 build is queued asynchronously from exact commit archive
+
+- Branch `main` and `origin/main` are at `8ae6c22a` (`fix: advance repaired
+  contract source authority`). Exact clean archive is
+  `/tmp/r6-current-bank-v6b-build-8ae6c22a-TwamLg/source.tar`, SHA-256
+  `fa9b4c9bc226fdc6a0a02fe3c73d6de3ad15dc0e6fe2046af5e9d2ec4bdf6967`;
+  its extracted source/operator root is the sibling `src/` directory.
+  Contract, preparation and regression source hashes are respectively
+  `729e1d4302bda62a7000d747c7dc869abb10a0a1a65f98fbcdf2e4409686c846`,
+  `4d55b2ef636b7615089501d586ecaad9d5494843966669e12d68ea54e1dc2ac0`
+  and
+  `88232625cd9eeba12051f34e6d86b2e6110142a8b80b6e60d1f560e57af0a7ff`.
+- Submission `072007c2-6912-477a-8809-3b50c7cc45cb` was operator-cancelled at
+  `2026-08-28T16:47:09.448314806Z` when the foreground `gcloud` waiter was
+  interrupted. It had existed for 28 seconds, published no runtime image and
+  yielded no digest; seal it terminal **CANCELLED** and never use it as
+  authority.
+- Replacement Cloud Build `cdd1f0a4-0210-4ee7-8cd6-692b87865006` was
+  submitted with `--async` and captured **QUEUED** at
+  `2026-08-28T16:47:34.931312162Z`. Exact source object is
+  `gs://nfl-predictions-503414_cloudbuild/source/1787935647.532217-ebf48ce4b9c8408689aa2e458b0c4bd6.tgz`,
+  generation `1787935654588405`; target mutable build tag is
+  `r6-current-bank-crossed-screen-8ae6c22a-v2`.
+- Exact next action: poll only replacement build
+  `cdd1f0a4-0210-4ee7-8cd6-692b87865006` to terminal without opening logs.
+  On success, independently resolve and record the target runtime's immutable
+  digest, then prepare untouched V6 output and replay required layers 0--2.
+  Never launch from the mutable tag.
+
 ## Current handoff — 2026-08-28 16:45 UTC (two-hundred-eightieth update)
 
 ### V6 build-gate failure is reproduced and minimally repaired
