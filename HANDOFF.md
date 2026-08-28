@@ -20,6 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 20:23 UTC (three-hundred-fifth update)
+
+### Hard-230 source decoding and L1/L2 calibration seams are executable
+
+- Branch `main` and `origin/main` entered this milestone at `b498b408`. The
+  hard-230 population arm now has the missing R6 source adapter: it exact-opens
+  the PIT later-source freeze and permitted R blocks, aligns sorted player IDs,
+  converts float32 draws to canonical little-endian int64 milli-DK, and emits
+  the exact source/block/matrix/proof identities accepted by the replenishing
+  successor. It publishes compact reconstruction authority rather than a
+  duplicate roughly-300-MB matrix.
+- Decoder validation is 26/26 with the successor/adapters. A real header-only
+  2023-w01 R0 smoke passed at generation `1786843060343205`, SHA-256
+  `c35ecb83ecc8cacb802735f5b4f44c64b8733822e0d36e9475bab1b68de65498`:
+  773 players by 10,000 float32 worlds and 255 candidate rows, with no values,
+  totals, tail lines or outcomes materialized. Remaining hard-230 launch work
+  is one consolidated entrypoint that derives exact P0/permutation/runtime
+  identities and invokes the already-bound decoder/successor process.
+- A separate calibration seam now feeds the committed L1 shootout and L2
+  role-jump laws directly. L1 fits a scalar mixture through CAL19/WF21/HOLD22
+  co-exceedance evidence with an opposing-WR1 correlation guard. L2 reuses the
+  audited latent-role transition model, converts above-modal mass to team-
+  exclusive probabilities, and freezes positive residual samples. It rejects
+  lineup outcomes and discloses the effective 2018 role-source boundary.
+- Belief calibration validation is 31/31 with the L1/L2/latent-role suites;
+  the lead reran a combined 57-test decoder/belief slice successfully. The
+  only remaining belief-data work is one extractor for pre-2023 team-game
+  co-exceedance/correlation moments and role-history joined to player actual-
+  minus-ordinary-mean residuals. No additional modeling framework is needed.
+- V7 projection completed successfully and finalized once to receipt
+  generation `1787948369433750`, SHA-256
+  `eaf0606fd2f21f7c3a12dcb14ec5971cd029512d13391b1172dfacfadee94daa`.
+  Broad-selection preparation is now running from that receipt; do not rerun
+  projection or finalize it again.
+
 ## Current handoff — 2026-08-28 20:12 UTC (three-hundred-fourth update)
 
 ### F7/F8/F9 can generate one shared relaxed-profile challenger bank
