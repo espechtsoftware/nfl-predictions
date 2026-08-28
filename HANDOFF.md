@@ -20,6 +20,38 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 17:02 UTC (two-hundred-eighty-third update)
+
+### V6 first-layer preparation succeeded once on untouched prefix
+
+- Branch `main` and `origin/main` are at `0aa964c4`; the executable clean
+  source remains image commit `8ae6c22a1d898c2fa4517be15f44d197da9082bf`
+  and immutable digest `sha256:c491ad9e88929d359539d2a713f01b8a7f777ea15725910883a343bdd45a766d`.
+- Exact request
+  `/tmp/r6-current-bank-operator-8ae6c22a/00-prepare-request.json`, SHA-256
+  `590a76f8a607082612ff75df53fe0a3def96b7d3f6faa25682cfc47e51093085`,
+  ran `prepare` once successfully from the clean archive against untouched
+  prefix `20260828-r6-current-bank-crossed-screen-v6/`. Never rerun it.
+- Projection task-manifest identity is generation
+  `1787936525121391`, SHA-256
+  `72d8583410680298897194237bb5f21e11666091e1806ce908e2ae2550191bc8`,
+  26,202 bytes at
+  `.../v6/authorities/task-manifests/00-projection.json`.
+  Projection-preparation receipt identity is generation
+  `1787936526471818`, SHA-256
+  `9dc79c772d8a4315511afbff7177116e5dd323bf45dea1482274e573103325d4`,
+  130,717 bytes at
+  `.../v6/authorities/preparation-receipts/00-projection.json`.
+- Published contract source authority is exactly 374,457 bytes, generation
+  `1787936521655445`, SHA-256
+  `729e1d4302bda62a7000d747c7dc869abb10a0a1a65f98fbcdf2e4409686c846`.
+  Local prepare-result SHA-256 is
+  `8eb642d9421baf451d6c442dd9e6305ebafaf1b0d117eecda0c18f32b8c6e800`.
+- Exact next action: create the projection common request with the exact
+  manifest, reused job UID `1f4bcf0a-2300-4afa-9fc1-9981844c8275` and
+  immutable image URI; run configure, arm-launch once, persist the intent,
+  then launch once. No scientific body, score or outcome has been read.
+
 ## Current handoff — 2026-08-28 17:00 UTC (two-hundred-eighty-second update)
 
 ### Corrected V6 runtime image passed all build gates and is immutable
