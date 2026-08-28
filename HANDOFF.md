@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 08:54 UTC (two-hundred-twenty-ninth update)
+
+### Fresh v3 projection authorities are prepared create-once
+
+- The exact 88889301 archive operator prepared the untouched
+  `20260828-r6-current-bank-crossed-screen-v3/` prefix successfully against
+  immutable image digest
+  `sha256:aed719b0a369dbd7f3a38177110440c1a0fa075cd21cd3c228f33265ac4e9ddb`.
+  Never rerun `prepare` for this prefix.
+- Projection manifest identity is generation `1787907272597911`, SHA-256
+  `8da31cb60324415d7ac3f7e72621d8342ce1f7a87ebc41f15b8a563eb662aa60`,
+  26,202 bytes. Projection preparation receipt is generation
+  `1787907273936375`, SHA-256
+  `3f5e7d259cf9bbcd95eb70266d6bb8aabd33f7cfe6f2b65f0ea45b6613c42db8`,
+  130,717 bytes. Their URIs are respectively
+  `authorities/task-manifests/00-projection.json` and
+  `authorities/preparation-receipts/00-projection.json` under the v3 prefix.
+- Projection process-budget identity is generation `1787907271984414`,
+  SHA-256 `2315fe1a49506fd803a16f84fe5546d0f11415797bd9deddfc7291054c6bf251`;
+  task-request identity is generation `1787907272257434`, SHA-256
+  `f18b97147ebcb61a9434bb8c9ad634c167e5415e158b324c438e32db5683cc14`.
+  Frozen contract/report hashes remain `1ea3f25e...a266` / `83d6c9d4...4f0d`.
+- Local mode-0600 evidence is in
+  `/tmp/r6-current-bank-operator-88889301`. No job mutation or launch has
+  occurred. Exact next action: commit/push this authority checkpoint, configure
+  reused job UID `1f4bcf0a-2300-4afa-9fc1-9981844c8275`, validate the exact
+  post-update projection, arm, preserve the intent, and launch once.
+
 ## Current handoff — 2026-08-28 08:52 UTC (two-hundred-twenty-eighth update)
 
 ### The corrected v3 runtime image is immutable and release-green
