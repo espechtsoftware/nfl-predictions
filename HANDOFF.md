@@ -20,6 +20,39 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 13:22 UTC (two-hundred-fifty-ninth update)
+
+### Evaluator capacity repair is pushed; v5 must replay layers 0–2
+
+- Branch `main`, repair commit
+  `bc6ac55b5d24b2515ece9c95891b8e11eabd50d0`. Both evaluator producer and
+  task-manifest terminal mirror now bind source candidate capacity directly
+  to frozen `contract.MAX_SELECTION_CANDIDATES_PER_FOLD` (**3,993**) instead
+  of the invalid player-domain value 512. Source SHA-256 values are evaluator
+  `c7e8d13d2fd4094674bc639b7e1948aaad93d22be8443134ad2da551dd2383cd`
+  and task manifest
+  `96a2c4764d9e1572dc1ed2ebc342dff0acb3c524a4bba76b7eaaad45057e5059`.
+- Regression coverage proves 3,993 is accepted through the real artifact
+  receipt/header path, 3,994 is rejected before decode, evaluator precharge
+  and terminal mirror agree, and a successful production-shaped evaluator
+  envelope passes exact process-budget reopen, transport/binding validation,
+  expected-publication proof and `build_task_terminal_evidence_v1`. Validation:
+  capacity slice 3/3, full evaluator 30/30, adjacent task-manifest 7/7,
+  build-contract 9/9, pycompile and diff-check clean. Independent static audit
+  found no second deterministic evaluator request/budget/terminal mismatch.
+- Correction to update 258: current frozen pre-output recovery is globally
+  disabled and there is no cross-prefix import authority. Prefix, topology,
+  bootstrap, commit, image, manifests, scientific URIs and predecessor
+  receipts are exact-bound. Therefore v4 projection/broad outputs cannot be
+  transplanted into v5, and the old v4 evaluator manifest cannot run a new
+  image. Designing a transfer schema would be slower and riskier than replay.
+- Exact next action: create a clean archive at `bc6ac55b`, build one immutable
+  v5 image, choose an untouched v5 prefix, and rerun layers 0 projection, 1
+  broad selection and 2 broad evaluation under the new bootstrap. The frozen
+  external panel/source identities and reused Cloud Run job remain unchanged.
+  Continue layers 3–7 only after v5 evaluation succeeds. No score, log,
+  scientific output, or realized outcome has been read.
+
 ## Current handoff — 2026-08-28 13:10 UTC (two-hundred-fifty-eighth update)
 
 ### V4 broad evaluation is sealed failed; candidate-domain bound isolated
