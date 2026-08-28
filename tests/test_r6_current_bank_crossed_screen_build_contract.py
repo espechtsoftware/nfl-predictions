@@ -55,6 +55,9 @@ FOCUSED_TESTS = (
     "tests/test_r6_current_bank_crossed_screen_build_contract.py",
     "tests/test_run_corpus_r6_current_bank_crossed_screen_cloud_v1.py",
 )
+FOCUSED_TEST_FIXTURES = (
+    "tests/test_corpus_r6_current_bank_crossed_screen_contract_v1.py",
+)
 
 
 def _build() -> dict[str, object]:
@@ -194,6 +197,7 @@ def test_dedicated_build_context_is_an_exact_small_allowlist() -> None:
         "!reports/",
         f"!{REPORT}",
         "!tests/",
+        *(f"!{path}" for path in FOCUSED_TEST_FIXTURES),
         *(f"!{path}" for path in FOCUSED_TESTS),
     }
     observed = {

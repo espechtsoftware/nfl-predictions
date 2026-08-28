@@ -20,6 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 05:09 UTC (two-hundred-tenth update)
+
+### The first immutable build failed safely on one omitted test fixture
+
+- Commit `9872127eb2a5242c10746f177aa96cf2e50f8fb2` is pushed on `main` and
+  was archived into a dedicated temporary context. The custom allowlist
+  selected 434 files / 13.9 MiB and Cloud Build
+  `c0f94c6b-48d1-4a10-ad16-ab91110561f9` used generation
+  `1787893439179075` of source object
+  `gs://nfl-predictions-503414_cloudbuild/source/1787893432.462122-e3bcaa5bec214234b5cbc895341489d2.tgz`.
+  Step zero stopped before Docker build/push because the selected selector
+  test imports `test_corpus_r6_current_bank_crossed_screen_contract_v1` as a
+  fixture module but the dedicated upload allowlist omitted that one file.
+  No science assertion, image build, image push, job mutation/execution,
+  outcome read or score occurred.
+- The minimal repair adds only that fixture file to the build context; the
+  Cloud Build command still does not execute the large contract test. The
+  allowlist is now SHA-256
+  `286df1a6766f321bd70f84a5f8db717284e0ed120f26c0e4b0eb05d50b104e04`,
+  and its static contract test is
+  `a5dfd408c9fe6775bbb6b2f9fa6d719f40f772075ea48bee7d68ad33e97c882f`.
+  The build-contract plus selector slice collects and passes **12/12** in
+  144.00 seconds; scoped diff-check is clean. Exact next action: commit/push
+  this two-file allowlist repair with the handoff, archive that commit, and
+  resubmit the same gated build before any deployment action.
+
 ## Current handoff — 2026-08-28 05:00 UTC (two-hundred-ninth update)
 
 ### The real-provider launch/finalization boundary is release-GO
