@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 08:22 UTC (two-hundred-twenty-fifth update)
+
+### V2 projection succeeded; finalization exposed one deterministic hash-domain bug
+
+- Branch `main`; commit `a03c498b83c849f018f3765d1080e2c7e09f508e`
+  is pushed to `origin/main`. Cloud Run execution
+  `atlas-cbc-32g-full-2023-w8-v1-x8mql`, UID
+  `3d6e484b-0f60-4f25-be93-4175e3d78037`, completed **SUCCEEDED**. Fresh status
+  observation `41-projection-status-022.json` reports all tasks terminal and
+  successful; status SHA-256 is
+  `b5feee674408076757a37cbc4003d4975401379b4d6adb45325c3a345036ee6f`.
+  Do not relaunch this projection.
+- The exact task-terminal object is generation `1787904972186924`, 82,570
+  bytes, object SHA-256
+  `19f47054e7e43a3db5f7d0ae37ab8cabec9b175270d7d31d42a12613631aec99`.
+  Its valid embedded self-hash is
+  `daea328d182b63ebfb51649a853da5eb2290a854a489bcabd184488b850c1000`.
+  Finalization failed closed before publishing an observation or layer receipt
+  because `validate_cloud_run_execution_observation_source_v1` requires both
+  distinct hash domains to equal the single observation self-hash field. The
+  focused test fixture hid this by assigning the same synthetic value to both.
+- No task logs, scientific outputs, realized outcomes or scores were read.
+  Broad-layer preparation has not started. Exact next action: correct the
+  impossible object-hash/self-hash equality, add a regression with distinct
+  hashes, validate the finalization boundary, then finalize this preserved
+  successful execution without rerunning it. Assess frozen-image compatibility
+  before preparing or launching broad selection.
+
 ## Current handoff — 2026-08-28 07:47 UTC (two-hundred-twenty-fourth update)
 
 ### The one-task v2 projection is running from the consumed launch intent
