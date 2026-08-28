@@ -20,6 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 07:41 UTC (two-hundred-twentieth update)
+
+### The corrected v2 image is immutable and release-green
+
+- Branch `main`; commit
+  `a9ffefd945b118606feaad5f27f15b2c843e5837` is pushed to `origin/main`.
+  Exact clean-archive Cloud Build
+  `3ef35368-dad5-4c38-a58f-88463d710f61` completed **SUCCESS** in 16m34s from
+  source object
+  `gs://nfl-predictions-503414_cloudbuild/source/1787901788.371425-a4e5ec8e17f246a0a4ab73f90ae57391.tgz`
+  generation `1787901795161778`. Its Python 3.11 compilation, isolated imports,
+  complete focused release suite, Docker build and no-network dispatcher smoke
+  all passed.
+- The published immutable runtime identity is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:f6f3856ef4372807fba10578273f018a2d47fa1c695cfb30c060a4732aacf7eb`.
+  The mutable tag is not launch authority; configure and launch must bind this
+  exact digest plus commit `a9ffefd9`.
+- No v2 prefix object, job mutation or execution has occurred yet. The failed
+  v1 prefix and execution remain sealed. Exact next action: commit/push this
+  build milestone, use the exact `a9ffefd9` archive operator to prepare the
+  untouched
+  `.../20260828-r6-current-bank-crossed-screen-v2/` projection layer, inspect
+  the generation-pinned preparation authorities, configure the reused isolated
+  job to this digest, validate its post-update spec, arm the projection and
+  launch it exactly once. No crossed-screen score exists yet.
+
 ## Current handoff — 2026-08-28 07:21 UTC (two-hundred-nineteenth update)
 
 ### The first v2 build exposed and closed one test-only Python 3.11 incompatibility
