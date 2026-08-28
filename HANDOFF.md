@@ -20,6 +20,26 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 15:28 UTC (two-hundred-seventy-fourth update)
+
+### Repaired v5 broad-evaluation launch is armed and not submitted
+
+- Exact operator published the sole create-once evaluator launch intent at
+  `authorities/cloud-run-launch-intents/02-broad-evaluation-result.json`.
+  Identity is generation `1787930888221565`, SHA-256
+  `c17bdad74d5167a80fdf0d94f04810a31fe74bdd04c8b2313e188396d7390eac`,
+  2,964 bytes; body SHA-256 is
+  `ebac594a5f2c748a34394dbbb72033b6af12d6302aac692a120c52f4ceceeb91`.
+  Arm-result body SHA-256 is
+  `21ac139f9b0748729744e8526b424c36a159dde0f8f70e4baa833cd8e9009725`;
+  local file SHA-256 is
+  `d53230772f09eabdcff90a41e9a31038a91e73938dd773eddb217035090cc0da`.
+- `launch_armed=true`, submission count is **0**, and caller must preserve this
+  exact generation-pinned identity before submission. Never arm v5 broad
+  evaluation again. Exact next action: commit/push, consume the intent with
+  exactly one launch call, preserve the returned execution/marker, and never
+  retry after marker creation.
+
 ## Current handoff — 2026-08-28 15:26 UTC (two-hundred-seventy-third update)
 
 ### Reused job is exactly configured for repaired v5 broad evaluation
