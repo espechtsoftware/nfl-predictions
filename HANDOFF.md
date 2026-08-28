@@ -20,6 +20,40 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 07:43 UTC (two-hundred-twenty-first update)
+
+### The fresh v2 projection authority graph is prepared create-once
+
+- The exact `a9ffefd9` archive operator prepared the previously untouched
+  `20260828-r6-current-bank-crossed-screen-v2/` prefix successfully using
+  immutable image digest
+  `sha256:f6f3856ef4372807fba10578273f018a2d47fa1c695cfb30c060a4732aacf7eb`.
+  No job configuration, arm or execution occurred.
+- Projection manifest identity is generation `1787903000703944`, SHA-256
+  `6d5e91eb17ed84ed708ab54404e591548598b9968e5235d8a9f3b6cf54dcf62f`,
+  26,202 bytes at
+  `authorities/task-manifests/00-projection.json`. Projection preparation
+  receipt identity is generation `1787903001983463`, SHA-256
+  `bfd1eead92737969895ce23f09f7c7a99c58d8bf9022fcec8a30aea9e8f8ba8e`,
+  130,717 bytes at `authorities/preparation-receipts/00-projection.json`.
+  These objects and all predecessor authorities are create-once; never rerun
+  `prepare` for this prefix.
+- The published contract source identity is generation `1787902997379077`,
+  SHA-256 `1ea3f25ee1625e2a550a8c5d46ca649731c3da974be52b489ad6e75d8c11a266`,
+  374,178 bytes. The report identity is generation `1787902997813669`,
+  SHA-256 `83d6c9d40e709a75615ddc87288a7133e1a24e9d2106ffcda76f6e47113c4f0d`,
+  43,407 bytes. The projection request and process-budget identities are
+  generation `1787903000353749` / SHA-256
+  `fe3bc8e6bc52a7cc28028ff36b0f5b230c3867362ea270d93eee7aec0c06e910`
+  and generation `1787902999930421` / SHA-256
+  `60ae7ad2a7e4a37b92063a488e4f524e9e9fd68d50c9ce9688772bacd261e50d`.
+- Local mode-0600 operator evidence is under
+  `/tmp/r6-current-bank-operator-a9ffefd9`. Exact next action: commit/push
+  this preparation milestone, construct the manifest-bound common request,
+  configure the reused job UID `1f4bcf0a-2300-4afa-9fc1-9981844c8275` to the
+  exact v2 digest, and inspect the post-update projection before arming. No
+  crossed-screen score exists yet.
+
 ## Current handoff — 2026-08-28 07:41 UTC (two-hundred-twentieth update)
 
 ### The corrected v2 image is immutable and release-green
