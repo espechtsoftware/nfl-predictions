@@ -20,6 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 11:44 UTC (two-hundred-forty-eighth update)
+
+### Corrected v4 projection succeeded and is finalized
+
+- Cloud Run execution `atlas-cbc-32g-full-2023-w8-v1-qmxvn`, UID
+  `6f30c68e-bc5f-4ebe-86b4-62f7b349c6e0`, completed successfully at
+  `2026-08-28T11:40:04.599279Z` after 30m39.12s. The exact terminal status
+  proves 1/1 task succeeded with exit code 0, no retry, and
+  `all_tasks_terminal=true`; local status-file SHA-256 is
+  `f62b107a4395a95758ceda373825dcbe94cac8eaa501146867c0afde253fff97`
+  and body self-hash is
+  `6ee41fb984ba50a56b7723e835385e3ac4554aef39ace3e6a6e2b5382f1d7ab4`.
+- The exact archive operator finalized projection and published the
+  create-once layer receipt at
+  `authorities/layer-execution-receipts/00-projection.json`, generation
+  `1787917457077831`, SHA-256
+  `5e46e24b8db73d9f47cbb123c0d384232c6979bc06743d19204bcc02a475e32a`,
+  29,411 bytes. Local finalize-result SHA-256 is
+  `5d7448161c4c2185a6bb345a010c02f04276471315f8c4bdc74bc6b043d69560`;
+  result self-hash is
+  `2933afb6c257f8f3c4335b050721c3cf43b0fa3f137ffcfe035e244e4c8310b9`.
+  Terminal evidence was exact-opened and all log, scientific-output and
+  realized-outcome read flags remain false.
+- Exact next action: commit/push this receipt identity, prepare
+  `broad-selection-receipt` from the fixed v4 projection preparation receipt
+  plus this projection execution receipt, then configure/arm/launch the
+  corrected immutable image exactly once for its 54 tasks. No score or
+  outcome has been read.
+
 ## Current handoff — 2026-08-28 11:10 UTC (two-hundred-forty-seventh update)
 
 ### V4 projection launch intent was consumed exactly once
