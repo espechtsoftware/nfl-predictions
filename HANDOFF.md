@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 17:03 UTC (two-hundred-eighty-fourth update)
+
+### V6 projection is configured and armed; launch intent is preserved
+
+- Branch `main` and `origin/main` are at `87883302`. Projection common
+  request SHA-256 is
+  `37be689e0ec310808bbcbf11b4fc1c6cd4a8d4572434af466ffd6b5210f5a92d`;
+  it binds the exact V6 manifest, reused job UID
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275` and immutable runtime digest
+  `sha256:c491ad9e88929d359539d2a713f01b8a7f777ea15725910883a343bdd45a766d`.
+- Projection `configure` succeeded. Configuration result SHA-256 is
+  `2aebd09d3a2904d992c83c3c348fc194f3ecc034418f8ca2e7b158e37b621f9d`;
+  local result-file SHA-256 is
+  `86f285117edaf4e42150125f1e037a967edc3dac6d5e4b04571efa5dd8f553ee`.
+- `arm-launch` succeeded once with zero submission calls. Exact launch-intent
+  identity is generation `1787936621439861`, SHA-256
+  `4116f0a9ca618c0f7bc46bd3034968c3303a792cf18e4d9e5fd12e561df28a25`,
+  2,918 bytes at
+  `.../v6/authorities/cloud-run-launch-intents/00-projection.json`;
+  intent-body SHA-256 is
+  `832755b666540e7dbfc627e9b81118b6f5160407a772685acab98ecced5af70f`.
+  Local arm-result SHA-256 is
+  `288520f545f6784788c6f4827a9ff0820dc60bafed3f37684a3ffb630808042f`.
+- Never reconfigure or re-arm this projection. Exact next action: create the
+  launch request by adding only the preserved intent identity to the common
+  request, submit `launch` exactly once, record the returned execution, then
+  status-poll it without logs/scientific bodies/scores/outcomes.
+
 ## Current handoff — 2026-08-28 17:02 UTC (two-hundred-eighty-third update)
 
 ### V6 first-layer preparation succeeded once on untouched prefix
