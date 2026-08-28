@@ -20,6 +20,37 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 19:20 UTC (two-hundred-ninety-fourth update)
+
+### Consolidated V7 repair build is queued
+
+- Branch `main` and `origin/main` are at `5a293157`. Exact clean source archive
+  `/tmp/r6-current-bank-v7-build-5a293157-phU6bN/source.tar` has SHA-256
+  `823f18c565452b942c029c2ffb095e2b56716783a9242a2051627906888813af`;
+  its extracted immutable operator/source root is the sibling `src/`.
+  Evaluator, task-manifest and accelerated layer-preparation source hashes are
+  respectively
+  `934b52b08b42279542073945b99b33fa2707c867eb793d2c3cfe6909269dc492`,
+  `c7df1085381496482deb7c732e453964e8018702b3fc5f3ef11d4b8189ef2b1b`
+  and
+  `82f056e23473b2d6943e0a6a8e726349e71b26d904eab93aa45859c30eaf8805`.
+- Cloud Build `eeedb00f-0c54-4b2b-8f7c-a0b994eb6ea5` was submitted once
+  asynchronously and captured QUEUED at `2026-08-28T19:20:16Z`. Exact source
+  object is
+  `gs://nfl-predictions-503414_cloudbuild/source/1787944807.805809-19e9edd002e24976bd9f8fe6b153f275.tgz`.
+  It targets mutable build tag
+  `r6-current-bank-crossed-screen-5a293157-v7`, which is never launch
+  authority.
+- This build deliberately prioritizes the repaired control score and contains
+  the 1,024-player evaluator repair plus the preparation fast path. Grouped
+  selector/rank-150 integration continues in parallel and will enter the next
+  single challenger image; it does not delay the control rerun.
+- Exact next action: status-poll only build
+  `eeedb00f-0c54-4b2b-8f7c-a0b994eb6ea5` to terminal without opening logs. On
+  success resolve the immutable registry digest, run the real-artifact
+  header/resource smoke, and prepare an untouched V7 output prefix from the
+  clean extracted source.
+
 ## Current handoff — 2026-08-28 19:17 UTC (two-hundred-ninety-third update)
 
 ### Recourse experiment has a quota-safe single-job transport
