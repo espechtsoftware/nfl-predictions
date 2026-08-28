@@ -20,6 +20,29 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 09:51 UTC (two-hundred-thirty-ninth update)
+
+### Broad-selection execution was submitted exactly once
+
+- Submission count is **1** and job execution count moved **79→80**. Broad
+  execution is `atlas-cbc-32g-full-2023-w8-v1-jvkdg`, UID
+  `bf35c269-b41d-48e0-897a-be5c2154c502`, generation 1; captured state is
+  **ACTIVE**. Nested launch-result self-hash is
+  `e12ccaa13db03195a7122dc50e3bb79d2cec524efe116794e0049a0e378d0d69`;
+  exact local result-file SHA-256 is
+  `b331b45339bb82b5393e71fd0109a8f622da6cde534ec356f9012efe4e646629`.
+- Create-once submission marker is
+  `authorities/cloud-run-launch-submission-markers/01-broad-selection-receipt.json`,
+  body self-hash
+  `9ef746960fe40324b27d95f91ab4949963b856882a84d3bca47d9d7303eae6b7`.
+  `launch_request_consumed=true`, `blind_relaunch_allowed=false`, no overrides
+  were present, and provider task-template SHA-256 is
+  `759904b97205854700ebd41c1a6566311576bce1241b22f2657cf48e690437e4`.
+  Never invoke broad `launch` again.
+- Exact next action: commit/push this execution identity and status-poll all 54
+  tasks with fresh output files only. On complete success finalize broad and
+  prepare the next evaluation layer; on any terminal failure do not relaunch.
+
 ## Current handoff — 2026-08-28 09:49 UTC (two-hundred-thirty-eighth update)
 
 ### Broad-selection launch is armed and not submitted
