@@ -20,6 +20,52 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 19:03 UTC (two-hundred-ninetieth update)
+
+### V6 held-out evaluation is running; seven-day production freeze is active
+
+- Branch `main` and `origin/main` are at `05ebfb6b`. The production deadline is
+  now seven days: finish every mechanism-distinct preseason population and
+  selection comparison that can change the Week 1 decision, freeze the winner,
+  and use the following week only for rehearsal and critical fixes. Redundant
+  parameter grids, UI/Neo4j work, and arms blocked by missing point-in-time data
+  do not gate the scoring program.
+- Broad-evaluation preparation completed from the finalized 54/54 control
+  selection. Its task-manifest generation is `1787942931264238`, SHA-256
+  `e76588c6198970c45594801aaf047b8c0fdd7a2fbf7df64ab3829f6616573deb`,
+  256,856 bytes. Preparation-receipt generation is `1787942968752787`,
+  SHA-256
+  `7a9d67d52f7c234dac330ae56120d0503e931bbba6d0832d6efae6bbcbc66e92`,
+  70,505 bytes. Local preparation-result SHA-256 is
+  `088aa4a96a650d3dd9c0311e78a559b146d8254b82f385efa044ab1157a7e0ef`.
+- Launch intent generation `1787943425968224`, SHA-256
+  `5b4ad3a9afc502b8f7b53b4b6097741478ce549620d2db13bd09a68043b785f4`,
+  2,964 bytes was consumed exactly once. Active Cloud Run execution is
+  `atlas-cbc-32g-full-2023-w8-v1-ssbh4`, UID
+  `1a62f25e-c9cc-4c80-8f7b-e38385f74553`, generation `1`; local launch-result
+  SHA-256 is
+  `c90b08dc315885e4b8d995832e38dc8f42199ae00bdaef9d9d99aa4135d6ee32`.
+  First status poll has 54/54 tasks ACTIVE, zero terminal failures, status
+  SHA-256
+  `0f3d12b96228b4cc8a749cb81aa0a7e27a21d370abab82dd9dfb9493c4c32b41`.
+  Do not reconfigure, re-arm, relaunch or recover this execution.
+- The control is **64 fits per fold** (eight views x eight strategies), not 56;
+  total control work is 17,280 fits across 54 slates x five folds. The grouped
+  successor remains an independently budgeted 24 fits per fold (eight views x
+  three selectors) and makes no parity claim with the control.
+- Parallel, local-only work is ready for review: a broad-evaluation preparation
+  fast path (50 tests passing), the 24-fit successor process adapter (33
+  combined tests passing), and a safe single-job recourse transport (37
+  relevant tests passing). None is present in the active immutable V6 image or
+  has mutated cloud state. The next immutable build should combine only the
+  accepted acceleration/integration changes after the active chain releases
+  the shared job.
+- No scientific output, realized outcome, score or cloud log has been read.
+  Exact next action: status-poll `...-ssbh4` to terminal, finalize its receipt
+  once, then continue nomination/confirmation/aggregate and the realized-score
+  bridge. In parallel finish the grouped-selector cloud dispatcher and the
+  executable seven-day test inventory.
+
 ## Current handoff — 2026-08-28 18:31 UTC (two-hundred-eighty-ninth update)
 
 ### V6 broad selection is finalized; successor inputs are authority-bound
@@ -57,7 +103,7 @@ agent or developer:
   test SHA-256 is
   `b626cd000816faa99632e86ac85594109f5be73af1793d09cec3c6492ec7262d`.
   The wrapper is not yet deployable: the existing V6 fold receipt precharges
-  56 control fits while the challenger response has 24; a new bounded process
+  64 control fits while the challenger response has 24; a new bounded process
   budget/receipt adapter and outer launch-envelope binding remain.
 - Broad held-out evaluation preparation has started from the finalized
   projection and selection receipts. No scientific output, score, log or
