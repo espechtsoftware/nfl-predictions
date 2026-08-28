@@ -20,6 +20,33 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 20:11 UTC (three-hundred-third update)
+
+### Grouped selector challengers can now run and reach held-out aggregation
+
+- Branch `main` and `origin/main` entered this milestone at `5da6e140`. The
+  existing three grouped selector laws now have one complete successor-native
+  execution chain: a distinct 24-fit/fold runtime and budget, one 54-task
+  selection manifest, five-fold create-once results, a separate 54-task
+  held-out evaluator, and a one-task 54-slate terminal aggregate. It does not
+  impersonate the frozen 64-fit control command or its receipt schema.
+- The terminal coordinates are exact `(view, selector, entry budget)` cells
+  and the evaluator admits literal 80-, 100- and 150-entry books. The current
+  grouped batch remains 24 fits/fold and supplies its native 4/14/80 prefixes;
+  rank-150 and DPP require a distinct truthful 32-cell/fold dispatcher mode
+  before they may use the same evaluator. Historical realized scoring remains
+  a separate post-terminal bridge rather than being read during selection.
+- Validation is 63/63 across the selector core, authority, process, cloud,
+  evaluator, rank-150 and diversity suites; the lead reran the same combined
+  suite successfully and the touched diff is whitespace-clean.
+- Exact next actions: include this chain in the single consolidated challenger
+  image, run one real-artifact header/resource smoke, launch the grouped
+  selection after the V7 control releases the shared job, then evaluate and
+  aggregate all 54 slates. Add the 32-cell rank-150/DPP mode in parallel; do
+  not mislabel those cells as part of the 24-fit batch.
+- V7 control projection `atlas-cbc-32g-full-2023-w8-v1-r8lwq` remains
+  `ACTIVE` after eight status-only polls, with no terminal failure.
+
 ## Current handoff — 2026-08-28 20:06 UTC (three-hundred-second update)
 
 ### Hard-230 is now a genuine replenishing population challenger

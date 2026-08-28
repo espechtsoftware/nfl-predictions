@@ -10,9 +10,6 @@ from nfl_dfs.research import (
     corpus_r6_current_bank_crossed_screen_contract_v1 as contract,
 )
 from nfl_dfs.research import (
-    corpus_r6_current_bank_crossed_screen_selection_assembler_v1 as assembler,
-)
-from nfl_dfs.research import (
     corpus_r6_current_bank_crossed_screen_selection_fold_worker_v1 as worker,
 )
 from nfl_dfs.research import (
@@ -20,6 +17,9 @@ from nfl_dfs.research import (
 )
 from nfl_dfs.research import (
     corpus_r6_current_bank_selector_successor_v1 as successor,
+)
+from nfl_dfs.research import (
+    corpus_r6_current_bank_selector_successor_runtime_v1 as successor_runtime,
 )
 
 
@@ -133,20 +133,19 @@ def _capability(scores: np.ndarray) -> dict[str, object]:
 
 def _runtime() -> dict[str, object]:
     environment = {
-        "GOOGLE_CLOUD_PROJECT": assembler.FIXED_GCP_PROJECT,
+        "GOOGLE_CLOUD_PROJECT": successor_runtime.FIXED_GCP_PROJECT,
         "CODE_SHA": "a" * 40,
         "R6_RUNTIME_IMAGE_DIGEST": "sha256:" + "b" * 64,
         "CLOUD_RUN_JOB": "authority-fixture",
         "CLOUD_RUN_EXECUTION": "authority-fixture-00001",
         "CLOUD_RUN_TASK_INDEX": "0",
-        "R6_SELECTOR_PROCESS_ORDINAL": "0",
+        successor_runtime.PROCESS_ORDINAL_ENV: "0",
     }
-    command = assembler.canonical_matrix_selector_command_v1()
-    return assembler.derive_observed_runtime_evidence_v1(
-        mode="matrix-selector",
+    command = successor_runtime.canonical_matrix_selector_command_v1()
+    return successor_runtime.build_runtime_evidence_v1(
         process_ordinal=0,
         environ=environment,
-        argv=command,
+        observed_command=command,
         pid=211,
         parent_pid=101,
     )

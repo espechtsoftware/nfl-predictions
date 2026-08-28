@@ -2,9 +2,10 @@
 
 The pure successor intentionally accepts caller-shaped arrays and therefore
 cannot establish production input authority by itself.  This adapter reuses
-the existing crossed-screen matrix-child boundary: one validated scientific
-matrix capability, the exact read-only matrix bound by its descriptor, and
-the observed runtime evidence of the registered matrix-selector process.
+the existing crossed-screen scientific matrix capability and exact read-only
+matrix descriptor, while requiring a distinct observed runtime authority for
+the grouped successor executable.  It never claims to have run through the
+frozen 64-fit control matrix-selector command.
 
 Only the broad screen is supported here.  Confirmation remains closed until
 its separate rank-only view/sample authority exists.  This module performs no
@@ -26,13 +27,13 @@ from nfl_dfs.research import (
     corpus_r6_current_bank_crossed_screen_contract_v1 as contract,
 )
 from nfl_dfs.research import (
-    corpus_r6_current_bank_crossed_screen_selection_assembler_v1 as assembler,
-)
-from nfl_dfs.research import (
     corpus_r6_current_bank_crossed_screen_selection_fold_worker_v1 as worker,
 )
 from nfl_dfs.research import (
     corpus_r6_current_bank_selector_successor_v1 as successor,
+)
+from nfl_dfs.research import (
+    corpus_r6_current_bank_selector_successor_runtime_v1 as successor_runtime,
 )
 
 
@@ -50,7 +51,7 @@ AUTHORITY_CELL_SCHEMA: Final = (
 )
 AUTHORITY_WRAPPER_ID: Final = "grouped-three-native-broad-authority-wrapper-v1"
 EXPECTED_AUTHORITY_WRAPPER_SHA256: Final = (
-    "3c7785d8f2e91e51d6726878db69665a8cb37538b47f31a79be34081a30c227c"
+    "00b1da72cebc3a20c3c327cb79818dcbeb695204221cc5ca6455649012c63c5e"
 )
 EXACT_WORLDS_PER_BLOCK: Final = 10_000
 EXACT_TRAINING_BLOCK_COUNT: Final = 4
@@ -150,10 +151,10 @@ def frozen_authority_wrapper_v1() -> dict[str, object]:
             "fail-before-matrix-copy-or-grouped-selector-execution"
         ),
         "matrix_capability_schema": worker.MATRIX_CAPABILITY_SCHEMA,
-        "runtime_evidence_schema": assembler.OBSERVED_RUNTIME_SCHEMA,
-        "runtime_mode": "matrix-selector",
+        "runtime_evidence_schema": successor_runtime.RUNTIME_SCHEMA,
+        "runtime_mode": successor_runtime.RUNTIME_MODE,
         "runtime_command_authority": (
-            "existing-assembler-canonical-matrix-selector-command-v1"
+            "grouped-successor-canonical-matrix-selector-command-v1"
         ),
         "worlds_per_block": EXACT_WORLDS_PER_BLOCK,
         "training_block_count": EXACT_TRAINING_BLOCK_COUNT,
@@ -179,7 +180,7 @@ def frozen_authority_wrapper_v1() -> dict[str, object]:
         ],
         "successor_preset_registry_sha256": _hash(registry),
         "outer_authority_law": (
-            "existing-launch-and-fold-envelope-binding-remains-required"
+            "successor-launch-and-fold-envelope-binding-remains-required"
         ),
         "policy": dict(_POLICY),
     }
@@ -326,15 +327,15 @@ def _validate_runtime_authority_v1(
     runtime_value: object, *, capability: Mapping[str, object],
 ) -> dict[str, object]:
     try:
-        runtime = assembler.validate_observed_runtime_evidence_v1(runtime_value)
-    except assembler.CorpusR6CurrentBankSelectionAssemblerV1Error as exc:
+        runtime = successor_runtime.validate_runtime_evidence_v1(runtime_value)
+    except successor_runtime.CorpusR6CurrentBankSelectorSuccessorRuntimeV1Error as exc:
         raise CorpusR6CurrentBankSelectorSuccessorAuthorityV1Error(
             f"observed runtime authority differs: {exc}"
         ) from exc
     if (
-        runtime["mode"] != "matrix-selector"
+        runtime["runtime_mode"] != successor_runtime.RUNTIME_MODE
         or runtime["command"]
-        != assembler.canonical_matrix_selector_command_v1()
+        != successor_runtime.canonical_matrix_selector_command_v1()
         or runtime["process_ordinal"] != capability["process_ordinal"]
         or runtime["task_index"] != capability["source_ordinal"]
         or runtime["pid"] < 1
@@ -839,7 +840,8 @@ def run_authority_bound_broad_selectors_v1(
         "sample_authority_replayed_from_projection": True,
         "matrix_authority_recomputed_from_read_only_bytes": True,
         "score_row_ledger_rederived_from_matrix": True,
-        "runtime_authority_validated_by_existing_assembler": True,
+        "runtime_authority_validated_by_successor_runtime": True,
+        "source_control_runtime_compatibility_claimed": False,
         "outer_launch_authority_binding_required": True,
     }, field="authority_binding_sha256")
     body = {
