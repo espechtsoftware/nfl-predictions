@@ -20,6 +20,30 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 11:10 UTC (two-hundred-forty-seventh update)
+
+### V4 projection launch intent was consumed exactly once
+
+- Submission count is **1** and job execution count moved **80→81**. Cloud Run
+  execution is `atlas-cbc-32g-full-2023-w8-v1-qmxvn`, UID
+  `6f30c68e-bc5f-4ebe-86b4-62f7b349c6e0`, generation 1; captured state is
+  **ACTIVE**. Nested launch-result self-hash is
+  `0768abc5edfcd652415b9cb78fb20671e778dec47ebab1c733cf3f20befd5560`;
+  exact local result-file SHA-256 is
+  `0aadd13cc3901be7bb439a67915bb875441ad2d3377da0ec217e42f5c29bf211`.
+- Create-once submission marker is
+  `authorities/cloud-run-launch-submission-markers/00-projection.json`, body
+  self-hash
+  `929640ebbff24cd9d1ada88a564b37a0a64907941d4e298c61e4fa6fd38ef4e8`.
+  `launch_request_consumed=true`, `blind_relaunch_allowed=false`, no run-job
+  overrides were present, and provider task-template SHA-256 is
+  `ef153b0ed44ceaf8a6d16e9c53c641527995543164192b793eea9618907f355f`.
+  Never invoke v4 projection `launch` again.
+- Exact next action: commit/push this execution identity and poll only the
+  known execution with fresh output files. On terminal success, finalize
+  projection and prepare broad selection immediately; on failure, seal v4 and
+  diagnose without relaunching. No score or outcome has been read.
+
 ## Current handoff — 2026-08-28 11:08 UTC (two-hundred-forty-sixth update)
 
 ### V4 projection launch is armed and not submitted
