@@ -20,6 +20,52 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 18:31 UTC (two-hundred-eighty-ninth update)
+
+### V6 broad selection is finalized; successor inputs are authority-bound
+
+- Branch `main` and `origin/main` are at `1c168b6b`. V6 broad-selection
+  execution `atlas-cbc-32g-full-2023-w8-v1-2htzj`, UID
+  `bc0985b8-1464-42c1-a4b5-7a5875f0c0af`, reached terminal success with
+  54/54 tasks succeeded and zero failures. Terminal status SHA-256 is
+  `28f84f83201ee7a64185bc49a29b3f0ba705df1e77ae2a3e836d4cd876267585`;
+  task-status SHA-256 is
+  `d11bf7d13009905e754b7ccb77ff6a0ad998a7b791eb92234e4a4595e6df0194`.
+- Selection finalized to layer-receipt generation `1787941352284078`,
+  SHA-256
+  `82916e210a84d948c8e08b5d0b581da27e5d395354c17a5caf7eb5cb5561bd70`,
+  119,094 bytes at `.../authorities/layer-execution-receipts/`
+  `01-broad-selection-receipt.json`. Observation-source generation is
+  `1787941294249811`, SHA-256
+  `79fffa23bfcef577035ee85de7cb04a0e6444efe20565769bb225d0124f855fd`,
+  90,714 bytes. Local finalize-result SHA-256 is
+  `41802d07ee59a0d699b75f7c3893fa60184fb5beaf855765651b8e101d86524a`.
+- One interrupted local finalize session published the exact immutable
+  observation source before returning its local result. The retry exposed a
+  provider-adapter idempotency gap: a create-once 412 is not automatically
+  reopened as an exact prior. Recovery regenerated the observation bytes,
+  required byte equality with the pinned existing generation, and completed
+  the still-absent receipt. Nothing was overwritten or deleted. Fix this
+  narrow operator retry path before relying on unattended layer chaining.
+- Two new files add the successor authority wrapper and tests. It accepts only
+  the existing validated broad matrix capability, read-only exact 40,000-world
+  matrix and observed runtime evidence; it replays projection/sample/score
+  ledgers and emits exactly 24 cells (three selectors x eight views). Combined
+  core/wrapper validation is 25 tests passing plus compilation/whitespace.
+  Source SHA-256 is
+  `4e69acf3ee229c43884efb164b6e6276c67494086cc44194d0b979144cf56bcf`;
+  test SHA-256 is
+  `b626cd000816faa99632e86ac85594109f5be73af1793d09cec3c6492ec7262d`.
+  The wrapper is not yet deployable: the existing V6 fold receipt precharges
+  56 control fits while the challenger response has 24; a new bounded process
+  budget/receipt adapter and outer launch-envelope binding remain.
+- Broad held-out evaluation preparation has started from the finalized
+  projection and selection receipts. No scientific output, score, log or
+  realized outcome has been read.
+- Exact next action: finish evaluation preparation, configure/arm/launch it,
+  then status-poll to terminal. Commit these two authority-wrapper files with
+  this handoff. In parallel complete the lean 24-fit process receipt adapter.
+
 ## Current handoff — 2026-08-28 18:10 UTC (two-hundred-eighty-eighth update)
 
 ### Three valid grouped selector challengers are ready for authority integration
