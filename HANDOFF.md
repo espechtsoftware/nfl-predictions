@@ -20,6 +20,29 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 07:45 UTC (two-hundred-twenty-second update)
+
+### The reused job is exactly configured for v2 projection and remains unlaunched
+
+- The exact archive operator configured reused job
+  `atlas-cbc-32g-full-2023-w8-v1` successfully. UID remains
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275`; job generation is now **12** and
+  exact job-projection SHA-256 is
+  `4d775ae831a77f9d6f1887ffc76e04a5dd774f21a5d2ba0e780543e9e0284bd2`.
+  `exact_post_update_projection_validated=true` and `job_created=false`.
+- The exact template is one task / one parallel worker, 8 CPU, 32 GiB, zero
+  retries, 7,260-second timeout, canonical isolated dispatcher command, source
+  commit `a9ffefd945b118606feaad5f27f15b2c843e5837`, image digest
+  `sha256:f6f3856ef4372807fba10578273f018a2d47fa1c695cfb30c060a4732aacf7eb`,
+  v2 manifest generation `1787903000703944`, and no network attachment,
+  Cloud SQL, secret environment, volume or volume mount. The execution count
+  remains **77**; latest execution is still the sealed failed v1 execution
+  `atlas-cbc-32g-full-2023-w8-v1-x2hr4`. Nothing has launched from v2.
+- Exact next action: commit/push this post-configuration milestone, arm the
+  projection to create its single immutable launch intent, inspect that
+  identity, then construct the launch request and consume it exactly once.
+  No crossed-screen score exists yet.
+
 ## Current handoff — 2026-08-28 07:43 UTC (two-hundred-twenty-first update)
 
 ### The fresh v2 projection authority graph is prepared create-once
