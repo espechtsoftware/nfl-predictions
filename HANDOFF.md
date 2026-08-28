@@ -20,6 +20,38 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 13:10 UTC (two-hundred-fifty-eighth update)
+
+### V4 broad evaluation is sealed failed; candidate-domain bound isolated
+
+- Cloud Run execution `atlas-cbc-32g-full-2023-w8-v1-cwm7l`, UID
+  `518f7ec0-28c5-45d6-94b2-c09ace38363a`, completed terminal **FAILED** at
+  `2026-08-28T13:05:36.445621Z`: 54/54 tasks failed on attempt 0 with exit
+  code 1, zero succeeded/cancelled. Exact status-file SHA-256 is
+  `85f4429c6e82ab40a9d9f9952d7d69253d29eaa355178ceeba074be0f9b39e93`;
+  body self-hash is
+  `3eabef014d87da22f925449c1b1c911aeb98014fb76e40216ae954a892006f1f`.
+  V4 is sealed and must never be finalized or relaunched.
+- A generation-exact read of the known administrative, body-free task-0
+  terminal object (not a listing, log, scientific body, or outcome) found
+  generation `1787922196001862`, 4,987 bytes, terminal self-hash
+  `a9012a671e609aa7a3efcf8f36933881a1ab9548ece640dc7c3d094987b3bc8c`,
+  child exit 1 after 81,661 ms, zero stdout bytes, 1,482 stderr bytes, and no
+  publication. Stderr content was not read.
+- Static source/authority audit isolated the uniform pre-score rejection:
+  evaluator `_load_artifact_worlds_v1` and its task-manifest terminal mirror
+  cap source `candidate_rows` at **512**, but the frozen source contract's
+  canonical bound is `MAX_SELECTION_CANDIDATES_PER_FOLD=3993` and real panel
+  artifacts reach that domain. This is a player-count/source-candidate-domain
+  confusion, consistent with uniform failure before any evaluator output; it
+  is not evidence about strategy scoring.
+- Exact next action: patch both mirrored bounds to the frozen contract value,
+  add 3,993-accept / 3,994-reject plus realistic precharge regressions, audit
+  the complete evaluator terminal path for a second deterministic mismatch,
+  then build one immutable v5 image. Reuse the finalized v4 projection and
+  broad-selection receipts in a fresh prefix; do not rerun those scientific
+  computations. No realized outcome or score has been read.
+
 ## Current handoff — 2026-08-28 12:58 UTC (two-hundred-fifty-seventh update)
 
 ### V4 broad evaluation launched exactly once
