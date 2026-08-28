@@ -20,6 +20,25 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 09:35 UTC (two-hundred-thirty-fourth update)
+
+### V3 projection execution succeeded cleanly
+
+- Execution `atlas-cbc-32g-full-2023-w8-v1-zxn9z`, UID
+  `f73d5308-6723-49b6-bfd5-4d27f52af064`, generation 1, reached
+  **SUCCEEDED** at fresh status poll 026. Task 0 attempt 0 exited 0 with
+  `Completed/CONDITION_SUCCEEDED`; all tasks are terminal and successful.
+- Exact status file is 2,897 bytes, SHA-256
+  `33193344b72f6a990fa53eb50c855057e9ddf44f36b252045183acb53217962d`;
+  embedded status self-hash is
+  `b8c14460d50a46720ced507816930b4e7f0ba863ef12daf3c718dd9956900f0c`.
+  Every poll retained `logs_read=false`, `scientific_outputs_read=false` and
+  `realized_outcomes_read=false`. Monitoring stopped at terminal.
+- Exact next action: commit/push this terminal identity, finalize projection
+  exactly once to publish its observation and layer receipt, preserve the
+  receipt identity, then prepare the 54-task broad-selection layer. Never
+  relaunch projection. No score exists yet.
+
 ## Current handoff — 2026-08-28 09:03 UTC (two-hundred-thirty-third update)
 
 ### Real terminal evidence now passes the full repaired finalization replay
