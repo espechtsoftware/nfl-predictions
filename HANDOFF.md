@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 12:29 UTC (two-hundred-fifty-third update)
+
+### Corrected v4 broad selection succeeded 54/54 and is finalized
+
+- Cloud Run execution `atlas-cbc-32g-full-2023-w8-v1-4cql9`, UID
+  `9991e4b1-07c5-4d96-9199-aa7d0c5216c8`, completed successfully at
+  `2026-08-28T12:21:45.759448Z` after 22m38.24s. Exact terminal status proves
+  **54/54 succeeded**, zero failed/cancelled, attempt 0 and exit code 0 for
+  every task. Local terminal-status SHA-256 is
+  `0c70908b6c45f796cc3bd710acc94a8b1e43d226db2df87095b8dfdb3c41a335`;
+  body self-hash is
+  `4f159871838fcd29c74fc4a014a92f257eaed042d93051a3ab71cc01af45a29f`.
+  This is the first production proof that the `976d1b29` selection budget-
+  binding repair reverses the sealed v3 54/54 terminal failure.
+- Exact finalization published the create-once broad-selection layer receipt
+  at `authorities/layer-execution-receipts/01-broad-selection-receipt.json`,
+  generation `1787920180658819`, SHA-256
+  `36bd990080435fe8011134715b8e9e45ac9531f0b6b4a60918e3e80780553a9f`,
+  119,094 bytes. Local finalize-result SHA-256 is
+  `5c65d7242623e784afa5f1e131c134359bb044aa866be2ffbb5550933e049058`;
+  result self-hash is
+  `784fb63c8e549f893ea32fafe886dea7568e5e281e536350229e34509cb1af89`.
+  Terminal evidence was exact-opened and every read guard remains false.
+- Exact next action: commit/push, prepare `broad-evaluation-result` from
+  predecessor receipts `[projection, broad-selection-receipt]` in registry
+  order, then configure/arm/launch its 54 tasks immediately. No score, log,
+  scientific output, or realized outcome has been read.
+
 ## Current handoff — 2026-08-28 11:59 UTC (two-hundred-fifty-second update)
 
 ### Corrected v4 broad selection launched exactly once
