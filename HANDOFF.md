@@ -20,6 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 19:47 UTC (two-hundred-ninety-eighth update)
+
+### Repaired V7 projection is running
+
+- Branch `main` and `origin/main` entered this milestone at `c439add3`. The
+  reused job passed its exact post-update projection at generation 24 with job
+  UID `1f4bcf0a-2300-4afa-9fc1-9981844c8275`; local configure-result SHA-256
+  is `3d1a006c4f0699f7b554dd054574f72ad04575be481e15f5f93a12141a27582c`.
+- Launch intent generation `1787946246494187`, SHA-256
+  `f37ff0546752386743b272df39f05c09fa8860ca909003f74a40a4a0701a6d01`,
+  2,918 bytes was consumed exactly once. The active execution is
+  `atlas-cbc-32g-full-2023-w8-v1-r8lwq`, UID
+  `9512d907-f2fc-49cb-91a2-09c850f9717e`, generation 1; local launch-result
+  SHA-256 is
+  `c6c31e671b9d751463fcf343d1782d507a3ef3e5d052e7ed1ec590874d0255b9`.
+- The first status poll is `ACTIVE` with its one dispatcher task active and no
+  terminal failure. Status SHA-256 is
+  `ac0c350f14a1108d79afe64717cf6c8c654ebc494b3a1d88c42bbb2792ff883d`;
+  task-status SHA-256 is
+  `dd54c50dae65efabdf3e1003a0d888075eef1e26258cf272d13d8fdfb6c1e7ef`.
+  No log, scientific output, realized outcome or score was read.
+- Never reconfigure, re-arm, relaunch or recover this execution. Exact next
+  action: status-poll only `...-r8lwq` to terminal and finalize projection
+  once; use the wait to finish the consolidated selector and population
+  challengers rather than create per-arm deployments.
+
 ## Current handoff — 2026-08-28 19:42 UTC (two-hundred-ninety-seventh update)
 
 ### V7 control preparation completed through the accelerated path
