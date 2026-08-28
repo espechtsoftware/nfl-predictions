@@ -20,6 +20,31 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 19:42 UTC (two-hundred-ninety-seventh update)
+
+### V7 control preparation completed through the accelerated path
+
+- Branch `main` and `origin/main` entered this milestone at `2d66dbde`; the
+  immutable runtime remains
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:440e910df2ca8aafd7a6055922327f76c7bd5b480ecb84cd6adeb1cc4c1f00bf`
+  from exact source commit `5a293157e9ed9d14c9ba2f7d96d020db845442d3`.
+- One create-only `prepare` invocation completed against untouched output
+  prefix `20260828-r6-current-bank-crossed-screen-v7/` in about eight seconds.
+  The projection task manifest is generation `1787946023449402`, SHA-256
+  `3530da8133b4cd82dafb11825a30fe254a82241b1525e6f006d69c38a5efeec7`,
+  26,202 bytes. The preparation receipt is generation `1787946024749842`,
+  SHA-256
+  `469cee9f7abbcb2accf542ee5d49851c03666a43e94aefaf632079f3de4a3437`,
+  130,717 bytes. The local preparation result SHA-256 is
+  `792693bb0918d34497acf987378b9aeb52ab78d2d32eea6c95240534a0559cec`.
+- The frozen contract source is generation `1787946018053494`, SHA-256
+  `729e1d4302bda62a7000d747c7dc869abb10a0a1a65f98fbcdf2e4409686c846`,
+  374,457 bytes. No scientific result, realized outcome or score was opened.
+- Exact next action: configure, arm and launch projection exactly once through
+  reused Cloud Run job `atlas-cbc-32g-full-2023-w8-v1` and expected job UID
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275`; then status-poll only that execution
+  to terminal and finalize it once.
+
 ## Current handoff — 2026-08-28 19:39 UTC (two-hundred-ninety-sixth update)
 
 ### Repaired V7 control image is immutable and ready to run
