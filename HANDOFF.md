@@ -20,6 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 11:05 UTC (two-hundred-forty-fourth update)
+
+### Fresh v4 projection authorities are prepared create-once
+
+- The exact `976d1b29` clean-archive operator prepared the untouched
+  `20260828-r6-current-bank-crossed-screen-v4/` prefix successfully against
+  immutable image digest
+  `sha256:6e57fd1e2150fc540b62e78052b940e1581a92d49194e5d2b68290824975d988`.
+  Never rerun `prepare` for this prefix.
+- Projection manifest identity is generation `1787915100113957`, SHA-256
+  `d4f1ca5a0cbf6c8e99d65f36b559589e9df7adc2f43cda3ea34db7dd0377c1db`,
+  26,202 bytes. Projection preparation receipt is generation
+  `1787915101402606`, SHA-256
+  `f820b6c7c54b207527161c8e2baeb23da35e2bcc83c3011ff1646379bbb360d5`,
+  130,717 bytes. Their URIs are respectively
+  `authorities/task-manifests/00-projection.json` and
+  `authorities/preparation-receipts/00-projection.json` under the v4 prefix.
+- Projection process-budget identity is generation `1787915099531456`,
+  SHA-256 `17d6fae516185743369b5ec02f80ab94272f4b291a6a9a080151880686ba36dc`;
+  task-request identity is generation `1787915099767214`, SHA-256
+  `a5a17c0d10da006eb20e209c017d8280d4042c11e4090f5d10eea857b5886e3b`.
+  Structural count remains 111 and frozen contract/report hashes remain
+  `1ea3f25e...a266` / `83d6c9d4...4f0d`.
+- Local mode-0600 evidence is under
+  `/tmp/r6-current-bank-operator-976d1b29`; prepare-result file SHA-256 is
+  `d5887be54a1ef381fe689cf67aad8a9b40e40b7d89fec20b6e73d0ff166b1bbb`.
+  Exact next action: configure the reused UID-bound job for one v4 projection
+  task, verify its exact post-update projection, arm, preserve the create-once
+  intent, and launch exactly once. No outcome or score has been read.
+
 ## Current handoff — 2026-08-28 11:03 UTC (two-hundred-forty-third update)
 
 ### Selection-terminal repair image is immutable and release-green
