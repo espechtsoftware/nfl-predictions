@@ -208,7 +208,7 @@ def _entrypoint_sha256_v1(path: str) -> str:
 
 def canonical_fold_broker_command_v1() -> list[str]:
     return [
-        str(Path(sys.executable).resolve()),
+        os.path.abspath(sys.executable),
         str((_repository_root_v1() / "scripts" / _BROKER_SCRIPT_BASENAME).resolve()),
         "fold-broker",
     ]
@@ -216,7 +216,7 @@ def canonical_fold_broker_command_v1() -> list[str]:
 
 def canonical_slate_assembler_command_v1() -> list[str]:
     return [
-        str(Path(sys.executable).resolve()),
+        os.path.abspath(sys.executable),
         str((_repository_root_v1() / "scripts" / _BROKER_SCRIPT_BASENAME).resolve()),
         "slate-assembler",
     ]
@@ -224,7 +224,7 @@ def canonical_slate_assembler_command_v1() -> list[str]:
 
 def canonical_matrix_selector_command_v1() -> list[str]:
     return [
-        str(Path(sys.executable).resolve()),
+        os.path.abspath(sys.executable),
         str((Path(__file__).resolve().parent / _MATRIX_ENTRYPOINT_BASENAME).resolve()),
         "matrix-selector",
     ]

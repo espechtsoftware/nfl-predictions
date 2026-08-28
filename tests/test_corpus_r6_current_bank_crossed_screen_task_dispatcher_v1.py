@@ -288,3 +288,50 @@ def test_end_to_end_deadline_fails_closed_after_expiry() -> None:
         match="end-to-end wall deadline",
     ):
         deadline.remaining_seconds()
+
+
+def test_failure_diagnostic_is_bounded_redacted_and_non_authoritative() -> None:
+    stderr = (
+        b"Traceback (most recent call last):\n"
+        b"credential=do-not-log-this\n"
+        b"FixtureError: projection matrix is absent token=also-secret\n"
+    )
+    result = {
+        "exit_code": 17,
+        "stdout": b"science-output-is-never-excerpted",
+        "stderr": stderr,
+        "timed_out": False,
+        "stdout_overflow": False,
+        "stderr_overflow": False,
+        "elapsed_milliseconds": 12,
+    }
+    raw = dispatcher._failure_diagnostic_v1(
+        result, terminalization_error=None
+    ).encode("utf-8")
+    diagnostic = json.loads(raw)
+
+    assert len(raw) <= dispatcher.MAXIMUM_FAILURE_DIAGNOSTIC_BYTES
+    assert diagnostic["channel"] == "non-authoritative-dispatcher-stderr"
+    assert diagnostic["classification"] == "child-nonzero-exit"
+    assert diagnostic["child_exit_code"] == 17
+    assert diagnostic["child_stderr_bytes"] == len(stderr)
+    assert diagnostic["child_stderr_sha256"] == sha256(stderr).hexdigest()
+    assert "FixtureError: projection matrix is absent" in diagnostic[
+        "sanitized_stderr_excerpt"
+    ]
+    assert "do-not-log-this" not in raw.decode("utf-8")
+    assert "also-secret" not in raw.decode("utf-8")
+    assert "science-output-is-never-excerpted" not in raw.decode("utf-8")
+    assert diagnostic[
+        "raw_child_streams_embedded_in_science_authority"
+    ] is False
+
+    contract_rejection = json.loads(dispatcher._failure_diagnostic_v1(
+        result,
+        terminalization_error=ValueError("password: hidden contract mismatch"),
+    ))
+    assert contract_rejection["classification"] == (
+        "child-terminal-contract-rejected"
+    )
+    assert contract_rejection["terminalization_error_type"] == "ValueError"
+    assert "hidden" not in contract_rejection["terminalization_error"]

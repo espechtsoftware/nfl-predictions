@@ -4782,28 +4782,30 @@ def build_task_terminal_evidence_v1(
         envelope_schema = _string(
             envelope.get("schema_version"), label="child envelope schema", maximum=256
         )
-    publication_evidence = [
-        {
-            "output_ordinal": offset,
-            "descriptor_uri": descriptor["uri"],
-            "descriptor_maximum_bytes": descriptor["maximum_bytes"],
-            "publication_identity": publication,
-            "publication_within_descriptor_ceiling": (
-                publication["bytes"] <= descriptor["maximum_bytes"]
-            ),
-            "prior_identity": descriptor["prior_identity"],
-            "exact_prior_generation_matched": (
-                descriptor["prior_identity"] is None
-                or publication == descriptor["prior_identity"]
-            ),
-            "successful_create_or_exact_prior_reopen_required": True,
-            "publication_generation_exact_reopen_proved": True,
-            "accepted_from_canonical_child_envelope": True,
-        }
-        for offset, (descriptor, publication) in enumerate(zip(
-            task["expected_outputs"], publications, strict=True
-        ))
-    ]
+    publication_evidence = []
+    if completed:
+        publication_evidence = [
+            {
+                "output_ordinal": offset,
+                "descriptor_uri": descriptor["uri"],
+                "descriptor_maximum_bytes": descriptor["maximum_bytes"],
+                "publication_identity": publication,
+                "publication_within_descriptor_ceiling": (
+                    publication["bytes"] <= descriptor["maximum_bytes"]
+                ),
+                "prior_identity": descriptor["prior_identity"],
+                "exact_prior_generation_matched": (
+                    descriptor["prior_identity"] is None
+                    or publication == descriptor["prior_identity"]
+                ),
+                "successful_create_or_exact_prior_reopen_required": True,
+                "publication_generation_exact_reopen_proved": True,
+                "accepted_from_canonical_child_envelope": True,
+            }
+            for offset, (descriptor, publication) in enumerate(zip(
+                task["expected_outputs"], publications, strict=True
+            ))
+        ]
     body = {
         "schema_version": TASK_TERMINAL_EVIDENCE_SCHEMA,
         "contract_id": contract.CONTRACT_ID,

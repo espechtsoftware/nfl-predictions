@@ -26,6 +26,8 @@ FIXED_BUCKET: Final = "nfl-predictions-503414-corpus-retrieval"
 MAXIMUM_STDOUT_EVIDENCE_BYTES: Final = (
     8_192
 )
+MAXIMUM_FAILURE_DIAGNOSTIC_BYTES: Final = 4_096
+MAXIMUM_FAILURE_DIAGNOSTIC_EXCERPT_BYTES: Final = 768
 MAXIMUM_KERNEL_CMDLINE_BYTES: Final = 8_192
 MAXIMUM_EXACT_READS: Final = 256
 MAXIMUM_EXACT_READ_BYTES: Final = task_manifest.MAXIMUM_MANIFEST_BYTES
@@ -46,6 +48,10 @@ _COMMIT_RE: Final = re.compile(r"[0-9a-f]{40}\Z")
 _SHA_RE: Final = re.compile(r"[0-9a-f]{64}\Z")
 _SAFE_RUNTIME_NAME_RE: Final = re.compile(
     r"[A-Za-z0-9][A-Za-z0-9._:/-]{0,511}\Z"
+)
+_SENSITIVE_DIAGNOSTIC_VALUE_RE: Final = re.compile(
+    r"(?i)\b(authorization|bearer|token|password|passwd|secret|"
+    r"api[-_ ]?key|credential)\b(?:\s*[:=]\s*|\s+)[^\s,;]+"
 )
 _REDIRECT_ENV_KEYS: Final = (
     "STORAGE_EMULATOR_HOST",
@@ -138,6 +144,78 @@ def _canonical_bytes(value: object) -> bytes:
         raise RunCorpusR6CurrentBankCrossedScreenTaskDispatcherV1Error(
             "dispatcher value is not canonical JSON"
         ) from exc
+
+
+def _redacted_bounded_text_v1(value: str) -> str | None:
+    retained = " ".join(value.split())
+    if not retained:
+        return None
+    retained = _SENSITIVE_DIAGNOSTIC_VALUE_RE.sub(
+        lambda match: f"{match.group(1)}=<redacted>", retained
+    )
+    raw = retained.encode("utf-8")
+    return raw[:MAXIMUM_FAILURE_DIAGNOSTIC_EXCERPT_BYTES].decode(
+        "utf-8", errors="ignore"
+    )
+
+
+def _failure_diagnostic_v1(
+    result: Mapping[str, object], *, terminalization_error: Exception | None,
+) -> str:
+    """Build a bounded diagnostic log line, never a scientific authority."""
+    if terminalization_error is not None:
+        classification = "child-terminal-contract-rejected"
+    elif result.get("timed_out") is True:
+        classification = "child-timeout"
+    elif result.get("stdout_overflow") is True:
+        classification = "child-stdout-overflow"
+    elif result.get("stderr_overflow") is True:
+        classification = "child-stderr-overflow"
+    elif result.get("exit_code") != 0:
+        classification = "child-nonzero-exit"
+    else:
+        classification = "child-not-accepted"
+    stderr = result.get("stderr")
+    stderr_bytes = stderr if type(stderr) is bytes else b""
+    stderr_excerpt = _redacted_bounded_text_v1(
+        stderr_bytes[-4_096:].decode("utf-8", errors="replace")
+    )
+    body = {
+        "schema_version": (
+            "corpus-r6-current-bank-crossed-screen-failure-diagnostic/v1"
+        ),
+        "channel": "non-authoritative-dispatcher-stderr",
+        "classification": classification,
+        "child_exit_code": result.get("exit_code"),
+        "timed_out": result.get("timed_out"),
+        "stdout_overflow": result.get("stdout_overflow"),
+        "stderr_overflow": result.get("stderr_overflow"),
+        "child_stderr_bytes": len(stderr_bytes),
+        "child_stderr_sha256": sha256(stderr_bytes).hexdigest(),
+        "sanitized_stderr_excerpt": stderr_excerpt,
+        "terminalization_error_type": (
+            type(terminalization_error).__name__
+            if terminalization_error is not None else None
+        ),
+        "terminalization_error": (
+            _redacted_bounded_text_v1(str(terminalization_error))
+            if terminalization_error is not None else None
+        ),
+        "raw_child_streams_embedded_in_science_authority": False,
+    }
+    raw = _canonical_bytes(body)
+    if len(raw) > MAXIMUM_FAILURE_DIAGNOSTIC_BYTES:
+        _fail("dispatcher failure diagnostic exceeds its byte ceiling")
+    return raw.decode("utf-8")
+
+
+def _emit_failure_diagnostic_v1(value: str) -> None:
+    try:
+        sys.stderr.write(value + "\n")
+        sys.stderr.flush()
+    except (OSError, UnicodeError):
+        # Diagnostic logging must never prevent terminal-evidence publication.
+        return
 
 
 def canonical_dispatcher_command_v1() -> list[str]:
@@ -873,6 +951,7 @@ def dispatch_once_v1(
     ):
         _fail("bounded child runner result types/resource evidence differ")
     accepted = True
+    terminalization_error: Exception | None = None
     try:
         evidence = task_manifest.build_task_terminal_evidence_v1(
             manifest=manifest,
@@ -895,8 +974,12 @@ def dispatch_once_v1(
             stdout_overflow=result["stdout_overflow"],
             stderr_overflow=result["stderr_overflow"],
         )
-    except Exception:
+    except Exception as exc:
         accepted = False
+        terminalization_error = exc
+        _emit_failure_diagnostic_v1(_failure_diagnostic_v1(
+            result, terminalization_error=terminalization_error
+        ))
         evidence = task_manifest.build_task_terminal_evidence_v1(
             manifest=manifest,
             manifest_identity=authority["manifest_identity"],
@@ -933,6 +1016,10 @@ def dispatch_once_v1(
         evidence_identity=evidence_identity,
     )
     success = accepted and evidence["task_completed"] is True
+    if not success and terminalization_error is None:
+        _emit_failure_diagnostic_v1(_failure_diagnostic_v1(
+            result, terminalization_error=None
+        ))
     wall_deadline.remaining_seconds()
     return compact, 0 if success else 1
 

@@ -4,7 +4,10 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass, field
+import errno
+import fcntl
 from hashlib import sha256
 import json
 import os
@@ -110,7 +113,7 @@ def observed_process_command_v1(
             "kernel process command is not UTF-8"
         ) from exc
     retained = [
-        str(Path(observed[0]).resolve()),
+        os.path.abspath(observed[0]),
         str(Path(observed[1]).resolve()),
         observed[2],
     ]
@@ -454,9 +457,14 @@ def _artifact_identity(receipt_value: object) -> dict[str, object]:
 
 def _bounded_subprocess(
     *, command: list[str], input_bytes: bytes, output_ceiling: int,
-    environment: Mapping[str, str],
+    environment: Mapping[str, str], pass_fds: tuple[int, ...] = (),
 ) -> bytes:
-    if output_ceiling < 1:
+    if (
+        output_ceiling < 1
+        or type(pass_fds) is not tuple
+        or any(type(value) is not int or value < 0 for value in pass_fds)
+        or len(set(pass_fds)) != len(pass_fds)
+    ):
         _fail("subprocess output ceiling differs")
     with tempfile.TemporaryFile() as stdin_file:
         stdin_file.write(input_bytes)
@@ -467,6 +475,7 @@ def _bounded_subprocess(
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
             env=dict(environment),
+            pass_fds=pass_fds,
         )
         assert process.stdout is not None
         output = process.stdout.read(output_ceiling + 1)
@@ -480,8 +489,140 @@ def _bounded_subprocess(
     return output
 
 
+@contextmanager
+def _readonly_anonymous_matrix_fd_v1(
+    scores_value: object, descriptor_value: object,
+):
+    """Yield fixed FD198 backed by one immutable sealed Linux memfd."""
+    import numpy as np
+    from nfl_dfs.research import (
+        corpus_r6_current_bank_crossed_screen_selection_fold_worker_v1
+        as matrix_worker,
+    )
+
+    descriptor = matrix_worker._validate_matrix_descriptor_v1(descriptor_value)
+    scores = np.asarray(scores_value)
+    if (
+        scores.dtype != np.dtype(np.float64)
+        or list(scores.shape) != descriptor["shape"]
+        or not scores.flags.c_contiguous
+    ):
+        _fail("anonymous matrix FD source differs from descriptor")
+    rows_per_check = max(
+        1,
+        matrix_worker.MATRIX_FINITE_CHECK_CHUNK_BYTES
+        // (int(scores.shape[1]) * 8),
+    )
+    for start in range(0, int(scores.shape[0]), rows_per_check):
+        if not np.isfinite(scores[start:start + rows_per_check]).all():
+            _fail("anonymous matrix FD source is non-finite")
+    matrix = np.ascontiguousarray(scores, dtype="<f8")
+    raw = memoryview(matrix).cast("B")
+    raw_digest = sha256()
+    scientific_digest = sha256()
+    scientific_digest.update(contract.canonical_json_bytes_v1({
+        "dtype": "float64-le", "shape": list(descriptor["shape"]),
+    }))
+    scientific_digest.update(b"\0")
+    target_fd = matrix_worker.MATRIX_ANONYMOUS_FD
+    try:
+        writable_fd = os.memfd_create(
+            matrix_worker.MATRIX_MEMFD_NAME,
+            os.MFD_CLOEXEC | os.MFD_ALLOW_SEALING,
+        )
+    except (AttributeError, OSError) as exc:
+        raise SelectionExecutionV1Error(
+            "sealed matrix memfd cannot be created"
+        ) from exc
+    readonly_fd: int | None = None
+    target_owned = False
+    try:
+        write_offset = 0
+        while write_offset < raw.nbytes:
+            chunk = raw[
+                write_offset:
+                min(write_offset + matrix_worker.MATRIX_HASH_CHUNK_BYTES, raw.nbytes)
+            ]
+            chunk_offset = 0
+            while chunk_offset < chunk.nbytes:
+                count = os.write(writable_fd, chunk[chunk_offset:])
+                if count < 1:
+                    _fail("sealed matrix memfd write made no progress")
+                chunk_offset += count
+            raw_digest.update(chunk)
+            scientific_digest.update(chunk)
+            write_offset += chunk.nbytes
+        if (
+            write_offset != descriptor["raw_bytes"]
+            or os.fstat(writable_fd).st_size != descriptor["raw_bytes"]
+            or raw_digest.hexdigest() != descriptor["raw_sha256"]
+            or scientific_digest.hexdigest() != descriptor["matrix_sha256"]
+        ):
+            _fail("sealed matrix memfd stream hash/size differs")
+        try:
+            fcntl.fcntl(
+                writable_fd,
+                fcntl.F_ADD_SEALS,
+                matrix_worker.MATRIX_REQUIRED_SEALS,
+            )
+            observed_seals = fcntl.fcntl(writable_fd, fcntl.F_GET_SEALS)
+        except OSError as exc:
+            raise SelectionExecutionV1Error(
+                "matrix memfd seals cannot be applied or observed"
+            ) from exc
+        if observed_seals != matrix_worker.MATRIX_REQUIRED_SEALS:
+            _fail("matrix memfd seal set differs")
+        readonly_fd = os.open(
+            f"/proc/self/fd/{writable_fd}", os.O_RDONLY | os.O_CLOEXEC
+        )
+        os.close(writable_fd)
+        writable_fd = -1
+        if (
+            fcntl.fcntl(readonly_fd, fcntl.F_GET_SEALS)
+            != matrix_worker.MATRIX_REQUIRED_SEALS
+            or fcntl.fcntl(readonly_fd, fcntl.F_GETFL) & os.O_ACCMODE
+            != os.O_RDONLY
+            or os.readlink(f"/proc/self/fd/{readonly_fd}")
+            != matrix_worker.MATRIX_MEMFD_LINK_TARGET
+        ):
+            _fail("read-only sealed matrix memfd authority differs")
+        try:
+            os.fstat(target_fd)
+        except OSError as exc:
+            if exc.errno != errno.EBADF:
+                raise
+        else:
+            _fail("fixed anonymous matrix FD is already occupied")
+        os.dup2(readonly_fd, target_fd, inheritable=True)
+        target_owned = True
+        os.close(readonly_fd)
+        readonly_fd = None
+        if (
+            fcntl.fcntl(target_fd, fcntl.F_GET_SEALS)
+            != matrix_worker.MATRIX_REQUIRED_SEALS
+            or fcntl.fcntl(target_fd, fcntl.F_GETFL) & os.O_ACCMODE
+            != os.O_RDONLY
+            or os.readlink(f"/proc/self/fd/{target_fd}")
+            != matrix_worker.MATRIX_MEMFD_LINK_TARGET
+        ):
+            _fail("fixed sealed matrix memfd authority differs")
+        yield target_fd
+    finally:
+        if writable_fd >= 0:
+            os.close(writable_fd)
+        if readonly_fd is not None:
+            os.close(readonly_fd)
+        if target_owned:
+            try:
+                os.close(target_fd)
+            except OSError as exc:
+                if exc.errno != errno.EBADF:
+                    raise
+
+
 def _spawn_matrix_official(
-    capability: Mapping[str, object], *, process_ordinal: int,
+    capability: Mapping[str, object], training_score_matrix: object, *,
+    process_ordinal: int,
 ) -> tuple[dict[str, object], int]:
     from nfl_dfs.research import (
         corpus_r6_current_bank_crossed_screen_selection_fold_worker_v1
@@ -494,12 +635,16 @@ def _spawn_matrix_official(
         if not key.startswith("R6_TASK_")
     }
     environment["R6_SELECTOR_PROCESS_ORDINAL"] = str(process_ordinal)
-    output = _bounded_subprocess(
-        command=assembler.canonical_matrix_selector_command_v1(),
-        input_bytes=raw,
-        output_ceiling=matrix_worker.MATRIX_RESPONSE_BYTE_CEILING,
-        environment=environment,
-    )
+    with _readonly_anonymous_matrix_fd_v1(
+        training_score_matrix, capability["matrix_descriptor"]
+    ) as matrix_fd:
+        output = _bounded_subprocess(
+            command=assembler.canonical_matrix_selector_command_v1(),
+            input_bytes=raw,
+            output_ceiling=matrix_worker.MATRIX_RESPONSE_BYTE_CEILING,
+            environment=environment,
+            pass_fds=(matrix_fd,),
+        )
     return assembler._strict_json(output, label="matrix-selector stdout"), len(output)
 
 
@@ -513,7 +658,10 @@ def _run_fold_broker_core_v1(
     load_artifact_worlds: Callable[[Mapping[str, object], bytes], Any],
     cross_score: Callable[..., object],
     score_matrix_sha256: Callable[[object], str],
-    spawn_matrix: Callable[[Mapping[str, object], int], tuple[Mapping[str, object], int]],
+    spawn_matrix: Callable[
+        [Mapping[str, object], int, object],
+        tuple[Mapping[str, object], int],
+    ],
 ) -> dict[str, object]:
     import numpy as np
     from nfl_dfs.research import (
@@ -662,7 +810,7 @@ def _run_fold_broker_core_v1(
         nominee_keys=nominee_keys,
     )
     response_raw, response_bytes = spawn_matrix(
-        capability, int(request["process_ordinal"])
+        capability, int(request["process_ordinal"]), scores
     )
     response = matrix_worker.validate_matrix_response_v1(
         response_raw, capability=capability
@@ -730,8 +878,8 @@ def run_fold_broker_v1(
         load_artifact_worlds=later.load_artifact_worlds,
         cross_score=legal.cross_score_full_union,
         score_matrix_sha256=legal._score_matrix_sha256,
-        spawn_matrix=lambda capability, ordinal: _spawn_matrix_official(
-            capability, process_ordinal=ordinal
+        spawn_matrix=lambda capability, ordinal, scores: _spawn_matrix_official(
+            capability, scores, process_ordinal=ordinal
         ),
     )
 

@@ -63,13 +63,14 @@ def _process_specs() -> list[dict[str, object]]:
 
 def _candidates(count: int = 80) -> list[dict[str, object]]:
     profiles = sorted(profile_id for _, profile_id, _ in contract.PROFILE_IDENTITIES)
+    identifier_width = max(3, len(str(count - 1)))
     rows: list[dict[str, object]] = []
     for index in range(count):
         roster_index = 0 if index == 1 else index
         roster = [f"p-{roster_index:03d}-{slot}" for slot in range(9)]
         training = [block for block in contract.WORLD_BLOCKS if block != "R0"]
         rows.append({
-            "lineup_id": f"lineup-{index:03d}",
+            "lineup_id": f"lineup-{index:0{identifier_width}d}",
             "roster_player_ids": roster,
             "training_origin_blocks": training,
             "training_source_arms": profiles,
@@ -978,7 +979,10 @@ def test_projection_freezes_fixed_panel_candidate_and_identifier_bounds(
         score_matrix_sha256=str(base["expected_training_score_matrix_sha256"]),
         later_source_identity=deepcopy(base["later_source_identity"]),
     )
-    assert len(contract.validate_narrow_projection_v1(maximum)["candidates"]) == 250
+    assert (
+        len(contract.validate_narrow_projection_v1(maximum)["candidates"])
+        == 3_993
+    )
 
     too_many = _projection(
         0,
@@ -1010,7 +1014,7 @@ def test_projection_freezes_fixed_panel_candidate_and_identifier_bounds(
     ):
         contract.validate_narrow_projection_v1(long_player)
 
-    assert contract.BROAD_SELECTION_RECEIPT_MAX_BYTES == 32_000_000
+    assert contract.BROAD_SELECTION_RECEIPT_MAX_BYTES == 40_000_000
     assert contract.CONFIRMATION_SELECTION_RECEIPT_MAX_BYTES == 96_000_000
 
 

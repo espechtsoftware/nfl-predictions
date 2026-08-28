@@ -28,6 +28,116 @@ def _rehash(value: dict[str, object], field: str) -> None:
     value[field] = contract.canonical_sha256_v1(value)
 
 
+@pytest.mark.parametrize(
+    ("exit_code", "timed_out", "stdout_overflow", "stderr_overflow"),
+    [
+        (17, False, False, False),
+        (255, True, False, False),
+        (255, False, True, False),
+        (255, False, False, True),
+    ],
+)
+def test_failed_child_terminal_evidence_omits_publication_authority(
+    monkeypatch: pytest.MonkeyPatch,
+    exit_code: int,
+    timed_out: bool,
+    stdout_overflow: bool,
+    stderr_overflow: bool,
+) -> None:
+    """Every failed process mode must still yield valid terminal evidence."""
+    output = {
+        "role": "projection",
+        "uri": contract.OUTPUT_NAMESPACE + "terminal-failure/projection.json",
+        "maximum_bytes": 1_024,
+        "prior_identity": None,
+    }
+    task = {
+        "phase": "projection",
+        "process_role": "projection-publisher",
+        "source_ordinal": 0,
+        "process_ordinal": 0,
+        "task_binding_sha256": "1" * 64,
+        "task_science_binding_sha256": "2" * 64,
+        "request_sha256": "3" * 64,
+        "expected_outputs": [output],
+        "expected_outputs_sha256": contract.canonical_sha256_v1([output]),
+        "child_command_sha256": "4" * 64,
+        "child_stdout_byte_ceiling": 1_024,
+        "child_stderr_byte_ceiling": 1_024,
+        "maximum_wall_seconds": 60,
+    }
+    fake_manifest = {
+        "task_count": 1,
+        "layer_id": "projection",
+        "task_manifest_sha256": "5" * 64,
+        "task_bindings": [task],
+    }
+    manifest_identity = _identity(
+        contract.OUTPUT_NAMESPACE
+        + "terminal-failure/authorities/task-manifests/00-projection.json",
+        fake_manifest,
+    )
+    runtime_evidence = {
+        "task_index": 0,
+        "cloud_execution_name": "fixture-execution",
+        "dispatcher_runtime_evidence_sha256": "6" * 64,
+    }
+    monkeypatch.setattr(
+        manifest, "validate_task_manifest_v1", lambda value: dict(value)
+    )
+    monkeypatch.setattr(
+        manifest,
+        "_bind_body",
+        lambda value, identity_value, *, label: dict(identity_value),
+    )
+    monkeypatch.setattr(
+        manifest,
+        "build_dispatcher_runtime_evidence_v1",
+        lambda **kwargs: dict(runtime_evidence),
+    )
+    monkeypatch.setattr(
+        manifest,
+        "validate_dispatcher_runtime_evidence_v1",
+        lambda value, **kwargs: dict(runtime_evidence),
+    )
+
+    def forbidden_authority_call(*args: object, **kwargs: object) -> object:
+        raise AssertionError("failed child must not reopen or prove outputs")
+
+    evidence = manifest.build_task_terminal_evidence_v1(
+        manifest=fake_manifest,
+        manifest_identity=manifest_identity,
+        task_index=0,
+        cloud_execution_name="fixture-execution",
+        child_exit_code=exit_code,
+        child_stdout=b"",
+        child_stderr=b"FixtureError: bounded failure reason\n",
+        elapsed_milliseconds=123,
+        read_exact=forbidden_authority_call,
+        prove_exact_identity=forbidden_authority_call,
+        dispatcher_kernel_observed_command=["fixed-dispatcher"],
+        dispatcher_selected_environment={"FIXTURE": "1"},
+        timed_out=timed_out,
+        stdout_overflow=stdout_overflow,
+        stderr_overflow=stderr_overflow,
+    )
+
+    assert evidence["task_completed"] is False
+    assert evidence["publication_identities"] == []
+    assert evidence["publication_evidence"] == []
+    assert evidence["publication_evidence_sha256"] == (
+        contract.canonical_sha256_v1([])
+    )
+    assert evidence["child_envelope_schema"] is None
+    assert evidence["child_envelope_sha256"] is None
+    assert evidence["child_task_binding_evidence"] is None
+    assert manifest.validate_task_terminal_evidence_v1(
+        evidence,
+        manifest=fake_manifest,
+        manifest_identity=manifest_identity,
+    ) == evidence
+
+
 def test_pre_design_authorization_exact_stream_proof_budget_for_all_layers() -> None:
     authorization = manifest.build_pre_design_run_authorization_v1(
         output_prefix=contract.OUTPUT_NAMESPACE + "controller-focused/",
@@ -118,7 +228,7 @@ def test_pre_design_authorization_exact_stream_proof_budget_for_all_layers() -> 
     ]
     assert rows[0]["output_proof_counts_by_task"] == [54]
     assert rows[0]["streamed_byte_ceilings_by_task"] == [54 * 256_000_000]
-    assert rows[1]["streamed_byte_ceilings_by_task"] == [32_000_000] * 54
+    assert rows[1]["streamed_byte_ceilings_by_task"] == [40_000_000] * 54
     assert rows[4]["streamed_byte_ceilings_by_task"] == [96_000_000] * 54
     assert rows[5]["streamed_byte_ceilings_by_task"] == [768_000_000] * 54
     assert rows[6]["streamed_byte_ceilings_by_task"] == [272_000_000]

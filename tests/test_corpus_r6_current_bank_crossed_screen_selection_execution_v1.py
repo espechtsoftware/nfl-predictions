@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import ast
 import builtins
+from contextlib import contextmanager
 from copy import deepcopy
 from dataclasses import dataclass
+import errno
+import fcntl
 from hashlib import sha256
 import inspect
 import importlib.util
@@ -11,6 +14,7 @@ import io
 import os
 from pathlib import Path
 from types import SimpleNamespace
+import subprocess
 import sys
 
 import numpy as np
@@ -445,11 +449,16 @@ def _maximum_selection_wire_shape(
 
 def _matrix_response(
     capability_value: object, process_ordinal: int,
+    training_score_matrix: object,
 ) -> tuple[dict[str, object], int]:
     capability = worker.validate_matrix_capability_v1(capability_value)
     assert capability["process_ordinal"] == process_ordinal
     projection = capability["projection_scientific_binding"]
-    scores = worker._decode_matrix(capability["matrix"])
+    scores = np.asarray(training_score_matrix)
+    assert worker._matrix_descriptor_v1(
+        scores,
+        expected_matrix_sha256=projection["training_score_matrix_sha256"],
+    ) == capability["matrix_descriptor"]
     lineup_ids = [row["lineup_id"] for row in projection["candidates"]]
     full_ledger = contract._ordered_score_row_ledger_fixture_v1(
         lineup_ids, scores
@@ -702,11 +711,11 @@ def execution_fixture() -> dict[str, object]:
     captured_capabilities: list[dict[str, object]] = []
 
     def spawn_matrix(
-        capability: dict[str, object], ordinal: int,
+        capability: dict[str, object], ordinal: int, scores: object,
     ) -> tuple[dict[str, object], int]:
         reads_before = len(store.reads)
         captured_capabilities.append(deepcopy(capability))
-        result = _matrix_response(capability, ordinal)
+        result = _matrix_response(capability, ordinal, scores)
         assert len(store.reads) == reads_before
         return result
 
@@ -783,6 +792,16 @@ def test_broker_reads_four_blocks_and_matrix_child_has_no_raw_capability(
         ] is True
         assert not _contains_callable(capability)
         raw = contract.canonical_json_bytes_v1(capability)
+        assert "matrix" not in capability
+        assert capability["matrix_bytes_embedded"] is False
+        assert capability["inherited_local_matrix_fd_exposed"] is True
+        assert capability[
+            "object_store_transport_capability_exposed"
+        ] is False
+        assert capability["matrix_descriptor"]["raw_bytes"] == (
+            execution_fixture["scores"].nbytes
+        )
+        assert "base64" not in _walk_keys(capability)
         heldout_identity = artifact_identities[contract.WORLD_BLOCKS[fold]]
         assert str(heldout_identity["uri"]).encode() not in raw
         projection = capability["projection_scientific_binding"]
@@ -801,6 +820,310 @@ def _walk_keys(value: object) -> list[str]:
     if isinstance(value, list):
         return [key for child in value for key in _walk_keys(child)]
     return []
+
+
+@contextmanager
+def _sealed_memfd_bytes(
+    raw: bytes, *, seals: int = worker.MATRIX_REQUIRED_SEALS,
+    readonly: bool = True,
+):
+    writable_fd = os.memfd_create(
+        worker.MATRIX_MEMFD_NAME,
+        os.MFD_CLOEXEC | os.MFD_ALLOW_SEALING,
+    )
+    exposed_fd: int | None = None
+    try:
+        offset = 0
+        while offset < len(raw):
+            count = os.write(writable_fd, raw[offset:])
+            assert count > 0
+            offset += count
+        if seals:
+            fcntl.fcntl(writable_fd, fcntl.F_ADD_SEALS, seals)
+        if readonly:
+            exposed_fd = os.open(
+                f"/proc/self/fd/{writable_fd}", os.O_RDONLY | os.O_CLOEXEC
+            )
+            os.close(writable_fd)
+            writable_fd = -1
+        else:
+            exposed_fd = writable_fd
+            writable_fd = -1
+        yield exposed_fd
+    finally:
+        if writable_fd >= 0:
+            os.close(writable_fd)
+        if exposed_fd is not None:
+            try:
+                os.close(exposed_fd)
+            except OSError as exc:
+                if exc.errno != errno.EBADF:
+                    raise
+
+
+def _small_ipc_matrix() -> tuple[np.ndarray, dict[str, object], bytes]:
+    matrix = np.arange(
+        4 * contract.WORLDS_PER_BLOCK, dtype=np.float64
+    ).reshape((1, 4 * contract.WORLDS_PER_BLOCK))
+    matrix_sha256 = contract._float64_matrix_sha256_v1(
+        matrix, label="IPC adversarial matrix"
+    )
+    descriptor = worker._matrix_descriptor_v1(
+        matrix, expected_matrix_sha256=matrix_sha256
+    )
+    return matrix, descriptor, memoryview(matrix).cast("B").tobytes()
+
+
+def test_inherited_matrix_fd_is_exact_anonymous_and_read_only() -> None:
+    matrix, descriptor, raw = _small_ipc_matrix()
+    assert descriptor["raw_bytes"] == len(raw) == matrix.nbytes
+    with _sealed_memfd_bytes(raw) as fd_number:
+        scores, matrix_mapping = worker._map_inherited_matrix_readonly_v1(
+            descriptor, fd_number=fd_number
+        )
+        assert np.array_equal(scores, matrix)
+        assert scores.flags.writeable is False
+        with pytest.raises(ValueError, match="read-only"):
+            scores[0, 0] = -1.0
+        with pytest.raises(OSError) as closed:
+            os.fstat(fd_number)
+        assert closed.value.errno == errno.EBADF
+        del scores
+        matrix_mapping.close()
+
+
+def test_inherited_matrix_fd_rejects_absent_and_wrong_fd() -> None:
+    _matrix, descriptor, _raw = _small_ipc_matrix()
+    absent_fd = os.dup(1)
+    os.close(absent_fd)
+    with pytest.raises(
+        worker.CorpusR6CurrentBankSelectionFoldWorkerV1Error,
+        match="FD is absent",
+    ):
+        worker._map_inherited_matrix_readonly_v1(
+            descriptor, fd_number=absent_fd
+        )
+    read_fd, write_fd = os.pipe()
+    try:
+        with pytest.raises(
+            worker.CorpusR6CurrentBankSelectionFoldWorkerV1Error,
+            match="not one regular anonymous memfd",
+        ):
+            worker._map_inherited_matrix_readonly_v1(
+                descriptor, fd_number=read_fd
+            )
+    finally:
+        os.close(read_fd)
+        os.close(write_fd)
+
+
+def test_inherited_matrix_fd_rejects_writable_anonymous_file() -> None:
+    _matrix, descriptor, raw = _small_ipc_matrix()
+    with _sealed_memfd_bytes(raw, readonly=False) as writable_fd:
+        with pytest.raises(
+            worker.CorpusR6CurrentBankSelectionFoldWorkerV1Error,
+            match="not read-only",
+        ):
+            worker._map_inherited_matrix_readonly_v1(
+                descriptor, fd_number=writable_fd
+            )
+
+
+@pytest.mark.parametrize(
+    "seals",
+    [
+        0,
+        worker.MATRIX_REQUIRED_SEALS & ~fcntl.F_SEAL_WRITE,
+        worker.MATRIX_REQUIRED_SEALS & ~fcntl.F_SEAL_GROW,
+        worker.MATRIX_REQUIRED_SEALS & ~fcntl.F_SEAL_SHRINK,
+        worker.MATRIX_REQUIRED_SEALS & ~fcntl.F_SEAL_SEAL,
+        worker.MATRIX_REQUIRED_SEALS | fcntl.F_SEAL_FUTURE_WRITE,
+    ],
+)
+def test_inherited_matrix_fd_rejects_missing_or_incomplete_seals(
+    seals: int,
+) -> None:
+    _matrix, descriptor, raw = _small_ipc_matrix()
+    with _sealed_memfd_bytes(raw, seals=seals) as fd_number:
+        with pytest.raises(
+            worker.CorpusR6CurrentBankSelectionFoldWorkerV1Error,
+            match="exact seal set differs",
+        ):
+            worker._map_inherited_matrix_readonly_v1(
+                descriptor, fd_number=fd_number
+            )
+
+
+@pytest.mark.parametrize("delta", [-8, 8])
+def test_inherited_matrix_fd_rejects_truncated_or_extra_bytes(delta: int) -> None:
+    _matrix, descriptor, raw = _small_ipc_matrix()
+    changed = raw[:delta] if delta < 0 else raw + (b"\0" * delta)
+    with _sealed_memfd_bytes(changed) as fd_number:
+        with pytest.raises(
+            worker.CorpusR6CurrentBankSelectionFoldWorkerV1Error,
+            match="byte count differs",
+        ):
+            worker._map_inherited_matrix_readonly_v1(
+                descriptor, fd_number=fd_number
+            )
+
+
+def test_inherited_matrix_fd_rejects_mutated_exact_length_bytes() -> None:
+    _matrix, descriptor, raw = _small_ipc_matrix()
+    changed = bytearray(raw)
+    changed[-1] ^= 1
+    with _sealed_memfd_bytes(bytes(changed)) as fd_number:
+        with pytest.raises(
+            worker.CorpusR6CurrentBankSelectionFoldWorkerV1Error,
+            match="raw hash differs",
+        ):
+            worker._map_inherited_matrix_readonly_v1(
+                descriptor, fd_number=fd_number
+            )
+
+
+def test_selector_failure_is_not_masked_by_retained_mmap_view(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    matrix, descriptor, _raw = _small_ipc_matrix()
+    retained_views: list[np.ndarray] = []
+
+    class _SelectorSentinel(RuntimeError):
+        pass
+
+    def fail_selector(
+        _capability: object, *, runtime_evidence: object,
+        training_score_matrix: np.ndarray,
+    ) -> dict[str, object]:
+        del runtime_evidence
+        with pytest.raises(OSError) as closed:
+            os.fstat(worker.MATRIX_ANONYMOUS_FD)
+        assert closed.value.errno == errno.EBADF
+        descendant = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                (
+                    "import errno,os,sys; "
+                    f"fd={worker.MATRIX_ANONYMOUS_FD}; "
+                    "\ntry: os.fstat(fd)"
+                    "\nexcept OSError as exc: "
+                    "sys.exit(0 if exc.errno == errno.EBADF else 2)"
+                    "\nelse: sys.exit(3)"
+                ),
+            ],
+            close_fds=False,
+            check=False,
+        )
+        assert descendant.returncode == 0
+        retained_views.append(training_score_matrix)
+        raise _SelectorSentinel("original selector failure")
+
+    monkeypatch.setattr(
+        worker, "_execute_registered_selection_v1", fail_selector
+    )
+    with runner._readonly_anonymous_matrix_fd_v1(matrix, descriptor):
+        with pytest.raises(_SelectorSentinel, match="original selector failure"):
+            worker._execute_with_inherited_matrix_v1(
+                {"matrix_descriptor": descriptor}, runtime_evidence={}
+            )
+    retained_views.clear()
+
+
+def test_sealed_matrix_memfd_cannot_be_mutated_after_reopen() -> None:
+    matrix, descriptor, raw = _small_ipc_matrix()
+    with runner._readonly_anonymous_matrix_fd_v1(
+        matrix, descriptor
+    ) as fd_number:
+        assert os.readlink(f"/proc/self/fd/{fd_number}") == (
+            worker.MATRIX_MEMFD_LINK_TARGET
+        )
+        assert fcntl.fcntl(fd_number, fcntl.F_GET_SEALS) == (
+            worker.MATRIX_REQUIRED_SEALS
+        )
+        assert fcntl.fcntl(fd_number, fcntl.F_GETFL) & os.O_ACCMODE == (
+            os.O_RDONLY
+        )
+        reopened = os.open(
+            f"/proc/self/fd/{fd_number}", os.O_RDWR | os.O_CLOEXEC
+        )
+        try:
+            with pytest.raises(OSError) as overwrite:
+                os.pwrite(reopened, b"x", 0)
+            assert overwrite.value.errno == errno.EPERM
+            with pytest.raises(OSError) as truncate:
+                os.ftruncate(reopened, len(raw) - 8)
+            assert truncate.value.errno == errno.EPERM
+            with pytest.raises(OSError) as truncate_on_reopen:
+                os.open(
+                    f"/proc/self/fd/{fd_number}",
+                    os.O_RDWR | os.O_TRUNC | os.O_CLOEXEC,
+                )
+            assert truncate_on_reopen.value.errno == errno.EPERM
+            assert os.pread(reopened, len(raw), 0) == raw
+        finally:
+            os.close(reopened)
+
+
+def test_bounded_subprocess_inherits_matrix_fd_only_when_explicit() -> None:
+    matrix, descriptor, _raw = _small_ipc_matrix()
+    expected = str(descriptor["raw_sha256"]).encode("ascii")
+    program = (
+        "import hashlib,os;"
+        f"fd={worker.MATRIX_ANONYMOUS_FD};"
+        "size=os.fstat(fd).st_size;"
+        "raw=os.pread(fd,size,0);"
+        "print(hashlib.sha256(raw).hexdigest(),end='')"
+    )
+    with runner._readonly_anonymous_matrix_fd_v1(matrix, descriptor) as fd_number:
+        output = runner._bounded_subprocess(
+            command=[os.path.abspath(sys.executable), "-c", program],
+            input_bytes=b"",
+            output_ceiling=64,
+            environment=os.environ,
+            pass_fds=(fd_number,),
+        )
+    assert output == expected
+
+    tree = ast.parse(Path(runner.__file__).read_text(encoding="utf-8"))
+    pass_fd_call_owners: list[str] = []
+    for node in tree.body:
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        for child in ast.walk(node):
+            if (
+                isinstance(child, ast.Call)
+                and isinstance(child.func, ast.Name)
+                and child.func.id == "_bounded_subprocess"
+                and any(keyword.arg == "pass_fds" for keyword in child.keywords)
+            ):
+                pass_fd_call_owners.append(node.name)
+    assert pass_fd_call_owners == ["_spawn_matrix_official"]
+
+
+def test_spawn_matrix_official_roundtrips_canonical_child(
+    execution_fixture: dict[str, object],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    capability = execution_fixture["captured_capabilities"][0]
+    for key in assembler._REDIRECT_ENV_KEYS:
+        monkeypatch.delenv(key, raising=False)
+    for key, value in _environment(0, execution="canonical-matrix-child").items():
+        monkeypatch.setenv(key, value)
+
+    response, output_bytes = runner._spawn_matrix_official(
+        capability,
+        execution_fixture["scores"],
+        process_ordinal=0,
+    )
+
+    assert output_bytes == len(contract.canonical_json_bytes_v1(response))
+    assert worker.validate_matrix_response_v1(
+        response, capability=capability
+    ) == response
+    runtime = response["runtime_evidence"]
+    assert runtime["command"] == assembler.canonical_matrix_selector_command_v1()
+    assert runtime["process_ordinal"] == 0
 
 
 def test_fifth_identity_is_unaddressable_at_raw_broker_boundary(
@@ -937,7 +1260,7 @@ def test_assembler_stdout_memory_accounting_fits_dispatcher_rss_budget() -> None
     # before JSON decoding or any baseline interpreter/authority memory.
     assert 2 * 512_000_000 + 1 > runner.DISPATCHER_RSS_BUDGET_BYTES
 
-    assert contract.BROAD_SELECTION_RECEIPT_MAX_BYTES == 32_000_000
+    assert contract.BROAD_SELECTION_RECEIPT_MAX_BYTES == 40_000_000
     assert contract.CONFIRMATION_SELECTION_RECEIPT_MAX_BYTES == 96_000_000
     assert runner.DISPATCHER_SELECTION_RECEIPT_SINGLE_COPY_BYTES == 96_000_000
     assert (
@@ -1025,9 +1348,9 @@ def test_maximum_selection_wire_shape_fits_phase_publication_ceiling() -> None:
         contract.SUBSAMPLE_REPLICATES
         * contract.MAXIMUM_CONFIRMATION_NOMINEES
     ) == 192
-    assert len(contract.canonical_json_bytes_v1(ledger)) <= 44_000
+    assert len(contract.canonical_json_bytes_v1(ledger)) <= 700_000
     assert broad_cells_bytes <= 5_650_000
-    assert broad_fold_bytes <= 5_700_000
+    assert broad_fold_bytes <= 6_350_000
     assert confirmation_cells_bytes <= 17_000_000
 
     # The actual N=80 positive receipt has <42 KiB above its five fold
@@ -1054,6 +1377,66 @@ def test_maximum_selection_wire_shape_fits_phase_publication_ceiling() -> None:
         confirmation_receipt_bound
         <= contract.CONFIRMATION_SELECTION_RECEIPT_MAX_BYTES
     )
+
+
+def test_matrix_capability_is_bounded_descriptor_only_at_maximum_metadata(
+    execution_fixture: dict[str, object],
+) -> None:
+    projection, _ledger, _roster = _maximum_selection_wire_shape()
+    binding = {
+        "projection_sha256": projection["projection_sha256"],
+        "slate_id": projection["slate_id"],
+        "fit_scope_id": projection["fit_scope_id"],
+        "training_blocks": list(projection["training_blocks"]),
+        "heldout_block_label": projection["heldout_block"],
+        "training_world_columns_sha256": projection[
+            "training_world_columns_sha256"
+        ],
+        "candidates": [dict(row) for row in projection["candidates"]],
+        "candidate_lineup_order_sha256": projection[
+            "candidate_lineup_order_sha256"
+        ],
+        "candidate_rosters_sha256": projection["candidate_rosters_sha256"],
+        "candidate_rows_sha256": projection["candidate_rows_sha256"],
+        "training_score_matrix_sha256": projection[
+            "expected_training_score_matrix_sha256"
+        ],
+        "training_score_shape": projection["expected_training_score_shape"],
+    }
+    samples = contract.deterministic_equal_count_samples_from_projection_v1(
+        projection, phase=contract.BROAD_SCREEN_PHASE
+    )
+    descriptor_body = {
+        "codec": worker.MATRIX_DESCRIPTOR_CODEC,
+        "dtype": "float64-le",
+        "shape": list(projection["expected_training_score_shape"]),
+        "raw_sha256": "b" * 64,
+        "raw_bytes": worker.MATRIX_RAW_BYTE_CEILING,
+        "matrix_sha256": projection["expected_training_score_matrix_sha256"],
+        "fd_number": worker.MATRIX_ANONYMOUS_FD,
+    }
+    descriptor = worker._with_hash(
+        descriptor_body, field="matrix_descriptor_sha256"
+    )
+    capability = deepcopy(execution_fixture["captured_capabilities"][0])
+    capability["projection_scientific_binding"] = binding
+    capability["projection_scientific_binding_sha256"] = (
+        contract.canonical_sha256_v1(binding)
+    )
+    capability["samples"] = samples
+    capability["samples_sha256"] = contract.canonical_sha256_v1(samples)
+    capability["matrix_descriptor"] = descriptor
+    capability["matrix_capability_sha256"] = contract.canonical_sha256_v1({
+        key: value for key, value in capability.items()
+        if key != "matrix_capability_sha256"
+    })
+    retained = worker.validate_matrix_capability_v1(capability)
+    raw = contract.canonical_json_bytes_v1(retained)
+    assert descriptor["raw_bytes"] == 1_277_760_000
+    assert len(raw) <= worker.MATRIX_CAPABILITY_BYTE_CEILING
+    assert len(raw) * 100 < descriptor["raw_bytes"]
+    assert "matrix" not in retained
+    assert "base64" not in _walk_keys(retained)
 
 
 def test_invalid_redirect_is_rejected_before_cloud_client(

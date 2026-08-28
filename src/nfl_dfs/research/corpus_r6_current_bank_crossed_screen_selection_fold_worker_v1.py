@@ -1,20 +1,23 @@
-"""Transport-free matrix selector child for the current-bank crossed screen.
+"""Object-store-free matrix selector child for the current-bank crossed screen.
 
 This module has no object-store client and accepts no object identity, URI,
 reader, publisher, endpoint, project, source-freeze body, or world-artifact
 body. The separate fold broker validates and materializes exactly four
-training blocks, then sends this process a finite matrix capability containing
-only scientific selection inputs. The held-out artifact identity is absent,
-not merely marked unread.
+training blocks, then sends this process a bounded scientific capability and
+one inherited, read-only anonymous-file descriptor containing the exact finite
+score matrix. The held-out artifact identity is absent, not merely marked
+unread.
 """
 
 from __future__ import annotations
 
-import base64
 from collections.abc import Mapping, Sequence
+import fcntl
 from hashlib import sha256
+import mmap
 import os
 from pathlib import Path
+import stat
 import sys
 from typing import Final
 
@@ -28,10 +31,28 @@ MATRIX_CAPABILITY_SCHEMA: Final = "corpus-r6-current-bank-four-block-matrix-capa
 MATRIX_RESPONSE_SCHEMA: Final = "corpus-r6-current-bank-registered-selector-response/v1"
 MATRIX_CAPABILITY_BYTE_CEILING: Final = 96_000_000
 MATRIX_RESPONSE_BYTE_CEILING: Final = 128_000_000
+MATRIX_ANONYMOUS_FD: Final = 198
+MATRIX_HASH_CHUNK_BYTES: Final = 1024 * 1024
+MATRIX_FINITE_CHECK_CHUNK_BYTES: Final = 8 * 1024 * 1024
+MATRIX_MEMFD_NAME: Final = "r6-current-bank-score-matrix-v1"
+MATRIX_MEMFD_LINK_TARGET: Final = f"/memfd:{MATRIX_MEMFD_NAME} (deleted)"
+MATRIX_REQUIRED_SEALS: Final = (
+    fcntl.F_SEAL_WRITE
+    | fcntl.F_SEAL_GROW
+    | fcntl.F_SEAL_SHRINK
+    | fcntl.F_SEAL_SEAL
+)
+MATRIX_DESCRIPTOR_CODEC: Final = "inherited-sealed-memfd-float64-le-v1"
+MATRIX_RAW_BYTE_CEILING: Final = (
+    contract.MAX_SELECTION_CANDIDATES_PER_FOLD
+    * 4
+    * contract.WORLDS_PER_BLOCK
+    * 8
+)
 
 
 class CorpusR6CurrentBankSelectionFoldWorkerV1Error(ValueError):
-    """The transport-free registered selection process failed closed."""
+    """The object-store-free registered selection process failed closed."""
 
 
 def _fail(message: str) -> None:
@@ -81,7 +102,19 @@ def _reject_transport_keys(value: object, *, path: str) -> None:
             _reject_transport_keys(child, path=f"{path}[{index}]")
 
 
-def _matrix_payload(scores_value: object) -> dict[str, object]:
+def _sha256_text(value: object, *, label: str) -> str:
+    if (
+        type(value) is not str
+        or len(value) != 64
+        or any(character not in "0123456789abcdef" for character in value)
+    ):
+        _fail(f"{label} differs")
+    return str(value)
+
+
+def _matrix_descriptor_v1(
+    scores_value: object, *, expected_matrix_sha256: str,
+) -> dict[str, object]:
     scores = np.asarray(scores_value)
     if (
         scores.dtype != np.dtype(np.float64)
@@ -92,44 +125,177 @@ def _matrix_payload(scores_value: object) -> dict[str, object]:
     ):
         _fail("matrix capability requires a finite nonempty float64 matrix")
     matrix = np.ascontiguousarray(scores, dtype="<f8")
-    raw = memoryview(matrix).cast("B").tobytes()
-    return {
-        "codec": "base64-raw-float64-le-v1",
+    raw = memoryview(matrix).cast("B")
+    raw_digest = sha256()
+    scientific_digest = sha256()
+    scientific_digest.update(contract.canonical_json_bytes_v1({
         "dtype": "float64-le",
         "shape": [int(matrix.shape[0]), int(matrix.shape[1])],
-        "raw_sha256": sha256(raw).hexdigest(),
-        "raw_bytes": len(raw),
-        "base64": base64.b64encode(raw).decode("ascii"),
-    }
-
-
-def _decode_matrix(value: object) -> np.ndarray:
-    item = _mapping(value, label="matrix payload")
-    if set(item) != {
-        "codec", "dtype", "shape", "raw_sha256", "raw_bytes", "base64"
-    } or item["codec"] != "base64-raw-float64-le-v1" or item["dtype"] != "float64-le":
-        _fail("matrix payload fields or codec differ")
-    shape = _sequence(item["shape"], label="matrix shape")
-    if len(shape) != 2 or any(type(value) is not int or value < 1 for value in shape):
-        _fail("matrix payload shape differs")
-    try:
-        raw = base64.b64decode(str(item["base64"]), validate=True)
-    except Exception as exc:
-        raise CorpusR6CurrentBankSelectionFoldWorkerV1Error(
-            "matrix payload base64 differs"
-        ) from exc
-    if (
-        len(raw) != item["raw_bytes"]
-        or len(raw) != int(shape[0]) * int(shape[1]) * 8
-        or sha256(raw).hexdigest() != item["raw_sha256"]
+    }))
+    scientific_digest.update(b"\0")
+    for offset in range(0, raw.nbytes, MATRIX_HASH_CHUNK_BYTES):
+        chunk = raw[offset:offset + MATRIX_HASH_CHUNK_BYTES]
+        raw_digest.update(chunk)
+        scientific_digest.update(chunk)
+    matrix_sha256 = scientific_digest.hexdigest()
+    if matrix_sha256 != _sha256_text(
+        expected_matrix_sha256, label="expected matrix SHA-256"
     ):
-        _fail("matrix payload bytes/hash differ")
-    matrix = np.frombuffer(raw, dtype="<f8").reshape((int(shape[0]), int(shape[1])))
-    matrix = np.ascontiguousarray(matrix, dtype=np.float64)
-    if not np.isfinite(matrix).all():
-        _fail("decoded matrix is non-finite")
-    matrix.flags.writeable = False
-    return matrix
+        _fail("matrix descriptor differs from projection matrix authority")
+    body = {
+        "codec": MATRIX_DESCRIPTOR_CODEC,
+        "dtype": "float64-le",
+        "shape": [int(matrix.shape[0]), int(matrix.shape[1])],
+        "raw_sha256": raw_digest.hexdigest(),
+        "raw_bytes": raw.nbytes,
+        "matrix_sha256": matrix_sha256,
+        "fd_number": MATRIX_ANONYMOUS_FD,
+    }
+    return _with_hash(body, field="matrix_descriptor_sha256")
+
+
+def _validate_matrix_descriptor_v1(
+    value: object, *, expected_shape: object | None = None,
+    expected_matrix_sha256: object | None = None,
+) -> dict[str, object]:
+    item = _mapping(value, label="matrix descriptor")
+    if set(item) != {
+        "codec", "dtype", "shape", "raw_sha256", "raw_bytes",
+        "matrix_sha256", "fd_number", "matrix_descriptor_sha256",
+    }:
+        _fail("matrix descriptor fields differ")
+    _self_hash(item, field="matrix_descriptor_sha256", label="matrix descriptor")
+    shape = _sequence(item.get("shape"), label="matrix descriptor shape")
+    if (
+        item.get("codec") != MATRIX_DESCRIPTOR_CODEC
+        or item.get("dtype") != "float64-le"
+        or len(shape) != 2
+        or any(type(dimension) is not int or dimension < 1 for dimension in shape)
+        or shape[0] > contract.MAX_SELECTION_CANDIDATES_PER_FOLD
+        or shape[1] != 4 * contract.WORLDS_PER_BLOCK
+        or type(item.get("raw_bytes")) is not int
+        or item.get("raw_bytes") != int(shape[0]) * int(shape[1]) * 8
+        or item.get("raw_bytes") > MATRIX_RAW_BYTE_CEILING
+        or item.get("fd_number") != MATRIX_ANONYMOUS_FD
+    ):
+        _fail("matrix descriptor shape/byte/FD boundary differs")
+    _sha256_text(item.get("raw_sha256"), label="matrix descriptor raw SHA-256")
+    matrix_sha256 = _sha256_text(
+        item.get("matrix_sha256"), label="matrix descriptor scientific SHA-256"
+    )
+    if expected_shape is not None and list(shape) != list(
+        _sequence(expected_shape, label="expected matrix descriptor shape")
+    ):
+        _fail("matrix descriptor shape differs from scientific projection")
+    if (
+        expected_matrix_sha256 is not None
+        and matrix_sha256 != expected_matrix_sha256
+    ):
+        _fail("matrix descriptor hash differs from scientific projection")
+    return item
+
+
+def _stream_inherited_matrix_hashes_v1(
+    *, fd_number: int, descriptor: Mapping[str, object],
+) -> tuple[str, str]:
+    raw_digest = sha256()
+    scientific_digest = sha256()
+    scientific_digest.update(contract.canonical_json_bytes_v1({
+        "dtype": "float64-le",
+        "shape": list(descriptor["shape"]),
+    }))
+    scientific_digest.update(b"\0")
+    remaining = int(descriptor["raw_bytes"])
+    offset = 0
+    while remaining:
+        try:
+            chunk = os.pread(
+                fd_number, min(remaining, MATRIX_HASH_CHUNK_BYTES), offset
+            )
+        except OSError as exc:
+            raise CorpusR6CurrentBankSelectionFoldWorkerV1Error(
+                "inherited matrix FD cannot be read"
+            ) from exc
+        if not chunk:
+            _fail("inherited matrix FD is truncated during stream hash")
+        raw_digest.update(chunk)
+        scientific_digest.update(chunk)
+        offset += len(chunk)
+        remaining -= len(chunk)
+    return raw_digest.hexdigest(), scientific_digest.hexdigest()
+
+
+def _map_inherited_matrix_readonly_v1(
+    descriptor_value: object, *, fd_number: int | None = None,
+) -> tuple[np.ndarray, mmap.mmap]:
+    """Authenticate and read-only-map the inherited anonymous score matrix."""
+    descriptor = _validate_matrix_descriptor_v1(descriptor_value)
+    actual_fd = MATRIX_ANONYMOUS_FD if fd_number is None else fd_number
+    if type(actual_fd) is not int or actual_fd < 0:
+        _fail("inherited matrix FD number differs")
+    try:
+        os.set_inheritable(actual_fd, False)
+        status = os.fstat(actual_fd)
+    except OSError as exc:
+        raise CorpusR6CurrentBankSelectionFoldWorkerV1Error(
+            "inherited matrix FD is absent"
+        ) from exc
+    if not stat.S_ISREG(status.st_mode) or status.st_nlink != 0:
+        _fail("inherited matrix FD is not one regular anonymous memfd")
+    if status.st_size != descriptor["raw_bytes"]:
+        _fail("inherited matrix FD byte count differs")
+    try:
+        access_mode = fcntl.fcntl(actual_fd, fcntl.F_GETFL) & os.O_ACCMODE
+        observed_seals = fcntl.fcntl(actual_fd, fcntl.F_GET_SEALS)
+        link_target = os.readlink(f"/proc/self/fd/{actual_fd}")
+    except OSError as exc:
+        raise CorpusR6CurrentBankSelectionFoldWorkerV1Error(
+            "inherited matrix FD access/anonymity cannot be verified"
+        ) from exc
+    if access_mode != os.O_RDONLY:
+        _fail("inherited matrix FD is not read-only")
+    if observed_seals != MATRIX_REQUIRED_SEALS:
+        _fail("inherited matrix memfd exact seal set differs")
+    if link_target != MATRIX_MEMFD_LINK_TARGET:
+        _fail("inherited matrix FD is not the fixed anonymous memfd")
+    raw_sha256, matrix_sha256 = _stream_inherited_matrix_hashes_v1(
+        fd_number=actual_fd, descriptor=descriptor
+    )
+    if raw_sha256 != descriptor["raw_sha256"]:
+        _fail("inherited matrix FD raw hash differs")
+    if matrix_sha256 != descriptor["matrix_sha256"]:
+        _fail("inherited matrix FD scientific hash differs")
+    try:
+        region = mmap.mmap(
+            actual_fd, int(descriptor["raw_bytes"]), access=mmap.ACCESS_READ
+        )
+    except (OSError, ValueError) as exc:
+        raise CorpusR6CurrentBankSelectionFoldWorkerV1Error(
+            "inherited matrix FD cannot be read-only mapped"
+        ) from exc
+    try:
+        os.close(actual_fd)
+    except OSError as exc:
+        region.close()
+        raise CorpusR6CurrentBankSelectionFoldWorkerV1Error(
+            "authenticated matrix memfd cannot be closed"
+        ) from exc
+    scores = np.ndarray(
+        tuple(int(value) for value in descriptor["shape"]),
+        dtype="<f8",
+        buffer=region,
+    )
+    scores.flags.writeable = False
+    rows_per_check = max(
+        1,
+        MATRIX_FINITE_CHECK_CHUNK_BYTES // (int(scores.shape[1]) * 8),
+    )
+    for start in range(0, int(scores.shape[0]), rows_per_check):
+        if not np.isfinite(scores[start:start + rows_per_check]).all():
+            del scores
+            region.close()
+            _fail("inherited matrix FD contains a non-finite score")
+    return scores, region
 
 
 def build_matrix_capability_v1(
@@ -172,6 +338,12 @@ def build_matrix_capability_v1(
         != retained_projection["expected_training_score_matrix_sha256"]
     ):
         _fail("matrix capability differs from projection matrix authority")
+    matrix_descriptor = _matrix_descriptor_v1(
+        scores,
+        expected_matrix_sha256=retained_projection[
+            "expected_training_score_matrix_sha256"
+        ],
+    )
     candidate_rows = [dict(row) for row in retained_projection["candidates"]]
     sanitized_projection = {
         "projection_sha256": retained_projection["projection_sha256"],
@@ -221,8 +393,10 @@ def build_matrix_capability_v1(
         "strategy_registry_sha256": contract.canonical_sha256_v1(strategies),
         "fit_count_precharge": int(budget["compute_fit_precharge"]),
         "nominee_keys": keys,
-        "matrix": _matrix_payload(scores),
-        "transport_capability_exposed": False,
+        "matrix_descriptor": matrix_descriptor,
+        "matrix_bytes_embedded": False,
+        "object_store_transport_capability_exposed": False,
+        "inherited_local_matrix_fd_exposed": True,
         "object_identity_exposed": False,
         "heldout_artifact_identity_exposed": False,
         "heldout_artifact_body_exposed": False,
@@ -241,8 +415,9 @@ def validate_matrix_capability_v1(value: object) -> dict[str, object]:
         "fold_ordinal", "process_ordinal", "projection_scientific_binding",
         "projection_scientific_binding_sha256", "samples", "samples_sha256",
         "strategies", "strategy_registry_sha256", "fit_count_precharge",
-        "nominee_keys", "matrix",
-        "transport_capability_exposed", "object_identity_exposed",
+        "nominee_keys", "matrix_descriptor", "matrix_bytes_embedded",
+        "object_store_transport_capability_exposed",
+        "inherited_local_matrix_fd_exposed", "object_identity_exposed",
         "heldout_artifact_identity_exposed", "heldout_artifact_body_exposed",
         "policy", "matrix_capability_sha256",
     }:
@@ -251,7 +426,9 @@ def validate_matrix_capability_v1(value: object) -> dict[str, object]:
     if (
         item["schema_version"] != MATRIX_CAPABILITY_SCHEMA
         or item["contract_id"] != contract.CONTRACT_ID
-        or item["transport_capability_exposed"] is not False
+        or item["object_store_transport_capability_exposed"] is not False
+        or item["inherited_local_matrix_fd_exposed"] is not True
+        or item["matrix_bytes_embedded"] is not False
         or item["object_identity_exposed"] is not False
         or item["heldout_artifact_identity_exposed"] is not False
         or item["heldout_artifact_body_exposed"] is not False
@@ -322,20 +499,28 @@ def validate_matrix_capability_v1(value: object) -> dict[str, object]:
         expected_fit_count = contract.SUBSAMPLE_REPLICATES * len(normalized_keys)
     if item["fit_count_precharge"] != expected_fit_count:
         _fail("matrix capability fit precharge/replay grid differs")
-    scores = _decode_matrix(item["matrix"])
+    shape = _sequence(
+        projection.get("training_score_shape"),
+        label="scientific projection training score shape",
+    )
     if (
-        list(scores.shape) != projection["training_score_shape"]
-        or scores.shape[1] != 4 * contract.WORLDS_PER_BLOCK
-        or scores.shape[0] != len(projection["candidates"])
-        or contract._float64_matrix_sha256_v1(scores, label="decoded matrix")
-        != projection["training_score_matrix_sha256"]
+        len(shape) != 2
+        or any(type(dimension) is not int for dimension in shape)
+        or shape[1] != 4 * contract.WORLDS_PER_BLOCK
+        or shape[0] != len(projection["candidates"])
     ):
-        _fail("decoded matrix differs from scientific projection")
+        _fail("scientific projection matrix shape differs")
+    _validate_matrix_descriptor_v1(
+        item["matrix_descriptor"],
+        expected_shape=shape,
+        expected_matrix_sha256=projection["training_score_matrix_sha256"],
+    )
     return item
 
 
 def _execute_registered_selection_v1(
     capability_value: object, *, runtime_evidence: object,
+    training_score_matrix: np.ndarray,
 ) -> dict[str, object]:
     """Run the sole registered selection implementation; no fixture seam."""
     capability = validate_matrix_capability_v1(capability_value)
@@ -357,7 +542,14 @@ def _execute_registered_selection_v1(
     candidates = projection["candidates"]
     lineup_ids = [str(row["lineup_id"]) for row in candidates]
     candidate_by_id = {str(row["lineup_id"]): row for row in candidates}
-    scores = _decode_matrix(capability["matrix"])
+    scores = np.asarray(training_score_matrix)
+    descriptor = capability["matrix_descriptor"]
+    if (
+        scores.dtype != np.dtype(np.float64)
+        or list(scores.shape) != descriptor["shape"]
+        or scores.flags.writeable
+    ):
+        _fail("read-only mapped matrix differs from capability descriptor")
     full_ledger = contract._ordered_score_row_ledger_fixture_v1(lineup_ids, scores)
     sample_rows = capability["samples"]
     sample_by_key = {
@@ -506,6 +698,35 @@ def _read_stdin_bounded(limit: int) -> bytes:
     return raw
 
 
+def _execute_with_inherited_matrix_v1(
+    capability: Mapping[str, object], *, runtime_evidence: object,
+) -> dict[str, object]:
+    """Map for one selector call while never masking its original failure."""
+    scores, matrix_mapping = _map_inherited_matrix_readonly_v1(
+        capability["matrix_descriptor"]
+    )
+    try:
+        response = _execute_registered_selection_v1(
+            capability,
+            runtime_evidence=runtime_evidence,
+            training_score_matrix=scores,
+        )
+    except BaseException:
+        # A failing selector traceback may retain its ndarray argument.  In
+        # that case mmap.close() raises BufferError; suppress only that cleanup
+        # error so the selector failure remains authoritative.  Process exit
+        # then releases the anonymous mapping and inherited descriptor.
+        del scores
+        try:
+            matrix_mapping.close()
+        except BufferError:
+            pass
+        raise
+    del scores
+    matrix_mapping.close()
+    return response
+
+
 def _main() -> int:
     if sys.argv[1:] != ["matrix-selector"]:
         raise SystemExit("usage: ...selection_fold_worker_v1.py matrix-selector")
@@ -513,7 +734,7 @@ def _main() -> int:
     capability = assembler._strict_json(raw, label="matrix-selector stdin")
     validate_matrix_capability_v1(capability)
     observed_argv = [
-        str(Path(sys.executable).resolve()), str(Path(__file__).resolve()), *sys.argv[1:]
+        os.path.abspath(sys.executable), str(Path(__file__).resolve()), *sys.argv[1:]
     ]
     runtime = assembler.derive_observed_runtime_evidence_v1(
         mode="matrix-selector",
@@ -525,7 +746,9 @@ def _main() -> int:
     )
     if runtime["command"] != assembler.canonical_matrix_selector_command_v1():
         _fail("matrix-selector observed command differs")
-    response = _execute_registered_selection_v1(capability, runtime_evidence=runtime)
+    response = _execute_with_inherited_matrix_v1(
+        capability, runtime_evidence=runtime
+    )
     output = contract.canonical_json_bytes_v1(response)
     if len(output) > MATRIX_RESPONSE_BYTE_CEILING:
         _fail("matrix-selector stdout exceeds byte ceiling")
@@ -539,8 +762,13 @@ if __name__ == "__main__":  # pragma: no cover
 
 
 __all__ = [
+    "MATRIX_ANONYMOUS_FD",
     "MATRIX_CAPABILITY_BYTE_CEILING",
     "MATRIX_CAPABILITY_SCHEMA",
+    "MATRIX_RAW_BYTE_CEILING",
+    "MATRIX_MEMFD_LINK_TARGET",
+    "MATRIX_MEMFD_NAME",
+    "MATRIX_REQUIRED_SEALS",
     "MATRIX_RESPONSE_BYTE_CEILING",
     "MATRIX_RESPONSE_SCHEMA",
     "CorpusR6CurrentBankSelectionFoldWorkerV1Error",

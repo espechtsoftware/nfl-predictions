@@ -20,6 +20,126 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 07:16 UTC (two-hundred-eighteenth update)
+
+### The v2 projection/selector repair is release-green locally
+
+- Branch `main`; the local/remote predecessor is
+  `1317c9de83edc3b6ea95c048a8136916b1fa56ad`. No new cloud build, job
+  configuration, launch, scientific publication, outcome read or score has
+  occurred in this milestone. The failed create-once v1 prefix and execution
+  `atlas-cbc-32g-full-2023-w8-v1-x2hr4` remain sealed; never re-prepare or
+  relaunch them.
+- The exact frozen panel, not the selector sample, now determines projection
+  capacity. `MAX_SELECTION_CANDIDATES_PER_FOLD` is **3,993** (the panel-root
+  all-block maximum) and `MAX_EQUAL_COUNT_SAMPLE` remains **250**. One shared
+  `min(250, |U|, |I[0]|, ..., |I[6]|)` law now drives both deterministic
+  sampling and population-metric denominators. The adversarial broad receipt
+  is bounded at 32,713,500 bytes under a 40,000,000-byte ceiling;
+  confirmation remains bounded at 89,171,640 under 96,000,000. Exact
+  outcome-blind task-0 replay accepts all five real fold populations
+  (3,051/3,043/3,039/3,044/3,083) and samples 250 in every fold.
+- The prior approximately 1 GB base64 capability has been removed. The broker
+  now emits descriptor-only JSON and streams the exact little-endian float64
+  matrix into one Linux memfd. It applies and exact-verifies
+  `F_SEAL_WRITE|F_SEAL_GROW|F_SEAL_SHRINK|F_SEAL_SEAL`, closes the writer,
+  reopens read-only, and passes only inherited FD 198. The selector makes that
+  FD non-inheritable, verifies exact anonymous-memfd identity/seals/shape/size
+  and raw/scientific hashes, maps read-only, and closes FD 198 before selector
+  execution. Reopen/pwrite/truncate/grow/mutation, missing/extra seals,
+  writable/non-regular/named descriptors, descendant inheritance, and
+  cleanup-exception masking are covered. The canonical interpreter command
+  preserves the active virtual-environment path instead of resolving through
+  it to a dependency-free system Python. Independent re-review reports no
+  remaining P0 or P1 and its optional exact-seal P2 has also been closed.
+- The real-input, outcome-blind `2023-w01` fold-0 broker→canonical-selector
+  smoke passes on **3,051 x 40,000** scores. It authenticates the exact
+  976,320,000-byte matrix with SHA-256
+  `3382b98621226582552131f4de3c84ed516edf3079d227d22f156b82d05e0148`,
+  keeps the JSON capability to 1,740,214 bytes, returns all **64** registered
+  broad cells with exactly **80** selections each, and completes the selector
+  in 116.605 seconds. It exact-read four training artifacts and no held-out
+  `R0`; the held-out body was not present in the local store. It read no
+  outcome, grade, funnel or realized artifact and performed no scoring.
+  Observed peak RSS was 1,944,696 KiB, well within the 32 GiB job boundary.
+- The original child failure can now produce valid failed-task terminal
+  evidence: unsuccessful children have an empty publication ledger, while a
+  bounded/redacted 4,096-byte maximum diagnostic is written only to
+  non-authoritative stderr. Nonzero-exit, timeout and stdout/stderr overflow
+  regressions all pass; the scientific terminal schema is unchanged.
+- Validation is release-green: the exact Cloud-Build-equivalent focused slice
+  passes **172/172** (40 projection/preparation, 53 selection/terminal, 79
+  evaluation/aggregate/build/cloud); the dedicated full contract suite exits
+  0; the post-repair selector suite passes 37/37; focused exact-seal plus
+  canonical-child checks pass 7/7; pycompile, isolated imports and
+  `git diff --check` pass. The newly frozen contract source is 374,178 bytes,
+  SHA-256 `1ea3f25ee1625e2a550a8c5d46ca649731c3da974be52b489ad6e75d8c11a266`;
+  the preoutput report is 43,407 bytes, SHA-256
+  `83d6c9d40e709a75615ddc87288a7133e1a24e9d2106ffcda76f6e47113c4f0d`.
+- Exact next action: stage only this crossed-screen repair, inspect the staged
+  diff, commit/push it with this handoff, and build the immutable image from
+  that exact commit using
+  `cloudbuild.r6-current-bank-crossed-screen.yaml`. After build success,
+  prepare the untouched
+  `.../20260828-r6-current-bank-crossed-screen-v2/` prefix, configure and arm
+  the one-task projection, launch it exactly once, and advance to the 54-task
+  broad-selection layer only after terminal-successful projection evidence.
+  No crossed-screen score exists yet.
+
+## Current handoff — 2026-08-28 06:31 UTC (two-hundred-seventeenth update)
+
+### Projection v1 failed on a false candidate ceiling; the fresh-v2 repair is active
+
+- Branch `main`; local and remote predecessor are
+  `1317c9de83edc3b6ea95c048a8136916b1fa56ad`. Projection execution
+  `atlas-cbc-32g-full-2023-w8-v1-x2hr4` (UID
+  `d77d56b8-b158-4d5b-b7e5-f2ef2d48851b`) reached terminal **FAILED**, task
+  exit 1 / attempt 0 / no retry. The task ran from `05:52:47Z` through
+  `06:03:07Z`; execution completed `06:03:15Z`. Exact terminal status is
+  `/tmp/r6-current-bank-operator-6b69b3f7/41-projection-status-016.json`,
+  SHA-256 `6e54825162b765dd52f64a2e286d77e5121e6b27d7a9d3dd20e04e856b84f312`.
+  The create-once launch marker was consumed; never relaunch or re-prepare the
+  `20260828-r6-current-bank-crossed-screen-v1/` prefix.
+- Its manifest-declared task-terminal-evidence object is absent. A bounded
+  exact-task log read, used only because terminal evidence was unavailable,
+  proved the dispatcher failed while constructing failure evidence:
+  `build_task_terminal_evidence_v1` unconditionally strict-zipped 54 expected
+  outputs against the failed child's empty publication list. Its fallback
+  repeated the same call, so the original captured child traceback was lost.
+  The minimal repair now emits an empty publication-evidence ledger on failed
+  children and a bounded/redacted non-authoritative stderr diagnostic; focused
+  failure/timeout/overflow validation is **15/15** green. No scientific
+  terminal schema changed.
+- The original child failure was reproduced without reading any crossed-screen
+  output. The single exact pinned, outcome-blind `2023-w01` task-result input
+  was generation-read at `1787747242317240`, 19,417,135 bytes, SHA-256
+  `f865949525ea1460c04b91476ec04b2ad88e52ee4c3484fbc391f6cfc79a32e7`.
+  Its five valid fold candidate counts are **3,051 / 3,043 / 3,039 / 3,044 /
+  3,083**, while released code falsely capped the complete projection at 250.
+  The exact input first fails at that validator and, with the corrected
+  fixed-panel ceiling, builds a valid 7,929,526-byte five-fold bundle. The
+  panel root proves all-block slate populations span 3,490--3,993, so 3,993 is
+  the finite projection ceiling; 250 is only the selector equal-sample cap.
+- The in-progress v2 correction separates those domains, caps both selection
+  and evaluation reporting at one shared deterministic `min(250, U/I[a]
+  counts)` law, and raises the adversarial broad-receipt ceiling to 40 MB. The
+  executable maximum shape is 695,141 ledger bytes, 6,342,700 bytes per broad
+  fold, and a 32,713,500-byte five-fold bound; confirmation remains below its
+  96 MB ceiling at 89,171,640 bytes. Exact task-0 replay is now green with all
+  five sampling targets equal to 250.
+- One deterministic downstream blocker is being closed before any rebuild:
+  selection currently embeds the full approximately 1 GB fold matrix as
+  base64 JSON despite a 96 MB capability ceiling. The approved repair keeps
+  the broker/matrix-selector process isolation but transfers exact raw bytes
+  through one inherited anonymous-file descriptor, with shape/length/SHA-256
+  bound in the small JSON capability. Do not build or launch v2 until its
+  absent/truncated/extra/mutated-FD regressions and the affected focused suites
+  are green. Then commit/push, build a new immutable image from that exact
+  commit, prepare an untouched `...-v2/` prefix, and run the one-task
+  projection before advancing the 54-task broad-selection layer.
+- No crossed-screen scientific output, realized outcome, graph body or score
+  was read. No score exists from this failed execution.
+
 ## Current handoff — 2026-08-28 05:50 UTC (two-hundred-sixteenth update)
 
 ### The fresh current-bank crossed screen is running its projection layer

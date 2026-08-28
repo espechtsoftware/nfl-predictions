@@ -122,15 +122,20 @@ WORLDS_PER_BLOCK: Final = 10_000
 PREFIX_SIZES: Final = (4, 14, 80)
 ENTRY_BUDGET: Final = 80
 ROSTER_SIZE: Final = 9
-MAX_SELECTION_CANDIDATES_PER_FOLD: Final = 250
-MAX_EQUAL_COUNT_SAMPLE: Final = MAX_SELECTION_CANDIDATES_PER_FOLD
+# The sealed panel contains as many as 3,993 unique candidates on one slate.
+# A held-out fold can never contain more candidates than its all-block union,
+# so this panel-root maximum is the exact fixed-bank projection ceiling.  It
+# is deliberately separate from the common-size inferential sample ceiling:
+# the latter bounds selector/receipt work, not the population projection.
+MAX_SELECTION_CANDIDATES_PER_FOLD: Final = 3_993
+MAX_EQUAL_COUNT_SAMPLE: Final = 250
 MAX_LINEUP_ID_UTF8_BYTES: Final = 71
 MAX_PLAYER_ID_UTF8_BYTES: Final = 32
 MAX_GCS_URI_UTF8_BYTES: Final = 512
 MAX_GENERATION_DIGITS: Final = 32
 MAX_IDENTITY_BYTES: Final = 1_000_000_000
 MAX_OCCURRENCE_COUNT: Final = 2_147_483_647
-BROAD_SELECTION_RECEIPT_MAX_BYTES: Final = 32_000_000
+BROAD_SELECTION_RECEIPT_MAX_BYTES: Final = 40_000_000
 CONFIRMATION_SELECTION_RECEIPT_MAX_BYTES: Final = 96_000_000
 SUBSAMPLE_REPLICATES: Final = 32
 BROAD_SCREEN_REPLICATES: Final = 1
@@ -1424,6 +1429,25 @@ def _view_ids_by_id(view_registry_value: object) -> dict[str, list[str]]:
     return result
 
 
+def _inferential_equal_count_target_v1(
+    ids_by_view: Mapping[str, Sequence[str]],
+) -> tuple[list[str], int]:
+    """Return the one capped common-size law used in selection and metrics."""
+    inferential_view_ids = [
+        "U",
+        *(isolated_view_id_v1(index) for index in range(len(PROFILE_IDENTITIES))),
+    ]
+    if any(view_id not in ids_by_view for view_id in inferential_view_ids):
+        _fail("view registry omits an inferential profile view")
+    target = min(
+        MAX_EQUAL_COUNT_SAMPLE,
+        *(len(ids_by_view[view_id]) for view_id in inferential_view_ids),
+    )
+    if target < ENTRY_BUDGET:
+        _fail("common equal-count target cannot support exact-80")
+    return inferential_view_ids, target
+
+
 def _deterministic_equal_count_samples_fixture_v1(
     *,
     view_registry: Mapping[str, object],
@@ -1445,15 +1469,9 @@ def _deterministic_equal_count_samples_fixture_v1(
         else SUBSAMPLE_REPLICATES
     )
     ids_by_view = _view_ids_by_id(view_registry)
-    inferential_view_ids = [
-        "U",
-        *(isolated_view_id_v1(index) for index in range(len(PROFILE_IDENTITIES))),
-    ]
-    if any(view_id not in ids_by_view for view_id in inferential_view_ids):
-        _fail("view registry omits an inferential profile view")
-    target = min(len(ids_by_view[view_id]) for view_id in inferential_view_ids)
-    if target < ENTRY_BUDGET:
-        _fail("common equal-count target cannot support exact-80")
+    inferential_view_ids, target = _inferential_equal_count_target_v1(
+        ids_by_view
+    )
 
     replicates: list[dict[str, object]] = []
     for replicate in range(replicate_count):
@@ -3115,10 +3133,10 @@ def _population_metric_rows_v1(
     index_by_id = {
         str(row["lineup_id"]): index for index, row in enumerate(candidates)
     }
-    inferential = {
-        "U", *(isolated_view_id_v1(index) for index in range(len(PROFILE_IDENTITIES)))
-    }
-    equal_target = min(len(ids_by_view[view_id]) for view_id in inferential)
+    inferential_order, equal_target = _inferential_equal_count_target_v1(
+        ids_by_view
+    )
+    inferential = set(inferential_order)
     score_cache: dict[str, tuple[dict[str, object] | None, list[dict[str, object]]]] = {}
     rows: list[dict[str, object]] = []
     for view_ordinal, (view_id, lineup_ids) in enumerate(ids_by_view.items()):

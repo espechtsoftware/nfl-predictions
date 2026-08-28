@@ -294,9 +294,11 @@ The equal-count exploratory screen is `U` versus the seven `I[a]` views. It is
 adaptive reuse of a bank whose prior `U` held-out metrics are already known;
 it is not fresh inference. Independent-bank re-emission remains mandatory.
 
-For each slate and fold, define `M` as the minimum eligible candidate count
-among `U,I[0],...,I[6]`. If `M < 80`, the entire slate-fold screen fails
-closed. Otherwise execution has two bounded phases:
+For each slate and fold, define
+`M = min(250, |U|, |I[0]|, ..., |I[6]|)`. If `M < 80`, the entire slate-fold
+screen fails closed. The 250 ceiling limits comparable selector work; it does
+not truncate any full population view or its diagnostics. Otherwise execution
+has two bounded phases:
 
 1. **Broad screen:** one common-`M` sample for all eight views and all eight
    selectors, exactly 64 cells per slate-fold. It deterministically nominates
@@ -341,20 +343,27 @@ comparison.
 
 ### Fixed-panel serialization and memory bounds
 
-The accepted 54-slate panel contains at most 250 fold-eligible candidates;
-this is a fixed-bank execution contract, not an open-ended future-slate
-schema. Every projection therefore contains 80 through 250 candidates, every
-equal-count sample contains at most 250, and every roster contains exactly
-nine sorted unique player IDs. Lineup IDs are safe ASCII tokens of at most 71
-UTF-8 bytes; player IDs are safe ASCII tokens of at most 32 bytes. Occurrence
-counts, object URIs, generations, and object byte identities have explicit
-finite scalar bounds. A 251st candidate or any oversized/non-token identifier
-fails before sampling, matrix selection, or receipt construction.
+The accepted 54-slate panel contains 3,490 through 3,993 unique all-block
+candidates per slate. A held-out fold is a subset of that all-block union, so
+3,993 is the exact fixed-bank projection ceiling; this is not an open-ended
+future-slate schema. Every projection therefore contains 80 through 3,993
+candidates. The common inferential sample is a separate resource domain: it
+uses the smaller of 250 and the eight `U`/`I[a]` source-view counts. Thus full
+population and provenance diagnostics retain every eligible candidate while
+each equal-count selector sample contains at most 250. Every roster contains
+exactly nine sorted unique player IDs. Lineup IDs are safe ASCII tokens of at
+most 71 UTF-8 bytes; player IDs are safe ASCII tokens of at most 32 bytes.
+Occurrence counts, object URIs, generations, and object byte identities have
+explicit finite scalar bounds. A 3,994th candidate, a 251st sampled lineup,
+or any oversized/non-token identifier fails before matrix selection or
+receipt construction.
 
-Adversarial maximum-shape serialization at 250 candidates measures below
-29 MB for the complete five-fold broad receipt and about 85 MB for the
-maximum six-nominee confirmation receipt. The immutable publication ceilings
-are consequently 32,000,000 and 96,000,000 bytes respectively. The assembler
+Adversarial maximum-shape serialization uses 3,993 full-candidate ledger rows
+and 250-lineup common samples. Its full ledger is 695,141 bytes; the broad
+fold is at most 6,342,700 bytes, and the resulting five-fold receipt bound is
+32,713,500 bytes. The publication ceilings are therefore 40,000,000 bytes for
+broad selection and 96,000,000 bytes for confirmation; the corresponding
+maximum-shape confirmation bound is 89,171,640 bytes. The assembler
 stdout remains a compact identity/evidence envelope capped at 4,000,000 bytes;
 it never carries the published receipt body. Dispatcher verification streams
 each generation-pinned opaque publication through a bounded SHA-256 sink and
@@ -693,6 +702,34 @@ accepts a generation-pinned projection bundle/topology/process budget and the
 finite float64 training matrix, verifies the sealed matrix hash, derives the
 full and sampled row ledgers, executes and replays every frozen selector cell,
 and exposes no caller parameter for cells, selected IDs, traces, or ledgers.
+The broker does not JSON/base64-embed that matrix.  Its bounded JSON capability
+contains only a self-hashed descriptor (little-endian float64 dtype, exact
+shape, byte count, raw hash, scientific matrix hash, and fixed descriptor
+number).  The broker streams the matrix into a Linux memfd created with
+sealing enabled, verifies its exact bytes and hashes, applies and re-verifies
+the immutable write/grow/shrink/seal set, closes the writable handle, reopens
+the memfd read-only, and passes exactly that descriptor to the selector as
+inherited FD 198.  The selector immediately makes the descriptor
+non-inheritable and rejects an absent, writable, named, linked, non-regular,
+unsealed, wrong-sized, truncated, extended, mutated, non-finite, or
+hash-mismatched descriptor before selection.  It maps a passing descriptor
+read-only and closes FD 198 before invoking selector code.  It receives no
+object-store address or read authority.  This keeps the maximum
+descriptor-only JSON well below its 96 MB ceiling while admitting the exact
+frozen-panel maximum matrix of 3,993 by 40,000 float64 values (1,277,760,000
+raw bytes); the raw matrix is bounded separately and never duplicated into
+the capability body.
+
+The real-input, outcome-blind `2023-w01` fold-0 smoke passes the canonical
+broker-to-selector boundary on 3,051 candidates by 40,000 training worlds.
+It authenticates a 976,320,000-byte sealed matrix, keeps the JSON capability
+to 1,740,214 bytes, produces all 64 registered broad cells with exactly 80
+selected lineups per cell, and records `heldout_artifact_read=false` after
+exactly four training-artifact body reads.  Its training-matrix SHA-256 is
+`3382b98621226582552131f4de3c84ed516edf3079d227d22f156b82d05e0148`;
+the held-out `R0` body was not present in the smoke store.  The canonical child
+completed in 116.605 seconds with observed peak RSS below 2 GiB.  This smoke is
+execution evidence only, not simulated or realized scoring evidence.
 The five-fold assembler also requires exact phase, source, process ordinal,
 per-fold cell cardinality, bootstrap process chain, pre-design run
 authorization, process-budget identities, exact four-read ledgers, and five
