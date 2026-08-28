@@ -20,6 +20,29 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 09:47 UTC (two-hundred-thirty-sixth update)
+
+### Broad-selection authority layer is prepared create-once
+
+- Exact archive `prepare-layer` completed outcome-blind and published all 379
+  planned authorities: 270 fold-worker budgets, 54 assembler budgets, 54 task
+  requests and one manifest. It produced 54 tasks for layer ordinal 1,
+  `broad-selection-receipt`, with the exact projection receipt as sole
+  predecessor. Never rerun broad preparation for v3.
+- Broad manifest identity is generation `1787910423789642`, SHA-256
+  `dbc7cbd40f2825d2d9ffadc5358ffdfbdec9edd88fbb3f1fe33165de6c24abe2`,
+  295,788 bytes at
+  `authorities/task-manifests/01-broad-selection-receipt.json`. Its preparation
+  receipt is generation `1787910426100291`, SHA-256
+  `198d472e34d077b52bbe360ab6264cdebdc8a95e766937ca59ee90eb8b6006f4`,
+  233,795 bytes at
+  `authorities/preparation-receipts/01-broad-selection-receipt.json`.
+- Local exact result is 464,041 bytes, SHA-256
+  `1c78b2878b0906e9407864a7dd65ed90d9fb7cf164a3539ddb61c109541bd52c`.
+  No job mutation or broad execution occurred. Exact next action: commit/push,
+  configure the reused UID-bound job for 54 tasks/parallelism 54, validate it,
+  arm once, preserve the intent, then launch broad selection exactly once.
+
 ## Current handoff — 2026-08-28 09:36 UTC (two-hundred-thirty-fifth update)
 
 ### V3 projection finalized successfully and its receipt is sealed
