@@ -20,6 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 17:55 UTC (two-hundred-eighty-seventh update)
+
+### V6 broad selection is running across all 54 slates
+
+- Branch `main` and `origin/main` are at `557a334e`. Broad-selection launch
+  request SHA-256 is
+  `38bfe21f7d65ae89d2e72f5395bc2c33ad5124594aada8ffd3e9c9d2f67cd9b7`.
+  It submitted once asynchronously and returned active execution
+  `atlas-cbc-32g-full-2023-w8-v1-2htzj`, UID
+  `bc0985b8-1464-42c1-a4b5-7a5875f0c0af`, generation `1`; local launch-result
+  SHA-256 is
+  `c80496123752c822700e4dec8463f111a17100ee2952c9f3c2a2684c4c57e910`.
+- First status poll reports all 54/54 administrative tasks active, with status
+  SHA-256
+  `95961a0a4784f1b72ba1c5550866fb223c292e1d12d13dacd211f4a858b90827`
+  and task-status SHA-256
+  `0c37caaed4ee114a9ff4eaf00ca28c2e9db03fd4f7b95cc0b0723f3055457911`.
+  Never reconfigure, re-arm, relaunch or recover this execution.
+- The isolated grouped-selector successor now exists untracked in the two new
+  files named in update 286 and passes its 10 focused tests plus compilation.
+  Independent review and a production-shape benchmark are in progress; it is
+  not part of this active V6 image/run. The older roadmap-retrieval test module
+  has six pre-existing failures when run alone (one exception-type and five
+  expected-message mismatches); do not attribute those to the new successor or
+  silently weaken them.
+- Exact next action: status-poll only selection execution `...-2htzj` to
+  terminal. In parallel finish independent successor review; on success stage
+  only its two new files plus this handoff. No logs/scientific bodies/scores/
+  outcomes have been read.
+
 ## Current handoff — 2026-08-28 17:52 UTC (two-hundred-eighty-sixth update)
 
 ### V6 projection is finalized; 17,280-fit broad selection is armed
