@@ -20,6 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 19:17 UTC (two-hundred-ninety-third update)
+
+### Recourse experiment has a quota-safe single-job transport
+
+- Branch `main` and `origin/main` are at `717b5124`. A frozen transport
+  amendment and operator now run the unchanged recourse-aware initial-book
+  experiment through one reused Cloud Run Job rather than attempting to create
+  54 jobs while the project is at its 1,000-job quota.
+- The operator binds the already validated full-runtime source commit
+  `96f4487bdefa297f66d03e4aca896728581540b2`, Cloud Build
+  `3503c493-60d5-4fe6-a853-583679c8e33d`, and immutable image digest
+  `sha256:9956f2b4444bc60255c29a1844c23a1f772d6b0c85ae1a532e032ece975e86ed`.
+  The narrow V6/V7 current-bank image is explicitly ineligible.
+- The transport provides canary, validation, explicit release/resume, exact
+  54-execution harvest/aggregation, create-once report publication and exact
+  shared-job restoration. It binds each execution to a deterministic cell
+  token and UID/owner references, can recover at most one accepted-but-
+  unledgered launch, and clears inherited secrets, volumes, Cloud SQL and
+  network attachments. Definitive failures restore the prior job spec;
+  ambiguous or nonterminal states remain resumable.
+- Independent review patched the original draft's missing full harvest,
+  restore and resume semantics. Validation is 37/37 across 19 transport, five
+  existing execution and 13 scientific-protocol tests; compilation and
+  whitespace are clean. No cloud mutation has occurred.
+- Exact next action: commit/push only the amendment, operator, tests and this
+  handoff. Do not launch recourse while the repaired V7 control needs the
+  shared job; first obtain the control's terminal realized score, then run the
+  recourse canary/full experiment and prove restoration before the next
+  consolidated challenger execution.
+
 ## Current handoff — 2026-08-28 19:16 UTC (two-hundred-ninety-second update)
 
 ### V7 preparation fast path is validated for the consolidated rebuild
