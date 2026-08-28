@@ -20,6 +20,28 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 14:27 UTC (two-hundred-sixty-seventh update)
+
+### V5 broad-selection authorities are prepared create-once
+
+- The exact v5 operator prepared layer ordinal 1,
+  `broad-selection-receipt`, from the frozen projection preparation receipt
+  and finalized v5 projection receipt. It published 379 authorities for 54
+  tasks and 54 requests. Never rerun this `prepare-layer` call.
+- Task manifest is
+  `authorities/task-manifests/01-broad-selection-receipt.json`, generation
+  `1787927226544218`, SHA-256
+  `10f0771a91f0dacb57c3567f0b807951008d144c5ac1ccfcdca7e9cc6c4f2fe1`,
+  295,788 bytes. Preparation receipt generation is `1787927229685716`,
+  SHA-256
+  `5af5aed9edce291f5d757bce21bc09d8283928453af0615f36f1ba78d0f88275`,
+  233,795 bytes. Local prepare-layer result SHA-256 is
+  `f45a859fc2feaebd94bbe71e5549b1f3231ca7ef0fcb50070b54361a7a321dc1`.
+- Exact next action: configure the reused UID-bound job for this immutable
+  54-task manifest and v5 image, verify 54-way parallelism/zero retries, then
+  arm and launch broad selection exactly once. No logs, scientific outputs,
+  scores, or realized outcomes have been read.
+
 ## Current handoff — 2026-08-28 14:15 UTC (two-hundred-sixty-sixth update)
 
 ### V5 projection succeeded and is finalized
