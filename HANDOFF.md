@@ -20,6 +20,26 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 14:30 UTC (two-hundred-sixty-ninth update)
+
+### V5 broad-selection launch is armed and not submitted
+
+- Exact operator published the sole create-once broad-selection launch intent
+  at `authorities/cloud-run-launch-intents/01-broad-selection-receipt.json`.
+  Identity is generation `1787927424211636`, SHA-256
+  `b70cf22ec7be47ab8f415a6882a04bcf4fb447c75f9566bc44b9c7058da05421`,
+  2,961 bytes; body SHA-256 is
+  `0671c31158e988105e9fd00a5f764633f28d33ffccf535eb775bf375378a80fa`.
+  Arm-result body SHA-256 is
+  `294bd5c643bf78eafa826e12b2bf34052e79556349b5eefc02a6964a71c8de85`;
+  local file SHA-256 is
+  `ea1a96b7fa2799dc197ae85a62c386f3073d78afaa4eadc6f2bff9c9bf3aa31a`.
+- `launch_armed=true`, submission count is **0**, and caller must preserve this
+  exact generation-pinned identity before submission. Never arm v5 broad
+  selection again. Exact next action: commit/push, consume the intent with
+  exactly one launch call, preserve the returned execution/marker, and never
+  retry after marker creation.
+
 ## Current handoff — 2026-08-28 14:29 UTC (two-hundred-sixty-eighth update)
 
 ### Reused job is exactly configured for v5 broad selection
