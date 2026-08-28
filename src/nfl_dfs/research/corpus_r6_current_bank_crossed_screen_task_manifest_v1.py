@@ -3214,7 +3214,6 @@ def _exact_task_process_budget_bindings_v1(
     """Exact-open and retain only replay-critical process-budget metadata."""
     layer = _layer(manifest["layer_id"])
     request = _mapping(task["request"], label="task process-budget request")
-    identities = [request["process_budget_identity"]]
     if layer.request_kind == "selection":
         identities = [
             request["assembler_process_budget_identity"],
@@ -3223,6 +3222,8 @@ def _exact_task_process_budget_bindings_v1(
                 label="selection worker process-budget identities",
             ),
         ]
+    else:
+        identities = [request["process_budget_identity"]]
     bindings: list[dict[str, object]] = []
     for index, raw_identity in enumerate(identities):
         body, identity = _read_json_exact(
@@ -3287,7 +3288,7 @@ def _exact_task_process_budget_bindings_v1(
         ):
             _fail("task process budget phase/source differs")
         if layer.request_kind == "selection" and index > 0 and (
-            body.get("fold_ordinal") != index - 1
+            "fold_ordinal" in body
             or body.get("process_ordinal")
             != int(task["source_ordinal"]) * contract.FOLDS_PER_SLATE + index - 1
         ):

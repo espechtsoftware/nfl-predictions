@@ -20,6 +20,60 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 10:35 UTC (two-hundred-forty-first update)
+
+### V3 broad selection is sealed failed; deterministic terminalizer defects are fixed locally
+
+- Branch `main` is at pushed commit `9f43630091ea538154fe021ea32d769da197955c`;
+  the two-file repair described below is not yet committed. The consumed broad
+  execution `atlas-cbc-32g-full-2023-w8-v1-jvkdg`, UID
+  `bf35c269-b41d-48e0-897a-be5c2154c502`, completed **FAILED** at
+  `2026-08-28T10:14:50Z`. Exact archived status 006 reports all 54 tasks
+  terminal failed on attempt 0 with provider exit 1. Status file SHA-256 is
+  `95d142e7dd07d0f694c46629530dd4ba1c91470f7a6b59d9640c5faa6c524369`;
+  status self-hash is
+  `71c785dc7fad22a81f089265f1f78ddd270ade333843464fd2e28523208893de`.
+  All log/scientific/outcome read guards remained false. Never relaunch or
+  finalize this execution, and never advance a successor from it.
+- Bounded provider metadata shows task 0 ran for approximately 22 minutes,
+  then reported only `NonZeroExitCode`. One manifest-known, body-free task-0
+  terminal authority was fetched without listing, log access, scientific
+  output access or outcome access. It records synthetic child exit 255,
+  1,317,360 ms elapsed, 53,376 stdout bytes, zero stderr bytes, no timeout or
+  stream overflow, no accepted publication and no embedded raw stream. Its
+  exact object SHA-256 is
+  `76f385595908ff103efa11d6f415e2604f31e7ca43ec6d5fd024550106b822a0`;
+  embedded terminal self-hash is
+  `949a713ccd23cf888ac36d8db204e6ce473d054b40f8b2b89cf71a6e6706e5a3`.
+  This diagnostic read was outside the success-only finalizer lifecycle and
+  must not be reused as chain authority; v3 is sealed regardless.
+- Static replay found the exact common failure in
+  `_exact_task_process_budget_bindings_v1`. It indexed the generic
+  `request["process_budget_identity"]` before branching, although selection
+  requests intentionally contain only `assembler_process_budget_identity`
+  plus five `worker_process_budget_identities`. After that is corrected, a
+  second deterministic rejection checked a nonexistent `fold_ordinal` field
+  on canonical worker budgets; fold identity is already derived and validated
+  from exact `process_ordinal`.
+- The local minimal repair branches before generic-key access and retains the
+  exact worker role/process-ordinal check without requiring a field absent from
+  the canonical budget schema. It also explicitly rejects any injected
+  `fold_ordinal`, preserving canonical field absence. A real compiled-budget
+  regression exact-opens the ordered assembler-plus-five-worker lattice and a
+  second regression sends a realistic completed selection envelope through
+  exact budget reopen, transport validation, task-binding validation and
+  publication proof to successful terminal evidence. Both pass **2/2**; the
+  complete selection execution module passes **39/39**, adjacent manifest,
+  dispatcher, cloud-operator and build-contract suites pass **49/49**,
+  pycompile and `git diff --check` pass. Independent review reports P0=0 and
+  P1=0; its sole P2 extra-field concern is closed by the explicit absence
+  rejection and poison case. No cloud mutation or outcome/scientific read was
+  performed by this repair.
+- Exact next action: commit/push the two-file repair plus this handoff, build a
+  new immutable image from that exact clean commit, and start an untouched v4
+  prefix. V4 must rerun projection before broad selection; do not reuse v3
+  outputs or task terminal evidence.
+
 ## Current handoff — 2026-08-28 10:10 UTC (two-hundred-fortieth update)
 
 ### Broad execution remains active; status-reader failures were local DNS/auth transport

@@ -558,8 +558,7 @@ def _bootstrap_process_specs() -> list[dict[str, object]]:
     return specs
 
 
-@pytest.fixture(scope="module")
-def execution_fixture() -> dict[str, object]:
+def _build_execution_fixture() -> dict[str, object]:
     store = _Store()
     prefix = contract.OUTPUT_NAMESPACE + "fixture-selection-execution/"
     topology = contract.build_result_topology_v1(prefix)
@@ -757,6 +756,11 @@ def execution_fixture() -> dict[str, object]:
 
 
 @pytest.fixture(scope="module")
+def execution_fixture() -> dict[str, object]:
+    return _build_execution_fixture()
+
+
+@pytest.fixture(scope="module")
 def assembled_envelope(
     execution_fixture: dict[str, object],
 ) -> dict[str, object]:
@@ -770,6 +774,227 @@ def assembled_envelope(
         ),
         child_envelopes=execution_fixture["children"],
     )
+
+
+def test_terminal_reopens_selection_specific_process_budget_lattice(
+    execution_fixture: dict[str, object],
+) -> None:
+    request = execution_fixture["assembler_request"]
+    assert "process_budget_identity" not in request
+    task = {
+        "phase": contract.BROAD_SCREEN_PHASE,
+        "process_role": "broad-slate-assembler",
+        "source_ordinal": 0,
+        "process_ordinal": 0,
+        "request": request,
+    }
+
+    bindings = task_manifest._exact_task_process_budget_bindings_v1(
+        manifest={"layer_id": "broad-selection-receipt"},
+        task=task,
+        read_exact=execution_fixture["store"].read_exact,
+    )
+
+    expected_identities = [
+        request["assembler_process_budget_identity"],
+        *request["worker_process_budget_identities"],
+    ]
+    assert [row["process_budget_identity"] for row in bindings] == (
+        expected_identities
+    )
+    assert [row["process_budget_sha256"] for row in bindings] == [
+        budget["process_budget_sha256"]
+        for budget in [
+            contract.compile_process_budget_v1(
+                process_role="broad-slate-assembler",
+                projection_bundle=execution_fixture["bundle"],
+                projection_bundle_identity=execution_fixture["bundle_identity"],
+                topology=execution_fixture["topology"],
+                topology_identity=execution_fixture["topology_identity"],
+                source_ordinal=0,
+            ),
+            *execution_fixture["fold_budgets"],
+        ]
+    ]
+
+    poisoned_budget = assembler._strict_json(
+        execution_fixture["store"].read_exact(
+            request["worker_process_budget_identities"][0]
+        ),
+        label="poisoned worker process budget",
+    )
+    poisoned_budget["fold_ordinal"] = 0
+    poisoned_budget["process_budget_sha256"] = contract.canonical_sha256_v1({
+        key: value for key, value in poisoned_budget.items()
+        if key != "process_budget_sha256"
+    })
+    poisoned_identity = execution_fixture["store"].add_body(
+        contract.OUTPUT_NAMESPACE
+        + "fixture-selection-execution/process-budgets/poisoned-fold.json",
+        poisoned_budget,
+    )
+    poisoned_request = deepcopy(request)
+    poisoned_request["worker_process_budget_identities"][0] = poisoned_identity
+    with pytest.raises(
+        task_manifest.CorpusR6CurrentBankCrossedScreenTaskManifestV1Error,
+        match="fold/process differs",
+    ):
+        task_manifest._exact_task_process_budget_bindings_v1(
+            manifest={"layer_id": "broad-selection-receipt"},
+            task={**task, "request": poisoned_request},
+            read_exact=execution_fixture["store"].read_exact,
+        )
+
+
+def test_successful_selection_envelope_terminalizes_exact_publication(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original_environment = _environment
+
+    def shared_execution_environment(
+        process_ordinal: int, *, execution: str,
+    ) -> dict[str, str]:
+        del execution
+        environment = original_environment(
+            process_ordinal, execution="selection-terminal-execution"
+        )
+        environment["CLOUD_RUN_TASK_INDEX"] = "0"
+        return environment
+
+    monkeypatch.setattr(
+        sys.modules[__name__], "_environment", shared_execution_environment
+    )
+    fixture = _build_execution_fixture()
+    store = fixture["store"]
+    request = fixture["assembler_request"]
+    assembler_envelope = assembler.run_slate_assembler_v1(
+        request,
+        read_exact=store.read_exact,
+        publish_create_once=store.publish,
+        assembler_runtime_evidence=_runtime(
+            "slate-assembler",
+            0,
+            pid=30_000,
+            execution="selection-terminal-execution",
+        ),
+        child_envelopes=fixture["children"],
+    )
+    raw_request = contract.canonical_json_bytes_v1(request)
+    binding_evidence = _task_binding_evidence(request, raw_request)
+    bound_envelope = runner.bind_task_evidence_to_assembler_envelope_v1(
+        assembler_envelope,
+        binding_evidence,
+        request=request,
+        raw_request=raw_request,
+    )
+    child_stdout = contract.canonical_json_bytes_v1(bound_envelope)
+
+    output = next(
+        row for row in fixture["topology"]["objects"]
+        if row["role"] == "broad-selection-receipt"
+    )
+    output_descriptor = {
+        "topology_ordinal": output["ordinal"],
+        "role": output["role"],
+        "source_ordinal": 0,
+        "uri": output["uri"],
+        "maximum_bytes": contract.BROAD_SELECTION_RECEIPT_MAX_BYTES,
+        "create_once": True,
+        "prior_identity": None,
+    }
+    task = {
+        "task_index": 0,
+        "source_ordinal": 0,
+        "process_ordinal": 0,
+        "phase": contract.BROAD_SCREEN_PHASE,
+        "process_role": "broad-slate-assembler",
+        "task_binding_sha256": "2" * 64,
+        "task_science_binding_sha256": "5" * 64,
+        "request": request,
+        "request_sha256": sha256(raw_request).hexdigest(),
+        "request_bytes": len(raw_request),
+        "expected_outputs": [output_descriptor],
+        "expected_outputs_sha256": "3" * 64,
+        "child_command_sha256": "4" * 64,
+        "child_stdout_byte_ceiling": 4_000_000,
+        "child_stderr_byte_ceiling": 1_000_000,
+        "maximum_wall_seconds": 7_200,
+    }
+    design = assembler._strict_json(
+        store.read_exact(fixture["design_identity"]), label="fixture design"
+    )
+    terminal_manifest = {
+        "task_count": 1,
+        "layer_id": "broad-selection-receipt",
+        "task_manifest_sha256": "1" * 64,
+        "task_bindings": [task],
+        "required_process_specs": _bootstrap_process_specs(),
+        "bootstrap_manifest_identity": design["bootstrap_manifest_identity"],
+        "bootstrap_manifest_sha256": design["bootstrap_manifest"][
+            "bootstrap_manifest_sha256"
+        ],
+        "pre_design_run_authorization_identity": fixture[
+            "launch_intent_identity"
+        ],
+        "code_commit": "a" * 40,
+        "image_digest": "sha256:" + "b" * 64,
+        "reused_job_name": "fixture-selection",
+    }
+    original_bind_body = task_manifest._bind_body
+
+    def bind_manifest_or_exact_body(
+        value: object, identity: object, *, label: str,
+    ) -> dict[str, object]:
+        if label in {"terminal task manifest", "child evidence task manifest"}:
+            return dict(identity)
+        return original_bind_body(value, identity, label=label)
+
+    def prove_exact_identity(identity: MappingForTest) -> dict[str, object]:
+        retained = contract._safe_object_identity(
+            identity, label="fixture terminal publication"
+        )
+        raw = store.read_exact(retained)
+        assert len(raw) == retained["bytes"]
+        assert sha256(raw).hexdigest() == retained["sha256"]
+        return retained
+
+    monkeypatch.setattr(
+        task_manifest, "validate_task_manifest_v1", lambda value: dict(value)
+    )
+    monkeypatch.setattr(task_manifest, "_bind_body", bind_manifest_or_exact_body)
+    monkeypatch.setattr(
+        task_manifest,
+        "build_dispatcher_runtime_evidence_v1",
+        lambda **_kwargs: {
+            "task_index": 0,
+            "cloud_execution_name": "selection-terminal-execution",
+            "dispatcher_runtime_evidence_sha256": "6" * 64,
+        },
+    )
+    terminal = task_manifest.build_task_terminal_evidence_v1(
+        manifest=terminal_manifest,
+        manifest_identity=binding_evidence["manifest_identity"],
+        task_index=0,
+        cloud_execution_name="selection-terminal-execution",
+        child_exit_code=0,
+        child_stdout=child_stdout,
+        child_stderr=b"",
+        elapsed_milliseconds=1_000,
+        read_exact=store.read_exact,
+        prove_exact_identity=prove_exact_identity,
+        dispatcher_kernel_observed_command=["fixture-dispatcher"],
+        dispatcher_selected_environment={"FIXTURE": "1"},
+    )
+
+    assert terminal["task_completed"] is True
+    assert terminal["child_exit_code"] == 0
+    assert terminal["child_task_binding_evidence"] == binding_evidence
+    assert terminal["publication_identities"] == [
+        bound_envelope["selection_receipt_identity"]
+    ]
+    assert terminal["publication_evidence"][0][
+        "publication_generation_exact_reopen_proved"
+    ] is True
 
 
 def test_broker_reads_four_blocks_and_matrix_child_has_no_raw_capability(
