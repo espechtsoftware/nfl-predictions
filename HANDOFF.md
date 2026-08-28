@@ -20,6 +20,25 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 11:08 UTC (two-hundred-forty-sixth update)
+
+### V4 projection launch is armed and not submitted
+
+- Exact operator published the sole create-once projection launch intent at
+  `authorities/cloud-run-launch-intents/00-projection.json` under v4. Identity
+  is generation `1787915262587878`, SHA-256
+  `2a62c1e65b8b4225e41ec2bc8fcb9ee83e3239ecdecd23d56d84a5c0e4a72344`,
+  2,918 bytes; body self-hash is
+  `bc48fd5aa88ed9a5211d3e1d722db78355897fca73fa3f519687a452a9b1528b`.
+  Arm-result file SHA-256 is
+  `906ce0bad8db9f1b2dd7a49f8c1e5e82568677d2ae61ca816e39b51a25dbfc3e`.
+- `launch_armed=true`, submission count is **0**, and caller must preserve this
+  exact generation-pinned identity before submission. Exact next action:
+  commit/push, construct the projection launch request from the unchanged
+  common request plus this identity, invoke `launch` exactly once, preserve
+  its returned execution name/UID, and never retry launch after marker
+  creation.
+
 ## Current handoff — 2026-08-28 11:07 UTC (two-hundred-forty-fifth update)
 
 ### Reused job is exactly configured for v4 projection
