@@ -9,8 +9,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Keep the runtime surface deliberately narrow.  The complete src tree is the
-# transitive scientific package closure; only the five canonical A--D and
-# controller entrypoints are executable in this image.
+# transitive scientific package closure; executable scripts are limited to
+# the control chain and the registered successor/hard-230 challenger seams.
 COPY pyproject.toml README.md /app/
 COPY src /app/src
 COPY scripts/run_corpus_r6_current_bank_crossed_screen_projection_v1.py \
@@ -18,6 +18,13 @@ COPY scripts/run_corpus_r6_current_bank_crossed_screen_projection_v1.py \
      scripts/run_corpus_r6_current_bank_crossed_screen_evaluation_v1.py \
      scripts/run_corpus_r6_current_bank_crossed_screen_aggregate_v1.py \
      scripts/run_corpus_r6_current_bank_crossed_screen_task_dispatcher_v1.py \
+     /app/scripts/
+COPY scripts/run_corpus_r6_current_bank_selector_successor_cloud_v1.py \
+     scripts/run_corpus_r6_current_bank_selector_successor_evaluation_cloud_v1.py \
+     scripts/run_corpus_r6_current_bank_selector_successor_v1.py \
+     scripts/run_corpus_r6_current_bank_selector_rank150_dpp_v1.py \
+     scripts/run_corpus_r6_current_bank_selector_successor_realized_bridge_v1.py \
+     scripts/run_corpus_extreme_tail_hard230_r6_cloud_v1.py \
      /app/scripts/
 COPY reports/2026-08-27-r6-current-bank-crossed-screen-preoutput-contract.md \
      /app/reports/2026-08-27-r6-current-bank-crossed-screen-preoutput-contract.md

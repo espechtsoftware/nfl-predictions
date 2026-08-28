@@ -20,6 +20,62 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 21:42 UTC (three-hundred-tenth update)
+
+### Control evaluation is sealed; one-image challenger selection is ready
+
+- Branch `main` and `origin/main` entered this milestone at `5a33df25`.
+  Broad evaluation execution `atlas-cbc-32g-full-2023-w8-v1-5xffd`, UID
+  `2dd2d832-324f-489c-928e-83f2ea02ea6c`, reached terminal **SUCCESS** with
+  all 54 tasks successful and zero failures. Final status SHA-256 is
+  `7df49b14360aa8dc0bedf725ac7706011fa329b9c40ef18cacf5a7b16d180e7d`.
+  It was finalized exactly once to receipt generation `1787952323877617`,
+  SHA-256
+  `689640c614b34843f0299e78e604e15a0144128b71fdac5ad8fa90f63a2816d3`,
+  119,629 bytes. Never refinalize or relaunch broad evaluation.
+- Nomination layer 03 was prepared once. Its one-task manifest is generation
+  `1787952561869954`, SHA-256
+  `acf7f6216c416730d18ee857ba040a4e81b7073f247d2c9d7ad6fa8e35fa3014`,
+  27,892 bytes. Launch intent generation `1787952811735983`, SHA-256
+  `6ab267ba69fb35d8152230cacf6dc7c918a5c2c8148331779bccc8f6afecec56`
+  was consumed exactly once. Active execution is
+  `atlas-cbc-32g-full-2023-w8-v1-lw6d2`, UID
+  `fac02630-0845-468d-bfbd-7dde0a3ed2a3`, generation 1. Status-poll only;
+  never reconfigure, rearm or relaunch it.
+- Exact rank-150 continuation now evaluates 80/100/150-entry nested books for
+  three native selectors plus the effective-independent-shots DPP selector:
+  8 views by 4 selectors by 5 folds, or 160 fits/slate. It has distinct
+  schemas, process roles and receipts from the grouped 24-fit mode; the grouped
+  route remains byte-identical by default.
+- The F7/F8/F9 population-crossing bridge now excludes held-out visits before
+  score-blind sampling, keeps occurrence/source-arm provenance, uses one equal
+  `min(250, smallest profile)` candidate count with a hard floor of 150, and
+  exposes separate read-only training and held-out matrices to grouped,
+  rank-150 and DPP selectors. Its remaining seam is a thin 54-slate cloud
+  controller; the scientific bridge is complete.
+- The successor-native realized bridge exact-reopens the full terminal graph
+  before any outcome read, caches each distinct roster once/slate, and emits
+  paired weekly maxima plus inclusive 200/210/220/230 hit counts at budgets
+  80/100/150. A create-once cloud publisher is registered. The consolidated
+  current-bank image/build allowlist now packages grouped, rank-150/DPP,
+  evaluator, realized bridge and hard-230 entrypoints together; no second image
+  or per-strategy deploy is required. Agent validation was **94/94**; lead
+  reruns passed **31/31** for build/publisher/bridge/rank/hard-230 and the prior
+  combined selector/evaluator/population slice passed completely.
+- L1 remains held from cloud compute: the historical snapshot lacks every
+  required component mean, and the current simulator returns raw draws without
+  incumbent marginal shaping, market blending or served position scaling, so
+  it would confound the ordinary baseline with the shootout change. L2's
+  simpler prespecified empirical candidate passed HOLD22 after target-year
+  leakage was removed; it still needs committed-code rematerialization and a
+  fold-application runtime before lineup compute.
+- No realized score has been read. Exact next action is status-poll only
+  nomination `...-lw6d2`, finalize once on success, then execute layers 04--07
+  in fixed order: confirmation selection, confirmation evaluation,
+  aggregate/finalists, terminal root. In parallel, build the single
+  consolidated challenger image once and finish the F7/F8/F9 and L2b runtime
+  adapters.
+
 ## Current handoff — 2026-08-28 21:15 UTC (three-hundred-ninth update)
 
 ### Repaired control selection is sealed 54/54 and realized evaluation is live

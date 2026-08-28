@@ -1,10 +1,11 @@
-"""Immutable cloud task authority for the grouped selector successor.
+"""Immutable cloud task authority for explicit successor selector modes.
 
-The source broad-selection manifest is read-only input authority.  This
-module registers a separate dispatcher and matrix child, publishes an exact
-24-fit budget for every slate/fold, publishes one 120-fit outer budget per
-slate, and defines the five-fold create-once result.  No object is compatible
-with the frozen 64-fit control receipt or command.
+The source broad-selection manifest is read-only input authority.  The
+legacy/default route remains the grouped 24-fit/fold successor.  The explicit
+rank150/DPP mode instead registers its own command, schemas and work labels
+and charges exactly 32 fits/fold and 160 fits/slate.  Neither route is
+compatible with the frozen 64-fit control receipt or command, and the
+rank150/DPP route never impersonates the grouped route.
 """
 
 from __future__ import annotations
@@ -27,6 +28,9 @@ from nfl_dfs.research import (
 )
 from nfl_dfs.research import (
     corpus_r6_current_bank_selector_successor_runtime_v1 as child_runtime,
+)
+from nfl_dfs.research import (
+    corpus_r6_current_bank_selector_rank150_dpp_mode_v1 as rank150_dpp_mode,
 )
 
 
@@ -57,6 +61,35 @@ MATRIX_CHILD_REQUEST_SCHEMA: Final = (
 DISPATCHER_RUNTIME_SCHEMA: Final = (
     "corpus-r6-current-bank-grouped-selector-dispatcher-runtime/v1"
 )
+RANK150_DPP_BOOTSTRAP_SCHEMA: Final = (
+    "corpus-r6-current-bank-rank150-dpp-selector-bootstrap/v1"
+)
+RANK150_DPP_RUN_AUTHORIZATION_SCHEMA: Final = (
+    "corpus-r6-current-bank-rank150-dpp-selector-run-authorization/v1"
+)
+RANK150_DPP_SLATE_PROCESS_BUDGET_SCHEMA: Final = (
+    "corpus-r6-current-bank-rank150-dpp-selector-slate-process-budget/v1"
+)
+RANK150_DPP_TASK_MANIFEST_SCHEMA: Final = (
+    "corpus-r6-current-bank-rank150-dpp-selector-task-manifest/v1"
+)
+RANK150_DPP_TASK_BINDING_SCHEMA: Final = (
+    "corpus-r6-current-bank-rank150-dpp-selector-task-binding/v1"
+)
+RANK150_DPP_SLATE_RESULT_SCHEMA: Final = rank150_dpp_mode.SLATE_RESULT_SCHEMA
+RANK150_DPP_TASK_RESULT_ENVELOPE_SCHEMA: Final = (
+    "corpus-r6-current-bank-rank150-dpp-selector-task-result-envelope/v1"
+)
+RANK150_DPP_MATRIX_CHILD_REQUEST_SCHEMA: Final = (
+    rank150_dpp_mode.MATRIX_CHILD_REQUEST_SCHEMA
+)
+RANK150_DPP_DISPATCHER_RUNTIME_SCHEMA: Final = (
+    "corpus-r6-current-bank-rank150-dpp-selector-dispatcher-runtime/v1"
+)
+
+GROUPED_SELECTOR_MODE: Final = "grouped-native-rank80-24-fit-v1"
+RANK150_DPP_SELECTOR_MODE: Final = rank150_dpp_mode.MODE_ID
+SELECTOR_MODE_ENV: Final = "R6_SUCCESSOR_SELECTOR_PROCESS_MODE"
 
 TASK_COUNT: Final = contract.PANEL_SLATE_COUNT
 FOLD_COUNT: Final = contract.FOLDS_PER_SLATE
@@ -67,6 +100,9 @@ MAXIMUM_TASK_MANIFEST_BYTES: Final = 16_000_000
 MAXIMUM_SLATE_PROCESS_BUDGET_BYTES: Final = 2_000_000
 MAXIMUM_SLATE_RESULT_BYTES: Final = (
     FOLD_COUNT * adapter.FOLD_RECEIPT_BYTE_CEILING + 2_000_000
+)
+MAXIMUM_RANK150_DPP_SLATE_RESULT_BYTES: Final = (
+    FOLD_COUNT * rank150_dpp_mode.FOLD_RECEIPT_BYTE_CEILING + 2_000_000
 )
 MAXIMUM_TASK_RESULT_ENVELOPE_BYTES: Final = 256_000
 TASK_TIMEOUT_SECONDS: Final = 7_200
@@ -114,11 +150,76 @@ _POLICY: Final = {
 
 
 class CorpusR6CurrentBankSelectorSuccessorCloudV1Error(ValueError):
-    """The grouped selector cloud authority failed closed."""
+    """The manifest-bound selector cloud authority failed closed."""
 
 
 def _fail(message: str) -> None:
     raise CorpusR6CurrentBankSelectorSuccessorCloudV1Error(message)
+
+
+def _selector_mode(value: object) -> str:
+    retained = str(value)
+    if retained not in {GROUPED_SELECTOR_MODE, RANK150_DPP_SELECTOR_MODE}:
+        _fail("successor selector process mode is not registered")
+    return retained
+
+
+def _mode_value(
+    selector_process_mode: str, grouped: object, rank150_dpp: object,
+) -> object:
+    mode = _selector_mode(selector_process_mode)
+    return grouped if mode == GROUPED_SELECTOR_MODE else rank150_dpp
+
+
+def _mode_body(
+    body: Mapping[str, object], *, selector_process_mode: str,
+) -> dict[str, object]:
+    retained = dict(body)
+    if _selector_mode(selector_process_mode) == RANK150_DPP_SELECTOR_MODE:
+        retained["selector_process_mode"] = RANK150_DPP_SELECTOR_MODE
+    return retained
+
+
+def _mode_from_schema(
+    value: Mapping[str, object], *, grouped_schema: str, rank150_dpp_schema: str,
+) -> str:
+    schema = value.get("schema_version")
+    if schema == grouped_schema and "selector_process_mode" not in value:
+        return GROUPED_SELECTOR_MODE
+    if (
+        schema == rank150_dpp_schema
+        and value.get("selector_process_mode") == RANK150_DPP_SELECTOR_MODE
+    ):
+        return RANK150_DPP_SELECTOR_MODE
+    _fail("successor selector mode/schema binding differs")
+
+
+def _fits_per_fold(selector_process_mode: str) -> int:
+    return int(_mode_value(
+        selector_process_mode,
+        adapter.EXACT_FIT_COUNT,
+        rank150_dpp_mode.EXACT_FIT_COUNT,
+    ))
+
+
+def _fits_per_slate(selector_process_mode: str) -> int:
+    return FOLD_COUNT * _fits_per_fold(selector_process_mode)
+
+
+def _maximum_slate_result_bytes(selector_process_mode: str) -> int:
+    return int(_mode_value(
+        selector_process_mode,
+        MAXIMUM_SLATE_RESULT_BYTES,
+        MAXIMUM_RANK150_DPP_SLATE_RESULT_BYTES,
+    ))
+
+
+def _selector_budget_read_role(selector_process_mode: str, fold: int) -> str:
+    return str(_mode_value(
+        selector_process_mode,
+        f"successor-process-budget-fold-{fold}",
+        f"rank150-dpp-process-budget-fold-{fold}",
+    ))
 
 
 def _canonical(value: object) -> bytes:
@@ -250,11 +351,18 @@ def _safe_output_prefix(value: object) -> str:
     return value
 
 
-def dispatcher_process_spec_v1() -> dict[str, object]:
+def dispatcher_process_spec_v1(
+    *, selector_process_mode: str = GROUPED_SELECTOR_MODE,
+) -> dict[str, object]:
+    mode = _selector_mode(selector_process_mode)
     entrypoint_sha = _entrypoint_sha(DISPATCHER_RELATIVE_PATH)
     command = list(DISPATCHER_COMMAND)
     return {
-        "process_role": "grouped-successor-task-dispatcher",
+        "process_role": _mode_value(
+            mode,
+            "grouped-successor-task-dispatcher",
+            "rank150-dpp-successor-task-dispatcher",
+        ),
         "entrypoint_path": DISPATCHER_IMAGE_PATH,
         "entrypoint_sha256": entrypoint_sha,
         "command": command,
@@ -271,7 +379,9 @@ def build_run_authorization_v1(
     code_commit: str,
     image_digest: str,
     reused_job_name: str,
+    selector_process_mode: str = GROUPED_SELECTOR_MODE,
 ) -> dict[str, object]:
+    mode = _selector_mode(selector_process_mode)
     prefix = _safe_output_prefix(output_prefix)
     if (
         _COMMIT_RE.fullmatch(str(code_commit)) is None
@@ -284,8 +394,10 @@ def build_run_authorization_v1(
         is None
     ):
         _fail("successor run authorization runtime/job binding differs")
-    body = {
-        "schema_version": RUN_AUTHORIZATION_SCHEMA,
+    body = _mode_body({
+        "schema_version": _mode_value(
+            mode, RUN_AUTHORIZATION_SCHEMA, RANK150_DPP_RUN_AUTHORIZATION_SCHEMA
+        ),
         "source_task_manifest_identity": _identity(
             source_task_manifest_identity,
             label="run authorization source manifest",
@@ -294,19 +406,26 @@ def build_run_authorization_v1(
         "code_commit": code_commit,
         "image_digest": image_digest,
         "reused_job_name": reused_job_name,
-        "dispatcher_process_spec": dispatcher_process_spec_v1(),
+        "dispatcher_process_spec": dispatcher_process_spec_v1(
+            selector_process_mode=mode
+        ),
         "task_count": TASK_COUNT,
         "task_attempt_limit": 0,
         "cloud_execution_attestation_present": False,
         "launch_submission_authority": False,
         "source_control_runtime_compatibility_claimed": False,
         "policy": dict(_POLICY),
-    }
+    }, selector_process_mode=mode)
     return _with_hash(body, field="run_authorization_sha256")
 
 
 def validate_run_authorization_v1(value: object) -> dict[str, object]:
     item = _mapping(value, label="successor run authorization")
+    mode = _mode_from_schema(
+        item,
+        grouped_schema=RUN_AUTHORIZATION_SCHEMA,
+        rank150_dpp_schema=RANK150_DPP_RUN_AUTHORIZATION_SCHEMA,
+    )
     if item.get("run_authorization_sha256") != _hash({
         key: row for key, row in item.items() if key != "run_authorization_sha256"
     }):
@@ -317,18 +436,32 @@ def validate_run_authorization_v1(value: object) -> dict[str, object]:
         code_commit=str(item.get("code_commit", "")),
         image_digest=str(item.get("image_digest", "")),
         reused_job_name=str(item.get("reused_job_name", "")),
+        selector_process_mode=mode,
     )
     if _canonical(item) != _canonical(expected):
         _fail("successor run authorization canonical replay differs")
     return expected
 
 
-def matrix_process_spec_v1() -> dict[str, object]:
-    entrypoint_sha = child_runtime.entrypoint_source_sha256_v1()
-    command = child_runtime.canonical_matrix_selector_command_v1()
+def matrix_process_spec_v1(
+    *, selector_process_mode: str = GROUPED_SELECTOR_MODE,
+) -> dict[str, object]:
+    mode = _selector_mode(selector_process_mode)
+    if mode == GROUPED_SELECTOR_MODE:
+        entrypoint_sha = child_runtime.entrypoint_source_sha256_v1()
+        command = child_runtime.canonical_matrix_selector_command_v1()
+    else:
+        entrypoint_sha = rank150_dpp_mode.entrypoint_source_sha256_v1()
+        command = rank150_dpp_mode.canonical_matrix_selector_command_v1()
     return {
-        "process_role": adapter.PROCESS_ROLE,
-        "entrypoint_path": child_runtime.ENTRYPOINT_IMAGE_PATH,
+        "process_role": _mode_value(
+            mode, adapter.PROCESS_ROLE, rank150_dpp_mode.PROCESS_ROLE
+        ),
+        "entrypoint_path": _mode_value(
+            mode,
+            child_runtime.ENTRYPOINT_IMAGE_PATH,
+            rank150_dpp_mode.ENTRYPOINT_IMAGE_PATH,
+        ),
         "entrypoint_sha256": entrypoint_sha,
         "command": command,
         "command_sha256": _hash({
@@ -339,16 +472,23 @@ def matrix_process_spec_v1() -> dict[str, object]:
 
 def build_bootstrap_v1(
     *, code_commit: str, image_digest: str, run_authorization_identity: object,
+    selector_process_mode: str = GROUPED_SELECTOR_MODE,
 ) -> dict[str, object]:
+    mode = _selector_mode(selector_process_mode)
     if (
         _COMMIT_RE.fullmatch(str(code_commit)) is None
         or not str(image_digest).startswith("sha256:")
         or _SHA_RE.fullmatch(str(image_digest)[7:]) is None
     ):
         _fail("successor bootstrap commit/image differs")
-    specs = [dispatcher_process_spec_v1(), matrix_process_spec_v1()]
-    body = {
-        "schema_version": BOOTSTRAP_SCHEMA,
+    specs = [
+        dispatcher_process_spec_v1(selector_process_mode=mode),
+        matrix_process_spec_v1(selector_process_mode=mode),
+    ]
+    body = _mode_body({
+        "schema_version": _mode_value(
+            mode, BOOTSTRAP_SCHEMA, RANK150_DPP_BOOTSTRAP_SCHEMA
+        ),
         "code_commit": code_commit,
         "image_digest": image_digest,
         "run_authorization_identity": _identity(
@@ -359,7 +499,7 @@ def build_bootstrap_v1(
         "source_control_process_spec_compatible": False,
         "source_control_receipt_compatible": False,
         "policy": dict(_POLICY),
-    }
+    }, selector_process_mode=mode)
     retained = _with_hash(body, field="bootstrap_sha256")
     if len(_canonical(retained)) > MAXIMUM_BOOTSTRAP_BYTES:
         _fail("successor bootstrap exceeds its byte ceiling")
@@ -368,6 +508,11 @@ def build_bootstrap_v1(
 
 def validate_bootstrap_v1(value: object) -> dict[str, object]:
     item = _mapping(value, label="successor bootstrap")
+    mode = _mode_from_schema(
+        item,
+        grouped_schema=BOOTSTRAP_SCHEMA,
+        rank150_dpp_schema=RANK150_DPP_BOOTSTRAP_SCHEMA,
+    )
     if item.get("bootstrap_sha256") != _hash({
         key: row for key, row in item.items() if key != "bootstrap_sha256"
     }):
@@ -376,6 +521,7 @@ def validate_bootstrap_v1(value: object) -> dict[str, object]:
         code_commit=str(item.get("code_commit", "")),
         image_digest=str(item.get("image_digest", "")),
         run_authorization_identity=item.get("run_authorization_identity"),
+        selector_process_mode=mode,
     )
     if _canonical(item) != _canonical(expected):
         _fail("successor bootstrap canonical replay differs")
@@ -396,7 +542,12 @@ def build_slate_process_budget_v1(
     successor_process_budget_identities: object,
     scientific_read_identities: object,
     result_uri: str,
+    selector_process_mode: str = GROUPED_SELECTOR_MODE,
 ) -> dict[str, object]:
+    mode = _selector_mode(selector_process_mode)
+    fits_per_fold = _fits_per_fold(mode)
+    fits_per_slate = _fits_per_slate(mode)
+    maximum_result_bytes = _maximum_slate_result_bytes(mode)
     if type(source_ordinal) is not int or not 0 <= source_ordinal < TASK_COUNT:
         _fail("successor slate budget source ordinal differs")
     if type(slate_id) is not str or not slate_id or len(slate_id) > 128:
@@ -442,7 +593,7 @@ def build_slate_process_budget_v1(
             for fold, identity in enumerate(source_budgets)
         ],
         *[
-            (f"successor-process-budget-fold-{fold}", identity)
+            (_selector_budget_read_role(mode, fold), identity)
             for fold, identity in enumerate(successor_budgets)
         ],
         ("later-source", scientific[0]),
@@ -463,9 +614,17 @@ def build_slate_process_budget_v1(
         or not result_uri.endswith(f"source-{source_ordinal:03d}.json")
     ):
         _fail("successor slate result URI differs")
-    body = {
-        "schema_version": SLATE_PROCESS_BUDGET_SCHEMA,
-        "process_role": "grouped-successor-slate-dispatcher",
+    body = _mode_body({
+        "schema_version": _mode_value(
+            mode,
+            SLATE_PROCESS_BUDGET_SCHEMA,
+            RANK150_DPP_SLATE_PROCESS_BUDGET_SCHEMA,
+        ),
+        "process_role": _mode_value(
+            mode,
+            "grouped-successor-slate-dispatcher",
+            "rank150-dpp-successor-slate-dispatcher",
+        ),
         "source_ordinal": source_ordinal,
         "slate_id": slate_id,
         "read_allowlist": reads,
@@ -474,22 +633,24 @@ def build_slate_process_budget_v1(
             int(row["identity"]["bytes"]) for row in reads
         ),
         "write_allowlist": [{
-            "role": "successor-slate-result",
+            "role": _mode_value(
+                mode, "successor-slate-result", "rank150-dpp-slate-result"
+            ),
             "uri": result_uri,
-            "max_bytes": MAXIMUM_SLATE_RESULT_BYTES,
+            "max_bytes": maximum_result_bytes,
             "create_once": True,
         }],
         "write_object_count": 1,
-        "write_byte_ceiling": MAXIMUM_SLATE_RESULT_BYTES,
+        "write_byte_ceiling": maximum_result_bytes,
         "fold_process_count": FOLD_COUNT,
-        "fit_precharge_per_fold": FITS_PER_FOLD,
-        "compute_fit_precharge": FITS_PER_SLATE,
+        "fit_precharge_per_fold": fits_per_fold,
+        "compute_fit_precharge": fits_per_slate,
         "source_control_fit_parity_claimed": False,
         "source_control_receipt_compatible": False,
         "current_generation_input_lookup_allowed": False,
         "create_once_equal_output_recovery_allowed": True,
         "policy": dict(_POLICY),
-    }
+    }, selector_process_mode=mode)
     retained = _with_hash(body, field="slate_process_budget_sha256")
     if len(_canonical(retained)) > MAXIMUM_SLATE_PROCESS_BUDGET_BYTES:
         _fail("successor slate process budget exceeds its byte ceiling")
@@ -498,6 +659,11 @@ def build_slate_process_budget_v1(
 
 def validate_slate_process_budget_v1(value: object) -> dict[str, object]:
     item = _mapping(value, label="successor slate process budget")
+    mode = _mode_from_schema(
+        item,
+        grouped_schema=SLATE_PROCESS_BUDGET_SCHEMA,
+        rank150_dpp_schema=RANK150_DPP_SLATE_PROCESS_BUDGET_SCHEMA,
+    )
     if item.get("slate_process_budget_sha256") != _hash({
         key: row
         for key, row in item.items()
@@ -514,7 +680,10 @@ def validate_slate_process_budget_v1(value: object) -> dict[str, object]:
     if len(by_role) != len(reads):
         _fail("successor slate process budget roles repeat")
     source_ids = [by_role.get(f"source-process-budget-fold-{fold}") for fold in range(FOLD_COUNT)]
-    successor_ids = [by_role.get(f"successor-process-budget-fold-{fold}") for fold in range(FOLD_COUNT)]
+    successor_ids = [
+        by_role.get(_selector_budget_read_role(mode, fold))
+        for fold in range(FOLD_COUNT)
+    ]
     scientific = [by_role.get("later-source"), *[by_role.get(f"world-{block}") for block in contract.WORLD_BLOCKS]]
     writes = _sequence(item.get("write_allowlist"), label="successor slate writes")
     if len(writes) != 1:
@@ -533,6 +702,7 @@ def validate_slate_process_budget_v1(value: object) -> dict[str, object]:
         successor_process_budget_identities=successor_ids,
         scientific_read_identities=scientific,
         result_uri=str(write.get("uri", "")),
+        selector_process_mode=mode,
     )
     if _canonical(item) != _canonical(expected):
         _fail("successor slate process budget canonical replay differs")
@@ -549,7 +719,9 @@ def build_task_binding_v1(
     successor_process_budget_identities: object,
     slate_process_budget_identity: object,
     result_uri: str,
+    selector_process_mode: str = GROUPED_SELECTOR_MODE,
 ) -> dict[str, object]:
+    mode = _selector_mode(selector_process_mode)
     source_task = _mapping(source_task_binding, label="source task binding")
     source_budgets = [
         _identity(row, label=f"binding source budget[{index}]")
@@ -573,8 +745,10 @@ def build_task_binding_v1(
         or len(successor_budgets) != FOLD_COUNT
     ):
         _fail("successor task source/fold binding differs")
-    body = {
-        "schema_version": TASK_BINDING_SCHEMA,
+    body = _mode_body({
+        "schema_version": _mode_value(
+            mode, TASK_BINDING_SCHEMA, RANK150_DPP_TASK_BINDING_SCHEMA
+        ),
         "task_index": source_ordinal,
         "source_ordinal": source_ordinal,
         "slate_id": slate_id,
@@ -592,10 +766,10 @@ def build_task_binding_v1(
             slate_process_budget_identity, label="binding slate budget"
         ),
         "result_uri": result_uri,
-        "fit_count_precharge": FITS_PER_SLATE,
+        "fit_count_precharge": _fits_per_slate(mode),
         "source_control_fit_parity_claimed": False,
         "source_control_receipt_compatible": False,
-    }
+    }, selector_process_mode=mode)
     return _with_hash(body, field="task_binding_sha256")
 
 
@@ -608,13 +782,21 @@ def build_task_manifest_v1(
     bootstrap_identity: object,
     run_authorization_identity: object,
     task_bindings: object,
+    selector_process_mode: str = GROUPED_SELECTOR_MODE,
 ) -> dict[str, object]:
+    mode = _selector_mode(selector_process_mode)
     prefix = _safe_output_prefix(output_prefix)
     source = source_manifest.validate_task_manifest_v1(source_task_manifest)
     source_identity = _bind(
         source, source_task_manifest_identity, label="source control task manifest"
     )
     retained_bootstrap = validate_bootstrap_v1(bootstrap)
+    if _mode_from_schema(
+        retained_bootstrap,
+        grouped_schema=BOOTSTRAP_SCHEMA,
+        rank150_dpp_schema=RANK150_DPP_BOOTSTRAP_SCHEMA,
+    ) != mode:
+        _fail("successor bootstrap/task manifest selector mode differs")
     retained_bootstrap_identity = _bind(
         retained_bootstrap, bootstrap_identity, label="successor bootstrap"
     )
@@ -650,13 +832,16 @@ def build_task_manifest_v1(
                 "slate_process_budget_identity"
             ),
             result_uri=str(binding.get("result_uri", "")),
+            selector_process_mode=mode,
         )
         if _canonical(binding) != _canonical(expected):
             _fail(f"successor task binding[{index}] replay differs")
         if binding["result_uri"] != f"{prefix}results/source-{index:03d}.json":
             _fail("successor task result URI order differs")
-    body = {
-        "schema_version": TASK_MANIFEST_SCHEMA,
+    body = _mode_body({
+        "schema_version": _mode_value(
+            mode, TASK_MANIFEST_SCHEMA, RANK150_DPP_TASK_MANIFEST_SCHEMA
+        ),
         "output_prefix": prefix,
         "source_control_task_manifest_identity": source_identity,
         "source_control_task_manifest_sha256": source[
@@ -668,19 +853,23 @@ def build_task_manifest_v1(
         "run_authorization_identity": launch_identity,
         "code_commit": retained_bootstrap["code_commit"],
         "image_digest": retained_bootstrap["image_digest"],
-        "dispatcher_process_spec": dispatcher_process_spec_v1(),
-        "matrix_process_spec": matrix_process_spec_v1(),
+        "dispatcher_process_spec": dispatcher_process_spec_v1(
+            selector_process_mode=mode
+        ),
+        "matrix_process_spec": matrix_process_spec_v1(
+            selector_process_mode=mode
+        ),
         "task_count": TASK_COUNT,
         "task_bindings": bindings,
         "task_bindings_sha256": _hash(bindings),
-        "fit_count_precharge_per_task": FITS_PER_SLATE,
-        "fit_count_precharge_total": TASK_COUNT * FITS_PER_SLATE,
+        "fit_count_precharge_per_task": _fits_per_slate(mode),
+        "fit_count_precharge_total": TASK_COUNT * _fits_per_slate(mode),
         "one_cloud_task_per_slate": True,
         "five_sequential_isolated_matrix_children_per_task": True,
         "source_control_fit_parity_claimed": False,
         "source_control_receipt_compatible": False,
         "policy": dict(_POLICY),
-    }
+    }, selector_process_mode=mode)
     retained = _with_hash(body, field="task_manifest_sha256")
     if len(_canonical(retained)) > MAXIMUM_TASK_MANIFEST_BYTES:
         _fail("successor task manifest exceeds its byte ceiling")
@@ -691,6 +880,11 @@ def validate_task_manifest_v1(
     value: object, *, source_task_manifest: object, bootstrap: object,
 ) -> dict[str, object]:
     item = _mapping(value, label="successor task manifest")
+    mode = _mode_from_schema(
+        item,
+        grouped_schema=TASK_MANIFEST_SCHEMA,
+        rank150_dpp_schema=RANK150_DPP_TASK_MANIFEST_SCHEMA,
+    )
     if item.get("task_manifest_sha256") != _hash({
         key: row for key, row in item.items() if key != "task_manifest_sha256"
     }):
@@ -705,6 +899,7 @@ def validate_task_manifest_v1(
         bootstrap_identity=item.get("bootstrap_identity"),
         run_authorization_identity=item.get("run_authorization_identity"),
         task_bindings=item.get("task_bindings"),
+        selector_process_mode=mode,
     )
     if _canonical(item) != _canonical(expected):
         _fail("successor task manifest canonical replay differs")
@@ -721,8 +916,10 @@ def prepare_task_manifest_v1(
     publish_create_once: PublishCreateOnce,
     run_authorization_identity: object | None = None,
     reused_job_name: str | None = None,
+    selector_process_mode: str = GROUPED_SELECTOR_MODE,
 ) -> dict[str, object]:
-    """Publish exact bootstrap, 270 fold budgets, 54 slate budgets and manifest."""
+    """Publish exact mode-bound fold/slate budgets and the 54-task manifest."""
+    mode = _selector_mode(selector_process_mode)
     prefix = _safe_output_prefix(output_prefix)
     source_value, source_identity = _read_json(
         source_task_manifest_identity,
@@ -747,6 +944,7 @@ def prepare_task_manifest_v1(
             code_commit=code_commit,
             image_digest=image_digest,
             reused_job_name=reused_job_name,
+            selector_process_mode=mode,
         )
         launch_identity = _publish(
             uri=f"{prefix}authorities/run-authorization.json",
@@ -772,6 +970,7 @@ def prepare_task_manifest_v1(
         code_commit=code_commit,
         image_digest=image_digest,
         run_authorization_identity=launch_identity,
+        selector_process_mode=mode,
     )
     bootstrap_identity = _publish(
         uri=f"{prefix}authorities/bootstrap.json",
@@ -867,11 +1066,22 @@ def prepare_task_manifest_v1(
                 ) from exc
             if _canonical(source_budget) != _canonical(expected_source_budget):
                 _fail("source process budget differs from exact control replay")
-            successor_budget = adapter.compile_successor_process_budget_v1(
-                source_process_budget=source_budget,
-                source_process_budget_identity=retained_source_budget_identity,
-                source_projection=bundle["fold_projections"][fold],
-            )
+            if mode == GROUPED_SELECTOR_MODE:
+                successor_budget = adapter.compile_successor_process_budget_v1(
+                    source_process_budget=source_budget,
+                    source_process_budget_identity=(
+                        retained_source_budget_identity
+                    ),
+                    source_projection=bundle["fold_projections"][fold],
+                )
+            else:
+                successor_budget = rank150_dpp_mode.compile_process_budget_v1(
+                    source_process_budget=source_budget,
+                    source_process_budget_identity=(
+                        retained_source_budget_identity
+                    ),
+                    source_projection=bundle["fold_projections"][fold],
+                )
             successor_identity = _publish(
                 uri=(
                     f"{prefix}authorities/process-budgets/"
@@ -907,6 +1117,7 @@ def prepare_task_manifest_v1(
             successor_process_budget_identities=successor_budget_identities,
             scientific_read_identities=scientific_ids,
             result_uri=result_uri,
+            selector_process_mode=mode,
         )
         slate_budget_identity = _publish(
             uri=(
@@ -928,6 +1139,7 @@ def prepare_task_manifest_v1(
             successor_process_budget_identities=successor_budget_identities,
             slate_process_budget_identity=slate_budget_identity,
             result_uri=result_uri,
+            selector_process_mode=mode,
         ))
     manifest = build_task_manifest_v1(
         output_prefix=prefix,
@@ -937,6 +1149,7 @@ def prepare_task_manifest_v1(
         bootstrap_identity=bootstrap_identity,
         run_authorization_identity=launch_identity,
         task_bindings=bindings,
+        selector_process_mode=mode,
     )
     manifest_identity = _publish(
         uri=f"{prefix}authorities/task-manifest.json",
@@ -950,7 +1163,11 @@ def prepare_task_manifest_v1(
         launch_value = _strict_json(
             read_exact(launch_identity), label="successor run authorization"
         )
-        if launch_value.get("schema_version") == RUN_AUTHORIZATION_SCHEMA:
+        if launch_value.get("schema_version") == _mode_value(
+            mode,
+            RUN_AUTHORIZATION_SCHEMA,
+            RANK150_DPP_RUN_AUTHORIZATION_SCHEMA,
+        ):
             job_name = str(
                 validate_run_authorization_v1(launch_value)["reused_job_name"]
             )
@@ -963,9 +1180,11 @@ def prepare_task_manifest_v1(
             reused_job_name=job_name,
         )
     )
-    return {
-        "schema_version": (
-            "corpus-r6-current-bank-grouped-selector-preparation-result/v1"
+    return _mode_body({
+        "schema_version": _mode_value(
+            mode,
+            "corpus-r6-current-bank-grouped-selector-preparation-result/v1",
+            "corpus-r6-current-bank-rank150-dpp-selector-preparation-result/v1",
         ),
         "bootstrap_identity": bootstrap_identity,
         "task_manifest_identity": manifest_identity,
@@ -974,11 +1193,11 @@ def prepare_task_manifest_v1(
         "task_count": TASK_COUNT,
         "fold_budget_count": len(published_fold_budget_identities),
         "slate_budget_count": len(published_slate_budget_identities),
-        "fit_count_precharge_total": TASK_COUNT * FITS_PER_SLATE,
+        "fit_count_precharge_total": TASK_COUNT * _fits_per_slate(mode),
         "cloud_run_job_configuration": job_configuration,
         "source_control_fit_parity_claimed": False,
         "source_control_receipt_compatible": False,
-    }
+    }, selector_process_mode=mode)
 
 
 def build_cloud_run_job_configuration_v1(
@@ -988,14 +1207,19 @@ def build_cloud_run_job_configuration_v1(
     reused_job_name: str,
 ) -> dict[str, object]:
     manifest = _mapping(task_manifest, label="successor task manifest")
+    mode = _mode_from_schema(
+        manifest,
+        grouped_schema=TASK_MANIFEST_SCHEMA,
+        rank150_dpp_schema=RANK150_DPP_TASK_MANIFEST_SCHEMA,
+    )
     if manifest.get("task_manifest_sha256") != _hash({
         key: row for key, row in manifest.items() if key != "task_manifest_sha256"
     }):
         _fail("successor job configuration manifest self hash differs")
     if (
-        manifest.get("schema_version") != TASK_MANIFEST_SCHEMA
-        or manifest.get("task_count") != TASK_COUNT
-        or manifest.get("dispatcher_process_spec") != dispatcher_process_spec_v1()
+        manifest.get("task_count") != TASK_COUNT
+        or manifest.get("dispatcher_process_spec")
+        != dispatcher_process_spec_v1(selector_process_mode=mode)
         or manifest.get("source_control_fit_parity_claimed") is not False
         or manifest.get("source_control_receipt_compatible") is not False
     ):
@@ -1017,9 +1241,13 @@ def build_cloud_run_job_configuration_v1(
         "CODE_SHA": manifest["code_commit"],
         "R6_RUNTIME_IMAGE_DIGEST": manifest["image_digest"],
     }
-    body = {
-        "schema_version": (
-            "corpus-r6-current-bank-grouped-selector-cloud-run-job-configuration/v1"
+    if mode == RANK150_DPP_SELECTOR_MODE:
+        environment[SELECTOR_MODE_ENV] = mode
+    body = _mode_body({
+        "schema_version": _mode_value(
+            mode,
+            "corpus-r6-current-bank-grouped-selector-cloud-run-job-configuration/v1",
+            "corpus-r6-current-bank-rank150-dpp-selector-cloud-run-job-configuration/v1",
         ),
         "reused_job_name": reused_job_name,
         "task_manifest_identity": manifest_identity,
@@ -1040,7 +1268,7 @@ def build_cloud_run_job_configuration_v1(
         "new_job_creation_allowed": False,
         "per_task_deploy_allowed": False,
         "source_control_command_compatible": False,
-    }
+    }, selector_process_mode=mode)
     return _with_hash(body, field="job_configuration_sha256")
 
 
@@ -1052,6 +1280,11 @@ def build_dispatcher_runtime_evidence_v1(
     parent_pid: int,
 ) -> dict[str, object]:
     environment = dict(environ)
+    mode = _selector_mode(
+        environment.get(SELECTOR_MODE_ENV, GROUPED_SELECTOR_MODE)
+    )
+    if mode == GROUPED_SELECTOR_MODE and SELECTOR_MODE_ENV in environment:
+        _fail("grouped successor dispatcher must not carry a selector mode")
     if any(environment.get(key) for key in _REDIRECT_ENV_KEYS):
         _fail("successor dispatcher redirect environment is forbidden")
     command = [str(row) for row in _sequence(
@@ -1091,9 +1324,13 @@ def build_dispatcher_runtime_evidence_v1(
     execution = environment.get("CLOUD_RUN_EXECUTION", "")
     if not job or not execution or len(job) > 512 or len(execution) > 512:
         _fail("successor dispatcher job/execution differs")
-    spec = dispatcher_process_spec_v1()
-    body = {
-        "schema_version": DISPATCHER_RUNTIME_SCHEMA,
+    spec = dispatcher_process_spec_v1(selector_process_mode=mode)
+    body = _mode_body({
+        "schema_version": _mode_value(
+            mode,
+            DISPATCHER_RUNTIME_SCHEMA,
+            RANK150_DPP_DISPATCHER_RUNTIME_SCHEMA,
+        ),
         "project_id": FIXED_GCP_PROJECT,
         "storage_endpoint": FIXED_STORAGE_ENDPOINT,
         "code_commit": commit,
@@ -1111,7 +1348,7 @@ def build_dispatcher_runtime_evidence_v1(
         "command_sha256": spec["command_sha256"],
         "source_control_dispatcher_compatibility_claimed": False,
         "terminal_cloud_execution_attestation_present": False,
-    }
+    }, selector_process_mode=mode)
     return _with_hash(body, field="dispatcher_runtime_evidence_sha256")
 
 
@@ -1123,7 +1360,18 @@ def build_matrix_child_request_v1(
     successor_process_budget_identity: object,
     matrix_capability: object,
     launch_intent_identity: object,
+    selector_process_mode: str = GROUPED_SELECTOR_MODE,
 ) -> dict[str, object]:
+    mode = _selector_mode(selector_process_mode)
+    if mode == RANK150_DPP_SELECTOR_MODE:
+        return rank150_dpp_mode.build_matrix_child_request_v1(
+            source_process_budget=source_process_budget,
+            source_process_budget_identity=source_process_budget_identity,
+            process_budget=successor_process_budget,
+            process_budget_identity=successor_process_budget_identity,
+            matrix_capability=matrix_capability,
+            launch_intent_identity=launch_intent_identity,
+        )
     from nfl_dfs.research import (
         corpus_r6_current_bank_crossed_screen_selection_fold_worker_v1 as worker,
     )
@@ -1158,6 +1406,23 @@ def build_matrix_child_request_v1(
 
 def validate_matrix_child_request_v1(value: object) -> dict[str, object]:
     item = _mapping(value, label="grouped selector child request")
+    if (
+        item.get("schema_version") == RANK150_DPP_MATRIX_CHILD_REQUEST_SCHEMA
+        and item.get("mode_id") == RANK150_DPP_SELECTOR_MODE
+    ):
+        mode = RANK150_DPP_SELECTOR_MODE
+    elif (
+        item.get("schema_version") == MATRIX_CHILD_REQUEST_SCHEMA
+        and "mode_id" not in item
+    ):
+        mode = GROUPED_SELECTOR_MODE
+    else:
+        _fail("matrix-child request mode/schema binding differs")
+    if mode == RANK150_DPP_SELECTOR_MODE:
+        try:
+            return rank150_dpp_mode.validate_matrix_child_request_v1(item)
+        except rank150_dpp_mode.CorpusR6CurrentBankSelectorRank150DppModeV1Error as exc:
+            raise CorpusR6CurrentBankSelectorSuccessorCloudV1Error(str(exc)) from exc
     if item.get("child_request_sha256") != _hash({
         key: row for key, row in item.items() if key != "child_request_sha256"
     }):
@@ -1173,6 +1438,7 @@ def validate_matrix_child_request_v1(value: object) -> dict[str, object]:
         ),
         matrix_capability=item.get("matrix_capability"),
         launch_intent_identity=item.get("launch_intent_identity"),
+        selector_process_mode=mode,
     )
     if (
         item.get("schema_version") != MATRIX_CHILD_REQUEST_SCHEMA
@@ -1186,16 +1452,20 @@ def validate_matrix_child_request_v1(value: object) -> dict[str, object]:
 
 def validate_dispatcher_runtime_evidence_v1(value: object) -> dict[str, object]:
     item = _mapping(value, label="successor dispatcher runtime evidence")
+    mode = _mode_from_schema(
+        item,
+        grouped_schema=DISPATCHER_RUNTIME_SCHEMA,
+        rank150_dpp_schema=RANK150_DPP_DISPATCHER_RUNTIME_SCHEMA,
+    )
     if item.get("dispatcher_runtime_evidence_sha256") != _hash({
         key: row
         for key, row in item.items()
         if key != "dispatcher_runtime_evidence_sha256"
     }):
         _fail("successor dispatcher runtime self hash differs")
-    spec = dispatcher_process_spec_v1()
+    spec = dispatcher_process_spec_v1(selector_process_mode=mode)
     if (
-        item.get("schema_version") != DISPATCHER_RUNTIME_SCHEMA
-        or item.get("project_id") != FIXED_GCP_PROJECT
+        item.get("project_id") != FIXED_GCP_PROJECT
         or item.get("storage_endpoint") != FIXED_STORAGE_ENDPOINT
         or _COMMIT_RE.fullmatch(str(item.get("code_commit", ""))) is None
         or not str(item.get("image_digest", "")).startswith("sha256:")
@@ -1225,14 +1495,57 @@ def validate_dispatcher_runtime_evidence_v1(value: object) -> dict[str, object]:
 
 def _validate_fold_receipt_structural_v1(
     value: object, *, source_ordinal: int, fold_ordinal: int,
+    selector_process_mode: str = GROUPED_SELECTOR_MODE,
 ) -> dict[str, object]:
+    mode = _selector_mode(selector_process_mode)
     receipt = _mapping(value, label=f"successor fold receipt[{fold_ordinal}]")
-    if receipt.get("successor_fold_receipt_sha256") != _hash({
+    fold_hash_field = str(_mode_value(
+        mode,
+        "successor_fold_receipt_sha256",
+        "rank150_dpp_fold_receipt_sha256",
+    ))
+    if receipt.get(fold_hash_field) != _hash({
         key: row
         for key, row in receipt.items()
-        if key != "successor_fold_receipt_sha256"
+        if key != fold_hash_field
     }):
         _fail("successor fold receipt self hash differs")
+    if mode == RANK150_DPP_SELECTOR_MODE:
+        runtime = _mapping(
+            receipt.get("runtime_evidence"),
+            label="rank150/DPP fold runtime evidence",
+        )
+        if (
+            receipt.get("schema_version") != rank150_dpp_mode.FOLD_RECEIPT_SCHEMA
+            or receipt.get("mode_id") != RANK150_DPP_SELECTOR_MODE
+            or receipt.get("phase") != contract.BROAD_SCREEN_PHASE
+            or receipt.get("source_ordinal") != source_ordinal
+            or receipt.get("fold_ordinal") != fold_ordinal
+            or receipt.get("process_ordinal")
+            != source_ordinal * FOLD_COUNT + fold_ordinal
+            or receipt.get("heldout_block") != contract.WORLD_BLOCKS[fold_ordinal]
+            or receipt.get("fit_count") != rank150_dpp_mode.EXACT_FIT_COUNT
+            or receipt.get("view_count") != rank150_dpp_mode.EXACT_VIEW_COUNT
+            or receipt.get("selector_count_per_view")
+            != rank150_dpp_mode.EXACT_SELECTORS_PER_VIEW
+            or receipt.get("entry_budgets")
+            != list(rank150_dpp_mode.ENTRY_BUDGETS)
+            or receipt.get("source_control_fit_parity_claimed") is not False
+            or receipt.get("source_control_receipt_compatible") is not False
+            or receipt.get("grouped_24_fit_receipt_compatible") is not False
+            or receipt.get("publication_authority") is not False
+            or runtime.get("runtime_mode") != rank150_dpp_mode.RUNTIME_MODE
+            or runtime.get("task_index") != source_ordinal
+            or runtime.get("process_ordinal")
+            != source_ordinal * FOLD_COUNT + fold_ordinal
+        ):
+            _fail("rank150/DPP fold receipt structural authority differs")
+        cells = _sequence(
+            receipt.get("cell_sha256s"), label="rank150/DPP fold cells"
+        )
+        if len(cells) != rank150_dpp_mode.EXACT_FIT_COUNT:
+            _fail("rank150/DPP fold receipt cell count differs")
+        return receipt
     launch = _mapping(
         receipt.get("outer_launch_envelope"), label="successor fold launch envelope"
     )
@@ -1282,6 +1595,11 @@ def build_slate_result_v1(
     dispatcher_runtime_evidence: object,
 ) -> dict[str, object]:
     manifest = _mapping(task_manifest, label="successor task manifest")
+    mode = _mode_from_schema(
+        manifest,
+        grouped_schema=TASK_MANIFEST_SCHEMA,
+        rank150_dpp_schema=RANK150_DPP_TASK_MANIFEST_SCHEMA,
+    )
     if manifest.get("task_manifest_sha256") != _hash({
         key: row for key, row in manifest.items() if key != "task_manifest_sha256"
     }):
@@ -1290,22 +1608,52 @@ def build_slate_result_v1(
         manifest, task_manifest_identity, label="successor task manifest"
     )
     binding = _mapping(task_binding, label="successor task binding")
+    if _mode_from_schema(
+        binding,
+        grouped_schema=TASK_BINDING_SCHEMA,
+        rank150_dpp_schema=RANK150_DPP_TASK_BINDING_SCHEMA,
+    ) != mode:
+        _fail("successor slate task binding mode differs")
     if binding.get("task_binding_sha256") != _hash({
         key: row for key, row in binding.items() if key != "task_binding_sha256"
     }):
         _fail("successor task binding self hash differs")
     retained_bootstrap = validate_bootstrap_v1(bootstrap)
     budget = validate_slate_process_budget_v1(slate_process_budget)
+    if (
+        _mode_from_schema(
+            retained_bootstrap,
+            grouped_schema=BOOTSTRAP_SCHEMA,
+            rank150_dpp_schema=RANK150_DPP_BOOTSTRAP_SCHEMA,
+        )
+        != mode
+        or _mode_from_schema(
+            budget,
+            grouped_schema=SLATE_PROCESS_BUDGET_SCHEMA,
+            rank150_dpp_schema=RANK150_DPP_SLATE_PROCESS_BUDGET_SCHEMA,
+        )
+        != mode
+    ):
+        _fail("successor slate bootstrap/budget mode differs")
     budget_identity = _bind(
         budget, slate_process_budget_identity, label="successor slate budget"
     )
     runtime = validate_dispatcher_runtime_evidence_v1(
         dispatcher_runtime_evidence
     )
+    if _mode_from_schema(
+        runtime,
+        grouped_schema=DISPATCHER_RUNTIME_SCHEMA,
+        rank150_dpp_schema=RANK150_DPP_DISPATCHER_RUNTIME_SCHEMA,
+    ) != mode:
+        _fail("successor slate dispatcher runtime mode differs")
     source = int(binding.get("source_ordinal", -1))
     folds = [
         _validate_fold_receipt_structural_v1(
-            row, source_ordinal=source, fold_ordinal=index
+            row,
+            source_ordinal=source,
+            fold_ordinal=index,
+            selector_process_mode=mode,
         )
         for index, row in enumerate(
             _sequence(fold_receipts, label="successor fold receipts")
@@ -1325,12 +1673,19 @@ def build_slate_result_v1(
         or retained_bootstrap["run_authorization_identity"]
         != manifest.get("run_authorization_identity")
         or [
-            row["successor_process_budget_identity"] for row in folds
+            row[str(_mode_value(
+                mode,
+                "successor_process_budget_identity",
+                "process_budget_identity",
+            ))]
+            for row in folds
         ] != binding.get("successor_process_budget_identities")
     ):
         _fail("successor five-fold slate assembly authority differs")
-    body = {
-        "schema_version": SLATE_RESULT_SCHEMA,
+    body = _mode_body({
+        "schema_version": _mode_value(
+            mode, SLATE_RESULT_SCHEMA, RANK150_DPP_SLATE_RESULT_SCHEMA
+        ),
         "source_ordinal": source,
         "slate_id": binding["slate_id"],
         "task_manifest_identity": manifest_identity,
@@ -1351,18 +1706,28 @@ def build_slate_result_v1(
         "fold_order": list(contract.WORLD_BLOCKS),
         "fold_receipts": folds,
         "fold_receipt_sha256s": [
-            row["successor_fold_receipt_sha256"] for row in folds
+            row[str(_mode_value(
+                mode,
+                "successor_fold_receipt_sha256",
+                "rank150_dpp_fold_receipt_sha256",
+            ))]
+            for row in folds
         ],
-        "fit_count": FITS_PER_SLATE,
-        "fit_count_by_fold": [FITS_PER_FOLD] * FOLD_COUNT,
+        "fit_count": _fits_per_slate(mode),
+        "fit_count_by_fold": [_fits_per_fold(mode)] * FOLD_COUNT,
         "source_control_fit_parity_claimed": False,
         "source_control_receipt_compatible": False,
         "terminal_cloud_execution_attestation_present": False,
         "publication_mode": "create-once-exact-reopen",
         "policy": dict(_POLICY),
-    }
+        **({
+            "mode_id": RANK150_DPP_SELECTOR_MODE,
+            "entry_budgets": list(rank150_dpp_mode.ENTRY_BUDGETS),
+            "grouped_24_fit_result_compatible": False,
+        } if mode == RANK150_DPP_SELECTOR_MODE else {}),
+    }, selector_process_mode=mode)
     retained = _with_hash(body, field="slate_result_sha256")
-    if len(_canonical(retained)) > MAXIMUM_SLATE_RESULT_BYTES:
+    if len(_canonical(retained)) > _maximum_slate_result_bytes(mode):
         _fail("successor slate result exceeds its byte ceiling")
     return retained
 
@@ -1373,13 +1738,22 @@ def build_task_result_envelope_v1(
     slate_result_identity: object,
 ) -> dict[str, object]:
     result = _mapping(slate_result, label="successor slate result")
+    mode = _mode_from_schema(
+        result,
+        grouped_schema=SLATE_RESULT_SCHEMA,
+        rank150_dpp_schema=RANK150_DPP_SLATE_RESULT_SCHEMA,
+    )
     if result.get("slate_result_sha256") != _hash({
         key: row for key, row in result.items() if key != "slate_result_sha256"
     }):
         _fail("successor slate result self hash differs")
     identity = _bind(result, slate_result_identity, label="successor slate result")
-    body = {
-        "schema_version": TASK_RESULT_ENVELOPE_SCHEMA,
+    body = _mode_body({
+        "schema_version": _mode_value(
+            mode,
+            TASK_RESULT_ENVELOPE_SCHEMA,
+            RANK150_DPP_TASK_RESULT_ENVELOPE_SCHEMA,
+        ),
         "source_ordinal": result["source_ordinal"],
         "slate_id": result["slate_id"],
         "task_manifest_identity": result["task_manifest_identity"],
@@ -1391,7 +1765,7 @@ def build_task_result_envelope_v1(
         "source_control_fit_parity_claimed": False,
         "source_control_receipt_compatible": False,
         "terminal_cloud_execution_attestation_present": False,
-    }
+    }, selector_process_mode=mode)
     retained = _with_hash(body, field="task_result_envelope_sha256")
     if len(_canonical(retained)) > MAXIMUM_TASK_RESULT_ENVELOPE_BYTES:
         _fail("successor task result envelope exceeds its byte ceiling")
@@ -1408,10 +1782,23 @@ __all__ = [
     "MANIFEST_IDENTITY_ENV",
     "MATRIX_CHILD_REQUEST_SCHEMA",
     "MAXIMUM_SLATE_RESULT_BYTES",
+    "MAXIMUM_RANK150_DPP_SLATE_RESULT_BYTES",
     "MAXIMUM_TASK_MANIFEST_BYTES",
+    "GROUPED_SELECTOR_MODE",
+    "RANK150_DPP_BOOTSTRAP_SCHEMA",
+    "RANK150_DPP_DISPATCHER_RUNTIME_SCHEMA",
+    "RANK150_DPP_MATRIX_CHILD_REQUEST_SCHEMA",
+    "RANK150_DPP_RUN_AUTHORIZATION_SCHEMA",
+    "RANK150_DPP_SELECTOR_MODE",
+    "RANK150_DPP_SLATE_PROCESS_BUDGET_SCHEMA",
+    "RANK150_DPP_SLATE_RESULT_SCHEMA",
+    "RANK150_DPP_TASK_BINDING_SCHEMA",
+    "RANK150_DPP_TASK_MANIFEST_SCHEMA",
+    "RANK150_DPP_TASK_RESULT_ENVELOPE_SCHEMA",
     "RUN_AUTHORIZATION_SCHEMA",
     "SLATE_PROCESS_BUDGET_SCHEMA",
     "SLATE_RESULT_SCHEMA",
+    "SELECTOR_MODE_ENV",
     "TASK_COUNT",
     "TASK_MANIFEST_SCHEMA",
     "TASK_RESULT_ENVELOPE_SCHEMA",

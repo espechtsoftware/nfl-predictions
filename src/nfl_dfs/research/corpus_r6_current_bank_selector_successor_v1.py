@@ -443,13 +443,24 @@ def _validated_candidates(
     *,
     sampled_lineup_ids: Sequence[str],
     training_blocks: Sequence[str],
+    source_arm_registry: object | None = None,
 ) -> list[dict[str, object]]:
     if isinstance(value, (str, bytes)) or not isinstance(value, Sequence):
         _fail("candidate rows must be an array")
     rows = list(value)
     if len(rows) != len(sampled_lineup_ids):
         _fail("candidate row count differs from sampled lineup IDs")
-    known_arms = {str(row[1]) for row in current_contract.PROFILE_IDENTITIES}
+    if source_arm_registry is None:
+        known_arms = {
+            str(row[1]) for row in current_contract.PROFILE_IDENTITIES
+        }
+    else:
+        declared_arms = _require_string_array(
+            source_arm_registry, label="source arm registry"
+        )
+        if not declared_arms or declared_arms != sorted(set(declared_arms)):
+            _fail("source arm registry must be sorted, unique, and nonempty")
+        known_arms = set(declared_arms)
     normalized: list[dict[str, object]] = []
     for ordinal, (expected_id, raw) in enumerate(
         zip(sampled_lineup_ids, rows, strict=True)
@@ -527,6 +538,12 @@ def _validated_candidates(
             "training_source_arms_by_block": arms_by_block,
             "training_occurrence_count": occurrence_count,
         })
+    if source_arm_registry is not None and {
+        arm
+        for candidate in normalized
+        for arm in candidate["training_source_arms"]
+    } != known_arms:
+        _fail("candidate source arms do not exactly cover the declared registry")
     return normalized
 
 
@@ -537,6 +554,7 @@ def _validated_inputs(
     candidate_rows: object,
     training_blocks: object,
     worlds_per_block: object,
+    source_arm_registry: object | None = None,
 ) -> tuple[
     list[str], np.ndarray, list[dict[str, object]], tuple[str, ...], str, int
 ]:
@@ -575,6 +593,7 @@ def _validated_inputs(
         candidate_rows,
         sampled_lineup_ids=ids,
         training_blocks=blocks,
+        source_arm_registry=source_arm_registry,
     )
     return ids, scores, candidates, blocks, heldout, worlds_per_block
 
@@ -1024,6 +1043,7 @@ def run_grouped_native_selectors_v1(
     training_blocks: object,
     worlds_per_block: object,
     preset_registry: object,
+    source_arm_registry: object | None = None,
 ) -> dict[str, object]:
     """Run four native challengers from one sampled four-block matrix.
 
@@ -1044,6 +1064,7 @@ def run_grouped_native_selectors_v1(
         candidate_rows=candidate_rows,
         training_blocks=training_blocks,
         worlds_per_block=worlds_per_block,
+        source_arm_registry=source_arm_registry,
     )
     matrix_hash = _matrix_sha(scores)
     shared = _build_shared_preprocessing_v1(
@@ -1163,6 +1184,7 @@ def validate_grouped_native_selector_result_v1(
     training_blocks: object,
     worlds_per_block: object,
     preset_registry: object,
+    source_arm_registry: object | None = None,
 ) -> dict[str, object]:
     """Replay the pure computation and require byte-exact canonical equality."""
     if not isinstance(value, Mapping):
@@ -1181,6 +1203,7 @@ def validate_grouped_native_selector_result_v1(
         training_blocks=training_blocks,
         worlds_per_block=worlds_per_block,
         preset_registry=preset_registry,
+        source_arm_registry=source_arm_registry,
     )
     if _canonical(retained) != _canonical(expected):
         _fail("successor result differs from exact pure replay")

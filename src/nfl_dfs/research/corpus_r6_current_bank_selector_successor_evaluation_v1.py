@@ -418,6 +418,25 @@ def _validate_fold_receipt_v1(
     projection: Mapping[str, object],
 ) -> tuple[dict[str, object], list[dict[str, object]]]:
     receipt = _mapping(value, label=f"successor fold receipt[{fold_ordinal}]")
+    # The exact rank-150/DPP experiment is intentionally not a 24-fit grouped
+    # receipt.  Its distinct validator normalizes the same score-free cell
+    # surface for this evaluator without weakening the frozen grouped path.
+    from nfl_dfs.research import (
+        corpus_r6_current_bank_selector_rank150_dpp_mode_v1 as rank150_dpp,
+    )
+
+    if receipt.get("schema_version") == rank150_dpp.FOLD_RECEIPT_SCHEMA:
+        try:
+            return rank150_dpp.validate_evaluation_fold_receipt_v1(
+                receipt,
+                source_ordinal=source_ordinal,
+                fold_ordinal=fold_ordinal,
+                projection=projection,
+            )
+        except rank150_dpp.CorpusR6CurrentBankSelectorRank150DppModeV1Error as exc:
+            raise CorpusR6CurrentBankSelectorSuccessorEvaluationV1Error(
+                str(exc)
+            ) from exc
     _self_hash(
         receipt,
         field="successor_fold_receipt_sha256",
@@ -510,6 +529,27 @@ def _validate_fold_receipt_v1(
     return receipt, cells
 
 
+def _selection_fold_receipt_sha256_v1(
+    receipt: Mapping[str, object],
+) -> str:
+    """Return the native receipt hash without relabeling its process mode."""
+    if receipt.get("schema_version") == adapter.FOLD_RECEIPT_SCHEMA:
+        return _digest(
+            receipt.get("successor_fold_receipt_sha256"),
+            label="grouped successor fold receipt",
+        )
+    from nfl_dfs.research import (
+        corpus_r6_current_bank_selector_rank150_dpp_mode_v1 as rank150_dpp,
+    )
+
+    if receipt.get("schema_version") == rank150_dpp.FOLD_RECEIPT_SCHEMA:
+        return _digest(
+            receipt.get("rank150_dpp_fold_receipt_sha256"),
+            label="rank150/DPP fold receipt",
+        )
+    _fail("unregistered successor fold receipt hash schema")
+
+
 def _metric_cache_value_v1(
     *, selected_candidates: Sequence[Mapping[str, object]],
     selected_scores: np.ndarray, player_game: Mapping[str, str],
@@ -522,7 +562,10 @@ def _metric_cache_value_v1(
         tails = contract._threshold_events_v1(
             selected_scores, include_book_max=True
         )
-        effective = contract._effective_tail_rows_v1(selected_scores)
+        effective = contract._effective_tail_rows_v1(
+            selected_scores,
+            maximum_selected_count=max(SUPPORTED_ENTRY_BUDGETS),
+        )
         return {
             "book_score_summary": summary,
             "tail_metrics": tails,
@@ -703,9 +746,9 @@ def build_evaluation_fold_v1(
         "fold_ordinal": fold_ordinal,
         "heldout_block": retained_projection["heldout_block"],
         "projection_sha256": retained_projection["projection_sha256"],
-        "selection_fold_receipt_sha256": receipt[
-            "successor_fold_receipt_sha256"
-        ],
+        "selection_fold_receipt_sha256": _selection_fold_receipt_sha256_v1(
+            receipt
+        ),
         "heldout_fold_authority": heldout_authority,
         "heldout_fold_authority_sha256": heldout_authority[
             "heldout_fold_authority_sha256"
@@ -728,6 +771,19 @@ def _validate_selection_slate_result_v1(
     value: object, *, projection_bundle: Mapping[str, object],
 ) -> dict[str, object]:
     result = _mapping(value, label="successor selection slate result")
+    from nfl_dfs.research import (
+        corpus_r6_current_bank_selector_rank150_dpp_mode_v1 as rank150_dpp,
+    )
+
+    if result.get("schema_version") == rank150_dpp.SLATE_RESULT_SCHEMA:
+        try:
+            return rank150_dpp.validate_evaluation_slate_result_v1(
+                result, projection_bundle=projection_bundle
+            )
+        except rank150_dpp.CorpusR6CurrentBankSelectorRank150DppModeV1Error as exc:
+            raise CorpusR6CurrentBankSelectorSuccessorEvaluationV1Error(
+                str(exc)
+            ) from exc
     _self_hash(
         result,
         field="slate_result_sha256",

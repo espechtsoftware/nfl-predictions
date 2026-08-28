@@ -287,6 +287,7 @@ def run_exact_rank150_continuation_v1(
     training_blocks: object,
     worlds_per_block: object,
     preset_registry: object,
+    source_arm_registry: object | None = None,
 ) -> dict[str, object]:
     """Rank once to 150 and return exact 80/100/150 prefix books."""
     try:
@@ -306,6 +307,7 @@ def run_exact_rank150_continuation_v1(
             candidate_rows=candidate_rows,
             training_blocks=training_blocks,
             worlds_per_block=worlds_per_block,
+            source_arm_registry=source_arm_registry,
         )
         if len(lineup_ids) < RANKING_DEPTH:
             _fail("exact rank 150 requires at least 150 sampled lineups")
@@ -433,6 +435,7 @@ def validate_exact_rank150_continuation_v1(
     training_blocks: object,
     worlds_per_block: object,
     preset_registry: object,
+    source_arm_registry: object | None = None,
 ) -> dict[str, object]:
     """Recompute the exact continuation and reject any canonical-byte drift."""
     if not isinstance(value, Mapping):
@@ -446,6 +449,7 @@ def validate_exact_rank150_continuation_v1(
         training_blocks=training_blocks,
         worlds_per_block=worlds_per_block,
         preset_registry=preset_registry,
+        source_arm_registry=source_arm_registry,
     )
     if _canonical(retained) != _canonical(expected):
         _fail("rank-150 result differs from exact pure replay")

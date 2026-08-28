@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare or execute the 54-task grouped selector successor batch."""
+"""Prepare or execute a manifest-bound 54-task selector successor batch."""
 
 from __future__ import annotations
 
@@ -40,6 +40,9 @@ from nfl_dfs.research import (
 from nfl_dfs.research import (
     corpus_r6_current_bank_selector_successor_runtime_v1 as child_runtime,
 )
+from nfl_dfs.research import (
+    corpus_r6_current_bank_selector_rank150_dpp_mode_v1 as rank150_dpp_mode,
+)
 from nfl_dfs.research import lr8_later_period_source as later
 from nfl_dfs.research import residual_world_columns as worlds
 
@@ -49,7 +52,7 @@ MAXIMUM_CHILD_STDERR_BYTES: Final = 256_000
 
 
 class RunCorpusR6CurrentBankSelectorSuccessorCloudV1Error(RuntimeError):
-    """The grouped selector successor cloud executable failed closed."""
+    """The manifest-bound selector successor executable failed closed."""
 
 
 def _fail(message: str) -> None:
@@ -94,6 +97,21 @@ def _parse_identity_text(value: str, *, label: str) -> dict[str, object]:
     return _identity(
         _strict_json(value.encode("utf-8"), label=label), label=label
     )
+
+
+def _selector_process_mode(value: Mapping[str, object]) -> str:
+    if (
+        value.get("schema_version") == cloud.RANK150_DPP_TASK_MANIFEST_SCHEMA
+        and value.get("selector_process_mode")
+        == cloud.RANK150_DPP_SELECTOR_MODE
+    ):
+        return cloud.RANK150_DPP_SELECTOR_MODE
+    if (
+        value.get("schema_version") == cloud.TASK_MANIFEST_SCHEMA
+        and "selector_process_mode" not in value
+    ):
+        return cloud.GROUPED_SELECTOR_MODE
+    _fail("successor task manifest selector mode differs")
 
 
 def _observed_dispatcher_command(raw_cmdline: bytes | None = None) -> list[str]:
@@ -319,14 +337,27 @@ def _readonly_anonymous_matrix_fd_v1(
 
 def _spawn_matrix_child_v1(
     *, request: Mapping[str, object], scores: np.ndarray,
+    selector_process_mode: str,
 ) -> dict[str, object]:
     raw_request = _canonical(request)
     environment = dict(os.environ)
     capability = request["matrix_capability"]
-    environment[child_runtime.PROCESS_ORDINAL_ENV] = str(
-        capability["process_ordinal"]
-    )
-    command = child_runtime.canonical_matrix_selector_command_v1()
+    environment.pop(child_runtime.PROCESS_ORDINAL_ENV, None)
+    environment.pop(rank150_dpp_mode.PROCESS_ORDINAL_ENV, None)
+    if selector_process_mode == cloud.GROUPED_SELECTOR_MODE:
+        environment[child_runtime.PROCESS_ORDINAL_ENV] = str(
+            capability["process_ordinal"]
+        )
+        command = child_runtime.canonical_matrix_selector_command_v1()
+        result_ceiling = adapter.FOLD_RECEIPT_BYTE_CEILING
+    elif selector_process_mode == cloud.RANK150_DPP_SELECTOR_MODE:
+        environment[rank150_dpp_mode.PROCESS_ORDINAL_ENV] = str(
+            capability["process_ordinal"]
+        )
+        command = rank150_dpp_mode.canonical_matrix_selector_command_v1()
+        result_ceiling = rank150_dpp_mode.FOLD_RECEIPT_BYTE_CEILING
+    else:
+        _fail("successor matrix child selector mode is not registered")
     with _readonly_anonymous_matrix_fd_v1(
         scores, capability["matrix_descriptor"]
     ) as matrix_fd, tempfile.TemporaryFile() as input_file:
@@ -345,7 +376,7 @@ def _spawn_matrix_child_v1(
         _fail("successor matrix child stderr exceeds ceiling")
     if process.returncode != 0:
         _fail(f"successor matrix child exited {process.returncode}")
-    if not stdout or len(stdout) > adapter.FOLD_RECEIPT_BYTE_CEILING:
+    if not stdout or len(stdout) > result_ceiling:
         _fail("successor matrix child stdout byte count differs")
     return _strict_json(stdout, label="successor matrix child result")
 
@@ -468,6 +499,7 @@ def _open_dispatch_authorities_v1(
         source_task_manifest=source,
         bootstrap=bootstrap,
     )
+    selector_process_mode = _selector_process_mode(manifest)
     if (
         manifest_identity["uri"]
         != f"{manifest['output_prefix']}authorities/task-manifest.json"
@@ -492,6 +524,7 @@ def _open_dispatch_authorities_v1(
         "bootstrap_identity": bootstrap_identity,
         "binding": binding,
         "source_task": source_task,
+        "selector_process_mode": selector_process_mode,
     }
 
 
@@ -501,6 +534,7 @@ def _load_task_authorities_v1(
     store: GCSExactTransportV1,
 ) -> dict[str, object]:
     manifest = opened["manifest"]
+    selector_process_mode = str(opened["selector_process_mode"])
     binding = opened["binding"]
     source_task = opened["source_task"]
     source = int(binding["source_ordinal"])
@@ -512,7 +546,10 @@ def _load_task_authorities_v1(
     launch_raw = store.read_exact(launch_identity)
     launch_body = _strict_json(launch_raw, label="successor run authorization")
     authorization: dict[str, object] | None = None
-    if launch_body.get("schema_version") == cloud.RUN_AUTHORIZATION_SCHEMA:
+    if launch_body.get("schema_version") in {
+        cloud.RUN_AUTHORIZATION_SCHEMA,
+        cloud.RANK150_DPP_RUN_AUTHORIZATION_SCHEMA,
+    }:
         authorization = cloud.validate_run_authorization_v1(launch_body)
         if (
             authorization["source_task_manifest_identity"]
@@ -520,6 +557,13 @@ def _load_task_authorities_v1(
             or authorization["output_prefix"] != manifest["output_prefix"]
             or authorization["code_commit"] != manifest["code_commit"]
             or authorization["image_digest"] != manifest["image_digest"]
+            or (
+                authorization.get("selector_process_mode")
+                == cloud.RANK150_DPP_SELECTOR_MODE
+            )
+            != (
+                selector_process_mode == cloud.RANK150_DPP_SELECTOR_MODE
+            )
         ):
             _fail("successor run authorization differs from task manifest")
     design_value, design_identity = _read_json_identity(
@@ -595,12 +639,20 @@ def _load_task_authorities_v1(
             ) from exc
         if _canonical(source_budget) != _canonical(expected_source):
             _fail("source process budget exact replay differs")
-        successor_budget = adapter.validate_successor_process_budget_v1(
-            successor_budget_value,
-            source_process_budget=source_budget,
-            source_process_budget_identity=source_budget_identity,
-            source_projection=bundle["fold_projections"][fold],
-        )
+        if selector_process_mode == cloud.GROUPED_SELECTOR_MODE:
+            successor_budget = adapter.validate_successor_process_budget_v1(
+                successor_budget_value,
+                source_process_budget=source_budget,
+                source_process_budget_identity=source_budget_identity,
+                source_projection=bundle["fold_projections"][fold],
+            )
+        else:
+            successor_budget = rank150_dpp_mode.validate_process_budget_v1(
+                successor_budget_value,
+                source_process_budget=source_budget,
+                source_process_budget_identity=source_budget_identity,
+                source_projection=bundle["fold_projections"][fold],
+            )
         source_budgets.append({
             "body": source_budget, "identity": source_budget_identity
         })
@@ -626,6 +678,7 @@ def _run_five_folds_v1(
     *, authorities: Mapping[str, object], store: GCSExactTransportV1,
 ) -> list[dict[str, object]]:
     bundle = authorities["bundle"]
+    selector_process_mode = str(authorities["selector_process_mode"])
     source = int(authorities["binding"]["source_ordinal"])
     players, draws_by_block = _load_slate_artifacts_v1(
         bundle=bundle, store=store
@@ -687,17 +740,32 @@ def _run_five_folds_v1(
             successor_process_budget_identity=successor_budget["identity"],
             matrix_capability=capability,
             launch_intent_identity=authorities["launch_identity"],
+            selector_process_mode=selector_process_mode,
         )
-        receipt = _spawn_matrix_child_v1(request=child_request, scores=scores)
+        receipt = _spawn_matrix_child_v1(
+            request=child_request,
+            scores=scores,
+            selector_process_mode=selector_process_mode,
+        )
+        receipt_hash_field = (
+            "successor_fold_receipt_sha256"
+            if selector_process_mode == cloud.GROUPED_SELECTOR_MODE
+            else "rank150_dpp_fold_receipt_sha256"
+        )
+        budget_identity_field = (
+            "successor_process_budget_identity"
+            if selector_process_mode == cloud.GROUPED_SELECTOR_MODE
+            else "process_budget_identity"
+        )
         if (
-            receipt.get("successor_fold_receipt_sha256")
+            receipt.get(receipt_hash_field)
             != contract.canonical_sha256_v1({
                 key: row for key, row in receipt.items()
-                if key != "successor_fold_receipt_sha256"
+                if key != receipt_hash_field
             })
             or receipt.get("source_ordinal") != source
             or receipt.get("fold_ordinal") != fold
-            or receipt.get("successor_process_budget_identity")
+            or receipt.get(budget_identity_field)
             != successor_budget["identity"]
         ):
             _fail("successor matrix child fold receipt differs")
@@ -730,8 +798,16 @@ def execute_dispatch_once_v1(
         store=store,
     )
     manifest = opened["manifest"]
+    manifest_mode = str(opened["selector_process_mode"])
+    runtime_mode = (
+        cloud.RANK150_DPP_SELECTOR_MODE
+        if runtime.get("selector_process_mode")
+        == cloud.RANK150_DPP_SELECTOR_MODE
+        else cloud.GROUPED_SELECTOR_MODE
+    )
     if (
-        runtime["code_commit"] != manifest["code_commit"]
+        runtime_mode != manifest_mode
+        or runtime["code_commit"] != manifest["code_commit"]
         or runtime["image_digest"] != manifest["image_digest"]
     ):
         _fail("successor dispatcher runtime differs from manifest bootstrap")
@@ -806,10 +882,21 @@ def _prepare_mode(argv: list[str]) -> int:
         "source_task_manifest_identity", "output_prefix", "code_commit",
         "image_digest",
     }
-    if frozenset(request) not in {
-        frozenset({*common_fields, "run_authorization_identity"}),
-        frozenset({*common_fields, "reused_job_name"}),
-    }:
+    selector_process_mode = str(request.get(
+        "selector_process_mode", cloud.GROUPED_SELECTOR_MODE
+    ))
+    permitted = {
+        frozenset(common_fields | {"run_authorization_identity"}),
+        frozenset(common_fields | {"reused_job_name"}),
+    }
+    if selector_process_mode == cloud.RANK150_DPP_SELECTOR_MODE:
+        permitted = {
+            frozenset(set(fields) | {"selector_process_mode"})
+            for fields in permitted
+        }
+    elif selector_process_mode != cloud.GROUPED_SELECTOR_MODE:
+        _fail("successor prepare selector mode is not registered")
+    if frozenset(request) not in permitted:
         _fail("successor prepare request fields differ")
     store = GCSExactTransportV1()
     result = cloud.prepare_task_manifest_v1(
@@ -825,6 +912,7 @@ def _prepare_mode(argv: list[str]) -> int:
             if "reused_job_name" in request
             else None
         ),
+        selector_process_mode=selector_process_mode,
     )
     _write_local_create_once(Path(args.output_file), _canonical(result))
     return 0

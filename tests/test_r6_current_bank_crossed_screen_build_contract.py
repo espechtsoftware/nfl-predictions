@@ -26,6 +26,20 @@ MODULE_PATHS = (
     "src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_evaluation_v1.py",
     "src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_aggregate_v1.py",
     "src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_task_manifest_v1.py",
+    "src/nfl_dfs/research/corpus_r6_current_bank_selector_successor_v1.py",
+    "src/nfl_dfs/research/corpus_r6_current_bank_selector_successor_runtime_v1.py",
+    "src/nfl_dfs/research/corpus_r6_current_bank_selector_successor_process_adapter_v1.py",
+    "src/nfl_dfs/research/corpus_r6_current_bank_selector_successor_cloud_v1.py",
+    "src/nfl_dfs/research/corpus_r6_current_bank_selector_rank150_v1.py",
+    "src/nfl_dfs/research/corpus_r6_current_bank_diversity_selector_v1.py",
+    "src/nfl_dfs/research/corpus_r6_current_bank_selector_rank150_dpp_mode_v1.py",
+    "src/nfl_dfs/research/corpus_r6_current_bank_selector_successor_evaluation_v1.py",
+    "src/nfl_dfs/research/corpus_r6_current_bank_selector_successor_evaluation_cloud_v1.py",
+    "src/nfl_dfs/research/corpus_r6_current_bank_selector_successor_realized_bridge_v1.py",
+    "src/nfl_dfs/research/corpus_extreme_tail_hard230_population_successor_v1.py",
+    "src/nfl_dfs/research/corpus_extreme_tail_hard230_population_process_v1.py",
+    "src/nfl_dfs/research/corpus_extreme_tail_hard230_r6_source_decoder_v1.py",
+    "src/nfl_dfs/research/corpus_extreme_tail_hard230_r6_cloud_entrypoint_v1.py",
 )
 MODULE_NAMES = tuple(Path(path).stem for path in MODULE_PATHS)
 RUNNERS = (
@@ -34,9 +48,15 @@ RUNNERS = (
     "scripts/run_corpus_r6_current_bank_crossed_screen_evaluation_v1.py",
     "scripts/run_corpus_r6_current_bank_crossed_screen_aggregate_v1.py",
     "scripts/run_corpus_r6_current_bank_crossed_screen_task_dispatcher_v1.py",
+    "scripts/run_corpus_r6_current_bank_selector_successor_cloud_v1.py",
+    "scripts/run_corpus_r6_current_bank_selector_successor_evaluation_cloud_v1.py",
+    "scripts/run_corpus_r6_current_bank_selector_successor_v1.py",
+    "scripts/run_corpus_r6_current_bank_selector_rank150_dpp_v1.py",
+    "scripts/run_corpus_r6_current_bank_selector_successor_realized_bridge_v1.py",
+    "scripts/run_corpus_extreme_tail_hard230_r6_cloud_v1.py",
 )
 OPERATOR = "scripts/run_corpus_r6_current_bank_crossed_screen_cloud_v1.py"
-DISPATCHER = RUNNERS[-1]
+DISPATCHER = "scripts/run_corpus_r6_current_bank_crossed_screen_task_dispatcher_v1.py"
 CANONICAL_DISPATCHER = (
     "/usr/local/bin/python3.11",
     "-I",
@@ -52,6 +72,14 @@ FOCUSED_TESTS = (
     "tests/test_corpus_r6_current_bank_crossed_screen_aggregate_execution_v1.py",
     "tests/test_corpus_r6_current_bank_crossed_screen_task_manifest_execution_v1.py",
     "tests/test_corpus_r6_current_bank_crossed_screen_task_dispatcher_v1.py",
+    "tests/test_corpus_r6_current_bank_selector_successor_v1.py",
+    "tests/test_corpus_r6_current_bank_selector_successor_cloud_v1.py",
+    "tests/test_corpus_r6_current_bank_selector_successor_evaluation_v1.py",
+    "tests/test_corpus_r6_current_bank_selector_successor_evaluation_cloud_v1.py",
+    "tests/test_corpus_r6_current_bank_selector_rank150_dpp_mode_v1.py",
+    "tests/test_corpus_r6_current_bank_selector_successor_realized_bridge_v1.py",
+    "tests/test_run_corpus_r6_current_bank_selector_successor_realized_bridge_v1.py",
+    "tests/test_corpus_extreme_tail_hard230_r6_cloud_entrypoint_v1.py",
     "tests/test_r6_current_bank_crossed_screen_build_contract.py",
     "tests/test_run_corpus_r6_current_bank_crossed_screen_cloud_v1.py",
 )
@@ -164,6 +192,9 @@ def test_image_smoke_uses_fixed_isolated_dispatcher_and_no_network() -> None:
     assert "'PYTHONHOME' not in os.environ" in smoke
     assert "specs=m.canonical_bootstrap_process_specs_v1()" in smoke
     assert "len(specs) == len(c.PROCESS_ROLES)" in smoke
+    assert "sc.matrix_process_spec_v1(selector_process_mode=sc.RANK150_DPP_SELECTOR_MODE)" in smoke
+    assert "rb.cloud_entrypoint_registration_v1()['command']" in smoke
+    assert "h.ENTRYPOINT_COMMAND" in smoke
     assert f"/app/{DISPATCHER} --help" in normalized_smoke
     assert "task dispatcher failed closed: dispatcher kernel command token count differs" in smoke
     assert "task dispatcher failed closed: dispatcher requires exact R6_CURRENT_BANK_TASK_DISPATCH_ENABLED=1" in smoke
@@ -175,9 +206,11 @@ def test_cloud_build_has_no_deployment_or_external_data_authority() -> None:
     source = BUILD_CONFIG.read_text(encoding="utf-8").lower()
     for forbidden in (
         "gcloud run", "gcloud storage", "gsutil", "bq ", "neo4j",
-        "outcome", "realized", "deploy", "iam", "secret",
+        "deploy", "iam", "secret",
     ):
         assert forbidden not in source
+    assert "selector_successor_realized_bridge_v1.py publish --" not in source
+    assert "run_corpus_extreme_tail_hard230_r6_cloud_v1.py execute-task --" not in source
 
 
 def test_dedicated_build_context_is_an_exact_small_allowlist() -> None:

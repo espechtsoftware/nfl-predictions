@@ -186,6 +186,7 @@ def _validated_inputs(
     candidate_rows: object,
     training_blocks: object,
     worlds_per_block: object,
+    source_arm_registry: object | None = None,
 ) -> tuple[
     list[str], np.ndarray, list[dict[str, object]], tuple[str, ...], str, int
 ]:
@@ -196,6 +197,7 @@ def _validated_inputs(
             candidate_rows=candidate_rows,
             training_blocks=training_blocks,
             worlds_per_block=worlds_per_block,
+            source_arm_registry=source_arm_registry,
         )
     except grouped_source.CorpusR6CurrentBankSelectorSuccessorV1Error as exc:
         raise CorpusR6CurrentBankDiversitySelectorV1Error(str(exc)) from exc
@@ -423,6 +425,7 @@ def run_effective_independent_shots_selector_v1(
     candidate_rows: object,
     training_blocks: object,
     worlds_per_block: object,
+    source_arm_registry: object | None = None,
 ) -> dict[str, object]:
     """Return one deterministic 150-lineup order and its 80/100/150 prefixes."""
     contract = frozen_diversity_selector_contract_v1()
@@ -439,6 +442,7 @@ def run_effective_independent_shots_selector_v1(
         candidate_rows=candidate_rows,
         training_blocks=training_blocks,
         worlds_per_block=worlds_per_block,
+        source_arm_registry=source_arm_registry,
     )
     packed, tail_counts = _packed_tail_signatures_v1(scores)
     roster_overlaps = _roster_overlap_counts_v1(candidates)
@@ -560,6 +564,7 @@ def validate_effective_independent_shots_result_v1(
     candidate_rows: object,
     training_blocks: object,
     worlds_per_block: object,
+    source_arm_registry: object | None = None,
 ) -> dict[str, object]:
     """Replay the pure selector and require byte-exact canonical equality."""
     if not isinstance(value, Mapping):
@@ -572,6 +577,7 @@ def validate_effective_independent_shots_result_v1(
         candidate_rows=candidate_rows,
         training_blocks=training_blocks,
         worlds_per_block=worlds_per_block,
+        source_arm_registry=source_arm_registry,
     )
     if _canonical(retained) != _canonical(expected):
         _fail("diversity selector result differs from exact pure replay")
