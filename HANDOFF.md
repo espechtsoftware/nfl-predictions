@@ -20,6 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-28 16:34 UTC (two-hundred-seventy-ninth update)
+
+### V6 image build failed closed in focused validation; no runtime image exists
+
+- Branch `main` and `origin/main` are at `de59965d`; the V6 repair source
+  remains commit `bd59aee6`. The other agent's Foundry/strategy work remains
+  unstaged and untouched.
+- Cloud Build `ef68ce8e-1c06-4985-8438-bc6878d62aef` reached terminal
+  **FAILURE** at `2026-08-28T16:34:27.553290Z`. Step 0,
+  `focused-current-bank-contract-tests`, exited 1 after running from
+  `2026-08-28T16:20:38.405206806Z` through
+  `2026-08-28T16:34:16.207742668Z`; the runtime-image build and isolated
+  dispatcher smoke steps remained queued and never ran.
+- Consequently mutable tag
+  `r6-current-bank-crossed-screen-bd59aee6` was not built or published and
+  there is no V6 runtime digest. The sole reported build-step digest belongs
+  to the step-0 Python builder, not the target image. No V6 cloud scoring job
+  was configured or launched.
+- Exact submitted source remains
+  `gs://nfl-predictions-503414_cloudbuild/source/1787933959.847335-f4a12090add14bbeacd6bf133cef782c.tgz`,
+  generation `1787933966633510`, provider SHA-256 base64
+  `afjWqYhOEpcqfRycT9djAOSDgcf44vvICwoTBR45if4=`. No Cloud Build logs,
+  scientific artifacts, scores or outcomes were read.
+- Exact next action: reproduce the build's focused-validation command against
+  the clean extracted archive, isolate and minimally repair the failing test
+  or build contract, then validate and submit one new clean immutable build.
+  Do not reuse the failed tag as launch authority and do not launch any V6
+  layer before a successful build yields a verified immutable digest.
+
 ## Current handoff — 2026-08-28 16:19 UTC (two-hundred-seventy-eighth update)
 
 ### V6 repair is pushed and its immutable image build is queued
