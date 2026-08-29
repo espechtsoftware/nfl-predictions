@@ -20,7 +20,51 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 (three-hundred-seventy-ninth update)
+## Current handoff -- 2026-08-29 (three-hundred-eightieth update)
+
+### Strengthened all-54 real-artifact preflight passes at exact repair commit
+
+- Branch `main` and `origin/main` are at pushed exact repair commit
+  `68873f42a6f7efbe3a2a29731812ef895d61271e`.  Clean sparse checkout
+  `.build-contexts/boom-first-68873f42` is detached at that full commit,
+  clean, and GitHub `main` independently resolves the same revision.
+- The sole real-artifact preflight invocation exited zero.  Both frozen
+  score-blind BigQuery jobs were cache-hit/DONE with no errors; the repaired
+  operator then built and validated all 54 generation snapshots in memory
+  before running only ordinal 0.  Thus the exact 2025-W01/R3 repair alias and
+  every later ordinal passed before task-0 science was allowed to execute.
+- Task 0 reproduced all five incumbent control books and exact K80 control and
+  treatment books.  It published nothing, selected no outcome columns and
+  reports `uses_realized_outcomes=false`.  The canonical-with-newline receipt
+  is `.scratch-score-sprint/boom-first-preflight-receipt-68873f42.json`, 2,651
+  bytes with byte SHA-256
+  `2e3be1ece1dadff14d82e385950f09ed35b1b8fb4510f4f0acd183661b7a9bca`.
+  Its smoke SHA-256 is `f81450ee8a49c9355411bf22eddc3ef1f703ff93a5d678caea6213aaaa47318b`;
+  task-result SHA-256 is `1d90e4c8633e816ca09955c63f5eaac15261f463fd5421440708dbcb88f1ce80`;
+  generation-snapshot SHA-256 is
+  `52f9f2b05572fb6af61034189e9acb1b1870e3483fd5cf16d644d74d010992d2`;
+  and arm-science SHA-256 is
+  `57e20d525db9e97dbe6c267fd93e48dbcf9332d5df6054a745e99e639de055af`.
+- Source provenance observes exact clean commit `68873f42...`, embedded build
+  commit null as required pre-build, and scoped source SHA-256
+  `63383f88d2e01211e178889e796ba408b47c6de8fc792d9666d912bf1fa9ff6d`.
+  It exact-opened the unchanged later-source identity at generation
+  `1787367678830738`, 4,566,802 bytes and byte SHA-256
+  `c63251a3dee0b455502a8e37d03c731c671457b9b17ff41dd9249edb0bae654a`.
+- A contemporaneous read-only census proves the fresh exact tag, build filter,
+  terminal-build-receipt URI, run prefix and manifest-smoke prefix all absent.
+  Fixed job `atlas-minimal-c-s2023-w3-v1` remains Ready/idle at generation 10,
+  restored digest `sha256:3a8708...d082`, with all nine old executions
+  terminal.  No job mutation, cloud build, publication or outcome read has
+  occurred at this milestone.
+- Exact next action: submit exactly one global provider-resolved direct-Git
+  build for full source commit `68873f42...` and fresh tag
+  `corpus-r6-boom-first-allocation-68873f42-git-v1`; poll only its captured
+  build ID.  On `SUCCESS`, derive the digest only from its sole matching
+  provider result-image row, publish/validate a create-once terminal receipt,
+  and prepare only the fresh `68873f42-git-v1` run prefix.
+
+## Previous handoff -- 2026-08-29 (three-hundred-seventy-ninth update)
 
 ### Exact repair alias and all-54 preflight gate are green locally
 
