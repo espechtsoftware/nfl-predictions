@@ -30355,6 +30355,8 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 - Exact prepared recovery files are:
   `src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_aggregate_v1.py`,
   `scripts/run_corpus_r6_current_bank_terminal_root_timeout_recovery_v1.py`,
+  `Dockerfile.r6-current-bank-crossed-screen`,
+  `cloudbuild.r6-current-bank-crossed-screen.yaml`,
   `tests/test_run_corpus_r6_current_bank_terminal_root_timeout_recovery_v1.py`,
   `tests/test_corpus_r6_current_bank_crossed_screen_aggregate_execution_v1.py`,
   and `reports/2026-08-29-r6-v7-terminal-root-timeout-evidence.json`.
