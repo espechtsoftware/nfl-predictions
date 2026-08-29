@@ -20,6 +20,43 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 06:07 UTC (three-hundred-thirty-third update)
+
+### Hard-230 is terminal and fast-grade GO; recovered F7/F8/F9 selection is live
+
+- Branch `main` and `origin/main` are at `cd1cb5f1`. Hard-230 full-54 selector
+  derivation completed successfully. Its create-last terminal is generation
+  `1787983108965129`, SHA-256
+  `08fa65cc26efcae0f430a28b2eb729040ce8acfd6271984c29536cb5352cf9e4`,
+  55,023,048 bytes, terminal self-hash
+  `ee736c2eb37e20fe7b5c9ab5a44ba639810d736f356641b85c31138b62fc72cf`,
+  at `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-hard230/20260829-score-sprint-c9f12ed7-v1/selector-bridge/full-54/terminal.json`.
+- The hard-230 grade no longer repeats the same 54-slate selector derivation.
+  It exact-validates the immutable create-last terminal and still reopens and
+  binds the final root, source manifest, task-0 smoke authority, outcome
+  snapshot and ordinal-to-slate mapping before scoring. This change is
+  independently **GO**; the focused suite is **8/8 passed**, compilation and
+  scoped diff checks are green. It removes about 60--80 minutes of duplicate
+  verification without changing a book, outcome or score definition.
+- F7/F8/F9 composite collection succeeded with all 54 exact results and no
+  recomputation. Collection generation `1787983382803405`, SHA-256
+  `907388431479ecdd25015d432be98eaf0902286917cf8bb558de100e798d556e`;
+  recovery receipt generation `1787983383313963`, SHA-256
+  `ae4f5de2de7abc0c0c78944429b5aa2d76d2639d6e30ceefd8144c2e260a88ee`.
+  The crossed task manifest is generation `1787983420869413`, SHA-256
+  `c8bd694e290def0ddb4af965241e9d32d6512aa2ecdc33b5307657368d5f5139`,
+  250,875 bytes.
+- The existing shared job `atlas-minimal-c-s2023-w1-v1`, UID
+  `d6e4b8c1-5950-46b7-8869-7e34dbf29ad2`, was exact-configured at generation
+  63 for that manifest. One 54-task execution is now live:
+  `atlas-minimal-c-s2023-w1-v1-ljt5t`, UID
+  `1f41b4f2-e966-437a-9b46-55a7310a8478`, created
+  `2026-08-29T06:06:59.919788Z`. Poll only; never duplicate or relaunch it.
+- Exact next action: commit/push the independently approved hard-230 fast-grade
+  change, run the prepared grade against frozen outcome generation
+  `1787813630972164`, and publish the first common-scorecard result. In
+  parallel poll F7/F8/F9. L2b collection remains the next local selector lane.
+
 ## Current handoff — 2026-08-29 06:01 UTC (three-hundred-thirty-second update)
 
 ### F7 composite recovery real-artifact smoke found and repaired one fixture drift

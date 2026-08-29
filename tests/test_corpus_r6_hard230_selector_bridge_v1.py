@@ -492,3 +492,134 @@ def test_full54_rejects_task0_smoke_substitution_before_derivation(
             "task0_smoke_receipt_identity": _identity("smoke-receipt"),
             "output_prefix": operator._selector_output_prefix(source_manifest),
         }, store=object())
+
+
+def test_grade_reuses_create_last_terminal_without_duplicate_selector_replay(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    events: list[str] = []
+    root_identity = _identity("full-root")
+    manifest_identity = _identity("source-manifest")
+    smoke_identity = _identity("smoke-receipt")
+    later_identity = _identity("later")
+    outcome_identity = _identity("outcome")
+    output_prefix = "gs://fixture/hard230/run/selector-bridge/"
+    terminal = {
+        "terminal_uri": f"{output_prefix}full-54/terminal.json",
+        "terminal_sha256": "9" * 64,
+        "output_prefix": output_prefix,
+        "hard230_final_root_identity": root_identity,
+        "hard230_final_root_sha256": "1" * 64,
+        "hard230_source_task_manifest_identity": manifest_identity,
+        "hard230_source_task_manifest_sha256": "2" * 64,
+        "task0_smoke_receipt_identity": smoke_identity,
+        "task0_smoke_receipt_sha256": "3" * 64,
+        "later_source_identity": later_identity,
+        "slate_results": [],
+    }
+    terminal_identity = {
+        **_identity("terminal", raw_hash="a" * 64),
+        "uri": terminal["terminal_uri"],
+    }
+    root = {
+        "final_root_sha256": "1" * 64,
+        "scope_id": "full-54",
+        "scientific_task_count": 54,
+        "source_task_manifest_identity": manifest_identity,
+        "source_task_manifest_sha256": "2" * 64,
+    }
+    manifest = {
+        "later_source_freeze_identity": later_identity,
+        "output_prefix": "gs://fixture/hard230/run/",
+    }
+    smoke = {
+        "smoke_receipt_sha256": "3" * 64,
+        "source_task_manifest_identity": manifest_identity,
+        "source_task_manifest_sha256": "2" * 64,
+        "hard230_task0_final_root_identity": _identity("task0-root"),
+        "hard230_task0_final_root_sha256": "4" * 64,
+    }
+    root["required_smoke_final_root_identity"] = smoke[
+        "hard230_task0_final_root_identity"
+    ]
+    root["required_smoke_final_root_sha256"] = smoke[
+        "hard230_task0_final_root_sha256"
+    ]
+
+    monkeypatch.setattr(
+        operator,
+        "_read_json",
+        lambda *_args, **_kwargs: (terminal, terminal_identity),
+    )
+    monkeypatch.setattr(
+        operator.bridge,
+        "validate_hard230_selector_terminal_v1",
+        lambda value: events.append("terminal") or value,
+    )
+    monkeypatch.setattr(
+        operator,
+        "_open_final_root",
+        lambda *_args, **_kwargs: events.append("root")
+        or (root, root_identity, manifest),
+    )
+    monkeypatch.setattr(
+        operator,
+        "_replay_task0_smoke_authority",
+        lambda **_kwargs: events.append("smoke") or (smoke, smoke_identity),
+    )
+    monkeypatch.setattr(
+        operator,
+        "_derive_slate_results",
+        lambda **_kwargs: pytest.fail("grade duplicated selector derivation"),
+    )
+    monkeypatch.setattr(
+        operator.bridge,
+        "normalized_terminal_for_grader_v1",
+        lambda _value: events.append("normalize") or tuple(),
+    )
+    snapshot = {
+        "outcome_snapshot_sha256": "5" * 64,
+        "later_source_freeze_identity": later_identity,
+    }
+    monkeypatch.setattr(
+        operator.grader,
+        "open_outcome_snapshot_surface_v1",
+        lambda **_kwargs: events.append("outcome")
+        or (snapshot, outcome_identity, {}, {}),
+    )
+    monkeypatch.setattr(
+        operator,
+        "_validate_outcome_terminal_binding",
+        lambda **_kwargs: events.append("binding"),
+    )
+    monkeypatch.setattr(
+        operator.grader,
+        "score_normalized_slates_v1",
+        lambda **_kwargs: events.append("score") or [],
+    )
+    monkeypatch.setattr(
+        operator.grader,
+        "aggregate_normalized_slate_grades_v1",
+        lambda _grades: [],
+    )
+    monkeypatch.setattr(
+        operator,
+        "_publish_json",
+        lambda **_kwargs: events.append("publish") or _identity("grade"),
+    )
+
+    class Store:
+        @staticmethod
+        def read_exact(_identity_value: object) -> bytes:
+            raise AssertionError("patched outcome opener must own exact reads")
+
+    result = operator.grade_from_request_v1({
+        "terminal_identity": terminal_identity,
+        "outcome_snapshot_identity": outcome_identity,
+    }, store=Store())
+
+    assert result["complete"] is True
+    assert events == [
+        "terminal", "root", "smoke", "normalize", "outcome", "binding",
+        "score", "publish",
+    ]

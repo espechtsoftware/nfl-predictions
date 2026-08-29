@@ -709,7 +709,12 @@ def grade_from_request_v1(request: object, *, store: object) -> dict[str, object
     if terminal_identity["uri"] != validated["terminal_uri"]:
         _fail("hard230 selector terminal canonical URI differs")
 
-    # Exact-replay every score-free predecessor before opening outcomes.
+    # The create-last terminal was produced only after exact replay of all 54
+    # score-free predecessors.  Reopen and bind its immutable source authority
+    # here, but do not recompute the same selector lattice a second time before
+    # grading.  Terminal validation above checks every nested self-hash,
+    # coordinate, prefix, and complete 54-slate surface; the checks below bind
+    # that surface back to the exact final root and task-0 smoke authority.
     root, root_identity, source_manifest = _open_final_root(
         validated["hard230_final_root_identity"], store=store
     )
@@ -746,29 +751,6 @@ def grade_from_request_v1(request: object, *, store: object) -> dict[str, object
         != root.get("required_smoke_final_root_sha256")
     ):
         _fail("hard230 selector terminal task0 smoke authority differs")
-    replayed_results = _derive_slate_results(
-        root=root, source_manifest=source_manifest, store=store
-    )
-    replayed_terminal = bridge.build_hard230_selector_terminal_v1(
-        hard230_final_root_identity=root_identity,
-        hard230_final_root_sha256=str(root["final_root_sha256"]),
-        hard230_source_task_manifest_identity=root[
-            "source_task_manifest_identity"
-        ],
-        hard230_source_task_manifest_sha256=str(
-            root["source_task_manifest_sha256"]
-        ),
-        task0_smoke_receipt_identity=smoke_receipt_identity,
-        task0_smoke_receipt_sha256=str(
-            smoke_receipt["smoke_receipt_sha256"]
-        ),
-        later_source_identity=source_manifest["later_source_freeze_identity"],
-        output_prefix=_selector_output_prefix(source_manifest),
-        slate_results=replayed_results,
-    )
-    if _canonical(replayed_terminal) != _canonical(validated):
-        _fail("hard230 selector terminal differs from full source replay")
-
     normalized = bridge.normalized_terminal_for_grader_v1(validated)
     snapshot, snapshot_identity, player_scores, slate_keys = (
         grader.open_outcome_snapshot_surface_v1(
