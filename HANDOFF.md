@@ -20,7 +20,31 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 (three-hundred-eightieth update)
+## Current handoff -- 2026-08-29 (three-hundred-eighty-first update)
+
+### Sole exact-repair direct-Git Cloud Build is queued
+
+- Branch `main` and `origin/main` entered this milestone at pushed handoff
+  commit `17c956bc`; exact science/image source remains preflighted repair
+  commit `68873f42a6f7efbe3a2a29731812ef895d61271e`.
+- After the fresh namespace census and all-54 preflight passed, exactly one
+  global direct-Git Cloud Build was submitted.  Its sole build ID is
+  `dc81ed0c-a256-4f54-a839-e4f1fba70852`, created/queued at
+  `2026-08-29T21:31:35.468117301Z`.  Provider requested and resolved Git
+  provenance both bind
+  `https://github.com/espechtsoftware/nfl-predictions.git` at the exact full
+  source commit above; substitutions corroborate that commit.
+- The sole candidate tag is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-r6-boom-first-allocation-68873f42-git-v1`.
+  Do not submit another build if status is temporarily unavailable.  Poll only
+  build `dc81ed0c...`; accept only `SUCCESS` with exact provider source,
+  substitutions and one matching result-image digest.
+- No job mutation/launch, result publication or realized-outcome read occurred
+  at this milestone.  Exact next action: poll the sole build to terminality.
+  On `SUCCESS`, create/publish/reopen/validate its fresh terminal build receipt
+  before preparing the unused `68873f42-git-v1` run prefix.
+
+## Previous handoff -- 2026-08-29 (three-hundred-eightieth update)
 
 ### Strengthened all-54 real-artifact preflight passes at exact repair commit
 
