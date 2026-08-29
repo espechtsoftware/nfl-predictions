@@ -20,6 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 09:20 UTC (three-hundred-forty-fifth update)
+
+### Combined all-block K80 union is independently launch-GO
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `bc0ba83b`. The six-file combined incumbent + hard-230 + F7/F8/F9 union is
+  now independently **GO** after multiple adversarial repair cycles. It
+  deduplicates the combined population, runs eight frozen K80 strategies on
+  one common R0--R4 matrix, retains exact source memberships/contributions,
+  and exact-replays every source, matrix and selected book before terminal
+  publication and again before the first outcome read.
+- Runtime authority now provider-attests the successful build source and
+  image, bootstraps the exact legacy reused job by fixed name/UID only, then
+  requires strict post-update image/command/env/resources configuration. Task
+  runtime has no Cloud SDK dependency, binds reserved Cloud Run execution and
+  task metadata plus the installed job-authority hash, and collection requires
+  provider 54/54 success with every result bound to that one execution.
+  Direct isolated `python -I ... --help` succeeds. Focused validation is
+  **24/24 passed**, compile and whitespace checks clean.
+- Commit/push only the six new combined files plus this handoff. Next create a
+  bounded immutable build recipe/image, provider-attested terminal build
+  receipt, and real-artifact task-0 smoke before configuring/launching full54.
+  Do not read outcomes until its score-free terminal exists.
+- Kickoff-v3 execution `atlas-cbc-32g-full-2023-w8-v1-ltgg8` is active and
+  pending; do not release its remaining grid yet. L2b terminal collection is
+  still the one active heavy local replay. Hard-230 task-0 is green and full54
+  derive waits for that local slot.
+- Exact next action: commit the combined GO package, build its image in cloud,
+  continue L2b collection, and poll the single recourse canary.
+
 ## Current handoff — 2026-08-29 09:16 UTC (three-hundred-forty-fourth update)
 
 ### Corrected recourse canary is live; L2b score renderer is ready
