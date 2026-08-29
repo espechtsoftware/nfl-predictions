@@ -20,7 +20,48 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 21:52 UTC (three-hundred-seventy-seventh update)
+## Current handoff -- 2026-08-29 21:58 UTC (three-hundred-seventy-eighth update)
+
+### Full-54 prepare finds one exact repair-URI seam and stops before manifest
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `8cfbfe24ddd8bb693521e3a6f808b81b045344f2`; the green 78170dc9 build and
+  terminal build receipt remain valid evidence for the bytes they attest, but
+  that image must not be launched.
+- The first effective score-blind `prepare` passed source, preflight, build and
+  provider-attestation gates, then create-once published exact input snapshots
+  for ordinals 00--35 (all 2023 and 2024).  The partial prefix contains exactly
+  36 objects / 73,853,033 bytes at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-boom-first-allocation/20260829-boom-first-78170dc9-git-v1/`.
+  It published no ordinal 36+, manifest, task result, launch claim/receipt,
+  terminal, grade or outcome-bearing object.  No job was configured or
+  launched and no outcome was opened.  Treat this prefix as abandoned
+  diagnostic evidence; do not launch or blindly continue it.
+- The unique failure is source ordinal 36, `2025-w01`, block R3.  All 248
+  repair-panel candidate rows have exact contiguous indices, exact expected
+  panel/slate, exact 248-row count and SHA-256
+  `7eaef50c890150f6cdc329e80e4d68f08b4a8d2aac402fa5a51ba9ce4f860805`,
+  but truthfully name repair URI
+  `gs://nfl-predictions-503414-raw/cand_scores/20260816-atlas-mvp-repair-r3-2025-v1/2025_w1_1b661a12cf24.npz`.
+  The frozen world receipt names the original URI
+  `gs://nfl-predictions-503414-raw/cand_scores/20260815-atlas-money-worlds-r3-v1/2025_w1_0590227023eb.npz`.
+  Both objects are content-identical: same SHA above, 26,516,530 bytes, MD5
+  `F7GyhEoHcV5shf3aYWo0Cw==` and CRC32C `5d//iw==`.
+- A complete score-blind sweep of 68,199 candidate and 148,025 player rows
+  found no other mismatch: zero candidate-count, index, artifact-SHA,
+  player-empty or duplicate-player defect.  The code improperly requires the
+  repair candidate-source URI and immutable world-artifact URI to be the same
+  string despite their exact content identity and already-explicit repair
+  panel substitution.
+- Exact next action: implement and independently review a narrow alias law
+  admitted only for this exact repair key, panel, URI pair, SHA and row count;
+  retain both source identities truthfully and reject every neighboring case.
+  Commit/push, rerun the required real preflight because scoped source bytes
+  changed, submit one new provider-resolved Git build, and prepare a new fresh
+  run prefix.  Do not modify the BigQuery source, frozen world receipt, or
+  partially published prefix to disguise the seam.
+
+## Previous handoff -- 2026-08-29 21:52 UTC (three-hundred-seventy-seventh update)
 
 ### Provider-resolved boom-first image and terminal build authority are green
 
