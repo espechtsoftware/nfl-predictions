@@ -23,6 +23,7 @@ EXECUTION_SCOPE_ENV = "CORPUS_R6_L2B_SELECTOR_EXECUTION_SCOPE"
 REUSED_JOB_UID_ENV = "CORPUS_R6_L2B_SELECTOR_REUSED_JOB_UID"
 SOURCE_COMMIT_ENV = "CODE_SHA"
 IMAGE_DIGEST_ENV = "R6_RUNTIME_IMAGE_DIGEST"
+GCS_IO_TIMEOUT_SECONDS = 900
 ENTRYPOINT_COMMAND = (
     "/usr/local/bin/python3.11", "-I",
     "/app/scripts/run_corpus_r6_l2b_selector_adapter_v1.py", "dispatch-task",
@@ -106,7 +107,11 @@ class GCSExactTransportV1:
         blob = self._client.bucket(bucket_name).blob(
             object_name, generation=generation
         )
-        raw = blob.download_as_bytes(if_generation_match=generation, retry=None)
+        raw = blob.download_as_bytes(
+            if_generation_match=generation,
+            retry=None,
+            timeout=GCS_IO_TIMEOUT_SECONDS,
+        )
         if (
             type(raw) is not bytes
             or len(raw) != identity["bytes"]
@@ -127,6 +132,7 @@ class GCSExactTransportV1:
                 content_type="application/json",
                 if_generation_match=0,
                 retry=None,
+                timeout=GCS_IO_TIMEOUT_SECONDS,
             )
         except Exception as exc:  # pragma: no cover - cloud dependent
             if exc.__class__.__name__ not in {"Conflict", "PreconditionFailed"}:
@@ -732,6 +738,15 @@ def collect_operator_from_provider_results_v1(
     """Collect exact full54 task results without centralized selector replay."""
     retained_launch = panel_operator.validate_launch_result_v1(launch)
     status = status_operator_v1(launch=retained_launch, runner=runner)
+    try:
+        retained_launch, status = adapter._validate_full54_provider_authority_v1(
+            launch_result=retained_launch,
+            execution_status=status,
+        )
+    except adapter.CorpusR6L2BSelectorAdapterV1Error as exc:
+        raise RunCorpusR6L2BSelectorAdapterV1Error(
+            "provider results cannot fast-finalize before exact 54/54 success"
+        ) from exc
     manifest, identity = adapter._open_selector_manifest_v1(
         manifest_identity=manifest_identity, read_exact=store.read_exact
     )

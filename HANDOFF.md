@@ -20,6 +20,46 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 11:04 UTC (three-hundred-fifty-fourth update)
+
+### Combined realized scores are available; L2b grade needs one transport retry
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `5d84c2b5`. Combined execution `atlas-minimal-c-s2023-w3-v1-j77mw`
+  completed 54/54 in 10m04s with zero failures. Its descriptive realized
+  grade is generation `1788000433892086`, SHA-256
+  `8458337715af482d27664463fb2ed5adba7e0cf5151d6d3e9e10697c7886b139`,
+  63,755,290 bytes; internal grade SHA-256 is
+  `1454abc41aa839ff4dd31aaedd752b705a6e66d2e6966b1486ab305bd2e8dee1`.
+- Best combined K80 arm is `strict-230-coverage-v1` at 178.661481 mean
+  weekly maximum. It improves its matched incumbent selector by +1.199259,
+  but beats the actual prior 178.435185 tail-ladder champion by only +0.226296.
+  Its >=194/200/210/220/230 week counts are 10/8/4/4/2 versus the prior
+  champion's 8/6/5/4/2. Independent hash/arithmetic/census review passed, but
+  the lead over alternate combined selectors is not leave-one-week-out robust;
+  retain it as a provisional finalist, not a promotion.
+- The combined corpus ceiling is 205.792963, leaving 27.131481 mean selection
+  regret. It contains >=200 lineups in 33/54 slates (451 lineups) and >=230 in
+  7/54 (18 lineups), while strict-230 retrieves hits in only 8 and 2 slates.
+  The principal observed bottleneck is retrieval, not absence of tail lineups.
+- L2b provisional provider finalization passed and published its exact 54/54
+  terminal root at generation `1788000486279055`, SHA-256
+  `3bddf655e1e9c3ed514c1497918877ac99a9abd3c07e2b3dcb1b00f467638431`,
+  30,769 bytes. The first realized grade completed its computation but its
+  large final create-once upload failed and no grade object exists. This
+  transport lacked the already-proven grader's 900-second I/O window; it now
+  uses that exact-read/create-once timeout. Re-run only the grade; do not repeat
+  provider collection.
+- Hard-230 confirmation execution `atlas-minimal-c-s2023-w2-v1-rqt29` failed
+  score-free because gamma-4's honest capped greedy prefix cannot always reach
+  K150. A collision-free v2 repair preserves capped prefixes through K100 and
+  explicitly tail-fills only the K150 remainder; it remains in independent
+  review until the durable result records the exact completion boundary and
+  no longer presents the base hard-cap contract as the complete selector law.
+- Exact next action: commit/push the L2b 900-second transport correction,
+  re-run the provisional grade and summarize all 300 cells; finish independent
+  hard-230 v2 review/build/smoke/relaunch; keep the canonical L2b replay alive.
+
 ## Current handoff — 2026-08-29 10:32 UTC (three-hundred-fifty-third update)
 
 ### L2b fast realized scoring passed independent review
