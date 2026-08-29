@@ -20,6 +20,57 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 04:11 UTC (three-hundred-twenty-fourth update)
+
+### Combined L2b diversity smoke is live; incumbent smoke is sealed green
+
+- Branch `main` and `origin/main` entered this milestone at `e5cba050`.
+  Incumbent L2b task-0 execution `atlas-minimal-c-s2023-w3-v1-hkgsh`, UID
+  `e49f32c3-8fac-44d2-b0f6-fcd27ef5b6d4`, completed 1/1 successfully with
+  terminal status SHA-256
+  `a5e4d5dbad3629883c3fd0b9c505bfa4d16107a66806f9d5bc64d96dc59106e9`.
+  Exact collection replayed the score-free selection and sealed smoke receipt
+  generation `1787975976246935`, SHA-256
+  `2f6ac2522c44237ef5d1896212650322ba93e8c79384a7a4b7ccdd67e60649b8`,
+  3,314 bytes; receipt self-hash is
+  `35590dc8a6fadbd66131fe88a4d6aff3ea67a4ae2b3f6f48f95b90d29afc9e9f`.
+  No outcomes were opened.
+- Diversity Cloud Build `03222534-a23d-4a3e-a79d-e0a0e4b7286c`
+  succeeded from exact source commit `6c9cfd70` and published immutable image
+  digest
+  `sha256:4306bdbfcf305f97e98f349e49abf2e09881d4deda78b89bd59993b1436d4e20`.
+  Its create-once terminal build receipt is generation `1787975282303801`,
+  SHA-256
+  `22af3aa7cd3585c5d02fa3f7aab459b9724eae3b1c7eb631bf6f2c0ae1579cb9`,
+  475 bytes at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-score-sprint-builds/20260829-l2b-diversity-6c9cfd70-v1/terminal-build-receipt.json`.
+- The diversity task-0 selector manifest is generation `1787975681165588`,
+  SHA-256
+  `2678b25086f07eb67a20f36308d44b4f24ac9ef70bcefef7ac5ddc28376ae16c`,
+  66,824 bytes; manifest self-hash is
+  `60052945410c2c9aab198a095e239afd4bb11b614e5395bc881b795c93d984d0`.
+  Reused job `atlas-minimal-c-s2023-w3-v1`, fixed UID
+  `064df315-0fb5-4b86-a5f9-6c73ac1c5eb3`, was configured once from that
+  manifest after proving the incumbent execution terminal green. Diversity
+  execution `atlas-minimal-c-s2023-w3-v1-q7g9x`, UID
+  `d3537ffa-cae8-41c2-bde2-2014b5af3991`, launched once with launch SHA-256
+  `7087ca42ce4a97b946da2197607a8608fd98ed827c1638d50f9e8599d17166f1`.
+  First status is ACTIVE, zero failures, status SHA-256
+  `a43e97df35542b5e1647413ad10617ce6b1ad0a65ba6f883870666dddd0ae806`.
+- Hard-230 full54 selector derivation remains active locally from its sealed
+  immutable root. F7/F8/F9 full54 has one successful and 53 running tasks,
+  with no provider failure/cancellation evidence. Do not duplicate either
+  run. A source-readiness sweep found no additional non-active lane that can
+  already produce comparable historical scores end-to-end. The frozen
+  recourse-aware initial-book experiment is the next legitimate start after
+  V7 releases its shared job; it is score-free and still needs a separately
+  frozen realized-score bridge before entering the comparison table.
+- Exact next action: poll the diversity smoke status only; on terminal green,
+  exact-collect it, prepare the full54 manifest from that receipt, and launch
+  the single combined incumbent-plus-diversity panel. Continue hard-230
+  derivation into its exact outcome-snapshot grade, F7/F8/F9 status polling,
+  and the independently approved V7 timeout-recovery build in parallel.
+
 ## Current handoff — 2026-08-29 03:50 UTC (three-hundred-twenty-third update)
 
 ### V7 terminal-root recovery is hardened and locally green; build remains gated
