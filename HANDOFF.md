@@ -20,7 +20,39 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 21:44 UTC (three-hundred-seventy-fifth update)
+## Current handoff -- 2026-08-29 21:46 UTC (three-hundred-seventy-sixth update)
+
+### Invalid storage-source build is cancelled; exact provider-resolved Git build is queued
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `b27ca3f50f3b430c67023c20494079cd7aedf929`; exact science/build source
+  remains `78170dc92d79cf19e37b8ca399b088a73947b778`.
+- A pre-prepare operator audit found that regional build
+  `c3fcba35-b9e9-4633-8099-afb139f03e3e` could never satisfy the frozen
+  provider attestation: local `gcloud builds submit` recorded
+  `storageSource/resolvedStorageSource`, while the operator admits only paired
+  `repoSource/resolvedRepoSource` or `gitSource/resolvedGitSource`, and its
+  provider lookup is global.  That build was cancelled at
+  `2026-08-29T20:44:28.865455Z` during focused-test dependency installation,
+  before the image-build or runtime-smoke steps.  It produced no image and is
+  permanently invalid evidence; never use its ID, source object, or old `v1`
+  tag in prepare or launch.
+- After proving the replacement tag absent, one contract-compatible global
+  direct-Git build was submitted.  Its sole authoritative build ID is
+  `73ace93e-5444-44de-9444-3a24adb06c71`, queued at
+  `2026-08-29T20:45:18.405303437Z`.  Provider source and provenance both bind
+  `https://github.com/espechtsoftware/nfl-predictions.git` at exact revision
+  `78170dc92d79cf19e37b8ca399b088a73947b778`; substitutions corroborate that
+  same full commit.
+- The only candidate evidence tag for the valid build is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-r6-boom-first-allocation-78170dc9-git-v1`.
+  Poll only global build `73ace93e...`.  If and only if it succeeds, resolve
+  its immutable digest, create and publish the terminal build receipt, and
+  have the unmodified provider validator exact-reopen this same build before
+  prepare.  Do not resubmit either the regional archive build or another
+  direct-Git build while this state is available.
+
+## Previous handoff -- 2026-08-29 21:44 UTC (three-hundred-seventy-fifth update)
 
 ### Sole boom-first exact-commit Cloud Build is queued
 
