@@ -418,6 +418,9 @@ def test_boom_first_cli_and_quota_safe_manual_launch_are_registered():
     deploy = (ROOT / "deploy/deploy_jobs.sh").read_text(encoding="utf-8")
     dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
     cloudbuild = (ROOT / "cloudbuild.yaml").read_text(encoding="utf-8")
+    focused_cloudbuild = (
+        ROOT / "cloudbuild.boom-first-shadow.yaml"
+    ).read_text(encoding="utf-8")
     launch = (
         ROOT / "scripts/cloud_boom_first_paired_shadow.sh"
     ).read_text(encoding="utf-8")
@@ -439,5 +442,13 @@ def test_boom_first_cli_and_quota_safe_manual_launch_are_registered():
     assert "SOURCE_COMMIT_SHA=${_CODE_SHA}" in cloudbuild
     assert '"$IMG"' not in cloudbuild
     assert '"$$IMG"' in cloudbuild
+    assert "focused-boom-first-shadow-tests" in focused_cloudbuild
+    assert "tests/test_prospective_boom_first.py" in focused_cloudbuild
+    assert "tests/test_cloud_boom_first_paired_shadow.py" in focused_cloudbuild
+    assert "tests/test_week1_source_readiness.py" in focused_cloudbuild
+    assert "--network none" in focused_cloudbuild
+    assert "SOURCE_COMMIT_SHA=${_CODE_SHA}" in focused_cloudbuild
+    assert "PYTHONPATH=src pytest" in focused_cloudbuild
+    assert "PYTHONPATH=src pytest\n" not in focused_cloudbuild
     assert "s-shadow-boom-first" not in deploy
     assert "shadow-boom-first" not in resume

@@ -1,0 +1,96 @@
+# Bounded immutable release build for the prospective boom-first paired
+# shadow.  The repository-wide suite contains unrelated, independently
+# versioned historical experiment contracts; this gate runs the complete
+# directly affected production, provenance, launcher, and recovery surface.
+timeout: 3600s
+
+options:
+  logging: LEGACY
+  machineType: E2_HIGHCPU_8
+
+steps:
+  - id: focused-boom-first-shadow-tests
+    name: python:3.11-slim
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        printf '%s' '${_CODE_SHA}' | grep -Eq '^[0-9a-f]{40}$'
+        case '${_IMAGE}' in
+          *:boom-first-'${_CODE_SHA}') ;;
+          *) echo 'image tag must be boom-first-<full source commit>' >&2; exit 2 ;;
+        esac
+        apt-get update
+        apt-get install -y --no-install-recommends git jq libgomp1
+        pip install --no-cache-dir '.[gcp,app,dev]'
+        bash -n scripts/cloud_boom_first_paired_shadow.sh
+        PYTHONDONTWRITEBYTECODE=1 python -m compileall -q \
+          src/nfl_dfs/backtest/engine.py \
+          src/nfl_dfs/backtest/replay.py \
+          src/nfl_dfs/ingest/nflverse_job.py \
+          src/nfl_dfs/inference/live_lineups.py \
+          src/nfl_dfs/inference/multiseed_portfolio.py \
+          src/nfl_dfs/inference/production_policy.py \
+          src/nfl_dfs/inference/prospective_boom_first.py \
+          src/nfl_dfs/optimizer/lineup.py \
+          src/nfl_dfs/research/boom_first_historical_paired_v1.py \
+          src/nfl_dfs/research/boom_first_historical_replay_adapter_v1.py
+        PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src pytest -q -o addopts='' \
+          tests/test_boom_first_historical_paired_v1.py \
+          tests/test_boom_first_historical_replay_adapter_v1.py \
+          tests/test_boom_unique_fill.py \
+          tests/test_cloud_boom_first_paired_shadow.py \
+          tests/test_effective_policy_rule_inventory.py \
+          tests/test_feature_sql.py \
+          tests/test_generation_budget.py \
+          tests/test_lever_registry.py \
+          tests/test_live_multiseed.py \
+          tests/test_multiseed_portfolio.py \
+          tests/test_nflverse_job.py \
+          tests/test_optimizer.py \
+          tests/test_production_policy.py \
+          tests/test_prospective_boom_first.py \
+          tests/test_recourse_worlds.py \
+          tests/test_resume_2026_production_schedulers.py \
+          tests/test_sql_dir.py \
+          tests/test_week1_source_readiness.py
+
+  - id: build-boom-first-shadow-image
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --pull
+      - --build-arg
+      - 'SOURCE_COMMIT_SHA=${_CODE_SHA}'
+      - -t
+      - '${_IMAGE}'
+      - .
+
+  - id: isolated-boom-first-shadow-smoke
+    name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        docker run --rm --network none \
+          -e EXPECTED_SOURCE_COMMIT='${_CODE_SHA}' '${_IMAGE}' \
+          python -I -c \
+          'import os; assert os.environ["IMAGE_SOURCE_COMMIT_SHA"] == os.environ["EXPECTED_SOURCE_COMMIT"]'
+        docker run --rm --network none '${_IMAGE}' \
+          nfl-dfs shadow-boom-first-paired --help >/dev/null
+        docker run --rm --network none '${_IMAGE}' \
+          python -I -c \
+          'from nfl_dfs.inference.production_policy import ADOPTED_CLASSIC_POLICY as p; c=p.boom_first_control_environment(); t=p.boom_first_shadow_environment(); assert (c["N_LEV"], c["N_BOOM"]) == ("160", "40"); assert (t["N_LEV"], t["N_BOOM"]) == ("40", "160"); assert c["BOOM_UNIQUE_FILL"] == t["BOOM_UNIQUE_FILL"] == "0"'
+        docker run --rm --network none '${_IMAGE}' \
+          python -I -c \
+          'import pandas as pd; from importlib.metadata import version; from nfl_dfs.ingest import nflverse_job as j; out=j._normalize_destination_frame(pd.DataFrame({"jersey_number":[12.0,None]}), "rosters_weekly"); assert out["jersey_number"].tolist()[0] == "12"; assert pd.isna(out["jersey_number"].tolist()[1]); assert callable(j._weekly_roster_frame); assert version("nflreadpy") == "0.1.5"'
+        docker run --rm --network none '${_IMAGE}' \
+          python -I -c \
+          'from pathlib import Path; sql=Path("/app/sql/features/001_player_id_map.sql").read_text(); assert "unique_player_id_identity AS" in sql; assert "unique_roster_identity AS" in sql; assert "roster_fallback AS" in sql'
+
+images:
+  - '${_IMAGE}'
+
+substitutions:
+  _IMAGE: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:boom-first-unknown
+  _CODE_SHA: unknown

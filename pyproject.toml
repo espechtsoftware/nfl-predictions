@@ -25,7 +25,7 @@ gcp = [
     "google-cloud-bigquery-storage>=2.24",
     "pandas-gbq>=0.26.1",  # future BQ client versions delegate DataFrame loads to this
     "google-cloud-storage>=2.13",
-    "nflreadpy>=0.1",
+    "nflreadpy==0.1.5",
     "polars>=0.20",
 ]
 app = [

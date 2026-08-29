@@ -9,9 +9,11 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import sys
 from datetime import datetime, timezone
 from hashlib import sha256
+from numbers import Integral, Real
 
 import pandas as pd
 
@@ -39,6 +41,17 @@ INJURY_SOURCE_COLUMNS = (
     "practice_secondary_injury", "practice_status", "date_modified",
     "season_type",
 )
+WEEKLY_ROSTER_REQUIRED_COLUMNS = frozenset({
+    "season", "week", "gsis_id", "team", "position", "full_name",
+    "football_name", "last_name", "jersey_number", "game_type",
+})
+DEPTH_SNAPSHOT_REQUIRED_COLUMNS = frozenset({
+    "dt", "team", "gsis_id", "player_name", "pos_abb", "pos_rank",
+})
+NFL_TEAM_COUNT = 32
+MIN_WEEKLY_ROSTER_GSIS_IDS = 1_000
+MIN_DEPTH_SNAPSHOT_GSIS_IDS = 1_000
+MAX_DEPTH_SNAPSHOT_AGE_DAYS = 14
 
 
 def _delete_seasons(table: str, seasons: list[int]) -> None:
@@ -54,6 +67,224 @@ def _delete_seasons(table: str, seasons: list[int]) -> None:
         pass
 
 
+def _normalize_destination_frame(
+    pdf: pd.DataFrame,
+    table: str,
+) -> pd.DataFrame:
+    """Normalize source dtypes that have a stricter landed-table contract.
+
+    ``nflreadpy`` currently emits ``rosters_weekly.jersey_number`` as a
+    nullable float even though the established BigQuery column is STRING.
+    Normalize it before the incremental path deletes the season being
+    replaced, so the known schema mismatch cannot erase the old partition
+    and then fail its replacement load.  Numeric jersey values must be
+    integral; silently truncating a malformed value would weaken the source
+    contract.
+    """
+    if table != "rosters_weekly" or "jersey_number" not in pdf.columns:
+        return pdf
+
+    normalized: list[object] = []
+    for value in pdf["jersey_number"]:
+        if pd.isna(value):
+            normalized.append(pd.NA)
+        elif isinstance(value, bool):
+            raise ValueError("rosters_weekly jersey_number is boolean")
+        elif isinstance(value, Integral):
+            normalized.append(str(int(value)))
+        elif isinstance(value, Real):
+            numeric = float(value)
+            if not math.isfinite(numeric) or not numeric.is_integer():
+                raise ValueError(
+                    "rosters_weekly jersey_number is not an integer"
+                )
+            normalized.append(str(int(numeric)))
+        else:
+            normalized.append(str(value).strip())
+
+    out = pdf.copy()
+    out["jersey_number"] = pd.array(normalized, dtype="string")
+    return out
+
+
+def _weekly_roster_downloader():
+    """Return nflreadpy's downloader through one monkeypatchable seam."""
+    from nflreadpy.downloader import get_downloader
+
+    return get_downloader()
+
+
+def _prospective_source_seasons(
+    base_seasons: list[int],
+    *,
+    planning_season: int,
+    roster_year: int,
+) -> tuple[list[int], list[int]]:
+    """Resolve complete weekly-roster and snapshot-depth refresh years."""
+    roster_seasons = list(dict.fromkeys(int(value) for value in base_seasons))
+    if roster_year == planning_season and roster_year not in roster_seasons:
+        roster_seasons.append(int(roster_year))
+    snapshot_end = (
+        int(roster_year)
+        if int(roster_year) == int(planning_season)
+        else max(roster_seasons)
+    )
+    snapshot_seasons = list(range(
+        DEPTH_SNAPSHOTS_FIRST_SEASON, snapshot_end + 1,
+    ))
+    return roster_seasons, snapshot_seasons
+
+
+def _weekly_roster_frame(
+    nfl,
+    *,
+    season: int,
+    pulled_at: datetime,
+) -> pd.DataFrame:
+    """Load one exact roster season, including the supported preseason year.
+
+    nflreadpy 0.1.5 deliberately treats the NFL season as starting on the
+    Thursday after Labor Day, but nflverse publishes the new roster-year
+    weekly file months earlier.  During that bounded preseason interval the
+    public ``load_rosters_weekly`` validator rejects the already-published
+    planning-year path.  Bypass only that stale date guard while retaining
+    nflreadpy's own downloader, repository, path, cache and parquet parser.
+
+    The bypass is legal only for the exact current roster year returned by
+    nflreadpy's separate ``roster=True`` calendar.  Content is then checked
+    for a nonempty, single exact season and minimally complete GSIS roster
+    league coverage before it can reach the raw table.
+    """
+    stamp = pd.Timestamp(pulled_at)
+    if stamp.tzinfo is None:
+        raise ValueError("weekly roster pulled_at must be timezone-aware")
+    stamp = stamp.tz_convert("UTC")
+    data_season = int(nfl.get_current_season())
+    roster_season = int(nfl.get_current_season(roster=True))
+    source_path = f"weekly_rosters/roster_weekly_{int(season)}"
+    if int(season) <= data_season:
+        frame = nfl.load_rosters_weekly([int(season)])
+        source_mode = "nflreadpy-public-weekly-roster"
+    elif int(season) == roster_season == data_season + 1:
+        frame = _weekly_roster_downloader().download(
+            "nflverse-data", source_path, season=int(season),
+        )
+        source_mode = "nflreadpy-preseason-weekly-roster-path"
+    else:
+        raise ValueError(
+            f"weekly roster season {season} is outside nflreadpy data/roster "
+            f"years {data_season}/{roster_season}"
+        )
+
+    pdf = frame.copy() if isinstance(frame, pd.DataFrame) else frame.to_pandas()
+    missing = WEEKLY_ROSTER_REQUIRED_COLUMNS - set(pdf.columns)
+    if missing:
+        raise ValueError(
+            f"weekly roster {season} missing columns {sorted(missing)}"
+        )
+    observed_seasons = set(
+        pd.to_numeric(pdf["season"], errors="raise").astype(int).unique()
+    )
+    if pdf.empty or observed_seasons != {int(season)}:
+        raise ValueError(
+            f"weekly roster {season} has seasons {sorted(observed_seasons)}"
+        )
+    distinct_gsis = int(pdf["gsis_id"].dropna().nunique())
+    distinct_teams = int(pdf["team"].dropna().nunique())
+    observed_weeks = set(
+        pd.to_numeric(pdf["week"], errors="raise").dropna().astype(int)
+    )
+    if distinct_gsis < MIN_WEEKLY_ROSTER_GSIS_IDS:
+        raise ValueError(
+            f"weekly roster {season} has only {distinct_gsis} distinct "
+            "GSIS identities"
+        )
+    if distinct_teams != NFL_TEAM_COUNT:
+        raise ValueError(
+            f"weekly roster {season} has {distinct_teams} teams, "
+            f"expected {NFL_TEAM_COUNT}"
+        )
+    if not observed_weeks or 1 not in observed_weeks:
+        raise ValueError(
+            f"weekly roster {season} has weeks {sorted(observed_weeks)}; "
+            "week 1 is required"
+        )
+
+    out = pdf.copy()
+    out["nflverse_source_path"] = source_path
+    out["nflverse_source_mode"] = source_mode
+    out["nflverse_pulled_at"] = stamp
+    return out
+
+
+def _depth_snapshot_frame(
+    nfl,
+    *,
+    seasons: list[int],
+    pulled_at: datetime,
+) -> pd.DataFrame:
+    """Load and validate the current snapshot-era depth-chart artifact.
+
+    The raw snapshot table is replaced as one unit because it has no season
+    column.  Validate realistic league and identity coverage, and require a
+    recent latest snapshot for every team, before that replacement can occur.
+    Capture time is landed with every row so the feature build can reject a
+    stale table rather than silently treating it as current.
+    """
+    stamp = pd.Timestamp(pulled_at)
+    if stamp.tzinfo is None:
+        raise ValueError("depth snapshot pulled_at must be timezone-aware")
+    stamp = stamp.tz_convert("UTC")
+    frame = nfl.load_depth_charts([int(value) for value in seasons])
+    pdf = frame.copy() if isinstance(frame, pd.DataFrame) else frame.to_pandas()
+    missing = DEPTH_SNAPSHOT_REQUIRED_COLUMNS - set(pdf.columns)
+    if missing:
+        raise ValueError(
+            f"depth snapshots missing columns {sorted(missing)}"
+        )
+    if pdf.empty:
+        raise ValueError("depth snapshots are empty")
+
+    parsed_dt = pd.to_datetime(pdf["dt"], utc=True, errors="coerce")
+    valid = pdf.loc[
+        pdf["team"].notna() & pdf["gsis_id"].notna() & parsed_dt.notna()
+    ].copy()
+    valid["_parsed_dt"] = parsed_dt.loc[valid.index]
+    latest_by_team = valid.groupby("team", observed=True)["_parsed_dt"].max()
+    if len(latest_by_team) != NFL_TEAM_COUNT:
+        raise ValueError(
+            f"depth snapshots have {len(latest_by_team)} teams, "
+            f"expected {NFL_TEAM_COUNT}"
+        )
+    oldest_latest = latest_by_team.min()
+    newest_latest = latest_by_team.max()
+    if oldest_latest < stamp - pd.Timedelta(days=MAX_DEPTH_SNAPSHOT_AGE_DAYS):
+        raise ValueError(
+            "depth snapshots are stale for at least one team: oldest latest "
+            f"snapshot is {oldest_latest.isoformat()}"
+        )
+    if newest_latest > stamp + pd.Timedelta(days=1):
+        raise ValueError(
+            f"depth snapshots contain a future timestamp {newest_latest.isoformat()}"
+        )
+    recent = valid.loc[
+        valid["_parsed_dt"] >=
+        stamp - pd.Timedelta(days=MAX_DEPTH_SNAPSHOT_AGE_DAYS)
+    ]
+    distinct_gsis = int(recent["gsis_id"].nunique())
+    if distinct_gsis < MIN_DEPTH_SNAPSHOT_GSIS_IDS:
+        raise ValueError(
+            f"recent depth snapshots have only {distinct_gsis} distinct "
+            "GSIS identities"
+        )
+
+    out = pdf.copy()
+    out["nflverse_source_seasons"] = ",".join(str(value) for value in seasons)
+    out["nflverse_source_mode"] = "nflreadpy-public-depth-snapshots"
+    out["nflverse_pulled_at"] = stamp
+    return out
+
+
 def _load(df, table: str, replace_seasons: list[int] | None = None) -> None:
     """Land a nflreadpy frame (polars) in nfl_raw.
 
@@ -66,7 +297,8 @@ def _load(df, table: str, replace_seasons: list[int] | None = None) -> None:
     2014-2024 backfill in every season-scoped table (deficiency log,
     2026-07-31). A frame without a `season` column falls back to truncate
     loudly, since delete-by-season is impossible."""
-    pdf = df.to_pandas()
+    source = df.copy() if isinstance(df, pd.DataFrame) else df.to_pandas()
+    pdf = _normalize_destination_frame(source, table)
     if replace_seasons is not None:
         if "season" not in pdf.columns:
             log.warning("%s has no season column; falling back to full truncate", table)
@@ -182,6 +414,7 @@ def run(full_refresh: bool = False) -> None:
     # latest season the loaders actually serve, or offseason runs crash.
     planning_season = current_season()
     season = min(planning_season, nfl.get_current_season())
+    roster_year = int(nfl.get_current_season(roster=True))
     pulled_at = datetime.now(timezone.utc)
     seasons = list(range(settings.first_season, season + 1)) if full_refresh else [season]
     # Incremental runs replace just-loaded seasons in place; --full rebuilds
@@ -198,10 +431,30 @@ def run(full_refresh: bool = False) -> None:
     # Snapshot-format depth charts carry no season column, so they can't use
     # the delete+append path — always pull the full snapshot era (2025+,
     # small) so the truncate stays lossless.
-    snap_dc = list(range(DEPTH_SNAPSHOTS_FIRST_SEASON, season + 1))
+    roster_seasons, snap_dc = _prospective_source_seasons(
+        seasons,
+        planning_season=planning_season,
+        roster_year=roster_year,
+    )
     if snap_dc:
-        _load(nfl.load_depth_charts(snap_dc), "depth_charts_snapshots")
-    _load(nfl.load_rosters_weekly(seasons), "rosters_weekly", replace_seasons=inc)
+        _load(
+            _depth_snapshot_frame(
+                nfl, seasons=snap_dc, pulled_at=pulled_at,
+            ),
+            "depth_charts_snapshots",
+        )
+    # Before opening week the ordinary season clock still points at the
+    # completed season. Restore that raw partition and also land the exact
+    # current roster-year weekly source needed for upcoming inference.
+    roster_frames = [
+        _weekly_roster_frame(nfl, season=value, pulled_at=pulled_at)
+        for value in roster_seasons
+    ]
+    _load(
+        pd.concat(roster_frames, ignore_index=True, sort=False),
+        "rosters_weekly",
+        replace_seasons=None if full_refresh else roster_seasons,
+    )
     _load(nfl.load_schedules(), "schedules")
     _load(nfl.load_officials(), "officials")  # full snapshot, 2015+; refs feature
     _load(nfl.load_ff_playerids(), "player_ids")

@@ -20,6 +20,102 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 14:18 UTC (three-hundred-fifty-ninth update)
+
+### Boom-first release is on a bounded build gate; Week 1 source readiness is the launch blocker
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `e67f75fa`. Cloud Build `e8bbe998-eb1d-4f35-856d-0c0fb498c2c3` used the
+  clean `45b54ef379319fccb9c1c3d90b4f5daf0c6151e3` source and correctly bound
+  `_CODE_SHA` to that full commit, but the inherited repository-wide 6,636-test
+  gate accumulated unrelated Atlas/corpus-contract failures between 4% and
+  20%. Cancellation was requested at `2026-08-29T13:34:14Z` and the build
+  reached terminal `CANCELLED` at `2026-08-29T13:37:16.935105Z`, before the
+  image-build step;
+  no image, Cloud Run job, scheduler or output namespace changed. This failed
+  receipt is diagnostic evidence, not a passed release or a boom-first score.
+- New `cloudbuild.boom-first-shadow.yaml` is the bounded release recipe. It
+  runs the exact directly affected **287-test** boom-first and Week 1
+  source-readiness surface,
+  compiles the changed runtime, syntax-checks the quota-safe launcher, builds
+  the ordinary runtime with the full source SHA embedded, and runs three
+  network-isolated image checks: source-SHA parity, CLI packaging and exact
+  160/40 versus 40/160 policy allocation. It does not weaken any runner
+  invariant or bypass the required live artifact smoke. The exact bounded
+  suite is locally green, **286 passed / 1 skipped**, and the YAML structure,
+  compile, launcher syntax and packaging assertions are green.
+- A read-only 2026 Week 1 preflight found the current Sunday-main salary and
+  model registries, but the exact live runner is not source-ready. Draft group
+  `151307` contains 12 games, 24 teams and 716 salary rows; 692 are skill
+  players, of which only 439 currently resolve to GSIS identities and 253 do
+  not. `nfl_features.player_week_inference` currently has no rows at all, so
+  `upcoming_slate_features(2026, 1)` fails closed before simulation. No outcome
+  was read and no shadow was launched. Do not relax the mapping check or start
+  the paired job against this state.
+- The bounded source repair is implemented locally. NFLverse roster ingestion
+  converts integral/null `jersey_number` values to the destination nullable
+  STRING contract before any incremental delete and rejects malformed numeric
+  values. A second independent preflight found that nflreadpy 0.1.5 still calls
+  2025 the active game season and rejects its already-published 2026 weekly
+  roster path before opening Thursday. The pinned implementation now bypasses
+  only that stale calendar guard through nflreadpy's own downloader and exact
+  public path, accepts only the exact current roster year and verifies nonempty
+  single-season/week/GSIS content with exactly 32 teams and at least 1,000
+  unique identities. It restores both the deleted 2025 partition and 2026
+  planning partition, stamps source path/mode/pull time, and also validates
+  and lands the complete, recent 32-team 2026 snapshot depth source. The
+  feature build binds the fallback sources to the newest DK season, rejects
+  roster/depth captures older than 72 hours and depth snapshots older than 14
+  days, makes reviewed manual overrides authoritative, rejects conflicting or
+  NULL override authorities, and asserts one GSIS identity per mapped DK id.
+  A real score-blind source smoke returned
+  2,930 exact 2026-W1 rows, 32 teams and 2,930 nonnull GSIS ids; all jersey
+  values normalized without a malformed fractional value. The inspected
+  official roster object was 529,209 bytes, SHA-256
+  `b9e81d98f06cdfffc2f8197a6dfb35bf4f4ac756f2775513acd9f29b9f0e87ad`,
+  last modified `2026-08-29T12:55:35Z`; the source is live and therefore this
+  receipt describes the smoke, not a forever-pinned Week 1 input. A later
+  attempt to repeat the public download from the final sandbox was denied by
+  network policy; no workaround or new source claim was made, and the earlier
+  immutable receipt remains the live-source evidence for this release.
+- The live crosswalk canonicalizes provider team aliases, freezes one latest
+  DK identity per id, requires uniqueness in the primary player-id source,
+  admits only unique exact roster/depth name + canonical-team + position
+  identities, and carries three explicitly reviewed name aliases. Ambiguity,
+  stale-team conflicts, position conflicts and unsupported long-snapper roles
+  remain unmapped. Five independently verified exact name aliases are admitted
+  only through unique canonical-team and position identities. Production-
+  schema BigQuery dry-run validation of the preceding SQL revision succeeded
+  with zero bytes processed; the new receipt-column assertions must receive
+  their final BigQuery validation only after the repaired ingest adds those
+  columns. The currently landed DK group remains the stale
+  August 20 snapshot; the latest green DK job reported no upcoming group and
+  therefore refreshed nothing. It is not launch authority even after the
+  crosswalk repair; a fresh DK pull and exact post-refresh census are mandatory.
+- Read-only deployment preflight confirmed that the four relevant jobs still
+  run old immutable digests; no repaired code has reached production. Update
+  only the image of `ingest-nflverse`, `ingest-dk`, `build-features`, and
+  `project-slate`, preserving exact UIDs, commands, resources, retries,
+  timeouts, environment and secrets. The global scan across all 30 Cloud
+  Scheduler locations found zero references to reusable job
+  `atlas-minimal-c-smoke`; scan again immediately before a paired launch.
+  The existing generic incremental replacement remains delete-then-append and
+  therefore is not fully atomic against an unforeseen post-validation load
+  failure. The known jersey/schema failure is now caught before deletion, but
+  this residual transport risk remains explicit and should be hardened after
+  the bounded Week 1 release rather than hidden.
+- Exact next action: exact-stage the build recipe, source repair, focused tests
+  and these records; commit/push them and upload a **new clean source archive**.
+  Do not reuse the `45b54ef3` archive because it cannot contain the Week 1
+  repair or its new test. Build once from the new full commit and record the
+  terminal immutable image digest. Update only the governed ingest/feature
+  jobs needed for the repair, refresh active 2026 NFLverse/DK inputs and run
+  the ordinary leakage-checked feature build, then use `nfl-dfs project` plus
+  a direct inference/mapping census as the fail-closed proof. Launch one
+  unscheduled paired artifact smoke only after both the image and 2026 input
+  gates are green; immediately verify exact reusable-job restoration and
+  record all immutable receipts here.
+
 ## Current handoff -- 2026-08-29 12:53 UTC (three-hundred-fifty-eighth update)
 
 ### NFL2 boom-first finding is integrated as an isolated production shadow
