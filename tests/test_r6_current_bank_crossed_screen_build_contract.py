@@ -61,6 +61,7 @@ RUNNERS = (
     "scripts/run_corpus_r6_current_bank_crossed_screen_evaluation_v1.py",
     "scripts/run_corpus_r6_current_bank_crossed_screen_aggregate_v1.py",
     "scripts/run_corpus_r6_current_bank_crossed_screen_task_dispatcher_v1.py",
+    "scripts/run_corpus_r6_current_bank_terminal_root_timeout_recovery_v1.py",
     "scripts/run_corpus_r6_current_bank_selector_successor_cloud_v1.py",
     "scripts/run_corpus_r6_current_bank_selector_successor_evaluation_cloud_v1.py",
     "scripts/run_corpus_r6_current_bank_selector_successor_v1.py",
@@ -95,6 +96,7 @@ FOCUSED_TESTS = (
     "tests/test_corpus_r6_current_bank_crossed_screen_aggregate_execution_v1.py",
     "tests/test_corpus_r6_current_bank_crossed_screen_task_manifest_execution_v1.py",
     "tests/test_corpus_r6_current_bank_crossed_screen_task_dispatcher_v1.py",
+    "tests/test_run_corpus_r6_current_bank_terminal_root_timeout_recovery_v1.py",
     "tests/test_corpus_r6_current_bank_selector_successor_v1.py",
     "tests/test_corpus_r6_current_bank_selector_successor_cloud_v1.py",
     "tests/test_corpus_r6_current_bank_selector_successor_evaluation_v1.py",
@@ -226,7 +228,7 @@ def test_image_smoke_uses_fixed_isolated_dispatcher_and_no_network() -> None:
     source = BUILD_CONFIG.read_text(encoding="utf-8")
     smoke = source.split("id: smoke-isolated-dispatcher-boundary", 1)[1]
     normalized_smoke = " ".join(smoke.replace("\\\n", " ").split())
-    assert smoke.count("docker run --rm --network=none '${_IMAGE}'") == 3
+    assert smoke.count("docker run --rm --network=none '${_IMAGE}'") == 5
     assert " ".join(CANONICAL_DISPATCHER) in normalized_smoke
     assert "Path(nfl_dfs.__file__).resolve() == root/'src/nfl_dfs/__init__.py'" in smoke
     assert "'PYTHONPATH' not in os.environ" in smoke
@@ -239,6 +241,8 @@ def test_image_smoke_uses_fixed_isolated_dispatcher_and_no_network() -> None:
     assert "hc.CONTROLLER_ENTRYPOINT_COMMAND" in smoke
     assert "corpus_r6_l2b_selector_adapter_v1 as l2s" in smoke
     assert "scripts/run_corpus_r6_l2b_selector_adapter_v1.py" in smoke
+    assert "run_corpus_r6_current_bank_terminal_root_timeout_recovery_v1.py" in smoke
+    assert "corpus-r6-v7-terminal-root-timeout-recovery-failure/v1" in smoke
     assert f"/app/{DISPATCHER} --help" in normalized_smoke
     assert "task dispatcher failed closed: dispatcher kernel command token count differs" in smoke
     assert "task dispatcher failed closed: dispatcher requires exact R6_CURRENT_BANK_TASK_DISPATCH_ENABLED=1" in smoke

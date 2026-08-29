@@ -20,6 +20,54 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 03:50 UTC (three-hundred-twenty-third update)
+
+### V7 terminal-root recovery is hardened and locally green; build remains gated
+
+- Branch `main` and `origin/main` entered this milestone at `48d17e1b`.
+  Independent review placed the first recovery draft at **NO-GO** before any
+  build step or Cloud Run mutation. Cloud Build
+  `453cec28-2b7a-40be-932b-56a769b3522a` was cancelled while still `QUEUED`;
+  no step ran and no replacement image was built. No recovery amendment,
+  build receipt, launch ownership, execution claim, job reconfiguration, or
+  replacement execution exists.
+- The revised carrier now hard-pins the exact failed task-terminal authority,
+  original terminal manifest/request/process budget, layer receipts 00--06,
+  original image/commit, canonical child command and hash, read/write
+  allowlist hashes, job/UID, and fixed six-object recovery topology. It
+  exact-opens launch ownership, performs the sole create-once execution claim
+  before any frozen/scientific authority read, and generation-proves that
+  claim. A collision is terminal and can never reopen or relicense the launch.
+- The replacement clean-build receipt is at the fixed separate runtime-image
+  authority URI. Runtime validation reproduces the recovery source hash and
+  publisher source hash from `/app`, normalizes only the one 5,400-to-1,800
+  publisher constant back to frozen SHA-256
+  `075c0b29c17b7d8376a775f80ce7863fd1f060ed2f9522eb10561a2d6f93ff35`,
+  and binds a nonempty successful build, clean source archive, new commit,
+  new immutable image digest, focused tests, build-context contract, and
+  isolated no-network image smoke.
+- The wrapper read-path regression proves exactly **252 of 256** available
+  exact GETs before child execution: three recovery authorities, the full
+  original terminal-manifest replay with 219 predecessor terminal records,
+  and the exact request/failed-terminal/publisher-budget opens. Claim and
+  terminal evidence use separate one-write transports sharing one end-to-end
+  deadline; both successful creates are exact-generation proved. Rehashed
+  authority drift and claim-collision ordering are covered behaviorally.
+- Validation at this milestone: **52 passed** across the recovery, dedicated
+  build contract, aggregate execution, task-manifest execution, and frozen
+  dispatcher suites; `py_compile` and `git diff --check` are green. The
+  dedicated gcloud allowlist now includes both the recovery runner and its
+  test, and the isolated image smoke executes the recovery boundary with
+  network disabled and requires a preclient fail-closed result.
+- Exact next action: commit and push only the five scoped recovery/build files
+  plus this handoff, obtain independent reviewer **GO**, and only then build
+  one immutable image from a clean archive of that exact commit. Do not build,
+  mint authorities, configure, or launch before GO. After GO, publish the
+  exact build receipt, amendment, and one launch-ownership marker; recheck the
+  idle fixed job/UID; configure and submit once; status-poll without logs; on
+  terminal success publish the fixed terminal/finalize receipts and stop
+  before any realized bridge read.
+
 ## Current handoff — 2026-08-29 03:18 UTC (three-hundred-twenty-second update)
 
 ### Diversity selectors are release-GO; two new full historical lanes are advancing

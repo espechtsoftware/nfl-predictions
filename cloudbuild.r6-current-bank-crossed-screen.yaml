@@ -130,6 +130,11 @@ steps:
           /usr/local/bin/python3.11 -I -c \
           "from pathlib import Path; from nfl_dfs.research import corpus_r6_current_bank_crossed_screen_aggregate_v1 as a; assert a.MAXIMUM_PUBLISHER_WALL_SECONDS == 5400; assert Path('/app/scripts/run_corpus_r6_current_bank_terminal_root_timeout_recovery_v1.py').is_file()"
         set +e
+        recovery_output="$$(docker run --rm --network=none '${_IMAGE}' \
+          /usr/local/bin/python3.11 -I \
+          /app/scripts/run_corpus_r6_current_bank_terminal_root_timeout_recovery_v1.py \
+          2>&1)"
+        recovery_status="$$?"
         help_output="$$(docker run --rm --network=none '${_IMAGE}' \
           /usr/local/bin/python3.11 -I \
           /app/scripts/run_corpus_r6_current_bank_crossed_screen_task_dispatcher_v1.py \
@@ -138,8 +143,13 @@ steps:
         closed_output="$$(docker run --rm --network=none '${_IMAGE}' 2>&1)"
         closed_status="$$?"
         set -e
+        test "$$recovery_status" -eq 1
         test "$$help_status" -eq 1
         test "$$closed_status" -eq 1
+        case "$$recovery_output" in
+          *'"schema_version":"corpus-r6-v7-terminal-root-timeout-recovery-failure/v1"'*'"stage":"preclient"'*) ;;
+          *) printf '%s\n' "$$recovery_output" >&2; exit 1 ;;
+        esac
         case "$$help_output" in
           *"task dispatcher failed closed: dispatcher kernel command token count differs"*) ;;
           *) printf '%s\n' "$$help_output" >&2; exit 1 ;;
