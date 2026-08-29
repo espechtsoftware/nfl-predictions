@@ -20,6 +20,37 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 04:22 UTC (three-hundred-twenty-sixth update)
+
+### The project is now a score-first sprint with a hard 2026-09-04 system freeze
+
+- The owner set a hard objective: complete every source-ready,
+  scientifically distinct preseason historical comparison and freeze the
+  production system by **2026-09-04**. From 2026-09-05 onward, admit only
+  rehearsal and critical correctness fixes; do not add new strategy arms.
+- The critical path is limited to realized historical evidence: weekly
+  best-of-book score against the frozen `176.1` legacy and `178.4` current-R6
+  references, threshold attainment at 194/200/220/230, and corpus ceiling
+  reported separately from selector performance. Neo4j, UI work, optional
+  infrastructure, and documentation polish must not delay that score table.
+- Four distinct evidence lanes are live: hard-230 full-panel selector replay;
+  F7/F8/F9 full-54 population-by-selector execution; combined L2b incumbent
+  plus diversity smoke leading to its full-54 run; and the V7 control-chain
+  timeout recovery. Do not duplicate or perturb any active execution.
+- A source-only parallel task is implementing the missing realized bridge for
+  the frozen recourse-aware initial-book arm. It must not open outcomes or
+  launch cloud work. If the recourse score-free gate passes after the shared
+  job is released, the bridge should let that arm enter the same 54-slate
+  comparison rather than end as an unscored proxy result.
+- The other assistant's rapid-strategy results are expected in about one day.
+  Intake must reproduce the strongest testable finalists under the frozen
+  harness immediately, not restart broad infrastructure work.
+- Exact next action: finish and grade hard-230 (the nearest score-bearing
+  lane), continue status-only monitoring of the three cloud lanes, launch
+  their already-defined successors at terminal green, then rank every
+  comparable finalist and freeze the winner by September 4. Do not claim a
+  new score until its immutable grade object exists.
+
 ## Current handoff — 2026-08-29 04:20 UTC (three-hundred-twenty-fifth update)
 
 ### V7 timeout recovery is independently GO, built, and launched exactly once
