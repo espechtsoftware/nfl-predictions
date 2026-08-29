@@ -20,6 +20,58 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 18:53 UTC (three-hundred-seventieth update)
+
+### Complete-union frontier full54 is live from the reviewed immutable image
+
+- Branch `main` and `origin/main` are at pushed commit
+  `28db339e95ba74703b2ebf8fbb4eb84dff8ddad7`.  Clean-archive Cloud Build
+  `800f1d68-5048-407b-b1df-667334a2562c` succeeded in 4m21s: all 52 bounded
+  tests, image construction and the three network-isolated runtime smokes
+  passed.  The immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ea86077d5f899b4e2dc7b24e3e0a583b881b8557b9f6465dcca4cfbbdab544fc`.
+  The exact local Git archive SHA-256 was
+  `0d9662a1881cbb5fab2a861debb144db0c4b0948cb02ae914ea44a5b4c8ebfa5`.
+- Its create-once terminal build receipt is generation `1788029409285463`,
+  SHA-256 `422bc0f70053b523c0d25bfedb4ff738adc2bd4ee7f6eb564eb8da1bd94d0689`,
+  481 bytes at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-score-sprint-builds/20260829-combined-frontier-28db339e-v1/terminal-build-receipt.json`.
+  Score-blind prepare published the 54-slate manifest at generation
+  `1788029467812121`, SHA-256
+  `206a4dde7203bbd62b1ff6c6beee10ece26580c51650732132a0a7f8df08f114`,
+  55,096 bytes; manifest self-hash is
+  `403f989606688bf533284cc9a03b2323d1a55d852c164d599f9d000040945e93`.
+- The manifest-bound real task-0 smoke passed before configuration with smoke
+  SHA-256 `0996f8862b0a9ffcfad23f2e79d751173c5143058145a3b701f6058785bb0fa4`.
+  It reproduced the pre-build 5,843-row union, exact top-250 sieve, 127 novel
+  candidates and 12 books; it opened no outcome column and published nothing.
+- Reused job `atlas-minimal-c-s2023-w3-v1`, immutable UID
+  `064df315-0fb5-4b86-a5f9-6c73ac1c5eb3`, was configured to 54 tasks and 54
+  parallelism, 8 CPU/32 GiB, zero retries and 21,600-second timeout.  The sole
+  launch is execution **`atlas-minimal-c-s2023-w3-v1-ssk9n`**.  Job observation
+  SHA-256 is
+  `6425e33496ab3755aab131d208f20e29dd2353a80f10da0a1ab12ca08c60e879`.
+  Do not launch it again.
+- Restoration target after score-free collection is the prior combined job:
+  image tag `corpus-r6-combined-all-block-170b7b4e-v2` at digest
+  `sha256:3a8708052364559e5113e8ba83d773b53669234d8351e3fe2eff8e723241d082`,
+  command `/usr/local/bin/python3.11`, args
+  `-I /app/scripts/run_corpus_r6_combined_population_all_block_v1.py task`,
+  commit `170b7b4ee13033bfda9021985ba9472a1b9963ac`, the prior manifest identity
+  `{"bytes":316754,"generation":"1787998895444358","sha256":"6fb9fca06548ada5fe19fa8ff73712284f92a32d592e95bcad913eed5289e8c2","uri":"gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-combined-population-all-block/20260829-score-sprint-170b7b4e-v2/full54/task-manifest.json"}`,
+  54 tasks/parallelism, 8 CPU/32 GiB, zero retries, 21,600 seconds and
+  compute-default service account.  Restore exactly six environment variables:
+  the prior enable value
+  `I_UNDERSTAND_HISTORICAL_FINALIST_CONFIRMATION_V1`, that manifest identity,
+  `GOOGLE_CLOUD_PROJECT=nfl-predictions-503414`, the commit above,
+  `R6_RUNTIME_IMAGE_DIGEST` above and prior job-authority SHA-256
+  `c04bb0808e5866aaeb362a6d1bbb332dd2f749fe02f9145dbbc27e1e44daf5d8`.
+- Exact next action: raw-provider poll execution `...-ssk9n` without relaunch.
+  At exact 54/54 success, run collector while the frontier job configuration
+  is still current; then restore the prior job configuration; only after the
+  score-free terminal exists and restoration is verified, grade against the
+  already-frozen catalog-wide outcome snapshot and report all 12 books.
+
 ## Current handoff -- 2026-08-29 18:27 UTC (three-hundred-sixty-ninth update)
 
 ### Boom-first evidence accepted for a matched production-shaped test; complete-union smoke is green
