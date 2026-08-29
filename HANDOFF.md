@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 16:48 UTC (three-hundred-sixty-fourth update)
+
+### Fixed-G0 catalog recovery is code-ready and remains publication-parked
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `d89fcfd6b246986b72d945d97b2763421a12147c`. The scoped catalog-recovery
+  implementation now centralizes deterministic create-once body binding in
+  `publish_create_once_resumable_v1`; each output body is bound exactly once
+  before any current-generation lookup or atomic create, and the wrapper and
+  receipt paths no longer duplicate that callback.
+- The coherent eight-file seam consists of the fixed-G0 adapter and projection
+  successor, the recovery operator and its two CLIs, and their three focused
+  test modules. A fresh combined no-bytecode/no-cacheprovider run passed
+  **200/200** tests (125 adapter, 26 successor, 49 recovery). Targeted diff and
+  whitespace checks are clean. No cloud object or realized outcome was read or
+  written.
+- The recovery CLI honestly reports `publication-parked`. Seven required
+  smoke/census/JUnit/receipt/review-lock/final-lock/attempt artifacts do not
+  yet exist, and downstream publication still requires the outer-attestation
+  pin. This code-ready state is not a published catalog or candidate-authority
+  root.
+- Exact next action: commit this eight-file slice with this handoff, reproduce
+  it from a clean isolated worktree, and generate/review the seven authority
+  artifacts in their required order. Only after the final lock and attempt
+  authority pass may the catalog pair be published and generation-exact
+  reopened; then bind the candidate-authority and 54-slate capture-plan roots
+  to that exact outer catalog authority.
+
 ## Current handoff -- 2026-08-29 16:35 UTC (three-hundred-sixty-third update)
 
 ### V7 consumed-recovery failure is narrowed past the complete pre-child boundary

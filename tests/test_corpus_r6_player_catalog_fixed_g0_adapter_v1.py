@@ -913,7 +913,9 @@ def _fixture_graph() -> FixtureGraph:
             "effective_policy_classified_input_projection_sha256": completion[
                 "effective_policy_classified_input_projection_sha256"
             ],
-            "world_schedule": [],
+            "world_schedule": _opaque(
+                "world-schedule", 110_000 + source_ordinal
+            ),
             "world_seed": 100_000 + source_ordinal,
             "solver": {"fixture": True},
             "execution": {"fixture": True},
@@ -2912,9 +2914,26 @@ def test_generation_exact_reader_rejects_body_drift() -> None:
 
 def test_create_once_new_object_uses_literal_zero_and_exact_reopens() -> None:
     store = FakeGenerationStore()
-    identity = adapter.publish_create_once_resumable_v1(
-        "gs://fixture/output/object.json", b"body", transport=store.transport()
+    expected_binds: list[tuple[str, bytes]] = []
+
+    def bind_expected_create(uri: str, raw: bytes) -> None:
+        # The recovery transport must know the deterministic body before the
+        # first current-generation lookup or atomic-create request.
+        assert store.resolve_calls == []
+        assert store.create_calls == []
+        expected_binds.append((uri, raw))
+
+    transport = adapter.GenerationTransportV1(
+        reload_generation=store.reload_generation,
+        download_generation=store.download_generation,
+        resolve_current=store.resolve_current,
+        create_if_absent=store.create_if_absent,
+        bind_expected_create=bind_expected_create,
     )
+    identity = adapter.publish_create_once_resumable_v1(
+        "gs://fixture/output/object.json", b"body", transport=transport
+    )
+    assert expected_binds == [("gs://fixture/output/object.json", b"body")]
     assert store.create_calls == [
         ("gs://fixture/output/object.json", b"body", 0)
     ]
@@ -3097,6 +3116,57 @@ def test_task_carrier_exact_reopen_rejects_invalid_embedded_self_hash(
         adapter.CorpusR6FixedG0AdapterV1Error,
         match="self-hash differs",
     ):
+        _reopen_fixture_task_zero(
+            graph,
+            member=member,
+            terminal=terminal,
+            completion=completion,
+        )
+
+
+def test_task_carrier_rejects_non_identity_world_schedule(
+    graph: FixtureGraph,
+) -> None:
+    carrier = deepcopy(graph.bodies["task_carriers"][0])
+    carrier["world_schedule"] = []
+    carrier = _with_hash(
+        {
+            key: value
+            for key, value in carrier.items()
+            if key != "task_result_sha256"
+        },
+        "task_result_sha256",
+    )
+    old_carrier = graph.bodies["members"][0]["carrier_identity"]
+    carrier_identity = graph.store.seed_json(str(old_carrier["uri"]), carrier)
+
+    acceptance = deepcopy(graph.bodies["task_acceptances"][0])
+    acceptance["task_result"] = carrier_identity
+    acceptance = _with_hash(
+        {
+            key: value
+            for key, value in acceptance.items()
+            if key != "task_acceptance_sha256"
+        },
+        "task_acceptance_sha256",
+        transport=True,
+    )
+    old_acceptance = graph.bodies["members"][0]["task_acceptance_identity"]
+    acceptance_identity = graph.store.seed_json(
+        str(old_acceptance["uri"]), acceptance, transport=True
+    )
+    member = deepcopy(graph.bodies["members"][0])
+    member["carrier_identity"] = carrier_identity
+    member["task_acceptance_identity"] = acceptance_identity
+    terminal = deepcopy(graph.bodies["lane_terminals"][0])
+    terminal["task_acceptances"][0] = acceptance_identity
+    completion = deepcopy(graph.bodies["lane_completions"][0])
+    completion["task_results"][0]["task_result_object"] = carrier_identity
+    completion["task_results"][0]["task_result_sha256"] = carrier[
+        "task_result_sha256"
+    ]
+
+    with pytest.raises(adapter.CorpusR6FixedG0AdapterV1Error):
         _reopen_fixture_task_zero(
             graph,
             member=member,

@@ -613,6 +613,7 @@ ReloadGeneration = Callable[[str, str], Mapping[str, object]]
 DownloadGeneration = Callable[[str, str], bytes]
 ResolveCurrent = Callable[[str], Mapping[str, object]]
 CreateIfAbsent = Callable[[str, bytes, int], Mapping[str, object]]
+BindExpectedCreate = Callable[[str, bytes], None]
 
 
 class CorpusR6FixedG0AdapterV1Error(ValueError):
@@ -640,6 +641,7 @@ class GenerationTransportV1:
     download_generation: DownloadGeneration
     resolve_current: ResolveCurrent
     create_if_absent: CreateIfAbsent
+    bind_expected_create: BindExpectedCreate | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -900,6 +902,8 @@ def publish_create_once_resumable_v1(
         _fail("create-once URI must name one GCS object")
     if type(raw) is not bytes or not raw:
         _fail("create-once body must be nonempty bytes")
+    if transport.bind_expected_create is not None:
+        transport.bind_expected_create(retained_uri, raw)
 
     try:
         current = transport.resolve_current(retained_uri)
@@ -2680,6 +2684,10 @@ def _reopen_task_acceptance_and_carrier_v1(
     expected_world_set_sha256 = canonical_sha256(worlds)
     if worlds != expected_worlds:
         _fail(f"task evidence[{source_ordinal}] world identities differ")
+    _normalized_identity(
+        carrier["world_schedule"],
+        label=f"task evidence[{source_ordinal}] world schedule identity",
+    )
     if (
         carrier["world_artifact_receipt_set_sha256"]
         != expected_world_set_sha256
@@ -2718,8 +2726,6 @@ def _reopen_task_acceptance_and_carrier_v1(
         or not isinstance(carrier["immutable_image"], Mapping)
         or not isinstance(carrier["solver"], Mapping)
         or not isinstance(carrier["execution"], Mapping)
-        or not isinstance(carrier["world_schedule"], Sequence)
-        or isinstance(carrier["world_schedule"], (str, bytes))
         or type(carrier["world_seed"]) is not int
     ):
         _fail(f"task evidence[{source_ordinal}] carrier differs")
@@ -4735,9 +4741,11 @@ def _publish_pinned_projection_release_v1(
     receipt = _build_replay_receipt_v1(
         inputs=inputs, release_identity=release_identity, release=release
     )
+    receipt_uri = f"{inputs.catalog_namespace}{REPLAY_RECEIPT_FILENAME}"
+    receipt_raw = canonical_json_bytes(receipt)
     receipt_identity = publish_create_once_resumable_v1(
-        f"{inputs.catalog_namespace}{REPLAY_RECEIPT_FILENAME}",
-        canonical_json_bytes(receipt),
+        receipt_uri,
+        receipt_raw,
         transport=transport,
     )
     reopened_receipt = _parse_canonical_json(

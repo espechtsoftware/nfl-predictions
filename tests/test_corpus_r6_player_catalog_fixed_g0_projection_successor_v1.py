@@ -19,14 +19,15 @@ def _rehash(value, field):
 
 def _repo_and_head():
     repository = adapter.SubprocessGitRepositoryV1()
-    return repository, repository.require_current_clean_head()
+    head = repository._run(["rev-parse", "HEAD"], label="successor test HEAD")
+    return repository, head.decode("ascii").strip()
 
 
 def _focused_output(*, duration=b"0.20"):
     first = 74
     second = 74
     final = successor.EXPECTED_FOCUSED_CASE_COUNT - first - second
-    assert final == 2
+    assert final == 3
     return (
         b"." * first + b" [ 49%]\n"
         + b"." * second + b" [ 98%]\n"
@@ -188,7 +189,7 @@ def test_static_case_counts_preserve_adapter_count_and_pin_successor_count():
     assert _static_pytest_case_count(
         root / successor.TEST_PATH
     ) == successor.EXPECTED_SUCCESSOR_CASE_COUNT
-    assert successor.EXPECTED_FOCUSED_CASE_COUNT == 150
+    assert successor.EXPECTED_FOCUSED_CASE_COUNT == 151
 
 
 def test_focused_argv_has_one_effective_quiet_flag_and_exact_environment():
@@ -225,7 +226,7 @@ def test_adapter_source_and_fixture_pin_false_top_level_claim():
 
 def test_focused_output_accepts_exact_wrapped_progress_and_summary():
     assert successor._focused_output(_focused_output()) == {
-        "passed_test_count": 150,
+        "passed_test_count": successor.EXPECTED_FOCUSED_CASE_COUNT,
         "exit_code": 0,
     }
 
@@ -244,9 +245,10 @@ def test_focused_output_rejects_incomplete_case_count():
 
 def test_focused_output_rejects_warning_skip_or_extra_line():
     exact = _focused_output()
+    passed = str(successor.EXPECTED_FOCUSED_CASE_COUNT).encode("ascii")
     variants = (
-        exact.replace(b"150 passed in", b"150 passed, 1 warning in"),
-        exact.replace(b"150 passed in", b"149 passed, 1 skipped in"),
+        exact.replace(passed + b" passed in", passed + b" passed, 1 warning in"),
+        exact.replace(passed + b" passed in", b"150 passed, 1 skipped in"),
         exact + b"extra\n",
         exact[:-1],
     )
@@ -263,7 +265,7 @@ def test_review_lock_round_trip_preserves_consumed_attempt_accounting():
         implementation_measurements=measurements,
         evidence=evidence,
         focused_output_file=focused,
-        focused_pass_count=150,
+        focused_pass_count=successor.EXPECTED_FOCUSED_CASE_COUNT,
     )
     assert review["adapter_attempt_count"] == 2
     assert review["projection_attempt_count"] == 1
@@ -285,7 +287,7 @@ def test_review_lock_rejects_coherent_early_projection_license():
             implementation_measurements=measurements,
             evidence=evidence,
             focused_output_file=focused,
-            focused_pass_count=150,
+            focused_pass_count=successor.EXPECTED_FOCUSED_CASE_COUNT,
         )
 
 
@@ -300,7 +302,7 @@ def test_review_lock_rejects_coherent_prior_failure_erasure():
             implementation_measurements=measurements,
             evidence=evidence,
             focused_output_file=focused,
-            focused_pass_count=150,
+            focused_pass_count=successor.EXPECTED_FOCUSED_CASE_COUNT,
         )
 
 
@@ -419,7 +421,7 @@ def test_review_resolver_rejects_current_runtime_drift(monkeypatch):
         focused_output_file=successor._binding(
             successor.FOCUSED_OUTPUT_PATH, focused_raw
         ),
-        focused_pass_count=150,
+        focused_pass_count=successor.EXPECTED_FOCUSED_CASE_COUNT,
         independent_static_review_passed=True,
     )
     lock_raw = successor.canonical_bytes(lock) + b"\n"

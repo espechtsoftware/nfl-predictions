@@ -116,7 +116,7 @@ FOCUSED_TEST_CWD: Final = "/tmp/nfl-r6-catalog-projection-successor-v1"
 FOCUSED_TEST_PYTHONPATH: Final = (
     "/tmp/nfl-r6-catalog-projection-successor-v1/src"
 )
-EXPECTED_ADAPTER_CASE_COUNT: Final = 124
+EXPECTED_ADAPTER_CASE_COUNT: Final = 125
 EXPECTED_SUCCESSOR_CASE_COUNT: Final = 26
 EXPECTED_FOCUSED_CASE_COUNT: Final = (
     EXPECTED_ADAPTER_CASE_COUNT + EXPECTED_SUCCESSOR_CASE_COUNT
