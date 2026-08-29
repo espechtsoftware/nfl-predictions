@@ -277,6 +277,33 @@ def test_configure_transitions_legacy_job_by_identity_then_strict_observation(
     assert result["job_observation"] is strict
 
 
+def test_provider_update_attaches_dash_prefixed_dispatcher_args(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[list[str], bool]] = []
+    monkeypatch.setattr(
+        op.subprocess,
+        "run",
+        lambda command, *, check: calls.append((command, check)),
+    )
+    op.GCloudRunProviderV1().update_existing_job({
+        "reused_job_name": op.execution.FIXED_REUSED_JOB_NAME,
+        "container_environment": {"A": "B"},
+        "immutable_image_uri": "example.invalid/image@sha256:" + "a" * 64,
+        "task_count": 54,
+        "parallelism": 54,
+        "timeout_seconds": 21600,
+        "cpu": "8",
+        "memory": "32Gi",
+        "container_command": ["/usr/local/bin/python3.11"],
+        "container_args": ["-I", "/app/scripts/operator.py", "task"],
+    })
+    assert len(calls) == 1 and calls[0][1] is True
+    command = calls[0][0]
+    assert "--args=-I,/app/scripts/operator.py,task" in command
+    assert "--args" not in command
+
+
 def test_provider_build_attestation_rejects_fabricated_success_receipt() -> None:
     receipt = {
         "build_id": "build-1", "source_commit": "a" * 40,

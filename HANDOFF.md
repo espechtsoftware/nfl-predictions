@@ -20,6 +20,40 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 09:55 UTC (three-hundred-fiftieth update)
+
+### Combined all-block full54 is live
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `7e058907`. Bounded build `76a2ee3c-8e25-463c-920b-3446787e3d0f`
+  succeeded from exact Git revision `b5becb8e21204432d69b40c08ee6420e23eb4998`;
+  immutable image digest is
+  `sha256:12187ecebeebe16bb8afb9138a64d20dc3cdf780a563c4417de45b2bb7d470c1`.
+  Its create-once build receipt is generation `1787996326708187`, SHA-256
+  `1db08da840e5a7777a698af4b28e876ea77d764eab86ea7c701dc7346ff73999`,
+  490 bytes.
+- Exact source prepare passed and published the 54-slate task manifest at
+  generation `1787997054177598`, SHA-256
+  `89c9ef987434aec9ae61203fb1dd00f772554cda81ce31608e332e936d8874e1`,
+  316,754 bytes. The fixed reused job was configured to the exact 54-task,
+  54-parallel, 8-CPU/32-GiB, zero-retry, six-hour-timeout authority and launched
+  once as `atlas-minimal-c-s2023-w3-v1-l9khv`. Last provider state was waiting
+  to start, with image imported and no failure.
+- Configure exposed one operator-only gcloud syntax defect: a dash-prefixed
+  container argument must be emitted as `--args=-I,...`. The failed parse made
+  no cloud change; the exact validated configuration was then applied directly
+  and launch independently revalidated every job field. The reusable operator
+  fix and regression test are now 26/26 focused passed; commit them with this
+  handoff. The running task image/science is the exact successful build above
+  and does not execute the operator updater.
+- L2b collection is healthy but its legacy sequential 54-slate local replay
+  has a measured 20--30 hour ETA. Do not restart it; combined is independent.
+  Hard-230 derive/grade requests are exact-ready and remain queued behind that
+  one heavy local slot. Recourse is terminal-negative and closed.
+- Exact next action: poll combined full54, collect/grade immediately on terminal
+  success, finish the parallel L2b finalizer design, and start hard-230 derive
+  when the heavy slot releases (or move it to bounded cloud compute first).
+
 ## Current handoff — 2026-08-29 09:36 UTC (three-hundred-forty-ninth update)
 
 ### Recourse score-free grid is terminal-negative; combined build is active

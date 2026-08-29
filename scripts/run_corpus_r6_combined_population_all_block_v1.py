@@ -163,7 +163,7 @@ class GCloudRunProviderV1:
             "--parallelism", str(desired["parallelism"]), "--max-retries", "0",
             "--task-timeout", f"{desired['timeout_seconds']}s", "--cpu", str(desired["cpu"]),
             "--memory", str(desired["memory"]), "--command", str(desired["container_command"][0]),
-            "--args", ",".join(desired["container_args"]), "--set-env-vars", environment,
+            f"--args={','.join(desired['container_args'])}", "--set-env-vars", environment,
             "--clear-volumes",
             "--quiet",
         ], check=True)
