@@ -20,6 +20,53 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 06:39 UTC (three-hundred-thirty-fourth update)
+
+### F7/F8/F9 is terminal 54/54; novel-roster outcome coverage is the score-critical path
+
+- Branch `main` and `origin/main` are at `42451e44`. The crossed F7/F8/F9
+  execution `atlas-minimal-c-s2023-w1-v1-ljt5t`, UID
+  `1f41b4f2-e966-437a-9b46-55a7310a8478`, completed **54/54 successful** with
+  zero reported failures or cancellations at `2026-08-29T06:20:54.304976Z`.
+  It ran for 13m37s and must never be relaunched.
+- All 54 deterministic results were exact-opened without listing or outcomes.
+  The local collection byte SHA-256 is
+  `9202a17f4fd057aba3ebe76595b5571b21a80ef6694e3179c4f8147c18e2005b`;
+  its internal collection SHA-256 is
+  `0ab8de148a33e1a11b4171cf92f960e07559cd7f87c0db98d6453d26f84ef3ac`.
+  The create-last generic terminal is generation `1787985545845384`, byte
+  SHA-256 `224f173a4e87232f2299d25e1ee493d9271a23bffc1e5cb5c6bb17695730a814`,
+  25,972 bytes, internal terminal SHA-256
+  `0f15a1039069878642b223ac4195628fba185bc9288692e0222ed1d7a9f29167`,
+  at `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-current-bank-crossed-screens/20260829-score-sprint-c9f12ed7-f7f8f9-crossed-v1/terminal-experiment-root.json`.
+- There is still no new sealed challenger score. Hard-230 grading failed closed
+  because the predecessor outcome snapshot covers only the old 14,247-player
+  R6 union. Hard-230 needs 2,105 additional `(source_ordinal, player_id)`
+  keys. The exact later-source catalog contains 29,605 keys, all 14,247 old
+  keys are contained in it, and a catalog-wide reusable successor therefore
+  has 15,358 delta keys. Building that one snapshot now avoids repeating this
+  blocker for hard-230, F7/F8/F9, L2b and later Foundry strategies.
+- A pure catalog-wide projection/source/snapshot successor is being hardened
+  in new untracked files. Its first draft was correctly rejected because it
+  fabricated a source identity, weakly bound predecessor bodies and could
+  overextend zero completion. Do not commit or execute that draft until its
+  staged create-once identities, exact registered-query evidence, synthesized
+  zero-key census and actual generic-grader compatibility are independently
+  green.
+- L2b task 0 itself remains terminal successful. Collection exposed that its
+  immutable manifest contains the original 7-selector/21-book lattice while
+  current code has the later 10-selector/30-book expansion. The exact
+  `414d5f74` validator accepts the manifest and reaches expensive projection
+  replay; that read-only diagnostic was interrupted only to prioritize the
+  finished F7 terminal. No L2b result or smoke receipt was published by the
+  interrupted attempt. Resume exact-revision collection after the outcome
+  successor or F7 score-critical work releases the one-heavy-local slot.
+- Exact next action: finish and independently validate the catalog-wide
+  successor, publish its outcome-blind projection/intent, acquire one new
+  historical-outcome lease, execute one fixed registered delta query, publish
+  the create-once source and snapshot, then grade hard-230 and the sealed
+  F7/F8/F9 terminal immediately. In parallel finish L2b collection/fanout.
+
 ## Current handoff — 2026-08-29 06:07 UTC (three-hundred-thirty-third update)
 
 ### Hard-230 is terminal and fast-grade GO; recovered F7/F8/F9 selection is live
