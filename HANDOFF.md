@@ -20,6 +20,85 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 19:11 UTC (three-hundred-seventy-first update)
+
+### Complete-union retrieval sets a new K80 best; boom-first review is accepted and being hardened
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `d61c112cf8ac30bf206bee35c9a3efbb7e162c55`.  The sole complete-union
+  execution `atlas-minimal-c-s2023-w3-v1-ssk9n` finished exact 54/54 success
+  in 2m19s and must never be relaunched.  Score-free collection produced 648
+  fixed book/slate cells before any outcome read.  The terminal is generation
+  `1788029872513108`, byte SHA-256
+  `ec49ee14e2af9364c38931355f8a8bde51b2f3800a230b9a589934cc5062bdc1`,
+  39,380 bytes, with internal terminal SHA-256
+  `9d973eb8b0da3da497db66e5cec431ffa43d74cb35b2665392f57a18bd4916f2`.
+  The reused W3 job was then restored to the prior combined-population image
+  and configuration; restore configuration SHA-256 is
+  `da996f4f6692e631748a141158956dabc3be245cad9b94e35b71055c1e40f447`.
+- Historical grading against the already-frozen catalog outcome snapshot is
+  complete.  Grade generation is `1788029992254691`, byte SHA-256
+  `cbeca6b84f1e78cd4dfa92913d2ee96d24bbabf0a0fb04965b6290fd0456a590`,
+  4,104,786 bytes; internal grade SHA-256 is
+  `67942399f1f0be7c3e000c9496337b3e3ce88fc5d8bb773f1f9c405b00e98e0a`.
+  The cap-4 exhaustive-prefix-then-fill K80 book is the new historical
+  retrieval winner: **181.361** mean weekly maximum, median 178.68 and
+  11/9/5/4/3 weeks at >=194/200/210/220/230.  It improves the frozen 178.435
+  champion by **+2.926** and passes the preregistered nonworse 6/4/2 tail gate
+  at 9/4/3.  Cap-4 also leads its fixed nested books at K100 **183.690** and
+  K150 **185.498**.  Promote it only as an explicit named retrieval preset,
+  never as a universal construction law.
+- The winning name must disclose completion.  The hard cap-4 greedy prefix
+  ranged 36--112 and averaged 73.09; only 20/54 K80 books stayed inside the
+  hard-cap prefix and 34/54 used the preregistered unconstrained completion.
+  Cap-5 remained pure through K80 on 54/54 and scored 179.193.  The top-250
+  sieve ceiling is 188.432, not the complete combined corpus ceiling 205.793;
+  cap-4 K80 converted 23/54 sieve ceilings with 7.071 mean regret.
+- External lab diagnostic 036 supplies a material mechanism reinterpretation:
+  its simulated upper-tail probabilities are roughly 1.5--2x actual overall
+  and 2.8x for leverage rosters.  The frozen production artifacts show its
+  predicted-falls/realized-rises signature.  Versus cap-5, cap-4 has modeled
+  book-max mean -0.450 and P(max>200) -0.70 percentage points but realized
+  weekly max +2.168 (19W/10L/25T).  Versus the strict-200 evil twin, modeled
+  mean is -0.663 and P(max>200) -1.08 points on all 54 slates, while realized
+  is +2.295 (20W/11L/23T).  Cap-4 has the lowest modeled P(max>230) of all
+  four challengers but the most realized 230+ weeks.  Treat the result as a
+  possible calibration correction plus diversity, and persist modeled/realized
+  calibration, overlap, prefix and completion metrics in Foundry/graph/UI.
+  Lab PREREG-016 is frozen at lab commit `93180bf` with file SHA-256
+  `c7e480c78a56fb159a535c42e95a6c8e42a69884ad572ae7160f47798b4d26e0`
+  across banks 210/211/212 to replicate this exact selector law on a different
+  boom-first K1 population; no result exists yet.
+- The boom-first production brief is accepted as a high-priority hypothesis.
+  Its corrected three-bank 89-slate evidence is K100 +6.563
+  [4.905,8.101], 66W/23L with every leave-one-season-out delta positive, and
+  K80 +4.819 [3.444,6.032], 60W/29L.  The matched production-shaped pair must
+  remain exactly lev160/boom40 versus lev40/boom160 with identical incumbent
+  construction, sources, worlds and CBWU K80 selector.  Independent review
+  found no P0 but seven launch-trust repairs: provider-bound exact 54/54,
+  no-publish real-artifact smoke, bounded build/job attestation, deep
+  result-to-manifest/runtime validation, natural multi-tag collision dedup,
+  actual CandidateBatch construction receipt validation, and outcome-lease-
+  bound grading.  A scoped agent is implementing these now; do not build or
+  launch until focused adversarial tests and independent rereview pass.
+- The concurrent universal-legality preset rewrite is not ready to merge into
+  the causal allocation pair.  Read-only review found nonuniform preset
+  application across direct-solve families, untruthful core overlap receipts,
+  enabled doses that fail open, directional game IDs that can falsely satisfy
+  `min_games`, ambient `PUNT_BOOM`/policy leakage into bare generation, silent
+  changes from partial `StackRules` constructors and incomplete validation.
+  Repair it separately; the boom-first pair stays on the explicit incumbent
+  preset so the allocation effect is not crossed.
+- Detailed durable records are
+  `reports/2026-08-29-score-sprint-first-realized-results.md` and
+  `reports/2026-08-29-boom-first-production-brief-review.md`.  Exact next
+  action: commit/push these records; finish/review the narrow boom-first
+  hardening patch; build one immutable image, run one real no-publish task-0
+  smoke and launch the single 54-task pair once.  In parallel, repair the
+  construction preset layer.  After boom-first scoring, cross its winning
+  generation preset with cap-4-prefix-then-fill and report calibration rather
+  than adding the independent gains.
+
 ## Current handoff -- 2026-08-29 18:53 UTC (three-hundred-seventieth update)
 
 ### Complete-union frontier full54 is live from the reviewed immutable image
