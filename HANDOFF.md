@@ -20,6 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 05:07 UTC (three-hundred-twenty-ninth update)
+
+### Recourse score-free run failed closed at canary and the shared job is restored
+
+- Branch `main` and `origin/main` entered this milestone at `f94de46f`.
+  Recourse canary execution `atlas-cbc-32g-full-2023-w8-v1-4fmch`, UID
+  `03597eb7-ee4e-407b-b39f-28db1c7d2028`, started at
+  `2026-08-29T05:05:20.474344Z` and completed `FAILED` at
+  `2026-08-29T05:05:40.481794Z`: task 0 exit code 1,
+  `NonZeroExitCode`, one failed task and zero retries. No logs, scientific
+  payloads, result objects, or outcomes were opened.
+- The frozen `validate-canary` failure path wrote terminal failure phase
+  `validate-canary`, detail `terminal-execution-failure`, did **not** release
+  the remaining 53 cells, and restored the captured pre-run job export. The
+  restoration receipt proves unchanged job UID
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275`, `restored=true`,
+  `already_restored=false`, and stable restored SHA-256
+  `38f719548cfe2a5ca87f7bcf4f31e35fc7bda13c21c386cf49d3cd2e179fa44c`.
+- This run ID is terminal under its frozen retry law. Never resume, validate,
+  release, harvest, reconfigure, or relaunch it. A new run requires a new
+  pre-result amendment/run ID; keep that work off the score critical path
+  unless source-only diagnosis identifies a high-value, bounded correction.
+- Hard-230 session `45508`, F7/F8/F9 full54, and the queued post-hard230
+  diversity collection are independent and unchanged. Continue them; do not
+  let this failed recourse precursor delay their realized grades.
+
 ## Current handoff — 2026-08-29 05:03 UTC (three-hundred-twenty-eighth update)
 
 ### Outcome-blind recourse canary is live while the three score lanes continue
