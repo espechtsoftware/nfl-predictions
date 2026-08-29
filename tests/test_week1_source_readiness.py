@@ -15,6 +15,7 @@ import pandas as pd
 import pytest
 
 from nfl_dfs.ingest import nflverse_job
+from nfl_dfs.inference import run_projections
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -401,7 +402,7 @@ def test_roster_fallback_maps_only_unique_full_identity_and_rejects_ambiguity():
         sql,
     )
     assert re.search(
-        r"HAVING\s+COUNT\s*\(\s*DISTINCT\s+GSIS_ID\s*\)\s*=\s*1",
+        r"HAVING\s+COUNT\s*\(\s*DISTINCT\s+(?:[A-Z]+\.)?GSIS_ID\s*\)\s*=\s*1",
         sql,
     )
     assert "ROSTER_FALLBACK AS" in sql
@@ -422,8 +423,8 @@ def test_primary_crosswalk_is_unique_and_live_dk_ids_cannot_fan_out():
     primary = sql[
         sql.index("UNIQUE_PLAYER_ID_IDENTITY AS"):sql.index("MATCHED AS")
     ]
-    assert "GROUP BY CLEAN_NAME, CANONICAL_TEAM, POSITION" in primary
-    assert "HAVING COUNT(DISTINCT GSIS_ID) = 1" in primary
+    assert "GROUP BY N.CLEAN_NAME, N.CANONICAL_TEAM, N.POSITION" in primary
+    assert "HAVING COUNT(DISTINCT N.GSIS_ID) = 1" in primary
     assert "JOIN UNIQUE_PLAYER_ID_IDENTITY" in sql
 
 
@@ -450,31 +451,40 @@ def test_match_precedence_is_manual_primary_alias_roster_then_depth():
     sql = re.sub(r"\s+", " ", PLAYER_ID_MAP_SQL.read_text()).upper()
 
     assert sql.index("MANUAL_MATCHES AS") < sql.index("MATCHED AS")
+    assert sql.index("REVIEWED_MATCHES AS") < sql.index("MATCHED AS")
+    assert sql.index("IDENTITY_MATCHES AS") < sql.index("MATCHED AS")
     assert sql.index("MATCHED AS") < sql.index("ALIAS_MATCHES AS")
     assert sql.index("ALIAS_MATCHES AS") < sql.index("PRESERVED_MATCHES AS")
     assert sql.index("MANUAL_MATCHES AS") < sql.index("PRESERVED_MATCHES AS")
     assert sql.index("PRESERVED_MATCHES AS") < sql.index("ROSTER_FALLBACK AS")
     assert sql.index("ROSTER_FALLBACK AS") < sql.index("DEPTH_FALLBACK AS")
     assert "UNIQUE_MANUAL_OVERRIDES AS" in sql
-    assert "COUNT(DISTINCT GSIS_ID) = 1" in sql
+    assert "ANY_VALUE(O.GSIS_ID) AS GSIS_ID" in sql
+    assert "COUNTIF(O.GSIS_ID IS NULL) = 0" in sql
+    assert "ANY_VALUE(N.GSIS_ID) AS GSIS_ID" in sql
+    assert "COUNT(DISTINCT N.GSIS_ID) = 1" in sql
+    assert "ANY_VALUE(R.GSIS_ID) AS GSIS_ID" in sql
+    assert "COUNT(DISTINCT R.GSIS_ID) = 1" in sql
+    assert "ANY_VALUE(D.GSIS_ID) AS GSIS_ID" in sql
+    assert "COUNT(DISTINCT D.GSIS_ID) = 1" in sql
     matched = sql[sql.index("MATCHED AS"):sql.index("CURRENT_ROSTER_SEASON AS")]
     assert re.search(
-        r"WHERE\s+NOT\s+EXISTS\s*\(\s*SELECT\s+1\s+FROM\s+"
-        r"MANUAL_MATCHES\s+M\s+WHERE\s+M\.DK_PLAYER_ID\s*=\s*"
-        r"D\.DK_PLAYER_ID\s*\)",
+        r"LEFT\s+JOIN\s+IDENTITY_MATCHES\s+I\s+ON\s+"
+        r"I\.DK_PLAYER_ID\s*=\s*D\.DK_PLAYER_ID\s+WHERE\s+"
+        r"I\.DK_PLAYER_ID\s+IS\s+NULL",
         matched,
     )
     assert re.search(
-        r"SELECT\s+\*\s+FROM\s+MANUAL_MATCHES\s+UNION\s+ALL\s+"
+        r"SELECT\s+\*\s+FROM\s+IDENTITY_MATCHES\s+UNION\s+ALL\s+"
         r"SELECT\s+\*\s+FROM\s+MATCHED\s+UNION\s+ALL\s+"
         r"SELECT\s+\*\s+FROM\s+ALIAS_MATCHES",
         sql[sql.index("PRESERVED_MATCHES AS"):sql.index("ROSTER_FALLBACK AS")],
     )
     fallback = sql[sql.index("ROSTER_FALLBACK AS"):]
     assert re.search(
-        r"WHERE\s+NOT\s+EXISTS\s*\(\s*SELECT\s+1\s+FROM\s+"
-        r"PRESERVED_MATCHES\s+P\s+WHERE\s+P\.DK_PLAYER_ID\s*=\s*"
-        r"D\.DK_PLAYER_ID\s*\)",
+        r"LEFT\s+JOIN\s+PRESERVED_MATCHES\s+P\s+ON\s+"
+        r"P\.DK_PLAYER_ID\s*=\s*D\.DK_PLAYER_ID\s+WHERE\s+"
+        r"P\.DK_PLAYER_ID\s+IS\s+NULL",
         fallback,
     )
     assert re.search(
@@ -503,13 +513,33 @@ def test_depth_fallback_and_reviewed_live_aliases_are_exact_and_unique():
     depth_unique = sql[
         sql.index("UNIQUE_DEPTH_IDENTITY AS"):sql.index("DEPTH_FALLBACK AS")
     ]
-    assert "GROUP BY CLEAN_NAME, CANONICAL_TEAM, POSITION" in depth_unique
-    assert "HAVING COUNT(DISTINCT GSIS_ID) = 1" in depth_unique
+    assert "GROUP BY D.CLEAN_NAME, D.CANONICAL_TEAM, D.POSITION" in depth_unique
+    assert "HAVING COUNT(DISTINCT D.GSIS_ID) = 1" in depth_unique
     depth = sql[sql.index("DEPTH_FALLBACK AS"):]
     assert "X.CLEAN_NAME = D.CLEAN_NAME" in depth
     assert "X.CANONICAL_TEAM = D.CANONICAL_TEAM" in depth
     assert "X.POSITION = D.POSITION" in depth
     assert "ROSTER_AUGMENTED_MATCHES" in depth
+
+
+def test_reviewed_ids_are_bound_to_their_full_scoreblind_identity_contract():
+    sql = re.sub(r"\s+", " ", PLAYER_ID_MAP_SQL.read_text()).upper()
+
+    for dk_player_id, gsis_id in (
+        (1057457, "00-0037304"),
+        (1244224, "00-0041398"),
+        (1408785, "00-0041307"),
+    ):
+        assert str(dk_player_id) in sql
+        assert gsis_id in sql
+    assert "REVIEWED_DK_IDENTITIES AS" in sql
+    assert sql.count("'REVIEWED_POSITION_VARIANT'") == 2
+    assert sql.count("'REVIEWED_NAME_ALIAS'") == 1
+    for field in ("D.SEASON", "D.CLEAN_NAME", "D.CANONICAL_TEAM", "D.POSITION"):
+        assert f"{field} = R.{field.removeprefix('D.')}" in sql
+    assert "AUTO_NORM_DK AS" in sql
+    assert "LEFT JOIN REVIEWED_DK_IDENTITIES R USING (DK_PLAYER_ID)" in sql
+    assert "WHERE R.DK_PLAYER_ID IS NULL" in sql
 
 
 def test_player_id_map_binds_live_sources_and_rejects_identity_conflicts():
@@ -523,3 +553,44 @@ def test_player_id_map_binds_live_sources_and_rejects_identity_conflicts():
     assert "COUNT(DISTINCT R.TEAM) = 32" in sql
     assert "PLAYER_ID_OVERRIDES CONTAINS A NULL OR CONFLICTING" in sql
     assert "PLAYER_ID_MAP CONTAINS A DUPLICATE OR CONFLICTING" in sql
+
+
+def test_upcoming_projection_pool_is_bound_to_exact_reg_week_gamedays(
+    monkeypatch,
+):
+    captured: dict[str, object] = {}
+
+    def fake_query(sql: str, params: dict[str, object]) -> pd.DataFrame:
+        captured["sql"] = re.sub(r"\s+", " ", sql).upper()
+        captured["params"] = params
+        return pd.DataFrame({"gsis_id": ["00-0000001"],
+                             "dk_position": ["QB"]})
+
+    monkeypatch.setattr(run_projections, "query_df", fake_query)
+    result = run_projections.upcoming_slate_features(2026, 1)
+
+    assert len(result) == 1
+    assert captured["params"] == {"season": 2026, "week": 1}
+    sql = str(captured["sql"])
+    assert "TARGET_GAMEDAYS AS" in sql
+    assert "SEASON = @SEASON" in sql
+    assert "WEEK = @WEEK" in sql
+    assert "GAME_TYPE = 'REG'" in sql
+    assert "DATE(S.GAME_START, 'AMERICA/NEW_YORK') = G.GAMEDAY" in sql
+    assert "CAST(S.SEASON AS INT64) = @SEASON" in sql
+    assert sql.count("FROM ELIGIBLE_SALARIES") >= 2
+    assert "T.SEASON = @SEASON" in sql
+    assert "T.WEEK = @WEEK" in sql
+    assert "SL.* EXCEPT (REVIEWED_MATCH_SOURCE, SEASON)" in sql
+    assert "REVIEWED_NON_FANTASY_ROLES AS" in sql
+    for dk_player_id in (300580, 553024, 606799, 1120499, 1181739,
+                         1322662, 1325495):
+        assert str(dk_player_id) in sql
+    assert sql.count("'REVIEWED_NON_FANTASY_ROLE'") == 8
+    for field in ("SEASON", "DK_PLAYER_ID", "CLEAN_NAME", "TEAM_ABBR",
+                  "POSITION"):
+        assert f"R.{field} =" in sql
+    assert (
+        "SL.REVIEWED_MATCH_SOURCE IS DISTINCT FROM "
+        "'REVIEWED_NON_FANTASY_ROLE'" in sql
+    )

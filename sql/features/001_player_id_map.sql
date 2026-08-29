@@ -37,6 +37,22 @@ ASSERT (
   )
 ) AS 'player_id_overrides contains a NULL or conflicting DK-to-GSIS authority';
 
+-- These three DK identities were independently reconciled against the fresh
+-- 2026-W1 roster/depth receipt. Two are DK RB designations for players whose
+-- official roster role is TE/FB; the third is a reviewed Joshua/Josh name
+-- variant absent from player_ids. A conflicting external override must fail
+-- rather than silently replace this versioned identity evidence.
+ASSERT (
+  SELECT COUNT(*) = 0
+  FROM `${features}.player_id_overrides` o
+  JOIN UNNEST([
+    STRUCT(1057457 AS dk_player_id, '00-0037304' AS gsis_id),
+    (1244224, '00-0041398'),
+    (1408785, '00-0041307')
+  ]) r USING (dk_player_id)
+  WHERE o.gsis_id != r.gsis_id
+) AS 'player_id_overrides conflicts with a reviewed 2026-W1 DK identity';
+
 -- Bind all live fallbacks to the season of the newest DK intake, not to the
 -- maximum season that happens to remain in a raw source. The NFLverse job
 -- stamps its capture time on every replacement row; a stale or incomplete
@@ -85,7 +101,8 @@ WITH dk AS (
   -- The same DK id can appear under an earlier team elsewhere in the
   -- 365-day intake window. Keep one deterministic latest identity so this
   -- table can never fan out a live slate join merely because a player moved.
-  SELECT dk_player_id, display_name, team_abbr, position
+  SELECT dk_player_id, display_name, team_abbr, position,
+         CAST(season AS INT64) AS season
   FROM `${raw}.dk_salaries`
   WHERE pulled_at > TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 365 DAY)
   QUALIFY ROW_NUMBER() OVER (
@@ -103,6 +120,7 @@ live_dk_season AS (
 norm_dk AS (
   SELECT
     dk_player_id, display_name, team_abbr, UPPER(position) AS position,
+    season,
     CASE UPPER(TRIM(team_abbr))
       WHEN 'ARZ' THEN 'ARI'
       WHEN 'BLT' THEN 'BAL'
@@ -130,19 +148,57 @@ norm_dk AS (
   FROM dk
 ),
 unique_manual_overrides AS (
-  SELECT dk_player_id, ANY_VALUE(gsis_id) AS gsis_id
-  FROM `${features}.player_id_overrides`
-  GROUP BY dk_player_id
-  HAVING dk_player_id IS NOT NULL
-     AND COUNTIF(gsis_id IS NULL) = 0
-     AND COUNT(DISTINCT gsis_id) = 1
+  SELECT o.dk_player_id, ANY_VALUE(o.gsis_id) AS gsis_id
+  FROM `${features}.player_id_overrides` o
+  GROUP BY o.dk_player_id
+  HAVING o.dk_player_id IS NOT NULL
+     AND COUNTIF(o.gsis_id IS NULL) = 0
+     AND COUNT(DISTINCT o.gsis_id) = 1
+),
+reviewed_dk_identities AS (
+  SELECT * FROM UNNEST([
+    STRUCT(1057457 AS dk_player_id, 2026 AS season,
+           'CONNOR HEYWARD' AS clean_name, 'LV' AS canonical_team,
+           'RB' AS position, '00-0037304' AS gsis_id,
+           'reviewed_position_variant' AS match_source),
+    (1244224, 2026, 'RILEY NOWAKOWSKI', 'PIT', 'RB', '00-0041398',
+     'reviewed_position_variant'),
+    (1408785, 2026, 'JOSHUA PITSENBERGER', 'HOU', 'RB', '00-0041307',
+     'reviewed_name_alias')
+  ])
+),
+auto_norm_dk AS (
+  -- A governed DK id whose expected identity contract drifts must remain
+  -- unmapped. It cannot silently fall through to mutable/manual or fuzzy
+  -- matching merely because its name, team, position or season changed.
+  SELECT d.*
+  FROM norm_dk d
+  LEFT JOIN reviewed_dk_identities r USING (dk_player_id)
+  WHERE r.dk_player_id IS NULL
 ),
 manual_matches AS (
   SELECT
     o.dk_player_id, o.gsis_id, d.display_name, d.team_abbr, d.position,
     'manual' AS match_source
   FROM unique_manual_overrides o
-  JOIN norm_dk d USING (dk_player_id)
+  JOIN auto_norm_dk d USING (dk_player_id)
+),
+reviewed_matches AS (
+  SELECT
+    r.dk_player_id, r.gsis_id, d.display_name, d.team_abbr, d.position,
+    r.match_source
+  FROM reviewed_dk_identities r
+  JOIN norm_dk d
+    ON d.dk_player_id = r.dk_player_id
+   AND d.season = r.season
+   AND d.clean_name = r.clean_name
+   AND d.canonical_team = r.canonical_team
+   AND d.position = r.position
+),
+identity_matches AS (
+  SELECT * FROM reviewed_matches
+  UNION ALL
+  SELECT * FROM manual_matches
 ),
 norm_nfl AS (
   SELECT DISTINCT
@@ -177,24 +233,24 @@ norm_nfl AS (
 ),
 unique_player_id_identity AS (
   SELECT
-    clean_name, canonical_team, position,
-    ANY_VALUE(gsis_id) AS gsis_id
-  FROM norm_nfl
-  WHERE clean_name != '' AND canonical_team IS NOT NULL
-  GROUP BY clean_name, canonical_team, position
-  HAVING COUNT(DISTINCT gsis_id) = 1
+    n.clean_name, n.canonical_team, n.position,
+    ANY_VALUE(n.gsis_id) AS gsis_id
+  FROM norm_nfl n
+  WHERE n.clean_name != '' AND n.canonical_team IS NOT NULL
+  GROUP BY n.clean_name, n.canonical_team, n.position
+  HAVING COUNT(DISTINCT n.gsis_id) = 1
 ),
 matched AS (
   SELECT d.dk_player_id, n.gsis_id, d.display_name, d.team_abbr, d.position,
          'auto' AS match_source
-  FROM norm_dk d
+  FROM auto_norm_dk d
   JOIN unique_player_id_identity n
     ON d.clean_name = n.clean_name
    AND d.canonical_team = n.canonical_team
    AND d.position   = n.position
-  WHERE NOT EXISTS (
-    SELECT 1 FROM manual_matches m WHERE m.dk_player_id = d.dk_player_id
-  )
+  LEFT JOIN identity_matches i
+    ON i.dk_player_id = d.dk_player_id
+  WHERE i.dk_player_id IS NULL
 ),
 current_roster_season AS (
   SELECT season FROM live_dk_season
@@ -251,12 +307,12 @@ current_roster AS (
 ),
 unique_roster_identity AS (
   SELECT
-    clean_name, canonical_team, position,
-    ANY_VALUE(gsis_id) AS gsis_id
-  FROM current_roster
-  WHERE clean_name != '' AND canonical_team IS NOT NULL
-  GROUP BY clean_name, canonical_team, position
-  HAVING COUNT(DISTINCT gsis_id) = 1
+    r.clean_name, r.canonical_team, r.position,
+    ANY_VALUE(r.gsis_id) AS gsis_id
+  FROM current_roster r
+  WHERE r.clean_name != '' AND r.canonical_team IS NOT NULL
+  GROUP BY r.clean_name, r.canonical_team, r.position
+  HAVING COUNT(DISTINCT r.gsis_id) = 1
 ),
 explicit_name_aliases AS (
   -- Reviewed 2026 source-name differences. Both sides still require the same
@@ -275,21 +331,22 @@ alias_matches AS (
   SELECT
     d.dk_player_id, n.gsis_id, d.display_name, d.team_abbr, d.position,
     'explicit_name_alias' AS match_source
-  FROM norm_dk d
+  FROM auto_norm_dk d
   JOIN explicit_name_aliases a
     ON a.source_clean_name = d.clean_name
   JOIN unique_player_id_identity n
     ON n.clean_name = a.target_clean_name
    AND n.canonical_team = d.canonical_team
    AND n.position = d.position
-  WHERE NOT EXISTS (
-    SELECT 1 FROM matched m WHERE m.dk_player_id = d.dk_player_id
-  ) AND NOT EXISTS (
-    SELECT 1 FROM manual_matches m WHERE m.dk_player_id = d.dk_player_id
-  )
+  LEFT JOIN matched m
+    ON m.dk_player_id = d.dk_player_id
+  LEFT JOIN identity_matches i
+    ON i.dk_player_id = d.dk_player_id
+  WHERE m.dk_player_id IS NULL
+    AND i.dk_player_id IS NULL
 ),
 preserved_matches AS (
-  SELECT * FROM manual_matches
+  SELECT * FROM identity_matches
   UNION ALL
   SELECT * FROM matched
   UNION ALL
@@ -299,14 +356,14 @@ roster_fallback AS (
   SELECT
     d.dk_player_id, r.gsis_id, d.display_name, d.team_abbr, d.position,
     'roster_fallback' AS match_source
-  FROM norm_dk d
+  FROM auto_norm_dk d
   JOIN unique_roster_identity r
     ON r.clean_name = d.clean_name
    AND r.canonical_team = d.canonical_team
    AND r.position = d.position
-  WHERE NOT EXISTS (
-    SELECT 1 FROM preserved_matches p WHERE p.dk_player_id = d.dk_player_id
-  )
+  LEFT JOIN preserved_matches p
+    ON p.dk_player_id = d.dk_player_id
+  WHERE p.dk_player_id IS NULL
 ),
 roster_augmented_matches AS (
   SELECT * FROM preserved_matches
@@ -353,26 +410,25 @@ latest_depth_rows AS (
 ),
 unique_depth_identity AS (
   SELECT
-    clean_name, canonical_team, position,
-    ANY_VALUE(gsis_id) AS gsis_id
-  FROM latest_depth_rows
-  WHERE clean_name != '' AND canonical_team IS NOT NULL
-  GROUP BY clean_name, canonical_team, position
-  HAVING COUNT(DISTINCT gsis_id) = 1
+    d.clean_name, d.canonical_team, d.position,
+    ANY_VALUE(d.gsis_id) AS gsis_id
+  FROM latest_depth_rows d
+  WHERE d.clean_name != '' AND d.canonical_team IS NOT NULL
+  GROUP BY d.clean_name, d.canonical_team, d.position
+  HAVING COUNT(DISTINCT d.gsis_id) = 1
 ),
 depth_fallback AS (
   SELECT
     d.dk_player_id, x.gsis_id, d.display_name, d.team_abbr, d.position,
     'current_depth_fallback' AS match_source
-  FROM norm_dk d
+  FROM auto_norm_dk d
   JOIN unique_depth_identity x
     ON x.clean_name = d.clean_name
    AND x.canonical_team = d.canonical_team
    AND x.position = d.position
-  WHERE NOT EXISTS (
-    SELECT 1 FROM roster_augmented_matches p
-    WHERE p.dk_player_id = d.dk_player_id
-  )
+  LEFT JOIN roster_augmented_matches p
+    ON p.dk_player_id = d.dk_player_id
+  WHERE p.dk_player_id IS NULL
 )
 SELECT * FROM roster_augmented_matches
 UNION ALL

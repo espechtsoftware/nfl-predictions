@@ -32,6 +32,7 @@ steps:
           src/nfl_dfs/inference/multiseed_portfolio.py \
           src/nfl_dfs/inference/production_policy.py \
           src/nfl_dfs/inference/prospective_boom_first.py \
+          src/nfl_dfs/inference/run_projections.py \
           src/nfl_dfs/optimizer/lineup.py \
           src/nfl_dfs/research/boom_first_historical_paired_v1.py \
           src/nfl_dfs/research/boom_first_historical_replay_adapter_v1.py
@@ -86,7 +87,7 @@ steps:
           'import pandas as pd; from importlib.metadata import version; from nfl_dfs.ingest import nflverse_job as j; out=j._normalize_destination_frame(pd.DataFrame({"jersey_number":[12.0,None],"draft_number":[17.0,None]}), "rosters_weekly"); assert out["jersey_number"].tolist()[0] == "12"; assert out["draft_number"].tolist()[0] == "17"; assert pd.isna(out["jersey_number"].tolist()[1]); assert callable(j._weekly_roster_frame); assert version("nflreadpy") == "0.1.5"'
         docker run --rm --network none '${_IMAGE}' \
           python -I -c \
-          'from pathlib import Path; sql=Path("/app/sql/features/001_player_id_map.sql").read_text(); assert "unique_player_id_identity AS" in sql; assert "unique_roster_identity AS" in sql; assert "roster_fallback AS" in sql'
+          'from pathlib import Path; sql=Path("/app/sql/features/001_player_id_map.sql").read_text(); assert "unique_player_id_identity AS" in sql; assert "unique_roster_identity AS" in sql; assert "reviewed_dk_identities AS" in sql; assert "roster_fallback AS" in sql'
 
 images:
   - '${_IMAGE}'

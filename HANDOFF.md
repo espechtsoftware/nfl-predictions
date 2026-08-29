@@ -20,6 +20,87 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 15:49 UTC (three-hundred-sixty-first update)
+
+### Week 1 sources and features are repaired; exact live-pool blockers remain explicit
+
+- Branch `main` and `origin/main` are at pushed roster-contract repair
+  `bf132f8e84e7e287134e00a29cdbaedca11d5725`. Its clean archive was
+  152,116,701 bytes with SHA-256
+  `cf08ac88afead81e94a3bad319aa693acd0f526e23626830b470650736cc2a06`
+  and MD5 `cU9fjo2lzbBPD6Oim8m8FQ==`. Cloud Build
+  `2256eaca-5d00-4af1-8bf4-ab20c2c94e9b` reached terminal `SUCCESS` at
+  `2026-08-29T15:08:19Z`; the immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:387af070c9c240bcebb0ab1e3845e4260ba72fa5412d99b09f8ab6645e644b02`.
+  Image-only updates of `ingest-nflverse`, `ingest-dk`, `build-features` and
+  `project-slate` retained their UIDs and executable contracts; independent
+  Audit Log comparison found exact sanitized spec equality. All six relevant
+  schedulers remain intentionally PAUSED during the controlled release; only
+  the five that were previously enabled may be resumed afterward, while
+  pre-existing `s-features-route` remains PAUSED.
+- Controlled NFLverse execution `ingest-nflverse-6vxw2` succeeded terminal at
+  `2026-08-29T15:14:43Z`. The fresh score-blind receipts include 46,849 2025
+  roster rows, 2,930 exact 2026-W1 roster rows across all 32 teams, 45,827
+  recent depth rows across all 32 teams, and a complete 16-game/32-team 2026
+  Week 1 schedule. Controlled DK execution `ingest-dk-b6mjp` succeeded at
+  `2026-08-29T15:17:38Z` and genuinely loaded 1,023 rows, including 719 fresh
+  Sunday-main players in group `151307` and 118 players in group `152148`.
+- First fixed-image feature execution `build-features-sbwvx` failed terminal
+  at `2026-08-29T15:21:24Z` before later feature SQL ran. BigQuery exposed an
+  alias-shadowing aggregation in `001_player_id_map.sql`. Direct execution of
+  the evolving correction then deliberately caught the other same-shaped
+  aggregate (`dc2f462f-375a-4865-94da-0cb6110a9da8`) and an unsupported
+  correlated anti-subquery (`030ca7cf-7299-4af3-a379-e9a6dff84dee`) before a
+  third image build. The final local repair qualifies every aggregate source
+  and implements precedence with one-to-one LEFT anti-joins. Independent
+  review found the order remains governed reviewed identity/manual > primary >
+  explicit alias > roster > depth with no fanout. Production BigQuery script job
+  `f35f66ad-baf5-47ea-ad18-016b1cef60ce` completed successfully at
+  `2026-08-29T15:27:45Z`, and focused SQL/source tests are green.
+- The rebuilt map raises fresh Week 1 skill-player coverage from the earlier
+  439/692 to 675/695. Twenty Week 1 DK rows remain deliberately unmapped, plus
+  two rows in the August 29 group; exact source reconciliation found three
+  safe identities, seven DK-TE rows whose fresh roster authority says LS, four
+  current-team conflicts, and eight absent/ambiguous identities. The three
+  safe DK/GSIS identities are now versioned with exact 2026 season, normalized
+  name, canonical team and DK-position guards; any later drift remains
+  unmapped instead of falling through. The seven exact LS identities are
+  excluded only from live projection eligibility under equally exact guarded
+  rules, so they do not enter global salary history as TEs. The Week 1 query
+  now leaves exactly ten stale/conflicted/absent rows fail-closed pending a
+  fresher synchronized DK/roster receipt or an explicitly isolated run-scoped
+  diagnostic exclusion. No identity is being guessed.
+- The ordinary local production feature build completed terminal successfully
+  from the corrected score-blind checkout after all 31 SQL files. Its leakage
+  checks passed; tested feature families matched their legal reconstructions at
+  100%, except the accepted coverage families at 99.33%, above their existing
+  threshold. `player_week_inference` now contains 915 rows for 2026 Week 1.
+  A read-only exact-runner census found 727 rows across every future classic
+  group: 22 unmapped non-DST rows, 29 mapped rows requiring cold-start rather
+  than native inference, and 652 native-inference-ready rows. That census also
+  exposed a separate boundary defect: the current union included August 29
+  preseason group `152148` in a Week 1 projection merely because its games
+  were still in the future. The local repair now binds both salary-pull choice
+  and eligible rows to exact `REG` gamedays for the requested season/week in
+  `America/New_York`; a live score-blind execution excluded `152148` and kept
+  the exact ten Week 1 blockers. Final identity script job
+  `201afde9-4494-4495-9ea7-2bd2f85ae4e2` succeeded at
+  `2026-08-29T15:46:09Z`. The complete bounded release gate is green,
+  **292 passed / 1 skipped**. Independent identity and projection-boundary
+  reviews found no blocker after the final result-shape guard removed internal
+  classification/duplicate-season columns. No projection, paired boom-first
+  execution, historical outcome read, or score claim has occurred.
+- Exact next action: keep the ten stale/absent identities fail-closed without
+  weakening the playable-pool contract; exact-stage and push only the identity
+  SQL, projection boundary, bounded build recipe, focused tests and this
+  handoff; build one clean
+  immutable image, image-only update the same four jobs with exact spec parity,
+  and rerun the governed feature/projection gates. Only after zero unresolved
+  playable rows, complete inference/projection receipts, an all-location
+  scheduler scan and zero active cloud jobs may the isolated paired 160/40
+  versus 40/160 boom-first shadow launch. Resume the five originally enabled
+  schedulers after the controlled work.
+
 ## Current handoff -- 2026-08-29 14:54 UTC (three-hundred-sixtieth update)
 
 ### Immutable release built and deployed; first ingest exposed one additional pre-delete roster dtype drift

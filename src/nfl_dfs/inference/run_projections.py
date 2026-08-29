@@ -40,21 +40,59 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
     own timestamp within an ingest run."""
     df = query_df(
         f"""
-        WITH pulls AS (
+        WITH reviewed_non_fantasy_roles AS (
+          -- Fresh 2026-W1 roster/depth authority classifies these exact DK
+          -- minimum-price TE identities as active long snappers. Keep the
+          -- exclusion local to live eligibility so they cannot contaminate
+          -- salary/feature history as TEs. Every identity field is guarded;
+          -- later provider drift falls through to the unmatched hard failure.
+          SELECT * FROM UNNEST([
+            STRUCT(2026 AS season, 300580 AS dk_player_id,
+                   'ANDREW DEPAOLA' AS clean_name, 'MIN' AS team_abbr,
+                   'TE' AS position,
+                   'reviewed_non_fantasy_role' AS match_source),
+            (2026, 553024, 'TYLER OTT', 'WAS', 'TE',
+             'reviewed_non_fantasy_role'),
+            (2026, 606799, 'ZACH WOOD', 'NO', 'TE',
+             'reviewed_non_fantasy_role'),
+            (2026, 1120499, 'EVAN DECKERS', 'TB', 'TE',
+             'reviewed_non_fantasy_role'),
+            (2026, 1181739, 'WILLIAM WAGNER', 'CIN', 'TE',
+             'reviewed_non_fantasy_role'),
+            (2026, 1322662, 'ROCCO UNDERWOOD', 'PHI', 'TE',
+             'reviewed_non_fantasy_role'),
+            (2026, 1325495, 'GARRISON GRIMES', 'NYJ', 'TE',
+             'reviewed_non_fantasy_role')
+          ])
+        ),
+        target_gamedays AS (
+          SELECT DISTINCT PARSE_DATE('%Y-%m-%d', gameday) AS gameday
+          FROM `{settings.raw}.schedules`
+          WHERE season = @season
+            AND week = @week
+            AND game_type = 'REG'
+        ),
+        eligible_salaries AS (
+          SELECT s.*
+          FROM `{settings.raw}.dk_salaries` s
+          JOIN target_gamedays g
+            ON DATE(s.game_start, 'America/New_York') = g.gameday
+          WHERE s.slate_type = 'classic'
+            AND CAST(s.season AS INT64) = @season
+        ),
+        pulls AS (
           SELECT draft_group_id, MAX(pulled_at) AS ts
-          FROM `{settings.raw}.dk_salaries`
-          WHERE slate_type = 'classic'
+          FROM eligible_salaries
           GROUP BY draft_group_id
           HAVING MAX(game_start) >= CURRENT_TIMESTAMP()
         ),
         latest AS (
           SELECT DISTINCT s.dk_player_id, s.display_name, s.salary,
                  s.position AS dk_position, s.team_abbr, s.status, s.dk_ppg,
-                 s.draft_group_id
-          FROM `{settings.raw}.dk_salaries` s
+                 s.draft_group_id, CAST(s.season AS INT64) AS season
+          FROM eligible_salaries s
           JOIN pulls p
             ON s.draft_group_id = p.draft_group_id AND s.pulled_at = p.ts
-          WHERE s.slate_type = 'classic'
         ),
         sizes AS (
           SELECT draft_group_id, COUNT(DISTINCT dk_player_id) AS n_players
@@ -69,13 +107,28 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
               ORDER BY z.n_players DESC, l.draft_group_id) AS rn
             FROM latest l JOIN sizes z USING (draft_group_id)
           ) WHERE rn = 1
+        ),
+        classified_slate AS (
+          SELECT sl.*, r.match_source AS reviewed_match_source
+          FROM slate sl
+          LEFT JOIN reviewed_non_fantasy_roles r
+            ON r.season = sl.season
+           AND r.dk_player_id = sl.dk_player_id
+           AND r.clean_name = UPPER(TRIM(sl.display_name))
+           AND r.team_abbr = UPPER(TRIM(sl.team_abbr))
+           AND r.position = UPPER(TRIM(sl.dk_position))
         )
-        SELECT sl.*, m.gsis_id, t.*
-        FROM slate sl
+        SELECT sl.* EXCEPT (reviewed_match_source, season), m.gsis_id, t.*
+        FROM classified_slate sl
         LEFT JOIN `{settings.features}.player_id_map` m USING (dk_player_id)
         LEFT JOIN `{settings.features}.player_week_inference` t
-          ON t.gsis_id = m.gsis_id AND t.season = {season} AND t.week = {week}
-        """
+          ON t.gsis_id = m.gsis_id
+         AND t.season = @season
+         AND t.week = @week
+        WHERE sl.reviewed_match_source
+              IS DISTINCT FROM 'reviewed_non_fantasy_role'
+        """,
+        {"season": season, "week": week},
     )
     if df.empty:
         raise RuntimeError(
@@ -249,7 +302,10 @@ def run() -> None:
     season = current_season()
     week = query_df(
         f"""SELECT MIN(week) AS week FROM `{settings.raw}.schedules`
-            WHERE season = {season} AND gameday >= CAST(CURRENT_DATE() AS STRING)"""
+            WHERE season = @season
+              AND game_type = 'REG'
+              AND gameday >= CAST(CURRENT_DATE() AS STRING)""",
+        {"season": season},
     ).week.iloc[0]
     week = int(week)
 
