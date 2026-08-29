@@ -20,7 +20,38 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 21:46 UTC (three-hundred-seventy-sixth update)
+## Current handoff -- 2026-08-29 21:52 UTC (three-hundred-seventy-seventh update)
+
+### Provider-resolved boom-first image and terminal build authority are green
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `45ce7d9c554d1ab47e2ab4a692b73e1a8c93a3e4`; exact image source is still
+  `78170dc92d79cf19e37b8ca399b088a73947b778`.
+- Authoritative global direct-Git Cloud Build
+  `73ace93e-5444-44de-9444-3a24adb06c71` completed `SUCCESS` from
+  `2026-08-29T20:46:18.456621213Z` through
+  `2026-08-29T20:50:53.840153Z` (4m35s).  Both focused suites passed 15/15
+  and 17/17, image construction completed, and the network-disabled CLI,
+  NumPy 2.5.1/SciPy 1.18.0, and CBC-solver runtime smokes all passed.
+- The immutable execution image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:07f1044760d8f7b16ffdf673b405d2bc97ea9aadd4dda996d8e6447e4859e284`.
+  Requested and resolved provider Git provenance both bind the canonical
+  GitHub repository at full revision `78170dc9...`; build substitutions and
+  the single matching result-image row corroborate that same commit/tag.
+- The create-once terminal build receipt is generation
+  `1788036719854286`, 498 bytes, byte SHA-256
+  `986445ce269ee3496a121ed1eaea836aabb80050152fc4ee986d8c56d97cc577`
+  at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-score-sprint-builds/20260829-boom-first-78170dc9-git-v1/terminal-build-receipt.json`.
+  Exact generation-pinned reopen matches the local bytes, and both the
+  terminal-receipt and full provider-build validators pass.
+- Exact next action: run `prepare` once on a fresh boom-first output prefix
+  with this build identity/digest and the already-passed preflight receipt.
+  Then run the manifest-bound task-0 smoke from this digest (not host Python),
+  capture the reused-job restore export, configure/claim/launch once, collect
+  all 54 score-free results before restore, restore, and grade.
+
+## Previous handoff -- 2026-08-29 21:46 UTC (three-hundred-seventy-sixth update)
 
 ### Invalid storage-source build is cancelled; exact provider-resolved Git build is queued
 
