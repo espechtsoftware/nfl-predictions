@@ -20,6 +20,28 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 11:10 UTC (three-hundred-fifty-fifth update)
+
+### Hard-230 exact-K150 selector law is repaired and independently GO
+
+- Branch `main` and `origin/main` are at pushed commit `f1dec249`. The
+  collision-free hard-230 confirmation v2 patch is stable in exactly five
+  implementation/test files. It preserves gamma-4/gamma-5's strict capped
+  greedy prefix, retains K80/K100 byte/order semantics, and explicitly appends
+  a deterministic uncapped tail only where the prefix cannot reach K150.
+- Durable v2 results bind the old diversity contract solely as the base-kernel
+  contract and separately persist a self-hashed completion law plus per-
+  population prefix/completion IDs, hashes, ranges/counts, cap flags and exact
+  K80/K100/K150 nesting. Independent review is GO with no blockers. Focused
+  validation is 16/16 passed locally, plus compilation/diff checks and a real
+  outcome-blind 2024-W17 42-book replay (control gamma-4 140+10; hard-230
+  gamma-4 135+15; both gamma-5 150+0).
+- Exact next action: commit/push the five files with this handoff, build one
+  fresh immutable image/receipt from that commit, run a fresh v2 task-0 smoke,
+  then launch derive/grade under the v2 prefix. Never reuse the failed v1
+  smoke, terminal or grade namespaces. L2b provisional grade retry remains
+  active independently in local session `15330`.
+
 ## Current handoff — 2026-08-29 11:04 UTC (three-hundred-fifty-fourth update)
 
 ### Combined realized scores are available; L2b grade needs one transport retry

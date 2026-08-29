@@ -1,9 +1,12 @@
 """Pure 42-cell selector confirmation for the sealed hard-230 populations.
 
 The predecessor bridge owns population and score reconstruction.  This module
-adds three already-registered diversity orders to its native+DPP books while
-preserving the honest R1--R4 out-of-R0-origin fitting law.  It has no I/O and
-cannot regenerate candidates, read outcomes, or relax an overlap cap.
+adds three diversity orders to its native+DPP books while preserving the
+honest R1--R4 out-of-R0-origin fitting law.  The overlap variants retain the
+registered non-relaxing hard-cap greedy prefix through K100, then, only when
+that prefix cannot reach K150, complete the nested order with the same frozen
+tail-ladder objective without claiming the added entries satisfy the cap.
+It has no I/O and cannot regenerate candidates or read outcomes.
 """
 
 from __future__ import annotations
@@ -19,12 +22,25 @@ from nfl_dfs.research import corpus_r6_selector_diversity_challengers_v1 as dive
 from nfl_dfs.research import corpus_r6_current_bank_selector_successor_v1 as successor
 
 
-SCHEMA_VERSION: Final = "corpus-r6-hard230-selector-confirmation/v1"
-ADAPTER_ID: Final = "hard230-seven-selector-confirmation-v1"
+SCHEMA_VERSION: Final = "corpus-r6-hard230-selector-confirmation/v2"
+ADAPTER_ID: Final = "hard230-seven-selector-confirmation-v2"
 ENTRY_BUDGETS: Final = (80, 100, 150)
-DIVERSITY_IDS: Final = (
+OVERLAP_COMPLETION_LAW_ID: Final = (
+    "hard-cap-greedy-prefix-through-k100-then-unconstrained-tail-ladder-fill-v1"
+)
+OVERLAP_COMPLETION_LAW_SCHEMA: Final = (
+    "corpus-r6-hard230-overlap-completion-law/v2"
+)
+OVERLAP_COMPLETION_EVIDENCE_SCHEMA: Final = (
+    "corpus-r6-hard230-overlap-completion-evidence/v2"
+)
+BASE_OVERLAP_SELECTOR_IDS: Final = (
     "tail-ladder-roster-overlap-cap-4-v1",
     "tail-ladder-roster-overlap-cap-5-v1",
+)
+DIVERSITY_IDS: Final = (
+    "tail-ladder-roster-overlap-cap-4-prefix-then-tail-fill-v1",
+    "tail-ladder-roster-overlap-cap-5-prefix-then-tail-fill-v1",
     "tail-ladder-evil-twin-strict-200-v1",
 )
 SELECTOR_COUNT: Final = 7
@@ -86,6 +102,117 @@ def _book(
     }, field="book_sha256")
 
 
+def overlap_completion_law_v2() -> dict[str, object]:
+    """Describe the v2 completion layered over the immutable base kernel."""
+    base_contract = diversity.diversity_challenger_contract_v1()
+    return _with_hash({
+        "schema_version": OVERLAP_COMPLETION_LAW_SCHEMA,
+        "law_id": OVERLAP_COMPLETION_LAW_ID,
+        "base_kernel_contract_sha256": base_contract["contract_sha256"],
+        "base_kernel_overlap_selector_ids": list(BASE_OVERLAP_SELECTOR_IDS),
+        "completed_overlap_selector_ids": list(DIVERSITY_IDS[:2]),
+        "entry_budgets": list(ENTRY_BUDGETS),
+        "hard_cap_prefix_minimum_count": ENTRY_BUDGETS[1],
+        "hard_cap_prefix_law": (
+            "registered-greedy-overlap-cap-prefix-is-byte-preserved-and-never-relaxed"
+        ),
+        "completion_trigger": "hard-cap-prefix-count-is-less-than-150",
+        "completion_law": (
+            "continue-frozen-tail-ladder-over-remaining-candidates-from-prefix-coverage"
+        ),
+        "completion_overlap_cap_enforced": False,
+        "completion_global_cap_compliance_claimed": False,
+        "nested_prefixes": list(ENTRY_BUDGETS),
+        "uses_realized_outcomes": False,
+        "heldout_scores_used": False,
+    }, field="completion_law_sha256")
+
+
+def _completion_evidence_v2(
+    selector: Mapping[str, object], *, ordinal: int,
+) -> dict[str, object]:
+    item = _mapping(selector, label="completed overlap selector")
+    summary = _mapping(
+        item.get("selector_summary"), label="completed overlap selector summary"
+    )
+    ranked = [str(value) for value in item.get("ranked_lineup_ids", [])]
+    prefix = [
+        str(value) for value in summary.get("hard_cap_prefix_lineup_ids", [])
+    ]
+    completion = [
+        str(value) for value in summary.get("completion_lineup_ids", [])
+    ]
+    prefix_count = summary.get("hard_cap_greedy_prefix_count")
+    completion_count = summary.get("completion_count")
+    completion_performed = summary.get("completion_performed")
+    completion_start = summary.get("completion_start_rank")
+    completion_cap = summary.get("completion_overlap_cap_enforced")
+    expected_completion = len(prefix) < ENTRY_BUDGETS[-1]
+    if (
+        ordinal not in (0, 1)
+        or item.get("strategy_id") != DIVERSITY_IDS[ordinal]
+        or type(prefix_count) is not int
+        or type(completion_count) is not int
+        or type(completion_performed) is not bool
+        or len(ranked) != ENTRY_BUDGETS[-1]
+        or len(set(ranked)) != len(ranked)
+        or len(prefix) != prefix_count
+        or not ENTRY_BUDGETS[1] <= prefix_count <= ENTRY_BUDGETS[-1]
+        or len(completion) != completion_count
+        or prefix + completion != ranked
+        or completion_performed is not expected_completion
+        or completion_count != ENTRY_BUDGETS[-1] - prefix_count
+        or completion_start != (prefix_count if expected_completion else None)
+        or completion_cap != (False if expected_completion else None)
+        or summary.get("hard_cap_relaxed_within_prefix") is not False
+        or summary.get("completion_law_id") != OVERLAP_COMPLETION_LAW_ID
+        or summary.get("final_ranking_depth_reached") is not True
+        or item.get("exact_prefix_consistency_verified") is not True
+        or item.get("entry_budgets_available") != list(ENTRY_BUDGETS)
+    ):
+        _fail("confirmation overlap completion evidence differs")
+    books = item.get("entry_books")
+    if not isinstance(books, Sequence) or isinstance(books, (str, bytes)):
+        _fail("confirmation overlap completion books differ")
+    if (
+        len(books) != len(ENTRY_BUDGETS)
+        or any(not isinstance(book, Mapping) for book in books)
+        or [book.get("entry_budget") for book in books]
+        != list(ENTRY_BUDGETS)
+        or any(
+            book.get("selected_lineup_ids") != ranked[: int(book["entry_budget"])]
+            for book in books
+        )
+    ):
+        _fail("confirmation overlap completion nesting differs")
+    return _with_hash({
+        "schema_version": OVERLAP_COMPLETION_EVIDENCE_SCHEMA,
+        "base_kernel_selector_id": BASE_OVERLAP_SELECTOR_IDS[ordinal],
+        "completed_selector_id": DIVERSITY_IDS[ordinal],
+        "overlap_cap": ordinal + 4,
+        "hard_cap_prefix_count": prefix_count,
+        "hard_cap_prefix_lineup_ids": prefix,
+        "hard_cap_prefix_lineup_ids_sha256": _hash(prefix),
+        "hard_cap_enforced_rank_range": [0, prefix_count - 1],
+        "hard_cap_relaxed_within_prefix": False,
+        "completion_performed": completion_performed,
+        "completion_start_rank": completion_start,
+        "completion_count": completion_count,
+        "completion_lineup_ids": completion,
+        "completion_lineup_ids_sha256": _hash(completion),
+        "completion_rank_range": (
+            [prefix_count, ENTRY_BUDGETS[-1] - 1]
+            if expected_completion
+            else None
+        ),
+        "completion_overlap_cap_enforced": completion_cap,
+        "completion_global_cap_compliance_claimed": False,
+        "completed_ranked_lineup_ids_sha256": _hash(ranked),
+        "exact_hard_cap_prefix_preserved": True,
+        "exact_nested_k80_k100_k150_verified": True,
+    }, field="completion_evidence_sha256")
+
+
 def _hard230_diversity_orders(
     *, scores: np.ndarray, candidates: Sequence[Mapping[str, object]],
 ) -> tuple[list[dict[str, object]], str]:
@@ -97,7 +224,7 @@ def _hard230_diversity_orders(
     overlaps = diversity._roster_overlap_matrix(candidates)
     selectors: list[dict[str, object]] = []
     for ordinal, gamma in enumerate((4, 5)):
-        selected, trace, summary = diversity._run_overlap_cap_order(
+        selected, trace, hard_cap_summary = diversity._run_overlap_cap_order(
             gamma=gamma,
             lineup_ids=lineup_ids,
             masks=masks,
@@ -105,12 +232,114 @@ def _hard230_diversity_orders(
             means=means,
             roster_overlaps=overlaps,
         )
+        hard_cap_prefix_count = len(selected)
+        if hard_cap_prefix_count < ENTRY_BUDGETS[1]:
+            _fail("confirmation hard-cap prefix lacks exact K100")
+        if hard_cap_prefix_count > ENTRY_BUDGETS[-1]:
+            _fail("confirmation hard-cap prefix exceeds K150")
+
+        hard_cap_prefix = list(selected)
+        retained_trace = [
+            {
+                **dict(row),
+                "selection_role": "hard-roster-overlap-cap-prefix",
+                "overlap_cap_enforced": True,
+            }
+            for row in trace
+        ]
+        if hard_cap_prefix_count < ENTRY_BUDGETS[-1]:
+            covered = [
+                np.zeros(mask.shape[1], dtype=np.uint8) for mask in masks
+            ]
+            remaining = np.ones(len(lineup_ids), dtype=bool)
+            for candidate in selected:
+                remaining[candidate] = False
+                for mask, seen in zip(masks, covered, strict=True):
+                    seen |= mask[candidate]
+            while len(selected) < ENTRY_BUDGETS[-1]:
+                utilities = diversity._fresh_utilities(
+                    masks=masks, covered=covered
+                )
+                best = diversity._best_ladder_candidate(
+                    eligible=remaining,
+                    utilities=utilities,
+                    primary_counts=primary_counts,
+                    means=means,
+                    lineup_ids=lineup_ids,
+                )
+                if best is None:
+                    _fail("confirmation tail-ladder completion lacks exact K150")
+                maximum_prior_overlap = (
+                    0
+                    if not selected
+                    else int(overlaps[best, selected].max())
+                )
+                retained_trace.append({
+                    "selection_rank": len(selected),
+                    "canonical_lineup_index": best,
+                    "lineup_id": lineup_ids[best],
+                    "selection_role": "unconstrained-tail-ladder-completion",
+                    "marginal_weighted_tail_ladder_utility": int(
+                        utilities[best]
+                    ),
+                    "individual_strict_gt_200_world_count": int(
+                        primary_counts[best]
+                    ),
+                    "fit_world_mean_score_micro": diversity._micro(
+                        float(means[best]), label="fit world mean score"
+                    ),
+                    "maximum_overlap_with_prior_roster": maximum_prior_overlap,
+                    "overlap_cap": gamma,
+                    "overlap_cap_enforced": False,
+                })
+                diversity._append_selection(
+                    candidate=best,
+                    selected=selected,
+                    remaining=remaining,
+                    masks=masks,
+                    covered=covered,
+                )
+
+        completion_count = len(selected) - hard_cap_prefix_count
+        hard_cap_prefix_lineup_ids = [lineup_ids[index] for index in hard_cap_prefix]
+        completion_lineup_ids = [
+            lineup_ids[index] for index in selected[hard_cap_prefix_count:]
+        ]
+        summary = {
+            "overlap_cap": gamma,
+            "hard_cap_greedy_prefix_count": hard_cap_prefix_count,
+            "hard_cap_prefix_lineup_ids": hard_cap_prefix_lineup_ids,
+            "hard_cap_prefix_lineup_ids_sha256": _hash(
+                hard_cap_prefix_lineup_ids
+            ),
+            "hard_cap_ranking_depth_reached": (
+                hard_cap_prefix_count == ENTRY_BUDGETS[-1]
+            ),
+            "hard_cap_unselected_feasible_candidate_count_at_stop": int(
+                hard_cap_summary["unselected_feasible_candidate_count_at_stop"]
+            ),
+            "hard_cap_global_maximum_feasible_cardinality_claimed": False,
+            "hard_cap_relaxed_within_prefix": False,
+            "completion_law_id": OVERLAP_COMPLETION_LAW_ID,
+            "completion_performed": completion_count > 0,
+            "completion_start_rank": (
+                hard_cap_prefix_count if completion_count > 0 else None
+            ),
+            "completion_count": completion_count,
+            "completion_lineup_ids": completion_lineup_ids,
+            "completion_lineup_ids_sha256": _hash(completion_lineup_ids),
+            "completion_overlap_cap_enforced": (
+                False if completion_count > 0 else None
+            ),
+            "completion_global_cap_compliance_claimed": False,
+            "final_ranking_depth_reached": len(selected) == ENTRY_BUDGETS[-1],
+        }
         selectors.append(diversity._selector_result(
             ordinal=ordinal,
-            strategy_id=f"tail-ladder-roster-overlap-cap-{gamma}-v1",
-            kind="hard-roster-overlap-cap",
+            strategy_id=DIVERSITY_IDS[ordinal],
+            kind="hard-roster-overlap-cap-prefix-then-tail-ladder-fill",
             selected=selected,
-            trace=trace,
+            trace=retained_trace,
             summary=summary,
             lineup_ids=lineup_ids,
             candidates=candidates,
@@ -188,7 +417,7 @@ def _build_from_retained_bridge_v1(
                 selected=source_book["selected_lineup_ids"],
             ))
 
-        selected_results, diversity_contract_sha256 = _hard230_diversity_orders(
+        selected_results, base_kernel_contract_sha256 = _hard230_diversity_orders(
             scores=scores, candidates=candidates
         )
         if [row["strategy_id"] for row in selected_results] != list(DIVERSITY_IDS):
@@ -206,11 +435,26 @@ def _build_from_retained_bridge_v1(
                     budget=budget,
                     selected=ranked,
                 ))
+        completion_law = overlap_completion_law_v2()
+        completion_evidence = [
+            _completion_evidence_v2(selector, ordinal=ordinal)
+            for ordinal, selector in enumerate(selected_results[:2])
+        ]
         diversity_hashes.append({
             "population_role": role,
             "population_id": population_id,
-            "diversity_contract_sha256": diversity_contract_sha256,
-            "diversity_selector_results_sha256": _hash(selected_results),
+            "base_diversity_kernel_contract_sha256": (
+                base_kernel_contract_sha256
+            ),
+            "overlap_completion_law": completion_law,
+            "overlap_completion_law_sha256": completion_law[
+                "completion_law_sha256"
+            ],
+            "completed_diversity_selector_results_sha256": _hash(
+                selected_results
+            ),
+            "overlap_completion_evidence": completion_evidence,
+            "overlap_completion_evidence_sha256": _hash(completion_evidence),
             "training_score_matrix_sha256": population[
                 "selector_fit_score_matrix_sha256"
             ],
@@ -307,6 +551,7 @@ def validate_sealed_hard230_bridge_confirmation_v1(
 
 __all__ = [
     "ADAPTER_ID", "BOOK_COUNT", "DIVERSITY_IDS", "ENTRY_BUDGETS",
+    "OVERLAP_COMPLETION_LAW_ID", "overlap_completion_law_v2",
     "build_from_sealed_hard230_bridge_v1",
     "build_hard230_selector_confirmation_v1",
     "validate_sealed_hard230_bridge_confirmation_v1",

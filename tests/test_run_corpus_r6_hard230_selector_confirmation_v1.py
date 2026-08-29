@@ -130,6 +130,19 @@ def _normalized_source(source: dict[str, object]) -> dict[str, object]:
     }
 
 
+def _rehash_confirmation(result: dict[str, object]) -> None:
+    result["diversity_bindings_sha256"] = execution._hash(
+        result["diversity_bindings"]
+    )
+    result["confirmation_sha256"] = execution._hash(
+        {
+            key: value
+            for key, value in result.items()
+            if key != "confirmation_sha256"
+        }
+    )
+
+
 def test_structural_seam_emits_42_gradeable_books_and_rejects_rehashed_escape(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -167,6 +180,74 @@ def test_structural_seam_emits_42_gradeable_books_and_rejects_rehashed_escape(
     with pytest.raises(
         execution.CorpusR6Hard230SelectorConfirmationExecutionV1Error,
         match="selected book differs",
+    ):
+        execution.validate_confirmation_slate_structure_v1(
+            forged, bridge_slate=source
+        )
+
+
+def test_structural_seam_rejects_rehashed_completion_evidence_tamper(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source, result = _fixture(monkeypatch)
+    forged = deepcopy(result)
+    binding = forged["diversity_bindings"][0]
+    evidence = binding["overlap_completion_evidence"][0]
+    evidence["hard_cap_prefix_lineup_ids"][0] = "forged-prefix-lineup"
+    evidence["hard_cap_prefix_lineup_ids_sha256"] = execution._hash(
+        evidence["hard_cap_prefix_lineup_ids"]
+    )
+    evidence["completion_evidence_sha256"] = execution._hash(
+        {
+            key: value
+            for key, value in evidence.items()
+            if key != "completion_evidence_sha256"
+        }
+    )
+    binding["overlap_completion_evidence_sha256"] = execution._hash(
+        binding["overlap_completion_evidence"]
+    )
+    _rehash_confirmation(forged)
+    with pytest.raises(
+        execution.CorpusR6Hard230SelectorConfirmationExecutionV1Error,
+        match="overlap completion evidence differs",
+    ):
+        execution.validate_confirmation_slate_structure_v1(
+            forged, bridge_slate=source
+        )
+
+
+def test_structural_seam_rejects_missing_completion_authority(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source, result = _fixture(monkeypatch)
+    forged = deepcopy(result)
+    del forged["diversity_bindings"][0]["overlap_completion_evidence"]
+    _rehash_confirmation(forged)
+    with pytest.raises(
+        execution.CorpusR6Hard230SelectorConfirmationExecutionV1Error,
+        match="diversity binding differs",
+    ):
+        execution.validate_confirmation_slate_structure_v1(
+            forged, bridge_slate=source
+        )
+
+
+def test_structural_seam_rejects_rehashed_predecessor_only_law(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source, result = _fixture(monkeypatch)
+    forged = deepcopy(result)
+    binding = forged["diversity_bindings"][0]
+    old_contract = confirmation.diversity.diversity_challenger_contract_v1()
+    binding["overlap_completion_law"] = old_contract
+    binding["overlap_completion_law_sha256"] = old_contract[
+        "contract_sha256"
+    ]
+    _rehash_confirmation(forged)
+    with pytest.raises(
+        execution.CorpusR6Hard230SelectorConfirmationExecutionV1Error,
+        match="diversity binding differs",
     ):
         execution.validate_confirmation_slate_structure_v1(
             forged, bridge_slate=source
@@ -286,7 +367,7 @@ def test_grade_opens_outcomes_only_after_terminal_and_bridge_validation(
         "source_commit_sha": "1" * 40,
         "immutable_image_digest": f"sha256:{'2' * 64}",
         "later_source_identity": later_identity,
-        "output_prefix": "gs://fixture/run/selector-confirmation-v1/",
+        "output_prefix": "gs://fixture/run/selector-confirmation-v2/",
         "slate_results": [
             {"slate_id": f"fixture-{ordinal:02d}"} for ordinal in range(54)
         ],
@@ -404,7 +485,7 @@ def test_task0_smoke_publishes_and_binds_exact_build_authority(
         "output_prefix": "gs://fixture/run/selector-bridge/",
         "slate_results": [{"slate_id": "2023-w01"}],
     }
-    output_prefix = "gs://fixture/run/selector-bridge/selector-confirmation-v1/"
+    output_prefix = "gs://fixture/run/selector-bridge/selector-confirmation-v2/"
     build = {"build": "receipt"}
     monkeypatch.setattr(
         operator,
@@ -488,7 +569,7 @@ def test_derive_is_exactly_54_and_has_no_outcome_reader(
     monkeypatch.setattr(
         operator.execution,
         "confirmation_output_prefix_v1",
-        lambda _value: "gs://fixture/run/selector-confirmation-v1/",
+        lambda _value: "gs://fixture/run/selector-confirmation-v2/",
     )
     seen: list[int] = []
     monkeypatch.setattr(
@@ -521,7 +602,7 @@ def test_derive_is_exactly_54_and_has_no_outcome_reader(
         lambda **_kwargs: None,
     )
     terminal = {
-        "terminal_uri": "gs://fixture/run/selector-confirmation-v1/full-54/terminal.json",
+        "terminal_uri": "gs://fixture/run/selector-confirmation-v2/full-54/terminal.json",
         "terminal_sha256": "b" * 64,
     }
     monkeypatch.setattr(
@@ -541,7 +622,7 @@ def test_derive_is_exactly_54_and_has_no_outcome_reader(
             "terminal_build_receipt_identity": build_identity,
             "source_commit_sha": "1" * 40,
             "immutable_image_digest": f"sha256:{'2' * 64}",
-            "output_prefix": "gs://fixture/run/selector-confirmation-v1/",
+            "output_prefix": "gs://fixture/run/selector-confirmation-v2/",
         },
         store=object(),
     )

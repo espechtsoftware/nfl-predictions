@@ -159,7 +159,72 @@ def test_confirmation_validation_replays_and_rejects_tamper(
         )
 
 
-def test_confirmation_fails_if_hard_cap_does_not_reach_k150(
+def test_confirmation_completes_partial_hard_cap_after_exact_k100(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    slate, matrices = _fixture()
+    role = bridge.POPULATION_SPECS[0][0]
+    population = slate["population_results"][0]
+    by_id = {
+        str(row["lineup_id"]): row
+        for row in population["full_population_lineups"]
+    }
+    candidates = [by_id[value] for value in population["sampled_lineup_ids"]]
+    original = confirmation.diversity._run_overlap_cap_order
+    retained_prefix: list[int] = []
+
+    def partial(*, gamma: int, **kwargs: object):
+        selected, trace, summary = original(gamma=gamma, **kwargs)
+        if gamma == 4:
+            retained_prefix[:] = selected[:100]
+            selected = selected[:100]
+            trace = trace[:100]
+            summary = {
+                **summary,
+                "greedy_prefix_count": 100,
+                "ranking_depth_reached": False,
+                "unselected_feasible_candidate_count_at_stop": 0,
+            }
+        return selected, trace, summary
+
+    monkeypatch.setattr(
+        confirmation.diversity, "_run_overlap_cap_order", partial
+    )
+    selectors, _contract_sha = confirmation._hard230_diversity_orders(
+        scores=matrices[role], candidates=candidates
+    )
+    completed = selectors[0]
+    prefix_ids = [
+        candidates[index]["lineup_id"] for index in retained_prefix
+    ]
+    completion_ids = completed["ranked_lineup_ids"][100:]
+    assert completed["strategy_id"] == confirmation.DIVERSITY_IDS[0]
+    assert completed["greedy_prefix_count"] == 150
+    assert completed["entry_budgets_available"] == [80, 100, 150]
+    assert completed["ranked_canonical_indices"][:100] == retained_prefix
+    assert len(set(completed["ranked_lineup_ids"])) == 150
+    assert completed["selector_summary"] == {
+        "overlap_cap": 4,
+        "hard_cap_greedy_prefix_count": 100,
+        "hard_cap_prefix_lineup_ids": prefix_ids,
+        "hard_cap_prefix_lineup_ids_sha256": confirmation._hash(prefix_ids),
+        "hard_cap_ranking_depth_reached": False,
+        "hard_cap_unselected_feasible_candidate_count_at_stop": 0,
+        "hard_cap_global_maximum_feasible_cardinality_claimed": False,
+        "hard_cap_relaxed_within_prefix": False,
+        "completion_law_id": confirmation.OVERLAP_COMPLETION_LAW_ID,
+        "completion_performed": True,
+        "completion_start_rank": 100,
+        "completion_count": 50,
+        "completion_lineup_ids": completion_ids,
+        "completion_lineup_ids_sha256": confirmation._hash(completion_ids),
+        "completion_overlap_cap_enforced": False,
+        "completion_global_cap_compliance_claimed": False,
+        "final_ranking_depth_reached": True,
+    }
+
+
+def test_confirmation_rejects_truncated_diversity_result_after_completion(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     slate, matrices = _fixture()

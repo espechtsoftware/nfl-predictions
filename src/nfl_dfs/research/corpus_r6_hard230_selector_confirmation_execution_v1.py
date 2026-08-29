@@ -23,9 +23,9 @@ from nfl_dfs.research import (
 )
 
 
-TERMINAL_SCHEMA: Final = "corpus-r6-hard230-selector-confirmation-terminal/v1"
+TERMINAL_SCHEMA: Final = "corpus-r6-hard230-selector-confirmation-terminal/v2"
 TERMINAL_ADAPTER_ID: Final = confirmation.ADAPTER_ID
-OUTPUT_SUFFIX: Final = "selector-confirmation-v1/"
+OUTPUT_SUFFIX: Final = "selector-confirmation-v2/"
 
 _RESULT_FIELDS: Final = frozenset(
     {
@@ -75,9 +75,38 @@ _DIVERSITY_BINDING_FIELDS: Final = frozenset(
     {
         "population_role",
         "population_id",
-        "diversity_contract_sha256",
-        "diversity_selector_results_sha256",
+        "base_diversity_kernel_contract_sha256",
+        "overlap_completion_law",
+        "overlap_completion_law_sha256",
+        "completed_diversity_selector_results_sha256",
+        "overlap_completion_evidence",
+        "overlap_completion_evidence_sha256",
         "training_score_matrix_sha256",
+    }
+)
+_COMPLETION_EVIDENCE_FIELDS: Final = frozenset(
+    {
+        "schema_version",
+        "base_kernel_selector_id",
+        "completed_selector_id",
+        "overlap_cap",
+        "hard_cap_prefix_count",
+        "hard_cap_prefix_lineup_ids",
+        "hard_cap_prefix_lineup_ids_sha256",
+        "hard_cap_enforced_rank_range",
+        "hard_cap_relaxed_within_prefix",
+        "completion_performed",
+        "completion_start_rank",
+        "completion_count",
+        "completion_lineup_ids",
+        "completion_lineup_ids_sha256",
+        "completion_rank_range",
+        "completion_overlap_cap_enforced",
+        "completion_global_cap_compliance_claimed",
+        "completed_ranked_lineup_ids_sha256",
+        "exact_hard_cap_prefix_preserved",
+        "exact_nested_k80_k100_k150_verified",
+        "completion_evidence_sha256",
     }
 )
 _TERMINAL_FIELDS: Final = frozenset(
@@ -255,9 +284,11 @@ def validate_confirmation_slate_structure_v1(
             label="hard230 confirmation diversity bindings",
         )
     ]
-    diversity_contract_sha = diversity.diversity_challenger_contract_v1()[
+    base_kernel_contract_sha = diversity.diversity_challenger_contract_v1()[
         "contract_sha256"
     ]
+    completion_law = confirmation.overlap_completion_law_v2()
+    completion_evidence_by_role: dict[str, list[dict[str, object]]] = {}
     if (
         result.get("diversity_bindings_sha256") != _hash(bindings)
         or len(bindings) != confirmation.POPULATION_COUNT
@@ -270,16 +301,33 @@ def validate_confirmation_slate_structure_v1(
             set(binding) != _DIVERSITY_BINDING_FIELDS
             or binding.get("population_role") != role
             or binding.get("population_id") != population_ids_by_role[role]
-            or binding.get("diversity_contract_sha256")
-            != diversity_contract_sha
+            or binding.get("base_diversity_kernel_contract_sha256")
+            != base_kernel_contract_sha
+            or binding.get("overlap_completion_law") != completion_law
+            or binding.get("overlap_completion_law_sha256")
+            != completion_law["completion_law_sha256"]
             or binding.get("training_score_matrix_sha256")
             != source_population.get("selector_fit_score_matrix_sha256")
         ):
             _fail("hard230 confirmation diversity binding differs")
         _digest(
-            binding.get("diversity_selector_results_sha256"),
-            label="hard230 confirmation diversity selector result",
+            binding.get("completed_diversity_selector_results_sha256"),
+            label="hard230 completed diversity selector result",
         )
+        evidence = [
+            _mapping(row, label="hard230 overlap completion evidence")
+            for row in _sequence(
+                binding.get("overlap_completion_evidence"),
+                label="hard230 overlap completion evidence",
+            )
+        ]
+        if (
+            len(evidence) != 2
+            or binding.get("overlap_completion_evidence_sha256")
+            != _hash(evidence)
+        ):
+            _fail("hard230 overlap completion evidence collection differs")
+        completion_evidence_by_role[role] = evidence
 
     books = [
         _mapping(row, label="hard230 confirmation book")
@@ -294,6 +342,7 @@ def validate_confirmation_slate_structure_v1(
         for family, selector_id, budget in expected_selectors
     ]
     retained_coordinates: list[tuple[str, str, str, str, int]] = []
+    selected_by_coordinate: dict[tuple[str, str, int], list[str]] = {}
     for book in books:
         coordinate = _mapping(
             book.get("coordinate"), label="hard230 confirmation coordinate"
@@ -341,8 +390,89 @@ def validate_confirmation_slate_structure_v1(
             )
         ):
             _fail("hard230 confirmation selected book differs")
+        key = (role, str(coordinate.get("selector_id")), budget)
+        if key in selected_by_coordinate:
+            _fail("hard230 confirmation selected book coordinate repeats")
+        selected_by_coordinate[key] = selected
     if retained_coordinates != expected_coordinates:
         _fail("hard230 confirmation exact 42-book lattice differs")
+
+    for role in expected_roles:
+        for ordinal, evidence in enumerate(completion_evidence_by_role[role]):
+            selector_id = confirmation.DIVERSITY_IDS[ordinal]
+            prefix = [
+                str(value)
+                for value in _sequence(
+                    evidence.get("hard_cap_prefix_lineup_ids"),
+                    label="hard230 hard-cap prefix lineup IDs",
+                )
+            ]
+            completion = [
+                str(value)
+                for value in _sequence(
+                    evidence.get("completion_lineup_ids"),
+                    label="hard230 completion lineup IDs",
+                )
+            ]
+            prefix_count = evidence.get("hard_cap_prefix_count")
+            completion_count = evidence.get("completion_count")
+            completion_performed = evidence.get("completion_performed")
+            completion_start = evidence.get("completion_start_rank")
+            completion_cap = evidence.get("completion_overlap_cap_enforced")
+            full = selected_by_coordinate[(role, selector_id, 150)]
+            k80 = selected_by_coordinate[(role, selector_id, 80)]
+            k100 = selected_by_coordinate[(role, selector_id, 100)]
+            expected_completion = len(prefix) < 150
+            if (
+                set(evidence) != _COMPLETION_EVIDENCE_FIELDS
+                or evidence.get("completion_evidence_sha256")
+                != _hash({
+                    key: item
+                    for key, item in evidence.items()
+                    if key != "completion_evidence_sha256"
+                })
+                or evidence.get("schema_version")
+                != confirmation.OVERLAP_COMPLETION_EVIDENCE_SCHEMA
+                or evidence.get("base_kernel_selector_id")
+                != confirmation.BASE_OVERLAP_SELECTOR_IDS[ordinal]
+                or evidence.get("completed_selector_id") != selector_id
+                or evidence.get("overlap_cap") != ordinal + 4
+                or type(prefix_count) is not int
+                or not 100 <= prefix_count <= 150
+                or len(prefix) != prefix_count
+                or len(set(prefix)) != len(prefix)
+                or evidence.get("hard_cap_prefix_lineup_ids_sha256")
+                != _hash(prefix)
+                or evidence.get("hard_cap_enforced_rank_range")
+                != [0, prefix_count - 1]
+                or evidence.get("hard_cap_relaxed_within_prefix") is not False
+                or type(completion_count) is not int
+                or len(completion) != completion_count
+                or len(set(completion)) != len(completion)
+                or evidence.get("completion_lineup_ids_sha256")
+                != _hash(completion)
+                or prefix + completion != full
+                or len(set(full)) != 150
+                or evidence.get("completed_ranked_lineup_ids_sha256")
+                != _hash(full)
+                or completion_performed is not expected_completion
+                or completion_count != 150 - prefix_count
+                or completion_start
+                != (prefix_count if expected_completion else None)
+                or evidence.get("completion_rank_range")
+                != ([prefix_count, 149] if expected_completion else None)
+                or completion_cap
+                != (False if expected_completion else None)
+                or evidence.get("completion_global_cap_compliance_claimed")
+                is not False
+                or evidence.get("exact_hard_cap_prefix_preserved") is not True
+                or evidence.get("exact_nested_k80_k100_k150_verified") is not True
+                or k80 != full[:80]
+                or k100 != full[:100]
+                or prefix[:80] != k80
+                or prefix[:100] != k100
+            ):
+                _fail("hard230 overlap completion evidence differs")
     return result
 
 

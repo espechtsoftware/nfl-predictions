@@ -41,7 +41,7 @@ MAXIMUM_CONFIRMATION_TERMINAL_BYTES = 60_000_000
 MAXIMUM_GRADE_BYTES = 40_000_000
 MAXIMUM_SMOKE_OUTPUT_BYTES = 2_000_000
 GCS_IO_TIMEOUT_SECONDS = bridge_operator.GCS_IO_TIMEOUT_SECONDS
-TASK0_SMOKE_SCHEMA = "corpus-r6-hard230-selector-confirmation-smoke/v1"
+TASK0_SMOKE_SCHEMA = "corpus-r6-hard230-selector-confirmation-smoke/v2"
 
 
 class RunCorpusR6Hard230SelectorConfirmationV1Error(RuntimeError):
@@ -210,7 +210,7 @@ def _validate_task0_smoke_receipt_v1(value: object) -> dict[str, object]:
         or not image_digest.startswith("sha256:")
         or len(image_digest) != 71
         or type(output_prefix) is not str
-        or not output_prefix.endswith("/selector-confirmation-v1/")
+        or not output_prefix.endswith("/selector-confirmation-v2/")
     ):
         _fail("hard230 confirmation task0 smoke fixed law differs")
     for field in (
