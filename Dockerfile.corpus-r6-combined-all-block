@@ -1,0 +1,22 @@
+FROM python:3.14.4-slim
+
+WORKDIR /app
+
+# The frozen selector contracts require this exact numerical runtime.  Keep
+# the historical /usr/local/bin/python3.11 dispatcher path as a compatibility
+# alias while executing the pinned Python 3.14.4 interpreter.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && ln -s /usr/local/bin/python3.14 /usr/local/bin/python3.11 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml README.md /app/
+COPY src /app/src
+COPY scripts /app/scripts
+COPY reports /app/reports
+COPY sql /app/sql
+
+RUN pip install --no-cache-dir "numpy==2.5.1" "scipy==1.18.0" \
+    && pip install --no-cache-dir --editable ".[gcp,app,graph]"
+
+CMD ["/usr/local/bin/python3.11", "-I", "/app/scripts/run_corpus_r6_combined_population_all_block_v1.py", "--help"]

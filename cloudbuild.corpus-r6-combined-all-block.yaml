@@ -20,7 +20,7 @@ steps:
     args:
       - build
       - -f
-      - Dockerfile.corpus-research-expansion
+      - Dockerfile.corpus-r6-combined-all-block
       - -t
       - '${_IMAGE}'
       - .
@@ -33,7 +33,8 @@ steps:
         docker run --rm --network none '${_IMAGE}' \
           python -I scripts/run_corpus_r6_combined_population_all_block_v1.py --help
         docker run --rm --network none '${_IMAGE}' \
-          python -m nfl_dfs.research.corpus_r6_combined_population_all_block_execution_v1 --help
+          /usr/local/bin/python3.11 -I -c \
+          'import numpy, scipy; assert numpy.__version__ == "2.5.1"; assert scipy.__version__ == "1.18.0"; from nfl_dfs.research import corpus_r6_hard230_selector_bridge_v1 as h; h.frozen_hard230_selector_bridge_contract_v1()'
 images:
   - '${_IMAGE}'
 substitutions:

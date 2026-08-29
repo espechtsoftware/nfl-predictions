@@ -20,6 +20,27 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 10:03 UTC (three-hundred-fifty-first update)
+
+### Combined first execution failed fast on one shared runtime mismatch
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `2c4aa07c`. Execution `atlas-minimal-c-s2023-w3-v1-l9khv` is terminal with
+  54 failures, zero successes and no published task results/terminal. Every
+  task failed before science because the generic corpus-research image used a
+  Python 3.11 dependency resolution that did not match the frozen selector's
+  exact NumPy `2.5.1` / SciPy `1.18.0` contract. This is one shared image
+  closure error, not a lineup-strategy result.
+- New `Dockerfile.corpus-r6-combined-all-block` uses the already-proven Python
+  3.14.4 runtime with the historical `python3.11` dispatcher alias and pins
+  NumPy/SciPy exactly. The bounded build now invokes the hard-230 frozen
+  implementation contract inside the network-isolated image smoke, so this
+  mismatch cannot escape another build.
+- Exact next action: commit/push the two runtime-build files and this handoff,
+  submit one replacement immutable image, publish a fresh build receipt and
+  output prefix, prepare/configure, and launch once. Do not reuse or overwrite
+  the failed execution's manifest/output prefix.
+
 ## Current handoff — 2026-08-29 09:55 UTC (three-hundred-fiftieth update)
 
 ### Combined all-block full54 is live
