@@ -95,6 +95,7 @@ COPY scripts/aggregate_constraint_lattice_support_census.py ./scripts/aggregate_
 COPY scripts/run_constraint_lattice_resource_preflight.py ./scripts/run_constraint_lattice_resource_preflight.py
 COPY scripts/run_recourse_aware_initial_scorefree.py ./scripts/run_recourse_aware_initial_scorefree.py
 COPY scripts/aggregate_recourse_aware_initial_scorefree.py ./scripts/aggregate_recourse_aware_initial_scorefree.py
+COPY scripts/validate_recourse_aware_initial_canary.py ./scripts/validate_recourse_aware_initial_canary.py
 COPY scripts/coherent_market_state_sources.py ./scripts/coherent_market_state_sources.py
 COPY scripts/run_coherent_market_state_scorefree.py ./scripts/run_coherent_market_state_scorefree.py
 COPY scripts/aggregate_coherent_market_state_scorefree.py ./scripts/aggregate_coherent_market_state_scorefree.py

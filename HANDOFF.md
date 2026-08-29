@@ -72,9 +72,12 @@ agent or developer:
   failed only because the shallow GitSource checkout lacks the old commit
   object used by the already-green local prior-image rejection proof. The
   bounded recipe correction is pushed in `115dc3ae`; replacement build
-  `cafa1aaa-6bed-48c7-900a-bf2109ba7b41` is queued and resolves the exact full
-  revision `115dc3ae58c6bb645eace9dc507a9f22b5afa196`. Poll it; do not submit
-  another while it is queued/working.
+  `cafa1aaa-6bed-48c7-900a-bf2109ba7b41` resolved the exact full revision
+  `115dc3ae58c6bb645eace9dc507a9f22b5afa196`, passed tests and built the image,
+  but its final smoke proved `validate_recourse_aware_initial_canary.py` was
+  absent from the ordinary Dockerfile. The bounded packaging fix adds that
+  script; commit/build it before the canary. The failed build did not publish
+  an authoritative image digest.
 - The isolated hard-230 confirmation chain is independently GO for
   commit/build/durable task-0 smoke: two matched populations, seven selectors
   and K=80/100/150 produce 42 books per slate under the honest R1--R4
@@ -88,7 +91,11 @@ agent or developer:
   then run its required create-once task-0 smoke before full derive/grade.
   The five-file chain is now pushed in `a32ffb48`.
   `cloudbuild.hard230-confirmation.yaml` is the bounded 12-test, image-build,
-  network-isolated smoke recipe to commit next and submit by exact Git source.
+  network-isolated smoke recipe pushed in `31efdbca`. Build
+  `42f7fc8b-bfaf-4697-a288-de1a18ada640` passed all tests and built the image,
+  but its final smoke proved the new CLI was absent from the deliberately
+  narrow R6 Dockerfile. The bounded packaging fix adds only that CLI; rebuild
+  before publishing the durable task-0 smoke.
 - The combined incumbent + hard-230 + F7/F8/F9 all-block K=80 union mechanics
   are locally green, but independent review is HOLD until two bounded repairs
   land: exact semantic replay of every persisted book/contribution, and
