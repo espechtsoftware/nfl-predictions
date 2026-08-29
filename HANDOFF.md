@@ -20,7 +20,31 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 (three-hundred-eighty-third update)
+## Current handoff -- 2026-08-29 (three-hundred-eighty-fourth update)
+
+### Sole immutable-image manifest smoke is queued
+
+- Branch `main` and `origin/main` entered this milestone at pushed handoff
+  commit `a5e29060`; exact science/image source remains `68873f42...` and the
+  prepared manifest identity remains generation `1788039789304897`, 41,769
+  bytes, SHA-256 `8db33278...f51e80`.
+- Exactly one no-source Cloud Build was submitted for the manifest-bound task-0
+  smoke.  Its sole build ID is `09dd084f-f7b7-4497-be4d-215e130f9770`,
+  queued at `2026-08-29T21:45:37.215567041Z`.  Its only science step is the
+  immutable execution image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:86951310a4bae8ce014408257e02602e1c8004c04c8ad8bc7e4cab6bb7b1ada3`;
+  it has no submitted source archive or mutable image tag.
+- The step exact-opens the prepared manifest/task-0 snapshot, runs the real
+  score-blind K80/K80 science, internally validates the receipt, and can upload
+  only canonical `request.json` and `receipt.json` under fresh evidence prefix
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-boom-first-allocation-smokes/20260829-boom-first-68873f42-git-v1-manifest-smoke-v1/`.
+- Do not submit a second smoke while this build state exists.  Poll only
+  `09dd084f...`; accept only terminal `SUCCESS` followed by exact evidence
+  object identity/reopen and receipt validation.  No fixed-job mutation,
+  experiment launch, result publication or outcome read occurred at this
+  milestone.
+
+## Previous handoff -- 2026-08-29 (three-hundred-eighty-third update)
 
 ### Fresh repaired prepare publishes exact 54-input manifest successfully
 
