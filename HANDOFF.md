@@ -67,8 +67,10 @@ agent or developer:
   retrieval, with same-world diagnostics explicitly labeled.  In parallel,
   freeze an independent audit-world bank for honest held-out E[max], P(max at
   each threshold), event correlation/effective shots, union efficiency,
-  overlap and calibration residuals.  The pure simulated-diagnostic core is
-  under isolated focused review and must remain outcome-free.
+  overlap and calibration residuals.  A 1,698-line local diagnostic prototype
+  was rejected as overengineered and deleted without commit; implement the
+  remaining pure metric core as a thin reuse layer over existing helpers and
+  keep it outcome-free.
 
 ## Previous handoff -- 2026-08-29 (three-hundred-ninetieth update)
 
