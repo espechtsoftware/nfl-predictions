@@ -20,7 +20,47 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 20:12 UTC (three-hundred-seventy-third update)
+## Current handoff -- 2026-08-29 21:03 UTC (three-hundred-seventy-fourth update)
+
+### Boom-first real-artifact preflight passes; exact reviewed commit is cleared to build once
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `78170dc92d79cf19e37b8ca399b088a73947b778`, which is the independently
+  reviewed seven-file boom-first implementation and remains the exact source
+  commit to embed in the image.  A clean sparse checkout at
+  `.build-contexts/boom-first-78170dc9` is pinned to that commit and is the
+  only permitted build context for this run.
+- The required real-artifact, score-blind task-0 preflight completed with exit
+  zero under Python 3.14.4.  It reproduced all five incumbent control books,
+  produced exact K80 control and treatment books, read no outcome columns,
+  and performed no publication.  Its internal smoke SHA-256 is
+  `ecac236df0148672514d30ad99086f590bef85418be06a242fc4f943eea933b4`;
+  task-result SHA-256 is
+  `9b3ead0f9a26630a61b7c757222bc1d2da69bdfeac71f36fa018fb6ae13a9eaa`;
+  generation-snapshot SHA-256 is
+  `8fea4ae47a69f6cbe1855e00a1f253debc1d07f9e1aace42fb92096ee60143b3`;
+  arm-science SHA-256 is
+  `adfe081590d264f9b542798788c29826da30b6ed2cc39474129d8cfec767673c`.
+  The exact canonical local receipt is
+  `.scratch-score-sprint/boom-first-preflight-receipt-78170dc9.json`, 2,650
+  bytes with byte SHA-256
+  `4924c6d1f682c0fff36e2aad1825ca50dd02e6ff2037fcf4048341895793cc74`.
+- The preflight exact-opened later-source generation `1787367678830738`, byte
+  SHA-256 `c63251a3dee0b455502a8e37d03c731c671457b9b17ff41dd9249edb0bae654a`,
+  and reproduced its internal freeze SHA-256
+  `841c9121cb7afa5562e4cc8a607bb96f92a96dbae0388a7e63669a1e7bfb8216`.
+  Scoped source provenance is bound to commit `78170dc9...` with aggregate
+  SHA-256 `de52e35431397c503c8351eacee56079fb6728e552002235990bcb6bd17bddc5`.
+- Exact next action: submit one Cloud Build from the clean sparse checkout with
+  `_SOURCE_COMMIT=78170dc92d79cf19e37b8ca399b088a73947b778`; record the sole build ID,
+  immutable digest and terminal build receipt before prepare.  Then execute
+  the digest-pinned manifest smoke, reserve/configure the fixed job, create
+  the fresh launch claim and launch once, poll, collect before restoration,
+  restore the prior job configuration, and grade through the already-active
+  catalog outcome authority.  Do not rerun this preflight, reuse a run prefix,
+  or submit a second build if the first invocation's state is ambiguous.
+
+## Previous handoff -- 2026-08-29 20:12 UTC (three-hundred-seventy-third update)
 
 ### Boom-first matched pair is launch-hardened and clean-HEAD green
 
