@@ -20,6 +20,58 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 03:10 UTC (three-hundred-twenty-first update)
+
+### Hard-230 full historical population is sealed; audited selection bridge is GO
+
+- Branch `main` and `origin/main` entered this milestone at `414d5f74`.
+  Hard-230 execution `atlas-minimal-c-s2023-w2-v1-cfmp2`, UID
+  `fa4a5600-7c10-449d-94bf-e8eba10dca0f`, completed all **54/54** slate
+  tasks successfully with zero failed or cancelled tasks. The exact terminal
+  status SHA-256 is
+  `6f041f8f1338d82a242a38e05e50aa3fd76990a495cbddaf5e60e593a441d891`.
+- The full historical hard-230 population was finalized exactly once. Its
+  immutable final-root identity is generation `1787973001787554`, SHA-256
+  `0202b8ff9dbbcc1e06c474cf0b63aab8a67fb189e19d46e67cfba788ca49a98a`,
+  127,580 bytes at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-hard230/20260829-score-sprint-c9f12ed7-v1/controller/full-54/final-root.json`;
+  its root self-hash is
+  `6a726eb65d8e97ef16721ec8eeeac52ee340bf53c9fe7049ab9166b553611bc6`.
+  It binds 108 population descriptors: the P0 baseline and hard-230
+  challenger for every one of the 54 slates. No realized outcomes were read
+  during execution or finalization.
+- The hard-230 selector bridge received independent **GO** after a real
+  outcome-blind 2023-w01 replay. P0 and challenger each contain 1,000 source
+  lineups; each is reduced to an equal score-blind sample of 250, fit uses
+  R1--R4 only, and grouped/rank-150/DPP produce twelve exact nested
+  80/100/150 books per population. The replay result SHA-256 is
+  `eba6e1dc4c1d44c1b96798e1c06864bb710ad77276796c9044075a060a83a75c`.
+  The bridge now requires a pure-replayed task-0 receipt before full54,
+  scope-separated canonical output topology, complete source/later-source
+  bindings, and full score-free replay before any outcome snapshot can open.
+  Independent validation was 46/46; lead focused validation was 6/6 with a
+  clean whitespace check.
+- L2b incumbent task-0 execution `atlas-minimal-c-s2023-w3-v1-hkgsh`, UID
+  `e49f32c3-8fac-44d2-b0f6-fcd27ef5b6d4`, is ACTIVE with zero failures. The
+  frozen `414d5f74` release was used for both manifest validation and job
+  operation; do not validate that immutable manifest with newer working-tree
+  selector code.
+- Control V7 layer 07 did not seal. Execution
+  `atlas-cbc-32g-full-2023-w8-v1-9clnn` failed only because its exact-read
+  child reached the frozen 1,800-second child wall cap while processing up to
+  9.867 GB; no scientific assertion, memory, platform, or realized-read
+  failure occurred. Original retry authority is consumed. A timeout-only
+  recovery amendment is in progress that preserves V7 receipts 00--06,
+  image/command/request identities, process budgets, and create-once root URI
+  while raising only the child cap to 5,400 seconds within the existing
+  7,260-second Cloud task timeout.
+- Exact next action: commit and push only the reviewed hard-230 bridge plus
+  this handoff, run its pure-replayed task-0 gate from the immutable full root,
+  then derive the full54 bridge and grade its exact books against the frozen
+  outcome snapshot. In parallel, continue L2b task-0 status-only polling and
+  execute the bounded V7 timeout recovery exactly once after its amendment is
+  reviewed.
+
 ## Current handoff — 2026-08-29 02:25 UTC (three-hundred-twentieth update)
 
 ### September 4 score freeze is active; L2b is release-GO and control root is live
