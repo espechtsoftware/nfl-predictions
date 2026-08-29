@@ -20,6 +20,50 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 02:01 UTC (three-hundred-nineteenth update)
+
+### Hard-230 full historical panel is live; control layer 06 is terminal green
+
+- Branch `main` and `origin/main` entered this milestone at `736b4c21`.
+  Hard-230 task-0 execution `atlas-minimal-c-s2023-w2-v1-6f9c9` completed
+  **1/1 successful**, exit 0, with zero retries or failures. Terminal status
+  SHA-256 is
+  `3643fcc8a9757cd957134f38dd0a0f24a839ce752f31db9db6f004d0bb68dcc9`.
+- The hard-230 smoke was finalized exactly once. Its final-root identity is
+  generation `1787968472646099`, SHA-256
+  `2a076086dac46eb9a5829f283e53cb81181ee3a6045dc75990df71e1eba7939a`,
+  5,004 bytes at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-hard230/20260829-score-sprint-c9f12ed7-v1/controller/task0-smoke/final-root.json`;
+  root self-hash is
+  `5174bd118b92f054d0ab3214999af31b2a6e0d05c2eeb5ca5616673aabb20420`.
+- A full-54 controller was prepared from that exact smoke root and the source
+  54-task manifest. Controller manifest generation is `1787968508112852`,
+  SHA-256
+  `0d74047251c6569647b604803c1fe2e670dbf1c83609c36af9a76a0294c8e28d`,
+  15,813 bytes. The exact reused hard-230 job was configured once and full
+  execution `atlas-minimal-c-s2023-w2-v1-cfmp2` was launched once with 54
+  parallel tasks. Launch receipt generation is `1787968531511200`, SHA-256
+  `78b8fc23a48982e99b3e41ec356e97429047186c5415610abef929350edc8627`;
+  launch-result SHA-256 is
+  `e27159a3f6276400261ca84faf62f82193f6d8d7ac6d89f2cc1e304a7d5895e4`.
+  Status-poll only; never reconfigure or relaunch this execution.
+- Frozen control layer-06 execution
+  `atlas-cbc-32g-full-2023-w8-v1-qz62b` is terminal **1/1 successful**, exit
+  0, with zero retries/failures. Status SHA-256 is
+  `489d6ee5c2e7a39e3c7ac13d79c49b2cc5b9f41bed74cb359be4cab70745da14`.
+  One exact finalization is in progress; do not invoke it a second time.
+- Population task-0 remains genuinely active and clean. L2b adapter review
+  found and drove repairs for book substitution, task0/full54 result collision
+  and causal gating, explicit grader registration, and real V7 candidate-view
+  sizing. The stabilized 46-test remediation is in final independent re-audit;
+  do not commit/build until its verdict is GO. Fair-fill remains NO-GO and is
+  outside the next image.
+- Exact next action: status-poll hard-230 full54 and population task0; advance
+  population on green. Finalize control layer 06 once, run terminal layer 07,
+  then execute the one-slate/full realized bridge. If L2b review is GO,
+  commit/build/prepare it immediately without waiting for fair-fill. No new
+  realized score has yet been read.
+
 ## Current handoff — 2026-08-29 01:39 UTC (three-hundred-eighteenth update)
 
 ### Control layer 06 is live; adapter reviews blocked two untrustworthy paths
