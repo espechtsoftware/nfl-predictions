@@ -295,21 +295,52 @@ def _validate_provider_build_attestation_v1(
     substitutions = _mapping(build.get("substitutions", {}), label="build substitutions")
     source = _mapping(build.get("source", {}), label="build source")
     repo_source = _mapping(source.get("repoSource", {}), label="build repo source")
+    git_source = _mapping(source.get("gitSource", {}), label="build git source")
     provenance = _mapping(
         build.get("sourceProvenance", {}), label="build source provenance"
     )
     resolved_repo = _mapping(
-        provenance.get("resolvedRepoSource", {}), label="resolved build source"
+        provenance.get("resolvedRepoSource", {}), label="resolved repo build source"
     )
-    resolved_commit = resolved_repo.get("commitSha")
-    resolved_repository = resolved_repo.get("repoName") or resolved_repo.get("repository")
-    corroborating_revisions = {
-        str(value) for value in (
+    resolved_git = _mapping(
+        provenance.get("resolvedGitSource", {}), label="resolved git build source"
+    )
+    repo_mode = bool(repo_source) or bool(resolved_repo)
+    git_mode = bool(git_source) or bool(resolved_git)
+    if (
+        repo_mode == git_mode
+        or bool(repo_source) != bool(resolved_repo)
+        or bool(git_source) != bool(resolved_git)
+    ):
+        _fail("provider Cloud Build source mode differs")
+    if repo_mode:
+        requested_commit = repo_source.get("commitSha")
+        resolved_commit = resolved_repo.get("commitSha")
+        requested_repository = (
+            repo_source.get("repoName") or repo_source.get("repository")
+        )
+        resolved_repository = (
+            resolved_repo.get("repoName") or resolved_repo.get("repository")
+        )
+    else:
+        requested_commit = git_source.get("revision")
+        resolved_commit = resolved_git.get("revision")
+        requested_repository = git_source.get("url")
+        resolved_repository = resolved_git.get("url")
+    if (
+        re.fullmatch(r"[0-9a-f]{40}", str(requested_commit)) is None
+        or requested_commit != resolved_commit
+        or type(requested_repository) is not str
+        or not requested_repository
+        or requested_repository != resolved_repository
+    ):
+        _fail("provider Cloud Build requested/resolved source differs")
+    corroborating_revisions = [
+        value for value in (
             substitutions.get("COMMIT_SHA"), substitutions.get("REVISION_ID"),
             substitutions.get("_SOURCE_COMMIT"),
-            repo_source.get("commitSha"),
-        ) if value and re.fullmatch(r"[0-9a-f]{40}", str(value))
-    }
+        ) if value not in (None, "")
+    ]
     images = [
         _mapping(row, label="provider build image")
         for row in build.get("results", {}).get("images", [])
@@ -317,9 +348,12 @@ def _validate_provider_build_attestation_v1(
     if (
         build.get("id") != receipt.get("build_id")
         or build.get("status") != "SUCCESS"
-        or not resolved_repository
         or resolved_commit != receipt.get("source_commit")
-        or any(value != resolved_commit for value in corroborating_revisions)
+        or any(
+            re.fullmatch(r"[0-9a-f]{40}", str(value)) is None
+            or value != resolved_commit
+            for value in corroborating_revisions
+        )
         or not any(
             row.get("name") == receipt.get("image_tag")
             and row.get("digest") == receipt.get("image_digest")

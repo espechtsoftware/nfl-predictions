@@ -286,7 +286,9 @@ def test_provider_build_attestation_rejects_fabricated_success_receipt() -> None
     provider_build = {
         "id": "build-1", "status": "SUCCESS",
         "substitutions": {"_SOURCE_COMMIT": "a" * 40},
-        "source": {},
+        "source": {"repoSource": {
+            "commitSha": "a" * 40, "repoName": "github_erich_nfl-predictions"
+        }},
         "sourceProvenance": {"resolvedRepoSource": {
             "commitSha": "a" * 40, "repoName": "github_erich_nfl-predictions"
         }},
@@ -308,6 +310,75 @@ def test_provider_build_attestation_rejects_fabricated_success_receipt() -> None
     with pytest.raises(op.RunCorpusR6CombinedPopulationAllBlockV1Error):
         op._validate_provider_build_attestation_v1(
             receipt=receipt, provider_build=substitution_only
+        )
+
+
+def test_provider_build_attestation_accepts_exact_resolved_git_source_only() -> None:
+    repository = "https://github.com/espechtsoftware/nfl-predictions.git"
+    receipt = {
+        "build_id": "build-2", "source_commit": "a" * 40,
+        "image_tag": "us-central1-docker.pkg.dev/p/r/i:tag",
+        "image_digest": f"sha256:{'b' * 64}",
+    }
+    provider_build = {
+        "id": "build-2", "status": "SUCCESS",
+        "substitutions": {"_SOURCE_COMMIT": "a" * 40},
+        "source": {"gitSource": {
+            "revision": "a" * 40, "url": repository,
+        }},
+        "sourceProvenance": {"resolvedGitSource": {
+            "revision": "a" * 40, "url": repository,
+        }},
+        "results": {"images": [{
+            "name": receipt["image_tag"], "digest": receipt["image_digest"],
+        }]},
+    }
+    op._validate_provider_build_attestation_v1(
+        receipt=receipt, provider_build=provider_build
+    )
+
+    for source_key, value in (
+        ("revision", "c" * 40),
+        ("url", "https://github.com/example/different.git"),
+    ):
+        mismatched = {
+            **provider_build,
+            "source": {"gitSource": {
+                **provider_build["source"]["gitSource"], source_key: value,
+            }},
+        }
+        with pytest.raises(op.RunCorpusR6CombinedPopulationAllBlockV1Error):
+            op._validate_provider_build_attestation_v1(
+                receipt=receipt, provider_build=mismatched
+            )
+
+    ambiguous = {
+        **provider_build,
+        "source": {
+            **provider_build["source"],
+            "repoSource": {
+                "commitSha": "a" * 40, "repoName": "unexpected-second-source",
+            },
+        },
+        "sourceProvenance": {
+            **provider_build["sourceProvenance"],
+            "resolvedRepoSource": {
+                "commitSha": "a" * 40, "repoName": "unexpected-second-source",
+            },
+        },
+    }
+    with pytest.raises(op.RunCorpusR6CombinedPopulationAllBlockV1Error):
+        op._validate_provider_build_attestation_v1(
+            receipt=receipt, provider_build=ambiguous
+        )
+
+    conflicting_substitution = {
+        **provider_build,
+        "substitutions": {"_SOURCE_COMMIT": "c" * 40},
+    }
+    with pytest.raises(op.RunCorpusR6CombinedPopulationAllBlockV1Error):
+        op._validate_provider_build_attestation_v1(
+            receipt=receipt, provider_build=conflicting_substitution
         )
 
 

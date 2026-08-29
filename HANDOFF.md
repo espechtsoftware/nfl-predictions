@@ -20,6 +20,28 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 09:25 UTC (three-hundred-forty-seventh update)
+
+### Combined all-block build attestation matches the real provider transport
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `4a1df030`. The combined operator now accepts exactly one provider-backed
+  Cloud Build source mode: `repoSource` plus `resolvedRepoSource`, or the
+  repository's actual `gitSource` plus `resolvedGitSource` path. Requested and
+  provider-resolved repository/revision must agree, the revision must be a
+  full SHA, and every present commit substitution plus build ID, success,
+  image tag and digest remains exact/fail-closed. Partial, dual or conflicting
+  source modes are rejected.
+- Combined focused validation is **25/25 passed**, plus compile, diff and exact
+  isolated `python -I ... --help` smokes. The fastest safe launch path is one
+  local exact real-artifact task-0 replay after prepare and then the provider
+  54-task run; the current authority intentionally does not represent a cloud
+  one-task execution as the full experiment.
+- Exact next action: commit/push these two files with this handoff, build the
+  immutable combined image from that commit, publish its build receipt, run
+  local task-0, and launch full54 if task-0 passes. Continue L2b and recourse
+  polling without duplicate work.
+
 ## Current handoff — 2026-08-29 09:23 UTC (three-hundred-forty-sixth update)
 
 ### Corrected recourse canary passed and the remaining 53 cells are live
