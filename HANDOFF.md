@@ -20,6 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 11:37 UTC (three-hundred-fifty-seventh update)
+
+### Combined high-ceiling frontier re-portfolio core is executable
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `6061ce57`. New pure core
+  `corpus_r6_combined_frontier_reportfolio_v1.py` reopens one exact completed
+  combined result, forms the score-blind union of its eight K80 books in
+  canonical union-lineup order, verifies the rebuilt full simulated matrix
+  against the predecessor hash, and applies DPP, gamma-4, gamma-5 and
+  strict-200 evil-twin retrieval at exact nested K80/K100/K150.
+- Gamma books use the accepted hard230-v2 law: the strict overlap-capped prefix
+  is preserved and never relaxed; only a disclosed deterministic uncapped
+  tail-ladder completion may fill the remainder to K150. The result binds the
+  parent result/union/source-book/frontier/full-matrix/submatrix identities,
+  reads no outcome, regenerates no population, and exposes a public normalized
+  12-book grader surface with all promotion/production authority false.
+- Actual completed combined task 0 has 214 distinct frontier lineups, SHA-256
+  `e0b92c7c7d0a69397c5afa395b250bb38f1c5ab08b6d56d6094878371b41c405`.
+  The bounded 150--250 candidate envelope is compatible with the existing
+  quadratic DPP/diversity kernels. Focused validation is 4/4 passed, plus
+  compilation and diff checks.
+- Exact next action: add the narrow 54-task cloud shell that reuses the prior
+  combined terminal/task/source identities, reconstructs and hash-verifies the
+  matrix without rerunning population generation or the old eight selectors,
+  publishes a disjoint result prefix, collects 54 normalized slates and uses
+  the existing novel-roster realized grader. Then build once, smoke task 0,
+  fan 54 and report K80/K100/K150 scores immediately.
+
 ## Current handoff — 2026-08-29 11:25 UTC (three-hundred-fifty-sixth update)
 
 ### L2b produced 300 realized cells; retrieval crossing is now the critical path
