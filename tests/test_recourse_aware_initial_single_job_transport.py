@@ -383,9 +383,10 @@ def test_terminal_prior_build_cannot_authorize_kickoff_amendment() -> None:
         "20260820-a7-select-ladder-phase-s-incumbent-v1/smoke/"
         "build-metadata.json"
     )
-    transport.validate_build(json.loads(metadata_path.read_text(encoding="utf-8")))
-    with pytest.raises(RuntimeError, match="kickoff-population-amendment"):
-        transport._validate_local_sources()
+    with pytest.raises(ValueError, match="full-runtime build authority differs"):
+        transport.validate_build(
+            json.loads(metadata_path.read_text(encoding="utf-8"))
+        )
 
 
 def test_harvest_terminal_failure_restores_shared_job(

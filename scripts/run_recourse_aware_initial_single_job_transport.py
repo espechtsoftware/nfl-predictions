@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PROJECT = "nfl-predictions-503414"
 REGION = "us-central1"
 SERVICE_ACCOUNT = "817589974517-compute@developer.gserviceaccount.com"
-RUN_ID = "20260829-recourse-aware-initial-book-scorefree-kickoff-v2"
+RUN_ID = "20260829-recourse-aware-initial-book-scorefree-kickoff-v3"
 PREFIX = (
     "gs://nfl-predictions-503414-raw/research/"
     f"recourse-aware-initial-book-runs/{RUN_ID}"
@@ -67,6 +67,9 @@ EXECUTION_SHA256 = (
 KICKOFF_AMENDMENT_SHA256 = (
     "fec2d7f531cc3dea4a395fec5e02322ee46e88b43d00c09228a083470c4c69db"
 )
+KICKOFF_TIME_AMENDMENT_SHA256 = (
+    "89b2e5a5296bfbee5a4cebaf6f87bd091900fc79361c409a21214f28ac1edf64"
+)
 CBWU_SHA256 = (
     "556adeca6e0bf2855ad82296b1e708041a20446dc27e2c988c1d11e8c5bd4d33"
 )
@@ -77,6 +80,7 @@ RUNTIME_PATHS = (
     "reports/2026-08-17-recourse-aware-initial-book-scorefree-protocol.md",
     "reports/2026-08-17-recourse-aware-initial-book-execution-protocol.md",
     "reports/2026-08-29-recourse-aware-initial-book-kickoff-population-amendment.md",
+    "reports/2026-08-29-recourse-aware-initial-book-kickoff-time-reconstruction-amendment.md",
     "reports/cbwu-order-invariant-runs/"
     "20260815-cbwu-order-invariant-repair-v1/report.json",
     "src/nfl_dfs/analysis/recourse_aware_initial.py",
@@ -394,6 +398,7 @@ def _validate_local_sources() -> None:
         ROOT / "reports/2026-08-17-recourse-aware-initial-book-scorefree-protocol.md": SCIENCE_SHA256,
         ROOT / "reports/2026-08-17-recourse-aware-initial-book-execution-protocol.md": EXECUTION_SHA256,
         ROOT / "reports/2026-08-29-recourse-aware-initial-book-kickoff-population-amendment.md": KICKOFF_AMENDMENT_SHA256,
+        ROOT / "reports/2026-08-29-recourse-aware-initial-book-kickoff-time-reconstruction-amendment.md": KICKOFF_TIME_AMENDMENT_SHA256,
         ROOT / "reports/cbwu-order-invariant-runs/20260815-cbwu-order-invariant-repair-v1/report.json": CBWU_SHA256,
     }
     if any(not path.is_file() or _sha(path) != digest for path, digest in frozen.items()):
@@ -659,6 +664,9 @@ def _write_manifest() -> None:
         "science_protocol_sha256": SCIENCE_SHA256,
         "execution_protocol_sha256": EXECUTION_SHA256,
         "kickoff_population_amendment_sha256": KICKOFF_AMENDMENT_SHA256,
+        "kickoff_time_reconstruction_amendment_sha256": (
+            KICKOFF_TIME_AMENDMENT_SHA256
+        ),
         "transport_amendment_sha256": _sha(AMENDMENT),
         "transport_operator_sha256": _sha(Path(__file__)),
         "cbwu_report_sha256": CBWU_SHA256,

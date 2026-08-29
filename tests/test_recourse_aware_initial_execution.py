@@ -30,6 +30,8 @@ from run_recourse_aware_initial_scorefree import (  # noqa: E402
     FORENSIC_MANIFEST_SHA256,
     KICKOFF_AMENDMENT,
     KICKOFF_AMENDMENT_SHA256,
+    KICKOFF_POPULATION_AMENDMENT,
+    KICKOFF_POPULATION_AMENDMENT_SHA256,
     KICKOFF_SQL,
     RUN_ID,
     SCIENCE_PROTOCOL,
@@ -123,7 +125,9 @@ def _shard(season: int, week: int) -> dict:
         "cbwu_report_sha256": (
             "556adeca6e0bf2855ad82296b1e708041a20446dc27e2c988c1d11e8c5bd4d33"
         ),
-        "decision_time": "2026-09-13T15:55:00-04:00",
+        "decision_time": scorefree_runner.decision_instant(
+            scorefree_runner._sunday_main_date(season, week)
+        ).isoformat(),
         "artifact_receipts": [
             {
                 "block": block,
@@ -156,6 +160,7 @@ def _write_population(tmp_path: Path) -> list[Path]:
 
 
 def test_execution_sources_are_frozen_outcome_free_and_packaged() -> None:
+    assert RUN_ID == "20260829-recourse-aware-initial-book-scorefree-kickoff-v3"
     assert sha256(SCIENCE_PROTOCOL.read_bytes()).hexdigest() == (
         SCIENCE_PROTOCOL_SHA256
     )
@@ -164,6 +169,9 @@ def test_execution_sources_are_frozen_outcome_free_and_packaged() -> None:
     )
     assert sha256(KICKOFF_AMENDMENT.read_bytes()).hexdigest() == (
         KICKOFF_AMENDMENT_SHA256
+    )
+    assert sha256(KICKOFF_POPULATION_AMENDMENT.read_bytes()).hexdigest() == (
+        KICKOFF_POPULATION_AMENDMENT_SHA256
     )
     assert not [
         token for token in FORBIDDEN_QUERY_TOKENS if token in KICKOFF_SQL.lower()
@@ -199,8 +207,8 @@ def test_kickoff_query_filters_exact_sorted_expected_player_ids(
         observed["sql"] = sql
         observed["params"] = params
         return _kickoff_rows([
-            ("p-a", "2023-09-10T17:00:00Z"),
-            ("p-b", "2023-09-10T20:25:00Z"),
+            ("p-a", "13:00"),
+            ("p-b", "16:25"),
         ])
 
     monkeypatch.setattr(scorefree_runner, "_query", query)
@@ -213,7 +221,59 @@ def test_kickoff_query_filters_exact_sorted_expected_player_ids(
     )
     assert player_parameter.values == ["p-a", "p-b"]
     assert set(kickoffs) == {"p-a", "p-b"}
+    assert kickoffs["p-a"].isoformat() == "2023-09-10T13:00:00-04:00"
+    assert kickoffs["p-b"].isoformat() == "2023-09-10T16:25:00-04:00"
     assert decision.isoformat() == "2023-09-10T15:55:00-04:00"
+
+
+@pytest.mark.parametrize(
+    ("season", "week", "expected_date", "expected_offset"),
+    [
+        (2023, 1, "2023-09-10", "-04:00"),
+        (2023, 9, "2023-11-05", "-05:00"),
+        (2024, 18, "2025-01-05", "-05:00"),
+        (2025, 18, "2026-01-04", "-05:00"),
+    ],
+)
+def test_kickoff_wall_clock_uses_fixed_sunday_and_preserves_dst(
+    monkeypatch: pytest.MonkeyPatch,
+    season: int,
+    week: int,
+    expected_date: str,
+    expected_offset: str,
+) -> None:
+    monkeypatch.setattr(
+        scorefree_runner,
+        "_query",
+        lambda *_args, **_kwargs: _kickoff_rows([
+            ("p-a", "13:00"), ("p-b", "16:25"),
+        ]),
+    )
+    kickoffs, decision = scorefree_runner._slate_kickoffs(
+        object(),
+        season=season,
+        week=week,
+        expected_player_ids={"p-a", "p-b"},
+    )
+    assert kickoffs["p-a"].isoformat() == (
+        f"{expected_date}T13:00:00{expected_offset}"
+    )
+    assert kickoffs["p-b"].isoformat() == (
+        f"{expected_date}T16:25:00{expected_offset}"
+    )
+    assert decision.isoformat() == f"{expected_date}T15:55:00{expected_offset}"
+
+
+@pytest.mark.parametrize(
+    ("season", "week"),
+    [(2022, 1), (2023, 0), (2023, 19), (2023, True)],
+)
+def test_sunday_main_date_rejects_out_of_grid_coordinates(
+    season: int,
+    week: int,
+) -> None:
+    with pytest.raises(RuntimeError, match="Sunday-main coordinate differs"):
+        scorefree_runner._sunday_main_date(season, week)
 
 
 @pytest.mark.parametrize(
@@ -221,38 +281,46 @@ def test_kickoff_query_filters_exact_sorted_expected_player_ids(
     [
         (
             [
-                ("p-a", "2023-09-10T17:00:00Z"),
-                ("p-b", "2023-09-10T20:25:00Z"),
-                ("p-extra", "2023-09-10T20:25:00Z"),
+                ("p-a", "13:00"),
+                ("p-b", "16:25"),
+                ("p-extra", "16:25"),
             ],
             "population differs",
         ),
-        ([('p-a', '2023-09-10T17:00:00Z')], "population differs"),
+        ([("p-a", "13:00")], "population differs"),
         (
             [
-                ("p-a", "2023-09-10T17:00:00Z"),
-                ("p-a", "2023-09-10T17:00:00Z"),
-                ("p-b", "2023-09-10T20:25:00Z"),
+                ("p-a", "13:00"),
+                ("p-a", "13:00"),
+                ("p-b", "16:25"),
             ],
             "population differs",
         ),
         (
-            [("p-a", "not-a-time"), ("p-b", "2023-09-10T20:25:00Z")],
-            "kickoff time is absent",
+            [("p-a", "not-a-time"), ("p-b", "16:25")],
+            "not strict HH:MM",
         ),
         (
             [
-                ("p-a", "2023-09-10T17:00:00Z"),
-                ("p-b", "2023-09-11T20:25:00Z"),
+                ("p-a", "2023-09-10T13:00:00-04:00"),
+                ("p-b", "2023-09-11T16:25:00-04:00"),
             ],
-            "multiple local dates",
+            "not strict HH:MM",
         ),
         (
             [
-                ("p-a", "2023-09-10T17:00:00Z"),
-                ("p-b", "2023-09-10T18:00:00Z"),
+                ("p-a", "13:00"),
+                ("p-b", "14:00"),
             ],
             "lacks early/late games",
+        ),
+        (
+            [("p-a", "13:00:00"), ("p-b", "16:25")],
+            "not strict HH:MM",
+        ),
+        (
+            [("p-a", " 13:00"), ("p-b", "16:25")],
+            "not strict HH:MM",
         ),
     ],
 )
@@ -319,7 +387,7 @@ def _canary_metadata(execution: str) -> dict:
 def test_actual_final_path_canary_validates_without_aggregate_disclosure(
     tmp_path: Path,
 ) -> None:
-    execution = "recourse-initial-s2023-w1-kickoff-v2-example"
+    execution = "recourse-initial-s2023-w1-kickoff-v3-example"
     uri = (
         "gs://nfl-predictions-503414-raw/research/"
         f"recourse-aware-initial-book-runs/{RUN_ID}/slate-2023-1.json"
@@ -330,7 +398,10 @@ def test_actual_final_path_canary_validates_without_aggregate_disclosure(
         f"output_prefix={uri.rsplit('/', 1)[0]}",
         f"science_protocol_sha256={SCIENCE_PROTOCOL_SHA256}",
         f"execution_protocol_sha256={EXECUTION_PROTOCOL_SHA256}",
-        f"kickoff_population_amendment_sha256={KICKOFF_AMENDMENT_SHA256}",
+        "kickoff_population_amendment_sha256="
+        f"{KICKOFF_POPULATION_AMENDMENT_SHA256}",
+        "kickoff_time_reconstruction_amendment_sha256="
+        f"{KICKOFF_AMENDMENT_SHA256}",
         "cbwu_report_sha256=556adeca6e0bf2855ad82296b1e708041a20446dc27e2c988c1d11e8c5bd4d33",
         f"forensic_manifest_sha256={FORENSIC_MANIFEST_SHA256}",
         "cpu=4", "memory=16Gi", "timeout_seconds=14400", "max_retries=0",
@@ -340,7 +411,7 @@ def test_actual_final_path_canary_validates_without_aggregate_disclosure(
     )) + "\n", encoding="utf-8")
     ledger = tmp_path / "executions.txt"
     ledger.write_text(
-        f"2023 1 recourse-initial-s2023-w1-kickoff-v2 {execution} {uri}\n",
+        f"2023 1 recourse-initial-s2023-w1-kickoff-v3 {execution} {uri}\n",
         encoding="utf-8",
     )
     execution_path = tmp_path / "execution.json"

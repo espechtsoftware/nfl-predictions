@@ -20,6 +20,44 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 09:01 UTC (three-hundred-forty-first update)
+
+### Recourse kickoff-v3 repair is tested and ready for an exact image build
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `9f269988371ff9fbf5e0803ccedc5686c62cbbb0`. The kickoff-v2 canary failure
+  is repaired under fresh run ID
+  `20260829-recourse-aware-initial-book-scorefree-kickoff-v3`: strict `HH:MM`
+  player-table values are combined with fixed Week-1 Sunday-main dates for
+  2023--2025 plus seven days per week, then localized in
+  `America/New_York`. This preserves historical DST and rejects malformed,
+  date-bearing or unsupported coordinates. Both the earlier exact-population
+  amendment and new time-reconstruction amendment (SHA-256
+  `89b2e5a5296bfbee5a4cebaf6f87bd091900fc79361c409a21214f28ac1edf64`)
+  remain bound. Runner, aggregator, validator and transport use the fresh v3
+  identity. Focused recourse validation is **42/42 passed**.
+- The v3 staging deliberately excludes the unrelated terminal-root transport
+  and test hunks still present in the shared worktree. Build the ordinary
+  recourse image from the exact pushed v3 commit, then bind that successful
+  build and immutable digest in a separate minimal commit. Use a clean
+  detached checkout for the one-slate v3 launch; never resume or overwrite
+  terminal kickoff-v2.
+- Hard-230 confirmation build
+  `4842f9f2-1538-4c7c-a583-7af1dc935dfc` was accidentally submitted with a
+  mistyped nonexistent expanded revision and is non-authoritative; it should
+  fail before build steps and create no image. Correct exact-revision build
+  `cb15d8d3-3a09-4e68-841d-7ce1444738d0` uses revision
+  `9f269988371ff9fbf5e0803ccedc5686c62cbbb0` and tag
+  `r6-hard230-confirm-9f269988-v2`; poll this build only.
+- L2b remains terminal 54/54 and its single collection/finalization replay is
+  still active. Do not duplicate it. The combined-union science is sound but
+  cloud launch remains HOLD pending genuine provider build attestation and a
+  task runtime that does not assume the Cloud SDK exists inside the image.
+- Exact next action: commit/push the kickoff-v3 package and this handoff,
+  submit its bounded build, and continue the existing L2b collection plus the
+  correct hard-230 build poll. Actual L2b grading begins immediately after
+  terminal-root publication.
+
 ## Current handoff — 2026-08-29 08:54 UTC (three-hundred-fortieth update)
 
 ### L2b is terminal and collecting; two canaries exposed bounded runtime defects

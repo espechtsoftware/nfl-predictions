@@ -4,12 +4,14 @@
 from __future__ import annotations
 
 import argparse
+from datetime import date, datetime, time, timedelta
 import gc
 from hashlib import sha256
 import json
 import os
 from pathlib import Path
 import re
+from zoneinfo import ZoneInfo
 
 from google.cloud import bigquery, storage
 import pandas as pd
@@ -33,7 +35,7 @@ from run_constraint_lattice_scorefree import (
 
 
 PROJECT = "nfl-predictions-503414"
-RUN_ID = "20260829-recourse-aware-initial-book-scorefree-kickoff-v2"
+RUN_ID = "20260829-recourse-aware-initial-book-scorefree-kickoff-v3"
 OUTPUT_PREFIX = (
     "gs://nfl-predictions-503414-raw/research/"
     f"recourse-aware-initial-book-runs/{RUN_ID}"
@@ -50,13 +52,27 @@ EXECUTION_PROTOCOL = Path(
 EXECUTION_PROTOCOL_SHA256 = (
     "3991fdbf36c2018b2ec11625a6be62990c100fdf1f47bde3985c2327e3248c9b"
 )
-KICKOFF_AMENDMENT = Path(
+KICKOFF_POPULATION_AMENDMENT = Path(
     "reports/2026-08-29-recourse-aware-initial-book-"
     "kickoff-population-amendment.md"
 )
-KICKOFF_AMENDMENT_SHA256 = (
+KICKOFF_POPULATION_AMENDMENT_SHA256 = (
     "fec2d7f531cc3dea4a395fec5e02322ee46e88b43d00c09228a083470c4c69db"
 )
+KICKOFF_AMENDMENT = Path(
+    "reports/2026-08-29-recourse-aware-initial-book-"
+    "kickoff-time-reconstruction-amendment.md"
+)
+KICKOFF_AMENDMENT_SHA256 = (
+    "89b2e5a5296bfbee5a4cebaf6f87bd091900fc79361c409a21214f28ac1edf64"
+)
+EASTERN = ZoneInfo("America/New_York")
+SUNDAY_MAIN_WEEK1 = {
+    2023: date(2023, 9, 10),
+    2024: date(2024, 9, 8),
+    2025: date(2025, 9, 7),
+}
+STRICT_KICKOFF_TIME = re.compile(r"(?:[01][0-9]|2[0-3]):[0-5][0-9]")
 KICKOFF_SQL = f"""
 SELECT manifest_sha256, player_id, kickoff_time
 FROM `{PLAYER_TABLE}`
@@ -78,6 +94,9 @@ def validate_local_sources() -> dict[str, str]:
     expected = {
         str(SCIENCE_PROTOCOL): SCIENCE_PROTOCOL_SHA256,
         str(EXECUTION_PROTOCOL): EXECUTION_PROTOCOL_SHA256,
+        str(KICKOFF_POPULATION_AMENDMENT): (
+            KICKOFF_POPULATION_AMENDMENT_SHA256
+        ),
         str(KICKOFF_AMENDMENT): KICKOFF_AMENDMENT_SHA256,
     }
     for raw_path, digest in expected.items():
@@ -94,6 +113,24 @@ def validate_local_sources() -> dict[str, str]:
             + ", ".join(present)
         )
     return {**lattice, **expected}
+
+
+def _sunday_main_date(season: int, week: int) -> date:
+    if type(season) is not int or season not in SUNDAY_MAIN_WEEK1 or \
+            type(week) is not int or week not in range(1, 19):
+        raise RuntimeError("recourse-aware Sunday-main coordinate differs")
+    return SUNDAY_MAIN_WEEK1[season] + timedelta(days=7 * (week - 1))
+
+
+def _wall_clock_timestamp(raw: object, slate_date: date) -> pd.Timestamp:
+    if type(raw) is not str or STRICT_KICKOFF_TIME.fullmatch(raw) is None:
+        raise RuntimeError(
+            "recourse-aware kickoff time is not strict HH:MM Eastern wall clock"
+        )
+    hour, minute = map(int, raw.split(":"))
+    return pd.Timestamp(datetime.combine(
+        slate_date, time(hour=hour, minute=minute), tzinfo=EASTERN,
+    ))
 
 
 def _slate_kickoffs(
@@ -123,11 +160,11 @@ def _slate_kickoffs(
                 FORENSIC_MANIFEST_SHA256
             } or set(frame.player_id.astype(str)) != expected_player_ids:
         raise RuntimeError("recourse-aware kickoff population differs")
-    stamps = pd.to_datetime(
-        frame.kickoff_time, format="mixed", errors="coerce", utc=True,
-    )
-    if stamps.isna().any():
-        raise RuntimeError("recourse-aware kickoff time is absent")
+    slate_date = _sunday_main_date(season, week)
+    stamps = [
+        _wall_clock_timestamp(raw, slate_date)
+        for raw in frame.kickoff_time.tolist()
+    ]
     kickoffs = {
         str(player_id): pd.Timestamp(stamp)
         for player_id, stamp in zip(frame.player_id, stamps, strict=True)
@@ -135,9 +172,9 @@ def _slate_kickoffs(
     local_dates = {
         value.tz_convert("America/New_York").date() for value in kickoffs.values()
     }
-    if len(local_dates) != 1:
-        raise RuntimeError("recourse-aware slate spans multiple local dates")
-    decision = decision_instant(next(iter(local_dates)))
+    if local_dates != {slate_date}:
+        raise RuntimeError("recourse-aware kickoff has multi-date ambiguity")
+    decision = decision_instant(slate_date)
     if not any(value <= decision for value in kickoffs.values()) or \
             not any(value > decision for value in kickoffs.values()):
         raise RuntimeError("recourse-aware decision lacks early/late games")
