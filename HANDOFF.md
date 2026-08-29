@@ -20,7 +20,47 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 19:11 UTC (three-hundred-seventy-first update)
+## Current handoff -- 2026-08-29 19:29 UTC (three-hundred-seventy-second update)
+
+### Cap-4 mechanism audit corrects the replication claim without changing the winner
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `d2238bccd39b58fc3e97415179644f08880b95d3`.  An independent replay verified
+  all 54 immutable task-result identities and reproduced the reported K80
+  modeled and realized metrics.  Cap-4 remains the frozen historical K80
+  leader at 181.361 and the paired modeled-falls/realized-rises deltas versus
+  cap-5 and the strict-200 evil twin are exact.
+- The causal interpretation is narrower.  Cap-4 has lower roster overlap and
+  better strict-200 union efficiency/effective rank, but its mean simulated
+  binary strict-200 event correlation (0.03714) is slightly higher than cap-5
+  (0.03665) and the evil twin (0.03680).  Most cap-4 versus cap-5 realized lift
+  occurs on the 34 completion slates (+3.090) rather than the 20 pure-prefix
+  slates (+0.601); final K80 maximum overlap was four on only 20/54.  Treat the
+  mechanism as early-prefix/path regularization plus possible calibration
+  robustness, not a universal hard-cap or proven co-boom explanation.
+- The signature is season- and threshold-dependent.  Cap-4 minus cap-5 was
+  +4.122/+2.881/-0.499 in 2023/2024/2025.  Modeled expected hit-weeks at
+  strict 200/210/220/230 were 14.49/8.22/4.21/1.92 versus realized inclusive
+  counts 9/5/4/3.  Modeled probabilities are in-sample diagnostics on the
+  same 50,000 selection worlds, not held-out calibration estimates.
+- Correct an earlier description: lab PREREG-016 is a structural analog, not
+  an exact selector replication.  Production uses strict >200/>210/>220,
+  weights 1/4/12 and primary-count/mean/lineup-ID ties.  Lab 044 uses inclusive
+  >=194/>=200/>=210/>=220, weights 1/2/6/12 and gain/mean/input-order ties on
+  10,000 worlds and an unsieved boom-first pool.  Its result remains valuable
+  for transport of the cap-prefix law but cannot prove exact parity.
+- Next concrete science action after PREREG-016 is a no-new-solves selector
+  2x2: exact production ladder versus exact cap-4 prefix/fill, each under raw
+  and disjoint/walk-forward calibrated tail probabilities and dependence.
+  Preregister the cap-by-calibration interaction plus weekly maximum,
+  threshold residuals, overlap, event correlation, union efficiency,
+  effective rank, prefix/completion, family mix and season-clustered intervals.
+- Boom-first production hardening continues independently; no boom cloud job
+  or outcome read has occurred.  Finish operator/provider/build/smoke/lease
+  wiring and adversarial tests, independently review the exact diff, then
+  commit/push the bounded code before one no-publish task-0 smoke and launch.
+
+## Previous handoff -- 2026-08-29 19:11 UTC (three-hundred-seventy-first update)
 
 ### Complete-union retrieval sets a new K80 best; boom-first review is accepted and being hardened
 

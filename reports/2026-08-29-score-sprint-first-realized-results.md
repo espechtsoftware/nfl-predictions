@@ -84,21 +84,54 @@ Cap-4 was modeled below cap-5 on 49/54 slates and below the evil twin on all
 3.549%, was the **lowest modeled >230 probability of the four challengers**,
 while cap-4 produced the **most realized 230+ weeks** (three).
 
-This is evidence for a calibration-correction mechanism, not proof that
-diversity is irrelevant.  Cap-4 still has lower average pairwise roster
-overlap, and its completion path means it is not a pure cap experiment on
-34/54 slates.  The correct conclusion is that the winning law may be choosing
-a better point on a diversity-versus-model-overconfidence frontier.  The
-frozen adoption result stands, but the preset and UI must expose both modeled
-tail probability and realized calibration rather than labeling the gain as
-diversity alone.
+This is evidence for calibration robustness, not proof that calibration is
+the sole mechanism or that diversity is irrelevant.  Cap-4 has the lowest
+average pairwise roster overlap (1.213 versus 1.241 for cap-5, 1.264 for the
+evil twin and 1.497 for DPP) and the strongest modeled strict-200 union-event
+efficiency/effective-rank diagnostics.  It does **not**, however, have lower
+mean simulated binary strict-200 event correlation: 0.03714 versus 0.03665
+for cap-5 and 0.03680 for the evil twin.  The narrow claim that the selector
+simply removes co-boom correlation is therefore not established.
 
-The lab has frozen PREREG-016 to replicate the exact selector law over a
-different boom-first K1 population, with cov194, ladder, cap-4 ladder, cap-5
-ladder and cap-4 coverage arms across banks 210/211/212.  It explicitly tests
-whether simulated exceedance falls while realized performance rises.  No
-PREREG-016 result exists yet; its independent read will determine whether the
-law generalizes or is a population-by-selector interaction.
+The completion split is more informative.  Cap-4 beat cap-5 by only +0.601
+mean realized points on the 20 slates whose K80 book remained wholly inside
+the hard-cap prefix, but by +3.090 on the 34 slates that required unconstrained
+completion.  The final cap-4 K80 book had maximum overlap four on 20 slates,
+five on two, six on five, seven on 23 and eight on four.  Most of the gain is
+therefore consistent with an **early-prefix/path-regularization effect plus
+robustness to simulator miscalibration**, not a universal final-book hard cap.
+The effect is also not season-uniform: cap-4 minus cap-5 was +4.122 in 2023,
++2.881 in 2024 and -0.499 in 2025.
+
+Absolute calibration is threshold-dependent.  Across 54 slates, cap-4
+implied 14.49/8.22/4.21/1.92 expected hit-weeks at strict modeled thresholds
+200/210/220/230, versus 9/5/4/3 realized weeks at the grader's inclusive
+thresholds.  Overstatement is clear at 200/210, approximately neutral at 220
+and reversed in the sparse 230 tail.  These modeled probabilities are also
+in-sample diagnostics from the same 50,000 worlds used to select each book;
+they are not held-out calibration estimates.  The frozen adoption result
+stands, but the preset and UI must expose modeled-versus-realized residuals,
+roster overlap, event correlation, union efficiency/effective rank, prefix
+length and completion rather than labeling the gain as diversity or
+calibration alone.
+
+The lab has frozen PREREG-016 over a different boom-first K1 population, with
+cov194, ladder, cap-4 ladder, cap-5 ladder and cap-4 coverage arms across
+banks 210/211/212.  This is a useful **structural analog**, not an exact
+production-selector replication.  Production uses strict `>200/>210/>220`
+with weights `1/4/12` and primary-count/mean/lineup-ID tie-breaking; lab
+experiment 044 uses inclusive `>=194/>=200/>=210/>=220`, weights `1/2/6/12`,
+and gain/mean/input-order ties over 10,000 worlds and an unsieved population.
+Its result can test whether cap-prefix-then-fill transports, but cannot by
+itself establish exact-law parity.  No PREREG-016 result exists yet.
+
+After that read, the smallest clean discriminator is a selector-only 2x2 on
+fixed candidate pools: exact production ladder versus exact production
+cap-4-prefix/fill, each evaluated under raw and independently walk-forward
+calibrated tail probabilities/dependence.  If calibration closes the no-cap
+gap and the cap interaction collapses, robustness to miscalibration dominates;
+if cap-4 retains lift after calibration, diversity/path regularization has an
+independent contribution.  This follow-up requires no new candidate solves.
 
 ## Boom-first external result: review and production disposition
 
