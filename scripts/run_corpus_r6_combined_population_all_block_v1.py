@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """Run, collect, and grade the fixed 54-slate combined-population test.
 
-``prepare``, ``task``, and ``collect`` are outcome-blind.  ``grade`` first
-exact-reopens the create-last terminal, its manifest, and all 54 task results;
-only after that replay succeeds may it open the already-published catalog-wide
-outcome snapshot.  The operator never generates a population and never runs a
-warehouse query.
+``prepare``, ``task``, and ``collect`` are outcome-blind.  Each provider task
+is the sole executor of its exact frozen-source science.  ``collect`` then
+exact-opens and fully validates all 54 immutable task results without rerunning
+the selectors.  ``grade`` repeats that persisted-object and normalized-surface
+validation before it may open the already-published catalog-wide outcome
+snapshot.  This fast persisted-result grade is descriptive until a separate
+independent semantic replay confirms it; it cannot by itself license adoption.
+The operator never generates a population and never runs a warehouse query.
 """
 
 from __future__ import annotations
@@ -63,6 +66,54 @@ class RunCorpusR6CombinedPopulationAllBlockV1Error(RuntimeError):
 
 def _fail(message: str) -> None:
     raise RunCorpusR6CombinedPopulationAllBlockV1Error(message)
+
+
+def _split_immutable_image_uri_v1(
+    value: object, *, label: str
+) -> tuple[str, str | None, str]:
+    if type(value) is not str or value.count("@") != 1:
+        _fail(f"{label} immutable image URI differs")
+    image_name, digest = value.split("@")
+    if (
+        re.fullmatch(r"sha256:[0-9a-f]{64}", digest) is None
+        or not image_name
+        or any(character.isspace() for character in image_name)
+    ):
+        _fail(f"{label} immutable image URI differs")
+    last_slash = image_name.rfind("/")
+    last_colon = image_name.rfind(":")
+    if last_colon > last_slash:
+        repository = image_name[:last_colon]
+        tag: str | None = image_name[last_colon + 1:]
+        if re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}", tag) is None:
+            _fail(f"{label} immutable image tag differs")
+    else:
+        repository = image_name
+        tag = None
+    if not repository or repository.endswith("/"):
+        _fail(f"{label} immutable image repository differs")
+    return repository, tag, digest
+
+
+def _execution_image_matches_job_image_v1(
+    *, execution_uri: object, job_uri: object, expected_digest: object
+) -> bool:
+    execution_repository, execution_tag, execution_digest = (
+        _split_immutable_image_uri_v1(execution_uri, label="provider execution")
+    )
+    job_repository, job_tag, job_digest = _split_immutable_image_uri_v1(
+        job_uri, label="provider job"
+    )
+    if (
+        type(expected_digest) is not str
+        or execution_repository != job_repository
+        or execution_digest != job_digest
+        or execution_digest != expected_digest
+    ):
+        return False
+    if execution_uri == job_uri:
+        return True
+    return execution_tag is None and job_tag is not None
 
 
 class GCloudRunProviderV1:
@@ -222,7 +273,23 @@ class GCloudRunProviderV1:
                 "volume_mounts": container.get("volumeMounts", []),
                 "provider_observed": True,
             }
-            if authority_sha != _hash(execution_projection) or execution_projection != job_observation:
+            execution_without_uri = {
+                key: value for key, value in execution_projection.items()
+                if key != "immutable_image_uri"
+            }
+            job_without_uri = {
+                key: value for key, value in job_observation.items()
+                if key != "immutable_image_uri"
+            }
+            if (
+                authority_sha != _hash(job_observation)
+                or execution_without_uri != job_without_uri
+                or not _execution_image_matches_job_image_v1(
+                    execution_uri=execution_projection["immutable_image_uri"],
+                    job_uri=job_observation["immutable_image_uri"],
+                    expected_digest=job_observation["image_digest"],
+                )
+            ):
                 _fail("provider execution template differs from exact job authority")
         if (
             actual_execution != execution_id
@@ -567,6 +634,12 @@ def prepare_from_request_v1(
         "task_manifest_sha256": manifest["task_manifest_sha256"],
         "task_count": execution.TASK_COUNT,
         "terminal_uri": manifest["terminal_uri"],
+        "descriptive_terminal_uri": execution.descriptive_terminal_uri_v2(
+            output_prefix=str(manifest["output_prefix"])
+        ),
+        "descriptive_grade_uri": execution.descriptive_grade_uri_v2(
+            output_prefix=str(manifest["output_prefix"])
+        ),
         "job_configuration": execution.build_job_configuration_v1(
             manifest=manifest, manifest_identity=manifest_identity
         ),
@@ -849,18 +922,14 @@ def _open_known_task_results(
             or retained["source_ordinal"] != ordinal
         ):
             _fail(f"combined known result[{ordinal}] binding differs")
-        replayed = _derive_science_v1(
-            manifest=manifest, task_index=ordinal, store=store
-        )
-        try:
-            retained = execution.validate_exact_science_replay_v1(
-                retained,
-                replayed_science_result=replayed,
-                manifest=manifest,
-                manifest_identity=manifest_identity,
-            )
-        except execution.CorpusR6CombinedPopulationAllBlockExecutionV1Error as exc:
-            raise RunCorpusR6CombinedPopulationAllBlockV1Error(str(exc)) from exc
+        # The provider task already executed the source opens, common-matrix
+        # construction, and selectors under the immutable manifest-bound
+        # image.  validate_task_result_v1 above rehashes the complete result,
+        # validates its runtime/execution authority, and deeply validates the
+        # persisted books plus the public normalized grader surface.  Running
+        # _derive_science_v1 here would execute the selectors a second time.
+        # That independent semantic audit remains available, but is
+        # deliberately deferred from this fast descriptive scoring path.
         rows.append((retained, identity))
     return rows
 
@@ -884,7 +953,7 @@ def collect_from_request_v1(
         manifest=manifest, manifest_identity=manifest_identity, store=store
     )
     try:
-        terminal = execution.build_terminal_v1(
+        terminal = execution.build_descriptive_terminal_v2(
             manifest=manifest,
             manifest_identity=manifest_identity,
             task_results=task_results,
@@ -899,12 +968,21 @@ def collect_from_request_v1(
         store=store,
     )
     return {
-        "schema_version": "corpus-r6-combined-population-all-block-collect-result/v1",
+        "schema_version": (
+            "corpus-r6-combined-population-all-block-descriptive-collect-result/v2"
+        ),
         "terminal_identity": terminal_identity,
         "terminal_sha256": terminal["terminal_sha256"],
         "source_slate_count": execution.TASK_COUNT,
         "all_task_results_exact_opened_before_terminal": True,
         "generic_normalized_terminal_validated_before_terminal": True,
+        "provider_task_result_envelopes_validated_without_collector_recompute": True,
+        "science_recomputed_during_collection": False,
+        "independent_science_replay_performed": False,
+        "descriptive_only": True,
+        "promotion_authority": False,
+        "production_change_licensed": False,
+        "historical_finalist_confirmation": False,
         "outcome_columns_read": [],
         "uses_realized_outcomes": False,
         "complete": True,
@@ -924,7 +1002,7 @@ def _reopen_terminal(
         maximum_bytes=MAXIMUM_TERMINAL_BYTES,
     )
     try:
-        terminal = execution.validate_terminal_envelope_v1(terminal_body)
+        terminal = execution.validate_descriptive_terminal_envelope_v2(terminal_body)
     except execution.CorpusR6CombinedPopulationAllBlockExecutionV1Error as exc:
         raise RunCorpusR6CombinedPopulationAllBlockV1Error(str(exc)) from exc
     if terminal_identity["uri"] != terminal["terminal_uri"]:
@@ -945,13 +1023,9 @@ def _reopen_terminal(
             label=f"combined terminal task result[{ordinal}]",
             maximum_bytes=MAXIMUM_TASK_RESULT_BYTES,
         )
-        replayed = _derive_science_v1(
-            manifest=manifest, task_index=ordinal, store=store
-        )
         try:
-            result = execution.validate_exact_science_replay_v1(
+            result = execution.validate_task_result_v1(
                 result,
-                replayed_science_result=replayed,
                 manifest=manifest,
                 manifest_identity=manifest_identity,
             )
@@ -959,7 +1033,7 @@ def _reopen_terminal(
             raise RunCorpusR6CombinedPopulationAllBlockV1Error(str(exc)) from exc
         task_results.append((result, identity))
     try:
-        validated, normalized = execution.validate_terminal_with_results_v1(
+        validated, normalized = execution.validate_descriptive_terminal_with_results_v2(
             terminal,
             manifest=manifest,
             task_results=task_results,
@@ -974,8 +1048,11 @@ def grade_from_request_v1(request: object, *, store: object) -> dict[str, object
     if set(item) != {"terminal_identity", "outcome_snapshot_identity"}:
         _fail("combined grade request fields differ")
 
-    # This complete score-free replay intentionally precedes the first call
-    # to the outcome reader below.
+    # This complete score-free persisted-object validation intentionally
+    # precedes the first call to the outcome reader below.  It exact-opens all
+    # 54 task-result generations and validates their canonical/nested hashes,
+    # immutable runtime authority, books, rosters, and normalized surfaces;
+    # it does not rerun selectors already executed by the provider tasks.
     terminal, terminal_identity, _manifest, normalized = _reopen_terminal(
         item["terminal_identity"], store=store
     )
@@ -1000,7 +1077,9 @@ def grade_from_request_v1(request: object, *, store: object) -> dict[str, object
     )
     aggregates = grader.aggregate_normalized_slate_grades_v1(slate_grades)
     body = {
-        "schema_version": "corpus-r6-combined-population-all-block-realized-grade/v1",
+        "schema_version": (
+            "corpus-r6-combined-population-all-block-descriptive-realized-grade/v2"
+        ),
         "adapter_id": combined.ADAPTER_ID,
         "terminal_identity": terminal_identity,
         "terminal_sha256": terminal["terminal_sha256"],
@@ -1014,25 +1093,42 @@ def grade_from_request_v1(request: object, *, store: object) -> dict[str, object
         "slate_grades_sha256": _hash(slate_grades),
         "aggregate_cells": aggregates,
         "aggregate_cells_sha256": _hash(aggregates),
-        "all_score_free_predecessors_validated_before_outcome_open": True,
+        "all_score_free_predecessor_envelopes_validated_before_outcome_open": True,
+        "score_free_terminal_exact_opened_before_outcome_open": True,
+        "provider_task_result_envelopes_validated_without_grader_recompute": True,
+        "science_recomputed_during_grading": False,
+        "independent_science_replay_performed": False,
         "outcome_source_and_slate_identity_bound": True,
-        "historical_finalist_confirmation": True,
+        "descriptive_only": True,
+        "promotion_authority": False,
+        "production_change_licensed": False,
+        "historical_finalist_confirmation": False,
         "untouched_confirmatory_inference": False,
         "complete": True,
     }
     grade = {**body, "grade_sha256": _hash(body)}
     grade_identity = _publish_json(
-        uri=execution.grade_uri_v1(output_prefix=str(terminal["output_prefix"])),
+        uri=execution.descriptive_grade_uri_v2(
+            output_prefix=str(terminal["output_prefix"])
+        ),
         value=grade,
         maximum_bytes=MAXIMUM_GRADE_BYTES,
         store=store,
     )
     return {
-        "schema_version": "corpus-r6-combined-population-all-block-grade-result/v1",
+        "schema_version": (
+            "corpus-r6-combined-population-all-block-descriptive-grade-result/v2"
+        ),
         "grade_identity": grade_identity,
         "grade_sha256": grade["grade_sha256"],
         "aggregate_cell_count": len(aggregates),
-        "historical_finalist_confirmation": True,
+        "provider_task_result_envelopes_validated_without_grader_recompute": True,
+        "science_recomputed_during_grading": False,
+        "independent_science_replay_performed": False,
+        "descriptive_only": True,
+        "promotion_authority": False,
+        "production_change_licensed": False,
+        "historical_finalist_confirmation": False,
         "complete": True,
     }
 

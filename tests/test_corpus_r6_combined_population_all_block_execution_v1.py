@@ -392,3 +392,106 @@ def test_terminal_rejects_one_task_from_a_different_execution(
             task_results=results,
             provider_terminal_execution={"execution_id": "execution-1"},
         )
+
+
+def test_descriptive_terminal_uses_distinct_namespace_and_cannot_be_rehashed_authoritative(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest_identity = _identity("manifest")
+    output_prefix = (
+        "gs://nfl-predictions-503414-corpus-retrieval/research/"
+        "corpus-r6-combined-population-all-block/test-v1/"
+    )
+    bindings = [
+        {"slate_id": f"s-{ordinal}", "result_uri": f"gs://synthetic/r/{ordinal}"}
+        for ordinal in range(e.TASK_COUNT)
+    ]
+    manifest = {
+        "task_bindings": bindings,
+        "task_manifest_sha256": "d" * 64,
+        "incumbent_panel_freeze_identity": e.FIXED_INCUMBENT_PANEL_FREEZE_IDENTITY,
+        "profile_terminal_identity": e.FIXED_PROFILE_TERMINAL_IDENTITY,
+        "hard230_terminal_identity": e.FIXED_HARD230_TERMINAL_IDENTITY,
+        "later_source_identity": _identity("later"),
+        "output_prefix": output_prefix,
+        "terminal_uri": e.terminal_uri_v1(output_prefix=output_prefix),
+    }
+    monkeypatch.setattr(e, "validate_task_manifest_v1", lambda value: value)
+    monkeypatch.setattr(
+        e, "validate_provider_terminal_execution_v1", lambda value, **_kwargs: value
+    )
+    monkeypatch.setattr(e, "normalized_task_result_v1", lambda *_args, **_kwargs: {})
+    monkeypatch.setattr(
+        e.grader, "validate_external_normalized_terminal_v1", lambda **_kwargs: None
+    )
+    results = []
+    for ordinal, binding in enumerate(bindings):
+        result = {
+            "source_ordinal": ordinal,
+            "slate_id": binding["slate_id"],
+            "task_result_sha256": "a" * 64,
+            "science_result_sha256": "b" * 64,
+            "union_lineup_count": 100,
+            "runtime_authority": {"execution_id": "execution-1"},
+        }
+        raw = e._canonical(result)
+        results.append((result, {
+            "uri": binding["result_uri"],
+            "generation": "1",
+            "sha256": e.sha256(raw).hexdigest(),
+            "bytes": len(raw),
+        }))
+    monkeypatch.setattr(e, "validate_task_result_v1", lambda value, **_kwargs: value)
+    provider_terminal = {"execution_id": "execution-1"}
+
+    authoritative = e.build_terminal_v1(
+        manifest=manifest,
+        manifest_identity=manifest_identity,
+        task_results=results,
+        provider_terminal_execution=provider_terminal,
+    )
+    descriptive = e.build_descriptive_terminal_v2(
+        manifest=manifest,
+        manifest_identity=manifest_identity,
+        task_results=results,
+        provider_terminal_execution=provider_terminal,
+    )
+
+    assert authoritative["terminal_uri"] == e.terminal_uri_v1(
+        output_prefix=output_prefix
+    )
+    assert authoritative["historical_finalist_confirmation"] is True
+    assert descriptive["schema_version"] == e.DESCRIPTIVE_TERMINAL_SCHEMA
+    assert descriptive["terminal_uri"] == e.descriptive_terminal_uri_v2(
+        output_prefix=output_prefix
+    )
+    assert descriptive["terminal_uri"] != authoritative["terminal_uri"]
+    assert descriptive["independent_science_replay_performed"] is False
+    assert descriptive["descriptive_only"] is True
+    assert descriptive["promotion_authority"] is False
+    assert descriptive["production_change_licensed"] is False
+    assert descriptive["historical_finalist_confirmation"] is False
+    assert e.validate_descriptive_terminal_envelope_v2(descriptive) == descriptive
+    validated, normalized = e.validate_descriptive_terminal_with_results_v2(
+        descriptive, manifest=manifest, task_results=results
+    )
+    assert validated == descriptive
+    assert len(normalized) == e.TASK_COUNT
+
+    for field, forged in (
+        ("independent_science_replay_performed", True),
+        ("descriptive_only", False),
+        ("promotion_authority", True),
+        ("production_change_licensed", True),
+        ("historical_finalist_confirmation", True),
+        ("terminal_uri", authoritative["terminal_uri"]),
+    ):
+        changed = {**descriptive, field: forged}
+        changed["terminal_sha256"] = e._hash({
+            key: row for key, row in changed.items() if key != "terminal_sha256"
+        })
+        with pytest.raises(
+            e.CorpusR6CombinedPopulationAllBlockExecutionV1Error,
+            match="descriptive terminal authority differs",
+        ):
+            e.validate_descriptive_terminal_envelope_v2(changed)

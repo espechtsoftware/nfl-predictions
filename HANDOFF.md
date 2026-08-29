@@ -20,6 +20,50 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 10:27 UTC (three-hundred-fifty-second update)
+
+### Three score-producing lanes now run concurrently
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `170b7b4e`. Replacement combined build
+  `58aacc45-365d-4ebf-8a5f-1e9571d77c1b` succeeded from exact Git revision
+  `170b7b4ee13033bfda9021985ba9472a1b9963ac`; immutable image digest is
+  `sha256:3a8708052364559e5113e8ba83d773b53669234d8351e3fe2eff8e723241d082`.
+  Its create-once receipt is generation `1787998178072319`, SHA-256
+  `e7b66ba6272ef8887bb45042554c7b318ae0353878914f1aea729c42b202cbb3`,
+  528 bytes.
+- Fresh combined prepare passed. The 54-slate manifest is generation
+  `1787998895444358`, SHA-256
+  `6fb9fca06548ada5fe19fa8ff73712284f92a32d592e95bcad913eed5289e8c2`,
+  316,754 bytes, under run `20260829-score-sprint-170b7b4e-v2`. The exact
+  54-task job launched once as `atlas-minimal-c-s2023-w3-v1-j77mw`. Direct
+  provider status says it is waiting to start with no failures. The guarded
+  operator status exposed one transport-only defect: Cloud Run removes the
+  image tag from an execution snapshot while retaining the same repository and
+  digest, but the operator compared the full tag-qualified URI. A narrowly
+  bounded equivalence repair and adversarial regression are in progress; do
+  not restart the execution.
+- Independent hard-230 confirmation moved off the blocked local queue to the
+  idle fixed Week-2 job. Exact one-task derive execution
+  `atlas-minimal-c-s2023-w2-v1-rqt29` is running under fixed UID
+  `a9389eb4-da2b-4e4a-90a4-9ef769043e1d`, image digest
+  `sha256:e04bbe15a97fac2e3268f167ace8a09821caf9db835b83625689ade44cd7aa15`,
+  8 CPU/32 GiB, zero retries and a three-hour timeout. Its local derive path is
+  superseded to prevent create-once collision. On terminal derive success,
+  launch the one-task grade on this same execution snapshot, then restore the
+  captured Week-2 job specification.
+- Combined descriptive collect/grade is 29/29 focused passed and writes only
+  distinct v2 non-promotional artifacts; exact semantic replay remains the
+  asynchronous adoption audit. L2b provider-result fast finalization is also
+  implemented, but independent review found two real publication-authority
+  gaps (a direct pre-terminal finalizer CLI and missing durable execution/status
+  binding). It remains NO-GO until both repairs and adversarial tests pass. The
+  original L2b exact collector remains active and must not be restarted.
+- Exact next action: repair and revalidate combined status while the live task
+  execution continues; poll both cloud executions; run corrected L2b
+  provisional collect/grade as soon as independent review returns GO; grade
+  whichever live lane reaches terminal first.
+
 ## Current handoff — 2026-08-29 10:03 UTC (three-hundred-fifty-first update)
 
 ### Combined first execution failed fast on one shared runtime mismatch

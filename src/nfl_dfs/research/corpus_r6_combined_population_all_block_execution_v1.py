@@ -29,6 +29,9 @@ TASK_RESULT_SCHEMA: Final = (
     "corpus-r6-combined-population-all-block-task-result/v1"
 )
 TERMINAL_SCHEMA: Final = "corpus-r6-combined-population-all-block-terminal/v1"
+DESCRIPTIVE_TERMINAL_SCHEMA: Final = (
+    "corpus-r6-combined-population-all-block-descriptive-terminal/v2"
+)
 RUNTIME_AUTHORITY_SCHEMA: Final = (
     "corpus-r6-combined-population-all-block-runtime-authority/v1"
 )
@@ -168,6 +171,14 @@ def terminal_uri_v1(*, output_prefix: str) -> str:
 
 def grade_uri_v1(*, output_prefix: str) -> str:
     return f"{_output_prefix(output_prefix)}full-54/realized-grade.json"
+
+
+def descriptive_terminal_uri_v2(*, output_prefix: str) -> str:
+    return f"{_output_prefix(output_prefix)}full-54/descriptive-terminal-v2.json"
+
+
+def descriptive_grade_uri_v2(*, output_prefix: str) -> str:
+    return f"{_output_prefix(output_prefix)}full-54/descriptive-realized-grade-v2.json"
 
 
 def _provider_job_projection_from_configuration_v1(
@@ -990,6 +1001,39 @@ def build_terminal_v1(
     return _with_hash(body, field="terminal_sha256")
 
 
+def build_descriptive_terminal_v2(
+    *,
+    manifest: Mapping[str, object],
+    manifest_identity: object,
+    task_results: Sequence[tuple[Mapping[str, object], Mapping[str, object]]],
+    provider_terminal_execution: Mapping[str, object],
+) -> dict[str, object]:
+    """Build the fast envelope-only terminal in a non-authoritative namespace."""
+    authoritative_shape = build_terminal_v1(
+        manifest=manifest,
+        manifest_identity=manifest_identity,
+        task_results=task_results,
+        provider_terminal_execution=provider_terminal_execution,
+    )
+    body = {
+        key: row for key, row in authoritative_shape.items()
+        if key != "terminal_sha256"
+    }
+    body.update({
+        "schema_version": DESCRIPTIVE_TERMINAL_SCHEMA,
+        "terminal_uri": descriptive_terminal_uri_v2(
+            output_prefix=str(authoritative_shape["output_prefix"])
+        ),
+        "provider_task_result_envelopes_validated_without_collector_recompute": True,
+        "independent_science_replay_performed": False,
+        "descriptive_only": True,
+        "promotion_authority": False,
+        "production_change_licensed": False,
+        "historical_finalist_confirmation": False,
+    })
+    return _with_hash(body, field="terminal_sha256")
+
+
 def validate_terminal_envelope_v1(value: object) -> dict[str, object]:
     terminal = _mapping(value, label="combined terminal")
     expected_fields = {
@@ -1068,6 +1112,57 @@ def validate_terminal_envelope_v1(value: object) -> dict[str, object]:
     return terminal
 
 
+def _authoritative_terminal_projection_from_descriptive_v2(
+    value: object,
+) -> dict[str, object]:
+    descriptive = _mapping(value, label="combined descriptive terminal")
+    base = dict(descriptive)
+    for field in (
+        "provider_task_result_envelopes_validated_without_collector_recompute",
+        "independent_science_replay_performed", "descriptive_only",
+        "promotion_authority", "production_change_licensed",
+    ):
+        base.pop(field, None)
+    base.update({
+        "schema_version": TERMINAL_SCHEMA,
+        "terminal_uri": terminal_uri_v1(
+            output_prefix=str(descriptive.get("output_prefix"))
+        ),
+        "historical_finalist_confirmation": True,
+    })
+    base["terminal_sha256"] = _hash({
+        key: row for key, row in base.items() if key != "terminal_sha256"
+    })
+    return validate_terminal_envelope_v1(base)
+
+
+def validate_descriptive_terminal_envelope_v2(value: object) -> dict[str, object]:
+    terminal = _mapping(value, label="combined descriptive terminal")
+    if (
+        terminal.get("schema_version") != DESCRIPTIVE_TERMINAL_SCHEMA
+        or terminal.get("terminal_sha256")
+        != _hash({
+            key: row for key, row in terminal.items()
+            if key != "terminal_sha256"
+        })
+        or terminal.get("terminal_uri")
+        != descriptive_terminal_uri_v2(
+            output_prefix=str(terminal.get("output_prefix"))
+        )
+        or terminal.get(
+            "provider_task_result_envelopes_validated_without_collector_recompute"
+        ) is not True
+        or terminal.get("independent_science_replay_performed") is not False
+        or terminal.get("descriptive_only") is not True
+        or terminal.get("promotion_authority") is not False
+        or terminal.get("production_change_licensed") is not False
+        or terminal.get("historical_finalist_confirmation") is not False
+    ):
+        _fail("combined descriptive terminal authority differs")
+    _authoritative_terminal_projection_from_descriptive_v2(terminal)
+    return terminal
+
+
 def validate_terminal_with_results_v1(
     value: object,
     *,
@@ -1094,8 +1189,33 @@ def validate_terminal_with_results_v1(
     return expected, normalized
 
 
+def validate_descriptive_terminal_with_results_v2(
+    value: object,
+    *,
+    manifest: Mapping[str, object],
+    task_results: Sequence[tuple[Mapping[str, object], Mapping[str, object]]],
+) -> tuple[dict[str, object], tuple[dict[str, object], ...]]:
+    terminal = validate_descriptive_terminal_envelope_v2(value)
+    authoritative = _authoritative_terminal_projection_from_descriptive_v2(terminal)
+    _validated_authoritative, normalized = validate_terminal_with_results_v1(
+        authoritative,
+        manifest=manifest,
+        task_results=task_results,
+    )
+    expected = build_descriptive_terminal_v2(
+        manifest=manifest,
+        manifest_identity=terminal["task_manifest_identity"],
+        task_results=task_results,
+        provider_terminal_execution=terminal["provider_terminal_execution"],
+    )
+    if _canonical(terminal) != _canonical(expected):
+        _fail("combined descriptive terminal exact result reconstruction differs")
+    return expected, normalized
+
+
 __all__ = [
     "BOOK_COUNT_PER_SLATE",
+    "DESCRIPTIVE_TERMINAL_SCHEMA",
     "FIXED_HARD230_TERMINAL_IDENTITY",
     "FIXED_INCUMBENT_PANEL_FREEZE_IDENTITY",
     "FIXED_PROFILE_TERMINAL_IDENTITY",
@@ -1106,9 +1226,12 @@ __all__ = [
     "CorpusR6CombinedPopulationAllBlockExecutionV1Error",
     "build_task_manifest_v1",
     "build_task_result_v1",
+    "build_descriptive_terminal_v2",
     "build_runtime_authority_v1",
     "build_terminal_v1",
     "grade_uri_v1",
+    "descriptive_grade_uri_v2",
+    "descriptive_terminal_uri_v2",
     "normalized_task_result_v1",
     "task_result_uri_v1",
     "terminal_uri_v1",
@@ -1117,5 +1240,7 @@ __all__ = [
     "validate_runtime_authority_v1",
     "validate_exact_science_replay_v1",
     "validate_terminal_envelope_v1",
+    "validate_descriptive_terminal_envelope_v2",
+    "validate_descriptive_terminal_with_results_v2",
     "validate_terminal_with_results_v1",
 ]

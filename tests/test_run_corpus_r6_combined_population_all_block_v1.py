@@ -155,6 +155,53 @@ def test_task_reconstructs_one_common_matrix_then_publishes(
     assert result["uses_realized_outcomes"] is False
 
 
+def test_collect_opens_and_validates_all_results_without_science_recompute(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest_identity = _identity("gs://synthetic/output/task-manifest.json")
+    manifest = {
+        "task_bindings": [
+            {"result_uri": f"gs://synthetic/output/slates/{ordinal:02d}/result.json"}
+            for ordinal in range(op.execution.TASK_COUNT)
+        ],
+    }
+    raw_results = [
+        op._canonical({"source_ordinal": ordinal, "slate_id": f"slate-{ordinal}"})
+        for ordinal in range(op.execution.TASK_COUNT)
+    ]
+    validated: list[int] = []
+
+    def fake_open_known(uri: str, _maximum_bytes: int) -> tuple[bytes, dict[str, object]]:
+        ordinal = int(uri.split("/")[-2])
+        raw = raw_results[ordinal]
+        return raw, {
+            "uri": uri,
+            "generation": str(ordinal + 1),
+            "sha256": op.sha256(raw).hexdigest(),
+            "bytes": len(raw),
+        }
+
+    def fake_validate(value: object, **_kwargs: object) -> dict[str, object]:
+        row = dict(value)
+        validated.append(int(row["source_ordinal"]))
+        return row
+
+    monkeypatch.setattr(op.execution, "validate_task_result_v1", fake_validate)
+    monkeypatch.setattr(
+        op,
+        "_derive_science_v1",
+        lambda **_kwargs: pytest.fail("collection must not rerun selectors"),
+    )
+    rows = op._open_known_task_results(
+        manifest=manifest,
+        manifest_identity=manifest_identity,
+        store=SimpleNamespace(open_known=fake_open_known),
+    )
+
+    assert validated == list(range(op.execution.TASK_COUNT))
+    assert len(rows) == op.execution.TASK_COUNT
+
+
 def test_isolated_operator_help_import_closure() -> None:
     script = Path(op.__file__).resolve()
     completed = subprocess.run(
@@ -413,14 +460,19 @@ def test_execution_parser_uses_provider_job_uid_and_task_count(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     provider = op.GCloudRunProviderV1()
-    image = f"us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/test@sha256:{'b' * 64}"
+    repository = (
+        "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/test"
+    )
+    digest = f"sha256:{'b' * 64}"
+    job_image = f"{repository}:combined-170b7b4e-v2@{digest}"
+    execution_image = f"{repository}@{digest}"
     environment = {"CODE_SHA": "a" * 40}
     job = {
         "job_name": op.execution.FIXED_REUSED_JOB_NAME,
         "job_uid": op.execution.FIXED_REUSED_JOB_UID,
         "project_id": op.execution.FIXED_GCP_PROJECT,
         "region": op.execution.FIXED_REGION,
-        "image_digest": f"sha256:{'b' * 64}", "immutable_image_uri": image,
+        "image_digest": digest, "immutable_image_uri": job_image,
         "source_commit": "a" * 40, "container_command": ["python"],
         "container_args": ["task"], "container_environment": environment,
         "task_count": 54, "parallelism": 54, "max_retries": 0,
@@ -440,7 +492,8 @@ def test_execution_parser_uses_provider_job_uid_and_task_count(
             "template": {"spec": {
                 "maxRetries": 0, "timeoutSeconds": "21600s", "volumes": [],
                 "containers": [{
-                    "image": image, "command": ["python"], "args": ["task"],
+                    "image": execution_image,
+                    "command": ["python"], "args": ["task"],
                     "env": [
                         {"name": "CODE_SHA", "value": "a" * 40},
                         {"name": op.execution.JOB_AUTHORITY_SHA_ENV, "value": authority},
@@ -456,6 +509,35 @@ def test_execution_parser_uses_provider_job_uid_and_task_count(
     monkeypatch.setattr(provider, "describe_job", lambda _name: job)
     parsed = provider.describe_execution("execution-1")
     assert parsed["job_uid"] == op.execution.FIXED_REUSED_JOB_UID
+
+    raw["spec"]["template"]["spec"]["containers"][0]["image"] = (
+        execution_image.replace("/test@", "/forged-repository@")
+    )
+    with pytest.raises(
+        op.RunCorpusR6CombinedPopulationAllBlockV1Error,
+        match="provider execution template differs",
+    ):
+        provider.describe_execution("execution-1")
+
+    raw["spec"]["template"]["spec"]["containers"][0]["image"] = (
+        f"{repository}@sha256:{'c' * 64}"
+    )
+    with pytest.raises(
+        op.RunCorpusR6CombinedPopulationAllBlockV1Error,
+        match="provider execution template differs",
+    ):
+        provider.describe_execution("execution-1")
+
+    raw["spec"]["template"]["spec"]["containers"][0]["image"] = (
+        f"{repository}:different-tag@{digest}"
+    )
+    with pytest.raises(
+        op.RunCorpusR6CombinedPopulationAllBlockV1Error,
+        match="provider execution template differs",
+    ):
+        provider.describe_execution("execution-1")
+
+    raw["spec"]["template"]["spec"]["containers"][0]["image"] = execution_image
     raw["metadata"]["ownerReferences"][0]["uid"] = "forged"
     with pytest.raises(op.RunCorpusR6CombinedPopulationAllBlockV1Error):
         provider.describe_execution("execution-1")
@@ -465,8 +547,12 @@ def test_collect_publishes_only_after_all_results_validate(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     events: list[str] = []
+    published_uris: list[str] = []
     manifest_identity = _identity("gs://synthetic/output/task-manifest.json")
     manifest = {"terminal_uri": "gs://synthetic/output/full-54/terminal.json"}
+    descriptive_terminal_uri = (
+        "gs://synthetic/output/full-54/descriptive-terminal-v2.json"
+    )
     monkeypatch.setattr(op, "_open_manifest", lambda *_args, **_kwargs: (manifest, manifest_identity))
     monkeypatch.setattr(
         op, "status_existing_execution_v1",
@@ -480,14 +566,16 @@ def test_collect_publishes_only_after_all_results_validate(
 
     def fake_build(**_kwargs: object) -> dict[str, object]:
         events.append("all-54-results-normalized")
-        return {"terminal_uri": manifest["terminal_uri"], "terminal_sha256": "c" * 64}
+        return {"terminal_uri": descriptive_terminal_uri, "terminal_sha256": "c" * 64}
 
-    monkeypatch.setattr(op.execution, "build_terminal_v1", fake_build)
-    monkeypatch.setattr(
-        op,
-        "_publish_json",
-        lambda **kwargs: events.append("terminal-published") or _identity(kwargs["uri"]),
-    )
+    monkeypatch.setattr(op.execution, "build_descriptive_terminal_v2", fake_build)
+
+    def fake_publish(**kwargs: object) -> dict[str, object]:
+        events.append("terminal-published")
+        published_uris.append(str(kwargs["uri"]))
+        return _identity(str(kwargs["uri"]))
+
+    monkeypatch.setattr(op, "_publish_json", fake_publish)
     result = op.collect_from_request_v1(
         {"task_manifest_identity": manifest_identity, "execution_id": "execution-1"},
         store=object(), provider=object(),
@@ -497,13 +585,96 @@ def test_collect_publishes_only_after_all_results_validate(
         "all-54-results-normalized", "terminal-published"
     ]
     assert result["generic_normalized_terminal_validated_before_terminal"] is True
+    assert result[
+        "provider_task_result_envelopes_validated_without_collector_recompute"
+    ] is True
+    assert result["science_recomputed_during_collection"] is False
+    assert result["independent_science_replay_performed"] is False
+    assert result["descriptive_only"] is True
+    assert result["promotion_authority"] is False
+    assert result["production_change_licensed"] is False
+    assert result["historical_finalist_confirmation"] is False
+    assert published_uris == [descriptive_terminal_uri]
+    assert published_uris[0] != manifest["terminal_uri"]
 
 
-def test_grade_replays_terminal_before_first_outcome_open(
+def test_reopen_terminal_validates_results_without_science_recompute(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    terminal_identity = _identity(
+        "gs://synthetic/output/full-54/descriptive-terminal-v2.json"
+    )
+    manifest_identity = _identity("gs://synthetic/output/task-manifest.json")
+    result_identities = [
+        _identity(f"gs://synthetic/output/slates/{ordinal:02d}/result.json")
+        for ordinal in range(op.execution.TASK_COUNT)
+    ]
+    terminal = {
+        "terminal_uri": terminal_identity["uri"],
+        "task_manifest_identity": manifest_identity,
+        "task_manifest_sha256": "b" * 64,
+        "task_results": [
+            {"task_result_identity": identity} for identity in result_identities
+        ],
+    }
+    manifest = {"task_manifest_sha256": "b" * 64}
+    results = [
+        {"source_ordinal": ordinal, "slate_id": f"slate-{ordinal}"}
+        for ordinal in range(op.execution.TASK_COUNT)
+    ]
+    validated: list[int] = []
+
+    def fake_read_json(identity: object, **_kwargs: object) -> tuple[dict[str, object], dict[str, object]]:
+        if identity == terminal_identity:
+            return terminal, terminal_identity
+        ordinal = result_identities.index(identity)
+        return results[ordinal], result_identities[ordinal]
+
+    def fake_validate(value: object, **_kwargs: object) -> dict[str, object]:
+        row = dict(value)
+        validated.append(int(row["source_ordinal"]))
+        return row
+
+    normalized = tuple(
+        {"source_ordinal": ordinal, "slate_id": f"slate-{ordinal}"}
+        for ordinal in range(op.execution.TASK_COUNT)
+    )
+    monkeypatch.setattr(op, "_read_json", fake_read_json)
+    monkeypatch.setattr(
+        op.execution, "validate_descriptive_terminal_envelope_v2", lambda value: value
+    )
+    monkeypatch.setattr(op, "_open_manifest", lambda *_args, **_kwargs: (manifest, manifest_identity))
+    monkeypatch.setattr(op.execution, "validate_task_result_v1", fake_validate)
+    monkeypatch.setattr(
+        op.execution,
+        "validate_descriptive_terminal_with_results_v2",
+        lambda *_args, **_kwargs: (terminal, normalized),
+    )
+    monkeypatch.setattr(
+        op,
+        "_derive_science_v1",
+        lambda **_kwargs: pytest.fail("grading must not rerun selectors"),
+    )
+
+    reopened, reopened_identity, reopened_manifest, reopened_normalized = (
+        op._reopen_terminal(terminal_identity, store=object())
+    )
+    assert reopened is terminal
+    assert reopened_identity == terminal_identity
+    assert reopened_manifest is manifest
+    assert reopened_normalized == normalized
+    assert validated == list(range(op.execution.TASK_COUNT))
+
+
+def test_grade_validates_terminal_before_first_outcome_open(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     events: list[str] = []
-    terminal_identity = _identity("gs://synthetic/output/full-54/terminal.json")
+    published: list[dict[str, object]] = []
+    published_uris: list[str] = []
+    terminal_identity = _identity(
+        "gs://synthetic/output/full-54/descriptive-terminal-v2.json"
+    )
     outcome_identity = _identity("gs://synthetic/outcomes")
     later = _identity("gs://synthetic/later")
     normalized = tuple(
@@ -512,7 +683,7 @@ def test_grade_replays_terminal_before_first_outcome_open(
     )
 
     def fake_reopen(*_args: object, **_kwargs: object) -> tuple[object, ...]:
-        events.append("score-free-terminal-replayed")
+        events.append("score-free-terminal-validated")
         return (
             {
                 "terminal_sha256": "d" * 64, "later_source_identity": later,
@@ -540,16 +711,48 @@ def test_grade_replays_terminal_before_first_outcome_open(
     monkeypatch.setattr(op.grader, "open_outcome_snapshot_surface_v1", fake_outcome)
     monkeypatch.setattr(op.grader, "score_normalized_slates_v1", lambda **_kwargs: [])
     monkeypatch.setattr(op.grader, "aggregate_normalized_slate_grades_v1", lambda _rows: [])
-    monkeypatch.setattr(
-        op,
-        "_publish_json",
-        lambda **kwargs: events.append("grade-published") or _identity(kwargs["uri"]),
-    )
+    def fake_publish(**kwargs: object) -> dict[str, object]:
+        events.append("grade-published")
+        published.append(dict(kwargs["value"]))
+        published_uris.append(str(kwargs["uri"]))
+        return _identity(str(kwargs["uri"]))
+
+    monkeypatch.setattr(op, "_publish_json", fake_publish)
     result = op.grade_from_request_v1(
         {"terminal_identity": terminal_identity, "outcome_snapshot_identity": outcome_identity},
         store=SimpleNamespace(read_exact=lambda _identity_value: b""),
     )
     assert events == [
-        "score-free-terminal-replayed", "outcome-opened", "grade-published"
+        "score-free-terminal-validated", "outcome-opened", "grade-published"
     ]
-    assert result["historical_finalist_confirmation"] is True
+    assert result[
+        "provider_task_result_envelopes_validated_without_grader_recompute"
+    ] is True
+    assert result["science_recomputed_during_grading"] is False
+    assert result["independent_science_replay_performed"] is False
+    assert result["descriptive_only"] is True
+    assert result["promotion_authority"] is False
+    assert result["production_change_licensed"] is False
+    assert result["historical_finalist_confirmation"] is False
+    assert published[0]["score_free_terminal_exact_opened_before_outcome_open"] is True
+    assert published[0][
+        "all_score_free_predecessor_envelopes_validated_before_outcome_open"
+    ] is True
+    assert published[0][
+        "provider_task_result_envelopes_validated_without_grader_recompute"
+    ] is True
+    assert published[0]["science_recomputed_during_grading"] is False
+    assert published[0]["independent_science_replay_performed"] is False
+    assert published[0]["descriptive_only"] is True
+    assert published[0]["promotion_authority"] is False
+    assert published[0]["production_change_licensed"] is False
+    assert published[0]["historical_finalist_confirmation"] is False
+    assert published_uris == [
+        op.execution.descriptive_grade_uri_v2(
+            output_prefix=(
+                "gs://nfl-predictions-503414-corpus-retrieval/research/"
+                "corpus-r6-combined-population-all-block/test-v1/"
+            )
+        )
+    ]
+    assert not published_uris[0].endswith("/realized-grade.json")
