@@ -20,7 +20,37 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 (three-hundred-eighty-eighth update)
+## Current handoff -- 2026-08-29 (three-hundred-eighty-ninth update)
+
+### Existing fixed job is configured exactly; no execution was created
+
+- Branch `main` and `origin/main` entered this milestone at pushed handoff
+  commit `2d648812`; all source/image/manifest/smoke and rollback authorities
+  remain valid.
+- The sole `configure` invocation exited zero and updated only existing fixed
+  job `atlas-minimal-c-s2023-w3-v1`; `new_job_created=false` and UID remains
+  `064df315-0fb5-4b86-a5f9-6c73ac1c5eb3`.  The canonical result is 2,636 bytes
+  with byte SHA-256
+  `084572ab4d8d8af7f216ae8f62a46dc1ae53bac2f54b89ff208709a92da27c2f`.
+  Job configuration SHA-256 is
+  `5f3d309280d15dadd0064aeb7f2c44ed118e9ef5316fdc2a2a50c2791617bd4c`;
+  observed job SHA-256 is
+  `c2974b4cd273075c9221ff76eff5a132cb422791fec4f485080afe2157178e43`.
+- Independent live re-description proves generation/observedGeneration 11,
+  Ready, exact immutable digest/source/manifest/smoke/job-authority env, exact
+  task command with `--execute`, 54 tasks/parallelism, 8 CPU/32 GiB, zero
+  retries and 21,600-second timeout.  The eight-env set contains no restored
+  combined-run residue; job authority equals the observed-job hash above.
+- Post-configure execution census is byte-for-coordinate identical to the nine
+  preconfigure terminal executions; execution count remains nine and no active
+  execution was created.  No outcome read occurred.
+- Exact next action: perform one final current-job/idleness check, then invoke
+  `launch` exactly once with the same canonical two-key request.  The operator
+  writes an atomic create-once launch claim before the provider call.  If a
+  claim exists but stdout/receipt is missing, never rerun launch; reconcile the
+  provider execution manually.
+
+## Previous handoff -- 2026-08-29 (three-hundred-eighty-eighth update)
 
 ### Preconfigure boundary is clean and rollback evidence is durable
 
