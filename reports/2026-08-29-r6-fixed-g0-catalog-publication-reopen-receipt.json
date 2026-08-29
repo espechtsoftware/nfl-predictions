@@ -1,0 +1,55 @@
+{
+  "schema_version": "corpus-r6-fixed-g0-catalog-publication-reopen-receipt/v1",
+  "complete": true,
+  "recorded_at_utc": "2026-08-29T23:58:03Z",
+  "publication_commit_sha": "f4a286769090c4657e56b1951a8057eb3f72d483",
+  "implementation_commit_sha": "fe814836da474c792514d63b50cd8642832b1a87",
+  "catalog_namespace": "gs://nfl-predictions-503414-corpus-source/research/source/20260826-r6-player-catalog-fixed-g0-v1/",
+  "outer_attestation_identity": {
+    "uri": "gs://nfl-predictions-503414-corpus-source/research/source/20260826-r6-player-catalog-fixed-g0-v1/fixed-g0-catalog-recovery-attestation-v2.json",
+    "generation": "1788047679701105",
+    "sha256": "65f49bcc66c7761eee050ceb066252977b4a94ed48f0fa56da644c85a6c98cf2",
+    "bytes": 53857
+  },
+  "outer_attestation_sha256": "1e7da9aa777d7d347039dacd4071bff02fbc4f5e672d1572978bbd4c045a82b4",
+  "inner_catalog_release_identity": {
+    "uri": "gs://nfl-predictions-503414-corpus-source/research/source/20260826-r6-player-catalog-fixed-g0-v1/catalog-release.json",
+    "generation": "1788047593516963",
+    "sha256": "c43b760bedda901d53c25e367bd2b075b7766ceb77ed9089a207dbd9f8608a45",
+    "bytes": 65922
+  },
+  "inner_replay_receipt_identity": {
+    "uri": "gs://nfl-predictions-503414-corpus-source/research/source/20260826-r6-player-catalog-fixed-g0-v1/fixed-g0-replay-receipt.json",
+    "generation": "1788047635130538",
+    "sha256": "8cb6ba23dabf4f16ea9a087609fbfd66cae411e700a60bbba6b40b9700c9e574",
+    "bytes": 7399
+  },
+  "publication": {
+    "complete": true,
+    "mode": "publish",
+    "inner_object_count": 110,
+    "total_object_count": 111,
+    "inner_exact_reopen_complete": true,
+    "outer_published_last": true,
+    "outer_presence_state": "confirmed-present",
+    "deployment_performed": false,
+    "graph_mutation_performed": false
+  },
+  "independent_reopen": {
+    "complete": true,
+    "mode": "reopen",
+    "terminal_object_count": 111,
+    "write_capability_enabled": false,
+    "cloud_mutation_performed": false,
+    "result_object_bodies_read": false
+  },
+  "outcome_columns_read": [],
+  "uses_realized_outcomes": false,
+  "world_matrix_bodies_read": false,
+  "world_schedule_bodies_read": false,
+  "authority": {
+    "downstream_pin_ready": true,
+    "realized_outcome_authority": false,
+    "production_promotion_authority": false
+  }
+}

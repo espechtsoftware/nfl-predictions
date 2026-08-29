@@ -20,6 +20,43 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 (three-hundred-ninety-fifth update)
+
+### Fixed-G0 catalog recovery is published and independently exact-reopened
+
+- Branch `main` and `origin/main` entered publication at pushed attempt-marker
+  commit `f4a286769090c4657e56b1951a8057eb3f72d483`.  The one licensed
+  create-once invocation completed without retry and published exactly 110
+  inner objects plus the outer attestation.  It exact-reopened the inner chain
+  before writing the outer root last; no deployment or graph mutation occurred.
+- The immutable downstream pin is
+  `gs://nfl-predictions-503414-corpus-source/research/source/20260826-r6-player-catalog-fixed-g0-v1/fixed-g0-catalog-recovery-attestation-v2.json`,
+  generation `1788047679701105`, 53,857 bytes, byte SHA-256
+  `65f49bcc66c7761eee050ceb066252977b4a94ed48f0fa56da644c85a6c98cf2`,
+  and internal attestation SHA-256
+  `1e7da9aa777d7d347039dacd4071bff02fbc4f5e672d1572978bbd4c045a82b4`.
+  It binds catalog release generation `1788047593516963`, SHA-256
+  `c43b760bedda901d53c25e367bd2b075b7766ceb77ed9089a207dbd9f8608a45`,
+  and replay receipt generation `1788047635130538`, SHA-256
+  `8cb6ba23dabf4f16ea9a087609fbfd66cae411e700a60bbba6b40b9700c9e574`.
+- A separate production `reopen` invocation pinned those exact outer identity
+  fields, revalidated the terminal 111-object namespace and complete inner
+  chain with write capability disabled, and returned `complete=true` with
+  `cloud_mutation_performed=false`.  Both publication and reopen report no
+  outcome columns, no realized-outcome use, and no result, world-matrix or
+  world-schedule body reads.  A compact durable receipt is
+  `reports/2026-08-29-r6-fixed-g0-catalog-publication-reopen-receipt.json`,
+  file SHA-256
+  `a2942dcf40295a1f385a03a3b59f3962e8cb9c846ac5e5c893736ae80f720f4b`.
+- This milestone supplies catalog/source prerequisite authority only.  It does
+  not authorize realized reads or production policy promotion, and the
+  successful 2,592-book full-union freeze must not be relabeled as the missing
+  14,904-book matchup-inclusive canonical R6-v2 release.
+- Exact next action: independently review and freeze the current fixed-G0
+  catalog-to-matchup candidate/source-v2 operator, bind it to the outer identity
+  above, publish and exact-reopen its candidate and 54-slate source roots, then
+  run task-0 smoke before releasing the canonical 54-slate R6-v2 worker panel.
+
 ## Current handoff -- 2026-08-29 (three-hundred-ninety-fourth update)
 
 ### Fixed-G0 catalog recovery attempt three is reserved before cloud contact
