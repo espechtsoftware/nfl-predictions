@@ -20,6 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 09:16 UTC (three-hundred-forty-fourth update)
+
+### Corrected recourse canary is live; L2b score renderer is ready
+
+- Branch `main` and `origin/main` are at pushed commit `448820b1`. Corrected
+  kickoff-v3 one-slate execution
+  `atlas-cbc-32g-full-2023-w8-v1-ltgg8` launched once from a clean detached
+  checkout after exact build/image/job validation. Do not rerun prepare or
+  release the remaining 53 cells. Poll only with `validate-canary`; exit 4
+  means pending. On success inspect the scientific shard before releasing the
+  grid.
+- The deterministic L2b grade summarizer is locally 3/3 passed and compiles.
+  It strictly validates the expected 54-slate/300-cell grade, reports all
+  cells and K80/K100/K150 leaders, threshold counts, and 150 valid paired
+  quarter-mixture-minus-native contrasts. It labels outcome-selected leaders
+  descriptive only and treats the 178.435 current-R6 K80 row as an unmatched
+  reference, not a paired control. Commit/push its three unique files so it is
+  ready when the active L2b collection and grade finish.
+- L2b collection remains the only active heavy local replay. Hard-230 full-54
+  derive remains queued behind it; its build and task-0 smoke are already
+  green. Combined-union cloud launch remains HOLD pending final independent
+  rereview of the latest bootstrap/import corrections.
+- Exact next action: poll the single recourse canary and continue waiting for
+  the nonduplicated L2b terminal publication; then grade and render its scores
+  immediately. Run hard-230 derive/grade when the heavy local slot releases.
+
 ## Current handoff — 2026-08-29 09:12 UTC (three-hundred-forty-third update)
 
 ### Kickoff-v3 and hard-230 runtimes are green; both canaries advance
