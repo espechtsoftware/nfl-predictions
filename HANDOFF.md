@@ -20,7 +20,44 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 (three-hundred-eighty-ninth update)
+## Current handoff -- 2026-08-29 (three-hundred-ninetieth update)
+
+### Exact 54-slate boom-first matched run is live under create-once authority
+
+- Branch `main` and `origin/main` entered this milestone at pushed handoff
+  commit `ec513181`; exact science/image source remains
+  `68873f42a6f7efbe3a2a29731812ef895d61271e` and immutable image digest remains
+  `sha256:86951310a4bae8ce014408257e02602e1c8004c04c8ad8bc7e4cab6bb7b1ada3`.
+- A final independent census proved fixed job
+  `atlas-minimal-c-s2023-w3-v1` Ready/idle at generation 11, the exact boom
+  digest and UID `064df315-0fb5-4b86-a5f9-6c73ac1c5eb3`, with all nine prior
+  executions terminal and both launch authorities absent.
+- The sole `launch --execute` invocation exited zero and made exactly one
+  provider launch call.  New execution is
+  `atlas-minimal-c-s2023-w3-v1-9wltg`; `automatic_relaunch_allowed=false`.
+  Never invoke launch again for this run.
+- Atomic launch claim identity is generation `1788043257939105`, 1,066 bytes,
+  byte SHA-256
+  `e5c3946e2150f6a6baab5c7e71551feb676eb4d1d027a1d8885e56a06431e515`
+  at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-boom-first-allocation/20260829-boom-first-68873f42-git-v1/authorities/provider-launch-claim.json`.
+  Atomic launch receipt identity is generation `1788043259384140`, 1,425
+  bytes, byte SHA-256
+  `747328425d73e805b1fb23e27bd77d78d5f99e12ea94e1aaeba9dbdb7f616a1c`
+  at the sibling `provider-launch-receipt.json` URI.  Provider observation
+  remains `c2974b4c...e43`; task-0 smoke remains `94b4518a...5b80`.
+- No realized outcome was read and no grade exists at launch.  Exact next
+  action: poll only execution `...-9wltg` metadata to terminal.  Require 54
+  succeeded and zero failed/cancelled/running, then invoke terminal-only
+  `status` and `collect` with the exact manifest, inline smoke and launch
+  receipt identities.  Collect before restoring the shared job.  After the
+  score-free terminal is valid, restore the captured prior job configuration
+  and run the preregistered realized grade.  Interpret treatment effects with
+  the calibration diagnostic: compare realized lift with simulated upper-tail
+  probability and cap exposure to separate diversity from correction of
+  inflated co-boom worlds.
+
+## Previous handoff -- 2026-08-29 (three-hundred-eighty-ninth update)
 
 ### Existing fixed job is configured exactly; no execution was created
 
