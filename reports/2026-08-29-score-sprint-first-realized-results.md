@@ -133,7 +133,7 @@ gap and the cap interaction collapses, robustness to miscalibration dominates;
 if cap-4 retains lift after calibration, diversity/path regularization has an
 independent contribution.  This follow-up requires no new candidate solves.
 
-## Boom-first external result: review and production disposition
+## Boom-first production-shaped result: better corpus, partial retrieval
 
 The external production brief is a high-priority generation test, not a
 drop-in production promotion.  On 89 development slates and three independent
@@ -144,22 +144,54 @@ remained positive in every leave-one-season-out read.  K80 improved by
 **4.819 [3.444, 6.032]** with 60/29 wins/losses.  This is unusually strong,
 stable directional evidence.
 
-The receiving test must still isolate exactly that allocation change.  Both
-arms must use the same production simulator, centering, source snapshots,
-role candidates, construction preset, CBWU selector, worlds and exact K80;
-natural deduplication is reported rather than padded away.  The lab omitted
-important production components, so its effect size cannot be assumed here.
-The current production-shaped implementation has passed its scientific core
-tests, but independent review found launch-trust gaps: no provider-bound
-exact-54/54 collector, no no-publish real-artifact smoke gate, incomplete
-build/job attestation, shallow result-to-manifest validation, and an improper
-abort on role/boom roster collisions.  Those are being repaired before the
-single historical execution.  No broader construction-preset rewrite will be
-mixed into this causal pair.
+The receiving test isolated exactly that allocation change.  Both arms used
+the same production simulator, centering, source snapshots, role candidates,
+construction preset, CBWU selector, worlds and exact K80; natural
+deduplication was reported rather than padded away.  The provider-bound
+collector required exact 54/54 terminality, the immutable production image
+passed a no-publish real-artifact smoke, the task results replayed through the
+frozen manifest/runtime identities, and natural role/boom collisions retained
+multi-tag semantics.  No broader construction-preset rewrite was mixed into
+the causal pair.
 
 The optional `lev40/boom360` arm should follow only after the 200-solve pair;
 its measured incremental gain was much smaller (+0.68 at K100) and it changes
 the total solve budget.
+
+The exact production-shaped matched pair is now complete across the 54-slate
+panel.  It held construction, sources, five common 10,000-world blocks,
+role-12 injection, total requested core work, CBWU-194 selection and K80 fixed,
+changing only `lev160/boom40` to `lev40/boom160`.  The realized result is:
+
+| Arm | Mean weekly max | Population ceiling | Selector regret | Ceiling converted | >=200 | >=210 | >=220 | >=230 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Matched control: lev160 / boom40 | 178.023 | 181.500 | 3.477 | 37/54 | 7 | 2 | 1 | 0 |
+| **Boom-first: lev40 / boom160** | **179.279** | **184.877** | 5.598 | 28/54 | **9** | **4** | **3** | 0 |
+| Treatment minus control | **+1.256** | **+3.377** | +2.121 | -9 | +2 | +2 | +2 | 0 |
+
+The generation finding transported directionally, but at a smaller selected-
+book magnitude than the lab result.  The treatment won 11 slates, control won
+12 and 31 tied.  Season paired deltas were +2.483 in 2023, +1.450 in 2024 and
+-0.167 in already-informed descriptive-only 2025.  Thus the selected-book
+gain is positive in aggregate and improves the 200--220 hit surface, but it is
+not season-uniform and does not independently supply a 230+ result.
+
+The stronger result is upstream.  Boom-first raises the mean realized corpus
+ceiling by 3.377 points and expands population hit-weeks from 10/2/1/0 to
+11/6/3/0 at 200/210/220/230.  CBWU captures only 1.256 points of that lift,
+while mean selector regret worsens by 2.121 and ceiling conversions fall from
+37 to 28.  The immediate high-value test is therefore the already-frozen
+factorial crossing: boom-first generation versus matched control, each with
+the incumbent selector versus cap-4-prefix-then-fill.  The gains must not be
+added arithmetically.  This crossing asks whether the new retrieval leader can
+recover more of boom-first's demonstrably higher corpus ceiling.
+
+Execution `atlas-minimal-c-s2023-w3-v1-9wltg` finished exact 54/54 in
+38m11.99s.  Score-free terminal generation is `1788045711409232`, byte
+SHA-256 `0999d89278e8ad48fc3153864cb226453748bcf1f603e59886be6640c2485e4e`;
+realized grade generation is `1788045886595896`, byte SHA-256
+`3d92cd0ba1466b52a0bfa883e1c51efddbabf474800ba4516340cc4eb0bff23c`.
+The exact job was restored after collection, before grading.
 
 ## Full-54 update: combined corpus and L2b selector surface
 

@@ -20,7 +20,57 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 (three-hundred-ninetieth update)
+## Current handoff -- 2026-08-29 (three-hundred-ninety-first update)
+
+### Boom-first full-54 grade is complete: corpus lift exceeds selected-book lift
+
+- Branch `main` and `origin/main` entered this milestone at pushed handoff
+  commit `0dddf7fd`; exact science/image/manifest/launch authorities are
+  unchanged.  Sole execution `atlas-minimal-c-s2023-w3-v1-9wltg` completed
+  at `2026-08-29T23:19:57.633299Z` in 38m11.99s with exact 54/54 success,
+  zero failed/cancelled/running and an empty execution-scoped ERROR census.
+- Terminal-only status validated provider terminal SHA-256
+  `a50e2a5599d50e1392f9fffa99d28181d8f6affbee36b018a39e83544c5c0dd2`.
+  Score-free collection exact-opened all 54 task results before publishing
+  terminal generation `1788045711409232`, 9,190,997 bytes, byte SHA-256
+  `0999d89278e8ad48fc3153864cb226453748bcf1f603e59886be6640c2485e4e`
+  at the manifest-bound `full-54/terminal.json`; internal terminal SHA-256 is
+  `542a94f2f7a2f6509153f839fea44afa220ef18c00bd84b466b12b70f80c1971`.
+- After collection, the shared job was restored to the captured combined-
+  population configuration at the same UID.  Restored immutable digest is
+  `sha256:3a870805...d082` and exact configuration SHA-256 is the prior
+  `da996f4f6692e631748a141158956dabc3be245cad9b94e35b71055c1e40f447`;
+  no execution was created by restore.
+- Realized grading exact-opened the frozen catalog outcome snapshot,
+  completion and unchanged live lease.  Grade generation
+  `1788045886595896` is 4,002,644 bytes with byte SHA-256
+  `3d92cd0ba1466b52a0bfa883e1c51efddbabf474800ba4516340cc4eb0bff23c`
+  at `full-54/descriptive-realized-grade.json`; internal grade SHA-256 is
+  `eaba50ff60c12552c188a162de9858316967f2dc8d8ba8a430a9b14818a522a4`.
+  The catalog lease remains unchanged and requires its separate strict
+  catalog-completion release adapter; do not release it with another law.
+- Matched K80 control `lev160/boom40` scored **178.023** mean weekly maximum;
+  treatment `lev40/boom160` scored **179.279**, a **+1.256** paired lift.
+  Selected hit-weeks improved 7->9 at 200+, 2->4 at 210+, and 1->3 at 220+;
+  both arms had zero 230+ weeks.  Treatment/control/ties were 11/12/31.
+  Season paired deltas were +2.483 in 2023, +1.450 in 2024 and -0.167 in
+  already-informed descriptive-only 2025.
+- The stronger transport is population quality: mean realized ceiling rose
+  **181.500 -> 184.877 (+3.377)**, while selector regret worsened
+  **3.477 -> 5.598 (+2.121)** and ceiling conversion fell 37/54 -> 28/54.
+  Population hit-weeks rose 10/2/1/0 -> 11/6/3/0 at 200/210/220/230.  Thus
+  boom-first creates substantially better candidates, but current CBWU
+  recovers only part of the improvement.
+- Exact next science action: do not add the independent boom-first and cap-4
+  gains.  Reuse these frozen populations/worlds for the score-free factorial
+  crossing of matched generation arm x incumbent/cap-4-prefix-then-fill
+  retrieval, with same-world diagnostics explicitly labeled.  In parallel,
+  freeze an independent audit-world bank for honest held-out E[max], P(max at
+  each threshold), event correlation/effective shots, union efficiency,
+  overlap and calibration residuals.  The pure simulated-diagnostic core is
+  under isolated focused review and must remain outcome-free.
+
+## Previous handoff -- 2026-08-29 (three-hundred-ninetieth update)
 
 ### Exact 54-slate boom-first matched run is live under create-once authority
 
