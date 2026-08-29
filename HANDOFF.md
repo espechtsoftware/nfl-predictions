@@ -20,6 +20,64 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 16:17 UTC (three-hundred-sixty-second update)
+
+### Boom-first runtime is deployed and feature-clean; live projection remains safely provider-gated
+
+- Branch `main` and `origin/main` are at pushed release commit
+  `082123c62e0e4fc4dd834b3a8c798d137ccc0687`. Its clean archive was
+  152,121,229 bytes with SHA-256
+  `0b04de2197d37d7ac82cc563951a270abe88766b4b01fc86af37aeeed7b810fa`.
+  Cloud Build `b1788901-acce-4927-87b9-67436592cbe0` reached terminal
+  `SUCCESS` at `2026-08-29T16:02:41Z`; the bounded cloud gate was **292
+  passed / 1 skipped** and the immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:29a01f33634ed70b3dfc0cdc836f74ddf0fa8d95b3064a18c925a0bbf395acae`.
+  This release contains the isolated 160/40 control versus 40/160 boom-first
+  treatment plus the repaired Week 1 roster, identity and exact-REG-week
+  projection boundary; it does not alter the production money path.
+- `ingest-nflverse`, `ingest-dk`, `build-features` and `project-slate` were
+  updated to that exact digest with image only. Their UIDs are unchanged and
+  generations 35, 31, 56 and 57 are fully observed. Independent pre/post
+  comparison found exact equality of the executable specs after excluding the
+  image and expected gcloud-managed nonce: commands, arguments, environment
+  and secret bindings, resources, retries, timeouts, service accounts and task
+  topology are intact. No NFLverse or DK ingestion was repeated after their
+  already-green source executions.
+- Governed deployed-image feature execution `build-features-4852x` completed
+  successfully at `2026-08-29T16:11:27Z`. All 31 packaged SQL steps ran,
+  `player_week_inference` rebuilt, and all leakage checks passed (100% for the
+  ordinary families and the already-accepted 99.33% coverage-family result).
+  Governed projection execution `project-slate-prfzs` then failed closed at
+  `2026-08-29T16:15:56Z` on the exact same ten stale, absent or current-team-
+  conflicted DK skill rows documented in update 361. No player was dropped,
+  no identity was guessed, no projection was written, and no score or paired
+  shadow claim was made. A synchronized provider refresh or an explicitly
+  isolated diagnostic manifest is still required before the paired shadow can
+  launch.
+- The controlled release is closed. The five schedulers that were enabled
+  before it (`s-nflverse`, `s-dk`, `s-features`, `s-project-tu`,
+  `s-project-su`) are ENABLED again with their original schedules and targets.
+  The separately pre-paused `s-features-route` remains PAUSED. This preserves
+  normal provider refreshes while keeping the live-pool projection fail-closed.
+- The August 29 CFB reminder remains valid as a **free DraftKings collection
+  readiness** milestone; no paid college package is required for the current
+  collection-only scope. Live `ingest-cfb-49f5j` on the older CFB image
+  `sha256:6c556b9e7ff4685e89ec2f4efcff542aa8c5f1f2b62f181999cb81cbb9beb893`
+  fetched valid upcoming groups but failed terminal at
+  `2026-08-29T16:04:51Z` on DK's seven-fractional-digit timestamp. Earlier
+  runs also showed that one stale upcoming group returning 404 aborts the
+  entire in-memory batch. The CFB path additionally needs supported-game-type
+  filtering, the existing BigQuery clustering contracts, zero Cloud Run task
+  retries, and removal of the duplicate Saturday 10:00 CT trigger before it is
+  trustworthy. Paid SIS/Fantasy Points college data remains deferred unless a
+  separate historical CFB modeling project is authorized.
+- Exact next actions: keep the NFL ten-row gate fail-closed, inspect the next
+  synchronized DK/roster refresh and rerun the projection census; launch the
+  isolated boom-first pair only after the full playable pool resolves. In a
+  separate bounded CFB change, add per-group 404 isolation, game-type
+  filtering, timestamp/clustering validation and non-overlapping no-retry
+  scheduling, then deploy only `ingest-cfb` and run one outcome-blind smoke.
+
 ## Current handoff -- 2026-08-29 15:49 UTC (three-hundred-sixty-first update)
 
 ### Week 1 sources and features are repaired; exact live-pool blockers remain explicit
