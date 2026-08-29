@@ -20,6 +20,39 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 05:56 UTC (three-hundred-thirty-first update)
+
+### F7/F8/F9 can now recover the completed panel without recomputation
+
+- Branch `main` and `origin/main` are at `719e384c`. The isolated composite
+  recovery implementation is independently **GO**:
+  `src/nfl_dfs/research/corpus_r6_population_challenger_composite_recovery_v1.py`,
+  `scripts/run_corpus_r6_population_challenger_composite_recovery_v1.py`,
+  `tests/test_corpus_r6_population_challenger_composite_recovery_v1.py`, and
+  `reports/2026-08-29-r6-f7-f8-f9-full54-task0-composite-collection-recovery-amendment.md`.
+  Focused validation is **8/8 passed**, both Python files compile, and the
+  scoped diff check is clean.
+- The recovery does not launch or recompute science. It proves the prior
+  successful smoke is exact task index 0 under the same normalized task spec,
+  manifest, request, code, image, projection, resources, service account,
+  retry law, timeout, and deterministic output topology as the terminal
+  53-success/1-failure execution. It publishes and exact-reopens a create-once
+  intent before any result body is opened; then it composes the pinned smoke
+  result for index 0 with deterministic full-run results 1--53, preserving
+  explicit per-index execution provenance and every existing result validator.
+- The emitted crossed-prepare request is exactly the ordinary six-field
+  request accepted by `run_corpus_r6_population_crossed_cloud_v1.py`. The
+  recovery surface exposes only `prepare` and `collect`; it has no execution,
+  listing, logging, outcome, or scientific-worker path. The only non-blocking
+  review note is that service-account equality is proven between the two
+  executions rather than against a separately frozen expected account.
+- Hard-230 derivation session `45508` remains active and is still the sole
+  resource-intensive local command. Exact next action: commit/push this
+  recovery, publish its intent with the resulting commit identity, then run
+  `collect` to recover the already-computed 54-slate F7/F8/F9 panel. Do not
+  relaunch the failed execution. Continue hard-230 to its terminal and grade;
+  run L2b collection after the hard-230 workload releases.
+
 ## Current handoff — 2026-08-29 05:32 UTC (three-hundred-thirtieth update)
 
 ### The common scorecard is independently GO; F7/F8/F9 can recover without recompute
