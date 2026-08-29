@@ -20,6 +20,51 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 (three-hundred-ninety-second update)
+
+### Fixed-G0 catalog recovery review lock is independently approved
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `527c8f8a`.  Independent completion audit exact-replayed both Foundry v12
+  lane terminals and the combined panel from their generation-pinned remote
+  authorities without opening a realized source.  Lane A remains 28/28 and
+  lane B 26/26; the combined 54-slate panel remains generation
+  `1787663639938214`, byte SHA-256
+  `4d41acd9277e525cd8521071b62390281c442d6324db1e3f5812bf59920c16f9`,
+  and panel ID
+  `v12:ef445e2b31a7756609b458753dc064318b58ea2912e9277071c08fd0d07392e0`.
+  The authoritative replay returned `EXACT_G0_REPLAY_VALID ... 54`.
+- The same audit proves the canonical matchup-inclusive R6-v2 release is not
+  complete: the successful full-union successor froze 2,592 books/7,776
+  prefixes but is not the required 14,904-book/44,712-prefix matchup plus
+  neutral-control surface.  The first missing prerequisite is the fixed-G0
+  catalog/candidate/source-v2 chain; do not relabel the full-union result as
+  canonical R6-v2 completion.
+- The catalog recovery implementation and all 13 measured paths are
+  byte-identical from implementation H0 `fe814836` through current HEAD.
+  Independent evidence review is `APPROVE` with P0/P1/P2 all zero.  It
+  revalidated the real task-0 smoke, zero-object namespace census and exact
+  201/201 focused-test receipt.  A fresh metadata-only census at
+  `2026-08-29T23:47:13Z` still found no object in the exact create-once catalog
+  namespace; no object body was opened and no cloud mutation occurred.
+- From a clean sparse checkout at exact HEAD, the guarded builder created the
+  review lock at
+  `reports/2026-08-27-r6-fixed-g0-catalog-recovery-review-lock.json`.
+  It is 8,190 bytes with file SHA-256
+  `b07af4a7d9beeb89ef5cb1c53ab88b85a8d04fbbeb2425b162f502dbd17c9782`
+  and internal review-lock SHA-256
+  `e6f1f925122fb7e6a5d357f6d0d010b1f8072409015d55aabcd65c99266d5a7c`.
+  The review lock itself grants no publication, scoring, selection, graph,
+  deployment, promotion or production authority; a separately tracked final
+  lock and attempt-three marker remain mandatory before any cloud client.
+- Exact next action: commit and push only this lock plus this handoff.  From a
+  clean checkout at that exact pushed commit, build the deterministic final
+  lock with publication approval, commit/push it, then build and durably commit
+  the attempt-three marker before the sole create-once `publish --execute`.
+  Require 110 exact inner objects plus one terminal outer attestation and run
+  the separate generation-exact `reopen` before allowing the candidate-root
+  successor to consume it.  Do not clean or reset the shared dirty worktree.
+
 ## Current handoff -- 2026-08-29 (three-hundred-ninety-first update)
 
 ### Boom-first full-54 grade is complete: corpus lift exceeds selected-book lift
