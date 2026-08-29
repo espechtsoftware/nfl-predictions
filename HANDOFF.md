@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 (three-hundred-ninety-fourth update)
+
+### Fixed-G0 catalog recovery attempt three is reserved before cloud contact
+
+- Branch `main` and `origin/main` entered this milestone at pushed final-lock
+  commit `1de95ae3f34ee0d23f5b6351ae01cbffa5de6a84`.  A clean sparse checkout at
+  that exact commit built the sole attempt-three marker directly from the
+  tracked final lock before constructing any cloud client.
+- The marker is
+  `reports/2026-08-27-r6-fixed-g0-catalog-recovery-attempt-3.json`, 5,511
+  bytes, file SHA-256
+  `f9b58dbe501837e2fcae641c86c56da85bb241036c86d984635ddc202b99a207`,
+  and internal attempt SHA-256
+  `182d71238250cddce2aaf412d48a7e7e075405c9fd2b624eedb8fa27210d2189`.
+  It records `cloud_client_constructed=false`, `cloud_contact_performed=false`,
+  `gcs_mutation_count=0`, projection attempt ordinal three, lifetime count
+  three, and no additional attempt or automatic retry license.
+- The marker grants no analytical, scoring, selection, graph, promotion,
+  deployment or production authority.  Publication remains create-once only
+  and is legal only after this exact marker is committed, pushed and reopened
+  from a clean origin-reachable checkout.
+- Exact next action: commit and push this marker with the handoff.  Fetch that
+  exact pushed commit into the clean checkout, verify the catalog namespace is
+  still either empty or byte-identical to the expected recovery bodies, then
+  invoke the sole `publish --execute` once.  Never build another marker or
+  retry publication after cloud contact; reconcile the exact 110 inner plus
+  one outer objects and run the separate `reopen` command.
+
 ## Current handoff -- 2026-08-29 (three-hundred-ninety-third update)
 
 ### Fixed-G0 catalog recovery final lock is frozen at the reviewed commit
