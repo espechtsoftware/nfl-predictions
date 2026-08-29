@@ -39,6 +39,69 @@ def _identity(name: str, raw_hash: str | None = None) -> dict[str, object]:
     }
 
 
+def test_exact_transport_uses_bounded_large_object_retry_window() -> None:
+    raw = b'{"complete":true}'
+    calls: list[tuple[str, dict[str, object]]] = []
+
+    class Blob:
+        generation = "17"
+
+        def upload_from_string(self, value: bytes, **kwargs: object) -> None:
+            assert value == raw
+            calls.append(("upload", dict(kwargs)))
+
+        def download_as_bytes(self, **kwargs: object) -> bytes:
+            calls.append(("download", dict(kwargs)))
+            return raw
+
+    blob = Blob()
+
+    class Bucket:
+        def blob(self, _name: str, generation: int | None = None) -> Blob:
+            if generation is not None:
+                assert generation == 17
+            return blob
+
+    class Client:
+        def bucket(self, _name: str) -> Bucket:
+            return Bucket()
+
+    retry = object()
+    transport = operator.GCSExactTransportV1.__new__(
+        operator.GCSExactTransportV1
+    )
+    transport._client = Client()
+    transport._retry = retry
+
+    identity = transport.publish_create_once("gs://fixture/terminal.json", raw)
+
+    assert identity == {
+        "uri": "gs://fixture/terminal.json",
+        "generation": "17",
+        "sha256": sha256(raw).hexdigest(),
+        "bytes": len(raw),
+    }
+    assert calls == [
+        (
+            "upload",
+            {
+                "content_type": "application/json",
+                "if_generation_match": 0,
+                "timeout": operator.GCS_IO_TIMEOUT_SECONDS,
+                "retry": retry,
+            },
+        ),
+        (
+            "download",
+            {
+                "if_generation_match": 17,
+                "timeout": operator.GCS_IO_TIMEOUT_SECONDS,
+                "retry": retry,
+            },
+        ),
+    ]
+
+
 def _fixture(monkeypatch: pytest.MonkeyPatch) -> dict[str, object]:
     rng = np.random.default_rng(20260829)
     player_ids = [f"P{ordinal:04d}" for ordinal in range(240)]

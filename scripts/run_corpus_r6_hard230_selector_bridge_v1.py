@@ -29,6 +29,7 @@ MAXIMUM_REQUEST_BYTES = 128_000
 MAXIMUM_TERMINAL_BYTES = 80_000_000
 MAXIMUM_SLATE_RESULT_BYTES = 2_000_000
 MAXIMUM_GRADE_BYTES = 30_000_000
+GCS_IO_TIMEOUT_SECONDS = 900
 TASK0_SMOKE_SCHEMA = "corpus-r6-hard230-selector-bridge-task0-smoke/v1"
 
 
@@ -125,6 +126,7 @@ class GCSExactTransportV1:
         try:
             from google.api_core.client_options import ClientOptions
             from google.cloud import storage
+            from google.cloud.storage.retry import DEFAULT_RETRY
         except Exception as exc:  # pragma: no cover - cloud dependency
             raise RunCorpusR6Hard230SelectorBridgeV1Error(
                 "google-cloud-storage is required"
@@ -135,6 +137,12 @@ class GCSExactTransportV1:
                 api_endpoint=grader.FIXED_STORAGE_ENDPOINT
             ),
         )
+        # These terminal objects can approach 80 MB.  A single 60-second
+        # socket timeout discarded an otherwise complete 54-slate derivation.
+        # Generation preconditions make retrying these exact reads/creates
+        # idempotent; retain a bounded retry window long enough for a slow
+        # resumable transfer to finish.
+        self._retry = DEFAULT_RETRY.with_timeout(GCS_IO_TIMEOUT_SECONDS)
 
     @staticmethod
     def _parts(uri: str) -> tuple[str, str]:
@@ -152,7 +160,11 @@ class GCSExactTransportV1:
         blob = self._client.bucket(bucket_name).blob(
             object_name, generation=generation
         )
-        raw = blob.download_as_bytes(if_generation_match=generation, retry=None)
+        raw = blob.download_as_bytes(
+            if_generation_match=generation,
+            timeout=GCS_IO_TIMEOUT_SECONDS,
+            retry=self._retry,
+        )
         if (
             type(raw) is not bytes
             or len(raw) != identity["bytes"]
@@ -171,13 +183,17 @@ class GCSExactTransportV1:
                 raw,
                 content_type="application/json",
                 if_generation_match=0,
-                retry=None,
+                timeout=GCS_IO_TIMEOUT_SECONDS,
+                retry=self._retry,
             )
         except Exception as exc:  # pragma: no cover - cloud dependent
             if exc.__class__.__name__ not in {"Conflict", "PreconditionFailed"}:
                 raise
             current = self._client.bucket(bucket_name).blob(object_name)
-            current.reload(retry=None)
+            current.reload(
+                timeout=GCS_IO_TIMEOUT_SECONDS,
+                retry=self._retry,
+            )
             if current.generation is None:
                 _fail("create-once collision lacks an existing generation")
             identity = {

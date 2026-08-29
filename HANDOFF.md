@@ -20,6 +20,40 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 04:30 UTC (three-hundred-twenty-seventh update)
+
+### Hard-230 derivation reached publication and is being resumed safely; V7 recovery failed closed
+
+- Branch `main` and `origin/main` entered this milestone at `149f80cd`.
+  Hard-230 completed its expensive 54-slate selector derivation, then failed
+  only while uploading the final score-blind terminal object: the default
+  60-second GCS write window raised a socket write timeout. An exact read of
+  the deterministic terminal URI proved that no object landed, so there is no
+  create-once ambiguity and no realized outcome was opened.
+- The hard-230 transport now uses a bounded 900-second Google retry policy for
+  generation-exact reads and `if_generation_match=0` creates. The generation
+  precondition keeps retried creation idempotent and the longer window avoids
+  discarding another completed terminal approaching the 80 MB ceiling.
+  Validation is **7/7 passed** in
+  `tests/test_corpus_r6_hard230_selector_bridge_v1.py`, including a new exact
+  transport argument test; compilation is green. Exact next action is commit
+  these two scoped files, rerun the unchanged full-54 derive request once,
+  exact-open its terminal identity, and grade it against the frozen outcome
+  snapshot.
+- The sole V7 timeout-recovery execution
+  `atlas-cbc-32g-full-2023-w8-v1-8xjx5`, UID
+  `26644b0a-50dd-4fc0-b580-3f2be7472a26`, terminated `FAILED` at
+  `2026-08-29T04:25:01.989519Z`: one task, exit code 1,
+  `NonZeroExitCode`, zero retries. Its container ran only about 223 seconds,
+  so this was not the amended 5,400-second child-wall timeout. No logs,
+  stderr, scientific objects, roots, or outcomes were opened. The replacement
+  authority is consumed: never reconfigure, retry, or relaunch it. Continue
+  only source/status-envelope diagnosis unless explicit new diagnostic
+  authority permits a log read.
+- F7/F8/F9 remains 2 succeeded and 52 running; L2b diversity task 0 remains
+  running. Both have zero provider failures/cancellations and must not be
+  perturbed.
+
 ## Current handoff — 2026-08-29 04:22 UTC (three-hundred-twenty-sixth update)
 
 ### The project is now a score-first sprint with a hard 2026-09-04 system freeze
