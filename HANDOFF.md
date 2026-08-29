@@ -20,6 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 (three-hundred-ninety-third update)
+
+### Fixed-G0 catalog recovery final lock is frozen at the reviewed commit
+
+- Branch `main` and `origin/main` entered this milestone at pushed review-lock
+  commit `5f665dd2278f13b8b066b6c3900da5b1cf568c32`.  From a clean sparse checkout
+  at exactly that commit, the guarded final-lock builder exact-reopened the
+  tracked review lock and its smoke, zero-prefix, focused-test and historical
+  attempt evidence before approving only create-once catalog projection.
+- The final lock is
+  `reports/2026-08-27-r6-fixed-g0-catalog-recovery-final-lock.json`, 9,082
+  bytes, file SHA-256
+  `5e0ab5dc020c34116e634ae5a854cdaf60b39239ea01c954fee0dbabad1ba3b5`,
+  and internal final-lock SHA-256
+  `dc4f4877cda458b83d822107bd815166732453b5e675a3b10b1ce51234addb2f`.
+  It binds review-lock commit `5f665dd2`, H0 implementation measurement
+  `be4270e7b27f33bfd37c615bd4daa45a5dbade654efb41ee4fe8ef046366699d`,
+  201/201 focused tests, expected 110 inner objects plus one outer terminal,
+  and attempt ordinal three.
+- The final lock still grants no scoring, selection, graph, promotion,
+  production-policy or realized-outcome authority.  Cloud-client construction
+  remains forbidden until a clean, tracked, origin-reachable attempt-three
+  marker is built directly from the final-lock commit.  Overwrite and retry
+  authority remain false.
+- Exact next action: commit and push this final lock with the handoff.  From a
+  clean checkout at that pushed commit, build the create-once attempt-three
+  marker, commit and push it before any cloud client exists, then invoke the
+  sole `publish --execute`.  Exact-reopen all 110 inner objects and the outer
+  attestation separately before downstream candidate publication.
+
 ## Current handoff -- 2026-08-29 (three-hundred-ninety-second update)
 
 ### Fixed-G0 catalog recovery review lock is independently approved
