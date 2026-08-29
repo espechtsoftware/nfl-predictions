@@ -20,6 +20,55 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 11:25 UTC (three-hundred-fifty-sixth update)
+
+### L2b produced 300 realized cells; retrieval crossing is now the critical path
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `4d3bb5cc`. The L2b provisional provider grade completed across all 54
+  slates and 300 cells. Its immutable object is generation
+  `1788002384329100`, SHA-256
+  `e862b5d1bb49abb8367d68bfb592b0d45854015669db6aa34921104bbc0ebc5a`,
+  44,748,199 bytes; internal grade SHA-256 is
+  `10c610d9c12c179993bc5718282250c207efbb213641781ac89c906599f48c69`.
+  It is complete descriptive/provisional evidence only; canonical exact replay
+  remains an asynchronous adoption audit.
+- Post-outcome descriptive leaders are 180.434 at K80 and 181.345 at K100
+  for native/R3 effective-independent-shots DPP, and 184.349 at K150 for
+  native/R1 correlation-aware. Their >=194/200/220/230 counts are 14/10/1/0,
+  14/10/1/0 and 18/13/1/0. The K80 mean is +1.999 versus the unmatched
+  178.435 all-block reference, but it loses three 220+ and both 230+ weeks;
+  it is not a Milly-tail promotion candidate by itself.
+- Across all matched fraction pairs, quarter-world mixture minus native mean
+  deltas are -0.010 DK at K80, +0.127 at K100 and -0.095 at K150. There is no
+  broad fraction winner. The strict summary contains all 300 cells and 150
+  matched contrasts; local summary SHA-256 is
+  `e8b03fd31f12db250c2a0e8d39e461e41b296b514a04a7c6cb916700715be6ff`.
+- The first summary attempt exposed a report-only registry defect: active
+  diversity books retain source ordinals 1/2/3 because disabled cap-3 remains
+  ordinal 0, while the scorecard assumed 0/1/2. The bounded repair records the
+  exact ordinal registry and rejects renumbered coordinates. Scorecard and
+  L2b summary validation is 20/20 passed; no score or selector changed.
+- The combined population remains the highest-upside surface: 205.793 mean
+  realized ceiling with 18 realized 230+ lineups across seven slates, versus a
+  best tested K80 retrieval of 178.661 and two 230+ weeks. Exact next scoring
+  action is to cross DPP, gamma-4/gamma-5 and strict-200 evil-twin retrieval
+  onto that already-generated population at K80/K100/K150, then reproduce the
+  external agent's finalists on the same 54-slate panel. Freeze the production
+  strategy and code by September 4; do not put UI/Neo4j or optional provenance
+  on this path.
+- Hard-230 v2 immutable image build
+  `30e66570-b866-4f54-85da-1823f848b357` succeeded from exact source
+  `4d3bb5cce7844b4fa0ac693a4c0e0437404f216d`, digest
+  `sha256:0c061d73562ffe127a74e32e2ef235134f3fc10d1a45e9a0a0684be4d26c7a05`.
+  Its create-once build receipt is generation `1788002425811133`, SHA-256
+  `0fdf9045d8c6bc0c6a5fd977c15112cd29d601491c21b3a36d948a912c2fb0b1`,
+  481 bytes. Fresh task-0 smoke `atlas-minimal-c-s2023-w2-v1-9x4r6` failed
+  score-free because request packaging included one trailing LF; the fixed W2
+  job was restored and verified before one canonical-byte retry. No v2 smoke
+  object or realized outcome was read, and this lane must not delay the
+  combined-retrieval crossing.
+
 ## Current handoff — 2026-08-29 11:10 UTC (three-hundred-fifty-fifth update)
 
 ### Hard-230 exact-K150 selector law is repaired and independently GO

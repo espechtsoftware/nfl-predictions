@@ -85,6 +85,14 @@ GENERIC_SELECTOR_IDS: Final = {
         "tail-ladder-evil-twin-strict-200-v1",
     ),
 }
+# The exact L2b result preserves ordinals from the complete challenger
+# registry.  Cap-3 remains the unregistered ordinal-0 follow-up, so the three
+# active books retain source ordinals 1/2/3 rather than being renumbered.
+GENERIC_SELECTOR_ORDINALS: Final = {
+    family: tuple(range(len(selector_ids)))
+    for family, selector_ids in GENERIC_SELECTOR_IDS.items()
+    if family != "tail-ladder-diversity-challengers"
+} | {"tail-ladder-diversity-challengers": (1, 2, 3)}
 _NOVEL_ROOT_FIELDS: Final = frozenset({
     "schema_version", "adapter_id", "terminal_root_identity",
     "terminal_root_sha256", "task_manifest_identity", "task_manifest_sha256",
@@ -431,21 +439,28 @@ def _validate_complete_lattice(
             prior = selector_ids.setdefault(key, row.get("selector_id"))
             if prior != row.get("selector_id"):
                 _fail(f"{label}: selector identity changes across folds")
-        expected_selector_keys = {
-            (family, ordinal) for family, count, _ in families
-            for ordinal in range(count)
+        expected_selector_ids = {
+            (family, ordinal): GENERIC_SELECTOR_IDS[family][position]
+            for family, _count, _budgets in families
+            for position, ordinal in enumerate(GENERIC_SELECTOR_ORDINALS[family])
         }
+        expected_selector_keys = set(expected_selector_ids)
         if set(selector_ids) != expected_selector_keys or any(
             type(value) is not str or not value for value in selector_ids.values()
         ):
             _fail(f"{label}: selector family/ordinal census differs")
-        if any(selector_ids[(family, ordinal)] != GENERIC_SELECTOR_IDS[family][ordinal]
-               for family, ordinal in expected_selector_keys):
+        if any(
+            selector_ids[key] != expected_selector_ids[key]
+            for key in expected_selector_keys
+        ):
             _fail(f"{label}: selector IDs differ from frozen adapter registry")
         for outer in outer_values:
             for block in WORLD_BLOCKS:
                 for family, count, budgets in families:
-                    for ordinal in range(count):
+                    ordinals = GENERIC_SELECTOR_ORDINALS[family]
+                    if len(ordinals) != count:
+                        _fail(f"{label}: selector ordinal registry differs")
+                    for ordinal in ordinals:
                         for budget in budgets:
                             expected.add(_coordinate_key({
                                 "adapter_id": adapter_id,

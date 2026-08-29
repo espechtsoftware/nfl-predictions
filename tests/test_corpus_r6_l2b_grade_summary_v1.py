@@ -11,6 +11,7 @@ from nfl_dfs.research.corpus_r6_l2b_grade_summary_v1 import (
 )
 from nfl_dfs.research.corpus_r6_score_sprint_scorecard_v1 import (
     GENERIC_SELECTOR_IDS,
+    GENERIC_SELECTOR_ORDINALS,
 )
 
 
@@ -28,7 +29,11 @@ def _surface() -> tuple[dict[str, object], dict[str, object]]:
     ):
         for block_ordinal, block in enumerate(("R0", "R1", "R2", "R3", "R4")):
             for family, budgets in families:
-                for selector_ordinal, selector_id in enumerate(GENERIC_SELECTOR_IDS[family]):
+                for selector_ordinal, selector_id in zip(
+                    GENERIC_SELECTOR_ORDINALS[family],
+                    GENERIC_SELECTOR_IDS[family],
+                    strict=True,
+                ):
                     for budget in budgets:
                         coordinate = {
                             "adapter_id": "l2b-current-union-selectors-v1",

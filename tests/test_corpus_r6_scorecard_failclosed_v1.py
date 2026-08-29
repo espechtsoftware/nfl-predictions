@@ -61,8 +61,10 @@ def _coordinates(adapter_id: str) -> list[dict[str, object]]:
     for outer_value in outer_values:
         for heldout_block in s.WORLD_BLOCKS:
             for selector_family, budgets in families:
-                for selector_ordinal, selector_id in enumerate(
-                    s.GENERIC_SELECTOR_IDS[selector_family]
+                for selector_ordinal, selector_id in zip(
+                    s.GENERIC_SELECTOR_ORDINALS[selector_family],
+                    s.GENERIC_SELECTOR_IDS[selector_family],
+                    strict=True,
                 ):
                     for entry_budget in budgets:
                         coordinates.append({
@@ -348,6 +350,25 @@ def test_generic_lattices_bind_upstream_preset_ids(
             adapter_id=adapter_id,
             cells=[{"coordinate": row} for row in coordinates],
             label="stale executor IDs",
+        )
+
+
+def test_l2b_diversity_lattice_preserves_source_registry_ordinals() -> None:
+    assert s.GENERIC_SELECTOR_ORDINALS[
+        "tail-ladder-diversity-challengers"
+    ] == (1, 2, 3)
+    renumbered = deepcopy(_coordinates("l2b-current-union-selectors-v1"))
+    for coordinate in renumbered:
+        if coordinate["selector_family"] == "tail-ladder-diversity-challengers":
+            coordinate["selector_ordinal"] = int(coordinate["selector_ordinal"]) - 1
+    with pytest.raises(
+        s.CorpusR6ScoreSprintScorecardV1Error,
+        match="selector family/ordinal census differs",
+    ):
+        s._validate_complete_lattice(
+            adapter_id="l2b-current-union-selectors-v1",
+            cells=[{"coordinate": row} for row in renumbered],
+            label="renumbered diversity ordinals",
         )
 
 
