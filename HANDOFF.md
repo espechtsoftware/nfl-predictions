@@ -20,7 +20,25 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 (three-hundred-eighty-fifth update)
+## Current handoff -- 2026-08-29 (three-hundred-eighty-sixth update)
+
+### Corrected immutable-image manifest smoke is queued on fresh v2 evidence
+
+- Branch `main` and `origin/main` entered this milestone at pushed handoff
+  commit `7f997f08`; science/image/manifest authorities remain unchanged.
+- After proving the failed v1 evidence prefix empty and validating the sole
+  `cd /app` correction, exactly one corrected no-source smoke was submitted.
+  Its sole build ID is `5b024a64-caf2-47de-91b0-04cf342d758b`, queued at
+  `2026-08-29T21:49:00.913676279Z`.  It uses the same immutable digest and
+  exact manifest request, with fresh evidence prefix
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-boom-first-allocation-smokes/20260829-boom-first-68873f42-git-v1-manifest-smoke-v2/`.
+- Do not submit another corrected smoke while this build state exists.  Poll
+  only `5b024a64...`; accept only terminal `SUCCESS`, exact request/receipt
+  artifacts and a generation-pinned validated manifest-smoke receipt.  No
+  fixed-job mutation/launch, experiment result, publication or outcome read
+  occurred at this milestone.
+
+## Previous handoff -- 2026-08-29 (three-hundred-eighty-fifth update)
 
 ### First manifest-smoke transport fails pre-science on Cloud Build cwd
 
