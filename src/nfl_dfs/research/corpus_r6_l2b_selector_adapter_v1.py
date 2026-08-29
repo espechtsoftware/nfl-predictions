@@ -9,7 +9,11 @@ corpus or touching realized outcomes:
   the accepted full-union candidate rows for every rotated R-block fold;
 * cross-score those unchanged rosters under each L2b fraction;
 * run the existing grouped-native, exact-rank-150, and DPP selectors at their
-  frozen 4/14/80/100/150 budgets; and
+  frozen 4/14/80/100/150 budgets;
+* add exact 80/100/150 books for overlap caps four and five plus the strict-200
+  evil-twin order; preserve cap three as an unregistered follow-up because a
+  real 250-lineup preflight cannot support 150 entries without relaxing it;
+  and
 * publish one create-last 54-slate terminal root whose normalized slate
   surface is consumable by the common novel-roster realized-score machinery.
 
@@ -50,6 +54,9 @@ from nfl_dfs.research import (
 from nfl_dfs.research import (
     corpus_r6_current_bank_selector_successor_v1 as successor,
 )
+from nfl_dfs.research import (
+    corpus_r6_selector_diversity_challengers_v1 as diversity_challengers,
+)
 from nfl_dfs.research import corpus_r6_l2b_panel_cloud_v1 as l2b_panel
 from nfl_dfs.research import corpus_r6_l2b_panel_operator_v1 as l2b_operator
 from nfl_dfs.research import corpus_r6_novel_roster_realized_grader_v1 as grader
@@ -74,13 +81,22 @@ WORLDS_PER_BLOCK: Final = l2b_panel.WORLDS_PER_BLOCK
 FRACTION_IDS: Final = tuple(
     str(row["fraction_id"]) for row in l2b_panel.FRACTION_REGISTRY
 )
+TAIL_DIVERSITY_FOLLOWUP_STRATEGY_ID: Final = (
+    "tail-ladder-roster-overlap-cap-3-v1"
+)
+TAIL_DIVERSITY_ACTIVE_STRATEGY_IDS: Final = (
+    "tail-ladder-roster-overlap-cap-4-v1",
+    "tail-ladder-roster-overlap-cap-5-v1",
+    "tail-ladder-evil-twin-strict-200-v1",
+)
 SELECTOR_FAMILIES: Final = (
     "grouped-native-rank80",
     "exact-rank150-continuation",
     "effective-independent-tail-shots",
+    "tail-ladder-diversity-challengers",
 )
-SELECTOR_COUNT_PER_FRACTION_FOLD: Final = 7
-BOOK_COUNT_PER_FRACTION_FOLD: Final = 21
+SELECTOR_COUNT_PER_FRACTION_FOLD: Final = 10
+BOOK_COUNT_PER_FRACTION_FOLD: Final = 30
 SELECTOR_LATTICE: Final = {
     "grouped_native_selector_count": 3,
     "grouped_native_entry_budgets": list(successor.PREFIX_SIZES),
@@ -88,6 +104,28 @@ SELECTOR_LATTICE: Final = {
     "exact_rank150_entry_budgets": list(rank150.ENTRY_BUDGETS),
     "dpp_selector_count": 1,
     "dpp_entry_budgets": list(diversity.PREFIX_SIZES),
+    "tail_ladder_diversity_source_selector_count": 4,
+    "tail_ladder_diversity_active_selector_count": 3,
+    "tail_ladder_diversity_entry_budgets": list(
+        diversity_challengers.ENTRY_BUDGETS
+    ),
+    "tail_ladder_diversity_active_strategy_ids": list(
+        TAIL_DIVERSITY_ACTIVE_STRATEGY_IDS
+    ),
+    "tail_ladder_diversity_followup_strategy_ids": [
+        TAIL_DIVERSITY_FOLLOWUP_STRATEGY_ID
+    ],
+    "tail_ladder_diversity_activation_gate": {
+        "required_status": "exact-rank-150",
+        "required_entry_budgets": list(diversity_challengers.ENTRY_BUDGETS),
+        "failure_law": "fail-fraction-before-publication-never-relax-cap",
+        "uses_realized_outcomes": False,
+    },
+    "tail_ladder_diversity_contract_sha256": (
+        diversity_challengers.diversity_challenger_contract_v1()[
+            "contract_sha256"
+        ]
+    ),
     "selector_count_per_fraction_fold": SELECTOR_COUNT_PER_FRACTION_FOLD,
     "book_count_per_fraction_fold": BOOK_COUNT_PER_FRACTION_FOLD,
 }
@@ -177,6 +215,24 @@ def _sequence(value: object, *, label: str) -> list[object]:
     if isinstance(value, (str, bytes, bytearray)) or not isinstance(value, Sequence):
         _fail(f"{label} must be an ordered array")
     return list(value)
+
+
+def _canonical_json_object_v1(
+    value: object, *, label: str,
+) -> dict[str, object]:
+    """Normalize tuples and other JSON arrays to their persisted list form."""
+    raw = canonical_json_bytes_v1(value)
+    try:
+        normalized = batch.parse_canonical_json_bytes(raw, label=label)
+    except batch.CorpusParametricBatchError as exc:
+        raise CorpusR6L2BSelectorAdapterV1Error(str(exc)) from exc
+    return _mapping(normalized, label=label)
+
+
+def _selector_lattice_v1() -> dict[str, object]:
+    return _canonical_json_object_v1(
+        SELECTOR_LATTICE, label="L2b selector lattice"
+    )
 
 
 def _identity(value: object, *, label: str) -> dict[str, object]:
@@ -919,7 +975,7 @@ def prepare_selector_manifest_v1(
         "fraction_registry": [dict(row) for row in l2b_panel.FRACTION_REGISTRY],
         "world_blocks": list(WORLD_BLOCKS),
         "worlds_per_block": WORLDS_PER_BLOCK,
-        "selector_lattice": dict(SELECTOR_LATTICE),
+        "selector_lattice": _selector_lattice_v1(),
         "candidate_population_law": SELECTOR_CANDIDATE_VIEW_LAW,
         "output_prefix": prefix,
         "terminal_root_uri": f"{prefix}terminal-selector-root.json",
@@ -990,7 +1046,9 @@ def validate_selector_manifest_v1(value: object) -> dict[str, object]:
         != [dict(row) for row in l2b_panel.FRACTION_REGISTRY]
         or manifest.get("world_blocks") != list(WORLD_BLOCKS)
         or manifest.get("worlds_per_block") != WORLDS_PER_BLOCK
-        or manifest.get("selector_lattice") != SELECTOR_LATTICE
+        or _canonical_json_object_v1(
+            manifest.get("selector_lattice"), label="manifest selector lattice"
+        ) != _selector_lattice_v1()
         or manifest.get("candidate_population_law")
         != SELECTOR_CANDIDATE_VIEW_LAW
         or _SHA40.fullmatch(str(manifest.get("source_commit_sha", ""))) is None
@@ -1366,7 +1424,7 @@ def _cross_score_projection_block_v1(
 
 def _selector_sources_v1(
     *, grouped: Mapping[str, object], ranked: Mapping[str, object],
-    dpp: Mapping[str, object],
+    dpp: Mapping[str, object], challengers: Mapping[str, object],
 ) -> list[tuple[str, int, str, str, Sequence[object], Sequence[int]]]:
     sources: list[
         tuple[str, int, str, str, Sequence[object], Sequence[int]]
@@ -1394,6 +1452,34 @@ def _selector_sources_v1(
         _sequence(dpp.get("prefixes"), label="DPP prefixes"),
         diversity.PREFIX_SIZES,
     ))
+    for raw in _sequence(
+        challengers.get("selectors"), label="tail-ladder diversity selectors"
+    ):
+        row = _mapping(raw, label="tail-ladder diversity selector")
+        if row.get("strategy_id") not in TAIL_DIVERSITY_ACTIVE_STRATEGY_IDS:
+            continue
+        normalized_books = []
+        for raw_book in _sequence(
+            row.get("entry_books"), label="tail-ladder diversity books"
+        ):
+            book = _mapping(raw_book, label="tail-ladder diversity book")
+            normalized_books.append({
+                "prefix_size": book.get("entry_budget"),
+                "selected_lineup_ids": book.get("selected_lineup_ids"),
+                "selected_lineup_ids_sha256": book.get(
+                    "selected_lineup_ids_sha256"
+                ),
+                "selected_rosters_sha256": book.get(
+                    "selected_rosters_sha256"
+                ),
+                "prefix_sha256": book.get("book_sha256"),
+            })
+        sources.append((
+            SELECTOR_FAMILIES[3], int(row.get("ordinal", -1)),
+            str(row.get("strategy_id")),
+            str(row.get("selector_result_sha256")), normalized_books,
+            diversity_challengers.ENTRY_BUDGETS,
+        ))
     if len(sources) != SELECTOR_COUNT_PER_FRACTION_FOLD:
         _fail("L2b selector lattice differs")
     return sources
@@ -1447,10 +1533,182 @@ _DPP_RESULT_FIELDS: Final = {
     "entry_budget", "prefix_sizes", "prefixes", "prefix_sha256s", "policy",
     "result_sha256",
 }
+_TAIL_DIVERSITY_RESULT_FIELDS: Final = {
+    "schema_version", "contract", "contract_sha256", "input_binding",
+    "input_binding_sha256", "selector_count", "selectors",
+    "selector_result_sha256s", "entry_budgets", "ranking_depth",
+    "heldout_evaluation_performed", "policy", "result_sha256",
+}
+_TAIL_DIVERSITY_SELECTOR_FIELDS: Final = {
+    "schema_version", "ordinal", "strategy_id", "selector_kind",
+    "base_strategy_id", "base_strategy_sha256", "status",
+    "greedy_prefix_count", "ranked_canonical_indices", "ranked_lineup_ids",
+    "ranked_lineup_ids_sha256", "selection_trace_sha256",
+    "selector_summary", "entry_budgets_available", "entry_books",
+    "entry_book_sha256s", "exact_prefix_consistency_verified", "policy",
+    "selector_result_sha256",
+}
+_TAIL_DIVERSITY_BOOK_FIELDS: Final = {
+    "schema_version", "entry_budget", "selected_lineup_ids",
+    "selected_lineup_ids_sha256", "selected_rosters_sha256",
+    "fit_book_maximum_mean_micro", "roster_overlap_diagnostics",
+    "effective_tail_shots", "effective_tail_shots_sha256",
+    "heldout_evaluation_performed", "uses_realized_outcomes", "book_sha256",
+}
+
+
+def _validate_exact_tail_diversity_shapes_v1(
+    *, challengers: object, candidate_rows: Sequence[Mapping[str, object]],
+) -> None:
+    """Require four exact nested books and independently recheck hard caps."""
+    result = _mapping(challengers, label="tail-ladder diversity result")
+    if set(result) != _TAIL_DIVERSITY_RESULT_FIELDS:
+        _fail("persisted tail-ladder diversity result fields differ")
+    _validate_self_hash(
+        result, field="result_sha256", label="tail-ladder diversity result"
+    )
+    contract = diversity_challengers.diversity_challenger_contract_v1()
+    selectors = [
+        _mapping(row, label="tail-ladder diversity selector")
+        for row in _sequence(
+            result.get("selectors"), label="tail-ladder diversity selectors"
+        )
+    ]
+    expected_strategy_ids = [
+        *[
+            f"tail-ladder-roster-overlap-cap-{gamma}-v1"
+            for gamma in diversity_challengers.OVERLAP_CAPS
+        ],
+        "tail-ladder-evil-twin-strict-200-v1",
+    ]
+    roster_by_lineup = {
+        str(row["lineup_id"]): tuple(
+            str(player_id) for player_id in row["roster_player_ids"]
+        )
+        for row in candidate_rows
+    }
+    if (
+        result.get("schema_version") != diversity_challengers.RESULT_SCHEMA
+        or result.get("contract") != contract
+        or result.get("contract_sha256") != contract["contract_sha256"]
+        or result.get("selector_count") != len(expected_strategy_ids)
+        or len(selectors) != len(expected_strategy_ids)
+        or result.get("selector_result_sha256s")
+        != [row.get("selector_result_sha256") for row in selectors]
+        or result.get("entry_budgets")
+        != list(diversity_challengers.ENTRY_BUDGETS)
+        or result.get("ranking_depth") != diversity_challengers.RANKING_DEPTH
+        or result.get("heldout_evaluation_performed") is not False
+        or result.get("policy") != diversity_challengers._FALSE_POLICY
+    ):
+        _fail("tail-ladder diversity fixed result law differs")
+    for ordinal, (selector, strategy_id) in enumerate(
+        zip(selectors, expected_strategy_ids, strict=True)
+    ):
+        if set(selector) != _TAIL_DIVERSITY_SELECTOR_FIELDS:
+            _fail("persisted tail-ladder diversity selector fields differ")
+        _validate_self_hash(
+            selector,
+            field="selector_result_sha256",
+            label="tail-ladder diversity selector",
+        )
+        ranked = [
+            str(value) for value in _sequence(
+                selector.get("ranked_lineup_ids"),
+                label="tail-ladder diversity ranked lineups",
+            )
+        ]
+        books = [
+            _mapping(row, label="tail-ladder diversity book")
+            for row in _sequence(
+                selector.get("entry_books"),
+                label="tail-ladder diversity books",
+            )
+        ]
+        available_budgets = [
+            int(value) for value in _sequence(
+                selector.get("entry_budgets_available"),
+                label="tail-ladder diversity available budgets",
+            )
+        ]
+        active = strategy_id in TAIL_DIVERSITY_ACTIVE_STRATEGY_IDS
+        if (
+            selector.get("ordinal") != ordinal
+            or selector.get("strategy_id") != strategy_id
+            or selector.get("base_strategy_id")
+            != diversity_challengers.BASE_STRATEGY_ID
+            or selector.get("base_strategy_sha256")
+            != diversity_challengers.BASE_STRATEGY_SHA256
+            or selector.get("greedy_prefix_count") != len(ranked)
+            or not 1 <= len(ranked) <= diversity_challengers.RANKING_DEPTH
+            or len(set(ranked)) != len(ranked)
+            or not set(ranked) <= set(roster_by_lineup)
+            or selector.get("ranked_lineup_ids_sha256")
+            != canonical_sha256_v1(ranked)
+            or [book.get("entry_budget") for book in books]
+            != available_budgets
+            or available_budgets
+            != [
+                budget for budget in diversity_challengers.ENTRY_BUDGETS
+                if budget <= len(ranked)
+            ]
+            or selector.get("entry_book_sha256s")
+            != [book.get("book_sha256") for book in books]
+            or selector.get("exact_prefix_consistency_verified") is not True
+            or selector.get("policy") != diversity_challengers._FALSE_POLICY
+        ):
+            _fail("tail-ladder diversity selector support law differs")
+        if active and (
+            selector.get("status") != "exact-rank-150"
+            or len(ranked) != diversity_challengers.RANKING_DEPTH
+            or available_budgets
+            != list(diversity_challengers.ENTRY_BUDGETS)
+        ):
+            _fail("active tail-ladder diversity selector lacks exact rank-150")
+        for book in books:
+            if set(book) != _TAIL_DIVERSITY_BOOK_FIELDS:
+                _fail("persisted tail-ladder diversity book fields differ")
+            _validate_self_hash(
+                book, field="book_sha256", label="tail-ladder diversity book"
+            )
+            budget = int(book["entry_budget"])
+            selected = [str(value) for value in book["selected_lineup_ids"]]
+            rosters = [list(roster_by_lineup[lineup_id]) for lineup_id in selected]
+            if (
+                selected != ranked[:budget]
+                or book.get("selected_lineup_ids_sha256")
+                != canonical_sha256_v1(selected)
+                or book.get("selected_rosters_sha256")
+                != canonical_sha256_v1(rosters)
+                or book.get("heldout_evaluation_performed") is not False
+                or book.get("uses_realized_outcomes") is not False
+            ):
+                _fail("tail-ladder diversity book differs from its exact prefix")
+        if ordinal < len(diversity_challengers.OVERLAP_CAPS):
+            gamma = diversity_challengers.OVERLAP_CAPS[ordinal]
+            summary = _mapping(
+                selector.get("selector_summary"),
+                label="tail-ladder overlap-cap summary",
+            )
+            if (
+                summary.get("overlap_cap") != gamma
+                or summary.get("ranking_depth_reached")
+                != (len(ranked) == diversity_challengers.RANKING_DEPTH)
+                or summary.get("cap_relaxed") is not False
+            ):
+                _fail("tail-ladder diversity overlap-cap summary differs")
+            for left in range(len(ranked)):
+                left_roster = set(roster_by_lineup[ranked[left]])
+                for right in range(left + 1, len(ranked)):
+                    if len(
+                        left_roster & set(roster_by_lineup[ranked[right]])
+                    ) > gamma:
+                        _fail("tail-ladder diversity selected roster violates cap")
 
 
 def _validate_persisted_selector_shapes_v1(
-    *, grouped: object, ranked: object, dpp: object,
+    *, grouped: object, ranked: object, dpp: object, challengers: object,
+    candidate_rows: Sequence[Mapping[str, object]],
 ) -> None:
     """Reject unregistered nested fields after pure selector replay."""
     grouped_item = _mapping(grouped, label="grouped selector result")
@@ -1493,6 +1751,9 @@ def _validate_persisted_selector_shapes_v1(
         if set(prefix) != _DPP_PREFIX_FIELDS:
             _fail("persisted DPP prefix fields differ")
         _validate_self_hash(prefix, field="prefix_sha256", label="DPP prefix")
+    _validate_exact_tail_diversity_shapes_v1(
+        challengers=challengers, candidate_rows=candidate_rows
+    )
 
 
 def _book_descriptors_v1(
@@ -1504,6 +1765,7 @@ def _book_descriptors_v1(
     grouped: Mapping[str, object],
     ranked: Mapping[str, object],
     dpp: Mapping[str, object],
+    challengers: Mapping[str, object],
 ) -> list[dict[str, object]]:
     roster_by_lineup = {
         str(row["lineup_id"]): tuple(
@@ -1514,7 +1776,10 @@ def _book_descriptors_v1(
     sampled = set(roster_by_lineup)
     rows: list[dict[str, object]] = []
     for family, ordinal, selector_id, source_sha, prefixes, budgets in (
-        _selector_sources_v1(grouped=grouped, ranked=ranked, dpp=dpp)
+        _selector_sources_v1(
+            grouped=grouped, ranked=ranked, dpp=dpp,
+            challengers=challengers,
+        )
     ):
         normalized_prefixes = [
             _mapping(value, label=f"{family} prefix") for value in prefixes
@@ -1682,6 +1947,9 @@ def _run_selectors_v1(
             **kwargs, preset_registry=presets
         )
         dpp = diversity.run_effective_independent_shots_selector_v1(**kwargs)
+        tail_diversity = (
+            diversity_challengers.run_diversity_challengers_v1(**kwargs)
+        )
         successor.validate_grouped_native_selector_result_v1(
             grouped, **kwargs, preset_registry=presets
         )
@@ -1691,8 +1959,12 @@ def _run_selectors_v1(
         diversity.validate_effective_independent_shots_result_v1(
             dpp, **kwargs
         )
+        diversity_challengers.validate_diversity_challengers_v1(
+            tail_diversity, **kwargs
+        )
         _validate_persisted_selector_shapes_v1(
-            grouped=grouped, ranked=ranked, dpp=dpp
+            grouped=grouped, ranked=ranked, dpp=dpp,
+            challengers=tail_diversity, candidate_rows=candidates,
         )
     except Exception as exc:
         raise CorpusR6L2BSelectorAdapterV1Error(
@@ -1711,6 +1983,7 @@ def _run_selectors_v1(
         grouped=grouped,
         ranked=ranked,
         dpp=dpp,
+        challengers=tail_diversity,
     )
     body = {
         "schema_version": FRACTION_RESULT_SCHEMA,
@@ -1728,6 +2001,8 @@ def _run_selectors_v1(
         "rank150_result_sha256": ranked["result_sha256"],
         "dpp_result": dpp,
         "dpp_result_sha256": dpp["result_sha256"],
+        "tail_diversity_result": tail_diversity,
+        "tail_diversity_result_sha256": tail_diversity["result_sha256"],
         "selector_results_exact_pure_replayed": True,
         "book_count": len(books),
         "books": books,
@@ -1882,7 +2157,7 @@ def build_slate_result_v1(
         "fold_results": folds,
         "fold_result_sha256s": [row["fold_result_sha256"] for row in folds],
         "fraction_registry": [dict(row) for row in l2b_panel.FRACTION_REGISTRY],
-        "selector_lattice": dict(SELECTOR_LATTICE),
+        "selector_lattice": _selector_lattice_v1(),
         "normalized_population_count": len(normalized_populations),
         "normalized_populations": normalized_populations,
         "normalized_populations_sha256": canonical_sha256_v1(
@@ -1953,7 +2228,9 @@ def validate_slate_result_v1(
         or result.get("fold_order") != list(WORLD_BLOCKS)
         or result.get("fraction_registry")
         != [dict(row) for row in l2b_panel.FRACTION_REGISTRY]
-        or result.get("selector_lattice") != SELECTOR_LATTICE
+        or _canonical_json_object_v1(
+            result.get("selector_lattice"), label="result selector lattice"
+        ) != _selector_lattice_v1()
         or result.get("all_score_matrices_reduced_to_digests") is not True
         or result.get("score_values_persisted") is not False
         or result.get("complete") is not True
@@ -2051,7 +2328,9 @@ def validate_slate_result_v1(
                     "training_score_shape", "training_score_matrix_sha256",
                     "grouped_result", "grouped_result_sha256",
                     "rank150_result", "rank150_result_sha256", "dpp_result",
-                    "dpp_result_sha256", "selector_results_exact_pure_replayed",
+                    "dpp_result_sha256", "tail_diversity_result",
+                    "tail_diversity_result_sha256",
+                    "selector_results_exact_pure_replayed",
                     "book_count", "books", "books_sha256",
                     "heldout_cross_score_executed", *_FALSE_POLICY,
                     "fraction_result_sha256",
@@ -2083,6 +2362,8 @@ def validate_slate_result_v1(
                 grouped=fraction["grouped_result"],
                 ranked=fraction["rank150_result"],
                 dpp=fraction["dpp_result"],
+                challengers=fraction["tail_diversity_result"],
+                candidate_rows=candidates,
             )
             if (
                 fraction["grouped_result_sha256"]
@@ -2091,6 +2372,8 @@ def validate_slate_result_v1(
                 != fraction["rank150_result"]["result_sha256"]
                 or fraction["dpp_result_sha256"]
                 != fraction["dpp_result"]["result_sha256"]
+                or fraction["tail_diversity_result_sha256"]
+                != fraction["tail_diversity_result"]["result_sha256"]
             ):
                 _fail("L2b nested selector hash binding differs")
             expected_books = _book_descriptors_v1(
@@ -2101,6 +2384,7 @@ def validate_slate_result_v1(
                 grouped=fraction["grouped_result"],
                 ranked=fraction["rank150_result"],
                 dpp=fraction["dpp_result"],
+                challengers=fraction["tail_diversity_result"],
             )
             if books != expected_books:
                 _fail("L2b persisted books differ from exact selector prefixes")
@@ -2111,6 +2395,7 @@ def validate_slate_result_v1(
                     grouped=fraction["grouped_result"],
                     ranked=fraction["rank150_result"],
                     dpp=fraction["dpp_result"],
+                    challengers=fraction["tail_diversity_result"],
                 )
                 for prefix in prefixes
             }
@@ -2597,7 +2882,7 @@ def finalize_terminal_root_v1(
         "task_results": descriptors,
         "task_results_sha256": canonical_sha256_v1(descriptors),
         "fraction_registry": [dict(row) for row in l2b_panel.FRACTION_REGISTRY],
-        "selector_lattice": dict(SELECTOR_LATTICE),
+        "selector_lattice": _selector_lattice_v1(),
         "generic_grader_adapter": {
             "adapter_id": ADAPTER_ID,
             "boundary": NORMALIZED_GRADER_BOUNDARY,
@@ -2677,7 +2962,9 @@ def validate_terminal_root_v1(value: object) -> dict[str, object]:
         or root.get("task_results_sha256") != canonical_sha256_v1(descriptors)
         or root.get("fraction_registry")
         != [dict(row) for row in l2b_panel.FRACTION_REGISTRY]
-        or root.get("selector_lattice") != SELECTOR_LATTICE
+        or _canonical_json_object_v1(
+            root.get("selector_lattice"), label="terminal selector lattice"
+        ) != _selector_lattice_v1()
         or root.get("generic_grader_adapter") != {
             "adapter_id": ADAPTER_ID,
             "boundary": NORMALIZED_GRADER_BOUNDARY,

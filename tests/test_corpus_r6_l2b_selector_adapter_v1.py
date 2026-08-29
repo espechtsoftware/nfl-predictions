@@ -392,6 +392,45 @@ def _selector_fakes(monkeypatch: pytest.MonkeyPatch, events: list[str]) -> None:
             "result_sha256": "3" * 64,
         }
 
+    def tail_diversity(**kwargs):
+        events.append("tail-diversity")
+        ids = list(kwargs["sampled_lineup_ids"])
+        strategy_ids = [
+            *[
+                f"tail-ladder-roster-overlap-cap-{gamma}-v1"
+                for gamma in adapter.diversity_challengers.OVERLAP_CAPS
+            ],
+            "tail-ladder-evil-twin-strict-200-v1",
+        ]
+        selectors = []
+        for ordinal, strategy_id in enumerate(strategy_ids):
+            books = []
+            for size in adapter.diversity_challengers.ENTRY_BUDGETS:
+                prefix = _prefix(ids, size, label=f"t-{ordinal}-{size}")
+                books.append({
+                    "entry_budget": size,
+                    "selected_lineup_ids": prefix["selected_lineup_ids"],
+                    "selected_lineup_ids_sha256": prefix[
+                        "selected_lineup_ids_sha256"
+                    ],
+                    "selected_rosters_sha256": prefix[
+                        "selected_rosters_sha256"
+                    ],
+                    "book_sha256": prefix["prefix_sha256"],
+                })
+            selectors.append({
+                "ordinal": ordinal,
+                "strategy_id": strategy_id,
+                "selector_result_sha256": f"{ordinal + 8:064x}",
+                "entry_books": books,
+            })
+        return {
+            "schema_version": adapter.diversity_challengers.RESULT_SCHEMA,
+            "selector_count": 4,
+            "selectors": selectors,
+            "result_sha256": "4" * 64,
+        }
+
     monkeypatch.setattr(
         adapter.successor, "run_grouped_native_selectors_v1", grouped
     )
@@ -400,6 +439,11 @@ def _selector_fakes(monkeypatch: pytest.MonkeyPatch, events: list[str]) -> None:
     )
     monkeypatch.setattr(
         adapter.diversity, "run_effective_independent_shots_selector_v1", dpp
+    )
+    monkeypatch.setattr(
+        adapter.diversity_challengers,
+        "run_diversity_challengers_v1",
+        tail_diversity,
     )
     monkeypatch.setattr(
         adapter.successor, "validate_grouped_native_selector_result_v1",
@@ -411,6 +455,11 @@ def _selector_fakes(monkeypatch: pytest.MonkeyPatch, events: list[str]) -> None:
     )
     monkeypatch.setattr(
         adapter.diversity, "validate_effective_independent_shots_result_v1",
+        lambda value, **_kwargs: value,
+    )
+    monkeypatch.setattr(
+        adapter.diversity_challengers,
+        "validate_diversity_challengers_v1",
         lambda value, **_kwargs: value,
     )
     monkeypatch.setattr(
@@ -454,13 +503,27 @@ def test_fixed_union_is_cross_scored_for_both_l2b_fractions_and_all_budgets(
     )
 
     assert result["normalized_population_count"] == 5
-    assert result["normalized_book_count"] == 2 * 5 * 21
+    assert result["normalized_book_count"] == 2 * 5 * 30
     coordinates = [row["coordinate"] for row in result["normalized_books"]]
     assert {row["fraction_id"] for row in coordinates} == set(
         adapter.FRACTION_IDS
     )
     assert {row["entry_budget"] for row in coordinates} == {
         4, 14, 80, 100, 150
+    }
+    tail_coordinates = [
+        row for row in coordinates
+        if row["selector_family"] == adapter.SELECTOR_FAMILIES[3]
+    ]
+    assert len(tail_coordinates) == 2 * 5 * 3 * 3
+    assert {row["entry_budget"] for row in tail_coordinates} == {80, 100, 150}
+    assert {row["selector_id"] for row in tail_coordinates} == set(
+        adapter.SELECTOR_LATTICE[
+            "tail_ladder_diversity_active_strategy_ids"
+        ]
+    )
+    assert adapter.TAIL_DIVERSITY_FOLLOWUP_STRATEGY_ID not in {
+        row["selector_id"] for row in tail_coordinates
     }
     assert all(
         fold["candidate_rows"] == bundle["fold_projections"][index]["candidates"]
@@ -473,9 +536,46 @@ def test_fixed_union_is_cross_scored_for_both_l2b_fractions_and_all_budgets(
     }) == 150
     # Every fraction/fold performs only four training cross-scores followed by
     # the selectors.  No held-out cross-score or digest is computed at all.
-    for offset in range(0, len(events), 7):
-        chunk = events[offset:offset + 7]
-        assert chunk[4:7] == ["grouped", "ranked", "dpp"]
+    for offset in range(0, len(events), 8):
+        chunk = events[offset:offset + 8]
+        assert chunk[4:8] == [
+            "grouped", "ranked", "dpp", "tail-diversity"
+        ]
+
+    # This is the same normalized surface used by terminal reopen.  Requiring
+    # exact 54-slate coordinate coverage here proves every new 80/100/150 cell
+    # reaches the shared direct-roster scorer and aggregate topology.
+    normalized = adapter._normalized_slate_v1(result)
+    slates = tuple({
+        **normalized,
+        "source_ordinal": index,
+        "slate_id": f"{season}-w{week:02d}",
+    } for index, (season, week) in enumerate(adapter.l2b_panel.EXPECTED_SLATES))
+    gradeable = adapter.grader.validate_external_normalized_terminal_v1(
+        adapter_id=adapter.ADAPTER_ID, slates=slates
+    )
+    player_ids = {
+        player_id
+        for population in normalized["populations"]
+        for lineup in population["lineups"]
+        for player_id in lineup["roster_player_ids"]
+    }
+    player_scores = {
+        (source_ordinal, player_id): 1
+        for source_ordinal in range(adapter.TASK_COUNT)
+        for player_id in player_ids
+    }
+    slate_grades = adapter.grader.score_normalized_slates_v1(
+        slates=gradeable, player_scores=player_scores
+    )
+    aggregate = adapter.grader.aggregate_normalized_slate_grades_v1(
+        slate_grades
+    )
+    assert len(aggregate) == 2 * 5 * 30
+    assert sum(
+        row["coordinate"]["selector_family"] == adapter.SELECTOR_FAMILIES[3]
+        for row in aggregate
+    ) == 2 * 5 * 3 * 3
 
 
 def test_real_selector_results_pass_their_exact_pure_replay_validators(
@@ -505,6 +605,184 @@ def test_real_selector_results_pass_their_exact_pure_replay_validators(
     assert result["heldout_cross_score_executed"] is False
     assert "heldout_score_matrix_sha256" not in result
     assert result["book_count"] == adapter.BOOK_COUNT_PER_FRACTION_FOLD
+    # The three incumbent selector payloads are embedded byte-for-byte; only
+    # new registered challenger fields and book coordinates extend the result.
+    one_block = np.ascontiguousarray(
+        (np.arange(150 * 8, dtype=np.float64).reshape(150, 8) % 251) + 1.0
+    )
+    training = np.ascontiguousarray(
+        np.concatenate([one_block] * 4, axis=1), dtype=np.float64
+    )
+    kwargs = {
+        "sampled_lineup_ids": [row["lineup_id"] for row in candidates],
+        "training_score_matrix": training,
+        "candidate_rows": candidates,
+        "training_blocks": projection["training_blocks"],
+        "worlds_per_block": 8,
+    }
+    presets = adapter.successor.frozen_native_preset_registry_v1()
+    expected_grouped = adapter.successor.run_grouped_native_selectors_v1(
+        **kwargs, preset_registry=presets
+    )
+    expected_ranked = adapter.rank150.run_exact_rank150_continuation_v1(
+        **kwargs, preset_registry=presets
+    )
+    expected_dpp = adapter.diversity.run_effective_independent_shots_selector_v1(
+        **kwargs
+    )
+    assert adapter.canonical_json_bytes_v1(result["grouped_result"]) == (
+        adapter.canonical_json_bytes_v1(expected_grouped)
+    )
+    assert adapter.canonical_json_bytes_v1(result["rank150_result"]) == (
+        adapter.canonical_json_bytes_v1(expected_ranked)
+    )
+    assert adapter.canonical_json_bytes_v1(result["dpp_result"]) == (
+        adapter.canonical_json_bytes_v1(expected_dpp)
+    )
+
+
+def test_infeasible_gamma_fails_closed_before_any_fraction_result(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    candidates = _candidates(150)
+    shared = [f"shared-{slot}" for slot in range(6)]
+    for index, row in enumerate(candidates):
+        row["roster_player_ids"] = sorted([
+            *shared,
+            *[f"unique-{index:03d}-{slot}" for slot in range(3)],
+        ])
+    projection = _projection(
+        0,
+        candidates=candidates,
+        later_source_identity=_identity("gs://fixture/later.json", "later"),
+    )
+    monkeypatch.setattr(adapter, "WORLDS_PER_BLOCK", 8)
+    monkeypatch.setattr(
+        adapter,
+        "_cross_score_projection_block_v1",
+        lambda *, candidate_rows, **_kwargs: np.zeros(
+            (len(candidate_rows), 8), dtype=np.float64
+        ),
+    )
+    with pytest.raises(
+        adapter.CorpusR6L2BSelectorAdapterV1Error,
+        match="frozen selector execution failed",
+    ) as exc_info:
+        adapter._run_selectors_v1(
+            fraction_id=adapter.FRACTION_IDS[0],
+            heldout_block="R0",
+            projection=projection,
+            players=(SimpleNamespace(player_id="unused"),),
+            worlds={
+                block: SimpleNamespace(block=block)
+                for block in adapter.WORLD_BLOCKS
+            },
+        )
+    assert isinstance(
+        exc_info.value.__cause__, adapter.CorpusR6L2BSelectorAdapterV1Error
+    )
+    assert "lacks exact rank-150" in str(exc_info.value.__cause__)
+
+
+def test_gamma3_partial_is_followup_while_three_active_arms_stay_exact(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    candidates = _candidates(150)
+    shared = [f"shared-{slot}" for slot in range(4)]
+    for index, row in enumerate(candidates):
+        row["roster_player_ids"] = sorted([
+            *shared,
+            *[f"unique-{index:03d}-{slot}" for slot in range(5)],
+        ])
+    projection = _projection(
+        0,
+        candidates=candidates,
+        later_source_identity=_identity("gs://fixture/later.json", "later"),
+    )
+    monkeypatch.setattr(adapter, "WORLDS_PER_BLOCK", 8)
+    monkeypatch.setattr(
+        adapter,
+        "_cross_score_projection_block_v1",
+        lambda *, candidate_rows, **_kwargs: np.zeros(
+            (len(candidate_rows), 8), dtype=np.float64
+        ),
+    )
+    result = adapter._run_selectors_v1(
+        fraction_id=adapter.FRACTION_IDS[0],
+        heldout_block="R0",
+        projection=projection,
+        players=(SimpleNamespace(player_id="unused"),),
+        worlds={
+            block: SimpleNamespace(block=block)
+            for block in adapter.WORLD_BLOCKS
+        },
+    )
+    selectors = result["tail_diversity_result"]["selectors"]
+    assert selectors[0]["strategy_id"] == (
+        adapter.TAIL_DIVERSITY_FOLLOWUP_STRATEGY_ID
+    )
+    assert selectors[0]["status"] == "infeasible-before-exact-80"
+    assert all(
+        selector["status"] == "exact-rank-150"
+        for selector in selectors[1:]
+    )
+    assert result["book_count"] == adapter.BOOK_COUNT_PER_FRACTION_FOLD
+    assert adapter.TAIL_DIVERSITY_FOLLOWUP_STRATEGY_ID not in {
+        book["coordinate"]["selector_id"] for book in result["books"]
+    }
+
+
+def test_rehashed_overlap_cap_violation_is_rejected_independently() -> None:
+    candidates = _candidates(150)
+    lineup_ids = [row["lineup_id"] for row in candidates]
+    scores = np.zeros((150, 32), dtype=np.float64)
+    result = adapter.diversity_challengers.run_diversity_challengers_v1(
+        sampled_lineup_ids=lineup_ids,
+        training_score_matrix=scores,
+        candidate_rows=candidates,
+        training_blocks=["R1", "R2", "R3", "R4"],
+        worlds_per_block=8,
+    )
+    tampered_candidates = deepcopy(candidates)
+    first_id, second_id = result["selectors"][0]["ranked_lineup_ids"][:2]
+    by_id = {row["lineup_id"]: row for row in tampered_candidates}
+    first = list(by_id[first_id]["roster_player_ids"])
+    second = list(by_id[second_id]["roster_player_ids"])
+    by_id[second_id]["roster_player_ids"] = sorted([*first[:4], *second[4:]])
+    roster_by_id = {
+        row["lineup_id"]: row["roster_player_ids"]
+        for row in tampered_candidates
+    }
+    tampered = deepcopy(result)
+    for selector in tampered["selectors"]:
+        for book in selector["entry_books"]:
+            book["selected_rosters_sha256"] = adapter.canonical_sha256_v1([
+                roster_by_id[lineup_id]
+                for lineup_id in book["selected_lineup_ids"]
+            ])
+            book.pop("book_sha256")
+            book["book_sha256"] = adapter.canonical_sha256_v1(book)
+        selector["entry_book_sha256s"] = [
+            book["book_sha256"] for book in selector["entry_books"]
+        ]
+        selector.pop("selector_result_sha256")
+        selector["selector_result_sha256"] = adapter.canonical_sha256_v1(
+            selector
+        )
+    tampered["selector_result_sha256s"] = [
+        selector["selector_result_sha256"]
+        for selector in tampered["selectors"]
+    ]
+    tampered.pop("result_sha256")
+    tampered["result_sha256"] = adapter.canonical_sha256_v1(tampered)
+
+    with pytest.raises(
+        adapter.CorpusR6L2BSelectorAdapterV1Error,
+        match="selected roster violates cap",
+    ):
+        adapter._validate_exact_tail_diversity_shapes_v1(
+            challengers=tampered, candidate_rows=tampered_candidates
+        )
 
 
 def test_slate_result_rejects_any_added_realized_or_score_value_field(
@@ -943,6 +1221,39 @@ def test_full54_manifest_requires_task0_smoke_and_accepts_authority_sample_below
         )
 
 
+def test_selector_lattice_survives_canonical_json_round_trip() -> None:
+    manifest, _ = _manifest(_bundle())
+    manifest.pop("task_manifest_sha256")
+    # Reproduce the production failure class: an in-memory contract may carry
+    # tuples even though canonical JSON necessarily reopens them as lists.
+    lattice = dict(manifest["selector_lattice"])
+    for field in (
+        "grouped_native_entry_budgets",
+        "exact_rank150_entry_budgets",
+        "dpp_entry_budgets",
+        "tail_ladder_diversity_entry_budgets",
+        "tail_ladder_diversity_active_strategy_ids",
+        "tail_ladder_diversity_followup_strategy_ids",
+    ):
+        lattice[field] = tuple(lattice[field])
+    activation_gate = dict(lattice["tail_ladder_diversity_activation_gate"])
+    activation_gate["required_entry_budgets"] = tuple(
+        activation_gate["required_entry_budgets"]
+    )
+    lattice["tail_ladder_diversity_activation_gate"] = activation_gate
+    manifest["selector_lattice"] = lattice
+    in_memory = adapter._with_hash(manifest, field="task_manifest_sha256")
+    assert adapter.validate_selector_manifest_v1(in_memory) == in_memory
+
+    raw = adapter.canonical_json_bytes_v1(in_memory)
+    reopened = adapter.batch.parse_canonical_json_bytes(
+        raw, label="selector manifest round trip"
+    )
+    retained = adapter.validate_selector_manifest_v1(reopened)
+    assert retained["selector_lattice"] == adapter._selector_lattice_v1()
+    assert adapter.canonical_json_bytes_v1(retained) == raw
+
+
 def test_l2b_is_explicitly_registered_with_generic_grader() -> None:
     assert adapter.ADAPTER_ID == adapter.grader.L2B_SELECTOR_ADAPTER
     assert adapter.ADAPTER_ID in adapter.grader.ADAPTER_IDS
@@ -1091,6 +1402,8 @@ def test_nested_selector_and_result_extras_fail_closed() -> None:
             grouped={"result_sha256": "a" * 64, "realized_scores": []},
             ranked={},
             dpp={},
+            challengers={},
+            candidate_rows=[],
         )
 
 

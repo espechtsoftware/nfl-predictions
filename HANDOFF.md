@@ -20,6 +20,50 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 03:18 UTC (three-hundred-twenty-second update)
+
+### Diversity selectors are release-GO; two new full historical lanes are advancing
+
+- Branch `main` and `origin/main` entered this milestone at `3050764f`.
+  The L2b diversity extension received independent **GO** for commit, build,
+  and the real task-0 gate. Active challengers are gamma-4 overlap cap,
+  gamma-5 overlap cap, and the strict-200 evil-twin selector. Each must
+  produce exact nested 80/100/150 books or fail closed. Gamma-3 is retained
+  only as follow-up evidence and is excluded from normalized and scored books:
+  a real outcome-blind 2023-w01 replay reached only 121/124/121/126/135 by
+  fold, and an exact MILP proved an R0 ceiling of 140.
+- The extended L2b topology contains 300 aggregate cells: 210 byte-preserved
+  incumbent grouped/rank-150/DPP cells plus 90 active diversity cells.
+  Challengers receive only the four non-heldout fit blocks and have no I/O or
+  realized-outcome capability. Generic grading remains behind full54 exact
+  replay. Manifest/slate/root lattice values are now canonicalized across JSON
+  persistence, closing tuple/list round-trip failures. Independent validation
+  passed 53/53; the implementation validation passed 65/65, with compilation
+  and whitespace checks green. Real task0/full54 execution remains the
+  fail-closed feasibility authority for all 540 active challenger cells.
+- The hard-230 selector task-0 gate passed and byte-reproduced replay SHA-256
+  `eba6e1dc4c1d44c1b96798e1c06864bb710ad77276796c9044075a060a83a75c`.
+  Its exact smoke receipt is generation `1787973286425433`, SHA-256
+  `792ec37cd96d49d0b4a077dae5e130c2afd70452ad290d2928e99ade131ca58c`,
+  2,251 bytes. Full-54 baseline-versus-hard230 selector derivation is now
+  active locally from the immutable root; do not rerun or overwrite its
+  create-once output topology.
+- F7/F8/F9 population task0 completed successfully after 3,000 equal-work
+  solves with status SHA-256
+  `ada6fa1f68c0fa43bcf8a4256211de5e0403a9876d94d520071d17694b9ae1d7`.
+  The exact result collection SHA-256 is
+  `590d78ddbc23e6e01a0958ec4b6583f3e4b022d5b6943b21fa19062be12c9af1`.
+  Full54 execution `atlas-minimal-c-s2023-w1-v1-fxhl8`, job UID
+  `d6e4b8c1-5950-46b7-8869-7e34dbf29ad2`, launched 54-way parallel with
+  launch SHA-256
+  `b14580381e098efd5b2428df923fad8b2a7141cbb39c2f4e86341778277600df`.
+  Poll status only until terminal; no scientific or realized reads.
+- Exact next action: commit and push only the reviewed diversity adapter,
+  challenger module, their tests, and this handoff; build from a clean archive
+  and run the diversity-extended real L2b task0 after the incumbent smoke frees
+  the reused job. Continue the active hard-230 full54 derivation and F7/F8/F9
+  full54 execution in parallel.
+
 ## Current handoff — 2026-08-29 03:10 UTC (three-hundred-twenty-first update)
 
 ### Hard-230 full historical population is sealed; audited selection bridge is GO
