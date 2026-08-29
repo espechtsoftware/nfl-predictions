@@ -20,6 +20,58 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 00:40 UTC (three-hundred-fourteenth update)
+
+### Frozen-control provenance repaired; challenger build suite is green
+
+- Branch `main` and `origin/main` entered this milestone at
+  `55b799bb5655fa898240b7559de997d4d3184a65`. The September 4 score-first
+  freeze remains the governing deadline. The latest clean Cloud Build
+  `dd91891f-004a-4d7b-9034-006940281aef` failed safely before producing an
+  image with 11 failures and 300 passes. The failure was not numerical: commit
+  `ceefb109` had changed the byte-frozen V7 control contract from 374,457 bytes
+  / SHA-256 `729e1d4302bda62a7000d747c7dc869abb10a0a1a65f98fbcdf2e4409686c846`
+  to 374,792 bytes / SHA-256
+  `66eb8449477c065ff934e33aaaea821ec86d342f4801b23b44d214e48b81beb2`
+  solely to admit 100/150-entry successor metrics. The source-byte guard
+  correctly rejected that provenance break.
+- The control contract is restored byte-for-byte to its frozen identity. The
+  identical generalized effective-independent-tail calculation now lives in
+  the successor evaluator only; 4/14/80 books continue to call the frozen law,
+  while exact 100/150 books use the successor-local extension. A parity test
+  proves the extension equals the frozen law at 80 entries, and 100/150-entry
+  tests exercise the full 10,000-world shape and frozen row validator. The
+  exact Cloud Build focused suite is now **316/316 passed** on Python 3.14.4
+  with NumPy 2.5.1/SciPy 1.18.0 in 522.93 seconds; the repaired control/
+  successor slice is **42/42 passed**. Do not remove the frozen preparation
+  tests or update their source hashes.
+- V7 layer-05 `confirmation-evaluation-result` preparation completed once:
+  54/54 requests, manifest generation `1787963104404348`, SHA-256
+  `00529b80c245b240eab804d43058f5eee84a8db282e95fbc60a52631018dcbe8`,
+  277,062 bytes; preparation-receipt generation `1787963200312622`, SHA-256
+  `4889d429989072a9b969e835f3ea12fc965399548e49c63c63684dbc76c9ce46`,
+  72,776 bytes. Configure and arm each succeeded exactly once. Launch-intent
+  generation is `1787963597122826`, SHA-256
+  `3f590643044bbd3f89cebabfd479a33284013ef4331dbfba020e23d8bb8b59ca`.
+  Execution `atlas-cbc-32g-full-2023-w8-v1-75vfn`, UID
+  `9f964293-99b9-46ee-86f9-420c939587f0`, was launched exactly once with 54
+  tasks. Status-poll only; never reconfigure, rearm or relaunch it, and do not
+  read logs/scientific outputs before its terminal receipt.
+- Final-commit inputs from `55b799bb` were published before this repair and
+  must be regenerated after the repair commit: L2b calibration generation
+  `1787961917641862`, SHA-256
+  `3eba12e9be4a7889756e408a4fab5bff67cfd38db910551c906bc39a68a58870`;
+  hard-230 optimizer-source generation `1787961956454359`, SHA-256
+  `1e7c096c54fe73a1901166754817bad4e5060d65a5a2922dbe3830955eb1f763`.
+  Their scientific content remains valid, but their embedded code commit is
+  superseded. Do not bind them to the next run.
+- Exact next action: commit/push this provenance repair, regenerate the two
+  code-bound inputs from that commit, submit one clean-snapshot build and
+  publish its terminal build receipt. On success, launch the already assigned
+  population/crossed, hard-230 and L2b task-0 smokes concurrently, then fan
+  successful lanes to 54 slates. In parallel, finish V7 layers 05--07 and the
+  L2b/fair-fill score adapters. No new realized score has been read.
+
 ## Current handoff — 2026-08-28 23:44 UTC (three-hundred-thirteenth update)
 
 ### Score sprint is executing: control 54/54 sealed; three challengers launch-ready

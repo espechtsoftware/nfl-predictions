@@ -2541,24 +2541,18 @@ def _effective_independent_tail_shots_fixture_v1(
     *,
     threshold: float,
     operator: str = ">",
-    maximum_selected_count: int = ENTRY_BUDGET,
 ) -> dict[str, object]:
     """Private synthetic-array helper for the registered tail-rank metric."""
     if operator != ">":
         _fail("effective-shot metric is authoritative only for strict thresholds")
     retained_threshold = _finite_float(threshold, label="tail threshold")
-    retained_maximum = _integer(
-        maximum_selected_count,
-        label="effective-shot maximum selected count",
-        minimum=1,
-    )
     if retained_threshold not in EFFECTIVE_SHOT_THRESHOLDS:
         _fail("effective-shot threshold is not registered")
     scores = np.asarray(selected_scores_value)
     if (
         scores.dtype != np.dtype(np.float64)
         or scores.ndim != 2
-        or not 1 <= scores.shape[0] <= retained_maximum
+        or not 1 <= scores.shape[0] <= ENTRY_BUDGET
         or scores.shape[1] < 2
         or not np.isfinite(scores).all()
     ):
@@ -3232,15 +3226,10 @@ def _population_metric_rows_v1(
     ]
 
 
-def _effective_tail_rows_v1(
-    scores: np.ndarray, *, maximum_selected_count: int = ENTRY_BUDGET,
-) -> list[dict[str, object]]:
+def _effective_tail_rows_v1(scores: np.ndarray) -> list[dict[str, object]]:
     return [
         _effective_independent_tail_shots_fixture_v1(
-            scores,
-            threshold=threshold,
-            operator=">",
-            maximum_selected_count=maximum_selected_count,
+            scores, threshold=threshold, operator=">"
         )
         for threshold in EFFECTIVE_SHOT_THRESHOLDS
     ]

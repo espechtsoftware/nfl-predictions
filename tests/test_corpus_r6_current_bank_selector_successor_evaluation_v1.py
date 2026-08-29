@@ -483,3 +483,40 @@ def test_terminal_rejects_incomplete_panel() -> None:
         evaluation.build_terminal_aggregate_v1(
             evaluation_publications=[], execution_binding={}
         )
+
+
+def test_successor_effective_tail_extension_matches_frozen_law() -> None:
+    rng = np.random.default_rng(20260829)
+    scores = np.asarray(
+        rng.normal(loc=218.0, scale=18.0, size=(80, 64)),
+        dtype=np.float64,
+    )
+    for threshold in contract.EFFECTIVE_SHOT_THRESHOLDS:
+        assert evaluation._successor_effective_independent_tail_shots_v1(
+            scores, threshold=threshold
+        ) == contract._effective_independent_tail_shots_fixture_v1(
+            scores, threshold=threshold, operator=">"
+        )
+
+
+@pytest.mark.parametrize("entry_budget", [100, 150])
+def test_successor_effective_tail_extension_accepts_larger_books(
+    entry_budget: int,
+) -> None:
+    rng = np.random.default_rng(20260829 + entry_budget)
+    scores = np.asarray(
+        rng.normal(
+            loc=218.0,
+            scale=18.0,
+            size=(entry_budget, contract.WORLDS_PER_BLOCK),
+        ),
+        dtype=np.float64,
+    )
+    rows = evaluation._successor_effective_tail_rows_v1(scores)
+    assert [row["threshold"] for row in rows] == list(
+        contract.EFFECTIVE_SHOT_THRESHOLDS
+    )
+    assert all(row["selected_lineup_count"] == entry_budget for row in rows)
+    assert all(
+        contract._validate_effective_tail_row_v1(row) == row for row in rows
+    )

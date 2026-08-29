@@ -550,6 +550,132 @@ def _selection_fold_receipt_sha256_v1(
     _fail("unregistered successor fold receipt hash schema")
 
 
+def _successor_effective_independent_tail_shots_v1(
+    selected_scores_value: object, *, threshold: float,
+) -> dict[str, object]:
+    """Extend the frozen effective-shot law to exact 100/150-entry books."""
+    retained_threshold = contract._finite_float(
+        threshold, label="tail threshold"
+    )
+    if retained_threshold not in contract.EFFECTIVE_SHOT_THRESHOLDS:
+        _fail("effective-shot threshold is not registered")
+    scores = np.asarray(selected_scores_value)
+    if (
+        scores.dtype != np.dtype(np.float64)
+        or scores.ndim != 2
+        or scores.shape[0] not in SUPPORTED_ENTRY_BUDGETS
+        or scores.shape[1] < 2
+        or not np.isfinite(scores).all()
+    ):
+        _fail("successor selected held-out score matrix differs")
+
+    events = scores > retained_threshold
+    counts = np.count_nonzero(events, axis=1)
+    zero_count = int(np.count_nonzero(counts == 0))
+    all_count = int(np.count_nonzero(counts == scores.shape[1]))
+    active_mask = (counts > 0) & (counts < scores.shape[1])
+    active = np.asarray(events[active_mask], dtype=np.float64)
+    active_count = int(active.shape[0])
+
+    pairwise_mean: float | None = None
+    pairwise_minimum: float | None = None
+    pairwise_maximum: float | None = None
+    active_pair_count = 0
+    if active_count == 0:
+        participation_ratio = 0.0
+        entropy_effective_rank = 0.0
+    elif active_count == 1:
+        participation_ratio = 1.0
+        entropy_effective_rank = 1.0
+    else:
+        centered = active - np.mean(
+            active, axis=1, keepdims=True, dtype=np.float64
+        )
+        norms = np.sqrt(
+            np.sum(centered * centered, axis=1, dtype=np.float64)
+        )
+        if not np.isfinite(norms).all() or np.any(norms <= 0.0):
+            _fail("active tail rows have invalid variance")
+        correlations = (centered @ centered.T) / np.outer(norms, norms)
+        correlations = (correlations + correlations.T) / 2.0
+        np.fill_diagonal(correlations, 1.0)
+        triangle = correlations[np.triu_indices(active_count, k=1)]
+        active_pair_count = int(triangle.size)
+        pairwise_mean = float(np.mean(triangle, dtype=np.float64))
+        pairwise_minimum = float(np.min(triangle))
+        pairwise_maximum = float(np.max(triangle))
+        raw_eigenvalues = np.linalg.eigvalsh(correlations)
+        minimum = float(np.min(raw_eigenvalues))
+        if minimum < contract.NUMERICAL_EIGENVALUE_FLOOR:
+            _fail("tail-event correlation matrix is not positive semidefinite")
+        clipped = np.maximum(raw_eigenvalues, 0.0)
+        eigen_sum = float(np.sum(clipped, dtype=np.float64))
+        squared_sum = float(np.sum(clipped * clipped, dtype=np.float64))
+        if eigen_sum <= 0.0 or squared_sum <= 0.0:
+            _fail("tail-event eigenvalue mass differs")
+        participation_ratio = (eigen_sum * eigen_sum) / squared_sum
+        probabilities = clipped / eigen_sum
+        positive = probabilities[probabilities > 0.0]
+        entropy_effective_rank = float(
+            np.exp(-np.sum(positive * np.log(positive), dtype=np.float64))
+        )
+
+    body = {
+        "schema_version": contract.TAIL_SHOTS_SCHEMA,
+        "threshold": retained_threshold,
+        "operator": ">",
+        "selected_lineup_count": int(scores.shape[0]),
+        "heldout_world_count": int(scores.shape[1]),
+        "active_tail_lineup_count": active_count,
+        "zero_event_lineup_count": zero_count,
+        "all_event_lineup_count": all_count,
+        "active_pair_count": active_pair_count,
+        "pairwise_active_correlation_mean_micro": (
+            None
+            if pairwise_mean is None
+            else contract.to_micro_v1(
+                pairwise_mean, label="pairwise correlation mean"
+            )
+        ),
+        "pairwise_active_correlation_minimum_micro": (
+            None
+            if pairwise_minimum is None
+            else contract.to_micro_v1(
+                pairwise_minimum, label="pairwise correlation minimum"
+            )
+        ),
+        "pairwise_active_correlation_maximum_micro": (
+            None
+            if pairwise_maximum is None
+            else contract.to_micro_v1(
+                pairwise_maximum, label="pairwise correlation maximum"
+            )
+        ),
+        "participation_ratio_micro": contract.to_micro_v1(
+            participation_ratio, label="participation ratio"
+        ),
+        "entropy_effective_rank_micro": contract.to_micro_v1(
+            entropy_effective_rank, label="entropy effective rank"
+        ),
+        "uses_realized_outcomes": False,
+    }
+    return contract._with_hash(body, field="tail_shots_sha256")
+
+
+def _successor_effective_tail_rows_v1(
+    scores: np.ndarray,
+) -> list[dict[str, object]]:
+    """Preserve frozen control bytes while supporting larger successor books."""
+    if scores.shape[0] <= contract.ENTRY_BUDGET:
+        return contract._effective_tail_rows_v1(scores)
+    return [
+        _successor_effective_independent_tail_shots_v1(
+            scores, threshold=threshold
+        )
+        for threshold in contract.EFFECTIVE_SHOT_THRESHOLDS
+    ]
+
+
 def _metric_cache_value_v1(
     *, selected_candidates: Sequence[Mapping[str, object]],
     selected_scores: np.ndarray, player_game: Mapping[str, str],
@@ -562,10 +688,7 @@ def _metric_cache_value_v1(
         tails = contract._threshold_events_v1(
             selected_scores, include_book_max=True
         )
-        effective = contract._effective_tail_rows_v1(
-            selected_scores,
-            maximum_selected_count=max(SUPPORTED_ENTRY_BUDGETS),
-        )
+        effective = _successor_effective_tail_rows_v1(selected_scores)
         return {
             "book_score_summary": summary,
             "tail_metrics": tails,
