@@ -1,0 +1,30 @@
+FROM python:3.14.4-slim
+
+ARG SOURCE_COMMIT
+RUN python -c 'import os,re; assert re.fullmatch(r"[0-9a-f]{40}", os.environ["SOURCE_COMMIT"])'
+ENV BOOM_FIRST_BUILD_SOURCE_COMMIT=$SOURCE_COMMIT
+
+WORKDIR /app
+
+# The frozen source worlds were produced under the pinned numerical runtime.
+# Retain the historical dispatcher path while using Python 3.14.4.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && ln -s /usr/local/bin/python3.14 /usr/local/bin/python3.11 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml README.md /app/
+COPY src /app/src
+COPY scripts /app/scripts
+# Only the two score-blind files read by atlas.validate_frozen_inputs enter
+# this image.  Never copy the general reports tree: it contains realized
+# contest/outcome artifacts that do not belong on the selection side.
+COPY reports/2026-08-18-atlas-minimal-c-implementation-freeze.md \
+     /app/reports/2026-08-18-atlas-minimal-c-implementation-freeze.md
+COPY reports/atlas-money-world-runs/20260815-atlas-current-money-worlds-v1/source-grid.json \
+     /app/reports/atlas-money-world-runs/20260815-atlas-current-money-worlds-v1/source-grid.json
+
+RUN pip install --no-cache-dir "numpy==2.5.1" "scipy==1.18.0" \
+    && pip install --no-cache-dir --editable ".[gcp,app,graph]"
+
+CMD ["/usr/local/bin/python3.11", "-I", "/app/scripts/run_corpus_r6_boom_first_allocation_v1.py", "--help"]

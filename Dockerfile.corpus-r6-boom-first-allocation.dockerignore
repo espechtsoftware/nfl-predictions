@@ -1,0 +1,13 @@
+**
+!pyproject.toml
+!README.md
+!src/
+!src/**
+!scripts/
+!scripts/**
+!reports/
+!reports/2026-08-18-atlas-minimal-c-implementation-freeze.md
+!reports/atlas-money-world-runs/
+!reports/atlas-money-world-runs/20260815-atlas-current-money-worlds-v1/
+!reports/atlas-money-world-runs/20260815-atlas-current-money-worlds-v1/source-grid.json
+!Dockerfile.corpus-r6-boom-first-allocation

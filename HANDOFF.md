@@ -20,7 +20,64 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 19:29 UTC (three-hundred-seventy-second update)
+## Current handoff -- 2026-08-29 20:12 UTC (three-hundred-seventy-third update)
+
+### Boom-first matched pair is launch-hardened and clean-HEAD green
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `994ed96e9ed78a48e9fcb3544698d8bf6ff69c32`.  The bounded boom-first
+  allocation slice is complete in seven files: one pure science module, one
+  guarded operator, two focused test modules, and a dedicated Dockerfile,
+  Dockerfile-specific ignore, and Cloud Build recipe.  No build, cloud job,
+  mutation, or new outcome read occurred during implementation or review.
+- The exact causal pair is frozen at equal requested core work:
+  control `lev160/boom40/role12` versus treatment `lev40/boom160/role12`,
+  five common 10,000-world blocks, model ensemble K1, the pre-rewrite
+  incumbent composite construction, natural roster deduplication, and CBWU
+  coverage-194 K80 selection.  Construction is self-contained and truthfully
+  receipts family-specific overlap behavior; it has no import or runtime
+  dependency on the concurrent legality-only construction rewrite.
+- The science contract now validates exact source/artifact URIs, actual
+  CandidateBatch construction, allocation and timing receipts, failure-free
+  attempt accounting, control reproduction, natural role-collision multitag
+  semantics, common player worlds, exact-80 books, and deep persisted task
+  replay.  The operator binds a provider-attested build, fixed reused job UID
+  and service account, image-embedded source commit, no-publish real-artifact
+  preflight and manifest task-0 smokes, exact task runtime, and provider
+  54/54 terminality.
+- Launch is at-most-once for the run prefix.  A fresh atomic GCS launch claim
+  is created before the sole provider call, the returned execution ID is
+  persisted in an exact launch receipt, and status, collect, terminal reopen,
+  and pre-outcome grade replay must consume those same identities.  A crash
+  after claiming fails closed for manual reconciliation and cannot silently
+  launch a duplicate 54-task execution.
+- Grading exact-opens the existing catalog-wide completion and proves its
+  already-active catalog lease immediately before opening the outcome
+  snapshot and again before publication.  It neither acquires nor releases a
+  boom-specific lease.  Current catalog completion is generation
+  `1787987567275104`, byte SHA-256
+  `15852361756ef0fe76d3a299617ebc2c2531e6821a73f04c8f862bf7229f4df3`;
+  snapshot generation is `1787987566557209`, byte SHA-256
+  `96c88d27cfa356794e250431dbcaa638fe7df2ec8dc1a9ead8538f0608c32f88`;
+  live lease generation is `1787987508020795`, byte SHA-256
+  `22b513c5e6824677d0b4feb6037c27b5b6e00f210a986beab2ea626df6012ee7`.
+- Final validation is 32/32 focused tests on Python 3.14.4 in both the live
+  workspace and a clean committed-HEAD overlay, plus four-file `py_compile`,
+  YAML parse, trailing-whitespace scan, in-image pinned numerical versions,
+  and an in-image CBC solve.  The Docker context admits only source/scripts
+  and the two exact score-blind ATLAS freeze inputs; it no longer copies the
+  730 MB reports tree or outcome-bearing reports.  Independent post-fix scan
+  found no remaining P0/P1 launch blocker.
+- Exact next action: commit/push only the seven boom files plus this handoff;
+  create a clean exact-commit checkout; run the real score-blind preflight;
+  submit one build with `_SOURCE_COMMIT` equal to that exact 40-hex commit;
+  publish/validate its build receipt; prepare, run the digest-pinned manifest
+  smoke, configure the reserved job, claim and launch once, poll, collect
+  before any restore, restore the reused job, and grade through the existing
+  catalog completion/lease.  Preserve the job unchanged from configure through
+  collect and never reuse the run prefix after a launch claim.
+
+## Previous handoff -- 2026-08-29 19:29 UTC (three-hundred-seventy-second update)
 
 ### Cap-4 mechanism audit corrects the replication claim without changing the winner
 
