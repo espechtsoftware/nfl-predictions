@@ -20,6 +20,32 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 09:36 UTC (three-hundred-forty-ninth update)
+
+### Recourse score-free grid is terminal-negative; combined build is active
+
+- Branch `main` and `origin/main` are at pushed commit `b5becb8e`. All 54
+  corrected recourse kickoff-v3 slates and 270 folds completed successfully and
+  were harvested; the reused job was restored. The create-once report is
+  `gs://nfl-predictions-503414-raw/research/recourse-aware-initial-book-runs/20260829-recourse-aware-initial-book-scorefree-kickoff-v3/report.json`,
+  generation `1787996008598645`, SHA-256
+  `3a6f7f0aafafeca607a390be6915ca8329b67f8bc24ac4447af19e7c4a7852f7`.
+- Score-free disposition is
+  `recourse-aware-candidate-union-selector-premise-fails`. Treatment increased
+  mean reachable alternatives from 83.689 to 85.385 and mean effective rank
+  from 2.549 to 2.789, but retained only 92.732% of initial simulated 194+
+  events, lost 1,528 reachable 230+ events, and improved 230+ coverage in zero
+  of five blocks. It is not licensed for production. A separate realized
+  bridge is being audited so realized scores, not the surrogate gate alone,
+  can make the final preseason decision.
+- Bounded combined image build `76a2ee3c-8e25-463c-920b-3446787e3d0f`
+  was submitted from exact provider-resolved Git revision
+  `b5becb8e21204432d69b40c08ee6420e23eb4998`, with image tag
+  `corpus-r6-combined-all-block-b5becb8e-v1`; last observed state was queued.
+- Exact next action: finish the active L2b collection/grade, audit and grade
+  recourse realized books if the bridge is sound, poll the combined build, and
+  start hard-230 derive as soon as the one local heavy slot releases.
+
 ## Current handoff — 2026-08-29 09:28 UTC (three-hundred-forty-eighth update)
 
 ### Bounded combined all-block image build is ready to submit
