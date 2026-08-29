@@ -20,6 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 16:35 UTC (three-hundred-sixty-third update)
+
+### V7 consumed-recovery failure is narrowed past the complete pre-child boundary
+
+- Branch `main` and `origin/main` entered this diagnostic at pushed commit
+  `8cca655e35f33164e11f88c25f3ea17b529ec6a2`. The sole V7 timeout-recovery
+  execution `atlas-cbc-32g-full-2023-w8-v1-8xjx5`, UID
+  `26644b0a-50dd-4fc0-b580-3f2be7472a26`, remains terminal `FAILED`; its
+  create-once submission authority is consumed and it must never be retried,
+  rearmed, reconfigured or relaunched.
+- A local, read-only source/status-envelope replay exact-opened and validated
+  the amendment, launch ownership, clean-build receipt, original manifest and
+  task, all frozen predecessor authorities, the request, retained failure and
+  publisher process budget. All **252/252** expected pre-child administrative
+  exact reads passed. The fixed process-budget binding count was one and the
+  read/write allowlists passed unchanged. The replay performed zero cloud
+  writes, did not start the publisher child, and opened no scientific object,
+  root body or realized outcome.
+- This excludes the recovery wrapper's pre-client and pre-child authority
+  path as the cause of the approximately 223-second failure. The remaining
+  boundary is the canonical publisher child or its post-child validation and
+  publication proof. No log or stderr was opened, so those two classes cannot
+  honestly be distinguished from current evidence. `root.json` remains
+  absent and no recovery completion claim is valid.
+- Exact next action: do not spend another execution. Continue static review of
+  the child/post-child boundary only. Any log read, scientific-body replay or
+  replacement diagnostic/recovery submission requires a new explicit,
+  narrowly reviewed authority and a fresh create-once namespace; it may not
+  reuse the consumed recovery authority.
+
 ## Current handoff -- 2026-08-29 16:17 UTC (three-hundred-sixty-second update)
 
 ### Boom-first runtime is deployed and feature-clean; live projection remains safely provider-gated
