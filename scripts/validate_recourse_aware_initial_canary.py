@@ -20,6 +20,7 @@ from run_recourse_aware_initial_scorefree import (
     CBWU_REPORT_SHA256,
     EXECUTION_PROTOCOL_SHA256,
     FORENSIC_MANIFEST_SHA256,
+    KICKOFF_AMENDMENT_SHA256,
     RUN_ID,
     SCIENCE_PROTOCOL_SHA256,
     SOURCE_PANELS,
@@ -27,7 +28,7 @@ from run_recourse_aware_initial_scorefree import (
 
 
 SERVICE_ACCOUNT = "817589974517-compute@developer.gserviceaccount.com"
-EXPECTED_JOB = "recourse-initial-s2023-w1-v1"
+EXPECTED_JOB = "recourse-initial-s2023-w1-kickoff-v2"
 EXPECTED_URI = (
     "gs://nfl-predictions-503414-raw/research/"
     f"recourse-aware-initial-book-runs/{RUN_ID}/slate-2023-1.json"
@@ -110,6 +111,7 @@ def validate(
         "output_prefix": EXPECTED_URI.rsplit("/", 1)[0],
         "science_protocol_sha256": SCIENCE_PROTOCOL_SHA256,
         "execution_protocol_sha256": EXECUTION_PROTOCOL_SHA256,
+        "kickoff_population_amendment_sha256": KICKOFF_AMENDMENT_SHA256,
         "cbwu_report_sha256": CBWU_REPORT_SHA256,
         "forensic_manifest_sha256": FORENSIC_MANIFEST_SHA256,
         "cpu": "4", "memory": "16Gi", "timeout_seconds": "14400",

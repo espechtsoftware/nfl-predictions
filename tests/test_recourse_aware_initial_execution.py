@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import sys
 
+import pandas as pd
 import pytest
 
 
@@ -21,11 +22,14 @@ from aggregate_recourse_aware_initial_scorefree import (  # noqa: E402
     EXPECTED_SOURCE_HASHES,
     aggregate,
 )
+import run_recourse_aware_initial_scorefree as scorefree_runner  # noqa: E402
 from run_recourse_aware_initial_scorefree import (  # noqa: E402
     EXECUTION_PROTOCOL,
     EXECUTION_PROTOCOL_SHA256,
     FORBIDDEN_QUERY_TOKENS,
     FORENSIC_MANIFEST_SHA256,
+    KICKOFF_AMENDMENT,
+    KICKOFF_AMENDMENT_SHA256,
     KICKOFF_SQL,
     RUN_ID,
     SCIENCE_PROTOCOL,
@@ -158,6 +162,9 @@ def test_execution_sources_are_frozen_outcome_free_and_packaged() -> None:
     assert sha256(EXECUTION_PROTOCOL.read_bytes()).hexdigest() == (
         EXECUTION_PROTOCOL_SHA256
     )
+    assert sha256(KICKOFF_AMENDMENT.read_bytes()).hexdigest() == (
+        KICKOFF_AMENDMENT_SHA256
+    )
     assert not [
         token for token in FORBIDDEN_QUERY_TOKENS if token in KICKOFF_SQL.lower()
     ]
@@ -170,6 +177,100 @@ def test_execution_sources_are_frozen_outcome_free_and_packaged() -> None:
     ):
         assert f"COPY scripts/{name} ./scripts/{name}" in docker
         assert f"python scripts/{name} --help" in cloudbuild
+
+
+def _kickoff_rows(rows: list[tuple[str, str]]) -> pd.DataFrame:
+    return pd.DataFrame([
+        {
+            "manifest_sha256": FORENSIC_MANIFEST_SHA256,
+            "player_id": player_id,
+            "kickoff_time": kickoff,
+        }
+        for player_id, kickoff in rows
+    ])
+
+
+def test_kickoff_query_filters_exact_sorted_expected_player_ids(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    observed: dict[str, object] = {}
+
+    def query(_client, sql, params):
+        observed["sql"] = sql
+        observed["params"] = params
+        return _kickoff_rows([
+            ("p-a", "2023-09-10T17:00:00Z"),
+            ("p-b", "2023-09-10T20:25:00Z"),
+        ])
+
+    monkeypatch.setattr(scorefree_runner, "_query", query)
+    kickoffs, decision = scorefree_runner._slate_kickoffs(
+        object(), season=2023, week=1, expected_player_ids={"p-b", "p-a"},
+    )
+    assert "player_id IN UNNEST(@player_ids)" in str(observed["sql"])
+    player_parameter = next(
+        value for value in observed["params"] if value.name == "player_ids"
+    )
+    assert player_parameter.values == ["p-a", "p-b"]
+    assert set(kickoffs) == {"p-a", "p-b"}
+    assert decision.isoformat() == "2023-09-10T15:55:00-04:00"
+
+
+@pytest.mark.parametrize(
+    ("rows", "message"),
+    [
+        (
+            [
+                ("p-a", "2023-09-10T17:00:00Z"),
+                ("p-b", "2023-09-10T20:25:00Z"),
+                ("p-extra", "2023-09-10T20:25:00Z"),
+            ],
+            "population differs",
+        ),
+        ([('p-a', '2023-09-10T17:00:00Z')], "population differs"),
+        (
+            [
+                ("p-a", "2023-09-10T17:00:00Z"),
+                ("p-a", "2023-09-10T17:00:00Z"),
+                ("p-b", "2023-09-10T20:25:00Z"),
+            ],
+            "population differs",
+        ),
+        (
+            [("p-a", "not-a-time"), ("p-b", "2023-09-10T20:25:00Z")],
+            "kickoff time is absent",
+        ),
+        (
+            [
+                ("p-a", "2023-09-10T17:00:00Z"),
+                ("p-b", "2023-09-11T20:25:00Z"),
+            ],
+            "multiple local dates",
+        ),
+        (
+            [
+                ("p-a", "2023-09-10T17:00:00Z"),
+                ("p-b", "2023-09-10T18:00:00Z"),
+            ],
+            "lacks early/late games",
+        ),
+    ],
+)
+def test_kickoff_query_fails_closed_on_population_time_and_split_drift(
+    monkeypatch: pytest.MonkeyPatch,
+    rows: list[tuple[str, str]],
+    message: str,
+) -> None:
+    monkeypatch.setattr(
+        scorefree_runner, "_query", lambda *_args, **_kwargs: _kickoff_rows(rows)
+    )
+    with pytest.raises(RuntimeError, match=message):
+        scorefree_runner._slate_kickoffs(
+            object(),
+            season=2023,
+            week=1,
+            expected_player_ids={"p-a", "p-b"},
+        )
 
 
 def _canary_metadata(execution: str) -> dict:
@@ -218,7 +319,7 @@ def _canary_metadata(execution: str) -> dict:
 def test_actual_final_path_canary_validates_without_aggregate_disclosure(
     tmp_path: Path,
 ) -> None:
-    execution = "recourse-initial-s2023-w1-v1-example"
+    execution = "recourse-initial-s2023-w1-kickoff-v2-example"
     uri = (
         "gs://nfl-predictions-503414-raw/research/"
         f"recourse-aware-initial-book-runs/{RUN_ID}/slate-2023-1.json"
@@ -229,6 +330,7 @@ def test_actual_final_path_canary_validates_without_aggregate_disclosure(
         f"output_prefix={uri.rsplit('/', 1)[0]}",
         f"science_protocol_sha256={SCIENCE_PROTOCOL_SHA256}",
         f"execution_protocol_sha256={EXECUTION_PROTOCOL_SHA256}",
+        f"kickoff_population_amendment_sha256={KICKOFF_AMENDMENT_SHA256}",
         "cbwu_report_sha256=556adeca6e0bf2855ad82296b1e708041a20446dc27e2c988c1d11e8c5bd4d33",
         f"forensic_manifest_sha256={FORENSIC_MANIFEST_SHA256}",
         "cpu=4", "memory=16Gi", "timeout_seconds=14400", "max_retries=0",
@@ -238,7 +340,7 @@ def test_actual_final_path_canary_validates_without_aggregate_disclosure(
     )) + "\n", encoding="utf-8")
     ledger = tmp_path / "executions.txt"
     ledger.write_text(
-        f"2023 1 recourse-initial-s2023-w1-v1 {execution} {uri}\n",
+        f"2023 1 recourse-initial-s2023-w1-kickoff-v2 {execution} {uri}\n",
         encoding="utf-8",
     )
     execution_path = tmp_path / "execution.json"

@@ -20,9 +20,11 @@ was the effective-independent-tail-shots DPP selector:
 | Matched P0 + DPP | 80 | 177.298 | 14/54 | 9/54 | 1/54 | 1/54 |
 | Difference | 80 | **+2.251** | -1 | +2 | +2 | 0 |
 
-The result is promising but remains a fixed R1--R4 fit diagnostic. It must be
-reproduced under the all-block final-fit production estimand before hard-230
-can replace or augment the current R6 population.
+The result is promising under a fixed R1--R4 out-of-origin selector fit: R0 is
+the hard-230 population's generation block and is intentionally excluded from
+selection. The next production evidence is therefore a same-law crossing with
+the diversity selectors and a combined-corpus comparison, not an R0--R4 fit
+that would reuse the generator-origin block.
 
 The targeted isolated structure profiles F7/F8/F9 did not establish an K=80
 improvement over the current all-block R6 benchmark. Their strongest displayed
@@ -117,9 +119,10 @@ law would make the structures valuable.
 
 1. Run the 300-cell L2b/diversity panel: incumbent selectors plus gamma-4,
    gamma-5, and strict-200 evil-twin books at 80/100/150.
-2. Produce the all-block final-fit hard-230 K=80 confirmation and the
-   incumbent-plus-F7/F8/F9/hard-230 union test without regenerating completed
-   populations.
+2. Cross the sealed hard-230/P0 populations with gamma-4, gamma-5, and
+   strict-200 evil-twin books under the same honest R1--R4 out-of-origin fit,
+   and run the incumbent-plus-F7/F8/F9/hard-230 union test without
+   regenerating completed populations.
 3. Reproduce the external agent's strongest finalists through this same
    immutable 54-slate score surface.
 4. Select the best exact-K80 production configuration by September 4. Keep

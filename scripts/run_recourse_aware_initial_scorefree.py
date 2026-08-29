@@ -33,7 +33,7 @@ from run_constraint_lattice_scorefree import (
 
 
 PROJECT = "nfl-predictions-503414"
-RUN_ID = "20260817-recourse-aware-initial-book-scorefree-v1"
+RUN_ID = "20260829-recourse-aware-initial-book-scorefree-kickoff-v2"
 OUTPUT_PREFIX = (
     "gs://nfl-predictions-503414-raw/research/"
     f"recourse-aware-initial-book-runs/{RUN_ID}"
@@ -50,10 +50,18 @@ EXECUTION_PROTOCOL = Path(
 EXECUTION_PROTOCOL_SHA256 = (
     "3991fdbf36c2018b2ec11625a6be62990c100fdf1f47bde3985c2327e3248c9b"
 )
+KICKOFF_AMENDMENT = Path(
+    "reports/2026-08-29-recourse-aware-initial-book-"
+    "kickoff-population-amendment.md"
+)
+KICKOFF_AMENDMENT_SHA256 = (
+    "fec2d7f531cc3dea4a395fec5e02322ee46e88b43d00c09228a083470c4c69db"
+)
 KICKOFF_SQL = f"""
 SELECT manifest_sha256, player_id, kickoff_time
 FROM `{PLAYER_TABLE}`
 WHERE scope='phase-s-cbwu-54' AND season=@season AND week=@week
+  AND player_id IN UNNEST(@player_ids)
 ORDER BY player_id
 """
 FORBIDDEN_QUERY_TOKENS = (
@@ -70,6 +78,7 @@ def validate_local_sources() -> dict[str, str]:
     expected = {
         str(SCIENCE_PROTOCOL): SCIENCE_PROTOCOL_SHA256,
         str(EXECUTION_PROTOCOL): EXECUTION_PROTOCOL_SHA256,
+        str(KICKOFF_AMENDMENT): KICKOFF_AMENDMENT_SHA256,
     }
     for raw_path, digest in expected.items():
         path = Path(raw_path)
@@ -94,9 +103,19 @@ def _slate_kickoffs(
     week: int,
     expected_player_ids: set[str],
 ) -> tuple[dict[str, pd.Timestamp], pd.Timestamp]:
+    ordered_player_ids = sorted(expected_player_ids)
+    if (
+        not ordered_player_ids
+        or any(not player_id for player_id in ordered_player_ids)
+        or len(ordered_player_ids) != len(expected_player_ids)
+    ):
+        raise RuntimeError("recourse-aware expected player population differs")
     params = [
         bigquery.ScalarQueryParameter("season", "INT64", int(season)),
         bigquery.ScalarQueryParameter("week", "INT64", int(week)),
+        bigquery.ArrayQueryParameter(
+            "player_ids", "STRING", ordered_player_ids,
+        ),
     ]
     frame = _query(bq, KICKOFF_SQL, params)
     if frame.empty or frame.player_id.astype(str).duplicated().any() or \

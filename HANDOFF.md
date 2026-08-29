@@ -20,6 +20,58 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 07:52 UTC (three-hundred-thirty-eighth update)
+
+### Corrected recourse canary is code-ready while score-first panels advance
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `7f553e12`. Exact-commit L2b build
+  `9835fd0d-6f17-4a45-a2a7-cdef00ddb987` succeeded with image digest
+  `sha256:397b777ff1914a862228cf21659c541f514dfa6f3a2485d6c496cbd0fa82e8ec`.
+  Its canonical terminal build receipt is generation `1787990005374979`,
+  SHA-256 `86341fe8e8a324578185546f3a220b51ca1cf34546f803df9a0bf620bebe46fe`,
+  472 bytes beneath `20260829-l2b-full54-7f553e12-v2`. The first `v1`
+  receipt object has a trailing newline and is intentionally not authoritative.
+  Full-54 manifest generation `1787990330353237`, SHA-256
+  `76307521b47672e4d9af99461e519910e63736c739e6d4b2f9cc8386ff6462be`,
+  67,932 bytes was prepared without outcomes or population regeneration. The
+  exact job is configured and execution
+  `atlas-minimal-c-s2023-w3-v1-sh4br` (UID
+  `fdb77c9a-6be7-41db-9f2b-a24300954c43`) is active with 54 expected tasks,
+  zero failures and zero cancellations at the first poll. Do not duplicate it;
+  continue fresh status polls, collect only after 54/54 success, then finalize
+  and grade against the catalog-wide outcome snapshot.
+- The failed recourse v1 run is replaced by fresh outcome-blind run ID
+  `20260829-recourse-aware-initial-book-scorefree-kickoff-v2`. The bounded
+  correction queries kickoff metadata only for the exact sorted R0 player-ID
+  population and preserves the existing exact-population, duplicate,
+  timestamp, local-date and early/late checks. Its amendment SHA-256 is
+  `fec2d7f531cc3dea4a395fec5e02322ee46e88b43d00c09228a083470c4c69db`.
+  Independent review is GO and the focused recourse suite is 32/32 passed.
+  Cloud launch remains HOLD until a new exact-commit build replaces the old
+  `CODE_SHA`, build ID and image constants; the old image now fails before any
+  cloud action by design. The older terminal-root/realized-bridge additions
+  remain a separate unstaged package and must be rebased to the replacement
+  run before realized grading, but they do not block the one-slate score-free
+  canary.
+- The isolated hard-230 confirmation science layer is locally implemented and
+  green: two matched populations, seven selectors and K=80/100/150 produce 42
+  books per slate under the honest R1--R4 out-of-R0-origin law. A bounded
+  terminal/operator/grader is being added before any outcome read. A separate
+  combined incumbent + hard-230 + F7/F8/F9 all-block K=80 union adapter is also
+  being implemented from the common frozen worlds without population
+  regeneration.
+- Exact next action: poll the active L2b full-54 panel to terminal success,
+  collect/finalize/grade it, and commit/push the minimal recourse kickoff-v2
+  amendment without the unrelated
+  terminal-root hunks; then build and run its one-slate canary. In parallel,
+  finish and validate the hard-230/diversity and combined-union operators so
+  they can be graded against the existing catalog-wide outcome snapshot. The
+  incoming external rapid-test finalists should be reproduced as challengers
+  on the same 54 slates and exact entry budget rather than restarting the
+  harness. September 4 remains the production strategy/code freeze; September
+  5 onward is rehearsal and critical-fix only.
+
 ## Current handoff — 2026-08-29 07:32 UTC (three-hundred-thirty-seventh update)
 
 ### First score-sprint challengers are graded; hard-230 is positive and L2b is launch-GO
@@ -46,7 +98,10 @@ agent or developer:
   177.298, so the matched gain is **+2.251**. Support-switched hard-230 is
   179.523 and reaches 3/54 >=230; correlation-aware hard-230 loses 0.853 to
   its paired control. This is a promising fixed-R1--R4-fit diagnostic, not an
-  all-block production promotion. Best hard-230 K=150 is 185.517.
+  direct replacement for the current all-block-R6 row. R0 is the hard-230
+  generator-origin block, so do not create a nominal R0--R4 selector fit that
+  reuses it; confirm the population through the same R1--R4 law, new diversity
+  selectors and a combined-corpus comparison. Best hard-230 K=150 is 185.517.
 - F7/F8/F9 grading completed over all 54 slates and 315 cells. Grade
   generation is `1787988278722136`, byte SHA-256
   `f62d4250773957cb8a7d8274d9cbb1030d3339adc970a0f234232d34a7cde438`,
@@ -73,14 +128,24 @@ agent or developer:
   preparation and manifest reopen now apply the exception only to the exact
   archived smoke identity. Focused L2b validation is 45/45 and the final
   independent amendment slice is 5/5.
+- Exact-commit L2b runtime build
+  `9835fd0d-6f17-4a45-a2a7-cdef00ddb987` was submitted once from pushed
+  commit `7f553e12b198129258e0a36ab792d18b0cfa754f`. Its resolved source is
+  `gs://nfl-predictions-503414_cloudbuild/source/1787988990.439693-0eb90e7d1f2640288dba408d26ba54e4.tgz`
+  generation `1787988998815152`; the create-only image tag is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:r6-l2b-full54-7f553e12`.
+  It is currently `WORKING`. Poll status only and do not duplicate it; on
+  success capture the immutable digest and publish one exact terminal build
+  receipt before full54 preparation.
 - The concise result interpretation and next-score schedule are tracked in
   `reports/2026-08-29-score-sprint-first-realized-results.md`. Exact next
   action: commit/push the grader timeout, scorecard registry, L2b amendment,
   tests, report and this handoff. Build one new immutable L2b image from that
   exact commit, publish its terminal build receipt, prepare/reopen the current
   300-cell full54 manifest under the archived pinned prefix, configure the
-  exact idle reused job and launch once. In parallel specify the all-block
-  hard-230 confirmation and combined population-union test. Do not spend the
+  exact idle reused job and launch once. In parallel extend the fixed R1--R4
+  hard-230/P0 comparison with gamma-4/gamma-5/evil-twin and build the combined
+  population-union test. Do not spend the
   September 4 score freeze on UI, Neo4j, optional provenance or broad grids.
 
 ## Current handoff — 2026-08-29 07:21 UTC (three-hundred-thirty-sixth update)

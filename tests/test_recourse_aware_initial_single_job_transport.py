@@ -377,14 +377,15 @@ def test_stable_restoration_rejects_spec_drift() -> None:
         transport.validate_restored_job(before, restored)
 
 
-def test_real_retained_build_metadata_and_local_runtime_parity() -> None:
+def test_terminal_prior_build_cannot_authorize_kickoff_amendment() -> None:
     metadata_path = ROOT / (
         "reports/a7-select-ladder-preflight-runs/"
         "20260820-a7-select-ladder-phase-s-incumbent-v1/smoke/"
         "build-metadata.json"
     )
     transport.validate_build(json.loads(metadata_path.read_text(encoding="utf-8")))
-    transport._validate_local_sources()
+    with pytest.raises(RuntimeError, match="kickoff-population-amendment"):
+        transport._validate_local_sources()
 
 
 def test_harvest_terminal_failure_restores_shared_job(
