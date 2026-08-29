@@ -507,6 +507,7 @@ def optimize_many(
     punt_max_salary: int | None = PUNT_MAX_SALARY,
     punt_min: int = PUNT_MIN,
     env: Mapping[str, str] | None = None,
+    telemetry: dict[str, int] | None = None,
     **kwargs,
 ) -> list[Lineup]:
     """Generate n unique lineups; each new lineup may share at most
@@ -525,11 +526,26 @@ def optimize_many(
         punt_max_salary = int(_env["PUNT_MAX"])
     lineups: list[Lineup] = []
     banned: list[frozenset] = []
+    stats = {
+        "requested": int(n_lineups),
+        "solve_attempts": 0,
+        "solver_errors": 0,
+        "infeasible": 0,
+        "successful": 0,
+    }
+
+    def _publish() -> None:
+        stats["returned"] = len(lineups)
+        if telemetry is not None:
+            telemetry.clear()
+            telemetry.update(stats)
+
     for _ in range(n_lineups):
         # CBC runs as a subprocess and occasionally fails to launch under
         # load (seen in replays and tests). One retry, then return what we
         # have rather than blowing up the whole batch.
         for attempt in (1, 2):
+            stats["solve_attempts"] += 1
             try:
                 lu = optimize(players, stack=stack, banned_lineups=banned,
                               max_overlap=max_overlap,
@@ -537,16 +553,21 @@ def optimize_many(
                               punt_min=punt_min, env=_env, **kwargs)
                 break
             except pulp.PulpSolverError as exc:
+                stats["solver_errors"] += 1
                 log.warning("CBC solve failed (attempt %d): %s", attempt, exc)
                 lu = None
         else:
             log.warning("CBC unavailable; returning %d lineups", len(lineups))
+            _publish()
             return lineups
         if lu is None:
+            stats["infeasible"] += 1
             log.warning("Pool exhausted after %d lineups", len(lineups))
             break
         lineups.append(lu)
+        stats["successful"] += 1
         banned.append(lu.ids)
+    _publish()
     return lineups
 
 

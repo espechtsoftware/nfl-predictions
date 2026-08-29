@@ -20,6 +20,69 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 12:53 UTC (three-hundred-fifty-eighth update)
+
+### NFL2 boom-first finding is integrated as an isolated production shadow
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `ebd0480d`. The uncommitted release candidate ports only the robust NFL2
+  finding: compare the incumbent-shaped `lev160/boom40` allocation with
+  `lev40/boom160`. It does not add the separate K1 result to the allocation
+  result, does not adopt the fragile `boom360` arm, and does not alter the
+  incumbent money environment or any entry-export path. The external lab's
+  reported `+4.737` K100 weekly-maximum change remains external evidence, not
+  a reproduced production score.
+- The engine now supports an exact nonnegative `N_LEV` solve dose and records
+  leverage/boom attempted, successful, infeasible, solver-error, duplicate,
+  unique and timing telemetry. The paired runner builds independent K1,
+  role12, five-book CBWU control/treatment arms with the same exact 50,000
+  player worlds, coverage-194 exact-80 retrieval and frozen 20/40/80 books.
+  It fails closed unless all ten R0--R4 native receipts prove the requested
+  allocation, zero solver shortfall, one identical main/role model pair and
+  identical full score-blind player-input hashes. It writes create-only world,
+  manifest and terminal artifacts bound to full code/image and Cloud Run
+  execution identities; all outputs remain `production_enabled=false`.
+- A historical paired construction core and injection-only replay adapter are
+  implemented. They cache shared source projections/worlds across both arms,
+  keep each target slate's outcomes absent and reject 2025; prior-only labels
+  may still train later targets. This is not yet a runnable or verdict-capable
+  H1 job. The open deficiency in `README.md` covers the authoritative panel
+  index, byte-verified source/model bundle, score-blind real-slate smoke,
+  separately frozen complete actual-points snapshot, retained seed-level
+  books, and full per-seed/exposure/uncertainty reporter. The legacy DST loader
+  must not be used because it reads realized or live-derived data.
+- The reusable unscheduled Cloud Run transport is
+  `atlas-minimal-c-smoke`, UID
+  `5135c9eb-96c2-41c0-a68a-5c587a601903`, in project
+  `nfl-predictions-503414`. The launcher refuses a running execution or
+  scheduler reference, acquires a create-only cloud lease, durably snapshots
+  recovery state, temporarily binds one immutable image/task with zero
+  retries, starts and verifies the execution contract, restores the exact
+  prior job YAML, and verifies the UID and prior spec hash before releasing
+  the lease. Concurrent unknown changes are never overwritten. The image
+  embeds the full source commit and the runner requires it to match full
+  `CODE_SHA`. It creates no job or scheduler. The
+  prior hard230 execution `atlas-minimal-c-s2023-w2-v1-sjkb9`, UID
+  `592dab95-324d-4f03-a26d-51d29c71e904`, completed successfully at
+  `2026-08-29T12:01:04Z`; it no longer requires polling.
+- Focused release validation is **178/178 passed** across generation budgets,
+  boom allocation/deduplication, CBWU, optimizer telemetry, production policy,
+  live multiseed, paired prospective/historical paths, recourse artifacts,
+  effective-policy inventory, lever registry, launcher failure/recovery state,
+  and scheduler-resume guards. Compileall, launcher `bash -n` and focused diff
+  checks pass. A broader legacy
+  replay-shape test was manually stopped after roughly six minutes of normal
+  model retraining with no failure; the new adapter's 13 outcome-blind focused
+  tests pass and that slow check is not a release gate.
+- Review/decision record:
+  `reports/2026-08-29-nfl2-final-findings-production-integration.md`.
+  Exact next action: finish the independent launcher review, exact-stage only
+  this integration, commit and push it, build an immutable image from that
+  clean commit, launch one live outcome-blind paired artifact smoke through
+  the reusable job, immediately verify restoration, and record the immutable
+  build/execution/artifact receipts here. Do not promote the treatment or add
+  a scheduler until the smoke and historical/prospective gates support it.
+
 ## Current handoff — 2026-08-29 11:37 UTC (three-hundred-fifty-seventh update)
 
 ### Combined high-ceiling frontier re-portfolio core is executable

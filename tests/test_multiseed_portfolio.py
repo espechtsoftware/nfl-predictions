@@ -1,3 +1,5 @@
+from dataclasses import replace
+
 import numpy as np
 import pytest
 
@@ -84,6 +86,31 @@ def test_cbwu_preserves_r0_budget_and_uses_five_equal_world_blocks():
     assert all(len(lineup.ids) == 9 for lineup in combined.candidates)
     assert len({lineup.ids for lineup in combined.candidates}) == len(
         combined.candidates)
+
+
+def test_cbwu_carries_each_native_generation_receipt():
+    books = _books()
+    books = {
+        name: replace(batch, metadata={
+            "generation_allocation": {
+                "leverage_requested": 40,
+                "boom_requested": 160,
+                "core_requested": 200,
+            },
+            "generation_timing_seconds": {
+                "leverage": float(index + 1),
+            },
+        })
+        for index, (name, batch) in enumerate(books.items())
+    }
+    combined = combine_cbwu_books(
+        books, SEEDS, expected_worlds_per_book=20,
+    )
+    receipts = combined.metadata["native_generation_receipts"]
+    assert set(receipts) == set(SEEDS)
+    assert all(receipt["core_requested"] == 200
+               for receipt in receipts.values())
+    assert "timing_seconds" not in receipts["R4"]
 
 
 def test_cbwu_score_blind_quota_and_fixed_fill_order():

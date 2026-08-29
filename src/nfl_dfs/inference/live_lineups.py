@@ -21,6 +21,8 @@ Design choices, deliberate:
 
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
 
 import numpy as np
@@ -40,6 +42,95 @@ class RoleBeliefUnavailable(RuntimeError):
 
 class LatentRoleUnavailable(RuntimeError):
     """The prospective latent-role shadow could not build its frozen book."""
+
+
+_OUTCOME_INPUT_COLUMNS = frozenset({
+    "actual",
+    "actual_points",
+    "actual_score",
+    "contest_finish",
+    "contest_place",
+    "contest_rank",
+    "dk_points",
+    "fantasy_points",
+    "fantasy_points_ppr",
+    "final_score",
+    "payout",
+    "realized_points",
+    "realized_score",
+    "roi",
+    "winner",
+    "winning_score",
+    "y_dk_points",
+})
+
+
+def _canonical_input_cell(value: object) -> object:
+    """Return a stable JSON scalar for a score-blind player-input hash."""
+    if isinstance(value, np.generic):
+        value = value.item()
+    if value is None:
+        return ["null", None]
+    if isinstance(value, bool):
+        return ["bool", value]
+    if isinstance(value, int):
+        return ["int", str(value)]
+    if isinstance(value, float):
+        if np.isnan(value):
+            return ["float", "nan"]
+        if np.isposinf(value):
+            return ["float", "+inf"]
+        if np.isneginf(value):
+            return ["float", "-inf"]
+        return ["float", value.hex()]
+    if isinstance(value, (pd.Timestamp, np.datetime64)):
+        return ["datetime", str(pd.Timestamp(value).isoformat())]
+    if isinstance(value, str):
+        return ["str", value]
+    try:
+        missing = pd.isna(value)
+    except (TypeError, ValueError):
+        missing = False
+    if isinstance(missing, (bool, np.bool_)) and bool(missing):
+        return ["null", None]
+    try:
+        normalized = json.dumps(
+            value, sort_keys=True, separators=(",", ":"), default=str
+        )
+    except (TypeError, ValueError):
+        normalized = repr(value)
+    return [type(value).__name__, normalized]
+
+
+def _score_blind_player_input_receipt(frame: pd.DataFrame) -> dict[str, object]:
+    """Hash every non-outcome player input in its effective row order."""
+    outcome_columns = sorted(
+        str(column)
+        for column in frame.columns
+        if str(column).lower() in _OUTCOME_INPUT_COLUMNS
+    )
+    if outcome_columns:
+        raise ValueError(
+            "candidate player inputs contain outcome columns: "
+            + ", ".join(outcome_columns)
+        )
+    columns = sorted(
+        str(column)
+        for column in frame.columns
+    )
+    rows = [
+        [_canonical_input_cell(value) for value in row]
+        for row in frame.loc[:, columns].itertuples(index=False, name=None)
+    ]
+    payload = json.dumps({
+        "columns": columns,
+        "rows": rows,
+    }, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return {
+        "sha256": hashlib.sha256(payload).hexdigest(),
+        "rows": len(frame),
+        "columns": columns,
+    }
 
 
 def _apply_live_inactive_policy(
@@ -851,6 +942,15 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
         missing = set(locks) - set(slate.id)
         if missing:
             raise ValueError(f"locked players not in slate: {sorted(missing)}")
+    slate.attrs["model_version"] = str(model_version or "")
+    slate.attrs["role_model_version"] = str(role_model_version or "")
+    slate.attrs["candidate_input_receipt"] = (
+        _score_blind_player_input_receipt(slate)
+    )
+    slate.attrs["role_candidate_input_receipt"] = (
+        _score_blind_player_input_receipt(belief_slate)
+        if belief_slate is not None else {}
+    )
     latent_scenarios = _explicit_epistemic_scenarios
     latent_scenario_receipt = _latent_scenario_receipt
     if wants_latent_role and _latent_scenario_factory is not None:

@@ -2,6 +2,13 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Release builds pass the full clean source commit. The paired boom-first
+# runner refuses to emit a terminal receipt unless this image-bound value
+# exactly matches its separately supplied CODE_SHA.
+ARG SOURCE_COMMIT_SHA=unknown
+LABEL org.opencontainers.image.revision="${SOURCE_COMMIT_SHA}"
+ENV IMAGE_SOURCE_COMMIT_SHA="${SOURCE_COMMIT_SHA}"
+
 # libgomp is needed by LightGBM
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
     && rm -rf /var/lib/apt/lists/*

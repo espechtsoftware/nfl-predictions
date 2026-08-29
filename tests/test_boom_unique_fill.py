@@ -76,6 +76,36 @@ def test_off_by_default_is_byte_identical_to_zero():
     assert [lu.ids for lu in lus_unset] == [lu.ids for lu in lus_zero]
 
 
+def test_exact_leverage_and_boom_requests_are_captured():
+    _, batch, _ = _boom_candidates({
+        "MIN_LINEUP_SALARY": "0",
+        "N_LEV": "2",
+        "N_BOOM": "4",
+        "BOOM_UNIQUE_FILL": "0",
+    })
+    allocation = batch.metadata["generation_allocation"]
+    assert allocation["leverage_requested"] == 2
+    assert allocation["leverage_unique"] == 2
+    assert allocation["leverage_successful"] == 2
+    assert allocation["leverage_solver_errors"] == 0
+    assert allocation["leverage_infeasible"] == 0
+    assert allocation["boom_requested"] == 4
+    assert allocation["boom_attempted"] == 4
+    assert allocation["boom_successful"] == 4
+    assert allocation["boom_solver_errors"] == 0
+    assert allocation["boom_infeasible"] == 0
+    assert (
+        allocation["boom_unique_added"] + allocation["boom_duplicates"]
+        == allocation["boom_successful"]
+    )
+    assert allocation["boom_failures"] == 0
+    assert allocation["core_requested"] == 6
+    assert allocation["boom_unique_fill"] is False
+    timing = batch.metadata["generation_timing_seconds"]
+    assert timing["leverage"] >= 0
+    assert timing["primary_boom"] >= 0
+
+
 def test_lever_changes_candidates_but_never_removes_boom_uniques():
     control, cbatch, _ = _boom_candidates({"MIN_LINEUP_SALARY": "0"})
     treatment, tbatch, _ = _boom_candidates(

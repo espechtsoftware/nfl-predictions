@@ -4,9 +4,12 @@ The independent CE confirmation did not improve the primary score metric,
 so production defaults to 0 CE / 40 boom. These tests pin that decision in
 code and retain CE as an explicit research override only.
 """
+import pytest
+
 from nfl_dfs.backtest.engine import (DEFAULT_N_BOOM, DEFAULT_N_CE,
                                      GEN_TOTAL_BUDGET,
-                                     resolve_generation_budget)
+                                     resolve_generation_budget,
+                                     resolve_leverage_solves)
 
 
 def test_no_env_is_exactly_0_ce_40_boom_40_total():
@@ -48,6 +51,19 @@ def test_ce_off_experiment_restores_full_boom_budget():
     assert (ce, boom) == (0, 40)
 
 
+def test_exact_leverage_override_expresses_boom_first_allocation():
+    assert resolve_leverage_solves(2, 80, env={}) == 160
+    assert resolve_leverage_solves(2, 80, env={"N_LEV": ""}) == 160
+    assert resolve_leverage_solves(2, 80, env={"N_LEV": "40"}) == 40
+    assert resolve_leverage_solves(0, 80, env={"N_LEV": "0"}) == 0
+
+
+@pytest.mark.parametrize("value", ["-1", "01", " 40", "40.0", 40])
+def test_exact_leverage_override_rejects_noncanonical_values(value):
+    with pytest.raises(ValueError, match="N_LEV"):
+        resolve_leverage_solves(2, 80, env={"N_LEV": value})
+
+
 # --- bounds validation ---------------------------------------------------
 
 def test_budget_is_clamped_when_ce_plus_epi_exceeds_total():
@@ -75,6 +91,13 @@ def test_effective_config_flags_a_deployment_override():
     assert not bad["matches_adopted_default"]
     assert bad["overrides"] == {"N_CE": "12", "N_BOOM": "28"}
     assert bad["n_boom"] == 28
+    boom_first = effective_generation_config(
+        env={"N_LEV": "40", "N_BOOM": "160"}
+    )
+    assert boom_first["n_lev_override"] == 40
+    assert boom_first["n_boom"] == 160
+    assert boom_first["overrides"] == {"N_BOOM": "160", "N_LEV": "40"}
+    assert not boom_first["matches_adopted_default"]
     # A research EPI override must not masquerade as the adopted budget.
     assert not effective_generation_config(
         env={"N_EPISTEMIC": "1", "N_BOOM": "40"})["matches_adopted_default"]

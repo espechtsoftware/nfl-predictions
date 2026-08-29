@@ -24,6 +24,7 @@ POLICY_ENV_PASSTHROUGH = frozenset({
     "CAND_ARTIFACT_PLAYER_WORLDS",
     "PANEL_RUN_ID",
     "CODE_SHA",
+    "IMAGE_URI",
     "SEEDS",
 })
 
@@ -385,6 +386,45 @@ class ClassicProductionPolicy:
         })
         return env
 
+    def boom_first_control_environment(
+        self, base: Mapping[str, str] | None = None,
+    ) -> dict[str, str]:
+        """Exact incumbent allocation for the paired boom-first shadow.
+
+        The money path continues to use the equivalent historical
+        ``CAND_MULT=2`` expression. The paired runner materializes 160 here so
+        its requested-solve receipt can compare exact counts rather than infer
+        them from the 80-entry candidate basis.
+        """
+        env = self.engine_environment(base)
+        env.update({
+            "N_LEV": "160",
+            "BOOM_UNIQUE_FILL": "0",
+            "PROSPECTIVE_SHADOW_ID": "2026-boom-first-control-v1",
+        })
+        return env
+
+    def boom_first_shadow_environment(
+        self, base: Mapping[str, str] | None = None,
+    ) -> dict[str, str]:
+        """Preregistered equal-core-solve boom-first treatment.
+
+        Changes only the leverage/boom allocation from 160/40 to 40/160.
+        K=1, direct-role 12, CBWU, stacks, salary floor, world ordering and
+        coverage-194 selection remain the adopted production configuration.
+        ``BOOM_UNIQUE_FILL`` stays off because the lab equalized requested
+        optimizer work, not post-dedupe unique candidate counts.
+        """
+        env = self.engine_environment(base)
+        env.update({
+            "GEN_TOTAL_BUDGET": "172",
+            "N_LEV": "40",
+            "N_BOOM": "160",
+            "BOOM_UNIQUE_FILL": "0",
+            "PROSPECTIVE_SHADOW_ID": "2026-boom-first-v1",
+        })
+        return env
+
     def public_identity(
         self, *, model_version: str | None = None,
         entries: int | None = None, tail_line: float | None = None,
@@ -413,11 +453,52 @@ class ClassicProductionPolicy:
                 "market": 1.0 - self.blend_model_weight,
             },
             "portfolio_allocation": {
+                "leverage": (
+                    self.candidate_multiple
+                    * self.multiseed_candidate_entry_basis
+                ),
                 "ce": self.n_ce,
                 "role": self.n_role,
                 "boom": self.n_boom,
+                "core_lev_boom": (
+                    self.candidate_multiple
+                    * self.multiseed_candidate_entry_basis
+                    + self.n_boom
+                ),
+                # Retain the legacy API field and disclose its historical
+                # scope; callers may already consume the old 52-slot value.
                 "total_generation_solves": (
-                    self.n_ce + self.n_role + self.n_boom),
+                    self.n_ce + self.n_role + self.n_boom
+                ),
+                "total_generation_solves_scope": "ce-role-boom-legacy",
+                "nominal_requested_before_retries": (
+                    self.candidate_multiple
+                    * self.multiseed_candidate_entry_basis
+                    + self.n_ce + self.n_role + self.n_boom
+                    + 8 * int(engine_env["N_QB_VARIANTS"])
+                    + 3 * int(engine_env["N_GAMESTACK"])
+                    + int(engine_env["N_DARKGAME"])
+                ),
+                "nominal_requested_scope": (
+                    "leverage-ce-role-boom-qbvar-game-dark; excludes "
+                    "infeasibility, dedupe and retries"
+                ),
+                "nominal_requested_per_native_search": (
+                    self.candidate_multiple
+                    * self.multiseed_candidate_entry_basis
+                    + self.n_ce + self.n_role + self.n_boom
+                    + 8 * int(engine_env["N_QB_VARIANTS"])
+                    + 3 * int(engine_env["N_GAMESTACK"])
+                    + int(engine_env["N_DARKGAME"])
+                ),
+                "nominal_requested_per_five_book_cbwu_arm": 5 * (
+                    self.candidate_multiple
+                    * self.multiseed_candidate_entry_basis
+                    + self.n_ce + self.n_role + self.n_boom
+                    + 8 * int(engine_env["N_QB_VARIANTS"])
+                    + 3 * int(engine_env["N_GAMESTACK"])
+                    + int(engine_env["N_DARKGAME"])
+                ),
             },
             "served_position_scales": self.served_position_scales,
             "candidate_world_portfolio": {

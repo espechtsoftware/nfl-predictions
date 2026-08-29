@@ -257,6 +257,30 @@ def combine_cbwu_books(
             "worlds_per_block": [
                 int(books[name].row_draws.shape[1]) for name in order
             ],
+            "native_generation_receipts": {
+                name: {
+                    **dict(books[name].metadata.get(
+                        "generation_allocation", {}
+                    )),
+                    "model_version": str(
+                        books[name].metadata.get("model_version") or ""
+                    ),
+                    "role_model_version": str(
+                        books[name].metadata.get("role_model_version") or ""
+                    ),
+                    "candidate_input_receipt": dict(
+                        books[name].metadata.get(
+                            "candidate_input_receipt", {}
+                        )
+                    ),
+                    "role_candidate_input_receipt": dict(
+                        books[name].metadata.get(
+                            "role_candidate_input_receipt", {}
+                        )
+                    ),
+                }
+                for name in order
+            },
         },
     )
 

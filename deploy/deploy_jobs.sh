@@ -92,6 +92,11 @@ job shadow-cbwu-oi-paired shadow-cbwu-oi-paired 16Gi 4 "CODE_SHA=${CODE_SHA}" ""
 # B1 volume shadow: builds TWENTY seed books instead of five, so it gets a
 # 4h task timeout and starts earliest of the Sunday shadows.
 job shadow-cbwu-volume shadow-cbwu-volume 16Gi 4 "CODE_SHA=${CODE_SHA}" "" 14400
+# The manual boom-first pair uses a create-only lease and durable recovery
+# receipt while temporarily reusing the unscheduled atlas-minimal-c-smoke job;
+# it verifies the execution and exact prior-spec restoration before releasing
+# the lease (scripts/cloud_boom_first_paired_shadow.sh). Do not allocate a
+# scheduler or a new Cloud Run Job at project quota.
 # Independent finite-usage SIS pass-tail evidence. The job is a ten-book
 # five-seed pair and deliberately never changes the K=1/CBWU money path.
 job shadow-sis-pass-tail-paired shadow-sis-pass-tail-paired 16Gi 4 "CODE_SHA=${CODE_SHA}" "" 14400

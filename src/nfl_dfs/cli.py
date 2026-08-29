@@ -108,6 +108,13 @@ def main(argv: list[str] | None = None) -> None:
         ),
     )
     sub.add_parser(
+        "shadow-boom-first-paired",
+        help=(
+            "Freeze the exact-80 paired incumbent 160/40 versus "
+            "boom-first 40/160 candidate-allocation shadow"
+        ),
+    )
+    sub.add_parser(
         "shadow-sis-pass-tail-paired",
         help="Freeze the isolated prospective five-seed SIS pass-tail pair",
     )
@@ -918,6 +925,10 @@ def main(argv: list[str] | None = None) -> None:
 
         prospective_shadow.run_paired_prospective_shadow(
             variant="cbwu_volume")
+    elif args.command == "shadow-boom-first-paired":
+        from .inference import prospective_boom_first
+
+        prospective_boom_first.main()
     elif args.command == "shadow-sis-pass-tail-paired":
         from .inference import sis_pass_tail_portfolio
 

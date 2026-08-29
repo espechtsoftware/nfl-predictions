@@ -13,6 +13,7 @@ import hashlib
 import logging
 import os
 import re
+from time import perf_counter
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field as dc_field, replace as dc_replace
 
@@ -78,7 +79,7 @@ _lever_keys = {
     "ARCHETYPE_ALLOCATION_VERSION", "ARCHETYPE_TAIL_LINE",
     "PROSPECTIVE_SHADOW_ID",
     "MODEL_ENSEMBLE_MIX", "MODEL_REGISTRY_VARIANT",
-    "N_BOOM", "N_CE", "N_DARKGAME",
+    "N_BOOM", "N_CE", "N_DARKGAME", "N_LEV",
     "N_EPISTEMIC", "N_GAMESTACK", "N_GUMBEL", "N_LOWSAL",
     "N_ROUTE_TAIL", "N_COVERAGE_TAIL",
     "CAND_ARTIFACT_PLAYER_WORLDS",
@@ -310,6 +311,38 @@ def resolve_generation_budget(n_boom_solves: int | None = None,
     return n_ce, n_epi, n_boom
 
 
+def resolve_leverage_solves(
+    candidate_multiple: int,
+    candidate_generation_entries: int,
+    env: dict | None = None,
+) -> int:
+    """Resolve the exact leverage-family solve count.
+
+    The incumbent remains ``CAND_MULT * candidate_generation_entries``.
+    ``N_LEV`` is an explicit research/shadow override for allocations that
+    the integer multiplier cannot express, notably 40 leverage solves at the
+    production 80-entry basis. Empty is treated as absent; a supplied value
+    must be a canonical nonnegative integer so deployment typos fail before
+    any optimizer work begins.
+    """
+    multiple = int(candidate_multiple)
+    entries = int(candidate_generation_entries)
+    if multiple < 0 or entries < 0:
+        raise ValueError(
+            "candidate multiplier and generation entries must be nonnegative"
+        )
+    e = os.environ if env is None else env
+    raw = e.get("N_LEV")
+    if raw in (None, ""):
+        return multiple * entries
+    if (
+        not isinstance(raw, str)
+        or re.fullmatch(r"0|[1-9][0-9]*", raw) is None
+    ):
+        raise ValueError("N_LEV must be a canonical nonnegative integer")
+    return int(raw)
+
+
 def _boom_structure_carve_counts(env, n_boom_solves: int) -> tuple[int, int]:
     """Return validated ``(open, exact-single-stack)`` boom carve doses."""
     values: list[int] = []
@@ -337,6 +370,12 @@ def effective_generation_config(env: dict | None = None) -> dict:
     visible in logs and health output rather than silent."""
     e = os.environ if env is None else env
     n_ce, n_epi, n_boom = resolve_generation_budget(env=e)
+    n_lev_raw = e.get("N_LEV")
+    n_lev = (
+        None
+        if n_lev_raw in (None, "")
+        else resolve_leverage_solves(0, 0, env=e)
+    )
     open_boom_solves, single_stack_boom_solves = (
         _boom_structure_carve_counts(e, n_boom)
     )
@@ -357,7 +396,9 @@ def effective_generation_config(env: dict | None = None) -> dict:
                                        and n_gumbel == 0
                                        and open_boom_solves == 0
                                        and single_stack_boom_solves == 0
+                                       and n_lev is None
                                        and not any(k in e for k in research_only),
+            "n_lev_override": n_lev,
             "ce_seed": int(e.get("CE_SEED", "1701") or 1701),
             "epistemic_family": e.get("EPISTEMIC_FAMILY", "standard"),
             "role_belief_seed": int(e.get("ROLE_BELIEF_SEED", "7331")
@@ -367,7 +408,7 @@ def effective_generation_config(env: dict | None = None) -> dict:
             "gumbel_seed": int(e.get("GUMBEL_SEED", "4700") or 4700),
             "gumbel_mode": e.get("GUMBEL_MODE", "independent"),
             "overrides": {k: e[k] for k in
-                          ("N_CE", "N_EPISTEMIC", "N_BOOM", "CE_SEED",
+                          ("N_CE", "N_EPISTEMIC", "N_BOOM", "N_LEV", "CE_SEED",
                            "EPISTEMIC_FAMILY", "ROLE_BELIEF_FEATURES",
                            "ROLE_BELIEF_SEED",
                            "REPLAY_PROJECTION_SEED",
@@ -1083,6 +1124,7 @@ def tail_select_lineups(
         raise ValueError(
             "required candidate persistence cannot run asynchronously")
     runtime_env = os.environ if policy_env is None else policy_env
+    generation_started = perf_counter()
     rd = _row_draws(slate, draws, env=runtime_env)
     locks = locks or set()
     # Dose lever (env N_BOOM, 2026-08-05 attribution: boom solves are
@@ -1097,10 +1139,18 @@ def tail_select_lineups(
     if generation_entries < n_entries:
         raise ValueError(
             "candidate generation entry basis cannot be below selected entries")
+    n_lev_solves = resolve_leverage_solves(
+        candidate_multiple, generation_entries, env=runtime_env,
+    )
+    leverage_telemetry: dict[str, int] = {}
+    leverage_started = perf_counter()
     cands = optimize_many(pool,
-                          n_lineups=candidate_multiple * generation_entries,
+                          n_lineups=n_lev_solves,
                           stack=stack, objective_col=objective_col,
-                          locks=set(locks), env=runtime_env)
+                          locks=set(locks), env=runtime_env,
+                          telemetry=leverage_telemetry)
+    leverage_seconds = perf_counter() - leverage_started
+    leverage_unique = len(cands)
     # Multi-tag provenance (review #6, Sol): `seen` dedupes rosters, so a
     # lineup produced by BOTH lev and boom was attributed only to lev —
     # first-producer bias that invalidates generator analysis. all_tags
@@ -1207,6 +1257,11 @@ def tail_select_lineups(
     boom_unique_fill = str(
         runtime_env.get("BOOM_UNIQUE_FILL", "") or "") not in ("", "0")
     boom_cursor = 0 if boom_unique_fill else n_boom_solves
+    boom_solve_attempts = 0
+    boom_solve_successes = 0
+    boom_solver_errors = 0
+    boom_infeasible = 0
+    boom_duplicates = 0
     # Fixed-budget structure carves. OPEN_BOOM_SOLVES is the closed A3
     # comparator. SINGLE_STACK_BOOM_SOLVES is a separate, default-off seam:
     # exactly k of the same deterministic boom visits require exactly one
@@ -1242,12 +1297,15 @@ def tail_select_lineups(
 
     def _add_boom(sim_indices, unique_target: int | None = None,
                   apply_structure_carve: bool = False) -> int:
-        nonlocal boom_cursor, carve_attempts, carve_added
+        nonlocal boom_cursor, boom_solve_attempts, boom_solve_successes
+        nonlocal boom_solver_errors, boom_infeasible, boom_duplicates
+        nonlocal carve_attempts, carve_added
         added = 0
         consumed = 0
         for k in sim_indices:
             if unique_target is not None and added >= unique_target:
                 break
+            boom_solve_attempts += 1
             is_carved = apply_structure_carve and consumed in carve_visits
             consumed += 1
             if is_carved:
@@ -1260,14 +1318,17 @@ def tail_select_lineups(
                               objective_col="proj_sim",
                               locks=set(locks), env=runtime_env)
             except Exception as exc:  # CBC subprocess flake: skip this draw
+                boom_solver_errors += 1
                 if is_carved:
                     raise RuntimeError(
                         f"{carve_key} carved boom solve failed") from exc
                 log.warning("boom-draw solve failed: %s", exc)
                 continue
             if is_carved and lu is None:
+                boom_infeasible += 1
                 raise RuntimeError(f"{carve_key} carved boom solve was infeasible")
             if lu is not None:
+                boom_solve_successes += 1
                 _note(lu.ids, "boom")
                 if is_carved:
                     # Secondary tag only: downstream family quotas continue
@@ -1281,10 +1342,24 @@ def tail_select_lineups(
                 seen.add(lu.ids)
                 cands.append(lu)
                 added += 1
+            elif lu is None:
+                boom_infeasible += 1
+            elif not is_carved:
+                # A valid solve can reproduce a roster already generated by
+                # leverage or an earlier boom world.  That is deduplication,
+                # not a solver failure, and is deliberately allowed in the
+                # equal-requested-work boom-first experiment.
+                boom_duplicates += 1
         if boom_unique_fill:
             boom_cursor += consumed
         return added
 
+    primary_boom_started = perf_counter()
+    primary_attempts_before = boom_solve_attempts
+    primary_successes_before = boom_solve_successes
+    primary_solver_errors_before = boom_solver_errors
+    primary_infeasible_before = boom_infeasible
+    primary_duplicates_before = boom_duplicates
     if boom_unique_fill:
         _primary_boom = _add_boom(
             boom_order, unique_target=n_boom_solves,
@@ -1293,8 +1368,19 @@ def tail_select_lineups(
             "boom unique-fill: %d/%d unique candidates from %d worlds "
             "attempted", _primary_boom, n_boom_solves, boom_cursor)
     else:
-        _add_boom(
+        _primary_boom = _add_boom(
             boom_order[:n_boom_solves], apply_structure_carve=True)
+    primary_boom_attempts = boom_solve_attempts - primary_attempts_before
+    primary_boom_successes = boom_solve_successes - primary_successes_before
+    primary_boom_solver_errors = (
+        boom_solver_errors - primary_solver_errors_before
+    )
+    primary_boom_infeasible = boom_infeasible - primary_infeasible_before
+    primary_boom_duplicates = boom_duplicates - primary_duplicates_before
+    primary_boom_failures = (
+        primary_boom_solver_errors + primary_boom_infeasible
+    )
+    primary_boom_seconds = perf_counter() - primary_boom_started
     if carve_count and (
             carve_attempts != carve_count or len(carve_rosters) != carve_count
             or carve_added != carve_count):
@@ -1870,6 +1956,56 @@ def tail_select_lineups(
             "tail_line": float(tail_line),
             "n_entries": int(n_entries),
             "candidate_generation_entries": generation_entries,
+            "model_version": str(slate.attrs.get("model_version") or ""),
+            "role_model_version": str(
+                slate.attrs.get("role_model_version") or ""
+            ),
+            "candidate_input_receipt": dict(
+                slate.attrs.get("candidate_input_receipt") or {}
+            ),
+            "role_candidate_input_receipt": dict(
+                slate.attrs.get("role_candidate_input_receipt") or {}
+            ),
+            "generation_allocation": {
+                "leverage_requested": int(n_lev_solves),
+                "leverage_unique": int(leverage_unique),
+                "leverage_solve_attempts": int(
+                    leverage_telemetry.get("solve_attempts", 0)
+                ),
+                "leverage_solver_errors": int(
+                    leverage_telemetry.get("solver_errors", 0)
+                ),
+                "leverage_infeasible": int(
+                    leverage_telemetry.get("infeasible", 0)
+                ),
+                "leverage_successful": int(
+                    leverage_telemetry.get("successful", 0)
+                ),
+                "boom_requested": int(n_boom_solves),
+                "boom_attempted": int(primary_boom_attempts),
+                "boom_successful": int(primary_boom_successes),
+                "boom_solver_errors": int(primary_boom_solver_errors),
+                "boom_infeasible": int(primary_boom_infeasible),
+                "boom_duplicates": int(primary_boom_duplicates),
+                "boom_failures": int(primary_boom_failures),
+                "boom_unique_added": int(_primary_boom),
+                "boom_unique_fill": bool(boom_unique_fill),
+                "ce_requested": int(n_ce),
+                "role_or_epistemic_requested": int(n_epi),
+                "gumbel_requested": int(n_gumbel),
+                "core_requested": int(n_lev_solves + n_boom_solves),
+                "total_requested_with_replacement_families": int(
+                    n_lev_solves + n_boom_solves + n_ce + n_epi + n_gumbel
+                ),
+                "unique_candidates_after_all_families": int(len(cands)),
+            },
+            "generation_timing_seconds": {
+                "leverage": float(leverage_seconds),
+                "primary_boom": float(primary_boom_seconds),
+                "all_generation_through_candidate_matrix": float(
+                    perf_counter() - generation_started
+                ),
+            },
             "latent_optimization_receipt": tuple(
                 latent_optimization_receipt or ()
             ),

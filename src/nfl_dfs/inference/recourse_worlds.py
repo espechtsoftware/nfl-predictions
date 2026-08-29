@@ -129,6 +129,7 @@ def encode_recourse_world_artifact(
     return payload, {
         "artifact_version": RECOURSE_WORLD_ARTIFACT_VERSION,
         "sha256": digest,
+        "bytes": len(payload),
         "generated_at": stamp.isoformat(),
         "players": int(len(player_ids)),
         "candidates": int(len(candidate_rosters)),

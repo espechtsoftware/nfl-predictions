@@ -162,8 +162,19 @@ def test_no_rb_vs_opposing_dst_and_single_rb_per_team():
 
 
 def test_multi_lineup_uniqueness():
-    lineups = optimize_many(make_pool(), n_lineups=5, max_overlap=7)
+    telemetry = {}
+    lineups = optimize_many(
+        make_pool(), n_lineups=5, max_overlap=7, telemetry=telemetry
+    )
     assert len(lineups) == 5
+    assert telemetry == {
+        "requested": 5,
+        "solve_attempts": 5,
+        "solver_errors": 0,
+        "infeasible": 0,
+        "successful": 5,
+        "returned": 5,
+    }
     for i, a in enumerate(lineups):
         for b in lineups[i + 1:]:
             assert len(a.ids & b.ids) <= 7

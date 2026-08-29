@@ -56,6 +56,7 @@ def test_adopted_policy_is_the_promoted_true80_position_calibrated_book():
 def test_policy_overwrites_research_levers_without_mutating_base():
     dirty = {
         "GCP_PROJECT": "keep-me",
+        "IMAGE_URI": "registry/image@sha256:" + "a" * 64,
         "MODEL_ENSEMBLE": "3",
         "N_CE": "0",
         "N_BOOM": "40",
@@ -74,6 +75,7 @@ def test_policy_overwrites_research_levers_without_mutating_base():
     assert env["TABPFN_MARGINAL_TABLE"] == ""
     assert dirty["MODEL_ENSEMBLE"] == "3"
     assert env["GCP_PROJECT"] == "keep-me"
+    assert env["IMAGE_URI"] == dirty["IMAGE_URI"]
     assert "N_ROUTE_TAIL" not in env
     assert "MIN_LOWOWN" not in env
     assert "SIS_ASOE_TARGET_ALLOCATION" not in env
@@ -124,18 +126,53 @@ def test_policy_overwrites_research_levers_without_mutating_base():
     assert latent["MULTISEED_SEED_PAIRS"] == env["MULTISEED_SEED_PAIRS"]
     assert (latent["N_EPISTEMIC"], latent["N_BOOM"]) == ("12", "40")
 
+    boom_control = ADOPTED_CLASSIC_POLICY.boom_first_control_environment(dirty)
+    boom_first = ADOPTED_CLASSIC_POLICY.boom_first_shadow_environment(dirty)
+    assert (boom_control["N_LEV"], boom_control["N_BOOM"]) == ("160", "40")
+    assert (boom_first["N_LEV"], boom_first["N_BOOM"]) == ("40", "160")
+    assert boom_control["BOOM_UNIQUE_FILL"] == "0"
+    assert boom_first["BOOM_UNIQUE_FILL"] == "0"
+    assert boom_first["GEN_TOTAL_BUDGET"] == "172"
+    for key in (
+        "MODEL_ENSEMBLE", "MODEL_REGISTRY_VARIANT", "N_EPISTEMIC",
+        "EPISTEMIC_FAMILY", "MULTISEED_PORTFOLIO",
+        "MULTISEED_SEED_PAIRS", "MULTISEED_WORLDS_PER_BLOCK",
+        "MULTISEED_CANDIDATE_ENTRY_BASIS", "MIN_LINEUP_SALARY",
+        "SELECT_LSE", "SELECT_LADDER",
+    ):
+        assert boom_first[key] == env[key]
+
 
 def test_ladder_is_explicitly_off_in_money_policy_and_forbidden_on_app():
     env = ADOPTED_CLASSIC_POLICY.engine_environment()
     assert env["SELECT_LADDER"] == ""
     assert "SELECT_LADDER" in APP_FORBIDDEN
-    for key in ("OPEN_BOOM_SOLVES", "SINGLE_STACK_BOOM_SOLVES"):
-        assert env[key] == "0"
+    for key in ("OPEN_BOOM_SOLVES", "SINGLE_STACK_BOOM_SOLVES", "N_LEV"):
+        if key == "N_LEV":
+            assert key not in env
+        else:
+            assert env[key] == "0"
         assert key in APP_FORBIDDEN
 
 
 def test_public_identity_exposes_fixed_budget_five_by_five_contract():
     identity = ADOPTED_CLASSIC_POLICY.public_identity(entries=40)
+    assert identity["portfolio_allocation"] == {
+        "leverage": 160,
+        "ce": 0,
+        "role": 12,
+        "boom": 40,
+        "core_lev_boom": 200,
+        "total_generation_solves": 52,
+        "total_generation_solves_scope": "ce-role-boom-legacy",
+        "nominal_requested_before_retries": 266,
+        "nominal_requested_per_native_search": 266,
+        "nominal_requested_per_five_book_cbwu_arm": 1330,
+        "nominal_requested_scope": (
+            "leverage-ce-role-boom-qbvar-game-dark; excludes "
+            "infeasibility, dedupe and retries"
+        ),
+    }
     portfolio = identity["candidate_world_portfolio"]
     assert portfolio == {
         "arm": "CBWU",

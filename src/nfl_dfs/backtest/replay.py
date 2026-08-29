@@ -78,6 +78,7 @@ def replay_projections(
     widen: bool = True,
     return_draws: bool = False,
     include_actual: bool = True,
+    tabpfn_cache_rows: pd.DataFrame | None = None,
 ) -> pd.DataFrame | tuple[pd.DataFrame, np.ndarray]:
     """Project every (player, week) row of `season` with models trained on
     strictly earlier seasons. Rows carry point-in-time features, so no
@@ -88,7 +89,9 @@ def replay_projections(
     selection. ``include_actual=False`` is the outcome-blind source seam: it
     neither requires nor reads the target season's ``y_dk_points`` column and
     omits ``actual`` from the returned frame. The default preserves the
-    historical replay schema exactly."""
+    historical replay schema exactly. ``tabpfn_cache_rows`` lets an offline
+    caller inject the already-frozen point-in-time marginal cache; ``None``
+    preserves the historical loader behavior."""
     if not isinstance(include_actual, bool):
         raise ValueError("include_actual must be a literal bool")
     if include_actual and "y_dk_points" not in panel.columns:
@@ -216,7 +219,8 @@ def replay_projections(
     draws_out = (apply_draw_shape(raw_draws, rows.position, seed,
                                   keys=rows[[c for c in ("season", "week",
                                          "gsis_id", "is_rookie")
-                                         if c in rows.columns]])
+                                         if c in rows.columns]],
+                                  tabpfn_cache_rows=tabpfn_cache_rows)
                  if return_draws else sim.draws)
     # SCHAAKE_DIAG=1 (Workstream C gate): log role-pair dependence of
     # the PRODUCTION draws vs the same draws with the empirical
@@ -233,9 +237,11 @@ def replay_projections(
                 raise
     keep = [c for c in (
         "gsis_id", "name", "season", "week", "team", "opponent",
-        "position", "game_id", "salary", "injury_status", "was_active",
+        "position", "game_id", "salary", "injury_status",
         *PLAYER_SNAPSHOT_FEATURES,
     ) if c in rows.columns]
+    if include_actual and "was_active" in rows.columns:
+        keep.append("was_active")
     out = pd.concat([rows[keep], summary], axis=1)
     if not member_points.empty:
         out = pd.concat([out, member_points.reset_index(drop=True)], axis=1)
@@ -290,6 +296,8 @@ def role_belief_projections(
     season: int,
     n_sims: int,
     num_boost_round: int = 400,
+    include_actual: bool = True,
+    tabpfn_cache_rows: pd.DataFrame | None = None,
 ) -> tuple[pd.DataFrame, np.ndarray] | tuple[None, None]:
     """Train the frozen alternate role model without changing baseline env.
 
@@ -316,7 +324,9 @@ def role_belief_projections(
         seed = int(os.environ.get("ROLE_BELIEF_SEED", "7331") or 7331)
         alternate, draws = replay_projections(
             panel, season, n_sims=n_sims,
-            num_boost_round=num_boost_round, seed=seed, return_draws=True)
+            num_boost_round=num_boost_round, seed=seed, return_draws=True,
+            include_actual=include_actual,
+            tabpfn_cache_rows=tabpfn_cache_rows)
     finally:
         if previous is None:
             os.environ.pop("EXTRA_FEATURES", None)
@@ -895,9 +905,29 @@ def _wr_boom_flags(seasons: list) -> set[tuple]:
     return {(r.gsis_id, int(r.season), int(r.week)) for r in hit.itertuples()}
 
 
-def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFrame]:
-    """One engine-ready slate per week: skill rows from the replay (dropping
-    the few without a salary) plus DST rows when provided."""
+def build_slates(
+    proj: pd.DataFrame,
+    dst: pd.DataFrame | None,
+    *,
+    include_actual: bool = True,
+    dst_preprojected: bool = False,
+) -> list[pd.DataFrame]:
+    """One engine-ready slate per week.
+
+    Defaults preserve the settled historical-replay schema.  An offline
+    score-blind caller may set ``include_actual=False`` and provide DST rows
+    whose strictly-prior ``proj`` has already been frozen with
+    ``dst_preprojected=True``.  That route neither requires nor carries a
+    current-week outcome and skips the live QB/Vegas loaders.
+    """
+    if not isinstance(include_actual, bool):
+        raise ValueError("include_actual must be a literal bool")
+    if not isinstance(dst_preprojected, bool):
+        raise ValueError("dst_preprojected must be a literal bool")
+    if include_actual and "actual" not in proj.columns:
+        raise ValueError("include_actual=True requires projection actuals")
+    if dst_preprojected and dst is None:
+        raise ValueError("dst_preprojected=True requires DST rows")
     skill = proj.dropna(subset=["salary"]).copy()
     dropped = len(proj) - len(skill)
     if dropped:
@@ -943,7 +973,7 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
         skill["name"] = skill.gsis_id
 
     qb_starts, vegas = None, None
-    if dst is not None and len(dst):
+    if dst is not None and len(dst) and not dst_preprojected:
         try:
             from ..inference.qb_experience import starter_prior_starts
 
@@ -971,8 +1001,26 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
         except Exception:
             log.exception("Vegas lines unavailable; DST projections "
                           "without the implied-total model")
-    dst_rows = (dst_slate_rows(dst, qb_starts, vegas)
-                if dst is not None else None)
+    if dst is None:
+        dst_rows = None
+    elif dst_preprojected:
+        required_dst = {"season", "week", "team", "opp", "salary", "proj"}
+        missing_dst = required_dst - set(dst.columns)
+        if missing_dst:
+            raise ValueError(
+                "preprojected DST rows lack " + ", ".join(sorted(missing_dst)))
+        if include_actual and "actual" not in dst.columns:
+            raise ValueError(
+                "include_actual=True requires preprojected DST actuals")
+        dst_rows = dst.copy(deep=True)
+        if "id" not in dst_rows.columns:
+            dst_rows["id"] = "DST_" + dst_rows.team.astype(str)
+        if "name" not in dst_rows.columns:
+            dst_rows["name"] = dst_rows.team.astype(str) + " DST"
+        if "pos" not in dst_rows.columns:
+            dst_rows["pos"] = "DST"
+    else:
+        dst_rows = dst_slate_rows(dst, qb_starts, vegas)
     own_booster = None
     # OWN_MODEL default "fade" ADOPTED 2026-08-04 (QF arm): model own in
     # the chalk fade, naive field kept as the stable yardstick. "" disables.
@@ -1014,8 +1062,10 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
     slates = []
     for (season, week), grp in skill.groupby(["season", "week"]):
         cols = ["id", "name", "pos", "team", "opp", "game_id",
-                "salary", "proj", "actual", "season", "week", "draw_idx",
+                "salary", "proj", "season", "week", "draw_idx",
                 "gsis_id"]  # Q99_WILD keys
+        if include_actual:
+            cols.insert(8, "actual")
         if "consensus_div" in grp.columns:  # DIV_TILT lever input
             cols.append("consensus_div")
         # point-in-time feature snapshot for the candidate table
@@ -1084,7 +1134,10 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
         # RotoGuru DST rows occasionally lack salary or points; a single NaN
         # poisons the field sampler's ownership softmax.
         n0 = len(frame)
-        frame = frame.dropna(subset=["salary", "proj", "actual"])
+        required_values = ["salary", "proj"]
+        if include_actual:
+            required_values.append("actual")
+        frame = frame.dropna(subset=required_values)
         frame = frame[frame.salary > 0]  # RotoGuru's missing-salary sentinel
         # Engine requires unique ids (actual.reindex, draw alignment). Never
         # select one by input order: that previously hid adjacent-Thursday DST
@@ -1096,8 +1149,9 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
                 f"slate {season} wk {week}: duplicate ids after validated "
                 f"joins: {ids[:8]}")
         if len(frame) < n0:
-            log.info("slate %s wk %s: dropped %d rows with missing salary/proj/actual",
-                     season, week, n0 - len(frame))
+            log.info(
+                "slate %s wk %s: dropped %d rows with missing %s",
+                season, week, n0 - len(frame), "/".join(required_values))
         frame["salary"] = frame.salary.astype(int)
         # Our entries optimize the leverage-tilted objective; the field
         # simulation keeps the untilted proj — the field is chalky by

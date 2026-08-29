@@ -24,15 +24,15 @@ from typing import Any, Iterable, Mapping, Sequence
 
 
 SCHEMA = "nfl-dfs-effective-policy-rule-inventory/v2"
-SOURCE_SET_ID = "adopted-classic-policy-20260821-2c8564e"
+SOURCE_SET_ID = "adopted-classic-policy-20260829-boom-first-v1"
 POLICY_ENV_SHA256 = (
     "82cdb718458124536a1a5989d72805bebb149a27d63a272d27a5c9a89751f0df"
 )
 CLASSIFIED_INPUT_PROJECTION_SHA256 = (
-    "3ddef13eade46dd3198bc86acdb7f16f56ea8fc30a81c2f421c5c3e72b8ddd99"
+    "d54082f08d27f8497e5cd7f115b7d7f5023d441531aa5d8258677e956e8eb1d0"
 )
-CLASSIFIED_INPUT_KEY_COUNT = 119
-DIRECT_INPUT_READ_SITE_COUNT = 230
+CLASSIFIED_INPUT_KEY_COUNT = 121
+DIRECT_INPUT_READ_SITE_COUNT = 237
 
 # These are production/enforcement sources and independent validation
 # consumers, never evidence-graph-authored files.  Any byte drift requires a
@@ -43,19 +43,19 @@ FROZEN_SOURCE_SHA256: Mapping[str, str] = {
         "64020a5cc7749ec725b79be874044113720a08f0ae3da5f78f0e1bb82d9379a4"
     ),
     "src/nfl_dfs/backtest/engine.py": (
-        "04fd647fa6916c693f8ac22dcd31741d6f64b466b82ee8aac236e52fcaaa16bf"
+        "c0107cc31e481a0b7ad29aeeee89edf57ab23b0011e1c0054448fc6dd33958ad"
     ),
     "src/nfl_dfs/backtest/replay.py": (
-        "ba7967c964ca912a60d5e1be6b625bab7d7834c62b86900ebb47a1fc4e4226f8"
+        "c0a02a9a1cabf73189381a9a43e5b20190ed4b6bfc906cf7a3d893ced780d80d"
     ),
     "src/nfl_dfs/inference/live_lineups.py": (
-        "119a65b771ba146226f06d0153b2613da804ee2af145badf6ccde5c80a30735e"
+        "f09f15290575fd970668229cd27de398eac279ff5e4413a10618107ab4ee3ae4"
     ),
     "src/nfl_dfs/inference/multiseed_portfolio.py": (
-        "f783116be582e93bb9b55c8abc3a48c5acc64b34a6988d7ca25e91c89818a92a"
+        "c50e5bd38f3a313266716569830a892e74887b6e4d4397ff0da7f5f721324dc6"
     ),
     "src/nfl_dfs/inference/production_policy.py": (
-        "69dce9b735cb1ad2a4d7f56bbecca3dd4193a8063a54e999f48057813dd4d388"
+        "f037e5a68f937bea319e7d7dad359e3180323d43e5f5e3f30252c9245a2992fc"
     ),
     "src/nfl_dfs/models/game_sim.py": (
         "667e9a8823d976d192a78c5dadfd79be5c8f97c86269b134b03a9833adae3a7c"
@@ -64,7 +64,7 @@ FROZEN_SOURCE_SHA256: Mapping[str, str] = {
         "850f33bca392e580a2e73b49aa01289d0404631c479606d67c4c227d42b7f47c"
     ),
     "src/nfl_dfs/optimizer/lineup.py": (
-        "c4e663a628986b8b411ea1e12236d5d7f2c9868d0355f4e9fd274b1b9afc6b80"
+        "c1ca2cca9bc0d67755dde9191008b4e0cf0b7cd2b9c57565711d8c330268fbf8"
     ),
     "src/nfl_dfs/research/final_forensic.py": (
         "1b7bcf25b77b43802ba0da0762b30d564806d0712190bb67cd231eb707bd6625"
@@ -122,6 +122,7 @@ INFRASTRUCTURE_INPUT_KEYS = frozenset({
     "CAND_LOG_TABLE",
     "CODE_SHA",
     "GCP_PROJECT",
+    "IMAGE_URI",
     "PANEL_RUN_ID",
     "PROSPECTIVE_SHADOW_ID",
     "REPLAY_LINEUPS_TABLE",
@@ -175,6 +176,7 @@ FROZEN_MECHANISM_INPUT_KEYS = frozenset({
     "N_EPISTEMIC",
     "N_GAMESTACK",
     "N_GUMBEL",
+    "N_LEV",
     "N_LOWSAL",
     "N_MIDQB",
     "N_NOSTACK",

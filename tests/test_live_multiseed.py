@@ -33,6 +33,17 @@ def _frame(seed):
     return frame
 
 
+@pytest.mark.parametrize(
+    "column",
+    ["actual_points", "fantasy_points_ppr", "realized_points", "y_dk_points"],
+)
+def test_candidate_input_receipt_rejects_target_outcome_columns(column):
+    frame = _frame(17)
+    frame[column] = 0.0
+    with pytest.raises(ValueError, match="contain outcome columns"):
+        live_lineups._score_blind_player_input_receipt(frame)
+
+
 def test_role_belief_uses_registered_independent_seed(monkeypatch):
     calls = []
 
