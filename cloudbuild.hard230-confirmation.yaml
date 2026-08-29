@@ -1,0 +1,49 @@
+timeout: 3600s
+
+options:
+  machineType: E2_HIGHCPU_8
+
+steps:
+  - id: focused-hard230-confirmation-tests
+    name: python:3.11-slim
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends libgomp1
+        pip install --no-cache-dir '.[gcp,dev]'
+        PYTHONDONTWRITEBYTECODE=1 python -m py_compile \
+          src/nfl_dfs/research/corpus_r6_hard230_selector_confirmation_v1.py \
+          src/nfl_dfs/research/corpus_r6_hard230_selector_confirmation_execution_v1.py \
+          scripts/run_corpus_r6_hard230_selector_confirmation_v1.py
+        PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=. pytest -q -o addopts='' \
+          tests/test_corpus_r6_hard230_selector_confirmation_v1.py \
+          tests/test_run_corpus_r6_hard230_selector_confirmation_v1.py
+
+  - id: build-hard230-confirmation-runtime
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --pull
+      - -f
+      - Dockerfile.r6-current-bank-crossed-screen
+      - -t
+      - '${_IMAGE}'
+      - .
+
+  - id: smoke-hard230-confirmation-runtime
+    name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        docker run --rm --network=none '${_IMAGE}' \
+          /usr/local/bin/python3.11 -I -c \
+          'from nfl_dfs.research import corpus_r6_hard230_selector_confirmation_v1, corpus_r6_hard230_selector_confirmation_execution_v1'
+        docker run --rm --network=none '${_IMAGE}' \
+          /usr/local/bin/python3.11 -I \
+          /app/scripts/run_corpus_r6_hard230_selector_confirmation_v1.py --help >/dev/null
+
+images:
+  - '${_IMAGE}'

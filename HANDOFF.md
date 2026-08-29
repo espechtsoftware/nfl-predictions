@@ -86,6 +86,9 @@ agent or developer:
   `a8eecd0bc5b0819ec62c76045c42cacf475633bcab0c873210108a2516ed60c1`;
   this is feasibility evidence only. Commit/build the exact five-file chain,
   then run its required create-once task-0 smoke before full derive/grade.
+  The five-file chain is now pushed in `a32ffb48`.
+  `cloudbuild.hard230-confirmation.yaml` is the bounded 12-test, image-build,
+  network-isolated smoke recipe to commit next and submit by exact Git source.
 - The combined incumbent + hard-230 + F7/F8/F9 all-block K=80 union mechanics
   are locally green, but independent review is HOLD until two bounded repairs
   land: exact semantic replay of every persisted book/contribution, and
