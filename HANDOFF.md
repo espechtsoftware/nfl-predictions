@@ -20,7 +20,39 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 (three-hundred-eighty-second update)
+## Current handoff -- 2026-08-29 (three-hundred-eighty-third update)
+
+### Fresh repaired prepare publishes exact 54-input manifest successfully
+
+- Branch `main` and `origin/main` entered this milestone at pushed handoff
+  commit `1b6031fe`; science/image source remains exact commit `68873f42...`
+  and immutable image digest remains `sha256:86951310...1ada3`.
+- The sole `prepare` invocation on fresh prefix
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-boom-first-allocation/20260829-boom-first-68873f42-git-v1/`
+  exited zero after exact-opening and validating the later source, green
+  preflight, provider build and terminal build receipt.  Its score-blind player
+  and candidate queries were cache-hit/DONE with no errors.
+- The repaired real-data path crossed former failure ordinal 36 (`2025-w01`)
+  and create-once published every ordinal 00--53.  Exact prefix census is 55
+  objects / 111,518,124 bytes: precisely 54 generation snapshots plus one
+  manifest, with no task result, launch, terminal, grade or outcome object.
+- The prepare result is complete, exact 54/54 and
+  `uses_realized_outcomes=false`.  Local canonical-with-newline result
+  `.scratch-score-sprint/boom-first-prepare-result-68873f42-git-v1.json` is
+  1,989 bytes with SHA-256
+  `8482a2ffc4d5fa56d246662dd1559141dbee0b7ad5bb3bf1e5bd2acb332dd1f2`.
+  Manifest identity is generation `1788039789304897`, 41,769 bytes and byte
+  SHA-256 `8db332783ee3da9f3175f3f867f0e007a5f776958b8d4749c9756e3ae3f51e80`
+  at the fresh prefix `/manifest.json`; internal manifest SHA-256 is
+  `d4ddf4eecd645cc77beb776f945f879b7e0e6cb44be758246a9a32db8d932087`.
+- No fixed-job mutation/launch or outcome read occurred.  Exact next action:
+  run the manifest-bound task-0 smoke inside immutable digest
+  `sha256:86951310...1ada3` using one no-source Cloud Build, publish its request
+  and receipt only to the fresh manifest-smoke evidence prefix, and validate
+  five control reproductions plus exact K80/K80 before configuring the reused
+  54-task job.
+
+## Previous handoff -- 2026-08-29 (three-hundred-eighty-second update)
 
 ### Exact-repair image and create-once terminal build authority are green
 
