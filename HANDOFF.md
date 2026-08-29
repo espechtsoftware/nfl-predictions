@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 17:29 UTC (three-hundred-sixty-sixth update)
+
+### Replacement-H0 fixed-G0 smoke passed and persisted its local evidence
+
+- Replacement implementation H0
+  `fe814836da474c792514d63b50cd8642832b1a87` is pushed on `origin/main`.
+  Its independently reviewed persistence delta passed **201/201** tests with
+  no P0, P1 or P2 finding and exact testcase-inventory SHA-256
+  `96df8fda2fc03c87d0a0fedde17266063e2c37614ccec1a3e460d18562ea16bd`.
+- A clean detached-worktree real task-0 smoke from that exact H0 completed and
+  this time atomically created
+  `reports/2026-08-27-r6-fixed-g0-catalog-recovery-task0-smoke.json`.
+  The file is 14,629 bytes with SHA-256
+  `0a2786bed7967fe12f31eb20d87bafd866d8f71fa0dbe71ddd3f10c5da647a20`;
+  its internal smoke SHA-256 is
+  `1535c87bfc378bbdef21fed6e5f7154cfc7991e6160def3f1973c2f279d06a20`.
+  It reports 773 structural players and the exact seven generation-pinned
+  source identities.
+- The smoke performed zero cloud mutations and zero current-generation output
+  resolutions, opened no world matrix, schedule or result body, read no
+  outcome column, and carries no analytical, scoring, selection, publication,
+  promotion, deployment or production authority. This is the required real-
+  artifact structural proof, not a score or catalog publication.
+- Exact next action: commit this smoke and handoff as H1, run the metadata-only
+  empty-prefix census from that clean descendant, then run the exact focused
+  suite and freeze its JUnit/receipt. Continue the reviewed H2--H5 lock and
+  attempt sequence without regenerating or rescoring any lineup.
+
 ## Current handoff -- 2026-08-29 17:20 UTC (three-hundred-sixty-fifth update)
 
 ### Real fixed-G0 smoke succeeded outcome-blind and exposed one local-evidence gap
