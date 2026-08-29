@@ -20,6 +20,61 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 05:32 UTC (three-hundred-thirtieth update)
+
+### The common scorecard is independently GO; F7/F8/F9 can recover without recompute
+
+- Branch `main` and `origin/main` entered this milestone at `10ff9dba`.
+  New local-only scorecard files
+  `src/nfl_dfs/research/corpus_r6_score_sprint_scorecard_v1.py`,
+  `scripts/aggregate_r6_score_sprint_v1.py`, and
+  `tests/test_corpus_r6_scorecard_failclosed_v1.py` are independently **GO**.
+  Root validation is **13/13 passed**, compilation green, and the exact frozen
+  benchmark render reproduces legacy `176.113` and current-R6 `178.435`.
+- The scorecard admits only exact schema/adapter pairs and complete coordinate
+  lattices: 315 F7/F8/F9 cells, 300 L2b cells, and 24 hard-230 cells. It
+  separates decision-bearing all-block final-fit K80 rows, frozen references,
+  rotated/fixed-fit diagnostics, other K budgets, and corpus ceilings; derives
+  >=194 from the immutable 54 weekly rows while cross-checking stored
+  >=200/220/230; binds complete per-source outcome authority; and fails on
+  partial or divergent inputs.
+- F7/F8/F9 execution `atlas-minimal-c-s2023-w1-v1-fxhl8`, UID
+  `9c941a48-7817-4748-8696-2bdcb0580eb7`, completed terminal **53 succeeded / 1
+  failed** at `2026-08-29T05:18:36.168997Z`. The sole failure is task index 0,
+  exit 1/`NonZeroExitCode`; it ran about 7,181 seconds and was neither a
+  pre-start platform failure nor the 21,600-second Cloud Run timeout. Canonical
+  administrative status is
+  `/tmp/r6-score-sprint-c9f12ed7-v1/population/full54-status-terminal-audit-001.json`,
+  SHA-256
+  `d16b53de642268f08bc7e9d5f72e622d1d473a7bf015799133c87de70a86e105`.
+  No log, scientific result body, listing, or outcome was opened.
+- No recompute is needed for the missing slate. The prior task-0 smoke
+  `atlas-minimal-c-s2023-w1-v1-45lcm` succeeded under the byte-identical task
+  spec, manifest generation `1787965215675864` / SHA-256
+  `2456bcfe069318cb8ad06396fe662dd5540f36b76a483a9b48dfe8f1c00ee714`,
+  code `c9f12ed7028f8d8ef76950a12bc9208f67a4023d`, image digest
+  `sha256:a34b4c2e8bf156452d8461e7d3ee6d42adc428d514f79c924ac74dfa3c58a4c3`,
+  task-0 request SHA-256
+  `20cfe04355928430dbc46c046b976268841faaa103ab33f4f1da8a18645d67c5`,
+  projection generation `1787947997627724` / SHA-256
+  `01a74384b7b8255d42e059f110a8b64adc0a1efcb4a7a3908d003b280abfbcc3`, and the
+  same deterministic `slates/00` destinations. Its exact validated result is
+  generation `1787972761075354`, byte SHA-256
+  `345f306c875c2a752ce01a74c8d3d6a9750df80b9a266feec68c9d4891639b08`,
+  retained by collection SHA-256
+  `590d78ddbc23e6e01a0958ec4b6583f3e4b022d5b6943b21fa19062be12c9af1`.
+- The frozen collector cannot represent mixed execution provenance because it
+  requires one 54/54-success execution. An isolated, pre-result composite
+  recovery adapter is being implemented to authorize smoke index 0 plus
+  full-run indices 1--53, exact-open all deterministic results with the
+  existing validators, publish explicit mixed-provenance recovery/collection
+  receipts, and feed the ordinary crossed selector request. It must never
+  relaunch or pretend the failed execution was 54/54.
+- Hard-230 local session `45508` remains the only heavy local workload. Exact
+  next action: commit/push the independently approved scorecard, finish and
+  independently review the F7 composite adapter without opening results, then
+  execute it only after GO. Continue hard-230; collect diversity afterward.
+
 ## Current handoff — 2026-08-29 05:07 UTC (three-hundred-twenty-ninth update)
 
 ### Recourse score-free run failed closed at canary and the shared job is restored
