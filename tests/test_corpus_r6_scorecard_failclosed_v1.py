@@ -291,6 +291,48 @@ def test_complete_frozen_adapter_lattice_is_accepted(
 
 @pytest.mark.parametrize(
     "adapter_id",
+    ("population-crossed-v1", "l2b-current-union-selectors-v1"),
+)
+def test_generic_lattices_bind_upstream_preset_ids(
+    adapter_id: str,
+) -> None:
+    expected = (
+        "convex-excess-expected-max-ge-200-v1",
+        "correlation-aware-expected-max-ge-230-v1",
+        "support-switched-event-component-tickets-ge-230-v1",
+    )
+    assert s.GENERIC_SELECTOR_IDS["grouped-native-rank80"] == expected
+    assert s.GENERIC_SELECTOR_IDS["exact-rank150-continuation"] == expected
+
+    stale_executor_ids = {
+        "grouped-native-rank80": (
+            "native-convex-excess-expected-max-v1",
+            "native-correlation-aware-expected-max-v1",
+            "native-support-switched-scenario-ticket-v1",
+        ),
+        "exact-rank150-continuation": tuple(
+            selector_id for _family, selector_id in s.HARD_SELECTORS[:3]
+        ),
+    }
+    coordinates = deepcopy(_coordinates(adapter_id))
+    for coordinate in coordinates:
+        family = str(coordinate["selector_family"])
+        if family in stale_executor_ids:
+            ordinal = int(coordinate["selector_ordinal"])
+            coordinate["selector_id"] = stale_executor_ids[family][ordinal]
+    with pytest.raises(
+        s.CorpusR6ScoreSprintScorecardV1Error,
+        match="selector IDs differ from frozen adapter registry",
+    ):
+        s._validate_complete_lattice(
+            adapter_id=adapter_id,
+            cells=[{"coordinate": row} for row in coordinates],
+            label="stale executor IDs",
+        )
+
+
+@pytest.mark.parametrize(
+    "adapter_id",
     (
         "population-crossed-v1",
         "l2b-current-union-selectors-v1",

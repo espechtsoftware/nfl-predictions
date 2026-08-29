@@ -97,6 +97,73 @@ SELECTOR_FAMILIES: Final = (
 )
 SELECTOR_COUNT_PER_FRACTION_FOLD: Final = 10
 BOOK_COUNT_PER_FRACTION_FOLD: Final = 30
+
+# One sealed task-0 was executed and independently collected before the
+# 10-selector successor became the repository default.  It is authority only
+# for crossing the smoke gate: these byte identities can never select the law
+# used by a newly constructed full54 manifest or result.
+_ARCHIVED_TASK0_SMOKE_IDENTITY: Final = {
+    "uri": (
+        "gs://nfl-predictions-503414-corpus-retrieval/research/"
+        "corpus-r6-l2b-selector/20260829-score-sprint-6c9cfd70-diversity-v1/"
+        "task0-selector-smoke-receipt.json"
+    ),
+    "generation": "1787986883049580",
+    "sha256": "a68d6baaa5b0b7c20cbb404af90ca481ab3515929d53c74cd4f9b76a46c0c1cf",
+    "bytes": 3335,
+}
+_ARCHIVED_TASK0_MANIFEST_IDENTITY: Final = {
+    "uri": (
+        "gs://nfl-predictions-503414-corpus-retrieval/research/"
+        "corpus-r6-l2b-selector/20260829-score-sprint-6c9cfd70-diversity-v1/"
+        "selector-task-manifest-task0.json"
+    ),
+    "generation": "1787975681165588",
+    "sha256": "2678b25086f07eb67a20f36308d44b4f24ac9ef70bcefef7ac5ddc28376ae16c",
+    "bytes": 66824,
+}
+_ARCHIVED_TASK0_RESULT_IDENTITY: Final = {
+    "uri": (
+        "gs://nfl-predictions-503414-corpus-retrieval/research/"
+        "corpus-r6-l2b-selector/20260829-score-sprint-6c9cfd70-diversity-v1/"
+        "task0/selector-results/00-2023-w01.json"
+    ),
+    "generation": "1787978426368864",
+    "sha256": "141dd588ff205d54fe158af8426f7c3f3de61f84f2d46bf8b0efd6c0818e5384",
+    "bytes": 6543543,
+}
+_ARCHIVED_TASK0_MANIFEST_SELF_HASH: Final = (
+    "60052945410c2c9aab198a095e239afd4bb11b614e5395bc881b795c93d984d0"
+)
+_ARCHIVED_TASK0_RESULT_SELF_HASH: Final = (
+    "dc3e07eae0e10464e4749b3288f0442ad83709c1b799ffec2672f0c33b5a5690"
+)
+_ARCHIVED_TASK0_SOURCE_COMMIT_SHA: Final = (
+    "6c9cfd705ac8381f3b5e0da83a6b756cf9b443a1"
+)
+_ARCHIVED_TASK0_IMAGE_DIGEST: Final = (
+    "sha256:4306bdbfcf305f97e98f349e49abf2e09881d4deda78b89bd59993b1436d4e20"
+)
+_ARCHIVED_TASK0_BUILD_IDENTITY: Final = {
+    "uri": (
+        "gs://nfl-predictions-503414-corpus-retrieval/research/"
+        "corpus-r6-score-sprint-builds/"
+        "20260829-l2b-diversity-6c9cfd70-v1/terminal-build-receipt.json"
+    ),
+    "generation": "1787975282303801",
+    "sha256": "22af3aa7cd3585c5d02fa3f7aab459b9724eae3b1c7eb631bf6f2c0ae1579cb9",
+    "bytes": 475,
+}
+_ARCHIVED_TASK0_LATTICE: Final = {
+    "grouped_native_selector_count": 3,
+    "grouped_native_entry_budgets": [4, 14, 80],
+    "exact_rank150_selector_count": 3,
+    "exact_rank150_entry_budgets": [80, 100, 150],
+    "dpp_selector_count": 1,
+    "dpp_entry_budgets": [80, 100, 150],
+    "selector_count_per_fraction_fold": 7,
+    "book_count_per_fraction_fold": 21,
+}
 SELECTOR_LATTICE: Final = {
     "grouped_native_selector_count": 3,
     "grouped_native_entry_budgets": list(successor.PREFIX_SIZES),
@@ -818,16 +885,25 @@ def prepare_selector_manifest_v1(
             maximum_bytes=1_000_000,
         )
         smoke_receipt = _validate_task0_smoke_receipt_shape_v1(smoke_body)
+        archived_smoke = retained_smoke_identity == _ARCHIVED_TASK0_SMOKE_IDENTITY
         if (
             smoke_receipt["l2b_panel_root_identity"]
             != _identity(l2b_panel_root_identity, label="L2b panel root")
             or smoke_receipt["control_projection_receipt_identity"]
             != _identity(control_projection_receipt_identity, label="control receipt")
-            or smoke_receipt["terminal_build_receipt_identity"]
-            != _identity(terminal_build_receipt_identity, label="build receipt")
-            or smoke_receipt["source_commit_sha"] != source_commit_sha
-            or smoke_receipt["immutable_image_digest"] != immutable_image_digest
             or smoke_receipt["reused_job_uid"] != reused_job_uid
+            or (
+                not archived_smoke
+                and (
+                    smoke_receipt["terminal_build_receipt_identity"]
+                    != _identity(
+                        terminal_build_receipt_identity, label="build receipt"
+                    )
+                    or smoke_receipt["source_commit_sha"] != source_commit_sha
+                    or smoke_receipt["immutable_image_digest"]
+                    != immutable_image_digest
+                )
+            )
         ):
             _fail("full54 preparation lacks its exact successful task0 authority")
         _replay_task0_smoke_authority_v1(
@@ -1236,6 +1312,7 @@ def _open_selector_manifest_v1(
             maximum_bytes=1_000_000,
         )
         smoke = _validate_task0_smoke_receipt_shape_v1(smoke_body)
+        archived_smoke = smoke_identity == _ARCHIVED_TASK0_SMOKE_IDENTITY
         if (
             smoke_identity != manifest["task0_smoke_receipt_identity"]
             or smoke.get("smoke_receipt_sha256")
@@ -1244,12 +1321,18 @@ def _open_selector_manifest_v1(
             != manifest["l2b_panel_root_identity"]
             or smoke.get("control_projection_receipt_identity")
             != manifest["control_projection_receipt_identity"]
-            or smoke.get("terminal_build_receipt_identity")
-            != manifest["terminal_build_receipt_identity"]
-            or smoke.get("source_commit_sha") != manifest["source_commit_sha"]
-            or smoke.get("immutable_image_digest")
-            != manifest["immutable_image_digest"]
             or smoke.get("reused_job_uid") != manifest["reused_job_uid"]
+            or (
+                not archived_smoke
+                and (
+                    smoke.get("terminal_build_receipt_identity")
+                    != manifest["terminal_build_receipt_identity"]
+                    or smoke.get("source_commit_sha")
+                    != manifest["source_commit_sha"]
+                    or smoke.get("immutable_image_digest")
+                    != manifest["immutable_image_digest"]
+                )
+            )
         ):
             _fail("selector manifest task0 smoke authority replay differs")
         _replay_task0_smoke_authority_v1(
@@ -2716,6 +2799,83 @@ def _replay_task0_smoke_authority_v1(
         or smoke_identity["bytes"] != len(raw)
     ):
         _fail("task0 smoke receipt publication identity differs")
+    if smoke_identity == _ARCHIVED_TASK0_SMOKE_IDENTITY:
+        # Compatibility is deliberately byte-identity based.  This sealed
+        # predecessor can authorize progression, but cannot flow through the
+        # ordinary validator and therefore cannot define full54 science.
+        if (
+            smoke["task0_manifest_identity"]
+            != _ARCHIVED_TASK0_MANIFEST_IDENTITY
+            or smoke["task0_manifest_sha256"]
+            != _ARCHIVED_TASK0_MANIFEST_SELF_HASH
+            or smoke["task_result_identity"] != _ARCHIVED_TASK0_RESULT_IDENTITY
+            or smoke["task_result_sha256"] != _ARCHIVED_TASK0_RESULT_SELF_HASH
+            or smoke["terminal_build_receipt_identity"]
+            != _ARCHIVED_TASK0_BUILD_IDENTITY
+            or smoke["source_commit_sha"] != _ARCHIVED_TASK0_SOURCE_COMMIT_SHA
+            or smoke["immutable_image_digest"] != _ARCHIVED_TASK0_IMAGE_DIGEST
+            or smoke["l2b_panel_root_identity"]
+            != _identity(
+                expected_l2b_panel_root_identity,
+                label="expected L2b panel root",
+            )
+            or smoke["control_projection_receipt_identity"]
+            != _identity(
+                expected_control_projection_receipt_identity,
+                label="expected control projection receipt",
+            )
+            or smoke["reused_job_uid"] != expected_reused_job_uid
+        ):
+            _fail("archived task0 smoke pins differ")
+        archived_manifest, archived_manifest_identity = _exact_read_json(
+            _ARCHIVED_TASK0_MANIFEST_IDENTITY,
+            read_exact=read_exact,
+            label="exact archived task0 selector manifest",
+            maximum_bytes=MAXIMUM_TASK_MANIFEST_BYTES,
+        )
+        archived_result, archived_result_identity = _exact_read_json(
+            _ARCHIVED_TASK0_RESULT_IDENTITY,
+            read_exact=read_exact,
+            label="exact archived task0 selector result",
+            maximum_bytes=MAXIMUM_TASK_RESULT_BYTES,
+        )
+        if (
+            archived_manifest_identity != _ARCHIVED_TASK0_MANIFEST_IDENTITY
+            or archived_result_identity != _ARCHIVED_TASK0_RESULT_IDENTITY
+            or archived_manifest.get("task_manifest_sha256")
+            != _ARCHIVED_TASK0_MANIFEST_SELF_HASH
+            or archived_result.get("slate_result_sha256")
+            != _ARCHIVED_TASK0_RESULT_SELF_HASH
+            or archived_manifest.get("selector_lattice")
+            != _ARCHIVED_TASK0_LATTICE
+            or archived_manifest.get("execution_scope") != TASK0_SCOPE
+            or archived_manifest.get("execution_task_count") != 1
+            or archived_manifest.get("task0_smoke_receipt_identity") is not None
+            or archived_manifest.get("task0_smoke_receipt_sha256") is not None
+            or archived_manifest.get("output_prefix") != prefix
+            or archived_manifest.get("l2b_panel_root_identity")
+            != smoke["l2b_panel_root_identity"]
+            or archived_manifest.get("control_projection_receipt_identity")
+            != smoke["control_projection_receipt_identity"]
+            or archived_manifest.get("terminal_build_receipt_identity")
+            != _ARCHIVED_TASK0_BUILD_IDENTITY
+            or archived_manifest.get("source_commit_sha")
+            != _ARCHIVED_TASK0_SOURCE_COMMIT_SHA
+            or archived_manifest.get("immutable_image_digest")
+            != _ARCHIVED_TASK0_IMAGE_DIGEST
+            or archived_manifest.get("reused_job_uid") != expected_reused_job_uid
+            or archived_result.get("task_manifest_identity")
+            != _ARCHIVED_TASK0_MANIFEST_IDENTITY
+            or archived_result.get("task_manifest_sha256")
+            != _ARCHIVED_TASK0_MANIFEST_SELF_HASH
+            or archived_result.get("selector_lattice")
+            != _ARCHIVED_TASK0_LATTICE
+            or archived_result.get("source_ordinal") != 0
+            or archived_result.get("slate_id") != "2023-w01"
+            or archived_result.get("uses_realized_outcomes") is not False
+        ):
+            _fail("exact archived task0 smoke authority differs")
+        return smoke
     task0_manifest, retained_manifest_identity = _open_selector_manifest_v1(
         manifest_identity=smoke["task0_manifest_identity"],
         read_exact=read_exact,

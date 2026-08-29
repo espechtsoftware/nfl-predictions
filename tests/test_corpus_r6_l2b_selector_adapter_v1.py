@@ -1254,6 +1254,25 @@ def test_selector_lattice_survives_canonical_json_round_trip() -> None:
     assert adapter.canonical_json_bytes_v1(retained) == raw
 
 
+def test_unpinned_archived_law_cannot_become_full54_law() -> None:
+    manifest, _ = _manifest(_bundle())
+    manifest.pop("task_manifest_sha256")
+    manifest["selector_lattice"] = dict(adapter._ARCHIVED_TASK0_LATTICE)
+    tampered = adapter._with_hash(manifest, field="task_manifest_sha256")
+    with pytest.raises(
+        adapter.CorpusR6L2BSelectorAdapterV1Error,
+        match="fixed law",
+    ):
+        adapter.validate_selector_manifest_v1(tampered)
+
+
+def test_current_full54_law_has_exactly_300_aggregate_cells() -> None:
+    lattice = adapter._selector_lattice_v1()
+    assert lattice["selector_count_per_fraction_fold"] == 10
+    assert lattice["book_count_per_fraction_fold"] == 30
+    assert 2 * 5 * lattice["book_count_per_fraction_fold"] == 300
+
+
 def test_l2b_is_explicitly_registered_with_generic_grader() -> None:
     assert adapter.ADAPTER_ID == adapter.grader.L2B_SELECTOR_ADAPTER
     assert adapter.ADAPTER_ID in adapter.grader.ADAPTER_IDS
@@ -1734,6 +1753,102 @@ def test_manifest_opener_rejects_copied_publication_uri(
         )
 
 
+def test_full54_manifest_reopens_with_exact_archived_smoke_and_new_build(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle = _bundle()
+    manifest, _ = _manifest(bundle)
+    old_task0, old_task0_identity = _task0_manifest(bundle)
+    smoke = _task0_smoke_receipt(old_task0, old_task0_identity)
+    smoke.pop("smoke_receipt_sha256")
+    smoke["l2b_panel_root_identity"] = manifest["l2b_panel_root_identity"]
+    smoke["control_projection_receipt_identity"] = manifest[
+        "control_projection_receipt_identity"
+    ]
+    smoke = adapter._with_hash(smoke, field="smoke_receipt_sha256")
+    smoke_identity = _value_identity(
+        f"{manifest['output_prefix']}task0-selector-smoke-receipt.json", smoke
+    )
+    monkeypatch.setattr(adapter, "_ARCHIVED_TASK0_SMOKE_IDENTITY", smoke_identity)
+
+    new_build = {
+        "build_id": "11111111-1111-1111-1111-111111111111",
+        "image_tag": "fixture/image:new-current",
+    }
+    manifest.pop("task_manifest_sha256")
+    manifest["terminal_build_receipt_sha256"] = adapter.canonical_sha256_v1(
+        new_build
+    )
+    manifest["terminal_build_id"] = new_build["build_id"]
+    manifest["immutable_image_uri"] = (
+        "fixture/image@" + str(manifest["immutable_image_digest"])
+    )
+    manifest["task0_smoke_receipt_identity"] = smoke_identity
+    manifest["task0_smoke_receipt_sha256"] = smoke["smoke_receipt_sha256"]
+    manifest = adapter._with_hash(manifest, field="task_manifest_sha256")
+    manifest_identity = _value_identity(
+        f"{manifest['output_prefix']}selector-task-manifest-full54.json", manifest
+    )
+
+    def exact(identity_value, **_kwargs):
+        if identity_value == manifest_identity:
+            return manifest, manifest_identity
+        if identity_value == smoke_identity:
+            return smoke, smoke_identity
+        raise AssertionError("unexpected exact open")
+
+    monkeypatch.setattr(adapter, "_exact_read_json", exact)
+    monkeypatch.setattr(
+        adapter.l2b_panel, "_read_terminal_build_receipt",
+        lambda *_args, **_kwargs: (
+            new_build, manifest["terminal_build_receipt_identity"]
+        ),
+    )
+    projection_identities = [
+        row["projection_bundle_identity"] for row in manifest["task_rows"]
+    ]
+    monkeypatch.setattr(
+        adapter, "_open_control_projection_authority_v1",
+        lambda **_kwargs: (
+            {"layer_execution_receipt_sha256": manifest[
+                "control_projection_receipt_sha256"
+            ]},
+            manifest["control_projection_receipt_identity"],
+            {
+                "task_manifest_sha256": manifest[
+                    "control_projection_manifest_sha256"
+                ],
+                "design_identity": manifest["control_design_identity"],
+                "topology_identity": manifest["control_topology_identity"],
+                "topology_sha256": manifest["control_topology_sha256"],
+            },
+            manifest["control_projection_manifest_identity"],
+            {"design_sha256": manifest["control_design_sha256"], "topology": {}},
+            projection_identities,
+        ),
+    )
+    monkeypatch.setattr(
+        adapter, "_open_projection_bundle_v1",
+        lambda identity, **_kwargs: (bundle, dict(identity)),
+    )
+    observed: dict[str, object] = {}
+    monkeypatch.setattr(
+        adapter, "_replay_task0_smoke_authority_v1",
+        lambda **kwargs: observed.update(kwargs) or smoke,
+    )
+
+    retained, retained_identity = adapter._open_selector_manifest_v1(
+        manifest_identity=manifest_identity,
+        read_exact=lambda _identity_value: b"",
+    )
+    assert retained == manifest
+    assert retained_identity == manifest_identity
+    assert observed["smoke_receipt_identity"] == smoke_identity
+    assert observed["expected_terminal_build_receipt_identity"] == manifest[
+        "terminal_build_receipt_identity"
+    ]
+
+
 def test_terminal_opener_rejects_custom_root_publication_uri(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -1923,6 +2038,140 @@ def test_task0_smoke_cannot_gate_a_different_output_prefix(
             expected_output_prefix=manifest["output_prefix"],
             read_exact=lambda _identity_value: b"",
         )
+
+
+def test_exact_archived_smoke_can_gate_different_current_build_replay(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest, _ = _task0_manifest(_bundle())
+    manifest.pop("task_manifest_sha256")
+    manifest["selector_lattice"] = dict(adapter._ARCHIVED_TASK0_LATTICE)
+    manifest = adapter._with_hash(manifest, field="task_manifest_sha256")
+    manifest_identity = _value_identity(
+        f"{manifest['output_prefix']}selector-task-manifest-task0.json",
+        manifest,
+    )
+    result = {
+        "slate_result_sha256": "6" * 64,
+        "task_manifest_identity": manifest_identity,
+        "task_manifest_sha256": manifest["task_manifest_sha256"],
+        "selector_lattice": dict(adapter._ARCHIVED_TASK0_LATTICE),
+        "source_ordinal": 0,
+        "slate_id": "2023-w01",
+        "uses_realized_outcomes": False,
+    }
+    result_identity = _value_identity(
+        str(manifest["task_rows"][0]["result_uri"]), result
+    )
+    receipt = _task0_smoke_receipt(manifest, manifest_identity)
+    receipt.pop("smoke_receipt_sha256")
+    receipt["task_result_identity"] = result_identity
+    receipt["task_result_sha256"] = result["slate_result_sha256"]
+    receipt = adapter._with_hash(receipt, field="smoke_receipt_sha256")
+    smoke_identity = _value_identity(
+        f"{manifest['output_prefix']}task0-selector-smoke-receipt.json", receipt
+    )
+    monkeypatch.setattr(adapter, "_ARCHIVED_TASK0_SMOKE_IDENTITY", smoke_identity)
+    monkeypatch.setattr(adapter, "_ARCHIVED_TASK0_MANIFEST_IDENTITY", manifest_identity)
+    monkeypatch.setattr(adapter, "_ARCHIVED_TASK0_RESULT_IDENTITY", result_identity)
+    monkeypatch.setattr(
+        adapter, "_ARCHIVED_TASK0_MANIFEST_SELF_HASH",
+        manifest["task_manifest_sha256"],
+    )
+    monkeypatch.setattr(
+        adapter, "_ARCHIVED_TASK0_RESULT_SELF_HASH", result["slate_result_sha256"]
+    )
+    monkeypatch.setattr(
+        adapter, "_ARCHIVED_TASK0_SOURCE_COMMIT_SHA", manifest["source_commit_sha"]
+    )
+    monkeypatch.setattr(
+        adapter, "_ARCHIVED_TASK0_IMAGE_DIGEST", manifest["immutable_image_digest"]
+    )
+    monkeypatch.setattr(
+        adapter, "_ARCHIVED_TASK0_BUILD_IDENTITY",
+        manifest["terminal_build_receipt_identity"],
+    )
+
+    def exact(identity_value, **_kwargs):
+        if identity_value == manifest_identity:
+            return manifest, manifest_identity
+        if identity_value == result_identity:
+            return result, result_identity
+        raise AssertionError("unexpected exact open")
+
+    monkeypatch.setattr(adapter, "_exact_read_json", exact)
+    retained = adapter._replay_task0_smoke_authority_v1(
+        smoke_receipt=receipt,
+        smoke_receipt_identity=smoke_identity,
+        expected_l2b_panel_root_identity=manifest["l2b_panel_root_identity"],
+        expected_control_projection_receipt_identity=manifest[
+            "control_projection_receipt_identity"
+        ],
+        expected_terminal_build_receipt_identity=_identity(
+            "gs://fixture/new-build.json", "new-build"
+        ),
+        expected_source_commit_sha="a" * 40,
+        expected_immutable_image_digest="sha256:" + "b" * 64,
+        expected_reused_job_uid=manifest["reused_job_uid"],
+        expected_output_prefix=manifest["output_prefix"],
+        read_exact=lambda _identity_value: b"",
+    )
+    assert retained == receipt
+
+
+def test_prepare_routes_exact_archived_smoke_to_different_current_authority(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest, manifest_identity = _task0_manifest(_bundle())
+    receipt = _task0_smoke_receipt(manifest, manifest_identity)
+    smoke_identity = _value_identity(
+        f"{manifest['output_prefix']}task0-selector-smoke-receipt.json", receipt
+    )
+    monkeypatch.setattr(adapter, "_ARCHIVED_TASK0_SMOKE_IDENTITY", smoke_identity)
+    monkeypatch.setattr(
+        adapter, "_exact_read_json",
+        lambda *_args, **_kwargs: (receipt, smoke_identity),
+    )
+    observed: dict[str, object] = {}
+
+    def replay(**kwargs):
+        observed.update(kwargs)
+        return receipt
+
+    monkeypatch.setattr(adapter, "_replay_task0_smoke_authority_v1", replay)
+
+    class ReachedNewBuild(Exception):
+        pass
+
+    monkeypatch.setattr(
+        adapter.l2b_panel,
+        "_read_terminal_build_receipt",
+        lambda *args, **kwargs: (_ for _ in ()).throw(ReachedNewBuild()),
+    )
+    new_build = _identity("gs://fixture/new-build.json", "new-build")
+    with pytest.raises(
+        adapter.CorpusR6L2BSelectorAdapterV1Error,
+        match="terminal build receipt replay failed",
+    ):
+        adapter.prepare_selector_manifest_v1(
+            l2b_panel_root_identity=manifest["l2b_panel_root_identity"],
+            control_projection_receipt_identity=manifest[
+                "control_projection_receipt_identity"
+            ],
+            terminal_build_receipt_identity=new_build,
+            source_commit_sha="a" * 40,
+            immutable_image_digest="sha256:" + "b" * 64,
+            reused_job_name=adapter.REUSED_JOB_NAME,
+            reused_job_uid=adapter.REUSED_JOB_UID,
+            execution_scope=adapter.FULL54_SCOPE,
+            task0_smoke_receipt_identity=smoke_identity,
+            output_prefix=manifest["output_prefix"],
+            read_exact=lambda _identity_value: b"",
+            publish_create_once=lambda *_args: pytest.fail("must not publish"),
+        )
+    assert observed["expected_terminal_build_receipt_identity"] == new_build
+    assert observed["expected_source_commit_sha"] == "a" * 40
+    assert observed["expected_immutable_image_digest"] == "sha256:" + "b" * 64
 
 
 def test_task0_manifest_cannot_execute_task_index_one(

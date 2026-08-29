@@ -95,7 +95,7 @@ class GCSExactTransportV1:
             object_name, generation=generation
         )
         raw = blob.download_as_bytes(
-            if_generation_match=generation, retry=None
+            if_generation_match=generation, retry=None, timeout=900
         )
         if (
             type(raw) is not bytes
@@ -117,6 +117,7 @@ class GCSExactTransportV1:
                 content_type="application/json",
                 if_generation_match=0,
                 retry=None,
+                timeout=900,
             )
         except Exception as exc:  # pragma: no cover - cloud dependent
             if exc.__class__.__name__ not in {"Conflict", "PreconditionFailed"}:

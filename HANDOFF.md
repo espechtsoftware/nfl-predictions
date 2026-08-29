@@ -20,6 +20,69 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 07:32 UTC (three-hundred-thirty-seventh update)
+
+### First score-sprint challengers are graded; hard-230 is positive and L2b is launch-GO
+
+- Branch `main` and `origin/main` entered this milestone at `90e85d95`.
+  The reusable catalog-wide realized-outcome chain completed from one fixed
+  BigQuery supply over all 29,605 catalog keys. Its outcome snapshot is
+  generation `1787987566557209`, byte SHA-256
+  `96c88d27cfa356794e250431dbcaa638fe7df2ec8dc1a9ead8538f0608c32f88`,
+  3,547,704 bytes at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-catalog-wide-realized/20260829-score-sprint-c9f12ed7-catalog-outcomes-v1/outcome-snapshot.json`.
+  Query completion is generation `1787987567275104`, byte SHA-256
+  `15852361756ef0fe76d3a299617ebc2c2531e6821a73f04c8f862bf7229f4df3`.
+  The historical-outcome lease remains live; implement and use only a strict
+  catalog-completion release adapter after the immediate grades. Do not
+  abandon it or use an unrelated release law.
+- Hard-230 grading completed over all 54 slates and 24 cells. Grade generation
+  is `1787987773846917`, byte SHA-256
+  `a0fd3dc7b2ffae28b7dec97048da4fe99fedaf717b481b239c52c65819f01ef5`,
+  15,126,123 bytes; internal grade SHA-256 is
+  `fa6fe6f87b70736221d0696f781f5fc5e331ddefeb690e2f0fc281f146ccdea5`.
+  The best K=80 hard-230 cell is DPP at **179.549**, 13/54 weeks >=194,
+  11/54 >=200, 3/54 >=220 and 1/54 >=230. Its paired P0/DPP control is
+  177.298, so the matched gain is **+2.251**. Support-switched hard-230 is
+  179.523 and reaches 3/54 >=230; correlation-aware hard-230 loses 0.853 to
+  its paired control. This is a promising fixed-R1--R4-fit diagnostic, not an
+  all-block production promotion. Best hard-230 K=150 is 185.517.
+- F7/F8/F9 grading completed over all 54 slates and 315 cells. Grade
+  generation is `1787988278722136`, byte SHA-256
+  `f62d4250773957cb8a7d8274d9cbb1030d3339adc970a0f234232d34a7cde438`,
+  58,937,259 bytes; internal grade SHA-256 is
+  `1cf54b0b86efac123ae4c3a45c209517601547c3fe39f4e4ea16b71034977fab`.
+  No isolated profile establishes a defensible K=80 improvement over the
+  178.435 all-block R6 benchmark. The best displayed block cell is 178.791,
+  but the canonical R0 maxima are F7 176.169, F8 177.387 and F9 176.991;
+  post-result block choice is prohibited. Retain these profiles only for a
+  predeclared combined-union test, not as standalone production defaults.
+- The generic large-grade transport required a bounded 900-second exact GCS
+  read/create timeout after the first 58.9-MB F7 publication attempt timed out
+  without creating the object. The unchanged grade then published once. The
+  scorecard's frozen generic selector registry was also corrected from
+  internal executor IDs to the upstream preset IDs actually emitted by both
+  population-crossed and L2b producers. The grade was structurally valid.
+  Combined focused validation across the grader, L2b, and scorecard is
+  **72/72 passed**; both independent diagnoses were green.
+- The narrowly pinned L2b archived-smoke compatibility amendment is now
+  independently **operational GO**. It exact-pins the old task0 smoke,
+  manifest, result, old 7/21 lattice, build, commit and image, but allows a
+  separately validated new build/commit/image to define the current 10
+  selectors, 30 books per fraction/fold and 300-cell full54 manifest. Both
+  preparation and manifest reopen now apply the exception only to the exact
+  archived smoke identity. Focused L2b validation is 45/45 and the final
+  independent amendment slice is 5/5.
+- The concise result interpretation and next-score schedule are tracked in
+  `reports/2026-08-29-score-sprint-first-realized-results.md`. Exact next
+  action: commit/push the grader timeout, scorecard registry, L2b amendment,
+  tests, report and this handoff. Build one new immutable L2b image from that
+  exact commit, publish its terminal build receipt, prepare/reopen the current
+  300-cell full54 manifest under the archived pinned prefix, configure the
+  exact idle reused job and launch once. In parallel specify the all-block
+  hard-230 confirmation and combined population-union test. Do not spend the
+  September 4 score freeze on UI, Neo4j, optional provenance or broad grids.
+
 ## Current handoff — 2026-08-29 07:21 UTC (three-hundred-thirty-sixth update)
 
 ### Catalog-wide one-query operator is independently GO; L2b smoke gate is complete

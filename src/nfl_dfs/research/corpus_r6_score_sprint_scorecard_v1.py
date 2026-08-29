@@ -61,13 +61,18 @@ HARD_SELECTORS: Final = (
     ("native-grouped-rank150", "native-support-switched-scenario-ticket-rank150-v1"),
     ("effective-independent-shots-dpp", "effective-independent-tail-shots-dpp-ge-230-v1"),
 )
+_UPSTREAM_PRESET_SELECTOR_IDS: Final = (
+    "convex-excess-expected-max-ge-200-v1",
+    "correlation-aware-expected-max-ge-230-v1",
+    "support-switched-event-component-tickets-ge-230-v1",
+)
 GENERIC_SELECTOR_IDS: Final = {
     "grouped-native-rank80": (
-        "native-convex-excess-expected-max-v1",
-        "native-correlation-aware-expected-max-v1",
-        "native-support-switched-scenario-ticket-v1",
+        *_UPSTREAM_PRESET_SELECTOR_IDS,
     ),
-    "exact-rank150-continuation": tuple(row[1] for row in HARD_SELECTORS[:3]),
+    "exact-rank150-continuation": (
+        *_UPSTREAM_PRESET_SELECTOR_IDS,
+    ),
     "effective-independent-tail-shots": (
         "effective-independent-tail-shots-dpp-ge-230-v1",
     ),
