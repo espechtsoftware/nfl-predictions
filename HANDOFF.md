@@ -20,6 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 17:32 UTC (three-hundred-sixty-seventh update)
+
+### Fixed-G0 catalog namespace is confirmed empty before any publication
+
+- From clean H1 `4df3318f`, the metadata-only census listed the exact fixed-G0
+  namespace and found **zero objects**. It did not open an object body, world
+  matrix, schedule, result or outcome column and performed no cloud mutation.
+  The terminal receipt is absent, as required before the single create-once
+  attempt.
+- The local census evidence is
+  `reports/2026-08-27-r6-fixed-g0-catalog-empty-prefix-evidence.json`; its
+  internal evidence SHA-256 is
+  `651d1f10b9da0bd9a4b69fce4b567e95f199bd33bea33dfd5447734f88ae0511`.
+  It remains bound to replacement implementation H0 `fe814836` and the exact
+  implementation-measurement SHA-256
+  `be4270e7b27f33bfd37c615bd4daa45a5dbade654efb41ee4fe8ef046366699d`.
+- The closed focused runner then passed **201/201** in 18.65 seconds with zero
+  failures, errors or skips and the exact reviewed 125/26/50 class split. Its
+  frozen JUnit is 34,565 bytes with SHA-256
+  `49b3646569121632b3b8a6f69c46e26cb2562027ae5619a3394cc305874a0f67`;
+  the canonical receipt is 32,575 bytes with file SHA-256
+  `38e02d812522aa4a3d098d94eba058a66246a60b4b16ca33e9579f6ac62a5ed2`
+  and internal receipt SHA-256
+  `a7edaa557a0457fe7ecc7f6b045fa6f020037fe91affb0ea6a4f2e619aceca83`.
+- Exact next action: amend the census, JUnit, receipt and this final record into
+  one H2, push it, and obtain an independent evidence-chain review. Build the
+  zero-P0/P1/P2 review lock only after that review. No catalog publication is
+  licensed yet.
+
 ## Current handoff -- 2026-08-29 17:29 UTC (three-hundred-sixty-sixth update)
 
 ### Replacement-H0 fixed-G0 smoke passed and persisted its local evidence
