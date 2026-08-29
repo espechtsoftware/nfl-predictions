@@ -20,6 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 09:06 UTC (three-hundred-forty-second update)
+
+### Exact random-book null confirms retrieval enrichment and the K150 lever
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `7eeb598fb12b70547066073154f38dabef8b7aea`. A deterministic local analyzer
+  now exact-replays the frozen hard-230 terminal and realized grade, derives
+  nested K=4/14/80/100/150 prefixes, and computes the exact hypergeometric
+  probability that a uniform K-book captures at least one threshold lineup.
+  It issues no cloud, BigQuery, outcome or generation call. Focused validation
+  is 4/4 passed plus compile and whitespace checks.
+- The strongest complete measured curve is hard-230 support: mean weekly max
+  rises from **179.523 at K80** to **182.177 at K100** and **185.517 at K150**,
+  a **+5.994** K80-to-K150 gain. Its matched P0 K150 is 183.872, preserving a
+  +1.645 population/selection gain. DPP remains the best hard-230 K80 mean at
+  179.549 and paired gain at +2.251; do not create a hindsight envelope by
+  switching selectors separately at each K.
+- At K80, support captures 220+ on 4/7 opportunity slates versus 1.194 exact
+  random expected, and 230+ on 3/6 versus 0.769 expected. This is descriptive
+  evidence of retrieval enrichment, with explicitly sparse tail samples. The
+  report is `reports/2026-08-29-r6-random-null-effective-shots-and-entry-curve.md`.
+  Immediate design implication: production must emit one stable nested order
+  through K150 and score 4/14/80/100/150 without retuning each budget.
+- Kickoff-v3 exact build `38312cd7-d094-40cb-bfc0-99bb00894dfb` is active from
+  revision `7eeb598fb12b70547066073154f38dabef8b7aea`; do not duplicate it.
+  L2b collection/finalization and the correct hard-230 build remain active.
+- Exact next action: commit/push this local diagnostic package, poll the two
+  builds, and grade L2b immediately when its one active collection publishes
+  the terminal root.
+
 ## Current handoff — 2026-08-29 09:01 UTC (three-hundred-forty-first update)
 
 ### Recourse kickoff-v3 repair is tested and ready for an exact image build
