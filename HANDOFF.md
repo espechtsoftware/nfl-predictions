@@ -20,7 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 (three-hundred-eighty-fourth update)
+## Current handoff -- 2026-08-29 (three-hundred-eighty-fifth update)
+
+### First manifest-smoke transport fails pre-science on Cloud Build cwd
+
+- Branch `main` and `origin/main` entered this milestone at pushed handoff
+  commit `a7a12070`; immutable science/image and prepared manifest authorities
+  are unchanged and remain valid.
+- Sole no-source manifest-smoke build
+  `09dd084f-f7b7-4497-be4d-215e130f9770` reached terminal `FAILURE` from
+  `2026-08-29T21:46:22.987309288Z` through
+  `2026-08-29T21:47:00.868128Z`.  It pulled the exact immutable digest, then
+  failed before lineup generation/selection because Cloud Build overrides the
+  Dockerfile `WORKDIR /app` with `/workspace`.  The frozen-input validator
+  therefore looked for repository-relative
+  `reports/2026-08-18-atlas-minimal-c-implementation-freeze.md` under the
+  wrong cwd and raised `ATLAS C frozen input differs`.
+- This is a smoke transport configuration defect, not a science result.  The
+  CLI had not entered the expensive score-blind task; `/workspace/receipt.json`
+  was empty, artifact upload did not run, and an exact recursive census proves
+  the failed `...manifest-smoke-v1/` evidence prefix contains no objects.  No
+  fixed-job mutation/launch, experiment result, publication or outcome read
+  occurred.
+- The narrow correction is to write the exact request under `/workspace`, then
+  `cd /app` before invoking the same absolute image CLI.  All manifest,
+  commit, digest, gates, science and receipt assertions remain byte-for-byte
+  unchanged.  Use a fresh `...manifest-smoke-v2/` evidence prefix and a new
+  single no-source build; never retry build `09dd084f...` or reuse its v1
+  evidence namespace.
+
+## Previous handoff -- 2026-08-29 (three-hundred-eighty-fourth update)
 
 ### Sole immutable-image manifest smoke is queued
 
