@@ -20,6 +20,126 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 18:27 UTC (three-hundred-sixty-ninth update)
+
+### Boom-first evidence accepted for a matched production-shaped test; complete-union smoke is green
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `89fa6cddc9835141d3cbe6ffb2c895269633bfc9`.  The external lab production
+  brief `../nfl2/handoffs/PRODUCTION-BRIEF-boom-first-2026-08-29.md` has
+  SHA-256 `d439225a53318a923d19e1f83adee14a70fb52427ee252d664ebbd9a7c76f377`;
+  its valid PREREG-011 verdict artifact has SHA-256
+  `200fb2dded67680c8906caf6c9708b67007af86a646245ff4352b373471726c3`.
+  Across three banks and 89 development slates, reallocating the fixed 200
+  solves from lev160/boom40 to lev40/boom160 improved K100 mean weekly maximum
+  by **6.563** points (95% season-clustered interval **[4.905, 8.101]**), won
+  66/89 slates and was positive in every leave-one-season-out read.  K80 lift
+  was **4.819 [3.444, 6.032]**.  This is strong direction evidence, not an
+  effect-size guarantee in this repository's CBWU/role/DST pipeline.
+- A four-file isolated K1 allocation operator is being finalized to test that
+  one lever directly: control lev160/boom40 versus treatment lev40/boom160,
+  identical explicit incumbent construction preset, common score-blind source
+  snapshots/world inputs, natural per-arm unique pools and unchanged K80
+  coverage-194 selection.  It does not import lab code or alter centering,
+  selectors, models or construction rules.  Realized grading remains a
+  separate post-terminal command.
+- The combined-frontier repair now screens every lineup in the persisted
+  complete union before applying DPP, gamma-4, gamma-5 and strict-200 selectors
+  at nested K80/K100/K150.  Gamma selectors preserve their registered hard-cap
+  prefix until actual exhaustion and then truthfully label an unconstrained
+  tail-ladder completion; they no longer assert a nonexistent K100 hard-cap
+  prefix.  Focused root verification is **23/23 passed** and targeted diff
+  validation is clean.
+- The required real-artifact task-0 preflight smoke passed outcome-blind on
+  slate `2023-w01`: all **5,843** persisted union lineups were scored under the
+  already-bound modeled world matrix, exact top 250 retained, 127 candidates
+  were absent from every prior eight-book K80 union, and all 12 nested books
+  were produced.  Smoke SHA-256 is
+  `cdefeed524fdd60ebdbc2fa59f6cf8a2d333385eff1571ec66c3df32e9bd29db`;
+  frontier result SHA-256 is
+  `d02a57d3723dfaf416e2bdaac94f4be9149aee539c1f4707b4a25fd76f31b529`.
+  It exact-verified predecessor matrix SHA-256
+  `4d630ddd2d244139c881bca9f01a8e61c63e0101ea3c4bafad00acd2aacb8fd2`,
+  opened no outcome column, regenerated no population and published nothing.
+- Independent review found and closed two pre-build launch blockers.  The
+  collector now accepts only an execution ID and directly queries the Cloud
+  Run provider for exact 54/54 terminality; it cannot accept a caller-authored
+  self-hashed provider proof.  The public grader boundary now rejects a true
+  top-level production license or any mutation of the complete nested false
+  authority/leakage policy.  Expanded focused validation remains **23/23**,
+  the full five-module build slice is **52/52**, and the real task-0 smoke
+  reproduced the same SHA-256 after both repairs.
+- Universal optimizer architecture is being migrated so only DraftKings
+  legality is implicit.  Salary floors, multi-game requirements, stacks,
+  bring-backs, overlap limits, punt/value/barbell restrictions and correlation
+  exclusions become named, hashed Foundry construction presets.  The current
+  live behavior remains an explicit incumbent preset until historical scoring
+  supports a promotion; the boom-first matched pair uses that same incumbent
+  preset to isolate allocation.
+- Final independent review reports no remaining P0, P1 or P2 finding.  Launch
+  is intentionally non-idempotent: invoke it exactly once, persist the returned
+  execution ID immediately, and use raw provider polling until terminal because
+  the operator's `status` command itself is terminal-only.
+- Exact next action: commit and push only the six combined-frontier code/build
+  files plus this handoff, build one
+  immutable image, publish its exact build receipt, prepare/configure/launch
+  the single 54-task outcome-blind execution, obtain terminal provider status,
+  collect the score-free terminal, then restore the reused job and grade all
+  twelve books.  Restore must not precede collection because provider status
+  binds the current reused-job observation to the execution.  In parallel, finish the
+  K1 and construction-preset focused reviews, then launch the K1 pair without
+  waiting on unrelated catalog or graph work.
+
+## Current handoff -- 2026-08-29 17:47 UTC (three-hundred-sixty-eighth update)
+
+### Score-first 24--48 hour completion sprint replaces open-ended procedure
+
+- The operator has directed that every currently score-bearing checklist item
+  be completed within the next one to two days, without deferring an item into
+  a later research backlog.  Catalog, matchup-source and graph enablement may
+  continue in parallel, but none of them may block the historical score path.
+  No score-bearing Cloud Run execution is active at this milestone.
+- The remaining score checklist is now exactly three bounded packages:
+  (1) reuse the sealed 54-slate combined high-ceiling corpus and cross DPP,
+  gamma-4, gamma-5 and strict-200 evil-twin selectors at K=80/100/150 (twelve
+  books per slate, 648 book results); (2) run the direct production-shaped K1
+  allocation pair `lev160/boom40` versus `lev40/boom160`; and (3) publish one
+  fixed K=80 adoption comparison, with K=100/150 reported separately as entry-
+  volume choices.  Completed external-lab shootout, breakout-mixture, DST,
+  late-swap, selection-bank and selector-variant experiments count as closed
+  evidence and will not be rerun merely for ceremony.
+- Actual evidence entering this sprint is not zero: hard-230+DPP reached
+  **179.549** at K=80, +2.251 over its matched P0+DPP control; the combined
+  corpus realized ceiling is **205.793**; combined strict-230 reached
+  **178.661** at K=80, only +0.226 over the current frozen **178.435** K=80
+  champion; and L2b reached **180.434** at K=80 but reduced the extreme tail
+  to one 220+ and zero 230+ weeks versus four and two for the champion.  Thus
+  retrieval on the combined corpus, not another population build, is the
+  immediate measured scoring bottleneck.
+- The K=80 decision rule is frozen before the new grade: choose the highest
+  mean-weekly-maximum frontier book only if it is nonworse than the current
+  champion's 6/4/2 counts at 200+/220+/230+; otherwise retain the champion.
+  K=100 and K=150 are reported as nested prefixes of each fixed selector and
+  as explicit entry-volume choices, never as a post-outcome switch to a
+  different selector at each K.
+- A new local frontier operator and focused tests exist uncommitted at
+  `scripts/run_corpus_r6_combined_frontier_reportfolio_v1.py` and
+  `tests/test_run_corpus_r6_combined_frontier_reportfolio_v1.py`; initial
+  focused validation is 10/10 plus `py_compile`.  The build recipe and image
+  entrypoint are modified locally to include it.  Before its single launch,
+  collection must be hardened to require a provider-observed exact 54/54
+  terminal execution and the operator must pass one outcome-blind real-
+  artifact task-0 smoke.  This is the sole remaining launch blocker, not a
+  license for a repository-wide cleanup or test cycle.
+- Exact next action: finish that narrow provider-terminal/smoke patch, rerun
+  only its focused suite, obtain one independent patch review, commit/push the
+  exact owned files, build one immutable image, smoke task 0, launch the 54-
+  task frontier execution, restore the reused W3 job, and grade all twelve
+  books against the already-frozen catalog-wide outcome snapshot.  In
+  parallel, resolve and launch the direct K1 allocation pair; then issue the
+  fixed comparison and close every checklist row with a result or an exact
+  missing-data receipt.
+
 ## Current handoff -- 2026-08-29 17:32 UTC (three-hundred-sixty-seventh update)
 
 ### Fixed-G0 catalog namespace is confirmed empty before any publication
