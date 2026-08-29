@@ -20,6 +20,49 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 08:54 UTC (three-hundred-fortieth update)
+
+### L2b is terminal and collecting; two canaries exposed bounded runtime defects
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `863a8556`. The L2b full-54 execution
+  `atlas-minimal-c-s2023-w3-v1-sh4br` is terminal **54/54 succeeded**, zero
+  failed and zero cancelled, status SHA-256
+  `81f1893f27f340cba63c5f02ca6dd4c02b5e53b8c5d5b21b770d18939d86645d`.
+  One collection/finalization process is active from canonical request
+  `/tmp/r6-l2b-full54-7f553e12-v1/full54-collect-request.json`; do not start a
+  duplicate. On completion, use its terminal-root identity to grade once
+  against catalog outcome snapshot generation `1787987566557209`, SHA-256
+  `96c88d27cfa356794e250431dbcaa638fe7df2ec8dc1a9ead8538f0608c32f88`.
+- Corrected recourse canary execution
+  `atlas-cbc-32g-full-2023-w8-v1-k6kkj` (UID
+  `ac4d943f-feb9-40fa-a69f-8cd5324c892b`) failed before producing a shard;
+  the guarded transport restored the reused job and marked the v2 local run
+  terminal. Root cause is now proven: the frozen player table stores
+  `kickoff_time` as Eastern wall-clock strings (`13:00`, `16:25`), while the
+  runner used `pandas.to_datetime` and silently attached the current date.
+  Exact 2023-W1 R0 support is 773 player IDs: 478 at 13:00 and 295 at 16:25,
+  but the bad parse produced 2026-08-29 UTC and falsely reported no early/late
+  split. Repair this under fresh kickoff-v3 identity by combining the frozen
+  Sunday-main date with HH:MM in `America/New_York`; do not retry v2.
+- Hard-230 build `765ba846-5a30-4e7c-90d8-d8d5a3bfe49d` resolved exact
+  revision `9f1b88563f6f7fcfd0c5bc6053854c5ca874f267`, passed all 12 focused
+  tests and built its image, but isolated `python -I` omitted `/app/scripts`
+  from `sys.path`, so the newly packaged bridge operator could not import.
+  The confirmation CLI now adds only its exact resolved sibling directory for
+  that fallback import and immediately removes it. Local validation is 12/12
+  plus exact `python -I ... --help` success. Commit/push this bounded import
+  repair and rebuild once; no additional packaging dependency is known.
+- Combined-union science is GO but cloud launch remains HOLD after independent
+  review: its build/job attestation is still caller-circular, provider
+  configure/launch/status collection is incomplete, and 54 results are not
+  yet forced to one terminal execution. Those specific repairs are active;
+  no combined cloud launch is authorized yet.
+- Exact next action: finish L2b collection and publish its actual scores;
+  rebuild hard-230 from this isolated-import fix; land/build kickoff-v3 and
+  run one slate only; approve the combined union only after a fresh adversarial
+  review. Preserve the September 4 strategy/code freeze.
+
 ## Current handoff — 2026-08-29 08:47 UTC (three-hundred-thirty-ninth update)
 
 ### Three score-producing lanes are active; L2b is 41/54 complete

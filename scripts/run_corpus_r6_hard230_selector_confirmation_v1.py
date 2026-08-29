@@ -26,8 +26,13 @@ from nfl_dfs.research import corpus_r6_l2b_panel_cloud_v1 as l2b_panel
 from nfl_dfs.research import corpus_r6_novel_roster_realized_grader_v1 as grader
 try:
     from scripts import run_corpus_r6_hard230_selector_bridge_v1 as bridge_operator
-except ModuleNotFoundError:  # Direct ``python scripts/...`` execution.
-    import run_corpus_r6_hard230_selector_bridge_v1 as bridge_operator
+except ModuleNotFoundError:  # Direct or isolated ``python scripts/...`` execution.
+    _scripts_dir = str(Path(__file__).resolve().parent)
+    sys.path.insert(0, _scripts_dir)
+    try:
+        import run_corpus_r6_hard230_selector_bridge_v1 as bridge_operator
+    finally:
+        sys.path.remove(_scripts_dir)
 
 
 MAXIMUM_REQUEST_BYTES = 128_000
