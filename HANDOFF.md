@@ -20,6 +20,54 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 07:02 UTC (three-hundred-thirty-fifth update)
+
+### Catalog-wide historical scoring successor is independently GO
+
+- Branch `main` and `origin/main` entered this milestone at `0860ba59`.
+  The pure catalog-wide outcome successor and its focused tests are ready in
+  `src/nfl_dfs/research/corpus_r6_catalog_wide_outcome_successor_v1.py` and
+  `tests/test_corpus_r6_catalog_wide_outcome_successor_v1.py`. Independent
+  review is **GO**; the focused suite is **7/7 passed**, Python compilation is
+  green and the scoped diff check is clean.
+- The successor exact-replays the 29,605-player later-source catalog and the
+  existing 14,247-row outcome snapshot, fixes the new registered query to the
+  exact 15,358-key projection-minus-base delta, and requires the same
+  historical source timestamp used by the predecessor outcome query:
+  `2026-08-26T23:58:47.451523+00:00`. It rejects omitted/substituted catalog
+  keys, swapped base bodies, incomplete query evidence, duplicate/conflicting
+  query scores, changed and rehashed realized scores, missing DST outcomes and
+  unauthorized skill-player zero completion.
+- Publication is deliberately staged: outcome-blind projection first, then
+  exact registered query evidence, realized source with its actual persisted
+  identity, and finally the ordinary outcome-snapshot surface accepted by the
+  generic novel-roster grader. This is one reusable outcome snapshot for
+  hard-230, F7/F8/F9, L2b and future catalog-backed Foundry arms; it does not
+  score or alter any lineup itself.
+- Exact predecessor projection and query-evidence bodies were generation-read
+  into `.scratch-score-sprint/outcome-successor/`. Their byte identities are
+  respectively generation `1787777900321498`, SHA-256
+  `88d292c31caf2b2f8b14f58fcc9cc7973893e0ea21832e02c85e9bc481083d08`,
+  2,563,921 bytes, and generation `1787810538145204`, SHA-256
+  `6789f04affe1d1666af8f805ae3ca49aa1620cc9aef5e40f242ee7e218acd403`,
+  1,468,328 bytes. The exact later-source body is also local at
+  `.scratch-score-sprint/outcome-successor/later-source-freeze.json`.
+- The bounded default-off operator/CLI is now the only implementation item on
+  this path. It must publish the projection and registered request before a
+  new historical-outcome lease, recover only one fixed BigQuery job, publish
+  query evidence -> source -> snapshot -> completion create-once, and release
+  the lease only after strict completion. No query, lease or outcome object
+  has yet been created for this successor.
+- An exact-revision L2b task-0 collection is concurrently reading and hashing
+  the already-computed immutable artifacts under the archived `414d5f74`
+  implementation. It does not regenerate population science. Its local
+  session is still active and has not published a smoke receipt or result.
+- Exact next action: finish and validate the bounded operator, commit/push it
+  with this successor, publish the outcome-blind projection/request, acquire
+  one lease and execute the fixed delta query. Immediately grade the already
+  terminal hard-230 and F7/F8/F9 artifacts against the successor snapshot and
+  feed both immutable grades to the common scorecard.
+
 ## Current handoff — 2026-08-29 06:39 UTC (three-hundred-thirty-fourth update)
 
 ### F7/F8/F9 is terminal 54/54; novel-roster outcome coverage is the score-critical path
