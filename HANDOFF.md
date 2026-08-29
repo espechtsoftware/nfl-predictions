@@ -20,6 +20,43 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 02:25 UTC (three-hundred-twentieth update)
+
+### September 4 score freeze is active; L2b is release-GO and control root is live
+
+- The operator set **2026-09-04** as the hard freeze for the preseason
+  generation/selection system. Work that does not produce or directly unblock
+  comparable historical scores is off the critical path. The production
+  comparison remains weekly best-of-book against the disclosed `176.1` legacy
+  baseline and the current `178.4` R6 exact-80 benchmark; corpus ceilings must
+  remain labeled separately from deployable selected-book scores.
+- Branch `main` and `origin/main` entered this milestone at `02cb6cf7`.
+  Frozen control layer 06 was sealed exactly once at generation
+  `1787968757097735`, SHA-256
+  `385ea5d7793aafd518b708fe6343a8e1c948b5cb868d5a4971f5ba4741869df5`.
+  Terminal layer-07 execution `atlas-cbc-32g-full-2023-w8-v1-9clnn`, UID
+  `914d9f6c-a477-4413-8722-c964185734f3`, launched exactly once and is ACTIVE
+  with zero failures. Status-poll/finalize only; never relaunch it.
+- Hard-230 full54 remains genuinely 54-way parallel: two slates are terminal
+  successful, 52 active and zero failed at status SHA-256
+  `821a754320bb8bae050c2d77167abda55894239c368c34af31d83d3105b17924`.
+  Population F7/F8/F9 task0 remains genuinely active on its 3,000 equal-work
+  solves with zero failures. Neither run has read scientific outputs or
+  realized outcomes during status.
+- The L2b selector/grader remediation received independent **GO**. Independent
+  validation was 57/57; the lead rerun was 49/49. A generation-exact no-write
+  check replayed all 54 slates / 270 folds, retained exactly 250 deduplicated
+  candidates per selector view and observed 2,782--3,207 unique source rosters.
+  The reviewed code now binds canonical manifest/root/result URIs, proves the
+  exact task0 provider/result lineage, pure-replays the nested selectors and
+  permits generic realized grading only from the full54 terminal topology.
+- Exact next action: commit only the reviewed L2b/build files plus this handoff,
+  build from a clean archive of that commit, publish the commit-bound build
+  receipt and run the real L2b task0. In parallel, seal control layer 07 and
+  run its one-slate then full54 no-rescore realized bridge; start the already-
+  frozen recourse-aware canary on the freed control job. Continue status-only
+  polling of hard-230 and population, advancing each immediately on green.
+
 ## Current handoff — 2026-08-29 02:01 UTC (three-hundred-nineteenth update)
 
 ### Hard-230 full historical panel is live; control layer 06 is terminal green

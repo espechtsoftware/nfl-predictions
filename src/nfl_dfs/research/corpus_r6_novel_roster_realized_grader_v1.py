@@ -40,10 +40,16 @@ SLATE_GRADE_SCHEMA: Final = "corpus-r6-novel-roster-realized-slate-grade/v1"
 AGGREGATE_CELL_SCHEMA: Final = (
     "corpus-r6-novel-roster-realized-aggregate-cell/v1"
 )
+EXTERNAL_NORMALIZED_TERMINAL_BOUNDARY: Final = (
+    "novel-roster-public-normalized-terminal-boundary/v1"
+)
 
 POPULATION_CROSSED_ADAPTER: Final = "population-crossed-v1"
 HARD230_ADAPTER: Final = "hard230-v1"
-ADAPTER_IDS: Final = (POPULATION_CROSSED_ADAPTER, HARD230_ADAPTER)
+L2B_SELECTOR_ADAPTER: Final = "l2b-current-union-selectors-v1"
+ADAPTER_IDS: Final = (
+    POPULATION_CROSSED_ADAPTER, HARD230_ADAPTER, L2B_SELECTOR_ADAPTER,
+)
 SOURCE_SLATE_COUNT: Final = 54
 THRESHOLDS_DK: Final = (200, 210, 220, 230)
 MAXIMUM_ROOT_BYTES: Final = 8_000_000
@@ -640,9 +646,123 @@ def _open_hard230_terminal(
     )
 
 
+def _open_l2b_selector_terminal(
+    *, task_manifest_identity: object, task_result_identities: object,
+    read_exact: ReadExact,
+) -> _OpenedTerminal:
+    """Registered lazy boundary for the outcome-blind L2b selector adapter."""
+    from nfl_dfs.research import corpus_r6_l2b_selector_adapter_v1 as l2b
+
+    manifest, manifest_identity = l2b._open_selector_manifest_v1(
+        manifest_identity=task_manifest_identity, read_exact=read_exact
+    )
+    if (
+        manifest.get("execution_scope") != l2b.FULL54_SCOPE
+        or manifest.get("execution_task_count") != SOURCE_SLATE_COUNT
+    ):
+        _fail("registered L2b adapter requires the full54 execution scope")
+    identities = [
+        l2b._identity(value, label=f"L2b result[{index}]")
+        for index, value in enumerate(
+            _sequence(task_result_identities, label="L2b task results")
+        )
+    ]
+    identity_keys = [l2b.canonical_json_bytes_v1(value) for value in identities]
+    task_authorities = [
+        l2b._identity(
+            row["l2b_task_result_identity"],
+            label=f"L2b source task authority[{index}]",
+        )
+        for index, row in enumerate(manifest["task_rows"])
+    ]
+    task_authority_keys = [
+        l2b.canonical_json_bytes_v1(value) for value in task_authorities
+    ]
+    if (
+        len(identities) != SOURCE_SLATE_COUNT
+        or len(set(identity_keys)) != SOURCE_SLATE_COUNT
+        or len({str(value["uri"]) for value in identities})
+        != SOURCE_SLATE_COUNT
+        or len(set(task_authority_keys)) != SOURCE_SLATE_COUNT
+        or len({str(value["uri"]) for value in task_authorities})
+        != SOURCE_SLATE_COUNT
+    ):
+        _fail("registered L2b adapter requires 54 unique task/result identities")
+    panel_root, _, panel_manifest, panel_manifest_identity = l2b._open_panel_root_v1(
+        panel_root_identity=manifest["l2b_panel_root_identity"],
+        read_exact=read_exact,
+    )
+    later_source, _ = l2b._exact_read_json(
+        manifest["later_source_freeze_identity"], read_exact=read_exact,
+        label="registered L2b later-source freeze",
+        maximum_bytes=l2b.MAXIMUM_LATER_SOURCE_BYTES,
+    )
+    results: list[dict[str, object]] = []
+    descriptors: list[dict[str, object]] = []
+    slates: list[dict[str, object]] = []
+    for index, (identity, task_row) in enumerate(
+        zip(identities, manifest["task_rows"], strict=True)
+    ):
+        if identity["uri"] != task_row["result_uri"]:
+            _fail("registered L2b task-result binding differs")
+        body, retained_identity = l2b._exact_read_json(
+            identity, read_exact=read_exact, label=f"L2b result[{index}]",
+            maximum_bytes=l2b.MAXIMUM_TASK_RESULT_BYTES,
+        )
+        projection, _ = l2b._open_projection_bundle_v1(
+            task_row["projection_bundle_identity"], read_exact=read_exact,
+            label=f"L2b projection[{index}]",
+        )
+        result = l2b.validate_slate_result_v1(
+            body, projection_bundle=projection
+        )
+        worlds = l2b._open_l2b_task_worlds_v1(
+            source_ordinal=index,
+            task_result_identity=task_row["l2b_task_result_identity"],
+            root=panel_root, l2b_manifest=panel_manifest,
+            l2b_manifest_identity=panel_manifest_identity,
+            read_exact=read_exact,
+        )
+        l2b._exact_replay_persisted_slate_v1(
+            persisted=result, source_ordinal=index, manifest=manifest,
+            manifest_identity=manifest_identity, projection=projection,
+            players=l2b._scoring_players_v1(
+                source=later_source, source_ordinal=index
+            ),
+            worlds_by_fraction=worlds,
+        )
+        if (
+            retained_identity != identity
+            or retained_identity["uri"] != task_row["result_uri"]
+            or result["source_ordinal"] != index
+            or result["task_manifest_identity"] != manifest_identity
+            or result["task_manifest_sha256"] != manifest["task_manifest_sha256"]
+        ):
+            _fail("registered L2b task-result binding differs")
+        results.append(result)
+        descriptors.append({
+            "source_ordinal": index, "slate_id": result["slate_id"],
+            "task_result_identity": retained_identity,
+            "task_result_sha256": result["slate_result_sha256"],
+        })
+        slates.append(l2b._normalized_slate_v1(result))
+    normalized = validate_external_normalized_terminal_v1(
+        adapter_id=L2B_SELECTOR_ADAPTER, slates=slates
+    )
+    return _OpenedTerminal(
+        adapter_id=L2B_SELECTOR_ADAPTER, task_manifest=manifest,
+        task_manifest_identity=manifest_identity,
+        task_manifest_sha256=str(manifest["task_manifest_sha256"]),
+        task_results=tuple(results), task_result_descriptors=tuple(descriptors),
+        slates=normalized,
+        later_source_identity=dict(manifest["later_source_freeze_identity"]),
+    )
+
+
 _ADAPTER_REGISTRY: Final = {
     POPULATION_CROSSED_ADAPTER: _open_population_crossed_terminal,
     HARD230_ADAPTER: _open_hard230_terminal,
+    L2B_SELECTOR_ADAPTER: _open_l2b_selector_terminal,
 }
 
 
@@ -931,6 +1051,156 @@ def _threshold_metrics(
     return rows
 
 
+def validate_external_normalized_terminal_v1(
+    *, adapter_id: str, slates: Sequence[Mapping[str, object]],
+) -> tuple[dict[str, object], ...]:
+    """Public, outcome-blind boundary for externally normalized terminals."""
+    retained_adapter = _string(adapter_id, label="external adapter ID")
+    normalized: list[dict[str, object]] = []
+    expected_coordinates: set[str] | None = None
+    later_identity_key: bytes | None = None
+    seen_slates: set[str] = set()
+    for ordinal, raw_slate in enumerate(slates):
+        slate = _mapping(raw_slate, label=f"external normalized slate[{ordinal}]")
+        if set(slate) != {
+            "source_ordinal", "slate_id", "populations", "books",
+            "later_source_identity",
+        } or slate.get("source_ordinal") != ordinal:
+            _fail("external normalized slate fields/order differ")
+        slate_id = _string(slate.get("slate_id"), label="external slate ID")
+        if slate_id in seen_slates:
+            _fail("external normalized slate IDs repeat")
+        seen_slates.add(slate_id)
+        later_identity = _identity(
+            slate.get("later_source_identity"), label="external later source"
+        )
+        identity_key = canonical_json_bytes_v1(later_identity)
+        if later_identity_key is None:
+            later_identity_key = identity_key
+        elif identity_key != later_identity_key:
+            _fail("external normalized later-source identities differ")
+        populations: list[dict[str, object]] = []
+        population_by_id: dict[str, dict[str, object]] = {}
+        lineup_to_roster: dict[str, tuple[str, ...]] = {}
+        roster_to_lineup: dict[tuple[str, ...], str] = {}
+        for pop_ordinal, raw_population in enumerate(
+            _sequence(slate.get("populations"), label="external populations")
+        ):
+            population = _mapping(
+                raw_population, label=f"external population[{pop_ordinal}]"
+            )
+            if set(population) != {"population_id", "dimensions", "lineups"}:
+                _fail("external normalized population fields differ")
+            population_id = _string(
+                population.get("population_id"), label="external population ID"
+            )
+            if population_id in population_by_id:
+                _fail("external normalized population IDs repeat")
+            dimensions = _mapping(
+                population.get("dimensions"), label="external dimensions"
+            )
+            raw_lineups = _sequence(
+                population.get("lineups"), label=f"external {population_id} lineups"
+            )
+            if any(
+                set(_mapping(row, label="external lineup"))
+                != {"lineup_id", "roster_player_ids", "roster_sha256"}
+                for row in raw_lineups
+            ):
+                _fail("external normalized lineup fields differ")
+            lineups = _lineups(
+                raw_lineups, label=f"external {population_id} lineups"
+            )
+            if any(
+                raw.get("roster_sha256") != normalized_lineup["roster_sha256"]
+                for raw, normalized_lineup in zip(
+                    raw_lineups, lineups, strict=True
+                )
+            ):
+                _fail("external normalized roster hashes differ")
+            for lineup in lineups:
+                lineup_id = str(lineup["lineup_id"])
+                roster = tuple(str(value) for value in lineup["roster_player_ids"])
+                prior_roster = lineup_to_roster.setdefault(lineup_id, roster)
+                prior_lineup = roster_to_lineup.setdefault(roster, lineup_id)
+                if prior_roster != roster or prior_lineup != lineup_id:
+                    _fail("external lineup/roster identity is not one-to-one")
+            retained_population = {
+                "population_id": population_id,
+                "dimensions": dimensions,
+                "lineups": lineups,
+            }
+            populations.append(retained_population)
+            population_by_id[population_id] = retained_population
+        books: list[dict[str, object]] = []
+        coordinates: set[str] = set()
+        for book_ordinal, raw_book in enumerate(
+            _sequence(slate.get("books"), label="external books")
+        ):
+            book = _mapping(raw_book, label=f"external book[{book_ordinal}]")
+            if set(book) != {
+                "coordinate", "coordinate_sha256", "population_id",
+                "selected_lineup_ids",
+            }:
+                _fail("external normalized book fields differ")
+            coordinate = _mapping(book.get("coordinate"), label="external coordinate")
+            coordinate_sha = _digest(
+                book.get("coordinate_sha256"), label="external coordinate SHA"
+            )
+            population_id = _string(
+                book.get("population_id"), label="external book population"
+            )
+            selected = [
+                _string(value, label="external selected lineup")
+                for value in _sequence(
+                    book.get("selected_lineup_ids"),
+                    label="external selected lineups",
+                )
+            ]
+            population = population_by_id.get(population_id)
+            if population is None:
+                _fail("external book names an absent population")
+            population_lineups = {
+                str(row["lineup_id"]): tuple(row["roster_player_ids"])
+                for row in population["lineups"]
+            }
+            if (
+                coordinate.get("adapter_id") != retained_adapter
+                or coordinate_sha != canonical_sha256_v1(coordinate)
+                or coordinate_sha in coordinates
+                or not selected
+                or len(selected) != len(set(selected))
+                or not set(selected) <= set(population_lineups)
+                or len({population_lineups[lineup_id] for lineup_id in selected})
+                != len(selected)
+                or coordinate.get("entry_budget") != len(selected)
+            ):
+                _fail("external normalized book is not gradeable")
+            coordinates.add(coordinate_sha)
+            books.append({
+                "coordinate": coordinate,
+                "coordinate_sha256": coordinate_sha,
+                "population_id": population_id,
+                "selected_lineup_ids": selected,
+            })
+        if not books:
+            _fail("external normalized terminal has no selected books")
+        if expected_coordinates is None:
+            expected_coordinates = coordinates
+        elif coordinates != expected_coordinates:
+            _fail("external metric coordinates lack exact slate coverage")
+        normalized.append({
+            "source_ordinal": ordinal,
+            "slate_id": slate_id,
+            "populations": populations,
+            "books": books,
+            "later_source_identity": later_identity,
+        })
+    if len(normalized) != SOURCE_SLATE_COUNT:
+        _fail("external normalized terminal requires exactly 54 slates")
+    return tuple(normalized)
+
+
 def _score_normalized_slates(
     *, slates: Sequence[Mapping[str, object]], player_scores: Mapping[tuple[int, str], int],
 ) -> list[dict[str, object]]:
@@ -1182,6 +1452,34 @@ def _aggregate_cells(slate_grades: Sequence[Mapping[str, object]]) -> list[dict[
     return cells
 
 
+def open_outcome_snapshot_surface_v1(
+    *, outcome_snapshot_identity: object, read_outcome_exact: ReadExact,
+) -> tuple[
+    dict[str, object], dict[str, object], dict[tuple[int, str], int],
+    dict[int, tuple[int, int, str]],
+]:
+    """Public outcome opener for already validated external terminals."""
+    return _open_outcome_snapshot_surface(
+        outcome_snapshot_identity=outcome_snapshot_identity,
+        read_outcome_exact=read_outcome_exact,
+    )
+
+
+def score_normalized_slates_v1(
+    *, slates: Sequence[Mapping[str, object]],
+    player_scores: Mapping[tuple[int, str], int],
+) -> list[dict[str, object]]:
+    """Public direct-roster scorer for the normalized terminal boundary."""
+    return _score_normalized_slates(slates=slates, player_scores=player_scores)
+
+
+def aggregate_normalized_slate_grades_v1(
+    slate_grades: Sequence[Mapping[str, object]],
+) -> list[dict[str, object]]:
+    """Public exact-54 aggregate for normalized external slate grades."""
+    return _aggregate_cells(slate_grades)
+
+
 def grade_novel_roster_experiment_realized_v1(
     *, terminal_root_identity: object, outcome_snapshot_identity: object,
     read_terminal_exact: ReadExact, read_outcome_exact: ReadExact,
@@ -1273,21 +1571,27 @@ __all__ = [
     "ADAPTER_IDS",
     "AGGREGATE_CELL_SCHEMA",
     "CorpusR6NovelRosterRealizedGraderV1Error",
+    "EXTERNAL_NORMALIZED_TERMINAL_BOUNDARY",
     "FIXED_GCP_PROJECT",
     "FIXED_STORAGE_ENDPOINT",
     "HARD230_ADAPTER",
+    "L2B_SELECTOR_ADAPTER",
     "POPULATION_CROSSED_ADAPTER",
     "REALIZED_GRADE_SCHEMA",
     "SLATE_GRADE_SCHEMA",
     "SOURCE_SLATE_COUNT",
     "TERMINAL_ROOT_SCHEMA",
     "THRESHOLDS_DK",
+    "aggregate_normalized_slate_grades_v1",
     "build_terminal_experiment_root_v1",
     "canonical_json_bytes_v1",
     "canonical_sha256_v1",
     "grade_novel_roster_experiment_realized_v1",
     "grade_and_publish_novel_roster_experiment_realized_v1",
+    "open_outcome_snapshot_surface_v1",
     "publish_terminal_experiment_root_v1",
     "reopen_terminal_experiment_v1",
+    "score_normalized_slates_v1",
+    "validate_external_normalized_terminal_v1",
     "validate_terminal_experiment_root_v1",
 ]

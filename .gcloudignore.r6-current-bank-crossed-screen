@@ -27,6 +27,7 @@
 !scripts/run_corpus_r6_population_challenger_cloud_v1.py
 !scripts/run_corpus_r6_population_crossed_cloud_v1.py
 !scripts/run_corpus_r6_l2b_panel_cloud_v1.py
+!scripts/run_corpus_r6_l2b_selector_adapter_v1.py
 !scripts/materialize_corpus_r6_l2b_pit_target_panel_v1.py
 !scripts/run_corpus_r6_novel_roster_realized_grader_v1.py
 !reports/
@@ -64,3 +65,4 @@
 !tests/test_corpus_r6_l2b_pit_target_panel_v1.py
 !tests/test_corpus_r6_novel_roster_realized_grader_v1.py
 !tests/test_run_corpus_r6_novel_roster_realized_grader_v1.py
+!tests/test_corpus_r6_l2b_selector_adapter_v1.py

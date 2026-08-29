@@ -52,6 +52,7 @@ MODULE_PATHS = (
     "src/nfl_dfs/research/corpus_r6_l2b_panel_operator_v1.py",
     "src/nfl_dfs/research/corpus_r6_l2b_pit_target_panel_v1.py",
     "src/nfl_dfs/research/corpus_r6_novel_roster_realized_grader_v1.py",
+    "src/nfl_dfs/research/corpus_r6_l2b_selector_adapter_v1.py",
 )
 MODULE_NAMES = tuple(Path(path).stem for path in MODULE_PATHS)
 RUNNERS = (
@@ -69,6 +70,7 @@ RUNNERS = (
     "scripts/run_corpus_r6_population_challenger_v1.py",
     "scripts/run_corpus_r6_population_crossed_cloud_v1.py",
     "scripts/run_corpus_r6_l2b_panel_cloud_v1.py",
+    "scripts/run_corpus_r6_l2b_selector_adapter_v1.py",
 )
 BUILD_ONLY_SCRIPTS = (
     "scripts/run_corpus_extreme_tail_hard230_r6_score_run_v1.py",
@@ -111,6 +113,7 @@ FOCUSED_TESTS = (
     "tests/test_corpus_r6_l2b_pit_target_panel_v1.py",
     "tests/test_corpus_r6_novel_roster_realized_grader_v1.py",
     "tests/test_run_corpus_r6_novel_roster_realized_grader_v1.py",
+    "tests/test_corpus_r6_l2b_selector_adapter_v1.py",
     "tests/test_r6_current_bank_crossed_screen_build_contract.py",
     "tests/test_run_corpus_r6_current_bank_crossed_screen_cloud_v1.py",
 )
@@ -234,6 +237,8 @@ def test_image_smoke_uses_fixed_isolated_dispatcher_and_no_network() -> None:
     assert "rb.cloud_entrypoint_registration_v1()['command']" in smoke
     assert "h.ENTRYPOINT_COMMAND" in smoke
     assert "hc.CONTROLLER_ENTRYPOINT_COMMAND" in smoke
+    assert "corpus_r6_l2b_selector_adapter_v1 as l2s" in smoke
+    assert "scripts/run_corpus_r6_l2b_selector_adapter_v1.py" in smoke
     assert f"/app/{DISPATCHER} --help" in normalized_smoke
     assert "task dispatcher failed closed: dispatcher kernel command token count differs" in smoke
     assert "task dispatcher failed closed: dispatcher requires exact R6_CURRENT_BANK_TASK_DISPATCH_ENABLED=1" in smoke
