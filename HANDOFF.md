@@ -20,7 +20,43 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 21:03 UTC (three-hundred-seventy-fourth update)
+## Current handoff -- 2026-08-29 21:44 UTC (three-hundred-seventy-fifth update)
+
+### Sole boom-first exact-commit Cloud Build is queued
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `468d1dfe853a4f4cc62fb8ee786f7d912573991c`; the science/build source remains
+  exact reviewed commit `78170dc92d79cf19e37b8ca399b088a73947b778`.
+  After proving the create-once image tag and source-commit build filter were
+  empty, exactly one Cloud Build was submitted from the clean pinned sparse
+  checkout.  Its sole build ID is
+  `c3fcba35-b9e9-4633-8099-afb139f03e3e`, queued at
+  `2026-08-29T20:42:18.586873923Z` in `us-central1`.
+- The create-once mutable evidence tag is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-r6-boom-first-allocation-78170dc9-v1`.
+  The exact source object is
+  `gs://nfl-predictions-503414_cloudbuild/source/1788036113.662224-ec093d220a244f04959271abe38909f0.tgz`
+  at generation `1788036138150364`.  Substitutions bind `_SOURCE_COMMIT` to
+  full commit `78170dc9...` and `_IMAGE` to only that new tag.  Do not submit
+  another build if this build's state is temporarily unavailable; poll only
+  this ID to terminality.
+- A contemporaneous read-only census proved reserved job
+  `atlas-minimal-c-s2023-w3-v1` is idle at UID
+  `064df315-0fb5-4b86-a5f9-6c73ac1c5eb3`, generation 10, with all nine prior
+  executions terminal.  It is restored to combined-population digest
+  `sha256:3a8708052364559e5113e8ba83d773b53669234d8351e3fe2eff8e723241d082`,
+  54 tasks/54 parallelism, 8 CPU/32 GiB, zero retries and 21,600-second
+  timeout.  There was no concurrent execution or mutation.  The existing
+  catalog historical-outcome lease remains generation `1787987508020795` and
+  must not be replaced or released before boom grading.
+- Exact next action: poll only build `c3fcba35...`; on success resolve its
+  immutable registry digest and publish/validate the terminal build receipt.
+  Then prepare an untouched boom-first run prefix, run the built-image
+  manifest smoke, re-census and capture the job restore authority immediately
+  before configure, claim/launch once, collect before restore, restore, and
+  grade through the existing catalog authority.
+
+## Previous handoff -- 2026-08-29 21:03 UTC (three-hundred-seventy-fourth update)
 
 ### Boom-first real-artifact preflight passes; exact reviewed commit is cleared to build once
 
