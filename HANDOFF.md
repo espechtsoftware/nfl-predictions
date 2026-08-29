@@ -56,12 +56,14 @@ agent or developer:
   run before realized grading, but they do not block the one-slate score-free
   canary.
 - `cloudbuild.recourse-kickoff-v2.yaml` is the bounded replacement build path:
-  it runs the 32 focused recourse tests, compiles the four runtime/control
-  scripts, builds the ordinary full runtime image, and performs three
-  network-isolated CLI smokes. It retains the exact step IDs, image argument,
-  Git-source provenance and smoke tokens required by the existing transport,
-  without paying for the unrelated repository-wide 90-minute test suite.
-  Commit/push this build file before submitting it with an exact Git revision.
+  it runs the runtime-compatible focused recourse tests, compiles the four
+  runtime/control scripts, builds the ordinary full runtime image, and
+  performs three network-isolated CLI smokes. The prior-image rejection proof
+  remains a local full-Git-history test because Cloud Build's exact GitSource
+  checkout does not carry the older commit object it intentionally probes.
+  The recipe retains the exact step IDs, image argument, Git-source provenance
+  and smoke tokens required by the existing transport, without paying for the
+  unrelated repository-wide 90-minute test suite.
 - The isolated hard-230 confirmation science layer is locally implemented and
   green: two matched populations, seven selectors and K=80/100/150 produce 42
   books per slate under the honest R1--R4 out-of-R0-origin law. A bounded
