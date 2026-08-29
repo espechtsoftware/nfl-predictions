@@ -24,7 +24,8 @@ agent or developer:
 
 ### Corrected recourse canary is code-ready while score-first panels advance
 
-- Branch `main` and `origin/main` are at pushed commit `458a5ee4`; that commit
+- Branch `main` and `origin/main` are at pushed commit `115dc3ae`; the earlier
+  `458a5ee4` commit
   contains the independently reviewed kickoff-v2 correction and its 32/32
   passing focused suite. Exact-commit L2b build
   `9835fd0d-6f17-4a45-a2a7-cdef00ddb987` succeeded with image digest
@@ -64,13 +65,32 @@ agent or developer:
   The recipe retains the exact step IDs, image argument, Git-source provenance
   and smoke tokens required by the existing transport, without paying for the
   unrelated repository-wide 90-minute test suite.
-- The isolated hard-230 confirmation science layer is locally implemented and
-  green: two matched populations, seven selectors and K=80/100/150 produce 42
-  books per slate under the honest R1--R4 out-of-R0-origin law. A bounded
-  terminal/operator/grader is being added before any outcome read. A separate
-  combined incumbent + hard-230 + F7/F8/F9 all-block K=80 union adapter is also
-  being implemented from the common frozen worlds without population
-  regeneration.
+- Recourse build IDs `778f6060-fee4-4dc9-87bf-70557302a333` and
+  `c409a96d-c4f5-4dd5-b155-0bdf7b6e514a` failed before build steps because an
+  incorrect nonexistent expanded SHA was supplied; no image was created.
+  Exact-source build `5462e8c4-397d-4b54-8ffb-c53fdbc966d1` reached tests and
+  failed only because the shallow GitSource checkout lacks the old commit
+  object used by the already-green local prior-image rejection proof. The
+  bounded recipe correction is pushed in `115dc3ae`; replacement build
+  `cafa1aaa-6bed-48c7-900a-bf2109ba7b41` is queued and resolves the exact full
+  revision `115dc3ae58c6bb645eace9dc507a9f22b5afa196`. Poll it; do not submit
+  another while it is queued/working.
+- The isolated hard-230 confirmation chain is independently GO for
+  commit/build/durable task-0 smoke: two matched populations, seven selectors
+  and K=80/100/150 produce 42 books per slate under the honest R1--R4
+  out-of-R0-origin law. Its grader now exact-replays all 54 new selector
+  results from sealed bridge matrices before the first outcome open, closing a
+  reviewer-found rehashed-lineup substitution seam. Focused validation is
+  12/12. A preliminary read-only 2023-w01 artifact smoke produced 42/42 books
+  and confirmation SHA-256
+  `a8eecd0bc5b0819ec62c76045c42cacf475633bcab0c873210108a2516ed60c1`;
+  this is feasibility evidence only. Commit/build the exact five-file chain,
+  then run its required create-once task-0 smoke before full derive/grade.
+- The combined incumbent + hard-230 + F7/F8/F9 all-block K=80 union mechanics
+  are locally green, but independent review is HOLD until two bounded repairs
+  land: exact semantic replay of every persisted book/contribution, and
+  enforcement of the manifest commit/image/job against the task runtime. Do
+  not launch its diagnostic task 0 until those repairs pass review.
 - Exact next action: poll the active L2b full-54 panel to terminal success and
   collect/finalize/grade it. Commit/push the bounded recourse build file,
   submit that exact Git revision, bind the resulting build/image identities in
