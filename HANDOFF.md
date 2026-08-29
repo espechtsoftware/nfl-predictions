@@ -76,12 +76,25 @@ agent or developer:
   tests pass and that slow check is not a release gate.
 - Review/decision record:
   `reports/2026-08-29-nfl2-final-findings-production-integration.md`.
-  Exact next action: finish the independent launcher review, exact-stage only
-  this integration, commit and push it, build an immutable image from that
-  clean commit, launch one live outcome-blind paired artifact smoke through
-  the reusable job, immediately verify restoration, and record the immutable
-  build/execution/artifact receipts here. Do not promote the treatment or add
-  a scheduler until the smoke and historical/prospective gates support it.
+- Clean source commit `45b54ef379319fccb9c1c3d90b4f5daf0c6151e3`
+  is pushed. Its `git archive` SHA-256 is
+  `69eb1c872696f61211e41db54467304bc89435e4b018b4661c103b1e9d43a63d`;
+  Cloud Build uploaded it to
+  `gs://nfl-predictions-503414_cloudbuild/source/1788009260.506149-e13a3642160043e39eb9db1aa19aa779.tgz`.
+  The first asynchronous submission was rejected before a build resource was
+  created because the inherited smoke block used unescaped shell `$IMG`, which
+  Cloud Build parsed as an invalid substitution key. No image or Cloud Run job
+  changed. All smoke references are now mechanically escaped as `$$IMG`; keep
+  this repair committed and use the already-uploaded clean source object for
+  the retry rather than uploading 454 MiB again.
+  Exact next action: exact-stage only this Cloud Build escaping repair and
+  handoff update, commit and push them, submit the full build
+  against the recorded clean source object with `_CODE_SHA` bound to
+  `45b54ef379319fccb9c1c3d90b4f5daf0c6151e3`, then launch one live
+  outcome-blind paired artifact smoke through the reusable job. Immediately
+  verify restoration and record the immutable build/execution/artifact
+  receipts here. Do not promote the treatment or add a scheduler until the
+  smoke and historical/prospective gates support it.
 
 ## Current handoff — 2026-08-29 11:37 UTC (three-hundred-fifty-seventh update)
 

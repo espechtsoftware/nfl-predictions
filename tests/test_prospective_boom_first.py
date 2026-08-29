@@ -437,5 +437,7 @@ def test_boom_first_cli_and_quota_safe_manual_launch_are_registered():
     assert "SOURCE_COMMIT_SHA" in dockerfile
     assert "IMAGE_SOURCE_COMMIT_SHA" in dockerfile
     assert "SOURCE_COMMIT_SHA=${_CODE_SHA}" in cloudbuild
+    assert '"$IMG"' not in cloudbuild
+    assert '"$$IMG"' in cloudbuild
     assert "s-shadow-boom-first" not in deploy
     assert "shadow-boom-first" not in resume
