@@ -63,11 +63,20 @@ agent or developer:
   `sha256:0c061d73562ffe127a74e32e2ef235134f3fc10d1a45e9a0a0684be4d26c7a05`.
   Its create-once build receipt is generation `1788002425811133`, SHA-256
   `0fdf9045d8c6bc0c6a5fd977c15112cd29d601491c21b3a36d948a912c2fb0b1`,
-  481 bytes. Fresh task-0 smoke `atlas-minimal-c-s2023-w2-v1-9x4r6` failed
-  score-free because request packaging included one trailing LF; the fixed W2
-  job was restored and verified before one canonical-byte retry. No v2 smoke
-  object or realized outcome was read, and this lane must not delay the
-  combined-retrieval crossing.
+  481 bytes. Fresh task-0 smoke `atlas-minimal-c-s2023-w2-v1-9x4r6`, UID
+  `efbf8b86-8e34-49b0-84ff-7b6fd8407eee`, failed score-free because request
+  packaging included one trailing LF; no smoke object was created. Canonical-
+  byte retry `atlas-minimal-c-s2023-w2-v1-6pbr6`, UID
+  `2c0f07de-e4e7-4c61-829c-a142a426560f`, succeeded. Its smoke receipt is
+  generation `1788002936133512`, SHA-256
+  `dd6bc33a83cdadbc576fa97b2903233cd79de95799be2c5298fc0bcde98c6fc8`,
+  1,588 bytes. Exact 54-slate outcome-blind derive is launched once as
+  `atlas-minimal-c-s2023-w2-v1-sjkb9`, UID
+  `592dab95-324d-4f03-a26d-51d29c71e904`; last state was waiting for provider
+  operation. The fixed W2 job was restored and verified at generation 10 with
+  its original v1 image/args/env/resources. Poll `sjkb9`; open outcomes only
+  after its frozen v2 terminal exists. This lane must not delay the combined-
+  retrieval crossing.
 
 ## Current handoff — 2026-08-29 11:10 UTC (three-hundred-fifty-fifth update)
 
