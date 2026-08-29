@@ -20,6 +20,59 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 05:03 UTC (three-hundred-twenty-eighth update)
+
+### Outcome-blind recourse canary is live while the three score lanes continue
+
+- Branch `main` and `origin/main` entered this milestone at `322a7552`.
+  The sole V7 recovery is terminal/sealed, so the frozen recourse transport
+  proved the reserved job idle and retained its exact pre-update export. It
+  updated only job `atlas-cbc-32g-full-2023-w8-v1`, immutable UID
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275`, to generation 33 with the frozen
+  recourse image digest
+  `sha256:9956f2b4444bc60255c29a1844c23a1f772d6b0c85ae1a532e032ece975e86ed`,
+  one task, one parallelism, zero retries, 4 CPU/16 GiB and 14,400 seconds.
+- Exactly one outcome-blind canary was submitted:
+  `atlas-cbc-32g-full-2023-w8-v1-4fmch`, execution UID
+  `03597eb7-ee4e-407b-b39f-28db1c7d2028`, for 2023 Week 1 at
+  `gs://nfl-predictions-503414-raw/research/recourse-aware-initial-book-runs/20260817-recourse-aware-initial-book-scorefree-v1/slate-2023-1.json`.
+  Initial status is pre-start/image import with no failure counters. The other
+  53 cells remain unreleased and cannot launch before the exact canary
+  validator passes. Never reconfigure or duplicate this execution.
+- Durable local transport state is under
+  `reports/recourse-aware-initial-book-runs/20260817-recourse-aware-initial-book-scorefree-v1/`.
+  Canary-launch SHA-256 is
+  `f08c6939827e329482593f8c1a15297cd5158c28279c8bd990343dd76442c765`;
+  manifest SHA-256 is
+  `d6c0b7692f25d62e8979d27bcb16eacf69cdebc2058e4d968355f894fc950d38`.
+  The captured export must restore the same UID/spec after harvest or a
+  terminal failure.
+- L2b diversity task-0 execution
+  `atlas-minimal-c-s2023-w3-v1-q7g9x`, UID
+  `d3537ffa-cae8-41c2-bde2-2014b5af3991`, is terminal **1/1 successful**.
+  Canonical local status is
+  `/tmp/r6-score-sprint-c9f12ed7-v1/l2b-diversity/task0-status-002.json`,
+  embedded status SHA-256
+  `d402348ea75b24a5c3a15c8234553a037e22076c819e56dda02905d6b4059d23`.
+  Its exact collection request is prepared but queued behind hard-230 to keep
+  one heavy local workload.
+- F7/F8/F9 full54 is 44 successful and 10 running, with zero reported
+  failures/cancellations. Hard-230's first post-fix invocation was blocked
+  before its first exact input read by sandbox DNS isolation; it performed no
+  derivation. The unchanged request is now running with network authority in
+  local execution session `45508`. Do not duplicate it.
+- A local-only common scorecard reproduces the frozen legacy `176.113` and
+  current-R6 `178.435` rows over exactly 54 slates and is under independent
+  review. The first recourse realized-bridge draft is independently **NO-GO**
+  until it labels its 270 rotated book-weeks as a diagnostic rather than an
+  all-block comparable row, hardens large-object upload, strengthens terminal
+  provenance, and states realized-attribution use accurately. Do not launch
+  that bridge yet.
+- Exact next action: status-poll the recourse canary, F7/F8/F9, and hard-230.
+  On canary success run only `validate-canary`, inspect only its mechanical
+  receipt, then release the remaining 53 once. On hard-230 terminal success,
+  grade it first; then collect/launch the diversity full54 successor.
+
 ## Current handoff — 2026-08-29 04:30 UTC (three-hundred-twenty-seventh update)
 
 ### Hard-230 derivation reached publication and is being resumed safely; V7 recovery failed closed

@@ -1,0 +1,57 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  annotations:
+    run.googleapis.com/creator: espechtsoftware@gmail.com
+    run.googleapis.com/lastModifier: espechtsoftware@gmail.com
+  labels:
+    cloud.googleapis.com/location: us-central1
+    run.googleapis.com/lastUpdatedTime: '2026-08-29T04:18:34.381438Z'
+  name: atlas-cbc-32g-full-2023-w8-v1
+  namespace: '817589974517'
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/client-name: gcloud
+        run.googleapis.com/client-version: 582.0.0
+        run.googleapis.com/cloudsql-instances: ''
+        run.googleapis.com/execution-environment: gen2
+      labels:
+        client.knative.dev/nonce: yir_xac_def
+    spec:
+      parallelism: 1
+      taskCount: 1
+      template:
+        spec:
+          containers:
+          - args:
+            - -I
+            - /app/scripts/run_corpus_r6_current_bank_terminal_root_timeout_recovery_v1.py
+            command:
+            - /usr/local/bin/python3.11
+            env:
+            - name: CODE_SHA
+              value: 5a293157e9ed9d14c9ba2f7d96d020db845442d3
+            - name: GOOGLE_CLOUD_PROJECT
+              value: nfl-predictions-503414
+            - name: R6_RUNTIME_IMAGE_DIGEST
+              value: sha256:440e910df2ca8aafd7a6055922327f76c7bd5b480ecb84cd6adeb1cc4c1f00bf
+            - name: R6_V7_TERMINAL_ROOT_TIMEOUT_RECOVERY_ENABLED
+              value: '1'
+            - name: R6_V7_TIMEOUT_AMENDMENT_IDENTITY
+              value: '{"bytes":7124,"generation":"1787977057680452","sha256":"220da640cdcada370e194be7e64dc464773af8eaab6b43564228d81172ecc722","uri":"gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-current-bank-crossed-screens/20260828-r6-current-bank-crossed-screen-v7/authorities/terminal-root-timeout-recovery-v1/amendment.json"}'
+            - name: R6_V7_TIMEOUT_LAUNCH_OWNERSHIP_IDENTITY
+              value: '{"bytes":2657,"generation":"1787977072236058","sha256":"5a816948f906ff6d7a1cd65e4e5bdb5ba6ceabdf3d4a492b6be8a7af59aad2a5","uri":"gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-current-bank-crossed-screens/20260828-r6-current-bank-crossed-screen-v7/authorities/terminal-root-timeout-recovery-v1/launch-ownership.json"}'
+            - name: R6_V7_RECOVERY_ACTUAL_IMAGE_DIGEST
+              value: sha256:8c6df94fdf38a87dfaf43416052c153fe052e289f0d967688d87707fa29fb534
+            - name: R6_V7_RECOVERY_ACTUAL_CODE_SHA
+              value: e5cba050ed064b8c9269cc0bd9224baa8db29ea4
+            image: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:8c6df94fdf38a87dfaf43416052c153fe052e289f0d967688d87707fa29fb534
+            resources:
+              limits:
+                cpu: '8'
+                memory: 32Gi
+          maxRetries: 0
+          serviceAccountName: 817589974517-compute@developer.gserviceaccount.com
+          timeoutSeconds: '7260'
