@@ -20,6 +20,49 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 01:13 UTC (three-hundred-sixteenth update)
+
+### L2b smoke passed and full 54-slate execution is live
+
+- Branch `main` and `origin/main` entered this milestone at documentation
+  commit `826caa80`; the immutable experiment source remains
+  `c9f12ed7028f8d8ef76950a12bc9208f67a4023d` and the runtime image remains
+  `sha256:a34b4c2e8bf156452d8461e7d3ee6d42adc428d514f79c924ac74dfa3c58a4c3`.
+- L2b task-0 execution `atlas-minimal-c-s2023-w3-v1-fpj6g` completed
+  **1/1 successful with zero failures**. Deterministic collection exact-opened
+  its single known result without listing the bucket or reading outcomes.
+  The result identity is generation `1787965575131580`, SHA-256
+  `1ed8ecfbe8a286bdabcfc4fed11d6cd87edd17d1f7163182d34ff2616437d223`,
+  10,076 bytes; collection SHA-256 is
+  `5f81db1ffd54388dd90df0cc56d763e43524fa1257d0cbbc41307db9634f1037`.
+- The exact reused L2b job UID
+  `064df315-0fb5-4b86-a5f9-6c73ac1c5eb3` was then reconfigured once from
+  `task0` to `full54` and launched once. Full-panel execution
+  `atlas-minimal-c-s2023-w3-v1-4xvww` expects 54 tasks; launch-result SHA-256
+  is `b0153ad7209c2907f84be2ee3bb5008dfac5c291336acf0951cc7eef3074ccb5`.
+  Status-poll only; do not reconfigure or relaunch it.
+- Population F7/F8/F9 execution
+  `atlas-minimal-c-s2023-w1-v1-45lcm` remains ACTIVE with zero failures at
+  the latest status-only poll. Hard-230 execution
+  `atlas-minimal-c-s2023-w2-v1-6f9c9` also remains ACTIVE with zero observed
+  failures. Neither execution was reconfigured, relaunched, or scientifically
+  inspected.
+- Frozen control layer-06 aggregate/finalists was prepared exactly once from
+  cumulative receipts 00--05. Its one-task manifest is generation
+  `1787965665958277`, SHA-256
+  `8d25e1db121051f9c08ea46bd23400919d737f711c6407c4727f1b8c1fb8b221`,
+  47,201 bytes; preparation receipt is generation `1787965793147086`,
+  SHA-256
+  `8fa9c46c3338ce92e5ea98ae76a13db7b9f24a7fffe68961118c5958b3f83414`,
+  9,470 bytes. The control-chain owner is rechecking the immutable job UID and
+  idle state immediately before configuration; no logs, scientific outputs,
+  or realized outcomes have been read.
+- Exact next action: poll the L2b full-54 and the two remaining task-0
+  executions. Advance each successful smoke independently to full 54, finish
+  frozen control layers 06--07, and only then execute the common realized
+  grader. Continue repairing and independently reviewing the L2b selector and
+  fair-fill adapters in parallel. No new realized score has yet been read.
+
 ## Current handoff — 2026-08-29 01:04 UTC (three-hundred-fifteenth update)
 
 ### Challenger image is green; three score-sprint task-0 smokes are live
