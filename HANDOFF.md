@@ -20,7 +20,43 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 (three-hundred-eighty-first update)
+## Current handoff -- 2026-08-29 (three-hundred-eighty-second update)
+
+### Exact-repair image and create-once terminal build authority are green
+
+- Branch `main` and `origin/main` entered this milestone at pushed handoff
+  commit `3936a0bc`; immutable image source remains exact preflighted commit
+  `68873f42a6f7efbe3a2a29731812ef895d61271e`.
+- Sole global direct-Git Cloud Build
+  `dc81ed0c-a256-4f54-a839-e4f1fba70852` completed `SUCCESS` from
+  `2026-08-29T21:32:27.995317680Z` through
+  `2026-08-29T21:36:43.451476Z`.  Focused suites passed 21/21 and 19/19,
+  image construction passed, and the network-isolated CLI, exact
+  NumPy 2.5.1/SciPy 1.18.0, and CBC solver smokes all passed.
+- Requested and resolved provider Git provenance both bind the canonical
+  GitHub repository at exact source `68873f42...`; substitutions corroborate
+  the same full commit/tag.  The sole matching provider result-image row gives
+  immutable digest
+  `sha256:86951310a4bae8ce014408257e02602e1c8004c04c8ad8bc7e4cab6bb7b1ada3`
+  and immutable URI
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:86951310a4bae8ce014408257e02602e1c8004c04c8ad8bc7e4cab6bb7b1ada3`.
+- The exact nine-field canonical terminal build receipt was create-once
+  published at generation `1788039447226166`, 498 bytes and byte SHA-256
+  `fbdf15c839d80d4fa87063b988205103d3e4a1ba57dcbf4868ca0463ea538c71`
+  at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-score-sprint-builds/20260829-boom-first-68873f42-git-v1/terminal-build-receipt.json`.
+  Generation-pinned reopen is byte-identical to local construction.  Both the
+  frozen provider-build validator and terminal-receipt exact-open validator
+  pass against this authority.
+- No fixed-job mutation/launch, experiment-result publication or realized
+  outcome read occurred in this milestone.  Exact next action: run `prepare`
+  once on the fresh unused
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-boom-first-allocation/20260829-boom-first-68873f42-git-v1/`
+  prefix.  Require all 54 snapshots and manifest to publish successfully,
+  then run the manifest-bound task-0 smoke from this immutable digest before
+  any job configuration.
+
+## Previous handoff -- 2026-08-29 (three-hundred-eighty-first update)
 
 ### Sole exact-repair direct-Git Cloud Build is queued
 
