@@ -20,6 +20,65 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 01:04 UTC (three-hundred-fifteenth update)
+
+### Challenger image is green; three score-sprint task-0 smokes are live
+
+- Experiment source commit `c9f12ed7028f8d8ef76950a12bc9208f67a4023d`
+  is pushed on `main`. Clean Cloud Build
+  `b7a7bcc2-bdad-4015-8efa-ce57e89aba7a` completed **SUCCESS** in 13m17s:
+  all focused tests, Docker build and network-isolated image smoke passed. The
+  published image tag is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:r6-score-sprint-c9f12ed7`;
+  immutable digest is
+  `sha256:a34b4c2e8bf156452d8461e7d3ee6d42adc428d514f79c924ac74dfa3c58a4c3`.
+  Its terminal build receipt is generation `1787964929736329`, SHA-256
+  `75b5453b2b1b9352427c6b0367b34b28368cea318cac6abb111cbec7a43efdb8`,
+  475 bytes at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-score-sprint-builds/20260829-score-sprint-c9f12ed7-v1/terminal-build-receipt.json`.
+- Final-commit scientific inputs were regenerated, published create-once and
+  exact-reopened. L2b calibration: generation `1787963970766924`, SHA-256
+  `3caa9827a60760c12f3a15f149f564405d63e984e607d99439be3f9357d6b5f4`,
+  148,916 bytes. Hard-230 optimizer source: generation
+  `1787963971050328`, SHA-256
+  `297443c3dd04d39a5371d774210f0e902828aafb2d51fac3e39d2b3c0dc6d864`,
+  337,920 bytes. These supersede the `55b799bb` inputs.
+- Population F7/F8/F9 task-0 execution
+  `atlas-minimal-c-s2023-w1-v1-45lcm`, UID
+  `da5adb5c-84da-4892-98fe-7a9b207c4814`, is ACTIVE on exact job UID
+  `d6e4b8c1-5950-46b7-8869-7e34dbf29ad2`. Its manifest identity is generation
+  `1787965215675864`, SHA-256
+  `2456bcfe069318cb8ad06396fe662dd5540f36b76a483a9b48dfe8f1c00ee714`,
+  275,290 bytes. Status-poll only; do not reconfigure or relaunch.
+- Hard-230 task-0 controller execution
+  `atlas-minimal-c-s2023-w2-v1-6f9c9`, UID
+  `34cf2c23-3192-4080-8d01-5995d9e7e49a`, is ACTIVE on exact job UID
+  `a9389eb4-da2b-4e4a-90a4-9ef769043e1d`. Controller manifest generation is
+  `1787965254661272`, SHA-256
+  `2213b64ea459e824d8cfcb29049d0776d81b7686a492e9274481051eb9e7b25b`;
+  launch-receipt generation is `1787965310662372`, SHA-256
+  `b2ef64ce23ffe1cf511421176668eef3f59458e250ef323fd354eeab88ea8578`.
+  Status-poll only; do not reconfigure or relaunch.
+- L2b task-0 execution `atlas-minimal-c-s2023-w3-v1-fpj6g`, UID
+  `49dcf873-5321-4262-8790-5c9c23e92048`, is ACTIVE on exact job UID
+  `064df315-0fb5-4b86-a5f9-6c73ac1c5eb3`. Its task manifest is generation
+  `1787965180791652`, SHA-256
+  `f20d21b66efa7dd136e0eb6aaf5c2617114320b99c270e01abd69c570ba701ff`,
+  86,455 bytes. Status-poll only; do not reconfigure or relaunch.
+- Control V7 layer 05 was finalized exactly once after 54/54 success. Receipt
+  generation is `1787965225773143`, SHA-256
+  `da06133faddd69e3a841ca60f7abeeebd141dc96ce45e6b15b2266724194e4fe`,
+  122,670 bytes. Layer-06 aggregate/finalists preparation is in progress from
+  cumulative receipts 00--05. No logs, scientific outputs or realized
+  outcomes were read.
+- Exact next action: status-poll the three active smoke executions and V7
+  layer 06. Finalize each smoke once only if terminal green, then configure and
+  launch its full-54 scope without waiting for unrelated lanes. Seal V7 layer
+  07 before the first realized-outcome bridge. The new L2b selector adapter
+  and fair fill/profile retest are present uncommitted and under independent
+  review; do not promote them until review findings are resolved. No new
+  realized score has yet been read.
+
 ## Current handoff — 2026-08-29 00:40 UTC (three-hundred-fourteenth update)
 
 ### Frozen-control provenance repaired; challenger build suite is green
