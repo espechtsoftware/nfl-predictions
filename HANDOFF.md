@@ -20,6 +20,54 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 04:20 UTC (three-hundred-twenty-fifth update)
+
+### V7 timeout recovery is independently GO, built, and launched exactly once
+
+- Branch `main` and `origin/main` entered this milestone at `db0e397e`; the
+  exact recovery code/image source is ancestor commit
+  `e5cba050ed064b8c9269cc0bd9224baa8db29ea4`. Independent review of that
+  commit was **GO** with a separate 52/52 focused rerun, compilation, and
+  whitespace checks green.
+- Clean-archive Cloud Build `a787ae2e-4057-456f-bb03-23b190f9c7fc`
+  completed `SUCCESS` at `2026-08-29T04:15:39.223867Z`. Its exact source is
+  generation `1787975617824130`, SHA-256
+  `0e62fe1c0dcb1175efb5e07ca8ae04735a43cd249a138c681b42ceb843c65527`,
+  4,767,659 bytes. The immutable replacement image digest is
+  `sha256:8c6df94fdf38a87dfaf43416052c153fe052e289f0d967688d87707fa29fb534`.
+  The build passed the focused contract suite and isolated no-network image
+  smoke; build logs were not opened.
+- The fixed create-once clean-build receipt is generation
+  `1787977044970082`, SHA-256
+  `9095f06c17a64e42557acb9d546445ed8a42483ed6886b04567ae0dafe3f94c6`,
+  1,462 bytes. The exact timeout amendment is generation
+  `1787977057680452`, SHA-256
+  `220da640cdcada370e194be7e64dc464773af8eaab6b43564228d81172ecc722`,
+  7,124 bytes. The one launch-ownership marker is generation
+  `1787977072236058`, SHA-256
+  `5a816948f906ff6d7a1cd65e4e5bdb5ba6ceabdf3d4a492b6be8a7af59aad2a5`,
+  2,657 bytes. Each was create-once published and generation-exact reopened.
+- Reserved job `atlas-cbc-32g-full-2023-w8-v1` was proved idle and `Ready`
+  after the original failed execution, with unchanged UID
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275`. Job generation 32 binds exactly one
+  task/parallelism, zero retries, 7,260 seconds, 8 CPU/32 GiB, the immutable
+  replacement image, fixed recovery command, exact original logical
+  image/commit, and the amendment/ownership identities; old dispatcher
+  environment was removed.
+- The sole replacement submission is execution
+  `atlas-cbc-32g-full-2023-w8-v1-8xjx5`, UID
+  `26644b0a-50dd-4fc0-b580-3f2be7472a26`, created at
+  `2026-08-29T04:18:55.181337Z`. Initial status is active while the container
+  image imports; no failures are present. This submission is consumed: never
+  reconfigure, rearm, retry, or relaunch it. No log, scientific output, root
+  body, or realized outcome has been read.
+- Exact next action: status-poll execution `...-8xjx5` only and without logs.
+  On terminal success exact-open the fixed administrative recovery evidence,
+  bind its execution claim and opaque root identity into the fixed
+  terminal/finalize receipts, create each once, and stop before any realized
+  bridge read. On terminal failure, stop and diagnose only under explicit new
+  authority; never spend another submission.
+
 ## Current handoff — 2026-08-29 04:11 UTC (three-hundred-twenty-fourth update)
 
 ### Combined L2b diversity smoke is live; incumbent smoke is sealed green
