@@ -20,6 +20,57 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 07:21 UTC (three-hundred-thirty-sixth update)
+
+### Catalog-wide one-query operator is independently GO; L2b smoke gate is complete
+
+- Branch `main` and `origin/main` entered this milestone at `7655b210`.
+  The new default-off catalog-wide operator and its focused tests are
+  `scripts/run_corpus_r6_catalog_wide_outcome_successor_v1.py` and
+  `tests/test_run_corpus_r6_catalog_wide_outcome_successor_v1.py`.
+  Independent review is **GO**. The combined successor/operator focused suite
+  is **10/10 passed**; both Python files compile and the scoped diff check is
+  clean.
+- A real-artifact, local outcome-blind smoke exact-opened only the pinned
+  later-source freeze and predecessor key projection. It produced exactly
+  29,605 catalog keys and 15,358 projection-minus-base query keys at the fixed
+  predecessor source timestamp `2026-08-26T23:58:47.451523+00:00`. Its event
+  trace was later-source read -> predecessor-projection read -> projection
+  publish -> registered-request publish in a fake store; no lease, BigQuery,
+  outcome body or cloud object was touched.
+- The operator publishes the real outcome-blind projection and fixed-job
+  request before it can inspect a live historical-outcome lease. It then
+  creates or recovers one deterministic BigQuery job, requires stable table
+  metadata and lease generation, normalizes the registered integer-micro
+  rows, and publishes query evidence -> realized source -> outcome snapshot
+  -> completion. Restart tests cover every publication boundary with one
+  logical query and reject stale/rehashed snapshots and completions by exact
+  recovered-chain replay.
+- Historical-outcome lease release still needs a catalog-wide strict release
+  adapter. This is not a score-chain blocker: the lease can remain live
+  through successor publication and the immediate hard-230/F7/F8/F9 grades,
+  then be released only after a new exact completion replay is implemented.
+  Do not use an unrelated release contract or silently abandon a successful
+  lease.
+- The archived L2b task-0 selector collection completed without population or
+  selector recomputation. Its durable smoke receipt is generation
+  `1787986883049580`, SHA-256
+  `a68d6baaa5b0b7c20cbb404af90ca481ab3515929d53c74cd4f9b76a46c0c1cf`,
+  3,335 bytes, internal smoke SHA-256
+  `f0380b31f0d45394709e8e6d8565b1efdea9cb6cf9816f4ab2890aa9a885a5f0`,
+  at `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-l2b-selector/20260829-score-sprint-6c9cfd70-diversity-v1/task0-selector-smoke-receipt.json`.
+  The current full-54 10-selector/30-book manifest requires a narrowly pinned
+  compatibility amendment because this prerequisite smoke binds the original
+  7-selector/21-book task-0 manifest. That amendment is locally green at
+  42/42 focused tests and is awaiting independent review; no full-54 L2b
+  launch has occurred.
+- Exact next action: commit/push the approved operator, run its real
+  outcome-blind `prepare`, acquire one exact lease, and run `supply`. Grade the
+  already terminal hard-230 24-cell and F7/F8/F9 315-cell artifacts against
+  the successor snapshot immediately, then render the common scorecard. In
+  parallel finish independent review and launch the current 300-cell L2b
+  full-54 selector run from the durable smoke receipt.
+
 ## Current handoff — 2026-08-29 07:02 UTC (three-hundred-thirty-fifth update)
 
 ### Catalog-wide historical scoring successor is independently GO
