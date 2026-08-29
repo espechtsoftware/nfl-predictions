@@ -20,6 +20,51 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 08:47 UTC (three-hundred-thirty-ninth update)
+
+### Three score-producing lanes are active; L2b is 41/54 complete
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `cfc7942e79e1557e445922f427a2319b0f286457`. The existing L2b full-54
+  execution `atlas-minimal-c-s2023-w3-v1-sh4br` (UID
+  `fdb77c9a-6be7-41db-9f2b-a24300954c43`) is healthy at **41/54 succeeded**,
+  13 active, zero failed and zero cancelled. Its status SHA-256 is
+  `72f34f9b45d55737a858d47b248d5865bdbdf1324d9e6247aadf5fc25d467a02`.
+  Do not relaunch or duplicate it. Poll to 54/54, collect/finalize once, then
+  grade against the already-frozen catalog-wide outcome snapshot.
+- Corrected outcome-blind recourse build
+  `e3552f5c-78f8-4311-ae06-e326dc0a8f96` succeeded from exact Git revision
+  `cfc7942e79e1557e445922f427a2319b0f286457`. Its immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ee5448360ffbd520e51310d9955e6a2e595540d32654fe9f9a321a29dc797a08`
+  (tag `recourse-kickoff-v2-cfc7942e`); all focused runtime-compatible tests,
+  image build and three network-isolated CLI smokes passed. Bind these exact
+  constants in the transport without staging the unrelated terminal-root
+  worktree package, validate the build metadata, and launch only the fresh
+  `20260829-recourse-aware-initial-book-scorefree-kickoff-v2` one-slate
+  canary.
+- Hard-230 confirmation rebuild
+  `cce28244-574e-45c8-97d5-fc6685954630` resolved the same exact Git revision,
+  passed the 12 focused tests and built its image, but its final isolated smoke
+  exposed one bounded packaging omission: the confirmation CLI imports
+  `run_corpus_r6_hard230_selector_bridge_v1.py`, which was absent from the
+  narrow R6 image. The Dockerfile now copies that already-tracked bridge
+  operator. Commit/push this one-line runtime fix, rebuild from that exact
+  revision, and on success publish the terminal build receipt before the
+  create-once task-0 smoke and 42-cell derive/grade.
+- The combined incumbent + hard-230 + F7/F8/F9 K80 union implementation now
+  reports 17/17 focused tests after adding exact all-source/all-book semantic
+  replay and reserved Cloud Run runtime identity checks. It still requires a
+  fresh independent review before any task-0 launch. The generation-arm
+  allocation audit is honestly HOLD because frozen artifacts lack exact
+  per-arm occurrence/exposure rows; do not spend the score sprint fabricating
+  an unequal-allocation result from post-selector books.
+- Exact next action: push the hard-230 image fix and rebuild immediately while
+  L2b finishes; in parallel bind and run the corrected recourse canary and
+  independently approve the combined-union operator. Grade every terminal
+  challenger on the same 54 slates and exact K before the September 4
+  strategy/code freeze. September 5 onward is rehearsal and critical fixes,
+  not new strategy development.
+
 ## Current handoff — 2026-08-29 07:52 UTC (three-hundred-thirty-eighth update)
 
 ### Corrected recourse canary is code-ready while score-first panels advance
