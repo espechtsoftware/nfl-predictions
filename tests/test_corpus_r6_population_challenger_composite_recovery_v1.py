@@ -371,6 +371,7 @@ def _smoke_collection(
         "population_task_result_identities": [task0_identity],
         "population_task_result_sha256s": [task0_result_sha],
         "crossed_prepare_ready": False,
+        "deterministic_names_only": True,
         "bucket_listing_performed": False,
         "outcomes_read": False,
     }

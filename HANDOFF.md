@@ -20,6 +20,23 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 06:01 UTC (three-hundred-thirty-second update)
+
+### F7 composite recovery real-artifact smoke found and repaired one fixture drift
+
+- Branch `main` and `origin/main` entered this milestone at `0120d3b2`.
+  The first real `prepare` attempt failed before intent publication or any
+  scientific-result open because the recovery's synthetic task-0 collection
+  fixture omitted the frozen `deterministic_names_only: true` field that is
+  present in the real collection and emitted by the ordinary collector.
+- The isolated validator and fixture now require that exact field and literal
+  `true`; no scientific behavior, result identity, cloud execution, or outcome
+  surface changed. Focused validation remains **8/8 passed**. No recovery intent
+  or local prepare result was created by the failed attempt.
+- Exact next action: commit/push this two-line contract repair, rerun `prepare`
+  with the new full commit identity, then run `collect` only after the
+  create-once intent is published. Hard-230 session `45508` remains active.
+
 ## Current handoff — 2026-08-29 05:56 UTC (three-hundred-thirty-first update)
 
 ### F7/F8/F9 can now recover the completed panel without recomputation

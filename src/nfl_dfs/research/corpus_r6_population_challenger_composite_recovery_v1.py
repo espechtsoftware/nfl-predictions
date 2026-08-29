@@ -267,6 +267,7 @@ def _validate_task0_collection_v1(
         "bucket_listing_performed",
         "collection_sha256",
         "crossed_prepare_ready",
+        "deterministic_names_only",
         "execution_name",
         "outcomes_read",
         "population_task_manifest_identity",
@@ -300,6 +301,7 @@ def _validate_task0_collection_v1(
         or item.get("population_task_manifest_sha256")
         != preparation["population_task_manifest_sha256"]
         or item.get("crossed_prepare_ready") is not False
+        or item.get("deterministic_names_only") is not True
         or item.get("bucket_listing_performed") is not False
         or item.get("outcomes_read") is not False
     ):
