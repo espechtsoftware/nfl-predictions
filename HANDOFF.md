@@ -20,7 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 (three-hundred-eighty-seventh update)
+## Current handoff -- 2026-08-29 (three-hundred-eighty-eighth update)
+
+### Preconfigure boundary is clean and rollback evidence is durable
+
+- Branch `main` and `origin/main` entered this milestone at pushed handoff
+  commit `15dd61de`; the validated v2 smoke receipt and all immutable source,
+  image and manifest authorities remain unchanged.
+- An immediate pre-mutation census proves fixed job
+  `atlas-minimal-c-s2023-w3-v1` Ready/idle at UID
+  `064df315-0fb5-4b86-a5f9-6c73ac1c5eb3`, generation and observed generation
+  10, with all nine old executions terminal.  It remains on the exact restored
+  combined-all-block digest `sha256:3a870805...d082`, 54/54, 8 CPU/32 GiB,
+  zero retries and 21,600-second timeout.  No us-central1 scheduler targets
+  this job.
+- Fresh experiment boundary is empty beyond manifest/inputs: no slate result,
+  launch claim, launch receipt, terminal or grade exists.  Thus configure and
+  the one-shot launch coordinates are uncontested.
+- Exact pre-mutation job JSON, export YAML, stable projection, execution census
+  and scheduler census were create-once published under
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-score-sprint-job-recovery/20260829-boom-first-68873f42-git-v1/`.
+  Their generations are respectively `1788042826645521`, `1788042828470938`,
+  `1788042831383311`, `1788042833294399` and `1788042835197264`.
+  Local byte SHA-256 values are respectively
+  `454c2064317fb674ca1a3aec16997e6f33ea16ece3c09ee601c3972ca4a91ad2`,
+  `e9cfe9f5fdd3e39d6e78acabd0dc43db3ab9d6b63c5aa29cf0e4962342d057fc`,
+  `6d486b784f1be6d5e167f07eeb6f80702f6ac5cb007e8753ef7cc8c45c4db08a`,
+  `6f45ed2901eb944e86bbe4c5e719203cd5c9e018a56566395afeb576fc59ff12`
+  and `a0a1856fee24a4556ed4fb87bffd11967011dfab9def44c674e68a58ed08c0d3`.
+- No mutation/launch or outcome read occurred yet.  Exact next action:
+  configure once from clean exact checkout `boom-first-68873f42` with the full
+  validated v2 smoke receipt inline, then verify live boom config/Ready state
+  and unchanged execution census before creating the atomic one-shot launch
+  claim.  Reserve the shared job through collection; collect before restore.
+
+## Previous handoff -- 2026-08-29 (three-hundred-eighty-seventh update)
 
 ### Immutable production image reproduces task 0; manifest smoke is green
 
