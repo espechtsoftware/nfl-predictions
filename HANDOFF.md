@@ -20,6 +20,44 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 01:21 UTC (three-hundred-seventeenth update)
+
+### First challenger panel is terminal: L2b sealed 54/54
+
+- Branch `main` and `origin/main` entered this milestone at `ff8a8071`.
+  Immutable experiment source/image identities remain those recorded in update
+  316; no rebuild or mutable-tag resolution occurred.
+- Full L2b execution `atlas-minimal-c-s2023-w3-v1-4xvww`, execution UID
+  `16ceca42-65c3-49df-928d-3c1cae5981ad`, completed **54/54 successful with
+  zero failures**. Its terminal status SHA-256 is
+  `00132f6f802349300c7cef85164a68d8e2b1bba10f4659526644e4c2ed93ba8b`.
+  No logs, realized outcomes, or scientific result bodies were read by status.
+- Deterministic full collection exact-opened the 54 manifest-known task
+  results and emitted the one finalization request. Collection SHA-256 is
+  `9f97ec2e6b7c46c995fbbfbd960e01087229d7edb7b83063a293e7c4334a0b70`;
+  `panel_finalization_ready=true`, with no bucket listing or outcome read.
+- L2b finalization completed exactly once and sealed 54 tasks / 540 cells.
+  Terminal panel-root identity is generation `1787966212787644`, SHA-256
+  `481e0304f1a1e23a64062c9bd4b4925c25c967a9345b18f385fbdb51bf9ca851`,
+  467,621 bytes at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-l2b/20260829-score-sprint-c9f12ed7-v1/panel-root.json`;
+  panel self-hash is
+  `46eb64df4ee9d9790413b56a6447cc857cd940e9e270d49cb4be06a0215991e2`.
+  The root contains no lineup outcomes and is now the exact production input
+  for the independently reviewed L2b selector adapter.
+- Population F7/F8/F9 task-0 and hard-230 task-0 remain ACTIVE with zero
+  observed failures. Frozen control layer 06 is prepared, configured and armed
+  from receipts 00--05; its create-once launch intent is generation
+  `1787966177071409`, SHA-256
+  `04e1fb9ce4c88ea319c31c0847911fd1342f69d3e8c262a6ebc96cb80979d417`,
+  2,948 bytes. Its owner is performing the final idle/UID check before the one
+  allowed submission.
+- Exact next action: finish the L2b adapter's review remediation against this
+  exact panel root, then emit its fixed lineup books before realized grading.
+  Continue status-only polls on population/hard-230, fan each successful smoke
+  to 54 immediately, and finish control layers 06--07 before the first outcome
+  bridge. No new realized score has yet been read.
+
 ## Current handoff — 2026-08-29 01:13 UTC (three-hundred-sixteenth update)
 
 ### L2b smoke passed and full 54-slate execution is live
