@@ -20,6 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 01:39 UTC (three-hundred-eighteenth update)
+
+### Control layer 06 is live; adapter reviews blocked two untrustworthy paths
+
+- Branch `main` and `origin/main` entered this milestone at `a31a38ac`.
+  Frozen control layer-06 `aggregate-finalists` passed its final idle/UID check
+  and launched exactly once as execution
+  `atlas-cbc-32g-full-2023-w8-v1-qz62b`, UID
+  `dfb999c3-b31a-4b3b-b87e-26359fe9eb49`, generation 1. Launch-result SHA-256
+  is `8d39f8c39e686aa5e9f81011e50dc81b338627130f541f67f1c60fda0ea56fea`.
+  Three status-only polls remain ACTIVE with one task and zero failures; do
+  not reconfigure, rearm or relaunch it.
+- Population F7/F8/F9 and hard-230 task-0 executions have been running since
+  `2026-08-29T01:04:59Z`. Provider task metadata confirms both containers are
+  genuinely started/active, with no completion/failure/cancellation. Status
+  only; no logs or scientific outputs have been read.
+- Independent review found a real L2b release blocker despite green supplied
+  tests: a selected lineup could be replaced by another candidate, nested
+  hashes recomputed, and the slate result validator still accepted the forged
+  book. The author is repairing exact book-coordinate/prefix equality and
+  invoking actual selector replay/validators, with a regression reproducing
+  the forgery. The already-sealed 54-slate L2b panel is unaffected. Do not
+  commit/build/prepare the adapter until the independent reviewer returns GO.
+- Independent review also returned **NO-GO** on the uncommitted fair-fill
+  scaffold. The new source bridge is not wired into select/evaluate; arbitrary
+  local NumPy training/heldout matrices remain acceptable, plan and selector
+  replay are caller-rehashable, and the claimed training capability can open
+  caller-chosen identities. Its focused tests do not provide an evidentiary
+  54x5 score path. Preserve the files as non-evidentiary research only; do not
+  include them in the next image or score table.
+- Exact next action: continue status-only polls; auto-advance control to layer
+  07 and each successful challenger smoke to full 54. Finish the narrow L2b
+  repair and independent re-review, then commit/build that adapter without
+  waiting for fair-fill. No new realized score has yet been read.
+
 ## Current handoff — 2026-08-29 01:21 UTC (three-hundred-seventeenth update)
 
 ### First challenger panel is terminal: L2b sealed 54/54
