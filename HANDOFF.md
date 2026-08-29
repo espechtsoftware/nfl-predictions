@@ -20,6 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 09:23 UTC (three-hundred-forty-sixth update)
+
+### Corrected recourse canary passed and the remaining 53 cells are live
+
+- Branch `main` and `origin/main` are at pushed commit `de88a69d`. Corrected
+  kickoff-v3 canary `atlas-cbc-32g-full-2023-w8-v1-ltgg8` completed with one
+  success and zero failures/retries/cancellations. The scientific validator
+  returned `actual-final-path-canary-passes`: all R0--R4 folds, five artifact
+  receipts, exact 80-lineup control/treatment books and 10,000 worlds per arm
+  passed. Its result object is generation `1787995108053340`, SHA-256
+  `6b6f8f104c787d9bd3205014b4400e1430588f30bfd27feb42db04a2f35d34b4`.
+- The guarded release then launched the remaining 53 cells once. The exact
+  Cloud Run execution IDs are:
+  `trhrk`, `wdchj`, `v8ccf`, `dlt87`, `7znjx`, `mk5wm`, `8jhzm`, `lkd2r`,
+  `8wcsm`, `dqp78`, `t8lgw`, `gnb9z`, `9tjxk`, `jx9vj`, `d72z7`, `s6wsd`,
+  `w4qzk`, `pcn6q`, `wl9q6`, `9xjq5`, `xjv4x`, `ztlfq`, `cpr6d`, `7dvkv`,
+  `zntkk`, `zst8f`, `2t64d`, `k2ksh`, `dq9fk`, `c5j4q`, `4f48v`, `7qxfr`,
+  `qrpnm`, `jt7jw`, `dxznj`, `l8zdv`, `zmp98`, `68ksf`, `lvlpj`, `f7hfn`,
+  `9zqft`, `rwqzs`, `mn5ld`, `nm9jr`, `6j8q9`, `cp49m`, `lp72h`, `hz78b`,
+  `hrz9x`, `vx74x`, `scghh`, and `qdvm2`, each prefixed by
+  `atlas-cbc-32g-full-2023-w8-v1-`. First harvest correctly reported all 53
+  pending; do not release or relaunch them.
+- L2b remains in its one existing local exact-replay collection; its terminal
+  object is not yet published. Hard-230 derive remains queued behind that
+  single heavy local process. Combined all-block launch preparation is fixing
+  the final strict provider `resolvedGitSource` attestation compatibility.
+- Exact next action: poll/harvest the 53 recourse executions, continue the
+  existing L2b collect without duplication, grade L2b immediately on terminal
+  publication, and then run the already-smoked hard-230 full derive.
+
 ## Current handoff — 2026-08-29 09:20 UTC (three-hundred-forty-fifth update)
 
 ### Combined all-block K80 union is independently launch-GO
