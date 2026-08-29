@@ -30325,3 +30325,50 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   operator's amended utility. Next work must develop K=1 under the new
   prospective policy or add genuinely new prospective field/belief data—not
   mine another selector/multiple on these 107 known outcomes.
+
+## 2026-08-29 — V7 terminal-root timeout recovery prepared, not launched
+
+- Current branch base is commit
+  `6c9cfd705ac8381f3b5e0da83a6b756cf9b443a1`. The V7 control chain has sealed
+  exact layer receipts 00 through 06. Layer 07 execution
+  `atlas-cbc-32g-full-2023-w8-v1-9clnn` (execution UID
+  `914d9f6c-a477-4413-8722-c964185734f3`) ended terminal `FAILED`; task 0 exit
+  was 1. Its exact status body SHA-256 is
+  `48e8da143d165f5722de797314876a307a0a50740efe28752698a85cc78f67b4`
+  and internal status SHA-256 is
+  `67f08038e5e5c5bfa491c44751927cf92d7da1c911401da728d81e36e4640f68`.
+- The exact task's terminal operational diagnostic classifies the failure as
+  `child-timeout`: the dispatcher stopped the canonical terminal publisher at
+  1,800 seconds with empty child stderr. The failed task-terminal evidence is
+  generation `1787972142926585`, SHA-256
+  `45ba752a1accc54633768ed0c5003ded51a59c23f4498573c64419080c9c6dc8`.
+  The create-once V7 `root.json` was metadata-confirmed absent after failure.
+  No realized outcome was read.
+- A second contract check found the frozen publisher also hard-coded the same
+  1,800-second ceiling. A dispatcher-only timeout extension is therefore not
+  a valid recovery. The authorized narrow repair changes only
+  `MAXIMUM_PUBLISHER_WALL_SECONDS` from 1,800 to 5,400 seconds and adds a
+  bounded recovery carrier. The carrier exact-reopens the original manifest,
+  executes the unchanged canonical child command and request, verifies the
+  unchanged process-budget read/write allowlists, generation-proves the same
+  create-once root URI, and emits no raw child stream or scientific body.
+- Exact prepared recovery files are:
+  `src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_aggregate_v1.py`,
+  `scripts/run_corpus_r6_current_bank_terminal_root_timeout_recovery_v1.py`,
+  `tests/test_run_corpus_r6_current_bank_terminal_root_timeout_recovery_v1.py`,
+  `tests/test_corpus_r6_current_bank_crossed_screen_aggregate_execution_v1.py`,
+  and `reports/2026-08-29-r6-v7-terminal-root-timeout-evidence.json`.
+  Focused validation is 29 passed. The regression normalizes the one wall
+  constant back to 1,800 and reproduces frozen publisher source SHA-256
+  `075c0b29c17b7d8376a775f80ce7863fd1f060ed2f9522eb10561a2d6f93ff35`;
+  the task-manifest and dispatcher remain frozen-exact at SHA-256
+  `c7df1085381496482deb7c732e453964e8018702b3fc5f3ef11d4b8189ef2b1b`
+  and `03900f9601d3f9b1bec268bdcfe6e03b8d8dfcf09ba836287b70e236ab589e08`.
+- No recovery amendment, launch marker, job reconfiguration, new image, or
+  replacement execution exists yet. Next concrete action: commit only the
+  scoped recovery files plus this HANDOFF section, build one immutable image
+  from that clean commit, mint the create-once timeout amendment and exactly
+  one launch ownership marker, review the exact job UID/idle projection, then
+  configure and submit exactly once. Poll status without logs; on terminal
+  success publish the replacement terminal/finalize receipts and stop before
+  any realized bridge read.

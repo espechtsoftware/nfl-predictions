@@ -1,0 +1,120 @@
+{
+  "schema_version": "r6-v7-terminal-root-timeout-evidence/v1",
+  "recorded_at_utc": "2026-08-29T03:05:00Z",
+  "scope": "operational terminal-failure evidence only",
+  "execution": {
+    "job_name": "atlas-cbc-32g-full-2023-w8-v1",
+    "job_uid": "1f4bcf0a-2300-4afa-9fc1-9981844c8275",
+    "execution_name": "atlas-cbc-32g-full-2023-w8-v1-9clnn",
+    "execution_uid": "914d9f6c-a477-4413-8722-c964185734f3",
+    "created_at_utc": "2026-08-29T02:20:14.258322Z",
+    "started_at_utc": "2026-08-29T02:20:22.580096Z",
+    "completed_at_utc": "2026-08-29T02:55:45.698406Z",
+    "terminal_state": "FAILED",
+    "failed_task_count": 1,
+    "task_index": 0,
+    "task_exit_code": 1,
+    "cloud_run_reason": "NonZeroExitCode"
+  },
+  "frozen_status_evidence": {
+    "local_path": "/tmp/r6-current-bank-v7-operator-5a293157/461-terminal-root-status-006.json",
+    "local_file_sha256": "48e8da143d165f5722de797314876a307a0a50740efe28752698a85cc78f67b4",
+    "status_sha256": "67f08038e5e5c5bfa491c44751927cf92d7da1c911401da728d81e36e4640f68",
+    "logs_read": false,
+    "scientific_outputs_read": false,
+    "realized_outcomes_read": false
+  },
+  "operational_log_evidence": {
+    "query_scope": "resource.type=cloud_run_job, exact job and execution labels, one task",
+    "failure_diagnostic_insert_id": "6a924a2e000f0fc855a96ff0",
+    "failure_diagnostic_timestamp_utc": "2026-08-29T02:55:42.987080Z",
+    "classification": "child-timeout",
+    "timed_out": true,
+    "child_exit_code": 255,
+    "child_stderr_bytes": 0,
+    "child_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "raw_child_streams_embedded_in_science_authority": false,
+    "dispatch_terminal_insert_id": "6a924a2e000f119829cd6441",
+    "dispatch_terminal_result_sha256": "dd57555ae1aa3fe1d121792fe2bb0fff75bf4746674ad3022f286dbd198c03f4",
+    "task_completed": false,
+    "recovery_allowed": false,
+    "task_terminal_evidence_identity": {
+      "bytes": 4893,
+      "generation": "1787972142926585",
+      "sha256": "45ba752a1accc54633768ed0c5003ded51a59c23f4498573c64419080c9c6dc8",
+      "uri": "gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-current-bank-crossed-screens/20260828-r6-current-bank-crossed-screen-v7/authorities/task-terminal-evidence/terminal-root/task-000.json"
+    }
+  },
+  "frozen_task_contract": {
+    "manifest_identity": {
+      "bytes": 97966,
+      "generation": "1787969290338122",
+      "sha256": "dd382d531997be0d9a888872f24adb6706dde27e8083ca72e8cf0367581a00ee",
+      "uri": "gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-current-bank-crossed-screens/20260828-r6-current-bank-crossed-screen-v7/authorities/task-manifests/07-terminal-root.json"
+    },
+    "request_identity": {
+      "bytes": 87517,
+      "generation": "1787969289908323",
+      "sha256": "96ac78df2f507a8ccea9c2d5219652e3e93e5be23b7c046d6a2205095b6c1de7",
+      "uri": "gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-current-bank-crossed-screens/20260828-r6-current-bank-crossed-screen-v7/authorities/layer-preparation/07-terminal-root/task-000/request.json"
+    },
+    "process_budget_identity": {
+      "bytes": 99018,
+      "generation": "1787969289539506",
+      "sha256": "9a6beac3e82b13ace5c4252b18ca4868b1cb4e6165901c6ff7d2a8bdf1ce3d47",
+      "uri": "gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-current-bank-crossed-screens/20260828-r6-current-bank-crossed-screen-v7/authorities/layer-preparation/07-terminal-root/task-000/process-budget.json"
+    },
+    "child_command": [
+      "/usr/local/bin/python3.11",
+      "/app/scripts/run_corpus_r6_current_bank_crossed_screen_aggregate_v1.py",
+      "publish-terminal-root"
+    ],
+    "maximum_wall_seconds": 1800,
+    "read_object_count_excluding_budget_authority": 278,
+    "read_byte_ceiling_excluding_budget_authority": 9867704643,
+    "scientific_read_count": 274,
+    "root_uri": "gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-current-bank-crossed-screens/20260828-r6-current-bank-crossed-screen-v7/root.json",
+    "root_create_once": true,
+    "root_observed_absent_after_failure": true
+  },
+  "diagnosis": {
+    "cause": "The frozen dispatcher killed the exact terminal-root child at its 1,800-second child wall limit while it was generation-exact opening the large frozen read set. The frozen publisher independently hard-codes and validates the same 1,800-second ceiling, so a dispatcher-only timeout increase cannot produce a valid terminal envelope. The failure was not a scientific assertion, schema mismatch, memory failure, Cloud Run platform failure, or realized-outcome read.",
+    "original_manifest_relaunch_allowed": false,
+    "original_finalize_allowed": false,
+    "existing_resume_authority_available": false
+  },
+  "publisher_contract_evidence": {
+    "frozen_source_sha256": "075c0b29c17b7d8376a775f80ce7863fd1f060ed2f9522eb10561a2d6f93ff35",
+    "maximum_publisher_wall_seconds": 1800,
+    "constant_line": 68,
+    "resource_checkpoint_line": 902,
+    "resource_precharge_line": 972,
+    "envelope_validation_lines": [1697, 1736],
+    "dispatcher_only_timeout_extension_valid": false
+  },
+  "narrow_recovery_requirements": {
+    "recovery_kind": "bounded transport-timeout amendment",
+    "must_preserve": [
+      "V7 receipts 00 through 06",
+      "exact terminal-root child command",
+      "exact canonical request bytes and SHA-256",
+      "exact process-budget read/write allowlists",
+      "create-once V7 root URI",
+      "zero realized-outcome reads"
+    ],
+    "only_licensed_delta": "Increase both the publisher's own wall checkpoint and its recovery carrier child allowance from 1,800 to 5,400 seconds, bounded by the already configured 7,260-second Cloud Run task timeout; bind the one-line code change to a new immutable image digest.",
+    "new_authorities_required": [
+      "explicit timeout-amendment authority binding this failure and the exact frozen task authorities",
+      "new immutable image/build receipt proving the publisher source differs only at the wall-limit constant",
+      "new single-submission launch intent/ownership marker because the original intent is consumed",
+      "terminal success evidence for the replacement execution",
+      "replacement finalization receipt binding the amended transport to the unchanged V7 root"
+    ],
+    "prohibited": [
+      "blind relaunch of the failed manifest",
+      "fabricating a resume authority where the registry licenses zero recovery epochs",
+      "finalizing the failed execution",
+      "changing scientific inputs, algorithms, thresholds, or outputs"
+    ]
+  }
+}

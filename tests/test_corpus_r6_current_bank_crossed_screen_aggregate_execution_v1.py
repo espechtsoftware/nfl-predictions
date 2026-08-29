@@ -915,7 +915,7 @@ def test_resource_overflow_wall_and_rss_fail_before_publication(monkeypatch):
         aggregate, "MAXIMUM_COMPACT_EVALUATION_STATE_BYTES", 64_000_000
     )
     fixture = Fixture(aggregate.PUBLISH_NOMINATION)
-    ticks = iter((0.0, 1_801.0))
+    ticks = iter((0.0, 5_401.0))
     with pytest.raises(
         aggregate.CorpusR6CurrentBankCrossedScreenAggregateV1Error,
         match="wall-time ceiling",
