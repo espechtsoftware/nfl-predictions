@@ -24,8 +24,9 @@ agent or developer:
 
 ### Corrected recourse canary is code-ready while score-first panels advance
 
-- Branch `main` and `origin/main` entered this milestone at pushed commit
-  `7f553e12`. Exact-commit L2b build
+- Branch `main` and `origin/main` are at pushed commit `458a5ee4`; that commit
+  contains the independently reviewed kickoff-v2 correction and its 32/32
+  passing focused suite. Exact-commit L2b build
   `9835fd0d-6f17-4a45-a2a7-cdef00ddb987` succeeded with image digest
   `sha256:397b777ff1914a862228cf21659c541f514dfa6f3a2485d6c496cbd0fa82e8ec`.
   Its canonical terminal build receipt is generation `1787990005374979`,
@@ -54,6 +55,13 @@ agent or developer:
   remain a separate unstaged package and must be rebased to the replacement
   run before realized grading, but they do not block the one-slate score-free
   canary.
+- `cloudbuild.recourse-kickoff-v2.yaml` is the bounded replacement build path:
+  it runs the 32 focused recourse tests, compiles the four runtime/control
+  scripts, builds the ordinary full runtime image, and performs three
+  network-isolated CLI smokes. It retains the exact step IDs, image argument,
+  Git-source provenance and smoke tokens required by the existing transport,
+  without paying for the unrelated repository-wide 90-minute test suite.
+  Commit/push this build file before submitting it with an exact Git revision.
 - The isolated hard-230 confirmation science layer is locally implemented and
   green: two matched populations, seven selectors and K=80/100/150 produce 42
   books per slate under the honest R1--R4 out-of-R0-origin law. A bounded
@@ -61,10 +69,11 @@ agent or developer:
   combined incumbent + hard-230 + F7/F8/F9 all-block K=80 union adapter is also
   being implemented from the common frozen worlds without population
   regeneration.
-- Exact next action: poll the active L2b full-54 panel to terminal success,
-  collect/finalize/grade it, and commit/push the minimal recourse kickoff-v2
-  amendment without the unrelated
-  terminal-root hunks; then build and run its one-slate canary. In parallel,
+- Exact next action: poll the active L2b full-54 panel to terminal success and
+  collect/finalize/grade it. Commit/push the bounded recourse build file,
+  submit that exact Git revision, bind the resulting build/image identities in
+  the local transport, then run the one-slate canary. Keep unrelated
+  terminal-root hunks separate. In parallel,
   finish and validate the hard-230/diversity and combined-union operators so
   they can be graded against the existing catalog-wide outcome snapshot. The
   incoming external rapid-test finalists should be reproduced as challengers
