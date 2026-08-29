@@ -20,7 +20,45 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 (three-hundred-eighty-sixth update)
+## Current handoff -- 2026-08-29 (three-hundred-eighty-seventh update)
+
+### Immutable production image reproduces task 0; manifest smoke is green
+
+- Branch `main` and `origin/main` entered this milestone at pushed handoff
+  commit `b55ff047`; exact science/image source remains `68873f42...`.
+- Corrected no-source, digest-pinned smoke build
+  `5b024a64-caf2-47de-91b0-04cf342d758b` completed `SUCCESS` from
+  `2026-08-29T21:49:58.411377980Z` through
+  `2026-08-29T22:29:20.190638Z`.  Its sole science step used immutable image
+  digest `sha256:86951310...1ada3`, exact-opened the prepared manifest and
+  ordinal-0 snapshot, reproduced all five incumbent control books and produced
+  exact K80 control and treatment books.
+- Fresh v2 evidence contains canonical request (289 bytes), canonical receipt
+  (3,777 bytes), and the Cloud Build artifact index only.  Request generation
+  `1788042552261580` byte-matches the local exact request.  Receipt identity is
+  generation `1788042556067954`, 3,777 bytes and byte SHA-256
+  `d1a50bce1cc4aa91630da991914dd35320cb4e15470a33f082357ab6e8f586dc`
+  at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-boom-first-allocation-smokes/20260829-boom-first-68873f42-git-v1-manifest-smoke-v2/receipt.json`.
+- Generation-pinned reopen, canonical-byte check, internal self-hash and frozen
+  manifest-smoke validator all pass.  Smoke SHA-256 is
+  `94b4518afc3197b02ef73a912156fb514f88d5cb141907d06da7f2fb94125b80`;
+  task-result SHA-256 is `f4338dcc323826aeec50a1273420b0e44669f9916c47294e7ef1d21fdc9ba955`;
+  generation-snapshot SHA-256 is
+  `b7ba65e7a69b2cbc94e11f7335e4f04d47c10334d1df76dcf37bfd1fadeea593`;
+  and arm-science SHA-256 is
+  `198dbbbead7eaf57b06c98206e7d74023097b4eb06196ba1874e2a80e8ba9835`.
+  Receipt binds the exact manifest/build/image/source, five controls, 80/80,
+  `publication_performed=false`, empty outcome columns and
+  `uses_realized_outcomes=false`.
+- No fixed-job mutation/launch, experiment result or outcome read occurred.
+  Independent transition review is GO.  Exact next action: immediately
+  re-census job UID/idleness/scheduler absence and fresh run-prefix authority,
+  capture generation-pinned pre-mutation job JSON plus export YAML and stable
+  projection durably, then configure once from the clean `68873f42` checkout.
+  Inline the full validated v2 receipt; never use the failed v1 smoke.
+
+## Previous handoff -- 2026-08-29 (three-hundred-eighty-sixth update)
 
 ### Corrected immutable-image manifest smoke is queued on fresh v2 evidence
 
