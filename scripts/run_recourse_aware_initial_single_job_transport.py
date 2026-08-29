@@ -39,16 +39,16 @@ V6_SOURCE_OBJECT = (
     "source/1787935647.532217-ebf48ce4b9c8408689aa2e458b0c4bd6.tgz"
 )
 V6_SOURCE_GENERATION = "1787935654588405"
-CODE_SHA = "96f4487bdefa297f66d03e4aca896728581540b2"
-BUILD_ID = "3503c493-60d5-4fe6-a853-583679c8e33d"
+CODE_SHA = "cfc7942e79e1557e445922f427a2319b0f286457"
+BUILD_ID = "e3552f5c-78f8-4311-ae06-e326dc0a8f96"
 IMAGE_TAG = (
     "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/"
-    "nfl-dfs:a7-96f4487-20260820"
+    "nfl-dfs:recourse-kickoff-v2-cfc7942e"
 )
 IMAGE = (
     "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/"
     "nfl-dfs@sha256:"
-    "9956f2b4444bc60255c29a1844c23a1f772d6b0c85ae1a532e032ece975e86ed"
+    "ee5448360ffbd520e51310d9955e6a2e595540d32654fe9f9a321a29dc797a08"
 )
 IMAGE_DIGEST = IMAGE.rsplit("@", 1)[1]
 SOURCE_REPOSITORY = "https://github.com/espechtsoftware/nfl-predictions.git"
