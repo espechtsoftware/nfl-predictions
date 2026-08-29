@@ -51,6 +51,15 @@ agent or developer:
   known result identities and projects them into the common grader. Combined
   lead validation is **52/52 passed**; the focused packaging/collector audit
   separately passed 46/46 plus compilation and `git diff --check`.
+- Clean-snapshot build `9ccb899c-fb3b-49f3-84ff-d6c0888bc0a6` also failed
+  before image creation. Its Python 3.11 test container could install only
+  NumPy 2.4.6/SciPy 1.17.1, while the frozen selector contract requires
+  Python 3.14.4 with NumPy 2.5.1/SciPy 1.18.0. The dedicated Docker and test
+  stages now use `python:3.14.4-slim`, install those two exact numerical
+  versions, and provide the frozen `/usr/local/bin/python3.11` command as a
+  symlink to Python 3.14. The previously failing runtime/selector and image-
+  contract slice passes **32/32** locally. No image or challenger execution
+  was produced by the failed build.
 - Three distinct idle Cloud Run jobs are fixed for parallel task-0 then
   full-54 launch without creating jobs: population/crossed uses
   `atlas-minimal-c-s2023-w1-v1` UID

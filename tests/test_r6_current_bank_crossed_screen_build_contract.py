@@ -129,13 +129,15 @@ def _build() -> dict[str, object]:
 
 def test_runtime_surface_contains_only_the_required_source_and_entrypoints() -> None:
     source = DOCKERFILE.read_text(encoding="utf-8")
-    assert source.startswith("FROM python:3.11-slim\n")
+    assert source.startswith("FROM python:3.14.4-slim\n")
     assert "WORKDIR /app" in source
     assert "COPY src /app/src" in source
     assert "COPY scripts /app/scripts" not in source
     assert "COPY . " not in source
     assert "COPY sql" not in source
     assert "COPY tests" not in source
+    assert "ln -s /usr/local/bin/python3.14 /usr/local/bin/python3.11" in source
+    assert '"numpy==2.5.1" "scipy==1.18.0"' in source
     for runner in RUNNERS:
         assert runner in source
     assert source.count(REPORT) == 2
@@ -167,6 +169,9 @@ def test_runtime_os_and_python_resources_are_narrow_and_reproducible() -> None:
 
 def test_cloud_build_compiles_and_import_smokes_the_complete_boundary() -> None:
     source = BUILD_CONFIG.read_text(encoding="utf-8")
+    assert "name: python:3.14.4-slim" in source
+    assert "ln -s /usr/local/bin/python3.14 /usr/local/bin/python3.11" in source
+    assert "'numpy==2.5.1' 'scipy==1.18.0'" in source
     compile_section = source.split("-m py_compile", 1)[1].split(
         "/usr/local/bin/python3.11 -I -c", 1
     )[0]

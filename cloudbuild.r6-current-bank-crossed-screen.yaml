@@ -2,7 +2,7 @@
 # gcloud builds submit --ignore-file=.gcloudignore.r6-current-bank-crossed-screen \
 #   --config=cloudbuild.r6-current-bank-crossed-screen.yaml .
 steps:
-  - name: python:3.11-slim
+  - name: python:3.14.4-slim
     id: focused-current-bank-contract-tests
     entrypoint: bash
     args:
@@ -10,6 +10,8 @@ steps:
       - |
         apt-get update
         apt-get install -y --no-install-recommends libgomp1
+        ln -s /usr/local/bin/python3.14 /usr/local/bin/python3.11
+        pip install --no-cache-dir 'numpy==2.5.1' 'scipy==1.18.0'
         pip install --no-cache-dir --editable '.[gcp,dev]'
         PYTHONDONTWRITEBYTECODE=1 /usr/local/bin/python3.11 -m py_compile \
           src/nfl_dfs/research/corpus_r6_current_bank_crossed_screen_contract_v1.py \
