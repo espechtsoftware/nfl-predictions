@@ -576,6 +576,60 @@ def finalize_from_request_v1(request: object, *, store: object) -> dict[str, obj
     }
 
 
+def _finalize_from_provider_results_request_v1(
+    request: object, *, store: object,
+) -> dict[str, object]:
+    """Internal post-gate finalizer; never expose this as a CLI command."""
+    item = _mapping(request, label="provider-result finalize request")
+    if set(item) != {
+        "manifest_identity", "task_result_identities",
+        "provider_launch_result", "provider_execution_status",
+    }:
+        _fail("provider-result finalize request fields differ")
+    identities = item["task_result_identities"]
+    if not isinstance(identities, list) or len(identities) != adapter.TASK_COUNT:
+        _fail("provider-result finalize requires 54 task-result identities")
+    root, identity = adapter.finalize_terminal_root_from_provider_results_v1(
+        manifest_identity=item["manifest_identity"],
+        task_result_identities=identities,
+        provider_launch_result=item["provider_launch_result"],
+        provider_execution_status=item["provider_execution_status"],
+        read_exact=store.read_exact,
+        publish_create_once=store.publish_create_once,
+    )
+    return {
+        "schema_version": (
+            "corpus-r6-l2b-selector-provider-result-finalization-provisional/v1"
+        ),
+        "terminal_root_identity": identity,
+        "terminal_root_sha256": root["terminal_root_sha256"],
+        "source_slate_count": root["source_slate_count"],
+        "provider_task_results_reused": True,
+        "selectors_recomputed_during_collection": False,
+        "authority_tier": root["authority_tier"],
+        "provider_execution_name": root["provider_execution_status"][
+            "execution_name"
+        ],
+        "provider_execution_uid": root["provider_execution_status"][
+            "execution_uid"
+        ],
+        "provider_execution_generation": root["provider_execution_status"][
+            "execution_generation"
+        ],
+        "provider_status_sha256": root["provider_execution_status"][
+            "status_sha256"
+        ],
+        "asynchronous_exact_replay_required": True,
+        "canonical_terminal_root_identity": None,
+        "coherent_substitution_excluded_by_hashes_alone": False,
+        "confirmatory_authority": False,
+        "promotion_authority": False,
+        "production_change_licensed": False,
+        "complete": True,
+        "uses_realized_outcomes": False,
+    }
+
+
 def collect_from_request_v1(request: object, *, store: object) -> dict[str, object]:
     """Collect only after an exact terminal task0/full54 execution status."""
     item = _mapping(request, label="collect request")
@@ -672,6 +726,45 @@ def collect_from_request_v1(request: object, *, store: object) -> dict[str, obje
     }
 
 
+def collect_operator_from_provider_results_v1(
+    *, manifest_identity: object, launch: object, store: object, runner: object,
+) -> dict[str, object]:
+    """Collect exact full54 task results without centralized selector replay."""
+    retained_launch = panel_operator.validate_launch_result_v1(launch)
+    status = status_operator_v1(launch=retained_launch, runner=runner)
+    manifest, identity = adapter._open_selector_manifest_v1(
+        manifest_identity=manifest_identity, read_exact=store.read_exact
+    )
+    if (
+        manifest["execution_scope"] != adapter.FULL54_SCOPE
+        or retained_launch["scope"] != adapter.FULL54_SCOPE
+        or status.get("scope") != adapter.FULL54_SCOPE
+        or status.get("execution_name") != retained_launch["execution_name"]
+        or status.get("job_uid") != adapter.REUSED_JOB_UID
+        or status.get("expected_task_count") != adapter.TASK_COUNT
+        or status.get("succeeded_count") != adapter.TASK_COUNT
+        or status.get("failed_count") != 0
+        or status.get("cancelled_count") != 0
+        or status.get("terminal_state") != "SUCCEEDED"
+        or status.get("logs_read") is not False
+        or status.get("scientific_outputs_read") is not False
+        or status.get("outcomes_read") is not False
+    ):
+        _fail("provider results cannot fast-finalize before exact 54/54 success")
+    identities: list[dict[str, object]] = []
+    for task_row in manifest["task_rows"]:
+        _raw, result_identity = store.open_known(
+            str(task_row["result_uri"]), adapter.MAXIMUM_TASK_RESULT_BYTES
+        )
+        identities.append(result_identity)
+    return _finalize_from_provider_results_request_v1({
+        "manifest_identity": identity,
+        "task_result_identities": identities,
+        "provider_launch_result": retained_launch,
+        "provider_execution_status": status,
+    }, store=store)
+
+
 def grade_from_request_v1(request: object, *, store: object) -> dict[str, object]:
     item = _mapping(request, label="grade request")
     if set(item) != {
@@ -694,6 +787,45 @@ def grade_from_request_v1(request: object, *, store: object) -> dict[str, object
         "realized_scorecard_identity": identity,
         "realized_grade_sha256": grade["realized_grade_sha256"],
         "aggregate_cell_count": grade["aggregate_cell_count"],
+        "terminal_before_first_outcome_read": grade[
+            "terminal_before_first_outcome_read"
+        ],
+        "complete": True,
+    }
+
+
+def grade_provider_results_provisional_from_request_v1(
+    request: object, *, store: object,
+) -> dict[str, object]:
+    item = _mapping(request, label="provisional provider grade request")
+    if set(item) != {
+        "terminal_root_identity", "outcome_snapshot_identity", "output_uri",
+    }:
+        _fail("provisional provider grade request fields differ")
+    grade, identity = (
+        adapter.grade_and_publish_l2b_provider_results_provisional_realized_v1(
+            terminal_root_identity=item["terminal_root_identity"],
+            outcome_snapshot_identity=item["outcome_snapshot_identity"],
+            target_uri=str(item["output_uri"]),
+            read_terminal_exact=store.read_exact,
+            read_outcome_exact=store.read_exact,
+            publish_create_once=store.publish_create_once,
+        )
+    )
+    return {
+        "schema_version": (
+            "corpus-r6-l2b-selector-provider-realized-grade-cli-provisional/v1"
+        ),
+        "adapter_id": grade["adapter_id"],
+        "realized_scorecard_identity": identity,
+        "realized_grade_sha256": grade["realized_grade_sha256"],
+        "aggregate_cell_count": grade["aggregate_cell_count"],
+        "authority_tier": grade["authority_tier"],
+        "asynchronous_exact_replay_required": True,
+        "coherent_substitution_excluded_by_hashes_alone": False,
+        "confirmatory_authority": False,
+        "promotion_authority": False,
+        "production_change_licensed": False,
         "terminal_before_first_outcome_read": grade[
             "terminal_before_first_outcome_read"
         ],
@@ -725,8 +857,10 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     for command in (
-        "prepare", "execute-task", "finalize", "grade", "configure",
-        "launch", "status", "collect",
+        "prepare", "execute-task", "finalize",
+        "grade", "grade-provider-results-provisional", "configure", "launch",
+        "status", "collect",
+        "collect-provider-results",
     ):
         child = commands.add_parser(command)
         child.add_argument("--request-file", type=Path, required=True)
@@ -753,6 +887,10 @@ def main(argv: list[str] | None = None) -> int:
             result = finalize_from_request_v1(request, store=store)
         elif args.command == "grade":
             result = grade_from_request_v1(request, store=store)
+        elif args.command == "grade-provider-results-provisional":
+            result = grade_provider_results_provisional_from_request_v1(
+                request, store=store
+            )
         elif args.command in {"configure", "launch"}:
             if set(request) != {"manifest_identity"}:
                 _fail(f"{args.command} request fields differ")
@@ -773,10 +911,15 @@ def main(argv: list[str] | None = None) -> int:
             result = status_operator_v1(
                 launch=request["launch_result"], runner=SubprocessRunnerV1()
             )
-        elif args.command == "collect":
+        elif args.command in {"collect", "collect-provider-results"}:
             if set(request) != {"manifest_identity", "launch_result"}:
                 _fail("operator collect request fields differ")
-            result = collect_operator_v1(
+            function = (
+                collect_operator_v1
+                if args.command == "collect"
+                else collect_operator_from_provider_results_v1
+            )
+            result = function(
                 manifest_identity=request["manifest_identity"],
                 launch=request["launch_result"],
                 store=store,

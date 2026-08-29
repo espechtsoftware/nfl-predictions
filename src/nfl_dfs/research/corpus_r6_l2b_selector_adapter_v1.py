@@ -73,6 +73,18 @@ TASK_RESULT_SCHEMA: Final = "corpus-r6-l2b-selector-slate-result/v1"
 FOLD_RESULT_SCHEMA: Final = "corpus-r6-l2b-selector-fold-result/v1"
 FRACTION_RESULT_SCHEMA: Final = "corpus-r6-l2b-selector-fraction-result/v1"
 TERMINAL_ROOT_SCHEMA: Final = "corpus-r6-l2b-selector-terminal-root/v1"
+PROVISIONAL_TERMINAL_ROOT_SCHEMA: Final = (
+    "corpus-r6-l2b-selector-provider-terminal-provisional/v1"
+)
+PROVISIONAL_REALIZED_GRADE_SCHEMA: Final = (
+    "corpus-r6-l2b-selector-provider-realized-grade-provisional/v1"
+)
+PROVISIONAL_TERMINAL_FILENAME: Final = (
+    "provisional-provider-terminal-selector-root.json"
+)
+PROVISIONAL_REALIZED_GRADE_FILENAME: Final = (
+    "provisional-provider-realized-grade.json"
+)
 REALIZED_GRADE_SCHEMA: Final = grader.REALIZED_GRADE_SCHEMA
 
 TASK_COUNT: Final = l2b_panel.TASK_COUNT
@@ -337,9 +349,15 @@ def _validate_self_hash(
         _fail(f"{label} self-hash differs")
 
 
-def _validate_task0_execution_status_v1(value: object) -> dict[str, object]:
-    """Validate the provider-derived terminal status sealed by the smoke."""
-    status = _mapping(value, label="task0 provider terminal status")
+def _validate_provider_execution_status_v1(
+    value: object,
+    *,
+    expected_scope: str,
+    expected_count: int,
+    label: str,
+) -> dict[str, object]:
+    """Validate one provider-derived successful execution status."""
+    status = _mapping(value, label=label)
     expected_fields = {
         "schema_version", "scope", "project_id", "location", "job_name",
         "job_uid", "execution_name", "execution_uid",
@@ -348,25 +366,25 @@ def _validate_task0_execution_status_v1(value: object) -> dict[str, object]:
         "scientific_outputs_read", "outcomes_read", "status_sha256",
     }
     if set(status) != expected_fields:
-        _fail("task0 provider terminal-status fields differ")
+        _fail(f"{label} fields differ")
     try:
         l2b_operator._self_hash(
             status,
             field="status_sha256",
-            label="task0 provider terminal status",
+            label=label,
         )
         execution_name = l2b_operator._execution_name(
             status.get("execution_name")
         )
     except Exception as exc:
         raise CorpusR6L2BSelectorAdapterV1Error(
-            "task0 provider terminal-status identity differs"
+            f"{label} identity differs"
         ) from exc
     execution_uid = status.get("execution_uid")
     generation = status.get("execution_generation")
     if (
         status.get("schema_version") != l2b_operator.STATUS_SCHEMA
-        or status.get("scope") != TASK0_SCOPE
+        or status.get("scope") != expected_scope
         or status.get("project_id") != l2b_operator.PROJECT
         or status.get("location") != l2b_operator.REGION
         or status.get("job_name") != REUSED_JOB_NAME
@@ -377,8 +395,8 @@ def _validate_task0_execution_status_v1(value: object) -> dict[str, object]:
         or type(generation) is not str
         or not generation.isdigit()
         or int(generation) < 1
-        or status.get("expected_task_count") != 1
-        or status.get("succeeded_count") != 1
+        or status.get("expected_task_count") != expected_count
+        or status.get("succeeded_count") != expected_count
         or status.get("failed_count") != 0
         or status.get("cancelled_count") != 0
         or status.get("terminal_state") != "SUCCEEDED"
@@ -386,8 +404,46 @@ def _validate_task0_execution_status_v1(value: object) -> dict[str, object]:
         or status.get("scientific_outputs_read") is not False
         or status.get("outcomes_read") is not False
     ):
-        _fail("task0 provider terminal-status authority differs")
+        _fail(f"{label} authority differs")
     return status
+
+
+def _validate_task0_execution_status_v1(value: object) -> dict[str, object]:
+    """Validate the provider-derived terminal status sealed by the smoke."""
+    return _validate_provider_execution_status_v1(
+        value,
+        expected_scope=TASK0_SCOPE,
+        expected_count=1,
+        label="task0 provider terminal status",
+    )
+
+
+def _validate_full54_provider_authority_v1(
+    *, launch_result: object, execution_status: object,
+) -> tuple[dict[str, object], dict[str, object]]:
+    """Retain and bind the exact provider execution that authorized results."""
+    try:
+        launch = l2b_operator.validate_launch_result_v1(launch_result)
+    except Exception as exc:
+        raise CorpusR6L2BSelectorAdapterV1Error(
+            "full54 provider launch authority differs"
+        ) from exc
+    status = _validate_provider_execution_status_v1(
+        execution_status,
+        expected_scope=FULL54_SCOPE,
+        expected_count=TASK_COUNT,
+        label="full54 provider terminal status",
+    )
+    if (
+        launch.get("scope") != FULL54_SCOPE
+        or launch.get("expected_task_count") != TASK_COUNT
+        or launch.get("execution_name") != status.get("execution_name")
+        or launch.get("job_uid") != status.get("job_uid")
+        or launch.get("project_id") != status.get("project_id")
+        or launch.get("location") != status.get("location")
+    ):
+        _fail("full54 provider launch/status binding differs")
+    return launch, status
 
 
 def _validate_task0_smoke_receipt_shape_v1(
@@ -2931,6 +2987,192 @@ def _replay_task0_smoke_authority_v1(
     return smoke
 
 
+def _publish_terminal_root_from_descriptors_v1(
+    *,
+    manifest: Mapping[str, object],
+    manifest_identity: Mapping[str, object],
+    descriptors: Sequence[Mapping[str, object]],
+    read_exact: ReadExact,
+    publish_create_once: PublishCreateOnce,
+) -> tuple[dict[str, object], dict[str, object]]:
+    """Build the one canonical terminal root from verified descriptors."""
+    retained_descriptors = [dict(row) for row in descriptors]
+    if (
+        len(retained_descriptors) != TASK_COUNT
+        or len({
+            canonical_json_bytes_v1(row["task_result_identity"])
+            for row in retained_descriptors
+        }) != TASK_COUNT
+        or len({
+            str(row["task_result_identity"]["uri"])
+            for row in retained_descriptors
+        }) != TASK_COUNT
+    ):
+        _fail("L2b terminal root requires 54 unique verified descriptors")
+    body = {
+        "schema_version": TERMINAL_ROOT_SCHEMA,
+        "contract_id": CONTRACT_ID,
+        "adapter_id": ADAPTER_ID,
+        "task_manifest_identity": dict(manifest_identity),
+        "task_manifest_sha256": manifest["task_manifest_sha256"],
+        "control_projection_receipt_identity": manifest[
+            "control_projection_receipt_identity"
+        ],
+        "control_projection_receipt_sha256": manifest[
+            "control_projection_receipt_sha256"
+        ],
+        "terminal_build_receipt_identity": manifest[
+            "terminal_build_receipt_identity"
+        ],
+        "terminal_build_receipt_sha256": manifest[
+            "terminal_build_receipt_sha256"
+        ],
+        "source_commit_sha": manifest["source_commit_sha"],
+        "immutable_image_digest": manifest["immutable_image_digest"],
+        "immutable_image_uri": manifest["immutable_image_uri"],
+        "reused_job_name": manifest["reused_job_name"],
+        "reused_job_uid": manifest["reused_job_uid"],
+        "execution_scope": manifest["execution_scope"],
+        "l2b_panel_root_identity": manifest["l2b_panel_root_identity"],
+        "l2b_panel_root_sha256": manifest["l2b_panel_root_sha256"],
+        "later_source_freeze_identity": manifest["later_source_freeze_identity"],
+        "source_slate_count": TASK_COUNT,
+        "task_results": retained_descriptors,
+        "task_results_sha256": canonical_sha256_v1(retained_descriptors),
+        "fraction_registry": [dict(row) for row in l2b_panel.FRACTION_REGISTRY],
+        "selector_lattice": _selector_lattice_v1(),
+        "generic_grader_adapter": {
+            "adapter_id": ADAPTER_ID,
+            "boundary": NORMALIZED_GRADER_BOUNDARY,
+            "gradeability_validator": (
+                "corpus_r6_novel_roster_realized_grader_v1."
+                "validate_external_normalized_terminal_v1"
+            ),
+            "normalized_surface": "novel-roster-populations-and-books-v1",
+            "realized_grade_schema": grader.REALIZED_GRADE_SCHEMA,
+        },
+        "all_task_results_exact_opened": True,
+        "root_built_after_all_task_results": True,
+        "terminal_before_first_outcome_read": True,
+        "complete": True,
+        **_FALSE_POLICY,
+    }
+    root = validate_terminal_root_v1(
+        _with_hash(body, field="terminal_root_sha256")
+    )
+    identity = _publish_json(
+        uri=str(manifest["terminal_root_uri"]),
+        value=root,
+        maximum_bytes=MAXIMUM_TERMINAL_ROOT_BYTES,
+        publish_create_once=publish_create_once,
+        read_exact=read_exact,
+        label="L2b selector terminal root",
+    )
+    return root, identity
+
+
+def _publish_provisional_terminal_root_from_descriptors_v1(
+    *,
+    manifest: Mapping[str, object],
+    manifest_identity: Mapping[str, object],
+    descriptors: Sequence[Mapping[str, object]],
+    provider_launch_result: object,
+    provider_execution_status: object,
+    read_exact: ReadExact,
+    publish_create_once: PublishCreateOnce,
+) -> tuple[dict[str, object], dict[str, object]]:
+    """Publish a distinct non-confirmatory root for provider-result scoring."""
+    retained_launch, retained_status = _validate_full54_provider_authority_v1(
+        launch_result=provider_launch_result,
+        execution_status=provider_execution_status,
+    )
+    retained_descriptors = [dict(row) for row in descriptors]
+    if (
+        len(retained_descriptors) != TASK_COUNT
+        or len({
+            canonical_json_bytes_v1(row["task_result_identity"])
+            for row in retained_descriptors
+        }) != TASK_COUNT
+        or len({
+            str(row["task_result_identity"]["uri"])
+            for row in retained_descriptors
+        }) != TASK_COUNT
+    ):
+        _fail("provisional L2b root requires 54 unique verified descriptors")
+    body = {
+        "schema_version": PROVISIONAL_TERMINAL_ROOT_SCHEMA,
+        "contract_id": CONTRACT_ID,
+        "adapter_id": ADAPTER_ID,
+        "task_manifest_identity": dict(manifest_identity),
+        "task_manifest_sha256": manifest["task_manifest_sha256"],
+        "control_projection_receipt_identity": manifest[
+            "control_projection_receipt_identity"
+        ],
+        "control_projection_receipt_sha256": manifest[
+            "control_projection_receipt_sha256"
+        ],
+        "terminal_build_receipt_identity": manifest[
+            "terminal_build_receipt_identity"
+        ],
+        "terminal_build_receipt_sha256": manifest[
+            "terminal_build_receipt_sha256"
+        ],
+        "source_commit_sha": manifest["source_commit_sha"],
+        "immutable_image_digest": manifest["immutable_image_digest"],
+        "immutable_image_uri": manifest["immutable_image_uri"],
+        "reused_job_name": manifest["reused_job_name"],
+        "reused_job_uid": manifest["reused_job_uid"],
+        "execution_scope": manifest["execution_scope"],
+        "l2b_panel_root_identity": manifest["l2b_panel_root_identity"],
+        "l2b_panel_root_sha256": manifest["l2b_panel_root_sha256"],
+        "later_source_freeze_identity": manifest["later_source_freeze_identity"],
+        "source_slate_count": TASK_COUNT,
+        "task_results": retained_descriptors,
+        "task_results_sha256": canonical_sha256_v1(retained_descriptors),
+        "fraction_registry": [dict(row) for row in l2b_panel.FRACTION_REGISTRY],
+        "selector_lattice": _selector_lattice_v1(),
+        "generic_grader_adapter": {
+            "adapter_id": ADAPTER_ID,
+            "boundary": NORMALIZED_GRADER_BOUNDARY,
+            "gradeability_validator": (
+                "corpus_r6_novel_roster_realized_grader_v1."
+                "validate_external_normalized_terminal_v1"
+            ),
+            "normalized_surface": "novel-roster-populations-and-books-v1",
+            "realized_grade_schema": PROVISIONAL_REALIZED_GRADE_SCHEMA,
+        },
+        "all_task_results_exact_opened": True,
+        "root_built_after_all_task_results": True,
+        "terminal_before_first_outcome_read": True,
+        "authority_tier": "descriptive-provisional-provider-results",
+        "provider_launch_result": retained_launch,
+        "provider_execution_status": retained_status,
+        "provider_task_results_structurally_validated": True,
+        "central_exact_selector_replay_completed": False,
+        "asynchronous_exact_replay_required": True,
+        "canonical_terminal_root_identity": None,
+        "coherent_substitution_excluded_by_hashes_alone": False,
+        "confirmatory_authority": False,
+        "complete": True,
+        **_FALSE_POLICY,
+    }
+    root = validate_provisional_terminal_root_v1(
+        _with_hash(body, field="terminal_root_sha256")
+    )
+    identity = _publish_json(
+        uri=(
+            f"{manifest['output_prefix']}"
+            f"{PROVISIONAL_TERMINAL_FILENAME}"
+        ),
+        value=root,
+        maximum_bytes=MAXIMUM_TERMINAL_ROOT_BYTES,
+        publish_create_once=publish_create_once,
+        read_exact=read_exact,
+        label="provisional L2b provider terminal root",
+    )
+    return root, identity
+
+
 def finalize_terminal_root_v1(
     *,
     manifest_identity: object,
@@ -3011,66 +3253,115 @@ def finalize_terminal_root_v1(
             "task_result_identity": retained_identity,
             "task_result_sha256": result["slate_result_sha256"],
         })
-    body = {
-        "schema_version": TERMINAL_ROOT_SCHEMA,
-        "contract_id": CONTRACT_ID,
-        "adapter_id": ADAPTER_ID,
-        "task_manifest_identity": retained_manifest_identity,
-        "task_manifest_sha256": manifest["task_manifest_sha256"],
-        "control_projection_receipt_identity": manifest[
-            "control_projection_receipt_identity"
-        ],
-        "control_projection_receipt_sha256": manifest[
-            "control_projection_receipt_sha256"
-        ],
-        "terminal_build_receipt_identity": manifest[
-            "terminal_build_receipt_identity"
-        ],
-        "terminal_build_receipt_sha256": manifest[
-            "terminal_build_receipt_sha256"
-        ],
-        "source_commit_sha": manifest["source_commit_sha"],
-        "immutable_image_digest": manifest["immutable_image_digest"],
-        "immutable_image_uri": manifest["immutable_image_uri"],
-        "reused_job_name": manifest["reused_job_name"],
-        "reused_job_uid": manifest["reused_job_uid"],
-        "execution_scope": manifest["execution_scope"],
-        "l2b_panel_root_identity": manifest["l2b_panel_root_identity"],
-        "l2b_panel_root_sha256": manifest["l2b_panel_root_sha256"],
-        "later_source_freeze_identity": manifest["later_source_freeze_identity"],
-        "source_slate_count": TASK_COUNT,
-        "task_results": descriptors,
-        "task_results_sha256": canonical_sha256_v1(descriptors),
-        "fraction_registry": [dict(row) for row in l2b_panel.FRACTION_REGISTRY],
-        "selector_lattice": _selector_lattice_v1(),
-        "generic_grader_adapter": {
-            "adapter_id": ADAPTER_ID,
-            "boundary": NORMALIZED_GRADER_BOUNDARY,
-            "gradeability_validator": (
-                "corpus_r6_novel_roster_realized_grader_v1."
-                "validate_external_normalized_terminal_v1"
-            ),
-            "normalized_surface": "novel-roster-populations-and-books-v1",
-            "realized_grade_schema": grader.REALIZED_GRADE_SCHEMA,
-        },
-        "all_task_results_exact_opened": True,
-        "root_built_after_all_task_results": True,
-        "terminal_before_first_outcome_read": True,
-        "complete": True,
-        **_FALSE_POLICY,
-    }
-    root = validate_terminal_root_v1(
-        _with_hash(body, field="terminal_root_sha256")
-    )
-    identity = _publish_json(
-        uri=str(manifest["terminal_root_uri"]),
-        value=root,
-        maximum_bytes=MAXIMUM_TERMINAL_ROOT_BYTES,
-        publish_create_once=publish_create_once,
+    return _publish_terminal_root_from_descriptors_v1(
+        manifest=manifest,
+        manifest_identity=retained_manifest_identity,
+        descriptors=descriptors,
         read_exact=read_exact,
-        label="L2b selector terminal root",
+        publish_create_once=publish_create_once,
     )
-    return root, identity
+
+
+def finalize_terminal_root_from_provider_results_v1(
+    *,
+    manifest_identity: object,
+    task_result_identities: Sequence[Mapping[str, object]],
+    provider_launch_result: object,
+    provider_execution_status: object,
+    read_exact: ReadExact,
+    publish_create_once: PublishCreateOnce,
+) -> tuple[dict[str, object], dict[str, object]]:
+    """Finalize provider-produced results without repeating selector compute.
+
+    Each successful Cloud Run task already constructs its result from the
+    exact frozen projections/worlds, validates the complete persisted result,
+    publishes it create-once, and exact-reopens the published bytes.  After
+    the provider reports 54/54 success, this collector independently reopens
+    every immutable result, revalidates the persisted result law against its
+    exact projection, and validates the complete normalized lineup/book
+    surface.  It deliberately does not recompute selectors or world matrices
+    a second time in one serial local process.
+    """
+    retained_launch, retained_status = _validate_full54_provider_authority_v1(
+        launch_result=provider_launch_result,
+        execution_status=provider_execution_status,
+    )
+    manifest, retained_manifest_identity = _open_selector_manifest_v1(
+        manifest_identity=manifest_identity, read_exact=read_exact
+    )
+    if manifest["execution_scope"] != FULL54_SCOPE:
+        _fail("L2b terminal root requires the full54 execution scope")
+    identities = [
+        _identity(value, label=f"selector task result[{index}]")
+        for index, value in enumerate(task_result_identities)
+    ]
+    if (
+        len(identities) != TASK_COUNT
+        or len({canonical_json_bytes_v1(row) for row in identities}) != TASK_COUNT
+        or len({str(row["uri"]) for row in identities}) != TASK_COUNT
+    ):
+        _fail("L2b terminal root requires 54 unique task results")
+    descriptors: list[dict[str, object]] = []
+    normalized_slates: list[dict[str, object]] = []
+    for index, (identity, task_row) in enumerate(
+        zip(identities, manifest["task_rows"], strict=True)
+    ):
+        body, retained_identity = _exact_read_json(
+            identity,
+            read_exact=read_exact,
+            label=f"selector task result[{index}]",
+            maximum_bytes=MAXIMUM_TASK_RESULT_BYTES,
+        )
+        projection, projection_identity = _open_projection_bundle_v1(
+            task_row["projection_bundle_identity"],
+            read_exact=read_exact,
+            label=f"projection bundle[{index}]",
+        )
+        result = validate_slate_result_v1(body, projection_bundle=projection)
+        if (
+            retained_identity != identity
+            or retained_identity["uri"] != task_row["result_uri"]
+            or projection_identity != task_row["projection_bundle_identity"]
+            or result["source_ordinal"] != index
+            or result["slate_id"] != task_row["slate_id"]
+            or result["task_manifest_identity"] != retained_manifest_identity
+            or result["task_manifest_sha256"] != manifest["task_manifest_sha256"]
+            or result["l2b_panel_root_identity"]
+            != manifest["l2b_panel_root_identity"]
+            or result["l2b_panel_root_sha256"]
+            != manifest["l2b_panel_root_sha256"]
+            or result["l2b_task_result_identity"]
+            != task_row["l2b_task_result_identity"]
+            or result["l2b_task_result_sha256"]
+            != task_row["l2b_task_result_sha256"]
+            or result["projection_bundle_identity"]
+            != task_row["projection_bundle_identity"]
+            or result["projection_bundle_sha256"]
+            != task_row["projection_bundle_sha256"]
+            or result["later_source_freeze_identity"]
+            != manifest["later_source_freeze_identity"]
+        ):
+            _fail("L2b terminal task-result binding differs")
+        descriptors.append({
+            "source_ordinal": index,
+            "slate_id": result["slate_id"],
+            "task_result_identity": retained_identity,
+            "task_result_sha256": result["slate_result_sha256"],
+        })
+        normalized_slates.append(_normalized_slate_v1(result))
+    grader.validate_external_normalized_terminal_v1(
+        adapter_id=ADAPTER_ID,
+        slates=normalized_slates,
+    )
+    return _publish_provisional_terminal_root_from_descriptors_v1(
+        manifest=manifest,
+        manifest_identity=retained_manifest_identity,
+        descriptors=descriptors,
+        provider_launch_result=retained_launch,
+        provider_execution_status=retained_status,
+        read_exact=read_exact,
+        publish_create_once=publish_create_once,
+    )
 
 
 def validate_terminal_root_v1(value: object) -> dict[str, object]:
@@ -3166,22 +3457,117 @@ def validate_terminal_root_v1(value: object) -> dict[str, object]:
     return root
 
 
-def reopen_generic_grader_terminal_v1(
+def validate_provisional_terminal_root_v1(value: object) -> dict[str, object]:
+    """Validate the explicitly non-confirmatory provider-result terminal."""
+    root = _mapping(value, label="provisional L2b provider terminal root")
+    authority_fields = {
+        "authority_tier",
+        "provider_launch_result",
+        "provider_execution_status",
+        "provider_task_results_structurally_validated",
+        "central_exact_selector_replay_completed",
+        "asynchronous_exact_replay_required",
+        "canonical_terminal_root_identity",
+        "coherent_substitution_excluded_by_hashes_alone",
+        "confirmatory_authority",
+    }
+    canonical_fields = {
+        "schema_version", "contract_id", "adapter_id",
+        "task_manifest_identity", "task_manifest_sha256",
+        "control_projection_receipt_identity",
+        "control_projection_receipt_sha256", "terminal_build_receipt_identity",
+        "terminal_build_receipt_sha256", "source_commit_sha",
+        "immutable_image_digest", "immutable_image_uri", "reused_job_name",
+        "reused_job_uid", "execution_scope", "l2b_panel_root_identity",
+        "l2b_panel_root_sha256", "later_source_freeze_identity",
+        "source_slate_count", "task_results", "task_results_sha256",
+        "fraction_registry", "selector_lattice", "generic_grader_adapter",
+        "all_task_results_exact_opened", "root_built_after_all_task_results",
+        "terminal_before_first_outcome_read", "complete", *_FALSE_POLICY,
+        "terminal_root_sha256",
+    }
+    if set(root) != canonical_fields | authority_fields:
+        _fail("provisional L2b provider terminal-root fields differ")
+    _validate_self_hash(
+        root,
+        field="terminal_root_sha256",
+        label="provisional L2b provider terminal root",
+    )
+    launch, status = _validate_full54_provider_authority_v1(
+        launch_result=root.get("provider_launch_result"),
+        execution_status=root.get("provider_execution_status"),
+    )
+    if (
+        root.get("schema_version") != PROVISIONAL_TERMINAL_ROOT_SCHEMA
+        or root.get("authority_tier")
+        != "descriptive-provisional-provider-results"
+        or root.get("provider_task_results_structurally_validated") is not True
+        or root.get("central_exact_selector_replay_completed") is not False
+        or root.get("asynchronous_exact_replay_required") is not True
+        or root.get("canonical_terminal_root_identity") is not None
+        or root.get("coherent_substitution_excluded_by_hashes_alone") is not False
+        or root.get("confirmatory_authority") is not False
+        or root.get("provider_launch_result") != launch
+        or root.get("provider_execution_status") != status
+        or root.get("reused_job_uid") != status.get("job_uid")
+    ):
+        _fail("provisional L2b provider authority differs")
+    projected = {
+        key: value for key, value in root.items()
+        if key not in authority_fields | {"terminal_root_sha256"}
+    }
+    projected["schema_version"] = TERMINAL_ROOT_SCHEMA
+    projected_adapter = dict(projected["generic_grader_adapter"])
+    projected_adapter["realized_grade_schema"] = grader.REALIZED_GRADE_SCHEMA
+    projected["generic_grader_adapter"] = projected_adapter
+    validate_terminal_root_v1(
+        _with_hash(projected, field="terminal_root_sha256")
+    )
+    return root
+
+
+def _reopen_gradeable_terminal_v1(
     *, terminal_root_identity: object, read_exact: ReadExact,
+    provisional: bool,
 ) -> L2BGenericGraderTerminalV1:
-    """Replay the terminal graph and expose the generic grader slate surface."""
+    """Reopen one canonical or provisional result graph without recompute.
+
+    ``finalize_terminal_root_v1`` publishes the root only after it has
+    exact-opened all 54 results and independently rebuilt every persisted
+    selector result from the frozen projections and L2b worlds.  The result
+    identities in that create-last root make later content drift detectable.
+    Repeating the same expensive selector replay during realized grading adds
+    no independent evidence, so this boundary instead revalidates the exact
+    root/manifest/result graph, each persisted result's full structural law,
+    and the complete normalized lineup/book surface before an outcome reader
+    can become reachable.
+    """
+    label = (
+        "provisional L2b provider terminal root"
+        if provisional
+        else "L2b selector terminal root"
+    )
     root_body, root_identity = _exact_read_json(
         terminal_root_identity,
         read_exact=read_exact,
-        label="L2b selector terminal root",
+        label=label,
         maximum_bytes=MAXIMUM_TERMINAL_ROOT_BYTES,
     )
-    root = validate_terminal_root_v1(root_body)
+    root = (
+        validate_provisional_terminal_root_v1(root_body)
+        if provisional
+        else validate_terminal_root_v1(root_body)
+    )
     manifest, manifest_identity = _open_selector_manifest_v1(
         manifest_identity=root["task_manifest_identity"], read_exact=read_exact
     )
     if (
-        root_identity["uri"] != manifest["terminal_root_uri"]
+        root_identity["uri"]
+        != (
+            f"{manifest['output_prefix']}{PROVISIONAL_TERMINAL_FILENAME}"
+            if provisional
+            else manifest["terminal_root_uri"]
+        )
         or manifest_identity != root["task_manifest_identity"]
         or manifest["task_manifest_sha256"] != root["task_manifest_sha256"]
         or manifest["l2b_panel_root_identity"] != root["l2b_panel_root_identity"]
@@ -3203,25 +3589,23 @@ def reopen_generic_grader_terminal_v1(
         or manifest["execution_scope"] != root["execution_scope"]
     ):
         _fail("L2b terminal root/manifest binding differs")
-    panel_root, panel_root_identity, panel_manifest, panel_manifest_identity = (
-        _open_panel_root_v1(
-            panel_root_identity=root["l2b_panel_root_identity"],
-            read_exact=read_exact,
+    descriptor_identity_keys = [
+        canonical_json_bytes_v1(
+            _identity(
+                descriptor["task_result_identity"],
+                label=f"L2b terminal task descriptor[{index}]",
+            )
         )
-    )
+        for index, descriptor in enumerate(root["task_results"])
+    ]
     if (
-        panel_root_identity != root["l2b_panel_root_identity"]
-        or panel_root["panel_root_sha256"] != root["l2b_panel_root_sha256"]
-        or panel_manifest_identity != manifest["l2b_task_manifest_identity"]
-        or panel_manifest["task_manifest_sha256"]
-        != manifest["l2b_task_manifest_sha256"]
+        len(set(descriptor_identity_keys)) != TASK_COUNT
+        or len({
+            str(descriptor["task_result_identity"]["uri"])
+            for descriptor in root["task_results"]
+        }) != TASK_COUNT
     ):
-        _fail("L2b terminal panel-root replay differs")
-    later_source, _ = _exact_read_json(
-        manifest["later_source_freeze_identity"], read_exact=read_exact,
-        label="L2b terminal later-source freeze",
-        maximum_bytes=MAXIMUM_LATER_SOURCE_BYTES,
-    )
+        _fail("L2b terminal task-result identities repeat")
     slates: list[dict[str, object]] = []
     for index, (descriptor, task_row) in enumerate(
         zip(root["task_results"], manifest["task_rows"], strict=True)
@@ -3244,21 +3628,6 @@ def reopen_generic_grader_terminal_v1(
             label=f"projection bundle[{index}]",
         )
         result = validate_slate_result_v1(body, projection_bundle=projection)
-        worlds = _open_l2b_task_worlds_v1(
-            source_ordinal=index,
-            task_result_identity=task_row["l2b_task_result_identity"],
-            root=panel_root, l2b_manifest=panel_manifest,
-            l2b_manifest_identity=panel_manifest_identity,
-            read_exact=read_exact,
-        )
-        _exact_replay_persisted_slate_v1(
-            persisted=result, source_ordinal=index, manifest=manifest,
-            manifest_identity=manifest_identity, projection=projection,
-            players=_scoring_players_v1(
-                source=later_source, source_ordinal=index
-            ),
-            worlds_by_fraction=worlds,
-        )
         if (
             descriptor_identity["uri"] != task_row["result_uri"]
             or result_identity != descriptor_identity
@@ -3266,6 +3635,23 @@ def reopen_generic_grader_terminal_v1(
             or result["slate_result_sha256"] != descriptor["task_result_sha256"]
             or result["source_ordinal"] != index
             or result["slate_id"] != task_row["slate_id"]
+            or result["task_manifest_identity"] != manifest_identity
+            or result["task_manifest_sha256"]
+            != manifest["task_manifest_sha256"]
+            or result["l2b_panel_root_identity"]
+            != manifest["l2b_panel_root_identity"]
+            or result["l2b_panel_root_sha256"]
+            != manifest["l2b_panel_root_sha256"]
+            or result["l2b_task_result_identity"]
+            != task_row["l2b_task_result_identity"]
+            or result["l2b_task_result_sha256"]
+            != task_row["l2b_task_result_sha256"]
+            or result["projection_bundle_identity"]
+            != task_row["projection_bundle_identity"]
+            or result["projection_bundle_sha256"]
+            != task_row["projection_bundle_sha256"]
+            or result["later_source_freeze_identity"]
+            != manifest["later_source_freeze_identity"]
         ):
             _fail("L2b terminal task-result replay differs")
         slates.append(_normalized_slate_v1(result))
@@ -3285,23 +3671,40 @@ def reopen_generic_grader_terminal_v1(
     )
 
 
-def grade_l2b_selector_experiment_realized_v1(
-    *,
-    terminal_root_identity: object,
-    outcome_snapshot_identity: object,
-    read_terminal_exact: ReadExact,
-    read_outcome_exact: ReadExact,
-) -> dict[str, object]:
-    """Replay terminality first, then use the generic direct-roster grader."""
-    opened = reopen_generic_grader_terminal_v1(
+def reopen_generic_grader_terminal_v1(
+    *, terminal_root_identity: object, read_exact: ReadExact,
+) -> L2BGenericGraderTerminalV1:
+    """Reopen the canonical exact-replay terminal for confirmatory grading."""
+    return _reopen_gradeable_terminal_v1(
         terminal_root_identity=terminal_root_identity,
-        read_exact=read_terminal_exact,
+        read_exact=read_exact,
+        provisional=False,
     )
+
+
+def reopen_provisional_provider_terminal_v1(
+    *, terminal_root_identity: object, read_exact: ReadExact,
+) -> L2BGenericGraderTerminalV1:
+    """Reopen the distinct provider-result terminal for descriptive scoring."""
+    return _reopen_gradeable_terminal_v1(
+        terminal_root_identity=terminal_root_identity,
+        read_exact=read_exact,
+        provisional=True,
+    )
+
+
+def _grade_opened_l2b_terminal_v1(
+    *,
+    opened: L2BGenericGraderTerminalV1,
+    outcome_snapshot_identity: object,
+    read_outcome_exact: ReadExact,
+    schema_version: str,
+    authority_fields: Mapping[str, object],
+) -> dict[str, object]:
+    """Score one already outcome-blind-opened canonical or provisional root."""
     gradeable_slates = grader.validate_external_normalized_terminal_v1(
         adapter_id=ADAPTER_ID, slates=opened.slates
     )
-    # The separately injected outcome reader is intentionally unreachable
-    # until the complete root, manifest, 54 results, and 54 projections replay.
     snapshot, snapshot_identity, player_scores, slate_keys = (
         grader.open_outcome_snapshot_surface_v1(
             outcome_snapshot_identity=outcome_snapshot_identity,
@@ -3318,7 +3721,7 @@ def grade_l2b_selector_experiment_realized_v1(
     )
     aggregate_cells = grader.aggregate_normalized_slate_grades_v1(slate_grades)
     body = {
-        "schema_version": REALIZED_GRADE_SCHEMA,
+        "schema_version": schema_version,
         "adapter_id": ADAPTER_ID,
         "terminal_root_identity": opened.terminal_root_identity,
         "terminal_root_sha256": opened.terminal_root["terminal_root_sha256"],
@@ -3350,9 +3753,64 @@ def grade_l2b_selector_experiment_realized_v1(
         "historical_retune_licensed": False,
         "historical_retry_licensed": False,
         "decision_authority": False,
+        **dict(authority_fields),
         "complete": True,
     }
     return grader._with_hash(body, field="realized_grade_sha256")
+
+
+def grade_l2b_selector_experiment_realized_v1(
+    *,
+    terminal_root_identity: object,
+    outcome_snapshot_identity: object,
+    read_terminal_exact: ReadExact,
+    read_outcome_exact: ReadExact,
+) -> dict[str, object]:
+    """Replay terminality first, then use the generic direct-roster grader."""
+    opened = reopen_generic_grader_terminal_v1(
+        terminal_root_identity=terminal_root_identity,
+        read_exact=read_terminal_exact,
+    )
+    # The separately injected outcome reader is intentionally unreachable
+    # until the complete root, manifest, 54 exact results, and normalized
+    # lineup/book surfaces validate.
+    return _grade_opened_l2b_terminal_v1(
+        opened=opened,
+        outcome_snapshot_identity=outcome_snapshot_identity,
+        read_outcome_exact=read_outcome_exact,
+        schema_version=REALIZED_GRADE_SCHEMA,
+        authority_fields={},
+    )
+
+
+def grade_l2b_provider_results_provisional_realized_v1(
+    *,
+    terminal_root_identity: object,
+    outcome_snapshot_identity: object,
+    read_terminal_exact: ReadExact,
+    read_outcome_exact: ReadExact,
+) -> dict[str, object]:
+    """Produce descriptive scores from the non-confirmatory provider root."""
+    opened = reopen_provisional_provider_terminal_v1(
+        terminal_root_identity=terminal_root_identity,
+        read_exact=read_terminal_exact,
+    )
+    return _grade_opened_l2b_terminal_v1(
+        opened=opened,
+        outcome_snapshot_identity=outcome_snapshot_identity,
+        read_outcome_exact=read_outcome_exact,
+        schema_version=PROVISIONAL_REALIZED_GRADE_SCHEMA,
+        authority_fields={
+            "authority_tier": "descriptive-provisional-provider-results",
+            "provider_task_results_structurally_validated": True,
+            "central_exact_selector_replay_completed": False,
+            "asynchronous_exact_replay_required": True,
+            "coherent_substitution_excluded_by_hashes_alone": False,
+            "confirmatory_authority": False,
+            "promotion_authority": False,
+            "production_change_licensed": False,
+        },
+    )
 
 
 def grade_and_publish_l2b_selector_experiment_realized_v1(
@@ -3381,6 +3839,46 @@ def grade_and_publish_l2b_selector_experiment_realized_v1(
     return grade, identity
 
 
+def grade_and_publish_l2b_provider_results_provisional_realized_v1(
+    *,
+    terminal_root_identity: object,
+    outcome_snapshot_identity: object,
+    target_uri: str,
+    read_terminal_exact: ReadExact,
+    read_outcome_exact: ReadExact,
+    publish_create_once: PublishCreateOnce,
+) -> tuple[dict[str, object], dict[str, object]]:
+    """Publish one explicitly provisional provider-result scorecard."""
+    root_identity = _identity(
+        terminal_root_identity, label="provisional L2b provider terminal root"
+    )
+    root_uri = str(root_identity["uri"])
+    if (
+        not root_uri.endswith(PROVISIONAL_TERMINAL_FILENAME)
+        or target_uri
+        != (
+            root_uri[:-len(PROVISIONAL_TERMINAL_FILENAME)]
+            + PROVISIONAL_REALIZED_GRADE_FILENAME
+        )
+    ):
+        _fail("provisional L2b grade publication URI differs")
+    grade = grade_l2b_provider_results_provisional_realized_v1(
+        terminal_root_identity=terminal_root_identity,
+        outcome_snapshot_identity=outcome_snapshot_identity,
+        read_terminal_exact=read_terminal_exact,
+        read_outcome_exact=read_outcome_exact,
+    )
+    identity = _publish_json(
+        uri=target_uri,
+        value=grade,
+        maximum_bytes=MAXIMUM_REALIZED_GRADE_BYTES,
+        publish_create_once=publish_create_once,
+        read_exact=read_terminal_exact,
+        label="provisional L2b provider realized scorecard",
+    )
+    return grade, identity
+
+
 __all__ = [
     "ADAPTER_ID",
     "BOOK_COUNT_PER_FRACTION_FOLD",
@@ -3389,6 +3887,10 @@ __all__ = [
     "FRACTION_IDS",
     "L2BGenericGraderTerminalV1",
     "L2BSelectorTaskExecutionV1",
+    "PROVISIONAL_REALIZED_GRADE_SCHEMA",
+    "PROVISIONAL_REALIZED_GRADE_FILENAME",
+    "PROVISIONAL_TERMINAL_FILENAME",
+    "PROVISIONAL_TERMINAL_ROOT_SCHEMA",
     "REALIZED_GRADE_SCHEMA",
     "SELECTOR_LATTICE",
     "TASK_COUNT",
@@ -3400,11 +3902,16 @@ __all__ = [
     "canonical_sha256_v1",
     "execute_selector_task_v1",
     "finalize_terminal_root_v1",
+    "finalize_terminal_root_from_provider_results_v1",
+    "grade_and_publish_l2b_provider_results_provisional_realized_v1",
     "grade_and_publish_l2b_selector_experiment_realized_v1",
+    "grade_l2b_provider_results_provisional_realized_v1",
     "grade_l2b_selector_experiment_realized_v1",
     "prepare_selector_manifest_v1",
     "reopen_generic_grader_terminal_v1",
+    "reopen_provisional_provider_terminal_v1",
     "validate_selector_manifest_v1",
     "validate_slate_result_v1",
     "validate_terminal_root_v1",
+    "validate_provisional_terminal_root_v1",
 ]

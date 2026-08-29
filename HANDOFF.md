@@ -20,6 +20,27 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 10:32 UTC (three-hundred-fifty-third update)
+
+### L2b fast realized scoring passed independent review
+
+- Branch `main` and `origin/main` are at pushed commit `870745bc`, containing
+  the combined descriptive collector/status repair and the durable records for
+  live executions `atlas-minimal-c-s2023-w3-v1-j77mw` and
+  `atlas-minimal-c-s2023-w2-v1-rqt29`.
+- The L2b provider-result fast path now has no public pre-terminal finalizer.
+  Its only publication route requires and durably embeds the exact completed
+  54/54 provider execution, including execution identity/UID/generation, task
+  counts and a self-hashed status record, before any result object is opened.
+  Provisional terminal and grade use distinct create-once paths and explicitly
+  deny confirmatory, promotion and production authority; the active canonical
+  deep replay remains the required adoption audit.
+- Independent review is GO with no blocking findings. Full adapter plus
+  scorecard validation is 70/70 passed locally. Exact next action: commit/push
+  the six L2b files, run `collect-provider-results`, construct its frozen
+  outcome request, run `grade-provider-results-provisional`, and summarize the
+  realized K4/K14/K80/K100/K150 cells while both cloud lanes continue.
+
 ## Current handoff — 2026-08-29 10:27 UTC (three-hundred-fifty-second update)
 
 ### Three score-producing lanes now run concurrently

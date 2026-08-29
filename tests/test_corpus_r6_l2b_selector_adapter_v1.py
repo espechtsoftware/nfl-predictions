@@ -34,6 +34,33 @@ def _value_identity(uri: str, value: object) -> dict[str, object]:
     }
 
 
+def _full54_provider_authority() -> tuple[dict[str, object], dict[str, object]]:
+    launch = adapter.l2b_operator.build_launch_result_v1(
+        execution_name=f"{adapter.REUSED_JOB_NAME}-provider-fixture",
+        scope=adapter.FULL54_SCOPE,
+    )
+    status = adapter._with_hash({
+        "schema_version": adapter.l2b_operator.STATUS_SCHEMA,
+        "scope": adapter.FULL54_SCOPE,
+        "project_id": adapter.l2b_operator.PROJECT,
+        "location": adapter.l2b_operator.REGION,
+        "job_name": adapter.REUSED_JOB_NAME,
+        "job_uid": adapter.REUSED_JOB_UID,
+        "execution_name": launch["execution_name"],
+        "execution_uid": "provider-execution-uid",
+        "execution_generation": "1",
+        "expected_task_count": adapter.TASK_COUNT,
+        "succeeded_count": adapter.TASK_COUNT,
+        "failed_count": 0,
+        "cancelled_count": 0,
+        "terminal_state": "SUCCEEDED",
+        "logs_read": False,
+        "scientific_outputs_read": False,
+        "outcomes_read": False,
+    }, field="status_sha256")
+    return launch, status
+
+
 def _candidates(
     count: int = 150, *, duplicate_second_roster: bool = False,
 ) -> list[dict[str, object]]:
@@ -1018,6 +1045,54 @@ def test_realized_adapter_reuses_common_slate_and_aggregate_grader(
     assert grade["terminal_before_first_outcome_read"] is True
 
 
+def test_provider_result_grade_remains_descriptive_and_nonconfirmatory(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    later_identity = _identity("gs://fixture/later.json", "later")
+    opened = adapter.L2BGenericGraderTerminalV1(
+        adapter_id=adapter.ADAPTER_ID,
+        task_manifest={},
+        task_manifest_identity=_identity(
+            "gs://fixture/manifest.json", "manifest"
+        ),
+        task_manifest_sha256="a" * 64,
+        task_result_descriptors=tuple(),
+        slates=tuple(),
+        later_source_identity=later_identity,
+        terminal_root={"terminal_root_sha256": "b" * 64},
+        terminal_root_identity=_identity(
+            "gs://fixture/provisional-provider-terminal-selector-root.json",
+            "provisional-root",
+        ),
+    )
+    monkeypatch.setattr(
+        adapter,
+        "reopen_provisional_provider_terminal_v1",
+        lambda **_kwargs: opened,
+    )
+    observed: dict[str, object] = {}
+
+    def grade(**kwargs):
+        observed.update(kwargs)
+        return dict(kwargs["authority_fields"])
+
+    monkeypatch.setattr(adapter, "_grade_opened_l2b_terminal_v1", grade)
+    result = adapter.grade_l2b_provider_results_provisional_realized_v1(
+        terminal_root_identity=opened.terminal_root_identity,
+        outcome_snapshot_identity=_identity(
+            "gs://fixture/outcome.json", "outcome"
+        ),
+        read_terminal_exact=lambda _identity_value: b"",
+        read_outcome_exact=lambda _identity_value: b"",
+    )
+    assert observed["schema_version"] == adapter.PROVISIONAL_REALIZED_GRADE_SCHEMA
+    assert result["authority_tier"] == "descriptive-provisional-provider-results"
+    assert result["coherent_substitution_excluded_by_hashes_alone"] is False
+    assert result["confirmatory_authority"] is False
+    assert result["promotion_authority"] is False
+    assert result["production_change_licensed"] is False
+
+
 def test_terminal_root_declares_generic_grader_surface_and_no_decision_authority() -> None:
     descriptors = []
     for index, (season, week) in enumerate(adapter.l2b_panel.EXPECTED_SLATES):
@@ -1172,6 +1247,119 @@ def test_dispatcher_binds_task0_scope_code_image_job_and_no_retry(
     assert cli.dispatch_task_from_environment_v1(store=store) == {
         "source_ordinal": 53
     }
+
+
+def test_provider_result_collector_requires_exact_54_of_54_before_open(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest, manifest_identity = _manifest(_bundle())
+    launch, complete_status = _full54_provider_authority()
+    complete_status.pop("status_sha256")
+    complete_status["succeeded_count"] = adapter.TASK_COUNT - 1
+    complete_status["terminal_state"] = "ACTIVE"
+    status = adapter._with_hash(complete_status, field="status_sha256")
+    monkeypatch.setattr(cli, "status_operator_v1", lambda **_kwargs: status)
+    monkeypatch.setattr(
+        adapter,
+        "_open_selector_manifest_v1",
+        lambda **_kwargs: (manifest, manifest_identity),
+    )
+
+    class Store:
+        read_exact = object()
+
+        def open_known(self, *_args, **_kwargs):
+            raise AssertionError("results must remain closed before 54/54")
+
+    with pytest.raises(
+        cli.RunCorpusR6L2BSelectorAdapterV1Error,
+        match="before exact 54/54 success",
+    ):
+        cli.collect_operator_from_provider_results_v1(
+            manifest_identity=manifest_identity,
+            launch=launch,
+            store=Store(),
+            runner=object(),
+        )
+
+
+def test_no_public_ungated_provider_finalizer_command() -> None:
+    parser = cli._parser()
+    assert "finalize-provider-results" not in parser.format_help()
+    with pytest.raises(SystemExit):
+        parser.parse_args([
+            "finalize-provider-results",
+            "--request-file", "/tmp/request.json",
+            "--output-file", "/tmp/result.json",
+        ])
+
+
+def test_provider_result_finalizer_rejects_nonterminal_status_before_any_read(
+) -> None:
+    launch, status = _full54_provider_authority()
+    status.pop("status_sha256")
+    status["succeeded_count"] = adapter.TASK_COUNT - 1
+    status["terminal_state"] = "ACTIVE"
+    status = adapter._with_hash(status, field="status_sha256")
+    with pytest.raises(
+        adapter.CorpusR6L2BSelectorAdapterV1Error,
+        match="full54 provider terminal status authority differs",
+    ):
+        adapter.finalize_terminal_root_from_provider_results_v1(
+            manifest_identity=_identity("gs://fixture/manifest.json", "manifest"),
+            task_result_identities=[],
+            provider_launch_result=launch,
+            provider_execution_status=status,
+            read_exact=lambda _identity_value: pytest.fail(
+                "provider evidence must gate every result/manifest read"
+            ),
+            publish_create_once=lambda _uri, _raw: pytest.fail(
+                "nonterminal evidence must never publish"
+            ),
+        )
+
+
+def test_provider_result_collector_delegates_all_fixed_result_identities(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest, manifest_identity = _manifest(_bundle())
+    launch, status = _full54_provider_authority()
+    monkeypatch.setattr(cli, "status_operator_v1", lambda **_kwargs: status)
+    monkeypatch.setattr(
+        adapter,
+        "_open_selector_manifest_v1",
+        lambda **_kwargs: (manifest, manifest_identity),
+    )
+    opened_uris: list[str] = []
+
+    class Store:
+        read_exact = object()
+
+        def open_known(self, uri, _maximum_bytes):
+            opened_uris.append(uri)
+            return b"{}", _identity(uri, uri)
+
+    observed: dict[str, object] = {}
+
+    def finalize(request, **_kwargs):
+        observed.update(request)
+        return {"complete": True}
+
+    monkeypatch.setattr(
+        cli, "_finalize_from_provider_results_request_v1", finalize
+    )
+    result = cli.collect_operator_from_provider_results_v1(
+        manifest_identity=manifest_identity,
+        launch=launch,
+        store=Store(),
+        runner=object(),
+    )
+    assert result == {"complete": True}
+    assert opened_uris == [row["result_uri"] for row in manifest["task_rows"]]
+    assert observed["manifest_identity"] == manifest_identity
+    assert len(observed["task_result_identities"]) == adapter.TASK_COUNT
+    assert observed["provider_launch_result"] == launch
+    assert observed["provider_execution_status"] == status
 
 
 @pytest.mark.parametrize(
@@ -1971,6 +2159,366 @@ def test_terminal_opener_rejects_descriptor_result_uri_outside_manifest_row(
         return {}, dict(identity_value)
 
     monkeypatch.setattr(adapter, "_exact_read_json", exact)
+    with pytest.raises(
+        adapter.CorpusR6L2BSelectorAdapterV1Error,
+        match="terminal task-result replay differs",
+    ):
+        adapter.reopen_generic_grader_terminal_v1(
+            terminal_root_identity=root_identity,
+            read_exact=lambda _identity_value: b"",
+        )
+
+
+def _install_verified_terminal_fast_grade_fixture(
+    monkeypatch: pytest.MonkeyPatch,
+) -> tuple[
+    dict[str, object],
+    dict[str, object],
+    list[dict[str, object]],
+    dict[str, object],
+]:
+    later_identity = _identity("gs://fixture/later.json", "later")
+    manifest_identity = _identity("gs://fixture/manifest.json", "manifest")
+    manifest_sha = "a" * 64
+    task_rows: list[dict[str, object]] = []
+    descriptors: list[dict[str, object]] = []
+    results: list[dict[str, object]] = []
+    for index, (season, week) in enumerate(adapter.l2b_panel.EXPECTED_SLATES):
+        slate_id = f"{season}-w{week:02d}"
+        result_uri = f"gs://fixture/result-{index:02d}.json"
+        result_identity = _identity(result_uri, f"result-{index}")
+        result_sha = f"{index + 1:064x}"
+        l2b_identity = _identity(
+            f"gs://fixture/l2b-{index:02d}.json", f"l2b-{index}"
+        )
+        projection_identity = _identity(
+            f"gs://fixture/projection-{index:02d}.json", f"projection-{index}"
+        )
+        task_rows.append({
+            "slate_id": slate_id,
+            "result_uri": result_uri,
+            "l2b_task_result_identity": l2b_identity,
+            "l2b_task_result_sha256": f"{index + 101:064x}",
+            "projection_bundle_identity": projection_identity,
+            "projection_bundle_sha256": f"{index + 201:064x}",
+        })
+        descriptors.append({
+            "source_ordinal": index,
+            "slate_id": slate_id,
+            "task_result_identity": result_identity,
+            "task_result_sha256": result_sha,
+        })
+        results.append({
+            "source_ordinal": index,
+            "slate_id": slate_id,
+            "slate_result_sha256": result_sha,
+            "task_manifest_identity": manifest_identity,
+            "task_manifest_sha256": manifest_sha,
+            "l2b_panel_root_identity": _identity(
+                "gs://fixture/panel-root.json", "panel-root"
+            ),
+            "l2b_panel_root_sha256": "b" * 64,
+            "l2b_task_result_identity": l2b_identity,
+            "l2b_task_result_sha256": f"{index + 101:064x}",
+            "projection_bundle_identity": projection_identity,
+            "projection_bundle_sha256": f"{index + 201:064x}",
+            "later_source_freeze_identity": later_identity,
+            "normalized_populations": [{"fixture_ordinal": index}],
+            "normalized_books": [{"fixture_ordinal": index}],
+        })
+    manifest = {
+        "terminal_root_uri": "gs://fixture/terminal-selector-root.json",
+        "task_manifest_sha256": manifest_sha,
+        "l2b_panel_root_identity": results[0]["l2b_panel_root_identity"],
+        "l2b_panel_root_sha256": results[0]["l2b_panel_root_sha256"],
+        "later_source_freeze_identity": later_identity,
+        "control_projection_receipt_identity": _identity(
+            "gs://fixture/control.json", "control"
+        ),
+        "control_projection_receipt_sha256": "c" * 64,
+        "terminal_build_receipt_identity": _identity(
+            "gs://fixture/build.json", "build"
+        ),
+        "terminal_build_receipt_sha256": "d" * 64,
+        "source_commit_sha": "1" * 40,
+        "immutable_image_digest": "sha256:" + "2" * 64,
+        "immutable_image_uri": "fixture/image@sha256:" + "2" * 64,
+        "reused_job_name": adapter.REUSED_JOB_NAME,
+        "reused_job_uid": adapter.REUSED_JOB_UID,
+        "execution_scope": adapter.FULL54_SCOPE,
+        "task_rows": task_rows,
+    }
+    root = {
+        "task_manifest_identity": manifest_identity,
+        "task_manifest_sha256": manifest_sha,
+        "l2b_panel_root_identity": manifest["l2b_panel_root_identity"],
+        "l2b_panel_root_sha256": manifest["l2b_panel_root_sha256"],
+        "later_source_freeze_identity": later_identity,
+        "control_projection_receipt_identity": manifest[
+            "control_projection_receipt_identity"
+        ],
+        "control_projection_receipt_sha256": manifest[
+            "control_projection_receipt_sha256"
+        ],
+        "terminal_build_receipt_identity": manifest[
+            "terminal_build_receipt_identity"
+        ],
+        "terminal_build_receipt_sha256": manifest[
+            "terminal_build_receipt_sha256"
+        ],
+        "source_commit_sha": manifest["source_commit_sha"],
+        "immutable_image_digest": manifest["immutable_image_digest"],
+        "immutable_image_uri": manifest["immutable_image_uri"],
+        "reused_job_name": manifest["reused_job_name"],
+        "reused_job_uid": manifest["reused_job_uid"],
+        "execution_scope": manifest["execution_scope"],
+        "task_results": descriptors,
+        "terminal_root_sha256": "e" * 64,
+    }
+    root_identity = _identity(manifest["terminal_root_uri"], "terminal-root")
+    by_uri = {
+        str(descriptor["task_result_identity"]["uri"]): result
+        for descriptor, result in zip(descriptors, results, strict=True)
+    }
+
+    def exact(identity_value, **kwargs):
+        if kwargs.get("label") == "L2b selector terminal root":
+            return root, root_identity
+        identity = dict(identity_value)
+        return by_uri[str(identity["uri"])], identity
+
+    monkeypatch.setattr(adapter, "_exact_read_json", exact)
+    monkeypatch.setattr(adapter, "validate_terminal_root_v1", lambda _value: root)
+    monkeypatch.setattr(
+        adapter,
+        "_open_selector_manifest_v1",
+        lambda **_kwargs: (manifest, manifest_identity),
+    )
+    monkeypatch.setattr(
+        adapter,
+        "_open_projection_bundle_v1",
+        lambda identity, **_kwargs: ({}, dict(identity)),
+    )
+    monkeypatch.setattr(
+        adapter, "validate_slate_result_v1", lambda body, **_kwargs: body
+    )
+    return root, manifest, results, root_identity
+
+
+def test_verified_terminal_grade_opener_skips_world_and_selector_replay(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root, _manifest_value, _results, root_identity = (
+        _install_verified_terminal_fast_grade_fixture(monkeypatch)
+    )
+    for name in (
+        "_open_panel_root_v1",
+        "_open_l2b_task_worlds_v1",
+        "_scoring_players_v1",
+        "_exact_replay_persisted_slate_v1",
+    ):
+        monkeypatch.setattr(
+            adapter,
+            name,
+            lambda **_kwargs: pytest.fail(
+                "post-terminal grading must not repeat selector/world replay"
+            ),
+        )
+    validation_calls: list[int] = []
+
+    def validate_normalized(*, adapter_id, slates):
+        assert adapter_id == adapter.ADAPTER_ID
+        assert len(slates) == adapter.TASK_COUNT
+        assert [row["source_ordinal"] for row in slates] == list(
+            range(adapter.TASK_COUNT)
+        )
+        validation_calls.append(len(slates))
+        return tuple(slates)
+
+    monkeypatch.setattr(
+        adapter.grader,
+        "validate_external_normalized_terminal_v1",
+        validate_normalized,
+    )
+    opened = adapter.reopen_generic_grader_terminal_v1(
+        terminal_root_identity=root_identity,
+        read_exact=lambda _identity_value: b"",
+    )
+    assert validation_calls == [adapter.TASK_COUNT]
+    assert opened.task_result_descriptors == tuple(root["task_results"])
+    assert len(opened.slates) == adapter.TASK_COUNT
+
+
+def test_provider_result_finalizer_reuses_cloud_results_without_selector_replay(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root, manifest, _results, _root_identity = (
+        _install_verified_terminal_fast_grade_fixture(monkeypatch)
+    )
+    for name in (
+        "_open_panel_root_v1",
+        "_open_l2b_task_worlds_v1",
+        "_scoring_players_v1",
+        "_exact_replay_persisted_slate_v1",
+    ):
+        monkeypatch.setattr(
+            adapter,
+            name,
+            lambda **_kwargs: pytest.fail(
+                "provider-result finalization must not recompute selectors"
+            ),
+        )
+    normalized_calls: list[int] = []
+
+    def validate_normalized(*, adapter_id, slates):
+        assert adapter_id == adapter.ADAPTER_ID
+        normalized_calls.append(len(slates))
+        return tuple(slates)
+
+    published: dict[str, object] = {}
+
+    def publish_root(**kwargs):
+        published.update(kwargs)
+        return (
+            {
+                "terminal_root_sha256": "f" * 64,
+                "source_slate_count": adapter.TASK_COUNT,
+            },
+            _identity(manifest["terminal_root_uri"], "published-root"),
+        )
+
+    monkeypatch.setattr(
+        adapter.grader,
+        "validate_external_normalized_terminal_v1",
+        validate_normalized,
+    )
+    monkeypatch.setattr(
+        adapter,
+        "_publish_provisional_terminal_root_from_descriptors_v1",
+        publish_root,
+    )
+    launch, status = _full54_provider_authority()
+    terminal, terminal_identity = (
+        adapter.finalize_terminal_root_from_provider_results_v1(
+            manifest_identity=root["task_manifest_identity"],
+            task_result_identities=[
+                row["task_result_identity"] for row in root["task_results"]
+            ],
+            provider_launch_result=launch,
+            provider_execution_status=status,
+            read_exact=lambda _identity_value: b"",
+            publish_create_once=lambda _uri, _raw: pytest.fail(
+                "stubbed root publisher owns the write boundary"
+            ),
+        )
+    )
+    assert normalized_calls == [adapter.TASK_COUNT]
+    assert len(published["descriptors"]) == adapter.TASK_COUNT
+    assert published["manifest"] is manifest
+    assert terminal["terminal_root_sha256"] == "f" * 64
+    assert terminal_identity["uri"] == manifest["terminal_root_uri"]
+
+
+def test_provider_result_terminal_is_distinct_and_explicitly_provisional(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest, manifest_identity = _manifest(_bundle())
+    descriptors = [{
+        "source_ordinal": index,
+        "slate_id": row["slate_id"],
+        "task_result_identity": _identity(
+            str(row["result_uri"]), f"provider-result-{index}"
+        ),
+        "task_result_sha256": f"{index + 1:064x}",
+    } for index, row in enumerate(manifest["task_rows"])]
+    published_uris: list[str] = []
+
+    def publish(**kwargs):
+        published_uris.append(str(kwargs["uri"]))
+        return _identity(str(kwargs["uri"]), f"root-{len(published_uris)}")
+
+    monkeypatch.setattr(adapter, "_publish_json", publish)
+    launch, status = _full54_provider_authority()
+    canonical, canonical_identity = (
+        adapter._publish_terminal_root_from_descriptors_v1(
+            manifest=manifest,
+            manifest_identity=manifest_identity,
+            descriptors=descriptors,
+            read_exact=lambda _identity_value: b"",
+            publish_create_once=lambda _uri, _raw: pytest.fail(
+                "stubbed publisher owns the write boundary"
+            ),
+        )
+    )
+    root, identity = adapter._publish_provisional_terminal_root_from_descriptors_v1(
+        manifest=manifest,
+        manifest_identity=manifest_identity,
+        descriptors=descriptors,
+        provider_launch_result=launch,
+        provider_execution_status=status,
+        read_exact=lambda _identity_value: b"",
+        publish_create_once=lambda _uri, _raw: pytest.fail(
+            "stubbed publisher owns the write boundary"
+        ),
+    )
+    assert canonical["schema_version"] == adapter.TERMINAL_ROOT_SCHEMA
+    assert canonical_identity["uri"] == manifest["terminal_root_uri"]
+    assert published_uris[0] == manifest["terminal_root_uri"]
+    assert published_uris[1] != manifest["terminal_root_uri"]
+    assert published_uris[1].endswith(adapter.PROVISIONAL_TERMINAL_FILENAME)
+    assert identity["uri"] == published_uris[1]
+    assert root["authority_tier"] == "descriptive-provisional-provider-results"
+    assert root["provider_launch_result"] == launch
+    assert root["provider_execution_status"] == status
+    assert root["central_exact_selector_replay_completed"] is False
+    assert root["asynchronous_exact_replay_required"] is True
+    assert root["coherent_substitution_excluded_by_hashes_alone"] is False
+    assert root["confirmatory_authority"] is False
+    assert root["promotion_authority"] is False
+    assert root["production_change_licensed"] is False
+
+    tampered = deepcopy(root)
+    tampered.pop("terminal_root_sha256")
+    tampered_status = dict(tampered["provider_execution_status"])
+    tampered_status.pop("status_sha256")
+    tampered_status["succeeded_count"] = adapter.TASK_COUNT - 1
+    tampered["provider_execution_status"] = adapter._with_hash(
+        tampered_status, field="status_sha256"
+    )
+    tampered = adapter._with_hash(tampered, field="terminal_root_sha256")
+    with pytest.raises(
+        adapter.CorpusR6L2BSelectorAdapterV1Error,
+        match="full54 provider terminal status authority differs",
+    ):
+        adapter.validate_provisional_terminal_root_v1(tampered)
+
+    missing = deepcopy(root)
+    missing.pop("terminal_root_sha256")
+    missing.pop("provider_execution_status")
+    missing = adapter._with_hash(missing, field="terminal_root_sha256")
+    with pytest.raises(
+        adapter.CorpusR6L2BSelectorAdapterV1Error,
+        match="terminal-root fields differ",
+    ):
+        adapter.validate_provisional_terminal_root_v1(missing)
+
+
+def test_verified_terminal_grade_opener_rejects_result_manifest_drift(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _root, _manifest_value, results, root_identity = (
+        _install_verified_terminal_fast_grade_fixture(monkeypatch)
+    )
+    results[17]["task_manifest_identity"] = _identity(
+        "gs://fixture/copied-manifest.json", "copied-manifest"
+    )
+    monkeypatch.setattr(
+        adapter.grader,
+        "validate_external_normalized_terminal_v1",
+        lambda **_kwargs: pytest.fail(
+            "binding drift must fail before normalized gradeability"
+        ),
+    )
     with pytest.raises(
         adapter.CorpusR6L2BSelectorAdapterV1Error,
         match="terminal task-result replay differs",

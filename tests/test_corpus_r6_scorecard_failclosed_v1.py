@@ -240,6 +240,26 @@ def _l2b_grade() -> dict[str, object]:
     return {**body, "realized_grade_sha256": s.canonical_sha256_v1(body)}
 
 
+def _provisional_l2b_grade() -> dict[str, object]:
+    grade = _l2b_grade()
+    grade.pop("realized_grade_sha256")
+    grade.update({
+        "schema_version": s.L2B_PROVISIONAL_GRADE_SCHEMA,
+        "authority_tier": "descriptive-provisional-provider-results",
+        "provider_task_results_structurally_validated": True,
+        "central_exact_selector_replay_completed": False,
+        "asynchronous_exact_replay_required": True,
+        "coherent_substitution_excluded_by_hashes_alone": False,
+        "confirmatory_authority": False,
+        "promotion_authority": False,
+        "production_change_licensed": False,
+    })
+    return {
+        **grade,
+        "realized_grade_sha256": s.canonical_sha256_v1(grade),
+    }
+
+
 def _performance_row(
     *, source: str, selector: str, mean_milli: int,
     counts: tuple[int, int, int, int]
@@ -473,6 +493,33 @@ def test_new_grade_outcome_authority_requires_internal_hash_match(
         "identity": _identity("outcome"),
         "internal_sha256": "a" * 64,
     }
+
+
+def test_provisional_l2b_grade_is_scoreable_but_authority_flags_fail_closed(
+    tmp_path: Path,
+) -> None:
+    provisional = _provisional_l2b_grade()
+    path = _write(tmp_path, "l2b-provisional.json", provisional)
+    scorecard = s.build_scorecard_v1([
+        s.ScorecardInputV1("l2b-provisional", path)
+    ])
+    assert scorecard["complete"] is True
+    assert sum(
+        len(group["rows"]) for group in scorecard["diagnostic_groups"]
+    ) == 300
+
+    tampered = deepcopy(provisional)
+    tampered.pop("realized_grade_sha256")
+    tampered["confirmatory_authority"] = True
+    tampered["realized_grade_sha256"] = s.canonical_sha256_v1(tampered)
+    tampered_path = _write(tmp_path, "l2b-provisional-tampered.json", tampered)
+    with pytest.raises(
+        s.CorpusR6ScoreSprintScorecardV1Error,
+        match="provisional realized-grade authority differs",
+    ):
+        s.build_scorecard_v1([
+            s.ScorecardInputV1("l2b-provisional-tampered", tampered_path)
+        ])
 
 
 def test_default_markdown_renders_full_reference_and_diagnostic_metrics() -> None:

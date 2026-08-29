@@ -19,6 +19,9 @@ from typing import Final
 
 SCORECARD_SCHEMA: Final = "corpus-r6-score-sprint-scorecard/v1"
 NOVEL_GRADE_SCHEMA: Final = "corpus-r6-novel-roster-realized-grade/v1"
+L2B_PROVISIONAL_GRADE_SCHEMA: Final = (
+    "corpus-r6-l2b-selector-provider-realized-grade-provisional/v1"
+)
 HARD230_GRADE_SCHEMA: Final = (
     "corpus-r6-hard230-selector-bridge-realized-grade/v1"
 )
@@ -94,6 +97,14 @@ _NOVEL_ROOT_FIELDS: Final = frozenset({
     "terminal_before_first_outcome_read", "uses_realized_outcomes",
     "historical_retune_licensed", "historical_retry_licensed",
     "decision_authority", "complete", "realized_grade_sha256",
+})
+_PROVISIONAL_AUTHORITY_FIELDS: Final = frozenset({
+    "authority_tier", "provider_task_results_structurally_validated",
+    "central_exact_selector_replay_completed",
+    "asynchronous_exact_replay_required",
+    "coherent_substitution_excluded_by_hashes_alone",
+    "confirmatory_authority", "promotion_authority",
+    "production_change_licensed",
 })
 _HARD_ROOT_FIELDS: Final = frozenset({
     "schema_version", "adapter_id", "terminal_identity", "terminal_sha256",
@@ -717,9 +728,15 @@ def _validate_cell(
 def _extract_new_grade(source: _LoadedInput) -> dict[str, object]:
     grade = source.value
     schema = grade.get("schema_version")
-    if schema == NOVEL_GRADE_SCHEMA:
+    novel_like = schema in {NOVEL_GRADE_SCHEMA, L2B_PROVISIONAL_GRADE_SCHEMA}
+    if novel_like:
         hash_field = "realized_grade_sha256"
-        if set(grade) != _NOVEL_ROOT_FIELDS:
+        expected_fields = (
+            _NOVEL_ROOT_FIELDS | _PROVISIONAL_AUTHORITY_FIELDS
+            if schema == L2B_PROVISIONAL_GRADE_SCHEMA
+            else _NOVEL_ROOT_FIELDS
+        )
+        if set(grade) != expected_fields:
             _fail(f"{source.label}: generic realized-grade root fields differ")
         if (
             grade.get("adapter_id") not in {
@@ -738,6 +755,19 @@ def _extract_new_grade(source: _LoadedInput) -> dict[str, object]:
             != len(_sequence(grade.get("aggregate_cells"), label="aggregate cells"))
         ):
             _fail(f"{source.label}: generic realized-grade law differs")
+        if schema == L2B_PROVISIONAL_GRADE_SCHEMA and (
+            grade.get("adapter_id") != "l2b-current-union-selectors-v1"
+            or grade.get("authority_tier")
+            != "descriptive-provisional-provider-results"
+            or grade.get("provider_task_results_structurally_validated") is not True
+            or grade.get("central_exact_selector_replay_completed") is not False
+            or grade.get("asynchronous_exact_replay_required") is not True
+            or grade.get("coherent_substitution_excluded_by_hashes_alone") is not False
+            or grade.get("confirmatory_authority") is not False
+            or grade.get("promotion_authority") is not False
+            or grade.get("production_change_licensed") is not False
+        ):
+            _fail(f"{source.label}: provisional realized-grade authority differs")
     elif schema == HARD230_GRADE_SCHEMA:
         hash_field = "grade_sha256"
         if set(grade) != _HARD_ROOT_FIELDS:
@@ -761,14 +791,14 @@ def _extract_new_grade(source: _LoadedInput) -> dict[str, object]:
     identity_fields = (
         ("terminal_root_identity", "task_manifest_identity",
          "later_source_freeze_identity")
-        if schema == NOVEL_GRADE_SCHEMA else
+        if novel_like else
         ("terminal_identity", "later_source_identity")
     )
     for field in identity_fields:
         _identity(grade.get(field), label=f"{source.label} {field}")
     digest_fields = (
         ("terminal_root_sha256", "task_manifest_sha256")
-        if schema == NOVEL_GRADE_SCHEMA else ("terminal_sha256",)
+        if novel_like else ("terminal_sha256",)
     )
     for field in digest_fields:
         _digest(grade.get(field), label=f"{source.label} {field}")
@@ -790,11 +820,11 @@ def _extract_new_grade(source: _LoadedInput) -> dict[str, object]:
     if (
         len(slate_grades) != SOURCE_SLATE_COUNT
         or grade.get("slate_grades_sha256") != canonical_sha256_v1(slate_grades)
-        or (schema == NOVEL_GRADE_SCHEMA
+        or (novel_like
             and grade.get("slate_grade_count") != SOURCE_SLATE_COUNT)
     ):
         _fail(f"{source.label}: slate-grade census/hash differs")
-    if schema == NOVEL_GRADE_SCHEMA:
+    if novel_like:
         expected_thresholds = [{
             "threshold_dk": threshold,
             "threshold_micro": threshold * MICRO_DK_PER_POINT,
@@ -1135,7 +1165,11 @@ def _extract_a7_benchmark(source: _LoadedInput) -> dict[str, object]:
 
 def _extract(source: _LoadedInput) -> dict[str, object]:
     schema = source.value.get("schema_version")
-    if schema in {NOVEL_GRADE_SCHEMA, HARD230_GRADE_SCHEMA}:
+    if schema in {
+        NOVEL_GRADE_SCHEMA,
+        L2B_PROVISIONAL_GRADE_SCHEMA,
+        HARD230_GRADE_SCHEMA,
+    }:
         return _extract_new_grade(source)
     if schema == FULL_UNION_REPORT_SCHEMA:
         return _extract_full_union_benchmark(source)
