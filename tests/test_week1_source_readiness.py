@@ -137,6 +137,66 @@ def test_roster_destination_normalizer_rejects_fractional_jersey_number():
         nflverse_job._normalize_destination_frame(frame, "rosters_weekly")
 
 
+def test_roster_destination_normalizes_complete_string_contract_before_load():
+    frame = pd.DataFrame({
+        "draft_number": [12.0, None],
+        "espn_id": [12345.0, None],
+        "team": [" CHI ", "GB"],
+        "season": pd.Series([2026, 2026], dtype="Int64"),
+    })
+
+    normalized = nflverse_job._normalize_destination_frame(
+        frame, "rosters_weekly",
+    )
+
+    for column in ("draft_number", "espn_id", "team"):
+        assert isinstance(normalized[column].dtype, pd.StringDtype)
+    assert normalized["draft_number"].tolist()[0] == "12"
+    assert normalized["espn_id"].tolist()[0] == "12345"
+    assert normalized["team"].tolist() == ["CHI", "GB"]
+    assert normalized["season"].dtype == frame["season"].dtype
+
+
+def test_roster_destination_rejects_fractional_string_identifier():
+    frame = pd.DataFrame({"draft_number": [12.5]})
+
+    with pytest.raises(ValueError, match=r"draft_number.*integer"):
+        nflverse_job._normalize_destination_frame(frame, "rosters_weekly")
+
+
+def test_roster_contract_failure_occurs_before_delete_or_load(monkeypatch):
+    mutations: list[str] = []
+    monkeypatch.setattr(
+        nflverse_job,
+        "_delete_seasons",
+        lambda *args, **kwargs: mutations.append("delete"),
+    )
+    monkeypatch.setattr(
+        nflverse_job,
+        "load_dataframe",
+        lambda *args, **kwargs: mutations.append("load"),
+    )
+
+    with pytest.raises(ValueError, match=r"draft_number.*integer"):
+        nflverse_job._load(
+            pd.DataFrame({"season": [2026], "draft_number": [12.5]}),
+            "rosters_weekly",
+            replace_seasons=[2026],
+        )
+
+    assert mutations == []
+
+
+def test_roster_destination_rejects_numpy_boolean_string_value():
+    import numpy as np
+
+    with pytest.raises(ValueError, match=r"status.*boolean"):
+        nflverse_job._normalize_destination_frame(
+            pd.DataFrame({"status": [np.bool_(True)]}),
+            "rosters_weekly",
+        )
+
+
 def test_destination_normalizer_does_not_mutate_other_tables():
     frame = pd.DataFrame({
         "season": pd.Series([2026], dtype="Int64"),

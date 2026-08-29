@@ -20,6 +20,52 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 14:54 UTC (three-hundred-sixtieth update)
+
+### Immutable release built and deployed; first ingest exposed one additional pre-delete roster dtype drift
+
+- Branch `main` and `origin/main` are at pushed isolated repair commit
+  `4b6d7c22b38bca369dd10cdf70cd4c3728573902`. Its clean Git archive is
+  152,115,764 bytes with local SHA-256
+  `26b50b4f02d106b3741d12cd9efddfde65fa50a766cfc2e473ee1f98f5835a4a`.
+  Cloud Build `c87252a7-bf7e-4877-a24c-9349753f555e` reached terminal
+  `SUCCESS` at `2026-08-29T14:41:04.214160Z`; Cloud provenance recorded the
+  matching MD5 `VXswdId03rpSdYJMQzeMAA==` and base64url SHA-256
+  `JrULTwLRBrN0HRLNnv3f3mX6UKdmz8Lkc-4fmPWDWko=`. The bounded cloud tests,
+  compile, packaging and network-isolated image smokes passed. The immutable
+  image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:b402032cf7a233fbab172315cd28f850d305eedf38aea8825335e9e0b5d3f474`.
+- Exact pre-update job contracts and rollback digests were captured. The five
+  previously enabled schedulers (`s-nflverse`, `s-dk`, `s-features`,
+  `s-project-tu`, `s-project-su`) are intentionally **PAUSED**; pre-existing
+  `s-features-route` remains PAUSED. All four scoped jobs (`ingest-nflverse`,
+  `ingest-dk`, `build-features`, `project-slate`) were updated with image only.
+  UIDs are unchanged, every generation is fully observed, and immutable Cloud
+  Audit `ReplaceJob` records prove sanitized pre/post executable specs are
+  exactly equal after excluding only image plus gcloud-managed client-version
+  and nonce fields. Commands, args, resources, retries, timeouts, service
+  account, environment/secret bindings, task count and parallelism are intact.
+- Controlled execution `ingest-nflverse-cm4sl` ran the intended digest and
+  failed terminal `NonZeroExitCode` at `2026-08-29T14:51:16.668582Z`. Source
+  coverage validation passed; it loaded 48,771 PBP rows, 19,422 weekly-stat
+  rows and 1,036,403 validated depth-snapshot rows. Roster replacement then
+  attempted 49,779 rows but BigQuery rejected upstream `draft_number`
+  `float64` against the established destination STRING column. Because the
+  inherited incremental transport is delete-then-append, the 2025/2026 roster
+  partitions remain absent. No feature build, projection, paired shadow or
+  outcome read followed this failure.
+- A second bounded repair is local and under review: normalize every field in
+  the established 36-column roster STRING contract before the delete, not
+  just `jersey_number`. Nulls remain nullable strings; integral numeric IDs,
+  jersey values and draft numbers become canonical integer strings; boolean,
+  non-finite or fractional numeric values fail before mutation. Source-focused
+  tests, compile and diff checks are green; the complete bounded gate is
+  **290 passed / 1 skipped**. Exact next action is to finish the focused review,
+  commit and push this small repair, build a new
+  clean immutable image, image-only update the same four paused jobs with
+  another exact audit parity check, and retry NFLverse ingestion before any DK,
+  feature, projection or boom-first execution.
+
 ## Current handoff -- 2026-08-29 14:18 UTC (three-hundred-fifty-ninth update)
 
 ### Boom-first release is on a bounded build gate; Week 1 source readiness is the launch blocker

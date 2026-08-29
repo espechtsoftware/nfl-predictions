@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 from hashlib import sha256
 from numbers import Integral, Real
 
+import numpy as np
 import pandas as pd
 
 from ..bq import load_dataframe
@@ -52,6 +53,15 @@ NFL_TEAM_COUNT = 32
 MIN_WEEKLY_ROSTER_GSIS_IDS = 1_000
 MIN_DEPTH_SNAPSHOT_GSIS_IDS = 1_000
 MAX_DEPTH_SNAPSHOT_AGE_DAYS = 14
+WEEKLY_ROSTER_STRING_COLUMNS = frozenset({
+    "team", "position", "depth_chart_position", "jersey_number", "status",
+    "full_name", "first_name", "last_name", "college", "gsis_id",
+    "espn_id", "sportradar_id", "yahoo_id", "rotowire_id", "pff_id",
+    "pfr_id", "fantasy_data_id", "sleeper_id", "headshot_url",
+    "ngs_position", "game_type", "status_description_abbr",
+    "football_name", "esb_id", "gsis_it_id", "smart_id", "draft_club",
+    "draft_number", "nflverse_source_path", "nflverse_source_mode",
+})
 
 
 def _delete_seasons(table: str, seasons: list[int]) -> None:
@@ -73,37 +83,37 @@ def _normalize_destination_frame(
 ) -> pd.DataFrame:
     """Normalize source dtypes that have a stricter landed-table contract.
 
-    ``nflreadpy`` currently emits ``rosters_weekly.jersey_number`` as a
-    nullable float even though the established BigQuery column is STRING.
-    Normalize it before the incremental path deletes the season being
-    replaced, so the known schema mismatch cannot erase the old partition
-    and then fail its replacement load.  Numeric jersey values must be
-    integral; silently truncating a malformed value would weaken the source
-    contract.
+    nflverse may infer nullable identifier-like fields as floats when a source
+    release contains only numeric/null values.  The established BigQuery
+    roster table intentionally stores those and all categorical/text fields
+    as STRING. Normalize the complete destination string contract before the
+    incremental path deletes the seasons being replaced. Numeric values must
+    be finite and integral; silently truncating an identifier or draft number
+    would weaken the source contract.
     """
-    if table != "rosters_weekly" or "jersey_number" not in pdf.columns:
+    if table != "rosters_weekly":
         return pdf
 
-    normalized: list[object] = []
-    for value in pdf["jersey_number"]:
-        if pd.isna(value):
-            normalized.append(pd.NA)
-        elif isinstance(value, bool):
-            raise ValueError("rosters_weekly jersey_number is boolean")
-        elif isinstance(value, Integral):
-            normalized.append(str(int(value)))
-        elif isinstance(value, Real):
-            numeric = float(value)
-            if not math.isfinite(numeric) or not numeric.is_integer():
-                raise ValueError(
-                    "rosters_weekly jersey_number is not an integer"
-                )
-            normalized.append(str(int(numeric)))
-        else:
-            normalized.append(str(value).strip())
-
     out = pdf.copy()
-    out["jersey_number"] = pd.array(normalized, dtype="string")
+    for column in sorted(WEEKLY_ROSTER_STRING_COLUMNS & set(out.columns)):
+        normalized: list[object] = []
+        for value in out[column]:
+            if pd.isna(value):
+                normalized.append(pd.NA)
+            elif isinstance(value, (bool, np.bool_)):
+                raise ValueError(f"rosters_weekly {column} is boolean")
+            elif isinstance(value, Integral):
+                normalized.append(str(int(value)))
+            elif isinstance(value, Real):
+                numeric = float(value)
+                if not math.isfinite(numeric) or not numeric.is_integer():
+                    raise ValueError(
+                        f"rosters_weekly {column} is not an integer"
+                    )
+                normalized.append(str(int(numeric)))
+            else:
+                normalized.append(str(value).strip())
+        out[column] = pd.array(normalized, dtype="string")
     return out
 
 
