@@ -57,6 +57,20 @@ SOURCE_PANELS: Final = tuple(
 )
 REPAIR_PANEL: Final = "20260816-atlas-mvp-repair-r3-2025-v1"
 REPAIR_KEY: Final = (2025, 1, "R3")
+REPAIR_WORLD_ARTIFACT_URI: Final = (
+    "gs://nfl-predictions-503414-raw/cand_scores/"
+    "20260815-atlas-money-worlds-r3-v1/2025_w1_0590227023eb.npz"
+)
+REPAIR_CANDIDATE_ARTIFACT_URI: Final = (
+    "gs://nfl-predictions-503414-raw/cand_scores/"
+    "20260816-atlas-mvp-repair-r3-2025-v1/2025_w1_1b661a12cf24.npz"
+)
+REPAIR_ARTIFACT_SHA256: Final = (
+    "7eaef50c890150f6cdc329e80e4d68f08b4a8d2aac402fa5a51ba9ce4f860805"
+)
+REPAIR_ARTIFACT_GENERATION: Final = "1786843065841985"
+REPAIR_ARTIFACT_BYTES: Final = 26_516_530
+REPAIR_CANDIDATE_ROWS: Final = 248
 SLATE_KEYS: Final = tuple(
     (season, week) for season in (2023, 2024, 2025) for week in range(1, 19)
 )
@@ -416,7 +430,7 @@ def _roster(value: object, *, label: str) -> list[str]:
 
 def _normalized_candidate_rows(
     raw_rows: Sequence[Mapping[str, object]], *, panel: str,
-    season: int, week: int, artifact: Mapping[str, object],
+    season: int, week: int, block: str, artifact: Mapping[str, object],
 ) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
     artifact_sha = _digest(artifact.get("sha256"), label="artifact SHA-256")
@@ -424,13 +438,35 @@ def _normalized_candidate_rows(
         row = _mapping(raw, label=f"candidate row[{ordinal}]")
         if set(row) != set(CANDIDATE_FIELDS):
             _fail("generation candidate fields differ")
+        exact_artifact_binding = (
+            row.get("score_artifact_uri") == artifact.get("uri")
+            and row.get("score_artifact_sha256") == artifact_sha
+        )
+        exact_repair_alias = (
+            (season, week, block) == REPAIR_KEY
+            and panel == REPAIR_PANEL
+            and artifact.get("block") == REPAIR_KEY[2]
+            and artifact.get("panel_run_id") == SOURCE_PANELS[3]
+            and artifact.get("uri") == REPAIR_WORLD_ARTIFACT_URI
+            and artifact.get("generation") == REPAIR_ARTIFACT_GENERATION
+            and artifact.get("sha256") == REPAIR_ARTIFACT_SHA256
+            and artifact.get("bytes") == REPAIR_ARTIFACT_BYTES
+            and artifact.get("candidate_rows") == REPAIR_CANDIDATE_ROWS
+            and row.get("score_artifact_uri")
+            == REPAIR_CANDIDATE_ARTIFACT_URI
+            and row.get("score_artifact_sha256") == REPAIR_ARTIFACT_SHA256
+        )
+        artifact_binding_matches = (
+            exact_repair_alias
+            if (season, week, block) == REPAIR_KEY or panel == REPAIR_PANEL
+            else exact_artifact_binding
+        )
         if (
             row.get("panel_run_id") != panel
             or row.get("season") != season
             or row.get("week") != week
             or row.get("cand_ix") != ordinal
-            or row.get("score_artifact_uri") != artifact.get("uri")
-            or row.get("score_artifact_sha256") != artifact_sha
+            or not artifact_binding_matches
         ):
             _fail("generation candidate coordinate/artifact differs")
         tag = str(row.get("tag") or "").strip()
@@ -507,7 +543,7 @@ def build_generation_snapshot_v1(
         )
         candidates = _normalized_candidate_rows(
             candidate_rows_by_block[block], panel=panel, season=season,
-            week=week, artifact=artifact,
+            week=week, block=block, artifact=artifact,
         )
         catalog_ids = {str(row["id"]) for row in players}
         if any(not set(row["player_ids"]) <= catalog_ids for row in candidates):
@@ -608,7 +644,8 @@ def validate_generation_snapshot_v1(value: object) -> dict[str, object]:
         )
         candidates = _normalized_candidate_rows(
             _sequence(seed.get("candidate_rows"), label=f"{block} candidates"),
-            panel=panel, season=season, week=week, artifact=artifact,
+            panel=panel, season=season, week=week, block=block,
+            artifact=artifact,
         )
         if (
             canonical_sha256_v1(players) != seed.get("player_rows_sha256")

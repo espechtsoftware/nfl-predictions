@@ -178,32 +178,53 @@ def _snapshot(ordinal: int = 0):
     player_rows = {}
     candidate_rows = {}
     for index, block in enumerate(subject.BLOCK_ORDER):
+        is_exact_repair = (season, week, block) == subject.REPAIR_KEY
         artifact = {
             "block": block,
-            "bytes": 1000 + index,
-            "candidate_rows": 1,
-            "generation": str(10 + index),
+            "bytes": (
+                subject.REPAIR_ARTIFACT_BYTES
+                if is_exact_repair else 1000 + index
+            ),
+            "candidate_rows": (
+                subject.REPAIR_CANDIDATE_ROWS if is_exact_repair else 1
+            ),
+            "generation": (
+                subject.REPAIR_ARTIFACT_GENERATION
+                if is_exact_repair else str(10 + index)
+            ),
             "panel_run_id": subject.SOURCE_PANELS[index],
             "season": season,
-            "sha256": str(index + 1) * 64,
+            "sha256": (
+                subject.REPAIR_ARTIFACT_SHA256
+                if is_exact_repair else str(index + 1) * 64
+            ),
             "updated": "2026-08-21T00:00:00+00:00",
-            "uri": f"gs://fixture/{block}.npz",
+            "uri": (
+                subject.REPAIR_WORLD_ARTIFACT_URI
+                if is_exact_repair else f"gs://fixture/{block}.npz"
+            ),
             "week": week,
         }
         artifacts.append(artifact)
         panel = subject.candidate_source_panel_v1(season, week, block)
         players = _player_rows(panel, season, week)
         player_rows[block] = players
-        candidate_rows[block] = [{
-            "panel_run_id": panel,
-            "season": season,
-            "week": week,
-            "cand_ix": 0,
-            "tag": "lev",
-            "player_ids": [row["id"] for row in players[:9]],
-            "score_artifact_uri": artifact["uri"],
-            "score_artifact_sha256": artifact["sha256"],
-        }]
+        candidate_rows[block] = [
+            {
+                "panel_run_id": panel,
+                "season": season,
+                "week": week,
+                "cand_ix": candidate_index,
+                "tag": "lev",
+                "player_ids": [row["id"] for row in players[:9]],
+                "score_artifact_uri": (
+                    subject.REPAIR_CANDIDATE_ARTIFACT_URI
+                    if is_exact_repair else artifact["uri"]
+                ),
+                "score_artifact_sha256": artifact["sha256"],
+            }
+            for candidate_index in range(int(artifact["candidate_rows"]))
+        ]
     later_slate = {
         "season": season,
         "week": week,
@@ -354,8 +375,68 @@ def test_generation_snapshot_binds_repaired_r3_and_proj_tourney():
     assert r3["candidate_source_panel_id"] == subject.REPAIR_PANEL
     assert r3["world_source_panel_id"] == subject.SOURCE_PANELS[3]
     assert r3["repair_substitution"] is True
+    assert r3["artifact_receipt"]["uri"] == subject.REPAIR_WORLD_ARTIFACT_URI
+    assert r3["candidate_rows"][0]["score_artifact_uri"] == (
+        subject.REPAIR_CANDIDATE_ARTIFACT_URI
+    )
+    assert (
+        r3["artifact_receipt"]["sha256"]
+        == r3["candidate_rows"][0]["score_artifact_sha256"]
+        == subject.REPAIR_ARTIFACT_SHA256
+    )
+    assert len(r3["candidate_rows"]) == subject.REPAIR_CANDIDATE_ROWS
     assert r3["player_rows"][0]["proj_tourney"] == 9.5
     assert retained["uses_realized_outcomes"] is False
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ("candidate_uri", "both_uris", "shared_sha", "row_count", "panel", "slate"),
+)
+def test_generation_snapshot_rejects_any_neighbor_of_exact_repair_alias(
+    mutation,
+):
+    broken = deepcopy(_snapshot(36))
+    r3 = broken["seeds"][3]
+    if mutation == "candidate_uri":
+        r3["candidate_rows"][0]["score_artifact_uri"] = (
+            subject.REPAIR_CANDIDATE_ARTIFACT_URI + ".other"
+        )
+    elif mutation == "both_uris":
+        r3["artifact_receipt"]["uri"] = "gs://fixture/other.npz"
+        for row in r3["candidate_rows"]:
+            row["score_artifact_uri"] = "gs://fixture/other.npz"
+    elif mutation == "shared_sha":
+        r3["artifact_receipt"]["sha256"] = "f" * 64
+        for row in r3["candidate_rows"]:
+            row["score_artifact_sha256"] = "f" * 64
+    elif mutation == "row_count":
+        r3["artifact_receipt"]["candidate_rows"] -= 1
+        r3["candidate_rows"].pop()
+    elif mutation == "panel":
+        r3["candidate_source_panel_id"] = subject.SOURCE_PANELS[3]
+        r3["repair_substitution"] = False
+        for row in r3["player_rows"]:
+            row["panel_run_id"] = subject.SOURCE_PANELS[3]
+        for row in r3["candidate_rows"]:
+            row["panel_run_id"] = subject.SOURCE_PANELS[3]
+    else:
+        broken["week"] = 2
+        broken["slate_id"] = "2025-w02"
+    r3["player_rows_sha256"] = subject.canonical_sha256_v1(
+        r3["player_rows"]
+    )
+    r3["candidate_rows_sha256"] = subject.canonical_sha256_v1(
+        r3["candidate_rows"]
+    )
+    body = {
+        key: value for key, value in broken.items()
+        if key != "generation_snapshot_sha256"
+    }
+    broken["generation_snapshot_sha256"] = subject.canonical_sha256_v1(body)
+
+    with pytest.raises(subject.CorpusR6BoomFirstAllocationV1Error):
+        subject.validate_generation_snapshot_v1(broken)
 
 
 def test_generation_snapshot_rejects_missing_objective():

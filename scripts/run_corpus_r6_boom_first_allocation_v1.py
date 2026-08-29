@@ -2538,11 +2538,20 @@ def preflight_smoke_from_request_v1(
         "queried_at_preflight": True,
         "postlock_columns_selected": [],
     }
-    snapshot = _build_snapshot_from_frames_v1(
-        source_ordinal=0, frozen_source=frozen, source_identity=source_identity,
-        player_frame=player_frame, candidate_frame=candidate_frame,
-        query_receipts=query_receipts,
-    )
+    snapshot: dict[str, object] | None = None
+    for source_ordinal in range(science.TASK_COUNT):
+        validated = science.validate_generation_snapshot_v1(
+            _build_snapshot_from_frames_v1(
+                source_ordinal=source_ordinal, frozen_source=frozen,
+                source_identity=source_identity, player_frame=player_frame,
+                candidate_frame=candidate_frame,
+                query_receipts=query_receipts,
+            )
+        )
+        if source_ordinal == 0:
+            snapshot = validated
+    if snapshot is None:  # pragma: no cover - TASK_COUNT is frozen positive
+        _fail("boom-first preflight snapshot lattice is empty")
     result = _run_score_blind_task_v1(
         frozen_snapshot=snapshot,
         runtime_identity=_preflight_runtime_v1(code_commit=code_commit),

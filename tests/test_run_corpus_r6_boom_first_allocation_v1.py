@@ -330,16 +330,31 @@ def _prepare_fixture_frames():
         artifacts = []
         for index, block in enumerate(science.BLOCK_ORDER):
             marker = format(index + 1, "x")
+            is_exact_repair = (season, week, block) == science.REPAIR_KEY
             artifacts.append({
                 "block": block,
-                "bytes": 1000 + ordinal * 5 + index,
-                "candidate_rows": 1,
-                "generation": str(ordinal * 5 + index + 1),
+                "bytes": (
+                    science.REPAIR_ARTIFACT_BYTES if is_exact_repair
+                    else 1000 + ordinal * 5 + index
+                ),
+                "candidate_rows": (
+                    science.REPAIR_CANDIDATE_ROWS if is_exact_repair else 1
+                ),
+                "generation": (
+                    science.REPAIR_ARTIFACT_GENERATION if is_exact_repair
+                    else str(ordinal * 5 + index + 1)
+                ),
                 "panel_run_id": science.SOURCE_PANELS[index],
                 "season": season,
-                "sha256": marker * 64,
+                "sha256": (
+                    science.REPAIR_ARTIFACT_SHA256
+                    if is_exact_repair else marker * 64
+                ),
                 "updated": "2026-08-21T00:00:00+00:00",
-                "uri": f"gs://fixture/worlds/{ordinal}-{block}.npz",
+                "uri": (
+                    science.REPAIR_WORLD_ARTIFACT_URI if is_exact_repair
+                    else f"gs://fixture/worlds/{ordinal}-{block}.npz"
+                ),
                 "week": week,
             })
             panel = science.candidate_source_panel_v1(season, week, block)
@@ -363,12 +378,23 @@ def _prepare_fixture_frames():
                     "proj_p10": 1.0, "proj_p50": 10.0,
                     "proj_p90": 20.0, "proj_std": 4.0,
                 })
-            candidate_rows.append({
-                "panel_run_id": panel, "season": season, "week": week,
-                "cand_ix": 0, "tag": "lev", "players": ",".join(roster),
-                "score_artifact_uri": f"gs://fixture/worlds/{ordinal}-{block}.npz",
-                "score_artifact_sha256": marker * 64,
-            })
+            for candidate_index in range(
+                science.REPAIR_CANDIDATE_ROWS if is_exact_repair else 1
+            ):
+                candidate_rows.append({
+                    "panel_run_id": panel, "season": season, "week": week,
+                    "cand_ix": candidate_index, "tag": "lev",
+                    "players": ",".join(roster),
+                    "score_artifact_uri": (
+                        science.REPAIR_CANDIDATE_ARTIFACT_URI
+                        if is_exact_repair
+                        else f"gs://fixture/worlds/{ordinal}-{block}.npz"
+                    ),
+                    "score_artifact_sha256": (
+                        science.REPAIR_ARTIFACT_SHA256
+                        if is_exact_repair else marker * 64
+                    ),
+                })
         slates.append({
             "season": season, "week": week,
             "slate_id": science.expected_slate_id_v1(ordinal),
@@ -455,6 +481,14 @@ def test_prepare_freezes_54_snapshots_with_distinct_internal_and_object_hashes(
         "snapshot_identity"
     ]["sha256"]
     assert manifest["task_bindings"][36]["slate_id"] == "2025-w01"
+    repair_binding = manifest["task_bindings"][36]
+    repair_raw, _ = store.objects[repair_binding["snapshot_identity"]["uri"]]
+    repair = science.validate_generation_snapshot_v1(json.loads(repair_raw))
+    r3 = repair["seeds"][3]
+    assert r3["artifact_receipt"]["uri"] == science.REPAIR_WORLD_ARTIFACT_URI
+    assert r3["candidate_rows"][0]["score_artifact_uri"] == (
+        science.REPAIR_CANDIDATE_ARTIFACT_URI
+    )
 
 
 def test_preflight_rejects_unobserved_caller_commit_before_any_source_read():
@@ -478,6 +512,83 @@ def test_preflight_rejects_unobserved_caller_commit_before_any_source_read():
             "later_source_identity": _identity("gs://fixture/source.json", "a"),
             "code_commit": "b" * 40,
         }, store=NoReadStore(), bq_client=NoQuery(), provider=Provider())
+
+
+@pytest.mark.parametrize("late_failure", (False, True))
+def test_preflight_validates_all_54_snapshots_before_running_only_task0(
+    monkeypatch, late_failure,
+):
+    code = "b" * 40
+    store = _FakeStore()
+    source_identity = store.seed(
+        "gs://fixture/later-source.json",
+        {"freeze_sha256": "e" * 64, "slates": []},
+    )
+    build_calls = []
+    validate_calls = []
+    task_calls = []
+
+    class Provider:
+        def current_source_commit(self):
+            return code
+
+    def fake_build(*, source_ordinal, **kwargs):
+        build_calls.append(source_ordinal)
+        return {
+            "source_ordinal": source_ordinal,
+            "late_mismatch": late_failure and source_ordinal == 53,
+        }
+
+    def fake_validate(snapshot):
+        validate_calls.append(snapshot["source_ordinal"])
+        if snapshot["late_mismatch"]:
+            raise science.CorpusR6BoomFirstAllocationV1Error(
+                "late snapshot mismatch"
+            )
+        return snapshot
+
+    def fake_task(*, frozen_snapshot, **kwargs):
+        task_calls.append(frozen_snapshot["source_ordinal"])
+        return {"source_ordinal": 0}
+
+    monkeypatch.setattr(
+        subject.later_source, "validate_source_freeze",
+        lambda value, expected_freeze_sha256: value,
+    )
+    monkeypatch.setattr(subject, "_build_source_provenance_v1", lambda **kwargs: {})
+    monkeypatch.setattr(
+        subject, "_run_score_blind_query",
+        lambda *args, **kwargs: (pd.DataFrame(), {"job_id": kwargs["job_id"]}),
+    )
+    monkeypatch.setattr(subject, "_build_snapshot_from_frames_v1", fake_build)
+    monkeypatch.setattr(science, "validate_generation_snapshot_v1", fake_validate)
+    monkeypatch.setattr(subject, "_run_score_blind_task_v1", fake_task)
+    monkeypatch.setattr(
+        subject, "_smoke_receipt_from_result_v1",
+        lambda **kwargs: {"complete": True},
+    )
+    monkeypatch.setattr(
+        subject, "_validate_preflight_smoke_receipt_v1",
+        lambda receipt, **kwargs: receipt,
+    )
+    request = {"later_source_identity": source_identity, "code_commit": code}
+
+    if late_failure:
+        with pytest.raises(
+            science.CorpusR6BoomFirstAllocationV1Error,
+            match="late snapshot mismatch",
+        ):
+            subject.preflight_smoke_from_request_v1(
+                request, store=store, bq_client=object(), provider=Provider()
+            )
+        assert task_calls == []
+    else:
+        assert subject.preflight_smoke_from_request_v1(
+            request, store=store, bq_client=object(), provider=Provider()
+        ) == {"complete": True}
+        assert task_calls == [0]
+    assert build_calls == list(range(science.TASK_COUNT))
+    assert validate_calls == list(range(science.TASK_COUNT))
 
 
 def test_generation_passes_named_incumbent_construction_explicitly(monkeypatch):

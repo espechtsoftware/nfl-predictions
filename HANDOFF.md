@@ -20,7 +20,42 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current handoff -- 2026-08-29 21:58 UTC (three-hundred-seventy-eighth update)
+## Current handoff -- 2026-08-29 (three-hundred-seventy-ninth update)
+
+### Exact repair alias and all-54 preflight gate are green locally
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `4f6151851f69b98bae3e29db89918abd96c4a489`.  Four boom-first files now
+  implement the narrowly licensed repair and its tests; unrelated dirty-tree
+  work remains untouched.
+- The generation snapshot admits differing artifact URI strings only for exact
+  `(2025, 1, R3)`: repair candidate panel/URI
+  `20260816-atlas-mvp-repair-r3-2025-v1` /
+  `gs://nfl-predictions-503414-raw/cand_scores/20260816-atlas-mvp-repair-r3-2025-v1/2025_w1_1b661a12cf24.npz`
+  and original world panel/URI
+  `20260815-atlas-money-worlds-r3-v1` /
+  `gs://nfl-predictions-503414-raw/cand_scores/20260815-atlas-money-worlds-r3-v1/2025_w1_0590227023eb.npz`.
+  The exception also pins SHA-256 `7eaef50c...f860805`, generation
+  `1786843065841985`, 26,516,530 bytes and 248 candidate rows.  Both source
+  identities remain truthful in the frozen snapshot.  Every non-repair case
+  still requires exact URI equality, and neighboring key, panel, URI, SHA or
+  count mutations fail closed.
+- Real-artifact preflight now builds and validates all 54 generation snapshots
+  in memory before retaining and executing only ordinal 0.  Thus a late input
+  mismatch prevents task execution and cannot survive merely because task 0
+  is healthy.  The score-blind task-0 science/smoke scope itself is unchanged.
+- Independent review found the exception fail-closed and the preflight change
+  directly sufficient for the missed-ordinal class.  Focused validation is
+  green: science 21/21, runner 19/19, `py_compile`, and `git diff --check`.
+  No cloud build, job mutation/launch, publication or realized-outcome read
+  occurred in this milestone.
+- Exact next action: commit and push only these four files plus this handoff,
+  create a new clean exact-commit checkout, and run the strengthened real
+  preflight.  Only after all 54 real snapshots and task 0 pass may one fresh
+  provider-resolved Git build be submitted.  Never reuse the old image or the
+  abandoned 36-object partial prefix.
+
+## Previous handoff -- 2026-08-29 21:58 UTC (three-hundred-seventy-eighth update)
 
 ### Full-54 prepare finds one exact repair-URI seam and stops before manifest
 
