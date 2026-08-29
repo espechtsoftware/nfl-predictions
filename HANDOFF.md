@@ -20,6 +20,19 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 09:28 UTC (three-hundred-forty-eighth update)
+
+### Bounded combined all-block image build is ready to submit
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `68b4087e`. New `cloudbuild.corpus-r6-combined-all-block.yaml` runs exactly
+  the 25 affected science/execution/operator tests, builds with the established
+  corpus-research-expansion Dockerfile, and performs network-isolated runtime
+  import/CLI smokes. It avoids the unrelated repository-wide deployment suite.
+- Exact next action: commit/push this build definition and handoff, submit it
+  from that exact Git revision with an immutable image tag, then record the
+  provider build ID/digest and publish the combined terminal build receipt.
+
 ## Current handoff — 2026-08-29 09:25 UTC (three-hundred-forty-seventh update)
 
 ### Combined all-block build attestation matches the real provider transport

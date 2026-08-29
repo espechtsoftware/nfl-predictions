@@ -1,0 +1,44 @@
+# Bounded immutable build for the R6 incumbent + hard-230 + F7/F8/F9
+# combined-population experiment.  This intentionally runs only the complete
+# directly affected science, execution, and operator suites.
+steps:
+  - name: python:3.11-slim
+    id: focused-combined-tests
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends git libgomp1
+        pip install --no-cache-dir '.[gcp,app,graph,dev]'
+        PYTHONPATH=src python -m pytest -q \
+          tests/test_corpus_r6_combined_population_all_block_v1.py \
+          tests/test_corpus_r6_combined_population_all_block_execution_v1.py \
+          tests/test_run_corpus_r6_combined_population_all_block_v1.py
+  - name: gcr.io/cloud-builders/docker
+    id: build-image
+    args:
+      - build
+      - -f
+      - Dockerfile.corpus-research-expansion
+      - -t
+      - '${_IMAGE}'
+      - .
+  - name: gcr.io/cloud-builders/docker
+    id: isolated-combined-runtime-smoke
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        docker run --rm --network none '${_IMAGE}' \
+          python -I scripts/run_corpus_r6_combined_population_all_block_v1.py --help
+        docker run --rm --network none '${_IMAGE}' \
+          python -m nfl_dfs.research.corpus_r6_combined_population_all_block_execution_v1 --help
+images:
+  - '${_IMAGE}'
+substitutions:
+  _IMAGE: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:corpus-r6-combined-all-block
+timeout: 3600s
+options:
+  logging: LEGACY
+  machineType: E2_HIGHCPU_8
