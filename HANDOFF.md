@@ -20,6 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff — 2026-08-29 09:12 UTC (three-hundred-forty-third update)
+
+### Kickoff-v3 and hard-230 runtimes are green; both canaries advance
+
+- Branch `main` and `origin/main` entered this milestone at pushed commit
+  `ca02357b`. Kickoff-v3 build
+  `38312cd7-d094-40cb-bfc0-99bb00894dfb` succeeded from exact source
+  `7eeb598fb12b70547066073154f38dabef8b7aea`. Its immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:c0f5e37f80a8ca18454c2a0e8b7b5ed42b4fb4e4ecce8beeb5ce5bf749257bbb`
+  (tag `recourse-kickoff-v3-7eeb598f`). All build tests, image creation and
+  network-isolated runner/aggregator/validator smokes passed. The transport
+  now binds those four exact identities and remains 42/42 locally green;
+  commit/push only this constant hunk plus the handoff, then launch one clean
+  detached-checkout 2023-W1 v3 canary.
+- Hard-230 confirmation build
+  `cb15d8d3-3a09-4e68-841d-7ce1444738d0` succeeded from exact source
+  `9f269988371ff9fbf5e0803ccedc5686c62cbbb0`; immutable digest is
+  `sha256:e04bbe15a97fac2e3268f167ace8a09821caf9db835b83625689ade44cd7aa15`.
+  Terminal build receipt generation `1787994465132843`, SHA-256
+  `011c147948b50853dc6520331b89acd6749427856281025b7ba22eae4efea82d`,
+  477 bytes was published once beneath `selector-confirmation-v1`.
+  Outcome-blind task-0 smoke then passed with 42 books and exact confirmation
+  SHA-256 `a8eecd0bc5b0819ec62c76045c42cacf475633bcab0c873210108a2516ed60c1`;
+  smoke receipt generation `1787994585852569`, SHA-256
+  `8c28e446271e789542c24a367c73a338e8a754ae18aba57e52e7042668e1769f`,
+  1,588 bytes. Run full derive only after the active L2b collection releases
+  the workstation's one-heavy-process slot, then grade against the frozen
+  catalog outcome snapshot.
+- L2b remains 54/54 terminal with its single exact semantic-replay collection
+  active; do not duplicate it. A tested local score summarizer is ready to
+  render all 300 L2b cells immediately after the grade arrives.
+- Exact next action: push the kickoff-v3 image binding, launch its one slate,
+  and finish/grade L2b. Then run the hard-230 54-slate derive/grade. Combined
+  union remains HOLD until its bootstrap and isolated-runtime review is GO.
+
 ## Current handoff — 2026-08-29 09:06 UTC (three-hundred-forty-second update)
 
 ### Exact random-book null confirms retrieval enrichment and the K150 lever
