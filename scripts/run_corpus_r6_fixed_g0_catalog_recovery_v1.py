@@ -961,9 +961,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         result = _status()
     elif args.command == "smoke":
         result = run_smoke_production_v1()
+        recovery.write_local_create_once_v1(
+            repository_root=REPOSITORY_ROOT,
+            relative_path=recovery.SMOKE_EVIDENCE_PATH,
+            body=result,
+        )
     elif args.command == "census-empty-prefix":
         result = run_empty_prefix_census_production_v1(
             checked_at_utc=args.checked_at_utc
+        )
+        recovery.write_local_create_once_v1(
+            repository_root=REPOSITORY_ROOT,
+            relative_path=recovery.EMPTY_PREFIX_EVIDENCE_PATH,
+            body=result,
         )
     elif args.command == "run-focused-tests":
         result = run_focused_tests_production_v1()

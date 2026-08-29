@@ -20,6 +20,39 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 17:20 UTC (three-hundred-sixty-fifth update)
+
+### Real fixed-G0 smoke succeeded outcome-blind and exposed one local-evidence gap
+
+- Branch `main` and `origin/main` are at pushed implementation commit
+  `2de1c1ef05a7c67dc3e5d3db69ad76ae06ab9ca0`. A clean detached-worktree
+  `smoke` against the real task-0 source completed successfully and observed
+  773 players with the exact seven reviewed source identities. It read no
+  world matrix, schedule or result body, opened no outcome column, and
+  performed no cloud write. The smoke therefore confirms real structural
+  source availability only; it is not a catalog publication or scientific
+  result.
+- That smoke also exposed a concrete CLI defect before the authority was
+  frozen: the command returned valid canonical evidence on stdout but did not
+  create the required local smoke artifact. No local authority file was
+  created, so the old implementation commit is intentionally superseded and
+  no later census or publication step was attempted from it.
+- The local repair makes the `smoke` and `census-empty-prefix` commands invoke
+  the already-reviewed atomic create-once writer. Exact-identical reruns
+  resume; any byte-different collision fails closed. A new CLI-level test
+  proves both commands own their persistence. The complete focused slice now
+  passes **201/201** tests (125 adapter, 26 successor and 50 recovery), with
+  exact testcase-inventory SHA-256
+  `96df8fda2fc03c87d0a0fedde17266063e2c37614ccec1a3e460d18562ea16bd`;
+  targeted whitespace validation is clean. No cloud object or realized
+  outcome was read or written by this repair or test run.
+- Exact next action: independently review this three-file persistence delta,
+  commit and push it with this handoff as the replacement H0, then reproduce
+  that exact commit from a clean isolated worktree. Rerun the real outcome-
+  blind smoke and require the tracked-ready local artifact to exist before
+  advancing through the empty-prefix census, focused-test receipt, review
+  lock, final lock and create-once attempt authority in order.
+
 ## Current handoff -- 2026-08-29 16:48 UTC (three-hundred-sixty-fourth update)
 
 ### Fixed-G0 catalog recovery is code-ready and remains publication-parked

@@ -176,11 +176,11 @@ FOCUSED_TEST_CLASSNAMES: Final = (
 FOCUSED_TESTCASE_COUNT_BY_CLASSNAME: Final = {
     FOCUSED_TEST_CLASSNAMES[0]: 125,
     FOCUSED_TEST_CLASSNAMES[1]: 26,
-    FOCUSED_TEST_CLASSNAMES[2]: 49,
+    FOCUSED_TEST_CLASSNAMES[2]: 50,
 }
-FOCUSED_TESTCASE_COUNT: Final = 200
+FOCUSED_TESTCASE_COUNT: Final = 201
 FOCUSED_TESTCASE_INVENTORY_SHA256: Final = (
-    "14eda70eae8e259081daa46877d2751015e2b352b6878a8b054a440461b68a60"
+    "96df8fda2fc03c87d0a0fedde17266063e2c37614ccec1a3e460d18562ea16bd"
 )
 
 _SHA = re.compile(r"[0-9a-f]{64}")
@@ -501,7 +501,7 @@ def build_focused_test_receipt_v1(
     if len(set((row["classname"], row["name"]) for row in testcase_inventory)) != len(testcase_inventory):
         _fail("focused-test JUnit testcase inventory repeats")
     if canonical_sha256(testcase_inventory) != FOCUSED_TESTCASE_INVENTORY_SHA256:
-        _fail("focused-test JUnit differs from the exact reviewed 200-case inventory")
+        _fail("focused-test JUnit differs from the exact reviewed 201-case inventory")
     return _self_hash({
         "schema_version": FOCUSED_TEST_RECEIPT_SCHEMA,
         "implementation_commit_sha": commit,

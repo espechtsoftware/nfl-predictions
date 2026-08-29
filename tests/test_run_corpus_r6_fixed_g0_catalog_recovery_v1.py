@@ -548,6 +548,41 @@ def test_production_empty_prefix_census_uses_real_backend_list_and_fails_nonempt
     assert calls == [core.adapter.FIXED_CATALOG_NAMESPACE]
 
 
+def test_cli_atomically_persists_smoke_and_empty_prefix_evidence(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    writes: list[tuple[str, dict[str, object]]] = []
+    smoke = {"schema_version": "smoke/v1", "complete": True}
+    census = {"schema_version": "census/v1", "complete": True}
+    monkeypatch.setattr(operator, "run_smoke_production_v1", lambda: smoke)
+    monkeypatch.setattr(
+        operator,
+        "run_empty_prefix_census_production_v1",
+        lambda *, checked_at_utc: census,
+    )
+    monkeypatch.setattr(
+        core,
+        "write_local_create_once_v1",
+        lambda *, repository_root, relative_path, body: (
+            writes.append((relative_path, dict(body)))
+            or {"relative_path": relative_path, "sha256": "a" * 64, "bytes": 1}
+        ),
+    )
+    assert operator.main(["smoke"]) == 0
+    capsys.readouterr()
+    assert operator.main([
+        "census-empty-prefix",
+        "--checked-at-utc",
+        "2026-08-29T17:00:00Z",
+    ]) == 0
+    capsys.readouterr()
+    assert writes == [
+        (core.SMOKE_EVIDENCE_PATH, smoke),
+        (core.EMPTY_PREFIX_EVIDENCE_PATH, census),
+    ]
+
+
 def test_recovery_gcs_backend_list_blobs_empty_and_canonical_order() -> None:
     prefix = core.adapter.FIXED_CATALOG_NAMESPACE
     tail = prefix.removeprefix("gs://")
