@@ -34,6 +34,7 @@ def test_release_surface_contains_real_selection_and_grade_paths() -> None:
     assert "google-cloud-cli" in docker
     assert "SOURCE_COMMIT_SHA" in docker
     assert "COPY SOURCE_COMMIT /app/SOURCE_COMMIT" in docker
+    assert 'test "$$IMAGE_SOURCE_COMMIT_SHA" = "${_CODE_SHA}"' in build
     assert "test ! -e reports" in build
     assert "test ! -e HANDOFF.md" in build
 

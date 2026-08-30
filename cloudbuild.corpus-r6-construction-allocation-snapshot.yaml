@@ -124,7 +124,7 @@ steps:
           /usr/local/bin/python3.11 -I -c \
           'from nfl_dfs.research import corpus_r6_construction_allocation_grade_operator_v1 as g; from nfl_dfs.research import corpus_r6_construction_allocation_cross_operator_v1 as o; assert callable(g.prepare_grade_manifest_v1) and callable(g.publish_grade_v1) and callable(g.reopen_grade_terminal_v1) and callable(o.reopen_terminal_bundle_v1)'
         docker run --rm --network none '${_BUILD_IMAGE}' \
-          /bin/bash -ceu 'command -v gcloud >/dev/null; test "$IMAGE_SOURCE_COMMIT_SHA" = "${_CODE_SHA}"'
+          /bin/bash -ceu 'command -v gcloud >/dev/null; test "$$IMAGE_SOURCE_COMMIT_SHA" = "${_CODE_SHA}"'
 
 images:
   - '${_BUILD_IMAGE}'

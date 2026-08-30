@@ -156,6 +156,25 @@ and operator decisions.  The older entries remain the durable chronology.
   from this core release and do not claim scoring readiness until the distinct
   task-0 worker and verifier/predecessor closure are green.
 
+## Current handoff -- 2026-08-30 (four-hundred-eighteenth update)
+
+### First construction build request rejected before creation; escape repaired
+
+- `main` and `origin/main` entered at `8a63ea38`.  The first exact-direct-Git
+  build submission was rejected synchronously with `INVALID_ARGUMENT` before
+  Cloud Build assigned an ID: the isolated runtime-smoke command exposed
+  container variable `IMAGE_SOURCE_COMMIT_SHA` as a Cloud Build substitution
+  instead of escaping the first dollar sign.  Therefore no build, image,
+  build attestation, job update, execution, scientific write or outcome read
+  occurred.
+- The one transport line now uses Cloud Build's `$$` escape so the inner
+  network-disabled container shell—not Cloud Build—expands the image label.
+  The cloud-release regression explicitly requires those bytes.  Focused
+  release tests pass **8/8**; shell and YAML parsing are green.
+- Exact next action: commit/push only this YAML/test repair plus the handoff,
+  prepare a clean checkout of that exact final SHA, and submit one replacement
+  direct-Git build.  Do not alter the science, frozen manifest or run prefix.
+
 ## Current handoff -- 2026-08-30 (four-hundred-seventeenth update)
 
 ### Construction x allocation release is committed and pushed
