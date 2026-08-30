@@ -62,6 +62,40 @@ def test_preexisting_duplicate_has_explicit_origin_without_fake_pointer() -> Non
     assert validate_ledger(ledger) == ledger
 
 
+def test_dynamic_preexisting_registration_preserves_ledger_pointer() -> None:
+    builder = SolveExposureLedger(source_label="seed-151")
+    builder.record(
+        family="boom",
+        requested_ordinal=0,
+        status="new",
+        roster_ids=_roster(),
+    )
+
+    builder.register_preexisting_rosters([_roster(), _roster(20)])
+
+    ledger_duplicate = builder.record(
+        family="discovery",
+        requested_ordinal=0,
+        status="dup",
+        roster_ids=_roster(),
+    )
+    preexisting_duplicate = builder.record(
+        family="discovery",
+        requested_ordinal=1,
+        status="dup",
+        roster_ids=_roster(20),
+    )
+    ledger = builder.finalize(
+        expected_requests_by_family={"boom": 1, "discovery": 2}
+    )
+
+    assert ledger_duplicate["duplicate_origin"] == "ledger"
+    assert ledger_duplicate["duplicate_of_attempt_ordinal"] == 0
+    assert preexisting_duplicate["duplicate_origin"] == "preexisting"
+    assert preexisting_duplicate["duplicate_of_attempt_ordinal"] is None
+    assert validate_ledger(ledger) == ledger
+
+
 def test_retry_chain_and_exhausted_requests_are_complete() -> None:
     builder = SolveExposureLedger(source_label="seed-202")
     builder.record(

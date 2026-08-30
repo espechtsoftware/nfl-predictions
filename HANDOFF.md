@@ -156,6 +156,169 @@ and operator decisions.  The older entries remain the durable chronology.
   from this core release and do not claim scoring readiness until the distinct
   task-0 worker and verifier/predecessor closure are green.
 
+## Current handoff -- 2026-08-30 (four-hundred-twenty-eighth update)
+
+### First construction cohort is closed invalid; exact role-seam repair is under validation
+
+- The first exact 54-task cohort
+  `atlas-cbc-32g-full-2023-w8-v1-c4bqs`, UID
+  `9ef66f77-35c3-4ff6-91d7-19e1eb2ce615`, became scientifically invalid
+  when task ordinal 4 / `2023-w05` failed with exit code 2.  The provider
+  continued scheduling work after the failure (succeeded rose from 1 to 2
+  while running remained 3), so the exact execution was cancelled to prevent
+  additional invalid compute.  It reached terminal `Completed=False`,
+  `reason=Cancelled`, at `2026-08-30T16:50:05.912339Z` with 2 succeeded, 1
+  failed and 4 cancelled tasks.  No cohort output was collected, no terminal
+  or selection root was published, and no realized outcome was accessed.
+- An exact local no-publish reproduction against ordinal 4 identified the
+  application exception as `solve status disagrees with roster history` in
+  the `qb_variant` exposure row for
+  `2023-w05/classic-incumbent-gpp-v1--lev160-boom40/R0`.  The score-blind
+  frozen snapshot identity remains generation `1788039628123072`, SHA-256
+  `948b390dcd3a106fc5e1ac03a52ef3267772b6e42d4f6cd296e9eb8da53972b1`.
+  The exact collision is qb-variant request 15, roster SHA-256
+  `2dbf76a171ed5b50ab4abb0ebc902efca73c33736eded1d4aa43cea01db13c9f`,
+  which matches frozen R0 role candidate index 201.
+- Root cause is the faithful-regeneration role boundary: 12 exact frozen role
+  identities entered the engine's global dedup `seen` set there, but did not
+  enter `SolveExposureLedger` history.  A later natural QBVAR collision was
+  therefore `dup` to the engine and `new` to the ledger.  All other
+  pre-QBVAR unledgered producers are inactive in this coordinate.  The same
+  latent mismatch could affect post-role `game_stack` or `dark_game` solves.
+- The working repair on branch `main` at pushed base
+  `71e12a2463eff16aab269718fb5650f805836eaa` adds a midstream
+  `register_preexisting_rosters` ledger operation and calls it at the exact
+  role boundary before updating global `seen`.  It preserves any earlier
+  leverage/boom attempt pointer and marks only newly entering frozen-role
+  identities as preexisting; it does not weaken the status invariant or
+  pretend the frozen role inputs are solve attempts.  The regressions cover
+  `qb_variant`, `game_stack` and `dark_game`, and the two new modules are
+  required by both the direct-Git build allowlist and in-build pytest gate.
+  The full ten-module release cohort passes **76/76**, Python compilation,
+  shell syntax, Cloud Build YAML parsing and the scoped diff check all pass,
+  and an independent read-only review found no blocking defect.
+- The exact `2023-w05` ordinal-4 no-publish/no-outcome real-artifact replay
+  then completed the entire four-cell x R0--R4 workload successfully.  Its
+  bounded receipt reports `complete=true`, `publication_performed=false`,
+  `deployment_mutation_performed=false`, `execution_launched=false` and
+  `uses_target_slate_outcomes=false`; corrected scientific SHA-256 is
+  `24ef0943613a82da73a13b6aac39568f567b306a17b577f83005971af8ac0702`,
+  unpublished shard SHA-256 is
+  `60bc17b27c539ed39e9610c6299cab2a040350616f94439fa37f54ea6c5b6cc3`,
+  and smoke SHA-256 is
+  `8085889f1bf9449aa29cca5318b26f27c77ec7a47b828aa2f04c9a79959c9fb0`.
+- `/tmp` reached 100% because of stale build contexts and old gcloud logs.
+  Eight verified-stale production build targets plus only
+  `/tmp/gcloud-hard230/logs` were removed; gcloud credentials/configuration
+  and current diagnostics were preserved.  A second verified-closed set of
+  manual score-sprint/current-bank/recovery build extractions was also
+  removed after confirming no process or open handle used it.  `/tmp` is now
+  9% used with approximately 15 GiB free; available RAM rose to 23 GiB and
+  swap use fell to approximately 291 MiB.  The active construction wrapper
+  already uses direct-Git submission and `EXIT` cleanup for its small scratch
+  directory.  Do not enlarge or live-unmount the RAM tmpfs during active work.
+- Exact next action: commit and push only the scoped repair, release-surface
+  additions, tests and handoff, then build a fresh immutable image and
+  prepare a new manifest/run ID.  Because the preceding application cohort
+  was cancelled, run the disabled-template sentinel before dormant
+  installation.  Pass replacement cloud task-0 before releasing the fresh
+  exact 54-task cohort.  No outcome read is allowed before that cohort's
+  terminal has been published and independently reopened.
+
+## Current handoff -- 2026-08-30 (four-hundred-twenty-seventh update)
+
+### Construction-cross task-0 passed and the exact 54-task cohort is launched
+
+- Required no-publish task-0
+  `atlas-cbc-32g-full-2023-w8-v1-tnc7n`, UID
+  `e7231c8d-7236-4465-9fc6-7dadd1de2125`, reached exact terminal success 1/1
+  at `2026-08-30T16:10:37.100180Z` after 32m38.63s.  It ran code
+  `71e12a2463eff16aab269718fb5650f805836eaa`, immutable image digest
+  `sha256:afbbbe90a38785560baf9c60e5f94c05f43629a6d40a968dcc01630185e530cf`
+  and manifest generation `1788104114963228`; Cloud Run reported no retry
+  attempt, failure or cancellation.
+- Its one bounded stdout document is schema
+  `corpus-r6-construction-allocation-snapshot-shard-task0-smoke/v1`, binds
+  ordinal 0 / `2023-w01` and the exact manifest, and reports
+  `complete=true`, `publication_performed=false`, `shard_identity=null`,
+  `deployment_mutation_performed=false`, `execution_launched=false`, and
+  `uses_target_slate_outcomes=false`.  Smoke SHA-256 is
+  `93fba7c18b1df294278f17c2903dd5802d511cf74ed2d664ab3f980581e12b52`;
+  scientific SHA-256 is
+  `1d83487e73e645fd624f71c4ccfe9a6f1116932d5c0c2c07ef60329d1c23ffa4`;
+  unpublished shard SHA-256 is
+  `f975d0424d7c1c12ac80b0c40b6cf6a5841d41bc8c824901602b6285ab57dd8f`.
+- After that acceptance, the exact clean `71e12a24` checkout released one
+  complete outcome-blind cohort:
+  `atlas-cbc-32g-full-2023-w8-v1-c4bqs`, UID
+  `9ef66f77-35c3-4ff6-91d7-19e1eb2ce615`.  Provider authority exact-reopens
+  the same code/build/image/manifest and request SHA-256
+  `a54270b6e73853faf7b810d4708d498692f5c38ae99d88c8239e136c16b516bc`.
+  It is exactly 54 tasks at parallelism 4, zero retries, 8 CPU / 32 GiB per
+  task and 21,600-second task timeout, with
+  `target_slate_outcomes_allowed=false`.  At the first exact observation it
+  was provisioned and waiting to start; no task had reached a terminal state.
+- No terminal, selection, realized-grade or outcome object has been read or
+  published.  Exact next action: status-poll only execution `...-c4bqs`
+  without reading application logs or restarting it.  On exact 54/54 success,
+  run `collect` once with that execution name so the provider attestation and
+  create-once terminal are published, then run the independent `reopen`
+  process.  Stop and diagnose on any failed/cancelled task.  Outcome access
+  remains forbidden until both terminal processes pass.
+
+## Current handoff -- 2026-08-30 (four-hundred-twenty-sixth update)
+
+### Replacement construction-cross image is installed and cloud task-0 is live
+
+- The full/core/role/auxiliary exposure-ledger repair is committed and pushed
+  as `71e12a2463eff16aab269718fb5650f805836eaa`.  A fresh Git-only checkout at
+  that exact commit passed the complete eight-module release cohort **58/58**,
+  Python compilation, shell syntax, Cloud Build YAML parsing and the scoped
+  diff check.
+- Exact-direct-Git Cloud Build
+  `0f514bcc-9cd5-4d01-b975-2dc662625524` completed successfully and produced
+  immutable image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:afbbbe90a38785560baf9c60e5f94c05f43629a6d40a968dcc01630185e530cf`.
+  Its create-once runtime-build attestation is generation
+  `1788103656681240`, byte SHA-256
+  `a7f22a73307bcb01a67ce2ea8da92fc05b460d2be945b3d2dc5dc0acfb0bcdcf`,
+  at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-construction-allocation-builds/71e12a2463eff16aab269718fb5650f805836eaa/0f514bcc-9cd5-4d01-b975-2dc662625524/runtime-build-attestation.json`.
+- Because the job's preceding application execution had failed, disabled
+  template sentinel `atlas-cbc-32g-full-2023-w8-v1-gghjp`, UID
+  `3306c5ba-e974-4fdc-8008-16e60ae47ad6`, ran first and succeeded 1/1 at
+  `2026-08-30T15:29:55.963603Z`.  It executed only the dormant
+  `container-help` command.  The new immutable image was then installed
+  dormant into existing job `atlas-cbc-32g-full-2023-w8-v1`, UID
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275`, as generation 41 with
+  `install_only=true`, `execution_launched=false` and `no_outcome_mode=true`.
+- Prepare execution `atlas-cbc-32g-full-2023-w8-v1-smkg9`, UID
+  `30382453-fb6a-448c-950b-c6333a167155`, succeeded 1/1 at
+  `2026-08-30T15:35:23.244955Z`.  It published and exact-reopened 54 typed
+  placeholders plus the new 60,541-byte input manifest at generation
+  `1788104114963228`, byte SHA-256
+  `49760e6fcd26085821d143596a585ae2d824a6b4726a7999368118c92879dab7`,
+  internal SHA-256
+  `4049011c908549216234ea396cb24aae300dd63e82ad205009988c2274289b03`,
+  URI
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-construction-allocation-snapshot-shards/20260830-construction-allocation-71e12a24-v1/input-manifest.json`.
+  Prepare receipt SHA-256 is
+  `71feccbae976a965674efa12d288547e2391a52aa611bd40b8cb1a47c8288a77`.
+- Required no-publish, no-outcome task-0 execution
+  `atlas-cbc-32g-full-2023-w8-v1-tnc7n`, UID
+  `e7231c8d-7236-4465-9fc6-7dadd1de2125`, is live against that exact manifest
+  with `no_outcome_smoke=true` and
+  `target_slate_outcomes_allowed=false`.  The latest exact status is pending
+  with one running task (`Ready=Unknown`); it has not reached a terminal
+  state.  The 54-task cohort has **not** launched, and no selection, terminal,
+  realized-grade or outcome object has been published or read.
+- Exact next action: continue polling only execution `...-tnc7n` without
+  restarting it or reading logs.  On terminal success, bounded-inspect its
+  no-outcome acceptance receipt, then release exactly the 54 manifest tasks.
+  On terminal failure, diagnose and stop; do not launch the cohort.  Outcome
+  access remains forbidden until the complete outcome-blind terminal has
+  independently reopened and passed.
+
 ## Current handoff -- 2026-08-30 (four-hundred-twenty-fifth update)
 
 ### Full exposure-ledger repair passes the exact real-artifact R0 smoke

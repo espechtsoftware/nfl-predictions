@@ -125,6 +125,8 @@ if [[ "${1:-}" == "build" ]]; then
     tests/test_corpus_r6_construction_allocation_grade_operator_v1.py
     tests/test_corpus_r6_construction_allocation_operator_hardening_v1.py
     tests/test_corpus_r6_construction_allocation_shard_v1.py
+    tests/test_generation_exposure.py
+    tests/test_preseeded_role_identities.py
     tests/test_run_corpus_r6_construction_allocation_grade_v1.py
     tests/test_run_corpus_r6_construction_allocation_snapshot_shard_v1.py
   )

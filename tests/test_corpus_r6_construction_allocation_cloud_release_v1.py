@@ -118,6 +118,12 @@ def test_build_uses_exact_direct_git_with_narrow_outcome_blind_context() -> None
     archive_block = text.split("archive_paths=(", 1)[1].split("  )", 1)[0]
     assert "reports" not in archive_block
     assert "HANDOFF.md" not in archive_block
+    for regression in (
+        "tests/test_generation_exposure.py",
+        "tests/test_preseeded_role_identities.py",
+    ):
+        assert regression in archive_block
+        assert regression in build
 
 
 def test_provider_and_execution_receipts_bind_all_release_authorities() -> None:

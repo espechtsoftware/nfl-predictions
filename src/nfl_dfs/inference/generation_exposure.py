@@ -207,7 +207,21 @@ class SolveExposureLedger:
         self.source_label = _identifier(source_label, label="source label")
         self._rows: list[dict[str, object]] = []
         self._first_attempt_by_roster: dict[str, int | None] = {}
-        for roster in existing_rosters:
+        self.register_preexisting_rosters(existing_rosters)
+
+    def register_preexisting_rosters(
+        self,
+        rosters: Iterable[Iterable[object]],
+    ) -> None:
+        """Enter roster history at a later generator-family boundary.
+
+        A roster already observed by this ledger keeps its attempt pointer;
+        otherwise the roster is marked as preexisting without inventing an
+        earlier solve row.  This lets faithful replay adapters synchronize a
+        frozen family at the exact point where it originally entered the
+        engine's deduplication universe.
+        """
+        for roster in rosters:
             identity = roster_identity(roster)
             self._first_attempt_by_roster.setdefault(
                 str(identity["roster_sha256"]), None

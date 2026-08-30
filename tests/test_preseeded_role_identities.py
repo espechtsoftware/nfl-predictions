@@ -19,7 +19,7 @@ def _slate(n_worlds: int = 48):
             pool.append({
                 "id": f"{pos}{k}", "name": f"{pos}{k}", "pos": pos,
                 "team": f"T{ix % 4}", "opp": f"T{(ix + 1) % 4}",
-                "game_id": f"g{ix % 2}", "salary": sal + 111 * k,
+                "game_id": f"g{k % 4}", "salary": sal + 111 * k,
                 "proj": 8.0 + (k % 6), "actual": 9.0 + (k % 7),
                 "season": 2025, "week": 3})
             ix += 1
@@ -30,13 +30,16 @@ def _slate(n_worlds: int = 48):
     return slate, pool, draws
 
 
-def _run(preseeded=None):
+def _run(preseeded=None, *, exposure: bool = False):
     slate, pool, draws = _slate()
     captured = {}
+    policy_env = {"MIN_LINEUP_SALARY": "0"}
+    if exposure:
+        policy_env["PROSPECTIVE_GENERATION_EXPOSURE"] = "1"
     engine.tail_select_lineups(
         slate, pool, draws, tail_line=95.0, n_entries=4, stack=None,
-        objective_col="proj", n_boom_solves=4,
-        policy_env={"MIN_LINEUP_SALARY": "0"},
+        objective_col="proj", n_boom_solves=4, n_game_stacks=1,
+        policy_env=policy_env,
         candidate_capture=lambda b: captured.setdefault("batch", b),
         preseeded_role_identities=preseeded)
     return captured["batch"]
@@ -61,6 +64,32 @@ def test_preseeded_identity_blocks_post_role_duplicate():
     for candidate in base.candidates:
         if candidate.tag in PRE_SEAM_TAGS:
             assert candidate.ids in identities
+
+
+@pytest.mark.parametrize(("tag", "family"), [
+    ("qbvar", "qb_variant"),
+    ("game", "game_stack"),
+    ("dark", "dark_game"),
+])
+def test_preseeded_post_role_collision_is_registered_in_exposure_ledger(
+    tag, family,
+):
+    base = _run()
+    target = next(candidate for candidate in base.candidates
+                  if candidate.tag == tag)
+
+    blocked = _run(preseeded=[target.ids], exposure=True)
+
+    assert target.ids not in {candidate.ids for candidate in blocked.candidates}
+    matching_rows = [
+        row for row in blocked.metadata["generation_exposure_ledger"]["rows"]
+        if row["family"] == family
+        and frozenset(row["player_ids"] or ()) == target.ids
+    ]
+    assert len(matching_rows) == 1
+    assert matching_rows[0]["status"] == "dup"
+    assert matching_rows[0]["duplicate_origin"] == "preexisting"
+    assert matching_rows[0]["duplicate_of_attempt_ordinal"] is None
 
 
 def test_preseed_requires_zero_role_dose():

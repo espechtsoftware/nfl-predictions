@@ -1681,12 +1681,18 @@ def tail_select_lineups(
         if n_epi:
             raise ValueError(
                 "preseeded role identities require a zero role dose")
+        validated_role_identities: list[frozenset[str]] = []
         for identity in preseeded_role_identities:
             frozen = frozenset(str(player) for player in identity)
             if len(frozen) != 9:
                 raise ValueError(
                     "preseeded role identity is not nine unique players")
-            seen.add(frozen)
+            validated_role_identities.append(frozen)
+        if exposure_ledger is not None:
+            exposure_ledger.register_preexisting_rosters(
+                validated_role_identities
+            )
+        seen.update(validated_role_identities)
 
     # A/B lever (env N_EPISTEMIC, off by default; scoring plan §8):
     # EPISTEMIC-scenario candidates. Every existing generator samples
