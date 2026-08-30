@@ -35,6 +35,7 @@ COPY scripts/run_corpus_retrieval_transport.py ./scripts/run_corpus_retrieval_tr
 COPY scripts/cloud_corpus_retrieval_v1_reuse.sh ./scripts/cloud_corpus_retrieval_v1_reuse.sh
 COPY scripts/prepare_corpus_artifact_source_authority.py ./scripts/prepare_corpus_artifact_source_authority.py
 COPY scripts/run_corpus_parametric_transport.py ./scripts/run_corpus_parametric_transport.py
+COPY scripts/run_corpus_r6_v2_matchup_candidate_analysis_release_v2.py ./scripts/run_corpus_r6_v2_matchup_candidate_analysis_release_v2.py
 COPY scripts/cloud_corpus_parametric_v1_reuse.sh ./scripts/cloud_corpus_parametric_v1_reuse.sh
 COPY scripts/load_corpus_retrieval_neo4j.py ./scripts/load_corpus_retrieval_neo4j.py
 COPY scripts/freeze_a7_select_ladder.py ./scripts/freeze_a7_select_ladder.py

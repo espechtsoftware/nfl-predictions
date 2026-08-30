@@ -20,6 +20,47 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 (three-hundred-ninety-eighth update)
+
+### Canonical R6-v2 local runtime seam is hardened but remains cloud-NO-GO
+
+- Branch `main` and `origin/main` entered this milestone at pushed Phase-0
+  real-reopen commit `134c64d8`.  Independent review confirmed the canonical
+  matchup-inclusive lattice and worker/verifier/root-last topology are sound
+  at 54 slates, 14,904 books and 44,712 prefixes, while identifying two P0
+  release blockers: the image cannot satisfy runtime Git-dependent authority,
+  and no real-artifact task-0 worker plus distinct-verifier smoke exists.
+- Bounded local remediation is now implemented in the canonical release
+  module, CLI, focused tests and one Dockerfile `COPY` line.  Worker and
+  verifier roles map `CLOUD_RUN_TASK_INDEX` bijectively over all 54 ordinals
+  and reject missing, malformed or conflicting explicit ordinals.  Every
+  command requires explicit `--execute`; project, identity, commit, image,
+  prefix, root and ordinal inputs are validated before constructing the cloud
+  object store.  Outcome-carrier keys are rejected case-insensitively, and the
+  declared critical runtime closure now includes the directly imported legal,
+  snapshot, source-v1/v2 and one-slate-v2 scoring dependencies.  The Dockerfile
+  packages the canonical CLI but intentionally does not copy `.git`.
+- Independent replay passed 30/30 canonical release tests and 14/14
+  candidate-rooted source-consumer tests, plus `py_compile` and whitespace
+  checks.  No cloud or outcome access occurred.  The current file SHA-256s are
+  CLI `d6c5b29c9c026bd787f9a82aff6b1c1893eae53f8bfd83668f41cbf96978909f`,
+  release module
+  `01b6cc76f59149bc04fb39237d9e8072c51c4195941fec90bfd534f1e43ff0e2`,
+  focused tests
+  `12187828ccc11dc092e62ce32a6c4c87cae10d36c3423b29d00d7a73e493a237`,
+  and Dockerfile
+  `cda14f4945f2c591bcc7ac58f1bf6a060ff60577bca163f03734adaba6aa92aa`.
+- This is not launch authority.  Runtime still invokes Git while the image
+  installs/copies neither Git nor `.git`; the immutable image is not yet
+  provider-observed, and prepare/worker/verifier/finish controller/job wiring
+  is absent.  Do not run a cloud smoke or release until a Git-independent
+  embedded file-closure/predecessor attestation, observed image digest and real
+  task-0 distinct-verifier smoke close those gates.
+- Exact next action remains the true outer-bound candidate-v2 publication and
+  guarded reopen.  In parallel, replace runtime Git self-attestation with the
+  clean-build embedded receipt and provider-observed immutable image contract,
+  then add the one-job controller without weakening the task-index laws above.
+
 ## Current handoff -- 2026-08-29 (three-hundred-ninety-seventh update)
 
 ### Phase-0 outer-first downstream entrypoint passes the real immutable reopen
