@@ -55,15 +55,22 @@ and operator decisions.  The older entries remain the durable chronology.
   boom-first pool, cap-4 retrieval was active but approximately -0.20 versus
   coverage-194.  These values explain the diagnostic nominations; they are
   not production expectations or adoption authority.
-- **2026 prospective matrix:** five common R0--R4 10,000-world blocks per
-  slate.  Per block the exact sentinel is 160 leverage + 40 boom; primary
-  boom-first is 40 + 160; exploratory cross-law is 40 leverage + 100
-  base-boom + 60 discovery-boom; lower-priority unequal-resource dose is 40 +
-  360; required/unpassed ceiling-all-boom is 0 + 200.  All five arms are
-  mandatory before Week 1 for this release; exploratory, unequal-resource and
-  unpassed are scientific-status labels, not omission switches. Role-12 and
-  incumbent auxiliary families remain unchanged. Cross-law discovery worlds
-  may propose candidates only; untouched base worlds select them.
+- **2026 prospective matrix and hierarchy:** five common R0--R4
+  10,000-world blocks per slate.  Per block the exact sentinel is 160 leverage
+  + 40 boom and primary boom-first is 40 + 160. Those two populations plus
+  their 2 x 2 retrieval crossing are the required core. Cross-law (40
+  leverage + 100 base-boom + 60 discovery-boom) is nominated exploratory
+  after its outcome-free trace passes. The 40 + 360 dose is a separate
+  unequal-resource diagnostic/multiplicity family below the core. The 0 + 200
+  all-boom boundary is optional exploratory and historically unpassed; we
+  explicitly chose to include it before outcomes because off-season capacity
+  is available to measure the zero-leverage boundary before Week 1. That
+  capacity decision gives it no primary authority and it does not block core
+  interpretation. The selected executable still emits and atomically receipts
+  all five predeclared arms; that runtime completeness rule must not be
+  described as one mandatory five-arm scientific family. Role-12 and incumbent
+  auxiliary families remain unchanged. Cross-law discovery worlds may propose
+  candidates only; untouched base worlds select them.
 - **Core retrieval question:** the frozen incumbent and boom-first pools each
   receive incumbent coverage-194 K80 and exact production
   cap-4-prefix-then-fill K80 retrieval.  This is the zero-additional-solve 2 x
@@ -76,9 +83,10 @@ and operator decisions.  The older entries remain the durable chronology.
   requires human synthesis with the historical matched result.  Reports must
   include K20/K40/K80, 194/200/210/220/230/240, pool oracle/regret and the full
   2 x 2 crossing. Only boom-first versus incumbent may satisfy the primary
-  efficacy rule; cross-law, all-boom and unequal-resource dose remain
-  diagnostic-only even when their numeric criteria match, and the 2 x 2
-  retrieval crossing remains key-secondary mechanism evidence.
+  efficacy rule; cross-law, optional all-boom and the separate
+  unequal-resource dose remain diagnostic-only even when their numeric
+  criteria match, and the 2 x 2 retrieval crossing remains key-secondary
+  mechanism evidence. Noncore results do not veto or promote the core.
 - **Structural synthesis:** preregistration binds the exact already-read
   54-slate grade (generation `1788045886595896`, byte SHA-256
   `3d92cd0b...b0bff23c`) and its rational selected/oracle/regret metrics. A
@@ -93,7 +101,7 @@ and operator decisions.  The older entries remain the durable chronology.
   books; otherwise the grade is raw-score/field-rank only.  Allocation advice
   is always disabled in this program.
 - **Separate pre-season ablations:** construction-preset x allocation and
-  paid-source on/off tests remain below and outside the core five-arm
+  paid-source on/off tests remain below and outside the core
   estimand. Current Odds API/Fantasy Points/SIS authority work proves only
   point-in-time availability, not lineup value. No value claim is allowed
   until a separately frozen ablation records true upstream staleness,
@@ -120,13 +128,13 @@ and operator decisions.  The older entries remain the durable chronology.
   `4a4d504a...543ae` both bind 54 slates / 378 arm results and report no
   realized outcome or world-matrix access. The exact identity and both
   receipts are tracked under `reports/2026-08-30-r6-fixed-g0-candidate-*`.
-- **Current launch state:** the exact source cohort is pushed and the final
-  immutable image build is green. The dedicated unscheduled job is still
-  absent because the active developer identity lacks the single required
-  `actAs` permission on the frozen runner service account. **NO-GO for a slate
-  execution** remains until the deploy-only installation succeeds, the
-  pre-Week-1 preregistration exists create-once, an outcome-blind live-input
-  smoke proves wall time and authority reopening, and the explicit
+- **Current launch state:** the exact source cohort is pushed, but the only
+  completed immutable image predates the v8 hierarchy-corrected registry and
+  is superseded. No current-v8 immutable image or dedicated unscheduled job
+  exists. **NO-GO for a slate execution** remains until a fresh clean image is
+  built from the settled release commit, deploy-only installation succeeds,
+  the pre-Week-1 preregistration exists create-once, an outcome-blind
+  live-input smoke proves wall time and authority reopening, and the explicit
   season/week/draft-group/lock request is frozen.
 - **Superseded evidence warning:** the immutable 2026-08-21 evidence graph
   records `rule:dk-min-two-games` as DK-hard.  Preserve those historical bytes,
@@ -134,19 +142,92 @@ and operator decisions.  The older entries remain the durable chronology.
   legality requires at least two teams; two games is a named construction
   choice retained explicitly only where a frozen historical protocol requires
   it (including LR8-v1).
-- **Exact next actions:** for the prospective generation shadow, supply the
-  narrow existing authority for the active operator to act as
-  `nfl-dfs-runner@nfl-predictions-503414.iam.gserviceaccount.com`, or have an
-  already-authorized operator perform the exact deploy-only installation of
-  build `892e8665-dacd-4d47-87b8-c594b409e269` and digest
-  `sha256:29272f69...a60ac`; do not execute it. In parallel for canonical
-  R6-v2, freeze capture-v3 against the published exact candidate-v2 identity
-  and seven-pack; commit the validated capture/component/source-v3 operator,
-  build its immutable Git-capable image, run task-0 read smoke, then publish
-  source-v3 root-last and separately reopen it. Keep construction/allocation
-  and paid-source experiments separate from this core release and do not claim
-  scoring readiness until the distinct Git-independent task-0 worker and
-  verifier/predecessor closure are green.
+- **Exact next actions:** do **not** deploy build
+  `892e8665-dacd-4d47-87b8-c594b409e269` or digest
+  `sha256:29272f69...a60ac`; they were built from `e05b441b`, predate the v8
+  hierarchy-corrected registry, and cannot emit the current release contract.
+  Finish and independently review the release cohort, then build a fresh clean
+  immutable image from that exact commit before any deploy-only installation.
+  In parallel for canonical R6-v2, freeze capture-v3 against the published
+  exact candidate-v2 identity and seven-pack; commit the validated
+  capture/component/source-v3 operator, run a Git-independent task-0 read
+  smoke in its fresh image, then publish source-v3 root-last and separately
+  reopen it. Keep construction/allocation and paid-source experiments separate
+  from this core release and do not claim scoring readiness until the distinct
+  task-0 worker and verifier/predecessor closure are green.
+
+## Current handoff -- 2026-08-30 (four-hundred-sixteenth update)
+
+### Construction x allocation score cohort is hardened for immutable execution
+
+- `main` and `origin/main` enter this work at pushed commit `49de0073`.  No
+  realized outcome was opened and no cloud resource was mutated while the
+  construction cohort was hardened.  The exact next score is the matched
+  54-slate four-cell crossing of incumbent GPP construction versus
+  DraftKings-legality-only construction and incumbent 160-leverage/40-boom
+  allocation versus boom-first 40-leverage/160-boom allocation.  Every cell
+  uses the same frozen five-bank historical snapshots and coverage-194 exact
+  K80 retrieval; the role-12 conditional remains a named frozen protocol
+  choice rather than a universal law.
+- The frozen input manifest is exact generation `1788039789304897`, byte
+  SHA-256 `8db332783ee3da9f3175f3f867f0e007a5f776958b8d4749c9756e3ae3f51e80`
+  with 54 tasks.  Its task-0 snapshot is generation `1788039614730333`,
+  2,672,191 bytes and SHA-256
+  `1d061452263c5603153f8b1c42610bac8035a220dc88586806d9a0245b9da4e6`;
+  a generation-exact outcome-blind local reopen validated the internal
+  generation SHA and all five declared world-artifact identities.  The full
+  panel snapshot-size range is 1,660,686--2,672,191 bytes, which exposed and
+  corrected an erroneous 2 MB read ceiling before release; the explicit
+  ceiling is now 8 MB.
+- The selection terminal now binds and independently replays the input
+  manifest, all 54 ordered shard identities and one provider-observed Cloud
+  Run execution attestation.  Before the first terminal write it
+  generation-exact reopens every predecessor, validates each shard and its
+  runtime coordinate, reconstructs the scientific selection from the shards,
+  and requires byte-equivalent output.  The runner exact-opens the frozen
+  snapshot itself before invoking the adapter, rejects internal-generation
+  drift, and caches only the one current exact read rather than retaining the
+  54 large snapshots.  Cloud Run job/execution UID, task count, commit, image,
+  completion and per-shard task coordinates are therefore scientific
+  predecessors rather than caller assertions.
+- Focused construction validation is green: the core/operator/shard/runner
+  and real snapshot adapter passed **21/21**; the terminal-hardening suite
+  passed **6/6**; and the subsequent operator/shard/runner set passed
+  **14/14**.  After the grade/release integration and independent-review
+  repairs, the coherent release cohort passed **47/47**.  Python compilation,
+  shell parsing and Cloud Build YAML parsing are also green.  The exact task-0
+  snapshot passed its real-artifact outcome-blind validation.  These are
+  pre-release checks, not a score.  A separate final reviewer found no
+  remaining substantive release defect and passed **50/50** across the
+  release plus its auxiliary construction-runner coverage.
+- Independent review caught two release-blocking provenance defects before
+  cloud mutation.  The original storage-upload build could only echo a commit
+  through substitutions; the release now requires exact paired provider
+  `gitSource`/`resolvedGitSource`, constructs a narrow outcome-blind runtime
+  image context inside that source, and create-once publishes/reopens the
+  runtime-build attestation required by `prepare`.  Both build and execution
+  observers now validate structured provider fields rather than substring
+  matches.  The grader also re-verifies the completion-owned live lease after
+  outcome replay but before its first child write, retains its pre-terminal
+  check, and independently verifies/recomputes on reopen.  This closes the
+  previously open stale-lease window between outcome replay and the first
+  create-once child write.
+- The realized grade must reuse the already-live catalog-wide historical
+  outcome lease owned by completion generation `1787987567275104` (SHA-256
+  `15852361...9f4df3`) and outcome snapshot generation `1787987566557209`
+  (SHA-256 `96c88d27...c32f88`).  The cohort grader may verify that exact lease
+  before the snapshot read and again before publication; it must neither
+  acquire nor release a competing lease.  Lease disposition remains owned by
+  the external catalog-wide launcher/watcher.
+- Exact next action: commit/push only the coherent construction cohort plus
+  this handoff; build
+  an immutable exact-direct-Git image with its narrow runtime context; install
+  it onto the existing unscheduled
+  `atlas-cbc-32g-full-2023-w8-v1` job; and require a no-write task-0 smoke
+  before launching the 54 score-blind tasks.  Only after the selection root
+  is published and independently reopened may the lease-verifying grade run
+  publish the four-cell realized score.  No policy adoption follows
+  automatically from that grade.
 
 ## Current handoff -- 2026-08-30 (four-hundred-fifteenth update)
 

@@ -1,0 +1,42 @@
+FROM python:3.14.4-slim
+
+ARG SOURCE_COMMIT_SHA
+RUN python -c 'import os,re; assert re.fullmatch(r"[0-9a-f]{40}", os.environ["SOURCE_COMMIT_SHA"])'
+
+LABEL org.opencontainers.image.revision="${SOURCE_COMMIT_SHA}"
+ENV IMAGE_SOURCE_COMMIT_SHA="${SOURCE_COMMIT_SHA}" \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# The score-blind snapshots were produced under this numerical runtime.  The
+# runner also provider-reopens its Cloud Build record, so the narrow image
+# needs the read-only gcloud CLI in addition to libgomp.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       apt-transport-https ca-certificates curl gnupg libgomp1 \
+    && curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+       | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
+    && printf '%s\n' \
+       'deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main' \
+       > /etc/apt/sources.list.d/google-cloud-sdk.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends google-cloud-cli \
+    && ln -s /usr/local/bin/python3.14 /usr/local/bin/python3.11 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml README.md /app/
+COPY SOURCE_COMMIT /app/SOURCE_COMMIT
+COPY src /app/src
+COPY scripts/run_corpus_r6_construction_allocation_snapshot_shard_v1.py /app/scripts/
+COPY scripts/run_corpus_r6_construction_allocation_grade_v1.py /app/scripts/
+COPY scripts/cloud_corpus_r6_construction_allocation_snapshot_v1.sh /app/scripts/
+
+RUN test "$(cat /app/SOURCE_COMMIT)" = "${SOURCE_COMMIT_SHA}" \
+    && pip install --no-cache-dir "numpy==2.5.1" "scipy==1.18.0" \
+    && pip install --no-cache-dir --editable ".[gcp]"
+
+# Installation leaves the reused job dormant.  Every real phase is an
+# execution-level args/env override through the guarded host launcher.
+CMD ["/bin/bash", "/app/scripts/cloud_corpus_r6_construction_allocation_snapshot_v1.sh", "container-help"]
