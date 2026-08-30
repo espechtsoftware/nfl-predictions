@@ -16,7 +16,11 @@ from time import perf_counter
 import numpy as np
 
 from ..backtest.engine import CandidateBatch
-from ..optimizer.lineup import Lineup, StackRules, optimize, select_tail_entries
+from ..optimizer.construction_presets import (
+    INCUMBENT_GPP_PRESET_ID,
+    resolve_construction_preset,
+)
+from ..optimizer.lineup import Lineup, optimize, select_tail_entries
 from .atlas_matched_diversity import _score_effective_rank
 from .constraint_lattice import (
     REGISTERED_BLOCKS,
@@ -196,8 +200,10 @@ def generate_state_candidates(
     }
     receipts = []
     additions = []
-    stack = StackRules(qb_stack_min=2, bring_back_min=1)
-    env = {"MIN_LINEUP_SALARY": "49000"}
+    construction = resolve_construction_preset(INCUMBENT_GPP_PRESET_ID)
+    construction_receipt = construction.receipt()
+    stack = construction.stack
+    env = construction.optimizer_environment()
     names = tuple(str(value) for value in training_blocks)
 
     for team_rank, team in enumerate(teams, start=1):
@@ -248,6 +254,7 @@ def generate_state_candidates(
                     "anchor_world": int(world),
                     "team_story_score": story_score,
                     "locked_qb": team.qb_id,
+                    "construction_preset": construction_receipt,
                     "shifts": shifts,
                     "elapsed_seconds": float(perf_counter() - started),
                 }

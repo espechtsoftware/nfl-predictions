@@ -6,6 +6,15 @@ N1/N1b winner-law audit and its same-day field-max-confound addendum.
 One-shot: this protocol executes exactly once per version; any defect
 found after execution requires a new version, never a silent rerun.
 
+## 2026-08-30 frozen-protocol erratum
+
+The v1 `L` solver carried an undocumented two-game construction rule while it
+was labeled DraftKings-only. That is not a platform rule. Existing v1 results
+remain immutable historical artifacts, but their `L` layer is a legacy
+two-game ceiling and must not be cited as true DraftKings-only evidence. A
+corrected result requires a new protocol version and recomputation; no frozen
+v1 bytes are relabeled or overwritten.
+
 ## Question
 
 N1b proved every tracked winner outscores the registered pool in a
@@ -27,8 +36,9 @@ schedules-derived opponent map, restricted to the artifact universe,
 with `actual` = the world's simulated scores. Solve with the frozen
 forensic CBC solver:
 
-- **L (DraftKings-legal):** `solve_draftkings_legal_oracle` — roster
-  shape, $50k cap, max 8 per team, two games; no strategy rules.
+- **L (legacy v1 label):** `solve_draftkings_legal_oracle` — roster
+  shape, $50k cap, max 8 per team, plus the extra two-game construction
+  inherited by this frozen version; no other listed strategy rules.
 - **P (production contract):** `_solve_oracle` with QB stack >= 2,
   bring-back >= 1, $49k floor (the S1 exact-stack mirror, including the
   same-team-RB and RB-vs-DST prohibitions).

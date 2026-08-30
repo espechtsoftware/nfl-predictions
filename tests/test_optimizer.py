@@ -153,7 +153,10 @@ def test_qb_stack_and_bring_back():
 
 
 def test_no_rb_vs_opposing_dst_and_single_rb_per_team():
-    lu = optimize(make_pool(), stack=StackRules())
+    lu = optimize(make_pool(), stack=StackRules(
+        forbid_rb_vs_dst=True,
+        forbid_two_rb_same_team=True,
+    ))
     dst = next(p for p in lu.players if p["pos"] == "DST")
     rbs = [p for p in lu.players if p["pos"] == "RB"]
     assert all(rb["team"] != dst["opp"] for rb in rbs)
@@ -181,6 +184,25 @@ def test_multi_lineup_uniqueness():
     # Projections should be non-increasing as constraints accumulate
     projs = [lu.proj for lu in lineups]
     assert all(projs[i] >= projs[i + 1] - 1e-6 for i in range(len(projs) - 1))
+
+
+def test_optimize_many_publishes_one_attempt_event_per_success():
+    events = []
+    lineups = optimize_many(
+        make_pool(), n_lineups=2, attempt_callback=events.append
+    )
+
+    assert len(lineups) == 2
+    assert len(events) == 2
+    for index, event in enumerate(events):
+        duration = event.pop("duration_seconds")
+        assert isinstance(duration, float) and duration >= 0.0
+        assert event == {
+            "requested_ordinal": index,
+            "retry_ordinal": 0,
+            "status": "new",
+            "roster_ids": tuple(lineups[index].ids),
+        }
 
 
 def test_infeasible_returns_none():

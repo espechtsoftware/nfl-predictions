@@ -551,7 +551,7 @@ def analyze_exact_stack_construction(
                 "minimum_salary": 0,
                 "maximum_salary": 50_000,
                 "maximum_players_per_team": 8,
-                "minimum_games": 2,
+                "minimum_games": 1,
                 "qb_stack_min": 0,
                 "bring_back_min": 0,
                 "forbid_two_rb_same_team": False,

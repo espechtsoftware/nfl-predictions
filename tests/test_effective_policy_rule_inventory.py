@@ -120,7 +120,7 @@ def test_exact_five_active_soft_constraints_and_domains(inventory):
     } == set(PARAMETRIC_FIELDS)
 
 
-def test_soft_rules_are_proven_by_enforcer_and_two_dk_only_consumers(inventory):
+def test_soft_rules_are_proven_by_enforcer_and_independent_consumers(inventory):
     rules = _rules(inventory)
     expected_paths = {
         "src/nfl_dfs/optimizer/lineup.py",
@@ -136,7 +136,7 @@ def test_soft_rules_are_proven_by_enforcer_and_two_dk_only_consumers(inventory):
         "independent_dk_only_validator"
     )
     assert roles["src/nfl_dfs/research/lr8_historical_arm.py"] == (
-        "independent_dk_only_consumer"
+        "independent_five_rule_relaxation_with_legacy_min_games"
     )
 
 
@@ -257,7 +257,6 @@ def test_stack_globals_and_engine_replay_game_sim_reads_are_visible(inventory):
         assert type(row["baseline_dose"]) is type(baseline)
 
     expected_sources = {
-        "CAND_MULT": "src/nfl_dfs/backtest/engine.py",
         "ALT_CEIL": "src/nfl_dfs/backtest/replay.py",
         "DIRICHLET_K": "src/nfl_dfs/models/game_sim.py",
         "SCRIPT_FEEDBACK": "src/nfl_dfs/models/game_sim.py",
@@ -269,6 +268,17 @@ def test_stack_globals_and_engine_replay_game_sim_reads_are_visible(inventory):
             and "ambient_process" in site["receiver_provenance"]
             for site in sites
         )
+    cand_sites = inputs["CAND_MULT"]["direct_read_sites"]
+    assert any(
+        site["path"] == "src/nfl_dfs/backtest/engine.py"
+        and "request_mapping" in site["receiver_provenance"]
+        for site in cand_sites
+    )
+    assert not any(
+        site["path"] == "src/nfl_dfs/backtest/engine.py"
+        and "ambient_process" in site["receiver_provenance"]
+        for site in cand_sites
+    )
     assert inputs["ALT_CEIL"]["classification"] == "forbidden_ambient"
     assert inputs["DIRICHLET_K"]["classification"] == "forbidden_ambient"
 

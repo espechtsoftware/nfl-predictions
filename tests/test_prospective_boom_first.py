@@ -145,6 +145,13 @@ class _Policy:
     role_model_variant = "tail_k1_role"
     model_ensemble = 1
 
+    def construction_preset(self):
+        from nfl_dfs.optimizer.construction_presets import (
+            INCUMBENT_GPP_PRESET_ID,
+            resolve_construction_preset,
+        )
+        return resolve_construction_preset(INCUMBENT_GPP_PRESET_ID)
+
     def boom_first_control_environment(self, base):
         return _environment(treatment=False)
 

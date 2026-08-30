@@ -44,7 +44,6 @@ import pandas as pd
 
 from ..backtest import engine, replay
 from ..inference.production_policy import ADOPTED_CLASSIC_POLICY
-from ..optimizer.lineup import StackRules
 from . import boom_first_historical_paired_v1 as paired
 
 
@@ -632,11 +631,8 @@ class ProductionReplayNativeBookBuilder:
         base = replay_seed.slates[slate.slate_id].copy(deep=True)
         belief = replay_seed.belief_slates[slate.slate_id].copy(deep=True)
         captures: list[engine.CandidateBatch] = []
-        stack = StackRules(
-            qb_stack_min=2,
-            bring_back_min=1,
-            forbid_rb_vs_dst=True,
-        )
+        construction = ADOPTED_CLASSIC_POLICY.construction_preset()
+        stack = construction.stack
         with _isolated_replay_environment(environment):
             role_row_draws = engine._row_draws(
                 belief,
@@ -654,6 +650,7 @@ class ProductionReplayNativeBookBuilder:
                 tail_line=paired.TAIL_LINE,
                 n_entries=paired.ENTRIES,
                 stack=stack,
+                construction_preset_receipt=construction.receipt(),
                 objective_col="proj_tourney",
                 candidate_multiple=int(environment["CAND_MULT"]),
                 candidate_generation_entries=int(

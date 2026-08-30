@@ -38,7 +38,12 @@ from nfl_dfs.analysis.coherent_market_state import (  # noqa: E402
     protocol_receipt,
     rank_eligible_teams,
 )
-from nfl_dfs.optimizer.lineup import Lineup, StackRules, optimize_many  # noqa: E402
+from nfl_dfs.optimizer.lineup import (  # noqa: E402
+    Lineup,
+    StackRules,
+    optimize,
+    optimize_many,
+)
 
 
 def _pool() -> list[dict]:
@@ -109,6 +114,15 @@ def test_generator_produces_frozen_six_by_two_novel_strict_candidates() -> None:
     player_ids = tuple(row["id"] for row in players)
     draws = _draws(players)
     teams = rank_eligible_teams(players, _native_candidate_universe(players))
+    optimizer_calls = []
+
+    def capture_optimizer(*args, **kwargs):
+        optimizer_calls.append({
+            "stack": kwargs["stack"],
+            "env": dict(kwargs["env"]),
+        })
+        return optimize(*args, **kwargs)
+
     additions, receipts = generate_state_candidates(
         player_rows=players,
         player_ids=player_ids,
@@ -116,6 +130,7 @@ def test_generator_produces_frozen_six_by_two_novel_strict_candidates() -> None:
         training_blocks=("R0", "R1", "R2", "R3"),
         team_states=teams,
         forbidden_rosters=set(),
+        optimizer=capture_optimizer,
     )
     assert len(additions) == ADDITION_COUNT == 12
     assert len({tuple(sorted(row.lineup.ids)) for row in additions}) == 12
@@ -125,6 +140,14 @@ def test_generator_produces_frozen_six_by_two_novel_strict_candidates() -> None:
     assert all(1 <= row["anchor_rank"] <= ANCHOR_LIMIT for row in receipts)
     assert sum(row["accepted"] for row in receipts) == 12
     assert all(row.lineup.salary == 49_500 for row in additions)
+    assert optimizer_calls
+    assert all(call["env"]["MIN_GAMES"] == "2" for call in optimizer_calls)
+    assert all(call["env"]["MIN_LINEUP_SALARY"] == "49000"
+               for call in optimizer_calls)
+    assert all(
+        row["construction_preset"]["min_games"] == 2
+        for row in receipts
+    )
 
 
 def test_fixed_budget_removes_exactly_lowest_twelve_and_reselects_80() -> None:

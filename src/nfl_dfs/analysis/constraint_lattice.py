@@ -226,7 +226,7 @@ def generate_exception_candidates(
     }
     candidates = []
     receipts = []
-    env = {"MIN_LINEUP_SALARY": "49000"}
+    env = {"MIN_LINEUP_SALARY": "49000", "MIN_GAMES": "2"}
     for cell in CELL_ORDER:
         stack = stack_rules_for_cell(cell)
         for block in blocks:
@@ -302,7 +302,7 @@ def _roster_key(lineup: Lineup) -> tuple[str, ...]:
 
 
 def validate_common_legality(lineup: Lineup) -> bool:
-    """Validate the frozen non-strategic DraftKings Classic constraints."""
+    """Validate the frozen common construction shared by these lattice cells."""
     players = list(lineup.players)
     if len(players) != 9 or len(lineup.ids) != 9:
         return False

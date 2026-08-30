@@ -5,6 +5,17 @@ Date: 2026-08-17
 Status: implemented and fixture-validated; no historical/cloud execution and
 no production change.
 
+## 2026-08-30 erratum
+
+The implementation described below originally treated two represented games
+as DraftKings platform legality. DraftKings Classic instead requires players
+from at least two teams; the nine-player roster plus eight-per-team cap already
+enforces that condition. Any earlier `H_DK_legal` output from the v1 code used
+an extra two-game house rule and is superseded as platform-only evidence. The
+corrected legal oracle uses `minimum_games=1`; historical construction layers
+continue to receipt `minimum_games=2` when that strategy is intended. A prior
+score must be recomputed before it is cited as the true DraftKings-only ceiling.
+
 This additive diagnostic implements the layer requested by
 `2026-08-17-extreme-tail-review-reconciliation-and-queue-amendment.md`:
 
@@ -30,8 +41,7 @@ DraftKings NFL Classic feasibility contract represented in this repository:
 - nine unique players with `1 QB`, `2--3 RB`, `3--4 WR`, `1--2 TE`, and
   `1 DST`;
 - salary at or below `$50,000`;
-- no more than eight players from one team; and
-- players from at least two games.
+- no more than eight players from one team (therefore at least two teams).
 
 It does **not** enforce the production `$49,000` salary floor, QB+2 stack,
 one bring-back, same-team-RB prohibition, or RB-versus-DST prohibition. Those

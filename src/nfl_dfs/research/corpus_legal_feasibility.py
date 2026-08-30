@@ -1677,7 +1677,7 @@ def _classified_input_runtime_proof(
         "qb_stack_min": "STACK_QB_MIN",
         "bring_back_min": "STACK_BRING_BACK",
         "forbid_rb_vs_dst": "FORBID_RB_DST",
-        "forbid_two_rb_same_team": None,
+        "forbid_two_rb_same_team": "FORBID_TWO_RB_SAME_TEAM",
     }
     inventory_typed_keys = {
         str(row["input_key"])
@@ -1974,8 +1974,6 @@ def audit_dk_classic(
         raise CorpusLegalFeasibilityError("roster DK salary cap differs")
     if max(Counter(player.team for player in chosen).values()) > rw.MAX_FROM_TEAM:
         raise CorpusLegalFeasibilityError("roster DK team cap differs")
-    if len({player.game_id for player in chosen}) < rw.MIN_GAMES:
-        raise CorpusLegalFeasibilityError("roster DK minimum-games rule differs")
     return identity
 
 
@@ -3137,6 +3135,7 @@ def build_fresh_legal_model(
         min_salary=dose.min_salary,
         max_salary=dose.max_salary,
         max_per_game=dose.max_per_game,
+        min_games=1,
         env=dict(dose.env),
     )
     problem.setObjective(pulp.lpSum(

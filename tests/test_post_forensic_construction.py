@@ -102,6 +102,7 @@ def test_exact_stack_addendum_reproduces_old_p_and_restricts_use():
     ]
     assert dk_layer["legacy_alias"] == {"H": "H_strategy"}
     assert dk_layer["realized_score_cost"]["n"] == 1
+    assert dk_layer["draftkings_legality"]["minimum_games"] == 1
     assert dk_layer["use_restriction"].startswith(
         "Outcome-viewed hindsight description only"
     )

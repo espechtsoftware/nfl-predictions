@@ -25,6 +25,21 @@ from nfl_dfs.backtest.engine import CandidateBatch
 from nfl_dfs.optimizer.lineup import Lineup, StackRules, optimize, optimize_many
 
 
+FROZEN_CONSTRUCTION_ENV = {
+    "MIN_LINEUP_SALARY": "49000",
+    "MIN_GAMES": "2",
+}
+
+
+def _frozen_strict_stack() -> StackRules:
+    return StackRules(
+        qb_stack_min=2,
+        bring_back_min=1,
+        forbid_rb_vs_dst=True,
+        forbid_two_rb_same_team=True,
+    )
+
+
 def _pool():
     players = []
     player_id = 0
@@ -55,7 +70,10 @@ def _pool():
 
 @pytest.mark.parametrize("cell", CELL_ORDER)
 def test_optimizer_constructs_exact_atomic_exception(cell):
-    lineup = optimize(_pool(), stack=stack_rules_for_cell(cell))
+    lineup = optimize(
+        _pool(), stack=stack_rules_for_cell(cell),
+        env=FROZEN_CONSTRUCTION_ENV,
+    )
     assert lineup is not None
     assert lineup.salary == 49_500
     assert exception_cell(lineup) == cell
@@ -71,7 +89,10 @@ def test_new_stack_bounds_default_to_inactive():
 
 
 def test_common_legality_covers_salary_shape_and_games():
-    lineup = optimize(_pool(), stack=StackRules(qb_stack_min=2, bring_back_min=1))
+    lineup = optimize(
+        _pool(), stack=_frozen_strict_stack(),
+        env=FROZEN_CONSTRUCTION_ENV,
+    )
     assert lineup is not None and validate_common_legality(lineup)
     too_cheap = replace(lineup, players=[dict(row) for row in lineup.players])
     too_cheap.players[0]["salary"] = 1_000
@@ -82,7 +103,10 @@ def test_stack_rule_conflicts_fail_closed():
     with pytest.raises(ValueError, match="both forbidden and required"):
         optimize(
             _pool(),
-            stack=StackRules(require_rb_vs_dst=True),
+            stack=StackRules(
+                forbid_rb_vs_dst=True,
+                require_rb_vs_dst=True,
+            ),
         )
     with pytest.raises(ValueError, match="at least its minimum"):
         optimize(
@@ -95,7 +119,10 @@ def test_exception_book_enforces_cell_labels_and_quotas():
     lineups = []
     cells = []
     for cell in CELL_ORDER:
-        lineup = optimize(_pool(), stack=stack_rules_for_cell(cell))
+        lineup = optimize(
+            _pool(), stack=stack_rules_for_cell(cell),
+            env=FROZEN_CONSTRUCTION_ENV,
+        )
         assert lineup is not None
         lineups.append(lineup)
         cells.append(cell)
@@ -110,6 +137,7 @@ def test_exception_book_enforces_cell_labels_and_quotas():
         _pool(),
         stack=stack_rules_for_cell(CELL_ORDER[-1]),
         banned_lineups=[lineups[-1].ids],
+        env=FROZEN_CONSTRUCTION_ENV,
     )
     assert second is not None and second.ids != lineups[-1].ids
     with pytest.raises(ValueError, match="quota"):
@@ -143,6 +171,7 @@ def _candidate(cell: str, banned=()):
         _pool(),
         stack=stack_rules_for_cell(cell),
         banned_lineups=list(banned),
+        env=FROZEN_CONSTRUCTION_ENV,
     )
     assert lineup is not None
     return lineup
@@ -154,7 +183,8 @@ def _books(worlds=3):
         players,
         n_lineups=80,
         max_overlap=8,
-        stack=StackRules(qb_stack_min=2, bring_back_min=1),
+        stack=_frozen_strict_stack(),
+        env=FROZEN_CONSTRUCTION_ENV,
     )
     player_ids = tuple(row["id"] for row in players)
     row_index = {value: index for index, value in enumerate(player_ids)}
@@ -286,7 +316,8 @@ def test_heldout_fold_and_aggregate_gate_are_p230_first():
         _pool(),
         n_lineups=80,
         max_overlap=8,
-        stack=StackRules(qb_stack_min=2, bring_back_min=1),
+        stack=_frozen_strict_stack(),
+        env=FROZEN_CONSTRUCTION_ENV,
     )
     assert len(strict) == 80
     exception = _candidate("qb1_no_bringback")

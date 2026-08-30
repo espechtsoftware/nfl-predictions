@@ -27,7 +27,7 @@ from ..backtest.engine import CandidateBatch, _validate_candidate_batch
 from ..config import settings
 from ..optimizer.lineup import (
     MAX_FROM_TEAM,
-    MIN_GAMES,
+    INCUMBENT_MIN_GAMES,
     ROSTER_SIZE,
     SALARY_CAP,
     Lineup,
@@ -446,7 +446,7 @@ def validate_constraint_contract(stack: StackRules) -> dict:
             "DST": [1, 1],
         },
         "max_from_team": MAX_FROM_TEAM,
-        "minimum_games": MIN_GAMES,
+        "minimum_games": INCUMBENT_MIN_GAMES,
         "punt_min": 0,
         "punt_max_salary": 4_000,
     }
@@ -806,16 +806,8 @@ def run(
     policy = ADOPTED_CLASSIC_POLICY
     if int(policy.model_ensemble) != 1:
         raise ValueError("boom-first paired shadow requires production K=1")
-    stack = StackRules(
-        qb_stack_min=2,
-        bring_back_min=1,
-        forbid_rb_vs_dst=True,
-        forbid_two_rb_same_team=True,
-        qb_stack_max=None,
-        bring_back_max=None,
-        require_rb_vs_dst=False,
-        require_two_rb_same_team=False,
-    )
+    construction = policy.construction_preset()
+    stack = construction.stack
     constraint_contract = validate_constraint_contract(stack)
     common = {
         "season": season,
@@ -833,6 +825,7 @@ def run(
         "cand_log_required": True,
         "expected_model_k": policy.model_ensemble,
         "belief_model_variant": policy.role_model_variant,
+        "construction_preset_receipt": construction.receipt(),
     }
     control_env = policy.boom_first_control_environment(os.environ)
     treatment_env = policy.boom_first_shadow_environment(os.environ)

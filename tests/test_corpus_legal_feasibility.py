@@ -91,6 +91,14 @@ def _hard_legal_rosters(
     raise AssertionError(f"test catalog produced only {len(result)} rosters")
 
 
+def test_dk_audit_accepts_one_game_roster_across_two_teams() -> None:
+    roster = tuple(sorted((
+        "q-a", "rb-a1", "rb-a2", "rb-b", "wr-a1", "wr-a2", "wr-b",
+        "te-a", "dst-b",
+    )))
+    assert core.audit_dk_classic(_players(), roster) == roster
+
+
 @pytest.fixture(scope="module")
 def players() -> tuple[rw.PlayerSpec, ...]:
     return _players()

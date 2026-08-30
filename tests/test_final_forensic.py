@@ -62,7 +62,7 @@ def test_canonical_game_id_ignores_source_direction_and_format():
     assert canonical_game_id("NYJ", "BUF") == "BUF|NYJ"
 
 
-def test_roster_game_legality_uses_matchup_not_source_game_id():
+def test_historical_game_diversity_uses_matchup_but_dk_only_does_not():
     positions = ["QB", "RB", "RB", "WR", "WR", "WR", "WR", "TE", "DST"]
     salaries = [6500, 6500, 6000, 6000, 5500, 5000, 4500, 4500, 4500]
     one_game = pd.DataFrame([
@@ -75,11 +75,16 @@ def test_roster_game_legality_uses_matchup_not_source_game_id():
         for index, (position, salary) in enumerate(zip(positions, salaries, strict=True))
     ])
     roster = one_game.id.tolist()
-    # Include a same-game salary-feasible roster whose raw source ids look
-    # different; canonical matching must still reject it as one game.
+    # The historical construction still rejects a one-game roster even when
+    # raw source IDs disguise that fact.
     audit = audit_roster(one_game, roster)
     assert not audit["valid"]
     assert "fewer than two games" in audit["failures"]
+    # DraftKings Classic requires players from at least two teams, not two
+    # games. The <=8/team rule already guarantees that for nine-player books.
+    dk_only = solve_draftkings_legal_oracle(one_game)
+    assert dk_only["valid"] is True
+    assert dk_only["players"] == sorted(roster)
 
 
 def test_roster_audit_enforces_the_production_qb2_bringback_contract():
@@ -155,6 +160,8 @@ def test_hpcs_decomposition_reconstructs_and_orders_layers():
     assert result["gaps"]["selection"] == high_score - low_score
     assert result["construction_policy"]["qb_stack_min"] == 2
     assert result["construction_policy"]["bring_back_min"] == 1
+    assert result["construction_policy"]["minimum_games"] == 2
+    assert result["draftkings_legality_policy"]["minimum_games"] == 1
     assert "wr_e" in result["H"]["players"]
     assert "wr_e" not in result["P"]["players"]
 

@@ -23,6 +23,10 @@ import pandas as pd
 from scipy import stats
 
 from ..models import calibration, coldstart, components, simulate
+from ..optimizer.construction_presets import (
+    INCUMBENT_GPP_PRESET_ID,
+    resolve_construction_preset_from_environment,
+)
 from ..research.candidate_features import PLAYER_SNAPSHOT_FEATURES
 from .engine import BacktestResult, run as engine_run
 from .payout import Contest
@@ -1814,20 +1818,19 @@ def run(
         from .payout import gpp
 
         contest = gpp()
-    # QB stacking validated on both imputed-2025 and real-2021 replays
-    # (reports/2026-07-25-system-study.md addendum); mean objective beat a
-    # p90 objective on real salaries, so stacking is the only GPP default.
-    from ..optimizer.lineup import StackRules
-
-    # Assumption-validation levers (2026-08-01): these construction rules
-    # predate the deterministic A/B era and were adopted on correlational
-    # evidence; the envs let each be causally tested with one exact run.
-    # Defaults reproduce the adopted construction unchanged.
-    stack = (StackRules(
-                 qb_stack_min=int(os.environ.get("STACK_QB_MIN", "2")),
-                 bring_back_min=int(os.environ.get("STACK_BRING_BACK", "1")),
-                 forbid_rb_vs_dst=os.environ.get("FORBID_RB_DST", "1") != "0")
-             if "gpp" in contest.name else None)
+    # Resolve every construction lever once into a named, receipted policy.
+    # Legacy replay env arms remain available, but they no longer leak into
+    # the optimizer merely because add_classic_lineup_constraints read the
+    # ambient process environment.
+    preset_id = os.environ.get(
+        "CONSTRUCTION_PRESET_ID", INCUMBENT_GPP_PRESET_ID,
+    )
+    construction = resolve_construction_preset_from_environment(
+        preset_id, os.environ, use_stack="gpp" in contest.name,
+    )
+    stack = construction.stack
+    replay_policy_env = dict(os.environ)
+    replay_policy_env.update(construction.optimizer_environment())
     # Tail-objective selection (issue #5) is a GPP concept only; double-ups
     # want the mean objective. tail_line=0 disables explicitly.
     if tail_line is None and "gpp" in contest.name:
@@ -1861,7 +1864,9 @@ def run(
                         draws=draws if use_tail else None,
                         tail_line=tail_line if use_tail else None,
                         belief_slates=belief_slates,
-                        belief_draws=role_draws)
+                        belief_draws=role_draws,
+                        policy_env=replay_policy_env,
+                        construction_preset_receipt=construction.receipt())
     print(f"\n=== Contest replay: {season} "
           f"(field {sharp_fraction:.0%} optimizer-built) ===")
     print(result.summary())

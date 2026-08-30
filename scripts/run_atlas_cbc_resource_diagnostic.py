@@ -350,7 +350,7 @@ def run(season: int, week: int, artifact_prefix: str) -> None:
     bound = runner.roster_slot_upper_bound(native.row_draws, positions)
     world_order = runner.rank_worlds(bound, 40)
     stack = runner.StackRules(qb_stack_min=2, bring_back_min=1)
-    env = {"MIN_LINEUP_SALARY": "49000"}
+    env = {"MIN_LINEUP_SALARY": "49000", "MIN_GAMES": "2"}
     exact = runner.solve_exact_worlds(
         native.player_rows, native.row_draws, world_order,
         stack=stack, env=env,

@@ -14,6 +14,12 @@ from hashlib import sha256
 import json
 from typing import Mapping
 
+from ..optimizer.construction_presets import (
+    INCUMBENT_GPP_PRESET_ID,
+    ConstructionPreset,
+    resolve_construction_preset,
+)
+
 
 POLICY_ENV_PASSTHROUGH = frozenset({
     # Non-roster provenance and candidate-artifact plumbing only. Research
@@ -104,6 +110,7 @@ class ClassicProductionPolicy:
     selector: str = "greedy-tail-coverage"
     tail_line: float = 194.0
     min_lineup_salary: int = 49_000
+    construction_preset_id: str = INCUMBENT_GPP_PRESET_ID
     blend_model_weight: float = 0.45
     candidate_multiple: int = 2
     n_ce: int = 0
@@ -155,8 +162,41 @@ class ClassicProductionPolicy:
     )
     prospective_latent_role_version: str = "prospective-latent-role-state-v1"
 
+    def construction_preset(
+        self,
+        *,
+        preset_id: str | None = None,
+        qb_stack_min: int | None = None,
+        bring_back_min: int | None = None,
+        forbid_rb_vs_dst: bool | None = None,
+        forbid_two_rb_same_team: bool | None = None,
+        min_salary: int | None = None,
+        min_games: int | None = None,
+        max_per_game: int | None = None,
+        max_overlap: int | None = None,
+    ) -> ConstructionPreset:
+        """Resolve the named money construction plus explicit API overrides."""
+        return resolve_construction_preset(
+            preset_id or self.construction_preset_id,
+            qb_stack_min=qb_stack_min,
+            bring_back_min=bring_back_min,
+            forbid_rb_vs_dst=forbid_rb_vs_dst,
+            forbid_two_rb_same_team=forbid_two_rb_same_team,
+            min_salary=(
+                self.min_lineup_salary
+                if min_salary is None and (
+                    preset_id is None
+                    or preset_id == self.construction_preset_id
+                ) else min_salary
+            ),
+            min_games=min_games,
+            max_per_game=max_per_game,
+            max_overlap=max_overlap,
+        )
+
     def engine_environment(
         self, base: Mapping[str, str] | None = None,
+        *, construction_preset: ConstructionPreset | None = None,
     ) -> dict[str, str]:
         """Return the complete effective env for one production build.
 
@@ -172,6 +212,7 @@ class ClassicProductionPolicy:
             for key in POLICY_ENV_PASSTHROUGH
             if key in source
         }
+        construction = construction_preset or self.construction_preset()
         env.update({
             # Model, simulator and marginal shape.
             "MODEL_REGISTRY_VARIANT": self.model_variant,
@@ -199,13 +240,6 @@ class ClassicProductionPolicy:
             "SERVED_POSITION_SCALES": self.served_position_scales,
             "DST_CORR_DRAWS": "",
             # Optimizer construction.
-            "MIN_LINEUP_SALARY": str(self.min_lineup_salary),
-            "PUNT_MIN": "0",
-            "PUNT_MAX": "4000",
-            "PUNT_STRICT": "",
-            "VALUE2_MIN": "0",
-            "OWN_BARBELL": "",
-            "MAX_PER_GAME": "0",
             "OWN_MODEL": "",
             "PUNT_BOOM": "0",
             "PUNT_BOOM_WR": "",
@@ -259,10 +293,12 @@ class ClassicProductionPolicy:
             "MULTISEED_CANDIDATE_ENTRY_BASIS": str(
                 self.multiseed_candidate_entry_basis),
         })
+        env.update(construction.optimizer_environment())
         return env
 
     def fallback_environment(
         self, base: Mapping[str, str] | None = None,
+        *, construction_preset: ConstructionPreset | None = None,
     ) -> dict[str, str]:
         """The prior accepted CE12/boom28 policy for role-model outages.
 
@@ -270,7 +306,9 @@ class ClassicProductionPolicy:
         candidate book, so the fallback deliberately restores the complete
         older identity-scale policy rather than mixing untested mechanisms.
         """
-        env = self.engine_environment(base)
+        env = self.engine_environment(
+            base, construction_preset=construction_preset,
+        )
         env.update({
             "GEN_TOTAL_BUDGET": "40",
             "N_CE": "12",
@@ -428,11 +466,15 @@ class ClassicProductionPolicy:
     def public_identity(
         self, *, model_version: str | None = None,
         entries: int | None = None, tail_line: float | None = None,
+        construction_preset: ConstructionPreset | None = None,
     ) -> dict:
         """Stable JSON/header-friendly identity for a generated book."""
         effective_entries = self.default_entries if entries is None else entries
         effective_line = self.tail_line if tail_line is None else tail_line
-        engine_env = dict(sorted(self.engine_environment().items()))
+        construction = construction_preset or self.construction_preset()
+        engine_env = dict(sorted(self.engine_environment(
+            construction_preset=construction,
+        ).items()))
         engine_env_sha256 = sha256(json.dumps(
             engine_env, sort_keys=True, separators=(",", ":"),
         ).encode()).hexdigest()
@@ -447,7 +489,8 @@ class ClassicProductionPolicy:
             "tail_line": float(effective_line),
             "default_entries": self.default_entries,
             "entries": int(effective_entries),
-            "salary_floor": self.min_lineup_salary,
+            "salary_floor": construction.min_salary,
+            "construction_preset": construction.receipt(),
             "blend": {
                 "model": self.blend_model_weight,
                 "market": 1.0 - self.blend_model_weight,

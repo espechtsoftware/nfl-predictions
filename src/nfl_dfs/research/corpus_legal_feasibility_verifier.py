@@ -1030,10 +1030,6 @@ def _audit_dk_classic(
         raise CorpusLegalFeasibilityVerificationError(
             "roster DK team cap differs"
         )
-    if len({player.game_id for player in chosen}) < rw.MIN_GAMES:
-        raise CorpusLegalFeasibilityVerificationError(
-            "roster DK minimum-games rule differs"
-        )
     if len(rows) != len(by_id):  # defensive: preserve exact catalog topology
         raise CorpusLegalFeasibilityVerificationError("player ids repeat")
     return identity
@@ -2785,14 +2781,6 @@ def _build_lexicographic_problem(
             decision[player.player_id]
             for player in rows if player.team == team
         ) <= rw.MAX_FROM_TEAM
-    games = sorted({player.game_id for player in rows if player.game_id})
-    if len(games) >= rw.MIN_GAMES:
-        for game in games:
-            problem += pulp.lpSum(
-                decision[player.player_id]
-                for player in rows if player.game_id != game
-            ) >= 1
-
     catchers_by_team: dict[str, list[str]] = {}
     qbs_by_team: dict[str, list[str]] = {}
     for player in rows:

@@ -805,6 +805,7 @@ def audit_roster(
     *,
     min_salary: int = 49_000,
     salary_cap: int = 50_000,
+    min_games: int = 2,
     qb_stack_min: int = 1,
     bring_back_min: int = 0,
     forbid_two_rb_same_team: bool = True,
@@ -814,12 +815,14 @@ def audit_roster(
 
     The defaults reproduce the historical forensic construction contract.
     Callers measuring DraftKings-only legality must also disable the two
-    strategy prohibitions and set both stack minima and ``min_salary`` to
-    zero.  :func:`solve_draftkings_legal_oracle` is the named, less
-    error-prone entry point for that descriptive ceiling.
+    strategy prohibitions, set both stack minima and ``min_salary`` to zero,
+    and set ``min_games`` to one.  :func:`solve_draftkings_legal_oracle` is
+    the named, less error-prone entry point for that descriptive ceiling.
     """
     if int(qb_stack_min) < 0 or int(bring_back_min) < 0:
         raise ValueError("roster stack requirements must be nonnegative")
+    if type(min_games) is not int or min_games not in (1, 2):
+        raise ValueError("forensic minimum games must be one or two")
     frame = _normalise_player_frame(players).set_index("id", drop=False)
     ids = tuple(map(str, roster_ids))
     failures: list[str] = []
@@ -845,7 +848,7 @@ def audit_roster(
         failures.append("salary outside frozen range")
     if chosen.team.value_counts().max() > 8:
         failures.append("more than eight players from one team")
-    if chosen.game_id.nunique() < 2:
+    if chosen.game_id.nunique() < min_games:
         failures.append("fewer than two games")
     qbs = chosen[chosen.pos.eq("QB")]
     if len(qbs) == 1:
@@ -894,6 +897,7 @@ def _solve_oracle(
     locked_flex_positions: Sequence[str | None] | None = None,
     min_salary: int = 49_000,
     salary_cap: int = 50_000,
+    min_games: int = 2,
     qb_stack_min: int = 1,
     bring_back_min: int = 0,
     forbid_two_rb_same_team: bool = True,
@@ -913,6 +917,8 @@ def _solve_oracle(
         raise ValueError("oracle player support is empty")
     if int(qb_stack_min) < 0 or int(bring_back_min) < 0:
         raise ValueError("oracle stack requirements must be nonnegative")
+    if type(min_games) is not int or min_games not in (1, 2):
+        raise ValueError("oracle minimum games must be one or two")
     rows = list(frame.itertuples(index=False))
     problem = pulp.LpProblem("forensic_oracle", pulp.LpMaximize)
     decision = {
@@ -1004,7 +1010,9 @@ def _solve_oracle(
         if forbid_two_rb_same_team and len(rbs) > 1:
             problem += pulp.lpSum(decision[player] for player in rbs) <= 1
     games = sorted(frame.game_id.unique())
-    if len(games) >= 2:
+    if min_games == 2:
+        if len(games) < 2:
+            raise ValueError("oracle player support contains fewer than two games")
         for game in games:
             problem += pulp.lpSum(
                 decision[row.id] for row in rows if row.game_id != game
@@ -1053,6 +1061,7 @@ def _solve_oracle(
     chosen = sorted(row.id for row in rows if decision[row.id].value() > 0.5)
     audit = audit_roster(
         frame, chosen, min_salary=min_salary, salary_cap=salary_cap,
+        min_games=min_games,
         qb_stack_min=qb_stack_min, bring_back_min=bring_back_min,
         forbid_two_rb_same_team=forbid_two_rb_same_team,
         forbid_rb_vs_dst=forbid_rb_vs_dst,
@@ -1080,16 +1089,17 @@ def solve_draftkings_legal_oracle(
 
     This is a hindsight diagnostic, never a playable policy or an adoption
     result.  It enforces the nine-slot Classic roster shape, the salary cap,
-    at most eight players from one team, and at least two games.  It does not
-    impose a minimum salary, a QB stack/bring-back, a same-team-RB ban, or an
-    RB-versus-DST ban; those are construction strategy rather than contest
-    legality.
+    at most eight players from one team (which guarantees at least two teams).
+    It does not impose a two-game diversity rule, a minimum salary, a QB
+    stack/bring-back, a same-team-RB ban, or an RB-versus-DST ban; those are
+    construction strategy rather than contest legality.
     """
     return _solve_oracle(
         players,
         allowed_ids,
         min_salary=0,
         salary_cap=salary_cap,
+        min_games=1,
         qb_stack_min=0,
         bring_back_min=0,
         forbid_two_rb_same_team=False,
@@ -1453,7 +1463,7 @@ def decompose_slate(
             "minimum_salary": 0,
             "maximum_salary": int(salary_cap),
             "maximum_players_per_team": 8,
-            "minimum_games": 2,
+            "minimum_games": 1,
             "qb_stack_min": 0,
             "bring_back_min": 0,
             "forbid_two_rb_same_team": False,

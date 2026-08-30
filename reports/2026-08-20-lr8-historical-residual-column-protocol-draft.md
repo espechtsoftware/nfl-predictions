@@ -1,6 +1,13 @@
 # LR8 legal-relaxation residual columns: historical integrated-arm draft
 
 **Protocol ID:** `20260820-lr8-historical-residual-columns-v1`
+
+**2026-08-30 erratum:** the immutable LR8-v1 hard-domain identifier says
+"DraftKings-only," but the implementation also retained a two-game
+construction rule. LR8-v1 is preserved for artifact replay and must be
+described as the legacy LR8 domain, not true platform-only legality. Existing
+artifacts are not relabeled. A future true legality-only LR8 experiment needs
+a new hard-domain/protocol identity and fresh source/fit artifacts.
 **Prepared:** 2026-08-20
 **Status:** mechanics implemented locally; **not source-frozen, launch-ready, scored,
 shadow-licensed, or production-licensed**.
@@ -104,14 +111,15 @@ solve counts; none is sweepable.
 
 ## Relaxed hard legality, exactly
 
-New residual columns have only the shared DraftKings NFL Classic hard domain:
+New residual columns have the legacy LR8-v1 hard domain:
 
 - nine unique players;
 - exactly one QB and one DST;
 - 2--3 RB, 3--4 WR, and 1--2 TE;
 - total salary at most $50,000;
 - no more than eight players from one team; and
-- players from at least two games.
+- players from at least two games (an LR8-v1 construction rule, not a
+  DraftKings platform requirement).
 
 The following inherited house rules are not hard constraints for new LR8
 columns:

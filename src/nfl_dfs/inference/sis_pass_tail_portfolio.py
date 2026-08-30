@@ -12,7 +12,10 @@ import numpy as np
 import pandas as pd
 
 from ..config import settings
-from ..optimizer.lineup import StackRules
+from ..optimizer.construction_presets import (
+    INCUMBENT_GPP_PRESET_ID,
+    resolve_construction_preset_from_environment,
+)
 from .recourse_worlds import persist_recourse_world_artifact
 from .sis_pass_tail_shadow import (
     CONTROL_TABLE,
@@ -197,6 +200,10 @@ def run(
             env.update(arm_environment(
                 arm, projection_seed=projection_seed, role_seed=role_seed,
             ))
+            construction = resolve_construction_preset_from_environment(
+                INCUMBENT_GPP_PRESET_ID, env,
+            )
+            env.update(construction.optimizer_environment())
             env["CAND_ARTIFACT_BUCKET"] = bucket
             if failures := environment_failures(arm, env):
                 raise ValueError(
@@ -208,9 +215,7 @@ def run(
                 season,
                 week,
                 n_entries=ENTRIES,
-                stack=StackRules(
-                    qb_stack_min=2, bring_back_min=1, forbid_rb_vs_dst=True,
-                ),
+                stack=construction.stack,
                 tail_line=TAIL_LINE,
                 n_sims=WORLDS,
                 seed=projection_seed,
@@ -225,6 +230,7 @@ def run(
                 panel_run_id=panel_id,
                 candidate_run_type="prospective_sis_pass_tail",
                 policy_env=env,
+                construction_preset_receipt=construction.receipt(),
                 expected_model_k=1,
                 belief_model_variant="tail_k1_role",
                 model_forbidden_features=ROLE_FEATURES,

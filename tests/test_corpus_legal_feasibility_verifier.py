@@ -199,6 +199,14 @@ def test_independent_dk_and_house_audits() -> None:
         verifier._audit_dk_classic(players, tuple(reversed(roster)))
 
 
+def test_independent_dk_audit_accepts_one_game_across_two_teams() -> None:
+    roster = tuple(sorted((
+        "q-a", "rb-a1", "rb-a2", "rb-b", "wr-a1", "wr-a2", "wr-b",
+        "te-a", "dst-b",
+    )))
+    assert verifier._audit_dk_classic(_players(), roster) == roster
+
+
 def test_first_occurrence_union_is_stable_and_canonical() -> None:
     roster = _clean_roster()
     alternate = tuple(sorted((set(roster) - {"wr-c1"}) | {"wr-c2"}))

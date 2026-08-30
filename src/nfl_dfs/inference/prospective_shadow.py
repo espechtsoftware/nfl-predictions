@@ -13,7 +13,7 @@ import numpy as np
 
 from ..backtest.engine import CandidateBatch, _validate_candidate_batch
 from ..config import settings
-from ..optimizer.lineup import Lineup, StackRules, select_tail_entries
+from ..optimizer.lineup import Lineup, select_tail_entries
 from .production_policy import ADOPTED_CLASSIC_POLICY
 from .recourse_worlds import persist_recourse_world_artifact
 
@@ -210,7 +210,9 @@ def run_paired_prospective_shadow(
         f"{stamp.strftime('%Y%m%dT%H%M%SZ')}"
     )
     policy = ADOPTED_CLASSIC_POLICY
+    construction = policy.construction_preset()
     policy_env = getattr(policy, spec["env_method"])(os.environ)
+    policy_env.update(construction.optimizer_environment())
     policy_env.update({
         "CAND_ARTIFACT_BUCKET": bucket_name or settings.gcs_bucket,
         "CAND_ARTIFACT_PLAYER_WORLDS": "1",
@@ -224,9 +226,7 @@ def run_paired_prospective_shadow(
         season,
         week,
         n_entries=80,
-        stack=StackRules(
-            qb_stack_min=2, bring_back_min=1, forbid_rb_vs_dst=True
-        ),
+        stack=construction.stack,
         tail_line=194.0,
         lev_scale=1.0,
         allowed_ids=allowed,
@@ -239,6 +239,7 @@ def run_paired_prospective_shadow(
         panel_run_id=panel_run_id,
         candidate_run_type=spec["candidate_run_type"],
         policy_env=policy_env,
+        construction_preset_receipt=construction.receipt(),
         expected_model_k=policy.model_ensemble,
         belief_model_variant=policy.role_model_variant,
         _candidate_capture=treatment_capture.append,

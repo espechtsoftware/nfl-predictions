@@ -18,6 +18,7 @@ from nfl_dfs.research.legal_soft_law import (
     PROTOCOL_STATUS,
     SOFT_LAW_FEATURES,
     LegalSoftLawError,
+    _roster_features,
     canonical_json,
     evaluate_payload,
 )
@@ -331,6 +332,14 @@ def test_former_mandates_are_features_not_legality_requirements() -> None:
     assert features["bring_back_count"] == 0
     assert features["rb_vs_dst_count"] == 2
     assert features["same_team_rb_pair_count"] == 1
+
+
+def test_one_game_is_a_soft_feature_not_platform_illegality() -> None:
+    players = _players("one-game", "incumbent")
+    for player in players:
+        player["game_id"] = "g1"
+    features = _roster_features(players, label="one-game fixture")
+    assert features["games_represented"] == 1
 
 
 @pytest.mark.parametrize("prerequisite", ["a2a", "b1"])

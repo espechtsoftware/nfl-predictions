@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 from nfl_dfs.backtest import engine
+from nfl_dfs.inference.generation_exposure import validate_ledger
 
 
 def _slate(n_worlds: int = 64, dup_top_worlds: int = 6):
@@ -104,6 +105,53 @@ def test_exact_leverage_and_boom_requests_are_captured():
     timing = batch.metadata["generation_timing_seconds"]
     assert timing["leverage"] >= 0
     assert timing["primary_boom"] >= 0
+
+
+def test_prospective_exposure_ledger_captures_every_core_attempt():
+    slate, pool, draws = _slate()
+    captured = []
+    engine.tail_select_lineups(
+        slate,
+        pool,
+        draws,
+        tail_line=95.0,
+        n_entries=2,
+        stack=None,
+        objective_col="proj",
+        n_boom_solves=2,
+        n_game_stacks=0,
+        n_per_game=0,
+        policy_env={
+            "MIN_LINEUP_SALARY": "0",
+            "N_LEV": "2",
+            "N_BOOM": "2",
+            "N_EPISTEMIC": "0",
+            "N_QB_VARIANTS": "0",
+            "N_DARKGAME": "0",
+            "BOOM_UNIQUE_FILL": "0",
+            "MULTISEED_SOURCE_LABEL": "R0",
+            "PROSPECTIVE_GENERATION_EXPOSURE": "1",
+        },
+        candidate_capture=captured.append,
+    )
+    ledger = validate_ledger(
+        captured[0].metadata["generation_exposure_ledger"]
+    )
+
+    assert ledger["expected_requests_by_family"] == {
+        "boom": 2,
+        "leverage": 2,
+    }
+    assert ledger["attempt_count"] == 4
+    assert [row["family"] for row in ledger["rows"]] == [
+        "leverage",
+        "leverage",
+        "boom",
+        "boom",
+    ]
+    assert all(row["uses_realized_outcomes"] is False for row in ledger["rows"])
+    assert all(row["duration_seconds"] >= 0.0 for row in ledger["rows"])
+    assert set(ledger["duration_seconds_by_family"]) == {"boom", "leverage"}
 
 
 def test_lever_changes_candidates_but_never_removes_boom_uniques():

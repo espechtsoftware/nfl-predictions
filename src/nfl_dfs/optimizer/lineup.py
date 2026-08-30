@@ -1,10 +1,9 @@
 """DK NFL Classic lineup optimization (guide §9).
 
-Constraints: 1 QB, 2-3 RB, 3-4 WR, 1-2 TE (9 total with one FLEX), 1 DST,
-$50k cap, >= 2 games, <= 8 players from one team. Stacking is expressed as
-constraints (QB + pass catcher, bring-back, no RB vs opposing DST) because
-optimizing independent projections is the classic beginner error: DK is
-winner-take-most, and you need correlated upside.
+Universal constraints are the DraftKings legality layer: roster slots, the
+$50k cap, and athletes from at least two teams. Tournament strategy such as
+multi-game diversity, stacking, salary spend and correlation exclusions is
+supplied through an explicit construction preset.
 
 For GPPs, prefer optimizing over simulated outcomes (see simulate_lineups):
 optimize each Monte Carlo draw and keep the lineups that recur — that bakes
@@ -16,7 +15,8 @@ from __future__ import annotations
 import logging
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import Any, Mapping
+from time import perf_counter
+from typing import Any, Callable, Mapping
 
 import numpy as np
 import pulp
@@ -24,7 +24,7 @@ import pulp
 log = logging.getLogger(__name__)
 
 SALARY_CAP = 50_000
-# Tournament construction defaults (the only mode this shop plays): a
+# Tournament construction constants (named presets decide whether to use them): a
 # sub-$4k ceiling punt appeared in 94% of 2025 Milly Maker winners.
 PUNT_MAX_SALARY = 4_000
 # PUNT_MIN default 0 ADOPTED 2026-08-05 (Addendum 77): the hard punt
@@ -36,17 +36,22 @@ PUNT_MIN = 0
 LEVERAGE_PENALTY = 25.0  # pts deducted x naive-ownership weight (chalk fade)
 ROSTER_SIZE = 9
 MAX_FROM_TEAM = 8
-MIN_GAMES = 2
+# Bare/shared legality construction has no multi-game diversity mandate.
+# The incumbent named preset opts into two games explicitly.
+MIN_GAMES = 1
+INCUMBENT_MIN_GAMES = 2
 
 Player = dict[str, Any]  # id, name, pos, team, opp, game_id, salary, proj
 
 
-@dataclass
+@dataclass(frozen=True)
 class StackRules:
-    qb_stack_min: int = 1        # pass catchers required from the QB's team
+    """Optional strategic correlation rules; bare construction is neutral."""
+
+    qb_stack_min: int = 0        # pass catchers required from the QB's team
     bring_back_min: int = 0      # players required from the QB's opponent
-    forbid_rb_vs_dst: bool = True
-    forbid_two_rb_same_team: bool = True
+    forbid_rb_vs_dst: bool = False
+    forbid_two_rb_same_team: bool = False
     # Research-only exact/exception bounds.  ``None`` and ``False`` preserve
     # the production formulation byte-for-byte; the constraint-lattice shadow
     # opts in explicitly and never changes the money policy's StackRules.
@@ -127,6 +132,7 @@ def add_classic_lineup_constraints(
     min_salary: int | None = None,
     max_salary: int | None = None,
     max_per_game: int | None = None,
+    min_games: int | None = None,
     env: Mapping[str, str] | None = None,
 ) -> None:
     """Add the shared DraftKings Classic feasibility domain to ``prob``.
@@ -134,20 +140,17 @@ def add_classic_lineup_constraints(
     This function deliberately adds constraints only: callers own the
     objective, solver configuration, and result auditing.  ``optimize`` uses
     it with the same arguments and constraint order as the historical inline
-    formulation.  Research callers that need the current money-lineup domain
-    must opt in explicitly with ``min_salary=49_000``, ``budget=50_000``,
-    ``env={}``, no punt/game-cap/lock levers, and the intended ``StackRules``.
+    formulation. With omitted strategy arguments and ``env=None`` this is
+    legality-only. Production and replay callers resolve a named construction
+    preset and pass its effective values explicitly.
     """
     prob += pulp.lpSum(x[p["id"]] * p["salary"] for p in players) <= budget
-    # Milly winners spend the cap (2025 median $0 left; 2023-24 90% within
-    # $300). Replay-validated 2026-07-26 (run I): mean best-of-40 180.1 ->
-    # 182.3 with a floor of 49000. Env MIN_LINEUP_SALARY overrides; 0 disables.
-    import os as _os
-
-    _env = _os.environ if env is None else env
+    # Strategy environment is caller-supplied data, never ambient process
+    # state. Omission therefore cannot activate a house rule.
+    _env = {} if env is None else env
 
     _min_sal = (min_salary if min_salary is not None
-                else int(_env.get("MIN_LINEUP_SALARY", "49000") or 0))
+                else int(_env.get("MIN_LINEUP_SALARY", "0") or 0))
     if _min_sal:
         prob += pulp.lpSum(x[p["id"]] * p["salary"] for p in players) >= _min_sal
     if max_salary is not None and max_salary < budget:
@@ -170,13 +173,42 @@ def add_classic_lineup_constraints(
     for team in teams:
         prob += pulp.lpSum(x[p["id"]] for p in players if p["team"] == team) <= MAX_FROM_TEAM
 
-    # Minimum 2 different games: for every game, players NOT in that game >= 1
+    # Multi-game diversity is strategy, not DK legality. The incumbent named
+    # preset supplies 2; the universal layer resolves to 1 (disabled).
+    _min_games = (min_games if min_games is not None
+                  else int(_env.get("MIN_GAMES", "1") or 1))
+    if _min_games < 1:
+        raise ValueError("minimum games must be at least one")
     games = sorted({p.get("game_id") for p in players if p.get("game_id")})
-    if len(games) >= MIN_GAMES:
+    if _min_games == 1:
+        # DK legality itself does not require game metadata or a multi-game
+        # roster.  Missing game IDs therefore remain legal in the neutral
+        # construction domain.
+        pass
+    elif _min_games > len(games):
+        # An explicitly requested strategy dose must never disappear merely
+        # because the slate cannot satisfy it.
+        prob += pulp.lpSum([]) >= 1
+    elif _min_games == 2:
+        # Preserve the incumbent preset's historical LP formulation and
+        # constraint order exactly.  The generalized formulation below is
+        # necessary only for experimental doses above two games; using it for
+        # the incumbent can change CBC tie resolution despite defining the
+        # same feasible roster set.
         for game in games:
             prob += pulp.lpSum(
                 x[p["id"]] for p in players if p.get("game_id") != game
             ) >= 1
+    elif _min_games > 2:
+        game_used = {
+            game: pulp.LpVariable(f"game_used_{index}", cat="Binary")
+            for index, game in enumerate(games)
+        }
+        for game, used in game_used.items():
+            ids = [p["id"] for p in players if p.get("game_id") == game]
+            prob += pulp.lpSum(x[pid] for pid in ids) >= used
+            prob += pulp.lpSum(x[pid] for pid in ids) <= ROSTER_SIZE * used
+        prob += pulp.lpSum(game_used.values()) >= _min_games
 
     # Tournament punt slot: winners rostered a sub-$4k player who scored
     # 15+ in 94% of 2025 Milly Makers (reports/2025-milly-winners.csv).
@@ -283,6 +315,7 @@ def optimize(
     min_salary: int | None = None,
     max_salary: int | None = None,
     max_per_game: int | None = None,
+    min_games: int | None = None,
     env: Mapping[str, str] | None = None,
     objective_floor_col: str | None = None,
     objective_floor: float | None = None,
@@ -385,6 +418,7 @@ def optimize(
         min_salary=min_salary,
         max_salary=max_salary,
         max_per_game=max_per_game,
+        min_games=min_games,
         env=env,
     )
 
@@ -503,11 +537,12 @@ def optimize_many(
     players: list[Player],
     n_lineups: int,
     stack: StackRules | None = None,
-    max_overlap: int = 7,
+    max_overlap: int | None = None,
     punt_max_salary: int | None = PUNT_MAX_SALARY,
     punt_min: int = PUNT_MIN,
     env: Mapping[str, str] | None = None,
     telemetry: dict[str, int] | None = None,
+    attempt_callback: Callable[[dict[str, object]], None] | None = None,
     **kwargs,
 ) -> list[Lineup]:
     """Generate n unique lineups; each new lineup may share at most
@@ -515,15 +550,19 @@ def optimize_many(
     # Assumption-validation lever (2026-08-01): PUNT_MIN env overrides the
     # mandatory-punt rule so its causal value can be measured (the rule was
     # adopted from "94% of Milly winners had a punt" -- correlational).
-    import os as _os
-
-    _env = _os.environ if env is None else env
+    _env = {} if env is None else env
+    effective_max_overlap = (
+        int(_env.get("MAX_OVERLAP", "8"))
+        if max_overlap is None else int(max_overlap)
+    )
 
     punt_min = int(_env.get("PUNT_MIN", punt_min))
     # PUNT_MAX (2026-08-03): the $4k threshold was inherited from the
     # 2025 winner study (punts cluster $2.9-3.9k) and never dose-tested.
-    if _env.get("PUNT_MAX"):
-        punt_max_salary = int(_env["PUNT_MAX"])
+    if "PUNT_MAX" in _env:
+        punt_max_salary = (
+            int(_env["PUNT_MAX"]) if _env["PUNT_MAX"] else None
+        )
     lineups: list[Lineup] = []
     banned: list[frozenset] = []
     stats = {
@@ -540,20 +579,31 @@ def optimize_many(
             telemetry.clear()
             telemetry.update(stats)
 
-    for _ in range(n_lineups):
+    for requested_ordinal in range(n_lineups):
         # CBC runs as a subprocess and occasionally fails to launch under
         # load (seen in replays and tests). One retry, then return what we
         # have rather than blowing up the whole batch.
         for attempt in (1, 2):
             stats["solve_attempts"] += 1
+            solve_started = perf_counter()
             try:
                 lu = optimize(players, stack=stack, banned_lineups=banned,
-                              max_overlap=max_overlap,
+                              max_overlap=effective_max_overlap,
                               punt_max_salary=punt_max_salary,
                               punt_min=punt_min, env=_env, **kwargs)
+                solve_duration = perf_counter() - solve_started
                 break
             except pulp.PulpSolverError as exc:
+                solve_duration = perf_counter() - solve_started
                 stats["solver_errors"] += 1
+                if attempt_callback is not None:
+                    attempt_callback({
+                        "requested_ordinal": requested_ordinal,
+                        "retry_ordinal": attempt - 1,
+                        "duration_seconds": solve_duration,
+                        "status": "error",
+                        "roster_ids": None,
+                    })
                 log.warning("CBC solve failed (attempt %d): %s", attempt, exc)
                 lu = None
         else:
@@ -562,8 +612,24 @@ def optimize_many(
             return lineups
         if lu is None:
             stats["infeasible"] += 1
+            if attempt_callback is not None:
+                attempt_callback({
+                    "requested_ordinal": requested_ordinal,
+                    "retry_ordinal": attempt - 1,
+                    "duration_seconds": solve_duration,
+                    "status": "infeasible",
+                    "roster_ids": None,
+                })
             log.warning("Pool exhausted after %d lineups", len(lineups))
             break
+        if attempt_callback is not None:
+            attempt_callback({
+                "requested_ordinal": requested_ordinal,
+                "retry_ordinal": attempt - 1,
+                "duration_seconds": solve_duration,
+                "status": "new",
+                "roster_ids": tuple(lu.ids),
+            })
         lineups.append(lu)
         stats["successful"] += 1
         banned.append(lu.ids)
@@ -591,9 +657,8 @@ def select_tail_entries(
     # for DEPTH above the line, letting the portfolio concentrate
     # co-booming players into single entries when the exchange rate
     # favors it. alpha in 1/DK-points; ~0.05-0.15 spans soft-to-sharp.
-    import os as _os
     import math as _math
-    _env = _os.environ if env is None else env
+    _env = {} if env is None else env
     _alpha = float(_env.get("SELECT_LSE", "0") or 0)
     _ladder_spec = _env.get("SELECT_LADDER", "")
     if not _math.isfinite(_alpha) or _alpha < 0:
@@ -867,6 +932,7 @@ def core_and_variations(
     locks: set | None = None,
     bans: set | None = None,
     max_overlap: int | None = None,
+    env: Mapping[str, str] | None = None,
 ) -> tuple[list[dict], list[Lineup]]:
     """Suggest a core, then build entries that vary around it.
 
@@ -888,7 +954,7 @@ def core_and_variations(
 
     scout = optimize_many(
         stable_pool, n_lineups=scout_n, stack=stack,
-        locks=locks, bans=bans, max_overlap=6,
+        locks=locks, bans=bans, max_overlap=6, env=env,
     )
     if not scout:
         return [], []
@@ -913,5 +979,6 @@ def core_and_variations(
         locks=core_ids | (locks or set()),
         bans=bans,
         max_overlap=max_overlap if max_overlap is not None else len(core_ids) + 1,
+        env=env,
     )
     return core, lineups

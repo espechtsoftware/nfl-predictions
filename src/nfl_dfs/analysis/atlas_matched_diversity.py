@@ -82,7 +82,7 @@ def _validate_legal_lineup(lineup: Lineup) -> None:
     teams = Counter(str(row.get("team", "")) for row in players)
     if not legal_shape or not 49_000 <= salary <= 50_000 or len(games) < 2 or \
             max(teams.values(), default=0) > 8:
-        raise ValueError("ATLAS MVP native lineup is not DK Classic legal")
+        raise ValueError("ATLAS MVP native lineup violates frozen construction")
     qb = next(row for row in players if str(row.get("pos", "")).upper() == "QB")
     catchers = sum(
         str(row.get("team", "")) == str(qb.get("team", ""))

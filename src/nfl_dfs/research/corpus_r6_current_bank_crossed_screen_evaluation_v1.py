@@ -88,7 +88,6 @@ _COMMIT = re.compile(r"[0-9a-f]{40}\Z")
 ROSTER_SIZE: Final = 9
 SALARY_CAP: Final = 50_000
 MAX_FROM_TEAM: Final = 8
-MIN_GAMES: Final = 2
 # The frozen 54-slate source authority contains up to 773 salary-listed
 # players on a slate.  Keep a power-of-two resource ceiling above that real
 # surface; 512 rejected 33 valid slates before any held-out world was scored.
@@ -930,7 +929,6 @@ def _audit_dk_classic_v1(
         and 0 < sum(player.salary for player in chosen) <= SALARY_CAP
         and max(Counter(player.team for player in chosen).values())
         <= MAX_FROM_TEAM
-        and len({player.game_id for player in chosen}) >= MIN_GAMES
     ):
         _fail("candidate roster DK Classic legality differs")
     return roster

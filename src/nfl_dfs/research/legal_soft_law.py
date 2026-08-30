@@ -418,8 +418,8 @@ def _roster_features(players: list[dict[str, object]], *, label: str) -> dict[st
         raise LegalSoftLawError(f"{label} exceeds the DK salary cap")
     teams = Counter(str(player["team"]) for player in players)
     games = Counter(str(player["game_id"]) for player in players)
-    if len(games) < 2 or max(teams.values()) > 8:
-        raise LegalSoftLawError(f"{label} violates DK game/team requirements")
+    if max(teams.values()) > 8:
+        raise LegalSoftLawError(f"{label} violates the DK team requirement")
 
     qb = next(player for player in players if player["pos"] == "QB")
     dst = next(player for player in players if player["pos"] == "DST")

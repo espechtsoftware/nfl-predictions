@@ -28,7 +28,11 @@ from ..optimizer.export import (
     to_dk_csv,
     to_dk_showdown_csv,
 )
-from ..optimizer.lineup import StackRules, core_and_variations, optimize_many
+from ..optimizer.lineup import core_and_variations, optimize_many
+from ..optimizer.construction_presets import (
+    INCUMBENT_GPP_PRESET_ID,
+    LEGALITY_ONLY_PRESET_ID,
+)
 from ..optimizer.showdown import optimize_many_showdown
 from ..inference.production_policy import (
     ADOPTED_CLASSIC_POLICY,
@@ -67,10 +71,22 @@ class LineupRequest(BaseModel):
     objective: str = Field("proj_points", pattern="^proj_(points|p50|p90)$")
     locks: list[int] = []
     bans: list[int] = []
-    qb_stack_min: int = Field(2, ge=0, le=3)
-    bring_back_min: int = Field(1, ge=0, le=2)
-    forbid_rb_vs_dst: bool = True
-    max_overlap: int = Field(7, ge=1, le=8)
+    construction_preset_id: str = Field(
+        INCUMBENT_GPP_PRESET_ID,
+        pattern=(
+            f"^({INCUMBENT_GPP_PRESET_ID}|{LEGALITY_ONLY_PRESET_ID})$"
+        ),
+    )
+    # Optional means inherit the selected named preset; explicit zero/false
+    # is a real deletion and is retained in the construction receipt.
+    qb_stack_min: int | None = Field(None, ge=0, le=3)
+    bring_back_min: int | None = Field(None, ge=0, le=2)
+    forbid_rb_vs_dst: bool | None = None
+    forbid_two_rb_same_team: bool | None = None
+    min_lineup_salary: int | None = Field(None, ge=0, le=50_000)
+    min_games: int | None = Field(None, ge=1, le=9)
+    max_per_game: int | None = Field(None, ge=0, le=9)
+    max_overlap: int | None = Field(None, ge=1, le=8)
     # Sim-mode (2026-08-03, fidelity fix): run the VALIDATED replay
     # engine on the live slate — correlated draws with the adopted EW
     # shaping, boom-draw candidates, tail-coverage selection. Falls back
@@ -2386,6 +2402,20 @@ def _classic_projections(
     return df, dk_ids
 
 
+def _request_construction_preset(req: LineupRequest):
+    return ADOPTED_CLASSIC_POLICY.construction_preset(
+        preset_id=req.construction_preset_id,
+        qb_stack_min=req.qb_stack_min,
+        bring_back_min=req.bring_back_min,
+        forbid_rb_vs_dst=req.forbid_rb_vs_dst,
+        forbid_two_rb_same_team=req.forbid_two_rb_same_team,
+        min_salary=req.min_lineup_salary,
+        min_games=req.min_games,
+        max_per_game=req.max_per_game,
+        max_overlap=req.max_overlap,
+    )
+
+
 def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
     df, dk_ids = _classic_projections(req, store)
     from .. import notes as _notes
@@ -2393,19 +2423,18 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
     entry_policy = req.entry_policy()
     effective_lev_scale = entry_policy["effective_leverage_scale"]
 
-    stack = StackRules(
-        qb_stack_min=req.qb_stack_min,
-        bring_back_min=req.bring_back_min,
-        forbid_rb_vs_dst=req.forbid_rb_vs_dst,
-    )
+    policy = ADOPTED_CLASSIC_POLICY
+    construction = _request_construction_preset(req)
+    stack = construction.stack
     # Sim-mode is THE path (validated replay engine on the live slate,
     # locks/bans/slate-restriction included). No silent fallback — the
     # user chose the validated system always (2026-08-03): a sim failure
     # returns a clear error naming the cause; sim=false is the explicit
     # escape hatch to the plain MILP path.
     if req.sim:
-        policy = ADOPTED_CLASSIC_POLICY
-        policy_env = policy.engine_environment(os.environ)
+        policy_env = policy.engine_environment(
+            os.environ, construction_preset=construction,
+        )
         allowed = None
         if req.draft_group_id is not None:
             allowed = set(int(p) for p in df.dk_player_id.dropna())
@@ -2427,11 +2456,14 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                 model_variant=policy.model_variant,
                 belief_model_variant=policy.role_model_variant,
                 expected_model_k=policy.model_ensemble,
-                policy_env=policy_env)
+                policy_env=policy_env,
+                construction_preset_receipt=construction.receipt())
         except RoleBeliefUnavailable as exc:
             log.error("promoted role policy unavailable; using CE fallback: %s",
                       exc)
-            fallback_env = policy.fallback_environment(os.environ)
+            fallback_env = policy.fallback_environment(
+                os.environ, construction_preset=construction,
+            )
             try:
                 lineups = build_sim_lineups(
                     req.season, req.week, n_entries=req.n_lineups,
@@ -2442,7 +2474,8 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                     apply_notes=req.apply_notes,
                     model_variant=policy.model_variant,
                     expected_model_k=policy.model_ensemble,
-                    policy_env=fallback_env)
+                    policy_env=fallback_env,
+                    construction_preset_receipt=construction.receipt())
             except Exception as fallback_exc:
                 log.exception("CE fallback lineup build also failed")
                 raise HTTPException(
@@ -2472,6 +2505,7 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                     for k, v in zip(df.dk_player_id, df.kickoff)
                     if pd.notna(k)}
         for lu in lineups:
+            lu.construction_preset_receipt = construction.receipt()
             for p in lu.players:
                 p.setdefault("dk_id", (dk_ids or {}).get(int(p["id"])))
                 p.setdefault("kickoff", kick.get(int(p["id"])))
@@ -2488,8 +2522,12 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
         pool = _notes.apply_prefs(pool, req.season, req.week)
     lineups = optimize_many(
         pool, n_lineups=req.n_lineups, stack=stack,
-        locks=set(req.locks), bans=set(req.bans), max_overlap=req.max_overlap,
+        locks=set(req.locks), bans=set(req.bans),
+        max_overlap=construction.max_overlap,
+        env=construction.optimizer_environment(),
     )
+    for lu in lineups:
+        lu.construction_preset_receipt = construction.receipt()
     if not lineups:
         raise HTTPException(422, "No feasible lineup under the given constraints")
     # Confidence order everywhere (JSON + CSVs): first lineup = strongest
@@ -2585,12 +2623,14 @@ def _marginals_health(season: int, week: int) -> dict:
 def _classic_policy_identity(req: LineupRequest, lineups: list) -> dict:
     """Identity attached to every classic JSON/CSV build response."""
     if not req.sim:
+        construction = _request_construction_preset(req)
         return {
             "policy_id": "manual-milp-escape-hatch",
             "adopted": False,
             "model_version": None,
             "entries": len(lineups),
             "contest_entry_policy": req.entry_policy(),
+            "construction_preset": construction.receipt(),
         }
     model_version = (getattr(lineups[0], "model_version", None)
                      if lineups else None)
@@ -2600,8 +2640,9 @@ def _classic_policy_identity(req: LineupRequest, lineups: list) -> dict:
                           if lineups else None)
     return {
         **ADOPTED_CLASSIC_POLICY.public_identity(
-            model_version=model_version,
-            entries=len(lineups), tail_line=req.line()),
+            model_version=model_version, entries=len(lineups),
+            tail_line=req.line(),
+            construction_preset=_request_construction_preset(req)),
         "role_model_version": role_model_version,
         "effective_policy_id": (
             fallback or ADOPTED_CLASSIC_POLICY.policy_id),
@@ -2710,16 +2751,14 @@ def build_core_lineups(
     df, dk_ids = _classic_projections(req, store)
     stable_pool = _player_pool(df, "proj_p50", dk_ids)
     upside_pool = _player_pool(df, req.objective, dk_ids)
-    stack = StackRules(
-        qb_stack_min=req.qb_stack_min,
-        bring_back_min=req.bring_back_min,
-        forbid_rb_vs_dst=req.forbid_rb_vs_dst,
-    )
+    construction = _request_construction_preset(req)
+    stack = construction.stack
     core, lineups = core_and_variations(
         stable_pool, upside_pool, n_lineups=req.n_lineups,
         core_size=req.core_size, stack=stack,
         locks=set(req.locks), bans=set(req.bans),
-        max_overlap=req.max_overlap if req.max_overlap != 7 else None,
+        max_overlap=construction.max_overlap,
+        env=construction.optimizer_environment(),
     )
     if not lineups:
         raise HTTPException(422, "No feasible lineup under the given constraints")
@@ -2728,6 +2767,7 @@ def build_core_lineups(
                                  season=req.season, week=req.week)
     return {
         "tail_line": req.line(),
+        "construction_preset": construction.receipt(),
         "core": [
             {"id": c["id"], "conviction": c["conviction"],
              "name": by_id[c["id"]]["name"], "pos": by_id[c["id"]]["pos"],

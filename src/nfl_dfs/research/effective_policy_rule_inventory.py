@@ -24,15 +24,15 @@ from typing import Any, Iterable, Mapping, Sequence
 
 
 SCHEMA = "nfl-dfs-effective-policy-rule-inventory/v2"
-SOURCE_SET_ID = "adopted-classic-policy-20260829-boom-first-v1"
+SOURCE_SET_ID = "adopted-classic-policy-20260830-explicit-construction-v2"
 POLICY_ENV_SHA256 = (
-    "82cdb718458124536a1a5989d72805bebb149a27d63a272d27a5c9a89751f0df"
+    "4ffdaf69b32fc719914a96654a56cfee3f99d78053cb6dc375f4f02232ad648b"
 )
 CLASSIFIED_INPUT_PROJECTION_SHA256 = (
-    "d54082f08d27f8497e5cd7f115b7d7f5023d441531aa5d8258677e956e8eb1d0"
+    "d9906366eb4e5bfcc117608e255c506dcea10b33957afe6962802ee4d6231d98"
 )
-CLASSIFIED_INPUT_KEY_COUNT = 121
-DIRECT_INPUT_READ_SITE_COUNT = 237
+CLASSIFIED_INPUT_KEY_COUNT = 126
+DIRECT_INPUT_READ_SITE_COUNT = 273
 
 # These are production/enforcement sources and independent validation
 # consumers, never evidence-graph-authored files.  Any byte drift requires a
@@ -40,22 +40,22 @@ DIRECT_INPUT_READ_SITE_COUNT = 237
 # world while claiming that it remained frozen.
 FROZEN_SOURCE_SHA256: Mapping[str, str] = {
     "src/nfl_dfs/app/main.py": (
-        "64020a5cc7749ec725b79be874044113720a08f0ae3da5f78f0e1bb82d9379a4"
+        "604bc24689aa10535855f6476c66e655043b3ab58f1fb216a490afa2321f44de"
     ),
     "src/nfl_dfs/backtest/engine.py": (
-        "c0107cc31e481a0b7ad29aeeee89edf57ab23b0011e1c0054448fc6dd33958ad"
+        "c0a8a4c2e66371dda475a0f85a27a900946afc35970687ba686c3a998e80133f"
     ),
     "src/nfl_dfs/backtest/replay.py": (
-        "c0a02a9a1cabf73189381a9a43e5b20190ed4b6bfc906cf7a3d893ced780d80d"
+        "ecc7b00f25e031e9754f2731773e02b74b373afdbe22539666258bf0d3bf39a9"
     ),
     "src/nfl_dfs/inference/live_lineups.py": (
-        "f09f15290575fd970668229cd27de398eac279ff5e4413a10618107ab4ee3ae4"
+        "cc690d673c6bb5d25a57057b900b19bd608a53998b6ef8f3ecb9352f19d4a81f"
     ),
     "src/nfl_dfs/inference/multiseed_portfolio.py": (
-        "c50e5bd38f3a313266716569830a892e74887b6e4d4397ff0da7f5f721324dc6"
+        "7c857a7526a3d2d3163fa0bd53e1edbbf3d0b44b42324cb1816ba8959e43e7f9"
     ),
     "src/nfl_dfs/inference/production_policy.py": (
-        "f037e5a68f937bea319e7d7dad359e3180323d43e5f5e3f30252c9245a2992fc"
+        "88a1e00c681aad19d3ed9559fe890fd72b968a0260e6c9fcf36370964b744099"
     ),
     "src/nfl_dfs/models/game_sim.py": (
         "667e9a8823d976d192a78c5dadfd79be5c8f97c86269b134b03a9833adae3a7c"
@@ -64,13 +64,16 @@ FROZEN_SOURCE_SHA256: Mapping[str, str] = {
         "850f33bca392e580a2e73b49aa01289d0404631c479606d67c4c227d42b7f47c"
     ),
     "src/nfl_dfs/optimizer/lineup.py": (
-        "c1ca2cca9bc0d67755dde9191008b4e0cf0b7cd2b9c57565711d8c330268fbf8"
+        "efb1e4a203da81d8677deb138e3487a399975177ca8ec42d98a093155b14be7f"
+    ),
+    "src/nfl_dfs/optimizer/construction_presets.py": (
+        "dd107bc451a039e739508f0a759da1f6983f66bb4405d4eb36b4c61866213280"
     ),
     "src/nfl_dfs/research/final_forensic.py": (
-        "1b7bcf25b77b43802ba0da0762b30d564806d0712190bb67cd231eb707bd6625"
+        "05ab95d4238eb289a7b997892a56bd366a32a46e420e62bc4f594fcd5ad75468"
     ),
     "src/nfl_dfs/research/lr8_historical_arm.py": (
-        "118e159c281ae411412c831b354eb453a359ced62ba93e2bb60229f32cfb90ae"
+        "bddae8e3ac27387085544a8b7585f56384993313e38ed3ca472129ac24dd0510"
     ),
 }
 
@@ -84,8 +87,11 @@ SOURCE_ROLES: Mapping[str, str] = {
     "src/nfl_dfs/models/game_sim.py": "possession_law_enforcement",
     "src/nfl_dfs/models/simulate.py": "simulation_dispatch",
     "src/nfl_dfs/optimizer/lineup.py": "legality_and_soft_rule_enforcement",
+    "src/nfl_dfs/optimizer/construction_presets.py": "named_construction_policy",
     "src/nfl_dfs/research/final_forensic.py": "independent_dk_only_validator",
-    "src/nfl_dfs/research/lr8_historical_arm.py": "independent_dk_only_consumer",
+    "src/nfl_dfs/research/lr8_historical_arm.py": (
+        "independent_five_rule_relaxation_with_legacy_min_games"
+    ),
 }
 
 # Only production/configuration/enforcement sources define the runtime input
@@ -94,7 +100,11 @@ SOURCE_ROLES: Mapping[str, str] = {
 # permitted to enlarge the production input universe.
 INPUT_SCAN_PATHS = frozenset({
     path for path, role in SOURCE_ROLES.items()
-    if not role.startswith("independent_dk_only_")
+    # Independent validators/consumers are comparison authorities, not inputs
+    # to the adopted policy.  Keep every independently named role out of the
+    # production input scan, including the frozen LR8-v1 legacy-construction
+    # consumer whose role name intentionally no longer says "dk_only".
+    if not role.startswith("independent_")
 })
 
 INPUT_CLASSIFICATIONS = frozenset({
@@ -110,6 +120,7 @@ INPUT_CLASSIFICATIONS = frozenset({
 # here before an inventory can be emitted.
 TYPED_PARAMETRIC_INPUT_RULES: Mapping[str, str] = {
     "FORBID_RB_DST": "rule:forbid-rb-vs-dst",
+    "FORBID_TWO_RB_SAME_TEAM": "rule:forbid-two-rb-same-team",
     "MIN_LINEUP_SALARY": "rule:salary-floor-49000",
     "STACK_BRING_BACK": "rule:bring-back-min-one",
     "STACK_QB_MIN": "rule:qb-stack-min-two",
@@ -140,6 +151,7 @@ FROZEN_MECHANISM_INPUT_KEYS = frozenset({
     "CAND_MULT",
     "CE_GAMES",
     "CE_SEED",
+    "CONSTRUCTION_PRESET_ID",
     "DST_CORR_DRAWS",
     "EMP_MARGINALS",
     "EMP_POS",
@@ -160,8 +172,10 @@ FROZEN_MECHANISM_INPUT_KEYS = frozenset({
     "LIVE_SIMS",
     "M4_QBLOCK",
     "MAX_PER_GAME",
+    "MAX_OVERLAP",
     "MAX_QBS",
     "MIN_LOWOWN",
+    "MIN_GAMES",
     "MODEL_ENSEMBLE",
     "MODEL_REGISTRY_VARIANT",
     "MULTISEED_CANDIDATE_ENTRY_BASIS",
@@ -195,6 +209,7 @@ FROZEN_MECHANISM_INPUT_KEYS = frozenset({
     "PUNT_MAX",
     "PUNT_MIN",
     "PUNT_STRICT",
+    "PROSPECTIVE_GENERATION_EXPOSURE",
     "Q99_WILD",
     "QD_CELLS",
     "REPLACEMENT_SLOTS",
@@ -305,6 +320,7 @@ SHARED_CONSTRAINT_PARAMETER_RULES: Mapping[str, tuple[str, ...]] = {
         "rule:ownership-barbell-low",
         "rule:ownership-barbell-high",
         "rule:max-per-game-cap",
+        "rule:min-two-games",
         "rule:min-low-ownership",
     ),
     "game_lock": ("rule:game-lock-min-five",),
@@ -315,12 +331,12 @@ SHARED_CONSTRAINT_PARAMETER_RULES: Mapping[str, tuple[str, ...]] = {
         "rule:game-overlap-seven",
     ),
     "max_per_game": ("rule:max-per-game-cap",),
+    "min_games": ("rule:min-two-games",),
     "max_salary": ("rule:maximum-salary",),
     "min_salary": ("rule:salary-floor-49000",),
     "players": (
         "rule:dk-position-shape",
         "rule:dk-team-cap-eight",
-        "rule:dk-min-two-games",
     ),
     "prob": ("rule:dk-roster-size-nine",),
     "punt_max_salary": ("rule:punt-minimum",),
@@ -338,6 +354,7 @@ OPTIMIZE_ONLY_CONSTRAINT_RULES: Mapping[str, tuple[str, ...]] = {
 }
 
 CONSTRAINT_ENV_KEYS = frozenset({
+    "MIN_GAMES",
     "MAX_PER_GAME",
     "MIN_LINEUP_SALARY",
     "MIN_LOWOWN",
@@ -1210,34 +1227,42 @@ def _assert_independent_soft_rule_proofs(text_by_path: Mapping[str, str]) -> Non
     lineup = text_by_path["src/nfl_dfs/optimizer/lineup.py"]
     replay = text_by_path["src/nfl_dfs/backtest/replay.py"]
     app = text_by_path["src/nfl_dfs/app/main.py"]
+    presets = text_by_path[
+        "src/nfl_dfs/optimizer/construction_presets.py"
+    ]
     forensic = text_by_path["src/nfl_dfs/research/final_forensic.py"]
     lr8 = text_by_path["src/nfl_dfs/research/lr8_historical_arm.py"]
 
-    # Baseline activation is independently visible in historical replay and
-    # in the live request defaults.  same-team RB remains the StackRules
-    # literal default because neither activation call overrides it.
+    # Baseline activation is centralized in the named incumbent preset;
+    # replay and live select that base explicitly and receipt effective
+    # overrides. Bare StackRules and omitted optimizer env remain neutral.
     for needle, label in (
-        ('qb_stack_min=int(os.environ.get("STACK_QB_MIN", "2"))', "replay QB stack"),
-        ('bring_back_min=int(os.environ.get("STACK_BRING_BACK", "1"))',
-         "replay bring-back"),
-        ('forbid_rb_vs_dst=os.environ.get("FORBID_RB_DST", "1") != "0"',
-         "replay RB-vs-DST"),
-        ("forbid_two_rb_same_team: bool = True", "same-team RB default"),
-        ('_env.get("MIN_LINEUP_SALARY", "49000")', "salary-floor default"),
+        ("qb_stack_min=2,", "incumbent QB stack"),
+        ("bring_back_min=1,", "incumbent bring-back"),
+        ("forbid_rb_vs_dst=True,", "incumbent RB-vs-DST"),
+        ("forbid_two_rb_same_team=True,", "incumbent same-team RB"),
+        ("min_salary=49_000,", "incumbent salary floor"),
+        ("min_games=2,", "incumbent game diversity"),
     ):
-        _require_once(replay if label.startswith("replay") else lineup,
-                      needle, label=label)
+        _require_once(presets, needle, label=label)
     for needle, label in (
-        ("qb_stack_min: int = Field(2, ge=0, le=3)", "live QB stack"),
-        ("bring_back_min: int = Field(1, ge=0, le=2)", "live bring-back"),
-        ("forbid_rb_vs_dst: bool = True", "live RB-vs-DST"),
+        ("construction_preset_id: str = Field(", "live named preset"),
+        ("qb_stack_min: int | None = Field(None", "live QB override"),
+        ("bring_back_min: int | None = Field(None", "live bring-back override"),
+        ("forbid_rb_vs_dst: bool | None = None", "live RB-vs-DST override"),
     ):
         _require_once(app, needle, label=label)
+    _require_once(
+        replay, '"CONSTRUCTION_PRESET_ID", INCUMBENT_GPP_PRESET_ID',
+        label="replay named preset",
+    )
 
-    # Two separately maintained DK-only consumers both remove the complete
-    # five-field surface.  These checks are source-only and never solve CBC.
+    # The true DK-only forensic consumer and the separately maintained LR8-v1
+    # consumer both remove the complete five-field surface. LR8-v1 retains its
+    # historical two-game construction and is not represented as DK-only.
     for needle, label in (
         ("min_salary=0,", "forensic DK-only salary"),
+        ("min_games=1,", "forensic DK-only game diversity"),
         ("qb_stack_min=0,", "forensic DK-only QB stack"),
         ("bring_back_min=0,", "forensic DK-only bring-back"),
         ("forbid_two_rb_same_team=False,", "forensic DK-only same-team RB"),
@@ -1259,6 +1284,7 @@ def _assert_independent_soft_rule_proofs(text_by_path: Mapping[str, str]) -> Non
         ("min_salary=0,", "LR8 DK-only salary"),
         ("punt_min=0,", "LR8 DK-only punt"),
         ("max_per_game=0,", "LR8 DK-only game cap"),
+        ("min_games=rw.MIN_GAMES,", "LR8-v1 legacy game diversity"),
         ("env={},", "LR8 DK-only environment"),
     ):
         if needle not in lr8_body:
@@ -1317,7 +1343,7 @@ def _effective_policy(root: Path) -> tuple[dict[str, str], dict[str, Any]]:
         )
     policy = production_policy.ADOPTED_CLASSIC_POLICY
     env = dict(sorted(policy.engine_environment({}).items()))
-    if len(env) != 65 or canonical_sha256(env) != POLICY_ENV_SHA256:
+    if len(env) != 73 or canonical_sha256(env) != POLICY_ENV_SHA256:
         raise EffectivePolicyInventoryError(
             "adopted effective policy environment differs"
         )
@@ -1366,6 +1392,7 @@ def _rules(env: Mapping[str, str]) -> tuple[_Rule, ...]:
     replay = "src/nfl_dfs/backtest/replay.py"
     app = "src/nfl_dfs/app/main.py"
     policy = "src/nfl_dfs/inference/production_policy.py"
+    presets = "src/nfl_dfs/optimizer/construction_presets.py"
     multiseed = "src/nfl_dfs/inference/multiseed_portfolio.py"
     live = "src/nfl_dfs/inference/live_lineups.py"
     simulate = "src/nfl_dfs/models/simulate.py"
@@ -1408,10 +1435,10 @@ def _rules(env: Mapping[str, str]) -> tuple[_Rule, ...]:
               "dk_hard", "generation", "active", 8, (ALL_GENERATION,),
               (_loc(lineup, "module:MAX_FROM_TEAM"),
                _loc(lr8, "function:audit_dk_classic_identity"))),
-        _Rule("rule:dk-min-two-games", "At least two games represented",
-              "dk_hard", "generation", "active", 2, (ALL_GENERATION,),
-              (_loc(lineup, "module:MIN_GAMES"),
-               _loc(lr8, "function:audit_dk_classic_identity"))),
+        _Rule("rule:min-two-games", "At least two games represented",
+              "house_soft", "generation", "active", 2, (ALL_GENERATION,),
+              (_loc(presets, "module:_PRESETS"),
+               _loc(lineup, "function:add_classic_lineup_constraints"))),
 
         # The exact five-field legal-feasibility parameter surface.
         _Rule("rule:salary-floor-49000", "Minimum salary 49000",

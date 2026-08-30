@@ -21,14 +21,14 @@ def _slate_and_draws(n_sims=4000, seed=0):
 def test_gate_off_dst_is_constant(monkeypatch):
     monkeypatch.delenv("DST_CORR_DRAWS", raising=False)
     slate, draws = _slate_and_draws()
-    rd = _row_draws(slate, draws)
+    rd = _row_draws(slate, draws, env={})
     assert np.allclose(rd[3], 6.0)
 
 
 def test_gate_on_dst_anticorrelated_and_mean_preserved(monkeypatch):
     monkeypatch.setenv("DST_CORR_DRAWS", "1")
     slate, draws = _slate_and_draws()
-    rd = _row_draws(slate, draws)
+    rd = _row_draws(slate, draws, env={"DST_CORR_DRAWS": "1"})
     opp_total = rd[0] + rd[1]  # AAA offense vs the BBB DST
     corr = np.corrcoef(rd[3], opp_total)[0, 1]
     # Fitted moments: corr -0.491, rel-sd 0.93 (both within tolerance)
@@ -41,7 +41,7 @@ def test_gate_on_dst_anticorrelated_and_mean_preserved(monkeypatch):
 def test_gate_on_skill_rows_untouched(monkeypatch):
     monkeypatch.setenv("DST_CORR_DRAWS", "1")
     slate, draws = _slate_and_draws()
-    rd = _row_draws(slate, draws)
+    rd = _row_draws(slate, draws, env={"DST_CORR_DRAWS": "1"})
     np.testing.assert_allclose(rd[0], draws[0], rtol=1e-6)
 
 
@@ -55,7 +55,7 @@ def test_gate_on_dst_variance_materially_positive(monkeypatch):
 
     monkeypatch.setenv("DST_CORR_DRAWS", "1")
     slate, draws = _slate_and_draws()
-    rd = _row_draws(slate, draws)
+    rd = _row_draws(slate, draws, env={"DST_CORR_DRAWS": "1"})
     dst = slate.index[slate.draw_idx < 0]
     for i in dst:
         rel_sd = rd[i].std() / max(rd[i].mean(), 1e-6)

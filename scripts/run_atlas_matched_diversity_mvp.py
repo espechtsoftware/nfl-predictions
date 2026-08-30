@@ -226,7 +226,7 @@ def _run_slate(season: int, week: int, books, artifact_receipts) -> dict:
             if str(lineup.tag) != "boom"
         )
     stack = StackRules(qb_stack_min=2, bring_back_min=1)
-    env = {"MIN_LINEUP_SALARY": "49000"}
+    env = {"MIN_LINEUP_SALARY": "49000", "MIN_GAMES": "2"}
     treatment_books = {}
     construction = {}
     global_atlas: set[frozenset] = set()

@@ -162,7 +162,7 @@ def _house_rule_violator() -> tuple[str, ...]:
     )))
 
 
-def test_dk_only_legality_accepts_every_named_house_rule_relaxation():
+def test_lr8_v1_accepts_every_named_five_rule_relaxation():
     players = _players()
     roster = _house_rule_violator()
     assert audit_dk_classic_identity(players, roster) == roster
@@ -181,6 +181,26 @@ def test_dk_only_legality_accepts_every_named_house_rule_relaxation():
         if variable.value() and variable.value() > 0.5
     ))
     assert solved == roster
+
+
+def test_lr8_v1_preserves_legacy_two_game_domain():
+    players = _players()
+    roster = tuple(sorted((
+        "AQB", "ARB1", "ARB2", "BRB", "AWR1", "AWR2", "BWR",
+        "ATE", "BDST",
+    )))
+    with pytest.raises(LR8Error, match="fewer than two games"):
+        audit_dk_classic_identity(players, roster)
+    model = build_dk_classic_model(players)
+    model.problem.setObjective(
+        pulp.lpSum(model.decision[player_id] for player_id in roster)
+    )
+    assert model.problem.solve(pulp.PULP_CBC_CMD(msg=False)) == pulp.LpStatusOptimal
+    solved = tuple(sorted(
+        player_id for player_id, variable in model.decision.items()
+        if variable.value() and variable.value() > 0.5
+    ))
+    assert solved != roster
 
 
 def test_dk_only_legality_still_rejects_cap_and_position_violations():

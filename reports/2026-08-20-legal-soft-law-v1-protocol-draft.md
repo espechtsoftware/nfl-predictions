@@ -69,9 +69,8 @@ Only the following are universal feasibility or scientific constraints:
 1. DraftKings Classic legality:
    - exactly nine unique players;
    - one QB and one DST, 2--3 RB, 3--4 WR, and 1--2 TE;
-   - salary at or below $50,000;
-   - at least two games represented; and
-   - no more than eight players from one team.
+   - salary at or below $50,000; and
+   - no more than eight players from one team (therefore at least two teams).
 2. Slate eligibility, pre-lock eligibility, and a timezone-aware feature
    snapshot strictly before contest lock.
 3. Exactly 80 unique control entries and 80 unique treatment entries.
@@ -94,8 +93,8 @@ constraints and may never become final-book quotas in v1:
 - bring-back count;
 - the $49,000 salary floor and unused salary;
 - RB versus opposing DST and two same-team RB;
-- games and teams represented beyond DK's minimum, plus maximum game/team
-  concentration; and
+- games represented, teams beyond the two-team minimum implied by the DK team
+  cap, plus maximum game/team concentration; and
 - point-in-time ownership-sum and duplication-risk estimates when available.
 
 Every treatment candidate records the exact feature surface:

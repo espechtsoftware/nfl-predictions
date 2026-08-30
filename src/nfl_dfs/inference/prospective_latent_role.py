@@ -9,7 +9,6 @@ from datetime import datetime, timezone
 
 from ..backtest.engine import CandidateBatch
 from ..config import settings
-from ..optimizer.lineup import StackRules
 from .latent_role_shadow import create_live_latent_role_scenario_factory
 from .production_policy import ADOPTED_CLASSIC_POLICY
 from .prospective_shadow import _validated_code_sha, paired_shadow_receipt
@@ -140,13 +139,12 @@ def run(
         storage_client=storage_client,
     )
     policy = ADOPTED_CLASSIC_POLICY
+    construction = policy.construction_preset()
     common = {
         "season": season,
         "week": week,
         "n_entries": ENTRIES,
-        "stack": StackRules(
-            qb_stack_min=2, bring_back_min=1, forbid_rb_vs_dst=True,
-        ),
+        "stack": construction.stack,
         "tail_line": TAIL_LINE,
         "lev_scale": 1.0,
         "allowed_ids": allowed,
@@ -158,6 +156,7 @@ def run(
         "cand_log_required": True,
         "expected_model_k": policy.model_ensemble,
         "belief_model_variant": policy.role_model_variant,
+        "construction_preset_receipt": construction.receipt(),
     }
     from .live_lineups import build_sim_lineups
 

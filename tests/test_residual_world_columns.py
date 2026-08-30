@@ -305,6 +305,7 @@ def test_residual_builder_calls_shared_constraints_with_exact_frozen_policy(
         "min_salary": 49_000,
         "max_salary": None,
         "max_per_game": 0,
+        "min_games": 2,
         "env": {},
     }
 
@@ -321,6 +322,28 @@ def test_residual_builder_calls_shared_constraints_with_exact_frozen_policy(
     )
     with pytest.raises(rw.ResidualWorldError, match="at least two"):
         rw.build_legal_lineup_model(one_game)
+
+
+def test_residual_model_excludes_otherwise_preferred_one_game_roster() -> None:
+    target = _legal_rosters()[0]
+    players = tuple(
+        replace(player, game_id="one-game")
+        if player.player_id in target else player
+        for player in _players()
+    )
+    assert len({player.game_id for player in players}) >= 2
+    model = rw.build_legal_lineup_model(players)
+    model.problem.setObjective(rw.pulp.lpSum(
+        model.decision[player_id] for player_id in target
+    ))
+    assert model.problem.solve(rw.pulp.PULP_CBC_CMD(msg=False)) == rw.pulp.LpStatusOptimal
+    chosen = tuple(sorted(
+        player_id for player_id, variable in model.decision.items()
+        if variable.value() and variable.value() > 0.5
+    ))
+    by_id = {player.player_id: player for player in players}
+    assert chosen != target
+    assert len({by_id[player_id].game_id for player_id in chosen}) >= 2
 
 
 def test_exact_legal_bounds_equal_brute_force_and_are_row_order_invariant():

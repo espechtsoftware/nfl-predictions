@@ -59,7 +59,7 @@ ANATOMY_FEATURE_ABS_UPPER: Final = (
     50_000,  # salary_used
     9,  # games_represented
     9,  # teams_represented
-    8,  # max_from_one_game (at least two games are required)
+    8,  # max_from_one_game (legacy LR8-v1 retains two-game construction)
     8,  # max_from_one_team
     6,  # qb_wrte_partners (four WR plus two TE are shape-legal)
     7,  # bring_back_skill_players
@@ -274,7 +274,12 @@ def audit_dk_classic_identity(
     players: Sequence[rw.PlayerSpec | Mapping[str, object]],
     roster: Sequence[object],
 ) -> tuple[str, ...]:
-    """Audit only DraftKings NFL Classic legality, with no house rules."""
+    """Audit the immutable LR8-v1 hard domain.
+
+    LR8-v1 historically included a two-game construction rule. It is retained
+    here for artifact replay and must not be described as true platform-only
+    DraftKings legality.
+    """
     rows = _players(players)
     identity = _identity(roster)
     by_id = {player.player_id: player for player in rows}
@@ -343,6 +348,7 @@ def build_dk_classic_model(
         min_salary=0,
         max_salary=None,
         max_per_game=0,
+        min_games=rw.MIN_GAMES,
         env={},
     )
     problem += pulp.lpSum([])

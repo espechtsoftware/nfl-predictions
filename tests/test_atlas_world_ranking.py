@@ -91,7 +91,7 @@ def test_complete_diagnostic_exactly_solves_only_ranking_union(monkeypatch):
         players,
         draws,
         stack=StackRules(qb_stack_min=2, bring_back_min=1),
-        env={"MIN_LINEUP_SALARY": "49000"},
+        env={"MIN_LINEUP_SALARY": "49000", "MIN_GAMES": "2"},
         n_worlds=1,
     )
 
@@ -132,7 +132,7 @@ def test_exact_world_identity_is_invariant_to_player_row_order():
         forbid_rb_vs_dst=False,
         forbid_two_rb_same_team=False,
     )
-    env = {"MIN_LINEUP_SALARY": "49000"}
+    env = {"MIN_LINEUP_SALARY": "49000", "MIN_GAMES": "1"}
     first = atlas.solve_exact_worlds(
         players, draws, [0], stack=stack, env=env,
     )[0]
@@ -178,7 +178,7 @@ def test_identity_tiebreak_uses_frozen_smallest_feasible_tolerance(monkeypatch):
     result = atlas.solve_exact_worlds(
         players, np.full((len(players), 1), 10.0), [0],
         stack=StackRules(qb_stack_min=0, bring_back_min=0),
-        env={"MIN_LINEUP_SALARY": "49000"},
+        env={"MIN_LINEUP_SALARY": "49000", "MIN_GAMES": "1"},
     )[0]
 
     assert atlas.EXACT_IDENTITY_TOLERANCES == (1e-6, 1e-5, 1e-4)
@@ -210,7 +210,7 @@ def test_identity_tiebreak_stops_after_original_tolerance(monkeypatch):
     result = atlas.solve_exact_worlds(
         players, np.full((len(players), 1), 10.0), [0],
         stack=StackRules(qb_stack_min=0, bring_back_min=0),
-        env={"MIN_LINEUP_SALARY": "49000"},
+        env={"MIN_LINEUP_SALARY": "49000", "MIN_GAMES": "1"},
     )[0]
 
     assert calls == [

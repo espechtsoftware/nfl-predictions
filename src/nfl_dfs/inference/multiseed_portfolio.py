@@ -281,6 +281,31 @@ def combine_cbwu_books(
                 }
                 for name in order
             },
+            "native_generation_exposure_ledgers": {
+                name: (
+                    dict(books[name].metadata["generation_exposure_ledger"])
+                    if isinstance(
+                        books[name].metadata.get(
+                            "generation_exposure_ledger"
+                        ), Mapping,
+                    )
+                    else None
+                )
+                for name in order
+            },
+            "native_generation_transform_receipts": {
+                name: {
+                    key: dict(value)
+                    for key in (
+                        "cross_law_discovery",
+                        "all_boom_ceiling",
+                    )
+                    if isinstance(
+                        value := books[name].metadata.get(key), Mapping
+                    )
+                }
+                for name in order
+            },
         },
     )
 

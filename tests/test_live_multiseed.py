@@ -182,6 +182,170 @@ def test_live_cbwu_runs_all_registered_pairs_and_combines_before_selection(
         ] is False
 
 
+def test_live_cbwu_native_transform_runs_once_per_source_before_union(
+    monkeypatch,
+):
+    """The score-free native hook transforms each book, never its worlds."""
+    from nfl_dfs.inference import multiseed_portfolio
+
+    policy = ADOPTED_CLASSIC_POLICY
+    env = policy.engine_environment()
+    env["MULTISEED_WORLDS_PER_BLOCK"] = "3"
+    label_by_seed = {
+        projection_seed: f"R{index}"
+        for index, (projection_seed, _) in enumerate(
+            policy.multiseed_seed_pairs
+        )
+    }
+    events = []
+    raw_batches = {}
+    transformed_batches = {}
+    union_books = []
+    original_combine = multiseed_portfolio.combine_cbwu_books
+
+    def fake_slate(season, week, n_sims=None, seed=42,
+                   log_ownership_shadow=True, **kwargs):
+        frame = _frame(seed)
+        draws = np.stack([
+            np.full(
+                n_sims, 10 + player_id + (int(seed) % 7),
+                dtype=np.float32,
+            )
+            for player_id in range(len(frame))
+        ])
+        return frame, draws
+
+    def fake_tail(slate, pool, draws, n_entries, candidate_capture=None,
+                  candidate_transform=None, **kwargs):
+        seed = int(slate.test_seed.iloc[0])
+        label = label_by_seed[seed]
+        rotation = seed % 5
+        rosters = []
+        for offset in (0, 1):
+            ids = [0] + [
+                int(1 + (rotation + offset + i) % (len(pool) - 1))
+                for i in range(8)
+            ]
+            rosters.append(Lineup(
+                [pool[player_id] for player_id in ids], tag="lev"
+            ))
+        row_draws = np.asarray(draws, dtype=np.float32)
+        totals = np.stack([
+            row_draws[list(lineup.ids)].sum(axis=0) for lineup in rosters
+        ]).astype(np.float32)
+        batch = CandidateBatch(
+            candidates=tuple(rosters),
+            candidate_totals=totals,
+            player_ids=tuple(slate.id.tolist()),
+            player_rows=tuple(slate.to_dict("records")),
+            row_draws=row_draws,
+            all_tags={lineup.ids: ("lev",) for lineup in rosters},
+            metadata={"raw_source_label": label},
+        )
+        raw_batches[label] = batch
+        assert candidate_capture is None
+        assert candidate_transform is not None
+        final_batch = candidate_transform(batch)
+        clears = final_batch.candidate_totals >= 194
+        picked = select_from_support(
+            clears, clears.mean(axis=1),
+            final_batch.candidate_totals.mean(axis=1), n_entries,
+        )
+        return [final_batch.candidates[index] for index in picked]
+
+    def native_transform(label, batch):
+        events.append(("transform", label))
+        assert batch is raw_batches[label]
+        transformed = CandidateBatch(
+            candidates=batch.candidates,
+            candidate_totals=batch.candidate_totals.copy(),
+            player_ids=batch.player_ids,
+            player_rows=batch.player_rows,
+            row_draws=batch.row_draws.copy(),
+            all_tags=batch.all_tags,
+            metadata={**batch.metadata, "transformed_source_label": label},
+        )
+        assert np.array_equal(transformed.row_draws, batch.row_draws)
+        transformed_batches[label] = transformed
+        return transformed
+
+    def observing_combine(books, source_labels, **kwargs):
+        events.append(("combine", tuple(source_labels)))
+        assert tuple(books) == ("R0", "R1", "R2", "R3", "R4")
+        assert tuple(source_labels) == ("R0", "R1", "R2", "R3", "R4")
+        for label in source_labels:
+            assert books[label] is transformed_batches[label]
+            assert books[label] is not raw_batches[label]
+            assert np.array_equal(
+                books[label].row_draws, raw_batches[label].row_draws
+            )
+        union_books.append(dict(books))
+        return original_combine(books, source_labels, **kwargs)
+
+    monkeypatch.setattr(live_lineups, "build_slate_with_draws", fake_slate)
+    monkeypatch.setattr(
+        "nfl_dfs.backtest.engine.tail_select_lineups", fake_tail
+    )
+    monkeypatch.setattr(
+        multiseed_portfolio, "combine_cbwu_books", observing_combine
+    )
+    outer_capture = []
+    result = live_lineups.build_sim_lineups(
+        2026, 1, n_entries=1, stack=None, tail_line=194,
+        n_sims=3, apply_notes=False, model_variant=policy.model_variant,
+        belief_model_variant=policy.role_model_variant,
+        expected_model_k=policy.model_ensemble, policy_env=env,
+        _native_candidate_transform=native_transform,
+        _candidate_capture=outer_capture.append,
+    )
+
+    assert len(result) == 1
+    assert events == [
+        ("transform", "R1"),
+        ("transform", "R2"),
+        ("transform", "R3"),
+        ("transform", "R4"),
+        ("transform", "R0"),
+        ("combine", ("R0", "R1", "R2", "R3", "R4")),
+    ]
+    assert len(union_books) == 1
+    assert len(outer_capture) == 1
+    final_cbwu = outer_capture[0]
+    assert final_cbwu.metadata["portfolio"] == "CBWU"
+    assert tuple(final_cbwu.metadata["candidate_source_counts"]) == (
+        "R0", "R1", "R2", "R3", "R4"
+    )
+    expected_worlds = np.concatenate([
+        transformed_batches[label].row_draws
+        for label in ("R0", "R1", "R2", "R3", "R4")
+    ], axis=1)
+    assert np.array_equal(final_cbwu.row_draws, expected_worlds)
+
+
+@pytest.mark.parametrize(
+    "portfolio",
+    [
+        "CBWU_ARCHETYPE_SHADOW",
+        "CBWU_LATENT_ROLE_SHADOW",
+        "CBWU_OI_SHADOW",
+        "CBWU_VOLUME_SHADOW",
+    ],
+)
+def test_native_candidate_transform_rejects_noncanonical_shadow_portfolio(
+    portfolio,
+):
+    env = ADOPTED_CLASSIC_POLICY.engine_environment()
+    env["MULTISEED_PORTFOLIO"] = portfolio
+    with pytest.raises(
+        ValueError, match="require the canonical CBWU portfolio"
+    ):
+        live_lineups.build_sim_lineups(
+            2026, 1, n_entries=1, stack=None, tail_line=194,
+            apply_notes=False, policy_env=env,
+            _native_candidate_transform=lambda label, batch: batch,
+        )
+
+
 def test_live_cbwu_rejects_more_than_licensed_80_entries():
     env = ADOPTED_CLASSIC_POLICY.engine_environment()
     with pytest.raises(ValueError, match="at most its licensed 80-entry"):

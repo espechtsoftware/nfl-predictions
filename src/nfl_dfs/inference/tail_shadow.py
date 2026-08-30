@@ -19,7 +19,10 @@ import pandas as pd
 from ..config import current_season, settings
 from ..models.components import effective_ensemble_size
 from ..models.train_job import CANONICAL_VARIANT, registry_variant
-from ..optimizer.lineup import StackRules
+from ..optimizer.construction_presets import (
+    INCUMBENT_GPP_PRESET_ID,
+    resolve_construction_preset_from_environment,
+)
 
 log = logging.getLogger(__name__)
 
@@ -233,10 +236,14 @@ def run(*, expected_variant: str = K1_VARIANT,
             belief_model_variant=role_model_variant,
         )
 
+    construction = resolve_construction_preset_from_environment(
+        INCUMBENT_GPP_PRESET_ID, os.environ,
+    )
+    policy_env = dict(os.environ)
+    policy_env.update(construction.optimizer_environment())
     lineups = build_sim_lineups(
         season, week, n_entries=SHADOW_ENTRIES,
-        stack=StackRules(qb_stack_min=2, bring_back_min=1,
-                         forbid_rb_vs_dst=True),
+        stack=construction.stack,
         tail_line=SHADOW_TAIL_LINE, seed=42, lev_scale=1.0,
         allowed_ids=allowed, salary_overrides=salaries,
         apply_notes=False, model_variant=variant,
@@ -244,7 +251,8 @@ def run(*, expected_variant: str = K1_VARIANT,
         cand_log_async=False, cand_log_required=True,
         panel_run_id=panel_run_id,
         candidate_run_type="live_shadow",
-        policy_env=dict(os.environ),
+        policy_env=policy_env,
+        construction_preset_receipt=construction.receipt(),
         belief_model_variant=role_model_variant,
         model_required_features=model_required_features,
         model_forbidden_features=model_forbidden_features,

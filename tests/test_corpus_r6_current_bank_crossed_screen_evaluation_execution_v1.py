@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import ast
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import gc
 from hashlib import sha256
 from io import BytesIO
@@ -340,6 +340,12 @@ def _players() -> tuple[evaluator.ScoringPlayerV1, ...]:
             salary=5_000,
         ))
     return tuple(rows)
+
+
+def test_platform_audit_accepts_one_game_across_two_teams() -> None:
+    players = tuple(replace(player, game_id="AAA-BBB") for player in _players())
+    roster = tuple(sorted(player.player_id for player in players))
+    assert evaluator._audit_dk_classic_v1(players, roster) == roster
 
 
 def test_local_cross_score_is_float64_candidate_order_and_legality_bound() -> None:

@@ -77,7 +77,7 @@ def test_policy_overwrites_research_levers_without_mutating_base():
     assert env["GCP_PROJECT"] == "keep-me"
     assert env["IMAGE_URI"] == dirty["IMAGE_URI"]
     assert "N_ROUTE_TAIL" not in env
-    assert "MIN_LOWOWN" not in env
+    assert env["MIN_LOWOWN"] == "0"
     assert "SIS_ASOE_TARGET_ALLOCATION" not in env
     assert env["MODEL_ENSEMBLE"] == "1"
     assert (env["N_CE"], env["N_EPISTEMIC"], env["N_BOOM"]) == (

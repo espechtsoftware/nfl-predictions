@@ -520,6 +520,7 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                       panel_run_id: str | None = None,
                       candidate_run_type: str | None = None,
                       policy_env: dict[str, str] | None = None,
+                      construction_preset_receipt: dict | None = None,
                       expected_model_k: int | None = None,
                       belief_model_variant: str | None = None,
                       model_required_features: tuple[str, ...] = (),
@@ -531,6 +532,7 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                       _candidate_capture=None,
                       _control_candidate_capture=None,
                       _candidate_transform=None,
+                      _native_candidate_transform=None,
                       _explicit_epistemic_scenarios=None,
                       _latent_scenario_receipt=None,
                       _latent_scenario_factory=None,
@@ -556,6 +558,14 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
     if portfolio in multiseed_portfolios and not _multiseed_inner:
         if _candidate_transform is not None:
             raise ValueError("outer CBWU build cannot accept a candidate transform")
+        if (
+            _native_candidate_transform is not None
+            and portfolio != "CBWU"
+        ):
+            raise ValueError(
+                "native candidate transforms require the canonical CBWU "
+                "portfolio"
+            )
         if distribution_artifact_spec is not None:
             raise ValueError(
                 "CBWU live build cannot capture a single-seed distribution artifact")
@@ -643,6 +653,19 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
             seed_env["ROLE_BELIEF_SEED"] = str(role_seed)
             seed_env["MULTISEED_SOURCE_LABEL"] = label
             holder = []
+
+            def _transform_and_capture(batch):
+                transformed = _native_candidate_transform(label, batch)
+                if transform is not None:
+                    return transform(transformed)
+                captured[label] = transformed
+                return transformed
+
+            effective_transform = (
+                _transform_and_capture
+                if _native_candidate_transform is not None
+                else transform
+            )
             result = build_sim_lineups(
                 season, week, n_entries=n_entries, stack=stack,
                 tail_line=tail_line, n_sims=worlds_per_block,
@@ -655,23 +678,28 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                 cand_log_required=(cand_log_required if persist else False),
                 panel_run_id=panel_run_id,
                 candidate_run_type=candidate_run_type,
-                policy_env=seed_env, expected_model_k=expected_model_k,
+                policy_env=seed_env,
+                construction_preset_receipt=construction_preset_receipt,
+                expected_model_k=expected_model_k,
                 belief_model_variant=belief_model_variant,
                 model_required_features=model_required_features,
                 model_forbidden_features=model_forbidden_features,
                 belief_required_features=belief_required_features,
                 belief_forbidden_features=belief_forbidden_features,
                 route_source_policy=route_source_policy,
-                _candidate_capture=(holder.append if transform is None else None),
+                _candidate_capture=(
+                    holder.append if effective_transform is None else None
+                ),
                 _control_candidate_capture=None,
-                _candidate_transform=transform,
+                _candidate_transform=effective_transform,
+                _native_candidate_transform=None,
                 _explicit_epistemic_scenarios=None,
                 _latent_scenario_receipt=None,
                 _latent_scenario_factory=_latent_scenario_factory,
                 _multiseed_inner=True,
                 _log_ownership_shadow=(persist and _log_ownership_shadow),
             )
-            if transform is None:
+            if effective_transform is None:
                 if len(holder) != 1:
                     raise RuntimeError(
                         f"CBWU {label} produced {len(holder)} candidate books")
@@ -1035,7 +1063,8 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
             latent_optimization_receipt=latent_optimization_receipt,
             latent_scenario_receipt=latent_scenario_receipt,
             candidate_capture=_candidate_capture,
-            candidate_transform=_candidate_transform)
+            candidate_transform=_candidate_transform,
+            construction_preset_receipt=construction_preset_receipt)
     except RuntimeError as exc:
         if wants_role and "role-belief generator produced" in str(exc):
             raise RoleBeliefUnavailable(str(exc)) from exc

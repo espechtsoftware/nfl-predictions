@@ -2,6 +2,8 @@
 ownership-barbell MILP constraint (F4), QB-concentrated tiny-N
 selection (F5). Each test proves the lever FIRES (vacuity law) and
 that off-by-default leaves behavior byte-identical."""
+import os
+
 import numpy as np
 import pytest
 
@@ -31,7 +33,9 @@ def test_lse_env_gates_select_tail_entries(monkeypatch):
     totals = np.random.default_rng(0).normal(170, 20, size=(30, 200))
     base = select_tail_entries(totals, 8, 194.0)
     monkeypatch.setenv("SELECT_LSE", "0.08")
-    lse = select_tail_entries(totals, 8, 194.0)
+    lse = select_tail_entries(
+        totals, 8, 194.0, env={"SELECT_LSE": "0.08"},
+    )
     monkeypatch.delenv("SELECT_LSE")
     again = select_tail_entries(totals, 8, 194.0)
     assert again == base, "off-by-default changed baseline behavior"
@@ -63,13 +67,16 @@ def _pool(own_map):
     return players
 
 
-def test_barbell_constraint_fires(monkeypatch):
+def test_barbell_constraint_fires():
     own = {"WR0": 0.02, "WR1": 0.02, "TE0": 0.01,   # punt-band lows
            "RB0": 0.35, "RB1": 0.30}                # mega chalk
     pool = _pool(own)
-    monkeypatch.setenv("OWN_BARBELL", "1")
-    monkeypatch.setenv("MIN_LINEUP_SALARY", "0")
-    lu = optimize(pool, punt_max_salary=None, punt_min=0)
+    lu = optimize(
+        pool,
+        punt_max_salary=None,
+        punt_min=0,
+        env={"OWN_BARBELL": "1", "MIN_LINEUP_SALARY": "0"},
+    )
     assert lu is not None
     ids = {p["id"] for p in lu.players}
     lows = {p["id"] for p in pool if p["pos"] != "DST"
@@ -79,13 +86,16 @@ def test_barbell_constraint_fires(monkeypatch):
     assert len(ids & lows) >= 3 and len(ids & highs) >= 2
 
 
-def test_barbell_inert_without_own_est(monkeypatch):
+def test_barbell_inert_without_own_est():
     pool = _pool({})
     for p in pool:
         del p["own_est"]
-    monkeypatch.setenv("OWN_BARBELL", "1")
-    monkeypatch.setenv("MIN_LINEUP_SALARY", "0")
-    assert optimize(pool, punt_max_salary=None, punt_min=0) is not None
+    assert optimize(
+        pool,
+        punt_max_salary=None,
+        punt_min=0,
+        env={"OWN_BARBELL": "1", "MIN_LINEUP_SALARY": "0"},
+    ) is not None
 
 
 # --- F5: QB-concentrated selection ---------------------------------------
@@ -143,12 +153,14 @@ def test_hyper_boom_injects_tagged_candidates(monkeypatch):
     monkeypatch.setenv("PUNT_MIN", "0")
     lus = tail_select_lineups(slate, pool, draws, tail_line=90.0,
                               n_entries=8, stack=None,
-                              objective_col="proj")
+                              objective_col="proj",
+                              policy_env=dict(os.environ))
     assert lus, "no lineups returned"
     monkeypatch.delenv("HYPER_BOOM")
     base = tail_select_lineups(slate, pool, draws, tail_line=90.0,
                                n_entries=8, stack=None,
-                               objective_col="proj")
+                               objective_col="proj",
+                               policy_env=dict(os.environ))
     assert base, "baseline returned nothing"
 
 
@@ -176,10 +188,12 @@ def test_gumbel_batch_injects_and_default_off(monkeypatch):
     draws = np.abs(rng.normal(9, 5, size=(len(pool), 120)))
     monkeypatch.setenv("MIN_LINEUP_SALARY", "0")
     base = tail_select_lineups(slate, pool, draws, tail_line=90.0,
-                               n_entries=8, stack=None, objective_col="proj")
+                               n_entries=8, stack=None, objective_col="proj",
+                               policy_env=dict(os.environ))
     monkeypatch.setenv("N_GUMBEL", "6")
     gum = tail_select_lineups(slate, pool, draws, tail_line=90.0,
-                              n_entries=8, stack=None, objective_col="proj")
+                              n_entries=8, stack=None, objective_col="proj",
+                              policy_env=dict(os.environ))
     assert base and gum
 
 
@@ -249,7 +263,8 @@ def test_role_belief_treatment_fails_if_alternate_inputs_are_missing(
     with pytest.raises(RuntimeError, match="requires alternate"):
         tail_select_lineups(
             slate, pool, draws, tail_line=90.0, n_entries=4,
-            stack=None, objective_col="proj")
+            stack=None, objective_col="proj",
+            policy_env=dict(os.environ))
 
 def test_epistemic_batch_fires_and_is_inert_without_market(monkeypatch):
     import pandas as pd
@@ -276,7 +291,8 @@ def test_epistemic_batch_fires_and_is_inert_without_market(monkeypatch):
     monkeypatch.setenv("MIN_LINEUP_SALARY", "0")
     monkeypatch.setenv("N_EPISTEMIC", "8")
     lus = tail_select_lineups(slate, pool, draws, tail_line=90.0,
-                              n_entries=8, stack=None, objective_col="proj")
+                              n_entries=8, stack=None, objective_col="proj",
+                              policy_env=dict(os.environ))
     assert lus
     # inert when the market/model split is absent
     bare = [{k: v for k, v in p.items()
@@ -285,4 +301,5 @@ def test_epistemic_batch_fires_and_is_inert_without_market(monkeypatch):
     sb = pd.DataFrame(bare)
     sb["draw_idx"] = range(len(bare))
     assert tail_select_lineups(sb, bare, draws, tail_line=90.0, n_entries=8,
-                               stack=None, objective_col="proj")
+                               stack=None, objective_col="proj",
+                               policy_env=dict(os.environ))

@@ -200,6 +200,7 @@ def persist_recourse_world_artifact(
     object_name: str,
     context: Mapping[str, object] | None = None,
     storage_client=None,
+    require_trusted_creation_time: bool = False,
 ) -> dict:
     """Create one immutable GCS artifact and return its checksum receipt."""
     bucket_name = str(bucket_name).strip()
@@ -222,9 +223,32 @@ def persist_recourse_world_artifact(
         content_type="application/octet-stream",
         if_generation_match=0,
     )
+    if require_trusted_creation_time:
+        reload_blob = getattr(blob, "reload", None)
+        if not callable(reload_blob):
+            raise ValueError(
+                "recourse artifact cannot prove trusted object creation time"
+            )
+        reload_blob()
+    generation = getattr(blob, "generation", None)
+    created = getattr(blob, "time_created", None)
+    if require_trusted_creation_time and (
+        created is None
+        or getattr(created, "tzinfo", None) is None
+        or created.utcoffset() is None
+    ):
+        raise ValueError(
+            "recourse artifact lacks trusted timezone-aware creation time"
+        )
     return {
         **receipt,
         "uri": f"gs://{bucket_name}/{object_name}",
+        "generation": (
+            int(generation) if generation not in (None, "") else None
+        ),
+        "gcs_time_created": (
+            created.isoformat() if created is not None else None
+        ),
         "create_only": True,
     }
 

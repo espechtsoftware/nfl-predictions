@@ -311,6 +311,7 @@ def run(output_uri: str) -> dict[str, Any]:
     )
     optimizer_env = {
         "MIN_LINEUP_SALARY": "49000",
+        "MIN_GAMES": "2",
         "PUNT_MIN": "0",
         "VALUE2_MIN": "0",
         "OWN_BARBELL": "",

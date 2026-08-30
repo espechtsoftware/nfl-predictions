@@ -1,10 +1,11 @@
-"""Parity contract for the shared DraftKings Classic constraint builder.
+"""Explicit legacy-domain and neutral-legality optimizer contracts.
 
 The frozen roster snapshots below were captured from
 ``lineup.py`` SHA-256
 ``81544e5f80769012fccef66b38c6bea54a830ac15dbed447952a593aa40b3bee``
-before the inline constraints were extracted.  They protect ordinary
-``optimize`` behavior while research models reuse the exact same domain.
+before the inline constraints were extracted. They protect the former domain
+when its strategy values are supplied explicitly. Bare ``optimize`` is now a
+separate DraftKings-legality-only contract and must not inherit these rules.
 """
 
 from __future__ import annotations
@@ -75,28 +76,48 @@ def _pool(seed: int = 31, n_teams: int = 6) -> list[dict]:
 
 
 def _case_kwargs(case: str) -> dict:
+    legacy_environment = {
+        "MIN_LINEUP_SALARY": "49000",
+        "MIN_GAMES": "2",
+    }
+    legacy_stack = {
+        "forbid_rb_vs_dst": True,
+        "forbid_two_rb_same_team": True,
+    }
     if case == "plain":
-        return {}
+        return {"env": legacy_environment}
     if case == "stack":
-        return {"stack": StackRules(qb_stack_min=2, bring_back_min=1)}
+        return {
+            "stack": StackRules(
+                qb_stack_min=2, bring_back_min=1, **legacy_stack
+            ),
+            "env": legacy_environment,
+        }
     if case == "locks_bans":
         return {
             "locks": {65},
             "bans": {0},
-            "stack": StackRules(qb_stack_min=2, bring_back_min=1),
+            "stack": StackRules(
+                qb_stack_min=2, bring_back_min=1, **legacy_stack
+            ),
+            "env": legacy_environment,
         }
     if case == "explicit_money":
         return {
-            "stack": StackRules(qb_stack_min=2, bring_back_min=1),
+            "stack": StackRules(
+                qb_stack_min=2, bring_back_min=1, **legacy_stack
+            ),
             "min_salary": 49_000,
             "max_per_game": 0,
             "punt_min": 0,
             "punt_max_salary": None,
-            "env": {},
+            "env": {"MIN_GAMES": "2"},
         }
     if case == "levers":
         return {
-            "stack": StackRules(qb_stack_min=2, bring_back_min=1),
+            "stack": StackRules(
+                qb_stack_min=2, bring_back_min=1, **legacy_stack
+            ),
             "punt_min": 1,
             "punt_max_salary": 4_000,
             "min_salary": 0,
@@ -109,10 +130,11 @@ def _case_kwargs(case: str) -> dict:
                 "MAX_PER_GAME": "4",
                 "MIN_LOWOWN": "1",
                 "PUNT_STRICT": "1",
+                "MIN_GAMES": "2",
             },
         }
     if case == "infeasible_no_qb":
-        return {"env": {}}
+        return {"env": legacy_environment}
     raise AssertionError(f"unknown test case {case}")
 
 
@@ -378,41 +400,66 @@ def _matrix_pool(case: str) -> list[dict]:
 
 
 def _matrix_kwargs(case: str, stack_type) -> dict:
-    kwargs = {"env": {}}
+    legacy_environment = {
+        "MIN_LINEUP_SALARY": "49000",
+        "MIN_GAMES": "2",
+    }
+    kwargs = {"env": dict(legacy_environment)}
+
+    def legacy_stack(**updates):
+        values = {
+            "qb_stack_min": 1,
+            "bring_back_min": 0,
+            "forbid_rb_vs_dst": True,
+            "forbid_two_rb_same_team": True,
+        }
+        values.update(updates)
+        return stack_type(**values)
+
+    if case in {
+        "one_game_legacy", "empty_game_legacy", "none_game_legacy",
+    }:
+        # The old fixed two-game rule was deliberately inert when usable game
+        # metadata could not describe two games. Reproduce that historical
+        # cell explicitly without weakening the named min-games=2 preset.
+        kwargs["env"]["MIN_GAMES"] = "1"
+
     if case == "stack_default":
-        kwargs["stack"] = stack_type()
+        kwargs["stack"] = legacy_stack()
     elif case == "stack_money":
-        kwargs["stack"] = stack_type(qb_stack_min=2, bring_back_min=1)
+        kwargs["stack"] = legacy_stack(qb_stack_min=2, bring_back_min=1)
     elif case == "stack_qb_max":
-        kwargs["stack"] = stack_type(qb_stack_min=1, qb_stack_max=1)
+        kwargs["stack"] = legacy_stack(qb_stack_min=1, qb_stack_max=1)
     elif case == "stack_bring_max":
-        kwargs["stack"] = stack_type(bring_back_min=1, bring_back_max=1)
+        kwargs["stack"] = legacy_stack(
+            bring_back_min=1, bring_back_max=1
+        )
     elif case == "stack_allow_rb_dst":
-        kwargs["stack"] = stack_type(forbid_rb_vs_dst=False)
+        kwargs["stack"] = legacy_stack(forbid_rb_vs_dst=False)
     elif case == "stack_require_rb_dst":
-        kwargs["stack"] = stack_type(
+        kwargs["stack"] = legacy_stack(
             forbid_rb_vs_dst=False,
             require_rb_vs_dst=True,
         )
     elif case == "stack_allow_two_rb":
-        kwargs["stack"] = stack_type(forbid_two_rb_same_team=False)
+        kwargs["stack"] = legacy_stack(forbid_two_rb_same_team=False)
     elif case == "stack_require_two_rb":
-        kwargs["stack"] = stack_type(
+        kwargs["stack"] = legacy_stack(
             forbid_two_rb_same_team=False,
             require_two_rb_same_team=True,
         )
     elif case == "stack_conflict_rb_dst":
-        kwargs["stack"] = stack_type(require_rb_vs_dst=True)
+        kwargs["stack"] = legacy_stack(require_rb_vs_dst=True)
     elif case == "stack_conflict_two_rb":
-        kwargs["stack"] = stack_type(require_two_rb_same_team=True)
+        kwargs["stack"] = legacy_stack(require_two_rb_same_team=True)
     elif case == "stack_invalid_min":
-        kwargs["stack"] = stack_type(qb_stack_min=-1)
+        kwargs["stack"] = legacy_stack(qb_stack_min=-1)
     elif case == "stack_invalid_max":
-        kwargs["stack"] = stack_type(qb_stack_min=2, qb_stack_max=1)
+        kwargs["stack"] = legacy_stack(qb_stack_min=2, qb_stack_max=1)
     elif case == "stack_invalid_bring_min":
-        kwargs["stack"] = stack_type(bring_back_min=-1)
+        kwargs["stack"] = legacy_stack(bring_back_min=-1)
     elif case == "stack_invalid_bring_max":
-        kwargs["stack"] = stack_type(
+        kwargs["stack"] = legacy_stack(
             bring_back_min=2,
             bring_back_max=1,
         )
@@ -520,6 +567,10 @@ def _matrix_kwargs(case: str, stack_type) -> dict:
         kwargs["max_salary"] = 49_950
     elif case == "max_salary_budget_inert":
         kwargs["max_salary"] = 50_000
+    kwargs["env"] = {
+        **legacy_environment,
+        **kwargs.get("env", {}),
+    }
     return kwargs
 
 

@@ -82,6 +82,8 @@ PRE_CROSS_BLOCK_CANDIDATES: Final = 80
 WORLD_ORDER_LAW: Final = (
     "descending_float32_total_slate_points_then_ascending_world_index"
 )
+# Immutable historical identifier. Its retained v1 implementation also
+# enforced two-game construction; do not cite it as true platform-only proof.
 HARD_DOMAIN_ID: Final = "draftkings-nfl-classic-only-v1"
 CANONICAL_CATALOG_FIELDS: Final = frozenset({
     "id", "pos", "team", "opp", "game_id", "salary",

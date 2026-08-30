@@ -54,7 +54,8 @@ def test_every_sim_path_env_read_is_registered_or_exempt():
 def test_previous_registry_gaps_stay_closed():
     # The exact keys the 2026-08-18 audit found missing.
     for key in (
-        "SCRIPT_FEEDBACK", "SCHAAKE_K", "MAX_PER_GAME", "MIN_LOWOWN",
+        "SCRIPT_FEEDBACK", "SCHAAKE_K", "MAX_PER_GAME", "MIN_GAMES",
+        "MIN_LOWOWN",
         "OWN_BARBELL_HIGH", "OWN_BARBELL_LOW", "OWN_BARBELL_NHIGH",
         "OWN_BARBELL_NLOW", "PUNT_MAX", "VALUE2_MAX", "VALUE2_MIN",
     ):
@@ -72,5 +73,6 @@ def test_exempt_keys_are_infrastructure_only():
     # it should be a conscious edit here, never a convenience.
     assert engine._lever_exempt_keys == frozenset({
         "CAND_ARTIFACT_BUCKET", "CAND_FEATURE_TABLE", "CAND_LOG_TABLE",
-        "CODE_SHA", "PANEL_RUN_ID", "REPLAY_LINEUPS_TABLE", "SEEDS",
+        "CODE_SHA", "MULTISEED_SOURCE_LABEL", "PANEL_RUN_ID",
+        "REPLAY_LINEUPS_TABLE", "SEEDS",
     })

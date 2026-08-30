@@ -3501,6 +3501,7 @@ def build_legal_lineup_model(
         min_salary=MIN_SALARY,
         max_salary=None,
         max_per_game=0,
+        min_games=MIN_GAMES,
         env={},
     )
 

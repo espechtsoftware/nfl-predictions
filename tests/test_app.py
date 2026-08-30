@@ -264,6 +264,31 @@ def test_core_lineups(client):
     assert "dk_csv" in out and "exposure" in out
 
 
+def test_core_lineup_omission_executes_receipted_incumbent_overlap(monkeypatch):
+    observed = {}
+
+    def capture_then_stop(*args, **kwargs):
+        observed["max_overlap"] = kwargs.get("max_overlap")
+        observed["env"] = dict(kwargs.get("env") or {})
+        raise RuntimeError("stop after construction dispatch")
+
+    monkeypatch.setattr(
+        app_main, "_classic_projections",
+        lambda req, store: (pd.DataFrame(), {}),
+    )
+    monkeypatch.setattr(app_main, "_player_pool", lambda *args, **kwargs: [])
+    monkeypatch.setattr(app_main, "core_and_variations", capture_then_stop)
+    request = app_main.CoreLineupRequest(**{
+        "season": 2025, "week": 3, "n_lineups": 2,
+    })
+    receipt = app_main._request_construction_preset(request).receipt()
+    with pytest.raises(RuntimeError, match="construction dispatch"):
+        app_main.build_core_lineups(request, store=object())
+    assert receipt["max_overlap"] == 7
+    assert observed["max_overlap"] == receipt["max_overlap"]
+    assert observed["env"]["MAX_OVERLAP"] == str(receipt["max_overlap"])
+
+
 def test_core_lineups_respects_bans(client):
     base = client.post("/lineups/core",
                        json={"season": 2025, "week": 3, "n_lineups": 1}).json()

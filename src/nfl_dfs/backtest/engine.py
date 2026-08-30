@@ -14,7 +14,7 @@ import logging
 import os
 import re
 from time import perf_counter
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field as dc_field, replace as dc_replace
 
 import numpy as np
@@ -62,22 +62,24 @@ _SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
 _lever_keys = {
     "ALT_CEIL", "ATLAS_BOOM_WORLD_RANKING",
     "BIGPLAY", "BLEND_MODEL_WEIGHT", "BOOM_UNIQUE_FILL", "CAND_MULT",
-    "CE_GAMES", "CE_SEED",
+    "CE_GAMES", "CE_SEED", "CONSTRUCTION_PRESET_ID",
     "DIRICHLET_K", "DIV_TILT", "DROP_FEATURES", "DST_CORR_DRAWS",
     "DST_PUNT_BONUS", "EMP_MARGINALS", "EMP_POS",
     "EPISTEMIC_FAMILY", "EPISTEMIC_W", "EXTRA_FEATURES",
     "ENSEMBLE_WORLD_MODE", "ENSEMBLE_WORLD_SEED",
-    "FORBID_RB_DST",
+    "FORBID_RB_DST", "FORBID_TWO_RB_SAME_TEAM",
     "GAME_SIM_MODE", "GAME_SIM_PACE", "GAME_SIM_TEAM_FACTORS",
     "GAME_SIM_USAGE", "GEN_POOL_CAP", "GEN_POOL_CAP_MAP",
     "GEN_TOTAL_BUDGET", "GUMBEL_MODE", "GUMBEL_SCALE",
     "GUMBEL_SEED", "HYPER_BOOM", "LEV_PENALTY",
-    "LEV_POS_WEIGHTS", "LEV_SHAPE", "M4_QBLOCK", "MAX_PER_GAME", "MAX_QBS",
-    "MIN_LINEUP_SALARY", "MIN_LOWOWN", "MODEL_ENSEMBLE",
+    "LEV_POS_WEIGHTS", "LEV_SHAPE", "M4_QBLOCK", "MAX_OVERLAP",
+    "MAX_PER_GAME", "MAX_QBS",
+    "MIN_GAMES", "MIN_LINEUP_SALARY", "MIN_LOWOWN", "MODEL_ENSEMBLE",
     "MULTISEED_CANDIDATE_ENTRY_BASIS", "MULTISEED_PORTFOLIO",
     "MULTISEED_SEED_PAIRS", "MULTISEED_WORLDS_PER_BLOCK",
     "ARCHETYPE_ALLOCATION_VERSION", "ARCHETYPE_TAIL_LINE",
     "PROSPECTIVE_SHADOW_ID",
+    "PROSPECTIVE_GENERATION_EXPOSURE",
     "MODEL_ENSEMBLE_MIX", "MODEL_REGISTRY_VARIANT",
     "N_BOOM", "N_CE", "N_DARKGAME", "N_LEV",
     "N_EPISTEMIC", "N_GAMESTACK", "N_GUMBEL", "N_LOWSAL",
@@ -121,6 +123,7 @@ _lever_exempt_keys = frozenset({
     "CAND_FEATURE_TABLE",     # BigQuery feature-snapshot destination
     "CAND_LOG_TABLE",         # BigQuery candidate table destination
     "CODE_SHA",               # provenance fallback when .git is absent
+    "MULTISEED_SOURCE_LABEL", # R0--R4 exposure-ledger provenance label
     "PANEL_RUN_ID",           # provenance label
     "REPLAY_LINEUPS_TABLE",   # BigQuery lineup table destination
     "SEEDS",                  # provenance metadata joined into run seeds
@@ -186,7 +189,7 @@ def pool_cap_for_slate(season: int, week: int, env: dict | None = None
     others. The map is emitted by the CE-off control run keyed
     "season-week" and consumed verbatim by the treatment.
     """
-    e = os.environ if env is None else env
+    e = {} if env is None else env
     raw = e.get("GEN_POOL_CAP_MAP", "")
     if raw:
         try:
@@ -286,7 +289,7 @@ def resolve_generation_budget(n_boom_solves: int | None = None,
     (28 - 12 = 16), which is why the resolution lives here instead of
     in the signature.
     """
-    e = os.environ if env is None else env
+    e = {} if env is None else env
     total = int(e.get("GEN_TOTAL_BUDGET", GEN_TOTAL_BUDGET)
                 or GEN_TOTAL_BUDGET)
     n_ce = int(e.get("N_CE", DEFAULT_N_CE) or 0)
@@ -331,7 +334,7 @@ def resolve_leverage_solves(
         raise ValueError(
             "candidate multiplier and generation entries must be nonnegative"
         )
-    e = os.environ if env is None else env
+    e = {} if env is None else env
     raw = e.get("N_LEV")
     if raw in (None, ""):
         return multiple * entries
@@ -423,7 +426,7 @@ def effective_generation_config(env: dict | None = None) -> dict:
 
 def _gumbel_rng(env: dict | None = None) -> np.random.Generator:
     """Reproducible perturb-and-MAP stream for an auditable research arm."""
-    e = os.environ if env is None else env
+    e = {} if env is None else env
     return np.random.default_rng(int(e.get("GUMBEL_SEED", "4700") or 4700))
 
 
@@ -517,6 +520,7 @@ def _role_belief_scenarios(
     belief_slate: pd.DataFrame,
     belief_draws: np.ndarray,
     n_slots: int,
+    env: Mapping[str, str] | None = None,
 ) -> list[tuple[str, np.ndarray]]:
     """Frozen role-model alternatives used only for candidate generation.
 
@@ -533,7 +537,7 @@ def _role_belief_scenarios(
         dtype=float)
     if not np.isfinite(mean).all():
         raise ValueError("role-belief objective contains missing values")
-    rd = _row_draws(belief_slate, belief_draws)
+    rd = _row_draws(belief_slate, belief_draws, env=env)
     if rd.shape[0] != len(belief_slate):
         raise ValueError("role-belief draw rows do not match the slate")
     mean_slots = min(4, n_slots)
@@ -738,6 +742,7 @@ class WeekResult:
 class BacktestResult:
     weeks: list[WeekResult] = dc_field(default_factory=list)
     contest: Contest | None = None
+    construction_preset_receipt: dict | None = None
 
     @property
     def total_roi(self) -> float:
@@ -787,9 +792,7 @@ def _row_draws(slate: pd.DataFrame, draws: np.ndarray,
     With the gate on, each DST row gets mean-preserving draws scaled by
     the INVERSE of its opponent's simulated offense total: mult =
     clip(2 - opp_total/mean, 0.3, 1.7), renormalized to mean 1."""
-    import os as _os
-
-    runtime_env = _os.environ if env is None else env
+    runtime_env = {} if env is None else env
 
     di = slate["draw_idx"].to_numpy(dtype=int)
     out = np.empty((len(slate), draws.shape[1]), dtype=np.float32)
@@ -1112,6 +1115,7 @@ def tail_select_lineups(
         Callable[[CandidateBatch], CandidateBatch] | None
     ) = None,
     preseeded_role_identities: Sequence[frozenset] | None = None,
+    construction_preset_receipt: Mapping[str, object] | None = None,
 ) -> list[Lineup]:
     """Entry selection on P(best-of-N >= tail_line) (guide: issue #5).
 
@@ -1123,7 +1127,7 @@ def tail_select_lineups(
     if cand_log_required and cand_log_async:
         raise ValueError(
             "required candidate persistence cannot run asynchronously")
-    runtime_env = os.environ if policy_env is None else policy_env
+    runtime_env = {} if policy_env is None else policy_env
     generation_started = perf_counter()
     rd = _row_draws(slate, draws, env=runtime_env)
     locks = locks or set()
@@ -1142,15 +1146,105 @@ def tail_select_lineups(
     n_lev_solves = resolve_leverage_solves(
         candidate_multiple, generation_entries, env=runtime_env,
     )
+    exposure_enabled = str(
+        runtime_env.get("PROSPECTIVE_GENERATION_EXPOSURE", "") or ""
+    ) == "1"
+    exposure_ledger = None
+    exposure_expected: dict[str, int] = {}
+    if exposure_enabled:
+        if theses:
+            raise ValueError(
+                "prospective exposure shadows do not support ad-hoc theses"
+            )
+        unsupported_exposure_families = (
+            "HYPER_BOOM",
+            "N_CE",
+            "N_GUMBEL",
+            "N_NOSTACK",
+            "N_LOWSAL",
+            "Q99_WILD",
+            "QD_CELLS",
+            "N_MIDQB",
+            "N_ROUTE_TAIL",
+            "N_COVERAGE_TAIL",
+        )
+        active_unsupported = [
+            key for key in unsupported_exposure_families
+            if int(runtime_env.get(key, "0") or 0) != 0
+        ]
+        if active_unsupported:
+            raise ValueError(
+                "prospective exposure ledger lacks complete attempt capture "
+                f"for {active_unsupported}"
+            )
+        from ..inference.generation_exposure import SolveExposureLedger
+
+        exposure_ledger = SolveExposureLedger(
+            source_label=str(
+                runtime_env.get("MULTISEED_SOURCE_LABEL") or "single"
+            )
+        )
+        exposure_expected.update({
+            "leverage": int(n_lev_solves),
+            "boom": int(n_boom_solves),
+        })
+
+    def _record_exposure(
+        *,
+        family: str,
+        requested_ordinal: int,
+        status: str,
+        retry_ordinal: int = 0,
+        world_id: int | None = None,
+        duration_seconds: float = 0.0,
+        roster_ids=None,
+    ) -> None:
+        if exposure_ledger is not None:
+            exposure_ledger.record(
+                family=family,
+                requested_ordinal=requested_ordinal,
+                retry_ordinal=retry_ordinal,
+                world_id=world_id,
+                duration_seconds=duration_seconds,
+                status=status,
+                roster_ids=roster_ids,
+            )
+
+    def _leverage_attempt(event: Mapping[str, object]) -> None:
+        _record_exposure(
+            family="leverage",
+            requested_ordinal=int(event["requested_ordinal"]),
+            retry_ordinal=int(event["retry_ordinal"]),
+            duration_seconds=float(event["duration_seconds"]),
+            status=str(event["status"]),
+            roster_ids=event.get("roster_ids"),
+        )
+
     leverage_telemetry: dict[str, int] = {}
     leverage_started = perf_counter()
     cands = optimize_many(pool,
                           n_lineups=n_lev_solves,
                           stack=stack, objective_col=objective_col,
                           locks=set(locks), env=runtime_env,
-                          telemetry=leverage_telemetry)
+                          telemetry=leverage_telemetry,
+                          attempt_callback=(
+                              _leverage_attempt if exposure_enabled else None
+                          ))
     leverage_seconds = perf_counter() - leverage_started
     leverage_unique = len(cands)
+    if exposure_ledger is not None:
+        observed_leverage = {
+            int(row["requested_ordinal"])
+            for row in exposure_ledger.rows
+            if row["family"] == "leverage"
+        }
+        for requested_ordinal in range(n_lev_solves):
+            if requested_ordinal not in observed_leverage:
+                _record_exposure(
+                    family="leverage",
+                    requested_ordinal=requested_ordinal,
+                    status="exhausted",
+                )
     # Multi-tag provenance (review #6, Sol): `seen` dedupes rosters, so a
     # lineup produced by BOTH lev and boom was attributed only to lev —
     # first-producer bias that invalidates generator analysis. all_tags
@@ -1177,7 +1271,7 @@ def tail_select_lineups(
         if list(slate["id"]) != list(belief_slate["id"]):
             raise ValueError("baseline and role-belief slate ids are misaligned")
         epi_scenarios = _role_belief_scenarios(
-            belief_slate, belief_draws, n_epi)
+            belief_slate, belief_draws, n_epi, env=runtime_env)
     elif n_epi and epi_family == LATENT_ROLE_FAMILY:
         if belief_slate is not None or belief_draws is not None:
             raise ValueError(
@@ -1244,6 +1338,8 @@ def tail_select_lineups(
                 lu.tag = "thesis"
                 seen.add(lu.ids)
                 cands.append(lu)
+    if exposure_ledger is not None:
+        exposure_expected["boom"] = int(n_boom_solves)
     boom_order = _boom_world_order(rd, slate["pos"].tolist(), runtime_env)
     # Research lever (env BOOM_UNIQUE_FILL, default off; N6/S5 arm,
     # protocol reports/2026-08-18-boom-unique-fill-protocol.md): the default
@@ -1256,6 +1352,10 @@ def tail_select_lineups(
     # behavior is byte-identical to before the lever existed.
     boom_unique_fill = str(
         runtime_env.get("BOOM_UNIQUE_FILL", "") or "") not in ("", "0")
+    if exposure_enabled and boom_unique_fill:
+        raise ValueError(
+            "prospective exposure ledger requires fixed requested boom work"
+        )
     boom_cursor = 0 if boom_unique_fill else n_boom_solves
     boom_solve_attempts = 0
     boom_solve_successes = 0
@@ -1295,8 +1395,12 @@ def tail_select_lineups(
     carve_added = 0
     carve_rosters: set[frozenset] = set()
 
-    def _add_boom(sim_indices, unique_target: int | None = None,
-                  apply_structure_carve: bool = False) -> int:
+    def _add_boom(
+        sim_indices,
+        unique_target: int | None = None,
+        apply_structure_carve: bool = False,
+        exposure_family: str | None = None,
+    ) -> int:
         nonlocal boom_cursor, boom_solve_attempts, boom_solve_successes
         nonlocal boom_solver_errors, boom_infeasible, boom_duplicates
         nonlocal carve_attempts, carve_added
@@ -1305,6 +1409,7 @@ def tail_select_lineups(
         for k in sim_indices:
             if unique_target is not None and added >= unique_target:
                 break
+            exposure_request = consumed
             boom_solve_attempts += 1
             is_carved = apply_structure_carve and consumed in carve_visits
             consumed += 1
@@ -1312,21 +1417,57 @@ def tail_select_lineups(
                 carve_attempts += 1
             sim_pool = [{**p, "proj_sim": float(rd[i, k])}
                         for i, p in enumerate(pool)]
+            solve_started = perf_counter()
             try:
                 lu = optimize(sim_pool,
                               stack=carve_stack if is_carved else stack,
                               objective_col="proj_sim",
                               locks=set(locks), env=runtime_env)
             except Exception as exc:  # CBC subprocess flake: skip this draw
+                solve_duration = perf_counter() - solve_started
                 boom_solver_errors += 1
+                if exposure_family is not None:
+                    _record_exposure(
+                        family=exposure_family,
+                        requested_ordinal=exposure_request,
+                        world_id=int(k),
+                        duration_seconds=solve_duration,
+                        status="error",
+                    )
                 if is_carved:
                     raise RuntimeError(
                         f"{carve_key} carved boom solve failed") from exc
                 log.warning("boom-draw solve failed: %s", exc)
                 continue
+            solve_duration = perf_counter() - solve_started
             if is_carved and lu is None:
                 boom_infeasible += 1
+                if exposure_family is not None:
+                    _record_exposure(
+                        family=exposure_family,
+                        requested_ordinal=exposure_request,
+                        world_id=int(k),
+                        duration_seconds=solve_duration,
+                        status="infeasible",
+                    )
                 raise RuntimeError(f"{carve_key} carved boom solve was infeasible")
+            if lu is None and exposure_family is not None:
+                _record_exposure(
+                    family=exposure_family,
+                    requested_ordinal=exposure_request,
+                    world_id=int(k),
+                    duration_seconds=solve_duration,
+                    status="infeasible",
+                )
+            elif lu is not None and exposure_family is not None:
+                _record_exposure(
+                    family=exposure_family,
+                    requested_ordinal=exposure_request,
+                    world_id=int(k),
+                    duration_seconds=solve_duration,
+                    status="dup" if lu.ids in seen else "new",
+                    roster_ids=lu.ids,
+                )
             if lu is not None:
                 boom_solve_successes += 1
                 _note(lu.ids, "boom")
@@ -1363,13 +1504,15 @@ def tail_select_lineups(
     if boom_unique_fill:
         _primary_boom = _add_boom(
             boom_order, unique_target=n_boom_solves,
-            apply_structure_carve=True)
+            apply_structure_carve=True,
+            exposure_family="boom" if exposure_enabled else None)
         log.info(
             "boom unique-fill: %d/%d unique candidates from %d worlds "
             "attempted", _primary_boom, n_boom_solves, boom_cursor)
     else:
         _primary_boom = _add_boom(
-            boom_order[:n_boom_solves], apply_structure_carve=True)
+            boom_order[:n_boom_solves], apply_structure_carve=True,
+            exposure_family="boom" if exposure_enabled else None)
     primary_boom_attempts = boom_solve_attempts - primary_attempts_before
     primary_boom_successes = boom_solve_successes - primary_successes_before
     primary_boom_solver_errors = (
@@ -1553,7 +1696,15 @@ def tail_select_lineups(
     # high-disagreement-game alternatives. No independent player p99 boost
     # is used. Missing inputs are replaced by incumbent boom slots.
     epi_added = 0
+    role_retry_by_request: dict[int, int] = {}
+    if exposure_ledger is not None and n_epi:
+        exposure_expected["role_epistemic"] = int(n_epi)
     if n_epi and epi_scenarios and epi_family == LATENT_ROLE_FAMILY:
+        if exposure_ledger is not None:
+            raise ValueError(
+                "prospective exposure ledger does not support latent-role "
+                "internal solve attempts"
+            )
         latent_candidates = _latent_role_candidates(
             pool,
             epi_scenarios,
@@ -1576,21 +1727,53 @@ def tail_select_lineups(
         for attempt in range(max_attempts):
             if epi_added >= n_epi:
                 break
+            requested_ordinal = epi_added
+            retry_ordinal = role_retry_by_request.get(
+                requested_ordinal, 0
+            )
             sname, vector = epi_scenarios[attempt % len(epi_scenarios)]
             spool = [{**p, "proj_epi": float(vector[i])}
                      for i, p in enumerate(pool)]
+            solve_started = perf_counter()
             try:
                 lu = optimize(spool, stack=stack, objective_col="proj_epi",
                               locks=set(locks), banned_lineups=banned_epi,
                               env=runtime_env)
             except Exception as exc:
+                solve_duration = perf_counter() - solve_started
+                _record_exposure(
+                    family="role_epistemic",
+                    requested_ordinal=requested_ordinal,
+                    retry_ordinal=retry_ordinal,
+                    duration_seconds=solve_duration,
+                    status="error",
+                )
+                role_retry_by_request[requested_ordinal] = retry_ordinal + 1
                 log.warning("epistemic solve failed: %s", exc)
                 continue
+            solve_duration = perf_counter() - solve_started
             if lu is None:
+                _record_exposure(
+                    family="role_epistemic",
+                    requested_ordinal=requested_ordinal,
+                    retry_ordinal=retry_ordinal,
+                    duration_seconds=solve_duration,
+                    status="infeasible",
+                )
+                role_retry_by_request[requested_ordinal] = retry_ordinal + 1
                 continue
             banned_epi.append(lu.ids)
             _note(lu.ids, "epi")
             _note(lu.ids, f"epi:{sname}")
+            _record_exposure(
+                family="role_epistemic",
+                requested_ordinal=requested_ordinal,
+                retry_ordinal=retry_ordinal,
+                duration_seconds=solve_duration,
+                status="dup" if lu.ids in seen else "new",
+                roster_ids=lu.ids,
+            )
+            role_retry_by_request[requested_ordinal] = retry_ordinal + 1
             if lu.ids not in seen:
                 lu.tag = "epi"
                 seen.add(lu.ids)
@@ -1779,20 +1962,58 @@ def tail_select_lineups(
     if n_qbvar:
         qb_all = [(i, p) for i, p in enumerate(pool) if p["pos"] == "QB"]
         qb_all.sort(key=lambda t: -float(np.percentile(rd[t[0]], 90)))
-        for _, qb in qb_all[:8]:
+        qb_targets = qb_all[:8]
+        if exposure_ledger is not None:
+            exposure_expected["qb_variant"] = len(qb_targets) * n_qbvar
+        for qb_index, (_, qb) in enumerate(qb_targets):
             banned_qv: list = []
-            for _ in range(n_qbvar):
+            for variant_index in range(n_qbvar):
+                requested_ordinal = qb_index * n_qbvar + variant_index
+                solve_started = perf_counter()
                 try:
                     lu = optimize(pool, stack=stack,
                                   objective_col=objective_col,
                                   locks={qb["id"]} | set(locks),
-                                  banned_lineups=banned_qv,
-                                  max_overlap=6, env=runtime_env)
+                                      banned_lineups=banned_qv,
+                                      max_overlap=6, env=runtime_env)
                 except Exception:
+                    solve_duration = perf_counter() - solve_started
+                    _record_exposure(
+                        family="qb_variant",
+                        requested_ordinal=requested_ordinal,
+                        duration_seconds=solve_duration,
+                        status="error",
+                    )
+                    for remaining in range(variant_index + 1, n_qbvar):
+                        _record_exposure(
+                            family="qb_variant",
+                            requested_ordinal=qb_index * n_qbvar + remaining,
+                            status="exhausted",
+                        )
                     break
+                solve_duration = perf_counter() - solve_started
                 if lu is None:
+                    _record_exposure(
+                        family="qb_variant",
+                        requested_ordinal=requested_ordinal,
+                        duration_seconds=solve_duration,
+                        status="infeasible",
+                    )
+                    for remaining in range(variant_index + 1, n_qbvar):
+                        _record_exposure(
+                            family="qb_variant",
+                            requested_ordinal=qb_index * n_qbvar + remaining,
+                            status="exhausted",
+                        )
                     break
                 banned_qv.append(lu.ids)
+                _record_exposure(
+                    family="qb_variant",
+                    requested_ordinal=requested_ordinal,
+                    duration_seconds=solve_duration,
+                    status="dup" if lu.ids in seen else "new",
+                    roster_ids=lu.ids,
+                )
                 if lu is not None:
                     _note(lu.ids, "qbvar")   # every producer (A2.1)
                 if lu.ids not in seen:
@@ -1826,20 +2047,58 @@ def tail_select_lineups(
     game_proj = (slate[slate.get("game_id").notna()]
                  .groupby("game_id")["proj"].sum().sort_values(ascending=False)
                  if "game_id" in slate.columns else pd.Series(dtype=float))
-    for gid in game_proj.head(n_game_stacks).index:
+    game_targets = list(game_proj.head(n_game_stacks).index)
+    if exposure_ledger is not None and game_targets:
+        exposure_expected["game_stack"] = len(game_targets) * n_per_game
+    for game_index, gid in enumerate(game_targets):
         banned = []
-        for _ in range(n_per_game):
+        for game_variant in range(n_per_game):
+            requested_ordinal = game_index * n_per_game + game_variant
+            solve_started = perf_counter()
             try:
                 lu = optimize(pool, stack=stack, objective_col=objective_col,
                               game_lock=(gid, 5), banned_lineups=banned,
                               max_overlap=7, locks=set(locks),
                               env=runtime_env)
             except Exception as exc:
+                solve_duration = perf_counter() - solve_started
+                _record_exposure(
+                    family="game_stack",
+                    requested_ordinal=requested_ordinal,
+                    duration_seconds=solve_duration,
+                    status="error",
+                )
+                for remaining in range(game_variant + 1, n_per_game):
+                    _record_exposure(
+                        family="game_stack",
+                        requested_ordinal=game_index * n_per_game + remaining,
+                        status="exhausted",
+                    )
                 log.warning("game-stack solve failed (%s): %s", gid, exc)
                 break
+            solve_duration = perf_counter() - solve_started
             if lu is None:
+                _record_exposure(
+                    family="game_stack",
+                    requested_ordinal=requested_ordinal,
+                    duration_seconds=solve_duration,
+                    status="infeasible",
+                )
+                for remaining in range(game_variant + 1, n_per_game):
+                    _record_exposure(
+                        family="game_stack",
+                        requested_ordinal=game_index * n_per_game + remaining,
+                        status="exhausted",
+                    )
                 break
             banned.append(lu.ids)
+            _record_exposure(
+                family="game_stack",
+                requested_ordinal=requested_ordinal,
+                duration_seconds=solve_duration,
+                status="dup" if lu.ids in seen else "new",
+                roster_ids=lu.ids,
+            )
             if lu is not None:
                 _note(lu.ids, "game")   # every producer (A2.1)
             if lu.ids not in seen:
@@ -1851,13 +2110,42 @@ def tail_select_lineups(
     # stacked a game ranked 8th-14th on the slate (addendum 20 study).
     n_dark = int(runtime_env.get("N_DARKGAME", "10"))
     if n_dark and len(game_proj) > n_game_stacks:
-        for gid in game_proj.index[n_game_stacks:n_game_stacks + n_dark]:
+        dark_targets = list(
+            game_proj.index[n_game_stacks:n_game_stacks + n_dark]
+        )
+        if exposure_ledger is not None:
+            exposure_expected["dark_game"] = len(dark_targets)
+        for dark_index, gid in enumerate(dark_targets):
+            solve_started = perf_counter()
             try:
                 lu = optimize(pool, stack=stack, objective_col=objective_col,
                               game_lock=(gid, 5), locks=set(locks),
                               env=runtime_env)
             except Exception:
+                solve_duration = perf_counter() - solve_started
+                _record_exposure(
+                    family="dark_game",
+                    requested_ordinal=dark_index,
+                    duration_seconds=solve_duration,
+                    status="error",
+                )
                 continue
+            solve_duration = perf_counter() - solve_started
+            if lu is None:
+                _record_exposure(
+                    family="dark_game",
+                    requested_ordinal=dark_index,
+                    duration_seconds=solve_duration,
+                    status="infeasible",
+                )
+            else:
+                _record_exposure(
+                    family="dark_game",
+                    requested_ordinal=dark_index,
+                    duration_seconds=solve_duration,
+                    status="dup" if lu.ids in seen else "new",
+                    roster_ids=lu.ids,
+                )
             if lu is not None:
                 _note(lu.ids, "dark")   # every producer (A2.1)
             if lu is not None and lu.ids not in seen:
@@ -1943,6 +2231,13 @@ def tail_select_lineups(
     cand_totals = np.stack([
         rd[[id2row[p["id"]] for p in lu.players]].sum(axis=0) for lu in cands
     ])
+    generation_exposure_ledger = (
+        exposure_ledger.finalize(
+            expected_requests_by_family=exposure_expected
+        )
+        if exposure_ledger is not None
+        else None
+    )
     native_batch = CandidateBatch(
         candidates=tuple(cands),
         candidate_totals=cand_totals,
@@ -1962,6 +2257,9 @@ def tail_select_lineups(
             ),
             "candidate_input_receipt": dict(
                 slate.attrs.get("candidate_input_receipt") or {}
+            ),
+            "construction_preset_receipt": dict(
+                construction_preset_receipt or {}
             ),
             "role_candidate_input_receipt": dict(
                 slate.attrs.get("role_candidate_input_receipt") or {}
@@ -2006,6 +2304,7 @@ def tail_select_lineups(
                     perf_counter() - generation_started
                 ),
             },
+            "generation_exposure_ledger": generation_exposure_ledger,
             "latent_optimization_receipt": tuple(
                 latent_optimization_receipt or ()
             ),
@@ -2591,6 +2890,8 @@ def run_week(
     n_boom_solves: int = 40,
     belief_slate: pd.DataFrame | None = None,
     belief_draws: np.ndarray | None = None,
+    policy_env: Mapping[str, str] | None = None,
+    construction_preset_receipt: Mapping[str, object] | None = None,
 ) -> WeekResult | None:
     """Backtest one historical slate. `slate` columns: REQUIRED_COLS.
     With `draws` (player-draw matrix indexed by the slate's draw_idx
@@ -2603,22 +2904,24 @@ def run_week(
     pool = slate.to_dict("records")
     obj = "proj_tourney" if "proj_tourney" in slate.columns else "proj"
     if draws is not None and tail_line is not None and "draw_idx" in slate.columns:
-        import os as _os
+        runtime_env = {} if policy_env is None else policy_env
 
         lineups = tail_select_lineups(
             slate, pool, draws, tail_line, n_entries, stack, obj,
             contest=contest, sharp_fraction=sharp_fraction,
-            candidate_multiple=int(_os.environ.get("CAND_MULT", "2")),
-            n_boom_solves=int(_os.environ.get("N_BOOM", str(n_boom_solves))),
+            candidate_multiple=int(runtime_env.get("CAND_MULT", "2")),
+            n_boom_solves=int(runtime_env.get("N_BOOM", str(n_boom_solves))),
             # Generator-mix A/B (2026-08-01): 2025 replays show the top-4
             # game-stack generator won 0/17 weeks from ~6% of the pool
             # while dark games won 4/17 from ~11% -- N_GAMESTACK=0 +
             # N_DARKGAME up reallocates toward what actually wins.
-            n_game_stacks=int(_os.environ.get("N_GAMESTACK", "4")),
-            belief_slate=belief_slate, belief_draws=belief_draws)
+            n_game_stacks=int(runtime_env.get("N_GAMESTACK", "4")),
+            belief_slate=belief_slate, belief_draws=belief_draws,
+            policy_env=runtime_env,
+            construction_preset_receipt=construction_preset_receipt)
     else:
         lineups = optimize_many(pool, n_lineups=n_entries, stack=stack,
-                                objective_col=obj)
+                                objective_col=obj, env=policy_env)
     if not lineups:
         log.warning("No feasible lineups for %s week %s", season, week)
         return None
@@ -2660,8 +2963,15 @@ def run(
     n_boom_solves: int = 40,
     belief_slates: list[pd.DataFrame] | None = None,
     belief_draws: np.ndarray | None = None,
+    policy_env: Mapping[str, str] | None = None,
+    construction_preset_receipt: Mapping[str, object] | None = None,
 ) -> BacktestResult:
-    result = BacktestResult(contest=contest)
+    result = BacktestResult(
+        contest=contest,
+        construction_preset_receipt=dict(
+            construction_preset_receipt or {}
+        ) or None,
+    )
     belief_by_week = ({
         (int(s["season"].iloc[0]), int(s["week"].iloc[0])): s
         for s in (belief_slates or [])
@@ -2673,7 +2983,8 @@ def run(
                       sharp_fraction=sharp_fraction, draws=draws,
                       tail_line=tail_line, n_boom_solves=n_boom_solves,
                       belief_slate=belief_by_week.get(key),
-                      belief_draws=belief_draws)
+                      belief_draws=belief_draws, policy_env=policy_env,
+                      construction_preset_receipt=construction_preset_receipt)
         if wk is not None:
             result.weeks.append(wk)
             log.info("season %s week %s: best %.1f pts, best pct %.1f%%",

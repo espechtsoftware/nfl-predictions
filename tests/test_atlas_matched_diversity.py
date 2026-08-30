@@ -182,7 +182,8 @@ def test_full_8x5_enumeration_is_deterministic_and_receipt_complete():
     stack = StackRules(qb_stack_min=2, bring_back_min=1)
     exact_lineups = optimize_many(
         players, n_lineups=8, max_overlap=8, stack=stack,
-        punt_max_salary=None, punt_min=0, env={"MIN_LINEUP_SALARY": "49000"},
+        punt_max_salary=None, punt_min=0,
+        env={"MIN_LINEUP_SALARY": "49000", "MIN_GAMES": "2"},
     )
     assert len(exact_lineups) == 8
     draws = np.full((len(players), 8), 20.0, dtype=np.float32)
@@ -212,7 +213,7 @@ def test_full_8x5_enumeration_is_deterministic_and_receipt_complete():
             clusters=clusters, exact_worlds=exact,
             interaction_weights=weights, nonboom_lineups=[],
             prior_atlas_rosters={first_roster}, stack=stack,
-            env={"MIN_LINEUP_SALARY": "49000"},
+            env={"MIN_LINEUP_SALARY": "49000", "MIN_GAMES": "2"},
         )
 
     left_additions, left = run_once()
