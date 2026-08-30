@@ -242,10 +242,18 @@ def _fixture_builder(compact_contract):
                     status="new",
                     roster_ids=lineups[leverage + requested].ids,
                 )
+            for requested in range(cross.ROLE_SOLVES_PER_BLOCK):
+                ledger.record(
+                    family="role_epistemic",
+                    requested_ordinal=requested,
+                    status="new",
+                    roster_ids=lineups[leverage + boom + requested].ids,
+                )
             cached_ledgers[ledger_key] = ledger.finalize(
                 expected_requests_by_family={
                     "leverage": leverage,
                     "boom": boom,
+                    "role_epistemic": cross.ROLE_SOLVES_PER_BLOCK,
                 }
             )
         allocation = {
@@ -313,6 +321,243 @@ def _fixture_builder(compact_contract):
         )
 
     return build, calls, players
+
+
+def _ledger_with_native_auxiliary_families(
+    *, role_requests: int = 0,
+) -> dict[str, object]:
+    """Mirror the core and adopted auxiliary solves emitted by the engine."""
+
+    def roster(start: int) -> list[str]:
+        return [
+            f"ledger-p{index:02d}" for index in range(start, start + 9)
+        ]
+    ledger = SolveExposureLedger(source_label="R0")
+    ledger.record(
+        family="leverage", requested_ordinal=0, status="new",
+        roster_ids=roster(0),
+    )
+    ledger.record(
+        family="leverage", requested_ordinal=1, status="error",
+    )
+    ledger.record(
+        family="leverage", requested_ordinal=1, retry_ordinal=1,
+        status="new", roster_ids=roster(10),
+    )
+    boom_roster = roster(20)
+    ledger.record(
+        family="boom", requested_ordinal=0, world_id=0, status="new",
+        roster_ids=boom_roster,
+    )
+    ledger.record(
+        family="boom", requested_ordinal=1, world_id=1, status="dup",
+        roster_ids=boom_roster,
+    )
+    ledger.record(
+        family="qb_variant", requested_ordinal=0, status="new",
+        roster_ids=roster(30),
+    )
+    ledger.record(
+        family="game_stack", requested_ordinal=0, status="infeasible",
+    )
+    ledger.record(
+        family="dark_game", requested_ordinal=0, status="exhausted",
+    )
+    for requested in range(role_requests):
+        ledger.record(
+            family="role_epistemic",
+            requested_ordinal=requested,
+            status="new",
+            roster_ids=roster(40 + requested * 10),
+        )
+    expected_requests = {
+        "leverage": 2,
+        "boom": 2,
+        "qb_variant": 1,
+        "game_stack": 1,
+        "dark_game": 1,
+    }
+    if role_requests:
+        expected_requests["role_epistemic"] = role_requests
+    return ledger.finalize(expected_requests_by_family=expected_requests)
+
+
+def _auxiliary_ledger_allocation() -> dict[str, object]:
+    return {
+        "leverage_requested": 2,
+        "leverage_unique": 2,
+        "leverage_solve_attempts": 3,
+        "leverage_solver_errors": 1,
+        "leverage_infeasible": 0,
+        "leverage_successful": 2,
+        "boom_requested": 2,
+        "boom_attempted": 2,
+        "boom_successful": 2,
+        "boom_solver_errors": 0,
+        "boom_infeasible": 0,
+        "boom_duplicates": 1,
+        "boom_failures": 0,
+        "boom_unique_added": 1,
+        "role_or_epistemic_requested": cross.ROLE_SOLVES_PER_BLOCK,
+    }
+
+
+def test_ledger_summary_separates_native_auxiliary_families_from_core():
+    summary = cross._ledger_summary(
+        _ledger_with_native_auxiliary_families(),
+        cell_id="fixture-cell",
+        seed_label="R0",
+        leverage=2,
+        boom=2,
+        allocation=_auxiliary_ledger_allocation(),
+        role_input_mode="frozen-role12-candidate-identities",
+    )
+
+    assert summary["expected_requests_by_family"] == {
+        "boom": 2,
+        "dark_game": 1,
+        "game_stack": 1,
+        "leverage": 2,
+        "qb_variant": 1,
+    }
+    assert summary["core_expected_requests_by_family"] == {
+        "boom": 2,
+        "leverage": 2,
+    }
+    assert summary["auxiliary_expected_requests_by_family"] == {
+        "dark_game": 1,
+        "game_stack": 1,
+        "qb_variant": 1,
+    }
+    assert summary["status_counts"] == {
+        "dup": 1,
+        "error": 1,
+        "exhausted": 1,
+        "infeasible": 1,
+        "new": 4,
+    }
+    assert summary["status_counts_by_family"]["leverage"] == {
+        "dup": 0,
+        "error": 1,
+        "exhausted": 0,
+        "infeasible": 0,
+        "new": 2,
+    }
+    assert summary["core_status_counts"] == {
+        "dup": 1,
+        "error": 1,
+        "exhausted": 0,
+        "infeasible": 0,
+        "new": 3,
+    }
+    assert summary["auxiliary_status_counts"] == {
+        "dup": 0,
+        "error": 0,
+        "exhausted": 1,
+        "infeasible": 1,
+        "new": 1,
+    }
+    assert summary["attempt_count"] == 8
+    assert summary["retry_attempt_count"] == 1
+    assert summary["core_attempt_count"] == 5
+    assert summary["core_retry_attempt_count"] == 1
+
+
+@pytest.mark.parametrize(
+    ("leverage", "boom", "allocation_field"),
+    ((3, 2, None), (2, 3, None), (2, 2, "boom_duplicates")),
+)
+def test_auxiliary_ledger_still_rejects_core_census_and_allocation_mismatch(
+    leverage, boom, allocation_field,
+):
+    allocation = _auxiliary_ledger_allocation()
+    if allocation_field is not None:
+        allocation[allocation_field] = 0
+    with pytest.raises(
+        cross.ConstructionAllocationCrossError,
+        match="exposure census|exposure/allocation telemetry",
+    ):
+        cross._ledger_summary(
+            _ledger_with_native_auxiliary_families(),
+            cell_id="fixture-cell",
+            seed_label="R0",
+            leverage=leverage,
+            boom=boom,
+            allocation=allocation,
+            role_input_mode="frozen-role12-candidate-identities",
+        )
+
+
+def test_role_player_worlds_requires_exact_role_epistemic_census():
+    summary = cross._ledger_summary(
+        _ledger_with_native_auxiliary_families(
+            role_requests=cross.ROLE_SOLVES_PER_BLOCK,
+        ),
+        cell_id="fixture-cell",
+        seed_label="R0",
+        leverage=2,
+        boom=2,
+        allocation=_auxiliary_ledger_allocation(),
+        role_input_mode="role-player-worlds",
+    )
+
+    assert summary["role_expected_requests_by_family"] == {
+        "role_epistemic": cross.ROLE_SOLVES_PER_BLOCK,
+    }
+    assert summary["role_status_counts"] == {
+        "dup": 0,
+        "error": 0,
+        "exhausted": 0,
+        "infeasible": 0,
+        "new": cross.ROLE_SOLVES_PER_BLOCK,
+    }
+    assert summary["role_attempt_count"] == cross.ROLE_SOLVES_PER_BLOCK
+    assert summary["role_retry_attempt_count"] == 0
+    assert summary["role_failure_or_exhaustion_count"] == 0
+    assert summary["auxiliary_expected_requests_by_family"] == {
+        "dark_game": 1,
+        "game_stack": 1,
+        "qb_variant": 1,
+    }
+
+
+@pytest.mark.parametrize("role_requests", (0, 11, 13))
+def test_role_player_worlds_rejects_nonexact_role_epistemic_census(
+    role_requests,
+):
+    with pytest.raises(
+        cross.ConstructionAllocationCrossError,
+        match="exposure census",
+    ):
+        cross._ledger_summary(
+            _ledger_with_native_auxiliary_families(
+                role_requests=role_requests,
+            ),
+            cell_id="fixture-cell",
+            seed_label="R0",
+            leverage=2,
+            boom=2,
+            allocation=_auxiliary_ledger_allocation(),
+            role_input_mode="role-player-worlds",
+        )
+
+
+def test_frozen_role12_rejects_role_epistemic_exposure_family():
+    with pytest.raises(
+        cross.ConstructionAllocationCrossError,
+        match="exposure census",
+    ):
+        cross._ledger_summary(
+            _ledger_with_native_auxiliary_families(
+                role_requests=cross.ROLE_SOLVES_PER_BLOCK,
+            ),
+            cell_id="fixture-cell",
+            seed_label="R0",
+            leverage=2,
+            boom=2,
+            allocation=_auxiliary_ledger_allocation(),
+            role_input_mode="frozen-role12-candidate-identities",
+        )
 
 
 def _selection(compact_contract):

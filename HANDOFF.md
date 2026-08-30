@@ -156,6 +156,99 @@ and operator decisions.  The older entries remain the durable chronology.
   from this core release and do not claim scoring readiness until the distinct
   task-0 worker and verifier/predecessor closure are green.
 
+## Current handoff -- 2026-08-30 (four-hundred-twenty-fifth update)
+
+### Full exposure-ledger repair passes the exact real-artifact R0 smoke
+
+- Disabled-template sentinel `atlas-cbc-32g-full-2023-w8-v1-nxg85`, UID
+  `e062cb4e-07a6-42cd-9da9-8f535a011c49`, succeeded 1/1 at
+  `2026-08-30T14:20:15.518988Z`.  The replacement `ce39aae8` image was then
+  installed dormant into only existing job `atlas-cbc-32g-full-2023-w8-v1`,
+  UID `1f4bcf0a-2300-4afa-9fc1-9981844c8275`, as generation 40.  Installation
+  launched no experiment work.
+- Prepare execution `atlas-cbc-32g-full-2023-w8-v1-m8d6r`, UID
+  `d6ad36d6-b256-4ddf-9e1d-7eaeee12d6c7`, succeeded 1/1 at
+  `2026-08-30T14:24:32.530160Z`.  It published and exact-reopened 54 typed
+  placeholders plus the new 60,541-byte input manifest at generation
+  `1788099868425879`, SHA-256
+  `5abc8dae3ac4a83de8bcbab161a672bff17c4fcd79e7826c3c8d494b9dd7dbf1`,
+  internal SHA-256
+  `42882bc5920dc7434aadf2e54e8a7afa7ebfafd604f7e80a33580ad5bbb55e4f`,
+  URI
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-construction-allocation-snapshot-shards/20260830-construction-allocation-ce39aae8-v1/input-manifest.json`.
+  Prepare receipt SHA-256 is
+  `ed66c4774f332811f04173b12ab6d952f3aec50287a86cbf77bbeaf9a01bcd49`.
+- Real-artifact task-0 `atlas-cbc-32g-full-2023-w8-v1-hvhvg`, UID
+  `f264648e-06c9-41c2-be16-95799fe69ffa`, ended terminal failed 1/1 with no
+  retry at `2026-08-30T14:33:17.419057Z`.  Its exact application error was
+  `classic-incumbent-gpp-v1--lev160-boom40/R0 exposure census differs`.
+  Task-0 had `publish=False`; no shard, selection, terminal or outcome object
+  was written or read, and the 54-task cohort was not launched.
+- The canonical generation ledger was valid; the crossing validator was
+  wrong.  It required the entire ledger to equal only leverage plus boom,
+  even though production also receipts input-dependent `qb_variant`,
+  `game_stack` and `dark_game` work, compared global statuses to core-only
+  allocation telemetry, and counted every auxiliary request as a retry.
+  The repair canonical-validates the full ledger, separately receipts and
+  reconciles core, role and auxiliary censuses/statuses/attempts/retries, and
+  requires only the requested auxiliary-family census to be equal across the
+  four factor cells for a slate/seed.  Natural auxiliary feasibility and
+  duplicate outcomes may differ.  Live role worlds require exactly
+  `role_epistemic: 12`; frozen-role12 candidate identities forbid that native
+  ledger family because their twelve identities are separately exact-bound.
+- The complete eight-module release cohort is green at **58/58**, including
+  acceptance of a realistic five-family ledger, exact core/allocation
+  mismatch rejection, live-role exact-12 and 0/11/13 rejection, and
+  frozen-role rejection of hidden role solves.  Python compilation and diff
+  checks are clean; independent review found no arithmetic, call-site,
+  partition or reopen defect in the patch.
+- A fixed-working-tree diagnostic then exact-read the old manifest and exact
+  2023-W01 snapshot/R0--R4 artifacts with publication disabled.  It completed
+  successfully with smoke SHA-256
+  `691b34035138859384ea90c883d33b35c311f4a92df3173b7c7cde1606db50cd`,
+  scientific SHA-256
+  `57d2c6173ee33fef052b9af20813410b0fd92fae5e62c823ecd63a27647d9f82`
+  and shard SHA-256
+  `6f7f9e280ecab6a87317d8b045e7c65b4a097f357bdb618af3975ce171bceee9`.
+  Its receipt says `complete=true`, `publication_performed=false`,
+  `execution_launched=false`, `uses_target_slate_outcomes=false` and no shard
+  identity.  This is real-artifact diagnostic evidence, not release
+  authority, because it intentionally ran fixed working-tree code against
+  the old `ce39aae8` manifest/image binding.
+- Exact next action: commit and push only the cross validator, its regression
+  and updates 424--425 of this handoff.  Repeat all 58 release tests from a
+  fresh Git-only checkout, build and attest one new immutable image, run the
+  required disabled-template sentinel because the job's latest execution is
+  failed, install dormant, prepare a new code/image-bound run ID and pass one
+  cloud task-0 before releasing the 54-task outcome-blind cohort.  Do not
+  reuse the old manifest as authority and do not access realized outcomes.
+
+## Current handoff -- 2026-08-30 (four-hundred-twenty-fourth update)
+
+### Replacement DST-guard image and build attestation are complete
+
+- The exact guard repair is committed and pushed as
+  `ce39aae8225fddcf9cdfc929daa52568f1ad79dd`.  A new Git-only checkout was
+  clean and passed the exact release cohort **49/49**, shell syntax and Cloud
+  Build YAML parsing before submission.
+- Exact-direct-Git Cloud Build
+  `02aaa6bb-877c-40a4-83f1-da06d51ac179` completed successfully and produced
+  immutable image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:1a29fa741dbcb4748fac658e8f6f6f77a946295111e70c50488bc360a29c090f`.
+  Provider requested/resolved Git source is exact and no outcome artifact was
+  read or placed in the narrow image context.
+- Its create-once runtime-build attestation is generation
+  `1788099441346655`, 855 bytes, SHA-256
+  `f0ea549941692fca462510fcc46034ece0acf5c8ed596b9fdd973e4d0a44270d`
+  at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-construction-allocation-builds/ce39aae8225fddcf9cdfc929daa52568f1ad79dd/02aaa6bb-877c-40a4-83f1-da06d51ac179/runtime-build-attestation.json`.
+- Exact next action: because the job's latest exact execution is the terminal
+  failed old-image smoke, execute its verified disabled template once with
+  one task and wait for success.  Then install this new image dormant and
+  prepare a new run ID whose manifest binds this new code/image attestation;
+  the old prepared manifest remains immutable evidence and cannot authorize
+  the replacement runtime.  Run task-0 exactly once before any 54-task launch.
+
 ## Current handoff -- 2026-08-30 (four-hundred-twenty-third update)
 
 ### Real-artifact smoke caught a float32 constant-row false failure

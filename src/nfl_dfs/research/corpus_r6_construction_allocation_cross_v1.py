@@ -83,6 +83,14 @@ TAIL_LINE: Final = 194.0
 ENTRIES: Final = 80
 PREFIXES: Final = (20, 40, 80)
 THRESHOLDS: Final = (194, 200, 210, 220, 230, 240)
+EXPOSURE_STATUSES: Final = (
+    "dup", "error", "exhausted", "infeasible", "new",
+)
+CORE_EXPOSURE_FAMILIES: Final = ("boom", "leverage")
+ROLE_EXPOSURE_FAMILY: Final = "role_epistemic"
+NATIVE_AUXILIARY_EXPOSURE_FAMILIES: Final = frozenset({
+    "dark_game", "game_stack", "qb_variant",
+})
 
 ALLOCATION_INCUMBENT: Final = "lev160-boom40"
 ALLOCATION_BOOM_FIRST: Final = "lev40-boom160"
@@ -1233,6 +1241,7 @@ def _ledger_summary(
     seed_label: str,
     leverage: int,
     boom: int,
+    role_input_mode: str,
     allocation: Mapping[str, object],
 ) -> dict[str, object]:
     try:
@@ -1241,43 +1250,148 @@ def _ledger_summary(
         raise ConstructionAllocationCrossError(
             f"{cell_id}/{seed_label} exposure ledger differs"
         ) from exc
-    expected = {"boom": boom, "leverage": leverage}
-    if ledger["source_label"] != seed_label or ledger[
-        "expected_requests_by_family"
-    ] != expected:
-        _fail(f"{cell_id}/{seed_label} exposure census differs")
-    status = ledger["status_counts"]
+    core_expected = {"boom": boom, "leverage": leverage}
+    role_expected = _role_exposure_expected(role_input_mode)
+    expected = {
+        str(family): int(count)
+        for family, count in ledger["expected_requests_by_family"].items()
+    }
+    auxiliary_expected = {
+        family: count for family, count in expected.items()
+        if family not in CORE_EXPOSURE_FAMILIES
+        and family != ROLE_EXPOSURE_FAMILY
+    }
     if (
-        status["new"] + status["dup"]
+        ledger["source_label"] != seed_label
+        or any(expected.get(family) != count for family, count in (
+            core_expected.items()
+        ))
+        or expected.get(ROLE_EXPOSURE_FAMILY, 0)
+        != role_expected.get(ROLE_EXPOSURE_FAMILY, 0)
+        or (ROLE_EXPOSURE_FAMILY in expected) != bool(role_expected)
+        or set(auxiliary_expected) - NATIVE_AUXILIARY_EXPOSURE_FAMILIES
+    ):
+        _fail(f"{cell_id}/{seed_label} exposure census differs")
+    status_by_family = {
+        family: {status: 0 for status in EXPOSURE_STATUSES}
+        for family in expected
+    }
+    for row in ledger["rows"]:
+        family = str(row["family"])
+        row_status = str(row["status"])
+        status_by_family[family][row_status] += 1
+    status_by_family = {
+        family: dict(sorted(counts.items()))
+        for family, counts in sorted(status_by_family.items())
+    }
+    core_status = {
+        status: sum(
+            status_by_family[family][status]
+            for family in CORE_EXPOSURE_FAMILIES
+        )
+        for status in EXPOSURE_STATUSES
+    }
+    auxiliary_status = {
+        status: sum(
+            counts[status]
+            for family, counts in status_by_family.items()
+            if family not in CORE_EXPOSURE_FAMILIES
+            and family != ROLE_EXPOSURE_FAMILY
+        )
+        for status in EXPOSURE_STATUSES
+    }
+    role_status = {
+        status: (
+            status_by_family[ROLE_EXPOSURE_FAMILY][status]
+            if role_expected else 0
+        )
+        for status in EXPOSURE_STATUSES
+    }
+    leverage_status = status_by_family["leverage"]
+    boom_status = status_by_family["boom"]
+    if (
+        leverage_status["new"] + leverage_status["dup"]
         != int(allocation["leverage_successful"])
-        + int(allocation["boom_successful"])
-        or status["new"]
-        != int(allocation["leverage_unique"])
-        + int(allocation["boom_unique_added"])
-        or status["dup"] != int(allocation["boom_duplicates"])
-        or status["error"]
+        or leverage_status["new"] != int(allocation["leverage_unique"])
+        or leverage_status["dup"]
+        != int(allocation["leverage_successful"])
+        - int(allocation["leverage_unique"])
+        or leverage_status["error"]
         != int(allocation["leverage_solver_errors"])
-        + int(allocation["boom_solver_errors"])
-        or status["infeasible"]
+        or leverage_status["infeasible"]
         != int(allocation["leverage_infeasible"])
-        + int(allocation["boom_infeasible"])
+        or sum(
+            leverage_status[key]
+            for key in EXPOSURE_STATUSES if key != "exhausted"
+        ) != int(allocation["leverage_solve_attempts"])
+        or boom_status["new"] + boom_status["dup"]
+        != int(allocation["boom_successful"])
+        or boom_status["new"] != int(allocation["boom_unique_added"])
+        or boom_status["dup"] != int(allocation["boom_duplicates"])
+        or boom_status["error"] != int(allocation["boom_solver_errors"])
+        or boom_status["infeasible"] != int(allocation["boom_infeasible"])
+        or boom_status["exhausted"] != 0
     ):
         _fail(f"{cell_id}/{seed_label} exposure/allocation telemetry differs")
-    return {
+    status = dict(ledger["status_counts"])
+    total_expected = sum(expected.values())
+    core_attempt_count = sum(core_status.values())
+    role_attempt_count = sum(role_status.values())
+    auxiliary_attempt_count = (
+        int(ledger["attempt_count"]) - core_attempt_count - role_attempt_count
+    )
+    auxiliary_expected_count = sum(auxiliary_expected.values())
+    summary = {
         "ledger_sha256": ledger["ledger_sha256"],
         "row_manifest_sha256": ledger["row_manifest_sha256"],
-        "expected_requests_by_family": dict(ledger[
-            "expected_requests_by_family"
-        ]),
+        "expected_requests_by_family": dict(sorted(expected.items())),
+        "core_expected_requests_by_family": dict(sorted(
+            core_expected.items()
+        )),
+        "role_expected_requests_by_family": dict(sorted(
+            role_expected.items()
+        )),
+        "auxiliary_expected_requests_by_family": dict(sorted(
+            auxiliary_expected.items()
+        )),
         "attempt_count": ledger["attempt_count"],
         "retry_attempt_count": (
-            int(ledger["attempt_count"]) - leverage - boom
+            int(ledger["attempt_count"]) - total_expected
         ),
-        "status_counts": dict(ledger["status_counts"]),
+        "core_attempt_count": core_attempt_count,
+        "core_retry_attempt_count": core_attempt_count - leverage - boom,
+        "role_attempt_count": role_attempt_count,
+        "role_retry_attempt_count": (
+            role_attempt_count - sum(role_expected.values())
+        ),
+        "auxiliary_attempt_count": auxiliary_attempt_count,
+        "auxiliary_retry_attempt_count": (
+            auxiliary_attempt_count - auxiliary_expected_count
+        ),
+        "status_counts": status,
+        "status_counts_by_family": status_by_family,
+        "core_status_counts": dict(sorted(core_status.items())),
+        "role_status_counts": dict(sorted(role_status.items())),
+        "auxiliary_status_counts": dict(sorted(auxiliary_status.items())),
         "failure_or_exhaustion_count": (
             int(status["error"])
             + int(status["infeasible"])
             + int(status["exhausted"])
+        ),
+        "core_failure_or_exhaustion_count": (
+            int(core_status["error"])
+            + int(core_status["infeasible"])
+            + int(core_status["exhausted"])
+        ),
+        "role_failure_or_exhaustion_count": (
+            int(role_status["error"])
+            + int(role_status["infeasible"])
+            + int(role_status["exhausted"])
+        ),
+        "auxiliary_failure_or_exhaustion_count": (
+            int(auxiliary_status["error"])
+            + int(auxiliary_status["infeasible"])
+            + int(auxiliary_status["exhausted"])
         ),
         "duration_seconds_by_family": dict(ledger[
             "duration_seconds_by_family"
@@ -1286,6 +1400,299 @@ def _ledger_summary(
         "uses_realized_outcomes": False,
         "post_lock_data_read": False,
     }
+    return _validate_ledger_summary_receipt(
+        summary,
+        cell_id=cell_id,
+        seed_label=seed_label,
+        leverage=leverage,
+        boom=boom,
+        role_input_mode=role_input_mode,
+        allocation=allocation,
+    )
+
+
+_EXPOSURE_SUMMARY_FIELDS: Final = frozenset({
+    "ledger_sha256",
+    "row_manifest_sha256",
+    "expected_requests_by_family",
+    "core_expected_requests_by_family",
+    "role_expected_requests_by_family",
+    "auxiliary_expected_requests_by_family",
+    "attempt_count",
+    "retry_attempt_count",
+    "core_attempt_count",
+    "core_retry_attempt_count",
+    "role_attempt_count",
+    "role_retry_attempt_count",
+    "auxiliary_attempt_count",
+    "auxiliary_retry_attempt_count",
+    "status_counts",
+    "status_counts_by_family",
+    "core_status_counts",
+    "role_status_counts",
+    "auxiliary_status_counts",
+    "failure_or_exhaustion_count",
+    "core_failure_or_exhaustion_count",
+    "role_failure_or_exhaustion_count",
+    "auxiliary_failure_or_exhaustion_count",
+    "duration_seconds_by_family",
+    "total_duration_seconds",
+    "uses_realized_outcomes",
+    "post_lock_data_read",
+})
+
+
+def _role_exposure_expected(role_input_mode: str) -> dict[str, int]:
+    if role_input_mode == "role-player-worlds":
+        return {ROLE_EXPOSURE_FAMILY: ROLE_SOLVES_PER_BLOCK}
+    if role_input_mode == "frozen-role12-candidate-identities":
+        return {}
+    _fail("exposure role input mode differs")
+
+
+def _status_count_mapping(value: object, *, label: str) -> dict[str, int]:
+    if (
+        not isinstance(value, Mapping)
+        or set(value) != set(EXPOSURE_STATUSES)
+        or any(type(count) is not int or count < 0 for count in value.values())
+    ):
+        _fail(f"{label} exposure status census differs")
+    return {status: int(value[status]) for status in EXPOSURE_STATUSES}
+
+
+def _validate_core_exposure_allocation(
+    status_by_family: Mapping[str, Mapping[str, int]],
+    *,
+    cell_id: str,
+    seed_label: str,
+    allocation: Mapping[str, object],
+) -> None:
+    leverage_status = status_by_family["leverage"]
+    boom_status = status_by_family["boom"]
+    required = (
+        "leverage_solve_attempts",
+        "leverage_solver_errors",
+        "leverage_infeasible",
+        "leverage_successful",
+        "leverage_unique",
+        "boom_successful",
+        "boom_solver_errors",
+        "boom_infeasible",
+        "boom_duplicates",
+        "boom_unique_added",
+    )
+    if any(
+        type(allocation.get(key)) is not int or int(allocation[key]) < 0
+        for key in required
+    ):
+        _fail(f"{cell_id}/{seed_label} exposure/allocation telemetry differs")
+    if (
+        leverage_status["new"] + leverage_status["dup"]
+        != int(allocation["leverage_successful"])
+        or leverage_status["new"] != int(allocation["leverage_unique"])
+        or leverage_status["dup"]
+        != int(allocation["leverage_successful"])
+        - int(allocation["leverage_unique"])
+        or leverage_status["error"]
+        != int(allocation["leverage_solver_errors"])
+        or leverage_status["infeasible"]
+        != int(allocation["leverage_infeasible"])
+        or sum(
+            leverage_status[key]
+            for key in EXPOSURE_STATUSES if key != "exhausted"
+        ) != int(allocation["leverage_solve_attempts"])
+        or boom_status["new"] + boom_status["dup"]
+        != int(allocation["boom_successful"])
+        or boom_status["new"] != int(allocation["boom_unique_added"])
+        or boom_status["dup"] != int(allocation["boom_duplicates"])
+        or boom_status["error"] != int(allocation["boom_solver_errors"])
+        or boom_status["infeasible"] != int(allocation["boom_infeasible"])
+        or boom_status["exhausted"] != 0
+    ):
+        _fail(f"{cell_id}/{seed_label} exposure/allocation telemetry differs")
+
+
+def _validate_ledger_summary_receipt(
+    value: object,
+    *,
+    cell_id: str,
+    seed_label: str,
+    leverage: int,
+    boom: int,
+    role_input_mode: str,
+    allocation: Mapping[str, object],
+) -> dict[str, object]:
+    label = f"{cell_id}/{seed_label}"
+    if not isinstance(value, Mapping) or set(value) != _EXPOSURE_SUMMARY_FIELDS:
+        _fail(f"{label} exposure summary fields differ")
+    item = dict(value)
+    if any(
+        _SHA256.fullmatch(str(item.get(key, ""))) is None
+        for key in ("ledger_sha256", "row_manifest_sha256")
+    ):
+        _fail(f"{label} exposure summary identity differs")
+    raw_expected = item["expected_requests_by_family"]
+    raw_core = item["core_expected_requests_by_family"]
+    raw_role = item["role_expected_requests_by_family"]
+    raw_auxiliary = item["auxiliary_expected_requests_by_family"]
+    if any(not isinstance(row, Mapping) for row in (
+        raw_expected, raw_core, raw_role, raw_auxiliary,
+    )):
+        _fail(f"{label} exposure census differs")
+    expected = {
+        str(family): count for family, count in raw_expected.items()
+    }
+    core_expected = {"boom": boom, "leverage": leverage}
+    role_expected = _role_exposure_expected(role_input_mode)
+    auxiliary_expected = {
+        family: count for family, count in expected.items()
+        if family not in CORE_EXPOSURE_FAMILIES
+        and family != ROLE_EXPOSURE_FAMILY
+    }
+    if (
+        any(type(count) is not int or count < 0 for count in expected.values())
+        or dict(raw_core) != core_expected
+        or dict(raw_role) != role_expected
+        or dict(raw_auxiliary) != auxiliary_expected
+        or any(expected.get(family) != count for family, count in (
+            core_expected.items()
+        ))
+        or expected.get(ROLE_EXPOSURE_FAMILY, 0)
+        != role_expected.get(ROLE_EXPOSURE_FAMILY, 0)
+        or (ROLE_EXPOSURE_FAMILY in expected) != bool(role_expected)
+        or set(auxiliary_expected) - NATIVE_AUXILIARY_EXPOSURE_FAMILIES
+    ):
+        _fail(f"{label} exposure census differs")
+    raw_by_family = item["status_counts_by_family"]
+    if not isinstance(raw_by_family, Mapping) or set(raw_by_family) != set(
+        expected
+    ):
+        _fail(f"{label} exposure family-status census differs")
+    status_by_family = {
+        family: _status_count_mapping(
+            raw_by_family[family], label=f"{label}/{family}",
+        )
+        for family in expected
+    }
+    status = _status_count_mapping(item["status_counts"], label=label)
+    core_status = _status_count_mapping(
+        item["core_status_counts"], label=f"{label}/core",
+    )
+    role_status = _status_count_mapping(
+        item["role_status_counts"], label=f"{label}/role",
+    )
+    auxiliary_status = _status_count_mapping(
+        item["auxiliary_status_counts"], label=f"{label}/auxiliary",
+    )
+    expected_status = {
+        key: sum(counts[key] for counts in status_by_family.values())
+        for key in EXPOSURE_STATUSES
+    }
+    expected_core_status = {
+        key: sum(status_by_family[family][key]
+                 for family in CORE_EXPOSURE_FAMILIES)
+        for key in EXPOSURE_STATUSES
+    }
+    expected_role_status = {
+        key: (
+            status_by_family[ROLE_EXPOSURE_FAMILY][key]
+            if role_expected else 0
+        )
+        for key in EXPOSURE_STATUSES
+    }
+    expected_auxiliary_status = {
+        key: (
+            expected_status[key] - expected_core_status[key]
+            - expected_role_status[key]
+        )
+        for key in EXPOSURE_STATUSES
+    }
+    if (
+        status != expected_status
+        or core_status != expected_core_status
+        or role_status != expected_role_status
+        or auxiliary_status != expected_auxiliary_status
+    ):
+        _fail(f"{label} exposure aggregate status census differs")
+    integer_fields = (
+        "attempt_count", "retry_attempt_count", "core_attempt_count",
+        "core_retry_attempt_count", "auxiliary_attempt_count",
+        "role_attempt_count", "role_retry_attempt_count",
+        "auxiliary_retry_attempt_count", "failure_or_exhaustion_count",
+        "core_failure_or_exhaustion_count",
+        "role_failure_or_exhaustion_count",
+        "auxiliary_failure_or_exhaustion_count",
+    )
+    if any(type(item.get(key)) is not int for key in integer_fields):
+        _fail(f"{label} exposure attempt census differs")
+    attempt_count = sum(status.values())
+    core_attempt_count = sum(core_status.values())
+    role_attempt_count = sum(role_status.values())
+    auxiliary_attempt_count = sum(auxiliary_status.values())
+    retry_count = attempt_count - sum(expected.values())
+    core_retry_count = core_attempt_count - leverage - boom
+    role_retry_count = role_attempt_count - sum(role_expected.values())
+    auxiliary_retry_count = (
+        auxiliary_attempt_count - sum(auxiliary_expected.values())
+    )
+    failure_keys = ("error", "exhausted", "infeasible")
+    if (
+        any(sum(counts.values()) < expected[family]
+            for family, counts in status_by_family.items())
+        or min(
+            retry_count, core_retry_count, role_retry_count,
+            auxiliary_retry_count,
+        ) < 0
+        or item["attempt_count"] != attempt_count
+        or item["retry_attempt_count"] != retry_count
+        or item["core_attempt_count"] != core_attempt_count
+        or item["core_retry_attempt_count"] != core_retry_count
+        or item["role_attempt_count"] != role_attempt_count
+        or item["role_retry_attempt_count"] != role_retry_count
+        or item["auxiliary_attempt_count"] != auxiliary_attempt_count
+        or item["auxiliary_retry_attempt_count"] != auxiliary_retry_count
+        or item["failure_or_exhaustion_count"]
+        != sum(status[key] for key in failure_keys)
+        or item["core_failure_or_exhaustion_count"]
+        != sum(core_status[key] for key in failure_keys)
+        or item["role_failure_or_exhaustion_count"]
+        != sum(role_status[key] for key in failure_keys)
+        or item["auxiliary_failure_or_exhaustion_count"]
+        != sum(auxiliary_status[key] for key in failure_keys)
+    ):
+        _fail(f"{label} exposure attempt census differs")
+    durations = item["duration_seconds_by_family"]
+    total_duration = item["total_duration_seconds"]
+    if (
+        not isinstance(durations, Mapping)
+        or set(durations) != set(expected)
+        or any(
+            isinstance(number, bool)
+            or not isinstance(number, (int, float))
+            or not math.isfinite(float(number))
+            or float(number) < 0
+            for number in durations.values()
+        )
+        or isinstance(total_duration, bool)
+        or not isinstance(total_duration, (int, float))
+        or not math.isfinite(float(total_duration))
+        or not math.isclose(
+            float(total_duration),
+            sum(float(number) for number in durations.values()),
+            rel_tol=1e-12,
+            abs_tol=1e-9,
+        )
+        or item["uses_realized_outcomes"] is not False
+        or item["post_lock_data_read"] is not False
+    ):
+        _fail(f"{label} exposure duration/outcome receipt differs")
+    _validate_core_exposure_allocation(
+        status_by_family,
+        cell_id=cell_id,
+        seed_label=seed_label,
+        allocation=allocation,
+    )
+    return item
 
 
 def _native_receipt(
@@ -1447,6 +1854,7 @@ def _native_receipt(
         seed_label=seed_label,
         leverage=leverage,
         boom=boom,
+        role_input_mode=str(role_mode),
         allocation=allocation,
     )
     timing_out: dict[str, float] = {}
@@ -1663,6 +2071,17 @@ def build_score_blind_slate_v1(
                     f"{slate.slate_id}/{seed_label} role worlds differ "
                     "across cells"
                 )
+            if native_receipts[cell_id][-1][
+                "exposure_ledger_summary"
+            ]["auxiliary_expected_requests_by_family"] != (
+                native_receipts[CELL_ORDER[0]][-1][
+                    "exposure_ledger_summary"
+                ]["auxiliary_expected_requests_by_family"]
+            ):
+                _fail(
+                    f"{slate.slate_id}/{seed_label} auxiliary-family census "
+                    "differs across cells"
+                )
 
     combined: dict[str, CandidateBatch] = {}
     cell_rows: dict[str, dict[str, object]] = {}
@@ -1790,6 +2209,7 @@ def build_score_blind_slate_v1(
         "same_audit_bank_all_cells": True,
         "same_player_worlds_all_cells": True,
         "same_role_worlds_all_cells": True,
+        "same_auxiliary_family_census_all_cells": True,
         "pairwise_population_overlap": overlap_rows,
         "cells": cell_rows,
     }
@@ -1876,6 +2296,7 @@ def assemble_score_blind_cross_v1(
         "post_lock_data_read": False,
         "all_four_cells_share_exact_input_and_world_identities": True,
         "all_four_cells_share_exact_lock_and_audit_bank_identities": True,
+        "all_four_cells_share_exact_auxiliary_family_census": True,
         "audit_bank_opened_during_selection": False,
         "source_manifests_content_bound": True,
         "k80_selection_independently_replayable": True,
@@ -2028,6 +2449,9 @@ def validate_score_blind_cross_v1(
         ) is not True
         or scientific.get(
             "all_four_cells_share_exact_lock_and_audit_bank_identities"
+        ) is not True
+        or scientific.get(
+            "all_four_cells_share_exact_auxiliary_family_census"
         ) is not True
         or scientific.get("audit_bank_opened_during_selection") is not False
         or scientific.get("source_manifests_content_bound") is not True
@@ -2205,10 +2629,6 @@ def validate_score_blind_cross_v1(
                     _fail("selection native-book receipt differs")
                 allocation = row.get("generation_allocation", {})
                 exposure = row.get("exposure_ledger_summary", {})
-                status = (
-                    exposure.get("status_counts", {})
-                    if isinstance(exposure, Mapping) else {}
-                )
                 definition = CELL_DEFINITION[cell_id]
                 leverage = int(definition["leverage"])
                 boom = int(definition["boom"])
@@ -2236,37 +2656,6 @@ def validate_score_blind_cross_v1(
                             "boom_infeasible",
                         )
                     )
-                    or not isinstance(exposure, Mapping)
-                    or exposure.get("expected_requests_by_family")
-                    != {"boom": boom, "leverage": leverage}
-                    or type(exposure.get("attempt_count")) is not int
-                    or type(exposure.get("retry_attempt_count")) is not int
-                    or exposure.get("retry_attempt_count")
-                    != exposure.get("attempt_count") - CORE_SOLVES_PER_BLOCK
-                    or not isinstance(status, Mapping)
-                    or set(status)
-                    != {"dup", "error", "exhausted", "infeasible", "new"}
-                    or any(type(value) is not int or value < 0 for value in (
-                        status.values()
-                    ))
-                    or sum(status.values()) != exposure.get("attempt_count")
-                    or status.get("new", 0) + status.get("dup", 0)
-                    != allocation.get("leverage_successful", -1)
-                    + allocation.get("boom_successful", -1)
-                    or status.get("new", 0)
-                    != allocation.get("leverage_unique", -1)
-                    + allocation.get("boom_unique_added", -1)
-                    or status.get("dup", 0)
-                    != allocation.get("boom_duplicates", -1)
-                    or exposure.get("failure_or_exhaustion_count")
-                    != status.get("error", 0)
-                    + status.get("infeasible", 0)
-                    + status.get("exhausted", 0)
-                    or _SHA256.fullmatch(str(exposure.get("ledger_sha256", "")))
-                    is None
-                    or _SHA256.fullmatch(str(exposure.get(
-                        "row_manifest_sha256", ""
-                    ))) is None
                     or row.get("source_identity") != source_identity
                     or row.get("source_document_internal_sha256")
                     != source_descriptor["source_document_internal_sha256"]
@@ -2278,6 +2667,15 @@ def validate_score_blind_cross_v1(
                     or row.get("audit_bank_opened_during_selection") is not False
                 ):
                     _fail("selection native-book receipt differs")
+                _validate_ledger_summary_receipt(
+                    exposure,
+                    cell_id=cell_id,
+                    seed_label=expected_label,
+                    leverage=leverage,
+                    boom=boom,
+                    role_input_mode=str(row.get("role_input_mode", "")),
+                    allocation=allocation,
+                )
                 player_count = row.get("player_count")
                 candidate_count = row.get("candidate_count")
                 if (
@@ -2316,6 +2714,11 @@ def validate_score_blind_cross_v1(
                     != reference_native.get("role_input_mode")
                     or candidate_native.get("role_input_receipt")
                     != reference_native.get("role_input_receipt")
+                    or candidate_native.get("exposure_ledger_summary", {}).get(
+                        "auxiliary_expected_requests_by_family"
+                    ) != reference_native.get(
+                        "exposure_ledger_summary", {}
+                    ).get("auxiliary_expected_requests_by_family")
                 ):
                     _fail("selection native equal-input/world trace differs")
         reference_player_count = len(catalog)
@@ -2346,6 +2749,7 @@ def validate_score_blind_cross_v1(
             "same_audit_bank_all_cells",
             "same_player_worlds_all_cells",
             "same_role_worlds_all_cells",
+            "same_auxiliary_family_census_all_cells",
         )):
             _fail("selection equal-input/world trace differs")
     timings = observations.get("generation_timing_seconds")
