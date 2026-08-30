@@ -20,6 +20,49 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-30 (four-hundred-third update)
+
+### Outer-bound matchup component publication v3 is implementation-complete
+
+- Branch `main` and `origin/main` entered this milestone at pushed runtime/
+  controller commit `0de5c00d`.  A new isolated component-publication
+  successor now accepts only the generation-pinned candidate-authority-v2
+  terminal root and the tracked capture-plan-v3 body as population/source
+  authorities.  It rejects a legacy root or candidate/plan/outer mismatch
+  before any candidate inner-object read, exact-reopens candidate v2, derives
+  every legacy catalog/replay/candidate compatibility input from that root,
+  deep-validates capture v3, and then delegates the unchanged create-once,
+  root-last v1 component materialization.
+- The v3 receipt binds the capture plan, candidate-v2 root, recovery outer and
+  recovery/candidate binding, accepted candidate release, implementation
+  bytes, producer release and full durable v1 publication receipt.  Before
+  success it repeats the candidate, tracked-plan, implementation and complete
+  v1 durable-graph reopen.  No public v3 API accepts caller-selected inner
+  catalog/replay bodies or identities, structural catalogs, candidate release,
+  adapter-lock body or producer-code identity.
+- Independent replay passed **24/24** across the v3 component, capture-v3 and
+  candidate-release-v2 focused suites; the delegated broader predecessor set
+  passed **75/75**.  `py_compile` and whitespace checks passed.  File SHA-256s
+  are implementation
+  `98fabb330af57ceacae36a494d61bec033965ba99f7ea42428e50c7fb9b9a36e`
+  and tests
+  `6df3dd94d607f9a2d95a543dbc5b378141b8be4765de447a96b00d8308fdb307`.
+- Read-only GCS census found no matchup capture, component, or seven-pack
+  upstream release under the research source/delivery prefixes; only the
+  2026-08-21 corpus authorities and the fixed-G0 catalog are present.  The
+  schema/support preflight proves the warehouse relations exist but explicitly
+  grants no immutable pack authority.  A guarded seven-pack capture producer
+  is therefore a real parallel dependency, not an already completed artifact.
+  It must publish five query-receipt-backed packs plus the immutable-manifest-
+  backed Fantasy Points and SIS packs, exact-reopen all seven, and publish its
+  terminal root last without synthetic fallback or outcome access.
+- No cloud mutation or outcome read occurred.  This component code is not yet
+  launch authority: real candidate-v2 publication, seven-pack release,
+  committed capture-v3 lock and component/source publication are still
+  required.  Immediate work is the guarded candidate-v2 prepublish/publish/
+  reopen operator and the terminal source-release-v3 successor; only then may
+  the Git-independent predecessor closure and task-0 scoring smoke proceed.
+
 ## Current handoff -- 2026-08-30 (four-hundred-second update)
 
 ### Git-independent runtime and exact one-job controller are local-ready, launch-NO-GO
