@@ -156,6 +156,31 @@ and operator decisions.  The older entries remain the durable chronology.
   from this core release and do not claim scoring readiness until the distinct
   task-0 worker and verifier/predecessor closure are green.
 
+## Current handoff -- 2026-08-30 (four-hundred-seventeenth update)
+
+### Construction x allocation release is committed and pushed
+
+- The reviewed construction/allocation score cohort is durably committed and
+  pushed on `main` as `9e22bbb8` (`Harden construction allocation score
+  crossing`).  The commit contains only the 19 release implementation/test
+  files plus this authoritative handoff; unrelated tracked and untracked
+  workspace changes remain unstaged.  The deployable focused suite passed
+  **47/47** and the independent review suite passed **50/50**; shell syntax,
+  Python compilation, Cloud Build YAML parsing and staged diff checks are
+  green.
+- No realized outcome was opened and no Cloud Build, image, Cloud Run job or
+  execution was created, updated or launched in this milestone.  The exact
+  frozen source and task-0 real-artifact evidence remain as recorded
+  immediately below.
+- Exact next action: commit/push this milestone record, then submit exactly
+  one direct-Git Cloud Build from that final pushed SHA.  Require exact paired
+  provider Git source, the create-once runtime-build-attestation identity and
+  the provider-resolved immutable digest before updating the known existing
+  dormant job.  Run `prepare`, wait terminal, then run the one-task no-write
+  outcome-blind smoke.  Launch the 54 selection tasks only if that real smoke
+  is green; do not open the catalog outcome authority before the selection
+  terminal is published and independently reopened.
+
 ## Current handoff -- 2026-08-30 (four-hundred-sixteenth update)
 
 ### Construction x allocation score cohort is hardened for immutable execution
