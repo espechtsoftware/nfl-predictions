@@ -270,7 +270,8 @@ def test_candidate_implementation_code_drift_fails_closed(
         full.parent.mkdir(parents=True, exist_ok=True)
         full.write_bytes(f"clean:{path}".encode())
         tracked[path] = full.read_bytes()
-    drift_path = core.CANDIDATE_IMPLEMENTATION_PATHS[1]
+    assert core.FROZEN_CORE_V1_MODULE_PATH in core.CANDIDATE_IMPLEMENTATION_PATHS
+    drift_path = core.FROZEN_CORE_V1_MODULE_PATH
     tracked[drift_path] = b"different tracked bytes"
     with pytest.raises(
         core.CorpusR6FixedG0CandidateAuthorityV2Error,

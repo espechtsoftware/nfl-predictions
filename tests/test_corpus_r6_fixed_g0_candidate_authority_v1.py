@@ -455,6 +455,14 @@ def _successor_authority_files(
     final_raw = successor.canonical_bytes(final) + b"\n"
     files = {
         (successor.OLD_FINAL_LOCK_COMMIT, successor.OLD_FINAL_LOCK_PATH): old_raw,
+        (
+            authority._CATALOG_SUCCESSOR_REVIEW_LOCK_COMMIT,
+            successor.REVIEW_LOCK_PATH,
+        ): review_raw,
+        (
+            authority._CATALOG_SUCCESSOR_FINAL_LOCK_COMMIT,
+            successor.FINAL_LOCK_PATH,
+        ): final_raw,
         (SOURCE_COMMIT, successor.OLD_FINAL_LOCK_PATH): old_raw,
         (SOURCE_COMMIT, successor.FAILURE_REPORT_PATH): failure_raw,
         (SOURCE_COMMIT, successor.FOCUSED_OUTPUT_PATH): focused_raw,
@@ -986,6 +994,44 @@ def _noop_status(_root: Path, _paths: object) -> bytes:
     return b""
 
 
+def _derive_with_head(
+    chain: Mapping[str, Any], *, head: str,
+) -> dict[str, object]:
+    return authority.derive_fixed_g0_candidate_material_v1(
+        repository_root=Path("/fixture"),
+        catalog_replay_receipt_identity=chain[
+            "catalog_replay_receipt_identity"
+        ],
+        read_exact=_read_exact(chain),
+        git_head=lambda _root: head,
+        git_blob=_git_blob(chain),
+        git_status=_noop_status,
+    )
+
+
+def _install_catalog_successor_descendant(
+    chain: Mapping[str, Any], *, head: str,
+) -> dict[str, bytes]:
+    successor = authority.catalog_successor
+    immutable_paths = (
+        successor.FINAL_LOCK_PATH,
+        successor.REVIEW_LOCK_PATH,
+        successor.OLD_FINAL_LOCK_PATH,
+        successor.FAILURE_REPORT_PATH,
+        successor.FOCUSED_OUTPUT_PATH,
+    )
+    for path in immutable_paths:
+        chain["git_files"][(head, path)] = chain["git_files"][(
+            SOURCE_COMMIT, path
+        )]
+    current_implementation: dict[str, bytes] = {}
+    for path in successor.IMPLEMENTATION_PATHS:
+        raw = f"legitimate descendant implementation: {path}\n".encode()
+        chain["git_files"][(head, path)] = raw
+        current_implementation[path] = raw
+    return current_implementation
+
+
 def _material(chain: Mapping[str, Any]) -> dict[str, object]:
     return authority.derive_fixed_g0_candidate_material_v1(
         repository_root=Path("/fixture"),
@@ -1513,6 +1559,126 @@ def test_terminal_catalog_final_lock_rejects_alternate_evidence_commit(
         match="successor authority replay failed",
     ):
         _material(chain)
+
+
+def test_terminal_catalog_review_accepts_legitimate_descendant_head_drift(
+    chain: dict[str, Any],
+) -> None:
+    descendant_head = "6" * 40
+    current = _install_catalog_successor_descendant(
+        chain, head=descendant_head
+    )
+    successor = authority.catalog_successor
+    review = json.loads(
+        chain["git_files"][(descendant_head, successor.REVIEW_LOCK_PATH)]
+    )
+    historical_commit = review["implementation_commit_sha"]
+    assert any(
+        chain["git_files"][(historical_commit, path)] != current[path]
+        for path in successor.IMPLEMENTATION_PATHS
+    )
+
+    material = _derive_with_head(chain, head=descendant_head)
+
+    assert material["task_count"] == source.TASK_COUNT
+    assert material["uses_realized_outcomes"] is False
+
+
+def test_terminal_catalog_review_rejects_rehashed_historical_measurement_forgery(
+    chain: dict[str, Any],
+) -> None:
+    descendant_head = "7" * 40
+    current = _install_catalog_successor_descendant(
+        chain, head=descendant_head
+    )
+    successor = authority.catalog_successor
+    review = json.loads(
+        chain["git_files"][(descendant_head, successor.REVIEW_LOCK_PATH)]
+    )
+    first = review["implementation_measurements"][0]
+    current_raw = current[first["relative_path"]]
+    first["sha256"] = sha256(current_raw).hexdigest()
+    first["bytes"] = len(current_raw)
+    _rehash(review, "projection_successor_review_lock_sha256")
+    review_raw = successor.canonical_bytes(review) + b"\n"
+    chain["git_files"][(descendant_head, successor.REVIEW_LOCK_PATH)] = review_raw
+    final = successor._build_final_lock(
+        review_lock_file={
+            "relative_path": successor.REVIEW_LOCK_PATH,
+            "sha256": sha256(review_raw).hexdigest(),
+            "bytes": len(review_raw),
+        },
+        review_lock=review,
+    )
+    chain["git_files"][(descendant_head, successor.FINAL_LOCK_PATH)] = (
+        successor.canonical_bytes(final) + b"\n"
+    )
+
+    with pytest.raises(
+        authority.CorpusR6FixedG0CandidateAuthorityV1Error,
+        match="review lock differs from immutable lock",
+    ):
+        _derive_with_head(chain, head=descendant_head)
+
+
+def test_terminal_catalog_review_rejects_historical_blob_measurement_mismatch(
+    chain: dict[str, Any],
+) -> None:
+    successor = authority.catalog_successor
+    review = json.loads(
+        chain["git_files"][(SOURCE_COMMIT, successor.REVIEW_LOCK_PATH)]
+    )
+    historical_commit = review["implementation_commit_sha"]
+    first_path = review["implementation_measurements"][0]["relative_path"]
+    chain["git_files"][(historical_commit, first_path)] = (
+        b"forged historical implementation bytes\n"
+    )
+
+    with pytest.raises(
+        authority.CorpusR6FixedG0CandidateAuthorityV1Error,
+        match=r"historical catalog successor implementation\[0\] "
+        r"file binding differs",
+    ):
+        _material(chain)
+
+
+def test_terminal_catalog_review_rejects_coherent_implementation_commit_substitution(
+    chain: dict[str, Any],
+) -> None:
+    descendant_head = "8" * 40
+    current = _install_catalog_successor_descendant(
+        chain, head=descendant_head
+    )
+    successor = authority.catalog_successor
+    review = json.loads(
+        chain["git_files"][(descendant_head, successor.REVIEW_LOCK_PATH)]
+    )
+    review["implementation_commit_sha"] = descendant_head
+    review["implementation_measurements"] = [{
+        "relative_path": path,
+        "sha256": sha256(current[path]).hexdigest(),
+        "bytes": len(current[path]),
+    } for path in successor.IMPLEMENTATION_PATHS]
+    _rehash(review, "projection_successor_review_lock_sha256")
+    review_raw = successor.canonical_bytes(review) + b"\n"
+    chain["git_files"][(descendant_head, successor.REVIEW_LOCK_PATH)] = review_raw
+    final = successor._build_final_lock(
+        review_lock_file={
+            "relative_path": successor.REVIEW_LOCK_PATH,
+            "sha256": sha256(review_raw).hexdigest(),
+            "bytes": len(review_raw),
+        },
+        review_lock=review,
+    )
+    chain["git_files"][(descendant_head, successor.FINAL_LOCK_PATH)] = (
+        successor.canonical_bytes(final) + b"\n"
+    )
+
+    with pytest.raises(
+        authority.CorpusR6FixedG0CandidateAuthorityV1Error,
+        match="review lock differs from immutable lock",
+    ):
+        _derive_with_head(chain, head=descendant_head)
 
 
 def test_authoritative_replay_rejects_coherently_rehashed_legal_substitution(

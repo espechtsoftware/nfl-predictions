@@ -91,6 +91,25 @@ and operator decisions.  The older entries remain the durable chronology.
   missingness, served-feature/marginal changes, candidate turnover and
   selected-book turnover. These lanes remain required follow-on work; they
   must not delay freezing the decision-bearing generation/retrieval pair.
+- **Independent recommendation review:** the 2026-08-30 external/lab review is
+  adopted. Its twelve amendments are represented in the core executable
+  generation/retrieval program or the separate follow-on plan at
+  `reports/2026-08-30-production-review-remaining-ablations-plan.md`. The core
+  suite remains unchanged; construction x allocation, the incremental Odds
+  prop override and Fantasy Points x SIS retrieval are distinct experiment
+  cohorts with distinct terminals and no automatic policy authority.
+- **Canonical R6-v2 release state:** Gate G0 is durably complete at exact
+  54-slate panel identity
+  `v12:ef445e2b31a7756609b458753dc064318b58ea2912e9277071c08fd0d07392e0`.
+  Candidate-authority-v2 is not published. Its first real-artifact,
+  outcome-blind prepublication replay failed before every mutation because a
+  historical successor review incorrectly required reviewed implementation
+  bytes to equal current descendant bytes. The local repair exact-pins the
+  immutable review/final locks at their introducing commits, validates the
+  reviewed implementation at its historical commit, permits legitimate
+  descendant drift and rejects coherent lock/commit substitution. Complete
+  focused validation is green; publication still requires a clean-commit
+  prepublication rerun and independent reopen.
 - **Current launch state:** the exact source cohort is pushed and the final
   immutable image build is green. The dedicated unscheduled job is still
   absent because the active developer identity lacks the single required
@@ -105,13 +124,67 @@ and operator decisions.  The older entries remain the durable chronology.
   legality requires at least two teams; two games is a named construction
   choice retained explicitly only where a frozen historical protocol requires
   it (including LR8-v1).
-- **Exact next action:** supply the narrow existing authority for the active
-  operator to act as
+- **Exact next actions:** for the prospective generation shadow, supply the
+  narrow existing authority for the active operator to act as
   `nfl-dfs-runner@nfl-predictions-503414.iam.gserviceaccount.com`, or have an
   already-authorized operator perform the exact deploy-only installation of
   build `892e8665-dacd-4d47-87b8-c594b409e269` and digest
-  `sha256:29272f69...a60ac`. Do not execute it. Exact-describe and record the
-  installed template before preregistration or the outcome-blind timing smoke.
+  `sha256:29272f69...a60ac`; do not execute it. In parallel for canonical
+  R6-v2, commit the historical-binding repair, rerun candidate-v2
+  prepublication from a clean exact-commit worktree, and publish only if all
+  54 slates reopen with every outcome/mutation flag false. Then independently
+  reopen the root before capture-v3/component-v3/source-v3 publication.
+
+## Current handoff -- 2026-08-30 (four-hundred-eleventh update)
+
+### External review adopted; candidate-v2 prepublication blocker repaired locally
+
+- `main` and `origin/main` entered this milestone at pushed commit
+  `225fe07872e483fa67df9cb4bf2d172d4c2fc957`. No outcome was read, no cloud
+  object was written and no production policy changed during this work.
+- The external review at
+  `/home/erich/projects/nfl2/handoffs/PRODUCTION-TEST-RECOMMENDATIONS-2026-08-30-REVIEW.md`
+  was reconciled item by item. The executable five-arm shadow already carries
+  the decision-bearing 2 x 2 generation/retrieval crossing, exact per-block
+  budgets, cap-engagement trace, Week-8 safety-only rule, K20/K40/K80 and
+  194--240 tail surface, cross-law influence trace, frozen hierarchy and
+  field/EV boundary. The remaining construction and paid-source estimands are
+  isolated in
+  `reports/2026-08-30-production-review-remaining-ablations-plan.md`; source
+  publication by itself remains explicitly non-evidence.
+- A prescribed real-artifact candidate-v2 prepublication run returned a
+  public failure receipt with `cloud_mutation_performed=false`,
+  `outcome_data_accessed=false`, `world_matrix_bodies_read=false` and
+  `result_object_bodies_read=false`. The exact defect was the old catalog
+  successor `_resolve_review_lock` requiring historical implementation
+  measurements to match both reviewed commit `aa896f26...` and current HEAD.
+  That makes every legitimate descendant code change self-invalidating.
+- The focused repair is confined to
+  `corpus_r6_fixed_g0_candidate_authority_v1.py`. It exact-pins the immutable
+  review lock to `4c1559c2842e82eb02553669989a851cef3088ef`, the immutable
+  final lock to `3c60aca22adbea768f24c3248385a44523dbb9bf`, validates all six
+  reviewed implementation rows only at their historical commit, and leaves
+  current implementation binding to the outer candidate-v2 measurement.
+  Regressions cover legitimate descendant drift, rehashed measurements,
+  historical blob mismatch and coherent implementation-commit plus both-lock
+  substitution.
+- Validation is green: candidate-v1 **33 passed in 160.49s**; candidate-v2
+  **9 passed in 0.91s**; the real tracked-artifact local Git smoke reopened the
+  150-case historical receipt and immutable final lock; targeted
+  `git diff --check` passed. Workspace basetemps were used because `/tmp`
+  remains full.
+- Independent review of the local source-release-v3 successor found and fixed
+  an always-failing capture binding and missing producer/capture predecessor
+  closure; its focused source/consumer/analysis and predecessor-chain tests
+  are green. That patch remains deliberately unstaged with the unrelated dirty
+  source work. A separate production v3 publisher/operator is still required;
+  the legacy candidate-v1/capture-v2/component-v2/source-v2 batch must not be
+  silently reused.
+- Exact next action: commit and push only the candidate historical-binding
+  repair, its tests, the external-review ablation plan and this handoff. Update
+  the clean detached build context to that exact commit; rerun the read-only
+  54-slate candidate-v2 prepublication command; publish root-last only on a
+  complete all-false outcome/mutation receipt, then independently reopen it.
 
 ## Current handoff -- 2026-08-30 (four-hundred-tenth update)
 

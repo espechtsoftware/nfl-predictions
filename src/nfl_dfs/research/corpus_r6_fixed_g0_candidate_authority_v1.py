@@ -128,6 +128,12 @@ _CATALOG_REPLAY_FIELDS: Final = frozenset({
 
 _SHA256: Final = re.compile(r"[0-9a-f]{64}")
 _COMMIT: Final = re.compile(r"[0-9a-f]{40}")
+_CATALOG_SUCCESSOR_REVIEW_LOCK_COMMIT: Final = (
+    "4c1559c2842e82eb02553669989a851cef3088ef"
+)
+_CATALOG_SUCCESSOR_FINAL_LOCK_COMMIT: Final = (
+    "3c60aca22adbea768f24c3248385a44523dbb9bf"
+)
 
 ReadExact = Callable[[Mapping[str, object]], bytes]
 GitHead = Callable[[Path], str]
@@ -256,6 +262,275 @@ def _require_false_fields(
         _fail(f"{label} carries non-false authorities {differing}")
 
 
+def _historical_successor_focused_output(
+    raw: bytes, *, expected_pass_count: int,
+) -> dict[str, int]:
+    """Validate the frozen pytest receipt using its reviewed case count."""
+
+    if (
+        type(raw) is not bytes
+        or type(expected_pass_count) is not int
+        or expected_pass_count < 1
+    ):
+        _fail("historical successor focused output differs")
+    try:
+        raw.decode("ascii")
+    except UnicodeError as exc:
+        raise CorpusR6FixedG0CandidateAuthorityV1Error(
+            "historical successor focused output is not ASCII"
+        ) from exc
+    if not raw.endswith(b"\n"):
+        _fail("historical successor focused output is incomplete")
+    lines = raw[:-1].split(b"\n")
+    if len(lines) < 2 or any(line == b"" for line in lines):
+        _fail("historical successor focused output lines differ")
+    completed = 0
+    prior_percentage = -1
+    for line in lines[:-1]:
+        match = re.fullmatch(
+            rb"(\.+)( +)\[([ ]{0,2})([1-9][0-9]?|100)%\]", line
+        )
+        if match is None:
+            _fail("historical successor focused output progress differs")
+        completed += len(match.group(1))
+        percentage = int(match.group(4))
+        if (
+            len(match.group(3)) + len(match.group(4)) != 3
+            or completed > expected_pass_count
+            or percentage != completed * 100 // expected_pass_count
+            or percentage <= prior_percentage
+        ):
+            _fail("historical successor focused output accounting differs")
+        prior_percentage = percentage
+    summary = lines[-1]
+    if (
+        completed != expected_pass_count
+        or prior_percentage != 100
+        or re.fullmatch(
+            str(expected_pass_count).encode("ascii")
+            + rb" passed in (?:0|[1-9][0-9]*)\.[0-9]{2}s",
+            summary,
+        )
+        is None
+    ):
+        _fail("historical successor focused output summary differs")
+    return {"passed_test_count": expected_pass_count, "exit_code": 0}
+
+
+def _validate_historical_catalog_successor_review_lock(
+    value: Mapping[str, object],
+    *,
+    implementation_commit: str,
+    measurements: Sequence[Mapping[str, object]],
+    evidence: Mapping[str, object],
+    focused_output_file: Mapping[str, object],
+    focused_raw: bytes,
+) -> dict[str, object]:
+    """Validate the reviewed lock under its frozen, not current, case census."""
+
+    item = _mapping(value, label="historical catalog successor review lock")
+    retained = _validate_self_hash(
+        item,
+        field="projection_successor_review_lock_sha256",
+        label="historical catalog successor review lock",
+    )
+    adapter_count = item.get("expected_adapter_case_count")
+    successor_count = item.get("expected_successor_case_count")
+    pass_count = item.get("focused_test_passed_count")
+    if (
+        type(adapter_count) is not int
+        or adapter_count < 0
+        or type(successor_count) is not int
+        or successor_count < 0
+        or type(pass_count) is not int
+        or pass_count < 1
+        or pass_count != adapter_count + successor_count
+    ):
+        _fail("historical catalog successor reviewed case census differs")
+    focused = _historical_successor_focused_output(
+        focused_raw, expected_pass_count=pass_count
+    )
+    if (
+        item.get("schema_version") != catalog_successor.REVIEW_LOCK_SCHEMA
+        or item.get("implementation_commit_sha") != implementation_commit
+        or item.get("implementation_measurements")
+        != [dict(row) for row in measurements]
+        or any(item.get(key) != expected for key, expected in evidence.items())
+        or item.get("focused_test_output_file") != dict(focused_output_file)
+        or item.get("focused_test_invocation_count") != 1
+        or item.get("focused_test_passed_count")
+        != focused["passed_test_count"]
+        or item.get("independent_static_review_passed") is not True
+        or item.get("p0_open_count") != 0
+        or item.get("p1_open_count") != 0
+        or item.get("p2_open_count") != 0
+        or item.get("projection_attempt_count") != 1
+        or item.get("first_projection_passed") is not False
+        or item.get("corrected_projection_rerun_licensed") is not False
+        or item.get("third_projection_attempt_licensed") is not False
+        or item.get("projection_publication_licensed") is not False
+        or item.get("gcs_mutation_licensed") is not False
+        or item.get("world_matrix_bodies_read") is not False
+        or item.get("result_object_bodies_read") is not False
+        or item.get("outcome_columns_read") != []
+        or any(
+            item.get(field) is not False
+            for field in catalog_successor._FALSE_AUTHORITY_FIELDS
+        )
+    ):
+        _fail("historical catalog successor review lock differs")
+    item["projection_successor_review_lock_sha256"] = retained
+    return item
+
+
+def _validate_historical_catalog_successor_final_lock(
+    value: Mapping[str, object],
+    *, review_lock_file: Mapping[str, object], review: Mapping[str, object],
+) -> dict[str, object]:
+    item = _mapping(value, label="historical catalog successor final lock")
+    retained = _validate_self_hash(
+        item,
+        field="projection_successor_final_lock_sha256",
+        label="historical catalog successor final lock",
+    )
+    if (
+        item.get("schema_version") != catalog_successor.FINAL_LOCK_SCHEMA
+        or item.get("evidence_source_commit_sha")
+        != catalog_adapter.FIXED_SOURCE_COMMIT_SHA
+        or item.get("implementation_commit_sha")
+        != review.get("implementation_commit_sha")
+        or item.get("implementation_measurements")
+        != review.get("implementation_measurements")
+        or item.get("projection_successor_review_lock_file")
+        != dict(review_lock_file)
+        or item.get("projection_successor_review_lock_internal_sha256")
+        != review.get("projection_successor_review_lock_sha256")
+        or item.get("old_final_lock_file") != review.get("old_final_lock_file")
+        or item.get("projection_failure_report_file")
+        != review.get("projection_failure_report_file")
+        or item.get("focused_test_output_file")
+        != review.get("focused_test_output_file")
+        or item.get("focused_test_passed_count")
+        != review.get("focused_test_passed_count")
+        or item.get("corrected_projection_rerun_licensed") is not True
+        or item.get("third_projection_attempt_licensed") is not False
+        or item.get("projection_only_publication_licensed") is not True
+        or item.get("gcs_create_once_required") is not True
+        or item.get("gcs_exact_reopen_required") is not True
+        or item.get("gcs_overwrite_licensed") is not False
+        or item.get("world_matrix_bodies_read") is not False
+        or item.get("result_object_bodies_read") is not False
+        or item.get("outcome_columns_read") != []
+        or any(
+            item.get(field) is not False
+            for field in catalog_successor._FALSE_AUTHORITY_FIELDS
+        )
+    ):
+        _fail("historical catalog successor final lock differs")
+    item["projection_successor_final_lock_sha256"] = retained
+    return item
+
+
+def _resolve_historical_catalog_successor_review_lock(
+    *,
+    repository: object,
+    head: str,
+) -> tuple[dict[str, object], dict[str, object], dict[str, object]]:
+    """Reopen the immutable successor review without a false HEAD equality.
+
+    The successor review describes the implementation that was reviewed at
+    ``implementation_commit_sha``.  Later candidate consumers must therefore
+    prove those measurements against that historical commit, while reopening
+    the immutable review lock, evidence files, and focused-test receipt from
+    the current tracked HEAD.  Requiring the historical implementation bytes
+    to remain the current implementation bytes would turn every legitimate
+    descendant change into a false authority failure.
+
+    The current candidate implementation is bound separately by the v2 outer
+    candidate authority, whose implementation measurement includes this v1
+    module.  This historical reopener deliberately makes no claim about the
+    equality of current and reviewed successor implementation bytes.
+    """
+
+    try:
+        review_raw = repository.read_tracked(
+            head, catalog_successor.REVIEW_LOCK_PATH
+        )
+        immutable_review_raw = repository.read_tracked(
+            _CATALOG_SUCCESSOR_REVIEW_LOCK_COMMIT,
+            catalog_successor.REVIEW_LOCK_PATH,
+        )
+    except Exception as exc:
+        raise CorpusR6FixedG0CandidateAuthorityV1Error(
+            "catalog successor review-lock tracked read failed"
+        ) from exc
+    if review_raw != immutable_review_raw:
+        _fail("current catalog successor review lock differs from immutable lock")
+    review_value = _parse_tracked_canonical_json(
+        review_raw, label="tracked catalog successor review lock"
+    )
+    implementation_commit = _commit(
+        review_value.get("implementation_commit_sha"),
+        label="catalog successor reviewed implementation commit",
+    )
+    try:
+        measurements = catalog_successor._normalize_measurements(
+            review_value.get("implementation_measurements")
+        )
+    except Exception as exc:
+        raise CorpusR6FixedG0CandidateAuthorityV1Error(
+            f"catalog successor historical measurements differ: {exc}"
+        ) from exc
+    for ordinal, measurement in enumerate(measurements):
+        path = str(measurement["relative_path"])
+        try:
+            raw = repository.read_tracked(implementation_commit, path)
+        except Exception as exc:
+            raise CorpusR6FixedG0CandidateAuthorityV1Error(
+                f"historical catalog successor implementation[{ordinal}] "
+                "tracked read failed"
+            ) from exc
+        if (
+            type(raw) is not bytes
+            or len(raw) != measurement["bytes"]
+            or sha256(raw).hexdigest() != measurement["sha256"]
+        ):
+            _fail(
+                f"historical catalog successor implementation[{ordinal}] "
+                "file binding differs"
+            )
+
+    try:
+        evidence = catalog_successor.validate_successor_evidence_v1(
+            repository=repository, head=head
+        )
+        focused_raw = repository.read_tracked(
+            head, catalog_successor.FOCUSED_OUTPUT_PATH
+        )
+        focused_binding = {
+            "relative_path": catalog_successor.FOCUSED_OUTPUT_PATH,
+            "sha256": sha256(focused_raw).hexdigest(),
+            "bytes": len(focused_raw),
+        }
+        review = _validate_historical_catalog_successor_review_lock(
+            review_value,
+            implementation_commit=implementation_commit,
+            measurements=measurements,
+            evidence=evidence,
+            focused_output_file=focused_binding,
+            focused_raw=focused_raw,
+        )
+    except Exception as exc:
+        raise CorpusR6FixedG0CandidateAuthorityV1Error(
+            f"catalog successor immutable review replay failed: {exc}"
+        ) from exc
+    return review, {
+        "relative_path": catalog_successor.REVIEW_LOCK_PATH,
+        "sha256": sha256(review_raw).hexdigest(),
+        "bytes": len(review_raw),
+    }, evidence
+
+
 def _reopen_catalog_terminal_authority(
     *,
     repository_root: Path,
@@ -300,18 +575,26 @@ def _reopen_catalog_terminal_authority(
 
     repository = _Repository()
     try:
-        review, review_file, evidence = catalog_successor._resolve_review_lock(
-            repository=repository, head=head
+        review, review_file, evidence = (
+            _resolve_historical_catalog_successor_review_lock(
+                repository=repository, head=head
+            )
         )
         final_lock_raw = repository.read_tracked(
             head, catalog_successor.FINAL_LOCK_PATH
         )
-        final_lock = catalog_successor.validate_final_lock_v1(
+        immutable_final_lock_raw = repository.read_tracked(
+            _CATALOG_SUCCESSOR_FINAL_LOCK_COMMIT,
+            catalog_successor.FINAL_LOCK_PATH,
+        )
+        if final_lock_raw != immutable_final_lock_raw:
+            _fail("current catalog successor final lock differs from immutable lock")
+        final_lock = _validate_historical_catalog_successor_final_lock(
             _parse_tracked_canonical_json(
                 final_lock_raw, label="catalog successor final lock"
             ),
             review_lock_file=review_file,
-            review_lock=review,
+            review=review,
         )
         old_raw = repository.read_tracked(
             catalog_successor.OLD_FINAL_LOCK_COMMIT,
