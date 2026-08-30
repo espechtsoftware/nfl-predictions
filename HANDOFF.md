@@ -101,27 +101,16 @@ and operator decisions.  The older entries remain the durable chronology.
 - **Canonical R6-v2 release state:** Gate G0 is durably complete at exact
   54-slate panel identity
   `v12:ef445e2b31a7756609b458753dc064318b58ea2912e9277071c08fd0d07392e0`.
-  Candidate-authority-v2 is not published. Its first real-artifact,
-  outcome-blind prepublication replay failed before every mutation because a
-  historical successor review incorrectly required reviewed implementation
-  bytes to equal current descendant bytes. The local repair exact-pins the
-  immutable review/final locks at their introducing commits, validates the
-  reviewed implementation at its historical commit, permits legitimate
-  descendant drift and rejects coherent lock/commit substitution. A clean
-  reruns then exposed two downstream instances of the same latent false
-  equality: both the historical catalog-adapter evidence commit and the
-  immutable catalog release's original root commit were equated to the current
-  G0 panel HEAD. Those authorities are now independently exact-bound by their
-  lock/panel content without being equated by commit date. A fourth replay
-  defect omitted candidate-v1's required second exact catalog pass from the
-  candidate-v2 outer read manifest; commit `93bca249` licenses exactly that
-  independent replay and is pushed. The first clean replay of that commit
-  then failed locally before creating a cloud client because the operator's
-  bound core hash still named the pre-repair bytes. The local fifth repair
-  advances the bound API commit to `93bca249`, pins core SHA-256
-  `da859efc...286c`, and adds a tracked-commit/hash regression. Focused
-  validation is green; publication still requires this repair to be committed
-  and a new clean-commit prepublication rerun followed by independent reopen.
+  Candidate-authority-v2 is now published create-once/root-last at generation
+  `1788081739195827`, byte SHA-256 `ae6d0ba7...faea8`, internal release
+  SHA-256 `adf6ab5f...a1b9f`. All **165/165** creates succeeded from exact clean
+  commit `346b2a27`; the publishing process performed a full reopen after
+  **5,755** exact reads, and a separate process then completed the full
+  predecessor replay after **2,028** exact reads. Publication receipt
+  `22becc2b...5d713` and independent-reopen receipt
+  `4a4d504a...543ae` both bind 54 slates / 378 arm results and report no
+  realized outcome or world-matrix access. The exact identity and both
+  receipts are tracked under `reports/2026-08-30-r6-fixed-g0-candidate-*`.
 - **Current launch state:** the exact source cohort is pushed and the final
   immutable image build is green. The dedicated unscheduled job is still
   absent because the active developer identity lacks the single required
@@ -142,10 +131,61 @@ and operator decisions.  The older entries remain the durable chronology.
   already-authorized operator perform the exact deploy-only installation of
   build `892e8665-dacd-4d47-87b8-c594b409e269` and digest
   `sha256:29272f69...a60ac`; do not execute it. In parallel for canonical
-  R6-v2, commit the current operator self-binding repair, rerun candidate-v2
-  prepublication from a clean exact-commit worktree, and publish only if all
-  54 slates reopen with every outcome/mutation flag false. Then independently
-  reopen the root before capture-v3/component-v3/source-v3 publication.
+  R6-v2, freeze capture-v3 against the published exact candidate-v2 identity
+  and seven-pack; commit the validated capture/component/source-v3 operator,
+  build its immutable Git-capable image, run task-0 read smoke, then publish
+  source-v3 root-last and separately reopen it. Keep construction/allocation
+  and paid-source experiments separate from this core release and do not claim
+  scoring readiness until the distinct Git-independent task-0 worker and
+  verifier/predecessor closure are green.
+
+## Current handoff -- 2026-08-30 (four-hundred-thirteenth update)
+
+### Candidate-v2 authority published and independently reopened
+
+- `main` and `origin/main` are exactly commit
+  `346b2a27a55c29cd5c2a30719b1a0739baae4b50` (`Repair candidate operator
+  self binding`). The focused operator suite was **21 passed in 15.89s**.
+- A clean outcome-blind prepublication replay validated all 54 source tasks,
+  378 arm results and 199,244 candidate occurrences through **1,754**
+  generation-exact reads. Receipt SHA-256 is
+  `ceac281ae6480ad270ec1269ad695cdb59ab8caa914c3d4853ef60869316fab6`;
+  it reported `complete=true`, no write capability and no outcome/world-matrix
+  access.
+- Exact metadata lookup confirmed the terminal root absent (404). The guarded
+  publisher then completed **165/165** create-once writes in fixed order with
+  the v2 root last, followed by its in-process exact reopen. Terminal identity:
+  generation `1788081739195827`, bytes `216639`, byte SHA-256
+  `ae6d0ba73ac627f652f2cfc542da3f43885f4b9090885457fa313ecb6a7faea8`,
+  URI `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-fixed-g0-candidate-authorities-v2/20260830-fixed-g0-candidate-authority-v2/candidate-authority-release-v2.json`.
+  Publication receipt SHA-256 is
+  `22becc2b351a19ce93361dc8de6f0ade39330f2af92956b99e179594c2d5d713`;
+  it records **5,755** exact reads, root-last true and full reopen true.
+- A distinct later process reopened that exact generation and completed the
+  full v2 predecessor replay through **2,028** exact reads. Its receipt SHA-256
+  is `4a4d504ac62763020b69d9a74d95b43946661a9bc2164161f66da977a87543ae`.
+  Both terminal receipts report no listing, overwrite, delete, deployment,
+  graph mutation, warehouse/historical outcome source read, realized outcome
+  body read or world-matrix body read. The publication alone performed the
+  intended fixed create-once mutation.
+- Durable local evidence added (not yet committed):
+  `reports/2026-08-30-r6-fixed-g0-candidate-authority-v2-root.identity.json`,
+  `...-publication-receipt.json`, and `...-reopen-receipt.json`. Both receipt
+  self-hashes were recomputed from canonical content and match.
+- The source-v3 batch/operator focused suite is green, **15 passed in 3.75s**
+  (4.45s wall), with no cloud action. The separate construction-preset x
+  allocation cohort compiled green and passed **6/6** focused checks (adapter
+  2/2 in 5.17s; core/operator/grader 4/4 in 5.31s). Its real run still needs
+  the canonical immutable 54-slate replay-input bundle; the G0 authority binds
+  membership, not all generation inputs. Paid-source validation remains the
+  sole queued lane at this exact milestone.
+- Exact next action: finish paid-source focused validation; commit these
+  candidate receipts immediately; then inspect and commit each reviewed
+  implementation cohort separately. Freeze capture-v3 against the exact
+  candidate root and build/smoke the canonical Git-capable source-v3 image
+  before any source publication.
+
+## Current handoff -- 2026-08-30 (four-hundred-twelfth update)
 
 ## Current handoff -- 2026-08-30 (four-hundred-twelfth update)
 
