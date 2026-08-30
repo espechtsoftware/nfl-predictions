@@ -146,6 +146,10 @@ def _source_root() -> dict[str, Any]:
     entries = []
     for ordinal in range(54):
         entries.append({
+            "schema_version": (
+                release.source_release_v3
+                .MATCHUP_SOURCE_MEMBER_OUTER_CANDIDATE_AUTHORITY_SCHEMA
+            ),
             "source_task_ordinal": ordinal,
             "task_id": f"slate-2023-w{ordinal + 1}",
             "slate": {
@@ -168,7 +172,10 @@ def _source_root() -> dict[str, Any]:
             ).hexdigest(),
         })
     return {
-        "schema_version": "fixture-candidate-source-root/v2",
+        "schema_version": (
+            release.source_release_v3
+            .MATCHUP_SOURCE_RELEASE_OUTER_CANDIDATE_AUTHORITY_SCHEMA
+        ),
         "namespace": "gs://fixture/source-root/",
         "task_count": 54,
         "entries": entries,
@@ -253,7 +260,7 @@ def _prepared(
     source = _source_root()
     source_identity = store.add(
         "gs://fixture/source-root/"
-        + release.source_release_v2.ROOT_FILENAME,
+        + release.source_release_v3.ROOT_FILENAME,
         source,
     )
     embedded = _embedded_runtime_authority()
@@ -278,8 +285,8 @@ def _prepared(
         lambda **kwargs: deepcopy(panel),
     )
     monkeypatch.setattr(
-        release.source_release_v2,
-        "validate_matchup_source_release_candidate_authority_v2",
+        release.source_release_v3,
+        "validate_matchup_source_release_outer_candidate_authority_v3",
         lambda value: deepcopy(dict(value)),
     )
     receipt = release.prepare_release_v2(
@@ -441,6 +448,34 @@ def test_prepare_cross_binds_both_exact_54_member_roots(
     }
     for field in release._FALSE_AUTHORITY_FIELDS:
         assert manifest[field] is False
+
+
+@pytest.mark.parametrize(
+    "legacy_schema",
+    [
+        "corpus-r6-matchup-source-release/v1",
+        "corpus-r6-matchup-source-release/candidate-authority-v2",
+    ],
+)
+def test_prepare_structure_reopen_rejects_legacy_source_root_schema(
+    legacy_schema: str,
+) -> None:
+    store = _MemoryStore()
+    legacy = _source_root()
+    legacy["schema_version"] = legacy_schema
+    identity = store.add(
+        "gs://fixture/source-root/"
+        + release.source_release_v3.ROOT_FILENAME,
+        legacy,
+    )
+    with pytest.raises(
+        release.CorpusR6V2MatchupCandidateAnalysisReleaseV2Error,
+        match="structure exact reopen failed",
+    ):
+        release._reopen_source_release_structure(
+            identity=identity,
+            read_exact=store.read_exact,
+        )
 
 
 def test_worker_retains_276_books_and_prefixes_then_distinct_verifier_accepts(
@@ -941,6 +976,21 @@ def test_outcome_carrier_rejection_is_case_insensitive(field: str) -> None:
 
 
 def test_critical_runtime_paths_include_direct_score_relevant_closure() -> None:
+    source_v3_authority_paths = {
+        "src/nfl_dfs/research/"
+        "corpus_r6_matchup_source_release_outer_candidate_authority_v3.py",
+        "src/nfl_dfs/research/"
+        "corpus_r6_matchup_capture_plan_outer_candidate_authority_v3.py",
+        "src/nfl_dfs/research/"
+        "corpus_r6_matchup_component_publication_outer_candidate_authority_v3.py",
+        "src/nfl_dfs/research/"
+        "corpus_r6_matchup_component_publication_candidate_authority_v2.py",
+        "src/nfl_dfs/research/"
+        "corpus_r6_matchup_source_batch_outer_candidate_authority_v3.py",
+        "src/nfl_dfs/research/"
+        "corpus_r6_fixed_g0_candidate_authority_release_v2.py",
+        "src/nfl_dfs/research/corpus_r6_fixed_g0_candidate_authority_v2.py",
+    }
     required = {
         "src/nfl_dfs/research/corpus_legal_feasibility.py",
         "src/nfl_dfs/research/corpus_parametric_snapshot.py",
@@ -954,9 +1004,16 @@ def test_critical_runtime_paths_include_direct_score_relevant_closure() -> None:
         "src/nfl_dfs/research/"
         "corpus_r6_v2_matchup_candidate_analysis_controller_v1.py",
         "scripts/run_corpus_r6_v2_matchup_candidate_analysis_controller_v1.py",
+        *source_v3_authority_paths,
     }
 
     assert required <= set(release.CRITICAL_RUNTIME_PATHS)
+    assert source_v3_authority_paths <= set(release._DIRECT_RUNTIME_PATHS)
+    assert (
+        "src/nfl_dfs/research/"
+        "corpus_r6_matchup_source_release_candidate_authority_v2.py"
+        not in release._DIRECT_RUNTIME_PATHS
+    )
     assert all((REPOSITORY_ROOT / path).is_file() for path in required)
     all_project_python = {
         path.relative_to(REPOSITORY_ROOT).as_posix()

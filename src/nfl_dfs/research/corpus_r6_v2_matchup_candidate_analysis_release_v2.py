@@ -3,8 +3,8 @@
 This is the release successor to ``corpus_r6_v2_analysis_release``.  The
 legacy release intentionally terminates ``complete-source-blocked`` because
 it understands only the old simple matchup snapshot.  This module accepts
-only the generation-pinned candidate-authority v2 matchup-source root and
-executes each ordinal through
+only the outer-candidate-authority v3 matchup-source root and executes each
+ordinal through
 ``execute_r6_v2_matchup_candidate_authority_ordinal_v2``.
 
 The release is deliberately small and crash-safe:
@@ -36,7 +36,7 @@ from typing import Final
 from nfl_dfs.research import corpus_batch_retrieval_runner_v2 as runner
 from nfl_dfs.research import corpus_parametric_batch as batch
 from nfl_dfs.research import (
-    corpus_r6_matchup_source_release_candidate_authority_v2 as source_release_v2,
+    corpus_r6_matchup_source_release_outer_candidate_authority_v3 as source_release_v3,
 )
 from nfl_dfs.research import (
     corpus_r6_v2_matchup_candidate_authority_consumer_v2 as consumer,
@@ -134,7 +134,18 @@ _DIRECT_RUNTIME_PATHS: Final = (
     "src/nfl_dfs/research/"
     "corpus_r6_candidate_population_scored_union_v1.py",
     "src/nfl_dfs/research/"
-    "corpus_r6_matchup_source_release_candidate_authority_v2.py",
+    "corpus_r6_matchup_source_release_outer_candidate_authority_v3.py",
+    "src/nfl_dfs/research/"
+    "corpus_r6_matchup_capture_plan_outer_candidate_authority_v3.py",
+    "src/nfl_dfs/research/"
+    "corpus_r6_matchup_component_publication_outer_candidate_authority_v3.py",
+    "src/nfl_dfs/research/"
+    "corpus_r6_matchup_component_publication_candidate_authority_v2.py",
+    "src/nfl_dfs/research/"
+    "corpus_r6_matchup_source_batch_outer_candidate_authority_v3.py",
+    "src/nfl_dfs/research/"
+    "corpus_r6_fixed_g0_candidate_authority_release_v2.py",
+    "src/nfl_dfs/research/corpus_r6_fixed_g0_candidate_authority_v2.py",
     "src/nfl_dfs/research/corpus_r6_matchup_source_release_v1.py",
     "src/nfl_dfs/research/corpus_r6_fixed_g0_candidate_authority_release_v1.py",
     "src/nfl_dfs/research/corpus_r6_fixed_g0_candidate_authority_v1.py",
@@ -310,9 +321,9 @@ class CorpusR6V2MatchupCandidateAnalysisReleaseV2Error(RuntimeError):
 
 
 ReadExact = Callable[[Mapping[str, object]], bytes]
-GitHead = source_release_v2.GitHead
-GitBlob = source_release_v2.GitBlob
-GitStatus = source_release_v2.GitStatus
+GitHead = source_release_v3.GitHead
+GitBlob = source_release_v3.GitBlob
+GitStatus = source_release_v3.GitStatus
 ExecuteOrdinal = Callable[..., dict[str, object]]
 ValidateOrdinal = Callable[..., dict[str, object]]
 
@@ -873,7 +884,7 @@ def _reopen_source_release_structure(
         parsed = batch.parse_canonical_json_bytes(
             raw, label="candidate-rooted matchup release"
         )
-        root = source_release_v2.validate_matchup_source_release_candidate_authority_v2(
+        root = source_release_v3.validate_matchup_source_release_outer_candidate_authority_v3(
             parsed
         )
     except Exception as exc:
@@ -881,7 +892,7 @@ def _reopen_source_release_structure(
             "candidate-rooted matchup release structure exact reopen failed"
         ) from exc
     _bind_identity_to_body(row, root, label="candidate-rooted matchup release")
-    expected_uri = f"{root['namespace']}{source_release_v2.ROOT_FILENAME}"
+    expected_uri = f"{root['namespace']}{source_release_v3.ROOT_FILENAME}"
     if row["uri"] != expected_uri or root.get("task_count") != AUTHORITATIVE_SLATE_COUNT:
         _fail("candidate-rooted matchup release namespace/count differs")
     return row, root
@@ -1068,7 +1079,7 @@ def prepare_release_v2(
     matchup_source_release_identity: object,
     runtime_image_authority_identity: object, output_prefix: str,
 ) -> dict[str, object]:
-    """Exact-replay both complete roots and publish one deterministic manifest."""
+    """Replay Gate G0, exact-open source-v3, and publish one manifest."""
     read_exact = _read_exact_callback(storage)
     panel = _replay_panel(
         panel_index_identity=panel_index_identity,

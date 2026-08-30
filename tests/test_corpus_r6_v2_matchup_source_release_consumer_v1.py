@@ -16,7 +16,11 @@ from nfl_dfs.research import corpus_retrieval_engine as retrieval
 from nfl_dfs.research import corpus_r6_matchup_source_v2 as source_v2
 from nfl_dfs.research import corpus_r6_matchup_source_release_v1 as source_release
 from nfl_dfs.research import (
-    corpus_r6_matchup_source_release_candidate_authority_v2 as source_release_v2,
+    corpus_r6_matchup_source_release_candidate_authority_v2
+    as legacy_source_release_v2,
+)
+from nfl_dfs.research import (
+    corpus_r6_matchup_source_release_outer_candidate_authority_v3 as source_release_v3,
 )
 from nfl_dfs.research import (
     corpus_r6_v2_matchup_candidate_authority_consumer_v2 as consumer_v2,
@@ -322,7 +326,7 @@ def _candidate_rooted_reopened_fixture(
     member = reopened["member"]
     member.update({
         "schema_version": (
-            source_release_v2.MATCHUP_SOURCE_MEMBER_CANDIDATE_AUTHORITY_SCHEMA
+            source_release_v3.MATCHUP_SOURCE_MEMBER_OUTER_CANDIDATE_AUTHORITY_SCHEMA
         ),
         "candidate_authority_root_identity": root_identity,
         "candidate_authority_root_sha256": root_sha,
@@ -345,7 +349,7 @@ def _candidate_rooted_reopened_fixture(
     release = reopened["release"]
     release.update({
         "schema_version": (
-            source_release_v2.MATCHUP_SOURCE_RELEASE_CANDIDATE_AUTHORITY_SCHEMA
+            source_release_v3.MATCHUP_SOURCE_RELEASE_OUTER_CANDIDATE_AUTHORITY_SCHEMA
         ),
         "candidate_authority_root_identity": root_identity,
         "candidate_authority_root_sha256": root_sha,
@@ -442,8 +446,8 @@ def _install_candidate_rooted_stubs(
         return deepcopy(dict(reopened))
 
     monkeypatch.setattr(
-        source_release_v2,
-        "reopen_matchup_source_release_candidate_authority_ordinal_v2",
+        source_release_v3,
+        "reopen_matchup_source_release_outer_candidate_authority_ordinal_v3",
         reopen,
     )
     return calls
@@ -685,6 +689,13 @@ def test_candidate_rooted_v2_runs_full_one_slate_surface(
 
     assert calls == [(reopened["release_identity"], 0)]
     assert result["schema_version"] == consumer_v2.RESULT_SCHEMA
+    assert consumer_v2.AUTHORITATIVE_EXECUTION_MODE == (
+        "candidate-rooted-source-v3-authoritative-dose-one-slate-mechanics"
+    )
+    assert consumer_v2.FIXTURE_EXECUTION_MODE == (
+        "candidate-rooted-source-v3-fixture-dose-one-slate-mechanics"
+    )
+    assert result["execution_mode"] == consumer_v2.FIXTURE_EXECUTION_MODE
     assert result["uses_realized_outcomes"] is False
     assert all(result[field] is False for field in consumer._FALSE_AUTHORITY_FIELDS)
     projection = result["matchup_source_projection"]
@@ -783,6 +794,27 @@ def test_candidate_rooted_v2_rejects_nested_outcome_carrier_before_runner(
         )
 
 
+def test_candidate_rooted_consumer_rejects_legacy_v2_source_schema(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    accepted, annotations = _accepted_fixture()
+    reopened = _candidate_rooted_reopened_fixture(accepted, annotations)
+    reopened["release"]["schema_version"] = (
+        legacy_source_release_v2.MATCHUP_SOURCE_RELEASE_CANDIDATE_AUTHORITY_SCHEMA
+    )
+    _install_candidate_rooted_stubs(
+        monkeypatch, accepted=accepted, reopened=reopened
+    )
+
+    with pytest.raises(
+        consumer_v2.CorpusR6V2MatchupCandidateAuthorityConsumerV2Error,
+        match="release member differs",
+    ):
+        consumer_v2.execute_r6_v2_matchup_candidate_authority_ordinal_v2(
+            **_candidate_rooted_execute_kwargs(reopened["release_identity"])
+        )
+
+
 def test_candidate_rooted_v2_public_api_has_no_candidate_or_outcome_injection() -> None:
     parameters = set(inspect.signature(
         consumer_v2.execute_r6_v2_matchup_candidate_authority_ordinal_v2
@@ -817,13 +849,13 @@ def test_candidate_rooted_v2_reopener_failure_is_fail_closed(
     )
 
     def unavailable(**kwargs: object) -> dict[str, object]:
-        raise source_release_v2.CorpusR6MatchupSourceReleaseCandidateAuthorityV2Error(
+        raise source_release_v3.CorpusR6MatchupSourceReleaseOuterCandidateAuthorityV3Error(
             "candidate authority root exact reopen failed"
         )
 
     monkeypatch.setattr(
-        source_release_v2,
-        "reopen_matchup_source_release_candidate_authority_ordinal_v2",
+        source_release_v3,
+        "reopen_matchup_source_release_outer_candidate_authority_ordinal_v3",
         unavailable,
     )
     with pytest.raises(

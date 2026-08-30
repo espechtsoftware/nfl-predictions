@@ -1,9 +1,10 @@
 """One-slate R6-v2 consumer for the candidate-rooted matchup source.
 
 The only matchup/candidate source selector accepted by the public entry point
-is a generation-pinned terminal v2 source-release root plus its ordinal.  The
-source-release v2 reopener derives and fully replays the fixed-G0 candidate
-authority root, exact-opens the selected accepted-candidate artifact, and
+is a generation-pinned terminal outer-candidate-authority v3 source-release
+root plus its ordinal.  The source-release v3 reopener derives and fully
+replays the fixed-G0 candidate-authority-v2 root, exact-opens the selected
+accepted-candidate artifact, and
 replays the complete matchup-source lineage.  This consumer then proves that
 the exact candidate and roster order in that artifact is the row order of the
 reconstructed score matrix before running any retrieval law.
@@ -24,7 +25,7 @@ from nfl_dfs.research import (
     corpus_r6_candidate_population_scored_union_v1 as candidate_union,
 )
 from nfl_dfs.research import (
-    corpus_r6_matchup_source_release_candidate_authority_v2 as source_release_v2,
+    corpus_r6_matchup_source_release_outer_candidate_authority_v3 as source_release_v3,
 )
 from nfl_dfs.research import (
     corpus_r6_v2_matchup_source_release_consumer_v1 as mechanics,
@@ -35,6 +36,12 @@ from nfl_dfs.research import residual_world_columns as rw
 
 RESULT_SCHEMA: Final = (
     "corpus-r6-v2-matchup-candidate-authority-consumer-result/v2"
+)
+AUTHORITATIVE_EXECUTION_MODE: Final = (
+    "candidate-rooted-source-v3-authoritative-dose-one-slate-mechanics"
+)
+FIXTURE_EXECUTION_MODE: Final = (
+    "candidate-rooted-source-v3-fixture-dose-one-slate-mechanics"
 )
 SOURCE_PROJECTION_SCHEMA: Final = (
     "corpus-r6-v2-matchup-candidate-authority-runner-projection/v2"
@@ -151,9 +158,9 @@ def _validated_candidate_binding(
     )
     if (
         release.get("schema_version")
-        != source_release_v2.MATCHUP_SOURCE_RELEASE_CANDIDATE_AUTHORITY_SCHEMA
+        != source_release_v3.MATCHUP_SOURCE_RELEASE_OUTER_CANDIDATE_AUTHORITY_SCHEMA
         or member.get("schema_version")
-        != source_release_v2.MATCHUP_SOURCE_MEMBER_CANDIDATE_AUTHORITY_SCHEMA
+        != source_release_v3.MATCHUP_SOURCE_MEMBER_OUTER_CANDIDATE_AUTHORITY_SCHEMA
         or release.get("candidate_authority_root_identity")
         != normalized["candidate_authority_root_identity"]
         or member.get("candidate_authority_root_identity")
@@ -215,10 +222,10 @@ def execute_r6_v2_matchup_candidate_authority_ordinal_v2(
     matchup_source_release_identity: Mapping[str, object],
     source_task_ordinal: int,
     repository_root: Path,
-    read_exact: source_release_v2.ReadExact,
-    git_head: source_release_v2.GitHead,
-    git_blob: source_release_v2.GitBlob,
-    git_status: source_release_v2.GitStatus,
+    read_exact: source_release_v3.ReadExact,
+    git_head: source_release_v3.GitHead,
+    git_blob: source_release_v3.GitBlob,
+    git_status: source_release_v3.GitStatus,
     minimum_supported_players: int = 2,
     minimum_completeness: float = 0.5,
     admission_m: int = mechanics.runner.DEFAULT_ADMISSION_M,
@@ -252,7 +259,7 @@ def execute_r6_v2_matchup_candidate_authority_ordinal_v2(
         admission_m != mechanics.runner.DEFAULT_ADMISSION_M
         or worlds_per_block is not None
     ):
-        _fail("authoritative source-v2 execution cannot override registered doses")
+        _fail("authoritative source-v3 execution cannot override registered doses")
     try:
         accepted = execution_v1.reconstruct_one_accepted_v12_slate(
             validated_panel_index=validated_panel_index,
@@ -294,8 +301,8 @@ def execute_r6_v2_matchup_candidate_authority_ordinal_v2(
         _fail("requested source ordinal differs from accepted panel membership")
     try:
         reopen_source_ordinal = (
-            source_release_v2
-            .reopen_matchup_source_release_candidate_authority_ordinal_v2
+            source_release_v3
+            .reopen_matchup_source_release_outer_candidate_authority_ordinal_v3
         )
         reopened = reopen_source_ordinal(
             release_identity=release_identity,
@@ -307,7 +314,7 @@ def execute_r6_v2_matchup_candidate_authority_ordinal_v2(
             git_status=git_status,
         )
     except (
-        source_release_v2.CorpusR6MatchupSourceReleaseCandidateAuthorityV2Error
+        source_release_v3.CorpusR6MatchupSourceReleaseOuterCandidateAuthorityV3Error
     ) as exc:
         raise CorpusR6V2MatchupCandidateAuthorityConsumerV2Error(str(exc)) from exc
     if set(reopened) != _REOPENED_FIELDS:
@@ -325,7 +332,7 @@ def execute_r6_v2_matchup_candidate_authority_ordinal_v2(
             expected_task=expected_task,
             accepted_catalog=accepted_catalog,
             expected_release_schema=(
-                source_release_v2.MATCHUP_SOURCE_RELEASE_CANDIDATE_AUTHORITY_SCHEMA
+                source_release_v3.MATCHUP_SOURCE_RELEASE_OUTER_CANDIDATE_AUTHORITY_SCHEMA
             ),
             expected_reopened_fields=_REOPENED_FIELDS,
         )
@@ -429,9 +436,9 @@ def execute_r6_v2_matchup_candidate_authority_ordinal_v2(
     body: dict[str, object] = {
         "schema_version": RESULT_SCHEMA,
         "execution_mode": (
-            "candidate-rooted-source-v2-authoritative-dose-one-slate-mechanics"
+            AUTHORITATIVE_EXECUTION_MODE
             if require_authoritative
-            else "candidate-rooted-source-v2-fixture-dose-one-slate-mechanics"
+            else FIXTURE_EXECUTION_MODE
         ),
         "slate_id": accepted.slate_id,
         "source_task_ordinal": ordinal,

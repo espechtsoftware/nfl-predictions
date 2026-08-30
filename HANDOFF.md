@@ -139,6 +139,53 @@ and operator decisions.  The older entries remain the durable chronology.
   scoring readiness until the distinct Git-independent task-0 worker and
   verifier/predecessor closure are green.
 
+## Current handoff -- 2026-08-30 (four-hundred-fourteenth update)
+
+### Source-v3 authority defects closed; downstream runtime truth repaired
+
+- `main` and `origin/main` entered this milestone at pushed candidate-evidence
+  commit `fee02868`. Candidate-v2 remains published and independently reopened
+  at exact generation `1788081739195827`; no outcome was accessed here.
+- Independent static review found and closed three fail-closed defects in the
+  new source-v3 batch/operator: non-string run IDs could be coerced while
+  output inventory was constructed; the ordinal deep replay did not reopen
+  every embedded component-v1 materialized leaf; and a same-process reopen
+  was described as the separately required independent-process proof. Run IDs
+  are now strict before context/inventory/write construction, every component
+  manifest leaf is generation-exact read/hash/JSON validated before deep-replay
+  claims, and receipts distinguish same-process reopen from the later required
+  independent receipt.
+- Runtime truth was tightened without inventing readiness. The critical
+  callable surface and owner-module measurements were expanded; environment
+  image identity is explicitly declared/unattested; `task0` is explicitly a
+  candidate/capture prerequisite-only replay, not the real one-slate worker +
+  distinct verifier smoke. Downstream analysis/consumer aliases, prose,
+  execution mode and explicit dependency inventory now name source-v3,
+  capture-v3, component-v3 and batch-v3. The broad all-Python measurement
+  already included v3 bytes, so the downstream defect was explicit inventory/
+  terminology and producer-chain clarity, not total byte omission.
+- Validation is green: compile over the five touched implementation/CLI and
+  five touched tests completed with zero failures in **0.09s**; focused source
+  release/batch/CLI plus downstream analysis/consumer validation passed
+  **84/84 in 31.67s**. One initial test assertion ignored its own explicit
+  fixture-mode flag; named authoritative/fixture execution modes now regress
+  both states. Targeted diff checks are clean. No cloud call or write occurred.
+- The separate experiment cohorts are also locally green but remain outside
+  this source commit: construction/allocation compiled and passed **6/6**;
+  paid-source passed **12/12** focused plus **78/78** dependent integration
+  checks. Paid-source preserves the explicit per-row DK-PPG fallback and does
+  not call the current live `_pm` branch on-cell parity.
+- Remaining source-v3 **NO-GO** blockers are external and explicit: the tracked
+  capture-v3 lock is absent; the immutable seven-pack upstream release is
+  absent; Dockerfile/cloudbuild do not yet wire v3; no provider-attested image/
+  build receipt exists; and no distinct Git-independent task-0 worker/verifier
+  receipt exists. None of the local batch receipts claims scoring readiness.
+- Exact next action: commit/push this reviewed source-v3 cohort; implement and
+  validate the guarded seven-pack capture producer; publish/reopen its terminal
+  release outcome-blind; build and commit capture-v3 against that release and
+  the exact candidate-v2 identity; then build/task-0-smoke the Git-capable v3
+  image before any source publication or scoring worker launch.
+
 ## Current handoff -- 2026-08-30 (four-hundred-thirteenth update)
 
 ### Candidate-v2 authority published and independently reopened
