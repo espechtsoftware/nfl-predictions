@@ -3,6 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import replace
 from datetime import datetime, timezone
+import json
 
 import numpy as np
 import pandas as pd
@@ -30,6 +31,19 @@ def _fixture():
         for index in range(80)
     )
     totals = np.zeros((80, 50_000), dtype=np.float32)
+    candidate_input_receipt = {
+        "sha256": suite.canonical_sha256({"fixture": "candidate-input"}),
+        "rows": len(players),
+        "columns": sorted(players[0]),
+    }
+    role_candidate_input_receipt = {
+        "sha256": suite.canonical_sha256({"fixture": "role-candidate-input"}),
+        "rows": len(players),
+        "columns": sorted(players[0]),
+    }
+    construction_preset_receipt = (
+        suite.ADOPTED_CLASSIC_POLICY.construction_preset().receipt()
+    )
     for lineup in lineups:
         lineup.model_version = "tail-k1/test"
         lineup.role_model_version = "tail-k1-role/test"
@@ -89,11 +103,36 @@ def _fixture():
             player_ids=tuple(player["id"] for player in players),
             player_rows=tuple(players),
             row_draws=draws,
-            all_tags={lineup.ids: (lineup.tag,) for lineup in lineups},
+            all_tags={
+                lineup.ids: (
+                    lineup.tag,
+                    f"candidate_seed:{suite.SEED_LABELS[index // 16]}",
+                )
+                for index, lineup in enumerate(lineups)
+            },
             metadata={
                 "portfolio": "CBWU",
                 "world_blocks": 5,
                 "worlds_per_block": [10_000] * 5,
+                "candidate_source_blocks": [
+                    suite.SEED_LABELS[index // 16] for index in range(80)
+                ],
+                "native_generation_receipts": {
+                    label: {
+                        "model_version": "tail-k1/test",
+                        "role_model_version": "tail-k1-role/test",
+                        "candidate_input_receipt": dict(
+                            candidate_input_receipt
+                        ),
+                        "role_candidate_input_receipt": dict(
+                            role_candidate_input_receipt
+                        ),
+                        "construction_preset_receipt": dict(
+                            construction_preset_receipt
+                        ),
+                    }
+                    for label in suite.SEED_LABELS
+                },
                 "native_generation_exposure_ledgers": ledgers,
                 "native_generation_transform_receipts": transforms,
             },
@@ -109,14 +148,28 @@ def _fixture():
         for index, player in enumerate(players)
     }
     audit = np.ones((len(players), suite.AUDIT_WORLD_COUNT), dtype=np.float32)
+    paired_native_input_authority = suite.build_paired_native_input_authority(
+        batches,
+        arm_order=suite.ARM_ORDER,
+        block_labels=suite.SEED_LABELS,
+        artifact_player_id_by_player_id=mapping,
+    )
+    audit_input_binding = suite.build_independent_audit_input_binding(
+        paired_native_input_authority=paired_native_input_authority,
+        observed_model_version="tail-k1/test",
+        observed_candidate_input_receipt=candidate_input_receipt,
+        observed_internal_player_ids=[player["id"] for player in players],
+    )
     audit_receipt = {
-        "schema_version": "prospective-generation-independent-audit-bank/v1",
+        "schema_version": suite.AUDIT_BANK_SCHEMA,
         "world_seed": suite.AUDIT_WORLD_SEED,
         "world_count": suite.AUDIT_WORLD_COUNT,
         "model_version": "tail-k1/test",
         "player_order_sha256": suite.canonical_sha256(
             [str(player["id"]) for player in players]
         ),
+        "input_binding": audit_input_binding,
+        "input_binding_sha256": audit_input_binding["binding_sha256"],
         "world_bank_receipt": suite._array_receipt(audit),
         "candidate_solves_run": 0,
         "used_for_selection": False,
@@ -165,6 +218,12 @@ def test_multiarm_receipt_freezes_pools_prefixes_and_diagnostics() -> None:
     )
 
     assert receipt["player_worlds_identical_across_all_arms"] is True
+    assert receipt["paired_native_input_authority"][
+        "all_arm_blocks_byte_identical_inputs"
+    ] is True
+    assert receipt["paired_native_input_authority_sha256"] == receipt[
+        "paired_native_input_authority"
+    ]["authority_sha256"]
     assert set(receipt["arm_receipts"]) == set(suite.ARM_ORDER)
     assert set(receipt["memberships"]) == {"20", "40", "80"}
     assert all(
@@ -180,6 +239,19 @@ def test_multiarm_receipt_freezes_pools_prefixes_and_diagnostics() -> None:
     assert receipt["arm_receipts"]["cross-law-40-100-60"][
         "simulated_diagnostics"
     ]["selected_family_counts"]
+    supply_trace = receipt["cross_law_selected_supply_trace"]
+    assert supply_trace["trace_sha256"] == receipt[
+        "cross_law_selected_supply_trace_sha256"
+    ]
+    assert receipt["arm_receipts"]["cross-law-40-100-60"][
+        "cross_law_selected_supply_trace_sha256"
+    ] == supply_trace["trace_sha256"]
+    assert all(
+        supply_trace["selected_prefixes"][str(prefix)][
+            "genuinely_new_discovery_candidate_count"
+        ] == 0
+        for prefix in suite.PREFIXES
+    )
     crossing = receipt["generation_retrieval_crossing"]
     assert crossing["candidate_solves_requested_by_crossing"] == 0
     assert crossing["population_order"] == [
@@ -194,8 +266,52 @@ def test_multiarm_receipt_freezes_pools_prefixes_and_diagnostics() -> None:
     assert receipt["uses_realized_outcomes"] is False
     assert receipt["production_enabled"] is False
     assert receipt["audit_world_bank_used_for_selection"] is False
+    assert receipt["independent_audit_input_binding"][
+        "paired_native_input_authority_sha256"
+    ] == receipt["paired_native_input_authority_sha256"]
+    assert receipt["independent_audit_input_binding"][
+        "role_and_construction_are_frozen_candidate_provenance_not_audit_execution_inputs"
+    ] is True
     assert receipt["thresholds"] == [194, 200, 210, 220, 230, 240]
     assert len(receipt["receipt_sha256"]) == 64
+
+
+@pytest.mark.parametrize(
+    "field",
+    (
+        "candidate_input_receipt",
+        "role_candidate_input_receipt",
+        "model_version",
+        "role_model_version",
+        "construction_preset_receipt",
+    ),
+)
+def test_multiarm_receipt_rejects_native_input_source_drift(field: str) -> None:
+    batches, selected, mapping, audit, audit_receipt = _fixture()
+    altered = dict(batches)
+    source = batches["boom-dose-40-360"]
+    metadata = deepcopy(source.metadata)
+    native = metadata["native_generation_receipts"]["R3"]
+    if field in {"model_version", "role_model_version"}:
+        native[field] = f"{native[field]}-drift"
+    elif field == "construction_preset_receipt":
+        native[field]["effective_id"] = "drifted-construction"
+    else:
+        native[field]["sha256"] = "f" * 64
+    altered["boom-dose-40-360"] = replace(source, metadata=metadata)
+
+    with pytest.raises(
+        suite.ProspectiveGenerationShadowError,
+        match="paired native input/source authority",
+    ):
+        suite.multiarm_prelock_receipt(
+            altered,
+            selected,
+            mapping,
+            suite.arm_environments(),
+            audit_row_draws=audit,
+            audit_bank_receipt=audit_receipt,
+        )
 
 
 def test_multiarm_receipt_rejects_world_or_ledger_drift() -> None:
@@ -321,5 +437,49 @@ def test_audit_bank_must_be_independent_of_every_selection_block() -> None:
             mapping,
             suite.arm_environments(),
             audit_row_draws=repeated,
+            audit_bank_receipt=tampered,
+        )
+
+
+def test_audit_input_binding_clean_json_reopen_and_source_drift_rejection() -> None:
+    batches, selected, mapping, audit, audit_receipt = _fixture()
+    paired = suite.build_paired_native_input_authority(
+        batches,
+        arm_order=suite.ARM_ORDER,
+        block_labels=suite.SEED_LABELS,
+        artifact_player_id_by_player_id=mapping,
+    )
+    reopened = json.loads(json.dumps(
+        audit_receipt["input_binding"], sort_keys=True
+    ))
+    assert suite.validate_independent_audit_input_binding(
+        reopened,
+        paired_native_input_authority=paired,
+        expected_internal_player_ids=batches[suite.ARM_ORDER[0]].player_ids,
+    ) == reopened
+
+    tampered = deepcopy(audit_receipt)
+    tampered["input_binding"]["effective_native_source_projection"][
+        "model_version"
+    ] = "tail-k1/drift"
+    tampered["input_binding"].pop("binding_sha256")
+    tampered["input_binding"]["binding_sha256"] = suite.canonical_sha256(
+        tampered["input_binding"]
+    )
+    tampered["input_binding_sha256"] = tampered["input_binding"][
+        "binding_sha256"
+    ]
+    tampered.pop("receipt_sha256")
+    tampered["receipt_sha256"] = suite.canonical_sha256(tampered)
+    with pytest.raises(
+        suite.ProspectiveGenerationShadowError,
+        match="audit input binding|audit effective native source",
+    ):
+        suite.multiarm_prelock_receipt(
+            batches,
+            selected,
+            mapping,
+            suite.arm_environments(),
+            audit_row_draws=audit,
             audit_bank_receipt=tampered,
         )

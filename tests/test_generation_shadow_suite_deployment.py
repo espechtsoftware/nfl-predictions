@@ -45,6 +45,12 @@ def test_launcher_and_build_contract_are_isolated_and_bounded() -> None:
     assert "prospective_generation_shadow_field_bridge.py" in build
     assert "prospective_generation_shadow_operator.py" in build
     assert "test_prospective_generation_retrieval_crossing.py" in build
+    assert (
+        "--deselect=tests/test_prospective_boom_first.py::"
+        "test_boom_first_cli_and_quota_safe_manual_launch_are_registered"
+    ) in build
+    assert "cloud_boom_first_paired_shadow.sh" not in build
+    assert "resume_2026_production_schedulers.py" not in build
     assert "shadow-generation-suite --help" in build
     assert "shadow-generation-operator preregister --help" in build
 

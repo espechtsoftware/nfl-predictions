@@ -4,12 +4,16 @@ from collections.abc import Iterator, Mapping
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 import inspect
+import json
 
 import pytest
 
 from nfl_dfs.inference import generation_exposure as exposure
+from nfl_dfs.inference import prospective_cross_law_supply_trace as supply
 from nfl_dfs.inference import prospective_generation_shadow_evaluation as shadow
+from nfl_dfs.inference import prospective_generation_shadow_suite as generation_suite
 from nfl_dfs.inference import prospective_generation_shadow_field_bridge as field_bridge
+from nfl_dfs.inference.production_policy import ADOPTED_CLASSIC_POLICY
 from nfl_dfs.inference.prospective_generation_shadow_registry import registry_document
 
 
@@ -45,6 +49,188 @@ _TRANSFORM_FAMILIES = {
     "cross-law-40-100-60": {"boom:xlaw": 60},
     "ceiling-all-boom-0-200": {"boom": 200},
 }
+
+
+def _selected_supply_trace(
+    arm: Mapping[str, object],
+    roster_by_digest: Mapping[str, list[str]],
+    generation_metadata: Mapping[str, object],
+) -> tuple[dict[str, object], list[str]]:
+    import numpy as np
+
+    from nfl_dfs.backtest.engine import CandidateBatch
+    from nfl_dfs.optimizer.lineup import Lineup
+
+    candidates = [
+        Lineup([{"id": player_id} for player_id in roster_by_digest[
+            str(lineup_id).removeprefix("lineup-v1-")
+        ]])
+        for lineup_id in arm["candidate_lineup_ids"]
+    ]
+    transform_receipts = generation_metadata[
+        "native_generation_transform_receipts"
+    ]
+    source_by_digest: dict[str, str] = {}
+    cross_law_by_block: dict[str, set[str]] = {}
+    for block in _BLOCKS:
+        native = generation_metadata[
+            "native_generation_exposure_ledgers"
+        ][block]
+        for row in native["rows"]:
+            if row["roster_sha256"] is not None:
+                source_by_digest.setdefault(str(row["roster_sha256"]), block)
+        cross_law = transform_receipts[block]["cross_law_discovery"][
+            "exposure_ledger"
+        ]
+        cross_law_by_block[block] = {
+            str(row["roster_sha256"])
+            for row in cross_law["rows"]
+            if row["roster_sha256"] is not None
+        }
+        for digest in cross_law_by_block[block]:
+            source_by_digest.setdefault(digest, block)
+    candidate_sources: list[str] = []
+    all_tags = {}
+    for lineup in candidates:
+        digest = supply._roster_sha256(lineup)
+        source = source_by_digest[digest]
+        candidate_sources.append(source)
+        tags = [f"candidate_seed:{source}"]
+        if digest in cross_law_by_block[source]:
+            tags.append(supply.FAMILY)
+        all_tags[lineup.ids] = tuple(tags)
+    player_ids = tuple(f"p{value:03d}" for value in range(180))
+    batch = CandidateBatch(
+        candidates=tuple(candidates),
+        candidate_totals=np.zeros((len(candidates), 1), dtype=np.float32),
+        player_ids=player_ids,
+        player_rows=tuple({"id": value} for value in player_ids),
+        row_draws=np.zeros((len(player_ids), 1), dtype=np.float32),
+        all_tags=all_tags,
+        metadata={"candidate_source_blocks": candidate_sources},
+    )
+    trace = supply.build_selected_supply_trace(
+        batch,
+        candidates[:80],
+        {value: value for value in player_ids},
+        transform_receipts,
+    )
+    return trace, candidate_sources
+
+
+def _native_input_receipts(player_count: int = 180) -> dict[str, object]:
+    candidate = {
+        "sha256": shadow.canonical_sha256_v1(
+            {"fixture": "candidate-input", "players": player_count}
+        ),
+        "rows": player_count,
+        "columns": ["id"],
+    }
+    role = {
+        "sha256": shadow.canonical_sha256_v1(
+            {"fixture": "role-candidate-input", "players": player_count}
+        ),
+        "rows": player_count,
+        "columns": ["id"],
+    }
+    construction = ADOPTED_CLASSIC_POLICY.construction_preset().receipt()
+    return {
+        block: {
+            "model_version": "fixture-model-v1",
+            "role_model_version": "fixture-role-model-v1",
+            "candidate_input_receipt": dict(candidate),
+            "role_candidate_input_receipt": dict(role),
+            "construction_preset_receipt": dict(construction),
+        }
+        for block in _BLOCKS
+    }
+
+
+def _paired_native_input_authority(
+    generation_metadata_by_arm: Mapping[str, Mapping[str, object]],
+    *,
+    player_count: int,
+) -> dict[str, object]:
+    reference = shadow.native_input_source_projection(
+        generation_metadata_by_arm[shadow.ARM_ORDER[0]][
+            "native_generation_receipts"
+        ][_BLOCKS[0]],
+        label="fixture native input/source receipt",
+    )
+    reference_sha256 = shadow.canonical_sha256_v1(reference)
+    player_ids = [f"p{value:03d}" for value in range(player_count)]
+    construction = reference["construction_preset_receipt"]
+    body: dict[str, object] = {
+        "schema_version": (
+            "prospective-generation-paired-native-input-authority/v1"
+        ),
+        "arm_order": list(shadow.ARM_ORDER),
+        "block_labels": list(_BLOCKS),
+        "native_source_projection": reference,
+        "native_source_projection_sha256": reference_sha256,
+        "native_source_projection_sha256_by_arm": {
+            arm_id: {
+                block: reference_sha256 for block in _BLOCKS
+            }
+            for arm_id in shadow.ARM_ORDER
+        },
+        "effective_player_source_identity": {
+            "candidate_input_receipt": reference[
+                "candidate_input_receipt"
+            ],
+            "role_candidate_input_receipt": reference[
+                "role_candidate_input_receipt"
+            ],
+            "player_count": player_count,
+            "internal_player_id_order_sha256": shadow.canonical_sha256_v1(
+                player_ids
+            ),
+            "artifact_player_id_order_sha256": shadow.canonical_sha256_v1(
+                player_ids
+            ),
+        },
+        "effective_model_source_identity": {
+            "model_version": reference["model_version"],
+            "role_model_version": reference["role_model_version"],
+        },
+        "effective_construction_source_identity": {
+            "effective_id": construction["effective_id"],
+            "sha256": construction["sha256"],
+        },
+        "all_arm_blocks_byte_identical_inputs": True,
+        "uses_realized_outcomes": False,
+        "post_lock_data_read": False,
+    }
+    body["authority_sha256"] = shadow.canonical_sha256_v1(body)
+    return shadow.validate_paired_native_input_authority(
+        body,
+        expected_arm_order=shadow.ARM_ORDER,
+        expected_block_labels=_BLOCKS,
+    )
+
+
+def _player_identity_bridge(player_count: int) -> list[dict[str, object]]:
+    positions = (
+        ["QB"] * 20
+        + ["RB"] * 40
+        + ["WR"] * 60
+        + ["TE"] * 20
+        + ["WR"] * 20
+        + ["DST"] * 20
+    )
+    return [{
+        "internal_player_id": f"p{ordinal:03d}",
+        "dk_draftable_id": f"p{ordinal:03d}",
+        "gsis_id": (
+            None if positions[ordinal] == "DST" else f"gsis-{ordinal:03d}"
+        ),
+        "position": positions[ordinal],
+        "team": f"T{ordinal % 8}",
+        "dst_team": (
+            f"T{ordinal % 8}" if positions[ordinal] == "DST" else None
+        ),
+        "salary": 5_000,
+    } for ordinal in range(player_count)]
 
 
 def _identity(
@@ -90,6 +276,7 @@ def _arm(
     transform_receipts: dict[str, dict[str, object]] = {}
     roster_by_digest: dict[str, list[str]] = {}
     ordered_digests: list[str] = []
+    transform_digests: list[str] = []
     arm_ordinal = shadow.ARM_ORDER.index(arm_id)
     for block_ordinal, block in enumerate(_BLOCKS):
         builder = exposure.SolveExposureLedger(source_label=f"{arm_id}:{block}")
@@ -99,10 +286,7 @@ def _arm(
         ):
             for ordinal in range(count):
                 key = attempt_key + family_ordinal * 1_000 + ordinal
-                roster = [
-                    f"p{slot * 20 + ((key // (20 ** slot)) % 20):03d}"
-                    for slot in range(9)
-                ]
+                roster = _fixture_roster(key)
                 row = builder.record(
                     family=family, requested_ordinal=ordinal, world_id=ordinal,
                     duration_seconds=0.01, status="new", roster_ids=roster,
@@ -131,10 +315,7 @@ def _arm(
             ):
                 for ordinal in range(count):
                     key = attempt_key + 5_000 + family_ordinal * 1_000 + ordinal
-                    roster = [
-                        f"p{slot * 20 + ((key // (20 ** slot)) % 20):03d}"
-                        for slot in range(9)
-                    ]
+                    roster = _fixture_roster(key)
                     row = transform_builder.record(
                         family=family, requested_ordinal=ordinal,
                         world_id=ordinal, duration_seconds=0.02,
@@ -143,6 +324,7 @@ def _arm(
                     digest = str(row["roster_sha256"])
                     roster_by_digest[digest] = roster
                     ordered_digests.append(digest)
+                    transform_digests.append(digest)
             transform_ledger = transform_builder.finalize(
                 expected_requests_by_family=transform_families
             )
@@ -164,6 +346,14 @@ def _arm(
             block_transform_receipts[transform_key] = outer
         transform_receipts[block] = block_transform_receipts
         ledgers[block] = {"native": native, "transform": transform_ledger}
+    if arm_id == "cross-law-40-100-60":
+        # Keep one genuine discovery candidate in every selected prefix so
+        # decoded-artifact tests exercise a nonzero semantic reopen.
+        first_discovery = transform_digests[0]
+        ordered_digests = [
+            first_discovery,
+            *(digest for digest in ordered_digests if digest != first_discovery),
+        ]
     candidates = [
         f"lineup-v1-{digest}" for digest in ordered_digests[:160]
     ]
@@ -195,6 +385,7 @@ def _arm(
         seed_crossing_sha256=crossing_sha256, **kwargs,
     )
     return freeze, roster_by_digest, {
+        "native_generation_receipts": _native_input_receipts(),
         "native_generation_exposure_ledgers": native_ledgers,
         "native_generation_transform_receipts": transform_receipts,
     }
@@ -225,6 +416,26 @@ def _array_receipt(label: str, shape: list[int]) -> dict[str, object]:
         "dtype": "<f4", "shape": shape,
         "bytes": 4 * shape[0] * shape[1],
     }
+
+
+def _fixture_roster(key: int) -> list[str]:
+    """Return one globally unique, legal nine-player fixture roster."""
+
+    digit0 = key % 20
+    offsets = [
+        digit0,
+        ((key // 20) + digit0) % 20,
+        ((key // 400) + 3 * digit0) % 20,
+        ((key // 8_000) + 7 * digit0) % 20,
+        ((key // 160_000) + 9 * digit0) % 20,
+        ((key // 20) + 11 * digit0 + 3) % 20,
+        ((key // 400) + 13 * digit0 + 5) % 20,
+        ((key // 8_000) + 17 * digit0 + 7) % 20,
+        (digit0 + 1) % 20,
+    ]
+    return [
+        f"p{slot * 20 + offsets[slot]:03d}" for slot in range(9)
+    ]
 
 
 def _suite_diagnostics(offset: float = 0.0) -> dict[str, object]:
@@ -300,9 +511,26 @@ def _suite_authority(
     retained_shared_world_receipt = (
         dict(shared_world_receipt)
         if shared_world_receipt is not None
-        else _array_receipt("shared-worlds", [100, 50_000])
+        else _array_receipt("shared-worlds", [180, 50_000])
     )
     player_count = int(retained_shared_world_receipt["shape"][0])
+    paired_native_input_authority = _paired_native_input_authority(
+        generation_metadata_by_arm,
+        player_count=player_count,
+    )
+    reference_native_receipt = generation_metadata_by_arm[
+        shadow.ARM_ORDER[0]
+    ]["native_generation_receipts"][_BLOCKS[0]]
+    audit_input_binding = generation_suite.build_independent_audit_input_binding(
+        paired_native_input_authority=paired_native_input_authority,
+        observed_model_version=str(reference_native_receipt["model_version"]),
+        observed_candidate_input_receipt=reference_native_receipt[
+            "candidate_input_receipt"
+        ],
+        observed_internal_player_ids=[
+            f"p{value:03d}" for value in range(player_count)
+        ],
+    )
     memberships: dict[str, dict[str, list[list[str]]]] = {
         str(prefix): {} for prefix in shadow.PREFIX_SIZES
     }
@@ -448,6 +676,26 @@ def _suite_authority(
                 "same_candidate_pool_for_both_official_retrievals": True,
                 "candidate_solves_requested_by_crossing": 0,
             }
+    cross_law_arm = next(
+        arm for arm in arms
+        if arm["arm_id"] == "cross-law-40-100-60"
+    )
+    selected_supply_trace, candidate_source_blocks = _selected_supply_trace(
+        cross_law_arm,
+        roster_by_arm["cross-law-40-100-60"],
+        generation_metadata_by_arm["cross-law-40-100-60"],
+    )
+    generation_metadata_by_arm["cross-law-40-100-60"][
+        "candidate_source_blocks"
+    ] = candidate_source_blocks
+    for arm_id in shadow.ARM_ORDER:
+        arm_receipts[arm_id][
+            "cross_law_selected_supply_trace_sha256"
+        ] = (
+            selected_supply_trace["trace_sha256"]
+            if arm_id == "cross-law-40-100-60"
+            else None
+        )
     retained_audit_world_receipt = audit_world_receipt or _array_receipt(
         "audit-worlds", [player_count, 10_000]
     )
@@ -477,12 +725,14 @@ def _suite_authority(
     }
     crossing["receipt_sha256"] = shadow.canonical_sha256_v1(crossing)
     audit_bank = {
-        "schema_version": "prospective-generation-independent-audit-bank/v1",
+        "schema_version": shadow.AUDIT_BANK_SCHEMA,
         "world_seed": 2_026_083_001, "world_count": 10_000,
         "model_version": "fixture-model-v1",
         "player_order_sha256": shadow.canonical_sha256_v1(
-            [f"player-{value}" for value in range(player_count)]
+            [f"p{value:03d}" for value in range(player_count)]
         ),
+        "input_binding": audit_input_binding,
+        "input_binding_sha256": audit_input_binding["binding_sha256"],
         "world_bank_receipt": retained_audit_world_receipt,
         "candidate_solves_run": 0,
         "used_for_selection": False, "uses_realized_outcomes": False,
@@ -498,9 +748,21 @@ def _suite_authority(
         "player_worlds_identical_across_all_arms": True,
         "player_worlds_receipt": retained_shared_world_receipt,
         "independent_audit_world_bank": audit_bank,
+        "independent_audit_input_binding": audit_input_binding,
+        "independent_audit_input_binding_sha256": audit_input_binding[
+            "binding_sha256"
+        ],
         "audit_world_bank_distinct_from_all_five_selection_blocks": True,
         "audit_world_bank_used_for_selection": False,
         "arm_receipts": arm_receipts,
+        "paired_native_input_authority": paired_native_input_authority,
+        "paired_native_input_authority_sha256": (
+            paired_native_input_authority["authority_sha256"]
+        ),
+        "cross_law_selected_supply_trace": selected_supply_trace,
+        "cross_law_selected_supply_trace_sha256": (
+            selected_supply_trace["trace_sha256"]
+        ),
         "generation_retrieval_crossing": crossing,
         "generation_retrieval_crossing_sha256": crossing["receipt_sha256"],
         "memberships": memberships,
@@ -558,6 +820,9 @@ def _suite_authority(
                 "production_influence_trace_sha256"
             ] for block in _BLOCKS
         },
+        "selected_supply_trace_sha256": selected_supply_trace[
+            "trace_sha256"
+        ],
         "discovery_worlds_used_for_generation_only": True,
         "all_selection_scores_from_untouched_base_bank": True,
         "audit_worlds_used_for_selection": False,
@@ -565,11 +830,20 @@ def _suite_authority(
         "uses_realized_outcomes": False,
     }
     persistence["binding_sha256"] = shadow.canonical_sha256_v1(persistence)
+    player_identity_bridge = _player_identity_bridge(player_count)
     manifest = {
         "schema_version": "prospective-generation-shadow-manifest/v2",
         **context, "generated_at": generated_at.isoformat(),
         "prelock_receipt": prelock, "world_artifacts": worlds,
+        "player_identity_bridge": player_identity_bridge,
+        "player_identity_bridge_sha256": shadow.canonical_sha256_v1(
+            player_identity_bridge
+        ),
         "independent_audit_world_artifact": audit_world,
+        "independent_audit_input_binding": audit_input_binding,
+        "independent_audit_input_binding_sha256": audit_input_binding[
+            "binding_sha256"
+        ],
         "cross_law_discovery_world_artifacts": discovery_worlds,
         "cross_law_persistence_binding": persistence,
         "uses_realized_outcomes": False, "post_lock_data_read": False,
@@ -588,6 +862,18 @@ def _suite_authority(
         "independent_audit_world_artifact": audit_world,
         "cross_law_discovery_world_artifacts": discovery_worlds,
         "cross_law_persistence_binding": persistence,
+        "cross_law_selected_supply_trace": selected_supply_trace,
+        "cross_law_selected_supply_trace_sha256": selected_supply_trace[
+            "trace_sha256"
+        ],
+        "paired_native_input_authority": paired_native_input_authority,
+        "paired_native_input_authority_sha256": (
+            paired_native_input_authority["authority_sha256"]
+        ),
+        "independent_audit_input_binding": audit_input_binding,
+        "independent_audit_input_binding_sha256": audit_input_binding[
+            "binding_sha256"
+        ],
         "memberships_sha256": prelock["memberships_sha256"],
         "generation_retrieval_crossing_sha256": crossing["receipt_sha256"],
         "uses_realized_outcomes": False, "post_lock_data_read": False,
@@ -853,6 +1139,62 @@ def _grade_series(grade: dict[str, object], count: int) -> list[dict[str, object
     return result
 
 
+def _bind_grade_roots_to_safety(
+    grades: list[dict[str, object]],
+    receipts: list[dict[str, object]],
+) -> list[dict[str, object]]:
+    by_week = {int(receipt["week"]): receipt for receipt in receipts}
+    retained = deepcopy(grades)
+    for grade in retained:
+        receipt = by_week.get(int(grade["week"]))
+        if receipt is None:
+            continue
+        grade["terminal_prelock_root_identity"] = deepcopy(
+            receipt["terminal_prelock_envelope"]["identity"]
+        )
+        grade["terminal_prelock_root_sha256"] = receipt[
+            "terminal_safety_authority"
+        ]["terminal_prelock_root_sha256"]
+        _rehash(grade, "weekly_grade_sha256")
+    return retained
+
+
+_SAFETY_RECEIPT_CACHE: dict[int, dict[str, object]] = {}
+
+
+def _safety_receipt(
+    prereg: Mapping[str, object], *, week: int, failed: bool = False
+) -> dict[str, object]:
+    observed_at = datetime(
+        2026, 9, 14, 12, tzinfo=timezone.utc
+    ) + timedelta(days=7 * (week - 1))
+    envelope = None
+    envelope_identity = None
+    if not failed:
+        cached = _SAFETY_RECEIPT_CACHE.get(week)
+        if cached is not None:
+            return cached
+        case_prereg, _root, envelope, _snapshot = _case(week)
+        assert case_prereg == prereg
+        envelope_identity = _identity(
+            f"safety-{week}-envelope-object",
+            generation=40_000 + week,
+            sha256=shadow.canonical_sha256_v1(envelope),
+            byte_count=len(shadow.canonical_json_bytes_v1(envelope)),
+        )
+    receipt = shadow.build_weekly_safety_receipt_v1(
+        preregistration=prereg,
+        week=week,
+        slate_id=f"2026-w{week:02d}",
+        observed_at=(observed_at if failed else None),
+        terminal_prelock_envelope=envelope,
+        terminal_prelock_envelope_identity=envelope_identity,
+    )
+    if not failed:
+        _SAFETY_RECEIPT_CACHE[week] = receipt
+    return receipt
+
+
 def _decoded_arm_artifacts(
     internal: Mapping[str, object],
 ) -> dict[str, dict[str, object]]:
@@ -901,10 +1243,30 @@ def _decoded_audit_artifact(
     internal: Mapping[str, object],
 ) -> dict[str, object]:
     manifest = internal["suite"]["manifest"]
+    audit_receipt = internal["suite"][
+        "independent_audit_world_bank_receipt"
+    ]
+    audit_input_binding = internal["suite"][
+        "independent_audit_input_binding"
+    ]
     return {
         "metadata": {
             "artifact_version": "prospective-recourse-worlds-v1",
             "generated_at": manifest["generated_at"],
+            "candidate_batch_metadata": {
+                "artifact_role": "independent-score-only-audit-world-bank",
+                "audit_bank_receipt": deepcopy(audit_receipt),
+                "independent_audit_input_binding": deepcopy(
+                    audit_input_binding
+                ),
+                "independent_audit_input_binding_sha256": (
+                    audit_input_binding["binding_sha256"]
+                ),
+                "candidate_solves_run": 0,
+                "used_for_selection": False,
+                "uses_realized_outcomes": False,
+                "post_lock_data_read": False,
+            },
             "context": {
                 field: manifest[field] for field in (
                     "season", "week", "draft_group_id", "run_id",
@@ -961,7 +1323,306 @@ def test_complete_five_arm_freeze_grade_and_exact_horizons() -> None:
     assert full["horizon"] == "full-season-first-efficacy-estimate"
     assert full["full_season_uncertainty_reported"] is True
     assert all(row["uncertainty_95pct"] for row in full["paired_aggregates"])
+    assert len(full["retrieval_crossing_aggregates"]) == 4
+    assert all(
+        [row["entry_count"] for row in cell["prefix_aggregates"]]
+        == [20, 40, 80]
+        for cell in full["retrieval_crossing_aggregates"]
+    )
+    assert len(full["retrieval_effect_aggregates"]) == 6
+    assert {
+        row["entry_count"]
+        for row in full["retrieval_effect_aggregates"]
+    } == {20, 40, 80}
+    assert all(
+        set(row["threshold_hit_deltas"])
+        == {"194", "200", "210", "220", "230", "240"}
+        and row["selected_weekly_maximum_effect"]["uncertainty_95pct"][
+            "method"
+        ] == "slate-level-paired-t-interval-95pct"
+        and row["pool_oracle_effect"]["uncertainty_95pct"] is not None
+        and row["selector_regret_effect"]["uncertainty_95pct"] is not None
+        for row in full["retrieval_effect_aggregates"]
+    )
+    interactions = full["retrieval_interaction_aggregate"]["prefix_aggregates"]
+    assert [row["entry_count"] for row in interactions] == [20, 40, 80]
+    assert all(
+        row["effect_families"]["selected_weekly_maximum"]
+        ["difference_in_differences"]["uncertainty_95pct"]["method"]
+        == "slate-level-paired-t-interval-95pct"
+        and set(row["threshold_hit_effects"])
+        == {"194", "200", "210", "220", "230", "240"}
+        for row in interactions
+    )
+    assert full["structural_synthesis"]["concordance_status"] == (
+        "not-concordant-or-not-resolved"
+    )
+    assert full["structural_synthesis"]["disposition"] == (
+        "continue-unchanged-accrual-into-2027"
+    )
     assert full["automatic_adoption"] is False
+
+
+def test_week8_safety_family_is_frozen_before_week1_and_fails_closed() -> None:
+    prereg = shadow.build_preregistration_v1(
+        registered_at=datetime(2026, 8, 1, tzinfo=timezone.utc),
+        week1_lock_at=datetime(2026, 9, 13, 17, tzinfo=timezone.utc),
+    )
+    rule = prereg["week8_safety_rule"]
+    assert rule["receipt_weeks"] == list(range(1, 9))
+    assert len(rule["expected_book_ids"]) == 7
+    assert rule["thresholds"]["maximum_missing_expected_book_count"] == 0
+    assert rule["thresholds"]["maximum_illegal_lineup_count"] == 0
+    assert rule["thresholds"]["maximum_solve_failure_count"] == 0
+    assert rule["thresholds"]["maximum_exposure_violation_count"] == 0
+    assert rule["efficacy_or_promotion_allowed"] is False
+
+    failed = _safety_receipt(prereg, week=1, failed=True)
+    assert failed["integrity_gate_status"] == "fail"
+    assert failed["terminal_prelock_envelope_identity"] is None
+    assert failed["safety_metrics"]["missing_expected_book_count"] == 7
+    assert failed["safety_metrics"]["missing_required_source_count"] == 6
+    assert failed["safety_metrics"]["solve_failure_count"] is None
+    assert "solve_failure_count" in failed["unvalidated_metric_ids"]
+    assert "missing-terminal" in failed["reason_vector"]
+    assert "unvalidated-illegal-lineups" in failed["reason_vector"]
+    assert shadow.validate_weekly_safety_receipt_v1(
+        failed, preregistration=prereg
+    ) == failed
+
+    forged = deepcopy(failed)
+    forged["reason_vector"] = []
+    _rehash(forged, "weekly_safety_receipt_sha256")
+    with pytest.raises(
+        shadow.ProspectiveGenerationShadowEvaluationError,
+        match="derived terminal lineage",
+    ):
+        shadow.validate_weekly_safety_receipt_v1(
+            forged, preregistration=prereg
+        )
+
+    dummy = {"claimed_zero_counts": True, "evidence": "arbitrary-bytes"}
+    dummy_identity = _identity(
+        "dummy-safety-terminal",
+        sha256=shadow.canonical_sha256_v1(dummy),
+        byte_count=len(shadow.canonical_json_bytes_v1(dummy)),
+    )
+    with pytest.raises(
+        shadow.ProspectiveGenerationShadowEvaluationError,
+        match="terminal prelock envelope fields differ",
+    ):
+        shadow.build_weekly_safety_receipt_v1(
+            preregistration=prereg,
+            week=1,
+            slate_id="2026-w01",
+            observed_at=datetime(2026, 9, 14, 12, tzinfo=timezone.utc),
+            terminal_prelock_envelope=dummy,
+            terminal_prelock_envelope_identity=dummy_identity,
+        )
+
+
+def test_week8_integrity_requires_exact_complete_receipts_and_never_promotes(
+) -> None:
+    prereg, _root, envelope, snapshot = _case()
+    grade = shadow.grade_realized_week_v1(
+        terminal_prelock_root=envelope, outcome_snapshot=snapshot
+    )
+    grades = _grade_series(grade, 8)
+
+    absent = shadow.evaluate_prospective_shadow_v1(
+        preregistration=prereg, weekly_grades=grades
+    )
+    assert absent["week8_integrity_gate"]["integrity_gate_status"] == (
+        "not_evaluated"
+    )
+    assert all(
+        row["efficacy_rule_satisfied"] is False
+        for row in absent["family_rule_decisions"]
+    )
+
+    pass_receipts = [
+        _safety_receipt(prereg, week=week) for week in range(1, 9)
+    ]
+    assert all(
+        receipt["observed_at"]
+        == receipt["terminal_prelock_envelope"]["storage_created_at"]
+        for receipt in pass_receipts
+    )
+    grades = _bind_grade_roots_to_safety(grades, pass_receipts)
+    assert all(
+        receipt["safety_metrics"]["illegal_lineup_count"] == 0
+        and receipt["safety_metrics"]["solve_failure_count"] == 0
+        and receipt["safety_metrics"]["duplicate_lineup_count"] == 0
+        and receipt["terminal_safety_authority"][
+            "membership_metrics_exactly_derivable"
+        ] is True
+        for receipt in pass_receipts
+    )
+
+    envelope = pass_receipts[0]["terminal_prelock_envelope"]
+    with pytest.raises(
+        shadow.ProspectiveGenerationShadowEvaluationError,
+        match="caller observation time differs from trusted storage time",
+    ):
+        shadow.build_weekly_safety_receipt_v1(
+            preregistration=prereg,
+            week=1,
+            slate_id="2026-w01",
+            observed_at=datetime(2026, 9, 13, 12, tzinfo=timezone.utc),
+            terminal_prelock_envelope=envelope,
+            terminal_prelock_envelope_identity=pass_receipts[0][
+                "terminal_prelock_envelope_identity"
+            ],
+        )
+    passed = shadow.evaluate_prospective_shadow_v1(
+        preregistration=prereg,
+        weekly_grades=grades,
+        weekly_safety_receipts=pass_receipts,
+    )
+    assert passed["week8_integrity_gate"]["integrity_gate_status"] == "pass"
+    assert passed["week8_integrity_gate"]["complete_receipt_set"] is True
+    assert all(
+        row["efficacy_eligible"] is False
+        and row["efficacy_promotion_authorized"] is False
+        for row in passed["family_rule_decisions"]
+    )
+
+    failed_receipts = list(pass_receipts)
+    failed_receipts[2] = _safety_receipt(prereg, week=3, failed=True)
+    with pytest.raises(
+        shadow.ProspectiveGenerationShadowEvaluationError,
+        match="lacks a terminal-present safety lineage",
+    ):
+        shadow.evaluate_prospective_shadow_v1(
+            preregistration=prereg,
+            weekly_grades=grades,
+            weekly_safety_receipts=failed_receipts,
+        )
+
+    mismatched = deepcopy(grades)
+    mismatched[0]["terminal_prelock_root_identity"] = _identity(
+        "wrong-safety-grade-root", generation=99_991
+    )
+    _rehash(mismatched[0], "weekly_grade_sha256")
+    with pytest.raises(
+        shadow.ProspectiveGenerationShadowEvaluationError,
+        match="root lineages differ",
+    ):
+        shadow.evaluate_prospective_shadow_v1(
+            preregistration=prereg,
+            weekly_grades=mismatched,
+            weekly_safety_receipts=pass_receipts,
+        )
+
+
+def test_failed_suite_can_reach_week8_integrity_without_successful_terminal(
+) -> None:
+    prereg = shadow.build_preregistration_v1(
+        registered_at=datetime(2026, 8, 1, tzinfo=timezone.utc),
+        week1_lock_at=datetime(2026, 9, 13, 17, tzinfo=timezone.utc),
+    )
+    receipts = [
+        _safety_receipt(prereg, week=week, failed=(week == 4))
+        for week in range(1, 9)
+    ]
+    evaluation = shadow.evaluate_prospective_shadow_v1(
+        preregistration=prereg,
+        weekly_grades=[],
+        weekly_safety_receipts=receipts,
+    )
+    assert evaluation["completed_week_count"] == 8
+    assert evaluation["graded_week_count"] == 0
+    assert evaluation["horizon"] == "eight-week-integrity-severe-harm-only"
+    assert evaluation["week8_integrity_gate"]["integrity_gate_status"] == "fail"
+    assert evaluation["week8_integrity_gate"]["metric_totals"][
+        "missing_terminal_count"
+    ] == 1
+    assert evaluation["family_rule_decisions"] == []
+    assert evaluation["contest_ev_claim_allowed"] is False
+
+
+def test_full_season_cannot_satisfy_efficacy_without_week8_safety_pass() -> None:
+    prereg, _root, envelope, snapshot = _case()
+    grade = shadow.grade_realized_week_v1(
+        terminal_prelock_root=envelope, outcome_snapshot=snapshot
+    )
+    result = shadow.evaluate_prospective_shadow_v1(
+        preregistration=prereg,
+        weekly_grades=_grade_series(grade, 18),
+    )
+    assert result["week8_integrity_gate"]["integrity_gate_status"] == (
+        "not_evaluated"
+    )
+    assert all(
+        row["efficacy_eligible"] is False
+        and row["efficacy_rule_satisfied"] is False
+        and row["efficacy_promotion_authorized"] is False
+        for row in result["family_rule_decisions"]
+    )
+
+
+def test_only_primary_contrast_can_satisfy_full_season_efficacy_rule() -> None:
+    prereg, _root, envelope, snapshot = _case()
+    assert prereg["all_five_arms_required_before_week1"] is True
+    assert prereg["arm_omission_allowed"] is False
+    assert all(
+        role["arm_status"] == "required"
+        and role["required_before_week1"] is True
+        for role in prereg["arm_decision_roles"].values()
+    )
+    grade = shadow.grade_realized_week_v1(
+        terminal_prelock_root=envelope, outcome_snapshot=snapshot
+    )
+    safety_receipts = [
+        _safety_receipt(prereg, week=week) for week in range(1, 9)
+    ]
+    grades = _bind_grade_roots_to_safety(
+        _grade_series(grade, 18), safety_receipts
+    )
+    result = shadow.evaluate_prospective_shadow_v1(
+        preregistration=prereg,
+        weekly_grades=grades,
+        weekly_safety_receipts=safety_receipts,
+    )
+    decisions = {
+        row["challenger_arm"]: row
+        for row in result["family_rule_decisions"]
+    }
+    primary = decisions["boom-first-40-160"]
+    assert primary["decision_role"] == "primary-efficacy-rule"
+    assert primary["primary_efficacy_rule_satisfaction_allowed"] is True
+    assert primary["efficacy_eligible"] is True
+    assert primary["primary_efficacy_rule_satisfied"] is True
+    assert primary["efficacy_rule_satisfied"] is True
+    for arm_id in (
+        "cross-law-40-100-60",
+        "boom-dose-40-360",
+        "ceiling-all-boom-0-200",
+    ):
+        diagnostic = decisions[arm_id]
+        assert diagnostic["numeric_diagnostic_criteria_reported"] is True
+        assert diagnostic["decision_role"] == "diagnostic-only"
+        assert diagnostic[
+            "primary_efficacy_rule_satisfaction_allowed"
+        ] is False
+        assert diagnostic["promotion_equivalent_efficacy_allowed"] is False
+        assert diagnostic["efficacy_eligible"] is False
+        assert diagnostic["primary_efficacy_rule_satisfied"] is False
+        assert diagnostic["efficacy_rule_satisfied"] is False
+    assert result["retrieval_interaction_aggregate"]["decision_role"] == (
+        "key-secondary-mechanism"
+    )
+    assert result["retrieval_interaction_aggregate"][
+        "primary_efficacy_rule_satisfaction_allowed"
+    ] is False
+    synthesis = result["structural_synthesis"]
+    assert synthesis["concordance_status"] == "concordant"
+    assert synthesis["disposition"] == (
+        "human-review-candidate-no-automatic-adoption"
+    )
+    assert all(synthesis["condition_vector"].values())
+    assert synthesis["historical_object_read_during_evaluation"] is False
+    assert synthesis["automatic_adoption"] is False
 
 
 def test_actual_suite_decoded_bundle_adapter_is_operational() -> None:
@@ -969,6 +1630,18 @@ def test_actual_suite_decoded_bundle_adapter_is_operational() -> None:
         include_internal=True
     )
     decoded = _decoded_arm_artifacts(internal)
+    selected_supply_trace = internal["suite"][
+        "cross_law_selected_supply_trace"
+    ]
+    assert selected_supply_trace["candidate_pool"][
+        "genuinely_new_discovery_candidate_count"
+    ] > 0
+    assert all(
+        selected_supply_trace["selected_prefixes"][str(prefix)][
+            "genuinely_new_discovery_candidate_count"
+        ] > 0
+        for prefix in shadow.PREFIX_SIZES
+    )
     rebuilt = shadow.build_terminal_prelock_root_from_suite_v2(
         preregistration=prereg,
         seed_crossing=internal["crossing"],
@@ -990,6 +1663,106 @@ def test_actual_suite_decoded_bundle_adapter_is_operational() -> None:
         )}) == 1
         for arm in rebuilt["arms"]
     )
+
+    # A self-consistent, fully rehashed trace may not move genuine discovery
+    # attribution from its status=new ledger roster to an unrelated roster.
+    forged_suite = deepcopy(internal["suite"])
+    forged_trace = deepcopy(selected_supply_trace)
+    cross_law_freeze = next(
+        pair[0] for pair in internal["pairs"]
+        if pair[0]["arm_id"] == "cross-law-40-100-60"
+    )
+    candidate_ids = list(cross_law_freeze["candidate_lineup_ids"])
+    book_ids = list(cross_law_freeze["book_lineup_ids"])
+    original_new = set(forged_trace["candidate_pool"][
+        "genuinely_new_discovery_lineup_ids"
+    ])
+    original_duplicate = set(forged_trace["candidate_pool"][
+        "duplicate_attempt_provenance_only_lineup_ids"
+    ])
+    true_selected_new = next(
+        lineup_id for lineup_id in book_ids[:20]
+        if lineup_id in original_new
+    )
+    false_selected_new = next(
+        lineup_id for lineup_id in book_ids[:20]
+        if lineup_id not in original_new | original_duplicate
+    )
+    forged_new = (original_new - {true_selected_new}) | {
+        false_selected_new
+    }
+    for prefix, projection in (
+        (len(candidate_ids), forged_trace["candidate_pool"]),
+        *(
+            (prefix, forged_trace["selected_prefixes"][str(prefix)])
+            for prefix in shadow.PREFIX_SIZES
+        ),
+    ):
+        order = candidate_ids if prefix == len(candidate_ids) else book_ids[:prefix]
+        new_ids = [lineup_id for lineup_id in order if lineup_id in forged_new]
+        duplicate_ids = [
+            lineup_id for lineup_id in order
+            if lineup_id in original_duplicate
+        ]
+        projection["genuinely_new_discovery_candidate_count"] = len(new_ids)
+        projection["duplicate_attempt_provenance_only_candidate_count"] = len(
+            duplicate_ids
+        )
+        projection["any_cross_law_provenance_candidate_count"] = len(
+            new_ids
+        ) + len(duplicate_ids)
+        projection["genuinely_new_discovery_lineup_ids"] = new_ids
+        projection["duplicate_attempt_provenance_only_lineup_ids"] = (
+            duplicate_ids
+        )
+        projection["any_cross_law_provenance_lineup_ids"] = [
+            lineup_id for lineup_id in order
+            if lineup_id in forged_new | original_duplicate
+        ]
+        _rehash(projection, "projection_sha256")
+    cross_law_decoded = decoded["cross-law-40-100-60"]
+    source_blocks = cross_law_decoded["metadata"][
+        "candidate_batch_metadata"
+    ]["candidate_source_blocks"]
+    forged_rows = []
+    for ordinal, (lineup_id, roster, source) in enumerate(zip(
+        candidate_ids,
+        cross_law_decoded["candidate_rosters"],
+        source_blocks,
+        strict=True,
+    )):
+        classification = "no-cross-law-provenance"
+        if lineup_id in forged_new:
+            classification = "newly-supplied-discovery"
+        elif lineup_id in original_duplicate:
+            classification = "duplicate-attempt-provenance-only"
+        forged_rows.append({
+            "candidate_ordinal": ordinal,
+            "source_block": source,
+            "internal_roster_sha256": exposure.roster_identity(roster)[
+                "roster_sha256"
+            ],
+            "dk_lineup_id": lineup_id,
+            "classification": classification,
+        })
+    forged_trace["classification_rows_sha256"] = (
+        shadow.canonical_sha256_v1(forged_rows)
+    )
+    _rehash(forged_trace, "trace_sha256")
+    forged_suite["cross_law_selected_supply_trace"] = forged_trace
+    with pytest.raises(
+        shadow.ProspectiveGenerationShadowEvaluationError,
+        match="selected-supply trace differs",
+    ):
+        shadow._decoded_suite_arm_freezes_v2(
+            suite=forged_suite,
+            decoded_arm_artifacts=decoded,
+            decoded_audit_artifact=_decoded_audit_artifact(internal),
+            seed_crossing_sha256=internal["crossing"][
+                "seed_crossing_sha256"
+            ],
+        )
+
     forged = dict(decoded)
     bad_arm = dict(forged[shadow.ARM_ORDER[0]])
     bad_rosters = list(bad_arm["candidate_rosters"])
@@ -1009,8 +1782,90 @@ def test_actual_suite_decoded_bundle_adapter_is_operational() -> None:
         )
 
 
+@pytest.mark.parametrize(
+    "source_field",
+    (
+        "candidate_input_receipt",
+        "role_candidate_input_receipt",
+        "model_version",
+        "role_model_version",
+        "construction_preset_receipt",
+    ),
+)
+def test_decoded_suite_rejects_native_input_source_drift(
+    source_field: str,
+) -> None:
+    prereg, _root, _envelope, _snapshot, internal = _case(
+        include_internal=True
+    )
+    decoded = _decoded_arm_artifacts(internal)
+    arm_id = "boom-dose-40-360"
+    forged = deepcopy(decoded)
+    receipt = forged[arm_id]["metadata"]["candidate_batch_metadata"][
+        "native_generation_receipts"
+    ]["R3"]
+    if source_field in {
+        "candidate_input_receipt", "role_candidate_input_receipt"
+    }:
+        receipt[source_field]["sha256"] = "f" * 64
+    elif source_field == "construction_preset_receipt":
+        receipt[source_field]["min_games"] += 1
+    else:
+        receipt[source_field] += "-drift"
+    with pytest.raises(
+        shadow.ProspectiveGenerationShadowEvaluationError,
+        match="native input/source",
+    ):
+        shadow.build_terminal_prelock_root_from_suite_v2(
+            preregistration=prereg,
+            seed_crossing=internal["crossing"],
+            suite_authority=internal["suite"],
+            decoded_arm_artifacts=forged,
+            decoded_audit_artifact=_decoded_audit_artifact(internal),
+        )
+
+
+def test_suite_audit_input_binding_survives_clean_json_reopen() -> None:
+    _prereg, _root, _envelope, _snapshot, internal = _case(
+        include_internal=True
+    )
+    reopened = json.loads(json.dumps(internal["suite"], sort_keys=True))
+    assert shadow.validate_suite_authority_v1(reopened) == reopened
+
+
+def test_decoded_audit_rejects_input_authority_mismatch() -> None:
+    prereg, _root, _envelope, _snapshot, internal = _case(
+        include_internal=True
+    )
+    forged = _decoded_audit_artifact(internal)
+    forged_binding = forged["metadata"]["candidate_batch_metadata"][
+        "independent_audit_input_binding"
+    ]
+    forged_binding["audit_observed_main_source_identity"][
+        "model_version"
+    ] = "fixture-model-drift"
+    forged_binding.pop("binding_sha256")
+    forged_binding["binding_sha256"] = shadow.canonical_sha256_v1(
+        forged_binding
+    )
+    forged["metadata"]["candidate_batch_metadata"][
+        "independent_audit_input_binding_sha256"
+    ] = forged_binding["binding_sha256"]
+    with pytest.raises(
+        shadow.ProspectiveGenerationShadowEvaluationError,
+        match="independent-audit input/source receipt",
+    ):
+        shadow.build_terminal_prelock_root_from_suite_v2(
+            preregistration=prereg,
+            seed_crossing=internal["crossing"],
+            suite_authority=internal["suite"],
+            decoded_arm_artifacts=_decoded_arm_artifacts(internal),
+            decoded_audit_artifact=forged,
+        )
+
+
 def test_complete_field_bridge_keeps_actual_and_counterfactual_facts_separate() -> None:
-    _prereg, _root, envelope, raw_snapshot = _case()
+    prereg, _root, envelope, raw_snapshot = _case()
     rows = [{
         "lineup_id": row["lineup_id"],
         "realized_score_micro": row["realized_score_micro"],
@@ -1108,6 +1963,24 @@ def test_complete_field_bridge_keeps_actual_and_counterfactual_facts_separate() 
     assert metric["best_realized_lineup_counterfactual_field_rank"] == 101
     assert metric["best_realized_lineup_duplicates"] == 0
     assert metric["best_realized_lineup_actual_split_payout_applicable"] is False
+
+    evaluation = shadow.evaluate_prospective_shadow_v1(
+        preregistration=prereg, weekly_grades=[grade]
+    )
+    for cell in evaluation["retrieval_crossing_aggregates"]:
+        for prefix in cell["prefix_aggregates"]:
+            assert prefix["field_availability"] == {
+                "complete_field_capture_week_count": 1,
+                "missing_field_capture_week_count": 0,
+                "complete_for_every_week": True,
+                "evidence_scope": "complete-field-every-week",
+            }
+            field_summary = prefix["complete_field_metrics"]
+            assert field_summary["best_counterfactual_field_rank"] == 101
+            assert field_summary["entered_lineup_observation_count"] == 0
+            assert field_summary["best_lineup_duplicate_sum"] == 0
+            assert field_summary["total_actual_split_payout_micro"] == 0
+            assert field_summary["contest_ev_imputed"] is False
 
     bad_rows = [dict(row) for row in rows]
     bad_rows[0]["duplicates"] = 1
@@ -1348,6 +2221,7 @@ def test_suite_adapter_and_evaluation_tampering_fail() -> None:
     evaluation = shadow.evaluate_prospective_shadow_v1(
         preregistration=prereg, weekly_grades=_grade_series(grade, 8)
     )
+    pristine = deepcopy(evaluation)
     evaluation["family_rule_decisions"][0]["efficacy_rule_satisfied"] = True
     evaluation["population_cap_calibration"][0] = {"forged": True}
     _rehash(evaluation, "evaluation_sha256")
@@ -1356,6 +2230,28 @@ def test_suite_adapter_and_evaluation_tampering_fail() -> None:
         match="arithmetic or lineage",
     ):
         shadow.validate_prospective_shadow_evaluation_v1(evaluation)
+
+    forged_crossing = deepcopy(pristine)
+    forged_crossing["retrieval_effect_aggregates"][0][
+        "threshold_hit_deltas"
+    ]["240"] = 99
+    _rehash(forged_crossing, "evaluation_sha256")
+    with pytest.raises(
+        shadow.ProspectiveGenerationShadowEvaluationError,
+        match="arithmetic or lineage",
+    ):
+        shadow.validate_prospective_shadow_evaluation_v1(forged_crossing)
+
+    forged_synthesis = deepcopy(pristine)
+    forged_synthesis["structural_synthesis"]["disposition"] = (
+        "automatic-adoption"
+    )
+    _rehash(forged_synthesis, "evaluation_sha256")
+    with pytest.raises(
+        shadow.ProspectiveGenerationShadowEvaluationError,
+        match="arithmetic or lineage",
+    ):
+        shadow.validate_prospective_shadow_evaluation_v1(forged_synthesis)
 
 
 def test_outcome_requires_full_frozen_candidate_union() -> None:

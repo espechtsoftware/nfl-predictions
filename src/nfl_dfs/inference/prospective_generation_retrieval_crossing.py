@@ -619,10 +619,10 @@ def build_generation_retrieval_crossing(
 ) -> tuple[dict[str, list[Lineup]], dict[str, object]]:
     """Freeze the score-free 2 x 2 without requesting candidate work."""
 
-    if tuple(populations) != POPULATION_ORDER or tuple(
+    if set(populations) != set(POPULATION_ORDER) or set(
         incumbent_books
-    ) != POPULATION_ORDER:
-        _fail("generation x retrieval population order differs")
+    ) != set(POPULATION_ORDER):
+        _fail("generation x retrieval population grid differs")
     base = populations[POPULATION_ORDER[0]]
     _validate_candidate_batch(base)
     if len(base.candidates) < ENTRIES:

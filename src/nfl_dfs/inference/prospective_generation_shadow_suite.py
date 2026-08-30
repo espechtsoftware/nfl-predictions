@@ -31,12 +31,18 @@ from .prospective_boom_first import (
     _slate_identity,
     _validated_cloud_execution_context,
     _validated_image_uri,
+    build_paired_native_input_authority,
+    native_input_source_projection,
     player_identity_bridge,
     validate_constraint_contract,
+    validate_paired_native_input_authority,
 )
 from .prospective_cross_law_discovery import (
     build_cross_law_discovery_batch,
     rebuild_cross_law_discovery_world_matrix,
+)
+from .prospective_cross_law_supply_trace import (
+    build_selected_supply_trace,
 )
 from .prospective_generation_retrieval_crossing import (
     POPULATION_ORDER as RETRIEVAL_POPULATION_ORDER,
@@ -61,6 +67,12 @@ SEED_LABELS: Final = ("R0", "R1", "R2", "R3", "R4")
 WORLDS_PER_BLOCK: Final = 10_000
 AUDIT_WORLD_SEED: Final = 2_026_083_001
 AUDIT_WORLD_COUNT: Final = 10_000
+AUDIT_INPUT_BINDING_SCHEMA: Final = (
+    "prospective-generation-independent-audit-input-binding/v1"
+)
+AUDIT_BANK_SCHEMA: Final = (
+    "prospective-generation-independent-audit-bank/v2"
+)
 ARM_ORDER: Final = (
     "incumbent-160-40",
     "boom-first-40-160",
@@ -133,8 +145,8 @@ def arm_environments(
 def validate_arm_environments(
     environments: Mapping[str, Mapping[str, str]],
 ) -> dict[str, object]:
-    if tuple(environments) != ARM_ORDER:
-        _fail("prospective arm order differs")
+    if set(environments) != set(ARM_ORDER):
+        _fail("prospective arm grid differs")
     # Values are per one R0--R4 10,000-world block.  The environment's
     # GEN_TOTAL_BUDGET covers boom+role replacement families, not leverage.
     expected_native = {
@@ -354,6 +366,208 @@ def _candidate_totals_for_draws(
         ) from exc
 
 
+def build_independent_audit_input_binding(
+    *,
+    paired_native_input_authority: Mapping[str, object],
+    observed_model_version: str,
+    observed_candidate_input_receipt: Mapping[str, object],
+    observed_internal_player_ids: Sequence[object],
+) -> dict[str, object]:
+    """Bind the score-only bank to the exact candidate-source authority.
+
+    The audit simulator actually consumes the main model/player input.  It
+    does not generate candidates, load the role model, or apply construction
+    rules.  Role and construction identity are therefore retained explicitly
+    as provenance inherited from the frozen candidates, rather than being
+    misrepresented as audit-execution inputs.
+    """
+
+    try:
+        authority = validate_paired_native_input_authority(
+            paired_native_input_authority,
+            expected_arm_order=ARM_ORDER,
+            expected_block_labels=SEED_LABELS,
+        )
+    except ValueError as exc:
+        raise ProspectiveGenerationShadowError(
+            "independent audit paired native input authority differs"
+        ) from exc
+    expected_projection = authority["native_source_projection"]
+    observed_ids = [str(value) for value in observed_internal_player_ids]
+    try:
+        effective_projection = native_input_source_projection({
+            "model_version": observed_model_version,
+            "role_model_version": expected_projection["role_model_version"],
+            "candidate_input_receipt": dict(observed_candidate_input_receipt),
+            "role_candidate_input_receipt": expected_projection[
+                "role_candidate_input_receipt"
+            ],
+            "construction_preset_receipt": expected_projection[
+                "construction_preset_receipt"
+            ],
+        }, label="independent audit effective native source")
+    except ValueError as exc:
+        raise ProspectiveGenerationShadowError(
+            "independent audit observed main input source differs"
+        ) from exc
+    observed_internal_order_sha256 = canonical_sha256(observed_ids)
+    if (
+        effective_projection != expected_projection
+        or canonical_sha256(effective_projection)
+        != authority["native_source_projection_sha256"]
+        or observed_internal_order_sha256
+        != authority["effective_player_source_identity"][
+            "internal_player_id_order_sha256"
+        ]
+    ):
+        _fail("independent audit effective native input/source differs")
+    inherited = {
+        "role_model_version": expected_projection["role_model_version"],
+        "role_candidate_input_receipt": expected_projection[
+            "role_candidate_input_receipt"
+        ],
+        "effective_construction_source_identity": authority[
+            "effective_construction_source_identity"
+        ],
+    }
+    body = {
+        "schema_version": AUDIT_INPUT_BINDING_SCHEMA,
+        "paired_native_input_authority_sha256": authority["authority_sha256"],
+        "effective_native_source_projection": effective_projection,
+        "effective_native_source_projection_sha256": authority[
+            "native_source_projection_sha256"
+        ],
+        "audit_observed_main_source_identity": {
+            "model_version": str(observed_model_version),
+            "candidate_input_receipt": effective_projection[
+                "candidate_input_receipt"
+            ],
+            "internal_player_id_order_sha256": (
+                observed_internal_order_sha256
+            ),
+        },
+        "inherited_frozen_candidate_provenance": inherited,
+        "audit_observed_main_source_matches_paired_native_authority": True,
+        "role_and_construction_are_frozen_candidate_provenance_not_audit_execution_inputs": True,
+        "audit_has_no_candidate_generation_or_construction_path": True,
+        "uses_realized_outcomes": False,
+        "post_lock_data_read": False,
+    }
+    body["binding_sha256"] = canonical_sha256(body)
+    return validate_independent_audit_input_binding(
+        body,
+        paired_native_input_authority=authority,
+        expected_internal_player_ids=observed_ids,
+    )
+
+
+def validate_independent_audit_input_binding(
+    value: object,
+    *,
+    paired_native_input_authority: Mapping[str, object],
+    expected_internal_player_ids: Sequence[object],
+) -> dict[str, object]:
+    """Validate the audit-to-candidate source bind after JSON reopen."""
+
+    if not isinstance(value, Mapping):
+        _fail("independent audit input binding is not a mapping")
+    try:
+        authority = validate_paired_native_input_authority(
+            paired_native_input_authority,
+            expected_arm_order=ARM_ORDER,
+            expected_block_labels=SEED_LABELS,
+        )
+    except ValueError as exc:
+        raise ProspectiveGenerationShadowError(
+            "independent audit paired native input authority differs"
+        ) from exc
+    item = dict(value)
+    fields = {
+        "schema_version", "paired_native_input_authority_sha256",
+        "effective_native_source_projection",
+        "effective_native_source_projection_sha256",
+        "audit_observed_main_source_identity",
+        "inherited_frozen_candidate_provenance",
+        "audit_observed_main_source_matches_paired_native_authority",
+        "role_and_construction_are_frozen_candidate_provenance_not_audit_execution_inputs",
+        "audit_has_no_candidate_generation_or_construction_path",
+        "uses_realized_outcomes", "post_lock_data_read", "binding_sha256",
+    }
+    if set(item) != fields:
+        _fail("independent audit input binding fields differ")
+    retained_hash = str(item.pop("binding_sha256", "") or "")
+    if retained_hash != canonical_sha256(item):
+        _fail("independent audit input binding hash differs")
+    try:
+        projection = native_input_source_projection(
+            item.get("effective_native_source_projection"),
+            label="independent audit effective native source",
+        )
+    except ValueError as exc:
+        raise ProspectiveGenerationShadowError(
+            "independent audit effective native source differs"
+        ) from exc
+    expected_projection = authority["native_source_projection"]
+    observed = item.get("audit_observed_main_source_identity")
+    inherited = item.get("inherited_frozen_candidate_provenance")
+    expected_internal_order_sha256 = canonical_sha256([
+        str(value) for value in expected_internal_player_ids
+    ])
+    if (
+        not isinstance(observed, Mapping)
+        or set(observed) != {
+            "model_version", "candidate_input_receipt",
+            "internal_player_id_order_sha256",
+        }
+        or not isinstance(inherited, Mapping)
+        or set(inherited) != {
+            "role_model_version", "role_candidate_input_receipt",
+            "effective_construction_source_identity",
+        }
+        or item.get("schema_version") != AUDIT_INPUT_BINDING_SCHEMA
+        or item.get("paired_native_input_authority_sha256")
+        != authority["authority_sha256"]
+        or projection != expected_projection
+        or item.get("effective_native_source_projection_sha256")
+        != authority["native_source_projection_sha256"]
+        or canonical_sha256(projection)
+        != authority["native_source_projection_sha256"]
+        or dict(observed) != {
+            "model_version": expected_projection["model_version"],
+            "candidate_input_receipt": expected_projection[
+                "candidate_input_receipt"
+            ],
+            "internal_player_id_order_sha256": expected_internal_order_sha256,
+        }
+        or expected_internal_order_sha256
+        != authority["effective_player_source_identity"][
+            "internal_player_id_order_sha256"
+        ]
+        or dict(inherited) != {
+            "role_model_version": expected_projection["role_model_version"],
+            "role_candidate_input_receipt": expected_projection[
+                "role_candidate_input_receipt"
+            ],
+            "effective_construction_source_identity": authority[
+                "effective_construction_source_identity"
+            ],
+        }
+        or item.get(
+            "audit_observed_main_source_matches_paired_native_authority"
+        ) is not True
+        or item.get(
+            "role_and_construction_are_frozen_candidate_provenance_not_audit_execution_inputs"
+        ) is not True
+        or item.get(
+            "audit_has_no_candidate_generation_or_construction_path"
+        ) is not True
+        or item.get("uses_realized_outcomes") is not False
+        or item.get("post_lock_data_read") is not False
+    ):
+        _fail("independent audit input binding differs")
+    return {**item, "binding_sha256": retained_hash}
+
+
 def build_independent_audit_world_bank(
     *,
     season: int,
@@ -365,6 +579,7 @@ def build_independent_audit_world_bank(
     expected_model_k: int,
     expected_player_ids: Sequence[object],
     expected_model_version: str,
+    paired_native_input_authority: Mapping[str, object],
 ) -> tuple[np.ndarray, dict[str, object]]:
     """Build one score-only world bank; no candidate solve or selection runs."""
 
@@ -388,24 +603,35 @@ def build_independent_audit_world_bank(
         route_source_policy=False,
         log_ownership_shadow=False,
     )
+    model_version = str(slate.attrs.get("model_version") or "")
+    observed_candidate_input_receipt = dict(
+        slate.attrs.get("candidate_input_receipt") or {}
+    )
     expected = list(expected_player_ids)
     if set(slate["id"]) != set(expected):
         _fail("independent audit bank player universe differs")
     slate = slate.set_index("id", drop=False).loc[expected].reset_index(drop=True)
     if list(slate["id"]) != expected:
         _fail("independent audit bank player order differs")
-    model_version = str(slate.attrs.get("model_version") or "")
     if not model_version or model_version != expected_model_version:
         _fail("independent audit bank fitted model identity differs")
     draws = np.asarray(_row_draws(slate, raw_draws, env=audit_env), dtype=np.float32)
     if draws.shape != (len(expected), AUDIT_WORLD_COUNT):
         _fail("independent audit world matrix shape differs")
+    input_binding = build_independent_audit_input_binding(
+        paired_native_input_authority=paired_native_input_authority,
+        observed_model_version=model_version,
+        observed_candidate_input_receipt=observed_candidate_input_receipt,
+        observed_internal_player_ids=expected,
+    )
     receipt = {
-        "schema_version": "prospective-generation-independent-audit-bank/v1",
+        "schema_version": AUDIT_BANK_SCHEMA,
         "world_seed": AUDIT_WORLD_SEED,
         "world_count": AUDIT_WORLD_COUNT,
         "model_version": model_version,
         "player_order_sha256": canonical_sha256([str(value) for value in expected]),
+        "input_binding": input_binding,
+        "input_binding_sha256": input_binding["binding_sha256"],
         "world_bank_receipt": _array_receipt(draws),
         "candidate_solves_run": 0,
         "used_for_selection": False,
@@ -455,8 +681,19 @@ def multiarm_prelock_receipt(
     """Validate and hash every pool/book without reading an outcome."""
 
     environment_contract = validate_arm_environments(environments)
-    if tuple(batches) != ARM_ORDER or tuple(selected) != ARM_ORDER:
+    if set(batches) != set(ARM_ORDER) or set(selected) != set(ARM_ORDER):
         _fail("prospective multiarm batch/book grid differs")
+    try:
+        paired_native_input_authority = build_paired_native_input_authority(
+            batches,
+            arm_order=ARM_ORDER,
+            block_labels=SEED_LABELS,
+            artifact_player_id_by_player_id=dk_id_by_player_id,
+        )
+    except ValueError as exc:
+        raise ProspectiveGenerationShadowError(
+            "prospective paired native input/source authority differs"
+        ) from exc
     base = batches[ARM_ORDER[0]]
     _validate_candidate_batch(base)
     world_receipt = _array_receipt(base.row_draws)
@@ -477,9 +714,18 @@ def multiarm_prelock_receipt(
         _fail("independent audit bank repeats a selection/generation block")
     audit_receipt = dict(audit_bank_receipt)
     retained_audit_hash = audit_receipt.pop("receipt_sha256", None)
+    audit_input_binding = validate_independent_audit_input_binding(
+        audit_receipt.get("input_binding"),
+        paired_native_input_authority=paired_native_input_authority,
+        expected_internal_player_ids=base.player_ids,
+    )
     if (
         retained_audit_hash != canonical_sha256(audit_receipt)
+        or audit_receipt.get("schema_version") != AUDIT_BANK_SCHEMA
         or audit_receipt.get("world_bank_receipt") != _array_receipt(audit_draws)
+        or audit_receipt.get("input_binding") != audit_input_binding
+        or audit_receipt.get("input_binding_sha256")
+        != audit_input_binding["binding_sha256"]
         or audit_receipt.get("candidate_solves_run") != 0
         or audit_receipt.get("used_for_selection") is not False
         or audit_receipt.get("uses_realized_outcomes") is not False
@@ -494,6 +740,7 @@ def multiarm_prelock_receipt(
     }
     model_versions: set[tuple[str, str]] = set()
     reference_auxiliary_by_label: dict[str, dict[str, int]] = {}
+    cross_law_selected_supply_trace: dict[str, object] | None = None
     for arm in ARM_ORDER:
         batch = batches[arm]
         _validate_candidate_batch(batch)
@@ -558,6 +805,15 @@ def multiarm_prelock_receipt(
             if arm == ARM_ORDER[0]:
                 reference_auxiliary_by_label[label] = auxiliary
             block_work[label] = block_receipt
+        if arm == "cross-law-40-100-60":
+            cross_law_selected_supply_trace = build_selected_supply_trace(
+                batch,
+                expected,
+                dk_id_by_player_id,
+                transform_receipts,
+                block_labels=SEED_LABELS,
+                prefixes=PREFIXES,
+            )
         rosters = [
             _canonical_dk_roster(lineup, dict(dk_id_by_player_id))
             for lineup in expected
@@ -601,6 +857,11 @@ def multiarm_prelock_receipt(
                 for label in SEED_LABELS
             },
             "per_block_requested_work": block_work,
+            "cross_law_selected_supply_trace_sha256": (
+                None
+                if arm != "cross-law-40-100-60"
+                else cross_law_selected_supply_trace["trace_sha256"]
+            ),
             "simulated_diagnostics": _simulated_diagnostics(
                 batch, expected
             ),
@@ -614,6 +875,8 @@ def multiarm_prelock_receipt(
         }
     if len(model_versions) != 1:
         _fail("prospective arms used different fitted model identities")
+    if cross_law_selected_supply_trace is None:
+        _fail("prospective cross-law selected-supply trace is absent")
     _cap4_books, retrieval_crossing = build_generation_retrieval_crossing(
         {arm: batches[arm] for arm in RETRIEVAL_POPULATION_ORDER},
         {arm: selected[arm] for arm in RETRIEVAL_POPULATION_ORDER},
@@ -662,11 +925,23 @@ def multiarm_prelock_receipt(
         "player_worlds_identical_across_all_arms": True,
         "player_worlds_receipt": world_receipt,
         "independent_audit_world_bank": audit_receipt,
+        "independent_audit_input_binding": audit_input_binding,
+        "independent_audit_input_binding_sha256": audit_input_binding[
+            "binding_sha256"
+        ],
         "audit_world_bank_distinct_from_all_five_selection_blocks": True,
         "audit_world_bank_used_for_selection": False,
         "model_version": next(iter(model_versions))[0],
         "role_model_version": next(iter(model_versions))[1],
+        "paired_native_input_authority": paired_native_input_authority,
+        "paired_native_input_authority_sha256": (
+            paired_native_input_authority["authority_sha256"]
+        ),
         "arm_receipts": arm_receipts,
+        "cross_law_selected_supply_trace": cross_law_selected_supply_trace,
+        "cross_law_selected_supply_trace_sha256": (
+            cross_law_selected_supply_trace["trace_sha256"]
+        ),
         "generation_retrieval_crossing": retrieval_crossing,
         "generation_retrieval_crossing_sha256": retrieval_crossing[
             "receipt_sha256"
@@ -964,6 +1239,17 @@ def run(
     expected_model_version = str(r0_receipt.get("model_version") or "")
     if not expected_model_version:
         _fail("control batch lacks its fitted model identity")
+    try:
+        paired_native_input_authority = build_paired_native_input_authority(
+            batches,
+            arm_order=ARM_ORDER,
+            block_labels=SEED_LABELS,
+            artifact_player_id_by_player_id=dk_mapping,
+        )
+    except ValueError as exc:
+        raise ProspectiveGenerationShadowError(
+            "prospective paired native input/source authority differs"
+        ) from exc
     audit_draws, audit_bank_receipt = build_independent_audit_world_bank(
         season=season,
         week=week,
@@ -974,6 +1260,7 @@ def run(
         expected_model_k=policy.model_ensemble,
         expected_player_ids=control_batch.player_ids,
         expected_model_version=expected_model_version,
+        paired_native_input_authority=paired_native_input_authority,
     )
     prelock = multiarm_prelock_receipt(
         batches,
@@ -1091,6 +1378,12 @@ def run(
         metadata={
             "artifact_role": "independent-score-only-audit-world-bank",
             "audit_bank_receipt": audit_bank_receipt,
+            "independent_audit_input_binding": audit_bank_receipt[
+                "input_binding"
+            ],
+            "independent_audit_input_binding_sha256": audit_bank_receipt[
+                "input_binding_sha256"
+            ],
             "candidate_solves_run": 0,
             "used_for_selection": False,
             "uses_realized_outcomes": False,
@@ -1147,6 +1440,9 @@ def run(
             )
             for label in SEED_LABELS
         },
+        "selected_supply_trace_sha256": prelock[
+            "cross_law_selected_supply_trace_sha256"
+        ],
         "discovery_worlds_used_for_generation_only": True,
         "all_selection_scores_from_untouched_base_bank": True,
         "audit_worlds_used_for_selection": False,
@@ -1181,6 +1477,12 @@ def run(
         "cross_law_discovery_world_artifacts": discovery_world_artifacts,
         "cross_law_persistence_binding": cross_law_persistence_binding,
         "independent_audit_world_artifact": audit_artifact,
+        "independent_audit_input_binding": prelock[
+            "independent_audit_input_binding"
+        ],
+        "independent_audit_input_binding_sha256": prelock[
+            "independent_audit_input_binding_sha256"
+        ],
         "build_seconds": build_seconds,
         "elapsed_before_manifest_seconds": float(
             time.perf_counter() - started
@@ -1241,6 +1543,24 @@ def run(
             for label in SEED_LABELS
         },
         "cross_law_persistence_binding": cross_law_persistence_binding,
+        "cross_law_selected_supply_trace": prelock[
+            "cross_law_selected_supply_trace"
+        ],
+        "cross_law_selected_supply_trace_sha256": prelock[
+            "cross_law_selected_supply_trace_sha256"
+        ],
+        "paired_native_input_authority": prelock[
+            "paired_native_input_authority"
+        ],
+        "paired_native_input_authority_sha256": prelock[
+            "paired_native_input_authority_sha256"
+        ],
+        "independent_audit_input_binding": prelock[
+            "independent_audit_input_binding"
+        ],
+        "independent_audit_input_binding_sha256": prelock[
+            "independent_audit_input_binding_sha256"
+        ],
         "memberships_sha256": prelock["memberships_sha256"],
         "generation_retrieval_crossing_sha256": prelock[
             "generation_retrieval_crossing_sha256"
@@ -1290,6 +1610,8 @@ def main(
 
 
 __all__ = [
+    "AUDIT_BANK_SCHEMA",
+    "AUDIT_INPUT_BINDING_SCHEMA",
     "ARM_ORDER",
     "COMPARATOR_BY_ARM",
     "ENTRIES",
@@ -1298,8 +1620,10 @@ __all__ = [
     "THRESHOLDS",
     "VERSION",
     "arm_environments",
+    "build_independent_audit_input_binding",
     "main",
     "multiarm_prelock_receipt",
     "run",
     "validate_arm_environments",
+    "validate_independent_audit_input_binding",
 ]

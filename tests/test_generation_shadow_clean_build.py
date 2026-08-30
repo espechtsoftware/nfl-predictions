@@ -13,6 +13,14 @@ BUILD_SCRIPT = ROOT / "scripts" / "build_generation_shadow_suite_image.sh"
 DOCKERFILE = ROOT / "Dockerfile.generation-shadow-suite"
 DOCKERIGNORE = ROOT / "Dockerfile.generation-shadow-suite.dockerignore"
 BUILD_CONFIG = ROOT / "cloudbuild.generation-shadow-suite.yaml"
+TEST_SUPPORT_SCRIPTS = (
+    "aggregate_coherent_market_state_scorefree.py",
+    "coherent_market_state_sources.py",
+    "run_cbwu_seed_order_audit.py",
+    "run_corpus_r6_current_bank_crossed_screen_evaluation_v1.py",
+    "run_legal_soft_law.py",
+    "verify_deployment.py",
+)
 
 
 def _run(*args: str, cwd: Path) -> str:
@@ -29,7 +37,17 @@ def _committed_fixture(tmp_path: Path) -> tuple[Path, str]:
 
     shutil.copy2(DOCKERFILE, repo / DOCKERFILE.name)
     shutil.copy2(DOCKERIGNORE, repo / DOCKERIGNORE.name)
-    shutil.copy2(BUILD_CONFIG, repo / BUILD_CONFIG.name)
+    (repo / BUILD_CONFIG.name).write_text(
+        "steps:\n"
+        "  - args:\n"
+        "      - src/nfl_dfs/__init__.py\n"
+        "      - tests/test_placeholder.py\n",
+        encoding="utf-8",
+    )
+    (repo / "cloudbuild.yaml").write_text(
+        "steps:\n  - name: python\n    args: ['PYTHONPATH=src pytest']\n",
+        encoding="utf-8",
+    )
     shutil.copy2(BUILD_SCRIPT, repo / "scripts" / BUILD_SCRIPT.name)
     (repo / "scripts" / "cloud_generation_shadow_suite.sh").write_text(
         "#!/usr/bin/env bash\nexit 0\n", encoding="utf-8"
@@ -37,6 +55,10 @@ def _committed_fixture(tmp_path: Path) -> tuple[Path, str]:
     (repo / "scripts" / "unrelated_research_driver.py").write_text(
         "raise SystemExit('must not be uploaded')\n", encoding="utf-8"
     )
+    for script_name in TEST_SUPPORT_SCRIPTS:
+        (repo / "scripts" / script_name).write_text(
+            "# exact allowlisted test support\n", encoding="utf-8"
+        )
     (repo / "pyproject.toml").write_text(
         "[build-system]\nrequires=['setuptools']\n", encoding="utf-8"
     )
@@ -138,6 +160,9 @@ def test_clean_archive_submit_is_commit_bound_and_excludes_unrelated_trees(
     assert "tests/test_placeholder.py" in files
     assert "scripts/build_generation_shadow_suite_image.sh" in files
     assert "scripts/cloud_generation_shadow_suite.sh" in files
+    assert "cloudbuild.yaml" in files
+    for script_name in TEST_SUPPORT_SCRIPTS:
+        assert f"scripts/{script_name}" in files
     assert not any(path.startswith("reports/") for path in files)
     assert not any(path.startswith("sql/") for path in files)
     assert "scripts/unrelated_research_driver.py" not in files
@@ -172,6 +197,48 @@ def test_dirty_worktree_cannot_enter_exact_commit_archive(tmp_path: Path) -> Non
     assert result.returncode == 0, result.stderr
     record = json.loads(capture.read_text(encoding="utf-8"))
     assert "untracked-work.txt" not in record["files"]
+
+
+def test_committed_build_reference_must_exist_before_cloud_submission(
+    tmp_path: Path,
+) -> None:
+    repo, _ = _committed_fixture(tmp_path)
+    (repo / BUILD_CONFIG.name).write_text(
+        "steps:\n"
+        "  - args:\n"
+        "      - src/nfl_dfs/__init__.py\n"
+        "      - tests/test_absent_from_commit.py\n",
+        encoding="utf-8",
+    )
+    _run("git", "add", BUILD_CONFIG.name, cwd=repo)
+    _run(
+        "git", "-c", "user.name=Build Test", "-c",
+        "user.email=build-test@example.invalid", "commit", "-qm",
+        "missing build reference", cwd=repo,
+    )
+    code_sha = _run("git", "rev-parse", "HEAD", cwd=repo)
+    _run("git", "update-ref", "refs/remotes/origin/main", code_sha, cwd=repo)
+    binary_dir, capture = _fake_gcloud(tmp_path)
+    env = {
+        **os.environ,
+        "PATH": f"{binary_dir}:{os.environ['PATH']}",
+        "GCLOUD_CAPTURE": str(capture),
+    }
+
+    result = subprocess.run(
+        ["bash", str(BUILD_SCRIPT), "--execute", code_sha],
+        cwd=repo,
+        env=env,
+        text=True,
+        capture_output=True,
+    )
+
+    assert result.returncode == 2
+    assert (
+        "Cloud Build references an absent committed file: "
+        "tests/test_absent_from_commit.py"
+    ) in result.stderr
+    assert not capture.exists()
 
 
 def test_submit_helper_requires_explicit_execute(tmp_path: Path) -> None:
@@ -223,4 +290,8 @@ def test_runtime_image_and_cloud_build_use_only_the_dedicated_context() -> None:
     assert "test ! -e .git" in build
     assert "Dockerfile.generation-shadow-suite" in build
     assert "tests/test_generation_shadow_clean_build.py" in build
+    assert "src/nfl_dfs/inference/prospective_boom_first.py" in build
+    assert "tests/test_prospective_boom_first.py" in build
+    assert "src/nfl_dfs/inference/prospective_cross_law_supply_trace.py" in build
+    assert "tests/test_prospective_cross_law_supply_trace.py" in build
     assert "- '${_BUILD_IMAGE}'" in build

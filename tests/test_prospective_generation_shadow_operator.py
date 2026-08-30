@@ -331,13 +331,20 @@ def _postlock_fixture(monkeypatch, *, complete_field: bool):
         "week": 1,
         "slate_id": "dk-123",
         "lock_at": WEEK1_LOCK.isoformat(),
+        "terminal_prelock_root_sha256": "a" * 64,
     }
     embedded_created = WEEK1_LOCK - timedelta(hours=2)
+    store = MemoryStore(now=WEEK1_LOCK + timedelta(days=1, minutes=1))
+    root_identity = store.inject_json(
+        "gs://shadow-fixture/prelock/evaluation-root.json",
+        root,
+        created_at=embedded_created,
+    )
     envelope = {
+        "identity": root_identity,
         "storage_created_at": embedded_created.isoformat(),
         "terminal_prelock_root": root,
     }
-    store = MemoryStore(now=WEEK1_LOCK + timedelta(days=1, minutes=1))
     envelope_identity = store.inject_json(
         "gs://shadow-fixture/prelock/evaluation-envelope.json",
         envelope,
@@ -470,21 +477,138 @@ def test_postlock_operator_publishes_raw_or_complete_field_without_allocation(
     assert len(component_writes) == (6 if complete_field else 0)
 
 
-def test_evaluation_reopens_each_grade_and_cannot_auto_adopt(monkeypatch) -> None:
+def _evaluation_lineage_fixture(monkeypatch, *, forged_grade: bool = False):
     store = MemoryStore(now=WEEK1_LOCK + timedelta(days=60))
     prereg_identity = store.inject_json(
         "gs://shadow-fixture/prelock/preregistration.json",
-        {"schema_version": "prereg"},
+        {
+            "schema_version": "prereg",
+            "week1_lock_at": WEEK1_LOCK.isoformat(),
+        },
         created_at=WEEK1_LOCK - timedelta(days=1),
     )
-    grade_identities = [
-        store.inject_json(
-            f"gs://shadow-fixture/postlock/week-{week:02d}/grade.json",
-            {"week": week},
-            created_at=WEEK1_LOCK + timedelta(days=7 * week),
-        )
-        for week in (1, 2)
-    ]
+    captured = WEEK1_LOCK + timedelta(days=1)
+    root_created = WEEK1_LOCK - timedelta(hours=2)
+    root = {
+        "season": 2026,
+        "week": 1,
+        "slate_id": "dk-123",
+        "lock_at": WEEK1_LOCK.isoformat(),
+        "terminal_prelock_root_sha256": "a" * 64,
+    }
+    root_identity = store.inject_json(
+        "gs://shadow-fixture/prelock/evaluation-lineage-root.json",
+        root,
+        created_at=root_created,
+    )
+    envelope = {
+        "identity": root_identity,
+        "storage_created_at": root_created.isoformat(),
+        "terminal_prelock_root": root,
+    }
+    envelope_identity = store.inject_json(
+        "gs://shadow-fixture/prelock/evaluation-lineage-envelope.json",
+        envelope,
+        created_at=root_created + timedelta(seconds=1),
+    )
+    lineup_rows = [{"lineup_id": "lineup-1", "realized_score_micro": 1}]
+    score_payload = {
+        "schema_version": operator.evaluation.REALIZED_SCORE_SOURCE_SCHEMA,
+        "season": 2026,
+        "week": 1,
+        "slate_id": "dk-123",
+        "captured_at": captured.isoformat(),
+        "producer_class": "independent-realized-lineup-score-source",
+        "independent_from_generation": True,
+        "terminal_prelock_root_binding_present": False,
+        "lineup_count": 1,
+        "lineup_rows": lineup_rows,
+        "lineup_rows_sha256": operator._canonical_sha256(lineup_rows),
+    }
+    score_identity = store.inject_json(
+        "gs://shadow-fixture/independent-scorer/week-01.json",
+        score_payload,
+        created_at=captured,
+    )
+    bridge = {
+        "status": "raw-score-only-no-contest-ev",
+        "evidence_scope": "raw-score-only-no-contest-ev",
+        "complete_contest_field_capture": False,
+        "complete_field_rank_claim_allowed": False,
+        "contest_ev_claim_allowed": False,
+        "component_identities": None,
+        "terminal_prelock_root_identity": root_identity,
+        "terminal_prelock_root_sha256": root[
+            "terminal_prelock_root_sha256"
+        ],
+    }
+    bridge_identity = store.inject_json(
+        "gs://shadow-fixture/postlock/week-01/field-bridge.json",
+        bridge,
+        created_at=captured + timedelta(seconds=1),
+    )
+    outcome_payload = {"schema_version": "outcome-source"}
+    outcome_identity = store.inject_json(
+        "gs://shadow-fixture/postlock/week-01/outcome-source.json",
+        outcome_payload,
+        created_at=captured + timedelta(seconds=2),
+    )
+    snapshot = {
+        "season": 2026,
+        "week": 1,
+        "slate_id": "dk-123",
+        "captured_at": captured.isoformat(),
+        "lineup_count": 1,
+        "lineup_rows": lineup_rows,
+        "realized_score_source_identity": score_identity,
+        "outcome_snapshot_sha256": "c" * 64,
+    }
+    snapshot_identity = store.inject_json(
+        "gs://shadow-fixture/postlock/week-01/outcome-snapshot.json",
+        snapshot,
+        created_at=captured + timedelta(seconds=3),
+    )
+    expected_grade = {"week": 1, "weekly_grade_sha256": "d" * 64}
+    published_grade = (
+        {"week": 1, "weekly_grade_sha256": "f" * 64}
+        if forged_grade else expected_grade
+    )
+    grade_identity = store.inject_json(
+        "gs://shadow-fixture/postlock/week-01/weekly-grade.json",
+        published_grade,
+        created_at=captured + timedelta(seconds=4),
+    )
+    publication_terminal = operator._with_hash({
+        "schema_version": operator.POSTLOCK_PUBLICATION_SCHEMA,
+        "season": 2026,
+        "week": 1,
+        "slate_id": "dk-123",
+        "captured_at": captured.isoformat(),
+        "terminal_prelock_envelope_identity": envelope_identity,
+        "realized_score_source_identity": score_identity,
+        "field_bridge_identity": bridge_identity,
+        "field_component_identities": {},
+        "outcome_source_identity": outcome_identity,
+        "outcome_snapshot_identity": snapshot_identity,
+        "outcome_snapshot_sha256": snapshot["outcome_snapshot_sha256"],
+        "weekly_grade_identity": grade_identity,
+        "weekly_grade_sha256": published_grade["weekly_grade_sha256"],
+        "field_status": bridge["status"],
+        "evidence_scope": bridge["evidence_scope"],
+        "complete_contest_field_capture": False,
+        "complete_field_rank_claim_allowed": False,
+        "contest_ev_claim_allowed": False,
+        "allocation_recommendation_allowed": False,
+        "all_operator_outputs_create_once": True,
+        "realized_score_source_exact_reopened_not_published_by_operator": True,
+        "automatic_adoption": False,
+        "production_change_licensed": False,
+    }, field="publication_sha256")
+    publication_terminal_identity = store.inject_json(
+        "gs://shadow-fixture/postlock/week-01/publication-terminal.json",
+        publication_terminal,
+        created_at=captured + timedelta(seconds=5),
+    )
     monkeypatch.setattr(
         operator.evaluation,
         "validate_preregistration_v1",
@@ -492,16 +616,44 @@ def test_evaluation_reopens_each_grade_and_cannot_auto_adopt(monkeypatch) -> Non
     )
     monkeypatch.setattr(
         operator.evaluation,
+        "validate_terminal_prelock_root_v1",
+        lambda value: root,
+    )
+    monkeypatch.setattr(
+        operator.field_bridge,
+        "validate_contest_field_bridge_v1",
+        lambda value: value,
+    )
+    monkeypatch.setattr(
+        operator.evaluation,
+        "build_outcome_source_payload_from_field_bridge_v1",
+        lambda **kwargs: outcome_payload,
+    )
+    monkeypatch.setattr(
+        operator.evaluation,
+        "build_outcome_snapshot_from_field_bridge_v1",
+        lambda **kwargs: snapshot,
+    )
+    monkeypatch.setattr(
+        operator.evaluation,
         "validate_realized_week_grade_v1",
         lambda value: value,
     )
+    monkeypatch.setattr(
+        operator.evaluation,
+        "grade_realized_week_v1",
+        lambda **kwargs: expected_grade,
+    )
     result_payload = {
         "season": 2026,
-        "completed_week_count": 2,
-        "completed_weeks": [1, 2],
+        "completed_week_count": 1,
+        "completed_weeks": [1],
         "horizon": "accrual-before-eight-week-interim",
         "decision_scope": "not-yet-eligible",
         "contest_ev_claim_allowed": False,
+        "week8_integrity_gate": {
+            "integrity_gate_status": "not_evaluated"
+        },
         "evaluation_sha256": "e" * 64,
     }
     monkeypatch.setattr(
@@ -509,11 +661,20 @@ def test_evaluation_reopens_each_grade_and_cannot_auto_adopt(monkeypatch) -> Non
         "evaluate_prospective_shadow_v1",
         lambda **kwargs: result_payload,
     )
+    return (
+        store, prereg_identity, publication_terminal_identity, grade_identity,
+    )
+
+
+def test_evaluation_exact_regrades_each_postlock_lineage(monkeypatch) -> None:
+    store, prereg_identity, terminal_identity, grade_identity = (
+        _evaluation_lineage_fixture(monkeypatch)
+    )
 
     result = operator.publish_evaluation_v1(
         store=store,
         preregistration_identity=prereg_identity,
-        weekly_grade_identities=grade_identities,
+        weekly_publication_terminal_identities=[terminal_identity],
         target_uri="gs://shadow-fixture/postlock/evaluations/week-02.json",
     )
 
@@ -521,7 +682,216 @@ def test_evaluation_reopens_each_grade_and_cannot_auto_adopt(monkeypatch) -> Non
     assert result["automatic_adoption"] is False
     assert result["allocation_recommendation_allowed"] is False
     assert result["decision_scope"] == "not-yet-eligible"
-    assert result["weekly_grade_identities"] == grade_identities
+    assert result["weekly_publication_terminal_identities"] == [
+        terminal_identity
+    ]
+    assert result["weekly_grade_identities"] == [grade_identity]
+    assert result[
+        "all_weekly_grades_exact_regraded_from_postlock_lineage"
+    ] is True
+
+
+def test_evaluation_rejects_self_consistent_forged_weekly_grade(monkeypatch) -> None:
+    store, prereg_identity, terminal_identity, _grade_identity = (
+        _evaluation_lineage_fixture(monkeypatch, forged_grade=True)
+    )
+    with pytest.raises(
+        operator.ProspectiveGenerationShadowOperatorError,
+        match="differs from exact independent regrade",
+    ):
+        operator.publish_evaluation_v1(
+            store=store,
+            preregistration_identity=prereg_identity,
+            weekly_publication_terminal_identities=[terminal_identity],
+            target_uri="gs://shadow-fixture/postlock/evaluations/forged.json",
+        )
+
+
+def test_evaluation_rejects_legacy_direct_weekly_grade_api() -> None:
+    store = MemoryStore(now=WEEK1_LOCK + timedelta(hours=1))
+    with pytest.raises(TypeError, match="weekly_grade_identities"):
+        operator.publish_evaluation_v1(**{
+            "store": store,
+            "preregistration_identity": {
+                "uri": "gs://shadow-fixture/prelock/preregistration.json",
+                "generation": "1",
+                "sha256": "a" * 64,
+                "bytes": 1,
+            },
+            "weekly_grade_identities": [{
+                "uri": "gs://shadow-fixture/postlock/forged-grade.json",
+                "generation": "2",
+                "sha256": "b" * 64,
+                "bytes": 1,
+            }],
+            "target_uri": "gs://shadow-fixture/postlock/evaluations/legacy.json",
+        })
+
+
+def test_failed_suite_safety_receipt_is_durable_and_exact_reopened() -> None:
+    observed_at = WEEK1_LOCK + timedelta(hours=1)
+    store = MemoryStore(now=observed_at)
+    preregistration = operator.evaluation.build_preregistration_v1(
+        registered_at=WEEK1_LOCK - timedelta(days=30),
+        week1_lock_at=WEEK1_LOCK,
+    )
+    prereg_identity = store.inject_json(
+        "gs://shadow-fixture/prelock/safety-preregistration.json",
+        preregistration,
+        created_at=WEEK1_LOCK - timedelta(days=29),
+    )
+    result = operator.publish_weekly_safety_receipt_v1(
+        store=store,
+        preregistration_identity=prereg_identity,
+        target_uri="gs://shadow-fixture/safety/week-01.json",
+        week=1,
+        slate_id="2026-w01",
+        observed_at=observed_at,
+        terminal_prelock_envelope_identity=None,
+    )
+
+    assert result["schema_version"] == operator.SAFETY_PUBLICATION_SCHEMA
+    assert result["integrity_gate_status"] == "fail"
+    assert result["terminal_present"] is False
+    assert result["suite_manifest_present"] is False
+    safety_identity = result["weekly_safety_receipt_identity"]
+    safety_value = json.loads(store.objects[safety_identity["uri"]]["raw"])
+    validated = operator.evaluation.validate_weekly_safety_receipt_v1(
+        safety_value, preregistration=preregistration
+    )
+    assert validated["safety_metrics"]["missing_terminal_count"] == 1
+    assert validated["safety_metrics"]["missing_expected_book_count"] == 7
+    assert validated["safety_metrics"]["missing_required_source_count"] == 6
+    assert validated["safety_metrics"]["illegal_lineup_count"] is None
+
+    store.events.clear()
+    store.advance()
+    season = operator.publish_evaluation_v1(
+        store=store,
+        preregistration_identity=prereg_identity,
+        weekly_publication_terminal_identities=[],
+        weekly_safety_receipt_identities=[safety_identity],
+        target_uri="gs://shadow-fixture/evaluations/week-01-safety.json",
+    )
+    assert season["week8_integrity_gate_status"] == "fail"
+    assert season["weekly_publication_terminal_identities"] == []
+    assert season["weekly_grade_identities"] == []
+    assert season["weekly_safety_receipt_identities"] == [safety_identity]
+    read_uris = [uri for operation, uri in store.events if operation == "read"]
+    assert prereg_identity["uri"] in read_uris
+    assert safety_identity["uri"] in read_uris
+
+
+def test_dummy_safety_evidence_cannot_forge_a_terminal_present_pass() -> None:
+    observed_at = WEEK1_LOCK + timedelta(hours=1)
+    store = MemoryStore(now=observed_at)
+    preregistration = operator.evaluation.build_preregistration_v1(
+        registered_at=WEEK1_LOCK - timedelta(days=30),
+        week1_lock_at=WEEK1_LOCK,
+    )
+    prereg_identity = store.inject_json(
+        "gs://shadow-fixture/prelock/dummy-safety-preregistration.json",
+        preregistration,
+        created_at=WEEK1_LOCK - timedelta(days=29),
+    )
+    dummy_identity = store.inject_json(
+        "gs://shadow-fixture/prelock/dummy-evidence-as-terminal.json",
+        {"claimed_counts": {"illegal": 0, "solve_failures": 0}},
+        created_at=WEEK1_LOCK - timedelta(minutes=1),
+    )
+    with pytest.raises(
+        operator.evaluation.ProspectiveGenerationShadowEvaluationError,
+        match="terminal prelock envelope fields differ",
+    ):
+        operator.publish_weekly_safety_receipt_v1(
+            store=store,
+            preregistration_identity=prereg_identity,
+            target_uri="gs://shadow-fixture/safety/dummy-week-01.json",
+            week=1,
+            slate_id="2026-w01",
+            observed_at=observed_at,
+            terminal_prelock_envelope_identity=dummy_identity,
+        )
+
+
+def test_terminal_present_safety_pass_uses_exact_reopened_root_clock() -> None:
+    from tests.test_prospective_generation_shadow_evaluation import _case
+
+    preregistration, root, _fixture_envelope, _snapshot = _case()
+    root_created = WEEK1_LOCK - timedelta(hours=1, minutes=55)
+    envelope_created = root_created + timedelta(minutes=5)
+    store = MemoryStore(now=WEEK1_LOCK + timedelta(hours=1))
+    prereg_identity = store.inject_json(
+        "gs://shadow-fixture/prelock/terminal-safety-preregistration.json",
+        preregistration,
+        created_at=WEEK1_LOCK - timedelta(days=29),
+    )
+    root_identity = store.inject_json(
+        "gs://shadow-fixture/prelock/terminal-safety-root.json",
+        root,
+        created_at=root_created,
+    )
+    envelope = operator.evaluation.bind_terminal_prelock_root_v1(
+        root=root,
+        uri=str(root_identity["uri"]),
+        generation=str(root_identity["generation"]),
+        storage_created_at=root_created,
+    )
+    envelope_identity = store.inject_json(
+        "gs://shadow-fixture/prelock/terminal-safety-envelope.json",
+        envelope,
+        created_at=envelope_created,
+    )
+
+    manifest_identity = root["suite_authority"]["manifest_identity"]
+    manifest = root["suite_authority"]["manifest"]
+    manifest_raw = operator.evaluation.canonical_json_bytes_v1(manifest)
+    assert manifest_identity["sha256"] == hashlib.sha256(manifest_raw).hexdigest()
+    assert manifest_identity["bytes"] == len(manifest_raw)
+    store.objects[str(manifest_identity["uri"])] = {
+        "identity": dict(manifest_identity),
+        "created_at": root["suite_authority"][
+            "manifest_storage_created_at"
+        ],
+        "raw": manifest_raw,
+    }
+
+    result = operator.publish_weekly_safety_receipt_v1(
+        store=store,
+        preregistration_identity=prereg_identity,
+        target_uri="gs://shadow-fixture/safety/terminal-week-01.json",
+        week=1,
+        slate_id="2026-w01",
+        terminal_prelock_envelope_identity=envelope_identity,
+    )
+    assert result["integrity_gate_status"] == "pass"
+    safety_value = json.loads(store.objects[
+        result["weekly_safety_receipt_identity"]["uri"]
+    ]["raw"])
+    assert safety_value["observed_at"] == root_created.isoformat()
+    assert safety_value["safety_metrics"]["illegal_lineup_count"] == 0
+    assert safety_value["safety_metrics"]["solve_failure_count"] == 0
+    assert safety_value["safety_metrics"]["solve_request_shortfall_count"] == 0
+    assert safety_value["safety_metrics"]["exposure_violation_count"] == 0
+    assert safety_value["safety_metrics"]["duplicate_lineup_count"] == 0
+    read_uris = [uri for operation, uri in store.events if operation == "read"]
+    assert envelope_identity["uri"] in read_uris
+    assert root_identity["uri"] in read_uris
+    assert manifest_identity["uri"] in read_uris
+
+    with pytest.raises(
+        operator.ProspectiveGenerationShadowOperatorError,
+        match="caller safety time differs from trusted root storage time",
+    ):
+        operator.publish_weekly_safety_receipt_v1(
+            store=store,
+            preregistration_identity=prereg_identity,
+            target_uri="gs://shadow-fixture/safety/backdated-week-01.json",
+            week=1,
+            slate_id="2026-w01",
+            observed_at=root_created - timedelta(minutes=30),
+            terminal_prelock_envelope_identity=envelope_identity,
+        )
 
 
 def test_field_input_reopen_accepts_archived_pretty_receipt_and_derives_apply(

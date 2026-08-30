@@ -15,7 +15,17 @@ current evidence supports the narrower and more useful conclusion that
 boom-first improves candidate supply. Production's exact 54-slate replay
 raised the candidate-pool ceiling by 3.377 DraftKings points but raised the
 selected K80 weekly maximum by only 1.256 points, with an uncertainty interval
-that includes zero, while selector regret worsened by 2.121 points.
+that includes zero (ordinary paired-t 95% interval approximately
+`[-1.75, +4.26]`), while selector regret worsened by 2.121 points.
+
+The lab's later sealed-2025 read strengthens the supply hypothesis without
+changing that production conclusion: boom-first improved its K100 book by
+7.56 points (`[3.33, 11.94]`) and its K20/K40/K80 books by about 7.1, but it
+used the lab retrieval regime. Cross-law's latest sealed-2025 increment over
+boom-first was +0.88 with an interval crossing zero; the 400-solve dose was
++0.68 at K100; and ceiling-all-boom was +1.91 at K80 but failed its
+family-level primary bound. These are nomination evidence, not transported
+production effects.
 
 The 2026 test therefore separates two stages:
 
@@ -27,7 +37,7 @@ Every prospective book is frozen before slate lock. Realized outcomes and
 contest fields enter only through a separately produced post-settlement
 snapshot. No positive point estimate automatically changes the money policy.
 
-## Frozen primary design
+## Frozen five-arm design
 
 All counts below are per R0--R4 10,000-world block. Five blocks are run per
 slate. The role-12 sleeve and every other incumbent auxiliary family remain
@@ -35,16 +45,19 @@ unchanged in every block.
 
 | Arm | Leverage | Base-law boom | Discovery-law boom | Core solves/block | Status |
 |---|---:|---:|---:|---:|---|
-| incumbent-160-40 | 160 | 40 | 0 | 200 | exact sentinel |
-| boom-first-40-160 | 40 | 160 | 0 | 200 | primary treatment |
-| cross-law-40-100-60 | 40 | 100 | 60 | 200 | exploratory nomination |
-| boom-dose-40-360 | 40 | 360 | 0 | 400 | unequal-resource, lower hierarchy |
-| ceiling-all-boom-0-200 | 0 | 0 | 200 | 200 | optional historical near-miss |
+| incumbent-160-40 | 160 | 40 | 0 | 200 | required control |
+| boom-first-40-160 | 40 | 160 | 0 | 200 | required primary treatment |
+| cross-law-40-100-60 | 40 | 100 | 60 | 200 | required; exploratory diagnostic |
+| boom-dose-40-360 | 40 | 360 | 0 | 400 | required; unequal-resource diagnostic |
+| ceiling-all-boom-0-200 | 0 | 200 | 0 | 200 | required; unpassed diagnostic |
 
 The equal-budget arms therefore request 1,000 core solves per slate, not 200.
 The dose arm requests 2,000 and is never reported as an equal-compute effect.
-The all-boom arm is disclosed as historically unpassed and is frozen before
-Week 1; it cannot be added after early results are visible.
+All five arms are mandatory for this release and must be frozen before Week 1;
+none may be omitted for cost, spare-slot, or early-result reasons. The
+exploratory, unequal-resource, and unpassed labels remain scientific-status
+disclosures, not inclusion switches. The all-boom arm remains historically
+unpassed and cannot be added, removed, or relabelled after results are visible.
 
 ### Generation by retrieval crossing
 
@@ -93,6 +106,15 @@ Every calibration probability for incumbent and cap-4 K20/K40/K80 books is
 recomputed from this audit bank; selection-bank tails are never presented as
 independent calibration.
 
+The audit rebuild must also prove its actually consumed main-model version,
+candidate-input byte receipt, and internal player order equal the paired
+all-arm native-input authority. Role-model and construction identities remain
+bound as provenance inherited from the already frozen candidates and are
+explicitly not claimed as audit-execution inputs. The self-hashed binding is
+persisted through prelock, manifest, terminal and decoded audit metadata, so a
+fresh seed over drifted marginals cannot masquerade as independent
+calibration.
+
 ## Exposure and immutable pre-lock evidence
 
 Every solve request, including a duplicate, infeasible solve, error, exhausted
@@ -128,6 +150,17 @@ Required score reporting is:
 - field rank/percentile, duplicate evidence, and payout evidence only when a
   complete contest-field authority exists.
 
+The season aggregation executes that complete surface for every one of the
+four generation-by-retrieval cells at each frozen K20/K40/K80 prefix. It
+retains all six threshold hit counts, pool oracle, selector regret, complete-
+field availability, counterfactual rank/percentile, actual-entered evidence,
+duplicate observations, and reconciled split payouts without imputing contest
+EV. For each population it reports the slate-paired cap-4-minus-incumbent
+retrieval effect, and for the 2 x 2 crossing it reports both generation
+effects, both retrieval effects, and difference-in-differences. Selected
+maximum, pool-oracle, and selector-regret effects carry slate-paired 95% t
+intervals at every K; pre-season-complete intervals are descriptive only.
+
 ### Frozen decision clocks
 
 - **Weeks 1--7:** accrual only.
@@ -139,10 +172,53 @@ Required score reporting is:
   slate-paired 95% uncertainty interval. A positive point estimate does not
   authorize automatic adoption.
 
+Weeks 1--8 each require a terminal-derived safety receipt. Its arm/book/block/
+prefix census, solve failures and shortfalls, DraftKings legality, duplicate
+lineups, and within-book player exposure are replayed from the exact terminal,
+suite, ledgers and frozen rosters. Source-age measurement uses the exact root
+object's GCS creation time, not a caller timestamp. A missing terminal produces
+a durable failed receipt with unknown metrics; arbitrary evidence bytes or
+caller-supplied zeros cannot create a pass. Each safety receipt must bind the
+same exact terminal-root identity and SHA as that week's realized grade.
+
 The preregistration freezes a two-point minimum practically important mean
 effect, a 50% win-rate criterion, no loss of 230/240 hit weeks, and a
 minus-20-point single-slate catastrophic guard. These are family-level rules;
 they are not tuned separately after observing an arm.
+
+Those numeric criteria are calculated and reported for every frozen contrast,
+but their decision roles are not interchangeable. Only
+`boom-first-40-160` versus `incumbent-160-40` under incumbent retrieval may
+emit primary efficacy-rule satisfaction at the full-season checkpoint. The
+cross-law, all-boom, and unequal-resource dose contrasts are diagnostic-only:
+even identical favorable criterion values cannot become primary or
+promotion-equivalent efficacy. The 2 x 2 generation-by-retrieval interaction
+remains a key-secondary mechanism result and cannot satisfy the primary rule.
+
+### Executable historical-plus-prospective synthesis
+
+The preregistration now embeds, before Week 1, the immutable historical
+matched-grade identity rather than referring to a prose result. The authority
+is the 4,002,644-byte GCS object at generation `1788045886595896`, byte
+SHA-256 `3d92cd0ba1466b52a0bfa883e1c51efddbabf474800ba4516340cc4eb0bff23c`,
+and internal grade SHA-256
+`eaba50ff60c12552c188a162de9858316967f2dc8d8ba8a430a9b14818a522a4`.
+Its exact 54-slate rational metrics are frozen: selected-book delta
+`67,800,000 / 54` micro points (+1.256 DK rounded), pool-oracle delta
+`182,340,000 / 54` (+3.377), and selector-regret delta
+`114,540,000 / 54` (+2.121 worse), plus the observed win/tie and 200--230
+threshold surface. The absent historical 194 and 240 cells are explicitly
+unavailable, not zero-filled.
+
+At Week 18 the evaluator executes a no-pooling, no-gain-summing concordance
+rule. A human-review candidate requires a complete contiguous season, a passed
+Week-8 integrity gate, the preregistered MPIE/win/194/tail guards, a strictly
+positive paired 95% lower bound, and 2026 selected-book and pool-oracle
+directions concordant with the positive historical directions. Passing this
+rule still authorizes neither adoption nor a money-policy change; the exact
+historical object must be reopened before the human decision. Any incomplete,
+unsafe, discordant, or unresolved season has the executable disposition
+`continue-unchanged-accrual-into-2027`.
 
 ## Complete contest-field prerequisite
 
@@ -172,7 +248,7 @@ independently reconciled. Complete-field counterfactual ranks alone never do.
 | Correct cap-4 “inert” claim | adopted; direct choice/exclusion trace replaces prefix exhaustion |
 | State counts in production units | adopted per block and per five-block slate |
 | Eight-week efficacy is invalid | adopted; Week 8 is safety/integrity only |
-| Freeze arm hierarchy | adopted in registry and preregistration |
+| Freeze arm hierarchy | adopted as five mandatory arms with executable primary, key-secondary and diagnostic-only roles |
 | Require cross-law influence trace | adopted as a fail-closed pre-lock receipt |
 | Add 230/240 and field utility | adopted |
 | Make full-field capture mandatory for EV | adopted; raw-score-only fallback is explicit |

@@ -52,7 +52,7 @@ FROZEN_SOURCE_SHA256: Mapping[str, str] = {
         "cc690d673c6bb5d25a57057b900b19bd608a53998b6ef8f3ecb9352f19d4a81f"
     ),
     "src/nfl_dfs/inference/multiseed_portfolio.py": (
-        "7c857a7526a3d2d3163fa0bd53e1edbbf3d0b44b42324cb1816ba8959e43e7f9"
+        "692ee5ea13bdbf4e39bc5490808429c100c0779f817515f4d0ea452c604907d8"
     ),
     "src/nfl_dfs/inference/production_policy.py": (
         "88a1e00c681aad19d3ed9559fe890fd72b968a0260e6c9fcf36370964b744099"

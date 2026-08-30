@@ -37,13 +37,24 @@ and operator decisions.  The older entries remain the durable chronology.
   Selected-book lift is unresolved; candidate-supply lift is the transported
   signal.  The score-threshold changes were +2 weeks at each of 200, 210 and
   220, and no 230+ week in either arm.
+- **Latest evidence for the other frozen arms:** none yet has a
+  production-shaped score, so none may be described as transported.  In the
+  lab, cross-law improved boom-first by +2.24 at K80 on the discovery panel
+  but only +0.88 with an interval crossing zero on sealed 2025; the 400-solve
+  dose added +0.68 at K100 and is unequal-resource; ceiling-all-boom added
+  +1.91 at K80 but failed its family-level primary bound.  On the lab
+  boom-first pool, cap-4 retrieval was active but approximately -0.20 versus
+  coverage-194.  These values explain the diagnostic nominations; they are
+  not production expectations or adoption authority.
 - **2026 prospective matrix:** five common R0--R4 10,000-world blocks per
   slate.  Per block the exact sentinel is 160 leverage + 40 boom; primary
   boom-first is 40 + 160; exploratory cross-law is 40 leverage + 100
   base-boom + 60 discovery-boom; lower-priority unequal-resource dose is 40 +
-  360; optional/unpassed ceiling-all-boom is 0 + 200.  Role-12 and incumbent
-  auxiliary families remain unchanged.  Cross-law discovery worlds may
-  propose candidates only; untouched base worlds select them.
+  360; required/unpassed ceiling-all-boom is 0 + 200.  All five arms are
+  mandatory before Week 1 for this release; exploratory, unequal-resource and
+  unpassed are scientific-status labels, not omission switches. Role-12 and
+  incumbent auxiliary families remain unchanged. Cross-law discovery worlds
+  may propose candidates only; untouched base worlds select them.
 - **Core retrieval question:** the frozen incumbent and boom-first pools each
   receive incumbent coverage-194 K80 and exact production
   cap-4-prefix-then-fill K80 retrieval.  This is the zero-additional-solve 2 x
@@ -55,12 +66,31 @@ and operator decisions.  The older entries remain the durable chronology.
   prospective efficacy estimate with slate-paired uncertainty and still
   requires human synthesis with the historical matched result.  Reports must
   include K20/K40/K80, 194/200/210/220/230/240, pool oracle/regret and the full
-  2 x 2 crossing.
+  2 x 2 crossing. Only boom-first versus incumbent may satisfy the primary
+  efficacy rule; cross-law, all-boom and unequal-resource dose remain
+  diagnostic-only even when their numeric criteria match, and the 2 x 2
+  retrieval crossing remains key-secondary mechanism evidence.
+- **Structural synthesis:** preregistration binds the exact already-read
+  54-slate grade (generation `1788045886595896`, byte SHA-256
+  `3d92cd0b...b0bff23c`) and its rational selected/oracle/regret metrics. A
+  Week-18 human-review candidate requires contiguous weeks, passed integrity,
+  the primary MPIE/win/tail guards, a strictly positive paired-interval lower
+  bound and selected/oracle directional concordance. Otherwise the executable
+  disposition is unchanged accrual into 2027. Historical and prospective
+  gains are never pooled or summed, and no result auto-adopts.
 - **Field/EV boundary:** complete standings can support field rank for frozen
   counterfactual books.  Actual payout/contest-EV claims require independently
   sourced duplication and split payout and apply only to actually entered
   books; otherwise the grade is raw-score/field-rank only.  Allocation advice
   is always disabled in this program.
+- **Separate pre-season ablations:** construction-preset x allocation and
+  paid-source on/off tests remain below and outside the core five-arm
+  estimand. Current Odds API/Fantasy Points/SIS authority work proves only
+  point-in-time availability, not lineup value. No value claim is allowed
+  until a separately frozen ablation records true upstream staleness,
+  missingness, served-feature/marginal changes, candidate turnover and
+  selected-book turnover. These lanes remain required follow-on work; they
+  must not delay freezing the decision-bearing generation/retrieval pair.
 - **Current launch state:** **NO-GO for a slate execution** until the exact
   source cohort is committed/pushed, the immutable image build passes, the
   pre-Week-1 preregistration exists create-once, an outcome-blind live-input
@@ -74,9 +104,130 @@ and operator decisions.  The older entries remain the durable chronology.
   legality requires at least two teams; two games is a named construction
   choice retained explicitly only where a frozen historical protocol requires
   it (including LR8-v1).
-- **Exact next action:** push the committed release and handoff, build from the
-  exact pushed commit archive, then deploy—but do not execute—the dedicated
-  `generation-shadow-suite` Cloud Run job.
+- **Exact next action:** commit and push the final reviewed release cohort,
+  rerun the immutable build from that new full `origin/main` SHA, and only if
+  it passes deploy—but do not execute—the dedicated
+  `generation-shadow-suite` Cloud Run job. Then publish the create-once
+  preregistration and run an outcome-blind live-input timing smoke before any
+  Week-1 shadow execution.
+
+## Current handoff -- 2026-08-30 (four-hundred-seventh update)
+
+### External review is integrated; final local release gate is green
+
+- Branch `main` and `origin/main` still enter this milestone at pushed commit
+  `752fbe3b53a50277c1db1716beafd55887e3599b`. No second Cloud Build, image,
+  job mutation, GCS publication, slate execution or outcome read has occurred
+  yet. The earlier failed build remains
+  `cb47b866-8884-4289-bcf1-607c70528f09`; it produced no image or job.
+- The independent 2026-08-30 review and lab responses are now represented in
+  executable contracts, not only prose. The exact five-arm per-block design,
+  zero-solve generation x retrieval crossing, direct cap-engagement trace,
+  K20/K40/K80 plus 194--240/oracle/regret/field surface, Week-8 safety-only
+  gate and primary/key-secondary/diagnostic hierarchy remain frozen. Only the
+  primary boom-first contrast can satisfy the efficacy rule.
+- The independent audit bank now binds its actually consumed main-model
+  version, candidate-input byte receipt and internal player order to the exact
+  all-arm native-input authority. Role and construction identities are
+  truthfully marked as inherited frozen-candidate provenance, not audit-bank
+  execution inputs. The self-hashed binding persists through prelock,
+  manifest, terminal and decoded artifact metadata; drift and canonical-JSON
+  reopen attacks fail closed.
+- Cross-law selected-supply evidence now reconstructs every roster through the
+  DK/internal player bridge and exact attempt ledgers, then recomputes new/
+  duplicate classification and K20/K40/K80 membership. A fully rehashed forged
+  trace is rejected. Persisted JSON arm/block maps compare semantic key sets
+  and iterate the frozen arrays, eliminating clean-reopen dependence on Python
+  dictionary insertion order.
+- The preregistration binds the exact already-read 54-slate production grade
+  (generation `1788045886595896`, byte SHA-256
+  `3d92cd0ba1466b52a0bfa883e1c51efddbabf474800ba4516340cc4eb0bff23c`)
+  and rational selected/oracle/regret metrics. Week 18 executes a no-pooling,
+  no-gain-summing concordance rule: a complete safe primary result with MPIE/
+  tail guards, positive paired-interval lower bound and matching selected/
+  oracle directions becomes human-review-only; every other result continues
+  unchanged into 2027.
+- Season aggregation now preserves all four generation/retrieval cells at
+  every K20/K40/K80 prefix, all six thresholds, pool oracle, selector regret,
+  complete-field rank/percentile/entered/duplication/split-payout evidence,
+  within-population retrieval effects, within-retrieval generation effects and
+  difference-in-differences with slate-paired 95% intervals.
+- Season publication no longer accepts direct weekly-grade identities. It
+  accepts only exact postlock publication terminals, reopens the prelock root,
+  independent score source, field source/components, bridge, outcome source,
+  snapshot and grade, validates root/component equivalence plus strict lock/
+  publication chronology, and independently regrades before aggregation. A
+  self-consistent forged grade and the legacy direct-grade API both fail.
+- The effective-policy inventory pin was refreshed only after the new
+  roster-aligned CBWU provenance settled. The clean build deliberately
+  deselects one legacy boom-first deployment-coupling assertion whose five
+  support assets do not belong in this isolated job; the dedicated suite CLI,
+  build and deployment contracts remain tested directly. The archive helper
+  still proves every Python source/test named by Cloud Build exists in the
+  pushed commit and extracted context.
+- Final local release validation is green: the exact primary Cloud Build
+  matrix passed **463/463** with one intentional legacy deployment-test
+  deselection; the exact targeted legality matrix passed **6/6**; the complete
+  operator file passed **15/15**, including exact regrade and forged-grade
+  rejection. Relevant Python compilation, both shell syntax checks, YAML
+  parsing and `git diff --check` pass. The PuLP and Starlette deprecation
+  warnings are pre-existing and non-failing.
+- Preserve all unrelated dirty/untracked Foundry/R6 work. The exact release
+  cohort includes only the generation-shadow build/config/docs, input/
+  provenance/generation/retrieval/evaluation/operator/registry/suite modules,
+  effective-policy inventory pin, the two new construction-preset files, the
+  two new cross-law supply-trace files and their focused tests. Exact next
+  action: stage only that cohort, commit/push it, submit the exact-commit
+  immutable build, record its ID/digest, and deploy the dedicated unscheduled
+  job with execution disabled.
+
+## Current handoff -- 2026-08-30 (four-hundred-sixth update)
+
+### First immutable build exposed an incomplete commit; no job was deployed
+
+- `main` and `origin/main` are currently at pushed release handoff commit
+  `752fbe3b53a50277c1db1716beafd55887e3599b`. The first exact-commit Cloud
+  Build was `cb47b866-8884-4289-bcf1-607c70528f09`; it failed in validation
+  step 0 with exit 4. No image was produced, and no Cloud Run job was created,
+  updated or executed.
+- The durable log identifies the narrow cause: committed modules imported
+  `src/nfl_dfs/optimizer/construction_presets.py` and the build contract named
+  it plus `tests/test_construction_presets.py`, but those two newly created
+  files were still untracked and therefore absent from the exact `git archive`.
+  The build correctly found neither path. This is a release-packaging failure,
+  not a scientific result or a shadow-suite runtime result. The intended
+  construction source SHA-256 is
+  `dd107bc451a039e739508f0a759da1f6983f66bb4405d4eb36b4c61866213280`,
+  which exactly matches the already committed effective-policy inventory pin.
+- The repair adds those exact two files to the release and strengthens
+  `scripts/build_generation_shadow_suite_image.sh`: it now parses every
+  `src/*.py` and `tests/*.py` path named by the committed Cloud Build contract,
+  proves each exists in the requested commit, and proves each exists again in
+  the extracted archive before any `gcloud builds submit`. A regression test
+  proves a committed build reference to an absent file fails locally without
+  invoking gcloud. Focused validation currently passes 16/16 for the clean
+  build and construction-preset suites; full release validation remains to be
+  rerun before commit.
+- A clean-context dependency audit then found the next remote collection
+  failure before resubmission: broad release regressions import six tracked
+  test-support scripts and inspect the primary `cloudbuild.yaml`. Those seven
+  files are now an exact build-context allowlist alongside the two deployment
+  helpers. The dedicated Docker ignore still excludes all scripts, tests and
+  the primary build config from the runtime image. Any other script entering
+  the context fails the local helper and Cloud Build preflight.
+- Preserve all unrelated dirty/untracked Foundry/R6 work. Exact next action:
+  run the full dedicated release validation, stage only the two omitted files,
+  build-helper/test repair and this handoff, commit and push, then submit the
+  immutable build using the new full pushed SHA. Deploy-only installation is
+  allowed only after that build returns a digest; execution remains NO-GO.
+- Corrected-worktree validation passed in separately executed groups:
+  **210/210** construction/optimizer/live-policy/inventory tests,
+  **102/102** generation-shadow tests, **124/124** compatibility and targeted
+  legality regressions, and **23/23** clean-build/deploy/construction tests.
+  The final group overlaps earlier construction coverage and is recorded as
+  an executed command rather than added into a fabricated unique grand total.
+  Shell syntax, YAML parsing and scoped whitespace checks also pass. The
+  immutable clean-context build remains the authoritative validation gate.
 
 ## Current handoff -- 2026-08-30 (four-hundred-fifth update)
 

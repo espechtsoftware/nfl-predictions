@@ -38,6 +38,22 @@ def test_exact_arms_and_allocations_include_losers() -> None:
         "400-core-solves-per-block-unequal-resource"
     )
     assert arms["ceiling-all-boom-0-200"]["passed_historical_nomination"] is False
+    assert all(arm["status"] == "required" for arm in arms.values())
+    assert all(arm["required_before_week1"] is True for arm in arms.values())
+    assert [arm["scientific_status"] for arm in arms.values()] == [
+        "control", "primary", "exploratory", "unequal-resource", "unpassed",
+    ]
+    assert arms["boom-first-40-160"]["decision_role"] == (
+        "primary-efficacy-challenger"
+    )
+    assert all(
+        arms[arm_id]["decision_role"] == "diagnostic-only"
+        for arm_id in (
+            "cross-law-40-100-60",
+            "boom-dose-40-360",
+            "ceiling-all-boom-0-200",
+        )
+    )
 
 
 def test_exact_k_coverage_prefixes_and_thresholds() -> None:
@@ -65,16 +81,103 @@ def test_decision_horizons_are_frozen() -> None:
     assert rules["eight_week_efficacy_decision_forbidden"] is True
     assert rules["structural_horizon"] == "full-regular-season"
     assert rules["no_midstream_dose_order_selector_tuning"] is True
+    assert rules["all_five_arms_required_before_week1"] is True
+    assert rules["arm_omission_allowed"] is False
+    roles = rules["contrast_decision_roles"]
+    assert roles["boom-first-40-160"][
+        "primary_efficacy_rule_satisfaction_allowed"
+    ] is True
+    assert all(
+        role["decision_role"] == "diagnostic-only"
+        and role["promotion_equivalent_efficacy_allowed"] is False
+        for arm_id, role in roles.items()
+        if arm_id != "boom-first-40-160"
+    )
+    retrieval = registry.registry_document()["shared_protocol"][
+        "retrieval_crossing"
+    ]
+    assert retrieval["decision_role"] == "key-secondary-mechanism"
+    assert retrieval["primary_efficacy_rule_satisfaction_allowed"] is False
+    safety = rules["week8_safety_contract"]
+    assert safety["receipt_weeks"] == list(range(1, 9))
+    assert len(safety["expected_arm_ids"]) == 5
+    assert len(safety["expected_book_ids"]) == 7
+    assert safety["expected_block_labels"] == ["R0", "R1", "R2", "R3", "R4"]
+    assert safety["expected_prefix_sizes"] == [20, 40, 80]
+    assert all(
+        threshold == 0
+        for name, threshold in safety["thresholds"].items()
+        if name.startswith("maximum_")
+        and name != "maximum_player_book_exposure_bps"
+    )
+    assert safety["thresholds"]["maximum_player_book_exposure_bps"] == 9_000
+    assert safety["missing_receipt_status"] == "not_evaluated"
+    assert safety["efficacy_or_promotion_allowed"] is False
 
 
-def test_closed_arm_registry_is_complete() -> None:
-    closed = registry.registry_document()["closed_arm_exclusions"]
+def test_structural_synthesis_freezes_exact_history_and_2027_fallback() -> None:
+    synthesis = registry.registry_document()["decision_rules"][
+        "structural_synthesis_contract"
+    ]
+    identity = synthesis["historical_evidence_identity"]
+    metrics = synthesis["historical_metrics"]
+    assert identity == {
+        "uri": (
+            "gs://nfl-predictions-503414-corpus-retrieval/research/"
+            "corpus-r6-boom-first-allocation/"
+            "20260829-boom-first-68873f42-git-v1/full-54/"
+            "descriptive-realized-grade.json"
+        ),
+        "generation": 1_788_045_886_595_896,
+        "sha256": (
+            "3d92cd0ba1466b52a0bfa883e1c51efddbabf474800ba4516340cc4eb0bff23c"
+        ),
+        "bytes": 4_002_644,
+    }
+    assert synthesis["historical_internal_grade_sha256"] == (
+        "eaba50ff60c12552c188a162de9858316967f2dc8d8ba8a430a9b14818a522a4"
+    )
+    assert (
+        metrics["challenger_selected_score_sum_micro"]
+        - metrics["control_selected_score_sum_micro"]
+        == metrics["selected_paired_delta_sum_micro"]
+        == 67_800_000
+    )
+    assert (
+        metrics["challenger_pool_oracle_sum_micro"]
+        - metrics["control_pool_oracle_sum_micro"]
+        == metrics["pool_oracle_paired_delta_sum_micro"]
+        == 182_340_000
+    )
+    assert (
+        metrics["challenger_selector_regret_sum_micro"]
+        - metrics["control_selector_regret_sum_micro"]
+        == metrics["selector_regret_paired_delta_sum_micro"]
+        == 114_540_000
+    )
+    assert synthesis["fallback_disposition"] == (
+        "continue-unchanged-accrual-into-2027"
+    )
+    assert synthesis["automatic_adoption_allowed"] is False
+    assert synthesis["historical_and_prospective_gain_summing_allowed"] is False
+
+
+def test_exact_tested_implementation_exclusions_are_narrow() -> None:
+    document = registry.registry_document()
+    closed = document["exact_tested_implementation_exclusions"]
     assert len(closed) == 17
     assert (
         "historical-gamma-4-first-result-on-boom-first-population-not-live-authority"
         in closed
     )
     assert "analog-copulas" in closed
+    assert set(document["explicit_nonclosures"]) == {
+        "gflownet-generators",
+        "sequential-monte-carlo-generators",
+        "mode-balancing-generators",
+        "model-parliament-with-genuinely-disagreeing-candidate-laws",
+        "underlying-dependence-deficiency",
+    }
 
 
 def test_findings_and_non_additivity_are_explicit() -> None:
@@ -95,6 +198,10 @@ def test_findings_and_non_additivity_are_explicit() -> None:
         (("shared_protocol", "operational_k"), 100),
         (("arms", 1, "allocation_per_block", "base_boom"), 159),
         (("decision_rules", "interim_horizon_weeks"), 7),
+        ((
+            "decision_rules", "structural_synthesis_contract",
+            "historical_evidence_identity", "generation",
+        ), 1_788_045_886_595_895),
         (("findings_and_laws", "non_additivity", "historical_gains_must_not_be_summed"), False),
     ],
 )

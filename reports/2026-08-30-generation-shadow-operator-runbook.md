@@ -141,7 +141,48 @@ arm bundles, invokes the evaluator's real suite adapter, publishes the terminal
 root, and publishes its envelope second. No caller can substitute books,
 candidates, score maps, thresholds, or arm labels.
 
-## 4. Publish postlock outcomes and the weekly grade
+The independent audit artifact is accepted only when its observed main-model
+version, candidate-input receipt and player order match the exact paired
+all-arm input authority. Its role/construction fields are retained only as
+frozen-candidate provenance, because the score-only audit path does not execute
+role generation or construction.
+
+## 4. Publish the terminal-derived weekly safety receipt
+
+After `freeze-week` publishes the exact terminal root and carrier, publish the
+operational safety row from that carrier:
+
+```json
+{
+  "preregistration_identity": {"uri": "...", "generation": "...", "sha256": "...", "bytes": 1},
+  "target_uri": "gs://BUCKET/generation_shadow/2026/week-01/safety/receipt.json",
+  "week": 1,
+  "slate_id": "dk-DRAFT_GROUP_ID",
+  "terminal_prelock_envelope_identity": {"uri": "...", "generation": "...", "sha256": "...", "bytes": 1}
+}
+```
+
+Run:
+
+```bash
+nfl-dfs shadow-generation-operator publish-safety-week \
+  --request /absolute/path/week-01-safety-request.json --execute
+```
+
+For a terminal-present run, no caller clock is authoritative: `observed_at` is
+derived from the exact-reopened terminal root's GCS
+creation time. If a caller supplies `observed_at`, it must equal that trusted
+time exactly. Arm, book, block and prefix inventories; solve failures and
+shortfalls; legality; duplicates; player exposures; and evidence identities
+are all reconstructed from the terminal, suite, ledgers and frozen rosters.
+The caller cannot provide any of those counts.
+
+If the suite failed before producing a terminal, publish a durable failure row
+with `terminal_prelock_envelope_identity: null` and an explicit `observed_at`.
+Every non-derivable metric remains `null`, and the receipt necessarily fails;
+there is no caller-supplied-zero path. Weeks 1--8 require one receipt apiece.
+
+## 5. Publish postlock outcomes and the weekly grade
 
 `grade-week` accepts the frozen envelope identity, a generation-pinned score
 artifact already published outside the grader namespace by an independent
@@ -190,25 +231,48 @@ weekly grade, and publication terminal. Complete-field mode creates those five
 plus six field components. The independently published score source is an
 input, never one of the grader's writes. The publication terminal is last.
 
-## 5. Publish a versioned prospective evaluation
+## 6. Publish a versioned prospective evaluation
 
 `evaluate-season` accepts the preregistration identity, the ordered set of
-weekly-grade identities, and a fresh target URI:
+post-lock publication-terminal identities, and a fresh target URI. Direct
+weekly-grade identities are not accepted: each terminal and every object it
+references are generation-pinned and exact-reopened, and the weekly grade is
+independently rebuilt from the exact pre-lock root and outcome snapshot before
+it can enter a season aggregate:
 
 ```json
 {
   "preregistration_identity": {"uri": "...", "generation": "...", "sha256": "...", "bytes": 1},
-  "weekly_grade_identities": [{"uri": "...", "generation": "...", "sha256": "...", "bytes": 1}],
+  "weekly_publication_terminal_identities": [{"uri": ".../publication-terminal.json", "generation": "...", "sha256": "...", "bytes": 1}],
+  "weekly_safety_receipt_identities": [{"uri": "...", "generation": "...", "sha256": "...", "bytes": 1}],
   "target_uri": "gs://BUCKET/generation_shadow/2026/evaluations/through-week-01.json"
 }
 ```
 
 The evaluator requires contiguous weeks beginning at Week 1. Through Week 7,
 the result is accrual only. Week 8 is integrity/severe-harm only and cannot
-promote an arm. Until explicit operational safety receipts are supplied, its
-integrity status is `not_evaluated`, not a synthetic pass. Week 18 is the first
-efficacy estimate, includes uncertainty, and still requires a human decision.
-The operator never changes allocation or production policy from any result.
+promote an arm. Until all eight exact operational safety receipts are supplied,
+its integrity status is `not_evaluated`, not a synthetic pass. Each receipt is
+joined to its weekly grade by week, slate and the exact terminal-root object
+identity and SHA; safety from one root cannot license a grade from another.
+Week 18 is the first efficacy estimate, includes uncertainty, and still
+requires a human decision. The operator never changes allocation or production
+policy from any result.
+
+The Week-18 object also executes the frozen historical-plus-2026 synthesis.
+Only a complete, integrity-passing, directionally concordant primary result
+with a strictly positive paired interval can become a human-review candidate.
+Every other full-season result has the frozen disposition
+`continue-unchanged-accrual-into-2027`; historical and prospective gains are
+never pooled or added.
+
+The versioned output preserves the complete generation-by-retrieval surface at
+K20/K40/K80: all six thresholds, pool oracle, selector regret, available field
+rank/duplication/payout evidence, both within-population retrieval effects,
+both within-retrieval generation effects, and their slate-paired
+difference-in-differences with 95% intervals. This prevents the key-secondary
+mechanism from being reduced after outcomes to whichever endpoint looks most
+favorable.
 
 ## Local validation
 
@@ -221,6 +285,8 @@ Focused operator validation currently covers:
 - raw-only and complete-field publication topologies;
 - rejection of caller-authored/in-namespace realized-score truth;
 - archived pretty-JSON DK capture receipt reopening;
+- terminal-derived weekly safety, trusted GCS clock binding, failed-run rows,
+  and rejection of caller-authored zero metrics or cross-root reuse;
 - season evaluation with no auto-adoption;
 - default-off CLI behavior and main CLI forwarding; and
 - GCS absence precondition plus generation-pinned reopen calls.

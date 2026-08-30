@@ -206,6 +206,7 @@ def combine_cbwu_books(
     rebuilt: list[Lineup] = []
     all_tags: dict[frozenset, tuple[str, ...]] = {}
     source_counts = {name: 0 for name in order}
+    candidate_source_blocks: list[str] = []
     for name, source, tags in chosen:
         players = [base_by_id[player["id"]] for player in source.players]
         lineup = Lineup(players, tag=source.tag)
@@ -215,6 +216,7 @@ def combine_cbwu_books(
         rebuilt.append(lineup)
         all_tags[roster] = combined_tags
         source_counts[name] += 1
+        candidate_source_blocks.append(name)
 
     world_blocks: list[np.ndarray] = []
     row_blocks: list[np.ndarray] = []
@@ -252,6 +254,10 @@ def combine_cbwu_books(
             "portfolio": "CBWU",
             "candidate_budget": budget,
             "candidate_source_counts": source_counts,
+            # Exact roster-aligned source authority.  Aggregate source counts
+            # cannot independently distinguish a newly supplied transform
+            # roster from a duplicate producer attempt against a base roster.
+            "candidate_source_blocks": candidate_source_blocks,
             "novel_candidates_by_seed": novelty,
             "world_blocks": len(order),
             "worlds_per_block": [
@@ -276,6 +282,11 @@ def combine_cbwu_books(
                     "role_candidate_input_receipt": dict(
                         books[name].metadata.get(
                             "role_candidate_input_receipt", {}
+                        )
+                    ),
+                    "construction_preset_receipt": dict(
+                        books[name].metadata.get(
+                            "construction_preset_receipt", {}
                         )
                     ),
                 }

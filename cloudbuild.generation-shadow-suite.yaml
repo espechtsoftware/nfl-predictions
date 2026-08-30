@@ -23,8 +23,14 @@ steps:
         test ! -e HANDOFF.md
         test ! -e CLAUDE.md
         test "$(find scripts -type f | sort)" = "$(printf '%s\n' \
+          scripts/aggregate_coherent_market_state_scorefree.py \
           scripts/build_generation_shadow_suite_image.sh \
-          scripts/cloud_generation_shadow_suite.sh | sort)"
+          scripts/cloud_generation_shadow_suite.sh \
+          scripts/coherent_market_state_sources.py \
+          scripts/run_cbwu_seed_order_audit.py \
+          scripts/run_corpus_r6_current_bank_crossed_screen_evaluation_v1.py \
+          scripts/run_legal_soft_law.py \
+          scripts/verify_deployment.py | sort)"
         apt-get update
         apt-get install -y --no-install-recommends git jq libgomp1
         pip install --no-cache-dir '.[gcp,app,dev]'
@@ -40,8 +46,10 @@ steps:
           src/nfl_dfs/inference/multiseed_portfolio.py \
           src/nfl_dfs/inference/production_policy.py \
           src/nfl_dfs/inference/generation_exposure.py \
+          src/nfl_dfs/inference/prospective_boom_first.py \
           src/nfl_dfs/inference/prospective_all_boom_ceiling.py \
           src/nfl_dfs/inference/prospective_cross_law_discovery.py \
+          src/nfl_dfs/inference/prospective_cross_law_supply_trace.py \
           src/nfl_dfs/inference/prospective_generation_retrieval_crossing.py \
           src/nfl_dfs/inference/prospective_generation_shadow_evaluation.py \
           src/nfl_dfs/inference/prospective_generation_shadow_field_bridge.py \
@@ -67,8 +75,10 @@ steps:
           tests/test_coherent_market_state.py \
           tests/test_effective_policy_rule_inventory.py \
           tests/test_generation_exposure.py \
+          tests/test_prospective_boom_first.py \
           tests/test_prospective_all_boom_ceiling.py \
           tests/test_prospective_cross_law_discovery.py \
+          tests/test_prospective_cross_law_supply_trace.py \
           tests/test_prospective_generation_retrieval_crossing.py \
           tests/test_prospective_generation_shadow_evaluation.py \
           tests/test_prospective_generation_shadow_field_bridge.py \
@@ -82,7 +92,8 @@ steps:
           tests/test_corpus_r6_current_bank_crossed_screen_evaluation_execution_v1.py \
           tests/test_atlas_matched_diversity.py \
           tests/test_atlas_world_ranking.py \
-          tests/test_constraint_lattice.py
+          tests/test_constraint_lattice.py \
+          --deselect=tests/test_prospective_boom_first.py::test_boom_first_cli_and_quota_safe_manual_launch_are_registered
         PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src pytest -q -o addopts='' \
           tests/test_app.py::test_core_lineup_omission_executes_receipted_incumbent_overlap \
           tests/test_final_forensic.py::test_historical_game_diversity_uses_matchup_but_dk_only_does_not \

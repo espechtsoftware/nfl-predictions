@@ -39,20 +39,50 @@ IMAGE="${REGION}-docker.pkg.dev/${PROJECT}/${ARTIFACT_REPOSITORY}/nfl-dfs:genera
 # ignored workstation byte.  The complete package and focused build tests are
 # archived from CODE_SHA; the 439-MiB reports tree and unrelated scripts/SQL
 # are never materialized in the Cloud Build context.
+TEST_SUPPORT_SCRIPTS=(
+  scripts/aggregate_coherent_market_state_scorefree.py
+  scripts/coherent_market_state_sources.py
+  scripts/run_cbwu_seed_order_audit.py
+  scripts/run_corpus_r6_current_bank_crossed_screen_evaluation_v1.py
+  scripts/run_legal_soft_law.py
+  scripts/verify_deployment.py
+)
+EXPECTED_SCRIPT_PATHS=(
+  scripts/build_generation_shadow_suite_image.sh
+  scripts/cloud_generation_shadow_suite.sh
+  "${TEST_SUPPORT_SCRIPTS[@]}"
+)
 ARCHIVE_PATHS=(
   Dockerfile.generation-shadow-suite
   Dockerfile.generation-shadow-suite.dockerignore
+  cloudbuild.yaml
   cloudbuild.generation-shadow-suite.yaml
   pyproject.toml
   README.md
   src
   tests
-  scripts/build_generation_shadow_suite_image.sh
-  scripts/cloud_generation_shadow_suite.sh
+  "${EXPECTED_SCRIPT_PATHS[@]}"
 )
 for relative_path in "${ARCHIVE_PATHS[@]}"; do
   git -C "$SOURCE_ROOT" cat-file -e "${CODE_SHA}:${relative_path}" || \
     die "required committed build input is absent: ${relative_path}"
+done
+
+# Fail locally when the committed Cloud Build contract names a Python source
+# or test that is not present in the exact commit.  Checking only the parent
+# src/tests trees is insufficient: an untracked new module can satisfy local
+# tests while disappearing from git archive and failing remotely.
+mapfile -t BUILD_REFERENCED_PATHS < <(
+  git -C "$SOURCE_ROOT" show \
+    "${CODE_SHA}:cloudbuild.generation-shadow-suite.yaml" |
+    grep -Eo '(src|tests)/[A-Za-z0-9_./-]+\.py' |
+    sort -u
+)
+[[ "${#BUILD_REFERENCED_PATHS[@]}" -gt 0 ]] || \
+  die "committed Cloud Build contract names no source or test paths"
+for relative_path in "${BUILD_REFERENCED_PATHS[@]}"; do
+  git -C "$SOURCE_ROOT" cat-file -e "${CODE_SHA}:${relative_path}" || \
+    die "Cloud Build references an absent committed file: ${relative_path}"
 done
 
 BUILD_TEMP=$(mktemp -d "${TMPDIR:-/tmp}/generation-shadow-build.XXXXXX")
@@ -75,8 +105,13 @@ tar -xf "$ARCHIVE" -C "$CONTEXT"
   die "build helper is absent from committed archive"
 [[ -f "$CONTEXT/scripts/cloud_generation_shadow_suite.sh" ]] || \
   die "deployment helper is absent from committed archive"
-[[ "$(find "$CONTEXT/scripts" -type f | wc -l)" -eq 2 ]] || \
-  die "unrelated scripts entered the build context"
+[[ "$(find "$CONTEXT/scripts" -type f -printf 'scripts/%P\n' | sort)" == \
+   "$(printf '%s\n' "${EXPECTED_SCRIPT_PATHS[@]}" | sort)" ]] || \
+  die "script set in build context differs from the exact test allowlist"
+for relative_path in "${BUILD_REFERENCED_PATHS[@]}"; do
+  [[ -f "$CONTEXT/$relative_path" ]] || \
+    die "Cloud Build input is absent from extracted archive: ${relative_path}"
+done
 
 # The worktree may contain unrelated concurrent work.  It is never uploaded:
 # every byte above came from the explicit pushed commit object.

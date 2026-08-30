@@ -51,7 +51,10 @@ POSTLOCK_PUBLICATION_SCHEMA: Final = (
     "prospective-generation-shadow-postlock-publication/v1"
 )
 EVALUATION_PUBLICATION_SCHEMA: Final = (
-    "prospective-generation-shadow-evaluation-publication/v1"
+    "prospective-generation-shadow-evaluation-publication/v3"
+)
+SAFETY_PUBLICATION_SCHEMA: Final = (
+    "prospective-generation-shadow-weekly-safety-publication/v2"
 )
 
 _ARM_ORDER: Final = tuple(evaluation.ARM_ORDER)
@@ -733,6 +736,20 @@ def _load_prelock_envelope(
         label="terminal prelock envelope",
     )
     root = evaluation.validate_terminal_prelock_root_v1(receipt["value"])
+    root_receipt = _read_json(
+        store,
+        identity=receipt["value"]["identity"],
+        label="embedded terminal prelock root",
+    )
+    if root_receipt["value"] != root:
+        _fail("embedded terminal root bytes differ from exact reopen")
+    if _timestamp_text(
+        root_receipt["created_at"], label="terminal-root external creation"
+    ) != _timestamp_text(
+        receipt["value"]["storage_created_at"],
+        label="terminal-root embedded creation",
+    ):
+        _fail("embedded terminal root trusted creation metadata differs")
     created = _timestamp(
         receipt["created_at"], label="terminal-envelope storage creation"
     )
@@ -1058,14 +1075,486 @@ def publish_postlock_week_v1(
     }
 
 
+def publish_weekly_safety_receipt_v1(
+    *,
+    store: ImmutableObjectStore,
+    preregistration_identity: Mapping[str, object],
+    target_uri: str,
+    week: int,
+    slate_id: str,
+    observed_at: datetime | str | None = None,
+    terminal_prelock_envelope_identity: Mapping[str, object] | None = None,
+) -> dict[str, object]:
+    """Publish terminal-derived safety, or a durable terminal-absent failure."""
+
+    uri = _prelock_uri(target_uri, label="weekly safety receipt")
+    caller_observed_time = (
+        None
+        if observed_at is None
+        else _timestamp(observed_at, label="caller safety observed-at")
+    )
+    prereg_receipt = _read_json(
+        store, identity=preregistration_identity, label="preregistration"
+    )
+    preregistration = evaluation.validate_preregistration_v1(
+        prereg_receipt["value"]
+    )
+    _assert_created_before(
+        prereg_receipt,
+        preregistration["week1_lock_at"],
+        label="safety preregistration",
+    )
+
+    terminal_identity = None
+    terminal_value = None
+    terminal_root = None
+    if terminal_prelock_envelope_identity is not None:
+        terminal_receipt, terminal_root = _load_prelock_envelope(
+            store, terminal_prelock_envelope_identity
+        )
+        terminal_identity = terminal_receipt["identity"]
+        if (
+            int(terminal_root["week"]) != int(week)
+            or terminal_root["slate_id"] != slate_id
+            or terminal_root["preregistration_sha256"]
+            != preregistration["preregistration_sha256"]
+        ):
+            _fail("safety terminal week, slate, or preregistration differs")
+        terminal_value = terminal_receipt["value"]
+        observed_time = _timestamp(
+            terminal_value["storage_created_at"],
+            label="trusted safety root storage-created-at",
+        )
+        if (
+            caller_observed_time is not None
+            and caller_observed_time != observed_time
+        ):
+            _fail("caller safety time differs from trusted root storage time")
+    else:
+        if caller_observed_time is None:
+            _fail("terminal-absent safety requires observed-at")
+        observed_time = caller_observed_time
+
+    manifest_identity = (
+        None if terminal_root is None
+        else terminal_root["suite_authority"]["manifest_identity"]
+    )
+    if manifest_identity is not None:
+        manifest_receipt = _read_json(
+            store, identity=manifest_identity, label="safety suite manifest"
+        )
+        if _timestamp(
+            manifest_receipt["created_at"],
+            label="safety suite manifest creation",
+        ) > observed_time:
+            _fail("safety suite manifest was created after observation")
+        if (
+            manifest_receipt["identity"] != manifest_identity
+            or manifest_receipt["value"]
+            != terminal_root["suite_authority"]["manifest"]
+        ):
+            _fail("safety terminal and exact-reopened suite manifest differ")
+
+    safety_receipt = evaluation.build_weekly_safety_receipt_v1(
+        preregistration=preregistration,
+        week=week,
+        slate_id=slate_id,
+        observed_at=(None if terminal_root is not None else observed_time),
+        terminal_prelock_envelope=terminal_value,
+        terminal_prelock_envelope_identity=terminal_identity,
+    )
+    publication = _publish_json(
+        store,
+        uri=uri,
+        value=safety_receipt,
+        label="weekly safety receipt",
+        not_before=observed_time,
+    )
+    body = {
+        "schema_version": SAFETY_PUBLICATION_SCHEMA,
+        "season": safety_receipt["season"],
+        "week": safety_receipt["week"],
+        "slate_id": safety_receipt["slate_id"],
+        "preregistration_identity": prereg_receipt["identity"],
+        "weekly_safety_receipt_identity": publication["identity"],
+        "weekly_safety_receipt_sha256": safety_receipt[
+            "weekly_safety_receipt_sha256"
+        ],
+        "integrity_gate_status": safety_receipt["integrity_gate_status"],
+        "reason_vector": safety_receipt["reason_vector"],
+        "terminal_present": terminal_identity is not None,
+        "suite_manifest_present": manifest_identity is not None,
+        "all_available_inputs_exact_reopened": True,
+        "uses_realized_outcomes": False,
+        "efficacy_or_promotion_allowed": False,
+        "automatic_adoption": False,
+    }
+    return _with_hash(body, field="publication_sha256")
+
+
+def _load_weekly_safety_receipt(
+    *,
+    store: ImmutableObjectStore,
+    identity: Mapping[str, object],
+    preregistration: Mapping[str, object],
+) -> tuple[dict[str, object], dict[str, object]]:
+    receipt = _read_json(
+        store, identity=identity, label="weekly safety receipt"
+    )
+    value = evaluation.validate_weekly_safety_receipt_v1(
+        receipt["value"], preregistration=preregistration
+    )
+    observed_at = _timestamp(
+        value["observed_at"], label="weekly safety observed-at"
+    )
+    if _timestamp(
+        receipt["created_at"], label="weekly safety receipt creation"
+    ) < observed_at:
+        _fail("weekly safety receipt was stored before its observation")
+
+    terminal_root = None
+    if value["terminal_prelock_envelope_identity"] is not None:
+        terminal_receipt, terminal_root = _load_prelock_envelope(
+            store, value["terminal_prelock_envelope_identity"]
+        )
+        if terminal_receipt["value"] != value["terminal_prelock_envelope"]:
+            _fail("weekly safety embedded terminal differs from exact reopen")
+        if (
+            int(terminal_root["week"]) != int(value["week"])
+            or terminal_root["slate_id"] != value["slate_id"]
+            or terminal_root["preregistration_sha256"]
+            != preregistration["preregistration_sha256"]
+        ):
+            _fail("weekly safety terminal lineage differs")
+    if value["suite_manifest_identity"] is not None:
+        manifest = _read_json(
+            store,
+            identity=value["suite_manifest_identity"],
+            label="weekly safety suite manifest",
+        )
+        if _timestamp(
+            manifest["created_at"],
+            label="weekly safety suite manifest creation",
+        ) > observed_at:
+            _fail("weekly safety suite manifest was created after observation")
+        if (
+            terminal_root is not None
+            and terminal_root["suite_authority"]["manifest_identity"]
+            != manifest["identity"]
+        ):
+            _fail("weekly safety terminal and suite manifest differ")
+        if (
+            terminal_root is not None
+            and manifest["value"]
+            != terminal_root["suite_authority"]["manifest"]
+        ):
+            _fail("weekly safety suite manifest bytes differ from terminal")
+    return receipt, value
+
+
+def _load_exact_postlock_grade_lineage(
+    *,
+    store: ImmutableObjectStore,
+    identity: Mapping[str, object],
+    ordinal: int,
+) -> tuple[dict[str, object], dict[str, object], dict[str, object]]:
+    """Reopen one post-lock terminal and independently rebuild its grade.
+
+    A weekly grade is a derived object, not a source authority.  Accepting its
+    self-hash alone would let a caller publish internally consistent scores and
+    then feed those invented rows into the season aggregate.  This boundary
+    therefore starts from the post-lock publication terminal, exact-reopens
+    every object needed by the derivation, and compares a fresh grade byte for
+    byte with the published one.
+    """
+
+    label = f"postlock publication terminal[{ordinal}]"
+    terminal_receipt = _read_json(store, identity=identity, label=label)
+    terminal = _mapping(terminal_receipt["value"], label=label)
+    expected_fields = {
+        "schema_version", "season", "week", "slate_id", "captured_at",
+        "terminal_prelock_envelope_identity",
+        "realized_score_source_identity", "field_bridge_identity",
+        "field_component_identities", "outcome_source_identity",
+        "outcome_snapshot_identity", "outcome_snapshot_sha256",
+        "weekly_grade_identity", "weekly_grade_sha256", "field_status",
+        "evidence_scope", "complete_contest_field_capture",
+        "complete_field_rank_claim_allowed", "contest_ev_claim_allowed",
+        "allocation_recommendation_allowed", "all_operator_outputs_create_once",
+        "realized_score_source_exact_reopened_not_published_by_operator",
+        "automatic_adoption", "production_change_licensed",
+        "publication_sha256",
+    }
+    retained_hash = str(terminal.get("publication_sha256") or "")
+    if (
+        set(terminal) != expected_fields
+        or terminal.get("schema_version") != POSTLOCK_PUBLICATION_SCHEMA
+        or retained_hash != _canonical_sha256({
+            key: value for key, value in terminal.items()
+            if key != "publication_sha256"
+        })
+        or any(
+            terminal.get(field) is not expected
+            for field, expected in {
+                "allocation_recommendation_allowed": False,
+                "all_operator_outputs_create_once": True,
+                "realized_score_source_exact_reopened_not_published_by_operator": True,
+                "automatic_adoption": False,
+                "production_change_licensed": False,
+            }.items()
+        )
+    ):
+        _fail(f"{label} fixed law or self-hash differs")
+
+    captured = _timestamp(
+        terminal.get("captured_at"), label=f"{label} captured-at"
+    )
+    envelope_receipt, root = _load_prelock_envelope(
+        store,
+        _mapping(
+            terminal.get("terminal_prelock_envelope_identity"),
+            label=f"{label} terminal-envelope identity",
+        ),
+    )
+    score_receipt = _read_json(
+        store,
+        identity=_mapping(
+            terminal.get("realized_score_source_identity"),
+            label=f"{label} score-source identity",
+        ),
+        label=f"{label} realized-score source",
+    )
+    bridge_receipt = _read_json(
+        store,
+        identity=_mapping(
+            terminal.get("field_bridge_identity"),
+            label=f"{label} field-bridge identity",
+        ),
+        label=f"{label} field bridge",
+    )
+    outcome_receipt = _read_json(
+        store,
+        identity=_mapping(
+            terminal.get("outcome_source_identity"),
+            label=f"{label} outcome-source identity",
+        ),
+        label=f"{label} outcome source",
+    )
+    snapshot_receipt = _read_json(
+        store,
+        identity=_mapping(
+            terminal.get("outcome_snapshot_identity"),
+            label=f"{label} outcome-snapshot identity",
+        ),
+        label=f"{label} outcome snapshot",
+    )
+    grade_receipt = _read_json(
+        store,
+        identity=_mapping(
+            terminal.get("weekly_grade_identity"),
+            label=f"{label} weekly-grade identity",
+        ),
+        label=f"{label} weekly grade",
+    )
+
+    component_identities = _mapping(
+        terminal.get("field_component_identities"),
+        label=f"{label} field-component identities",
+    )
+    if set(component_identities) not in (set(), set(_FIELD_COMPONENT_NAMES)):
+        _fail(f"{label} field-component registry differs")
+    component_receipts = {
+        name: _read_json(
+            store,
+            identity=_mapping(
+                component_identities[name],
+                label=f"{label} {name} identity",
+            ),
+            label=f"{label} {name} component",
+        )
+        for name in _FIELD_COMPONENT_NAMES
+        if name in component_identities
+    }
+
+    bridge = field_bridge.validate_contest_field_bridge_v1(
+        bridge_receipt["value"]
+    )
+    complete_field = bridge.get("complete_contest_field_capture") is True
+    bridge_component_identities = bridge.get("component_identities")
+    if (
+        complete_field != bool(component_receipts)
+        or (
+            complete_field
+            and _mapping(
+                bridge_component_identities,
+                label=f"{label} bridge component identities",
+            ) != component_identities
+        )
+        or (not complete_field and bridge_component_identities is not None)
+        or bridge.get("terminal_prelock_root_identity")
+        != envelope_receipt["value"]["identity"]
+        or bridge.get("terminal_prelock_root_sha256")
+        != root["terminal_prelock_root_sha256"]
+    ):
+        _fail(f"{label} field completeness/component registry differs")
+    capture_receipt: dict[str, object] | None = None
+    if complete_field:
+        capture_receipt = _read_raw(
+            store,
+            identity=_mapping(
+                bridge.get("capture_source_identity"),
+                label=f"{label} capture-source identity",
+            ),
+            label=f"{label} complete-field capture source",
+        )
+    expected_outcome = evaluation.build_outcome_source_payload_from_field_bridge_v1(
+        terminal_prelock_root=envelope_receipt["value"],
+        field_bridge=bridge,
+    )
+    if outcome_receipt["value"] != expected_outcome:
+        _fail(f"{label} outcome source differs from exact field lineage")
+    rebuilt_snapshot = evaluation.build_outcome_snapshot_from_field_bridge_v1(
+        terminal_prelock_root=envelope_receipt["value"],
+        field_bridge=bridge,
+        outcome_source_identity=outcome_receipt["identity"],
+    )
+    if snapshot_receipt["value"] != rebuilt_snapshot:
+        _fail(f"{label} outcome snapshot differs from exact field lineage")
+    expected_score = {
+        "schema_version": evaluation.REALIZED_SCORE_SOURCE_SCHEMA,
+        "season": rebuilt_snapshot["season"],
+        "week": rebuilt_snapshot["week"],
+        "slate_id": rebuilt_snapshot["slate_id"],
+        "captured_at": rebuilt_snapshot["captured_at"],
+        "producer_class": "independent-realized-lineup-score-source",
+        "independent_from_generation": True,
+        "terminal_prelock_root_binding_present": False,
+        "lineup_count": rebuilt_snapshot["lineup_count"],
+        "lineup_rows": [
+            {
+                "lineup_id": row["lineup_id"],
+                "realized_score_micro": row["realized_score_micro"],
+            }
+            for row in rebuilt_snapshot["lineup_rows"]
+        ],
+    }
+    expected_score["lineup_rows_sha256"] = _canonical_sha256(
+        expected_score["lineup_rows"]
+    )
+    if (
+        score_receipt["value"] != expected_score
+        or rebuilt_snapshot["realized_score_source_identity"]
+        != score_receipt["identity"]
+    ):
+        _fail(f"{label} realized-score source differs from exact outcome lineage")
+
+    rebuilt_grade = evaluation.grade_realized_week_v1(
+        terminal_prelock_root=envelope_receipt["value"],
+        outcome_snapshot=rebuilt_snapshot,
+    )
+    published_grade = evaluation.validate_realized_week_grade_v1(
+        grade_receipt["value"]
+    )
+    if rebuilt_grade != published_grade:
+        _fail(f"{label} weekly grade differs from exact independent regrade")
+
+    if (
+        terminal.get("season") != root["season"]
+        or terminal.get("week") != root["week"]
+        or terminal.get("slate_id") != root["slate_id"]
+        or terminal.get("captured_at") != rebuilt_snapshot["captured_at"]
+        or terminal.get("outcome_snapshot_sha256")
+        != rebuilt_snapshot["outcome_snapshot_sha256"]
+        or terminal.get("weekly_grade_sha256")
+        != rebuilt_grade["weekly_grade_sha256"]
+        or terminal.get("field_status") != bridge["status"]
+        or terminal.get("evidence_scope") != bridge["evidence_scope"]
+        or terminal.get("complete_contest_field_capture") is not complete_field
+        or terminal.get("complete_field_rank_claim_allowed") is not bool(
+            bridge["complete_field_rank_claim_allowed"]
+        )
+        or terminal.get("contest_ev_claim_allowed") is not bool(
+            bridge["contest_ev_claim_allowed"]
+        )
+    ):
+        _fail(f"{label} summary differs from exact reopened lineage")
+
+    derived_receipts = [
+        score_receipt, bridge_receipt, outcome_receipt, snapshot_receipt,
+        grade_receipt, *component_receipts.values(),
+    ]
+    postlock_receipts = list(derived_receipts)
+    if capture_receipt is not None:
+        postlock_receipts.append(capture_receipt)
+    root_lock = _timestamp(root["lock_at"], label=f"{label} slate lock")
+    if captured <= root_lock:
+        _fail(f"{label} captured-at does not follow the exact reopened lock")
+    score_created = _timestamp(
+        score_receipt["created_at"], label=f"{label} score-source creation"
+    )
+    bridge_created = _timestamp(
+        bridge_receipt["created_at"], label=f"{label} field-bridge creation"
+    )
+    outcome_created = _timestamp(
+        outcome_receipt["created_at"], label=f"{label} outcome-source creation"
+    )
+    snapshot_created = _timestamp(
+        snapshot_receipt["created_at"], label=f"{label} snapshot creation"
+    )
+    grade_created = _timestamp(
+        grade_receipt["created_at"], label=f"{label} grade creation"
+    )
+    terminal_created = _timestamp(
+        terminal_receipt["created_at"], label=f"{label} creation"
+    )
+    component_created = [
+        _timestamp(
+            receipt["created_at"], label=f"{label} field-component creation"
+        )
+        for receipt in component_receipts.values()
+    ]
+    if (
+        any(
+            _timestamp(receipt["created_at"], label=f"{label} object creation")
+            < captured
+            for receipt in derived_receipts
+        )
+        or any(
+            _timestamp(receipt["created_at"], label=f"{label} object creation")
+            <= root_lock
+            for receipt in postlock_receipts
+        )
+        or bridge_created < score_created
+        or (component_created and bridge_created < max(component_created))
+        or (
+            capture_receipt is not None
+            and bridge_created < _timestamp(
+                capture_receipt["created_at"],
+                label=f"{label} capture-source creation",
+            )
+        )
+        or outcome_created < bridge_created
+        or snapshot_created < outcome_created
+        or grade_created < snapshot_created
+        or terminal_created < grade_created
+    ):
+        _fail(f"{label} publication chronology differs")
+    return terminal_receipt, grade_receipt, published_grade
+
+
 def publish_evaluation_v1(
     *,
     store: ImmutableObjectStore,
     preregistration_identity: Mapping[str, object],
-    weekly_grade_identities: Sequence[Mapping[str, object]],
     target_uri: str,
+    weekly_publication_terminal_identities: Sequence[
+        Mapping[str, object]
+    ] = (),
+    weekly_safety_receipt_identities: Sequence[
+        Mapping[str, object]
+    ] = (),
 ) -> dict[str, object]:
-    """Publish a versioned 1..N-week evaluation with no adoption action."""
+    """Publish a versioned 1..N-week exact-regraded evaluation."""
 
     prereg_receipt = _read_json(
         store, identity=preregistration_identity, label="preregistration"
@@ -1073,23 +1562,44 @@ def publish_evaluation_v1(
     preregistration = evaluation.validate_preregistration_v1(
         prereg_receipt["value"]
     )
-    grade_receipts = [
-        _read_json(store, identity=identity, label=f"weekly grade[{ordinal}]")
-        for ordinal, identity in enumerate(weekly_grade_identities)
+    _assert_created_before(
+        prereg_receipt,
+        preregistration["week1_lock_at"],
+        label="evaluation preregistration",
+    )
+    grade_lineages = [
+        _load_exact_postlock_grade_lineage(
+            store=store, identity=identity, ordinal=ordinal
+        )
+        for ordinal, identity in enumerate(
+            weekly_publication_terminal_identities
+        )
     ]
-    if not grade_receipts:
-        _fail("evaluation requires at least one weekly grade identity")
-    grades = [
-        evaluation.validate_realized_week_grade_v1(receipt["value"])
-        for receipt in grade_receipts
+    postlock_terminal_receipts = [row[0] for row in grade_lineages]
+    grade_receipts = [row[1] for row in grade_lineages]
+    grades = [row[2] for row in grade_lineages]
+    safety_pairs = [
+        _load_weekly_safety_receipt(
+            store=store,
+            identity=identity,
+            preregistration=preregistration,
+        )
+        for identity in weekly_safety_receipt_identities
     ]
+    if not grade_receipts and not safety_pairs:
+        _fail("evaluation requires a weekly grade or safety receipt identity")
+    safety_receipts = [value for _receipt, value in safety_pairs]
     result = evaluation.evaluate_prospective_shadow_v1(
         preregistration=preregistration,
         weekly_grades=grades,
+        weekly_safety_receipts=safety_receipts,
     )
     lower_clock = max(
-        _timestamp(receipt["created_at"], label="weekly-grade creation")
-        for receipt in grade_receipts
+        _timestamp(receipt["created_at"], label="evaluation input creation")
+        for receipt in [
+            *postlock_terminal_receipts,
+            *(receipt for receipt, _value in safety_pairs),
+        ]
     )
     publication = _publish_json(
         store,
@@ -1106,12 +1616,22 @@ def publish_evaluation_v1(
         "horizon": result["horizon"],
         "decision_scope": result["decision_scope"],
         "preregistration_identity": prereg_receipt["identity"],
+        "weekly_publication_terminal_identities": [
+            receipt["identity"] for receipt in postlock_terminal_receipts
+        ],
         "weekly_grade_identities": [
             receipt["identity"] for receipt in grade_receipts
+        ],
+        "weekly_safety_receipt_identities": [
+            receipt["identity"] for receipt, _value in safety_pairs
+        ],
+        "week8_integrity_gate_status": result["week8_integrity_gate"][
+            "integrity_gate_status"
         ],
         "evaluation_identity": publication["identity"],
         "evaluation_sha256": result["evaluation_sha256"],
         "contest_ev_claim_allowed": result["contest_ev_claim_allowed"],
+        "all_weekly_grades_exact_regraded_from_postlock_lineage": True,
         "allocation_recommendation_allowed": False,
         "automatic_adoption": False,
         "human_decision_required": True,
@@ -1147,6 +1667,8 @@ def _summary(result: Mapping[str, object]) -> dict[str, object]:
             "completed_week_count",
             "horizon",
             "decision_scope",
+            "integrity_gate_status",
+            "week8_integrity_gate_status",
             "field_status",
             "evidence_scope",
             "contest_ev_claim_allowed",
@@ -1160,6 +1682,7 @@ def _summary(result: Mapping[str, object]) -> dict[str, object]:
         "preregistration_identity",
         "seed_crossing_identity",
         "terminal_prelock_envelope_identity",
+        "weekly_safety_receipt_identity",
         "weekly_grade_identity",
         "evaluation_identity",
         "publication_terminal_identity",
@@ -1185,6 +1708,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     for command in (
         "publish-seed-crossing",
         "freeze-week",
+        "publish-safety-week",
         "grade-week",
         "evaluate-season",
     ):
@@ -1210,6 +1734,10 @@ def main(argv: Sequence[str] | None = None) -> None:
             result = publish_prelock_terminal_from_suite_v1(
                 store=store, **request
             )
+        elif args.command == "publish-safety-week":
+            result = publish_weekly_safety_receipt_v1(
+                store=store, **request
+            )
         elif args.command == "grade-week":
             result = publish_postlock_week_v1(store=store, **request)
         else:
@@ -1228,6 +1756,7 @@ __all__ = [
     "POSTLOCK_PUBLICATION_SCHEMA",
     "PRELOCK_PUBLICATION_SCHEMA",
     "PREREGISTRATION_PUBLICATION_SCHEMA",
+    "SAFETY_PUBLICATION_SCHEMA",
     "ProspectiveGenerationShadowOperatorError",
     "SEED_CROSSING_PUBLICATION_SCHEMA",
     "main",
@@ -1236,4 +1765,5 @@ __all__ = [
     "publish_prelock_terminal_from_suite_v1",
     "publish_preregistration_v1",
     "publish_seed_crossing_v1",
+    "publish_weekly_safety_receipt_v1",
 ]

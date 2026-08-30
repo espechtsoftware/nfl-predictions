@@ -16,26 +16,39 @@ solve-exposure gaps, prefix rewrites, and post-lock mutation fail closed.
 
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Mapping, Sequence
+from copy import deepcopy
 from datetime import datetime, timezone
 import math
 import re
 from typing import Final
 
 from . import generation_exposure as exposure
+from .prospective_boom_first import (
+    native_input_source_projection,
+    validate_paired_native_input_authority,
+)
+from .prospective_cross_law_supply_trace import (
+    validate_selected_supply_trace,
+)
 from .prospective_generation_shadow_registry import (
     registry_document,
     validate_registry,
 )
+from .prospective_generation_shadow_suite import (
+    AUDIT_BANK_SCHEMA,
+    validate_independent_audit_input_binding,
+)
 
 
 PREREGISTRATION_SCHEMA: Final = (
-    "prospective-generation-shadow-preregistration/v2"
+    "prospective-generation-shadow-preregistration/v6"
 )
 SEED_CROSSING_SCHEMA: Final = (
     "prospective-generation-shadow-fit-world-crossing/v2"
 )
-ARM_FREEZE_SCHEMA: Final = "prospective-generation-shadow-arm-freeze/v2"
+ARM_FREEZE_SCHEMA: Final = "prospective-generation-shadow-arm-freeze/v3"
 TERMINAL_PRELOCK_ROOT_SCHEMA: Final = (
     "prospective-generation-shadow-terminal-prelock-root/v2"
 )
@@ -57,17 +70,46 @@ REALIZED_SCORE_SOURCE_SCHEMA: Final = (
     "prospective-generation-shadow-independent-lineup-scores/v1"
 )
 WEEKLY_GRADE_SCHEMA: Final = (
-    "prospective-generation-shadow-realized-weekly-grade/v2"
+    "prospective-generation-shadow-realized-weekly-grade/v3"
 )
 EVALUATION_SCHEMA: Final = (
-    "prospective-generation-shadow-prospective-evaluation/v2"
+    "prospective-generation-shadow-prospective-evaluation/v6"
 )
-
+WEEKLY_SAFETY_RECEIPT_SCHEMA: Final = (
+    "prospective-generation-shadow-weekly-safety-receipt/v2"
+)
 SEASON: Final = 2026
 _REGISTRY: Final = validate_registry(registry_document())
+_WEEK8_SAFETY_RULE: Final = deepcopy(
+    _REGISTRY["decision_rules"]["week8_safety_contract"]
+)
+_STRUCTURAL_SYNTHESIS_RULE: Final = deepcopy(
+    _REGISTRY["decision_rules"]["structural_synthesis_contract"]
+)
 ARM_ORDER: Final = tuple(
     str(arm["arm_id"]) for arm in _REGISTRY["arms"]
 )
+_ARM_RELEASE_CONTRACT_BY_ID: Final = {
+    str(arm["arm_id"]): {
+        "arm_status": str(arm["status"]),
+        "scientific_status": str(arm["scientific_status"]),
+        "decision_role": str(arm["decision_role"]),
+        "required_before_week1": bool(arm["required_before_week1"]),
+    }
+    for arm in _REGISTRY["arms"]
+}
+_CONTRAST_DECISION_ROLES: Final = deepcopy(
+    _REGISTRY["decision_rules"]["contrast_decision_roles"]
+)
+_RETRIEVAL_DECISION_ROLE: Final = {
+    key: _REGISTRY["shared_protocol"]["retrieval_crossing"][key]
+    for key in (
+        "decision_role",
+        "primary_efficacy_rule_satisfaction_allowed",
+        "promotion_equivalent_efficacy_allowed",
+        "automatic_promotion_allowed",
+    )
+}
 PREFIX_SIZES: Final = (20, 40, 80)
 REALIZED_THRESHOLDS_DK: Final = (194, 200, 210, 220, 230, 240)
 CALIBRATION_THRESHOLDS_DK: Final = (194, 210, 220)
@@ -105,6 +147,9 @@ _POLICY_BY_ARM: Final = {
         "core_requested_solve_count": 200,
         "resource_class": "200-solves",
         "arm_status": "required",
+        "scientific_status": "control",
+        "decision_role": "primary-control-reference",
+        "required_before_week1": True,
         "resource_caveat": "equal-resource-control",
         "equal_compute_comparison": True,
         "generation_bank_role": "shared-base-generation-bank",
@@ -123,6 +168,9 @@ _POLICY_BY_ARM: Final = {
         "core_requested_solve_count": 200,
         "resource_class": "200-solves",
         "arm_status": "required",
+        "scientific_status": "primary",
+        "decision_role": "primary-efficacy-challenger",
+        "required_before_week1": True,
         "resource_caveat": "equal-resource-primary-treatment",
         "equal_compute_comparison": True,
         "generation_bank_role": "shared-base-generation-bank",
@@ -142,6 +190,9 @@ _POLICY_BY_ARM: Final = {
         "core_requested_solve_count": 200,
         "resource_class": "200-solves",
         "arm_status": "required",
+        "scientific_status": "exploratory",
+        "decision_role": "diagnostic-only",
+        "required_before_week1": True,
         "resource_caveat": "equal-resource-nominated-third-arm",
         "equal_compute_comparison": True,
         "generation_bank_role": "generation-only-discovery-overlay",
@@ -157,7 +208,7 @@ _POLICY_BY_ARM: Final = {
         "historical_status": "nominated-third-arm",
     },
     "boom-dose-40-360": {
-        "policy_id": "optional-boom-dose-40lev-360boom-v1",
+        "policy_id": "required-boom-dose-40lev-360boom-v1",
         "required_requests_by_family": {
             "boom": 360,
             "leverage": 40,
@@ -165,32 +216,47 @@ _POLICY_BY_ARM: Final = {
         },
         "core_requested_solve_count": 400,
         "resource_class": "400-solves-unequal-resource",
-        "arm_status": "optional-resource-permitting",
+        "arm_status": "required",
+        "scientific_status": "unequal-resource",
+        "decision_role": "diagnostic-only",
+        "required_before_week1": True,
         "resource_caveat": (
-            "optional-unequal-resource-dose-not-an-equal-compute-effect"
+            "required-unequal-resource-dose-not-an-equal-compute-effect"
         ),
         "equal_compute_comparison": False,
         "generation_bank_role": "shared-base-generation-bank",
         "world_visit_order": "production-order",
         "discovery_overlay": None,
         "marginals_restored_by_rank_transport": False,
-        "historical_status": "optional-unequal-resource-boom360",
+        "historical_status": "unequal-resource-boom360-diagnostic",
     },
     "ceiling-all-boom-0-200": {
         "policy_id": "all-boom-200-ceiling-ordered-v1",
         "required_requests_by_family": {"boom": 200, "role_epistemic": 12},
         "core_requested_solve_count": 200,
         "resource_class": "200-solves",
-        "arm_status": "optional-spare-slot-only",
-        "resource_caveat": "optional-unpassed-near-miss",
+        "arm_status": "required",
+        "scientific_status": "unpassed",
+        "decision_role": "diagnostic-only",
+        "required_before_week1": True,
+        "resource_caveat": "required-unpassed-near-miss",
         "equal_compute_comparison": True,
         "generation_bank_role": "shared-base-generation-bank",
         "world_visit_order": "legal-roster-ceiling",
         "discovery_overlay": None,
         "marginals_restored_by_rank_transport": False,
-        "historical_status": "optional-unpassed-near-miss",
+        "historical_status": "unpassed-near-miss-diagnostic",
     },
 }
+if set(_POLICY_BY_ARM) != set(ARM_ORDER) or any(
+    {
+        key: _POLICY_BY_ARM[arm_id][key]
+        for key in _ARM_RELEASE_CONTRACT_BY_ID[arm_id]
+    }
+    != _ARM_RELEASE_CONTRACT_BY_ID[arm_id]
+    for arm_id in ARM_ORDER
+):
+    raise RuntimeError("generation policy decision roles differ from registry")
 
 
 class ProspectiveGenerationShadowEvaluationError(ValueError):
@@ -428,6 +494,75 @@ def _validate_self_hash(
     return retained
 
 
+def _validate_structural_synthesis_rule(
+    value: object,
+) -> dict[str, object]:
+    rule = _mapping(value, label="structural synthesis rule")
+    if rule != _STRUCTURAL_SYNTHESIS_RULE:
+        _fail("structural synthesis rule differs from frozen registry")
+    normalize_object_identity_v1(
+        rule.get("historical_evidence_identity"),
+        label="structural historical evidence identity",
+    )
+    _digest(
+        rule.get("historical_internal_grade_sha256"),
+        label="structural historical internal grade SHA",
+    )
+    metrics = _mapping(
+        rule.get("historical_metrics"),
+        label="structural historical metrics",
+    )
+    slate_count = _integer(
+        metrics.get("panel_slate_count"),
+        label="structural historical slate count",
+        minimum=1,
+    )
+    for prefix in ("selected", "pool_oracle", "selector_regret"):
+        control = _signed_integer(
+            metrics.get(f"control_{prefix}_score_sum_micro")
+            if prefix == "selected"
+            else metrics.get(f"control_{prefix}_sum_micro"),
+            label=f"historical control {prefix} sum",
+        )
+        challenger = _signed_integer(
+            metrics.get(f"challenger_{prefix}_score_sum_micro")
+            if prefix == "selected"
+            else metrics.get(f"challenger_{prefix}_sum_micro"),
+            label=f"historical challenger {prefix} sum",
+        )
+        delta = _signed_integer(
+            metrics.get(f"{prefix}_paired_delta_sum_micro"),
+            label=f"historical {prefix} paired delta sum",
+        )
+        if challenger - control != delta:
+            _fail(f"historical {prefix} synthesis arithmetic differs")
+    if sum(
+        _integer(metrics.get(field), label=f"historical {field}")
+        for field in ("challenger_win_count", "control_win_count", "tie_count")
+    ) != slate_count:
+        _fail("historical win/tie synthesis counts differ")
+    thresholds = _mapping(
+        metrics.get("selected_threshold_hit_deltas"),
+        label="historical threshold-hit deltas",
+    )
+    if set(thresholds) != {str(value) for value in REALIZED_THRESHOLDS_DK}:
+        _fail("historical synthesis threshold surface differs")
+    if (
+        metrics.get("unavailable_historical_thresholds") != [194, 240]
+        or thresholds.get("194") is not None
+        or thresholds.get("240") is not None
+        or any(rule.get(field) is not False for field in (
+            "historical_object_read_during_weekly_grading",
+            "effect_pooling_allowed",
+            "historical_and_prospective_gain_summing_allowed",
+            "automatic_adoption_allowed",
+            "automatic_money_policy_change_allowed",
+        ))
+    ):
+        _fail("structural synthesis non-adoption or missing-data law differs")
+    return deepcopy(rule)
+
+
 def build_preregistration_v1(
     *,
     registered_at: datetime | str,
@@ -476,6 +611,8 @@ def build_preregistration_v1(
         "week1_lock_at": week1_lock,
         "registered_before_week1": True,
         "required_arm_order": list(ARM_ORDER),
+        "all_five_arms_required_before_week1": True,
+        "arm_omission_allowed": False,
         "operational_k": k,
         "required_prefix_sizes": list(PREFIX_SIZES),
         "reporting_entry_counts": reporting,
@@ -490,20 +627,9 @@ def build_preregistration_v1(
             "cap-calibration-p-max-194-210-220",
         ],
         "paired_comparators": dict(COMPARATOR_BY_ARM),
-        "optional_arm_disclosures": {
-            "boom-dose-40-360": {
-                "status": "optional-resource-permitting",
-                "resource_class": "400-solves-unequal-resource",
-                "caveat": (
-                    "optional-unequal-resource-dose-not-an-equal-compute-effect"
-                ),
-            },
-            "ceiling-all-boom-0-200": {
-                "status": "optional-spare-slot-only",
-                "resource_class": "200-solves",
-                "caveat": "optional-unpassed-near-miss",
-            },
-        },
+        "arm_decision_roles": deepcopy(_ARM_RELEASE_CONTRACT_BY_ID),
+        "contrast_decision_roles": deepcopy(_CONTRAST_DECISION_ROLES),
+        "retrieval_decision_role": deepcopy(_RETRIEVAL_DECISION_ROLE),
         "interim_horizon": {
             "completed_weeks": INTERIM_WEEK_COUNT,
             "decision_scope": "integrity-and-severe-harm-only",
@@ -515,6 +641,9 @@ def build_preregistration_v1(
             "uncertainty_required": True,
             "automatic_adoption_allowed": False,
         },
+        "structural_synthesis_rule": _validate_structural_synthesis_rule(
+            _STRUCTURAL_SYNTHESIS_RULE
+        ),
         "inference_unit": "slate-after-block-and-bank-aggregation",
         "generation_block_contract": {
             "shared_block_labels": ["R0", "R1", "R2", "R3", "R4"],
@@ -530,8 +659,8 @@ def build_preregistration_v1(
             "primary-boom-first-incumbent-retrieval-vs-incumbent-sentinel",
             "key-secondary-generation-x-retrieval-2x2",
             "exploratory-cross-law-on-boom-first-under-base-selection",
-            "optional-unpassed-ceiling-all-boom-frozen-before-week1-or-omitted",
-            "below-hierarchy-unequal-resource-boom360-separate",
+            "required-unpassed-ceiling-all-boom-diagnostic",
+            "required-unequal-resource-boom360-diagnostic",
         ],
         "contest_field_capture_rule": {
             "complete-field-capture-required-for-contest-ev": True,
@@ -550,15 +679,22 @@ def build_preregistration_v1(
             "full_season_uncertainty_method": (
                 "slate-level-paired-t-interval-95pct"
             ),
-            "same_rule_applies_to_every_predeclared_contrast": True,
+            "same_numeric_criteria_reported_for_every_predeclared_contrast": True,
+            "primary_efficacy_rule_challenger_arm": "boom-first-40-160",
+            "nonprimary_contrasts_diagnostic_only": True,
         },
+        # This entire metric family is fixed in the pre-Week-1 object.  The
+        # weekly receipt may truthfully report a missing suite terminal, so a
+        # crashed/failed generation run cannot disappear merely because the
+        # successful terminal path was never reached.
+        "week8_safety_rule": deepcopy(_WEEK8_SAFETY_RULE),
         "one_family_level_rule": True,
         "within_shadow_tuning_allowed": False,
         "variant_requires_new_arm": True,
         "report_every_arm_every_week": True,
         "report_losses": True,
         "historical_gains_may_be_summed": False,
-        "all_boom_optional_status_disclosed_as_unpassed": True,
+        "all_boom_required_status_disclosed_as_unpassed": True,
         "automatic_adoption": False,
     }
     return _with_hash(body, field="preregistration_sha256")
@@ -569,17 +705,21 @@ def validate_preregistration_v1(value: object) -> dict[str, object]:
     fields = {
         "schema_version", "season", "registered_at", "week1_lock_at",
         "registered_before_week1", "required_arm_order", "operational_k",
+        "all_five_arms_required_before_week1", "arm_omission_allowed",
         "required_prefix_sizes", "reporting_entry_counts",
         "primary_endpoint", "secondary_endpoints", "paired_comparators",
-        "optional_arm_disclosures",
+        "arm_decision_roles", "contrast_decision_roles",
+        "retrieval_decision_role",
         "interim_horizon", "structural_horizon",
+        "structural_synthesis_rule",
         "inference_unit", "generation_block_contract",
         "treatment_hierarchy", "contest_field_capture_rule",
-        "family_level_decision_rule", "one_family_level_rule",
+        "family_level_decision_rule", "week8_safety_rule",
+        "one_family_level_rule",
         "within_shadow_tuning_allowed", "variant_requires_new_arm",
         "report_every_arm_every_week", "report_losses",
         "historical_gains_may_be_summed",
-        "all_boom_optional_status_disclosed_as_unpassed",
+        "all_boom_required_status_disclosed_as_unpassed",
         "automatic_adoption", "preregistration_sha256",
     }
     if set(item) != fields:
@@ -598,31 +738,22 @@ def validate_preregistration_v1(value: object) -> dict[str, object]:
         "season": SEASON,
         "registered_before_week1": True,
         "required_arm_order": list(ARM_ORDER),
+        "all_five_arms_required_before_week1": True,
+        "arm_omission_allowed": False,
         "required_prefix_sizes": list(PREFIX_SIZES),
         "reporting_entry_counts": reporting,
         "primary_endpoint": "paired-realized-weekly-maximum-at-operational-k",
         "paired_comparators": dict(COMPARATOR_BY_ARM),
-        "optional_arm_disclosures": {
-            "boom-dose-40-360": {
-                "status": "optional-resource-permitting",
-                "resource_class": "400-solves-unequal-resource",
-                "caveat": (
-                    "optional-unequal-resource-dose-not-an-equal-compute-effect"
-                ),
-            },
-            "ceiling-all-boom-0-200": {
-                "status": "optional-spare-slot-only",
-                "resource_class": "200-solves",
-                "caveat": "optional-unpassed-near-miss",
-            },
-        },
+        "arm_decision_roles": deepcopy(_ARM_RELEASE_CONTRACT_BY_ID),
+        "contrast_decision_roles": deepcopy(_CONTRAST_DECISION_ROLES),
+        "retrieval_decision_role": deepcopy(_RETRIEVAL_DECISION_ROLE),
         "one_family_level_rule": True,
         "within_shadow_tuning_allowed": False,
         "variant_requires_new_arm": True,
         "report_every_arm_every_week": True,
         "report_losses": True,
         "historical_gains_may_be_summed": False,
-        "all_boom_optional_status_disclosed_as_unpassed": True,
+        "all_boom_required_status_disclosed_as_unpassed": True,
         "automatic_adoption": False,
         "inference_unit": "slate-after-block-and-bank-aggregation",
         "generation_block_contract": {
@@ -639,8 +770,8 @@ def validate_preregistration_v1(value: object) -> dict[str, object]:
             "primary-boom-first-incumbent-retrieval-vs-incumbent-sentinel",
             "key-secondary-generation-x-retrieval-2x2",
             "exploratory-cross-law-on-boom-first-under-base-selection",
-            "optional-unpassed-ceiling-all-boom-frozen-before-week1-or-omitted",
-            "below-hierarchy-unequal-resource-boom360-separate",
+            "required-unpassed-ceiling-all-boom-diagnostic",
+            "required-unequal-resource-boom360-diagnostic",
         ],
         "contest_field_capture_rule": {
             "complete-field-capture-required-for-contest-ev": True,
@@ -650,6 +781,9 @@ def validate_preregistration_v1(value: object) -> dict[str, object]:
     }
     if any(item.get(key) != expected for key, expected in expected_fixed.items()):
         _fail("shadow preregistration fixed law differs")
+    if item.get("week8_safety_rule") != _WEEK8_SAFETY_RULE:
+        _fail("shadow preregistration Week-8 safety rule differs")
+    _validate_structural_synthesis_rule(item.get("structural_synthesis_rule"))
     if registered >= week1_lock:
         _fail("shadow preregistration was not sealed before Week 1")
     if item.get("secondary_endpoints") != [
@@ -681,7 +815,9 @@ def validate_preregistration_v1(value: object) -> dict[str, object]:
         "catastrophic_paired_delta_micro",
         "tail_noninferiority_thresholds_dk", "maximum_tail_hit_deficit",
         "full_season_uncertainty_method",
-        "same_rule_applies_to_every_predeclared_contrast",
+        "same_numeric_criteria_reported_for_every_predeclared_contrast",
+        "primary_efficacy_rule_challenger_arm",
+        "nonprimary_contrasts_diagnostic_only",
     }:
         _fail("family decision rule fields differ")
     _identifier(rule.get("rule_id"), label="family rule ID")
@@ -707,10 +843,856 @@ def validate_preregistration_v1(value: object) -> dict[str, object]:
         != "slate-level-paired-t-interval-95pct"
     ):
         _fail("family decision safety/uncertainty law differs")
-    if win_rate > 10_000 or rule.get(
-        "same_rule_applies_to_every_predeclared_contrast"
-    ) is not True:
+    if (
+        win_rate > 10_000
+        or rule.get(
+            "same_numeric_criteria_reported_for_every_predeclared_contrast"
+        ) is not True
+        or rule.get("primary_efficacy_rule_challenger_arm")
+        != "boom-first-40-160"
+        or rule.get("nonprimary_contrasts_diagnostic_only") is not True
+    ):
         _fail("family decision rule fixed law differs")
+    return item
+
+
+def _safety_ledger_components(value: object, *, label: str) -> list[dict[str, object]]:
+    block = _mapping(value, label=label)
+    if set(block) == {"native", "transform"}:
+        retained = [
+            exposure.validate_ledger(block["native"]),
+        ]
+        if block["transform"] is not None:
+            retained.append(exposure.validate_ledger(block["transform"]))
+        return retained
+    return [exposure.validate_ledger(block)]
+
+
+def _derived_safety_terminal_authority_v2(
+    *,
+    root: Mapping[str, object],
+    terminal_prelock_envelope_identity: Mapping[str, object],
+    rule: Mapping[str, object],
+    observed_at: str,
+) -> dict[str, object]:
+    """Derive every pass-capable safety fact from one validated terminal."""
+
+    suite = _mapping(root["suite_authority"], label="safety suite authority")
+    manifest = _mapping(suite["manifest"], label="safety suite manifest")
+    prelock = _mapping(
+        manifest["prelock_receipt"], label="safety suite prelock receipt"
+    )
+    expected_arms = [str(value) for value in rule["expected_arm_ids"]]
+    expected_books = [str(value) for value in rule["expected_book_ids"]]
+    expected_blocks = [str(value) for value in rule["expected_block_labels"]]
+    expected_prefixes = [int(value) for value in rule["expected_prefix_sizes"]]
+    arms = [
+        validate_arm_freeze_v1(value)
+        for value in _sequence(root["arms"], label="safety terminal arms")
+    ]
+    arm_by_id = {str(arm["arm_id"]): arm for arm in arms}
+
+    observed_arm_ids = sorted(arm_by_id)
+    block_rows: list[dict[str, object]] = []
+    for arm_id in expected_arms:
+        arm = arm_by_id.get(arm_id)
+        labels = [] if arm is None else sorted(
+            _mapping(
+                arm["exposure_ledgers_by_block"],
+                label=f"safety {arm_id} ledger grid",
+            )
+        )
+        block_rows.append({"arm_id": arm_id, "block_labels": labels})
+
+    memberships = _mapping(
+        prelock["memberships"], label="safety frozen memberships"
+    )
+    base_memberships = _mapping(
+        memberships[str(PREFIX_SIZES[-1])],
+        label="safety K80 frozen memberships",
+    )
+    bridge = _sequence(
+        suite["player_identity_bridge"],
+        label="safety player identity bridge",
+    )
+    player_by_dk_id: dict[str, dict[str, object]] = {}
+    dk_id_by_internal_id: dict[str, str] = {}
+    for ordinal, raw_player in enumerate(bridge):
+        player = _mapping(raw_player, label=f"safety player bridge[{ordinal}]")
+        dk_id = _string(
+            player["dk_draftable_id"], label="safety DK draftable ID"
+        )
+        internal_id = _string(
+            player["internal_player_id"], label="safety internal player ID"
+        )
+        player_by_dk_id[dk_id] = player
+        dk_id_by_internal_id[internal_id] = dk_id
+
+    # Candidate IDs are hashes of DK-draftable roster membership.  Native
+    # ledgers retain internal IDs, so exact reconstruction goes through the
+    # frozen player bridge instead of trusting a caller-supplied roster audit.
+    roster_by_lineup_id: dict[str, list[str]] = {}
+    solve_status_counts = {
+        str(status): 0 for status in rule["solve_failure_statuses"]
+    }
+    solve_request_shortfall_count = 0
+    solve_ledger_projection: list[dict[str, object]] = []
+    for arm in arms:
+        arm_id = str(arm["arm_id"])
+        ledger_grid = _mapping(
+            arm["exposure_ledgers_by_block"],
+            label=f"safety {arm_id} ledgers",
+        )
+        for block_label in sorted(ledger_grid):
+            components = _safety_ledger_components(
+                ledger_grid[block_label],
+                label=f"safety {arm_id}/{block_label} ledgers",
+            )
+            for component_ordinal, ledger in enumerate(components):
+                expected_requests = sum(
+                    int(value)
+                    for value in ledger["expected_requests_by_family"].values()
+                )
+                request_keys = {
+                    (str(row["family"]), int(row["requested_ordinal"]))
+                    for row in ledger["rows"]
+                }
+                solve_request_shortfall_count += max(
+                    0, expected_requests - len(request_keys)
+                )
+                for status in solve_status_counts:
+                    solve_status_counts[status] += int(
+                        ledger["status_counts"][status]
+                    )
+                solve_ledger_projection.append({
+                    "arm_id": arm_id,
+                    "block_label": block_label,
+                    "component_ordinal": component_ordinal,
+                    "ledger_sha256": ledger["ledger_sha256"],
+                    "expected_request_count": expected_requests,
+                    "observed_request_count": len(request_keys),
+                    "status_counts": dict(ledger["status_counts"]),
+                })
+                for row in ledger["rows"]:
+                    raw_roster = row["player_ids"]
+                    if raw_roster is None:
+                        continue
+                    try:
+                        translated = [
+                            dk_id_by_internal_id[str(player_id)]
+                            for player_id in raw_roster
+                        ]
+                        roster = list(
+                            exposure.roster_identity(translated)["player_ids"]
+                        )
+                    except (KeyError, exposure.GenerationExposureError):
+                        # This cannot validate a selected roster.  The later
+                        # membership projection records it as unresolved and
+                        # makes legality/exposure fail closed.
+                        continue
+                    lineup_id = f"lineup-v1-{canonical_sha256_v1(roster)}"
+                    prior = roster_by_lineup_id.setdefault(lineup_id, roster)
+                    if prior != roster:
+                        _fail("safety ledger roster hash collision differs")
+
+    book_by_id: dict[str, dict[str, object]] = {}
+    unresolved_lineup_rows: list[dict[str, object]] = []
+    for arm_id in expected_arms:
+        arm = arm_by_id.get(arm_id)
+        if arm is None:
+            continue
+        base_book_id = f"{arm_id}::{arm['base_retrieval_id']}"
+        base_lineup_ids = [str(value) for value in arm["book_lineup_ids"]]
+        base_rosters = [
+            [str(player_id) for player_id in roster]
+            for roster in _sequence(
+                base_memberships[arm_id],
+                label=f"safety {arm_id} base rosters",
+            )
+        ]
+        if len(base_rosters) != len(base_lineup_ids) or any(
+            lineup_id != f"lineup-v1-{canonical_sha256_v1(roster)}"
+            for lineup_id, roster in zip(base_lineup_ids, base_rosters)
+        ):
+            _fail(f"safety {arm_id} base roster binding differs")
+        book_by_id[base_book_id] = {
+            "book_id": base_book_id,
+            "lineup_ids": base_lineup_ids,
+            "prefix_sizes": sorted(int(value) for value in arm["prefixes"]),
+            "rosters": base_rosters,
+            "membership_status": "exact-terminal-derived",
+        }
+        retrieval = arm["retrieval_interaction"]
+        if retrieval is None:
+            continue
+        cell = _mapping(retrieval, label=f"safety {arm_id} retrieval")
+        cap4_book_id = f"{arm_id}::{cell['selector_id']}"
+        cap4_lineup_ids = [str(value) for value in cell["book_lineup_ids"]]
+        unresolved = [
+            lineup_id for lineup_id in cap4_lineup_ids
+            if lineup_id not in roster_by_lineup_id
+        ]
+        cap4_rosters = (
+            None
+            if unresolved
+            else [roster_by_lineup_id[lineup_id] for lineup_id in cap4_lineup_ids]
+        )
+        if unresolved:
+            unresolved_lineup_rows.append({
+                "book_id": cap4_book_id,
+                "lineup_ids": unresolved,
+            })
+        book_by_id[cap4_book_id] = {
+            "book_id": cap4_book_id,
+            "lineup_ids": cap4_lineup_ids,
+            "prefix_sizes": sorted(int(value) for value in cell["prefixes"]),
+            "rosters": cap4_rosters,
+            "membership_status": (
+                "unvalidated-missing-frozen-roster"
+                if unresolved else "exact-terminal-derived"
+            ),
+        }
+
+    observed_book_ids = sorted(book_by_id)
+    prefix_rows = [
+        {
+            "book_id": book_id,
+            "prefix_sizes": (
+                [] if book_id not in book_by_id
+                else list(book_by_id[book_id]["prefix_sizes"])
+            ),
+        }
+        for book_id in expected_books
+    ]
+    book_memberships = [
+        book_by_id[book_id] for book_id in expected_books
+        if book_id in book_by_id
+    ]
+
+    duplicate_lineup_rows: list[dict[str, object]] = []
+    for book in book_memberships:
+        counts = Counter(str(value) for value in book["lineup_ids"])
+        duplicate_lineup_rows.extend(
+            {
+                "book_id": book["book_id"],
+                "lineup_id": lineup_id,
+                "occurrence_count": count,
+            }
+            for lineup_id, count in sorted(counts.items()) if count > 1
+        )
+
+    illegal_lineup_rows: list[dict[str, object]] = []
+    exposure_violation_rows: list[dict[str, object]] = []
+    maximum_exposure_bps = 0
+    exposure_threshold = int(
+        _mapping(rule["thresholds"], label="safety thresholds")[
+            "maximum_player_book_exposure_bps"
+        ]
+    )
+    membership_complete = (
+        not unresolved_lineup_rows
+        and set(book_by_id) == set(expected_books)
+    )
+    if membership_complete:
+        for book in book_memberships:
+            rosters = _sequence(
+                book["rosters"], label=f"safety {book['book_id']} rosters"
+            )
+            player_counts: Counter[str] = Counter()
+            for lineup_id, raw_roster in zip(book["lineup_ids"], rosters):
+                roster = [str(value) for value in raw_roster]
+                reasons: list[str] = []
+                if len(roster) != 9 or len(set(roster)) != 9:
+                    reasons.append("roster-size-or-uniqueness")
+                missing_players = sorted(
+                    player_id for player_id in roster
+                    if player_id not in player_by_dk_id
+                )
+                if missing_players:
+                    reasons.append("player-missing-from-frozen-bridge")
+                else:
+                    players = [player_by_dk_id[player_id] for player_id in roster]
+                    salary = sum(int(player["salary"]) for player in players)
+                    positions = Counter(str(player["position"]) for player in players)
+                    teams = {str(player["team"]) for player in players}
+                    if salary > 50_000:
+                        reasons.append("salary-cap")
+                    if not (
+                        positions["QB"] == 1
+                        and positions["DST"] == 1
+                        and 2 <= positions["RB"] <= 3
+                        and 3 <= positions["WR"] <= 4
+                        and 1 <= positions["TE"] <= 2
+                    ):
+                        reasons.append("classic-position-slots")
+                    if len(teams) < 2:
+                        reasons.append("fewer-than-two-teams")
+                if reasons:
+                    illegal_lineup_rows.append({
+                        "book_id": book["book_id"],
+                        "lineup_id": lineup_id,
+                        "reason_codes": reasons,
+                    })
+                player_counts.update(roster)
+            book_size = len(rosters)
+            for player_id, count in sorted(player_counts.items()):
+                exposure_bps = (count * 10_000 + book_size - 1) // book_size
+                maximum_exposure_bps = max(
+                    maximum_exposure_bps, exposure_bps
+                )
+                if exposure_bps > exposure_threshold:
+                    exposure_violation_rows.append({
+                        "book_id": book["book_id"],
+                        "player_id": player_id,
+                        "appearance_count": count,
+                        "book_size": book_size,
+                        "exposure_bps": exposure_bps,
+                    })
+
+    expected_source_ages = {
+        str(key): int(value)
+        for key, value in _mapping(
+            rule["required_source_maximum_age_seconds"],
+            label="safety required sources",
+        ).items()
+    }
+    native = _mapping(
+        suite["paired_native_input_authority"],
+        label="safety paired native input authority",
+    )
+    source_authorities = {
+        "paired-native-effective-player-input-receipt": {
+            "authority_kind": "paired-native-effective-input-source",
+            "authority_projection": {
+                "paired_native_input_authority_sha256": native[
+                    "authority_sha256"
+                ],
+                "effective_player_source_identity": native[
+                    "effective_player_source_identity"
+                ],
+            },
+            "authority_sealed_at": suite["manifest_storage_created_at"],
+            "age_basis": "manifest-storage-sealed-at",
+        },
+        "paired-native-effective-model-source-receipt": {
+            "authority_kind": "paired-native-effective-input-source",
+            "authority_projection": {
+                "paired_native_input_authority_sha256": native[
+                    "authority_sha256"
+                ],
+                "effective_model_source_identity": native[
+                    "effective_model_source_identity"
+                ],
+            },
+            "authority_sealed_at": suite["manifest_storage_created_at"],
+            "age_basis": "manifest-storage-sealed-at",
+        },
+        "paired-native-effective-construction-source-receipt": {
+            "authority_kind": "paired-native-effective-input-source",
+            "authority_projection": {
+                "paired_native_input_authority_sha256": native[
+                    "authority_sha256"
+                ],
+                "effective_construction_source_identity": native[
+                    "effective_construction_source_identity"
+                ],
+            },
+            "authority_sealed_at": suite["manifest_storage_created_at"],
+            "age_basis": "manifest-storage-sealed-at",
+        },
+    }
+    source_authorities.update({
+        "independent-audit-world-bank": {
+            "authority_kind": "terminal-independent-audit-world-artifact",
+            "authority_projection": root["independent_audit_world_artifact"],
+            "authority_sealed_at": root["independent_audit_world_artifact"][
+                "storage_created_at"
+            ],
+            "age_basis": "object-storage-created-at",
+        },
+        "shared-simulation-world-bank": {
+            "authority_kind": "terminal-shared-simulation-artifact",
+            "authority_projection": root["shared_simulation_artifact"],
+            "authority_sealed_at": root["shared_simulation_artifact"][
+                "storage_created_at"
+            ],
+            "age_basis": "object-storage-created-at",
+        },
+        "untouched-selection-world-bank": {
+            "authority_kind": "terminal-untouched-selection-artifact",
+            "authority_projection": root["untouched_selection_bank_artifact"],
+            "authority_sealed_at": root["untouched_selection_bank_artifact"][
+                "storage_created_at"
+            ],
+            "age_basis": "object-storage-created-at",
+        },
+    })
+    if set(source_authorities) != set(expected_source_ages):
+        _fail("safety required source labels lack terminal provenance")
+    observed_time = datetime.fromisoformat(observed_at)
+    source_rows: list[dict[str, object]] = []
+    for source_id in sorted(expected_source_ages):
+        source = source_authorities[source_id]
+        created_at = _canonical_timestamp(
+            source["authority_sealed_at"],
+            label=f"safety {source_id} authority-sealed-at",
+        )
+        created_time = datetime.fromisoformat(created_at)
+        if created_time > observed_time:
+            _fail(f"safety source {source_id} was created after observation")
+        age_seconds = math.ceil((observed_time - created_time).total_seconds())
+        maximum_age = expected_source_ages[source_id]
+        source_rows.append({
+            "source_id": source_id,
+            "authority_kind": source["authority_kind"],
+            "authority_projection_sha256": canonical_sha256_v1(
+                source["authority_projection"]
+            ),
+            "authority_sealed_at": created_at,
+            "age_basis": source["age_basis"],
+            "age_seconds": age_seconds,
+            "maximum_age_seconds": maximum_age,
+            "status": "stale" if age_seconds > maximum_age else "available",
+        })
+
+    book_membership_sha256 = canonical_sha256_v1(book_memberships)
+    evidence_payloads = {
+        "book-inventory-audit": {
+            "observed_arm_ids": observed_arm_ids,
+            "observed_book_ids": observed_book_ids,
+            "block_rows": block_rows,
+            "prefix_rows": prefix_rows,
+        },
+        "source-freshness-audit": source_rows,
+        "lineup-legality-audit": {
+            "book_membership_sha256": book_membership_sha256,
+            "illegal_lineup_rows": illegal_lineup_rows,
+            "unresolved_lineup_rows": unresolved_lineup_rows,
+        },
+        "solve-terminal-audit": solve_ledger_projection,
+        "book-exposure-audit": {
+            "book_membership_sha256": book_membership_sha256,
+            "exposure_violation_rows": exposure_violation_rows,
+            "maximum_observed_player_exposure_bps": (
+                maximum_exposure_bps if membership_complete else None
+            ),
+            "unresolved_lineup_rows": unresolved_lineup_rows,
+        },
+        "job-execution-audit": {
+            "terminal_prelock_root_sha256": root[
+                "terminal_prelock_root_sha256"
+            ],
+            "terminal_prelock_envelope_identity": (
+                terminal_prelock_envelope_identity
+            ),
+            "suite_manifest_identity": suite["manifest_identity"],
+        },
+    }
+    required_evidence = [
+        str(value) for value in rule["required_evidence_authorities"]
+    ]
+    if set(evidence_payloads) != set(required_evidence):
+        _fail("safety derived evidence registry differs")
+    evidence_rows = []
+    for authority in sorted(required_evidence):
+        status = "available"
+        if authority in {"lineup-legality-audit", "book-exposure-audit"} and (
+            not membership_complete
+        ):
+            status = "unvalidated"
+        evidence_rows.append({
+            "authority": authority,
+            "derivation": "validated-terminal-prelock-root",
+            "authority_sha256": canonical_sha256_v1(
+                evidence_payloads[authority]
+            ),
+            "status": status,
+        })
+
+    body: dict[str, object] = {
+        "schema_version": (
+            "prospective-generation-shadow-terminal-safety-authority/v1"
+        ),
+        "season": root["season"],
+        "week": root["week"],
+        "slate_id": root["slate_id"],
+        "preregistration_sha256": root["preregistration_sha256"],
+        "terminal_prelock_root_sha256": root["terminal_prelock_root_sha256"],
+        "terminal_prelock_envelope_identity": (
+            terminal_prelock_envelope_identity
+        ),
+        "suite_manifest_identity": suite["manifest_identity"],
+        "observed_arm_ids": observed_arm_ids,
+        "observed_book_ids": observed_book_ids,
+        "observed_block_labels_by_arm": block_rows,
+        "observed_prefix_sizes_by_book": prefix_rows,
+        "source_observations": source_rows,
+        "evidence_authorities": evidence_rows,
+        "book_memberships": book_memberships,
+        "book_membership_sha256": book_membership_sha256,
+        "unresolved_lineup_rows": unresolved_lineup_rows,
+        "illegal_lineup_rows": illegal_lineup_rows,
+        "duplicate_lineup_rows": duplicate_lineup_rows,
+        "exposure_violation_rows": exposure_violation_rows,
+        "solve_ledger_projection": solve_ledger_projection,
+        "solve_failure_status_counts": solve_status_counts,
+        "solve_request_shortfall_count": solve_request_shortfall_count,
+        "maximum_observed_player_exposure_bps": (
+            maximum_exposure_bps if membership_complete else None
+        ),
+        "membership_metrics_exactly_derivable": membership_complete,
+        "uses_realized_outcomes": False,
+    }
+    return _with_hash(body, field="terminal_safety_authority_sha256")
+
+
+def build_weekly_safety_receipt_v1(
+    *,
+    preregistration: Mapping[str, object],
+    week: int,
+    slate_id: str,
+    observed_at: datetime | str | None = None,
+    terminal_prelock_envelope: Mapping[str, object] | None = None,
+    terminal_prelock_envelope_identity: Mapping[str, object] | None = None,
+) -> dict[str, object]:
+    """Build a safety receipt from terminal truth, or a durable failure row.
+
+    A terminal-present receipt can pass only after replaying the full validated
+    terminal.  A terminal-absent receipt deliberately retains non-derivable
+    metrics as ``None`` and always fails; there is no caller-supplied zero path.
+    """
+
+    prereg = validate_preregistration_v1(preregistration)
+    rule = _mapping(prereg["week8_safety_rule"], label="Week-8 safety rule")
+    retained_week = _integer(week, label="safety receipt week", minimum=1)
+    if retained_week not in rule["receipt_weeks"]:
+        _fail("safety receipt week is outside the frozen Week-8 horizon")
+    retained_slate_id = _identifier(slate_id, label="safety receipt slate ID")
+    caller_observed_at = (
+        None
+        if observed_at is None
+        else _canonical_timestamp(
+            observed_at, label="caller safety receipt observed-at"
+        )
+    )
+    expected_arms = [str(value) for value in rule["expected_arm_ids"]]
+    expected_books = [str(value) for value in rule["expected_book_ids"]]
+    expected_blocks = [str(value) for value in rule["expected_block_labels"]]
+    expected_prefixes = [int(value) for value in rule["expected_prefix_sizes"]]
+    expected_sources = sorted(
+        str(value)
+        for value in _mapping(
+            rule["required_source_maximum_age_seconds"],
+            label="safety required sources",
+        )
+    )
+    expected_evidence = sorted(
+        str(value) for value in rule["required_evidence_authorities"]
+    )
+
+    terminal_supplied = terminal_prelock_envelope is not None
+    if terminal_supplied != (terminal_prelock_envelope_identity is not None):
+        _fail("safety terminal content and object identity must be paired")
+    terminal_identity = None
+    terminal_value = None
+    terminal_authority = None
+    manifest_identity = None
+    if terminal_supplied:
+        terminal_value = _mapping(
+            terminal_prelock_envelope, label="safety terminal envelope"
+        )
+        terminal_identity = normalize_object_identity_v1(
+            terminal_prelock_envelope_identity,
+            label="safety terminal envelope object identity",
+        )
+        _reject_prelock_carrier_identity(
+            terminal_identity, label="safety terminal envelope"
+        )
+        if (
+            terminal_identity["sha256"] != canonical_sha256_v1(terminal_value)
+            or terminal_identity["bytes"]
+            != len(canonical_json_bytes_v1(terminal_value))
+        ):
+            _fail("safety terminal envelope object content identity differs")
+        root = validate_terminal_prelock_root_v1(terminal_value)
+        if (
+            root["week"] != retained_week
+            or root["slate_id"] != retained_slate_id
+            or root["preregistration_sha256"]
+            != prereg["preregistration_sha256"]
+        ):
+            _fail("safety terminal week, slate, or preregistration differs")
+        manifest_identity = root["suite_authority"]["manifest_identity"]
+        # The embedded root object's GCS creation time was exact-reopened and
+        # bound when the prelock envelope was created.  It is therefore the
+        # pass-capable observation clock; request timestamps have no authority.
+        retained_observed_at = terminal_value["storage_created_at"]
+        if (
+            caller_observed_at is not None
+            and caller_observed_at != retained_observed_at
+        ):
+            _fail("caller observation time differs from trusted storage time")
+        observed_time = datetime.fromisoformat(retained_observed_at)
+        terminal_created = _parsed_timestamp(
+            terminal_value["storage_created_at"],
+            label="safety terminal root storage-created-at",
+        )
+        if terminal_created > observed_time:
+            _fail("safety terminal was created after observation")
+        terminal_authority = _derived_safety_terminal_authority_v2(
+            root=root,
+            terminal_prelock_envelope_identity=terminal_identity,
+            rule=rule,
+            observed_at=retained_observed_at,
+        )
+    else:
+        if caller_observed_at is None:
+            _fail("terminal-absent safety requires an observed-at time")
+        retained_observed_at = caller_observed_at
+        observed_time = datetime.fromisoformat(retained_observed_at)
+
+    if terminal_authority is None:
+        observed_arm_ids: list[str] = []
+        observed_book_ids: list[str] = []
+        block_rows = [
+            {"arm_id": arm_id, "block_labels": []}
+            for arm_id in expected_arms
+        ]
+        prefix_rows = [
+            {"book_id": book_id, "prefix_sizes": []}
+            for book_id in expected_books
+        ]
+        source_rows = [{
+            "source_id": source_id,
+            "authority_kind": None,
+            "authority_projection_sha256": None,
+            "authority_sealed_at": None,
+            "age_basis": None,
+            "age_seconds": None,
+            "maximum_age_seconds": int(
+                rule["required_source_maximum_age_seconds"][source_id]
+            ),
+            "status": "missing",
+        } for source_id in expected_sources]
+        evidence_rows = [{
+            "authority": authority,
+            "derivation": None,
+            "authority_sha256": None,
+            "status": "missing",
+        } for authority in expected_evidence]
+        failure_status_counts: dict[str, int | None] = {
+            str(status): None for status in rule["solve_failure_statuses"]
+        }
+        illegal_lineup_count = None
+        solve_failure_count = None
+        solve_request_shortfall_count = None
+        exposure_violation_count = None
+        duplicate_lineup_count = None
+        maximum_exposure = None
+        unvalidated_metric_ids = [
+            "illegal_lineup_count",
+            "solve_failure_count",
+            "solve_request_shortfall_count",
+            "exposure_violation_count",
+            "duplicate_lineup_count",
+            "maximum_observed_player_exposure_bps",
+        ]
+    else:
+        observed_arm_ids = list(terminal_authority["observed_arm_ids"])
+        observed_book_ids = list(terminal_authority["observed_book_ids"])
+        block_rows = list(
+            terminal_authority["observed_block_labels_by_arm"]
+        )
+        prefix_rows = list(
+            terminal_authority["observed_prefix_sizes_by_book"]
+        )
+        source_rows = list(terminal_authority["source_observations"])
+        evidence_rows = list(terminal_authority["evidence_authorities"])
+        failure_status_counts = dict(
+            terminal_authority["solve_failure_status_counts"]
+        )
+        solve_failure_count = sum(
+            int(value) for value in failure_status_counts.values()
+        )
+        solve_request_shortfall_count = int(
+            terminal_authority["solve_request_shortfall_count"]
+        )
+        membership_exact = bool(
+            terminal_authority["membership_metrics_exactly_derivable"]
+        )
+        illegal_lineup_count = (
+            len(terminal_authority["illegal_lineup_rows"])
+            if membership_exact else None
+        )
+        exposure_violation_count = (
+            len(terminal_authority["exposure_violation_rows"])
+            if membership_exact else None
+        )
+        duplicate_lineup_count = len(
+            terminal_authority["duplicate_lineup_rows"]
+        )
+        maximum_exposure = terminal_authority[
+            "maximum_observed_player_exposure_bps"
+        ]
+        unvalidated_metric_ids = [] if membership_exact else [
+            "illegal_lineup_count",
+            "exposure_violation_count",
+            "maximum_observed_player_exposure_bps",
+        ]
+
+    block_by_arm = {
+        str(row["arm_id"]): list(row["block_labels"])
+        for row in block_rows
+    }
+    prefix_by_book = {
+        str(row["book_id"]): list(row["prefix_sizes"])
+        for row in prefix_rows
+    }
+    missing_arms = sorted(set(expected_arms) - set(observed_arm_ids))
+    missing_books = sorted(set(expected_books) - set(observed_book_ids))
+    missing_blocks = [
+        {"arm_id": arm_id, "block_label": block_label}
+        for arm_id in expected_arms for block_label in expected_blocks
+        if block_label not in block_by_arm.get(arm_id, [])
+    ]
+    missing_prefixes = [
+        {"book_id": book_id, "prefix_size": prefix_size}
+        for book_id in expected_books for prefix_size in expected_prefixes
+        if prefix_size not in prefix_by_book.get(book_id, [])
+    ]
+    missing_sources = [
+        str(row["source_id"]) for row in source_rows
+        if row["status"] == "missing"
+    ]
+    stale_sources = [
+        str(row["source_id"]) for row in source_rows
+        if row["status"] == "stale"
+    ]
+    missing_evidence = [
+        str(row["authority"]) for row in evidence_rows
+        if row["status"] != "available"
+    ]
+    metrics: dict[str, object] = {
+        "missing_terminal_count": int(terminal_authority is None),
+        "missing_suite_manifest_count": int(manifest_identity is None),
+        "missing_expected_arm_count": len(missing_arms),
+        "missing_expected_book_count": len(missing_books),
+        "missing_expected_block_count": len(missing_blocks),
+        "missing_expected_prefix_count": len(missing_prefixes),
+        "missing_required_source_count": len(missing_sources),
+        "stale_required_source_count": len(stale_sources),
+        "missing_evidence_authority_count": len(missing_evidence),
+        "illegal_lineup_count": illegal_lineup_count,
+        "solve_failure_status_counts": failure_status_counts,
+        "solve_failure_count": solve_failure_count,
+        "solve_request_shortfall_count": solve_request_shortfall_count,
+        "exposure_violation_count": exposure_violation_count,
+        "duplicate_lineup_count": duplicate_lineup_count,
+        "maximum_observed_player_exposure_bps": maximum_exposure,
+    }
+    checks = (
+        ("missing-terminal", "missing_terminal_count", "maximum_missing_terminal_count"),
+        ("missing-suite-manifest", "missing_suite_manifest_count", "maximum_missing_suite_manifest_count"),
+        ("missing-expected-arms", "missing_expected_arm_count", "maximum_missing_expected_arm_count"),
+        ("missing-expected-books", "missing_expected_book_count", "maximum_missing_expected_book_count"),
+        ("missing-expected-blocks", "missing_expected_block_count", "maximum_missing_expected_block_count"),
+        ("missing-expected-prefixes", "missing_expected_prefix_count", "maximum_missing_expected_prefix_count"),
+        ("missing-required-sources", "missing_required_source_count", "maximum_missing_required_source_count"),
+        ("stale-required-sources", "stale_required_source_count", "maximum_stale_required_source_count"),
+        ("missing-evidence-authorities", "missing_evidence_authority_count", "maximum_missing_evidence_authority_count"),
+        ("illegal-lineups", "illegal_lineup_count", "maximum_illegal_lineup_count"),
+        ("solve-failures", "solve_failure_count", "maximum_solve_failure_count"),
+        ("solve-request-shortfall", "solve_request_shortfall_count", "maximum_solve_request_shortfall_count"),
+        ("exposure-violations", "exposure_violation_count", "maximum_exposure_violation_count"),
+        ("duplicate-lineups", "duplicate_lineup_count", "maximum_duplicate_lineup_count"),
+        ("extreme-player-exposure", "maximum_observed_player_exposure_bps", "maximum_player_book_exposure_bps"),
+    )
+    thresholds = _mapping(rule["thresholds"], label="safety thresholds")
+    reason_vector: list[str] = []
+    for reason, metric, threshold in checks:
+        value = metrics[metric]
+        if value is None:
+            reason_vector.append(f"unvalidated-{reason}")
+        elif int(value) > int(thresholds[threshold]):
+            reason_vector.append(reason)
+
+    body: dict[str, object] = {
+        "schema_version": WEEKLY_SAFETY_RECEIPT_SCHEMA,
+        "season": SEASON,
+        "week": retained_week,
+        "slate_id": retained_slate_id,
+        "observed_at": retained_observed_at,
+        "preregistration_sha256": prereg["preregistration_sha256"],
+        "safety_rule_sha256": canonical_sha256_v1(rule),
+        "terminal_prelock_envelope_identity": terminal_identity,
+        "terminal_prelock_envelope": terminal_value,
+        "suite_manifest_identity": manifest_identity,
+        "terminal_safety_authority": terminal_authority,
+        "observed_arm_ids": observed_arm_ids,
+        "observed_book_ids": observed_book_ids,
+        "observed_block_labels_by_arm": block_rows,
+        "observed_prefix_sizes_by_book": prefix_rows,
+        "source_observations": source_rows,
+        "evidence_authorities": evidence_rows,
+        "missing_expected_arm_ids": missing_arms,
+        "missing_expected_book_ids": missing_books,
+        "missing_expected_blocks": missing_blocks,
+        "missing_expected_prefixes": missing_prefixes,
+        "missing_required_source_ids": missing_sources,
+        "stale_required_source_ids": stale_sources,
+        "missing_evidence_authorities": missing_evidence,
+        "unvalidated_metric_ids": unvalidated_metric_ids,
+        "safety_metrics": metrics,
+        "reason_vector": reason_vector,
+        "integrity_gate_status": "fail" if reason_vector else "pass",
+        "receipt_complete": True,
+        "uses_realized_outcomes": False,
+        "efficacy_or_promotion_allowed": False,
+    }
+    return _with_hash(body, field="weekly_safety_receipt_sha256")
+
+
+def validate_weekly_safety_receipt_v1(
+    value: object, *, preregistration: Mapping[str, object]
+) -> dict[str, object]:
+    """Replay a weekly safety receipt from its embedded terminal authority."""
+
+    item = _mapping(value, label="weekly safety receipt")
+    fields = {
+        "schema_version", "season", "week", "slate_id", "observed_at",
+        "preregistration_sha256", "safety_rule_sha256",
+        "terminal_prelock_envelope_identity", "terminal_prelock_envelope",
+        "suite_manifest_identity", "terminal_safety_authority",
+        "observed_arm_ids", "observed_book_ids",
+        "observed_block_labels_by_arm", "observed_prefix_sizes_by_book",
+        "source_observations", "evidence_authorities",
+        "missing_expected_arm_ids", "missing_expected_book_ids",
+        "missing_expected_blocks", "missing_expected_prefixes",
+        "missing_required_source_ids", "stale_required_source_ids",
+        "missing_evidence_authorities", "unvalidated_metric_ids",
+        "safety_metrics", "reason_vector", "integrity_gate_status",
+        "receipt_complete", "uses_realized_outcomes",
+        "efficacy_or_promotion_allowed", "weekly_safety_receipt_sha256",
+    }
+    if set(item) != fields:
+        _fail("weekly safety receipt fields differ")
+    _validate_self_hash(
+        item,
+        field="weekly_safety_receipt_sha256",
+        label="weekly safety receipt",
+    )
+    expected = build_weekly_safety_receipt_v1(
+        preregistration=preregistration,
+        week=item["week"],
+        slate_id=item["slate_id"],
+        observed_at=item["observed_at"],
+        terminal_prelock_envelope=item["terminal_prelock_envelope"],
+        terminal_prelock_envelope_identity=item[
+            "terminal_prelock_envelope_identity"
+        ],
+    )
+    if item != expected:
+        _fail("weekly safety receipt derived terminal lineage differs")
     return item
 
 
@@ -1055,7 +2037,7 @@ def _validate_ledger_grid(
     value: object, *, arm_id: str
 ) -> tuple[dict[str, object], dict[str, object]]:
     raw = _mapping(value, label=f"{arm_id} exposure-ledger block grid")
-    if list(raw) != list(_BLOCK_LABELS):
+    if set(raw) != set(_BLOCK_LABELS):
         _fail(f"{arm_id} exposure-ledger block grid differs")
     ledgers: dict[str, object] = {}
     auxiliary: dict[str, int] | None = None
@@ -1425,6 +2407,11 @@ def build_arm_freeze_v1(
         "cap_label": retained_cap_label,
         "generation_contract": _policy(arm),
         "arm_status": _POLICY_BY_ARM[arm]["arm_status"],
+        "scientific_status": _POLICY_BY_ARM[arm]["scientific_status"],
+        "decision_role": _POLICY_BY_ARM[arm]["decision_role"],
+        "required_before_week1": _POLICY_BY_ARM[arm][
+            "required_before_week1"
+        ],
         "resource_class": _POLICY_BY_ARM[arm]["resource_class"],
         "resource_caveat": _POLICY_BY_ARM[arm]["resource_caveat"],
         "equal_compute_comparison": _POLICY_BY_ARM[arm][
@@ -1512,7 +2499,8 @@ def validate_arm_freeze_v1(value: object) -> dict[str, object]:
     item = _mapping(value, label="shadow arm freeze")
     fields = {
         "schema_version", "arm_id", "population_label", "cap_label",
-        "arm_status", "resource_class", "resource_caveat",
+        "arm_status", "scientific_status", "decision_role",
+        "required_before_week1", "resource_class", "resource_caveat",
         "equal_compute_comparison",
         "generation_contract", "selection_law", "selection_bank_untouched",
         "shared_simulation_identity", "untouched_selection_bank_identity",
@@ -1680,6 +2668,11 @@ def validate_arm_freeze_v1(value: object) -> dict[str, object]:
         item.get("schema_version") != ARM_FREEZE_SCHEMA
         or item.get("generation_contract") != _policy(arm)
         or item.get("arm_status") != _POLICY_BY_ARM[arm]["arm_status"]
+        or item.get("scientific_status")
+        != _POLICY_BY_ARM[arm]["scientific_status"]
+        or item.get("decision_role") != _POLICY_BY_ARM[arm]["decision_role"]
+        or item.get("required_before_week1")
+        is not _POLICY_BY_ARM[arm]["required_before_week1"]
         or item.get("resource_class") != _POLICY_BY_ARM[arm]["resource_class"]
         or item.get("resource_caveat") != _POLICY_BY_ARM[arm]["resource_caveat"]
         or item.get("equal_compute_comparison")
@@ -1867,6 +2860,97 @@ def _suite_array_receipt(value: object, *, label: str) -> dict[str, object]:
     }
 
 
+def _validated_suite_player_identity_bridge(
+    manifest: Mapping[str, object],
+    *,
+    paired_native_input_authority: Mapping[str, object],
+) -> list[dict[str, object]]:
+    """Validate the prelock internal-to-DK identity map in player order."""
+
+    raw_rows = _sequence(
+        manifest.get("player_identity_bridge"),
+        label="suite player identity bridge",
+    )
+    retained_hash = _digest(
+        manifest.get("player_identity_bridge_sha256"),
+        label="suite player identity bridge SHA-256",
+    )
+    if retained_hash != canonical_sha256_v1(raw_rows):
+        _fail("suite player identity bridge hash differs")
+    expected_player = _mapping(
+        paired_native_input_authority.get(
+            "effective_player_source_identity"
+        ),
+        label="paired effective player source identity",
+    )
+    if len(raw_rows) != expected_player.get("player_count"):
+        _fail("suite player identity bridge count differs")
+    fields = {
+        "internal_player_id", "dk_draftable_id", "gsis_id", "position",
+        "team", "dst_team", "salary",
+    }
+    rows: list[dict[str, object]] = []
+    for ordinal, raw_row in enumerate(raw_rows):
+        row = _mapping(
+            raw_row, label=f"suite player identity bridge[{ordinal}]"
+        )
+        if set(row) != fields:
+            _fail("suite player identity bridge fields differ")
+        internal_id = _string(
+            row.get("internal_player_id"),
+            label=f"suite bridge internal player ID {ordinal}",
+        )
+        dk_id = _string(
+            row.get("dk_draftable_id"),
+            label=f"suite bridge DK draftable ID {ordinal}",
+        )
+        position = _string(
+            row.get("position"), label=f"suite bridge position {ordinal}"
+        )
+        team = _string(
+            row.get("team"), label=f"suite bridge team {ordinal}"
+        )
+        if position not in {"QB", "RB", "WR", "TE", "DST"}:
+            _fail("suite player identity bridge position differs")
+        gsis_id = row.get("gsis_id")
+        dst_team = row.get("dst_team")
+        if position == "DST":
+            if gsis_id is not None or dst_team != team:
+                _fail("suite DST identity bridge differs")
+        elif (
+            type(gsis_id) is not str
+            or not gsis_id
+            or gsis_id.strip() != gsis_id
+            or dst_team is not None
+        ):
+            _fail("suite player GSIS identity bridge differs")
+        rows.append({
+            "internal_player_id": internal_id,
+            "dk_draftable_id": dk_id,
+            "gsis_id": gsis_id,
+            "position": position,
+            "team": team,
+            "dst_team": dst_team,
+            "salary": _integer(
+                row.get("salary"),
+                label=f"suite bridge salary {ordinal}",
+                minimum=1,
+            ),
+        })
+    internal_order = [str(row["internal_player_id"]) for row in rows]
+    artifact_order = [str(row["dk_draftable_id"]) for row in rows]
+    if (
+        len(set(internal_order)) != len(internal_order)
+        or len(set(artifact_order)) != len(artifact_order)
+        or canonical_sha256_v1(internal_order)
+        != expected_player.get("internal_player_id_order_sha256")
+        or canonical_sha256_v1(artifact_order)
+        != expected_player.get("artifact_player_id_order_sha256")
+    ):
+        _fail("suite player identity bridge order differs")
+    return rows
+
+
 def _probability_to_ppm(value: object, *, label: str) -> int:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         _fail(f"{label} must be a finite probability")
@@ -1967,7 +3051,7 @@ def _suite_memberships(
         by_arm = _mapping(
             memberships[str(prefix)], label=f"suite K{prefix} memberships"
         )
-        if list(by_arm) != list(ARM_ORDER):
+        if set(by_arm) != set(ARM_ORDER):
             _fail("suite membership arm order differs")
         normalized[str(prefix)] = {}
         for arm in ARM_ORDER:
@@ -2056,6 +3140,54 @@ def build_suite_authority_v1(
         or manifest_doc.get("registry_sha256") != registry["registry_sha256"]
     ):
         _fail("suite prelock fixed law differs")
+    try:
+        paired_native_input_authority = validate_paired_native_input_authority(
+            prelock.get("paired_native_input_authority"),
+            expected_arm_order=ARM_ORDER,
+            expected_block_labels=_BLOCK_LABELS,
+        )
+    except ValueError as exc:
+        raise ProspectiveGenerationShadowEvaluationError(
+            "suite paired native input/source authority differs"
+        ) from exc
+    if (
+        prelock.get("paired_native_input_authority_sha256")
+        != paired_native_input_authority["authority_sha256"]
+        or terminal_doc.get("paired_native_input_authority")
+        != paired_native_input_authority
+        or terminal_doc.get("paired_native_input_authority_sha256")
+        != paired_native_input_authority["authority_sha256"]
+    ):
+        _fail("suite terminal paired native input/source binding differs")
+    player_identity_bridge = _validated_suite_player_identity_bridge(
+        manifest_doc,
+        paired_native_input_authority=paired_native_input_authority,
+    )
+    try:
+        audit_input_binding = validate_independent_audit_input_binding(
+            prelock.get("independent_audit_input_binding"),
+            paired_native_input_authority=paired_native_input_authority,
+            expected_internal_player_ids=[
+                row["internal_player_id"] for row in player_identity_bridge
+            ],
+        )
+    except ValueError as exc:
+        raise ProspectiveGenerationShadowEvaluationError(
+            "suite independent audit input/source binding differs"
+        ) from exc
+    if (
+        prelock.get("independent_audit_input_binding_sha256")
+        != audit_input_binding["binding_sha256"]
+        or manifest_doc.get("independent_audit_input_binding")
+        != audit_input_binding
+        or manifest_doc.get("independent_audit_input_binding_sha256")
+        != audit_input_binding["binding_sha256"]
+        or terminal_doc.get("independent_audit_input_binding")
+        != audit_input_binding
+        or terminal_doc.get("independent_audit_input_binding_sha256")
+        != audit_input_binding["binding_sha256"]
+    ):
+        _fail("suite audit input binding carrier differs")
     shared_player_worlds_receipt = _suite_array_receipt(
         prelock.get("player_worlds_receipt"),
         label="suite shared player-world bank",
@@ -2079,8 +3211,7 @@ def build_suite_authority_v1(
         label="suite independent audit world bank",
     )
     if (
-        raw_audit_bank.get("schema_version")
-        != "prospective-generation-independent-audit-bank/v1"
+        raw_audit_bank.get("schema_version") != AUDIT_BANK_SCHEMA
         or raw_audit_bank.get("world_seed") != 2_026_083_001
         or raw_audit_bank.get("world_count") != 10_000
         or audit_world_bank_receipt["shape"]
@@ -2093,6 +3224,17 @@ def build_suite_authority_v1(
             raw_audit_bank.get("player_order_sha256"),
             label="suite independent audit player order hash",
         )
+        or raw_audit_bank.get("player_order_sha256")
+        != paired_native_input_authority["effective_player_source_identity"][
+            "internal_player_id_order_sha256"
+        ]
+        or raw_audit_bank.get("model_version")
+        != paired_native_input_authority["effective_model_source_identity"][
+            "model_version"
+        ]
+        or raw_audit_bank.get("input_binding") != audit_input_binding
+        or raw_audit_bank.get("input_binding_sha256")
+        != audit_input_binding["binding_sha256"]
         or raw_audit_bank.get("candidate_solves_run") != 0
         or raw_audit_bank.get("used_for_selection") is not False
         or raw_audit_bank.get("uses_realized_outcomes") is not False
@@ -2109,7 +3251,7 @@ def build_suite_authority_v1(
     arm_receipts = _mapping(
         prelock.get("arm_receipts"), label="suite arm receipts"
     )
-    if list(arm_receipts) != list(ARM_ORDER):
+    if set(arm_receipts) != set(ARM_ORDER):
         _fail("suite arm receipt order differs")
     per_block_requested_work_by_arm: dict[str, object] = {}
     native_ledger_sha256_by_arm: dict[str, object] = {}
@@ -2155,7 +3297,7 @@ def build_suite_authority_v1(
             receipt.get("per_block_requested_work"),
             label=f"suite {arm} per-block work",
         )
-        if list(work) != list(_BLOCK_LABELS):
+        if set(work) != set(_BLOCK_LABELS):
             _fail(f"suite {arm} per-block work grid differs")
         native_ledger_sha256_by_arm[arm] = dict(ledger_hashes)
         native_transform_sha256_by_arm[arm] = {}
@@ -2345,13 +3487,43 @@ def build_suite_authority_v1(
                 nested_prefixes=True,
             )
         )
+    selected_supply_trace = _mapping(
+        prelock.get("cross_law_selected_supply_trace"),
+        label="suite cross-law selected-supply trace",
+    )
+    _validate_self_hash(
+        selected_supply_trace,
+        field="trace_sha256",
+        label="suite cross-law selected-supply trace",
+    )
+    selected_supply_trace_sha256 = selected_supply_trace["trace_sha256"]
+    if (
+        prelock.get("cross_law_selected_supply_trace_sha256")
+        != selected_supply_trace_sha256
+        or terminal_doc.get("cross_law_selected_supply_trace")
+        != selected_supply_trace
+        or terminal_doc.get("cross_law_selected_supply_trace_sha256")
+        != selected_supply_trace_sha256
+        or any(
+            _mapping(
+                arm_receipts[arm], label=f"suite {arm} receipt"
+            ).get("cross_law_selected_supply_trace_sha256")
+            != (
+                selected_supply_trace_sha256
+                if arm == "cross-law-40-100-60"
+                else None
+            )
+            for arm in ARM_ORDER
+        )
+    ):
+        _fail("suite cross-law selected-supply binding differs")
     world_manifest = _mapping(
         manifest_doc.get("world_artifacts"), label="suite manifest worlds"
     )
     world_terminal = _mapping(
         terminal_doc.get("world_artifacts"), label="suite terminal worlds"
     )
-    if list(world_manifest) != list(ARM_ORDER) or list(world_terminal) != list(
+    if set(world_manifest) != set(ARM_ORDER) or set(world_terminal) != set(
         ARM_ORDER
     ):
         _fail("suite world-artifact arm order differs")
@@ -2432,7 +3604,7 @@ def build_suite_authority_v1(
     crossing_populations = _mapping(
         crossing.get("populations"), label="suite retrieval populations"
     )
-    if list(crossing_populations) != list(_RETRIEVAL_CROSSING_ARMS):
+    if set(crossing_populations) != set(_RETRIEVAL_CROSSING_ARMS):
         _fail("suite retrieval population order differs")
     retrieval_lineup_ids: dict[str, dict[str, list[str]]] = {}
     candidate_lineup_ids: dict[str, list[str]] = {}
@@ -2461,7 +3633,7 @@ def build_suite_authority_v1(
             population_receipt.get("retrievals"),
             label=f"suite {population} retrieval books",
         )
-        if list(retrievals) != [_BASE_RETRIEVAL_ID, _CAP4_RETRIEVAL_ID]:
+        if set(retrievals) != {_BASE_RETRIEVAL_ID, _CAP4_RETRIEVAL_ID}:
             _fail(f"suite {population} retrieval order differs")
         retrieval_lineup_ids[population] = {}
         for retrieval_id in (_BASE_RETRIEVAL_ID, _CAP4_RETRIEVAL_ID):
@@ -2601,9 +3773,9 @@ def build_suite_authority_v1(
         terminal_doc.get("cross_law_discovery_world_artifacts"),
         label="suite terminal cross-law discovery artifacts",
     )
-    if list(discovery_manifest) != list(_BLOCK_LABELS) or list(
+    if set(discovery_manifest) != set(_BLOCK_LABELS) or set(
         discovery_terminal
-    ) != list(_BLOCK_LABELS):
+    ) != set(_BLOCK_LABELS):
         _fail("suite cross-law discovery artifact grid differs")
     discovery_identities: dict[str, dict[str, object]] = {}
     discovery_created: dict[str, str] = {}
@@ -2659,7 +3831,9 @@ def build_suite_authority_v1(
     if (
         persistence.get("schema_version")
         != "prospective-cross-law-persisted-world-binding/v1"
-        or list(influence) != list(_BLOCK_LABELS)
+        or set(influence) != set(_BLOCK_LABELS)
+        or persistence.get("selected_supply_trace_sha256")
+        != selected_supply_trace_sha256
         or any(
             persistence.get(field) is not expected
             for field, expected in {
@@ -2691,7 +3865,7 @@ def build_suite_authority_v1(
         persistence.get("discovery_generation_world_artifacts"),
         label="suite persisted discovery artifacts",
     )
-    if list(persistence_discovery) != list(_BLOCK_LABELS):
+    if set(persistence_discovery) != set(_BLOCK_LABELS):
         _fail("suite cross-law persistence object binding differs")
     for block in _BLOCK_LABELS:
         _validate_suite_partial_world_binding(
@@ -2717,6 +3891,9 @@ def build_suite_authority_v1(
         "native_transform_receipt_sha256_by_arm": (
             native_transform_sha256_by_arm
         ),
+        "paired_native_input_authority": paired_native_input_authority,
+        "player_identity_bridge": player_identity_bridge,
+        "cross_law_selected_supply_trace": selected_supply_trace,
         "base_modeled_probability_ppm_by_arm": (
             base_modeled_probability_ppm_by_arm
         ),
@@ -2726,6 +3903,7 @@ def build_suite_authority_v1(
         "independent_audit_world_artifact_identity": audit_identity,
         "independent_audit_world_storage_created_at": audit_created,
         "independent_audit_world_bank_receipt": raw_audit_bank,
+        "independent_audit_input_binding": audit_input_binding,
         "cross_law_discovery_world_artifact_identities": (
             discovery_identities
         ),
@@ -2753,12 +3931,16 @@ def validate_suite_authority_v1(value: object) -> dict[str, object]:
         "per_block_requested_work_by_arm",
         "native_exposure_ledger_sha256_by_arm",
         "native_transform_receipt_sha256_by_arm",
+        "paired_native_input_authority",
+        "player_identity_bridge",
+        "cross_law_selected_supply_trace",
         "base_modeled_probability_ppm_by_arm",
         "calibration_probability_source",
         "membership_lineup_ids_by_arm",
         "independent_audit_world_artifact_identity",
         "independent_audit_world_storage_created_at",
         "independent_audit_world_bank_receipt",
+        "independent_audit_input_binding",
         "cross_law_discovery_world_artifact_identities",
         "cross_law_discovery_world_storage_created_at",
         "cross_law_persistence_binding",
@@ -2948,6 +4130,34 @@ def _decoded_independent_audit_projection_v1(
         )
     ):
         _fail("decoded independent-audit artifact context differs")
+    batch_metadata = _mapping(
+        metadata.get("candidate_batch_metadata"),
+        label="decoded independent-audit candidate-batch metadata",
+    )
+    audit_receipt = _mapping(
+        batch_metadata.get("audit_bank_receipt"),
+        label="decoded independent-audit bank receipt",
+    )
+    _validate_self_hash(
+        audit_receipt,
+        field="receipt_sha256",
+        label="decoded independent-audit bank receipt",
+    )
+    audit_input_binding = suite["independent_audit_input_binding"]
+    if (
+        audit_receipt != suite["independent_audit_world_bank_receipt"]
+        or batch_metadata.get("artifact_role")
+        != "independent-score-only-audit-world-bank"
+        or batch_metadata.get("independent_audit_input_binding")
+        != audit_input_binding
+        or batch_metadata.get("independent_audit_input_binding_sha256")
+        != audit_input_binding["binding_sha256"]
+        or batch_metadata.get("candidate_solves_run") != 0
+        or batch_metadata.get("used_for_selection") is not False
+        or batch_metadata.get("uses_realized_outcomes") is not False
+        or batch_metadata.get("post_lock_data_read") is not False
+    ):
+        _fail("decoded independent-audit input/source receipt differs")
     player_ids = np.asarray(decoded.get("player_ids")).astype(str)
     draws = np.asarray(decoded.get("player_draws"), dtype=np.float32)
     expected_receipt = suite["independent_audit_world_bank_receipt"][
@@ -2959,6 +4169,10 @@ def _decoded_independent_audit_projection_v1(
         or draws.shape != (len(player_ids), 10_000)
         or not np.isfinite(draws).all()
         or _array_receipt(draws) != expected_receipt
+        or canonical_sha256_v1(player_ids.tolist())
+        != suite["paired_native_input_authority"][
+            "effective_player_source_identity"
+        ]["artifact_player_id_order_sha256"]
     ):
         _fail("decoded independent-audit world matrix differs")
     return {"player_ids": player_ids, "player_draws": draws}
@@ -2971,8 +4185,10 @@ def _decoded_suite_arm_freezes_v2(
     decoded_audit_artifact: Mapping[str, object],
     seed_crossing_sha256: str,
 ) -> list[dict[str, object]]:
-    if list(decoded_arm_artifacts) != list(ARM_ORDER):
-        _fail("decoded suite arm-artifact order differs")
+    import numpy as np
+
+    if set(decoded_arm_artifacts) != set(ARM_ORDER):
+        _fail("decoded suite arm-artifact grid differs")
     manifest = _mapping(suite.get("manifest"), label="suite manifest")
     prelock = _mapping(
         manifest.get("prelock_receipt"), label="suite prelock receipt"
@@ -2986,6 +4202,35 @@ def _decoded_suite_arm_freezes_v2(
     audit_projection = _decoded_independent_audit_projection_v1(
         suite=suite, decoded_audit_artifact=decoded_audit_artifact
     )
+    try:
+        paired_native_input_authority = validate_paired_native_input_authority(
+            suite.get("paired_native_input_authority"),
+            expected_arm_order=ARM_ORDER,
+            expected_block_labels=_BLOCK_LABELS,
+        )
+    except ValueError as exc:
+        raise ProspectiveGenerationShadowEvaluationError(
+            "suite paired native input/source authority differs"
+        ) from exc
+    player_identity_bridge = _validated_suite_player_identity_bridge(
+        manifest,
+        paired_native_input_authority=paired_native_input_authority,
+    )
+    if suite.get("player_identity_bridge") != player_identity_bridge:
+        _fail("suite player identity bridge authority differs")
+    internal_player_id_by_dk_id = {
+        str(row["dk_draftable_id"]): str(row["internal_player_id"])
+        for row in player_identity_bridge
+    }
+    artifact_player_order = [
+        str(row["dk_draftable_id"]) for row in player_identity_bridge
+    ]
+    reference_native_source = paired_native_input_authority[
+        "native_source_projection"
+    ]
+    expected_artifact_player_order_sha256 = paired_native_input_authority[
+        "effective_player_source_identity"
+    ]["artifact_player_id_order_sha256"]
     shared_identity = suite["world_artifact_identities"][ARM_ORDER[0]]
     arms: list[dict[str, object]] = []
     for arm in ARM_ORDER:
@@ -3010,6 +4255,15 @@ def _decoded_suite_arm_freezes_v2(
             != suite["shared_player_worlds_receipt"]
         ):
             _fail(f"decoded {arm} pool/world projection differs from suite")
+        decoded_player_order = np.asarray(
+            decoded.get("player_ids")
+        ).astype(str).tolist()
+        if (
+            decoded_player_order != artifact_player_order
+            or canonical_sha256_v1(decoded_player_order)
+            != expected_artifact_player_order_sha256
+        ):
+            _fail(f"decoded {arm} effective player source order differs")
         metadata = projection["metadata"]
         context = _mapping(
             metadata.get("context"), label=f"decoded {arm} artifact context"
@@ -3033,6 +4287,30 @@ def _decoded_suite_arm_freezes_v2(
             or batch_metadata.get("uses_realized_outcomes", False) is not False
         ):
             _fail(f"decoded {arm} CBWU metadata differs")
+        native_input_receipts = _mapping(
+            batch_metadata.get("native_generation_receipts"),
+            label=f"decoded {arm} native input/source receipt grid",
+        )
+        if set(native_input_receipts) != set(_BLOCK_LABELS):
+            _fail(f"decoded {arm} native input/source block grid differs")
+        for block in _BLOCK_LABELS:
+            try:
+                source_projection = native_input_source_projection(
+                    native_input_receipts[block],
+                    label=f"decoded {arm}/{block} native generation receipt",
+                )
+            except ValueError as exc:
+                raise ProspectiveGenerationShadowEvaluationError(
+                    f"decoded {arm}/{block} native input/source differs"
+                ) from exc
+            if (
+                source_projection != reference_native_source
+                or canonical_sha256_v1(source_projection)
+                != paired_native_input_authority[
+                    "native_source_projection_sha256_by_arm"
+                ][arm][block]
+            ):
+                _fail(f"decoded {arm}/{block} native input/source drift")
         native_grid = _mapping(
             batch_metadata.get("native_generation_exposure_ledgers"),
             label=f"decoded {arm} native ledger grid",
@@ -3041,9 +4319,9 @@ def _decoded_suite_arm_freezes_v2(
             batch_metadata.get("native_generation_transform_receipts"),
             label=f"decoded {arm} transform receipt grid",
         )
-        if list(native_grid) != list(_BLOCK_LABELS) or list(
+        if set(native_grid) != set(_BLOCK_LABELS) or set(
             transform_receipts
-        ) != list(_BLOCK_LABELS):
+        ) != set(_BLOCK_LABELS):
             _fail(f"decoded {arm} ledger/transform block grid differs")
         ledger_grid: dict[str, object] = {}
         for block in _BLOCK_LABELS:
@@ -3132,6 +4410,53 @@ def _decoded_suite_arm_freezes_v2(
         base_book = suite["membership_lineup_ids_by_arm"][arm]
         if not set(base_book) <= set(candidate_ids):
             _fail(f"decoded {arm} suite book escapes its candidate pool")
+        if arm == "cross-law-40-100-60":
+            candidate_source_blocks = [
+                _string(
+                    value,
+                    label="decoded cross-law candidate source block",
+                )
+                for value in _sequence(
+                    batch_metadata.get("candidate_source_blocks"),
+                    label="decoded cross-law candidate source blocks",
+                )
+            ]
+            candidate_internal_roster_sha256s: list[str] = []
+            try:
+                for roster in projection["candidate_rosters"]:
+                    internal_roster = [
+                        internal_player_id_by_dk_id[str(player_id)]
+                        for player_id in roster
+                    ]
+                    candidate_internal_roster_sha256s.append(str(
+                        exposure.roster_identity(internal_roster)[
+                            "roster_sha256"
+                        ]
+                    ))
+            except (KeyError, exposure.GenerationExposureError) as exc:
+                raise ProspectiveGenerationShadowEvaluationError(
+                    "decoded cross-law candidate identity bridge differs"
+                ) from exc
+            try:
+                reopened_supply_trace = validate_selected_supply_trace(
+                    suite.get("cross_law_selected_supply_trace"),
+                    candidate_lineup_ids=candidate_ids,
+                    candidate_internal_roster_sha256s=(
+                        candidate_internal_roster_sha256s
+                    ),
+                    selected_lineup_ids=base_book,
+                    candidate_source_blocks=candidate_source_blocks,
+                    transform_receipts_by_block=transform_receipts,
+                    block_labels=_BLOCK_LABELS,
+                )
+            except ValueError as exc:
+                raise ProspectiveGenerationShadowEvaluationError(
+                    "decoded cross-law selected-supply trace differs"
+                ) from exc
+            if reopened_supply_trace != suite[
+                "cross_law_selected_supply_trace"
+            ]:
+                _fail("decoded cross-law selected-supply authority differs")
         base_modeled = _decoded_modeled_probability_ppm(
             projection,
             base_book,
@@ -4393,6 +5718,9 @@ def grade_realized_week_v1(
             "population_label": arm["population_label"],
             "cap_label": arm["cap_label"],
             "arm_status": arm["arm_status"],
+            "scientific_status": arm["scientific_status"],
+            "decision_role": arm["decision_role"],
+            "required_before_week1": arm["required_before_week1"],
             "resource_class": arm["resource_class"],
             "resource_caveat": arm["resource_caveat"],
             "equal_compute_comparison": arm["equal_compute_comparison"],
@@ -4488,10 +5816,12 @@ def grade_realized_week_v1(
             (boom_cap4 - boom_base) - (inc_cap4 - inc_base)
         ),
         "key_secondary_not_primary": True,
+        **deepcopy(_RETRIEVAL_DECISION_ROLE),
     }
     paired_rows = []
     for challenger in ARM_ORDER[1:]:
         comparator = COMPARATOR_BY_ARM[challenger]
+        contrast_role = _CONTRAST_DECISION_ROLES[challenger]
         challenger_score = int(
             result_by_arm[challenger]["operational_weekly_maximum_micro"]
         )
@@ -4516,6 +5846,14 @@ def grade_realized_week_v1(
         paired_rows.append({
             "challenger_arm": challenger,
             "comparator_arm": comparator,
+            "scientific_status": contrast_role["scientific_status"],
+            "decision_role": contrast_role["decision_role"],
+            "primary_efficacy_rule_satisfaction_allowed": contrast_role[
+                "primary_efficacy_rule_satisfaction_allowed"
+            ],
+            "promotion_equivalent_efficacy_allowed": contrast_role[
+                "promotion_equivalent_efficacy_allowed"
+            ],
             "comparison_resource_class": (
                 "equal-compute" if _POLICY_BY_ARM[challenger][
                     "equal_compute_comparison"
@@ -4535,6 +5873,7 @@ def grade_realized_week_v1(
     for count in reporting_counts:
         for challenger in ARM_ORDER[1:]:
             comparator = COMPARATOR_BY_ARM[challenger]
+            contrast_role = _CONTRAST_DECISION_ROLES[challenger]
             challenger_row = next(
                 row for row in result_by_arm[challenger]["prefix_results"]
                 if row["entry_count"] == count
@@ -4547,6 +5886,14 @@ def grade_realized_week_v1(
                 "entry_count": count,
                 "challenger_arm": challenger,
                 "comparator_arm": comparator,
+                "scientific_status": contrast_role["scientific_status"],
+                "decision_role": contrast_role["decision_role"],
+                "primary_efficacy_rule_satisfaction_allowed": contrast_role[
+                    "primary_efficacy_rule_satisfaction_allowed"
+                ],
+                "promotion_equivalent_efficacy_allowed": contrast_role[
+                    "promotion_equivalent_efficacy_allowed"
+                ],
                 "comparison_resource_class": (
                     "equal-compute" if _POLICY_BY_ARM[challenger][
                         "equal_compute_comparison"
@@ -4571,6 +5918,8 @@ def grade_realized_week_v1(
         "operational_k": root["operational_k"],
         "reporting_entry_counts": reporting_counts,
         "arm_order": list(ARM_ORDER),
+        "contrast_decision_roles": deepcopy(_CONTRAST_DECISION_ROLES),
+        "retrieval_decision_role": deepcopy(_RETRIEVAL_DECISION_ROLE),
         "arm_results": arm_results,
         "arm_results_sha256": canonical_sha256_v1(arm_results),
         "paired_operational_contrasts": paired_rows,
@@ -4800,6 +6149,7 @@ def validate_realized_week_grade_v1(value: object) -> dict[str, object]:
         "outcome_source_identity", "realized_score_source_identity",
         "outcome_snapshot_sha256",
         "operational_k", "reporting_entry_counts", "arm_order",
+        "contrast_decision_roles", "retrieval_decision_role",
         "arm_results", "arm_results_sha256", "paired_operational_contrasts",
         "paired_prefix_contrasts", "retrieval_crossing_cells",
         "retrieval_crossing_cells_sha256", "retrieval_interaction",
@@ -4828,6 +6178,10 @@ def validate_realized_week_grade_v1(value: object) -> dict[str, object]:
         or week > FULL_SEASON_WEEK_COUNT
         or grade.get("reporting_entry_counts") != reporting
         or grade.get("arm_order") != list(ARM_ORDER)
+        or grade.get("contrast_decision_roles")
+        != _CONTRAST_DECISION_ROLES
+        or grade.get("retrieval_decision_role")
+        != _RETRIEVAL_DECISION_ROLE
         or type(field_available) is not bool
         or grade.get("inference_unit")
         != "slate-after-block-and-bank-aggregation"
@@ -4881,6 +6235,7 @@ def validate_realized_week_grade_v1(value: object) -> dict[str, object]:
         arm = _mapping(raw, label=f"grade {arm_id}")
         if set(arm) != {
             "arm_id", "population_label", "cap_label", "arm_status",
+            "scientific_status", "decision_role", "required_before_week1",
             "resource_class", "resource_caveat", "equal_compute_comparison",
             "candidate_count",
             "operational_k", "operational_weekly_maximum_micro",
@@ -4892,6 +6247,12 @@ def validate_realized_week_grade_v1(value: object) -> dict[str, object]:
             arm.get("arm_id") != arm_id
             or arm.get("operational_k") != k
             or arm.get("arm_status") != _POLICY_BY_ARM[arm_id]["arm_status"]
+            or arm.get("scientific_status")
+            != _POLICY_BY_ARM[arm_id]["scientific_status"]
+            or arm.get("decision_role")
+            != _POLICY_BY_ARM[arm_id]["decision_role"]
+            or arm.get("required_before_week1")
+            is not _POLICY_BY_ARM[arm_id]["required_before_week1"]
             or arm.get("resource_class")
             != _POLICY_BY_ARM[arm_id]["resource_class"]
             or arm.get("resource_caveat")
@@ -4938,8 +6299,12 @@ def validate_realized_week_grade_v1(value: object) -> dict[str, object]:
     for raw, challenger in zip(paired, ARM_ORDER[1:], strict=True):
         row = _mapping(raw, label=f"paired contrast {challenger}")
         comparator = COMPARATOR_BY_ARM[challenger]
+        contrast_role = _CONTRAST_DECISION_ROLES[challenger]
         if set(row) != {
             "challenger_arm", "comparator_arm",
+            "scientific_status", "decision_role",
+            "primary_efficacy_rule_satisfaction_allowed",
+            "promotion_equivalent_efficacy_allowed",
             "comparison_resource_class",
             "challenger_weekly_maximum_micro",
             "comparator_weekly_maximum_micro", "paired_delta_micro", "sign",
@@ -4972,6 +6337,15 @@ def validate_realized_week_grade_v1(value: object) -> dict[str, object]:
         if (
             row.get("challenger_arm") != challenger
             or row.get("comparator_arm") != comparator
+            or row.get("scientific_status")
+            != contrast_role["scientific_status"]
+            or row.get("decision_role") != contrast_role["decision_role"]
+            or row.get("primary_efficacy_rule_satisfaction_allowed")
+            is not contrast_role[
+                "primary_efficacy_rule_satisfaction_allowed"
+            ]
+            or row.get("promotion_equivalent_efficacy_allowed")
+            is not contrast_role["promotion_equivalent_efficacy_allowed"]
             or row.get("comparison_resource_class") != (
                 "equal-compute" if _POLICY_BY_ARM[challenger][
                     "equal_compute_comparison"
@@ -4991,6 +6365,7 @@ def validate_realized_week_grade_v1(value: object) -> dict[str, object]:
     for count in reporting:
         for challenger in ARM_ORDER[1:]:
             comparator = COMPARATOR_BY_ARM[challenger]
+            contrast_role = _CONTRAST_DECISION_ROLES[challenger]
             challenger_score = int(next(
                 row for row in by_arm[challenger]["prefix_results"]
                 if row["entry_count"] == count
@@ -5003,6 +6378,14 @@ def validate_realized_week_grade_v1(value: object) -> dict[str, object]:
                 "entry_count": count,
                 "challenger_arm": challenger,
                 "comparator_arm": comparator,
+                "scientific_status": contrast_role["scientific_status"],
+                "decision_role": contrast_role["decision_role"],
+                "primary_efficacy_rule_satisfaction_allowed": contrast_role[
+                    "primary_efficacy_rule_satisfaction_allowed"
+                ],
+                "promotion_equivalent_efficacy_allowed": contrast_role[
+                    "promotion_equivalent_efficacy_allowed"
+                ],
                 "comparison_resource_class": (
                     "equal-compute" if _POLICY_BY_ARM[challenger][
                         "equal_compute_comparison"
@@ -5082,10 +6465,167 @@ def validate_realized_week_grade_v1(value: object) -> dict[str, object]:
             (boom_cap4 - boom_base) - (inc_cap4 - inc_base)
         ),
         "key_secondary_not_primary": True,
+        **deepcopy(_RETRIEVAL_DECISION_ROLE),
     }
     if grade.get("retrieval_interaction") != expected_interaction:
         _fail("generation x retrieval interaction arithmetic differs")
     return grade
+
+
+_T_975_BY_DF: Final = {
+    1: 12.706205, 2: 4.302653, 3: 3.182446, 4: 2.776445,
+    5: 2.570582, 6: 2.446912, 7: 2.364624, 8: 2.306004,
+    9: 2.262157, 10: 2.228139, 11: 2.200985, 12: 2.178813,
+    13: 2.160369, 14: 2.144787, 15: 2.131450, 16: 2.119905,
+    17: 2.109816,
+}
+
+
+def _paired_interval_95pct(values: Sequence[int]) -> dict[str, object] | None:
+    """Return the frozen slate-paired t interval for one effect vector."""
+
+    n = len(values)
+    if n < 2:
+        return None
+    if n - 1 not in _T_975_BY_DF:
+        _fail("paired interval exceeds the frozen 18-week season horizon")
+    value_sum = sum(values)
+    sum_squares = sum(value * value for value in values)
+    variance_of_mean = (
+        (n * sum_squares - value_sum * value_sum) / (n * n * (n - 1))
+    )
+    half_width = math.ceil(
+        _T_975_BY_DF[n - 1] * math.sqrt(max(0.0, variance_of_mean))
+    )
+    point = value_sum / n
+    return {
+        "method": (
+            "slate-level-paired-t-interval-95pct"
+            if n == FULL_SEASON_WEEK_COUNT
+            else "descriptive-slate-level-paired-t-interval-95pct-not-a-decision"
+        ),
+        "point_estimate_micro": {
+            "numerator": value_sum,
+            "denominator": n,
+        },
+        "lower_micro": math.floor(point - half_width),
+        "upper_micro": math.ceil(point + half_width),
+        "half_width_micro": half_width,
+    }
+
+
+def _effect_summary(values: Sequence[int]) -> dict[str, object]:
+    return {
+        "mean_micro": {
+            "numerator": sum(values),
+            "denominator": len(values),
+        },
+        "slate_level_values_micro": list(values),
+        "uncertainty_95pct": _paired_interval_95pct(values),
+    }
+
+
+def _aggregate_retrieval_prefix_rows(
+    rows: Sequence[Mapping[str, object]], *, entry_count: int,
+) -> dict[str, object]:
+    scores = [int(row["selected_weekly_maximum_micro"]) for row in rows]
+    oracles = [int(row["pool_oracle_micro"]) for row in rows]
+    regrets = [int(row["selector_regret_micro"]) for row in rows]
+    field_rows = [row["field_metrics"] for row in rows if row["field_metrics"]]
+    field_count = len(field_rows)
+    return {
+        "entry_count": entry_count,
+        "week_count": len(rows),
+        "mean_weekly_maximum_micro": {
+            "numerator": sum(scores), "denominator": len(rows),
+        },
+        "mean_pool_oracle_micro": {
+            "numerator": sum(oracles), "denominator": len(rows),
+        },
+        "mean_selector_regret_micro": {
+            "numerator": sum(regrets), "denominator": len(rows),
+        },
+        "threshold_hit_counts": {
+            str(threshold): sum(
+                bool(next(
+                    cell for cell in row["thresholds"]
+                    if cell["threshold_dk"] == threshold
+                )["realized_hit"])
+                for row in rows
+            )
+            for threshold in REALIZED_THRESHOLDS_DK
+        },
+        "field_availability": {
+            "complete_field_capture_week_count": field_count,
+            "missing_field_capture_week_count": len(rows) - field_count,
+            "complete_for_every_week": field_count == len(rows),
+            "evidence_scope": (
+                "complete-field-every-week"
+                if field_count == len(rows)
+                else "partial-complete-field"
+                if field_count
+                else "raw-score-only-no-complete-field"
+            ),
+        },
+        "complete_field_metrics": (
+            {
+                "best_counterfactual_field_rank": min(
+                    int(row["best_counterfactual_field_rank_in_prefix"])
+                    for row in field_rows
+                ),
+                "best_counterfactual_field_percentile_ppm": max(
+                    int(row[
+                        "best_counterfactual_field_percentile_ppm_in_prefix"
+                    ])
+                    for row in field_rows
+                ),
+                "best_actual_field_rank": (
+                    min(
+                        int(row["best_actual_field_rank_in_prefix"])
+                        for row in field_rows
+                        if row["best_actual_field_rank_in_prefix"] is not None
+                    )
+                    if any(
+                        row["best_actual_field_rank_in_prefix"] is not None
+                        for row in field_rows
+                    ) else None
+                ),
+                "best_actual_field_percentile_ppm": (
+                    max(
+                        int(row["best_actual_field_percentile_ppm_in_prefix"])
+                        for row in field_rows
+                        if row[
+                            "best_actual_field_percentile_ppm_in_prefix"
+                        ] is not None
+                    )
+                    if any(
+                        row["best_actual_field_percentile_ppm_in_prefix"]
+                        is not None
+                        for row in field_rows
+                    ) else None
+                ),
+                "entered_lineup_observation_count": sum(
+                    int(row["entered_lineup_count_in_prefix"])
+                    for row in field_rows
+                ),
+                "total_actual_split_payout_micro": sum(
+                    int(row["total_actual_prefix_split_payout_micro"])
+                    for row in field_rows
+                ),
+                "best_lineup_duplicate_observation_count": len(field_rows),
+                "best_lineup_duplicate_sum": sum(
+                    int(row["best_realized_lineup_duplicates"])
+                    for row in field_rows
+                ),
+                "actual_entered_best_lineup_week_count": sum(
+                    bool(row["best_realized_lineup_entered_in_contest"])
+                    for row in field_rows
+                ),
+                "contest_ev_imputed": False,
+            }
+            if field_rows else None
+        ),
+    }
 
 
 def _aggregate_arm_results(
@@ -5193,6 +6733,9 @@ def _aggregate_arm_results(
         "population_label": first["population_label"],
         "cap_label": first["cap_label"],
         "arm_status": first["arm_status"],
+        "scientific_status": first["scientific_status"],
+        "decision_role": first["decision_role"],
+        "required_before_week1": first["required_before_week1"],
         "resource_class": first["resource_class"],
         "resource_caveat": first["resource_caveat"],
         "equal_compute_comparison": first["equal_compute_comparison"],
@@ -5302,27 +6845,51 @@ def _calibration_cells(
 def _build_prospective_shadow_evaluation_v1(
     *, preregistration: Mapping[str, object],
     weekly_grades: Sequence[Mapping[str, object]],
+    weekly_safety_receipts: Sequence[Mapping[str, object]] = (),
 ) -> dict[str, object]:
     """Evaluate only paired prospective weeks under the pre-Week-1 rule."""
 
     prereg = validate_preregistration_v1(preregistration)
     grades = [validate_realized_week_grade_v1(grade) for grade in weekly_grades]
-    if not grades:
-        _fail("prospective evaluation requires at least one weekly grade")
+    safety_receipts = [
+        validate_weekly_safety_receipt_v1(
+            receipt, preregistration=prereg
+        )
+        for receipt in weekly_safety_receipts
+    ]
+    if not grades and not safety_receipts:
+        _fail("prospective evaluation requires a weekly grade or safety receipt")
     grades.sort(key=lambda grade: int(grade["week"]))
     weeks = [int(grade["week"]) for grade in grades]
-    if weeks != list(range(1, len(grades) + 1)):
-        _fail("prospective weekly reports are not complete and contiguous")
+    if len(weeks) != len(set(weeks)):
+        _fail("prospective weekly grades contain a duplicate week")
     if len(grades) > FULL_SEASON_WEEK_COUNT:
         _fail("prospective evaluation exceeds the frozen season horizon")
+    safety_receipts.sort(key=lambda receipt: int(receipt["week"]))
+    safety_weeks = [int(receipt["week"]) for receipt in safety_receipts]
+    if len(safety_weeks) != len(set(safety_weeks)):
+        _fail("prospective safety receipts contain a duplicate week")
+    represented_weeks = sorted(set(weeks) | set(safety_weeks))
+    completed = max(represented_weeks)
+    if completed > FULL_SEASON_WEEK_COUNT:
+        _fail("prospective evaluation exceeds the frozen season horizon")
+    if represented_weeks != list(range(1, completed + 1)):
+        _fail("prospective weekly evidence is not complete and contiguous")
+    missing_grade_weeks = sorted(set(represented_weeks) - set(weeks))
+    if any(week > INTERIM_WEEK_COUNT for week in missing_grade_weeks):
+        _fail("post-interim missing weekly grades lack a frozen safety receipt law")
     if len({str(grade["seed_crossing_sha256"]) for grade in grades}) != len(
         grades
     ):
         _fail("weekly fit-seed x world-seed crossing authorities are reused")
-    first_labels = [
-        (arm["arm_id"], arm["population_label"], arm["cap_label"])
-        for arm in grades[0]["arm_results"]
-    ]
+    first_labels = (
+        [
+            (arm["arm_id"], arm["population_label"], arm["cap_label"])
+            for arm in grades[0]["arm_results"]
+        ]
+        if grades
+        else []
+    )
     for grade in grades:
         labels = [
             (arm["arm_id"], arm["population_label"], arm["cap_label"])
@@ -5336,12 +6903,42 @@ def _build_prospective_shadow_evaluation_v1(
             or labels != first_labels
         ):
             _fail("weekly grade preregistration or population x cap labels drift")
-    arm_aggregates = [
-        _aggregate_arm_results(grades, arm_id=arm_id) for arm_id in ARM_ORDER
-    ]
+    grade_by_week = {int(grade["week"]): grade for grade in grades}
+    for receipt in safety_receipts:
+        grade = grade_by_week.get(int(receipt["week"]))
+        if grade is None:
+            continue
+        if grade["slate_id"] != receipt["slate_id"]:
+            _fail("weekly grade and safety receipt slate identities differ")
+        terminal_authority = receipt["terminal_safety_authority"]
+        terminal_envelope = receipt["terminal_prelock_envelope"]
+        if terminal_authority is None or terminal_envelope is None:
+            _fail("weekly grade lacks a terminal-present safety lineage")
+        safety_root_identity = normalize_object_identity_v1(
+            _mapping(
+                terminal_envelope,
+                label="weekly safety terminal envelope",
+            )["identity"],
+            label="weekly safety terminal root identity",
+        )
+        if (
+            grade["terminal_prelock_root_identity"] != safety_root_identity
+            or grade["terminal_prelock_root_sha256"]
+            != terminal_authority["terminal_prelock_root_sha256"]
+        ):
+            _fail("weekly grade and safety receipt root lineages differ")
+    arm_aggregates = (
+        [
+            _aggregate_arm_results(grades, arm_id=arm_id)
+            for arm_id in ARM_ORDER
+        ]
+        if grades
+        else []
+    )
     paired_aggregates = []
-    for challenger in ARM_ORDER[1:]:
+    for challenger in ARM_ORDER[1:] if grades else ():
         comparator = COMPARATOR_BY_ARM[challenger]
+        contrast_role = _CONTRAST_DECISION_ROLES[challenger]
         rows = [next(
             row for row in grade["paired_operational_contrasts"]
             if row["challenger_arm"] == challenger
@@ -5353,33 +6950,18 @@ def _build_prospective_shadow_evaluation_v1(
             )
             for threshold in REALIZED_THRESHOLDS_DK
         }
-        uncertainty = None
-        if len(deltas) >= 2:
-            n = len(deltas)
-            delta_sum = sum(deltas)
-            sum_squares = sum(delta * delta for delta in deltas)
-            variance_of_mean = (
-                (n * sum_squares - delta_sum * delta_sum)
-                / (n * n * (n - 1))
-            )
-            multiplier = 2.109816 if n == FULL_SEASON_WEEK_COUNT else 1.96
-            half_width = math.ceil(multiplier * math.sqrt(variance_of_mean))
-            point = delta_sum / n
-            uncertainty = {
-                "method": (
-                    "slate-level-paired-t-interval-95pct" if n == 18
-                    else "descriptive-normal-interval-95pct-not-a-decision"
-                ),
-                "point_estimate_micro": {
-                    "numerator": delta_sum, "denominator": n,
-                },
-                "lower_micro": math.floor(point - half_width),
-                "upper_micro": math.ceil(point + half_width),
-                "half_width_micro": half_width,
-            }
+        uncertainty = _paired_interval_95pct(deltas)
         paired_aggregates.append({
             "challenger_arm": challenger,
             "comparator_arm": comparator,
+            "scientific_status": contrast_role["scientific_status"],
+            "decision_role": contrast_role["decision_role"],
+            "primary_efficacy_rule_satisfaction_allowed": contrast_role[
+                "primary_efficacy_rule_satisfaction_allowed"
+            ],
+            "promotion_equivalent_efficacy_allowed": contrast_role[
+                "promotion_equivalent_efficacy_allowed"
+            ],
             "comparison_resource_class": (
                 "equal-compute" if _POLICY_BY_ARM[challenger][
                     "equal_compute_comparison"
@@ -5396,8 +6978,133 @@ def _build_prospective_shadow_evaluation_v1(
             "slate_level_delta_values_micro": deltas,
             "uncertainty_95pct": uncertainty,
         })
-    calibration = _calibration_cells(grades)
-    completed = len(grades)
+    calibration = _calibration_cells(grades) if grades else []
+
+    safety_rule = _mapping(
+        prereg["week8_safety_rule"], label="evaluation Week-8 safety rule"
+    )
+    expected_safety_weeks = [
+        int(value) for value in safety_rule["receipt_weeks"]
+    ]
+    missing_safety_weeks = sorted(
+        set(expected_safety_weeks) - set(safety_weeks)
+    )
+    safety_metric_fields = tuple(
+        str(key)
+        for key in (
+            "missing_terminal_count",
+            "missing_suite_manifest_count",
+            "missing_expected_arm_count",
+            "missing_expected_book_count",
+            "missing_expected_block_count",
+            "missing_expected_prefix_count",
+            "missing_required_source_count",
+            "stale_required_source_count",
+            "missing_evidence_authority_count",
+            "illegal_lineup_count",
+            "solve_failure_count",
+            "solve_request_shortfall_count",
+            "exposure_violation_count",
+            "duplicate_lineup_count",
+        )
+    )
+    def optional_metric_total(field: str) -> int | None:
+        values = [
+            _mapping(
+                receipt["safety_metrics"], label="weekly safety metrics"
+            )[field]
+            for receipt in safety_receipts
+        ]
+        if any(value is None for value in values):
+            return None
+        return sum(int(value) for value in values)
+
+    metric_totals = {
+        field: optional_metric_total(field) for field in safety_metric_fields
+    }
+    solve_failure_status_count_totals = {
+        status: (
+            None
+            if any(
+                _mapping(
+                    _mapping(
+                        receipt["safety_metrics"],
+                        label="weekly safety metrics",
+                    )["solve_failure_status_counts"],
+                    label="weekly solve failure status counts",
+                )[status] is None
+                for receipt in safety_receipts
+            )
+            else sum(
+                int(_mapping(
+                    _mapping(
+                        receipt["safety_metrics"],
+                        label="weekly safety metrics",
+                    )["solve_failure_status_counts"],
+                    label="weekly solve failure status counts",
+                )[status])
+                for receipt in safety_receipts
+            )
+        )
+        for status in safety_rule["solve_failure_statuses"]
+    }
+    raw_maximum_exposures = [
+        _mapping(
+                receipt["safety_metrics"], label="weekly safety metrics"
+        )["maximum_observed_player_exposure_bps"]
+        for receipt in safety_receipts
+    ]
+    maximum_exposure_bps = (
+        None
+        if not raw_maximum_exposures
+        or any(value is None for value in raw_maximum_exposures)
+        else max(int(value) for value in raw_maximum_exposures)
+    )
+    failed_week_reasons = [
+        {
+            "week": receipt["week"],
+            "slate_id": receipt["slate_id"],
+            "reason_vector": receipt["reason_vector"],
+        }
+        for receipt in safety_receipts
+        if receipt["integrity_gate_status"] == "fail"
+    ]
+    if failed_week_reasons:
+        integrity_status = "fail"
+    elif not missing_safety_weeks:
+        integrity_status = "pass"
+    else:
+        integrity_status = str(safety_rule["missing_receipt_status"])
+    integrity_reasons = [
+        f"week-{row['week']}:{reason}"
+        for row in failed_week_reasons
+        for reason in row["reason_vector"]
+    ]
+    if missing_safety_weeks:
+        integrity_reasons.append("missing-weekly-safety-receipts")
+    integrity_gate = {
+        "receipt_schema_version": WEEKLY_SAFETY_RECEIPT_SCHEMA,
+        "expected_receipt_weeks": expected_safety_weeks,
+        "received_receipt_weeks": safety_weeks,
+        "missing_receipt_weeks": missing_safety_weeks,
+        "receipt_count": len(safety_receipts),
+        "pass_count": sum(
+            receipt["integrity_gate_status"] == "pass"
+            for receipt in safety_receipts
+        ),
+        "fail_count": len(failed_week_reasons),
+        "complete_receipt_set": not missing_safety_weeks,
+        "metric_totals": metric_totals,
+        "solve_failure_status_count_totals": (
+            solve_failure_status_count_totals
+        ),
+        "maximum_observed_player_exposure_bps": maximum_exposure_bps,
+        "failed_week_reasons": failed_week_reasons,
+        "reason_vector": integrity_reasons,
+        "integrity_gate_status": integrity_status,
+        "safety_receipt_set_sha256": canonical_sha256_v1(safety_receipts),
+        "efficacy_or_promotion_allowed": False,
+    }
     if completed < INTERIM_WEEK_COUNT:
         horizon = "accrual-before-eight-week-interim"
         decision_scope = "not-yet-eligible"
@@ -5413,6 +7120,8 @@ def _build_prospective_shadow_evaluation_v1(
     rule = prereg["family_level_decision_rule"]
     decisions = []
     for aggregate in paired_aggregates:
+        challenger = str(aggregate["challenger_arm"])
+        contrast_role = _CONTRAST_DECISION_ROLES[challenger]
         n = int(aggregate["week_count"])
         delta_sum = int(aggregate["paired_mean_delta_micro"]["numerator"])
         mean_ok = delta_sum >= int(
@@ -5430,60 +7139,487 @@ def _build_prospective_shadow_evaluation_v1(
             for threshold in rule["tail_noninferiority_thresholds_dk"]
         )
         checkpoint = completed in {INTERIM_WEEK_COUNT, FULL_SEASON_WEEK_COUNT}
-        efficacy_eligible = completed == FULL_SEASON_WEEK_COUNT
+        full_season_integrity_eligible = (
+            completed == FULL_SEASON_WEEK_COUNT
+            and weeks == list(range(1, FULL_SEASON_WEEK_COUNT + 1))
+            and integrity_status == "pass"
+        )
+        primary_rule_allowed = bool(
+            contrast_role["primary_efficacy_rule_satisfaction_allowed"]
+        )
+        efficacy_eligible = (
+            full_season_integrity_eligible and primary_rule_allowed
+        )
+        diagnostic_criteria_satisfied = (
+            mean_ok and wins_ok and hit_ok and tail_ok
+        )
+        primary_efficacy_rule_satisfied = (
+            efficacy_eligible and diagnostic_criteria_satisfied
+        )
         severe_harm = any(
             delta <= int(rule["catastrophic_paired_delta_micro"])
             for delta in aggregate["slate_level_delta_values_micro"]
         )
         decisions.append({
-            "challenger_arm": aggregate["challenger_arm"],
+            "challenger_arm": challenger,
             "comparator_arm": aggregate["comparator_arm"],
+            "scientific_status": contrast_role["scientific_status"],
+            "decision_role": contrast_role["decision_role"],
+            "numeric_diagnostic_criteria_reported": contrast_role[
+                "numeric_diagnostic_criteria_reported"
+            ],
+            "primary_efficacy_rule_satisfaction_allowed": primary_rule_allowed,
+            "promotion_equivalent_efficacy_allowed": contrast_role[
+                "promotion_equivalent_efficacy_allowed"
+            ],
+            "automatic_promotion_allowed": contrast_role[
+                "automatic_promotion_allowed"
+            ],
             "checkpoint_eligible": checkpoint,
             "interim_integrity_only": completed == INTERIM_WEEK_COUNT,
+            "full_season_integrity_eligible": full_season_integrity_eligible,
             "efficacy_eligible": efficacy_eligible,
-            # No safety metric family is preregistered in v2.  A successful
-            # arithmetic build is not evidence that an integrity gate passed.
-            "integrity_gate_status": "not_evaluated",
+            "integrity_gate_status": integrity_status,
             "severe_harm_gate_triggered": severe_harm,
             "mean_delta_criterion_met": mean_ok,
             "win_rate_criterion_met": wins_ok,
             "threshold_194_criterion_met": hit_ok,
             "tail_noninferiority_criterion_met": tail_ok,
-            "efficacy_rule_satisfied": (
-                efficacy_eligible and mean_ok and wins_ok and hit_ok and tail_ok
+            "diagnostic_criteria_satisfied": diagnostic_criteria_satisfied,
+            "primary_efficacy_rule_satisfied": (
+                primary_efficacy_rule_satisfied
             ),
+            "efficacy_rule_satisfied": primary_efficacy_rule_satisfied,
             "efficacy_promotion_authorized": False,
         })
+    reporting_counts = [int(value) for value in prereg["reporting_entry_counts"]]
+
+    def retrieval_cell(
+        grade: Mapping[str, object], *, generation_arm: str, retrieval_id: str,
+    ) -> Mapping[str, object]:
+        return next(
+            cell for cell in grade["retrieval_crossing_cells"]
+            if cell["generation_arm"] == generation_arm
+            and cell["retrieval_id"] == retrieval_id
+        )
+
+    def retrieval_prefix(
+        grade: Mapping[str, object], *, generation_arm: str,
+        retrieval_id: str, entry_count: int,
+    ) -> Mapping[str, object]:
+        cell = retrieval_cell(
+            grade, generation_arm=generation_arm, retrieval_id=retrieval_id
+        )
+        return next(
+            row for row in cell["prefix_results"]
+            if row["entry_count"] == entry_count
+        )
+
     retrieval_cells = []
-    for generation_arm in _RETRIEVAL_CROSSING_ARMS:
-        for retrieval_id in (_BASE_RETRIEVAL_ID, _CAP4_RETRIEVAL_ID):
-            rows = [next(
-                cell for cell in grade["retrieval_crossing_cells"]
-                if cell["generation_arm"] == generation_arm
-                and cell["retrieval_id"] == retrieval_id
-            ) for grade in grades]
-            values = [int(row["operational_weekly_maximum_micro"]) for row in rows]
-            retrieval_cells.append({
+    if grades:
+        for generation_arm in _RETRIEVAL_CROSSING_ARMS:
+            for retrieval_id in (_BASE_RETRIEVAL_ID, _CAP4_RETRIEVAL_ID):
+                cells = [
+                    retrieval_cell(
+                        grade,
+                        generation_arm=generation_arm,
+                        retrieval_id=retrieval_id,
+                    )
+                    for grade in grades
+                ]
+                prefix_aggregates = []
+                for count in reporting_counts:
+                    rows = [
+                        retrieval_prefix(
+                            grade,
+                            generation_arm=generation_arm,
+                            retrieval_id=retrieval_id,
+                            entry_count=count,
+                        )
+                        for grade in grades
+                    ]
+                    prefix_aggregates.append(
+                        _aggregate_retrieval_prefix_rows(
+                            rows, entry_count=count
+                        )
+                    )
+                operational = next(
+                    row for row in prefix_aggregates
+                    if row["entry_count"] == prereg["operational_k"]
+                )
+                retrieval_cells.append({
+                    "generation_arm": generation_arm,
+                    "retrieval_id": retrieval_id,
+                    "population_label": cells[0]["population_label"],
+                    "cap_label": cells[0]["cap_label"],
+                    "week_count": len(grades),
+                    "mean_weekly_maximum_micro": operational[
+                        "mean_weekly_maximum_micro"
+                    ],
+                    "prefix_aggregates": prefix_aggregates,
+                })
+
+    retrieval_effect_aggregates = []
+    retrieval_interaction_prefixes = []
+    metric_fields = (
+        ("selected_weekly_maximum", "selected_weekly_maximum_micro"),
+        ("pool_oracle", "pool_oracle_micro"),
+        ("selector_regret", "selector_regret_micro"),
+    )
+    for count in reporting_counts if grades else ():
+        rows_by_cell = {
+            (generation_arm, retrieval_id): [
+                retrieval_prefix(
+                    grade,
+                    generation_arm=generation_arm,
+                    retrieval_id=retrieval_id,
+                    entry_count=count,
+                )
+                for grade in grades
+            ]
+            for generation_arm in _RETRIEVAL_CROSSING_ARMS
+            for retrieval_id in (_BASE_RETRIEVAL_ID, _CAP4_RETRIEVAL_ID)
+        }
+        for generation_arm in _RETRIEVAL_CROSSING_ARMS:
+            base_rows = rows_by_cell[(generation_arm, _BASE_RETRIEVAL_ID)]
+            cap_rows = rows_by_cell[(generation_arm, _CAP4_RETRIEVAL_ID)]
+            metric_effects = {
+                f"{label}_effect": _effect_summary([
+                    int(cap[field]) - int(base[field])
+                    for base, cap in zip(base_rows, cap_rows, strict=True)
+                ])
+                for label, field in metric_fields
+            }
+            threshold_deltas = {
+                str(threshold): sum(
+                    int(next(
+                        cell for cell in cap["thresholds"]
+                        if cell["threshold_dk"] == threshold
+                    )["realized_hit"])
+                    - int(next(
+                        cell for cell in base["thresholds"]
+                        if cell["threshold_dk"] == threshold
+                    )["realized_hit"])
+                    for base, cap in zip(base_rows, cap_rows, strict=True)
+                )
+                for threshold in REALIZED_THRESHOLDS_DK
+            }
+            field_pair_count = sum(
+                base["field_metrics"] is not None
+                and cap["field_metrics"] is not None
+                for base, cap in zip(base_rows, cap_rows, strict=True)
+            )
+            retrieval_effect_aggregates.append({
                 "generation_arm": generation_arm,
-                "retrieval_id": retrieval_id,
-                "population_label": rows[0]["population_label"],
-                "cap_label": rows[0]["cap_label"],
-                "week_count": completed,
-                "mean_weekly_maximum_micro": {
-                    "numerator": sum(values), "denominator": completed,
+                "entry_count": count,
+                "week_count": len(grades),
+                "retrieval_contrast": (
+                    f"{_CAP4_RETRIEVAL_ID}-minus-{_BASE_RETRIEVAL_ID}"
+                ),
+                **metric_effects,
+                "threshold_hit_deltas": threshold_deltas,
+                "field_availability": {
+                    "paired_complete_field_week_count": field_pair_count,
+                    "paired_missing_field_week_count": (
+                        len(grades) - field_pair_count
+                    ),
+                    "complete_for_every_paired_week": (
+                        field_pair_count == len(grades)
+                    ),
                 },
             })
-    interaction_values = [
-        int(grade["retrieval_interaction"]["difference_in_differences_micro"])
-        for grade in grades
-    ]
+
+        effect_families: dict[str, object] = {}
+        for label, field in metric_fields:
+            inc_base = rows_by_cell[
+                (_RETRIEVAL_CROSSING_ARMS[0], _BASE_RETRIEVAL_ID)
+            ]
+            inc_cap = rows_by_cell[
+                (_RETRIEVAL_CROSSING_ARMS[0], _CAP4_RETRIEVAL_ID)
+            ]
+            boom_base = rows_by_cell[
+                (_RETRIEVAL_CROSSING_ARMS[1], _BASE_RETRIEVAL_ID)
+            ]
+            boom_cap = rows_by_cell[
+                (_RETRIEVAL_CROSSING_ARMS[1], _CAP4_RETRIEVAL_ID)
+            ]
+            vectors = {
+                "generation_effect_under_incumbent_retrieval": [
+                    int(boom[field]) - int(inc[field])
+                    for inc, boom in zip(inc_base, boom_base, strict=True)
+                ],
+                "generation_effect_under_cap4_retrieval": [
+                    int(boom[field]) - int(inc[field])
+                    for inc, boom in zip(inc_cap, boom_cap, strict=True)
+                ],
+                "retrieval_effect_on_incumbent_generation": [
+                    int(cap[field]) - int(base[field])
+                    for base, cap in zip(inc_base, inc_cap, strict=True)
+                ],
+                "retrieval_effect_on_boom_first_generation": [
+                    int(cap[field]) - int(base[field])
+                    for base, cap in zip(boom_base, boom_cap, strict=True)
+                ],
+            }
+            vectors["difference_in_differences"] = [
+                boom - incumbent
+                for incumbent, boom in zip(
+                    vectors["retrieval_effect_on_incumbent_generation"],
+                    vectors["retrieval_effect_on_boom_first_generation"],
+                    strict=True,
+                )
+            ]
+            effect_families[label] = {
+                name: _effect_summary(values)
+                for name, values in vectors.items()
+            }
+
+        threshold_effects = {}
+        for threshold in REALIZED_THRESHOLDS_DK:
+            indicator_by_cell = {
+                key: [
+                    int(next(
+                        cell for cell in row["thresholds"]
+                        if cell["threshold_dk"] == threshold
+                    )["realized_hit"])
+                    for row in rows
+                ]
+                for key, rows in rows_by_cell.items()
+            }
+            inc_base_values = indicator_by_cell[
+                (_RETRIEVAL_CROSSING_ARMS[0], _BASE_RETRIEVAL_ID)
+            ]
+            inc_cap_values = indicator_by_cell[
+                (_RETRIEVAL_CROSSING_ARMS[0], _CAP4_RETRIEVAL_ID)
+            ]
+            boom_base_values = indicator_by_cell[
+                (_RETRIEVAL_CROSSING_ARMS[1], _BASE_RETRIEVAL_ID)
+            ]
+            boom_cap_values = indicator_by_cell[
+                (_RETRIEVAL_CROSSING_ARMS[1], _CAP4_RETRIEVAL_ID)
+            ]
+            incumbent_retrieval_delta = [
+                cap - base for base, cap in zip(
+                    inc_base_values, inc_cap_values, strict=True
+                )
+            ]
+            boom_retrieval_delta = [
+                cap - base for base, cap in zip(
+                    boom_base_values, boom_cap_values, strict=True
+                )
+            ]
+            threshold_effects[str(threshold)] = {
+                "generation_effect_under_incumbent_retrieval": sum(
+                    boom - incumbent for incumbent, boom in zip(
+                        inc_base_values, boom_base_values, strict=True
+                    )
+                ),
+                "generation_effect_under_cap4_retrieval": sum(
+                    boom - incumbent for incumbent, boom in zip(
+                        inc_cap_values, boom_cap_values, strict=True
+                    )
+                ),
+                "retrieval_effect_on_incumbent_generation": sum(
+                    incumbent_retrieval_delta
+                ),
+                "retrieval_effect_on_boom_first_generation": sum(
+                    boom_retrieval_delta
+                ),
+                "difference_in_differences": sum(
+                    boom - incumbent for incumbent, boom in zip(
+                        incumbent_retrieval_delta,
+                        boom_retrieval_delta,
+                        strict=True,
+                    )
+                ),
+            }
+        field_week_count = sum(
+            bool(grade["field_metrics_available"]) for grade in grades
+        )
+        retrieval_interaction_prefixes.append({
+            "entry_count": count,
+            "week_count": len(grades),
+            "effect_families": effect_families,
+            "threshold_hit_effects": threshold_effects,
+            "field_availability": {
+                "complete_field_capture_week_count": field_week_count,
+                "missing_field_capture_week_count": len(grades) - field_week_count,
+                "complete_for_every_week": field_week_count == len(grades),
+            },
+        })
+
+    operational_interaction = next(
+        (
+            row for row in retrieval_interaction_prefixes
+            if row["entry_count"] == prereg["operational_k"]
+        ),
+        None,
+    )
+    operational_did = (
+        operational_interaction["effect_families"]
+        ["selected_weekly_maximum"]["difference_in_differences"]
+        if operational_interaction is not None
+        else None
+    )
     retrieval_interaction_aggregate = {
-        "week_count": completed,
-        "difference_in_differences_mean_micro": {
-            "numerator": sum(interaction_values), "denominator": completed,
-        },
-        "slate_level_values_micro": interaction_values,
+        "week_count": len(grades),
+        "difference_in_differences_mean_micro": (
+            operational_did["mean_micro"] if operational_did else None
+        ),
+        "slate_level_values_micro": (
+            operational_did["slate_level_values_micro"]
+            if operational_did else []
+        ),
+        "uncertainty_95pct": (
+            operational_did["uncertainty_95pct"] if operational_did else None
+        ),
+        "reporting_entry_counts": reporting_counts,
+        "prefix_aggregates": retrieval_interaction_prefixes,
         "hierarchy": "key-secondary-mechanism-not-primary",
+        **deepcopy(_RETRIEVAL_DECISION_ROLE),
+    }
+
+    synthesis_rule = _mapping(
+        prereg["structural_synthesis_rule"],
+        label="structural synthesis rule",
+    )
+    historical_metrics = _mapping(
+        synthesis_rule["historical_metrics"],
+        label="structural historical metrics",
+    )
+    full_season_complete = (
+        weeks == list(range(1, FULL_SEASON_WEEK_COUNT + 1))
+    )
+    primary_aggregate = next(
+        (
+            row for row in paired_aggregates
+            if row["challenger_arm"] == "boom-first-40-160"
+        ),
+        None,
+    )
+    primary_decision = next(
+        (
+            row for row in decisions
+            if row["challenger_arm"] == "boom-first-40-160"
+        ),
+        None,
+    )
+    historical_selected_positive = (
+        int(historical_metrics["selected_paired_delta_sum_micro"]) > 0
+    )
+    historical_oracle_positive = (
+        int(historical_metrics["pool_oracle_paired_delta_sum_micro"]) > 0
+    )
+    prospective_selected_positive: bool | None = None
+    prospective_oracle_positive: bool | None = None
+    prospective_interval_lower_positive: bool | None = None
+    prospective_guard_set_passed: bool | None = None
+    if full_season_complete and primary_aggregate is not None:
+        prospective_selected_positive = (
+            int(primary_aggregate["paired_mean_delta_micro"]["numerator"]) > 0
+        )
+        interval = _mapping(
+            primary_aggregate["uncertainty_95pct"],
+            label="full-season primary paired interval",
+        )
+        prospective_interval_lower_positive = int(interval["lower_micro"]) > 0
+        control_aggregate = next(
+            row for row in arm_aggregates
+            if row["arm_id"] == "incumbent-160-40"
+        )
+        boom_aggregate = next(
+            row for row in arm_aggregates
+            if row["arm_id"] == "boom-first-40-160"
+        )
+        control_k80 = next(
+            row for row in control_aggregate["prefix_aggregates"]
+            if row["entry_count"] == prereg["operational_k"]
+        )
+        boom_k80 = next(
+            row for row in boom_aggregate["prefix_aggregates"]
+            if row["entry_count"] == prereg["operational_k"]
+        )
+        prospective_oracle_positive = (
+            int(boom_k80["mean_pool_oracle_micro"]["numerator"])
+            * int(control_k80["mean_pool_oracle_micro"]["denominator"])
+            > int(control_k80["mean_pool_oracle_micro"]["numerator"])
+            * int(boom_k80["mean_pool_oracle_micro"]["denominator"])
+        )
+        prospective_guard_set_passed = bool(
+            primary_decision
+            and primary_decision["diagnostic_criteria_satisfied"]
+            and primary_decision["full_season_integrity_eligible"]
+        )
+    condition_vector = {
+        "historical_selected_effect_positive": historical_selected_positive,
+        "historical_pool_oracle_effect_positive": historical_oracle_positive,
+        "complete_contiguous_2026_regular_season": full_season_complete,
+        "week8_integrity_gate_passed": (
+            integrity_status == "pass" if full_season_complete else None
+        ),
+        "2026_selected_effect_direction_matches_historical": (
+            prospective_selected_positive == historical_selected_positive
+            if prospective_selected_positive is not None else None
+        ),
+        "2026_pool_oracle_effect_direction_matches_historical": (
+            prospective_oracle_positive == historical_oracle_positive
+            if prospective_oracle_positive is not None else None
+        ),
+        "2026_selected_paired_interval_lower_strictly_positive": (
+            prospective_interval_lower_positive
+        ),
+        "2026_preregistered_mpie_win_194_tail_guard_set_passed": (
+            prospective_guard_set_passed
+        ),
+    }
+    prospective_conditions = [
+        value for key, value in condition_vector.items()
+        if key.startswith("2026_") or key in {
+            "complete_contiguous_2026_regular_season",
+            "week8_integrity_gate_passed",
+        }
+    ]
+    synthesis_concordant = (
+        full_season_complete
+        and all(value is True for value in condition_vector.values())
+    )
+    if not full_season_complete:
+        synthesis_status = "pending-2026-accrual"
+        synthesis_disposition = "no-structural-decision-before-full-season"
+    elif synthesis_concordant:
+        synthesis_status = "concordant"
+        synthesis_disposition = synthesis_rule["concordant_disposition"]
+    else:
+        synthesis_status = "not-concordant-or-not-resolved"
+        synthesis_disposition = synthesis_rule["fallback_disposition"]
+    structural_synthesis = {
+        "schema_version": synthesis_rule["schema_version"],
+        "synthesis_rule_sha256": canonical_sha256_v1(synthesis_rule),
+        "historical_evidence_identity": deepcopy(
+            synthesis_rule["historical_evidence_identity"]
+        ),
+        "historical_internal_grade_sha256": synthesis_rule[
+            "historical_internal_grade_sha256"
+        ],
+        "historical_metrics": deepcopy(historical_metrics),
+        "historical_metrics_sha256": canonical_sha256_v1(historical_metrics),
+        "historical_evidence_role": synthesis_rule[
+            "historical_evidence_role"
+        ],
+        "synthesis_method": synthesis_rule["synthesis_method"],
+        "condition_vector": condition_vector,
+        "prospective_condition_count": len(prospective_conditions),
+        "prospective_conditions_satisfied_count": sum(
+            value is True for value in prospective_conditions
+        ),
+        "concordance_status": synthesis_status,
+        "disposition": synthesis_disposition,
+        "historical_object_read_during_evaluation": False,
+        "historical_object_reopen_required_before_human_decision": True,
+        "effect_pooling_performed": False,
+        "historical_and_prospective_gain_summing_performed": False,
+        "automatic_adoption": False,
+        "automatic_money_policy_change": False,
     }
     weekly_rows = [{
         "week": grade["week"],
@@ -5501,46 +7637,74 @@ def _build_prospective_shadow_evaluation_v1(
         "preregistration_sha256": prereg["preregistration_sha256"],
         "weekly_grades": grades,
         "weekly_grades_sha256": canonical_sha256_v1(grades),
+        "weekly_safety_receipts": safety_receipts,
+        "weekly_safety_receipts_sha256": canonical_sha256_v1(
+            safety_receipts
+        ),
         "completed_week_count": completed,
-        "completed_weeks": weeks,
+        "completed_weeks": represented_weeks,
+        "graded_week_count": len(grades),
+        "graded_weeks": weeks,
         "horizon": horizon,
         "decision_scope": decision_scope,
         "operational_k": prereg["operational_k"],
         "reporting_entry_counts": prereg["reporting_entry_counts"],
         "arm_order": list(ARM_ORDER),
+        "all_five_arms_required_before_week1": True,
+        "arm_omission_allowed": False,
+        "arm_decision_roles": deepcopy(_ARM_RELEASE_CONTRACT_BY_ID),
+        "contrast_decision_roles": deepcopy(_CONTRAST_DECISION_ROLES),
+        "retrieval_decision_role": deepcopy(_RETRIEVAL_DECISION_ROLE),
+        "only_primary_contrast_may_satisfy_efficacy_rule": True,
         "weekly_reports": weekly_rows,
         "weekly_reports_sha256": canonical_sha256_v1(weekly_rows),
         "arm_aggregates": arm_aggregates,
         "paired_aggregates": paired_aggregates,
         "retrieval_crossing_aggregates": retrieval_cells,
+        "retrieval_effect_aggregates": retrieval_effect_aggregates,
         "retrieval_interaction_aggregate": retrieval_interaction_aggregate,
+        "structural_synthesis": structural_synthesis,
         "population_cap_calibration": calibration,
         "family_level_decision_rule": rule,
+        "week8_safety_rule": safety_rule,
+        "week8_integrity_gate": integrity_gate,
         "family_rule_decisions": decisions,
         "one_family_level_rule_applied": True,
-        "all_arms_reported_including_losses": True,
-        "fit_world_crossing_designs_retained_by_week": True,
+        "all_arms_reported_including_losses": (
+            bool(grades) and not missing_grade_weeks
+        ),
+        "fit_world_crossing_designs_retained_by_week": (
+            bool(grades) and not missing_grade_weeks
+        ),
         "fit_world_crossing_execution_status": "not_evaluated",
-        "historical_gain_inputs_consumed": False,
+        "historical_gain_inputs_consumed": full_season_complete,
         "historical_gains_summed_across_arms": False,
         "automatic_adoption": False,
         "human_decision_required": True,
         "inference_unit": "slate-after-block-and-bank-aggregation",
-        "full_season_uncertainty_reported": completed == FULL_SEASON_WEEK_COUNT,
+        "full_season_uncertainty_reported": (
+            weeks == list(range(1, FULL_SEASON_WEEK_COUNT + 1))
+        ),
         "eight_week_efficacy_or_promotion_performed": False,
         "complete_field_capture_week_count": sum(
             bool(grade["field_metrics_available"]) for grade in grades
         ),
         "contest_evidence_scope": (
-            "raw-score-complete-field-ranks-and-entered-contest-ev"
-            if all(bool(grade["contest_ev_claim_allowed"]) for grade in grades)
+            "no-realized-grade-evidence"
+            if not grades
+            else "raw-score-complete-field-ranks-and-entered-contest-ev"
+            if grades and all(
+                bool(grade["contest_ev_claim_allowed"]) for grade in grades
+            )
             else "raw-score-and-complete-field-ranks-no-counterfactual-contest-ev"
-            if all(bool(grade["field_metrics_available"]) for grade in grades)
+            if grades and all(
+                bool(grade["field_metrics_available"]) for grade in grades
+            )
             else "raw-score-only-no-contest-ev"
         ),
         "contest_ev_claim_allowed": all(
             bool(grade["contest_ev_claim_allowed"]) for grade in grades
-        ),
+        ) if grades else False,
         "allocation_recommendation_allowed": False,
         "complete": True,
     }
@@ -5551,9 +7715,12 @@ def _build_prospective_shadow_evaluation_v1(
 def evaluate_prospective_shadow_v1(
     *, preregistration: Mapping[str, object],
     weekly_grades: Sequence[Mapping[str, object]],
+    weekly_safety_receipts: Sequence[Mapping[str, object]] = (),
 ) -> dict[str, object]:
     result = _build_prospective_shadow_evaluation_v1(
-        preregistration=preregistration, weekly_grades=weekly_grades
+        preregistration=preregistration,
+        weekly_grades=weekly_grades,
+        weekly_safety_receipts=weekly_safety_receipts,
     )
     return validate_prospective_shadow_evaluation_v1(result)
 
@@ -5565,12 +7732,21 @@ def validate_prospective_shadow_evaluation_v1(
     fields = {
         "schema_version", "season", "preregistration",
         "preregistration_sha256", "weekly_grades", "weekly_grades_sha256",
-        "completed_week_count", "completed_weeks", "horizon",
+        "weekly_safety_receipts", "weekly_safety_receipts_sha256",
+        "completed_week_count", "completed_weeks",
+        "graded_week_count", "graded_weeks", "horizon",
         "decision_scope", "operational_k", "reporting_entry_counts",
-        "arm_order", "weekly_reports", "weekly_reports_sha256",
+        "arm_order", "all_five_arms_required_before_week1",
+        "arm_omission_allowed", "arm_decision_roles",
+        "contrast_decision_roles", "retrieval_decision_role",
+        "only_primary_contrast_may_satisfy_efficacy_rule",
+        "weekly_reports", "weekly_reports_sha256",
         "arm_aggregates", "paired_aggregates", "retrieval_crossing_aggregates",
+        "retrieval_effect_aggregates",
         "retrieval_interaction_aggregate",
+        "structural_synthesis",
         "population_cap_calibration", "family_level_decision_rule",
+        "week8_safety_rule", "week8_integrity_gate",
         "family_rule_decisions", "one_family_level_rule_applied",
         "all_arms_reported_including_losses",
         "fit_world_crossing_designs_retained_by_week",
@@ -5598,8 +7774,23 @@ def validate_prospective_shadow_evaluation_v1(
     ]
     if result.get("weekly_grades_sha256") != canonical_sha256_v1(grades):
         _fail("evaluation weekly-grade manifest differs")
+    safety_receipts = [
+        validate_weekly_safety_receipt_v1(
+            receipt, preregistration=prereg
+        )
+        for receipt in _sequence(
+            result.get("weekly_safety_receipts"),
+            label="evaluation weekly safety receipts",
+        )
+    ]
+    if result.get("weekly_safety_receipts_sha256") != canonical_sha256_v1(
+        safety_receipts
+    ):
+        _fail("evaluation weekly safety-receipt manifest differs")
     expected = _build_prospective_shadow_evaluation_v1(
-        preregistration=prereg, weekly_grades=grades
+        preregistration=prereg,
+        weekly_grades=grades,
+        weekly_safety_receipts=safety_receipts,
     )
     if result != expected:
         _fail("prospective shadow evaluation arithmetic or lineage differs")
@@ -5614,7 +7805,8 @@ evaluate_season_v1 = evaluate_prospective_shadow_v1
 
 
 __all__ = [
-    "ARM_FREEZE_SCHEMA", "ARM_ORDER", "CALIBRATION_THRESHOLDS_DK",
+    "ARM_FREEZE_SCHEMA", "ARM_ORDER", "AUDIT_BANK_SCHEMA",
+    "CALIBRATION_THRESHOLDS_DK",
     "COMPARATOR_BY_ARM", "EVALUATION_SCHEMA", "FULL_SEASON_WEEK_COUNT",
     "INTERIM_WEEK_COUNT", "OUTCOME_SNAPSHOT_SCHEMA", "PREFIX_SIZES",
     "PREREGISTRATION_SCHEMA", "PROBABILITY_SCALE", "REALIZED_SCORE_SOURCE_SCHEMA",
@@ -5623,11 +7815,13 @@ __all__ = [
     "TERMINAL_PRELOCK_ROOT_SCHEMA", "SUITE_AUTHORITY_SCHEMA",
     "SUITE_MANIFEST_SCHEMA", "SUITE_PRELOCK_RECEIPT_SCHEMA",
     "SUITE_TERMINAL_SCHEMA", "WEEKLY_GRADE_SCHEMA",
+    "WEEKLY_SAFETY_RECEIPT_SCHEMA",
     "bind_terminal_prelock_root_v1", "build_arm_freeze_v1",
     "build_create_once_artifact_v1", "build_outcome_snapshot_v1",
     "build_outcome_snapshot_from_field_bridge_v1",
     "build_outcome_source_payload_from_field_bridge_v1",
     "build_preregistration_v1", "build_seed_crossing_v1",
+    "build_weekly_safety_receipt_v1",
     "build_suite_authority_v1", "build_terminal_prelock_root_from_suite_v2",
     "build_terminal_prelock_root_v1", "canonical_json_bytes_v1",
     "canonical_sha256_v1", "evaluate_prospective_shadow_v1",
@@ -5638,4 +7832,5 @@ __all__ = [
     "validate_realized_week_grade_v1", "validate_score_blind_freeze_v1",
     "validate_seed_crossing_v1", "validate_suite_authority_v1",
     "validate_terminal_prelock_root_body_v1", "validate_terminal_prelock_root_v1",
+    "validate_weekly_safety_receipt_v1",
 ]

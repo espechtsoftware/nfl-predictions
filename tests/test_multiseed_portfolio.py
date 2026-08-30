@@ -83,6 +83,21 @@ def test_cbwu_preserves_r0_budget_and_uses_five_equal_world_blocks():
     assert combined.metadata["worlds_per_block"] == [20] * 5
     assert sum(combined.metadata["candidate_source_counts"].values()) == len(
         books["R0"].candidates)
+    assert len(combined.metadata["candidate_source_blocks"]) == len(
+        combined.candidates
+    )
+    assert {
+        label: combined.metadata["candidate_source_blocks"].count(label)
+        for label in SEEDS
+    } == combined.metadata["candidate_source_counts"]
+    assert all(
+        f"candidate_seed:{source}" in combined.all_tags[lineup.ids]
+        for lineup, source in zip(
+            combined.candidates,
+            combined.metadata["candidate_source_blocks"],
+            strict=True,
+        )
+    )
     assert all(len(lineup.ids) == 9 for lineup in combined.candidates)
     assert len({lineup.ids for lineup in combined.candidates}) == len(
         combined.candidates)
