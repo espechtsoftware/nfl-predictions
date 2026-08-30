@@ -20,6 +20,46 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-30 (four-hundred-first update)
+
+### Outer-bound capture-plan successor is reviewed; no lock exists yet
+
+- Branch `main` and `origin/main` entered this milestone at pushed candidate-v2
+  commit `15299eaf`.  A new isolated capture-plan schema successor and focused
+  adversarial suite now bind the exact candidate-authority-v2 terminal root,
+  catalog-recovery outer identity/internal SHA, recovery/candidate binding and
+  clean measured implementation bytes.  Public build and deep-validation APIs
+  expose no caller-selected replay receipt, catalog release, candidate release,
+  or implementation identity.
+- The successor exact-reopens candidate v2 first and derives the frozen-v1
+  compatibility receipt/release inputs only from that root.  Its structural
+  validator requires outer/root/candidate equality; its deep validator reopens
+  and byte-rebuilds the full plan.  Its tracked reopener preserves the inherited
+  adapter-final and accepted-G0 Git evidence reads in addition to every
+  successor implementation byte.
+- Independent adversarial review found and fixed two P0 issues before commit.
+  First, the v3 lock had inherited v1's
+  `lock_builder_cloud_read_performed=false` despite deep remote candidate reads;
+  v3 now excludes that v1-only field, synthesizes it solely inside the in-memory
+  compatibility projection and records
+  `capture_successor_remote_exact_read_performed=true`.  Second, the inherited
+  v1 implementation commit/two-file measurements could fork from the measured
+  v3 commit/five-file set; exact commit and path-indexed subset equality are now
+  mandatory.  Candidate binding self-hash, inner/outer projection and candidate
+  root object/internal hashes were also strengthened.
+- Independent replay passed **41/41** across capture v3, frozen capture v1, the
+  legacy capture bridge, candidate core v2 and candidate release v2, plus
+  `py_compile` and no-index whitespace checks.  File SHA-256s are module
+  `514258d44b36fb73a3f9cb0ba3a0aa43f1a2ed4a3213d83673592fab38bce2eb`
+  and tests
+  `62e3f522b79e3b659c41361a5a03d9e1c8b0ac28bb68ecd1111ad7c3bbdbd677`.
+- No cloud or outcome access occurred.  This is code authority only: do not
+  create the tracked capture-plan lock before the real candidate-v2 root exists
+  and independently exact-reopens.  Immediate work is the guarded candidate
+  publisher plus the outer-bound component/source successors; the current
+  canonical worker still follows the old candidate-v1 source seam and therefore
+  cannot yet exercise this contract.
+
 ## Current handoff -- 2026-08-30 (four-hundredth update)
 
 ### True outer-bound fixed-G0 candidate authority v2 is implementation-complete
