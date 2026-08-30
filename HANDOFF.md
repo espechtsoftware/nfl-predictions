@@ -20,6 +20,54 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-30 (four-hundred-second update)
+
+### Git-independent runtime and exact one-job controller are local-ready, launch-NO-GO
+
+- Branch `main` and `origin/main` entered this milestone at pushed capture-v3
+  commit `39e8ba57`.  The canonical R6-v2 release now has a build-time clean-Git
+  receipt over all `src/nfl_dfs/**/*.py` plus both runtime dispatch scripts, a
+  fixed on-image canonical receipt path, runtime byte/module-origin validation
+  without Git, provider-observed image/commit binding, an overlay Dockerfile
+  that proves `.git` and the Git executable are absent, and a receipt freeze/
+  validation helper.  Worker/verifier APIs no longer accept caller runtime
+  receipt, commit or image substitutions.
+- A new isolated one-job controller implements exact phases `prepare`, task-0
+  worker, distinct task-0 verifier, 54 workers, 54 distinct verifiers and
+  `finish`, with task counts `[1,1,1,54,54,1]`.  It binds Cloud Build image
+  observations, exact job UID/configuration, fresh configure/launch claims,
+  zero retries, provider execution/task observations, scientific gates,
+  read-only status/independent reopen and generation-pinned job restoration.
+  Every provider/GCS mutation requires explicit `--execute`; no cloud command
+  was run in this milestone.
+- Independent replay passed **67/67** across canonical release, immediate
+  source consumer and controller suites; the controller/release/current source
+  bridge subset separately passed **61/61**.  `py_compile` and whitespace
+  checks passed.  Runtime/release SHA-256s are core
+  `9bfd280c8b0c97698ecf23babdfd741051910ec1fb72b712fc9b1f69ecc9af32`,
+  release CLI `3b71a7ae045022504abbb2e548da0a62964f0a4a58a4d10cae2f9fdc639424d6`,
+  receipt helper `4adda814cf46ca4201cdfe14fb64f8e15a7aa204b226624741986601be299a84`,
+  Dockerfile `36ed2e4102c9996e12c71333fee98d6a0ace0d6134f664b4c34ec4b5eb9f9f66`
+  and tests `a4f374c3dafb86327282843730406bcbe7922e5eedfe6cf7752a834162c2e78a`.
+  Controller SHA-256s are module
+  `1987314ef868ec11c5881aa3ffad518b45b4845a4d40ddeefb8c386982c7442d`,
+  operator `37c3e468d00760384b50fd34f5177923fd67ca87922bc0a936f2df23fd6dfbab`
+  and tests `7f6fe2c5f6ef57343af807e5ed6d197d7b0ced6387502e01651547e59ad91762`.
+- This is explicitly **not launch authority**.  Static trace proved the current
+  scoring path still imports/reopens candidate release v1, merely compares an
+  old capture-plan binding, and never reaches candidate v2, the recovery outer
+  or capture v3.  That old path requires absolute `/home` report files,
+  historical commits and reviewed bytes that differ from current source; the
+  no-Git image correctly rejects it.  Candidate v2 itself still constructs a
+  subprocess Git repository for recovery replay.
+- Immediate implementation work is therefore the guarded real candidate-v2
+  publisher and outer-bound component/source successors.  Before cloud task-0,
+  freeze a root-last predecessor-closure authority in a Git-capable environment
+  containing the exact historical blobs, formerly absolute inputs and resolved
+  recovery/candidate/capture bindings; the runtime successor must validate that
+  generation-pinned closure without Git or host paths and permit no v1 fallback.
+  A real `/app` task-0 worker plus distinct verifier smoke remains mandatory.
+
 ## Current handoff -- 2026-08-30 (four-hundred-first update)
 
 ### Outer-bound capture-plan successor is reviewed; no lock exists yet

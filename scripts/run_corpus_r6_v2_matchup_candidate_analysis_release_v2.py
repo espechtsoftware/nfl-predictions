@@ -8,7 +8,6 @@ from collections.abc import Mapping, Sequence
 import os
 from pathlib import Path
 import re
-import subprocess
 import sys
 from typing import Final
 
@@ -24,8 +23,6 @@ from nfl_dfs.research.corpus_neo4j_transport import (
 
 COMMANDS: Final = ("prepare", "run-worker", "verify-worker", "finish")
 CLOUD_RUN_TASK_INDEX: Final = "CLOUD_RUN_TASK_INDEX"
-_COMMIT = re.compile(r"[0-9a-f]{40}")
-_IMAGE = re.compile(r"[^\s@]+@sha256:[0-9a-f]{64}")
 _ORDINAL = re.compile(r"(?:0|[1-9][0-9]*)")
 
 
@@ -37,9 +34,7 @@ def _fail(message: str) -> None:
     raise CorpusR6V2MatchupCandidateAnalysisReleaseV2CLIError(message)
 
 
-def _load_identity(
-    path: Path, *, label: str, carrier_fields: Sequence[str] = (),
-) -> dict[str, object]:
+def _load_canonical_object(path: Path, *, label: str) -> dict[str, object]:
     if not path.is_absolute():
         _fail(f"{label} path must be absolute")
     try:
@@ -57,6 +52,15 @@ def _load_identity(
         raise CorpusR6V2MatchupCandidateAnalysisReleaseV2CLIError(str(exc)) from exc
     if not isinstance(parsed, Mapping):
         _fail(f"{label} must be an object")
+    if any(type(key) is not str for key in parsed):
+        _fail(f"{label} must be a string-keyed object")
+    return dict(parsed)
+
+
+def _load_identity(
+    path: Path, *, label: str, carrier_fields: Sequence[str] = (),
+) -> dict[str, object]:
+    parsed = _load_canonical_object(path, label=label)
     candidate: object = parsed
     present = [field for field in carrier_fields if field in parsed]
     if len(present) > 1:
@@ -78,18 +82,6 @@ def _project(value: object) -> str | None:
         or any(character.isspace() for character in value)
     ):
         _fail("project must be one nonempty whitespace-free identifier")
-    return value
-
-
-def _commit(value: object, *, label: str) -> str:
-    if type(value) is not str or _COMMIT.fullmatch(value) is None:
-        _fail(f"{label} must be one lowercase full Git commit")
-    return value
-
-
-def _image(value: object, *, label: str) -> str:
-    if type(value) is not str or _IMAGE.fullmatch(value) is None:
-        _fail(f"{label} must be one immutable image digest")
     return value
 
 
@@ -164,57 +156,6 @@ def _source_ordinal(
     return task_index
 
 
-def _git_head(repository_root: Path) -> str:
-    try:
-        completed = subprocess.run(
-            ["git", "rev-parse", "HEAD"],
-            cwd=repository_root,
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        return completed.stdout.decode("ascii").strip()
-    except (OSError, subprocess.CalledProcessError, UnicodeDecodeError) as exc:
-        raise CorpusR6V2MatchupCandidateAnalysisReleaseV2CLIError(
-            "measured Git HEAD failed"
-        ) from exc
-
-
-def _git_blob(repository_root: Path, commit: str, relative_path: str) -> bytes:
-    try:
-        completed = subprocess.run(
-            ["git", "show", f"{commit}:{relative_path}"],
-            cwd=repository_root,
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-    except (OSError, subprocess.CalledProcessError) as exc:
-        raise CorpusR6V2MatchupCandidateAnalysisReleaseV2CLIError(
-            f"measured Git blob failed for {relative_path}"
-        ) from exc
-    return completed.stdout
-
-
-def _git_status(repository_root: Path, relative_paths: Sequence[str]) -> bytes:
-    try:
-        completed = subprocess.run(
-            [
-                "git", "status", "--porcelain=v1", "--untracked-files=all",
-                "--", *relative_paths,
-            ],
-            cwd=repository_root,
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-    except (OSError, subprocess.CalledProcessError) as exc:
-        raise CorpusR6V2MatchupCandidateAnalysisReleaseV2CLIError(
-            "critical-path Git status measurement failed"
-        ) from exc
-    return completed.stdout
-
-
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
@@ -236,8 +177,9 @@ def _parser() -> argparse.ArgumentParser:
     prepare.add_argument(
         "--matchup-source-release-identity", required=True, type=Path
     )
-    prepare.add_argument("--source-commit-sha", required=True)
-    prepare.add_argument("--immutable-image", required=True)
+    prepare.add_argument(
+        "--runtime-image-authority-identity", required=True, type=Path
+    )
     prepare.add_argument("--output-prefix", required=True)
     prepare.add_argument(
         "--execute",
@@ -250,8 +192,6 @@ def _parser() -> argparse.ArgumentParser:
         command.add_argument("--manifest-identity", required=True, type=Path)
         command.add_argument("--source-ordinal", type=_ordinal_argument)
         command.add_argument("--repository-root", required=True, type=Path)
-        command.add_argument("--runtime-source-commit-sha", required=True)
-        command.add_argument("--runtime-immutable-image", required=True)
         command.add_argument(
             "--execute",
             action="store_true",
@@ -297,16 +237,16 @@ def _validated_request(
                 label="candidate-rooted matchup release identity",
                 carrier_fields=("release_identity",),
             ),
-            "source_commit_sha": _commit(
-                args.source_commit_sha, label="source commit"
-            ),
-            "immutable_image": _image(
-                args.immutable_image, label="immutable image"
+            "runtime_image_authority_identity": _load_identity(
+                args.runtime_image_authority_identity,
+                label="provider runtime image authority identity",
+                carrier_fields=("runtime_image_authority_identity",),
             ),
             "output_prefix": _output_prefix(args.output_prefix),
         }
         return {"command": args.command, "project": project, "kwargs": kwargs}
     if args.command in {"run-worker", "verify-worker"}:
+        release.load_image_embedded_runtime_authority_v1()
         kwargs = {
             "manifest_identity": _load_identity(
                 args.manifest_identity,
@@ -317,15 +257,6 @@ def _validated_request(
                 args.source_ordinal, environment=environment
             ),
             "repository_root": _repository_root(args.repository_root),
-            "runtime_source_commit_sha": _commit(
-                args.runtime_source_commit_sha, label="runtime source commit"
-            ),
-            "runtime_immutable_image": _image(
-                args.runtime_immutable_image, label="runtime immutable image"
-            ),
-            "git_head": _git_head,
-            "git_blob": _git_blob,
-            "git_status": _git_status,
         }
         return {"command": args.command, "project": project, "kwargs": kwargs}
     if args.command == "finish":

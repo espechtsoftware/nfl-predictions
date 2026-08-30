@@ -26,9 +26,11 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping, Sequence
 from hashlib import sha256
+import importlib
 import os
 from pathlib import Path
 import re
+import sys
 from typing import Final
 
 from nfl_dfs.research import corpus_batch_retrieval_runner_v2 as runner
@@ -81,6 +83,15 @@ VERIFIER_RECEIPT_SCHEMA: Final = (
 FINISH_RECEIPT_SCHEMA: Final = (
     "corpus-r6-v2-matchup-candidate-analysis-finish-receipt/v2"
 )
+EMBEDDED_RUNTIME_AUTHORITY_SCHEMA: Final = (
+    "corpus-r6-v2-matchup-candidate-embedded-runtime-authority/v1"
+)
+PROVIDER_RUNTIME_IMAGE_AUTHORITY_SCHEMA: Final = (
+    "corpus-r6-v2-matchup-candidate-provider-runtime-image-authority/v1"
+)
+PROVIDER_IMAGE_OBSERVATION_SCHEMA: Final = (
+    "corpus-r6-v2-matchup-candidate-provider-image-observation/v1"
+)
 
 PUBLICATION_MODE: Final = "create_once"
 AUTHORITATIVE_SLATE_COUNT: Final = 54
@@ -107,10 +118,15 @@ WORLDS_PER_BLOCK: Final = 10_000
 MINIMUM_SUPPORTED_PLAYERS: Final = 2
 MINIMUM_COMPLETENESS: Final = 0.5
 TERMINAL_STATUS: Final = "accepted-outcome-blind-analysis-release"
+IMAGE_RUNTIME_AUTHORITY_RECEIPT_PATH: Final = Path(
+    "/app/runtime/r6-v2-runtime-authority.json"
+)
 
-CRITICAL_RUNTIME_PATHS: Final = (
+_DIRECT_RUNTIME_PATHS: Final = (
     "src/nfl_dfs/research/"
     "corpus_r6_v2_matchup_candidate_analysis_release_v2.py",
+    "src/nfl_dfs/research/"
+    "corpus_r6_v2_matchup_candidate_analysis_controller_v1.py",
     "src/nfl_dfs/research/"
     "corpus_r6_v2_matchup_candidate_authority_consumer_v2.py",
     "src/nfl_dfs/research/"
@@ -136,7 +152,65 @@ CRITICAL_RUNTIME_PATHS: Final = (
     "src/nfl_dfs/research/residual_world_columns.py",
     "src/nfl_dfs/research/corpus_neo4j_transport.py",
     "scripts/run_corpus_r6_v2_matchup_candidate_analysis_release_v2.py",
+    "scripts/run_corpus_r6_v2_matchup_candidate_analysis_controller_v1.py",
 )
+_MODULE_REPOSITORY_ROOT: Final = Path(__file__).resolve().parents[3]
+_PROJECT_PYTHON_PATHS: Final = tuple(
+    path.relative_to(_MODULE_REPOSITORY_ROOT).as_posix()
+    for path in sorted(
+        (_MODULE_REPOSITORY_ROOT / "src" / "nfl_dfs").rglob("*.py")
+    )
+)
+CRITICAL_RUNTIME_PATHS: Final = tuple(dict.fromkeys((
+        *_DIRECT_RUNTIME_PATHS,
+        *_PROJECT_PYTHON_PATHS,
+    )))
+
+_RUNTIME_FILE_FIELDS: Final = frozenset({
+    "relative_path",
+    "sha256",
+    "bytes",
+})
+_EMBEDDED_RUNTIME_AUTHORITY_FIELDS: Final = frozenset({
+    "schema_version",
+    "source_commit_sha",
+    "critical_runtime_paths",
+    "critical_runtime_paths_sha256",
+    "file_count",
+    "file_measurements",
+    "critical_runtime_files_sha256",
+    "clean_git_head_verified_at_build",
+    "clean_git_status_verified_at_build",
+    "working_tree_equals_commit_blobs_verified_at_build",
+    "runtime_authority_sha256",
+})
+_PROVIDER_IMAGE_OBSERVATION_FIELDS: Final = frozenset({
+    "schema_version",
+    "provider",
+    "observation_kind",
+    "resource_name",
+    "build_id",
+    "job_name",
+    "job_uid",
+    "execution_id",
+    "source_commit_sha",
+    "immutable_image",
+    "provider_observed",
+})
+_PROVIDER_RUNTIME_IMAGE_AUTHORITY_FIELDS: Final = frozenset({
+    "schema_version",
+    "provider_observation",
+    "provider_observation_sha256",
+    "embedded_runtime_authority",
+    "source_commit_sha",
+    "immutable_image",
+    "image_digest",
+    "embedded_runtime_authority_sha256",
+    "critical_runtime_paths_sha256",
+    "critical_runtime_files_sha256",
+    "provider_attestation_claimed",
+    "provider_runtime_image_authority_sha256",
+})
 
 _FALSE_AUTHORITY_FIELDS: Final = (
     "analytical_authority",
@@ -315,6 +389,308 @@ def _validate_self_hash(
     if batch.canonical_sha256(body) != retained:
         _fail(f"{label} self-hash differs")
     return retained
+
+
+def _runtime_file_path(
+    repository_root: Path, relative_path: object, *, label: str,
+) -> Path:
+    if type(relative_path) is not str or not relative_path:
+        _fail(f"{label} relative path differs")
+    relative = Path(relative_path)
+    if relative.is_absolute() or ".." in relative.parts or "." in relative.parts:
+        _fail(f"{label} relative path differs")
+    candidate = repository_root / relative
+    try:
+        resolved = candidate.resolve(strict=True)
+    except OSError as exc:
+        raise CorpusR6V2MatchupCandidateAnalysisReleaseV2Error(
+            f"{label} is absent"
+        ) from exc
+    if resolved != candidate or not resolved.is_file():
+        _fail(f"{label} must be one non-symlink regular file")
+    return resolved
+
+
+def _runtime_file_measurement(
+    repository_root: Path, relative_path: str,
+) -> tuple[dict[str, object], bytes]:
+    path = _runtime_file_path(
+        repository_root, relative_path, label=f"runtime file {relative_path!r}"
+    )
+    try:
+        raw = path.read_bytes()
+    except OSError as exc:
+        raise CorpusR6V2MatchupCandidateAnalysisReleaseV2Error(
+            f"runtime file {relative_path!r} cannot be read"
+        ) from exc
+    return {
+        "relative_path": relative_path,
+        "sha256": sha256(raw).hexdigest(),
+        "bytes": len(raw),
+    }, raw
+
+
+def build_embedded_runtime_authority_v1(
+    *, repository_root: Path, source_commit_sha: str,
+    git_head: GitHead, git_blob: GitBlob, git_status: GitStatus,
+) -> dict[str, object]:
+    """Measure a tracked-clean build context before it enters the image."""
+    if (
+        not isinstance(repository_root, Path)
+        or not repository_root.is_absolute()
+        or type(source_commit_sha) is not str
+        or _COMMIT.fullmatch(source_commit_sha) is None
+        or not callable(git_head)
+        or not callable(git_blob)
+        or not callable(git_status)
+    ):
+        _fail("embedded runtime build authority arguments differ")
+    try:
+        root = repository_root.resolve(strict=True)
+        head = git_head(root)
+        status = git_status(root, ["."])
+    except Exception as exc:
+        raise CorpusR6V2MatchupCandidateAnalysisReleaseV2Error(
+            "embedded runtime clean-Git measurement failed"
+        ) from exc
+    if head != source_commit_sha or type(status) is not bytes or status != b"":
+        _fail("embedded runtime build context is not the exact clean commit")
+    measurements: list[dict[str, object]] = []
+    for relative_path in CRITICAL_RUNTIME_PATHS:
+        measurement, raw = _runtime_file_measurement(root, relative_path)
+        try:
+            committed = git_blob(root, source_commit_sha, relative_path)
+        except Exception as exc:
+            raise CorpusR6V2MatchupCandidateAnalysisReleaseV2Error(
+                f"embedded runtime committed blob read failed: {relative_path}"
+            ) from exc
+        if type(committed) is not bytes or committed != raw:
+            _fail(f"embedded runtime file differs from commit: {relative_path}")
+        measurements.append(measurement)
+    body = {
+        "schema_version": EMBEDDED_RUNTIME_AUTHORITY_SCHEMA,
+        "source_commit_sha": source_commit_sha,
+        "critical_runtime_paths": list(CRITICAL_RUNTIME_PATHS),
+        "critical_runtime_paths_sha256": batch.canonical_sha256(
+            list(CRITICAL_RUNTIME_PATHS)
+        ),
+        "file_count": len(measurements),
+        "file_measurements": measurements,
+        "critical_runtime_files_sha256": batch.canonical_sha256(measurements),
+        "clean_git_head_verified_at_build": True,
+        "clean_git_status_verified_at_build": True,
+        "working_tree_equals_commit_blobs_verified_at_build": True,
+    }
+    return _with_hash(body, field="runtime_authority_sha256")
+
+
+def validate_embedded_runtime_authority_v1(
+    value: object,
+) -> dict[str, object]:
+    item = _mapping(value, label="embedded runtime authority")
+    _exact_keys(
+        item,
+        _EMBEDDED_RUNTIME_AUTHORITY_FIELDS,
+        label="embedded runtime authority",
+    )
+    _validate_self_hash(
+        item,
+        field="runtime_authority_sha256",
+        label="embedded runtime authority",
+    )
+    measurements = [
+        _mapping(row, label=f"runtime file measurement[{ordinal}]")
+        for ordinal, row in enumerate(
+            _sequence(item.get("file_measurements"), label="runtime files")
+        )
+    ]
+    for ordinal, measurement in enumerate(measurements):
+        _exact_keys(
+            measurement,
+            _RUNTIME_FILE_FIELDS,
+            label=f"runtime file measurement[{ordinal}]",
+        )
+        _digest(
+            measurement.get("sha256"),
+            label=f"runtime file measurement[{ordinal}] SHA",
+        )
+        if (
+            type(measurement.get("relative_path")) is not str
+            or type(measurement.get("bytes")) is not int
+            or int(measurement["bytes"]) < 0
+        ):
+            _fail(f"runtime file measurement[{ordinal}] structure differs")
+    expected_paths = list(CRITICAL_RUNTIME_PATHS)
+    if (
+        item.get("schema_version") != EMBEDDED_RUNTIME_AUTHORITY_SCHEMA
+        or type(item.get("source_commit_sha")) is not str
+        or _COMMIT.fullmatch(str(item.get("source_commit_sha"))) is None
+        or item.get("critical_runtime_paths") != expected_paths
+        or item.get("critical_runtime_paths_sha256")
+        != batch.canonical_sha256(expected_paths)
+        or item.get("file_count") != len(expected_paths)
+        or [row["relative_path"] for row in measurements] != expected_paths
+        or item.get("critical_runtime_files_sha256")
+        != batch.canonical_sha256(measurements)
+        or item.get("clean_git_head_verified_at_build") is not True
+        or item.get("clean_git_status_verified_at_build") is not True
+        or item.get("working_tree_equals_commit_blobs_verified_at_build")
+        is not True
+    ):
+        _fail("embedded runtime authority closure differs")
+    return item
+
+
+def load_image_embedded_runtime_authority_v1() -> dict[str, object]:
+    """Read the sole fixed, canonical receipt embedded in the runtime image."""
+    path = IMAGE_RUNTIME_AUTHORITY_RECEIPT_PATH
+    if not path.is_absolute():
+        _fail("image runtime authority receipt path differs")
+    try:
+        resolved = path.resolve(strict=True)
+        raw = resolved.read_bytes()
+    except OSError as exc:
+        raise CorpusR6V2MatchupCandidateAnalysisReleaseV2Error(
+            "image runtime authority receipt is absent"
+        ) from exc
+    if resolved != path or not resolved.is_file() or not raw:
+        _fail("image runtime authority receipt must be one fixed regular file")
+    try:
+        parsed = batch.parse_canonical_json_bytes(
+            raw, label="image embedded runtime authority receipt"
+        )
+    except batch.CorpusParametricBatchError as exc:
+        raise CorpusR6V2MatchupCandidateAnalysisReleaseV2Error(str(exc)) from exc
+    embedded = validate_embedded_runtime_authority_v1(parsed)
+    if raw != batch.canonical_json_bytes(embedded):
+        _fail("image runtime authority receipt bytes are not canonical")
+    return embedded
+
+
+def _provider_image_observation(value: object) -> dict[str, object]:
+    item = _mapping(value, label="provider image observation")
+    _exact_keys(
+        item,
+        _PROVIDER_IMAGE_OBSERVATION_FIELDS,
+        label="provider image observation",
+    )
+    kind = item.get("observation_kind")
+    job_name = item.get("job_name")
+    job_uid = item.get("job_uid")
+    execution_id = item.get("execution_id")
+    if (
+        item.get("schema_version") != PROVIDER_IMAGE_OBSERVATION_SCHEMA
+        or item.get("provider")
+        not in {"google-cloud-build", "google-cloud-run-v2"}
+        or kind
+        not in {"cloud-build-image", "cloud-run-job", "cloud-run-execution"}
+        or type(item.get("resource_name")) is not str
+        or not item["resource_name"]
+        or type(item.get("build_id")) is not str
+        or not item["build_id"]
+        or type(item.get("source_commit_sha")) is not str
+        or _COMMIT.fullmatch(str(item.get("source_commit_sha"))) is None
+        or type(item.get("immutable_image")) is not str
+        or _IMAGE.fullmatch(str(item.get("immutable_image"))) is None
+        or item.get("provider_observed") is not True
+    ):
+        _fail("provider image observation differs")
+    if kind == "cloud-build-image" and any(
+        value is not None for value in (job_name, job_uid, execution_id)
+    ):
+        _fail("provider build image observation carries Cloud Run identity")
+    if (
+        (kind == "cloud-build-image")
+        != (item.get("provider") == "google-cloud-build")
+    ):
+        _fail("provider image observation kind/provider pairing differs")
+    if kind in {"cloud-run-job", "cloud-run-execution"} and (
+        type(job_name) is not str
+        or not job_name
+        or type(job_uid) is not str
+        or not job_uid
+    ):
+        _fail("provider Cloud Run job identity differs")
+    if kind == "cloud-run-job" and execution_id is not None:
+        _fail("provider job observation carries an execution identity")
+    if kind == "cloud-run-execution" and (
+        type(execution_id) is not str or not execution_id
+    ):
+        _fail("provider execution identity differs")
+    return item
+
+
+def build_provider_runtime_image_authority_v1(
+    *, provider_observation: Mapping[str, object],
+    embedded_runtime_authority: Mapping[str, object],
+) -> dict[str, object]:
+    observation = _provider_image_observation(provider_observation)
+    embedded = validate_embedded_runtime_authority_v1(
+        embedded_runtime_authority
+    )
+    if observation["source_commit_sha"] != embedded["source_commit_sha"]:
+        _fail("provider image commit differs from embedded runtime authority")
+    immutable_image = str(observation["immutable_image"])
+    body = {
+        "schema_version": PROVIDER_RUNTIME_IMAGE_AUTHORITY_SCHEMA,
+        "provider_observation": observation,
+        "provider_observation_sha256": batch.canonical_sha256(observation),
+        "embedded_runtime_authority": embedded,
+        "source_commit_sha": embedded["source_commit_sha"],
+        "immutable_image": immutable_image,
+        "image_digest": immutable_image.rsplit("@", 1)[1],
+        "embedded_runtime_authority_sha256": embedded[
+            "runtime_authority_sha256"
+        ],
+        "critical_runtime_paths_sha256": embedded[
+            "critical_runtime_paths_sha256"
+        ],
+        "critical_runtime_files_sha256": embedded[
+            "critical_runtime_files_sha256"
+        ],
+        "provider_attestation_claimed": False,
+    }
+    return _with_hash(body, field="provider_runtime_image_authority_sha256")
+
+
+def validate_provider_runtime_image_authority_v1(
+    value: object,
+) -> dict[str, object]:
+    item = _mapping(value, label="provider runtime image authority")
+    _exact_keys(
+        item,
+        _PROVIDER_RUNTIME_IMAGE_AUTHORITY_FIELDS,
+        label="provider runtime image authority",
+    )
+    _validate_self_hash(
+        item,
+        field="provider_runtime_image_authority_sha256",
+        label="provider runtime image authority",
+    )
+    observation = _provider_image_observation(item.get("provider_observation"))
+    embedded = validate_embedded_runtime_authority_v1(
+        item.get("embedded_runtime_authority")
+    )
+    immutable_image = str(item.get("immutable_image"))
+    if (
+        item.get("schema_version") != PROVIDER_RUNTIME_IMAGE_AUTHORITY_SCHEMA
+        or item.get("provider_observation_sha256")
+        != batch.canonical_sha256(observation)
+        or item.get("source_commit_sha") != observation["source_commit_sha"]
+        or item.get("source_commit_sha") != embedded["source_commit_sha"]
+        or immutable_image != observation["immutable_image"]
+        or _IMAGE.fullmatch(immutable_image) is None
+        or item.get("image_digest") != immutable_image.rsplit("@", 1)[1]
+        or item.get("embedded_runtime_authority_sha256")
+        != embedded["runtime_authority_sha256"]
+        or item.get("critical_runtime_paths_sha256")
+        != embedded["critical_runtime_paths_sha256"]
+        or item.get("critical_runtime_files_sha256")
+        != embedded["critical_runtime_files_sha256"]
+        or item.get("provider_attestation_claimed") is not False
+    ):
+        _fail("provider runtime image authority differs")
+    return item
 
 
 def _policy() -> dict[str, object]:
@@ -581,8 +957,9 @@ def _build_manifest(
     *, panel_index_identity: object, panel: Mapping[str, object],
     lane_terminal_identities: Sequence[object],
     matchup_source_release_identity: object,
-    matchup_source_release: Mapping[str, object], source_commit_sha: str,
-    immutable_image: str, output_prefix: str,
+    matchup_source_release: Mapping[str, object],
+    runtime_image_authority_identity: object,
+    runtime_image_authority: Mapping[str, object], output_prefix: str,
 ) -> dict[str, object]:
     panel_identity = _bind_identity_to_body(
         panel_index_identity, panel, label="Gate-G0 panel index"
@@ -592,10 +969,16 @@ def _build_manifest(
         matchup_source_release,
         label="candidate-rooted matchup release",
     )
-    if type(source_commit_sha) is not str or _COMMIT.fullmatch(source_commit_sha) is None:
-        _fail("source commit must be one lowercase full Git commit")
-    if type(immutable_image) is not str or _IMAGE.fullmatch(immutable_image) is None:
-        _fail("immutable image must be digest pinned")
+    image_authority = validate_provider_runtime_image_authority_v1(
+        runtime_image_authority
+    )
+    image_authority_identity = _bind_identity_to_body(
+        runtime_image_authority_identity,
+        image_authority,
+        label="provider runtime image authority",
+    )
+    source_commit_sha = str(image_authority["source_commit_sha"])
+    immutable_image = str(image_authority["immutable_image"])
     prefix = _output_prefix(output_prefix)
     terminals = [
         _identity(value, label=f"lane terminal[{ordinal}]")
@@ -622,8 +1005,10 @@ def _build_manifest(
     seed = {
         "panel_index_identity": panel_identity,
         "matchup_source_release_identity": source_identity,
-        "source_commit_sha": source_commit_sha,
-        "immutable_image": immutable_image,
+        "runtime_image_authority_identity": image_authority_identity,
+        "provider_runtime_image_authority_sha256": image_authority[
+            "provider_runtime_image_authority_sha256"
+        ],
         "output_prefix": prefix,
     }
     body: dict[str, object] = {
@@ -636,6 +1021,19 @@ def _build_manifest(
         "matchup_source_release_identity": source_identity,
         "matchup_source_release_sha256": matchup_source_release[
             "matchup_source_release_candidate_authority_sha256"
+        ],
+        "runtime_image_authority_identity": image_authority_identity,
+        "provider_runtime_image_authority_sha256": image_authority[
+            "provider_runtime_image_authority_sha256"
+        ],
+        "embedded_runtime_authority_sha256": image_authority[
+            "embedded_runtime_authority_sha256"
+        ],
+        "critical_runtime_paths_sha256": image_authority[
+            "critical_runtime_paths_sha256"
+        ],
+        "critical_runtime_files_sha256": image_authority[
+            "critical_runtime_files_sha256"
         ],
         "source_commit_sha": source_commit_sha,
         "immutable_image": immutable_image,
@@ -667,8 +1065,8 @@ def _build_manifest(
 def prepare_release_v2(
     *, storage: ExactObjectStore, panel_index_identity: object,
     lane_terminal_identities: Sequence[object],
-    matchup_source_release_identity: object, source_commit_sha: str,
-    immutable_image: str, output_prefix: str,
+    matchup_source_release_identity: object,
+    runtime_image_authority_identity: object, output_prefix: str,
 ) -> dict[str, object]:
     """Exact-replay both complete roots and publish one deterministic manifest."""
     read_exact = _read_exact_callback(storage)
@@ -680,14 +1078,22 @@ def prepare_release_v2(
     source_identity, source_root = _reopen_source_release_structure(
         identity=matchup_source_release_identity, read_exact=read_exact
     )
+    image_authority_identity, image_authority = _read_json(
+        storage,
+        runtime_image_authority_identity,
+        label="provider runtime image authority",
+    )
+    image_authority = validate_provider_runtime_image_authority_v1(
+        image_authority
+    )
     manifest = _build_manifest(
         panel_index_identity=panel_index_identity,
         panel=panel,
         lane_terminal_identities=lane_terminal_identities,
         matchup_source_release_identity=source_identity,
         matchup_source_release=source_root,
-        source_commit_sha=source_commit_sha,
-        immutable_image=immutable_image,
+        runtime_image_authority_identity=image_authority_identity,
+        runtime_image_authority=image_authority,
         output_prefix=output_prefix,
     )
     identity = _publish_or_recover(
@@ -740,14 +1146,22 @@ def reopen_manifest_v2(
     source_identity, source_root = _reopen_source_release_structure(
         identity=manifest["matchup_source_release_identity"], read_exact=read_exact
     )
+    image_authority_identity, image_authority = _read_json(
+        storage,
+        manifest.get("runtime_image_authority_identity"),
+        label="provider runtime image authority",
+    )
+    image_authority = validate_provider_runtime_image_authority_v1(
+        image_authority
+    )
     expected = _build_manifest(
         panel_index_identity=manifest["panel_index_identity"],
         panel=panel,
         lane_terminal_identities=manifest["lane_terminal_identities"],
         matchup_source_release_identity=source_identity,
         matchup_source_release=source_root,
-        source_commit_sha=str(manifest["source_commit_sha"]),
-        immutable_image=str(manifest["immutable_image"]),
+        runtime_image_authority_identity=image_authority_identity,
+        runtime_image_authority=image_authority,
         output_prefix=str(manifest["output_prefix"]),
     )
     if batch.canonical_json_bytes(expected) != batch.canonical_json_bytes(manifest):
@@ -826,63 +1240,156 @@ def _process_instance_key(
     )
 
 
-def _validate_runtime_binding(
-    *, manifest: Mapping[str, object], repository_root: Path,
-    runtime_source_commit_sha: str, runtime_immutable_image: str,
-    git_head: GitHead, git_status: GitStatus,
-) -> None:
-    if (
-        not isinstance(repository_root, Path)
-        or not repository_root.is_absolute()
-        or not callable(git_head)
-        or not callable(git_status)
-        or runtime_source_commit_sha != manifest.get("source_commit_sha")
-        or runtime_immutable_image != manifest.get("immutable_image")
-    ):
-        _fail("runtime repository/commit/image binding differs")
+def _runtime_module_origins_v1() -> dict[str, Path]:
+    origins: dict[str, Path] = {}
     try:
-        root = repository_root.resolve(strict=True)
-        imported_paths = {
-            "src/nfl_dfs/research/"
-            "corpus_r6_v2_matchup_candidate_analysis_release_v2.py": Path(
-                __file__
-            ).resolve(strict=True),
-            "src/nfl_dfs/research/"
-            "corpus_r6_v2_matchup_candidate_authority_consumer_v2.py": Path(
-                str(consumer.__file__)
-            ).resolve(strict=True),
-            "src/nfl_dfs/research/corpus_batch_retrieval_runner_v2.py": Path(
-                str(runner.__file__)
-            ).resolve(strict=True),
-            "src/nfl_dfs/research/"
-            "corpus_r6_matchup_source_release_candidate_authority_v2.py": Path(
-                str(source_release_v2.__file__)
-            ).resolve(strict=True),
-            "src/nfl_dfs/research/corpus_v12_panel_index.py": Path(
-                str(panel_index.__file__)
-            ).resolve(strict=True),
-            "src/nfl_dfs/research/residual_world_columns.py": Path(
-                str(rw.__file__)
-            ).resolve(strict=True),
-        }
-    except (OSError, RuntimeError) as exc:
+        for relative_path in _DIRECT_RUNTIME_PATHS:
+            if not relative_path.startswith("src/") or not relative_path.endswith(
+                ".py"
+            ):
+                continue
+            module_name = relative_path[4:-3].replace("/", ".")
+            importlib.import_module(module_name)
+        for module_name, module in list(sys.modules.items()):
+            if module_name != "nfl_dfs" and not module_name.startswith(
+                "nfl_dfs."
+            ):
+                continue
+            origin = getattr(module, "__file__", None)
+            if type(origin) is not str or not origin:
+                _fail(f"runtime module {module_name!r} has no file origin")
+            origin_path = Path(origin).resolve(strict=True)
+            if origin_path.name == "__init__.py":
+                relative_path = (
+                    "src/" + module_name.replace(".", "/") + "/__init__.py"
+                )
+            else:
+                relative_path = "src/" + module_name.replace(".", "/") + ".py"
+            if relative_path in origins and origins[relative_path] != origin_path:
+                _fail(f"runtime module {module_name!r} origin is ambiguous")
+            origins[relative_path] = origin_path
+    except (ImportError, OSError, RuntimeError) as exc:
         raise CorpusR6V2MatchupCandidateAnalysisReleaseV2Error(
             "runtime imported-module origin measurement failed"
         ) from exc
-    if any(
-        imported != (root / relative).resolve(strict=True)
-        for relative, imported in imported_paths.items()
-    ):
-        _fail("runtime scientific modules are not imported from repository root")
+    return origins
+
+
+def _runtime_repository_callbacks_v1(
+    *, repository_root: Path,
+    embedded_runtime_authority: Mapping[str, object],
+) -> tuple[GitHead, GitBlob, GitStatus]:
+    embedded = validate_embedded_runtime_authority_v1(
+        embedded_runtime_authority
+    )
+    root = repository_root.resolve(strict=True)
+    by_path = {
+        str(row["relative_path"]): dict(row)
+        for row in embedded["file_measurements"]
+    }
+
+    def _same_root(value: Path) -> None:
+        if not isinstance(value, Path) or value.resolve(strict=True) != root:
+            _fail("runtime tracked-source root differs")
+
+    def _read_current(relative_path: str) -> bytes:
+        expected = by_path.get(relative_path)
+        if expected is None:
+            _fail(f"runtime tracked blob is outside embedded authority: {relative_path}")
+        measured, raw = _runtime_file_measurement(root, relative_path)
+        if measured != expected:
+            _fail(f"runtime tracked blob drifted: {relative_path}")
+        return raw
+
+    def head(value: Path) -> str:
+        _same_root(value)
+        return str(embedded["source_commit_sha"])
+
+    def blob(value: Path, commit: str, relative_path: str) -> bytes:
+        _same_root(value)
+        if commit != embedded["source_commit_sha"]:
+            _fail(
+                "historical tracked blob is absent from embedded runtime authority"
+            )
+        return _read_current(relative_path)
+
+    def status(value: Path, relative_paths: Sequence[str]) -> bytes:
+        _same_root(value)
+        paths = _sequence(relative_paths, label="runtime tracked status paths")
+        if any(type(path) is not str for path in paths):
+            _fail("runtime tracked status paths differ")
+        for relative_path in paths:
+            _read_current(str(relative_path))
+        return b""
+
+    return head, blob, status
+
+
+def validate_runtime_files_v1(
+    *, repository_root: Path, embedded_runtime_authority: object,
+) -> dict[str, object]:
+    """Validate image bytes and imported origins without invoking Git."""
+    if not isinstance(repository_root, Path) or not repository_root.is_absolute():
+        _fail("runtime repository root differs")
+    embedded = validate_embedded_runtime_authority_v1(
+        embedded_runtime_authority
+    )
     try:
-        head = git_head(root)
-        status = git_status(root, list(CRITICAL_RUNTIME_PATHS))
-    except Exception as exc:
+        root = repository_root.resolve(strict=True)
+    except OSError as exc:
         raise CorpusR6V2MatchupCandidateAnalysisReleaseV2Error(
-            "runtime Git measurement failed"
+            "runtime repository root cannot be resolved"
         ) from exc
-    if head != runtime_source_commit_sha or type(status) is not bytes or status != b"":
-        _fail("runtime critical code is not the manifest-bound tracked-clean commit")
+    expected_by_path = {
+        str(row["relative_path"]): dict(row)
+        for row in embedded["file_measurements"]
+    }
+    for relative_path in CRITICAL_RUNTIME_PATHS:
+        measured, _ = _runtime_file_measurement(root, relative_path)
+        if measured != expected_by_path[relative_path]:
+            _fail(f"runtime critical file drifted: {relative_path}")
+    origins = _runtime_module_origins_v1()
+    measured_source_paths = {
+        path for path in CRITICAL_RUNTIME_PATHS if path.startswith("src/")
+    }
+    required_direct_origins = {
+        path for path in _DIRECT_RUNTIME_PATHS if path.startswith("src/")
+    }
+    if (
+        not required_direct_origins <= set(origins)
+        or not set(origins) <= measured_source_paths
+        or any(
+            origin != root / relative_path
+            for relative_path, origin in origins.items()
+        )
+    ):
+        _fail("runtime scientific module origin differs from embedded authority")
+    return embedded
+
+
+def _validate_runtime_binding(
+    *, manifest: Mapping[str, object], repository_root: Path,
+    embedded_runtime_authority: object,
+) -> tuple[GitHead, GitBlob, GitStatus]:
+    embedded = validate_runtime_files_v1(
+        repository_root=repository_root,
+        embedded_runtime_authority=embedded_runtime_authority,
+    )
+    if (
+        embedded.get("source_commit_sha") != manifest.get("source_commit_sha")
+        or embedded.get("runtime_authority_sha256")
+        != manifest.get("embedded_runtime_authority_sha256")
+        or embedded.get("critical_runtime_paths_sha256")
+        != manifest.get("critical_runtime_paths_sha256")
+        or embedded.get("critical_runtime_files_sha256")
+        != manifest.get("critical_runtime_files_sha256")
+    ):
+        _fail("runtime authority differs from provider-bound manifest")
+    root = repository_root.resolve(strict=True)
+    return _runtime_repository_callbacks_v1(
+        repository_root=root,
+        embedded_runtime_authority=embedded,
+    )
 
 
 def _book_catalog(task_result: Mapping[str, object]) -> dict[str, object]:
@@ -1255,9 +1762,7 @@ def _reopen_worker_result(
 
 def run_worker_v2(
     *, storage: ExactObjectStore, manifest_identity: object, source_ordinal: int,
-    repository_root: Path, runtime_source_commit_sha: str,
-    runtime_immutable_image: str, git_head: GitHead, git_blob: GitBlob,
-    git_status: GitStatus,
+    repository_root: Path,
     execute: ExecuteOrdinal = (
         consumer.execute_r6_v2_matchup_candidate_authority_ordinal_v2
     ),
@@ -1268,13 +1773,11 @@ def run_worker_v2(
     retained_manifest, manifest, panel, _ = reopen_manifest_v2(
         storage=storage, manifest_identity=manifest_identity
     )
-    _validate_runtime_binding(
+    embedded_runtime_authority = load_image_embedded_runtime_authority_v1()
+    git_head, git_blob, git_status = _validate_runtime_binding(
         manifest=manifest,
         repository_root=repository_root,
-        runtime_source_commit_sha=runtime_source_commit_sha,
-        runtime_immutable_image=runtime_immutable_image,
-        git_head=git_head,
-        git_status=git_status,
+        embedded_runtime_authority=embedded_runtime_authority,
     )
     member = _mapping(
         _sequence(manifest["source_members"], label="manifest source members")[
@@ -1520,9 +2023,7 @@ def _reopen_acceptance(
 
 def verify_worker_v2(
     *, storage: ExactObjectStore, manifest_identity: object, source_ordinal: int,
-    repository_root: Path, runtime_source_commit_sha: str,
-    runtime_immutable_image: str, git_head: GitHead, git_blob: GitBlob,
-    git_status: GitStatus,
+    repository_root: Path,
     validate: ValidateOrdinal = (
         consumer.validate_r6_v2_matchup_candidate_authority_ordinal_result_v2
     ),
@@ -1533,13 +2034,11 @@ def verify_worker_v2(
     retained_manifest, manifest, panel, _ = reopen_manifest_v2(
         storage=storage, manifest_identity=manifest_identity
     )
-    _validate_runtime_binding(
+    embedded_runtime_authority = load_image_embedded_runtime_authority_v1()
+    git_head, git_blob, git_status = _validate_runtime_binding(
         manifest=manifest,
         repository_root=repository_root,
-        runtime_source_commit_sha=runtime_source_commit_sha,
-        runtime_immutable_image=runtime_immutable_image,
-        git_head=git_head,
-        git_status=git_status,
+        embedded_runtime_authority=embedded_runtime_authority,
     )
     member = _mapping(
         _sequence(manifest["source_members"], label="manifest source members")[

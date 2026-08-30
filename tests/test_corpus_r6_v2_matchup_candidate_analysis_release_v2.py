@@ -2,11 +2,16 @@ from __future__ import annotations
 
 from copy import deepcopy
 from hashlib import sha256
+import inspect
 from pathlib import Path
+import subprocess
 from typing import Any
 
 import pytest
 
+from scripts import (
+    build_corpus_r6_v2_runtime_authority_v1 as build_runtime,
+)
 from scripts import (
     run_corpus_r6_v2_matchup_candidate_analysis_release_v2 as cli,
 )
@@ -173,6 +178,69 @@ def _source_root() -> dict[str, Any]:
     }
 
 
+def _embedded_runtime_authority(
+    *, repository_root: Path = REPOSITORY_ROOT,
+    source_commit_sha: str = SOURCE_COMMIT,
+) -> dict[str, object]:
+    return release.build_embedded_runtime_authority_v1(
+        repository_root=repository_root,
+        source_commit_sha=source_commit_sha,
+        git_head=lambda _: source_commit_sha,
+        git_blob=lambda root, _commit, relative_path: (
+            root / relative_path
+        ).read_bytes(),
+        git_status=lambda _root, _paths: b"",
+    )
+
+
+def _provider_runtime_image_authority(
+    embedded: Mapping[str, object],
+) -> dict[str, object]:
+    return release.build_provider_runtime_image_authority_v1(
+        provider_observation={
+            "schema_version": release.PROVIDER_IMAGE_OBSERVATION_SCHEMA,
+            "provider": "google-cloud-run-v2",
+            "observation_kind": "cloud-run-job",
+            "resource_name": (
+                "projects/fixture/locations/us-central1/jobs/r6-worker"
+            ),
+            "build_id": "fixture-build-001",
+            "job_name": "r6-worker",
+            "job_uid": "fixture-job-uid-001",
+            "execution_id": None,
+            "source_commit_sha": embedded["source_commit_sha"],
+            "immutable_image": IMAGE,
+            "provider_observed": True,
+        },
+        embedded_runtime_authority=embedded,
+    )
+
+
+def _runtime_manifest(receipt: Mapping[str, object]) -> dict[str, object]:
+    return {
+        "source_commit_sha": receipt["source_commit_sha"],
+        "embedded_runtime_authority_sha256": receipt[
+            "runtime_authority_sha256"
+        ],
+        "critical_runtime_paths_sha256": receipt[
+            "critical_runtime_paths_sha256"
+        ],
+        "critical_runtime_files_sha256": receipt[
+            "critical_runtime_files_sha256"
+        ],
+    }
+
+
+def _runtime_tree(tmp_path: Path) -> Path:
+    root = tmp_path / "runtime-tree"
+    root.mkdir()
+    for relative_path in release.CRITICAL_RUNTIME_PATHS:
+        target = root / relative_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((REPOSITORY_ROOT / relative_path).read_bytes())
+    return root
+
+
 def _prepared(
     monkeypatch: pytest.MonkeyPatch,
 ) -> tuple[
@@ -187,6 +255,17 @@ def _prepared(
         "gs://fixture/source-root/"
         + release.source_release_v2.ROOT_FILENAME,
         source,
+    )
+    embedded = _embedded_runtime_authority()
+    monkeypatch.setattr(
+        release,
+        "load_image_embedded_runtime_authority_v1",
+        lambda: deepcopy(embedded),
+    )
+    image_authority = _provider_runtime_image_authority(embedded)
+    image_authority_identity = store.add(
+        "gs://fixture/runtime-authority/provider-image-authority.json",
+        image_authority,
     )
     monkeypatch.setattr(
         release.panel_index,
@@ -208,8 +287,7 @@ def _prepared(
         panel_index_identity=panel_identity,
         lane_terminal_identities=terminals,
         matchup_source_release_identity=source_identity,
-        source_commit_sha=SOURCE_COMMIT,
-        immutable_image=IMAGE,
+        runtime_image_authority_identity=image_authority_identity,
         output_prefix=OUTPUT_PREFIX,
     )
     _, manifest, reopened_panel, reopened_source = release.reopen_manifest_v2(
@@ -310,18 +388,6 @@ def _task_result(
     return _with_hash(body, "task_result_sha256")
 
 
-def _git_head(_: Path) -> str:
-    return SOURCE_COMMIT
-
-
-def _git_blob(_: Path, __: str, relative_path: str) -> bytes:
-    return relative_path.encode()
-
-
-def _git_status(_: Path, __: list[str]) -> bytes:
-    return b""
-
-
 def _identity_file(
     tmp_path: Path, *, name: str = "manifest",
     field: str = "manifest_identity",
@@ -340,8 +406,6 @@ def _worker_cli_args(
         command,
         "--manifest-identity", str(manifest_path),
         "--repository-root", str(REPOSITORY_ROOT),
-        "--runtime-source-commit-sha", SOURCE_COMMIT,
-        "--runtime-immutable-image", IMAGE,
         "--execute",
     ]
 
@@ -399,11 +463,6 @@ def test_worker_retains_276_books_and_prefixes_then_distinct_verifier_accepts(
         manifest_identity=manifest_identity,
         source_ordinal=0,
         repository_root=REPOSITORY_ROOT,
-        runtime_source_commit_sha=SOURCE_COMMIT,
-        runtime_immutable_image=IMAGE,
-        git_head=_git_head,
-        git_blob=_git_blob,
-        git_status=_git_status,
         execute=execute,
     )
     assert len(execute_calls) == 1
@@ -426,11 +485,6 @@ def test_worker_retains_276_books_and_prefixes_then_distinct_verifier_accepts(
         manifest_identity=manifest_identity,
         source_ordinal=0,
         repository_root=REPOSITORY_ROOT,
-        runtime_source_commit_sha=SOURCE_COMMIT,
-        runtime_immutable_image=IMAGE,
-        git_head=_git_head,
-        git_blob=_git_blob,
-        git_status=_git_status,
         execute=execute,
     )
     assert recovered["recovered_without_reexecution"] is True
@@ -445,11 +499,6 @@ def test_worker_retains_276_books_and_prefixes_then_distinct_verifier_accepts(
             manifest_identity=manifest_identity,
             source_ordinal=0,
             repository_root=REPOSITORY_ROOT,
-            runtime_source_commit_sha=SOURCE_COMMIT,
-            runtime_immutable_image=IMAGE,
-            git_head=_git_head,
-            git_blob=_git_blob,
-            git_status=_git_status,
             validate=lambda value, **kwargs: deepcopy(value),
         )
 
@@ -476,11 +525,6 @@ def test_worker_retains_276_books_and_prefixes_then_distinct_verifier_accepts(
         manifest_identity=manifest_identity,
         source_ordinal=0,
         repository_root=REPOSITORY_ROOT,
-        runtime_source_commit_sha=SOURCE_COMMIT,
-        runtime_immutable_image=IMAGE,
-        git_head=_git_head,
-        git_blob=_git_blob,
-        git_status=_git_status,
         validate=validate,
     )
     assert len(validate_calls) == 1
@@ -608,6 +652,7 @@ def test_cli_prepare_requires_two_lanes_and_unwraps_identity_carriers(
         "lane-a": _dummy_identity("cli-lane-a"),
         "lane-b": _dummy_identity("cli-lane-b"),
         "source": _dummy_identity("cli-source"),
+        "runtime-authority": _dummy_identity("cli-runtime-authority"),
     }
 
     def write(name: str, field: str, value: Mapping[str, object]) -> Path:
@@ -624,6 +669,11 @@ def test_cli_prepare_requires_two_lanes_and_unwraps_identity_carriers(
             "lane-b", "terminal_receipt_identity", identities["lane-b"]
         ),
         "source": write("source", "release_identity", identities["source"]),
+        "runtime-authority": write(
+            "runtime-authority",
+            "runtime_image_authority_identity",
+            identities["runtime-authority"],
+        ),
     }
     captured: dict[str, object] = {}
 
@@ -638,8 +688,7 @@ def test_cli_prepare_requires_two_lanes_and_unwraps_identity_carriers(
         "--lane-terminal-identity", str(paths["lane-a"]),
         "--lane-terminal-identity", str(paths["lane-b"]),
         "--matchup-source-release-identity", str(paths["source"]),
-        "--source-commit-sha", SOURCE_COMMIT,
-        "--immutable-image", IMAGE,
+        "--runtime-image-authority-identity", str(paths["runtime-authority"]),
         "--output-prefix", OUTPUT_PREFIX,
         "--execute",
     ], storage=store)
@@ -650,6 +699,9 @@ def test_cli_prepare_requires_two_lanes_and_unwraps_identity_carriers(
         identities["lane-a"], identities["lane-b"]
     ]
     assert captured["matchup_source_release_identity"] == identities["source"]
+    assert captured["runtime_image_authority_identity"] == identities[
+        "runtime-authority"
+    ]
 
 
 def test_cloud_run_task_index_exactly_maps_all_54_ordinals() -> None:
@@ -683,6 +735,11 @@ def test_cli_worker_roles_use_cloud_run_task_index(
         return {"ok": True}
 
     monkeypatch.setattr(cli.release, release_function, execute)
+    monkeypatch.setattr(
+        cli.release,
+        "load_image_embedded_runtime_authority_v1",
+        _embedded_runtime_authority,
+    )
     result = cli.run(
         _worker_cli_args(command, manifest_path=manifest_path),
         storage=_MemoryStore(),
@@ -705,7 +762,15 @@ def test_cli_rejects_explicit_ordinal_conflicting_with_cloud_task_index(
         return {"ok": True}
 
     monkeypatch.setattr(cli.release, "run_worker_v2", execute)
-    argv = _worker_cli_args("run-worker", manifest_path=manifest_path)
+    monkeypatch.setattr(
+        cli.release,
+        "load_image_embedded_runtime_authority_v1",
+        _embedded_runtime_authority,
+    )
+    argv = _worker_cli_args(
+        "run-worker",
+        manifest_path=manifest_path,
+    )
     argv.extend(("--source-ordinal", "17"))
 
     with pytest.raises(
@@ -760,8 +825,8 @@ def test_cli_worker_requires_an_explicit_or_cloud_task_ordinal() -> None:
             "--lane-terminal-identity", "/nonexistent/lane-a.json",
             "--lane-terminal-identity", "/nonexistent/lane-b.json",
             "--matchup-source-release-identity", "/nonexistent/source.json",
-            "--source-commit-sha", SOURCE_COMMIT,
-            "--immutable-image", IMAGE,
+            "--runtime-image-authority-identity",
+            "/nonexistent/runtime-image-authority.json",
             "--output-prefix", OUTPUT_PREFIX,
         ],
         [
@@ -769,16 +834,12 @@ def test_cli_worker_requires_an_explicit_or_cloud_task_ordinal() -> None:
             "--manifest-identity", "/nonexistent/manifest.json",
             "--source-ordinal", "0",
             "--repository-root", str(REPOSITORY_ROOT),
-            "--runtime-source-commit-sha", SOURCE_COMMIT,
-            "--runtime-immutable-image", IMAGE,
         ],
         [
             "verify-worker",
             "--manifest-identity", "/nonexistent/manifest.json",
             "--source-ordinal", "0",
             "--repository-root", str(REPOSITORY_ROOT),
-            "--runtime-source-commit-sha", SOURCE_COMMIT,
-            "--runtime-immutable-image", IMAGE,
         ],
         ["finish", "--manifest-identity", "/nonexistent/manifest.json"],
     ],
@@ -840,17 +901,26 @@ def test_cli_main_validates_local_arguments_before_cloud_storage(
         raise AssertionError("cloud storage must not be constructed")
 
     monkeypatch.setattr(cli, "GoogleCloudObjectStore", construct)
+
+    def invalid_runtime_authority() -> dict[str, object]:
+        raise release.CorpusR6V2MatchupCandidateAnalysisReleaseV2Error(
+            "image runtime authority receipt is absent"
+        )
+
+    monkeypatch.setattr(
+        cli.release,
+        "load_image_embedded_runtime_authority_v1",
+        invalid_runtime_authority,
+    )
     with pytest.raises(
-        cli.CorpusR6V2MatchupCandidateAnalysisReleaseV2CLIError,
-        match="runtime source commit must be one lowercase full Git commit",
+        release.CorpusR6V2MatchupCandidateAnalysisReleaseV2Error,
+        match="image runtime authority receipt is absent",
     ):
         cli.main([
             "run-worker",
             "--manifest-identity", str(manifest_path),
             "--source-ordinal", "0",
             "--repository-root", str(REPOSITORY_ROOT),
-            "--runtime-source-commit-sha", "not-a-commit",
-            "--runtime-immutable-image", IMAGE,
             "--execute",
         ])
 
@@ -877,10 +947,271 @@ def test_critical_runtime_paths_include_direct_score_relevant_closure() -> None:
         "src/nfl_dfs/research/corpus_r6_matchup_source_v1.py",
         "src/nfl_dfs/research/corpus_r6_matchup_source_v2.py",
         "src/nfl_dfs/research/corpus_r6_v2_one_slate_execution_v2.py",
+        "src/nfl_dfs/optimizer/lineup.py",
+        "src/nfl_dfs/research/corpus_artifact_source_authority.py",
+        "src/nfl_dfs/research/corpus_extreme_tail_panel_execution.py",
+        "src/nfl_dfs/research/corpus_r6_player_catalog_v1.py",
+        "src/nfl_dfs/research/"
+        "corpus_r6_v2_matchup_candidate_analysis_controller_v1.py",
+        "scripts/run_corpus_r6_v2_matchup_candidate_analysis_controller_v1.py",
     }
 
     assert required <= set(release.CRITICAL_RUNTIME_PATHS)
     assert all((REPOSITORY_ROOT / path).is_file() for path in required)
+    all_project_python = {
+        path.relative_to(REPOSITORY_ROOT).as_posix()
+        for path in (REPOSITORY_ROOT / "src" / "nfl_dfs").rglob("*.py")
+    }
+    assert all_project_python <= set(release.CRITICAL_RUNTIME_PATHS)
+
+
+def test_build_receipt_requires_full_clean_head_and_exact_commit_blobs() -> None:
+    status_paths: list[list[str]] = []
+
+    def status(_: Path, paths: list[str]) -> bytes:
+        status_paths.append(list(paths))
+        return b""
+
+    receipt = release.build_embedded_runtime_authority_v1(
+        repository_root=REPOSITORY_ROOT,
+        source_commit_sha=SOURCE_COMMIT,
+        git_head=lambda _: SOURCE_COMMIT,
+        git_blob=lambda root, _commit, path: (root / path).read_bytes(),
+        git_status=status,
+    )
+
+    assert status_paths == [["."]]
+    assert receipt["source_commit_sha"] == SOURCE_COMMIT
+    assert receipt["file_count"] == len(release.CRITICAL_RUNTIME_PATHS)
+    assert [row["relative_path"] for row in receipt["file_measurements"]] == list(
+        release.CRITICAL_RUNTIME_PATHS
+    )
+
+    with pytest.raises(
+        release.CorpusR6V2MatchupCandidateAnalysisReleaseV2Error,
+        match="not the exact clean commit",
+    ):
+        release.build_embedded_runtime_authority_v1(
+            repository_root=REPOSITORY_ROOT,
+            source_commit_sha=SOURCE_COMMIT,
+            git_head=lambda _: SOURCE_COMMIT,
+            git_blob=lambda root, _commit, path: (root / path).read_bytes(),
+            git_status=lambda _root, _paths: b" M unrelated-file\n",
+        )
+
+
+def test_embedded_runtime_authority_rejects_omitted_critical_path() -> None:
+    receipt = deepcopy(_embedded_runtime_authority())
+    receipt.pop("runtime_authority_sha256")
+    receipt["critical_runtime_paths"].pop()
+    receipt["file_measurements"].pop()
+    receipt["file_count"] = int(receipt["file_count"]) - 1
+    receipt["critical_runtime_paths_sha256"] = batch.canonical_sha256(
+        receipt["critical_runtime_paths"]
+    )
+    receipt["critical_runtime_files_sha256"] = batch.canonical_sha256(
+        receipt["file_measurements"]
+    )
+    receipt["runtime_authority_sha256"] = batch.canonical_sha256(receipt)
+
+    with pytest.raises(
+        release.CorpusR6V2MatchupCandidateAnalysisReleaseV2Error,
+        match="closure differs",
+    ):
+        release.validate_embedded_runtime_authority_v1(receipt)
+
+
+def test_runtime_authority_rejects_on_disk_byte_drift(tmp_path: Path) -> None:
+    root = _runtime_tree(tmp_path)
+    receipt = _embedded_runtime_authority(repository_root=root)
+    drifted = root / release.CRITICAL_RUNTIME_PATHS[0]
+    drifted.write_bytes(drifted.read_bytes() + b"\n# drift\n")
+
+    with pytest.raises(
+        release.CorpusR6V2MatchupCandidateAnalysisReleaseV2Error,
+        match="runtime critical file drifted",
+    ):
+        release.validate_runtime_files_v1(
+            repository_root=root,
+            embedded_runtime_authority=receipt,
+        )
+
+
+def test_provider_authority_rejects_wrong_commit_and_digest() -> None:
+    receipt = _embedded_runtime_authority()
+    authority = _provider_runtime_image_authority(receipt)
+
+    wrong_commit = deepcopy(authority)
+    wrong_commit.pop("provider_runtime_image_authority_sha256")
+    wrong_commit["source_commit_sha"] = "c" * 40
+    wrong_commit["provider_observation"]["source_commit_sha"] = "c" * 40
+    wrong_commit["provider_observation_sha256"] = batch.canonical_sha256(
+        wrong_commit["provider_observation"]
+    )
+    wrong_commit["provider_runtime_image_authority_sha256"] = (
+        batch.canonical_sha256(wrong_commit)
+    )
+    with pytest.raises(
+        release.CorpusR6V2MatchupCandidateAnalysisReleaseV2Error,
+        match="provider runtime image authority differs",
+    ):
+        release.validate_provider_runtime_image_authority_v1(wrong_commit)
+
+    wrong_digest = deepcopy(authority)
+    wrong_digest.pop("provider_runtime_image_authority_sha256")
+    wrong_digest["image_digest"] = f"sha256:{'d' * 64}"
+    wrong_digest["provider_runtime_image_authority_sha256"] = (
+        batch.canonical_sha256(wrong_digest)
+    )
+    with pytest.raises(
+        release.CorpusR6V2MatchupCandidateAnalysisReleaseV2Error,
+        match="provider runtime image authority differs",
+    ):
+        release.validate_provider_runtime_image_authority_v1(wrong_digest)
+
+    caller_claim = deepcopy(authority)
+    caller_claim.pop("provider_runtime_image_authority_sha256")
+    caller_claim["provider_observation"]["provider_observed"] = False
+    caller_claim["provider_observation_sha256"] = batch.canonical_sha256(
+        caller_claim["provider_observation"]
+    )
+    caller_claim["provider_runtime_image_authority_sha256"] = (
+        batch.canonical_sha256(caller_claim)
+    )
+    with pytest.raises(
+        release.CorpusR6V2MatchupCandidateAnalysisReleaseV2Error,
+        match="provider image observation differs",
+    ):
+        release.validate_provider_runtime_image_authority_v1(caller_claim)
+
+
+def test_runtime_rejects_rehashed_caller_self_attestation_substitution() -> None:
+    receipt = _embedded_runtime_authority()
+    manifest = _runtime_manifest(receipt)
+    substituted = deepcopy(receipt)
+    substituted.pop("runtime_authority_sha256")
+    substituted["source_commit_sha"] = "c" * 40
+    substituted["runtime_authority_sha256"] = batch.canonical_sha256(
+        substituted
+    )
+    release.validate_embedded_runtime_authority_v1(substituted)
+
+    with pytest.raises(
+        release.CorpusR6V2MatchupCandidateAnalysisReleaseV2Error,
+        match="differs from provider-bound manifest",
+    ):
+        release._validate_runtime_binding(
+            manifest=manifest,
+            repository_root=REPOSITORY_ROOT,
+            embedded_runtime_authority=substituted,
+        )
+
+    prepare_parameters = inspect.signature(release.prepare_release_v2).parameters
+    worker_parameters = inspect.signature(release.run_worker_v2).parameters
+    verifier_parameters = inspect.signature(release.verify_worker_v2).parameters
+    assert "source_commit_sha" not in prepare_parameters
+    assert "immutable_image" not in prepare_parameters
+    assert "runtime_image_authority_identity" in prepare_parameters
+    assert "embedded_runtime_authority" not in worker_parameters
+    assert "embedded_runtime_authority" not in verifier_parameters
+
+
+def test_runtime_rejects_imported_module_origin_drift(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    receipt = _embedded_runtime_authority()
+    origins = release._runtime_module_origins_v1()
+    first_path = next(iter(origins))
+    origins[first_path] = tmp_path / "substituted-module.py"
+    monkeypatch.setattr(release, "_runtime_module_origins_v1", lambda: origins)
+
+    with pytest.raises(
+        release.CorpusR6V2MatchupCandidateAnalysisReleaseV2Error,
+        match="module origin differs",
+    ):
+        release._validate_runtime_binding(
+            manifest=_runtime_manifest(receipt),
+            repository_root=REPOSITORY_ROOT,
+            embedded_runtime_authority=receipt,
+        )
+
+
+def test_runtime_validation_and_callbacks_never_invoke_git(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    receipt = _embedded_runtime_authority()
+
+    def forbidden_subprocess(*_: object, **__: object) -> object:
+        raise AssertionError("runtime validation must never invoke subprocess/Git")
+
+    monkeypatch.setattr(subprocess, "run", forbidden_subprocess)
+    git_head, git_blob, git_status = release._validate_runtime_binding(
+        manifest=_runtime_manifest(receipt),
+        repository_root=REPOSITORY_ROOT,
+        embedded_runtime_authority=receipt,
+    )
+    assert git_head(REPOSITORY_ROOT) == SOURCE_COMMIT
+    assert git_blob(
+        REPOSITORY_ROOT, SOURCE_COMMIT, release.CRITICAL_RUNTIME_PATHS[0]
+    ) == (REPOSITORY_ROOT / release.CRITICAL_RUNTIME_PATHS[0]).read_bytes()
+    assert git_status(
+        REPOSITORY_ROOT, [release.CRITICAL_RUNTIME_PATHS[0]]
+    ) == b""
+    with pytest.raises(
+        release.CorpusR6V2MatchupCandidateAnalysisReleaseV2Error,
+        match="historical tracked blob is absent",
+    ):
+        git_blob(
+            REPOSITORY_ROOT,
+            "d" * 40,
+            release.CRITICAL_RUNTIME_PATHS[0],
+        )
+
+    receipt_path = tmp_path / "runtime-authority.json"
+    receipt_path.write_bytes(batch.canonical_json_bytes(receipt))
+    validated = build_runtime.run([
+        "validate",
+        "--repository-root", str(REPOSITORY_ROOT),
+        "--source-commit", SOURCE_COMMIT,
+        "--receipt", str(receipt_path),
+    ])
+    assert validated["runtime_authority_sha256"] == receipt[
+        "runtime_authority_sha256"
+    ]
+    assert not hasattr(cli, "subprocess")
+
+
+def test_worker_loads_only_fixed_canonical_image_receipt(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    receipt = _embedded_runtime_authority()
+    receipt_path = tmp_path / "fixed-runtime-authority.json"
+    receipt_path.write_bytes(batch.canonical_json_bytes(receipt))
+    monkeypatch.setattr(
+        release, "IMAGE_RUNTIME_AUTHORITY_RECEIPT_PATH", receipt_path
+    )
+
+    assert release.load_image_embedded_runtime_authority_v1() == receipt
+
+    receipt_path.write_bytes(batch.canonical_json_bytes(receipt) + b"\n")
+    with pytest.raises(
+        release.CorpusR6V2MatchupCandidateAnalysisReleaseV2Error,
+        match="canonical",
+    ):
+        release.load_image_embedded_runtime_authority_v1()
+
+
+def test_build_receipt_freeze_requires_explicit_execute(tmp_path: Path) -> None:
+    with pytest.raises(
+        build_runtime.BuildCorpusR6V2RuntimeAuthorityV1Error,
+        match="requires explicit --execute",
+    ):
+        build_runtime.run([
+            "freeze",
+            "--repository-root", str(REPOSITORY_ROOT),
+            "--source-commit", SOURCE_COMMIT,
+            "--output", str(tmp_path / "receipt.json"),
+        ])
 
 
 def test_dockerfile_packages_canonical_release_cli_without_git_metadata() -> None:
@@ -892,3 +1223,15 @@ def test_dockerfile_packages_canonical_release_cli_without_git_metadata() -> Non
 
     assert dockerfile.splitlines().count(copy_line) == 1
     assert "COPY .git" not in dockerfile
+
+    overlay = (
+        REPOSITORY_ROOT / "Dockerfile.corpus-r6-v2-runtime-authority"
+    ).read_text(encoding="utf-8")
+    assert "COPY runtime-authority.json" in overlay
+    assert "run_corpus_r6_v2_matchup_candidate_analysis_controller_v1.py" in overlay
+    assert "@sha256:[0-9a-f]{64}" in overlay
+    assert "build_corpus_r6_v2_runtime_authority_v1.py validate" in overlay
+    assert "COPY .git" not in overlay
+    assert "install git" not in overlay
+    assert "test ! -e /app/.git" in overlay
+    assert "! command -v git" in overlay

@@ -1,0 +1,31 @@
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+ARG BASE_IMAGE
+ARG SOURCE_COMMIT_SHA
+LABEL org.opencontainers.image.revision="${SOURCE_COMMIT_SHA}"
+ENV IMAGE_SOURCE_COMMIT_SHA="${SOURCE_COMMIT_SHA}"
+ENV PYTHONPATH="/app/src"
+
+# The controller creates an isolated overlay context containing the canonical
+# receipt frozen from the same clean source commit used to build BASE_IMAGE.
+# Neither Git metadata nor a Git executable is added to the runtime image.
+COPY scripts/build_corpus_r6_v2_runtime_authority_v1.py \
+     /app/scripts/build_corpus_r6_v2_runtime_authority_v1.py
+COPY scripts/run_corpus_r6_v2_matchup_candidate_analysis_controller_v1.py \
+     /app/scripts/run_corpus_r6_v2_matchup_candidate_analysis_controller_v1.py
+COPY runtime-authority.json /app/runtime/r6-v2-runtime-authority.json
+
+RUN python -c \
+      'import re,sys; assert re.fullmatch(r"[^\s@]+@sha256:[0-9a-f]{64}", sys.argv[1])' \
+      "${BASE_IMAGE}" \
+    && python /app/scripts/build_corpus_r6_v2_runtime_authority_v1.py validate \
+      --repository-root /app \
+      --source-commit "${SOURCE_COMMIT_SHA}" \
+      --receipt /app/runtime/r6-v2-runtime-authority.json \
+    && test -f \
+      /app/scripts/run_corpus_r6_v2_matchup_candidate_analysis_release_v2.py \
+    && test -f \
+      /app/scripts/run_corpus_r6_v2_matchup_candidate_analysis_controller_v1.py \
+    && test ! -e /app/.git \
+    && ! command -v git >/dev/null 2>&1
