@@ -223,7 +223,9 @@ def _prepare_block(
     if draws.shape != (len(slate), cross.WORLDS_PER_BLOCK):
         _fail("snapshot player-world matrix differs")
     dst = slate["pos"].astype(str).str.upper().eq("DST").to_numpy()
-    if not dst.any() or float(draws[dst].std(axis=1).max()) != 0.0:
+    # Compare the stored float32 values directly.  ``std`` can return a tiny
+    # nonzero rounding residue for a long row of byte-identical constants.
+    if not dst.any() or not np.all(draws[dst] == draws[dst, :1]):
         _fail("snapshot DST world rows differ")
     native_rows = _native_frame(seed["candidate_rows"])
     role_rows = native_rows[

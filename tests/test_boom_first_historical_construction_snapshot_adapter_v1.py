@@ -72,14 +72,21 @@ def _players(panel: str, season: int, week: int) -> list[dict[str, object]]:
 
 def _artifact_raw(
     player_ids: list[str], registered_rosters: list[list[str]],
+    *, vary_one_dst_world: bool = False,
 ) -> bytes:
     draws = np.empty((len(player_ids), cross.WORLDS_PER_BLOCK), dtype=np.float32)
+    # This retained-artifact value is exactly constant after float32 storage,
+    # while NumPy float32 std() reports a 4.77e-7 rounding residue over 10k
+    # columns.  It protects the exact-constant invariant from that false fail.
+    dst_projection = np.float32(6.279250144958496)
     for index in range(len(player_ids)):
         # p08/p17/p26 are the synthetic DST rows. Match retained artifacts:
         # DST worlds are an exactly constant projection broadcast.
         draws[index] = (
-            1.0 if index % 9 == 8 else float(index + 1) / 10.0
+            dst_projection if index % 9 == 8 else float(index + 1) / 10.0
         )
+    if vary_one_dst_world:
+        draws[8, -1] = np.nextafter(draws[8, -1], np.float32(np.inf))
     id_to_index = {player_id: index for index, player_id in enumerate(player_ids)}
     totals = np.stack([
         draws[[id_to_index[player_id] for player_id in roster]].sum(axis=0)
@@ -97,7 +104,7 @@ def _artifact_raw(
     return output.getvalue()
 
 
-def _fixture() -> tuple[
+def _fixture(*, vary_one_dst_world: bool = False) -> tuple[
     _MemoryStore,
     adapter.FrozenSnapshotBinding,
     list[tuple[str, ...]],
@@ -115,7 +122,11 @@ def _fixture() -> tuple[
     artifact_receipts: list[dict[str, object]] = []
     for block in frozen.BLOCK_ORDER:
         panel = frozen.candidate_source_panel_v1(season, week, block)
-        raw = _artifact_raw(player_ids, registered_rosters)
+        raw = _artifact_raw(
+            player_ids,
+            registered_rosters,
+            vary_one_dst_world=(vary_one_dst_world and block == "R0"),
+        )
         identity = store.add(f"gs://fixture/{block}.npz", raw)
         receipt = {
             **identity,
@@ -394,6 +405,32 @@ def test_adapter_fails_closed_on_artifact_body_and_exact_panel_drift(monkeypatch
     with pytest.raises(
         adapter.ConstructionSnapshotAdapterError,
         match="exact bytes differ",
+    ):
+        builder(
+            builder.cross_slates()[0],
+            cell_id,
+            "R0",
+            int(projection_seed),
+            int(role_seed),
+            environment,
+            preset,
+        )
+
+
+def test_adapter_rejects_one_differing_dst_world() -> None:
+    store, binding, _role_rosters, _core_rosters = _fixture(
+        vary_one_dst_world=True
+    )
+    builder = adapter.FrozenSnapshotConstructionNativeBookBuilder(
+        [binding], read_exact=store.read_exact, require_exact_panel=False
+    )
+    cell_id = f"{cross.PRESET_ORDER[0]}--{cross.ALLOCATION_INCUMBENT}"
+    environment = cross.cell_environments({"CODE_SHA": "d" * 40})[cell_id]
+    preset = cross.resolve_construction_preset(cross.PRESET_ORDER[0]).receipt()
+    projection_seed, role_seed = ADOPTED_CLASSIC_POLICY.multiseed_seed_pairs[0]
+    with pytest.raises(
+        adapter.ConstructionSnapshotAdapterError,
+        match="snapshot DST world rows differ",
     ):
         builder(
             builder.cross_slates()[0],

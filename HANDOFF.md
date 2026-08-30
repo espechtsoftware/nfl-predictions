@@ -156,6 +156,124 @@ and operator decisions.  The older entries remain the durable chronology.
   from this core release and do not claim scoring readiness until the distinct
   task-0 worker and verifier/predecessor closure are green.
 
+## Current handoff -- 2026-08-30 (four-hundred-twenty-third update)
+
+### Real-artifact smoke caught a float32 constant-row false failure
+
+- Logical task-0/54 no-write smoke
+  `atlas-cbc-32g-full-2023-w8-v1-zk7d8`, UID
+  `2dad91c5-f521-4176-b651-ad3bf831d0e6`, ended terminal failed with one
+  task and no retries at `2026-08-30T14:01:48.364395Z`.  Its only application
+  error was `snapshot DST world rows differ`.  The 54-task cohort was not
+  launched, no shard/selection/terminal was published, and no outcome was
+  read.
+- Exact task-0 R0 artifact generation `1786843060343205`, SHA-256
+  `c35ecb83ecc8cacb802735f5b4f44c64b8733822e0d36e9475bab1b68de65498`
+  proves all 26 DST rows are byte-identical constants across 10,000 worlds:
+  peak-to-peak is exactly zero for every row.  NumPy float32 `std(axis=1)`
+  nevertheless returns up to `9.5367431640625e-07` from mean/subtraction
+  rounding for those repeated constants.  The guard therefore measured an
+  unstable statistic instead of its intended exact-constant invariant.
+- The adapter now checks every stored float32 DST value against that row's
+  first stored value.  Its regression uses a real-style constant
+  `6.279250144958496` for which the old float32 std guard falsely reports
+  `4.76837158203125e-07`; the values, player worlds, candidate totals and
+  science remain unchanged.  A defect-class sweep found the historical
+  boom-first/ATLAS sibling checks operate on float64 and do not exhibit this
+  retained-artifact failure.
+- Exact local task-0 R0 reconstruction now passes the snapshot and artifact
+  hashes, 773-player x 10,000-world shape, 255 natives, all 12 frozen role
+  identities/totals and the exact-constant DST invariant.  The complete
+  release cohort passes **49/49**, including a one-world DST perturbation
+  rejection; shell and YAML parsing remain green.
+- Exact next action: independently review, commit and push only this numeric
+  guard/regression plus the accumulated handoff, then repeat the release
+  cohort from a fresh Git-only checkout and build a new immutable image.
+  Reinstall dormant, use a one-task disabled-template sentinel if required by
+  the latest-failed safety check, and rerun exactly one task-0 smoke.  Launch
+  no 54-task work before it is terminal-success.
+
+## Current handoff -- 2026-08-30 (four-hundred-twenty-second update)
+
+### Canonical prepare succeeded and real-artifact task-0 smoke is live
+
+- The one-task disabled-template recovery sentinel
+  `atlas-cbc-32g-full-2023-w8-v1-58nmj`, UID
+  `56d2fb16-2084-498e-ace4-bbe064eec487`, succeeded at
+  `2026-08-30T13:54:08.449940Z` without data or application work.  Corrected
+  one-task prepare execution `atlas-cbc-32g-full-2023-w8-v1-64q52`, UID
+  `9cb5bc3d-b4ae-41d4-b92a-877bc4daf544`, then succeeded 1/1 with zero
+  failures/cancellations at `2026-08-30T13:57:20.775011Z`.
+- Prepare published and exact-reopened all 54 typed unconsumed audit
+  placeholders plus input manifest generation `1788098234390628`, 60,541
+  bytes, SHA-256
+  `d6a3bef11db74b8f8aaa913bac6a13cd767f2df73c47962772ca0a5f28d1ae9d`
+  at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-construction-allocation-snapshot-shards/20260830-construction-allocation-8aeabc6e-v1/input-manifest.json`.
+  Internal manifest SHA-256 is
+  `e093a3f044df294ee38d1dda90818564b3083b703aafa0d5f3494e8096f79650`;
+  prepare receipt SHA-256 is
+  `07c5d57d224a2077b3dab769430876fb7768e364fb1f5bc07189c82390a53aa2`.
+  The receipt reports 54 tasks, 54 placeholders, provider build attestation
+  verified and no target-slate outcomes.
+- Logical task-0/54 real-artifact no-write smoke
+  `atlas-cbc-32g-full-2023-w8-v1-zk7d8`, UID
+  `2dad91c5-f521-4176-b651-ad3bf831d0e6`, is now launched with
+  `no_outcome_smoke=true`, target outcomes disabled, and the exact manifest
+  above.  Exact next action: poll only its execution status; on terminal
+  success inspect its bounded score-blind receipt, then launch the 54-task
+  selection cohort once.  On failure diagnose and stop before cohort launch.
+
+## Current handoff -- 2026-08-30 (four-hundred-twenty-first update)
+
+### First prepare execution failed before application work on noncanonical request bytes
+
+- The immutable image was installed dormant into only existing job
+  `atlas-cbc-32g-full-2023-w8-v1`, UID
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275`, advancing it to generation 39.
+  No execution was launched by installation.
+- One-task outcome-blind prepare execution
+  `atlas-cbc-32g-full-2023-w8-v1-x8vg2`, UID
+  `a30a62d8-e051-4163-9ad4-aa2e0a60c93a`, ended terminal failed at
+  `2026-08-30T13:49:18.349366Z` with one failed task.  Its only application
+  error was `prepare request canonical JSON replay differs`; the runner
+  rejected the pretty-printed transport request in `_load_request` before
+  `prepare_from_request_v1`, so no placeholder or input-manifest publication
+  was attempted and no outcome was read.
+- The identical scientific request is now canonical sorted compact JSON and
+  passes byte-exact local replay; its normalized content hash is
+  `f94a9a6668b06ed526b2d2a3daf7051393615e596044392001805bc3933dc0fd`.
+  Because the launcher correctly refuses to reuse a job whose latest exact
+  execution is failed, the safe recovery is one one-task execution of the
+  already-verified dormant `container-help` template, wait for terminal
+  success, then invoke prepare once with the canonical request.  Do not alter
+  the image, science, run ID, output prefix or frozen authorities.
+
+## Current handoff -- 2026-08-30 (four-hundred-twentieth update)
+
+### Clean immutable construction image and build attestation are complete
+
+- The placeholder-only repair is committed and pushed on `main` as
+  `8aeabc6eebe9ba4105e20b1e4e2c4bb35192da44`.  A fresh Git-only checkout of
+  that exact SHA was clean and passed the exact release cohort **48/48** plus
+  shell syntax and Cloud Build YAML parsing before submission.
+- Exact-direct-Git Cloud Build
+  `0c5dce1c-5486-4057-9892-be74d7924568` completed successfully and produced
+  immutable image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:81fd773a3688df24a5019532a579a4c1ef094f4ca815807993a93ee670376a9e`.
+  Provider requested/resolved Git source was exact, the narrow runtime context
+  contained no outcome artifacts, and no runtime job or execution was changed
+  by the build.
+- The create-once runtime-build attestation is generation
+  `1788097416976262`, 855 bytes, SHA-256
+  `29dfc5a7532109d070c8f2ea413357598886a7b0c2fc046192bd301b5e3e8fd6`
+  at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-construction-allocation-builds/8aeabc6eebe9ba4105e20b1e4e2c4bb35192da44/0c5dce1c-5486-4057-9892-be74d7924568/runtime-build-attestation.json`.
+- Exact next action: from the still-clean frozen release checkout, install the
+  image into only the known existing dormant job, run `prepare`, wait for its
+  terminal success, then run the one-task logical-0/54 no-write outcome-blind
+  smoke.  Do not launch the 54-task cohort unless both phases are green.
+
 ## Current handoff -- 2026-08-30 (four-hundred-nineteenth update)
 
 ### Clean provider build exposed and removed a hidden independent-bank dependency
