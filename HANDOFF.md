@@ -20,6 +20,45 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-30 (four-hundred-fourth update)
+
+### Guarded candidate-authority-v2 production operator is local-ready
+
+- Branch `main` and `origin/main` entered this milestone at pushed outer-bound
+  component commit `fe127367`.  A new isolated production operator exposes
+  only three default-off commands: a complete read-only 54-slate prepublish
+  derivation, the exact 165-object create-once v2 publication, and an
+  independent generation-pinned full-v2 reopen.  The fixed catalog-recovery
+  outer identity is derived only from the byte-bound tracked publication/
+  reopen receipt; no CLI or public function accepts a caller-selected outer,
+  inner receipt, catalog release, candidate material, candidate root, commit,
+  module path, or output prefix.
+- All commands require a canonical explicit repository root at a wholly clean
+  detached HEAD exactly equal to local `origin/main`.  Bound API signatures,
+  unchanged candidate-v2 bytes, module origins, recovery receipt bytes and
+  historical ancestry are checked before constructing a GCS client.  The
+  publisher permits only the predetermined 165 URI calls, rejects the legacy
+  v1 root, requires the v2 root as call 165, and truthfully records partial
+  mutation if a create-once collision occurs.  A successful publish performs
+  the complete predecessor reopen before returning.
+- Independent replay passed **39/39** across the operator, candidate-v2 core/
+  release and recovery-downstream suites.  It covers dirty/diverged/attached
+  Git rejection, exact API signatures, default-off CLI behavior, all-54
+  prepublish derivation, one-bad-slate rejection, wrong-order/no-provider-call,
+  collision before and after a successful write, exact 165/root-last behavior,
+  legacy-root rejection and full read-only reopen.  `py_compile` and whitespace
+  checks passed.  File SHA-256s are operator
+  `391c03761a461af98fb0279bcbe3388ff7ecf35688b6b6c4e02145cce0e74a53`
+  and tests
+  `968ac3c96601291215e834b761470e0b6551ffcc54053e0d2d70c38c22113a95`.
+- Read-only GCS absence check confirmed the intended run prefix
+  `20260830-fixed-g0-candidate-authority-v2` matches no objects.  No cloud
+  mutation or outcome access occurred in this milestone.  After this commit is
+  pushed, create a clean detached worktree at the exact pushed `origin/main`,
+  run the real prepublish command there, and publish only if it completes all
+  54 slates.  Persist the returned terminal root identity and independent
+  reopen receipt in tracked evidence before freezing capture-plan v3.
+
 ## Current handoff -- 2026-08-30 (four-hundred-third update)
 
 ### Outer-bound matchup component publication v3 is implementation-complete
