@@ -93,6 +93,7 @@ steps:
           tests/test_atlas_matched_diversity.py \
           tests/test_atlas_world_ranking.py \
           tests/test_constraint_lattice.py \
+          --deselect=tests/test_coherent_market_state.py::test_protocol_and_source_queries_are_hash_bound_and_outcome_free \
           --deselect=tests/test_prospective_boom_first.py::test_boom_first_cli_and_quota_safe_manual_launch_are_registered
         PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src pytest -q -o addopts='' \
           tests/test_app.py::test_core_lineup_omission_executes_receipted_incumbent_overlap \

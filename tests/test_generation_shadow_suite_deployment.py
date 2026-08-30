@@ -49,6 +49,11 @@ def test_launcher_and_build_contract_are_isolated_and_bounded() -> None:
         "--deselect=tests/test_prospective_boom_first.py::"
         "test_boom_first_cli_and_quota_safe_manual_launch_are_registered"
     ) in build
+    assert (
+        "--deselect=tests/test_coherent_market_state.py::"
+        "test_protocol_and_source_queries_are_hash_bound_and_outcome_free"
+    ) in build
+    assert "test ! -e reports" in build
     assert "cloud_boom_first_paired_shadow.sh" not in build
     assert "resume_2026_production_schedulers.py" not in build
     assert "shadow-generation-suite --help" in build

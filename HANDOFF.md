@@ -111,6 +111,33 @@ and operator decisions.  The older entries remain the durable chronology.
   preregistration and run an outcome-blind live-input timing smoke before any
   Week-1 shadow execution.
 
+## Current handoff -- 2026-08-30 (four-hundred-eighth update)
+
+### Exact remote gate found one excluded-tree test coupling; repair is focused
+
+- Branch `main` and `origin/main` are at pushed commit
+  `8541754577cdaec5adb8265a67dd9b4a0eabb028` (`Harden reviewed generation
+  shadow release`). The exact-commit Cloud Build was
+  `ebae7145-8384-4f33-ad8e-84ba02606b92`; it failed only validation step 0,
+  produced no image, and caused no Cloud Run job mutation or execution.
+- Remote validation completed 461 passing tests, one skip and one intentional
+  deselection before one failure. The failing assertion was
+  `test_protocol_and_source_queries_are_hash_bound_and_outcome_free`, which
+  opens eight historical coherent-market-state files under `reports/`. The
+  dedicated generation-shadow build intentionally proves `reports/` is absent
+  so the unrelated 439-MiB research tree cannot enter this image. All
+  computational coherent-market-state tests in the same file passed.
+- The repair preserves the isolated archive and deselects only that historical
+  report-receipt assertion in this build. The ordinary repository suite still
+  runs it. A deployment-contract regression now requires both the exact
+  deselection and the `test ! -e reports` boundary. Focused clean-build and
+  deployment validation passes 12/12; YAML/whitespace validation passes.
+- Preserve every unrelated dirty/untracked Foundry/R6 file. Exact next action:
+  commit and push only the build contract, its regression test and this
+  handoff; submit a new immutable build from that full pushed SHA; only after
+  a green build record its digest and deploy the dedicated job with execution
+  disabled.
+
 ## Current handoff -- 2026-08-30 (four-hundred-seventh update)
 
 ### External review is integrated; final local release gate is green
