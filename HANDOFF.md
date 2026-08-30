@@ -108,9 +108,11 @@ and operator decisions.  The older entries remain the durable chronology.
   immutable review/final locks at their introducing commits, validates the
   reviewed implementation at its historical commit, permits legitimate
   descendant drift and rejects coherent lock/commit substitution. A clean
-  rerun then exposed a second latent false equality between the historical
-  catalog-adapter evidence commit and the current G0 panel HEAD. Those two
-  authorities are now independently exact-bound without being equated.
+  reruns then exposed two downstream instances of the same latent false
+  equality: both the historical catalog-adapter evidence commit and the
+  immutable catalog release's original root commit were equated to the current
+  G0 panel HEAD. Those authorities are now independently exact-bound by their
+  lock/panel content without being equated by commit date.
   Complete focused validation is green; publication still requires a new
   clean-commit prepublication rerun and independent reopen.
 - **Current launch state:** the exact source cohort is pushed and the final
@@ -194,6 +196,22 @@ and operator decisions.  The older entries remain the durable chronology.
   performed no cloud mutation and read no outcome. Only the exact 2.2 MB
   rebuildable `/tmp/node-compile-cache` was removed to restore sandbox
   registration space; no project or research artifact was deleted.
+- The second repair was committed and pushed as
+  `215f973c00f76f8640822297cdb8bd94e08e4e15`. Its clean detached
+  prepublication run again produced the all-false public failure receipt; an
+  uncaught replay reached `_validate_catalog_root` and showed the next cause:
+  the generation-pinned catalog release records the commit where its G0 root
+  was originally frozen, while the byte-identical tracked G0 authority now
+  lives at the current descendant HEAD. Validation now requires exact G0 lock
+  file SHA, internal lock SHA, panel object identity, panel-index SHA and slate
+  count, while retaining the immutable catalog object's historical commit as
+  metadata. Tests prove a historical/current commit difference passes only
+  with exact content and either changed G0 lock hash fails closed.
+- Latest validation is green: the new focused catalog-root cases are **3/3**;
+  complete candidate-v1 plus candidate-v2 modules are **45/45 passed in
+  157.23s**; targeted whitespace checks remain required before commit. The
+  public and diagnostic replays exposed no write callback, performed no cloud
+  mutation and read no outcome.
 - Independent review of the local source-release-v3 successor found and fixed
   an always-failing capture binding and missing producer/capture predecessor
   closure; its focused source/consumer/analysis and predecessor-chain tests
@@ -201,8 +219,8 @@ and operator decisions.  The older entries remain the durable chronology.
   source work. A separate production v3 publisher/operator is still required;
   the legacy candidate-v1/capture-v2/component-v2/source-v2 batch must not be
   silently reused.
-- Exact next action: commit and push only the second latent cross-authority
-  repair, its regression and this handoff. Create a fresh clean detached build
+- Exact next action: commit and push only the catalog-root historical/current
+  repair, its regressions and this handoff. Create a fresh clean detached build
   context at that exact commit and rerun the read-only 54-slate candidate-v2
   prepublication command. Publish root-last only on a complete all-false
   outcome/mutation receipt, then independently reopen it.

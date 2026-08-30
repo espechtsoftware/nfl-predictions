@@ -1422,11 +1422,32 @@ def test_validator_repeats_create_once_reads_and_rejects_equivocation(
     assert target_calls == 2
 
 
-def test_catalog_root_source_commit_is_bound_to_fixed_g0_git(
+def test_catalog_root_accepts_historical_commit_when_g0_content_is_exact(
     chain: dict[str, Any],
 ) -> None:
     alternate = deepcopy(chain["catalog_replay_receipt"]["tracked_root_binding"])
     alternate["source_commit_sha"] = "9" * 40
+
+    normalized = authority._validate_catalog_root(
+        alternate,
+        panel_identity=chain["panel_identity"],
+        panel=chain["panel"],
+        git_binding=chain["git_binding"],
+    )
+
+    assert normalized["source_commit_sha"] == "9" * 40
+
+
+@pytest.mark.parametrize(
+    "field",
+    ["g0_authority_lock_file_sha256", "g0_authority_lock_sha256"],
+)
+def test_catalog_root_rejects_different_current_g0_content(
+    field: str,
+    chain: dict[str, Any],
+) -> None:
+    alternate = deepcopy(chain["catalog_replay_receipt"]["tracked_root_binding"])
+    alternate[field] = _digest(f"different-{field}")
     with pytest.raises(
         authority.CorpusR6FixedG0CandidateAuthorityV1Error,
         match="exact tracked G0 root",

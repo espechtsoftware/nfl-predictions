@@ -893,6 +893,14 @@ def _validate_catalog_root(
     panel: Mapping[str, object],
     git_binding: Mapping[str, object],
 ) -> dict[str, object]:
+    """Bind current G0 content without equating it to the historical commit.
+
+    The catalog release is generation-pinned by the terminal replay receipt,
+    so its ``source_commit_sha`` remains the commit that originally froze the
+    root.  The current G0 lock may live at a legitimate descendant HEAD.  Its
+    exact file/internal hashes and panel identity—not commit equality—prove
+    that the authority content has not changed.
+    """
     normalized = catalog_v1.normalize_tracked_root_binding(root)
     if (
         normalized["g0_authority_lock_schema"]
@@ -902,7 +910,6 @@ def _validate_catalog_root(
         or normalized["g0_authority_lock_file_sha256"] != git_binding.get("sha256")
         or normalized["g0_authority_lock_sha256"]
         != git_binding.get("g0_authority_lock_sha256")
-        or normalized["source_commit_sha"] != git_binding.get("source_commit_sha")
         or normalized["panel_object_identity"] != panel_identity
         or normalized["panel_index_sha256"] != panel.get("panel_index_sha256")
         or normalized["accepted_slate_count"] != source.TASK_COUNT
