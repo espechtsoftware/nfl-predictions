@@ -20,6 +20,54 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-30 (four-hundredth update)
+
+### True outer-bound fixed-G0 candidate authority v2 is implementation-complete
+
+- Branch `main` and `origin/main` entered this milestone at pushed cap
+  interpretation commit `83fed727`.  Four new isolated files implement the
+  candidate core/release successor and its focused adversarial tests; the
+  frozen candidate-v1 and catalog-recovery modules are unchanged.
+- The sole public catalog authority input is now the exact generation-pinned
+  recovery outer identity.  The Phase-0 downstream reopener opens that outer
+  first, and an outer-manifest-gated reader rejects an alternate inner receipt,
+  release, catalog or derivation identity before the backing read.  It requires
+  the exact outer-derived 110-body compatibility replay and rechecks the inner
+  internal SHA/linkage after replay.  No public v2 derive/build/publish API
+  accepts an independently chosen inner receipt or catalog release.
+- Material, all 54 slate receipts, panel, bundle and terminal root repeat the
+  exact outer identity/internal SHA, recovery code/lock binding, derived inner
+  summary, pinned candidate implementation commit/measurements and truthful
+  transitive read classes.  Required inherited reads include accepted task
+  result/carrier and world-schedule bodies; world-matrix and realized/historical
+  outcome bodies remain false.
+- Publication is fixed at exactly 165 create-once objects: 54 candidate
+  artifacts, 54 exact-occurrence sidecars, 54 outer-bound slate receipts, one
+  accepted release, one panel receipt and only the v2 terminal root last.  The
+  v1 root URI/schema is rejected; deep reopen reads the root, opens the recovery
+  outer before every non-root output, replays all predecessors and reconstructs
+  the terminal root byte-for-byte.
+- Independent validation reran the two new suites plus frozen v1 candidate,
+  v1 release and Phase-0 downstream suites: **58/58 passed**.  Four-file
+  `py_compile`, `git diff --check`, exact hash comparison and public-signature
+  review passed.  File SHA-256s are core
+  `d209008350893b8f00045011e9c1cf7d753262ed2fbf5fe35c6b6293c604e947`,
+  release
+  `340a4963f455b083153924a516adc8b2b714c854797161d192d355d9a3bcd2ae`,
+  core tests
+  `090dd7a56dd656f23eeb7a93d981ebb67b5a27fffe199eab88356c5fd0f348ff`
+  and release tests
+  `9bdad1fa1f5400c5a771f4bf18fb19a577e3c1668b40765137cc28cb6d28a4bd`.
+- This milestone authorizes no cloud mutation.  The implementation deliberately
+  requires these files to be committed/tracked-clean before a real derive or
+  publish can pass.  Exact next action is the guarded fixed-identity candidate
+  operator: derive the published outer from the tracked recovery receipt,
+  validate Git/origin/runtime closure before cloud-client construction, run a
+  real read-only task-0/prepublish smoke, then perform one 165-object
+  create-once publication and an independent exact reopen.  Only after that
+  real candidate root exists may the new outer-bound capture-plan lock be
+  frozen and committed.
+
 ## Current handoff -- 2026-08-30 (three-hundred-ninety-ninth update)
 
 ### PREREG-016 makes cap-4 population-specific and corrects the "inert cap" mechanism
