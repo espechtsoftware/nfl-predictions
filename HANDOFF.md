@@ -91,25 +91,50 @@ and operator decisions.  The older entries remain the durable chronology.
   missingness, served-feature/marginal changes, candidate turnover and
   selected-book turnover. These lanes remain required follow-on work; they
   must not delay freezing the decision-bearing generation/retrieval pair.
-- **Current launch state:** **NO-GO for a slate execution** until the exact
-  source cohort is committed/pushed, the immutable image build passes, the
+- **Current launch state:** the exact source cohort is pushed and the final
+  immutable image build is green. The dedicated unscheduled job is still
+  absent because the active developer identity lacks the single required
+  `actAs` permission on the frozen runner service account. **NO-GO for a slate
+  execution** remains until the deploy-only installation succeeds, the
   pre-Week-1 preregistration exists create-once, an outcome-blind live-input
   smoke proves wall time and authority reopening, and the explicit
-  season/week/draft-group/lock request is frozen.  Installing the dedicated,
-  unscheduled job without executing it is permitted after the image is
-  digest-pinned.
+  season/week/draft-group/lock request is frozen.
 - **Superseded evidence warning:** the immutable 2026-08-21 evidence graph
   records `rule:dk-min-two-games` as DK-hard.  Preserve those historical bytes,
   but do not use that label as current architecture.  DraftKings Classic
   legality requires at least two teams; two games is a named construction
   choice retained explicitly only where a frozen historical protocol requires
   it (including LR8-v1).
-- **Exact next action:** commit and push the final reviewed release cohort,
-  rerun the immutable build from that new full `origin/main` SHA, and only if
-  it passes deploy—but do not execute—the dedicated
-  `generation-shadow-suite` Cloud Run job. Then publish the create-once
-  preregistration and run an outcome-blind live-input timing smoke before any
-  Week-1 shadow execution.
+- **Exact next action:** supply the narrow existing authority for the active
+  operator to act as
+  `nfl-dfs-runner@nfl-predictions-503414.iam.gserviceaccount.com`, or have an
+  already-authorized operator perform the exact deploy-only installation of
+  build `892e8665-dacd-4d47-87b8-c594b409e269` and digest
+  `sha256:29272f69...a60ac`. Do not execute it. Exact-describe and record the
+  installed template before preregistration or the outcome-blind timing smoke.
+
+## Current handoff -- 2026-08-30 (four-hundred-tenth update)
+
+### Final HEAD-aligned artifact is green; only targeted deploy authority remains
+
+- `main` and `origin/main` entered this milestone at pushed commit
+  `e05b441b2b1af486212c3dc22c23ce7a0f948962`. The final aligned Cloud Build
+  `892e8665-dacd-4d47-87b8-c594b409e269` completed successfully and the
+  repaired wrapper returned its exact identity normally. The immutable image
+  is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:29272f69d21f7169b64d518e06fe0c4f583b68fe0e10c428786f3b9d8cda60ac`.
+  This build repeats the green clean-archive test gate, image build/push and
+  isolated no-network CLI smokes against the exact current release SHA.
+- No deployment retry followed because the known `actAs` authority has not
+  changed. `generation-shadow-suite` remains absent; no job, execution,
+  scheduler, IAM mutation, preregistration, GCS experiment publication or
+  outcome read occurred. The more privileged default compute service account
+  remains explicitly disallowed as a shortcut.
+- Exact next action: obtain or use the single already-approved runner
+  service-account deploy authority, install the above digest with
+  `GENERATION_SHADOW_EXECUTE=0`, exact-describe and record the template, and
+  stop before any slate execution. Preserve all unrelated dirty/untracked
+  Foundry/R6 work.
 
 ## Current handoff -- 2026-08-30 (four-hundred-ninth update)
 
