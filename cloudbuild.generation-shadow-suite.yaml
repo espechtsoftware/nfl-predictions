@@ -1,0 +1,129 @@
+# Immutable build gate for the dedicated, unscheduled generation-shadow suite.
+timeout: 3600s
+
+options:
+  logging: LEGACY
+  machineType: E2_HIGHCPU_8
+
+steps:
+  - id: generation-shadow-suite-tests
+    name: python:3.11-slim
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        printf '%s' '${_CODE_SHA}' | grep -Eq '^[0-9a-f]{40}$'
+        case '${_BUILD_IMAGE}' in
+          *:generation-shadow-'${_CODE_SHA}') ;;
+          *) echo 'build image tag must bind the full source commit' >&2; exit 2 ;;
+        esac
+        test ! -e .git
+        test ! -e reports
+        test ! -e sql
+        test ! -e HANDOFF.md
+        test ! -e CLAUDE.md
+        test "$(find scripts -type f | sort)" = "$(printf '%s\n' \
+          scripts/build_generation_shadow_suite_image.sh \
+          scripts/cloud_generation_shadow_suite.sh | sort)"
+        apt-get update
+        apt-get install -y --no-install-recommends git jq libgomp1
+        pip install --no-cache-dir '.[gcp,app,dev]'
+        bash -n scripts/build_generation_shadow_suite_image.sh
+        bash -n scripts/cloud_generation_shadow_suite.sh
+        PYTHONDONTWRITEBYTECODE=1 python -m compileall -q \
+          src/nfl_dfs/optimizer/construction_presets.py \
+          src/nfl_dfs/optimizer/lineup.py \
+          src/nfl_dfs/app/main.py \
+          src/nfl_dfs/backtest/engine.py \
+          src/nfl_dfs/backtest/replay.py \
+          src/nfl_dfs/inference/live_lineups.py \
+          src/nfl_dfs/inference/multiseed_portfolio.py \
+          src/nfl_dfs/inference/production_policy.py \
+          src/nfl_dfs/inference/generation_exposure.py \
+          src/nfl_dfs/inference/prospective_all_boom_ceiling.py \
+          src/nfl_dfs/inference/prospective_cross_law_discovery.py \
+          src/nfl_dfs/inference/prospective_generation_retrieval_crossing.py \
+          src/nfl_dfs/inference/prospective_generation_shadow_evaluation.py \
+          src/nfl_dfs/inference/prospective_generation_shadow_field_bridge.py \
+          src/nfl_dfs/inference/prospective_generation_shadow_operator.py \
+          src/nfl_dfs/inference/prospective_generation_shadow_registry.py \
+          src/nfl_dfs/inference/prospective_generation_shadow_suite.py \
+          src/nfl_dfs/research/corpus_legal_feasibility.py \
+          src/nfl_dfs/research/effective_policy_rule_inventory.py \
+          src/nfl_dfs/research/final_forensic.py \
+          src/nfl_dfs/research/lr8_historical_arm.py \
+          src/nfl_dfs/research/residual_world_columns.py
+        PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src pytest -q -o addopts='' \
+          tests/test_construction_presets.py \
+          tests/test_optimizer.py \
+          tests/test_shared_lineup_constraints.py \
+          tests/test_production_policy.py \
+          tests/test_boom_unique_fill.py \
+          tests/test_live_multiseed.py \
+          tests/test_multiseed_portfolio.py \
+          tests/test_lever_registry.py \
+          tests/test_review4_levers.py \
+          tests/test_dst_corr_draws.py \
+          tests/test_coherent_market_state.py \
+          tests/test_effective_policy_rule_inventory.py \
+          tests/test_generation_exposure.py \
+          tests/test_prospective_all_boom_ceiling.py \
+          tests/test_prospective_cross_law_discovery.py \
+          tests/test_prospective_generation_retrieval_crossing.py \
+          tests/test_prospective_generation_shadow_evaluation.py \
+          tests/test_prospective_generation_shadow_field_bridge.py \
+          tests/test_prospective_generation_shadow_operator.py \
+          tests/test_prospective_generation_shadow_registry.py \
+          tests/test_prospective_generation_shadow_suite.py \
+          tests/test_generation_shadow_clean_build.py \
+          tests/test_generation_shadow_suite_deployment.py \
+          tests/test_corpus_legal_feasibility.py \
+          tests/test_corpus_legal_feasibility_verifier.py \
+          tests/test_corpus_r6_current_bank_crossed_screen_evaluation_execution_v1.py \
+          tests/test_atlas_matched_diversity.py \
+          tests/test_atlas_world_ranking.py \
+          tests/test_constraint_lattice.py
+        PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src pytest -q -o addopts='' \
+          tests/test_app.py::test_core_lineup_omission_executes_receipted_incumbent_overlap \
+          tests/test_final_forensic.py::test_historical_game_diversity_uses_matchup_but_dk_only_does_not \
+          tests/test_lr8_historical_arm.py::test_lr8_v1_preserves_legacy_two_game_domain \
+          tests/test_residual_world_columns.py::test_residual_model_excludes_otherwise_preferred_one_game_roster \
+          tests/test_legal_soft_law.py::test_one_game_is_a_soft_feature_not_platform_illegality \
+          tests/test_post_forensic_construction.py
+        nfl-dfs shadow-generation-suite --help >/dev/null
+        nfl-dfs shadow-generation-operator preregister --help >/dev/null
+
+  - id: build-generation-shadow-suite-image
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --pull
+      - --file
+      - Dockerfile.generation-shadow-suite
+      - --build-arg
+      - 'SOURCE_COMMIT_SHA=${_CODE_SHA}'
+      - -t
+      - '${_BUILD_IMAGE}'
+      - .
+
+  - id: isolated-generation-shadow-suite-smoke
+    name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        docker run --rm --network none \
+          -e EXPECTED_SOURCE_COMMIT='${_CODE_SHA}' '${_BUILD_IMAGE}' \
+          python -I -c \
+          'import os; assert os.environ["IMAGE_SOURCE_COMMIT_SHA"] == os.environ["EXPECTED_SOURCE_COMMIT"]'
+        docker run --rm --network none '${_BUILD_IMAGE}' \
+          nfl-dfs shadow-generation-suite --help >/dev/null
+        docker run --rm --network none '${_BUILD_IMAGE}' \
+          nfl-dfs shadow-generation-operator preregister --help >/dev/null
+
+images:
+  - '${_BUILD_IMAGE}'
+
+substitutions:
+  _BUILD_IMAGE: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:generation-shadow-unknown
+  _CODE_SHA: unknown

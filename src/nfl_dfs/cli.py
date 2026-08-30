@@ -114,6 +114,33 @@ def main(argv: list[str] | None = None) -> None:
             "boom-first 40/160 candidate-allocation shadow"
         ),
     )
+    p = sub.add_parser(
+        "shadow-generation-suite",
+        help=(
+            "Freeze the complete five-arm 2026 prospective candidate-"
+            "generation shadow family"
+        ),
+    )
+    p.add_argument("--season", type=int, required=True)
+    p.add_argument("--week", type=int, required=True)
+    p.add_argument("--draft-group-id", type=int, required=True)
+    p.add_argument(
+        "--slate-lock-at",
+        required=True,
+        help="Exact timezone-aware lock timestamp from the frozen slate authority",
+    )
+    p = sub.add_parser(
+        "shadow-generation-operator",
+        help=(
+            "Run the default-off create-once preregistration, prelock "
+            "adapter, postlock grader, or season evaluator"
+        ),
+    )
+    p.add_argument(
+        "operator_args",
+        nargs=argparse.REMAINDER,
+        help="Arguments for the bounded generation-shadow operator",
+    )
     sub.add_parser(
         "shadow-sis-pass-tail-paired",
         help="Freeze the isolated prospective five-seed SIS pass-tail pair",
@@ -929,6 +956,19 @@ def main(argv: list[str] | None = None) -> None:
         from .inference import prospective_boom_first
 
         prospective_boom_first.main()
+    elif args.command == "shadow-generation-suite":
+        from .inference import prospective_generation_shadow_suite
+
+        prospective_generation_shadow_suite.main(
+            season=args.season,
+            week=args.week,
+            draft_group_id=args.draft_group_id,
+            expected_lock_at=args.slate_lock_at,
+        )
+    elif args.command == "shadow-generation-operator":
+        from .inference import prospective_generation_shadow_operator
+
+        prospective_generation_shadow_operator.main(args.operator_args)
     elif args.command == "shadow-sis-pass-tail-paired":
         from .inference import sis_pass_tail_portfolio
 

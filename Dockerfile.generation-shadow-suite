@@ -1,0 +1,24 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Cloud Build supplies the full commit from the clean, committed source
+# archive.  The immutable image tag carries the same value.
+ARG SOURCE_COMMIT_SHA=unknown
+LABEL org.opencontainers.image.revision="${SOURCE_COMMIT_SHA}"
+ENV IMAGE_SOURCE_COMMIT_SHA="${SOURCE_COMMIT_SHA}" \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# LightGBM needs libgomp.  No Git client, reports, tests, SQL, UI build tree,
+# or general-purpose research scripts are installed in this worker image.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml README.md ./
+COPY src ./src
+
+RUN pip install --no-cache-dir ".[gcp]"
+
+CMD ["nfl-dfs", "shadow-generation-suite"]
