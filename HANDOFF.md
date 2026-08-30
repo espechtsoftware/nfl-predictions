@@ -156,6 +156,38 @@ and operator decisions.  The older entries remain the durable chronology.
   from this core release and do not claim scoring readiness until the distinct
   task-0 worker and verifier/predecessor closure are green.
 
+## Current handoff -- 2026-08-30 (four-hundred-nineteenth update)
+
+### Clean provider build exposed and removed a hidden independent-bank dependency
+
+- `main` and `origin/main` entered at pushed commit `26c3ec15`.  Replacement
+  exact-direct-Git Cloud Build `8e4f98d6-684b-4f22-a83d-0bd2f000383d`
+  correctly resolved that commit and passed release-context preparation, but
+  failed during Python test collection before image construction.  The
+  tracked construction operator/test imported untracked local module
+  `corpus_r6_independent_bank_contract_v1`; the dirty developer checkout had
+  hidden that missing Git dependency.  The failed build produced no image,
+  build attestation, job update, execution, scientific write or outcome read.
+- Independent adversarial review found that the untracked 2,040-line contract
+  is not ready to grant independent-bank evaluation authority: it does not
+  exact-reopen member draw sources, enforce selection/audit coverage parity,
+  regenerate matrices from declared RNG/code provenance, or robustly exclude
+  outcome aliases.  It is therefore deliberately excluded from this release.
+  The construction crossing now fail-closes both its plan and draw-bank-root
+  schemas and accepts only the already-frozen typed unconsumed placeholders,
+  all of which retain `evaluation_authority=false`.  Its cloud build archive
+  and exact release tests no longer contain the untracked contract.
+- The repaired exact release suite passes **48/48** in the working tree;
+  shell syntax and Cloud Build YAML parsing are green.  No science cell,
+  frozen manifest, retrieval law, K80 target, run prefix or realized-grade
+  authority changed.
+- Exact next action: commit and push only the fail-closed operator/test,
+  release-list cleanup and this handoff.  Re-run the same 48-test cohort from
+  a new clean Git-only checkout of that exact commit, then submit one new
+  direct-Git build.  Require a successful immutable image and exact build
+  attestation before installing the dormant existing job; task 0 remains
+  outcome-blind and no-write.
+
 ## Current handoff -- 2026-08-30 (four-hundred-eighteenth update)
 
 ### First construction build request rejected before creation; escape repaired

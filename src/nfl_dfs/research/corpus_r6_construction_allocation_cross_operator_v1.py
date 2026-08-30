@@ -30,6 +30,10 @@ LOCK_AUTHORITY_SCHEMA: Final = (
 AUDIT_BANK_PLACEHOLDER_SCHEMA: Final = (
     "corpus-r6-construction-allocation-unconsumed-audit-placeholder/v1"
 )
+INDEPENDENT_BANK_PLAN_SCHEMA: Final = "corpus-r6-independent-bank-plan/v2"
+INDEPENDENT_DRAW_BANK_ROOT_SCHEMA: Final = (
+    "corpus-r6-evaluation-draw-bank-root/v1"
+)
 RUNTIME_BUILD_ATTESTATION_SCHEMA: Final = (
     "corpus-r6-construction-allocation-runtime-build-attestation/v1"
 )
@@ -672,74 +676,14 @@ def _validate_audit_bank_v1(
     raw: bytes, *, identity: Mapping[str, object], slate_id: str,
     world_blocks: list[str], worlds_per_block: int, read_exact: ReadExact,
 ) -> dict[str, object]:
+    del world_blocks, worlds_per_block, read_exact
     document = _parse_authority(raw, label=f"{slate_id} audit bank")
     schema = document.get("schema_version")
-    from . import corpus_r6_independent_bank_contract_v1 as bank_contract
-
-    if schema == bank_contract.PLAN_SCHEMA:
-        try:
-            plan = bank_contract.validate_independent_bank_plan_v1(
-                document, read_exact=read_exact
-            )
-        except Exception as exc:
-            raise ConstructionAllocationCrossOperatorError(
-                f"{slate_id} independent selection/audit bank plan differs"
-            ) from exc
-        root = plan["audit_bank_root"]
-        members = list(root["members"])
-        if (
-            {str(member["slate_id"]) for member in members} != {slate_id}
-            or len(members) != len(world_blocks)
-            or sorted(int(member["block_ordinal"]) for member in members)
-            != list(range(len(world_blocks)))
-            or any(
-                int(member["player_draws"]["shape"][1]) != worlds_per_block
-                for member in members
-            )
-        ):
-            _fail(f"{slate_id} independent audit plan coverage differs")
-        return {
-            "schema_version": schema,
-            "internal_sha256": plan["independent_bank_plan_sha256"],
-            "identity": dict(identity),
-            "validation_mode": "independent-selection-audit-bank-plan",
-            "member_count": root["member_count"],
-            "independent_bank_available": True,
-            "independence_from_selection_bank_verified": True,
-            "evaluation_authority": True,
-        }
-
-    if schema == bank_contract.DRAW_BANK_ROOT_SCHEMA:
-        try:
-            root = bank_contract.validate_draw_bank_root_v1(
-                document, expected_role="audit"
-            )
-        except Exception as exc:
-            raise ConstructionAllocationCrossOperatorError(
-                f"{slate_id} independent audit draw-bank root differs"
-            ) from exc
-        members = list(root["members"])
-        if (
-            {str(member["slate_id"]) for member in members} != {slate_id}
-            or len(members) != len(world_blocks)
-            or sorted(int(member["block_ordinal"]) for member in members)
-            != list(range(len(world_blocks)))
-            or any(
-                int(member["player_draws"]["shape"][1]) != worlds_per_block
-                for member in members
-            )
-        ):
-            _fail(f"{slate_id} audit draw-bank slate coverage differs")
-        return {
-            "schema_version": schema,
-            "internal_sha256": root["draw_bank_root_sha256"],
-            "identity": dict(identity),
-            "validation_mode": "independent-draw-bank-root",
-            "member_count": root["member_count"],
-            "independent_bank_available": True,
-            "independence_from_selection_bank_verified": False,
-            "evaluation_authority": False,
-        }
+    if schema in {INDEPENDENT_BANK_PLAN_SCHEMA, INDEPENDENT_DRAW_BANK_ROOT_SCHEMA}:
+        _fail(
+            f"{slate_id} independent audit banks are unavailable in the "
+            "placeholder-only release"
+        )
 
     item = _self_hash(
         document,
@@ -1490,6 +1434,8 @@ def reopen_terminal_bundle_v1(
 __all__ = [
     "AUDIT_BANK_PLACEHOLDER_SCHEMA",
     "ConstructionAllocationCrossOperatorError",
+    "INDEPENDENT_BANK_PLAN_SCHEMA",
+    "INDEPENDENT_DRAW_BANK_ROOT_SCHEMA",
     "LOCK_AUTHORITY_SCHEMA",
     "MULTIPLICITY_FAMILY_ID",
     "MULTIPLICITY_FAMILY_SCHEMA",

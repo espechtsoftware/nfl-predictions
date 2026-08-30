@@ -11,7 +11,6 @@ from nfl_dfs.research import (
 from nfl_dfs.research import corpus_r6_construction_allocation_cross_v1 as cross
 from nfl_dfs.research import corpus_r6_construction_allocation_shard_v1 as shard
 from nfl_dfs.research import corpus_r6_full_union_panel_freeze_v1 as fixed_panel
-from nfl_dfs.research import corpus_r6_independent_bank_contract_v1 as bank_contract
 
 
 def _identity(uri: str, raw: bytes, generation: str = "17") -> dict[str, object]:
@@ -402,61 +401,31 @@ def test_runtime_attestation_and_multiplicity_are_self_hashed_and_exact() -> Non
         operator.validate_multiplicity_family_v1(forged_family)
 
 
-def test_bare_audit_root_cannot_claim_selection_bank_independence(
-    monkeypatch,
+@pytest.mark.parametrize(
+    "schema",
+    [
+        operator.INDEPENDENT_DRAW_BANK_ROOT_SCHEMA,
+        operator.INDEPENDENT_BANK_PLAN_SCHEMA,
+    ],
+)
+def test_independent_audit_contracts_fail_closed_in_placeholder_only_release(
+    schema: str,
 ) -> None:
-    members = [{
-        "slate_id": "2023-w01",
-        "block_ordinal": ordinal,
-        "player_draws": {"shape": [10, 3]},
-    } for ordinal in range(5)]
-    root = {
-        "schema_version": bank_contract.DRAW_BANK_ROOT_SCHEMA,
-        "draw_bank_root_sha256": "a" * 64,
-        "member_count": 5,
-        "members": members,
-    }
-    raw = cross.canonical_json_bytes(root)
-    identity = _identity("gs://fixture/audit-root.json", raw)
-    monkeypatch.setattr(
-        bank_contract,
-        "validate_draw_bank_root_v1",
-        lambda value, *, expected_role: root,
-    )
-    result = operator._validate_audit_bank_v1(
-        raw,
-        identity=identity,
-        slate_id="2023-w01",
-        world_blocks=["R0", "R1", "R2", "R3", "R4"],
-        worlds_per_block=3,
-        read_exact=lambda _identity: b"unused",
-    )
-    assert result["independent_bank_available"] is True
-    assert result["independence_from_selection_bank_verified"] is False
-    assert result["evaluation_authority"] is False
-
-    plan = {
-        "schema_version": bank_contract.PLAN_SCHEMA,
-        "independent_bank_plan_sha256": "b" * 64,
-        "audit_bank_root": root,
-    }
-    plan_raw = cross.canonical_json_bytes(plan)
-    plan_identity = _identity("gs://fixture/independent-plan.json", plan_raw)
-    monkeypatch.setattr(
-        bank_contract,
-        "validate_independent_bank_plan_v1",
-        lambda value, *, read_exact: plan,
-    )
-    verified = operator._validate_audit_bank_v1(
-        plan_raw,
-        identity=plan_identity,
-        slate_id="2023-w01",
-        world_blocks=["R0", "R1", "R2", "R3", "R4"],
-        worlds_per_block=3,
-        read_exact=lambda _identity: b"unused",
-    )
-    assert verified["independence_from_selection_bank_verified"] is True
-    assert verified["evaluation_authority"] is True
+    document = {"schema_version": schema}
+    raw = cross.canonical_json_bytes(document)
+    identity = _identity("gs://fixture/unsupported-audit-bank.json", raw)
+    with pytest.raises(
+        operator.ConstructionAllocationCrossOperatorError,
+        match="unavailable in the placeholder-only release",
+    ):
+        operator._validate_audit_bank_v1(
+            raw,
+            identity=identity,
+            slate_id="2023-w01",
+            world_blocks=["R0", "R1", "R2", "R3", "R4"],
+            worlds_per_block=3,
+            read_exact=lambda _identity: b"unused",
+        )
 
 
 def test_publication_reopens_all_authorities_before_first_write_and_root_last(
