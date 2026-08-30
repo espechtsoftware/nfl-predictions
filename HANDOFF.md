@@ -20,6 +20,59 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-30 (three-hundred-ninety-ninth update)
+
+### PREREG-016 makes cap-4 population-specific and corrects the "inert cap" mechanism
+
+- Branch `main` and `origin/main` entered this milestone at pushed canonical
+  local-seam commit `74ff778e`.  The sibling lab has now committed the
+  completed PREREG-016 law-level analog at
+  `b32c30a7b32672ae17c922af8420597b64709005`.  Its frozen preregistration
+  SHA-256 is
+  `c7e480c78a56fb159a535c42e95a6c8e42a69884ad572ae7160f47798b4d26e0`
+  and its compact report SHA-256 is
+  `03b3027239ce64554e4048b9600d6b4c9276e4d7540e26c7260eb50b032a97a6`.
+- The primary K80 cap-4 ladder result on the lab's boom-first pool is null:
+  182.459 versus 182.654 for coverage-194, delta -0.195 with 98.75%
+  family-wise season-clustered interval [-1.197, 0.984] and bank deltas
+  -0.820/+0.679/-0.444.  This is a different-panel, different-population
+  structural analog, not exact production selector parity, and it rules out
+  treating cap-4 as a generic boom-first selector improvement.
+- A read-only independent aggregation exact-opened all 54 lab task objects
+  across run IDs `044b210-20260829T230146Z`,
+  `044b211-20260829T231644Z` and `044b212-20260829T233157Z`, covering 267
+  unique slate-bank cells.  No cloud mutation or production outcome body was
+  accessed.  The constrained prefix reached K80 on 264/267 cells and
+  exhausted only at 9/10/12 on the three 2022-W16 banks, but the cap was not
+  mechanically inert: cap-4 and the uncapped ladder shared only 64.25/80
+  lineups on average (range 48--78) and were identical on 0/267 cells.
+- Versus the uncapped ladder, cap-4 lowered mean modeled P(max >=194) from
+  0.35544 to 0.34551 and P(max >=210) from 0.14557 to 0.13769; realized mean
+  also fell from 182.755 to 182.459.  It did improve the 194+ calibration
+  residual (realized incidence 0.25468 to 0.26966 despite lower modeled
+  probability), while 210+ incidence did not improve.  The correct mechanism
+  statement is active regularization with population- and threshold-dependent
+  value, not universal diversity and not "nothing for the cap to prune."
+- The production 181.361 cap-4 result remains the historical leader on its
+  redundant sieved eight-book union, but it stays an explicit population-bound
+  preset.  Do not automatically attach it to boom-first.  After the isolated
+  production boom-first pair, freeze a population-by-selector crossing over
+  incumbent union, pure boom-first and their disclosed combined union, with
+  uncapped/cap-4 retrieval and cap engagement plus modeled/realized calibration
+  diagnostics.  Persist constrained-choice divergence, feasible/rejected
+  candidate trajectory, prefix/completion, book overlap and population
+  redundancy; prefix length alone is insufficient.
+- The active fixed-G0 candidate/source and canonical outcome-blind R6-v2
+  release contracts remain unchanged by this post-freeze evidence.  Continue
+  their outer-bound implementation and one-job controller in parallel; do not
+  modify the frozen R6-v2 lattice or launch legacy candidate/source paths.
+- Updated scientific review:
+  `reports/2026-08-29-boom-first-production-brief-review.md`.  Exact next
+  action remains independent review of the candidate-v2 and Git-independent
+  runtime implementations, followed by the guarded candidate publication and
+  real task-0 worker/distinct-verifier smoke.  This cap result enters the next
+  Foundry factorial, not the already-frozen release.
+
 ## Current handoff -- 2026-08-29 (three-hundred-ninety-eighth update)
 
 ### Canonical R6-v2 local runtime seam is hardened but remains cloud-NO-GO

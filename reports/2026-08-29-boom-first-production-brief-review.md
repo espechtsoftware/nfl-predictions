@@ -95,8 +95,58 @@ not abort the slate or be duplicated as padding.
   a much smaller incremental effect.  It is a separate dose arm, not part of
   the first matched pair.
 - Boom-first and cap-4 retrieval may partially correct the same simulator
-  overconfidence.  Their historical gains must be crossed and measured; they
-  cannot be assumed additive.
+  overconfidence.  Their historical gains cannot be assumed additive, and a
+  cap must not be carried to a new population without measuring whether and
+  how it changes the selected book.
+
+## Post-review update: PREREG-016 result and mechanism correction
+
+The lab's preregistered law-level analog has now completed on three banks and
+89 development slates.  The frozen preregistration SHA-256 is
+`c7e480c78a56fb159a535c42e95a6c8e42a69884ad572ae7160f47798b4d26e0`;
+the committed result is sibling-repository commit
+`b32c30a7b32672ae17c922af8420597b64709005`, and the compact report SHA-256
+is `03b3027239ce64554e4048b9600d6b4c9276e4d7540e26c7260eb50b032a97a6`.
+It is a structural analog, not an exact production-selector replay: the lab
+uses different rungs, weights, tie rules, world count and candidate
+population.
+
+The primary result is null.  At K80, coverage-194 scored 182.654 mean weekly
+maximum; the cap-4 ladder scored 182.459, a -0.195 change with the 98.75%
+family-wise season-clustered interval [-1.197, 0.984].  Its three bank deltas
+were -0.820, +0.679 and -0.444.  This is direct evidence against treating
+cap-4 as a population-independent selector improvement.
+
+An independent reopen and aggregation of all 54 immutable task objects found
+267 unique slate-bank cells.  It also corrects the shorthand claim that the
+cap was "inert" because the constrained prefix averaged 79.2 of 80:
+
+- the prefix reached 80 on 264/267 cells and exhausted at 9, 10 or 12 only on
+  the three banks of 2022 Week 16;
+- nevertheless, cap-4 and the uncapped ladder shared only 64.25/80 selected
+  lineups on average (range 48--78) and were identical on 0/267 cells;
+- cap-4 therefore changed selection materially even when it did not force an
+  unconstrained completion;
+- versus the uncapped ladder, mean simulated P(max >=194) fell from 0.35544 to
+  0.34551 and P(max >=210) from 0.14557 to 0.13769, while realized mean weekly
+  maximum also fell from 182.755 to 182.459;
+- the calibration picture is threshold-dependent: cap-4 raised realized
+  194+ incidence from 0.25468 to 0.26966 despite the lower modeled
+  probability, but did not raise realized 210+ incidence.  The single-rung
+  cap-4 coverage arm showed the clearest modeled-falls/realized-rises
+  direction (182.935, +0.281 versus control), but its interval [-0.709,
+  1.913] spans zero.
+
+The defensible interpretation is therefore narrower than either "diversity
+won" or "the cap never bound."  The cap is an active regularizer whose score
+effect depends on the candidate population and threshold.  Production's
+181.361 result remains the historical leader on its redundant sieved
+eight-book union, but cap-4 is not justified as the selector for a pure
+boom-first pool.  Foundry must persist constrained-choice divergence,
+candidate rejections/feasible-pool trajectory, prefix exhaustion and
+completion, book overlap, population redundancy, modeled threshold
+probabilities and realized calibration residuals; prefix length alone cannot
+identify whether the cap changed the book.
 
 ## Production implementation review
 
@@ -156,8 +206,12 @@ one 54-task launch.
    book; this tests whether allocation improves tail calibration rather than
    only candidate volume.
 6. If boom-first improves the primary K80 mean without degrading the frozen
-   tournament-tail guard, make `lev40-boom160` an explicit generation preset
-   and cross it with the new cap-4-prefix-then-fill retrieval winner.
+   tournament-tail guard, make `lev40-boom160` an explicit generation preset.
+   Do not automatically attach cap-4.  Run a frozen population-by-selector
+   crossing: uncapped versus cap-4 retrieval on the incumbent redundant union,
+   the pure boom-first pool and their disclosed combined union.  Report cap
+   engagement and calibration diagnostics alongside score; treat a cell in
+   which the cap changes few or no choices as a mechanism failure, not a win.
 7. Only then test the 400-solve dose and the legality-only construction preset
    as separate factorial cells.
 
@@ -166,9 +220,9 @@ one 54-task launch.
 The lab finding merits immediate production-shaped confirmation.  The most
 important strategic implication is that the corpus may benefit more from
 many exact optima across distinct high-scoring worlds than from repeatedly
-perturbing one tournament objective.  Combined with the newly measured
-181.361 complete-union retrieval result, it gives the project a concrete
-two-stage path: improve rare-tail supply with boom-first, then retrieve it
-with the explicit cap-4-prefix-then-fill book.  The crossed result remains a
-hypothesis until both stages are measured together; their separate gains must
-not simply be added.
+perturbing one tournament objective.  The newly measured 181.361 cap-4 result
+is a separate, population-specific retrieval finding.  The lab replication
+shows that cap-4 materially changes a boom-first book but does not improve its
+primary realized mean, so production must test population and selector as a
+factorial rather than assume a two-stage recipe.  Their separate historical
+gains must never be added.
