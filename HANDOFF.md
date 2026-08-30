@@ -212,6 +212,18 @@ and operator decisions.  The older entries remain the durable chronology.
   157.23s**; targeted whitespace checks remain required before commit. The
   public and diagnostic replays exposed no write callback, performed no cloud
   mutation and read no outcome.
+- The catalog-root repair was committed and pushed as
+  `28f3e0ab31381a439b183f86713168a4f6759b70`. Its clean no-write
+  replay cleared every historical/current binding and then failed at a
+  different boundary: candidate-v1 deliberately validates the catalog objects
+  directly and calls the public catalog reopener for an independent second
+  pass, while candidate-v2's outer-manifest gate licensed only the first pass.
+  The guard now permits the exact same outer-derived release plus 54
+  catalog/derivation pairs for the second pass, still rejects every alternate
+  identity before its backing read, and still requires the complete unique
+  110-object outer manifest. A regression proves one pass is incomplete and
+  the exact independent second pass completes; candidate-v2 is **10/10**
+  green in 0.91s. No cloud mutation or outcome read occurred.
 - Independent review of the local source-release-v3 successor found and fixed
   an always-failing capture binding and missing producer/capture predecessor
   closure; its focused source/consumer/analysis and predecessor-chain tests
@@ -219,8 +231,8 @@ and operator decisions.  The older entries remain the durable chronology.
   source work. A separate production v3 publisher/operator is still required;
   the legacy candidate-v1/capture-v2/component-v2/source-v2 batch must not be
   silently reused.
-- Exact next action: commit and push only the catalog-root historical/current
-  repair, its regressions and this handoff. Create a fresh clean detached build
+- Exact next action: commit and push only the exact second-pass outer-manifest
+  guard repair, its regression and this handoff. Create a fresh clean detached build
   context at that exact commit and rerun the read-only 54-slate candidate-v2
   prepublication command. Publish root-last only on a complete all-false
   outcome/mutation receipt, then independently reopen it.

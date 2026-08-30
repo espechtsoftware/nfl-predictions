@@ -147,6 +147,10 @@ def _consume_outer_catalog_sequence(
     for ordinal in range(source.TASK_COUNT):
         reader(manifest[ordinal * 2 + 1]["identity"])
         reader(manifest[ordinal * 2]["identity"])
+    reader(authority.inner_catalog_release_identity)
+    for ordinal in range(source.TASK_COUNT):
+        reader(manifest[ordinal * 2 + 1]["identity"])
+        reader(manifest[ordinal * 2]["identity"])
 
 
 def _install_outer(
@@ -486,6 +490,31 @@ def test_alternate_inner_release_is_rejected_before_backing_read() -> None:
     ):
         guarded(alternate_release)
     assert backing_reads == [authority.inner_replay_receipt_identity]
+
+
+def test_outer_guard_requires_independent_second_catalog_replay() -> None:
+    authority = _authority()
+    guarded, require_complete = core._outer_manifest_gated_reader(
+        authority=authority,
+        read_exact=lambda _identity: b"fixture",
+    )
+    manifest = list(authority.inner_object_manifest)
+    guarded(authority.inner_replay_receipt_identity)
+    guarded(authority.inner_catalog_release_identity)
+    for ordinal in range(source.TASK_COUNT):
+        guarded(manifest[ordinal * 2 + 1]["identity"])
+        guarded(manifest[ordinal * 2]["identity"])
+    with pytest.raises(
+        core.CorpusR6FixedG0CandidateAuthorityV2Error,
+        match="did not consume all 110 outer identities",
+    ):
+        require_complete()
+
+    guarded(authority.inner_catalog_release_identity)
+    for ordinal in range(source.TASK_COUNT):
+        guarded(manifest[ordinal * 2 + 1]["identity"])
+        guarded(manifest[ordinal * 2]["identity"])
+    require_complete()
 
 
 def test_v2_public_apis_expose_only_outer_catalog_input() -> None:

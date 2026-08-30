@@ -429,7 +429,9 @@ def _outer_manifest_gated_reader(
     This guard makes that compatibility behavior safe: even a coherently
     substituted receipt cannot cause a backing read of an alternate release,
     catalog, or derivation object.  The exact expected v1 read order is receipt,
-    release, then catalog/derivation for each of the 54 source ordinals.
+    release, then catalog/derivation for each of the 54 source ordinals,
+    followed by the public catalog reopener's independent second pass over the
+    same release and 54 catalog/derivation pairs.
     """
 
     if not callable(read_exact):
@@ -464,6 +466,11 @@ def _outer_manifest_gated_reader(
                 label=f"outer-derived derivation[{ordinal}]",
             ),
         ))
+    # Candidate-v1 first validates each object directly and then invokes the
+    # public catalog reopener to prove the complete external authority again.
+    # The second pass intentionally repeats every identity except the outer
+    # replay receipt.  Keep both passes gated to the one outer-derived set.
+    expected_sequence.extend(expected_sequence[1:])
     observed: list[dict[str, object]] = []
 
     def guarded(identity_value: Mapping[str, object]) -> bytes:
