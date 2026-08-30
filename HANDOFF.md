@@ -20,6 +20,120 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current science index -- 2026-08-30
+
+This section supersedes older sections headed "Current handoff" for scientific
+and operator decisions.  The older entries remain the durable chronology.
+
+- **Money/sentinel policy:** unchanged.  The live reference remains the
+  adopted `classic-k1-role12-boom40-poscal-cbwu-v4` policy, incumbent named
+  construction preset, coverage-194 retrieval and exact K80.  None of the
+  work below authorizes an automatic production-policy or contest-allocation
+  change.
+- **Latest matched score evidence:** the exact 54-slate production-shaped
+  boom-first replay moved selected K80 mean weekly maximum from **178.023 to
+  179.279 (+1.256)**, candidate-pool ceiling from **181.500 to 184.877
+  (+3.377)** and selector regret from **3.477 to 5.598 (+2.121 worse)**.
+  Selected-book lift is unresolved; candidate-supply lift is the transported
+  signal.  The score-threshold changes were +2 weeks at each of 200, 210 and
+  220, and no 230+ week in either arm.
+- **2026 prospective matrix:** five common R0--R4 10,000-world blocks per
+  slate.  Per block the exact sentinel is 160 leverage + 40 boom; primary
+  boom-first is 40 + 160; exploratory cross-law is 40 leverage + 100
+  base-boom + 60 discovery-boom; lower-priority unequal-resource dose is 40 +
+  360; optional/unpassed ceiling-all-boom is 0 + 200.  Role-12 and incumbent
+  auxiliary families remain unchanged.  Cross-law discovery worlds may
+  propose candidates only; untouched base worlds select them.
+- **Core retrieval question:** the frozen incumbent and boom-first pools each
+  receive incumbent coverage-194 K80 and exact production
+  cap-4-prefix-then-fill K80 retrieval.  This is the zero-additional-solve 2 x
+  2 generation-by-retrieval test.  Cap-4 is active—it materially changes book
+  membership—but its boom-pool historical result was null, so no gain is
+  presumed.
+- **Decision clock:** Weeks 1--7 accrue.  Week 8 is operational integrity and
+  severe-harm only, never efficacy promotion.  Week 18 is the first
+  prospective efficacy estimate with slate-paired uncertainty and still
+  requires human synthesis with the historical matched result.  Reports must
+  include K20/K40/K80, 194/200/210/220/230/240, pool oracle/regret and the full
+  2 x 2 crossing.
+- **Field/EV boundary:** complete standings can support field rank for frozen
+  counterfactual books.  Actual payout/contest-EV claims require independently
+  sourced duplication and split payout and apply only to actually entered
+  books; otherwise the grade is raw-score/field-rank only.  Allocation advice
+  is always disabled in this program.
+- **Current launch state:** **NO-GO for a slate execution** until the exact
+  source cohort is committed/pushed, the immutable image build passes, the
+  pre-Week-1 preregistration exists create-once, an outcome-blind live-input
+  smoke proves wall time and authority reopening, and the explicit
+  season/week/draft-group/lock request is frozen.  Installing the dedicated,
+  unscheduled job without executing it is permitted after the image is
+  digest-pinned.
+- **Superseded evidence warning:** the immutable 2026-08-21 evidence graph
+  records `rule:dk-min-two-games` as DK-hard.  Preserve those historical bytes,
+  but do not use that label as current architecture.  DraftKings Classic
+  legality requires at least two teams; two games is a named construction
+  choice retained explicitly only where a frozen historical protocol requires
+  it (including LR8-v1).
+- **Exact next action:** push the committed release and handoff, build from the
+  exact pushed commit archive, then deploy—but do not execute—the dedicated
+  `generation-shadow-suite` Cloud Run job.
+
+## Current handoff -- 2026-08-30 (four-hundred-fifth update)
+
+### Reviewed generation/retrieval shadow release is committed; cloud execution remains NO-GO
+
+- Branch `main` advanced from pushed `932679e1` through prerequisite commit
+  `f29c6da4` (explicit named construction and corrected DraftKings Classic
+  legality) to release-code commit `cf2864e1` (the reviewed prospective
+  generation/retrieval suite). Only DraftKings legality is universal; the
+  former QB/receiver/bring-back, salary-floor, two-game and related laws are
+  explicit named construction inputs. Frozen historical LR8-v1 retains its
+  legacy two-game domain truthfully. The dated 2026-08-21 evidence graph is
+  immutable but superseded where it called two games DK-hard.
+- The release implements the exact per-block incumbent, boom-first,
+  cross-law, unequal-dose and optional all-boom arms; the zero-solve 2 x 2
+  generation-by-retrieval crossing; K20/K40/K80 and
+  194/200/210/220/230/240 reporting; candidate oracle/regret; per-attempt
+  ledgers; cross-law influence traces; create-once prelock artifacts; and the
+  frozen Week 8 integrity-only/Week 18 first-efficacy hierarchy. No arm can
+  change money policy or contest allocation automatically.
+- Independent review defects were closed before commit. Every base/cap
+  calibration surface is recomputed on the distinct 10,000-world audit bank;
+  fit/world crossing is design-only with execution `not_evaluated`; Week 8
+  integrity is `not_evaluated` until explicit safety receipts exist; complete
+  fields may support counterfactual ranks but contest EV remains false for
+  unentered lineups; and the grader accepts only an exact-reopened realized
+  score artifact already published outside its own namespace by an independent
+  scorer.
+- The release uses `Dockerfile.generation-shadow-suite` and a path-limited
+  exact-commit archive. The 439-MiB tracked report corpus, dirty/untracked
+  workstation artifacts, `.git`, SQL and unrelated scripts cannot enter the
+  build or image. The build helper requires an explicit pushed `origin/main`
+  SHA and returns the durable Cloud Build ID plus digest-pinned image. The
+  deployment helper is update-only by default, requires a separate explicit
+  one-time job-creation flag, defaults to deploy-without-execute, and requires
+  explicit season/week/draft-group/lock values for execution. There is no
+  scheduler, IAM mutation, money-job reuse or automatic upcoming-slate mode.
+- Local validation passed: **130/130** construction/optimizer/shared-policy,
+  **80/80** live-policy/inventory, **114/114** complete generation-shadow,
+  **50/50** inventory plus corpus legal-feasibility, **84/84** compatibility/
+  current-bank, **5/5** targeted one-game legality and **11/11** clean-build/
+  deployment tests. The independent evaluator/field/operator subset passed
+  **43/43**. `py_compile`, shell syntax, YAML parse and `git diff --check`
+  passed. Some totals overlap; each is recorded as its executed command, not a
+  fabricated grand total.
+- No cloud build, Cloud Run job mutation, GCS publication, outcome read or
+  execution occurred in this milestone; therefore there is no new durable
+  Cloud Build or Cloud Run execution ID to record. Remaining gates are the
+  push, immutable build, deploy-only job installation, create-once Week 1
+  preregistration, an outcome-blind live-input runtime smoke, and a separately
+  published independent realized-score source before postlock grading.
+- Exact next action: push `f29c6da4`, `cf2864e1` and this handoff commit; invoke
+  `scripts/build_generation_shadow_suite_image.sh --execute FULL_PUSHED_SHA`;
+  record the build ID/digest; install the dedicated job with execution disabled;
+  then stop before any slate run until the preregistration/input-smoke gates
+  pass.
+
 ## Current handoff -- 2026-08-30 (four-hundred-fourth update)
 
 ### Guarded candidate-authority-v2 production operator is local-ready
