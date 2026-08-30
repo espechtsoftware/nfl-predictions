@@ -111,6 +111,41 @@ and operator decisions.  The older entries remain the durable chronology.
   preregistration and run an outcome-blind live-input timing smoke before any
   Week-1 shadow execution.
 
+## Current handoff -- 2026-08-30 (four-hundred-ninth update)
+
+### Reviewed release image is green; deploy-only creation is authority-blocked
+
+- The replacement exact-commit build from pushed `main` commit
+  `f136958ab7edc4850e04ff63d75091d812ef2e0d` is
+  `0171fa45-8594-4aa9-8dd5-b2d8c1b10b28` and finished `SUCCESS` at
+  `2026-08-30T06:40:02.284402Z`. Its source object generation is
+  `1788071430886715`. The immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:7b066d7b992da487ae9c6826bd8311ab574307b5dbad4804f889c72f65c8d951`.
+  This means the complete clean-archive tests, Docker build/push and isolated
+  no-network CLI/image smokes passed.
+- The local helper initially reported that no durable build ID was returned
+  after the successful remote build because this gcloud release appended
+  terminal summary text to `value(id)` stdout. The repair extracts exactly one
+  UUID and fails on zero or multiple identities; its fake-gcloud regression
+  now includes summary text. This is host-side release tooling only and does
+  not change the green runtime image or science.
+- A deploy-only creation attempt used the exact digest and explicitly set
+  `GENERATION_SHADOW_EXECUTE=0`. Cloud Run rejected creation before a job
+  existed because the active developer identity lacks
+  `iam.serviceAccounts.actAs` on
+  `nfl-dfs-runner@nfl-predictions-503414.iam.gserviceaccount.com`. A direct
+  describe confirms `generation-shadow-suite` remains absent. There is no
+  partial job, execution, scheduler, IAM mutation, GCS preregistration or
+  outcome read. Do not substitute the more privileged default compute account
+  or weaken the frozen runtime identity.
+- Preserve every unrelated dirty/untracked Foundry/R6 file. Exact next action:
+  commit and push the wrapper regression plus this handoff, then obtain the
+  narrow existing authority to deploy as the frozen runner service account
+  (or have an already-authorized operator run the exact deploy-only command).
+  Re-run deploy with execution disabled, exact-describe the template, record
+  the job identity, and stop before preregistration/live-input smoke or any
+  slate execution.
+
 ## Current handoff -- 2026-08-30 (four-hundred-eighth update)
 
 ### Exact remote gate found one excluded-tree test coupling; repair is focused

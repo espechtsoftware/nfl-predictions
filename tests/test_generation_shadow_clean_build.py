@@ -110,7 +110,7 @@ if args[:2] == ['builds', 'submit'] and len(args) >= 3:
         'source': (context / 'src/nfl_dfs/__init__.py').read_text(),
     }
     Path(os.environ['GCLOUD_CAPTURE']).write_text(json.dumps(record, sort_keys=True))
-    print('12345678-1234-1234-1234-123456789abc')
+    print('submitted build 12345678-1234-1234-1234-123456789abc SUCCESS')
 elif args[:3] == ['builds', 'describe', '12345678-1234-1234-1234-123456789abc']:
     print('sha256:' + 'a' * 64)
 else:

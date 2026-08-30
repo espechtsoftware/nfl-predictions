@@ -118,12 +118,21 @@ done
 [[ "$(git -C "$SOURCE_ROOT" rev-parse --verify 'refs/remotes/origin/main^{commit}')" == "$CODE_SHA" ]] || \
   die "origin/main changed while preparing the committed build context"
 
-BUILD_ID=$(gcloud builds submit "$CONTEXT" \
+BUILD_SUBMIT_OUTPUT=$(gcloud builds submit "$CONTEXT" \
   --config="$CONTEXT/cloudbuild.generation-shadow-suite.yaml" \
   --substitutions="_CODE_SHA=${CODE_SHA},_BUILD_IMAGE=${IMAGE}" \
   --project="$PROJECT" --format='value(id)' --quiet)
-[[ "$BUILD_ID" =~ ^[0-9a-f]{8}-[0-9a-f-]{27}$ ]] || \
-  die "Cloud Build did not return a durable build ID"
+# Some gcloud releases append a formatted terminal summary to stdout even
+# when value(id) is requested.  Accept exactly one UUID from that output;
+# never guess among multiple build identities.
+mapfile -t BUILD_IDS < <(
+  printf '%s\n' "$BUILD_SUBMIT_OUTPUT" |
+    grep -Eo '[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}' |
+    sort -u
+)
+[[ "${#BUILD_IDS[@]}" -eq 1 ]] || \
+  die "Cloud Build did not return exactly one durable build ID"
+BUILD_ID=${BUILD_IDS[0]}
 DIGEST=$(gcloud builds describe "$BUILD_ID" --project="$PROJECT" \
   --format='value(results.images[0].digest)')
 [[ "$DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] || \
