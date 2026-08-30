@@ -27,6 +27,18 @@ boom-first was +0.88 with an interval crossing zero; the 400-solve dose was
 family-level primary bound. These are nomination evidence, not transported
 production effects.
 
+The sealed read is now byte-bound in the executable registry to lab commit
+`970113a9a7938a52af2d34b72569c58fec084d7c`, report
+`results/048-PREREG-020-report.json` (byte SHA-256
+`76f9676a8d8aa2f006f25a5f8931efc120fe8453d12858d3935e897814233754`)
+and its access log (byte SHA-256
+`8d1b01c3db1cfd0663900f7fa0850982abd8d0a081478dadec2a0f9323c5bcb6`).
+The exact K100 result is +7.563 with slate-bootstrap interval
+`[+3.329,+11.943]`, 12 wins / 6 losses and all three banks positive; K80,
+K40 and K20 are +7.255, +7.142 and +7.106. The 18-slate holdout is spent.
+This confirms the lab pipeline only, enters no effect pooling, and changes
+neither the production primary arm nor the retrieval crossing.
+
 The 2026 test therefore separates two stages:
 
 1. **generation:** which lineups enter the candidate corpus; and

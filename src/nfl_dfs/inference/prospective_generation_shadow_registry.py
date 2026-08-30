@@ -16,7 +16,7 @@ from typing import Final
 from .generation_exposure import canonical_sha256
 
 
-SCHEMA_VERSION: Final = "prospective-generation-shadow-registry/v6"
+SCHEMA_VERSION: Final = "prospective-generation-shadow-registry/v7"
 
 
 class ShadowRegistryError(ValueError):
@@ -54,6 +54,59 @@ _PAYLOAD: Final[dict[str, object]] = {
         "historical_effects_are_not_live_expectations": True,
         "all_five_arms_required_before_week1": True,
         "arm_omission_allowed": False,
+    },
+    "external_lab_confirmation": {
+        "evidence_role": (
+            "sealed-holdout-confirmation-of-lab-pipeline-not-production-pipeline"
+        ),
+        "lab_repository_commit": (
+            "970113a9a7938a52af2d34b72569c58fec084d7c"
+        ),
+        "report_path": "results/048-PREREG-020-report.json",
+        "report_byte_sha256": (
+            "76f9676a8d8aa2f006f25a5f8931efc120fe8453d12858d3935e897814233754"
+        ),
+        "access_log_path": "results/prereg020-access.log",
+        "access_log_byte_sha256": (
+            "8d1b01c3db1cfd0663900f7fa0850982abd8d0a081478dadec2a0f9323c5bcb6"
+        ),
+        "experiment_id": "048_final_read_2025",
+        "preregistration_id": "PREREG-020",
+        "panel": "sealed-2025-18-slate-lab-panel",
+        "slate_count": 18,
+        "bank_ids": [250, 251, 252],
+        "holdout_opened_once_with_arms_fixed": True,
+        "holdout_is_now_spent": True,
+        "boom_first_vs_incumbent": {
+            "k100_delta_milli": 7_563,
+            "k100_slate_bootstrap_ci95_milli": [3_329, 11_943],
+            "wins": 12,
+            "losses": 6,
+            "all_three_bank_deltas_positive": True,
+            "k80_delta_milli": 7_255,
+            "k40_delta_milli": 7_142,
+            "k20_delta_milli": 7_106,
+            "weeks_ge_200_bank_mean_control_milli": 1_000,
+            "weeks_ge_200_bank_mean_boom_first_milli": 2_670,
+            "best_week_control_milli": 205_060,
+            "best_week_boom_first_milli": 222_800,
+        },
+        "cross_law_vs_boom_first": {
+            "k100_delta_milli": 879,
+            "k100_slate_bootstrap_ci95_milli": [-1_994, 4_113],
+            "wins": 8,
+            "losses": 10,
+            "status": "unresolved-exploratory-only",
+        },
+        "production_interpretation": (
+            "strengthens-boom-first-generation-prior-without-establishing-"
+            "production-k80-retrieval-effect"
+        ),
+        "changes_frozen_primary_arm": False,
+        "changes_generation_by_retrieval_crossing": False,
+        "cross_law_promotion_authority": False,
+        "included_in_structural_effect_pooling": False,
+        "automatic_policy_authority": False,
     },
     "shared_protocol": {
         "operational_k": 80,

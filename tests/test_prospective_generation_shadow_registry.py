@@ -72,6 +72,30 @@ def test_only_legality_is_universal_but_shadows_retain_incumbent_rules() -> None
     assert scope["shadow_construction_preset"] == "incumbent-gpp-construction"
 
 
+def test_sealed_lab_confirmation_is_bound_without_changing_production_decision() -> None:
+    evidence = registry.registry_document()["external_lab_confirmation"]
+    assert evidence["lab_repository_commit"] == (
+        "970113a9a7938a52af2d34b72569c58fec084d7c"
+    )
+    assert evidence["report_byte_sha256"] == (
+        "76f9676a8d8aa2f006f25a5f8931efc120fe8453d12858d3935e897814233754"
+    )
+    assert evidence["holdout_opened_once_with_arms_fixed"] is True
+    assert evidence["holdout_is_now_spent"] is True
+    assert evidence["boom_first_vs_incumbent"]["k100_delta_milli"] == 7_563
+    assert evidence["boom_first_vs_incumbent"][
+        "k100_slate_bootstrap_ci95_milli"
+    ] == [3_329, 11_943]
+    assert evidence["boom_first_vs_incumbent"]["k80_delta_milli"] == 7_255
+    assert evidence["cross_law_vs_boom_first"]["k100_delta_milli"] == 879
+    assert evidence["cross_law_vs_boom_first"]["status"] == (
+        "unresolved-exploratory-only"
+    )
+    assert evidence["changes_generation_by_retrieval_crossing"] is False
+    assert evidence["included_in_structural_effect_pooling"] is False
+    assert evidence["automatic_policy_authority"] is False
+
+
 def test_decision_horizons_are_frozen() -> None:
     rules = registry.registry_document()["decision_rules"]
     assert rules["interim_horizon_weeks"] == 8

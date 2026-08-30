@@ -37,6 +37,15 @@ and operator decisions.  The older entries remain the durable chronology.
   Selected-book lift is unresolved; candidate-supply lift is the transported
   signal.  The score-threshold changes were +2 weeks at each of 200, 210 and
   220, and no 230+ week in either arm.
+- **External sealed-2025 confirmation:** lab commit
+  `970113a9a7938a52af2d34b72569c58fec084d7c` opened its preregistered
+  18-slate holdout once and reports boom-first +7.563 at K100 with
+  slate-bootstrap interval `[+3.329,+11.943]`, 12 wins / 6 losses, every bank
+  positive, and +7.255/+7.142/+7.106 at K80/K40/K20.  Cross-law adds only
+  +0.879 over boom-first with interval `[-1.994,+4.113]`.  The exact report
+  byte SHA-256 is `76f9676a...14233754`; the holdout is now spent. This
+  confirms the lab pipeline, not production retrieval, enters no effect
+  pooling and changes neither the primary arm nor the 2 x 2 retrieval test.
 - **Latest evidence for the other frozen arms:** none yet has a
   production-shaped score, so none may be described as transported.  In the
   lab, cross-law improved boom-first by +2.24 at K80 on the discovery panel
@@ -138,6 +147,34 @@ and operator decisions.  The older entries remain the durable chronology.
   and paid-source experiments separate from this core release and do not claim
   scoring readiness until the distinct Git-independent task-0 worker and
   verifier/predecessor closure are green.
+
+## Current handoff -- 2026-08-30 (four-hundred-fifteenth update)
+
+### Sealed lab confirmation is bound without changing the production estimand
+
+- `main` and `origin/main` entered at pushed commit `aa134e07`. The external
+  lab repository is exactly commit
+  `970113a9a7938a52af2d34b72569c58fec084d7c`; its PREREG-020 report and access
+  log exact byte SHA-256 values are respectively
+  `76f9676a8d8aa2f006f25a5f8931efc120fe8453d12858d3935e897814233754`
+  and `8d1b01c3db1cfd0663900f7fa0850982abd8d0a081478dadec2a0f9323c5bcb6`.
+- The prospective registry advances to v7 and binds the exact lab commit,
+  experiment, report/access-log identities, 18-slate/three-bank scope, K100
+  result (+7.563, `[+3.329,+11.943]`, 12W/6L), K20/K40/K80 effects, tail
+  counts and the unresolved cross-law increment (+0.879,
+  `[-1.994,+4.113]`). It explicitly marks the holdout spent and forbids
+  effect pooling, policy authority, primary-arm changes or any change to the
+  generation-by-retrieval crossing.
+- Focused prospective registry and full evaluation validation passed **38/38**
+  with no cloud call, outcome read or mutation. A read-only Cloud Run census
+  found no live generation-shadow or construction experiment; the previous
+  54-task boom-first executions are terminal. The already-published T230/full
+  union result is not being rerun.
+- Separate uncommitted construction/source cohorts remain in progress and are
+  intentionally excluded from this evidence-binding commit. Exact next action:
+  commit/push this narrow lab-evidence amendment, then finish the score-blind
+  frozen-snapshot construction adapter and hardened four-cell terminal before
+  the historical descriptive grade.
 
 ## Current handoff -- 2026-08-30 (four-hundred-fourteenth update)
 
