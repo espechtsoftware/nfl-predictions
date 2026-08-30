@@ -1584,6 +1584,38 @@ def test_terminal_catalog_review_accepts_legitimate_descendant_head_drift(
     assert material["uses_realized_outcomes"] is False
 
 
+def test_terminal_catalog_lock_does_not_equate_historical_evidence_to_g0_head(
+    chain: dict[str, Any],
+) -> None:
+    descendant_head = "d" * 40
+    _install_catalog_successor_descendant(chain, head=descendant_head)
+    g0_binding = deepcopy(chain["git_binding"])
+    g0_binding["source_commit_sha"] = descendant_head
+    final_lock = json.loads(chain["git_files"][(
+        descendant_head,
+        authority.catalog_successor.FINAL_LOCK_PATH,
+    )])
+    assert final_lock["evidence_source_commit_sha"] != descendant_head
+
+    final_binding, receipt_identity, receipt = (
+        authority._reopen_catalog_terminal_authority(
+            repository_root=Path("/fixture"),
+            catalog_replay_receipt_identity=chain[
+                "catalog_replay_receipt_identity"
+            ],
+            git_binding=g0_binding,
+            read_exact=_read_exact(chain),
+            git_head=lambda _root: descendant_head,
+            git_blob=_git_blob(chain),
+            git_status=_noop_status,
+        )
+    )
+
+    assert final_binding["git_commit_sha"] == descendant_head
+    assert receipt_identity == chain["catalog_replay_receipt_identity"]
+    assert receipt["uses_realized_outcomes"] is False
+
+
 def test_terminal_catalog_review_rejects_rehashed_historical_measurement_forgery(
     chain: dict[str, Any],
 ) -> None:

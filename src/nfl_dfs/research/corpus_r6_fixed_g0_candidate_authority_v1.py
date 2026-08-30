@@ -613,10 +613,12 @@ def _reopen_catalog_terminal_authority(
         raise CorpusR6FixedG0CandidateAuthorityV1Error(
             f"catalog successor authority replay failed: {exc}"
         ) from exc
+    # The final lock's evidence commit identifies the historical catalog
+    # adapter review.  ``git_binding`` identifies the advancing tracked G0
+    # panel HEAD and is exact-checked independently by ``_validate_catalog_root``.
+    # Equating those commits would invalidate every legitimate descendant.
     if (
         final_lock.get("schema_version") != catalog_successor.FINAL_LOCK_SCHEMA
-        or final_lock.get("evidence_source_commit_sha")
-        != git_binding.get("source_commit_sha")
         or final_lock.get("projection_release_command")
         != list(catalog_successor.PROJECTION_COMMAND)
         or final_lock.get("old_final_lock_file")

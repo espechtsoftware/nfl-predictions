@@ -107,9 +107,12 @@ and operator decisions.  The older entries remain the durable chronology.
   bytes to equal current descendant bytes. The local repair exact-pins the
   immutable review/final locks at their introducing commits, validates the
   reviewed implementation at its historical commit, permits legitimate
-  descendant drift and rejects coherent lock/commit substitution. Complete
-  focused validation is green; publication still requires a clean-commit
-  prepublication rerun and independent reopen.
+  descendant drift and rejects coherent lock/commit substitution. A clean
+  rerun then exposed a second latent false equality between the historical
+  catalog-adapter evidence commit and the current G0 panel HEAD. Those two
+  authorities are now independently exact-bound without being equated.
+  Complete focused validation is green; publication still requires a new
+  clean-commit prepublication rerun and independent reopen.
 - **Current launch state:** the exact source cohort is pushed and the final
   immutable image build is green. The dedicated unscheduled job is still
   absent because the active developer identity lacks the single required
@@ -173,6 +176,24 @@ and operator decisions.  The older entries remain the durable chronology.
   150-case historical receipt and immutable final lock; targeted
   `git diff --check` passed. Workspace basetemps were used because `/tmp`
   remains full.
+- The first repair, tests, ablation plan and handoff were committed and pushed
+  as `b6973ec439b41b2ff5f1ec122788b1f2075900d3`. Its clean detached
+  54-slate prepublication rerun again failed closed with the same public
+  all-false failure receipt SHA
+  `7ab9a449a28e4d8f63421353265617016d03d385e0beb33b63d4383249e26b13`.
+  An uncaught invocation showed the next exact cause at candidate-v1 line 627:
+  `catalog successor final-lock authority differs`. The latent condition
+  equated immutable `evidence_source_commit_sha` from the catalog-adapter
+  review with the advancing current G0 lock HEAD. The final lock already
+  exact-binds the former; `_validate_catalog_root` independently exact-binds
+  the latter. The false cross-equality was removed and a direct descendant-HEAD
+  regression was added. No source or outcome binding was weakened.
+- Post-fix validation is green: the new direct regression is **1/1**, and the
+  complete candidate-v1 plus candidate-v2 modules are **43/43 passed in
+  155.80s**. The diagnostic and public rerun both exposed no write callback,
+  performed no cloud mutation and read no outcome. Only the exact 2.2 MB
+  rebuildable `/tmp/node-compile-cache` was removed to restore sandbox
+  registration space; no project or research artifact was deleted.
 - Independent review of the local source-release-v3 successor found and fixed
   an always-failing capture binding and missing producer/capture predecessor
   closure; its focused source/consumer/analysis and predecessor-chain tests
@@ -180,11 +201,11 @@ and operator decisions.  The older entries remain the durable chronology.
   source work. A separate production v3 publisher/operator is still required;
   the legacy candidate-v1/capture-v2/component-v2/source-v2 batch must not be
   silently reused.
-- Exact next action: commit and push only the candidate historical-binding
-  repair, its tests, the external-review ablation plan and this handoff. Update
-  the clean detached build context to that exact commit; rerun the read-only
-  54-slate candidate-v2 prepublication command; publish root-last only on a
-  complete all-false outcome/mutation receipt, then independently reopen it.
+- Exact next action: commit and push only the second latent cross-authority
+  repair, its regression and this handoff. Create a fresh clean detached build
+  context at that exact commit and rerun the read-only 54-slate candidate-v2
+  prepublication command. Publish root-last only on a complete all-false
+  outcome/mutation receipt, then independently reopen it.
 
 ## Current handoff -- 2026-08-30 (four-hundred-tenth update)
 
