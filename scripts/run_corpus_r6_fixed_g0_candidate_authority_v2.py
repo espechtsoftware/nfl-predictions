@@ -60,7 +60,7 @@ OPERATOR_FAILURE_SCHEMA: Final = (
     "corpus-r6-fixed-g0-candidate-authority-operator-failure/v2"
 )
 PROJECT: Final = "nfl-predictions-503414"
-BOUND_API_COMMIT: Final = "39e8ba57b7b23dac1f0e2f7ea82759b9e5fdcd0c"
+BOUND_API_COMMIT: Final = "93bca249eb0bf22e323ce0ff7a4c929469a38ca5"
 OPERATOR_PATH: Final = "scripts/run_corpus_r6_fixed_g0_candidate_authority_v2.py"
 RECOVERY_RECEIPT_PATH: Final = (
     "reports/2026-08-29-r6-fixed-g0-catalog-publication-reopen-receipt.json"
@@ -73,7 +73,7 @@ RECOVERY_RECEIPT_FILE_SHA256: Final = (
     "a2942dcf40295a1f385a03a3b59f3962e8cb9c846ac5e5c893736ae80f720f4b"
 )
 BOUND_CANDIDATE_CORE_SHA256: Final = (
-    "d209008350893b8f00045011e9c1cf7d753262ed2fbf5fe35c6b6293c604e947"
+    "da859efc30eb8e6687bbc8a9ee70ded91cd7864b262c2cc35f2ec635a37a286c"
 )
 BOUND_CANDIDATE_RELEASE_SHA256: Final = (
     "340a4963f455b083153924a516adc8b2b714c854797161d192d355d9a3bcd2ae"

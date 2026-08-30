@@ -5,6 +5,7 @@ from hashlib import sha256
 import inspect
 import json
 from pathlib import Path
+import subprocess
 from types import SimpleNamespace
 from typing import Any
 
@@ -21,6 +22,23 @@ from tests import test_corpus_r6_fixed_g0_candidate_authority_release_v2 as v2_f
 
 RUN_ID = "20260830-real-candidate-authority-v2"
 HEAD = "a" * 40
+
+
+def test_bound_api_commit_matches_pinned_file_hashes() -> None:
+    repository_root = Path(__file__).resolve().parents[1]
+    for relative_path, expected_sha256 in operator._BOUND_FILES.items():
+        tracked = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(repository_root),
+                "show",
+                f"{operator.BOUND_API_COMMIT}:{relative_path}",
+            ],
+            check=True,
+            capture_output=True,
+        ).stdout
+        assert sha256(tracked).hexdigest() == expected_sha256
 
 
 def _context(

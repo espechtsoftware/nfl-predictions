@@ -112,9 +112,16 @@ and operator decisions.  The older entries remain the durable chronology.
   equality: both the historical catalog-adapter evidence commit and the
   immutable catalog release's original root commit were equated to the current
   G0 panel HEAD. Those authorities are now independently exact-bound by their
-  lock/panel content without being equated by commit date.
-  Complete focused validation is green; publication still requires a new
-  clean-commit prepublication rerun and independent reopen.
+  lock/panel content without being equated by commit date. A fourth replay
+  defect omitted candidate-v1's required second exact catalog pass from the
+  candidate-v2 outer read manifest; commit `93bca249` licenses exactly that
+  independent replay and is pushed. The first clean replay of that commit
+  then failed locally before creating a cloud client because the operator's
+  bound core hash still named the pre-repair bytes. The local fifth repair
+  advances the bound API commit to `93bca249`, pins core SHA-256
+  `da859efc...286c`, and adds a tracked-commit/hash regression. Focused
+  validation is green; publication still requires this repair to be committed
+  and a new clean-commit prepublication rerun followed by independent reopen.
 - **Current launch state:** the exact source cohort is pushed and the final
   immutable image build is green. The dedicated unscheduled job is still
   absent because the active developer identity lacks the single required
@@ -135,10 +142,43 @@ and operator decisions.  The older entries remain the durable chronology.
   already-authorized operator perform the exact deploy-only installation of
   build `892e8665-dacd-4d47-87b8-c594b409e269` and digest
   `sha256:29272f69...a60ac`; do not execute it. In parallel for canonical
-  R6-v2, commit the historical-binding repair, rerun candidate-v2
+  R6-v2, commit the current operator self-binding repair, rerun candidate-v2
   prepublication from a clean exact-commit worktree, and publish only if all
   54 slates reopen with every outcome/mutation flag false. Then independently
   reopen the root before capture-v3/component-v3/source-v3 publication.
+
+## Current handoff -- 2026-08-30 (four-hundred-twelfth update)
+
+### Fourth authority repair pushed; stale operator self-binding repaired locally
+
+- `main` is at local commit `93bca249eb0bf22e323ce0ff7a4c929469a38ca5`,
+  exactly equal to pushed `origin/main`. This commit extends candidate-v2's
+  guarded catalog sequence with candidate-v1's required second exact public
+  catalog replay. Candidate-v2 validation was **10 passed in 0.91s** before
+  commit and push.
+- A clean detached worktree at that exact commit was created at
+  `.build-contexts/fixed-g0-candidate-v2-93bca249`. All parallel workers were
+  idle before the prescribed real-artifact prepublication attempt.
+- The clean attempt failed in local context preparation, before constructing
+  the cloud store client. Therefore no cloud body was read, no object was
+  written, no mutation capability was exposed, and no outcome, world matrix,
+  schedule or score was accessed. Exact error: `bound candidate-v2 API bytes
+  differ` for `corpus_r6_fixed_g0_candidate_authority_v2.py`.
+- Cause: commit `93bca249` legitimately changed that core to repair the second
+  catalog replay, but the operator still pinned core hash
+  `d2090083...e947` at old bound commit `39e8ba57`. The local repair advances
+  `BOUND_API_COMMIT` to exact `93bca249` and pins its tracked core bytes at
+  SHA-256 `da859efc30eb8e6687bbc8a9ee70ded91cd7864b262c2cc35f2ec635a37a286c`.
+  A new regression reads every bound path at the named Git commit and verifies
+  its pinned digest, preventing this stale-self-binding class from recurring.
+- Validation: the complete operator-v2 focused module is green, **21 passed in
+  15.89s**; targeted `git diff --check` is pending with the milestone commit.
+  No production policy changed and no realized outcome was read.
+- Exact next action: diff-check and commit only the operator, regression and
+  this handoff; push; create a new clean detached exact-HEAD worktree; run the
+  read-only prepublication replay. Publish the 165 create-once objects only if
+  the receipt is complete and every mutation/outcome/world-matrix flag is
+  false, then independently reopen the root before proceeding downstream.
 
 ## Current handoff -- 2026-08-30 (four-hundred-eleventh update)
 
