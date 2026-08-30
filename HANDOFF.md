@@ -20,6 +20,43 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 (three-hundred-ninety-sixth update)
+
+### Fixed-G0 catalog downstream Phase 0 closes the outer-first read boundary
+
+- Branch `main` and `origin/main` entered this milestone at pushed catalog
+  publication/reopen commit `ed259c48`.  The downstream audit proved the
+  existing candidate, capture, component, source and batch schemas cannot
+  consume that catalog's outer attestation: they still accept the legacy inner
+  replay receipt, contrary to `downstream_must_pin_outer_identity=true` and
+  `inner_receipt_self_authorizing=false`.  No candidate/source publication is
+  allowed on the legacy seam.
+- New isolated successor
+  `src/nfl_dfs/research/corpus_r6_fixed_g0_catalog_recovery_downstream_v1.py`
+  leaves the frozen recovery publisher untouched.  Its read-only entrypoint
+  resolves the tracked recovery lock/attempt chain, exact-reads only the fixed
+  outer URI first, validates its generation/content and canonical body, and
+  derives the inner receipt, release and 110-object manifest only afterward.
+  Returned authority is recursively immutable and the API exposes no create,
+  overwrite, delete, outcome, graph, scoring, selection, promotion or
+  deployment callback.
+- Independent Phase-0 review found P0=0 and P1=0 after recursive freezing.
+  Focused validation is 4/4 plus `py_compile` and whitespace diff checks.  The
+  remaining P2 gap is a hermetic production-entrypoint replay against the real
+  tracked Git chain; the focused tests intentionally isolate composition by
+  substituting the already-reviewed recovery validators.
+- The canonical matchup-inclusive R6-v2 lattice is scientifically coherent at
+  14,904 books and 44,712 prefixes, but a separate independent review found it
+  cloud-NO-GO until runtime packaging/Git authority and a real task-0
+  worker-plus-distinct-verifier smoke are repaired.  Local task-index, execute
+  gate, closure and case-insensitive outcome-denial repairs are in parallel;
+  no cloud or outcome access is authorized by this milestone.
+- Exact next action: commit and push Phase 0 with this handoff, then implement
+  candidate core/release v2 so the outer identity is the sole catalog input and
+  is carried into every material, slate/panel receipt, authority bundle and
+  terminal root.  Add its guarded 165-object create-once operator and separate
+  exact reopen before building a new outer-bound capture-plan lock.
+
 ## Current handoff -- 2026-08-29 (three-hundred-ninety-fifth update)
 
 ### Fixed-G0 catalog recovery is published and independently exact-reopened
