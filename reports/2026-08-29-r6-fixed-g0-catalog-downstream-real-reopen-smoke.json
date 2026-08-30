@@ -1,0 +1,38 @@
+{
+  "schema_version": "corpus-r6-fixed-g0-catalog-downstream-real-reopen-smoke/v1",
+  "complete": true,
+  "completed_at_utc": "2026-08-30T00:15:14Z",
+  "source_commit_sha": "47e6c1c8",
+  "clean_pushed_checkout": true,
+  "outer_identity": {
+    "uri": "gs://nfl-predictions-503414-corpus-source/research/source/20260826-r6-player-catalog-fixed-g0-v1/fixed-g0-catalog-recovery-attestation-v2.json",
+    "generation": "1788047679701105",
+    "sha256": "65f49bcc66c7761eee050ceb066252977b4a94ed48f0fa56da644c85a6c98cf2",
+    "bytes": 53857
+  },
+  "outer_attestation_sha256": "1e7da9aa777d7d347039dacd4071bff02fbc4f5e672d1572978bbd4c045a82b4",
+  "inner_catalog_release_identity": {
+    "uri": "gs://nfl-predictions-503414-corpus-source/research/source/20260826-r6-player-catalog-fixed-g0-v1/catalog-release.json",
+    "generation": "1788047593516963",
+    "sha256": "c43b760bedda901d53c25e367bd2b075b7766ceb77ed9089a207dbd9f8608a45",
+    "bytes": 65922
+  },
+  "inner_replay_receipt_identity": {
+    "uri": "gs://nfl-predictions-503414-corpus-source/research/source/20260826-r6-player-catalog-fixed-g0-v1/fixed-g0-replay-receipt.json",
+    "generation": "1788047635130538",
+    "sha256": "8cb6ba23dabf4f16ea9a087609fbfd66cae411e700a60bbba6b40b9700c9e574",
+    "bytes": 7399
+  },
+  "inner_object_count": 110,
+  "read_order": [
+    "catalog_recovery_outer"
+  ],
+  "inner_object_bodies_read": false,
+  "write_capability_exposed": false,
+  "cloud_mutation_performed": false,
+  "world_matrix_bodies_read": false,
+  "world_schedule_bodies_read": false,
+  "result_object_bodies_read": false,
+  "outcome_columns_read": [],
+  "uses_realized_outcomes": false
+}

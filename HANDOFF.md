@@ -20,6 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current handoff -- 2026-08-29 (three-hundred-ninety-seventh update)
+
+### Phase-0 outer-first downstream entrypoint passes the real immutable reopen
+
+- From a clean sparse checkout at pushed commit `47e6c1c8`, the new production
+  downstream entrypoint resolved the real tracked recovery review/final/attempt
+  chain and generation-exact opened the fixed outer attestation.  It returned
+  `complete=true` for generation `1788047679701105`, byte SHA-256
+  `65f49bcc66c7761eee050ceb066252977b4a94ed48f0fa56da644c85a6c98cf2`
+  and internal SHA-256
+  `1e7da9aa777d7d347039dacd4071bff02fbc4f5e672d1572978bbd4c045a82b4`.
+- The entrypoint derived the exact catalog release generation
+  `1788047593516963` and replay receipt generation `1788047635130538` plus
+  the complete 110-object inner manifest only after outer validation.  Its
+  remote read order was exactly `[catalog_recovery_outer]`; it read no inner,
+  result, world-matrix, world-schedule or outcome body and exposed no write
+  capability.  No cloud mutation occurred.
+- Durable compact evidence is
+  `reports/2026-08-29-r6-fixed-g0-catalog-downstream-real-reopen-smoke.json`,
+  file SHA-256
+  `1beab72db5d977af84369e0f519b0b20a872acebc1cb51b3982920056f2721b6`.
+  This closes the Phase-0 production-seam coverage gap; it grants no candidate,
+  source, scoring, selection, promotion or production-policy authority.
+- Exact next action: finish and independently review the true 165-object
+  candidate core/release v2 successor now in development, then build its
+  fixed-identity guarded publish/reopen operator.  Do not run the existing
+  legacy candidate/source batch or canonical cloud release.
+
 ## Current handoff -- 2026-08-29 (three-hundred-ninety-sixth update)
 
 ### Fixed-G0 catalog downstream Phase 0 closes the outer-first read boundary
