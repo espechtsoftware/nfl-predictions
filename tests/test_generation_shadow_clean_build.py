@@ -10,6 +10,7 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 BUILD_SCRIPT = ROOT / "scripts" / "build_generation_shadow_suite_image.sh"
+PRODUCTION_DOCKERFILE = ROOT / "Dockerfile"
 DOCKERFILE = ROOT / "Dockerfile.generation-shadow-suite"
 DOCKERIGNORE = ROOT / "Dockerfile.generation-shadow-suite.dockerignore"
 BUILD_CONFIG = ROOT / "cloudbuild.generation-shadow-suite.yaml"
@@ -36,6 +37,7 @@ def _committed_fixture(tmp_path: Path) -> tuple[Path, str]:
     (repo / "reports").mkdir()
     (repo / "sql").mkdir()
 
+    shutil.copy2(PRODUCTION_DOCKERFILE, repo / PRODUCTION_DOCKERFILE.name)
     shutil.copy2(DOCKERFILE, repo / DOCKERFILE.name)
     shutil.copy2(DOCKERIGNORE, repo / DOCKERIGNORE.name)
     (repo / BUILD_CONFIG.name).write_text(
@@ -166,6 +168,7 @@ def test_clean_archive_submit_is_commit_bound_and_excludes_unrelated_trees(
     assert "scripts/cloud_generation_shadow_suite.sh" in files
     assert f"scripts/{WEEK1_OPERATOR_SCRIPT}" in files
     assert "cloudbuild.yaml" in files
+    assert "Dockerfile" in files
     for script_name in TEST_SUPPORT_SCRIPTS:
         assert f"scripts/{script_name}" in files
     assert not any(path.startswith("reports/") for path in files)

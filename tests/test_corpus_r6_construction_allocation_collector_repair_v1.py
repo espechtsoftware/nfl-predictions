@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from hashlib import sha256
 
 import pytest
 
@@ -115,6 +116,11 @@ def test_request_is_one_use_and_source_runtime_is_frozen() -> None:
     assert request["source_code_sha"] == repair.SOURCE_CODE_SHA
     assert request["source_image"] == repair.SOURCE_IMAGE
     assert request["failed_collect_execution"] == repair.FAILED_COLLECT_EXECUTION
+    assert (
+        request["failed_repair_v1_execution"]
+        == repair.FAILED_REPAIR_V1_EXECUTION
+    )
+    assert request["immutable_execution_label_is_generation_authority"] is True
     assert request["shard_recomputation_licensed"] is False
     assert request["target_slate_outcomes_allowed"] is False
 
@@ -125,6 +131,53 @@ def test_request_is_one_use_and_source_runtime_is_frozen() -> None:
     forged["request_sha256"] = repair.digest(body)
     with pytest.raises(repair.CollectorRepairV1Error):
         repair.validate_request_v1(forged)
+
+
+def test_exact_failed_repair_v1_request_is_retained_as_ancestry() -> None:
+    body = {
+        "schema_version": repair.LEGACY_REQUEST_SCHEMA,
+        "version": repair.LEGACY_VERSION,
+        "phase": "collect",
+        "source_manifest_identity": dict(repair.SOURCE_MANIFEST_IDENTITY),
+        "source_code_sha": repair.SOURCE_CODE_SHA,
+        "source_image": repair.SOURCE_IMAGE,
+        "source_build_id": repair.SOURCE_BUILD_ID,
+        "source_execution_name": repair.SOURCE_EXECUTION_NAME,
+        "source_execution_uid": repair.SOURCE_EXECUTION_UID,
+        "source_runtime_execution_attestation_identity": dict(
+            repair.SOURCE_EXECUTION_ATTESTATION_IDENTITY
+        ),
+        "failed_collect_execution": dict(repair.FAILED_COLLECT_EXECUTION),
+        "collector_runtime_build_attestation_identity": dict(
+            repair.FAILED_REPAIR_V1_BUILD_ATTESTATION_IDENTITY
+        ),
+        "prior_repair_execution": None,
+        "selection_uri": repair.SELECTION_URI,
+        "terminal_uri": repair.TERMINAL_URI,
+        "repair_receipt_uri": repair.LEGACY_REPAIR_RECEIPT_URI,
+        "source_and_collector_runtime_are_distinct": True,
+        "existing_54_shards_are_only_selection_authority": True,
+        "shard_recomputation_licensed": False,
+        "target_slate_outcomes_allowed": False,
+        "automatic_relaunch_licensed": False,
+    }
+    request = {**body, "request_sha256": repair.digest(body)}
+    raw = repair.canonical_bytes(request, newline=True)
+    assert repair.validate_failed_repair_v1_request(request) == request
+    assert request["request_sha256"] == repair.FAILED_REPAIR_V1_EXECUTION[
+        "request_sha256"
+    ]
+    assert sha256(raw).hexdigest() == repair.FAILED_REPAIR_V1_EXECUTION[
+        "request_transport_sha256"
+    ]
+
+    forged = deepcopy(request)
+    forged["phase"] = "reopen"
+    forged_body = dict(forged)
+    forged_body.pop("request_sha256")
+    forged["request_sha256"] = repair.digest(forged_body)
+    with pytest.raises(repair.CollectorRepairV1Error):
+        repair.validate_failed_repair_v1_request(forged)
 
 
 def test_reopen_requires_exact_prior_collect_coordinate() -> None:
@@ -177,6 +230,11 @@ def test_sidecar_binds_old_science_to_two_new_collector_executions() -> None:
     assert receipt["collector_code_sha"] == REPAIR_CODE
     assert receipt["shard_recomputation_performed"] is False
     assert receipt["selection_terminal_v1_unchanged"] is True
+    assert receipt["failed_repair_v1_execution"] == repair.FAILED_REPAIR_V1_EXECUTION
+    assert receipt["corrected_invalid_predicates"] == [
+        "panel_index_sha256-equals-panel_id-suffix",
+        "current-job-generation-equals-frozen-execution-generation",
+    ]
 
 
 def test_container_collect_passes_source_runtime_only_to_legacy_collector(
@@ -195,6 +253,7 @@ def test_container_collect_passes_source_runtime_only_to_legacy_collector(
         ),
     )
     monkeypatch.setattr(runner, "_assert_known_output_state", lambda **_: None)
+    monkeypatch.setattr(runner, "_validate_failure_chain", lambda: None)
     monkeypatch.setattr(runner.source_runner, "GCSExactKnownNameStoreV1", object)
     monkeypatch.setattr(runner.source_runner, "GCloudBuildProviderV1", lambda **_: object())
     observed: dict[str, object] = {}

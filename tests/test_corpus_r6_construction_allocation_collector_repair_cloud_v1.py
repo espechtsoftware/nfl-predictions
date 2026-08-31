@@ -12,15 +12,20 @@ RECOVERY = ROOT / "scripts/cloud_corpus_r6_construction_allocation_collector_rep
 GENERIC = ROOT / "scripts/cloud_corpus_r6_construction_allocation_snapshot_v1.sh"
 
 
-def test_recovery_launcher_is_exactly_bound_to_the_known_failure() -> None:
+def test_recovery_launcher_is_exactly_bound_to_both_known_failures() -> None:
     text = RECOVERY.read_text()
     assert str(repair.FAILED_COLLECT_EXECUTION["name"]) in text
     assert str(repair.FAILED_COLLECT_EXECUTION["uid"]) in text
     assert str(repair.FAILED_COLLECT_EXECUTION["completion_time"]) in text
+    assert str(repair.FAILED_REPAIR_V1_EXECUTION["name"]) in text
+    assert str(repair.FAILED_REPAIR_V1_EXECUTION["uid"]) in text
+    assert str(repair.FAILED_REPAIR_V1_EXECUTION["completion_time"]) in text
+    assert str(repair.FAILED_REPAIR_V1_EXECUTION["request_transport_sha256"]) in text
     assert repair.SOURCE_CODE_SHA in text
     assert repair.SOURCE_IMAGE_DIGEST in text
     assert repair.SOURCE_MANIFEST_IDENTITY["sha256"] in text
     assert '[[ "$ACTION" =~ ^(collect|reopen)$ ]]' in text
+    assert "collector-repair-receipt-v2.json" in text
 
 
 def test_recovery_launcher_cannot_run_shard_tasks_or_outcomes() -> None:

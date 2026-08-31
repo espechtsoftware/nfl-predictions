@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Execute and seal the one-use d594 construction collector repair.
+"""Execute and seal the final one-use d594 construction collector repair.
 
 ``container-collect`` is the only Cloud Run mutation phase.  It uses the new
 collector runtime to exact-read the old d594 manifest and 54 already-published
 shards, then delegates to the unchanged v1 collector publication.  ``seal``
 runs after both collect and independent reopen executions have succeeded; it
 provider-reopens those executions and publishes one create-once repair
-sidecar.  Neither mode exposes outcomes or a shard builder.
+v2 sidecar.  It admits the exact 29lvz -> lnxjq failed chain.  Neither mode
+exposes outcomes or a shard builder.
 """
 
 from __future__ import annotations
@@ -149,11 +150,18 @@ def _validate_collector_runtime(
         ) from exc
     if (
         code_sha != source_commit
-        or code_sha == repair.SOURCE_CODE_SHA
-        or image == repair.SOURCE_IMAGE
+        or code_sha in {
+            repair.SOURCE_CODE_SHA,
+            repair.FAILED_REPAIR_V1_EXECUTION["collector_code_sha"],
+        }
+        or image in {
+            repair.SOURCE_IMAGE,
+            repair.FAILED_REPAIR_V1_EXECUTION["collector_image"],
+        }
         or not image.endswith("@" + os.environ.get(SOURCE_IMAGE_DIGEST_ENV, ""))
         or os.environ.get(SOURCE_CODE_ENV) != code_sha
         or os.environ.get("BUILD_ID") != build_id
+        or build_id == repair.FAILED_REPAIR_V1_EXECUTION["collector_build_id"]
         or os.environ.get(SOURCE_FULL_IMAGE_ENV) != image
     ):
         _fail("collector repair runtime differs from its immutable image")
@@ -204,13 +212,14 @@ def _assert_known_output_state(
             _fail(f"repair collect output name is not absent: {uri}")
         if blob.generation is None or blob.size is None or int(blob.size) <= 0:
             _fail(f"repair reopen predecessor metadata differs: {uri}")
-    bucket_name, object_name = store._parts(repair.REPAIR_RECEIPT_URI)
-    receipt_blob = store._client.bucket(bucket_name).blob(object_name)
-    try:
-        receipt_blob.reload(timeout=source_runner.GCS_TIMEOUT_SECONDS)
-    except NotFound:
-        return
-    _fail("collector repair sidecar already exists before seal")
+    for uri in (repair.LEGACY_REPAIR_RECEIPT_URI, repair.REPAIR_RECEIPT_URI):
+        bucket_name, object_name = store._parts(uri)
+        receipt_blob = store._client.bucket(bucket_name).blob(object_name)
+        try:
+            receipt_blob.reload(timeout=source_runner.GCS_TIMEOUT_SECONDS)
+        except NotFound:
+            continue
+        _fail(f"collector repair sidecar already exists before seal: {uri}")
 
 
 def container_collect_v1() -> dict[str, object]:
@@ -220,6 +229,7 @@ def container_collect_v1() -> dict[str, object]:
     code_sha, image, build_id = _validate_collector_runtime(
         request, store=store, provider=provider
     )
+    _validate_failure_chain()
     _assert_known_output_state(phase=str(request["phase"]), store=store)
 
     # The legacy collector gate continues to see the exact d594 source
@@ -288,7 +298,7 @@ def _env(container: Mapping[str, object], name: str) -> str:
     return values[0]
 
 
-def _validate_failed_execution() -> None:
+def _validate_original_failed_execution() -> None:
     execution = _describe_execution(str(repair.FAILED_COLLECT_EXECUTION["name"]))
     metadata = _mapping(execution.get("metadata"), label="failed metadata")
     labels = _mapping(metadata.get("labels"), label="failed labels")
@@ -318,6 +328,83 @@ def _validate_failed_execution() -> None:
         or _env(container, "CODE_SHA") != expected["source_code_sha"]
     ):
         _fail("known failed collect execution differs")
+
+
+def _validate_failed_repair_v1_execution() -> None:
+    execution = _describe_execution(
+        str(repair.FAILED_REPAIR_V1_EXECUTION["name"])
+    )
+    metadata = _mapping(execution.get("metadata"), label="failed-v1 metadata")
+    labels = _mapping(metadata.get("labels"), label="failed-v1 labels")
+    status = _mapping(execution.get("status"), label="failed-v1 status")
+    spec = _mapping(execution.get("spec"), label="failed-v1 spec")
+    template = _mapping(spec.get("template"), label="failed-v1 template")
+    task = _mapping(template.get("spec"), label="failed-v1 task")
+    containers = task.get("containers")
+    if not isinstance(containers, list) or len(containers) != 1:
+        _fail("failed repair-v1 container count differs")
+    container = _mapping(containers[0], label="failed-v1 container")
+    completed = _condition(status, name="failed repair-v1")
+    expected = repair.FAILED_REPAIR_V1_EXECUTION
+    try:
+        request_raw = base64.b64decode(
+            _env(container, repair.REQUEST_B64_ENV), validate=True
+        )
+    except (ValueError, TypeError) as exc:
+        raise CollectorRepairRunnerV1Error(
+            "failed repair-v1 request base64 differs"
+        ) from exc
+    if (
+        sha256(request_raw).hexdigest()
+        != expected["request_transport_sha256"]
+        or _env(container, repair.REQUEST_SHA_ENV)
+        != expected["request_transport_sha256"]
+    ):
+        _fail("failed repair-v1 request transport differs")
+    request = repair.validate_failed_repair_v1_request(
+        _parse(request_raw, label="failed repair-v1 request")
+    )
+    if (
+        metadata.get("name") != expected["name"]
+        or metadata.get("uid") != expected["uid"]
+        or labels.get("run.googleapis.com/job") != expected["job_name"]
+        or labels.get("run.googleapis.com/jobUid") != expected["job_uid"]
+        or str(labels.get("run.googleapis.com/jobGeneration"))
+        != expected["job_generation"]
+        or spec.get("taskCount") != expected["task_count"]
+        or task.get("maxRetries") != expected["max_retries"]
+        or task.get("serviceAccountName") != expected["service_account"]
+        or status.get("failedCount") != expected["failed_count"]
+        or status.get("completionTime") != expected["completion_time"]
+        or completed.get("status") != expected["completed_condition_status"]
+        or completed.get("reason") != expected["completed_condition_reason"]
+        or container.get("image") != expected["collector_image"]
+        or container.get("command") != expected["command"]
+        or container.get("args") != expected["args"]
+        or _env(container, repair.COLLECTOR_CODE_SHA_ENV)
+        != expected["collector_code_sha"]
+        or _env(container, repair.COLLECTOR_IMAGE_ENV)
+        != expected["collector_image"]
+        or _env(container, repair.COLLECTOR_BUILD_ID_ENV)
+        != expected["collector_build_id"]
+        or _env(container, repair.COLLECTOR_BUILD_ATTESTATION_ENV)
+        != repair.canonical_bytes(
+            expected["collector_build_attestation_identity"]
+        ).decode("ascii")
+        or _env(container, repair.ENABLE_ENV)
+        != "I_UNDERSTAND_D594_COLLECTOR_REPAIR_V1"
+        or _env(container, REPAIR_PHASE_ENV) != "collect"
+        or _env(container, OUTCOMES_ALLOWED_ENV) != "false"
+        or request["phase"] != "collect"
+        or request["collector_runtime_build_attestation_identity"]
+        != expected["collector_build_attestation_identity"]
+    ):
+        _fail("exact failed repair-v1 execution differs")
+
+
+def _validate_failure_chain() -> None:
+    _validate_original_failed_execution()
+    _validate_failed_repair_v1_execution()
 
 
 def _read_stdout_result(name: str) -> dict[str, object]:
@@ -431,7 +518,7 @@ def _validate_seal_checkout(*, expected_code_sha: str) -> None:
 
 
 def seal_v1(*, collect_execution_name: str, reopen_execution_name: str) -> dict[str, object]:
-    _validate_failed_execution()
+    _validate_failure_chain()
     collected = _read_stdout_result(collect_execution_name)
     reopened = _read_stdout_result(reopen_execution_name)
     _validate_seal_checkout(expected_code_sha=str(collected["collector_code_sha"]))
@@ -442,6 +529,7 @@ def seal_v1(*, collect_execution_name: str, reopen_execution_name: str) -> dict[
         name=reopen_execution_name, result=reopened, expected_phase="reopen"
     )
     store = source_runner.GCSExactKnownNameStoreV1()
+    _assert_known_output_state(phase="reopen", store=store)
     closure = selection_operator.reopen_terminal_bundle_v1(
         collected["terminal_envelope"], read_exact=store.read_exact
     )

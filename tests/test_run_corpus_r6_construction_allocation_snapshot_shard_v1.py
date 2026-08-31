@@ -202,6 +202,7 @@ def _provider_execution_metadata() -> tuple[dict[str, object], dict[str, object]
     job = {
         "metadata": {
             "name": expected["job_name"],
+            "uid": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
             "generation": expected["job_generation"],
         },
     }
@@ -211,6 +212,9 @@ def _provider_execution_metadata() -> tuple[dict[str, object], dict[str, object]
             "uid": expected["execution_uid"],
             "labels": {
                 "run.googleapis.com/job": expected["job_name"],
+                "run.googleapis.com/jobUid": (
+                    "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+                ),
                 "run.googleapis.com/jobGeneration": expected["job_generation"],
             },
         },
@@ -253,6 +257,45 @@ def test_cloud_run_provider_requires_structural_exact_execution(monkeypatch):
     assert subject.GCloudBuildProviderV1().observe_runtime_execution(
         expected
     ) == expected
+
+
+def test_cloud_run_provider_uses_immutable_execution_generation(monkeypatch):
+    job, execution = _provider_execution_metadata()
+    mutable_job = deepcopy(job)
+    mutable_job["metadata"]["generation"] = "43"
+    _patch_provider_execution(monkeypatch, mutable_job, execution)
+    expected = _execution_attestation()
+    assert subject.GCloudBuildProviderV1().observe_runtime_execution(
+        expected
+    ) == expected
+
+
+def test_cloud_run_provider_rejects_job_uid_mismatch(monkeypatch):
+    job, execution = _provider_execution_metadata()
+    forged = deepcopy(execution)
+    forged["metadata"]["labels"]["run.googleapis.com/jobUid"] = "wrong-uid"
+    _patch_provider_execution(monkeypatch, job, forged)
+    with pytest.raises(
+        subject.SnapshotShardRunnerError,
+        match="Cloud Run provider observation differs",
+    ):
+        subject.GCloudBuildProviderV1().observe_runtime_execution(
+            _execution_attestation()
+        )
+
+
+def test_cloud_run_provider_rejects_execution_generation_mismatch(monkeypatch):
+    job, execution = _provider_execution_metadata()
+    forged = deepcopy(execution)
+    forged["metadata"]["labels"]["run.googleapis.com/jobGeneration"] = "43"
+    _patch_provider_execution(monkeypatch, job, forged)
+    with pytest.raises(
+        subject.SnapshotShardRunnerError,
+        match="Cloud Run provider observation differs",
+    ):
+        subject.GCloudBuildProviderV1().observe_runtime_execution(
+            _execution_attestation()
+        )
 
 
 def test_cloud_run_provider_rejects_task_count_substring_false_positive(

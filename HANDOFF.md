@@ -218,6 +218,74 @@ and operator decisions.  The older entries remain the durable chronology.
   from this core release and do not claim scoring readiness until the distinct
   task-0 worker and verifier/predecessor closure are green.
 
+## Current handoff -- 2026-08-30 (four-hundred-forty-second update)
+
+### Commit A is pushed; two fail-closed release defects require one narrow follow-up
+
+- Branch `main`; exact pushed Commit A is
+  `def26c98ee88b4e874f516494fd57a76f62326f0`.  Its selective 138-path
+  release contains the reviewed one-use collector repair, Week-1 generation
+  shadow, Experiment 4 and the executable Experiment-5 closure.  The root
+  worktree still contains unrelated pre-existing modified/untracked work and
+  must not be used as a build context.
+- The repaired construction image built successfully as Cloud Build
+  `281132a4-4e0e-4b6a-966b-91214fb27a93`, immutable digest
+  `sha256:96f4819299cb14127762db474b55fdeb2cd721cac1d4051d13ff83f47f76d4ee`.
+  Its create-once runtime-build attestation is generation
+  `1788145929800066`, SHA-256
+  `965ea8d74ead8c896a0adadc2efd62d0108425db32f02f3b7e2a6c717b3c5ae0`,
+  855 bytes.  Build tests, isolated runtime smokes and no-outcome context
+  checks passed.
+- One-use repair collect execution
+  `atlas-cbc-32g-full-2023-w8-v1-lnxjq`, UID
+  `d32a017f-5248-4612-a965-7acc6ad2fd1e`, failed exactly once at
+  `2026-08-31T03:16:48.795896Z`, with zero retries and application error
+  `provider runtime execution observation failed`.  No reopen was launched.
+  Root cause is another non-scientific observer defect: the launcher must
+  update the reusable job from generation 42 to 43 before executing the new
+  image, while `GCloudBuildProviderV1.observe_runtime_execution` incorrectly
+  requires mutable *current job* generation to equal the frozen source
+  execution's immutable generation-42 label.  The correct check keeps the
+  job name/UID exact and takes generation from the exact named execution
+  label.  The frozen source execution, all 54 shards and their outcomes-blind
+  identities are unchanged; the repair output names must remain absent before
+  any recovery.  Exact known-name checks after the failure confirmed 404 for
+  `selection.json`, `terminal.json` and the legacy v1 sidecar.
+- Experiment 4's Commit-A image built successfully as Cloud Build
+  `e1e141f5-e8c5-4a74-958e-d4e80d06afa9`, immutable digest
+  `sha256:d8391d47e55f1abefe00f8ee8e1018a42b3dc6565ed9a28087472504c60e26f0`.
+  Runtime-build attestation generation `1788146210955904`, SHA-256
+  `412066f9488cd0e5ed38d49a3e7cda2e9a171250e0eb99c4b7b669c76e4c80a6`,
+  846 bytes.  No Experiment-4 job was installed or launched.
+- The Week-1 generation-shadow build
+  `e1ddc901-50ad-4ed0-bb35-b0c25c0be7d8` failed before image creation:
+  **553 passed / 1 failed / 1 skipped / 2 deselected**.  The narrow committed
+  archive omitted the generic `Dockerfile`, but one committed deployment test
+  correctly reads that file to verify the production operator copy/smoke.
+  The minimal local correction adds `Dockerfile` to `ARCHIVE_PATHS` and its
+  committed-fixture assertion; focused validation is **6/6**.  There is no
+  failed image or attestation to reuse.
+- Lab response `nfl2/reports/2026-08-30-full-history-plan-lab-response.md`
+  is incorporated without changing the production estimands: VX60 receives
+  no Tier-2 sleeve because its near-miss used the mis-signed lab hsim law;
+  production owns Experiments 4 and 5; and Experiment 4 measures outer-fold
+  retention from one fixed corpus at exact A250/A500 rather than targeting
+  the multiplicity-inflated 205.793 hindsight union.  The lab's two currently
+  active 18-task executions remained provider-reported running at the latest
+  control-plane-only poll; no lab result artifact was opened.
+- The minimal in-place repair-v2 admission and observer correction are now
+  independently **GO** with no release blocker: **58/58** focused and **87/87**
+  broader build-aligned tests, plus shell, compile and diff checks.  It exact-
+  validates both `29lvz` and `lnxjq`, including the latter's immutable legacy
+  request bytes/build identity, and uses a distinct create-once
+  `collector-repair-receipt-v2.json`; it cannot reinterpret or relaunch v1.
+- Exact next action: selectively commit and push the reviewed follow-up
+  release, rebuild all three exact images from that one
+  durable commit, then run repair collect -> independent reopen -> sidecar
+  seal -> grade prepare -> grade -> grade reopen.  Report the frozen
+  K20/K40/K80 2 x 2 cells before starting the shared-lane Experiment-4
+  A250/A500 cohort.  Never rerun the 54 source shards.
+
 ## Current handoff -- 2026-08-30 (four-hundred-forty-first update)
 
 ### The d594 source cohort is 54/54; a one-use collector repair avoids every repeated solve

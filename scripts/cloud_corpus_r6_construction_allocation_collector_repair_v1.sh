@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# One-use launcher for the d594 collector validation repair.  This script is
-# intentionally separate from the generic construction launcher: only the
-# exact known 29lvz failure can open the collect path, and only that successful
+# Final one-use launcher for the d594 collector validation repair.  This script
+# is intentionally separate from the generic construction launcher: only the
+# exact 29lvz -> lnxjq failed chain can open collect, and only that successful
 # collect coordinate can open the independent reopen path.
 set -euo pipefail
 
@@ -26,15 +26,23 @@ SERVICE_ACCOUNT=817589974517-compute@developer.gserviceaccount.com
 FAILED_NAME=atlas-cbc-32g-full-2023-w8-v1-29lvz
 FAILED_UID=7cf1f35f-9c99-41ce-bd66-c78af15cc412
 FAILED_COMPLETION=2026-08-31T02:25:33.731980Z
+FAILED_V1_NAME=atlas-cbc-32g-full-2023-w8-v1-lnxjq
+FAILED_V1_UID=d32a017f-5248-4612-a965-7acc6ad2fd1e
+FAILED_V1_COMPLETION=2026-08-31T03:16:48.795896Z
+FAILED_V1_CODE_SHA=def26c98ee88b4e874f516494fd57a76f62326f0
+FAILED_V1_IMAGE="us-central1-docker.pkg.dev/${PROJECT}/nfl-dfs/nfl-dfs@sha256:96f4819299cb14127762db474b55fdeb2cd721cac1d4051d13ff83f47f76d4ee"
+FAILED_V1_BUILD_ID=281132a4-4e0e-4b6a-966b-91214fb27a93
+FAILED_V1_REQUEST_SHA=8e75be599d804542fb000613692e3c46bdcad6a4c90d56d1dac223a35d29fc74
 SOURCE_CODE_SHA=d5946133ebba0955586816c15905065c3ec71a0f
 SOURCE_IMAGE_DIGEST=sha256:e8959e94cf41f0a0f63bf97d4631e0c7c799af7594675a0f037ed7625a2280a7
 SOURCE_IMAGE="us-central1-docker.pkg.dev/${PROJECT}/nfl-dfs/nfl-dfs@${SOURCE_IMAGE_DIGEST}"
 MANIFEST_IDENTITY='{"bytes":60541,"generation":"1788111932751802","sha256":"bbe47919f0dd753f8f7278f5f3d3e022bd70c2879c3f826dcd31e207ab1d4536","uri":"gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-construction-allocation-snapshot-shards/20260830-construction-allocation-d5946133-v1/input-manifest.json"}'
 SELECTION_URI=gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-construction-allocation-snapshot-shards/20260830-construction-allocation-d5946133-v1/selection.json
 TERMINAL_URI=gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-construction-allocation-snapshot-shards/20260830-construction-allocation-d5946133-v1/terminal.json
-RECEIPT_URI=gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-construction-allocation-snapshot-shards/20260830-construction-allocation-d5946133-v1/collector-repair-receipt-v1.json
+LEGACY_RECEIPT_URI=gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-construction-allocation-snapshot-shards/20260830-construction-allocation-d5946133-v1/collector-repair-receipt-v1.json
+RECEIPT_URI=gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-construction-allocation-snapshot-shards/20260830-construction-allocation-d5946133-v1/collector-repair-receipt-v2.json
 ENABLE_ENV=R6_CONSTRUCTION_ALLOCATION_COLLECTOR_REPAIR_ENABLE
-ENABLE_VALUE=I_UNDERSTAND_D594_COLLECTOR_REPAIR_V1
+ENABLE_VALUE=I_UNDERSTAND_D594_COLLECTOR_REPAIR_V2
 SOURCE_ENABLE_ENV=R6_CONSTRUCTION_ALLOCATION_SNAPSHOT_SHARD_ENABLE
 SOURCE_ENABLE_VALUE=I_UNDERSTAND_SCORE_BLIND_CONSTRUCTION_CROSS_V1
 MANIFEST_ENV=R6_CONSTRUCTION_ALLOCATION_SNAPSHOT_SHARD_MANIFEST_IDENTITY
@@ -44,9 +52,11 @@ REQUEST_SHA_ENV=R6_CONSTRUCTION_ALLOCATION_COLLECTOR_REPAIR_REQUEST_SHA256
 [[ "$ACTION" =~ ^(collect|reopen)$ ]] || die "repair action differs"
 [[ "$IMAGE" =~ ^us-central1-docker\.pkg\.dev/${PROJECT}/nfl-dfs/nfl-dfs@sha256:[0-9a-f]{64}$ ]] || \
   die "repair image must be one immutable project image"
-[[ "$CODE_SHA" =~ ^[0-9a-f]{40}$ && "$CODE_SHA" != "$SOURCE_CODE_SHA" ]] || \
+[[ "$CODE_SHA" =~ ^[0-9a-f]{40}$ && "$CODE_SHA" != "$SOURCE_CODE_SHA" && "$CODE_SHA" != "$FAILED_V1_CODE_SHA" ]] || \
   die "repair code must be one new exact commit"
-[[ "$BUILD_ID" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ ]] || \
+[[ "$IMAGE" != "$SOURCE_IMAGE" && "$IMAGE" != "$FAILED_V1_IMAGE" ]] || \
+  die "repair image must differ from both failed runtimes"
+[[ "$BUILD_ID" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ && "$BUILD_ID" != "$FAILED_V1_BUILD_ID" ]] || \
   die "repair build ID differs"
 [[ "$BUILD_ATTESTATION_PATH" == /* && -f "$BUILD_ATTESTATION_PATH" && ! -L "$BUILD_ATTESTATION_PATH" ]] || \
   die "repair build-attestation identity must be one absolute regular file"
@@ -117,25 +127,60 @@ latest=$(jq -er '.status.latestCreatedExecution.name' "$job_before") || \
 gcloud run jobs executions describe "$latest" --project "$PROJECT" --region "$REGION" \
   --format=json >"$latest_json"
 
-if [[ "$ACTION" == collect ]]; then
-  [[ "$latest" == "$FAILED_NAME" ]] || die "repair collect latest execution is not the admitted failure"
-  jq -e --arg name "$FAILED_NAME" --arg uid "$FAILED_UID" --arg job "$JOB" \
-    --arg job_uid "$JOB_UID" --arg completion "$FAILED_COMPLETION" \
-    --arg source_code "$SOURCE_CODE_SHA" --arg source_image "$SOURCE_IMAGE" '
+original_json=$temp_dir/original-failure.json
+gcloud run jobs executions describe "$FAILED_NAME" --project "$PROJECT" \
+  --region "$REGION" --format=json >"$original_json"
+jq -e --arg name "$FAILED_NAME" --arg uid "$FAILED_UID" --arg job "$JOB" \
+  --arg job_uid "$JOB_UID" --arg completion "$FAILED_COMPLETION" \
+  --arg source_code "$SOURCE_CODE_SHA" --arg source_image "$SOURCE_IMAGE" '
+  .metadata.name == $name and .metadata.uid == $uid and
+  .metadata.labels["run.googleapis.com/job"] == $job and
+  .metadata.labels["run.googleapis.com/jobUid"] == $job_uid and
+  .metadata.labels["run.googleapis.com/jobGeneration"] == "42" and
+  .spec.taskCount == 1 and .status.failedCount == 1 and
+  .status.completionTime == $completion and
+  any(.status.conditions[]?; .type == "Completed" and .status == "False" and .reason == "NonZeroExitCode") and
+  (.spec.template.spec.containers | length) == 1 and
+  (.spec.template.spec.containers[0] as $c |
+    $c.image == $source_image and
+    ([ $c.env[] | select(.name == "CODE_SHA") | .value ] == [$source_code]))
+' "$original_json" >/dev/null || die "original failed collect provider facts differ"
+
+validate_failed_v1() {
+  local path=$1
+  jq -e --arg name "$FAILED_V1_NAME" --arg uid "$FAILED_V1_UID" \
+    --arg job "$JOB" --arg job_uid "$JOB_UID" --arg completion "$FAILED_V1_COMPLETION" \
+    --arg image "$FAILED_V1_IMAGE" --arg code "$FAILED_V1_CODE_SHA" \
+    --arg build "$FAILED_V1_BUILD_ID" --arg request_sha "$FAILED_V1_REQUEST_SHA" \
+    --arg sa "$SERVICE_ACCOUNT" '
     .metadata.name == $name and .metadata.uid == $uid and
     .metadata.labels["run.googleapis.com/job"] == $job and
     .metadata.labels["run.googleapis.com/jobUid"] == $job_uid and
-    .metadata.labels["run.googleapis.com/jobGeneration"] == "42" and
-    .spec.taskCount == 1 and .status.failedCount == 1 and
+    .metadata.labels["run.googleapis.com/jobGeneration"] == "43" and
+    .spec.taskCount == 1 and .spec.template.spec.maxRetries == 0 and
+    .spec.template.spec.serviceAccountName == $sa and .status.failedCount == 1 and
     .status.completionTime == $completion and
     any(.status.conditions[]?; .type == "Completed" and .status == "False" and .reason == "NonZeroExitCode") and
     (.spec.template.spec.containers | length) == 1 and
     (.spec.template.spec.containers[0] as $c |
-      $c.image == $source_image and
-      ([ $c.env[] | select(.name == "CODE_SHA") | .value ] == [$source_code]))
-  ' "$latest_json" >/dev/null || die "known failed collect provider facts differ"
+      $c.image == $image and $c.command == ["/usr/local/bin/python3.11"] and
+      $c.args == ["/app/scripts/run_corpus_r6_construction_allocation_collector_repair_v1.py","container-collect","--execute"] and
+      ([ $c.env[] | select(.name == "R6_COLLECTOR_REPAIR_CODE_SHA") | .value ] == [$code]) and
+      ([ $c.env[] | select(.name == "R6_COLLECTOR_REPAIR_IMAGE") | .value ] == [$image]) and
+      ([ $c.env[] | select(.name == "R6_COLLECTOR_REPAIR_BUILD_ID") | .value ] == [$build]) and
+      ([ $c.env[] | select(.name == "R6_CONSTRUCTION_ALLOCATION_COLLECTOR_REPAIR_ENABLE") | .value ] == ["I_UNDERSTAND_D594_COLLECTOR_REPAIR_V1"]) and
+      ([ $c.env[] | select(.name == "R6_CONSTRUCTION_ALLOCATION_COLLECTOR_REPAIR_PHASE") | .value ] == ["collect"]) and
+      ([ $c.env[] | select(.name == "R6_CONSTRUCTION_ALLOCATION_COLLECTOR_REPAIR_REQUEST_SHA256") | .value ] == [$request_sha]) and
+      ([ $c.env[] | select(.name == "R6_CONSTRUCTION_ALLOCATION_TARGET_OUTCOMES_ALLOWED") | .value ] == ["false"]))
+  ' "$path" >/dev/null || die "exact failed repair-v1 provider facts differ"
+}
+
+if [[ "$ACTION" == collect ]]; then
+  [[ "$latest" == "$FAILED_V1_NAME" ]] || die "repair collect latest execution is not admitted lnxjq"
+  validate_failed_v1 "$latest_json"
   known_name_absent "$SELECTION_URI"
   known_name_absent "$TERMINAL_URI"
+  known_name_absent "$LEGACY_RECEIPT_URI"
   known_name_absent "$RECEIPT_URI"
 else
   [[ "$latest" == "$PRIOR_NAME" ]] || die "repair reopen latest execution is not its named collect"
@@ -149,10 +194,15 @@ else
       $c.image == $image and
       ([ $c.env[] | select(.name == "R6_COLLECTOR_REPAIR_CODE_SHA") | .value ] == [$code]))
   ' "$latest_json" >/dev/null || die "repair collect predecessor differs"
+  failed_v1_json=$temp_dir/failed-v1.json
+  gcloud run jobs executions describe "$FAILED_V1_NAME" --project "$PROJECT" \
+    --region "$REGION" --format=json >"$failed_v1_json"
+  validate_failed_v1 "$failed_v1_json"
   gcloud storage objects describe "$SELECTION_URI" --project "$PROJECT" --format=json \
     >/dev/null || die "repair reopen selection predecessor is absent"
   gcloud storage objects describe "$TERMINAL_URI" --project "$PROJECT" --format=json \
     >/dev/null || die "repair reopen terminal predecessor is absent"
+  known_name_absent "$LEGACY_RECEIPT_URI"
   known_name_absent "$RECEIPT_URI"
 fi
 
@@ -235,7 +285,7 @@ jq -e --arg name "$execution_name" --arg uid "$execution_uid" --arg job "$JOB" \
     ([ $c.env[] | select(.name == "R6_CONSTRUCTION_ALLOCATION_TARGET_OUTCOMES_ALLOWED") | .value ] == ["false"]))
 ' "$execution_json" >/dev/null || die "repair execution provider authority differs"
 
-jq -n --arg schema corpus-r6-construction-allocation-collector-repair-launch/v1 \
+jq -n --arg schema corpus-r6-construction-allocation-collector-repair-launch/v2 \
   --arg phase "$ACTION" --arg code_sha "$CODE_SHA" --arg build_id "$BUILD_ID" \
   --arg image "$IMAGE" --arg job "$JOB" --arg job_uid "$JOB_UID" \
   --arg job_generation "$job_generation" --arg execution "$execution_name" \
@@ -250,7 +300,8 @@ jq -n --arg schema corpus-r6-construction-allocation-collector-repair-launch/v1 
     execution:{name:$execution,uid:$execution_uid,task_count:1},
     request:$request,request_sha256:$request_sha,
     prior_repair_collect:(if $phase == "reopen" then {name:$prior_name,uid:$prior_uid} else null end),
-    known_failed_execution_admission_used:($phase == "collect"),
+    exact_29lvz_to_lnxjq_failure_chain_admission_used:($phase == "collect"),
+    immutable_execution_label_is_generation_authority:true,
     source_shards_recomputed:false,target_slate_outcomes_allowed:false,
     automatic_relaunch:false,complete:true
   }'

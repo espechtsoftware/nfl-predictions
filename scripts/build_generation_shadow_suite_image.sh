@@ -54,6 +54,7 @@ EXPECTED_SCRIPT_PATHS=(
   "${TEST_SUPPORT_SCRIPTS[@]}"
 )
 ARCHIVE_PATHS=(
+  Dockerfile
   Dockerfile.generation-shadow-suite
   Dockerfile.generation-shadow-suite.dockerignore
   cloudbuild.yaml

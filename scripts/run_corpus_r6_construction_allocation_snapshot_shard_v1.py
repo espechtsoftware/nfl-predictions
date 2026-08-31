@@ -1663,11 +1663,19 @@ class GCloudBuildProviderV1:
         )
         image = container.get("image")
         expected_digest = str(expected["image_digest"])
+        # A Cloud Run Job is mutable while each Execution permanently records
+        # the Job generation that created it.  The provider observation is an
+        # exact reopen of the frozen Execution, so its generation authority is
+        # the immutable execution label, not the Job's current generation.
+        # The current Job describe remains useful only to prove that the
+        # immutable Job identity/UID referenced by the Execution still exists.
+        job_uid = job_metadata.get("uid")
         if (
             job_metadata.get("name") != job_name
-            or str(job_metadata.get("generation"))
-            != str(expected["job_generation"])
+            or type(job_uid) is not str
+            or not job_uid
             or labels.get("run.googleapis.com/job") != job_name
+            or labels.get("run.googleapis.com/jobUid") != job_uid
             or str(labels.get("run.googleapis.com/jobGeneration"))
             != str(expected["job_generation"])
             or execution_metadata.get("name") != execution_name
