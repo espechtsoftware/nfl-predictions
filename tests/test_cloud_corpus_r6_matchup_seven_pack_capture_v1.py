@@ -5,6 +5,7 @@ from pathlib import Path
 from hashlib import sha256
 import re
 import subprocess
+import sys
 
 import yaml
 
@@ -34,7 +35,7 @@ def _extract(
     log_path.write_bytes(json.dumps(logs).encode("utf-8"))
     return subprocess.run(
         [
-            str(ROOT / ".venv/bin/python"), "-I", "-c",
+            sys.executable, "-I", "-c",
             _stdout_receipt_python(), str(ROOT / "src"), str(log_path),
             "operator-receipt", schema,
         ],

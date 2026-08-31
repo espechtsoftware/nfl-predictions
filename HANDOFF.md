@@ -327,6 +327,23 @@ and operator decisions.  The older entries remain the durable chronology.
   task0/publish/reopen.  Keep `origin/main` fixed at that final post-grade
   release commit until these Commit-A releases finish and the generated
   capture-plan boundary is ready for Commit B.
+- First post-grade builds from exact pushed commit `7a8e3ffbcd2219b7c2baeef9a810bf3374791ba0`
+  were Cloud Builds `d1051b4a-7906-42c9-9f98-984f270dfe93` (E4),
+  `2bd0ae3f-bd6f-434c-b1d5-eec1ebe43519` (normalized FP/SIS) and
+  `1295142b-8663-43b7-9871-8b63b01e5314` (seven-pack).  All three ended
+  `FAILURE` in their focused test step before Docker/image creation, so no
+  immutable image/digest or runtime launch exists from them.  Their only
+  failures were clean-build harness assumptions that
+  `/workspace/release/.venv/bin/python` existed: E4 was 38/39 green,
+  normalized 16/19 and seven-pack 35/38.
+- The narrow local repair changes no production runtime or scientific code:
+  the normalized/seven-pack embedded-canonicalizer test helpers use their
+  current `sys.executable`, while E4's build test context explicitly supplies
+  the host interpreter path its unchanged launcher requires.  Exact affected
+  suites are **19/19**, **7/7** and **9/9**; YAML parsing and the E4 harness
+  assertion pass.  Exact next action is commit/push only these four repair
+  files plus this handoff, then submit three fresh builds from the new durable
+  SHA.  Never reuse the three failed builds.
 
 ## Current handoff -- 2026-08-31 (four-hundred-forty-third update)
 

@@ -69,6 +69,8 @@ steps:
         ln -s /usr/local/bin/python3.14 /usr/local/bin/python3.11
         pip install --no-cache-dir 'numpy==2.5.1' 'scipy==1.18.0'
         pip install --no-cache-dir --editable '.[gcp,dev]'
+        mkdir -p .venv/bin
+        ln -s /usr/local/bin/python3.14 .venv/bin/python
         bash -n scripts/cloud_corpus_r6_broad_admission_tournament_v1.sh
         PYTHONDONTWRITEBYTECODE=1 python -m py_compile \
           src/nfl_dfs/research/corpus_r6_broad_admission_tournament_v1.py \

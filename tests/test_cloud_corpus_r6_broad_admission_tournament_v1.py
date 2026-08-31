@@ -410,6 +410,8 @@ def test_release_files_are_narrow_dormant_and_outcome_separated() -> None:
     embedded = script.split("<<'PY'\n", 1)[1].split("\nPY\n", 1)[0]
     compile(embedded, "broad-admission-build-attestation", "exec")
     assert parsed["timeout"] == "3600s"
+    assert "mkdir -p .venv/bin" in build
+    assert "ln -s /usr/local/bin/python3.14 .venv/bin/python" in build
     assert "--tasks \"$TASK_COUNT\" --parallelism \"$PARALLELISM\"" in script
     assert "TASK_COUNT=54" in script and "PARALLELISM=54" in script
     assert "--max-retries 0" in script and "TASK_TIMEOUT=21600s" in script
