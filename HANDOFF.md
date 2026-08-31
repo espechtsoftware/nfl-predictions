@@ -103,6 +103,33 @@ and operator decisions.  The older entries remain the durable chronology.
   cases are nonblocking future hardening. Commit/push the wrapper/test/HANDOFF,
   build one exact replacement image and continue only from a fresh v3
   finisher prefix. Do not reuse either failed v1 or inert v2 finisher state.
+- That correction was committed/pushed as
+  `e09ac94e8d3258c8a733bab70d6e2015111d1487`. Exact-source Cloud Build
+  `dcf1f74f-d52f-42e9-9896-4b3196ff4e6a` completed SUCCESS with all four
+  provider steps passing and produced immutable image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:447784e93a47141d2ad674b513de13a4f429ca47e490ce2658343208442669e0`.
+  Runtime build-attestation generation is `1788178650774040`, bytes `846`,
+  SHA-256 `dd9ed12aaec1a0589582b153c175cd6bb2485eaca05c3fd9dd31df5d9f652952`.
+  The fresh v3 finisher installed that image at shared-job generation `48`
+  and launched prepare execution `atlas-cbc-32g-full-2023-w8-v1-fq7db`, UID
+  `7b3eb014-0065-49cd-b295-6642e26d7c1c`, exactly once. It completed SUCCESS
+  at `2026-08-31T12:23:58.112272Z` with one succeeded task, zero failed,
+  zero running and zero retries; this independently confirms the EXIT-trap
+  repair. The result collector then stopped locally before task 0 because
+  gcloud 582 returned the exact six-hour execution timeout as
+  `spec.template.spec.timeoutSeconds: "21600"`, while the wrapper accepted
+  only the older `timeout: "21600s"` representations. Every other exact
+  execution predicate passed. No task-0 or cohort execution was launched.
+  Close the v3 prefix as collector-incompatible and inert; do not reuse its
+  published manifest. The bounded compatibility repair accepts both exact
+  provider timeout representations and adds a regression for each. The exact
+  four-module E4 release suite passes **43/43**, including both timeout
+  representations; `bash -n` and `git diff --check` also pass. Independent
+  review reran the focused wrapper module **23/23** and found no blocker: the
+  diff is exact provider-JSON compatibility and changes no request, provider,
+  task, outcome or scientific law. Commit/push only the wrapper, focused test
+  and HANDOFF, build one replacement immutable image, and continue from a
+  fresh v4 prefix. Do not rerun or relabel `fq7db`.
 
 - **Week-1 operating policy:** the owner adopted the lab Week-1 brief at
   `nfl2` commit `aea89297405e20984268ad4f1899d95db383401c`.  Before Sunday

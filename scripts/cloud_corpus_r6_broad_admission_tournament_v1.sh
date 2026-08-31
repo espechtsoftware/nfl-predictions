@@ -484,7 +484,8 @@ if [[ "$ACTION" == "result" ]]; then
     .spec.taskCount == 1 and (.spec.parallelism == 1 or .spec.parallelism == 54) and
     .spec.template.spec.maxRetries == 0 and
     (.spec.template.spec.timeout == "21600s" or
-     .spec.template.spec.timeout == "21600.000000000s") and
+     .spec.template.spec.timeout == "21600.000000000s" or
+     .spec.template.spec.timeoutSeconds == "21600") and
     .spec.template.spec.serviceAccountName == $sa and
     (.spec.template.spec.containers | length) == 1 and
     (.spec.template.spec.containers[0] as $c |

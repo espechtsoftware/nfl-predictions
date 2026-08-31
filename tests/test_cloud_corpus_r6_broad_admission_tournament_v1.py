@@ -210,6 +210,12 @@ if a[:4] == ["run", "jobs", "executions", "describe"]:
     if name == os.environ.get("RESULT_EXECUTION"):
         phase = os.environ["RESULT_PHASE"]
         request = os.environ["RESULT_REQUEST"].encode()
+        timeout_shape = os.environ.get("RESULT_TIMEOUT_SHAPE", "legacy")
+        timeout_field = (
+            {"timeoutSeconds": "21600"}
+            if timeout_shape == "seconds"
+            else {"timeout": "21600s"}
+        )
         smoke = "true" if phase == "task0" else "false"
         outcomes = "true" if phase == "grade" else "false"
         env = {
@@ -251,7 +257,7 @@ if a[:4] == ["run", "jobs", "executions", "describe"]:
                 "parallelism": 54,
                 "template": {"spec": {
                     "maxRetries": 0,
-                    "timeout": "21600s",
+                    **timeout_field,
                     "serviceAccountName": service_account,
                     "containers": [container([
                         "/app/scripts/cloud_corpus_r6_broad_admission_tournament_v1.sh",
@@ -845,8 +851,9 @@ def test_only_grade_can_receive_an_outcome_authority(tmp_path: Path) -> None:
     assert reopened_receipt["outcomes_allowed"] is False
 
 
+@pytest.mark.parametrize("timeout_shape", ["legacy", "seconds"])
 def test_result_collects_one_canonical_prepare_receipt_from_exact_execution(
-    tmp_path: Path,
+    tmp_path: Path, timeout_shape: str,
 ) -> None:
     execution = JOB + "-res01"
     manifest = _identity("7")
@@ -885,6 +892,7 @@ def test_result_collects_one_canonical_prepare_receipt_from_exact_execution(
         "RESULT_PHASE": "prepare",
         "RESULT_REQUEST": request,
         "RESULT_RECEIPT": receipt,
+        "RESULT_TIMEOUT_SHAPE": timeout_shape,
         "EXPECTED_BOUND": json.dumps(
             _identity("4"), sort_keys=True, separators=(",", ":"),
         ),
