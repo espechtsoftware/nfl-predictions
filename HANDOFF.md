@@ -218,6 +218,60 @@ and operator decisions.  The older entries remain the durable chronology.
   from this core release and do not claim scoring readiness until the distinct
   task-0 worker and verifier/predecessor closure are green.
 
+## Current handoff -- 2026-08-31 (four-hundred-forty-third update)
+
+### Frozen construction crossing is sealed; realized grading is running
+
+- Branch `main`; the exact release and runtime commit is pushed
+  `99a237e951afe13c2f1dacba03e2d30364448102`.  The collector-repair image is
+  Cloud Build `a74c0d23-bb3a-448c-8fb6-bd4d582496de`, immutable digest
+  `sha256:540ac8391822a39d0551bf01f726a0840c0484b975f847eae9108c51fc824aa4`.
+  The Experiment-4 image is Build `d9dfa6a4-0bab-4c23-b230-ee6817699dae`,
+  digest
+  `sha256:229aa2e22a705ec2b7088c511828f61806c6561230296c4420e4beb0e2c5bfcd`.
+  The Week-1 generation-shadow image is Build
+  `dc3bd8c3-0fe5-4f0a-9082-a385b13e1c79`, digest
+  `sha256:8716a7fc2361de781dde00a0c3192353722710ab26655f500e6303659b27c2ae`.
+  All three builds and their isolated smokes passed.
+- One-use repair collect `atlas-cbc-32g-full-2023-w8-v1-c24d8`, UID
+  `2fd007cd-cfb1-464e-8722-e1d778de4fee`, succeeded 1/1 at
+  `2026-08-31T04:07:37.530145Z`.  Its independent exact reopen
+  `atlas-cbc-32g-full-2023-w8-v1-8cm6d`, UID
+  `b577fef4-b9ba-4b9c-b4de-acd46e559826`, succeeded 1/1 at
+  `2026-08-31T04:21:55.314688Z`.  Both used job generation 44, zero retries,
+  the exact 99a image and no target outcomes.  The original 54 source shards
+  were exact-reopened; none was recomputed.
+- The create-once collector-repair v2 receipt is generation
+  `1788150532100419`, SHA-256
+  `cda952af5d12792502f9e94d6a1e1daa0c2b488f6af00f3a8e834ebad080880a`,
+  8101 bytes.  Seal SHA-256 is
+  `6493669171671e90643193ef298f0b032af800d855e62cf745499a9a35b2da6c`.
+  It binds selection generation `1788148911362608`, SHA-256
+  `08b526d55540c2e8c6ccb0910832158246c56ef032dafa22cfdc8155a140701c`,
+  42142534 bytes, and terminal generation `1788148912091716`, SHA-256
+  `501ee48a91cbd546d4535c86250e00bcc09f76977192bc883c6d08a4b448194e`,
+  25332 bytes.  The selection-terminal envelope SHA-256 is
+  `cf3c89d93b3d814d8df73778362613b8ca248e391030b2faa194d9dc790a1393`.
+- Exact 99a grade runtime installation reused job UID
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275` at generation 45.  Grade-prepare
+  execution `atlas-cbc-32g-full-2023-w8-v1-9bzqk`, UID
+  `0f2e73fb-db15-4fa3-b224-fdcac72bba00`, launched against the sealed terminal
+  and the existing outcome-completion identity generation
+  `1787987567275104`, SHA-256
+  `15852361756ef0fe76d3a299617ebc2c2531e6821a73f04c8f862bf7229f4df3`.
+  At `2026-08-31T04:34:46Z` it was provider-reported waiting to start.  Do not
+  relaunch it; poll this exact execution, then derive grade and grade-reopen
+  requests only from their validated exact stdout receipts.  Report the full
+  K20/K40/K80 2 x 2 cells immediately after grade succeeds.
+- Experiment 4 is scientifically ready for its fixed-corpus exact A250/A500
+  outer-fold retention estimand, but its existing host launcher reads only
+  Cloud Logging `textPayload`; actual JSON receipts may arrive as
+  `jsonPayload`.  This is a blocking output-mechanics repair, not a new arm or
+  redesign.  After the 2 x 2 grade-reopen, add XOR text/json extraction and
+  focused fixtures, commit/push, rebuild the Experiment-4 image, and run the
+  existing task-0 -> 54 -> collect -> reopen -> grade -> grade-reopen chain.
+  VX60 remains excluded and the 205.793 hindsight union remains diagnostic.
+
 ## Current handoff -- 2026-08-30 (four-hundred-forty-second update)
 
 ### Commit A is pushed; two fail-closed release defects require one narrow follow-up
