@@ -27,6 +27,7 @@ steps:
           scripts/build_generation_shadow_suite_image.sh \
           scripts/cloud_generation_shadow_suite.sh \
           scripts/coherent_market_state_sources.py \
+          scripts/publish_week1_operating_book.py \
           scripts/run_cbwu_seed_order_audit.py \
           scripts/run_corpus_r6_current_bank_crossed_screen_evaluation_v1.py \
           scripts/run_legal_soft_law.py \
@@ -56,6 +57,11 @@ steps:
           src/nfl_dfs/inference/prospective_generation_shadow_operator.py \
           src/nfl_dfs/inference/prospective_generation_shadow_registry.py \
           src/nfl_dfs/inference/prospective_generation_shadow_suite.py \
+          src/nfl_dfs/inference/week1_operating_book.py \
+          src/nfl_dfs/inference/week1_operating_book_export.py \
+          src/nfl_dfs/inference/week1_operating_book_operator.py \
+          src/nfl_dfs/inference/week1_operating_book_suite_adapter.py \
+          src/nfl_dfs/inference/week1_operating_roster_materializer.py \
           src/nfl_dfs/research/corpus_legal_feasibility.py \
           src/nfl_dfs/research/effective_policy_rule_inventory.py \
           src/nfl_dfs/research/final_forensic.py \
@@ -85,6 +91,12 @@ steps:
           tests/test_prospective_generation_shadow_operator.py \
           tests/test_prospective_generation_shadow_registry.py \
           tests/test_prospective_generation_shadow_suite.py \
+          tests/test_week1_operating_book.py \
+          tests/test_week1_operating_book_export.py \
+          tests/test_week1_operating_book_operator.py \
+          tests/test_week1_operating_book_suite_adapter.py \
+          tests/test_week1_operating_roster_materializer.py \
+          tests/test_publish_week1_operating_book_script.py \
           tests/test_generation_shadow_clean_build.py \
           tests/test_generation_shadow_suite_deployment.py \
           tests/test_corpus_legal_feasibility.py \
@@ -104,6 +116,7 @@ steps:
           tests/test_post_forensic_construction.py
         nfl-dfs shadow-generation-suite --help >/dev/null
         nfl-dfs shadow-generation-operator preregister --help >/dev/null
+        nfl-dfs shadow-generation-operator publish-seed-crossing-design --help >/dev/null
 
   - id: build-generation-shadow-suite-image
     name: gcr.io/cloud-builders/docker
@@ -132,6 +145,8 @@ steps:
           nfl-dfs shadow-generation-suite --help >/dev/null
         docker run --rm --network none '${_BUILD_IMAGE}' \
           nfl-dfs shadow-generation-operator preregister --help >/dev/null
+        docker run --rm --network none '${_BUILD_IMAGE}' \
+          nfl-dfs shadow-generation-operator publish-seed-crossing-design --help >/dev/null
 
 images:
   - '${_BUILD_IMAGE}'

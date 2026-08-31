@@ -1,0 +1,16 @@
+**
+!Dockerfile.corpus-r6-paid-source-normalized-snapshot
+!pyproject.toml
+!README.md
+!SOURCE_COMMIT
+!src/
+!src/**
+!scripts/
+!scripts/cloud_corpus_r6_paid_source_normalized_snapshot_v1.sh
+!scripts/run_corpus_r6_paid_source_normalized_snapshot_v1.py
+!scripts/run_corpus_r6_matchup_seven_pack_capture_v1.py
+**/__pycache__/
+**/__pycache__/**
+**/*.py[co]
+**/*.egg-info/
+**/*.egg-info/**

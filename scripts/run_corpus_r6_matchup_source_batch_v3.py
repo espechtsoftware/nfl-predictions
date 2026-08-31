@@ -6,8 +6,10 @@ runtime, and declared-image checks.  ``task0`` adds a prerequisite-only,
 read-only real-artifact smoke and never runs a component/source worker,
 publishes a source object, verifies from a distinct process, or constructs a
 write-capable transport.
-``publish`` requires an explicit confirmation plus the code-owned enable
-environment variable.  ``reopen`` accepts one local generation-pinned
+Full publication is intentionally absent from this public CLI.  The exact-name
+Cloud Run controller is the sole executable publication boundary; it derives
+provider state rather than accepting a caller-authored receipt.  ``reopen``
+accepts one local generation-pinned
 terminal batch-root identity and exposes no write callback; external
 orchestration must attest that a later invocation used a distinct process.
 """
@@ -25,6 +27,7 @@ import sys
 from nfl_dfs.research import (
     corpus_r6_matchup_source_batch_outer_candidate_authority_v3 as batch,
 )
+MAX_LOCAL_JSON_BYTES = 256 * 1024
 
 
 def _load_root_identity(path_value: str) -> dict[str, object]:
@@ -47,8 +50,11 @@ def _load_root_identity(path_value: str) -> dict[str, object]:
         opened = os.fstat(descriptor)
         chunks: list[bytes] = []
         retained = 0
-        while retained <= 64 * 1024:
-            chunk = os.read(descriptor, min(16 * 1024, 64 * 1024 + 1 - retained))
+        while retained <= MAX_LOCAL_JSON_BYTES:
+            chunk = os.read(
+                descriptor,
+                min(16 * 1024, MAX_LOCAL_JSON_BYTES + 1 - retained),
+            )
             if not chunk:
                 break
             chunks.append(chunk)
@@ -65,7 +71,7 @@ def _load_root_identity(path_value: str) -> dict[str, object]:
         any(getattr(before, field) != getattr(opened, field) for field in stable)
         or any(getattr(opened, field) != getattr(after, field) for field in stable)
         or not raw
-        or len(raw) > 64 * 1024
+        or len(raw) > MAX_LOCAL_JSON_BYTES
         or len(raw) != opened.st_size
     ):
         raise ValueError("reopen identity file changed or exceeds its byte bound")
@@ -81,55 +87,44 @@ def _load_root_identity(path_value: str) -> dict[str, object]:
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
-            "Validate, prerequisite-only task-0 smoke, explicitly publish, "
+            "Validate, prerequisite-only task-0 smoke, "
             "or write-disabled reopen the canonical R6 matchup source-v3 batch"
         )
     )
     parser.add_argument(
         "--action",
         required=True,
-        choices=("validate", "task0", "publish", "reopen"),
+        choices=("validate", "task0", "reopen"),
         help="Choose exactly one explicit operation; no action is implicit.",
     )
     parser.add_argument("--run-id")
     parser.add_argument("--batch-root-identity")
-    parser.add_argument(
-        "--confirm-publish",
-        action="store_true",
-        help="Required in addition to the code-owned enable environment.",
-    )
     return parser
 
 
 def run(argv: Sequence[str] | None = None) -> dict[str, object]:
     args = _parser().parse_args(argv)
     if args.action == "validate":
-        if args.run_id or args.batch_root_identity or args.confirm_publish:
+        if (
+            args.run_id or args.batch_root_identity
+        ):
             raise ValueError("validate accepts no publication or reopen arguments")
         return batch.validate_matchup_source_batch_outer_candidate_authority_v3()
     if args.action == "task0":
-        if args.run_id or args.batch_root_identity or args.confirm_publish:
+        if (
+            args.run_id or args.batch_root_identity
+        ):
             raise ValueError("task0 accepts no publication or reopen arguments")
         return batch.validate_matchup_source_batch_task0_readiness_v3()
     if args.action == "reopen":
-        if args.run_id or args.confirm_publish or not args.batch_root_identity:
+        if (
+            args.run_id or not args.batch_root_identity
+        ):
             raise ValueError("reopen requires only --batch-root-identity")
         return batch.reopen_matchup_source_batch_outer_candidate_authority_v3(
             batch_release_identity=_load_root_identity(args.batch_root_identity)
         )
-    if (
-        not args.run_id
-        or args.batch_root_identity
-        or args.confirm_publish is not True
-        or os.environ.get(batch.PUBLISH_ENABLE_ENV) != "1"
-    ):
-        raise ValueError(
-            "publish requires --run-id, --confirm-publish, and "
-            f"{batch.PUBLISH_ENABLE_ENV}=1"
-        )
-    return batch.publish_matchup_source_batch_outer_candidate_authority_v3(
-        run_id=args.run_id
-    )
+    raise ValueError("source-v3 action differs")
 
 
 def main(argv: Sequence[str] | None = None) -> int:

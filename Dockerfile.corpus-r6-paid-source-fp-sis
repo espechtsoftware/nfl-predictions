@@ -1,0 +1,27 @@
+FROM python:3.14.4-slim
+
+ARG SOURCE_COMMIT_SHA
+RUN python -c 'import os,re; assert re.fullmatch(r"[0-9a-f]{40}", os.environ["SOURCE_COMMIT_SHA"])'
+
+LABEL org.opencontainers.image.revision="${SOURCE_COMMIT_SHA}"
+ENV IMAGE_SOURCE_COMMIT_SHA="${SOURCE_COMMIT_SHA}" \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    R6_PAID_SOURCE_MATRIX_WORK_ROOT=/tmp
+
+WORKDIR /app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git gzip libgomp1 \
+    && ln -s /usr/local/bin/python3.14 /usr/local/bin/python3.11 \
+    && rm -rf /var/lib/apt/lists/*
+
+# The canonical source-v3 reopener verifies exact historical Git blobs and a
+# bounded status path set.  The Cloud Build context is an exact Git archive
+# plus its matching .git object database, never the host dirty worktree.
+COPY . /app
+RUN test "$(cat /app/SOURCE_COMMIT)" = "${SOURCE_COMMIT_SHA}" \
+    && test "$(git -C /app rev-parse HEAD)" = "${SOURCE_COMMIT_SHA}" \
+    && pip install --no-cache-dir "numpy==2.5.1" "scipy==1.18.0" \
+    && pip install --no-cache-dir --editable ".[gcp]"
+
+CMD ["/bin/bash", "/app/scripts/cloud_corpus_r6_paid_source_fp_sis_v1.sh", "container-help"]

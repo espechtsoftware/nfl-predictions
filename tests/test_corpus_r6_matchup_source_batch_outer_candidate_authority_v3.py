@@ -15,6 +15,7 @@ from nfl_dfs.research import (
     corpus_r6_matchup_source_release_outer_candidate_authority_v3 as release_v3,
 )
 from nfl_dfs.research import corpus_r6_matchup_source_v2 as source
+from nfl_dfs.research import corpus_r6_matchup_source_task0_v3 as task0
 from tests import (
     test_corpus_r6_matchup_capture_plan_outer_candidate_authority_v3
     as capture_fixture,
@@ -263,11 +264,11 @@ def test_runtime_builder_rejects_substituted_nested_release_callable(
         batch._build_runtime_binding_v3(closure)
 
 
-def test_public_publication_boundary_accepts_only_run_id() -> None:
+def test_public_publication_boundary_requires_run_and_task0_authorization() -> None:
     parameters = inspect.signature(
         batch.publish_matchup_source_batch_outer_candidate_authority_v3
     ).parameters
-    assert tuple(parameters) == ("run_id",)
+    assert tuple(parameters) == ("run_id", "task0_authorization")
     forbidden = {
         "candidate_authority_root_identity",
         "capture_plan",
@@ -299,7 +300,8 @@ def test_publication_rejects_non_string_run_id_before_local_or_cloud_context(
         match="run ID",
     ):
         batch.publish_matchup_source_batch_outer_candidate_authority_v3(
-            run_id=12345678  # type: ignore[arg-type]
+            run_id=12345678,  # type: ignore[arg-type]
+            task0_authorization={},
         )
     assert context_touched is False
 
@@ -885,15 +887,46 @@ def test_publish_control_path_requests_terminal_batch_root_last(
             "candidate_v2_capture_v3_component_v3_source_v3_deep_reopen_complete": True
         },
     )
+    authorization = {
+        "task0_full_authorization_sha256": "1" * 64,
+        "verifier_provider_receipt_sha256": "2" * 64,
+        "verifier_provider_receipt_identity": {
+            "uri": (
+                "gs://nfl-predictions-503414-corpus-source/research/"
+                "corpus-r6-matchup-source-controller-v3/fixture-source-v3/"
+                "verify/atlas-job-verify-def34/provider-receipt.json"
+            ),
+            "generation": "1",
+            "sha256": "2" * 64,
+            "bytes": 123,
+        },
+        "worker_execution_name": "atlas-job-worker-abc12",
+        "verifier_execution_name": "atlas-job-verify-def34",
+    }
+    monkeypatch.setattr(
+        batch,
+        "_normalize_task0_authorization_v3",
+        lambda value, **_kwargs: dict(value),
+    )
 
     receipt = batch.publish_matchup_source_batch_outer_candidate_authority_v3(
-        run_id=run_id
+        run_id=run_id, task0_authorization=authorization
     )
     assert receipt["complete"] is True
     assert receipt["same_process_deep_reopen_complete"] is True
     assert receipt["independent_process_deep_reopen_complete"] is False
     assert receipt["independent_process_deep_reopen_required"] is True
     assert receipt["publisher_process_reused_exact_read_cache"] is True
+    assert receipt["task0_verifier_provider_receipt_identity"] == authorization[
+        "verifier_provider_receipt_identity"
+    ]
+    provider_stdout = task0._provider_publication_stdout_v3(receipt)
+    assert provider_stdout["task0_verifier_provider_receipt_identity"] == (
+        authorization["verifier_provider_receipt_identity"]
+    )
+    assert task0.validate_provider_publication_stdout_v3(provider_stdout) == (
+        provider_stdout
+    )
     assert writes == [component_uri, triple_uri, source_uri, root_uri]
     assert writes[-1] == root_uri
     assert deep_ordinals == [0]

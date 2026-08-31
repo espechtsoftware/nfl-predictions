@@ -100,7 +100,7 @@ def contest_entry_policy(
 
 @dataclass(frozen=True)
 class ClassicProductionPolicy:
-    policy_id: str = "classic-k1-role12-boom40-poscal-cbwu-v4"
+    policy_id: str = "classic-k1-role12-lev40-boom160-poscal-cbwu-v5"
     source_panel: str = (
         "20260813-multiseed-candidate-world-v1")
     model_variant: str = "tail_k1"
@@ -115,7 +115,11 @@ class ClassicProductionPolicy:
     candidate_multiple: int = 2
     n_ce: int = 0
     n_role: int = 12
-    n_boom: int = 40
+    n_leverage: int = 40
+    n_boom: int = 160
+    incumbent_n_leverage: int = 160
+    incumbent_n_boom: int = 40
+    role_outage_fallback_allowed: bool = False
     served_position_scales: str = (
         "QB:0.970,RB:1.005,TE:0.940,WR:1.070")
     ce_seed: int = 1701
@@ -244,11 +248,16 @@ class ClassicProductionPolicy:
             "PUNT_BOOM": "0",
             "PUNT_BOOM_WR": "",
             "WR_BOOM": "0",
-            # Frozen incumbent generation book: direct-role 12 + boom 40.
-            "GEN_TOTAL_BUDGET": "52",
+            # Adopted 2026 Week-1 generator: equal-core-solve boom-first
+            # allocation, direct-role 12 + boom 160, with leverage fixed at
+            # 40.  This is the money path; the prior 160/40 population is
+            # available only through ``incumbent_control_environment``.
+            "GEN_TOTAL_BUDGET": str(self.n_role + self.n_boom),
+            "N_LEV": str(self.n_leverage),
             "N_CE": str(self.n_ce),
             "N_EPISTEMIC": str(self.n_role),
             "N_BOOM": str(self.n_boom),
+            "BOOM_UNIQUE_FILL": "0",
             "CE_SEED": str(self.ce_seed),
             "CE_GAMES": "4",
             "REPLACEMENT_SLOTS": str(self.n_role),
@@ -296,6 +305,26 @@ class ClassicProductionPolicy:
         env.update(construction.optimizer_environment())
         return env
 
+    def incumbent_control_environment(
+        self, base: Mapping[str, str] | None = None,
+        *, construction_preset: ConstructionPreset | None = None,
+    ) -> dict[str, str]:
+        """Exact pre-adoption 160-leverage / 40-boom reference population.
+
+        This remains available for frozen comparisons and older prospective
+        shadows, but is not returned by the production money path.
+        """
+        env = self.engine_environment(
+            base, construction_preset=construction_preset,
+        )
+        env.update({
+            "GEN_TOTAL_BUDGET": str(self.n_role + self.incumbent_n_boom),
+            "N_LEV": str(self.incumbent_n_leverage),
+            "N_BOOM": str(self.incumbent_n_boom),
+            "BOOM_UNIQUE_FILL": "0",
+        })
+        return env
+
     def fallback_environment(
         self, base: Mapping[str, str] | None = None,
         *, construction_preset: ConstructionPreset | None = None,
@@ -311,6 +340,7 @@ class ClassicProductionPolicy:
         )
         env.update({
             "GEN_TOTAL_BUDGET": "40",
+            "N_LEV": str(self.incumbent_n_leverage),
             "N_CE": "12",
             "N_EPISTEMIC": "0",
             "N_BOOM": "28",
@@ -333,11 +363,11 @@ class ClassicProductionPolicy:
     ) -> dict[str, str]:
         """Outcome-unseen fixed-budget archetype shadow configuration.
 
-        This derives from the complete adopted money environment and changes
-        only the CBWU trimming law.  Production never calls this method
+        This derives from the frozen pre-adoption control environment and
+        changes only the CBWU trimming law. Production never calls this method
         implicitly; a separately labeled shadow job must opt in.
         """
-        env = self.engine_environment(base)
+        env = self.incumbent_control_environment(base)
         env.update({
             "MULTISEED_PORTFOLIO": "CBWU_ARCHETYPE_SHADOW",
             "ARCHETYPE_ALLOCATION_VERSION": (
@@ -358,7 +388,7 @@ class ClassicProductionPolicy:
         never returned by ``engine_environment`` and cannot affect money
         lineups without a separate post-2026 prospective promotion.
         """
-        env = self.engine_environment(base)
+        env = self.incumbent_control_environment(base)
         env.update({
             "EPISTEMIC_FAMILY": "latent_role_states",
             "ROLE_BELIEF_FEATURES": "",
@@ -375,8 +405,8 @@ class ClassicProductionPolicy:
     ) -> dict[str, str]:
         """Outcome-unseen order-invariant CBWU union shadow (2026-08-18).
 
-        Derives from the complete adopted money environment and changes only
-        the five-book combination law to the frozen CBWU-OI-v1 complete
+        Derives from the frozen pre-adoption control environment and changes
+        only the five-book combination law to the frozen CBWU-OI-v1 complete
         union (``combine_cbwu_order_invariant_books``) — the one mechanism
         that improved retrospective candidate C (+5.66 mean at equal budget,
         2026-08-16) and whose promotion requires prospective 2026 evidence.
@@ -385,7 +415,7 @@ class ClassicProductionPolicy:
         reports/2026-08-18-cbwu-oi-prospective-shadow-spec.md before first
         collection.
         """
-        env = self.engine_environment(base)
+        env = self.incumbent_control_environment(base)
         env.update({
             "MULTISEED_PORTFOLIO": "CBWU_OI_SHADOW",
             "PROSPECTIVE_SHADOW_ID": "2026-cbwu-oi-v1",
@@ -397,7 +427,7 @@ class ClassicProductionPolicy:
     ) -> dict[str, str]:
         """Outcome-unseen volume-OI admission shadow (B1, 2026-08-19).
 
-        Derives from the complete adopted money environment and changes
+        Derives from the frozen pre-adoption control environment and changes
         only the candidate-book count: twenty registered seed books
         (the five production pairs plus the fifteen frozen volume pairs)
         admitted at the registered R0 budget on the registered R0--R4
@@ -409,7 +439,7 @@ class ClassicProductionPolicy:
         reports/2026-08-19-cbwu-volume-prospective-shadow-spec.md before
         first collection.
         """
-        env = self.engine_environment(base)
+        env = self.incumbent_control_environment(base)
         all_pairs = (
             self.multiseed_seed_pairs
             + self.multiseed_volume_extra_seed_pairs
@@ -429,14 +459,15 @@ class ClassicProductionPolicy:
     ) -> dict[str, str]:
         """Exact incumbent allocation for the paired boom-first shadow.
 
-        The money path continues to use the equivalent historical
-        ``CAND_MULT=2`` expression. The paired runner materializes 160 here so
-        its requested-solve receipt can compare exact counts rather than infer
-        them from the 80-entry candidate basis.
+        The paired runner materializes 160 here so its requested-solve receipt
+        can compare exact counts rather than infer them from the 80-entry
+        candidate basis. The money path now uses the 40/160 treatment.
         """
-        env = self.engine_environment(base)
+        env = self.incumbent_control_environment(base)
         env.update({
+            "GEN_TOTAL_BUDGET": str(self.n_role + self.incumbent_n_boom),
             "N_LEV": "160",
+            "N_BOOM": str(self.incumbent_n_boom),
             "BOOM_UNIQUE_FILL": "0",
             "PROSPECTIVE_SHADOW_ID": "2026-boom-first-control-v1",
         })
@@ -455,9 +486,9 @@ class ClassicProductionPolicy:
         """
         env = self.engine_environment(base)
         env.update({
-            "GEN_TOTAL_BUDGET": "172",
-            "N_LEV": "40",
-            "N_BOOM": "160",
+            "GEN_TOTAL_BUDGET": str(self.n_role + self.n_boom),
+            "N_LEV": str(self.n_leverage),
+            "N_BOOM": str(self.n_boom),
             "BOOM_UNIQUE_FILL": "0",
             "PROSPECTIVE_SHADOW_ID": "2026-boom-first-v1",
         })
@@ -478,6 +509,10 @@ class ClassicProductionPolicy:
         engine_env_sha256 = sha256(json.dumps(
             engine_env, sort_keys=True, separators=(",", ":"),
         ).encode()).hexdigest()
+        leverage_solves = int(engine_env["N_LEV"])
+        boom_solves = int(engine_env["N_BOOM"])
+        role_solves = int(engine_env["N_EPISTEMIC"])
+        ce_solves = int(engine_env["N_CE"])
         return {
             "policy_id": self.policy_id,
             "source_panel": self.source_panel,
@@ -496,28 +531,20 @@ class ClassicProductionPolicy:
                 "market": 1.0 - self.blend_model_weight,
             },
             "portfolio_allocation": {
-                "leverage": (
-                    self.candidate_multiple
-                    * self.multiseed_candidate_entry_basis
-                ),
-                "ce": self.n_ce,
-                "role": self.n_role,
-                "boom": self.n_boom,
-                "core_lev_boom": (
-                    self.candidate_multiple
-                    * self.multiseed_candidate_entry_basis
-                    + self.n_boom
-                ),
+                "leverage": leverage_solves,
+                "ce": ce_solves,
+                "role": role_solves,
+                "boom": boom_solves,
+                "core_lev_boom": leverage_solves + boom_solves,
                 # Retain the legacy API field and disclose its historical
-                # scope; callers may already consume the old 52-slot value.
+                # scope; callers may already consume this replacement-family
+                # subtotal (which excludes leverage and auxiliary solves).
                 "total_generation_solves": (
-                    self.n_ce + self.n_role + self.n_boom
+                    ce_solves + role_solves + boom_solves
                 ),
                 "total_generation_solves_scope": "ce-role-boom-legacy",
                 "nominal_requested_before_retries": (
-                    self.candidate_multiple
-                    * self.multiseed_candidate_entry_basis
-                    + self.n_ce + self.n_role + self.n_boom
+                    leverage_solves + ce_solves + role_solves + boom_solves
                     + 8 * int(engine_env["N_QB_VARIANTS"])
                     + 3 * int(engine_env["N_GAMESTACK"])
                     + int(engine_env["N_DARKGAME"])
@@ -527,17 +554,13 @@ class ClassicProductionPolicy:
                     "infeasibility, dedupe and retries"
                 ),
                 "nominal_requested_per_native_search": (
-                    self.candidate_multiple
-                    * self.multiseed_candidate_entry_basis
-                    + self.n_ce + self.n_role + self.n_boom
+                    leverage_solves + ce_solves + role_solves + boom_solves
                     + 8 * int(engine_env["N_QB_VARIANTS"])
                     + 3 * int(engine_env["N_GAMESTACK"])
                     + int(engine_env["N_DARKGAME"])
                 ),
                 "nominal_requested_per_five_book_cbwu_arm": 5 * (
-                    self.candidate_multiple
-                    * self.multiseed_candidate_entry_basis
-                    + self.n_ce + self.n_role + self.n_boom
+                    leverage_solves + ce_solves + role_solves + boom_solves
                     + 8 * int(engine_env["N_QB_VARIANTS"])
                     + 3 * int(engine_env["N_GAMESTACK"])
                     + int(engine_env["N_DARKGAME"])
@@ -568,6 +591,7 @@ class ClassicProductionPolicy:
                 "sha256": engine_env_sha256,
                 "values": engine_env,
             },
+            "role_outage_fallback_allowed": self.role_outage_fallback_allowed,
         }
 
 

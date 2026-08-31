@@ -1,0 +1,30 @@
+FROM python:3.14.4-slim
+
+ARG SOURCE_COMMIT_SHA
+RUN python -c 'import os,re; assert re.fullmatch(r"[0-9a-f]{40}", os.environ["SOURCE_COMMIT_SHA"])'
+
+LABEL org.opencontainers.image.revision="${SOURCE_COMMIT_SHA}"
+ENV IMAGE_SOURCE_COMMIT_SHA="${SOURCE_COMMIT_SHA}" \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && ln -s /usr/local/bin/python3.14 /usr/local/bin/python3.11 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml README.md SOURCE_COMMIT /app/
+COPY src /app/src
+COPY scripts/cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.sh \
+     scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py \
+     /app/scripts/
+
+RUN test "$(cat /app/SOURCE_COMMIT)" = "${SOURCE_COMMIT_SHA}" \
+    && pip install --no-cache-dir "numpy==2.5.1" "scipy==1.18.0" \
+    && pip install --no-cache-dir --editable ".[gcp]"
+
+# Installation is inert. Every matrix-bearing operation is an explicit,
+# default-off execution override through the guarded shell.
+CMD ["/bin/bash", "/app/scripts/cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.sh", "container-help"]

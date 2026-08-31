@@ -161,7 +161,9 @@ def run(
     from .live_lineups import build_sim_lineups
 
     control_capture: list[CandidateBatch] = []
-    control_env = policy.engine_environment(os.environ)
+    # This shadow was frozen against the pre-adoption 160/40 population.
+    # Keep that comparator explicit now that the money path is boom-first.
+    control_env = policy.incumbent_control_environment(os.environ)
     control_env.update({
         "CAND_ARTIFACT_BUCKET": bucket,
         "CAND_ARTIFACT_PLAYER_WORLDS": "1",

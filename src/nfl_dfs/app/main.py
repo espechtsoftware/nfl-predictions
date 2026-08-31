@@ -40,6 +40,10 @@ from ..inference.production_policy import (
 )
 from .corpus_research import router as corpus_research_router
 from .store import BigQueryStore, ProjectionStore
+from .week1_operating_book_api import (
+    Week1OperatingBookAPIError,
+    load_week1_operating_book_export,
+)
 
 app = FastAPI(title="Fingerblasters' Brain", version="0.1.0")
 
@@ -409,6 +413,23 @@ _LINEUPS_CSS = """
   color:#1a1a2e}
 .card tfoot td{font-weight:600;background:#fafafa}
 #status{margin:.8rem 0;color:#666}
+#week1book{margin:0 0 1rem;background:#fff;border:1px solid #cbd9d5;
+  border-radius:10px;padding:1rem;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+#week1book h2{margin:0;font-size:1.15rem}
+.week1-actions{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin:.55rem 0}
+.week1-actions button,.week1-actions a{padding:.42rem .75rem;border-radius:6px;
+  border:1px solid #164a41;background:#fff;color:#164a41;text-decoration:none;
+  cursor:pointer;font-size:.82rem}
+.week1-viz{display:grid;grid-template-columns:minmax(250px,.8fr) minmax(320px,1.2fr);
+  gap:.8rem;margin-top:.7rem}
+.week1-chart{border:1px solid #e1e9e6;border-radius:8px;padding:.7rem}
+.week1-chart h3{font-size:.9rem;margin:0 0 .5rem}
+.week1-bar-row{display:grid;grid-template-columns:minmax(105px,1fr) 2fr 42px;
+  gap:.45rem;align-items:center;font-size:.76rem;margin:.35rem 0}
+.week1-bar{height:.72rem;background:#edf2f0;border-radius:999px;overflow:hidden}
+.week1-bar i{display:block;height:100%;border-radius:999px;background:#2b8a78}
+.week1-book-note{font-size:.8rem;color:#58635f;margin:.25rem 0}
+@media(max-width:720px){.week1-viz{grid-template-columns:1fr}}
 #portfolio{margin:1rem 0;background:#fff;border:1px solid #e5e5ef;
   border-radius:10px;padding:1rem;box-shadow:0 1px 3px rgba(0,0,0,.04)}
 #portfolio h2{margin:0 0 .25rem;font-size:1.15rem}
@@ -596,6 +617,35 @@ function renderPortfolio(lineups){
   document.getElementById('portfolio-metrics').innerHTML=metrics.map(([k,v])=>
     `<div class='portfolio-metric'><b>${esc(v)}</b><small>${esc(k)}</small></div>`).join('');
   renderLineupMap(lineups,sets,groups);renderPlayerNetwork(lineups);
+}
+async function loadWeek1OperatingBook(){
+  const status=document.getElementById('week1status'),viz=document.getElementById('week1viz'),
+        csv=document.getElementById('week1csv');
+  status.textContent='Exact-reading the immutable Week-1 book...';viz.hidden=true;csv.hidden=true;
+  try{
+    const r=await fetch('/week1/operating-book'),j=await r.json();
+    if(!r.ok){status.textContent='Canonical book not available yet: '+(j.detail||r.status);return;}
+    status.textContent=`K${j.k} · exact artifact ${j.materialization_sha256.slice(0,12)}… · `+
+      `cap-4 off · Tier 3 ${j.tier3_used?'on':'empty'} · no tuning controls accepted.`;
+    const labels={'boom-first-40-160':'Tier 1 boom-first',
+      'ceiling-all-boom-0-200':'Tier 2 all-boom','cross-law-40-100-60':'Tier 2 BX60'},
+      colors={'boom-first-40-160':'#216869','ceiling-all-boom-0-200':'#f2a541',
+        'cross-law-40-100-60':'#7b61ff'};
+    document.getElementById('week1sources').innerHTML=Object.entries(j.source_counts).map(([id,n])=>
+      `<div class='week1-bar-row'><span>${esc(labels[id]||id)}</span>`+
+      `<span class='week1-bar'><i style='width:${100*n/j.k}%;background:${colors[id]||'#2b8a78'}'></i></span>`+
+      `<b>${n}</b></div>`).join('');
+    const players=new Map();
+    for(const lu of j.lineups)for(const p of lu.players){const id=String(p.dk_draftable_id),
+      row=players.get(id)||{p,n:0};row.n++;players.set(id,row);}
+    const top=[...players.values()].sort((a,b)=>b.n-a.n||a.p.display_name.localeCompare(b.p.display_name)).slice(0,16),
+      max=Math.max(1,...top.map(x=>x.n));
+    document.getElementById('week1exposure').innerHTML=top.map(x=>
+      `<div class='week1-bar-row'><span>${esc(x.p.display_name)} <small>${esc(x.p.position)} ${esc(x.p.team)}</small></span>`+
+      `<span class='week1-bar'><i style='width:${100*x.n/max}%'></i></span>`+
+      `<b>${x.n}</b></div>`).join('');
+    viz.hidden=false;csv.hidden=false;
+  }catch(e){status.textContent='Canonical book could not be loaded: '+e;}
 }
 async function loadSlates(){
   try{const r=await fetch('/slates');const s=await r.json();
@@ -792,6 +842,7 @@ async function build(){
   }catch(e){st.textContent='Error: '+e;}
   document.getElementById('go').disabled=false;}
 document.getElementById('go').onclick=build;
+document.getElementById('week1load').onclick=loadWeek1OperatingBook;
 document.getElementById('cmpgo').onclick=async()=>{
   const cs=[];
   for(const i of [0,1]){
@@ -938,7 +989,7 @@ document.getElementById('entrylimit').addEventListener('change',
 (async()=>{
   await loadSlates();
   await Promise.all([loadClassicSlates(),loadShowdownSlates(),loadContests()]);
-  setModeControls(); loadPrefs(); noteConflicts();
+  setModeControls(); loadPrefs(); noteConflicts(); loadWeek1OperatingBook();
 })();
 """
 
@@ -952,6 +1003,19 @@ def lineups_page() -> str:
         f"<title>Fingerblasters' Brain — Lineups</title><link rel='icon' href='/static/logo.png'>"
         f"<style>{_PAGE_CSS}{_LINEUPS_CSS}</style></head><body>"
         f"{_NAV_HTML}<main><h1>Lineup builder</h1>"
+        f"<section id='week1book'><h2>Week 1 canonical operating book</h2>"
+        f"<p class='week1-book-note'>This panel reads only the generation-pinned "
+        f"boom-first / coverage-194 artifact. It cannot accept locks, bans, "
+        f"tail lines, construction changes, cap-4, or other build controls.</p>"
+        f"<div class='week1-actions'><button id='week1load' type='button'>"
+        f"Refresh exact book</button><a id='week1csv' hidden "
+        f"href='/week1/operating-book.csv'>Download exact DK CSV</a>"
+        f"<span id='week1status'>Waiting for the pre-lock artifact.</span></div>"
+        f"<div id='week1viz' class='week1-viz' hidden>"
+        f"<section class='week1-chart'><h3>Book composition</h3>"
+        f"<div id='week1sources'></div></section>"
+        f"<section class='week1-chart'><h3>Highest player exposure</h3>"
+        f"<div id='week1exposure'></div></section></div></section>"
         f"<div id='controls'>"
         f"<label>Season<input id='season' type='number'></label>"
         f"<label>Week<input id='week' type='number'></label>"
@@ -2459,6 +2523,16 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                 policy_env=policy_env,
                 construction_preset_receipt=construction.receipt())
         except RoleBeliefUnavailable as exc:
+            if not policy.role_outage_fallback_allowed:
+                log.exception(
+                    "exact Week-1 role policy unavailable; fallback forbidden"
+                )
+                raise HTTPException(
+                    503,
+                    "The exact Week-1 boom-first generator is unavailable "
+                    "because its role model could not be loaded. This policy "
+                    "forbids silently substituting the CE12/boom28 generator."
+                ) from exc
             log.error("promoted role policy unavailable; using CE fallback: %s",
                       exc)
             fallback_env = policy.fallback_environment(
@@ -2693,6 +2767,41 @@ def build_lineups(
         "exposure": exposure_summary(lineups),
         "dk_csv": to_dk_csv(lineups),
     }
+
+
+@app.get("/week1/operating-book")
+def week1_operating_book(
+    store: ProjectionStore = Depends(get_store),
+) -> dict[str, object]:
+    """Canonical immutable money book; accepts no construction controls."""
+
+    try:
+        return load_week1_operating_book_export(projection_store=store)
+    except Week1OperatingBookAPIError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/week1/operating-book.csv")
+def week1_operating_book_csv(
+    store: ProjectionStore = Depends(get_store),
+) -> Response:
+    """Download the same exact canonical book as a DraftKings upload CSV."""
+
+    try:
+        payload = load_week1_operating_book_export(projection_store=store)
+    except Week1OperatingBookAPIError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return Response(
+        content=str(payload["dk_csv"]),
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": (
+                "attachment; filename=dk_week1_operating_book.csv"
+            ),
+            "X-Week1-Book-SHA256": str(payload["materialization_sha256"]),
+            "X-Week1-Export-SHA256": str(payload["export_sha256"]),
+        },
+    )
 
 
 class CoreLineupRequest(LineupRequest):

@@ -1,0 +1,28 @@
+FROM python:3.14.4-slim
+
+ARG SOURCE_COMMIT_SHA
+ARG IMPLEMENTATION_AUTHORITY_SHA256
+RUN python -c 'import os,re; assert re.fullmatch(r"[0-9a-f]{40}", os.environ["SOURCE_COMMIT_SHA"]); assert re.fullmatch(r"[0-9a-f]{64}", os.environ["IMPLEMENTATION_AUTHORITY_SHA256"])'
+
+LABEL org.opencontainers.image.revision="${SOURCE_COMMIT_SHA}"
+ENV IMAGE_SOURCE_COMMIT_SHA="${SOURCE_COMMIT_SHA}" \
+    R6_MATCHUP_SEVEN_PACK_IMPLEMENTATION_AUTHORITY_SHA256="${IMPLEMENTATION_AUTHORITY_SHA256}" \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+COPY pyproject.toml README.md SOURCE_COMMIT SEVEN_PACK_IMPLEMENTATION_AUTHORITY.json /app/
+COPY src /app/src
+COPY scripts/cloud_corpus_r6_matchup_seven_pack_capture_v1.sh \
+     scripts/run_corpus_r6_matchup_seven_pack_capture_v1.py \
+     /app/scripts/
+
+RUN test "$(cat /app/SOURCE_COMMIT)" = "${SOURCE_COMMIT_SHA}" \
+    && test "$(sha256sum /app/SEVEN_PACK_IMPLEMENTATION_AUTHORITY.json | awk '{print $1}')" = "${IMPLEMENTATION_AUTHORITY_SHA256}" \
+    && ln -s /usr/local/bin/python3.14 /usr/local/bin/python3.11 \
+    && pip install --no-cache-dir \
+       "google-cloud-bigquery==3.43.0" "google-cloud-storage==3.13.1" \
+    && pip install --no-cache-dir --no-deps --editable .
+
+CMD ["/bin/bash", "/app/scripts/cloud_corpus_r6_matchup_seven_pack_capture_v1.sh", "container-help"]

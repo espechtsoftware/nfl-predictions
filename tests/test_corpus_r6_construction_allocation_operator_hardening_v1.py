@@ -11,6 +11,7 @@ from nfl_dfs.research import (
 from nfl_dfs.research import corpus_r6_construction_allocation_cross_v1 as cross
 from nfl_dfs.research import corpus_r6_construction_allocation_shard_v1 as shard
 from nfl_dfs.research import corpus_r6_full_union_panel_freeze_v1 as fixed_panel
+from nfl_dfs.research import corpus_r6_player_catalog_fixed_g0_adapter_v1 as adapter
 
 
 def _identity(uri: str, raw: bytes, generation: str = "17") -> dict[str, object]:
@@ -147,7 +148,7 @@ def _fake_panel_reopen(selection, *, read_exact):
         "role": "fixed-g0-panel",
         "identity": dict(cross.FOUNDRY_G0_PANEL_IDENTITY),
         "panel_id": cross.FOUNDRY_G0_PANEL_ID,
-        "panel_index_sha256": cross.FOUNDRY_G0_PANEL_ID.removeprefix("v12:"),
+        "panel_index_sha256": adapter.FIXED_PANEL_INDEX_SHA256,
         "accepted_slate_ids_sha256": cross.canonical_sha256(slates),
         "accepted_slate_count": len(slates),
         "generation_exact_reopened": True,
@@ -286,7 +287,7 @@ def test_fixed_g0_panel_authority_is_deep_reopened(monkeypatch) -> None:
         return (
             {
                 "panel_id": cross.FOUNDRY_G0_PANEL_ID,
-                "panel_index_sha256": cross.FOUNDRY_G0_PANEL_ID.removeprefix("v12:"),
+                "panel_index_sha256": adapter.FIXED_PANEL_INDEX_SHA256,
             },
             [{"slate_id": slate_id} for slate_id in cross.EXPECTED_SLATE_IDS],
             dict(cross.FOUNDRY_G0_PANEL_IDENTITY),
@@ -300,6 +301,10 @@ def test_fixed_g0_panel_authority_is_deep_reopened(monkeypatch) -> None:
     assert result["generation_exact_reopened"] is True
     assert result["schema_and_self_hash_validated"] is True
     assert result["accepted_slate_count"] == 54
+    assert result["panel_index_sha256"] == adapter.FIXED_PANEL_INDEX_SHA256
+    assert result["panel_index_sha256"] != cross.FOUNDRY_G0_PANEL_ID.removeprefix(
+        "v12:"
+    )
 
     forged = deepcopy(selection)
     forged["panel_authority"]["identity"]["generation"] = "999"

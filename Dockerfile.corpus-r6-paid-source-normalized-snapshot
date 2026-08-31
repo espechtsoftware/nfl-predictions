@@ -1,0 +1,34 @@
+FROM python:3.14.4-slim
+
+ARG SOURCE_COMMIT_SHA
+ARG SNAPSHOT_MODULE_SHA256
+RUN python -c 'import os,re; assert re.fullmatch(r"[0-9a-f]{40}", os.environ["SOURCE_COMMIT_SHA"]); assert re.fullmatch(r"[0-9a-f]{64}", os.environ["SNAPSHOT_MODULE_SHA256"])'
+
+LABEL org.opencontainers.image.revision="${SOURCE_COMMIT_SHA}"
+ENV IMAGE_SOURCE_COMMIT_SHA="${SOURCE_COMMIT_SHA}" \
+    R6_PAID_SOURCE_NORMALIZED_SNAPSHOT_MODULE_SHA256="${SNAPSHOT_MODULE_SHA256}" \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+COPY pyproject.toml README.md SOURCE_COMMIT /app/
+COPY src /app/src
+COPY scripts/cloud_corpus_r6_paid_source_normalized_snapshot_v1.sh \
+     scripts/run_corpus_r6_paid_source_normalized_snapshot_v1.py \
+     scripts/run_corpus_r6_matchup_seven_pack_capture_v1.py \
+     /app/scripts/
+
+# The snapshot projection itself is stdlib-only.  Install only its genuine
+# BigQuery/GCS transport dependencies, then register the local package without
+# pulling the unrelated modeling/runtime dependency graph into this image.
+RUN test "$(cat /app/SOURCE_COMMIT)" = "${SOURCE_COMMIT_SHA}" \
+    && test "$(sha256sum /app/src/nfl_dfs/research/corpus_r6_paid_source_normalized_snapshot_v1.py | awk '{print $1}')" = "${SNAPSHOT_MODULE_SHA256}" \
+    && ln -s /usr/local/bin/python3.14 /usr/local/bin/python3.11 \
+    && pip install --no-cache-dir \
+       "google-cloud-bigquery==3.43.0" "google-cloud-storage==3.13.1" \
+    && pip install --no-cache-dir --no-deps --editable .
+
+# Installation is inert.  Every data-bearing phase is an explicit one-task
+# execution override made by the guarded host launcher.
+CMD ["/bin/bash", "/app/scripts/cloud_corpus_r6_paid_source_normalized_snapshot_v1.sh", "container-help"]

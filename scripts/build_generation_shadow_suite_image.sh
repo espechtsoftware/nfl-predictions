@@ -50,6 +50,7 @@ TEST_SUPPORT_SCRIPTS=(
 EXPECTED_SCRIPT_PATHS=(
   scripts/build_generation_shadow_suite_image.sh
   scripts/cloud_generation_shadow_suite.sh
+  scripts/publish_week1_operating_book.py
   "${TEST_SUPPORT_SCRIPTS[@]}"
 )
 ARCHIVE_PATHS=(
@@ -85,7 +86,9 @@ for relative_path in "${BUILD_REFERENCED_PATHS[@]}"; do
     die "Cloud Build references an absent committed file: ${relative_path}"
 done
 
-BUILD_TEMP=$(mktemp -d "${TMPDIR:-/tmp}/generation-shadow-build.XXXXXX")
+BUILD_CONTEXT_ROOT="$SOURCE_ROOT/.build-contexts"
+mkdir -p "$BUILD_CONTEXT_ROOT"
+BUILD_TEMP=$(mktemp -d "$BUILD_CONTEXT_ROOT/generation-shadow-build.XXXXXX")
 CONTEXT="$BUILD_TEMP/context"
 ARCHIVE="$BUILD_TEMP/source.tar"
 cleanup() { rm -rf -- "$BUILD_TEMP"; }

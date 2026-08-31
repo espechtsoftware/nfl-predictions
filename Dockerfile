@@ -130,6 +130,7 @@ COPY scripts/run_exact_n_scorefree.py ./scripts/run_exact_n_scorefree.py
 COPY scripts/run_realistic_recourse_sizing.py ./scripts/run_realistic_recourse_sizing.py
 COPY scripts/audit_recourse_scoring_reconciliation.py ./scripts/audit_recourse_scoring_reconciliation.py
 COPY scripts/cleanup_final_forensic_warehouse.py ./scripts/cleanup_final_forensic_warehouse.py
+COPY scripts/publish_week1_operating_book.py ./scripts/publish_week1_operating_book.py
 
 RUN pip install --no-cache-dir ".[gcp,app,graph]"
 

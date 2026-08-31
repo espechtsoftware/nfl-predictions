@@ -252,7 +252,9 @@ def run_paired_prospective_shadow(
         treatment_capture[0],
         treatment_lineups,
         dk_mapping,
-        control_selector_env=policy.engine_environment(os.environ),
+        # This older prospective comparison retains its frozen pre-adoption
+        # population; it must not silently inherit the Week-1 money switch.
+        control_selector_env=policy.incumbent_control_environment(os.environ),
     )
     del control_lineups  # memberships are durably retained in the receipt.
     bucket = bucket_name or settings.gcs_bucket

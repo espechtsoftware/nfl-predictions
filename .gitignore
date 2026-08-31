@@ -22,5 +22,10 @@ venv/
 .DS_Store
 notebooks/.ipynb_checkpoints/
 /.claude/worktrees/
+# Local build/research scratch. Durable authorities belong in tracked reports
+# or immutable cloud objects, never in these machine-local working areas.
+/.build-contexts/
+/.scratch-score-sprint/
+/.tmp/
 # Frontend dependency cache; the deterministic production bundle is tracked.
 /frontend/node_modules/

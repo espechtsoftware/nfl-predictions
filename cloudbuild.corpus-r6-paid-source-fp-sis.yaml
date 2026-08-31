@@ -1,0 +1,97 @@
+# Exact-Git, outcome-free image build for the 54-task FP x SIS ablation.
+timeout: 3600s
+
+options:
+  logging: LEGACY
+  machineType: E2_HIGHCPU_8
+
+steps:
+  - id: prepare-exact-git-paid-source-context
+    name: python:3.14.4-slim
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends git
+        printf '%s' '${_CODE_SHA}' | grep -Eq '^[0-9a-f]{40}$'
+        case '${_BUILD_IMAGE}' in
+          *:paid-source-fp-sis-'${_CODE_SHA}') ;;
+          *) echo 'image tag must bind the full source commit' >&2; exit 2 ;;
+        esac
+        test ! -e release
+        git clone '${_SOURCE_REPOSITORY}' release
+        git -C release checkout --detach '${_CODE_SHA}'
+        printf '%s\n' '${_CODE_SHA}' >release/SOURCE_COMMIT
+        test "$(git -C release rev-parse HEAD)" = '${_CODE_SHA}'
+        test -f release/Dockerfile.corpus-r6-paid-source-fp-sis
+        test -f release/scripts/run_corpus_r6_paid_source_fp_sis_v1.py
+        test -f release/src/nfl_dfs/research/paid_source_ablation_execution_v1.py
+
+  - id: focused-paid-source-release-tests
+    name: python:3.14.4-slim
+    dir: release
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends git libgomp1
+        ln -s /usr/local/bin/python3.14 /usr/local/bin/python3.11
+        pip install --no-cache-dir 'numpy==2.5.1' 'scipy==1.18.0'
+        pip install --no-cache-dir --editable '.[gcp,dev]'
+        bash -n scripts/cloud_corpus_r6_paid_source_fp_sis_v1.sh
+        PYTHONDONTWRITEBYTECODE=1 python -m py_compile \
+          src/nfl_dfs/research/corpus_r6_paid_source_ablation_v1.py \
+          src/nfl_dfs/research/paid_source_ablation_execution_v1.py \
+          src/nfl_dfs/research/paid_source_ablation_grade_v1.py \
+          scripts/run_corpus_r6_paid_source_fp_sis_v1.py
+        PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -m pytest -q -o addopts='' \
+          tests/test_paid_source_ablation_execution_v1.py \
+          tests/test_run_corpus_r6_paid_source_fp_sis_v1.py \
+          tests/test_cloud_corpus_r6_paid_source_fp_sis_v1.py \
+          tests/test_paid_source_ablations_v1.py \
+          tests/test_paid_source_ablation_operator_grade_v1.py
+        for command in build-request validate validate-task0-cloud-gate task0 task collect reopen grade grade-reopen; do
+          /usr/local/bin/python3.11 -I \
+            scripts/run_corpus_r6_paid_source_fp_sis_v1.py \
+            "$${command}" --help >/dev/null
+        done
+
+  - id: build-paid-source-fp-sis-image
+    name: gcr.io/cloud-builders/docker
+    dir: release
+    args:
+      - build
+      - --pull
+      - --file
+      - Dockerfile.corpus-r6-paid-source-fp-sis
+      - --build-arg
+      - 'SOURCE_COMMIT_SHA=${_CODE_SHA}'
+      - -t
+      - '${_BUILD_IMAGE}'
+      - .
+
+  - id: isolated-paid-source-runtime-smoke
+    name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        docker run --rm --network none '${_BUILD_IMAGE}' \
+          /bin/bash /app/scripts/cloud_corpus_r6_paid_source_fp_sis_v1.sh \
+          container-help >/dev/null
+        docker run --rm --network none '${_BUILD_IMAGE}' \
+          /bin/bash /app/scripts/cloud_corpus_r6_paid_source_fp_sis_v1.sh \
+          host-help >/dev/null
+        docker run --rm --network none '${_BUILD_IMAGE}' \
+          /usr/local/bin/python3.11 -I -c \
+          'import os,subprocess; assert subprocess.check_output(["git","-C","/app","rev-parse","HEAD"],text=True).strip() == os.environ["IMAGE_SOURCE_COMMIT_SHA"]'
+
+images:
+  - '${_BUILD_IMAGE}'
+
+substitutions:
+  _BUILD_IMAGE: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:paid-source-fp-sis-unknown
+  _CODE_SHA: unknown
+  _SOURCE_REPOSITORY: https://github.com/espechtsoftware/nfl-predictions.git

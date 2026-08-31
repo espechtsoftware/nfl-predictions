@@ -25,31 +25,20 @@ def test_validate_and_task0_are_distinct_default_off_paths(
     assert runner.run(["--action", "task0"])["mode"] == "task0"
 
 
-def test_publish_requires_both_confirmation_and_enable_environment(
-    monkeypatch: pytest.MonkeyPatch,
+def test_public_cli_excludes_direct_full_publication(
+    tmp_path: Path,
 ) -> None:
-    called: list[str] = []
-    monkeypatch.setattr(
-        runner.batch,
-        "publish_matchup_source_batch_outer_candidate_authority_v3",
-        lambda *, run_id: called.append(run_id) or {"complete": True},
-    )
-    monkeypatch.delenv(runner.batch.PUBLISH_ENABLE_ENV, raising=False)
-    with pytest.raises(ValueError, match="publish requires"):
+    gate_receipt = tmp_path / "task0-verifier-receipt.json"
+    gate_receipt.write_text('{"gate":"fixture"}', encoding="utf-8")
+    with pytest.raises(SystemExit):
         runner.run([
             "--action", "publish", "--run-id", "fixture-source-v3",
+            "--task0-verifier-receipt", str(gate_receipt.resolve()),
             "--confirm-publish",
         ])
-    monkeypatch.setenv(runner.batch.PUBLISH_ENABLE_ENV, "1")
-    with pytest.raises(ValueError, match="publish requires"):
-        runner.run([
-            "--action", "publish", "--run-id", "fixture-source-v3",
-        ])
-    assert runner.run([
-        "--action", "publish", "--run-id", "fixture-source-v3",
-        "--confirm-publish",
-    ]) == {"complete": True}
-    assert called == ["fixture-source-v3"]
+    parser = runner._parser()
+    action = next(row for row in parser._actions if row.dest == "action")
+    assert tuple(action.choices) == ("validate", "task0", "reopen")
 
 
 def test_reopen_accepts_only_one_absolute_regular_identity_file(

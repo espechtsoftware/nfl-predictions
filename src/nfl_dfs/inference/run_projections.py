@@ -24,6 +24,39 @@ from . import cascade_adjust
 
 log = logging.getLogger(__name__)
 
+
+def _props_first_market_with_dk_fallback(
+    dk_ppg_market: pd.Series | np.ndarray,
+    prop_market: pd.Series | np.ndarray,
+    *,
+    minimum_prop_coverage: float = 0.30,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Prefer available props without discarding per-player DK fallbacks.
+
+    The prop snapshot is used only when it covers the configured share of the
+    slate.  Once that slate-level gate passes, rows without a prop retain the
+    aligned DK-PPG value.  Below the gate the complete DK-PPG vector is kept.
+    The returned mask identifies only rows truly sourced from props so audit
+    logging cannot mislabel fallback rows as prop observations.
+    """
+    fallback = np.asarray(dk_ppg_market, dtype=float)
+    props = np.asarray(prop_market, dtype=float)
+    if fallback.ndim != 1 or props.shape != fallback.shape:
+        raise ValueError("prop and DK-PPG market vectors must be aligned")
+    if not 0.0 <= minimum_prop_coverage <= 1.0:
+        raise ValueError("minimum prop coverage must be between 0 and 1")
+
+    prop_mask = np.isfinite(props)
+    if (
+        len(fallback) == 0
+        or int(prop_mask.sum()) < minimum_prop_coverage * len(fallback)
+    ):
+        return fallback.copy(), np.zeros(len(fallback), dtype=bool)
+
+    market = fallback.copy()
+    market[prop_mask] = props[prop_mask]
+    return market, prop_mask
+
 def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
     """Feature rows for the players in the current classic slate, with the
     same point-in-time features the model trained on. Unmatched slate
@@ -186,8 +219,9 @@ def project(
     # points; the live path was blending DK's historical PPG
     # (market_projection_frame's documented stand-in). Prefer the real
     # prop feed, fall back to DK PPG when props are absent.
-    market = market_projection_frame(feats)
+    market = np.asarray(market_projection_frame(feats), dtype=float)
     _mkt_src = "dk_ppg"
+    _prop_market_mask = np.zeros(len(feats), dtype=bool)
     try:
         from ..models.prop_market import market_points as _prop_points
         _pm = _prop_points((season,))
@@ -196,9 +230,17 @@ def project(
             _m = feats[["gsis_id"]].merge(
                 _pm[["gsis_id", "market_points"]], on="gsis_id",
                 how="left").market_points
-            if _m.notna().sum() >= 0.3 * len(feats):
-                market = _m.astype(float)
+            market, _prop_market_mask = (
+                _props_first_market_with_dk_fallback(market, _m)
+            )
+            if _prop_market_mask.any():
                 _mkt_src = "props"
+            else:
+                log.info(
+                    "prop-market coverage below 30 percent (%d/%d); "
+                    "using full DK-PPG fallback",
+                    int(_m.notna().sum()), len(feats),
+                )
     except Exception:
         log.exception("prop market unavailable; blending DK PPG stand-in")
     log.info("market blend source: %s (%d/%d rows)",
@@ -215,7 +257,7 @@ def project(
     try:
         if _mkt_src == "props":
             _mkt = np.asarray(market, dtype=float)
-            _has = ~np.isnan(_mkt)
+            _has = _prop_market_mask
             shadow = pd.DataFrame({
                 "generated_at": datetime.now(timezone.utc),
                 "season": season, "week": week,

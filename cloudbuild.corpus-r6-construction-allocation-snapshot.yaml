@@ -20,12 +20,16 @@ steps:
           Dockerfile.corpus-r6-construction-allocation-snapshot \
           cloudbuild.corpus-r6-construction-allocation-snapshot.yaml \
           pyproject.toml README.md src \
+          scripts/cloud_corpus_r6_construction_allocation_collector_repair_v1.sh \
           scripts/cloud_corpus_r6_construction_allocation_snapshot_v1.sh \
+          scripts/run_corpus_r6_construction_allocation_collector_repair_v1.py \
           scripts/run_corpus_r6_construction_allocation_grade_v1.py \
           scripts/run_corpus_r6_construction_allocation_snapshot_shard_v1.py \
           tests/conftest.py \
           tests/test_boom_first_historical_construction_snapshot_adapter_v1.py \
           tests/test_corpus_r6_construction_allocation_cloud_release_v1.py \
+          tests/test_corpus_r6_construction_allocation_collector_repair_cloud_v1.py \
+          tests/test_corpus_r6_construction_allocation_collector_repair_v1.py \
           tests/test_corpus_r6_construction_allocation_cross_v1.py \
           tests/test_corpus_r6_construction_allocation_grade_operator_v1.py \
           tests/test_corpus_r6_construction_allocation_operator_hardening_v1.py \
@@ -61,7 +65,9 @@ steps:
         test ! -e CLAUDE.md
         test "$(cat SOURCE_COMMIT)" = '${_CODE_SHA}'
         test "$(find scripts -type f | sort)" = "$(printf '%s\n' \
+          scripts/cloud_corpus_r6_construction_allocation_collector_repair_v1.sh \
           scripts/cloud_corpus_r6_construction_allocation_snapshot_v1.sh \
+          scripts/run_corpus_r6_construction_allocation_collector_repair_v1.py \
           scripts/run_corpus_r6_construction_allocation_grade_v1.py \
           scripts/run_corpus_r6_construction_allocation_snapshot_shard_v1.py | sort)"
         test -f scripts/run_corpus_r6_construction_allocation_snapshot_shard_v1.py
@@ -72,8 +78,11 @@ steps:
         pip install --no-cache-dir 'numpy==2.5.1' 'scipy==1.18.0'
         pip install --no-cache-dir '.[gcp,dev]'
         bash -n scripts/cloud_corpus_r6_construction_allocation_snapshot_v1.sh
+        bash -n scripts/cloud_corpus_r6_construction_allocation_collector_repair_v1.sh
         PYTHONDONTWRITEBYTECODE=1 python -m compileall -q \
+          scripts/run_corpus_r6_construction_allocation_collector_repair_v1.py \
           scripts/run_corpus_r6_construction_allocation_snapshot_shard_v1.py \
+          src/nfl_dfs/research/corpus_r6_construction_allocation_collector_repair_v1.py \
           src/nfl_dfs/research/boom_first_historical_construction_snapshot_adapter_v1.py \
           src/nfl_dfs/research/corpus_r6_construction_allocation_cross_v1.py \
           src/nfl_dfs/research/corpus_r6_construction_allocation_cross_operator_v1.py \
@@ -83,6 +92,8 @@ steps:
           scripts/run_corpus_r6_construction_allocation_grade_v1.py
         PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -m pytest -q -o addopts='' \
           tests/test_boom_first_historical_construction_snapshot_adapter_v1.py \
+          tests/test_corpus_r6_construction_allocation_collector_repair_cloud_v1.py \
+          tests/test_corpus_r6_construction_allocation_collector_repair_v1.py \
           tests/test_corpus_r6_construction_allocation_cross_v1.py \
           tests/test_corpus_r6_construction_allocation_grade_operator_v1.py \
           tests/test_corpus_r6_construction_allocation_operator_hardening_v1.py \
@@ -113,6 +124,10 @@ steps:
     args:
       - -ceu
       - |
+        docker run --rm --network none '${_BUILD_IMAGE}' \
+          /usr/local/bin/python3.11 -I \
+          /app/scripts/run_corpus_r6_construction_allocation_collector_repair_v1.py \
+          --help >/dev/null
         docker run --rm --network none '${_BUILD_IMAGE}' \
           /usr/local/bin/python3.11 -I \
           /app/scripts/run_corpus_r6_construction_allocation_snapshot_shard_v1.py \

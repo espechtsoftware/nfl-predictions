@@ -1,0 +1,100 @@
+# Immutable, score-free build for the 54-slate Experiment-5 discovery matrix
+# freezer. The release context contains source/tests only and no data/outcomes.
+timeout: 3600s
+
+options:
+  logging: LEGACY
+  machineType: E2_HIGHCPU_8
+
+steps:
+  - id: prepare-discovery-matrix-release
+    name: python:3.14.4-slim
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        printf '%s' '${_CODE_SHA}' | grep -Eq '^[0-9a-f]{40}$'
+        case '${_BUILD_IMAGE}' in
+          *:paid-source-discovery-matrix-'${_CODE_SHA}') ;;
+          *) echo 'image tag must bind full source commit' >&2; exit 2 ;;
+        esac
+        test ! -e release
+        mkdir release
+        cp -a --parents \
+          Dockerfile.corpus-r6-paid-source-discovery-matrix \
+          Dockerfile.corpus-r6-paid-source-discovery-matrix.dockerignore \
+          cloudbuild.corpus-r6-paid-source-discovery-matrix.yaml \
+          pyproject.toml README.md src \
+          scripts/cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.sh \
+          scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py \
+          tests/test_corpus_r6_paid_source_discovery_matrix_freeze_v1.py \
+          tests/test_run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py \
+          tests/test_cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.py \
+          release/
+        printf '%s\n' '${_CODE_SHA}' >release/SOURCE_COMMIT
+        test ! -e release/.git
+        test ! -e release/reports
+        test ! -e release/HANDOFF.md
+        test ! -e release/CLAUDE.md
+
+  - id: focused-discovery-matrix-tests
+    name: python:3.14.4-slim
+    dir: release
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        test "$(cat SOURCE_COMMIT)" = '${_CODE_SHA}'
+        ln -s /usr/local/bin/python3.14 /usr/local/bin/python3.11
+        pip install --no-cache-dir 'numpy==2.5.1' 'scipy==1.18.0'
+        pip install --no-cache-dir --editable '.[gcp,dev]'
+        bash -n scripts/cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.sh
+        PYTHONDONTWRITEBYTECODE=1 python -m py_compile \
+          src/nfl_dfs/research/corpus_r6_paid_source_discovery_matrix_freeze_v1.py \
+          scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py
+        PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -m pytest -q -o addopts='' \
+          tests/test_corpus_r6_paid_source_discovery_matrix_freeze_v1.py \
+          tests/test_run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py \
+          tests/test_cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.py
+        for command in prepare task0 task0-gate task collect reopen-task reopen-collect; do
+          /usr/local/bin/python3.11 -I \
+            scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py \
+            "$${command}" --help >/dev/null
+        done
+        bash scripts/cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.sh \
+          container-help >/dev/null
+
+  - id: build-discovery-matrix-image
+    name: gcr.io/cloud-builders/docker
+    dir: release
+    args:
+      - build
+      - --pull
+      - --file
+      - Dockerfile.corpus-r6-paid-source-discovery-matrix
+      - --build-arg
+      - 'SOURCE_COMMIT_SHA=${_CODE_SHA}'
+      - -t
+      - '${_BUILD_IMAGE}'
+      - .
+
+  - id: isolated-discovery-matrix-runtime-smoke
+    name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        docker run --rm --network none \
+          -e EXPECTED_SOURCE_COMMIT='${_CODE_SHA}' '${_BUILD_IMAGE}' \
+          /usr/local/bin/python3.11 -I -c \
+          'import os; assert os.environ["IMAGE_SOURCE_COMMIT_SHA"] == os.environ["EXPECTED_SOURCE_COMMIT"]'
+        docker run --rm --network none '${_BUILD_IMAGE}' \
+          /bin/bash /app/scripts/cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.sh \
+          container-help >/dev/null
+
+images:
+  - '${_BUILD_IMAGE}'
+
+substitutions:
+  _BUILD_IMAGE: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:paid-source-discovery-matrix-unknown
+  _CODE_SHA: unknown

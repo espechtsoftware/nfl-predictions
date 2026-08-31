@@ -1,0 +1,119 @@
+# Immutable, outcome-blind build for the normalized Fantasy Points/SIS
+# snapshot producer.  The build context contains no data, outcomes or .git.
+timeout: 3600s
+
+options:
+  logging: LEGACY
+  machineType: E2_HIGHCPU_8
+
+steps:
+  - id: prepare-paid-source-normalized-snapshot-release
+    name: python:3.14.4-slim
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        printf '%s' '${_CODE_SHA}' | grep -Eq '^[0-9a-f]{40}$'
+        printf '%s' '${_MODULE_SHA}' | grep -Eq '^[0-9a-f]{64}$'
+        case '${_BUILD_IMAGE}' in
+          *:paid-source-normalized-snapshot-'${_CODE_SHA}') ;;
+          *) echo 'build image tag must bind the full source commit' >&2; exit 2 ;;
+        esac
+        test "$(sha256sum src/nfl_dfs/research/corpus_r6_paid_source_normalized_snapshot_v1.py | awk '{print $1}')" = '${_MODULE_SHA}'
+        test ! -e release
+        mkdir release
+        cp -a --parents \
+          Dockerfile.corpus-r6-paid-source-normalized-snapshot \
+          Dockerfile.corpus-r6-paid-source-normalized-snapshot.dockerignore \
+          cloudbuild.corpus-r6-paid-source-normalized-snapshot.yaml \
+          pyproject.toml README.md src \
+          scripts/cloud_corpus_r6_paid_source_normalized_snapshot_v1.sh \
+          scripts/run_corpus_r6_paid_source_normalized_snapshot_v1.py \
+          scripts/run_corpus_r6_matchup_seven_pack_capture_v1.py \
+          tests/test_corpus_r6_matchup_seven_pack_capture_v1.py \
+          tests/test_corpus_r6_paid_source_normalized_snapshot_v1.py \
+          tests/test_run_corpus_r6_paid_source_normalized_snapshot_v1.py \
+          tests/test_cloud_corpus_r6_paid_source_normalized_snapshot_v1.py \
+          release/
+        printf '%s\n' '${_CODE_SHA}' >release/SOURCE_COMMIT
+        test ! -e release/.git
+        test ! -e release/reports
+        test ! -e release/sql
+        test ! -e release/HANDOFF.md
+        test ! -e release/CLAUDE.md
+
+  - id: focused-paid-source-normalized-snapshot-tests
+    name: python:3.14.4-slim
+    dir: release
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        test "$(cat SOURCE_COMMIT)" = '${_CODE_SHA}'
+        test "$(sha256sum src/nfl_dfs/research/corpus_r6_paid_source_normalized_snapshot_v1.py | awk '{print $1}')" = '${_MODULE_SHA}'
+        test ! -e .git
+        test ! -e reports
+        test ! -e sql
+        test ! -e HANDOFF.md
+        test ! -e CLAUDE.md
+        test "$(find scripts -type f | sort)" = "$(printf '%s\n' \
+          scripts/cloud_corpus_r6_paid_source_normalized_snapshot_v1.sh \
+          scripts/run_corpus_r6_matchup_seven_pack_capture_v1.py \
+          scripts/run_corpus_r6_paid_source_normalized_snapshot_v1.py | sort)"
+        ln -s /usr/local/bin/python3.14 /usr/local/bin/python3.11
+        pip install --no-cache-dir --no-deps --editable .
+        pip install --no-cache-dir 'pytest==9.1.1' 'PyYAML==6.0.3'
+        bash -n scripts/cloud_corpus_r6_paid_source_normalized_snapshot_v1.sh
+        PYTHONDONTWRITEBYTECODE=1 python -m py_compile \
+          src/nfl_dfs/research/corpus_r6_paid_source_normalized_snapshot_v1.py \
+          scripts/run_corpus_r6_paid_source_normalized_snapshot_v1.py
+        PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -m pytest -q -o addopts='' \
+          tests/test_corpus_r6_paid_source_normalized_snapshot_v1.py \
+          tests/test_run_corpus_r6_paid_source_normalized_snapshot_v1.py \
+          tests/test_cloud_corpus_r6_paid_source_normalized_snapshot_v1.py
+        for command in build-request validate task0 publish reopen; do
+          /usr/local/bin/python3.11 -I \
+            scripts/run_corpus_r6_paid_source_normalized_snapshot_v1.py \
+            "$${command}" --help >/dev/null
+        done
+        bash scripts/cloud_corpus_r6_paid_source_normalized_snapshot_v1.sh \
+          container-help >/dev/null
+
+  - id: build-paid-source-normalized-snapshot-image
+    name: gcr.io/cloud-builders/docker
+    dir: release
+    args:
+      - build
+      - --pull
+      - --file
+      - Dockerfile.corpus-r6-paid-source-normalized-snapshot
+      - --build-arg
+      - 'SOURCE_COMMIT_SHA=${_CODE_SHA}'
+      - --build-arg
+      - 'SNAPSHOT_MODULE_SHA256=${_MODULE_SHA}'
+      - -t
+      - '${_BUILD_IMAGE}'
+      - .
+
+  - id: isolated-paid-source-normalized-snapshot-runtime-smoke
+    name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        docker run --rm --network none \
+          -e EXPECTED_SOURCE_COMMIT='${_CODE_SHA}' \
+          -e EXPECTED_MODULE_SHA='${_MODULE_SHA}' '${_BUILD_IMAGE}' \
+          /usr/local/bin/python3.11 -I -c \
+          'import hashlib,os,pathlib; assert os.environ["IMAGE_SOURCE_COMMIT_SHA"] == os.environ["EXPECTED_SOURCE_COMMIT"]; p=pathlib.Path("/app/src/nfl_dfs/research/corpus_r6_paid_source_normalized_snapshot_v1.py"); assert hashlib.sha256(p.read_bytes()).hexdigest() == os.environ["EXPECTED_MODULE_SHA"] == os.environ["R6_PAID_SOURCE_NORMALIZED_SNAPSHOT_MODULE_SHA256"]'
+        docker run --rm --network none '${_BUILD_IMAGE}' \
+          /bin/bash /app/scripts/cloud_corpus_r6_paid_source_normalized_snapshot_v1.sh \
+          container-help >/dev/null
+
+images:
+  - '${_BUILD_IMAGE}'
+
+substitutions:
+  _BUILD_IMAGE: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:paid-source-normalized-snapshot-unknown
+  _CODE_SHA: unknown
+  _MODULE_SHA: unknown

@@ -1,0 +1,129 @@
+# Immutable build gate for Experiment 4: fixed-corpus A250/A500 admission.
+# The build sees source and tests only; no historical outcome object is read.
+timeout: 3600s
+
+options:
+  logging: LEGACY
+  machineType: E2_HIGHCPU_8
+
+steps:
+  - id: prepare-broad-admission-release-context
+    name: python:3.14.4-slim
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        printf '%s' '${_CODE_SHA}' | grep -Eq '^[0-9a-f]{40}$'
+        case '${_BUILD_IMAGE}' in
+          *:broad-admission-'${_CODE_SHA}') ;;
+          *) echo 'build image tag must bind the full source commit' >&2; exit 2 ;;
+        esac
+        test ! -e release
+        mkdir release
+        cp -a --parents \
+          Dockerfile.corpus-r6-broad-admission \
+          Dockerfile.corpus-r6-broad-admission.dockerignore \
+          cloudbuild.corpus-r6-broad-admission.yaml \
+          pyproject.toml README.md src \
+          scripts/cloud_corpus_r6_broad_admission_tournament_v1.sh \
+          scripts/run_corpus_r6_broad_admission_tournament_v1.py \
+          scripts/run_corpus_r6_combined_frontier_reportfolio_v1.py \
+          scripts/run_corpus_r6_combined_population_all_block_v1.py \
+          scripts/run_corpus_r6_hard230_selector_bridge_v1.py \
+          scripts/run_corpus_r6_construction_allocation_grade_v1.py \
+          tests/conftest.py \
+          tests/test_corpus_r6_broad_admission_tournament_v1.py \
+          tests/test_corpus_r6_broad_admission_program_v1.py \
+          tests/test_run_corpus_r6_broad_admission_tournament_v1.py \
+          tests/test_cloud_corpus_r6_broad_admission_tournament_v1.py \
+          release/
+        printf '%s\n' '${_CODE_SHA}' >release/SOURCE_COMMIT
+        test ! -e release/.git
+        test ! -e release/reports
+        test ! -e release/sql
+        test ! -e release/HANDOFF.md
+        test ! -e release/CLAUDE.md
+
+  - id: focused-broad-admission-release-tests
+    name: python:3.14.4-slim
+    dir: release
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        test "$(cat SOURCE_COMMIT)" = '${_CODE_SHA}'
+        test ! -e .git
+        test ! -e reports
+        test ! -e sql
+        test ! -e HANDOFF.md
+        test ! -e CLAUDE.md
+        test "$(find scripts -type f | sort)" = "$(printf '%s\n' \
+          scripts/cloud_corpus_r6_broad_admission_tournament_v1.sh \
+          scripts/run_corpus_r6_broad_admission_tournament_v1.py \
+          scripts/run_corpus_r6_combined_frontier_reportfolio_v1.py \
+          scripts/run_corpus_r6_combined_population_all_block_v1.py \
+          scripts/run_corpus_r6_construction_allocation_grade_v1.py \
+          scripts/run_corpus_r6_hard230_selector_bridge_v1.py | sort)"
+        apt-get update
+        apt-get install -y --no-install-recommends git jq libgomp1
+        ln -s /usr/local/bin/python3.14 /usr/local/bin/python3.11
+        pip install --no-cache-dir 'numpy==2.5.1' 'scipy==1.18.0'
+        pip install --no-cache-dir --editable '.[gcp,dev]'
+        bash -n scripts/cloud_corpus_r6_broad_admission_tournament_v1.sh
+        PYTHONDONTWRITEBYTECODE=1 python -m py_compile \
+          src/nfl_dfs/research/corpus_r6_broad_admission_tournament_v1.py \
+          src/nfl_dfs/research/corpus_r6_broad_admission_program_v1.py \
+          scripts/run_corpus_r6_broad_admission_tournament_v1.py
+        PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -m pytest -q -o addopts='' \
+          tests/test_corpus_r6_broad_admission_tournament_v1.py \
+          tests/test_corpus_r6_broad_admission_program_v1.py \
+          tests/test_run_corpus_r6_broad_admission_tournament_v1.py \
+          tests/test_cloud_corpus_r6_broad_admission_tournament_v1.py
+        for command in prepare task collect reopen grade grade-reopen; do
+          /usr/local/bin/python3.11 -I \
+            scripts/run_corpus_r6_broad_admission_tournament_v1.py \
+            "$${command}" --help >/dev/null
+        done
+        bash scripts/cloud_corpus_r6_broad_admission_tournament_v1.sh \
+          container-help >/dev/null
+
+  - id: build-broad-admission-image
+    name: gcr.io/cloud-builders/docker
+    dir: release
+    args:
+      - build
+      - --pull
+      - --file
+      - Dockerfile.corpus-r6-broad-admission
+      - --build-arg
+      - 'SOURCE_COMMIT_SHA=${_CODE_SHA}'
+      - -t
+      - '${_BUILD_IMAGE}'
+      - .
+
+  - id: isolated-broad-admission-runtime-smoke
+    name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        docker run --rm --network none \
+          -e EXPECTED_SOURCE_COMMIT='${_CODE_SHA}' '${_BUILD_IMAGE}' \
+          /usr/local/bin/python3.11 -I -c \
+          'import os; assert os.environ["IMAGE_SOURCE_COMMIT_SHA"] == os.environ["EXPECTED_SOURCE_COMMIT"]'
+        docker run --rm --network none '${_BUILD_IMAGE}' \
+          /bin/bash /app/scripts/cloud_corpus_r6_broad_admission_tournament_v1.sh \
+          container-help >/dev/null
+        for command in prepare task collect reopen grade grade-reopen; do
+          docker run --rm --network none '${_BUILD_IMAGE}' \
+            /usr/local/bin/python3.11 -I \
+            /app/scripts/run_corpus_r6_broad_admission_tournament_v1.py \
+            "$${command}" --help >/dev/null
+        done
+
+images:
+  - '${_BUILD_IMAGE}'
+
+substitutions:
+  _BUILD_IMAGE: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:broad-admission-unknown
+  _CODE_SHA: unknown

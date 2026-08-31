@@ -42,6 +42,9 @@ PRODUCER_INPUT_BUNDLE_SCHEMA: Final = source.PRODUCER_INPUT_BUNDLE_SCHEMA
 OFFLINE_PANEL_RESULT_SCHEMA: Final = (
     "corpus-r6-matchup-offline-component-panel/v1"
 )
+ONE_TASK_RESULT_SCHEMA: Final = (
+    "corpus-r6-matchup-component-one-task-result/v1"
+)
 FIXED_G0_REPLAY_SCHEMA: Final = (
     "corpus-r6-player-catalog-fixed-g0-replay/v1"
 )
@@ -3942,12 +3945,270 @@ def produce_all_54_component_panel_v1(
     return _with_self_hash(body, field="offline_panel_result_sha256")
 
 
+def produce_one_component_task_v1(
+    *,
+    source_task_ordinal: int,
+    producer_id: str,
+    producer_namespace: str,
+    fixed_g0_replay_receipt: Mapping[str, object],
+    fixed_g0_replay_receipt_identity: Mapping[str, object],
+    catalog_release: Mapping[str, object],
+    catalog_release_identity: Mapping[str, object],
+    structural_catalogs: Sequence[Mapping[str, object]],
+    accepted_candidate_release: Mapping[str, object],
+    accepted_candidate_release_identity: Mapping[str, object],
+    upstream_source_release: Mapping[str, object],
+    upstream_source_release_identity: Mapping[str, object],
+    upstream_pack_row_objects: Sequence[Mapping[str, object]],
+    producer_code_identity: Mapping[str, object],
+    body_materializer: BodyMaterializer,
+    read_exact: ExactReader,
+) -> dict[str, object]:
+    """Materialize exactly one component bundle and receipt.
+
+    This is the bounded task-0 gate for the complete producer.  It validates
+    the same 54-slate candidate/catalog predecessor lattice as the full
+    producer but executes the semantic and deletion reducers for only the
+    requested ordinal.  The returned bundle and receipt use the exact same
+    builders, validators, URIs, and create-once/exact-reopen path as the full
+    panel.  No producer-release root is minted here; the task-0 controller
+    binds these two leaves in its own explicitly non-authoritative one-task
+    root before exercising the source operator.
+    """
+    if type(source_task_ordinal) is not int or not (
+        0 <= source_task_ordinal < source.TASK_COUNT
+    ):
+        _fail("one-task component ordinal must be in 0..53")
+    if not callable(body_materializer) or not callable(read_exact):
+        _fail("one-task component requires materializer and exact reader")
+    normalized_producer_id = _identifier(producer_id, label="producer ID")
+    producer_prefix = _namespace(
+        producer_namespace, label="producer namespace"
+    )
+    candidate_release = source.validate_accepted_candidate_release_v1(
+        accepted_candidate_release
+    )
+    candidate_release_identity = _bind_body(
+        candidate_release,
+        accepted_candidate_release_identity,
+        label="accepted candidate release identity",
+    )
+    candidate_prefix = _namespace(
+        candidate_release["namespace"], label="candidate namespace"
+    )
+    if candidate_release_identity["uri"] != (
+        f"{candidate_prefix}accepted-candidate-release.json"
+    ):
+        _fail("accepted candidate release URI differs from its namespace")
+    if (
+        producer_prefix == candidate_prefix
+        or producer_prefix.startswith(candidate_prefix)
+        or candidate_prefix.startswith(producer_prefix)
+    ):
+        _fail("producer and candidate namespaces must be disjoint")
+    release, release_identity, catalogs, catalog_identities = (
+        _validated_catalog_panel(
+            catalog_release=catalog_release,
+            catalog_release_identity=catalog_release_identity,
+            structural_catalogs=structural_catalogs,
+        )
+    )
+    replay_receipt, replay_identity = _validate_fixed_g0_replay(
+        replay_receipt=fixed_g0_replay_receipt,
+        replay_receipt_identity=fixed_g0_replay_receipt_identity,
+        catalog_release=release,
+        catalog_release_identity=release_identity,
+    )
+    _validate_candidate_panel_against_catalogs(
+        candidate_release=candidate_release,
+        candidate_namespace=candidate_prefix,
+        catalogs=catalogs,
+        catalog_identities=catalog_identities,
+    )
+    upstream = source.validate_upstream_release_v1(
+        upstream_source_release,
+        pack_row_objects=upstream_pack_row_objects,
+    )
+    upstream_identity = _bind_body(
+        upstream,
+        upstream_source_release_identity,
+        label="upstream source release identity",
+    )
+    if upstream_identity["uri"] != f"{upstream['namespace']}upstream-release.json":
+        _fail("upstream source release URI differs from its namespace")
+    code = source.normalize_code_identity_v2(
+        producer_code_identity,
+        expected_module_path=PRODUCER_MODULE_PATH,
+        label="component producer code",
+    )
+    ordinal = source_task_ordinal
+    catalog = catalogs[ordinal]
+    full_slices = _pack_slices(upstream_pack_row_objects)
+    full_semantic, deleted_semantic, deleted_body, deletion = _deletion_replay(
+        catalog=catalog,
+        pack_row_objects=upstream_pack_row_objects,
+        full_slices=full_slices,
+    )
+    full_artifacts = _derive_component_bundle_candidate(
+        producer_id=normalized_producer_id,
+        producer_namespace=producer_prefix,
+        catalog=catalog,
+        catalog_identity=catalog_identities[ordinal],
+        catalog_release_identity=release_identity,
+        catalog_replay_receipt_identity=replay_identity,
+        accepted_candidate_release=candidate_release,
+        accepted_candidate_release_identity=candidate_release_identity,
+        upstream_source_release=upstream,
+        upstream_pack_row_objects=upstream_pack_row_objects,
+        upstream_source_release_identity=upstream_identity,
+        semantic=full_semantic,
+        slices=full_slices,
+        identity_lookup=None,
+        body_materializer=body_materializer,
+        read_exact=read_exact,
+    )
+    deleted_artifacts = _derive_component_bundle_candidate(
+        producer_id=normalized_producer_id,
+        producer_namespace=producer_prefix,
+        catalog=catalog,
+        catalog_identity=catalog_identities[ordinal],
+        catalog_release_identity=release_identity,
+        catalog_replay_receipt_identity=replay_identity,
+        accepted_candidate_release=candidate_release,
+        accepted_candidate_release_identity=candidate_release_identity,
+        upstream_source_release=upstream,
+        upstream_pack_row_objects=upstream_pack_row_objects,
+        upstream_source_release_identity=upstream_identity,
+        semantic=deleted_semantic,
+        slices=_slices_from_deleted_body(deleted_body),
+        identity_lookup=None,
+        body_materializer=body_materializer,
+        read_exact=read_exact,
+    )
+    bundle = full_artifacts["input_bundle"]
+    deleted_bundle = deleted_artifacts["input_bundle"]
+    if source.canonical_json_bytes(bundle) != source.canonical_json_bytes(
+        deleted_bundle
+    ):
+        _fail("target-or-later deletion changes the complete producer bundle")
+    slate_id = str(catalog["slate"]["slate_id"])
+    bundle_uri = (
+        f"{producer_prefix}source-task-{ordinal:02d}-{slate_id}/"
+        "producer/component-input-bundle.json"
+    )
+    bundle_identity = _identity_for_body(
+        body=bundle,
+        uri=bundle_uri,
+        identity_lookup=None,
+        body_materializer=body_materializer,
+        read_exact=read_exact,
+        label=f"component input bundle {ordinal}",
+    )
+    validate_component_input_bundle_v1(
+        bundle,
+        expected_catalog=catalog,
+        expected_identity=bundle_identity,
+    )
+    deletion_proof = source.build_target_or_later_deletion_proof_v1(
+        source_task_ordinal=ordinal,
+        target_period={
+            "season": catalog["slate"]["season"],
+            "week": catalog["slate"]["week"],
+        },
+        full_input_sha256=deletion["full_input_sha256"],
+        deleted_input_sha256=deletion["deleted_input_sha256"],
+        full_input_row_count=deletion["full_input_row_count"],
+        deleted_input_row_count=deletion["deleted_input_row_count"],
+        deleted_row_count=deletion["deleted_row_count"],
+        deleted_rows_sha256=deletion["deleted_rows_sha256"],
+        deleted_row_counts_by_pack=deletion["deleted_row_counts_by_pack"],
+        deleted_row_counts_by_slice=deletion["deleted_row_counts_by_slice"],
+        full_output_sha256=bundle_identity["sha256"],
+        deleted_output_sha256=bundle_identity["sha256"],
+    )
+    receipt = source.build_component_producer_receipt_v1(
+        producer_id=normalized_producer_id,
+        structural_catalog=catalog,
+        catalog_identity=catalog_identities[ordinal],
+        catalog_release=release,
+        catalog_release_identity=release_identity,
+        catalog_replay_receipt_identity=replay_identity,
+        accepted_candidate_release=candidate_release,
+        accepted_candidate_release_identity=candidate_release_identity,
+        upstream_source_release=upstream,
+        upstream_pack_row_objects=upstream_pack_row_objects,
+        upstream_source_release_identity=upstream_identity,
+        producer_code_identity=code,
+        target_spine=full_artifacts["target_spine"],
+        role_entries=full_artifacts["role_entries"],
+        annotation_row_count=len(full_artifacts["annotation_rows"]),
+        annotation_rows_sha256=source.canonical_sha256(
+            full_artifacts["annotation_rows"]
+        ),
+        input_bundle=bundle,
+        input_bundle_identity=bundle_identity,
+        target_or_later_deletion_proof=deletion_proof,
+        qb_depth_census=full_artifacts["qb_depth_census"],
+        admission_support_census=full_artifacts["admission_support_census"],
+    )
+    receipt_uri = (
+        f"{producer_prefix}source-task-{ordinal:02d}-{slate_id}/"
+        "producer/component-producer-receipt.json"
+    )
+    receipt_identity = _identity_for_body(
+        body=receipt,
+        uri=receipt_uri,
+        identity_lookup=None,
+        body_materializer=body_materializer,
+        read_exact=read_exact,
+        label=f"component producer receipt {ordinal}",
+    )
+    source.validate_component_producer_receipt_v1(
+        receipt,
+        structural_catalog=catalog,
+        catalog_release=release,
+        accepted_candidate_release=candidate_release,
+        upstream_source_release=upstream,
+        upstream_pack_row_objects=upstream_pack_row_objects,
+        input_bundle=bundle,
+        expected_catalog_release_identity=release_identity,
+        expected_catalog_replay_receipt_identity=replay_identity,
+        expected_candidate_release_identity=candidate_release_identity,
+        expected_upstream_source_release_identity=upstream_identity,
+        expected_producer_code_identity=code,
+    )
+    body: dict[str, object] = {
+        "schema_version": ONE_TASK_RESULT_SCHEMA,
+        "source_task_ordinal": ordinal,
+        "task_id": catalog["task_id"],
+        "slate": catalog["slate"],
+        "producer_id": normalized_producer_id,
+        "producer_namespace": producer_prefix,
+        "fixed_g0_replay_receipt_identity": replay_identity,
+        "catalog_release_identity": release_identity,
+        "catalog_identity": catalog_identities[ordinal],
+        "accepted_candidate_release_identity": candidate_release_identity,
+        "upstream_source_release_identity": upstream_identity,
+        "producer_code_identity": code,
+        "input_bundle": bundle,
+        "input_bundle_identity": bundle_identity,
+        "producer_receipt": receipt,
+        "producer_receipt_identity": receipt_identity,
+        "target_or_later_deletion_proof": deletion_proof,
+        "support_preflight_passed": receipt["support_preflight_passed"],
+        **_policy(),
+    }
+    return _with_self_hash(body, field="one_task_result_sha256")
+
+
 __all__ = [
     "CorpusR6MatchupComponentProducerV1Error",
     "FIXED_G0_REPLAY_SCHEMA",
+    "ONE_TASK_RESULT_SCHEMA",
     "OFFLINE_PANEL_RESULT_SCHEMA",
     "PRODUCER_INPUT_BUNDLE_SCHEMA",
     "build_component_input_bundle_v1",
     "produce_all_54_component_panel_v1",
+    "produce_one_component_task_v1",
     "validate_component_input_bundle_v1",
 ]

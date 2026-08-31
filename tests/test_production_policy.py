@@ -35,16 +35,19 @@ def test_contest_entry_policy_rejects_book_beyond_limit(limit, entries):
         contest_entry_policy(limit, entries, 1.0)
 
 
-def test_adopted_policy_is_the_promoted_true80_position_calibrated_book():
+def test_adopted_policy_is_the_week1_boom_first_position_calibrated_book():
     p = ADOPTED_CLASSIC_POLICY
-    assert p.policy_id == "classic-k1-role12-boom40-poscal-cbwu-v4"
+    assert p.policy_id == "classic-k1-role12-lev40-boom160-poscal-cbwu-v5"
     assert p.source_panel == (
         "20260813-multiseed-candidate-world-v1")
     assert (p.model_variant, p.model_ensemble) == ("tail_k1", 1)
     assert p.role_model_variant == "tail_k1_role"
     assert (p.default_entries, p.tail_line) == (80, 194.0)
-    assert (p.n_ce, p.n_role, p.n_boom, p.min_lineup_salary) == (
-        0, 12, 40, 49_000)
+    assert (
+        p.n_ce, p.n_role, p.n_leverage, p.n_boom, p.min_lineup_salary
+    ) == (0, 12, 40, 160, 49_000)
+    assert (p.incumbent_n_leverage, p.incumbent_n_boom) == (160, 40)
+    assert p.role_outage_fallback_allowed is False
     assert p.blend_model_weight == 0.45
     assert p.served_position_scales == (
         "QB:0.970,RB:1.005,TE:0.940,WR:1.070")
@@ -80,8 +83,11 @@ def test_policy_overwrites_research_levers_without_mutating_base():
     assert env["MIN_LOWOWN"] == "0"
     assert "SIS_ASOE_TARGET_ALLOCATION" not in env
     assert env["MODEL_ENSEMBLE"] == "1"
-    assert (env["N_CE"], env["N_EPISTEMIC"], env["N_BOOM"]) == (
-        "0", "12", "40")
+    assert (
+        env["N_CE"], env["N_EPISTEMIC"], env["N_LEV"], env["N_BOOM"]
+    ) == ("0", "12", "40", "160")
+    assert env["GEN_TOTAL_BUDGET"] == "172"
+    assert env["BOOM_UNIQUE_FILL"] == "0"
     assert env["EPISTEMIC_FAMILY"] == "role_draws"
     assert env["ROLE_BELIEF_SEED"] == "7331"
     assert env["SELECT_LSE"] == "0"
@@ -149,7 +155,7 @@ def test_ladder_is_explicitly_off_in_money_policy_and_forbidden_on_app():
     assert "SELECT_LADDER" in APP_FORBIDDEN
     for key in ("OPEN_BOOM_SOLVES", "SINGLE_STACK_BOOM_SOLVES", "N_LEV"):
         if key == "N_LEV":
-            assert key not in env
+            assert env[key] == "40"
         else:
             assert env[key] == "0"
         assert key in APP_FORBIDDEN
@@ -158,12 +164,12 @@ def test_ladder_is_explicitly_off_in_money_policy_and_forbidden_on_app():
 def test_public_identity_exposes_fixed_budget_five_by_five_contract():
     identity = ADOPTED_CLASSIC_POLICY.public_identity(entries=40)
     assert identity["portfolio_allocation"] == {
-        "leverage": 160,
+        "leverage": 40,
         "ce": 0,
         "role": 12,
-        "boom": 40,
+        "boom": 160,
         "core_lev_boom": 200,
-        "total_generation_solves": 52,
+        "total_generation_solves": 172,
         "total_generation_solves_scope": "ce-role-boom-legacy",
         "nominal_requested_before_retries": 266,
         "nominal_requested_per_native_search": 266,
@@ -200,3 +206,4 @@ def test_public_identity_exposes_fixed_budget_five_by_five_contract():
     assert receipt["sha256"] == hashlib.sha256(json.dumps(
         receipt["values"], sort_keys=True, separators=(",", ":"),
     ).encode()).hexdigest()
+    assert identity["role_outage_fallback_allowed"] is False

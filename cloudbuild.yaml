@@ -136,6 +136,8 @@ steps:
           bash -n scripts/watch_lr8_full_source_shards_queue.sh
         docker run --rm "$$IMG" \
           python scripts/run_lr8_label_score_map.py --help >/dev/null
+        docker run --rm "$$IMG" \
+          python scripts/publish_week1_operating_book.py --help >/dev/null
 images:
   - '${_IMAGE}'
 substitutions:

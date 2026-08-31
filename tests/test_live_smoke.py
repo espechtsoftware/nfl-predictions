@@ -10,6 +10,123 @@ import pandas as pd
 import pytest
 
 
+def test_props_first_market_keeps_per_player_dk_ppg_fallback():
+    from nfl_dfs.inference.run_projections import (
+        _props_first_market_with_dk_fallback,
+    )
+
+    fallback = np.array([10.0, 20.0, 30.0, 40.0, 50.0])
+    props = np.array([101.0, np.nan, 303.0, np.nan, np.nan])
+
+    market, prop_mask = _props_first_market_with_dk_fallback(
+        fallback, props,
+    )
+
+    assert market == pytest.approx([101.0, 20.0, 303.0, 40.0, 50.0])
+    assert prop_mask.tolist() == [True, False, True, False, False]
+
+
+def test_props_first_market_uses_full_dk_ppg_below_coverage_gate():
+    from nfl_dfs.inference.run_projections import (
+        _props_first_market_with_dk_fallback,
+    )
+
+    fallback = np.array([10.0, 20.0, 30.0, 40.0, 50.0])
+    props = np.array([101.0, np.nan, np.nan, np.nan, np.nan])
+
+    market, prop_mask = _props_first_market_with_dk_fallback(
+        fallback, props,
+    )
+
+    assert market == pytest.approx(fallback)
+    assert not prop_mask.any()
+
+
+def test_projection_accepts_none_policy_env_and_uses_dk_ppg(monkeypatch):
+    from types import SimpleNamespace
+
+    from nfl_dfs import notes
+    from nfl_dfs.inference import run_projections
+    from nfl_dfs.models import prop_market
+
+    feats = pd.DataFrame({
+        "gsis_id": ["p1", "p2"],
+        "display_name": ["One", "Two"],
+        "position": ["WR", "RB"],
+        "team": ["A", "B"],
+        "opponent": ["B", "A"],
+        "salary": [6_000, 5_000],
+        "dk_player_id": [1, 2],
+        "dk_ppg": [20.0, 8.0],
+    })
+    summary = pd.DataFrame({
+        "proj_points": [10.0, 12.0],
+        "proj_p10": [5.0, 6.0],
+        "proj_p50": [10.0, 12.0],
+        "proj_p90": [20.0, 22.0],
+        "proj_std": [4.0, 5.0],
+        "p_20_plus": [0.2, 0.3],
+    })
+    seen: dict[str, object] = {}
+
+    class FakeModel:
+        def predict_components(self, frame):
+            assert frame.gsis_id.tolist() == ["p1", "p2"]
+            return object()
+
+    monkeypatch.setattr(
+        run_projections.coldstart,
+        "fill_cold_start_features",
+        lambda frame: frame.copy(),
+    )
+    monkeypatch.setattr(
+        run_projections.coldstart,
+        "widen_cold_start_quantiles",
+        lambda frame, _flags: frame,
+    )
+    monkeypatch.setattr(notes, "apply_notes", lambda comps, *args: comps)
+
+    def fake_simulate(comps, **kwargs):
+        seen["env"] = kwargs.get("env")
+        return SimpleNamespace(summary=summary.copy())
+
+    monkeypatch.setattr(run_projections.simulate, "simulate", fake_simulate)
+    monkeypatch.setattr(
+        run_projections.calibration,
+        "apply_widen",
+        lambda frame, _positions: frame.copy(),
+    )
+    monkeypatch.setattr(
+        prop_market,
+        "market_points",
+        lambda _seasons: pd.DataFrame(
+            columns=["season", "week", "gsis_id", "market_points"]
+        ),
+    )
+    monkeypatch.setattr(
+        run_projections.cascade_adjust,
+        "zero_out_projections",
+        lambda frame, _out_ids: frame,
+    )
+    monkeypatch.delenv("BLEND_MODEL_WEIGHT", raising=False)
+
+    out = run_projections.project(
+        feats,
+        FakeModel(),
+        "test-model",
+        2026,
+        1,
+        n_sims=10,
+        policy_env=None,
+    )
+
+    assert seen["env"] is None
+    assert out.proj_points.to_numpy() == pytest.approx([
+        0.45 * 10.0 + 0.55 * 20.0,
+        0.45 * 12.0 + 0.55 * 8.0,
+    ])
+
+
 @pytest.fixture()
 def live_slate(panel):
     season = int(panel.season.max())

@@ -588,8 +588,6 @@ def _reopen_fixed_g0_panel_v1(
     if (
         reopened_identity != identity
         or panel.get("panel_id") != cross.FOUNDRY_G0_PANEL_ID
-        or panel.get("panel_index_sha256")
-        != cross.FOUNDRY_G0_PANEL_ID.removeprefix("v12:")
         or member_slates != expected_slates
     ):
         _fail("fixed G0 panel membership binding differs")

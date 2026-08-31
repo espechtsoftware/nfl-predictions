@@ -151,6 +151,17 @@ This is retrieval-only. Candidate IDs and world matrices must be byte-identical
 in every cell, so candidate turnover is zero by construction. Recompute raw
 annotations, component eligibility/support, percentiles, edge scores,
 admission, and fixed coverage-194 K80 retrieval independently in each cell.
+The exact selector bank is the incumbent retrieval engine's discovery bank:
+R0--R3 in that order, 10,000 worlds per block (40,000 columns total); R4 is
+held out and must not enter the selector.  Every per-slate matrix authority
+must bind the exact candidate artifact and candidate order, the four
+generation-pinned R0--R3 source artifacts, block order and worlds-per-block in
+addition to the matrix bytes.  An opaque matrix identity or an R0-only/all-five
+shortcut does not execute the frozen `coverage-194-v1` law.  Matrix construction
+must also reproduce the production crossed scorer's numerical law exactly:
+sum each nine-player roster with `dtype=float64` and persist the candidate by
+40,000-world matrix as C-contiguous float64.  The float32 source-player draws
+do not license float32 lineup accumulation or storage.
 
 Remove each vendor's raw slices before component calculation and exercise the
 real missing-source fallback. Never zero already-ranked values or drop columns
@@ -185,19 +196,134 @@ source-value confirmation requires 2026 prelock manifests. The weekly process
 also needs a bounded recurring SIS capture plan; current default behavior only
 preflights the SIS session and makes zero SIS data queries.
 
+## D. Broad-corpus admission tournament
+
+### Corrected estimand and ownership
+
+Production owns this experiment because the exact current R6 candidate corpus
+and its source memberships are not available in the lab frame. The target is
+**retention from one fixed corpus at one fixed admission budget**, not recovery
+of the 17.361-point gap between the 205.793 hindsight-union oracle and the
+188.432 top-250 oracle. The full-corpus number is a maximum over a larger,
+multi-run union and rises partly through multiplicity. It is the denominator
+and diagnostic ceiling, never a promise or a training target.
+
+Use the exact immutable 54-slate combined R6 population already graded in the
+score sprint. No arm may add a candidate, regenerate a world, change a source
+population, or receive a different candidate count. Run both exact admission
+budgets A250 and A500 and retain every loser.
+
+### Three fixed admissions
+
+1. **Modeled-tail reference.** Extend the existing strict
+   230/220/210/200/mean lexicographic sieve from its exact A250 implementation
+   to both A250 and A500 without changing the ordering law.
+2. **Quota/disagreement union.** Reserve deterministic source-population and
+   source-exclusive slots, multi-source consensus slots, and distinct
+   source/detail disagreement slots. Fill unused quota only by the frozen
+   modeled-tail reference order. The quota law must census availability and
+   freeze its apportionment before any outcome label is opened; it may not use
+   source historical success to size a quota.
+3. **Direct admission ranker.** Fit one small, regularized and inspectable
+   grouped ranker on prior seasons only. Inputs may include frozen modeled
+   threshold counts/ranks, mean and dispersion, source membership and
+   occurrence counts, law/source disagreement, and score-free construction
+   descriptors. Training uses same-slate hard negatives. It may not use a
+   held-out slate's outcome, winner membership, corpus-oracle membership, or
+   post-lock feature.
+
+The first production implementation should be a regularized linear pairwise
+or listwise ranker rather than a new service or large model. Complexity earns
+a follow-up only if this fixed-corpus test demonstrates admission lift.
+
+The frozen quota allocation is 4% exclusive per source, then 4% inclusive per
+source, 10% multi-source consensus, 10% greedy novel `(source, detail)`
+coverage and modeled-tail fill. Each stratum records requested, eligible,
+available after prior strata, delivered and shortfall counts. These percentages
+are fixed from the admission budget and never from realized source success.
+
+For endpoint 3, freeze an exact-total-budget blend before outcomes: take the
+first A/2 reference candidates, then scan the challenger's frozen order until
+A/2 candidates not already selected have been added. Both budgets are even,
+so the result is exact A250 or A500; overlap merely makes the challenger scan
+deeper and never expands the candidate count. Compare that blend's realized
+maximum with the same-budget reference. Do not report the unconstrained union
+of two A-sized admissions as a fixed-budget result.
+
+### Time split, endpoints and interpretation
+
+Use strict walk-forward outer seasons. The learned arm has no efficacy claim
+on the 2023 cold start; 2024 may fit 2023 only, and 2025 may fit 2023--2024
+with any threshold or hyperparameter choice made inside that past-only
+boundary. The quota and modeled-tail arms run unchanged on all 54 slates.
+Freeze the complete outcome-blind feature/admission inputs before fitting or
+grading.
+
+The v1 direct ranker gives every training slate the same aggregate sample
+weight, assigns tied realized scores the same within-slate percentile, binds
+an ordered ledger of score-free freeze and outcome identities, and includes
+the normalized modeled-tail reference rank. This prevents larger candidate
+corpora from silently receiving more training authority and makes input-order
+replay exact.
+
+The three primary endpoints, reported separately at A250 and A500, are:
+
+1. mean and slate-paired distribution of the admitted realized maximum,
+   together with retention relative to that same slate's fixed-corpus maximum;
+2. retained 194/200/210/220/230/240 candidates and slate coverage; and
+3. incremental union maximum when each challenger is added to the reference
+   at the same total admission budget.
+
+K80 selection is secondary and runs only after the admission read, on every
+frozen admission using the same selector. Do not tune the selector to rescue
+an admission arm. Report corpus size, source multiplicity and the full-corpus
+oracle beside every result so a larger-union ceiling cannot be mistaken for
+recoverable selection loss. Historical results are descriptive and can
+nominate a 2026 shadow; they cannot automatically alter the Week-1 book.
+
+### Minimal release boundary
+
+Implement one pure scientific module plus one bounded adapter to the already
+frozen combined-population artifacts, one boundary-slate smoke, and one full
+read. Reuse the existing catalog outcome snapshot for grading after all
+admissions are frozen. No new database, service, dashboard, corpus build, or
+outcome query is needed. A validity defect gets one correction pass; optional
+provenance refinements are non-blocking follow-up work.
+
+## E. Upstream paid-source consumers
+
+Production also owns the full-history plan's paid-source Experiment 5. The
+lab has neither the point-in-time Fantasy Points/SIS/Odds columns nor the R6
+consumer graph, so lab proxy fields are not evidence about vendor value.
+After the retrieval-only FP x SIS factorial, test only one upstream consumer
+at a time: Odds ladder/dispersion tail shape where immutable historical support
+exists; Fantasy Points route/alignment/coverage role states; SIS receiver/QB
+dependence; then a small frozen external-disagreement anchor dose. Every arm
+must trace changes through marginals or states, candidates, admission and the
+selected book. A null closes only that exact source-consumer pair.
+
+The historical Odds prop-override arm is currently NO-GO because the required
+point-in-time DraftKings-PPG fallback exists on 0/54 slates. That is a data-
+support disposition, not a negative result for Odds tail ladders. Capture the
+fallback and vendor snapshots prospectively rather than fabricating history.
+
 ## Sequencing and acceptance
 
 1. Keep the core five-arm generation/retrieval release unchanged.
 2. Implement the construction x allocation four-cell runner immediately; it
    is independent of the matchup seven-pack.
-3. Implement the common source-influence trace and run the outcome-blind
+3. Implement the broad-corpus admission scientific core and run its one
+   boundary-slate outcome-blind smoke while the construction crossing grades.
+4. Implement the common source-influence trace and run the outcome-blind
    Fantasy Points/SIS four-state support census in parallel.
-4. Execute the Fantasy Points/SIS retrieval ablation only after the real
+5. Execute the Fantasy Points/SIS retrieval ablation only after the real
    candidate-v2 root, seven-pack source root, component v3 publication, and
    canonical R6 source-release v3 exist.
-5. Execute the historical Odds override test only if exact historical DK-PPG
+6. Execute the historical Odds override test only if exact historical DK-PPG
    fallback authority passes; otherwise preregister the prospective test.
-6. For each lane require create-once roots, exact input identities,
+7. Start one upstream paid-source consumer only after its immutable support
+   census passes; do not bundle vendors or consumers.
+8. For each lane require create-once roots, exact input identities,
    independent reopening, no outcome read before terminal freeze, complete
    loser reporting, diagnostic-only decision status, and no automatic policy
    promotion.

@@ -44,6 +44,15 @@ PREREGISTRATION_PUBLICATION_SCHEMA: Final = (
 SEED_CROSSING_PUBLICATION_SCHEMA: Final = (
     "prospective-generation-shadow-seed-crossing-publication/v1"
 )
+SEED_CROSSING_DESIGN_PUBLICATION_SCHEMA: Final = (
+    "prospective-generation-shadow-seed-crossing-design-publication/v1"
+)
+SEED_DESIGN_AXIS_SCHEMA: Final = (
+    "prospective-generation-shadow-seed-design-axis/v1"
+)
+SEED_DESIGN_SLOT_SCHEMA: Final = (
+    "prospective-generation-shadow-seed-design-slot/v1"
+)
 PRELOCK_PUBLICATION_SCHEMA: Final = (
     "prospective-generation-shadow-prelock-publication/v1"
 )
@@ -533,6 +542,137 @@ def publish_seed_crossing_v1(
         "crossing_execution_status": "not_evaluated",
         "crossed_generation_or_scoring_outputs_semantically_verified": False,
         "create_once": True,
+        "uses_realized_outcomes": False,
+        "automatic_adoption": False,
+    }
+    return _with_hash(body, field="publication_sha256")
+
+
+def publish_seed_crossing_design_v1(
+    *,
+    store: ImmutableObjectStore,
+    source_prefix: str,
+    target_uri: str,
+    fit_seeds: Mapping[str, int],
+    world_seeds: Mapping[str, int],
+    must_precede: datetime | str,
+) -> dict[str, object]:
+    """Publish an honest, design-only 2 x 2 seed lattice and its authority.
+
+    This closes the operational input gap without pretending the crossed
+    diagnostic ran.  The eight source documents freeze two fit seeds, two
+    world seeds, and their four planned combinations.  Every document and the
+    resulting crossing continue to say ``not_evaluated`` and carry no
+    generation/scoring output.
+    """
+
+    if set(fit_seeds) != {"fit0", "fit1"}:
+        _fail("seed-crossing design requires exact fit0/fit1 slots")
+    if set(world_seeds) != {"world0", "world1"}:
+        _fail("seed-crossing design requires exact world0/world1 slots")
+    normalized: dict[str, dict[str, int]] = {"fit": {}, "world": {}}
+    for axis, values in (("fit", fit_seeds), ("world", world_seeds)):
+        for slot, raw_seed in sorted(values.items()):
+            if type(raw_seed) is not int or not 0 <= raw_seed < 2**63:
+                _fail(f"{axis}-seed {slot} must be an integer in [0, 2^63)")
+            normalized[axis][slot] = raw_seed
+        if len(set(normalized[axis].values())) != 2:
+            _fail(f"{axis}-seed design values must be distinct")
+    if len({*normalized["fit"].values(), *normalized["world"].values()}) != 4:
+        _fail("fit/world seed design values must be distinct across both axes")
+
+    prefix_probe = _prelock_uri(
+        _object_uri(source_prefix, "prefix-authority-probe.json"),
+        label="seed design source prefix",
+    )
+    prefix = prefix_probe.rsplit("/", 1)[0]
+    crossing_uri = _prelock_uri(target_uri, label="seed crossing")
+    source_uris = {
+        *(
+            _object_uri(prefix, f"axes/{slot}.json")
+            for slot in (*sorted(normalized["fit"]), *sorted(normalized["world"]))
+        ),
+        *(
+            _object_uri(prefix, f"crossed/{fit_slot}--{world_slot}.json")
+            for fit_slot in sorted(normalized["fit"])
+            for world_slot in sorted(normalized["world"])
+        ),
+    }
+    if crossing_uri in source_uris or len(source_uris) != 8:
+        _fail("seed-crossing design output URIs overlap")
+
+    fit_identities: dict[str, dict[str, object]] = {}
+    world_identities: dict[str, dict[str, object]] = {}
+    crossed_identities: dict[str, dict[str, object]] = {}
+    for axis, values, retained in (
+        ("fit", normalized["fit"], fit_identities),
+        ("world", normalized["world"], world_identities),
+    ):
+        for slot, seed in sorted(values.items()):
+            body = _with_hash({
+                "schema_version": SEED_DESIGN_AXIS_SCHEMA,
+                "axis": axis,
+                "slot_id": slot,
+                "seed": seed,
+                "design_status": "preregistered-not-evaluated",
+                "crossed_generation_or_scoring_output": False,
+                "outcome_columns_read": [],
+                "uses_realized_outcomes": False,
+                "automatic_adoption": False,
+            }, field="seed_design_artifact_sha256")
+            publication = _publish_json(
+                store,
+                uri=_object_uri(prefix, f"axes/{slot}.json"),
+                value=body,
+                label=f"{axis}-seed design {slot}",
+                must_precede=must_precede,
+            )
+            retained[slot] = publication["identity"]
+    for fit_slot, fit_seed in sorted(normalized["fit"].items()):
+        for world_slot, world_seed in sorted(normalized["world"].items()):
+            slot_id = f"{fit_slot}--{world_slot}"
+            body = _with_hash({
+                "schema_version": SEED_DESIGN_SLOT_SCHEMA,
+                "slot_id": slot_id,
+                "fit_seed_slot": fit_slot,
+                "fit_seed": fit_seed,
+                "world_seed_slot": world_slot,
+                "world_seed": world_seed,
+                "execution_status": "not_evaluated",
+                "crossed_generation_or_scoring_output": False,
+                "outcome_columns_read": [],
+                "uses_realized_outcomes": False,
+                "automatic_adoption": False,
+            }, field="seed_design_artifact_sha256")
+            publication = _publish_json(
+                store,
+                uri=_object_uri(prefix, f"crossed/{slot_id}.json"),
+                value=body,
+                label=f"crossed seed design {slot_id}",
+                must_precede=must_precede,
+            )
+            crossed_identities[slot_id] = publication["identity"]
+
+    crossing = publish_seed_crossing_v1(
+        store=store,
+        target_uri=crossing_uri,
+        fit_seed_identities=fit_identities,
+        world_seed_identities=world_identities,
+        crossed_slot_identities=crossed_identities,
+        must_precede=must_precede,
+    )
+    body = {
+        "schema_version": SEED_CROSSING_DESIGN_PUBLICATION_SCHEMA,
+        "seed_crossing_identity": crossing["seed_crossing_identity"],
+        "seed_crossing_sha256": crossing["seed_crossing_sha256"],
+        "fit_seed_identities": fit_identities,
+        "world_seed_identities": world_identities,
+        "crossed_slot_identities": crossed_identities,
+        "source_identity_count": 8,
+        "all_sources_create_once_and_exact_reopened": True,
+        "crossing_design_complete": True,
+        "crossing_execution_status": "not_evaluated",
+        "crossed_generation_or_scoring_outputs_semantically_verified": False,
         "uses_realized_outcomes": False,
         "automatic_adoption": False,
     }
@@ -1706,6 +1846,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     prereg.add_argument("--execute", action="store_true")
 
     for command in (
+        "publish-seed-crossing-design",
         "publish-seed-crossing",
         "freeze-week",
         "publish-safety-week",
@@ -1728,7 +1869,9 @@ def main(argv: Sequence[str] | None = None) -> None:
         )
     else:
         request = _json_request(args.request)
-        if args.command == "publish-seed-crossing":
+        if args.command == "publish-seed-crossing-design":
+            result = publish_seed_crossing_design_v1(store=store, **request)
+        elif args.command == "publish-seed-crossing":
             result = publish_seed_crossing_v1(store=store, **request)
         elif args.command == "freeze-week":
             result = publish_prelock_terminal_from_suite_v1(
@@ -1759,11 +1902,13 @@ __all__ = [
     "SAFETY_PUBLICATION_SCHEMA",
     "ProspectiveGenerationShadowOperatorError",
     "SEED_CROSSING_PUBLICATION_SCHEMA",
+    "SEED_CROSSING_DESIGN_PUBLICATION_SCHEMA",
     "main",
     "publish_evaluation_v1",
     "publish_postlock_week_v1",
     "publish_prelock_terminal_from_suite_v1",
     "publish_preregistration_v1",
     "publish_seed_crossing_v1",
+    "publish_seed_crossing_design_v1",
     "publish_weekly_safety_receipt_v1",
 ]

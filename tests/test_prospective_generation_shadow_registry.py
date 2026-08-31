@@ -16,8 +16,9 @@ def test_frozen_registry_validates_and_is_immutable() -> None:
         registry.FROZEN_REGISTRY["registry_id"] = "changed"  # type: ignore[index]
 
 
-def test_exact_arms_and_allocations_include_losers() -> None:
-    arms = {item["arm_id"]: item for item in registry.registry_document()["arms"]}
+def test_exact_arms_and_allocations_preserve_selected_release() -> None:
+    document = registry.registry_document()
+    arms = {item["arm_id"]: item for item in document["arms"]}
     assert list(arms) == [
         "incumbent-160-40",
         "boom-first-40-160",
@@ -38,7 +39,14 @@ def test_exact_arms_and_allocations_include_losers() -> None:
         "400-core-solves-per-block-unequal-resource"
     )
     assert arms["ceiling-all-boom-0-200"]["passed_historical_nomination"] is False
+    # ``required`` is scoped to atomic completeness of the already selected
+    # executable release.  The hierarchy below, not this legacy runtime field,
+    # defines scientific core membership.
     assert all(arm["status"] == "required" for arm in arms.values())
+    assert all(
+        arm["status_scope"] == "selected-five-arm-executable-release"
+        for arm in arms.values()
+    )
     assert all(arm["required_before_week1"] is True for arm in arms.values())
     assert [arm["scientific_status"] for arm in arms.values()] == [
         "control", "primary", "exploratory", "unequal-resource", "unpassed",
@@ -54,6 +62,72 @@ def test_exact_arms_and_allocations_include_losers() -> None:
             "ceiling-all-boom-0-200",
         )
     )
+
+
+def test_release_inventory_is_not_mislabelled_as_one_core_family() -> None:
+    document = registry.registry_document()
+    scope = document["scope"]
+    hierarchy = document["release_hierarchy"]
+    arms = {item["arm_id"]: item for item in document["arms"]}
+
+    assert scope["selected_release_emits_all_five_predeclared_arms"] is True
+    assert scope["all_five_arms_form_one_mandatory_core_family"] is False
+    assert hierarchy["selection_timing"] == "pre-outcome-capacity-decision"
+    assert hierarchy["current_terminal_is_atomic_over_selected_release_arms"] is True
+    assert (
+        hierarchy["atomic_execution_completeness_is_scientific_core_membership"]
+        is False
+    )
+    assert hierarchy["core"]["required_generation_arm_ids"] == [
+        "incumbent-160-40",
+        "boom-first-40-160",
+    ]
+    assert hierarchy["core"]["required_retrieval_crossing"] == (
+        "incumbent-and-boom-first-by-incumbent-and-cap4"
+    )
+    assert hierarchy["nominated_exploratory"][
+        "valid_only_after_outcome_free_trace_passes"
+    ] is True
+    assert hierarchy["nominated_exploratory"][
+        "blocks_core_scientific_launch"
+    ] is False
+    optional = hierarchy["optional_exploratory"]
+    assert optional["optional_at_design_selection"] is True
+    assert optional["included_in_selected_release"] is True
+    assert optional["inclusion_decided_before_outcomes"] is True
+    assert optional["historical_nomination_passed"] is False
+    assert optional["primary_authority"] is False
+    assert optional["blocks_core_scientific_launch"] is False
+    dose = hierarchy["unequal_resource_diagnostic"]
+    assert dose["separate_from_equal_budget_core"] is True
+    assert dose["multiplicity_family_id"] == "unequal-resource-boom-dose-v1"
+    assert dose["equal_compute_claim_allowed"] is False
+    assert arms["incumbent-160-40"]["core_required"] is True
+    assert arms["boom-first-40-160"]["core_required"] is True
+    assert arms["cross-law-40-100-60"]["scientific_hierarchy_status"] == (
+        "nominated-exploratory-after-trace"
+    )
+    assert arms["boom-dose-40-360"]["scientific_hierarchy_status"] == (
+        "separate-unequal-resource-diagnostic-family"
+    )
+    assert arms["ceiling-all-boom-0-200"]["scientific_hierarchy_status"] == (
+        "optional-exploratory"
+    )
+    assert arms["ceiling-all-boom-0-200"]["historical_nomination_status"] == (
+        "unpassed"
+    )
+    assert all(
+        arms[arm_id]["core_required"] is False
+        and arms[arm_id]["blocks_core_scientific_launch"] is False
+        for arm_id in (
+            "cross-law-40-100-60",
+            "boom-dose-40-360",
+            "ceiling-all-boom-0-200",
+        )
+    )
+    assert arms["ceiling-all-boom-0-200"][
+        "included_by_preoutcome_capacity_decision"
+    ] is True
 
 
 def test_exact_k_coverage_prefixes_and_thresholds() -> None:
@@ -105,8 +179,17 @@ def test_decision_horizons_are_frozen() -> None:
     assert rules["eight_week_efficacy_decision_forbidden"] is True
     assert rules["structural_horizon"] == "full-regular-season"
     assert rules["no_midstream_dose_order_selector_tuning"] is True
-    assert rules["all_five_arms_required_before_week1"] is True
-    assert rules["arm_omission_allowed"] is False
+    assert rules["all_five_arms_form_one_mandatory_core_family"] is False
+    assert rules["selected_release_emits_all_five_predeclared_arms"] is True
+    assert rules["selected_release_arm_omission_after_freeze_allowed"] is False
+    assert rules["noncore_results_block_core_interpretation"] is False
+    assert rules["frozen_hierarchy"] == [
+        "core-primary-boom-first-vs-incumbent-under-incumbent-retrieval",
+        "core-key-secondary-generation-by-retrieval-crossing",
+        "nominated-exploratory-cross-law-after-outcome-free-trace",
+        "optional-preoutcome-chosen-all-boom-boundary-exploratory",
+        "separate-unequal-resource-boom-dose-diagnostic-family",
+    ]
     roles = rules["contrast_decision_roles"]
     assert roles["boom-first-40-160"][
         "primary_efficacy_rule_satisfaction_allowed"
@@ -220,6 +303,7 @@ def test_findings_and_non_additivity_are_explicit() -> None:
     ("path", "replacement"),
     [
         (("shared_protocol", "operational_k"), 100),
+        (("release_hierarchy", "optional_exploratory", "primary_authority"), True),
         (("arms", 1, "allocation_per_block", "base_boom"), 159),
         (("decision_rules", "interim_horizon_weeks"), 7),
         ((

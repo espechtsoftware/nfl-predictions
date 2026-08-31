@@ -25,11 +25,27 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
-- **Money/sentinel policy:** unchanged.  The live reference remains the
-  adopted `classic-k1-role12-boom40-poscal-cbwu-v4` policy, incumbent named
-  construction preset, coverage-194 retrieval and exact K80.  None of the
-  work below authorizes an automatic production-policy or contest-allocation
-  change.
+- **Week-1 operating policy:** the owner adopted the lab Week-1 brief at
+  `nfl2` commit `aea89297405e20984268ad4f1899d95db383401c`.  Before Sunday
+  2026-09-13 17:00Z, the operational generator is the exact equal-solve
+  boom-first arm: 40 leverage + 160 boom, K=1, corrected mean centering,
+  market blend/props first, the named incumbent construction preset and
+  coverage-194 retrieval.  Cap-4 is excluded from the Week-1 book.  The old
+  incumbent remains an unentered reference/counterfactual, not the money-book
+  generator.  Tier-2 slot sizes are frozen 2026-08-30 at 15% all-boom
+  ceiling-ordered and 5% BX60: exact K80 counts are 64 core / 12 all-boom / 4
+  BX60; exact K100 counts are 80 / 15 / 5.  A qualifying Tier-3 method may
+  replace at most 5% of core after the 2026-08-31 amendment; it does not change
+  the fixed Tier-2 counts or expand K.  Final internal book freeze is
+  2026-09-11 17:00Z.  Paid K, contests, entry fees, bankroll and exposure caps
+  still require an explicit owner budget.  The all-boom sleeve uses the 15%
+  upper end because it is the strongest unnominated arm (+1.9, every bank and
+  season positive); BX60 uses the 5% lower end because its observed gains stop
+  at 194/200.  The current lab brief already contains the PREREG-025 / 053
+  amendment: MULTI3 was harmful and CE was null, so neither receives a Tier-3
+  slot.  Tier 3 remains empty pending the dated PREREG-026 / 054 amendment on
+  2026-08-31; no direct-generator slot may be inferred or sized before that
+  read is on file.
 - **Latest matched score evidence:** the exact 54-slate production-shaped
   boom-first replay moved selected K80 mean weekly maximum from **178.023 to
   179.279 (+1.256)**, candidate-pool ceiling from **181.500 to 184.877
@@ -46,6 +62,31 @@ and operator decisions.  The older entries remain the durable chronology.
   byte SHA-256 is `76f9676a...14233754`; the holdout is now spent. This
   confirms the lab pipeline, not production retrieval, enters no effect
   pooling and changes neither the primary arm nor the 2 x 2 retrieval test.
+- **Latest lab retrieval/cross-law reads:** `nfl2` handoff addenda 9--10 at
+  commit `9f611fb9c725d94aee6332d77ff9f237915022c4` add two decision-bearing
+  results.  PREREG-024 again finds boom-first +3.39 at K80
+  `[+1.42,+4.76]`, every bank and season positive, while cap-4 is -0.09 on
+  boom-first, +0.21 on incumbent and the interaction is -0.29
+  `[-1.75,+0.94]`.  The corrected engagement read shows cap-4 rewrote about
+  20/80 entries on both pools (59.7/80 shared with coverage on boom-first,
+  62.0/80 on incumbent; no identical books) and improved neither.  Production
+  must not presume the incumbent +2.9 cap-4 gain stacks with boom-first.
+  PREREG-023 finds BX60 +1.20 at K100,
+  all nine replicate banks non-negative, its family bound missed by 0.14,
+  gains at 194/200 and none at 210+.  Its scientific label remains not
+  confirmed incremental to boom-first; its bounded production role is the
+  fixed small diagnostic sleeve above.
+- **Corrected simulator and full-history ownership:** the lab's VX60 near-miss
+  was generated under its now-repaired, reversed home-spread hsim v0.13 law.
+  It is invalid for Tier-2 sizing and receives no production sleeve; the lab
+  separately swept production's implementation and found its spread sign
+  correct, so production takes no repair action.  The lab owns its corrected
+  hsim/direct-generator/anchor/miss-funnel lanes.  Production owns the R6
+  broad-corpus admission tournament and paid Fantasy Points/SIS/Odds consumer
+  tests because those inputs do not exist in the lab frame.  Admission is
+  evaluated as retention from one fixed corpus at exact A250/A500 budgets.
+  The reported 205.793 full-corpus maximum is a hindsight/multiplicity
+  diagnostic, not a recoverable 17-point target and never a training label.
 - **Latest evidence for the other frozen arms:** none yet has a
   production-shaped score, so none may be described as transported.  In the
   lab, cross-law improved boom-first by +2.24 at K80 on the discovery panel
@@ -71,22 +112,32 @@ and operator decisions.  The older entries remain the durable chronology.
   described as one mandatory five-arm scientific family. Role-12 and incumbent
   auxiliary families remain unchanged. Cross-law discovery worlds may propose
   candidates only; untouched base worlds select them.
-- **Core retrieval question:** the frozen incumbent and boom-first pools each
-  receive incumbent coverage-194 K80 and exact production
-  cap-4-prefix-then-fill K80 retrieval.  This is the zero-additional-solve 2 x
-  2 generation-by-retrieval test.  Cap-4 is active—it materially changes book
-  membership—but its boom-pool historical result was null, so no gain is
-  presumed.
-- **Decision clock:** Weeks 1--7 accrue.  Week 8 is operational integrity and
-  severe-harm only, never efficacy promotion.  Week 18 is the first
-  prospective efficacy estimate with slate-paired uncertainty and still
-  requires human synthesis with the historical matched result.  Reports must
+- **Core retrieval question:** the already-frozen incumbent and boom-first
+  pools each receive coverage-194 K80 and exact production
+  cap-4-prefix-then-fill K80 retrieval once.  This zero-additional-solve 2 x 2
+  remains a production transport/mechanism read and does not authorize cap-4
+  in the Week-1 book.  Cap-4 materially changed both latest lab books but
+  improved neither.  Do not open a further cap/threshold confirmation or
+  tuning cycle unless production shows
+  a large reproducible interaction with demonstrated cap engagement; the
+  roughly 5.6 boom-pool oracle points left by both selectors belong to the
+  genuinely different direct/set-selector lane.
+- **Decision clock:** scientific confirmation and operational exposure are
+  separate axes.  Weeks 1--7 accrue; the first operational sleeve summary is
+  due at Weeks 4--6.  Week 8 is operational integrity and severe-harm only,
+  never scientific efficacy promotion.  Week 18 remains the first
+  confirmatory prospective efficacy estimate with slate-paired uncertainty
+  and still requires human synthesis with the historical matched result.
+  A frozen bounded sleeve may run before that confirmation clock, but its
+  scientific label cannot change without the frozen rule.  Reports must
   include K20/K40/K80, 194/200/210/220/230/240, pool oracle/regret and the full
   2 x 2 crossing. Only boom-first versus incumbent may satisfy the primary
-  efficacy rule; cross-law, optional all-boom and the separate
-  unequal-resource dose remain diagnostic-only even when their numeric
-  criteria match, and the 2 x 2 retrieval crossing remains key-secondary
-  mechanism evidence. Noncore results do not veto or promote the core.
+  efficacy rule; cross-law, optional all-boom and the separate unequal-resource
+  dose remain ineligible for that primary scientific claim even when their
+  numeric criteria match.  That classification is not a veto on the frozen
+  bounded Tier-2 sleeves.  The 2 x 2 retrieval crossing remains key-secondary
+  mechanism evidence. Noncore results do not veto or scientifically promote
+  the core.
 - **Structural synthesis:** preregistration binds the exact already-read
   54-slate grade (generation `1788045886595896`, byte SHA-256
   `3d92cd0b...b0bff23c`) and its rational selected/oracle/regret metrics. A
@@ -108,6 +159,17 @@ and operator decisions.  The older entries remain the durable chronology.
   missingness, served-feature/marginal changes, candidate turnover and
   selected-book turnover. These lanes remain required follow-on work; they
   must not delay freezing the decision-bearing generation/retrieval pair.
+- **Historical Odds prop-override disposition:** the 2026-08-30 exact support
+  census is **NO-GO for the frozen historical estimand**, not a pending
+  compute task.  The six Odds markets have strictly pre-common-lock support on
+  54/54 G0 slates and the existing conversion yields 14,147 mapped
+  GSIS-player weeks, but finite point-in-time DraftKings PPG fallback authority
+  is 0/54: `nfl_features.dk_salary_week` has 40,294 panel rows with zero
+  non-null `dk_ppg` and zero non-null `dk_player_id`, while the historical raw
+  salary relation has no DK-PPG/timestamp/player-ID fields.  Running that arm
+  would therefore change rather than execute the frozen estimand.  Keep it
+  closed unless a genuine immutable pre-lock DraftKings archive is supplied;
+  otherwise capture DK PPG and Odds snapshots prospectively for 2026.
 - **Independent recommendation review:** the 2026-08-30 external/lab review is
   adopted. Its twelve amendments are represented in the core executable
   generation/retrieval program or the separate follow-on plan at
@@ -155,6 +217,921 @@ and operator decisions.  The older entries remain the durable chronology.
   reopen it. Keep construction/allocation and paid-source experiments separate
   from this core release and do not claim scoring readiness until the distinct
   task-0 worker and verifier/predecessor closure are green.
+
+## Current handoff -- 2026-08-30 (four-hundred-forty-first update)
+
+### The d594 source cohort is 54/54; a one-use collector repair avoids every repeated solve
+
+- Branch `main`; local HEAD and `origin/main` remain exact pushed commit
+  `d5946133ebba0955586816c15905065c3ec71a0f`.  Source execution
+  `atlas-cbc-32g-full-2023-w8-v1-nsvkd`, UID
+  `cde282a2-2a02-464a-84f4-70b822e9aac0`, completed successfully at
+  `2026-08-31T02:17:08.463191Z`: **54 succeeded / 0 failed / 0 cancelled**
+  in 7h39m57.83s.  Its exact runtime-execution attestation is generation
+  `1788142639340768`, SHA-256
+  `e08f26d39be40a7e2248adbe3c353bcce9a3331cbce600326f3e53de8cf9c7cc`,
+  836 bytes.  No source shard will be rerun.
+- The armed finisher correctly advanced to collect, but its host parser first
+  rejected the launcher's single valid `jq` pretty-printed JSON receipt as
+  noncanonical.  The exact already-launched receipt was canonicalized and
+  recovered without relaunch; the finisher now accepts exactly one launcher
+  JSON object, rejects prefixes/suffixes or a second document, and persists
+  only canonical bytes.  The focused finisher suite is **21/21**.
+- Exact collect execution `atlas-cbc-32g-full-2023-w8-v1-29lvz`, UID
+  `7cf1f35f-9c99-41ce-bd66-c78af15cc412`, then failed once at
+  `2026-08-31T02:25:33.731980Z` with exit 2 and the sole application error
+  `fixed G0 panel membership binding differs`.  It had zero retries.  Exact
+  known-name metadata checks prove both intended scientific outputs,
+  `selection.json` and `terminal.json`, remain absent (404); there is no
+  partial or corrupt terminal to delete or replace.
+- Root cause is one redundant, false validator equality in
+  `corpus_r6_construction_allocation_cross_operator_v1.py`.  The exact fixed
+  G0 panel ID suffix is
+  `ef445e2b31a7756609b458753dc064318b58ea2912e9277071c08fd0d07392e0`,
+  while its separately defined and already deep-validated panel-index
+  self-hash is
+  `479b65bb40fcab6ba6721431718c8e2e95fc0a28a4354f1e7b3b1e205c69b094`.
+  The exact panel identity and all 54 ordered slate members agree.  The fix
+  removes only that invalid cross-equality; the fixed-panel reopener still
+  enforces the exact identity, schema and self-hash constant.  Focused
+  operator/source tests are green.
+- A distinct one-use collector-repair closure is now locally complete.  It
+  admits only the exact failed `29lvz` execution name, UID, completion and
+  provider shape; exact-reuses the d594 manifest, successful `nsvkd`
+  execution attestation and all 54 shard identities; and separately binds the
+  new collector commit, immutable image, provider build and one-task
+  execution.  It runs one repair collect and one distinct independent reopen,
+  leaves the existing v1 selection/terminal schemas unchanged, then publishes
+  and exact-reopens one create-once
+  `collector-repair-receipt-v1.json` sidecar.  It exposes no outcome surface
+  and no shard builder.  The generic launcher remains fail-closed on the
+  failed latest execution.  Repair/hardening/source-collector/cloud-release/
+  grade validation is **46/46**; root's narrower rerun is **35/35**; Python
+  compilation, both shell parsers, Cloud Build YAML and diff checks pass.  A
+  separate final release-blocker review is pending before cloud launch.
+- Experiment-5 local release review is now green.  Normalized + FP/SIS passed
+  an independent **60-test** review with no release blocker.  Source-v3's four
+  discovered blockers are closed: the image has its full numerical runtime,
+  the exact Git checkout is non-shallow and replays Commit A/adapter/G0,
+  caller-local receipts/direct full publication are removed, and a fourth
+  provider-bound zero-write independent reopen is required.  The complete
+  source-v3 focus is **50 passed** and the independent final focus is **35
+  passed**, with compile/shell/import checks green.  Authenticity continues to
+  rely on IAM protecting the fixed create-once controller namespace; local
+  JSON alone cannot authorize publication.  The 129-path release manifest was
+  independently audited before repair and had no omitted dependency; its
+  repair amendment is tracked at
+  `reports/2026-08-30-postgrade-release-path-manifest.md`.
+- Exact next action: receive final read-only GO on the one-use repair, stage
+  only the amended manifest paths, commit and push coherent Commit A, then
+  build the repaired construction image, generation-shadow image and
+  Experiment-4 image concurrently.  On the shared job run repair collect ->
+  repair reopen -> create-once sidecar seal -> repaired-image install -> the
+  original grade run/ID's prepare -> grade -> grade-reopen.  Preserve every
+  exact launch/provider/result identity.  Then run Experiment 4 first on the
+  shared lane while Week-1 generation shadow proceeds independently.  Do not
+  advance `origin/main` until both realized grade-reopens seal.
+
+## Current handoff -- 2026-08-30 (four-hundred-fortieth update)
+
+### Source-v3 now has the real task-0 worker, distinct verifier and exact-name controller
+
+- Branch `main`; local HEAD and `origin/main` remain exact pushed commit
+  `d5946133ebba0955586816c15905065c3ec71a0f`. This milestone performed no
+  cloud call, staging, commit, publication, outcome read or world-body read.
+  All new/modified source-v3 gate/build files remain local and unstaged until the
+  active release owner settles Commit A.
+- `corpus_r6_matchup_component_producer_v1.py` now exposes a bounded
+  one-ordinal materializer. It validates the same full 54-slate
+  candidate/catalog predecessor lattice as the production component path,
+  then executes the same semantic reducer, target-or-later deletion replay,
+  leaf builders, bundle builder and producer-receipt builder for ordinal zero
+  only. It cannot mint a full producer release.
+- New `corpus_r6_matchup_source_task0_v3.py` and CLI provide separate,
+  default-off worker and verifier modes. The worker enumerates every possible
+  component leaf, component task root, source triple and result-root URI
+  before constructing the bounded write transport. It exact-reopens each
+  object and publishes the task-0 worker result as the final create-once
+  request. The verifier is a later distinct process that accepts only that
+  generation-pinned result identity, independently reopens candidate-v2 and
+  capture-v3, one real component ordinal and the complete source triple, and
+  receives no publication callback or write inventory. Ambient
+  service-account write capability is recorded as `not_evaluated`, never
+  falsely claimed absent.
+- The full source-batch CLI now requires a verifier receipt in addition to its
+  existing explicit publication confirmation and enable flag. The receipt
+  must bind the exact same run ID, Commit-B tracked plan, dependency closure
+  and immutable runtime, plus the exact controller-bound worker and verifier
+  execution names. This makes the intended full 54-slate CLI path task-0
+  gated; the older `task0` action remains honestly prerequisite-only.
+- New `cloud_corpus_r6_matchup_source_task0_v3.sh` is the exact-name external
+  controller. It accepts only an immutable provider image/build bound to clean
+  durable Commit B; audits one-task/zero-retry terminal-success execution
+  stdout and execution spec; retains provider-returned execution names;
+  requires worker and verifier names to differ; and sequences
+  worker -> verifier -> full publication. The Commit-B Dockerfile and Cloud
+  Build file preserve an exact clean Git checkout in `/app`, required because
+  source-v3 secure-reads the tracked capture-plan-v3 Git blob at runtime.
+  Worker result root-last and verifier no-publication-API laws are covered by
+  focused tests.
+- The seven-pack task-0 claim was corrected without an IAM redesign. Its
+  receipt now says `publication_callback_exposed=false`,
+  `write_inventory_count=0`, and
+  `ambient_service_account_write_capability=not_evaluated`; it no longer
+  ambiguously claims `write_capability_present=false` merely because task-0
+  receives only `read_exact`.
+- Focused validation is green: production one-task reducer **1/1**,
+  source-v3 task-0 core **4/4**, task-0 CLI **3/3**, exact-name
+  controller/Commit-B seam **3/3**, source-batch CLI **3/3**, source-batch
+  core **16/16**, and seven-pack operator **17/17**. Edited Python compilation,
+  shell syntax and Cloud Build YAML parsing pass. No provider image was built
+  and no execution was launched.
+- The only remaining gates are chronological/external: settle and push Commit
+  A; publish and independently reopen normalized and seven-pack terminals;
+  create capture-plan-v3 only from those exact identities; track/push that
+  lock as Commit B; build the provider Commit-B image; then use the controller
+  for exact-named worker, distinct verifier and full publication followed by
+  the existing independent full-batch reopen. The unavoidable two-commit
+  boundary and exact commands/order are maintained in
+  `reports/2026-08-30-experiment-5-normalized-seven-pack-source-v3-runbook.md`.
+
+## Current handoff -- 2026-08-30 (four-hundred-thirty-ninth update)
+
+### Experiment-5 normalized source now closes exactly into seven-pack/capture-v3
+
+- Branch `main`; local HEAD and `origin/main` remain exact pushed commit
+  `d5946133ebba0955586816c15905065c3ec71a0f`. This milestone performed no
+  cloud call, staging, commit, publication, outcome read or world-body read.
+  The implementation is intentionally untracked until the active frozen-grade
+  chain releases the current origin binding.
+- The seven-pack request is upgraded to schema v2 and now accepts only the
+  candidate-authority-v2 terminal root and one normalized FP/SIS snapshot
+  terminal. Task-0 and publish call the normalized snapshot's deep reopener
+  and derive exact canonical manifests
+  `fantasy-points-normalized-2022-2025` and
+  `sis-normalized-2022-2025`; no public request/freezer accepts caller-loose
+  paid-source manifests, shards or rows. Task-0 remains query-free,
+  nonpublishing and write-disabled.
+- The five free-source inputs remain fixed as schedules, weekly stats, legacy
+  depth, 2025 snapshot depth and PFR defense/snaps. The capture still performs
+  exactly five bounded warehouse jobs and produces seven row plus seven
+  provenance objects followed by one terminal release, object 15 and root
+  last. A new dedicated provider-source Cloud Build/Git-free runtime seam is
+  default-off, remeasures its embedded implementation authority, reuses the
+  exact existing one-task/zero-retry job, and requires one exact successful
+  matching task-0 execution before publish. It was not launched here.
+- New `corpus_r6_matchup_capture_plan_from_seven_pack_v1.py` performs the
+  complete independent seven-pack reopen first, then exact-opens the terminal
+  and all seven row objects, derives candidate-v2 from that release, reads the
+  tracked adapter final lock from Commit A, and builds plus byte-revalidates
+  capture-plan-v3. The default-off `freeze-capture-plan` CLI writes only the
+  canonical v3 lock path create-once; it has no cloud publication callback and
+  cannot invent plan bytes before the seven-pack exists and reopens.
+- The two-commit boundary is unavoidable. Commit A must cleanly contain every
+  measured executable file before normalized/seven-pack publication. Only
+  after the generation-pinned seven-pack exists can the lock bind its
+  identities and Commit-A measurements. Commit B then tracks that generated
+  lock so component-v3/source-v3 can reopen its exact Git blob; putting the
+  lock in Commit A would be self-referential. The exact runbook and remaining
+  source-v3 real-worker/distinct-verifier gap are recorded in
+  `reports/2026-08-30-experiment-5-normalized-seven-pack-source-v3-runbook.md`.
+- Focused validation is green: seven-pack core **9/9**, operator/CLI **17/17**,
+  request freezer **4/4**, normalized compatibility **4/4**, capture-plan
+  bridge **3/3**, cloud seam **5/5**, capture-v3 **9/9**, component-v3
+  **9/9**, source-release-v3 **9/9**, source-batch-v3 **16/16**, and its CLI
+  **3/3**. Edited Python compilation and shell syntax pass. The existing
+  source-v3 local task-0 is truthfully prerequisite-only; source publication
+  remains NO-GO until a fresh Commit-B image runs one real slate worker and a
+  distinct verifier without Git/host-path dependence.
+- Exact next action after the frozen grade releases `origin/main`: settle the
+  normalized-snapshot cohort and these seven-pack files into Commit A, push,
+  run normalized task0/publish/reopen, freeze and run seven-pack
+  task0/publish/reopen, create capture-plan-v3 only from that reopened release,
+  then track it in Commit B. Build the source-v3 image from Commit B and do not
+  publish its 54-member chain until the distinct real worker/verifier task-0
+  passes.
+
+## Current handoff -- 2026-08-30 (four-hundred-thirty-eighth update)
+
+### Experiment-4 finisher is independently accepted and release-complete
+
+- Branch `main`; local HEAD and `origin/main` remain exact pushed commit
+  `d5946133ebba0955586816c15905065c3ec71a0f`.  The active immutable
+  construction/allocation cohort `atlas-cbc-32g-full-2023-w8-v1-nsvkd`
+  has reached **40/54 succeeded, 3 running, 0 failed, 0 cancelled**.  Its
+  armed exact-name finisher remains the sole owner of collect/reopen/grade/
+  grade-reopen; this milestone made no cloud mutation and did not inspect an
+  outcome-bearing result.
+- Root independently reviewed the new Experiment-4 host finisher and accepted
+  it into the selective release closure.  Focused finisher plus cloud-launcher
+  validation is **26/26**; Python compilation, CLI help and focused
+  `git diff --check` pass.  The reviewed driver is default-off, preserves the
+  exact task-0-before-full-cohort chronology, names one exact execution in
+  every provider read, writes create-once intent before mutation, and fails
+  closed on ambiguous launch state.
+- `reports/2026-08-30-postgrade-release-path-manifest.md` now includes
+  `scripts/finish_corpus_r6_broad_admission_tournament_v1.py` and
+  `tests/test_finish_corpus_r6_broad_admission_tournament_v1.py`; there is no
+  remaining Experiment-4 host-operator placeholder.  The scientific target
+  remains fixed-budget retention at exact A250/A500, not recovery of the
+  multiplicity-inflated 205.793 hindsight union.
+- An independent Experiment-5 matrix-freezer review caught and blocked a
+  numerical-law mismatch before any cloud or object write.  The first draft
+  accumulated and persisted lineup scores as float32, but the production
+  crossed selector in
+  `src/nfl_dfs/research/corpus_r6_population_crossed_scoring_v1.py` sums the
+  float32 player draws with `dtype=np.float64` into a C-contiguous float64
+  matrix, and the selector contract rejects other dtypes.  The freezer and
+  downstream consumer must therefore use exact float64 accumulation/storage;
+  the largest 3,815-candidate x 40,000-world slate is about 1.22 GB.  Its
+  one-slate, disk-backed task architecture remains valid, but the former
+  512-MiB consumer ceiling and any float32 envelope remain launch blockers.
+- Next concrete action: allow the active exact-name finisher to seal the
+  d594 collect/reopen/grade/grade-reopen chain, record every durable execution
+  identity and realized cell, then make and push the already enumerated
+  G0 + Week-1 + Experiment-4 release commit.  Build the generation-shadow and
+  broad-admission images concurrently and start Experiment 4 without advancing
+  `origin/main` until its independent grade-reopen seals.
+
+## Current handoff -- 2026-08-30 (four-hundred-thirty-seventh update)
+
+### Experiment 4 now has a crash-closed exact-name host finisher
+
+- Branch `main`; local HEAD and `origin/main` remain exact pushed commit
+  `d5946133ebba0955586816c15905065c3ec71a0f`.  This milestone made no cloud
+  call, build, installation, execution launch, object read, staging or commit,
+  and it did not modify or interact with the armed construction/allocation
+  finisher.  Its only new implementation paths are
+  `scripts/finish_corpus_r6_broad_admission_tournament_v1.py` and
+  `tests/test_finish_corpus_r6_broad_admission_tournament_v1.py`.
+- The default-off host finisher accepts the exact direct-Git build receipt and
+  one fresh output prefix, then drives the fixed Experiment 4 chain
+  `install -> prepare/result -> task0/result -> full54 -> collect/result ->
+  reopen/result -> grade/result -> grade-reopen/result`.  It writes one local
+  create-once launch intent before every mutation.  A process loss after an
+  uncertain launch never causes an automatic relaunch: recovery requires the
+  caller to provide that phase's exact execution name, and uncertain install
+  recovery requires the explicit `--already-installed` assertion before the
+  next launcher call revalidates the exact installed job.  A nonblocking local
+  lock prevents two finishers from owning one run directory.
+- Provider polling uses only `gcloud run jobs executions describe` with the
+  exact persisted or caller-supplied execution name.  No execution or object
+  listing exists in the driver.  The full 54-task launch requires the exact
+  successful nonpublishing/no-outcome task-0 receipt, and even a caller-supplied
+  full-task recovery name must have a provider creation time strictly after
+  task-0 completion.  Collect binds that exact full execution; reopen binds
+  the resulting terminal; grade binds the independently reopened terminal and
+  recognized outcome completion; grade-reopen binds the exact grade terminal
+  and must report that it reread none of the catalog, outcome snapshot or live
+  historical lease.
+- The fixed score-free parents are embedded with their complete identities:
+  combined terminal
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-combined-population-all-block/20260829-score-sprint-170b7b4e-v2/full54/full-54/descriptive-terminal-v2.json`,
+  generation `1787999967997744`, SHA-256
+  `f6f2679f44032246508ac5905b51d53d4a3f1f178d15103a203d488017a796d1`,
+  35,870 bytes; and frontier manifest
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-combined-frontier-reportfolio/20260829-score-sprint-28db339e-v1/full54/manifest.json`,
+  generation `1788029467812121`, SHA-256
+  `206a4dde7203bbd62b1ff6c6beee10ece26580c51650732132a0a7f8df08f114`,
+  55,096 bytes.  The grade authority is the recognized catalog completion at
+  generation `1787987567275104`, SHA-256
+  `15852361756ef0fe76d3a299617ebc2c2531e6821a73f04c8f862bf7229f4df3`,
+  2,521 bytes.
+- Focused validation is **46/46** across the new finisher, existing cloud
+  launcher, runner, tournament core and program-grade tests.  Python
+  compilation, CLI help and `git diff --check` also pass.  Tests cover
+  default-off behavior, exact parent pins, ambiguous-launch no-relaunch,
+  explicit exact-name recovery, full-chain action order, absence of listing,
+  full-task post-task0 chronology and grade-reopen no-reread semantics.
+- Exact next action after the active `d5946133` grade-reopen seals: include the
+  two new finisher paths in the selective Experiment 4 release commit and
+  push it with the already-reviewed broad-admission closure.  Build/install
+  from that fixed commit, then invoke the finisher with an absolute build
+  receipt, a new prefix below `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-broad-admission/`,
+  an isolated run directory below repository `.tmp`, and
+  `--execute --confirmation I_UNDERSTAND_R6_BROAD_ADMISSION_FINISHER_V1`.
+  If any phase was already launched outside the finisher, pass only its known
+  exact name via `--prepare-execution`, `--task0-execution`, `--task-execution`,
+  `--collect-execution`, `--reopen-execution`, `--grade-execution` or
+  `--grade-reopen-execution`; never discover it by listing and never guess.
+
+## Current handoff -- 2026-08-30 (four-hundred-thirty-sixth update)
+
+### Active score cohort now has a turnkey exact-name terminal chain
+
+- Branch `main`; local HEAD and `origin/main` remain exact pushed commit
+  `d5946133ebba0955586816c15905065c3ec71a0f`.  The active immutable
+  construction/allocation execution remains
+  `atlas-cbc-32g-full-2023-w8-v1-nsvkd`, UID
+  `cde282a2-2a02-464a-84f4-70b822e9aac0`.  Latest control-plane-only
+  observation is **37 succeeded / 3 running / 0 failed / 0 cancelled**.  A
+  task-level control-plane read showed task 36 completing at
+  `2026-08-30T23:56:35Z`, with tasks 37--39 carrying ordinary staggered start
+  times and tasks 40--53 still queued; this is normal forward progress, not a
+  stalled cohort.  No
+  task body, stdout body, outcome body or restricted artifact was opened for
+  this observation.
+- A new host-only finisher at
+  `scripts/finish_corpus_r6_construction_allocation_d5946133_v1.py` closes the
+  old wrapper's manual gap after 54/54.  It binds the exact source execution,
+  clean checkout, job UID/generation, build, immutable image and manifest;
+  then runs `collect -> reopen -> grade-prepare -> grade -> grade-reopen`.
+  Every one-task phase is followed only by its exact execution name and UID,
+  requires terminal 1/1 provider success, accepts exactly one canonical stdout
+  document of the expected schema and writes the launch, provider and result
+  receipts immediately under ignored disk-backed `.tmp/` outside the sealed
+  checkout.  An ambiguous launch intent fails closed and is never relaunched.
+- Grade namespace is frozen before execution as
+  `20260830-construction-allocation-d5946133-grade-v1`, grade ID
+  `construction-allocation-cross-realized-v1`, under the exact
+  `corpus-r6-construction-allocation-grades` bucket prefix.  The grade freeze
+  timestamp is derived from the successful selection-reopen provider
+  completion time.  The known grade-manifest name must prove absent before the
+  prepare launch.  The recognized catalog completion is generation
+  `1787987567275104`, SHA-256 `15852361...9f4df3`, 2,521 bytes; the live lease
+  is independently metadata-confirmed at 392 bytes and is not read or mutated
+  by that check.  Grade and grade-reopen remain the only outcome-opening
+  phases and the external catalog watcher retains lease-release ownership.
+- Focused finisher validation is **20/20**, plus Python compilation and CLI
+  help.  The tests cover exact source/runtime/request binding, collect/reopen
+  equivalence, predecessor-only request derivation, one canonical stdout
+  result, outcome completion/snapshot/live-lease identities, the exact-name
+  grade-manifest absence guard, default-off behavior and the clean-checkout
+  boundary.  No cloud phase has been launched by this milestone.
+- In parallel, Experiment 5 now has a new-files-only local execution seam for
+  the fixed A200/K80 Fantasy Points x SIS four-cell cohort through task-0,
+  54 score-free tasks, terminal reopen, recognized-outcome grade and grade
+  reopen.  Its focused regression is **37/37**.  It remains correctly blocked
+  on genuine normalized FP/SIS/source-v3/seven-pack identities and all 54
+  canonical candidate-aligned world-matrix identities; no proxy or invented
+  identity will be substituted.
+- Experiment 5's normalized-source authority now has a positive, bounded
+  implementation answer.  The six current write-once `nfl_raw` Fantasy
+  Points/SIS normalized tables can be frozen by fixed BigQuery
+  `FOR SYSTEM_TIME AS OF` queries into exact query-extract,
+  job/query/predecessor-schema receipts, canonical pack shards/manifests, a
+  root-last terminal and an independent deep reopen.  This authority is
+  explicitly `retrospective-prior-period-reconstruction` with
+  `authoritative_pit=false`: it proves exact normalized historical content,
+  not original-vendor pre-lock acquisition.  New snapshot producer/operator
+  files have passed **25/25** owned tests, **28/28** paid-source dependency
+  tests and **27/27** seven-pack compatibility tests (80/80 total), plus
+  Python compilation and shell parsing.  Task-0 executes one FP query with
+  zero writes; publication requires its exact receipt and has a fixed
+  13-object create-once inventory.  A dedicated clean image/build and
+  exact-name host release wrapper are the active remaining local closure; no
+  cloud mutation or table query has occurred.
+- The post-gate release closure is now independently mapped.  Experiment 4's
+  exact fixed-corpus parent is
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-combined-population-all-block/20260829-score-sprint-170b7b4e-v2/full54/full-54/descriptive-terminal-v2.json`,
+  generation `1787999967997744`, SHA-256
+  `f6f2679f44032246508ac5905b51d53d4a3f1f178d15103a203d488017a796d1`,
+  35,870 bytes.  Its exact frontier parent is
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-combined-frontier-reportfolio/20260829-score-sprint-28db339e-v1/full54/manifest.json`,
+  generation `1788029467812121`, SHA-256
+  `206a4dde7203bbd62b1ff6c6beee10ece26580c51650732132a0a7f8df08f114`,
+  55,096 bytes.  The reviewed release closure has no absent build input.  One
+  pushed release commit after the active grade-reopen will carry the Week-1
+  generation shadow and Experiment 4 together; both immutable images can then
+  build concurrently, and `origin/main` must remain fixed again until the
+  admission grade-reopen seals.  The exact selective path groups, exclusions,
+  parents and post-push order are durable at
+  `reports/2026-08-30-postgrade-release-path-manifest.md` so the dirty
+  worktree is never swept wholesale.
+- The lab is not waiting on new design.  Read-only repository state is now
+  exact lab commit `df6973a`: direct-generator 054 is the active first link,
+  followed by already-built/smoked/queued fixed-budget anchor + LNS 055,
+  diagnostic miss funnel 056, corrected-simulator screen 057 and the lab-half
+  admission tournament 058.  Those queues are serialized because the lab
+  reuses one Cloud Run job image; production will wait for committed reports
+  rather than opening result bodies.  Production Experiment 4 remains the
+  decision-bearing R6-corpus admission read, and Experiment 5 remains solely
+  production-owned.
+- At `2026-08-30T23:48:57Z` the reviewed finisher was armed in one local
+  process against the exact source execution.  Its first persisted provider
+  observation is under ignored
+  `.tmp/construction-allocation-d5946133-post54-finisher-v1/source-54/`; no
+  post-cohort phase had launched at that instant.  Its create-once local state
+  permits crash-closed manual resumption without guessing or duplicating a
+  launch.
+- Exact next action: let that finisher automatically begin collect only at
+  provider 54/54 success and follow it through independent grade reopen.
+  Preserve `origin/main` at `d5946133` throughout.  Then record all durable
+  execution/object identities and scores here, commit/push the coherent
+  release, and immediately build the generation-shadow and fixed-budget
+  admission images in parallel.
+
+## Current handoff -- 2026-08-30 (four-hundred-thirty-fifth update)
+
+### Fixed-budget admission release is locally complete and task-0 gated
+
+- Branch `main`; local HEAD and `origin/main` remain exact pushed commit
+  `d5946133ebba0955586816c15905065c3ec71a0f`.  These files intentionally
+  remain local/uncommitted until the active construction/allocation cohort,
+  collect, reopen, grade and grade-reopen all seal against that source.  This
+  milestone made no cloud mutation, build, execution launch, outcome read or
+  world-body read.
+- Experiment 4 now has a complete bounded operator and release path:
+  `prepare -> task0 -> task[54] -> collect -> reopen -> grade -> grade-reopen`.
+  Prepare binds the exact frozen combined terminal and frontier manifest plus
+  one immutable direct-Git build attestation.  The 54 score-free tasks
+  reconstruct the fixed combined corpus and both A250/A500 admission packages;
+  collect validates one exact terminal provider execution before resolving any
+  task object and publishes its terminal root last.  Reopen independently
+  reconstructs all 54 parents, matrices, unions and packages before the grade
+  path may open the recognized historical outcome authority.
+- Task-0 is the mechanical final launch gate, not merely a runbook convention.
+  A full task invocation must supply one exact successful task-0 execution
+  name.  The launcher read-only proves its image, code, build, request,
+  manifest, one-task terminal status, source ordinal 0, no-publication and
+  no-outcome receipt before it can issue the 54-task execute call.  Missing,
+  malformed, wrong-phase, wrong-manifest, failed or nonterminal task-0 evidence
+  fails before any job update or execution launch.
+- The grade uses the existing public direct-roster scorer so every distinct
+  fixed-corpus roster is scored once per slate.  Score documents require exact
+  descriptor and row field sets, exact lineup/roster coverage, no duplicate or
+  missing lineup IDs and exact integer realized scores; booleans, strings and
+  floats are rejected.  Grade-reopen reads only the persisted derived score
+  documents, independently recomputes the full walk-forward program byte for
+  byte and correctly records `uses_realized_outcomes=true` without reopening
+  the catalog, outcome snapshot or live lease.
+- The release reuses only exact job UID
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275`, installs it dormant, binds an
+  immutable project image, full source commit, provider build UUID, service
+  account, 8 CPU / 32 GiB, six-hour timeout and zero retries.  Its exact-name
+  result collector accepts one canonical stdout receipt from one terminal
+  one-task execution and performs no update or execute action.  Temporary
+  build and launch contexts now live under ignored disk-backed
+  `.build-contexts/` and are removed by exit traps; the generation-shadow
+  builder was moved off RAM-backed `/tmp` and its cleanup regression is green.
+- Independent final local validation is **39/39** across the scientific core,
+  54-slate coordinator, execution operator and cloud release.  Both Python
+  modules and the operator compile; all six CLI help paths, shell syntax,
+  Cloud Build YAML shape, embedded build-attestation Python and
+  `git diff --check` pass.  No unresolved blocking local defect remains for
+  Experiment 4.  Its result remains descriptive fixed-corpus retention at the
+  exact A250/A500 budgets; the 205.793 hindsight union is not a recovery
+  target and K80 selection is not performed in this cohort.
+- Latest control-plane-only observation for active immutable execution
+  `atlas-cbc-32g-full-2023-w8-v1-nsvkd`, UID
+  `cde282a2-2a02-464a-84f4-70b822e9aac0`, is **33 succeeded / 3 running / 0
+  failed / 0 cancelled**, nonterminal.  At the observed completion rate its
+  rough remaining band is 2.3--3.8 hours.  A dedicated monitor owns the exact
+  completion chain and must run collect/reopen/grade-prepare/grade/grade-reopen
+  from `.build-contexts/construction-d5946133` at 54/54 before `origin/main`
+  moves.
+- Lab control-plane status only: PREREG-053's three bank executions are
+  terminal-success.  The first two PREREG-054 executions failed and the
+  replacements `lab-run-l94n9` and `lab-run-g65rm` are currently running 18
+  tasks each.  Do not inspect smoke/result bodies or size Tier 3 until the lab
+  commits its final 054 report and Week-1 amendment.
+- Exact next action: complete the active frozen chain; immediately commit and
+  push the coherent accumulated release; build the generation-shadow and
+  broad-admission immutable images in parallel; install the admission job
+  dormant; run prepare and the mechanically gated task-0; on its exact pass,
+  launch all 54 admission tasks and carry the chain through independent grade
+  reopen.  In parallel, Experiment 5 may advance only by obtaining genuine
+  normalized point-in-time Fantasy Points/SIS identities and its separate
+  cloud execution adapter; the historical Odds override remains NO-GO without
+  a real DK-PPG archive.
+
+## Current handoff -- 2026-08-30 (four-hundred-thirty-fourth update)
+
+### Lab corrections are adopted and fixed-budget admission is executable locally
+
+- Branch `main`, local HEAD and `origin/main` remain exact pushed commit
+  `d5946133ebba0955586816c15905065c3ec71a0f`.  This milestone is intentionally
+  local/uncommitted until the active construction/allocation selection and
+  realized-grade chain completes its independent grade reopen.  No cloud
+  mutation, outcome read, world-body read, build or deployment occurred in
+  this milestone.
+- The production plan now incorporates
+  `nfl2/reports/2026-08-30-full-history-plan-lab-response.md`.  The VX60
+  near-miss came from the lab's mis-signed hsim v0.13 law and is ineligible for
+  Tier-2 sizing; production's spread-sign sweep was correct and requires no
+  code change.  Tier 2 remains only the already dated all-boom and BX60
+  sleeves.  Production owns Experiment 4 (R6 broad-corpus admission) and
+  Experiment 5 (paid-source consumers).  The 205.793 fixed-corpus hindsight
+  union maximum is a diagnostic denominator affected by multiplicity, never a
+  17-point recovery target or training label.
+- New `corpus_r6_broad_admission_tournament_v1.py` now freezes one exact
+  score-free combined R6 corpus and runs equal A250/A500 admissions.  The
+  reference reproduces the existing strict 230/220/210/200/exact-float64-mean
+  A250 comparator and extends only its budget.  The challenger freezes
+  per-source exclusive/inclusive quotas, multi-source consensus and greedy
+  distinct source/detail coverage with requested/available/delivered/shortfall
+  census.  A transparent ridge arm is restricted to exact walk-forward outer
+  seasons (2024 fits the complete declared 2023 fold; 2025 fits 2023--2024),
+  binds ordered freeze/outcome identities, gives every slate equal aggregate
+  sample weight and rejects target/future rows.  There is no learned 2023 arm.
+- The same module freezes a pre-outcome, exact-total-budget 50/50
+  reference/challenger blend and independently grades fixed-corpus maximum
+  retention, 194/200/210/220/230/240 candidate and slate-opportunity retention,
+  and blend lift versus the equal-budget reference.  It explicitly records
+  that K80 is secondary and unperformed and that the hindsight-union gap is
+  not a recovery target.  Exact field sets, recursive outcome-carrier rejection,
+  self-hashes, deterministic ranker input ordering and adversarial tamper
+  checks fail closed.
+- An independent review found and the implementation repaired exact-reference
+  rank replay, equal-slate weighted centering/scaling, generation-exact outcome
+  identities and complete-fold replay.  Its final verdict has no remaining
+  blocking scientific-core defect: focused **6/6**, an independent A500
+  blend/grade probe and a full 36-prior-slate 2025 walk-forward-to-A500 probe
+  all pass.  Generation-exact outcome opening and score extraction remain the
+  bounded adapter's responsibility before a historical result is citable.
+- The generation-shadow suite now also has an exact named-execution collector.
+  It performs no deploy/update/execute, validates terminal 1/1 status plus the
+  pinned image/code/project/bucket/service account/resources/args, reads only
+  that execution's stdout and requires exactly one matching receipt.  The
+  operator runbook includes the exact collection command.  Focused admission
+  plus deployment/collector validation is **15/15 green**; Python compilation
+  and shell syntax are green.
+- Latest control-plane-only status for immutable execution
+  `atlas-cbc-32g-full-2023-w8-v1-nsvkd` (UID
+  `cde282a2-2a02-464a-84f4-70b822e9aac0`) is **28 succeeded / 3 running / 0
+  failed / 0 cancelled**, nonterminal.  Continue only that handle.  At exact
+  54/54, run selection collect/reopen and grade-prepare/grade/grade-reopen from
+  clean context `.build-contexts/construction-d5946133` before moving
+  `origin/main`.  Then commit/push the coherent release, build the fresh
+  generation-shadow image, launch its five predeclared arms and begin the
+  fixed-corpus admission historical cohort.  Paid-source execution follows
+  only where exact normalized point-in-time input identities exist.
+
+## Current handoff -- 2026-08-30 (four-hundred-thirty-third update)
+
+### Next-cohort launch blockers are repaired locally while the historical crossing runs
+
+- Branch `main`, local HEAD and `origin/main` remain exact pushed commit
+  `d5946133ebba0955586816c15905065c3ec71a0f`; all work in this update is
+  local/uncommitted so the active selection and grade chain retains its exact
+  source binding.  No build, deploy, scheduler, cloud mutation, outcome read
+  or world-body read occurred in this milestone.
+- A launch audit found the dedicated generation-shadow job passed only
+  `CODE_SHA` and `IMAGE_URI`.  The runtime therefore could have derived
+  `settings.gcs_bucket` from its development default.  The launcher now pins
+  `GCP_PROJECT=nfl-predictions-503414` and
+  `GCS_BUCKET=nfl-predictions-503414-raw` into both the installed job and each
+  execution, validates both values from provider-observed template/execution
+  JSON, and rejects caller drift before invoking `gcloud`.
+- The pre-lock adapter required a generation-pinned 2 x 2 fit-seed x
+  world-seed authority, but the operator previously offered only a low-level
+  publisher that assumed eight unspecified source objects already existed.
+  New `publish-seed-crossing-design` creates the two fit-axis, two world-axis
+  and four crossed design-slot documents create-once, exact-reopens all eight,
+  then publishes the existing crossing authority.  Seed values and slot names
+  are explicit and distinct.  Every source and crossing document states
+  `not_evaluated`, no crossed generation/scoring output and no outcome use;
+  this closes terminal mechanics without fabricating a crossed-seed result.
+  The lower-level external-artifact publisher remains available if actual
+  independently published artifacts later exist.  The exact Week-1 request
+  is now frozen locally at
+  `config/2026-week1-generation-shadow-seed-crossing-design.json` with distinct
+  fit seeds `2026083001/2026083002`, world seeds
+  `2026083011/2026083012` and the adopted `2026-09-13T17:00:00Z` boundary.
+- The generation Cloud Build now smokes the new command both before and inside
+  the isolated image, and the operator runbook includes the exact request
+  shape.  Validation is green: deployment contract **8/8**; operator plus
+  full evaluator **39/39**; focused deployment/operator **25/25**; Python
+  compilation, shell syntax, YAML parse, CLI help and `git diff --check` all
+  pass.
+- The latest control-plane-only observation of immutable execution
+  `atlas-cbc-32g-full-2023-w8-v1-nsvkd` is **21 succeeded / 3 running / 0
+  failed / 0 cancelled**, nonterminal.  Continue that exact handle only.  At
+  54/54, selection collect/reopen and then grade-prepare/grade/grade-reopen
+  must all run from the clean `d5946133` context before `origin/main` moves.
+
+## Current handoff -- 2026-08-30 (four-hundred-thirty-second update)
+
+### Canonical Week-1 publication, exact export and operator UI are implemented locally
+
+- Branch `main`, local HEAD and `origin/main` remain exactly
+  `d5946133ebba0955586816c15905065c3ec71a0f`.  The Week-1 work below is
+  deliberately uncommitted because the active construction/allocation
+  launcher, collector and realized grader bind `origin/main` to that commit.
+  Do not commit or push these changes until execution
+  `atlas-cbc-32g-full-2023-w8-v1-nsvkd` has sealed at exact 54/54, selection
+  collect/reopen and realized grade/grade-reopen have all succeeded.
+- New `week1_operating_book_operator.py` is the create-once pre-lock
+  publication boundary.  It exact-reopens both the terminal envelope and its
+  embedded terminal root, proves trusted object-generation chronology, binds
+  exact season 2026 / week 1 / DraftKings draft group `151307` / slate
+  `dk-151307` / lock `2026-09-13T17:00:00Z`, rejects outcome/post-lock
+  carriers, and emits an exact six-field slate context plus source and output
+  object identities.  Its independent reader accepts only an explicitly
+  generation-pinned materialization whose bytes and identity validate, then
+  exact-reopens the materialization's bound terminal-root generation,
+  validates the root, reconstructs its terminal envelope from trusted storage
+  metadata and deterministically rebuilds the complete materialization.  The
+  deployed path therefore proves the source root rather than trusting a
+  self-consistent output object alone.  A
+  failed late create can still leave an unusable create-once attempt object;
+  downstream safety does not rely on object presence and instead requires the
+  exact configured generation/bytes/SHA identity.  A root-last attempt-index
+  can be future hardening but is not a launch redesign requirement.
+- New explicit operator command `scripts/publish_week1_operating_book.py`
+  defaults off and requires `--apply` plus the exact
+  `publish-2026-week1-canonical-book` confirmation, one generation-pinned
+  terminal-envelope identity, one fresh output URI and K80 or K100.  It calls
+  the guarded create-once publisher, performs a second independent
+  materialization-plus-terminal-root reopen, and only then emits the four
+  exact application environment values.  It has no listing, overwrite,
+  deployment, outcome, grading or contest-entry behavior.  The full
+  production Dockerfile now copies this command and Cloud Build performs its
+  `--help` smoke, so the guarded publication method is present in the exact
+  deployable image rather than only in a developer checkout.  The deliberately
+  narrow generation-shadow build archive also now carries this one pinned
+  operator source for its effective-policy inventory test and runs the full
+  Week-1 compatibility cohort; it still excludes the general research-script
+  tree and does not copy the command into the generation worker runtime.
+- `week1_operating_roster_materializer.py` now embeds and validates the exact
+  internal-player-to-DraftKings bridge for every entered and unentered source
+  roster.  New `week1_operating_book_export.py` reconstructs DraftKings slot
+  order from that frozen bridge, permits the live salary table to contribute
+  display names only after exact player/position/team/salary agreement,
+  rechecks universal Classic legality, and emits both a canonical export
+  payload and byte-hashed DraftKings CSV.  It exposes no cap-4, Tier-3 or
+  tuning control.
+- New `week1_operating_book_api.py` requires all four exact artifact settings
+  (`WEEK1_OPERATING_BOOK_URI`, `_GENERATION`, `_SHA256`, `_BYTES`) together;
+  URI-only or partially configured service state fails closed.  The app now
+  serves `GET /week1/operating-book` and
+  `GET /week1/operating-book.csv` from that independently reopened artifact.
+  Neither endpoint accepts lineup-generation controls or delegates to the
+  generic `/lineups` builder.  `/lineups/view` has a separate canonical-book
+  panel with exact artifact status, Tier-1/all-boom/BX60 composition and
+  highest player-exposure visualizations, and reveals the exact CSV download
+  only after successful artifact validation.
+- Effective-policy inventory source-set v5 now pins the app, the explicit
+  operator command and all six Week-1
+  contract/adapter/materializer/operator/export enforcement modules.
+  The four exact-artifact environment settings are classified as
+  infrastructure-only, not lineup strategy controls.  The current classified
+  input set is 130 keys / 278 direct enforcement sites with projection
+  SHA-256
+  `29956b03e2b3c19e0c938ae8043a15d1bcc2942ea731aea2337f5db4889f1989`.
+- Focused canonical-path validation was independently rerun at local HEAD:
+  **109/109** operating-book contract, suite-adapter, materializer, operator,
+  publication command, export, API and source-pinned inventory tests pass.
+  Edited Python files compile, the operator `--help` smoke and embedded UI
+  JavaScript `node --check` pass, and
+  `git diff --check` is clean.  The known Python 3.14 FastAPI `TestClient`
+  portal hang remains an environment-harness issue; route handlers are tested
+  directly without weakening exact reads.
+  The generation-shadow clean-archive tests, shell syntax and Cloud Build YAML
+  parse are also green after adding that exact narrow source dependency; this
+  prevents a predictable absent-file failure in the next immutable build.
+- The latest control-plane-only observation for immutable, outcome-blind
+  execution `atlas-cbc-32g-full-2023-w8-v1-nsvkd`, UID
+  `cde282a2-2a02-464a-84f4-70b822e9aac0`, is **20 succeeded / 3 running / 0
+  failed / 0 cancelled**, nonterminal.  No task logs, output artifacts,
+  realized outcomes or world matrices have been accessed while monitoring.
+- The highest-upstream local Fantasy Points x SIS seam is now implemented in
+  `corpus_r6_matchup_seven_pack_input_freezer_v1.py` plus the default-off
+  `freeze_corpus_r6_matchup_seven_pack_inputs_v1.py` command.  It reconstructs
+  all normalized FP/SIS shard and manifest bytes, binds every supplied
+  predecessor/shard/manifest identity, and freezes the canonical seven-pack
+  request against candidate-authority-v2.  It is local-only, create-once and
+  outcome/world-blind; focused freezer plus existing capture/operator
+  validation passes **27/27**.  A real freeze still cannot be fabricated: it
+  requires exact generation-pinned normalized shard/manifest identities and
+  immutable source predecessor identities for both paid-source packs.  The
+  subsequent cloud task-0 remains required to prove those supplied objects
+  exist and reopen exactly.
+- Exact next actions: continue control-plane-only polling.  At exact 54/54
+  with zero failures/cancellations, use the clean
+  `.build-contexts/construction-d5946133` collector once with execution name
+  `atlas-cbc-32g-full-2023-w8-v1-nsvkd`, then independently reopen the
+  published score-blind root before any outcome access.  Freeze the outcome-
+  blind grade manifest, then grade and independently reopen the grade while
+  `origin/main` remains at `d5946133`.  Only after that exact chain is sealed,
+  commit/push the accumulated code and handoff, run the live 2026 suite,
+  publish the canonical materialization before lock, and configure the app
+  with its exact four-field identity.  Tier 3 remains technically disabled
+  until the dated PREREG-026/054 amendment arrives; incorporate only that
+  amendment's frozen decision, without changing the Tier-2 15%/5% counts.
+- Accelerated adoption queue after that origin binding releases: first grade
+  the active construction x allocation crossing; then commit/build/deploy the
+  already-implemented five-arm generation x retrieval suite and canonical
+  Week-1 book.  Consume PREREG-026/054 rather than duplicating the lab's
+  direct/set-selector cohort.  The Odds prop-override lane may proceed
+  historically only if its exact DK-PPG fallback census is complete.  The
+  Fantasy Points x SIS four-cell census is currently NO-GO for a real task-0:
+  candidate-v2 and the local input freezer are complete, but the exact
+  normalized FP/SIS cloud identities, seven-pack release, capture-v3 lock,
+  real source-v3 worker/verifier and paid-source execution CLI are not yet
+  complete.  Do not rerun all-boom/BX60 selection, cap-4-on-boom-first,
+  MULTI3 or CE; their decisions are already frozen.
+- A same-day read-only check of lab `main`/`origin/main` at `49eafcb` confirms
+  there is still no PREREG-026/054 report or Addendum 12.  The four local 054
+  result files are explicitly one-slate smoke shards; the 72-slate corrected
+  launch is recorded but unread.  Tier 3 therefore remains empty.  Consume a
+  committed 054 report and Week-1 brief amendment when they arrive; never size
+  a sleeve from the smokes.
+- Preserve `origin/main == d5946133` through **grade-reopen**, not merely
+  selection collect/reopen: the immutable grade launcher enforces that same
+  durable source binding for every grade phase.  Do not push the accumulated
+  Week-1/source work between selection sealing and the realized grade.  After
+  the independent grade reopen succeeds, commit/push immediately and build
+  the current generation-suite and full app images in parallel.
+
+## Current handoff -- 2026-08-30 (four-hundred-thirty-first update)
+
+### Week-1 Tier 1/Tier 2 policy is frozen and the local production seam is implemented
+
+- The owner adopted
+  `../nfl2/handoffs/WEEK1-ADOPTION-BRIEF-2026-08-30.md` and handoff addenda
+  9--10 with a Sunday `2026-09-13T17:00:00Z` deadline.  The money generator
+  is boom-first 40 leverage / 160 boom per R0--R4 block, K=1, corrected mean
+  centering, props-first market blend, incumbent named construction and
+  coverage-194.  Cap-4 is forbidden from the entered book.  Tier 2 was sized
+  and dated on 2026-08-30 at 15% ceiling-ordered all-boom and 5% BX60: K80 is
+  64/12/4 and K100 is 80/15/5.  The internal policy/configuration freeze is
+  `2026-09-11T17:00:00Z`.  The current brief already records PREREG-025 / 053
+  as ineligible; Tier 3 remains empty until the dated PREREG-026 / 054 read.
+- Local `production_policy.py` now makes the Tier-1 40/160 environment the
+  default app money environment, assigns a new explicit v5 policy identity,
+  retains 160/40 only through `incumbent_control_environment`, and keeps the
+  older frozen prospective shadows on that explicit control.  The public
+  policy receipt reports 40 leverage, 160 boom, 12 role, 200 equal-core
+  solves and the 172 role-plus-boom legacy subtotal.  `SELECT_LADDER` remains
+  empty and the deployment verifier forbids a Cloud Run cap/selector override.
+  The exact Week-1 path also fails closed if the role model is unavailable; it
+  no longer silently substitutes CE12/boom28 while retaining the Tier-1
+  label.  Props-first retains the matched arm's availability semantics: when
+  the slate-level prop gate passes, individual missing prop rows use DK PPG;
+  below the gate or on feed failure the full DK-PPG fallback remains.
+- New local `src/nfl_dfs/inference/week1_operating_book.py` freezes the dates,
+  source identities and exact 80/15/5 proportions as a canonical content-hash
+  contract.  It deterministically composes exact K20/K40/K80/K100 prefixes
+  from ordered canonical source books, globally deduplicates and backfills
+  only within the scheduled source, fails on a source quota shortfall, and
+  records every entered/unentered membership.  A Tier-3 source is rejected
+  without an explicit positive-and-orthogonal PREREG-026/054 amendment; a
+  valid amendment may replace at most 5% of core and cannot alter Tier-2 counts
+  or total K.  The remaining integration seam is to bind the existing exact
+  arm artifacts and their selection receipts to this pure compositor and
+  materialize one canonical pre-lock operating-book artifact for all UI/CSV
+  routes; the generic app currently emits the Tier-1 core but is not the
+  canonical Tier-2 composite route.  Deduplication now allocates the K100
+  master book in evidence order (core, all-boom, BX60) before exposing smaller
+  prefixes, which prevents cross-source overlap from changing the K80 book
+  when K100 is requested.
+- New local `week1_operating_book_suite_adapter.py` validates the complete
+  score-blind generation-suite authority, binds the ordered coverage-194
+  membership hashes for boom-first, all-boom and BX60, and produces a
+  canonical K80/K100 compositor envelope.  It rejects cap-4 retrieval,
+  malformed or drifting source books, outcome-bearing authority and any
+  unsupported K, and independently recomputes the compositor receipt on
+  reopen.  New `week1_operating_roster_materializer.py` then binds either the
+  validated terminal pre-lock envelope or the suite plus exact decoded arm
+  artifacts, embeds all three ordered exact-80 source roster books, recomputes
+  every roster/lineup identity and produces the exact selected K80/K100 roster
+  payload.  Retaining the full source books preserves the unentered rosters
+  needed for prospective attribution.  The remaining operational seam is one
+  pre-lock create-once publication plus the UI/CSV projection of that exact
+  artifact.
+- The source-pinned effective-policy inventory is refreshed to source-set v3:
+  it binds the 75-key v5 environment, explicit N_LEV=40 / N_BOOM=160 /
+  N_EPISTEMIC=12 / GEN_TOTAL_BUDGET=172 / BOOM_UNIQUE_FILL=0, and now pins
+  `run_projections.py` as live market-blend enforcement.  The leverage-family
+  rule reports the actual explicit 40 solves rather than the obsolete 2x80
+  fallback recipe; no `PROP_MARKET_REQUIRED` input or ambient authority was
+  introduced.
+- Focused local validation is green: the operating-book contract/compositor
+  suite adapter, roster materializer, production-policy inventory and legal
+  feasibility/verifier suite passed **129/129**.  Props-first unit coverage
+  and the production-policy set passed **14/14**, the compute-heavy adopted
+  true-80 lineup/DK-CSV smoke passed, and the affected prospective-shadow
+  tests passed **38/38**.  All edited Python files compile,
+  and `git diff --check` is clean.  FastAPI `TestClient` route validation is
+  currently unavailable in this interpreter: even the untouched `/health`
+  test stalls with the asyncio portal idle, so this is recorded as an
+  environment/test-harness limitation rather than a passed route result.
+  Source-pinned effective-policy-inventory tests intentionally report hash
+  drift until the new policy source set is finalized and its v3 inventory is
+  regenerated.
+- The frozen construction/allocation cohort is unaffected because it runs from
+  clean pushed commit `d5946133` and immutable image
+  `sha256:e8959e94cf41f0a0f63bf97d4631e0c7c799af7594675a0f037ed7625a2280a7`.
+  Latest control-plane-only status for execution
+  `atlas-cbc-32g-full-2023-w8-v1-nsvkd` is **13 succeeded / 3 running / 0
+  failed / 0 cancelled**, still nonterminal; no task logs, output artifacts or
+  realized outcomes were accessed.
+- These Week-1 changes and this handoff remain local/uncommitted until the
+  exact construction cohort reaches 54/54, collect succeeds and independent
+  reopen seals the score-blind chain.  The launcher still requires
+  `origin/main == d5946133`; committing or pushing now would invalidate that
+  binding.
+
+## Current handoff -- 2026-08-30 (four-hundred-thirtieth update)
+
+### Final task-0 gate passed and the exact 54-task replacement cohort is live
+
+- The owner directive at
+  `../nfl2/reports/2026-08-30-techniques-with-potential-owner-review.md`
+  is adopted: scientific confirmation and bounded prospective exposure are
+  separate recorded decisions.  DraftKings legality, point-in-time/no-outcome
+  integrity, reproducibility and explicit bankroll/exposure authority remain
+  hard constraints.  A narrow statistical gate miss is not an automatic veto
+  on a frozen sleeve.  This creates no new service or dose-search project and
+  does not alter the already-frozen construction x allocation estimand.
+- Dormant-template sentinel
+  `atlas-cbc-32g-full-2023-w8-v1-r5sb9`, UID
+  `44b387fb-18e6-4f03-92ff-da374205e605`, ran exactly one `container-help`
+  task on job generation 42 and succeeded at
+  `2026-08-30T17:42:50.929837Z`.  The preceding one-task prepare
+  `atlas-cbc-32g-full-2023-w8-v1-8ct4h`, UID
+  `e96d95ae-5bd2-4f82-ba79-39aa909dab72`, had failed before any publication or
+  outcome access because its transport request was pretty-printed rather than
+  canonical JSON.  One same-estimand canonical correction was permitted.
+  Corrected prepare execution
+  `atlas-cbc-32g-full-2023-w8-v1-8qp7q`, UID
+  `6e994eab-b23a-452a-9cc8-56c82a4e5bdd`, then succeeded 1/1 at
+  `2026-08-30T17:45:37.858375Z` with target outcomes disabled.  It published
+  and exact-reopened the 60,541-byte manifest at generation
+  `1788111932751802`, byte SHA-256
+  `bbe47919f0dd753f8f7278f5f3d3e022bd70c2879c3f826dcd31e207ab1d4536`,
+  URI
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-construction-allocation-snapshot-shards/20260830-construction-allocation-d5946133-v1/input-manifest.json`.
+  Its prepare SHA-256 is
+  `fb1c8ad8b432c25e5489528997915a0d2c17e90644b29afb9ff3d907d7db66b2`.
+- Final launch-gate task-0
+  `atlas-cbc-32g-full-2023-w8-v1-g2bkv`, UID
+  `6f0f1571-76e1-4b99-821e-5b4201696011`, succeeded 1/1 at
+  `2026-08-30T18:35:54.467927Z` after 47m59.89s.  Its bounded receipt is
+  `complete=true`, binds the exact manifest and executable method, reports
+  `publication_performed=false`, `deployment_mutation_performed=false`,
+  `execution_launched=false`, `uses_target_slate_outcomes=false` and valid
+  source ordinal 0 / `2023-w01` mechanics.  Scientific SHA-256 is
+  `7c20bac4976cd4b5ab032c5317b7e5100fec083c6d4607488510f8b479df0084`,
+  unpublished shard SHA-256 is
+  `7baaa149fafd178528b6318478e4ea82e8bd58683f4e55ca11fd324263f36f81`,
+  and smoke SHA-256 is
+  `d2a5b1e6179ae6ba91674f400b700bf0f8287f7d38e34be1eb57652011cb533f`.
+- The full exact 54-task cohort launched immediately as
+  `atlas-cbc-32g-full-2023-w8-v1-nsvkd`, UID
+  `cde282a2-2a02-464a-84f4-70b822e9aac0`, against commit `d5946133`, build
+  `aeb293f7-6e95-47c2-b6fe-3df7141c2fcd`, immutable digest
+  `sha256:e8959e94cf41f0a0f63bf97d4631e0c7c799af7594675a0f037ed7625a2280a7`
+  and that exact manifest.  It has task count 54, parallelism 4, no retries
+  and `target_slate_outcomes_allowed=false`; initial control-plane state was
+  one running, zero succeeded/failed/cancelled.  First material progress at
+  approximately `2026-08-30T19:05Z` was 2
+  succeeded / 2 running / 0 failed / 0 cancelled, still nonterminal.
+  No optional concern may
+  redesign, add tests/arms or rebuild this cohort.  If the exact execution
+  reaches 54/54 with zero failures/cancellations, invoke collect once and then
+  the independent-process reopen before any realized outcome access.  A task
+  failure is a blocking validity defect and must be closed without reading or
+  grading a partial cohort.
+- This update remains local/uncommitted while the launcher requires exact
+  `origin/main == d5946133`; pushing another commit before collect/reopen would
+  invalidate that release binding.  Commit and push the accumulated handoff
+  immediately after the exact score-blind terminal chain is sealed.
+
+## Current handoff -- 2026-08-30 (four-hundred-twenty-ninth update)
+
+### Role-seam repair is built and installed; fresh score-blind prepare is live
+
+- The scoped role-preseed/exposure-ledger repair, release-test binding and
+  preceding handoff are committed and pushed on `main` as exact commit
+  `d5946133ebba0955586816c15905065c3ec71a0f`.  A fresh disk-backed clean
+  checkout at `.build-contexts/construction-d5946133` has HEAD and local
+  `origin/main` at that exact commit, is clean including untracked files and
+  independently passed the complete ten-module release cohort **76/76** in
+  23.33 seconds, Python compilation, shell syntax and Cloud Build YAML parsing.
+- Direct-Git Cloud Build `aeb293f7-6e95-47c2-b6fe-3df7141c2fcd`
+  completed successfully from that exact pushed source.  Its immutable image
+  is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:e8959e94cf41f0a0f63bf97d4631e0c7c799af7594675a0f037ed7625a2280a7`.
+  Runtime build attestation generation is `1788110881054287`, byte SHA-256
+  `95f2093e04647aa6d67afe61b2a40caa5331a86125861bee6e0a949fe8aaaa0a`,
+  855 bytes, at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-construction-allocation-builds/d5946133ebba0955586816c15905065c3ec71a0f/aeb293f7-6e95-47c2-b6fe-3df7141c2fcd/runtime-build-attestation.json`.
+- Because the preceding application cohort was cancelled, disabled-template
+  sentinel `atlas-cbc-32g-full-2023-w8-v1-6fsz9`, UID
+  `5f98e005-4823-4055-a38a-83dc88fa347f`, ran only the old installed
+  `container-help` command and reached terminal success 1/1 at
+  `2026-08-30T17:30:21.462198Z`.  The new immutable image was then installed
+  dormant into the same job UID
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275` as generation 42 with
+  `install_only=true`, `execution_launched=false` and `no_outcome_mode=true`.
+- Fresh run ID `20260830-construction-allocation-d5946133-v1` is bound to the
+  unchanged score-blind Foundry G0 panel and frozen boom-first source plus the
+  new code, image and build attestation.  Prepare request SHA-256 is
+  `6891692a8328e0d8006356ac8061c34efcb56606241770bf87601ece4fded154`.
+  One-task prepare execution
+  `atlas-cbc-32g-full-2023-w8-v1-8ct4h`, UID
+  `e96d95ae-5bd2-4f82-ba79-39aa909dab72`, is now live with
+  `target_slate_outcomes_allowed=false`; no task-0 or 54-task replacement
+  cohort has launched yet.
+- Exact next action: status-poll only execution `...-8ct4h`.  On terminal
+  success, read only its bounded prepare stdout to obtain the fresh manifest
+  content identity, create the manifest-only request, and launch task-0.  Do
+  not launch the 54 tasks unless task-0 reaches exact terminal success and its
+  bounded receipt is complete/no-publish/no-outcome.  No realized outcome
+  access is allowed before a fresh 54/54 terminal has been published and
+  independently reopened.
 
 ## Current handoff -- 2026-08-30 (four-hundred-twenty-eighth update)
 
@@ -34883,3 +35860,54 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   configure and submit exactly once. Poll status without logs; on terminal
   success publish the replacement terminal/finalize receipts and stop before
   any realized bridge read.
+
+## 2026-08-30 — Experiment-5 discovery-matrix freezer/release seam prepared
+
+- From the current dirty `d5946133`-line worktree, a new score-free freezer
+  now binds the exact fixed-G0 candidate-v2 root
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-fixed-g0-candidate-authorities-v2/20260830-fixed-g0-candidate-authority-v2/candidate-authority-release-v2.json`
+  at generation `1788081739195827`, SHA-256
+  `ae6d0ba73ac627f652f2cfc542da3f43885f4b9090885457fa313ecb6a7faea8`,
+  216639 bytes, and the exact LR8 later-source freeze at generation
+  `1787367678830738`, SHA-256
+  `c63251a3dee0b455502a8e37d03c731c671457b9b17ff41dd9249edb0bae654a`,
+  4566802 bytes. It creates one candidate-by-40000 discovery matrix per
+  canonical slate from R0/R1/R2/R3 only; R4 is identity-bound and never read.
+- A correctness review found that the production crossed scorer accumulates
+  and stores float64, not float32. The freezer therefore uses exact
+  `sum(axis=1,dtype=np.float64)` and `<f8` C-order output with scoring-law ID
+  `candidate-roster-r0-r3-float64-sum/v1`. A byte-parity regression against
+  production `_score_rosters_v1` passes. Each task reads one NPZ at a time,
+  vectorizes 64 candidate rows at a time, and writes one disk-backed memmap;
+  the 2-GiB object ceiling covers the largest expected approximately 1.22-GB
+  matrix without holding the matrix in Python memory.
+- The v2 matrix envelope and ordered 54-entry terminal registry bind candidate
+  artifact identity/order, the exact ordered R0-R3 object identities and their
+  manifest hash, block order, 10000 worlds/block, 40000 worlds, `<f8`, scoring
+  law, matrix/body identity, and explicit R4-heldout-not-read. Consumer seam
+  `reopen_terminal_registry_v1` generation-exact reopens the root, manifest,
+  all task results, and all candidate orders without reading 54 matrix bodies;
+  downstream workers derive their one matrix solely from this registry.
+- The guarded release is default-off and split into task0/no-publication,
+  54-way create-once construction, root-last collection, 54-way streamed
+  generation-exact body reopen, and reopen-root collection. Matrix upload and
+  download use file streaming plus incremental SHA-256. The host seam accepts
+  exact execution names only and contains no execution/object listing path.
+  Installation is inert and uses the exact existing research job UID.
+- New release files are
+  `src/nfl_dfs/research/corpus_r6_paid_source_discovery_matrix_freeze_v1.py`,
+  `scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py`,
+  `scripts/cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.sh`,
+  `Dockerfile.corpus-r6-paid-source-discovery-matrix`, its `.dockerignore`,
+  `cloudbuild.corpus-r6-paid-source-discovery-matrix.yaml`, and the three
+  exact-named focused tests. Focused validation is 9/9 plus Python compile and
+  shell syntax. No cloud action, staging, commit, data publication, outcome
+  read, grade, graph mutation, or production policy change was performed.
+- Next exact action after the current grade gate reopens: selectively stage
+  only this no-overlap file group plus the coordinated Experiment-5 consumer
+  group and this HANDOFF update, commit/push, run the freezer `build` action,
+  install it inert, prepare from the exact three root identities, run task0,
+  then the 54-task construction/collect and 54-task reopen/reopen-collect
+  chain. Do not launch the paid-source ablation until its request binds the
+  resulting `discovery_matrix_freeze_terminal_identity` and passes the
+  canonical registry deep reopen.

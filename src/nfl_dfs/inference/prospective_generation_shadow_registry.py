@@ -16,7 +16,7 @@ from typing import Final
 from .generation_exposure import canonical_sha256
 
 
-SCHEMA_VERSION: Final = "prospective-generation-shadow-registry/v7"
+SCHEMA_VERSION: Final = "prospective-generation-shadow-registry/v8"
 
 
 class ShadowRegistryError(ValueError):
@@ -52,8 +52,78 @@ _PAYLOAD: Final[dict[str, object]] = {
         "outcome_free_until_lock": True,
         "report_every_arm_including_losers": True,
         "historical_effects_are_not_live_expectations": True,
-        "all_five_arms_required_before_week1": True,
-        "arm_omission_allowed": False,
+        "selected_release_emits_all_five_predeclared_arms": True,
+        "all_five_arms_form_one_mandatory_core_family": False,
+        "selected_release_arm_omission_after_freeze_allowed": False,
+        "legacy_required_status_scope": (
+            "atomic-completeness-of-the-preoutcome-chosen-five-arm-"
+            "executable-release-not-scientific-core-membership"
+        ),
+        "legacy_unpassed_status_scope": (
+            "historical-nomination-result-for-all-boom-not-current-"
+            "scientific-family-membership"
+        ),
+    },
+    "release_hierarchy": {
+        "schema_version": "prospective-generation-shadow-release-hierarchy/v1",
+        "frozen_before_week1": True,
+        "selection_timing": "pre-outcome-capacity-decision",
+        "selected_release_arm_order": [
+            "incumbent-160-40",
+            "boom-first-40-160",
+            "cross-law-40-100-60",
+            "boom-dose-40-360",
+            "ceiling-all-boom-0-200",
+        ],
+        "selected_release_emits_all_five_predeclared_arms": True,
+        "current_terminal_is_atomic_over_selected_release_arms": True,
+        "atomic_execution_completeness_is_scientific_core_membership": False,
+        "silent_postfreeze_arm_omission_allowed": False,
+        "distinct_preregistration_required_for_core_only_runtime": True,
+        "core": {
+            "family_id": "generation-by-retrieval-core",
+            "required_generation_arm_ids": [
+                "incumbent-160-40",
+                "boom-first-40-160",
+            ],
+            "required_retrieval_crossing": (
+                "incumbent-and-boom-first-by-incumbent-and-cap4"
+            ),
+            "blocks_core_scientific_launch": True,
+            "decision_role": "primary-plus-key-secondary-mechanism",
+        },
+        "nominated_exploratory": {
+            "family_id": "cross-law-exploratory",
+            "arm_ids": ["cross-law-40-100-60"],
+            "valid_only_after_outcome_free_trace_passes": True,
+            "blocks_core_scientific_launch": False,
+            "promotion_authority": False,
+        },
+        "optional_exploratory": {
+            "family_id": "all-boom-boundary-exploratory",
+            "arm_ids": ["ceiling-all-boom-0-200"],
+            "optional_at_design_selection": True,
+            "included_in_selected_release": True,
+            "inclusion_decided_before_outcomes": True,
+            "inclusion_reason": (
+                "capacity-was-allocated-before-outcomes-to-measure-the-"
+                "zero-leverage-boundary-before-week1"
+            ),
+            "blocks_core_scientific_launch": False,
+            "historical_nomination_passed": False,
+            "primary_authority": False,
+            "promotion_authority": False,
+        },
+        "unequal_resource_diagnostic": {
+            "family_id": "boom-dose-unequal-resource-diagnostic",
+            "arm_ids": ["boom-dose-40-360"],
+            "multiplicity_family_id": "unequal-resource-boom-dose-v1",
+            "separate_from_equal_budget_core": True,
+            "blocks_core_scientific_launch": False,
+            "equal_compute_claim_allowed": False,
+            "primary_authority": False,
+            "promotion_authority": False,
+        },
     },
     "external_lab_confirmation": {
         "evidence_role": (
@@ -174,6 +244,11 @@ _PAYLOAD: Final[dict[str, object]] = {
             "arm_id": "incumbent-160-40",
             "role": "control",
             "status": "required",
+            "status_scope": "selected-five-arm-executable-release",
+            "scientific_family_id": "generation-by-retrieval-core",
+            "scientific_hierarchy_status": "core-control",
+            "core_required": True,
+            "blocks_core_scientific_launch": True,
             "scientific_status": "control",
             "decision_role": "primary-control-reference",
             "required_before_week1": True,
@@ -188,6 +263,11 @@ _PAYLOAD: Final[dict[str, object]] = {
             "arm_id": "boom-first-40-160",
             "role": "primary-treatment",
             "status": "required",
+            "status_scope": "selected-five-arm-executable-release",
+            "scientific_family_id": "generation-by-retrieval-core",
+            "scientific_hierarchy_status": "core-primary",
+            "core_required": True,
+            "blocks_core_scientific_launch": True,
             "scientific_status": "primary",
             "decision_role": "primary-efficacy-challenger",
             "required_before_week1": True,
@@ -204,6 +284,12 @@ _PAYLOAD: Final[dict[str, object]] = {
             "arm_id": "cross-law-40-100-60",
             "role": "exploratory-third-arm",
             "status": "required",
+            "status_scope": "selected-five-arm-executable-release",
+            "scientific_family_id": "cross-law-exploratory",
+            "scientific_hierarchy_status": "nominated-exploratory-after-trace",
+            "core_required": False,
+            "blocks_core_scientific_launch": False,
+            "valid_only_after_outcome_free_trace_passes": True,
             "scientific_status": "exploratory",
             "decision_role": "diagnostic-only",
             "required_before_week1": True,
@@ -228,6 +314,14 @@ _PAYLOAD: Final[dict[str, object]] = {
             "arm_id": "boom-dose-40-360",
             "role": "unequal-resource-dose",
             "status": "required",
+            "status_scope": "selected-five-arm-executable-release",
+            "scientific_family_id": "boom-dose-unequal-resource-diagnostic",
+            "scientific_hierarchy_status": (
+                "separate-unequal-resource-diagnostic-family"
+            ),
+            "multiplicity_family_id": "unequal-resource-boom-dose-v1",
+            "core_required": False,
+            "blocks_core_scientific_launch": False,
             "scientific_status": "unequal-resource",
             "decision_role": "diagnostic-only",
             "required_before_week1": True,
@@ -241,8 +335,17 @@ _PAYLOAD: Final[dict[str, object]] = {
         },
         {
             "arm_id": "ceiling-all-boom-0-200",
-            "role": "unpassed-near-miss",
+            "role": "optional-exploratory-boundary",
             "status": "required",
+            "status_scope": "selected-five-arm-executable-release",
+            "scientific_family_id": "all-boom-boundary-exploratory",
+            "scientific_hierarchy_status": "optional-exploratory",
+            "historical_nomination_status": "unpassed",
+            "core_required": False,
+            "blocks_core_scientific_launch": False,
+            "optional_at_design_selection": True,
+            "included_by_preoutcome_capacity_decision": True,
+            "primary_authority": False,
             "scientific_status": "unpassed",
             "decision_role": "diagnostic-only",
             "required_before_week1": True,
@@ -450,14 +553,16 @@ _PAYLOAD: Final[dict[str, object]] = {
             "efficacy_or_promotion_allowed": False,
         },
         "frozen_hierarchy": [
-            "primary-boom-first-vs-incumbent-under-incumbent-retrieval",
-            "key-secondary-generation-by-retrieval-crossing",
-            "exploratory-cross-law-discovery-vs-boom-first",
-            "required-unpassed-ceiling-all-boom-diagnostic-vs-boom-first",
-            "required-unequal-resource-boom-dose-diagnostic-vs-boom-first",
+            "core-primary-boom-first-vs-incumbent-under-incumbent-retrieval",
+            "core-key-secondary-generation-by-retrieval-crossing",
+            "nominated-exploratory-cross-law-after-outcome-free-trace",
+            "optional-preoutcome-chosen-all-boom-boundary-exploratory",
+            "separate-unequal-resource-boom-dose-diagnostic-family",
         ],
-        "all_five_arms_required_before_week1": True,
-        "arm_omission_allowed": False,
+        "all_five_arms_form_one_mandatory_core_family": False,
+        "selected_release_emits_all_five_predeclared_arms": True,
+        "selected_release_arm_omission_after_freeze_allowed": False,
+        "noncore_results_block_core_interpretation": False,
         "contrast_decision_roles": {
             "boom-first-40-160": {
                 "challenger_arm": "boom-first-40-160",

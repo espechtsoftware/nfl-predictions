@@ -24,38 +24,62 @@ from typing import Any, Iterable, Mapping, Sequence
 
 
 SCHEMA = "nfl-dfs-effective-policy-rule-inventory/v2"
-SOURCE_SET_ID = "adopted-classic-policy-20260830-explicit-construction-v2"
+SOURCE_SET_ID = "adopted-classic-policy-20260830-week1-boom-first-v5"
 POLICY_ENV_SHA256 = (
-    "4ffdaf69b32fc719914a96654a56cfee3f99d78053cb6dc375f4f02232ad648b"
+    "045b692b77820046bb6213326f24aae66d85415d931521228db05e27129a33e5"
 )
 CLASSIFIED_INPUT_PROJECTION_SHA256 = (
-    "d9906366eb4e5bfcc117608e255c506dcea10b33957afe6962802ee4d6231d98"
+    "29956b03e2b3c19e0c938ae8043a15d1bcc2942ea731aea2337f5db4889f1989"
 )
-CLASSIFIED_INPUT_KEY_COUNT = 126
-DIRECT_INPUT_READ_SITE_COUNT = 273
+CLASSIFIED_INPUT_KEY_COUNT = 130
+DIRECT_INPUT_READ_SITE_COUNT = 278
 
 # These are production/enforcement sources and independent validation
 # consumers, never evidence-graph-authored files.  Any byte drift requires a
 # conscious inventory revision; silently continuing would reopen the closed
 # world while claiming that it remained frozen.
 FROZEN_SOURCE_SHA256: Mapping[str, str] = {
+    "scripts/publish_week1_operating_book.py": (
+        "5e4850608b682d382c7fa395ec7f36efd1df94a2264c3eaaae792266c5542a66"
+    ),
     "src/nfl_dfs/app/main.py": (
-        "604bc24689aa10535855f6476c66e655043b3ab58f1fb216a490afa2321f44de"
+        "1a64ce27b01b819351f2f55bd398f2fe0a086b0ee84f5677cbd097f9d102a87b"
+    ),
+    "src/nfl_dfs/app/week1_operating_book_api.py": (
+        "d38c420bdbe0a7ccfc7fc0fe657f169485744db5ca40848c98136b3097207c44"
     ),
     "src/nfl_dfs/backtest/engine.py": (
-        "c0a8a4c2e66371dda475a0f85a27a900946afc35970687ba686c3a998e80133f"
+        "733bb15fcff8e822d017959c15991072dc105646971871e9292feccc2868137c"
     ),
     "src/nfl_dfs/backtest/replay.py": (
         "ecc7b00f25e031e9754f2731773e02b74b373afdbe22539666258bf0d3bf39a9"
     ),
     "src/nfl_dfs/inference/live_lineups.py": (
-        "cc690d673c6bb5d25a57057b900b19bd608a53998b6ef8f3ecb9352f19d4a81f"
+        "b37e9c5056bebe021e1dfa07ac574e929434419f996292d627cbb927200f689e"
     ),
     "src/nfl_dfs/inference/multiseed_portfolio.py": (
         "692ee5ea13bdbf4e39bc5490808429c100c0779f817515f4d0ea452c604907d8"
     ),
     "src/nfl_dfs/inference/production_policy.py": (
-        "88a1e00c681aad19d3ed9559fe890fd72b968a0260e6c9fcf36370964b744099"
+        "ec1fd34b11b7f7a084078ed3cec3e23922193d24f6b10dd4a2699647368fefa1"
+    ),
+    "src/nfl_dfs/inference/run_projections.py": (
+        "5d9a434a5a2818c4b7198e6c54fa72509df501164d6c6eaf696be4926330e226"
+    ),
+    "src/nfl_dfs/inference/week1_operating_book.py": (
+        "d0b3cbba76fb2b03a8ffee5a7624a48796ba2d0b8a28bb639518e876bebbc154"
+    ),
+    "src/nfl_dfs/inference/week1_operating_book_export.py": (
+        "4fdca2860fb92649ed0b5414a1ca0c738fd4c802fe24bf5e64374947037a2d26"
+    ),
+    "src/nfl_dfs/inference/week1_operating_book_operator.py": (
+        "5e2e96c43ecd48944bebb1ef96bb6bcc6af342433c8a383fcde0f7c76d12e3fe"
+    ),
+    "src/nfl_dfs/inference/week1_operating_book_suite_adapter.py": (
+        "53f1ab046ea38a6d28e21c6156f50ccc21a350d29502b87a3394e00766573980"
+    ),
+    "src/nfl_dfs/inference/week1_operating_roster_materializer.py": (
+        "468714d057e827a58f1123af0f78ac1ed57c3d4fd3714be67f522018c732f6fc"
     ),
     "src/nfl_dfs/models/game_sim.py": (
         "667e9a8823d976d192a78c5dadfd79be5c8f97c86269b134b03a9833adae3a7c"
@@ -78,12 +102,36 @@ FROZEN_SOURCE_SHA256: Mapping[str, str] = {
 }
 
 SOURCE_ROLES: Mapping[str, str] = {
+    "scripts/publish_week1_operating_book.py": (
+        "week1_exact_publication_operator_command"
+    ),
     "src/nfl_dfs/app/main.py": "live_default_activation",
+    "src/nfl_dfs/app/week1_operating_book_api.py": (
+        "live_canonical_week1_artifact_activation"
+    ),
     "src/nfl_dfs/backtest/engine.py": "generation_and_selection_enforcement",
     "src/nfl_dfs/backtest/replay.py": "historical_default_activation",
     "src/nfl_dfs/inference/live_lineups.py": "live_policy_dispatch",
     "src/nfl_dfs/inference/multiseed_portfolio.py": "admission_enforcement",
     "src/nfl_dfs/inference/production_policy.py": "effective_configuration",
+    "src/nfl_dfs/inference/run_projections.py": (
+        "live_projection_and_market_blend_enforcement"
+    ),
+    "src/nfl_dfs/inference/week1_operating_book.py": (
+        "week1_tier_allocation_contract"
+    ),
+    "src/nfl_dfs/inference/week1_operating_book_export.py": (
+        "week1_exact_book_dk_export_enforcement"
+    ),
+    "src/nfl_dfs/inference/week1_operating_book_operator.py": (
+        "week1_exact_publication_and_reopen_enforcement"
+    ),
+    "src/nfl_dfs/inference/week1_operating_book_suite_adapter.py": (
+        "week1_suite_membership_binding"
+    ),
+    "src/nfl_dfs/inference/week1_operating_roster_materializer.py": (
+        "week1_roster_materialization_enforcement"
+    ),
     "src/nfl_dfs/models/game_sim.py": "possession_law_enforcement",
     "src/nfl_dfs/models/simulate.py": "simulation_dispatch",
     "src/nfl_dfs/optimizer/lineup.py": "legality_and_soft_rule_enforcement",
@@ -138,6 +186,10 @@ INFRASTRUCTURE_INPUT_KEYS = frozenset({
     "PROSPECTIVE_SHADOW_ID",
     "REPLAY_LINEUPS_TABLE",
     "SEEDS",
+    "WEEK1_OPERATING_BOOK_BYTES",
+    "WEEK1_OPERATING_BOOK_GENERATION",
+    "WEEK1_OPERATING_BOOK_SHA256",
+    "WEEK1_OPERATING_BOOK_URI",
 })
 
 # Filled from the reviewed AST projection below.  Do not collapse these into
@@ -1343,7 +1395,7 @@ def _effective_policy(root: Path) -> tuple[dict[str, str], dict[str, Any]]:
         )
     policy = production_policy.ADOPTED_CLASSIC_POLICY
     env = dict(sorted(policy.engine_environment({}).items()))
-    if len(env) != 73 or canonical_sha256(env) != POLICY_ENV_SHA256:
+    if len(env) != 75 or canonical_sha256(env) != POLICY_ENV_SHA256:
         raise EffectivePolicyInventoryError(
             "adopted effective policy environment differs"
         )
@@ -1562,8 +1614,11 @@ def _rules(env: Mapping[str, str]) -> tuple[_Rule, ...]:
         # Candidate families and source-free recipes.
         _Rule("rule:leverage-family", "Leverage candidate family",
               "generation_recipe", "generation", "active",
-              {"candidate_multiple": int(env["CAND_MULT"]),
-               "generation_entry_basis": int(env["MULTISEED_CANDIDATE_ENTRY_BASIS"])},
+              {"solve_attempts": int(env["N_LEV"]),
+               "fallback_candidate_multiple": int(env["CAND_MULT"]),
+               "fallback_generation_entry_basis": int(
+                   env["MULTISEED_CANDIDATE_ENTRY_BASIS"]
+               )},
               (LEV,), (_loc(engine, "function:tail_select_lineups"),
                        _loc(policy, "class:ClassicProductionPolicy:method:engine_environment"))),
         _Rule("rule:boom-family", "Boom-world candidate family",
@@ -1633,7 +1688,8 @@ def _rules(env: Mapping[str, str]) -> tuple[_Rule, ...]:
               int(env["SINGLE_STACK_BOOM_SOLVES"]), (BOOM,),
               (_loc(engine, "function:tail_select_lineups"),), optional=True),
         _Rule("rule:boom-unique-fill", "Boom unique-fill traversal",
-              "generation_recipe", "generation", "inactive", False, (BOOM,),
+              "generation_recipe", "generation", "inactive",
+              env["BOOM_UNIQUE_FILL"] not in ("", "0"), (BOOM,),
               (_loc(engine, "function:tail_select_lineups"),), optional=True),
 
         # Admission is separate from lineup feasibility.

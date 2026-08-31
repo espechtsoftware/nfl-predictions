@@ -1,0 +1,5 @@
+.venv/
+.build-contexts/
+**/__pycache__/
+**/*.py[co]
+.pytest_cache/

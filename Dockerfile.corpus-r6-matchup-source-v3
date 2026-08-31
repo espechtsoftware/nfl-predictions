@@ -1,0 +1,35 @@
+FROM python:3.11-slim
+
+ARG SOURCE_COMMIT_SHA
+RUN python -c 'import os,re; assert re.fullmatch(r"[0-9a-f]{40}", os.environ["SOURCE_COMMIT_SHA"])'
+
+LABEL org.opencontainers.image.revision="${SOURCE_COMMIT_SHA}"
+ENV IMAGE_SOURCE_COMMIT_SHA="${SOURCE_COMMIT_SHA}" \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       git ca-certificates gzip jq libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+COPY . /app
+
+RUN test -d /app/.git \
+    && test "$(git -C /app rev-parse HEAD)" = "${SOURCE_COMMIT_SHA}" \
+    && test "$(git -C /app rev-parse --is-shallow-repository)" = false \
+    && test -z "$(git -C /app status --porcelain --untracked-files=all)" \
+    && mkdir -p /usr/local/share/nfl \
+    && printf '%s\n' "${SOURCE_COMMIT_SHA}" >/usr/local/share/nfl/SOURCE_COMMIT \
+    && pip install --no-cache-dir --editable ".[gcp]" \
+       "google-cloud-storage==3.13.1" \
+    && git -C /app clean -ffdX \
+    && /usr/local/bin/python3.11 -I \
+       /app/scripts/run_corpus_r6_matchup_source_task0_v3.py --help >/dev/null \
+    && /usr/local/bin/python3.11 -I \
+       /app/scripts/run_corpus_r6_matchup_source_batch_v3.py --help >/dev/null \
+    && /usr/local/bin/python3.11 -I -c \
+       'from nfl_dfs.research import corpus_r6_matchup_source_batch_outer_candidate_authority_v3 as batch; closure=batch._trusted_dependency_closure_v3(); batch._trusted_capture_plan_v3(dependency_closure=closure)' \
+    && test -z "$(git -C /app status --porcelain --untracked-files=all)"
+
+CMD ["/bin/bash", "/app/scripts/cloud_corpus_r6_matchup_source_task0_v3.sh", "container-help"]

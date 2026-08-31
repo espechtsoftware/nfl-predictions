@@ -132,11 +132,17 @@ def test_soft_rules_are_proven_by_enforcer_and_independent_consumers(inventory):
         assert expected_paths <= paths
 
     roles = {row["path"]: row["role"] for row in inventory["source_identities"]}
+    assert roles["scripts/publish_week1_operating_book.py"] == (
+        "week1_exact_publication_operator_command"
+    )
     assert roles["src/nfl_dfs/research/final_forensic.py"] == (
         "independent_dk_only_validator"
     )
     assert roles["src/nfl_dfs/research/lr8_historical_arm.py"] == (
         "independent_five_rule_relaxation_with_legacy_min_games"
+    )
+    assert roles["src/nfl_dfs/inference/run_projections.py"] == (
+        "live_projection_and_market_blend_enforcement"
     )
 
 
@@ -192,17 +198,36 @@ def test_active_generation_admission_simulation_and_selector_are_explicit(invent
     )
     assert rules["rule:max-per-game-cap"]["default_dose"] == 0
     assert rules["rule:selector-ladder"]["baseline_state"] == "inactive"
+    assert rules["rule:leverage-family"]["default_dose"] == {
+        "solve_attempts": 40,
+        "fallback_candidate_multiple": 2,
+        "fallback_generation_entry_basis": 80,
+    }
+    assert rules["rule:boom-family"]["default_dose"] == {
+        "solve_attempts": 160,
+        "unique_fill": False,
+    }
+    assert rules["rule:boom-unique-fill"]["default_dose"] is False
 
 
 def test_effective_policy_and_ambient_boundary_are_bound(inventory):
     effective = inventory["effective_policy"]
-    assert effective["policy_id"] == "classic-k1-role12-boom40-poscal-cbwu-v4"
+    assert effective["policy_id"] == (
+        "classic-k1-role12-lev40-boom160-poscal-cbwu-v5"
+    )
     assert effective["engine_environment_sha256"] == canonical_sha256(
         effective["engine_environment"]
     )
-    assert effective["engine_environment"]["MIN_LINEUP_SALARY"] == "49000"
-    assert effective["engine_environment"]["MULTISEED_PORTFOLIO"] == "CBWU"
-    assert effective["engine_environment"]["SELECT_LADDER"] == ""
+    env = effective["engine_environment"]
+    assert len(env) == 75
+    assert env["MIN_LINEUP_SALARY"] == "49000"
+    assert env["MULTISEED_PORTFOLIO"] == "CBWU"
+    assert env["SELECT_LADDER"] == ""
+    assert (env["N_LEV"], env["N_BOOM"], env["N_EPISTEMIC"]) == (
+        "40", "160", "12",
+    )
+    assert env["GEN_TOTAL_BUDGET"] == "172"
+    assert env["BOOM_UNIQUE_FILL"] == "0"
     assert inventory["forbidden_ambient_process_keys"] == sorted(
         FORBIDDEN_AMBIENT_INPUT_KEYS
     )
@@ -240,6 +265,38 @@ def test_runtime_input_projection_is_an_exact_classified_partition(inventory):
                    for site in row["direct_read_sites"])
         if row["ambient_process_requirement"] == "absent":
             assert key in projection["ambient_process_keys_requiring_absence"]
+
+    for key, value in (("N_LEV", "40"), ("BOOM_UNIQUE_FILL", "0")):
+        row = inputs[key]
+        assert row["classification"] == "frozen_mechanism_input"
+        assert row["baseline_effective_policy"] == {
+            "state": "present", "value": value,
+        }
+        assert row["request_mapping_requirement"] == {
+            "state": "present", "value": value,
+        }
+    assert "PROP_MARKET_REQUIRED" not in inputs
+    for key in (
+        "WEEK1_OPERATING_BOOK_URI",
+        "WEEK1_OPERATING_BOOK_GENERATION",
+        "WEEK1_OPERATING_BOOK_SHA256",
+        "WEEK1_OPERATING_BOOK_BYTES",
+    ):
+        assert inputs[key]["classification"] == "infrastructure_only"
+        assert {
+            site["path"] for site in inputs[key]["direct_read_sites"]
+        } == {"src/nfl_dfs/app/week1_operating_book_api.py"}
+
+    live_projection_sites = [
+        site
+        for row in inputs.values()
+        for site in row["direct_read_sites"]
+        if site["path"] == "src/nfl_dfs/inference/run_projections.py"
+    ]
+    assert len(live_projection_sites) == 1
+    assert live_projection_sites[0]["classification"] == (
+        "frozen_mechanism_input"
+    )
 
 
 def test_stack_globals_and_engine_replay_game_sim_reads_are_visible(inventory):

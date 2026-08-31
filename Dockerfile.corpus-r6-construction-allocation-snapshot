@@ -29,6 +29,7 @@ RUN apt-get update \
 COPY pyproject.toml README.md /app/
 COPY SOURCE_COMMIT /app/SOURCE_COMMIT
 COPY src /app/src
+COPY scripts/run_corpus_r6_construction_allocation_collector_repair_v1.py /app/scripts/
 COPY scripts/run_corpus_r6_construction_allocation_snapshot_shard_v1.py /app/scripts/
 COPY scripts/run_corpus_r6_construction_allocation_grade_v1.py /app/scripts/
 COPY scripts/cloud_corpus_r6_construction_allocation_snapshot_v1.sh /app/scripts/

@@ -181,6 +181,65 @@ def test_seed_crossing_exact_reopens_every_source_before_publication() -> None:
     assert operator.evaluation.validate_seed_crossing_v1(value) == value
 
 
+def test_seed_crossing_design_producer_is_complete_and_explicitly_unexecuted() -> None:
+    store = MemoryStore(now=datetime(2026, 8, 30, 12, tzinfo=UTC))
+    result = operator.publish_seed_crossing_design_v1(
+        store=store,
+        source_prefix="gs://shadow-fixture/prelock/seed-design-v1",
+        target_uri="gs://shadow-fixture/prelock/seed-crossing-design-v1.json",
+        fit_seeds={"fit0": 2026083001, "fit1": 2026083002},
+        world_seeds={"world0": 2026083011, "world1": 2026083012},
+        must_precede=WEEK1_LOCK,
+    )
+
+    assert result["schema_version"] == (
+        operator.SEED_CROSSING_DESIGN_PUBLICATION_SCHEMA
+    )
+    assert result["source_identity_count"] == 8
+    assert result["crossing_execution_status"] == "not_evaluated"
+    assert result[
+        "crossed_generation_or_scoring_outputs_semantically_verified"
+    ] is False
+    assert result["uses_realized_outcomes"] is False
+    assert [event[0] for event in store.events] == (
+        ["publish"] * 8 + ["read"] * 8 + ["publish"]
+    )
+    crossing = json.loads(
+        store.objects[result["seed_crossing_identity"]["uri"]]["raw"]
+    )
+    assert operator.evaluation.validate_seed_crossing_v1(crossing) == crossing
+    assert crossing["crossing_execution_status"] == "not_evaluated"
+
+
+def test_seed_crossing_design_rejects_drift_or_seed_reuse_before_publication() -> None:
+    store = MemoryStore(now=datetime(2026, 8, 30, 12, tzinfo=UTC))
+    with pytest.raises(
+        operator.ProspectiveGenerationShadowOperatorError,
+        match="exact fit0/fit1",
+    ):
+        operator.publish_seed_crossing_design_v1(
+            store=store,
+            source_prefix="gs://shadow-fixture/prelock/design",
+            target_uri="gs://shadow-fixture/prelock/crossing.json",
+            fit_seeds={"fit0": 1, "fit2": 2},
+            world_seeds={"world0": 3, "world1": 4},
+            must_precede=WEEK1_LOCK,
+        )
+    with pytest.raises(
+        operator.ProspectiveGenerationShadowOperatorError,
+        match="distinct across both axes",
+    ):
+        operator.publish_seed_crossing_design_v1(
+            store=store,
+            source_prefix="gs://shadow-fixture/prelock/design",
+            target_uri="gs://shadow-fixture/prelock/crossing.json",
+            fit_seeds={"fit0": 1, "fit1": 2},
+            world_seeds={"world0": 2, "world1": 4},
+            must_precede=WEEK1_LOCK,
+        )
+    assert store.events == []
+
+
 def test_prelock_adapter_reopens_suite_bundles_and_publishes_root_then_envelope(
     monkeypatch,
 ) -> None:

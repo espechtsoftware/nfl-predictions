@@ -250,7 +250,10 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     from ..models.blend import (blend, effective_model_weight,
                                 market_projection_frame,
                                 shift_draws_to_means)
-    from .run_projections import upcoming_slate_features
+    from .run_projections import (
+        _props_first_market_with_dk_fallback,
+        upcoming_slate_features,
+    )
 
     import os as _os
 
@@ -351,7 +354,7 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     # Market blend as an additive mean shift — draw shape untouched.
     # Props-first (review #5 round 3 parity fix): the replay blend that
     # validated BLEND_W uses prop-market points; DK PPG is the fallback.
-    market = market_projection_frame(skill)
+    market = np.asarray(market_projection_frame(skill), dtype=float)
     try:
         from ..models.prop_market import market_points as _prop_points
         _pm = _prop_points((int(season),))
@@ -360,10 +363,18 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
             _m = skill[["gsis_id"]].merge(
                 _pm[["gsis_id", "market_points"]], on="gsis_id",
                 how="left").market_points
-            if _m.notna().sum() >= 0.3 * len(skill):
-                market = _m.astype(float)
+            market, prop_market_mask = (
+                _props_first_market_with_dk_fallback(market, _m)
+            )
+            if prop_market_mask.any():
                 log.info("live blend source: props (%d/%d rows)",
-                         int(_m.notna().sum()), len(skill))
+                         int(prop_market_mask.sum()), len(skill))
+            else:
+                log.info(
+                    "live prop-market coverage below 30 percent (%d/%d); "
+                    "using full DK-PPG fallback",
+                    int(_m.notna().sum()), len(skill),
+                )
     except Exception:
         log.exception("live prop market unavailable; DK PPG stand-in")
     market_values = np.asarray(market, dtype=float)

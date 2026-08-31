@@ -115,12 +115,16 @@ if [[ "${1:-}" == "build" ]]; then
     pyproject.toml
     README.md
     src
+    scripts/cloud_corpus_r6_construction_allocation_collector_repair_v1.sh
     scripts/cloud_corpus_r6_construction_allocation_snapshot_v1.sh
+    scripts/run_corpus_r6_construction_allocation_collector_repair_v1.py
     scripts/run_corpus_r6_construction_allocation_grade_v1.py
     scripts/run_corpus_r6_construction_allocation_snapshot_shard_v1.py
     tests/conftest.py
     tests/test_boom_first_historical_construction_snapshot_adapter_v1.py
     tests/test_corpus_r6_construction_allocation_cloud_release_v1.py
+    tests/test_corpus_r6_construction_allocation_collector_repair_cloud_v1.py
+    tests/test_corpus_r6_construction_allocation_collector_repair_v1.py
     tests/test_corpus_r6_construction_allocation_cross_v1.py
     tests/test_corpus_r6_construction_allocation_grade_operator_v1.py
     tests/test_corpus_r6_construction_allocation_operator_hardening_v1.py

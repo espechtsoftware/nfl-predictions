@@ -1,0 +1,9 @@
+.venv
+.build-contexts
+.pytest_cache
+__pycache__
+*.pyc
+reports/corpus-parametric-runs
+reports/t230-production-runs
+results
+.tmp

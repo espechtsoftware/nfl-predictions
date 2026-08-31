@@ -21,6 +21,7 @@ TEST_SUPPORT_SCRIPTS = (
     "run_legal_soft_law.py",
     "verify_deployment.py",
 )
+WEEK1_OPERATOR_SCRIPT = "publish_week1_operating_book.py"
 
 
 def _run(*args: str, cwd: Path) -> str:
@@ -51,6 +52,9 @@ def _committed_fixture(tmp_path: Path) -> tuple[Path, str]:
     shutil.copy2(BUILD_SCRIPT, repo / "scripts" / BUILD_SCRIPT.name)
     (repo / "scripts" / "cloud_generation_shadow_suite.sh").write_text(
         "#!/usr/bin/env bash\nexit 0\n", encoding="utf-8"
+    )
+    (repo / "scripts" / WEEK1_OPERATOR_SCRIPT).write_text(
+        "raise SystemExit(0)\n", encoding="utf-8"
     )
     (repo / "scripts" / "unrelated_research_driver.py").write_text(
         "raise SystemExit('must not be uploaded')\n", encoding="utf-8"
@@ -160,6 +164,7 @@ def test_clean_archive_submit_is_commit_bound_and_excludes_unrelated_trees(
     assert "tests/test_placeholder.py" in files
     assert "scripts/build_generation_shadow_suite_image.sh" in files
     assert "scripts/cloud_generation_shadow_suite.sh" in files
+    assert f"scripts/{WEEK1_OPERATOR_SCRIPT}" in files
     assert "cloudbuild.yaml" in files
     for script_name in TEST_SUPPORT_SCRIPTS:
         assert f"scripts/{script_name}" in files
@@ -174,6 +179,9 @@ def test_clean_archive_submit_is_commit_bound_and_excludes_unrelated_trees(
         arg for arg in args if arg.startswith("--substitutions=")
     )
     assert _run("git", "status", "--porcelain=v1", cwd=repo) == ""
+    build_context_root = repo / ".build-contexts"
+    assert build_context_root.is_dir()
+    assert list(build_context_root.iterdir()) == []
 
 
 def test_dirty_worktree_cannot_enter_exact_commit_archive(tmp_path: Path) -> None:
@@ -294,4 +302,7 @@ def test_runtime_image_and_cloud_build_use_only_the_dedicated_context() -> None:
     assert "tests/test_prospective_boom_first.py" in build
     assert "src/nfl_dfs/inference/prospective_cross_law_supply_trace.py" in build
     assert "tests/test_prospective_cross_law_supply_trace.py" in build
+    assert "src/nfl_dfs/inference/week1_operating_book_operator.py" in build
+    assert "tests/test_publish_week1_operating_book_script.py" in build
+    assert "scripts/publish_week1_operating_book.py" in build
     assert "- '${_BUILD_IMAGE}'" in build

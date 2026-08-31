@@ -155,6 +155,11 @@ EXECUTED_DEPENDENCY_MODULE_PATHS: Final = tuple(sorted(set((
         "src/nfl_dfs/research/"
         "corpus_r6_matchup_source_release_outer_candidate_authority_v3.py"
     ),
+    (
+        "src/nfl_dfs/research/"
+        "corpus_r6_matchup_source_task0_v3.py"
+    ),
+    "scripts/run_corpus_r6_matchup_source_task0_v3.py",
     BATCH_MODULE_PATH,
     CLI_MODULE_PATH,
 ))))
@@ -177,6 +182,9 @@ _RUNTIME_MODULE_PATHS: Final = {
 
 def _critical_loaded_callables_v3() -> tuple[tuple[object, str, str], ...]:
     current = importlib.import_module(__name__)
+    task0_v3 = importlib.import_module(
+        "nfl_dfs.research.corpus_r6_matchup_source_task0_v3"
+    )
     return (
         *(
             (current, attribute, BATCH_MODULE_PATH)
@@ -200,6 +208,7 @@ def _critical_loaded_callables_v3() -> tuple[tuple[object, str, str], ...]:
                 "_normalize_read_budget_contract_v3",
                 "_normalize_read_budget_receipt_v3",
                 "_normalize_runtime_binding",
+                "_normalize_task0_authorization_v3",
                 "_normalize_write_budget_contract_v3",
                 "_normalize_write_budget_receipt_v3",
                 "_operator_code_identity",
@@ -226,6 +235,11 @@ def _critical_loaded_callables_v3() -> tuple[tuple[object, str, str], ...]:
                 "validate_matchup_source_batch_outer_candidate_authority_v3",
                 "validate_matchup_source_batch_task0_readiness_v3",
             )
+        ),
+        (
+            task0_v3,
+            "validate_full_publication_authorization_v3",
+            "src/nfl_dfs/research/corpus_r6_matchup_source_task0_v3.py",
         ),
         *(
             (
@@ -2155,6 +2169,35 @@ def _preterminal_root_evidence_v3(
     }
 
 
+def _normalize_task0_authorization_v3(
+    value: object,
+    *,
+    expected_run_id: str,
+    expected_capture_plan_binding: Mapping[str, object],
+    expected_closure_sha256: str,
+    expected_runtime_sha256: str,
+) -> dict[str, object]:
+    # Local import avoids a module-import cycle: the bounded task0 operator
+    # reuses this module's exact plan/runtime machinery, while the terminal
+    # source root must durably embed the task0 authorization it produced.
+    from nfl_dfs.research import (  # pylint: disable=import-outside-toplevel
+        corpus_r6_matchup_source_task0_v3 as task0_v3,
+    )
+
+    try:
+        return task0_v3.revalidate_full_publication_authorization_provider_source_v3(
+            value,
+            expected_run_id=expected_run_id,
+            expected_capture_plan_binding=expected_capture_plan_binding,
+            expected_closure_sha256=expected_closure_sha256,
+            expected_runtime_sha256=expected_runtime_sha256,
+        )
+    except Exception as exc:
+        raise CorpusR6MatchupSourceBatchOuterCandidateAuthorityV3Error(
+            f"source-v3 task0 full authorization differs: {exc}"
+        ) from exc
+
+
 def _build_batch_root_v3(
     *,
     run_id: str,
@@ -2168,6 +2211,7 @@ def _build_batch_root_v3(
     source_release_identity: Mapping[str, object],
     preterminal_read_budget_receipt: Mapping[str, object],
     preterminal_write_budget_receipt: Mapping[str, object],
+    task0_authorization: Mapping[str, object],
 ) -> dict[str, object]:
     plan = capture_v3.validate_capture_plan_lock_v3(capture_plan)
     binding = release_v1._capture_plan_binding(capture_plan_binding)
@@ -2176,6 +2220,13 @@ def _build_batch_root_v3(
         runtime_binding, dependency_closure=closure
     )
     inventory = _normalize_output_uri_inventory_v3(output_uri_inventory)
+    authorization = _normalize_task0_authorization_v3(
+        task0_authorization,
+        expected_run_id=run_id,
+        expected_capture_plan_binding=binding,
+        expected_closure_sha256=str(closure["dependency_closure_sha256"]),
+        expected_runtime_sha256=str(runtime["runtime_binding_sha256"]),
+    )
     # Validate the live invocation ledgers before constructing the terminal
     # object, but do not embed their retry-dependent charge histories.  Only
     # the fixed limits/laws and deterministic preterminal completion state are
@@ -2252,6 +2303,22 @@ def _build_batch_root_v3(
         ],
         "runtime_binding": runtime,
         "runtime_binding_sha256": runtime["runtime_binding_sha256"],
+        "task0_full_publication_authorization": authorization,
+        "task0_full_publication_authorization_sha256": authorization[
+            "task0_full_authorization_sha256"
+        ],
+        "task0_worker_execution_name": authorization[
+            "worker_execution_name"
+        ],
+        "task0_verifier_execution_name": authorization[
+            "verifier_execution_name"
+        ],
+        "task0_verifier_provider_receipt_sha256": authorization[
+            "verifier_provider_receipt_sha256"
+        ],
+        "task0_verifier_provider_receipt_identity": authorization[
+            "verifier_provider_receipt_identity"
+        ],
         "output_uri_inventory": inventory,
         "output_uri_inventory_sha256": inventory[
             "output_uri_inventory_sha256"
@@ -2303,6 +2370,12 @@ def validate_batch_release_structure_v3(value: object) -> dict[str, object]:
         "executed_dependency_closure_sha256",
         "runtime_binding",
         "runtime_binding_sha256",
+        "task0_full_publication_authorization",
+        "task0_full_publication_authorization_sha256",
+        "task0_worker_execution_name",
+        "task0_verifier_execution_name",
+        "task0_verifier_provider_receipt_sha256",
+        "task0_verifier_provider_receipt_identity",
         "output_uri_inventory",
         "output_uri_inventory_sha256",
         "read_budget_contract",
@@ -2360,6 +2433,17 @@ def validate_batch_release_structure_v3(value: object) -> dict[str, object]:
     runtime = _normalize_runtime_binding(
         item.get("runtime_binding"), dependency_closure=closure
     )
+    authorization = _normalize_task0_authorization_v3(
+        item.get("task0_full_publication_authorization"),
+        expected_run_id=str(item.get("run_id")),
+        expected_capture_plan_binding=binding,
+        expected_closure_sha256=str(closure["dependency_closure_sha256"]),
+        expected_runtime_sha256=str(runtime["runtime_binding_sha256"]),
+    )
+    verifier_provider_identity = _identity(
+        item.get("task0_verifier_provider_receipt_identity"),
+        label="task0 verifier provider receipt",
+    )
     inventory = _normalize_output_uri_inventory_v3(
         item.get("output_uri_inventory")
     )
@@ -2394,6 +2478,8 @@ def validate_batch_release_structure_v3(value: object) -> dict[str, object]:
         "source_release_v3_entry_manifest_sha256",
         "executed_dependency_closure_sha256",
         "runtime_binding_sha256",
+        "task0_full_publication_authorization_sha256",
+        "task0_verifier_provider_receipt_sha256",
         "output_uri_inventory_sha256",
         "read_budget_contract_sha256",
         "write_budget_contract_sha256",
@@ -2437,6 +2523,16 @@ def validate_batch_release_structure_v3(value: object) -> dict[str, object]:
         != closure["dependency_closure_sha256"]
         or binding["commit_sha"] != closure["source_commit_sha"]
         or item["runtime_binding_sha256"] != runtime["runtime_binding_sha256"]
+        or item["task0_full_publication_authorization_sha256"]
+        != authorization["task0_full_authorization_sha256"]
+        or item["task0_worker_execution_name"]
+        != authorization["worker_execution_name"]
+        or item["task0_verifier_execution_name"]
+        != authorization["verifier_execution_name"]
+        or item["task0_verifier_provider_receipt_sha256"]
+        != authorization["verifier_provider_receipt_sha256"]
+        or verifier_provider_identity
+        != authorization["verifier_provider_receipt_identity"]
         or item["output_uri_inventory_sha256"]
         != inventory["output_uri_inventory_sha256"]
         or read_contract != _read_budget_contract_v3()
@@ -2462,6 +2558,8 @@ def validate_batch_release_structure_v3(value: object) -> dict[str, object]:
         "source_release_v3_identity": source_identity,
         "executed_dependency_closure": closure,
         "runtime_binding": runtime,
+        "task0_full_publication_authorization": authorization,
+        "task0_verifier_provider_receipt_identity": verifier_provider_identity,
         "output_uri_inventory": inventory,
         "read_budget_contract": read_contract,
         "write_budget_contract": write_contract,
@@ -2623,6 +2721,13 @@ def _deep_reopen_batch_v3(
         or root["output_uri_inventory"] != inventory
     ):
         _fail("source-v3 terminal batch root differs from clean runtime/plan")
+    task0_authorization = _normalize_task0_authorization_v3(
+        root["task0_full_publication_authorization"],
+        expected_run_id=str(root["run_id"]),
+        expected_capture_plan_binding=binding,
+        expected_closure_sha256=str(closure["dependency_closure_sha256"]),
+        expected_runtime_sha256=str(runtime["runtime_binding_sha256"]),
+    )
     source_body, source_identity = _parse_exact_json(
         root["source_release_v3_identity"],
         read_exact=read_exact,
@@ -2671,6 +2776,16 @@ def _deep_reopen_batch_v3(
         "source_task_count": source.TASK_COUNT,
         "source_task_ordinals_reopened": list(range(source.TASK_COUNT)),
         "source_member_exact_replay": member_replay,
+        "task0_full_publication_authorization": task0_authorization,
+        "task0_full_publication_authorization_sha256": task0_authorization[
+            "task0_full_authorization_sha256"
+        ],
+        "task0_worker_execution_name": task0_authorization[
+            "worker_execution_name"
+        ],
+        "task0_verifier_execution_name": task0_authorization[
+            "verifier_execution_name"
+        ],
         "complete_v3_predecessor_replay_count": 1,
         "candidate_v2_capture_v3_component_v3_source_v3_deep_reopen_complete": True,
         "write_capability_enabled": False,
@@ -2680,7 +2795,7 @@ def _deep_reopen_batch_v3(
 
 
 def publish_matchup_source_batch_outer_candidate_authority_v3(
-    *, run_id: str
+    *, run_id: str, task0_authorization: Mapping[str, object]
 ) -> dict[str, object]:
     """Publish the complete v3 chain and terminal batch root create-once."""
 
@@ -2690,6 +2805,13 @@ def publish_matchup_source_batch_outer_candidate_authority_v3(
     if os.environ.get(PUBLISH_ENABLE_ENV) != "1":
         _fail(f"source-v3 publication requires {PUBLISH_ENABLE_ENV}=1")
     closure, runtime, plan, binding, _ = _validate_local_context_v3()
+    authorization = _normalize_task0_authorization_v3(
+        task0_authorization,
+        expected_run_id=run_id,
+        expected_capture_plan_binding=binding,
+        expected_closure_sha256=str(closure["dependency_closure_sha256"]),
+        expected_runtime_sha256=str(runtime["runtime_binding_sha256"]),
+    )
     # This must happen before the write-capable transport exists.
     inventory = _output_uri_inventory_v3(run_id=run_id, plan_value=plan)
     try:
@@ -2858,6 +2980,7 @@ def publish_matchup_source_batch_outer_candidate_authority_v3(
             source_release_identity=source_identity,
             preterminal_read_budget_receipt=transport.read_budget_receipt(),
             preterminal_write_budget_receipt=transport.write_budget_receipt(),
+            task0_authorization=authorization,
         )
         _, batch_identity = _publish_json(
             batch_root,
@@ -2888,6 +3011,21 @@ def publish_matchup_source_batch_outer_candidate_authority_v3(
         "batch_release_identity": batch_identity,
         "source_release_v3_identity": source_identity,
         "task_count": source.TASK_COUNT,
+        "task0_full_publication_authorization_sha256": authorization[
+            "task0_full_authorization_sha256"
+        ],
+        "task0_verifier_provider_receipt_sha256": authorization[
+            "verifier_provider_receipt_sha256"
+        ],
+        "task0_verifier_provider_receipt_identity": authorization[
+            "verifier_provider_receipt_identity"
+        ],
+        "task0_worker_execution_name": authorization[
+            "worker_execution_name"
+        ],
+        "task0_verifier_execution_name": authorization[
+            "verifier_execution_name"
+        ],
         "terminal_batch_root_requested_last": True,
         "same_process_deep_reopen_complete": same_process_reopen[
             "candidate_v2_capture_v3_component_v3_source_v3_deep_reopen_complete"

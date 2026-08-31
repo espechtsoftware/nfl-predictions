@@ -778,6 +778,54 @@ def _produce(fixture: Mapping[str, Any]) -> dict[str, object]:
     )
 
 
+def test_one_task_gate_runs_production_reducer_for_only_ordinal_zero(
+    full_fixture: Mapping[str, Any],
+) -> None:
+    stored: dict[str, bytes] = {}
+    identities: dict[str, dict[str, object]] = {}
+
+    def materialize(uri: str, raw: bytes) -> Mapping[str, object]:
+        if uri in stored:
+            assert stored[uri] == raw
+            return identities[uri]
+        stored[uri] = raw
+        identity = _identity_for_raw(
+            raw=raw, uri=uri, generation_label=f"one-task:{uri}"
+        )
+        identities[uri] = identity
+        return identity
+
+    def read_exact(identity: Mapping[str, object]) -> bytes:
+        return stored[str(identity["uri"])]
+
+    fixture = full_fixture
+    result = producer.produce_one_component_task_v1(
+        source_task_ordinal=0,
+        producer_id="r6-matchup-component-producer-v1",
+        producer_namespace=PRODUCER_NAMESPACE,
+        fixed_g0_replay_receipt=fixture["replay"]["receipt"],
+        fixed_g0_replay_receipt_identity=fixture["replay"]["identity"],
+        catalog_release=fixture["catalogs"]["release"],
+        catalog_release_identity=fixture["catalogs"]["release_identity"],
+        structural_catalogs=fixture["catalogs"]["catalogs"],
+        accepted_candidate_release=fixture["candidates"]["release"],
+        accepted_candidate_release_identity=fixture["candidates"]["identity"],
+        upstream_source_release=fixture["upstream"]["release"],
+        upstream_source_release_identity=fixture["upstream"]["release_identity"],
+        upstream_pack_row_objects=fixture["upstream"]["pack_rows"],
+        producer_code_identity=fixture["producer_code_identity"],
+        body_materializer=materialize,
+        read_exact=read_exact,
+    )
+    assert result["schema_version"] == producer.ONE_TASK_RESULT_SCHEMA
+    assert result["source_task_ordinal"] == 0
+    assert result["support_preflight_passed"] is True
+    assert result["input_bundle"]["source_task_ordinal"] == 0
+    assert result["producer_receipt"]["source_task_ordinal"] == 0
+    assert all("source-task-00-" in uri for uri in stored)
+    assert not any("source-task-01-" in uri for uri in stored)
+
+
 def test_full_54_producer_emits_body_bound_bundles_and_support(
     full_fixture: Mapping[str, Any],
 ) -> None:

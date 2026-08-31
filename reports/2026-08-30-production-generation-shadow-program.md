@@ -49,27 +49,40 @@ Every prospective book is frozen before slate lock. Realized outcomes and
 contest fields enter only through a separately produced post-settlement
 snapshot. No positive point estimate automatically changes the money policy.
 
-## Frozen five-arm design
+## Core hierarchy and selected five-arm executable release
 
 All counts below are per R0--R4 10,000-world block. Five blocks are run per
 slate. The role-12 sleeve and every other incumbent auxiliary family remain
 unchanged in every block.
 
-| Arm | Leverage | Base-law boom | Discovery-law boom | Core solves/block | Status |
+| Arm | Leverage | Base-law boom | Discovery-law boom | Solves/block | Scientific/release role |
 |---|---:|---:|---:|---:|---|
-| incumbent-160-40 | 160 | 40 | 0 | 200 | required control |
-| boom-first-40-160 | 40 | 160 | 0 | 200 | required primary treatment |
-| cross-law-40-100-60 | 40 | 100 | 60 | 200 | required; exploratory diagnostic |
-| boom-dose-40-360 | 40 | 360 | 0 | 400 | required; unequal-resource diagnostic |
-| ceiling-all-boom-0-200 | 0 | 200 | 0 | 200 | required; unpassed diagnostic |
+| incumbent-160-40 | 160 | 40 | 0 | 200 | required core control |
+| boom-first-40-160 | 40 | 160 | 0 | 200 | required core primary treatment |
+| cross-law-40-100-60 | 40 | 100 | 60 | 200 | pre-outcome chosen; nominated exploratory after trace |
+| boom-dose-40-360 | 40 | 360 | 0 | 400 | pre-outcome chosen; separate unequal-resource diagnostic family |
+| ceiling-all-boom-0-200 | 0 | 200 | 0 | 200 | pre-outcome chosen optional exploratory boundary; historically unpassed |
 
 The equal-budget arms therefore request 1,000 core solves per slate, not 200.
 The dose arm requests 2,000 and is never reported as an equal-compute effect.
-All five arms are mandatory for this release and must be frozen before Week 1;
-none may be omitted for cost, spare-slot, or early-result reasons. The
-exploratory, unequal-resource, and unpassed labels remain scientific-status
-disclosures, not inclusion switches. The all-boom arm remains historically
-unpassed and cannot be added, removed, or relabelled after results are visible.
+
+The decision-bearing core is exactly the incumbent/boom-first generation pair
+and their 2 x 2 retrieval crossing below. Cross-law is a nominated exploratory
+arm whose contrast becomes valid only after its outcome-free influence trace
+passes. The 400-solve dose is a separate unequal-resource diagnostic and
+multiplicity family below the core; it cannot estimate the equal-budget
+generation effect. All-boom is an optional exploratory boundary arm, not a
+required member of the scientific core.
+
+We nevertheless chose before outcomes to include all-boom, cross-law, and the
+dose in the five-arm Week 1 executable release. Capacity was allocated now to
+measure the zero-leverage boundary and the two nominated mechanisms while the
+off-season window remains open. That aggressive capacity decision gives none
+of them primary authority and their results do not block interpretation of the
+core. The current terminal is atomic over the five predeclared arms, so a
+runner may not silently drop one after freeze; if capacity forces a smaller
+runtime, it requires a distinct pre-outcome core-only preregistration rather
+than pretending that the five arms were one mandatory scientific family.
 
 ### Generation by retrieval crossing
 
@@ -136,12 +149,13 @@ canonical nine-player roster when one exists, and measured duration. The suite
 receipts natural uniqueness, collisions, failures, family yield, and wall time
 per family and block.
 
-For each slate the runner creates immutable, create-only artifacts for all five
-arm bundles, the five cross-law discovery banks, the independent audit bank,
-one manifest, and one terminal root. Google Cloud Storage's object generation
-and server-side creation timestamp must prove that each authoritative object
-preceded slate lock. The terminal root is not produced after a partial or late
-run.
+For each slate the selected five-arm runner creates immutable, create-only
+artifacts for all five arm bundles, the five cross-law discovery banks, the
+independent audit bank, one manifest, and one terminal root. Google Cloud
+Storage's object generation and server-side creation timestamp must prove that
+each authoritative object preceded slate lock. The terminal root is not
+produced after a partial or late run. This atomic executable-inventory rule is
+not a claim that all five belong to the scientific core.
 
 ## Outcome boundary and evaluation
 
@@ -260,7 +274,7 @@ independently reconciled. Complete-field counterfactual ranks alone never do.
 | Correct cap-4 “inert” claim | adopted; direct choice/exclusion trace replaces prefix exhaustion |
 | State counts in production units | adopted per block and per five-block slate |
 | Eight-week efficacy is invalid | adopted; Week 8 is safety/integrity only |
-| Freeze arm hierarchy | adopted as five mandatory arms with executable primary, key-secondary and diagnostic-only roles |
+| Freeze arm hierarchy | adopted with incumbent + boom-first + retrieval crossing as core; cross-law exploratory after trace; all-boom optional/pre-outcome chosen; 400-solve dose in a separate unequal-resource family |
 | Require cross-law influence trace | adopted as a fail-closed pre-lock receipt |
 | Add 230/240 and field utility | adopted |
 | Make full-field capture mandatory for EV | adopted; raw-score-only fallback is explicit |

@@ -1,0 +1,15 @@
+**
+!Dockerfile.corpus-r6-paid-source-discovery-matrix
+!pyproject.toml
+!README.md
+!SOURCE_COMMIT
+!src/
+!src/**
+!scripts/
+!scripts/cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.sh
+!scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py
+**/__pycache__/
+**/__pycache__/**
+**/*.py[co]
+**/*.egg-info/
+**/*.egg-info/**

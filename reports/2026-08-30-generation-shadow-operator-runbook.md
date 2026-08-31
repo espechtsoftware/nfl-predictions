@@ -73,6 +73,26 @@ Subsequent installs update that one predeclared job and do not need
 season/week/draft-group/lock environment values and
 `GENERATION_SHADOW_EXECUTE=1` are all required. No scheduler is installed.
 
+The launch prints one exact execution name.  After that execution reaches
+terminal success, collect its receipt-only stdout without updating or
+executing the job:
+
+```bash
+GENERATION_SHADOW_COLLECT_EXECUTION=generation-shadow-suite-abc12 \
+GENERATION_SHADOW_SEASON=2026 \
+GENERATION_SHADOW_WEEK=1 \
+GENERATION_SHADOW_DRAFT_GROUP_ID=DRAFT_GROUP_ID \
+GENERATION_SHADOW_SLATE_LOCK_AT=2026-09-13T17:00:00Z \
+scripts/cloud_generation_shadow_suite.sh IMAGE FULL_PUSHED_CODE_SHA
+```
+
+Collection exact-describes only that execution, proves one successful task,
+zero failures/cancellations/running tasks, the immutable image/code/project/
+bucket/resources and exact slate arguments, then accepts exactly one matching
+JSON stdout receipt.  It returns normalized generation-pinned manifest and
+terminal identities for `freeze-week`.  It never describes, updates, deploys,
+or executes the mutable job and never reads outcomes.
+
 ## 1. Publish the pre-Week-1 family rule
 
 Publish this once before the Week 1 Sunday-main lock:
@@ -91,7 +111,38 @@ The preregistration fixes the five-arm order, K20/K40/K80 reporting,
 18-week first efficacy read, the single family decision rule, and no automatic
 adoption.
 
-## 2. Publish the crossed fit/world authority
+## 2. Publish the crossed fit/world design authority
+
+The production operator can now create the eight explicit design-only source
+documents itself, rather than depending on unspecified external artifacts.
+Choose and freeze the two fit seeds and two world seeds before any outcome is
+available:
+
+```json
+{
+  "source_prefix": "gs://BUCKET/generation_shadow/2026/authorities/seed-design-v1",
+  "target_uri": "gs://BUCKET/generation_shadow/2026/authorities/seed-crossing.json",
+  "fit_seeds": {"fit0": 2026083001, "fit1": 2026083002},
+  "world_seeds": {"world0": 2026083011, "world1": 2026083012},
+  "must_precede": "2026-09-13T17:00:00+00:00"
+}
+```
+
+Run:
+
+```bash
+nfl-dfs shadow-generation-operator publish-seed-crossing-design \
+  --request /home/erich/projects/nfl-predictions/config/2026-week1-generation-shadow-seed-crossing-design.json \
+  --execute
+```
+
+This writes two fit-axis documents, two world-axis documents, four crossed
+design slots, then exact-reopens all eight and publishes the crossing.  Every
+object explicitly says the diagnostic is `not_evaluated`; these are never
+presented as fit, generation, scoring, or outcome results.
+
+The lower-level form below remains available when eight independently
+published source artifacts already exist.
 
 `publish-seed-crossing` accepts a JSON request with:
 
