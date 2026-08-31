@@ -23,6 +23,8 @@ RUN test "$(cat /app/SOURCE_COMMIT)" = "${SOURCE_COMMIT_SHA}" \
     && ln -s /usr/local/bin/python3.14 /usr/local/bin/python3.11 \
     && pip install --no-cache-dir \
        "google-cloud-bigquery==3.43.0" "google-cloud-storage==3.13.1" \
+       "numpy==2.5.1" "scipy==1.18.0" "scikit-learn==1.9.0" \
+       "pulp==3.3.2" \
     && pip install --no-cache-dir --no-deps --editable .
 
 CMD ["/bin/bash", "/app/scripts/cloud_corpus_r6_matchup_seven_pack_capture_v1.sh", "container-help"]

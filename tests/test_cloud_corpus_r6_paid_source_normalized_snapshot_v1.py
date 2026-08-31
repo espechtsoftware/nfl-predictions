@@ -80,6 +80,12 @@ def test_clean_build_is_direct_git_narrow_and_outcome_blind() -> None:
     assert "R6_PAID_SOURCE_NORMALIZED_SNAPSHOT_MODULE_SHA256" in dockerfile
     assert "google-cloud-bigquery==3.43.0" in dockerfile
     assert "google-cloud-storage==3.13.1" in dockerfile
+    for dependency in (
+        "numpy==2.5.1", "scipy==1.18.0", "scikit-learn==1.9.0",
+        "pulp==3.3.2",
+    ):
+        assert dependency in build_text
+        assert dependency in dockerfile
     assert "COPY src /app/src" in dockerfile
     assert "!src/**" in dockerignore
     for forbidden in ("reports", "HANDOFF.md", "CLAUDE.md", ".git"):

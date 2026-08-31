@@ -255,14 +255,29 @@ and operator decisions.  The older entries remain the durable chronology.
 - Exact 99a grade runtime installation reused job UID
   `1f4bcf0a-2300-4afa-9fc1-9981844c8275` at generation 45.  Grade-prepare
   execution `atlas-cbc-32g-full-2023-w8-v1-9bzqk`, UID
-  `0f2e73fb-db15-4fa3-b224-fdcac72bba00`, launched against the sealed terminal
-  and the existing outcome-completion identity generation
+  `0f2e73fb-db15-4fa3-b224-fdcac72bba00`, failed once with zero retries at
+  `2026-08-31T04:36:19.651924Z` before constructing its GCS client: the
+  semantically correct request file was pretty-printed rather than canonical
+  JSON.  Exact stderr was `request is not canonical JSON`, stdout was empty,
+  and the deterministic grade-manifest name remained absent.  It therefore
+  neither read nor published any outcome or grade object.  The corrected
+  canonical request is 3254 bytes with SHA-256
+  `706a4c15c3b17ae9a295d8e6455e7f0a7dfe2379e0a5f4d12f938a9525b304e3`.
+- A one-task unchanged-image `container-help` sentinel
+  `atlas-cbc-32g-full-2023-w8-v1-5gqq8`, UID
+  `b534ea7b-6ae6-4494-b398-dbe226c8869e`, succeeded at
+  `2026-08-31T04:47:55.680157Z`, restoring the committed launcher's required
+  latest-terminal-success invariant without touching data.  The unchanged
+  99a launcher then submitted corrected grade-prepare execution
+  `atlas-cbc-32g-full-2023-w8-v1-zdwnq`, UID
+  `d0c98e40-dce0-40a6-a3d6-00952bae351e`, against the sealed terminal and
+  existing outcome-completion identity generation
   `1787987567275104`, SHA-256
   `15852361756ef0fe76d3a299617ebc2c2531e6821a73f04c8f862bf7229f4df3`.
-  At `2026-08-31T04:34:46Z` it was provider-reported waiting to start.  Do not
-  relaunch it; poll this exact execution, then derive grade and grade-reopen
-  requests only from their validated exact stdout receipts.  Report the full
-  K20/K40/K80 2 x 2 cells immediately after grade succeeds.
+  At the latest poll it was running 1/1.  Do not relaunch it; poll this exact
+  execution, then derive grade and grade-reopen requests only from their
+  validated exact stdout receipts.  Report the full K20/K40/K80 2 x 2 cells
+  immediately after grade succeeds.
 - Experiment 4 is scientifically ready for its fixed-corpus exact A250/A500
   outer-fold retention estimand, but its existing host launcher reads only
   Cloud Logging `textPayload`; actual JSON receipts may arrive as
@@ -271,6 +286,24 @@ and operator decisions.  The older entries remain the durable chronology.
   focused fixtures, commit/push, rebuild the Experiment-4 image, and run the
   existing task-0 -> 54 -> collect -> reopen -> grade -> grade-reopen chain.
   VX60 remains excluded and the 205.793 hindsight union remains diagnostic.
+- Parallel Experiment-5 prerequisite builds found and closed two packaging
+  defects without touching the shared job.  Seven-pack submission was
+  rejected before a build existed because Cloud Build interpreted `$PWD` as
+  an undeclared substitution; its YAML now uses `$$PWD`.  Normalized FP/SIS
+  Build `d72b7185-d527-4aae-94a2-9ecf9cb27e49` failed in focused test
+  collection because the guarded seven-pack/candidate validation import graph
+  lacked NumPy.  The complete build/runtime dependency closure now pins
+  NumPy 2.5.1, SciPy 1.18.0, scikit-learn 1.9.0 and PuLP 3.3.2 in both images.
+  No scientific code changed.  The exact normalized and seven-pack suites are
+  **16/16** and **35/35**, their focused cloud-contract subset is **10/10**,
+  and diff checks pass.  Commit/push only these six packaging/test files with
+  this handoff, then rebuild both prerequisites in parallel; no failed image
+  may be reused.
+- Lab control-plane polling found `lab-run-l94n9` and `lab-run-g65rm`
+  terminal-failed 18/18 after reaching the configured ten-hour timeout.  New
+  execution `lab-run-wqwcq`, UID
+  `4b1a7c6a-c034-4bce-a0c0-8a7d54a3f662`, was running 18 tasks at the latest
+  poll.  No lab result artifact was opened.
 
 ## Current handoff -- 2026-08-30 (four-hundred-forty-second update)
 

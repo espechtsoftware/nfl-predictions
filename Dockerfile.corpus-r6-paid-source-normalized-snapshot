@@ -19,14 +19,17 @@ COPY scripts/cloud_corpus_r6_paid_source_normalized_snapshot_v1.sh \
      scripts/run_corpus_r6_matchup_seven_pack_capture_v1.py \
      /app/scripts/
 
-# The snapshot projection itself is stdlib-only.  Install only its genuine
-# BigQuery/GCS transport dependencies, then register the local package without
-# pulling the unrelated modeling/runtime dependency graph into this image.
+# The snapshot projection itself is stdlib-only.  Its guarded transport also
+# replays the seven-pack/candidate validation boundary, whose import graph uses
+# NumPy, SciPy, scikit-learn and PuLP.  Pin that exact runtime closure alongside
+# the genuine BigQuery/GCS transport, then register the local package no-deps.
 RUN test "$(cat /app/SOURCE_COMMIT)" = "${SOURCE_COMMIT_SHA}" \
     && test "$(sha256sum /app/src/nfl_dfs/research/corpus_r6_paid_source_normalized_snapshot_v1.py | awk '{print $1}')" = "${SNAPSHOT_MODULE_SHA256}" \
     && ln -s /usr/local/bin/python3.14 /usr/local/bin/python3.11 \
     && pip install --no-cache-dir \
        "google-cloud-bigquery==3.43.0" "google-cloud-storage==3.13.1" \
+       "numpy==2.5.1" "scipy==1.18.0" "scikit-learn==1.9.0" \
+       "pulp==3.3.2" \
     && pip install --no-cache-dir --no-deps --editable .
 
 # Installation is inert.  Every data-bearing phase is an explicit one-task

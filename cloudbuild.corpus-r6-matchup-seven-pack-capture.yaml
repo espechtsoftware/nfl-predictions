@@ -46,11 +46,14 @@ steps:
       - -ceu
       - |
         ln -s /usr/local/bin/python3.14 /usr/local/bin/python3.11
+        pip install --no-cache-dir \
+          'numpy==2.5.1' 'scipy==1.18.0' 'scikit-learn==1.9.0' \
+          'pulp==3.3.2'
         pip install --no-cache-dir --no-deps --editable .
         pip install --no-cache-dir 'pytest==9.1.1' 'PyYAML==6.0.3'
         /usr/local/bin/python3.11 -I \
           scripts/run_corpus_r6_matchup_seven_pack_capture_v1.py \
-          build-implementation-authority --repository-root "$PWD" \
+          build-implementation-authority --repository-root "$$PWD" \
           --source-commit-sha '${_CODE_SHA}' \
           >SEVEN_PACK_IMPLEMENTATION_AUTHORITY.json
         authority_sha=$(sha256sum SEVEN_PACK_IMPLEMENTATION_AUTHORITY.json | awk '{print $1}')
