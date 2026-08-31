@@ -186,13 +186,25 @@ if a[:2] == ["logging", "read"]:
 if a[:4] == ["run", "jobs", "executions", "describe"]:
     name = a[4]
     if name == job + "-old00":
+        prior_mode = os.environ.get("PRIOR_TERMINAL_MODE", "success")
+        prior_status = {
+            "conditions": [{
+                "type": "Completed",
+                "status": {
+                    "success": "True",
+                    "failed": "False",
+                    "nonterminal": "Unknown",
+                }[prior_mode],
+            }],
+            "succeededCount": 1 if prior_mode == "success" else 0,
+            "failedCount": 1 if prior_mode == "failed" else 0,
+            "runningCount": 1 if prior_mode == "nonterminal" else 0,
+        }
+        if prior_mode != "nonterminal":
+            prior_status["completionTime"] = "2026-08-30T20:00:00Z"
         print(json.dumps({
             "metadata": {"name": name, "labels": {"run.googleapis.com/job": job}},
-            "status": {
-                "conditions": [{"type": "Completed", "status": "True"}],
-                "completionTime": "2026-08-30T20:00:00Z",
-                "succeededCount": 1,
-            },
+            "status": prior_status,
         }))
         raise SystemExit
     if name == os.environ.get("RESULT_EXECUTION"):
@@ -537,6 +549,34 @@ def test_install_updates_existing_job_to_dormant_state_without_execution(
     assert "run jobs update " + JOB in calls
     assert "run jobs execute" not in calls
     assert "run jobs deploy" not in calls
+
+
+def test_install_accepts_failed_terminal_predecessor_but_rejects_nonterminal(
+    tmp_path: Path,
+) -> None:
+    failed_root = tmp_path / "failed"
+    failed_env = {
+        **_environment(failed_root, installed=False),
+        "PRIOR_TERMINAL_MODE": "failed",
+    }
+    failed = _run("install", None, env=failed_env)
+    assert failed.returncode == 0, failed.stderr
+    assert json.loads(failed.stdout)["prior_terminal_execution"] == JOB + "-old00"
+    failed_calls = (failed_root / "calls.log").read_text()
+    assert "run jobs update " + JOB in failed_calls
+    assert "run jobs execute" not in failed_calls
+
+    running_root = tmp_path / "nonterminal"
+    running_env = {
+        **_environment(running_root, installed=False),
+        "PRIOR_TERMINAL_MODE": "nonterminal",
+    }
+    running = _run("install", None, env=running_env)
+    assert running.returncode == 2
+    assert "latest execution is not terminal" in running.stderr
+    running_calls = (running_root / "calls.log").read_text()
+    assert "run jobs update " + JOB not in running_calls
+    assert "run jobs execute" not in running_calls
 
 
 def test_unrelated_dirty_state_is_nonblocking_but_dirty_release_input_fails(

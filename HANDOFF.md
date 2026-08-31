@@ -69,6 +69,40 @@ and operator decisions.  The older entries remain the durable chronology.
   output prefix. Never resume/relabel `xxq8h`, never treat its published
   manifest as an accepted successful prepare execution, and do not launch E5
   while the shared job is serving the E4 continuation.
+- That repair was committed/pushed as
+  `967a874629327a24e49f294de63003fbf4386bfc`. Replacement Cloud Build
+  `7a406610-63dc-4283-89e9-11b46dcef965` completed SUCCESS from that exact
+  source; every context/test/image/runtime-smoke step passed. Its immutable
+  image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:12314970af0b00da5b2b4caf1668fa264a73ee8c4575214d341f909c1b31d17b`;
+  runtime build-attestation generation is `1788177676537513`, bytes `846`,
+  SHA-256 `08f33a24ab6b966afecebfb5b021b6f51fcaeb6a58dcb600df6b3373f558b2c6`.
+- The fresh local v2 finisher attempted no execution. Its initial install
+  stopped before job mutation because the common shared-slot preflight
+  required the exact latest execution to be terminal-success rather than
+  merely terminal. The designed `--already-installed` recovery was then used:
+  after exact reconciliation that `xxq8h` was completed, failed, zero-retry
+  and nonrunning, the ordinary install template was applied without an
+  execution and exact-reopened at reused-job UID
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275`, generation `47`, immutable
+  `12314970...1b31d17b`, 54 tasks/parallelism, zero retry, 8 CPU/32 GiB and
+  disabled `container-help`. Resumption then stopped before prepare launch
+  because the same terminal-success-only preflight guards every phase. No v2
+  manifest or cloud execution exists; only local install/prepare intents and
+  the explicit external-install reconciliation exist.
+- The preflight comment and safety purpose are to prove the shared slot is
+  free, not that an earlier unrelated run succeeded. The bounded correction
+  now accepts a provider-completed `True` or `False` predecessor only with a
+  completion timestamp, zero running tasks and a positive terminal
+  succeeded/failed/cancelled census; `Unknown` or running remains rejected
+  before any update/launch. A regression proves failed-terminal install is
+  accepted without an execution and nonterminal install is rejected before
+  update. The exact four-module E4 suite is **42/42**, plus `bash -n` and
+  diff checks. Independent review found no blocking concern and reran the
+  wrapper module **22/22**; additional contradictory/cancelled terminal-shape
+  cases are nonblocking future hardening. Commit/push the wrapper/test/HANDOFF,
+  build one exact replacement image and continue only from a fresh v3
+  finisher prefix. Do not reuse either failed v1 or inert v2 finisher state.
 
 - **Week-1 operating policy:** the owner adopted the lab Week-1 brief at
   `nfl2` commit `aea89297405e20984268ad4f1899d95db383401c`.  Before Sunday
