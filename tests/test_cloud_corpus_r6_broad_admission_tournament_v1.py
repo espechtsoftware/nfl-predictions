@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import base64
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -432,6 +434,13 @@ def test_release_files_are_narrow_dormant_and_outcome_separated() -> None:
     assert "experiment._canonical(value)" in script
     assert "broad-admission-build" in script and "cleanup_build" in script
     assert "broad-admission-launch" in script and "cleanup_host" in script
+    container_body = script.split("container_run() {", 1)[1].split(
+        "\n}\n\ncase", 1
+    )[0]
+    assert "printf -v cleanup_command 'rm -f -- %q' \"$request\"" in container_body
+    assert 'trap "$cleanup_command" EXIT' in container_body
+    assert 'rm -f -- "$request"\n  trap - EXIT' in container_body
+    assert "cleanup_container()" not in container_body
     for test_name in (
         "test_corpus_r6_broad_admission_tournament_v1.py",
         "test_corpus_r6_broad_admission_program_v1.py",
@@ -445,6 +454,57 @@ def test_release_files_are_narrow_dormant_and_outcome_separated() -> None:
     assert "google-cloud-cli" in dockerfile
     assert "tests" not in dockerignore
     assert "reports" not in dockerignore
+
+
+@pytest.mark.parametrize("runner_status", [0, 37])
+def test_container_request_cleanup_is_path_frozen_and_status_preserving(
+    tmp_path: Path, runner_status: int,
+) -> None:
+    script = SCRIPT.read_text()
+    prefix, remainder = script.split("container_run() {", 1)
+    container_body = remainder.split("\n}\n\ncase", 1)[0]
+    function_source = "container_run() {" + container_body + "\n}\n"
+    original_runner = (
+        '  /usr/local/bin/python3.11 -I "$RUNNER" "$command" \\\n'
+        '    --request "$request" --execute'
+    )
+    assert original_runner in function_source
+    function_source = function_source.replace(
+        original_runner, '  "$TEST_RUNNER" "$request"', 1
+    )
+    harness = (
+        prefix
+        + function_source
+        + 'mktemp() { printf \'%s\\n\' "$CONTROLLED_REQUEST"; }\n'
+        + "container_run prepare\n"
+    )
+
+    runner = tmp_path / "controlled runner.sh"
+    runner.write_text("#!/bin/sh\nexit \"${TEST_RUNNER_STATUS:?}\"\n")
+    runner.chmod(runner.stat().st_mode | stat.S_IXUSR)
+    request_path = tmp_path / f"request with spaces;$dollar-{runner_status}.json"
+    request_raw = b"{}"
+    env = {
+        **os.environ,
+        "BUILD_ID": BUILD_ID,
+        "CODE_SHA": CODE_SHA,
+        "CONTROLLED_REQUEST": str(request_path),
+        "IMAGE_DIGEST": "sha256:" + "a" * 64,
+        "IMAGE_SOURCE_COMMIT_SHA": CODE_SHA,
+        "R6_BROAD_ADMISSION_ENABLE":
+            "I_UNDERSTAND_FIXED_CORPUS_ADMISSION_TOURNAMENT_V1",
+        "R6_BROAD_ADMISSION_OUTCOMES_ALLOWED": "false",
+        "R6_BROAD_ADMISSION_REQUEST_B64": base64.b64encode(request_raw).decode(),
+        "R6_BROAD_ADMISSION_REQUEST_SHA256": hashlib.sha256(request_raw).hexdigest(),
+        "TEST_RUNNER": str(runner),
+        "TEST_RUNNER_STATUS": str(runner_status),
+    }
+    result = subprocess.run(
+        ["bash", "-c", harness], cwd=ROOT, env=env,
+        text=True, capture_output=True, check=False,
+    )
+    assert result.returncode == runner_status, result.stderr
+    assert not request_path.exists()
 
 
 def test_launcher_rejects_mutable_image_before_any_provider_call(tmp_path: Path) -> None:

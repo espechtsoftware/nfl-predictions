@@ -37,8 +37,9 @@ container_run() {
     die "outcome boundary differs for $phase"
 
   request=$(mktemp /tmp/broad-admission-request.XXXXXX.json)
-  cleanup_container() { rm -f "$request"; }
-  trap cleanup_container EXIT
+  local cleanup_command
+  printf -v cleanup_command 'rm -f -- %q' "$request"
+  trap "$cleanup_command" EXIT
   umask 077
   printf '%s' "${!REQUEST_B64_ENV:?missing request bytes}" | \
     base64 --decode >"$request" || die "request base64 decode failed"
@@ -57,6 +58,8 @@ container_run() {
   fi
   /usr/local/bin/python3.11 -I "$RUNNER" "$command" \
     --request "$request" --execute
+  rm -f -- "$request"
+  trap - EXIT
 }
 
 case "${1:-}" in

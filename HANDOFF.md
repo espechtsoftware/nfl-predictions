@@ -25,6 +25,51 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-08-31 E4/E5 release continuation and E4 prepare closure
+
+- `main` and `origin/main` entered this continuation equal at
+  `c1e90793fa739e340e009cd425454ed1f62898dc`. Three exact-source replacement
+  builds completed successfully. E4 broad admission build
+  `a3eab6f7-9de3-426d-88ad-c4fb56bcd9a1` produced immutable image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:df86748ba1cf582b9ee32cb7cb683fe797a2becd3777941b0e24959a08d3b74f`;
+  normalized FP/SIS build `e2634e63-066e-4576-859c-2d74896d62b6` produced
+  digest `sha256:63db0c55d4d1453fadf50df3133e3da127ff0e2f45a29cbd2705dc186e079bc1`;
+  seven-pack build `a525293f-05b8-4e18-8418-78017d37ac53` produced digest
+  `sha256:ae6990814cb8aea2ba6818ff8c6b2c6357b0ae6954a6b1c1f75a1423698cee32`.
+  Every provider build/test/image/runtime-smoke step passed. The seven-pack
+  host wrapper exited 2 only after provider success because its scalar build
+  ID parser disagreed with the provider response; the exact provider build
+  and digest were independently resolved. No E5 runtime execution has been
+  launched.
+- The E4 finisher installed the exact immutable image and launched prepare
+  execution `atlas-cbc-32g-full-2023-w8-v1-xxq8h`, UID
+  `74b43821-428e-4d5e-92c7-c5dc946ec92e`, exactly once. The scientific runner
+  completed outcome-blind and create-once published manifest generation
+  `1788176566020881`, bytes `29426`, SHA-256
+  `fe9862d1c12c7cdeb07f6037ad465d373afc1ff5b975573b644c58a48e8792a1`
+  under run prefix
+  `20260831-fixed-budget-retention-c1e90793-v1`. Immediately after printing
+  that valid result, the container exited 1 at wrapper line 40 with
+  `request: unbound variable`: the process-level EXIT trap referenced a
+  function-local temporary-path variable after `container_run` returned.
+  Cloud Run therefore correctly records one failed task, zero retries, and
+  completion `2026-08-31T11:42:52.318411Z`. Task 0 and the 54-task cohort were
+  never launched; there is no score and no duplicate cohort risk. The v1
+  prefix is closed and must not be reused for a differently bound manifest.
+- The narrow local repair freezes the concrete temporary path into the EXIT
+  trap, explicitly removes it on success, and clears the trap before the
+  function returns. It changes no science, request, output, task, outcome or
+  provider law. The exact four-module E4 release suite passes **41/41**;
+  finisher plus cloud modules pass **28/28**; a dynamic regression proves both
+  exit 0 and exit 37 preserve status while deleting a controlled request path
+  containing spaces and shell metacharacters. `bash -n`, Python collection and
+  `git diff --check` pass. Independent review is pending. On acceptance,
+  commit/push only the wrapper, focused regression and this HANDOFF; build one
+  replacement immutable E4 image from that exact source and use a fresh v2
+  output prefix. Never resume/relabel `xxq8h`, never treat its published
+  manifest as an accepted successful prepare execution, and do not launch E5
+  while the shared job is serving the E4 continuation.
+
 - **Week-1 operating policy:** the owner adopted the lab Week-1 brief at
   `nfl2` commit `aea89297405e20984268ad4f1899d95db383401c`.  Before Sunday
   2026-09-13 17:00Z, the operational generator is the exact equal-solve
