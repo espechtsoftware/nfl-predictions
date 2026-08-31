@@ -168,6 +168,51 @@ and operator decisions.  The older entries remain the durable chronology.
   failed-gate/inert and do not reuse its manifest. Commit/push only the
   admission module, focused test and HANDOFF, build one replacement image,
   and use a fresh v5 prefix.
+- The serialization repair was committed/pushed as
+  `f2aad14e6bed0a2f0267e3a5f45c149173f9f1a4`. Exact-source Cloud Build
+  `889a1f25-2d9c-41e9-802a-fcfb3b327375` completed SUCCESS with all four
+  provider steps passing and produced immutable image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:d65aec970cb6c075124a767ae0082fe699bb7426289a2da96ea2a23f27f954d6`.
+  Runtime build-attestation generation is `1788181939990108`, bytes `846`,
+  SHA-256 `b60d0d701ad8015c80e2dc8a6b8bb8502ed46c78ffdbd091c539d41917da296c`.
+  The fresh v5 finisher installed the image and prepare execution
+  `atlas-cbc-32g-full-2023-w8-v1-gk2jf`, UID
+  `2998bad9-4bfb-4289-9bd6-16a88f62ad2c`, completed SUCCESS at
+  `2026-08-31T13:16:25.499427Z`. Its accepted manifest is generation
+  `1788182179447345`, bytes `29426`, SHA-256
+  `8a936d2582008e7c194c7175fefba4db83b42afa49df859877042d175c97f1a3`.
+  Final launch-gate task 0 `atlas-cbc-32g-full-2023-w8-v1-khjmz`, UID
+  `8ee1c798-9ca2-46c9-afee-8c9a42c4b885`, completed SUCCESS at
+  `2026-08-31T13:21:44.305500Z`; it validated the exact executable method,
+  source-freeze/output mechanics, outcome boundary and no-publication
+  boundary. Its result has `publication_performed=false`,
+  `uses_realized_outcomes=false`, task-result SHA-256
+  `fc589e1dd3992ceb35458ba9d378ee0b102cd11811e54c97f7872b982ed093fa`
+  and package SHA-256
+  `730c72f17c3fdc623fab110aef9fd1e7d7705d613ddf03715dc5d4df063486ae`.
+  Per the owner's frozen task-0 directive, the finisher immediately launched
+  full 54-task cohort `atlas-cbc-32g-full-2023-w8-v1-s2gmp`, UID
+  `0014ccdb-b0b2-410b-b54f-321c5ae51208`, at
+  `2026-08-31T13:22:35.420657Z`. It completed SUCCESS 54/54 with zero
+  failures at `2026-08-31T13:26:33.230352Z`. Collector execution
+  `atlas-cbc-32g-full-2023-w8-v1-t5htg`, UID
+  `1dc75dbb-8154-49d8-8ed8-ebd0a9422cdd`, then completed SUCCESS at
+  `2026-08-31T15:45:12.570973Z` after serially rebuilding and validating all
+  54 score-free packages. Continuous provider CPU established that its long,
+  silent 2h18m run was compute-bound rather than stalled. The same sole
+  finisher launched deep-reopen execution
+  `atlas-cbc-32g-full-2023-w8-v1-bmmnx`, UID
+  `8c40bda6-78dd-4cc0-8f0e-38cdcd656755`, at
+  `2026-08-31T15:45:58.410179Z`; it is running with zero failures. Keep the
+  sole v5 finisher polling through reopen, grade and grade-reopen. Do not
+  launch another E4/E5 execution or alter the shared job while this chain is
+  live.
+  At `2026-08-31T16:48:25Z`, deep reopen remained healthy at one running,
+  zero succeeded, zero failed and zero cancelled after about 62 minutes. Its
+  CPU stayed continuously at 12.43--12.62% of the allocated eight CPUs,
+  consistent with the expected single-core serial reconstruction rather than
+  a stall. No intermediate artifact or score is expected from this phase;
+  the next automatic stages remain grade and grade-reopen.
 
 - **Week-1 operating policy:** the owner adopted the lab Week-1 brief at
   `nfl2` commit `aea89297405e20984268ad4f1899d95db383401c`.  Before Sunday
@@ -193,6 +238,366 @@ and operator decisions.  The older entries remain the durable chronology.
   empty pending the dated PREREG-026 / 054 amendment on
   2026-08-31; no direct-generator slot may be inferred or sized before that
   read is on file.
+- **Week-1 lab queue incident, 2026-08-31 15:52Z:** PREREG-031 / 060 bank
+  360 (`lab-run-kg9tq`) completed SUCCESS 18/18. PREREG-032 / 061 bank 370
+  (`lab-run-pkw77`) cannot be accepted: task 3 failed with the exact Cloud Run
+  task condition `The configured memory limit was reached.` under 2 CPU /
+  8 GiB and `maxRetries=0`. This is not the concurrency-only or silent
+  provider-loss diagnosis recorded by lab commit `bc16be3`. The automatically
+  queued replacement `lab-run-db546` pinned the same 2 CPU / 8 GiB resource
+  limit; it was cancelled before work began, preserving a terminal provider
+  record with 18 cancelled tasks, rather than spending another invalid bank.
+  The local `queue_week1.sh` and `queue_054_parallel.sh` drainers are paused
+  (SIGSTOP); already-running cloud executions were not cancelled or changed.
+  The original 061 execution later closed with one success and 17 failures;
+  task 3 retained the explicit OOM condition and the other failed tasks report
+  provider internal errors. Lab commits `d380f91` and `c841e22` now carry
+  PREREG-032 amendment 3 and correct the earlier concurrency/cancellation
+  misdiagnosis. Both reusable jobs are restored to 2 CPU / 8 GiB with
+  `maxRetries=1`; provider inspection confirms no execution ran under the
+  lab's briefly configured 4 CPU / 16 GiB envelope. Obsolete paused launchers
+  were terminated without changing cloud executions. The sole guarded
+  `relaunch_061b370.sh` waiter now allows exactly one fresh-ID, same-envelope
+  retry only after aggregate concurrency falls below two. If task 3 OOMs
+  again, stop retries and move all valid 061 banks together to a disclosed
+  4-CPU / 16-GiB envelope. Do not read or label any partial 061 output as a
+  bank result. Lab commits `6fc60b5` and `fce1bf7` additionally correct the
+  terminal classification to one explicit OOM plus 16 provider-internal
+  errors, count both `lab-run` and `lab-run-slow` against the recovery gate,
+  and monitor failures on both jobs. `queue_060_only.sh`, the guarded 061
+  waiter and the two-job watchdog are armed; they publish no read by
+  themselves.
+- **Production retry policy after the lab incident:** do not copy the lab's
+  `maxRetries=1` setting into the live E4/E5 chain. E4 task execution is
+  intentionally attempt-0-only and each task publishes a create-once object;
+  the wrapper, provider receipt and runtime all require `maxRetries=0` and
+  `CLOUD_RUN_TASK_ATTEMPT=0`. A retry would collide with or invalidate those
+  authorities. The same attempt-0/create-once pattern governs the current E5,
+  T230, current-bank crossing, core/full-union and paid-source chains. The
+  historical corrected-extreme-selector worker is deterministic/read-only,
+  but its harvester is not attempt-aware and rejects duplicate result lines.
+  No production retry setting changes while E4 v5 is live; any future change
+  must first make the specific publication/harvest path retry-idempotent.
+- **Week-1 queue supersession, 2026-08-31 16:48Z:** lab PREREG-032 amendment
+  4 at commit `6485bc8` replaced the obsolete three-arm bank retry with two
+  frozen same-envelope executions per bank: `--arms=VX100` and
+  `--arms=TRI`. Cloud Build `b62f6f67-9138-47d0-bfcd-11a805b87772`
+  completed SUCCESS and deployed exact lab source `47cfd40` as digest
+  `sha256:f82ccdc7fdff5dc6f17d7cfb2e8cb81c3866f45a6d6c24b2c4bddbccc3d8cb93`.
+  Both reusable templates now bind that image, 2 CPU / 8 GiB and
+  `maxRetries=1`; `lab-run` is 18 tasks / 18 parallel and `lab-run-slow` is
+  36 tasks / effective 36 parallel. No execution used the transient 4 CPU /
+  16 GiB template.
+- The guarded competition queue now orders 060 banks 361/362 before split
+  061 banks 370/371/372. Lab commits `af4d813`, `a9c383f`, `444e97a` and
+  `2470e9b` bind the deployed image identity, count pending/running executions
+  across both shared-capacity job lanes, fail closed on provider-query errors,
+  recognize already claimed run IDs/results and monitor this queue. A separate
+  lab-side local launcher submitted valid same-image 060 executions
+  `lab-run-64492` (`060b361-20260831T164143Z`) and `lab-run-zcvpc`
+  (`060b362-20260831T164405Z`) while capacity was occupied; both were pending
+  provider start at `16:48Z`. The guarded queue has recognized both claims and
+  is waiting before the first split-061 launch. Do not duplicate either 060
+  bank, and do not read their outcomes until the frozen reader gate permits
+  it.
+- **Status continuation, 2026-08-31 18:42Z:** the valid 060 replacements
+  completed SUCCESS 18/18: `lab-run-7995g`
+  (`060b361r2-20260831T174603Z`) and `lab-run-2dzls`
+  (`060b362r2-20260831T174818Z`). The frozen official PREREG-031 read is
+  committed in the lab as `8c3eaaf`, with interpretation follow-up
+  `d4fbf5d`, then corrected at `29a58e2`. The preregistered primary is K100,
+  not K80. VX14's fresh-bank K100 delta is **+0.443**, interval
+  **[+0.190, +0.580]**, per-bank **-0.150 / +1.321 / +0.159**. It passes the
+  positive-estimate and interval conditions but misses the required
+  every-bank-nonnegative stability condition; VX14 is not nominated for Week
+  1. The pooled six-bank K100 estimate is +0.805 [+0.568, +1.014], explicitly
+  descriptive rather than an independent replication. Its small-count
+  deep-tail sensitivity is still recorded (bank-averaged weeks >=210: 4.67
+  versus 3.33; >=220: 1.67 versus 0.33) but does not reverse the frozen
+  decision.
+- The owner-directed frozen test queue continues despite 060 weakening the
+  VX14 rationale. Split-061 execution `lab-run-ztd7g`, run ID
+  `061b370vx-20260831T183803Z`, was launched on exact lab image/code
+  `def4e75`, 2 CPU / 8 GiB and 18 tasks. It is the first VX100 two-arm split;
+  TRI and the remaining banks remain serialized behind it. The queue and
+  two-job watchdog now run as persistent user units
+  `nfl2-week1-queue.service` and `nfl2-lab-watchdog.service`, so an IDE/agent
+  restart no longer drops them. Lab commit `85ae317` makes the watchdog
+  recognize the absolute-path systemd queue process. Experiment 054 bank 300
+  remains running 18/18 with zero failures; its other banks are terminal
+  invalid and 054 cannot produce its required complete panel.
+- E4 deep reopen `bmmnx` remained healthy at one running and zero failures at
+  `18:38Z`, with continuous one-core-equivalent CPU; no grade or new score
+  exists yet. The original local finisher disappeared around `18:04Z` while
+  the cloud reopen continued. Generation/execution-name reconciliation proved
+  the v5 run directory safely resumable without relaunching any prior phase.
+  It was resumed at `18:40:41Z` as persistent user unit
+  `nfl-prod-e4-finisher-v5.service` (invocation
+  `95ccbc0faa2e4a5a8e006e8b93b98442`). Existing receipts force it to poll
+  exact execution `bmmnx`; only after successful reopen can it create and
+  launch grade, followed by grade-reopen.
+- **Capacity correction, 2026-08-31 19:12Z:** after explicit owner approval,
+  obsolete 054 execution `lab-run-8swhs`, UID
+  `7b488b8c-8677-44ec-8310-30ab7c9c4c54`, run ID
+  `054b300-20260831T152738Z`, was cancelled exactly. Cloud Run records 18
+  cancelled tasks and terminal completion `2026-08-31T19:12:18.698619Z`.
+  This cannot remove a usable 054 panel because the other two banks were
+  already terminal-invalid and the three-bank reader could never complete.
+  Independently, the lab launched 063 Stage A (`lab-run-29sqk`, 18 running)
+  and 064 Stage B (`lab-run-mplf4`, 18 running) while 061 bank-370 TRI
+  (`lab-run-zdrz6`, 18 running) was active. The guarded 061 queue therefore
+  sees three active executions and will not add a fourth. Monitor these three
+  for resource failures before allowing further concurrency; the lab's
+  regional memory quota is 400 GiB while their nominal aggregate request is
+  432 GiB.
+- **E4 continuation, 2026-08-31 19:50Z:** deep-reopen execution `bmmnx`
+  completed SUCCESS 1/1 at `2026-08-31T19:49:24.798180Z`, with zero
+  failed/cancelled/retried tasks after a provider duration of 4h03m11s. The
+  persistent sole finisher then launched grade execution
+  `atlas-cbc-32g-full-2023-w8-v1-bqkw5`, UID
+  `9539f293-cd07-492c-a135-a5a4cf002211`, at
+  `2026-08-31T19:50:23.756802Z`; it is running 1/1 with `maxRetries=0` and
+  exact `container-run grade`. No E4 score has been read yet. Keep
+  `nfl-prod-e4-finisher-v5.service` active through grade and grade-reopen, and
+  do not launch a competing E4/E5 execution on its shared job.
+- **Lab queue consolidation, 2026-08-31 19:54Z:** split-061 bank 370 VX
+  (`lab-run-ztd7g`) and TRI (`lab-run-zdrz6`), Stage-A 063 bank 380
+  (`lab-run-29sqk`), Stage-B 064 bank 390 (`lab-run-mplf4`) and split-061
+  bank 371 VX (`lab-run-j2hqh`) all completed SUCCESS 18/18. Concurrent local
+  drainers then claimed two valid same-envelope executions: 064 bank 391
+  `lab-run-tf92g`, UID `0270b70c-5209-4961-bb06-4cc39b3a4db5`, run ID
+  `064b391-20260831T194706Z`; and 061 bank 371 TRI `lab-run-ldr2m`, UID
+  `4953dfca-b835-4dae-8c41-b6c6784e40a1`, run ID
+  `061b371tri-20260831T194714Z`. Both are running 18/18 with zero failures.
+  Their cloud executions were left untouched; only the two overlapping local
+  launchers were stopped after provider acceptance was verified.
+- Lab commit `80e1874` (pushed) replaces those launchers with one resumable,
+  image-bound and claim-safe `queue_selection.sh`. It counts pending/running
+  executions across both shared-capacity jobs, fails closed on provider
+  query or deployed-`CODE_SHA` mismatch, rechecks claims after capacity
+  waits, and reconciles CLI timeout/nonzero status against provider claims.
+  Persistent unit `nfl2-selection-queue.service`, invocation
+  `de493154ecf147579c54dd42a693fddf`, runs against deployed code SHA
+  `fb2fde7`; it verified and skipped the existing 064 bank-391 claim and is
+  waiting at the safe two-execution ceiling. As slots free it will launch, in
+  order, 064 bank 392; 063 banks 381/382; and any still-unclaimed 061 bank
+  371 TRI / bank 372 VX and TRI cells. Do not start another queue drainer.
+- Lab commit `177509b` (pushed) retargets `lab_watchdog.sh` from the retired
+  week-1 launcher to the unified selection queue and recognizes its journaled
+  successful-drain marker. The restarted persistent watchdog invocation is
+  `aaeeb486fbc446149c108d0561895adb`; both it and the selection queue are
+  active. Its first poll repeated two historical terminal `lab-run-slow`
+  failure notices because the local seen-state is intentionally reset on
+  watchdog restart; these are not new executions or new failures.
+- **Lab read and recovery continuation, 2026-08-31 22:30Z:** the unified
+  selection queue drained. Lab commit `4ecfc3d` seals its three reads:
+  PREREG-032 VX100 is -1.836 and TRI -1.878 versus boom-first, so corrected
+  v0.14 supply is closed; PREREG-033 direct full-corpus selection is null at
+  -0.141, so 575-to-250 compression is not the scoring leak; PREREG-034
+  DUAL_EMAX is +1.298 with a positive family interval and stable banks/LOSO,
+  but the read is exploratory-exposed because its literal engagement gate
+  failed and cannot support adoption. Fresh-bank PREREG-036 is the required
+  confirmation.
+- The first PREREG-036 bank-393 and Experiment-065 attempts on image
+  `5c73874` failed at the terminal `code_identity()` receipt because the
+  runtime contains no `git`; no dedicated efficacy reader was opened and the
+  attempts are void. Code-only repair `684fc23`, Cloud Build
+  `ab040bb5-2761-433f-97ef-f03d860ef74b`, produced immutable digest
+  `sha256:6640a0af7168b42e67053b0e5ed909d834fa8b33e05e6654536a65f55e50ab79`.
+  PREREG-036's three exact r2 runs `lab-run-fdjf9` / `vkn9q` / `kncnd`
+  completed SUCCESS 18/18; bank 395 used one provider retry after attempt 0
+  failed before application startup. Its pre-read infrastructure amendment
+  is committed in the lab and binds only those r2 executions.
+- A startup-window bug briefly allowed four normal executions plus one slow
+  execution to overlap; the resulting original 065/036 attempts are terminal
+  invalid. At the current safe two-execution ceiling, 065 recovery banks 400
+  (`lab-run-9q2h8`) and 401 (`lab-run-lzvjv`) run cleanly on `684fc23`.
+  Lab commit `96ed53b` (pushed) makes the remainder resumable, image-bound,
+  exact-claim reconciled and capacity-aware across both Cloud Run jobs. User
+  unit `nfl2-recovery-queue.service`, invocation
+  `5546372740f8498eb6e6b5d86fce77c4`, will skip existing claims, finish 065
+  bank 402, run the 062 DK retry only after the normal lane is quiet, and
+  withhold its drain marker until that slow execution is terminal. Waiting
+  unit `nfl2-queue066.service`, invocation
+  `e12650bf2c814eb2bb4cc0175d37d983`, was pinned to source `96ed53b`; it may
+  build/launch PREREG-037 only after the recovery marker and while aggregate
+  two-job concurrency stays below two. Do not start parallel launchers.
+- **Lab recovery and sealed selector read, 2026-08-31 22:36Z:** PREREG-036
+  is now sealed in lab commit `950425d`: DUAL_EMAX minus BASE_COV is **+1.392
+  at K80**, family CI `[+0.968,+1.844]`, with all three banks and all four
+  LOSO seasons positive. Its outcome-free engagement gate passed; the lab
+  classifies the result as gated-preregistered and records the operator's
+  adoption decision for the week-1 money book. The unchanged candidate
+  population means this is selection evidence, not a generation result.
+  PREREG-035/065 recovery bank 400 `lab-run-9q2h8`, UID
+  `09aa0a28-cdc3-40cd-a139-0dbd6305fbba`, completed SUCCESS 18/18; banks 401
+  `lab-run-lzvjv`, UID `8bffec47-323a-44b8-801e-305d14f558a4`, then completed
+  SUCCESS 18/18 at `22:39:36Z`; bank 402 `lab-run-zwtwj` remains running 18/18
+  with zero reported failures or retries.
+- A second manual `queue_recovery.sh` coordinator was discovered before the
+  recovery drained and stopped locally; no Cloud Run execution was changed.
+  The persistent recovery service is now the sole coordinator. Because the
+  lab HEAD advanced with the sealed read while PREREG-037 waited, lab commit
+  `5ffe4ee` (pushed) makes its launcher build the exact frozen scientific
+  source `96ed53b` in an isolated on-disk worktree instead of using ambient
+  HEAD. A prelaunch audit also found that the 066 reader required two fields
+  its runner never emitted. Lab commit `e1faad0` (pushed) repairs that reader
+  by deriving an exact K80/rank/roster census and makes an outcome-disabled
+  16-slate mechanics/influence run a fail-closed gate before any efficacy
+  bank. Eleven targeted completion/reader tests pass. The current persistent
+  `nfl2-queue066.service` invocation is
+  `706b3c1f7d6b4da687a60134d2b9c440`; it remains gated on the recovery marker,
+  will publish the passing mechanics receipt, and only then may launch banks
+  410/411/412 on exact runtime source `96ed53b`.
+  Production E4 grade `bqkw5` remains running 1/1 with zero
+  failed/cancelled/retried tasks as of `22:34Z`; grade-reopen and a validated
+  E4 score do not yet exist.
+- **PREREG-035 score read, 2026-08-31 23:00Z:** 065 recovery bank 402
+  `lab-run-zwtwj`, UID `ce99d934-5097-4fa4-9f6f-889f520b10c4`, completed
+  SUCCESS 18/18 at `22:51:09Z`; all three r2 banks therefore finished 54/54
+  with zero failures or retries. Before reading, lab commit `add2334` (pushed)
+  bound the reader to those exact runs and `684fc23`, enforced exact K80
+  rows/ranks/unique rosters, and made raw rather than rounded signs control
+  the verdict. Eighteen targeted 035/037/completion tests passed.
+- The frozen read is sealed in lab commit `d4ebd24` and
+  `results/065-PREREG-035-report.json`. **FULL_EMAX80 passes versus the
+  two-stage coverage control at +1.515 K80 mean weekly max, family interval
+  `[+0.571,+2.490]`; all banks (+0.998/+2.016/+1.529) and all LOSO seasons
+  are positive.** FULL_COV80 (compression removal alone) is null at +0.427
+  `[-0.477,+1.491]`, so the useful mechanism is the expected-weekly-maximum
+  objective on the full heterogeneous union, not bypassing admission by
+  itself. Raw control-to-EMAX threshold events improve 72-to-78 at 194+,
+  40-to-42 at 200+, 11-to-12 at 210+, 4-to-5 at 220+, and 1-to-2 at 230+.
+  This reused-slate screen is not independent-slate confirmation and should
+  not be arithmetically stacked with DUAL_EMAX; the final configuration must
+  compare the competing/crossed combinations directly.
+- The sole recovery service then launched the frozen 062 DK retry as run ID
+  `062b510dkr2-20260831T225201Z`, execution `lab-run-slow-mbrhq`, UID
+  `8bdebde0-eb02-4017-9ab5-3b0dc19ccabe`. It completed SUCCESS 24/24 at
+  `22:58:21Z` with zero failures/retries; the sole recovery service released
+  its marker and exited cleanly. PREREG-037's queue then created an isolated
+  worktree at exact source `96ed53b` and started Cloud Build
+  `449554ca-c098-4a1f-871e-c5a5dca2c492`. The build completed successfully at
+  `23:00:59Z`, producing immutable digest
+  `sha256:1bc7efd8937a41d8430cf3d6ee08ee8737435f445728619533f87be8feccee2d`;
+  both lab jobs were rebound to exact tag and `CODE_SHA=96ed53b`. The queue
+  then launched its first permitted execution: outcome-disabled 16-slate
+  mechanics run ID `066m410-20260831T230115Z`, execution `lab-run-f8j48`, UID
+  `bafa124a-912f-482f-9756-33bafa6e8356`, four tasks on the exact digest. It
+  was provider-accepted and startup-pending at `23:01:47Z`; efficacy remains
+  blocked until that gate passes and its receipt is published. Production E4
+  grade `bqkw5` remained running 1/1 with zero failed/cancelled/retried tasks
+  through `23:02Z`; no E4 score or grade-reopen exists yet.
+- **062 full diagnostic read, 2026-08-31 23:14Z:** exact house run
+  `062b510hl-20260831T211308Z` (`lab-run-slow-c2zdh`, UID
+  `e5cc4bea-c853-4d54-abbd-3a6e99a9af30`) and exact DK-completion retry
+  `062b510dkr2-20260831T225201Z` (`lab-run-slow-mbrhq`, UID
+  `8bdebde0-eb02-4017-9ab5-3b0dc19ccabe`) each reconcile 24/24 tasks and the
+  frozen 24-slate panel. Under the house cell, mean `B_player/B_core/C` is
+  **245.283/240.988/183.235**: core-discovery loss 4.295 versus completion
+  loss 57.753, with completion larger on 24/24 slates and 93.1% of the total
+  gap. Under DK-only hindsight completion it is
+  **256.746/241.343/183.235**: 15.403 versus 58.108, completion larger on
+  23/24 and 79.0% of the gap. This diagnostic routes P0 toward full-model
+  completion search; it is a hindsight ceiling, not an attainable-score
+  estimate or sleeve. Both supplied candidate pools were still generated
+  under `PRODUCTION_STACK` and the $49k floor; DK-only relaxed completion,
+  not generation. Relevant runner/pipeline/optimizer/data blobs are
+  byte-identical across the two images, but the exact DK-minus-house contrast
+  remains descriptive because the images differ. No dedicated frozen 062
+  reader yet exists, so this must be cross-verified before a lab-ledger row is
+  sealed.
+- **066 gate passed and efficacy began, 2026-08-31 23:18Z:** outcome-disabled
+  mechanics execution `lab-run-f8j48`, UID
+  `bafa124a-912f-482f-9756-33bafa6e8356`, completed SUCCESS 4/4 with zero
+  failures/retries. Its published receipt binds `96ed53b`, all 16 fixed
+  slates, 310 changed entries, and positive search/validation/audit simulated
+  gains; it passes. Only after publication did the queue launch bank 410 as
+  run `066b410-20260831T231550Z`, execution `lab-run-24872`, UID
+  `7b92db6d-5d78-4867-80ea-47c32d56a924`. It then recovered the ambiguous
+  provider-accepted bank-411 claim correctly as run
+  `066b411-20260831T231759Z`, execution `lab-run-xktft`, UID
+  `efec6f07-ebcb-4eca-b149-e0df912da22d`. Both use 18 tasks, 2 vCPU/8 GiB,
+  `maxRetries=1`, exact `96ed53b` and digest
+  `sha256:1bc7efd8937a41d8430cf3d6ee08ee8737435f445728619533f87be8feccee2d`;
+  aggregate active/pending count is exactly two. Bank 412 remains safely
+  queued until capacity frees.
+- **067 crossing repaired and frozen at runtime commit `28890ac` (pushed):**
+  review of lab commit `61740ba` found its reader still bound to 065 and its
+  armed queue did not enforce a mechanics gate. The initial waiting launcher
+  and a later orphan child reading a deleted script inode were stopped before
+  any `067*` Cloud Run claim; E4 and 066 were untouched. Lab commit `f59f11b`
+  introduced `COORDINATION.md` and its launcher-registry convention. Future
+  production/lab launchers must register exact PID/owner/prefixes, refuse a
+  live lane owner, never edit a registered running script, and reconcile an
+  ambiguous CLI return against the provider claim. The already-running E4 is
+  not retrofitted or restarted midflight.
+- Runtime `28890ac` now co-runs exact K80 two-stage coverage, boom-first native
+  coverage, boom-first DUAL_EMAX, full-union BASE_EMAX, and full-union
+  DUAL_EMAX. The primary family is the complete three-way package comparison;
+  prior +1.392/+1.515 deltas are never added. It adds canonical DK-legality,
+  stages 1-5 receipts, a full-budget 16-slate outcome-disabled gate, explicit
+  18-task/2-vCPU/8-GiB/retry assertions, fail-closed cloud queries, resolved
+  image-digest transport, exact-source preparation, and 25 focused passing
+  tests. All three 066 efficacy banks subsequently acquired unique provider
+  claims. Exact-source Cloud Build
+  `1473aac4-3571-48a1-b6a3-94d12cde6c03` completed SUCCESS and produced
+  immutable digest
+  `sha256:6f6a318b7a77ad69529b76a1ed9fa6e1af46bbd67c66b79325e138681b67e512`.
+  The isolated preparation service invocation
+  `451f1d654e024b938d79c75b524a2bd0` verified both lab jobs at exact source
+  `28890ac`, 2 vCPU / 8 GiB and `maxRetries=1`, wrote
+  `results/067-build-28890ac.json`, removed its launcher registration, and
+  exited successfully without launching a 067 execution.
+- Lab commit `1daa58b` (pushed) binds that exact source/digest in the frozen
+  PREREG-038 reader and queue; 26 focused completion/035/037/038 contract
+  tests, Python compilation, shell syntax and diff checks pass. A final cloud
+  preflight found zero `067*` claims and exact job tags. Persistent registered
+  queue `nfl2-queue067.service`, invocation
+  `9dcae9cb3fe941fbbd143b0652511ef4`, then claimed only the full-budget,
+  outcome-disabled mechanics gate as run
+  `067m420-20260831T233425Z`, execution `lab-run-j75k7`. Efficacy banks
+  420/421/422 remain blocked until that exact four-task gate completes and its
+  local receipt passes. Do not edit `scripts/queue_067.sh` while its
+  `.tmp/launchers/queue_067-*` registration is live; reconcile any nonzero
+  local launch result against the provider claim before retrying.
+- PREREG-037 bank 410 `lab-run-24872` completed SUCCESS 18/18 at
+  `23:27:50Z`, and bank 411 `lab-run-xktft` completed SUCCESS 18/18 at
+  `23:32:30Z`; both have zero failures, cancellations or retries. Bank 412
+  `lab-run-6d7zv`, UID `660ec485-b679-44e3-a701-352c69eae7a0`, is the sole
+  remaining 066 execution and is running 18/18 without a reported anomaly.
+  The local `nfl2-queue066.service` drained cleanly after all three claims;
+  cloud executions continue independently. Banks 411 and 412 each exercised
+  the ambiguous-launch protection: the local CLI ended nonzero after provider
+  acceptance, and exact claim reconciliation retained the existing execution
+  rather than launching a duplicate.
+- Before opening 066 outcomes, lab commit `949a972` (pushed) bound the frozen
+  reader to those three exact run IDs, source `96ed53b`, run-to-bank/argument/
+  row identities, and the exact passing outcome-disabled mechanics receipt;
+  18 focused reader/completion tests passed. The first frozen read is recorded
+  by lab commit `efadaf1` and report SHA-256
+  `0932c0148fbd077843f41bf2aed91b3deba97b54414245dc9be645c0fc92c8e8`.
+  **EDITED minus CONTROL is null at +0.094 K80, 95% interval
+  [-0.247,+0.436], with banks +0.065/+0.005/+0.214 and W/L/T 30/26/16.**
+  K20/K40 are +0.328/+0.148. The mechanism was active (19.70 path edits and
+  19.50 changed entries per slate; simulated search/validation/audit gains
+  +0.7872/+0.6669/+0.6673) but contracted to +0.0944 realized. Do not adopt
+  the one-player editor or spend another tuning cycle in that neighborhood;
+  this result does not test full non-core/multi-player completion. The other
+  party must rerun the exact frozen reader before sealing a lab-ledger row.
+- A read-only production launcher audit found active E4 already has durable
+  per-phase intents and exact-name recovery, but no cross-script lock on its
+  shared Cloud Run job; immediate E5 action scripts have neither a global
+  lane registry nor complete accepted-but-local-nonzero reconciliation. Do
+  not retrofit E4 while its finisher is live. New isolated
+  `scripts/launcher_registry.sh` plus `tests/test_launcher_registry.py`
+  implement an atomic per-shared-job `flock`, PID/start-tick JSON ownership
+  receipt, proven-stale cleanup logging, paused-owner refusal, dedicated
+  descendant process-group ownership and signal cleanup. Eight focused tests,
+  shell syntax and diff checks pass. Integrate this wrapper into the first
+  post-E4 parent queue, holding the lane across its full multi-stage chain;
+  separately add durable launch-intent/provider-claim reconciliation before
+  allowing any currently queued E5 action shell to execute.
 - **Latest matched score evidence:** the exact 54-slate production-shaped
   boom-first replay moved selected K80 mean weekly maximum from **178.023 to
   179.279 (+1.256)**, candidate-pool ceiling from **181.500 to 184.877
