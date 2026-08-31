@@ -164,9 +164,20 @@ if a[:3] == ["run", "jobs", "execute"]:
 
 if a[:2] == ["logging", "read"]:
     receipt = os.environ["RESULT_RECEIPT"]
-    rows = [{"textPayload": "bounded non-json runtime note"}, {"textPayload": receipt}]
+    payload_kind = os.environ.get("RESULT_PAYLOAD_KIND", "text")
+    if payload_kind == "text":
+        row = {"textPayload": receipt}
+    elif payload_kind == "json":
+        row = {"jsonPayload": json.loads(receipt)}
+    elif payload_kind == "both":
+        row = {"textPayload": receipt, "jsonPayload": json.loads(receipt)}
+    elif payload_kind == "neither":
+        row = {"severity": "INFO"}
+    else:
+        raise SystemExit(96)
+    rows = [row]
     if os.environ.get("RESULT_DUPLICATE") == "1":
-        rows.append({"textPayload": receipt})
+        rows.append(row)
     print(json.dumps(rows))
     raise SystemExit
 
@@ -415,6 +426,8 @@ def test_release_files_are_narrow_dormant_and_outcome_separated() -> None:
     assert "runtime_build_attestation_identity:$attestation" in script
     assert "outcomes_allowed=true" in script
     assert "grade-reopen" in script
+    assert "(textPayload:* OR jsonPayload:*)" in script
+    assert "experiment._canonical(value)" in script
     assert "broad-admission-build" in script and "cleanup_build" in script
     assert "broad-admission-launch" in script and "cleanup_host" in script
     for test_name in (
@@ -793,6 +806,42 @@ def test_result_collects_one_canonical_prepare_receipt_from_exact_execution(
     duplicate = _run("result", execution, env=duplicate_env)
     assert duplicate.returncode == 2
     assert "operator stdout receipt count differs" in duplicate.stderr
+
+    structured_env = {**env, "RESULT_PAYLOAD_KIND": "json"}
+    structured = _run("result", execution, env=structured_env)
+    assert structured.returncode == 0, structured.stderr
+    structured_result = json.loads(structured.stdout)
+    assert structured_result["operator_receipt"] == json.loads(receipt)
+
+    structured_duplicate_env = {
+        **structured_env,
+        "RESULT_DUPLICATE": "1",
+    }
+    structured_duplicate = _run(
+        "result", execution, env=structured_duplicate_env,
+    )
+    assert structured_duplicate.returncode == 2
+    assert "operator stdout receipt count differs" in structured_duplicate.stderr
+
+    pretty_text_env = {
+        **env,
+        "RESULT_RECEIPT": json.dumps(json.loads(receipt), indent=2),
+    }
+    pretty_text = _run("result", execution, env=pretty_text_env)
+    assert pretty_text.returncode == 2
+    assert "operator stdout receipt is not canonical JSON" in pretty_text.stderr
+
+    for payload_kind in ("both", "neither"):
+        invalid_payload = _run(
+            "result",
+            execution,
+            env={**env, "RESULT_PAYLOAD_KIND": payload_kind},
+        )
+        assert invalid_payload.returncode == 2
+        assert (
+            "operator stdout receipt payload kind differs"
+            in invalid_payload.stderr
+        )
 
 
 @pytest.mark.parametrize(

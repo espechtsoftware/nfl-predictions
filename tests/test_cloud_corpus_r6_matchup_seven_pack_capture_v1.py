@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from hashlib import sha256
+import re
 import subprocess
 
 import yaml
@@ -16,6 +18,28 @@ RUNNER = ROOT / "scripts/run_corpus_r6_matchup_seven_pack_capture_v1.py"
 DOCKERFILE = ROOT / "Dockerfile.corpus-r6-matchup-seven-pack-capture"
 DOCKERIGNORE = ROOT / "Dockerfile.corpus-r6-matchup-seven-pack-capture.dockerignore"
 BUILD = ROOT / "cloudbuild.corpus-r6-matchup-seven-pack-capture.yaml"
+
+
+def _stdout_receipt_python() -> str:
+    text = SHELL.read_text(encoding="utf-8")
+    match = re.search(r"STDOUT_RECEIPT_PY='\n(.*?)\n'\n", text, re.DOTALL)
+    assert match is not None
+    return match.group(1)
+
+
+def _extract(
+    tmp_path: Path, logs: list[dict[str, object]], *, schema: str,
+) -> subprocess.CompletedProcess[bytes]:
+    log_path = tmp_path / "logs.json"
+    log_path.write_bytes(json.dumps(logs).encode("utf-8"))
+    return subprocess.run(
+        [
+            str(ROOT / ".venv/bin/python"), "-I", "-c",
+            _stdout_receipt_python(), str(ROOT / "src"), str(log_path),
+            "operator-receipt", schema,
+        ],
+        capture_output=True, check=False,
+    )
 
 
 def test_container_is_three_mode_default_off_and_cleanup_safe() -> None:
@@ -47,6 +71,81 @@ def test_host_reuses_one_exact_job_and_requires_terminal_task0() -> None:
     assert "gcloud run jobs list" not in lowered
     assert "gcloud storage" not in lowered
     assert "add-iam-policy-binding" not in lowered
+
+
+def test_stdout_receipt_accepts_exactly_one_text_or_json_payload(
+    tmp_path: Path,
+) -> None:
+    schema = "corpus-r6-matchup-seven-pack-task0-readiness/v1"
+    receipt = {
+        "complete": True,
+        "numeric_probe": 1e-7,
+        "operator_receipt": {
+            "schema_version": schema,
+        },
+    }
+    canonical = source.canonical_json_bytes(receipt)
+    text_result = _extract(
+        tmp_path, [{"textPayload": canonical.decode()}], schema=schema,
+    )
+    assert text_result.returncode == 0, text_result.stderr.decode()
+    assert text_result.stdout == canonical
+    json_result = _extract(tmp_path, [{"jsonPayload": receipt}], schema=schema)
+    assert json_result.returncode == 0, json_result.stderr.decode()
+    assert json_result.stdout == canonical
+    launcher = SHELL.read_text(encoding="utf-8")
+    assert "(textPayload:* OR jsonPayload:*)" in launcher
+    assert "source.canonical_json_bytes(body)" in launcher
+    assert '"$ROOT/.venv/bin/python" -I -c' in launcher
+
+
+def test_stdout_receipt_rejects_ambiguous_or_multiple_payloads(
+    tmp_path: Path,
+) -> None:
+    schema = "corpus-r6-matchup-seven-pack-task0-readiness/v1"
+    receipt = {
+        "operator_receipt": {
+            "schema_version": schema,
+        },
+    }
+    canonical = source.canonical_json_bytes(receipt).decode()
+    ambiguous = _extract(
+        tmp_path, [{"textPayload": canonical, "jsonPayload": receipt}],
+        schema=schema,
+    )
+    assert ambiguous.returncode != 0
+    multiple = _extract(tmp_path, [
+        {"textPayload": canonical}, {"jsonPayload": receipt},
+    ], schema=schema)
+    assert multiple.returncode != 0
+    unrelated_plus_receipt = _extract(tmp_path, [
+        {"textPayload": "unrelated"}, {"jsonPayload": receipt},
+    ], schema=schema)
+    assert unrelated_plus_receipt.returncode != 0
+
+
+def test_stdout_receipt_phase_schemas_are_exact_and_wrong_schema_fails(
+    tmp_path: Path,
+) -> None:
+    schemas = {
+        "corpus-r6-matchup-seven-pack-task0-readiness/v1",
+        "corpus-r6-matchup-seven-pack-operator-publication/v1",
+        "corpus-r6-matchup-seven-pack-operator-reopen/v1",
+    }
+    launcher = SHELL.read_text(encoding="utf-8")
+    for schema in schemas:
+        assert schema in launcher
+        receipt = {"operator_receipt": {"schema_version": schema}}
+        result = _extract(tmp_path, [{"jsonPayload": receipt}], schema=schema)
+        assert result.returncode == 0, result.stderr.decode()
+    wrong = {"operator_receipt": {
+        "schema_version": "corpus-r6-matchup-seven-pack-task0/v1",
+    }}
+    result = _extract(
+        tmp_path, [{"jsonPayload": wrong}],
+        schema="corpus-r6-matchup-seven-pack-task0-readiness/v1",
+    )
+    assert result.returncode != 0
 
 
 def test_build_is_git_source_bound_outcome_blind_and_git_free_at_runtime() -> None:

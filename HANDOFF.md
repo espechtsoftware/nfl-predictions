@@ -42,8 +42,11 @@ and operator decisions.  The older entries remain the durable chronology.
   upper end because it is the strongest unnominated arm (+1.9, every bank and
   season positive); BX60 uses the 5% lower end because its observed gains stop
   at 194/200.  The current lab brief already contains the PREREG-025 / 053
-  amendment: MULTI3 was harmful and CE was null, so neither receives a Tier-3
-  slot.  Tier 3 remains empty pending the dated PREREG-026 / 054 amendment on
+  amendment: MULTI3 was harmful, while CE was null only under the now-defective
+  hsim v0.13 artifact.  Neither receives a Tier-3 slot today because neither
+  supplies valid positive evidence; CE's broader scientific closure is
+  withdrawn pending the lab-owned corrected-v0.14 screen.  Tier 3 remains
+  empty pending the dated PREREG-026 / 054 amendment on
   2026-08-31; no direct-generator slot may be inferred or sized before that
   read is on file.
 - **Latest matched score evidence:** the exact 54-slate production-shaped
@@ -218,6 +221,113 @@ and operator decisions.  The older entries remain the durable chronology.
   from this core release and do not claim scoring readiness until the distinct
   task-0 worker and verifier/predecessor closure are green.
 
+## Current handoff -- 2026-08-31 (four-hundred-forty-fourth update)
+
+### Construction score crossing and independent reopen are sealed
+
+- Branch `main`; local HEAD is unpushed commit
+  `15847760dd35a35208c38398f2b3d97d1ef71588` and durable `origin/main`
+  remains `8a8610523479887e730b9fb391e97af32607670e`.  The local commit contains
+  the prior handoff state plus the six audited JSON/text-payload result-
+  extraction files for Experiment 4 broad admission, Experiment 5 normalized
+  FP/SIS and Experiment 5 seven-pack.  This update and the paid-source
+  metadata preflight below are pending amendments.  The combined focused
+  result-extraction suite is **35/35**, with component reruns **19/19**,
+  **7/7** and **9/9**;
+  shell syntax and scoped diffs pass.  Do not stage any unrelated dirty or
+  untracked work.
+- The one authorized realized grade execution
+  `atlas-cbc-32g-full-2023-w8-v1-6sfkn`, UID
+  `f9e2546a-043a-4250-8684-39c17170e522`, completed **SUCCESS 1/1**, zero
+  failures and zero retries, at `2026-08-31T05:57:51.037630Z` after
+  55m27.94s.  Its exact stdout receipt binds report generation
+  `1788154261726458`, SHA-256
+  `c82bfb473b08f19cf2ef4d434d9c590ba1decbc95d499d9aafb1e21015259449`,
+  453513 bytes at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-construction-allocation-grades/20260830-construction-allocation-d5946133-grade-v1/grade-report.json`,
+  and terminal generation `1788154262022228`, SHA-256
+  `030897fcd89c6ebee8b73e3ccaedeb056e988c5f05d6977746b5b6a2b7fa264d`,
+  22731 bytes.  The generation-exact report passed the committed exact-99a
+  validator; its internal report SHA-256 is
+  `936bff7e3336d2adc27b47b742cf13b3cd9da167f9b6e00860b002663c9f6be3`.
+  Its grade-envelope SHA-256 is
+  `87637792fa86b76173726273ae919cb20fa47e3277ddb550d74a0ab3dab005e1`.
+  No construction shard was rerun.
+- Full 54-slate grade results follow.  Threshold counts are ordered
+  `194/200/210/220/230/240`; `GPP` is the named incumbent construction
+  preset and `DK-only` makes only DraftKings legality universal.
+
+  | K | construction | allocation | selected mean max | pool oracle | regret | threshold weeks |
+  |---:|---|---|---:|---:|---:|---|
+  | 20 | GPP | 160 leverage / 40 boom | 164.413 | 181.500 | 17.087 | 4/4/2/1/0/0 |
+  | 20 | GPP | 40 leverage / 160 boom | 167.632 | 184.877 | 17.245 | 7/6/4/3/0/0 |
+  | 20 | DK-only | 160 leverage / 40 boom | 166.562 | 180.797 | 14.235 | 4/1/1/0/0/0 |
+  | 20 | DK-only | 40 leverage / 160 boom | 166.402 | 182.297 | 15.895 | 5/2/1/0/0/0 |
+  | 40 | GPP | 160 leverage / 40 boom | 172.193 | 181.500 | 9.308 | 7/6/2/1/0/0 |
+  | 40 | GPP | 40 leverage / 160 boom | 173.360 | 184.877 | 11.517 | 9/7/4/3/0/0 |
+  | 40 | DK-only | 160 leverage / 40 boom | 172.867 | 180.797 | 7.930 | 8/4/2/0/0/0 |
+  | 40 | DK-only | 40 leverage / 160 boom | 171.297 | 182.297 | 11.000 | 7/2/1/0/0/0 |
+  | 80 | GPP | 160 leverage / 40 boom | 178.023 | 181.500 | 3.477 | 9/7/2/1/0/0 |
+  | 80 | GPP | 40 leverage / 160 boom | **179.279** | **184.877** | 5.598 | **12/9/4/3/0/0** |
+  | 80 | DK-only | 160 leverage / 40 boom | 176.969 | 180.797 | 3.828 | 9/4/2/0/0/0 |
+  | 80 | DK-only | 40 leverage / 160 boom | 175.980 | 182.297 | 6.317 | 10/3/2/0/0/0 |
+
+- At K80, boom-first within the named GPP preset is **+1.256** with 95%
+  interval `[-1.679,+4.191]`; within DK-only it is **-0.989**
+  `[-3.201,+1.223]`.  The allocation-by-construction difference in
+  differences is **-2.244** `[-5.759,+1.271]`.  Therefore the aggressive
+  Week-1 historical choice remains boom-first plus the named GPP preset and
+  coverage-194, while the architectural rule remains that construction laws
+  are explicit testable arms rather than universal legality.  Removing all
+  non-DK laws did not improve this historical surface.
+- The canonical grade-reopen request SHA-256 is
+  `427f3f6f57bcab41ca0a82fa0269edfbcd32a1019dfb8c3ec8590471332a342d`.
+  It uses actual runtime commit `99a237e...48102` and immutable image
+  `sha256:540ac839...24aa4`, not the stale d594/e895 constants retained by
+  the old finisher.  Independent grade-reopen
+  `atlas-cbc-32g-full-2023-w8-v1-gp84n`, UID
+  `6b460134-cbce-4a96-8bb9-bfa0db0cfa08`, launched exactly once at
+  `2026-08-31T06:10:34Z` and completed **SUCCESS 1/1**, zero failures and
+  zero retries, at `2026-08-31T06:46:31.372110Z`.  The exact validated
+  receipt is 3626 bytes with SHA-256
+  `ac045e03f598ab89f7c27ccb87014ee8bdda7c23b7f659837361b3d498f0966f`;
+  reopen SHA-256 is
+  `2f64bb5e9b41d78ec6dd6c2c64b7aa883a88a6af5b00092bbe8ae6179f2553a3`.
+  It generation-exact reopened every grade child, replayed the selection and
+  outcome predecessor closures, independently recomputed the same grade,
+  used no object listing/overwrite/delete, and proved the outcome lease
+  unchanged.  It must not be relaunched.
+- Keep the catalog-wide historical-outcome lease generation
+  `1787987508020795`, SHA-256
+  `22b513c5e6824677d0b4feb6037c27b5b6e00f210a986beab2ea626df6012ee7`,
+  live continuously between this construction reopen, the Experiment-4
+  grade/reopen and the downstream Experiment-5 realized FP/SIS comparison
+  grade/reopen.  Its catalog completion is generation `1787987567275104`,
+  SHA-256
+  `15852361756ef0fe76d3a299617ebc2c2531e6821a73f04c8f862bf7229f4df3`.
+  The normalized snapshot and seven-pack capture are score-free prerequisites,
+  not lease consumers.  The generic release utility does not implement this
+  catalog-wide lease schema.  Implement/review a strict catalog completion
+  release adapter only after the last authorized realized grade-reopen seals;
+  no release is armed now.
+- Exact next action: amend this handoff into local commit `15847760`, push the
+  final SHA, then concurrently build the three already-audited Experiment-4
+  broad-admission, Experiment-5 normalized FP/SIS and Experiment-5 seven-pack
+  images.  A green Experiment-4 task-0 is the final launch gate and must
+  release the full 54-slate fixed-corpus A250/A500 retention cohort
+  immediately.  VX60 remains unsized because its near-miss used the lab's
+  mis-signed hsim v0.13; 205.793 remains a hindsight-union multiplicity
+  diagnostic, never the Experiment-4 target.
+- The three direct-Git builds may run concurrently and use distinct trapped
+  disk-backed `.build-contexts`; they do not mutate the shared job.  Runtime
+  launches may not overlap because all three reuse job UID
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275`.  Start the Experiment-4 finisher as
+  soon as its build receipt is ready even if the other builds continue, then
+  serialize normalized FP/SIS task0/publish/reopen and seven-pack
+  task0/publish/reopen.  Keep `origin/main` fixed at that final post-grade
+  release commit until these Commit-A releases finish and the generated
+  capture-plan boundary is ready for Commit B.
+
 ## Current handoff -- 2026-08-31 (four-hundred-forty-third update)
 
 ### Frozen construction crossing is sealed; realized grading is running
@@ -273,11 +383,26 @@ and operator decisions.  The older entries remain the durable chronology.
   `d0c98e40-dce0-40a6-a3d6-00952bae351e`, against the sealed terminal and
   existing outcome-completion identity generation
   `1787987567275104`, SHA-256
-  `15852361756ef0fe76d3a299617ebc2c2531e6821a73f04c8f862bf7229f4df3`.
-  At the latest poll it was running 1/1.  Do not relaunch it; poll this exact
-  execution, then derive grade and grade-reopen requests only from their
-  validated exact stdout receipts.  Report the full K20/K40/K80 2 x 2 cells
-  immediately after grade succeeds.
+  `15852361756ef0fe76d3a299617ebc2c2531e6821a73f04c8f862bf7229f4df3`;
+  it succeeded 1/1 at `2026-08-31T04:55:15.526749Z`.  Its validated stdout
+  receipt binds grade-manifest generation `1788152110798735`, SHA-256
+  `c34a94f4b2f7b4cd1efed38f876f285fa9775cfad3f3927b4c7b936e6467c577`,
+  15913 bytes.  The canonical grade request SHA-256 is
+  `050d63f83ab845119a2560e10d609214de69f951e368d6ff492a666a1fc67396`.
+- Realized grade execution `atlas-cbc-32g-full-2023-w8-v1-6sfkn`, UID
+  `f9e2546a-043a-4250-8684-39c17170e522`, is the one authorized grade attempt.
+  It started at `2026-08-31T05:02:23.090692Z`, was running 1/1 at the latest
+  exact-name poll, uses the exact 99a image/build and sealed manifest, and has
+  zero retries.  Launch used a host-only audited copy of the 99a launcher,
+  SHA-256
+  `09d2d64fc38984eb1daa9e5d6a10b2f937bff6fa6a060f48b3f96959e2991166`,
+  because `origin/main` advanced only outside the protected runtime after the
+  exact 99a checkout froze.  Its replacement gate proves exact 99a checkout,
+  ancestor relation and zero `scripts`/`src`/construction-runtime diff.  Do
+  not relaunch it.  On success, extract and validate its exact stdout receipt,
+  report the full K20/K40/K80 2 x 2 cells immediately, generation-exact fetch
+  the grade body, then derive and run grade-reopen only from the returned
+  terminal envelope.
 - Experiment 4 is scientifically ready for its fixed-corpus exact A250/A500
   outer-fold retention estimand, but its existing host launcher reads only
   Cloud Logging `textPayload`; actual JSON receipts may arrive as
@@ -299,6 +424,17 @@ and operator decisions.  The older entries remain the durable chronology.
   and diff checks pass.  Commit/push only these six packaging/test files with
   this handoff, then rebuild both prerequisites in parallel; no failed image
   may be reused.
+- The Experiment-5 read-only warehouse metadata preflight confirms all six
+  real paid-source relations and their required schemas: Fantasy Points route
+  share 27,305 rows, alignment 16,482, receiver coverage 2,093 and defense
+  coverage 128; SIS receiver/defender copula 15,477 and team run context
+  3,230.  Total support is 64,715 rows (46,008 Fantasy Points; 18,707 SIS).
+  BigQuery itself returned the prospective time-travel snapshot point
+  `2026-08-31T05:25:27Z`.  Use that exact timestamp when the final pushed
+  post-grade release commit identity is available; task-0 still decides exact
+  four-cell K80 feasibility.  The runnable historical arm is FP/SIS;
+  historical Odds remains NO-GO without genuine point-in-time DK PPG
+  authority.  This preflight read no outcome, lineup or result artifact.
 - Lab control-plane polling found `lab-run-l94n9` and `lab-run-g65rm`
   terminal-failed 18/18 after reaching the configured ten-hour timeout.  New
   execution `lab-run-wqwcq`, UID
@@ -1068,14 +1204,17 @@ and operator decisions.  The older entries remain the durable chronology.
   the active construction x allocation crossing; then commit/build/deploy the
   already-implemented five-arm generation x retrieval suite and canonical
   Week-1 book.  Consume PREREG-026/054 rather than duplicating the lab's
-  direct/set-selector cohort.  The Odds prop-override lane may proceed
+  direct/set-selector cohort.  Interpret the lab-owned anchor/LNS experiment
+  primarily at fixed solve budget and secondarily at fixed delivered-unique
+  count, never as an incremental-union result alone.  The Odds prop-override lane may proceed
   historically only if its exact DK-PPG fallback census is complete.  The
   Fantasy Points x SIS four-cell census is currently NO-GO for a real task-0:
   candidate-v2 and the local input freezer are complete, but the exact
   normalized FP/SIS cloud identities, seven-pack release, capture-v3 lock,
   real source-v3 worker/verifier and paid-source execution CLI are not yet
-  complete.  Do not rerun all-boom/BX60 selection, cap-4-on-boom-first,
-  MULTI3 or CE; their decisions are already frozen.
+  complete.  Do not rerun all-boom/BX60 selection, cap-4-on-boom-first or
+  MULTI3.  Do not duplicate CE in production: only the v0.13 artifact result
+  is frozen, and the corrected-v0.14 screen belongs to the lab.
 - A same-day read-only check of lab `main`/`origin/main` at `49eafcb` confirms
   there is still no PREREG-026/054 report or Addendum 12.  The four local 054
   result files are explicitly one-slate smoke shards; the 72-slate corrected

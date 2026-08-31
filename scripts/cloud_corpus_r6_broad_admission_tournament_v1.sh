@@ -571,23 +571,60 @@ if [[ "$ACTION" == "result" ]]; then
   esac
 
   result_logs=$temp_dir/result-stdout.json
-  log_filter="resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$result_execution\" AND logName=\"projects/$PROJECT/logs/run.googleapis.com%2Fstdout\" AND textPayload:*"
+  log_filter="resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$result_execution\" AND logName=\"projects/$PROJECT/logs/run.googleapis.com%2Fstdout\" AND (textPayload:* OR jsonPayload:*)"
   gcloud logging read "$log_filter" --project "$PROJECT" --limit 100 \
     --order=asc --format=json >"$result_logs"
-  result_raw=$(jq -er '
-    [ .[] | .textPayload? | select(type == "string") as $raw |
-      ($raw | fromjson?) as $body |
-      select($body.schema_version == "corpus-r6-broad-admission-cli-receipt/v1") |
-      $raw
-    ] | if length == 1 then .[0]
-        else error("operator stdout receipt count differs") end
-  ' "$result_logs") || die "operator stdout receipt count differs"
-  result_canonical=$(printf '%s' "$result_raw" | jq -cS .) || \
-    die "operator stdout receipt is not JSON"
-  [[ "$result_raw" == "$result_canonical" ]] || \
-    die "operator stdout receipt is not canonical JSON"
   result_receipt=$temp_dir/operator-receipt.json
-  printf '%s' "$result_raw" >"$result_receipt"
+  jq -e 'type == "array" and length == 1' "$result_logs" >/dev/null || \
+    die "operator stdout receipt count differs"
+  result_payload_kind=$(jq -er '
+    .[0] as $row |
+    ($row | has("textPayload")) as $has_text |
+    ($row | has("jsonPayload")) as $has_json |
+    if ($has_text and ($has_json | not) and ($row.textPayload | type == "string"))
+    then "text"
+    elif ($has_json and ($has_text | not) and ($row.jsonPayload | type == "object"))
+    then "json"
+    else error("operator stdout receipt payload kind differs")
+    end
+  ' "$result_logs") || die "operator stdout receipt payload kind differs"
+  if [[ "$result_payload_kind" == "text" ]]; then
+    result_raw=$(jq -er '.[0].textPayload' "$result_logs") || \
+      die "operator stdout text receipt differs"
+    result_canonical=$(printf '%s' "$result_raw" | jq -ecS '
+      select(type == "object" and
+        .schema_version == "corpus-r6-broad-admission-cli-receipt/v1")
+    ') || die "operator stdout receipt is not JSON"
+    [[ "$result_raw" == "$result_canonical" ]] || \
+      die "operator stdout receipt is not canonical JSON"
+    printf '%s' "$result_raw" >"$result_receipt"
+  else
+    result_structured=$temp_dir/operator-receipt-structured.json
+    jq -e '.[0].jsonPayload' "$result_logs" >"$result_structured" || \
+      die "operator structured stdout receipt differs"
+    host_python=$ROOT/.venv/bin/python
+    [[ -x "$host_python" ]] || die "exact release virtualenv Python is absent"
+    PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$ROOT:$ROOT/src:$ROOT/scripts" \
+      "$host_python" - "$result_structured" "$result_receipt" <<'PY_CANONICALIZE' || \
+      die "operator structured stdout canonicalization differs"
+from __future__ import annotations
+
+import json
+from pathlib import Path
+import sys
+
+from scripts import run_corpus_r6_broad_admission_tournament_v1 as experiment
+
+
+source_path, output_path = sys.argv[1:]
+value = json.loads(Path(source_path).read_bytes())
+Path(output_path).write_bytes(experiment._canonical(value))
+PY_CANONICALIZE
+    jq -e '
+      type == "object" and
+      .schema_version == "corpus-r6-broad-admission-cli-receipt/v1"
+    ' "$result_receipt" >/dev/null || die "operator structured stdout receipt differs"
+  fi
 
   expected_command=$result_phase
   [[ "$result_phase" == "task0" ]] && expected_command=task

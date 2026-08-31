@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 import re
 import subprocess
 
 import yaml
+
+from nfl_dfs.research import corpus_r6_matchup_source_v2 as source
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,6 +16,29 @@ RUNNER = ROOT / "scripts/run_corpus_r6_paid_source_normalized_snapshot_v1.py"
 DOCKERFILE = ROOT / "Dockerfile.corpus-r6-paid-source-normalized-snapshot"
 DOCKERIGNORE = ROOT / "Dockerfile.corpus-r6-paid-source-normalized-snapshot.dockerignore"
 BUILD = ROOT / "cloudbuild.corpus-r6-paid-source-normalized-snapshot.yaml"
+
+
+def _stdout_receipt_python() -> str:
+    text = LAUNCH.read_text(encoding="utf-8")
+    match = re.search(r"STDOUT_RECEIPT_PY='\n(.*?)\n'\n", text, re.DOTALL)
+    assert match is not None
+    return match.group(1)
+
+
+def _extract(
+    tmp_path: Path, logs: list[dict[str, object]],
+) -> subprocess.CompletedProcess[bytes]:
+    log_path = tmp_path / "logs.json"
+    log_path.write_bytes(json.dumps(logs).encode("utf-8"))
+    return subprocess.run(
+        [
+            str(ROOT / ".venv/bin/python"), "-I", "-c",
+            _stdout_receipt_python(), str(ROOT / "src"), str(log_path),
+            "top-level",
+            "corpus-r6-paid-source-normalized-snapshot-task0/v1",
+        ],
+        capture_output=True, check=False,
+    )
 
 
 def test_container_dispatch_is_narrow_exact_and_cleanup_safe() -> None:
@@ -60,6 +86,61 @@ def test_host_release_is_existing_job_only_exact_and_default_off() -> None:
     assert "trap cleanup_host exit" in lowered
     assert "automatic-policy" not in lowered
     assert "promote" not in lowered
+
+
+def test_stdout_receipt_accepts_exactly_one_text_or_json_payload(
+    tmp_path: Path,
+) -> None:
+    receipt = {
+        "complete": True,
+        "numeric_probe": 1e-7,
+        "schema_version": "corpus-r6-paid-source-normalized-snapshot-task0/v1",
+    }
+    canonical = source.canonical_json_bytes(receipt)
+    text_result = _extract(tmp_path, [{"textPayload": canonical.decode()}])
+    assert text_result.returncode == 0, text_result.stderr.decode()
+    assert text_result.stdout == canonical
+    json_result = _extract(tmp_path, [{"jsonPayload": receipt}])
+    assert json_result.returncode == 0, json_result.stderr.decode()
+    assert json_result.stdout == canonical
+    launcher = LAUNCH.read_text(encoding="utf-8")
+    assert "(textPayload:* OR jsonPayload:*)" in launcher
+    assert "source.canonical_json_bytes(body)" in launcher
+    assert '"$ROOT/.venv/bin/python" -I -c' in launcher
+
+
+def test_stdout_receipt_rejects_ambiguous_or_multiple_payloads(
+    tmp_path: Path,
+) -> None:
+    receipt = {
+        "schema_version": "corpus-r6-paid-source-normalized-snapshot-task0/v1",
+    }
+    canonical = source.canonical_json_bytes(receipt).decode()
+    ambiguous = _extract(
+        tmp_path, [{"textPayload": canonical, "jsonPayload": receipt}],
+    )
+    assert ambiguous.returncode != 0
+    multiple = _extract(tmp_path, [
+        {"textPayload": canonical}, {"jsonPayload": receipt},
+    ])
+    assert multiple.returncode != 0
+    unrelated_plus_receipt = _extract(tmp_path, [
+        {"textPayload": "unrelated"}, {"jsonPayload": receipt},
+    ])
+    assert unrelated_plus_receipt.returncode != 0
+
+
+def test_stdout_receipt_rejects_wrong_schema_and_noncanonical_text(
+    tmp_path: Path,
+) -> None:
+    wrong = {"schema_version": "wrong/v1"}
+    assert _extract(tmp_path, [{"jsonPayload": wrong}]).returncode != 0
+    receipt = {
+        "schema_version": "corpus-r6-paid-source-normalized-snapshot-task0/v1",
+        "value": 1,
+    }
+    noncanonical = json.dumps(receipt, indent=2)
+    assert _extract(tmp_path, [{"textPayload": noncanonical}]).returncode != 0
 
 
 def test_clean_build_is_direct_git_narrow_and_outcome_blind() -> None:

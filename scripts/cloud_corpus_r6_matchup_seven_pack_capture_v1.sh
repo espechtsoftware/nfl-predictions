@@ -17,6 +17,64 @@ HOST_ENABLE_ENV=CORPUS_R6_MATCHUP_SEVEN_PACK_CLOUD_RELEASE
 HOST_ENABLE_VALUE=I_UNDERSTAND_SEVEN_PACK_CAPTURE_V1
 MAX_PAYLOAD_BYTES=16777216
 
+# Cloud Logging may encode a one-line JSON stdout object as jsonPayload or
+# retain it verbatim in textPayload.  The exact raw gcloud response must be a
+# singleton array with exactly one of those fields.  Canonicalization uses the
+# same measured Python producer as the receipt, including its numeric law.
+STDOUT_RECEIPT_PY='
+import json
+from pathlib import Path
+import sys
+
+sys.path.insert(0, sys.argv[1])
+from nfl_dfs.research import corpus_r6_matchup_source_v2 as source
+
+logs = json.loads(Path(sys.argv[2]).read_bytes())
+schema_mode = sys.argv[3]
+expected_schema = sys.argv[4]
+if type(logs) is not list or len(logs) != 1:
+    raise SystemExit("raw Cloud Logging response is not one row")
+entry = logs[0]
+if type(entry) is not dict:
+    raise SystemExit("Cloud Logging row is not one object")
+has_text = "textPayload" in entry
+has_json = "jsonPayload" in entry
+if has_text == has_json:
+    raise SystemExit("stdout payload source is not exclusive")
+if has_text:
+    text = entry["textPayload"]
+    if type(text) is not str:
+        raise SystemExit("textPayload type differs")
+    body = json.loads(text)
+else:
+    body = entry["jsonPayload"]
+if type(body) is not dict:
+    raise SystemExit("stdout receipt is not one object")
+if schema_mode == "top-level":
+    actual_schema = body.get("schema_version")
+elif schema_mode == "operator-receipt":
+    operator_receipt = body.get("operator_receipt")
+    if type(operator_receipt) is not dict:
+        raise SystemExit("operator receipt is absent")
+    actual_schema = operator_receipt.get("schema_version")
+else:
+    raise SystemExit("stdout schema mode differs")
+if actual_schema != expected_schema:
+    raise SystemExit("stdout receipt schema differs")
+canonical = source.canonical_json_bytes(body)
+if has_text and text.encode("utf-8") != canonical:
+    raise SystemExit("textPayload is not producer-canonical JSON")
+sys.stdout.buffer.write(canonical)
+'
+
+canonicalize_stdout_receipt() {
+  [[ $# -eq 4 ]] || die "stdout canonicalizer contract differs"
+  local logs=$1 schema_mode=$2 expected_schema=$3 output=$4
+  "$ROOT/.venv/bin/python" -I -c "$STDOUT_RECEIPT_PY" \
+    "$ROOT/src" "$logs" "$schema_mode" "$expected_schema" >"$output" || \
+    die "exact singleton stdout receipt differs"
+}
+
 decode_payload() {
   [[ "${!PAYLOAD_B64_ENV:-}" ]] || die "payload base64 is absent"
   [[ "${!PAYLOAD_SHA_ENV:-}" =~ ^[0-9a-f]{64}$ ]] || die "payload SHA differs"
@@ -217,6 +275,12 @@ collect_result() {
     elif $a == [$script,"container-run","publish"] then "publish"
     elif $a == [$script,"container-run","reopen"] then "reopen"
     else error("phase differs") end' "$work/execution.json") || die "execution phase differs"
+  case "$phase" in
+    task0) receipt_schema=corpus-r6-matchup-seven-pack-task0-readiness/v1 ;;
+    publish) receipt_schema=corpus-r6-matchup-seven-pack-operator-publication/v1 ;;
+    reopen) receipt_schema=corpus-r6-matchup-seven-pack-operator-reopen/v1 ;;
+    *) die "execution receipt schema phase differs" ;;
+  esac
   jq -e --arg execution "$execution" --arg job "$JOB" --arg image "$image" '
     .metadata.name == $execution and .metadata.labels["run.googleapis.com/job"] == $job and
     any(.status.conditions[]?; .type == "Completed" and .status == "True") and
@@ -225,15 +289,11 @@ collect_result() {
     .spec.taskCount == 1 and .spec.template.spec.maxRetries == 0 and
     .spec.template.spec.containers[0].image == $image' "$work/execution.json" >/dev/null || \
     die "execution is not terminal exact success"
-  filter="resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$execution\" AND logName=\"projects/$PROJECT/logs/run.googleapis.com%2Fstdout\" AND textPayload:*"
+  filter="resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$execution\" AND logName=\"projects/$PROJECT/logs/run.googleapis.com%2Fstdout\" AND (textPayload:* OR jsonPayload:*)"
   gcloud logging read "$filter" --project "$PROJECT" --limit 50 --order=asc \
     --format=json >"$work/logs.json"
-  jq -er '
-    [.[] | .textPayload? | select(type == "string") as $raw |
-      ($raw | fromjson?) as $body |
-      select($body.operator_receipt.schema_version? | startswith("corpus-r6-matchup-seven-pack-")) |
-      $body] | if length == 1 then .[0] else error("receipt count differs") end
-    ' "$work/logs.json" >"$output" || die "exact stdout receipt differs"
+  canonicalize_stdout_receipt \
+    "$work/logs.json" operator-receipt "$receipt_schema" "$output"
   jq -n --arg schema corpus-r6-matchup-seven-pack-cloud-result/v1 \
     --arg phase "$phase" --arg execution "$execution" --arg image "$image" \
     --arg code "$code" --arg build "$build_id" --slurpfile receipt "$output" \

@@ -23,6 +23,64 @@ REOPEN_ENABLE_ENV=R6_PAID_SOURCE_NORMALIZED_SNAPSHOT_REOPEN
 ENABLE_VALUE=I_UNDERSTAND_RETROSPECTIVE_FP_SIS_SNAPSHOT_V1
 MAX_PAYLOAD_BYTES=16777216
 
+# Cloud Logging may encode a one-line JSON stdout object as jsonPayload or
+# retain it verbatim in textPayload.  The exact raw gcloud response must be a
+# singleton array with exactly one of those fields.  Canonicalization uses the
+# same measured Python producer as the receipt, including its numeric law.
+STDOUT_RECEIPT_PY='
+import json
+from pathlib import Path
+import sys
+
+sys.path.insert(0, sys.argv[1])
+from nfl_dfs.research import corpus_r6_matchup_source_v2 as source
+
+logs = json.loads(Path(sys.argv[2]).read_bytes())
+schema_mode = sys.argv[3]
+expected_schema = sys.argv[4]
+if type(logs) is not list or len(logs) != 1:
+    raise SystemExit("raw Cloud Logging response is not one row")
+entry = logs[0]
+if type(entry) is not dict:
+    raise SystemExit("Cloud Logging row is not one object")
+has_text = "textPayload" in entry
+has_json = "jsonPayload" in entry
+if has_text == has_json:
+    raise SystemExit("stdout payload source is not exclusive")
+if has_text:
+    text = entry["textPayload"]
+    if type(text) is not str:
+        raise SystemExit("textPayload type differs")
+    body = json.loads(text)
+else:
+    body = entry["jsonPayload"]
+if type(body) is not dict:
+    raise SystemExit("stdout receipt is not one object")
+if schema_mode == "top-level":
+    actual_schema = body.get("schema_version")
+elif schema_mode == "operator-receipt":
+    operator_receipt = body.get("operator_receipt")
+    if type(operator_receipt) is not dict:
+        raise SystemExit("operator receipt is absent")
+    actual_schema = operator_receipt.get("schema_version")
+else:
+    raise SystemExit("stdout schema mode differs")
+if actual_schema != expected_schema:
+    raise SystemExit("stdout receipt schema differs")
+canonical = source.canonical_json_bytes(body)
+if has_text and text.encode("utf-8") != canonical:
+    raise SystemExit("textPayload is not producer-canonical JSON")
+sys.stdout.buffer.write(canonical)
+'
+
+canonicalize_stdout_receipt() {
+  [[ $# -eq 4 ]] || die "stdout canonicalizer contract differs"
+  local logs=$1 schema_mode=$2 expected_schema=$3 output=$4
+  "$ROOT/.venv/bin/python" -I -c "$STDOUT_RECEIPT_PY" \
+    "$ROOT/src" "$logs" "$schema_mode" "$expected_schema" >"$output" || \
+    die "exact singleton stdout receipt differs"
+}
+
 decode_exact_file() {
   [[ $# -eq 4 ]] || die "decode-exact-file contract differs"
   local payload_env=$1 digest_env=$2 destination=$3 label=$4
@@ -463,7 +521,7 @@ if [[ "$ACTION" == "result" ]]; then
       die "result task0 receipt binding differs"
   fi
   result_logs=$temp_dir/result-stdout.json
-  log_filter="resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$result_execution\" AND logName=\"projects/$PROJECT/logs/run.googleapis.com%2Fstdout\" AND textPayload:*"
+  log_filter="resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$result_execution\" AND logName=\"projects/$PROJECT/logs/run.googleapis.com%2Fstdout\" AND (textPayload:* OR jsonPayload:*)"
   gcloud logging read "$log_filter" --project "$PROJECT" --limit 100 \
     --order=asc --format=json >"$result_logs"
   case "$result_phase" in
@@ -471,17 +529,9 @@ if [[ "$ACTION" == "result" ]]; then
     publish) result_schema=corpus-r6-paid-source-normalized-snapshot-publication-result/v1 ;;
     reopen) result_schema=corpus-r6-paid-source-normalized-snapshot-reopen/v1 ;;
   esac
-  result_raw=$(jq -er --arg schema "$result_schema" '
-    [.[] | .textPayload? | select(type == "string") as $raw |
-      ($raw | fromjson?) as $body | select($body.schema_version == $schema) | $raw] |
-    if length == 1 then .[0] else error("operator stdout receipt count differs") end
-  ' "$result_logs") || die "operator stdout receipt count differs"
-  result_canonical=$(printf '%s' "$result_raw" | jq -cS .) || \
-    die "operator stdout receipt is not JSON"
-  [[ "$result_raw" == "$result_canonical" ]] || \
-    die "operator stdout receipt is not canonical JSON"
   result_receipt=$temp_dir/operator-receipt.json
-  printf '%s' "$result_raw" >"$result_receipt"
+  canonicalize_stdout_receipt \
+    "$result_logs" top-level "$result_schema" "$result_receipt"
   case "$result_phase" in
     task0)
       jq -e --arg request "$result_bound" '
