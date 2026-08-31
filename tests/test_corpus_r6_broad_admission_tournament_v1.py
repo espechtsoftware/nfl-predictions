@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import json
 
 import numpy as np
 import pytest
@@ -127,6 +128,23 @@ def test_fixed_budget_reference_and_quota_are_outcome_blind_and_deterministic():
         for row in quota_250["selection_trace"]
         if row["selection_stratum"] == "rare-source-detail"
     )
+
+
+def test_freeze_treats_canonical_json_mapping_keys_as_unordered():
+    candidates = json.loads(subject._canonical(_candidates()).decode())
+    multi_source = next(
+        row for row in candidates if row["source_population_count"] > 1
+    )
+    assert list(multi_source["source_lineup_ids_by_population"]) != (
+        multi_source["source_population_ids"]
+    )
+    freeze = subject.freeze_slate_inputs_v1(
+        slate={"season": 2023, "week": 1, "slate_id": "2023-w01"},
+        candidates=candidates,
+        modeled_score_matrix=_scores(),
+        source_binding={"artifact": "canonical-json-round-trip"},
+    )
+    assert freeze["candidate_count"] == len(candidates)
 
 
 def test_reference_uses_exact_float64_mean_at_a500_cutoff():

@@ -193,9 +193,9 @@ def _candidate_rows(value: object) -> list[dict[str, object]]:
             or sources != expected_sources
             or not sources
             or row["source_population_count"] != len(sources)
-            or list(source_lineups) != sources
-            or list(occurrences) != sources
-            or list(details) != sources
+            or set(source_lineups) != set(sources)
+            or set(occurrences) != set(sources)
+            or set(details) != set(sources)
             or any(type(occurrences[source]) is not int or occurrences[source] < 1
                    for source in sources)
             or any(

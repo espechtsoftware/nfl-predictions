@@ -130,6 +130,44 @@ and operator decisions.  The older entries remain the durable chronology.
   task, outcome or scientific law. Commit/push only the wrapper, focused test
   and HANDOFF, build one replacement immutable image, and continue from a
   fresh v4 prefix. Do not rerun or relabel `fq7db`.
+- The timeout repair was committed/pushed as
+  `28f9e3e855bc538da2155c0ffa5f4c3628df87af`. Exact-source Cloud Build
+  `9271b185-1045-412e-87f3-7af20cac9c76` completed SUCCESS with all four
+  provider steps passing and produced immutable image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:8c43a6914cd330232e6a22c826ab2bb3a7ace24df8b365abca1faa683147c053`.
+  Runtime build-attestation generation is `1788180122016882`, bytes `846`,
+  SHA-256 `0621bc850bd0d29e7bc5a3e9679cff3e21f32f4d4bc2dd6a0aa0ae4adfa2cf36`.
+  The fresh v4 finisher installed generation `49`. Prepare execution
+  `atlas-cbc-32g-full-2023-w8-v1-mxf7x`, UID
+  `c83d4572-7c49-48bb-a290-8f1dc5e2c437`, completed SUCCESS at
+  `2026-08-31T12:47:23.181119Z`; the repaired result collector accepted it
+  and captured manifest generation `1788180437292335`, bytes `29426`,
+  SHA-256 `d0c79f8ab2acf8f28959fbc8f2772eee3d0e26b0323e55de20c5f7a71989b796`.
+  Final launch-gate task-0 execution
+  `atlas-cbc-32g-full-2023-w8-v1-cvzb8`, UID
+  `1d96a694-e05e-449e-acf3-09cebdd2caf2`, then failed closed with exit 2 at
+  `2026-08-31T12:50:54.270257Z`, zero retries and the sole stderr message
+  `candidate values differ from the combined R6 union`. The full 54-task
+  cohort was correctly never launched and task 0 published nothing.
+- Generation-exact inspection of its frozen 2023-w01 predecessor
+  (generation `1787999431502701`, bytes `5738568`, SHA-256
+  `45da8f2abb1c5072289214db8a9f59c4d98d13302e50750c4f65dd2cff88b99f`)
+  isolates the failure to a serialization-contract error: 1,051 valid
+  multi-source rows carry `source_population_ids` in governed `SOURCE_ORDER`,
+  while canonical JSON necessarily sorts keys in the three associated mapping
+  objects. E4 incorrectly required those JSON object insertion orders to equal
+  the semantic source array. The bounded repair requires exact mapping key-set
+  equality instead; source array order, membership, values, counts, details,
+  lineup IDs and every score-free/scientific rule remain unchanged. A
+  canonical-JSON round-trip regression covers the real provider shape. The
+  patched validator accepts all **5,843** generation-exact task-0 rows without
+  rewriting them; the exact four-module E4 release suite passes **44/44**, and
+  `bash -n` plus `git diff --check` pass. Independent review found no blocker,
+  confirmed missing/extra mapping keys still fail, and confirmed no outcome,
+  provider, solver, score or scientific law changed. Close v4 as
+  failed-gate/inert and do not reuse its manifest. Commit/push only the
+  admission module, focused test and HANDOFF, build one replacement image,
+  and use a fresh v5 prefix.
 
 - **Week-1 operating policy:** the owner adopted the lab Week-1 brief at
   `nfl2` commit `aea89297405e20984268ad4f1899d95db383401c`.  Before Sunday
