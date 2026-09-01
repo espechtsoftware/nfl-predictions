@@ -25,6 +25,35 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-01 PREREG-049/079 success semantics and tonight outlook recorded
+
+- The production interpretation and decision recommendation are recorded in
+  `reports/2026-09-01-prereg-079-success-interpretation-and-tonight-outlook.md`.
+  The durable conclusion is: 079 was a successful, high-value mechanism
+  discovery and strong positive near-miss, but its frozen formal label remains
+  `UNPASSED_NEAR_MISS`; it is not a family-adjusted pass or current-objective
+  adoption confirmation.
+- The report corrects shorthand in the sealed summaries: `+2.021` is the
+  combined `A4036_LEGAL` cell versus the `A8032_TOTAL` control, not a second
+  pure scheduling contrast. The pure scheduling estimates are `+1.900` at
+  80/320 and approximately `+1.506` at 40/360. Allocation moved only `+0.515`
+  under total ordering and `+0.120` under legal ordering.
+- The formal near-miss is correct because PREREG-049 froze three treatment
+  comparisons at family level 0.9833; the family lower bounds did not clear
+  zero even though every raw bank was positive and the nominal sign-flip
+  p-values were 0.0495/0.0389. The current `GLOBAL_WEMAX_PROXY` changes were
+  descriptive +0.0081/+0.0086 with bank 532 marginally negative.
+- Exact next scientific action is unchanged: run the frozen single-contrast
+  PREREG-052/083 fresh-bank confirmation with the current proxy primary, then
+  grade prospectively. Do not relabel 079 or assume D800 and scheduler effects
+  add. At the 17:03 CDT status check, 083 was launch-ready but unclaimed; E4
+  exact grade-reopen `atlas-cbc-32g-full-2023-w8-v1-7zpd4` remained the sole
+  active outcome-bearing execution with a six-hour terminal boundary near
+  19:00:50 CDT.
+- This milestone used only committed-result review and read-only provider
+  metadata. It launched/cancelled no cloud execution and changed no production
+  policy, experiment, graph, or runtime. Documentation diff checks passed.
+
 ### 2026-09-01 independent knowledge-graph inventory annotated for lab handoff
 
 - The independent experiment inventory was reviewed inline and committed/pushed
