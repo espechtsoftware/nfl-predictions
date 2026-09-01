@@ -25,6 +25,35 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-01 independent knowledge-graph inventory annotated for lab handoff
+
+- The independent experiment inventory was reviewed inline and committed/pushed
+  to lab `main` at `2a2b4a6`:
+  `../nfl2/reports/2026-09-01-knowledge-graph-recent-work-independent-review.md`.
+  The original analysis remains intact; 29 clearly marked production comments
+  distinguish current assets from proposed work and tighten the experiment
+  definitions without removing viable ideas.
+- Material factual corrections include: production E0 materializes a bounded
+  4,258-node projection rather than all 199,244 candidates; relaxed R6 arms
+  supplied 169 incumbent-absent 200+ lineups, of which the two named topology
+  arms supplied 112; the eight-strategy union is a diagnostic multi-book view,
+  not an exact K80 selector; and 078 closes only its frozen split-stream
+  implementation under the old raw-max objective/budget.
+- The source audit found two immediate lab P0 gaps: the compact-package
+  validator does not yet enforce an exact complete file registry/schema/key
+  census, and `reader_settlement_join()` is positional by `cand_ix`, not an
+  exact-key join. The current shuffle test proves trace immutability but cannot
+  prevent a shuffled realized score from being assigned to the wrong roster.
+  The review also records scorecard fail-closed/key-alignment/prefix work,
+  fixed-compute plus fixed-unique comparisons, participation modeling, and
+  immutable point-in-time feature materialization.
+- Validation was documentation review plus `git diff --check`; no production
+  code, graph, policy, cloud execution, or queued job changed. Exact next action
+  is for the lab to adjudicate the inline comments, repair the compact-package
+  and exact-key trace boundaries, then group the retained KG arms into
+  prespecified exploratory families under the current objective and launcher
+  limits.
+
 ### 2026-09-01 bounded historical Neo4j E0 slice accepted and integrated
 
 - Production commit `d4ddd6bc` integrates the localhost-only historical
