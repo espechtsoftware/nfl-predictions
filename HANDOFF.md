@@ -618,6 +618,27 @@ and operator decisions.  The older entries remain the durable chronology.
   the one-player editor or spend another tuning cycle in that neighborhood;
   this result does not test full non-core/multi-player completion. The other
   party must rerun the exact frozen reader before sealing a lab-ledger row.
+- **PREREG-037 independent verification sealed, 2026-09-01:** production
+  reran unchanged reader SHA-256 `19a8a923...3d76` against the same exact
+  ordered cohort. Every scientific and secondary line reproduced exactly;
+  raw rerun stdout SHA-256 is `b80d4a4f...39bf`. Lab commit `65528ae`
+  (pushed) records the cross-verification and seals the LEDGER row. The first
+  transcript is not whole-file byte-identical because it manually prettified
+  NumPy bank scalars and appended an editorial disposition; that presentation
+  difference is disclosed and the original artifact was not rewritten.
+- **PREREG-039 / 068 full non-core recompletion remains NO-LAUNCH:** the
+  uncommitted implementation's MILP/search method independently reviewed
+  sound (explicit UNSTACKED, exact core locks, four charged attempts, exact
+  K80, bank-averaged thresholds and two-party 067 authority), and its latest
+  local suite is 109 passed. Re-review nevertheless found three blocking
+  integrity gaps: validate every efficacy proposal/path/portfolio before any
+  actuals load; independently prove DK legality and stacked/UNSTACKED core
+  preservation in the live mechanics gate while forbidding `was_active` and
+  `y_*`; and make dirty-source refusal include untracked executable files.
+  Before efficacy freeze, also bind provider execution UID and snapshotted
+  CPU/memory/retry/image envelope. The implementation agent is applying this
+  bounded hardening batch. Do not commit, build or launch 068 until a fresh
+  independent re-review approves it.
 - A read-only production launcher audit found active E4 already has durable
   per-phase intents and exact-name recovery, but no cross-script lock on its
   shared Cloud Run job; immediate E5 action scripts have neither a global
