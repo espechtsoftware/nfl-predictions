@@ -598,6 +598,31 @@ and operator decisions.  The older entries remain the durable chronology.
   post-E4 parent queue, holding the lane across its full multi-stage chain;
   separately add durable launch-intent/provider-claim reconciliation before
   allowing any currently queued E5 action shell to execute.
+- **E4 exact-source host continuation, 2026-09-01 00:01Z:** after main
+  `HEAD`/`origin/main` advanced to registry/handoff commit `b06c3cfb`, review
+  found the still-running frozen-f2 finisher's next `grade-reopen` shell call
+  would reject the host Git identity even though cloud grade `bqkw5` was
+  unaffected. Before grade became terminal, local PID `836062` was verified
+  sleeping with no child, stopped and killed; Cloud Run grade remained the
+  same UID `9539f293-cd07-492c-a135-a5a4cf002211`, one running and zero
+  terminal/retry counts. No grade result raw file or grade-reopen intent
+  existed, so create-once state remained clean.
+- A standalone exact-source clone at
+  `.build-contexts/e4-finisher-f2aad-exact-oupZof/source` independently binds
+  both `HEAD` and its local `refs/remotes/origin/main` to full commit
+  `f2aad14e6bed0a2f0267e3a5f45c149173f9f1a4`; exact finisher/launcher byte
+  SHA-256 values are `0ce5b610...4491` and `f1c5f9f0...07a1`. Ignored driver
+  `.tmp/e4-f2aad14e-v5-exact-recovery.py` has SHA-256
+  `3bc282cdddc8b7431b3a9dd59fefcb53475269e6362181f72316e17491ab0476`;
+  it imports those exact frozen bytes and changes only the host local-state
+  root back to the existing main `.tmp` run directory. Persistent service
+  `nfl-prod-e4-f2aad-exact-recovery.service`, invocation
+  `18c5419d98744e308aa6c78e74226fd6`, now resumes exact grade `bqkw5` and will
+  launch grade-reopen only after its result validates. It owns registry lane
+  `atlas-cbc-32g-full-2023-w8-v1` under receipt
+  `.tmp/launchers/e4-f2aad14e-v5-exact-recovery.py-1048151.json`. Do not fetch,
+  edit or remove the exact clone/driver/receipt while this service is active;
+  do not launch another production job on that shared lane.
 - **Latest matched score evidence:** the exact 54-slate production-shaped
   boom-first replay moved selected K80 mean weekly maximum from **178.023 to
   179.279 (+1.256)**, candidate-pool ceiling from **181.500 to 184.877
