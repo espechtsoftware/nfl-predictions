@@ -25,6 +25,48 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-01 Neo4j hold refined: local historical decision slice may proceed
+
+- Operator clarification: do not defer the highest-value historical corpus
+  intelligence until the 2026 season begins. The prior Phase-E hold was too
+  broad. A bounded, localhost-only, non-authoritative historical decision
+  slice may now be built from already accepted immutable artifacts; it may not
+  publish a production graph, change a scoring policy, or represent any
+  winner observation as official.
+- The paid exact-K boundary is no longer a blocker: commit `b193e54e` was
+  built successfully and is deployed as revision
+  `nfl-dfs-app-paid-v2-b193e54e`. The synthetic complete-field capture
+  rehearsal is also byte-reproducibly green. Actual Week-1 book binding and
+  settled-field capture remain perishable live operations, not prerequisites
+  for analyzing frozen 2023--2025 corpus results.
+- Winner-registry v2 remains incomplete and continues to block official Milly
+  winner nodes, winner-relative promotion claims, and PREREG-080/081/082. It
+  does **not** block a graph of corpus lineups and their already-persisted
+  realized labels. Registry-v2 infrastructure currently holds 117 candidate
+  observations over 70 season/week labels but zero accepted official contests;
+  the missing inputs are a frozen target-contest policy and exact official
+  DraftKings contest/result evidence.
+- Authorized historical inputs are limited to three exact accepted chains:
+  fixed-G0 candidate-v2 generation lineage (54 slates, 199,244 candidate
+  lineups, 378,000 exact visits); the fixed-G0 structural player catalog
+  (29,605 player-slate rows); and the full-union attribution release (199,244
+  persisted realized lineup labels, 2,592 books, 207,360 selections). No raw
+  outcome query, rescore, winner-registry-v1 promotion, paid/live contest row,
+  licensed raw source row, or world-matrix body is authorized.
+- First delivery is a deterministic decision slice: all 279 lineups at or
+  above 200 DK points, their exact nine-player structural joins and generation
+  arm/block recurrence, their final-fit K80 selection/miss relationships, book
+  regret, and full-population arm/block denominators. It must remain explicitly
+  descriptive/development evidence and carry immutable source identities. The
+  initial questions are fill-arm tail yield per fixed visit, arm-to-selector
+  conversion, missed-high-scorer forensics, selector stability, and structural
+  phenotypes. A later full 199,244-lineup local load requires its own capacity
+  decision and is not implied.
+- Phase D dedicated/shared service provisioning and official-winner/live
+  Phase-E population remain held behind registry v2 and the live capture
+  duties. The existing local fixture remains isolated from production and has
+  no automatic feedback or promotion authority.
+
 ### 2026-09-01 Neo4j is bounded background work; Phases D/E held
 
 - Operator directive: continue Neo4j only as bounded background work. Phase B
