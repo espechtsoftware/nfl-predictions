@@ -696,6 +696,21 @@ and operator decisions.  The older entries remain the durable chronology.
   repair plus a real NumPy-scalar boundary regression, a preregistration
   repair note, independent no-launch review, then a fresh exact image/run
   prefix; do not relabel or reuse failed execution `bj79t`.
+- **Week-1 decision-brief production review:** lab commit `f66706e` (pushed)
+  adds
+  `handoffs/WEEK1-FINAL-DECISION-BRIEF-PRODUCTION-REVIEW-2026-09-01.md`.
+  Production accepts BF_DUAL_EMAX as the confirmed core and conditionally
+  recommends an aggressive exact K80 merge of 60 BF entries plus 20 exact-
+  roster-novel FU entries. The lab brief is not executable unchanged: its
+  command omits `--boom 160 --entries 80` and therefore runs the 40/360 K90
+  defaults; the 60+20-30 split is not exact or historically replayed; prior
+  64/12/4 sleeves lack an explicit disposition; and the one-population live
+  path cannot support the promised four-book counterfactual settlement.
+  Before adoption, freeze and descriptively replay the exact 60/20 merge on
+  the existing 067 parent books, implement/freeze both live populations and
+  parent rankings, and fail closed to exact BF_DUAL K80 if that path is not
+  ready. Pending E4 and failed 068 task-0 are explicitly outside the lab
+  selector table's claim of completion.
 - A read-only production launcher audit found active E4 already has durable
   per-phase intents and exact-name recovery, but no cross-script lock on its
   shared Cloud Run job; immediate E5 action scripts have neither a global
