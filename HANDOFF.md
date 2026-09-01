@@ -25,6 +25,45 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-01 durable Cloud Run lane monitor armed; PREREG-052 image ready
+
+- A persistent, read-only Cloud Run lane monitor is now running as user unit
+  `nfl-cloud-run-lane-monitor.service` (invocation
+  `03ec804cd97c4f748dad44477ca94a46`). It polls `lab-run` and
+  `lab-run-slow` every 60 seconds plus exact production E4 execution
+  `atlas-cbc-32g-full-2023-w8-v1-7zpd4`. It writes an atomic mode-0600 status
+  snapshot to `.tmp/cloud-lane-monitor/status.json` and emits only state
+  transitions and alert transitions to journald. It has no Cloud Run mutation
+  command path. Expected create-once prefixes are `083m580r1`, `083b580r1`,
+  `083b581r1`, and `083b582r1`; idle/unclaimed, provider-query failure,
+  execution failure/cancellation, and unchanged-metadata stalls are explicit
+  alerts.
+- At 22:32:15Z the lab lane was idle and all four 083 prefixes were unclaimed,
+  so the monitor correctly raised the launch-gap alerts. E4 remained running
+  with exact UID `cada1617-0e2c-4a2a-b33b-c2aec97a2c69`, start
+  `2026-09-01T18:00:50.304429Z`, one running task, and no terminal count. Its
+  existing persistent finisher unit
+  `nfl-prod-e4-njfvm-exact-name-v1-r1.service` remained active.
+- The reviewed PREREG-052 source is durable in lab `main` at commit
+  `73545e37c1f0f6194d9d681c7f62b8858e381dfd`. Cloud Build
+  `c73f12e7-6166-46f6-8c18-1918270baaf1` succeeded from that exact clean tree;
+  immutable image identity is
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2@sha256:19c9ad3906b367008680fe1e42f73c4046dd890c87c3ec2acb5607f7600c5dff`.
+  The build context lived on disk and was removed after the build. Lab
+  validation was `301 passed` plus Ruff/compile checks. The exact next action
+  is to claim the shared launcher-registry lane with a durable coordinator,
+  run/publish the one-slate outcome-disabled mechanics gate, bind its exact
+  receipt into the reader, then launch the three efficacy banks without
+  opening them.
+- The lab priority ranking was reviewed inline and pushed with the source at
+  `../nfl2/reports/2026-09-01-priority-ranking.md`. The comments preserve the
+  aggressive order while separating current operational evidence from
+  proposed work and keeping registry-v2, live capture/settlement, and
+  product-facing exact-boundary work visible.
+- Production monitor validation: focused suite `5 passed` and Python bytecode
+  compilation passed. This milestone did not cancel, update, or launch a cloud
+  execution; the upcoming registered 083 coordinator owns those mutations.
+
 ### 2026-09-01 PREREG-049/079 success semantics and tonight outlook recorded
 
 - The production interpretation and decision recommendation are recorded in
