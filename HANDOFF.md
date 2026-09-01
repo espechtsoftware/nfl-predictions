@@ -25,6 +25,52 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-01 repaired PREREG-039/046/047 lab cohort launched
+
+- Lab `main` and `origin/main` are equal at binding commit
+  `066d62d834193c9d1da93cce4e8361cbe97a1f72`. The experiment runtime is the
+  exact earlier source commit `231582afb10720992437f1925518106c1c9f24ed`,
+  built once as immutable image
+  `sha256:a1bbcae3d89b18c4199d118a8b067af8b71382ddff5147435c17d3aa53003006`.
+  The PREREG-039 control is `BF_DUAL_EMAX`, verdict SHA-256
+  `c2c103a46755798d32adceabdc76186d94711b1f4e0364574cb357b0343b82bd`;
+  the frozen law-repair map SHA-256 is
+  `5d6f6029814b4dc453aafaac065d081fa2ef8d3c6e626aa8279635ecc78a2fcd`.
+  Both reusable lab jobs were updated together to that source/image with
+  2 CPU, 8 GiB, retry 1 and 36,000-second timeout.
+- The binding and queue changes passed the full lab suite (**187 passed**),
+  focused integrated binding/contract suites (**82 passed**, then **58
+  passed** after the final assertion hardening), Ruff, shell syntax and
+  `git diff --check`. The prelaunch provider census found zero active lab jobs
+  and zero prior claims for all 12 frozen prefixes.
+- One systemd-owned production registry coordinator was launched at
+  `2026-09-01T12:42:18Z`: unit
+  `nfl2-recovery-068-076-077-20260901.service`, invocation
+  `bd75618f3d2b44a4a87d080b167d17a2`, lane `nfl2-lab-jobs`, with all 12
+  prefixes owned by one receipt. Its exact outcome-disabled mechanics claims
+  are:
+  - PREREG-039: run `068m520-20260901T124236Z`, execution
+    `lab-run-slow-tdxpz`, UID `04f7eef2-43c1-4ffe-b921-d05ce9e484b7`, four
+    tasks. It started at `2026-09-01T12:43:10.393206Z` and was running 4/4 at
+    the last poll with zero failures, cancellations or retries.
+  - PREREG-046: run `076m480r3-20260901T124500Z`, execution
+    `lab-run-vqdww`, UID `20446f80-e88c-44cf-a1bd-432d5f7a4c3c`, one task.
+    It started at `2026-09-01T12:45:16.382100Z` and was running 1/1 at the
+    last poll with zero failures, cancellations or retries.
+- The coordinator cannot release efficacy work until the corresponding
+  frozen mechanics artifact passes its outcome-disabled validator. After
+  076's three-bank cohort succeeds, the same queue gates and runs PREREG-047.
+  No realized outcome was read during binding or launch. PREREG-048/049 remain
+  intentionally blocked: their current exact-K, fixed-count, ledger,
+  mechanics-trace and reader contracts are not launch-ready.
+- Exact next action: poll the two mechanics executions and the registered
+  systemd unit without reading provider logs or realized outcomes. Never
+  relaunch either claimed prefix. Let the registered coordinator release the
+  frozen 068/076 efficacy banks only after gate success, then 077; capture
+  every resulting execution name/UID in this handoff. When a complete cohort
+  reaches exact terminal success, run the frozen lab reader first and an
+  independent production reproduction before adopting a result.
+
 ### 2026-09-01 E4 grade-timeout recovery launched once and running
 
 - E4's frozen grade execution
