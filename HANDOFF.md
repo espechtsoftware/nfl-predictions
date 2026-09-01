@@ -25,6 +25,85 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-01 E4 grade-timeout recovery approved, not yet launched
+
+- E4's frozen grade execution
+  `atlas-cbc-32g-full-2023-w8-v1-bqkw5`, UID
+  `9539f293-cd07-492c-a135-a5a4cf002211`, ended at the exact six-hour
+  transport timeout with 0 succeeded, 1 failed, 0 cancelled, 0 running and
+  `maxRetries=0`. A metadata-only census of all 57 create-once grade targets
+  found zero objects, so no partial grade can be resumed or relabelled. E5
+  remains unlaunched and blocked on this grade/reopen chain.
+- Commit `7853fdc9df1b2c20bff3d131d5bac200d3ea03e1` adds the bounded recovery.
+  It reuses the exact frozen runtime rather than rebuilding it: source
+  `f2aad14e6bed0a2f0267e3a5f45c149173f9f1a4`, immutable image
+  `sha256:d65aec970cb6c075124a767ae0082fe699bb7426289a2da96ea2a23f27f954d6`,
+  build `889a1f25-2d9c-41e9-802a-fcfb3b327375`, exact request SHA-256
+  `37c19cd58c0d9da617bc91f6e8d152c31ecf43fe706abd4505b541032a128a75`,
+  8 CPU/32 GiB, one task, parallelism 54 and retry 0. The only execution
+  changes are timeout 21,600→43,200 seconds and an exact provenance marker
+  pointing to `bqkw5`.
+- The launcher reopens the complete failed provider envelope, refuses any
+  existing marker-derived recovery across an unlimited provider census, and
+  requires live ownership of the actual shared launcher-registry lane and
+  flock. The collector accepts 43,200 seconds only for the exact old
+  code/image/build, grade command, request and 11-field environment. Dynamic
+  tests cover successful launch/collection, sequential refusal, direct-lock
+  spoof refusal, and tampered UID/request/image/resources/service account,
+  wrong runtime, wrong marker and non-grade rejection. Independent review
+  approved the final patch; the combined registry/E4 suite is **40/40**, both
+  scripts pass `bash -n`, and `git diff --check` is clean.
+- No recovery execution or outcome read has occurred yet. Exact next action:
+  push the code and this handoff, then acquire launcher-registry lane
+  `atlas-cbc-32g-full-2023-w8-v1` and invoke `grade-timeout-recovery` with the
+  exact old image/source/build and
+  `.tmp/20260831-fixed-budget-retention-f2aad14e-v5/grade/request.json`.
+  Record the one provider execution name. On terminal success, collect that
+  exact name, derive its validated `grade_terminal_identity`, run the ordinary
+  grade-reopen on the exact frozen runtime, and only then unblock E5. Never
+  invoke the recovery a second time or reuse failed `bqkw5` as success.
+
+### 2026-09-01 production review for the lab's intelligence/P0 program
+
+- A shareable production review is recorded at
+  `reports/2026-09-01-production-review-for-lab-corpus-selection-intelligence.md`.
+  It reviews the corpus-selection audit, independently reproduced
+  participation and external-corpus counts, the existing production latent-
+  role implementation, the Neo4j lineage target, and lab commit
+  `ee4d2ecf06056ed294f82e88f3ae8c78b2275156`. No cloud execution, image,
+  experiment result, or production code was changed by this review.
+- The lab's current `proj_tourney_v2` is **not production parity** and must not
+  enter a Week-1 receipt under that label. Its live call uses p90 below $4,000,
+  mean above $4,000 and no ownership fade. The verified production contract is
+  `base=max(mean,generation-p90)` at salary <= $4,000, mean otherwise, then
+  `proj_tourney=base-25*own_est` for every row, with current frozen naive-
+  ownership identity and vector hashes receipted. This is a bounded parity
+  repair, not a new scoring arm or a reason to rerun valid fixed-image jobs.
+- P0 lineage direction is approved, but the current implementation is partial:
+  `build_corpus` does not pass the supported ledger into anchor/LNS generation,
+  leverage exhaustion is inferred rather than exact attempt telemetry, and the
+  universe receipt is aggregate rather than a row-level disposition ledger.
+  Complete those surfaces before claiming all-route attribution or feeding the
+  Neo4j intelligence graph.
+- Lab live exact-K enforcement is also fail-open: selection and `assert_book`
+  both use `min(entries, len(cands))`, and the assertion checks only nine
+  distinct IDs rather than the complete named roster contract. Before a live
+  receipt, require exactly the requested K and independently reopen/validate
+  salary, slots, teams/games, duplicate IDs, DK legality and the separately
+  named strategy profile.
+- Participation remains a high-priority efficacy experiment, not an assumed
+  gain. The baseline already removes known Out players; reuse/cross the existing
+  five-state production latent-role mechanism, add a QB treatment, and model
+  teammate opportunity redistribution. If it wins, recross only finalist
+  BF_DUAL/FU_DUAL packages rather than rerunning every old arm.
+- External v1 remains immutable and barred only from its intended same-house-
+  domain/072 efficacy claim. It does not block 068, 069, 071 or unrelated work;
+  only DraftKings legality is universal, while house topology remains a named
+  strategy contract. Exact next action is for the lab to amend the formula and
+  exact-K/full-contract enforcement, complete the lineage/universe receipt,
+  then send the focused patch and parity evidence back for production review
+  before a live receipt is frozen.
+
 ### 2026-08-31 E4/E5 release continuation and E4 prepare closure
 
 - `main` and `origin/main` entered this continuation equal at
