@@ -67,6 +67,41 @@ and operator decisions.  The older entries remain the durable chronology.
   duties. The existing local fixture remains isolated from production and has
   no automatic feedback or promotion authority.
 
+#### Exact historical inputs staged; first retrieval-loss read reproduced
+
+- The accepted candidate-v2 root, catalog-recovery outer attestation,
+  no-rescore funnel, all 54 candidate artifacts, all 54 exact-occurrence
+  lineage sidecars, all 54 structural player catalogs and all 54 full-union
+  attribution shards were generation-exact downloaded to disk-backed local
+  scratch. Every downloaded body matches the byte count and SHA-256 in its
+  governing root: candidate-v2 root
+  `ae6d0ba73ac627f652f2cfc542da3f43885f4b9090885457fa313ecb6a7faea8`,
+  catalog outer
+  `65f49bcc66c7761eee050ceb066252977b4a94ed48f0fa56da644c85a6c98cf2`,
+  attribution root
+  `caaddba5ef709b1e4df8c60480e2a50a37063917ef9b8d3c788f5e107133722b`,
+  and no-rescore root
+  `782a1d88c27b3160e3f91f8c8efcf07d92ab7d5f5ef60c90bca4712449bdfcbb`.
+  Scratch is a disposable cache, not new evidence authority.
+- A direct one-pass replay over the exact attribution shards found all 279
+  persisted lineups at or above 200 points. Across the eight final-fit K80
+  books (`scope_ordinal=5` only), only 38 unique high-score lineups were ever
+  selected; 241 were missed. The corpus had a 200-point opportunity on 29
+  slates and the eight-book union converted only 10. No winner score or raw
+  outcome source was used for this result.
+- Structural joins against the exact 29,605-row catalog already reproduce the
+  intended diagnostic surface. Among the 279 high scorers, selected versus
+  missed cohorts can be compared by salary, team/game concentration, QB
+  catcher count, bring-back count, RB-versus-DST and same-team RB structure.
+  These are descriptive viewed-panel diagnostics, not fitted laws or promotion
+  evidence; the graph adapter must preserve that label.
+- The implementation lane is isolated on branch
+  `feature/neo4j-historical-e0`. It is building a pure fail-closed bundle
+  validator and compact graph plan before any local Neo4j mutation. Exact next
+  action: finish hermetic validation, run the adapter against the staged exact
+  chain, review its row/count receipt, then load only the approved decision
+  slice into the localhost fixture and execute the frozen first-query catalog.
+
 ### 2026-09-01 Neo4j is bounded background work; Phases D/E held
 
 - Operator directive: continue Neo4j only as bounded background work. Phase B
