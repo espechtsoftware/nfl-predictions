@@ -572,6 +572,28 @@ and operator decisions.  The older entries remain the durable chronology.
   `28890ac`, digest `sha256:6f6a318b...e512`, 18 tasks, 2 vCPU/8 GiB and
   `maxRetries=1`. Continue the same queue through banks 421/422; do not open
   outcomes until all three exact banks and the already-frozen reader reconcile.
+- **PREREG-038 exact cohort frozen before read, 2026-09-01 00:39Z:** the
+  registered queue made exactly one claim for each efficacy bank and then
+  drained cleanly, removing `.tmp/launchers/queue_067-*`. Bank 420 run
+  `067b420-20260901T000622Z`, execution `lab-run-z6jtx`, UID
+  `59b30a3c-cf78-4885-927c-8dc23a17faab`, completed SUCCESS 18/18 at
+  `00:34:20Z`; its one provider retry followed a pre-application startup
+  failure and produced no duplicate execution. Bank 421 run
+  `067b421-20260901T000851Z`, execution `lab-run-9mzjp`, UID
+  `1e1203c6-e5ea-4753-a8b7-efd3054bbe2b`, completed SUCCESS 18/18 at
+  `00:39:06Z` with zero failures/cancellations/retries. Bank 422 run
+  `067b422-20260901T003502Z`, execution `lab-run-b4bn7`, UID
+  `75754ae6-c587-48db-9cd4-6cfd39e729e8`, is the sole active cohort
+  execution and was last observed running 18 tasks without an anomaly.
+- Lab commit `fa5395d` (pushed) binds the PREREG-038 reader to those three
+  exact efficacy runs in bank order and the exact mechanics run/receipt bytes
+  (SHA-256 `3c0bcbbe...3489`). It also corrects the preregistered secondary
+  unit: average the three K80 bank maxima within each slate, then count the 72
+  bank-averaged weeks at each fixed threshold. An independent outcome-blind
+  review approved the binding; 13 focused tests, Python compilation and diff
+  checks pass. Do not open 067 outcomes until bank 422 is exact SUCCESS 18/18;
+  then run this frozen reader once and require the other party's digit-identical
+  rerun before sealing the ledger row.
 - PREREG-037 bank 410 `lab-run-24872` completed SUCCESS 18/18 at
   `23:27:50Z`, and bank 411 `lab-run-xktft` completed SUCCESS 18/18 at
   `23:32:30Z`; both have zero failures, cancellations or retries. Bank 412
@@ -609,6 +631,15 @@ and operator decisions.  The older entries remain the durable chronology.
   post-E4 parent queue, holding the lane across its full multi-stage chain;
   separately add durable launch-intent/provider-claim reconciliation before
   allowing any currently queued E5 action shell to execute.
+- **Launcher registry is now a production launch invariant:** the lab's
+  confirmation that the prior pause prevented a duplicate reinforces the
+  shared convention. E4 exact recovery is currently protected by the
+  production lane receipt, and 067 was protected by the lab-repo queue
+  registration through its final claim. Every future E4/E5/experiment queue
+  must acquire the appropriate shared-job lane before it can arm, retain it
+  for the whole host launch chain, and reconcile an ambiguous local return
+  against the provider claim before retrying. This is duplicate protection,
+  not a new scientific gate; independent lanes remain free to run in parallel.
 - **E4 exact-source host continuation, 2026-09-01 00:01Z:** after main
   `HEAD`/`origin/main` advanced to registry/handoff commit `b06c3cfb`, review
   found the still-running frozen-f2 finisher's next `grade-reopen` shell call
