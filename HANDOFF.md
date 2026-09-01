@@ -640,6 +640,8 @@ and operator decisions.  The older entries remain the durable chronology.
   for the whole host launch chain, and reconcile an ambiguous local return
   against the provider claim before retrying. This is duplicate protection,
   not a new scientific gate; independent lanes remain free to run in parallel.
+  The same rule is now durable in `CLAUDE.md`, so it applies to future agents
+  after this current handoff is superseded.
 - **E4 exact-source host continuation, 2026-09-01 00:01Z:** after main
   `HEAD`/`origin/main` advanced to registry/handoff commit `b06c3cfb`, review
   found the still-running frozen-f2 finisher's next `grade-reopen` shell call

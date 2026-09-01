@@ -65,6 +65,13 @@ Config is env vars only, all read in `src/nfl_dfs/config.py`.
      per-cell or per-run jobs — and disclose the reused job name in the
      run manifest. Freeing quota by deleting old jobs erases their cloud
      execution history and is an operator-only decision.
+  6. Before arming any host queue or launcher that can update or execute a
+     shared Cloud Run job, acquire that job's single-writer lane through
+     `scripts/launcher_registry.sh run`. Keep the lane for the complete host
+     launch chain, never edit a registered running script, and reconcile an
+     ambiguous/nonzero local `gcloud` return against the exact provider claim
+     before retrying. A live or paused owner blocks only the same lane;
+     independent job lanes may continue in parallel.
 - **Keep the handoff in the repository.** Update tracked `HANDOFF.md` at
   every material milestone and before any pause, machine move, or agent
   handoff. Record the exact branch/commit, completed work, validation and
