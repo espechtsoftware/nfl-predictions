@@ -84,6 +84,13 @@ SERVICE_ACCOUNT=817589974517-compute@developer.gserviceaccount.com
 TASK_COUNT=54
 PARALLELISM=54
 TASK_TIMEOUT=21600s
+GRADE_TIMEOUT_RECOVERY=43200s
+GRADE_TIMEOUT_RECOVERY_FROM=atlas-cbc-32g-full-2023-w8-v1-bqkw5
+FAILED_GRADE_CODE_SHA=f2aad14e6bed0a2f0267e3a5f45c149173f9f1a4
+FAILED_GRADE_IMAGE=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:d65aec970cb6c075124a767ae0082fe699bb7426289a2da96ea2a23f27f954d6
+FAILED_GRADE_BUILD_ID=889a1f25-2d9c-41e9-802a-fcfb3b327375
+FAILED_GRADE_UID=9539f293-cd07-492c-a135-a5a4cf002211
+FAILED_GRADE_COMPLETION=2026-09-01T01:53:04.652984Z
 CPU=8
 MEMORY=32Gi
 
@@ -99,6 +106,48 @@ require_committed_release_paths_clean() {
     status=$(git -C "$root" status --porcelain --untracked-files=all -- "$relative")
     [[ -z "$status" ]] || die "local release input differs from commit: $relative"
   done
+}
+
+require_live_launcher_registry_lane() {
+  local root=$1 lane=$2 receipt expected_sha wrapper_pid wrapper_ticks
+  local actual_sha observed_ticks cursor parent lock_path lock_fd
+  receipt=${NFL_LAUNCHER_REGISTRY_RECEIPT:-}
+  expected_sha=${NFL_LAUNCHER_REGISTRY_RECEIPT_SHA256:-}
+  wrapper_pid=${NFL_LAUNCHER_REGISTRY_WRAPPER_PID:-}
+  wrapper_ticks=${NFL_LAUNCHER_REGISTRY_WRAPPER_START_TICKS:-}
+  [[ "${NFL_LAUNCHER_REGISTRY_LANE:-}" == "$lane" ]] || \
+    die "grade timeout recovery requires launcher_registry lane attestation"
+  [[ "$receipt" == "$root/.tmp/launchers/"* && -f "$receipt" && ! -L "$receipt" ]] || \
+    die "launcher_registry receipt path differs"
+  [[ "$expected_sha" =~ ^[0-9a-f]{64}$ ]] || die "launcher_registry receipt hash differs"
+  actual_sha=$(sha256sum "$receipt" | awk '{print $1}')
+  [[ "$actual_sha" == "$expected_sha" ]] || die "launcher_registry receipt bytes differ"
+  [[ "$wrapper_pid" =~ ^[1-9][0-9]*$ && "$wrapper_ticks" =~ ^[1-9][0-9]*$ ]] || \
+    die "launcher_registry wrapper identity differs"
+  jq -e --arg lane "$lane" --arg script "$(readlink -f -- "$0")" \
+    --argjson pid "$wrapper_pid" --argjson ticks "$wrapper_ticks" '
+    .schema_version == "shared-launcher-registry/v1" and
+    .lane == $lane and .owner == "production" and .script_path == $script and
+    .pid == $pid and .process_start_ticks == $ticks
+  ' "$receipt" >/dev/null || die "launcher_registry receipt authority differs"
+  [[ -r "/proc/$wrapper_pid/stat" ]] || die "launcher_registry wrapper is not live"
+  observed_ticks=$(sed 's/^.*) //' "/proc/$wrapper_pid/stat" | awk '{print $20}')
+  [[ "$observed_ticks" == "$wrapper_ticks" ]] || die "launcher_registry wrapper was reused"
+  cursor=$$
+  while [[ "$cursor" =~ ^[1-9][0-9]*$ && "$cursor" != 1 && "$cursor" != "$wrapper_pid" ]]; do
+    parent=$(ps -o ppid= -p "$cursor" | tr -d '[:space:]')
+    cursor=$parent
+  done
+  [[ "$cursor" == "$wrapper_pid" ]] || die "launcher_registry wrapper is not an ancestor"
+  lock_path="$root/.tmp/launcher-locks/$(printf '%s' "$lane" | sha256sum | awk '{print $1}').lock"
+  [[ -f "$lock_path" && ! -L "$lock_path" ]] || die "launcher_registry lock path differs"
+  exec {lock_fd}<>"$lock_path"
+  if flock -n "$lock_fd"; then
+    flock -u "$lock_fd" || true
+    exec {lock_fd}>&-
+    die "launcher_registry lane lock is not held"
+  fi
+  exec {lock_fd}>&-
 }
 
 if [[ "${1:-}" == "build" ]]; then
@@ -292,7 +341,7 @@ PY
 fi
 
 [[ $# -ge 4 && $# -le 6 ]] || \
-  die "usage: $0 {install|prepare|task0|collect|reopen|grade|grade-reopen|result} IMAGE@sha256:DIGEST FULL_CODE_SHA BUILD_ID [ABSOLUTE_REQUEST_JSON|EXACT_EXECUTION_NAME]; or: $0 task IMAGE@sha256:DIGEST FULL_CODE_SHA BUILD_ID ABSOLUTE_REQUEST_JSON EXACT_TASK0_EXECUTION_NAME"
+  die "usage: $0 {install|prepare|task0|collect|reopen|grade|grade-timeout-recovery|grade-reopen|result} IMAGE@sha256:DIGEST FULL_CODE_SHA BUILD_ID [ABSOLUTE_REQUEST_JSON|EXACT_EXECUTION_NAME]; or: $0 task IMAGE@sha256:DIGEST FULL_CODE_SHA BUILD_ID ABSOLUTE_REQUEST_JSON EXACT_TASK0_EXECUTION_NAME"
 ACTION=$1
 IMAGE=$2
 CODE_SHA=$3
@@ -300,7 +349,7 @@ BUILD_ID=$4
 REQUEST_PATH=${5:-}
 TASK0_GATE_EXECUTION=${6:-}
 
-[[ "$ACTION" =~ ^(install|prepare|task0|task|collect|reopen|grade|grade-reopen|result)$ ]] || \
+[[ "$ACTION" =~ ^(install|prepare|task0|task|collect|reopen|grade|grade-timeout-recovery|grade-reopen|result)$ ]] || \
   die "unknown action"
 [[ "$IMAGE" =~ ^us-central1-docker\.pkg\.dev/${PROJECT}/nfl-dfs/nfl-dfs@sha256:[0-9a-f]{64}$ ]] || \
   die "image must be one immutable project image"
@@ -315,11 +364,31 @@ else
 fi
 
 ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || die "repository root unavailable"
-[[ "$(git -C "$ROOT" rev-parse HEAD)" == "$CODE_SHA" ]] || \
-  die "CODE_SHA must equal HEAD"
 git -C "$ROOT" cat-file -e "${CODE_SHA}^{commit}" || die "CODE_SHA commit unavailable"
-[[ "$(git -C "$ROOT" rev-parse --verify 'refs/remotes/origin/main^{commit}')" == "$CODE_SHA" ]] || \
-  die "CODE_SHA must equal durable origin/main"
+exact_failed_runtime=false
+if [[ "$IMAGE" == "$FAILED_GRADE_IMAGE" && "$CODE_SHA" == "$FAILED_GRADE_CODE_SHA" &&
+   "$BUILD_ID" == "$FAILED_GRADE_BUILD_ID" ]]; then
+  exact_failed_runtime=true
+fi
+if [[ "$ACTION" == "grade-timeout-recovery" ]]; then
+  [[ "$exact_failed_runtime" == true ]] || \
+    die "grade timeout recovery must reuse the exact failed runtime"
+elif [[ "$ACTION" == "result" && "$exact_failed_runtime" == true ]]; then
+  : # Host-only collection of the exact immutable recovery runtime.
+else
+  [[ "$(git -C "$ROOT" rev-parse HEAD)" == "$CODE_SHA" ]] || \
+    die "CODE_SHA must equal HEAD"
+  [[ "$(git -C "$ROOT" rev-parse --verify 'refs/remotes/origin/main^{commit}')" == "$CODE_SHA" ]] || \
+    die "CODE_SHA must equal durable origin/main"
+fi
+# The host orchestration code itself must always be one durable revision,
+# including when its target is an older immutable runtime.
+host_head=$(git -C "$ROOT" rev-parse HEAD)
+host_origin=$(git -C "$ROOT" rev-parse --verify 'refs/remotes/origin/main^{commit}')
+[[ "$host_head" == "$host_origin" ]] || die "host launcher HEAD must equal durable origin/main"
+if [[ "$ACTION" == "grade-timeout-recovery" ]]; then
+  require_live_launcher_registry_lane "$ROOT" "$JOB"
+fi
 
 release_paths=(
   Dockerfile.corpus-r6-broad-admission
@@ -471,7 +540,9 @@ if [[ "$ACTION" == "result" ]]; then
     --arg uid "$EXPECTED_JOB_UID" --arg image "$IMAGE" --arg sha "$CODE_SHA" \
     --arg digest "$image_digest" --arg build "$BUILD_ID" \
     --arg enable "$ENABLE_VALUE" --arg outcomes "$result_outcomes" \
-    --arg smoke "$result_task0" --arg sa "$SERVICE_ACCOUNT" '
+    --arg smoke "$result_task0" --arg sa "$SERVICE_ACCOUNT" \
+    --arg result_phase "$result_phase" \
+    --arg recovery_from "$GRADE_TIMEOUT_RECOVERY_FROM" '
     .metadata.name == $execution and
     .metadata.labels["run.googleapis.com/job"] == $job and
     .metadata.labels["run.googleapis.com/jobUid"] == $uid and
@@ -483,13 +554,23 @@ if [[ "$ACTION" == "result" ]]; then
     (.status.runningCount // 0) == 0 and
     .spec.taskCount == 1 and (.spec.parallelism == 1 or .spec.parallelism == 54) and
     .spec.template.spec.maxRetries == 0 and
-    (.spec.template.spec.timeout == "21600s" or
-     .spec.template.spec.timeout == "21600.000000000s" or
-     .spec.template.spec.timeoutSeconds == "21600") and
+    ((.spec.template.spec.timeout == "21600s" or
+      .spec.template.spec.timeout == "21600.000000000s" or
+      .spec.template.spec.timeoutSeconds == "21600") or
+     ($result_phase == "grade" and $image == "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:d65aec970cb6c075124a767ae0082fe699bb7426289a2da96ea2a23f27f954d6" and
+      $sha == "f2aad14e6bed0a2f0267e3a5f45c149173f9f1a4" and
+      $build == "889a1f25-2d9c-41e9-802a-fcfb3b327375" and
+      (.spec.template.spec.timeout == "43200s" or
+       .spec.template.spec.timeout == "43200.000000000s" or
+       .spec.template.spec.timeoutSeconds == "43200") and
+      ([.spec.template.spec.containers[0].env[] |
+        select(.name == "R6_BROAD_ADMISSION_TIMEOUT_RECOVERY_FROM") | .value]
+       == [$recovery_from]))) and
     .spec.template.spec.serviceAccountName == $sa and
     (.spec.template.spec.containers | length) == 1 and
     (.spec.template.spec.containers[0] as $c |
       $c.image == $image and $c.command == ["/bin/bash"] and
+      $c.args == ["/app/scripts/cloud_corpus_r6_broad_admission_tournament_v1.sh","container-run",$result_phase] and
       $c.resources.limits.cpu == "8" and $c.resources.limits.memory == "32Gi" and
       ([ $c.env[] | select(.name == "CODE_SHA") | .value ] == [$sha]) and
       ([ $c.env[] | select(.name == "IMAGE_DIGEST") | .value ] == [$digest]) and
@@ -503,7 +584,11 @@ if [[ "$ACTION" == "result" ]]; then
       (([ $c.env[] | select(.name == "R6_BROAD_ADMISSION_REQUEST_SHA256") | .value ]) as $hash |
         ($hash | length) == 1 and ($hash[0] | test("^[0-9a-f]{64}$"))) and
       (([ $c.env[] | select(.name == "R6_BROAD_ADMISSION_REQUEST_B64") | .value ]) as $body |
-        ($body | length) == 1 and ($body[0] | type == "string" and length > 0))
+        ($body | length) == 1 and ($body[0] | type == "string" and length > 0)) and
+      ((.spec.template.spec.timeout == "43200s" or
+        .spec.template.spec.timeout == "43200.000000000s" or
+        .spec.template.spec.timeoutSeconds == "43200") | not or
+       ([ $c.env[].name ] | length == 11 and (unique | length) == 11))
     )
   ' "$execution_json" >/dev/null || die "terminal result execution differs"
 
@@ -876,7 +961,7 @@ case "$ACTION" in
     command_phase=reopen
     tasks=1
     ;;
-  grade)
+  grade|grade-timeout-recovery)
     jq -e '
       (keys | sort) == (["outcome_authority_identity","terminal_identity"] | sort) and
       (.terminal_identity | type == "object") and
@@ -898,11 +983,77 @@ esac
 
 request_sha=$(sha256sum "$effective_request" | awk '{print $1}')
 request_b64=$(base64 -w0 "$effective_request")
+execution_timeout=$TASK_TIMEOUT
+recovery_from=""
+if [[ "$ACTION" == "grade-timeout-recovery" ]]; then
+  execution_timeout=$GRADE_TIMEOUT_RECOVERY
+  recovery_from=$GRADE_TIMEOUT_RECOVERY_FROM
+  failed_grade=$temp_dir/failed-grade.json
+  gcloud run jobs executions describe "$recovery_from" --project "$PROJECT" \
+    --region "$REGION" --format=json >"$failed_grade"
+  jq -e --arg execution "$recovery_from" --arg job "$JOB" \
+    --arg uid "$EXPECTED_JOB_UID" --arg request_sha "$request_sha" \
+    --arg image "$FAILED_GRADE_IMAGE" --arg code_sha "$FAILED_GRADE_CODE_SHA" \
+    --arg build "$FAILED_GRADE_BUILD_ID" --arg execution_uid "$FAILED_GRADE_UID" \
+    --arg completion "$FAILED_GRADE_COMPLETION" --arg request_b64 "$request_b64" \
+    --arg bound "$bound_identity" '
+    .metadata.name == $execution and
+    .metadata.uid == $execution_uid and .metadata.generation == 1 and
+    .metadata.labels["run.googleapis.com/job"] == $job and
+    .metadata.labels["run.googleapis.com/jobUid"] == $uid and
+    .metadata.labels["run.googleapis.com/jobGeneration"] == "50" and
+    any(.status.conditions[]?; .type == "Completed" and .status == "False" and
+      (.message | contains("configured timeout was reached"))) and
+    .status.completionTime == $completion and
+    (.status.succeededCount // 0) == 0 and (.status.failedCount // 0) == 1 and
+    (.status.cancelledCount // 0) == 0 and (.status.runningCount // 0) == 0 and
+    .spec.taskCount == 1 and .spec.parallelism == 54 and
+    .spec.template.spec.maxRetries == 0 and
+    (.spec.template.spec.timeoutSeconds == "21600" or
+      .spec.template.spec.timeout == "21600s") and
+    .spec.template.spec.serviceAccountName == "817589974517-compute@developer.gserviceaccount.com" and
+    .spec.template.spec.containers[0].command == ["/bin/bash"] and
+    .spec.template.spec.containers[0].image == $image and
+    .spec.template.spec.containers[0].args ==
+      ["/app/scripts/cloud_corpus_r6_broad_admission_tournament_v1.sh","container-run","grade"] and
+    .spec.template.spec.containers[0].resources.limits == {cpu:"8",memory:"32Gi"} and
+    ((.spec.template.spec.containers[0].env |
+      map({key:.name,value:.value}) | from_entries) == {
+        CODE_SHA:$code_sha, IMAGE_DIGEST:($image|split("@")[1]), BUILD_ID:$build,
+        R6_BROAD_ADMISSION_ENABLE:"I_UNDERSTAND_FIXED_CORPUS_ADMISSION_TOURNAMENT_V1",
+        R6_BROAD_ADMISSION_OUTCOMES_ALLOWED:"true",
+        R6_BROAD_ADMISSION_TASK0_SMOKE:"false", IMAGE_URI:$image,
+        R6_BROAD_ADMISSION_REQUEST_SHA256:$request_sha,
+        R6_BROAD_ADMISSION_REQUEST_B64:$request_b64,
+        R6_BROAD_ADMISSION_BOUND_IDENTITY:$bound
+      }) and
+    ([.spec.template.spec.containers[0].env[].name] |
+      (length == 10 and (unique | length) == 10))
+  ' "$failed_grade" >/dev/null || die "failed grade timeout authority differs"
+
+  # The provider marker is the durable claim.  Census every execution (there
+  # is deliberately no --limit) before launch, and refuse to derive a second
+  # recovery from the same failed execution.
+  recovery_census=$temp_dir/recovery-census.json
+  gcloud run jobs executions list --job "$JOB" --project "$PROJECT" \
+    --region "$REGION" --format=json >"$recovery_census"
+  jq -e --arg source "$recovery_from" '
+    [ .[] | select(
+      [.spec.template.spec.containers[0].env[]? |
+       select(.name == "R6_BROAD_ADMISSION_TIMEOUT_RECOVERY_FROM") | .value]
+      == [$source]) ] | length == 0
+  ' "$recovery_census" >/dev/null || \
+    die "failed grade already has a provider-claimed timeout recovery"
+fi
 execution_args="/app/scripts/cloud_corpus_r6_broad_admission_tournament_v1.sh,container-run,$command_phase"
 env_override="^|^CODE_SHA=$CODE_SHA|IMAGE_DIGEST=$image_digest|BUILD_ID=$BUILD_ID|IMAGE_URI=$IMAGE|$ENABLE_ENV=$ENABLE_VALUE|$REQUEST_SHA_ENV=$request_sha|$REQUEST_B64_ENV=$request_b64|$BOUND_IDENTITY_ENV=$bound_identity|$OUTCOMES_ENV=$outcomes_allowed|$TASK0_ENV=$task0_smoke"
+if [[ -n "$recovery_from" ]]; then
+  env_override+="|R6_BROAD_ADMISSION_TIMEOUT_RECOVERY_FROM=$recovery_from"
+fi
 
 gcloud run jobs execute "$JOB" --project "$PROJECT" --region "$REGION" \
-  --tasks "$tasks" --args "$execution_args" --update-env-vars "$env_override" \
+  --tasks "$tasks" --task-timeout "$execution_timeout" --args "$execution_args" \
+  --update-env-vars "$env_override" \
   --async --format=json >"$launch_json"
 execution_name=$(jq -er '.metadata.name' "$launch_json") || \
   die "launch lacks one execution name"
@@ -916,13 +1067,17 @@ jq -e --arg execution "$execution_name" --arg job "$JOB" \
   --arg image "$IMAGE" --arg sha "$CODE_SHA" --arg digest "$image_digest" \
   --arg build "$BUILD_ID" --arg enable "$ENABLE_VALUE" \
   --arg bound "$bound_identity" --arg request_sha "$request_sha" \
+  --arg request_b64 "$request_b64" \
   --arg args_csv "$execution_args" --arg outcomes "$outcomes_allowed" \
-  --arg smoke "$task0_smoke" --arg sa "$SERVICE_ACCOUNT" --argjson tasks "$tasks" '
+  --arg smoke "$task0_smoke" --arg sa "$SERVICE_ACCOUNT" --argjson tasks "$tasks" \
+  --arg timeout "${execution_timeout%s}" --arg recovery_from "$recovery_from" '
   .metadata.name == $execution and
   .metadata.labels["run.googleapis.com/job"] == $job and
   .metadata.labels["run.googleapis.com/jobUid"] == $uid and
   .metadata.labels["run.googleapis.com/jobGeneration"] == $generation and
   .spec.taskCount == $tasks and .spec.template.spec.maxRetries == 0 and
+  ($recovery_from == "" or .spec.parallelism == 54) and
+  ((.spec.template.spec.timeoutSeconds // (.spec.template.spec.timeout | rtrimstr("s"))) == $timeout) and
   .spec.template.spec.serviceAccountName == $sa and
   (.spec.template.spec.containers | length) == 1 and
   (.spec.template.spec.containers[0] as $c |
@@ -937,6 +1092,19 @@ jq -e --arg execution "$execution_name" --arg job "$JOB" \
     ([ $c.env[] | select(.name == "R6_BROAD_ADMISSION_REQUEST_SHA256") | .value ] == [$request_sha]) and
     ([ $c.env[] | select(.name == "R6_BROAD_ADMISSION_OUTCOMES_ALLOWED") | .value ] == [$outcomes]) and
     ([ $c.env[] | select(.name == "R6_BROAD_ADMISSION_TASK0_SMOKE") | .value ] == [$smoke])
+    and ([ $c.env[] | select(.name == "R6_BROAD_ADMISSION_TIMEOUT_RECOVERY_FROM") | .value ] ==
+      (if $recovery_from == "" then [] else [$recovery_from] end))
+    and ($recovery_from == "" or
+      (($c.env | map({key:.name,value:.value}) | from_entries) == {
+        CODE_SHA:$sha, IMAGE_DIGEST:$digest, BUILD_ID:$build,
+        IMAGE_URI:$image, R6_BROAD_ADMISSION_ENABLE:$enable,
+        R6_BROAD_ADMISSION_BOUND_IDENTITY:$bound,
+        R6_BROAD_ADMISSION_REQUEST_SHA256:$request_sha,
+        R6_BROAD_ADMISSION_REQUEST_B64:$request_b64,
+        R6_BROAD_ADMISSION_OUTCOMES_ALLOWED:$outcomes,
+        R6_BROAD_ADMISSION_TASK0_SMOKE:$smoke,
+        R6_BROAD_ADMISSION_TIMEOUT_RECOVERY_FROM:$recovery_from
+      }) and ([ $c.env[].name ] | length == 11 and (unique | length) == 11))
   )
 ' "$execution_json" >/dev/null || die "launched execution provider authority differs"
 

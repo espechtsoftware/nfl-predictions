@@ -352,6 +352,11 @@ parse_run() {
   # group that cannot be confused with (or signal) the wrapper's own group.
   (
     exec {LOCK_FD}>&-
+    export NFL_LAUNCHER_REGISTRY_RECEIPT="$REGISTRATION"
+    export NFL_LAUNCHER_REGISTRY_RECEIPT_SHA256="$REGISTRATION_SHA256"
+    export NFL_LAUNCHER_REGISTRY_LANE="$LANE"
+    export NFL_LAUNCHER_REGISTRY_WRAPPER_PID="$$"
+    export NFL_LAUNCHER_REGISTRY_WRAPPER_START_TICKS="$PROCESS_START_TICKS"
     exec setsid --wait /bin/bash -c '
       group_file=$1
       shift

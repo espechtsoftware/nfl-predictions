@@ -81,6 +81,36 @@ def _stop(process: subprocess.Popen[str]) -> int:
     return process.wait(timeout=5)
 
 
+def test_child_receives_live_lane_receipt_and_wrapper_identity(tmp_path: Path) -> None:
+    output = tmp_path / "attestation.json"
+    probe = _write_executable(
+        tmp_path / "probe.sh",
+        """#!/usr/bin/env bash
+set -euo pipefail
+[[ -f "$NFL_LAUNCHER_REGISTRY_RECEIPT" ]]
+actual=$(sha256sum "$NFL_LAUNCHER_REGISTRY_RECEIPT" | awk '{print $1}')
+[[ "$actual" == "$NFL_LAUNCHER_REGISTRY_RECEIPT_SHA256" ]]
+jq -n --arg receipt "$NFL_LAUNCHER_REGISTRY_RECEIPT" \\
+  --arg sha "$NFL_LAUNCHER_REGISTRY_RECEIPT_SHA256" \\
+  --arg lane "$NFL_LAUNCHER_REGISTRY_LANE" \\
+  --arg pid "$NFL_LAUNCHER_REGISTRY_WRAPPER_PID" \\
+  --arg ticks "$NFL_LAUNCHER_REGISTRY_WRAPPER_START_TICKS" \\
+  '{receipt:$receipt,sha256:$sha,lane:$lane,pid:$pid,ticks:$ticks}' > "$1"
+""",
+    )
+    completed = subprocess.run(
+        _argv(
+            tmp_path, lane="cloud-run-job.attested",
+            command=[str(probe), str(output)],
+        ), text=True, capture_output=True, check=False,
+    )
+    assert completed.returncode == 0, completed.stderr
+    attestation = json.loads(output.read_text())
+    assert attestation["lane"] == "cloud-run-job.attested"
+    assert attestation["pid"].isdigit() and attestation["ticks"].isdigit()
+    assert len(attestation["sha256"]) == 64
+
+
 def test_same_lane_refuses_live_owner_and_receipt_is_readable(tmp_path: Path) -> None:
     holder_script = _holder_script(tmp_path)
     ready = tmp_path / "ready"

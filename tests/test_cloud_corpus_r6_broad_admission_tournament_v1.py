@@ -26,6 +26,12 @@ IMAGE = (
 JOB = "atlas-cbc-32g-full-2023-w8-v1"
 JOB_UID = "1f4bcf0a-2300-4afa-9fc1-9981844c8275"
 SERVICE_ACCOUNT = "817589974517-compute@developer.gserviceaccount.com"
+FAILED_GRADE_CODE_SHA = "f2aad14e6bed0a2f0267e3a5f45c149173f9f1a4"
+FAILED_GRADE_BUILD_ID = "889a1f25-2d9c-41e9-802a-fcfb3b327375"
+FAILED_GRADE_IMAGE = (
+    "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/"
+    "nfl-dfs@sha256:d65aec970cb6c075124a767ae0082fe699bb7426289a2da96ea2a23f27f954d6"
+)
 
 
 def _identity(seed: str = "b") -> dict[str, object]:
@@ -53,6 +59,8 @@ def _install_fake_git(directory: Path) -> None:
         "    fi;;\n"
         f"  '-C {ROOT} cat-file -e " + CODE_SHA + "^{commit}') :;;\n"
         f"  '-C {ROOT} cat-file -e " + CODE_SHA + ":'*) :;;\n"
+        f"  '-C {ROOT} cat-file -e f2aad14e6bed0a2f0267e3a5f45c149173f9f1a4^{{commit}}') :;;\n"
+        f"  '-C {ROOT} cat-file -e f2aad14e6bed0a2f0267e3a5f45c149173f9f1a4:'*) :;;\n"
         "  *) exit 98;;\n"
         "esac\n"
     )
@@ -157,11 +165,23 @@ if a[:3] == ["run", "jobs", "execute"]:
     env = dict(item.split("=", 1) for item in env_text[3:].split("|"))
     state["last"] = {
         "tasks": int(value("--tasks")),
+        "timeout": value("--task-timeout"),
         "args": value("--args").split(","),
         "env": env,
     }
     state_path.write_text(json.dumps(state))
     print(json.dumps({"metadata": {"name": job + "-new01"}}))
+    raise SystemExit
+
+if a[:4] == ["run", "jobs", "executions", "list"]:
+    rows = []
+    if state.get("last"):
+        rows.append({"metadata": {"name": job + "-new01"}, "spec": {
+            "template": {"spec": {"containers": [{"env": [
+                {"name": key, "value": value}
+                for key, value in state["last"]["env"].items()
+            ]}]}}}})
+    print(json.dumps(rows))
     raise SystemExit
 
 if a[:2] == ["logging", "read"]:
@@ -185,6 +205,56 @@ if a[:2] == ["logging", "read"]:
 
 if a[:4] == ["run", "jobs", "executions", "describe"]:
     name = a[4]
+    if name == job + "-bqkw5":
+        request = pathlib.Path(os.environ["RECOVERY_REQUEST"]).read_bytes()
+        bound = json.dumps(json.loads(request)["terminal_identity"],
+                           sort_keys=True, separators=(",", ":"))
+        old_image = ("us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/"
+                     "nfl-dfs@sha256:" + "d65aec970cb6c075124a767ae0082fe699bb7426289a2da96ea2a23f27f954d6")
+        old_env = {
+            "CODE_SHA": "f2aad14e6bed0a2f0267e3a5f45c149173f9f1a4",
+            "IMAGE_DIGEST": old_image.split("@", 1)[1],
+            "BUILD_ID": "889a1f25-2d9c-41e9-802a-fcfb3b327375",
+            "R6_BROAD_ADMISSION_ENABLE": "I_UNDERSTAND_FIXED_CORPUS_ADMISSION_TOURNAMENT_V1",
+            "R6_BROAD_ADMISSION_OUTCOMES_ALLOWED": "true",
+            "R6_BROAD_ADMISSION_TASK0_SMOKE": "false", "IMAGE_URI": old_image,
+            "R6_BROAD_ADMISSION_REQUEST_SHA256": hashlib.sha256(request).hexdigest(),
+            "R6_BROAD_ADMISSION_REQUEST_B64": base64.b64encode(request).decode(),
+            "R6_BROAD_ADMISSION_BOUND_IDENTITY": bound,
+        }
+        tamper = os.environ.get("FAILED_GRADE_TAMPER")
+        if tamper == "request":
+            old_env["R6_BROAD_ADMISSION_REQUEST_SHA256"] = "0" * 64
+        if tamper == "service-account":
+            failed_sa = "wrong@example.com"
+        else:
+            failed_sa = service_account
+        failed = {
+            "metadata": {"name": name,
+                "uid": "9539f293-cd07-492c-a135-a5a4cf002211", "generation": 1,
+                "labels": {"run.googleapis.com/job": job,
+                    "run.googleapis.com/jobUid": job_uid,
+                    "run.googleapis.com/jobGeneration": "50"}},
+            "spec": {"taskCount": 1, "parallelism": 54, "template": {"spec": {
+                "maxRetries": 0, "timeoutSeconds": "21600",
+                "serviceAccountName": failed_sa,
+                "containers": [container([
+                    "/app/scripts/cloud_corpus_r6_broad_admission_tournament_v1.sh",
+                    "container-run", "grade"], old_env)]}}},
+            "status": {"conditions": [{"type": "Completed", "status": "False",
+                "message": "Task failed: The configured timeout was reached."}],
+                "completionTime": "2026-09-01T01:53:04.652984Z",
+                "failedCount": 1, "runningCount": 0}}
+        if tamper == "uid":
+            failed["metadata"]["uid"] = "wrong-uid"
+        elif tamper == "image":
+            failed["spec"]["template"]["spec"]["containers"][0]["image"] = (
+                image.rsplit(":", 1)[0] + ":" + "0" * 64
+            )
+        elif tamper == "resources":
+            failed["spec"]["template"]["spec"]["containers"][0]["resources"]["limits"]["cpu"] = "4"
+        print(json.dumps(failed))
+        raise SystemExit
     if name == job + "-old00":
         prior_mode = os.environ.get("PRIOR_TERMINAL_MODE", "success")
         prior_status = {
@@ -212,6 +282,9 @@ if a[:4] == ["run", "jobs", "executions", "describe"]:
         request = os.environ["RESULT_REQUEST"].encode()
         timeout_shape = os.environ.get("RESULT_TIMEOUT_SHAPE", "legacy")
         timeout_field = (
+            {"timeout": "43200s"}
+            if timeout_shape == "recovery"
+            else
             {"timeoutSeconds": "21600"}
             if timeout_shape == "seconds"
             else {"timeout": "21600s"}
@@ -231,6 +304,13 @@ if a[:4] == ["run", "jobs", "executions", "describe"]:
             "R6_BROAD_ADMISSION_REQUEST_SHA256": hashlib.sha256(request).hexdigest(),
             "R6_BROAD_ADMISSION_REQUEST_B64": base64.b64encode(request).decode(),
         }
+        if timeout_shape == "recovery":
+            env["R6_BROAD_ADMISSION_TIMEOUT_RECOVERY_FROM"] = job + "-bqkw5"
+            tamper = os.environ.get("RESULT_RECOVERY_TAMPER")
+            if tamper == "marker":
+                env["R6_BROAD_ADMISSION_TIMEOUT_RECOVERY_FROM"] = job + "-wrong"
+            elif tamper == "extra-env":
+                env["UNEXPECTED"] = "1"
         terminal_mode = os.environ.get("RESULT_TERMINAL_MODE", "success")
         status = {
             "conditions": [{
@@ -334,7 +414,7 @@ if a[:4] == ["run", "jobs", "executions", "describe"]:
                 "parallelism": 54,
                 "template": {"spec": {
                     "maxRetries": 0,
-                    "timeout": "21600s",
+                    "timeout": last["timeout"],
                     "serviceAccountName": service_account,
                     "containers": [container(last["args"], last["env"])],
                 }},
@@ -421,6 +501,44 @@ def _run(
     )
 
 
+def _run_grade_timeout_recovery(
+    request: Path, *, env: dict[str, str],
+) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [
+            str(ROOT / "scripts/launcher_registry.sh"), "run",
+            "--root", str(ROOT), "--lane", JOB, "--owner", "production",
+            "--target-prefixes", "e4-grade-timeout-recovery", "--",
+            str(SCRIPT), "grade-timeout-recovery", FAILED_GRADE_IMAGE,
+            FAILED_GRADE_CODE_SHA, FAILED_GRADE_BUILD_ID, str(request.resolve()),
+        ],
+        cwd=ROOT, env=env, text=True, capture_output=True, check=False,
+    )
+
+
+def _run_old_runtime_result(
+    execution: str, *, env: dict[str, str],
+) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [
+            "bash", str(SCRIPT), "result", FAILED_GRADE_IMAGE,
+            FAILED_GRADE_CODE_SHA, FAILED_GRADE_BUILD_ID, execution,
+        ],
+        cwd=ROOT, env=env, text=True, capture_output=True, check=False,
+    )
+
+
+def _recovery_environment(tmp_path: Path, request: Path) -> dict[str, str]:
+    env = _environment(tmp_path)
+    env.update({
+        "EXPECTED_IMAGE": FAILED_GRADE_IMAGE,
+        "EXPECTED_SHA": FAILED_GRADE_CODE_SHA,
+        "EXPECTED_BUILD": FAILED_GRADE_BUILD_ID,
+        "RECOVERY_REQUEST": str(request),
+    })
+    return env
+
+
 def test_release_files_are_narrow_dormant_and_outcome_separated() -> None:
     script = SCRIPT.read_text()
     build = BUILD.read_text()
@@ -435,6 +553,12 @@ def test_release_files_are_narrow_dormant_and_outcome_separated() -> None:
     assert "--tasks \"$TASK_COUNT\" --parallelism \"$PARALLELISM\"" in script
     assert "TASK_COUNT=54" in script and "PARALLELISM=54" in script
     assert "--max-retries 0" in script and "TASK_TIMEOUT=21600s" in script
+    assert "GRADE_TIMEOUT_RECOVERY=43200s" in script
+    assert "GRADE_TIMEOUT_RECOVERY_FROM=atlas-cbc-32g-full-2023-w8-v1-bqkw5" in script
+    assert "grade-timeout-recovery" in script
+    assert '--task-timeout "$execution_timeout"' in script
+    assert "failed grade timeout authority differs" in script
+    assert "R6_BROAD_ADMISSION_TIMEOUT_RECOVERY_FROM" in script
     assert "jobs update" in script
     for forbidden in ("jobs deploy", "jobs create", "jobs delete", "jobs list"):
         assert forbidden not in script
@@ -849,6 +973,153 @@ def test_only_grade_can_receive_an_outcome_authority(tmp_path: Path) -> None:
     assert reopened.returncode == 0, reopened.stderr
     reopened_receipt = json.loads(reopened.stdout)
     assert reopened_receipt["outcomes_allowed"] is False
+
+
+def test_grade_timeout_recovery_reuses_exact_runtime_and_is_one_shot(
+    tmp_path: Path,
+) -> None:
+    request = tmp_path / "grade.json"
+    request.write_text(json.dumps({
+        "terminal_identity": _identity("1"),
+        "outcome_authority_identity": _identity("2"),
+    }))
+    env = _recovery_environment(tmp_path, request)
+    launched = _run_grade_timeout_recovery(request, env=env)
+    assert launched.returncode == 0, launched.stderr
+    receipt = json.loads(launched.stdout)
+    assert receipt["phase"] == "grade-timeout-recovery"
+    assert receipt["provider_resolved_image"] == FAILED_GRADE_IMAGE
+    assert receipt["code_sha"] == FAILED_GRADE_CODE_SHA
+    assert receipt["cloud_build_id"] == FAILED_GRADE_BUILD_ID
+    state = json.loads(Path(env["GCLOUD_STATE"]).read_text())
+    assert state["last"]["timeout"] == "43200s"
+    assert state["last"]["env"][
+        "R6_BROAD_ADMISSION_TIMEOUT_RECOVERY_FROM"
+    ] == JOB + "-bqkw5"
+    assert state["last"]["env"]["IMAGE_URI"] == FAILED_GRADE_IMAGE
+
+    refused = _run_grade_timeout_recovery(request, env=env)
+    assert refused.returncode == 2
+    assert "already has a provider-claimed timeout recovery" in refused.stderr
+    calls = Path(env["GCLOUD_LOG"]).read_text()
+    assert calls.count("run jobs execute ") == 1
+    assert "run jobs executions list --job " + JOB in calls
+
+
+@pytest.mark.parametrize(
+    "tamper", ["service-account", "uid", "request", "image", "resources"],
+)
+def test_grade_timeout_recovery_refuses_failed_envelope_tamper_before_launch(
+    tmp_path: Path, tamper: str,
+) -> None:
+    request = tmp_path / "grade.json"
+    request.write_text(json.dumps({
+        "terminal_identity": _identity("1"),
+        "outcome_authority_identity": _identity("2"),
+    }))
+    env = {
+        **_recovery_environment(tmp_path, request),
+        "FAILED_GRADE_TAMPER": tamper,
+    }
+    rejected = _run_grade_timeout_recovery(request, env=env)
+    assert rejected.returncode == 2
+    assert "failed grade timeout authority differs" in rejected.stderr
+    assert "run jobs execute " not in Path(env["GCLOUD_LOG"]).read_text()
+
+
+def test_grade_timeout_recovery_requires_explicit_single_writer_lane(
+    tmp_path: Path,
+) -> None:
+    request = tmp_path / "grade.json"
+    request.write_text(json.dumps({
+        "terminal_identity": _identity("1"),
+        "outcome_authority_identity": _identity("2"),
+    }))
+    env = _recovery_environment(tmp_path, request)
+    rejected = subprocess.run(
+        [
+            "bash", str(SCRIPT), "grade-timeout-recovery", FAILED_GRADE_IMAGE,
+            FAILED_GRADE_CODE_SHA, FAILED_GRADE_BUILD_ID, str(request.resolve()),
+        ], cwd=ROOT, env={
+            **env,
+            # A direct caller can spoof the old assertion but cannot produce
+            # the live wrapper receipt/ancestry/held-lock proof.
+            "R6_BROAD_ADMISSION_SINGLE_WRITER_LANE": JOB,
+        }, text=True, capture_output=True, check=False,
+    )
+    assert rejected.returncode == 2
+    assert "launcher_registry lane attestation" in rejected.stderr
+    assert not Path(env["GCLOUD_LOG"]).exists()
+
+
+def test_result_accepts_only_exact_12h_grade_recovery_runtime(tmp_path: Path) -> None:
+    execution = JOB + "-rcv01"
+    terminal = _identity("c")
+    request = json.dumps({
+        "outcome_authority_identity": _identity("d"),
+        "terminal_identity": terminal,
+    }, sort_keys=True, separators=(",", ":"))
+    inner = {
+        "complete": True, "descriptive_only": True,
+        "grade_result_sha256": "1" * 64, "grade_root_published_last": True,
+        "grade_terminal_identity": _identity("e"),
+        "grade_terminal_sha256": "2" * 64,
+        "program_grade_sha256": "3" * 64,
+        "schema_version": "corpus-r6-broad-admission-grade-result/v1",
+    }
+    receipt = json.dumps({
+        "command": "grade", "complete": True, "result": inner,
+        "schema_version": "corpus-r6-broad-admission-cli-receipt/v1",
+        "task0_nonpublishing_smoke": False, "uses_realized_outcomes": True,
+    }, sort_keys=True, separators=(",", ":"))
+    base = {
+        **_environment(tmp_path),
+        "EXPECTED_IMAGE": FAILED_GRADE_IMAGE,
+        "EXPECTED_SHA": FAILED_GRADE_CODE_SHA,
+        "EXPECTED_BUILD": FAILED_GRADE_BUILD_ID,
+        "RESULT_EXECUTION": execution,
+        "RESULT_PHASE": "grade", "RESULT_REQUEST": request,
+        "RESULT_RECEIPT": receipt, "RESULT_TIMEOUT_SHAPE": "recovery",
+        "EXPECTED_BOUND": json.dumps(terminal, sort_keys=True, separators=(",", ":")),
+    }
+    accepted = _run_old_runtime_result(execution, env=base)
+    assert accepted.returncode == 0, accepted.stderr
+    assert json.loads(accepted.stdout)["phase"] == "grade"
+
+    wrong_marker = _run_old_runtime_result(
+        execution, env={**base, "RESULT_RECOVERY_TAMPER": "marker"},
+    )
+    assert wrong_marker.returncode == 2
+    wrong_runtime_env = {
+        **base, "EXPECTED_IMAGE": IMAGE, "EXPECTED_SHA": CODE_SHA,
+        "EXPECTED_BUILD": BUILD_ID,
+    }
+    wrong_runtime = _run("result", execution, env=wrong_runtime_env)
+    assert wrong_runtime.returncode == 2
+
+    non_grade_request = json.dumps(
+        {"terminal_identity": terminal}, sort_keys=True, separators=(",", ":"),
+    )
+    non_grade_receipt = json.dumps({
+        "command": "reopen", "complete": True,
+        "result": {
+            "all_packages_independently_recomputed": True,
+            "all_tasks_and_parents_generation_exact_reopened": True,
+            "catalog_reread": False, "complete": True, "outcome_reread": False,
+            "package_lattice_sha256": "1" * 64,
+            "reopen_result_sha256": "2" * 64,
+            "schema_version": "corpus-r6-broad-admission-reopen-result/v1",
+            "task_count": 54, "terminal_identity": terminal,
+            "uses_realized_outcomes": False,
+        },
+        "schema_version": "corpus-r6-broad-admission-cli-receipt/v1",
+        "task0_nonpublishing_smoke": False, "uses_realized_outcomes": False,
+    }, sort_keys=True, separators=(",", ":"))
+    non_grade = _run_old_runtime_result(execution, env={
+        **base, "RESULT_PHASE": "reopen", "RESULT_REQUEST": non_grade_request,
+        "RESULT_RECEIPT": non_grade_receipt,
+    })
+    assert non_grade.returncode == 2
 
 
 @pytest.mark.parametrize("timeout_shape", ["legacy", "seconds"])
