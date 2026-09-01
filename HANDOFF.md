@@ -25,6 +25,62 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-01 bounded historical Neo4j E0 slice accepted locally
+
+- Isolated branch `feature/neo4j-historical-e0`, based on requested
+  `8ed5d028`, implements the localhost-only historical decision slice in code
+  commit `80d4a8db`. The adapter validates caller-supplied generation-pinned
+  canonical objects for the candidate-v2 root/leaves, fixed-G0 catalog outer
+  root/catalogs, and no-rescore funnel root/full-union attribution shards. It
+  performs no network, Docker, Neo4j, raw-outcome, rescore, winner, paid/live,
+  world-matrix, UI, deployment, or production-policy operation.
+- The fail-closed real-data run consumed exactly 219 graph-bearing objects and
+  reconciled 54 slates, 199,244 candidates, 378,000 exact visits, 29,605
+  PlayerSlate source rows, 1,195,464 scope memberships, 2,592 books/207,360
+  selections, and 432 final-fit books/34,560 final-fit selections before
+  slicing. The resulting descriptive-only plan contains all 279 persisted
+  realized lineups at or above 200 DK, 2,511 exact player joins (279 x 9),
+  2,538 full-population denominator nodes, 432 final-fit book nodes, and their
+  per-book selected/missed edges. The eight-book union selected 38 qualifying
+  lineups and missed 241 over 29 opportunity slates and 10 converted slates.
+- Exact compact receipt:
+  `reports/2026-09-01-r6-historical-neo4j-slice-e0-local-receipt.json`.
+  Receipt SHA-256 is
+  `b405975d2946b48542695216912f0e3bbc57c118b1666b6d609707b00d7adef8`;
+  plan SHA-256 is
+  `e852521d97d3cb37d8e46c6336694f003114b72aa9908277ee7783a1fe1b6821`;
+  manifest SHA-256 is
+  `89da9f017feed892b5aa0ba3e3b39671ad122abd7b0c317bf459c50639f4b7d8`.
+  The receipt records all three exact root identities, source/row/node/edge
+  digests, node/edge censuses, and explicit false authority fields.
+- Exact reproducible local command (create-once output; use a new output path
+  on each rerun):
+
+  ```bash
+  PYTHONPATH=src .venv/bin/python \
+    scripts/run_corpus_r6_historical_neo4j_slice_v1.py \
+    --staging-dir /home/erich/projects/nfl-predictions/.scratch-neo4j-intelligence-20260901 \
+    --candidate-root-identity reports/2026-08-30-r6-fixed-g0-candidate-authority-v2-root.identity.json \
+    --funnel-reopen-summary reports/r6-no-rescore-funnel-runs/20260827-r6-no-rescore-funnel-v1/reopen-summary.json \
+    --output /tmp/r6-historical-neo4j-slice-e0-receipt-20260901.json
+  ```
+
+- Validation: focused hermetic suite `9 passed`; Python compileall passed;
+  runner `--help` passed; `git diff --check` passed. The accepted-root run
+  completed in 1:48.57 with maximum RSS 5,881,380 KiB and reproduced the
+  tracked receipt byte-for-byte. The first full pass correctly stopped on an
+  ordering-only cross-version difference: the older attribution summary
+  stores source-arm membership lexically while candidate-v2 stores arm-ordinal
+  order. The final adapter compares those membership arrays as sets while
+  continuing to reconstruct and exactly validate every occurrence coordinate,
+  arm/block count, and full denominator; a hermetic regression locks this.
+- No cloud execution ID exists because cloud access was prohibited and not
+  performed. No graph was loaded. Unresolved limitation: this is descriptive
+  development evidence only; it has no official-winner, promotion, selection,
+  corpus-fill, or policy-feedback authority. Exact next action is independent
+  review/cherry-pick of this two-commit branch; any later local graph mutation
+  or expanded query surface requires separate authorization.
+
 ### 2026-09-01 Neo4j hold refined: local historical decision slice may proceed
 
 - Operator clarification: do not defer the highest-value historical corpus
