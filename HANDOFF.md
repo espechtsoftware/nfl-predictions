@@ -25,6 +25,38 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-01 local Neo4j compatibility load passes
+
+- Docker Engine `29.1.3` was installed inside WSL and its systemd service is
+  active/enabled. A localhost-only Neo4j Community 5.26.30 container is
+  running as `nfl-kg-local-smoke` from immutable image
+  `neo4j@sha256:037cf5756f0135cbfd66b739b6df7c7c4bb100f9ce11602f6f9538e17e02c74d`,
+  capped at 1.5 CPU/2 GiB, with persistent volume
+  `nfl-kg-local-smoke-data`. Browser/Bolt are bound only to
+  `127.0.0.1:7474/7687`; local fixture auth is disabled and must never be
+  copied to a shared/production service.
+- The lab base packet loaded 171 nodes/19 edges and the 078 slice added six
+  nodes/five edges. The live exact census is 177/24 with zero duplicate/null
+  IDs or repeated relationship triples. Loading both packets a second time
+  left the same logical census. Initial evidence, hold, question, experiment,
+  and ledger-reconciliation queries passed.
+- A separate empty-volume rebuild reproduced the complete 1,082-record graph
+  digest
+  `4070367bee451b0df0d43f259555f02b8cf972c088f9ee160a98826f90f18f59`;
+  an independent full-property JSON digest also matched. Restarting the
+  primary container preserved the same census and digest. The disposable
+  rebuild container/volume was removed; it is reproducible from the packet.
+- Full evidence and limitations are recorded in
+  `reports/2026-09-01-local-neo4j-compatibility-smoke.md`. This proves real
+  Neo4j compatibility and deterministic replay, not production readiness:
+  source/release binding, governed schema mapping, typed/conflict-rejecting
+  transport, authenticated dedicated deployment, and lineup/player/trait/
+  settlement population remain open.
+- No cloud job, scoring lane, outcome, experiment artifact, application route,
+  or production graph pointer was changed. Exact next graph action: build the
+  Phase-B lab-to-production adapter from current `main`, then rerun this gate
+  through the governed transport before mounting the React read path.
+
 ### 2026-09-01 lab Neo4j handoff reviewed; governed integration is next
 
 - Production reviewed lab commits `2817a2c` and `adef67e` and recorded the
