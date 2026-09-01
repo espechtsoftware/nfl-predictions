@@ -61,8 +61,20 @@ and operator decisions.  The older entries remain the durable chronology.
   proposed work and keeping registry-v2, live capture/settlement, and
   product-facing exact-boundary work visible.
 - Production monitor validation: focused suite `5 passed` and Python bytecode
-  compilation passed. This milestone did not cancel, update, or launch a cloud
-  execution; the upcoming registered 083 coordinator owns those mutations.
+  compilation passed. The exact registered mechanics coordinator was then
+  committed/pushed in lab commit `a073e7a` and started as persistent user unit
+  `nfl2-prereg052-mechanics.service` (invocation
+  `812f190989814649958d3815d89f2dcb`). Its production-owned launcher-registry
+  receipt claimed only `083m580r1`. It coherently installed the exact image and
+  2-vCPU/8-GiB, retry-1, 36,000-second envelope on both reusable lab jobs, then
+  created run `083m580r1-20260901T223850Z`: execution `lab-run-d9vvs`, UID
+  `ffcb5aa7-1285-4f18-a2fa-902ee59a9d0b`, start
+  `2026-09-01T22:39:26.633412Z`. At 22:41:20Z it had one running task and zero
+  failed/cancelled/retried tasks. The durable monitor observed the prefix,
+  changed the lane from idle to active, and cleared every idle alert. The
+  coordinator will wait for exact success, run the frozen outcome-disabled
+  gate, and publish its create-once receipt; no efficacy prefix has yet been
+  claimed and no efficacy reader has been opened.
 
 ### 2026-09-01 PREREG-049/079 success semantics and tonight outlook recorded
 
