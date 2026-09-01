@@ -25,6 +25,28 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-01 Neo4j is bounded background work; Phases D/E held
+
+- Operator directive: continue Neo4j only as bounded background work. Phase B
+  schema/adapter integration and offline/local Phase C validation may proceed
+  without touching score-producing lanes, historical outcome authority, or
+  live application policy.
+- Phase D dedicated-service provisioning and Phase E lineup/player/trait/
+  settlement/winner-intelligence population are held until **all three**
+  higher-priority gates are complete: winner registry v2 adjudication, the
+  paid exact-K boundary, and the September 13 capture rehearsal. A passing
+  local compatibility fixture is not authority to bypass this ordering.
+- The localhost `nfl-kg-local-smoke` fixture may remain available as a
+  non-authoritative development target, but it must not be expanded with the
+  54-slate attribution, realized funnel, or winner data while the hold is
+  active. It controls no Foundry preset, graph pointer, production route, or
+  scoring decision.
+- Exact background action: use an isolated current-main worktree to map the
+  lab epistemics/run-lineage packet into the governed production schema,
+  complete source/manifest/fail-closed adapter contracts, and validate only
+  with offline fixtures/local compatibility queries. Stop before any Phase-D
+  provisioning or Phase-E historical intelligence load.
+
 ### 2026-09-01 local Neo4j compatibility load passes
 
 - Docker Engine `29.1.3` was installed inside WSL and its systemd service is
