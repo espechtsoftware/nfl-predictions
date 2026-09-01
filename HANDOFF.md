@@ -93,7 +93,7 @@ and operator decisions.  The older entries remain the durable chronology.
   coordinator is user unit `nfl2-prereg052-efficacy-r2.service`, invocation
   `bb801cc093b34ac691c8ea5eda1c1196`, with zero restarts and all three efficacy
   prefixes held in the shared launcher registry.
-- At the 22:57:56Z monitor read, the first two full-panel banks were claimed
+- At 22:59:14Z the first two full-panel banks were both running 18/18 tasks
   with no failures/retries: `083b580r1-20260901T225459Z` is execution
   `lab-run-hkkmb` (UID `22ad6764-f948-4b4e-bf85-6418fb46409c`) on `lab-run`,
   and `083b581r1-20260901T225735Z` is execution `lab-run-slow-49qfg` (UID
@@ -102,7 +102,11 @@ and operator decisions.  The older entries remain the durable chronology.
   envelope. The coordinator will claim `083b582r1` on the first freed lane,
   wait for all three exact successes, and never open the reader. The durable
   monitor shows the lane active, both prefixes claimed, E4 still running, and
-  no alert. Exact next action is metadata-only monitoring until bank 582 is
+  no alert. Runner 083 still applies the legacy mandatory double-stack,
+  bring-back, RB-versus-DST and same-team-RB house laws; its result is therefore
+  a scheduling-mechanism read inside that frozen population, not authority to
+  restore those laws universally or proof of portability to the target
+  DK-legality-only foundry. Exact next action is metadata-only monitoring until bank 582 is
   claimed and the cohort is terminal, then one frozen-reader invocation.
 
 ### 2026-09-01 PREREG-049/079 success semantics and tonight outlook recorded
