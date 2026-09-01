@@ -30,7 +30,9 @@ and operator decisions.  The older entries remain the durable chronology.
 - Work is isolated on branch `feature/neo4j-phase-b-integration`, based on
   current-main commit `de4cbdf578f9643c6f79923441ccc26c6646126c`; the code,
   deficiency record, tests, and this handoff entry are one atomic branch
-  change. The accepted pure offline graph-vNext contract was selectively
+  change at implementation commit
+  `bf2ba95c7e9ab2cc9ff048a40bd84ed5f706e649`. The accepted pure offline
+  graph-vNext contract was selectively
   ported and extended as `corpus-graph-vnext/v2`; the stale observatory branch,
   its fixture adapter, driver, capacity layer, routes, and UI were not merged.
 - The new pure Phase-B adapter maps the lab `Question`, `Claim`, `Read`,
