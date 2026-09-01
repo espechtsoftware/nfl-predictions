@@ -25,7 +25,7 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
-### 2026-09-01 E4 grade-timeout recovery approved, not yet launched
+### 2026-09-01 E4 grade-timeout recovery launched once and running
 
 - E4's frozen grade execution
   `atlas-cbc-32g-full-2023-w8-v1-bqkw5`, UID
@@ -53,15 +53,21 @@ and operator decisions.  The older entries remain the durable chronology.
   wrong runtime, wrong marker and non-grade rejection. Independent review
   approved the final patch; the combined registry/E4 suite is **40/40**, both
   scripts pass `bash -n`, and `git diff --check` is clean.
-- No recovery execution or outcome read has occurred yet. Exact next action:
-  push the code and this handoff, then acquire launcher-registry lane
-  `atlas-cbc-32g-full-2023-w8-v1` and invoke `grade-timeout-recovery` with the
-  exact old image/source/build and
-  `.tmp/20260831-fixed-budget-retention-f2aad14e-v5/grade/request.json`.
-  Record the one provider execution name. On terminal success, collect that
-  exact name, derive its validated `grade_terminal_identity`, run the ordinary
-  grade-reopen on the exact frozen runtime, and only then unblock E5. Never
-  invoke the recovery a second time or reuse failed `bqkw5` as success.
+- The recovery was launched exactly once at `2026-09-01T11:53:34Z` through the
+  production launcher registry. Provider execution
+  `atlas-cbc-32g-full-2023-w8-v1-njfvm`, UID
+  `202c982e-efbe-4700-b5ab-929845aa3701`, reused job UID
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275` generation 50 and the exact frozen
+  image/source/build/request above. Its input authority is generation
+  `1788191106908789`, SHA-256
+  `b6159521b96d6ec8f0eade323a28d382ed4dac4c8f82165bcf1ae606e6f3d5c0`,
+  41,553 bytes. The launch receipt confirms `outcomes_allowed=true`,
+  `execution_provider_reopened=true`, one task, and the intended request SHA.
+  No outcome result has been collected yet. Exact next action: poll this exact
+  execution without logs; on terminal success collect this exact name, derive
+  its validated `grade_terminal_identity`, run the ordinary grade-reopen on
+  the exact frozen runtime, and only then unblock E5. Never invoke the recovery
+  a second time or reuse failed `bqkw5` as success.
 
 ### 2026-09-01 production review for the lab's intelligence/P0 program
 
