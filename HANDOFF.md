@@ -561,6 +561,17 @@ and operator decisions.  The older entries remain the durable chronology.
   local receipt passes. Do not edit `scripts/queue_067.sh` while its
   `.tmp/launchers/queue_067-*` registration is live; reconcile any nonzero
   local launch result against the provider claim before retrying.
+- PREREG-038 mechanics run `067m420-20260831T233425Z`, execution
+  `lab-run-j75k7`, UID `bbecb265-6ec7-4695-ab30-3c5a2aa86d24`, completed
+  SUCCESS 4/4 at `2026-09-01T00:05:49.922676Z` with zero failures/retries.
+  The exact gate passed and its outcome-disabled receipt was uploaded to
+  `gs://nfl-2-506823-lab/gates/PREREG-038/067m420-20260831T233425Z.json`
+  before any efficacy execution existed. Only then did the registered queue
+  claim bank 420 as run `067b420-20260901T000622Z`, execution
+  `lab-run-z6jtx`, UID `59b30a3c-cf78-4885-927c-8dc23a17faab`, with exact
+  `28890ac`, digest `sha256:6f6a318b...e512`, 18 tasks, 2 vCPU/8 GiB and
+  `maxRetries=1`. Continue the same queue through banks 421/422; do not open
+  outcomes until all three exact banks and the already-frozen reader reconcile.
 - PREREG-037 bank 410 `lab-run-24872` completed SUCCESS 18/18 at
   `23:27:50Z`, and bank 411 `lab-run-xktft` completed SUCCESS 18/18 at
   `23:32:30Z`; both have zero failures, cancellations or retries. Bank 412
