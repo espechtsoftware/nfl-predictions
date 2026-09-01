@@ -25,6 +25,52 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-01 repaired 078/079 r3 mechanics launched; E4 grade reopen live
+
+- The 078 trace-only repair is pushed in lab source commit
+  `165d9e8c1c7d1e47ac4e4f1931a66de718b6934e`; immutable binding commit is
+  `3cf8fb3`, and lab execution-status commit is `5bab516`. The repair excludes
+  literal-constant rows from the descriptive cross-stream correlation, uses a
+  scaled centered float64 calculation for finite variable rows, rejects
+  zero-world/nonfinite inputs, and enforces RFC-finite mechanics JSON. It does
+  not consume RNG or change generation, candidates, critics, selectors,
+  outcomes, estimands, arms, banks or adoption laws. Full lab suite 274/274,
+  focused post-hardening suite 53/53, Ruff, shell syntax and diff checks passed;
+  independent review reproduced the exact finite value and found no blocker.
+- Exact-source Cloud Build `8cbee16e-a72b-4175-9b9b-81eb9b3b3128`
+  completed SUCCESS at `2026-09-01T18:25:20.166052Z` and published immutable
+  digest
+  `sha256:a336af925f04e4fe3db90205bf1fc208c1e91f20cc5f0f50cff5e7deed29c17b`.
+  The final 078/079 reader SHA-256 values are respectively
+  `619be046d488c21620d1055debd20910358559a3dcfdef63d3c9a38845d3f5d0`
+  and `3efa57955ca1ab68b1c92c8cbd1a30fba7e9077d95b0b816e1baa9850c79f788`.
+  Unlimited provider and GCS censuses proved both r3 prefixes fresh before
+  binding. The retired r2 artifacts remain immutable evidence.
+- The production-owned coordinator is active as
+  `nfl2-prereg-078-079-20260901-r2.service`, invocation
+  `880326997e8d4a2fa0eac23c596c6a79`. Fresh mechanics claims are
+  `078m520r3-20260901T182923Z`, execution `lab-run-g8cn5`, UID
+  `1a5571a0-8164-4f8c-bc84-8a917c3df826`, and
+  `079m530r3-20260901T183224Z`, execution `lab-run-n58sf`, UID
+  `795f415d-b53b-495f-a4e9-c08cc3bc56e8`. At the last poll 078 was running
+  one task without retry/failure and 079 had an exact nonterminal claim while
+  provider startup was pending. Both use the new immutable source/digest,
+  frozen arguments, 2 CPU/8 GiB, retry 1 and 36,000-second timeout. The six
+  efficacy banks remain unclaimed until both gates pass.
+- E4 recovery `atlas-cbc-32g-full-2023-w8-v1-njfvm`, UID
+  `202c982e-efbe-4700-b5ab-929845aa3701`, completed SUCCESS at
+  `2026-09-01T17:59:31.131360Z`. The exact-name continuation collected that
+  exact result and launched only ordinary grade-reopen execution
+  `atlas-cbc-32g-full-2023-w8-v1-7zpd4`, UID
+  `cada1617-0e2c-4a2a-b33b-c2aec97a2c69`. It started at
+  `2026-09-01T18:00:50.304429Z` and remained running with zero terminal counts
+  at the last poll. No second recovery was launched.
+- Exact next action: metadata-poll both r3 mechanics claims and the registered
+  coordinator. On two gate passes, let it release the unchanged six-bank
+  cohort without intervention. Separately poll only exact E4 grade-reopen
+  `7zpd4`; on terminal success let the exact-name finisher collect it and
+  proceed under the existing E4 contract. Do not relaunch any claimed prefix.
+
 ### 2026-09-01 078 mechanics stopped on a trace-only numeric defect; 079 passes
 
 - PREREG-048 mechanics execution `lab-run-mn78j`, UID
