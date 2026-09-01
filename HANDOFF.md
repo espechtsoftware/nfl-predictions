@@ -75,6 +75,35 @@ and operator decisions.  The older entries remain the durable chronology.
   coordinator will wait for exact success, run the frozen outcome-disabled
   gate, and publish its create-once receipt; no efficacy prefix has yet been
   claimed and no efficacy reader has been opened.
+- Mechanics execution `lab-run-d9vvs` completed at
+  `2026-09-01T22:47:40.905615Z` with exactly 1/1 task successful and zero
+  failed/cancelled/retried tasks. The frozen validator passed and the
+  create-once receipt is
+  `gs://nfl-2-506823-lab/gates/PREREG-052/083m580r1-20260901T223850Z.json`,
+  exact SHA-256
+  `9dbf480dfb3c37a36c8662be16b858401216a46e76c99ee6e3fca4c010573012`.
+  A separate GCS download reproduced that hash, and the bound reader's gate
+  preflight passed before any efficacy result existed.
+- The reader and restart-safe three-bank efficacy coordinator were
+  committed/pushed in lab commits `60d1f72` and `1babd87`; reader SHA-256 is
+  `9937d041311f169f12b0165188c8c89d29f8344508d347db5fcd049be9c34e26`.
+  The first coordinator invocation stopped after registry acquisition but
+  before any Cloud Run mutation on a shell conditional defect and consumed no
+  prefix. The corrected registered
+  coordinator is user unit `nfl2-prereg052-efficacy-r2.service`, invocation
+  `bb801cc093b34ac691c8ea5eda1c1196`, with zero restarts and all three efficacy
+  prefixes held in the shared launcher registry.
+- At the 22:57:56Z monitor read, the first two full-panel banks were claimed
+  with no failures/retries: `083b580r1-20260901T225459Z` is execution
+  `lab-run-hkkmb` (UID `22ad6764-f948-4b4e-bf85-6418fb46409c`) on `lab-run`,
+  and `083b581r1-20260901T225735Z` is execution `lab-run-slow-49qfg` (UID
+  `58d19ddc-abf7-4c3d-b6a5-d23b54eb075c`) on `lab-run-slow`. Both use 18
+  tasks, the exact immutable image and args, and the coherent 2-vCPU/8-GiB
+  envelope. The coordinator will claim `083b582r1` on the first freed lane,
+  wait for all three exact successes, and never open the reader. The durable
+  monitor shows the lane active, both prefixes claimed, E4 still running, and
+  no alert. Exact next action is metadata-only monitoring until bank 582 is
+  claimed and the cohort is terminal, then one frozen-reader invocation.
 
 ### 2026-09-01 PREREG-049/079 success semantics and tonight outlook recorded
 
