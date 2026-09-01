@@ -609,8 +609,16 @@ and operator decisions.  The older entries remain the durable chronology.
   (+0.730/+2.571/+0.816).** Bank-averaged weeks at >=194/200/210/220/230
   move from 17/12/1/0/0 to 15/12/3/1/0. Treat this as a co-run combined-
   package signal, not as a fourth primary hypothesis or a resolved package
-  ranking. The other party must rerun the exact reader before sealing the
-  lab LEDGER row; do not tune or reopen parameters from this result.
+  ranking; do not tune or reopen parameters from this result.
+- **PREREG-038 independent verification sealed, 2026-09-01:** the lab reran
+  the exact frozen reader and reproduced production's output digit for digit.
+  Lab commit `3772b1b` (pushed) seals the LEDGER row. The exact bank-averaged
+  K80 means, committed in lab commit `051c338`, are TWO_STAGE_COV 179.864537,
+  BF_BASE_COV 179.272500, BF_DUAL_EMAX 180.123796, FU_BASE_EMAX 180.158241,
+  and **FU_DUAL_EMAX 181.236759**; the absolute-means artifact SHA-256 is
+  `f0e15bfd...ba7f`. The strict package winner remains UNRESOLVED, so
+  PREREG-039 must use its preregistered confirmed BF_DUAL_EMAX fallback rather
+  than silently adopting the highest noisy mean.
 - PREREG-037 bank 410 `lab-run-24872` completed SUCCESS 18/18 at
   `23:27:50Z`, and bank 411 `lab-run-xktft` completed SUCCESS 18/18 at
   `23:32:30Z`; both have zero failures, cancellations or retries. Bank 412
@@ -643,19 +651,19 @@ and operator decisions.  The older entries remain the durable chronology.
   transcript is not whole-file byte-identical because it manually prettified
   NumPy bank scalars and appended an editorial disposition; that presentation
   difference is disclosed and the original artifact was not rewritten.
-- **PREREG-039 / 068 full non-core recompletion remains NO-LAUNCH:** the
-  uncommitted implementation's MILP/search method independently reviewed
-  sound (explicit UNSTACKED, exact core locks, four charged attempts, exact
-  K80, bank-averaged thresholds and two-party 067 authority), and its latest
-  local suite is 109 passed. Re-review nevertheless found three blocking
-  integrity gaps: validate every efficacy proposal/path/portfolio before any
-  actuals load; independently prove DK legality and stacked/UNSTACKED core
-  preservation in the live mechanics gate while forbidding `was_active` and
-  `y_*`; and make dirty-source refusal include untracked executable files.
-  Before efficacy freeze, also bind provider execution UID and snapshotted
-  CPU/memory/retry/image envelope. The implementation agent is applying this
-  bounded hardening batch. Do not commit, build or launch 068 until a fresh
-  independent re-review approves it.
+- **PREREG-039 / 068 full non-core recompletion is implementation-approved
+  but remains unlaunched:** the independent final no-launch review approved
+  exact core/UNSTACKED semantics, four charged attempts, exact K80, complete
+  pre-actual proposal/path/portfolio validation, physical outcome firewall,
+  provider UID/envelope binding, full execution-environment freeze, canonical
+  DK boundaries and unlimited duplicate-claim censuses. The stable outcome-
+  blind validation is 28 focused and 114 full tests, with ruff, compilation,
+  shell syntax and diff checks green. No cloud build, execution or outcome
+  read occurred. Hold the source freeze only long enough to independently
+  reconstruct the lab's new 062-r3 diagnostic that the preregistration cites;
+  after that evidence check, commit the exact approved file set, resolve the
+  verified 067 control authority, and run task-0/mechanics through the shared
+  launcher registry before any efficacy claims.
 - A read-only production launcher audit found active E4 already has durable
   per-phase intents and exact-name recovery, but no cross-script lock on its
   shared Cloud Run job; immediate E5 action scripts have neither a global
@@ -705,6 +713,11 @@ and operator decisions.  The older entries remain the durable chronology.
   `.tmp/launchers/e4-f2aad14e-v5-exact-recovery.py-1048151.json`. Do not fetch,
   edit or remove the exact clone/driver/receipt while this service is active;
   do not launch another production job on that shared lane.
+- **E4 latest read-only status, 2026-09-01 01:25:53Z:** grade execution
+  `bqkw5` remains running 1/1 with zero successes, failures, cancellations or
+  retries. Exact recovery service invocation
+  `18c5419d98744e308aa6c78e74226fd6` is active and its registry receipt is
+  present; no grade result, grade-reopen or validated E4 score exists yet.
 - **Latest matched score evidence:** the exact 54-slate production-shaped
   boom-first replay moved selected K80 mean weekly maximum from **178.023 to
   179.279 (+1.256)**, candidate-pool ceiling from **181.500 to 184.877
