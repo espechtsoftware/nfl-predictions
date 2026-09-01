@@ -25,6 +25,52 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-01 winner-range objective reviewed and production gaps recorded
+
+- The operator objective-change notice at
+  `../nfl2/handoffs/OBJECTIVE-CHANGE-NOTICE-2026-09-01.md` was reviewed
+  against the supporting correction, production winner census, live policy,
+  paid export paths, contest capture, and prospective field bridge. The
+  durable production response and action plan is
+  `reports/2026-09-01-objective-change-production-adoption-and-action-plan.md`.
+  This documentation milestone changes no frozen experiment, production
+  policy, deployment, score, cloud job, or outcome boundary.
+- Production accepts the objective ladder as `GLOBAL_WEMAX_PROXY`
+  (absolute-score proxy only) -> `SLATE_WEMAX_PROXY` -> shared-world
+  `FIELD_WIN` -> expected settled portfolio payout net fees. The current
+  48-score proxy era is 2023-2025; it is not same-slate win probability.
+  Frozen 068/E4 and lab 047/048/049 run/read exactly as frozen; new-objective
+  companions require fresh banks and preregistrations.
+- The audit found two P0 paid-path blockers. The active money policy still
+  uses boom-first 40/160, CBWU coverage-194 and `tail_line=194`; D400_DEMAX
+  (80/320, dual-law expected-max) is not wired as the paid/control candidate.
+  Separately, paid generation/selection/export paths can silently truncate a
+  short candidate set, and the entry filler can cycle a short lineup list.
+  A versioned policy successor plus fail-closed exact-K/unique/DK-legal export
+  boundary is required; frozen v1 contracts must not be edited.
+- Historical winner conformance is decisive for universal-law scope: only
+  8/51 winners use QB+2 plus bring-back, while 22% are naked-QB, 41% use one
+  stack partner and 61% have no bring-back. Only DraftKings legality is
+  universal; house topology becomes a named, receipted strategy.
+- Full-field capture code exists but is manual/unexercised and
+  `contest_entries` remains empty. A canonical contest manifest, a complete
+  capture rehearsal, and a durable Week-1 capture procedure are required
+  before the 2026-09-13 window. Current settlement must be extended from
+  per-lineup insertion ranks to joint K-book counterfactual ranks, ties,
+  duplication, self-competition and net payout.
+- Recommended A5 freeze: expected settled portfolio payout net fees as the
+  terminal utility, with modeled sole/shared first-place probability as a
+  hard non-inferiority guardrail and separately reported endpoint. K and
+  contest allocation are decision variables, not universal laws.
+- At the review poll, 076 bank 480 had completed 18/18 with zero failure,
+  cancellation or task retry and the coordinator had released bank 481.
+  PREREG-039/068 mechanics and production E4 remained healthy/running; their
+  next result actions were still locked. Exact next production actions are:
+  preserve/poll the frozen cohort, review the bounded 078/079 mechanics
+  repairs, then implement the paid exact-K boundary, versioned post-194
+  policy, and Week-1 contest-capture rehearsal without disrupting frozen
+  work.
+
 ### 2026-09-01 repaired PREREG-039/046/047 lab cohort launched
 
 - Lab `main` and `origin/main` are equal at binding commit
