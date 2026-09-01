@@ -25,6 +25,71 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-01 Phase-B lab epistemics adapter is hermetic and focused-green
+
+- Work is isolated on branch `feature/neo4j-phase-b-integration`, based on
+  current-main commit `de4cbdf578f9643c6f79923441ccc26c6646126c`; the code,
+  deficiency record, tests, and this handoff entry are one atomic branch
+  change. The accepted pure offline graph-vNext contract was selectively
+  ported and extended as `corpus-graph-vnext/v2`; the stale observatory branch,
+  its fixture adapter, driver, capacity layer, routes, and UI were not merged.
+- The new pure Phase-B adapter maps the lab `Question`, `Claim`, `Read`,
+  `Hold`, `Experiment`, `Preregistration`, `ExperimentRun`,
+  `ProposalAttemptAggregate`, and `Slate` rows into positive production
+  schemas. The overloaded lab `PROPOSED_IN` becomes exactly one explicit
+  `RUN_OF` plus four explicit `FOR_SLATE` edges; `EVIDENCED_BY` and
+  `BLOCKED_BY` remain explicit. It derives no question, preregistration, run,
+  aggregate, or slate relationship from names or IDs.
+- The manifest is canonical/self-hashed and binds the graph/mapping versions,
+  the complete mapping/property/namespace transforms, four exact CSV
+  identities, four exact external source identities, source-to-artifact roles,
+  authority flags, expected row/type/isolation counts, and a content-set
+  digest. Validation rejects missing/extra artifacts or sources, content
+  drift, noncanonical object identity, object-generation conflicts (including
+  the manifest), duplicate IDs/edges/families, invalid type pairs, dangling
+  endpoints, unresolved explicit Read-to-preregistration references,
+  name/URI/run mismatch, and any census or ledger discrepancy. Read references
+  are checked against unique preregistration files without deriving graph
+  edges, so the source packet's 48 Preregistration nodes remain isolated.
+- The hermetic representative packet reconciles exactly to 177 nodes and 24
+  relationships: 171/19 base rows plus 6/5 run rows, with 138 explicitly
+  isolated nodes. All 12 claims have explicit evidence, the run resolves to
+  `exp:078`, all four reported aggregate families resolve to the one Slate,
+  and reported attempt totals are 1,200 attempts / 1,200 new / 0 duplicate /
+  4 reconciles / 0 violations. Because the aggregate export omits raw
+  infeasible/error/exhausted status counts, the governed receipt records zero
+  verified reconciliations and `reported_unverified` run status.
+- Realized, winner, settlement, payout, rank, score, and fantasy-points facts
+  remain closed in Question/Claim/Read content and in source evidence flags.
+  A caller-supplied authorization-shaped identity cannot open that boundary in
+  Phase B. The known `Hold` winner-score dispute is classified only as a
+  governance blocker, never as score evidence. The receipt states the exact
+  mechanical guarantee—declared source evidence flags are false and the
+  governed non-Hold token/camel/compact scan passed—rather than claiming a
+  semantic proof about unopened source bodies. Every database/load, decision,
+  graph-mutation, outcome-read, lineup-population, live-money, and default
+  authority flag is false.
+- Focused validation is 11/11 passing in
+  `tests/test_lab_epistemics_phase_b.py`; Ruff passes for the two modules and
+  focused test, and `git diff --check` passes. An independent read-only
+  adversarial review found no remaining P0/P1/P2 blocker after reproducing
+  the 177/24/138 baseline and rejection of manifest, identity, endpoint,
+  preregistration, count, underscore, compact, and camel-case outcome attacks.
+  No GCS/cloud/outcome read,
+  Docker or Neo4j mutation, service provisioning, production pointer, route,
+  UI, or D/E lineup/winner population occurred; there are no cloud execution
+  IDs for this offline work.
+- Remaining boundary: supplied CSV bodies are content-verified, while the four
+  authoritative source bodies and their derivation into CSV remain external
+  identity declarations and are explicitly marked unverified in the receipt.
+  The current lab release cannot be promoted until it supplies those exact
+  source identities and a complete raw attempt-status ledger. Exact next
+  action: production review this isolated commit, then prepare a separately
+  authorized offline real-packet compatibility input with those bindings.
+  Keep Phase D/E held behind registry v2, the paid exact-K boundary, and the
+  September 13 capture rehearsal; do not mutate the localhost graph under
+  this Phase-B result.
+
 ### 2026-09-01 Neo4j is bounded background work; Phases D/E held
 
 - Operator directive: continue Neo4j only as bounded background work. Phase B
