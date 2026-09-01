@@ -88,7 +88,8 @@ and operator decisions.  The older entries remain the durable chronology.
 - No cloud execution or production graph mutation occurred. This remains
   descriptive development evidence with no official-winner, promotion,
   selection, corpus-fill, or policy-feedback authority. The combined
-  production/lab findings and coding/test plan are recorded in
+  production/lab findings and coding/test plan are committed and pushed in the
+  lab repository at `ed5b070`, file
   `../nfl2/reports/2026-09-01-knowledge-graph-takeaways.md`. Exact next action is
   to publish the compact R6 handoff contract, then let the lab run the scoped
   consensus, fixed-budget admission, belief-repair, phenotype, and crossed
