@@ -153,7 +153,10 @@ sched s-shadow-sis-pass-tail-paired shadow-sis-pass-tail-paired "0 6 * * 7"
 # corresponding complete K=1 and K=3 hour-slot panels are present.
 sched s-freeze-tail-early freeze-tail-early "5 11 * * 7"
 sched s-freeze-tail-late  freeze-tail-late  "50 11 * * 7"
-sched s-dk          ingest-dk       "0 10 * * 3-7"
+# Paid Classic exports reject a DK salary snapshot older than two hours.
+# Run hourly throughout the existing Wednesday-Sunday collection window so
+# every live Sunday decision point has a current or immediately prior pull.
+sched s-dk          ingest-dk       "0 * * * 3-7"
 sched s-odds        ingest-odds     "0 9,15 * * 3-7"
 sched s-props       ingest-props    "0 11 * * 4"
 sched s-weather     ingest-weather  "0 6,12,18 * * 5,6,0"

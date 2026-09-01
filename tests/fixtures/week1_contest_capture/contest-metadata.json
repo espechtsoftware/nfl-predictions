@@ -1,0 +1,13 @@
+{
+  "schema_version": "dk-contest-metadata-evidence/v1",
+  "season": 2026,
+  "week": 1,
+  "contest_id": "12345",
+  "contest_name": "Representative Millionaire Maker",
+  "draft_group_id": "151307",
+  "slate_id": "2026-w01-sunday-main",
+  "field_size": 4,
+  "entry_fee_micro": 20000000,
+  "entry_limit": 4,
+  "lock_at": "2026-09-13T17:00:00Z"
+}

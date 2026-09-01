@@ -1,0 +1,10 @@
+Rank,EntryId,EntryName,TimeRemaining,Points,Lineup,Player,Roster Position,%Drafted,FPTS,Winnings
+1,0001,one,0,200.5,QB Quarter Back RB Runner One RB Runner Two WR Wide One WR Wide Two WR Wide Three TE Tight End FLEX Flex Player DST Defense,Quarter Back,QB,100.00%,20.0,"$1,000"
+2,0002,two,0,190.0,QB Quarter Back RB Runner One RB Runner Two WR Wide One WR Wide Two WR Wide Three TE Tight End FLEX Flex Player DST Defense,Runner One,RB,100.00%,20.0,$100
+3,0003,three,0,180.0,QB Quarter Back RB Runner One RB Runner Two WR Wide One WR Wide Two WR Wide Three TE Tight End FLEX Flex Player DST Defense,Runner Two,RB,100.00%,20.0,$50
+4,0004,four,0,170.0,QB Quarter Back RB Runner One RB Runner Two WR Wide One WR Wide Two WR Wide Three TE Tight End FLEX Flex Player DST Defense,Wide One,WR,100.00%,20.0,$0
+,,,,,,Wide Two,WR,100.00%,20.0,
+,,,,,,Wide Three,WR,100.00%,20.0,
+,,,,,,Tight End,TE,100.00%,20.0,
+,,,,,,Flex Player,FLEX,100.00%,20.0,
+,,,,,,Defense,DST,100.00%,20.0,

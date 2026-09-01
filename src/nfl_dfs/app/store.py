@@ -25,8 +25,8 @@ SHOWDOWN_COLUMNS = [
 
 
 CLASSIC_COLUMNS = [
-    "draft_group_id", "dk_player_id", "dk_draftable_id", "display_name",
-    "team_abbr", "position", "salary", "game_start", "status",
+    "pulled_at", "draft_group_id", "dk_player_id", "dk_draftable_id",
+    "display_name", "team_abbr", "position", "salary", "game_start", "status",
 ]
 
 
@@ -224,7 +224,7 @@ class BigQueryStore:
               FROM `{settings.raw}.dk_salaries`
               WHERE slate_type = 'classic' AND draft_group_id = @gid
             )
-            SELECT DISTINCT s.draft_group_id, s.dk_player_id,
+            SELECT DISTINCT s.pulled_at, s.draft_group_id, s.dk_player_id,
                    s.dk_draftable_id, s.display_name, s.team_abbr,
                    s.position, s.salary, s.game_start, s.status
             FROM `{settings.raw}.dk_salaries` s, pull

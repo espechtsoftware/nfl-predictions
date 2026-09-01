@@ -1,0 +1,269 @@
+{
+  "apply_eligible": false,
+  "book_binding_summary": {
+    "all_books_frozen_before_lock": true,
+    "paid_book_count": 1,
+    "paid_entry_count": 2,
+    "shadow_book_count": 1
+  },
+  "capture_validation": {
+    "apply_required_for_live_capture": true,
+    "capture_id": "a45d1d5cdf0833f028491d554e877425b2d2fc8b68f4d2ea277cf85e377a0a31",
+    "capture_version": "dk-full-field-v1",
+    "contest": {
+      "contest_id": "12345",
+      "contest_name": "Representative Millionaire Maker",
+      "expected_entries": 4,
+      "metadata_basis": "operator_confirmed_dk_page_and_filename_contest_id_checked",
+      "observed_entries": 4,
+      "ownership_rows": 9,
+      "roster_format": "classic",
+      "season": 2026,
+      "week": 1
+    },
+    "source": {
+      "bytes": 969,
+      "capture_time_basis": "simulated_operator_supplied",
+      "original_filename": "contest-standings-12345.csv",
+      "sha256": "ee9cebf2e7668d9622a4d391510da0b4cc0c236ab191c0cd0eaabf0a9e3e43ab",
+      "simulated_captured_at": "2026-09-14T23:00:00Z",
+      "timestamp_role": "representative_simulation",
+      "uri": "gs://local-rehearsal/operator/dk-contest-standings/v1/season=2026/week=01/contest_id=12345/capture_id=a45d1d5cdf0833f028491d554e877425b2d2fc8b68f4d2ea277cf85e377a0a31/source.csv"
+    },
+    "status": "validated-only",
+    "validation": {
+      "competition_ranks_reproduced": true,
+      "distinct_lineups": 1,
+      "entry_ids_unique": true,
+      "field_size_basis": "operator_confirmed_dk_displayed_entry_count",
+      "max_duplicate_count": 4,
+      "operator_confirmed_contest_metadata": true,
+      "operator_confirmed_full_field": true,
+      "operator_confirmed_settled": true,
+      "ownership_mass": 900.0,
+      "ownership_reproduced_from_entries": true,
+      "settled_points_complete": true,
+      "winner_score": 200.5
+    }
+  },
+  "checks": {
+    "competition_ranks_reproduced": true,
+    "complete_field_count_matches": true,
+    "contest_identity_matches": true,
+    "contest_sources_reopened_by_content_identity": true,
+    "correction_lineage_valid": true,
+    "entry_ids_unique": true,
+    "ownership_reproduced_from_field": true,
+    "paid_and_shadow_books_reopened_by_content_identity": true,
+    "payout_ladder_reconciles_including_ties": true,
+    "rosters_parse_and_are_dk_classic_shape": true,
+    "settled_time_reproduced": true,
+    "warehouse_structural_payloads_prepared_without_load": true
+  },
+  "complete": true,
+  "contest_manifest": {
+    "book_bindings": [
+      {
+        "artifact_identity": {
+          "bytes": 340,
+          "sha256": "f1b14918a01825960d23dd6f375e882011108cfd4c5ff9e86073ad8759b2b1dc",
+          "uri": "paid-book.json"
+        },
+        "book_id": "week1-paid-fixture",
+        "entry_count": 2,
+        "frozen_at": "2026-09-12T17:00:00Z",
+        "purpose": "paid"
+      },
+      {
+        "artifact_identity": {
+          "bytes": 227,
+          "sha256": "ec9ead5c1fad4077b9f5db2858f7e773542d3dd9409e658fdb0c143ffc569b83",
+          "uri": "shadow-book.json"
+        },
+        "book_id": "week1-shadow-fixture",
+        "entry_count": 4,
+        "frozen_at": "2026-09-12T17:05:00Z",
+        "purpose": "shadow"
+      }
+    ],
+    "contest": {
+      "contest_id": "12345",
+      "contest_name": "Representative Millionaire Maker",
+      "draft_group_id": "151307",
+      "entry_fee_micro": 20000000,
+      "entry_limit": 4,
+      "field_size": 4,
+      "late_swap": {
+        "enabled": true,
+        "policy": "draftkings-nfl-classic-late-swap",
+        "state_at_freeze": "prelock"
+      },
+      "lock_at": "2026-09-13T17:00:00Z",
+      "roster_format": "classic",
+      "season": 2026,
+      "slate_id": "2026-w01-sunday-main",
+      "week": 1
+    },
+    "correction_lineage": {
+      "reason": "initial representative rehearsal fixture",
+      "revision": 0,
+      "supersedes_manifest_sha256": null
+    },
+    "manifest_frozen_at": "2026-09-12T18:00:00Z",
+    "payout_ladder": [
+      {
+        "award_label": "first",
+        "payout_micro": 1000000000,
+        "rank_end": 1,
+        "rank_start": 1
+      },
+      {
+        "award_label": "second",
+        "payout_micro": 100000000,
+        "rank_end": 2,
+        "rank_start": 2
+      },
+      {
+        "award_label": "third",
+        "payout_micro": 50000000,
+        "rank_end": 3,
+        "rank_start": 3
+      },
+      {
+        "award_label": "unpaid",
+        "payout_micro": 0,
+        "rank_end": 4,
+        "rank_start": 4
+      }
+    ],
+    "rehearsal_fixture": true,
+    "schema_version": "dk-contest-manifest/v2",
+    "source_identities": {
+      "contest_metadata": {
+        "bytes": 343,
+        "captured_at": "2026-09-12T16:00:00Z",
+        "sha256": "47204619277446b3ebc0efe216105be805880d5077f514f548605204990b6cba",
+        "uri": "contest-metadata.json"
+      },
+      "late_swap": {
+        "bytes": 205,
+        "captured_at": "2026-09-12T16:10:00Z",
+        "sha256": "244dffdbd01fd83bfce00538ef4df456364c1e86bfbc4b7f6d77a3dcc55e5ad0",
+        "uri": "late-swap.json"
+      },
+      "payout_ladder": {
+        "bytes": 566,
+        "captured_at": "2026-09-12T16:05:00Z",
+        "sha256": "b6ead02c401b94e71e63723c2192636c7cf40be5c569690426379a85996cb1e6",
+        "uri": "payout-ladder.json"
+      }
+    }
+  },
+  "contest_manifest_identity": {
+    "bytes": 2599,
+    "semantic_sha256": "69daab23fa7da0d4e13e339764d317a977e12a63aab895bbb3a66057254ad7da",
+    "sha256": "e1f313693dcc3161934fa56f47ae1212025a1e101072887d4f1b9650cfd731bb",
+    "uri": "contest-manifest-v2.json"
+  },
+  "external_writes_performed": false,
+  "mode": "local-validation-only",
+  "network_or_cloud_reads_performed": false,
+  "outcome_access": {
+    "live_realized_outcomes_read": false,
+    "outcome_bearing_when_rehearsal_fixture_false": true,
+    "settlement_values_read": true,
+    "synthetic_outcomes_read": true
+  },
+  "receipt_sha256": "311a4e943d8feb09cd2e78c9f6b178eb99fd0b5fa8a7b03d84587a0a57977831",
+  "rehearsal_fixture": true,
+  "rehearsal_id": "1c88cb7ff81dedd89e7147b9ed74dddc2a7026d2efb061e83d0ca889174c16b1",
+  "schema_version": "week1-contest-capture-rehearsal/v1",
+  "scientific_or_production_evidence_allowed": false,
+  "settlement_rehearsal": {
+    "first_place_tie_count": 1,
+    "maximum_tie_rounding_residual_micro": 0,
+    "observed_prize_pool_micro": 1150000000,
+    "payout_reconciled": true,
+    "scheduled_prize_pool_micro": 1150000000,
+    "winner_duplicate_keys": [
+      "Defense|Flex Player|Quarter Back|Runner One|Runner Two|Tight End|Wide One|Wide Three|Wide Two"
+    ],
+    "winner_entry_ids": [
+      "0001"
+    ],
+    "winner_score_micropoints": 200500000
+  },
+  "timeline": {
+    "rehearsed_at": "2026-09-01T16:00:00Z",
+    "representative_capture_at": "2026-09-14T23:00:00Z",
+    "representative_capture_is_simulated": true
+  },
+  "warehouse_structural_rehearsal": {
+    "dataset_resolution_deferred_to_live_settings": true,
+    "entries_load_job_id": "dk_entries_a45d1d5cdf0833f028491d554e877425b2d2fc8b68f4d2ea277cf85e377a0a31",
+    "entries_payload": {
+      "columns": [
+        "imported_at",
+        "captured_at",
+        "evidence_timing",
+        "capture_version",
+        "capture_id",
+        "import_id",
+        "season",
+        "week",
+        "contest_id",
+        "contest_name",
+        "expected_entries",
+        "source_sha256",
+        "source_bytes",
+        "source_uri",
+        "rank",
+        "entry_id",
+        "entry_name",
+        "points",
+        "time_remaining_raw",
+        "payout",
+        "payout_raw",
+        "lineup",
+        "roster_format",
+        "lineup_slots_json",
+        "n_players",
+        "players_key",
+        "duplicate_key",
+        "lineup_sha256",
+        "is_top20"
+      ],
+      "row_count": 4,
+      "rows_sha256": "55474a0ffc13858c53edc9995c7206537546a6ed34a9d9f02074d7d93bcc9304"
+    },
+    "entries_table": "contest_entries",
+    "live_destination_identity_reproduced": false,
+    "load_calls_performed": 0,
+    "ownership_load_job_id": "dk_ownership_a45d1d5cdf0833f028491d554e877425b2d2fc8b68f4d2ea277cf85e377a0a31",
+    "ownership_payload": {
+      "columns": [
+        "imported_at",
+        "captured_at",
+        "evidence_timing",
+        "capture_version",
+        "capture_id",
+        "import_id",
+        "season",
+        "week",
+        "contest_id",
+        "contest_name",
+        "expected_entries",
+        "source_sha256",
+        "source_bytes",
+        "source_uri",
+        "display_name",
+        "roster_position",
+        "pct_drafted",
+        "fpts"
+      ],
+      "row_count": 9,
+      "rows_sha256": "7f5e1601b84c7f794092078c758219188d977034c02168720d3038bd30650293"
+    },
+    "ownership_table": "contest_ownership"
+  }
+}

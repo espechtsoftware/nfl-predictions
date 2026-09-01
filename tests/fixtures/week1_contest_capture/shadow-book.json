@@ -1,0 +1,12 @@
+{
+  "schema_version": "shadow-classic-book/v1",
+  "book_id": "week1-shadow-fixture",
+  "contest_id": "12345",
+  "draft_group_id": "151307",
+  "lineup_ids": [
+    "lineup-1",
+    "lineup-2",
+    "lineup-3",
+    "lineup-4"
+  ]
+}

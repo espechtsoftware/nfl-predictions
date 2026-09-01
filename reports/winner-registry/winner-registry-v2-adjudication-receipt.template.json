@@ -1,0 +1,35 @@
+{
+  "adjudicated_at_utc": null,
+  "adjudicator": {
+    "name": null,
+    "role": null
+  },
+  "decision": "pending",
+  "observation_id": null,
+  "reason": null,
+  "receipt_id": null,
+  "receipt_sha256": null,
+  "schema_version": "winner-registry-v2-adjudication-receipt/1",
+  "scores": {
+    "article_or_summary_reported_score": null,
+    "captured_roster_points_sum": null,
+    "official_target_winning_score": null
+  },
+  "source_evidence": [],
+  "target_contest_identity": {
+    "contest_family": null,
+    "contest_name": null,
+    "draftkings_contest_id": null,
+    "entry_fee_usd": null,
+    "lock_time_utc": null,
+    "roster_format": null,
+    "season": null,
+    "slate_date": null,
+    "top_prize_usd": null,
+    "week": null
+  },
+  "target_policy_id": null,
+  "target_policy_sha256": null,
+  "template_sha256": "06784d436542ab2dc6bbef12b4715250b48778a9d2dc30a84fdc63f622e2c81a",
+  "template_status": "pending_example_not_an_adjudication"
+}

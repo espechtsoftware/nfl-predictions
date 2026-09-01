@@ -1,0 +1,17 @@
+{
+  "schema_version": "paid-classic-book/v2",
+  "book_id": "week1-paid-fixture",
+  "contest_id": "12345",
+  "draft_group_id": "151307",
+  "requested_entries": 2,
+  "lineup_ids": [
+    "lineup-1",
+    "lineup-2"
+  ],
+  "receipt": {
+    "exact_k": true,
+    "unique_rosters": true,
+    "dk_legal": true,
+    "active_players_only": true
+  }
+}

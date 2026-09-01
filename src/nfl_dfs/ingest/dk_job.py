@@ -3,7 +3,9 @@
 Append-only by design: the history of how a player's status changed before
 lock is itself a valuable feature. Never overwrite.
 
-Schedule: hourly Thu 00:00 - Mon 04:00 CT.
+Schedule: hourly Wednesday-Sunday CT.  The deployment keeps this cadence
+through every live Sunday paid-decision window so the salary catalog remains
+inside the paid export boundary's two-hour freshness limit.
 """
 
 from __future__ import annotations

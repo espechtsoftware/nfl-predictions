@@ -1,0 +1,98 @@
+{
+  "schema_version": "dk-contest-manifest/v2",
+  "rehearsal_fixture": true,
+  "manifest_frozen_at": "2026-09-12T18:00:00Z",
+  "contest": {
+    "season": 2026,
+    "week": 1,
+    "contest_id": "12345",
+    "contest_name": "Representative Millionaire Maker",
+    "draft_group_id": "151307",
+    "slate_id": "2026-w01-sunday-main",
+    "roster_format": "classic",
+    "field_size": 4,
+    "entry_fee_micro": 20000000,
+    "entry_limit": 4,
+    "lock_at": "2026-09-13T17:00:00Z",
+    "late_swap": {
+      "enabled": true,
+      "policy": "draftkings-nfl-classic-late-swap",
+      "state_at_freeze": "prelock"
+    }
+  },
+  "payout_ladder": [
+    {
+      "rank_start": 1,
+      "rank_end": 1,
+      "payout_micro": 1000000000,
+      "award_label": "first"
+    },
+    {
+      "rank_start": 2,
+      "rank_end": 2,
+      "payout_micro": 100000000,
+      "award_label": "second"
+    },
+    {
+      "rank_start": 3,
+      "rank_end": 3,
+      "payout_micro": 50000000,
+      "award_label": "third"
+    },
+    {
+      "rank_start": 4,
+      "rank_end": 4,
+      "payout_micro": 0,
+      "award_label": "unpaid"
+    }
+  ],
+  "source_identities": {
+    "contest_metadata": {
+      "uri": "contest-metadata.json",
+      "sha256": "47204619277446b3ebc0efe216105be805880d5077f514f548605204990b6cba",
+      "bytes": 343,
+      "captured_at": "2026-09-12T16:00:00Z"
+    },
+    "payout_ladder": {
+      "uri": "payout-ladder.json",
+      "sha256": "b6ead02c401b94e71e63723c2192636c7cf40be5c569690426379a85996cb1e6",
+      "bytes": 566,
+      "captured_at": "2026-09-12T16:05:00Z"
+    },
+    "late_swap": {
+      "uri": "late-swap.json",
+      "sha256": "244dffdbd01fd83bfce00538ef4df456364c1e86bfbc4b7f6d77a3dcc55e5ad0",
+      "bytes": 205,
+      "captured_at": "2026-09-12T16:10:00Z"
+    }
+  },
+  "book_bindings": [
+    {
+      "book_id": "week1-paid-fixture",
+      "purpose": "paid",
+      "entry_count": 2,
+      "frozen_at": "2026-09-12T17:00:00Z",
+      "artifact_identity": {
+        "uri": "paid-book.json",
+        "sha256": "f1b14918a01825960d23dd6f375e882011108cfd4c5ff9e86073ad8759b2b1dc",
+        "bytes": 340
+      }
+    },
+    {
+      "book_id": "week1-shadow-fixture",
+      "purpose": "shadow",
+      "entry_count": 4,
+      "frozen_at": "2026-09-12T17:05:00Z",
+      "artifact_identity": {
+        "uri": "shadow-book.json",
+        "sha256": "ec9ead5c1fad4077b9f5db2858f7e773542d3dd9409e658fdb0c143ffc569b83",
+        "bytes": 227
+      }
+    }
+  ],
+  "correction_lineage": {
+    "revision": 0,
+    "supersedes_manifest_sha256": null,
+    "reason": "initial representative rehearsal fixture"
+  }
+}

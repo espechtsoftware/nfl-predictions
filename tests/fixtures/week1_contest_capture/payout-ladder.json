@@ -1,0 +1,30 @@
+{
+  "schema_version": "dk-payout-ladder-evidence/v1",
+  "contest_id": "12345",
+  "rows": [
+    {
+      "rank_start": 1,
+      "rank_end": 1,
+      "payout_micro": 1000000000,
+      "award_label": "first"
+    },
+    {
+      "rank_start": 2,
+      "rank_end": 2,
+      "payout_micro": 100000000,
+      "award_label": "second"
+    },
+    {
+      "rank_start": 3,
+      "rank_end": 3,
+      "payout_micro": 50000000,
+      "award_label": "third"
+    },
+    {
+      "rank_start": 4,
+      "rank_end": 4,
+      "payout_micro": 0,
+      "award_label": "unpaid"
+    }
+  ]
+}

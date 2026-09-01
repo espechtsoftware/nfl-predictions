@@ -1299,7 +1299,7 @@ Run this over at least three full seasons. Single-season results are noise — t
 
 | Job | Cadence | Window |
 |---|---|---|
-> **Live-deployment note (2026-07-31):** the actually-deployed schedulers run sparser than this table — nflverse/features/train/projections are weekly (Tuesdays), DK slates 1×/day — see the WARNING in `deploy/deploy_jobs.sh`. `status.py`'s freshness thresholds follow the live cadences; the daily `check-freshness` job emails (via the Cloud Run failed-execution alert) when any active feed goes stale.
+> **Live-deployment note (updated 2026-09-01):** nflverse/features/train/projections run on their live weekly cadences, while `s-dk` runs hourly Wednesday-Sunday in `America/Chicago`. The hourly DK cadence keeps the latest salary snapshot within the paid Classic export boundary's two-hour freshness limit throughout the Sunday decision window. `status.py`'s freshness thresholds follow the live cadences; the daily `check-freshness` job emails (via the Cloud Run failed-execution alert) when any active feed goes stale.
 
 **TabPFN projection cache (adopted 2026-08-04, Addendum 50).** The sim's
 default marginals come from `nfl_features.tabpfn_projections`, generated
@@ -1334,7 +1334,7 @@ validated default is the TabPFN shapes.
 If resuming is forgotten: the Tuesday-chain feeds are `nfl`-seasonal in `status.py` and go **active Sep 1**, so the daily `check-freshness` starts emailing about their staleness — the system nags you itself. Reverse direction (next off-season, ~mid-February): pause the same twenty-four schedulers again.
 
 | `ingest_nflverse` | Daily 06:00 CT | Year-round; nightly refresh matters in-season |
-| `ingest_dk_slate` | Hourly | Thu 00:00 – Mon 04:00 CT |
+| `ingest_dk_slate` | Hourly (`s-dk`) | Wednesday-Sunday CT; this is the deployed paid-decision collection window |
 | `ingest_contests` | Not yet scheduled — opt-in via `INGEST_CONTESTS_ENABLED` (see *Known gaps*: overlay detection scaffold) | Thu 00:00 – Mon 04:00 CT once adopted; denser near each slate's lock for real fill-rate signal |
 | `ingest_cfb` | 3× daily (10/14/18 CT) + hourly Sat 08–13 CT (`s-cfb`/`s-cfb-sat`, deployed 2026-07-31 with `INGEST_CFB_ENABLED=1`) | Self-activating: no-ops (one lobby GET) until DK posts CFB draft groups (~late Aug, before NFL week 1); Sat density captures fill-rate trajectory into the main-slate lock |
 | `ingest_odds` | Hourly | Thu 00:00 – Mon 04:00 CT |

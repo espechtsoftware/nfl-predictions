@@ -29,6 +29,14 @@ from ..optimizer.export import (
     to_dk_showdown_csv,
 )
 from ..optimizer.lineup import core_and_variations, optimize_many
+from ..optimizer.paid_classic_book_v2 import (
+    PaidClassicCatalog,
+    PaidClassicExport,
+    build_paid_classic_catalog_v2,
+    fill_paid_entries_csv_v2,
+    paid_entry_count_v2,
+    to_paid_dk_csv_v2,
+)
 from ..optimizer.construction_presets import (
     INCUMBENT_GPP_PRESET_ID,
     LEGALITY_ONLY_PRESET_ID,
@@ -762,12 +770,16 @@ async function build(){
   document.getElementById('go').disabled=true;
   try{
     const body=reqBody();
-    const r=await fetch(sd?'/showdown/lineups':'/lineups',{method:'POST',
+    const r=await fetch(sd?'/showdown/lineups':'/lineups/paid-v2',{method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(body)});
     const j=await r.json();
     if(!r.ok){st.textContent='Error: '+(j.detail||r.status);return;}
     lastBuild={key:buildKey(body),payload:j,showdown:sd};
+    const paidStatus=!sd&&j.paid_export
+      ? ` · paid v2 exact K${j.paid_export.actual_entries} / `+
+        `${j.paid_export.unique_rosters} unique / DK-legal / active \u2713`
+      : '';
     st.textContent=sd
       ? j.lineups.length+' Captain Mode lineups · '+j.game.game+' ('+
         j.game.day+'). Captain scores 1.5x and costs 1.5x.'
@@ -775,6 +787,7 @@ async function build(){
         ' · '+(j.policy?.contest_entry_policy?.profile||'entry profile unknown')+
         ' · '+(j.policy?.simulation_law?.usage_allocation||
                'simulation law unreported')+' usage'+
+        paidStatus+
         ' · model '+(j.policy?.model_version||'unreported')+
         '. Confidence = P(score >= '+
         (j.tail_line||194)+') per the sim — PORTFOLIO-level validated; '+
@@ -3141,6 +3154,133 @@ def build_lineups_csv(
     )
 
 
+def _paid_classic_catalog_v2(
+    req: LineupRequest, store: ProjectionStore
+) -> PaidClassicCatalog:
+    """Load the current slate identity required by the v2 money boundary."""
+
+    if req.draft_group_id is None:
+        raise HTTPException(
+            422,
+            "Paid Classic export v2 requires draft_group_id; choose the "
+            "exact DraftKings slate before generating upload bytes.",
+        )
+    salaries = store.classic_salaries(req.draft_group_id)
+    try:
+        return build_paid_classic_catalog_v2(
+            salaries,
+            draft_group_id=req.draft_group_id,
+            validated_at=_paid_classic_now_v2(),
+        )
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+
+
+def _paid_classic_now_v2() -> datetime:
+    """Server-owned paid-validation clock; requests cannot backdate it."""
+
+    return datetime.now(timezone.utc)
+
+
+def _paid_classic_headers_v2(receipt: dict) -> dict[str, str]:
+    return {
+        "X-Paid-Book-Boundary": str(receipt["boundary_id"]),
+        "X-Paid-Book-Receipt-SHA256": str(receipt["export_receipt_sha256"]),
+        "X-Paid-Book-Catalog-SHA256": str(receipt["salary_catalog_sha256"]),
+        "X-Paid-Book-Catalog-Pulled-At": str(
+            receipt["salary_catalog_pulled_at"]
+        ),
+        "X-Paid-Book-Catalog-Age-Seconds": str(
+            receipt["salary_catalog_age_seconds"]
+        ),
+        "X-Paid-Book-Entries": str(receipt["actual_entries"]),
+        "X-Paid-Book-Exact-K": "true",
+        "X-Paid-Book-Unique": "true",
+        "X-Paid-Book-DK-Legal": "true",
+        "X-Paid-Book-Active": "true",
+    }
+
+
+def _build_paid_classic_export_v2(
+    req: LineupRequest, store: ProjectionStore
+) -> tuple[list, list, PaidClassicExport]:
+    """Build once, then bind the exact selected book to its upload bytes."""
+
+    lineups, ranked = _build_classic(req, store)
+    if len(ranked) != len(lineups) or any(
+        row.get("lineup") is not lineup
+        for row, lineup in zip(ranked, lineups, strict=False)
+    ):
+        raise HTTPException(
+            500,
+            "Paid Classic preview order differs from the selected export book.",
+        )
+    catalog = _paid_classic_catalog_v2(req, store)
+    try:
+        exported = to_paid_dk_csv_v2(
+            lineups, expected_entries=req.n_lineups, catalog=catalog
+        )
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    return lineups, ranked, exported
+
+
+@app.post("/lineups/paid-v2")
+def build_paid_lineups_v2(
+    req: LineupRequest, store: ProjectionStore = Depends(get_store)
+) -> dict:
+    """Money-ready preview carrying the exact validated download bytes."""
+
+    lineups, ranked, exported = _build_paid_classic_export_v2(req, store)
+    return {
+        "policy": _classic_policy_identity(req, lineups),
+        "model_health": (
+            _marginals_health(req.season, req.week)
+            if req.sim
+            else {"marginals": "n/a (MILP path)", "warning": None}
+        ),
+        "tail_line": req.line(),
+        "lineups": [
+            {
+                "rank": index + 1,
+                "confidence": row["confidence"],
+                "proj_mean": row["proj_mean"],
+                "players": _with_watch_notes(row["lineup"].slot_order()),
+                "salary": row["lineup"].salary,
+                "proj": round(row["lineup"].proj, 2),
+            }
+            for index, row in enumerate(ranked)
+        ],
+        "exposure": exposure_summary(lineups),
+        "dk_csv": exported.csv_text,
+        "paid_export": dict(exported.receipt),
+    }
+
+
+@app.post("/lineups/paid-v2.csv")
+def build_paid_lineups_csv_v2(
+    req: LineupRequest, store: ProjectionStore = Depends(get_store)
+) -> Response:
+    """Money-ready exact-K Classic upload; frozen legacy routes are intact."""
+
+    lineups, _, exported = _build_paid_classic_export_v2(req, store)
+    try:
+        from .. import notes as _n
+
+        _n.record_entered_lineups(req.season, req.week, lineups)
+    except Exception:
+        log.exception("could not record entered lineups")
+    return Response(
+        content=exported.csv_text,
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=dk_lineups.csv",
+            **_classic_policy_headers(req, lineups),
+            **_paid_classic_headers_v2(dict(exported.receipt)),
+        },
+    )
+
+
 # --- DKEntries filling ----------------------------------------------------
 #
 # The other DK import path: for contests already entered, download
@@ -3242,6 +3382,49 @@ def fill_classic_entries(
     return _entries_response(
         req.entries_csv, lineups, contest_id=req.contest_id,
         policy_headers=_classic_policy_headers(build_req, lineups))
+
+
+@app.post("/lineups/entries/paid-v2.csv")
+def fill_paid_classic_entries_v2(
+    req: FillEntriesRequest, store: ProjectionStore = Depends(get_store)
+) -> Response:
+    """Money-ready one-to-one entry fill; never cycles a partial book."""
+
+    try:
+        paid_entries = paid_entry_count_v2(
+            req.entries_csv, contest_id=req.contest_id
+        )
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    if paid_entries > MAX_ENTRIES:
+        raise HTTPException(
+            422, f"{paid_entries} entries exceeds DK's {MAX_ENTRIES}-row limit"
+        )
+    build_req = req.model_copy(
+        update={
+            "n_lineups": paid_entries,
+        }
+    )
+    lineups = _build_classic(build_req, store)[0]
+    catalog = _paid_classic_catalog_v2(build_req, store)
+    try:
+        exported = fill_paid_entries_csv_v2(
+            req.entries_csv,
+            lineups,
+            catalog=catalog,
+            contest_id=req.contest_id,
+        )
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    return Response(
+        content=exported.csv_text,
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=DKEntries.csv",
+            **_classic_policy_headers(build_req, lineups),
+            **_paid_classic_headers_v2(dict(exported.receipt)),
+        },
+    )
 
 
 @app.post("/lineups/entries/validated.csv")

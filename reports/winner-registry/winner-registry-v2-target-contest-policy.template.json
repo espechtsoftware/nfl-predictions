@@ -1,0 +1,41 @@
+{
+  "approved_at_utc": null,
+  "effective_scope": {
+    "first_season": null,
+    "last_season": null
+  },
+  "official_score_authority": "draftkings_official_contest_export",
+  "policy_id": null,
+  "policy_owner": null,
+  "policy_status": "draft_unresolved",
+  "reason": "Resolve which same-week Millionaire contest is the target before any observation is accepted. Season/week and highest score are not selection rules.",
+  "required_contest_identity_fields": [
+    "season",
+    "week",
+    "draftkings_contest_id",
+    "contest_name",
+    "contest_family",
+    "slate_date",
+    "lock_time_utc",
+    "roster_format",
+    "entry_fee_usd",
+    "top_prize_usd"
+  ],
+  "required_score_fields": [
+    "official_target_winning_score",
+    "captured_roster_points_sum",
+    "article_or_summary_reported_score"
+  ],
+  "schema_version": "winner-registry-v2-target-contest-policy/1",
+  "target_definition": {
+    "contest_family": null,
+    "multiple_contest_rule": null,
+    "platform": "DraftKings",
+    "roster_format": "Classic",
+    "selection_rule": null,
+    "slate_scope": "Sunday main/common-lock",
+    "sport": "NFL"
+  },
+  "template_sha256": "8f44d0533ddfa0666149802bb0a8f3032b1d2c0a2bc443ee8da9ec0260ae521a",
+  "template_status": "draft_unresolved_do_not_use_for_acceptance"
+}

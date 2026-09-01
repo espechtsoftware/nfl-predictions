@@ -1,0 +1,8 @@
+{
+  "schema_version": "dk-late-swap-evidence/v1",
+  "contest_id": "12345",
+  "draft_group_id": "151307",
+  "enabled": true,
+  "policy": "draftkings-nfl-classic-late-swap",
+  "state_at_freeze": "prelock"
+}

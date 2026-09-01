@@ -25,6 +25,172 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-01 winner-registry v2 is P0-1; PREREG-080/081/082 are held
+
+- Lab commits `dc7fef7`, `3fe0378`, and current pushed `0b60005` supersede the
+  earlier PREREG-082 front-of-lane request recorded by production commit
+  `c6a9e5c2`. PREREG-080, PREREG-081, and PREREG-082 efficacy are **held** and
+  must not be scheduled or launched. The held 082 launcher files are inert
+  development artifacts, not queue authority. This hold does not alter or
+  cancel the already-running frozen PREREG-077 cohort.
+- The annotated findings review at
+  `../nfl2/reports/2026-09-01-findings-review-winner-range-cycle.md` was read
+  independently by production. It confirms that the current 082 code is still
+  the old nested `HOUSE/QB1_NOBB/FREE` design and is a no-go; a literal
+  `C2B1/C1B1/C2B0/C1B0` implementation needs a fresh amendment, final hashes
+  and prefixes after registry v2. The same review explicitly makes full-field
+  capture independent/perishable, so registry adjudication, paid exact-K and
+  the September 13 capture rehearsal proceed in parallel. Future A5 settlement
+  definitions must freeze before observing 2026 outcomes, but do not block the
+  current paid or rehearsal mechanics.
+- The immediate defect is winner-registry identity and score authority. The
+  lab's 48-score derivative file and production's 51-roster registry share 46
+  `(season, week)` keys, disagree on 11 scores by as much as 30.46 points, and
+  contain at least four shared keys with different nine-player rosters. Some
+  weeks contain multiple simultaneous Millionaire contests, so `(season,
+  week)` is not a valid contest identity and agreement cannot be manufactured
+  by overwriting one source with another.
+- Registry v2 must first be a lossless, score-bearing candidate/adjudication
+  ledger. It must preserve multiple observations per week, bind a declared
+  target-contest policy, retain source artifact hashes and row ranges, and keep
+  `official_target_winning_score`, `captured_roster_points_sum`, and
+  `article_or_summary_reported_score` as separate fields. No score may be
+  labelled official without its own authority receipt. The score-only accepted
+  cohort, immutable registry hash/count, and runtime fail-closed verification
+  are required before a redesigned 082 may be frozen or launched.
+- The lab's two-authority sensitivity at `0b60005` de-risks the already-known
+  ranking—D400_DEMAX remains first and its D400-minus-D200 contrast is nearly
+  unchanged—but it does not resolve contest identity and does not remove the
+  registry-v2 requirement.
+- P1 work remains ahead of every held experiment: complete the versioned
+  paid-book exact-K/unique/DraftKings-legality boundary and finish a complete
+  Week-1 contest-capture rehearsal before 2026-09-13. These are being developed
+  without touching the frozen cloud cohort.
+- PREREG-077's final bank execution `lab-run-wnd8r`, UID
+  `4d898fda-ef61-4da6-b16e-e644a4db156e`, reached exact terminal success at
+  `2026-09-01T15:35:42.213382Z`: 18/18 tasks succeeded in 55m41.57s, with no
+  failed or cancelled task. Together with the already-complete 490 and 491
+  banks, the frozen three-bank efficacy cohort is complete. The coordinator
+  unit exited successfully and no successor scheduler or 080-082 launch was
+  created. Run the exact frozen PREREG-047 reader, then an independent
+  production reproduction, before adopting or extending the result.
+- Exact next action: finish and validate the registry-v2 candidate/adjudication
+  implementation, paid exact-K boundary, and capture rehearsal in parallel;
+  read and independently reproduce the now-complete frozen 077 cohort; then
+  commit/push the scoped production artifacts. Do not launch 080–082.
+
+#### PREREG-077 frozen read is positive and independently reproduced
+
+- The exact frozen reader returned `PASS`. D800_DEMAX minus D400_DEMAX at
+  K=80 was **+1.216 points**, 95% interval **[+0.467,+1.965]**, with bank
+  estimates +1.857/+0.510/+1.281, W/L/T 39/30/3 and every leave-one-slate-out
+  estimate positive. Mean weekly maximum moved 180.241->181.456; weeks at or
+  above 200 moved 9->13 and weeks at or above 210 moved 2->3. The result is
+  not monotone across every tail: weeks at or above 230 moved 1->0.
+- The fixed-delivered-unique count-matched comparison was null:
+  +0.064 [-0.576,+0.704], with bank disagreement. The pool oracle moved
+  188.71->194.50 and random-400-of-800 reached 189.38. This supports the
+  registered natural D800 supply contrast and shows retrieval headroom; it
+  does not authorize selector tuning on the read worlds or release a held
+  winner-referenced experiment.
+- Production reproduced the exact reader independently from Git-archive commit
+  `79fbb52f613d41e8aa72b9aa09778eda40bd1fd3`. Its output was byte-identical
+  to the lab repeat: 2,194 bytes, SHA-256
+  `89cfb2bcc64645c734b726303f7d2ea3ad04a0d0cf651505d21ebfebdf35e40a`.
+  The reader SHA-256 was
+  `473bd70526dfee54e7e05a9ff61566ae30f5095c04fb3a9025052547dad107c4`;
+  all 54 generation-pinned result objects were reopened and their identity
+  manifest SHA-256 was
+  `0eb65af58a1a34d479e261aaa064f0159798147096e82215598a0fe9b964220c`.
+  The durable result summary is
+  `reports/2026-09-01-prereg-077-frozen-read.md`.
+
+#### Winner-registry v2 candidate and adjudication boundary implemented
+
+- V1 is untouched. The separate lossless candidate path is implemented in
+  `src/nfl_dfs/research/winner_registry_v2.py` and
+  `scripts/build_winner_registry_v2.py`, with templates and the generated
+  candidate ledger under `reports/winner-registry/`. Four exact tracked source
+  artifacts contribute 917 physical rows, 117 independent observations over
+  70 season/week labels, and zero official-score claims. The deterministic
+  candidate-ledger SHA-256 is
+  `9e25731886a4a08b1994e83a33f051eda88c6bb8da3c434b397dcf327632eaf3`.
+- The ledger does not collapse equal season/week labels and keeps
+  `official_target_winning_score`, `captured_roster_points_sum`, and
+  `article_or_summary_reported_score` separate. An accepted receipt requires
+  a frozen target policy, exact contest identity, source-row binding, official
+  DraftKings export authority for the official score, an adjudicator and
+  immutable hashes. Accepted cohorts reject duplicate observations, duplicate
+  contest IDs and more than one target contest per policy slate.
+- This is candidate/adjudication infrastructure, not a completed score-bearing
+  registry. The target-contest policy still needs owner approval and official
+  historical contest exports or equivalent exact contest evidence still need
+  recovery. Until that occurs, the candidate has zero accepted contests and
+  PREREG-080/081/082 remain held. The detailed status/evidence request is
+  `reports/2026-09-01-winner-registry-v2-adjudication-status.md`.
+- A read-only local evidence census subsequently found no 2023-2025 raw
+  DraftKings standings, DKEntries, contest-result archive, or standings-schema
+  export in either repository, the winner-audit cache, or the panel cache. The
+  four candidate inputs and every local derivative lack the exact official
+  contest-ID/score authority needed for acceptance. Public/backup recovery is
+  now the live evidence route; do not promote a local roster sum or summary
+  scalar to `official_target_winning_score`.
+- A bounded public search found useful first-party DraftKings Network recap
+  pages for several 2024 weeks but no official standings/result export joining
+  the recapped contest ID, roster and score. These pages may become separately
+  labelled editorial evidence only. Their embedded contest links generally
+  target the following week's upcoming contest, so those IDs are explicitly
+  forbidden as recap-week identities. No first-party result page surfaced for
+  the disputed 2023 labels or 2024 W1.
+
+#### Paid exact-K boundary and Week-1 capture rehearsal implemented
+
+- The new paid Classic v2 boundary is isolated from frozen legacy routes. It
+  requires exact K, unique canonical rosters, nine distinct players,
+  DraftKings position/salary/team legality, current draft-group and draftable
+  IDs, no `O`/`OUT`/`IR` player, and one timezone-aware salary snapshot no more
+  than two hours old. The Classic web UI now previews this boundary, downloads
+  the exact cached validated bytes, and exposes receipt status. The paid
+  DKEntries successor requires an explicit contest ID, nonblank unique Entry
+  IDs, exact one-to-one fill, and refuses partial-book cycling or ambiguous
+  cross-contest targeting. Legacy `/lineups` routes and Showdown are unchanged.
+- The local Week-1 capture rehearsal reopens a pre-lock v2 contest manifest,
+  structured contest/payout/late-swap evidence, paid and shadow books, and the
+  complete standings twice by exact content identity. It requires explicit
+  settled/full-field confirmation, reconciles field size, ownership, ties and
+  payouts, prepares structural warehouse rows without writing externally,
+  and emits a self-hashed create-only local receipt. The checked-in synthetic
+  rehearsal passed and reproduced byte-identically with receipt SHA-256
+  `311a4e943d8feb09cd2e78c9f6b178eb99fd0b5fa8a7b03d84587a0a57977831`.
+- Final integrated registry/paid/capture/scheduler/optimizer/export/ownership
+  validation passed 105/105; registry `--check`, byte-identical rehearsal
+  replay, Python compilation, shell syntax and repository diff checks passed.
+  The independently focused paid/optimizer/export suite passed 62/62, the scheduler
+  plus paid suite passed 24/24, and nine selected legacy app routes passed.
+  The full application suite passed 56/57; its sole failure is the pre-existing
+  strict-equality assertion in
+  `test_all_three_classic_routes_expose_same_policy`, which rejects the
+  already-expanded portfolio-allocation dictionary despite all expected
+  fields matching. The current change does not touch that policy output or
+  stale test.
+- A production cadence mismatch was closed. Both tracked scheduler authorities
+  now require hourly Wednesday-Sunday DK ingestion, and the live `s-dk`
+  scheduler was changed in place from `0 10 * * 3-7` to `0 * * * 3-7` while
+  preserving its enabled state, `America/Chicago` timezone, POST target and
+  OAuth identity. No image, job, service, or experiment was redeployed by that
+  scheduler update. A manual validation execution `ingest-dk-k9cjs`, UID
+  `63c477dc-699f-41db-b9be-7ede9f89cfc3`, completed successfully at
+  `2026-09-01T15:58:52.922427Z`. Draft group 151307 then reopened as 719 rows
+  from pull `2026-09-01T15:58:34.638070Z`, age 81.363 seconds against the
+  7,200-second boundary, catalog SHA-256
+  `1c701c9eb7a2bf213cf840c68a36d68691cbb0ed12bcf73dcc1370c23e19624a`.
+- Non-blocking follow-up after the paid/capture boundary lands: record entry
+  submission only after an actual upload rather than at CSV generation; make
+  full paid receipts available alongside CSV responses; bind correction
+  predecessor content rather than format alone; harden cent/entry payout
+  aggregation and caller-controlled rehearsal-time policy. These do not weaken
+  the current exact-K or local-rehearsal gates.
+
 ### 2026-09-01 winner-range objective reviewed and production gaps recorded
 
 - The operator objective-change notice at

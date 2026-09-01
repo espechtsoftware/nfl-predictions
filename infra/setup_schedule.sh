@@ -57,7 +57,7 @@ sched s-nflverse   "0 5 * * 2"        ingest-nflverse   # Tue 05:00
 sched s-features   "30 6 * * 2"       build-features    # Tue 06:30
 sched s-train      "30 7 * * 2"       train-weekly      # Tue 07:30
 sched s-project-tu "30 9 * * 2"       project-slate     # Tue 09:30
-sched s-dk         "0 10 * * 3-7"     ingest-dk         # Wed-Sun 10:00
+sched s-dk         "0 * * * 3-7"      ingest-dk         # Wed-Sun hourly
 sched s-odds       "0 9,15 * * 3-7"   ingest-odds       # Wed-Sun 9a+3p
 sched s-props      "30 9 * * 3-7"     ingest-props      # Wed-Sun 09:30
 sched s-weather    "0 8 * * 5-7"      ingest-weather    # Fri-Sun 08:00
