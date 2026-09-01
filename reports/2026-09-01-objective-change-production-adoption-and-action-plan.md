@@ -103,7 +103,9 @@ the classification and rule are preregistered before outcome contact:
 
 - its primary endpoint is the named proxy or field endpoint;
 - the pooled uncertainty interval must exclude zero;
-- no bank may be significantly negative; and
+- no bank may be significantly negative (lab proposes the operational definition: a bank's own
+  season-clustered 95 % interval lies entirely below zero — otherwise "significantly" becomes a judgment
+  call at read time); and
 - LOSO and individual bank signs remain reported, but are not automatic
   vetoes.
 
@@ -181,6 +183,12 @@ Required response:
 2. create a versioned live-policy successor rather than editing frozen v1;
 3. wire `D400_DEMAX`—80 leverage, 320 boom, dual-law expected-max—as the
    current paid/control candidate;
+   > **[LAB 2026-09-01]** Wiring fidelity note: the tested package is exactly lev 80 / boom 320 (NOT the
+   > live-default 40/360 split), with the dual matrix built from an INDEPENDENT incumbent selection bank
+   > (seed+50 convention) concatenated equal-mass with an independent hsim bank, and selection at exact K80.
+   > The proj_tourney divergence showed how easily translation drifts; the successor policy should pin these
+   > five choices in its receipt and the lab will co-verify the first successor build against the 071/080
+   > artifacts.
 4. remove 194 from active admission, selection, and adoption routing in the
    successor; and
 5. retain 194 only as a labeled diagnostic column.
@@ -297,6 +305,18 @@ This implements the operator's prior architectural direction without
 pretending that historical winner structure alone proves which relaxed
 strategy will be best prospectively.
 
+> **[LAB 2026-09-01]** This census deserves top billing, not a mid-document table: it answers the notice's A1
+> conformance question decisively — **our generator cannot construct 84 % of historical winning shapes**, and
+> that is upstream of every selector and proxy result the lab has produced. Two consequences worth stating:
+> (1) the Phase-2 control candidate (D400_DEMAX) is itself built under the house topology, so the new "control"
+> carries the very contract 43/51 winners violate — fine as a control, but it caps how far the ladder can climb;
+> (2) the Phase-5 topology cross (house vs DK-only vs QB+1 vs no-bring-back) should jump the queue to the FIRST
+> fresh crossed experiment, ahead of further selector work. The lab will freeze a companion supply experiment
+> (relaxed-topology D400 under dual-law EMAX, fresh banks) on request — say the word and it lands with a
+> preregistration and gate spec within a day. One bookkeeping ask: the 51-roster census cohort and the lab's
+> 48-score registry are different winner datasets; the A1 canonical manifest should reconcile them so counts
+> stop drifting across documents.
+
 ## Production evidence map
 
 The following paths are the starting points for implementation and independent
@@ -356,6 +376,14 @@ improvements by materially reducing the chance of the top result, while still
 respecting ties, duplication, and contest economics. If the operator later
 chooses first-place probability at any economic cost, that preference must be
 frozen explicitly as a new policy version.
+
+> **[LAB 2026-09-01]** Two concerns on the guardrail as drafted. First, it binds on *modeled* first-place
+> probability, which makes it exactly as strong as the field model's calibration — before the field model
+> passes its calibration receipts, the guardrail is either vacuous or paralyzing depending on the model's
+> error direction. Propose: until FIELD_WIN calibration receipts pass, the interim guardrail is the raw-K80-max
+> co-report (non-inferiority vs control at a preregistered margin). Second, this section is a recommendation,
+> not a decision — the operator's A5 freeze (payout-vs-first-place) is still pending and should be recorded as
+> an explicit dated directive when made, since Phase-4/5 designs branch on it.
 
 K80 is an accounting and experimental basis, not a universal product law.
 Entry count, contest choice, contest allocation, bankroll, and exposure caps
@@ -464,6 +492,11 @@ At the status poll used for this review:
 1. Complete the in-flight frozen cohort without changing its objectives.
 2. Review and merge only the bounded 078/079 mechanics-contract repairs;
    those repairs must not import the new objective into frozen primaries.
+   > **[LAB 2026-09-01]** Requested addition to this list: experiment 081 (the matched winner-regret funnel,
+   > built and mechanics-smoked, gate spec supplied) — it apportions the −55 gap across construction/beliefs/
+   > selection on the exact 31 matched slates and is the context every later read wants; requested lane
+   > position after 079, before 080. Also noted: the stale 2023-24 era label this document flags in the lab
+   > ledger is fixed as of the lab commit accompanying these comments.
 3. Implement the paid exact-K/unique-export boundary.
 4. Create the versioned post-194 production-policy successor with
    D400_DEMAX as control candidate.
