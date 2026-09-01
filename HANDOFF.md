@@ -651,19 +651,46 @@ and operator decisions.  The older entries remain the durable chronology.
   transcript is not whole-file byte-identical because it manually prettified
   NumPy bank scalars and appended an editorial disposition; that presentation
   difference is disclosed and the original artifact was not rewritten.
-- **PREREG-039 / 068 full non-core recompletion is implementation-approved
-  but remains unlaunched:** the independent final no-launch review approved
-  exact core/UNSTACKED semantics, four charged attempts, exact K80, complete
+- **062-r3 independently verified, 2026-09-01:** production reconstructed the
+  lab diagnostic from exact complete house run
+  `062b510hl-20260831T211308Z` / execution `lab-run-slow-c2zdh` / UID
+  `e5cc4bea-c853-4d54-abbd-3a6e99a9af30` and DK recovery run
+  `062b510dkr2-20260831T225201Z` / execution `lab-run-slow-mbrhq` / UID
+  `8bdebde0-eb02-4017-9ab5-3b0dc19ccabe`. Each has tasks 0-23 exactly once
+  and 24 unique fixed slates. The incomplete original DK execution was
+  excluded. Recomputed core-discovery/completion losses are 4.2950/57.7533
+  house and 15.4025/58.1083 DK-only; completion dominates 24/24 and 23/24.
+  Lab commit `c4bd73d` (pushed) records exact digests, retries and caveats in
+  `results/062-r3-production-verification.txt` and finalizes the LEDGER row.
+  The ~4.7 cap-60 estimate remains descriptive because tied frozenset ordering
+  is process-sensitive; the all-core completion conclusion is unaffected.
+- **PREREG-039 / 068 full non-core recompletion task-0 is live:** exact
+  core/UNSTACKED semantics, four charged attempts, exact K80, complete
   pre-actual proposal/path/portfolio validation, physical outcome firewall,
-  provider UID/envelope binding, full execution-environment freeze, canonical
-  DK boundaries and unlimited duplicate-claim censuses. The stable outcome-
-  blind validation is 28 focused and 114 full tests, with ruff, compilation,
-  shell syntax and diff checks green. No cloud build, execution or outcome
-  read occurred. Hold the source freeze only long enough to independently
-  reconstruct the lab's new 062-r3 diagnostic that the preregistration cites;
-  after that evidence check, commit the exact approved file set, resolve the
-  verified 067 control authority, and run task-0/mechanics through the shared
-  launcher registry before any efficacy claims.
+  provider UID/envelope binding, canonical DK boundaries and unlimited claim
+  censuses passed independent no-launch review. Lab commits `814992f` and
+  `f4bbe2d` (pushed) freeze the method and the proven complete Cloud Run
+  environment contract; 28 focused and 114 full outcome-blind tests plus
+  static checks pass. The first `814992f` image build was superseded before
+  any 068 execution after provider inspection proved executions contain eight
+  effective env values, not three.
+- Final constructor image commit `f4bbe2d0fe525cc76ae081b68f9965fd8e47b7e6`
+  was built successfully by Cloud Build
+  `67504ef6-3650-434b-a6b4-d6240614215c` at digest
+  `sha256:73acc1ebb39eb3099047f10c30d9dab0a1deb5bb7575afce7cfabfecbc4a0e73`.
+  Build receipt SHA-256 is `0717767b...2b6d`; it launched no execution. Lab
+  commit `19ad196` (pushed) binds the immutable queue to this image,
+  BF_DUAL_EMAX (the preregistered unresolved-067 fallback), and verdict hash
+  `c2c103a4...3b82bd`.
+- Persistent registered service `nfl2-prereg039-068-queue.service`, invocation
+  `cc0008f68cc240438b4980c97dfa5c86`, owns production registry lane
+  `nfl2-lab-jobs` and the lab-repo queue registration for the complete chain.
+  Outcome-disabled task-0 run `068m430-20260901T014714Z` is exact execution
+  `lab-run-slow-bj79t`, UID `e0151276-2b88-4ba4-817a-54131a2e123d` (four
+  tasks). The immutable queue launches banks 430/431/432 only after 4/4 exact
+  success and a passing independent mechanics receipt. Poll this service/run;
+  do not edit `scripts/queue_068.sh`, remove either registration, or launch a
+  competing lab queue while it is live.
 - A read-only production launcher audit found active E4 already has durable
   per-phase intents and exact-name recovery, but no cross-script lock on its
   shared Cloud Run job; immediate E5 action scripts have neither a global
@@ -713,7 +740,7 @@ and operator decisions.  The older entries remain the durable chronology.
   `.tmp/launchers/e4-f2aad14e-v5-exact-recovery.py-1048151.json`. Do not fetch,
   edit or remove the exact clone/driver/receipt while this service is active;
   do not launch another production job on that shared lane.
-- **E4 latest read-only status, 2026-09-01 01:25:53Z:** grade execution
+- **E4 latest read-only status, 2026-09-01 01:40:17Z:** grade execution
   `bqkw5` remains running 1/1 with zero successes, failures, cancellations or
   retries. Exact recovery service invocation
   `18c5419d98744e308aa6c78e74226fd6` is active and its registry receipt is
