@@ -25,6 +25,37 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-01 exact-name E4 continuation prepared after IDE restart
+
+- The sole authorized grade-timeout recovery remains Cloud Run execution
+  `atlas-cbc-32g-full-2023-w8-v1-njfvm`, UID
+  `202c982e-efbe-4700-b5ab-929845aa3701`, source
+  `f2aad14e6bed0a2f0267e3a5f45c149173f9f1a4`, image
+  `sha256:d65aec970cb6c075124a767ae0082fe699bb7426289a2da96ea2a23f27f954d6`,
+  build `889a1f25-2d9c-41e9-802a-fcfb3b327375`, and job generation 50.
+  A read-only metadata poll after the IDE restart still showed `Completed`
+  `Unknown`, zero terminal counts, and the same UID. Never launch another
+  timeout recovery or treat failed predecessor `bqkw5` as successful.
+- `scripts/finish_e4_njfvm_exact_name_v1.py` restores the lost host
+  continuation as a default-off, restart-safe exact-name driver. It requires
+  the production launcher-registry lane for the whole chain, never lists
+  executions, polls only `njfvm`, validates its complete 43,200-second
+  envelope, and has no code path that launches a grade recovery. Only after
+  exact terminal success may it collect through the pinned recovery-aware
+  host launcher; ordinary grade-reopen launch/collection then uses the
+  byte-pinned exact-f2 clone at
+  `.build-contexts/e4-finisher-f2aad-exact-oupZof/source`.
+- The companion focused suite has seven passing tests, including exact gcloud
+  argv, default-off behavior, exact-name/UID enforcement, successful
+  grade-reopen completion, restart reconciliation and failure closure. The
+  existing launcher-registry suite also passes, Python compilation succeeds,
+  and `git diff --check` is clean. No cloud mutation or outcome read occurred
+  while preparing this continuation.
+- Exact next action: push the driver and tests, then arm one persistent user
+  service through `scripts/launcher_registry.sh` on lane
+  `atlas-cbc-32g-full-2023-w8-v1` with target prefixes `njfvm` and the single
+  grade-reopen continuation. Record its unit/invocation and receipt here.
+
 ### 2026-09-01 winner-registry v2 is P0-1; PREREG-080/081/082 are held
 
 - Lab commits `dc7fef7`, `3fe0378`, and current pushed `0b60005` supersede the
