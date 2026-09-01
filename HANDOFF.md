@@ -583,17 +583,34 @@ and operator decisions.  The older entries remain the durable chronology.
   `1e1203c6-e5ea-4753-a8b7-efd3054bbe2b`, completed SUCCESS 18/18 at
   `00:39:06Z` with zero failures/cancellations/retries. Bank 422 run
   `067b422-20260901T003502Z`, execution `lab-run-b4bn7`, UID
-  `75754ae6-c587-48db-9cd4-6cfd39e729e8`, is the sole active cohort
-  execution and was last observed running 18 tasks without an anomaly.
+  `75754ae6-c587-48db-9cd4-6cfd39e729e8`, completed SUCCESS 18/18 at
+  `01:06:33Z` with zero failures/cancellations/retries. All three banks used
+  the exact source/digest and 2-vCPU/8-GiB envelope; no duplicate claim was
+  made and aggregate concurrency never exceeded two.
 - Lab commit `fa5395d` (pushed) binds the PREREG-038 reader to those three
   exact efficacy runs in bank order and the exact mechanics run/receipt bytes
   (SHA-256 `3c0bcbbe...3489`). It also corrects the preregistered secondary
   unit: average the three K80 bank maxima within each slate, then count the 72
   bank-averaged weeks at each fixed threshold. An independent outcome-blind
   review approved the binding; 13 focused tests, Python compilation and diff
-  checks pass. Do not open 067 outcomes until bank 422 is exact SUCCESS 18/18;
-  then run this frozen reader once and require the other party's digit-identical
-  rerun before sealing the ledger row.
+  checks pass.
+- **First PREREG-038 / 067 crossing read, 2026-09-01:** production ran the
+  frozen reader once from isolated detached worktree `fa5395d`. Lab commit
+  `7026fb7` (pushed) records exact stdout SHA-256 `aab989af...e7e0`. The
+  strict complete primary family is **UNRESOLVED**: `FU_DUAL_EMAX -
+  BF_DUAL_EMAX` is +1.113, family interval [-1.256,+4.341], bank 421
+  negative; `FU_DUAL_EMAX - FU_BASE_EMAX` is +1.079, family interval
+  [+0.706,+1.518], but bank 420 is -0.045 and therefore fails the frozen
+  all-bank sign rule; `FU_BASE_EMAX - BF_DUAL_EMAX` is +0.034, family
+  interval [-2.410,+2.969]. No universally resolved package winner exists.
+- The direct production-shaped context contrast is nevertheless promising:
+  **full-union + dual-law expected-max minus two-stage coverage is +1.372
+  K80 points, pointwise 95% [+0.458,+2.641], all three banks positive
+  (+0.730/+2.571/+0.816).** Bank-averaged weeks at >=194/200/210/220/230
+  move from 17/12/1/0/0 to 15/12/3/1/0. Treat this as a co-run combined-
+  package signal, not as a fourth primary hypothesis or a resolved package
+  ranking. The other party must rerun the exact reader before sealing the
+  lab LEDGER row; do not tune or reopen parameters from this result.
 - PREREG-037 bank 410 `lab-run-24872` completed SUCCESS 18/18 at
   `23:27:50Z`, and bank 411 `lab-run-xktft` completed SUCCESS 18/18 at
   `23:32:30Z`; both have zero failures, cancellations or retries. Bank 412
