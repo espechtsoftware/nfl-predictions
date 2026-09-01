@@ -664,7 +664,7 @@ and operator decisions.  The older entries remain the durable chronology.
   `results/062-r3-production-verification.txt` and finalizes the LEDGER row.
   The ~4.7 cap-60 estimate remains descriptive because tied frozenset ordering
   is process-sensitive; the all-core completion conclusion is unaffected.
-- **PREREG-039 / 068 full non-core recompletion task-0 is live:** exact
+- **PREREG-039 / 068 full non-core recompletion task-0 failed closed:** exact
   core/UNSTACKED semantics, four charged attempts, exact K80, complete
   pre-actual proposal/path/portfolio validation, physical outcome firewall,
   provider UID/envelope binding, canonical DK boundaries and unlimited claim
@@ -682,15 +682,20 @@ and operator decisions.  The older entries remain the durable chronology.
   commit `19ad196` (pushed) binds the immutable queue to this image,
   BF_DUAL_EMAX (the preregistered unresolved-067 fallback), and verdict hash
   `c2c103a4...3b82bd`.
-- Persistent registered service `nfl2-prereg039-068-queue.service`, invocation
-  `cc0008f68cc240438b4980c97dfa5c86`, owns production registry lane
-  `nfl2-lab-jobs` and the lab-repo queue registration for the complete chain.
-  Outcome-disabled task-0 run `068m430-20260901T014714Z` is exact execution
-  `lab-run-slow-bj79t`, UID `e0151276-2b88-4ba4-817a-54131a2e123d` (four
-  tasks). The immutable queue launches banks 430/431/432 only after 4/4 exact
-  success and a passing independent mechanics receipt. Poll this service/run;
-  do not edit `scripts/queue_068.sh`, remove either registration, or launch a
-  competing lab queue while it is live.
+- Registered service `nfl2-prereg039-068-queue.service`, invocation
+  `cc0008f68cc240438b4980c97dfa5c86`, launched outcome-disabled task-0 run
+  `068m430-20260901T014714Z` as exact execution `lab-run-slow-bj79t`, UID
+  `e0151276-2b88-4ba4-817a-54131a2e123d`. It completed at
+  `2026-09-01T02:16:45Z` with **0/4 succeeded, 4 failed and 4 retries**. Every
+  task reached manifest sealing and failed deterministically because a NumPy
+  `int64` remained in the payload passed to canonical `json.dumps` (`TypeError:
+  Object of type int64 is not JSON serializable`). No task-0 GCS object exists,
+  no mechanics receipt exists and there are zero `068b*` efficacy claims. The
+  queue therefore exited 1, launched no efficacy bank and both registry
+  receipts cleaned up normally. Next action is one bounded serialization
+  repair plus a real NumPy-scalar boundary regression, a preregistration
+  repair note, independent no-launch review, then a fresh exact image/run
+  prefix; do not relabel or reuse failed execution `bj79t`.
 - A read-only production launcher audit found active E4 already has durable
   per-phase intents and exact-name recovery, but no cross-script lock on its
   shared Cloud Run job; immediate E5 action scripts have neither a global
