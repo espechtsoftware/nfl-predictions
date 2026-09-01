@@ -25,6 +25,38 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-01 078 mechanics stopped on a trace-only numeric defect; 079 passes
+
+- PREREG-048 mechanics execution `lab-run-mn78j`, UID
+  `392dc55b-c18e-401d-8c6a-e349393eb39d`, completed successfully at
+  `2026-09-01T17:54:36.204557Z` with one succeeded task, zero failed or
+  cancelled, and one provider retry. The frozen outcome-disabled gate then
+  failed closed before any efficacy launch or outcome read because
+  `mean_same_player_cross_stream_corr` was nonfinite/null.
+- Independent mechanics diagnosis proved this is a trace-only float32 numeric
+  defect, not non-engagement or a negative treatment result. Eleven constant
+  DST rows had literal min=max but tiny positive `np.std` rounding residuals;
+  `np.corrcoef` admitted them, produced NaNs and poisoned the diagnostic mean.
+  Every other frozen gate predicate passes when only that diagnostic is
+  replaced in memory with the finite valid-row mean (`-0.0003861774`). The
+  treatment itself is strongly engaged outcome-free: exact distinct seeds,
+  draw equality `0.0986616`, 160 new stream-2 candidates, candidate Jaccard
+  `0.428571` and K80 turnover `0.730159`.
+- PREREG-049 mechanics execution `lab-run-fkpr2`, UID
+  `5faa1a10-b68b-481c-a993-87f0ba906307`, completed successfully at
+  `2026-09-01T18:02:01.379890Z` with no retry/failure/cancellation. Production
+  ran its exact frozen outcome-disabled gate read-only; it passes every
+  envelope, ledger, schedule, exact-K80 and influence-trace check. Preserve
+  this exact 079 claim/artifact; it does not need rerun.
+- The registered coordinator correctly exited failed at the 078 gate and
+  released its launcher lane. It launched none of the six efficacy prefixes
+  and opened no outcome. Exact next action: make a pre-outcome trace-only
+  amendment, compute correlations only for literal nonconstant rows and retain
+  only finite values, require RFC-finite JSON, rebuild/bind once, and run fresh
+  mechanics prefix `078m520r3`. Do not weaken the gate to bless the malformed
+  r2 artifact. After r3 passes, preserve the passing 079 artifact and release
+  the six already-frozen banks.
+
 ### 2026-09-01 lab release accepted; 078/079 mechanics live
 
 - Production branch `main` entered this milestone at pushed commit
