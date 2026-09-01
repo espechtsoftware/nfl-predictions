@@ -1,0 +1,50 @@
+# Focused immutable release gate for the paid Classic v2 boundary, winner
+# registry-v2 candidate ledger, and Week-1 capture rehearsal. Submit this
+# config from an exact pushed Git revision; it never launches an experiment.
+steps:
+  - name: python:3.11-slim
+    id: focused-production-boundary-tests
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends git libgomp1
+        pip install --no-cache-dir '.[gcp,app,dev]'
+        PYTHONPATH=src python -m pytest -q \
+          tests/test_winner_registry_v2.py \
+          tests/test_paid_classic_book_v2.py \
+          tests/test_contest_capture_rehearsal.py \
+          tests/test_dk_paid_freshness_scheduler_contract.py \
+          tests/test_optimizer.py \
+          tests/test_export_entries.py \
+          tests/test_ownership_import.py \
+          tests/test_dk_standings_capture.py
+        python scripts/build_winner_registry_v2.py --check
+  - name: gcr.io/cloud-builders/docker
+    id: build-image
+    args:
+      - build
+      - --build-arg
+      - 'SOURCE_COMMIT_SHA=${_CODE_SHA}'
+      - -t
+      - '${_IMAGE}'
+      - .
+  - name: gcr.io/cloud-builders/docker
+    id: paid-boundary-image-smoke
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        docker run --rm '${_IMAGE}' python -c \
+          "from nfl_dfs.app.main import app; paths={getattr(r,'path',None) for r in app.routes}; assert {'/lineups/paid-v2','/lineups/paid-v2.csv','/lineups/entries/paid-v2.csv'} <= paths"
+        docker run --rm '${_IMAGE}' python -c \
+          "from nfl_dfs.optimizer.paid_classic_book_v2 import PAID_CLASSIC_BOUNDARY_ID; assert PAID_CLASSIC_BOUNDARY_ID == 'paid-classic-book-boundary-v2'"
+images:
+  - '${_IMAGE}'
+substitutions:
+  _CODE_SHA: unknown
+  _IMAGE: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:paid-v2
+timeout: 3600s
+options:
+  machineType: E2_HIGHCPU_8

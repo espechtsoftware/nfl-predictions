@@ -74,10 +74,12 @@ and operator decisions.  The older entries remain the durable chronology.
   unit exited successfully and no successor scheduler or 080-082 launch was
   created. Run the exact frozen PREREG-047 reader, then an independent
   production reproduction, before adopting or extending the result.
-- Exact next action: finish and validate the registry-v2 candidate/adjudication
-  implementation, paid exact-K boundary, and capture rehearsal in parallel;
-  read and independently reproduce the now-complete frozen 077 cohort; then
-  commit/push the scoped production artifacts. Do not launch 080–082.
+- Exact next action: keep 080-082 held; freeze the target-contest policy and
+  recover or explicitly replace the missing official-result authority; prepare
+  the real Week-1 contest manifest and bind the actual paid/shadow books before
+  2026-09-13 lock. A5 settlement definitions must freeze before observing the
+  first 2026 result. Do not delay the perishable capture path on registry
+  adjudication.
 
 #### PREREG-077 frozen read is positive and independently reproduced
 
@@ -190,6 +192,46 @@ and operator decisions.  The older entries remain the durable chronology.
   predecessor content rather than format alone; harden cent/entry payout
   aggregation and caller-controlled rehearsal-time policy. These do not weaken
   the current exact-K or local-rehearsal gates.
+
+#### Paid boundary committed, built and deployed
+
+- Branch `main` and `origin/main` contain implementation commit
+  `b193e54ef53dc71347d693c14acf3b5e68f1e898`. It contains the registry-v2
+  candidate/adjudication boundary, paid exact-K paths, hourly DK scheduler
+  contract, capture rehearsal, 077 durable read, tests and documentation. No
+  unrelated dirty-worktree file was staged.
+- Exact-source regional Cloud Build
+  `d1af9a85-abba-4d8a-9b4d-4527e42138b4` retained a successful focused test
+  step and successful image build but ended `FAILURE` at
+  `2026-09-01T16:09:16.515301Z`. Its final smoke incorrectly assumed every
+  FastAPI router object exposed `.path`; `_IncludedRouter` does not. The
+  candidate registry tag was never published and no service was deployed from
+  that failed build. This was a smoke-harness defect, not a route or product
+  failure.
+- Replacement exact-source regional Cloud Build
+  `c317cca3-c430-46ea-b81b-22a56d32d231` resolved the same immutable commit
+  `b193e54ef53dc71347d693c14acf3b5e68f1e898` and reached terminal `SUCCESS` at
+  `2026-09-01T16:16:03.952784Z`. Focused tests, image build and both paid-route
+  image smokes passed. It published
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:57794a940bf1117f7322f973b49a27b4163d09dac026141a16b88fb7f44bd560`.
+  The corrected reproducible build gate is tracked as
+  `cloudbuild.paid-boundary-v2.yaml`.
+- Cloud Run service `nfl-dfs-app` revision
+  `nfl-dfs-app-paid-v2-b193e54e` became ready at
+  `2026-09-01T16:19:54.991191Z` and serves 100% of traffic at that immutable
+  digest. Deployment preserved IAP, the default-compute service account,
+  `nfl-dfs serve`, 4 CPU/4 GiB, concurrency 2, 1,800-second timeout, the
+  existing secret reference and all existing environment; it added only
+  `CODE_SHA=b193e54ef53dc71347d693c14acf3b5e68f1e898`. Provider startup health and
+  routing are green. An ordinary Cloud Run identity token was correctly
+  rejected by IAP (wrong IAP JWT audience); no authentication setting was
+  weakened to manufacture an HTTP smoke.
+- At the deployment seal, the separate E4 recovery execution
+  `atlas-cbc-32g-full-2023-w8-v1-njfvm`, UID
+  `202c982e-efbe-4700-b5ab-929845aa3701`, remained healthy/running with one
+  task and no terminal result. This work did not inspect its logs, alter its
+  envelope, or release E5. Continue metadata-only polling under its existing
+  handoff contract.
 
 ### 2026-09-01 winner-range objective reviewed and production gaps recorded
 
