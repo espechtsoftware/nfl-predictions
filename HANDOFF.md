@@ -25,6 +25,32 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-01 lab Neo4j handoff reviewed; governed integration is next
+
+- Production reviewed lab commits `2817a2c` and `adef67e` and recorded the
+  shareable assessment in
+  `reports/2026-09-01-lab-neo4j-readiness-production-review.md`. The lab has
+  delivered a useful 164-node/19-edge epistemics export plus a real 078
+  proposal-ledger slice whose four aggregates reconcile, but it is a
+  controlled-load prototype rather than a production-operational graph.
+- Seven base edges currently target absent `Read` nodes; the fixed v1 loader
+  does not ingest `nodes_run_*`/`edges_run_*`; no real Neo4j load/query smoke
+  exists; and candidate/player/trait/settlement/winner-gap content remains
+  future work. The bootstrap note is development-grade and must not be used
+  unchanged for a production service.
+- The accepted direction is to port the useful lab epistemics and attempt
+  lineage into the stricter production observatory contracts from a fresh
+  current-main integration worktree. Repair endpoint completeness, add a
+  bounded receipted per-run loader, bind full export/source identity, and run
+  a persistent real-server load/query/rebuild smoke before provisioning a
+  dedicated read-only graph. Do not blindly merge the observatory branch or
+  directly load the lab CSVs into the governed schema.
+- This graph remains a rebuildable, non-authoritative research index and is
+  not a gate for scoring. No Neo4j, cloud, scoring, job, outcome, or runtime
+  mutation occurred in this review. Exact next graph action: create the
+  isolated current-main integration worktree and implement the bounded repair
+  packet without touching the active 078/079 or E4 lanes.
+
 ### 2026-09-01 repaired 078/079 r3 mechanics launched; E4 grade reopen live
 
 - The 078 trace-only repair is pushed in lab source commit
