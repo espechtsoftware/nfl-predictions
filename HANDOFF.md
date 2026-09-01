@@ -25,6 +25,71 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-01 lab release accepted; 078/079 mechanics live
+
+- Production branch `main` entered this milestone at pushed commit
+  `14a6ee49f454b989732b4c77944647fd2d8f52fb`.
+- The lab-to-production action note was adjudicated and answered in lab commit
+  `b5e1bc0`. PREREG-048/078 and PREREG-049/079 are accepted for immediate
+  execution; PREREG-051/082 remains ready-pending but **held** on a
+  score-bearing winner-registry-v2 accepted cohort plus a fresh binding
+  amendment, hashes and prefixes. The paid exact-K boundary and Week-1 capture
+  rehearsal are already implemented/deployed and remain independent of that
+  registry hold.
+- One exact archive of lab source
+  `501baae9152698534bdac46fc94bf5c703a2c36c` was built by Cloud Build
+  `8176c38d-3616-44ad-894a-f80a35711593` into immutable digest
+  `sha256:16be673bf3aa61af19c1ff7e43f63eeef2b8918dbec920e43e35200e7837573f`.
+  The bound readers are SHA-256
+  `660c70baf0af226572448396b5630c3a5a2180d726e1355fd808f67a79e21bb9`
+  for 078 and
+  `576af4aa05d496ab3f6c5264db40df1e8c8fbf267b5901c2cd9a8d64e9b99b2d`
+  for 079. Lab commit `9edfb07ac7116ee8ac8537aeadb6d637033d21b4`
+  is the durable repaired registered queue binding.
+- The first registered coordinator invocation
+  `53b5445b9c5a4b0bb870a0d7e949263f` installed the exact digest on both
+  reusable jobs and created only run `078m520r2-20260901T172817Z`, execution
+  `lab-run-mn78j`, UID `392dc55b-c18e-401d-8c6a-e349393eb39d`. It then
+  failed closed in host-only provider-census serialization; no 079/efficacy
+  prefix or outcome reader was opened. The repair returns one validated JSON
+  array and allows a restart only when every active execution is an exact
+  owned frozen claim. It never rewrites a reusable job while an execution is
+  active and cannot create a replacement for an existing prefix. Full lab
+  suite 271/271, focused contract suite 49/49, Ruff, shell syntax and diff
+  checks passed; an independent static review found no blocker.
+- The repaired production-owned coordinator is active as user unit
+  `nfl2-prereg-078-079-20260901-r1.service`, invocation
+  `50c78e018cd84d24885e99e7069012ca`, lane `nfl2-lab-jobs`. It resumed the
+  exact 078 claim and launched the second fresh mechanics run
+  `079m530r2-20260901T174533Z`, execution `lab-run-fkpr2`, UID
+  `5faa1a10-b68b-481c-a993-87f0ba906307`. At the last metadata poll both were
+  running one task with zero terminal failure/cancellation; 078 had consumed
+  its one permitted provider retry and 079 had consumed none. Both carry the
+  exact source/digest, frozen arguments, 2-vCPU/8-GiB envelope, one retry and
+  36,000-second timeout. The coordinator will release all six efficacy banks
+  only after both full-budget outcome-disabled artifacts pass their gates.
+- PREREG-039/068 is closed at its genuine mechanics failure: fewer than 90%
+  of targets yielded a legal two-player completion. No 068 efficacy run may
+  launch. Separately, production independently reproduced PREREG-046/076 from
+  an isolated git archive, authenticating all 54 immutable objects and 216
+  groups. All primaries remain unresolved; the coherent-law interaction is
+  `+0.934 [+0.488,+1.380]`. The exact report is
+  `reports/2026-09-01-prereg046-production-reproduction.md`; this is a valid
+  frozen raw-K80 mechanism result, not a current winner-utility adoption test.
+- The exact-name E4 continuation is active as
+  `nfl-prod-e4-njfvm-exact-name-v1-r1.service`, invocation
+  `740e437525f64c08b615b0d4ae4e6275`. It polls only execution
+  `atlas-cbc-32g-full-2023-w8-v1-njfvm`, UID
+  `202c982e-efbe-4700-b5ab-929845aa3701`; the last metadata read remained
+  nonterminal/running with zero terminal counts. It has not launched another
+  recovery and has not opened the grade result.
+- Exact next action: metadata-poll the two mechanics executions and both
+  persistent coordinators. Do not relaunch any claimed prefix. Let the
+  registered 078/079 coordinator gate and release the six banks; after exact
+  cohort success run each frozen lab reader once, then reproduce independently
+  in production before adoption. On E4 terminal success, allow only the
+  exact-name collector and ordinary exact-f2 grade reopen. Keep 080-082 held.
+
 ### 2026-09-01 exact-name E4 continuation prepared after IDE restart
 
 - The sole authorized grade-timeout recovery remains Cloud Run execution
