@@ -306,6 +306,29 @@ and operator decisions.  The older entries remain the durable chronology.
   new create-once gate passes. The existing coordinator is terminal failed
   with invocation `9e09beacdbf54ba8921a667873318360`; both provider lanes are
   idle and no efficacy launch is authorized yet.
+- The narrow r2 repair is durable on lab `main` at source commit
+  `798b869e3992f4ff7e8f6c4527619ca546f2279c`. It separates solve-count
+  scaling from zero-based offset scaling, proves full offsets `0/160` and
+  smoke offsets `0/16`, appends the no-outcome Amendment 3, rolls mechanics
+  and efficacy to fresh r2 prefixes, and leaves all launch templates
+  fail-closed. Focused validation is `58 passed`; the complete checkout-local
+  suite is `364 passed` with `PYTHONPATH=src`, and Ruff, compilation, shell
+  syntax and diff checks pass. Exact clean-source Cloud Build
+  `bc89c61f-068f-4ab4-88c1-ec2f38387df4` succeeded at
+  `2026-09-02T04:16:29.078199Z`; immutable image digest is
+  `sha256:2d352f5de1353fde6c6e41d3d3da2dd17dc3a5b384060b9b12fba38fe6170abe`
+  under tag `084-798b869e`. Lab binding commit
+  `d05049c44f7462a85c9dc7cd7ed847c5ca659d12` binds only the fresh r2
+  mechanics queue; efficacy remains unbound.
+- Registered coordinator `nfl2-prereg053-mechanics-offset-r2.service`
+  (invocation `69d50cc4eee94f37a8d07aa0e7953c0d`, restart disabled) acquired the
+  shared `nfl2-lab-jobs` lane and claimed only
+  `084m590r2-20260902T041825Z`. Exact Cloud Run execution is
+  `lab-run-8x8z7`, UID `7cbbc86b-5552-471e-86ee-1536bdfbf6cc`, created
+  `2026-09-02T04:18:26.848368Z` on the new digest and exact source SHA. It is
+  the sole active outcome-disabled mechanics task. Exact next action is poll
+  this execution and its coordinator to terminality, require the frozen r2
+  create-once gate receipt, and only then bind/launch efficacy r2.
 - The additive opportunity-lineage v1 interface in the lab repository was
   reviewed narrowly without changing or stopping 084. The design is suitable
   for a one-slate mechanics/interface shadow, but four boundaries must be
