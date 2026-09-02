@@ -39277,3 +39277,23 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   chain. Do not launch the paid-source ablation until its request binds the
   resulting `discovery_matrix_freeze_terminal_identity` and passes the
   canonical registry deep reopen.
+
+## 2026-09-02 — Experiment 088 mechanics gate launched
+
+- Production pulled lab `main`, found and repaired the remaining stale
+  PREREG-056/087 mechanics identities without reading outcomes, and pushed
+  lab commits `c365882ef46cb07b01b2fa55f27540511fb20e27` (runtime source) and
+  `c0e004555f89263548445751637279793c03b8e1` (registered mechanics binding).
+- Cloud Build `d3a7363b-7ac4-44dc-8991-ee6b94afe902` succeeded from exact
+  source `c365882ef46cb07b01b2fa55f27540511fb20e27`. The immutable runtime is
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2@sha256:7cb34dfc9b89c157b03582bc8c188d4d3662ae5ae855009456cd398f9c28f1dc`.
+- The production-owned `nfl2-lab-jobs` launcher registry acquired the lane and
+  created mechanics run `088m620r1-20260902T200158Z`, Cloud Run execution
+  `lab-run-ppxlq`, at the frozen 2021-W1/bank-620 outcome-disabled boundary.
+  At this checkpoint the execution is provisioning; no efficacy prefix has
+  been claimed and no efficacy reader has been opened.
+- Next concrete action: keep the registered coordinator attached through exact
+  terminal status and publication of the `prereg057-mechanics-gate/v1`
+  create-once receipt. Only after a passing receipt, bind its exact run and
+  receipt SHA into the reader/registered efficacy queue and launch banks
+  620/621/622 without changing the frozen 088 estimand.
