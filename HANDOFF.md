@@ -195,14 +195,32 @@ and operator decisions.  The older entries remain the durable chronology.
   validate receipt semantics, and make every paid/API/UI route fail closed to
   the same D800 artifact with no incumbent fallback. D400 remains shadow-only
   and A5 remains open.
-- Monitoring gap: the active durable services correctly cover lab-note
-  revisions and Cloud Run execution transitions, including the terminal 083
-  cohort, but did not cover Cloud Build transitions. That is why build
-  `4a9c6e8d-2419-4f25-b850-ab590d0867c8` was not immediately reflected in the
-  operator summary. A separate read-only, stateful Cloud Build monitor for
-  both production and lab projects is now the immediate monitoring repair;
-  it must alert on success/failure/cancellation/timeout and stale WORKING
-  builds by exact ID.
+- Monitoring gap repaired: production commit `a84dc36f` adds the separate
+  read-only, stateful Cloud Build monitor for both production and lab
+  projects. Focused validation is `26 passed` across all three monitors.
+  `nfl-cloud-build-monitor.service` is enabled and active (invocation
+  `15d9000cd4e449b6853a6db760e65849`, zero restarts at verification), polling
+  every 60 seconds with exact build-ID retention, transition ledger, bounded
+  notifications, terminal success/failure/cancellation/timeout alerts and
+  stale-WORKING detection. Its first coherent snapshot at
+  `2026-09-02T03:30:45Z` retroactively recorded the missed 084 image success,
+  the cancelled CFB build, and exact active replacement build
+  `cc21f1d7-b78e-463b-8bc2-09809d823f70`; the notification was delivered.
+- PREREG-053 prelaunch repairs are durable on lab `main` at source commit
+  `e992c7d99ad13dce792f1ffceb57b6ed5ebe12aa` with the arm/budget/endpoint
+  estimands unchanged. The repaired source has an experiment-specific fresh
+  mechanics gate, mandatory exact-key settlement, the declared
+  concentration contrasts, early outcome-blind registry validation, and
+  fail-closed/tested world-offset semantics. The full lab suite is
+  `342 passed`; focused reader/gate/offset checks are `36 passed`, Ruff and
+  compilation pass. Replacement immutable image build
+  `cc21f1d7-b78e-463b-8bc2-09809d823f70` started from its exact clean worktree
+  at `2026-09-02T03:30:08.391586216Z` on tag
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2:084-e992c7d9` and remains
+  WORKING at this handoff update. No 084 execution has launched. After build
+  success: bind exact digest/source/build into the registered mechanics
+  coordinator, launch only `084m590r1`, publish and verify the create-once
+  PREREG-053 gate, then bind and fan `084b590r1/591r1/592r1` over both lanes.
 
 ### 2026-09-01 durable Cloud Run lane monitor armed; PREREG-052 image ready
 
