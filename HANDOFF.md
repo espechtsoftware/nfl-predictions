@@ -25,7 +25,7 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
-### 2026-09-02 PREREG-056 / experiment 087 r1 void; memory-bounded r2 preparing
+### 2026-09-02 PREREG-056 / experiment 087 r1 void; memory-bounded r2 mechanics ready
 
 - Lab Action Note Update 16 advanced the authorized queue to outcome-disabled
   mechanics `087m610r1`, followed by efficacy banks
@@ -98,10 +98,51 @@ and operator decisions.  The older entries remain the durable chronology.
   in-flight-retry release guard `57ebcfd`). It descends the lab's newly frozen
   PREREG-057 design commit `2fccc2a`; PREREG-057 is queued work, not part of
   this 087 execution.
-- Next exact action: build one fresh immutable image from `57ebcfd`, bind it,
-  and run only `087m610r2`. Efficacy remains blocked until r2 reaches terminal
-  exact success with zero retries and its create-once gate receipt is
-  independently reproduced.
+- Replacement Cloud Build `883dd47f-2159-4f5a-b317-7da548569b34`
+  succeeded at `2026-09-02T16:46:57.469733Z` from exact source commit
+  `57ebcfd76ceb29cf71c4097f359ccd6d2125aa16`, source-object generation
+  `1788367492873213`, and tag `087-57ebcfd7`. Both the build result and an
+  independent Artifact Registry resolution identify immutable digest
+  `sha256:3786b918b938f8c82f4dc63c8f82cf1c802312f3ed1c84002a2b9897852368ec`.
+  The mechanics-only binding is durable on lab `main` at
+  `8345afd4bf1e7fde445333380ddb4d5fc8f30435`; its post-rebase validation
+  passed 88/88 focused tests, all four launcher shell parses, Python compile,
+  and diff checks. Reader and efficacy pins remain deliberately unbound.
+- Registered run `087m610r2-20260902T165338Z` launched as Cloud Run execution
+  `lab-run-xgw28`, UID `c096c1de-5879-47fc-aa37-64c89261a28f`, created
+  `2026-09-02T16:53:39.279346Z` and started
+  `2026-09-02T16:54:13.890863Z`. It has one task at one parallelism, exact
+  image digest above, 2 CPU / 8 GiB, and zero observed retries. The durable
+  systemd coordinator is `nfl2-prereg056-mechanics-r2.service`.
+- Mechanics execution `lab-run-xgw28` completed successfully at
+  `2026-09-02T17:03:04.005499Z` in 8m50s: one of one task succeeded, with
+  zero failures, cancellations, or retries. The create-once gate receipt at
+  `gs://nfl-2-506823-lab/gates/PREREG-056/087m610r2-20260902T165338Z.json`
+  is provider generation `1788368608213082`, 1,564 bytes, SHA-256
+  `35b52376f2a9a260882203889351e5892e465bdb570c048f21083ae56d907f57`.
+  Production independently reopened that exact generation, reproduced the
+  byte hash and strict receipt contract, and observed selector turnover
+  `0.3157894736842105` on the exact shared D800 pool.
+- The frozen reader SHA-256 is
+  `e9ab38579ec5af0998a9cde8fdb31f0b0d40f8e03e06ac9e56f838c820e43b3b`;
+  the gate/reader/efficacy binding is durable on lab `main` at `a61674b` and
+  passed 89/89 focused tests plus shell, compile, and diff checks. The durable
+  registered coordinator `nfl2-prereg056-efficacy-r2.service` acquired the
+  global `nfl2-lab-jobs` lane at `2026-09-02T17:09:32Z`. Bank 610 run
+  `087b610r2-20260902T171112Z` is Cloud Run execution `lab-run-q89kk`, UID
+  `43f8de86-6c11-4cfd-9cb2-536c8d3762c1`, created
+  `2026-09-02T17:11:13.349387Z` and started
+  `2026-09-02T17:11:25.944251Z`; at the `2026-09-02T17:14Z` direct provider
+  census all 18 tasks were running with no terminal task or observed retry.
+  Bank 611 run `087b611r2-20260902T171342Z` is Cloud Run execution
+  `lab-run-slow-6lz8p`, UID `d5c9037d-afd0-4263-8a43-d69a64696ae8`, created
+  `2026-09-02T17:13:43.252629Z`; it was provisioned and waiting to start with
+  no terminal task or observed retry. Both executions bind source/image above,
+  18 tasks at 18 parallelism, 2 CPU / 8 GiB, timeout 36,000 seconds, and
+  `maxRetries=1`. Bank 612 remains unclaimed and releases only after a clean
+  initial-bank success; any observed initial-bank retry or failure stops the
+  coordinator. Next exact action is direct task-level polling of 610/611
+  without opening outcomes.
 
 ### 2026-09-02 pre-lock lineage review concerns repaired, default-off
 
