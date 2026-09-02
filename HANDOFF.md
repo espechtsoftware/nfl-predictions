@@ -25,7 +25,7 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
-### 2026-09-02 PREREG-056 / experiment 087 launch contract repaired; build pending
+### 2026-09-02 PREREG-056 / experiment 087 mechanics gate active
 
 - Lab Action Note Update 16 advanced the authorized queue to outcome-disabled
   mechanics `087m610r1`, followed by efficacy banks
@@ -53,10 +53,26 @@ and operator decisions.  The older entries remain the durable chronology.
   180/180 combined candidate/selector/053/055/056 regressions, Python compile,
   four-script `bash -n`, and `git diff --check`. No efficacy outcome was
   opened and no provider state was changed.
-- Next exact action: finish independent source review, fast-forward the repair
-  to durable lab `origin/main`, build immutable tag `087-b89e1939`, bind and
-  run only `087m610r1`, then bind its create-once gate receipt before claiming
-  banks 610/611/612.
+- Independent review returned GO with no remaining P0/P1 contract defect. The
+  repair and mechanics binding are durable on lab `main` at commits
+  `b89e19392f40e4238c8aa375d4a530613ee347f0` and `5a279e5`. Immutable build
+  `64b1a227-428e-45dd-8f3e-552d5c5b7f08` succeeded from source-object
+  generation `1788365599125678`; tag `087-b89e1939` resolves to digest
+  `sha256:b7bae784c2e6e07c6e4809da613291fc275c8d4194a361ff560c39cd5acb54ce`.
+- The first local registered-launch attempt completed before any provider
+  mutation because the isolated worktree lacked its local `.venv` link. After
+  wiring the existing ignored environment, the same still-unclaimed prefix
+  launched successfully as run `087m610r1-20260902T161832Z`, Cloud Run
+  execution `lab-run-7jpv9`, UID
+  `bdfce778-6370-4c8b-bb9a-37114076287e`, created
+  `2026-09-02T16:18:33.106829Z`. Its exact one-task/one-parallelism envelope is
+  2 CPU / 8 GiB, source/image pins above, and argv bank 610 / 2021 Week 1 /
+  `--mechanics-only`.
+- Next exact action: poll execution metadata without opening outcomes. On
+  terminal exact success, independently reopen and reproduce the create-once
+  PREREG-056 gate receipt, then bind the reader and efficacy coordinators
+  before claiming banks 610/611/612. On any mechanics failure, stop without an
+  efficacy claim.
 
 ### 2026-09-02 pre-lock lineage Phase 1 production review
 
