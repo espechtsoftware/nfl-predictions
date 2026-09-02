@@ -1,0 +1,104 @@
+# Scoped release gate for the collection-only CFB repair.  This deliberately
+# does not substitute for the repository-wide validation suite: it proves the
+# exact CFB/client/BigQuery/deployment boundary, builds a dedicated image, and
+# refuses to publish that image unless its offline runtime smoke passes.
+steps:
+  - name: python:3.11-slim
+    id: cfb-focused-validation
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        CODE_SHA=${_CODE_SHA}
+        IMAGE=${_CFB_IMAGE}
+        [[ "$$CODE_SHA" =~ ^[0-9a-f]{40}$ ]] || {
+          echo "_CODE_SHA must be a full commit SHA" >&2
+          exit 2
+        }
+        [[ "$$CODE_SHA" != 0000000000000000000000000000000000000000 ]] || {
+          echo "_CODE_SHA must not be the sentinel value" >&2
+          exit 2
+        }
+        [[ "$$IMAGE" == \
+          "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:cfb-collection-$$CODE_SHA" ]] || {
+          echo "_CFB_IMAGE must be the commit-bound CFB collection tag" >&2
+          exit 2
+        }
+
+        apt-get update
+        apt-get install -y --no-install-recommends git libgomp1
+        pip install --no-cache-dir '.[gcp,dev]'
+
+        # This is the previously validated 34-test repair boundary.  Keep the
+        # modules explicit so a stale unrelated global test cannot silently
+        # turn this scoped release gate into a partial repository run.
+        PYTHONPATH=src pytest \
+          tests/test_cfb_job.py \
+          tests/test_dk_client.py \
+          tests/test_bq_load.py \
+          tests/test_cfb_deployment_contract.py
+
+        # Lock the release-gate mechanics independently of the 34 repair
+        # tests, then check exactly the Python and shell surfaces shipped by
+        # this change.
+        PYTHONPATH=src pytest tests/test_cfb_cloudbuild_contract.py
+        python -m compileall -q \
+          src/nfl_dfs/bq.py \
+          src/nfl_dfs/cli.py \
+          src/nfl_dfs/ingest/cfb_job.py \
+          src/nfl_dfs/ingest/dk_client.py
+        bash -n deploy/deploy_jobs.sh
+        bash -n scripts/build_cfb_collection_repair_image.sh
+
+  - name: gcr.io/cloud-builders/docker
+    id: build-cfb-collection-image
+    args:
+      - build
+      - --file
+      - Dockerfile.cfb-collection-repair
+      - --build-arg
+      - SOURCE_COMMIT_SHA=${_CODE_SHA}
+      - --tag
+      - ${_CFB_IMAGE}
+      - .
+
+  - name: gcr.io/cloud-builders/docker
+    id: smoke-cfb-collection-image
+    entrypoint: bash
+    env:
+      - CFB_IMAGE=${_CFB_IMAGE}
+      - EXPECTED_CODE_SHA=${_CODE_SHA}
+    args:
+      - -ceu
+      - |
+        actual_revision="$$(docker image inspect \
+          --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' \
+          "$$CFB_IMAGE")"
+        [[ "$$actual_revision" == "$$EXPECTED_CODE_SHA" ]] || {
+          echo "image source label differs from the submitted commit" >&2
+          exit 2
+        }
+
+        # Import the exact runtime modules and verify both table contracts are
+        # in the image.  This is offline and outcome-blind.
+        docker run --rm "$$CFB_IMAGE" python -c \
+          'from pathlib import Path; from nfl_dfs import bq; from nfl_dfs.ingest import cfb_job, dk_client; assert callable(cfb_job.run); assert callable(bq.load_dataframe); assert dk_client.CFB_SPORT_ID == 5; salary = Path("sql/raw/006_cfb_dk_salaries.sql").read_text(); contests = Path("sql/raw/005_dk_contests.sql").read_text(); assert "CLUSTER BY draft_group_id, dk_player_id" in salary; assert "CLUSTER BY draft_group_id, contest_id" in contests'
+
+        # Prove the installed console entry point advertises and dispatches
+        # ingest-cfb.  Leaving the enable flag empty exercises the real CLI
+        # path without touching DraftKings or BigQuery.
+        docker run --rm "$$CFB_IMAGE" nfl-dfs --help | \
+          grep -F 'ingest-cfb' >/dev/null
+        docker run --rm --env INGEST_CFB_ENABLED= \
+          "$$CFB_IMAGE" nfl-dfs ingest-cfb
+
+images:
+  - ${_CFB_IMAGE}
+
+substitutions:
+  _CODE_SHA: "0000000000000000000000000000000000000000"
+  _CFB_IMAGE: unset
+
+timeout: 1800s
+options:
+  machineType: E2_HIGHCPU_8

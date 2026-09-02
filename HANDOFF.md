@@ -160,6 +160,26 @@ and operator decisions.  The older entries remain the durable chronology.
   accumulated global-suite debt recorded rather than misrepresented as CFB
   evidence; only then update `ingest-cfb` and run one no-retry outcome-blind
   smoke.
+- That scoped CFB build gate is now implemented locally as
+  `Dockerfile.cfb-collection-repair`,
+  `cloudbuild.cfb-collection-repair.yaml`,
+  `scripts/build_cfb_collection_repair_image.sh`, and
+  `tests/test_cfb_cloudbuild_contract.py`. It archives an exact current pushed
+  `origin/main` commit into a trapped disk-backed context, excludes reports and
+  unrelated tests, repeats the 34-test CFB boundary plus four build-contract
+  tests in Cloud Build, builds a dedicated collection-only image, and performs
+  an offline runtime/CLI/SQL-asset smoke before publication. The builder
+  refreshes `origin/main` both before extraction and immediately before upload.
+  Local validation is 38 passed plus Python compilation, shell syntax and
+  `git diff --check`. The gate has no Cloud Run mutation or scheduler path.
+  Provider recheck shows `ingest-cfb` still at generation 10 on the old image
+  with retry 1; both schedulers remain paused, and the Saturday provider
+  schedule is still the superseded overlapping `0 8-13 * * 6`. Exact next
+  action: commit/push this build-only gate, submit it from that full commit,
+  record the immutable image digest, then use a separate scoped deploy/smoke
+  operator—never broad `deploy/deploy_jobs.sh`—to preserve job UID/env/service
+  account, set retry 0, update the non-overlapping scheduler definition while
+  keeping both schedulers paused, and run exactly one outcome-blind smoke.
 - Lab `origin/main` advanced to `4ad5519c74322a2d512826e5da81baa5e8b6b9eb`
   (Action Note Update 13 / PREREG-053 experiment 084). The revision-aware
   inbox monitor detected the new commit and Update 13 at

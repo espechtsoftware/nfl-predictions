@@ -1,0 +1,27 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# The scoped CFB image is intentionally distinct from the all-purpose NFL
+# application image.  Its sole deployment target is the collection-only
+# ``ingest-cfb`` Cloud Run job.
+ARG SOURCE_COMMIT_SHA=invalid
+LABEL org.opencontainers.image.revision="${SOURCE_COMMIT_SHA}"
+ENV IMAGE_SOURCE_COMMIT_SHA="${SOURCE_COMMIT_SHA}"
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml README.md ./
+COPY src ./src
+
+# Keep the two warehouse contracts beside the runtime.  The image smoke
+# verifies both are present and still declare the clustering keys used by
+# cfb_job.py; no unrelated report or research artifact enters this image.
+COPY sql/raw/005_dk_contests.sql ./sql/raw/005_dk_contests.sql
+COPY sql/raw/006_cfb_dk_salaries.sql ./sql/raw/006_cfb_dk_salaries.sql
+
+RUN pip install --no-cache-dir ".[gcp]"
+
+CMD ["nfl-dfs", "ingest-cfb"]
