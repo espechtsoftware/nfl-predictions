@@ -46,6 +46,11 @@ and operator decisions.  The older entries remain the durable chronology.
   port is being validated in isolated worktree
   `/home/erich/projects/nfl-predictions-e0-v2`; it must not touch cloud,
   scoring, Neo4j, React, or the active worktree.
+- The v2 graph contract is intentionally outcome-closed. Only pre-lock
+  lineage/census summaries may enter v2. E0's realized 200+/rescue summaries
+  remain in the separately labelled historical E0 slice until a reviewed
+  outcome-summary companion or later schema opens that boundary; never weaken
+  v2 or disguise outcome metrics as offline properties.
 - The separate untracked lab opportunity-lineage implementation is NO-GO for
   shared-graph or governed use as written: it materializes candidates rather
   than summaries, lacks complete upstream stage transitions and durable builder

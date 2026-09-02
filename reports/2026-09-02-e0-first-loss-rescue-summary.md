@@ -89,14 +89,33 @@ the E0 arm removes a construction law globally, while PREREG-053/055 apply a
 bounded sleeve with world coverage preserved. It reinforces the need to retain
 arm, sleeve location, world block, and selection policy as separate coordinates.
 
-## Summary-only v2 surface
+## Summary architecture: v2 lineage plus the bounded E0 outcome companion
 
-The first production-v2 projection should expose aggregates, not candidate
-rows:
+Production's `corpus-graph-vnext/v2` is deliberately outcome-closed: it rejects
+the `realized` namespace, outcome nodes/edges, and outcome-like property names.
+The 200+ and rescue quantities above are outcome-derived. They must **not** be
+smuggled into v2 `MetricSet` or `Evaluation` nodes merely by giving them neutral
+names or setting authority flags false.
 
-1. `funnel_summary`: complete candidate, visit, book, and selection censuses;
-   200+ opportunity, captured, and missed counts; opportunity and converted
-   slate counts.
+The selective integration therefore has two explicit parts:
+
+### Outcome-free v2 projection
+
+1. `prelock_funnel_census`: complete candidate, visit, book, and selection
+   counts; strategy and source identities; no realized threshold counts.
+2. `lineage_coverage_summary`: a positive list of stages actually observed,
+   stages missing, exact source identities, and the earliest stage that the
+   evidence can localize without outcomes.
+3. `strategy_lineage_summary`: fill/admission/retrieval identities and bounded
+   stage-transition counts once the complete pre-lock trace exists.
+
+These may map to v2 `Evaluation`, `MetricSet`, `Cohort`, `SourceArtifact`, and
+`VerificationReceipt` vocabulary with every authority flag false.
+
+### Existing E0 historical-outcome summary
+
+1. `outcome_funnel_summary`: 200+ opportunity, captured, and missed counts;
+   opportunity and converted slate counts.
 2. `strategy_rescue_summary`: per-strategy selected maximum, eligible-corpus
    maximum, selector regret, threshold capture, and counts of positive-rescue
    slates. Any summed one-lineup counterfactual must be named
@@ -104,16 +123,16 @@ rows:
 3. `phenotype_capture_summary`: captured-versus-missed distributions with
    denominators and missingness, never individual roster output.
 4. `generation_yield_summary`: arm and arm-by-block visit denominators and
-   high-score yields.
-5. `lineage_coverage_summary`: a positive list of stages actually observed,
-   stages missing, exact source identities, and the earliest observable loss.
+   realized high-score yields.
 
-Map these to the v2 `Evaluation`, `MetricSet`, `Cohort`, `SourceArtifact`, and
-`VerificationReceipt` vocabulary with every authority flag false. Do not add an
-outcome/winner node or promotion edge. A read API should return only these
-bounded summaries and the evidence/coverage metadata. The existing legacy UI
-and route remain the default until a later additive React preview reaches
-parity.
+For now these remain queries over the already accepted, separately labelled E0
+historical slice. A future reviewed outcome-summary companion contract (or a
+new graph schema version with an exact `OutcomeRelease` boundary) may project
+them more broadly; v2 itself must not be weakened. A read API may return the two
+envelopes side by side only if their schema/evidence classes remain distinct.
+It should return bounded summaries, never lineup enumeration. Do not add a
+winner claim or promotion edge. The existing legacy UI and route remain the
+default until a later additive React preview reaches parity.
 
 ## Required lineage extension
 
@@ -136,4 +155,3 @@ and a rescue query can report one-at-a-time counterfactual deltas without
 misrepresenting their sum as jointly achievable. Until that extension exists,
 E0 supports exact retrieval-loss descriptions but not complete pipeline-loss
 attribution.
-
