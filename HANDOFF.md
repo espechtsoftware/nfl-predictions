@@ -256,6 +256,30 @@ and operator decisions.  The older entries remain the durable chronology.
   PREREG-053 receipt, and cannot open efficacy outcomes. After the gate:
   bind its exact run/hash and reader hash, then fan
   `084b590r1/591r1/592r1` over both lanes.
+- The additive opportunity-lineage v1 interface in the lab repository was
+  reviewed narrowly without changing or stopping 084. The design is suitable
+  for a one-slate mechanics/interface shadow, but four boundaries must be
+  resolved before claiming an exact production/full-084 join: (1) lab hashes
+  comma-joined sorted player IDs while the current Week-1 production identity
+  hashes canonical JSON, and neither the hash scheme nor player-ID namespace
+  is carried; (2) the current 084 trace covers only natural arms and the only
+  artifact accepted as pre-lock is the one-slate mechanics envelope, while a
+  full efficacy envelope already contains outcomes; (3) research K80 is not
+  an actual contest entry limit, and selected rank, prepared/submitted entry
+  slot, actual field rank and counterfactual field rank must remain distinct;
+  and (4) candidate realized score is roster/slate keyed, but actual payout and
+  rank are contest-entry facts and winner score must be contest keyed rather
+  than inferred from a bare slate. The user-supplied `created_at_utc` and local
+  path are also not sufficient pre-lock authority: the future full trace must
+  be a separately emitted create-once object with digest, generation and
+  provider creation time before any outcome branch. For current 084 keep
+  predicted marginal utility and deployment null/unobserved. Production's
+  simplest settlement authority is the existing create-once complete DK
+  standings capture plus the validated player-identity/field bridge; the
+  immutable filled DKEntries artifact and receipt are the pre-lock prepared
+  entry source, with post-settlement field membership used to confirm actual
+  entry. Registry v2 remains required before a historical winner value can be
+  labelled adjudicated. No outcome artifact was opened during this review.
 
 ### 2026-09-01 durable Cloud Run lane monitor armed; PREREG-052 image ready
 
