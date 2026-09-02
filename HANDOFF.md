@@ -136,8 +136,10 @@ and operator decisions.  The older entries remain the durable chronology.
   census all 18 tasks were running with no terminal task or observed retry.
   Bank 611 run `087b611r2-20260902T171342Z` is Cloud Run execution
   `lab-run-slow-6lz8p`, UID `d5c9037d-afd0-4263-8a43-d69a64696ae8`, created
-  `2026-09-02T17:13:43.252629Z`; it was provisioned and waiting to start with
-  no terminal task or observed retry. Both executions bind source/image above,
+  `2026-09-02T17:13:43.252629Z` and started
+  `2026-09-02T17:13:49.945580Z`. At the `2026-09-02T17:30Z` direct provider
+  census, both initial banks had all 18 tasks running with no success, failure,
+  cancellation, or observed retry. Both executions bind source/image above,
   18 tasks at 18 parallelism, 2 CPU / 8 GiB, timeout 36,000 seconds, and
   `maxRetries=1`. Bank 612 remains unclaimed and releases only after a clean
   initial-bank success; any observed initial-bank retry or failure stops the
@@ -186,11 +188,44 @@ and operator decisions.  The older entries remain the durable chronology.
   adapter and provider-bound launch receipt exist. Do not label a legacy CBWU
   smoke as the entered book.
 - Full findings and exact next sequence are in
-  `reports/2026-09-02-prelock-lineage-review-repairs.md`: merge default-off,
-  adapt immutable D800 candidate/book artifacts into the capture contract, bind
+  `reports/2026-09-02-prelock-lineage-review-repairs.md`: after the completed
+  default-off merge, adapt immutable D800 candidate/book artifacts into the capture contract, bind
   provider execution/resource identity, then run one candidate-only pre-lock
   smoke and exact-reopen the five-object root before any optional shadow graph
   load. Settlement remains descriptive and graph-mutation authority false.
+- The reviewed selective branch through report commit `b8aa155d` was then
+  fast-forwarded to and pushed on production `main`. The code remains
+  default-off: integration changed repository source only and performed no
+  build, deployment, cloud publication, graph mutation, score, or paid action.
+
+### 2026-09-02 live Neo4j E0 weakness read
+
+- The localhost-only Neo4j 5.26.30 fixture is live on loopback ports 7474/7687.
+  Direct read-only Cypher reproduced the receipt-bound E0 graph at 4,258
+  historical nodes / 8,623 relationships, 54 slates, 199,244 reconciled
+  candidates, 378,000 generation visits, 432 K80 books, and 279 persisted 200+
+  lineups. No query mutated the graph.
+- The principal observed weakness is retrieval retention: only 38 of 279 200+
+  candidates appeared in any final-fit book, while 241 were absent from all
+  eight. Coverage-194 converted six of 29 200+ opportunity slates and averaged
+  176.882 versus the 202.662 hindsight eligible-corpus maximum. The 25.780
+  difference is descriptive regret, not a forecastable gain.
+- Coverage-194 captured none of the 91 high scorers with zero or one QB
+  teammate, none of the 124 whose largest same-game group was at most three,
+  and only four of 34 scoring at least 220. This identifies a strong dense-stack
+  selection bias and motivates a predeclared complementary selector sleeve on
+  frozen D800 pools; it does not authorize another hard construction law.
+- Global removal of all shared construction constraints had the lowest 200+
+  generation yield (53 / 54,000 visits versus incumbent 93 / 54,000). Tail
+  counts differ by threshold and world block, so allocations must be evaluated
+  across weekly maximum and a threshold vector rather than optimized to 200+
+  count alone.
+- Full direct-query results, limitations, and today/next implementation sequence
+  are in `reports/2026-09-02-neo4j-immediate-weakness-read.md`. The graph still
+  lacks point-in-time boom, coverage-map, ownership, projection, and SIS/Fantasy
+  Points traits and lacks adopted D800 lineage. Next code action is the narrow
+  D800 artifact adapter, followed by a summary-only point-in-time phenotype
+  companion; keep scoring and Neo4j mutation untouched.
 
 ### 2026-09-02 pre-lock lineage Phase 1 production review
 

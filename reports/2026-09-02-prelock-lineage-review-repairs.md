@@ -168,8 +168,9 @@ CSV bytes and export receipts are identical. Nothing calls the seam yet.
 
 These are activation controls, not unresolved implementation defects:
 
-1. Merge the independently reviewed selective branch as inactive infrastructure
-   without importing the rejected donor contracts.
+1. **Completed:** the independently reviewed selective branch was pushed to
+   production `main` at `b8aa155d` as inactive infrastructure, without
+   importing the rejected donor contracts or activating a caller.
 2. Add a narrow adapter for the adopted Week-1 `D800_DEMAX` path (single-bank
    800-solve dual-EMAX) or consume its immutable candidate/book artifacts. The
    current runner invokes the legacy five-seed CBWU path and **must not** be
