@@ -97,6 +97,8 @@ def test_counts_logs_and_time_boundary_are_exact() -> None:
     source = _source()
 
     assert 'SMOKE_STARTED_AT="2026-09-02T04:25:01Z"' in source
+    assert 'EXECUTION_CREATED_AT="2026-09-02T04:25:01.938746Z"' in source
+    assert '.metadata.creationTimestamp == $execution_created_at' in source
     assert 'COMPLETION_TIME="2026-09-02T04:28:59.074510Z"' in source
     assert 'row_count:"2134"' in source
     assert 'row_count:"2076"' in source

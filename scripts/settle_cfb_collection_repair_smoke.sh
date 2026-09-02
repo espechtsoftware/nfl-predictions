@@ -29,6 +29,7 @@ JOB_UID="2a1902a6-3bff-4511-9647-3340b1815ec9"
 JOB_GENERATION=11
 EXECUTION="ingest-cfb-rwcqr"
 EXECUTION_UID="e4c4e5cf-1862-46e2-be94-1751a66dc683"
+EXECUTION_CREATED_AT="2026-09-02T04:25:01.938746Z"
 SOURCE_SHA="31fa0d82c81b140f7853fa7de0bbd6f880890957"
 BUILD_ID="e3ebcc13-ba90-409b-b7d1-ce835adf23bf"
 IMAGE_TAG="us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:cfb-collection-31fa0d82c81b140f7853fa7de0bbd6f880890957"
@@ -153,17 +154,17 @@ verify_execution() {
   jq -e \
     --arg execution "$EXECUTION" \
     --arg execution_uid "$EXECUTION_UID" \
+    --arg execution_created_at "$EXECUTION_CREATED_AT" \
     --arg job_uid "$JOB_UID" \
     --arg image "$IMAGE" \
     --arg service_account "$SERVICE_ACCOUNT" \
     --arg project "$PROJECT" \
-    --arg started "$SMOKE_STARTED_AT" \
     --arg completed "$COMPLETION_TIME" '
       .metadata.name == $execution and .metadata.uid == $execution_uid and
       .metadata.labels."run.googleapis.com/job" == "ingest-cfb" and
       .metadata.labels."run.googleapis.com/jobUid" == $job_uid and
       .metadata.labels."run.googleapis.com/jobGeneration" == "11" and
-      .metadata.creationTimestamp >= $started and
+      .metadata.creationTimestamp == $execution_created_at and
       .status.completionTime == $completed and
       .spec.parallelism == 1 and .spec.taskCount == 1 and
       .spec.template.spec == {
