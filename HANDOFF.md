@@ -153,9 +153,12 @@ and operator decisions.  The older entries remain the durable chronology.
   a caller obtains the required receipt from trusted generation-pinned GCS
   metadata/exact reopen, supplies the reviewed selector-to-preset map, persists
   the canonical projection bytes create-once, and reopens them through the new
-  validator. Production `main` advanced independently to `1287283f`; before
-  integration, replay this commit on that exact tip and rerun the same 39-test
-  slice plus compilation/diff checks.
+  validator. Both isolated commits replayed without conflict onto exact newer
+  production tip `1287283f663ec15e8c4e181d8fc3f89b4cf1d804`, including
+  `HANDOFF.md`; the detached replay commits are `cad97b39` and `dde1f8d4`.
+  The same 39-test slice, Python compilation, and diff check pass there. These
+  disposable replay commits were not merged or pushed; integrate the original
+  isolated commits only after independent review.
 
 ### 2026-09-02 E0 historical summary API deployed
 
