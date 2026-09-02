@@ -9,7 +9,8 @@
 **Integrated production base:** `origin/main`
 `40aaba9846f55f6b7517aa6c5c2a4a2514c6cb75`
 
-**Implementation commit:** `bd006ada`
+**Implementation commits:** `bd006ada` and source-identity hardening
+`7186e878`
 
 ## Result
 
