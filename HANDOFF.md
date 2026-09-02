@@ -112,11 +112,39 @@ and operator decisions.  The older entries remain the durable chronology.
   bank 600 / 2021 Week 1, `--mechanics-only`, 2 CPU, 8 GiB, retry 1, and
   36,000-second timeout on the immutable digest. No efficacy prefix is
   claimed and no outcome reader is open.
-- Exact next action: poll `lab-run-kswwj` and its durable coordinator to
-  terminality, require the frozen create-once PREREG-055 gate receipt, and
-  independently reproduce its hash. Only after that receipt exists may a new
-  durable commit bind the exact gate and final reader hash and authorize
-  efficacy banks 600-602 through the canonical registry.
+- The mechanics execution reached exact terminal success at
+  `2026-09-02T10:56:59.060904Z`: one successful task, zero failures,
+  cancellations, or retries. Its frozen create-once gate is
+  `gs://nfl-2-506823-lab/gates/PREREG-055/086m600r1-20260902T104129Z.json`,
+  generation `1788346684400683`; production independently reopened the bytes
+  and reproduced SHA-256
+  `76c946176e3a2076622edb4cadc5add1a1d887cb6de2ae965e5513ad3feed52b`.
+- Lab `main` commit `22ad2d90139e6e2a0756913083cb8053535e2e43`
+  binds that exact gate, source/image/build tuple, and frozen reader SHA-256
+  `f2861d1c708aa6be83eb82c285a2c187a3e7e79ded583d9912858a5ee65037ce`
+  into both efficacy coordinator layers. An independent review caught and
+  then verified repair of a prelaunch multiline-reader-pin parser mismatch.
+  The exact parser now has a hermetic regression. Focused validation is 53
+  passed; the complete source suite is 418 passed; Ruff, Bash parsing, runtime
+  tree identity, reader hash, and diff checks pass. The review issued GO and
+  no efficacy prefix was consumed before the repaired binding was durable.
+- Durable efficacy coordinator `nfl2-prereg055-efficacy-r1.service`, invocation
+  `3c42c9d84981430db133a28aaf7aef75`, acquired only canonical prefixes
+  `086b600r1/601r1/602r1`. Bank 600 is run
+  `086b600r1-20260902T111003Z`, execution `lab-run-cjfp6`, UID
+  `bcbe5167-37d5-43a8-8ddf-3bfb8053f707`; all 18 tasks were running at the
+  latest check. Bank 601 is run `086b601r1-20260902T111222Z`, execution
+  `lab-run-slow-2gc4r`, UID `276b07c2-3be3-4097-bc26-c073f097ff93`; all 18
+  tasks were running at the latest check. Both use the exact immutable image,
+  18 tasks/parallelism, 2 CPU, 8 GiB, retry 1, and 36,000-second timeout (job
+  generations 75/27). The coordinator does not open outcomes or invoke the
+  reader.
+- Exact next action: poll both active efficacy executions. On the first exact
+  terminal success, the same durable coordinator will claim bank 602 on the
+  released lane after its final failure-wins check. If either initial bank
+  fails or is cancelled, require the coordinator to stop without consuming
+  602. After all three clean completions, wait for the lab's first read before
+  independently rerunning the frozen reader.
 
 ### 2026-09-02 canonical launcher registry cutover
 
