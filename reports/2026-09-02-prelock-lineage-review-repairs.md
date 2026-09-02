@@ -4,8 +4,12 @@
 
 **Branch:** `codex/prelock-lineage-review-repair`
 
-**Base:** production `main` / review commit
-`9ee67dc7deab893b52dc6d4f0579666ad8b97947`
+**Review commit:** `9ee67dc7deab893b52dc6d4f0579666ad8b97947`
+
+**Integrated production base:** `origin/main`
+`40aaba9846f55f6b7517aa6c5c2a4a2514c6cb75`
+
+**Implementation commit:** `bd006ada`
 
 ## Result
 

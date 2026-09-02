@@ -77,8 +77,9 @@ and operator decisions.  The older entries remain the durable chronology.
 ### 2026-09-02 pre-lock lineage review concerns repaired, default-off
 
 - Isolated selective port branch `codex/prelock-lineage-review-repair` starts
-  from reviewed production `main` commit
-  `9ee67dc7deab893b52dc6d4f0579666ad8b97947`. It does not merge donor branch
+  from review commit `9ee67dc7` and is rebased onto exact current production
+  `origin/main` `40aaba9846f55f6b7517aa6c5c2a4a2514c6cb75`; the repair
+  implementation is `bd006ada`. It does not merge donor branch
   `origin/codex/prelock-lineage-phase1` and does not change the current engine,
   live CBWU path, typed selector, immutable v1 sidecar, graph-v2 adapter, or
   source-set v6 scoring files.
