@@ -42,7 +42,7 @@ def test_source_receipt_requires_exact_commit_tracked_and_clean_paths(
     source.write_text("VALUE = 2\n", encoding="utf-8")
     with pytest.raises(
         ProspectivePrelockLineageShadowV2Error,
-        match="dirty",
+        match="globally clean",
     ):
         _validate_clean_source_checkout_v1(
             tmp_path,
@@ -51,6 +51,19 @@ def test_source_receipt_requires_exact_commit_tracked_and_clean_paths(
         )
 
     source.write_text("VALUE = 1\n", encoding="utf-8")
+    untracked = tmp_path / "untracked.py"
+    untracked.write_text("VALUE = 3\n", encoding="utf-8")
+    with pytest.raises(
+        ProspectivePrelockLineageShadowV2Error,
+        match="globally clean",
+    ):
+        _validate_clean_source_checkout_v1(
+            tmp_path,
+            expected_commit=head,
+            required_paths=["tracked.py"],
+        )
+    untracked.unlink()
+
     with pytest.raises(
         ProspectivePrelockLineageShadowV2Error,
         match="source commit differs",

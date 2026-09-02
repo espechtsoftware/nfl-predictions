@@ -81,7 +81,9 @@ _COMMIT: Final = re.compile(r"^[0-9a-f]{40}$")
 _RUN_ID: Final = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 _ADAPTER_PATHS: Final = (
     "pyproject.toml",
+    "src/nfl_dfs/bq.py",
     "src/nfl_dfs/backtest/engine.py",
+    "src/nfl_dfs/config.py",
     "src/nfl_dfs/inference/generation_exposure.py",
     "src/nfl_dfs/inference/live_lineups.py",
     "src/nfl_dfs/inference/multiseed_portfolio.py",
@@ -95,6 +97,7 @@ _ADAPTER_PATHS: Final = (
     "src/nfl_dfs/inference/week1_operating_book_suite_adapter.py",
     "src/nfl_dfs/models/components.py",
     "src/nfl_dfs/optimizer/lineup.py",
+    "src/nfl_dfs/optimizer/export.py",
     "src/nfl_dfs/optimizer/paid_classic_book_v2.py",
     "src/nfl_dfs/research/corpus_graph_vnext_contracts.py",
     "src/nfl_dfs/research/effective_policy_rule_inventory.py",
@@ -227,11 +230,9 @@ def _validate_clean_source_checkout_v1(
         "status",
         "--porcelain=v1",
         "--untracked-files=all",
-        "--",
-        *paths,
     )
     if status.returncode != 0 or status.stdout:
-        _fail("execution source checkout is dirty on the hashed path set")
+        _fail("execution source checkout is not globally clean")
 
 
 def build_execution_receipt_v1(
