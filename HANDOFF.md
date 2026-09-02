@@ -25,6 +25,31 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-02 production review of parlay-adjacent domain transfers
+
+- Branch `docs/neo4j-lab-priority-20260902`, report commit `36f606de`, adds the
+  shareable production-to-lab review
+  `reports/2026-09-02-production-review-parlay-adjacent-domain-transfers.md`.
+- The review leaves frozen experiments 088, 085, and 090 unchanged. It assigns
+  T3 book-correlation/exceedance measurements to a post-hoc sidecar and requires
+  a bounded point-in-time/data-identifiability receipt before T1/T2 can become
+  a score-bearing market-dependence experiment.
+- If market-implied dependence survives that audit, it belongs in a new
+  successor to the 089 dependence-law program, not as a reinterpretation of
+  the viewed 089 screen or an amendment to the 090 regime overlay. T5 and the
+  contest-specific part of T7 route to A5/field-value work; T4 and T6 remain
+  later follow-ons.
+- The review records source-contract corrections: production currently has
+  player-prop ladders and game moneyline/spread/total snapshots, but not a
+  demonstrated team-total ladder or direct SGP quote route. It also separates
+  common-lock inputs, post-lock closing-market grading, and outcome-bearing
+  settlement evidence.
+- Validation is documentation-only: `git diff --check` passes. No scoring,
+  cloud execution, experiment queue, Neo4j state, production policy, API,
+  paid-entry, or outcome artifact changed. Next concrete action: share the
+  review with the lab, keep 088 running under its frozen contract, and scope
+  only the T3 sidecar plus T1/T2 feasibility receipt.
+
 ### 2026-09-02 production review of coherent proposer/judge interventions
 
 - Branch `docs/neo4j-lab-priority-20260902` adds the reviewed operator note at
