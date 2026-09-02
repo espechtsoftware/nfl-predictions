@@ -137,6 +137,27 @@ and operator decisions.  The older entries remain the durable chronology.
   its immutable artifacts, then make all paid/UI routes use the same entered
   D800 identity. The capture rehearsal already supports one paid book plus a
   D400 shadow; A5 remains a separate open allocation decision.
+- Implementation is proceeding on isolated branch `codex/d800-week1-pair`.
+  The first fail-closed boundary is now implemented in
+  `src/nfl_dfs/inference/week1_adopted_pair.py`: it accepts only the entered
+  `D800_DEMAX` 160/640 dual-EMAX exact-K80 book plus the counterfactual
+  `D400_DEMAX` 80/320 dual-EMAX exact-K80 book; requires their slate, input,
+  player bridge, generation/selection/audit banks, construction law, generator,
+  selector, and corrected-hsim identities to match; pins the exact 10k+10k
+  equal-mass live recipe and its four RNG seeds; requires the D400 candidate
+  population to be contained in D800; binds both candidate and exposure-ledger
+  objects, each selected book, and each canonical live-run receipt to distinct
+  generation-pinned GCS identities under the governed prelock prefix; and
+  requires an explicit
+  outcome-blind freeze before the `2026-09-13T17:00:00Z` lock. Selected-book
+  overlap is retained as a diagnostic and selected-book nesting is not
+  required, matching PREREG-047; candidate-pool nesting is required. Ninety-
+  three focused contract/tamper tests pass, with Python compilation and
+  whitespace checks green. This is not yet a live serving authority: the next
+  implementation step is the create-once publisher/exact reader, followed by
+  fail-closed paid/API/capture bindings. The route census found every existing
+  Classic money/UI route can still reach the incumbent CBWU/coverage law, so
+  no route may be called D800-complete until that binding lands.
 - The `ingest-cfb` audit found 53 consecutive failures since its last success,
   caused by one stale advertised DraftKings draft group returning 404 and
   aborting otherwise useful collection. Schedulers `s-cfb` and `s-cfb-sat`
