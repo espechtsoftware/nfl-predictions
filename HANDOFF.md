@@ -58,6 +58,23 @@ and operator decisions.  The older entries remain the durable chronology.
   only as a disposable local shadow after its census/identity/query repairs; it
   is not part of E0 production integration.
 
+### 2026-09-02 selective offline Phase-B graph-contract v2 port prepared
+
+- Isolated branch `codex/e0-v2-phase-b-port`, rebased exactly onto production
+  `main` commit `cdda12dedbee84d5fd0b832af633e2cce7af5323`, selectively
+  ports the two governed schema-v2/Phase-B modules, their hermetic test, and
+  the matching deficiency row from reviewed donor `bf2ba95c`. No donor
+  handoff content was taken.
+- This is offline library/test surface only. All authority flags remain false;
+  no scoring, cloud, Neo4j service/data, React, outcome, E0 receipt, graph
+  pointer, or live-policy path changes.
+- Proposal-attempt aggregates remain reported-only because the release lacks
+  complete raw status counts and exact source-body/derivation binding.
+  Validation is 68 focused Phase-B/E0/transport/retrieval tests plus Ruff,
+  Python compilation, and diff checks. No network or service access occurred.
+- Next action is independent review and selective cherry-pick. Any E0/transport
+  adapter or load remains a separate, receipted current-main change.
+
 ### 2026-09-02 PREREG-053 first-read cross-verification and 086 transition
 
 - Lab `main` commits `77679bae81488b7130f02e5208ce4df60c18f4d6` and
