@@ -59,6 +59,31 @@ and operator decisions.  The older entries remain the durable chronology.
   only as a disposable local shadow after its census/identity/query repairs; it
   is not part of E0 production integration.
 
+### 2026-09-02 E0 historical summary API deployed
+
+- Corrected focused Cloud Build
+  `cfbd69fd-cd76-437a-aba6-a71f009eca9c` succeeded from exact clean source
+  `0f30c92565794ee9dcda026bcf1a3c90f83f3d10` and source generation
+  `1788357713838278`. Its in-image gate verified the baked artifact file and
+  semantic SHA-256 values, all three OpenAPI paths, the exact 241-lineup
+  first-observed-absence aggregate, and the one-row `coverage-194-v1` rescue
+  read. The immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:3da77cb5625ec5b7362f1478def5e3fc8ee5b09f8f9354590acea81bfdc161e4`.
+- Cloud Run revision `nfl-dfs-app-e0-0f30c925` is Ready and serves 100% of
+  `nfl-dfs-app` traffic. Its `CODE_SHA` is the exact source commit and its
+  summary path is
+  `/app/reports/2026-09-02-r6-historical-realized-summary-v1.json`. The prior
+  service account, IAP-only invoker policy, secret reference, 4 CPU / 4 GiB
+  envelope, concurrency 2, 1,800-second timeout, ingress, and scaling settings
+  remain unchanged. A direct unauthenticated query returns the expected IAP
+  challenge; no public access was added.
+- This deployment changes no scoring, selector, experiment, Neo4j authority,
+  or React surface. Next work remains the independently reviewed, default-off
+  complete pre-lock lineage instrumentation and summary-only v2 projection.
+  Both shared experiment lanes are idle, but lab Action Note Update 15 freezes
+  no successor arm; wait for exact KG-4 calibration and D800_WEMAX launch
+  packages rather than manufacturing a queue item.
+
 ### 2026-09-02 focused E0 API release gate repair
 
 - The first focused E0 application build, Cloud Build
@@ -78,21 +103,20 @@ and operator decisions.  The older entries remain the durable chronology.
   no scoring, artifact, API semantics, service setting, or graph contract; the
   38 focused local tests had already passed before submission.
 - The first repaired-gate retry, Cloud Build
-  `070a0a3d-2426-4f48-9ebd-e7aa9d42b64f`, used exact source
-  `ccdd4afd73f361c96f9cbeb1c67fc9c1f6295441` and source generation
-  `1788356955211278`. Its normal Docker build succeeded, but the smoke exited
-  1 because it inspected only top-level `app.routes`; the image's current
+  `070a0a3d-2426-4f48-9ebd-e7aa9d42b64f`, uploaded clean-worktree source
+  `ccdd4afde39bb738dd3dcf97eacfe36e38e71293` at generation
+  `1788356955211278`, but carried an incorrect `_CODE_SHA` substitution
+  `ccdd4afd73f361c96f9cbeb1c67fc9c1f6295441`; it is invalid on identity as
+  well as result. Its normal Docker build succeeded, but the smoke exited 1
+  because it inspected only top-level `app.routes`; the image's current
   FastAPI represents included routers as `_IncludedRouter` objects, while the
   routes are correctly registered and served beneath them. The failed build
   pushed no image and nothing was deployed. The smoke now checks the generated
   OpenAPI path set, which traverses included routers, and the exact corrected
   smoke passes locally.
-- Exact next action is one clean-source retry from the new pushed commit,
-  followed only on success by immutable-digest resolution and an
-  in-place `nfl-dfs-app` service update that preserves the existing resource,
-  identity, IAP, secret, timeout, and concurrency settings. The currently
-  serving revision remains `nfl-dfs-app-paid-v2-b193e54e` until that complete
-  gate succeeds.
+- The clean-source retry and deployment completed as recorded above. Retain the
+  two failed build records as evidence; neither produced a deployable image or
+  changed traffic.
 
 ### 2026-09-02 PREREG-055 first-read cross-verification and decision
 
