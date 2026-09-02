@@ -25,6 +25,57 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-02 default-off pre-lock opportunity-lineage Phase 1
+
+- Branch `codex/prelock-lineage-phase1`, implementation commit `43c55e27`,
+  adds the reviewed immutable pre-lock lineage slice. It is disabled unless the
+  new callback/explicit CLI is invoked and changes no deployed scoring, route,
+  scheduler, graph, or production policy. No cloud object, Neo4j mutation,
+  outcome read, paid entry, or deployment occurred.
+- The exact contract observes proposal, attempt/retry, generated occurrence,
+  duplicate attribution, pool-cap/CBWU admission, dynamic binary-selector
+  marginal, raw/final book transition, cross-namespace roster identity, exact
+  native/effective matrix identities, and an optional paid-preparation seam.
+  Unsupported armed configurations and any outcome-like input fail closed.
+- The separate `shadow-prelock-lineage` command is restricted to one explicit
+  2026 canonical-CBWU candidate-only shadow. It create-once publishes input
+  authority, raw selector matrix, candidate envelope, terminal root, and a
+  summary-only graph-v2 packet. Exact retries reopen identical bytes; provider
+  generation/time must be trusted and pre-lock. The implementation manifest
+  digest at commit `43c55e27` is
+  `963fd4db11d29befc7ed9dd9ae78cc8d0e8b780fb68d57f3b5cbd715e8d4c37b`.
+  Recompute it before running. The runner's `194.0` records the current
+  production selector and does not restore the retired lab objective.
+- The graph adapter emits only source/run/slate/science/stage/strategy/book
+  identities and structural counts under `corpus-graph-vnext/v2`. It emits no
+  Lineup node, roster, detailed candidate, matrix, winner, score, or rescue
+  row; all decision/promotion/graph-mutation authority remains false and the
+  adapter performs no Neo4j I/O. The v1 observatory branch was not merged or
+  mounted.
+- Post-lock first-loss and one-at-a-time rescue readers are separate,
+  explicitly outcome-bearing libraries. They exact-reopen the frozen matrix,
+  require exact contest/EntryID/DraftKings-roster confirmation when prepared
+  evidence exists, and mark summed individual rescues non-joint. They do not
+  yet fetch/bind a complete standings object, field bridge/access receipt, or
+  accepted winner-registry-v2 receipt and therefore do not claim autonomous
+  exact settlement authority.
+- Validation passed 141 focused contract/runtime/settlement/shadow/CBWU/
+  paid-export/live/selector regression tests, new-file Ruff, fatal lint on
+  touched legacy files, Python compilation, CLI help, and diff checks. A broad
+  suite sample was stopped at 3%; its three observed failures are base-state
+  issues in an old app-policy fixture and stale ATLAS current-file hash tests,
+  outside this diff. Historical hashes were not rewritten.
+- The full implementation record and exact invocation shape are in
+  `reports/2026-09-02-prelock-lineage-phase1-implementation.md`.
+- Exact next action: review/merge the default-off branch, then have production
+  select one fresh 2026 main-slate run ID, draft group, authoritative lock, and
+  approved bucket. Recompute the implementation digest and run one
+  candidate-only shadow well before lock; exact-reopen all five objects and
+  compare its returned canonical-CBWU book to the ordinary book. Only after
+  that succeeds, separately review (1) default-off paid-route create-once CSV/
+  prepared-sidecar mounting with exact contest-manifest authority and (2) the
+  post-lock complete-standings/field-bridge/winner-registry source adapter.
+
 ### 2026-09-02 E0-first graph integration boundary
 
 - Operator direction is to keep scoring untouched and use the accepted E0
