@@ -77,8 +77,18 @@ and operator decisions.  The older entries remain the durable chronology.
   aggregate, and an exact one-row `coverage-194-v1` rescue query. This changes
   no scoring, artifact, API semantics, service setting, or graph contract; the
   38 focused local tests had already passed before submission.
-- Exact next action is one clean-source retry from the pushed commit carrying
-  this gate, followed only on success by immutable-digest resolution and an
+- The first repaired-gate retry, Cloud Build
+  `070a0a3d-2426-4f48-9ebd-e7aa9d42b64f`, used exact source
+  `ccdd4afd73f361c96f9cbeb1c67fc9c1f6295441` and source generation
+  `1788356955211278`. Its normal Docker build succeeded, but the smoke exited
+  1 because it inspected only top-level `app.routes`; the image's current
+  FastAPI represents included routers as `_IncludedRouter` objects, while the
+  routes are correctly registered and served beneath them. The failed build
+  pushed no image and nothing was deployed. The smoke now checks the generated
+  OpenAPI path set, which traverses included routers, and the exact corrected
+  smoke passes locally.
+- Exact next action is one clean-source retry from the new pushed commit,
+  followed only on success by immutable-digest resolution and an
   in-place `nfl-dfs-app` service update that preserves the existing resource,
   identity, IAP, secret, timeout, and concurrency settings. The currently
   serving revision remains `nfl-dfs-app-paid-v2-b193e54e` until that complete
