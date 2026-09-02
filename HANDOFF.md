@@ -25,7 +25,7 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
-### 2026-09-02 PREREG-056 / experiment 087 r1 void; memory-bounded r2 preparing
+### 2026-09-02 PREREG-056 / experiment 087 r1 void; memory-bounded r2 mechanics ready
 
 - Lab Action Note Update 16 advanced the authorized queue to outcome-disabled
   mechanics `087m610r1`, followed by efficacy banks
@@ -98,10 +98,19 @@ and operator decisions.  The older entries remain the durable chronology.
   in-flight-retry release guard `57ebcfd`). It descends the lab's newly frozen
   PREREG-057 design commit `2fccc2a`; PREREG-057 is queued work, not part of
   this 087 execution.
-- Next exact action: build one fresh immutable image from `57ebcfd`, bind it,
-  and run only `087m610r2`. Efficacy remains blocked until r2 reaches terminal
-  exact success with zero retries and its create-once gate receipt is
-  independently reproduced.
+- Replacement Cloud Build `883dd47f-2159-4f5a-b317-7da548569b34`
+  succeeded at `2026-09-02T16:46:57.469733Z` from exact source commit
+  `57ebcfd76ceb29cf71c4097f359ccd6d2125aa16`, source-object generation
+  `1788367492873213`, and tag `087-57ebcfd7`. Both the build result and an
+  independent Artifact Registry resolution identify immutable digest
+  `sha256:3786b918b938f8c82f4dc63c8f82cf1c802312f3ed1c84002a2b9897852368ec`.
+  The mechanics-only binding is durable on lab `main` at
+  `8345afd4bf1e7fde445333380ddb4d5fc8f30435`; its post-rebase validation
+  passed 88/88 focused tests, all four launcher shell parses, Python compile,
+  and diff checks. Reader and efficacy pins remain deliberately unbound.
+- Next exact action: run only `087m610r2`. Efficacy remains blocked until r2
+  reaches terminal exact success with zero retries and its create-once gate
+  receipt is independently reopened and reproduced.
 
 ### 2026-09-02 pre-lock lineage Phase 1 production review
 
