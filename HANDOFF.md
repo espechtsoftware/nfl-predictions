@@ -25,6 +25,39 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-02 production review of operator mid/side score ideas
+
+- Branch `docs/neo4j-lab-priority-20260902` adds the reviewed, shareable
+  operator note at report commit `13c22e88`:
+  `reports/2026-09-02-operator-note-midside-extremes-and-score-ideas.md`.
+- The review marks the lab-owned work explicitly: execute frozen 088 now;
+  continue a walk-forward participation/active-status lane in parallel; and
+  prepare a bounded post-088 dependence-law comparison separating ECC
+  proposer-plus-judge repair from fixed-pool minimum-KL judge reweighting.
+- After production supplies complete D800 lineage, the lab sequence is
+  first-loss/KG-3A, same-pool KG-5 rescue, direct phenotype generation, and
+  the final generation x admission x retrieval crossing. Registry v2 blocks
+  authoritative winner comparisons, not corpus-only lineage intelligence.
+- The review corrects the note's stale 087 status: PREREG-056 sealed FLAT
+  (proxy `+0.00022 [-0.00307,+0.00507]`, 25 ties, `p=.91`; raw `+0.251`,
+  non-significant), so no 087 extension is recommended and D800_DEMAX remains
+  the 088 control.
+- A5 spend/contest allocation, registry-v2 source adjudication, immutable
+  package publication, exact-K live mapping, and Week-1 capture are identified
+  as operator/production work. The lab validates those packages and runs the
+  downstream experiments; it does not own the source publication or paid
+  decision.
+- Scientific boundaries are explicit: target-fold realized calibration
+  metrics are not outcome-blind; ECC and minimum-KL have different estimands;
+  mechanics must expose ESS/maximum weight, marginals, dependence movement,
+  delivered unique supply, turnover, compute, and provenance; and component
+  gains cannot be added without the final crossing.
+- Validation is documentation-only: `git diff --check` passes. No scoring,
+  cloud execution, Neo4j service/data, production policy, API, paid entry, or
+  outcome artifact changed. Exact next action: share the reviewed report with
+  the lab; keep frozen 088 as the immediate execution and participation as the
+  parallel lane while the dependence-law preregistration is drafted.
+
 ### 2026-09-02 production-to-lab Neo4j score-priority direction
 
 - Isolated branch `docs/neo4j-lab-priority-20260902` adds the shareable
