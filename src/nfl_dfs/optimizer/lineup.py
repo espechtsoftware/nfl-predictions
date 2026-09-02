@@ -16,7 +16,7 @@ import logging
 from collections import Counter
 from dataclasses import dataclass, field
 from time import perf_counter
-from typing import Any, Callable, Mapping
+from typing import Any, Callable, Literal, Mapping, Protocol
 
 import numpy as np
 import pulp
@@ -42,6 +42,37 @@ MIN_GAMES = 1
 INCUMBENT_MIN_GAMES = 2
 
 Player = dict[str, Any]  # id, name, pos, team, opp, game_id, salary, proj
+
+
+@dataclass(frozen=True, slots=True)
+class CoverageSelectorEvent:
+    """One outcome-free observation from the binary coverage selector.
+
+    ``selection_rank`` is the actual zero-based selection step for selected
+    candidates and is always ``None`` for candidates left out of the book.
+    ``fresh_world_count`` is measured at that step for selected candidates and
+    against the completed book for nonselected candidates.  ``tiebreak`` is
+    the exact descending ``(p_line, mean_simulated_total)`` tuple used by the
+    existing selector after fresh-world marginal coverage.
+    """
+
+    candidate_index: int
+    selected: bool
+    selection_rank: int | None
+    fresh_world_count: int
+    individual_clear_count: int
+    p_line: float
+    mean_simulated_total: float
+    phase: Literal["coverage", "saturation-fill", "terminal"]
+    tiebreak: tuple[float, float]
+    eligible_for_selection: bool
+    terminal_reason: Literal["book-full", "fill-order"] | None
+
+
+class CoverageSelectorEventSink(Protocol):
+    """Optional post-decision receiver for selector-lineage events."""
+
+    def __call__(self, event: CoverageSelectorEvent, /) -> None: ...
 
 
 @dataclass(frozen=True)
@@ -640,6 +671,7 @@ def optimize_many(
 def select_tail_entries(
     cand_totals: np.ndarray, n_entries: int, line: float,
     env: Mapping[str, str] | None = None,
+    *, event_sink: CoverageSelectorEventSink | None = None,
 ) -> list[int]:
     """Pick the n_entries candidates that maximize P(best-of-N >= line)
     against correlated draws. cand_totals[c, k] = candidate c's total in
@@ -666,6 +698,10 @@ def select_tail_entries(
     if _alpha > 0 and _ladder_spec:
         raise ValueError("SELECT_LSE and SELECT_LADDER are mutually exclusive")
     if _alpha > 0:
+        if event_sink is not None:
+            raise ValueError(
+                "coverage selector tracing is unavailable for SELECT_LSE"
+            )
         return _select_lse_entries(cand_totals, n_entries, line, _alpha)
     # Research lever (env SELECT_LADDER, off by default; Ring A / A1,
     # protocol pending the operator's utility freeze): portfolio-marginal
@@ -673,12 +709,17 @@ def select_tail_entries(
     # term) instead of binary coverage at one line.  Registered in the
     # immutable lever set; never set on production deployments.
     if _ladder_spec:
+        if event_sink is not None:
+            raise ValueError(
+                "coverage selector tracing is unavailable for SELECT_LADDER"
+            )
         ladder, mean_weight = _parse_ladder(_ladder_spec)
         return select_ladder_entries(
             cand_totals, n_entries, ladder, mean_weight=mean_weight)
     clears = cand_totals >= line
     return select_from_support(clears, clears.mean(axis=1),
-                               cand_totals.mean(axis=1), n_entries)
+                               cand_totals.mean(axis=1), n_entries,
+                               event_sink=event_sink)
 
 
 def select_from_support(
@@ -686,6 +727,8 @@ def select_from_support(
     p_line: np.ndarray,
     mean_total: np.ndarray,
     n_entries: int,
+    *,
+    event_sink: CoverageSelectorEventSink | None = None,
 ) -> list[int]:
     """THE greedy coverage selector, expressed over its sufficient
     statistics: the per-world clear mask plus the two tiebreakers
@@ -704,18 +747,91 @@ def select_from_support(
     selected: list[int] = []
     covered = np.zeros(clears.shape[1], dtype=bool)
     remaining = set(range(len(clears)))
+    trace: list[CoverageSelectorEvent] | None = (
+        [] if event_sink is not None else None
+    )
+    coverage_saturated = False
     while len(selected) < n_entries and remaining:
         best = max(remaining,
                    key=lambda i: (int(np.count_nonzero(clears[i] & ~covered)),
                                   p_line[i], mean_total[i]))
-        if not np.count_nonzero(clears[best] & ~covered):
+        fresh_world_count = int(np.count_nonzero(clears[best] & ~covered))
+        if not fresh_world_count:
+            coverage_saturated = True
             break  # coverage saturated; fill below
+        if trace is not None:
+            trace.append(CoverageSelectorEvent(
+                candidate_index=best,
+                selected=True,
+                selection_rank=len(selected),
+                fresh_world_count=fresh_world_count,
+                individual_clear_count=int(np.count_nonzero(clears[best])),
+                p_line=float(p_line[best]),
+                mean_simulated_total=float(mean_total[best]),
+                phase="coverage",
+                tiebreak=(float(p_line[best]), float(mean_total[best])),
+                eligible_for_selection=True,
+                terminal_reason=None,
+            ))
         selected.append(best)
         covered |= clears[best]
         remaining.discard(best)
     fill = sorted(remaining, key=lambda i: (p_line[i], mean_total[i]),
                   reverse=True)
-    selected += fill[: n_entries - len(selected)]
+    fill_selected = fill[: n_entries - len(selected)]
+    if trace is not None:
+        coverage_count = len(selected)
+        trace_covered = covered.copy()
+        for fill_ordinal, best in enumerate(fill_selected):
+            trace.append(CoverageSelectorEvent(
+                candidate_index=best,
+                selected=True,
+                selection_rank=coverage_count + fill_ordinal,
+                fresh_world_count=int(
+                    np.count_nonzero(clears[best] & ~trace_covered)
+                ),
+                individual_clear_count=int(np.count_nonzero(clears[best])),
+                p_line=float(p_line[best]),
+                mean_simulated_total=float(mean_total[best]),
+                phase="saturation-fill",
+                tiebreak=(float(p_line[best]), float(mean_total[best])),
+                eligible_for_selection=True,
+                terminal_reason=None,
+            ))
+            trace_covered |= clears[best]
+    selected += fill_selected
+    if trace is not None:
+        selected_set = set(selected)
+        final_covered = np.zeros(clears.shape[1], dtype=bool)
+        for candidate_index in selected:
+            final_covered |= clears[candidate_index]
+        for candidate_index in range(len(clears)):
+            if candidate_index in selected_set:
+                continue
+            trace.append(CoverageSelectorEvent(
+                candidate_index=candidate_index,
+                selected=False,
+                selection_rank=None,
+                fresh_world_count=int(
+                    np.count_nonzero(clears[candidate_index] & ~final_covered)
+                ),
+                individual_clear_count=int(
+                    np.count_nonzero(clears[candidate_index])
+                ),
+                p_line=float(p_line[candidate_index]),
+                mean_simulated_total=float(mean_total[candidate_index]),
+                phase="terminal",
+                tiebreak=(
+                    float(p_line[candidate_index]),
+                    float(mean_total[candidate_index]),
+                ),
+                eligible_for_selection=True,
+                terminal_reason=(
+                    "fill-order" if coverage_saturated else "book-full"
+                ),
+            ))
+        for event in trace:
+            event_sink(event)
     return selected
 
 
