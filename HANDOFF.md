@@ -216,11 +216,31 @@ and operator decisions.  The older entries remain the durable chronology.
   compilation pass. Replacement immutable image build
   `cc21f1d7-b78e-463b-8bc2-09809d823f70` started from its exact clean worktree
   at `2026-09-02T03:30:08.391586216Z` on tag
-  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2:084-e992c7d9` and remains
-  WORKING at this handoff update. No 084 execution has launched. After build
-  success: bind exact digest/source/build into the registered mechanics
-  coordinator, launch only `084m590r1`, publish and verify the create-once
-  PREREG-053 gate, then bind and fan `084b590r1/591r1/592r1` over both lanes.
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2:084-e992c7d9` and succeeded
+  at `2026-09-02T03:32:07.932840Z`; immutable digest is
+  `sha256:5ef2cdb447f67f89a3d92fdc9fdb765b4ad0326c0d4b5ed399b195d28b516bd7`.
+  The new build monitor recorded the WORKING->SUCCESS transition at
+  `03:33:09Z` and delivered its notification.
+- Lab commit `11f101e41f96d0cf4725ecbc4eceaa9b0ec8e323` binds the registered
+  PREREG-053 mechanics coordinator to that exact source/image/build and adds
+  fail-closed efficacy templates awaiting the fresh gate receipt. Queue/gate/
+  reader/offset validation is `53 passed`; all four queue scripts parse as
+  Bash, have executable modes, and pass Ruff/diff checks. The first local
+  coordinator invocation failed before any provider mutation because its
+  isolated worktree lacked `.venv`; provider and GCS censuses proved the
+  `084m590r1` prefix remained entirely unclaimed. The existing validated lab
+  environment was then attached to the worktree.
+- Durable mechanics coordinator `nfl2-prereg053-mechanics-r2.service`
+  (invocation `9e09beacdbf54ba8921a667873318360`, zero restarts) owns exact prefix
+  `084m590r1`. It coherently installed the immutable image and 2-vCPU/8-GiB,
+  retry-1, one-task envelope on both reusable jobs, then created outcome-
+  disabled run `084m590r1-20260902T033557Z`: execution `lab-run-27vzj`, UID
+  `4da38dc3-e03f-46a2-b150-85755af14ce5`, created
+  `2026-09-02T03:35:58.542348Z`. The coordinator is waiting for exact success,
+  will run the frozen validator and publish/verify the create-once
+  PREREG-053 receipt, and cannot open efficacy outcomes. After the gate:
+  bind its exact run/hash and reader hash, then fan
+  `084b590r1/591r1/592r1` over both lanes.
 
 ### 2026-09-01 durable Cloud Run lane monitor armed; PREREG-052 image ready
 
