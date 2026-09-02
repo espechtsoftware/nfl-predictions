@@ -220,8 +220,9 @@ and operator decisions.  The older entries remain the durable chronology.
   `2026-09-02T12:16:06.720020Z`, 18/18 succeeded with zero failures,
   cancellations, or retries. Bank 601 is run
   `086b601r1-20260902T111222Z`, execution `lab-run-slow-2gc4r`, UID
-  `276b07c2-3be3-4097-bc26-c073f097ff93`; it remains active with zero
-  failures, cancellations, or retries at the latest check.
+  `276b07c2-3be3-4097-bc26-c073f097ff93`; it reached exact terminal success at
+  `2026-09-02T12:21:25.943141Z`, 18/18 succeeded with zero failures,
+  cancellations, or retries.
 - After independently confirming bank 600's clean terminal state, the same
   coordinator passed its final failure-wins check and claimed bank 602 on the
   released fast lane. Bank 602 is run `086b602r1-20260902T121746Z`, execution
@@ -231,9 +232,10 @@ and operator decisions.  The older entries remain the durable chronology.
   snapshot has the exact bank-602 runner, source/image tuple, 18
   tasks/parallelism, 2 CPU, 8 GiB, retry 1, and 36,000-second timeout. The
   coordinator does not open outcomes or invoke the reader.
-- Exact next action: poll banks 601 and 602. Any failure, cancellation, or real
-  task retry blocks acceptance. After both reach clean 18/18 completion and the
-  coordinator exits 0, wait for the lab's first read before independently
+- Exact next action: poll bank 602. Any failure, cancellation, or real task
+  retry blocks acceptance. No separate launch-ready experiment is authorized
+  for the now-free slow lane. After bank 602 reaches clean 18/18 completion and
+  the coordinator exits 0, wait for the lab's first read before independently
   rerunning the frozen reader.
 
 ### 2026-09-02 canonical launcher registry cutover
