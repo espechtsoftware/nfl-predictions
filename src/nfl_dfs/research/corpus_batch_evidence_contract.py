@@ -17,6 +17,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from copy import deepcopy
+from dataclasses import dataclass
 from typing import Final
 
 from .corpus_parametric_batch import (
@@ -38,6 +39,7 @@ from .corpus_parametric_batch import (
 
 
 SCHEMA: Final = "corpus-parametric-batch-evidence-contract/v1"
+V2_SCHEMA: Final = "corpus-parametric-batch-evidence-contract/v2"
 CONTRACT_PHASE: Final = "pre_run_outcome_blind"
 KNOWLEDGE_CLASS: Final = "outcome_blind"
 INCUMBENT_PARAMETER_SET_ID: Final = "incumbent"
@@ -57,6 +59,50 @@ EXPECTED_INVENTORY_SOURCE_SET_SHA256: Final = (
 )
 EXPECTED_CLASSIFIED_INPUT_PROJECTION_SHA256: Final = (
     "3ddef13eade46dd3198bc86acdb7f16f56ea8fc30a81c2f421c5c3e72b8ddd99"
+)
+V2_EXPECTED_INVENTORY_SHA256: Final = (
+    "830dcfbde6cd3e2a6ac629cfbf6a7f8acd2b237f8951f9c050d40a6e1f30ad54"
+)
+V2_EXPECTED_RULE_UNIVERSE_SHA256: Final = (
+    "c8d51dbca4090b342d7979c3bb425d7c79cdd79e4d03d1159acc1c934f7c8cc4"
+)
+V2_EXPECTED_INVENTORY_SOURCE_SET_SHA256: Final = (
+    "7061e2cc6657101a9a3f36855926b8523550ca697d0f022c12143e8a28fde791"
+)
+V2_EXPECTED_CLASSIFIED_INPUT_PROJECTION_SHA256: Final = (
+    "d3ad2c67c3e57e6199c83a3e4de8c3c6ef07fde44a4c289d1f85464f9c52a779"
+)
+
+
+@dataclass(frozen=True)
+class _EvidenceContractVersion:
+    schema: str
+    contract_suffix: str
+    inventory_sha256: str
+    rule_universe_sha256: str
+    inventory_source_set_sha256: str
+    classified_input_projection_sha256: str
+
+
+_V1_CONTRACT: Final = _EvidenceContractVersion(
+    schema=SCHEMA,
+    contract_suffix="v1",
+    inventory_sha256=EXPECTED_INVENTORY_SHA256,
+    rule_universe_sha256=EXPECTED_RULE_UNIVERSE_SHA256,
+    inventory_source_set_sha256=EXPECTED_INVENTORY_SOURCE_SET_SHA256,
+    classified_input_projection_sha256=(
+        EXPECTED_CLASSIFIED_INPUT_PROJECTION_SHA256
+    ),
+)
+_V2_CONTRACT: Final = _EvidenceContractVersion(
+    schema=V2_SCHEMA,
+    contract_suffix="v2",
+    inventory_sha256=V2_EXPECTED_INVENTORY_SHA256,
+    rule_universe_sha256=V2_EXPECTED_RULE_UNIVERSE_SHA256,
+    inventory_source_set_sha256=V2_EXPECTED_INVENTORY_SOURCE_SET_SHA256,
+    classified_input_projection_sha256=(
+        V2_EXPECTED_CLASSIFIED_INPUT_PROJECTION_SHA256
+    ),
 )
 
 PARENT_GRAPH: Final = {
@@ -1117,22 +1163,24 @@ def _graph_topology(task_count: int, endpoint_rows: Sequence[object],
     }
 
 
-def _validate_foundation_identity(manifest: Mapping[str, object]) -> None:
+def _validate_foundation_identity(
+    manifest: Mapping[str, object], version: _EvidenceContractVersion
+) -> None:
     common = manifest["common_law"]
     expected = {
         "effective_policy_classified_input_projection_sha256": (
-            EXPECTED_CLASSIFIED_INPUT_PROJECTION_SHA256
+            version.classified_input_projection_sha256
         ),
-        "effective_policy_inventory_sha256": EXPECTED_INVENTORY_SHA256,
+        "effective_policy_inventory_sha256": version.inventory_sha256,
         "effective_policy_inventory_source_set_sha256": (
-            EXPECTED_INVENTORY_SOURCE_SET_SHA256
+            version.inventory_source_set_sha256
         ),
-        "effective_policy_rule_universe_sha256": EXPECTED_RULE_UNIVERSE_SHA256,
+        "effective_policy_rule_universe_sha256": version.rule_universe_sha256,
     }
     for key, value in expected.items():
         if common[key] != value:
             raise CorpusBatchEvidenceContractError(
-                f"batch manifest {key} differs from evidence-contract v1"
+                f"batch manifest {key} differs from {version.schema}"
             )
     budget = common["solve_budget"]
     if (
@@ -1143,7 +1191,7 @@ def _validate_foundation_identity(manifest: Mapping[str, object]) -> None:
         or tuple(common["source_receipts"]) != ("later_source_freeze",)
     ):
         raise CorpusBatchEvidenceContractError(
-            "batch dose/source roles differ from evidence-contract v1"
+            f"batch dose/source roles differ from {version.schema}"
         )
     if tuple(TASK_WORLD_SOURCE_ROLES) != (
         "world_artifact_r0", "world_artifact_r1", "world_artifact_r2",
@@ -1199,14 +1247,15 @@ def _batch_binding(
     }
 
 
-def build_corpus_batch_evidence_contract(
+def _build_corpus_batch_evidence_contract(
     *,
     batch_manifest: Mapping[str, object],
     batch_manifest_identity: Mapping[str, object],
+    version: _EvidenceContractVersion,
 ) -> dict[str, object]:
     """Build the deterministic create-once preregistration for one batch."""
     manifest = validate_batch_manifest(batch_manifest)
-    _validate_foundation_identity(manifest)
+    _validate_foundation_identity(manifest, version)
     identity = validate_json_identity(
         manifest,
         batch_manifest_identity,
@@ -1233,7 +1282,10 @@ def build_corpus_batch_evidence_contract(
             "separately_governed_realized_completion_required": True,
         },
         "batch_binding": _batch_binding(manifest, identity),
-        "contract_id": f"contract:corpus-parametric:{manifest['batch_id']}:v1",
+        "contract_id": (
+            f"contract:corpus-parametric:{manifest['batch_id']}:"
+            f"{version.contract_suffix}"
+        ),
         "contract_phase": CONTRACT_PHASE,
         "contract_uri": contract_uri,
         "decision_authority": False,
@@ -1275,11 +1327,37 @@ def build_corpus_batch_evidence_contract(
             "partial_result_inspection": "forbidden",
             "winner_or_nominee_only_output": "forbidden",
         },
-        "schema_version": SCHEMA,
+        "schema_version": version.schema,
         "uses_realized_outcomes": False,
     }
     body["evidence_contract_sha256"] = canonical_sha256(body)
     return body
+
+
+def build_corpus_batch_evidence_contract(
+    *,
+    batch_manifest: Mapping[str, object],
+    batch_manifest_identity: Mapping[str, object],
+) -> dict[str, object]:
+    """Build the immutable historical v1 evidence contract."""
+    return _build_corpus_batch_evidence_contract(
+        batch_manifest=batch_manifest,
+        batch_manifest_identity=batch_manifest_identity,
+        version=_V1_CONTRACT,
+    )
+
+
+def build_corpus_batch_evidence_contract_v2(
+    *,
+    batch_manifest: Mapping[str, object],
+    batch_manifest_identity: Mapping[str, object],
+) -> dict[str, object]:
+    """Build the future v2 contract bound to source inventory v6."""
+    return _build_corpus_batch_evidence_contract(
+        batch_manifest=batch_manifest,
+        batch_manifest_identity=batch_manifest_identity,
+        version=_V2_CONTRACT,
+    )
 
 
 def validate_corpus_batch_evidence_contract(
@@ -1291,7 +1369,16 @@ def validate_corpus_batch_evidence_contract(
     """Rebuild from the batch and require exact type-sensitive equality."""
     if not isinstance(value, Mapping):
         raise CorpusBatchEvidenceContractError("evidence contract must be an object")
-    expected = build_corpus_batch_evidence_contract(
+    schema = value.get("schema_version")
+    if schema == SCHEMA:
+        builder = build_corpus_batch_evidence_contract
+    elif schema == V2_SCHEMA:
+        builder = build_corpus_batch_evidence_contract_v2
+    else:
+        raise CorpusBatchEvidenceContractError(
+            "evidence contract schema version is unsupported"
+        )
+    expected = builder(
         batch_manifest=batch_manifest,
         batch_manifest_identity=batch_manifest_identity,
     )
@@ -1377,8 +1464,10 @@ __all__ = [
     "INCUMBENT_PARAMETER_SET_ID",
     "PAIRED_TEST_LAW",
     "SCHEMA",
+    "V2_SCHEMA",
     "THRESHOLDS_DK",
     "build_corpus_batch_evidence_contract",
+    "build_corpus_batch_evidence_contract_v2",
     "endpoint_registry",
     "validate_corpus_batch_evidence_contract",
     "validate_corpus_batch_evidence_contract_bytes",

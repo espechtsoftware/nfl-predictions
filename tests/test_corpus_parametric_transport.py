@@ -252,7 +252,9 @@ def _code_source() -> tuple[dict[str, object], bytes]:
     return _identity(f"{FOUNDATION_PREFIX}code-source.json", raw, "2"), raw
 
 
-def _common_law(code_identity: dict[str, object]) -> dict[str, object]:
+def _common_law(
+    code_identity: dict[str, object], *, evidence_v2: bool = False
+) -> dict[str, object]:
     source_receipts = {
         "later_source_freeze": _placeholder(
             "later-source-freeze", 10, prefix=f"{SOURCE_PREFIX}source/"
@@ -314,6 +316,21 @@ def _common_law(code_identity: dict[str, object]) -> dict[str, object]:
         "worker_environment_inheritance": False,
         "worker_graph_mutation": False,
     }
+    if evidence_v2:
+        result.update({
+            "effective_policy_inventory_sha256": (
+                evidence.V2_EXPECTED_INVENTORY_SHA256
+            ),
+            "effective_policy_rule_universe_sha256": (
+                evidence.V2_EXPECTED_RULE_UNIVERSE_SHA256
+            ),
+            "effective_policy_inventory_source_set_sha256": (
+                evidence.V2_EXPECTED_INVENTORY_SOURCE_SET_SHA256
+            ),
+            "effective_policy_classified_input_projection_sha256": (
+                evidence.V2_EXPECTED_CLASSIFIED_INPUT_PROJECTION_SHA256
+            ),
+        })
     return result
 
 
@@ -343,14 +360,16 @@ def _task(task_index: int, *, batch_id: str) -> dict[str, object]:
     }
 
 
-def _manifest(task_count: int = 1) -> tuple[dict[str, object], bytes, bytes]:
+def _manifest(
+    task_count: int = 1, *, evidence_v2: bool = False
+) -> tuple[dict[str, object], bytes, bytes]:
     code_identity, code_raw = _code_source()
     batch_id = "corpus-transport-test-v1"
     manifest = batch.build_batch_manifest(
         batch_id=batch_id,
         created_at_utc=NOW,
         output_prefix=f"gs://dedicated/batches/{batch_id}/",
-        common_law=_common_law(code_identity),
+        common_law=_common_law(code_identity, evidence_v2=evidence_v2),
         tasks=[_task(index, batch_id=batch_id) for index in range(task_count)],
     )
     return manifest, batch.canonical_json_bytes(manifest), code_raw
@@ -1160,15 +1179,22 @@ def _deployment_attestation(
 
 
 def _configuration_fixture(
-    *, task_count: int = 1
+    *, task_count: int = 1, evidence_v2: bool = False
 ) -> tuple[
     FakeStore, dict[str, object], dict[str, object], dict[str, object],
     dict[str, object], dict[str, object],
 ]:
     store = FakeStore()
-    manifest, manifest_raw, code_raw = _manifest(task_count)
+    manifest, manifest_raw, code_raw = _manifest(
+        task_count, evidence_v2=evidence_v2
+    )
     manifest_identity = store.seed(manifest["manifest_uri"], manifest_raw, "100")
-    evidence_contract = evidence.build_corpus_batch_evidence_contract(
+    evidence_builder = (
+        evidence.build_corpus_batch_evidence_contract_v2
+        if evidence_v2
+        else evidence.build_corpus_batch_evidence_contract
+    )
+    evidence_contract = evidence_builder(
         batch_manifest=manifest,
         batch_manifest_identity=manifest_identity,
     )
@@ -1200,12 +1226,14 @@ def _configuration_fixture(
 
 
 def _configured(
-    *, task_count: int = 1
+    *, task_count: int = 1, evidence_v2: bool = False
 ) -> tuple[FakeStore, dict[str, object], dict[str, object], dict[str, object]]:
     (
         store, manifest, manifest_identity, evidence_identity,
         prerequisite_identity, foundation_publication_identity,
-    ) = _configuration_fixture(task_count=task_count)
+    ) = _configuration_fixture(
+        task_count=task_count, evidence_v2=evidence_v2
+    )
     configured = transport.configure_transport(
         storage=store,
         batch_manifest_identity=manifest_identity,
@@ -1235,6 +1263,14 @@ def _configured(
         transport.strict_json_bytes(contract_raw, label="contract")
     )
     return store, manifest, contract, configured
+
+
+def test_transport_configure_accepts_strict_v2_evidence_contract() -> None:
+    _, manifest, contract, configured = _configured(evidence_v2=True)
+    assert contract["batch_manifest_sha256"] == manifest[
+        "batch_manifest_sha256"
+    ]
+    assert configured["launch_permitted"] is False
 
 
 def _execution(

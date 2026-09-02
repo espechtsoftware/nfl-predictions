@@ -131,6 +131,31 @@ def _manifest() -> dict[str, object]:
     )
 
 
+def _manifest_v2() -> dict[str, object]:
+    common = _common_law()
+    common.update({
+        "effective_policy_inventory_sha256": (
+            evidence.V2_EXPECTED_INVENTORY_SHA256
+        ),
+        "effective_policy_rule_universe_sha256": (
+            evidence.V2_EXPECTED_RULE_UNIVERSE_SHA256
+        ),
+        "effective_policy_inventory_source_set_sha256": (
+            evidence.V2_EXPECTED_INVENTORY_SOURCE_SET_SHA256
+        ),
+        "effective_policy_classified_input_projection_sha256": (
+            evidence.V2_EXPECTED_CLASSIFIED_INPUT_PROJECTION_SHA256
+        ),
+    })
+    return batch.build_batch_manifest(
+        batch_id="corpus-demo-v1",
+        created_at_utc="2026-08-21T12:00:00Z",
+        output_prefix="gs://test-bucket/batches/corpus-demo-v1/",
+        common_law=common,
+        tasks=_tasks(),
+    )
+
+
 def _manifest_identity(manifest: dict[str, object]) -> dict[str, object]:
     return batch.object_identity_for_json(
         manifest, uri=manifest["manifest_uri"], generation="100"
@@ -182,6 +207,71 @@ def test_contract_binds_exact_batch_and_is_outcome_blind() -> None:
         batch_manifest=manifest,
         batch_manifest_identity=identity,
     ) == contract
+
+
+def test_v2_contract_strictly_binds_v6_foundation() -> None:
+    manifest = _manifest_v2()
+    identity = _manifest_identity(manifest)
+    contract = evidence.build_corpus_batch_evidence_contract_v2(
+        batch_manifest=manifest,
+        batch_manifest_identity=identity,
+    )
+    assert contract["schema_version"] == evidence.V2_SCHEMA
+    assert contract["contract_id"].endswith(":v2")
+    assert contract["batch_binding"]["effective_policy_inventory_sha256"] == (
+        evidence.V2_EXPECTED_INVENTORY_SHA256
+    )
+    assert evidence.validate_corpus_batch_evidence_contract(
+        contract,
+        batch_manifest=manifest,
+        batch_manifest_identity=identity,
+    ) == contract
+
+
+@pytest.mark.parametrize(
+    "source_version,target_schema",
+    [("v1", evidence.V2_SCHEMA), ("v2", evidence.SCHEMA)],
+)
+def test_contract_schema_relabel_and_rehash_cannot_cross_foundations(
+    source_version: str, target_schema: str
+) -> None:
+    manifest = _manifest() if source_version == "v1" else _manifest_v2()
+    identity = _manifest_identity(manifest)
+    builder = (
+        evidence.build_corpus_batch_evidence_contract
+        if source_version == "v1"
+        else evidence.build_corpus_batch_evidence_contract_v2
+    )
+    contract = builder(
+        batch_manifest=manifest,
+        batch_manifest_identity=identity,
+    )
+    contract["schema_version"] = target_schema
+    _rehash(contract)
+    with pytest.raises(
+        evidence.CorpusBatchEvidenceContractError,
+        match="differs from corpus-parametric-batch-evidence-contract",
+    ):
+        evidence.validate_corpus_batch_evidence_contract(
+            contract,
+            batch_manifest=manifest,
+            batch_manifest_identity=identity,
+        )
+
+
+def test_unknown_contract_schema_fails_closed_after_rehash() -> None:
+    manifest, identity, contract = _contract()
+    contract["schema_version"] = "corpus-parametric-batch-evidence-contract/v999"
+    _rehash(contract)
+    with pytest.raises(
+        evidence.CorpusBatchEvidenceContractError,
+        match="schema version is unsupported",
+    ):
+        evidence.validate_corpus_batch_evidence_contract(
+            contract,
+            batch_manifest=manifest,
+            batch_manifest_identity=identity,
+        )
 
 
 def test_historical_law_is_incumbent_vs_all_six_with_c_and_s_coprimary() -> None:

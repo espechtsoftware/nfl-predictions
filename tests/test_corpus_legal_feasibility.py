@@ -18,7 +18,7 @@ from nfl_dfs.research.corpus_parametric_batch import (
     frozen_parameter_sets,
 )
 from nfl_dfs.research.effective_policy_rule_inventory import (
-    generate_effective_policy_rule_inventory,
+    generate_effective_policy_rule_inventory_v6,
 )
 from nfl_dfs.research.lr8_later_period_source import PreparedLaterSlate
 
@@ -111,7 +111,7 @@ def clean_rosters(players) -> tuple[tuple[str, ...], ...]:
 
 @pytest.fixture(scope="module")
 def inventory() -> dict[str, object]:
-    return generate_effective_policy_rule_inventory(ROOT)
+    return generate_effective_policy_rule_inventory_v6(ROOT)
 
 
 @pytest.fixture(scope="module")

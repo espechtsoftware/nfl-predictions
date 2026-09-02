@@ -3,9 +3,14 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from io import BytesIO
 import json
+import os
 from pathlib import Path
 import shutil
+import subprocess
+import sys
+import tarfile
 
 import pytest
 
@@ -20,14 +25,43 @@ from nfl_dfs.research.effective_policy_rule_inventory import (
     INPUT_CLASSIFICATIONS,
     PARAMETRIC_FIELDS,
     SCHEMA,
+    SOURCE_SET_ID,
+    V6_CLASSIFIED_INPUT_PROJECTION_SHA256,
+    V6_FROZEN_SOURCE_SHA256,
+    V6_SOURCE_SET_ID,
     canonical_json_bytes,
     canonical_sha256,
     generate_effective_policy_rule_inventory,
+    generate_effective_policy_rule_inventory_v6,
     validate_effective_policy_rule_inventory,
 )
 
 
 ROOT = Path(__file__).resolve().parents[1]
+V5_SOURCE_COMMIT = "def26c98ee88b4e874f516494fd57a76f62326f0"
+
+
+def _policy_semantics(inventory: dict[str, object]) -> dict[str, object]:
+    rule_fields = (
+        "baseline_state",
+        "classification",
+        "default_dose",
+        "id",
+        "normalized_paths",
+        "optional",
+        "parametric_field",
+        "stage",
+    )
+    return {
+        "effective_policy": inventory["effective_policy"],
+        "legal_feasibility_parameters": inventory[
+            "legal_feasibility_parameters"
+        ],
+        "rules": [
+            {field: row[field] for field in rule_fields}
+            for row in inventory["rules"]
+        ],
+    }
 
 
 def test_cloudbuild_full_suite_imports_the_pinned_source_tree():
@@ -38,7 +72,113 @@ def test_cloudbuild_full_suite_imports_the_pinned_source_tree():
 
 @pytest.fixture(scope="module")
 def inventory() -> dict[str, object]:
-    return generate_effective_policy_rule_inventory(ROOT)
+    return generate_effective_policy_rule_inventory_v6(ROOT)
+
+
+def test_v6_is_explicit_and_v5_literals_remain_frozen(inventory) -> None:
+    assert SOURCE_SET_ID == (
+        "adopted-classic-policy-20260830-week1-boom-first-v5"
+    )
+    assert CLASSIFIED_INPUT_PROJECTION_SHA256 == (
+        "29956b03e2b3c19e0c938ae8043a15d1bcc2942ea731aea2337f5db4889f1989"
+    )
+    assert FROZEN_SOURCE_SHA256["src/nfl_dfs/app/main.py"] == (
+        "1a64ce27b01b819351f2f55bd398f2fe0a086b0ee84f5677cbd097f9d102a87b"
+    )
+    assert FROZEN_SOURCE_SHA256["src/nfl_dfs/optimizer/lineup.py"] == (
+        "efb1e4a203da81d8677deb138e3487a399975177ca8ec42d98a093155b14be7f"
+    )
+    assert inventory["source_set_id"] == V6_SOURCE_SET_ID
+    assert inventory["classified_input_projection_sha256"] == (
+        V6_CLASSIFIED_INPUT_PROJECTION_SHA256
+    )
+    with pytest.raises(
+        EffectivePolicyInventoryError,
+        match=r"frozen source SHA-256 differs: src/nfl_dfs/app/main.py",
+    ):
+        generate_effective_policy_rule_inventory(ROOT)
+
+
+def test_archived_v5_validates_and_has_same_policy_semantics(
+    inventory: dict[str, object], tmp_path: Path
+) -> None:
+    try:
+        archive_raw = subprocess.check_output(
+            ["git", "archive", V5_SOURCE_COMMIT], cwd=ROOT
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        pytest.skip("exact v5 Git source archive is unavailable")
+    with tarfile.open(fileobj=BytesIO(archive_raw)) as archive:
+        archive.extractall(tmp_path, filter="data")
+
+    script = """
+import json
+from pathlib import Path
+from nfl_dfs.research.effective_policy_rule_inventory import (
+    canonical_sha256,
+    generate_effective_policy_rule_inventory,
+    validate_effective_policy_rule_inventory,
+)
+root = Path.cwd()
+inventory = generate_effective_policy_rule_inventory(root)
+validate_effective_policy_rule_inventory(inventory, root)
+fields = (
+    "baseline_state", "classification", "default_dose", "id",
+    "normalized_paths", "optional", "parametric_field", "stage",
+)
+semantics = {
+    "effective_policy": inventory["effective_policy"],
+    "legal_feasibility_parameters": inventory["legal_feasibility_parameters"],
+    "rules": [{field: row[field] for field in fields} for row in inventory["rules"]],
+}
+print(json.dumps({
+    "inventory_sha256": inventory["inventory_sha256"],
+    "policy_semantics_sha256": canonical_sha256(semantics),
+    "projection_sha256": inventory["classified_input_projection_sha256"],
+    "source_set_id": inventory["source_set_id"],
+    "source_set_sha256": inventory["source_set_sha256"],
+}, sort_keys=True))
+"""
+    environment = dict(os.environ)
+    environment["PYTHONPATH"] = str(tmp_path / "src")
+    completed = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=tmp_path,
+        env=environment,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    archived = json.loads(completed.stdout)
+    assert archived == {
+        "inventory_sha256": (
+            "2bf2eebd4bf17500f5fa09ecadbc6b76ddf14410678a4e26ebda34811e728ffa"
+        ),
+        "policy_semantics_sha256": canonical_sha256(
+            _policy_semantics(inventory)
+        ),
+        "projection_sha256": CLASSIFIED_INPUT_PROJECTION_SHA256,
+        "source_set_id": SOURCE_SET_ID,
+        "source_set_sha256": (
+            "926b776a2f233e3a32db1395b9e592eac2013334abd192421558dfa87239039f"
+        ),
+    }
+
+
+def test_cross_label_rehash_cannot_turn_v6_into_v5(inventory) -> None:
+    relabeled = deepcopy(inventory)
+    relabeled["source_set_id"] = SOURCE_SET_ID
+    relabeled["inventory_sha256"] = canonical_sha256({
+        key: value
+        for key, value in relabeled.items()
+        if key != "inventory_sha256"
+    })
+
+    with pytest.raises(
+        EffectivePolicyInventoryError,
+        match=r"frozen source SHA-256 differs: src/nfl_dfs/app/main.py",
+    ):
+        validate_effective_policy_rule_inventory(relabeled, ROOT)
 
 
 def _rules(inventory: dict[str, object]) -> dict[str, dict[str, object]]:
@@ -88,7 +228,7 @@ def test_every_rule_has_a_separate_typed_dose_path_and_source(inventory):
         assert row["source_locator_sha256"] == canonical_sha256(
             row["source_locators"]
         )
-        assert all(locator["path"] in FROZEN_SOURCE_SHA256
+        assert all(locator["path"] in V6_FROZEN_SOURCE_SHA256
                    for locator in row["source_locators"])
 
 
@@ -241,7 +381,7 @@ def test_runtime_input_projection_is_an_exact_classified_partition(inventory):
         DIRECT_INPUT_READ_SITE_COUNT
     )
     assert inventory["classified_input_projection_sha256"] == (
-        CLASSIFIED_INPUT_PROJECTION_SHA256
+        V6_CLASSIFIED_INPUT_PROJECTION_SHA256
     )
     assert inventory["classified_input_projection_sha256"] == canonical_sha256(
         projection
@@ -261,7 +401,9 @@ def test_runtime_input_projection_is_an_exact_classified_partition(inventory):
         )
         assert all(site["classification"] == row["classification"]
                    for site in row["direct_read_sites"])
-        assert all(site["source_sha256"] == FROZEN_SOURCE_SHA256[site["path"]]
+        assert all(
+            site["source_sha256"]
+            == V6_FROZEN_SOURCE_SHA256[site["path"]]
                    for site in row["direct_read_sites"])
         if row["ambient_process_requirement"] == "absent":
             assert key in projection["ambient_process_keys_requiring_absence"]
@@ -377,7 +519,7 @@ def test_active_role_and_multiseed_doses_are_not_hidden_in_policy_hash(inventory
 
 
 def test_source_hash_drift_fails_before_policy_import(tmp_path: Path):
-    for relative in FROZEN_SOURCE_SHA256:
+    for relative in V6_FROZEN_SOURCE_SHA256:
         source = ROOT / relative
         target = tmp_path / relative
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -389,7 +531,7 @@ def test_source_hash_drift_fails_before_policy_import(tmp_path: Path):
         EffectivePolicyInventoryError,
         match=r"frozen source SHA-256 differs: src/nfl_dfs/optimizer/lineup.py",
     ):
-        generate_effective_policy_rule_inventory(tmp_path)
+        generate_effective_policy_rule_inventory_v6(tmp_path)
 
 
 def test_retained_inventory_value_and_type_poison_fail_closed(inventory):
@@ -449,7 +591,7 @@ def test_source_classifier_omission_and_reclassification_fail_closed(monkeypatch
         EffectivePolicyInventoryError,
         match=r"input classification partition differs; unclassified=.*ROLE_BELIEF_SEED",
     ):
-        generate_effective_policy_rule_inventory(ROOT)
+        generate_effective_policy_rule_inventory_v6(ROOT)
 
     monkeypatch.setattr(
         inventory_module,
@@ -460,7 +602,7 @@ def test_source_classifier_omission_and_reclassification_fail_closed(monkeypatch
         EffectivePolicyInventoryError,
         match="classified runtime-input projection SHA-256 differs",
     ):
-        generate_effective_policy_rule_inventory(ROOT)
+        generate_effective_policy_rule_inventory_v6(ROOT)
 
 
 def test_inventory_source_has_no_graph_bootstrap_dependency():
