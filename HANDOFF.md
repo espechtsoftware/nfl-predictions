@@ -25,6 +25,65 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-02 selector-lineage v6 infrastructure integrated default-off
+
+- Isolated branch `integration/selector-lineage-gate-20260902` starts from
+  exact production `main` / `origin/main`
+  `f9bee8f54277700bcf66414668a9708bf2e6cf93`. Reviewed donor commits
+  `f780e71b663d3831ee5bd7788ca4eaa4b56390dd` and
+  `5fd0ab69cc659ab74a6617078b66d2fb8230da06` were cherry-picked without
+  conflict as `ef356fbf5464cdada298c02140d78a4e466ba03b` and
+  `e680a958c31f276c08004bfc7dec86e55b195682`. Release-gate repair commit
+  `c5843595e5135ba5742217c1f950b8083ef85781` adds the selector-lineage and
+  effective-policy inventory suites to both the committed corpus-expansion
+  Cloud Build YAML and its exact build-metadata contract; the contract test
+  now pins their presence.
+- `CoverageSelectorEvent` and the keyword-only `event_sink` expose
+  outcome-free observations from the existing binary coverage selector. The
+  sink defaults to `None`, no production/script/app caller supplies it, and
+  events are buffered until all selector decisions finish. Instrumentation-on
+  and instrumentation-off selections are byte-identical in the focused parity
+  tests. Trace requests fail closed for the separately implemented LSE and
+  ladder selectors rather than mislabelling their decisions as coverage
+  lineage. No score, candidate, book, API, runtime configuration, or deployed
+  service behavior was changed or activated.
+- Historical effective-policy source-set v5 and evidence-contract v1 remain
+  immutable default entry points. The future path is explicit source-set v6
+  `adopted-classic-policy-20260902-week1-boom-first-selector-lineage-v6` and
+  evidence-contract v2 only. Its inventory SHA-256 is
+  `830dcfbde6cd3e2a6ac629cfbf6a7f8acd2b237f8951f9c050d40a6e1f30ad54`,
+  rule-universe SHA-256 is
+  `c8d51dbca4090b342d7979c3bb425d7c79cdd79e4d03d1159acc1c934f7c8cc4`,
+  source-set SHA-256 is
+  `7061e2cc6657101a9a3f36855926b8523550ca697d0f022c12143e8a28fde791`,
+  and classified-input projection SHA-256 is
+  `d3ad2c67c3e57e6199c83a3e4de8c3c6ef07fde44a4c289d1f85464f9c52a779`.
+  The preparer explicitly requests v6/v2 for any future batch; validators
+  continue to accept the exact historical v1 contract and reject cross-version
+  relabelling.
+- Focused validation passed **218/218** assertions, run serially: selector
+  lineage/parity 16, effective-policy v5/v6 source identity 19, evidence
+  contract v1/v2 21, exact expansion-build/YAML contract 9, parametric
+  transport 45, preparer 10, legal feasibility 34, parametric snapshot 5,
+  optimizer regressions 33, ladder regressions 15, and production policy 11.
+  A separate YAML parse/exact-command check proved five ordered steps, 23
+  unique focused test modules, both new gate modules present, and a maximum
+  single step argument of 1,893 bytes, below Cloud Build's 10,000-byte limit.
+  All 12 affected Python files compile and `git diff --check` passes. Ruff was
+  not available in the local environment, so no Ruff result is claimed.
+- **GO** for independent review and merge as inactive/default-off
+  infrastructure. **NO-GO** for `event_sink` activation, a prospective shadow,
+  durable sidecar publication, graph load, build, or deployment. No cloud call
+  occurred and there are no Cloud Build/Run IDs. Before activation, add an
+  exact candidate/roster-to-sidecar caller, a create-once provider receipt
+  proving the sidecar existed before slate lock, fail-closed reopen validation
+  or deeply immutable output, explicit projection-transform/mapping identity,
+  and an exact selector-to-retrieval-preset binding; then pass an outcome-blind
+  real-artifact smoke and an exact clean-source Cloud Build. Never revise old
+  v1/v5 identities or manifests in place. Next action is independent review of
+  the three integration commits, followed by a selective merge to `main` if
+  accepted while leaving every sink caller absent.
+
 ### 2026-09-02 E0-first graph integration boundary
 
 - Operator direction is to keep scoring untouched and use the accepted E0
