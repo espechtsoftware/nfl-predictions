@@ -195,6 +195,21 @@ and operator decisions.  The older entries remain the durable chronology.
   validate receipt semantics, and make every paid/API/UI route fail closed to
   the same D800 artifact with no incumbent fallback. D400 remains shadow-only
   and A5 remains open.
+- Branch commit `4cade24a` adds the create-once, generation-pinned D800/D400
+  storage operator; combined contract/operator validation is `114 passed`.
+  It exact-reopens and hashes every book/candidate/ledger/run-receipt object,
+  enforces GCS generation and trusted pre-lock creation times, validates DK
+  slots/salary/team limits, and rejects impossible manifest/book publication
+  ordering. It remains deliberately outside money routes. Critical blocker:
+  candidate, exposure-ledger and run-receipt bytes lack a frozen semantic
+  schema, so their hashes are strong storage identity but cannot yet prove
+  candidate membership, budgets/seeds/law, selected ranks, ledger
+  reconciliation or source/image provenance. Before route/capture cutover,
+  define and validate a canonical arm-run receipt, candidate-index manifest
+  and ledger schema, then adapt the D800 exact-read into the existing
+  `paid-classic-book/v2` capture boundary. Every paid/API/UI route still uses
+  the incumbent builder and must ultimately fail closed to D800 with no
+  fallback; D400 remains analytics-only.
 - Monitoring gap repaired: production commit `a84dc36f` adds the separate
   read-only, stateful Cloud Build monitor for both production and lab
   projects. Focused validation is `26 passed` across all three monitors.
