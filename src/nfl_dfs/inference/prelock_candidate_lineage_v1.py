@@ -22,7 +22,6 @@ from hashlib import sha256
 from math import isfinite
 from typing import Final
 
-
 SIDECAR_SCHEMA: Final = "prelock-candidate-lineage-sidecar/v1"
 RUN_HEADER_SCHEMA: Final = "prelock-lineage-run-header/v1"
 ROSTER_IDENTITY_SCHEMA: Final = "prelock-cross-namespace-roster/v1"
@@ -39,23 +38,29 @@ CANDIDATE_UNIVERSE_SCOPE: Final = "OBSERVED_GENERATED_ROSTERS_ONLY"
 ROSTER_CANONICALIZATION: Final = "sorted-string-id-array-canonical-json-v1"
 HASH_ALGORITHM: Final = "sha256"
 
-REQUEST_STATUSES: Final = frozenset({
-    "PRODUCED",
-    "INFEASIBLE",
-    "SOLVER_ERROR",
-    "EXHAUSTED_NOT_ATTEMPTED",
-})
-SOLVE_STATUSES: Final = frozenset({
-    "PRODUCED",
-    "INFEASIBLE",
-    "SOLVER_ERROR",
-})
-DEDUPE_DISPOSITIONS: Final = frozenset({
-    "FIRST_SEEN",
-    "DUPLICATE_SAME_FAMILY",
-    "DUPLICATE_CROSS_FAMILY",
-    "DUPLICATE_CROSS_SEED",
-})
+REQUEST_STATUSES: Final = frozenset(
+    {
+        "PRODUCED",
+        "INFEASIBLE",
+        "SOLVER_ERROR",
+        "EXHAUSTED_NOT_ATTEMPTED",
+    }
+)
+SOLVE_STATUSES: Final = frozenset(
+    {
+        "PRODUCED",
+        "INFEASIBLE",
+        "SOLVER_ERROR",
+    }
+)
+DEDUPE_DISPOSITIONS: Final = frozenset(
+    {
+        "FIRST_SEEN",
+        "DUPLICATE_SAME_FAMILY",
+        "DUPLICATE_CROSS_FAMILY",
+        "DUPLICATE_CROSS_SEED",
+    }
+)
 ADMISSION_REASONS: Final = {
     "RETAINED_NATIVE": "RETAINED",
     "DROPPED_POOL_CAP": "REJECTED",
@@ -66,38 +71,20 @@ ADMISSION_REASONS: Final = {
     "TRANSFORM_RETAINED": "RETAINED",
     "TRANSFORM_EXCLUDED": "REJECTED",
 }
-ELIGIBILITY_REASONS: Final = {
-    "EFFECTIVE_CANDIDATE": "ELIGIBLE",
-    "INELIGIBLE_OVERLAP_CAP": "INELIGIBLE",
-    "INELIGIBLE_QB_CAP": "INELIGIBLE",
-    "INELIGIBLE_POLICY_FILTER": "INELIGIBLE",
-}
+ELIGIBILITY_REASONS: Final = frozenset({"EFFECTIVE_CANDIDATE"})
 STRATEGY_DECISION_REASONS: Final = {
     "SELECTED_COVERAGE_PHASE": "SELECTED",
     "SELECTED_SATURATION_FILL": "SELECTED",
-    "SELECTED_OTHER_FROZEN_OBJECTIVE": "SELECTED",
     "NOT_SELECTED_BOOK_FULL": "NOT_SELECTED",
     "NOT_SELECTED_FILL_ORDER": "NOT_SELECTED",
-    "NOT_SELECTED_INELIGIBLE": "NOT_SELECTED",
 }
-SELECTION_PHASES: Final = frozenset({
-    "COVERAGE",
-    "SATURATION_FILL",
-    "OTHER_FROZEN_OBJECTIVE",
-    "TERMINAL",
-    "NOT_APPLICABLE",
-})
-OBJECTIVE_UNITS: Final = frozenset({
-    "WORLD_COUNT",
-    "WEIGHTED_WORLD_COUNT",
-    "MICRO_UTILITY",
-    "NONE",
-})
-MARGINAL_CONTEXTS: Final = frozenset({
-    "AT_SELECTION",
-    "AT_TERMINAL_BOOK",
-    "NOT_APPLICABLE",
-})
+SELECTION_PHASES: Final = frozenset(
+    {
+        "COVERAGE",
+        "SATURATION_FILL",
+        "TERMINAL",
+    }
+)
 BOOK_TRANSITION_REASONS: Final = {
     "RETAINED_POSTSELECTOR": "RETAINED",
     "EXPORT_REORDER_ONLY": "RETAINED",
@@ -115,171 +102,192 @@ _UTC_TIMESTAMP = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 # These names are intentionally broader than the exact record schemas.  The
 # recursive check protects future wrappers from placing an outcome inside a
 # nested metadata object that an older validator did not anticipate.
-_FORBIDDEN_OUTCOME_KEYS = frozenset({
-    "actual",
-    "actual_points",
-    "actual_rank",
-    "actual_score",
-    "field_ownership",
-    "field_rank",
-    "final_points",
-    "final_rank",
-    "outcome",
-    "outcome_fields",
-    "outcome_release",
-    "outcomes",
-    "ownership",
-    "payout",
-    "payout_micro",
-    "prize",
-    "profit",
-    "realized",
-    "realized_points",
-    "realized_rank",
-    "realized_score",
-    "realized_score_micro",
-    "roi",
-    "winner",
-    "winner_score",
-    "winning_score",
-})
-_ALLOWED_BOUNDARY_KEYS = frozenset({
-    "outcome_authority",
-    "post_lock_data_read",
-    "uses_realized_outcomes",
-})
-_FORBIDDEN_OUTCOME_TOKENS = frozenset({
-    "actual",
-    "outcome",
-    "outcomes",
-    "ownership",
-    "payout",
-    "prize",
-    "profit",
-    "realized",
-    "roi",
-    "winner",
-    "winning",
-})
+_FORBIDDEN_OUTCOME_KEYS = frozenset(
+    {
+        "actual",
+        "actual_points",
+        "actual_rank",
+        "actual_score",
+        "field_ownership",
+        "field_rank",
+        "final_points",
+        "final_rank",
+        "outcome",
+        "outcome_fields",
+        "outcome_release",
+        "outcomes",
+        "ownership",
+        "payout",
+        "payout_micro",
+        "prize",
+        "profit",
+        "realized",
+        "realized_points",
+        "realized_rank",
+        "realized_score",
+        "realized_score_micro",
+        "roi",
+        "winner",
+        "winner_score",
+        "winning_score",
+    }
+)
+_ALLOWED_BOUNDARY_KEYS = frozenset(
+    {
+        "outcome_authority",
+        "post_lock_data_read",
+        "uses_realized_outcomes",
+    }
+)
+_FORBIDDEN_OUTCOME_TOKENS = frozenset(
+    {
+        "actual",
+        "outcome",
+        "outcomes",
+        "ownership",
+        "payout",
+        "prize",
+        "profit",
+        "realized",
+        "roi",
+        "winner",
+        "winning",
+    }
+)
 
-_RUN_HEADER_FIELDS = frozenset({
-    "run_id",
-    "run_type",
-    "season",
-    "week",
-    "slate_id",
-    "draft_group_id",
-    "contest_id",
-    "slate_lock_at_utc",
-    "frozen_at_utc",
-    "entry_budget",
-    "policy_id",
-    "selector_ids",
-    "effective_candidate_stage_id",
-    "paid_strategy_id",
-    "code_sha256",
-    "input_source_identities",
-})
-_ROSTER_FIELDS = frozenset({
-    "slate_id",
-    "internal_player_id_namespace",
-    "draftable_player_id_namespace",
-    "player_id_bridge",
-    "salary_catalog_sha256",
-    "legacy_lineup_ids",
-})
-_PROPOSAL_FIELDS = frozenset({
-    "request_id",
-    "request_ordinal",
-    "source_label",
-    "family",
-    "requested_ordinal",
-    "world_id",
-    "generator_config_sha256",
-    "terminal_status",
-})
-_SOLVE_FIELDS = frozenset({
-    "attempt_id",
-    "attempt_ordinal",
-    "request_id",
-    "retry_ordinal",
-    "status",
-    "roster_id",
-})
-_OCCURRENCE_FIELDS = frozenset({
-    "occurrence_id",
-    "occurrence_ordinal",
-    "attempt_id",
-    "request_id",
-    "roster_id",
-})
-_DEDUPE_FIELDS = frozenset({
-    "decision_id",
-    "occurrence_id",
-    "roster_id",
-    "disposition",
-    "duplicate_of_occurrence_id",
-})
-_ADMISSION_FIELDS = frozenset({
-    "decision_id",
-    "stage_id",
-    "stage_ordinal",
-    "candidate_instance_id",
-    "candidate_ordinal",
-    "roster_id",
-    "source_occurrence_ids",
-    "input_candidate_instance_ids",
-    "admission_preset_id",
-    "disposition",
-    "reason",
-})
-_STRATEGY_FIELDS = frozenset({
-    "decision_id",
-    "strategy_id",
-    "candidate_instance_id",
-    "roster_id",
-    "candidate_ordinal",
-    "eligibility",
-    "eligibility_reason",
-    "decision",
-    "decision_reason",
-    "objective_id",
-    "objective_unit",
-    "individual_utility",
-    "marginal_utility",
-    "marginal_context",
-    "selector_rank",
-    "selection_phase",
-    "fresh_world_count",
-    "individual_clear_count",
-    "p_line",
-    "mean_simulated_total",
-    "tiebreak_values",
-})
-_BOOK_FIELDS = frozenset({
-    "transition_id",
-    "strategy_id",
-    "candidate_instance_id",
-    "roster_id",
-    "selector_rank",
-    "postselector_rank",
-    "export_rank",
-    "disposition",
-    "reason",
-})
-_PREPARED_FIELDS = frozenset({
-    "prepared_entry_id",
-    "strategy_id",
-    "candidate_instance_id",
-    "roster_id",
-    "contest_id",
-    "entry_id",
-    "entry_row_ordinal",
-    "export_rank",
-    "filled_csv_sha256",
-    "paid_export_receipt_sha256",
-    "status",
-})
+_RUN_HEADER_FIELDS = frozenset(
+    {
+        "run_id",
+        "run_type",
+        "season",
+        "week",
+        "slate_id",
+        "draft_group_id",
+        "contest_id",
+        "slate_lock_at_utc",
+        "frozen_at_utc",
+        "entry_budget",
+        "policy_id",
+        "selector_ids",
+        "effective_candidate_stage_id",
+        "paid_strategy_id",
+        "code_sha256",
+        "input_source_identities",
+    }
+)
+_ROSTER_FIELDS = frozenset(
+    {
+        "slate_id",
+        "internal_player_id_namespace",
+        "draftable_player_id_namespace",
+        "player_id_bridge",
+        "salary_catalog_sha256",
+        "legacy_lineup_ids",
+    }
+)
+_PROPOSAL_FIELDS = frozenset(
+    {
+        "request_id",
+        "request_ordinal",
+        "source_label",
+        "family",
+        "requested_ordinal",
+        "world_id",
+        "generator_config_sha256",
+        "terminal_status",
+    }
+)
+_SOLVE_FIELDS = frozenset(
+    {
+        "attempt_id",
+        "attempt_ordinal",
+        "request_id",
+        "retry_ordinal",
+        "status",
+        "roster_id",
+    }
+)
+_OCCURRENCE_FIELDS = frozenset(
+    {
+        "occurrence_id",
+        "occurrence_ordinal",
+        "attempt_id",
+        "request_id",
+        "roster_id",
+    }
+)
+_DEDUPE_FIELDS = frozenset(
+    {
+        "decision_id",
+        "occurrence_id",
+        "roster_id",
+        "disposition",
+        "duplicate_of_occurrence_id",
+    }
+)
+_ADMISSION_FIELDS = frozenset(
+    {
+        "decision_id",
+        "stage_id",
+        "stage_ordinal",
+        "candidate_instance_id",
+        "candidate_ordinal",
+        "roster_id",
+        "source_occurrence_ids",
+        "input_candidate_instance_ids",
+        "admission_preset_id",
+        "disposition",
+        "reason",
+    }
+)
+_STRATEGY_FIELDS = frozenset(
+    {
+        "decision_id",
+        "strategy_id",
+        "candidate_instance_id",
+        "roster_id",
+        "candidate_ordinal",
+        "eligibility",
+        "eligibility_reason",
+        "decision",
+        "decision_reason",
+        "selector_rank",
+        "selection_phase",
+        "fresh_world_count",
+        "individual_clear_count",
+        "p_line",
+        "mean_simulated_total",
+        "tiebreak_values",
+    }
+)
+_BOOK_FIELDS = frozenset(
+    {
+        "transition_id",
+        "strategy_id",
+        "candidate_instance_id",
+        "roster_id",
+        "selector_rank",
+        "postselector_rank",
+        "export_rank",
+        "disposition",
+        "reason",
+    }
+)
+_PREPARED_FIELDS = frozenset(
+    {
+        "prepared_entry_id",
+        "strategy_id",
+        "candidate_instance_id",
+        "roster_id",
+        "contest_id",
+        "entry_id",
+        "entry_row_ordinal",
+        "export_rank",
+        "filled_csv_sha256",
+        "paid_export_receipt_sha256",
+        "status",
+    }
+)
 
 
 class PrelockCandidateLineageError(ValueError):
@@ -321,13 +329,10 @@ def assert_outcome_free(value: object, *, path: str = "root") -> None:
             normalized = key.strip().lower().replace("-", "_")
             tokens = frozenset(normalized.split("_"))
             if (
-                (
-                    normalized in _FORBIDDEN_OUTCOME_KEYS
-                    or bool(tokens & _FORBIDDEN_OUTCOME_TOKENS)
-                    or normalized in {"final_score", "final_rank", "final_points"}
-                )
-                and normalized not in _ALLOWED_BOUNDARY_KEYS
-            ):
+                normalized in _FORBIDDEN_OUTCOME_KEYS
+                or bool(tokens & _FORBIDDEN_OUTCOME_TOKENS)
+                or normalized in {"final_score", "final_rank", "final_points"}
+            ) and normalized not in _ALLOWED_BOUNDARY_KEYS:
                 _fail(f"{path}.{key} is an outcome-bearing field")
             assert_outcome_free(nested, path=f"{path}.{key}")
     elif isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
@@ -386,9 +391,7 @@ def _integer(value: object, *, label: str, minimum: int = 0) -> int:
     return value
 
 
-def _optional_integer(
-    value: object, *, label: str, minimum: int = 0
-) -> int | None:
+def _optional_integer(value: object, *, label: str, minimum: int = 0) -> int | None:
     if value is None:
         return None
     return _integer(value, label=label, minimum=minimum)
@@ -454,12 +457,11 @@ def _enum(value: object, allowed: set | frozenset, *, label: str) -> str:
     return value
 
 
-def _identifier_list(
-    value: object, *, label: str, nonempty: bool = True
-) -> list[str]:
-    values = [_identifier(item, label=f"{label} item") for item in _sequence(
-        value, label=label
-    )]
+def _identifier_list(value: object, *, label: str, nonempty: bool = True) -> list[str]:
+    values = [
+        _identifier(item, label=f"{label} item")
+        for item in _sequence(value, label=label)
+    ]
     if nonempty and not values:
         _fail(f"{label} must not be empty")
     if len(set(values)) != len(values):
@@ -525,9 +527,7 @@ def _normalize_run_header(value: object) -> dict[str, object]:
         ),
         "slate_lock_at_utc": lock_text,
         "frozen_at_utc": frozen_text,
-        "entry_budget": _integer(
-            item["entry_budget"], label="entry budget", minimum=1
-        ),
+        "entry_budget": _integer(item["entry_budget"], label="entry budget", minimum=1),
         "policy_id": _identifier(item["policy_id"], label="policy ID"),
         "selector_ids": selectors,
         "effective_candidate_stage_id": _identifier(
@@ -551,26 +551,24 @@ def _normalize_roster(value: object) -> dict[str, object]:
             frozenset({"internal_player_id", "draftable_player_id"}),
             label=f"player ID bridge[{index}]",
         )
-        pairs.append({
-            "internal_player_id": _text(
-                pair["internal_player_id"],
-                label=f"player ID bridge[{index}] internal ID",
-                maximum=200,
-            ),
-            "draftable_player_id": _text(
-                pair["draftable_player_id"],
-                label=f"player ID bridge[{index}] draftable ID",
-                maximum=200,
-            ),
-        })
+        pairs.append(
+            {
+                "internal_player_id": _text(
+                    pair["internal_player_id"],
+                    label=f"player ID bridge[{index}] internal ID",
+                    maximum=200,
+                ),
+                "draftable_player_id": _text(
+                    pair["draftable_player_id"],
+                    label=f"player ID bridge[{index}] draftable ID",
+                    maximum=200,
+                ),
+            }
+        )
     pairs.sort(key=lambda pair: str(pair["internal_player_id"]))
     internal_ids = [str(pair["internal_player_id"]) for pair in pairs]
     draftable_ids = sorted(str(pair["draftable_player_id"]) for pair in pairs)
-    if (
-        len(pairs) != 9
-        or len(set(internal_ids)) != 9
-        or len(set(draftable_ids)) != 9
-    ):
+    if len(pairs) != 9 or len(set(internal_ids)) != 9 or len(set(draftable_ids)) != 9:
         _fail("roster identity requires nine one-to-one player ID pairs")
     slate_id = _identifier(item["slate_id"], label="roster slate ID")
     internal_namespace = _identifier(
@@ -612,9 +610,7 @@ def _normalize_proposal(value: object) -> dict[str, object]:
     item = _exact_fields(value, _PROPOSAL_FIELDS, label="proposal request")
     return {
         "request_id": _identifier(item["request_id"], label="request ID"),
-        "request_ordinal": _integer(
-            item["request_ordinal"], label="request ordinal"
-        ),
+        "request_ordinal": _integer(item["request_ordinal"], label="request ordinal"),
         "source_label": _identifier(item["source_label"], label="source label"),
         "family": _identifier(item["family"], label="generator family"),
         "requested_ordinal": _integer(
@@ -640,9 +636,7 @@ def _normalize_solve(value: object) -> dict[str, object]:
         _fail("failed or infeasible solve attempt must not carry a roster")
     return {
         "attempt_id": _identifier(item["attempt_id"], label="attempt ID"),
-        "attempt_ordinal": _integer(
-            item["attempt_ordinal"], label="attempt ordinal"
-        ),
+        "attempt_ordinal": _integer(item["attempt_ordinal"], label="attempt ordinal"),
         "request_id": _identifier(item["request_id"], label="attempt request ID"),
         "retry_ordinal": _integer(item["retry_ordinal"], label="retry ordinal"),
         "status": status,
@@ -653,9 +647,7 @@ def _normalize_solve(value: object) -> dict[str, object]:
 def _normalize_occurrence(value: object) -> dict[str, object]:
     item = _exact_fields(value, _OCCURRENCE_FIELDS, label="generated occurrence")
     return {
-        "occurrence_id": _identifier(
-            item["occurrence_id"], label="occurrence ID"
-        ),
+        "occurrence_id": _identifier(item["occurrence_id"], label="occurrence ID"),
         "occurrence_ordinal": _integer(
             item["occurrence_ordinal"], label="occurrence ordinal"
         ),
@@ -678,7 +670,9 @@ def _normalize_dedupe(value: object) -> dict[str, object]:
         duplicate = _identifier(duplicate, label="duplicate occurrence pointer")
     return {
         "decision_id": _identifier(item["decision_id"], label="dedupe decision ID"),
-        "occurrence_id": _identifier(item["occurrence_id"], label="dedupe occurrence ID"),
+        "occurrence_id": _identifier(
+            item["occurrence_id"], label="dedupe occurrence ID"
+        ),
         "roster_id": _identifier(item["roster_id"], label="dedupe roster ID"),
         "disposition": disposition,
         "duplicate_of_occurrence_id": duplicate,
@@ -687,11 +681,10 @@ def _normalize_dedupe(value: object) -> dict[str, object]:
 
 def _normalize_admission(value: object) -> dict[str, object]:
     item = _exact_fields(value, _ADMISSION_FIELDS, label="admission decision")
-    reason = _enum(
-        item["reason"], set(ADMISSION_REASONS), label="admission reason"
-    )
+    reason = _enum(item["reason"], set(ADMISSION_REASONS), label="admission reason")
     disposition = _enum(
-        item["disposition"], {"RETAINED", "REJECTED"},
+        item["disposition"],
+        {"RETAINED", "REJECTED"},
         label="admission disposition",
     )
     if ADMISSION_REASONS[reason] != disposition:
@@ -732,113 +725,44 @@ def _normalize_admission(value: object) -> dict[str, object]:
 def _normalize_strategy(value: object) -> dict[str, object]:
     item = _exact_fields(value, _STRATEGY_FIELDS, label="strategy decision")
     eligibility_reason = _enum(
-        item["eligibility_reason"],
-        set(ELIGIBILITY_REASONS),
-        label="eligibility reason",
+        item["eligibility_reason"], ELIGIBILITY_REASONS, label="eligibility reason"
     )
-    eligibility = _enum(
-        item["eligibility"], {"ELIGIBLE", "INELIGIBLE"},
-        label="eligibility",
-    )
-    if ELIGIBILITY_REASONS[eligibility_reason] != eligibility:
-        _fail("eligibility reason and status disagree")
+    eligibility = _enum(item["eligibility"], {"ELIGIBLE"}, label="eligibility")
     decision_reason = _enum(
         item["decision_reason"],
         set(STRATEGY_DECISION_REASONS),
         label="strategy decision reason",
     )
     decision = _enum(
-        item["decision"], {"SELECTED", "NOT_SELECTED"},
+        item["decision"],
+        {"SELECTED", "NOT_SELECTED"},
         label="strategy decision",
     )
     if STRATEGY_DECISION_REASONS[decision_reason] != decision:
         _fail("strategy reason and decision disagree")
     phase = _enum(item["selection_phase"], SELECTION_PHASES, label="selection phase")
-    unit = _enum(item["objective_unit"], OBJECTIVE_UNITS, label="objective unit")
-    context = _enum(
-        item["marginal_context"], MARGINAL_CONTEXTS, label="marginal context"
-    )
-    individual = _optional_integer(
-        item["individual_utility"], label="individual utility", minimum=-(1 << 63)
-    )
-    marginal = _optional_integer(
-        item["marginal_utility"], label="marginal utility", minimum=-(1 << 63)
-    )
     rank = _optional_integer(item["selector_rank"], label="selector rank")
-    fresh = _optional_integer(
-        item["fresh_world_count"], label="fresh-world count"
-    )
-    clear = _optional_integer(
-        item["individual_clear_count"], label="individual clear count"
-    )
-    p_line = _optional_number(
-        item["p_line"], label="p-line", minimum=0.0, maximum=1.0
-    )
-    mean_total = _optional_number(
-        item["mean_simulated_total"], label="mean simulated total"
-    )
-    tiebreak = _optional_number_list(
-        item["tiebreak_values"], label="tiebreak values"
-    )
-    trace = (fresh, clear, p_line, mean_total, tiebreak)
+    fresh = _integer(item["fresh_world_count"], label="fresh-world count")
+    clear = _integer(item["individual_clear_count"], label="individual clear count")
+    p_line = _optional_number(item["p_line"], label="p-line", minimum=0.0, maximum=1.0)
+    if p_line is None:
+        _fail("p-line must not be null")
+    mean_total = _optional_number(item["mean_simulated_total"], label="mean total")
+    if mean_total is None:
+        _fail("mean simulated total must not be null")
+    tiebreak = _optional_number_list(item["tiebreak_values"], label="tiebreak values")
+    if tiebreak != [p_line, mean_total]:
+        _fail("binary-tail tiebreak must equal [p_line, mean_simulated_total]")
     expected_phase = {
         "SELECTED_COVERAGE_PHASE": "COVERAGE",
         "SELECTED_SATURATION_FILL": "SATURATION_FILL",
-        "SELECTED_OTHER_FROZEN_OBJECTIVE": "OTHER_FROZEN_OBJECTIVE",
         "NOT_SELECTED_BOOK_FULL": "TERMINAL",
         "NOT_SELECTED_FILL_ORDER": "TERMINAL",
-        "NOT_SELECTED_INELIGIBLE": "NOT_APPLICABLE",
     }[decision_reason]
     if phase != expected_phase:
         _fail("strategy decision reason and selection phase disagree")
-    if eligibility == "INELIGIBLE":
-        if (
-            decision != "NOT_SELECTED"
-            or decision_reason != "NOT_SELECTED_INELIGIBLE"
-            or rank is not None
-            or individual is not None
-            or marginal is not None
-            or context != "NOT_APPLICABLE"
-            or unit != "NONE"
-            or any(nested is not None for nested in trace)
-        ):
-            _fail("ineligible strategy decision carries selector output")
-    elif decision == "SELECTED":
-        if (
-            rank is None
-            or phase == "NONE"
-            or individual is None
-            or marginal is None
-            or context != "AT_SELECTION"
-            or unit == "NONE"
-        ):
-            _fail("selected strategy decision lacks its pre-lock objective trace")
-    elif (
-        rank is not None
-        or individual is None
-        or marginal is None
-        or context != "AT_TERMINAL_BOOK"
-        or unit == "NONE"
-    ):
-        _fail("eligible nonselection lacks its terminal objective trace")
-    if phase in {"COVERAGE", "SATURATION_FILL", "TERMINAL"}:
-        if any(nested is None for nested in trace):
-            _fail("binary-tail strategy decision lacks its exact selector trace")
-        expected_tiebreak = (
-            [p_line, mean_total]
-            if phase == "SATURATION_FILL"
-            else [float(fresh), p_line, mean_total]
-        )
-        if tiebreak != expected_tiebreak:
-            _fail("binary-tail tiebreak values differ from the selector law")
-        if unit == "WORLD_COUNT" and (
-            individual != clear or marginal != fresh
-        ):
-            _fail("world-count utilities differ from exact selector counts")
-    elif phase == "OTHER_FROZEN_OBJECTIVE" and any(
-        nested is not None for nested in trace
-    ):
-        _fail("non-binary strategy decision carries binary-tail trace fields")
+    if (decision == "SELECTED") != (rank is not None):
+        _fail("selected status and selector rank disagree")
     return {
         "decision_id": _identifier(item["decision_id"], label="strategy decision ID"),
         "strategy_id": _identifier(item["strategy_id"], label="strategy ID"),
@@ -853,11 +777,6 @@ def _normalize_strategy(value: object) -> dict[str, object]:
         "eligibility_reason": eligibility_reason,
         "decision": decision,
         "decision_reason": decision_reason,
-        "objective_id": _identifier(item["objective_id"], label="objective ID"),
-        "objective_unit": unit,
-        "individual_utility": individual,
-        "marginal_utility": marginal,
-        "marginal_context": context,
         "selector_rank": rank,
         "selection_phase": phase,
         "fresh_world_count": fresh,
@@ -870,18 +789,15 @@ def _normalize_strategy(value: object) -> dict[str, object]:
 
 def _normalize_book(value: object) -> dict[str, object]:
     item = _exact_fields(value, _BOOK_FIELDS, label="book transition")
-    reason = _enum(
-        item["reason"], set(BOOK_TRANSITION_REASONS), label="book reason"
-    )
+    reason = _enum(item["reason"], set(BOOK_TRANSITION_REASONS), label="book reason")
     disposition = _enum(
-        item["disposition"], {"RETAINED", "REMOVED", "ADDED"},
+        item["disposition"],
+        {"RETAINED", "REMOVED", "ADDED"},
         label="book disposition",
     )
     if BOOK_TRANSITION_REASONS[reason] != disposition:
         _fail("book reason and disposition disagree")
-    selector_rank = _optional_integer(
-        item["selector_rank"], label="book selector rank"
-    )
+    selector_rank = _optional_integer(item["selector_rank"], label="book selector rank")
     postselector_rank = _optional_integer(
         item["postselector_rank"], label="postselector rank"
     )
@@ -891,7 +807,9 @@ def _normalize_book(value: object) -> dict[str, object]:
     ):
         _fail("retained book row lacks one of its ranks")
     if disposition == "REMOVED" and (
-        selector_rank is None or postselector_rank is not None or export_rank is not None
+        selector_rank is None
+        or postselector_rank is not None
+        or export_rank is not None
     ):
         _fail("removed book row has invalid rank transitions")
     if disposition == "ADDED" and (
@@ -924,7 +842,9 @@ def _normalize_prepared(value: object) -> dict[str, object]:
             item["candidate_instance_id"], label="prepared candidate instance ID"
         ),
         "roster_id": _identifier(item["roster_id"], label="prepared roster ID"),
-        "contest_id": _text(item["contest_id"], label="prepared contest ID", maximum=200),
+        "contest_id": _text(
+            item["contest_id"], label="prepared contest ID", maximum=200
+        ),
         "entry_id": _text(item["entry_id"], label="DraftKings Entry ID", maximum=200),
         "entry_row_ordinal": _integer(
             item["entry_row_ordinal"], label="entry row ordinal"
@@ -984,20 +904,29 @@ def _build_roster_record(value: object) -> dict[str, object]:
 
 def _reopen_roster(value: object) -> dict[str, object]:
     item = _mapping(value, label="roster identity record")
-    derived_fields = frozenset({
-        "roster_id",
-        "hash_algorithm",
-        "canonicalization",
-        "internal_player_ids",
-        "draftable_player_ids",
-        "internal_roster_sha256",
-        "draftable_roster_sha256",
-    })
-    expected_fields = _ROSTER_FIELDS | derived_fields | {
-        "schema_version",
-        "record_sha256",
-    }
-    if set(item) != expected_fields or item.get("schema_version") != ROSTER_IDENTITY_SCHEMA:
+    derived_fields = frozenset(
+        {
+            "roster_id",
+            "hash_algorithm",
+            "canonicalization",
+            "internal_player_ids",
+            "draftable_player_ids",
+            "internal_roster_sha256",
+            "draftable_roster_sha256",
+        }
+    )
+    expected_fields = (
+        _ROSTER_FIELDS
+        | derived_fields
+        | {
+            "schema_version",
+            "record_sha256",
+        }
+    )
+    if (
+        set(item) != expected_fields
+        or item.get("schema_version") != ROSTER_IDENTITY_SCHEMA
+    ):
         _fail("roster identity record envelope differs")
     raw = {key: item[key] for key in _ROSTER_FIELDS}
     expected = _build_roster_record(raw)
@@ -1009,7 +938,9 @@ def _reopen_roster(value: object) -> dict[str, object]:
 def _records(
     values: Sequence[Mapping[str, object]], *, schema: str, normalizer
 ) -> list[dict[str, object]]:
-    return [_make_record(value, schema=schema, normalizer=normalizer) for value in values]
+    return [
+        _make_record(value, schema=schema, normalizer=normalizer) for value in values
+    ]
 
 
 def _unique(values: Sequence[Mapping[str, object]], field: str, *, label: str) -> None:
@@ -1043,10 +974,12 @@ def _validate_reconciliation(sidecar: Mapping[str, object]) -> dict[str, int]:
     _contiguous(
         [int(row["request_ordinal"]) for row in proposals], label="proposal request"
     )
-    if len({
-        (row["source_label"], row["family"], row["requested_ordinal"])
-        for row in proposals
-    }) != len(proposals):
+    if len(
+        {
+            (row["source_label"], row["family"], row["requested_ordinal"])
+            for row in proposals
+        }
+    ) != len(proposals):
         _fail("proposal source/family/request ordinals repeat")
     request_by_id = {str(row["request_id"]): row for row in proposals}
 
@@ -1059,7 +992,10 @@ def _validate_reconciliation(sidecar: Mapping[str, object]) -> dict[str, int]:
         request_id = str(attempt["request_id"])
         if request_id not in request_by_id:
             _fail("solve attempt references an unknown proposal request")
-        if attempt["roster_id"] is not None and attempt["roster_id"] not in roster_by_id:
+        if (
+            attempt["roster_id"] is not None
+            and attempt["roster_id"] not in roster_by_id
+        ):
             _fail("produced solve attempt references an unknown roster")
         attempts_by_request[request_id].append(attempt)
     for request_id, request in request_by_id.items():
@@ -1092,7 +1028,11 @@ def _validate_reconciliation(sidecar: Mapping[str, object]) -> dict[str, int]:
     produced_attempt_ids = {
         str(row["attempt_id"]) for row in attempts if row["status"] == "PRODUCED"
     }
-    if {str(row["attempt_id"]) for row in occurrences} != produced_attempt_ids:
+    occurrence_attempt_ids = [str(row["attempt_id"]) for row in occurrences]
+    if (
+        len(occurrence_attempt_ids) != len(set(occurrence_attempt_ids))
+        or set(occurrence_attempt_ids) != produced_attempt_ids
+    ):
         _fail("produced attempts and generated occurrences are not one-to-one")
     occurrence_by_id = {str(row["occurrence_id"]): row for row in occurrences}
     for occurrence in occurrences:
@@ -1109,11 +1049,16 @@ def _validate_reconciliation(sidecar: Mapping[str, object]) -> dict[str, int]:
         _fail("roster bridge and generated-occurrence roster population differ")
 
     _unique(dedupe, "decision_id", label="dedupe decision")
-    if {str(row["occurrence_id"]) for row in dedupe} != set(occurrence_by_id):
+    dedupe_occurrence_ids = [str(row["occurrence_id"]) for row in dedupe]
+    if len(dedupe_occurrence_ids) != len(set(dedupe_occurrence_ids)) or set(
+        dedupe_occurrence_ids
+    ) != set(occurrence_by_id):
         _fail("generated occurrences and dedupe decisions are not one-to-one")
     first_occurrence_by_roster: dict[str, Mapping[str, object]] = {}
     dedupe_by_occurrence = {str(row["occurrence_id"]): row for row in dedupe}
-    for occurrence in sorted(occurrences, key=lambda row: int(row["occurrence_ordinal"])):
+    for occurrence in sorted(
+        occurrences, key=lambda row: int(row["occurrence_ordinal"])
+    ):
         decision = dedupe_by_occurrence[str(occurrence["occurrence_id"])]
         roster_id = str(occurrence["roster_id"])
         if decision["roster_id"] != roster_id:
@@ -1144,9 +1089,7 @@ def _validate_reconciliation(sidecar: Mapping[str, object]) -> dict[str, int]:
 
     _unique(admissions, "decision_id", label="admission decision")
     _unique(admissions, "candidate_instance_id", label="candidate instance")
-    candidate_by_id = {
-        str(row["candidate_instance_id"]): row for row in admissions
-    }
+    candidate_by_id = {str(row["candidate_instance_id"]): row for row in admissions}
     stages: dict[int, str] = {}
     stage_rows: dict[str, list[Mapping[str, object]]] = defaultdict(list)
     for row in admissions:
@@ -1161,9 +1104,9 @@ def _validate_reconciliation(sidecar: Mapping[str, object]) -> dict[str, int]:
     if header["effective_candidate_stage_id"] not in stage_rows:
         _fail("effective candidate stage is absent")
     for stage_id, rows in stage_rows.items():
-        _contiguous(
-            [int(row["candidate_ordinal"]) for row in rows], label=stage_id
-        )
+        _contiguous([int(row["candidate_ordinal"]) for row in rows], label=stage_id)
+        if len({row["roster_id"] for row in rows}) != len(rows):
+            _fail(f"{stage_id} contains more than one candidate for one roster")
     for row in admissions:
         occurrence_inputs = list(row["source_occurrence_ids"])
         candidate_inputs = list(row["input_candidate_instance_ids"])
@@ -1181,6 +1124,49 @@ def _validate_reconciliation(sidecar: Mapping[str, object]) -> dict[str, int]:
             ):
                 _fail("admission candidate input is not an earlier retained instance")
 
+    ordered_stage_ids = [stages[ordinal] for ordinal in range(len(stages))]
+    initial_rows = stage_rows[ordered_stage_ids[0]]
+    initial_occurrence_ids = [
+        str(occurrence_id)
+        for row in initial_rows
+        for occurrence_id in row["source_occurrence_ids"]
+    ]
+    if any(row["input_candidate_instance_ids"] for row in initial_rows):
+        _fail("initial admission stage must consume generated occurrences")
+    if len(initial_occurrence_ids) != len(set(initial_occurrence_ids)) or set(
+        initial_occurrence_ids
+    ) != set(occurrence_by_id):
+        _fail("every generated occurrence must feed exactly one initial candidate")
+    for stage_ordinal in range(1, len(ordered_stage_ids)):
+        prior_rows = stage_rows[ordered_stage_ids[stage_ordinal - 1]]
+        current_rows = stage_rows[ordered_stage_ids[stage_ordinal]]
+        expected_inputs = {
+            str(row["candidate_instance_id"])
+            for row in prior_rows
+            if row["disposition"] == "RETAINED"
+        }
+        observed_inputs = [
+            str(candidate_id)
+            for row in current_rows
+            for candidate_id in row["input_candidate_instance_ids"]
+        ]
+        if any(
+            row["source_occurrence_ids"]
+            or len(row["input_candidate_instance_ids"]) != 1
+            for row in current_rows
+        ):
+            _fail("later admission stage must consume one prior candidate per row")
+        if (
+            len(observed_inputs) != len(set(observed_inputs))
+            or set(observed_inputs) != expected_inputs
+        ):
+            _fail("retained candidates must flow exactly once to the next stage")
+        if any(
+            int(candidate_by_id[candidate_id]["stage_ordinal"]) != stage_ordinal - 1
+            for candidate_id in observed_inputs
+        ):
+            _fail("admission stage bypasses its immediate predecessor")
+
     effective_rows = [
         row
         for row in stage_rows[str(header["effective_candidate_stage_id"])]
@@ -1190,11 +1176,15 @@ def _validate_reconciliation(sidecar: Mapping[str, object]) -> dict[str, int]:
         _fail("effective candidate population is empty")
     if len({row["roster_id"] for row in effective_rows}) != len(effective_rows):
         _fail("effective candidate population repeats an exact roster")
-    effective_by_id = {
-        str(row["candidate_instance_id"]): row for row in effective_rows
-    }
+    effective_by_id = {str(row["candidate_instance_id"]): row for row in effective_rows}
 
     _unique(strategies, "decision_id", label="strategy decision")
+    strategy_candidate_keys = [
+        (str(row["strategy_id"]), str(row["candidate_instance_id"]))
+        for row in strategies
+    ]
+    if len(strategy_candidate_keys) != len(set(strategy_candidate_keys)):
+        _fail("strategy has more than one decision for one candidate")
     expected_strategy_ids = set(header["selector_ids"])
     decisions_by_strategy: dict[str, list[Mapping[str, object]]] = defaultdict(list)
     for row in strategies:
@@ -1203,17 +1193,20 @@ def _validate_reconciliation(sidecar: Mapping[str, object]) -> dict[str, int]:
         candidate = effective_by_id.get(str(row["candidate_instance_id"]))
         if candidate is None or candidate["roster_id"] != row["roster_id"]:
             _fail("strategy decision is outside the effective candidate population")
+        if candidate["candidate_ordinal"] != row["candidate_ordinal"]:
+            _fail("strategy candidate ordinal differs from the effective stage")
         decisions_by_strategy[str(row["strategy_id"])].append(row)
     if set(decisions_by_strategy) != expected_strategy_ids:
         _fail("one or more declared selectors lack strategy decisions")
     effective_ids = set(effective_by_id)
     selected_by_strategy: dict[str, dict[str, Mapping[str, object]]] = {}
     for strategy_id, rows in decisions_by_strategy.items():
-        if {str(row["candidate_instance_id"]) for row in rows} != effective_ids:
+        if (
+            len(rows) != len(effective_ids)
+            or {str(row["candidate_instance_id"]) for row in rows} != effective_ids
+        ):
             _fail("selector does not decide on every effective candidate exactly once")
-        _contiguous(
-            [int(row["candidate_ordinal"]) for row in rows], label=strategy_id
-        )
+        _contiguous([int(row["candidate_ordinal"]) for row in rows], label=strategy_id)
         selected = [row for row in rows if row["decision"] == "SELECTED"]
         if len(selected) != int(header["entry_budget"]):
             _fail("selector does not produce exact K")
@@ -1226,6 +1219,11 @@ def _validate_reconciliation(sidecar: Mapping[str, object]) -> dict[str, int]:
         }
 
     _unique(books, "transition_id", label="book transition")
+    book_candidate_keys = [
+        (str(row["strategy_id"]), str(row["candidate_instance_id"])) for row in books
+    ]
+    if len(book_candidate_keys) != len(set(book_candidate_keys)):
+        _fail("strategy has more than one book transition for one candidate")
     books_by_strategy: dict[str, list[Mapping[str, object]]] = defaultdict(list)
     decision_lookup = {
         (str(row["strategy_id"]), str(row["candidate_instance_id"])): row
@@ -1263,6 +1261,10 @@ def _validate_reconciliation(sidecar: Mapping[str, object]) -> dict[str, int]:
             row["candidate_instance_id"] for row in exported
         }:
             _fail("export order changed final book membership")
+        if len({row["candidate_instance_id"] for row in exported}) != len(
+            exported
+        ) or len({row["roster_id"] for row in exported}) != len(exported):
+            _fail("final book repeats a candidate or exact roster")
         _contiguous(
             [int(row["postselector_rank"]) for row in post],
             label=f"{strategy_id} postselector",
@@ -1273,6 +1275,10 @@ def _validate_reconciliation(sidecar: Mapping[str, object]) -> dict[str, int]:
         )
 
     _unique(prepared, "prepared_entry_id", label="prepared entry")
+    if len({row["candidate_instance_id"] for row in prepared}) != len(prepared):
+        _fail("prepared entry population repeats a candidate")
+    if len({row["roster_id"] for row in prepared}) != len(prepared):
+        _fail("prepared entry population repeats an exact roster")
     paid_strategy = header["paid_strategy_id"]
     if paid_strategy is None:
         if prepared:
@@ -1321,12 +1327,8 @@ def _validate_reconciliation(sidecar: Mapping[str, object]) -> dict[str, int]:
         "admission_decision_count": len(admissions),
         "effective_candidate_count": len(effective_rows),
         "strategy_decision_count": len(strategies),
-        "raw_selected_count": sum(
-            row["decision"] == "SELECTED" for row in strategies
-        ),
-        "final_book_lineup_count": sum(
-            row["export_rank"] is not None for row in books
-        ),
+        "raw_selected_count": sum(row["decision"] == "SELECTED" for row in strategies),
+        "final_book_lineup_count": sum(row["export_rank"] is not None for row in books),
         "prepared_entry_count": len(prepared),
     }
 
@@ -1363,9 +1365,7 @@ def _sort_records(sidecar: dict[str, object]) -> None:
             str(row["candidate_instance_id"]),
         )
     )
-    sidecar["prepared_entries"].sort(
-        key=lambda row: int(row["entry_row_ordinal"])
-    )
+    sidecar["prepared_entries"].sort(key=lambda row: int(row["entry_row_ordinal"]))
 
 
 def build_prelock_candidate_lineage_v1(
@@ -1491,7 +1491,8 @@ def validate_prelock_candidate_lineage_v1(value: object) -> dict[str, object]:
         item["candidate_universe_scope"] != CANDIDATE_UNIVERSE_SCOPE
         or item["uses_realized_outcomes"] is not False
         or item["post_lock_data_read"] is not False
-        or item["authority"] != {
+        or item["authority"]
+        != {
             "decision_authority": False,
             "graph_decision_authority": False,
             "outcome_authority": False,
@@ -1564,9 +1565,7 @@ def validate_prelock_candidate_lineage_v1(value: object) -> dict[str, object]:
                 normalizer=_normalize_admission,
                 label="admission decision record",
             )
-            for row in _sequence(
-                item["admission_decisions"], label="admission records"
-            )
+            for row in _sequence(item["admission_decisions"], label="admission records")
         ],
         "strategy_decisions": [
             _reopen_record(
@@ -1576,9 +1575,7 @@ def validate_prelock_candidate_lineage_v1(value: object) -> dict[str, object]:
                 normalizer=_normalize_strategy,
                 label="strategy decision record",
             )
-            for row in _sequence(
-                item["strategy_decisions"], label="strategy records"
-            )
+            for row in _sequence(item["strategy_decisions"], label="strategy records")
         ],
         "book_transitions": [
             _reopen_record(
@@ -1629,11 +1626,10 @@ __all__ = [
     "CANDIDATE_UNIVERSE_SCOPE",
     "DEDUPE_DISPOSITIONS",
     "ELIGIBILITY_REASONS",
-    "OBJECTIVE_UNITS",
-    "PrelockCandidateLineageError",
     "REQUEST_STATUSES",
     "SIDECAR_SCHEMA",
     "STRATEGY_DECISION_REASONS",
+    "PrelockCandidateLineageError",
     "assert_outcome_free",
     "build_prelock_candidate_lineage_v1",
     "canonical_json_bytes",
