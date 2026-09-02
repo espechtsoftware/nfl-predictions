@@ -640,6 +640,7 @@ def optimize_many(
 def select_tail_entries(
     cand_totals: np.ndarray, n_entries: int, line: float,
     env: Mapping[str, str] | None = None,
+    trace_capture: Callable[[Mapping[str, Any]], None] | None = None,
 ) -> list[int]:
     """Pick the n_entries candidates that maximize P(best-of-N >= line)
     against correlated draws. cand_totals[c, k] = candidate c's total in
@@ -666,6 +667,10 @@ def select_tail_entries(
     if _alpha > 0 and _ladder_spec:
         raise ValueError("SELECT_LSE and SELECT_LADDER are mutually exclusive")
     if _alpha > 0:
+        if trace_capture is not None:
+            raise ValueError(
+                "prelock tracing supports the binary-tail selector only"
+            )
         return _select_lse_entries(cand_totals, n_entries, line, _alpha)
     # Research lever (env SELECT_LADDER, off by default; Ring A / A1,
     # protocol pending the operator's utility freeze): portfolio-marginal
@@ -673,12 +678,17 @@ def select_tail_entries(
     # term) instead of binary coverage at one line.  Registered in the
     # immutable lever set; never set on production deployments.
     if _ladder_spec:
+        if trace_capture is not None:
+            raise ValueError(
+                "prelock tracing supports the binary-tail selector only"
+            )
         ladder, mean_weight = _parse_ladder(_ladder_spec)
         return select_ladder_entries(
             cand_totals, n_entries, ladder, mean_weight=mean_weight)
     clears = cand_totals >= line
     return select_from_support(clears, clears.mean(axis=1),
-                               cand_totals.mean(axis=1), n_entries)
+                               cand_totals.mean(axis=1), n_entries,
+                               trace_capture=trace_capture)
 
 
 def select_from_support(
@@ -686,6 +696,7 @@ def select_from_support(
     p_line: np.ndarray,
     mean_total: np.ndarray,
     n_entries: int,
+    trace_capture: Callable[[Mapping[str, Any]], None] | None = None,
 ) -> list[int]:
     """THE greedy coverage selector, expressed over its sufficient
     statistics: the per-world clear mask plus the two tiebreakers
@@ -701,21 +712,121 @@ def select_from_support(
     p_line = np.asarray(p_line, dtype=float)
     mean_total = np.asarray(mean_total, dtype=float)
     n_entries = min(n_entries, len(clears))
+    if trace_capture is None:
+        selected: list[int] = []
+        covered = np.zeros(clears.shape[1], dtype=bool)
+        remaining = set(range(len(clears)))
+        while len(selected) < n_entries and remaining:
+            best = max(
+                remaining,
+                key=lambda i: (
+                    int(np.count_nonzero(clears[i] & ~covered)),
+                    p_line[i],
+                    mean_total[i],
+                ),
+            )
+            if not np.count_nonzero(clears[best] & ~covered):
+                break  # coverage saturated; fill below
+            selected.append(best)
+            covered |= clears[best]
+            remaining.discard(best)
+        fill = sorted(
+            remaining,
+            key=lambda i: (p_line[i], mean_total[i]),
+            reverse=True,
+        )
+        selected += fill[: n_entries - len(selected)]
+        return selected
+
     selected: list[int] = []
+    steps: list[dict[str, Any]] = []
     covered = np.zeros(clears.shape[1], dtype=bool)
     remaining = set(range(len(clears)))
     while len(selected) < n_entries and remaining:
-        best = max(remaining,
-                   key=lambda i: (int(np.count_nonzero(clears[i] & ~covered)),
-                                  p_line[i], mean_total[i]))
-        if not np.count_nonzero(clears[best] & ~covered):
+        fresh = {
+            index: int(np.count_nonzero(clears[index] & ~covered))
+            for index in remaining
+        }
+        best = max(
+            remaining,
+            key=lambda i: (fresh[i], p_line[i], mean_total[i]),
+        )
+        if not fresh[best]:
             break  # coverage saturated; fill below
+        steps.append({
+            "candidate_index": int(best),
+            "selector_rank": len(selected),
+            "selection_phase": "COVERAGE",
+            "fresh_world_count": fresh[best],
+            "individual_clear_count": int(np.count_nonzero(clears[best])),
+            "p_line": float(p_line[best]),
+            "mean_simulated_total": float(mean_total[best]),
+            "tiebreak_values": [
+                fresh[best],
+                float(p_line[best]),
+                float(mean_total[best]),
+            ],
+        })
         selected.append(best)
         covered |= clears[best]
         remaining.discard(best)
     fill = sorted(remaining, key=lambda i: (p_line[i], mean_total[i]),
                   reverse=True)
-    selected += fill[: n_entries - len(selected)]
+    selected_fill = fill[: n_entries - len(selected)]
+    for best in selected_fill:
+        steps.append({
+            "candidate_index": int(best),
+            "selector_rank": len(steps),
+            "selection_phase": "SATURATION_FILL",
+            "fresh_world_count": int(
+                np.count_nonzero(clears[best] & ~covered)
+            ),
+            "individual_clear_count": int(np.count_nonzero(clears[best])),
+            "p_line": float(p_line[best]),
+            "mean_simulated_total": float(mean_total[best]),
+            "tiebreak_values": [
+                float(p_line[best]),
+                float(mean_total[best]),
+            ],
+        })
+    selected += selected_fill
+    selected_step = {
+        int(step["candidate_index"]): step for step in steps
+    }
+    trace_capture({
+        "schema_version": "binary-tail-selector-trace/v1",
+        "candidate_count": len(clears),
+        "world_count": int(clears.shape[1]),
+        "selected_indices": [int(index) for index in selected],
+        "steps": steps,
+        "decisions": [
+            (
+                dict(selected_step[index])
+                if index in selected_step
+                else {
+                    "candidate_index": index,
+                    "selector_rank": None,
+                    "selection_phase": "TERMINAL",
+                    "fresh_world_count": int(
+                        np.count_nonzero(clears[index] & ~covered)
+                    ),
+                    "individual_clear_count": int(
+                        np.count_nonzero(clears[index])
+                    ),
+                    "p_line": float(p_line[index]),
+                    "mean_simulated_total": float(mean_total[index]),
+                    "tiebreak_values": [
+                        int(np.count_nonzero(clears[index] & ~covered)),
+                        float(p_line[index]),
+                        float(mean_total[index]),
+                    ],
+                }
+            )
+            for index in range(len(clears))
+        ],
+        "uses_realized_outcomes": False,
+        "post_lock_data_read": False,
+    })
     return selected
 
 

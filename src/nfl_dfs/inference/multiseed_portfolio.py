@@ -10,7 +10,7 @@ unchanged exact production selector and persistence path.
 from __future__ import annotations
 
 from collections import Counter
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from hashlib import sha256
 from itertools import combinations
 import json
@@ -128,6 +128,9 @@ def combine_cbwu_books(
     expected_worlds_per_book: int | None = None,
     tolerance: float = 1e-4,
     fixed_candidate_budget: int | None = None,
+    admission_capture: (
+        Callable[[str, Mapping[str, object]], None] | None
+    ) = None,
 ) -> CandidateBatch:
     """Build the frozen fixed-budget candidate + world union.
 
@@ -166,20 +169,51 @@ def combine_cbwu_books(
         name: [] for name in order
     }
     seen: set[frozenset] = set()
+    first_origin: dict[frozenset, tuple[str, int]] = {}
+    admission_rows: list[dict[str, object]] = []
     novelty: dict[str, int] = {}
     for name in order:
         batch = books[name]
-        for lineup in batch.candidates:
+        for input_ordinal, lineup in enumerate(batch.candidates):
             roster = _canonical_roster(lineup)
             if roster in seen:
+                if admission_capture is not None:
+                    origin_seed, origin_ordinal = first_origin[roster]
+                    admission_rows.append({
+                        "source_seed": name,
+                        "source_ordinal": input_ordinal,
+                        "internal_player_ids": sorted(
+                            str(value) for value in roster
+                        ),
+                        "retained": False,
+                        "reason": "DROPPED_EARLIER_SEED_DUPLICATE",
+                        "output_ordinal": None,
+                        "duplicate_of_source_seed": origin_seed,
+                        "duplicate_of_source_ordinal": origin_ordinal,
+                    })
                 continue
             seen.add(roster)
+            first_origin[roster] = (name, input_ordinal)
             tags = batch.all_tags.get(roster, (lineup.tag or "lev",))
             buckets[name].append((lineup, tuple(tags)))
+            if admission_capture is not None:
+                admission_rows.append({
+                    "source_seed": name,
+                    "source_ordinal": input_ordinal,
+                    "internal_player_ids": sorted(
+                        str(value) for value in roster
+                    ),
+                    "retained": None,
+                    "reason": None,
+                    "output_ordinal": None,
+                    "duplicate_of_source_seed": None,
+                    "duplicate_of_source_ordinal": None,
+                })
         novelty[name] = len(buckets[name])
 
     base_quota, remainder = divmod(budget, len(order))
     chosen: list[tuple[str, Lineup, tuple[str, ...]]] = []
+    chosen_reason: dict[frozenset[str], str] = {}
     used = {name: 0 for name in order}
     for seed_index, name in enumerate(order):
         quota = base_quota + int(seed_index < remainder)
@@ -188,6 +222,11 @@ def combine_cbwu_books(
             (name, lineup, tags)
             for lineup, tags in buckets[name][:take]
         )
+        if admission_capture is not None:
+            for lineup, _ in buckets[name][:take]:
+                chosen_reason[frozenset(
+                    str(value) for value in lineup.ids
+                )] = "RETAINED_FIRST_SOURCE_QUOTA"
         used[name] = take
     while len(chosen) < budget:
         advanced = False
@@ -195,6 +234,10 @@ def combine_cbwu_books(
             if used[name] < len(buckets[name]):
                 lineup, tags = buckets[name][used[name]]
                 chosen.append((name, lineup, tags))
+                if admission_capture is not None:
+                    chosen_reason[frozenset(
+                        str(value) for value in lineup.ids
+                    )] = "RETAINED_DEFICIT_FILL"
                 used[name] += 1
                 advanced = True
                 if len(chosen) == budget:
@@ -243,7 +286,7 @@ def combine_cbwu_books(
     if combined_totals.shape != (budget, combined_rows.shape[1]):
         raise ValueError("CBWU combined candidate worlds are misaligned")
 
-    return CandidateBatch(
+    combined = CandidateBatch(
         candidates=tuple(rebuilt),
         candidate_totals=combined_totals,
         player_ids=base.player_ids,
@@ -319,6 +362,33 @@ def combine_cbwu_books(
             },
         },
     )
+    if admission_capture is not None:
+        output_by_roster = {
+            frozenset(str(value) for value in lineup.ids): ordinal
+            for ordinal, lineup in enumerate(combined.candidates)
+        }
+        for row in admission_rows:
+            if row["reason"] == "DROPPED_EARLIER_SEED_DUPLICATE":
+                continue
+            roster = frozenset(row["internal_player_ids"])
+            retained = roster in output_by_roster
+            row["retained"] = retained
+            row["reason"] = (
+                chosen_reason[roster]
+                if retained else "DROPPED_FIXED_BUDGET"
+            )
+            row["output_ordinal"] = (
+                output_by_roster[roster] if retained else None
+            )
+        admission_capture("cbwu_admission", {
+            "schema_version": "cbwu-admission-trace/v1",
+            "seed_order": list(order),
+            "fixed_candidate_budget": budget,
+            "rows": admission_rows,
+            "uses_realized_outcomes": False,
+            "post_lock_data_read": False,
+        })
+    return combined
 
 
 def combine_cbwu_order_invariant_books(

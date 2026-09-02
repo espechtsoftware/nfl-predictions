@@ -547,6 +547,8 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                       _explicit_epistemic_scenarios=None,
                       _latent_scenario_receipt=None,
                       _latent_scenario_factory=None,
+                      _prelock_lineage_capture=None,
+                      _prelock_lineage_finalize: bool = True,
                       _multiseed_inner: bool = False,
                       _log_ownership_shadow: bool = True) -> list:
     """Full validated pipeline on the live slate -> selected entries in
@@ -567,6 +569,13 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
     if portfolio and portfolio not in multiseed_portfolios:
         raise ValueError(f"unknown MULTISEED_PORTFOLIO={portfolio!r}")
     if portfolio in multiseed_portfolios and not _multiseed_inner:
+        if (
+            _prelock_lineage_capture is not None
+            and portfolio != "CBWU"
+        ):
+            raise ValueError(
+                "prelock lineage phase 1 supports canonical CBWU only"
+            )
         if _candidate_transform is not None:
             raise ValueError("outer CBWU build cannot accept a candidate transform")
         if (
@@ -707,6 +716,8 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                 _explicit_epistemic_scenarios=None,
                 _latent_scenario_receipt=None,
                 _latent_scenario_factory=_latent_scenario_factory,
+                _prelock_lineage_capture=_prelock_lineage_capture,
+                _prelock_lineage_finalize=persist,
                 _multiseed_inner=True,
                 _log_ownership_shadow=(persist and _log_ownership_shadow),
             )
@@ -817,7 +828,9 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
             else:
                 combined = combine_cbwu_books(
                     books, labels,
-                    expected_worlds_per_book=worlds_per_block)
+                    expected_worlds_per_book=worlds_per_block,
+                    admission_capture=_prelock_lineage_capture,
+                )
                 if portfolio == "CBWU_LATENT_ROLE_SHADOW":
                     from ..backtest.engine import CandidateBatch
 
@@ -1075,7 +1088,9 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
             latent_scenario_receipt=latent_scenario_receipt,
             candidate_capture=_candidate_capture,
             candidate_transform=_candidate_transform,
-            construction_preset_receipt=construction_preset_receipt)
+            construction_preset_receipt=construction_preset_receipt,
+            prelock_lineage_capture=_prelock_lineage_capture,
+            prelock_lineage_finalize=_prelock_lineage_finalize)
     except RuntimeError as exc:
         if wants_role and "role-belief generator produced" in str(exc):
             raise RoleBeliefUnavailable(str(exc)) from exc

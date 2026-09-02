@@ -103,6 +103,46 @@ def test_cbwu_preserves_r0_budget_and_uses_five_equal_world_blocks():
         combined.candidates)
 
 
+def test_cbwu_admission_trace_is_complete_and_output_identical():
+    books = _books(counts=(10, 9, 8, 10, 9))
+    ordinary = combine_cbwu_books(
+        books, SEEDS, expected_worlds_per_book=20
+    )
+    events = []
+    traced = combine_cbwu_books(
+        books,
+        SEEDS,
+        expected_worlds_per_book=20,
+        admission_capture=lambda stage, payload: events.append(
+            (stage, payload)
+        ),
+    )
+
+    assert [lineup.ids for lineup in traced.candidates] == [
+        lineup.ids for lineup in ordinary.candidates
+    ]
+    assert traced.candidate_totals.tobytes() == ordinary.candidate_totals.tobytes()
+    assert traced.row_draws.tobytes() == ordinary.row_draws.tobytes()
+    assert len(events) == 1 and events[0][0] == "cbwu_admission"
+    rows = events[0][1]["rows"]
+    assert len(rows) == sum(len(batch.candidates) for batch in books.values())
+    assert sum(bool(row["retained"]) for row in rows) == len(traced.candidates)
+    assert {row["reason"] for row in rows} <= {
+        "RETAINED_FIRST_SOURCE_QUOTA",
+        "RETAINED_DEFICIT_FILL",
+        "DROPPED_EARLIER_SEED_DUPLICATE",
+        "DROPPED_FIXED_BUDGET",
+    }
+    retained = sorted(
+        (int(row["output_ordinal"]), frozenset(row["internal_player_ids"]))
+        for row in rows if row["retained"]
+    )
+    assert [roster for _, roster in retained] == [
+        frozenset(str(value) for value in lineup.ids)
+        for lineup in traced.candidates
+    ]
+
+
 def test_cbwu_carries_each_native_generation_receipt():
     books = _books()
     books = {

@@ -295,6 +295,41 @@ def test_paid_entry_fill_reopens_exact_output_book() -> None:
     assert len(exported.receipt["entry_id_order_sha256"]) == 64
 
 
+def test_paid_entry_capture_is_exact_and_csv_identical() -> None:
+    rows = _salary_rows()
+    catalog = _catalog(rows)
+    book = _book(rows)
+    ordinary = fill_paid_entries_csv_v2(
+        _entries(), book, catalog=catalog, contest_id="77"
+    )
+    events = []
+    traced = fill_paid_entries_csv_v2(
+        _entries(),
+        book,
+        catalog=catalog,
+        contest_id="77",
+        prepared_entry_capture=events.append,
+    )
+
+    assert traced.csv_text.encode() == ordinary.csv_text.encode()
+    assert traced.receipt == ordinary.receipt
+    assert len(events) == 1
+    event = events[0]
+    assert event["csv_sha256"] == traced.receipt["csv_sha256"]
+    assert event["paid_export_receipt_sha256"] == traced.receipt[
+        "export_receipt_sha256"
+    ]
+    assert [row["export_ordinal"] for row in event["entries"]] == [0, 1]
+    assert sorted(
+        row["paid_input_book_ordinal"] for row in event["entries"]
+    ) == [0, 1]
+    assert [row["entry_id"] for row in event["entries"]] == ["1", "2"]
+    assert all(len(row["internal_player_ids"]) == 9
+               for row in event["entries"])
+    assert all(len(row["slot_dk_draftable_ids"]) == 9
+               for row in event["entries"])
+
+
 def test_paid_entry_target_requires_an_explicit_unambiguous_contest() -> None:
     with pytest.raises(ValueError, match="requires an explicit contest_id"):
         paid_entry_count_v2(_entries(), contest_id=None)

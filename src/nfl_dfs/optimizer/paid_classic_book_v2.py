@@ -15,7 +15,7 @@ import io
 import json
 import re
 from collections import Counter
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -529,6 +529,9 @@ def fill_paid_entries_csv_v2(
     *,
     catalog: PaidClassicCatalog,
     contest_id: str | None,
+    prepared_entry_capture: (
+        Callable[[Mapping[str, Any]], None] | None
+    ) = None,
 ) -> PaidClassicExport:
     """Fill paid entries without cycling, locked-row fallback, or drift."""
 
@@ -564,6 +567,7 @@ def fill_paid_entries_csv_v2(
         _fail("filled DKEntries.csv changed the targeted Entry ID order")
 
     output_rosters: list[tuple[int, ...]] = []
+    output_slot_rosters: list[tuple[int, ...]] = []
     for ordinal, row in enumerate(output_rows, start=1):
         cells = (
             row[output_first_slot : output_first_slot + ROSTER_SIZE]
@@ -580,11 +584,17 @@ def fill_paid_entries_csv_v2(
             draftable_ids.append(draftable_id)
         if len(set(draftable_ids)) != ROSTER_SIZE:
             _fail(f"filled entry row {ordinal} contains duplicate players")
+        output_slot_rosters.append(tuple(draftable_ids))
         output_rosters.append(tuple(sorted(draftable_ids)))
 
     expected_rosters = {
         tuple(sorted(int(player["dk_id"]) for player in lineup.players))
         for lineup in lineups
+    }
+    paid_input_ordinal = {
+        tuple(sorted(int(player["dk_id"]) for player in lineup.players)):
+        ordinal
+        for ordinal, lineup in enumerate(lineups)
     }
     if len(set(output_rosters)) != expected_entries:
         _fail("filled DKEntries.csv contains duplicate rosters")
@@ -604,6 +614,38 @@ def fill_paid_entries_csv_v2(
         }
     )
     export_receipt["export_receipt_sha256"] = _canonical_sha256(export_receipt)
+    if prepared_entry_capture is not None:
+        prepared_entry_capture({
+            "schema_version": "paid-entry-capture/v1",
+            "contest_id": cid,
+            "draft_group_id": catalog.draft_group_id,
+            "salary_catalog_sha256": catalog.sha256,
+            "csv_sha256": export_receipt["csv_sha256"],
+            "csv_bytes": export_receipt["csv_bytes"],
+            "paid_export_receipt_sha256": export_receipt[
+                "export_receipt_sha256"
+            ],
+            "entries": [
+                {
+                    "export_ordinal": ordinal,
+                    "entry_id": output_entry_ids[ordinal],
+                    "internal_player_ids": sorted(
+                        int(catalog.by_draftable_id[draftable_id]["player_id"])
+                        for draftable_id in output_rosters[ordinal]
+                    ),
+                    "dk_draftable_ids": list(output_rosters[ordinal]),
+                    "paid_input_book_ordinal": paid_input_ordinal[
+                        output_rosters[ordinal]
+                    ],
+                    "slot_dk_draftable_ids": list(
+                        output_slot_rosters[ordinal]
+                    ),
+                }
+                for ordinal in range(expected_entries)
+            ],
+            "uses_realized_outcomes": False,
+            "post_lock_data_read": False,
+        })
     return PaidClassicExport(csv_text=filled, receipt=export_receipt)
 
 

@@ -438,6 +438,46 @@ def test_failed_solve_has_no_roster_and_no_candidate_first_loss_claim() -> None:
         _build(raw)
 
 
+def test_duplicate_produced_attempt_may_retry_until_novel_roster() -> None:
+    raw = _fixture()
+    roster_a_id = _roster_id(raw["roster_identities"][0])
+    raw["solve_attempts"][3].update({
+        "status": "PRODUCED",
+        "roster_id": roster_a_id,
+    })
+    former_last = raw["generated_occurrences"][2]
+    former_last["occurrence_id"] = "occurrence-3"
+    former_last["occurrence_ordinal"] = 3
+    raw["generated_occurrences"].insert(2, {
+        "occurrence_id": "occurrence-2",
+        "occurrence_ordinal": 2,
+        "attempt_id": "attempt-3",
+        "request_id": "request-3",
+        "roster_id": roster_a_id,
+    })
+    raw["dedupe_decisions"][2].update({
+        "occurrence_id": "occurrence-3",
+        "decision_id": "dedupe-3",
+    })
+    raw["dedupe_decisions"].insert(2, {
+        "decision_id": "dedupe-2",
+        "occurrence_id": "occurrence-2",
+        "roster_id": roster_a_id,
+        "disposition": "DUPLICATE_CROSS_FAMILY",
+        "duplicate_of_occurrence_id": "occurrence-0",
+    })
+    raw["admission_decisions"][0]["source_occurrence_ids"].append(
+        "occurrence-2"
+    )
+    raw["admission_decisions"][1]["source_occurrence_ids"] = [
+        "occurrence-3"
+    ]
+
+    sidecar = _build(raw)
+    assert sidecar["counts"]["solve_attempt_count"] == 5
+    assert sidecar["counts"]["generated_occurrence_count"] == 4
+
+
 def test_duplicate_attribution_and_downstream_cardinality_fail_closed() -> None:
     raw = _fixture()
     raw["dedupe_decisions"][1]["duplicate_of_occurrence_id"] = "occurrence-2"

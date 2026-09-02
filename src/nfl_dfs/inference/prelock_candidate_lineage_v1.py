@@ -1078,10 +1078,8 @@ def _validate_reconciliation(sidecar: Mapping[str, object]) -> dict[str, int]:
         if rows[-1]["status"] != status:
             _fail("proposal terminal status differs from its last solve attempt")
         produced = [row for row in rows if row["status"] == "PRODUCED"]
-        if (status == "PRODUCED") != (len(produced) == 1):
+        if status == "PRODUCED" and not produced:
             _fail("proposal produced status differs from its attempt yield")
-        if produced and produced[0] is not rows[-1]:
-            _fail("proposal contains a solve attempt after producing a roster")
 
     _unique(occurrences, "occurrence_id", label="generated occurrence")
     _contiguous(
@@ -1141,6 +1139,19 @@ def _validate_reconciliation(sidecar: Mapping[str, object]) -> dict[str, int]:
             or decision["duplicate_of_occurrence_id"] != prior["occurrence_id"]
         ):
             _fail("duplicate decision does not point to the first matching occurrence")
+
+    occurrence_by_attempt = {
+        str(row["attempt_id"]): row for row in occurrences
+    }
+    for request_id, rows in attempts_by_request.items():
+        ordered = sorted(rows, key=lambda row: int(row["retry_ordinal"]))
+        for attempt in ordered[:-1]:
+            if attempt["status"] != "PRODUCED":
+                continue
+            occurrence = occurrence_by_attempt[str(attempt["attempt_id"])]
+            decision = dedupe_by_occurrence[str(occurrence["occurrence_id"])]
+            if decision["disposition"] == "FIRST_SEEN":
+                _fail("proposal continued after producing a novel roster")
 
     _unique(admissions, "decision_id", label="admission decision")
     _unique(admissions, "candidate_instance_id", label="candidate instance")

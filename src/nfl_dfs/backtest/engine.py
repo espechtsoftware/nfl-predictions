@@ -1116,6 +1116,10 @@ def tail_select_lineups(
     ) = None,
     preseeded_role_identities: Sequence[frozenset] | None = None,
     construction_preset_receipt: Mapping[str, object] | None = None,
+    prelock_lineage_capture: (
+        Callable[[str, Mapping[str, object]], None] | None
+    ) = None,
+    prelock_lineage_finalize: bool = True,
 ) -> list[Lineup]:
     """Entry selection on P(best-of-N >= tail_line) (guide: issue #5).
 
@@ -1128,6 +1132,22 @@ def tail_select_lineups(
         raise ValueError(
             "required candidate persistence cannot run asynchronously")
     runtime_env = {} if policy_env is None else policy_env
+    if prelock_lineage_capture is not None:
+        if preseeded_role_identities is not None:
+            raise ValueError(
+                "prelock lineage phase 1 does not support preseeded rosters"
+            )
+        outcome_columns = sorted(
+            str(column) for column in slate.columns
+            if str(column).strip().lower() in {
+                "actual", "actual_points", "actual_score", "realized_score"
+            }
+        )
+        if outcome_columns:
+            raise ValueError(
+                "prelock lineage player inputs contain outcome columns: "
+                + ", ".join(outcome_columns)
+            )
     generation_started = perf_counter()
     rd = _row_draws(slate, draws, env=runtime_env)
     locks = locks or set()
@@ -1146,9 +1166,12 @@ def tail_select_lineups(
     n_lev_solves = resolve_leverage_solves(
         candidate_multiple, generation_entries, env=runtime_env,
     )
-    exposure_enabled = str(
-        runtime_env.get("PROSPECTIVE_GENERATION_EXPOSURE", "") or ""
-    ) == "1"
+    exposure_enabled = (
+        str(runtime_env.get(
+            "PROSPECTIVE_GENERATION_EXPOSURE", ""
+        ) or "") == "1"
+        or prelock_lineage_capture is not None
+    )
     exposure_ledger = None
     exposure_expected: dict[str, int] = {}
     if exposure_enabled:
@@ -2159,6 +2182,10 @@ def tail_select_lineups(
                 seen.add(lu.ids)
                 cands.append(lu)
     if not cands:
+        if prelock_lineage_capture is not None and prelock_lineage_finalize:
+            raise RuntimeError(
+                "prelock lineage cannot finalize an empty candidate pool"
+            )
         return []
     # Exact realized-pool control (2026-08-06 audit): holding SOLVE budget
     # constant is not the same as holding the realized unique-candidate
@@ -2180,6 +2207,7 @@ def tail_select_lineups(
     # treatment arm consumes.
     log.info("pool size: %s wk%s n=%d", _season, _week, len(cands))
     _cap = pool_cap_for_slate(_season, _week, env=runtime_env)
+    pre_cap_candidates = tuple(cands)
     if _cap and len(cands) > _cap:
         # PAIRED replacement-slot policy: treatment protects the novel
         # candidates under test; control protects the same number of the
@@ -2198,6 +2226,36 @@ def tail_select_lineups(
                                               protect=_protect)
         log.info("pool trimmed to cap %d (protect=%s): retained=%s "
                  "dropped=%s", _cap, _protect, _ret, _drop)
+    if prelock_lineage_capture is not None:
+        retained_ordinal = {
+            lineup.ids: ordinal for ordinal, lineup in enumerate(cands)
+        }
+        prelock_lineage_capture("pool_cap_admission", {
+            "schema_version": "candidate-pool-cap-admission-trace/v1",
+            "source_label": str(
+                runtime_env.get("MULTISEED_SOURCE_LABEL") or "single"
+            ),
+            "configured_cap": int(_cap),
+            "rows": [
+                {
+                    "input_ordinal": ordinal,
+                    "output_ordinal": retained_ordinal.get(lineup.ids),
+                    "internal_player_ids": sorted(
+                        str(value) for value in lineup.ids
+                    ),
+                    "source_family": str(lineup.tag or "lev"),
+                    "retained": lineup.ids in retained_ordinal,
+                    "reason": (
+                        "RETAINED_NATIVE"
+                        if lineup.ids in retained_ordinal
+                        else "DROPPED_POOL_CAP"
+                    ),
+                }
+                for ordinal, lineup in enumerate(pre_cap_candidates)
+            ],
+            "uses_realized_outcomes": False,
+            "post_lock_data_read": False,
+        })
     log.info("pool final: %s wk%s n=%d cap=%s", _season, _week,
              len(cands), _cap or "none")
     # Paid Route Share confirmatory arm. This is an added-budget generator,
@@ -2319,6 +2377,14 @@ def tail_select_lineups(
     )
     effective_batch_metadata = native_batch.metadata
     _validate_candidate_batch(native_batch)
+    effective_batch = native_batch
+    if prelock_lineage_capture is not None:
+        prelock_lineage_capture("native_candidate_batch", {
+            "source_label": str(
+                runtime_env.get("MULTISEED_SOURCE_LABEL") or "single"
+            ),
+            "batch": native_batch,
+        })
     if candidate_capture is not None:
         candidate_capture(native_batch)
     if candidate_transform is not None:
@@ -2335,9 +2401,19 @@ def tail_select_lineups(
             key: list(value) for key, value in transformed.all_tags.items()
         }
         effective_batch_metadata = transformed.metadata
+        effective_batch = transformed
         log.info(
             "candidate transform: %d candidates, %d worlds, metadata=%s",
             len(cands), cand_totals.shape[1], transformed.metadata)
+    selector_trace: list[Mapping[str, object]] = []
+    if prelock_lineage_capture is not None and prelock_lineage_finalize and (
+        (runtime_env.get("SELECT_OBJ") == "dollars" and contest is not None)
+        or int(runtime_env.get("M4_QBLOCK", "0") or 0)
+        or int(runtime_env.get("MAX_QBS", "0") or 0)
+    ):
+        raise ValueError(
+            "prelock lineage lacks an exact trace for the active selector"
+        )
     if runtime_env.get("SELECT_OBJ") == "dollars" and contest is not None:
         picked = select_dollar_entries(slate, rd, cands, cand_totals,
                                        n_entries, contest,
@@ -2358,7 +2434,15 @@ def tail_select_lineups(
                                             tail_line, qb_of, max_qbs)
         else:
             picked = select_tail_entries(cand_totals, n_entries, tail_line,
-                                         env=runtime_env)
+                                         env=runtime_env,
+                                         trace_capture=(
+                                             selector_trace.append
+                                             if prelock_lineage_capture
+                                             is not None
+                                             and prelock_lineage_finalize
+                                             else None
+                                         ))
+    raw_picked = list(picked)
     # Peak slice (env PEAK_SLICE, 2026-08-05 null-model finding: our
     # assembly is BELOW-RANDOM — 1.87/8 best-entry overlap with the
     # hindsight-optimal vs 2.51 expected under exposure-preserving
@@ -2375,6 +2459,22 @@ def tail_select_lineups(
     if theses:
         picked = _enforce_theses(picked, cands, cand_totals, tail_line,
                                  theses)
+    if prelock_lineage_capture is not None and prelock_lineage_finalize:
+        if len(selector_trace) != 1:
+            raise RuntimeError(
+                "prelock lineage did not capture one exact selector trace"
+            )
+        prelock_lineage_capture("effective_candidate_selection", {
+            "batch": effective_batch,
+            "tail_line": float(tail_line),
+            "selector_trace": dict(selector_trace[0]),
+            "raw_selected_indices": [int(index) for index in raw_picked],
+            "final_selected_indices": [int(index) for index in picked],
+            "post_selector_peak_slice": int(k_peak),
+            "post_selector_thesis_count": len(theses or ()),
+            "uses_realized_outcomes": False,
+            "post_lock_data_read": False,
+        })
     # Candidate-oracle instrumentation (review #5 F1, always on): the
     # selected 40 are all we ever scored against actuals — the
     # PRESELECTION frontier was unobserved, so "the wall is the

@@ -130,6 +130,20 @@ def main(argv: list[str] | None = None) -> None:
         help="Exact timezone-aware lock timestamp from the frozen slate authority",
     )
     p = sub.add_parser(
+        "shadow-prelock-lineage",
+        help=(
+            "Freeze one default-off canonical-CBWU detailed pre-lock "
+            "lineage shadow"
+        ),
+    )
+    p.add_argument("--run-id", required=True)
+    p.add_argument("--season", type=int, required=True)
+    p.add_argument("--week", type=int, required=True)
+    p.add_argument("--draft-group-id", type=int, required=True)
+    p.add_argument("--slate-lock-at", required=True)
+    p.add_argument("--code-sha256", required=True)
+    p.add_argument("--bucket")
+    p = sub.add_parser(
         "shadow-generation-operator",
         help=(
             "Run the default-off create-once preregistration, prelock "
@@ -969,6 +983,18 @@ def main(argv: list[str] | None = None) -> None:
         from .inference import prospective_generation_shadow_operator
 
         prospective_generation_shadow_operator.main(args.operator_args)
+    elif args.command == "shadow-prelock-lineage":
+        from .inference import prospective_prelock_lineage_shadow_v1
+
+        prospective_prelock_lineage_shadow_v1.main(
+            run_id=args.run_id,
+            season=args.season,
+            week=args.week,
+            draft_group_id=args.draft_group_id,
+            expected_lock_at=args.slate_lock_at,
+            code_sha256=args.code_sha256,
+            bucket_name=args.bucket,
+        )
     elif args.command == "shadow-sis-pass-tail-paired":
         from .inference import sis_pass_tail_portfolio
 

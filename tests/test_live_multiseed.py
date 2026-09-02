@@ -84,6 +84,11 @@ def test_live_cbwu_runs_all_registered_pairs_and_combines_before_selection(
 ):
     slate_calls = []
     final_batches = []
+    lineage_calls = []
+    lineage_events = []
+
+    def lineage_capture(stage, payload):
+        lineage_events.append((stage, payload))
 
     def fake_slate(season, week, n_sims=None, seed=42,
                    log_ownership_shadow=True, **kwargs):
@@ -98,6 +103,10 @@ def test_live_cbwu_runs_all_registered_pairs_and_combines_before_selection(
 
     def fake_tail(slate, pool, draws, n_entries, candidate_capture=None,
                   candidate_transform=None, **kwargs):
+        lineage_calls.append((
+            kwargs.get("prelock_lineage_capture"),
+            kwargs.get("prelock_lineage_finalize"),
+        ))
         seed = int(slate.test_seed.iloc[0])
         rotation = seed % 5
         rosters = []
@@ -151,6 +160,9 @@ def test_live_cbwu_runs_all_registered_pairs_and_combines_before_selection(
         _control_candidate_capture=(
             control_capture.append if portfolio == "shadow" else None
         ),
+        _prelock_lineage_capture=(
+            lineage_capture if portfolio == "control" else None
+        ),
     )
     assert len(result) == 1
     expected_calls = []
@@ -172,6 +184,14 @@ def test_live_cbwu_runs_all_registered_pairs_and_combines_before_selection(
         )
     else:
         assert control_capture == []
+        assert [capture for capture, _ in lineage_calls] == [
+            lineage_capture
+        ] * 5
+        assert [finalize for _, finalize in lineage_calls] == [
+            False, False, False, False, True
+        ]
+        assert len(lineage_events) == 1
+        assert lineage_events[0][0] == "cbwu_admission"
     assert final.metadata["portfolio"] == expected_portfolio
     assert final.metadata["worlds_per_block"] == [3] * 5
     assert final.candidate_totals.shape[1] == 15
