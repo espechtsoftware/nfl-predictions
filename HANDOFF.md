@@ -216,6 +216,19 @@ and operator decisions.  The older entries remain the durable chronology.
   artifact directory `.tmp/cfb-collection-release.WlLILm`, re-prove the live
   job/schedulers/data, and publish the missing local receipt without any
   provider or BigQuery mutation.
+- CFB settlement is now **PASS** without another provider execution. Commits
+  `f1b08d54` and `beaf8be7` make the read-only settlement accept `K` only for
+  Showdown and pin the exact provider creation timestamp rather than comparing
+  differently formatted timestamp strings. Focused validation is `17 passed`.
+  Exact settled execution remains `ingest-cfb-rwcqr`, UID
+  `e4c4e5cf-1862-46e2-be94-1751a66dc683`: 2,134 salary rows, 2,076 contest
+  rows, and 29 legitimate Showdown kicker rows. The local receipt is
+  `.tmp/cfb-collection-release.WlLILm/receipt.json`, SHA-256
+  `b671fbcc899983b06c1c9a10bc1b990365d4337349475a3e29528830b378151e`.
+  It confirms no additional provider execution or BigQuery mutation. Both CFB
+  schedulers remain paused; the Saturday cron is
+  `0 8,9,11,12,13 * * 6`. Enabling either scheduler remains a separate
+  operator decision.
 - Lab `origin/main` advanced to `4ad5519c74322a2d512826e5da81baa5e8b6b9eb`
   (Action Note Update 13 / PREREG-053 experiment 084). The revision-aware
   inbox monitor detected the new commit and Update 13 at
@@ -353,30 +366,53 @@ and operator decisions.  The older entries remain the durable chronology.
   the sole active outcome-disabled mechanics task. Exact next action is poll
   this execution and its coordinator to terminality, require the frozen r2
   create-once gate receipt, and only then bind/launch efficacy r2.
+- Provider mechanics execution `lab-run-8x8z7` then completed successfully.
+  The frozen validator passed and published create-once gate
+  `gs://nfl-2-506823-lab/gates/PREREG-053/084m590r2-20260902T041825Z.json`,
+  SHA-256
+  `4dc31e4ceab099a638911acfac136bf411efc9c4e08e6af34571dcdc016bea23`.
+  The registered wrapper nevertheless exited 2 *after* the gate because its
+  live copy of `scripts/launcher_registry.sh` was modified concurrently and
+  Bash encountered the transient parse state. This is a control-plane
+  inconsistency, not a mechanics failure: no efficacy prefix was claimed and
+  no outcome reader opened. Do not launch a second mechanics execution. After
+  the shared-registry patch is frozen and independently accepted, restart the
+  same restart-safe coordinator so it reconciles the existing provider run and
+  gate, then bind and launch the efficacy cohort.
 - The additive opportunity-lineage v1 interface in the lab repository was
-  reviewed narrowly without changing or stopping 084. The design is suitable
-  for a one-slate mechanics/interface shadow, but four boundaries must be
-  resolved before claiming an exact production/full-084 join: (1) lab hashes
-  comma-joined sorted player IDs while the current Week-1 production identity
-  hashes canonical JSON, and neither the hash scheme nor player-ID namespace
-  is carried; (2) the current 084 trace covers only natural arms and the only
-  artifact accepted as pre-lock is the one-slate mechanics envelope, while a
-  full efficacy envelope already contains outcomes; (3) research K80 is not
-  an actual contest entry limit, and selected rank, prepared/submitted entry
-  slot, actual field rank and counterfactual field rank must remain distinct;
-  and (4) candidate realized score is roster/slate keyed, but actual payout and
-  rank are contest-entry facts and winner score must be contest keyed rather
-  than inferred from a bare slate. The user-supplied `created_at_utc` and local
-  path are also not sufficient pre-lock authority: the future full trace must
-  be a separately emitted create-once object with digest, generation and
-  provider creation time before any outcome branch. For current 084 keep
-  predicted marginal utility and deployment null/unobserved. Production's
-  simplest settlement authority is the existing create-once complete DK
-  standings capture plus the validated player-identity/field bridge; the
-  immutable filled DKEntries artifact and receipt are the pre-lock prepared
-  entry source, with post-settlement field membership used to confirm actual
-  entry. Registry v2 remains required before a historical winner value can be
-  labelled adjudicated. No outcome artifact was opened during this review.
+  reviewed narrowly without changing or stopping 084. Its current projection
+  is approved for one shadow-only 084 mechanics use, but an exact production
+  settlement claim is not yet safe. Required interface corrections are:
+  (1) current 084 retains only a digest of transient lab player IDs, so it
+  cannot be rehashed into production's nine-ID roster namespace; a future
+  trace or separate bridge must freeze the sorted source IDs plus namespace;
+  (2) lab `realized_score` is an unconstrained number while production's
+  authority is integer `realized_score_micro`, so units must be explicit and
+  exact throughout; (3) projected deployment/contest facts and the winner
+  wrapper are currently adjacent to provider-object identities rather than
+  content-bound to validated source bytes; (4) the outcome-open timestamp is
+  caller supplied rather than derived from an exact provider reader/access
+  marker; and (5) `contest_entry_limit` is not in the paid fill receipt and
+  must come from validated contest metadata. Use the immutable filled
+  DKEntries artifact plus paid export receipt for prepared entries, the
+  validated complete-standings field bridge for actual Entry IDs, micro-score,
+  ranks, duplicates and payouts, contest-capture metadata for entry limit, and
+  registry-v2 accepted observations for adjudicated winner facts. Entered
+  ranks and genuine selector marginal values may be included only when the
+  corresponding authoritative post-settlement and pre-lock artifacts exist;
+  otherwise they remain null. There is no current authority for the literal
+  full legal-lineup universe—only the observed generated/admitted population.
+  No outcome artifact was opened during this review.
+- A canonical shared launcher-registry/monitor patch is still local and has
+  **not** been committed, deployed, or used for a new launch. Independent
+  review remains NO-GO until it proves cohort-local completion state, protects
+  historical completion-record hashes, migrates or safely retires every old
+  registered lab launcher, and never auto-removes a dead-wrapper receipt while
+  a child process/provider execution may still own the lane. Existing loaded
+  monitor services remain on their prior committed implementation. Exact next
+  action is finish those regressions, obtain explicit independent GO, commit
+  and push the complete cross-repository change, cut over the services, then
+  reconcile the already-passed 084 mechanics gate without duplicating work.
 
 ### 2026-09-01 durable Cloud Run lane monitor armed; PREREG-052 image ready
 
