@@ -108,15 +108,27 @@ and operator decisions.  The older entries remain the durable chronology.
   `8345afd4bf1e7fde445333380ddb4d5fc8f30435`; its post-rebase validation
   passed 88/88 focused tests, all four launcher shell parses, Python compile,
   and diff checks. Reader and efficacy pins remain deliberately unbound.
-- Registered run `087m610r2-20260902T165338Z` is active as Cloud Run execution
+- Registered run `087m610r2-20260902T165338Z` launched as Cloud Run execution
   `lab-run-xgw28`, UID `c096c1de-5879-47fc-aa37-64c89261a28f`, created
   `2026-09-02T16:53:39.279346Z` and started
   `2026-09-02T16:54:13.890863Z`. It has one task at one parallelism, exact
   image digest above, 2 CPU / 8 GiB, and zero observed retries. The durable
   systemd coordinator is `nfl2-prereg056-mechanics-r2.service`.
-- Next exact action: monitor `lab-run-xgw28` to terminal. Efficacy remains
-  blocked until r2 reaches terminal exact success with zero retries and its
-  create-once gate receipt is independently reopened and reproduced.
+- Mechanics execution `lab-run-xgw28` completed successfully at
+  `2026-09-02T17:03:04.005499Z` in 8m50s: one of one task succeeded, with
+  zero failures, cancellations, or retries. The create-once gate receipt at
+  `gs://nfl-2-506823-lab/gates/PREREG-056/087m610r2-20260902T165338Z.json`
+  is provider generation `1788368608213082`, 1,564 bytes, SHA-256
+  `35b52376f2a9a260882203889351e5892e465bdb570c048f21083ae56d907f57`.
+  Production independently reopened that exact generation, reproduced the
+  byte hash and strict receipt contract, and observed selector turnover
+  `0.3157894736842105` on the exact shared D800 pool.
+- The frozen reader SHA-256 is
+  `e9ab38579ec5af0998a9cde8fdb31f0b0d40f8e03e06ac9e56f838c820e43b3b`;
+  the gate/reader/efficacy binding is durable on lab `main` at `a61674b` and
+  passed 89/89 focused tests plus shell, compile, and diff checks. Next exact
+  action is to launch registered efficacy banks 610 and 611 together; bank
+  612 releases only after a clean initial-bank success and no retry/failure.
 
 ### 2026-09-02 pre-lock lineage Phase 1 production review
 
