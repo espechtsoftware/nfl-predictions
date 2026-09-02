@@ -88,6 +88,33 @@ and operator decisions.  The older entries remain the durable chronology.
   default-off pre-lock lineage contract and selector instrumentation under a
   new explicit source-set version; do not relabel either query as first-loss.
 
+### 2026-09-02 PREREG-055 / experiment 086 efficacy cohort complete
+
+- The registered efficacy coordinator completed successfully at
+  `2026-09-02T13:24:53Z` with terminal launcher receipt SHA-256
+  `839e5eb357d267e1cd6c5bb0d89aa01cb44f732cf8e4a1b980004cb23ff148ed`
+  and record SHA-256
+  `89f16e4f12610a0b3177c7bb5538bda2681334568e107be33f5528deb4170ec9`.
+  Its exact prefixes are `086b600r1/601r1/602r1`; no live launcher claim
+  remains.
+- All three frozen efficacy banks reached clean terminal success with 18/18
+  tasks and zero failed, cancelled, or retried tasks: bank 600 run
+  `086b600r1-20260902T111003Z`, execution `lab-run-cjfp6`, UID
+  `bcbe5167-37d5-43a8-8ddf-3bfb8053f707`, completed
+  `2026-09-02T12:16:06.720020Z`; bank 601 run
+  `086b601r1-20260902T111222Z`, execution `lab-run-slow-2gc4r`, UID
+  `276b07c2-3be3-4097-bc26-c073f097ff93`, completed
+  `2026-09-02T12:21:25.943141Z`; bank 602 run
+  `086b602r1-20260902T121746Z`, execution `lab-run-g8c7z`, UID
+  `548c5e49-7222-43d5-969f-48bb289bd954`, completed
+  `2026-09-02T13:24:47.380109Z`.
+- Production has not opened result objects, task logs, scores, or the frozen
+  reader. The exact next action is to wait for the lab's first-read update,
+  then independently run `scripts/prereg055_report.py` from pinned lab source
+  `22ad2d90139e6e2a0756913083cb8053535e2e43` over the ordered 600/601/602
+  run IDs above and preserve the complete transcript. Do not infer a verdict
+  from provider success alone.
+
 ### 2026-09-02 bounded E0 historical-realized summary runner/API and artifact
 
 - Production `main` commit `f03debc4` adds a deterministic local runner over
