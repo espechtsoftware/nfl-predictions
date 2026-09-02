@@ -108,9 +108,15 @@ and operator decisions.  The older entries remain the durable chronology.
   `8345afd4bf1e7fde445333380ddb4d5fc8f30435`; its post-rebase validation
   passed 88/88 focused tests, all four launcher shell parses, Python compile,
   and diff checks. Reader and efficacy pins remain deliberately unbound.
-- Next exact action: run only `087m610r2`. Efficacy remains blocked until r2
-  reaches terminal exact success with zero retries and its create-once gate
-  receipt is independently reopened and reproduced.
+- Registered run `087m610r2-20260902T165338Z` is active as Cloud Run execution
+  `lab-run-xgw28`, UID `c096c1de-5879-47fc-aa37-64c89261a28f`, created
+  `2026-09-02T16:53:39.279346Z` and started
+  `2026-09-02T16:54:13.890863Z`. It has one task at one parallelism, exact
+  image digest above, 2 CPU / 8 GiB, and zero observed retries. The durable
+  systemd coordinator is `nfl2-prereg056-mechanics-r2.service`.
+- Next exact action: monitor `lab-run-xgw28` to terminal. Efficacy remains
+  blocked until r2 reaches terminal exact success with zero retries and its
+  create-once gate receipt is independently reopened and reproduced.
 
 ### 2026-09-02 pre-lock lineage Phase 1 production review
 
