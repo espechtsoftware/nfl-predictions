@@ -25,6 +25,32 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-02 canonical launcher registry cutover
+
+- Production `main` commit `683971a8` makes the lane monitor completion-aware
+  and moves every registered lab coordinator to one canonical, mode-0700 state
+  root at `~/.local/state/nfl-dfs/lab-launcher-registry/`. The focused
+  production suite passed 51/51, an independent adversarial review passed 9/9,
+  Bash/Python/diff checks passed, and the reviewer issued an explicit GO.
+- Lab `main` commit `a010201ebda6100781af37719a5d8e5403b447b2` carries the
+  matching cross-worktree coordination contract. The PREREG-053 feature branch
+  merged it at `5ee1f0110887834e77e79b630b46b0f2dc3cac54`; both commits are
+  pushed. Its focused five-module suite passed 76/76 and the five overlapping
+  files are byte-identical across the worktrees. Untracked opportunity-lineage
+  work in `nfl2` and the `.venv` link in `nfl2-084` were not staged.
+- Before cutover, both `lab-run` and `lab-run-slow` were provider-idle and the
+  canonical launcher/completion directories were empty. The reloaded monitor
+  is active under invocation `c44b31c7cda14fc18b181a8e6686f788`; its loaded
+  `ExecStart` names the canonical launcher directory and the 180-second
+  post-provider grace. Its first poll wrote schema
+  `cloud-run-lane-monitor-status/v3`, reported `no_live_receipt`, and correctly
+  retained the already-known failed E4 execution as an alert.
+- Exact next action: bind the already-passed 084 mechanics r2 gate into the
+  reader and registered efficacy coordinator, reconcile the orphaned mechanics
+  wrapper without rerunning science, then launch the authorized efficacy
+  prefixes `084b590r2`, `084b591r2`, and `084b592r2`. Do not open outcomes until
+  all three banks and the coordinator terminate successfully.
+
 ### 2026-09-02 PREREG-052 sealed; completion-aware monitoring repaired
 
 - Production `main` implementation commit
