@@ -1,0 +1,33 @@
+[Unit]
+Description=Read-only Cloud Run queue and execution alert monitor
+Documentation=file://%h/projects/nfl-predictions/scripts/cloud_run_lane_monitor.py
+After=default.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+WorkingDirectory=%h/projects/nfl-predictions
+ExecStart=%h/projects/nfl-predictions/.venv/bin/python \
+  %h/projects/nfl-predictions/scripts/cloud_run_lane_monitor.py \
+  --state-file %h/.local/state/nfl-dfs/cloud-run-lane-monitor/status.json \
+  --events-file %h/.local/state/nfl-dfs/cloud-run-lane-monitor/events.jsonl \
+  --attention-file %h/.local/state/nfl-dfs/cloud-run-lane-monitor/attention.json \
+  --project nfl-2-506823 --region us-central1 \
+  --job lab-run --job lab-run-slow \
+  --launcher-registry-dir %h/projects/nfl2/.tmp/launchers \
+  --launcher-lane nfl2-lab-jobs --queue-grace-seconds 120 \
+  --stall-seconds 3600 \
+  --e4-execution atlas-cbc-32g-full-2023-w8-v1-7zpd4 \
+  --e4-project nfl-predictions-503414 --e4-stall-seconds 25200 \
+  --poll-seconds 60 --command-timeout-seconds 45 \
+  --windows-toast-command /mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/powershell.exe \
+  --notification-timeout-seconds 10 --notification-retry-seconds 300 \
+  --gcloud /usr/bin/gcloud
+Restart=always
+RestartSec=15s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nfl-cloud-run-lane-monitor
+
+[Install]
+WantedBy=default.target

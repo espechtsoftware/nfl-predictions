@@ -43,10 +43,22 @@ def run() -> None:
 
     season = current_season()
     frames = []
+    stale_group_ids = []
     for g in groups:
         gid = g["draftGroupId"]
         slate_type = dk_client.classify_slate(g)
-        payload = dk_client.fetch_draftables(gid, session)
+        try:
+            payload = dk_client.fetch_draftables(gid, session)
+        except requests.HTTPError as exc:
+            response = exc.response
+            if response is None or response.status_code != 404:
+                raise
+            stale_group_ids.append(gid)
+            log.warning(
+                "Skipping stale CFB draft group %s: draftables returned HTTP 404",
+                gid,
+            )
+            continue
         df = dk_client.draftables_frame(gid, slate_type, payload)
         if df.empty:
             continue
@@ -54,6 +66,12 @@ def run() -> None:
         df["week"] = None
         frames.append(df)
         log.info("CFB slate %s (%s): %d players", gid, slate_type, len(df))
+
+    if groups and len(stale_group_ids) == len(groups):
+        raise RuntimeError(
+            "All advertised upcoming CFB draft groups returned HTTP 404 "
+            "for draftables"
+        )
 
     if frames:
         load_dataframe(

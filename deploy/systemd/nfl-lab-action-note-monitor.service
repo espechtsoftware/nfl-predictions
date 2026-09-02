@@ -1,0 +1,27 @@
+[Unit]
+Description=Read-only lab-to-production action-note monitor
+Documentation=file://%h/projects/nfl-predictions/scripts/lab_action_note_monitor.py
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+WorkingDirectory=%h/projects/nfl-predictions
+ExecStart=%h/projects/nfl-predictions/.venv/bin/python \
+  -m scripts.lab_action_note_monitor \
+  --repo %h/projects/nfl2 \
+  --state-file %h/.local/state/nfl-dfs/lab-action-note-monitor/status.json \
+  --events-file %h/.local/state/nfl-dfs/lab-action-note-monitor/events.jsonl \
+  --poll-seconds 120 --command-timeout-seconds 45 \
+  --windows-toast-command /mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/powershell.exe \
+  --notification-timeout-seconds 10 --notification-retry-seconds 300 \
+  --git /usr/bin/git
+Restart=always
+RestartSec=15s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nfl-lab-action-note-monitor
+
+[Install]
+WantedBy=default.target

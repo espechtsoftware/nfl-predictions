@@ -6,9 +6,42 @@ touching either when INGEST_CFB_ENABLED isn't set, which is the default
 (this session has no GCP credentials, and CFB season hasn't started).
 """
 
+import logging
+
+import pytest
 import requests
 
 from nfl_dfs.ingest import cfb_job
+
+
+def _draftables_payload(player_id=1):
+    return {
+        "competitions": [
+            {"competitionId": 1, "startTime": "2026-08-30T17:00:00Z"}
+        ],
+        "draftables": [
+            {
+                "draftableId": player_id,
+                "playerId": player_id,
+                "displayName": "Test QB",
+                "teamAbbreviation": "ABC",
+                "position": "QB",
+                "salary": 9000,
+                "rosterSlotId": 1,
+                "status": "None",
+                "competition": {"competitionId": 1},
+            }
+        ],
+    }
+
+
+def _http_error(status_code, gid):
+    response = requests.Response()
+    response.status_code = status_code
+    response.url = f"https://api.draftkings.test/draftgroups/{gid}/draftables"
+    return requests.HTTPError(
+        f"{status_code} response for draft group {gid}", response=response
+    )
 
 
 def test_run_is_noop_when_disabled(monkeypatch):
@@ -48,22 +81,7 @@ def test_run_loads_salaries_and_contests_when_enabled(monkeypatch):
     )
     monkeypatch.setattr(
         "nfl_dfs.ingest.dk_client.fetch_draftables",
-        lambda gid, session=None: {
-            "competitions": [{"competitionId": 1, "startTime": "2026-08-30T17:00:00Z"}],
-            "draftables": [
-                {
-                    "draftableId": 1,
-                    "playerId": 1,
-                    "displayName": "Test QB",
-                    "teamAbbreviation": "ABC",
-                    "position": "QB",
-                    "salary": 9000,
-                    "rosterSlotId": 1,
-                    "status": "None",
-                    "competition": {"competitionId": 1},
-                }
-            ],
-        },
+        lambda gid, session=None: _draftables_payload(),
     )
     monkeypatch.setattr(
         "nfl_dfs.ingest.dk_client.cfb_contests",
@@ -99,3 +117,108 @@ def test_run_loads_salaries_and_contests_when_enabled(monkeypatch):
 
     contests_df = loaded[1][1]
     assert list(contests_df.sport) == ["CFB"]
+
+
+def test_run_skips_draftables_404_and_persists_healthy_group(monkeypatch, caplog):
+    monkeypatch.setenv("INGEST_CFB_ENABLED", "1")
+    groups = [
+        {"draftGroupId": 152863, "sportId": 5, "draftGroupState": "Upcoming"},
+        {"draftGroupId": 152864, "sportId": 5, "draftGroupState": "Upcoming"},
+    ]
+    monkeypatch.setattr(
+        "nfl_dfs.ingest.dk_client.cfb_draft_groups", lambda session=None: groups
+    )
+
+    def fetch_draftables(gid, session=None):
+        if gid == 152863:
+            raise _http_error(404, gid)
+        return _draftables_payload(player_id=2)
+
+    monkeypatch.setattr(
+        "nfl_dfs.ingest.dk_client.fetch_draftables", fetch_draftables
+    )
+    monkeypatch.setattr(
+        "nfl_dfs.ingest.dk_client.cfb_contests", lambda session=None: []
+    )
+    loaded = []
+    monkeypatch.setattr(
+        "nfl_dfs.ingest.cfb_job.load_dataframe",
+        lambda df, table, **kw: loaded.append((table, df)),
+    )
+
+    with caplog.at_level(logging.WARNING, logger=cfb_job.__name__):
+        cfb_job.run()
+
+    assert [table for table, _ in loaded] == ["cfb_dk_salaries"]
+    assert list(loaded[0][1].draft_group_id) == [152864]
+    assert "Skipping stale CFB draft group 152863" in caplog.text
+
+
+def test_run_propagates_non_404_draftables_http_error(monkeypatch):
+    monkeypatch.setenv("INGEST_CFB_ENABLED", "1")
+    groups = [
+        {"draftGroupId": 152865, "sportId": 5, "draftGroupState": "Upcoming"}
+    ]
+    monkeypatch.setattr(
+        "nfl_dfs.ingest.dk_client.cfb_draft_groups", lambda session=None: groups
+    )
+
+    def fetch_draftables(gid, session=None):
+        raise _http_error(503, gid)
+
+    monkeypatch.setattr(
+        "nfl_dfs.ingest.dk_client.fetch_draftables", fetch_draftables
+    )
+
+    with pytest.raises(requests.HTTPError) as caught:
+        cfb_job.run()
+
+    assert caught.value.response is not None
+    assert caught.value.response.status_code == 503
+
+
+def test_run_fails_closed_when_all_draftables_groups_return_404(monkeypatch):
+    monkeypatch.setenv("INGEST_CFB_ENABLED", "1")
+    groups = [
+        {"draftGroupId": 152863, "sportId": 5, "draftGroupState": "Upcoming"},
+        {"draftGroupId": 152864, "sportId": 5, "draftGroupState": "Upcoming"},
+    ]
+    monkeypatch.setattr(
+        "nfl_dfs.ingest.dk_client.cfb_draft_groups", lambda session=None: groups
+    )
+
+    def fetch_draftables(gid, session=None):
+        raise _http_error(404, gid)
+
+    monkeypatch.setattr(
+        "nfl_dfs.ingest.dk_client.fetch_draftables", fetch_draftables
+    )
+    loaded = []
+    monkeypatch.setattr(
+        "nfl_dfs.ingest.cfb_job.load_dataframe",
+        lambda *args, **kwargs: loaded.append(args),
+    )
+
+    with pytest.raises(RuntimeError, match="All advertised upcoming CFB"):
+        cfb_job.run()
+
+    assert loaded == []
+
+
+def test_run_with_no_upcoming_groups_remains_a_noop(monkeypatch):
+    monkeypatch.setenv("INGEST_CFB_ENABLED", "1")
+    monkeypatch.setattr(
+        "nfl_dfs.ingest.dk_client.cfb_draft_groups", lambda session=None: []
+    )
+    monkeypatch.setattr(
+        "nfl_dfs.ingest.dk_client.cfb_contests", lambda session=None: []
+    )
+    loaded = []
+    monkeypatch.setattr(
+        "nfl_dfs.ingest.cfb_job.load_dataframe",
+        lambda *args, **kwargs: loaded.append(args),
+    )
+
+    cfb_job.run()
+
+    assert loaded == []
