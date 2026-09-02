@@ -126,9 +126,23 @@ and operator decisions.  The older entries remain the durable chronology.
 - The frozen reader SHA-256 is
   `e9ab38579ec5af0998a9cde8fdb31f0b0d40f8e03e06ac9e56f838c820e43b3b`;
   the gate/reader/efficacy binding is durable on lab `main` at `a61674b` and
-  passed 89/89 focused tests plus shell, compile, and diff checks. Next exact
-  action is to launch registered efficacy banks 610 and 611 together; bank
-  612 releases only after a clean initial-bank success and no retry/failure.
+  passed 89/89 focused tests plus shell, compile, and diff checks. The durable
+  registered coordinator `nfl2-prereg056-efficacy-r2.service` acquired the
+  global `nfl2-lab-jobs` lane at `2026-09-02T17:09:32Z`. Bank 610 run
+  `087b610r2-20260902T171112Z` is Cloud Run execution `lab-run-q89kk`, UID
+  `43f8de86-6c11-4cfd-9cb2-536c8d3762c1`, created
+  `2026-09-02T17:11:13.349387Z` and started
+  `2026-09-02T17:11:25.944251Z`; at the `2026-09-02T17:14Z` direct provider
+  census all 18 tasks were running with no terminal task or observed retry.
+  Bank 611 run `087b611r2-20260902T171342Z` is Cloud Run execution
+  `lab-run-slow-6lz8p`, UID `d5c9037d-afd0-4263-8a43-d69a64696ae8`, created
+  `2026-09-02T17:13:43.252629Z`; it was provisioned and waiting to start with
+  no terminal task or observed retry. Both executions bind source/image above,
+  18 tasks at 18 parallelism, 2 CPU / 8 GiB, timeout 36,000 seconds, and
+  `maxRetries=1`. Bank 612 remains unclaimed and releases only after a clean
+  initial-bank success; any observed initial-bank retry or failure stops the
+  coordinator. Next exact action is direct task-level polling of 610/611
+  without opening outcomes.
 
 ### 2026-09-02 pre-lock lineage Phase 1 production review
 
