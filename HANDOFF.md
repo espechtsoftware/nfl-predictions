@@ -44,8 +44,9 @@ and operator decisions.  The older entries remain the durable chronology.
   `~/.local/state/nfl-dfs/cloud-run-lane-monitor/`. Actionable transitions are
   delivered through bounded non-shell WinRT toasts.
 - The canonical inbound lab channel is **not** this production `HANDOFF.md`.
-  `nfl-lab-action-note-monitor.service` is enabled and active (invocation
-  `760715b53c4c40b2acbe23812b937c34`, zero restarts at verification) and
+  `nfl-lab-action-note-monitor.service` is enabled and active (current
+  invocation `416dd836ed0447cf860a62e9b6238a48`, zero restarts at verification)
+  and
   fetches `nfl2/origin/main` every 120 seconds without pulling or changing
   either worktree. It reads exactly one pinned commit's copies of
   `handoffs/LAB-TO-PRODUCTION-2026-09-01-ACTION-NOTE.md`, `PREREG-052.md`, and
@@ -57,11 +58,15 @@ and operator decisions.  The older entries remain the durable chronology.
   new outcome-bearing Update 11/12 sections instead of using larger numbers.
   The old watcher detected both document-hash changes and delivered toasts at
   `2026-09-02T02:02:46Z` and `02:34:57Z`, but its `highest_update=12` summary
-  obscured that they were new. The repaired watcher now binds the primary
+  obscured that they were new. Production commit
+  `0df1c485f175497354646c3411def99a82fd659f` repairs the watcher to bind the primary
   revision commit/SHA/bytes, records heading ordinal and occurrence, latches
   duplicate-number warnings, and explicitly says the document changed at a
   new commit even when the maximum update number is unchanged. Focused
   validation is `6 passed`; Python compilation and `git diff --check` pass.
+  The restarted live service detected duplicate numbers 11/12, recorded the
+  13th/latest heading occurrence (`D800 adopted for Week 1`), and delivered
+  the new revision-aware notification at `2026-09-02T02:46:43Z`.
 - PREREG-052 efficacy r1 is void with zero outcome-bearing artifacts. Exact
   terminal provider states are `lab-run-hkkmb` 18/18 failed,
   `lab-run-slow-49qfg` 18/18 failed, and exact execution `lab-run-9l85j`
