@@ -25,6 +25,49 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-02 pre-lock lineage Phase 1 production review
+
+- Reviewed production donor branch `origin/codex/prelock-lineage-phase1` at
+  `22dc9cf1314bf960d5daaa751df9afc596b29f45` (implementation
+  `43c55e2747d5675ac4920fc06e4093e0f2965e31`) against current production
+  `e61b25e25b3fd680f775d96e929df48ab9ff766d`. Also reviewed the separate
+  lab opportunity-lineage implementation at `nfl2` commit
+  `5f3ade361b17f4f5a6b80b07e0d44f129c16d8bb`.
+- Disposition is **NO-GO** for wholesale merge, runtime activation, artifact
+  publication, deployment, or production graph load. The production donor is
+  **GO** for a selective port after repair. Preserve its default-off runtime
+  collector, request/attempt/dedupe/admission records, exact matrix capture,
+  paid-preparation seam, and separate settlement readers; do not replace the
+  current typed selector events, immutable v1 sidecar, hardened graph-v2
+  adapter, or v6 source identity.
+- P0 blockers are: two incompatible contracts reuse existing v1 schema names;
+  the five-seed recorder violates current v1's linear admission law and is not
+  tested end to end; whole-second graph time can compare earlier than the
+  terminal provider's subsecond creation time; real-clock retry regenerates
+  different candidate/graph bytes; no root-last manifest binds all five
+  advertised objects; and positional rescue-score input can silently attach a
+  score to the wrong candidate. The same-second graph failure was reproduced
+  locally.
+- Additional integration defects are incomplete executable/source identity,
+  an arbitrary output bucket, an undisclosed asynchronous ownership-shadow
+  write, two independent salary reads, selector-objective/retrieval-preset
+  conflation, and denylist-only outcome exclusion. The current packet locates
+  stage loss but cannot yet explain boom, coverage, ownership, matchup,
+  projection, or correlation traits because the hashed effective player
+  feature values are neither archived nor provider-addressable.
+- Validation during review: all 70 directly changed production tests passed;
+  a separate timestamp probe reproduced the real provider-order failure;
+  `git merge-tree` confirmed conflicts in four contract/selector/handoff files;
+  and the lab's focused opportunity-lineage suite passed 24/24. No score,
+  policy, cloud job, deployment, graph data, or paid entry changed.
+- Full findings and the exact fastest-safe port sequence are in
+  `reports/2026-09-02-prelock-lineage-phase1-production-review.md`. Next action
+  is an isolated selective port from current `main`: use a v1-compatible
+  native-union -> CBWU stage pair (or explicitly version a DAG as v2), adapt to
+  typed selector events, add reopen-first resume/root-last publication and
+  keyed settlement, close the pre-lock read/write/input boundary, then pass a
+  real five-seed parity test before one candidate-only shadow.
+
 ### 2026-09-02 selector-lineage v6 infrastructure integrated default-off
 
 - Isolated branch `integration/selector-lineage-gate-20260902` starts from
@@ -148,17 +191,17 @@ and operator decisions.  The older entries remain the durable chronology.
   Build/Run execution, image, deployment, graph load, publication, runtime
   activation, scoring change, merge, or push occurred, so there are no new
   durable cloud execution IDs.
-- GO for independent review and selective integration as default-off contract
-  infrastructure. NO-GO for durable projection publication or graph load until
+- Independent review accepted the default-off contract infrastructure. It was
+  replayed onto newer production tip `1287283f663ec15e8c4e181d8fc3f89b4cf1d804`
+  and integrated/pushed as implementation `96ad156b`, handoff `f9c61380`, and
+  replay correction `e61b25e2`. NO-GO remains for durable projection
+  publication or graph load until
   a caller obtains the required receipt from trusted generation-pinned GCS
   metadata/exact reopen, supplies the reviewed selector-to-preset map, persists
   the canonical projection bytes create-once, and reopens them through the new
-  validator. Both isolated commits replayed without conflict onto exact newer
-  production tip `1287283f663ec15e8c4e181d8fc3f89b4cf1d804`, including
-  `HANDOFF.md`; the detached replay commits are `cad97b39` and `dde1f8d4`.
-  The same 39-test slice, Python compilation, and diff check pass there. These
-  disposable replay commits were not merged or pushed; integrate the original
-  isolated commits only after independent review.
+  validator. The same 39-test slice, Python compilation, and diff check passed
+  on the integrated tree. No caller, publication, graph load, build, image, or
+  deployment was activated.
 
 ### 2026-09-02 E0 historical summary API deployed
 
