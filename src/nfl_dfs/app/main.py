@@ -47,6 +47,7 @@ from ..inference.production_policy import (
     contest_entry_policy,
 )
 from .corpus_research import router as corpus_research_router
+from .historical_corpus_research import router as historical_research_router
 from .store import BigQueryStore, ProjectionStore
 from .week1_operating_book_api import (
     Week1OperatingBookAPIError,
@@ -60,6 +61,7 @@ from pathlib import Path as _Path
 app.mount("/static", StaticFiles(directory=_Path(__file__).parent / "static"),
           name="static")
 app.include_router(corpus_research_router)
+app.include_router(historical_research_router)
 log = logging.getLogger(__name__)
 _EXPLAINER_PATH = _Path(__file__).parent / "static" / "explainer.html"
 
