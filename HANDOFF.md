@@ -144,51 +144,54 @@ and operator decisions.  The older entries remain the durable chronology.
   coordinator. Next exact action is direct task-level polling of 610/611
   without opening outcomes.
 
-### 2026-09-02 pre-lock lineage review concerns repaired, default-off
+### 2026-09-02 pre-lock lineage selective port independently hardened, default-off
 
-- Isolated selective port branch `codex/prelock-lineage-review-repair` starts
-  from review commit `9ee67dc7` and integrates exact current production
-  `origin/main` `8728642efed178e48d89c10be5b5ed981b1c96a2`; the repair
-  implementation is `bd006ada`, with global clean-checkout identity hardening
-  `7186e878` and Git-free immutable-image/source binding `958a5444`. It does
-  not merge donor branch `origin/codex/prelock-lineage-phase1` and does not
-  change the current engine, live CBWU path, typed selector, immutable v1
-  sidecar, graph-v2 adapter, or source-set v6 scoring files.
-- All six P0 review blockers are repaired: new v2 capture with v1-linear
-  native-union -> CBWU normalization; real R0-R4/typed-selector/v1 integration;
-  conservative subsecond provider-time handling; reopen-first later-clock
-  resume after every boundary; a fifth/root-last manifest that exact-binds and
-  reopens every predecessor; and keyed candidate+roster settlement with no
-  positional score authority.
-- P1 boundaries are closed: exact v6 + 22-file adapter + source/image/solver/
-  compute identity; a source run must be either an exact globally clean Git
-  checkout or a Git-free immutable image whose embedded full revision matches
-  the receipt and whose manifest-bound source files are present; that mode is
-  persisted in the capture. Exact model registry generations bracket generation;
-  selector and retrieval preset remain distinct; BigQuery is scoped to seven
-  pre-lock SELECT/WITH tables with no write methods; GCS is one fixed bucket,
-  prefix, and five-name create-only set; salary is read once; ownership/candidate
-  log/distribution/graph writes are off; and exact effective feature values use
-  a positive allowlist and remain outside Neo4j.
-- Post-lock readers remain deliberately descriptive. They exact-bind all seven
-  supplied source roles but keep official standings/entry/winner adapters,
-  settlement, decision, promotion, and graph-mutation authority false. The
-  optional paid-preparation callback is byte-neutral and has no caller.
-- Validation: focused compatibility/review gate **152/152** passed; the
-  new/modified slice **47/47** passed; Ruff passes on all changed Python files;
-  new modules compile; `git diff --check` passes. The exact v6 inventory remains
+- Isolated branch `codex/prelock-lineage-review-repair` now incorporates exact
+  production `main` `cf0ab928`. The selective implementation stack is
+  `bd006ada`, clean-checkout hardening `7186e878`, Git-free source binding
+  `958a5444`, and second-review adversarial repair `0c65a3cc`. It does not merge
+  the rejected donor branch and does not change scoring, the live generator,
+  typed selector, immutable lineage-v1, graph-v2, CBWU, or policy-v6 behavior.
+- The first claimed-complete tip `69488cc2` was independently held after two
+  additional P0 defects were reproduced: rescue settlement accepted a valid
+  same-slate capture and sidecar from different roots, and an incomplete retry
+  could publish later objects after source/runtime provenance changed. Three P1
+  defects were also reproduced: SELECT-prefixed multi-statement writes reached
+  BigQuery, exact-lock salary/outcome timestamps were accepted on the wrong side
+  of their boundary, and an arbitrary digest/resource observation was labelled
+  immutable provider identity.
+- `0c65a3cc` requires deterministic capture-to-sidecar reproduction before
+  rescue, revalidates and exact-compares manifests/source/solver/process before
+  every incomplete resume, rejects semicolons and mutation tokens, enforces
+  salary pull strictly before lock and settlement source strictly after lock,
+  and requires positive local compute observations. Execution receipts now say
+  explicitly that provider execution identity, provider resource envelope, and
+  execution authority are false; a future provider-bound launcher is required
+  to upgrade those claims.
+- Focused compatibility and adversarial validation passes **158/158**. The
+  directly affected modules pass 24/24. Compilation and `git diff --check`
+  pass. The submitting branch passed Ruff before the second repair; Ruff is not
+  installed in this independent environment, so no fresh Ruff claim is made.
+  Exact policy-v6 inventory remains
   `830dcfbde6cd3e2a6ac629cfbf6a7f8acd2b237f8951f9c050d40a6e1f30ad54`.
-  Production's advance from the tested code base `40aaba98` to integrated tip
-  `8728642e` changed only this handoff's experiment-087 record, not executable
-  source or tests.
-  A full repository suite was started and interrupted near 1% due its
-  long-running experiment surface, with no failure observed; it is not counted.
-- Full disposition and activation sequence:
-  `reports/2026-09-02-prelock-lineage-review-repairs.md`. **GO** for independent
-  review and selective merge as inactive infrastructure. **NO-GO** for runtime
-  activation, cloud publication, deployment, Neo4j load, paid use, or settlement
-  adoption until merge, one clean-image candidate-only pre-lock smoke, and exact
-  final-root reopen. No cloud call or external mutation occurred in this work.
+- The implementation remains entirely default-off: there is no CLI, route,
+  scheduler, graph loader, or settlement caller, and the paid callback defaults
+  to `None`. No Cloud Run/Build, GCS, BigQuery, Neo4j, deployment, scoring, or
+  paid-entry state changed during this review.
+- Important activation limitation: the runner still hard-wires the legacy
+  five-seed CBWU generator/coverage-194 policy. It cannot represent the adopted
+  Week-1 `D800_DEMAX` single-bank 800-solve dual-EMAX book. It is **GO** for
+  selective merge as inactive evidence infrastructure, but **NO-GO** for a
+  Week-1/paid lineage claim or candidate shadow until a narrow D800 artifact
+  adapter and provider-bound launch receipt exist. Do not label a legacy CBWU
+  smoke as the entered book.
+- Full findings and exact next sequence are in
+  `reports/2026-09-02-prelock-lineage-review-repairs.md`: merge default-off,
+  adapt immutable D800 candidate/book artifacts into the capture contract, bind
+  provider execution/resource identity, then run one candidate-only pre-lock
+  smoke and exact-reopen the five-object root before any optional shadow graph
+  load. Settlement remains descriptive and graph-mutation authority false.
+
 ### 2026-09-02 pre-lock lineage Phase 1 production review
 
 - Reviewed production donor branch `origin/codex/prelock-lineage-phase1` at

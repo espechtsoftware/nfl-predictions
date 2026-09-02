@@ -7,10 +7,12 @@
 **Review commit:** `9ee67dc7deab893b52dc6d4f0579666ad8b97947`
 
 **Integrated production base:** `origin/main`
-`8728642efed178e48d89c10be5b5ed981b1c96a2`
+`cf0ab928` (the executable base remains `8728642e`; intervening production
+commits update only `HANDOFF.md`)
 
 **Implementation commits:** `bd006ada`, source-checkout hardening `7186e878`,
-and runtime image/source binding `958a5444`
+runtime image/source binding `958a5444`, and independent adversarial repair
+`0c65a3cc`
 
 ## Result
 
@@ -29,6 +31,13 @@ The implementation is still **default-off**. It has no CLI, route, scheduler,
 deployment, graph loader, or automatic settlement caller. No cloud object,
 BigQuery row, Neo4j row, model, score, lineup policy, paid entry, or deployment
 was changed by this work.
+
+The first claimed-complete branch tip, `69488cc2`, was **not accepted on test
+counts alone**. A second independent adversarial review reproduced two further
+P0 defects and three P1 defects: cross-root rescue joins, changed-code partial
+resume, multi-statement BigQuery writes, exact-lock timestamp acceptance, and
+self-attested provider execution identity. Commit `0c65a3cc` repairs or
+explicitly downgrades all five without changing scoring or graph behavior.
 
 ## P0 disposition
 
@@ -50,7 +59,11 @@ was changed by this work.
    exact compressed selector matrix and everything needed to rebuild the v1
    sidecar and graph projection. Retries reopen before generation, resume from
    every publication boundary, and never reread salary or regenerate lineups.
-   A complete root is read-only even after lock.
+   Before any incomplete retry writes, it regenerates and exact-compares the
+   adapter and policy manifests, revalidates the current source binding, and
+   compares the current solver/process receipt with the capture. A changed
+   source mode or image receipt fails before another object is attempted. A
+   complete root is read-only even after lock.
 5. **Missing durable root — repaired.** The write set is exactly five objects:
    capture authority, raw matrix, immutable v1 sidecar, graph-v2 projection,
    and a fifth/root-last final manifest. The final manifest binds all four
@@ -59,7 +72,11 @@ was changed by this work.
    reopened before completion. The former donor terminal is intentionally not
    retained: the final manifest supersedes its two-object binding and the
    production graph adapter correctly binds the immutable sidecar directly.
-6. **Positional rescue join — repaired.** Settlement requires a complete
+6. **Positional rescue join — repaired.** Settlement first proves that the v1
+   sidecar is the deterministic derivative of the supplied capture and its
+   exact capture-object identity. It therefore rejects a valid same-slate
+   sidecar from another run or capture root before interpreting candidate
+   ordinals. Settlement then requires a complete
    one-to-one join on both `candidate_instance_id` and `roster_id`; duplicate,
    missing, extra, or mismatched rows fail before calculation. Input order has
    no effect. Every outcome source, winner source, and winner registry is bound
@@ -75,23 +92,28 @@ was changed by this work.
 8. **Strategy/objective/preset semantics — repaired.** Selector ID and retrieval
    preset ID are separate required fields, and the existing graph-v2 total map
    is used. Admission stage IDs are never substituted for presets.
-9. **Execution and model identity — repaired.** The capture binds the exact v6
+9. **Execution and model identity — bounded honestly.** The capture binds the exact v6
    policy inventory, a separately hashed 22-file lineage-adapter manifest,
-   immutable image digest, exact source commit, CBC binary hash/size, PuLP
+   digest-form image reference, exact source commit, CBC binary hash/size, PuLP
    version, Python/NumPy/OS/architecture/CPU/memory envelope, and exact
    model-registry artifacts. A source run must prove one of two explicit modes:
    an exact globally clean Git checkout, or a Git-free immutable image whose
    embedded `IMAGE_SOURCE_COMMIT_SHA` equals the receipt and whose every
    manifest-bound source file exists and is nonsymlinked. The selected mode is
-   persisted in the create-once capture. Model generations are frozen before
+   persisted in the create-once capture. The local receipt explicitly records
+   `provider_execution_identity_verified=false`,
+   `provider_resource_envelope_verified=false`, and
+   `execution_authority=false`; it cannot be presented as Cloud Run authority.
+   Positive CPU and memory values are required. Model generations are frozen before
    generation and exact-reopened after generation; a changed latest week,
    object census, generation, bytes, hash, or creation time fails before the
    first capture can publish.
 10. **Read/write boundary — repaired.** GCS publication is fixed to
     `settings.gcs_bucket`, one deterministic run prefix, five fixed names, and
     create-only `if_generation_match=0`. A scoped BigQuery proxy permits only
-    SELECT/WITH reads from the seven frozen pre-lock tables and exposes no write
-    methods. Rejected reads remain fatal even if legacy fallback code catches
+    one semicolon-free SELECT/WITH statement from the seven frozen pre-lock
+    tables, rejects mutation tokens, retains no direct delegate-client field,
+    and exposes no write methods. Rejected reads remain fatal even if legacy fallback code catches
     the first exception. Ownership shadow, candidate log, distribution artifact,
     and graph writes are disabled. There is no runtime entry point.
 11. **Double salary read — repaired.** One exact latest-pull dataframe supplies
@@ -119,20 +141,25 @@ CSV bytes and export receipts are identical. Nothing calls the seam yet.
 
 ## Validation
 
-- **152/152 focused compatibility and review-gate tests passed** across
+- **158/158 focused compatibility and review-gate tests passed** across
   immutable v1 lineage, typed selector instrumentation, graph-v2, real live
   multiseed/CBWU behavior, policy-v6 identity, generation exposure, paid-v2,
   and all new authority/publication/settlement tests.
-- The new/modified 47-test slice passed independently.
+- The original new/modified 47-test slice passed independently; the three
+  directly affected modules now pass 24/24 after six new adversarial cases.
 - Adversarial coverage includes subsecond provider time, create-only GCS race,
-  later-clock retry after each of five write boundaries, complete post-lock
+  later-clock retry after each of five write boundaries, changed source mode
+  and image receipt on partial resume, complete post-lock
   read-only reopen, arbitrary bucket rejection, salary second-read rejection,
   model-generation drift, dirty/wrong source commit, rejected BigQuery reads
-  swallowed by caller code, feature alias rejection, matrix tamper, keyed score
-  permutation, missing/duplicate score rows, an untracked file anywhere in a
+  swallowed by caller code, multi-statement and WITH-prefixed write attempts,
+  exact-lock salary/outcome timestamps, feature alias rejection, matrix tamper,
+  cross-root sidecar/capture joins, keyed score permutation,
+  missing/duplicate score rows, an untracked file anywhere in a
   source checkout, and an immutable image with no Git executable.
-- Ruff passes on every changed Python file; all new modules compile; and
-  `git diff --check` passes.
+- The submitting agent's `69488cc2` branch passed Ruff. Ruff is not installed
+  in the independent review environment, so no fresh Ruff result is claimed
+  for `0c65a3cc`; all affected modules compile and `git diff --check` passes.
 - A repository-wide suite was started but intentionally interrupted near 1%
   because this repository includes long-running experiment tests; no failure
   had appeared. It is not counted as validation.
@@ -141,18 +168,25 @@ CSV bytes and export receipts are identical. Nothing calls the seam yet.
 
 These are activation controls, not unresolved implementation defects:
 
-1. Independently review this selective branch and merge it without importing
-   the rejected donor contracts.
-2. Build one immutable image from the exact merged commit, set its embedded
+1. Merge the independently reviewed selective branch as inactive infrastructure
+   without importing the rejected donor contracts.
+2. Add a narrow adapter for the adopted Week-1 `D800_DEMAX` path (single-bank
+   800-solve dual-EMAX) or consume its immutable candidate/book artifacts. The
+   current runner invokes the legacy five-seed CBWU path and **must not** be
+   labelled as the entered D800 book, paid lineage, or Week-1 capture.
+3. Add a fixed provider launch contract that binds Cloud Run execution UID,
+   job generation, exact image digest, retry/timeout policy, and the provider
+   resource envelope; only that contract may upgrade execution authority.
+4. Build one immutable image from the exact merged commit, set its embedded
    source revision to that same full commit, and construct its execution
    receipt from the immutable image digest.
-3. Well before lock, run exactly one candidate-only shadow with the read-only
+5. Well before lock, run exactly one candidate-only D800 shadow with the read-only
    model authority and closed GCS store. A checkout run rejects any dirty tree
    or mismatched commit; the normal Git-free image run rejects a mismatched
    embedded revision or missing manifest-bound source.
-4. Exact-reopen the final manifest and all five provider generations, verify
+6. Exact-reopen the final manifest and all five provider generations, verify
    returned-book parity, and inspect the graph projection offline.
-5. Only after that smoke may production choose to load the bounded packet into
+7. Only after that smoke may production choose to load the bounded packet into
    a dedicated shadow graph. Settlement remains descriptive until the official
    standings/entry/winner adapters are separately reviewed.
 
