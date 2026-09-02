@@ -68,10 +68,14 @@ and operator decisions.  The older entries remain the durable chronology.
   `084b590r2/591r2/592r2`. It installed the exact 18-task envelope (job
   generations `73/25`) and claimed bank 590 as run
   `084b590r2-20260902T054328Z`, execution `lab-run-h42rl`, UID
-  `bd8075bf-18a4-4f26-9fae-2f663efce48c`. Banks 591/592 were not yet claimed
-  at this checkpoint. Exact next action: monitor the registered coordinator,
-  record each claim and terminal state, and do not open outcomes until all
-  three banks plus the coordinator terminate successfully.
+  `bd8075bf-18a4-4f26-9fae-2f663efce48c`; all 18 tasks were running with zero
+  retries at the latest check. Bank 591 is run
+  `084b591r2-20260902T054604Z`, execution `lab-run-slow-pgwkd`, UID
+  `cffca18c-5d09-4155-b444-da75796b7c91`, accepted and provisioning with zero
+  retries. Bank 592 is intentionally waiting at the two-execution capacity
+  boundary. Exact next action: monitor the registered coordinator, record each
+  terminal state and the bank-592 claim when a lane frees, and do not open
+  outcomes until all three banks plus the coordinator terminate successfully.
 
 ### 2026-09-02 PREREG-052 sealed; completion-aware monitoring repaired
 
