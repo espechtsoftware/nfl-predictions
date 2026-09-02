@@ -118,6 +118,45 @@ and operator decisions.  The older entries remain the durable chronology.
   only as a disposable local shadow after its census/identity/query repairs; it
   is not part of E0 production integration.
 
+### 2026-09-02 pre-lock projection publication blockers hardened offline
+
+- Isolated branch `codex/prelock-publication-hardening`, based on exact
+  production commit `f9bee8f54277700bcf66414668a9708bf2e6cf93`, now carries
+  implementation/test commit
+  `052fc6ee0072c8dd9a30f3e682e1662b9e073c0d`. It closes the four publication
+  blockers recorded below without activating any caller: full canonical-byte
+  projection reopen by deterministic replay from the exact sidecar; a frozen
+  mapping-transform identity plus full projection hash; an exact, total
+  selector-ID to retrieval-preset-ID binding; and an explicit publication mode
+  requiring a self-hashed create-once provider receipt bound to the exact
+  sidecar URI, generation, SHA-256, byte count, trusted storage timestamp, and
+  generation-pinned canonical-byte reopen.
+- Provider creation must be at or after the sidecar freeze and strictly before
+  slate lock. The default remains `inactive-offline`, rejects a provider-receipt
+  claim, and records no create-once proof. Publication mode fails closed when
+  the receipt is absent, non-create-once, self-hash-invalid, metadata-untrusted,
+  identity-mismatched, or outside the pre-lock interval. Every authority flag
+  remains false, `ScienceRelease.accepted` remains false, no production module
+  imports the adapter, and the graph node/relationship/property vocabulary is
+  unchanged. The adapter still emits no candidate, roster, player, request,
+  attempt, EntryID, or outcome rows.
+- Validation passed all 39 focused lineage-sidecar, existing graph-v2, and
+  hardened projection tests, including coherent projection mutation, canonical
+  encoding, selector-map, generation, create-once, and timestamp-boundary
+  attacks. Python compilation and `git diff --check` pass. Ruff was unavailable
+  in the existing virtual environment; no dependency was installed. No Cloud
+  Build/Run execution, image, deployment, graph load, publication, runtime
+  activation, scoring change, merge, or push occurred, so there are no new
+  durable cloud execution IDs.
+- GO for independent review and selective integration as default-off contract
+  infrastructure. NO-GO for durable projection publication or graph load until
+  a caller obtains the required receipt from trusted generation-pinned GCS
+  metadata/exact reopen, supplies the reviewed selector-to-preset map, persists
+  the canonical projection bytes create-once, and reopens them through the new
+  validator. Production `main` advanced independently to `1287283f`; before
+  integration, replay this commit on that exact tip and rerun the same 39-test
+  slice plus compilation/diff checks.
+
 ### 2026-09-02 E0 historical summary API deployed
 
 - Corrected focused Cloud Build
