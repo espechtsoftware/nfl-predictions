@@ -137,7 +137,7 @@ def test_expansion_image_retains_runtime_code_source_build_definitions() -> None
         "Path(nfl_dfs.__file__).resolve() == package_root / '__init__.py'; "
         "assert Path(i.__file__).resolve() == package_root / "
         "'research/effective_policy_rule_inventory.py'; "
-        "print(i.generate_effective_policy_rule_inventory(root)"
+        "print(i.generate_effective_policy_rule_inventory_v6(root)"
         "['inventory_sha256'])",
     )
     assert build.PARAMETRIC_SMOKE_COMMANDS[1] == (

@@ -101,6 +101,25 @@ FROZEN_SOURCE_SHA256: Mapping[str, str] = {
     ),
 }
 
+# Source-set v6 is a new exact-source identity for additive application and
+# selector-lineage instrumentation.  The adopted scoring policy and every v5
+# literal above remain unchanged; v6 must be requested explicitly.
+V6_SOURCE_SET_ID = (
+    "adopted-classic-policy-20260902-week1-boom-first-selector-lineage-v6"
+)
+V6_CLASSIFIED_INPUT_PROJECTION_SHA256 = (
+    "d3ad2c67c3e57e6199c83a3e4de8c3c6ef07fde44a4c289d1f85464f9c52a779"
+)
+V6_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
+    **FROZEN_SOURCE_SHA256,
+    "src/nfl_dfs/app/main.py": (
+        "f2b2b6a094d23abfd0bcaa1731ae20b963adcb4a337612c8e8bc7cf5dfcb8924"
+    ),
+    "src/nfl_dfs/optimizer/lineup.py": (
+        "9821a60a87632508842548bace3c765b5b0d505f31ca331f9cb05250cab19a4d"
+    ),
+}
+
 SOURCE_ROLES: Mapping[str, str] = {
     "scripts/publish_week1_operating_book.py": (
         "week1_exact_publication_operator_command"
@@ -433,6 +452,39 @@ class EffectivePolicyInventoryError(ValueError):
 
 
 @dataclass(frozen=True)
+class _SourceSetContract:
+    schema: str
+    source_set_id: str
+    policy_env_sha256: str
+    classified_input_projection_sha256: str
+    classified_input_key_count: int
+    direct_input_read_site_count: int
+    frozen_source_sha256: tuple[tuple[str, str], ...]
+
+
+_V5_SOURCE_SET = _SourceSetContract(
+    schema=SCHEMA,
+    source_set_id=SOURCE_SET_ID,
+    policy_env_sha256=POLICY_ENV_SHA256,
+    classified_input_projection_sha256=CLASSIFIED_INPUT_PROJECTION_SHA256,
+    classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
+    direct_input_read_site_count=DIRECT_INPUT_READ_SITE_COUNT,
+    frozen_source_sha256=tuple(sorted(FROZEN_SOURCE_SHA256.items())),
+)
+_V6_SOURCE_SET = _SourceSetContract(
+    schema=SCHEMA,
+    source_set_id=V6_SOURCE_SET_ID,
+    policy_env_sha256=POLICY_ENV_SHA256,
+    classified_input_projection_sha256=(
+        V6_CLASSIFIED_INPUT_PROJECTION_SHA256
+    ),
+    classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
+    direct_input_read_site_count=DIRECT_INPUT_READ_SITE_COUNT,
+    frozen_source_sha256=tuple(sorted(V6_FROZEN_SOURCE_SHA256.items())),
+)
+
+
+@dataclass(frozen=True)
 class _Locator:
     path: str
     symbol: str
@@ -511,17 +563,20 @@ def _source_path(root: Path, relative: str) -> Path:
 
 def _load_sources(
     root: Path,
+    *,
+    source_set: _SourceSetContract = _V5_SOURCE_SET,
 ) -> tuple[list[dict[str, Any]], dict[str, str], dict[str, ast.Module]]:
     identities: list[dict[str, Any]] = []
     text_by_path: dict[str, str] = {}
     tree_by_path: dict[str, ast.Module] = {}
-    if set(FROZEN_SOURCE_SHA256) != set(SOURCE_ROLES):
+    frozen_source_sha256 = dict(source_set.frozen_source_sha256)
+    if set(frozen_source_sha256) != set(SOURCE_ROLES):
         raise EffectivePolicyInventoryError("source role coverage differs")
-    for relative in sorted(FROZEN_SOURCE_SHA256):
+    for relative in sorted(frozen_source_sha256):
         path = _source_path(root, relative)
         body = path.read_bytes()
         digest = sha256(body).hexdigest()
-        if digest != FROZEN_SOURCE_SHA256[relative]:
+        if digest != frozen_source_sha256[relative]:
             raise EffectivePolicyInventoryError(
                 f"frozen source SHA-256 differs: {relative}"
             )
@@ -1167,6 +1222,7 @@ def _classified_input_projection(
     env: Mapping[str, str],
     reads: Sequence[_InputRead],
     source_by_path: Mapping[str, Mapping[str, Any]],
+    source_set: _SourceSetContract = _V5_SOURCE_SET,
 ) -> dict[str, Any]:
     classification_by_key = _input_classification_by_key()
     discovered_keys = {read.input_key for read in reads}
@@ -1179,7 +1235,7 @@ def _classified_input_projection(
             "input classification partition differs; "
             f"unclassified={missing}, stale={stale}"
         )
-    if len(reads) != DIRECT_INPUT_READ_SITE_COUNT:
+    if len(reads) != source_set.direct_input_read_site_count:
         raise EffectivePolicyInventoryError(
             "direct input read-site count differs"
         )
@@ -1262,7 +1318,7 @@ def _classified_input_projection(
         ),
         "inputs": inputs,
     }
-    if projection["input_count"] != CLASSIFIED_INPUT_KEY_COUNT:
+    if projection["input_count"] != source_set.classified_input_key_count:
         raise EffectivePolicyInventoryError("classified input-key count differs")
     return projection
 
@@ -1379,7 +1435,11 @@ def _assert_surface_coverage(
         )
 
 
-def _effective_policy(root: Path) -> tuple[dict[str, str], dict[str, Any]]:
+def _effective_policy(
+    root: Path,
+    *,
+    source_set: _SourceSetContract = _V5_SOURCE_SET,
+) -> tuple[dict[str, str], dict[str, Any]]:
     # Import only after all source hashes have passed.  This module is cheap
     # and offline; nevertheless its resolved path must be the pinned checkout,
     # not a different installed wheel.
@@ -1395,7 +1455,10 @@ def _effective_policy(root: Path) -> tuple[dict[str, str], dict[str, Any]]:
         )
     policy = production_policy.ADOPTED_CLASSIC_POLICY
     env = dict(sorted(policy.engine_environment({}).items()))
-    if len(env) != 75 or canonical_sha256(env) != POLICY_ENV_SHA256:
+    if (
+        len(env) != 75
+        or canonical_sha256(env) != source_set.policy_env_sha256
+    ):
         raise EffectivePolicyInventoryError(
             "adopted effective policy environment differs"
         )
@@ -1900,17 +1963,19 @@ def _validate_constraint_rule_coverage(rules: Sequence[Mapping[str, Any]]) -> No
         )
 
 
-def generate_effective_policy_rule_inventory(root: Path) -> dict[str, Any]:
-    """Generate the canonical independent inventory from frozen local code.
+def _generate_effective_policy_rule_inventory(
+    root: Path,
+    *,
+    source_set: _SourceSetContract,
+) -> dict[str, Any]:
+    """Generate one exact, registered source-set inventory."""
 
-    The function performs local static reads and one dependency-light adopted
-    policy import.  It never queries outcomes, starts a solver, or touches any
-    cloud service.
-    """
-    identities, text_by_path, tree_by_path = _load_sources(root)
+    identities, text_by_path, tree_by_path = _load_sources(
+        root, source_set=source_set
+    )
     _assert_surface_coverage(tree_by_path)
     _assert_independent_soft_rule_proofs(text_by_path)
-    env, policy_identity = _effective_policy(root)
+    env, policy_identity = _effective_policy(root, source_set=source_set)
 
     source_by_path = {row["path"]: row for row in identities}
     direct_input_reads = _discover_direct_input_reads(tree_by_path)
@@ -1918,13 +1983,14 @@ def generate_effective_policy_rule_inventory(root: Path) -> dict[str, Any]:
         env=env,
         reads=direct_input_reads,
         source_by_path=source_by_path,
+        source_set=source_set,
     )
     classified_input_projection_sha256 = canonical_sha256(
         classified_input_projection
     )
     if (
         classified_input_projection_sha256
-        != CLASSIFIED_INPUT_PROJECTION_SHA256
+        != source_set.classified_input_projection_sha256
     ):
         raise EffectivePolicyInventoryError(
             "classified runtime-input projection SHA-256 differs"
@@ -1965,7 +2031,7 @@ def generate_effective_policy_rule_inventory(root: Path) -> dict[str, Any]:
         "rule_count": len(rules),
         "rule_universe_sha256": canonical_sha256(universe_projection),
         "rules": rules,
-        "schema": SCHEMA,
+        "schema": source_set.schema,
         "scope": {
             "candidate_paths": list(ACTIVE_GENERATION_PATHS),
             "description": (
@@ -1982,18 +2048,54 @@ def generate_effective_policy_rule_inventory(root: Path) -> dict[str, Any]:
             "runtime_receipt_required": True,
         },
         "source_identities": identities,
-        "source_set_id": SOURCE_SET_ID,
+        "source_set_id": source_set.source_set_id,
         "source_set_sha256": canonical_sha256(identities),
     }
     payload["inventory_sha256"] = canonical_sha256(payload)
     return payload
 
 
+def generate_effective_policy_rule_inventory(root: Path) -> dict[str, Any]:
+    """Generate historical source-set v5 from its exact local source root.
+
+    This default intentionally remains v5.  It performs local static reads and
+    one dependency-light adopted-policy import; it never queries outcomes,
+    starts a solver, or touches any cloud service.
+    """
+    return _generate_effective_policy_rule_inventory(
+        root, source_set=_V5_SOURCE_SET
+    )
+
+
+def generate_effective_policy_rule_inventory_v6(
+    root: Path,
+) -> dict[str, Any]:
+    """Generate the explicit current-source v6 inventory."""
+    return _generate_effective_policy_rule_inventory(
+        root, source_set=_V6_SOURCE_SET
+    )
+
+
+def _source_set_for_inventory(
+    inventory: Mapping[str, Any],
+) -> _SourceSetContract:
+    source_set_id = inventory.get("source_set_id")
+    if source_set_id == SOURCE_SET_ID:
+        return _V5_SOURCE_SET
+    if source_set_id == V6_SOURCE_SET_ID:
+        return _V6_SOURCE_SET
+    raise EffectivePolicyInventoryError(
+        "effective-policy inventory source-set id is not registered"
+    )
+
+
 def validate_effective_policy_rule_inventory(
     inventory: Mapping[str, Any], root: Path
 ) -> dict[str, Any]:
     """Regenerate from source and require exact, type-sensitive equality."""
-    regenerated = generate_effective_policy_rule_inventory(root)
+    regenerated = _generate_effective_policy_rule_inventory(
+        root, source_set=_source_set_for_inventory(inventory)
+    )
     if not _strict_same(dict(inventory), regenerated):
         raise EffectivePolicyInventoryError(
             "retained effective-policy inventory differs from frozen source"
@@ -2006,8 +2108,13 @@ __all__ = [
     "FROZEN_SOURCE_SHA256",
     "PARAMETRIC_FIELDS",
     "SCHEMA",
+    "SOURCE_SET_ID",
+    "V6_CLASSIFIED_INPUT_PROJECTION_SHA256",
+    "V6_FROZEN_SOURCE_SHA256",
+    "V6_SOURCE_SET_ID",
     "canonical_json_bytes",
     "canonical_sha256",
     "generate_effective_policy_rule_inventory",
+    "generate_effective_policy_rule_inventory_v6",
     "validate_effective_policy_rule_inventory",
 ]
