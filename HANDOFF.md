@@ -25,6 +25,34 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-02 E0-first graph integration boundary
+
+- Operator direction is to keep scoring untouched and use the accepted E0
+  slice now; React is optional presentation work. Integration must be selective
+  onto `corpus-graph-vnext/v2`, summary-only first, with complete pre-lock
+  candidate lineage and first-loss/rescue queries as the priority. Do not merge
+  the observatory branch wholesale or force the full candidate population
+  through its v1 capacity contract.
+- The local E0 graph remains healthy at 4,258 E0 nodes / 8,623 E0 edges and
+  exactly reconciles 199,244 candidates, 378,000 visits, 432 final-fit books,
+  and 34,560 selections. Immediate read: 279 eligible 200+ lineups, 38 captured
+  by at least one final-fit strategy, 241 missed by all; 29 opportunity slates
+  and 10 converted. The best final-fit mean weekly maximum is 178.435 versus a
+  202.662 hindsight eligible-corpus maximum, a descriptive 24.227-point
+  within-corpus selector gap. This is development evidence, not an achievable
+  gain estimate or promotion authority.
+- Full current findings and the summary-v2/lineage implementation target are in
+  `reports/2026-09-02-e0-first-loss-rescue-summary.md`. A selective Phase-B v2
+  port is being validated in isolated worktree
+  `/home/erich/projects/nfl-predictions-e0-v2`; it must not touch cloud,
+  scoring, Neo4j, React, or the active worktree.
+- The separate untracked lab opportunity-lineage implementation is NO-GO for
+  shared-graph or governed use as written: it materializes candidates rather
+  than summaries, lacks complete upstream stage transitions and durable builder
+  identity, and has exact-settlement and query-labeling defects. It may be used
+  only as a disposable local shadow after its census/identity/query repairs; it
+  is not part of E0 production integration.
+
 ### 2026-09-02 PREREG-053 first-read cross-verification and 086 transition
 
 - Lab `main` commits `77679bae81488b7130f02e5208ce4df60c18f4d6` and
