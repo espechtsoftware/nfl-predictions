@@ -6,6 +6,7 @@ import json
 import logging
 import os
 import stat
+from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Final, Protocol
@@ -19,8 +20,17 @@ router = APIRouter(tags=["corpus research"])
 
 SUMMARY_PATH_ENV: Final = "CORPUS_R6_HISTORICAL_REALIZED_SUMMARY_PATH"
 MAX_SUMMARY_BYTES: Final = 2 * 1024 * 1024
+FIRST_OBSERVED_ABSENCE_QUERY_SCHEMA: Final = (
+    "corpus-r6-historical-realized-first-observed-absence-query/v1"
+)
+STRATEGY_RESCUE_QUERY_SCHEMA: Final = (
+    "corpus-r6-historical-realized-strategy-rescue-query/v1"
+)
 _NO_STORE: Final = {"Cache-Control": "no-store"}
 _UNAVAILABLE: Final = {"detail": "Historical realized corpus summary unavailable."}
+_STRATEGY_NOT_FOUND: Final = {
+    "detail": "Historical realized corpus strategy unavailable."
+}
 
 log = logging.getLogger(__name__)
 
@@ -134,6 +144,112 @@ class FileHistoricalRealizedSummaryReader:
         return _parse_exact_summary_file(raw)
 
 
+class HistoricalRealizedStrategyNotFoundError(LookupError):
+    """The validated aggregate does not contain the requested strategy."""
+
+
+def _query_authority_boundary(validated: dict[str, object]) -> dict[str, object]:
+    """Copy the source aggregate's closed authority boundary into a query."""
+
+    return {
+        "uses_realized_outcomes": validated["uses_realized_outcomes"],
+        "persisted_realized_labels_only": validated["persisted_realized_labels_only"],
+        "separate_from_corpus_graph_vnext_v2": validated[
+            "separate_from_corpus_graph_vnext_v2"
+        ],
+        "raw_outcome_query_performed": False,
+        "lineup_rescore_performed": False,
+        "individual_rows_included": False,
+        "neo4j_mutation_performed": False,
+        "promotion_authority": False,
+        "decision_authority": False,
+        "policy_feedback_authority": False,
+        "query_response_complete": True,
+        "complete_prelock_candidate_lineage_available": False,
+    }
+
+
+def first_observed_absence_query(candidate: object) -> dict[str, object]:
+    """Return the bounded E0 final-book absence view.
+
+    This is deliberately not named or represented as a causal first-loss
+    result.  E0 observes final-fit book membership but contains neither a
+    complete pre-lock stage trace nor roster identities for failed solver
+    requests.
+    """
+
+    validated = summary.validate_historical_realized_summary_v1(candidate)
+    funnel = deepcopy(validated["outcome_funnel_summary"])
+    if not isinstance(funnel, dict):  # Defensive even after source validation.
+        raise TypeError("historical outcome funnel must be an object")
+    response: dict[str, object] = {
+        "schema_version": FIRST_OBSERVED_ABSENCE_QUERY_SCHEMA,
+        "query_name": "first-observed-absence-at-final-book",
+        "source_summary": {
+            "schema_version": validated["schema_version"],
+            "summary_sha256": validated["summary_sha256"],
+        },
+        "evidence_class": validated["evidence_class"],
+        "threshold_dk": validated["threshold_dk"],
+        "threshold_micro": validated["threshold_micro"],
+        "outcome_funnel_summary": funnel,
+        "interpretation_boundary": {
+            "localization": "observed-final-fit-book-membership-only",
+            "causal_first_loss_claim": False,
+            "source_emitted_selector_rejection": False,
+            "failed_solver_request_has_roster_identity": False,
+            "ordinary_solver_requests_define_finite_roster_universe": False,
+            "roster_level_not_produced_claim_available": False,
+        },
+    }
+    response.update(_query_authority_boundary(validated))
+    return response
+
+
+def strategy_rescue_query(
+    candidate: object, *, strategy_id: str | None = None
+) -> dict[str, object]:
+    """Return all strategy rescue aggregates or one exact strategy row."""
+
+    validated = summary.validate_historical_realized_summary_v1(candidate)
+    source_rows = validated["strategy_rescue_summary"]
+    if not isinstance(source_rows, list):  # Defensive after source validation.
+        raise TypeError("historical strategy rescue summary must be an array")
+    rows = [deepcopy(row) for row in source_rows]
+    if strategy_id is not None:
+        rows = [row for row in rows if row.get("strategy_id") == strategy_id]
+        if not rows:
+            raise HistoricalRealizedStrategyNotFoundError(strategy_id)
+    response: dict[str, object] = {
+        "schema_version": STRATEGY_RESCUE_QUERY_SCHEMA,
+        "query_name": "historical-strategy-rescue-summary",
+        "source_summary": {
+            "schema_version": validated["schema_version"],
+            "summary_sha256": validated["summary_sha256"],
+        },
+        "evidence_class": validated["evidence_class"],
+        "threshold_dk": validated["threshold_dk"],
+        "threshold_micro": validated["threshold_micro"],
+        "strategy_filter": {
+            "mode": "all" if strategy_id is None else "exact",
+            "strategy_id": strategy_id,
+        },
+        "row_count": len(rows),
+        "strategy_rescue_summary": rows,
+        "interpretation_boundary": {
+            "rescue_basis": (
+                "per-slate-hindsight-eligible-maximum-minus-observed-"
+                "selected-book-maximum"
+            ),
+            "counterfactual_selector_rerun_performed": False,
+            "forecast_or_promised_gain_claim": False,
+            "rescue_sum_is_jointly_achievable": False,
+        },
+    }
+    response.update(_query_authority_boundary(validated))
+    return response
+
+
 def get_historical_realized_summary_reader() -> HistoricalRealizedSummaryReader:
     """Construct the environment reader without opening its configured path."""
 
@@ -155,12 +271,50 @@ def historical_realized_summary(
     return JSONResponse(validated, headers=_NO_STORE)
 
 
+@router.get("/api/corpus-research/historical-realized-summary/first-observed-absence")
+def historical_first_observed_absence(
+    reader: HistoricalRealizedSummaryReader = Depends(  # noqa: B008
+        get_historical_realized_summary_reader
+    ),
+) -> JSONResponse:
+    try:
+        response = first_observed_absence_query(reader.read())
+    except Exception:  # noqa: BLE001 - injected readers have provider-specific errors.
+        log.warning("Historical realized corpus first-observed-absence query failed")
+        return JSONResponse(_UNAVAILABLE, status_code=503, headers=_NO_STORE)
+    return JSONResponse(response, headers=_NO_STORE)
+
+
+@router.get("/api/corpus-research/historical-realized-summary/rescue")
+def historical_strategy_rescue(
+    strategy_id: str | None = None,
+    reader: HistoricalRealizedSummaryReader = Depends(  # noqa: B008
+        get_historical_realized_summary_reader
+    ),
+) -> JSONResponse:
+    try:
+        response = strategy_rescue_query(reader.read(), strategy_id=strategy_id)
+    except HistoricalRealizedStrategyNotFoundError:
+        return JSONResponse(_STRATEGY_NOT_FOUND, status_code=404, headers=_NO_STORE)
+    except Exception:  # noqa: BLE001 - injected readers have provider-specific errors.
+        log.warning("Historical realized corpus strategy-rescue query failed")
+        return JSONResponse(_UNAVAILABLE, status_code=503, headers=_NO_STORE)
+    return JSONResponse(response, headers=_NO_STORE)
+
+
 __all__ = [
+    "FIRST_OBSERVED_ABSENCE_QUERY_SCHEMA",
     "MAX_SUMMARY_BYTES",
+    "STRATEGY_RESCUE_QUERY_SCHEMA",
     "SUMMARY_PATH_ENV",
     "FileHistoricalRealizedSummaryReader",
+    "HistoricalRealizedStrategyNotFoundError",
     "HistoricalRealizedSummaryReader",
+    "first_observed_absence_query",
     "get_historical_realized_summary_reader",
+    "historical_first_observed_absence",
     "historical_realized_summary",
+    "historical_strategy_rescue",
     "router",
+    "strategy_rescue_query",
 ]

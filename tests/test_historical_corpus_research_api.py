@@ -303,3 +303,105 @@ def test_main_registers_only_the_new_router_import_and_include() -> None:
         "from .historical_corpus_research import router as historical_research_router"
     ) in main
     assert main.count("app.include_router(historical_research_router)") == 1
+
+
+def test_first_observed_absence_query_is_aggregate_and_noncausal() -> None:
+    value = _valid_summary()
+
+    result = api.first_observed_absence_query(value)
+
+    assert result["schema_version"] == api.FIRST_OBSERVED_ABSENCE_QUERY_SCHEMA
+    assert result["source_summary"] == {
+        "schema_version": contract.SUMMARY_SCHEMA,
+        "summary_sha256": value["summary_sha256"],
+    }
+    assert result["outcome_funnel_summary"] == value["outcome_funnel_summary"]
+    assert result["outcome_funnel_summary"] is not value["outcome_funnel_summary"]
+    assert result["interpretation_boundary"] == {
+        "localization": "observed-final-fit-book-membership-only",
+        "causal_first_loss_claim": False,
+        "source_emitted_selector_rejection": False,
+        "failed_solver_request_has_roster_identity": False,
+        "ordinary_solver_requests_define_finite_roster_universe": False,
+        "roster_level_not_produced_claim_available": False,
+    }
+    assert result["individual_rows_included"] is False
+    assert result["neo4j_mutation_performed"] is False
+    assert result["separate_from_corpus_graph_vnext_v2"] is True
+    assert result["decision_authority"] is False
+    assert result["policy_feedback_authority"] is False
+    assert result["query_response_complete"] is True
+    assert result["complete_prelock_candidate_lineage_available"] is False
+    assert "complete" not in result
+    assert "strategy_rescue_summary" not in result
+    assert "generation_yield_summary" not in result
+
+
+def test_strategy_rescue_query_supports_all_or_one_exact_aggregate() -> None:
+    value = _valid_summary()
+
+    all_rows = api.strategy_rescue_query(value)
+    exact = api.strategy_rescue_query(value, strategy_id="expected-max-v1")
+
+    assert all_rows["schema_version"] == api.STRATEGY_RESCUE_QUERY_SCHEMA
+    assert all_rows["strategy_filter"] == {"mode": "all", "strategy_id": None}
+    assert all_rows["row_count"] == 8
+    assert exact["strategy_filter"] == {
+        "mode": "exact",
+        "strategy_id": "expected-max-v1",
+    }
+    assert exact["row_count"] == 1
+    assert exact["strategy_rescue_summary"][0]["strategy_id"] == "expected-max-v1"
+    assert exact["interpretation_boundary"] == {
+        "rescue_basis": (
+            "per-slate-hindsight-eligible-maximum-minus-observed-selected-book-maximum"
+        ),
+        "counterfactual_selector_rerun_performed": False,
+        "forecast_or_promised_gain_claim": False,
+        "rescue_sum_is_jointly_achievable": False,
+    }
+    assert exact["individual_rows_included"] is False
+    assert exact["neo4j_mutation_performed"] is False
+    assert exact["promotion_authority"] is False
+    exact["strategy_rescue_summary"][0]["strategy_id"] = "mutated"
+    assert value["strategy_rescue_summary"][4]["strategy_id"] == "expected-max-v1"
+
+
+def test_strategy_rescue_query_rejects_an_unknown_strategy() -> None:
+    with pytest.raises(api.HistoricalRealizedStrategyNotFoundError):
+        api.strategy_rescue_query(_valid_summary(), strategy_id="unknown-strategy")
+
+
+def test_bounded_query_routes_are_no_store_and_fail_closed() -> None:
+    value = _valid_summary()
+    client = _client(_Reader(value=value))
+
+    absence = client.get(
+        "/api/corpus-research/historical-realized-summary/first-observed-absence"
+    )
+    rescue = client.get(
+        "/api/corpus-research/historical-realized-summary/rescue",
+        params={"strategy_id": "expected-max-v1"},
+    )
+    unknown = client.get(
+        "/api/corpus-research/historical-realized-summary/rescue",
+        params={"strategy_id": "unknown-strategy"},
+    )
+
+    assert absence.status_code == 200
+    assert absence.headers["cache-control"] == "no-store"
+    assert absence.json()["query_name"] == "first-observed-absence-at-final-book"
+    assert rescue.status_code == 200
+    assert rescue.headers["cache-control"] == "no-store"
+    assert rescue.json()["row_count"] == 1
+    assert unknown.status_code == 404
+    assert unknown.headers["cache-control"] == "no-store"
+    assert unknown.json() == {
+        "detail": "Historical realized corpus strategy unavailable."
+    }
+
+    broken = _client(_Reader(value={})).get(
+        "/api/corpus-research/historical-realized-summary/first-observed-absence"
+    )
+    assert broken.status_code == 503
+    assert broken.headers["cache-control"] == "no-store"
