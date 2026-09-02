@@ -25,6 +25,29 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-02 experiment 088 sealed-read transition
+
+- The registered 088 efficacy cohort completed successfully: bank 620 execution
+  `lab-run-gf29b`, bank 621 `lab-run-slow-8gzth`, and bank 622
+  `lab-run-slow-cf44g`, each 18/18 with zero failures or retries. The registered
+  coordinator completed and was accepted at 2026-09-02T21:49:54Z.
+- The frozen reader completed locally at approximately 2026-09-02T22:03Z. Lab
+  main commit `2d2f5d54c66b49694c77754e93f240b401bcdce9` seals PREREG-057 as all-null:
+  K4_CAL `+0.00030` nonsignificant, K4_SLV_LEV `+0.00063` nonsignificant with
+  bank 620 negative, and K4_SLV_STRUCT `-0.00075` with the bank-620 veto.
+- Per the frozen ladder, the inexpensive KG-4 calibration/retention forms close.
+  The lab requests experiment 090 next (`090m630r1`, then efficacy banks
+  630-632) and keeps frozen 085 available for the parallel lane. No 090/085
+  execution was launched as part of this status checkpoint.
+- The persistent Cloud Run lane monitor is alive as PID 2184638, polling both
+  lab jobs every 60 seconds with transition events and Windows notifications.
+  At this checkpoint both Cloud Run lanes are idle because 088 is terminal,
+  not because of a failed or stranded task.
+- No scoring code, cloud configuration, Neo4j state, paid-entry state, or
+  experiment artifact was changed. Next concrete action is to review and bind
+  the frozen 090 launch contract while preventing duplicate ownership through
+  the shared launcher registry; retain 085 as the parallel-slot candidate.
+
 ### 2026-09-02 production review of parlay-adjacent domain transfers
 
 - Branch `docs/neo4j-lab-priority-20260902`, report commit `36f606de`, adds the
