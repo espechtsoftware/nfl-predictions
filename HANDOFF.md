@@ -39290,10 +39290,21 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 - The production-owned `nfl2-lab-jobs` launcher registry acquired the lane and
   created mechanics run `088m620r1-20260902T200158Z`, Cloud Run execution
   `lab-run-ppxlq`, at the frozen 2021-W1/bank-620 outcome-disabled boundary.
-  At this checkpoint the execution is provisioning; no efficacy prefix has
-  been claimed and no efficacy reader has been opened.
-- Next concrete action: keep the registered coordinator attached through exact
-  terminal status and publication of the `prereg057-mechanics-gate/v1`
-  create-once receipt. Only after a passing receipt, bind its exact run and
-  receipt SHA into the reader/registered efficacy queue and launch banks
-  620/621/622 without changing the frozen 088 estimand.
+  It completed with exact 1/1 success and zero retries. After two host-only
+  snapshot-dependency repairs, the retained artifact passed without a second
+  solve; the create-once `prereg057-mechanics-gate/v1` receipt SHA-256 is
+  `abd8ef59c680e51efd8b9e6a98dbfbcf3ce10b11d530608f5b64c1cc366a2450`.
+- Lab commit `0f53a5ae2b6775e461beb70ffc1f235252bc554a` binds that exact gate receipt,
+  frozen reader SHA-256
+  `2eca9bad4ba526029249d75cebd9d673ff0cfc95c9ca546b3b6ce8afbd6f6b37`,
+  and the registered three-bank efficacy coordinator. It opened no result.
+- Efficacy bank 620 is `088b620r1-20260902T202127Z`, execution
+  `lab-run-gf29b`; bank 621 is `088b621r1-20260902T202320Z`, execution
+  `lab-run-slow-8gzth`. Both exact 18-task executions are active with zero
+  failures/retries at this checkpoint. The registered coordinator remains
+  attached and will claim bank 622 only after an initial bank succeeds and a
+  lane becomes idle.
+- Next concrete action: poll both active executions through terminal status;
+  allow the registered coordinator to fill the first released lane with exact
+  bank 622, then run the frozen reader only after all three banks finish with
+  18/18 success and zero retries.
