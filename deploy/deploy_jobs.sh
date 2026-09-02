@@ -23,9 +23,9 @@ SA="$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')-compu
 
 build() { gcloud builds submit --tag "$IMAGE" .; }
 
-job() {  # name, cli-args, memory, cpu, extra-env (|), secrets, timeout
+job() {  # name, cli-args, memory, cpu, extra-env (|), secrets, timeout, retries
   local name=$1 args=$2 mem=${3:-2Gi} cpu=${4:-1} extra=${5:-} secrets=${6:-}
-  local timeout=${7:-3600}
+  local timeout=${7:-3600} max_retries=${8:-1}
   local secret_args=()
   if [[ -n "$secrets" ]]; then
     secret_args=(--set-secrets "$secrets")
@@ -34,7 +34,8 @@ job() {  # name, cli-args, memory, cpu, extra-env (|), secrets, timeout
     --command nfl-dfs --args "$args" \
     --set-env-vars "^|^GCP_PROJECT=${PROJECT}${extra:+|$extra}" \
     "${secret_args[@]}" \
-    --memory "$mem" --cpu "$cpu" --max-retries 1 --task-timeout "$timeout"
+    --memory "$mem" --cpu "$cpu" --max-retries "$max_retries" \
+    --task-timeout "$timeout"
 }
 
 sched() {  # scheduler-name, job-name, cron
@@ -57,7 +58,7 @@ job ingest-odds      ingest-odds     2Gi 1 "" "ODDS_API_KEY=odds-api-key:latest"
 # balance will preserve the 5,000-credit reserve.
 job ingest-props     ingest-props    2Gi 1 "ODDS_SHADOW_MARKETS_ENABLED=1|ODDS_SHADOW_MIN_REMAINING=5000" "ODDS_API_KEY=odds-api-key:latest"
 job ingest-weather   ingest-weather
-job ingest-cfb       ingest-cfb      2Gi 1 "INGEST_CFB_ENABLED=1"
+job ingest-cfb       ingest-cfb      2Gi 1 "INGEST_CFB_ENABLED=1" "" 3600 0
 # --- Pipeline ----------------------------------------------------------------
 job build-features   build-features
 job train-weekly     train           8Gi 4
@@ -164,6 +165,7 @@ sched s-score       score-entries   "0 8 * * 2"
 sched s-trends      trends-alerts   "15 8 * * 2"
 sched s-freshness   check-freshness "0 8 * * *"
 sched s-cfb         ingest-cfb      "0 10,14,18 * * *"
-sched s-cfb-sat     ingest-cfb      "0 8-13 * * 6"
+# The daily trigger owns Saturday 10:00; the Saturday supplement skips it.
+sched s-cfb-sat     ingest-cfb      "0 8,9,11,12,13 * * 6"
 
 echo "Deployed. NOTE: replay-* jobs are A/B harness jobs managed ad hoc, not here."

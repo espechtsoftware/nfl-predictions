@@ -103,21 +103,31 @@ def nfl_draft_groups(session: requests.Session | None = None) -> list[dict[str, 
 def cfb_draft_groups(session: requests.Session | None = None) -> list[dict[str, Any]]:
     """Upcoming DK College Football draft groups (issue #13 item 7).
 
-    Same endpoint as ``nfl_draft_groups``, filtered on ``sportId`` instead
-    of the top-level ``sport`` string — see ``CFB_SPORT_ID``'s docstring
-    for why. Collection-only scaffold: DK's own sports list shows CFB with
-    ``hasPublicContests: false`` as of 2026-07-31 (off-season, no slates
-    yet), so this returns empty until real draft groups appear later in
-    the season.
+    Same endpoint and supported salary-cap game types as
+    :func:`nfl_draft_groups`, filtered on ``sportId`` instead of the
+    top-level ``sport`` string. Group entries carry only ``gameTypeId``, so
+    resolve the sibling ``gameTypes`` array and attach the description that
+    :func:`classify_slate` requires.
     """
     s = session or requests.Session()
     r = s.get(DK_GROUPS, headers=HEADERS, timeout=30)
     r.raise_for_status()
-    return [
-        g
-        for g in r.json().get("draftGroups", [])
-        if g.get("sportId") == CFB_SPORT_ID and g.get("draftGroupState") == "Upcoming"
-    ]
+    payload = r.json()
+    names = {
+        entry.get("gameTypeId"): entry.get("name")
+        for entry in payload.get("gameTypes", [])
+    }
+    groups = []
+    for g in payload.get("draftGroups", []):
+        if g.get("sportId") != CFB_SPORT_ID:
+            continue
+        if g.get("draftGroupState") != "Upcoming":
+            continue
+        name = g.get("gameTypeDescription") or names.get(g.get("gameTypeId"))
+        if name not in SUPPORTED_GAME_TYPES:
+            continue
+        groups.append({**g, "gameTypeDescription": name})
+    return groups
 
 
 def classify_slate(group: dict[str, Any]) -> str:

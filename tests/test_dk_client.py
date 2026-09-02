@@ -7,7 +7,10 @@ from nfl_dfs.ingest import dk_client
 def payload():
     return {
         "competitions": [
-            {"competitionId": 111, "startTime": "2025-09-07T17:00:00Z"},
+            {
+                "competitionId": 111,
+                "startTime": "2025-09-07T17:00:00.0000000Z",
+            },
         ],
         "draftables": [
             {
@@ -64,9 +67,9 @@ def test_draftables_frame_fields():
     assert jj.salary == 8900
     # Parsed to a real UTC timestamp: DK sends seven fractional-second
     # digits, which pyarrow cannot cast to a BigQuery TIMESTAMP.
+    assert str(df.game_start.dtype) == "datetime64[ns, UTC]"
     assert jj.game_start == pd.Timestamp("2025-09-07T17:00:00Z")
     assert jj.dk_ppg == 21.3
-    import pandas as pd
 
     chase = df[df.dk_player_id == 2].iloc[0]
     assert pd.isna(chase.game_start)
@@ -115,18 +118,33 @@ def test_classify_slate():
     assert dk_client.classify_slate({"gameTypeDescription": "Classic"}) == "classic"
 
 
-def draft_groups_payload():
-    """Modeled on a live /draftgroups/v1/ response (verified 2026-07-31):
-    entries carry sportId at the top level (1=NFL, 5=CFB per DK's own
-    /sites/US-DK/sports/v1/sports) but no top-level "sport" string."""
+def _cfb_live_shaped_payload():
+    """Live CFB shape: names are siblings, not fields on each group."""
     return {
+        "gameTypes": [
+            {"gameTypeId": 94, "name": "Classic"},
+            {"gameTypeId": 95, "name": "Showdown Captain Mode"},
+            {"gameTypeId": 356, "name": "CFB Pick6"},
+            {"gameTypeId": 364, "name": "Single Stat - Touchdowns"},
+            {"gameTypeId": 377, "name": "Snake"},
+        ],
         "draftGroups": [
-            {"draftGroupId": 90001, "sportId": 1, "draftGroupState": "Upcoming"},
-            {"draftGroupId": 90002, "sportId": 5, "draftGroupState": "Upcoming"},
-            # Not upcoming -> excluded regardless of sport.
-            {"draftGroupId": 90003, "sportId": 5, "draftGroupState": "Complete"},
-            # A non-NFL, non-CFB sport (e.g. NBA) -> excluded from both.
-            {"draftGroupId": 90004, "sportId": 4, "draftGroupState": "Upcoming"},
+            {"draftGroupId": 90001, "sportId": 5,
+             "draftGroupState": "Upcoming", "gameTypeId": 94},
+            {"draftGroupId": 90002, "sportId": 5,
+             "draftGroupState": "Upcoming", "gameTypeId": 95},
+            # Pick6, single-stat and snake products are not salary-cap DFS.
+            {"draftGroupId": 90003, "sportId": 5,
+             "draftGroupState": "Upcoming", "gameTypeId": 356},
+            {"draftGroupId": 90004, "sportId": 5,
+             "draftGroupState": "Upcoming", "gameTypeId": 364},
+            {"draftGroupId": 90005, "sportId": 5,
+             "draftGroupState": "Upcoming", "gameTypeId": 377},
+            # Right product, wrong state / wrong sport.
+            {"draftGroupId": 90006, "sportId": 5,
+             "draftGroupState": "Complete", "gameTypeId": 94},
+            {"draftGroupId": 90007, "sportId": 4,
+             "draftGroupState": "Upcoming", "gameTypeId": 94},
         ]
     }
 
@@ -201,14 +219,22 @@ def test_nfl_draft_groups_matches_real_payload_shape(monkeypatch):
         "classic", "showdown"]
 
 
-def test_cfb_draft_groups_filters_by_sport_id(monkeypatch):
+def test_cfb_draft_groups_matches_live_game_type_shape(monkeypatch):
     def fake_get(self, url, headers=None, timeout=None):
         assert url == dk_client.DK_GROUPS
-        return _FakeResponse(draft_groups_payload())
+        return _FakeResponse(_cfb_live_shaped_payload())
 
     monkeypatch.setattr(requests.Session, "get", fake_get)
     groups = dk_client.cfb_draft_groups()
-    assert [g["draftGroupId"] for g in groups] == [90002]
+    assert [g["draftGroupId"] for g in groups] == [90001, 90002]
+    assert [g["gameTypeDescription"] for g in groups] == [
+        "Classic",
+        "Showdown Captain Mode",
+    ]
+    assert [dk_client.classify_slate(g) for g in groups] == [
+        "classic",
+        "showdown",
+    ]
 
 
 def test_nfl_contests_hits_nfl_endpoint(monkeypatch):

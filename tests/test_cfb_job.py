@@ -17,7 +17,10 @@ from nfl_dfs.ingest import cfb_job
 def _draftables_payload(player_id=1):
     return {
         "competitions": [
-            {"competitionId": 1, "startTime": "2026-08-30T17:00:00Z"}
+            {
+                "competitionId": 1,
+                "startTime": "2026-08-30T17:00:00.0000000Z",
+            }
         ],
         "draftables": [
             {
@@ -104,19 +107,30 @@ def test_run_loads_salaries_and_contests_when_enabled(monkeypatch):
     loaded = []
     monkeypatch.setattr(
         "nfl_dfs.ingest.cfb_job.load_dataframe",
-        lambda df, table, **kw: loaded.append((table, df)),
+        lambda df, table, **kw: loaded.append((table, df, kw)),
     )
 
     cfb_job.run()
 
-    tables = [t for t, _ in loaded]
+    tables = [table for table, _, _ in loaded]
     assert tables == ["cfb_dk_salaries", "dk_contest_fills"]
 
     salaries_df = loaded[0][1]
     assert list(salaries_df.dk_player_id) == [1]
+    assert str(salaries_df.game_start.dtype) == "datetime64[ns, UTC]"
+    assert loaded[0][2] == {
+        "write_disposition": "WRITE_APPEND",
+        "partition_field": "pulled_at",
+        "clustering_fields": ("draft_group_id", "dk_player_id"),
+    }
 
     contests_df = loaded[1][1]
     assert list(contests_df.sport) == ["CFB"]
+    assert loaded[1][2] == {
+        "write_disposition": "WRITE_APPEND",
+        "partition_field": "pulled_at",
+        "clustering_fields": ("draft_group_id", "contest_id"),
+    }
 
 
 def test_run_skips_draftables_404_and_persists_healthy_group(monkeypatch, caplog):

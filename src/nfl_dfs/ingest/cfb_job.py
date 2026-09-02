@@ -79,6 +79,7 @@ def run() -> None:
             "cfb_dk_salaries",
             write_disposition="WRITE_APPEND",
             partition_field="pulled_at",
+            clustering_fields=("draft_group_id", "dk_player_id"),
         )
 
     draft_group_ids = {g["draftGroupId"] for g in groups}
@@ -90,6 +91,7 @@ def run() -> None:
             "dk_contest_fills",
             write_disposition="WRITE_APPEND",
             partition_field="pulled_at",
+            clustering_fields=("draft_group_id", "contest_id"),
         )
         log.info("Polled %d CFB contests across %d draft groups (%d guaranteed)",
                   len(cdf), len(draft_group_ids), int(cdf.is_guaranteed.sum()))
