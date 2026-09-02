@@ -172,6 +172,23 @@ and operator decisions.  The older entries remain the durable chronology.
   initial-bank success; any observed initial-bank retry or failure stops the
   coordinator. Next exact action is direct task-level polling of 610/611
   without opening outcomes.
+- **Terminal efficacy update, 2026-09-02 18:38:20Z:** the complete 087 r2
+  cohort is clean and must not be relaunched. Bank 610
+  `087b610r2-20260902T171112Z` / `lab-run-q89kk` / UID
+  `43f8de86-6c11-4cfd-9cb2-536c8d3762c1`, bank 611
+  `087b611r2-20260902T171342Z` / `lab-run-slow-6lz8p` / UID
+  `d5c9037d-afd0-4263-8a43-d69a64696ae8`, and bank 612
+  `087b612r2-20260902T175550Z` / `lab-run-skx6c` / UID
+  `105abe39-1794-4d9c-b887-c4f3ab7fbed3` each completed exact 18/18
+  success with zero failure, cancellation, or retry. Bank 612 ran from
+  `17:56:02.031016Z` through `18:38:20.200604Z`. The registered coordinator
+  exited status 0 after the exact-success condition. The frozen envelope
+  remains source `57ebcfd76ceb29cf71c4097f359ccd6d2125aa16`, image
+  `sha256:3786b918b938f8c82f4dc63c8f82cf1c802312f3ed1c84002a2b9897852368ec`,
+  18 tasks / 18 parallelism, 2 CPU / 8 GiB, `maxRetries=1`, timeout 36,000
+  seconds. Next exact action is the bound PREREG-056 reader and independent
+  reproduction; do not launch 088 until the sealed 087 verdict binds its
+  control.
 
 ### 2026-09-02 pre-lock lineage selective port independently hardened, default-off
 
