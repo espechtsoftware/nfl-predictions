@@ -25,7 +25,7 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
-### 2026-09-02 PREREG-056 / experiment 087 mechanics gate active
+### 2026-09-02 PREREG-056 / experiment 087 r1 void; memory-bounded r2 preparing
 
 - Lab Action Note Update 16 advanced the authorized queue to outcome-disabled
   mechanics `087m610r1`, followed by efficacy banks
@@ -68,11 +68,40 @@ and operator decisions.  The older entries remain the durable chronology.
   `2026-09-02T16:18:33.106829Z`. Its exact one-task/one-parallelism envelope is
   2 CPU / 8 GiB, source/image pins above, and argv bank 610 / 2021 Week 1 /
   `--mechanics-only`.
-- Next exact action: poll execution metadata without opening outcomes. On
-  terminal exact success, independently reopen and reproduce the create-once
-  PREREG-056 gate receipt, then bind the reader and efficacy coordinators
-  before claiming banks 610/611/612. On any mechanics failure, stop without an
-  efficacy claim.
+- Before cancellation, exact task metadata showed one previous attempt with
+  status code 8, `The configured memory limit was reached`, and one active
+  retry. Production cancelled the deterministic retry rather than spend a
+  second known-invalid attempt. Execution `lab-run-7jpv9` completed cancelled
+  at `2026-09-02T16:29:42.173004Z`: zero succeeded/failed, one cancelled, one
+  retry. Coordinator completion receipt SHA-256 is
+  `a1c72fb436371443434d5b35fdf333ca83bb47d1d6502c915c9bb6fe3d5c13f2`
+  with exit 1. Exact result and gate-prefix censuses are empty; no efficacy
+  prefix or outcome was opened. Revision 1 is permanently void.
+- Root cause is the full candidate-by-world-by-48-winner broadcast in
+  `winner_utility`: one temporary is approximately 5.7 GiB and overlapping
+  NumPy expression temporaries exceed the 8-GiB task limit. This was not D800
+  generation or CBC. The isolated r2 repair chunks independent score cells
+  in fixed 100,000-element blocks while retaining the complete contiguous
+  winner axis and unchanged last-axis expression/reduction. A forced
+  multi-chunk regression is bit-for-bit equal to the original formula.
+  Synthetic D800-shape validation (`800 x 20,000`) completed in 9.03 seconds
+  at 421,928-KiB maximum RSS, versus the failed multi-GiB broadcast.
+- Revision-2 prefixes are frozen as mechanics `087m610r2` and efficacy
+  `087b610r2/611r2/612r2`; r1 efficacy identities remain unclaimed and cannot
+  be reused. The compute envelope remains 2 CPU / 8 GiB. Validation currently
+  passes 90 independently rerun focused tests and 189 combined
+  053/055/056/selector/scorecard tests, Python compile, shell parse, and diff
+  checks. The final independent review returned GO with no P0/P1 defect.
+- The complete r2 repair stack is durable on lab `main` at source commit
+  `57ebcfd76ceb29cf71c4097f359ccd6d2125aa16` (memory/prefix repair
+  `ccca49f`, scalar/empty compatibility and r1 void census `c8f876a`, and
+  in-flight-retry release guard `57ebcfd`). It descends the lab's newly frozen
+  PREREG-057 design commit `2fccc2a`; PREREG-057 is queued work, not part of
+  this 087 execution.
+- Next exact action: build one fresh immutable image from `57ebcfd`, bind it,
+  and run only `087m610r2`. Efficacy remains blocked until r2 reaches terminal
+  exact success with zero retries and its create-once gate receipt is
+  independently reproduced.
 
 ### 2026-09-02 pre-lock lineage Phase 1 production review
 
