@@ -566,7 +566,10 @@ if [[ "$ADVANCED" == true ]]; then
     '    dk_draftable_id IS NULL OR dk_draftable_id <= 0 OR' \
     '    season IS NULL OR season != 2026 OR' \
     '    slate_type IS NULL OR slate_type NOT IN ("classic", "showdown") OR' \
-    '    position IS NULL OR position NOT IN ("QB", "RB", "WR") OR' \
+    '    position IS NULL OR NOT (' \
+    '      position IN ("QB", "RB", "WR") OR' \
+    '      (slate_type = "showdown" AND position = "K")' \
+    '    ) OR' \
     '    salary IS NULL OR salary <= 0 OR game_start IS NULL' \
     '  ) AS invalid_rows, COUNT(DISTINCT draft_group_id) AS draft_groups' \
     'FROM `nfl-predictions-503414.nfl_raw.cfb_dk_salaries`' \

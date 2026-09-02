@@ -156,7 +156,8 @@ def test_advanced_acceptance_requires_valid_new_salary_rows() -> None:
     assert '$new.cfb_dk_salaries.max_pulled_at >' in source
     assert 'season IS NULL OR season != 2026' in source
     assert 'slate_type NOT IN ("classic", "showdown")' in source
-    assert 'position NOT IN ("QB", "RB", "WR")' in source
+    assert 'position IN ("QB", "RB", "WR")' in source
+    assert '(slate_type = "showdown" AND position = "K")' in source
     assert 'salary IS NULL OR salary <= 0' in source
     assert 'dk_player_id IS NULL OR dk_player_id <= 0' in source
     assert 'dk_draftable_id IS NULL OR dk_draftable_id <= 0' in source
