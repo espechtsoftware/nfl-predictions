@@ -2,7 +2,8 @@
 """Read-only watcher for the lab-to-production handoff documents.
 
 The watcher fetches ``origin/main`` without touching the lab worktree, reads
-three fixed blobs from the fetched commit, and records only their identities.
+three fixed blobs from the fetched commit, and records their identities plus
+bounded numbered-heading metadata from the primary action note.
 It never pulls, checks out, merges, resets, or invokes any cloud command.
 Document transitions and read failures are written to an fsynced JSONL ledger
 and can be surfaced through a bounded, non-shell Windows WinRT toast.
@@ -41,7 +42,9 @@ DOCUMENTS = (
     "PREREG-052.md",
     "reports/2026-09-01-priority-ranking.md",
 )
-UPDATE_RE = re.compile(rb"(?m)^## Update ([0-9]+)(?=\b|[ :])")
+UPDATE_HEADING_RE = re.compile(
+    rb"(?m)^##[ \t]+Update[ \t]+([0-9]+)([^\r\n]*)\r?$"
+)
 
 
 class MonitorError(RuntimeError):
@@ -122,9 +125,38 @@ def _run(
     return value.encode("utf-8") if isinstance(value, str) else bytes(value)
 
 
-def _highest_update(content: bytes) -> int | None:
-    values = [int(match.group(1)) for match in UPDATE_RE.finditer(content)]
-    return max(values, default=None)
+def _update_metadata(content: bytes) -> dict[str, object]:
+    """Describe numbered update headings without assuming numbers are unique."""
+    matches = list(UPDATE_HEADING_RE.finditer(content))
+    occurrences: dict[int, int] = {}
+    headings: list[dict[str, object]] = []
+    for ordinal, match in enumerate(matches, start=1):
+        number = int(match.group(1))
+        occurrences[number] = occurrences.get(number, 0) + 1
+        suffix = match.group(2).decode("utf-8", errors="replace").strip()
+        title = suffix[1:].strip() if suffix.startswith(":") else suffix
+        heading = match.group(0).rstrip(b"\r").decode(
+            "utf-8", errors="replace"
+        )[2:].strip()
+        headings.append(
+            {
+                "number": number,
+                "ordinal": ordinal,
+                "occurrence_for_number": occurrences[number],
+                "line": content.count(b"\n", 0, match.start()) + 1,
+                "heading": heading[:400],
+                "title": title[:400],
+            }
+        )
+    duplicate_numbers = sorted(
+        number for number, count in occurrences.items() if count > 1
+    )
+    return {
+        "highest_update": max(occurrences, default=None),
+        "heading_count": len(headings),
+        "latest_heading": headings[-1] if headings else None,
+        "duplicate_update_numbers": duplicate_numbers,
+    }
 
 
 def fetch_snapshot(
@@ -150,7 +182,7 @@ def fetch_snapshot(
         raise InboxReadError("fetched commit identity is not a full SHA-1")
 
     blobs: dict[str, dict[str, object]] = {}
-    primary_update: int | None = None
+    primary_metadata: dict[str, object] | None = None
     for document in DOCUMENTS:
         content = _run(
             [*base, "show", f"{commit}:{document}"],
@@ -162,11 +194,25 @@ def fetch_snapshot(
             "bytes": len(content),
         }
         if document == PRIMARY_DOCUMENT:
-            primary_update = _highest_update(content)
+            primary_metadata = _update_metadata(content)
+    if primary_metadata is None:
+        raise InboxReadError("primary document was not included in the snapshot")
+    primary_blob = blobs[PRIMARY_DOCUMENT]
     return {
         "commit": commit,
         "documents": blobs,
-        "primary_highest_update": primary_update,
+        "primary_document_revision": {
+            "commit": commit,
+            "revision_id": f"sha256:{primary_blob['sha256']}",
+            "sha256": primary_blob["sha256"],
+            "bytes": primary_blob["bytes"],
+        },
+        "primary_highest_update": primary_metadata["highest_update"],
+        "primary_update_heading_count": primary_metadata["heading_count"],
+        "primary_latest_heading": primary_metadata["latest_heading"],
+        "primary_duplicate_update_numbers": primary_metadata[
+            "duplicate_update_numbers"
+        ],
     }
 
 
@@ -210,7 +256,12 @@ def _event_id(event: Mapping[str, object]) -> str:
 
 
 def _notifiable(events: Iterable[Mapping[str, object]]) -> list[dict[str, object]]:
-    kinds = {"documents_changed", "new_highest_update", "poll_failed"}
+    kinds = {
+        "documents_changed",
+        "new_highest_update",
+        "duplicate_update_numbers_detected",
+        "poll_failed",
+    }
     return [dict(event) for event in events if event.get("event") in kinds]
 
 
@@ -221,6 +272,56 @@ def _notification_text(
     if failures:
         error = str(failures[-1].get("error") or "unknown fetch/read failure")
         return "NFL lab handoff monitor failed", error[:900]
+
+    primary_changes = [
+        event
+        for event in events
+        if event.get("event") == "documents_changed"
+        and event.get("primary_document_changed") is True
+    ]
+    if primary_changes:
+        latest_change = primary_changes[-1]
+        commit = str(latest_change.get("commit") or "unknown")
+        heading = _mapping(latest_change.get("latest_heading"))
+        heading_text = str(
+            heading.get("heading") or "numbered heading unavailable"
+        )
+        ordinal = heading.get("ordinal")
+        occurrence_text = (
+            f"latest heading occurrence {ordinal}: "
+            if isinstance(ordinal, int)
+            else "latest heading: "
+        )
+        duplicates = latest_change.get("duplicate_update_numbers", [])
+        duplicate_text = ""
+        if isinstance(duplicates, list) and duplicates:
+            duplicate_text = "; duplicate update numbers: " + ", ".join(
+                str(value) for value in duplicates
+            )
+        return (
+            "NFL lab handoff changed",
+            (
+                f"Action note document changed at new commit {commit[:12]}; "
+                f"{occurrence_text}{heading_text}{duplicate_text}"
+            )[:900],
+        )
+
+    duplicate_events = [
+        event
+        for event in events
+        if event.get("event") == "duplicate_update_numbers_detected"
+    ]
+    if duplicate_events:
+        latest_duplicate = duplicate_events[-1]
+        commit = str(latest_duplicate.get("commit") or "unknown")
+        duplicates = latest_duplicate.get("duplicate_update_numbers", [])
+        values = ", ".join(str(value) for value in duplicates)
+        body = f"Duplicate update numbers {values} detected at commit {commit[:12]}"
+        return (
+            "NFL lab handoff numbering warning",
+            body[:900],
+        )
+
     last_good = _mapping(status.get("last_good"))
     update = last_good.get("primary_highest_update")
     changed: list[str] = []
@@ -362,8 +463,14 @@ def poll_once(
         changed = sorted(
             path for path in DOCUMENTS if old_hashes.get(path) != new_hashes.get(path)
         )
+        primary_changed = PRIMARY_DOCUMENT in changed
         old_update = old_good.get("primary_highest_update")
         new_update = snapshot.get("primary_highest_update")
+        old_duplicates = old_good.get("primary_duplicate_update_numbers", [])
+        new_duplicates = snapshot.get("primary_duplicate_update_numbers", [])
+        old_revision = old_good.get("primary_document_revision")
+        new_revision = snapshot.get("primary_document_revision")
+        latest_heading = snapshot.get("primary_latest_heading")
         if prior_poll.get("ok") is False:
             events.append(_event("poll_recovered", at, commit=snapshot["commit"]))
         if changed:
@@ -371,10 +478,16 @@ def poll_once(
                 _event(
                     "documents_changed",
                     at,
+                    previous_commit=old_good.get("commit"),
                     commit=snapshot["commit"],
                     documents=changed,
+                    primary_document_changed=primary_changed,
+                    previous_primary_revision=old_revision,
+                    primary_document_revision=new_revision,
                     previous_highest_update=old_update,
                     highest_update=new_update,
+                    latest_heading=latest_heading,
+                    duplicate_update_numbers=new_duplicates,
                 )
             )
         if isinstance(new_update, int) and (
@@ -387,8 +500,32 @@ def poll_once(
                     commit=snapshot["commit"],
                     previous=old_update,
                     current=new_update,
+                    latest_heading=latest_heading,
                 )
             )
+        if new_duplicates != old_duplicates:
+            if isinstance(new_duplicates, list) and new_duplicates:
+                events.append(
+                    _event(
+                        "duplicate_update_numbers_detected",
+                        at,
+                        commit=snapshot["commit"],
+                        primary_document_revision=new_revision,
+                        duplicate_update_numbers=new_duplicates,
+                        latest_heading=latest_heading,
+                    )
+                )
+            elif isinstance(old_duplicates, list) and old_duplicates:
+                events.append(
+                    _event(
+                        "duplicate_update_numbers_cleared",
+                        at,
+                        commit=snapshot["commit"],
+                        primary_document_revision=new_revision,
+                        previous_duplicate_update_numbers=old_duplicates,
+                        latest_heading=latest_heading,
+                    )
+                )
         if old_good and not changed and old_good.get("commit") != snapshot["commit"]:
             events.append(
                 _event(
@@ -398,6 +535,15 @@ def poll_once(
                     commit=snapshot["commit"],
                 )
             )
+        alerts: dict[str, object] = {}
+        if isinstance(new_duplicates, list) and new_duplicates:
+            alerts["duplicate-update-numbers"] = {
+                "kind": "duplicate_action_note_update_numbers",
+                "severity": "warning",
+                "numbers": new_duplicates,
+                "latest_heading": latest_heading,
+                "primary_document_revision": new_revision,
+            }
         status = {
             "schema_version": STATUS_SCHEMA,
             "sequence": sequence,
@@ -406,7 +552,7 @@ def poll_once(
             "monitor": config.identity(),
             "poll": {"ok": True, "error": None},
             "last_good": {**snapshot, "observed_at": at},
-            "alerts": {},
+            "alerts": alerts,
         }
 
     notification, should_notify = _notification(

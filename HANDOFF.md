@@ -20,12 +20,12 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current science index -- 2026-08-30
+## Current science index -- 2026-09-02
 
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
-### 2026-09-01 r2 mechanics running; durable cloud and lab-inbox monitoring armed
+### 2026-09-02 PREREG-052 sealed; completion-aware monitoring repaired
 
 - Production `main` implementation commit
   `bf04479203633c064c404524cfddd457d8e7b044` replaces the passive lane watch
@@ -53,7 +53,15 @@ and operator decisions.  The older entries remain the durable chronology.
   its document set. Its first durable snapshot was lab commit
   `20982ca5ef1d894d357adffe148760289739d6d6`, Action Note Update 12, with a
   successful Windows notification and mode-0600 state/events below
-  `~/.local/state/nfl-dfs/lab-action-note-monitor/`.
+  `~/.local/state/nfl-dfs/lab-action-note-monitor/`. The lab later appended
+  new outcome-bearing Update 11/12 sections instead of using larger numbers.
+  The old watcher detected both document-hash changes and delivered toasts at
+  `2026-09-02T02:02:46Z` and `02:34:57Z`, but its `highest_update=12` summary
+  obscured that they were new. The repaired watcher now binds the primary
+  revision commit/SHA/bytes, records heading ordinal and occurrence, latches
+  duplicate-number warnings, and explicitly says the document changed at a
+  new commit even when the maximum update number is unchanged. Focused
+  validation is `6 passed`; Python compilation and `git diff --check` pass.
 - PREREG-052 efficacy r1 is void with zero outcome-bearing artifacts. Exact
   terminal provider states are `lab-run-hkkmb` 18/18 failed,
   `lab-run-slow-49qfg` 18/18 failed, and exact execution `lab-run-9l85j`
@@ -87,16 +95,43 @@ and operator decisions.  The older entries remain the durable chronology.
   `84b51422ecd24d77fe82d85696de776e21901d476006b0151357fa2083aba065`;
   13 focused reader/mechanics/image tests and the live gate preflight pass.
   Registered coordinator `nfl2-prereg052-efficacy-cohort-r2.service`
-  (invocation `bdcce16a0bab4862a8e9991d748c50e6`, zero restarts) owns exactly
-  `083b580r2/581r2/582r2`. Bank 580 is execution `lab-run-c898j`, UID
-  `e201c040-8a9d-4c64-b0d6-419bd870dcde`, run
-  `083b580r2-20260902T004329Z`; bank 581 is `lab-run-slow-ntjnv`, UID
-  `374019d3-36af-4c5d-8472-4cc88ed3a5ae`, run
-  `083b581r2-20260902T004605Z`. At `2026-09-02T00:50Z` both ran all 18 tasks
-  with zero failures/retries; an independent post-launch audit reproduced the
-  exact 18x18, 2-vCPU/8-GiB, retry-1, 36,000-second envelopes. Bank 582 remains
-  unclaimed until either lane frees, then the coordinator will launch it and
-  continue waiting. No efficacy reader has been opened.
+  (invocation `bdcce16a0bab4862a8e9991d748c50e6`, zero restarts) claimed and
+  completed exactly `083b580r2/581r2/582r2`: bank 580 run
+  `083b580r2-20260902T004329Z` is execution `lab-run-c898j`, UID
+  `e201c040-8a9d-4c64-b0d6-419bd870dcde`, 18/18 success at
+  `2026-09-02T01:19:19.511745Z`; bank 581 run
+  `083b581r2-20260902T004605Z` is `lab-run-slow-ntjnv`, UID
+  `374019d3-36af-4c5d-8472-4cc88ed3a5ae`, 18/18 success at
+  `01:24:07.027474Z`; bank 582 run `083b582r2-20260902T012008Z` is
+  `lab-run-ds69l`, UID `39780cdf-cca4-4451-ba93-aaea7282313e`, 18/18 success
+  at `01:57:30.764347Z` with one provider retry. The monitor detected the
+  retry at `01:25:26Z` and the terminal cohort at `01:58:07Z`; the coordinator
+  reached terminal success without opening outcomes.
+- Lab commit `322edb1beb13c0c1caad250c41a065b35dda6e89` authorized the frozen
+  first read and requested production cross-verification. The exact pinned
+  production invocation independently reproduces the lab result:
+  `SCHED_LEGAL-SCHED_TOTAL` primary proxy `+0.00115`
+  `[-0.00318,+0.00570]`, with bank 580 `-0.01029` and its entire interval
+  below zero, so the frozen verdict is **FAIL**. The raw K80 weekly-max
+  co-report is `-0.354 [-1.204,+0.705]`; control/treatment realized mean
+  weekly maxima are `181.406/181.052`, and the treatment changes weeks at
+  least 200 from `11` to `9`. The scheduler improved visit-value correlation
+  `0.251` to `0.378` but did not transport to realized winner-range value.
+  Do not adopt `SCHED_LEGAL`; `SCHED_TOTAL/D400_DEMAX` remains the scheduler
+  control.
+- Lab commit `c9ee220a9a9aefe4adc9ce34e5fd80e4128a0704` records the operator's
+  current Week-1 decision: entered `D800_DEMAX` (lev160/boom640, dual-law
+  EMAX, exact K80), revisable until lock, with prospective capture of the
+  entered D800 book and a D400 counterfactual shadow. A5 contest mix remains
+  open and must not be silently frozen by this implementation. A read-only
+  production audit found that the current five-search CBWU live path cannot
+  express this pair by changing env values: doing so would run roughly 4,000
+  solves and still select by coverage-194, not the lab's single-bank 800-solve
+  dual-EMAX law. The lab `scripts/live_week.py` already expresses both exact
+  packages; production must port/wrap that frozen implementation or consume
+  its immutable artifacts, then make all paid/UI routes use the same entered
+  D800 identity. The capture rehearsal already supports one paid book plus a
+  D400 shadow; A5 remains a separate open allocation decision.
 - The `ingest-cfb` audit found 53 consecutive failures since its last success,
   caused by one stale advertised DraftKings draft group returning 404 and
   aborting otherwise useful collection. Schedulers `s-cfb` and `s-cfb-sat`
@@ -108,7 +143,8 @@ and operator decisions.  The older entries remain the durable chronology.
   all-advertised-groups-stale fails closed; no upcoming groups remains a no-op.
   The focused CFB/client/BQ/deployment suite is `34 passed` and shell/diff
   checks pass. Exact clean-source Cloud Build
-  `76dab3f0-a685-44e7-92e1-8607b242eb80` is WORKING on immutable tag
+  `76dab3f0-a685-44e7-92e1-8607b242eb80` remains WORKING in its
+  `full-test-suite` step (started `2026-09-02T00:51:48.511288744Z`) on tag
   `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:cfb-4d66cae3`.
   Its 461-MiB disk build context was moved to the desktop trash after the
   source upload; it is recoverable and no longer occupies `.build-contexts`.

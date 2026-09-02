@@ -65,10 +65,14 @@ def _primary(update: int, suffix: str = "") -> bytes:
 
 
 def _snapshot(commit: str, update: int, suffix: str = "") -> list[Response]:
+    return _snapshot_primary(commit, _primary(update, suffix))
+
+
+def _snapshot_primary(commit: str, primary: bytes) -> list[Response]:
     return [
         Response(),
         Response(stdout=f"{commit}\n".encode()),
-        Response(stdout=_primary(update, suffix)),
+        Response(stdout=primary),
         Response(stdout=b"# prereg\n"),
         Response(stdout=b"# ranking\n"),
     ]
@@ -169,6 +173,99 @@ def test_document_rewrite_and_new_update_send_one_bounded_non_shell_toast(
     recent = _ledger(config.events_file)
     assert any(event["event"] == "new_highest_update" for event in recent)
     assert recent[-1]["event"] == "notification_delivered"
+
+
+def test_duplicate_update_numbers_still_identify_and_notify_new_revision(
+    tmp_path: Path,
+) -> None:
+    first = "1" * 40
+    second = "2" * 40
+    original = (
+        "# Lab to production\n\n"
+        "## Update 11 (2026-09-01): mechanics ready\n\n"
+        "First action.\n\n"
+        "## Update 12 (2026-09-01): launch r2\n\n"
+        "Second action.\n"
+    ).encode()
+    revised = original + (
+        "\n## Update 11 (2026-09-02): first read failed\n\n"
+        "Close the scheduler.\n\n"
+        "## Update 12 (2026-09-02): OPERATOR DECISION\n\n"
+        "Adopt D800.\n"
+    ).encode()
+    fake = FakeGit(
+        [
+            *_snapshot_primary(first, original),
+            *_snapshot_primary(second, revised),
+        ]
+    )
+    notifier = FakeNotifier()
+    config = _config(tmp_path, windows_toast_command="powershell.exe")
+    baseline = monitor.poll_once(
+        config,
+        runner=fake,
+        notifier=notifier,
+        clock=lambda: 100.0,
+        emit=lambda _: None,
+    )
+    notifier.calls.clear()
+
+    status = monitor.poll_once(
+        config,
+        runner=fake,
+        notifier=notifier,
+        clock=lambda: 200.0,
+        emit=lambda _: None,
+    )
+
+    last_good = status["last_good"]
+    assert last_good["primary_highest_update"] == 12
+    assert last_good["primary_update_heading_count"] == 4
+    assert last_good["primary_duplicate_update_numbers"] == [11, 12]
+    assert last_good["primary_document_revision"]["commit"] == second
+    assert (
+        last_good["primary_document_revision"]["revision_id"]
+        != baseline["last_good"]["primary_document_revision"]["revision_id"]
+    )
+    assert last_good["primary_latest_heading"] == {
+        "number": 12,
+        "ordinal": 4,
+        "occurrence_for_number": 2,
+        "line": 15,
+        "heading": "Update 12 (2026-09-02): OPERATOR DECISION",
+        "title": "(2026-09-02): OPERATOR DECISION",
+    }
+    assert status["alerts"]["duplicate-update-numbers"]["numbers"] == [11, 12]
+
+    assert len(notifier.calls) == 1
+    body = notifier.calls[0][1]["env"]["NFL_MONITOR_BODY"]
+    assert "document changed at new commit 222222222222" in body
+    assert "latest heading occurrence 4" in body
+    assert "OPERATOR DECISION" in body
+    assert "duplicate update numbers: 11, 12" in body
+
+    second_events = [
+        event
+        for event in _ledger(config.events_file)
+        if event.get("commit") == second
+    ]
+    changed = next(
+        event for event in second_events if event["event"] == "documents_changed"
+    )
+    assert changed["primary_document_changed"] is True
+    assert changed["previous_commit"] == first
+    assert changed["primary_document_revision"] == last_good[
+        "primary_document_revision"
+    ]
+    assert changed["latest_heading"] == last_good["primary_latest_heading"]
+    assert changed["highest_update"] == changed["previous_highest_update"] == 12
+    assert any(
+        event["event"] == "duplicate_update_numbers_detected"
+        for event in second_events
+    )
+    assert not any(
+        event["event"] == "new_highest_update" for event in second_events
+    )
 
 
 def test_fetch_failure_alerts_once_and_never_overwrites_last_good_hashes(
