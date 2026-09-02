@@ -14,9 +14,9 @@ ExecStart=%h/projects/nfl-predictions/.venv/bin/python \
   --attention-file %h/.local/state/nfl-dfs/cloud-run-lane-monitor/attention.json \
   --project nfl-2-506823 --region us-central1 \
   --job lab-run --job lab-run-slow \
-  --launcher-registry-dir %h/projects/nfl2/.tmp/launchers \
+  --launcher-registry-dir %h/.local/state/nfl-dfs/lab-launcher-registry/launchers \
   --launcher-lane nfl2-lab-jobs --queue-grace-seconds 120 \
-  --stall-seconds 3600 \
+  --stall-seconds 3600 --coordinator-post-provider-grace-seconds 180 \
   --e4-execution atlas-cbc-32g-full-2023-w8-v1-7zpd4 \
   --e4-project nfl-predictions-503414 --e4-stall-seconds 25200 \
   --poll-seconds 60 --command-timeout-seconds 45 \

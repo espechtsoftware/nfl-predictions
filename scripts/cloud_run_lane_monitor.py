@@ -11,10 +11,12 @@ command path.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import os
 import re
+import stat
 import subprocess
 import tempfile
 import time
@@ -24,12 +26,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-STATUS_SCHEMA = "cloud-run-lane-monitor-status/v2"
-LEGACY_STATUS_SCHEMAS = frozenset(("cloud-run-lane-monitor-status/v1",))
+STATUS_SCHEMA = "cloud-run-lane-monitor-status/v3"
+LEGACY_STATUS_SCHEMAS = frozenset(
+    ("cloud-run-lane-monitor-status/v1", "cloud-run-lane-monitor-status/v2")
+)
 EVENT_SCHEMA = "cloud-run-lane-monitor-event/v2"
 ATTENTION_SCHEMA = "cloud-run-lane-monitor-attention/v1"
 REGISTRY_SCHEMA = "shared-launcher-registry/v1"
-ALERT_POLICY = "expected-execution-retry-and-capacity/v2"
+COMPLETION_SCHEMA = "shared-launcher-completion/v1"
+ALERT_POLICY = "expected-execution-retry-capacity-and-coordinator/v3"
 DEFAULT_PROJECT = "nfl-2-506823"
 DEFAULT_REGION = "us-central1"
 DEFAULT_JOBS = ("lab-run", "lab-run-slow")
@@ -62,6 +67,7 @@ class Config:
     launcher_lane: str | None = None
     queue_grace_seconds: float = 120.0
     stall_seconds: float = 3_600.0
+    coordinator_post_provider_grace_seconds: float = 180.0
     e4_execution: str | None = None
     e4_project: str = DEFAULT_E4_PROJECT
     e4_stall_seconds: float = 25_200.0
@@ -81,6 +87,9 @@ class Config:
             "launcher_lane": self.launcher_lane,
             "queue_grace_seconds": self.queue_grace_seconds,
             "stall_seconds": self.stall_seconds,
+            "coordinator_post_provider_grace_seconds": (
+                self.coordinator_post_provider_grace_seconds
+            ),
             "e4_execution": self.e4_execution,
             "e4_project": self.e4_project if self.e4_execution else None,
             "e4_stall_seconds": self.e4_stall_seconds if self.e4_execution else None,
@@ -190,17 +199,113 @@ def _validated_registry_receipt(path: Path) -> Mapping[str, object]:
     return value
 
 
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    try:
+        with path.open("rb") as handle:
+            for block in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(block)
+    except OSError as exc:
+        raise MonitorError(f"cannot hash launcher evidence {path}: {exc}") from exc
+    return digest.hexdigest()
+
+
+def _validated_completion(path: Path) -> Mapping[str, object]:
+    if path.is_symlink() or not path.is_file():
+        raise MonitorError(f"launcher completion is unsafe: {path}")
+    try:
+        mode = stat.S_IMODE(path.stat().st_mode)
+    except OSError as exc:
+        raise MonitorError(f"launcher completion metadata is unreadable: {path}") from exc
+    if mode != 0o600:
+        raise MonitorError(f"launcher completion mode differs from 0600: {path}")
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise MonitorError(f"launcher completion is unreadable: {path}: {exc}") from exc
+    required = {
+        "acquired_at_utc",
+        "completed_at_utc",
+        "exit_status",
+        "lane",
+        "owner",
+        "pid",
+        "process_start_ticks",
+        "receipt_sha256",
+        "schema_version",
+        "script_path",
+        "target_run_id_prefixes",
+    }
+    prefixes = value.get("target_run_id_prefixes") if isinstance(value, Mapping) else None
+    valid = (
+        isinstance(value, Mapping)
+        and set(value) == required
+        and value["schema_version"] == COMPLETION_SCHEMA
+        and value["owner"] in ("lab", "production")
+        and isinstance(value["lane"], str)
+        and bool(value["lane"])
+        and isinstance(value["script_path"], str)
+        and Path(value["script_path"]).is_absolute()
+        and _positive_integer(value["pid"])
+        and _positive_integer(value["process_start_ticks"])
+        and type(value["exit_status"]) is int
+        and 0 <= value["exit_status"] <= 255
+        and isinstance(value["receipt_sha256"], str)
+        and re.fullmatch(r"[0-9a-f]{64}", value["receipt_sha256"]) is not None
+        and path.name == f"{value['receipt_sha256']}.json"
+        and isinstance(prefixes, list)
+        and bool(prefixes)
+        and all(isinstance(item, str) and bool(item) for item in prefixes)
+        and len(prefixes) == len(set(prefixes))
+        and all(
+            isinstance(value[key], str)
+            and re.fullmatch(
+                r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z",
+                value[key],
+            )
+            is not None
+            for key in ("acquired_at_utc", "completed_at_utc")
+        )
+        and str(value["completed_at_utc"]) >= str(value["acquired_at_utc"])
+    )
+    if not valid:
+        raise MonitorError(f"launcher completion is malformed: {path}")
+    receipt = {
+        "acquired_at_utc": value["acquired_at_utc"],
+        "lane": value["lane"],
+        "owner": value["owner"],
+        "pid": value["pid"],
+        "process_start_ticks": value["process_start_ticks"],
+        "schema_version": REGISTRY_SCHEMA,
+        "script_path": value["script_path"],
+        "target_run_id_prefixes": value["target_run_id_prefixes"],
+    }
+    canonical = (
+        json.dumps(receipt, sort_keys=True, separators=(",", ":")) + "\n"
+    ).encode("utf-8")
+    if hashlib.sha256(canonical).hexdigest() != value["receipt_sha256"]:
+        raise MonitorError(
+            f"launcher completion does not reconstruct its bound receipt: {path}"
+        )
+    return value
+
+
 def _live_registry_targets(config: Config) -> dict[str, object]:
-    """Return one PID/start-tick-validated live queue receipt, if present."""
+    """Return one live receipt plus the latest durable terminal record."""
     if not config.launcher_registry_dirs:
         return {
             "state": "disabled",
             "lane": config.launcher_lane,
             "receipt": None,
+            "registration_key": None,
             "prefixes": [],
+            "completions": [],
+            "latest_completion": None,
             "error": None,
         }
     matches: list[tuple[Path, Mapping[str, object]]] = []
+    orphans: list[tuple[Path, Mapping[str, object]]] = []
+    completions: list[tuple[str, Path, Mapping[str, object]]] = []
     try:
         for directory in config.launcher_registry_dirs:
             if directory.is_symlink() or not directory.is_dir():
@@ -211,28 +316,115 @@ def _live_registry_targets(config: Config) -> dict[str, object]:
                     continue
                 pid = int(receipt["pid"])
                 if _process_start_ticks(pid) != int(receipt["process_start_ticks"]):
+                    orphans.append((path, receipt))
                     continue
                 matches.append((path, receipt))
+            completion_dir = directory.parent / "launcher-completions"
+            if completion_dir.exists() or completion_dir.is_symlink():
+                if completion_dir.is_symlink() or not completion_dir.is_dir():
+                    raise MonitorError(
+                        f"launcher completion directory is unsafe: {completion_dir}"
+                    )
+                for path in sorted(completion_dir.glob("*.json")):
+                    completion = _validated_completion(path)
+                    if config.launcher_lane and completion["lane"] != config.launcher_lane:
+                        continue
+                    completions.append(
+                        (str(completion["completed_at_utc"]), path, completion)
+                    )
         if len(matches) > 1:
             names = ", ".join(str(path) for path, _ in matches)
             raise MonitorError(f"multiple live launcher receipts own the lane: {names}")
+        if matches and orphans:
+            raise MonitorError("live and orphaned launcher receipts coexist")
+        if len(orphans) > 1:
+            names = ", ".join(str(path) for path, _ in orphans)
+            raise MonitorError(f"multiple orphaned launcher receipts own the lane: {names}")
     except MonitorError as exc:
         return {
             "state": "error",
             "lane": config.launcher_lane,
             "receipt": None,
+            "registration_key": None,
             "prefixes": [],
+            "completions": [],
+            "latest_completion": None,
             "error": str(exc),
+        }
+    completion_records = [
+        {
+            **completion,
+            "path": str(completion_path),
+            "record_sha256": _file_sha256(completion_path),
+        }
+        for _, completion_path, completion in sorted(
+            completions,
+            key=lambda item: (
+                item[0],
+                str(item[2]["acquired_at_utc"]),
+                int(item[2]["process_start_ticks"]),
+                int(item[2]["pid"]),
+                str(item[1]),
+            ),
+        )
+    ]
+    latest_completion = completion_records[-1] if completion_records else None
+    if orphans:
+        path, receipt = orphans[0]
+        receipt_sha256 = _file_sha256(path)
+        has_completion = receipt_sha256 in {
+            item["receipt_sha256"] for item in completion_records
+        }
+        return {
+            "state": "terminalized_orphan" if has_completion else "orphaned",
+            "lane": receipt["lane"],
+            "receipt": str(path),
+            "registration_key": receipt_sha256,
+            "prefixes": list(receipt["target_run_id_prefixes"]),
+            "script_path": receipt["script_path"],
+            "pid": receipt["pid"],
+            "process_start_ticks": receipt["process_start_ticks"],
+            "acquired_at_utc": receipt["acquired_at_utc"],
+            "completions": completion_records,
+            "latest_completion": latest_completion,
+            "error": (
+                "launcher receipt owner died after terminal publication; cleanup required"
+                if has_completion
+                else "launcher receipt owner is dead without terminal completion"
+            ),
         }
     if not matches:
         return {
             "state": "no_live_receipt",
             "lane": config.launcher_lane,
             "receipt": None,
+            "registration_key": None,
             "prefixes": [],
+            "completions": completion_records,
+            "latest_completion": latest_completion,
             "error": None,
         }
     path, receipt = matches[0]
+    receipt_sha256 = _file_sha256(path)
+    if (
+        latest_completion is not None
+        and latest_completion["receipt_sha256"] == receipt_sha256
+    ):
+        return {
+            "state": "terminalizing",
+            "lane": receipt["lane"],
+            "receipt": str(path),
+            "owner": receipt["owner"],
+            "pid": receipt["pid"],
+            "process_start_ticks": receipt["process_start_ticks"],
+            "acquired_at_utc": receipt["acquired_at_utc"],
+            "script_path": receipt["script_path"],
+            "registration_key": receipt_sha256,
+            "prefixes": list(receipt["target_run_id_prefixes"]),
+            "completions": completion_records,
+            "latest_completion": latest_completion,
+            "error": None,
+        }
     return {
         "state": "live",
         "lane": receipt["lane"],
@@ -240,7 +432,12 @@ def _live_registry_targets(config: Config) -> dict[str, object]:
         "owner": receipt["owner"],
         "pid": receipt["pid"],
         "process_start_ticks": receipt["process_start_ticks"],
+        "acquired_at_utc": receipt["acquired_at_utc"],
+        "script_path": receipt["script_path"],
+        "registration_key": receipt_sha256,
         "prefixes": list(receipt["target_run_id_prefixes"]),
+        "completions": completion_records,
+        "latest_completion": latest_completion,
         "error": None,
     }
 
@@ -311,7 +508,39 @@ def _summary(
         )
         if isinstance(value, str) and _epoch(value) is not None
     ]
-    all_values = tuple(_strings(row)) if prefixes else ()
+    run_id: str | None = None
+    if prefixes:
+        template = spec.get("template", {})
+        task_spec = template.get("spec", {}) if isinstance(template, Mapping) else {}
+        containers = (
+            task_spec.get("containers", []) if isinstance(task_spec, Mapping) else []
+        )
+        if not isinstance(containers, list):
+            raise ProviderError(f"{name} execution containers are malformed")
+        run_id_values: list[object] = []
+        for container in containers:
+            if not isinstance(container, Mapping):
+                raise ProviderError(f"{name} execution container is malformed")
+            env = container.get("env", [])
+            if not isinstance(env, list):
+                raise ProviderError(f"{name} execution environment is malformed")
+            for entry in env:
+                if not isinstance(entry, Mapping):
+                    raise ProviderError(f"{name} execution environment entry is malformed")
+                if entry.get("name") == "RUN_ID":
+                    run_id_values.append(entry.get("value"))
+        if len(run_id_values) > 1:
+            raise ProviderError(f"{name} has duplicate RUN_ID environment entries")
+        if run_id_values:
+            value = run_id_values[0]
+            if not isinstance(value, str) or not value:
+                raise ProviderError(f"{name} RUN_ID is malformed")
+            run_id = value
+
+    def matches_prefix(prefix: str) -> bool:
+        if run_id is None:
+            return False
+        return run_id.startswith(f"{prefix}-")
     return {
         "name": name,
         "uid": metadata.get("uid"),
@@ -325,8 +554,9 @@ def _summary(
         "counts": counts,
         "task_count": _count(spec.get("taskCount"), f"{name}.taskCount"),
         "last_provider_transition_at": max(provider_times, key=_epoch, default=None),
+        "run_id": run_id,
         "matched_expected_prefixes": [
-            prefix for prefix in prefixes if any(prefix in value for value in all_values)
+            prefix for prefix in prefixes if matches_prefix(prefix)
         ],
         "stale": False,
     }
@@ -454,6 +684,216 @@ def _alert_signature(alert: Mapping[str, object]) -> str:
     return json.dumps(fields, sort_keys=True, separators=(",", ":"))
 
 
+def _registered_coordinator_status(
+    config: Config,
+    registry: Mapping[str, object],
+    previous: Mapping[str, object] | None,
+    *,
+    retained_prefixes: tuple[str, ...],
+    provider_cohort_state: str,
+    observed: float,
+) -> dict[str, object]:
+    """Follow a live receipt into its immutable terminal completion record."""
+    prior = _old_mapping(previous, "registered_coordinator")
+    completion_by_key = {
+        str(item["receipt_sha256"]): item
+        for item in registry.get("completions", [])
+        if isinstance(item, Mapping)
+        and isinstance(item.get("receipt_sha256"), str)
+    }
+    latest_completion = registry.get("latest_completion")
+    newer_than_prior_terminal = bool(
+        isinstance(latest_completion, Mapping)
+        and prior.get("state") in ("succeeded", "failed")
+        and latest_completion.get("receipt_sha256") != prior.get("registration_key")
+        and prior.get("registration_key") in completion_by_key
+    )
+    if registry.get("state") == "live":
+        registration_key = registry.get("registration_key")
+        prefixes = tuple(str(value) for value in registry.get("prefixes", []))
+        coordinator = {
+            "state": "running",
+            "exit_status": None,
+            "acquired_at_utc": registry.get("acquired_at_utc"),
+            "script_path": registry.get("script_path"),
+            "pid": registry.get("pid"),
+            "process_start_ticks": registry.get("process_start_ticks"),
+            "completion_path": None,
+            "completion_record_sha256": None,
+            "error": None,
+        }
+        source = "live_launcher_receipt"
+    elif registry.get("state") in ("terminalizing", "terminalized_orphan"):
+        completion = completion_by_key[str(registry["registration_key"])]
+        registration_key = completion.get("receipt_sha256")
+        prefixes = tuple(completion.get("target_run_id_prefixes", []))
+        exit_status = int(completion["exit_status"])
+        coordinator = {
+            "state": "succeeded" if exit_status == 0 else "failed",
+            "exit_status": exit_status,
+            "acquired_at_utc": completion.get("acquired_at_utc"),
+            "script_path": completion.get("script_path"),
+            "pid": completion.get("pid"),
+            "process_start_ticks": completion.get("process_start_ticks"),
+            "completion_path": completion.get("path"),
+            "completion_record_sha256": completion.get("record_sha256"),
+            "completed_at_utc": completion.get("completed_at_utc"),
+            "error": None,
+        }
+        source = (
+            "terminalizing_launcher_receipt"
+            if registry.get("state") == "terminalizing"
+            else "terminalized_orphan_receipt"
+        )
+    elif registry.get("state") == "orphaned":
+        registration_key = registry.get("registration_key")
+        prefixes = tuple(str(value) for value in registry.get("prefixes", []))
+        coordinator = {
+            "state": "orphaned",
+            "exit_status": None,
+            "acquired_at_utc": registry.get("acquired_at_utc"),
+            "script_path": registry.get("script_path"),
+            "pid": registry.get("pid"),
+            "process_start_ticks": registry.get("process_start_ticks"),
+            "completion_path": None,
+            "completion_record_sha256": None,
+            "error": registry.get("error"),
+        }
+        source = "orphaned_launcher_receipt"
+    elif (
+        isinstance(prior.get("registration_key"), str)
+        and prior["registration_key"] in completion_by_key
+        and (
+            prior.get("state") in ("running", "terminal_record_missing")
+            or (
+                prior.get("state") in ("succeeded", "failed")
+                and not newer_than_prior_terminal
+            )
+        )
+    ):
+        completion = completion_by_key[str(prior["registration_key"])]
+        registration_key = completion.get("receipt_sha256")
+        prefixes = tuple(completion.get("target_run_id_prefixes", []))
+        exit_status = int(completion["exit_status"])
+        coordinator = {
+            "state": "succeeded" if exit_status == 0 else "failed",
+            "exit_status": exit_status,
+            "acquired_at_utc": completion.get("acquired_at_utc"),
+            "script_path": completion.get("script_path"),
+            "pid": completion.get("pid"),
+            "process_start_ticks": completion.get("process_start_ticks"),
+            "completion_path": completion.get("path"),
+            "completion_record_sha256": completion.get("record_sha256"),
+            "completed_at_utc": completion.get("completed_at_utc"),
+            "error": None,
+        }
+        if (
+            isinstance(prior.get("completion_record_sha256"), str)
+            and prior["completion_record_sha256"]
+            != completion.get("record_sha256")
+        ):
+            coordinator["state"] = "failed"
+            coordinator["error"] = "immutable completion record changed after observation"
+        source = "terminal_launcher_record"
+    elif isinstance(latest_completion, Mapping) and (
+        not prior or newer_than_prior_terminal
+    ):
+        # Recency is only a safe selector on cold start. After observing a live
+        # receipt, its exact hash is the only record allowed to settle it.
+        completion = latest_completion
+        registration_key = completion.get("receipt_sha256")
+        prefixes = tuple(completion.get("target_run_id_prefixes", []))
+        exit_status = int(completion["exit_status"])
+        coordinator = {
+            "state": "succeeded" if exit_status == 0 else "failed",
+            "exit_status": exit_status,
+            "acquired_at_utc": completion.get("acquired_at_utc"),
+            "script_path": completion.get("script_path"),
+            "pid": completion.get("pid"),
+            "process_start_ticks": completion.get("process_start_ticks"),
+            "completion_path": completion.get("path"),
+            "completion_record_sha256": completion.get("record_sha256"),
+            "completed_at_utc": completion.get("completed_at_utc"),
+            "error": None,
+        }
+        source = "terminal_launcher_record_cold_start"
+    elif (
+        isinstance(prior.get("registration_key"), str)
+        and prior.get("registration_key")
+        and tuple(prior.get("prefixes", [])) == retained_prefixes
+        and retained_prefixes
+    ):
+        registration_key = prior["registration_key"]
+        prefixes = retained_prefixes
+        coordinator = {
+            "state": "terminal_record_missing",
+            "exit_status": None,
+            "acquired_at_utc": prior.get("acquired_at_utc"),
+            "script_path": prior.get("script_path"),
+            "pid": prior.get("pid"),
+            "process_start_ticks": prior.get("process_start_ticks"),
+            "completion_path": None,
+            "completion_record_sha256": None,
+            "error": "live receipt disappeared without a terminal completion",
+        }
+        source = "retained_after_launcher_exit"
+    else:
+        registration_key = None
+        prefixes = ()
+        coordinator = {
+            "state": "untracked",
+            "exit_status": None,
+            "acquired_at_utc": None,
+            "script_path": None,
+            "pid": None,
+            "process_start_ticks": None,
+            "completion_path": None,
+            "completion_record_sha256": None,
+            "error": None,
+        }
+        source = "none"
+
+    same_registration = prior.get("registration_key") == registration_key
+    if provider_cohort_state == "succeeded":
+        prior_since = (
+            prior.get("provider_succeeded_since_epoch")
+            if same_registration
+            else None
+        )
+        provider_since = (
+            float(prior_since)
+            if isinstance(prior_since, (int, float))
+            else observed
+        )
+        post_provider_seconds: int | None = max(0, int(observed - provider_since))
+    else:
+        provider_since = None
+        post_provider_seconds = None
+
+    state = str(coordinator["state"])
+    if state in ("failed", "orphaned"):
+        acceptance_state = "failed"
+    elif provider_cohort_state != "succeeded":
+        acceptance_state = "waiting_for_provider"
+    elif state == "succeeded":
+        acceptance_state = "succeeded"
+    elif state == "running":
+        acceptance_state = "post_provider_pending"
+    elif state == "untracked":
+        acceptance_state = "provider_only"
+    else:
+        acceptance_state = "unverifiable"
+    return {
+        **coordinator,
+        "acceptance_state": acceptance_state,
+        "registration_key": registration_key,
+        "prefixes": list(prefixes),
+        "source": source,
+        "provider_succeeded_since_epoch": provider_since,
+        "post_provider_seconds": post_provider_seconds,
+    }
+
+
 def collect_status(
     config: Config,
     previous: Mapping[str, object] | None,
@@ -469,9 +909,114 @@ def collect_status(
         previous = None
     registry = _live_registry_targets(config)
     previous_queue = _old_mapping(previous, "authorized_queue")
-    if registry["state"] == "live":
+    previous_coordinator = _old_mapping(previous, "registered_coordinator")
+    completion_records = [
+        item for item in registry.get("completions", []) if isinstance(item, Mapping)
+    ]
+    completion_by_key = {
+        str(item["receipt_sha256"]): item
+        for item in completion_records
+        if isinstance(item.get("receipt_sha256"), str)
+    }
+    prior_seen = {
+        str(value) for value in (previous or {}).get("seen_completion_keys", [])
+    }
+    current_keys = set(completion_by_key)
+    prior_completions = _old_mapping(previous, "launcher_completions")
+    changed_completion_keys = sorted(
+        key
+        for key in current_keys & set(prior_completions)
+        if isinstance(prior_completions.get(key), Mapping)
+        and prior_completions[key].get("record_sha256")
+        != completion_by_key[key].get("record_sha256")
+    )
+    new_completion_keys = sorted(current_keys - prior_seen)
+    new_failure_keys = {
+        key
+        for key in new_completion_keys
+        if int(completion_by_key[key]["exit_status"]) != 0
+    }
+    missing_completion_keys = sorted(prior_seen - current_keys)
+    completion_integrity_failure_keys = {
+        str(value)
+        for value in (previous or {}).get("completion_integrity_failure_keys", [])
+    }
+    completion_integrity_failure_keys.update(changed_completion_keys)
+    completion_integrity_failure_keys.update(missing_completion_keys)
+    prior_blockers = {
+        str(value)
+        for value in (previous or {}).get("blocking_completion_failure_keys", [])
+    }
+    latest_for_tracking = registry.get("latest_completion")
+    advance_to_latest_terminal = bool(
+        isinstance(latest_for_tracking, Mapping)
+        and previous_coordinator.get("state") in ("succeeded", "failed")
+        and latest_for_tracking.get("receipt_sha256")
+        != previous_coordinator.get("registration_key")
+        and previous_coordinator.get("registration_key") in completion_by_key
+    )
+    if registry.get("state") in (
+        "live", "orphaned", "terminalizing", "terminalized_orphan"
+    ):
+        tracked_registration_key = registry.get("registration_key")
+    elif advance_to_latest_terminal:
+        tracked_registration_key = latest_for_tracking.get("receipt_sha256")
+    elif isinstance(previous_coordinator.get("registration_key"), str):
+        tracked_registration_key = previous_coordinator["registration_key"]
+    elif isinstance(latest_for_tracking, Mapping):
+        tracked_registration_key = latest_for_tracking.get("receipt_sha256")
+    else:
+        tracked_registration_key = None
+    # A new live receipt explicitly rearms the lane. Historical failures stay
+    # in the attention ledger, but no longer determine the new cohort.
+    rearmed_live_receipt = registry.get("state") == "live" and (
+        registry.get("registration_key")
+        != previous_coordinator.get("registration_key")
+    )
+    if rearmed_live_receipt:
+        prior_blockers.clear()
+    # A replacement live receipt starts a new effective cohort, but it must
+    # not erase newly discovered terminal failures from the prior cohort.
+    # Those failures still emit and latch below; they simply do not poison B.
+    blocking_failure_keys = {
+        key for key in prior_blockers if key == tracked_registration_key
+    } | (
+        set()
+        if rearmed_live_receipt
+        else {key for key in new_failure_keys if key == tracked_registration_key}
+    )
+    latest_completion = registry.get("latest_completion")
+    completion_follows_previous = bool(
+        isinstance(latest_completion, Mapping)
+        and (
+            not isinstance(previous_coordinator.get("acquired_at_utc"), str)
+            or str(latest_completion.get("acquired_at_utc", ""))
+            >= str(previous_coordinator["acquired_at_utc"])
+        )
+    )
+    if registry["state"] in (
+        "live", "orphaned", "terminalizing", "terminalized_orphan"
+    ):
         registry_prefixes = tuple(str(value) for value in registry["prefixes"])
-        queue_source = "live_launcher_receipt"
+        queue_source = (
+            "live_launcher_receipt"
+            if registry["state"] in ("live", "terminalizing", "terminalized_orphan")
+            else "orphaned_launcher_receipt"
+        )
+    elif (
+        previous_coordinator.get("state")
+        in ("running", "terminal_record_missing")
+        and isinstance(previous_queue.get("prefixes"), list)
+        and previous_queue.get("prefixes")
+    ):
+        registry_prefixes = tuple(str(value) for value in previous_queue["prefixes"])
+        queue_source = "retained_for_exact_coordinator"
+    elif isinstance(latest_completion, Mapping) and completion_follows_previous:
+        registry_prefixes = tuple(
+            str(value)
+            for value in latest_completion["target_run_id_prefixes"]
+        )
+        queue_source = "terminal_launcher_record"
     elif isinstance(previous_queue.get("prefixes"), list) and previous_queue.get(
         "prefixes"
     ):
@@ -540,7 +1085,15 @@ def collect_status(
         )
         matches = [str(item["name"]) for item in matched_items]
         states = {str(item["name"]): str(item["state"]) for item in matched_items}
-        state = "claimed" if matches else ("unclaimed" if lab_ok else "unknown")
+        state = (
+            "duplicate"
+            if len(matches) > 1
+            else "claimed"
+            if matches
+            else "unclaimed"
+            if lab_ok
+            else "unknown"
+        )
         prefix_status[prefix] = {
             "state": state,
             "execution_names": matches,
@@ -549,6 +1102,8 @@ def collect_status(
 
     if not lab_ok:
         cohort_state = "unknown"
+    elif any(item["state"] == "duplicate" for item in prefix_status.values()):
+        cohort_state = "failed"
     elif not expected_prefixes or any(
         item["state"] == "unclaimed" for item in prefix_status.values()
     ):
@@ -567,6 +1122,35 @@ def collect_status(
             cohort_state = "succeeded"
         else:
             cohort_state = "unknown"
+
+    registered_coordinator = _registered_coordinator_status(
+        config,
+        registry,
+        previous,
+        retained_prefixes=registry_prefixes,
+        provider_cohort_state=cohort_state,
+        observed=observed,
+    )
+    if (
+        registered_coordinator.get("registration_key")
+        in completion_integrity_failure_keys
+    ):
+        registered_coordinator = {
+            **registered_coordinator,
+            "state": "failed",
+            "acceptance_state": "failed",
+            "error": "registered completion evidence failed immutable-ledger integrity",
+        }
+
+    acceptance_state = str(registered_coordinator["acceptance_state"])
+    if cohort_state == "failed" or blocking_failure_keys or acceptance_state == "failed":
+        effective_cohort_state = "failed"
+    elif cohort_state == "succeeded" and acceptance_state == "succeeded":
+        effective_cohort_state = "succeeded"
+    elif cohort_state == "succeeded" and config.launcher_registry_dirs:
+        effective_cohort_state = "pending_acceptance"
+    else:
+        effective_cohort_state = cohort_state
 
     progress: dict[str, object] = {}
     for key, item in fresh.items():
@@ -589,9 +1173,116 @@ def collect_status(
             lane=config.launcher_lane,
             error=registry["error"],
         )
+    elif registry["state"] == "orphaned":
+        key = registry.get("registration_key")
+        alerts[f"registered-coordinator-orphaned:{key}"] = _alert(
+            "registered_coordinator_orphaned",
+            "error",
+            coordinator=registry.get("script_path"),
+            registration_key=key,
+            state="orphaned",
+            reason="launcher receipt owner died without terminal completion",
+            prefixes=registry.get("prefixes", []),
+        )
+    elif registry["state"] == "terminalized_orphan":
+        key = registry.get("registration_key")
+        alerts[f"registered-coordinator-cleanup-required:{key}"] = _alert(
+            "registered_coordinator_cleanup_required",
+            "error",
+            coordinator=registry.get("script_path"),
+            registration_key=key,
+            state="terminalized_orphan",
+            reason="terminal completion exists but orphan receipt blocks reacquisition",
+            prefixes=registry.get("prefixes", []),
+        )
+    for key in sorted(completion_integrity_failure_keys):
+        if key not in missing_completion_keys:
+            continue
+        alerts[f"launcher-completion-missing:{key}"] = _alert(
+            "launcher_completion_record_missing",
+            "error",
+            registration_key=key,
+            reason="previously observed immutable completion disappeared",
+        )
+    for key in sorted(completion_integrity_failure_keys):
+        if key not in current_keys:
+            continue
+        alerts[f"launcher-completion-changed:{key}"] = _alert(
+            "launcher_completion_record_changed",
+            "error",
+            registration_key=key,
+            reason="previously observed immutable completion changed",
+            previous_record_sha256=(
+                prior_completions[key].get("record_sha256")
+                if isinstance(prior_completions.get(key), Mapping)
+                else None
+            ),
+            current_record_sha256=completion_by_key[key].get("record_sha256"),
+        )
+    for key in sorted(blocking_failure_keys | new_failure_keys):
+        completion = completion_by_key.get(key)
+        if completion is None:
+            continue
+        alerts[f"registered-coordinator-failure:{key}"] = _alert(
+            "registered_coordinator_failed",
+            "error",
+            coordinator=completion.get("script_path"),
+            registration_key=key,
+            state="failed",
+            reason="nonzero coordinator exit",
+            exit_status=completion.get("exit_status"),
+            completion_path=completion.get("path"),
+            prefixes=completion.get("target_run_id_prefixes", []),
+            provider_cohort_state=cohort_state,
+        )
+    coordinator_state = registered_coordinator["state"]
+    coordinator_identity = registered_coordinator["registration_key"]
+    if coordinator_state == "failed" and not blocking_failure_keys:
+        alerts[f"registered-coordinator-failure:{coordinator_identity}"] = _alert(
+            "registered_coordinator_failed",
+            "error",
+            coordinator=registered_coordinator.get("script_path"),
+            registration_key=coordinator_identity,
+            state=coordinator_state,
+            reason="nonzero coordinator exit",
+            exit_status=registered_coordinator.get("exit_status"),
+            completion_path=registered_coordinator.get("completion_path"),
+            prefixes=registered_coordinator["prefixes"],
+            provider_cohort_state=cohort_state,
+        )
+    elif (
+        registered_coordinator["acceptance_state"]
+        in ("post_provider_pending", "unverifiable")
+        and isinstance(registered_coordinator.get("post_provider_seconds"), int)
+        and registered_coordinator["post_provider_seconds"]
+        >= config.coordinator_post_provider_grace_seconds
+    ):
+        alerts[f"registered-coordinator-post-provider:{coordinator_identity}"] = _alert(
+            "registered_coordinator_post_provider_pending",
+            "error",
+            coordinator=registered_coordinator.get("script_path"),
+            registration_key=coordinator_identity,
+            state=coordinator_state,
+            reason="provider_succeeded_but_coordinator_did_not_confirm_acceptance",
+            prefixes=registered_coordinator["prefixes"],
+            provider_cohort_state=cohort_state,
+            post_provider_seconds=registered_coordinator["post_provider_seconds"],
+            grace_seconds=config.coordinator_post_provider_grace_seconds,
+        )
     for job, error in errors:
         alerts[f"provider-query:{job}"] = _alert(
             "provider_query_failed", "error", job=job, error=error
+        )
+    for prefix, item in prefix_status.items():
+        if item["state"] != "duplicate":
+            continue
+        alerts[f"duplicate-prefix-claim:{prefix}"] = _alert(
+            "duplicate_prefix_claim",
+            "error",
+            prefix=prefix,
+            state="duplicate",
+            reason="authorized prefix matched more than one provider execution",
+            execution_names=item["execution_names"],
         )
     if lab_ok:
         for job in config.jobs:
@@ -750,7 +1441,20 @@ def collect_status(
             "available_jobs": available_jobs,
         },
         "expected_prefixes": prefix_status,
-        "cohort": {"state": cohort_state},
+        "cohort": {
+            "state": effective_cohort_state,
+            "provider_state": cohort_state,
+            "acceptance_state": acceptance_state,
+        },
+        "registered_coordinator": registered_coordinator,
+        "seen_completion_keys": sorted(current_keys),
+        "new_completion_keys": new_completion_keys,
+        "changed_completion_keys": changed_completion_keys,
+        "completion_integrity_failure_keys": sorted(
+            completion_integrity_failure_keys
+        ),
+        "blocking_completion_failure_keys": sorted(blocking_failure_keys),
+        "launcher_completions": completion_by_key,
         "executions": executions,
         "e4_execution_key": e4_key,
         "progress": progress,
@@ -765,6 +1469,29 @@ def transition_events(
     """Build transition-only event records for stdout/journald."""
     base = {"schema_version": EVENT_SCHEMA, "at": current["observed_at"]}
     alerts = _old_mapping(current, "alerts")
+    completions = _old_mapping(current, "launcher_completions")
+    completion_events: list[dict[str, object]] = []
+    for key in current.get("new_completion_keys", []):
+        item = completions.get(key)
+        if not isinstance(key, str) or not isinstance(item, Mapping):
+            continue
+        exit_status = item.get("exit_status")
+        completion_events.append(
+            {
+                **base,
+                "event": (
+                    "registered_coordinator_accepted"
+                    if exit_status == 0
+                    else "registered_coordinator_failed"
+                ),
+                "registration_key": key,
+                "coordinator": item.get("script_path"),
+                "prefixes": item.get("target_run_id_prefixes", []),
+                "exit_status": exit_status,
+                "effective_state": _old_mapping(current, "cohort").get("state"),
+                "recovered": previous is None,
+            }
+        )
     if (
         previous is None
         or previous.get("monitor") != current.get("monitor")
@@ -772,12 +1499,13 @@ def transition_events(
     ):
         return [
             {**base, "event": "monitor_started", "lane_state": current["lane"]["state"]},
+            *completion_events,
             *(
                 {**base, "event": "alert_raised", "key": key, "alert": alert}
                 for key, alert in sorted(alerts.items())
             ),
         ]
-    events: list[dict[str, object]] = []
+    events: list[dict[str, object]] = list(completion_events)
     before_exec = _old_mapping(previous, "executions")
     after_exec = _old_mapping(current, "executions")
     for key, item in sorted(after_exec.items()):
@@ -821,6 +1549,31 @@ def transition_events(
                 "event": "cohort_transition",
                 "before": old_cohort,
                 "after": new_cohort,
+            }
+        )
+    old_coordinator = _old_mapping(previous, "registered_coordinator")
+    new_coordinator = _old_mapping(current, "registered_coordinator")
+    coordinator_fields = (
+        "registration_key",
+        "exit_status",
+        "state",
+        "acceptance_state",
+    )
+    before_coordinator = {
+        key: old_coordinator.get(key) for key in coordinator_fields
+    }
+    after_coordinator = {
+        key: new_coordinator.get(key) for key in coordinator_fields
+    }
+    if before_coordinator != after_coordinator:
+        events.append(
+            {
+                **base,
+                "event": "registered_coordinator_transition",
+                "coordinator": new_coordinator.get("script_path")
+                or old_coordinator.get("script_path"),
+                "before": before_coordinator,
+                "after": after_coordinator,
             }
         )
     old_prefixes = _old_mapping(previous, "expected_prefixes")
@@ -990,6 +1743,36 @@ def update_attention(
                 "cleared_at": event["at"],
                 "alert": event.get("alert", prior.get("alert")),
             }
+    # Reconcile from the authoritative current snapshot on every poll. This
+    # repairs a crash after status replacement but before attention replacement
+    # without requiring the alert transition to occur a second time.
+    current_alerts = _old_mapping(current, "alerts")
+    for key, alert in current_alerts.items():
+        if not isinstance(key, str) or not isinstance(alert, Mapping):
+            continue
+        prior = entries.get(key)
+        if prior is None:
+            entries[key] = {
+                "state": "active",
+                "first_raised_at": current["observed_at"],
+                "last_changed_at": current["observed_at"],
+                "cleared_at": None,
+                "acknowledged_at": None,
+                "occurrences": 1,
+                "alert": alert,
+            }
+        elif prior.get("state") != "active":
+            entries[key] = {
+                **prior,
+                "state": "active",
+                "last_changed_at": current["observed_at"],
+                "cleared_at": None,
+                "acknowledged_at": None,
+                "occurrences": int(prior.get("occurrences", 0)) + 1,
+                "alert": alert,
+            }
+        else:
+            entries[key] = {**prior, "alert": alert}
     notification = current.get("notification", {})
     return {
         "schema_version": ATTENTION_SCHEMA,
@@ -1056,7 +1839,7 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
 def _notification_event_id(event: Mapping[str, object]) -> str:
     material = {
         key: event.get(key)
-        for key in ("event", "key", "at", "after", "alert")
+        for key in ("event", "key", "registration_key", "at", "after", "alert")
     }
     return json.dumps(material, sort_keys=True, separators=(",", ":"))
 
@@ -1067,6 +1850,9 @@ def _notifiable_events(events: Iterable[Mapping[str, object]]) -> list[dict[str,
         kind = event.get("event")
         if kind in ("alert_raised", "alert_updated") or (
             kind == "cohort_transition" and event.get("after") in ("failed", "succeeded")
+        ) or (
+            kind == "registered_coordinator_accepted"
+            and event.get("effective_state") == "succeeded"
         ):
             selected.append(dict(event))
     return selected
@@ -1079,7 +1865,11 @@ def _notification_text(events: list[Mapping[str, object]]) -> tuple[str, str]:
         for event in events
     )
     if any(
-        event.get("event") == "cohort_transition" and event.get("after") == "succeeded"
+        (
+            event.get("event") == "cohort_transition"
+            and event.get("after") == "succeeded"
+        )
+        or event.get("event") == "registered_coordinator_accepted"
         for event in events
     ) and not errors:
         title = "NFL cloud cohort completed"
@@ -1089,6 +1879,9 @@ def _notification_text(events: list[Mapping[str, object]]) -> tuple[str, str]:
     for event in events[:5]:
         if event.get("event") == "cohort_transition":
             details.append(f"cohort is {event.get('after')}")
+            continue
+        if event.get("event") == "registered_coordinator_accepted":
+            details.append("coordinator accepted provider results")
             continue
         alert = event.get("alert", {})
         if not isinstance(alert, Mapping):
@@ -1105,6 +1898,14 @@ def _notification_text(events: list[Mapping[str, object]]) -> tuple[str, str]:
             details.append(f"{execution}: queue target unclaimed while a lane is free")
         elif kind in ("provider_query_failed", "exact_e4_query_failed"):
             details.append(f"{execution}: provider query failed")
+        elif kind == "registered_coordinator_failed":
+            details.append(
+                f"{alert.get('coordinator')}: coordinator failed after provider work"
+            )
+        elif kind == "registered_coordinator_post_provider_pending":
+            details.append(
+                f"{alert.get('coordinator')}: provider succeeded but acceptance gate is pending"
+            )
         else:
             details.append(f"{execution}: {kind}")
     if len(events) > 5:
@@ -1288,6 +2089,11 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--launcher-lane")
     parser.add_argument("--queue-grace-seconds", type=_positive, default=120.0)
     parser.add_argument("--stall-seconds", type=_positive, default=3_600.0)
+    parser.add_argument(
+        "--coordinator-post-provider-grace-seconds",
+        type=_positive,
+        default=180.0,
+    )
     parser.add_argument("--e4-execution")
     parser.add_argument("--e4-project", default=DEFAULT_E4_PROJECT)
     parser.add_argument("--e4-stall-seconds", type=_positive, default=25_200.0)
@@ -1337,6 +2143,9 @@ def _config(args: argparse.Namespace) -> Config:
         launcher_lane=args.launcher_lane,
         queue_grace_seconds=args.queue_grace_seconds,
         stall_seconds=args.stall_seconds,
+        coordinator_post_provider_grace_seconds=(
+            args.coordinator_post_provider_grace_seconds
+        ),
         e4_execution=args.e4_execution,
         e4_project=args.e4_project,
         e4_stall_seconds=args.e4_stall_seconds,

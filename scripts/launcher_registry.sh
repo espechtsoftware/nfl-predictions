@@ -4,6 +4,7 @@
 # Usage:
 #   scripts/launcher_registry.sh run \
 #     --root /absolute/repository/root \
+#     --state-root /absolute/canonical/host/state \
 #     --lane cloud-run-job-name \
 #     --owner production \
 #     --target-prefixes run-prefix-a,run-prefix-b \
@@ -28,14 +29,20 @@ usage() {
 }
 
 ROOT=""
+STATE_ROOT=""
+STATE_ROOT_EXPLICIT=0
 LANE=""
 OWNER=""
 TARGET_PREFIXES=""
 REGISTRY_DIR=""
+COMPLETION_DIR=""
 LOCK_DIR=""
 LOG_PATH=""
 REGISTRATION=""
 REGISTRATION_SHA256=""
+COMPLETION_PATH=""
+ACQUIRED_AT=""
+SCRIPT_PATH=""
 LOCK_FD=""
 CHILD_PID=""
 CHILD_PGID=""
@@ -53,6 +60,50 @@ log_event() {
   fi
 }
 
+publish_terminal_record() {
+  local exit_status=$1 completed_at temp
+  [[ -n "$COMPLETION_PATH" ]] || return 0
+  [[ "$exit_status" =~ ^[0-9]+$ && "$exit_status" -le 255 ]] || return 1
+  completed_at=$(date -u +'%Y-%m-%dT%H:%M:%SZ') || return 1
+  temp=$(mktemp "$COMPLETION_DIR/.completion.XXXXXX") || return 1
+  if ! jq -cnS \
+      --arg schema shared-launcher-completion/v1 \
+      --arg acquired "$ACQUIRED_AT" \
+      --arg completed "$completed_at" \
+      --arg lane "$LANE" \
+      --arg owner "$OWNER" \
+      --arg script "$SCRIPT_PATH" \
+      --arg receipt_sha "$REGISTRATION_SHA256" \
+      --arg prefixes "$TARGET_PREFIXES" \
+      --argjson pid "$$" \
+      --argjson ticks "$PROCESS_START_TICKS" \
+      --argjson status "$exit_status" '{
+        schema_version:$schema,acquired_at_utc:$acquired,
+        completed_at_utc:$completed,lane:$lane,owner:$owner,
+        script_path:$script,pid:$pid,process_start_ticks:$ticks,
+        receipt_sha256:$receipt_sha,
+        target_run_id_prefixes:($prefixes | split(",")),exit_status:$status
+      }' >"$temp"; then
+    rm -f -- "$temp"
+    return 1
+  fi
+  chmod 0600 "$temp" || { rm -f -- "$temp"; return 1; }
+  sync -d "$temp" || { rm -f -- "$temp"; return 1; }
+  if ! ln "$temp" "$COMPLETION_PATH" 2>/dev/null; then
+    if [[ ! -f "$COMPLETION_PATH" || -L "$COMPLETION_PATH" ]] ||
+       ! cmp -s "$temp" "$COMPLETION_PATH"; then
+      rm -f -- "$temp"
+      return 1
+    fi
+  fi
+  rm -f -- "$temp"
+  if ! sync -f "$COMPLETION_DIR"; then
+    rm -f -- "$COMPLETION_PATH"
+    return 1
+  fi
+  log_event completed "receipt_sha256=$REGISTRATION_SHA256,exit_status=$exit_status,record=$COMPLETION_PATH"
+}
+
 process_start_ticks() {
   local pid=$1 stat rest
   [[ "$pid" =~ ^[1-9][0-9]*$ && -r "/proc/$pid/stat" ]] || return 1
@@ -67,8 +118,26 @@ process_start_ticks() {
 
 release_registry() {
   local cleanup_status=0 actual_sha
+  # The durable completion is already published when this runs. Clean up
+  # scratch state and release the flock before removing the receipt. If either
+  # earlier step fails, retain the receipt so the monitor reports a
+  # terminalized orphan instead of accepting a receiptless exit-status split.
+  if [[ -n "$CHILD_GROUP_FILE" ]]; then
+    if rm -f -- "$CHILD_GROUP_FILE"; then
+      CHILD_GROUP_FILE=""
+    else
+      cleanup_status=1
+    fi
+  fi
+  if [[ -n "$LOCK_FD" ]]; then
+    flock -u "$LOCK_FD" 2>/dev/null || cleanup_status=1
+    exec {LOCK_FD}>&-
+    LOCK_FD=""
+  fi
   if [[ -n "$REGISTRATION" && -e "$REGISTRATION" ]]; then
-    if [[ -f "$REGISTRATION" && ! -L "$REGISTRATION" ]]; then
+    if (( cleanup_status != 0 )); then
+      log_event cleanup_refused "prerequisite_cleanup_failed:$REGISTRATION"
+    elif [[ -f "$REGISTRATION" && ! -L "$REGISTRATION" ]]; then
       actual_sha=$(sha256sum "$REGISTRATION" | awk '{print $1}') || cleanup_status=1
       if [[ "$actual_sha" == "$REGISTRATION_SHA256" ]]; then
         rm -f -- "$REGISTRATION" || cleanup_status=1
@@ -81,24 +150,23 @@ release_registry() {
       cleanup_status=1
     fi
   fi
-  REGISTRATION=""
-  if [[ -n "$CHILD_GROUP_FILE" ]]; then
-    rm -f -- "$CHILD_GROUP_FILE" || cleanup_status=1
-    CHILD_GROUP_FILE=""
-  fi
-  if [[ -n "$LOCK_FD" ]]; then
-    flock -u "$LOCK_FD" 2>/dev/null || cleanup_status=1
-    exec {LOCK_FD}>&-
-    LOCK_FD=""
+  if (( cleanup_status == 0 )); then
+    REGISTRATION=""
   fi
   return "$cleanup_status"
 }
 
 exit_trap() {
-  local status=$1
+  local status=$1 cleanup_failed=0
   trap - EXIT INT TERM HUP
-  if ! release_registry; then
+  if ! publish_terminal_record "$status"; then
+    log_event completion_failed "receipt_sha256=$REGISTRATION_SHA256,exit_status=$status"
     [[ "$status" -ne 0 ]] || status=2
+    # Keep the receipt until process death. The persistent orphan prevents a
+    # contender from acquiring the lane without manual adjudication.
+  else
+    release_registry || cleanup_failed=1
+    if (( cleanup_failed )) && [[ "$status" -eq 0 ]]; then status=2; fi
   fi
   exit "$status"
 }
@@ -160,7 +228,11 @@ signal_trap() {
   wait_for_child_group
   CHILD_PID=""
   CHILD_PGID=""
-  release_registry || true
+  if ! publish_terminal_record "$status"; then
+    log_event completion_failed "receipt_sha256=$REGISTRATION_SHA256,exit_status=$status"
+  else
+    release_registry || true
+  fi
   exit "$status"
 }
 
@@ -186,7 +258,7 @@ validate_receipt_shape() {
 }
 
 clean_stale_same_lane_receipts() {
-  local receipt receipt_lane receipt_pid receipt_ticks live_ticks reason
+  local receipt receipt_lane receipt_pid receipt_ticks live_ticks
   for receipt in "$REGISTRY_DIR"/*; do
     [[ -e "$receipt" || -L "$receipt" ]] || continue
     validate_receipt_shape "$receipt" || \
@@ -199,14 +271,12 @@ clean_stale_same_lane_receipts() {
       if [[ "$live_ticks" == "$receipt_ticks" ]]; then
         die "live launcher already owns lane $LANE: $receipt (pid $receipt_pid)"
       fi
-      reason=pid_reused
+      die "launcher receipt owner identity changed; manual adjudication required: $receipt"
     elif kill -0 "$receipt_pid" 2>/dev/null; then
       die "launcher owner cannot be proven stale for lane $LANE: $receipt (pid $receipt_pid)"
     else
-      reason=pid_absent
+      die "launcher receipt owner is absent; surviving child work cannot be excluded; manual adjudication required: $receipt"
     fi
-    log_event stale_cleanup "reason=$reason,receipt=$receipt,recorded_pid=$receipt_pid"
-    rm -f -- "$receipt"
   done
 }
 
@@ -229,7 +299,7 @@ describe_lock_owner() {
 }
 
 acquire_registry() {
-  local lane_hash lock_path script_path script_name acquired_at temp receipt_owner
+  local lane_hash lock_path script_name temp receipt_owner
   lane_hash=$(printf '%s' "$LANE" | sha256sum | awk '{print $1}')
   lock_path="$LOCK_DIR/$lane_hash.lock"
   [[ ! -L "$lock_path" ]] || die "launcher lane lock cannot be a symlink: $lock_path"
@@ -243,27 +313,27 @@ acquire_registry() {
 
   clean_stale_same_lane_receipts
 
-  script_path=$(command -v -- "$1" 2>/dev/null || true)
-  [[ -n "$script_path" ]] || die "launcher command is not executable: $1"
-  script_path=$(readlink -f -- "$script_path")
-  [[ -f "$script_path" && -x "$script_path" ]] || \
-    die "launcher command path differs: $script_path"
-  script_name=${script_path##*/}
+  SCRIPT_PATH=$(command -v -- "$1" 2>/dev/null || true)
+  [[ -n "$SCRIPT_PATH" ]] || die "launcher command is not executable: $1"
+  SCRIPT_PATH=$(readlink -f -- "$SCRIPT_PATH")
+  [[ -f "$SCRIPT_PATH" && -x "$SCRIPT_PATH" ]] || \
+    die "launcher command path differs: $SCRIPT_PATH"
+  script_name=${SCRIPT_PATH##*/}
   [[ "$script_name" =~ ^[A-Za-z0-9._-]+$ ]] || die "launcher script name differs"
   REGISTRATION="$REGISTRY_DIR/$script_name-$$.json"
   [[ ! -e "$REGISTRATION" && ! -L "$REGISTRATION" ]] || \
     die "launcher registration already exists: $REGISTRATION"
-  acquired_at=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+  ACQUIRED_AT=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
   temp=$(mktemp "$REGISTRY_DIR/.registration.XXXXXX")
   jq -cnS \
     --arg schema shared-launcher-registry/v1 \
-    --arg script "$script_path" \
+    --arg script "$SCRIPT_PATH" \
     --argjson pid "$$" \
     --argjson ticks "$PROCESS_START_TICKS" \
     --arg owner "$OWNER" \
     --arg lane "$LANE" \
     --arg prefixes "$TARGET_PREFIXES" \
-    --arg acquired "$acquired_at" '{
+    --arg acquired "$ACQUIRED_AT" '{
       schema_version:$schema,script_path:$script,pid:$pid,
       process_start_ticks:$ticks,owner:$owner,lane:$lane,
       target_run_id_prefixes:($prefixes | split(",")),
@@ -276,7 +346,11 @@ acquire_registry() {
   fi
   rm -f -- "$temp"
   REGISTRATION_SHA256=$(sha256sum "$REGISTRATION" | awk '{print $1}')
-  log_event acquired "receipt=$REGISTRATION,script=$script_path,prefixes=$TARGET_PREFIXES"
+  [[ "$REGISTRATION_SHA256" =~ ^[0-9a-f]{64}$ ]] || die "launcher receipt hash differs"
+  COMPLETION_PATH="$COMPLETION_DIR/$REGISTRATION_SHA256.json"
+  [[ ! -e "$COMPLETION_PATH" && ! -L "$COMPLETION_PATH" ]] ||
+    die "launcher completion already exists: $COMPLETION_PATH"
+  log_event acquired "receipt=$REGISTRATION,script=$SCRIPT_PATH,prefixes=$TARGET_PREFIXES"
 }
 
 parse_run() {
@@ -287,6 +361,12 @@ parse_run() {
       --root)
         [[ $# -ge 2 ]] || usage
         ROOT=$2
+        shift 2
+        ;;
+      --state-root)
+        [[ $# -ge 2 ]] || usage
+        STATE_ROOT=$2
+        STATE_ROOT_EXPLICIT=1
         shift 2
         ;;
       --lane)
@@ -315,24 +395,41 @@ parse_run() {
   [[ "$ROOT" == /* && -d "$ROOT" && ! -L "$ROOT" ]] || \
     die "repository root must be one absolute real directory"
   ROOT=$(cd "$ROOT" && pwd -P)
+  [[ ! -L "$ROOT/.tmp" ]] || die "repository scratch root cannot be a symlink"
+  mkdir -p "$ROOT/.tmp"
+  [[ -d "$ROOT/.tmp" ]] || die "repository scratch root differs"
+  if [[ -z "$STATE_ROOT" ]]; then
+    STATE_ROOT="$ROOT/.tmp"
+  fi
+  [[ "$STATE_ROOT" == /* && ! -L "$STATE_ROOT" ]] ||
+    die "launcher state root must be one absolute real directory"
+  mkdir -p "$STATE_ROOT"
+  STATE_ROOT=$(cd "$STATE_ROOT" && pwd -P)
   [[ "$LANE" =~ ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ ]] || \
     die "launcher lane differs"
+  if [[ "$LANE" == nfl2-lab-jobs && (
+        "$STATE_ROOT_EXPLICIT" -ne 1 ||
+        "$STATE_ROOT" != /home/erich/.local/state/nfl-dfs/lab-launcher-registry
+      ) ]]; then
+    die "lane nfl2-lab-jobs requires canonical --state-root /home/erich/.local/state/nfl-dfs/lab-launcher-registry"
+  fi
   [[ "$OWNER" == production || "$OWNER" == lab ]] || die "launcher owner differs"
   [[ "$TARGET_PREFIXES" =~ ^[A-Za-z0-9][A-Za-z0-9._:-]*(,[A-Za-z0-9][A-Za-z0-9._:-]*)*$ ]] || \
     die "target run-id prefixes differ"
-  for tool in awk date flock jq mktemp ps readlink setsid sha256sum tr; do
+  for tool in awk cmp date flock jq mktemp ps readlink setsid sha256sum sync tr; do
     command -v "$tool" >/dev/null 2>&1 || die "required host tool is absent: $tool"
   done
 
-  [[ ! -L "$ROOT/.tmp" ]] || die "repository .tmp cannot be a symlink"
-  mkdir -p "$ROOT/.tmp"
-  REGISTRY_DIR="$ROOT/.tmp/launchers"
-  LOCK_DIR="$ROOT/.tmp/launcher-locks"
-  LOG_PATH="$ROOT/.tmp/launcher-registry.log"
-  [[ ! -L "$REGISTRY_DIR" && ! -L "$LOCK_DIR" && ! -L "$LOG_PATH" ]] || \
+  REGISTRY_DIR="$STATE_ROOT/launchers"
+  COMPLETION_DIR="$STATE_ROOT/launcher-completions"
+  LOCK_DIR="$STATE_ROOT/launcher-locks"
+  LOG_PATH="$STATE_ROOT/launcher-registry.log"
+  [[ ! -L "$REGISTRY_DIR" && ! -L "$COMPLETION_DIR" && ! -L "$LOCK_DIR" && ! -L "$LOG_PATH" ]] || \
     die "launcher registry paths cannot be symlinks"
-  mkdir -p "$REGISTRY_DIR" "$LOCK_DIR"
-  [[ -d "$REGISTRY_DIR" && -d "$LOCK_DIR" ]] || die "launcher registry directories differ"
+  mkdir -p "$REGISTRY_DIR" "$COMPLETION_DIR" "$LOCK_DIR"
+  chmod 0700 "$COMPLETION_DIR"
+  [[ -d "$REGISTRY_DIR" && -d "$COMPLETION_DIR" && -d "$LOCK_DIR" ]] ||
+    die "launcher registry directories differ"
   PROCESS_START_TICKS=$(process_start_ticks "$$") || die "launcher process identity unavailable"
 
   trap 'exit_trap "$?"' EXIT
@@ -354,6 +451,7 @@ parse_run() {
     exec {LOCK_FD}>&-
     export NFL_LAUNCHER_REGISTRY_RECEIPT="$REGISTRATION"
     export NFL_LAUNCHER_REGISTRY_RECEIPT_SHA256="$REGISTRATION_SHA256"
+    export NFL_LAUNCHER_REGISTRY_STATE_ROOT="$STATE_ROOT"
     export NFL_LAUNCHER_REGISTRY_LANE="$LANE"
     export NFL_LAUNCHER_REGISTRY_WRAPPER_PID="$$"
     export NFL_LAUNCHER_REGISTRY_WRAPPER_START_TICKS="$PROCESS_START_TICKS"
