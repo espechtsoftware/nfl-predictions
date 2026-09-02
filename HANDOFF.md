@@ -45,11 +45,33 @@ and operator decisions.  The older entries remain the durable chronology.
   post-provider grace. Its first poll wrote schema
   `cloud-run-lane-monitor-status/v3`, reported `no_live_receipt`, and correctly
   retained the already-known failed E4 execution as an alert.
-- Exact next action: bind the already-passed 084 mechanics r2 gate into the
-  reader and registered efficacy coordinator, reconcile the orphaned mechanics
-  wrapper without rerunning science, then launch the authorized efficacy
-  prefixes `084b590r2`, `084b591r2`, and `084b592r2`. Do not open outcomes until
-  all three banks and the coordinator terminate successfully.
+- Lab `main` binding commit
+  `e3318847530317eaaf4461873c515e865eaa8f2f` freezes 084 source
+  `798b869e3992f4ff7e8f6c4527619ca546f2279c`, image digest
+  `sha256:2d352f5de1353fde6c6e41d3d3da2dd17dc3a5b384060b9b12fba38fe6170abe`,
+  mechanics run `084m590r2-20260902T041825Z`, receipt SHA-256
+  `4dc31e4ceab099a638911acfac136bf411efc9c4e08e6af34571dcdc016bea23`,
+  and reader SHA-256
+  `e5ce5d9ff91a61b02409ab4031e054533af544a61e9031a820f4733ce089abb5`.
+  Its focused binding suite passed 46/46; shell syntax, Python compilation,
+  reader hash and diff checks passed; an independent review issued GO.
+- Host-only mechanics reconciliation invocation
+  `0bed49f75e4c406ead42e83a8b5c5654` accepted exact execution
+  `lab-run-8x8z7` (UID `7cbbc86b-5552-471e-86ee-1536bdfbf6cc`), reproduced
+  the exact gate, and terminated 0. Canonical completion record receipt hash is
+  `db2a5ea166458e0bf357d3ccc36e4dee1de9992931761fd648c4c8d38df717c8`.
+  Cloud Run job generations remained exactly `lab-run=72` and
+  `lab-run-slow=24`, proving the reconciliation neither updated a job nor
+  launched another mechanics execution.
+- The authorized efficacy coordinator is active under invocation
+  `25b36ccaed7d42fabdb0404e0f92ede0`, canonical prefixes
+  `084b590r2/591r2/592r2`. It installed the exact 18-task envelope (job
+  generations `73/25`) and claimed bank 590 as run
+  `084b590r2-20260902T054328Z`, execution `lab-run-h42rl`, UID
+  `bd8075bf-18a4-4f26-9fae-2f663efce48c`. Banks 591/592 were not yet claimed
+  at this checkpoint. Exact next action: monitor the registered coordinator,
+  record each claim and terminal state, and do not open outcomes until all
+  three banks plus the coordinator terminate successfully.
 
 ### 2026-09-02 PREREG-052 sealed; completion-aware monitoring repaired
 
