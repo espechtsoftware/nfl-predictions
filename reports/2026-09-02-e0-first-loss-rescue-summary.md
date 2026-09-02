@@ -28,11 +28,14 @@ No lineup was rescored for this analysis.
 - Only 10 of those 29 opportunity slates had a 200+ lineup captured by at least
   one final-fit strategy.
 - Of 279 distinct 200+ eligible lineups, 38 were selected by at least one
-  final-fit strategy and 241 were missed by every final-fit strategy.
-- Therefore the first **observable** loss for those 241 lineups is retrieval.
-  E0 does not prove that retrieval is their first causal loss across the whole
-  pipeline because attempted generation, legality rejection, deduplication,
-  and admission transitions are not present as separate complete stages.
+  final-fit strategy and 241 were absent from every observed final-fit book.
+- The exact evidence class for those 241 is
+  `FIRST_OBSERVED_ABSENCE_AT_FINAL_BOOK`. The E0 adapter synthesizes absence by
+  set difference; it does not contain a source-emitted selector rejection or
+  per-candidate eligibility/marginal trace. E0 therefore does not prove that
+  retrieval is their first causal loss across the whole pipeline. Attempted
+  generation, legality rejection, deduplication, and admission transitions are
+  not present as separate complete stages.
 
 ### Final-fit strategy summary
 
@@ -60,7 +63,7 @@ points: `202.662` is the outcome-known maximum of the eligible corpus.
 | Group | Lineups | Mean score | Mean salary | Mean QB teammates | Bring-back rate | Four-plus same-game rate |
 |---|---:|---:|---:|---:|---:|---:|
 | Captured by any final-fit strategy | 38 | 213.212 | 49,797 | 2.211 | 60.5% | 73.7% |
-| Missed by every final-fit strategy | 241 | 209.048 | 49,710 | 1.651 | 68.5% | 52.7% |
+| Absent from every observed final-fit book | 241 | 209.048 | 49,710 | 1.651 | 68.5% | 52.7% |
 
 These are selection-conditioned descriptions, not causal recommendations. In
 particular, the captured group having more QB teammates and more concentrated
@@ -114,8 +117,8 @@ These may map to v2 `Evaluation`, `MetricSet`, `Cohort`, `SourceArtifact`, and
 
 ### Existing E0 historical-outcome summary
 
-1. `outcome_funnel_summary`: 200+ opportunity, captured, and missed counts;
-   opportunity and converted slate counts.
+1. `outcome_funnel_summary`: 200+ opportunity, captured, and final-book-absence
+   counts; opportunity and converted slate counts.
 2. `strategy_rescue_summary`: per-strategy selected maximum, eligible-corpus
    maximum, selector regret, threshold capture, and counts of positive-rescue
    slates. Any summed one-lineup counterfactual must be named

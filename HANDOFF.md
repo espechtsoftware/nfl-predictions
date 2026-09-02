@@ -39,8 +39,10 @@ and operator decisions.  The older entries remain the durable chronology.
   by at least one final-fit strategy, 241 missed by all; 29 opportunity slates
   and 10 converted. The best final-fit mean weekly maximum is 178.435 versus a
   202.662 hindsight eligible-corpus maximum, a descriptive 24.227-point
-  within-corpus selector gap. This is development evidence, not an achievable
-  gain estimate or promotion authority.
+  within-corpus selector gap. `Missed` is only a synthesized set-difference:
+  the exact class is `FIRST_OBSERVED_ABSENCE_AT_FINAL_BOOK`, not a sourced
+  selector rejection. This is development evidence, not an achievable gain
+  estimate or promotion authority.
 - Full current findings and the summary-v2/lineage implementation target are in
   `reports/2026-09-02-e0-first-loss-rescue-summary.md`. The selective Phase-B
   v2 contract is merged on production `main`; the isolated historical-realized
