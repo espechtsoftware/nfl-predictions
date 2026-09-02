@@ -71,13 +71,29 @@ and operator decisions.  The older entries remain the durable chronology.
   `production/prereg055-launch-contract`, based exactly on lab commit
   `75f7c848da58e1c0d61b6998938390dc4aef57ce`. No outcome or cloud mutation
   has occurred there.
-- Exact next action: complete and independently audit the narrow 086 launch
-  contract, add its pre-provider-claim amendment, commit/push the clean source,
-  build one immutable image, run outcome-disabled `086m600r1` on bank 600 /
-  2021 Week 1, bind its receipt/source/image into the final reader, and only
-  then release efficacy banks 600-602 through the canonical shared launcher
-  registry. Both Cloud Run jobs are provider-idle while this mandatory gate
-  is repaired; the read-only lane and action-note monitors remain active.
+- The repaired 086 source-freeze contract is now durable on lab `main` at
+  commit `b2ba460598026fc7110a1470b6eefca0db3c1e17`. It adds a dedicated
+  outcome-disabled 800-solve mechanics gate, registered mechanics and
+  efficacy coordinators using the production canonical launcher registry,
+  fresh 086 create-once prefixes, and a one-contrast reader that exact-joins
+  every selected trace rank and canonical roster to its scored book and
+  roster-keyed settlement score. The amendment explicitly limits current
+  lineage authority to the embedded natural-arm trace; it does not claim an
+  exhaustive route trace or independently frozen pre-lock artifact.
+- Validation is 410 complete lab tests, 73 focused production reruns, Ruff,
+  Bash parsing, Python compilation, and diff checks. Independent source and
+  cloud-safety reviews both issued GO for the immutable source freeze. Every
+  unbound launcher fails before registry acquisition or provider mutation.
+  No 086 provider execution, GCS gate/result prefix, or outcome read exists at
+  this milestone.
+- Exact next action: build one immutable image from exact clean commit
+  `b2ba460598026fc7110a1470b6eefca0db3c1e17`, bind and push its Cloud Build
+  ID/tag/digest into the mechanics contract, run only outcome-disabled
+  `086m600r1` on bank 600 / 2021 Week 1, and require its frozen create-once
+  receipt. Then bind that receipt and the final reader hash before releasing
+  efficacy banks 600-602 through the canonical shared launcher registry. Both
+  Cloud Run jobs were provider-idle at source freeze; the read-only lane,
+  build, and action-note monitors remain active.
 
 ### 2026-09-02 canonical launcher registry cutover
 
