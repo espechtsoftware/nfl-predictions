@@ -84,6 +84,41 @@ and operator decisions.  The older entries remain the durable chronology.
   serving revision remains `nfl-dfs-app-paid-v2-b193e54e` until that complete
   gate succeeds.
 
+### 2026-09-02 PREREG-055 first-read cross-verification and decision
+
+- Lab Action Note Update 15, canonical lab commit
+  `04191771c31813b5c33ee0df7d75fcf5ee76364c`, reports that the D800
+  context-matched no-bring-back tail sleeve fails its frozen compatibility
+  crossing. Production waited for that first read, then independently ran the
+  repaired fail-closed reader from a clean detached checkout of the same
+  commit over exact runs `086b600r1-20260902T111003Z`,
+  `086b601r1-20260902T111222Z`, and
+  `086b602r1-20260902T121746Z`. The reader exited 0 after its final
+  mixture/vacuity checks.
+- The read exactly reproduces the lab: winner-utility proxy `-0.00107`, 95%
+  family interval `[-0.00518,+0.00403]`, mixed banks, W/L/T `28/31/13`, and
+  frozen verdict `FAIL`; raw K80 weekly maximum is `-0.578`
+  `[-1.561,+1.012]`. The treatment materially changes candidates and books but
+  does not improve the adopted endpoint. Plain `D800_DEMAX` therefore remains
+  the Week-1 policy; do not add the D400-context sleeve at D800.
+- Production co-signs PREREG-055 Amendment 2 as a validation-only repair. The
+  experiment explicitly reconstructs the selected book as an 80-candidate
+  `SlateResult` with `book_index=range(80)`, so book `cand` is position 0-79,
+  whereas trace `cand_ix` is the original pool index. The repaired check
+  correctly enforces `cand == rank - 1` while exact roster SHA, tag, settlement
+  join, rank, and roster censuses preserve cross-artifact identity. The 053/055
+  reader suites pass 22/22, and an independent non-sequential-pool probe proves
+  both acceptance of the correct mapping and rejection of a non-position
+  `cand`.
+- Full review is
+  `reports/2026-09-02-prereg055-production-cross-verification.md`; exact stdout
+  is `reports/2026-09-02-prereg055-production-cross-verification-transcript.txt`
+  (3,184 bytes, SHA-256
+  `50562de9d8ae7f71f12c24d5baf840a53daafc1674ce74b03891de6a533f049d`).
+  Both shared Cloud Run lanes are idle, and Update 15 contains no newly frozen
+  launch contract. Await the lab's KG-4 calibration and D800_WEMAX launch
+  packages; do not invent an unfrozen arm.
+
 ### 2026-09-02 bounded E0 absence/rescue queries merged
 
 - Production `main` commit `64b7e7ae` adds two aggregate-only reads over the
