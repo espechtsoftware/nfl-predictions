@@ -14,8 +14,8 @@ from fastapi import HTTPException
 from nfl_dfs.app import main as app_main
 from nfl_dfs.optimizer.lineup import Lineup
 from nfl_dfs.optimizer.paid_classic_book_v2 import (
-    PAID_CLASSIC_CATALOG_MAX_AGE,
     PAID_CLASSIC_BOUNDARY_ID,
+    PAID_CLASSIC_CATALOG_MAX_AGE,
     assert_exact_unique_classic_book_v2,
     assert_paid_candidate_supply_v2,
     build_paid_classic_catalog_v2,
@@ -199,9 +199,7 @@ def test_paid_catalog_rejects_stale_future_naive_and_mixed_pulls() -> None:
 def test_terminal_and_candidate_counts_fail_closed() -> None:
     book = _book()
     with pytest.raises(ValueError, match="candidate supply is short"):
-        assert_paid_candidate_supply_v2(
-            available_candidates=1, requested_entries=2
-        )
+        assert_paid_candidate_supply_v2(available_candidates=1, requested_entries=2)
     with pytest.raises(ValueError, match="book is short"):
         assert_exact_unique_classic_book_v2(book[:1], expected_entries=2)
     with pytest.raises(ValueError, match="duplicate canonical rosters"):
@@ -216,9 +214,7 @@ def test_current_inactive_player_is_rejected(inactive: str) -> None:
     rows.loc[rows.dk_player_id == 101, "status"] = inactive
     catalog = _catalog(rows)
     with pytest.raises(ValueError, match="contains inactive player"):
-        validate_paid_classic_book_v2(
-            _book(rows), expected_entries=2, catalog=catalog
-        )
+        validate_paid_classic_book_v2(_book(rows), expected_entries=2, catalog=catalog)
 
 
 def test_stale_draftable_id_and_catalog_drift_are_rejected() -> None:
@@ -238,9 +234,7 @@ def test_stale_draftable_id_and_catalog_drift_are_rejected() -> None:
 def test_complete_draftkings_legality_is_reopened() -> None:
     rows = _salary_rows()
     catalog = _catalog(rows)
-    invalid_shape = _lineup(
-        [101, 102, 201, 202, 301, 302, 401, 304, 501], rows
-    )
+    invalid_shape = _lineup([101, 102, 201, 202, 301, 302, 401, 304, 501], rows)
     with pytest.raises(ValueError, match="Classic positions"):
         validate_paid_classic_book_v2(
             [invalid_shape], expected_entries=1, catalog=catalog
@@ -293,6 +287,39 @@ def test_paid_entry_fill_reopens_exact_output_book() -> None:
     assert exported.receipt["targeted_entries"] == 2
     assert exported.receipt["contest_id"] == "77"
     assert len(exported.receipt["entry_id_order_sha256"]) == 64
+
+
+def test_paid_entry_capture_is_exact_and_csv_identical() -> None:
+    rows = _salary_rows()
+    catalog = _catalog(rows)
+    book = _book(rows)
+    ordinary = fill_paid_entries_csv_v2(
+        _entries(), book, catalog=catalog, contest_id="77"
+    )
+    events: list[dict[str, object]] = []
+    traced = fill_paid_entries_csv_v2(
+        _entries(),
+        book,
+        catalog=catalog,
+        contest_id="77",
+        prepared_entry_capture=events.append,
+    )
+
+    assert traced.csv_text.encode() == ordinary.csv_text.encode()
+    assert traced.receipt == ordinary.receipt
+    assert len(events) == 1
+    event = events[0]
+    assert event["csv_sha256"] == traced.receipt["csv_sha256"]
+    assert (
+        event["paid_export_receipt_sha256"] == traced.receipt["export_receipt_sha256"]
+    )
+    entries = event["entries"]
+    assert isinstance(entries, list)
+    assert [row["export_ordinal"] for row in entries] == [0, 1]
+    assert sorted(row["paid_input_book_ordinal"] for row in entries) == [0, 1]
+    assert [row["entry_id"] for row in entries] == ["1", "2"]
+    assert all(len(row["internal_player_ids"]) == 9 for row in entries)
+    assert all(len(row["slot_dk_draftable_ids"]) == 9 for row in entries)
 
 
 def test_paid_entry_target_requires_an_explicit_unambiguous_contest() -> None:
@@ -376,9 +403,7 @@ def test_paid_v2_api_routes_bind_the_current_slate(
     assert preview["paid_export"]["draftkings_legal"] is True
     assert preview["paid_export"]["active_eligible"] is True
     csv_bytes = preview["dk_csv"].encode("utf-8")
-    assert preview["paid_export"]["csv_sha256"] == hashlib.sha256(
-        csv_bytes
-    ).hexdigest()
+    assert preview["paid_export"]["csv_sha256"] == hashlib.sha256(csv_bytes).hexdigest()
     assert len(list(csv.reader(io.StringIO(preview["dk_csv"])))) == 3
 
     response = app_main.build_paid_lineups_csv_v2(request, store=store)
@@ -386,9 +411,7 @@ def test_paid_v2_api_routes_bind_the_current_slate(
     assert response.headers["x-paid-book-boundary"] == PAID_CLASSIC_BOUNDARY_ID
     assert response.headers["x-paid-book-entries"] == "2"
     assert response.headers["x-paid-book-exact-k"] == "true"
-    assert response.headers["x-paid-book-catalog-pulled-at"] == (
-        _PULLED_AT.isoformat()
-    )
+    assert response.headers["x-paid-book-catalog-pulled-at"] == (_PULLED_AT.isoformat())
     assert response.headers["x-paid-book-catalog-age-seconds"] == "3600.0"
     assert len(response.headers["x-paid-book-receipt-sha256"]) == 64
 
@@ -419,13 +442,9 @@ def test_paid_v2_api_refuses_implicit_whole_week_catalog(
         "_build_classic",
         lambda req, store: (book, _ranked(book)),
     )
-    request = app_main.LineupRequest(
-        season=2026, week=1, n_lineups=2, sim=False
-    )
+    request = app_main.LineupRequest(season=2026, week=1, n_lineups=2, sim=False)
     with pytest.raises(HTTPException, match="requires draft_group_id"):
-        app_main.build_paid_lineups_csv_v2(
-            request, store=_SalaryStore(_salary_rows())
-        )
+        app_main.build_paid_lineups_csv_v2(request, store=_SalaryStore(_salary_rows()))
 
 
 def test_both_paid_v2_api_routes_reject_a_partial_selection(
@@ -448,9 +467,7 @@ def test_both_paid_v2_api_routes_reject_a_partial_selection(
     with pytest.raises(HTTPException, match="book is short"):
         app_main.build_paid_lineups_v2(request, store=_SalaryStore(rows))
     with pytest.raises(HTTPException, match="book is short"):
-        app_main.build_paid_lineups_csv_v2(
-            request, store=_SalaryStore(rows)
-        )
+        app_main.build_paid_lineups_csv_v2(request, store=_SalaryStore(rows))
 
     entries_request = app_main.FillEntriesRequest(
         season=2026,
@@ -461,9 +478,7 @@ def test_both_paid_v2_api_routes_reject_a_partial_selection(
         sim=False,
     )
     with pytest.raises(HTTPException, match="book is short"):
-        app_main.fill_paid_classic_entries_v2(
-            entries_request, store=_SalaryStore(rows)
-        )
+        app_main.fill_paid_classic_entries_v2(entries_request, store=_SalaryStore(rows))
 
 
 def test_paid_entries_api_requires_contest_before_build(

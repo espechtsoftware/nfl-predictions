@@ -15,9 +15,9 @@ import io
 import json
 import re
 from collections import Counter
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import pandas as pd
@@ -148,7 +148,7 @@ def build_paid_classic_catalog_v2(
         _fail("salary catalog is missing " + ", ".join(sorted(missing)))
 
     validation_stamp = _utc_timestamp(
-        validated_at if validated_at is not None else datetime.now(timezone.utc),
+        validated_at if validated_at is not None else datetime.now(UTC),
         label="paid catalog validation time",
     )
     pull_stamps = [
@@ -303,9 +303,12 @@ def _validate_roster(
             label=f"lineup {lineup_ordinal} player {player_id} draftable ID",
         )
         if draftable_id != source["draftable_id"]:
-            _fail(f"lineup {lineup_ordinal} player {player_id} has a stale draftable ID")
+            _fail(
+                f"lineup {lineup_ordinal} player {player_id} has a stale draftable ID"
+            )
         observed_position = _text(
-            player.get("pos"), label=f"lineup {lineup_ordinal} player {player_id} position"
+            player.get("pos"),
+            label=f"lineup {lineup_ordinal} player {player_id} position",
         ).upper()
         observed_team = _text(
             player.get("team"), label=f"lineup {lineup_ordinal} player {player_id} team"
@@ -497,7 +500,9 @@ def _entries_rows(
         if not any(str(cell).strip() for cell in metadata):
             continue
         if not str(metadata[2]).strip():
-            _fail("DKEntries target selection is ambiguous: an entry row has no contest ID")
+            _fail(
+                "DKEntries target selection is ambiguous: an entry row has no contest ID"
+            )
         candidates.append(row)
     selected = [row for row in candidates if row[2].strip() == cid]
     if not selected:
@@ -510,8 +515,7 @@ def _entries_rows(
         _fail("targeted DKEntries rows contain duplicate Entry IDs")
     targeted_ids = set(entry_ids)
     if any(
-        row[2].strip() != cid and row[0].strip() in targeted_ids
-        for row in candidates
+        row[2].strip() != cid and row[0].strip() in targeted_ids for row in candidates
     ):
         _fail("DKEntries target selection is ambiguous across contests")
     return rows, header_index, first_slot, selected
@@ -529,13 +533,12 @@ def fill_paid_entries_csv_v2(
     *,
     catalog: PaidClassicCatalog,
     contest_id: str | None,
+    prepared_entry_capture: (Callable[[Mapping[str, Any]], None] | None) = None,
 ) -> PaidClassicExport:
     """Fill paid entries without cycling, locked-row fallback, or drift."""
 
     cid = _paid_contest_id(contest_id)
-    _, _, first_slot, before_rows = _entries_rows(
-        entries_csv, contest_id=contest_id
-    )
+    _, _, first_slot, before_rows = _entries_rows(entries_csv, contest_id=contest_id)
     expected_entries = len(before_rows)
     before_entry_ids = [row[0].strip() for row in before_rows]
     if any(
@@ -551,12 +554,8 @@ def fill_paid_entries_csv_v2(
     # Exact K above makes its historical modulo fallback unreachable as a
     # shortfall mechanism; the reopened output audit below proves that every
     # validated roster appears exactly once.
-    filled = fill_entries_csv(
-        entries_csv, list(lineups), contest_id=cid
-    )
-    _, _, output_first_slot, output_rows = _entries_rows(
-        filled, contest_id=contest_id
-    )
+    filled = fill_entries_csv(entries_csv, list(lineups), contest_id=cid)
+    _, _, output_first_slot, output_rows = _entries_rows(filled, contest_id=contest_id)
     if len(output_rows) != expected_entries:
         _fail("filled DKEntries.csv changed the targeted entry count")
     output_entry_ids = [row[0].strip() for row in output_rows]
@@ -564,6 +563,7 @@ def fill_paid_entries_csv_v2(
         _fail("filled DKEntries.csv changed the targeted Entry ID order")
 
     output_rosters: list[tuple[int, ...]] = []
+    output_slot_rosters: list[tuple[int, ...]] = []
     for ordinal, row in enumerate(output_rows, start=1):
         cells = (
             row[output_first_slot : output_first_slot + ROSTER_SIZE]
@@ -580,11 +580,16 @@ def fill_paid_entries_csv_v2(
             draftable_ids.append(draftable_id)
         if len(set(draftable_ids)) != ROSTER_SIZE:
             _fail(f"filled entry row {ordinal} contains duplicate players")
+        output_slot_rosters.append(tuple(draftable_ids))
         output_rosters.append(tuple(sorted(draftable_ids)))
 
     expected_rosters = {
         tuple(sorted(int(player["dk_id"]) for player in lineup.players))
         for lineup in lineups
+    }
+    paid_input_ordinal = {
+        tuple(sorted(int(player["dk_id"]) for player in lineup.players)): ordinal
+        for ordinal, lineup in enumerate(lineups)
     }
     if len(set(output_rosters)) != expected_entries:
         _fail("filled DKEntries.csv contains duplicate rosters")
@@ -604,13 +609,43 @@ def fill_paid_entries_csv_v2(
         }
     )
     export_receipt["export_receipt_sha256"] = _canonical_sha256(export_receipt)
+    if prepared_entry_capture is not None:
+        prepared_entry_capture(
+            {
+                "schema_version": "paid-entry-capture/v1",
+                "contest_id": cid,
+                "draft_group_id": catalog.draft_group_id,
+                "salary_catalog_sha256": catalog.sha256,
+                "csv_sha256": export_receipt["csv_sha256"],
+                "csv_bytes": export_receipt["csv_bytes"],
+                "paid_export_receipt_sha256": export_receipt["export_receipt_sha256"],
+                "entries": [
+                    {
+                        "export_ordinal": ordinal,
+                        "entry_id": output_entry_ids[ordinal],
+                        "internal_player_ids": sorted(
+                            int(catalog.by_draftable_id[draftable_id]["player_id"])
+                            for draftable_id in output_rosters[ordinal]
+                        ),
+                        "dk_draftable_ids": list(output_rosters[ordinal]),
+                        "paid_input_book_ordinal": paid_input_ordinal[
+                            output_rosters[ordinal]
+                        ],
+                        "slot_dk_draftable_ids": list(output_slot_rosters[ordinal]),
+                    }
+                    for ordinal in range(expected_entries)
+                ],
+                "uses_realized_outcomes": False,
+                "post_lock_data_read": False,
+            }
+        )
     return PaidClassicExport(csv_text=filled, receipt=export_receipt)
 
 
 __all__ = [
     "INACTIVE_STATUSES",
-    "PAID_CLASSIC_CATALOG_MAX_AGE",
     "PAID_CLASSIC_BOUNDARY_ID",
+    "PAID_CLASSIC_CATALOG_MAX_AGE",
     "PaidClassicCatalog",
     "PaidClassicExport",
     "assert_exact_unique_classic_book_v2",

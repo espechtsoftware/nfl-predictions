@@ -74,6 +74,43 @@ and operator decisions.  The older entries remain the durable chronology.
   before claiming banks 610/611/612. On any mechanics failure, stop without an
   efficacy claim.
 
+### 2026-09-02 pre-lock lineage review concerns repaired, default-off
+
+- Isolated selective port branch `codex/prelock-lineage-review-repair` starts
+  from reviewed production `main` commit
+  `9ee67dc7deab893b52dc6d4f0579666ad8b97947`. It does not merge donor branch
+  `origin/codex/prelock-lineage-phase1` and does not change the current engine,
+  live CBWU path, typed selector, immutable v1 sidecar, graph-v2 adapter, or
+  source-set v6 scoring files.
+- All six P0 review blockers are repaired: new v2 capture with v1-linear
+  native-union -> CBWU normalization; real R0-R4/typed-selector/v1 integration;
+  conservative subsecond provider-time handling; reopen-first later-clock
+  resume after every boundary; a fifth/root-last manifest that exact-binds and
+  reopens every predecessor; and keyed candidate+roster settlement with no
+  positional score authority.
+- P1 boundaries are closed: exact v6 + adapter + clean source/image/solver/
+  compute identity; exact model registry generations bracket generation;
+  selector and retrieval preset remain distinct; BigQuery is scoped to seven
+  pre-lock SELECT/WITH tables with no write methods; GCS is one fixed bucket,
+  prefix, and five-name create-only set; salary is read once; ownership/candidate
+  log/distribution/graph writes are off; and exact effective feature values use
+  a positive allowlist and remain outside Neo4j.
+- Post-lock readers remain deliberately descriptive. They exact-bind all seven
+  supplied source roles but keep official standings/entry/winner adapters,
+  settlement, decision, promotion, and graph-mutation authority false. The
+  optional paid-preparation callback is byte-neutral and has no caller.
+- Validation: focused compatibility/review gate **150/150** passed; the
+  new/modified slice **45/45** passed; Ruff passes on all changed Python files;
+  new modules compile; `git diff --check` passes. The exact v6 inventory remains
+  `830dcfbde6cd3e2a6ac629cfbf6a7f8acd2b237f8951f9c050d40a6e1f30ad54`.
+  A full repository suite was started and interrupted near 1% due its
+  long-running experiment surface, with no failure observed; it is not counted.
+- Full disposition and activation sequence:
+  `reports/2026-09-02-prelock-lineage-review-repairs.md`. **GO** for independent
+  review and selective merge as inactive infrastructure. **NO-GO** for runtime
+  activation, cloud publication, deployment, Neo4j load, paid use, or settlement
+  adoption until merge, one clean-image candidate-only pre-lock smoke, and exact
+  final-root reopen. No cloud call or external mutation occurred in this work.
 ### 2026-09-02 pre-lock lineage Phase 1 production review
 
 - Reviewed production donor branch `origin/codex/prelock-lineage-phase1` at
