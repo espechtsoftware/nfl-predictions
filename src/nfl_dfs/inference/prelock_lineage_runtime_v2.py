@@ -288,7 +288,10 @@ def _validate_execution_receipt(value: object) -> dict[str, object]:
         "schema_version",
         "image_digest",
         "source_commit",
-        "container_image_immutable",
+        "image_reference_is_digest",
+        "provider_execution_identity_verified",
+        "provider_resource_envelope_verified",
+        "execution_authority",
         "solver",
         "compute_envelope",
         "receipt_sha256",
@@ -303,7 +306,10 @@ def _validate_execution_receipt(value: object) -> dict[str, object]:
         or re.fullmatch(r"sha256:[0-9a-f]{64}", item["image_digest"]) is None
         or type(item.get("source_commit")) is not str
         or re.fullmatch(r"[0-9a-f]{40}", item["source_commit"]) is None
-        or item.get("container_image_immutable") is not True
+        or item.get("image_reference_is_digest") is not True
+        or item.get("provider_execution_identity_verified") is not False
+        or item.get("provider_resource_envelope_verified") is not False
+        or item.get("execution_authority") is not False
         or _digest(retained_hash, label="execution receipt") != canonical_sha256(item)
         or not isinstance(solver, Mapping)
         or set(solver) != {"name", "pulp_version", "binary_sha256", "binary_bytes"}
@@ -335,7 +341,7 @@ def _validate_execution_receipt(value: object) -> dict[str, object]:
             )
         )
         or any(
-            type(compute[key]) is not int or compute[key] < 0
+            type(compute[key]) is not int or compute[key] < 1
             for key in ("cpu_count", "memory_bytes")
         )
     ):
@@ -729,7 +735,7 @@ def validate_salary_snapshot_v2(value: object) -> dict[str, object]:
         raise PrelockLineageRuntimeV2Error(
             "salary source pull timestamp is invalid"
         ) from exc
-    if pulled.tzinfo is None or pulled > pd.Timestamp(item["slate_lock_at_utc"]):
+    if pulled.tzinfo is None or pulled >= pd.Timestamp(item["slate_lock_at_utc"]):
         _fail("salary source pull is not demonstrably pre-lock")
     expected_bridge: dict[str, str] = {}
     seen_draftable: set[str] = set()

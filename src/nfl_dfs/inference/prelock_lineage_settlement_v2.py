@@ -26,6 +26,7 @@ from .prelock_candidate_lineage_v1 import (
     validate_prelock_candidate_lineage_v1,
 )
 from .prelock_lineage_runtime_v2 import (
+    build_sidecar_from_capture_v2,
     canonical_selector_matrix_bytes,
     validate_capture_authority_v2,
 )
@@ -293,7 +294,7 @@ def build_descriptive_outcome_binding_v2(
         ] != len(payload):
             _fail(f"outcome source {role} bytes differ from provider identity")
         created = _aware(identity["time_created_utc"], label=f"{role} creation")
-        if created < lock or created > settled:
+        if created <= lock or created > settled:
             _fail(f"outcome source {role} creation is outside post-lock settlement")
         if role in expected_documents and payload != expected_documents[role]:
             _fail(f"outcome source {role} is not the exact keyed document")
@@ -526,6 +527,29 @@ def build_individual_rescue_v2(
     retained_capture = validate_capture_authority_v2(capture)
     retained_sidecar = validate_prelock_candidate_lineage_v1(sidecar)
     binding = validate_descriptive_outcome_binding_v2(outcome_binding)
+    header = retained_sidecar["run_header"]
+    sources = header["input_source_identities"]
+    if (
+        not isinstance(sources, list)
+        or len(sources) != 1
+        or sources[0].get("role") != "frozen-prelock-input-snapshot"
+    ):
+        _fail("rescue sidecar does not bind one capture authority")
+    capture_identity = {
+        key: sources[0][key] for key in ("uri", "generation", "sha256", "bytes")
+    }
+    try:
+        expected_sidecar = build_sidecar_from_capture_v2(
+            capture=retained_capture,
+            capture_identity=capture_identity,
+            frozen_at_utc=str(header["frozen_at_utc"]),
+        )
+    except ValueError as exc:
+        raise PrelockLineageSettlementV2Error(
+            "rescue capture cannot reproduce the bound sidecar"
+        ) from exc
+    if expected_sidecar != retained_sidecar:
+        _fail("rescue capture and sidecar do not share one exact pre-lock root")
     if retained_sidecar["run_header"]["slate_id"] != binding["slate_id"]:
         _fail("settlement slate differs from pre-lock sidecar")
     expected_matrix = canonical_selector_matrix_bytes(

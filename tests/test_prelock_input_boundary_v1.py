@@ -65,7 +65,8 @@ def test_bigquery_boundary_allows_exact_tables_and_exposes_no_write_method(
 def test_bigquery_boundary_rejects_write_sql_unqualified_and_nested_activation(
     monkeypatch,
 ) -> None:
-    monkeypatch.setattr(bq, "client", lambda: _Client())
+    delegate = _Client()
+    monkeypatch.setattr(bq, "client", lambda: delegate)
     allowed = min(ALLOWED_BIGQUERY_TABLE_URIS)
 
     with (
@@ -84,6 +85,27 @@ def test_bigquery_boundary_rejects_write_sql_unqualified_and_nested_activation(
             bq.client().query("SELECT 1")
         except PrelockInputBoundaryError:
             pass
+    for sql in (
+        f"SELECT * FROM `{allowed}`; DELETE FROM `{allowed}` WHERE TRUE",
+        f"WITH rows AS (SELECT * FROM `{allowed}`) SELECT * FROM rows; "
+        f"INSERT INTO `{allowed}` SELECT * FROM rows",
+        f"WITH rows AS (SELECT * FROM `{allowed}`) "
+        f"DELETE FROM `{allowed}` WHERE TRUE",
+        f"SELECT * FROM `{allowed}`;",
+    ):
+        with (
+            pytest.raises(PrelockInputBoundaryError, match="observed"),
+            enforced_prelock_bigquery_boundary_v1(),
+        ):
+            try:
+                bq.client().query(sql)
+            except PrelockInputBoundaryError:
+                pass
+    with enforced_prelock_bigquery_boundary_v1():
+        proxy = bq.client()
+        with pytest.raises(AttributeError):
+            _ = proxy._delegate
+    assert delegate.queries == []
     inner = enforced_prelock_bigquery_boundary_v1()
     with (
         enforced_prelock_bigquery_boundary_v1(),

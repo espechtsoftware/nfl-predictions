@@ -34,6 +34,11 @@ ALLOWED_BIGQUERY_TABLE_URIS: Final = frozenset(
 )
 _TABLE = re.compile(r"`([^`]+)`")
 _LEADING_QUERY = re.compile(r"^\s*(?:--[^\n]*\n\s*)*(SELECT|WITH)\b", re.IGNORECASE)
+_WRITE_TOKEN = re.compile(
+    r"\b(?:ALTER|CALL|CREATE|DELETE|DROP|EXECUTE|EXPORT|GRANT|INSERT|LOAD|MERGE|"
+    r"RENAME|REVOKE|TRUNCATE|UPDATE)\b",
+    re.IGNORECASE,
+)
 _LOCK = threading.Lock()
 _ACTIVE = False
 
@@ -109,10 +114,10 @@ def validate_prelock_input_read_manifest_v1(
 
 
 class _QueryOnlyClient:
-    __slots__ = ("_delegate", "_violations")
+    __slots__ = ("_query", "_violations")
 
     def __init__(self, delegate: object, violations: list[str]) -> None:
-        self._delegate = delegate
+        self._query = delegate.query
         self._violations = violations
 
     def _reject(self, message: str) -> None:
@@ -122,6 +127,12 @@ class _QueryOnlyClient:
     def query(self, sql: str, *args: object, **kwargs: object):
         if type(sql) is not str or _LEADING_QUERY.match(sql) is None:
             self._reject("pre-lock BigQuery boundary accepts SELECT/WITH only")
+        if ";" in sql:
+            self._reject(
+                "pre-lock BigQuery boundary accepts one semicolon-free statement only"
+            )
+        if _WRITE_TOKEN.search(sql) is not None:
+            self._reject("pre-lock BigQuery boundary rejects every write token")
         tables = set(_TABLE.findall(sql))
         if not tables:
             self._reject("pre-lock BigQuery query has no qualified table authority")
@@ -130,7 +141,7 @@ class _QueryOnlyClient:
             self._reject(
                 f"pre-lock BigQuery query reads outside the allowlist: {sorted(unknown)}"
             )
-        return self._delegate.query(sql, *args, **kwargs)
+        return self._query(sql, *args, **kwargs)
 
 
 @contextmanager

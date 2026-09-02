@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import replace
 from hashlib import sha256
 
@@ -156,6 +157,32 @@ def _salary_snapshot() -> dict[str, object]:
     )
 
 
+def test_salary_pull_at_exact_lock_is_not_prelock() -> None:
+    rows = pd.DataFrame(
+        [
+            {
+                "pulled_at": pd.Timestamp("2026-09-13T17:00:00Z"),
+                "draft_group_id": 123,
+                "dk_player_id": 1,
+                "dk_draftable_id": 10_001,
+                "display_name": "P1",
+                "team_abbr": "T1",
+                "position": "WR",
+                "salary": 5_000,
+                "game_start": pd.Timestamp("2026-09-13T17:00:00Z"),
+                "status": "None",
+            }
+        ]
+    )
+
+    with pytest.raises(PrelockLineageRuntimeV2Error, match="demonstrably pre-lock"):
+        build_salary_snapshot_v2(
+            rows,
+            draft_group_id=123,
+            source_table_uri="bq://nfl-dfs-prod.nfl_raw.dk_salaries",
+        )
+
+
 def _environment() -> dict[str, str]:
     return {
         "MULTISEED_PORTFOLIO": "CBWU",
@@ -286,7 +313,10 @@ def _authorities() -> tuple[dict[str, object], ...]:
         "schema_version": EXECUTION_RECEIPT_SCHEMA,
         "image_digest": "sha256:" + "6" * 64,
         "source_commit": "7" * 40,
-        "container_image_immutable": True,
+        "image_reference_is_digest": True,
+        "provider_execution_identity_verified": False,
+        "provider_resource_envelope_verified": False,
+        "execution_authority": False,
         "solver": {
             "name": "cbc",
             "pulp_version": "3.0.0",
@@ -479,19 +509,26 @@ def _sidecar(capture: dict[str, object]) -> dict[str, object]:
     )
 
 
-def _provider_identity(payload: bytes, generation: int) -> dict[str, object]:
+def _provider_identity(
+    payload: bytes,
+    generation: int,
+    *,
+    created_at_utc: str = "2026-09-13T18:00:00.500000Z",
+) -> dict[str, object]:
     return {
         "uri": f"gs://nfl-dfs-prod-raw/postlock/source-{generation}",
         "generation": str(generation),
         "sha256": sha256(payload).hexdigest(),
         "bytes": len(payload),
-        "time_created_utc": "2026-09-13T18:00:00.500000Z",
+        "time_created_utc": created_at_utc,
     }
 
 
 def _outcome_binding(
     sidecar: dict[str, object],
     score_rows: list[dict[str, object]],
+    *,
+    created_at_utc: str = "2026-09-13T18:00:00.500000Z",
 ) -> dict[str, object]:
     candidate_document = build_candidate_score_document_v2(
         slate_id="dk-123", rows=score_rows
@@ -550,7 +587,11 @@ def _outcome_binding(
     }
     assert set(payloads) == set(SOURCE_ROLES)
     identities = {
-        role: _provider_identity(payload, 200 + index)
+        role: _provider_identity(
+            payload,
+            200 + index,
+            created_at_utc=created_at_utc,
+        )
         for index, (role, payload) in enumerate(payloads.items())
     }
     return build_descriptive_outcome_binding_v2(
@@ -565,6 +606,29 @@ def _outcome_binding(
         source_payloads=payloads,
         source_identities=identities,
     )
+
+
+def test_outcome_source_at_exact_lock_is_not_postlock() -> None:
+    capture, _ = _capture()
+    sidecar = _sidecar(capture)
+    rows = [
+        {
+            "candidate_instance_id": row["candidate_instance_id"],
+            "roster_id": row["roster_id"],
+            "realized_score_milli": 180_000,
+        }
+        for row in sidecar["strategy_decisions"]
+    ]
+
+    with pytest.raises(
+        PrelockLineageSettlementV2Error,
+        match="outside post-lock settlement",
+    ):
+        _outcome_binding(
+            sidecar,
+            rows,
+            created_at_utc="2026-09-13T17:00:00Z",
+        )
 
 
 def test_keyed_rescue_is_permutation_invariant_and_source_bound() -> None:
@@ -607,6 +671,67 @@ def test_keyed_rescue_is_permutation_invariant_and_source_bound() -> None:
     assert rescue["settlement_authority"] is False
     assert binding["accepted_winner_registry_v2_verified"] is False
     assert set(binding["source_identities"]) == set(SOURCE_ROLES)
+
+
+def test_keyed_rescue_rejects_capture_and_sidecar_from_different_roots() -> None:
+    capture, _ = _capture()
+    other_capture = deepcopy(capture)
+    other_capture["run"]["run_id"] = "week1-lineage-other-root"
+    other_capture.pop("capture_sha256")
+    other_capture["capture_sha256"] = canonical_sha256(other_capture)
+    sidecar = _sidecar(other_capture)
+    rows = [
+        {
+            "candidate_instance_id": row["candidate_instance_id"],
+            "roster_id": row["roster_id"],
+            "realized_score_milli": 180_000,
+        }
+        for row in sidecar["strategy_decisions"]
+    ]
+    matrix = canonical_selector_matrix_bytes(
+        capture["effective_candidates"]["selector_matrix_archive"]
+    )
+
+    with pytest.raises(
+        PrelockLineageSettlementV2Error,
+        match="cannot reproduce|do not share one exact pre-lock root",
+    ):
+        build_individual_rescue_v2(
+            capture=capture,
+            sidecar=sidecar,
+            selector_matrix_bytes=matrix,
+            outcome_binding=_outcome_binding(sidecar, rows),
+        )
+
+
+def test_keyed_rescue_rejects_wrong_selector_matrix_before_calculation() -> None:
+    capture, _ = _capture()
+    sidecar = _sidecar(capture)
+    rows = [
+        {
+            "candidate_instance_id": row["candidate_instance_id"],
+            "roster_id": row["roster_id"],
+            "realized_score_milli": 180_000,
+        }
+        for row in sidecar["strategy_decisions"]
+    ]
+    matrix = bytearray(
+        canonical_selector_matrix_bytes(
+            capture["effective_candidates"]["selector_matrix_archive"]
+        )
+    )
+    matrix[0] ^= 1
+
+    with pytest.raises(
+        PrelockLineageSettlementV2Error,
+        match="selector matrix differs from frozen bytes",
+    ):
+        build_individual_rescue_v2(
+            capture=capture,
+            sidecar=sidecar,
+            selector_matrix_bytes=bytes(matrix),
+            outcome_binding=_outcome_binding(sidecar, rows),
+        )
 
 
 def test_keyed_rescue_rejects_missing_extra_and_duplicate_rows() -> None:

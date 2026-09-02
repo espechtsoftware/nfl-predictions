@@ -299,7 +299,10 @@ def build_execution_receipt_v1(
         "schema_version": EXECUTION_RECEIPT_SCHEMA,
         "image_digest": image_digest,
         "source_commit": source_commit,
-        "container_image_immutable": True,
+        "image_reference_is_digest": True,
+        "provider_execution_identity_verified": False,
+        "provider_resource_envelope_verified": False,
+        "execution_authority": False,
         "solver": {
             "name": "cbc",
             "pulp_version": str(pulp.__version__),
@@ -327,7 +330,10 @@ def validate_execution_receipt_v1(value: object) -> dict[str, object]:
         "schema_version",
         "image_digest",
         "source_commit",
-        "container_image_immutable",
+        "image_reference_is_digest",
+        "provider_execution_identity_verified",
+        "provider_resource_envelope_verified",
+        "execution_authority",
         "solver",
         "compute_envelope",
         "receipt_sha256",
@@ -339,7 +345,10 @@ def validate_execution_receipt_v1(value: object) -> dict[str, object]:
         item["schema_version"] != EXECUTION_RECEIPT_SCHEMA
         or _IMAGE_DIGEST.fullmatch(str(item["image_digest"])) is None
         or _COMMIT.fullmatch(str(item["source_commit"])) is None
-        or item["container_image_immutable"] is not True
+        or item["image_reference_is_digest"] is not True
+        or item["provider_execution_identity_verified"] is not False
+        or item["provider_resource_envelope_verified"] is not False
+        or item["execution_authority"] is not False
         or not isinstance(item["solver"], Mapping)
         or not isinstance(item["compute_envelope"], Mapping)
         or type(retained) is not str
@@ -378,7 +387,7 @@ def validate_execution_receipt_v1(value: object) -> dict[str, object]:
             )
         )
         or any(
-            type(compute[key]) is not int or compute[key] < 0
+            type(compute[key]) is not int or compute[key] < 1
             for key in (
                 "cpu_count",
                 "memory_bytes",
@@ -876,6 +885,23 @@ def run_prelock_lineage_shadow_v2(
     if _now() >= expected_lock:
         _fail("incomplete pre-lock lineage run cannot write or generate after lock")
     execution = validate_execution_receipt_v1(execution_receipt)
+    observed_execution = build_execution_receipt_v1(
+        image_digest=str(execution["image_digest"]),
+        source_commit=str(execution["source_commit"]),
+    )
+    if observed_execution != execution:
+        _fail("execution receipt differs from the current solver/compute process")
+    root = repository or Path(__file__).resolve().parents[3]
+    adapter_manifest = lineage_adapter_manifest_v2(root)
+    policy_inventory = generate_effective_policy_rule_inventory_v6(root)
+    source_binding_mode = _validate_runtime_source_binding_v1(
+        root,
+        expected_commit=str(execution["source_commit"]),
+        required_paths=[
+            *[str(row["path"]) for row in adapter_manifest["files"]],
+            *[str(row["path"]) for row in policy_inventory["source_identities"]],
+        ],
+    )
     capture_reopen = object_store.try_reopen(OBJECT_NAMES["capture-authority"])
     generation_performed = False
     returned_book_verified = False
@@ -887,18 +913,13 @@ def run_prelock_lineage_shadow_v2(
         _assert_scope(capture["run"], request)
         if capture["execution_receipt"] != execution:
             _fail("retry execution receipt differs from the immutable capture")
+        if (
+            capture["lineage_adapter_manifest"] != adapter_manifest
+            or capture["effective_policy_inventory"] != policy_inventory
+            or capture["source_binding_mode"] != source_binding_mode
+        ):
+            _fail("retry runtime provenance differs from the immutable capture")
     else:
-        root = repository or Path(__file__).resolve().parents[3]
-        adapter_manifest = lineage_adapter_manifest_v2(root)
-        policy_inventory = generate_effective_policy_rule_inventory_v6(root)
-        source_binding_mode = _validate_runtime_source_binding_v1(
-            root,
-            expected_commit=str(execution["source_commit"]),
-            required_paths=[
-                *[str(row["path"]) for row in adapter_manifest["files"]],
-                *[str(row["path"]) for row in policy_inventory["source_identities"]],
-            ],
-        )
         policy = ADOPTED_CLASSIC_POLICY
         model_artifacts = model_artifact_authority.freeze(
             purpose_variants={

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from datetime import UTC, datetime, timedelta
 from itertools import combinations, islice
 
@@ -422,6 +423,100 @@ def test_retry_after_every_publication_boundary_never_regenerates(
     assert set(object_store.objects) == set(OBJECT_NAMES.values())
 
 
+def test_partial_resume_rejects_changed_runtime_provenance_before_writing(
+    monkeypatch,
+    execution_receipt,
+) -> None:
+    modes = iter(
+        (
+            "git-global-clean-checkout",
+            "immutable-image-embedded-revision",
+        )
+    )
+    source_gate_calls = 0
+
+    def changed_source_gate(*args, **kwargs):
+        nonlocal source_gate_calls
+        del args, kwargs
+        source_gate_calls += 1
+        return next(modes)
+
+    monkeypatch.setattr(
+        shadow_v2,
+        "_validate_runtime_source_binding_v1",
+        changed_source_gate,
+    )
+    salary_store = _SalaryStore()
+    object_store = _ClosedStore(fail_after=OBJECT_NAMES["capture-authority"])
+    builder = _Build()
+
+    with pytest.raises(RuntimeError, match="simulated lost response"):
+        _run(
+            salary_store,
+            object_store,
+            builder,
+            execution_receipt,
+            now=datetime(2026, 9, 13, 16, 0, tzinfo=UTC),
+        )
+    attempts = list(object_store.create_attempts)
+    assert attempts == [OBJECT_NAMES["capture-authority"]]
+
+    with pytest.raises(
+        ProspectivePrelockLineageShadowV2Error,
+        match="retry runtime provenance differs",
+    ):
+        _run(
+            salary_store,
+            object_store,
+            builder,
+            execution_receipt,
+            now=datetime(2026, 9, 13, 16, 45, tzinfo=UTC),
+        )
+
+    assert source_gate_calls == 2
+    assert object_store.create_attempts == attempts
+    assert set(object_store.objects) == {OBJECT_NAMES["capture-authority"]}
+    assert builder.calls == 1
+
+
+def test_partial_resume_rejects_changed_image_receipt_before_writing(
+    execution_receipt,
+) -> None:
+    salary_store = _SalaryStore()
+    object_store = _ClosedStore(fail_after=OBJECT_NAMES["capture-authority"])
+    builder = _Build()
+
+    with pytest.raises(RuntimeError, match="simulated lost response"):
+        _run(
+            salary_store,
+            object_store,
+            builder,
+            execution_receipt,
+            now=datetime(2026, 9, 13, 16, 0, tzinfo=UTC),
+        )
+    attempts = list(object_store.create_attempts)
+    changed_receipt = build_execution_receipt_v1(
+        image_digest="sha256:" + "c" * 64,
+        source_commit=str(execution_receipt["source_commit"]),
+    )
+
+    with pytest.raises(
+        ProspectivePrelockLineageShadowV2Error,
+        match="retry execution receipt differs",
+    ):
+        _run(
+            salary_store,
+            object_store,
+            builder,
+            changed_receipt,
+            now=datetime(2026, 9, 13, 16, 45, tzinfo=UTC),
+        )
+
+    assert object_store.create_attempts == attempts
+    assert set(object_store.objects) == {OBJECT_NAMES["capture-authority"]}
+    assert builder.calls == 1
+
+
 def test_complete_root_can_be_reopened_after_lock_without_writes(
     execution_receipt,
 ) -> None:
@@ -469,8 +564,13 @@ def test_execution_receipt_is_bound_to_image_solver_and_compute(
     execution_receipt,
 ) -> None:
     assert execution_receipt["image_digest"] == "sha256:" + "a" * 64
+    assert execution_receipt["image_reference_is_digest"] is True
+    assert execution_receipt["provider_execution_identity_verified"] is False
+    assert execution_receipt["provider_resource_envelope_verified"] is False
+    assert execution_receipt["execution_authority"] is False
     assert len(execution_receipt["solver"]["binary_sha256"]) == 64
-    assert execution_receipt["compute_envelope"]["cpu_count"] >= 0
+    assert execution_receipt["compute_envelope"]["cpu_count"] >= 1
+    assert execution_receipt["compute_envelope"]["memory_bytes"] >= 1
     assert execution_receipt["receipt_sha256"] == canonical_sha256(
         {
             key: value
@@ -478,6 +578,17 @@ def test_execution_receipt_is_bound_to_image_solver_and_compute(
             if key != "receipt_sha256"
         }
     )
+
+    zero_cpu = deepcopy(execution_receipt)
+    zero_cpu["compute_envelope"]["cpu_count"] = 0
+    zero_cpu["receipt_sha256"] = canonical_sha256(
+        {key: value for key, value in zero_cpu.items() if key != "receipt_sha256"}
+    )
+    with pytest.raises(
+        ProspectivePrelockLineageShadowV2Error,
+        match="compute identity is incomplete",
+    ):
+        shadow_v2.validate_execution_receipt_v1(zero_cpu)
 
 
 class _GcsBlob:
