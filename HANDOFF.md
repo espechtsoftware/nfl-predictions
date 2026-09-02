@@ -115,6 +115,40 @@ and operator decisions.  The older entries remain the durable chronology.
   run IDs above and preserve the complete transcript. Do not infer a verdict
   from provider success alone.
 
+### 2026-09-02 complete pre-lock lineage contract foundation merged
+
+- Production `main` commits `1fe35df6` and `4ae2b9ed` add a pure, outcome-free
+  `prelock-candidate-lineage-sidecar/v1` builder/validator and its adversarial
+  tests. The module performs no I/O, scoring, generation, selection, graph,
+  app, or cloud work and is not imported by those paths. It is the detailed
+  standalone sidecar contract; it is not a full-lineup projection into
+  `corpus-graph-vnext/v2`.
+- The contract separates request/attempt yield from roster-localized lineage:
+  failed, infeasible, and exhausted requests cannot carry a roster. Successful
+  occurrences bridge exact internal and DraftKings draftable player-ID sets,
+  then reconcile deduplication, every linear admission transition, one
+  decision per effective candidate for each binary coverage selector, raw and
+  final-book ranks, and optional pre-lock prepared EntryID rows. Actual entry
+  confirmation and settlement remain separately sourced post-lock joins.
+- Independent adversarial review initially found five accepted malformed
+  traces. The repair now rejects duplicate occurrence-to-attempt mappings,
+  unattributed occurrences, disappearing/forked admission paths, duplicate
+  strategy decisions, contradictory book transitions, duplicate final rosters,
+  and duplicate prepared candidates. It also aligns the trace with the actual
+  reviewed coverage-selector event: fresh-world count is separate from the
+  exact `(p_line, mean_simulated_total)` tiebreak.
+- Validation passed 11 focused contract tests, 15 E0 API regressions, Ruff,
+  format, Python compilation, diff checks, and five independent malformed-trace
+  probes. Every authority flag is false, the candidate universe is explicitly
+  observed-generated rosters only, and roster-level `NOT_PRODUCED` remains
+  unsupported without a separately frozen exhaustive universe. This v1 does
+  not pretend to encode LSE or ladder selectors.
+- Runtime selector instrumentation remains isolated at reviewed commit
+  `f780e71b`. Merging it changes a governed source identity, so it must enter
+  through a coherent versioned v6 source/evidence contract; never update v5
+  hashes or old manifests in place. The v6 dependency closure is being audited
+  before any hook or future build uses it.
+
 ### 2026-09-02 bounded E0 historical-realized summary runner/API and artifact
 
 - Production `main` commit `f03debc4` adds a deterministic local runner over
