@@ -25,6 +25,73 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-01 r2 mechanics running; durable cloud and lab-inbox monitoring armed
+
+- Production `main` implementation commit
+  `bf04479203633c064c404524cfddd457d8e7b044` replaces the passive lane watch
+  with a durable alerting monitor and adds a separate read-only lab inbox
+  watcher. Focused validation is `23 passed`, Python compilation passed, and
+  `git diff --check` passed. The monitored scientific job queries remain
+  read-only `gcloud run jobs executions list/describe`; mutations live only in
+  explicitly invoked registered coordinators.
+- `nfl-cloud-run-lane-monitor.service` is enabled and active (invocation
+  `675b6a18452e4e97a8070545db3270d5`, zero restarts at verification). It polls
+  both lab jobs every 60 seconds, validates live launcher receipts by PID and
+  process start ticks, retains expected prefixes after a launcher exits,
+  detects first/all-task retries and failures that a newer execution could
+  otherwise hide, and writes mode-0600 atomic status, fsynced events, and a
+  latched acknowledgement file below
+  `~/.local/state/nfl-dfs/cloud-run-lane-monitor/`. Actionable transitions are
+  delivered through bounded non-shell WinRT toasts.
+- The canonical inbound lab channel is **not** this production `HANDOFF.md`.
+  `nfl-lab-action-note-monitor.service` is enabled and active (invocation
+  `760715b53c4c40b2acbe23812b937c34`, zero restarts at verification) and
+  fetches `nfl2/origin/main` every 120 seconds without pulling or changing
+  either worktree. It reads exactly one pinned commit's copies of
+  `handoffs/LAB-TO-PRODUCTION-2026-09-01-ACTION-NOTE.md`, `PREREG-052.md`, and
+  `reports/2026-09-01-priority-ranking.md`; no production `HANDOFF.md` is in
+  its document set. Its first durable snapshot was lab commit
+  `20982ca5ef1d894d357adffe148760289739d6d6`, Action Note Update 12, with a
+  successful Windows notification and mode-0600 state/events below
+  `~/.local/state/nfl-dfs/lab-action-note-monitor/`.
+- PREREG-052 efficacy r1 is void with zero outcome-bearing artifacts. Exact
+  terminal provider states are `lab-run-hkkmb` 18/18 failed,
+  `lab-run-slow-49qfg` 18/18 failed, and exact execution `lab-run-9l85j`
+  (UID `149223b7-4f46-4e92-9b56-a16090ade474`) 18/18 cancelled by production
+  at `2026-09-02T00:10:06.081567Z`. The obsolete restart-looping r1
+  coordinator was stopped and has no live launcher receipt. E4 execution
+  `atlas-cbc-32g-full-2023-w8-v1-7zpd4` separately failed at
+  `2026-09-01T23:35:49.869929Z` on an independent recomputation mismatch and
+  produced no sealed score; there is no relaunch authority in the current lab
+  note.
+- The corrected 083 source is lab commit
+  `1864631a3c23802e0bb01a7c5ce31cf15f2643de`; Cloud Build
+  `405d4e56-c21f-48cc-84f5-3897f028f6ea` succeeded with immutable digest
+  `sha256:b5b8cc203e98c09cadf582f2f945a958b47c43a6bfab2094d0bbcbd0de3cc8e9`.
+  Lab commit `20982ca5ef1d894d357adffe148760289739d6d6` binds only the fresh r2
+  mechanics queue. An independent unlimited census found both provider lanes
+  idle, no provider/GCS `083m580r2` claim, and no live launcher receipt before
+  launch.
+- Fresh outcome-disabled mechanics run
+  `083m580r2-20260902T002528Z` is now execution `lab-run-2bg8h`, UID
+  `c23f117a-2cbd-4c69-bd34-bc6944031f16`, under registered transient user
+  unit `nfl2-prereg052-mechanics-r2.service`, invocation
+  `f20b3a11b39d40628a874159210c6e25`, zero restarts. At the
+  `2026-09-02T00:26:29Z` monitor snapshot it was a claimed pending execution;
+  `lab-run-slow` remained free and no efficacy prefix was bound or claimed.
+  Exact next action is metadata-only polling until mechanics succeeds, then
+  validate/publish the fresh create-once gate receipt, bind reader plus all
+  three efficacy r2 prefixes in a new durable lab commit, and start a newly
+  named registered efficacy coordinator. Never reuse the r1 receipt.
+- The `ingest-cfb` audit found 53 consecutive failures since its last success,
+  caused by one stale advertised DraftKings draft group returning 404 and
+  aborting otherwise useful collection. Schedulers `s-cfb` and `s-cfb-sat`
+  are paused. Commit `bf044792` makes per-group 404s skippable while preserving
+  healthy groups, propagates all non-404 errors, and fails closed when every
+  advertised group is stale; the empty-upcoming-groups case remains a no-op.
+  Seven focused CFB tests pass. Exact next CFB action is an immutable build and
+  deployment/rehearsal of that commit before either scheduler is resumed.
+
 ### 2026-09-01 durable Cloud Run lane monitor armed; PREREG-052 image ready
 
 - A persistent, read-only Cloud Run lane monitor is now running as user unit
