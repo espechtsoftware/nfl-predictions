@@ -59,6 +59,31 @@ and operator decisions.  The older entries remain the durable chronology.
   only as a disposable local shadow after its census/identity/query repairs; it
   is not part of E0 production integration.
 
+### 2026-09-02 focused E0 API release gate repair
+
+- The first focused E0 application build, Cloud Build
+  `262741a1-46ad-4da4-9c5b-8efbdca410ce` in
+  `nfl-predictions-503414/us-central1`, used exact pushed source
+  `be2e7ea1211f182c47153e45a8292b8afbdf43c9`. It reached terminal
+  `INTERNAL_ERROR` at `2026-09-02T13:33:16.207454500Z`; the log shows the
+  initial Python test step was killed with exit 137 while redundantly
+  installing the repository's large GCP/application/development dependency
+  set. The Docker build and image smoke never ran. No image result or digest
+  was emitted and nothing was deployed.
+- The focused gate now avoids that duplicate host installation. Its two steps
+  build the normal application image and run the E0 smoke inside that exact
+  image. The smoke verifies the baked artifact's exact file SHA-256 and
+  semantic SHA-256, all three route registrations, the 241-lineup absence
+  aggregate, and an exact one-row `coverage-194-v1` rescue query. This changes
+  no scoring, artifact, API semantics, service setting, or graph contract; the
+  38 focused local tests had already passed before submission.
+- Exact next action is one clean-source retry from the pushed commit carrying
+  this gate, followed only on success by immutable-digest resolution and an
+  in-place `nfl-dfs-app` service update that preserves the existing resource,
+  identity, IAP, secret, timeout, and concurrency settings. The currently
+  serving revision remains `nfl-dfs-app-paid-v2-b193e54e` until that complete
+  gate succeeds.
+
 ### 2026-09-02 bounded E0 absence/rescue queries merged
 
 - Production `main` commit `64b7e7ae` adds two aggregate-only reads over the
