@@ -235,6 +235,47 @@ def _validate_clean_source_checkout_v1(
         _fail("execution source checkout is not globally clean")
 
 
+def _validate_runtime_source_binding_v1(
+    repository: Path,
+    *,
+    expected_commit: str,
+    required_paths: Sequence[str],
+) -> str:
+    """Validate a clean checkout or an image with its embedded revision."""
+
+    root = repository.resolve()
+    if not root.is_dir() or _COMMIT.fullmatch(expected_commit) is None:
+        _fail("runtime source identity is invalid")
+    paths = sorted(set(required_paths))
+    if not paths or any(
+        not path or path.startswith("/") or ".." in path.split("/") for path in paths
+    ):
+        _fail("runtime source path census differs")
+    try:
+        probe = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "--is-inside-work-tree"],
+            check=False,
+            capture_output=True,
+        )
+    except FileNotFoundError:
+        probe = None
+    if probe is not None and probe.returncode == 0 and probe.stdout.strip() == b"true":
+        _validate_clean_source_checkout_v1(
+            root,
+            expected_commit=expected_commit,
+            required_paths=paths,
+        )
+        return "git-global-clean-checkout"
+    embedded = str(os.environ.get("IMAGE_SOURCE_COMMIT_SHA", "")).strip()
+    if embedded != expected_commit:
+        _fail("runtime image revision differs from the execution source commit")
+    for relative in paths:
+        path = root / relative
+        if not path.is_file() or path.is_symlink():
+            _fail("runtime image omits a manifest-bound source path")
+    return "immutable-image-embedded-revision"
+
+
 def build_execution_receipt_v1(
     *, image_digest: str, source_commit: str
 ) -> dict[str, object]:
@@ -850,7 +891,7 @@ def run_prelock_lineage_shadow_v2(
         root = repository or Path(__file__).resolve().parents[3]
         adapter_manifest = lineage_adapter_manifest_v2(root)
         policy_inventory = generate_effective_policy_rule_inventory_v6(root)
-        _validate_clean_source_checkout_v1(
+        source_binding_mode = _validate_runtime_source_binding_v1(
             root,
             expected_commit=str(execution["source_commit"]),
             required_paths=[
@@ -941,6 +982,7 @@ def run_prelock_lineage_shadow_v2(
                 model_artifact_manifest=model_artifacts,
                 model_artifacts_exact_reopened_after_generation=True,
                 input_read_boundary=input_read_manifest,
+                source_binding_mode=source_binding_mode,
                 selector_id=BASE_SELECTION_ID,
                 retrieval_preset_id=BASE_RETRIEVAL_ID,
                 tail_line=float(policy.tail_line),

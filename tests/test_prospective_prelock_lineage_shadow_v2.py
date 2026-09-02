@@ -38,8 +38,8 @@ MODEL_WEEK = "2026-W36"
 def _clean_source_fixture(monkeypatch) -> None:
     monkeypatch.setattr(
         shadow_v2,
-        "_validate_clean_source_checkout_v1",
-        lambda *args, **kwargs: None,
+        "_validate_runtime_source_binding_v1",
+        lambda *args, **kwargs: "git-global-clean-checkout",
     )
 
 

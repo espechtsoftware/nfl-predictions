@@ -828,6 +828,7 @@ def build_capture_authority_v2(
     model_artifact_manifest: Mapping[str, object],
     model_artifacts_exact_reopened_after_generation: bool,
     input_read_boundary: Mapping[str, object],
+    source_binding_mode: str,
     selector_id: str,
     retrieval_preset_id: str,
     tail_line: float,
@@ -855,6 +856,11 @@ def build_capture_authority_v2(
     if model_artifacts_exact_reopened_after_generation is not True:
         _fail("model artifacts were not exact-reopened after generation")
     read_manifest = validate_prelock_input_read_manifest_v1(input_read_boundary)
+    if source_binding_mode not in {
+        "git-global-clean-checkout",
+        "immutable-image-embedded-revision",
+    }:
+        _fail("runtime source binding mode differs")
     model_versions = {
         str(row["purpose"]): str(row["model_version"])
         for row in model_artifacts["model_sets"]
@@ -979,6 +985,7 @@ def build_capture_authority_v2(
         "execution_receipt": execution,
         "model_artifact_manifest": model_artifacts,
         "model_artifacts_exact_reopened_after_generation": True,
+        "source_binding_mode": source_binding_mode,
         "salary_snapshot": normalized_salary,
         "effective_player_feature_snapshot": _feature_snapshot(effective_batch),
         "native_sources": native,
@@ -1037,6 +1044,7 @@ def validate_capture_authority_v2(value: object) -> dict[str, object]:
         "execution_receipt",
         "model_artifact_manifest",
         "model_artifacts_exact_reopened_after_generation",
+        "source_binding_mode",
         "salary_snapshot",
         "effective_player_feature_snapshot",
         "native_sources",
@@ -1073,6 +1081,11 @@ def validate_capture_authority_v2(value: object) -> dict[str, object]:
         }.items()
     ):
         _fail("capture authority boundary flags differ")
+    if item.get("source_binding_mode") not in {
+        "git-global-clean-checkout",
+        "immutable-image-embedded-revision",
+    }:
+        _fail("capture runtime source binding mode differs")
     run = item.get("run")
     if not isinstance(run, Mapping):
         _fail("capture run is not a mapping")

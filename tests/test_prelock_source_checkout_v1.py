@@ -8,6 +8,7 @@ import pytest
 from nfl_dfs.inference.prospective_prelock_lineage_shadow_v2 import (
     ProspectivePrelockLineageShadowV2Error,
     _validate_clean_source_checkout_v1,
+    _validate_runtime_source_binding_v1,
 )
 
 
@@ -73,3 +74,52 @@ def test_source_receipt_requires_exact_commit_tracked_and_clean_paths(
             expected_commit="f" * 40,
             required_paths=["tracked.py"],
         )
+
+
+def test_runtime_image_uses_embedded_revision_when_git_is_absent(
+    tmp_path: Path, monkeypatch
+) -> None:
+    source = tmp_path / "tracked.py"
+    source.write_text("VALUE = 1\n", encoding="utf-8")
+    commit = "a" * 40
+    monkeypatch.setenv("IMAGE_SOURCE_COMMIT_SHA", commit)
+
+    assert (
+        _validate_runtime_source_binding_v1(
+            tmp_path,
+            expected_commit=commit,
+            required_paths=["tracked.py"],
+        )
+        == "immutable-image-embedded-revision"
+    )
+    with pytest.raises(
+        ProspectivePrelockLineageShadowV2Error,
+        match="image revision differs",
+    ):
+        _validate_runtime_source_binding_v1(
+            tmp_path,
+            expected_commit="b" * 40,
+            required_paths=["tracked.py"],
+        )
+
+
+def test_runtime_image_does_not_require_git_executable(
+    tmp_path: Path, monkeypatch
+) -> None:
+    source = tmp_path / "tracked.py"
+    source.write_text("VALUE = 1\n", encoding="utf-8")
+    commit = "c" * 40
+    monkeypatch.setenv("IMAGE_SOURCE_COMMIT_SHA", commit)
+
+    def _missing_git(*args, **kwargs):
+        raise FileNotFoundError("git")
+
+    monkeypatch.setattr(subprocess, "run", _missing_git)
+    assert (
+        _validate_runtime_source_binding_v1(
+            tmp_path,
+            expected_commit=commit,
+            required_paths=["tracked.py"],
+        )
+        == "immutable-image-embedded-revision"
+    )
