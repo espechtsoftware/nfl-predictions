@@ -88,11 +88,16 @@ and operator decisions.  The older entries remain the durable chronology.
   `c5bd768eda8b4211a5ebe7aa48138246b3d659f94cb7c0981cc1fb578034d856`.
   It reproduces the 199,244-candidate / 378,000-visit source and exact
   279/38/241 high-score funnel with no rescoring, individual rows, graph
-  mutation, or decision authority.
+  mutation, or decision authority. The artifact and this milestone record are
+  committed and pushed on production `main` as `2f393219`.
 - Exact next action: keep this summary surface read-only, then implement the
   already-reviewed default-off immutable pre-lock lineage sidecar. Prove
   instrumentation-off/on output identity before freezing one prospective
   shadow and adding post-settlement first-loss/one-at-a-time rescue readers.
+  Keep request-level generation yield separate from roster-level first loss:
+  an infeasible solver request has no exact roster identity, so a particular
+  settled lineup may be called `NOT_PRODUCED` only relative to an explicitly
+  frozen finite roster universe that contains it.
 
 ### 2026-09-02 bounded E0 historical-realized summary core merged
 

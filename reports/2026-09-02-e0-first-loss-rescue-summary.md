@@ -170,9 +170,12 @@ justify replacing universal legality with a new hard-coded construction law.
 
 ## Required lineage extension
 
-The highest-value next artifact is a complete, immutable pre-lock candidate
-trace for every attempted candidate, not only delivered candidates. Each row
-needs stable roster identity and explicit transitions for:
+The highest-value next artifact is a complete, immutable pre-lock request and
+candidate trace, not only a ledger of delivered candidates. Request/attempt
+rows and roster-bearing candidate rows are distinct: an infeasible solver call
+has no canonical roster to which a later outcome can honestly be joined. Each
+successful roster occurrence needs stable identity and explicit transitions
+for:
 
 1. attempted generation;
 2. DraftKings legality evaluation and rejection reason;
@@ -294,18 +297,21 @@ capacity limits remain unchanged, and generation/selection code must not import
 a graph client. The separate post-settlement companion joins the frozen trace
 to outcomes and contest facts.
 
-The first-loss reader may then assign each settled valuable lineup to exactly
-one earliest observed state:
+The first-loss reader may then assign each settled, roster-identified valuable
+lineup to exactly one earliest observed candidate state:
 
-`not produced -> failed legality/book boundary -> not admitted ->
+`failed legality/book boundary -> not admitted ->
 selector-ineligible -> eligible/not selected -> selected then replaced ->
 final book/not prepared -> prepared/not confirmed`.
 
-"Not produced" is relative only to the frozen request universe; it is not
-absence from the full legal lineup universe without an exhaustive-population
-authority. Rescue reruns restore one candidate at a time under exact K and the
-frozen pre-lock worlds. Report `individual_counterfactual_delta`; never label
-the sum jointly achievable or allow it to feed promotion/live policy.
+Generation yield and infeasibility remain request-level summaries. A specific
+lineup may be labelled `NOT_PRODUCED` only when a finite, predeclared roster
+universe containing that exact lineup was frozen before generation; ordinary
+optimizer requests do not establish that fact. Even then, `NOT_PRODUCED` is
+relative to that bound universe, not to every legal lineup. Rescue reruns
+restore one candidate at a time under exact K and the frozen pre-lock worlds.
+Report `individual_counterfactual_delta`; never label the sum jointly
+achievable or allow it to feed promotion/live policy.
 
 ### Minimum acceptance tests
 
