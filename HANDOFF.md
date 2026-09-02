@@ -148,14 +148,61 @@ and operator decisions.  The older entries remain the durable chronology.
   all-advertised-groups-stale fails closed; no upcoming groups remains a no-op.
   The focused CFB/client/BQ/deployment suite is `34 passed` and shell/diff
   checks pass. Exact clean-source Cloud Build
-  `76dab3f0-a685-44e7-92e1-8607b242eb80` remains WORKING in its
-  `full-test-suite` step (started `2026-09-02T00:51:48.511288744Z`) on tag
-  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:cfb-4d66cae3`.
-  Its 461-MiB disk build context was moved to the desktop trash after the
-  source upload; it is recoverable and no longer occupies `.build-contexts`.
-  Exact next CFB action after build success is to resolve the tag digest,
-  update only `ingest-cfb` while both schedulers remain paused, verify a
-  sanitized pre/post spec diff, then run one no-retry outcome-blind smoke.
+  `76dab3f0-a685-44e7-92e1-8607b242eb80` was cancelled by production at
+  `2026-09-02T03:15:42.376104Z` after the repository-wide suite accumulated
+  failures/errors and stopped making progress before the image step. A clean
+  local reproduction found the first failure in
+  `tests/test_app.py::test_all_three_classic_routes_expose_same_policy`: its
+  stale exact-dict assertion omits newer solve-disclosure metadata and is
+  unrelated to the CFB repair. No CFB image was produced or deployed and both
+  CFB schedulers remain paused. The next action is a scoped, fail-closed CFB
+  repair build gate using the 34 focused tests plus image smoke, with the
+  accumulated global-suite debt recorded rather than misrepresented as CFB
+  evidence; only then update `ingest-cfb` and run one no-retry outcome-blind
+  smoke.
+- Lab `origin/main` advanced to `4ad5519c74322a2d512826e5da81baa5e8b6b9eb`
+  (Action Note Update 13 / PREREG-053 experiment 084). The revision-aware
+  inbox monitor detected the new commit and Update 13 at
+  `2026-09-02T03:10:50Z` and delivered its notification. Exact clean-source
+  Cloud Build `4a9c6e8d-2419-4f25-b850-ab590d0867c8` then succeeded at
+  `2026-09-02T03:16:35.625723Z`; immutable image identity is
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2@sha256:d3d01d1b2a4a2d5ddd209d662132d9834e47b874c6349ee3c4774ae09daef866`.
+  No 084 Cloud Run execution has been launched.
+- A prelaunch source audit found `4ad5519c` is not efficacy-launch-ready even
+  though its image is valid: the runtime writes influence schema
+  `prereg053-influence/v1` while the reader requires `prereg049-influence/v1`;
+  the reader is still pinned to the incompatible PREREG-052/083 mechanics
+  gate; source/image pins are placeholders; mandatory per-arm settlement
+  joins are optional; one declared concentration-family estimand is absent;
+  and pushed source contains neither an 084 mechanics validator nor registered
+  mechanics/efficacy coordinators. The shared profile-offset API also lacks a
+  tracked focused test (the lab worktree's similarly named file is untracked
+  and empty). Launching would create a deterministically unreadable cohort, so
+  production is repairing and testing these boundaries first. The required
+  sequence remains: bind exact source/image -> run only outcome-disabled
+  `084m590r1` -> publish/verify a fresh PREREG-053 create-once gate receipt ->
+  bind the reader/coordinator -> launch `084b590r1/591r1/592r1` without
+  opening outcomes.
+- Week-1 D800/D400 binding work is isolated on branch
+  `codex/d800-week1-pair`, durable commit
+  `2b1cbb60` (`Bind Week 1 D800 paid and D400 shadow authority`). The contract
+  binds D800 paid (lev160/boom640) and D400 shadow (lev80/boom320), dual EMAX,
+  exact K80/K1, exact Week-1 slate/lock, shared semantic/content identities,
+  canonical pre-lock GCS generations and receipts, exact candidate/book
+  censuses, and D400-candidates-as-subset-of-D800-candidates. Focused
+  validation is `93 passed`. It is not live authority yet: the operator must
+  reopen and hash the exact GCS generations, enforce pre-lock creation times,
+  validate receipt semantics, and make every paid/API/UI route fail closed to
+  the same D800 artifact with no incumbent fallback. D400 remains shadow-only
+  and A5 remains open.
+- Monitoring gap: the active durable services correctly cover lab-note
+  revisions and Cloud Run execution transitions, including the terminal 083
+  cohort, but did not cover Cloud Build transitions. That is why build
+  `4a9c6e8d-2419-4f25-b850-ab590d0867c8` was not immediately reflected in the
+  operator summary. A separate read-only, stateful Cloud Build monitor for
+  both production and lab projects is now the immediate monitoring repair;
+  it must alert on success/failure/cancellation/timeout and stale WORKING
+  builds by exact ID.
 
 ### 2026-09-01 durable Cloud Run lane monitor armed; PREREG-052 image ready
 
