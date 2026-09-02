@@ -180,6 +180,18 @@ and operator decisions.  The older entries remain the durable chronology.
   operator—never broad `deploy/deploy_jobs.sh`—to preserve job UID/env/service
   account, set retry 0, update the non-overlapping scheduler definition while
   keeping both schedulers paused, and run exactly one outcome-blind smoke.
+- The scoped gate is now durable on production `main` at
+  `31fa0d82c81b140f7853fa7de0bbd6f880890957`. Exact Cloud Build
+  `e3ebcc13-ba90-409b-b7d1-ce835adf23bf` completed all three steps
+  successfully at `2026-09-02T04:00:09.905500Z`; it used that exact source
+  commit and published immutable collection image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:78c905ff383cd6ddaded89d515d14d85617d7138398ec161f91e079655f02f80`.
+  No Cloud Run or scheduler mutation occurred in the build. Exact next action
+  is the separate fail-closed deploy/smoke operator: verify the pinned
+  generation-10 `ingest-cfb` pre-state and both paused schedulers, change only
+  its image and `maxRetries` to zero plus the still-paused Saturday cron, then
+  launch and reconcile exactly one execution. Both schedulers remain paused
+  through acceptance.
 - Lab `origin/main` advanced to `4ad5519c74322a2d512826e5da81baa5e8b6b9eb`
   (Action Note Update 13 / PREREG-053 experiment 084). The revision-aware
   inbox monitor detected the new commit and Update 13 at
@@ -276,6 +288,24 @@ and operator decisions.  The older entries remain the durable chronology.
   PREREG-053 receipt, and cannot open efficacy outcomes. After the gate:
   bind its exact run/hash and reader hash, then fan
   `084b590r1/591r1/592r1` over both lanes.
+- The provider mechanics task subsequently completed 1/1 at
+  `2026-09-02T03:57:11.258634Z` with zero provider retries, failures or
+  cancellations, but the frozen post-run validator correctly rejected it at
+  `03:57:28Z`: `T_NOBB/boom:nobb: mixture delivery receipt is inconsistent`.
+  No PREREG-053 gate receipt was published locally or to GCS, no efficacy
+  prefix was claimed, and no outcome-bearing 084 artifact was opened. Exact
+  artifact inspection proves the defect is source-local and decision-bearing:
+  the runner's shared scaler `max(1, round(value * scale))` was applied both to
+  solve counts and to world offsets, changing every declared CONCENTRATED
+  sleeve start from zero to one. Thus the invalid run visited worlds 2--161
+  instead of the frozen worlds 1--160; it cannot be waived. Mechanics r1 is
+  void. The authorized repair is narrow: use separate count and offset
+  scalers, add zero/full/smoke offset regression tests, append a no-outcome
+  Amendment 3, roll mechanics and efficacy names to fresh r2 prefixes, rebuild
+  from a new immutable source commit, and launch only `084m590r2` until its
+  new create-once gate passes. The existing coordinator is terminal failed
+  with invocation `9e09beacdbf54ba8921a667873318360`; both provider lanes are
+  idle and no efficacy launch is authorized yet.
 - The additive opportunity-lineage v1 interface in the lab repository was
   reviewed narrowly without changing or stopping 084. The design is suitable
   for a one-slate mechanics/interface shadow, but four boundaries must be
