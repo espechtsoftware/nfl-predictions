@@ -42,10 +42,9 @@ and operator decisions.  The older entries remain the durable chronology.
   within-corpus selector gap. This is development evidence, not an achievable
   gain estimate or promotion authority.
 - Full current findings and the summary-v2/lineage implementation target are in
-  `reports/2026-09-02-e0-first-loss-rescue-summary.md`. A selective Phase-B v2
-  port is being validated in isolated worktree
-  `/home/erich/projects/nfl-predictions-e0-v2`; it must not touch cloud,
-  scoring, Neo4j, React, or the active worktree.
+  `reports/2026-09-02-e0-first-loss-rescue-summary.md`. The selective Phase-B
+  v2 contract is merged on production `main`; the isolated historical-realized
+  summary companion remains the next additive implementation step.
 - The v2 graph contract is intentionally outcome-closed. Only pre-lock
   lineage/census summaries may enter v2. E0's realized 200+/rescue summaries
   remain in the separately labelled historical E0 slice until a reviewed
@@ -58,13 +57,12 @@ and operator decisions.  The older entries remain the durable chronology.
   only as a disposable local shadow after its census/identity/query repairs; it
   is not part of E0 production integration.
 
-### 2026-09-02 selective offline Phase-B graph-contract v2 port prepared
+### 2026-09-02 selective offline Phase-B graph-contract v2 port merged
 
-- Isolated branch `codex/e0-v2-phase-b-port`, rebased exactly onto production
-  `main` commit `cdda12dedbee84d5fd0b832af633e2cce7af5323`, selectively
-  ports the two governed schema-v2/Phase-B modules, their hermetic test, and
-  the matching deficiency row from reviewed donor `bf2ba95c`. No donor
-  handoff content was taken.
+- Production `main` commit `b40f0bb4` selectively ports the two governed
+  schema-v2/Phase-B modules, their hermetic test, and the matching deficiency
+  row from reviewed donor `bf2ba95c`. No donor handoff content was taken and
+  the observatory branch was not merged wholesale.
 - This is offline library/test surface only. All authority flags remain false;
   no scoring, cloud, Neo4j service/data, React, outcome, E0 receipt, graph
   pointer, or live-policy path changes.
@@ -72,8 +70,10 @@ and operator decisions.  The older entries remain the durable chronology.
   complete raw status counts and exact source-body/derivation binding.
   Validation is 68 focused Phase-B/E0/transport/retrieval tests plus Ruff,
   Python compilation, and diff checks. No network or service access occurred.
-- Next action is independent review and selective cherry-pick. Any E0/transport
-  adapter or load remains a separate, receipted current-main change.
+- Independent validation on production `main` passed the same 68 focused
+  tests, Ruff, Python compilation, and diff checks. Next action is the separate
+  self-hashed, summary-only historical-realized companion; it must not feed or
+  weaken the outcome-free v2 projection.
 
 ### 2026-09-02 PREREG-053 first-read cross-verification and 086 transition
 
