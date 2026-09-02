@@ -45,8 +45,8 @@ and operator decisions.  The older entries remain the durable chronology.
   estimate or promotion authority.
 - Full current findings and the summary-v2/lineage implementation target are in
   `reports/2026-09-02-e0-first-loss-rescue-summary.md`. The selective Phase-B
-  v2 contract is merged on production `main`; the isolated historical-realized
-  summary companion remains the next additive implementation step.
+  v2 contract is merged on production `main`; the separate historical-realized
+  summary core is now merged as described below.
 - The v2 graph contract is intentionally outcome-closed. Only pre-lock
   lineage/census summaries may enter v2. E0's realized 200+/rescue summaries
   remain in the separately labelled historical E0 slice until a reviewed
@@ -58,6 +58,38 @@ and operator decisions.  The older entries remain the durable chronology.
   identity, and has exact-settlement and query-labeling defects. It may be used
   only as a disposable local shadow after its census/identity/query repairs; it
   is not part of E0 production integration.
+
+### 2026-09-02 bounded E0 historical-realized summary core merged
+
+- Production `main` commit `da757a28` adds only
+  `corpus_r6_historical_realized_summary_v1.py` and its focused test. The
+  outcome-bearing companion remains explicitly separate from the outcome-free
+  `corpus-graph-vnext/v2` surface and emits aggregate funnel, per-strategy
+  rescue, and generation-yield summaries only. It exposes no individual
+  lineup, roster, player, book, slate, node, or relationship rows and grants no
+  scoring, selection, promotion, policy, graph-mutation, or decision authority.
+- The builder requires exact accepted E0 receipt bytes and independently
+  rebuilt plan/funnel identities. It recomputes the plan, manifest, row, source,
+  and output hashes; uses integer micro-DK arithmetic; enforces the complete
+  high-lineup/book classification partition; and labels the 241-lineup result
+  only as `FIRST_OBSERVED_ABSENCE_AT_FINAL_BOOK`, never a source selector
+  rejection or causal first loss.
+- Independent validation passed all 15 new focused tests and nine existing E0
+  slice regressions. Ruff, formatting, Python compilation, and diff checks are
+  clean. A read-only rebuild from the complete 219-object accepted source set
+  reproduced plan SHA-256
+  `e852521d97d3cb37d8e46c6336694f003114b72aa9908277ee7783a1fe1b6821`
+  and produced summary SHA-256
+  `c5bd768ed77c6d911e294b09e03743db86e1d530b7b0a76e24c213c2614dd856`.
+  It reconciled 199,244 candidates, 378,000 visits, 574 high-score visits, 279
+  eligible 200+ lineups, 38 observed in any final book, 241 first-observed
+  absent, 29 opportunity slates, and 10 converted slates. The rebuild performed
+  no rescoring, service access, Neo4j mutation, or output write.
+- Exact next action is an additive deterministic create-once runner plus one
+  isolated GET-only aggregate endpoint. They must not modify the existing E0
+  runner, v1/v2 projections, React/static UI, Neo4j, cloud, scoring, or active
+  experiment paths. After independent review, generate the compact summary
+  artifact once from the same 219 objects and configure the endpoint explicitly.
 
 ### 2026-09-02 selective offline Phase-B graph-contract v2 port merged
 
