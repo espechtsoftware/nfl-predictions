@@ -59,6 +59,35 @@ and operator decisions.  The older entries remain the durable chronology.
   only as a disposable local shadow after its census/identity/query repairs; it
   is not part of E0 production integration.
 
+### 2026-09-02 bounded E0 absence/rescue queries merged
+
+- Production `main` commit `64b7e7ae` adds two aggregate-only reads over the
+  unchanged accepted E0 artifact:
+  `/api/corpus-research/historical-realized-summary/first-observed-absence`
+  and `/api/corpus-research/historical-realized-summary/rescue`. The latter
+  accepts an optional exact `strategy_id`; an unknown strategy returns a
+  bounded 404. Both routes reopen and fully revalidate the source artifact on
+  every request and return `Cache-Control: no-store`.
+- The absence response deliberately retains
+  `FIRST_OBSERVED_ABSENCE_AT_FINAL_BOOK`; it does not expose or claim a causal
+  first-loss stage. It explicitly records that failed solver requests have no
+  roster identity, ordinary optimizer requests do not define a finite roster
+  universe, and roster-level `NOT_PRODUCED` is unavailable. The rescue response
+  is the per-slate hindsight eligible-maximum minus observed book-maximum
+  aggregate only: no selector rerun occurred, it is not a forecast or promised
+  gain, and its individual deltas are not jointly achievable.
+- Both responses contain no individual rows, perform no scoring, graph
+  mutation, raw-outcome query, or policy feedback, remain separate from
+  `corpus-graph-vnext/v2`, and state that complete pre-lock candidate lineage
+  is not yet available. React/static UI and the E0 artifact bytes remain
+  unchanged.
+- Independent validation passed the 38 focused API/core/runner tests plus Ruff,
+  format, Python compilation, and diff checks. A real-artifact main-app read
+  returned HTTP 200 for both routes, the exact source semantic hash, and the
+  expected 241 absence count. Exact next action is the separately reviewed,
+  default-off pre-lock lineage contract and selector instrumentation under a
+  new explicit source-set version; do not relabel either query as first-loss.
+
 ### 2026-09-02 bounded E0 historical-realized summary runner/API and artifact
 
 - Production `main` commit `f03debc4` adds a deterministic local runner over
