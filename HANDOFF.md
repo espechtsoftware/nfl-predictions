@@ -86,14 +86,37 @@ and operator decisions.  The older entries remain the durable chronology.
   unbound launcher fails before registry acquisition or provider mutation.
   No 086 provider execution, GCS gate/result prefix, or outcome read exists at
   this milestone.
-- Exact next action: build one immutable image from exact clean commit
-  `b2ba460598026fc7110a1470b6eefca0db3c1e17`, bind and push its Cloud Build
-  ID/tag/digest into the mechanics contract, run only outcome-disabled
-  `086m600r1` on bank 600 / 2021 Week 1, and require its frozen create-once
-  receipt. Then bind that receipt and the final reader hash before releasing
-  efficacy banks 600-602 through the canonical shared launcher registry. Both
-  Cloud Run jobs were provider-idle at source freeze; the read-only lane,
-  build, and action-note monitors remain active.
+- Exact clean-source Cloud Build
+  `2ebe762a-1463-446e-b5c1-10269f76a7b3` succeeded at
+  `2026-09-02T10:28:20.582081Z` under tag
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2:086-b2ba4605`. Its result
+  and an independent Artifact Registry resolution both identify immutable
+  digest
+  `sha256:8f874a9d4f4cfcd469c62949ecd9170faf86422dc2207bc64b72bc517ba7fbb1`.
+  The source upload was generation `1788344778791243` at
+  `source/1788344777.051742-6574857711dc4e2cafe3d0e55c6a52aa.tgz`.
+- Lab binding commit `66253829bcaf6bcd05dbe07673459c39ddcde825`
+  is pushed to `main`. It binds only the mechanics pair to the exact source,
+  image, tag, and build; the reader and both efficacy layers remain unbound.
+  It also adds a host-only final preclaim check so future bank 602 cannot be
+  launched merely because an initial bank failed and freed capacity. The
+  current focused suite is 55 passed; the complete isolated-source suite is
+  417 passed, and both independent re-reviews issued GO. The untracked local
+  `.venv` link was not committed.
+- Durable coordinator `nfl2-prereg055-mechanics-r1.service`, invocation
+  `372cea2c886e4da78d66c3851268902a`, acquired only prefix `086m600r1` and
+  launched run `086m600r1-20260902T104129Z`: Cloud Run execution
+  `lab-run-kswwj`, UID `ef5c588a-6988-45b6-9aa3-67b396e7d1e2`, job UID
+  `b72ae0b1-045a-4c1c-8814-94da1f6fd48b`, generation 74, created
+  `2026-09-02T10:41:30.835200Z`. Its exact contract is one task/parallelism,
+  bank 600 / 2021 Week 1, `--mechanics-only`, 2 CPU, 8 GiB, retry 1, and
+  36,000-second timeout on the immutable digest. No efficacy prefix is
+  claimed and no outcome reader is open.
+- Exact next action: poll `lab-run-kswwj` and its durable coordinator to
+  terminality, require the frozen create-once PREREG-055 gate receipt, and
+  independently reproduce its hash. Only after that receipt exists may a new
+  durable commit bind the exact gate and final reader hash and authorize
+  efficacy banks 600-602 through the canonical registry.
 
 ### 2026-09-02 canonical launcher registry cutover
 
