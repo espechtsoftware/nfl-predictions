@@ -77,11 +77,26 @@ and operator decisions.  The older entries remain the durable chronology.
   or cancellations. The coordinator immediately
   reused the freed fast lane for bank 592 run
   `084b592r2-20260902T072634Z`, execution `lab-run-ztm8h`, UID
-  `7a7967a9-60aa-4aaf-8a32-e62cb3af922d`; all 18 tasks were running with zero
-  retries, failures, or cancellations at the latest direct provider check.
-  Exact next action: monitor bank 592 and the registered coordinator to
-  terminal success; do not open outcomes until all three banks plus the
-  coordinator terminate successfully.
+  `7a7967a9-60aa-4aaf-8a32-e62cb3af922d`. Bank 592 reached exact terminal
+  success 18/18 at `2026-09-02T08:58:53.126968Z`, with zero retries,
+  failures, or cancellations. Independent provider rechecks prove all three
+  exact run IDs, job identities, UIDs, completion times and 18/18 clean task
+  counts.
+- The registered efficacy coordinator exited 0 at `2026-09-02T08:59:49Z`,
+  removed its live launcher receipt, and released the provider lane. Its
+  create-once completion receipt key is
+  `cb9a829c9b8da541f011b06686f36febf042ad845a4c82a97465b0f5d1511c2d`;
+  the exact completion-record bytes SHA-256 is
+  `f08b7ca3f3133be9c179a5a63d6844653addbae51fb478594ca4574855da26cb`.
+  Both `lab-run` and `lab-run-slow` are provider-idle. No outcome artifact was
+  opened by the coordinator or production.
+- Exact next action: wait for the lab, which froze PREREG-053, to run and
+  publish the frozen 084 reader first. Production must then reproduce the
+  exact reader from frozen worktree source using an isolated import bootstrap:
+  `nfl2-084/.venv` is a symlink whose editable installation otherwise imports
+  mutable `nfl2/src`. Require byte-identical stdout plus an independent frozen
+  verdict check. Do not open the outcome objects before the lab's first-read
+  notice.
 
 ### 2026-09-02 PREREG-054 preimplementation readiness review
 
