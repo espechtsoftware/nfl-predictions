@@ -76,21 +76,45 @@ and operator decisions.  The older entries remain the durable chronology.
   `083m580r2-20260902T002528Z` is now execution `lab-run-2bg8h`, UID
   `c23f117a-2cbd-4c69-bd34-bc6944031f16`, under registered transient user
   unit `nfl2-prereg052-mechanics-r2.service`, invocation
-  `f20b3a11b39d40628a874159210c6e25`, zero restarts. At the
-  `2026-09-02T00:26:29Z` monitor snapshot it was a claimed pending execution;
-  `lab-run-slow` remained free and no efficacy prefix was bound or claimed.
-  Exact next action is metadata-only polling until mechanics succeeds, then
-  validate/publish the fresh create-once gate receipt, bind reader plus all
-  three efficacy r2 prefixes in a new durable lab commit, and start a newly
-  named registered efficacy coordinator. Never reuse the r1 receipt.
+  `f20b3a11b39d40628a874159210c6e25`, zero restarts. It completed 1/1 at
+  `2026-09-02T00:36:07.325058Z` with zero failures, cancellations, or retries.
+  The frozen validator passed and published create-once receipt
+  `gs://nfl-2-506823-lab/gates/PREREG-052/083m580r2-20260902T002528Z.json`;
+  both the local file and an independent remote read hash to
+  `0dcead04c1707e338b91e73e1aa9c9dc186f7b6ee7cf6128a7d7c976bb0f387f`.
+- Lab commit `8fb41acb34a1b7749989387706f2eccd388bd280` binds that gate, source,
+  image, and the three efficacy r2 prefixes. Reader SHA-256 is
+  `84b51422ecd24d77fe82d85696de776e21901d476006b0151357fa2083aba065`;
+  13 focused reader/mechanics/image tests and the live gate preflight pass.
+  Registered coordinator `nfl2-prereg052-efficacy-cohort-r2.service`
+  (invocation `bdcce16a0bab4862a8e9991d748c50e6`, zero restarts) owns exactly
+  `083b580r2/581r2/582r2`. Bank 580 is execution `lab-run-c898j`, UID
+  `e201c040-8a9d-4c64-b0d6-419bd870dcde`, run
+  `083b580r2-20260902T004329Z`; bank 581 is `lab-run-slow-ntjnv`, UID
+  `374019d3-36af-4c5d-8472-4cc88ed3a5ae`, run
+  `083b581r2-20260902T004605Z`. At `2026-09-02T00:50Z` both ran all 18 tasks
+  with zero failures/retries; an independent post-launch audit reproduced the
+  exact 18x18, 2-vCPU/8-GiB, retry-1, 36,000-second envelopes. Bank 582 remains
+  unclaimed until either lane frees, then the coordinator will launch it and
+  continue waiting. No efficacy reader has been opened.
 - The `ingest-cfb` audit found 53 consecutive failures since its last success,
   caused by one stale advertised DraftKings draft group returning 404 and
   aborting otherwise useful collection. Schedulers `s-cfb` and `s-cfb-sat`
-  are paused. Commit `bf044792` makes per-group 404s skippable while preserving
-  healthy groups, propagates all non-404 errors, and fails closed when every
-  advertised group is stale; the empty-upcoming-groups case remains a no-op.
-  Seven focused CFB tests pass. Exact next CFB action is an immutable build and
-  deployment/rehearsal of that commit before either scheduler is resumed.
+  are paused. Commits `bf044792` and
+  `4d66cae38ff35dea785a48ac29108e8fc1772164` make per-group 404s skippable,
+  filter to live-shaped supported Classic/Showdown products, preserve the two
+  exact BigQuery clustering contracts, set CFB task retries to zero, and remove
+  the duplicate Saturday 10:00 trigger. All non-404 errors still propagate;
+  all-advertised-groups-stale fails closed; no upcoming groups remains a no-op.
+  The focused CFB/client/BQ/deployment suite is `34 passed` and shell/diff
+  checks pass. Exact clean-source Cloud Build
+  `76dab3f0-a685-44e7-92e1-8607b242eb80` is WORKING on immutable tag
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:cfb-4d66cae3`.
+  Its 461-MiB disk build context was moved to the desktop trash after the
+  source upload; it is recoverable and no longer occupies `.build-contexts`.
+  Exact next CFB action after build success is to resolve the tag digest,
+  update only `ingest-cfb` while both schedulers remain paused, verify a
+  sanitized pre/post spec diff, then run one no-retry outcome-blind smoke.
 
 ### 2026-09-01 durable Cloud Run lane monitor armed; PREREG-052 image ready
 
