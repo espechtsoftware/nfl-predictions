@@ -216,19 +216,25 @@ and operator decisions.  The older entries remain the durable chronology.
   `3c42c9d84981430db133a28aaf7aef75`, acquired only canonical prefixes
   `086b600r1/601r1/602r1`. Bank 600 is run
   `086b600r1-20260902T111003Z`, execution `lab-run-cjfp6`, UID
-  `bcbe5167-37d5-43a8-8ddf-3bfb8053f707`; all 18 tasks were running at the
-  latest check. Bank 601 is run `086b601r1-20260902T111222Z`, execution
-  `lab-run-slow-2gc4r`, UID `276b07c2-3be3-4097-bc26-c073f097ff93`; all 18
-  tasks were running at the latest check. Both use the exact immutable image,
-  18 tasks/parallelism, 2 CPU, 8 GiB, retry 1, and 36,000-second timeout (job
-  generations 75/27). The coordinator does not open outcomes or invoke the
-  reader.
-- Exact next action: poll both active efficacy executions. On the first exact
-  terminal success, the same durable coordinator will claim bank 602 on the
-  released lane after its final failure-wins check. If either initial bank
-  fails or is cancelled, require the coordinator to stop without consuming
-  602. After all three clean completions, wait for the lab's first read before
-  independently rerunning the frozen reader.
+  `bcbe5167-37d5-43a8-8ddf-3bfb8053f707`; it reached exact terminal success at
+  `2026-09-02T12:16:06.720020Z`, 18/18 succeeded with zero failures,
+  cancellations, or retries. Bank 601 is run
+  `086b601r1-20260902T111222Z`, execution `lab-run-slow-2gc4r`, UID
+  `276b07c2-3be3-4097-bc26-c073f097ff93`; it remains active with zero
+  failures, cancellations, or retries at the latest check.
+- After independently confirming bank 600's clean terminal state, the same
+  coordinator passed its final failure-wins check and claimed bank 602 on the
+  released fast lane. Bank 602 is run `086b602r1-20260902T121746Z`, execution
+  `lab-run-g8c7z`, UID `548c5e49-7222-43d5-969f-48bb289bd954`, created
+  `2026-09-02T12:17:47.920488Z` and started
+  `2026-09-02T12:18:03.313508Z`; all 18 tasks are running. Its execution
+  snapshot has the exact bank-602 runner, source/image tuple, 18
+  tasks/parallelism, 2 CPU, 8 GiB, retry 1, and 36,000-second timeout. The
+  coordinator does not open outcomes or invoke the reader.
+- Exact next action: poll banks 601 and 602. Any failure, cancellation, or real
+  task retry blocks acceptance. After both reach clean 18/18 completion and the
+  coordinator exits 0, wait for the lab's first read before independently
+  rerunning the frozen reader.
 
 ### 2026-09-02 canonical launcher registry cutover
 
