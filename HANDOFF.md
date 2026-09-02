@@ -84,6 +84,28 @@ and operator decisions.  The older entries remain the durable chronology.
   no successor arm; wait for exact KG-4 calibration and D800_WEMAX launch
   packages rather than manufacturing a queue item.
 
+### 2026-09-02 pre-lock lineage summary-v2 projection integrated offline
+
+- Commit `d206bcc8` adds the independently reviewed, summary-only projection
+  from a validated `prelock-candidate-lineage-sidecar/v1` document into rows
+  accepted by the unchanged `corpus-graph-vnext/v2` contract. It emits only
+  aggregate `ScienceRelease`, `SourceArtifact`, `Slate`, stage
+  `CandidateSnapshot`, per-strategy `SelectedBook`, and `MetricSet` rows. It
+  emits no lineup, player, roster, request, attempt, EntryID, or realized
+  outcome rows; every authority flag is false and the release is unaccepted.
+  No production module imports the adapter, so this milestone changes no
+  scoring, generation, retrieval, runtime, API, graph load, or cloud behavior.
+- Independent review returned GO for this inactive offline foundation. A clean
+  integration branch reproduced 30 projection, lineage, and existing v2 graph
+  tests; Python compilation and diff checks pass.
+- Before the first durable publication or graph load, the publisher must add
+  and verify: a create-once provider receipt proving the exact sidecar existed
+  before slate lock; a fail-closed reopen validator or deeply immutable output;
+  explicit projection-transform/mapping-contract identity; and an explicit
+  binding between each selector identity and retrieval-preset identity. These
+  are non-blocking while the adapter remains inactive and authority-false, but
+  they are publication blockers and must not be silently deferred at capture.
+
 ### 2026-09-02 focused E0 API release gate repair
 
 - The first focused E0 application build, Cloud Build
