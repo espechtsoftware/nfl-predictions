@@ -25,6 +25,39 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-02 production review of coherent proposer/judge interventions
+
+- Branch `docs/neo4j-lab-priority-20260902` adds the reviewed operator note at
+  report commit `5e98b254`:
+  `reports/2026-09-02-operator-note-proposer-judge-coherent-interventions.md`.
+- The lab already implemented the parent-note design asks on lab main commit
+  `5806bbf`: PREREG-058/089 is drafted for ECC versus minimum-KL, and the
+  PREREG-054/085 participation feature contract is amended.
+- The first new end-to-end screen is the existing low-dose additive regime
+  overlay (`lambda_hi=0.7`, `lambda_team=0.5`) against the current
+  D800/K80/DEMAX stack at equal solve and delivered-candidate budgets. It is
+  selected because the mechanism exists and its older four-seed result is the
+  strongest repeatable precedent in this note; transport to boom-first D800
+  is unproved and is the question being tested.
+- Per operator direction, the first pass stays simple: one coherent treatment
+  versus control. Proposer/judge decomposition is required only if the screen
+  is promising, before assigning mechanism or composing it with another win.
+- Run frozen 088 first and 085 in its existing parallel lane. Finish 089's
+  ECC/minimum-KL instrument/mechanics work without adding all five proposals
+  to that family. Joint-event generation-plus-tilt is conditional on KL
+  engagement; a coherent role-state generator is conditional on 085; elite
+  world sampling remains mechanics-only until a law repair succeeds.
+- Scientific corrections are recorded inline: base ECC preserves the
+  incumbent copula unless the optional recoupling step is active; weighted
+  elite sampling reallocates proposal compute rather than repairing the law;
+  the current 085 estimand is judge-only; and realized calibration metrics or
+  prior-season tracking fits are not outcome-free.
+- Validation is documentation-only: `git diff --check` passes. No scoring,
+  cloud execution, Neo4j state, production policy, API, paid entry, or outcome
+  artifact changed. Exact next action: share the report with the lab, execute
+  frozen 088, and implement outcome-disabled mechanics for the single-dose
+  current-stack overlay while 085 and 089 proceed as described.
+
 ### 2026-09-02 production review of operator mid/side score ideas
 
 - Branch `docs/neo4j-lab-priority-20260902` adds the reviewed, shareable
