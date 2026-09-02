@@ -1,0 +1,29 @@
+[Unit]
+Description=Read-only Cloud Build transition and completion monitor
+Documentation=file://%h/projects/nfl-predictions/scripts/cloud_build_monitor.py
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+WorkingDirectory=%h/projects/nfl-predictions
+ExecStart=%h/projects/nfl-predictions/.venv/bin/python \
+  -m scripts.cloud_build_monitor \
+  --state-file %h/.local/state/nfl-dfs/cloud-build-monitor/status.json \
+  --events-file %h/.local/state/nfl-dfs/cloud-build-monitor/events.jsonl \
+  --project nfl-2-506823 --project nfl-predictions-503414 \
+  --recent-limit 100 --stale-working-seconds 3600 \
+  --bootstrap-terminal-lookback-seconds 21600 \
+  --poll-seconds 60 --command-timeout-seconds 45 \
+  --windows-toast-command /mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/powershell.exe \
+  --notification-timeout-seconds 10 --notification-retry-seconds 300 \
+  --gcloud /usr/bin/gcloud
+Restart=always
+RestartSec=15s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nfl-cloud-build-monitor
+
+[Install]
+WantedBy=default.target
