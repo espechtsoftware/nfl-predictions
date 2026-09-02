@@ -83,6 +83,31 @@ and operator decisions.  The older entries remain the durable chronology.
   terminal success; do not open outcomes until all three banks plus the
   coordinator terminate successfully.
 
+### 2026-09-02 PREREG-054 preimplementation readiness review
+
+- Lab `main` commit `c61a10ff797a7fb172fc6b59d6a5b400b4d42ed0`
+  freezes only the design-stage document for PREREG-054 / experiment 085. It
+  does not contain an 085 runner, reader, gate, fresh-bank assignment, image
+  binding, or registered coordinator, and the canonical lab action note does
+  not authorize an 085 Cloud Run launch. The immediate authorized transition
+  after 084 terminal success is the lab-owned frozen 084 first read, followed
+  by production's independent reproduction.
+- Production's outcome-blind preimplementation review is
+  `reports/2026-09-02-prereg054-production-preimplementation-readiness-review.md`.
+  The highest-value correction is to reconcile the fixed-supply 085 design
+  with accepted PREREG-043 amendment 1: independent zero-only selector worlds
+  can support a narrow same-pool risk-penalty diagnostic, but not a live
+  generative-law claim. A live-eligible critic must share player states across
+  each world, redistribute teammate opportunity, and specify quarterback
+  treatment. The amendment must also freeze the estimator/backoff, exact
+  cohort/banks/control, selector-side eligibility semantics, executable
+  contamination gate, full 084 reporting surface, and a content-bound row-level
+  point-in-time injury sidecar.
+- The old 073 runner is not reusable authority: it has a different learning
+  law/estimand, changes generation supply, permits short books, and lacks the
+  084 trace/gate contract. No outcome artifact or cloud resource was opened or
+  changed during this review. Nothing here stops 084.
+
 ### 2026-09-02 PREREG-052 sealed; completion-aware monitoring repaired
 
 - Production `main` implementation commit
