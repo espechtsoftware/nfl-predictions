@@ -25,6 +25,60 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-02 PREREG-053 first-read cross-verification and 086 transition
+
+- Lab `main` commits `77679bae81488b7130f02e5208ce4df60c18f4d6` and
+  `75f7c848da58e1c0d61b6998938390dc4aef57ce` sealed PREREG-053 and
+  Action Note Update 14. The lab reports the program's first formal proxy
+  PASS: context-matched `T_NOBB_TAIL` versus `T_BASE` is `+0.00271` with
+  multiplicity-adjusted family interval `[+0.00147,+0.00355]`, every bank and
+  leave-one-season-out estimate positive. Raw weekly K80 maximum is `+1.009`
+  `[+0.325,+1.694]`, with every bank positive. The concentrated no-bring-back
+  version fails a bank veto, and the two tail catcher-relaxation arms fail;
+  this is evidence for a coverage-preserving no-bring-back tail sleeve, not
+  for removing all construction laws.
+- The lab's visible first-read command piped through `head -45` without
+  `pipefail`; it published neither the full transcript nor proof that the
+  Python reader reached its final engagement/vacuity gates. Production
+  therefore reran the exact frozen reader from worktree commit
+  `e3318847530317eaaf4461873c515e865eaa8f2f` through an isolated import
+  bootstrap, preserving source `798b869e3992f4ff7e8f6c4527619ca546f2279c`,
+  image `sha256:2d352f5de1353fde6c6e41d3d3da2dd17dc3a5b384060b9b12fba38fe6170abe`,
+  reader SHA-256
+  `e5ce5d9ff91a61b02409ab4031e054533af544a61e9031a820f4733ce089abb5`,
+  and ordered runs 590/591/592. The reader itself exited 0 and emitted all 90
+  lines. Exactly one primary verdict is PASS, all independent result
+  assertions pass, and all 13 final mixture lines are present.
+- The production transcript is
+  `reports/2026-09-02-prereg053-production-cross-verification-transcript.txt`,
+  13,173 bytes, SHA-256
+  `4ef603d0a9e3a9718caa1abdb2ed6430a859ab5f10b13a5b96eee687ca0c4c6f`.
+  Its first 45 lines are byte-identical to the lab's visible prefix; both
+  prefix hashes are
+  `3bf5368cd083622aca191ca95a7e23188937b09f850ba4d024799093bc5e203a`.
+  The review and exact decision boundary are in
+  `reports/2026-09-02-prereg053-production-cross-verification.md`.
+- The cross-verification satisfies the scientific trigger for the frozen
+  PREREG-055 / experiment 086 D800 compatibility crossing. It remains
+  historical proxy evidence under the pre-adjudication 48-score registry;
+  prospective 2026 settlement retains adoption authority.
+- A prelaunch audit found 086 was requested but not mechanically
+  launch-ready: its initial reader pins the old 084 gate, no PREREG-055
+  mechanics gate or registered 086 coordinator exists, the 084 image lacks
+  the 086 runner, and the single-treatment report loop has a strict-zip crash.
+  Clean repair work is isolated in worktree
+  `/home/erich/projects/nfl2-prereg055-launch-contract`, branch
+  `production/prereg055-launch-contract`, based exactly on lab commit
+  `75f7c848da58e1c0d61b6998938390dc4aef57ce`. No outcome or cloud mutation
+  has occurred there.
+- Exact next action: complete and independently audit the narrow 086 launch
+  contract, add its pre-provider-claim amendment, commit/push the clean source,
+  build one immutable image, run outcome-disabled `086m600r1` on bank 600 /
+  2021 Week 1, bind its receipt/source/image into the final reader, and only
+  then release efficacy banks 600-602 through the canonical shared launcher
+  registry. Both Cloud Run jobs are provider-idle while this mandatory gate
+  is repaired; the read-only lane and action-note monitors remain active.
+
 ### 2026-09-02 canonical launcher registry cutover
 
 - Production `main` commit `683971a8` makes the lane monitor completion-aware
