@@ -132,11 +132,41 @@ These may map to v2 `Evaluation`, `MetricSet`, `Cohort`, `SourceArtifact`, and
 Production `main` now contains the reviewed, fixed-identity
 `corpus-r6-historical-realized-summary/v1` core for the first three surfaces.
 It rebuilds from the exact 219-object E0 source set and remains a separate
-schema. The create-once runner and isolated GET-only file surface are the next
-adapter step; v2 itself must not be weakened. Any API returning the two
-envelopes side by side must preserve their distinct schemas and evidence
-classes. Return bounded summaries, never lineup enumeration. Do not add a
-winner claim or promotion edge. React remains optional presentation work.
+schema. The create-once runner and isolated GET-only file surface are now
+implemented. The first production artifact is
+`reports/2026-09-02-r6-historical-realized-summary-v1.json`: 24,536 bytes,
+file SHA-256
+`ad348254d5aee023b7864ffb10ef4f70d4c3e4a415b3a097d8ea53ea9d1f94eb`,
+and semantic summary SHA-256
+`c5bd768eda8b4211a5ebe7aa48138246b3d659f94cb7c0981cc1fb578034d856`.
+The API route is
+`GET /api/corpus-research/historical-realized-summary`, reads the explicitly
+configured absolute file on every request, revalidates the complete contract,
+and returns `Cache-Control: no-store`. A production-file integration read
+returned HTTP 200 and the exact semantic hash.
+
+This artifact and endpoint do not mutate Neo4j, enumerate lineups, alter
+scoring/selection, or grant promotion authority. v2 itself must not be
+weakened. Any API returning the two envelopes side by side must preserve their
+distinct schemas and evidence classes. Return bounded summaries, never lineup
+enumeration. Do not add a winner claim or promotion edge. React remains
+optional presentation work.
+
+### Initial arm-by-world-block read from the bounded artifact
+
+All 35 arm-by-block cells have an equal 10,800-visit denominator, so their raw
+200+ visit rates are directly comparable as descriptions of this fixed panel.
+The five highest cells are `remove-salary-floor/R1` (26, 0.241%),
+`allow-rb-vs-dst/R1` (24, 0.222%), and a four-way neighborhood at 23
+(0.213%) led by `allow-rb-vs-dst/R0`, `allow-two-rb/R0`, and incumbent R0/R1.
+The weakest world block is R3 overall (69 of 75,600, 0.091%), compared with R0
+(140, 0.185%), R1 (132, 0.175%), R2 (128, 0.169%), and R4 (105, 0.139%).
+
+These cells are hypothesis coordinates, not independent experiments: the same
+lineup can occur under multiple arms, the threshold is outcome-derived, and
+the panel has already been opened. They justify preserving arm-by-block
+lineage and testing bounded crossed allocations prospectively; they do not
+justify replacing universal legality with a new hard-coded construction law.
 
 ## Required lineage extension
 

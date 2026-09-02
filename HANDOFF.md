@@ -59,6 +59,41 @@ and operator decisions.  The older entries remain the durable chronology.
   only as a disposable local shadow after its census/identity/query repairs; it
   is not part of E0 production integration.
 
+### 2026-09-02 bounded E0 historical-realized summary runner/API and artifact
+
+- Production `main` commit `f03debc4` adds a deterministic local runner over
+  the exact manifest-derived 219-object authority and a separate fail-closed
+  GET-only API at
+  `/api/corpus-research/historical-realized-summary`. The runner accepts only
+  the staging directory, three fixed authority inputs, and a create-once output
+  path. It performs no listing beyond the four exact role directories, network
+  access, scoring, Neo4j mutation, threshold override, or cloud action.
+- The API requires an absolute path in
+  `CORPUS_R6_HISTORICAL_REALIZED_SUMMARY_PATH`, limits the file to 2 MiB,
+  rejects symlinks, hard links, nonregular/changing files, duplicate JSON keys,
+  nonfinite values, noncanonical bytes, and invalid contract content, and
+  rereads/revalidates on every request. It exposes only the aggregate companion
+  and returns `Cache-Control: no-store`; React/static UI and v1/v2 projections
+  are unchanged.
+- Independent validation passed 48 core/runner/API/existing corpus-UI/bridge
+  tests. Python compilation and commit diff checks passed. The isolated agent
+  also passed Ruff/check-format, a 219-unique-path real staging rehearsal, and
+  a main-app generic-503 integration read. A production-file integration read
+  subsequently returned HTTP 200, `no-store`, and the exact semantic hash.
+- The create-once production artifact is
+  `reports/2026-09-02-r6-historical-realized-summary-v1.json`, 24,536 bytes,
+  file SHA-256
+  `ad348254d5aee023b7864ffb10ef4f70d4c3e4a415b3a097d8ea53ea9d1f94eb`,
+  semantic summary SHA-256
+  `c5bd768eda8b4211a5ebe7aa48138246b3d659f94cb7c0981cc1fb578034d856`.
+  It reproduces the 199,244-candidate / 378,000-visit source and exact
+  279/38/241 high-score funnel with no rescoring, individual rows, graph
+  mutation, or decision authority.
+- Exact next action: keep this summary surface read-only, then implement the
+  already-reviewed default-off immutable pre-lock lineage sidecar. Prove
+  instrumentation-off/on output identity before freezing one prospective
+  shadow and adding post-settlement first-loss/one-at-a-time rescue readers.
+
 ### 2026-09-02 bounded E0 historical-realized summary core merged
 
 - Production `main` commit `da757a28` adds only
@@ -85,11 +120,8 @@ and operator decisions.  The older entries remain the durable chronology.
   eligible 200+ lineups, 38 observed in any final book, 241 first-observed
   absent, 29 opportunity slates, and 10 converted slates. The rebuild performed
   no rescoring, service access, Neo4j mutation, or output write.
-- Exact next action is an additive deterministic create-once runner plus one
-  isolated GET-only aggregate endpoint. They must not modify the existing E0
-  runner, v1/v2 projections, React/static UI, Neo4j, cloud, scoring, or active
-  experiment paths. After independent review, generate the compact summary
-  artifact once from the same 219 objects and configure the endpoint explicitly.
+- This core milestone is superseded operationally by the runner/API/artifact
+  entry immediately above. Its outcome boundary remains controlling.
 
 ### 2026-09-02 selective offline Phase-B graph-contract v2 port merged
 
