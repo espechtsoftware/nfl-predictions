@@ -460,7 +460,15 @@ and operator decisions.  The older entries remain the durable chronology.
   corresponding authoritative post-settlement and pre-lock artifacts exist;
   otherwise they remain null. There is no current authority for the literal
   full legal-lineup universe—only the observed generated/admitted population.
-  No outcome artifact was opened during this review.
+  No outcome artifact was opened during this review. The complete production
+  response, limited to the four requested interface flag classes and the
+  authoritative-source mapping, is
+  `reports/2026-09-02-opportunity-lineage-v1-production-interface-review.md`.
+  The lab opportunity-lineage suite passed 21/21; no lab files were changed.
+  At review time the interface/schema/implementation remained untracked at lab
+  `main` commit `c61a10f`, so the lab must commit/freeze it before an exact
+  cross-repository adapter can bind a source revision. This does not block the
+  current shadow use or the running 084 efficacy cohort.
 - A canonical shared launcher-registry/monitor patch is still local and has
   **not** been committed, deployed, or used for a new launch. Independent
   review remains NO-GO until it proves cohort-local completion state, protects
