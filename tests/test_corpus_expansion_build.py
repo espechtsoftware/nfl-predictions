@@ -95,6 +95,10 @@ def test_shared_focused_expansion_build_is_exact() -> None:
     assert tuple(build.FOCUSED_TEST_FILES) == tuple(dict.fromkeys(
         build.FOCUSED_TEST_FILES
     ))
+    assert {
+        "tests/test_coverage_selector_lineage.py",
+        "tests/test_effective_policy_rule_inventory.py",
+    } <= set(build.FOCUSED_TEST_FILES)
 
 
 def test_committed_cloud_build_matches_shared_contract() -> None:
