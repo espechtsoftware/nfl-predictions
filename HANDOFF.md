@@ -25,6 +25,33 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-02 production-to-lab Neo4j score-priority direction
+
+- Isolated branch `docs/neo4j-lab-priority-20260902` adds the shareable
+  production direction at report commit `02e0c283`:
+  `reports/2026-09-02-production-to-lab-neo4j-score-priority-note.md`.
+- The note does not interrupt or reorder 087 -> 088. It records that E0 has
+  already changed 088's treatment content, then makes the post-088 work
+  explicit: complete D800/R6 pre-lock lineage and point-in-time feature
+  overlays; reproducible first-loss, phenotype-recall, rescue and calibration
+  reads; fixed-budget admission; walk-forward same-pool phenotype selection;
+  a direct phenotype generator; and the final generation x admission x
+  retrieval crossing.
+- Responsibilities are separated: the lab emits complete historical D800
+  candidate traces in its runners; production publishes the compact R6
+  package and live D800 identity/entry bridges; the lab validates the accepted
+  package rather than reconstructing production data. Registry v2 blocks
+  authoritative winner-contest claims, not this corpus intelligence.
+- The report preserves the evidence limits: D800's 194.505 mean weekly oracle
+  is hindsight, E0's 38/279 recall is a different selection-conditioned panel,
+  and graph findings nominate rather than promote treatments.
+- Validation is documentation-only: `git diff --check` passes. No scoring,
+  experiment, cloud execution, Neo4j data/service, API, production policy,
+  paid entry or outcome artifact changed. The unresolved dependency is the
+  complete lineage/feature package; the exact next action is to share this
+  report with the lab while 087 finishes, then keep 088 next and develop the
+  package in parallel without consuming an efficacy lane.
+
 ### 2026-09-02 PREREG-056 / experiment 087 r1 void; memory-bounded r2 mechanics ready
 
 - Lab Action Note Update 16 advanced the authorized queue to outcome-disabled
