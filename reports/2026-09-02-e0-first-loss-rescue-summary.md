@@ -123,19 +123,20 @@ These may map to v2 `Evaluation`, `MetricSet`, `Cohort`, `SourceArtifact`, and
    maximum, selector regret, threshold capture, and counts of positive-rescue
    slates. Any summed one-lineup counterfactual must be named
    `sum_individual_rescue_deltas` and explicitly marked non-joint.
-3. `phenotype_capture_summary`: captured-versus-missed distributions with
-   denominators and missingness, never individual roster output.
-4. `generation_yield_summary`: arm and arm-by-block visit denominators and
+3. `generation_yield_summary`: arm and arm-by-block visit denominators and
    realized high-score yields.
+4. A later `phenotype_capture_summary`: captured-versus-missed distributions
+   with denominators and missingness, never individual roster output. The first
+   bounded companion deliberately does not claim this additional surface.
 
-For now these remain queries over the already accepted, separately labelled E0
-historical slice. A future reviewed outcome-summary companion contract (or a
-new graph schema version with an exact `OutcomeRelease` boundary) may project
-them more broadly; v2 itself must not be weakened. A read API may return the two
-envelopes side by side only if their schema/evidence classes remain distinct.
-It should return bounded summaries, never lineup enumeration. Do not add a
-winner claim or promotion edge. The existing legacy UI and route remain the
-default until a later additive React preview reaches parity.
+Production `main` now contains the reviewed, fixed-identity
+`corpus-r6-historical-realized-summary/v1` core for the first three surfaces.
+It rebuilds from the exact 219-object E0 source set and remains a separate
+schema. The create-once runner and isolated GET-only file surface are the next
+adapter step; v2 itself must not be weakened. Any API returning the two
+envelopes side by side must preserve their distinct schemas and evidence
+classes. Return bounded summaries, never lineup enumeration. Do not add a
+winner claim or promotion edge. React remains optional presentation work.
 
 ## Required lineage extension
 
@@ -158,3 +159,141 @@ and a rescue query can report one-at-a-time counterfactual deltas without
 misrepresenting their sum as jointly achievable. Until that extension exists,
 E0 supports exact retrieval-loss descriptions but not complete pipeline-loss
 attribution.
+
+## Concrete pre-lock lineage implementation slice
+
+This work is additive instrumentation, disabled by default, and must not change
+candidate arrays, simulated totals, selector inputs, selected indices,
+post-selector ordering, paid-entry output, or scoring. The first implementation
+should cover one prospective shadow end to end before it is generalized.
+
+### Do not invent one universal roster hash
+
+Production currently has multiple valid identity laws over different ID
+namespaces:
+
+- `generation_exposure.roster_identity` hashes sorted internal `Lineup.ids`;
+- prospective `lineup-v1` maps internal player IDs to slate-specific
+  DraftKings draftable IDs before hashing; and
+- historical E0 canonical lineup identity also binds the slate identity.
+
+The trace must emit a versioned identity tuple and exact bridge, not relabel one
+existing digest as globally canonical:
+
+1. season, week, slate ID, and DraftKings draft-group ID;
+2. nine sorted internal production player IDs plus namespace/version and hash;
+3. nine sorted DraftKings draftable IDs plus namespace/version and hash;
+4. the exact salary/player-catalog identity used for that mapping; and
+5. experiment-specific aliases, including `lineup-v1` or E0 identity where
+   applicable, together with their declared identity law.
+
+Every candidate-stage row binds to this tuple. Post-lock settlement of an
+entered lineup joins on `(contest_id, EntryID, mapped exact roster)`; a roster
+digest alone is not authoritative evidence that we submitted the entry.
+
+### Stage records and implementation seams
+
+The minimum closed record set is one `RunHeader`, then one `ProposalRequest`
+per requested family slot, one `SolveAttempt` per invocation/retry, one
+`GeneratedOccurrence` per successful solve, one `DedupeDecision` per
+occurrence, one `AdmissionDecision` for every applicable cap/combine/transform
+stage, one `StrategyDecision` per effective candidate and retrieval strategy,
+one `BookTransition` through post-selection/export ordering, and one
+`PreparedEntry` per targeted Entry ID.
+
+Implementation should proceed at these existing seams:
+
+1. Extend the outcome-free solve ledger in
+   `src/nfl_dfs/inference/generation_exposure.py` to every enabled generator
+   family. It already records new, duplicate, infeasible, error, and exhausted
+   attempts; `tail_select_lineups` currently fails closed for several families
+   whose attempt capture is incomplete.
+2. Capture the complete generated/deduplicated set and source tags at the
+   native `CandidateBatch` boundary in `src/nfl_dfs/backtest/engine.py`, both
+   before and after `candidate_transform`. Existing `candidate_capture` is a
+   useful seam but is not a complete stage trace.
+3. Add candidate-level, outcome-free transition rows to deterministic pool-cap
+   and five-seed CBWU combine/admission steps. Record retained or dropped,
+   rule/version, source family/seed, input/output ordinal, and a closed reason
+   code. Existing aggregate retained/dropped tag counts are insufficient.
+4. Instrument the selector during its actual greedy execution. For a selected
+   candidate record selection rank, fresh-world marginal at that step,
+   individual clear count, mean simulated total, phase, and deterministic
+   tiebreak tuple. For a nonselected candidate record its individual statistics,
+   final fresh-world count, eligibility, and terminal reason. Do not fabricate
+   a single retrospective "greedy rank" for nonselected candidates: their
+   marginal changes as the selected set changes.
+5. Record raw selector rank separately from peak/thesis replacement,
+   application confidence reordering, and exported rank. Collapsing these
+   distinct transitions would misidentify the actual loss stage.
+6. At the paid-entry boundary, freeze the filled DraftKings entries bytes and
+   an exact `EntryID -> contest_id -> draftable-ID roster -> identity tuple`
+   manifest. The current receipt proves set/order properties but does not
+   preserve this row mapping; the notes download event is not submission or
+   lock evidence.
+
+The primary code areas are the player-pool/as-of receipt in
+`src/nfl_dfs/inference/live_lineups.py`, generation and selection in
+`src/nfl_dfs/backtest/engine.py`, CBWU admission in
+`src/nfl_dfs/inference/multiseed_portfolio.py`, application ordering in
+`src/nfl_dfs/app/main.py`, and paid assignment in
+`src/nfl_dfs/optimizer/paid_classic_book_v2.py`.
+
+Use closed enums rather than prose. At minimum distinguish produced,
+infeasible, solver error, and exhausted requests; same-family, cross-family,
+and cross-seed duplicates; retained versus pool-cap/quota/budget/transform
+exclusions; selector coverage-phase, saturation-fill, ineligible, and
+book-full outcomes; and post-selector retention, peak/thesis replacement, and
+export-only reorder. Exact-roster deduplication is normally attribution rather
+than lineup loss because one earlier copy survives.
+
+### Freeze, graph, and settlement boundary
+
+Freeze the detailed candidate-lineage object immediately after final book
+construction and before any outcome-bearing block. Freeze the prepared-entry
+object after paid fill. Bind both under a create-once terminal pre-lock root
+whose trusted provider creation time precedes lock and which includes exact
+implementation, configuration, player/catalog, belief/world, construction,
+retrieval, and sidecar identities. Operational timings may live in a separate
+envelope but not alter the semantic science hash.
+
+Keep detailed candidate rows outside `corpus-graph-vnext/v2`. Project only
+bounded outcome-free stage censuses, coverage declarations, strategy/source
+receipts, and aggregate transition counts into v2. Its outcome firewall and
+capacity limits remain unchanged, and generation/selection code must not import
+a graph client. The separate post-settlement companion joins the frozen trace
+to outcomes and contest facts.
+
+The first-loss reader may then assign each settled valuable lineup to exactly
+one earliest observed state:
+
+`not produced -> failed legality/book boundary -> not admitted ->
+selector-ineligible -> eligible/not selected -> selected then replaced ->
+final book/not prepared -> prepared/not confirmed`.
+
+"Not produced" is relative only to the frozen request universe; it is not
+absence from the full legal lineup universe without an exhaustive-population
+authority. Rescue reruns restore one candidate at a time under exact K and the
+frozen pre-lock worlds. Report `individual_counterfactual_delta`; never label
+the sum jointly achievable or allow it to feed promotion/live policy.
+
+### Minimum acceptance tests
+
+- Instrumentation off/on produces byte-identical candidate-matrix hashes,
+  selected indices, final book order, CSV bytes, and scoring-path outputs.
+- Every enabled generator family reconciles request, attempt, occurrence, and
+  terminal-status cardinalities; enabling an uninstrumented family fails.
+- Fixtures cover infeasible/error/exhausted attempts, same/cross-family and
+  cross-seed duplicates, pool-cap drop, quota/deficit retention, fixed-budget
+  drop, transform exclusion, selector phases, and post-selector replacement.
+- CBWU rows reproduce exact current combined order; selector rows reproduce
+  selected order and each dynamic marginal; rank maps reproduce final export.
+- Every generated roster has one unambiguous cross-namespace identity bridge;
+  missing, extra, reordered, cross-slate, or ambiguous mappings fail closed.
+- Outcome-like fields and post-lock reads fail before publication. Exact
+  sidecar reopening reproduces the terminal root; retry is idempotent and
+  differing/concurrent publication cannot overwrite it.
+- Paid mapping proves exact EntryID order/K, roster equality, and CSV hash;
+  settlement rejects EntryID, roster, or identity-scheme mismatches.
+- v2 graph summary counts reconcile to the immutable trace while v2 continues
+  to reject every realized-outcome field.
