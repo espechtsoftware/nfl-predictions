@@ -25,6 +25,39 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-02 PREREG-056 / experiment 087 launch contract repaired; build pending
+
+- Lab Action Note Update 16 advanced the authorized queue to outcome-disabled
+  mechanics `087m610r1`, followed by efficacy banks
+  `087b610r1/611r1/612r1`. A provider census at `2026-09-02T16:05:40Z`
+  found zero active lab Cloud Run executions, zero active lab builds, no live
+  launcher registration, and no 087 image/build/execution.
+- The lab's claimed launch-ready source at `c9c613e` was not executable as
+  frozen: its reader still pinned PREREG-055/086 gate and trace identities,
+  and it had no 087 mechanics gate, immutable binding, registered launchers,
+  or 087 tests. The isolated repair branch
+  `production/prereg056-launch-contract` is pushed at exact commit
+  `b89e19392f40e4238c8aa375d4a530613ee347f0`.
+- The repair preserves the two frozen scientific arms and makes their
+  selection-only intervention testable: it exact-compares the ordered D800
+  candidate pool, generation ledger, mixture/world order, settlement, and
+  decision-matrix digest; rejects any noncanonical 72-slate efficacy panel;
+  recomputes natural-arm oracles from exact-key settlement; and requires
+  nonzero K80 selector turnover at the mechanics boundary.
+- Both launchers are registered, source/image/runtime-tree bound, globally
+  two-lane aware, and outcome-closed. Bank 612 now requires terminal exact
+  success from at least one initial bank before claim; any observed initial
+  bank failure wins and halts release. The source templates fail closed while
+  unbound.
+- Validation from the clean isolated worktree passed 65/65 focused 087 tests,
+  180/180 combined candidate/selector/053/055/056 regressions, Python compile,
+  four-script `bash -n`, and `git diff --check`. No efficacy outcome was
+  opened and no provider state was changed.
+- Next exact action: finish independent source review, fast-forward the repair
+  to durable lab `origin/main`, build immutable tag `087-b89e1939`, bind and
+  run only `087m610r1`, then bind its create-once gate receipt before claiming
+  banks 610/611/612.
+
 ### 2026-09-02 pre-lock lineage Phase 1 production review
 
 - Reviewed production donor branch `origin/codex/prelock-lineage-phase1` at
