@@ -220,6 +220,10 @@ and operator decisions.  The older entries remain the durable chronology.
   counts differ by threshold and world block, so allocations must be evaluated
   across weekly maximum and a threshold vector rather than optimized to 200+
   count alone.
+- One exact retrieval hole is `remove-bring-back/R0`: it generated 19 distinct
+  200+ eligible lineups, including a 239.96 lineup, and none appeared in any of
+  the eight final-fit books. Preserve this as a retrieval-only diagnostic; the
+  later D800 no-bring-back generation sleeve already failed and is not reopened.
 - Full direct-query results, limitations, and today/next implementation sequence
   are in `reports/2026-09-02-neo4j-immediate-weakness-read.md`. The graph still
   lacks point-in-time boom, coverage-map, ownership, projection, and SIS/Fantasy

@@ -91,6 +91,13 @@ missed high scorers. This is selection-conditioned evidence: it describes what
 the current selector rewards and must not be turned into a universal anti-stack
 or pro-stack rule.
 
+The same pattern appears in team concentration. Any strategy captured 23 of 57
+high scorers with four players from one team, but only 7 of 144 whose maximum
+same-team count was three. Most available high scorers had two QB teammates
+(129), yet only seven reached any final-fit book; 21 of the 55 three-teammate
+lineups were captured. The present strategy family is collectively concentrated
+on the smaller three-teammate phenotype.
+
 The blind spot persists in the extreme tail. Coverage-194 retained only 4 of
 34 lineups scoring at least 220, missing 30. Its top misses included 241.10,
 239.96, 239.10, and 235.60. Two of the top three spanned seven games and had
@@ -119,6 +126,12 @@ evaluated across a threshold vector and weekly maximum, not tuned to one count.
 
 These are reused-panel hypothesis coordinates. The later D800 no-bring-back
 sleeve did not validate, so this graph read does not resurrect it.
+
+One precise funnel hole is nevertheless worth preserving: `remove-bring-back/R0`
+generated 19 distinct 200+ lineups, including the highest lineup missed by every
+strategy at 239.96, and none of those 19 appeared in any final-fit book. This is
+an especially clean candidate for a retrieval-only diagnostic because the
+lineups already existed in the eligible pool; generation need not change.
 
 ## Weakness 4: selector families contain useful but unexploited complementarity
 
@@ -167,8 +180,9 @@ loss stage or attribute the miss to a specific pre-lock feature.
 3. Specify two fixed-pool, exact-K historical tests:
    - coverage-194 versus the already defined block-supported ladder; and
    - coverage-194 K80 versus a predeclared mixed book that reserves a small
-     sleeve for candidates underrepresented by coverage (for example, fewer QB
-     teammates or lower same-game concentration).
+     sleeve for candidates underrepresented by coverage (initial diagnostic:
+     two-or-fewer QB teammates, with an explicitly reported
+     `remove-bring-back/R0` subcohort).
 4. Select the sleeve using pre-lock candidate attributes only. Freeze its size
    before realized scoring. Treat it as a selector experiment, not a new lineup
    legality law.
@@ -177,6 +191,18 @@ Experiment 087 is already the decision-bearing aligned-selection crossing on
 the adopted D800 pools. Its read should be consumed before launching a redundant
 selector test; the E0 findings should be used to explain its result and choose
 the next bounded sleeve.
+
+The existing bounded API can be used immediately without a new graph load:
+
+- `GET /api/corpus-research/historical-realized-summary`
+- `GET /api/corpus-research/historical-realized-summary/first-observed-absence`
+- `GET /api/corpus-research/historical-realized-summary/rescue`
+- `GET /api/corpus-research/historical-realized-summary/rescue?strategy_id=coverage-194-v1`
+
+The current corpus-research dashboard is not yet connected to these endpoints,
+and graph-v2 has no loaded nodes. UI wiring is presentation work after the
+retrieval hypotheses and D800 capture path are settled; it should not block
+today's reads.
 
 ### Next code slice: trace the real production book
 
@@ -207,4 +233,3 @@ lock or lacks an exact historical source. This companion is what will answer
 whether the selector missed a lineup because it undervalued boom, receiver-
 defender matchup, ownership, or correlation—not merely that the lineup was
 absent from the book.
-
