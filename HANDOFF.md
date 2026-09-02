@@ -192,6 +192,30 @@ and operator decisions.  The older entries remain the durable chronology.
   its image and `maxRetries` to zero plus the still-paused Saturday cron, then
   launch and reconcile exactly one execution. Both schedulers remain paused
   through acceptance.
+- The separate release operator is durable at production commit
+  `b8677a32`. Its live preflight and independent review passed after repairing
+  a pre-mutation review finding (`jq --slurpfile` required null-input mode).
+  The sole no-retry smoke is execution `ingest-cfb-rwcqr`, UID
+  `e4c4e5cf-1862-46e2-be94-1751a66dc683`, on unchanged job UID
+  `2a1902a6-3bff-4511-9647-3340b1815ec9`, exact generation 11 and the tested
+  digest. It completed successfully 1/1 at
+  `2026-09-02T04:28:59.074510Z`, with zero retries/failures/cancellations.
+  Collection itself succeeded: 2,134 salary rows across 11 CFB draft groups
+  and 2,076 CFB contest rows were appended from exact timestamps
+  `04:28:42--04:28:49Z`; execution logs report all 11 slates and the two
+  successful BigQuery loads. Both schedulers remain paused and the Saturday
+  cron is the corrected non-overlapping `0 8,9,11,12,13 * * 6`.
+- The first settlement operator correctly failed closed rather than declaring
+  acceptance because 29 of the 2,134 salary rows had position `K`. Exact
+  diagnosis shows these are legitimate positive-salary DraftKings showdown
+  kickers on six groups; every ID, season, slate type, timestamp, salary and
+  game start otherwise validates, and all 2,076 contest rows validate. This
+  is an over-strict acceptance assumption, not a collection failure. Do not
+  rerun the provider smoke. Exact next action is amend the validation to allow
+  `K` only on showdown, use a read-only exact-execution settlement path over
+  artifact directory `.tmp/cfb-collection-release.WlLILm`, re-prove the live
+  job/schedulers/data, and publish the missing local receipt without any
+  provider or BigQuery mutation.
 - Lab `origin/main` advanced to `4ad5519c74322a2d512826e5da81baa5e8b6b9eb`
   (Action Note Update 13 / PREREG-053 experiment 084). The revision-aware
   inbox monitor detected the new commit and Update 13 at
