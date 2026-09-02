@@ -7,7 +7,7 @@
 **Review commit:** `9ee67dc7deab893b52dc6d4f0579666ad8b97947`
 
 **Integrated production base:** `origin/main`
-`40aaba9846f55f6b7517aa6c5c2a4a2514c6cb75`
+`8728642efed178e48d89c10be5b5ed981b1c96a2`
 
 **Implementation commits:** `bd006ada`, source-checkout hardening `7186e878`,
 and runtime image/source binding `958a5444`
@@ -20,6 +20,10 @@ in the inactive selective port or enforced as an explicit false-authority gate.
 The donor branch was not merged. The current immutable v1 candidate-lineage
 contract, typed selector events, hardened graph-v2 projection, and source-set
 v6 scoring files remain unchanged.
+
+Production advanced from the tested code base `40aaba98` to `8728642e` while
+this repair was closing. That one-commit delta changed only `HANDOFF.md`; it is
+merged here so the current experiment-087 operational record is preserved.
 
 The implementation is still **default-off**. It has no CLI, route, scheduler,
 deployment, graph loader, or automatic settlement caller. No cloud object,
