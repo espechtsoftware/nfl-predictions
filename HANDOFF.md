@@ -79,19 +79,22 @@ and operator decisions.  The older entries remain the durable chronology.
 - Isolated selective port branch `codex/prelock-lineage-review-repair` starts
   from review commit `9ee67dc7` and is rebased onto exact current production
   `origin/main` `40aaba9846f55f6b7517aa6c5c2a4a2514c6cb75`; the repair
-  implementation is `bd006ada` with global clean-checkout identity hardening
-  `7186e878`. It does not merge donor branch
-  `origin/codex/prelock-lineage-phase1` and does not change the current engine,
-  live CBWU path, typed selector, immutable v1 sidecar, graph-v2 adapter, or
-  source-set v6 scoring files.
+  implementation is `bd006ada`, with global clean-checkout identity hardening
+  `7186e878` and Git-free immutable-image/source binding `958a5444`. It does
+  not merge donor branch `origin/codex/prelock-lineage-phase1` and does not
+  change the current engine, live CBWU path, typed selector, immutable v1
+  sidecar, graph-v2 adapter, or source-set v6 scoring files.
 - All six P0 review blockers are repaired: new v2 capture with v1-linear
   native-union -> CBWU normalization; real R0-R4/typed-selector/v1 integration;
   conservative subsecond provider-time handling; reopen-first later-clock
   resume after every boundary; a fifth/root-last manifest that exact-binds and
   reopens every predecessor; and keyed candidate+roster settlement with no
   positional score authority.
-- P1 boundaries are closed: exact v6 + adapter + clean source/image/solver/
-  compute identity; exact model registry generations bracket generation;
+- P1 boundaries are closed: exact v6 + 22-file adapter + source/image/solver/
+  compute identity; a source run must be either an exact globally clean Git
+  checkout or a Git-free immutable image whose embedded full revision matches
+  the receipt and whose manifest-bound source files are present; that mode is
+  persisted in the capture. Exact model registry generations bracket generation;
   selector and retrieval preset remain distinct; BigQuery is scoped to seven
   pre-lock SELECT/WITH tables with no write methods; GCS is one fixed bucket,
   prefix, and five-name create-only set; salary is read once; ownership/candidate
@@ -101,8 +104,8 @@ and operator decisions.  The older entries remain the durable chronology.
   supplied source roles but keep official standings/entry/winner adapters,
   settlement, decision, promotion, and graph-mutation authority false. The
   optional paid-preparation callback is byte-neutral and has no caller.
-- Validation: focused compatibility/review gate **150/150** passed; the
-  new/modified slice **45/45** passed; Ruff passes on all changed Python files;
+- Validation: focused compatibility/review gate **152/152** passed; the
+  new/modified slice **47/47** passed; Ruff passes on all changed Python files;
   new modules compile; `git diff --check` passes. The exact v6 inventory remains
   `830dcfbde6cd3e2a6ac629cfbf6a7f8acd2b237f8951f9c050d40a6e1f30ad54`.
   A full repository suite was started and interrupted near 1% due its

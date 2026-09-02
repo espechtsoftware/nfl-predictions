@@ -9,8 +9,8 @@
 **Integrated production base:** `origin/main`
 `40aaba9846f55f6b7517aa6c5c2a4a2514c6cb75`
 
-**Implementation commits:** `bd006ada` and source-identity hardening
-`7186e878`
+**Implementation commits:** `bd006ada`, source-checkout hardening `7186e878`,
+and runtime image/source binding `958a5444`
 
 ## Result
 
@@ -72,12 +72,17 @@ was changed by this work.
    preset ID are separate required fields, and the existing graph-v2 total map
    is used. Admission stage IDs are never substituted for presets.
 9. **Execution and model identity — repaired.** The capture binds the exact v6
-   policy inventory, a separately hashed lineage-adapter manifest, immutable
-   image digest, exact clean source commit, CBC binary hash/size, PuLP version,
-   Python/NumPy/OS/architecture/CPU/memory envelope, and exact model-registry
-   artifacts. Model generations are frozen before generation and exact-reopened
-   after generation; a changed latest week, object census, generation, bytes,
-   hash, or creation time fails before the first capture can publish.
+   policy inventory, a separately hashed 22-file lineage-adapter manifest,
+   immutable image digest, exact source commit, CBC binary hash/size, PuLP
+   version, Python/NumPy/OS/architecture/CPU/memory envelope, and exact
+   model-registry artifacts. A source run must prove one of two explicit modes:
+   an exact globally clean Git checkout, or a Git-free immutable image whose
+   embedded `IMAGE_SOURCE_COMMIT_SHA` equals the receipt and whose every
+   manifest-bound source file exists and is nonsymlinked. The selected mode is
+   persisted in the create-once capture. Model generations are frozen before
+   generation and exact-reopened after generation; a changed latest week,
+   object census, generation, bytes, hash, or creation time fails before the
+   first capture can publish.
 10. **Read/write boundary — repaired.** GCS publication is fixed to
     `settings.gcs_bucket`, one deterministic run prefix, five fixed names, and
     create-only `if_generation_match=0`. A scoped BigQuery proxy permits only
@@ -110,17 +115,18 @@ CSV bytes and export receipts are identical. Nothing calls the seam yet.
 
 ## Validation
 
-- **150/150 focused compatibility and review-gate tests passed** across
+- **152/152 focused compatibility and review-gate tests passed** across
   immutable v1 lineage, typed selector instrumentation, graph-v2, real live
   multiseed/CBWU behavior, policy-v6 identity, generation exposure, paid-v2,
   and all new authority/publication/settlement tests.
-- The new/modified 45-test slice passed independently.
+- The new/modified 47-test slice passed independently.
 - Adversarial coverage includes subsecond provider time, create-only GCS race,
   later-clock retry after each of five write boundaries, complete post-lock
   read-only reopen, arbitrary bucket rejection, salary second-read rejection,
   model-generation drift, dirty/wrong source commit, rejected BigQuery reads
   swallowed by caller code, feature alias rejection, matrix tamper, keyed score
-  permutation, and missing/duplicate score rows.
+  permutation, missing/duplicate score rows, an untracked file anywhere in a
+  source checkout, and an immutable image with no Git executable.
 - Ruff passes on every changed Python file; all new modules compile; and
   `git diff --check` passes.
 - A repository-wide suite was started but intentionally interrupted near 1%
@@ -133,11 +139,13 @@ These are activation controls, not unresolved implementation defects:
 
 1. Independently review this selective branch and merge it without importing
    the rejected donor contracts.
-2. Build one clean immutable image from the merged commit and construct its
-   execution receipt.
+2. Build one immutable image from the exact merged commit, set its embedded
+   source revision to that same full commit, and construct its execution
+   receipt from the immutable image digest.
 3. Well before lock, run exactly one candidate-only shadow with the read-only
-   model authority and closed GCS store. The clean-checkout gate will reject a
-   dirty tree or mismatched commit.
+   model authority and closed GCS store. A checkout run rejects any dirty tree
+   or mismatched commit; the normal Git-free image run rejects a mismatched
+   embedded revision or missing manifest-bound source.
 4. Exact-reopen the final manifest and all five provider generations, verify
    returned-book parity, and inspect the graph projection offline.
 5. Only after that smoke may production choose to load the bounded packet into
