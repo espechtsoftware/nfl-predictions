@@ -9,9 +9,12 @@ only by its exact content identity.
 
 from __future__ import annotations
 
+import json
+import re
 from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from types import MappingProxyType
 from typing import Final
 
@@ -20,6 +23,20 @@ from nfl_dfs.research import corpus_graph_vnext_contracts as graph
 
 PROJECTION_SCHEMA: Final = "prelock-lineage-graph-summary/v1"
 RECEIPT_SCHEMA: Final = "prelock-lineage-graph-summary-receipt/v1"
+MAPPING_TRANSFORM_SCHEMA: Final = (
+    "prelock-lineage-graph-summary-mapping-transform/v1"
+)
+SIDECAR_PROVIDER_RECEIPT_SCHEMA: Final = (
+    "prelock-lineage-sidecar-provider-receipt/v1"
+)
+INACTIVE_OFFLINE_MODE: Final = "inactive-offline"
+CREATE_ONCE_PUBLICATION_MODE: Final = "create-once-exact-reopen"
+
+_IDENTIFIER: Final = re.compile(r"^[A-Za-z0-9][A-Za-z0-9:._/-]{0,199}$")
+_SHA256: Final = re.compile(r"^[0-9a-f]{64}$")
+_UTC_TIMESTAMP: Final = re.compile(
+    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$"
+)
 
 AUTHORITY_FLAGS: Final[Mapping[str, bool]] = MappingProxyType(
     {
@@ -32,6 +49,39 @@ AUTHORITY_FLAGS: Final[Mapping[str, bool]] = MappingProxyType(
         "production_default_change_authority": False,
         "promotion_authority": False,
         "scoring_authority": False,
+    }
+)
+
+_MAPPING_TRANSFORM_BODY: Final[dict[str, object]] = {
+    "schema_version": MAPPING_TRANSFORM_SCHEMA,
+    "transform_id": "prelock-lineage-summary-to-corpus-graph-vnext-v2",
+    "source_schema_version": lineage.SIDECAR_SCHEMA,
+    "projection_schema_version": PROJECTION_SCHEMA,
+    "target_graph_schema_version": graph.GRAPH_SCHEMA_VERSION,
+    "projection_scope": "aggregate-only",
+    "selector_retrieval_binding_contract": "explicit-total-map/v1",
+    "emitted_node_kinds": [
+        "CandidateSnapshot",
+        "MetricSet",
+        "ScienceRelease",
+        "SelectedBook",
+        "Slate",
+        "SourceArtifact",
+    ],
+    "emitted_relationship_types": [
+        "DERIVED_FROM",
+        "FOR_SLATE",
+        "HAS_METRIC",
+        "USES_SOURCE",
+    ],
+    "individual_rows_emitted": False,
+    "outcome_rows_emitted": False,
+}
+MAPPING_TRANSFORM_IDENTITY: Final[Mapping[str, str]] = MappingProxyType(
+    {
+        "schema_version": MAPPING_TRANSFORM_SCHEMA,
+        "transform_id": str(_MAPPING_TRANSFORM_BODY["transform_id"]),
+        "sha256": graph.canonical_sha256(_MAPPING_TRANSFORM_BODY),
     }
 )
 
@@ -51,11 +101,29 @@ class PrelockLineageGraphV2Error(ValueError):
 class PrelockLineageGraphV2Projection:
     """Validated aggregate logical rows and their deterministic receipt."""
 
+    mapping_transform_identity: dict[str, object]
+    selector_retrieval_preset_bindings: dict[str, str]
     governed_manifest: dict[str, object]
     nodes: tuple[dict[str, object], ...]
     relationships: tuple[dict[str, object], ...]
     load_plan: dict[str, object]
     receipt: dict[str, object]
+
+    def as_dict(self) -> dict[str, object]:
+        """Return the closed canonical publication envelope."""
+
+        return {
+            "schema_version": PROJECTION_SCHEMA,
+            "mapping_transform_identity": self.mapping_transform_identity,
+            "selector_retrieval_preset_bindings": (
+                self.selector_retrieval_preset_bindings
+            ),
+            "governed_manifest": self.governed_manifest,
+            "nodes": list(self.nodes),
+            "relationships": list(self.relationships),
+            "load_plan": self.load_plan,
+            "receipt": self.receipt,
+        }
 
 
 def _fail(message: str) -> None:
@@ -98,7 +166,158 @@ def _identity(value: object, *, label: str) -> dict[str, object]:
             f"{label} keys differ: missing={sorted(expected - set(retained))}, "
             f"extra={sorted(set(retained) - expected)}"
         )
-    return retained
+    uri = retained["uri"]
+    generation = retained["generation"]
+    digest = retained["sha256"]
+    byte_count = retained["bytes"]
+    if type(uri) is not str or not uri:
+        _fail(f"{label} URI is invalid")
+    if (
+        type(generation) is not str
+        or not generation.isdigit()
+        or int(generation) < 1
+    ):
+        _fail(f"{label} generation is invalid")
+    if type(digest) is not str or _SHA256.fullmatch(digest) is None:
+        _fail(f"{label} SHA-256 is invalid")
+    if type(byte_count) is not int or byte_count < 1:
+        _fail(f"{label} byte count is invalid")
+    return {
+        "uri": uri,
+        "generation": generation,
+        "sha256": digest,
+        "bytes": byte_count,
+    }
+
+
+def _utc_timestamp(value: object, *, label: str) -> tuple[str, datetime]:
+    if type(value) is not str or _UTC_TIMESTAMP.fullmatch(value) is None:
+        _fail(f"{label} must be UTC seconds in YYYY-MM-DDTHH:MM:SSZ form")
+    try:
+        parsed = datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=UTC)
+    except ValueError as exc:
+        raise PrelockLineageGraphV2Error(f"{label} is invalid") from exc
+    return value, parsed
+
+
+def _selector_retrieval_bindings(
+    value: object, *, selector_ids: Sequence[str]
+) -> dict[str, str]:
+    if not isinstance(value, Mapping) or any(
+        type(key) is not str for key in value
+    ):
+        _fail("selector-to-retrieval-preset bindings are not a string-keyed map")
+    item = dict(value)
+    expected = set(selector_ids)
+    if set(item) != expected:
+        _fail(
+            "selector-to-retrieval-preset binding keys differ: "
+            f"missing={sorted(expected - set(item))}, "
+            f"extra={sorted(set(item) - expected)}"
+        )
+    normalized: dict[str, str] = {}
+    for selector_id in sorted(expected):
+        preset_id = item[selector_id]
+        if type(preset_id) is not str or _IDENTIFIER.fullmatch(preset_id) is None:
+            _fail(f"retrieval preset for selector {selector_id!r} is invalid")
+        normalized[selector_id] = preset_id
+    return normalized
+
+
+def _sidecar_provider_receipt(
+    value: object,
+    *,
+    sidecar_identity: Mapping[str, object],
+    frozen_at_utc: str,
+    slate_lock_at_utc: str,
+    projection_created_at_utc: str,
+) -> dict[str, object]:
+    if not isinstance(value, Mapping):
+        _fail("sidecar provider receipt is not a mapping")
+    item = dict(value)
+    expected = {
+        "schema_version",
+        "publication_mode",
+        "create_once",
+        "create_once_precondition",
+        "sidecar_identity",
+        "storage_created_at_utc",
+        "storage_metadata_authority",
+        "exact_generation_reopened",
+        "canonical_sidecar_bytes_reopened",
+        "receipt_sha256",
+    }
+    if set(item) != expected:
+        _fail(
+            "sidecar provider receipt keys differ: "
+            f"missing={sorted(expected - set(item))}, "
+            f"extra={sorted(set(item) - expected)}"
+        )
+    retained_hash = item.pop("receipt_sha256")
+    if (
+        item.get("schema_version") != SIDECAR_PROVIDER_RECEIPT_SCHEMA
+        or item.get("publication_mode") != CREATE_ONCE_PUBLICATION_MODE
+        or item.get("create_once") is not True
+        or item.get("create_once_precondition") != "if_generation_match=0"
+        or item.get("storage_metadata_authority")
+        != "google-cloud-storage-object-metadata"
+        or item.get("exact_generation_reopened") is not True
+        or item.get("canonical_sidecar_bytes_reopened") is not True
+        or type(retained_hash) is not str
+        or _SHA256.fullmatch(retained_hash) is None
+        or retained_hash != _canonical_sha256(item)
+    ):
+        _fail("sidecar provider receipt contract or self-hash differs")
+    retained_identity = _identity(
+        item.get("sidecar_identity"), label="provider-receipt sidecar identity"
+    )
+    if retained_identity != sidecar_identity:
+        _fail("provider receipt does not bind the exact sidecar identity")
+    _, frozen = _utc_timestamp(frozen_at_utc, label="sidecar freeze time")
+    created_text, created = _utc_timestamp(
+        item.get("storage_created_at_utc"), label="provider creation time"
+    )
+    _, lock = _utc_timestamp(slate_lock_at_utc, label="slate lock")
+    _, projected = _utc_timestamp(
+        projection_created_at_utc, label="projection creation time"
+    )
+    if created < frozen:
+        _fail("provider creation time precedes the sidecar freeze")
+    if created >= lock:
+        _fail("sidecar provider object was not created before slate lock")
+    if projected < created:
+        _fail("graph projection creation time precedes provider publication")
+    return {
+        **item,
+        "sidecar_identity": retained_identity,
+        "storage_created_at_utc": created_text,
+        "receipt_sha256": retained_hash,
+    }
+
+
+def _validated_publication_evidence(
+    *,
+    publication_mode: str,
+    provider_receipt: Mapping[str, object] | None,
+    sidecar_identity: Mapping[str, object],
+    header: Mapping[str, object],
+    projection_created_at_utc: str,
+) -> dict[str, object] | None:
+    if publication_mode == INACTIVE_OFFLINE_MODE:
+        if provider_receipt is not None:
+            _fail("inactive offline mode cannot claim a provider receipt")
+        return None
+    if publication_mode != CREATE_ONCE_PUBLICATION_MODE:
+        _fail("publication mode is outside the closed contract")
+    if provider_receipt is None:
+        _fail("publication mode requires a create-once provider receipt")
+    return _sidecar_provider_receipt(
+        provider_receipt,
+        sidecar_identity=sidecar_identity,
+        frozen_at_utc=str(header["frozen_at_utc"]),
+        slate_lock_at_utc=str(header["slate_lock_at_utc"]),
+        projection_created_at_utc=projection_created_at_utc,
+    )
 
 
 def _without_edge_key(edge: Mapping[str, object]) -> dict[str, object]:
@@ -339,6 +558,7 @@ def _admission_summary(
 def _strategy_summary(
     *,
     sidecar: Mapping[str, object],
+    selector_retrieval_preset_bindings: Mapping[str, str],
     effective_snapshot_id: str,
     nodes: list[dict[str, object]],
     relationships: list[dict[str, object]],
@@ -387,7 +607,9 @@ def _strategy_summary(
                         "book_id": strategy_id,
                         "entry_budget": int(header["entry_budget"]),
                         "selected_count": final_book_count,
-                        "retrieval_preset_id": strategy_id,
+                        "retrieval_preset_id": (
+                            selector_retrieval_preset_bindings[str(strategy_id)]
+                        ),
                     },
                 }
             )
@@ -560,9 +782,12 @@ def project_prelock_lineage_summary_v2(
     *,
     sidecar: Mapping[str, object],
     sidecar_identity: Mapping[str, object],
+    selector_retrieval_preset_bindings: Mapping[str, str],
     graph_release_id: str,
     projection_created_at_utc: str,
     predecessor_graph_release_id: str | None = None,
+    publication_mode: str = INACTIVE_OFFLINE_MODE,
+    sidecar_provider_receipt: Mapping[str, object] | None = None,
 ) -> PrelockLineageGraphV2Projection:
     """Validate one sidecar and project only its aggregate pre-lock census."""
 
@@ -580,6 +805,17 @@ def project_prelock_lineage_summary_v2(
         _fail("sidecar content identity differs from its canonical bytes")
 
     header = retained["run_header"]
+    normalized_bindings = _selector_retrieval_bindings(
+        selector_retrieval_preset_bindings,
+        selector_ids=header["selector_ids"],
+    )
+    normalized_provider_receipt = _validated_publication_evidence(
+        publication_mode=publication_mode,
+        provider_receipt=sidecar_provider_receipt,
+        sidecar_identity=normalized_sidecar_identity,
+        header=header,
+        projection_created_at_utc=projection_created_at_utc,
+    )
     source_rows = header["input_source_identities"]
     if not isinstance(source_rows, Sequence):
         _fail("validated input source identities are unavailable")
@@ -723,6 +959,7 @@ def project_prelock_lineage_summary_v2(
     effective_stage_id = str(header["effective_candidate_stage_id"])
     strategies = _strategy_summary(
         sidecar=retained,
+        selector_retrieval_preset_bindings=normalized_bindings,
         effective_snapshot_id=stage_node_ids[effective_stage_id],
         nodes=nodes,
         relationships=relationships,
@@ -754,14 +991,15 @@ def project_prelock_lineage_summary_v2(
     logical_rows_sha256 = _canonical_sha256(
         {"nodes": nodes, "relationships": relationships}
     )
+    mapping_transform_identity = dict(MAPPING_TRANSFORM_IDENTITY)
     projection_body: dict[str, object] = {
         "schema_version": PROJECTION_SCHEMA,
-        "graph_schema_version": graph.GRAPH_SCHEMA_VERSION,
-        "governed_manifest_sha256": governed_manifest["manifest_sha256"],
-        "load_plan_sha256": load_plan["plan_sha256"],
-        "logical_rows_sha256": logical_rows_sha256,
-        "node_count": len(nodes),
-        "relationship_count": len(relationships),
+        "mapping_transform_identity": mapping_transform_identity,
+        "selector_retrieval_preset_bindings": normalized_bindings,
+        "governed_manifest": governed_manifest,
+        "nodes": nodes,
+        "relationships": relationships,
+        "load_plan": load_plan,
     }
     receipt_body: dict[str, object] = {
         "schema_version": RECEIPT_SCHEMA,
@@ -770,9 +1008,20 @@ def project_prelock_lineage_summary_v2(
         "graph_release_id": governed_manifest["graph_release_id"],
         "projection_created_at_utc": governed_manifest["created_at_utc"],
         "run_id": header["run_id"],
+        "publication_mode": publication_mode,
+        "mapping_transform_identity": mapping_transform_identity,
+        "selector_retrieval_preset_binding_sha256": _canonical_sha256(
+            normalized_bindings
+        ),
         "sidecar_schema_version": lineage.SIDECAR_SCHEMA,
         "sidecar_contract_sha256": retained["sidecar_sha256"],
         "sidecar_identity": normalized_sidecar_identity,
+        "sidecar_provider_receipt": normalized_provider_receipt,
+        "sidecar_provider_receipt_sha256": (
+            None
+            if normalized_provider_receipt is None
+            else normalized_provider_receipt["receipt_sha256"]
+        ),
         "input_source_identity_count": len(source_identities),
         "input_source_identity_set_sha256": _canonical_sha256(
             [
@@ -792,6 +1041,9 @@ def project_prelock_lineage_summary_v2(
         "node_kind_counts": node_kind_counts,
         "relationship_type_counts": relationship_counts,
         "sidecar_content_verified": True,
+        "sidecar_create_once_prelock_verified": (
+            normalized_provider_receipt is not None
+        ),
         "input_source_bodies_verified": False,
         "aggregate_reconciliation_verified": True,
         "individual_candidate_row_count": 0,
@@ -806,6 +1058,8 @@ def project_prelock_lineage_summary_v2(
         "receipt_sha256": _canonical_sha256(receipt_body),
     }
     return PrelockLineageGraphV2Projection(
+        mapping_transform_identity=mapping_transform_identity,
+        selector_retrieval_preset_bindings=normalized_bindings,
         governed_manifest=governed_manifest,
         nodes=tuple(nodes),
         relationships=tuple(relationships),
@@ -814,11 +1068,100 @@ def project_prelock_lineage_summary_v2(
     )
 
 
+def canonical_projection_json_bytes(
+    projection: PrelockLineageGraphV2Projection,
+) -> bytes:
+    """Serialize a validated projection in its sole publication encoding."""
+
+    if not isinstance(projection, PrelockLineageGraphV2Projection):
+        _fail("projection is not a validated pre-lock graph projection")
+    try:
+        return lineage.canonical_json_bytes(projection.as_dict())
+    except lineage.PrelockCandidateLineageError as exc:
+        raise PrelockLineageGraphV2Error(
+            f"projection is not canonical JSON: {exc}"
+        ) from exc
+
+
+def _closed_json_object(raw: bytes) -> dict[str, object]:
+    if type(raw) is not bytes:
+        _fail("projection reopen input is not bytes")
+
+    def _object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+        result: dict[str, object] = {}
+        for key, value in pairs:
+            if key in result:
+                _fail(f"projection JSON repeats key {key!r}")
+            result[key] = value
+        return result
+
+    try:
+        parsed = json.loads(raw.decode("ascii"), object_pairs_hook=_object)
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+        if isinstance(exc, PrelockLineageGraphV2Error):
+            raise
+        raise PrelockLineageGraphV2Error(
+            "projection is not a canonical JSON object"
+        ) from exc
+    if not isinstance(parsed, Mapping):
+        _fail("projection canonical JSON root is not an object")
+    document = dict(parsed)
+    try:
+        canonical = lineage.canonical_json_bytes(document)
+    except lineage.PrelockCandidateLineageError as exc:
+        raise PrelockLineageGraphV2Error(
+            f"projection is not canonical JSON: {exc}"
+        ) from exc
+    if raw != canonical:
+        _fail("projection bytes are not the exact canonical JSON encoding")
+    return document
+
+
+def reopen_prelock_lineage_summary_v2(
+    *,
+    projection_bytes: bytes,
+    sidecar: Mapping[str, object],
+    sidecar_identity: Mapping[str, object],
+    selector_retrieval_preset_bindings: Mapping[str, str],
+    graph_release_id: str,
+    projection_created_at_utc: str,
+    predecessor_graph_release_id: str | None = None,
+    publication_mode: str = INACTIVE_OFFLINE_MODE,
+    sidecar_provider_receipt: Mapping[str, object] | None = None,
+) -> PrelockLineageGraphV2Projection:
+    """Fail closed unless canonical bytes exactly replay from their authorities."""
+
+    reopened = _closed_json_object(projection_bytes)
+    expected = project_prelock_lineage_summary_v2(
+        sidecar=sidecar,
+        sidecar_identity=sidecar_identity,
+        selector_retrieval_preset_bindings=selector_retrieval_preset_bindings,
+        graph_release_id=graph_release_id,
+        projection_created_at_utc=projection_created_at_utc,
+        predecessor_graph_release_id=predecessor_graph_release_id,
+        publication_mode=publication_mode,
+        sidecar_provider_receipt=sidecar_provider_receipt,
+    )
+    expected_document = expected.as_dict()
+    if reopened != expected_document:
+        _fail("projection differs from canonical replay of its exact authorities")
+    if projection_bytes != canonical_projection_json_bytes(expected):
+        _fail("projection canonical bytes differ from deterministic replay")
+    return expected
+
+
 __all__ = [
     "AUTHORITY_FLAGS",
+    "CREATE_ONCE_PUBLICATION_MODE",
+    "INACTIVE_OFFLINE_MODE",
+    "MAPPING_TRANSFORM_IDENTITY",
+    "MAPPING_TRANSFORM_SCHEMA",
     "PROJECTION_SCHEMA",
     "RECEIPT_SCHEMA",
+    "SIDECAR_PROVIDER_RECEIPT_SCHEMA",
     "PrelockLineageGraphV2Error",
     "PrelockLineageGraphV2Projection",
+    "canonical_projection_json_bytes",
     "project_prelock_lineage_summary_v2",
+    "reopen_prelock_lineage_summary_v2",
 ]

@@ -10,11 +10,18 @@ import pytest
 from nfl_dfs.inference import prelock_candidate_lineage_v1 as lineage
 from nfl_dfs.research.prelock_lineage_graph_v2 import (
     AUTHORITY_FLAGS,
+    CREATE_ONCE_PUBLICATION_MODE,
+    INACTIVE_OFFLINE_MODE,
+    MAPPING_TRANSFORM_IDENTITY,
+    SIDECAR_PROVIDER_RECEIPT_SCHEMA,
     PrelockLineageGraphV2Error,
+    canonical_projection_json_bytes,
     project_prelock_lineage_summary_v2,
+    reopen_prelock_lineage_summary_v2,
 )
 
 PROJECTION_CREATED_AT = "2026-09-13T16:31:00Z"
+SELECTOR_BINDINGS = {"coverage-194-v1": "retrieval-main-slate-v7"}
 
 
 def _roster() -> dict[str, object]:
@@ -261,9 +268,29 @@ def _project(sidecar: dict[str, object]):
     return project_prelock_lineage_summary_v2(
         sidecar=sidecar,
         sidecar_identity=_identity(sidecar),
+        selector_retrieval_preset_bindings=SELECTOR_BINDINGS,
         graph_release_id="prelock-summary-release-001",
         projection_created_at_utc=PROJECTION_CREATED_AT,
     )
+
+
+def _provider_receipt(
+    sidecar: dict[str, object],
+    *,
+    storage_created_at_utc: str = "2026-09-13T16:30:30Z",
+) -> dict[str, object]:
+    body: dict[str, object] = {
+        "schema_version": SIDECAR_PROVIDER_RECEIPT_SCHEMA,
+        "publication_mode": CREATE_ONCE_PUBLICATION_MODE,
+        "create_once": True,
+        "create_once_precondition": "if_generation_match=0",
+        "sidecar_identity": _identity(sidecar),
+        "storage_created_at_utc": storage_created_at_utc,
+        "storage_metadata_authority": "google-cloud-storage-object-metadata",
+        "exact_generation_reopened": True,
+        "canonical_sidecar_bytes_reopened": True,
+    }
+    return {**body, "receipt_sha256": lineage.canonical_sha256(body)}
 
 
 def _metric_values(projection, parent_id: str) -> dict[str, int]:
@@ -288,6 +315,17 @@ def test_summary_projects_only_existing_v2_aggregate_vocabulary() -> None:
     assert projection.governed_manifest["created_at_utc"] == PROJECTION_CREATED_AT
     assert projection.receipt["projection_created_at_utc"] == PROJECTION_CREATED_AT
     assert projection.receipt["aggregate_reconciliation_verified"] is True
+    assert projection.receipt["publication_mode"] == INACTIVE_OFFLINE_MODE
+    assert projection.receipt["sidecar_provider_receipt"] is None
+    assert projection.receipt["sidecar_create_once_prelock_verified"] is False
+    assert projection.mapping_transform_identity == MAPPING_TRANSFORM_IDENTITY
+    assert projection.selector_retrieval_preset_bindings == SELECTOR_BINDINGS
+    assert projection.receipt["mapping_transform_identity"] == (
+        MAPPING_TRANSFORM_IDENTITY
+    )
+    assert projection.receipt["selector_retrieval_preset_binding_sha256"] == (
+        lineage.canonical_sha256(SELECTOR_BINDINGS)
+    )
     assert projection.receipt["authority_flags"] == AUTHORITY_FLAGS
     assert not any(AUTHORITY_FLAGS.values())
     assert projection.receipt["individual_candidate_row_count"] == 0
@@ -332,6 +370,10 @@ def test_summary_projects_only_existing_v2_aggregate_vocabulary() -> None:
 
     book = next(row for row in projection.nodes if row["kind"] == "SelectedBook")
     assert book["properties"]["selected_count"] == 1
+    assert book["properties"]["retrieval_preset_id"] == "retrieval-main-slate-v7"
+    assert book["properties"]["retrieval_preset_id"] != (
+        book["properties"]["book_id"]
+    )
     book_metrics = _metric_values(projection, book["node_id"])
     assert book_metrics["strategy_selected_count"] == 1
     assert book_metrics["final_book_count"] == 1
@@ -343,6 +385,15 @@ def test_projection_is_deterministic_and_verifies_exact_sidecar_identity() -> No
     first = _project(sidecar)
     second = _project(deepcopy(sidecar))
     assert first == second
+    assert MAPPING_TRANSFORM_IDENTITY["sha256"] == (
+        "fda4368263fb4035e4d0a8035958c0c845418a6c4eb625b14eff3b84374c80ac"
+    )
+    projection_body = {
+        key: value for key, value in first.as_dict().items() if key != "receipt"
+    }
+    assert first.receipt["projection_sha256"] == lineage.canonical_sha256(
+        projection_body
+    )
 
     identity = _identity(sidecar)
     identity["sha256"] = "0" * 64
@@ -350,6 +401,189 @@ def test_projection_is_deterministic_and_verifies_exact_sidecar_identity() -> No
         project_prelock_lineage_summary_v2(
             sidecar=sidecar,
             sidecar_identity=identity,
+            selector_retrieval_preset_bindings=SELECTOR_BINDINGS,
+            graph_release_id="prelock-summary-release-001",
+            projection_created_at_utc=PROJECTION_CREATED_AT,
+        )
+
+
+@pytest.mark.parametrize(
+    "bindings, message",
+    [
+        ({}, "binding keys differ"),
+        (
+            {
+                "coverage-194-v1": "retrieval-main-slate-v7",
+                "unregistered-selector": "retrieval-other-v1",
+            },
+            "binding keys differ",
+        ),
+        ({"coverage-194-v1": ""}, "retrieval preset"),
+    ],
+)
+def test_selector_to_retrieval_preset_binding_is_explicit_and_total(
+    bindings: dict[str, str], message: str
+) -> None:
+    sidecar = _sidecar()
+    with pytest.raises(PrelockLineageGraphV2Error, match=message):
+        project_prelock_lineage_summary_v2(
+            sidecar=sidecar,
+            sidecar_identity=_identity(sidecar),
+            selector_retrieval_preset_bindings=bindings,
+            graph_release_id="prelock-summary-release-001",
+            projection_created_at_utc=PROJECTION_CREATED_AT,
+        )
+
+
+def test_publication_mode_requires_exact_create_once_prelock_provider_receipt() -> None:
+    sidecar = _sidecar()
+    receipt = _provider_receipt(sidecar)
+    projection = project_prelock_lineage_summary_v2(
+        sidecar=sidecar,
+        sidecar_identity=_identity(sidecar),
+        selector_retrieval_preset_bindings=SELECTOR_BINDINGS,
+        graph_release_id="prelock-summary-release-001",
+        projection_created_at_utc=PROJECTION_CREATED_AT,
+        publication_mode=CREATE_ONCE_PUBLICATION_MODE,
+        sidecar_provider_receipt=receipt,
+    )
+    assert projection.receipt["sidecar_provider_receipt"] == receipt
+    assert projection.receipt["sidecar_provider_receipt_sha256"] == (
+        receipt["receipt_sha256"]
+    )
+    assert projection.receipt["sidecar_create_once_prelock_verified"] is True
+    assert not any(projection.receipt["authority_flags"].values())
+
+    with pytest.raises(PrelockLineageGraphV2Error, match="requires"):
+        project_prelock_lineage_summary_v2(
+            sidecar=sidecar,
+            sidecar_identity=_identity(sidecar),
+            selector_retrieval_preset_bindings=SELECTOR_BINDINGS,
+            graph_release_id="prelock-summary-release-001",
+            projection_created_at_utc=PROJECTION_CREATED_AT,
+            publication_mode=CREATE_ONCE_PUBLICATION_MODE,
+        )
+    with pytest.raises(PrelockLineageGraphV2Error, match="inactive offline"):
+        project_prelock_lineage_summary_v2(
+            sidecar=sidecar,
+            sidecar_identity=_identity(sidecar),
+            selector_retrieval_preset_bindings=SELECTOR_BINDINGS,
+            graph_release_id="prelock-summary-release-001",
+            projection_created_at_utc=PROJECTION_CREATED_AT,
+            sidecar_provider_receipt=receipt,
+        )
+
+
+@pytest.mark.parametrize(
+    "created_at, message",
+    [
+        ("2026-09-13T16:29:59Z", "precedes the sidecar freeze"),
+        ("2026-09-13T17:00:00Z", "not created before slate lock"),
+        ("2026-09-13T17:00:01Z", "not created before slate lock"),
+    ],
+)
+def test_provider_receipt_timestamp_boundaries_fail_closed(
+    created_at: str, message: str
+) -> None:
+    sidecar = _sidecar()
+    with pytest.raises(PrelockLineageGraphV2Error, match=message):
+        project_prelock_lineage_summary_v2(
+            sidecar=sidecar,
+            sidecar_identity=_identity(sidecar),
+            selector_retrieval_preset_bindings=SELECTOR_BINDINGS,
+            graph_release_id="prelock-summary-release-001",
+            projection_created_at_utc=PROJECTION_CREATED_AT,
+            publication_mode=CREATE_ONCE_PUBLICATION_MODE,
+            sidecar_provider_receipt=_provider_receipt(
+                sidecar, storage_created_at_utc=created_at
+            ),
+        )
+
+
+def test_provider_receipt_generation_and_create_once_claim_fail_closed() -> None:
+    sidecar = _sidecar()
+    wrong_generation = _provider_receipt(sidecar)
+    wrong_generation["sidecar_identity"]["generation"] = "987654322"
+    wrong_generation["receipt_sha256"] = lineage.canonical_sha256(
+        {
+            key: value
+            for key, value in wrong_generation.items()
+            if key != "receipt_sha256"
+        }
+    )
+    with pytest.raises(PrelockLineageGraphV2Error, match="exact sidecar identity"):
+        project_prelock_lineage_summary_v2(
+            sidecar=sidecar,
+            sidecar_identity=_identity(sidecar),
+            selector_retrieval_preset_bindings=SELECTOR_BINDINGS,
+            graph_release_id="prelock-summary-release-001",
+            projection_created_at_utc=PROJECTION_CREATED_AT,
+            publication_mode=CREATE_ONCE_PUBLICATION_MODE,
+            sidecar_provider_receipt=wrong_generation,
+        )
+
+    not_create_once = _provider_receipt(sidecar)
+    not_create_once["create_once"] = False
+    not_create_once["receipt_sha256"] = lineage.canonical_sha256(
+        {
+            key: value
+            for key, value in not_create_once.items()
+            if key != "receipt_sha256"
+        }
+    )
+    with pytest.raises(PrelockLineageGraphV2Error, match="contract"):
+        project_prelock_lineage_summary_v2(
+            sidecar=sidecar,
+            sidecar_identity=_identity(sidecar),
+            selector_retrieval_preset_bindings=SELECTOR_BINDINGS,
+            graph_release_id="prelock-summary-release-001",
+            projection_created_at_utc=PROJECTION_CREATED_AT,
+            publication_mode=CREATE_ONCE_PUBLICATION_MODE,
+            sidecar_provider_receipt=not_create_once,
+        )
+
+
+def test_canonical_reopen_replays_full_projection_and_rejects_mutation() -> None:
+    sidecar = _sidecar()
+    projection = _project(sidecar)
+    raw = canonical_projection_json_bytes(projection)
+    assert reopen_prelock_lineage_summary_v2(
+        projection_bytes=raw,
+        sidecar=sidecar,
+        sidecar_identity=_identity(sidecar),
+        selector_retrieval_preset_bindings=SELECTOR_BINDINGS,
+        graph_release_id="prelock-summary-release-001",
+        projection_created_at_utc=PROJECTION_CREATED_AT,
+    ) == projection
+
+    with pytest.raises(PrelockLineageGraphV2Error, match="exact canonical"):
+        reopen_prelock_lineage_summary_v2(
+            projection_bytes=raw + b"\n",
+            sidecar=sidecar,
+            sidecar_identity=_identity(sidecar),
+            selector_retrieval_preset_bindings=SELECTOR_BINDINGS,
+            graph_release_id="prelock-summary-release-001",
+            projection_created_at_utc=PROJECTION_CREATED_AT,
+        )
+
+    mutated = projection.as_dict()
+    book = next(row for row in mutated["nodes"] if row["kind"] == "SelectedBook")
+    book["properties"]["retrieval_preset_id"] = "coherently-rehashed-wrong-preset"
+    mutated["receipt"]["logical_rows_sha256"] = lineage.canonical_sha256(
+        {"nodes": mutated["nodes"], "relationships": mutated["relationships"]}
+    )
+    receipt_body = {
+        key: value
+        for key, value in mutated["receipt"].items()
+        if key != "receipt_sha256"
+    }
+    mutated["receipt"]["receipt_sha256"] = lineage.canonical_sha256(receipt_body)
+    with pytest.raises(PrelockLineageGraphV2Error, match="canonical replay"):
+        reopen_prelock_lineage_summary_v2(
+            projection_bytes=lineage.canonical_json_bytes(mutated),
+            sidecar=sidecar,
+            sidecar_identity=_identity(sidecar),
+            selector_retrieval_preset_bindings=SELECTOR_BINDINGS,
             graph_release_id="prelock-summary-release-001",
             projection_created_at_utc=PROJECTION_CREATED_AT,
         )
@@ -362,6 +596,7 @@ def test_outcome_bearing_input_is_rejected_before_projection() -> None:
         project_prelock_lineage_summary_v2(
             sidecar=sidecar,
             sidecar_identity=_identity(sidecar),
+            selector_retrieval_preset_bindings=SELECTOR_BINDINGS,
             graph_release_id="prelock-summary-release-001",
             projection_created_at_utc=PROJECTION_CREATED_AT,
         )
@@ -409,6 +644,7 @@ def test_invalid_sidecar_reconciliation_cannot_be_summarized() -> None:
         project_prelock_lineage_summary_v2(
             sidecar=sidecar,
             sidecar_identity=_identity(sidecar),
+            selector_retrieval_preset_bindings=SELECTOR_BINDINGS,
             graph_release_id="prelock-summary-release-001",
             projection_created_at_utc=PROJECTION_CREATED_AT,
         )
@@ -435,6 +671,7 @@ def test_existing_v2_sourceartifact_bound_fails_closed_without_schema_change() -
         project_prelock_lineage_summary_v2(
             sidecar=sidecar,
             sidecar_identity=_identity(sidecar),
+            selector_retrieval_preset_bindings=SELECTOR_BINDINGS,
             graph_release_id="prelock-summary-release-001",
             projection_created_at_utc=PROJECTION_CREATED_AT,
         )
@@ -446,6 +683,7 @@ def test_projection_time_cannot_backdate_the_graph_manifest() -> None:
         project_prelock_lineage_summary_v2(
             sidecar=sidecar,
             sidecar_identity=_identity(sidecar),
+            selector_retrieval_preset_bindings=SELECTOR_BINDINGS,
             graph_release_id="prelock-summary-release-001",
             projection_created_at_utc="2026-09-13T16:29:59Z",
         )
