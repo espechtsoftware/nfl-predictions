@@ -22,6 +22,29 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### Paid-metric, market-source, and defender-role lab plan
+
+- Added `reports/2026-09-03-paid-metric-and-market-source-accuracy-lab-plan.md`
+  as a compact lab-ready plan. It first compares bookmaker-level props,
+  consensus constructions, game odds, and paid player metrics under one
+  corrected common-lock contract, then conditionally runs one M0/M1/M2 plus
+  negative-control comparison on fixed D800 candidates.
+- The plan incorporates the user's defender-role observation. Production
+  already has pre-lock WR1/WR2/WR3+ roles, Wide/Slot receiver shares, and SIS
+  defender Wide/Slot workload/quality. Current warehouse schema has no
+  explicit defender-to-WR1/WR2/shadow field, so the plan requires an audit of
+  retained paid coverage-map exports and, if supported, constructs a
+  role-conditioned expected defender exposure without mislabeling it as
+  observed route-level coverage.
+- Validation: documentation diff passes `git diff --check`; live BigQuery
+  `nfl_raw.INFORMATION_SCHEMA.COLUMNS` audit confirmed the currently imported
+  SIS/FP tables expose alignment and defender workload fields but no explicit
+  WR1/WR2/shadow assignment column. No cloud, scoring, or production state was
+  changed.
+- Next action: share the plan with the lab, obtain its minimum extract schema
+  and experiment identifier, then production supplies corrected common-lock
+  bookmaker rows, paid metric rows, fixed D800 identities, and lineage keys.
+
 ### Active-session polling contract
 
 - At the start of every production working turn, fetch and inspect lab
