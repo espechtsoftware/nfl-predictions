@@ -22,6 +22,72 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-03 experiment 085 efficacy cohort launched after engaged gate PASS
+
+- Engaged mechanics run `085m640r2-20260903T145905Z`, Cloud Run execution
+  `lab-run-4sbjr`, completed 1/1 with zero failures, cancellations, or retries.
+  The registered coordinator validated and published the outcome-disabled
+  `prereg054-mechanics-gate/v1` receipt at
+  `gs://nfl-2-506823-lab/gates/PREREG-054/085m640r2-20260903T145905Z.json`.
+  Production independently reopened the exact object and reproduced SHA-256
+  `e815eca79bc60c7993086df2b88a3efd06a30f227cd84dabec708d00c67fd84b`.
+  The receipt binds the intended 2022-W8/bank-640 boundary and records 29.79%
+  K80 selector turnover, so the treatment is materially engaged.
+- Lab `main` commit `0a3e4f1dac6f10ffd6a37409403a72daa1fce0cf`
+  binds that gate, immutable source/image, and reader SHA-256
+  `84719cdff9be89d419557e22097c53485983af29a4eb5efe797c3626105c861a`.
+  Focused validation passed 9/9 plus Ruff, Python compilation, shell syntax,
+  and diff checks before launch.
+- Persistent coordinator `nfl2-prereg054-efficacy-launch.service`, invocation
+  `0ae9360960654aadbc61c06537594d29`, acquired the canonical launcher registry.
+  Bank 640 is run `085b640r1-20260903T175658Z`, execution `lab-run-6fbzh`, UID
+  `521fe614-0b4e-4d23-9add-620055c0826c`; bank 641 is run
+  `085b641r1-20260903T175939Z`, execution `lab-run-slow-6gl2h`, UID
+  `42cbe325-b99f-402f-a08d-1fe4879fb391`. Both are active with 18 running
+  tasks and zero failures/retries at this checkpoint. The registered
+  coordinator will claim exact bank 642 on the first released lane and will
+  not open the efficacy reader.
+- The lab's PREREG-060 screen has completed and supports Branch A. Its serialized
+  successor PREREG-062 is active locally as PID `414078`; do not launch a second
+  heavy local calculation beside it. Exact next action: monitor both active 085
+  executions; allow bank 642 to launch automatically after a clean first-bank
+  completion, then independently run the frozen reader only after all three
+  banks are accepted 18/18 with zero retries.
+
+### 2026-09-03 production monitoring playbook adopted
+
+- Production implemented lab-wide commit monitoring in
+  `scripts/lab_repo_transition_monitor.py` and a monitor-liveness backstop in
+  `scripts/production_monitor_heartbeat.py`, with tests and systemd units, in
+  production commit `12f898b07b55aaef0b405b9a4cb28681cd0fab09`.
+  Ruff, compilation, systemd verification, and the focused suites passed 4/4.
+- Enabled service `nfl-lab-repo-transition-monitor.service` fetches lab
+  `origin/main` every two minutes without changing its checkout. It emits one
+  event per new commit, classifies handoff/report/prereg/queue/reader changes
+  as wake-worthy, emits failures as events, writes an atomic state snapshot,
+  and sends bounded high-signal Windows notifications.
+- Enabled timer `nfl-production-monitor-heartbeat.timer` runs every ten minutes.
+  It verifies the build, Cloud Run lane, lab action-note, and new repository
+  watchers, automatically restarts a dead or stale watcher, and persists an
+  explicit healthy/no-action heartbeat under
+  `~/.local/state/nfl-dfs/monitor-heartbeat/`. Its first run found all four
+  monitors active and current.
+- The host services survive IDE restarts and detect transitions, but the IDE
+  extension does not expose Scheduled-task management. A same-chat scheduled
+  heartbeat must be created from the ChatGPT/Codex desktop or web Scheduled
+  surface if automatic model re-entry is required; the host layer remains the
+  independent provider/repository safety net.
+
+### 2026-09-03 `us_dfs` census delivered directly to lab
+
+- The already-completed production `us_dfs` census and secret/identity-redacted
+  fixture were copied into lab `main` at commit
+  `4abec2ea4457f0a5f1304bb093c417b4677a550c` as
+  `handoffs/PRODUCTION-TO-LAB-US-DFS-CENSUS-2026-09-03.md` and
+  `tests/fixtures/odds-us-dfs-player-pass-yds-redacted-v1.json`. The lab parser
+  can start without another production request. This changes no score, model,
+  backfill, or cloud execution.
+
 ### 2026-09-03 first production `us_dfs` census is viable
 
 - Production executed the lab's score-free `us_dfs` feasibility request against the existing Odds API account.
