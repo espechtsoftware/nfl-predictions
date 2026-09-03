@@ -22,6 +22,36 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-03 production-to-lab selection-gap execution plan
+
+- Production reviewed `reports/2026-09-03-selection-gap-untried-overcoding-review.md` at SHA-256
+  `5c2d9484d72307e6a3c51f4466dafc9c012ca3b3986517bef8f8e16d5522dc48` and wrote the actionable lab plan
+  `reports/2026-09-03-production-to-lab-selection-gap-execution-plan.md`.
+- The plan deliberately reduces the six proposed ideas to a three-read routing packet: finish the already-running
+  PREREG-060 QD frontier unchanged, make six narrow pre-read conformance repairs to the already-built PREREG-062
+  candidate-feature sweep and run it, and execute one inexpensive N2 shock-equivalence audit. Those results select
+  exactly one subsequent score-bearing branch rather than creating another arm grid.
+- If D800 contains held-out complementary quality and the regret is distributed/learnable, the next branch is one
+  same-pool KG5 retrieval comparison, with the single frozen 0.5 incidence weighting permitted as at most one
+  controlled contrast. If D800 is barren, the alternative is one small covariate-conditioned extremal-dependence
+  upstream gate that may create different supply. If neither route has evidence, the historical branch stops.
+- The lab can begin the `us_dfs` schema/parser/coverage contract, the N6 winner-retrieval harness, and an exact
+  candidate-incidence receipt in parallel. Production retains endpoint access and prospective capture, paid-data
+  exports, winner-registry v2, and Experiment-085 recovery. N5 is limited to one legal-space feasibility spike and
+  is last; UI and generic graph work are explicitly non-blocking.
+- PREREG-060 remains active locally as PID `244431` on the full 72-slate, 10,000-simulation process. PREREG-061
+  remains correctly gated on 060. PREREG-062 exists on lab `main` but must not read outcomes until its bank census,
+  missing-column/zero preservation, standard BH step-up, feature-census, and family-stratification defects are
+  repaired and a four-slate smoke passes.
+- The 085 mechanics execution `lab-run-5jsn7` completed exact 1/1, but its outcome-disabled 2021-W1 receipt was
+  unengaged: four designated players, zero modeled players, zero hard exclusions, and zero selector turnover. The
+  host gate correctly rejected the participation/hard-eligibility receipt, so no gate was published and no efficacy
+  or outcome read was authorized. Production owns an amended engaged mechanics boundary; this does not block the
+  lab's 060/062/N2 work.
+- This milestone changes documentation only. It launched no experiment, read no new outcome, and changed no cloud,
+  scoring, paid-entry, Neo4j, or source state. Next concrete action: push and share the plan with the lab; lab finishes
+  060, applies the bounded 062 repairs, and freezes N2 while production separately recovers the 085 gate.
+
 ### 2026-09-03 CFB collection schedulers enabled and current slate snapshot captured
 
 - Production confirmed the repaired collection-only `ingest-cfb` deployment remains generation 11 on immutable
