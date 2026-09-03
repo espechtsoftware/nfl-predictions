@@ -22,6 +22,23 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-03 A5 Week-1 contest allocation decided
+
+- The operator reaffirmed the prior A5 allocation as authoritative: 57 entries in the approximately 832k-entry
+  $5 Milly, 20 in the approximately 158k-entry $3 20-max contest, three in the approximately 5k-entry $18
+  championship qualifier, and ten in the $5 championship qualifier. Total planned volume is 90 entries and
+  planned spend is **$449**. This supersedes choosing among the lab's later generic Options A/B/C.
+- The durable decision contract is `reports/2026-09-03-a5-week1-contest-allocation-decision.md`. Unless the
+  operator changes it before lock, the book mapping is nested ranked prefixes: K57 Milly, K20 20-max, K3 $18
+  qualifier, and K10 $5 qualifier. Repeated roster hashes across contests are allowed and must be explicit in the
+  contest-entry edge manifest; entries within a contest remain unique.
+- Exact contest IDs, live fee/field/entry-limit facts, prize tables, ticket terms, lock times, the ordered entered
+  roster hashes, and accepted-entry receipts remain capture-time bindings. Material mismatch requires an explicit
+  replacement decision rather than silent substitution.
+- The D400 and same-pool D800_WEMAX counterfactual shadows must be predeclared at the same K57/K20/K3/K10 views
+  and settled against the same captured fields. This freezes contest allocation only; it does not change the
+  current D800_DEMAX generator/selector plan or claim positive expected value.
+
 ### 2026-09-03 experiment 085 engaged-boundary amendment and r2 mechanics launch
 
 - Production accepted the lab's Update-28 diagnosis: the original 2021-W1 mechanics boundary was the only
