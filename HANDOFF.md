@@ -25,6 +25,33 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-02 experiment 090 repaired mechanics launch active
+
+- Lab `main` repair `bed33a6c8c68fa71393805f4f163b4c808ab1dea`
+  resolves the PREREG-059 reader/gate identity and influence-lineage defects.
+  Production independently reran the seven launch-contract hygiene checks,
+  Python compilation, shell parsing, source/image identity checks, and the
+  two-lane provider census; all passed and both lanes were idle.
+- Immutable Cloud Build `91200822-39f9-4836-8059-e14a929276e4` succeeded from
+  that source. Image tag `090-bed33a6` resolves to digest
+  `sha256:0338ff0e8c066090771f0ad66ba9c29dd42c44ddeec6c6fe75c9bad5da21a7b5`.
+- The registered outcome-disabled mechanics package is durable on lab `main`
+  at commits `c74a8b8` and `335f22e`. The first local coordinator attempt
+  failed closed before provider mutation because its tag-format guard required
+  an eight-character short SHA while the immutable tag contains seven. Commit
+  `335f22e` corrects only that guard; no execution or prefix was claimed by the
+  failed attempt.
+- Registered run `090m630r1-20260903T002824Z` launched as Cloud Run execution
+  `lab-run-rghm8`, UID `f2fac7bc-c45a-457f-bde9-938fbf454a9d`, created
+  `2026-09-03T00:28:25.927846Z`. It is one task at one parallelism, 2 CPU /
+  8 GiB, exact image digest above, bank 630 / 2021 Week 1, and
+  `--mechanics-only`; at launch it had zero failures or retries. Durable host
+  coordinator: `nfl2-prereg059-mechanics-r1-launch.service`.
+- No efficacy prefix or realized outcome has been opened. Next concrete action:
+  poll `lab-run-rghm8` to exact terminal 1/1 success, publish and independently
+  reopen the create-once PREREG-059 gate receipt, then bind the reader and
+  three efficacy-bank launchers before claiming banks 630--632.
+
 ### 2026-09-02 experiment 090 pre-execution defect-class stop
 
 - Branch `docs/neo4j-lab-priority-20260902`, report commit `ae65c8de`, adds
