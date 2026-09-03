@@ -22,6 +22,31 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-03 independent-agent PREREG-054 response reviewed; evidence-package corrections verified
+
+- Independent-agent response commit
+  `adbf977de42f92f11e9e962f8ae97617c56446b7` is stored in the lab repository
+  but is not a lab-team response, despite the file's internal `From: lab`
+  label. It endorses production's Week-1 disposition; that endorsement must
+  not be represented as lab acceptance or a lab commitment. Correcting commit
+  `23b8b0be1b18822fa9ef1816f271c25e76dd923e` renumbers the validation
+  repair as Amendment 4, makes the prose match the implemented one-directional
+  engagement guarantee, and resets the reader engagement counters at entry.
+  Production inspected the exact diff; the changes are faithful and do not
+  alter the estimand or sealed result. Current reader SHA-256 is
+  `ab76d378467783b939d6fe56f33d1874e1f584e5acad8b9ade6fd0f515097e4b`.
+- Production's scientific disposition remains: `P_MIX` is the conditional
+  entered-book selector on `D800_DEMAX`, `P_CTRL` is its same-supply primary
+  shadow, and `P_ELIG` is diagnostic-only. No technical PREREG-054 reader issue
+  remains open; lab concurrence is not established by the independent review.
+- Exact next production action remains the one outcome-blind live-feed
+  certification rehearsal and addition of the frozen `P_MIX`/`P_CTRL`
+  K57/K20/K3/K10 views to the Week-1 capture manifest. Independent lab
+  verification of deterministic replay should be requested through the actual
+  lab-to-production channel. The existing generic capture rehearsal is
+  implemented, but the `P_MIX` live selection/receipt binding is not yet shown
+  in production source and must be wired before this gate can pass.
+
 ### 2026-09-03 PREREG-054 / experiment 085 independently reproduced; conditional Week-1 adoption recommended
 
 - Lab `main` commit `8b00020a4a7c7e026ce664a042d06624f5f6e364` sealed all three clean
