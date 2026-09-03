@@ -22,6 +22,26 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-03 CFB collection schedulers enabled and current slate snapshot captured
+
+- Production confirmed the repaired collection-only `ingest-cfb` deployment remains generation 11 on immutable
+  image digest `sha256:78c905ff383cd6ddaded89d515d14d85617d7138398ec161f91e079655f02f80`,
+  with `INGEST_CFB_ENABLED=1` and `maxRetries=0`. No active execution existed before release.
+- Cloud Scheduler jobs `s-cfb` and `s-cfb-sat` were resumed from `PAUSED` to `ENABLED`. Their intended
+  non-overlapping schedules remain `0 10,14,18 * * *` and `0 8,9,11,12,13 * * 6`, respectively, in
+  `America/Chicago`.
+- The single immediate collection execution is `ingest-cfb-k6bhc`, UID
+  `931ef081-5a55-4d14-8a2c-0843281dca1f`, created `2026-09-03T13:22:50.671299Z` and completed
+  `2026-09-03T13:26:37.907075Z`. It succeeded 1/1 with zero failures, cancellations, or retries on the exact
+  immutable image above.
+- The run appended 4,163 salary rows across all 23 current CFB draft groups and 3,324 CFB contest snapshots
+  across 18 represented groups. Warehouse totals are now 6,297 salary rows / 23 distinct groups and 5,400
+  CFB contest rows / 18 distinct groups; latest timestamps are `2026-09-03T13:26:12Z` and
+  `2026-09-03T13:26:20Z`. Provider logs reconcile the two BigQuery writes and report 1,296 guaranteed contests.
+- This remains free DraftKings collection-only infrastructure; it does not claim paid SIS/Fantasy Points college
+  features or authorize a CFB model/optimizer. Next concrete action is routine scheduler monitoring and freshness
+  checks; do not launch another manual collection merely to repeat this successful snapshot.
+
 ### 2026-09-03 experiment 085 production repair, immutable build, and active mechanics gate
 
 - Production took ownership of the frozen PREREG-054 / experiment-085 launch. The launch audit found that the
