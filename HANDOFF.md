@@ -39425,3 +39425,27 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   allow the registered coordinator to fill the first released lane with exact
   bank 622, then run the frozen reader only after all three banks finish with
   18/18 success and zero retries.
+
+## 2026-09-03 — PREREG-059 / experiment 090 independent review published
+
+- Production independently reviewed the accepted 090 mechanics and efficacy
+  cohorts against lab `main`
+  `db571c567a3b22319d2bf6bf5e6123c825a5dd5f` and published
+  `reports/2026-09-03-prereg059-production-independent-review.md` in commit
+  `e21112600586769fe36ec49ec27ade82cc7546f5`.
+- The frozen reader was rerun independently. It reproduced the lab result
+  exactly; the transcript SHA-256 is
+  `e9cdb5e628d75969ed9420fcac5cd90faf47a1b72bd8dfb84abb56754516e167`.
+  All three accepted efficacy executions completed 18/18 tasks with zero
+  failures/retries, and the mechanics execution completed 1/1. The valid
+  decision is non-adoption of the exact frozen overlay and dose; production
+  requests no 090 rerun.
+- Two non-blocking lab closeout requests remain: commit the exact frozen-reader
+  output and SHA-256 as a durable lab artifact, and scope the terminal language
+  to the frozen additive arm/dose rather than all possible dependence models.
+  This completes production's 090 cross-verification subject to those evidence
+  and wording corrections.
+- No cloud job, image, outcome, score, graph, or production policy was changed
+  by this review. The report does not block or reorder 085. Next concrete
+  action remains the governed 085 mechanics/build/launch path while the lab
+  performs the non-blocking 090 closeout.
