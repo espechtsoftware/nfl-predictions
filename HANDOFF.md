@@ -22,6 +22,21 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-03 first production `us_dfs` census is viable
+
+- Production executed the lab's score-free `us_dfs` feasibility request against the existing Odds API account.
+  The free quota check returned HTTP 200, NFL active, 99,781 credits remaining, and zero request cost. The live
+  events endpoint returned 272 current/future NFL events at zero cost.
+- Two bounded `player_pass_yds` event requests with `regions=us_dfs` and `includeMultipliers=true` each cost one
+  credit. The fixture-producing request ended with 99,779 remaining and returned PrizePicks and Underdog, two
+  market occurrences, nine outcome rows, and explicit `description/multiplier/name/point/price` fields.
+  Multipliers were null for PrizePicks and 1.0 for Underdog in this snapshot; a stray one-sided PrizePicks
+  `Over 0.5` row proves the parser must not assume paired sides or one line per player/platform.
+- Durable summary: `reports/2026-09-03-us-dfs-production-census.md`. Secret- and identity-redacted fixture for
+  the lab parser: `reports/fixtures/2026-09-03-odds-us-dfs-player-pass-yds-redacted.json`. No scoring/model table,
+  historical backfill, deployment, or selection policy changed. Next concrete action is the lab fixture parser
+  plus one bounded production Week-1 event/market coverage census before deciding on prospective capture breadth.
+
 ### 2026-09-03 A5 Week-1 contest allocation decided
 
 - The operator reaffirmed the prior A5 allocation as authoritative: 57 entries in the approximately 832k-entry

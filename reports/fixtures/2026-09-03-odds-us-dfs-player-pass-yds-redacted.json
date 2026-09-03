@@ -1,0 +1,118 @@
+{
+  "fixture_schema_version": "odds-us-dfs-redacted-fixture/v1",
+  "redactions": [
+    "event_id",
+    "home_team",
+    "away_team",
+    "player_description"
+  ],
+  "request": {
+    "includeMultipliers": true,
+    "markets": "player_pass_yds",
+    "oddsFormat": "american",
+    "regions": "us_dfs",
+    "sport": "americanfootball_nfl"
+  },
+  "request_audit": {
+    "http_status": 200,
+    "requests_last": 1,
+    "requests_remaining": 99779
+  },
+  "response": {
+    "away_team": "AWAY_TEAM",
+    "bookmakers": [
+      {
+        "key": "prizepicks",
+        "markets": [
+          {
+            "key": "player_pass_yds",
+            "last_update": "2026-09-03T15:05:41Z",
+            "outcomes": [
+              {
+                "description": "PLAYER_001",
+                "multiplier": null,
+                "name": "Over",
+                "point": 0.5,
+                "price": -137
+              },
+              {
+                "description": "PLAYER_001",
+                "multiplier": null,
+                "name": "Over",
+                "point": 228.5,
+                "price": -137
+              },
+              {
+                "description": "PLAYER_001",
+                "multiplier": null,
+                "name": "Under",
+                "point": 228.5,
+                "price": -137
+              },
+              {
+                "description": "PLAYER_002",
+                "multiplier": null,
+                "name": "Over",
+                "point": 226.5,
+                "price": -137
+              },
+              {
+                "description": "PLAYER_002",
+                "multiplier": null,
+                "name": "Under",
+                "point": 226.5,
+                "price": -137
+              }
+            ]
+          }
+        ],
+        "title": "PrizePicks"
+      },
+      {
+        "key": "underdog",
+        "markets": [
+          {
+            "key": "player_pass_yds",
+            "last_update": "2026-09-03T15:05:16Z",
+            "outcomes": [
+              {
+                "description": "PLAYER_002",
+                "multiplier": 1.0,
+                "name": "Over",
+                "point": 226.5,
+                "price": -137
+              },
+              {
+                "description": "PLAYER_002",
+                "multiplier": 1.0,
+                "name": "Under",
+                "point": 226.5,
+                "price": -137
+              },
+              {
+                "description": "PLAYER_001",
+                "multiplier": 1.0,
+                "name": "Over",
+                "point": 228.5,
+                "price": -137
+              },
+              {
+                "description": "PLAYER_001",
+                "multiplier": 1.0,
+                "name": "Under",
+                "point": 228.5,
+                "price": -137
+              }
+            ]
+          }
+        ],
+        "title": "Underdog"
+      }
+    ],
+    "commence_time": "2026-09-10T00:20:00Z",
+    "home_team": "HOME_TEAM",
+    "id": "event-redacted-001",
+    "sport_key": "americanfootball_nfl",
+    "sport_title": "NFL"
+  }
+}
