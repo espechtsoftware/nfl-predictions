@@ -22,6 +22,38 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-03 PREREG-054 / experiment 085 independently reproduced; conditional Week-1 adoption recommended
+
+- Lab `main` commit `8b00020a4a7c7e026ce664a042d06624f5f6e364` sealed all three clean
+  efficacy banks: `085b640r1-20260903T175658Z` / `lab-run-6fbzh` /
+  `521fe614-0b4e-4d23-9add-620055c0826c`,
+  `085b641r1-20260903T175939Z` / `lab-run-slow-6gl2h` /
+  `42cbe325-b99f-402f-a08d-1fe4879fb391`, and
+  `085b642r1-20260903T183705Z` / `lab-run-knc7b` /
+  `07787fbb-75b2-4476-a764-1878eebc8b08`. Each completed 18/18 with zero
+  failures, cancellations, or retries.
+- Production independently ran reader SHA-256
+  `6bfc7d34a268fcd1a76e4a4053d826e5dc9b724211c114fe641b342b8ef658a0`
+  over the three prefixes; it exited zero and reproduced the double PASS.
+  `P_MIX` improved the registered proxy by +0.00552 with a family interval
+  `[+0.00022,+0.01261]`, all banks and all LOSO cuts positive, p=0.0092;
+  raw K80 weekly max improved +1.399 `[-0.107,+2.906]`. Historical inactive
+  contamination fell from 21.53% to 16.25%. `P_ELIG` passed but is dominated.
+- Production co-signs the pre-open validation repair: `sim_mean`/`sim_q99`
+  are treatment-specific judge beliefs and must not be part of the
+  shared-generation signature. The repaired reader continues to bind the
+  actual candidate identity and separate engagement cause. Duplicate
+  amendment numbering and overly strong “exactly when” prose are
+  non-blocking evidence-package corrections.
+- Full interpretation and live certification contract:
+  `reports/2026-09-03-prereg054-participation-mixture-production-review.md`.
+  Exact next action: run one outcome-blind Week-1 rehearsal of the timestamped
+  designation snapshot and receipt. If it reproduces deterministically,
+  select the paid A5 nested book with `P_MIX` on `D800_DEMAX` and freeze
+  `P_CTRL` as the primary prospective shadow; otherwise keep `P_MIX`
+  shadow-only. This result improves selection integrity/mid-tail performance
+  but does not close the >=220/230 or generation gaps.
+
 ### 2026-09-03 experiment 085 efficacy cohort launched after engaged gate PASS
 
 - Engaged mechanics run `085m640r2-20260903T145905Z`, Cloud Run execution
