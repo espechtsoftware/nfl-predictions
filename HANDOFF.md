@@ -25,7 +25,7 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
-### 2026-09-02 experiment 090 repaired mechanics launch active
+### 2026-09-02 experiment 090 mechanics passed; efficacy cohort active
 
 - Lab `main` repair `bed33a6c8c68fa71393805f4f163b4c808ab1dea`
   resolves the PREREG-059 reader/gate identity and influence-lineage defects.
@@ -47,10 +47,29 @@ and operator decisions.  The older entries remain the durable chronology.
   8 GiB, exact image digest above, bank 630 / 2021 Week 1, and
   `--mechanics-only`; at launch it had zero failures or retries. Durable host
   coordinator: `nfl2-prereg059-mechanics-r1-launch.service`.
-- No efficacy prefix or realized outcome has been opened. Next concrete action:
-  poll `lab-run-rghm8` to exact terminal 1/1 success, publish and independently
-  reopen the create-once PREREG-059 gate receipt, then bind the reader and
-  three efficacy-bank launchers before claiming banks 630--632.
+- Mechanics completed at `2026-09-03T00:45:40.712510Z` with exact 1/1
+  success and zero failures, cancellations, or retries. The create-once gate
+  at provider generation `1788396360658980` has SHA-256
+  `f05d2d63f9eccc23b727330ca0e421cc58a498b8ad10a4c7bd7866e1de863eb3`.
+  Production independently reopened that exact generation and reproduced its
+  bytes, strict field census, source/image, full 800-candidate delivery,
+  four-arm mechanics census, v2 influence lineage, and outcome boundary.
+- Lab `main` commit `41f3ecb` binds that gate and frozen reader SHA-256
+  `1f1fef5d92aa0ba5268d3d0a61d32b5d2e82cdc6409b078a62dd1501b719b84a`
+  into both efficacy coordinator layers. Registered coordinator
+  `nfl2-prereg059-efficacy-r1.service` owns prefixes
+  `090b630r1,090b631r1,090b632r1`.
+- Bank 630 run `090b630r1-20260903T005015Z` is execution `lab-run-xgczs`,
+  created `2026-09-03T00:50:17.186080Z`; its 18 tasks were running with zero
+  failures or retries at the first post-launch census. Bank 631 run
+  `090b631r1-20260903T005253Z` is execution `lab-run-slow-kdkkg`, created
+  `2026-09-03T00:52:54.829876Z`; it was provisioning with zero failures or
+  retries. Bank 632 remains unclaimed until at least one initial bank reaches
+  exact success, while any observed failure/retry blocks its release.
+- The coordinator does not invoke the efficacy reader or open outcomes. Next
+  concrete action: poll both initial banks at task level; allow the registered
+  coordinator to release bank 632 after exact success, then read the complete
+  three-bank cohort once, through the frozen reader.
 
 ### 2026-09-02 experiment 090 pre-execution defect-class stop
 
