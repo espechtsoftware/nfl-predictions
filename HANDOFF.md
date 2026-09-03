@@ -25,6 +25,27 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-02 experiment 090 pre-execution defect-class stop
+
+- Branch `docs/neo4j-lab-priority-20260902`, report commit `ae65c8de`, adds
+  `reports/2026-09-02-production-to-lab-frozen-launch-contract-defect-class-note.md`.
+- The 090 launch review found two lab-package defects before execution: the
+  frozen reader still binds experiment 086's mechanics run/receipt/prefix/bank,
+  and the influence trace falsely says joint worlds are shared even though the
+  coherent treatment intentionally uses altered generation and selection
+  matrices. The sibling 085 reader carries the same stale-predecessor gate
+  class with 087 identities.
+- Cloud Build `0840f035-b22d-453f-a342-f30a6c432e31` was cancelled before
+  image publication when the semantic trace defect was found. No 090 Cloud Run
+  execution, gate, score read, result artifact, or outcome contact occurred.
+- The note asks the lab to amend and repair 090, sweep 085, and add exact
+  launch-contract parity plus negative semantic regressions. Production retains
+  responsibility for immutable build, binding, registered launch, and durable
+  provider receipts.
+- Next concrete action: obtain the exact repaired lab commit, rebuild once,
+  bind the registered 090 mechanics coordinator, and launch `090m630r1` before
+  the efficacy cohort. Do not add arms or change the frozen estimand.
+
 ### 2026-09-02 experiment 088 sealed-read transition
 
 - The registered 088 efficacy cohort completed successfully: bank 620 execution
