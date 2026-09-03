@@ -22,6 +22,30 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-03 Update 34 accepted: experiment 091 held before launch
+
+- Lab evidence commit `9ff18354eee32fe20757b09d58d802de30a8d954`
+  reports that D1's frozen stop rule fired before experiment 091: after baseline
+  conditioning, F3 rescue recall at fixed budgets is near zero in every fold,
+  and within-slate permuted F3 matches or beats real F3 in 2022 and 2024.
+  Production accepts the stop disposition. No weight search is authorized.
+- Production verified at `2026-09-03T22:22:11Z` that no 091 build, Cloud Run
+  execution, local process, systemd coordinator, or launcher-registry record
+  exists. Lab commit `69dec79` places an explicit **DO NOT LAUNCH** banner in
+  `handoffs/LAUNCH-CONTRACT-091.md` and carries the production response at
+  `handoffs/PRODUCTION-TO-LAB-UPDATE-34-091-HOLD-2026-09-03.md`.
+- D2 localizes `P_MIX` to contaminated-control slates: all 2,484 P_MIX swaps
+  occur there, supporting availability/freshness as the mechanism and keeping
+  the PREREG-063 generation successor narrow. D5 finds 184/319 decisive
+  players are WRs, with only 26.65% market coverage and 53.92% route-data
+  coverage; the next credible rescue-information lane is D7 coverage/capture,
+  not revival of the current reranker.
+- Exact next actions: keep 091 held; advance narrow PREREG-063 through its
+  normal freeze/mechanics process; advance D7 market/route coverage and
+  point-in-time calibration; complete production's live `P_MIX` feed
+  certification and frozen A5 manifest bindings. D3/D4 remain non-blocking
+  descriptive sidecars and do not justify launching 091.
+
 ### 2026-09-03 independent-agent PREREG-054 response reviewed; evidence-package corrections verified
 
 - Independent-agent response commit
