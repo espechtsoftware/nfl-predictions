@@ -1,0 +1,22 @@
+[Unit]
+Description=Verify and re-arm NFL production monitors
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/projects/nfl-predictions
+ExecStart=%h/projects/nfl-predictions/.venv/bin/python \
+  -m scripts.production_monitor_heartbeat \
+  --target 'nfl-cloud-build-monitor.service|%h/.local/state/nfl-dfs/cloud-build-monitor/status.json|300' \
+  --target 'nfl-cloud-run-lane-monitor.service|%h/.local/state/nfl-dfs/cloud-run-lane-monitor/status.json|300' \
+  --target 'nfl-lab-action-note-monitor.service|%h/.local/state/nfl-dfs/lab-action-note-monitor/status.json|420' \
+  --target 'nfl-lab-repo-transition-monitor.service|%h/.local/state/nfl-dfs/lab-repo-monitor/status.json|420' \
+  --status-file %h/.local/state/nfl-dfs/monitor-heartbeat/status.json \
+  --events-file %h/.local/state/nfl-dfs/monitor-heartbeat/events.jsonl \
+  --systemctl /usr/bin/systemctl --command-timeout-seconds 30 \
+  --windows-toast-command /mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/powershell.exe \
+  --notification-timeout-seconds 10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nfl-production-monitor-heartbeat
