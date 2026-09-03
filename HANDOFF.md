@@ -22,6 +22,22 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### Active-session polling contract
+
+- At the start of every production working turn, fetch and inspect lab
+  `origin/main` before taking the queued production action. Do not treat a
+  desktop notification as evidence that the current agent has consumed the
+  change.
+- While a production work session is active, keep a foreground state-diff poll
+  of lab `origin/main` running at no more than a two-minute interval and read
+  every new handoff/launch-contract change before launching or cancelling
+  compute. The persistent repository, action-note, Cloud Build, and Cloud Run
+  systemd monitors remain the restart-safe detection layer.
+- Reconcile urgent findings directly against the authoritative file and cloud
+  state before acting. Record the disposition in this handoff and, when it
+  affects a lab launch contract, push the production response into lab `main`.
+- Current verified watch head is lab commit `69dec79`; experiment 091 is held.
+
 ### 2026-09-03 Update 34 accepted: experiment 091 held before launch
 
 - Lab evidence commit `9ff18354eee32fe20757b09d58d802de30a8d954`
