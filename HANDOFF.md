@@ -20,6 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current science index -- 2026-09-03
+
+### 2026-09-03 experiment 085 production repair, immutable build, and active mechanics gate
+
+- Production took ownership of the frozen PREREG-054 / experiment-085 launch. The launch audit found that the
+  lab package had no mechanics-gate or registered queue implementation, the P_ELIG runner zeroed excluded
+  players' scores without actually excluding their lineups, and the reader's shared-generation validator still
+  referenced experiment-087 `D8_*` arms. No 085 provider prefix, result artifact, gate receipt, or outcome read
+  existed when these defects were found.
+- Lab `main` source commit `c9d698529c60a7e061d63a94b04a202c61ec9d37` records PREREG-054 Amendment 2,
+  implements true pre-lock hard eligibility for P_ELIG and its count-match reference, adds zero-contamination
+  engagement receipts, repairs the reader identities, and adds the fail-closed mechanics gate. Focused
+  eligibility/reader tests plus inherited gate/queue compatibility tests pass 34/34; Ruff, Python compilation,
+  shell parsing, and `git diff --check` pass.
+- Immutable Cloud Build `72c1f629-eb93-4bd6-bbea-440939cfc371` succeeded. Tag `085-c9d6985` resolves to
+  digest `sha256:ccc01066a68ee6f6f33576ecba3f3b6517757ef9db48c4ff6e9d94c2b8a6d973`.
+  Lab `main` commits `14f80e8` and `260497d` contain the bound registered mechanics coordinator.
+- The first host coordinator invocation failed closed before any provider mutation because the clean worktree
+  lacked its ignored `.venv` link. The link was attached to the existing lab environment and the frozen launch
+  resumed; the 085 prefix remained untouched through that host-only failure.
+- Registered mechanics run `085m640r1-20260903T124022Z` is Cloud Run execution `lab-run-5jsn7`, UID
+  `8b8da139-9ae1-4cb1-9001-dba02343db71`, created `2026-09-03T12:40:23.799477Z`. It is the exact one-task,
+  one-parallelism, 2 CPU / 8 GiB, bank-640 / 2021-Week-1 / `--mechanics-only` boundary on the immutable digest.
+  Durable host coordinator: `nfl2-prereg054-mechanics-r1-launch2.service`.
+- Next concrete action: require exact 1/1 mechanics success with zero failures/cancellations/retries; publish and
+  independently reopen the create-once PREREG-054 gate receipt; bind its run/hash and the frozen reader hash;
+  then launch efficacy banks 640/641/642 through the same registered two-lane coordinator without opening the
+  efficacy reader.
+
 ## Current science index -- 2026-09-02
 
 This section supersedes older sections headed "Current handoff" for scientific
