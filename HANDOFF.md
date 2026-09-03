@@ -22,6 +22,33 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-03 experiment 085 engaged-boundary amendment and r2 mechanics launch
+
+- Production accepted the lab's Update-28 diagnosis: the original 2021-W1 mechanics boundary was the only
+  no-participation-map season and therefore could not exercise either participation treatment. The completed
+  `085m640r1` provider execution remains mechanically successful but gate-rejected and void for authorization;
+  it published no gate and opened no outcome.
+- Lab `main` commit `02905b6fe1aa62781a2044b983862cc8bb39c00c` records PREREG-054 Amendment 3 and moves only the
+  outcome-disabled mechanics boundary to the already-smoked 2022-W8/bank-640 case under fresh prefix
+  `085m640r2`. It retains the immutable source `c9d698529c60a7e061d63a94b04a202c61ec9d37`, image digest
+  `sha256:ccc01066a68ee6f6f33576ecba3f3b6517757ef9db48c4ff6e9d94c2b8a6d973`, full budget, exact K80, and
+  every efficacy estimand/bank/prefix. The gate now requires the frozen 24-designated/22-modeled/5-excluded
+  census and nonzero K80 turnover from both treatment selectors.
+- Ruff, Python compilation, shell parsing, `git diff --check`, and the focused launch/eligibility suites passed
+  **25/25** before launch. Lab `main` commit `a3657870665c2f642b0cd77f00202f09265d4670` also preserves a
+  fail-closed efficacy coordinator template; it cannot launch until the fresh gate run, gate SHA, and reader SHA
+  are bound after independent reopening.
+- Registered coordinator `nfl2-prereg054-mechanics-r2-launch.service`, invocation
+  `d4b222b3d015428ea795c405bfcdead8`, acquired the canonical `nfl2-lab-jobs` registry lane. Run
+  `085m640r2-20260903T145905Z` is Cloud Run execution `lab-run-4sbjr`, UID
+  `a55c870d-b37b-4e40-9f4c-9f4eae0ae094`, created `2026-09-03T14:59:07.093712Z`. Its exact envelope is one
+  task/one parallelism, 2 CPU/8 GiB, bank 640, 2022 Week 8, and `--mechanics-only` on the immutable digest.
+- At the first provider poll the execution was accepted but pending Cloud Run start, with zero failures,
+  cancellations, or retries. The registered coordinator remains active and will validate/publish the create-once
+  gate after exact success. Next concrete action: poll `lab-run-4sbjr`; on a passing independently reopened gate,
+  bind the already-drafted efficacy coordinator and launch banks 640/641 on both lanes, followed by bank 642 under
+  the frozen release rule. Do not open the efficacy reader from the launch coordinator.
+
 ### 2026-09-03 production-to-lab selection-gap execution plan
 
 - Production reviewed `reports/2026-09-03-selection-gap-untried-overcoding-review.md` at SHA-256
