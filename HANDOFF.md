@@ -63,9 +63,11 @@ and operator decisions.  The older entries remain the durable chronology.
   created `2026-09-03T00:50:17.186080Z`; its 18 tasks were running with zero
   failures or retries at the first post-launch census. Bank 631 run
   `090b631r1-20260903T005253Z` is execution `lab-run-slow-kdkkg`, created
-  `2026-09-03T00:52:54.829876Z`; it was provisioning with zero failures or
-  retries. Bank 632 remains unclaimed until at least one initial bank reaches
-  exact success, while any observed failure/retry blocks its release.
+  `2026-09-03T00:52:54.829876Z` and started
+  `2026-09-03T00:53:13.274686Z`. At the first full-lane census both banks had
+  all 18 tasks running with zero failures, cancellations, or retries. Bank 632
+  remains unclaimed until at least one initial bank reaches exact success,
+  while any observed failure/retry blocks its release.
 - The coordinator does not invoke the efficacy reader or open outcomes. Next
   concrete action: poll both initial banks at task level; allow the registered
   coordinator to release bank 632 after exact success, then read the complete
