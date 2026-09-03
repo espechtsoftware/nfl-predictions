@@ -39449,3 +39449,28 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   by this review. The report does not block or reorder 085. Next concrete
   action remains the governed 085 mechanics/build/launch path while the lab
   performs the non-blocking 090 closeout.
+
+## 2026-09-03 — Post-Neo4j selection-gap execution path published
+
+- Production published
+  `reports/2026-09-03-neo4j-selection-gap-pipeline-status-and-next-experiment.md`
+  in commit `45641c93c92778519111bc3f4108bad13eb35d62`. It distinguishes completed
+  narrow selection tests (087/088), the adjacent frozen 085 participation
+  experiment, and the unfrozen KG-3A/KG-5/KG-6 work that remains necessary to
+  address the broad E0 final-book absence finding.
+- The note makes KG-5 identical-pool, walk-forward reranking the most direct
+  remaining selection test, conditional on minimum lineage proving that the
+  valuable candidate reached the selectable pool. If the first loss is instead
+  admission or supply, the same evidence routes to KG-3A or a generator
+  treatment rather than attributing the miss to retrieval.
+- The T3 diagnostic was reconciled before routing: entropy effective rank is
+  approximately 31, while independent-equivalent tail shots at 194 are
+  approximately 43. The current 621/622 artifact does not itself contain bank
+  620, and future diversity treatments require an independent evaluation bank.
+  Those are non-blocking evidence/design repairs; they do not invalidate 088.
+- No cloud job, score, outcome, graph, selector, or production policy changed.
+  Exact next action remains 085 without delay. In parallel, freeze only the
+  minimum candidate lineage needed for first-loss classification and prepare
+  one cheap outcome-blind, independent-bank quality/diversity frontier screen;
+  it decides whether KG-5, KG-3A, or supply becomes the first formal post-085
+  experiment.
