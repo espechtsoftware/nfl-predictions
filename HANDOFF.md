@@ -41559,3 +41559,31 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   Package B result. On `RESCUE_ELIGIBLE`, review/freeze only PREREG-067 / 096;
   on either other disposition, review/freeze only PREREG-068 / 097. Do not run
   both. Experiment 091 remains held.
+
+## 2026-09-04 — Selection-diagnostics research converted into an execution plan
+
+- Reviewed lab-repository report
+  `reports/2026-09-04-selection-diagnostics-research.md` at introducing commit
+  `d6e4de3cdbb28f356ab0963388ad03d90d110e61`. Its central finding is accepted:
+  current evidence is strong on lineage and association but still lacks direct
+  calibration of the selected-book maximum and a quantified separation of
+  same-objective search error from belief error.
+- Added
+  `reports/2026-09-04-selection-diagnostics-lab-execution-plan.md`. It assigns
+  the lab two same-day first builds over sealed 095 artifacts: a held-out,
+  randomized book-max PIT/exceedance calibration artifact and an a-posteriori
+  submodular greedy certificate. A small deterministic MIP sample runs only if
+  the all-cell certificate is inconclusive.
+- The plan corrects two overclaims before implementation: a tight greedy bound
+  closes only better search under the same matrix/objective, not all future
+  selection; and ordinary Mondrian conformal intervals do not directly yield
+  calibrated candidate tail probabilities. Threshold-weighted CRPS,
+  player-level PIT, and a limited top-rank check are grouped into one second
+  package after the first two results, while dose-response and conformal work
+  remain support/result-gated.
+- Diagnostics are development-only, use sealed artifacts, and do not block or
+  amend the routed 096 experiment. No code, score arm, cloud state, graph, UI,
+  or live policy changed. Experiment 091 remains held.
+- Exact next action is to push this plan, send its path to the lab, independently
+  reproduce the now-sealed WP-B result, and review the exclusive 096 launch
+  package as soon as it lands.
