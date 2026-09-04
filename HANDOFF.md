@@ -40499,3 +40499,25 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   a focused mixed-skill/DST regression passes. This changes no projection,
   model, policy, or scoring value. One final successor image/rerun is required
   to certify a single-timestamp 537-row authority.
+- Final Cloud Build `981ecdef-4c92-4ded-877c-0b1466c0f5e5` completed SUCCESS
+  at `2026-09-04T08:58:18.420388Z`; its boundary tests, image build, and
+  container smoke all passed. Immutable digest
+  `sha256:cdbf96ad190925b2c96a94568f173c4bded328442441838427fa473d2fd450b2`
+  is bound to `build-features` generation 60 and `project-slate` generation
+  61 with every non-image job field unchanged.
+- Final certification execution `project-slate-br7h9` completed exact 1/1
+  success at `2026-09-04T09:02:32.032940Z` with no failure or retry. Its
+  latest exact batch timestamp is `2026-09-04T09:02:21Z` and selects all 537
+  rows, proving the combined write is atomic at the consumer-visible batch
+  key.
+- The certified batch contains exactly 505 skill players and 32 DST, 537
+  unique DK ids, one season/week and model version, zero unmapped skill rows,
+  zero duplicate stable identities, zero invalid salaries, zero null teams,
+  zero null opponents, 537/537 finite means, and 537/537 ordered quantiles.
+  Rams remains correctly `LAR` versus `SF` at mean 6.405/p90 13.405.
+- Known non-blocking data limitation: the current Week-1 licensed prop market
+  matched zero players, so the adopted props-first gate remained off and 404
+  of 505 skill rows used available DK PPG as market fallback. This limitation
+  is explicit in the execution log and does not invalidate output mechanics;
+  projections should be refreshed when the current prop snapshot becomes
+  available.
