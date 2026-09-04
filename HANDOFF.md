@@ -41776,3 +41776,26 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   durable source-descended efficacy binding, validate its bytes, and launch
   banks 700-702 through the shared registered lane. Experiment 091 remains
   held.
+
+## 2026-09-04 — PREREG-067 efficacy cohort launched
+
+- Bound the frozen reader to source `b71dbbcb...`, immutable image
+  `sha256:486dce...`, mechanics run `096m700r1-20260904T204546Z`, and gate
+  receipt `19101084...`. Bound reader SHA-256 is
+  `3a12322b22929fb1ef7a04eaf53007bdd234019085bd72f64327b84e694cb160`.
+- Added restart-safe, registered efficacy coordinators without changing the
+  immutable runner/image. Focused PREREG-067 validation passes 18/18; Ruff,
+  shell syntax, identity sweeps, and diff checks pass. Binding commit is
+  `89822dea8976695ff8d1c40bf034650bb9a6339c`; it is merged and durable on lab
+  `origin/main` at `412e57f`.
+- Registered coordinator PID `1617661` acquired the `nfl2-lab-jobs` lane and
+  installed the exact frozen 18-task, 2-vCPU/8-GiB, maxRetries=1 envelope.
+  It created bank-700 run `096b700r1-20260904T210529Z` as execution
+  `lab-run-fqcx6` and bank-701 run `096b701r1-20260904T210811Z` as execution
+  `lab-run-slow-swvzz`. Both are nonterminal; bank 700 has all 18 tasks
+  running and bank 701 is provisioning. The coordinator will claim bank 702
+  automatically on the first clean initial-bank terminal.
+- No efficacy result or outcome reader has been opened. Exact next action is
+  to poll both exact executions and the registered coordinator, allow the
+  restart-safe bank-702 release, and stop immediately on any retry or failed
+  task. Experiment 091 remains held.
