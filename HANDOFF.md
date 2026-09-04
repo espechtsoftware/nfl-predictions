@@ -40481,3 +40481,21 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   Rams `LAR` versus `SF` at 6.405 projected points. A successor image and
   projection rerun are required; feature tables need no rebuild because this
   repair touches only DST assembly.
+- Successor Cloud Build `462a8c38-576d-45f8-9223-355cf8722c3b` passed tests,
+  image build, and container smoke. Immutable digest
+  `sha256:2543a4cce28e0e8bacf93b3bbc551c4d6d7df8a8e74070a65dc77d7100e3952f`
+  is bound to `build-features` generation 59 and `project-slate` generation
+  60 with all other job fields preserved. Certification rerun
+  `project-slate-qns8b` completed 1/1 and wrote 537 rows.
+- The rerun passes 537/537 finite means and ordered quantiles, 537 unique DK
+  ids, zero duplicate stable identities, zero bad salaries, zero null teams,
+  zero null opponents, and zero unmapped skill players. Rams is correctly
+  `LAR` versus `SF` with mean 6.405 and p90 13.405.
+- Output inspection found one remaining batch-lineage issue: skill and DST
+  constructors stamped their rows independently, seven seconds apart. Core
+  consumers use latest-per-player and receive the full batch, but exact
+  `MAX(generated_at)` consumers see only the later DST rows. The combined
+  frame is now restamped once immediately before its atomic warehouse load;
+  a focused mixed-skill/DST regression passes. This changes no projection,
+  model, policy, or scoring value. One final successor image/rerun is required
+  to certify a single-timestamp 537-row authority.

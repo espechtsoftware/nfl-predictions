@@ -63,6 +63,27 @@ def test_dst_projection_joins_dk_and_schedule_team_aliases():
     assert row.proj_points != 6.0
 
 
+def test_combined_projection_write_has_one_batch_timestamp():
+    from datetime import datetime, timezone
+
+    from nfl_dfs.inference.run_projections import _stamp_projection_batch
+
+    frame = pd.DataFrame({
+        "position": ["WR", "DST"],
+        "generated_at": [
+            "2026-09-04T08:49:38Z",
+            "2026-09-04T08:49:45Z",
+        ],
+    })
+    batch_at = datetime(2026, 9, 4, 9, 0, tzinfo=timezone.utc)
+
+    stamped = _stamp_projection_batch(frame, batch_at)
+
+    assert stamped.generated_at.nunique() == 1
+    assert stamped.generated_at.iloc[0] == batch_at
+    assert frame.generated_at.nunique() == 2
+
+
 def test_projection_accepts_none_policy_env_and_uses_dk_ppg(monkeypatch):
     from types import SimpleNamespace
 

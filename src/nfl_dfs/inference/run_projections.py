@@ -435,6 +435,16 @@ def _cascade_adjuster(season: int):
         f, usage_rec, usage_rush, injuries)
 
 
+def _stamp_projection_batch(
+    frame: pd.DataFrame,
+    generated_at: datetime | None = None,
+) -> pd.DataFrame:
+    """Give one atomic projection write one shared batch timestamp."""
+    stamped = frame.copy()
+    stamped["generated_at"] = generated_at or datetime.now(timezone.utc)
+    return stamped
+
+
 def run() -> None:
     from ..models.train_job import (load_latest_component_models,
                                     registered_ensemble_size)
@@ -476,6 +486,7 @@ def run() -> None:
             out = pd.concat([out, dst], ignore_index=True)
     except Exception:
         log.exception("DST projections failed; writing skill rows only")
+    out = _stamp_projection_batch(out)
     load_dataframe(out, f"{settings.predictions}.player_projections",
                    write_disposition="WRITE_APPEND", partition_field="generated_at")
     log.info("Wrote %d projections for season %s week %s (policy %s, model %s)",
