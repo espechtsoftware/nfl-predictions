@@ -41381,3 +41381,20 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   with `TABPFN_UPCOMING=2026:1,TABPFN_UPCOMING_ONLY=1` plus the exact source
   commit. The old digest must not be retried. Experiment 095 bank 692 remains
   active; experiment 091 remains held.
+
+## 2026-09-04 — Repaired Week-1 TabPFN image build submitted
+
+- Production source commit `acfea82478cf975c80fdccd6a95943797e793661`
+  is pushed to `origin/main`. The runtime `gen.py` SHA-256 is
+  `0d8a355b270e2ef5f6097bef51ca5d3ff1715e20951b4c2762b5594a5b9c9a81`.
+- A 14.8-KiB allowlisted, disk-backed context containing only the Dockerfile,
+  generator, feature list, and Cloud Build file was submitted as Cloud Build
+  `e74d75d8-d91d-4bff-a934-fbf4d00bd175`. Target tag is
+  `tabpfn-gen:week1-upcoming-acfea824`; no mutable source-tree or `/tmp` build
+  context is involved.
+- Exact next action is terminal build verification, immutable digest
+  resolution, temporary deployment of that digest to the restored standing
+  4/16 job, and a single execution with
+  `CODE_SHA=acfea82478cf975c80fdccd6a95943797e793661`,
+  `TABPFN_UPCOMING=2026:1`, and `TABPFN_UPCOMING_ONLY=1`. The target table must
+  remain unchanged until the repaired execution reaches its final atomic load.
