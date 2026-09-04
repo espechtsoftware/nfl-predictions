@@ -41951,3 +41951,20 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 - Continue polling this execution to terminal success, then allow the
   registered coordinator to seal the cohort and release the lane. Launch SD-B
   only after that release; 091 remains held.
+- 2026-09-04 — 096 efficacy cohort sealed; SD-B launched
+
+  The registered 096 coordinator completed successfully at 2026-09-04T22:32:49Z
+  (receipt `d0797f627484544cff94f79cef14877f89fde618e49f6c0bf53def7e29970f45`).
+  Banks 700, 701, and 702 are terminal-clean: executions
+  `lab-run-fqcx6`, `lab-run-slow-swvzz`, and `lab-run-tbskn`, respectively,
+  each report 18/18 succeeded, zero failed/cancelled, and no retries. GCS
+  census confirms 18 result objects for each prefix (54 total) under the
+  contract result root. No efficacy reader or outcome interpretation was
+  opened by production; the lab retains first-read ownership.
+
+  With the shared lane released, the registered SD-B coordinator was started
+  exactly once at 2026-09-04T22:38:21Z (launcher PID 1694314; launch log in
+  `/home/erich/projects/nfl2-sdb-binding/.tmp/`). It is configuring the
+  reusable `lab-run` job for the bound 48-task, 2-vCPU/8-GiB diagnostic. The
+  coordinator owns the launch and must run to its terminal census before any
+  merge/read. Experiment 091 remains held.
