@@ -41310,13 +41310,18 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 - The initial attempt to create a 4-vCPU / 32-GiB one-off was rejected by
   Cloud Run before any job or execution existed: this platform requires 8
   vCPU for memory above 16 GiB. The amended retry envelope is therefore 8 vCPU
-  / 32 GiB. It retains
+  / 32 GiB. A subsequent attempt to create that separately named job was also
+  rejected before resource creation because the project is already at its
+  1,000-job regional quota. The provider-valid fallback is a temporary update
+  of the standing `tabpfn-gen` template to 8 vCPU / 32 GiB, exactly one
+  zero-retry execution, then an immediate restoration to its prior 4 vCPU /
+  16 GiB template. It retains
   the same immutable image digest
   `sha256:474d3c463b9286f080ef9c377e5fca5ec4be7b9eae5f0f1a4ac51b28d21ab68c`,
   one L4 GPU, one task / one parallelism, zero retries, one-hour
   timeout, production service account, and exact
-  `TABPFN_UPCOMING=2026:1` override. It will run as a separately named
-  one-off job so the standing `tabpfn-gen` template remains unchanged.
+  `TABPFN_UPCOMING=2026:1` execution override. No second retry is authorized
+  if the 8/32 execution also terminates on signal 11.
 - This is an operational pre-lock cache refresh, not a historical experiment;
   it does not change a model feature, seed, estimator count, target, or
   selection law. Exact next action is deploy/launch the one-off job, verify
