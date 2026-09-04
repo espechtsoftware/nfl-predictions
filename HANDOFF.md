@@ -40569,5 +40569,13 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   D800's first 80, and selected-book overlap is 37/80. Five D400 candidates
   contain a non-`ACT` skill player and none is selected. Pair mechanics are
   sound; both artifacts remain unpublishable pending the eligibility repair.
+- A narrow proposed source repair is pushed in the lab repository on branch
+  `production/live-active-roster-repair` at commit
+  `1d37ba490789b902742b9e8c52acb1099e546418`. It replaces the live skill
+  denylist with the complete target-week `ACT` allowlist, retains DST
+  separately, and adds focused receipt/status tests. The bounded live/D800
+  contract suites pass 37/37. A clean-commit 10,000-world D800 diagnostic is
+  running from that branch; the lab has been notified for review. This does
+  not alter or delay historical experiment 094.
 - Full review and routing decision:
   `reports/2026-09-04-prereg063-production-independent-review.md`.
