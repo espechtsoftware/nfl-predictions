@@ -41294,3 +41294,28 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   marginal table contains unique 2026-W1 keys. The component-cache refresh
   remains a separate follow-on; injury and weather should be rechecked when
   their upstream windows open. Experiment 091 remains held.
+
+## 2026-09-04 — Week-1 TabPFN r1 void; one-off 32-GiB retry authorized
+
+- Execution `tabpfn-gen-xrvkj` terminated at
+  `2026-09-04T18:41:15.725942Z` after completing walk-forward seasons
+  2019--2023. Provider system logs report `Container terminated on signal 11`;
+  the task is 0/1 failed with zero retries. No Python exception or schema
+  failure was emitted.
+- The script performs its BigQuery load only after every season and the
+  upcoming slice complete. Direct metadata proof shows the target
+  `nfl_features.tabpfn_projections` remains at its prior 65,455 rows and prior
+  modification identity `1786108014717`; r1 performed no partial publication
+  and is void.
+- The only retry changes container memory from 16 GiB to 32 GiB. It retains
+  the same immutable image digest
+  `sha256:474d3c463b9286f080ef9c377e5fca5ec4be7b9eae5f0f1a4ac51b28d21ab68c`,
+  one L4 GPU, 4 vCPU, one task / one parallelism, zero retries, one-hour
+  timeout, production service account, and exact
+  `TABPFN_UPCOMING=2026:1` override. It will run as a separately named
+  one-off job so the standing `tabpfn-gen` template remains unchanged.
+- This is an operational pre-lock cache refresh, not a historical experiment;
+  it does not change a model feature, seed, estimator count, target, or
+  selection law. Exact next action is deploy/launch the one-off job, verify
+  terminal success, and prove unique 2026-W1 target keys before relying on the
+  cache. Experiment 091 remains held.
