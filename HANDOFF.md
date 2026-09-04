@@ -41052,3 +41052,24 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   full source SHA and image digest, followed by registered cloud mechanics
   run `095m690r1-` and independent gate reproduction. Efficacy banks 690--692
   remain gated on that mechanics pass. Experiment 091 remains held.
+
+## 2026-09-04 — Experiment 095 first image voided before execution; runtime input repaired
+
+- Cloud Build `d8eb8367-7cc2-4f64-86a7-9b306e13fa9b` successfully built
+  frozen source `d2da974` as tag `095-d2da974`, digest
+  `sha256:4d147f2a309e349a12790abc6b45087bcb8c3057b47f30f043212165caa0ef08`.
+  A post-build image-input audit then found that the runner loads the frozen
+  PREREG-060 novelty law from `scripts/prereg060_qd_frontier.py` by path, but
+  the Dockerfile did not copy that file into `/app/scripts/`.
+- The first image is void before execution. Neither reusable Cloud Run job was
+  updated, no provider execution used it, and no mechanics or efficacy output
+  or outcome was opened. This prevents the same late runtime-file failure
+  class previously caught during experiment 083.
+- Lab main commit `c251cfe` contains PREREG-066 amendment 1: copy exactly the
+  frozen selector source to its required image path and add a regression guard.
+  Focused image/095 validation passes 26/26 and Ruff passes. No selector byte,
+  arm, endpoint, seed, ladder, K, transfer law, veto, or interpretation rule
+  changed.
+- Exact next action is a fresh immutable build from `c251cfe` under a new tag,
+  followed by the unchanged registered `095m690r1-` mechanics gate. The void
+  digest must never be deployed or reader-bound. Experiment 091 remains held.
