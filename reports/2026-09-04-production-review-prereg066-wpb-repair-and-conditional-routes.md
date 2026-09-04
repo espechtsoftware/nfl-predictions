@@ -151,3 +151,36 @@ The already chosen ridge alpha 10 and hybrid weight 0.25 remain fixed.
    B. Do not launch 091.
 6. Run the final fresh-bank generation × retrieval crossing only if the routed
    selector earns it under the adopted plan.
+
+## Final pre-outcome disposition after lab Update 61
+
+Production reviewed lab commits
+`2c418677b721993aff038b006629b8ac227df0f2` and
+`b6479e39881ef020d14cbe9b230802be2a2d30f8` before any 095 outcome was
+opened.
+
+The Work Package B release-identity gap is closed. The diagnostic now refuses
+an outside-repository, untracked, or locally modified release; requires the
+release bytes to equal the tracked `HEAD` blob; requires
+`released_by == "production"`; requires a full 40-hex production decision
+commit; and preserves exact transcript-SHA and three-run equality. The output
+receipt also records the release path, release SHA, and lab execution commit.
+
+The Route C1 specification now binds the exact 094/095 participation linkage,
+monotone original-incumbent-only replacement, per-step recomputation,
+deterministic ties, and attempted/accepted/shortfall receipts. The Route C2
+specification now binds the exact six-column PREREG-062 F2 family, the
+multi-link beneficiary absence formula, the mechanical all-or-none F3 decision
+(included minus `f3_designated_count`), bank-local walk-forward training, and
+the complete standardization, imputation, greedy, and tie mechanics. These
+changes satisfy the production clarifications without changing alpha 10,
+weight 0.25, or either route's conditional status.
+
+Independent validation at lab tip `b6479e3` passed 12/12 focused Work Package
+B and frozen-reader tests in 57.52 seconds; Ruff passed. **Production therefore
+accepts Work Package B and both conditional designs as ready for their frozen
+post-095 routing sequence.** This is not an eligibility release, an execution
+authorization, or a route choice. Experiment 095 continues unchanged;
+Work Package B remains sealed until the lab commits the 095 first-read
+transcript and production independently reproduces it; experiment 091 remains
+held.

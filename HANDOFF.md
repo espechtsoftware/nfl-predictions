@@ -41209,3 +41209,27 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `reports/2026-09-04-production-review-prereg066-wpb-repair-and-conditional-routes.md`.
 - These are pre-execution specifications only. Running experiment 095 is
   unchanged, Work Package B remains sealed, and experiment 091 remains held.
+
+## 2026-09-04 — Work Package B identity repair and conditional route specifications accepted
+
+- Production reviewed lab `main` commits `2c41867` and `b6479e3` before any
+  095 outcome was opened. The remaining Work Package B release-identity defect
+  is closed: the post-seal eligibility receipt must be tracked and byte-equal
+  at the lab execution `HEAD`, bind the exact transcript and three-run cohort,
+  declare `released_by == "production"`, and carry a full 40-hex production
+  decision commit.
+- Route C1 now binds exact 094/095 beneficiary linkage and monotone
+  original-incumbent-only swaps. Route C2 now binds the exact six-field F2
+  family, multi-link absence aggregation, the pre-outcome mechanical decision
+  to include the complete supported F3 block minus `f3_designated_count`, and
+  exact bank-local walk-forward/greedy mechanics.
+- Independent validation at lab tip
+  `b6479e39881ef020d14cbe9b230802be2a2d30f8` passed 12/12 focused Work Package
+  B plus frozen-reader tests in 57.52 seconds; Ruff passed. The final
+  disposition is appended to
+  `reports/2026-09-04-production-review-prereg066-wpb-repair-and-conditional-routes.md`.
+- This acceptance does not release Work Package B or select a route. Experiment
+  095 remains the active frozen cohort; after its three clean banks the lab
+  opens and commits the first read, production independently reproduces it,
+  and only then may production publish the separate B1 eligibility decision.
+  Experiment 091 remains held.
