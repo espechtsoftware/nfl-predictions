@@ -41014,3 +41014,19 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   current baseline, experiment evidence, exact loss cohort, 095 decision path,
   and bounded beneficiary-rescue fallback is in
   `reports/2026-09-04-corpus-generation-selection-improvement-brief.md`.
+
+## 2026-09-04 — First scheduled `us_dfs` capture succeeded
+
+- Scheduler `s-us-dfs` triggered its first ordinary weekday execution at
+  15:30Z without manual intervention. Execution `ingest-us-dfs-42h7h`
+  completed exact 1/1 success with zero retry at
+  `2026-09-04T15:33:46.284492Z`.
+- The immutable generation-3 collector appended 962 raw platform quote rows
+  from all 12/12 Week-1 Sunday-main events to
+  `nfl_raw.prop_lines_us_dfs`, followed by 13 request-audit rows. The existing
+  default-off enable flag, 5,000-credit reserve, isolated raw table, and
+  zero-retry boundary remain unchanged.
+- This confirms the recurring capture path is operational after the prior
+  manual census/canary. It does not change scoring or activate any market
+  feature. Continue the scheduled snapshots for prospective coverage and
+  calibration evidence.
