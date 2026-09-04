@@ -40855,3 +40855,21 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 - Keep the efficacy reader sealed until bank 682 reaches exact clean terminal
   success. The lab retains first-read authority; production then performs the
   independent frozen-reader reproduction. Experiment 091 remains held.
+
+## 2026-09-04 — Experiment 094 efficacy cohort cleanly terminal
+
+- Final bank 682, run `094b682r1-20260904T121250Z` on execution
+  `lab-run-vtm24`, completed at `2026-09-04T14:03:29.593980Z` with exact
+  18/18 success and zero failure, cancellation, or retry. Its immutable
+  execution UID is `dd84132a-8978-45db-a544-62997691d822`.
+- The full frozen cohort is therefore exact 54/54 success across banks
+  680--682. Their provider runtimes were 1h36m50.87s, 1h43m11.83s, and
+  1h50m20.59s respectively, all under the fixed three-hour task timeout and
+  all on the exact 2-vCPU / 8-GiB envelope.
+- The registered single-writer coordinator exited zero at
+  `2026-09-04T14:04:06Z`. Completion receipt SHA-256 is
+  `23b3505b9ed1d68d28cd65be0c313e7e7d69d80e56443c2c2d25a829fbf2884c`.
+  No efficacy reader was opened by production. Exact next action is the lab's
+  frozen first read and committed transcript, followed immediately by
+  production's independent reader reproduction over the same three run IDs.
+  Experiment 091 remains held.
