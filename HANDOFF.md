@@ -43,6 +43,14 @@ agent or developer:
 - PREREG-063 remains the next separate generation experiment and is not yet
   frozen. Its D6 participation-generation census, runner/reader, fresh banks,
   mechanics smoke, and launch contract are still required.
+- The brief now carries the single consolidated active queue for the restarted
+  lab. The immediate order is 092b M2 implementation, 092c fixed-D800 read,
+  then the separate 063 generation comparison. D7 external-data work, Week-1
+  capture, candidate lineage/D4, registry-v2 adjudication, and independent
+  reads advance in parallel according to their owners and gates. The queue
+  explicitly separates launch-ready work from planned hypotheses and lists
+  completed/closed/held forms so a restarted agent does not rerun 083-092
+  history merely because a Cloud Run lane is idle.
 - The brief explicitly excludes the dirty shared production checkout from lab
   recovery. Its local state is not one coherent change: file timestamps and
   diffs separate August 23 Foundry environment edits, an August 25 Core-chain

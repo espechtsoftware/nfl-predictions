@@ -224,6 +224,43 @@ The 063 efficacy sidecar must compare unique legal supply, new phenotypes, benef
 
 063 is not launchable until its design becomes a frozen preregistration with runner, reader, real-artifact mechanics smoke, fresh prefixes/banks, and its own single-file launch contract.
 
+## Consolidated active queue for the restarted lab
+
+This section is the current execution map. It supersedes the operational ordering in `reports/2026-09-01-priority-ranking.md` and `handoffs/LAB-QUEUE-HANDOFF-2026-09-01.md`, both of which contain experiments that have since completed, failed, or been held. It does not supersede the scientific details in a frozen preregistration or a later numbered action-note update. If those sources conflict, the latest logical action-note update and the experiment's frozen launch contract govern.
+
+The backlog is large, but it is not one undifferentiated launch queue. Only a frozen, mechanics-tested package belongs in a Cloud Run lane. Work should proceed in the following order without waiting for unrelated gated items.
+
+| Order | Work item | Current state | Owner and next boundary | Cloud lane |
+|---|---|---|---|---|
+| 1 — now | **092b M2 residual challenger** | Licensed; lab implementation in progress | Lab implements exactly the five frozen features, walk-forward, no sweep, plus NP; run the real-artifact outcome-blind smoke | None until frozen |
+| 2 — next score read | **092c M0 vs M2 + NP on fixed D800** | Waiting on 092b implementation and contract | Lab freezes runner/reader/contract; production builds, runs mechanics, binds, and launches fresh banks | First eligible use of both lanes |
+| 3 — next generation read | **063 PG_CTRL vs PG_AWARE** | Design only; D6 baseline missing | Lab completes D6, freezes the bounded two-arm package, and hands production a separate launch contract | After or independently of a terminal 092 cohort, subject to lane ownership |
+| 4 — parallel data lane | **D7 external-data value** | `us_dfs` parser exists; coverage/calibration work remains | Continue the Week-1 endpoint/market census and paid-feature freshness, mapping, missingness, stale, shuffle, and calibration controls | Normally local/data work; use cloud only under its own frozen contract |
+| 5 — dated production lane | **Week-1 capture and adoption readiness** | Perishable; not an experiment backlog item | Production certifies the live P_MIX designation feed, freezes P_CTRL/P_MIX shadows and the A5 K57/K20/K10/K3 contest mapping, and rehearses entry/standings/payout capture | Must not be displaced by historical experiments |
+| 6 — evidence substrate | **Complete D800/R6 candidate lineage and D4 first-loss/rescue cohorts** | Partial infrastructure exists; full authoritative package remains incomplete | Production supplies complete pre-lock candidate/admission/selection identities; lab analyzes generation, admission, and retrieval loss without changing scoring | No efficacy launch until a specific intervention is frozen |
+| 7 — verification | **Independent reads for 084, 085, 087, 088 and 060/062/N2 artifacts** | Useful backlog, non-blocking | Lab and production divide second-reader checks and record discrepancies | No new efficacy banks |
+| 8 — registry-gated winner work | **080, 081, 082** | Held | Registry v2 adjudication releases 080; 081 additionally needs estimand/identity rebuild; 082 additionally needs its fresh literal-cell binding | Do not reserve a lane yet |
+| 9 — successors earned by evidence | **Fixed-budget admission, learned phenotype selection, direct phenotype generation, and final generation x admission x retrieval crossing** | Planned hypotheses, not yet launch packages | Use the completed lineage plus 092/063 results to nominate one bounded next intervention at a time | Only after nomination, preregistration, and mechanics |
+| 10 — prospective field/value work | **Opponent-field calibration, payout utility, and late swap** | Data/capture gated | Begin with Week-1 field, duplication, standings, and payout evidence; do not infer it from historical corpus scores alone | Later program |
+
+### How the queue should advance
+
+1. The lab should finish the current M2 implementation rather than switch to another idea because a Cloud lane is idle.
+2. As soon as `LAUNCH-CONTRACT-092.md` and its real-artifact mechanics evidence land on lab `main`, production should review and launch 092 through the registered lanes. The lab may then advance 063/D6 locally while 092 runs.
+3. When 092 is terminal, read it once under the frozen reader, obtain the independent verification, and route the next intervention from the result. Do not tune M2 on the opened panel.
+4. In parallel, 063, D7, lineage, capture, registry v2, and second-reader work may advance because they do not require changing 092's frozen estimand. Parallel work must not mutate a shared runner, job, prefix, or source tree being used by the active cohort.
+5. If a work item is blocked, record the blocker in the numbered lab action note and move to the next independent row. An idle lane is not permission to invent an arm or launch an unbound package.
+
+### Closed, completed, or held forms that must not consume new queue slots
+
+- Completed: 060, 062, N2, 085, and 092a.
+- Closed in their tested forms: 083 scheduler confirmation, 087 WEMAX selection, 088 cheap KG-4 calibration/sleeves, 089 instrument screen, and 090 regime overlay.
+- Compatibility result already known: 084's no-bring-back form passed at D400 but failed the D800 compatibility read; do not silently install or rerun it as a D800 component.
+- Held: 091, even though its code and old launch package exist.
+- Closed route: M1 market recomposition and any unregistered source/weight sweep.
+
+These items may reopen only under an explicitly documented new information set, objective, budget, or mechanism and a newly named preregistration. A new seed bank alone is not a reopening condition.
+
 ## Parallel work that must not delay 092
 
 - D7/us_dfs: the fixture parser is already implemented and tested. Continue coverage, freshness, mapping, missingness, and calibration work as data arrives; do not claim market-tail value until the frozen stale/shuffle controls pass.
