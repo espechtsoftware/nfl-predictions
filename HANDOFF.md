@@ -41931,3 +41931,13 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   first read and production will independently rerun afterward. SD-B remains
   staged for immediate launch when the coordinator releases the lane. 091
   remains held.
+
+## 2026-09-04 — 096 bank 702 provider start pending
+
+- Cloud Run execution `lab-run-tbskn` is accepted and provisioned for
+  `096b702r1-20260904T214843Z`, but the provider currently reports
+  `Completed=Unknown`, `running=0`, and “Waiting for execution to start,” with
+  a scheduled control-plane retry. This is not a failure or cancellation.
+- The registered coordinator is still alive and polling the exact execution;
+  no duplicate launch is permitted. The 096 cohort remains incomplete until
+  702 reaches 18/18 terminal success. SD-B stays staged, and 091 remains held.
