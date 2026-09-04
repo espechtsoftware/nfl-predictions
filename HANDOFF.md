@@ -22,6 +22,45 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-03 PREREG-064C / experiment 092 mechanics launch
+
+- Lab `origin/main` advanced through `a08da15e44a82bb301963d99c5df289b4315e10b`
+  with the frozen M2 implementation and M0-vs-M2+NP fixed-D800 Package-C
+  contract, then through `78804c0` with the formal coordinated-lane request
+  and `a0628b6` with the separate PREREG-063 D6 baseline census. The 092
+  contract keeps M0 as the untouched incumbent judge; production did not add
+  P_MIX or alter any arm after freeze. Experiment 091 remains held.
+- Production reviewed the exact package and ran its four focused modules plus
+  launch hygiene and image-runtime guards: 40 focused tests passed, followed
+  by 7 hygiene and 3 runtime-file tests. The upload census included the 092
+  runner, winner registry, participation artifact, and M2 artifact; the latter
+  two reproduced frozen SHA-256 values `18e47321...` and `5c2559ee...`.
+- Exact source `a08da15e44a82bb301963d99c5df289b4315e10b` built successfully as
+  Cloud Build `ab86a77f-71ea-40f5-ade6-bca7212a39e4`, tag
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2:092-a08da15`, immutable
+  digest `sha256:cd642db9c943bb4b8a42e11f82c131ee1ae24778ed835a1c26fdee8b7dc53a24`.
+  The build changed neither reusable Cloud Run job and launched no execution.
+- Production added a mechanics-only registered coordinator on lab branch
+  `production/prereg064c-launch-contract`, rebased it over the two racing lab
+  commits, and pushed binding commit `45f2031` to lab `main`. Its dedicated
+  contract suite passes 10/10, and the existing launcher-registry and launch-
+  hygiene modules pass 5/5 and 7/7. It owns only `092m660r1`, enforces the
+  2-vCPU/8-GiB/one-task envelope, authenticates every runtime and host-gate
+  byte against the immutable source, and cannot claim efficacy or open the
+  efficacy reader.
+- The first coordinator invocation failed closed before provider mutation
+  because the isolated worktree lacked its local Python environment. After
+  attaching the existing lab virtual environment, a fresh provider census
+  proved zero prior `092m660r1` claims. The retry installed the exact envelope
+  and claimed outcome-disabled mechanics execution `lab-run-jphl6`, run ID
+  `092m660r1-20260904T013626Z`. At this checkpoint it is nonterminal; the
+  registered coordinator remains the sole writer and will publish the gate
+  create-once only after exact 1/1 success and validation.
+- Next action: wait for `lab-run-jphl6`, verify the published gate receipt and
+  its SHA, then bind (without changing runtime/scientific bytes) and launch
+  efficacy banks 660/661/662 through a separate registered coordinator. Do not
+  open the efficacy reader until all three frozen executions are terminal.
+
 ### 2026-09-03 lab restart recovery brief
 
 - A durable restart brief for the lab team is committed at
