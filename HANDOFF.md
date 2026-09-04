@@ -41427,3 +41427,25 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   frozen reader. In parallel, monitor `tabpfn-gen-cpvtw`; on success prove 905
   unique 2026-W1 rows and the expected 66,360-row cache before relying on it.
   Experiment 091 remains held.
+
+## 2026-09-04 — 095 registered coordinator closed cleanly; repaired TabPFN task running
+
+- The registered 095 coordinator emitted terminal success at
+  `2026-09-04T19:11:35Z` for exact runs
+  `095b690r1-20260904T164737Z`, `095b691r1-20260904T165019Z`, and
+  `095b692r1-20260904T180305Z`. It explicitly confirmed that it opened no
+  efficacy result or outcome reader.
+- Durable launcher-registry completion receipt SHA-256 is
+  `017a173cfbd5066dfdc06805bcb0ea5492a761779d217aed187b57691488b63f`;
+  coordinator exit status is zero. The `nfl2-lab-jobs` efficacy lane is now
+  released. Production remains outcome-blind pending the lab's committed
+  first-read seal.
+- Repaired execution `tabpfn-gen-cpvtw` began its one task at
+  `2026-09-04T19:10:06.074575Z`; provider state is 1 running, zero failed.
+  Its execution body retains the exact repaired digest, 4/16/L4 envelope,
+  zero-retry law, and Week-1/upcoming-only/source-commit overrides recorded
+  above.
+- Exact next actions: poll lab `origin/main` for the sealed 095 first read,
+  independently reproduce only after that commit lands, and verify
+  `tabpfn-gen-cpvtw` plus the target-table row/key contract at terminal.
+  Experiment 091 remains held.
