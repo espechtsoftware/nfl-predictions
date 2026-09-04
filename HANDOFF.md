@@ -40764,3 +40764,45 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   one atomic 537-row Week-1 projection batch before refreshing the candidate-
   only D400/D800 rehearsal. Do not publish a final book while participation or
   ownership readiness remains unresolved.
+
+## 2026-09-04 — Prop canary rejected; safe projection authority restored
+
+- Exact source `5878c841237e08a06d657c10e65e889bd0330e99` passed the
+  bounded live-image gate. Cloud Build
+  `f68694cb-251e-48b0-9616-8e803be17fe9` completed SUCCESS at
+  `2026-09-04T11:17:48.075745Z`; tag `week1-live-5878c841237e`
+  resolves to immutable digest
+  `sha256:1ef04c862279e239eb333af51e2b930de291e838853eac633bfb06571194f3f4`.
+  A duplicate submission caused by the first client's delayed response was
+  verified byte-for-byte equivalent and cancelled by exact build id
+  `835b7616-df28-4d88-97b3-a482f711c022`; it produced no release authority.
+- Only `project-slate` was temporarily moved to the new digest. Canary
+  execution `project-slate-cgkk7` completed exact 1/1 success and wrote one
+  atomic 537-row batch at `2026-09-04T11:22:19.950599Z`. Mechanics passed and
+  300 rows entered `div_shadow`, but output review rejected the data meaning:
+  234 provider players currently have only `player_anytime_td`. The dormant
+  legacy behavior summed any available component and treated it as a complete
+  fantasy-point market expectation. Examples with only a TD component lost
+  5–6.5 projected points after blending; this is not a defensible live input.
+- Production immediately restored `project-slate` to the prior certified
+  digest `sha256:cdbf96ad190925b2c96a94568f173c4bded328442441838427fa473d2fd450b2`.
+  Rollback execution `project-slate-rbdrr` completed exact 1/1 success with
+  the disclosed DK-PPG fallback and wrote the newest atomic authority at
+  `2026-09-04T11:27:31.863334Z`: 537 rows / 537 DK ids, 505 skill plus 32 DST,
+  zero unmapped skill, null team/opponent, nonfinite value, or bad quantile.
+  The rejected canary remains append-only diagnostic evidence and is not the
+  consumer-visible latest batch.
+- Follow-up source keeps one-market rows available to historical analysis but
+  gives `market_points` an explicit `minimum_markets` boundary. Both live
+  projection callers now require at least two distinct scoring markets before
+  substituting a market sum, matching the lab live path's existing boundary.
+  The current real feed yields 142 complete unique player-weeks and 141/505
+  live skill matches (27.9%), correctly below the unchanged 30% slate gate;
+  the fallback therefore stays on until the market becomes sufficiently
+  complete. Validation is 61/61 targeted market/blend/live/source-readiness
+  checks, Python compilation, and `git diff --check`.
+- Next action: commit and push the completeness repair, build one new exact
+  image, and require its canary to log `141/505` below-threshold coverage and
+  retain the safe fallback. Do not lower the 30% gate or promote a component-
+  imputation policy without a separate historical comparison. The frozen 094
+  cohort and held 091 experiment were untouched.

@@ -357,7 +357,9 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     market = np.asarray(market_projection_frame(skill), dtype=float)
     try:
         from ..models.prop_market import market_points as _prop_points
-        _pm = _prop_points((int(season),))
+        # Do not substitute a lone anytime-TD component for a complete
+        # fantasy-point market expectation.
+        _pm = _prop_points((int(season),), minimum_markets=2)
         _pm = _pm[_pm.week == int(week)]
         if len(_pm):
             _m = skill[["gsis_id"]].merge(

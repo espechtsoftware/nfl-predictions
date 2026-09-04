@@ -323,7 +323,10 @@ def project(
     _prop_market_mask = np.zeros(len(feats), dtype=bool)
     try:
         from ..models.prop_market import market_points as _prop_points
-        _pm = _prop_points((season,))
+        # A one-market row is often only an anytime-TD component, not a
+        # complete fantasy-point proxy.  Preserve it for historical source
+        # analysis but never blend it as a live whole-player expectation.
+        _pm = _prop_points((season,), minimum_markets=2)
         _pm = _pm[_pm.week == week]
         if len(_pm):
             _m = feats[["gsis_id"]].merge(

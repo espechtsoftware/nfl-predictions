@@ -124,8 +124,22 @@ def latest_pre_main_lock(
     return prelock.drop(columns=["_snapshot", "_common_lock"]), audit
 
 
-def market_points(seasons: tuple[int, ...] = (2023, 2024, 2025)) -> pd.DataFrame:
-    """(season, week, gsis_id, market_points) from nfl_raw.prop_lines."""
+def market_points(
+    seasons: tuple[int, ...] = (2023, 2024, 2025),
+    *,
+    minimum_markets: int = 1,
+) -> pd.DataFrame:
+    """Return market-point sums from ``nfl_raw.prop_lines``.
+
+    ``minimum_markets`` is a completeness boundary, not a name-matching
+    threshold.  Historical analyses retain the one-market default because
+    some old snapshots contain only anytime-touchdown prices.  Live callers
+    require at least two distinct scoring markets before treating the sum as
+    a usable whole-player proxy; otherwise a TD component of roughly three
+    points can be mistaken for a complete fantasy-point expectation.
+    """
+    if minimum_markets < 1:
+        raise ValueError("minimum_markets must be at least 1")
     season_list = ", ".join(str(int(s)) for s in seasons)
     market_list = ", ".join(f"'{market}'" for market in STANDARD_MARKETS)
     props = query_df(
@@ -254,11 +268,14 @@ def market_points(seasons: tuple[int, ...] = (2023, 2024, 2025)) -> pd.DataFrame
     ).pts.mean().reset_index()
     out = by_market.groupby(
         ["season", "week", "gsis_id"], observed=True,
-    ).pts.sum().rename("market_points").reset_index()
-    log.info("prop market: %d player-weeks priced (%.0f%% of prop names "
-             "matched)", len(out),
+    ).agg(market_points=("pts", "sum"),
+          market_count=("market", "nunique")).reset_index()
+    complete = out[out.market_count >= minimum_markets].copy()
+    log.info("prop market: %d player-weeks priced, %d meet >=%d-market "
+             "completeness (%.0f%% of prop names matched)", len(out),
+             len(complete), minimum_markets,
              100 * matched.norm.nunique() / max(per_mkt.norm.nunique(), 1))
-    return out[["season", "week", "gsis_id", "market_points"]]
+    return complete[["season", "week", "gsis_id", "market_points"]]
 
 
 def market_ceilings(seasons: tuple[int, ...] = (2025,)) -> pd.DataFrame:

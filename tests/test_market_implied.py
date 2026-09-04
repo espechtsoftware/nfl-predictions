@@ -65,6 +65,13 @@ def test_prop_market_accepts_td_only_snapshot(monkeypatch):
     assert out.gsis_id.iloc[0] == "p1"
     assert out.market_points.iloc[0] > 0
 
+    # Historical source analysis can retain the component, while the live
+    # whole-player blend must be able to reject it as incomplete.
+    replies = iter([props, schedules, names])
+    monkeypatch.setattr(prop_market, "query_df", lambda _sql: next(replies))
+    live_complete = prop_market.market_points((2019,), minimum_markets=2)
+    assert live_complete.empty
+
 
 def test_prop_market_name_authority_includes_preseason_sources(monkeypatch):
     """Live Week 1 must not depend on weekly stats that do not exist yet."""
