@@ -53,13 +53,24 @@ agent or developer:
   attaching the existing lab virtual environment, a fresh provider census
   proved zero prior `092m660r1` claims. The retry installed the exact envelope
   and claimed outcome-disabled mechanics execution `lab-run-jphl6`, run ID
-  `092m660r1-20260904T013626Z`. At this checkpoint it is nonterminal; the
-  registered coordinator remains the sole writer and will publish the gate
-  create-once only after exact 1/1 success and validation.
-- Next action: wait for `lab-run-jphl6`, verify the published gate receipt and
-  its SHA, then bind (without changing runtime/scientific bytes) and launch
-  efficacy banks 660/661/662 through a separate registered coordinator. Do not
-  open the efficacy reader until all three frozen executions are terminal.
+  `092m660r1-20260904T013626Z`. It completed 1/1 with zero retries. The exact
+  gate passed and was published create-once at generation
+  `1788486473771560`, SHA-256
+  `26b8988b97b6cb05901ae933b66c057849a5a0c169527f626c2562e13cb21782`.
+  Lab Update 39 independently reproduced the receipt byte-for-byte.
+- The separate efficacy coordinator and reader were then pinned to that exact
+  gate without changing the built runner or scientific artifacts. Lab binding
+  commit `5dd3df4a672be50dcb08c28ed6a0ab3c67109121` is durable on `main`;
+  the bound queue suite passes 17/17 and reader suite 6/6. It claimed bank 660
+  as `lab-run-m5w7b` / `092b660r1-20260904T015211Z` on `lab-run` and bank 661
+  as `lab-run-slow-qf6qs` / `092b661r1-20260904T015426Z` on `lab-run-slow`,
+  both using the immutable `cd642d...` image. At this checkpoint bank 660 has
+  18 running tasks and bank 661 is starting; neither has a retry/failure.
+- Next action: keep the registered efficacy coordinator alive, verify both
+  initial banks continuously, permit its frozen logic to release bank 662
+  only after at least one succeeds and neither fails, then allow the lab to
+  perform the preregistered first read and request independent verification.
+  Do not open the efficacy reader from production while the cohort runs.
 
 ### 2026-09-03 lab restart recovery brief
 
