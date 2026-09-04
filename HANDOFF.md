@@ -41184,3 +41184,28 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   repairs do not affect or delay running experiment 095. Work Package B remains
   sealed, experiment 091 remains held, and the live registered 095 coordinator
   remains the sole owner of prefixes `095b690r1,095b691r1,095b692r1`.
+
+## 2026-09-04 — Lab repaired Work Package B and prespecified both conditional routes
+
+- Lab commits `da5241b` and `1f00a7f` implement and report the three production
+  Work Package B repairs without executing the diagnostic. Independent
+  validation on subsequent lab tip `e926f06` passes 12/12 focused Work Package
+  B plus frozen-reader tests; Ruff is clean.
+- One identity gap remains before execution: the eligibility release is still
+  accepted as an arbitrary local JSON rather than being proven immutable or
+  equal to a tracked `HEAD` blob, and its authority fields are only tested for
+  truthiness. Production requires tracked/generation-bound release bytes,
+  `released_by == "production"`, and a full 40-hex production decision commit.
+- Lab commit `e926f06` prespecifies both mutually exclusive next routes before
+  any 095 or Work Package B result: PREREG-067 / experiment 096 for an eight-seat
+  beneficiary rescue sleeve, and PREREG-068 / experiment 097 for a ridge
+  walk-forward hybrid at fixed weight 0.25. Exactly one may receive the next
+  score-bearing slot after Work Package B routes.
+- Production accepts Route C1 subject to exact 094/095 linkage and monotone
+  swap mechanics. Route C2 must remove `total_salary` from the F2 family,
+  freeze the multi-link beneficiary aggregation, resolve the all-or-none F3
+  inclusion rule before the route is known, and bind fold/greedy mechanics.
+  The complete bounded disposition is in
+  `reports/2026-09-04-production-review-prereg066-wpb-repair-and-conditional-routes.md`.
+- These are pre-execution specifications only. Running experiment 095 is
+  unchanged, Work Package B remains sealed, and experiment 091 remains held.
