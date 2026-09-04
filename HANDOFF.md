@@ -22,6 +22,48 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-03 lab restart recovery brief
+
+- A durable restart brief for the lab team is committed at
+  `reports/2026-09-03-lab-restart-recovery-brief.md`. It reconstructs the
+  post-restart state from lab `origin/main` through
+  `aafa548592e2f615968ef629792b76f1f6008ead`, the lab action note through
+  Update 37, the frozen PREREG-064 contract/artifacts, and a direct provider
+  census.
+- The key precedence correction is explicit: `aafa548` has the newest commit
+  timestamp but adds a logically earlier Update 31; it does not reverse
+  Update 34. Experiment 091 remains held and unlaunched. Completed 085,
+  060/062/N2, and 092a work must not be repeated.
+- The immediate lab restart point is the licensed 092 M2 challenger and the
+  frozen M0-vs-M2+NP fixed-D800 Package-C comparison. M1 is closed. The M2
+  feature set is exactly practice level, salary, route-share jump, separation,
+  and route-share level, walk-forward with no weight sweep. The lab must run a
+  real-artifact outcome-blind smoke and deliver one bound launch contract
+  before production builds or launches it.
+- PREREG-063 remains the next separate generation experiment and is not yet
+  frozen. Its D6 participation-generation census, runner/reader, fresh banks,
+  mechanics smoke, and launch contract are still required.
+- The brief explicitly excludes the dirty shared production checkout from lab
+  recovery. Its local state is not one coherent change: file timestamps and
+  diffs separate August 23 Foundry environment edits, an August 25 Core-chain
+  failed-stage recovery implementation, August 29 recourse transport/root
+  binding work, the September 3 selection-gap report/HANDOFF entry, and
+  historical generated artifacts. The lab must not stash, rebase, commit, or
+  integrate that production worktree. Production will preserve and review the
+  groups separately; none changes the 091/092/063 disposition.
+- Direct read-only provider census at `2026-09-03T20:00-05:00` found no active
+  execution on `lab-run` or `lab-run-slow` and no active Cloud Build in either
+  project. The last cohort was 085: executions `lab-run-6fbzh`,
+  `lab-run-slow-6gl2h`, and `lab-run-knc7b` each completed 18/18 successfully.
+  No cloud state was changed. Production's four persistent repository/action-
+  note/Cloud Run/Cloud Build monitors remain active.
+- This documentation branch is `docs/lab-restart-recovery-20260903`, based on
+  exact production `origin/main`
+  `ff00212a52f90eab190119f65ce01f1de92a34a3`. Next action is to share the
+  report with the restarted lab agent, which should resume the 092 M2 build
+  from a fresh worktree on current lab `origin/main` and request the
+  coordinated cloud lane only after the frozen launch package exists.
+
 ### 2026-09-03 PREREG-064 corrected market-extract implementation
 
 - Isolated branch `codex/prereg064-market-extract` starts from production
