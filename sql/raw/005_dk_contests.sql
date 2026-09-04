@@ -10,11 +10,15 @@ CREATE TABLE IF NOT EXISTS `${raw}.dk_contest_fills` (
   name STRING,
   game_type STRING,
   entry_fee FLOAT64,
-  max_entries INT64,
+  max_entries INT64,           -- contest field capacity ("m")
+  entry_limit INT64,           -- maximum entries per user ("mec")
   entries INT64,               -- entries gathered so far ("nt" in DK's payload)
   fill_rate FLOAT64,           -- entries / max_entries
   prize_pool FLOAT64,
   is_guaranteed BOOL,
+  is_qualifier BOOL,
+  contest_template_id INT64,
+  payout_metadata_json STRING, -- canonical public payout-description payload
   overlay_dollars FLOAT64,     -- max(prize_pool - entries*entry_fee, 0) when guaranteed, else 0
   start_time TIMESTAMP
 )
@@ -26,6 +30,14 @@ CLUSTER BY draft_group_id, contest_id;
 -- Does not touch the validated NFL ingest path; existing rows stay NULL.
 ALTER TABLE `${raw}.dk_contest_fills`
   ADD COLUMN IF NOT EXISTS sport STRING;
+ALTER TABLE `${raw}.dk_contest_fills`
+  ADD COLUMN IF NOT EXISTS entry_limit INT64;
+ALTER TABLE `${raw}.dk_contest_fills`
+  ADD COLUMN IF NOT EXISTS is_qualifier BOOL;
+ALTER TABLE `${raw}.dk_contest_fills`
+  ADD COLUMN IF NOT EXISTS contest_template_id INT64;
+ALTER TABLE `${raw}.dk_contest_fills`
+  ADD COLUMN IF NOT EXISTS payout_metadata_json STRING;
 
 -- NFL-only view: the safe default read path now that the table holds both
 -- sports (CFB collection scheduled 2026-07-31). Future overlay-detection /

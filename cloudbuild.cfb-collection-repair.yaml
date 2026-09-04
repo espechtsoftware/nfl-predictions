@@ -29,11 +29,13 @@ steps:
         apt-get install -y --no-install-recommends git libgomp1
         pip install --no-cache-dir '.[gcp,dev]'
 
-        # This is the previously validated 34-test repair boundary.  Keep the
-        # modules explicit so a stale unrelated global test cannot silently
-        # turn this scoped release gate into a partial repository run.
+        # Keep the modules explicit so a stale unrelated global test cannot
+        # silently turn this scoped release gate into a partial repository
+        # run.  The NFL contest writer shares the same client and destination
+        # table, so its boundary belongs in this collection-image gate.
         PYTHONPATH=src pytest \
           tests/test_cfb_job.py \
+          tests/test_contest_job.py \
           tests/test_dk_client.py \
           tests/test_bq_load.py \
           tests/test_cfb_deployment_contract.py
@@ -46,6 +48,7 @@ steps:
           src/nfl_dfs/bq.py \
           src/nfl_dfs/cli.py \
           src/nfl_dfs/ingest/cfb_job.py \
+          src/nfl_dfs/ingest/contest_job.py \
           src/nfl_dfs/ingest/dk_client.py
         bash -n deploy/deploy_jobs.sh
         bash -n scripts/build_cfb_collection_repair_image.sh
@@ -82,7 +85,7 @@ steps:
         # Import the exact runtime modules and verify both table contracts are
         # in the image.  This is offline and outcome-blind.
         docker run --rm "$$CFB_IMAGE" python -c \
-          'from pathlib import Path; from nfl_dfs import bq; from nfl_dfs.ingest import cfb_job, dk_client; assert callable(cfb_job.run); assert callable(bq.load_dataframe); assert dk_client.CFB_SPORT_ID == 5; salary = Path("sql/raw/006_cfb_dk_salaries.sql").read_text(); contests = Path("sql/raw/005_dk_contests.sql").read_text(); assert "CLUSTER BY draft_group_id, dk_player_id" in salary; assert "CLUSTER BY draft_group_id, contest_id" in contests'
+          'from pathlib import Path; from nfl_dfs import bq; from nfl_dfs.ingest import cfb_job, contest_job, dk_client; assert callable(cfb_job.run); assert callable(contest_job.run); assert callable(bq.load_dataframe); assert dk_client.CFB_SPORT_ID == 5; salary = Path("sql/raw/006_cfb_dk_salaries.sql").read_text(); contests = Path("sql/raw/005_dk_contests.sql").read_text(); assert "CLUSTER BY draft_group_id, dk_player_id" in salary; assert "CLUSTER BY draft_group_id, contest_id" in contests'
 
         # Prove the installed console entry point advertises and dispatches
         # ingest-cfb.  Leaving the enable flag empty exercises the real CLI
@@ -91,6 +94,8 @@ steps:
           grep -F 'ingest-cfb' >/dev/null
         docker run --rm --env INGEST_CFB_ENABLED= \
           "$$CFB_IMAGE" nfl-dfs ingest-cfb
+        docker run --rm --env INGEST_CONTESTS_ENABLED= \
+          "$$CFB_IMAGE" nfl-dfs ingest-contests
 
 images:
   - ${_CFB_IMAGE}

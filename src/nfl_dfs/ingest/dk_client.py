@@ -7,6 +7,7 @@ Hammering this endpoint is how it gets locked down for everyone.
 
 from __future__ import annotations
 
+import json
 import logging
 import re
 from datetime import datetime, timezone
@@ -265,8 +266,9 @@ def draftables_frame(gid: int, slate_type: str, payload: dict[str, Any]) -> pd.D
 
 CONTEST_COLUMNS = [
     "pulled_at", "contest_id", "draft_group_id", "sport", "name", "game_type",
-    "entry_fee", "max_entries", "entries", "fill_rate", "prize_pool",
-    "is_guaranteed", "overlay_dollars", "start_time",
+    "entry_fee", "max_entries", "entry_limit", "entries", "fill_rate",
+    "prize_pool", "is_guaranteed", "is_qualifier", "contest_template_id",
+    "payout_metadata_json", "overlay_dollars", "start_time",
 ]
 
 
@@ -304,9 +306,12 @@ def contests_frame(
             continue
         entries = c.get("nt")
         max_entries = c.get("m")
+        entry_limit = c.get("mec")
         entry_fee = c.get("a")
         prize_pool = c.get("po")
-        is_guaranteed = str(c.get("attr", {}).get("IsGuaranteed", "")).lower() == "true"
+        attrs = c.get("attr", {})
+        is_guaranteed = str(attrs.get("IsGuaranteed", "")).lower() == "true"
+        is_qualifier = str(attrs.get("IsQualifier", "")).lower() == "true"
 
         fill_rate = None
         if entries is not None and max_entries:
@@ -325,10 +330,18 @@ def contests_frame(
             "game_type": c.get("gameType"),
             "entry_fee": entry_fee,
             "max_entries": max_entries,
+            "entry_limit": entry_limit,
             "entries": entries,
             "fill_rate": fill_rate,
             "prize_pool": prize_pool,
             "is_guaranteed": is_guaranteed,
+            "is_qualifier": is_qualifier,
+            "contest_template_id": c.get("tmpl"),
+            "payout_metadata_json": json.dumps(
+                c.get("payoutDescriptionMetadata", []),
+                sort_keys=True,
+                separators=(",", ":"),
+            ),
             "overlay_dollars": overlay,
             "start_time": _parse_dk_date(c.get("sd")),
         })
@@ -337,6 +350,9 @@ def contests_frame(
         return pd.DataFrame(columns=CONTEST_COLUMNS)
 
     df = pd.DataFrame(rows)
-    for col in ("contest_id", "draft_group_id", "max_entries", "entries"):
+    for col in (
+        "contest_id", "draft_group_id", "max_entries", "entry_limit",
+        "entries", "contest_template_id",
+    ):
         df[col] = df[col].astype("Int64")
     return df

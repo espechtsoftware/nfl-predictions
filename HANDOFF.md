@@ -47,13 +47,30 @@ agent or developer:
   append-only lobby observation is not retry-idempotent.
 - A generic production image submission was stopped before Cloud Build
   creation after it attempted to upload a 462.8-MiB context for this small
-  repair. The scoped collection-image builder is the release path for the
-  corrected writer. Next action: commit and push the repair, build the exact
-  pushed source through that scoped context, repoint only `ingest-contests`,
-  rerun one poll, and verify draft group 151307 rows in BigQuery before
-  freezing exact A5 contest identities. Do not infer per-user entry limits
-  from the current `max_entries` warehouse column; it represents field
-  capacity in the live lobby payload.
+  repair. Exact pushed source `3473b04a1e296d0db0981c7f648089242d07f61f`
+  then built from a 19.3-MiB scoped context as Cloud Build
+  `6a809c64-8f37-48fb-8918-bf722f3834df`, immutable digest
+  `sha256:aa31e5c319234139294f25b0ba32bc5cfbe6e41a679c0ec208d238ea282e205e`.
+  Only `ingest-contests` was repointed, with zero retries. Replacement
+  execution `ingest-contests-c2xf4` completed 1/1 successfully and captured
+  2,847 contests across three NFL draft groups, including draft group 151307.
+- The exact A5 targets are now identified: Milly `193028206`, $3 Play-Action
+  `193028208`, $18 qualifier `194478066`, and $5 qualifier `194478065`, all
+  at the exact `2026-09-13T17:00:00Z` lock. A bounded raw-schema audit confirms
+  per-user limits 150/20/150/150 respectively; this is distinct from field
+  capacities 832342/158541/5000/17835. Public qualifier payout descriptions
+  show one contest seat plus $6,500/$5,000 respectively, but do not replace
+  the contract's separately required complete ticket-terms identity.
+- Follow-on hardening adds `entry_limit`, `is_qualifier`, template identity,
+  and canonical public payout metadata to future append snapshots. The scoped
+  collection builder's allowlisted gate now tests the NFL writer, compilation,
+  import, and disabled-command smoke alongside CFB. Focused validation is
+  22/22 client tests, 3/3 writer tests, 4/4 scoped-build contracts, and 3/3
+  deployment contracts; import/F checks, compilation, shell syntax, and
+  `git diff --check` pass. Full evidence and the remaining A5 freeze steps are
+  in `reports/2026-09-04-week1-a5-live-contest-capture.md`. Do not issue another
+  immediate endpoint request; release the schema expansion through the next
+  scoped collection image and scheduled poll.
 
 ### 2026-09-03 PREREG-064C / experiment 092 mechanics launch
 

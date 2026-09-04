@@ -270,9 +270,14 @@ def contests_payload():
             "gameType": "Classic",
             "a": 20,
             "m": 50_000,
+            "mec": 150,
             "nt": 12_000,
             "po": 1_000_000.0,
             "attr": {"IsGuaranteed": "true"},
+            "tmpl": 7001,
+            "payoutDescriptionMetadata": [
+                {"Order": 1, "PayoutDescription": "$1,000,000"}
+            ],
             "sd": "/Date(1785513600000)/",
         },
         {
@@ -319,6 +324,12 @@ def test_contests_frame_fill_rate():
     df = dk_client.contests_frame(contests_payload(), draft_group_ids={555})
     gpp = df[df.contest_id == 111].iloc[0]
     assert gpp.fill_rate == 12_000 / 50_000
+    assert gpp.entry_limit == 150
+    assert gpp.contest_template_id == 7001
+    assert not bool(gpp.is_qualifier)
+    assert gpp.payout_metadata_json == (
+        '[{"Order":1,"PayoutDescription":"$1,000,000"}]'
+    )
 
 
 def test_contests_frame_overlay_only_for_guaranteed():

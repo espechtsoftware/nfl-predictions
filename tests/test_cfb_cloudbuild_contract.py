@@ -6,7 +6,6 @@ from pathlib import Path
 
 import yaml
 
-
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "cloudbuild.cfb-collection-repair.yaml"
 DOCKERFILE = ROOT / "Dockerfile.cfb-collection-repair"
@@ -14,6 +13,7 @@ BUILDER = ROOT / "scripts/build_cfb_collection_repair_image.sh"
 
 FOCUSED_MODULES = (
     "tests/test_cfb_job.py",
+    "tests/test_contest_job.py",
     "tests/test_dk_client.py",
     "tests/test_bq_load.py",
     "tests/test_cfb_deployment_contract.py",
@@ -63,12 +63,14 @@ def test_image_smoke_is_offline_and_checks_runtime_assets() -> None:
     script = _script("smoke-cfb-collection-image")
 
     assert "org.opencontainers.image.revision" in script
-    assert "from nfl_dfs.ingest import cfb_job, dk_client" in script
+    assert "from nfl_dfs.ingest import cfb_job, contest_job, dk_client" in script
     assert "sql/raw/005_dk_contests.sql" in script
     assert "sql/raw/006_cfb_dk_salaries.sql" in script
     assert "nfl-dfs --help" in script
     assert "INGEST_CFB_ENABLED=" in script
     assert "nfl-dfs ingest-cfb" in script
+    assert "INGEST_CONTESTS_ENABLED=" in script
+    assert "nfl-dfs ingest-contests" in script
 
 
 def test_exact_archive_excludes_unrelated_heavy_inputs() -> None:

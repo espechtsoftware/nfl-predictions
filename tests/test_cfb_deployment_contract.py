@@ -5,7 +5,6 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 DEPLOY = ROOT / "deploy/deploy_jobs.sh"
 
@@ -54,3 +53,24 @@ def test_cfb_schedules_do_not_overlap_on_saturday() -> None:
     assert daily == "0 10,14,18 * * *"
     assert saturday == "0 8,9,11,12,13 * * 6"
     assert _hours(daily).isdisjoint(_hours(saturday))
+
+
+def test_nfl_contest_capture_is_declarative_and_nonretrying() -> None:
+    source = DEPLOY.read_text(encoding="utf-8")
+
+    assert re.search(
+        r'^job\s+ingest-contests\s+ingest-contests\s+2Gi\s+1\s+'
+        r'"INGEST_CONTESTS_ENABLED=1"\s+""\s+900\s+0$',
+        source,
+        flags=re.MULTILINE,
+    )
+    assert re.search(
+        r'^sched\s+s-contests\s+ingest-contests\s+"0 10 \* \* 3-6"$',
+        source,
+        flags=re.MULTILINE,
+    )
+    assert re.search(
+        r'^sched\s+s-contests-sun\s+ingest-contests\s+"0 6-11 \* \* 7"$',
+        source,
+        flags=re.MULTILINE,
+    )

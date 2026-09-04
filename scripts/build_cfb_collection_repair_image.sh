@@ -55,6 +55,7 @@ ARCHIVE_PATHS=(
   tests/test_cfb_cloudbuild_contract.py
   tests/test_cfb_deployment_contract.py
   tests/test_cfb_job.py
+  tests/test_contest_job.py
   tests/test_dk_client.py
 )
 for relative_path in "${ARCHIVE_PATHS[@]}"; do
@@ -95,6 +96,7 @@ tar -xf "$ARCHIVE" -C "$CONTEXT"
     tests/test_cfb_cloudbuild_contract.py \
     tests/test_cfb_deployment_contract.py \
     tests/test_cfb_job.py \
+    tests/test_contest_job.py \
     tests/test_dk_client.py | sort)" ]] || \
   die "build context test set differs from the exact CFB allowlist"
 

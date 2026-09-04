@@ -2,9 +2,9 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# The scoped CFB image is intentionally distinct from the all-purpose NFL
-# application image.  Its sole deployment target is the collection-only
-# ``ingest-cfb`` Cloud Run job.
+# The scoped DK collection image is intentionally distinct from the
+# all-purpose application image.  It supports only the collection-only CFB
+# and NFL-contest jobs; both override the command explicitly at deployment.
 ARG SOURCE_COMMIT_SHA=invalid
 LABEL org.opencontainers.image.revision="${SOURCE_COMMIT_SHA}"
 ENV IMAGE_SOURCE_COMMIT_SHA="${SOURCE_COMMIT_SHA}"
