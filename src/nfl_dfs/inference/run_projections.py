@@ -150,6 +150,7 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
           SELECT MAX(nflverse_pulled_at) AS pulled_at
           FROM `{settings.raw}.rosters_weekly`
           WHERE CAST(season AS INT64) = @season
+            AND CAST(week AS INT64) = @week
         ),
         current_roster_receipt_quality AS (
           SELECT
@@ -162,6 +163,7 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
           JOIN current_roster_receipt x
             ON r.nflverse_pulled_at = x.pulled_at
           WHERE CAST(r.season AS INT64) = @season
+            AND CAST(r.week AS INT64) = @week
         ),
         current_active_roster_names AS (
           SELECT DISTINCT
@@ -179,6 +181,7 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
                        CONCAT(r.football_name, ' ', r.last_name)])
                  AS roster_name
           WHERE CAST(r.season AS INT64) = @season
+            AND CAST(r.week AS INT64) = @week
             AND r.status = 'ACT'
             AND roster_name IS NOT NULL
         ),

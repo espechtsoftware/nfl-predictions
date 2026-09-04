@@ -40319,6 +40319,14 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   wait for three exact 18/18 successes. The lab owns the first frozen read and
   transcript seal; production independently reruns the bound reader afterward.
   Experiment 091 remains held.
+- Initial bank 670 reached exact 18/18 success at
+  `2026-09-04T07:44:39.794471Z`, with zero failures, cancellations, and
+  retries. The still-registered coordinator detected that transition and,
+  without manual launch, claimed bank 672 as run
+  `093b672r1-20260904T074531Z`, Cloud Run execution `lab-run-pb9pw`.
+  Bank 671 remained active and healthy at the release boundary. The efficacy
+  reader remains unopened; next is to require exact terminal success from
+  banks 671 and 672 before the lab's first read.
 
 ## 2026-09-04 — Week-1 live projection identity repair staged
 
@@ -40366,3 +40374,10 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   data mutation occurred. The context builder now includes the 12 MB scripts
   directory and retains the same cleanup trap; this changes no runtime image
   contents because the live Dockerfile still copies only source and SQL.
+- Corrected context commit `b489b136abeae512fbfcfb5fd44e40d3ef9debf2`
+  launched Cloud Build `eb7e7997-26b4-4e3e-aacb-18e0473052e9`. Production
+  cancelled it during its still-preimage test stage after a final temporal
+  audit found that the active-roster disarm must be bound to the target week,
+  not any week from the same fresh source receipt. No image was built or
+  deployed. The query now selects and quality-checks the exact `@week` roster
+  receipt before allowing any reviewed listing back into the live pool.

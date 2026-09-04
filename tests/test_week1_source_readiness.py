@@ -620,6 +620,7 @@ def test_reviewed_non_current_listings_require_fresh_roster_absence():
     assert "COUNT(DISTINCT R.TEAM) = 32" in sql
     assert "COUNT(DISTINCT R.GSIS_ID) >= 1000" in sql
     assert "INTERVAL 72 HOUR" in sql
+    assert sql.count("CAST(R.WEEK AS INT64) = @WEEK") >= 2
     assert "CURRENT_ACTIVE_ROSTER_NAMES AS" in sql
     assert "R.STATUS = 'ACT'" in sql
     assert "AND Q.RECEIPT_IS_VALID AND A.CLEAN_NAME IS NULL" in sql
