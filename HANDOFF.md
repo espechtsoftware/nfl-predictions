@@ -40521,3 +40521,19 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   is explicit in the execution log and does not invalidate output mechanics;
   projections should be refreshed when the current prop snapshot becomes
   available.
+
+## 2026-09-04 — PREREG-063 / experiment 093 cohort terminal-success
+
+- Bank 672 (`093b672r1-20260904T074531Z`, execution `lab-run-pb9pw`)
+  completed at `2026-09-04T09:03:40.537188Z` with exact 18/18 task success,
+  zero failures, cancellations, or retries. Together with already-successful
+  banks 670 and 671, the frozen three-bank efficacy cohort is complete.
+- Registered coordinator receipt
+  `cec1bfd3c05c4c0a6cff47ee16871c017b27e2c7c8fc2273e1dce6d279a84c35`
+  closed successfully at `2026-09-04T09:04:17Z`. It explicitly opened no
+  efficacy result or outcome reader. The lab retains ownership of the first
+  frozen read and transcript seal; production will independently rerun the
+  bound reader only after that seal lands on lab `main`.
+- Experiment 091 remains held. No successor efficacy execution is authorized
+  by the current lab action note. Production proceeds in parallel with the
+  outcome-blind Week-1 D800/P_MIX candidate rehearsal and capture path.
