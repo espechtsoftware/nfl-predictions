@@ -41307,10 +41307,13 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `nfl_features.tabpfn_projections` remains at its prior 65,455 rows and prior
   modification identity `1786108014717`; r1 performed no partial publication
   and is void.
-- The only retry changes container memory from 16 GiB to 32 GiB. It retains
+- The initial attempt to create a 4-vCPU / 32-GiB one-off was rejected by
+  Cloud Run before any job or execution existed: this platform requires 8
+  vCPU for memory above 16 GiB. The amended retry envelope is therefore 8 vCPU
+  / 32 GiB. It retains
   the same immutable image digest
   `sha256:474d3c463b9286f080ef9c377e5fca5ec4be7b9eae5f0f1a4ac51b28d21ab68c`,
-  one L4 GPU, 4 vCPU, one task / one parallelism, zero retries, one-hour
+  one L4 GPU, one task / one parallelism, zero retries, one-hour
   timeout, production service account, and exact
   `TABPFN_UPCOMING=2026:1` override. It will run as a separately named
   one-off job so the standing `tabpfn-gen` template remains unchanged.
