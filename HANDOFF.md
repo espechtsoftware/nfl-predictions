@@ -40563,5 +40563,11 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   final live candidate authority must share the certified production active-
   roster boundary and be refreshed when current designation/practice and
   ownership inputs exist.
+- The paired D400 diagnostic then completed in 124.7 seconds under identical
+  input hashes, frame bytes, player means and seeds. Its exact 400-candidate
+  set is contained in D800's 800 candidates, its first 80 candidates match
+  D800's first 80, and selected-book overlap is 37/80. Five D400 candidates
+  contain a non-`ACT` skill player and none is selected. Pair mechanics are
+  sound; both artifacts remain unpublishable pending the eligibility repair.
 - Full review and routing decision:
   `reports/2026-09-04-prereg063-production-independent-review.md`.

@@ -88,6 +88,15 @@ certified production projection pool: active fantasy-role skills only, with
 DST handled separately, and an explicit fail-closed source receipt. Do not
 publish the current rehearsal or use it as P_MIX candidate authority.
 
+The paired D400 diagnostic then completed under the identical salary pull,
+input hashes, frame bytes, player means, seeds, 10,000-world banks, and source
+commit. Its 400 candidates were an exact subset of D800's 800 candidates, its
+first 80 candidate rows matched D800's first 80, and the two selected K80 books
+overlapped on 37 lineups. Five D400 candidates used a non-`ACT` skill player;
+none was selected. Thus the intended paired mechanics and subset relation work,
+but both arms correctly remain unpublishable until the eligibility boundary is
+repaired.
+
 The rehearsal also had zero current injury-report rows, which is expected this
 early in the week but means it cannot demonstrate an engaged live P_MIX or
 PG_AWARE treatment. Its projection receipt explicitly used the degraded
