@@ -40627,3 +40627,23 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   Production notified the lab to use it only diagnostically and rerun the
   exact smoke from clean source before freezing 094; this is a re-smoke, not a
   design change. Experiment 091 remains held.
+
+## 2026-09-04 — Experiment 094 replacement mechanics accepted; freeze requested
+
+- The replacement full-budget 2022-W8/bank-680 mechanics run completed in
+  787.6 seconds with 800 candidates per arm. It zeroed 5,532 generation cells,
+  transferred all 57,444.103 points with zero unallocated mass, and produced
+  nonzero candidate and K80 turnover for both `PG_AWARE` and `PG_REDIST` under
+  one shared judge identity.
+- Its embedded identity still says `dirty=true`, but the complete worktree
+  diff is only a post-launch edit to `PREREG-065.md`. The runner, reader, and
+  mechanics-gate bytes exactly match source commit `a97ab79`; the document
+  edit merely records the already-executing transfer semantics. Production
+  accepts this as the outcome-blind engaged pre-freeze demonstration and will
+  not require a third 13-minute local smoke solely for a documentation dirty
+  bit.
+- Production pushed this disposition to lab `main` at `e7fcd4d`. The lab is
+  asked to commit the disclosure, freeze the exact source and launch contract,
+  and request the lane. A clean immutable Cloud mechanics gate remains the
+  final prerequisite to launching efficacy banks 680--682. Experiment 091
+  remains held.
