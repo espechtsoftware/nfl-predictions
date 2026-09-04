@@ -41968,3 +41968,10 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   reusable `lab-run` job for the bound 48-task, 2-vCPU/8-GiB diagnostic. The
   coordinator owns the launch and must run to its terminal census before any
   merge/read. Experiment 091 remains held.
+
+  The SD-B execution is now accepted as `lab-run-6v6sx`, with bound run id
+  `sdb095r1-20260904T223841Z`, source `223572885106b4672f8aa358a3c181317f1e1fb1`,
+  and image `sha256:64ac0a15f481046dd599f2dc559d8d8231a57f698a972adb6f92b0024d7112e0`.
+  It is provisioned and waiting for provider start; this is normal control-plane
+  state, not a failure. The registered coordinator remains responsible for
+  polling it and publishing the exact 48-task terminal census.
