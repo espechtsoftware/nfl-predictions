@@ -1,7 +1,9 @@
 # Week-1 A5 live contest capture
 
-Date: 2026-09-04 UTC  
-Scope: pre-lock DraftKings lobby facts for the operator-approved A5 allocation  
+Date: 2026-09-04 UTC
+
+Scope: pre-lock DraftKings lobby facts for the operator-approved A5 allocation
+
 Outcome boundary: no contest outcome, score, ownership, rank, or payout result was read
 
 ## Result
@@ -75,4 +77,3 @@ on the next scheduled poll.
    D400_DEMAX and D800_WEMAX shadow books at K57/K20/K3/K10.
 4. Produce the ordered contest-entry edge manifest, then retain accepted-entry
    receipts and post-contest settlement artifacts under the existing boundary.
-
