@@ -40712,3 +40712,27 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 - Complete qualifier ticket terms remain separate from the public payout
   summaries and are still required before the final A5 seal. The score lanes
   and frozen experiment 094 were untouched.
+
+## 2026-09-04 — A5 payout ladders and qualifier ticket terms frozen
+
+- Production fetched the public contest-detail endpoint once for each of the
+  four exact A5 contest IDs and validated the fixed name, draft group, lock,
+  fee, field cap, user limit, upcoming state, qualifier flag, and nonempty
+  payout ladder before any write. The two qualifiers expose the complete
+  first-place ticket names, one-ticket quantity, destination description, and
+  rank-by-rank cash ladder; their full payouts reconcile to $75,000 and
+  $76,500 respectively.
+- The four canonical responses and terminal manifest were published
+  create-once and generation-exactly reopened under capture
+  `20260904T105535Z`. Manifest
+  `gs://nfl-predictions-503414-raw/week1/prelock/2026-w01/contests/a5/20260904T105535Z/manifest.json`
+  is generation `1788519340044066`, 2,664 bytes, SHA-256
+  `28408ab4e57d8f994d29d8afe16b86d9d2fc14cf02f0a89ccd2af76929d17dd4`.
+  It records zero paid entries and zero outcome fields read.
+- This closes the A5 public metadata, full payout-table, and qualifier
+  ticket-terms source requirements. The final allocation still awaits the
+  refreshed live P_MIX/P_CTRL and D400/D800 books plus ordered entry edges;
+  all four contest facts must be rechecked for equality before entry. Exact
+  source identities are in
+  `reports/2026-09-04-week1-a5-live-contest-capture.md`. Experiment 094 and
+  its score lanes were untouched.

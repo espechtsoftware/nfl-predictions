@@ -70,11 +70,9 @@ on the next scheduled poll.
 
 ## Exact next steps
 
-1. Capture and bind the complete qualifier ticket terms separately from the
-   public payout-summary field.
-2. Generate/freeze the Week-1 P_MIX/P_CTRL paid candidates and the predeclared
+1. Generate/freeze the Week-1 P_MIX/P_CTRL paid candidates and the predeclared
    D400_DEMAX and D800_WEMAX shadow books at K57/K20/K3/K10.
-3. Produce the ordered contest-entry edge manifest, then retain accepted-entry
+2. Produce the ordered contest-entry edge manifest, then retain accepted-entry
    receipts and post-contest settlement artifacts under the existing boundary.
 
 ## 2026-09-04 10:48Z source-identity completion
@@ -97,3 +95,47 @@ is:
 This completes the immutable public-lobby metadata identity. It does not
 upgrade the two payout-description summaries into complete qualifier ticket
 terms; that separate evidence remains required before the final A5 seal.
+
+## 2026-09-04 10:55Z complete contest-detail freeze
+
+The public contest-detail endpoint was then read exactly once for each of the
+four bound contest IDs. Before publication, production required the exact
+contest key, name, draft group, lock, entry fee, field cap, per-user limit,
+upcoming state, qualifier classification, and a nonempty payout ladder. Both
+qualifiers additionally had to identify each of these destination tickets in
+the first-place tier:
+
+- `NFL 2026 $12.5M FFWC Contest Ticket`;
+- `NFL 2026 $1.5M FFWC Afternoon Only Contest Ticket`.
+
+Both detail payloads state that first place awards one of 200 FFWC seats for
+December 13. Their complete rank ladders reconcile to $75,000 for the $5
+qualifier and $76,500 for the $18 qualifier: a $70,000 ticket plus $5,000 or
+$6,500 in aggregate cash awards. The source's `Ticket: 2` summary denotes the
+two eligible destination ticket names; the first-place tier quantity is one,
+consistent with the contest description. This distinction is retained rather
+than inferred from the earlier abbreviated `1 Contest Seat` text.
+
+All four canonical source responses were published create-once and
+generation-exactly reopened under capture `20260904T105535Z`. The terminal
+manifest identity is:
+
+- URI: `gs://nfl-predictions-503414-raw/week1/prelock/2026-w01/contests/a5/20260904T105535Z/manifest.json`
+- generation: `1788519340044066`
+- bytes: `2664`
+- SHA-256: `28408ab4e57d8f994d29d8afe16b86d9d2fc14cf02f0a89ccd2af76929d17dd4`
+
+Its generation-pinned source identities are:
+
+| Contest ID | Generation | Bytes | SHA-256 |
+|---:|---:|---:|---|
+| `193028206` | `1788519338008617` | 9,220 | `fc90746752ca351b5aaace7f8355327d3d425c09ef1235fbe649fc3c47087bfa` |
+| `193028208` | `1788519338593279` | 7,784 | `5349b02fde739fbefb0e0eee0000072d8780e5202692eddf6de8cd71822f6602` |
+| `194478065` | `1788519339081128` | 5,137 | `5126b875ea4ba8dcc323498cd4c644d6eb499315428802197c49f6505349b5ac` |
+| `194478066` | `1788519339562982` | 4,901 | `ef081a6b0941eedbe539c232d8683babcbe43e5a560aea7861cba5db9738e1ab` |
+
+The manifest records zero paid entries and zero outcome fields read. This
+closes both the complete payout-table and qualifier ticket-terms evidence
+requirements. A final pre-entry equality check against these frozen facts is
+still required; any material contest change must fail closed rather than be
+silently accepted.
