@@ -41869,3 +41869,27 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   source-descended registered SD-B binding against this immutable image and a
   unique run prefix, but do not install it on the reusable jobs until 096
   releases both lanes. 091 remains held.
+
+## 2026-09-04 — SD-B registered binding staged; SD-A computation complete
+
+- Added a source-descended, registered SD-B coordinator at lab binding commit
+  `fc13756`, merged durably to lab `origin/main` at `d23b16a`. It binds source
+  `2235728...`, image digest `sha256:64ac0a15...`, the three sealed 095 runs,
+  a dynamic unique `sdb095r1-<timestamp>` prefix, 48 tasks, 36-way concurrency,
+  2 vCPU/8 GiB, create-once shards, zero accepted retries, and exact 48-object
+  terminal census. It opens no shard content and cannot launch without the
+  production registry receipt. The direct bound script fails before provider
+  access when that receipt/binding environment is absent.
+- The SD-A local process exited zero with 860 valid cells and one explicit
+  unavailable slate-bank row (2021-W8/bank-690 held-out hash mismatch), which
+  represents four arms and accounts for all 864 expected cells. Judge and
+  held-out seed identities reproduced on that row; only the held-out dual hash
+  failed, so it remains excluded.
+- Sent the terminal census and annotation request directly to the lab at
+  commit `65a9aaf`. Production has not treated the raw PIT output as a sealed
+  interpretation; the lab must annotate with the original computation source,
+  commit the artifact/report, and then route SD-C.
+- SD-B's registered coordinator is staged but not running because both 096
+  efficacy lanes remain active. Exact next action is to keep polling 096;
+  launch SD-B only after the 096 coordinator releases the shared lane. 091
+  remains held.
