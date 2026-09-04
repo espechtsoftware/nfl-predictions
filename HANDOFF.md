@@ -40289,3 +40289,33 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   reader identities, prepare/push a separate registered efficacy coordinator,
   and launch banks 670/671/672 without opening outcomes. Experiment 091
   remains held.
+
+## 2026-09-04 — PREREG-063 / experiment 093 efficacy cohort launched
+
+- Mechanics run `093m670r1-20260904T061903Z` / execution `lab-run-6z77z`
+  completed exact 1/1 success with zero retries. The frozen recursive
+  outcome-disabled gate passed and was published create-once at
+  `gs://nfl-2-506823-lab/gates/PREREG-063/093m670r1-20260904T061903Z.json`,
+  generation `1788503919795022`, 1,555 bytes, SHA-256
+  `e87cf3bb19a4e55232ad1bd84900ec2fae85c9d331e03ab32bdd0616f0f6dcee`.
+  Lab Update 42 independently reproduced the receipt byte-for-byte from the
+  frozen validator and recorded no objection to efficacy release.
+- Production bound `scripts/prereg063_report.py` to the exact source, image,
+  gate run, and gate receipt. The bound reader SHA-256 is
+  `cab4f86fd35be6a573a4d6228ae7a24b0203ad65c0337f4bec418a5f33dd8ef3`;
+  all 21 focused runner/reader/gate tests pass. The separate registered
+  efficacy coordinator and its child were committed with the reader and
+  launch-contract receipt at lab `main` commit `2696da5`.
+- The `nfl2-lab-jobs` registry owns the exact efficacy prefixes. Initial bank
+  670 is run `093b670r1-20260904T064155Z`, execution `lab-run-htwss`; initial
+  bank 671 is run `093b671r1-20260904T064407Z`, execution
+  `lab-run-slow-pstnf`. Both exact 18-task executions are active with 18 tasks
+  running, zero failures/cancellations/retries, on the frozen 2 vCPU / 8 GiB
+  envelope. Bank 672 remains unclaimed until at least one initial bank reaches
+  exact success and neither has failed; the coordinator will then fill the
+  released lane automatically. It never invokes the efficacy reader.
+- Next concrete action: poll the two active banks and registered coordinator;
+  allow bank 672 to launch automatically after the first valid terminal, then
+  wait for three exact 18/18 successes. The lab owns the first frozen read and
+  transcript seal; production independently reruns the bound reader afterward.
+  Experiment 091 remains held.
