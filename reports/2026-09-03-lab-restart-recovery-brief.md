@@ -1,7 +1,9 @@
 # Lab restart recovery brief: resume 092, preserve 063, keep 091 held
 
-**Prepared:** 2026-09-03 20:00 CDT  
-**Audience:** restarted lab agent/team  
+**Prepared:** 2026-09-03 20:00 CDT
+
+**Audience:** restarted lab agent/team
+
 **Purpose:** reconstruct the durable state after the IDE/chat restart and identify the next executable work without repeating completed reads or launching a superseded cohort. This is a recovery summary, not a scientific amendment.
 
 ## Executive instruction
