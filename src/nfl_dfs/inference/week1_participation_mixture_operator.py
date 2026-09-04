@@ -212,6 +212,14 @@ def _validate_package(value: object) -> dict[str, object]:
     return package
 
 
+def validate_week1_participation_package_v1(
+    value: object,
+) -> dict[str, object]:
+    """Validate the self-contained terminal package contract."""
+
+    return _validate_package(value)
+
+
 def _read_components(
     *, store: pair_operator.ImmutableObjectStore, package: Mapping[str, object]
 ) -> dict[str, object]:
@@ -496,5 +504,6 @@ __all__ = [
     "Week1ParticipationMixtureOperatorError",
     "publish_week1_participation_package_v1",
     "read_week1_participation_package_v1",
+    "validate_week1_participation_package_v1",
     "validate_week1_participation_publication_v1",
 ]

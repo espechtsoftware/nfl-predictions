@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 
 from nfl_dfs.inference import prospective_generation_shadow_evaluation as shadow
+from nfl_dfs.inference import week1_a5_allocation as a5
 from nfl_dfs.inference import week1_adopted_pair as adopted
 from nfl_dfs.inference import week1_adopted_pair_operator as operator
 from nfl_dfs.inference import week1_participation_mixture as pmix
@@ -785,3 +786,146 @@ def test_participation_candidate_drift_fails_before_component_publication() -> N
             observed_at="2026-09-03T20:10:00+00:00",
         )
     assert set(store.objects) == before
+
+
+def _a5_contests(store: FakeStore) -> list[dict[str, object]]:
+    specs = (
+        ("milly-5", "1001", 832_000, 150, 5_000_000),
+        ("large-20max-3", "1002", 158_000, 20, 3_000_000),
+        ("championship-qualifier-18", "1003", 5_000, 3, 18_000_000),
+        ("championship-qualifier-5", "1004", 20_000, 10, 5_000_000),
+    )
+    rows: list[dict[str, object]] = []
+    for role, contest_id, field_cap, entry_limit, fee in specs:
+        identities = {
+            name: store.seed_raw(
+                uri=f"{PREFIX}a5/{contest_id}-{name}.json",
+                raw=f"{contest_id}-{name}".encode(),
+            )
+            for name in ("metadata", "payout", "ticket")
+        }
+        rows.append({
+            "role": role,
+            "contest_id": contest_id,
+            "contest_name": f"Fixture {role}",
+            "draft_group_id": pmix.DRAFT_GROUP_ID,
+            "field_cap": field_cap,
+            "entry_limit": entry_limit,
+            "entry_fee_micro": fee,
+            "lock_utc": pmix.LOCK_UTC,
+            "metadata_identity": identities["metadata"],
+            "payout_identity": identities["payout"],
+            "ticket_terms_identity": identities["ticket"],
+        })
+    return rows
+
+
+def _published_pmix_fixture() -> tuple[
+    FakeStore,
+    dict[str, object],
+    dict[str, object],
+    dict[str, object],
+    dict[str, object],
+    dict[str, object],
+]:
+    store, paid_metadata, shadow_metadata, paid_book, shadow_book = _arrange()
+    pair_receipt = _publish(
+        store, paid_metadata, shadow_metadata, paid_book, shadow_book
+    )
+    inputs, history_source = _pmix_inputs(store)
+    pmix_receipt = pmix_operator.publish_week1_participation_package_v1(
+        store=store,
+        adopted_pair_manifest_identity=pair_receipt["manifest_identity"],
+        history_source_identity=history_source,
+        selection_inputs=inputs,
+        implementation_identity={
+            "id": "nfl-predictions-week1-pmix@" + "c" * 40,
+            "sha256": "d" * 64,
+        },
+        run_id="a5-fixture",
+        observed_at="2026-09-03T20:10:00+00:00",
+    )
+    reopened = pmix_operator.read_week1_participation_package_v1(
+        store=store, package_identity=pmix_receipt["package_identity"]
+    )
+    return (
+        store,
+        pmix_receipt,
+        reopened["package"],
+        reopened["selection"],
+        paid_book,
+        shadow_book,
+    )
+
+
+def test_a5_allocation_binds_four_contests_and_nested_ranked_prefixes() -> None:
+    store, receipt, package, selection, paid_book, shadow_book = (
+        _published_pmix_fixture()
+    )
+    wemax_identity = store.seed_raw(
+        uri=f"{PREFIX}D800_WEMAX/book.json", raw=b"wemax-fixture"
+    )
+    allocation = a5.build_week1_a5_allocation_v1(
+        participation_package_identity=receipt["package_identity"],
+        participation_package=package,
+        participation_selection=selection,
+        d400_lineup_ids=shadow_book["roster_ids"],
+        d400_book_identity=receipt["package_identity"],
+        d800_wemax_lineup_ids=list(reversed(paid_book["roster_ids"])),
+        d800_wemax_book_identity=wemax_identity,
+        contests=_a5_contests(store),
+    )
+
+    assert allocation["planned_entry_count"] == 90
+    assert allocation["planned_spend_micro"] == 449_000_000
+    assert len(allocation["paid_entry_edges"]) == 90
+    assert len(allocation["shadow_entry_edges"]) == 270
+    assert allocation["accepted_entry_receipts_pending"] is True
+    assert a5.validate_week1_a5_allocation_v1(allocation) == allocation
+    for contest in allocation["contests"]:
+        edges = [
+            row
+            for row in allocation["paid_entry_edges"]
+            if row["contest_id"] == contest["contest_id"]
+        ]
+        assert [row["lineup_id"] for row in edges] == selection["P_MIX"][
+            "ordered_lineup_ids"
+        ][: contest["planned_entries"]]
+
+
+def test_a5_allocation_rejects_wrong_20max_contract() -> None:
+    store, receipt, package, selection, paid_book, shadow_book = (
+        _published_pmix_fixture()
+    )
+    contests = _a5_contests(store)
+    contests[1]["entry_limit"] = 21
+    with pytest.raises(a5.Week1A5AllocationError, match="exactly 20-max"):
+        a5.build_week1_a5_allocation_v1(
+            participation_package_identity=receipt["package_identity"],
+            participation_package=package,
+            participation_selection=selection,
+            d400_lineup_ids=shadow_book["roster_ids"],
+            d400_book_identity=receipt["package_identity"],
+            d800_wemax_lineup_ids=list(reversed(paid_book["roster_ids"])),
+            d800_wemax_book_identity=receipt["package_identity"],
+            contests=contests,
+        )
+
+
+def test_a5_allocation_hash_tamper_fails_closed() -> None:
+    store, receipt, package, selection, paid_book, shadow_book = (
+        _published_pmix_fixture()
+    )
+    allocation = a5.build_week1_a5_allocation_v1(
+        participation_package_identity=receipt["package_identity"],
+        participation_package=package,
+        participation_selection=selection,
+        d400_lineup_ids=shadow_book["roster_ids"],
+        d400_book_identity=receipt["package_identity"],
+        d800_wemax_lineup_ids=list(reversed(paid_book["roster_ids"])),
+        d800_wemax_book_identity=receipt["package_identity"],
+        contests=_a5_contests(store),
+    )
+    allocation["paid_entry_edges"][0]["lineup_rank"] = 2
+    with pytest.raises(a5.Week1A5AllocationError, match="SHA-256 differs"):
+        a5.validate_week1_a5_allocation_v1(allocation)

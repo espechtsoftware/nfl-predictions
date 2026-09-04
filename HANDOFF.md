@@ -438,6 +438,22 @@ agent or developer:
 - The D400 and same-pool D800_WEMAX counterfactual shadows must be predeclared at the same K57/K20/K3/K10 views
   and settled against the same captured fields. This freezes contest allocation only; it does not change the
   current D800_DEMAX generator/selector plan or claim positive expected value.
+- `src/nfl_dfs/inference/week1_a5_allocation.py` now converts that decision
+  into a fail-closed pre-lock contract. It requires four unique live contest
+  IDs on draft group 151307 and the exact Week-1 lock, enforces the decided
+  fees/counts and the $3 contest's exact 20-entry limit, binds metadata/payout/
+  ticket-term source identities, and maps nested P_MIX ranks 1-57/20/3/10 to
+  90 paid entry edges. It simultaneously freezes same-count P_CTRL,
+  D400_DEMAX, and D800_WEMAX shadow edges (270 total) and exact book identities.
+  The P_MIX selection must content-bind the independently reopened terminal
+  participation package and the adopted 800-candidate population. The
+  allocation is self-hashed, validates independently, reads no outcomes, and
+  explicitly leaves accepted-entry receipts pending.
+- The A5 addition raises focused validation to 26/26 adopted-pair/operator/A5
+  tests plus 9/9 participation tests; ruff and whitespace checks pass. No
+  contest IDs were guessed and no live artifact was published. Exact live
+  lobby identities and D800_WEMAX generation remain the capture-time inputs
+  required before this contract can be sealed.
 
 ### 2026-09-03 experiment 085 engaged-boundary amendment and r2 mechanics launch
 
