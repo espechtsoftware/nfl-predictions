@@ -41466,3 +41466,33 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 - Exact next action remains to poll lab `origin/main`; only after its committed
   first-read seal may production reproduce the reader and adjudicate the
   Work-Package-B release. Experiment 091 remains held.
+
+## 2026-09-04 — Week-1 TabPFN marginal cache repaired and verified
+
+- Repaired execution `tabpfn-gen-cpvtw`, immutable UID
+  `a79ba43e-deb3-406c-8475-50d64f7cedea`, completed 1/1 successfully with
+  zero retries at `2026-09-04T19:15:21.850462Z` in 5m15.77s. The single
+  upcoming fit reported 905 predictions in 80 seconds and exited zero.
+- Runtime receipt `TABPFN_GEN_JSON` binds source
+  `acfea82478cf975c80fdccd6a95943797e793661`, feature-contract SHA-256
+  `52cc95c500bc3bd4223baacb29be73e3df4d637ce289b6431735cddd46195b83`,
+  seed 7, four estimators, all-prior-nonnull-label context, training table
+  identity (102,927 rows, 78,404 active / 24,523 inactive, modification
+  `2026-09-04T08:25:44.639000+00:00`), and the exact preserved base-cache
+  identity (65,455 rows, etag `hE2+nHo13rGfZfEn/LdGOg==`). The write occurred
+  once at the final `WRITE_TRUNCATE` boundary.
+- Independent BigQuery verification proves 66,360 rows and 66,360 distinct
+  `(season, week, gsis_id)` keys; exactly 905 rows / 905 players at 2026-W1;
+  the historical row count remains exactly 65,455 with every per-season count
+  unchanged; zero null, non-finite, or non-monotone prediction rows. New table
+  modification identity is `1788549308529`, etag
+  `dfjqpR6EjbBsV7n2+OqEGQ==`.
+- The standing `tabpfn-gen` template remains generation 7 at the repaired
+  immutable digest with its 4-vCPU / 16-GiB / one-L4 envelope, one task, zero
+  retries, one-hour timeout, and default `GCP_PROJECT` environment only. The
+  execution-only Week-1/source variables did not persist to the template.
+- The previously stale marginal feed is now current and safe for Week-1 use.
+  Exact next actions are to inspect and disposition the separate component
+  cache refresh without altering the verified marginal table, and to keep
+  polling lab `origin/main` for the sealed 095 first read. Experiment 091
+  remains held.
