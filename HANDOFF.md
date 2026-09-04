@@ -41799,3 +41799,19 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   to poll both exact executions and the registered coordinator, allow the
   restart-safe bank-702 release, and stop immediately on any retry or failed
   task. Experiment 091 remains held.
+
+## 2026-09-04 — Selection-diagnostic launch boundary tightened
+
+- Amended `reports/2026-09-04-selection-diagnostics-lab-execution-plan.md`
+  after reviewing the first SD-A/SD-B implementations. SD-A may finish its
+  current local run, with selected-book and analysis identities added before
+  interpretation and arm-stratified calibration added or the pooled view
+  disclosed.
+- SD-B is outcome-open because it reads and emits sealed settlement scores,
+  realized maxima, corpus oracles, and realized regret. Before cloud launch it
+  needs a unique run prefix, create-once shard publication, exact 0..47 shard
+  completeness, the full expected 432-cell census, and explicit private
+  development-only handling. The recommended envelope is the source-matching
+  2-vCPU/8-GiB configuration, not an unverified 4-vCPU change.
+- These corrections do not alter 096. SD-B waits for otherwise-free capacity;
+  SD-C still waits for the SD-A/SD-B interpretation; 091 remains held.

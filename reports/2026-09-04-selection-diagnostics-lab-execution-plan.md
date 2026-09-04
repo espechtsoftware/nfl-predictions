@@ -286,3 +286,54 @@ Return one short implementation note containing:
 Do not respond with UI work, a generalized diagnostics platform, a new graph
 schema, or extra score arms. The first useful answer is a book-max PIT and a
 same-objective greedy certificate, followed by the already routed 096 score.
+
+## 11. Production implementation review before the sealed diagnostic runs
+
+The first lab implementations are directionally correct, but the cloud launch
+contract needs these bounded repairs. They do not alter experiment 096 and do
+not authorize another score-bearing arm.
+
+### SD-A disposition
+
+Let the current local SD-A process finish; do not discard completed compute.
+Treat its first artifact as development-only until a small identity/completeness
+sidecar records the analysis-script commit/SHA and an exact selected-book hash
+for every arm-cell. Preserve the current by-arm PIT histograms. The reported
+calibration regression currently pools arms after averaging repeated banks, so
+either add an arm-stratified calibration view or state prominently that the
+overall slope/intercept can conceal arm-specific errors. These additions may be
+derived without regenerating the simulation matrices if the sealed selected
+books and current cell rows are retained.
+
+### SD-B launch boundary
+
+SD-B is **outcome-open**, not outcome-blind. Its code loads
+`settlement_<arm>`, writes `realized_book_max`, `corpus_oracle`, and
+`realized_regret`, and uploads those values. Keep the artifact explicitly
+diagnostic/development-only and private; it cannot promote an arm or be treated
+as a no-outcome calculation merely because the optimization certificate itself
+uses only simulated values.
+
+Before cloud execution:
+
+1. bind a unique diagnostic run identity, exact source commit, immutable image
+   digest, sealed 095 run IDs, script SHA, and task count;
+2. use the same **2-vCPU/8-GiB** compute envelope as the sealed generation
+   cohort unless a pre-run reproducibility check proves another envelope
+   recreates the candidate signatures exactly—four CPUs offer little expected
+   benefit to the mostly single-process NumPy/CBC path and can change solver
+   behavior;
+3. use 48 shards for the corrected 432-cell census, with concurrency limited
+   to quota; note that sharding occurs by 216 slate-bank rows and each row emits
+   two arm-cells;
+4. upload beneath the unique run prefix with create-once semantics rather than
+   the current reusable static object names;
+5. make merge fail closed unless shard indices are exactly `0..47`, every
+   shard declares count 48 and identical identities, there are no duplicate
+   cells, and the union of valid plus explicit unavailable cells equals the
+   expected 432-cell key set; and
+6. keep the realized-regret fields beside—but never arithmetically combined
+   with—the simulated certificate gap.
+
+Launch SD-B only on capacity not needed by the registered 096 cohort. SD-C
+remains behind the SD-A/SD-B interpretation as originally planned.
