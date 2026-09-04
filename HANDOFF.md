@@ -40237,3 +40237,18 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   21/21 tests pass. The deterministic blocker is repaired before freeze; D6
   remains active and the subsequent real-artifact smoke must use this repaired
   source revision or a descendant that preserves it.
+
+## 2026-09-04 — Live DraftKings draft-group calendar check completed
+
+- Production ran the real read-only `scripts/probe_dk_sports.py` endpoint
+  check. The current payload contains 203 total draft groups: 86 carry NFL
+  `sportId=1` and 30 carry CFB `sportId=5`. The supported-product filters
+  return three NFL draft groups and 18 CFB draft groups.
+- The NFL result includes exact Week-1 Sunday-main draft group `151307`; the
+  other supported IDs are `153054` and `151820`. This confirms the repaired
+  `nfl_draft_groups()` payload-shape/filter path is live today.
+- Both `s-cfb` and `s-cfb-sat` are enabled. The latest four `ingest-cfb`
+  executions (`c8sxx`, `9qnjw`, `j77gx`, plus the manual `k6bhc`) each
+  completed 1/1 successfully; no restart or scheduler repair is presently
+  needed. This was collection verification only and changed no data/model,
+  scoring, lineup, or paid-entry policy.
