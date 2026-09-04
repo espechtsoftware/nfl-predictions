@@ -45,6 +45,11 @@ EXACT_K: Final = 80
 A5_PREFIXES: Final = (3, 10, 20, 57)
 ALPHA: Final = 2.0
 REGIME_START: Final = 2022
+PROVIDER_ABSENCE_SEMANTICS: Final = (
+    "not-listed-means-no-active-designation"
+)
+NORMALIZATION_CONTRACT: Final = "injury-status-practice-aliases-v1"
+MAP_VERSION: Final = "prereg054-live-alpha2-v1"
 
 _SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 _PLAYER_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}\Z")
@@ -156,6 +161,7 @@ def build_prelock_snapshot_v1(
     player_ids: Sequence[str],
     observations: Sequence[Mapping[str, object]],
     provider: str,
+    provider_absence_semantics: str,
     provider_observed_at: str,
     ingested_at: str,
     cutoff_at: str,
@@ -169,6 +175,11 @@ def build_prelock_snapshot_v1(
         _fail("candidate player universe must be nonempty and unique")
     if not isinstance(provider, str) or not provider.strip():
         _fail("snapshot provider must be nonempty")
+    if provider_absence_semantics != PROVIDER_ABSENCE_SEMANTICS:
+        _fail(
+            "provider absence semantics must explicitly certify that an "
+            "unlisted player has no active designation"
+        )
     if type(max_snapshot_age_seconds) is not int or max_snapshot_age_seconds < 1:
         _fail("maximum snapshot age must be a positive integer")
 
@@ -243,6 +254,7 @@ def build_prelock_snapshot_v1(
         "week": WEEK,
         "draft_group_id": DRAFT_GROUP_ID,
         "provider": provider.strip(),
+        "provider_absence_semantics": provider_absence_semantics,
         "provider_observed_at": provider_observed_at,
         "ingested_at": ingested_at,
         "cutoff_at": cutoff_at,
@@ -303,6 +315,9 @@ def validate_prelock_snapshot_v1(
             if row.get("provider_row_present") is True
         ],
         provider=str(snapshot.get("provider", "")),
+        provider_absence_semantics=str(
+            snapshot.get("provider_absence_semantics", "")
+        ),
         provider_observed_at=str(snapshot.get("provider_observed_at", "")),
         ingested_at=str(snapshot.get("ingested_at", "")),
         cutoff_at=str(snapshot.get("cutoff_at", "")),
@@ -320,12 +335,19 @@ def _class_name(status: str, practice_level: int | None) -> str:
 
 
 def fit_participation_map_v1(
-    history: Sequence[Mapping[str, object]], *, target_season: int = SEASON
+    history: Sequence[Mapping[str, object]],
+    *,
+    source_artifact_sha256: str,
+    target_season: int = SEASON,
 ) -> dict[str, object]:
     """Fit the frozen alpha=2 empirical map using only prior-season labels."""
 
     if type(target_season) is not int or target_season != SEASON:
         _fail("live participation map target season must be 2026")
+    source_sha256 = _digest(
+        source_artifact_sha256,
+        label="participation-history source artifact SHA-256",
+    )
     retained: list[tuple[int, str, bool]] = []
     for ordinal, raw in enumerate(history):
         if not isinstance(raw, Mapping) or set(raw) != {
@@ -343,6 +365,9 @@ def fit_participation_map_v1(
         retained.append((season, _class_name(status, practice), active))
     if not retained:
         _fail("participation history is empty")
+    trained_seasons = sorted({season for season, _, _ in retained})
+    if trained_seasons != [2022, 2023, 2024, 2025]:
+        _fail("participation history must cover every 2022-2025 season")
 
     counts: Counter[str] = Counter()
     active_counts: Counter[str] = Counter()
@@ -360,8 +385,11 @@ def fit_participation_map_v1(
     rows = [[season, cls, active] for season, cls, active in sorted(retained)]
     body: dict[str, object] = {
         "schema_version": MAP_SCHEMA_VERSION,
+        "map_version": MAP_VERSION,
+        "normalization_contract": NORMALIZATION_CONTRACT,
+        "source_artifact_sha256": source_sha256,
         "target_season": target_season,
-        "trained_seasons": sorted({season for season, _, _ in retained}),
+        "trained_seasons": trained_seasons,
         "alpha": ALPHA,
         "designated_rows": len(retained),
         "training_rows_sha256": canonical_sha256(rows),
@@ -383,7 +411,15 @@ def _validated_map(value: object) -> dict[str, object]:
         _fail("participation map SHA-256 differs")
     if (
         result.get("schema_version") != MAP_SCHEMA_VERSION
+        or result.get("map_version") != MAP_VERSION
+        or result.get("normalization_contract") != NORMALIZATION_CONTRACT
+        or _digest(
+            result.get("source_artifact_sha256"),
+            label="participation-history source artifact SHA-256",
+        )
+        != result.get("source_artifact_sha256")
         or result.get("target_season") != SEASON
+        or result.get("trained_seasons") != [2022, 2023, 2024, 2025]
         or result.get("alpha") != ALPHA
         or result.get("fit_method") != "designation-x-practice-beta-binomial-v1"
     ):
@@ -623,6 +659,9 @@ def certify_participation_replay_v1(**selection_inputs: object) -> dict[str, obj
 __all__ = [
     "A5_PREFIXES",
     "EXACT_K",
+    "MAP_VERSION",
+    "NORMALIZATION_CONTRACT",
+    "PROVIDER_ABSENCE_SEMANTICS",
     "Week1ParticipationMixtureError",
     "build_participation_selection_v1",
     "build_prelock_snapshot_v1",

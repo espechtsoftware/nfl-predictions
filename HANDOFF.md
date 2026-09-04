@@ -193,6 +193,12 @@ agent or developer:
   whitespace checks. The first test attempt accidentally imported the old
   editable main checkout; the corrected `PYTHONPATH=src` run is the valid
   result. No cloud, BigQuery, GCS, paid entry, book, or lab state changed.
+- The recovered boundary now requires the feed contract to state the exact
+  absence semantics `not-listed-means-no-active-designation`; an omitted
+  provider row can no longer be silently interpreted as healthy. The fitted
+  2026 map also requires all four 2022-2025 seasons and records its exact
+  training-artifact SHA, normalization contract, and map version. The focused
+  module remains 7/7 after both changes.
 - This is preserved development work, not a live certification. Remaining
   P0 work is to bind the selection receipt to the exact adopted D800
   candidate/book authority, publish the raw/derived snapshot, fitted map,

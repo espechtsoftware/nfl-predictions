@@ -53,6 +53,7 @@ def _snapshot(players: list[str], *, status: str = "Questionable") -> dict:
             },
         ],
         provider="nflverse-injuries",
+        provider_absence_semantics=pmix.PROVIDER_ABSENCE_SEMANTICS,
         provider_observed_at="2026-09-03T20:05:00+00:00",
         ingested_at="2026-09-03T20:06:00+00:00",
         cutoff_at="2026-09-03T20:10:00+00:00",
@@ -78,7 +79,9 @@ def _map() -> dict:
                 "was_active": season == 2024,
             },
         ])
-    return pmix.fit_participation_map_v1(history)
+    return pmix.fit_participation_map_v1(
+        history, source_artifact_sha256="b" * 64
+    )
 
 
 def _selection_inputs() -> dict[str, object]:
@@ -106,6 +109,10 @@ def test_snapshot_retains_raw_values_and_explicit_absence() -> None:
     assert snapshot["rows"][0]["practice_level"] == 0
     assert snapshot["rows"][2]["provider_row_present"] is False
     assert snapshot["rows"][2]["injury_status"] is None
+    assert (
+        snapshot["provider_absence_semantics"]
+        == pmix.PROVIDER_ABSENCE_SEMANTICS
+    )
     assert snapshot["outcome_fields_read"] == []
     assert pmix.validate_prelock_snapshot_v1(snapshot, player_ids=players) == snapshot
 
@@ -120,8 +127,24 @@ def test_snapshot_rejects_unknown_and_stale_inputs() -> None:
             player_ids=players,
             observations=[],
             provider="nflverse-injuries",
+            provider_absence_semantics=pmix.PROVIDER_ABSENCE_SEMANTICS,
             provider_observed_at="2026-09-03T19:00:00+00:00",
             ingested_at="2026-09-03T19:01:00+00:00",
+            cutoff_at="2026-09-03T20:10:00+00:00",
+            max_snapshot_age_seconds=600,
+            raw_artifact=_artifact(),
+        )
+
+    with pytest.raises(
+        pmix.Week1ParticipationMixtureError, match="absence semantics"
+    ):
+        pmix.build_prelock_snapshot_v1(
+            player_ids=players,
+            observations=[],
+            provider="nflverse-injuries",
+            provider_absence_semantics="unspecified",
+            provider_observed_at="2026-09-03T20:05:00+00:00",
+            ingested_at="2026-09-03T20:06:00+00:00",
             cutoff_at="2026-09-03T20:10:00+00:00",
             max_snapshot_age_seconds=600,
             raw_artifact=_artifact(),
@@ -139,6 +162,9 @@ def test_snapshot_hash_tamper_fails_closed() -> None:
 def test_map_is_prior_season_only_and_beta_smoothed() -> None:
     fitted = _map()
     assert fitted["trained_seasons"] == [2022, 2023, 2024, 2025]
+    assert fitted["map_version"] == pmix.MAP_VERSION
+    assert fitted["normalization_contract"] == pmix.NORMALIZATION_CONTRACT
+    assert fitted["source_artifact_sha256"] == "b" * 64
     assert fitted["p_active"]["Questionable|0"] == pytest.approx(0.5)
     assert fitted["p_active"]["Doubtful|1"] == pytest.approx(0.375)
     assert fitted["map_sha256"]
