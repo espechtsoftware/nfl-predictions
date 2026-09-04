@@ -40441,3 +40441,22 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   registered coordinator remains active and the efficacy reader remains
   unopened. Require bank 672 exact terminal success before handing first read
   to the lab; experiment 091 remains held.
+
+## 2026-09-04 — Week-1 live projection repair built and rebound
+
+- Source commit `4e4869266e5e6b33621b27bb7194eebf107f2b75` passed the
+  complete bounded local live suite (180/180), compilation, diff checks, the
+  atomic BigQuery map rebuild, and the real 537-row candidate-only preflight.
+  It is pushed to production `main`.
+- Cloud Build `28990383-e0dc-472b-b3e2-0019d9bac5c4` completed SUCCESS at
+  `2026-09-04T08:20:37.119483Z`: boundary tests, image build, and container
+  smoke all passed. Image tag `week1-live-4e4869266e5e` resolves to immutable
+  digest
+  `sha256:f721837b45c6e83ce07405bb12f6a6d06595275e05e425839e9d55659a90ca8d`.
+- Only `build-features` generation 58 and `project-slate` generation 59 were
+  rebound to that digest. Their existing commands, environment, service
+  account, resources, timeouts, and retry policies were preserved exactly.
+- Full leakage-checked feature execution `build-features-mgz2z` has started
+  asynchronously on the new digest. `project-slate` remains unexecuted until
+  this build reaches exact success and the live zero-unmapped/valid-receipt
+  preflight repeats.
