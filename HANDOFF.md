@@ -40358,3 +40358,11 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   rebuild the leakage-checked features, and require zero unresolved rows plus
   a nonempty Week-1 projection table before any P_MIX or book publication.
   PREREG-063 continues independently; experiment 091 remains held.
+- Source commit `8cee1c1e8a54c338553ffd4b7618473c9a30039d` was pushed and
+  Cloud Build `12964e8e-7aea-437f-98e4-cb8eaf9928e4` tested its bounded
+  context. It failed during test collection, before image creation, because
+  the scoped context omitted the repo-level `scripts` package imported by
+  `test_production_policy.py`. The build is void; no image, deployment, or
+  data mutation occurred. The context builder now includes the 12 MB scripts
+  directory and retains the same cleanup trap; this changes no runtime image
+  contents because the live Dockerfile still copies only source and SQL.

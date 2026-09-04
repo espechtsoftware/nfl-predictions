@@ -22,7 +22,7 @@ trap 'rm -rf -- "$context"' EXIT
 for path in \
   pyproject.toml README.md CLAUDE.md \
   Dockerfile.week1-live cloudbuild.week1-live.yaml \
-  src sql tests; do
+  src sql scripts tests; do
   cp -a "$root/$path" "$context/$path"
 done
 
