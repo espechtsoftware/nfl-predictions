@@ -40918,3 +40918,36 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   reproduce the lab's committed transcript next. No efficacy execution,
   runner, image, estimand, arm, endpoint, or routing rule changed. Experiment
   091 remains held.
+
+## 2026-09-04 — Experiment 094 independently reproduced and next crossing nominated
+
+- Branch `codex/week1-pmix-live-certification` entered this milestone at
+  pushed production commit `77235f9c`. Production independently ran amended
+  PREREG-065 reader SHA-256
+  `4fab3ff4b1200370457267ec5b69b0ddff5071c7f71261e4b09e18397fc69d62`
+  over `094b680r1-20260904T103431Z`,
+  `094b681r1-20260904T103705Z`, and
+  `094b682r1-20260904T121250Z`. Its output SHA-256 is
+  `9be2380283969623b059e38b98b5fba1ae8429f489a617f357c31b5dc348b8d4`,
+  exactly matching the lab's committed first-read transcript. The lab ledger
+  and handoff 004 label also match the reproduction.
+- Both family-level contrasts remain `UNPASSED_NEAR_MISS`: redistribution
+  minus aware is `+0.00150 [-0.00282,+0.00711]`, and aware minus control is
+  `+0.00205 [-0.00141,+0.00648]`. The frozen disposition stands: 093 is
+  unreplicated and shadow-only with no live consideration; the tested
+  redistribution cascade closes without dose/cap/transfer-law search; 091
+  remains held. The independently reproduced P_MIX result is unaffected.
+- The mechanism result is nevertheless actionable: 200+ candidate supply
+  rises `263 -> 314` from aware to redistribution and the oracle rises
+  `194.288 -> 194.507`, but K80 gains only `+0.536` raw with an interval
+  spanning zero. Production therefore nominates a new fixed-budget 2 x 2
+  generation-by-retrieval crossing: PG_CTRL versus PG_REDIST pools, each
+  retrieved by incumbent D800_DEMAX and the frozen PREREG-060
+  conditional-novelty law, all under P_MIX and fresh banks. This directly
+  tests whether a retrieval law can convert the new high-tail supply.
+- Full evidence and the exact requested reporting contract are in
+  `reports/2026-09-04-prereg065-production-independent-review.md`. Exact next
+  action is to publish the independent closeout and nomination to lab main,
+  then review the lab's bounded preregistration/launch contract before any
+  build. No unfrozen experiment is authorized, and no live or paid policy
+  changed.
