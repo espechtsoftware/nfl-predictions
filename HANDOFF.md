@@ -40182,6 +40182,9 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   the underlying lab transcript is not committed. Exact result reproduction
   is established; byte-level transcript identity is not. This is a
   non-blocking retention request, not a reason to rerun the cohort.
+- Lab commit `72e63ee` records that no original transcript with the surviving
+  `6ab96e62...` hash remains after the IDE restart; the production transcript
+  is the durable 087 artifact of record. The retention request is closed.
 - Full disposition:
   `reports/2026-09-04-prereg056-production-independent-review.md`. No scoring,
   policy, graph, paid-entry, or cloud state changed. D6/093 and the broader
@@ -40228,3 +40231,9 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   generation law, hypothesis, or frozen data artifact, but it must land before
   the real-artifact smoke and 093 freeze/build. Production found no other
   launch blocker in this pre-review. 091 remains held.
+- Lab commit `76ae779` applied the exact outcome-block-only emission and added
+  runner/reader receipt-contract regressions. Production independently
+  inspected the diff and reran the runner, reader, and mechanics-gate files:
+  21/21 tests pass. The deterministic blocker is repaired before freeze; D6
+  remains active and the subsequent real-artifact smoke must use this repaired
+  source revision or a descendant that preserves it.
