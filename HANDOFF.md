@@ -40209,3 +40209,22 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `reports/2026-09-04-prereg064c-production-independent-review.md`. D6 and the
   093 real-artifact smoke/freeze remain the next score-bearing path; 091
   remains held. No scoring, policy, graph, paid-entry, or cloud state changed.
+
+## 2026-09-04 — PREREG-063 / experiment 093 pre-freeze blocker identified
+
+- Production pre-reviewed the draft 093 runner, reader, mechanics gate, and
+  launch contract while the D6 census continued. The focused draft suite is
+  green at 19/19, but it missed one runner/reader integration defect:
+  `scripts/prereg063_report.py` requires `inactive_players` for every efficacy
+  metadata row, while `experiments/093_participation_generation.py` does not
+  emit that field.
+- Left unchanged, all three efficacy banks could finish successfully and the
+  reader would then reject the cohort before reporting the contamination
+  co-primary. Production sent the minimal repair to the lab at nfl2 commit
+  `088c4ff`: emit the sorted inactive-player IDs only after the
+  mechanics-only `continue`, using the already-governed 085/092 outcome-block
+  pattern, and add a cross-contract regression proving that boundary.
+- D6 remains healthy and untouched. The repair changes no arm, endpoint,
+  generation law, hypothesis, or frozen data artifact, but it must land before
+  the real-artifact smoke and 093 freeze/build. Production found no other
+  launch blocker in this pre-review. 091 remains held.
