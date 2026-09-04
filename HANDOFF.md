@@ -41821,3 +41821,33 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   census: its four natural arms produce 864 cells, while SD-B and SD-C each
   use two arms and produce 432. The running SD-A process is healthy and must
   not be stopped merely because it passes 432.
+
+## 2026-09-04 — SD-B boundary repair reviewed; immutable diagnostic build started
+
+- Lab implemented the production selection-diagnostic boundary at
+  `223572885106b4672f8aa358a3c181317f1e1fb1` and acknowledged it in Update 69
+  (`8e214dd`). Focused SD-A/B/C/common tests pass 18/18; Ruff passes. The new
+  shared contract binds identities, requires 48 shards, publishes beneath a
+  unique run prefix create-once, rejects incomplete shard merges, and labels
+  SD-B/SD-C outcome-open private development diagnostics.
+- Production verified that the exact sealed-095 `src/nfl2`, experiment-095
+  runner, data, benchmark, and runtime-artifact trees are unchanged at this
+  diagnostic source. The 095 reader differs only by its already-authorized
+  launch pins and has the expected bound SHA-256 `e7d725b0...`.
+- Sent one metadata-only follow-up at lab commit `82af517`: the active SD-A
+  process imported commit `8e0b6b84...`, script SHA-256
+  `c9faab1a975ea609742369a761f55cbdb978ff825822291327587bff12155c7b`;
+  the post-run annotator must preserve that original execution identity
+  separately from its newer annotation identity. No rerun is required.
+- Clean source `2235728...` has 659 Cloud Build upload files / 6.3 MiB,
+  manifest SHA-256
+  `a0ba50d6b5bafe26d0d0a7968c22cb287ab97aa56fd4c70ed4d75bcb5945c9ae`.
+  Immutable diagnostic image build
+  `61d7df17-8e57-4e76-81b2-8cfa6f9a28cc` is running for tag
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2:sdb-2235728`.
+  This build does not mutate either reusable Cloud Run job and does not
+  compete with the active 096 efficacy executions.
+- Exact next action: keep polling 096 and the diagnostic build. Resolve and
+  record the diagnostic image digest on success, then create a registered
+  48-task SD-B launch binding but do not install/execute it until 096 releases
+  capacity. Experiment 091 remains held.
