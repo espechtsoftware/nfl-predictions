@@ -41750,3 +41750,29 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   to terminal, publish/verify the gate receipt, then bind the efficacy reader
   and launch 700-702. After 096 owns its execution capacity, review and launch
   SD-B on otherwise-free capacity without altering the 096 image/envelope.
+
+## 2026-09-04 — PREREG-067 mechanics gate passed independently
+
+- Cloud Run execution `lab-run-9wbxf` for run
+  `096m700r1-20260904T204546Z` completed successfully at
+  `2026-09-04T20:57:19Z`: 1/1 task succeeded with zero failures,
+  cancellations, and retries.
+- The registered coordinator published the create-once outcome-disabled gate
+  receipt at
+  `gs://nfl-2-506823-lab/gates/PREREG-067/096m700r1-20260904T204546Z.json`.
+  Receipt SHA-256 is
+  `19101084bf6ef1d4d4872521971fddbc35319851a9a1d4897a0c4302b178f570`.
+  Registry completion record is
+  `/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launcher-completions/0c80c96656c7c5764e6fbe09ce3038ab686e9020cc735fdee0aa65809213248f.json`.
+- Production independently reran the exact gate from frozen source
+  `b71dbbcb8da62ef7ae50226c9035ed333f7a3ce1`; its canonical bytes and the
+  remote receipt independently reproduced the same SHA-256. The receipt binds
+  the immutable image digest, exact 2022-W8/bank-700 boundary, 800 delivered
+  candidates, 5,604 generation cells zeroed, 57,612.585 points transferred,
+  all eight rescue swaps accepted, 0.181818 K80 turnover, and the recursive
+  no-realized-outcome boundary.
+- No efficacy prefix has yet been claimed and no efficacy reader has been
+  opened. Exact next action is to pin the reader to this gate receipt in a
+  durable source-descended efficacy binding, validate its bytes, and launch
+  banks 700-702 through the shared registered lane. Experiment 091 remains
+  held.
