@@ -40695,3 +40695,20 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   cancellation, or retry. Bank 682 remains held for automatic launch only
   after both initial banks reach exact terminal success. The efficacy reader
   remains unopened and experiment 091 remains held.
+
+## 2026-09-04 — A5 public contest metadata identity completed
+
+- Production invoked the already deployed immutable `ingest-contests` image
+  after its additive schema release. Execution `ingest-contests-wwcm2`
+  completed exact 1/1 success with zero retries and populated all four A5
+  contests at common snapshot `2026-09-04T10:47:54.076774Z` with entry limit,
+  qualifier flag, contest-template id, and canonical public payout metadata.
+- The ordered compact JSON projection of the four exact source rows has
+  SHA-256
+  `5a98a3ebeb03e0f95afe8845e1f66cf7a21882054f45dd23ef9e85cde60611ee`;
+  its field and ordering contract is recorded in
+  `reports/2026-09-04-week1-a5-live-contest-capture.md`. This completes the
+  immutable public-lobby metadata identity without reading outcomes.
+- Complete qualifier ticket terms remain separate from the public payout
+  summaries and are still required before the final A5 seal. The score lanes
+  and frozen experiment 094 were untouched.

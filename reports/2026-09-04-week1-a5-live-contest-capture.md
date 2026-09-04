@@ -70,10 +70,30 @@ on the next scheduled poll.
 
 ## Exact next steps
 
-1. Bind an immutable metadata source identity for these four contests.
-2. Capture and bind the complete qualifier ticket terms separately from the
+1. Capture and bind the complete qualifier ticket terms separately from the
    public payout-summary field.
-3. Generate/freeze the Week-1 P_MIX/P_CTRL paid candidates and the predeclared
+2. Generate/freeze the Week-1 P_MIX/P_CTRL paid candidates and the predeclared
    D400_DEMAX and D800_WEMAX shadow books at K57/K20/K3/K10.
-4. Produce the ordered contest-entry edge manifest, then retain accepted-entry
+3. Produce the ordered contest-entry edge manifest, then retain accepted-entry
    receipts and post-contest settlement artifacts under the existing boundary.
+
+## 2026-09-04 10:48Z source-identity completion
+
+Production manually invoked the already deployed, immutable collector after
+the additive schema release. Execution `ingest-contests-wwcm2` completed exact
+1/1 success with zero retries. It appended a common four-contest snapshot at
+`2026-09-04T10:47:54.076774Z` and populated `entry_limit`, `is_qualifier`,
+`contest_template_id`, and `payout_metadata_json` for every A5 contest.
+
+The canonical source projection orders rows by string `contest_id`, uses the
+fields `pulled_at`, `contest_id`, `draft_group_id`, `name`, `entry_fee`,
+`max_entries`, `entry_limit`, `entries`, `is_qualifier`,
+`contest_template_id`, `payout_metadata_json`, and `start_time`, then serializes
+the resulting JSON array with sorted keys and compact separators. Its SHA-256
+is:
+
+`5a98a3ebeb03e0f95afe8845e1f66cf7a21882054f45dd23ef9e85cde60611ee`
+
+This completes the immutable public-lobby metadata identity. It does not
+upgrade the two payout-description summaries into complete qualifier ticket
+terms; that separate evidence remains required before the final A5 seal.
