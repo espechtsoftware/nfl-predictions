@@ -41941,3 +41941,13 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 - The registered coordinator is still alive and polling the exact execution;
   no duplicate launch is permitted. The 096 cohort remains incomplete until
   702 reaches 18/18 terminal success. SD-B stays staged, and 091 remains held.
+
+## 2026-09-04 — 096 bank 702 started
+
+- The provider retry completed successfully: `lab-run-tbskn` now reports all
+  18 tasks running for `096b702r1-20260904T214843Z`, with no failures,
+  cancellations, or retries reported. The complete 096 cohort is actively
+  computing; no efficacy artifact has been opened.
+- Continue polling this execution to terminal success, then allow the
+  registered coordinator to seal the cohort and release the lane. Launch SD-B
+  only after that release; 091 remains held.
