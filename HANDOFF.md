@@ -69,8 +69,17 @@ agent or developer:
   deployment contracts; import/F checks, compilation, shell syntax, and
   `git diff --check` pass. Full evidence and the remaining A5 freeze steps are
   in `reports/2026-09-04-week1-a5-live-contest-capture.md`. Do not issue another
-  immediate endpoint request; release the schema expansion through the next
-  scoped collection image and scheduled poll.
+  immediate endpoint request.
+- The schema expansion is durable on production `main` at
+  `7c8035317e676589f2a15607e9da49b1d46ef12d` (report-format follow-up
+  `293ba60ecb1fb8211a26622611bb787147890bbc`). Exact source `293ba60e...`
+  passed the scoped Cloud Build as
+  `21af391c-857d-4f53-aaf3-3c13d46a32ea`; immutable image digest is
+  `sha256:7c25436950936e59e83a716955843d022d6fd2bc40a5f352721a212a1a5b0729`.
+  `ingest-contests` generation 5 now points to that digest with the existing
+  command, enable flag, and `maxRetries=0`. No new endpoint request was made;
+  the next scheduled poll will append the additive fields through the existing
+  `ALLOW_FIELD_ADDITION` path.
 
 ### 2026-09-03 PREREG-064C / experiment 092 mechanics launch
 
