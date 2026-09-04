@@ -41851,3 +41851,21 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   record the diagnostic image digest on success, then create a registered
   48-task SD-B launch binding but do not install/execute it until 096 releases
   capacity. Experiment 091 remains held.
+
+## 2026-09-04 — Immutable selection-diagnostics image succeeded
+
+- Cloud Build `61d7df17-8e57-4e76-81b2-8cfa6f9a28cc` completed SUCCESS at
+  `2026-09-04T21:30:01Z`. Tag
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2:sdb-2235728` resolves to
+  immutable digest
+  `sha256:64ac0a15f481046dd599f2dc559d8d8231a57f698a972adb6f92b0024d7112e0`.
+- Build receipt is durable on lab `origin/main` at commit `0ce4abd` as
+  `results/selection-diagnostics-build-223572885106b4672f8aa358a3c181317f1e1fb1.json`.
+  It records source, upload census, module hashes, exact build times, and that
+  no reusable job or execution was changed.
+- Lab also applied the requested original SD-A execution-source identity at
+  commit `03117c6`; the running computation still requires no restart.
+- Exact next action: continue the 096 efficacy cohort. In parallel, add a
+  source-descended registered SD-B binding against this immutable image and a
+  unique run prefix, but do not install it on the reusable jobs until 096
+  releases both lanes. 091 remains held.
