@@ -34,6 +34,20 @@ COEF_L16 = 0.118
 COEF_ROOKIE = 1.05   # opposing QB <= 3 career starts
 COEF_EARLY = 0.91    # 4-10 career starts
 
+TEAM_ALIASES = {
+    "ARZ": "ARI", "BLT": "BAL", "CLV": "CLE", "HST": "HOU",
+    "GBP": "GB", "GNB": "GB", "JAC": "JAX", "KCC": "KC",
+    "KAN": "KC", "LVR": "LV", "OAK": "LV", "LAR": "LA",
+    "RAM": "LA", "STL": "LA", "NEP": "NE", "NWE": "NE",
+    "NOS": "NO", "NOR": "NO", "SDC": "LAC", "SDG": "LAC",
+    "SD": "LAC", "SFO": "SF", "TBB": "TB", "TAM": "TB",
+    "WSH": "WAS",
+}
+
+
+def _team_key(values: pd.Series) -> pd.Series:
+    return values.astype(str).str.strip().str.upper().replace(TEAM_ALIASES)
+
 
 def model_projection(opp_implied: pd.Series, trailing: pd.Series,
                      opp_qb_starts: pd.Series) -> pd.Series:
@@ -61,12 +75,25 @@ def build_rows(
     model_version: str,
 ) -> pd.DataFrame:
     """Pure assembly — every input injectable for offline tests."""
-    d = slate.merge(opponents, left_on="team_abbr", right_on="team", how="left")
-    d = d.merge(trailing, left_on="team_abbr", right_on="team",
-                how="left", suffixes=("", "_t"))
-    d = d.merge(qb_starts.rename(columns={"team": "opp_team",
-                                          "career_starts": "opp_qb_starts"}),
-                left_on="opponent", right_on="opp_team", how="left")
+    # DK and nflverse use different current/historical abbreviations for a
+    # handful of teams (notably LAR vs LA). Merge on canonical keys while
+    # preserving DK's original team abbreviation in the output contract.
+    d = slate.copy()
+    d["_team_key"] = _team_key(d["team_abbr"])
+    opp = opponents.copy()
+    opp["_team_key"] = _team_key(opp["team"])
+    opp["opponent"] = _team_key(opp["opponent"])
+    d = d.merge(opp.drop(columns=["team"]), on="_team_key", how="left")
+
+    form = trailing.copy()
+    form["_team_key"] = _team_key(form["team"])
+    d = d.merge(form.drop(columns=["team"]), on="_team_key", how="left")
+
+    qb = qb_starts.rename(columns={"team": "opp_team",
+                                   "career_starts": "opp_qb_starts"}).copy()
+    qb["_opp_team_key"] = _team_key(qb["opp_team"])
+    d = d.merge(qb.drop(columns=["opp_team"]),
+                left_on="opponent", right_on="_opp_team_key", how="left")
     opp_implied = (d["opp_implied"] if "opp_implied" in d.columns
                    else pd.Series(pd.NA, index=d.index))
     proj = model_projection(opp_implied, d["dst_l4"], d["opp_qb_starts"])

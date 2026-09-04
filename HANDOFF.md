@@ -40460,3 +40460,24 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   asynchronously on the new digest. `project-slate` remains unexecuted until
   this build reaches exact success and the live zero-unmapped/valid-receipt
   preflight repeats.
+- `build-features-mgz2z` completed exact 1/1 success; all leakage checks
+  passed. The post-build live gate repeated exactly: 537 unique DK ids, 505
+  skill rows with inference features, 32 DST, zero unmapped skills, and a
+  valid target-week roster receipt. Production then released
+  `project-slate-fm84k`, which completed 1/1 and appended 537 finite,
+  quantile-ordered projections under model
+  `pooled/components__tail_k1/2026-W32` and adopted policy
+  `classic-k1-role12-lev40-boom160-poscal-cbwu-v5`.
+- Final output validation found one nonempty-field defect before certification:
+  the Rams DST retained DK team `LAR` while opponent/schedule authority uses
+  `LA`, leaving its opponent null and its projection on the generic fallback.
+  Skill rows, identities, salaries, model version, and all other opponents
+  passed. The batch is retained as diagnostic output but is not the final
+  certified authority.
+- DST assembly now canonicalizes team keys across DK, schedule, trailing form,
+  and quarterback history while preserving DK's original team abbreviation in
+  the output. A focused alias regression passes, and the real read-only DST
+  canary returns all 32 defenses, 32 unique DK ids, zero null opponents, and
+  Rams `LAR` versus `SF` at 6.405 projected points. A successor image and
+  projection rerun are required; feature tables need no rebuild because this
+  repair touches only DST assembly.

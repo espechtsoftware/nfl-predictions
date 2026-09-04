@@ -42,6 +42,27 @@ def test_props_first_market_uses_full_dk_ppg_below_coverage_gate():
     assert not prop_mask.any()
 
 
+def test_dst_projection_joins_dk_and_schedule_team_aliases():
+    from nfl_dfs.inference.dst_projections import build_rows
+
+    slate = pd.DataFrame({
+        "dk_player_id": [343], "display_name": ["Rams"],
+        "team_abbr": ["LAR"], "salary": [3000],
+        "draft_group_id": [151307],
+    })
+    trailing = pd.DataFrame({"team": ["LA"], "dst_l4": [7.5]})
+    opponents = pd.DataFrame({
+        "team": ["LA"], "opponent": ["HOU"], "opp_implied": [20.0],
+    })
+    qb = pd.DataFrame({"team": ["HOU"], "career_starts": [40]})
+
+    row = build_rows(slate, trailing, opponents, qb, 2026, 1, "vtest").iloc[0]
+
+    assert row.team == "LAR"
+    assert row.opponent == "HOU"
+    assert row.proj_points != 6.0
+
+
 def test_projection_accepts_none_policy_env_and_uses_dk_ppg(monkeypatch):
     from types import SimpleNamespace
 
