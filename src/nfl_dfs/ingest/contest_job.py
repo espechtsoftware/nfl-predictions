@@ -53,6 +53,7 @@ def run() -> None:
         "dk_contest_fills",
         write_disposition="WRITE_APPEND",
         partition_field="pulled_at",
+        clustering_fields=("draft_group_id", "contest_id"),
     )
     log.info("Polled %d contests across %d NFL draft groups (%d guaranteed)",
               len(df), len(draft_group_ids), int(df.is_guaranteed.sum()))

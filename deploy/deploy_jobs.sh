@@ -59,6 +59,12 @@ job ingest-odds      ingest-odds     2Gi 1 "" "ODDS_API_KEY=odds-api-key:latest"
 job ingest-props     ingest-props    2Gi 1 "ODDS_SHADOW_MARKETS_ENABLED=1|ODDS_SHADOW_MIN_REMAINING=5000" "ODDS_API_KEY=odds-api-key:latest"
 job ingest-weather   ingest-weather
 job ingest-cfb       ingest-cfb      2Gi 1 "INGEST_CFB_ENABLED=1" "" 3600 0
+# Public NFL lobby census used to freeze the Week-1 A5 contest identities and
+# observe fill/overlay diagnostics.  Keep it in the declarative deployment so
+# it cannot remain pinned to an obsolete image when the DK parser changes.
+# The poll is append-only but not retry-idempotent, so fail once and let the
+# next scheduled observation own a fresh timestamp.
+job ingest-contests  ingest-contests 2Gi 1 "INGEST_CONTESTS_ENABLED=1" "" 900 0
 # --- Pipeline ----------------------------------------------------------------
 job build-features   build-features
 job train-weekly     train           8Gi 4
@@ -158,6 +164,12 @@ sched s-freeze-tail-late  freeze-tail-late  "50 11 * * 7"
 # Run hourly throughout the existing Wednesday-Sunday collection window so
 # every live Sunday decision point has a current or immediately prior pull.
 sched s-dk          ingest-dk       "0 * * * 3-7"
+# Capture one daily lobby census as contests appear, then hourly Sunday
+# observations through the last pre-lock decision point.  The two schedules
+# mirror the live scheduler identities instead of leaving them as untracked
+# console-only state.
+sched s-contests    ingest-contests "0 10 * * 3-6"
+sched s-contests-sun ingest-contests "0 6-11 * * 7"
 sched s-odds        ingest-odds     "0 9,15 * * 3-7"
 sched s-props       ingest-props    "0 11 * * 4"
 sched s-weather     ingest-weather  "0 6,12,18 * * 5,6,0"

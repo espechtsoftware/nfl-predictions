@@ -22,6 +22,39 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-03 Week-1 A5 contest-capture repair
+
+- DraftKings now advertises the 2026 Week-1 Sunday-main draft group
+  `151307`. A bounded manual `ingest-contests` execution against the job's
+  prior image (`ingest-contests-bqlht`) completed but logged zero upcoming
+  groups. The job was pinned to August 9 image digest `0a55920d...`, which
+  predates the August 19 live NFL draft-group parser repair.
+- Production repointed only `ingest-contests` to the already-running
+  August 29 ingest image, source-tagged
+  `boom-first-082123c62e0e4fc4dd834b3a8c798d137ccc0687`, immutable digest
+  `29a01f33...`. The next bounded execution `ingest-contests-qts95` found
+  2,847 matching NFL contests but failed before writing: the shared table is
+  partitioned by `pulled_at` and clustered by `(draft_group_id, contest_id)`,
+  while the NFL writer supplied only the partition specification. No retry
+  can repair that deterministic schema mismatch; the execution terminated
+  with `failedCount=1`, `retriedCount=1`, and no contest row appended.
+- The writer now supplies the exact existing clustering contract. A focused
+  regression test exercises the enabled NFL path and verifies the full
+  `load_dataframe` call; 3/3 tests pass, Python compilation, shell syntax,
+  and `git diff --check` pass. The declarative deployment now also includes
+  the previously console-only `ingest-contests` job plus the existing
+  `s-contests` and `s-contests-sun` schedules, with zero retries because an
+  append-only lobby observation is not retry-idempotent.
+- A generic production image submission was stopped before Cloud Build
+  creation after it attempted to upload a 462.8-MiB context for this small
+  repair. The scoped collection-image builder is the release path for the
+  corrected writer. Next action: commit and push the repair, build the exact
+  pushed source through that scoped context, repoint only `ingest-contests`,
+  rerun one poll, and verify draft group 151307 rows in BigQuery before
+  freezing exact A5 contest identities. Do not infer per-user entry limits
+  from the current `max_entries` warehouse column; it represents field
+  capacity in the live lobby payload.
+
 ### 2026-09-03 PREREG-064C / experiment 092 mechanics launch
 
 - Lab `origin/main` advanced through `a08da15e44a82bb301963d99c5df289b4315e10b`
