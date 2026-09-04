@@ -41975,3 +41975,20 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   It is provisioned and waiting for provider start; this is normal control-plane
   state, not a failure. The registered coordinator remains responsible for
   polling it and publishing the exact 48-task terminal census.
+
+- 2026-09-04 — SD-B provider healthy; launcher parent receipt degraded
+
+  Execution `lab-run-6v6sx` started successfully with 36 of 48 tasks running
+  concurrently. The shell-detached host launch allowed registry parent PID
+  1694314 to exit while its isolated registered-child process group remained
+  alive (`queue_sdb095_registered.sh --registered-child` and its bound frozen
+  coordinator). The Cloud Run monitor correctly raised
+  `registered_coordinator_orphaned`; this is a host-coordination degradation,
+  not a provider or diagnostic failure. The stale receipt continues to block a
+  duplicate lane acquisition, and the surviving coordinator is polling the
+  exact execution. Do not delete the receipt, relaunch, cancel, merge, or read
+  results while the execution is active. At terminal state, verify all 48 task
+  objects and adjudicate the stale receipt manually before releasing the lane.
+  Future long-lived registered coordinators must be launched from a persistent
+  service context rather than a detached command-session child. Experiment 091
+  remains held.
