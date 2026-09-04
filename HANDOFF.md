@@ -41516,3 +41516,38 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   committed seal and transcript identity, then perform production's frozen
   independent reader. No production read or WP-B release is authorized before
   that point. Experiment 091 remains held.
+
+## 2026-09-04 — PREREG-066 independently reproduced; Work Package B released
+
+- Lab `origin/main` advanced to seal commit
+  `f6c85c98a7a84d2254ba00307c67e7cec1404b22`. The committed first-read
+  transcript has SHA-256
+  `044cc4c2b0c9554875e6396b653be7d75b8d12d5b1e6f2228dfce885638beb0f`;
+  the bound reader has SHA-256
+  `e7d725b07ef2405644b5f398004e7a1f59774d7ecb9bf54f183dcfd96b987875`.
+- Production ran the exact reader from a clean detached lab worktree over
+  `095b690r1-20260904T164737Z`, `095b691r1-20260904T165019Z`, and
+  `095b692r1-20260904T180305Z`. It exited zero and produced a transcript with
+  the exact committed SHA; `cmp` confirmed byte-for-byte equality. The lab
+  `PREREG-066.md` result and `LEDGER.md` entry agree with the reproduced read.
+- Reproduced disposition: the novelty primary is an UNPASSED_NEAR_MISS
+  (`+0.00195`, family interval `[-0.00212,+0.00693]`) and that retrieval law
+  closes. The prespecified interaction PASSES (`+0.00112`, family interval
+  `[+0.00035,+0.00158]`) as development evidence only. Both novelty books
+  violate the contamination veto and are not adoptable.
+- Production adjudicated B1 as eligible for exactly one diagnostic because
+  redistributed supply contains 278 versus 222 candidates at least 200,
+  raises mean oracle from 193.632 to 194.438, lowers DEMAX contamination from
+  16.36% to 15.91%, and leaves the prespecified beneficiary-capture question
+  unresolved (13/92 redistributed-only beneficiary candidates at least 200
+  selected under either tested law).
+- This release is not an adoption, a continuation of conditional novelty, or
+  authority for two successor arms. Work Package B must run once under its
+  frozen binary statistic and route exclusively to 096 on RESCUE_ELIGIBLE or
+  097 otherwise. Experiment 091 remains held; no live policy changed. Full
+  review is in
+  `reports/2026-09-04-prereg066-production-cross-verification-and-b1-release.md`.
+- At the decision time both lab Cloud Run lanes and Cloud Build were free.
+  Exact next action is to commit and push this production decision, publish a
+  tracked lab eligibility receipt that binds that full production commit and
+  the sealed cohort, and request the lab's exactly-once Work Package B read.
