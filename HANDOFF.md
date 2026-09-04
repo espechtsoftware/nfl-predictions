@@ -40951,3 +40951,25 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   then review the lab's bounded preregistration/launch contract before any
   build. No unfrozen experiment is authorized, and no live or paid policy
   changed.
+
+## 2026-09-04 — Experiment 095 design approved for implementation
+
+- Lab commits `ac603a8` and `ed3d386` promptly converted production's
+  nomination into `PREREG-066-DESIGN.md`: experiment 095, fresh banks
+  690--692, fixed D800 PG_CTRL/PG_REDIST generation crossed with incumbent
+  DEMAX/PREREG-060 conditional-novelty retrieval under common P_MIX beliefs.
+  The registered family is the novelty effect on the redistributed pool plus
+  the paired difference-in-differences interaction.
+- Production review is pushed to lab `main` at `f84b5c1`. The design is
+  approved for immediate runner/reader/gate implementation and real-artifact
+  outcome-disabled smoke. Two wording repairs are required before final
+  freeze: treat contamination as a safety veto rather than an undeclared
+  third efficacy contrast, and do not license novelty retrieval on the control
+  pool from a redistributed-pool pass plus a null interaction. Exact held-out
+  seed identities, paired four-cell resampling, and the reader-only realized
+  beneficiary boundary are also required.
+- These changes do not alter the four cells or delay implementation. Exact
+  next action is to poll lab `main` for the corrected freeze/smoke/launch
+  contract, review it against the immutable identities, then build once and
+  run the registered mechanics gate before releasing banks 690--692.
+  Experiment 091 remains held; no unfrozen execution may launch.
