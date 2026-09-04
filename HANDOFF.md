@@ -41815,3 +41815,9 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   2-vCPU/8-GiB configuration, not an unverified 4-vCPU change.
 - These corrections do not alter 096. SD-B waits for otherwise-free capacity;
   SD-C still waits for the SD-A/SD-B interpretation; 091 remains held.
+- Delivered the boundary review directly to the lab monitored repository as
+  `handoffs/PRODUCTION-TO-LAB-SELECTION-DIAGNOSTICS-LAUNCH-BOUNDARY-2026-09-04.md`,
+  latest at lab commit `a7f5f85`. The note also corrects SD-A's expected
+  census: its four natural arms produce 864 cells, while SD-B and SD-C each
+  use two arms and produce 432. The running SD-A process is healthy and must
+  not be stopped merely because it passes 432.
