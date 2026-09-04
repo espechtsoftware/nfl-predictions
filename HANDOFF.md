@@ -41398,3 +41398,32 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `CODE_SHA=acfea82478cf975c80fdccd6a95943797e793661`,
   `TABPFN_UPCOMING=2026:1`, and `TABPFN_UPCOMING_ONLY=1`. The target table must
   remain unchanged until the repaired execution reaches its final atomic load.
+
+## 2026-09-04 — Repaired Week-1 TabPFN execution launched; 095 provider cohort terminal
+
+- Cloud Build `e74d75d8-d91d-4bff-a934-fbf4d00bd175` completed successfully at
+  `2026-09-04T19:06:16.658649Z`. Tag
+  `tabpfn-gen:week1-upcoming-acfea824` resolves to immutable digest
+  `sha256:7eeff44e7c225fed62682b3649dfa86d77f86227e3e9858c967d132deff2a10a`.
+- The standing `tabpfn-gen` job is generation 7 with that digest, its original
+  4 vCPU / 16 GiB / one-L4 envelope, one task, zero retries, one-hour timeout,
+  production service account, and default `GCP_PROJECT` environment only.
+- Exactly one repaired execution was launched: `tabpfn-gen-cpvtw`, immutable
+  UID `a79ba43e-deb3-406c-8475-50d64f7cedea`, with execution-only
+  `TABPFN_UPCOMING=2026:1`, `TABPFN_UPCOMING_ONLY=1`, and
+  `CODE_SHA=acfea82478cf975c80fdccd6a95943797e793661`. It is waiting for the L4
+  task to start. Immediately before launch, the target remained unchanged at
+  65,455 unique rows, zero 2026-W1 rows, etag
+  `hE2+nHo13rGfZfEn/LdGOg==`, and modification identity `1786108014717`.
+- Direct inspection in the correct lab project (`nfl-2-506823`) proves 095
+  bank 692 execution `lab-run-wf6d7`, immutable UID
+  `daf63df9-a655-42a9-b6f0-0566a07d9694`, completed exact 18/18 success with
+  zero failures at `2026-09-04T19:10:55.958836Z`. All three efficacy banks are
+  now provider-terminal and clean. The registered coordinator remains live
+  until it emits its own terminal acknowledgement; production has opened no
+  095 outcome artifact.
+- Exact next actions: obtain the coordinator acknowledgement, wait for the
+  lab's sealed first-read commit, and only then independently reproduce the
+  frozen reader. In parallel, monitor `tabpfn-gen-cpvtw`; on success prove 905
+  unique 2026-W1 rows and the expected 66,360-row cache before relying on it.
+  Experiment 091 remains held.
