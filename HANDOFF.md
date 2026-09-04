@@ -40116,3 +40116,21 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   one cheap outcome-blind, independent-bank quality/diversity frontier screen;
   it decides whether KG-5, KG-3A, or supply becomes the first formal post-085
   experiment.
+
+## 2026-09-04 — PREREG-057 / experiment 088 independently reproduced
+
+- Production reran the exact frozen PREREG-057 reader from lab source
+  `0f53a5ace9e1a8d612520faa804e9a0abf9096d4` against registered runs
+  `088b620r1-20260902T202127Z`, `088b621r1-20260902T202320Z`, and
+  `088b622r1-20260902T210550Z`. Each provider execution was independently
+  verified as 18/18 success with zero failures and zero retries.
+- The reader exited zero and reproduced the lab result exactly. Stdout SHA-256
+  is `71b1104605cc24da23e3f05bf0a6053d2f108ba14411db0a05574b7ffee8b998`.
+  K4_CAL is `+0.00030` (`UNPASSED_NEAR_MISS`), K4_SLV_LEV is `+0.00063`
+  (`UNPASSED_NEAR_MISS`), and K4_SLV_STRUCT is `-0.00075` (`FAIL`).
+- The full production disposition is
+  `reports/2026-09-04-prereg057-production-independent-review.md`. It accepts
+  the lab seal, requests no rerun, closes only the exact inexpensive KG-4
+  forms, and leaves the broader candidate-lineage/first-loss program open.
+  No scoring, production policy, graph, paid-entry, or cloud state was changed
+  by the review.
