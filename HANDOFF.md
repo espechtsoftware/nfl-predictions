@@ -40973,3 +40973,14 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   contract, review it against the immutable identities, then build once and
   run the registered mechanics gate before releasing banks 690--692.
   Experiment 091 remains held; no unfrozen execution may launch.
+- Pre-freeze inspection of lab runner commit `50477ae` caught one substantive
+  held-out mismatch before smoke: it evaluated only the incumbent simulation
+  matrix and did not apply an independently seeded P_MIX realization, whereas
+  the frozen design promises the dual incumbent+hsim P_MIX held-out bridge.
+  It also sampled count-match references independently for the two retrieval
+  laws within a generation row. Production's blocking repair note is pushed
+  to lab `main` at `0d379a5`: build the dual held-out P_MIX matrix with
+  disjoint/receipted seeds, share one count-match subset within each pool, and
+  add behavioral tests. Implementation may continue, but smoke/freeze/build
+  wait for those exact repairs. No outcome was opened and no cloud work was
+  wasted.
