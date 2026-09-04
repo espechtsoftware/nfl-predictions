@@ -416,11 +416,23 @@ def test_roster_fallback_maps_only_unique_full_identity_and_rejects_ambiguity():
 def test_primary_crosswalk_is_unique_and_live_dk_ids_cannot_fan_out():
     sql = re.sub(r"\s+", " ", PLAYER_ID_MAP_SQL.read_text()).upper()
 
-    assert "AND SLATE_TYPE = 'CLASSIC'" in sql
+    assert "DK_SOURCE AS" in sql
+    assert "FROM DK_SOURCE" in sql
     assert re.search(
-        r"PARTITION BY\s+DK_PLAYER_ID\s+ORDER BY\s+PULLED_AT DESC",
+        r"PARTITION BY\s+DK_PLAYER_ID\s+ORDER BY\s+CASE WHEN SLATE_TYPE",
         sql,
     )
+    assert "CASE WHEN SLATE_TYPE = 'CLASSIC' THEN 0 ELSE 1 END" in sql
+    assert "ALL_RESOLVED_MATCHES AS" in sql
+    assert "UNIQUE_DK_RESOLUTION AS" in sql
+    resolution = sql[
+        sql.index("UNIQUE_DK_RESOLUTION AS"):sql.index(
+            "ASSERT (", sql.index("UNIQUE_DK_RESOLUTION AS")
+        )
+    ]
+    assert "GROUP BY DK_PLAYER_ID" in resolution
+    assert "HAVING COUNT(DISTINCT GSIS_ID) = 1" in resolution
+    assert "JOIN DK D USING (DK_PLAYER_ID)" in resolution
     assert "UNIQUE_PLAYER_ID_IDENTITY AS" in sql
     primary = sql[
         sql.index("UNIQUE_PLAYER_ID_IDENTITY AS"):sql.index("MATCHED AS")
@@ -535,8 +547,11 @@ def test_reviewed_ids_are_bound_to_their_full_scoreblind_identity_contract():
         assert str(dk_player_id) in sql
         assert gsis_id in sql
     assert "REVIEWED_DK_IDENTITIES AS" in sql
-    assert sql.count("'REVIEWED_POSITION_VARIANT'") == 2
-    assert sql.count("'REVIEWED_NAME_ALIAS'") == 1
+    reviewed = sql[
+        sql.index("REVIEWED_DK_IDENTITIES AS"):sql.index("AUTO_NORM_DK AS")
+    ]
+    assert reviewed.count("'REVIEWED_POSITION_VARIANT'") == 2
+    assert reviewed.count("'REVIEWED_NAME_ALIAS'") == 1
     for field in ("D.SEASON", "D.CLEAN_NAME", "D.CANONICAL_TEAM", "D.POSITION"):
         assert f"{field} = R.{field.removeprefix('D.')}" in sql
     assert "AUTO_NORM_DK AS" in sql

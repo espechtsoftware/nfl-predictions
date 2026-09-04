@@ -40381,3 +40381,22 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   not any week from the same fresh source receipt. No image was built or
   deployed. The query now selects and quality-checks the exact `@week` roster
   receipt before allowing any reviewed listing back into the live pool.
+- Commit `2fcc90f28d02aeaccd004dccb056f24229caccf6` passed bounded Cloud
+  Build `53672a6e-b8cd-4763-a8c1-699d62efd4ed`; all test, image, and
+  container-smoke steps succeeded. The immutable live image digest is
+  `sha256:56635f873cfc0ceeba7c6f43a27bae5f3a7fbf69988e4b08fa50f952c456ed2b`.
+  Only `build-features` generation 57 and `project-slate` generation 58 were
+  pinned to it, preserving their prior command, environment, resources,
+  service account, timeout, and retry contracts. Feature execution
+  `build-features-fgwts` then started the full leakage-checked rebuild.
+- The first post-crosswalk live identity canary exposed a broader regression
+  before any projection: choosing one latest salary row per stable DK id made
+  crosswalk coverage depend on product/pull order and left 61 unresolved rows.
+  `project-slate` was not run. The replacement resolves every recent exact DK
+  identity against the governed source hierarchy, accepts an id only when all
+  resolved candidates converge on one GSIS id, and attaches a deterministic
+  classic-first representative afterward. Conflicting ids still fail closed;
+  no fuzzy, salary, score, or outcome information enters the decision. The
+  revised SQL passes its focused contracts and BigQuery dry-run validator;
+  next is an exact live map rebuild/canary and a successor image before
+  projection.

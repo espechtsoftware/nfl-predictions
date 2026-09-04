@@ -97,21 +97,27 @@ ASSERT COALESCE((
 ), FALSE) AS 'current depth source lacks a fresh complete 32-team receipt';
 
 CREATE OR REPLACE TABLE `${features}.player_id_map` AS
-WITH dk AS (
-  -- The same DK id can appear under an earlier team elsewhere in the
-  -- 365-day intake window. Keep one deterministic latest identity so this
-  -- table can never fan out a live slate join merely because a player moved.
+WITH dk_source AS (
   SELECT dk_player_id, display_name, team_abbr, position,
-         CAST(season AS INT64) AS season
+         CAST(season AS INT64) AS season, slate_type, game_start, pulled_at,
+         draft_group_id, dk_draftable_id
   FROM `${raw}.dk_salaries`
   WHERE pulled_at > TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 365 DAY)
-    -- This map serves the classic pipeline. A later-pulled showdown row can
-    -- retain a player's former team after a transaction and must never
-    -- override the current classic identity for the same stable DK id.
-    AND slate_type = 'classic'
+),
+dk AS (
+  -- Metadata only: retain one deterministic classic-first representative.
+  -- Identity resolution below considers every recent exact DK identity
+  -- before collapsing to one GSIS id, so a stale row from any product cannot
+  -- decide the crosswalk merely because it was pulled a second later.
+  SELECT dk_player_id, display_name, team_abbr, position, season
+  FROM dk_source
   QUALIFY ROW_NUMBER() OVER (
     PARTITION BY dk_player_id
-    ORDER BY pulled_at DESC, draft_group_id DESC, dk_draftable_id DESC
+    ORDER BY
+      CASE WHEN slate_type = 'classic' THEN 0 ELSE 1 END,
+      CASE WHEN game_start >= CURRENT_TIMESTAMP() THEN 0 ELSE 1 END,
+      season DESC, pulled_at DESC, draft_group_id DESC,
+      dk_draftable_id DESC
   ) = 1
 ),
 live_dk_season AS (
@@ -122,7 +128,7 @@ live_dk_season AS (
     AND pulled_at > TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 365 DAY)
 ),
 norm_dk AS (
-  SELECT
+  SELECT DISTINCT
     dk_player_id, display_name, team_abbr, UPPER(position) AS position,
     season,
     CASE UPPER(TRIM(team_abbr))
@@ -149,7 +155,7 @@ norm_dk AS (
                        r"\s+(JR|SR|II|III|IV|V)\.?$", ""),
         r"[^A-Z ]", ""),
       r" +", " ") AS clean_name
-  FROM dk
+  FROM dk_source
 ),
 unique_manual_overrides AS (
   SELECT o.dk_player_id, ANY_VALUE(o.gsis_id) AS gsis_id
@@ -433,10 +439,42 @@ depth_fallback AS (
   LEFT JOIN roster_augmented_matches p
     ON p.dk_player_id = d.dk_player_id
   WHERE p.dk_player_id IS NULL
+),
+all_resolved_matches AS (
+  SELECT * FROM roster_augmented_matches
+  UNION ALL
+  SELECT * FROM depth_fallback
+),
+unique_dk_resolution AS (
+  -- Multiple historical/current product identities are acceptable only when
+  -- every exact source match converges on the same stable GSIS id. Conflicts
+  -- stay unresolved instead of being settled by pull time or product order.
+  SELECT
+    dk_player_id,
+    ANY_VALUE(gsis_id) AS gsis_id,
+    ARRAY_AGG(
+      match_source
+      ORDER BY CASE match_source
+        WHEN 'reviewed_position_variant' THEN 0
+        WHEN 'reviewed_name_alias' THEN 0
+        WHEN 'manual' THEN 1
+        WHEN 'auto' THEN 2
+        WHEN 'explicit_name_alias' THEN 3
+        WHEN 'roster_fallback' THEN 4
+        WHEN 'current_depth_fallback' THEN 5
+        ELSE 99
+      END, match_source
+      LIMIT 1
+    )[OFFSET(0)] AS match_source
+  FROM all_resolved_matches
+  GROUP BY dk_player_id
+  HAVING COUNT(DISTINCT gsis_id) = 1
 )
-SELECT * FROM roster_augmented_matches
-UNION ALL
-SELECT * FROM depth_fallback;
+SELECT
+  d.dk_player_id, u.gsis_id, d.display_name, d.team_abbr, d.position,
+  u.match_source
+FROM unique_dk_resolution u
+JOIN dk d USING (dk_player_id);
 
 ASSERT (
   SELECT COUNT(*) = 0
