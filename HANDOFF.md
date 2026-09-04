@@ -40647,3 +40647,27 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   and request the lane. A clean immutable Cloud mechanics gate remains the
   final prerequisite to launching efficacy banks 680--682. Experiment 091
   remains held.
+
+## 2026-09-04 — Experiment 094 frozen, built, and mechanics launched
+
+- Lab froze PREREG-065 / experiment 094 at source
+  `b7c16a9cce6c7929063e0fda0835dcf47d55a142` after the accepted engaged
+  smoke, 33 focused checks, and the 593/593 full suite. The launch contract
+  names mechanics bank 680 and efficacy banks 680--682; experiment 091 stays
+  held.
+- Immutable Cloud Build `53a4b872-cd3f-4236-833b-b07dca037b89` completed
+  successfully. Tag `094-b7c16a9` resolves to digest
+  `sha256:f76e9b248250f26d491c9e03a3b15580e1ac583be6bcb72d62ee3003baba6eab`.
+- Production adapted the proven registered 093 coordinator and explicitly
+  updated its gate checks for 094's three natural/six total arms and
+  redistribution receipts. Binding commit `a39018d` is durable on lab
+  `main`; Bash parsing and the 26 focused 094 tests pass.
+- The first coordinator invocation failed safely before cloud mutation because
+  the isolated worktree lacked its ignored Python environment. The registry
+  released cleanly and no prefix was consumed. After attaching the existing
+  lab virtual environment, the exact registered launcher installed the 2-vCPU
+  / 8-GiB / one-task mechanics envelope and claimed run
+  `094m680r1-20260904T100350Z` as execution `lab-run-z7km5`. It is active with
+  zero failure, cancellation, or retry. On exact success the coordinator will
+  publish the create-once mechanics receipt; only then will production bind
+  the reader and release banks 680--682.
