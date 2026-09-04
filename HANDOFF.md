@@ -41496,3 +41496,23 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   cache refresh without altering the verified marginal table, and to keep
   polling lab `origin/main` for the sealed 095 first read. Experiment 091
   remains held.
+
+## 2026-09-04 — Lab 095 first-reader process completed; seal still pending
+
+- Process-level inspection proved the lab launched the exact frozen reader
+  over runs `095b690r1-20260904T164737Z`,
+  `095b691r1-20260904T165019Z`, and
+  `095b692r1-20260904T180305Z`. It ran CPU-active for approximately 12m33s
+  and reached terminal around `2026-09-04T19:36:18Z`; its stderr contains only
+  `READER EXIT 0`.
+- Production inspected only process state, file size, and the exit marker. It
+  did not open the generated 11,152-byte transcript or any outcome value.
+- When no lab seal had appeared after nine minutes, production appended a
+  no-outcome wake-up to the existing lab handoff. Lab commit
+  `ce9ce63c398b185afdc38956c1d815f17e17d3ad` is durable on lab `origin/main`
+  and requests the exact transcript be copied unchanged to the tracked
+  first-read path, committed with the action-note seal, and pushed.
+- Exact next action is to wait for a lab commit beyond `ce9ce63`, inspect the
+  committed seal and transcript identity, then perform production's frozen
+  independent reader. No production read or WP-B release is authorized before
+  that point. Experiment 091 remains held.
