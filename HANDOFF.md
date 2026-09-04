@@ -40319,3 +40319,42 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   wait for three exact 18/18 successes. The lab owns the first frozen read and
   transcript seal; production independently reruns the bound reader afterward.
   Experiment 091 remains held.
+
+## 2026-09-04 — Week-1 live projection identity repair staged
+
+- A read-only audit of the enabled production chain found that recent
+  `project-slate` executions were deterministically failing before projection,
+  leaving no current `nfl_predictions.player_projections` authority. The live
+  DK union initially exposed 26 unresolved skill listings after the already
+  reviewed long-snapper exclusions.
+- Current source already resolves six of those identities through the fresh
+  roster/depth fallbacks. One additional active-player miss was traced to the
+  crosswalk admitting showdown rows: a later-pulled single-game listing on a
+  former team overrode the same stable DK id's current classic-slate identity.
+  `001_player_id_map.sql` now limits this classic crosswalk to classic rows.
+- The remaining exact stale listings were reconciled against the fresh
+  2026-W1 roster receipt and current depth snapshot. Three newly surfaced DK
+  TE listings are charted long snappers. Fifteen cut, reserve, developmental,
+  free-agent, or otherwise non-current listings are quarantined only through
+  exact reviewed DK identity. That second quarantine requires a fresh,
+  complete 32-team roster receipt and automatically disarms if the source
+  reports the player `ACT` on the listed DK team; any then-unresolved identity
+  returns to the existing hard failure. This is not a salary filter, fuzzy
+  match, generic active-roster rule, or lineup-construction law.
+- The rendered projection query passes a real BigQuery dry run. Against the
+  current stale materialized crosswalk, the read-only live call now leaves
+  exactly seven unmatched rows: the six already covered by current source
+  fallbacks plus the active classic/showdown correction. No warehouse table,
+  model, projection, book, selector, score, graph, or paid-entry state has yet
+  been changed.
+- The bounded source suite passes 143/143 across Week-1 identity readiness,
+  live smoke, blend/cold-start, production policy, participation mixture,
+  adopted pair, and operating-book contracts. A dedicated live-job build path
+  now copies only runtime source/SQL and those tests into a cleanup-trapped
+  disk context, avoiding the 463 MB historical-evidence upload and the prior
+  `/tmp` leak while preserving the full forensic image separately.
+- Next action: commit/push this exact staged repair, run the bounded Cloud
+  Build, pin only `build-features` and `project-slate` to its immutable digest,
+  rebuild the leakage-checked features, and require zero unresolved rows plus
+  a nonempty Week-1 projection table before any P_MIX or book publication.
+  PREREG-063 continues independently; experiment 091 remains held.

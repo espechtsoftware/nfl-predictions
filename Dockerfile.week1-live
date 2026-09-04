@@ -1,0 +1,23 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+ARG SOURCE_COMMIT_SHA=unknown
+LABEL org.opencontainers.image.revision="${SOURCE_COMMIT_SHA}"
+ENV IMAGE_SOURCE_COMMIT_SHA="${SOURCE_COMMIT_SHA}"
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# This image is deliberately scoped to the live collection/feature/projection
+# jobs. Historical evidence and research runners remain in the separately
+# validated forensic image; copying hundreds of MB of frozen reports into an
+# hourly live job image adds no runtime authority.
+COPY pyproject.toml README.md CLAUDE.md ./
+COPY src ./src
+COPY sql ./sql
+
+RUN pip install --no-cache-dir ".[gcp,app]"
+
+CMD ["uvicorn", "nfl_dfs.app.main:app", "--host", "0.0.0.0", "--port", "8080"]

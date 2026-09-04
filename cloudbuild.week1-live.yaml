@@ -1,0 +1,56 @@
+steps:
+  - name: python:3.11-slim
+    id: live-boundary-tests
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends libgomp1
+        pip install --no-cache-dir '.[gcp,app,dev]'
+        PYTHONPATH=src pytest \
+          tests/test_week1_source_readiness.py \
+          tests/test_live_smoke.py \
+          tests/test_blend_coldstart.py \
+          tests/test_production_policy.py \
+          tests/test_week1_participation_mixture.py \
+          tests/test_week1_adopted_pair.py \
+          tests/test_week1_operating_book.py
+        python -Werror::SyntaxWarning -m compileall -q src
+
+  - name: gcr.io/cloud-builders/docker
+    id: build-live-image
+    args:
+      - build
+      - --file
+      - Dockerfile.week1-live
+      - --build-arg
+      - 'SOURCE_COMMIT_SHA=${_CODE_SHA}'
+      - --tag
+      - '${_IMAGE}'
+      - .
+
+  - name: gcr.io/cloud-builders/docker
+    id: smoke-live-image
+    entrypoint: bash
+    env:
+      - 'IMG=${_IMAGE}'
+      - 'CODE_SHA=${_CODE_SHA}'
+    args:
+      - -ceu
+      - |
+        docker run --rm "$$IMG" nfl-dfs --help >/dev/null
+        docker run --rm "$$IMG" python -c \
+          'import os; from nfl_dfs.features import build; from nfl_dfs.inference import run_projections; assert os.environ["IMAGE_SOURCE_COMMIT_SHA"]'
+        test "$$(docker inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "$$IMG")" = "$$CODE_SHA"
+
+images:
+  - '${_IMAGE}'
+
+substitutions:
+  _IMAGE: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:week1-live
+  _CODE_SHA: unknown
+
+timeout: 3600s
+options:
+  machineType: E2_HIGHCPU_8

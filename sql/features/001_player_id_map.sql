@@ -105,6 +105,10 @@ WITH dk AS (
          CAST(season AS INT64) AS season
   FROM `${raw}.dk_salaries`
   WHERE pulled_at > TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 365 DAY)
+    -- This map serves the classic pipeline. A later-pulled showdown row can
+    -- retain a player's former team after a transaction and must never
+    -- override the current classic identity for the same stable DK id.
+    AND slate_type = 'classic'
   QUALIFY ROW_NUMBER() OVER (
     PARTITION BY dk_player_id
     ORDER BY pulled_at DESC, draft_group_id DESC, dk_draftable_id DESC

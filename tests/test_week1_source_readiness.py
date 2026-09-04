@@ -8,6 +8,7 @@ inspect realized outcomes.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import inspect
 import re
 from pathlib import Path
 
@@ -415,6 +416,7 @@ def test_roster_fallback_maps_only_unique_full_identity_and_rejects_ambiguity():
 def test_primary_crosswalk_is_unique_and_live_dk_ids_cannot_fan_out():
     sql = re.sub(r"\s+", " ", PLAYER_ID_MAP_SQL.read_text()).upper()
 
+    assert "AND SLATE_TYPE = 'CLASSIC'" in sql
     assert re.search(
         r"PARTITION BY\s+DK_PLAYER_ID\s+ORDER BY\s+PULLED_AT DESC",
         sql,
@@ -581,16 +583,47 @@ def test_upcoming_projection_pool_is_bound_to_exact_reg_week_gamedays(
     assert sql.count("FROM ELIGIBLE_SALARIES") >= 2
     assert "T.SEASON = @SEASON" in sql
     assert "T.WEEK = @WEEK" in sql
-    assert "SL.* EXCEPT (REVIEWED_MATCH_SOURCE, SEASON)" in sql
+    assert "REVIEWED_NON_CURRENT_MATCH_SOURCE" in sql
     assert "REVIEWED_NON_FANTASY_ROLES AS" in sql
     for dk_player_id in (300580, 553024, 606799, 1120499, 1181739,
-                         1322662, 1325495):
+                         1322662, 1325495, 1321309, 1247543, 843733):
         assert str(dk_player_id) in sql
-    assert sql.count("'REVIEWED_NON_FANTASY_ROLE'") == 8
+    assert sql.count("'REVIEWED_NON_FANTASY_ROLE'") == 11
     for field in ("SEASON", "DK_PLAYER_ID", "CLEAN_NAME", "TEAM_ABBR",
                   "POSITION"):
         assert f"R.{field} =" in sql
     assert (
         "SL.REVIEWED_MATCH_SOURCE IS DISTINCT FROM "
         "'REVIEWED_NON_FANTASY_ROLE'" in sql
+    )
+
+
+def test_reviewed_non_current_listings_require_fresh_roster_absence():
+    """A reviewed stale listing is quarantined only while still non-current.
+
+    This is deliberately not a generic active-roster eligibility rule: the
+    exact DK identity must be on the reviewed list, the roster receipt must be
+    fresh and complete, and an ACT row on the listed team disarms the filter.
+    """
+    sql = re.sub(r"\s+", " ",
+                 inspect.getsource(run_projections.upcoming_slate_features))
+    sql = sql.upper()
+
+    assert "REVIEWED_NON_CURRENT_LISTINGS AS" in sql
+    for dk_player_id in (
+        1107584, 1289436, 923814, 1380572, 1316481, 1286393,
+        1277932, 943843, 1130538, 1215927, 749681, 1404295,
+        1213870, 1589027, 1310628,
+    ):
+        assert str(dk_player_id) in sql
+    assert "CURRENT_ROSTER_RECEIPT_QUALITY AS" in sql
+    assert "COUNT(DISTINCT R.TEAM) = 32" in sql
+    assert "COUNT(DISTINCT R.GSIS_ID) >= 1000" in sql
+    assert "INTERVAL 72 HOUR" in sql
+    assert "CURRENT_ACTIVE_ROSTER_NAMES AS" in sql
+    assert "R.STATUS = 'ACT'" in sql
+    assert "AND Q.RECEIPT_IS_VALID AND A.CLEAN_NAME IS NULL" in sql
+    assert (
+        "SL.REVIEWED_NON_CURRENT_MATCH_SOURCE IS DISTINCT FROM "
+        "'REVIEWED_NON_CURRENT_LISTING'" in sql
     )

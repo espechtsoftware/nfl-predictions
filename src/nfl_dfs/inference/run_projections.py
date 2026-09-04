@@ -95,8 +95,92 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
             (2026, 1322662, 'ROCCO UNDERWOOD', 'PHI', 'TE',
              'reviewed_non_fantasy_role'),
             (2026, 1325495, 'GARRISON GRIMES', 'NYJ', 'TE',
+             'reviewed_non_fantasy_role'),
+            (2026, 1321309, 'LUKE BASSO', 'DEN', 'TE',
+             'reviewed_non_fantasy_role'),
+            (2026, 1247543, 'BEN MANN', 'NYG', 'TE',
+             'reviewed_non_fantasy_role'),
+            (2026, 843733, 'MITCHELL FRABONI', 'DEN', 'TE',
              'reviewed_non_fantasy_role')
           ])
+        ),
+        reviewed_non_current_listings AS (
+          -- The first fresh 2026-W1 roster cutdown audit found these exact DK
+          -- listings absent from an active roster on the listed team. They
+          -- remain review-bound rather than becoming a generic eligibility
+          -- rule. A fresh ACT row on the same team automatically disarms the
+          -- quarantine and sends any unresolved identity back through the
+          -- hard failure below.
+          SELECT * FROM UNNEST([
+            STRUCT(2026 AS season, 1107584 AS dk_player_id,
+                   'ADRIAN MARTINEZ' AS clean_name, 'NYJ' AS team_abbr,
+                   'QB' AS position,
+                   'reviewed_non_current_listing' AS match_source),
+            (2026, 1289436, 'AL-JAY HENDERSON', 'NYJ', 'RB',
+             'reviewed_non_current_listing'),
+            (2026, 923814, 'DJ TURNER', 'HOU', 'WR',
+             'reviewed_non_current_listing'),
+            (2026, 1380572, "DAE'QUAN WRIGHT", 'CLE', 'TE',
+             'reviewed_non_current_listing'),
+            (2026, 1316481, 'GABRIEL BENYARD', 'CAR', 'WR',
+             'reviewed_non_current_listing'),
+            (2026, 1286393, 'JERAND BRADLEY', 'LAC', 'TE',
+             'reviewed_non_current_listing'),
+            (2026, 1277932, 'JOAQUIN DAVIS', 'PIT', 'WR',
+             'reviewed_non_current_listing'),
+            (2026, 943843, 'KENNY YEBOAH', 'ARI', 'TE',
+             'reviewed_non_current_listing'),
+            (2026, 1130538, 'LAWRENCE KEYS III', 'DET', 'WR',
+             'reviewed_non_current_listing'),
+            (2026, 1215927, 'LUKE LACHEY', 'GB', 'TE',
+             'reviewed_non_current_listing'),
+            (2026, 749681, 'RIVER CRACRAFT', 'WAS', 'WR',
+             'reviewed_non_current_listing'),
+            (2026, 1404295, 'TY PEZZA', 'BAL', 'TE',
+             'reviewed_non_current_listing'),
+            (2026, 1213870, 'DOMINIC RICHARDSON', 'NYJ', 'RB',
+             'reviewed_non_current_listing'),
+            (2026, 1589027, 'MITCH VAN VOOREN', 'DAL', 'TE',
+             'reviewed_non_current_listing'),
+            (2026, 1310628, 'KHALIL DINKINS', 'SF', 'TE',
+             'reviewed_non_current_listing')
+          ])
+        ),
+        current_roster_receipt AS (
+          SELECT MAX(nflverse_pulled_at) AS pulled_at
+          FROM `{settings.raw}.rosters_weekly`
+          WHERE CAST(season AS INT64) = @season
+        ),
+        current_roster_receipt_quality AS (
+          SELECT
+            COUNT(DISTINCT r.team) = 32
+            AND COUNT(DISTINCT r.gsis_id) >= 1000
+            AND MAX(r.nflverse_pulled_at) >=
+                TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 72 HOUR)
+              AS receipt_is_valid
+          FROM `{settings.raw}.rosters_weekly` r
+          JOIN current_roster_receipt x
+            ON r.nflverse_pulled_at = x.pulled_at
+          WHERE CAST(r.season AS INT64) = @season
+        ),
+        current_active_roster_names AS (
+          SELECT DISTINCT
+            REGEXP_REPLACE(
+              REGEXP_REPLACE(
+                REGEXP_REPLACE(UPPER(TRIM(roster_name)),
+                               r"\\s+(JR|SR|II|III|IV|V)\\.?$", ""),
+                r"[^A-Z ]", ""),
+              r" +", " ") AS clean_name,
+            UPPER(TRIM(r.team)) AS team_abbr
+          FROM `{settings.raw}.rosters_weekly` r
+          JOIN current_roster_receipt x
+            ON r.nflverse_pulled_at = x.pulled_at,
+               UNNEST([r.full_name,
+                       CONCAT(r.football_name, ' ', r.last_name)])
+                 AS roster_name
+          WHERE CAST(r.season AS INT64) = @season
+            AND r.status = 'ACT'
+            AND roster_name IS NOT NULL
         ),
         target_gamedays AS (
           SELECT DISTINCT PARSE_DATE('%Y-%m-%d', gameday) AS gameday
@@ -142,16 +226,39 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
           ) WHERE rn = 1
         ),
         classified_slate AS (
-          SELECT sl.*, r.match_source AS reviewed_match_source
+          SELECT
+            sl.*,
+            r.match_source AS reviewed_match_source,
+            IF(n.match_source IS NOT NULL
+               AND q.receipt_is_valid
+               AND a.clean_name IS NULL,
+               n.match_source, NULL) AS reviewed_non_current_match_source
           FROM slate sl
+          CROSS JOIN current_roster_receipt_quality q
           LEFT JOIN reviewed_non_fantasy_roles r
             ON r.season = sl.season
            AND r.dk_player_id = sl.dk_player_id
            AND r.clean_name = UPPER(TRIM(sl.display_name))
            AND r.team_abbr = UPPER(TRIM(sl.team_abbr))
            AND r.position = UPPER(TRIM(sl.dk_position))
+          LEFT JOIN reviewed_non_current_listings n
+            ON n.season = sl.season
+           AND n.dk_player_id = sl.dk_player_id
+           AND n.clean_name = UPPER(TRIM(sl.display_name))
+           AND n.team_abbr = UPPER(TRIM(sl.team_abbr))
+           AND n.position = UPPER(TRIM(sl.dk_position))
+          LEFT JOIN current_active_roster_names a
+            ON a.clean_name = REGEXP_REPLACE(
+                 REGEXP_REPLACE(
+                   REGEXP_REPLACE(UPPER(TRIM(sl.display_name)),
+                                  r"\\s+(JR|SR|II|III|IV|V)\\.?$", ""),
+                   r"[^A-Z ]", ""),
+                 r" +", " ")
+           AND a.team_abbr = UPPER(TRIM(sl.team_abbr))
         )
-        SELECT sl.* EXCEPT (reviewed_match_source, season), m.gsis_id, t.*
+        SELECT sl.* EXCEPT (
+          reviewed_match_source, reviewed_non_current_match_source, season
+        ), m.gsis_id, t.*
         FROM classified_slate sl
         LEFT JOIN `{settings.features}.player_id_map` m USING (dk_player_id)
         LEFT JOIN `{settings.features}.player_week_inference` t
@@ -160,6 +267,8 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
          AND t.week = @week
         WHERE sl.reviewed_match_source
               IS DISTINCT FROM 'reviewed_non_fantasy_role'
+          AND sl.reviewed_non_current_match_source
+              IS DISTINCT FROM 'reviewed_non_current_listing'
         """,
         {"season": season, "week": week},
     )
