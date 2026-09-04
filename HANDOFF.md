@@ -40579,3 +40579,51 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   not alter or delay historical experiment 094.
 - Full review and routing decision:
   `reports/2026-09-04-prereg063-production-independent-review.md`.
+
+## 2026-09-04 — Week-1 D800/D400 live adapter and active-roster pair pass
+
+- Lab review of the proposed live status allowlist accepted the repair and
+  requested two bounded completeness guards. Production implemented both on
+  `production/live-active-roster-repair` at
+  `0aea3c3ae1fe584d651a3d93b003e207f4d90190`: the input census now counts
+  missing skill statuses consistently, and generation fails closed if any
+  target-week skill roster row is missing or if any slate team is left with
+  zero `ACT` skill players. Focused live/contract validation passes 39/39.
+- The first attempted rehearsal from the prior commit imported the canonical
+  lab checkout rather than the repair worktree and therefore repeated the old
+  denylist behavior. It is void as a live diagnostic. Both replacement runs
+  explicitly placed the repair worktree's `src` first on `PYTHONPATH` and
+  bind clean source commit `0aea3c3`.
+- Corrected D800 run
+  `nfl2-production-live-active-roster-repair/results/live/2026-w01/20260904T093236787417Z-0aea3c3`
+  completed in 238.2 seconds with exact 800 candidates and K80. Corrected
+  D400 run
+  `nfl2-production-live-active-roster-repair/results/live/2026-w01/20260904T093712070428Z-0aea3c3`
+  completed in 111.1 seconds with exact 400 candidates and K80. Each frozen
+  frame contains exactly 380 `ACT` skill players plus 24 DST and no retained
+  non-active skill player; both completeness guards passed.
+- The two runs bind byte-identical frame SHA-256
+  `bac049010a076e6bacc56dd49fff6071253ea8fbd5d2c0df5891fbd447ccf4f8`,
+  salary pull, input content hashes, projection identity, and independent
+  generation/selection/audit bank contract. D400's candidate population is
+  contained in D800. Their selected K80 books overlap 32/80.
+- A new fail-closed `week1-live-pair-adapter/v1` validates the exact live
+  recipes, clean source identity, active-roster receipt, shared frozen frame,
+  full candidate membership, D400-in-D800 containment, DraftKings legality,
+  canonical roster identities, and exact CSV-to-selected-rank ordering before
+  constructing the existing canonical adopted-book payloads. Its focused
+  integration plus adopted-pair operator suite passes 28/28. The exact pair
+  replay produced adapter SHA-256
+  `a2bc819739995698e1c73cf27db27657df959b3fd2c6b62246283323524221f5`
+  and read no outcome fields.
+- This pair remains candidate-only diagnostic evidence, not the final Week-1
+  publication: injury-report coverage is still zero and `proj_tourney` still
+  declares the no-ownership fallback. Refresh the same exact pair after
+  current point-in-time designation/practice and ownership inputs are
+  available, then pass it through this adapter and the create-once adopted
+  pair publisher.
+- The first local experiment-094 mechanics artifact was engaged but carried
+  `dirty=true` because the old 063 runner deletion had not yet been committed.
+  Production notified the lab to use it only diagnostically and rerun the
+  exact smoke from clean source before freezing 094; this is a re-smoke, not a
+  design change. Experiment 091 remains held.
