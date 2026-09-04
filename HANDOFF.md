@@ -41233,3 +41233,22 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   opens and commits the first read, production independently reproduces it,
   and only then may production publish the separate B1 eligibility decision.
   Experiment 091 remains held.
+
+## 2026-09-04 — Experiment 095 bank 690 clean; bank 692 launched automatically
+
+- Bank 690 run `095b690r1-20260904T164737Z`, execution `lab-run-t92g4`,
+  immutable UID `f31e4ac2-1795-4b36-b1c3-6e0e4429653e`, completed exact 18/18
+  success with zero failures or retries at `2026-09-04T18:01:43.994201Z`.
+- The same live registered coordinator observed that terminal release and
+  automatically claimed bank 692 on the freed `lab-run` lane. Run
+  `095b692r1-20260904T180305Z`, execution `lab-run-wf6d7`, immutable UID
+  `daf63df9-a655-42a9-b6f0-0566a07d9694`, started at
+  `2026-09-04T18:03:14.133760Z` with 18 tasks running.
+- Direct provider inspection confirms `--bank=692`, exact source
+  `c251cfe4a2736f0145a7f7b7d80fb8e8ef743602`, immutable image digest
+  `sha256:f77fb9cb6439a9a05efcd51c005ac5ca17268198619e2686c81feace20e68e02`,
+  18 tasks / 18 parallelism, 2 vCPU / 8 GiB, one allowed retry, and the
+  10-hour timeout. There are no failures, cancellations, or task retries.
+- Bank 691 remains active on `lab-run-slow`; the coordinator remains the sole
+  owner and will monitor both unfinished banks through clean terminal state.
+  No outcome artifact has been opened. Experiment 091 remains held.
