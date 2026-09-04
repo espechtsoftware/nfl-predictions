@@ -41717,3 +41717,36 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   record the immutable image digest, add durable mechanics queue/registered
   launcher bindings without altering runtime bytes, then launch only
   `096m700r1-*` through the shared launcher registry. 091 remains held.
+
+## 2026-09-04 — Immutable 096 image succeeded; mechanics execution claimed
+
+- Cloud Build `a09e4721-8803-4f55-bc49-cd14bc20bd77` completed SUCCESS at
+  `2026-09-04T20:40:02Z`. Immutable image digest is
+  `sha256:486dce554eb64a3e99a3662474b4a7780e920d81a5e96175f517e7af5b0b14da`.
+  The create-once receipt is tracked as
+  `results/096-build-b71dbbcb8da62ef7ae50226c9035ed333f7a3ce1.json`.
+- Added bound and registered mechanics coordinators in source-equal binding
+  commit `33f4b21025554d9b7c91cb31d8fd167f40feb78d`, based directly on the exact
+  frozen source, then merged that binding into lab `origin/main` at
+  `f4f68b3`. Every image/runtime file and the `src/nfl2`, `benchmark`, and
+  `data` trees were verified identical between frozen source and binding.
+- The first registered invocation acquired the shared lane but failed safely
+  before provider mutation because its detached worktree lacked a local
+  `.venv`. Host-only repair `5ba05f14c21c164f1a006aa7117e6730b72e9118`
+  binds the existing shared lab Python explicitly; it was merged to main at
+  `d113c94`. No run ID, image update, or Cloud Run execution was created by
+  that failed preflight.
+- The repaired registered invocation installed the exact 2-vCPU/8-GiB,
+  maxRetries=1 envelope on both reusable jobs and created one mechanics claim:
+  run `096m700r1-20260904T204546Z`, Cloud Run execution `lab-run-9wbxf`.
+  Source is exact `b71dbbcb...`; image is the immutable digest above; args are
+  `--bank=700 --season=2022 --weeks=8 --mechanics-only`; one task only. It is
+  currently nonterminal and waiting for provider start. No efficacy execution
+  exists yet.
+- Lab Update 67 also reports SD-A running locally against sealed 095. SD-B is
+  now cloud-shardable and requests a separate outcome-blind lane after the 096
+  handoff. Neither diagnostic changes 096; 091 remains held.
+- Exact next action: poll `lab-run-9wbxf` and registered launcher PID 1605601
+  to terminal, publish/verify the gate receipt, then bind the efficacy reader
+  and launch 700-702. After 096 owns its execution capacity, review and launch
+  SD-B on otherwise-free capacity without altering the 096 image/envelope.
