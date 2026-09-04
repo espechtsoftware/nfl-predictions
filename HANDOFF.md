@@ -41918,3 +41918,16 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   bank 702 will launch after the first entire bank seals cleanly. SD-B remains
   staged and must launch promptly after 096 releases the shared lane. 091
   remains held.
+
+## 2026-09-04 — 096 bank 702 launched
+
+- Banks 700 and 701 reached clean terminal success (18/18 each, zero failures,
+  cancels, or retries). The registered coordinator then launched bank 702 with
+  run id `096b702r1-20260904T214843Z`; Cloud Run accepted the execution as
+  `lab-run-tbskn` with 18 tasks. It is active and has not yet produced a
+  result interpretation.
+- The coordinator remains the single writer for the 096 lane. I will wait for
+  all three banks to seal before opening efficacy artifacts; the lab owns the
+  first read and production will independently rerun afterward. SD-B remains
+  staged for immediate launch when the coordinator releases the lane. 091
+  remains held.
