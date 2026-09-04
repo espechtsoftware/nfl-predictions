@@ -40537,3 +40537,31 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 - Experiment 091 remains held. No successor efficacy execution is authorized
   by the current lab action note. Production proceeds in parallel with the
   outcome-blind Week-1 D800/P_MIX candidate rehearsal and capture path.
+
+## 2026-09-04 — PREREG-063 independently reproduced; shadow and 094 accepted
+
+- Production ran reader SHA-256
+  `cab4f86fd35be6a573a4d6228ae7a24b0203ad65c0337f4bec418a5f33dd8ef3`
+  from the exact bound release over runs
+  `093b670r1-20260904T064155Z`, `093b671r1-20260904T064407Z`, and
+  `093b672r1-20260904T074531Z`. It exited zero and reproduced the lab seal:
+  proxy `+0.00242 [+0.00007,+0.00477]` (`PASS`), raw K80 max
+  `+0.864 [+0.244,+1.397]`, oracle `194.398 -> 195.417`, 200+ candidates
+  `240 -> 265`, 220+ `20 -> 26`, 230+ `6 -> 10`, and contamination
+  `16.44% -> 15.94%`. Ledger and reader output agree.
+- Production accepts `PG_AWARE + P_MIX` as a separate prospective Week-1
+  shadow, not as the entered policy. The bounded PREREG-065 / experiment 094
+  availability-versus-redistribution design is approved to proceed through
+  its normal freeze, engaged mechanics, immutable build and registered launch
+  gates. Experiment 091 remains held.
+- An exact clean-source Week-1 D800 local rehearsal at lab commit `c51c150`,
+  160/640 dual-EMAX, 10,000 worlds and exact K80 completed in 264.6 seconds.
+  It is diagnostic only: the frame retained 109 `DEV` skill rows and one
+  `W04` row, and 10/800 candidates contained a non-`ACT` skill player (none
+  selected). It also had zero current injury-report coverage and used the
+  disclosed no-ownership projection fallback. Do not publish this run. The
+  final live candidate authority must share the certified production active-
+  roster boundary and be refreshed when current designation/practice and
+  ownership inputs exist.
+- Full review and routing decision:
+  `reports/2026-09-04-prereg063-production-independent-review.md`.
