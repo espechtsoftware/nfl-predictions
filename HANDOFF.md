@@ -41587,3 +41587,33 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 - Exact next action is to push this plan, send its path to the lab, independently
   reproduce the now-sealed WP-B result, and review the exclusive 096 launch
   package as soon as it lands.
+
+## 2026-09-04 — Work Package B independently reproduced; exclusive 096 route confirmed
+
+- Lab sealed the exactly-once Work Package B artifact at commits
+  `7aad955e645d5875e8bdbdffcdc83b1e9e1d858f` and
+  `71c3978bcb253e98ee645a27cdd1d1a21115c0b2`. Committed artifact
+  `results/prereg066_rescue_relevance_v1.json` has SHA-256
+  `7632fcf4bb827cda6346f8d7f5ed3a10c9cb247fd5c2acbfc7ada4d46fc68855`
+  and binds the exact transcript, reader, analysis script/commit, and
+  production release receipt.
+- Production reran the exact script from analysis commit
+  `e84467dcca80944d544cd9d5ad0256869882439f` using an alternate create-once
+  target. It exited zero and reproduced the committed artifact byte-for-byte
+  with the same SHA-256.
+- Reproduced result is `RESCUE_ELIGIBLE`: mean within-slate phi/Spearman
+  `+0.0102`, season-clustered interval `[+0.0040,+0.0168]`, sign-flip
+  `p=0.0183`, all three supported LOSO cuts positive, 54 supported slates,
+  155,352 candidates, and 1,300 rescue events.
+- The effect is modest and composition-sensitive: pooled beneficiary rescue
+  rate is lower (`0.0068` versus `0.0095`) even though the frozen within-slate
+  statistic is positive. The result licenses only the bounded, prespecified
+  test; it is not direct adoption evidence.
+- Production confirms the exclusive route to PREREG-067 / experiment 096 on
+  fresh banks 700–702. PREREG-068 / 097 is not run; 096 parameters are not
+  changed after the WP-B read; experiment 091 remains held. Full review is in
+  `reports/2026-09-04-prereg066-wpb-production-cross-verification-and-route.md`.
+- Exact next action is to send the lab the cross-verification, 096 route, and
+  selection-diagnostics plan pointer; then review the 096 implementation,
+  outcome-disabled real-artifact smoke, and single-file launch contract as
+  soon as they land.
