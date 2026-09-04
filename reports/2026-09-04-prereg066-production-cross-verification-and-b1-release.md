@@ -78,8 +78,14 @@ policy changes as a result of this release.
 
 ## Next action
 
-Publish a tracked `prereg066-wpb-eligibility-release/v1` receipt in the lab
-repository binding this production decision commit, the exact sealed
-transcript SHA-256, and the three run IDs. The lab may then execute
-`scripts/prereg066_rescue_relevance.py` once and commit its create-once result
-before implementing or launching the single routed successor.
+The production decision was committed as
+`b5d9db1a42ae56b5b57e35b4c3b189ade13055a5`. A tracked
+`prereg066-wpb-eligibility-release/v1` receipt was then published on lab
+`main` at `e84467dcca80944d544cd9d5ad0256869882439f`. Its SHA-256 is
+`a1ba23cab29daf19cee261ba528bd16489d843da712b481fd00064071b115788`.
+The lab validator independently accepted the tracked HEAD blob and all bound
+identities.
+
+The lab may now execute `scripts/prereg066_rescue_relevance.py` once and
+commit its create-once result before implementing or launching the single
+routed successor.

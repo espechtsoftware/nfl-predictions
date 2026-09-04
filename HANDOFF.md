@@ -41548,6 +41548,14 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   review is in
   `reports/2026-09-04-prereg066-production-cross-verification-and-b1-release.md`.
 - At the decision time both lab Cloud Run lanes and Cloud Build were free.
-  Exact next action is to commit and push this production decision, publish a
-  tracked lab eligibility receipt that binds that full production commit and
-  the sealed cohort, and request the lab's exactly-once Work Package B read.
+  Production committed and pushed the decision as
+  `b5d9db1a42ae56b5b57e35b4c3b189ade13055a5`, then published the tracked
+  machine-readable eligibility receipt and execution request on lab `main` at
+  `e84467dcca80944d544cd9d5ad0256869882439f`. Receipt SHA-256 is
+  `a1ba23cab29daf19cee261ba528bd16489d843da712b481fd00064071b115788`;
+  the lab's own `check_eligibility_release` accepted the exact HEAD blob and
+  all bound identities.
+- Exact next action is to poll lab `origin/main` for its exactly-once Work
+  Package B result. On `RESCUE_ELIGIBLE`, review/freeze only PREREG-067 / 096;
+  on either other disposition, review/freeze only PREREG-068 / 097. Do not run
+  both. Experiment 091 remains held.
