@@ -40837,3 +40837,21 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   future prop snapshot may activate the existing blend only after satisfying
   the same completeness and slate-coverage rules. Experiment 094 and the
   held 091 experiment were untouched.
+
+## 2026-09-04 — Experiment 094 initial banks passed; final bank active
+
+- Efficacy bank 680, run `094b680r1-20260904T103431Z` on execution
+  `lab-run-l9cs7`, completed at `2026-09-04T12:11:39.643926Z` with exact
+  18/18 success and zero failure, cancellation, or retry. Efficacy bank 681,
+  run `094b681r1-20260904T103705Z` on execution `lab-run-slow-267jk`,
+  completed at `2026-09-04T12:20:36.607026Z` with the same exact 18/18 clean
+  terminal state.
+- The registered coordinator honored its fail-closed sequencing and only then
+  launched bank 682. Run `094b682r1-20260904T121250Z` is execution
+  `lab-run-vtm24`, UID `dd84132a-8978-45db-a544-62997691d822`, on the exact
+  frozen source `b7c16a9cce6c7929063e0fda0835dcf47d55a142` and image digest
+  `sha256:f76e9b248250f26d491c9e03a3b15580e1ac583be6bcb72d62ee3003baba6eab`.
+  All 18 tasks are running with zero failure or retry at this checkpoint.
+- Keep the efficacy reader sealed until bank 682 reaches exact clean terminal
+  success. The lab retains first-read authority; production then performs the
+  independent frozen-reader reproduction. Experiment 091 remains held.
