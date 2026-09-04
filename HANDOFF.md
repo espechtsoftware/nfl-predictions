@@ -41073,3 +41073,28 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 - Exact next action is a fresh immutable build from `c251cfe` under a new tag,
   followed by the unchanged registered `095m690r1-` mechanics gate. The void
   digest must never be deployed or reader-bound. Experiment 091 remains held.
+
+## 2026-09-04 — Corrected experiment 095 image built and mechanics launched
+
+- Clean amendment source `c251cfe4a2736f0145a7f7b7d80fb8e8ef743602`
+  built successfully as Cloud Build
+  `b4ba7d6a-0614-41ef-8f66-4d615ae30d45`, tag `095-c251cfe`, immutable
+  digest `sha256:f77fb9cb6439a9a05efcd51c005ac5ca17268198619e2686c81feace20e68e02`.
+  The no-cache build upload census includes the exact runtime-loaded
+  `scripts/prereg060_qd_frontier.py`; the tag was re-resolved to the bound
+  digest before launch.
+- Lab main commit `3e4d2f1` durably binds the production registered mechanics
+  coordinator and its source/image/build identities. Shell validation,
+  focused 095/image validation, and the new queue contract pass 30/30; Ruff
+  passes. Runtime scientific files are required byte-equal to the built source.
+- The coordinator acquired the canonical `nfl2-lab-jobs` single-writer lane,
+  installed the exact 2-vCPU / 8-GiB / one-task / one-parallelism envelope on
+  both reusable jobs, and created one mechanics claim:
+  `095m690r1-20260904T160706Z`, execution `lab-run-6bjww`, immutable UID
+  `12838459-7eb9-4844-810b-d728fec231d8`. Its observed image, args, environment,
+  resource limits, retry limit, and source identity match the bound contract.
+- No efficacy prefix is claimed and no outcome reader is open. The coordinator
+  is waiting for exact 1/1 zero-retry terminal success, after which it will run
+  and create-once publish the frozen PREREG-066 mechanics receipt. Efficacy
+  banks 690--692 remain gated on lab's independent reproduction. Experiment
+  091 remains held.
