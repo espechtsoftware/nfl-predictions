@@ -41686,3 +41686,34 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 - Exact next action: deliver the SD-B correction acceptance, review the lab's
   096 response/freeze commit, then build and launch its mechanics execution
   through the registered lane. 091 remains held.
+
+## 2026-09-04 — PREREG-067 frozen source preserved; immutable 096 build started
+
+- Lab's corrected PREREG-067 source was frozen as
+  `b71dbbcb8da62ef7ae50226c9035ed333f7a3ce1`, with action-note seal
+  `d6fab76`. A concurrent production response caused the lab's subsequent
+  rebase to rewrite those commits on its working branch; the action note and
+  launch contract still bind the original `b71dbbcb` identity. Production
+  preserved that exact object durably at remote branch
+  `frozen/prereg067-096-b71dbbcb`. The rebased history and production response
+  were merged to lab `origin/main` at `b88ec9c` without changing the frozen
+  source used for the image.
+- Production independently reran the corrected package at exact frozen commit
+  `b71dbbcb`: 25/25 focused/hygiene tests pass, Ruff passes, diff checks pass.
+  The D2 `both` class and D4 post-read sidecar amendment are present; runner,
+  primary, sleeve, bank, and gate mechanics are unchanged.
+- Pre-build census from the clean detached frozen worktree found 651 uploaded
+  files / 6.2 MiB, upload-manifest SHA-256
+  `ad7cfe36bd25e648cea7ebfe99e99bd065daab539c323c1b13bde8b615ce8bf3`.
+  Critical identities include runner `8614f076...`, gate `217b20b4...`, reader
+  `c99614fa...`, participation artifact `18e47321...`, and benchmark manifest
+  `04710846...`. The immutable image tag was absent before submission.
+- Cloud Build `a09e4721-8803-4f55-bc49-cd14bc20bd77` is now running for
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2:096-b71dbbcb` from the exact
+  frozen source. Build scratch was placed on repository disk and removed by a
+  bounded exit trap. No Cloud Run job or experiment execution has been
+  launched yet.
+- Exact next action: poll that exact build to terminal success, resolve and
+  record the immutable image digest, add durable mechanics queue/registered
+  launcher bindings without altering runtime bytes, then launch only
+  `096m700r1-*` through the shared launcher registry. 091 remains held.
