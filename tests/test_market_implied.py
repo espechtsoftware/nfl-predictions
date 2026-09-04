@@ -66,6 +66,40 @@ def test_prop_market_accepts_td_only_snapshot(monkeypatch):
     assert out.market_points.iloc[0] > 0
 
 
+def test_prop_market_name_authority_includes_preseason_sources(monkeypatch):
+    """Live Week 1 must not depend on weekly stats that do not exist yet."""
+    from nfl_dfs.models import prop_market
+
+    props = pd.DataFrame([{
+        "season": 2026, "week": 1, "bookmaker": "book",
+        "market": "player_anytime_td", "outcome_name": "Yes",
+        "player": "Cameron Ward", "price": 150, "point": np.nan,
+        "snapshot_ts": "2026-09-04T10:00:00Z",
+    }])
+    schedules = pd.DataFrame([{
+        "season": 2026, "week": 1, "gameday": "2026-09-13",
+        "gametime": "13:00", "game_type": "REG", "weekday": "Sunday",
+    }])
+    names = pd.DataFrame([
+        {"gsis_id": "p1", "display_name": "Cam Ward"},
+    ])
+    replies = iter([props, schedules, names])
+    queries = []
+
+    def query(sql):
+        queries.append(sql)
+        return next(replies)
+
+    monkeypatch.setattr(prop_market, "query_df", query)
+    out = prop_market.market_points((2026,))
+
+    assert len(out) == 1
+    assert out.gsis_id.iloc[0] == "p1"
+    assert "rosters_weekly" in queries[2]
+    assert "football_name" in queries[2]
+    assert "player_id_map" in queries[2]
+
+
 def test_prop_market_accepts_no_props_snapshot(monkeypatch):
     """Pre-coverage seasons are a normal model-only fallback, not an
     exception path with a column-less groupby."""

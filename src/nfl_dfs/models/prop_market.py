@@ -153,13 +153,44 @@ def market_points(seasons: tuple[int, ...] = (2023, 2024, 2025)) -> pd.DataFrame
     if props.empty:
         return pd.DataFrame(columns=["season", "week", "gsis_id",
                                      "market_points"])
+    # ``weekly_stats`` has no current-season rows before Week 1 has been
+    # played. Using it as the sole name authority therefore made a healthy
+    # live prop feed resolve zero players during the exact period when the
+    # pre-lock projection needs it most. Player identity is not an outcome:
+    # combine historical stat spellings with current roster aliases and the
+    # already-governed DK-to-GSIS map. The latter two sources also preserve
+    # football-name/diminutive spellings such as Cameron/Cam Ward.
     names = query_df(
-        f"""SELECT DISTINCT player_id AS gsis_id,
-                   player_display_name AS display_name
-            FROM `{settings.raw}.weekly_stats` WHERE season IN ({season_list})"""
+        f"""SELECT DISTINCT gsis_id, display_name
+            FROM (
+              SELECT player_id AS gsis_id,
+                     player_display_name AS display_name
+              FROM `{settings.raw}.weekly_stats`
+              WHERE season IN ({season_list})
+              UNION DISTINCT
+              SELECT gsis_id, full_name AS display_name
+              FROM `{settings.raw}.rosters_weekly`
+              WHERE season IN ({season_list})
+              UNION DISTINCT
+              SELECT gsis_id, football_name AS display_name
+              FROM `{settings.raw}.rosters_weekly`
+              WHERE season IN ({season_list})
+              UNION DISTINCT
+              SELECT gsis_id, display_name
+              FROM `{settings.features}.player_id_map`
+            )
+            WHERE gsis_id IS NOT NULL
+              AND display_name IS NOT NULL
+              AND TRIM(display_name) != ''"""
     )
     names["norm"] = _norm(names.display_name)
-    names = names.drop_duplicates("norm")
+    # A normalized spelling shared by different GSIS ids is not safe to use.
+    # Retain multiple aliases for one player, but never choose arbitrarily
+    # between genuinely ambiguous identities.
+    norm_cardinality = names.groupby("norm", observed=True).gsis_id.nunique()
+    names = names[
+        names.norm.map(norm_cardinality).eq(1)
+    ].drop_duplicates(["norm", "gsis_id"])
     props["norm"] = _norm(props.player)
 
     rows = []

@@ -40736,3 +40736,31 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   source identities are in
   `reports/2026-09-04-week1-a5-live-contest-capture.md`. Experiment 094 and
   its score lanes were untouched.
+
+## 2026-09-04 — Week-1 prop identity repair ready for immutable release
+
+- A read-only warehouse audit found 7,891 Week-1 base prop rows covering 378
+  provider player names, but the certified live projection had resolved zero
+  licensed players and had retained the disclosed DraftKings-PPG fallback.
+  The defect was identity timing rather than feed absence: `market_points`
+  used current-season `weekly_stats` as its only GSIS name authority, and no
+  2026 weekly-stat row can exist before Week 1 is played.
+- The resolver now combines historical weekly-stat names with current
+  `rosters_weekly.full_name`, `rosters_weekly.football_name`, and the governed
+  `player_id_map` aliases. It keeps multiple aliases for the same GSIS player
+  but refuses any normalized spelling shared by more than one GSIS id. No
+  outcome column or post-lock source is introduced.
+- The repaired real-data read resolves 310 unique player-week market
+  projections with zero duplicate GSIS keys. Against the exact current live
+  projection frame, 300 of 505 skill-player rows match licensed market points
+  (59.4%), clearing the existing 30% source-readiness threshold.
+- Validation from this exact worktree is 53/53 focused market/blend/source-
+  readiness checks and 8/8 live-smoke checks, plus Python compilation and
+  `git diff --check`. The shared virtualenv is editable against the canonical
+  checkout, so all worktree validation explicitly sets `PYTHONPATH=src`.
+- Next action: commit and push the source repair, build its exact clean commit
+  with the bounded cleanup-trapped live-image builder, repoint only the
+  affected `project-slate` job to the immutable digest, then rerun and audit
+  one atomic 537-row Week-1 projection batch before refreshing the candidate-
+  only D400/D800 rehearsal. Do not publish a final book while participation or
+  ownership readiness remains unresolved.
