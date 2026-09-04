@@ -239,7 +239,12 @@ norm_nfl AS (
       r" +", " ") AS clean_name
   FROM `${raw}.player_ids` p,
        UNNEST([p.name, p.merge_name]) AS id_name
-  WHERE p.gsis_id IS NOT NULL AND id_name IS NOT NULL
+  -- ``player_ids.gsis_id`` occasionally carries a college/provider fallback
+  -- (for example WAS569019) before the player's NFL GSIS identity arrives.
+  -- Those values cannot join NFL features and must not outrank the fresh
+  -- weekly-roster fallback.
+  WHERE REGEXP_CONTAINS(p.gsis_id, r'^00-[0-9]+$')
+    AND id_name IS NOT NULL
 ),
 unique_player_id_identity AS (
   SELECT
@@ -445,15 +450,20 @@ all_resolved_matches AS (
   UNION ALL
   SELECT * FROM depth_fallback
 ),
+resolved_identity_sources AS (
+  SELECT DISTINCT dk_player_id, gsis_id, match_source
+  FROM all_resolved_matches
+),
 unique_dk_resolution AS (
   -- Multiple historical/current product identities are acceptable only when
   -- every exact source match converges on the same stable GSIS id. Conflicts
   -- stay unresolved instead of being settled by pull time or product order.
-  SELECT
-    dk_player_id,
-    ANY_VALUE(gsis_id) AS gsis_id,
-    ARRAY_AGG(
-      match_source
+  SELECT dk_player_id, gsis_id, match_source
+  FROM resolved_identity_sources
+  QUALIFY
+    COUNT(DISTINCT gsis_id) OVER (PARTITION BY dk_player_id) = 1
+    AND ROW_NUMBER() OVER (
+      PARTITION BY dk_player_id
       ORDER BY CASE match_source
         WHEN 'reviewed_position_variant' THEN 0
         WHEN 'reviewed_name_alias' THEN 0
@@ -463,12 +473,8 @@ unique_dk_resolution AS (
         WHEN 'roster_fallback' THEN 4
         WHEN 'current_depth_fallback' THEN 5
         ELSE 99
-      END, match_source
-      LIMIT 1
-    )[OFFSET(0)] AS match_source
-  FROM all_resolved_matches
-  GROUP BY dk_player_id
-  HAVING COUNT(DISTINCT gsis_id) = 1
+      END, match_source, gsis_id
+    ) = 1
 )
 SELECT
   d.dk_player_id, u.gsis_id, d.display_name, d.team_abbr, d.position,

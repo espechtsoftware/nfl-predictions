@@ -424,14 +424,15 @@ def test_primary_crosswalk_is_unique_and_live_dk_ids_cannot_fan_out():
     )
     assert "CASE WHEN SLATE_TYPE = 'CLASSIC' THEN 0 ELSE 1 END" in sql
     assert "ALL_RESOLVED_MATCHES AS" in sql
+    assert "RESOLVED_IDENTITY_SOURCES AS" in sql
     assert "UNIQUE_DK_RESOLUTION AS" in sql
     resolution = sql[
         sql.index("UNIQUE_DK_RESOLUTION AS"):sql.index(
             "ASSERT (", sql.index("UNIQUE_DK_RESOLUTION AS")
         )
     ]
-    assert "GROUP BY DK_PLAYER_ID" in resolution
-    assert "HAVING COUNT(DISTINCT GSIS_ID) = 1" in resolution
+    assert "COUNT(DISTINCT GSIS_ID) OVER (PARTITION BY DK_PLAYER_ID) = 1" in resolution
+    assert "ROW_NUMBER() OVER ( PARTITION BY DK_PLAYER_ID" in resolution
     assert "JOIN DK D USING (DK_PLAYER_ID)" in resolution
     assert "UNIQUE_PLAYER_ID_IDENTITY AS" in sql
     primary = sql[
@@ -570,6 +571,7 @@ def test_player_id_map_binds_live_sources_and_rejects_identity_conflicts():
     assert "COUNT(DISTINCT R.TEAM) = 32" in sql
     assert "PLAYER_ID_OVERRIDES CONTAINS A NULL OR CONFLICTING" in sql
     assert "PLAYER_ID_MAP CONTAINS A DUPLICATE OR CONFLICTING" in sql
+    assert "REGEXP_CONTAINS(P.GSIS_ID, R'^00-[0-9]+$')" in sql
 
 
 def test_upcoming_projection_pool_is_bound_to_exact_reg_week_gamedays(
@@ -580,8 +582,11 @@ def test_upcoming_projection_pool_is_bound_to_exact_reg_week_gamedays(
     def fake_query(sql: str, params: dict[str, object]) -> pd.DataFrame:
         captured["sql"] = re.sub(r"\s+", " ", sql).upper()
         captured["params"] = params
-        return pd.DataFrame({"gsis_id": ["00-0000001"],
-                             "dk_position": ["QB"]})
+        return pd.DataFrame({
+            "gsis_id": ["00-0000001"],
+            "dk_position": ["QB"],
+            "roster_receipt_is_valid": [True],
+        })
 
     monkeypatch.setattr(run_projections, "query_df", fake_query)
     result = run_projections.upcoming_slate_features(2026, 1)
@@ -598,48 +603,48 @@ def test_upcoming_projection_pool_is_bound_to_exact_reg_week_gamedays(
     assert sql.count("FROM ELIGIBLE_SALARIES") >= 2
     assert "T.SEASON = @SEASON" in sql
     assert "T.WEEK = @WEEK" in sql
-    assert "REVIEWED_NON_CURRENT_MATCH_SOURCE" in sql
-    assert "REVIEWED_NON_FANTASY_ROLES AS" in sql
-    for dk_player_id in (300580, 553024, 606799, 1120499, 1181739,
-                         1322662, 1325495, 1321309, 1247543, 843733):
-        assert str(dk_player_id) in sql
-    assert sql.count("'REVIEWED_NON_FANTASY_ROLE'") == 11
-    for field in ("SEASON", "DK_PLAYER_ID", "CLEAN_NAME", "TEAM_ABBR",
-                  "POSITION"):
-        assert f"R.{field} =" in sql
-    assert (
-        "SL.REVIEWED_MATCH_SOURCE IS DISTINCT FROM "
-        "'REVIEWED_NON_FANTASY_ROLE'" in sql
-    )
+    assert "CURRENT_ACTIVE_FANTASY_ROSTER AS" in sql
+    assert "UNIQUE_CURRENT_ACTIVE_IDENTITY AS" in sql
+    assert "HAVING COUNT(DISTINCT GSIS_ID) = 1" in sql
+    assert "UPPER(TRIM(R.POSITION)) IN ('QB', 'RB', 'WR', 'TE', 'FB')" in sql
+    assert "NFL_FEATURES.PLAYER_ID_MAP" in sql
+    assert "A.GSIS_ID = M.GSIS_ID" in sql
+    assert "N.ROSTER_POSITION = UPPER(TRIM(SL.DK_POSITION))" in sql
+    assert "SL.ACTIVE_GSIS_ID IS NOT NULL" in sql
+    assert "SL.ACTIVE_EXACT_NAME IS NOT NULL" in sql
+    assert "REVIEWED_NON_FANTASY_ROLES" not in sql
+    assert "REVIEWED_NON_CURRENT_LISTINGS" not in sql
 
 
-def test_reviewed_non_current_listings_require_fresh_roster_absence():
-    """A reviewed stale listing is quarantined only while still non-current.
-
-    This is deliberately not a generic active-roster eligibility rule: the
-    exact DK identity must be on the reviewed list, the roster receipt must be
-    fresh and complete, and an ACT row on the listed team disarms the filter.
-    """
+def test_live_eligibility_requires_fresh_complete_active_roster_receipt():
+    """Availability is source-driven and fails closed, never name-blacklisted."""
     sql = re.sub(r"\s+", " ",
                  inspect.getsource(run_projections.upcoming_slate_features))
     sql = sql.upper()
 
-    assert "REVIEWED_NON_CURRENT_LISTINGS AS" in sql
-    for dk_player_id in (
-        1107584, 1289436, 923814, 1380572, 1316481, 1286393,
-        1277932, 943843, 1130538, 1215927, 749681, 1404295,
-        1213870, 1589027, 1310628,
-    ):
-        assert str(dk_player_id) in sql
     assert "CURRENT_ROSTER_RECEIPT_QUALITY AS" in sql
     assert "COUNT(DISTINCT R.TEAM) = 32" in sql
     assert "COUNT(DISTINCT R.GSIS_ID) >= 1000" in sql
     assert "INTERVAL 72 HOUR" in sql
     assert sql.count("CAST(R.WEEK AS INT64) = @WEEK") >= 2
-    assert "CURRENT_ACTIVE_ROSTER_NAMES AS" in sql
+    assert "CURRENT_ACTIVE_FANTASY_ROSTER AS" in sql
     assert "R.STATUS = 'ACT'" in sql
-    assert "AND Q.RECEIPT_IS_VALID AND A.CLEAN_NAME IS NULL" in sql
-    assert (
-        "SL.REVIEWED_NON_CURRENT_MATCH_SOURCE IS DISTINCT FROM "
-        "'REVIEWED_NON_CURRENT_LISTING'" in sql
+    assert "OR NOT SL.ROSTER_RECEIPT_IS_VALID" in sql
+    assert "TARGET-WEEK ROSTER ELIGIBILITY RECEIPT IS STALE OR INCOMPLETE" in sql
+    assert "REVIEWED_NON_CURRENT_LISTINGS" not in sql
+    assert "REVIEWED_NON_FANTASY_ROLES" not in sql
+
+
+def test_live_eligibility_rejects_invalid_roster_receipt(monkeypatch):
+    monkeypatch.setattr(
+        run_projections,
+        "query_df",
+        lambda *_args, **_kwargs: pd.DataFrame({
+            "gsis_id": ["00-0000001"],
+            "dk_position": ["QB"],
+            "roster_receipt_is_valid": [False],
+        }),
     )
+
+    with pytest.raises(RuntimeError, match="roster eligibility receipt"):
+        run_projections.upcoming_slate_features(2026, 1)

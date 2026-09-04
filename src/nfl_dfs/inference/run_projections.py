@@ -73,80 +73,7 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
     own timestamp within an ingest run."""
     df = query_df(
         f"""
-        WITH reviewed_non_fantasy_roles AS (
-          -- Fresh 2026-W1 roster/depth authority classifies these exact DK
-          -- minimum-price TE identities as active long snappers. Keep the
-          -- exclusion local to live eligibility so they cannot contaminate
-          -- salary/feature history as TEs. Every identity field is guarded;
-          -- later provider drift falls through to the unmatched hard failure.
-          SELECT * FROM UNNEST([
-            STRUCT(2026 AS season, 300580 AS dk_player_id,
-                   'ANDREW DEPAOLA' AS clean_name, 'MIN' AS team_abbr,
-                   'TE' AS position,
-                   'reviewed_non_fantasy_role' AS match_source),
-            (2026, 553024, 'TYLER OTT', 'WAS', 'TE',
-             'reviewed_non_fantasy_role'),
-            (2026, 606799, 'ZACH WOOD', 'NO', 'TE',
-             'reviewed_non_fantasy_role'),
-            (2026, 1120499, 'EVAN DECKERS', 'TB', 'TE',
-             'reviewed_non_fantasy_role'),
-            (2026, 1181739, 'WILLIAM WAGNER', 'CIN', 'TE',
-             'reviewed_non_fantasy_role'),
-            (2026, 1322662, 'ROCCO UNDERWOOD', 'PHI', 'TE',
-             'reviewed_non_fantasy_role'),
-            (2026, 1325495, 'GARRISON GRIMES', 'NYJ', 'TE',
-             'reviewed_non_fantasy_role'),
-            (2026, 1321309, 'LUKE BASSO', 'DEN', 'TE',
-             'reviewed_non_fantasy_role'),
-            (2026, 1247543, 'BEN MANN', 'NYG', 'TE',
-             'reviewed_non_fantasy_role'),
-            (2026, 843733, 'MITCHELL FRABONI', 'DEN', 'TE',
-             'reviewed_non_fantasy_role')
-          ])
-        ),
-        reviewed_non_current_listings AS (
-          -- The first fresh 2026-W1 roster cutdown audit found these exact DK
-          -- listings absent from an active roster on the listed team. They
-          -- remain review-bound rather than becoming a generic eligibility
-          -- rule. A fresh ACT row on the same team automatically disarms the
-          -- quarantine and sends any unresolved identity back through the
-          -- hard failure below.
-          SELECT * FROM UNNEST([
-            STRUCT(2026 AS season, 1107584 AS dk_player_id,
-                   'ADRIAN MARTINEZ' AS clean_name, 'NYJ' AS team_abbr,
-                   'QB' AS position,
-                   'reviewed_non_current_listing' AS match_source),
-            (2026, 1289436, 'AL-JAY HENDERSON', 'NYJ', 'RB',
-             'reviewed_non_current_listing'),
-            (2026, 923814, 'DJ TURNER', 'HOU', 'WR',
-             'reviewed_non_current_listing'),
-            (2026, 1380572, "DAE'QUAN WRIGHT", 'CLE', 'TE',
-             'reviewed_non_current_listing'),
-            (2026, 1316481, 'GABRIEL BENYARD', 'CAR', 'WR',
-             'reviewed_non_current_listing'),
-            (2026, 1286393, 'JERAND BRADLEY', 'LAC', 'TE',
-             'reviewed_non_current_listing'),
-            (2026, 1277932, 'JOAQUIN DAVIS', 'PIT', 'WR',
-             'reviewed_non_current_listing'),
-            (2026, 943843, 'KENNY YEBOAH', 'ARI', 'TE',
-             'reviewed_non_current_listing'),
-            (2026, 1130538, 'LAWRENCE KEYS III', 'DET', 'WR',
-             'reviewed_non_current_listing'),
-            (2026, 1215927, 'LUKE LACHEY', 'GB', 'TE',
-             'reviewed_non_current_listing'),
-            (2026, 749681, 'RIVER CRACRAFT', 'WAS', 'WR',
-             'reviewed_non_current_listing'),
-            (2026, 1404295, 'TY PEZZA', 'BAL', 'TE',
-             'reviewed_non_current_listing'),
-            (2026, 1213870, 'DOMINIC RICHARDSON', 'NYJ', 'RB',
-             'reviewed_non_current_listing'),
-            (2026, 1589027, 'MITCH VAN VOOREN', 'DAL', 'TE',
-             'reviewed_non_current_listing'),
-            (2026, 1310628, 'KHALIL DINKINS', 'SF', 'TE',
-             'reviewed_non_current_listing')
-          ])
-        ),
-        current_roster_receipt AS (
+        WITH current_roster_receipt AS (
           SELECT MAX(nflverse_pulled_at) AS pulled_at
           FROM `{settings.raw}.rosters_weekly`
           WHERE CAST(season AS INT64) = @season
@@ -165,15 +92,33 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
           WHERE CAST(r.season AS INT64) = @season
             AND CAST(r.week AS INT64) = @week
         ),
-        current_active_roster_names AS (
+        current_active_fantasy_roster AS (
           SELECT DISTINCT
+            r.gsis_id,
             REGEXP_REPLACE(
               REGEXP_REPLACE(
                 REGEXP_REPLACE(UPPER(TRIM(roster_name)),
                                r"\\s+(JR|SR|II|III|IV|V)\\.?$", ""),
                 r"[^A-Z ]", ""),
               r" +", " ") AS clean_name,
-            UPPER(TRIM(r.team)) AS team_abbr
+            CASE UPPER(TRIM(r.team))
+              WHEN 'ARZ' THEN 'ARI' WHEN 'BLT' THEN 'BAL'
+              WHEN 'CLV' THEN 'CLE' WHEN 'HST' THEN 'HOU'
+              WHEN 'GBP' THEN 'GB' WHEN 'GNB' THEN 'GB'
+              WHEN 'JAC' THEN 'JAX'
+              WHEN 'KCC' THEN 'KC' WHEN 'KAN' THEN 'KC'
+              WHEN 'LVR' THEN 'LV' WHEN 'OAK' THEN 'LV'
+              WHEN 'LAR' THEN 'LA' WHEN 'RAM' THEN 'LA'
+              WHEN 'STL' THEN 'LA'
+              WHEN 'NEP' THEN 'NE' WHEN 'NWE' THEN 'NE'
+              WHEN 'NOS' THEN 'NO' WHEN 'NOR' THEN 'NO'
+              WHEN 'SDC' THEN 'LAC' WHEN 'SDG' THEN 'LAC'
+              WHEN 'SD' THEN 'LAC' WHEN 'SFO' THEN 'SF'
+              WHEN 'TBB' THEN 'TB' WHEN 'TAM' THEN 'TB'
+              WHEN 'WSH' THEN 'WAS'
+              ELSE UPPER(TRIM(r.team))
+            END AS team_abbr,
+            UPPER(TRIM(r.position)) AS roster_position
           FROM `{settings.raw}.rosters_weekly` r
           JOIN current_roster_receipt x
             ON r.nflverse_pulled_at = x.pulled_at,
@@ -183,7 +128,14 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
           WHERE CAST(r.season AS INT64) = @season
             AND CAST(r.week AS INT64) = @week
             AND r.status = 'ACT'
+            AND UPPER(TRIM(r.position)) IN ('QB', 'RB', 'WR', 'TE', 'FB')
             AND roster_name IS NOT NULL
+        ),
+        unique_current_active_identity AS (
+          SELECT clean_name, team_abbr, roster_position
+          FROM current_active_fantasy_roster
+          GROUP BY clean_name, team_abbr, roster_position
+          HAVING COUNT(DISTINCT gsis_id) = 1
         ),
         target_gamedays AS (
           SELECT DISTINCT PARSE_DATE('%Y-%m-%d', gameday) AS gameday
@@ -231,47 +183,74 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
         classified_slate AS (
           SELECT
             sl.*,
-            r.match_source AS reviewed_match_source,
-            IF(n.match_source IS NOT NULL
-               AND q.receipt_is_valid
-               AND a.clean_name IS NULL,
-               n.match_source, NULL) AS reviewed_non_current_match_source
+            q.receipt_is_valid AS roster_receipt_is_valid,
+            m.gsis_id,
+            a.gsis_id AS active_gsis_id,
+            n.clean_name AS active_exact_name
           FROM slate sl
           CROSS JOIN current_roster_receipt_quality q
-          LEFT JOIN reviewed_non_fantasy_roles r
-            ON r.season = sl.season
-           AND r.dk_player_id = sl.dk_player_id
-           AND r.clean_name = UPPER(TRIM(sl.display_name))
-           AND r.team_abbr = UPPER(TRIM(sl.team_abbr))
-           AND r.position = UPPER(TRIM(sl.dk_position))
-          LEFT JOIN reviewed_non_current_listings n
-            ON n.season = sl.season
-           AND n.dk_player_id = sl.dk_player_id
-           AND n.clean_name = UPPER(TRIM(sl.display_name))
-           AND n.team_abbr = UPPER(TRIM(sl.team_abbr))
-           AND n.position = UPPER(TRIM(sl.dk_position))
-          LEFT JOIN current_active_roster_names a
-            ON a.clean_name = REGEXP_REPLACE(
+          LEFT JOIN `{settings.features}.player_id_map` m
+            USING (dk_player_id)
+          LEFT JOIN (
+            SELECT DISTINCT gsis_id, team_abbr
+            FROM current_active_fantasy_roster
+          ) a
+            ON a.gsis_id = m.gsis_id
+           AND a.team_abbr = CASE UPPER(TRIM(sl.team_abbr))
+             WHEN 'ARZ' THEN 'ARI' WHEN 'BLT' THEN 'BAL'
+             WHEN 'CLV' THEN 'CLE' WHEN 'HST' THEN 'HOU'
+             WHEN 'GBP' THEN 'GB' WHEN 'GNB' THEN 'GB'
+             WHEN 'JAC' THEN 'JAX'
+             WHEN 'KCC' THEN 'KC' WHEN 'KAN' THEN 'KC'
+             WHEN 'LVR' THEN 'LV' WHEN 'OAK' THEN 'LV'
+             WHEN 'LAR' THEN 'LA' WHEN 'RAM' THEN 'LA'
+             WHEN 'STL' THEN 'LA'
+             WHEN 'NEP' THEN 'NE' WHEN 'NWE' THEN 'NE'
+             WHEN 'NOS' THEN 'NO' WHEN 'NOR' THEN 'NO'
+             WHEN 'SDC' THEN 'LAC' WHEN 'SDG' THEN 'LAC'
+             WHEN 'SD' THEN 'LAC' WHEN 'SFO' THEN 'SF'
+             WHEN 'TBB' THEN 'TB' WHEN 'TAM' THEN 'TB'
+             WHEN 'WSH' THEN 'WAS'
+             ELSE UPPER(TRIM(sl.team_abbr))
+           END
+          LEFT JOIN unique_current_active_identity n
+            ON n.clean_name = REGEXP_REPLACE(
                  REGEXP_REPLACE(
                    REGEXP_REPLACE(UPPER(TRIM(sl.display_name)),
                                   r"\\s+(JR|SR|II|III|IV|V)\\.?$", ""),
                    r"[^A-Z ]", ""),
                  r" +", " ")
-           AND a.team_abbr = UPPER(TRIM(sl.team_abbr))
+           AND n.team_abbr = CASE UPPER(TRIM(sl.team_abbr))
+             WHEN 'ARZ' THEN 'ARI' WHEN 'BLT' THEN 'BAL'
+             WHEN 'CLV' THEN 'CLE' WHEN 'HST' THEN 'HOU'
+             WHEN 'GBP' THEN 'GB' WHEN 'GNB' THEN 'GB'
+             WHEN 'JAC' THEN 'JAX'
+             WHEN 'KCC' THEN 'KC' WHEN 'KAN' THEN 'KC'
+             WHEN 'LVR' THEN 'LV' WHEN 'OAK' THEN 'LV'
+             WHEN 'LAR' THEN 'LA' WHEN 'RAM' THEN 'LA'
+             WHEN 'STL' THEN 'LA'
+             WHEN 'NEP' THEN 'NE' WHEN 'NWE' THEN 'NE'
+             WHEN 'NOS' THEN 'NO' WHEN 'NOR' THEN 'NO'
+             WHEN 'SDC' THEN 'LAC' WHEN 'SDG' THEN 'LAC'
+             WHEN 'SD' THEN 'LAC' WHEN 'SFO' THEN 'SF'
+             WHEN 'TBB' THEN 'TB' WHEN 'TAM' THEN 'TB'
+             WHEN 'WSH' THEN 'WAS'
+             ELSE UPPER(TRIM(sl.team_abbr))
+           END
+           AND n.roster_position = UPPER(TRIM(sl.dk_position))
         )
         SELECT sl.* EXCEPT (
-          reviewed_match_source, reviewed_non_current_match_source, season
-        ), m.gsis_id, t.*
+          active_gsis_id, active_exact_name, season
+        ), t.*
         FROM classified_slate sl
-        LEFT JOIN `{settings.features}.player_id_map` m USING (dk_player_id)
         LEFT JOIN `{settings.features}.player_week_inference` t
-          ON t.gsis_id = m.gsis_id
+          ON t.gsis_id = sl.gsis_id
          AND t.season = @season
          AND t.week = @week
-        WHERE sl.reviewed_match_source
-              IS DISTINCT FROM 'reviewed_non_fantasy_role'
-          AND sl.reviewed_non_current_match_source
-              IS DISTINCT FROM 'reviewed_non_current_listing'
+        WHERE sl.dk_position = 'DST'
+           OR NOT sl.roster_receipt_is_valid
+           OR sl.active_gsis_id IS NOT NULL
+           OR sl.active_exact_name IS NOT NULL
         """,
         {"season": season, "week": week},
     )
@@ -279,6 +258,14 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
         raise RuntimeError(
             "no upcoming classic slates in dk_salaries — run ingest-dk "
             "(or DK hasn't posted next week's draft groups yet)"
+        )
+    if (
+        "roster_receipt_is_valid" not in df
+        or not df["roster_receipt_is_valid"].fillna(False).all()
+    ):
+        raise RuntimeError(
+            "target-week roster eligibility receipt is stale or incomplete; "
+            "refusing to project a partially classified DK pool"
         )
     unmatched = df[df.gsis_id.isna() & (df.dk_position != "DST")]
     if not unmatched.empty:

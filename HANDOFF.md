@@ -40400,3 +40400,44 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   revised SQL passes its focused contracts and BigQuery dry-run validator;
   next is an exact live map rebuild/canary and a successor image before
   projection.
+- The first atomic live map rebuild of that replacement failed before table
+  replacement because its final collapse aggregated already-aggregated rows.
+  The materialized map remained unchanged. The collapse now uses distinct
+  source identities plus windowed uniqueness/rank checks; the focused source
+  suite passes 31/31 and the replacement rebuilt atomically. It reduced the
+  unresolved current DK cohort from 61 to 32, all absent from the fresh
+  target-week active fantasy roster.
+- A complete source-driven eligibility audit found 953 unique current classic
+  DK listings: 32 DST, 487 skill listings directly mapped to an active
+  target-week fantasy-role roster row under the pre-fix team comparison, and
+  zero exact active listings without a map. The apparent additional 18 under
+  canonical team comparison were all `LAR`/`LA` aliases. One genuine
+  crosswalk error remained: Mike Washington Jr. inherited provider/college id
+  `WAS569019` from `player_ids` instead of NFL GSIS `00-0040878`. The map now
+  rejects non-NFL values in the GSIS column so the fresh roster fallback wins.
+- Live availability is now governed by the exact fresh, complete 32-team
+  target-week receipt and `ACT` fantasy roles (`QB/RB/WR/TE/FB`), not an
+  expanding per-player blacklist. A mapped active GSIS is admitted; an exact
+  active identity without a map is also admitted so the existing unmatched
+  hard failure remains observable. A stale/incomplete receipt raises before
+  projection. This is player participation eligibility, not a lineup
+  construction or selection law.
+- The real candidate-only preflight now returns 537 unique DK ids: 505 active
+  skill players plus 32 defenses, zero unmapped skill rows, and a valid fresh
+  roster receipt. Mike Washington resolves to `00-0040878`. No projection,
+  book, selector, score, graph, or paid-entry artifact was written by this
+  preflight. Feature execution `build-features-fgwts` completed 1/1
+  successfully, but used the superseded image; a successor image/full feature
+  rebuild remains required before `project-slate` may run.
+
+## 2026-09-04 — PREREG-063 / experiment 093 cohort progress
+
+- Bank 671 (`093b671r1-20260904T064407Z`, execution
+  `lab-run-slow-pstnf`) reached exact 18/18 success at
+  `2026-09-04T07:51:25.341706Z`, with zero failures, cancellations, or
+  retries. Bank 670 was already exact-successful.
+- Bank 672 (`093b672r1-20260904T074531Z`, execution `lab-run-pb9pw`) is
+  active with all 18 tasks running and no observed failure or retry. The
+  registered coordinator remains active and the efficacy reader remains
+  unopened. Require bank 672 exact terminal success before handing first read
+  to the lab; experiment 091 remains held.
