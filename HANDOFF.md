@@ -40252,3 +40252,40 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   completed 1/1 successfully; no restart or scheduler repair is presently
   needed. This was collection verification only and changed no data/model,
   scoring, lineup, or paid-entry policy.
+
+## 2026-09-04 — PREREG-063 / experiment 093 mechanics launched
+
+- The lab D6 census completed all 72 sealed bank-640 slates and published
+  `results/prereg063_d6_census_v1.json` at SHA-256
+  `58bf34221179f2e58affacc6e5de6e8eb837d84505d6892df8fbaba96eadf97f`.
+  Its real-artifact 2022-W8/bank-670 smoke then completed in 551.5 seconds:
+  5,573 generation cells were zeroed, the PG_AWARE candidate-pool Jaccard was
+  0.9185, K80 turnover was 0.2222, and the two arms shared the exact judge
+  identity. Lab source `7d89ec5ecd93c77a1586f023c90545a54198d139`
+  froze PREREG-063/093 without changing its arms or endpoints; Update 41 at
+  lab `main` `be6b8475688b6cf4c730ffd0d3fa2eb356c8face` requested the lane.
+- Production built the exact clean frozen source in Cloud Build
+  `b65c4db6-18b9-4475-94f3-562110b76f46` (SUCCESS, 85 seconds). Immutable
+  image `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2:093-7d89ec5`
+  resolves to digest
+  `sha256:b5196a976963b56d610b6b7708e72b64e0b66e6cfc18c19eee1dfb24f51a1f50`.
+- The production-owned mechanics coordinator was derived from the proven 092
+  registered path, corrected to the 093 boundary/arm receipt, committed and
+  pushed to lab `main` at `da07c7f`. Its first invocation failed closed before
+  provider mutation because the launch worktree lacked a Python environment;
+  the canonical registry recorded exit 1 and no prefix was claimed. A local
+  link to the established lab virtual environment repaired only that host
+  prerequisite.
+- The registered retry installed both reusable jobs on the exact 2 vCPU / 8
+  GiB / 10-hour / maxRetries=1 envelope and created exactly one mechanics
+  claim: run `093m670r1-20260904T061903Z`, Cloud Run execution
+  `lab-run-6z77z`. It is active at this checkpoint with zero failures and zero
+  observed retries. The coordinator retains the `nfl2-lab-jobs` lane and will
+  require exact 1/1 success, run the frozen recursive outcome-boundary gate,
+  and publish the receipt create-once; it cannot claim an efficacy prefix or
+  open the efficacy reader.
+- Next concrete action: allow the registered mechanics coordinator to reach
+  terminal status. If and only if its exact gate passes, bind the four frozen
+  reader identities, prepare/push a separate registered efficacy coordinator,
+  and launch banks 670/671/672 without opening outcomes. Experiment 091
+  remains held.
