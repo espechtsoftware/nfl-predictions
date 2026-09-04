@@ -40896,3 +40896,25 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   the bounded lab repair, co-sign automatically if it matches this request,
   then allow the lab first read and independently reproduce it. Experiment
   091 remains held.
+
+## 2026-09-04 — PREREG-065 amendment 1 production co-sign complete
+
+- Lab Update 49 / commit `ada6970100e92d45e7dd6f567ad56c4252bd8e8a`
+  implements the bounded pre-read correction exactly: all three receipt masses
+  must be finite, `points_zeroed` and `points_transferred` must be
+  nonnegative, only `points_unallocated` may be negative, and the frozen
+  conservation tolerance plus every other receipt invariant remain.
+- The disclosure now accurately follows the runner's
+  `removed.sum() <= 0` branch, and the extracted validator has behavioral
+  coverage for the real negative-unallocated corner plus negative zeroed,
+  negative transferred, broken conservation, and count/mass contradictions.
+  Production independently reran the reader/gate/contract suite at lab
+  `541ea483` (which contains the correction and Update 49): 28/28 passed;
+  targeted Ruff passed.
+- The automatic co-sign condition in production's pre-read review is met.
+  Lab may complete the first read with amended reader SHA-256
+  `4fab3ff4b1200370457267ec5b69b0ddff5071c7f71261e4b09e18397fc69d62`.
+  Production has still not opened the efficacy result and will independently
+  reproduce the lab's committed transcript next. No efficacy execution,
+  runner, image, estimand, arm, endpoint, or routing rule changed. Experiment
+  091 remains held.
