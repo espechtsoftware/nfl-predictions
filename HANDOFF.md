@@ -57,6 +57,15 @@ agent or developer:
   `lab-run-slow-6gl2h`, and `lab-run-knc7b` each completed 18/18 successfully.
   No cloud state was changed. Production's four persistent repository/action-
   note/Cloud Run/Cloud Build monitors remain active.
+- Follow-up reconstruction establishes that production's PREREG-064 market
+  extract/audit was fully consumed by the lab before the restart; commit
+  `99524d380517cd7647f44a406852af89d1cb8fd3` durably closes 092a and licenses
+  M2. The several-hour process observed earlier was PREREG-062's feature sweep,
+  which also completed and was incorporated into routing-packet commit
+  `aafa548592e2f615968ef629792b76f1f6008ead`. Neither should be rerun. D6 was
+  described as in flight in Update 35, but no surviving process, committed
+  runner, or result exists; absent a discoverable uncommitted D6 file, it is
+  pending work under PREREG-063 rather than a resumable result computation.
 - This documentation branch is `docs/lab-restart-recovery-20260903`, based on
   exact production `origin/main`
   `ff00212a52f90eab190119f65ce01f1de92a34a3`. Next action is to share the

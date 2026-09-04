@@ -33,6 +33,27 @@ At the 2026-09-03 20:00 CDT census:
 
 The lanes are therefore available, but there is no presently frozen 092 or 063 launch package that production may safely bind and execute.
 
+## Reconstruction of the apparently long-running work
+
+The production audit at
+`/home/erich/projects/nfl-predictions-prereg064-extract/reports/2026-09-03-prereg064-market-extract-and-role-field-audit.md`
+was the source handoff that enabled the lab's 092a market work. That handoff is complete, not interrupted:
+
+- Production published the corrected common-lock Parquet and manifest create-once.
+- Lab Update 37 explicitly says both exact SHAs were verified and fully consumed.
+- The market scoreboard is committed in `results/prereg064_market_scoreboard_v1.json`.
+- The conditional license read is committed in `results/prereg064_conditional_gate_v1.json`.
+- Commit `99524d380517cd7647f44a406852af89d1cb8fd3` closes 092a, closes M1, and licenses M2.
+
+The long local process observed earlier was `scripts/prereg062_feature_sweep.py`. It ran for several hours, completed, and its result was incorporated into the committed 060/062/N2 routing packet at `aafa548`. It must not be restarted.
+
+Update 35 also called D6, the participation-generation census, “in flight.” However, the post-restart census found no surviving D6 process, committed D6 runner, or D6 result artifact. Therefore:
+
+- do not assume a valid D6 checkpoint exists;
+- search any restarted lab session/worktree for an explicit uncommitted D6 file before rebuilding it;
+- absent such a file, treat D6 as pending implementation attached to PREREG-063, not as a failed or partially scored experiment;
+- do not let D6 delay the immediate 092 M2 build.
+
 ## Important worktree boundary: do not integrate the dirty production checkout
 
 The uncommitted files observed in `/home/erich/projects/nfl-predictions` are **not the lab's interrupted work and are not a prerequisite for resuming 092**. The lab should not stash, reset, fast-forward, reapply, or commit them.
