@@ -3,8 +3,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from nfl_dfs.inference.generation_exposure import canonical_sha256
 from nfl_dfs.inference import week1_participation_mixture as pmix
+from nfl_dfs.inference.generation_exposure import canonical_sha256
 
 
 def _players() -> list[str]:
@@ -192,6 +192,27 @@ def test_selection_is_same_supply_exact_k_and_replayable() -> None:
         "selection_receipt_sha256"
     ]
     assert certificate["fallback_on_any_validation_failure"] == "P_CTRL"
+    assert pmix.validate_participation_map_v1(inputs["participation_map"]) == inputs[
+        "participation_map"
+    ]
+    assert pmix.validate_participation_selection_v1(first) == first
+    assert pmix.validate_participation_rehearsal_v1(certificate) == certificate
+
+
+def test_sealed_selection_and_rehearsal_tamper_fail_closed() -> None:
+    inputs = _selection_inputs()
+    selection = pmix.build_participation_selection_v1(**inputs)
+    selection["a5_prefixes"]["57"]["P_MIX"] = list(
+        selection["a5_prefixes"]["57"]["P_MIX"]
+    )
+    selection["a5_prefixes"]["57"]["P_MIX"][0] = "lineup-v1-" + "f" * 64
+    with pytest.raises(pmix.Week1ParticipationMixtureError, match="SHA-256"):
+        pmix.validate_participation_selection_v1(selection)
+
+    rehearsal = pmix.certify_participation_replay_v1(**inputs)
+    rehearsal["fallback_on_any_validation_failure"] = "P_MIX"
+    with pytest.raises(pmix.Week1ParticipationMixtureError, match="SHA-256"):
+        pmix.validate_participation_rehearsal_v1(rehearsal)
 
 
 def test_missing_live_probability_fails_to_control_fallback_boundary() -> None:

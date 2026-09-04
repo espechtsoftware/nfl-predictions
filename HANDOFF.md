@@ -226,6 +226,23 @@ agent or developer:
   membership. The focused suite is 8/8, including duplicate-ID and forged-ID
   failures. This is an identity-boundary repair only; it changes no score,
   probability, arm, seed, candidate supply, or selection law.
+- `week1_participation_mixture_operator.py` now implements the missing
+  root-last immutable boundary. It exact-reopens the adopted D800/D400 pair
+  and both raw sources, requires all 800 candidate IDs in the exact adopted
+  D800 order, requires P_CTRL to reproduce the adopted paid K80 book exactly,
+  and publishes the normalized snapshot, prior-season map, selection receipt,
+  and deterministic rehearsal create-once before publishing a terminal root.
+  Its independent reader generation-reopens every dependency and rechecks all
+  content, clock, candidate, source, P_CTRL, and cross-component links. The
+  package names P_MIX as the conditional paid policy and P_CTRL as the fallback;
+  it neither enters lineups nor reads outcomes.
+- Public semantic validators were added for the map, selection receipt, and
+  rehearsal certificate so the independent reader does not merely trust
+  object hashes. Validation is 23/23 adopted-pair/operator tests and 9/9
+  participation tests, plus Python compilation and whitespace checks. The
+  only remaining live gate is binding this operator to the actual Week-1 D800
+  candidate/book artifact and a current raw designation snapshot; no live GCS
+  object or paid-entry state was changed by this implementation milestone.
 
 ### Active-session polling contract
 

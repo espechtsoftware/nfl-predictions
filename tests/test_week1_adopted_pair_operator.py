@@ -3,13 +3,17 @@ from __future__ import annotations
 import hashlib
 import json
 
+import numpy as np
 import pytest
 
-from nfl_dfs.inference.generation_exposure import canonical_sha256
 from nfl_dfs.inference import prospective_generation_shadow_evaluation as shadow
 from nfl_dfs.inference import week1_adopted_pair as adopted
 from nfl_dfs.inference import week1_adopted_pair_operator as operator
-
+from nfl_dfs.inference import week1_participation_mixture as pmix
+from nfl_dfs.inference import (
+    week1_participation_mixture_operator as pmix_operator,
+)
+from nfl_dfs.inference.generation_exposure import canonical_sha256
 
 LOCK_AT = adopted.WEEK1_LOCK_UTC
 FROZEN_AT = "2026-09-02T03:00:00+00:00"
@@ -135,10 +139,19 @@ def _lineup_id(roster: int) -> str:
     return str(_lineup(roster)["lineup_id"])
 
 
-def _candidate_id(ordinal: int) -> str:
+def _candidate_roster(ordinal: int) -> list[str]:
     if ordinal < 150:
-        return _lineup_id(ordinal)
-    return f"lineup-v1-{hashlib.sha256(f'candidate-{ordinal}'.encode()).hexdigest()}"
+        return sorted(_player_id(ordinal, slot) for slot in range(9))
+    variant = ordinal - 150
+    base = variant % 150
+    donor = (base + 1 + variant // 150) % 150
+    roster = [_player_id(base, slot) for slot in range(9)]
+    roster[3] = _player_id(donor, 3)
+    return sorted(roster)
+
+
+def _candidate_id(ordinal: int) -> str:
+    return f"lineup-v1-{canonical_sha256(_candidate_roster(ordinal))}"
 
 
 def _books() -> tuple[dict[str, object], dict[str, object]]:
@@ -635,3 +648,140 @@ def test_reader_rejects_manifest_that_predates_a_bound_book() -> None:
         operator.read_week1_adopted_pair_v1(
             store=store, manifest_identity=manifest_identity
         )
+
+
+def _pmix_inputs(store: FakeStore) -> tuple[dict[str, object], dict[str, object]]:
+    player_ids = [str(row["player_id"]) for row in _player_bridge()]
+    raw_snapshot = store.seed_raw(
+        uri=f"{PREFIX}participation/sources/raw-status.json",
+        raw=b'{"provider":"fixture","outcome_blind":true}',
+    )
+    history_rows = [
+        {
+            "season": season,
+            "injury_status": "Questionable",
+            "practice_level": 0,
+            "was_active": season in {2023, 2024, 2025},
+        }
+        for season in (2022, 2023, 2024, 2025)
+    ]
+    history_raw = shadow.canonical_json_bytes_v1({"rows": history_rows})
+    history_source = store.seed_raw(
+        uri=f"{PREFIX}participation/sources/history.json",
+        raw=history_raw,
+    )
+    snapshot = pmix.build_prelock_snapshot_v1(
+        player_ids=player_ids,
+        observations=[{
+            "player_id": _player_id(0, 0),
+            "injury_status": "Questionable",
+            "practice_level": "DNP",
+            "source_modified_at": "2026-09-03T20:00:00+00:00",
+        }],
+        provider="fixture-provider",
+        provider_absence_semantics=pmix.PROVIDER_ABSENCE_SEMANTICS,
+        provider_observed_at="2026-09-03T20:05:00+00:00",
+        ingested_at="2026-09-03T20:06:00+00:00",
+        cutoff_at="2026-09-03T20:10:00+00:00",
+        max_snapshot_age_seconds=600,
+        raw_artifact=raw_snapshot,
+    )
+    participation_map = pmix.fit_participation_map_v1(
+        history_rows,
+        source_artifact_sha256=str(history_source["sha256"]),
+    )
+    scores = np.zeros((len(player_ids), 80), dtype=np.float32)
+    player_index = {player_id: index for index, player_id in enumerate(player_ids)}
+    for ordinal in range(80):
+        scores[player_index[_player_id(ordinal, 0)], ordinal] = 100.0
+    inputs: dict[str, object] = {
+        "player_ids": player_ids,
+        "lineup_ids": [_candidate_id(index) for index in range(800)],
+        "rosters": [_candidate_roster(index) for index in range(800)],
+        "incumbent_player_scores": scores,
+        "corrected_hsim_player_scores": scores.copy(),
+        "snapshot": snapshot,
+        "participation_map": participation_map,
+        "mixture_seed": 2157,
+    }
+    return inputs, history_source
+
+
+def test_participation_package_is_root_last_and_reproduces_adopted_control() -> None:
+    store, paid_metadata, shadow_metadata, paid_book, shadow_book = _arrange()
+    pair_receipt = _publish(
+        store, paid_metadata, shadow_metadata, paid_book, shadow_book
+    )
+    inputs, history_source = _pmix_inputs(store)
+    receipt = pmix_operator.publish_week1_participation_package_v1(
+        store=store,
+        adopted_pair_manifest_identity=pair_receipt["manifest_identity"],
+        history_source_identity=history_source,
+        selection_inputs=inputs,
+        implementation_identity={
+            "id": "nfl-predictions-week1-pmix@" + "c" * 40,
+            "sha256": "d" * 64,
+        },
+        run_id="fixture-001",
+        observed_at="2026-09-03T20:10:00+00:00",
+    )
+
+    assert receipt["complete"] is True
+    assert receipt["independent_exact_reopen"] is True
+    assert pmix_operator.validate_week1_participation_publication_v1(
+        receipt
+    ) == receipt
+    reopened = pmix_operator.read_week1_participation_package_v1(
+        store=store, package_identity=receipt["package_identity"]
+    )
+    assert reopened["selection"]["P_CTRL"]["ordered_lineup_ids"] == paid_book[
+        "roster_ids"
+    ]
+    assert reopened["package"]["paid_policy"] == "P_MIX"
+    assert reopened["package"]["fallback_policy"] == "P_CTRL"
+    root_created = store.objects[
+        (
+            str(receipt["package_identity"]["uri"]),
+            str(receipt["package_identity"]["generation"]),
+        )
+    ][1]
+    assert all(
+        store.objects[(str(receipt[f"{name}_identity"]["uri"]), str(
+            receipt[f"{name}_identity"]["generation"]
+        ))][1] <= root_created
+        for name in ("snapshot", "map", "selection", "rehearsal")
+    )
+
+
+def test_participation_candidate_drift_fails_before_component_publication() -> None:
+    store, paid_metadata, shadow_metadata, paid_book, shadow_book = _arrange()
+    pair_receipt = _publish(
+        store, paid_metadata, shadow_metadata, paid_book, shadow_book
+    )
+    inputs, history_source = _pmix_inputs(store)
+    inputs["lineup_ids"] = list(inputs["lineup_ids"])
+    inputs["lineup_ids"][799], inputs["lineup_ids"][798] = (
+        inputs["lineup_ids"][798], inputs["lineup_ids"][799]
+    )
+    inputs["rosters"] = list(inputs["rosters"])
+    inputs["rosters"][799], inputs["rosters"][798] = (
+        inputs["rosters"][798], inputs["rosters"][799]
+    )
+    before = set(store.objects)
+    with pytest.raises(
+        pmix_operator.Week1ParticipationMixtureOperatorError,
+        match="candidate order differs",
+    ):
+        pmix_operator.publish_week1_participation_package_v1(
+            store=store,
+            adopted_pair_manifest_identity=pair_receipt["manifest_identity"],
+            history_source_identity=history_source,
+            selection_inputs=inputs,
+            implementation_identity={
+                "id": "nfl-predictions-week1-pmix@" + "c" * 40,
+                "sha256": "d" * 64,
+            },
+            run_id="fixture-002",
+            observed_at="2026-09-03T20:10:00+00:00",
+        )
+    assert set(store.objects) == before

@@ -20,18 +20,17 @@ paid entries; this module never silently guesses a participation probability.
 
 from __future__ import annotations
 
-from collections import Counter
-from collections.abc import Mapping, Sequence
-from datetime import datetime, timezone
 import hashlib
 import math
 import re
+from collections import Counter
+from collections.abc import Mapping, Sequence
+from datetime import UTC, datetime
 from typing import Final
 
 import numpy as np
 
 from .generation_exposure import canonical_sha256
-
 
 SNAPSHOT_SCHEMA_VERSION: Final = "week1-participation-snapshot/v1"
 MAP_SCHEMA_VERSION: Final = "week1-participation-map/v1"
@@ -54,6 +53,32 @@ MAP_VERSION: Final = "prereg054-live-alpha2-v1"
 _SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 _PLAYER_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}\Z")
 _LINEUP_ID = re.compile(r"lineup-v1-[0-9a-f]{64}\Z")
+_SELECTION_FIELDS: Final = frozenset({
+    "schema_version",
+    "season",
+    "week",
+    "draft_group_id",
+    "exact_k",
+    "candidate_count",
+    "candidate_ids_sha256",
+    "candidate_rosters_sha256",
+    "snapshot_sha256",
+    "participation_map_sha256",
+    "mixture_seed",
+    "law_weighting",
+    "selector",
+    "tie_break",
+    "player_score_bank_receipts",
+    "designation_count",
+    "designation_masks",
+    "P_CTRL",
+    "P_MIX",
+    "membership_shared_count",
+    "membership_turnover_per_side",
+    "a5_prefixes",
+    "outcome_fields_read",
+    "selection_receipt_sha256",
+})
 _STATUS_ALIASES: Final = {
     "": None,
     "NONE": None,
@@ -96,7 +121,7 @@ def _timestamp(value: object, *, label: str) -> datetime:
         ) from exc
     if parsed.tzinfo is None or parsed.utcoffset() is None:
         _fail(f"{label} must be timezone-aware")
-    utc = parsed.astimezone(timezone.utc)
+    utc = parsed.astimezone(UTC)
     if value != utc.isoformat():
         _fail(f"{label} must use canonical UTC representation")
     return utc
@@ -439,6 +464,12 @@ def _validated_map(value: object) -> dict[str, object]:
     return result
 
 
+def validate_participation_map_v1(value: object) -> dict[str, object]:
+    """Validate the frozen prior-season participation map and its identity."""
+
+    return _validated_map(value)
+
+
 def _candidate_matrix(
     *,
     player_scores: np.ndarray,
@@ -647,6 +678,103 @@ def build_participation_selection_v1(
     return body
 
 
+def validate_participation_selection_v1(value: object) -> dict[str, object]:
+    """Validate a sealed selection receipt without reopening score matrices."""
+
+    if not isinstance(value, Mapping) or set(value) != _SELECTION_FIELDS:
+        _fail("participation selection receipt fields differ")
+    receipt = dict(value)
+    retained_hash = receipt.pop("selection_receipt_sha256", None)
+    _digest(retained_hash, label="selection receipt SHA-256")
+    if retained_hash != canonical_sha256(receipt):
+        _fail("selection receipt SHA-256 differs")
+    if (
+        receipt.get("schema_version") != SELECTION_SCHEMA_VERSION
+        or receipt.get("season") != SEASON
+        or receipt.get("week") != WEEK
+        or receipt.get("draft_group_id") != DRAFT_GROUP_ID
+        or receipt.get("exact_k") != EXACT_K
+        or receipt.get("law_weighting") != "equal-column-mass"
+        or receipt.get("selector") != "greedy-expected-weekly-max-v1"
+        or receipt.get("tie_break") != "first-in-candidate-order-v1"
+        or receipt.get("outcome_fields_read") != []
+    ):
+        _fail("participation selection fixed boundary differs")
+    candidate_count = receipt.get("candidate_count")
+    mixture_seed = receipt.get("mixture_seed")
+    designation_count = receipt.get("designation_count")
+    shared_count = receipt.get("membership_shared_count")
+    turnover = receipt.get("membership_turnover_per_side")
+    if (
+        type(candidate_count) is not int
+        or candidate_count < EXACT_K
+        or type(mixture_seed) is not int
+        or mixture_seed < 0
+        or type(designation_count) is not int
+        or designation_count < 0
+        or type(shared_count) is not int
+        or not 0 <= shared_count <= EXACT_K
+        or type(turnover) is not int
+        or turnover != EXACT_K - shared_count
+    ):
+        _fail("participation selection count boundary differs")
+    for field in (
+        "candidate_ids_sha256",
+        "candidate_rosters_sha256",
+        "snapshot_sha256",
+        "participation_map_sha256",
+    ):
+        _digest(receipt.get(field), label=field)
+
+    arms: dict[str, list[str]] = {}
+    for arm_name in ("P_CTRL", "P_MIX"):
+        arm = receipt.get(arm_name)
+        if not isinstance(arm, Mapping) or set(arm) != {
+            "ordered_lineup_ids",
+            "ordered_lineup_ids_sha256",
+            "candidate_score_matrix_sha256",
+        }:
+            _fail(f"{arm_name} selection fields differ")
+        ids = [
+            _lineup_id(item, label=f"{arm_name} lineup ID")
+            for item in arm.get("ordered_lineup_ids", [])
+        ]
+        if len(ids) != EXACT_K or len(set(ids)) != EXACT_K:
+            _fail(f"{arm_name} is not an exact unique K80 book")
+        if arm.get("ordered_lineup_ids_sha256") != canonical_sha256(ids):
+            _fail(f"{arm_name} lineup order SHA-256 differs")
+        _digest(
+            arm.get("candidate_score_matrix_sha256"),
+            label=f"{arm_name} candidate score matrix SHA-256",
+        )
+        arms[arm_name] = ids
+    if len(set(arms["P_CTRL"]) & set(arms["P_MIX"])) != shared_count:
+        _fail("participation selection overlap count differs")
+
+    prefixes = receipt.get("a5_prefixes")
+    if not isinstance(prefixes, Mapping) or set(prefixes) != {
+        str(item) for item in A5_PREFIXES
+    }:
+        _fail("A5 prefix set differs")
+    for prefix in A5_PREFIXES:
+        row = prefixes[str(prefix)]
+        if not isinstance(row, Mapping) or set(row) != {
+            "entry_count", "P_CTRL", "P_CTRL_sha256", "P_MIX", "P_MIX_sha256"
+        }:
+            _fail("A5 prefix fields differ")
+        if row.get("entry_count") != prefix:
+            _fail("A5 prefix entry count differs")
+        for arm_name in ("P_CTRL", "P_MIX"):
+            ids = row.get(arm_name)
+            if ids != arms[arm_name][:prefix]:
+                _fail(f"A5 {arm_name} prefix differs from the K80 book")
+            if row.get(f"{arm_name}_sha256") != canonical_sha256(ids):
+                _fail(f"A5 {arm_name} prefix SHA-256 differs")
+
+    receipt["selection_receipt_sha256"] = retained_hash
+    return receipt
+
+
 def certify_participation_replay_v1(**selection_inputs: object) -> dict[str, object]:
     """Execute the frozen selector twice and bind byte-equivalent receipts."""
 
@@ -672,6 +800,47 @@ def certify_participation_replay_v1(**selection_inputs: object) -> dict[str, obj
     return body
 
 
+def validate_participation_rehearsal_v1(value: object) -> dict[str, object]:
+    """Validate the deterministic live rehearsal certificate."""
+
+    if not isinstance(value, Mapping):
+        _fail("participation rehearsal must be a mapping")
+    receipt = dict(value)
+    retained_hash = receipt.pop("rehearsal_sha256", None)
+    _digest(retained_hash, label="rehearsal SHA-256")
+    if retained_hash != canonical_sha256(receipt):
+        _fail("rehearsal SHA-256 differs")
+    expected_fields = {
+        "schema_version", "season", "week", "draft_group_id",
+        "deterministic_exact_replay", "selection_receipt_sha256",
+        "snapshot_sha256", "participation_map_sha256", "exact_k",
+        "a5_prefixes", "fallback_on_any_validation_failure",
+        "outcome_fields_read",
+    }
+    if set(receipt) != expected_fields:
+        _fail("participation rehearsal fields differ")
+    if (
+        receipt.get("schema_version") != REHEARSAL_SCHEMA_VERSION
+        or receipt.get("season") != SEASON
+        or receipt.get("week") != WEEK
+        or receipt.get("draft_group_id") != DRAFT_GROUP_ID
+        or receipt.get("deterministic_exact_replay") is not True
+        or receipt.get("exact_k") != EXACT_K
+        or receipt.get("a5_prefixes") != list(A5_PREFIXES)
+        or receipt.get("fallback_on_any_validation_failure") != "P_CTRL"
+        or receipt.get("outcome_fields_read") != []
+    ):
+        _fail("participation rehearsal fixed boundary differs")
+    for field in (
+        "selection_receipt_sha256",
+        "snapshot_sha256",
+        "participation_map_sha256",
+    ):
+        _digest(receipt.get(field), label=field)
+    receipt["rehearsal_sha256"] = retained_hash
+    return receipt
+
+
 __all__ = [
     "A5_PREFIXES",
     "EXACT_K",
@@ -683,5 +852,8 @@ __all__ = [
     "build_prelock_snapshot_v1",
     "certify_participation_replay_v1",
     "fit_participation_map_v1",
+    "validate_participation_map_v1",
+    "validate_participation_rehearsal_v1",
+    "validate_participation_selection_v1",
     "validate_prelock_snapshot_v1",
 ]
