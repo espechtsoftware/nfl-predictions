@@ -41126,3 +41126,41 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   gate, one routed selector experiment, and one final fresh-bank crossing is
   in `reports/2026-09-04-production-to-lab-generation-selection-followup-plan.md`.
   It does not amend 095 or authorize a live policy.
+
+## 2026-09-04 — Experiment 095 efficacy release bound; banks 690 and 691 active
+
+- Lab `main` commit `b3579ed` independently reproduced the frozen mechanics
+  gate byte-for-byte, including receipt SHA-256
+  `21f177392defd6898d3586eb55b073603a08aeca95aca2dcc4f387cabd82bdcf`,
+  and reported no objection to the efficacy release.
+- Lab `main` commit `cf56cfc` binds the efficacy-only reader and registered
+  coordinator to source `c251cfe4a2736f0145a7f7b7d80fb8e8ef743602`, image
+  digest `sha256:f77fb9cb6439a9a05efcd51c005ac5ca17268198619e2686c81feace20e68e02`,
+  build `b4ba7d6a-0614-41ef-8f66-4d615ae30d45`, mechanics run
+  `095m690r1-20260904T160706Z`, and the exact gate receipt. Bound reader
+  SHA-256 is
+  `e7d725b07ef2405644b5f398004e7a1f59774d7ecb9bf54f183dcfd96b987875`.
+  Focused binding/reader/gate/lineage tests passed 45/45, Ruff passed, and the
+  rebased complete lab suite passed 639 tests with 1 skipped.
+- The registered coordinator acquired the canonical `nfl2-lab-jobs` lane at
+  `2026-09-04T16:46:18Z` and launched the two initial banks:
+  - bank 690: run `095b690r1-20260904T164737Z`, execution `lab-run-t92g4`,
+    immutable UID `f31e4ac2-1795-4b36-b1c3-6e0e4429653e`;
+  - bank 691: run `095b691r1-20260904T165019Z`, execution
+    `lab-run-slow-46fg6`, immutable UID
+    `5a622df9-578f-4908-92ca-1151b84590cf`.
+- Both executions were independently observed with exact 18 tasks / 18
+  parallelism, 2 vCPU / 8 GiB, maxRetries 1, 10-hour timeout, correct bank
+  argument, bound source/digest environment, and no failure or retry. The
+  coordinator owns only prefixes `095b690r1,095b691r1,095b692r1` and never
+  invokes the reader.
+- Bank 692 remains intentionally unclaimed until either initial bank reaches
+  exact 18/18 zero-retry success. The same live coordinator will then claim it
+  on the newly free reusable job and monitor all three to terminal state.
+  No outcome has been opened; experiment 091 remains held.
+- The lab has independently adopted the production generation/selection plan,
+  delivered its outcome-disabled Work Package A lineage interface, and
+  prepared the seal-guarded Work Package B binary rescue-relevance diagnostic.
+  Production co-signed the binary/phi support adaptation before the 095 read;
+  lab commits `03b34e7` and `26ba113` align its implementation. Work Package B
+  must remain sealed until the 095 first-read transcript exists.
