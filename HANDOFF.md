@@ -40186,3 +40186,26 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `reports/2026-09-04-prereg056-production-independent-review.md`. No scoring,
   policy, graph, paid-entry, or cloud state changed. D6/093 and the broader
   candidate-lineage work remain in progress; 091 remains held.
+
+## 2026-09-04 — PREREG-064C / experiment 092 independently reproduced
+
+- Production independently reran the exact frozen PREREG-064C reader from lab
+  source `a08da15e44a82bb301963d99c5df289b4315e10b` against accepted runs
+  `092b660r1-20260904T015211Z`, `092b661r1-20260904T015426Z`, and
+  `092b662r1-20260904T023545Z`. Each provider execution completed 18/18 tasks
+  with zero failures, cancellations, and observed retries.
+- The reader exited zero, and the production stdout SHA-256 is
+  `df54444f637ea971b0311864e7bb564a294a5e5ff8400ec38c7e73ac105dfe01`,
+  byte-identical to the lab's committed first-read transcript. M2-M0 is
+  `+0.00137 [-0.00022,+0.00389]`, `UNPASSED_NEAR_MISS`; NP-M0 is
+  `-0.00240 [-0.00496,-0.00053]`, so the positive-NP void rule does not fire.
+  The machinery is informative, but M2 does not pass.
+- M2 reduced selected-roster contamination from `21.80%` to `19.76%` and
+  changed the selected book (`J=0.790`), while producing only `+0.128` raw
+  K80 points with mixed banks and mixed A5 prefixes. The treatment therefore
+  engaged but is not adopted. M2 closes at its frozen artifact/features/dose;
+  no same-panel reweighting or second artifact is authorized.
+- Full disposition:
+  `reports/2026-09-04-prereg064c-production-independent-review.md`. D6 and the
+  093 real-artifact smoke/freeze remain the next score-bearing path; 091
+  remains held. No scoring, policy, graph, paid-entry, or cloud state changed.
