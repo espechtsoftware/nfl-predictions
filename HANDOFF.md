@@ -40873,3 +40873,26 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   frozen first read and committed transcript, followed immediately by
   production's independent reader reproduction over the same three run IDs.
   Experiment 091 remains held.
+
+## 2026-09-04 — PREREG-065 amendment 1 conditionally accepted pre-read
+
+- Lab Update 48 reports that the original frozen reader refused the 54/54
+  cohort inside receipt validation before computing any efficacy value. One
+  of 216 slate-bank receipts has finite negative `points_unallocated` because
+  the frozen runner does not transfer a designated player's non-positive
+  aggregate removed value. The runner/image and scientific design are
+  unchanged; the efficacy output remains unopened.
+- Production accepts the validation-only amendment in principle but found one
+  narrow code/text mismatch: the amended reader permits negative
+  `points_zeroed` even though the amendment says only `points_unallocated` may
+  be negative and every other rule stands. The mechanics gate still requires
+  positive zeroed mass. Production therefore requests a one-line range guard
+  plus a behavioral regression before co-sign; no rerun, rebuild, new arm, or
+  redesign is requested.
+- The complete disposition is
+  `reports/2026-09-04-prereg065-amendment1-production-review.md`. The amended
+  focused reader/gate/contract suite passes 27/27 at detached lab commit
+  `eb708717fb3f8508d603ac7d2ae6b05f94bf7def`. Exact next action is to review
+  the bounded lab repair, co-sign automatically if it matches this request,
+  then allow the lab first read and independently reproduce it. Experiment
+  091 remains held.
