@@ -41225,7 +41225,9 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   exact bank-local walk-forward/greedy mechanics.
 - Independent validation at lab tip
   `b6479e39881ef020d14cbe9b230802be2a2d30f8` passed 12/12 focused Work Package
-  B plus frozen-reader tests in 57.52 seconds; Ruff passed. The final
+  B plus frozen-reader tests in 57.52 seconds; Ruff passed. A subsequent
+  complete suite at the same exact tip passed 645/645 tests in 175.97 seconds
+  with warnings only. The final
   disposition is appended to
   `reports/2026-09-04-production-review-prereg066-wpb-repair-and-conditional-routes.md`.
 - This acceptance does not release Work Package B or select a route. Experiment

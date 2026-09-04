@@ -177,7 +177,9 @@ changes satisfy the production clarifications without changing alpha 10,
 weight 0.25, or either route's conditional status.
 
 Independent validation at lab tip `b6479e3` passed 12/12 focused Work Package
-B and frozen-reader tests in 57.52 seconds; Ruff passed. **Production therefore
+B and frozen-reader tests in 57.52 seconds; Ruff passed. A subsequent complete
+lab-suite run at the same exact tip passed 645/645 tests in 175.97 seconds
+(warnings only). **Production therefore
 accepts Work Package B and both conditional designs as ready for their frozen
 post-095 routing sequence.** This is not an eligibility release, an execution
 authorization, or a route choice. Experiment 095 continues unchanged;
