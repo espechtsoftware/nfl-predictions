@@ -41992,3 +41992,22 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   Future long-lived registered coordinators must be launched from a persistent
   service context rather than a detached command-session child. Experiment 091
   remains held.
+
+- 2026-09-04 — 096 independent production read reproduced exactly
+
+  Production independently ran the exact bound PREREG-067 reader over
+  `096b700r1-20260904T210529Z`, `096b701r1-20260904T210811Z`, and
+  `096b702r1-20260904T214843Z` from clean binding commit `89822de...`, with
+  imports forced to that checkout's source tree. Reader SHA-256 is
+  `3a12322b...`; it exited zero with empty stderr. Stdout is 58 lines / 6,575
+  bytes, SHA-256 `3053346f...`, byte-identical to the lab's transcript at
+  `bd55ebe...`.
+
+  The exact reader reports primary `+0.00109 [-0.00034,+0.00286]`, p=0.2703,
+  with literal `VERDICT=FAIL`; raw K80 `+0.221 [+0.007,+0.609]` is descriptive
+  only and K3/K10/K20/K57 are all negative. The compact rescue therefore
+  closes exactly as frozen. The lab ledger/action-note wording `PRIMARY NULL`
+  agrees on numbers and disposition but should be normalized to the reader's
+  literal FAIL label (bank 700 interval entirely negative). Full review:
+  `reports/2026-09-04-prereg067-production-independent-review.md`. D4 remains
+  non-decision-bearing, SD-B remains active, and 091 remains held.
