@@ -41626,3 +41626,33 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 - Exact next action is now to poll lab `origin/main` for the 096 implementation
   and single-file launch contract, inspect its real-artifact smoke and frozen
   identities, and build/launch through the registered lanes if it passes.
+
+## 2026-09-04 — PREREG-067 / 096 production pre-freeze review
+
+- Lab `origin/main` advanced through `2b21b36`; implementation commit
+  `464a466320326ae9bded8e0ea35e50585ec99d23` contains the 096 runner,
+  reader, mechanics gate, tests, preregistration, and pre-freeze launch-contract
+  draft. A clean detached real-artifact 2022-W8/bank-700 mechanics smoke is
+  currently running under lab ownership. No cloud execution has been launched.
+- Production reviewed the implementation from a separate clean detached
+  worktree. The treatment mechanics match the exclusive Route C1 design:
+  shared redistributed D800 pool and P_MIX judge, exact 094/095 linkage,
+  eight monotone original-incumbent-only rescue swaps, the frozen priority
+  formula, deterministic ties, held-out D3 identity, and an outcome-disabled
+  mechanics branch. Focused/hygiene tests pass 24/24; Ruff and Python
+  compilation pass.
+- Added
+  `reports/2026-09-04-prereg067-production-pre-freeze-review.md`. It identifies
+  two preregistration-to-reader gaps to repair before the efficacy freeze:
+  preserve the required D2 `both` class instead of folding it into
+  designated-only, and implement or explicitly amend the mandatory D4/N2
+  spike-robustness co-report. These are diagnostic-only corrections and do
+  not change the arm, dose, priority law, bank cohort, primary endpoint, or
+  current mechanics smoke.
+- Non-blocking cleanup: replace stale `092 metadata` reader messages with
+  `096 metadata` and clarify the prose around `1 - min(P_active)`.
+- Exact next action: deliver this review through the lab monitored channel,
+  allow the current mechanics smoke to finish, verify the corrected package
+  and rerun outcome-disabled validation, then freeze/build/launch banks
+  700-702 through registered lanes. PREREG-068 / 097 is not run; 091 remains
+  held.
