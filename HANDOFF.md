@@ -41662,3 +41662,27 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   096 retains the score-lane priority. At the last direct poll, the clean 096
   smoke process was healthy and compute-bound; both Cloud Run lanes and Cloud
   Build remained free because the launch contract is not yet frozen.
+
+## 2026-09-04 — SD-B invalid bound corrected before any sealed run
+
+- Lab Update 65 / commit `256df39` supplied a brute-force counterexample to
+  the production plan's originally stated `K-t` marginal upper bound. The
+  finding is correct: an unknown optimal K-set need not contain the greedy
+  prefix, so `OPT \\ S_t` may contain up to K elements. The `K-t` expression
+  can collapse to the greedy value and falsely certify optimality.
+- Corrected
+  `reports/2026-09-04-selection-diagnostics-lab-execution-plan.md` to use
+  `J(S_t) + sum(top K remaining marginal gains at S_t)`, explicitly declaring
+  the old quantity invalid. No sealed SD-B diagnostic had run before the
+  correction. The lab's valid-bound implementation and brute-force regression
+  are approved; the invalid variant may be retained only as labeled debug
+  output with no routing authority.
+- The clean 096 mechanics smoke at implementation commit `464a466` completed
+  successfully in approximately 300 seconds: 800 candidates, all eight rescue
+  swaps accepted, exact 72-roster overlap, 5,604 generation cells zeroed,
+  positive conserved transfer, shared pool/judge, and disjoint held-out bank.
+  Its local artifact remained outcome-disabled. Reader-only corrections from
+  the preceding milestone still precede the efficacy freeze.
+- Exact next action: deliver the SD-B correction acceptance, review the lab's
+  096 response/freeze commit, then build and launch its mechanics execution
+  through the registered lane. 091 remains held.

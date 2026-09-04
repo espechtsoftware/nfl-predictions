@@ -4,6 +4,11 @@
 **Status:** production execution plan for lab implementation  
 **Source reviewed:** `../nfl2/reports/2026-09-04-selection-diagnostics-research.md` at lab commit `d6e4de3cdbb28f356ab0963388ad03d90d110e61`
 
+**Correction accepted 2026-09-04:** Lab Update 65 supplied a brute-force
+counterexample to the originally stated `K - t` marginal certificate. Section
+5 now uses the valid top-`K` submodular upper bound. No sealed diagnostic had
+run before this correction.
+
 ## 1. Objective
 
 Determine, quickly and quantitatively, which of these statements explains the
@@ -122,10 +127,16 @@ Reproduce the exact DEMAX greedy trace. At each greedy step `t`, compute the
 remaining candidates' marginal gains under the same objective. Use
 submodularity to construct an a-posteriori upper bound:
 
-`UB_t = J(S_t) + sum of the largest (K - t) remaining marginal gains at S_t`.
+`UB_t = J(S_t) + sum of the largest K remaining marginal gains at S_t`.
 
 The tightest valid `UB_t` across the trace bounds the best possible K80 book
-under the same matrix and objective. Record:
+under the same matrix and objective. The count is `K`, not `K - t`: an unknown
+optimal K-set need not contain the greedy prefix `S_t`, so `OPT \ S_t` may
+still contain as many as K elements. The previously drafted `K - t` variant
+is invalid and must never be used as a certificate; at `t = K - 1` it can
+collapse mechanically to the greedy value even when brute force proves a
+better book exists. Retain that invalid quantity only as a clearly labeled
+development/debug field if useful. Record:
 
 - greedy objective `J(S_K)`;
 - tightest upper bound and absolute/relative certificate gap;
