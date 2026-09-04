@@ -41449,3 +41449,20 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   independently reproduce only after that commit lands, and verify
   `tabpfn-gen-cpvtw` plus the target-table row/key contract at terminal.
   Experiment 091 remains held.
+
+## 2026-09-04 — No-outcome 095 terminal notice delivered to lab
+
+- Because lab `origin/main` remained at Update 61 after the registered cohort
+  closed, production sent the minimal operational notice through the existing
+  production-to-lab handoff channel. Lab commit
+  `efedabb` adds
+  `handoffs/PRODUCTION-TO-LAB-PREREG066-COHORT-TERMINAL-2026-09-04.md` and is
+  durable on lab `origin/main` and branch
+  `production/prereg066-cohort-terminal`.
+- The notice contains only exact run/execution identities, clean 18/18 counts,
+  frozen source/image/gate identity, the registered completion-receipt hash,
+  and the request for the lab's first read and sealing commit. Production did
+  not inspect or disclose any efficacy outcome.
+- Exact next action remains to poll lab `origin/main`; only after its committed
+  first-read seal may production reproduce the reader and adjudicate the
+  Work-Package-B release. Experiment 091 remains held.
