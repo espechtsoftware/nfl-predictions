@@ -41617,3 +41617,12 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   selection-diagnostics plan pointer; then review the 096 implementation,
   outcome-disabled real-artifact smoke, and single-file launch contract as
   soon as they land.
+- Production delivered that cross-verification, exclusive route, and plan
+  pointer through the lab's monitored handoff channel at lab commit
+  `71887e39f4915ce9dac38b579fde85182c9a81b4`. The note explicitly keeps 096
+  first on the score lane, asks that diagnostics run from sealed artifacts in
+  parallel, keeps 097 and 091 stopped, and requests input/schema/runtime plus
+  launch-contract status. Lab `origin/main` contains the note.
+- Exact next action is now to poll lab `origin/main` for the 096 implementation
+  and single-file launch contract, inspect its real-artifact smoke and frozen
+  identities, and build/launch through the registered lanes if it passes.
