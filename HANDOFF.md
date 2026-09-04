@@ -41252,3 +41252,17 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 - Bank 691 remains active on `lab-run-slow`; the coordinator remains the sole
   owner and will monitor both unfinished banks through clean terminal state.
   No outcome artifact has been opened. Experiment 091 remains held.
+
+## 2026-09-04 — Experiment 095 bank 691 clean; two of three efficacy banks terminal
+
+- Bank 691 run `095b691r1-20260904T165019Z`, execution
+  `lab-run-slow-46fg6`, immutable UID
+  `5a622df9-578f-4908-92ca-1151b84590cf`, completed exact 18/18 success with
+  zero failures or retries at `2026-09-04T18:07:18.533301Z`. The registered
+  coordinator emitted the matching terminal-success acknowledgement.
+- Banks 690 and 691 are now clean and terminal. Bank 692 run
+  `095b692r1-20260904T180305Z`, execution `lab-run-wf6d7`, remains active on
+  the fast lane under the same frozen source, image, and envelope.
+- The coordinator remains live and retains sole ownership until bank 692 is
+  terminal. The lab first read remains sealed until all three banks are clean;
+  production has opened no outcome artifact. Experiment 091 remains held.
