@@ -137,6 +137,32 @@ agent or developer:
   the lab action note for acknowledgement/results; no Cloud Run experiment
   lane is required for this input handoff.
 
+### 2026-09-03 live P_MIX certification implementation recovered
+
+- Isolated branch `codex/week1-pmix-live-certification` contains the already
+  committed Week-1 D800 paid/D400 shadow authority and create-once pair
+  operator, plus a recovered draft
+  `src/nfl_dfs/inference/week1_participation_mixture.py` and its focused tests.
+- The recovered draft ports PREREG-054's judge-only P_CTRL/P_MIX mechanics:
+  a timestamped raw designation/practice snapshot, the alpha-2
+  designation-by-practice P(active) law trained only on 2022-2025, per-world
+  Bernoulli zeroing in both incumbent and corrected-hsim selection banks,
+  identical D800 candidate supply, exact K80 selection, and A5 K3/K10/K20/K57
+  prefix receipts. It reads no outcomes and fails on stale, unknown, unmapped,
+  or candidate-inconsistent status inputs.
+- Recovery validation is 7/7 focused tests plus Python compilation and
+  whitespace checks. The first test attempt accidentally imported the old
+  editable main checkout; the corrected `PYTHONPATH=src` run is the valid
+  result. No cloud, BigQuery, GCS, paid entry, book, or lab state changed.
+- This is preserved development work, not a live certification. Remaining
+  P0 work is to bind the selection receipt to the exact adopted D800
+  candidate/book authority, publish the raw/derived snapshot, fitted map,
+  selection receipt, and rehearsal certificate create-once with exact reopen,
+  and execute one real candidate-only pre-lock rehearsal. Any failure retains
+  P_CTRL for paid entries. The next action is to commit/push this recovered
+  draft on its isolated branch, then complete those boundaries against current
+  production `origin/main` without changing the historical estimand.
+
 ### Active-session polling contract
 
 - At the start of every production working turn, fetch and inspect lab
