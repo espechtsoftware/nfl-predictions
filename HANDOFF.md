@@ -40806,3 +40806,34 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   retain the safe fallback. Do not lower the 30% gate or promote a component-
   imputation policy without a separate historical comparison. The frozen 094
   cohort and held 091 experiment were untouched.
+
+## 2026-09-04 — Week-1 prop completeness boundary released safely
+
+- Exact source `3161f8a98a525ea3fdba5f02f14ec3c2e69513e7` passed the
+  bounded live-image gate. Cloud Build
+  `32b4e739-15e1-4201-8e34-0bec77ecdbb8` completed SUCCESS at
+  `2026-09-04T11:39:04.102176Z`; tag `week1-live-3161f8a98a52`
+  resolves to immutable digest
+  `sha256:1a7cd6c5d87f4eb2a41427f6ef057dcd9df9e51881d34a4a1f138fe369b60818`.
+  All three build steps passed: live-boundary tests, image build, and image
+  smoke.
+- Only `project-slate` was repointed, preserving its command, environment,
+  service account, task count, resource envelope, retry, and timeout
+  contract. Generation 64 binds the immutable digest above. Canary
+  `project-slate-pp2s4` completed exact 1/1 success in 2m22s with zero retry.
+- The live receipt proves the intended fail-closed behavior: 7,891 raw Week-1
+  prop rows yielded 310 priced player-weeks, only 142 met the two-market
+  completeness rule, and 141/505 live skill rows matched. Because 27.9% is
+  below the unchanged 30% slate threshold, the entire projection retained
+  the disclosed DK-PPG fallback (`404/505`) and skipped `div_shadow`; no
+  partial anytime-TD value entered the live blend.
+- The authoritative append at `2026-09-04T11:42:19.751011Z` is atomic and
+  structurally valid: 537 rows / 537 distinct DK ids, 505 skill plus 32 DST,
+  zero unmapped skill rows, null team/opponent values, nonfinite projections,
+  or inverted quantiles. The previously rejected diagnostic batch remains
+  append-only evidence but is not the newest consumer batch.
+- The incomplete licensed feed remains a disclosed data limitation, not a
+  reason to lower the source gate or invent missing market components. A
+  future prop snapshot may activate the existing blend only after satisfying
+  the same completeness and slate-coverage rules. Experiment 094 and the
+  held 091 experiment were untouched.
