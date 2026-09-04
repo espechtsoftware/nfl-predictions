@@ -49,10 +49,33 @@ agent or developer:
   DraftKings and FanDuel, so the market half covers 36 development slates even
   though the paid-feature half covers 72 slates. The first real smoke used
   mutable warehouse identities and is not the release artifact.
-- Next action: commit this implementation, rerun from that exact commit, publish
-  the create-once 092a-market Parquet/manifest to the lab bucket, write the
-  defender-role field audit and release receipt, then push and notify the lab's
-  action-note channel with exact object identities.
+- Implementation commit is
+  `3ff68e3a2518f3e585c36385c162e04a3189adb5`. The create-once release Parquet
+  is `gs://nfl-2-506823-lab/inputs/prereg064/092a-market-20260903-3ff68e3a/prereg064_common_lock_market_extract.parquet`,
+  generation `1788481012223199`, bytes `1073811`, SHA-256
+  `59537232cbcaea8fe05de34d83ad4fbbd15c3d3996f75859c350821b1eed5131`.
+  Its root manifest is the sibling `manifest.json`, generation
+  `1788481014639648`, bytes `3432`, SHA-256
+  `a04676c12c97442b5a813ab0ae1ecea6929421371954bc25c13d24d44a438c14`.
+  Production independently reopened both exact generations and reproduced
+  both hashes.
+- The retained Fantasy Points/SIS schemas do not contain a named
+  receiver-to-defender pair. Fantasy Points supports receiver alignment and
+  man/zone context; SIS supports defender identity and Wide/Slot target
+  results but omits receiver identity. Current evidence therefore licenses
+  only separate team-scheme, derived WR-role concession, and
+  alignment-workload features—not vendor-role, shadow, target-pair, or
+  per-route assignment claims. Full disposition and machine-readable matrix:
+  `reports/2026-09-03-prereg064-market-extract-and-role-field-audit.md` and
+  `.csv`.
+- Historical bookmaker-level game-line snapshots are not available for this
+  panel: `nfl_raw.odds_snapshots` begins in 2026 and omits bookmaker, while
+  historical schedule lines lack source snapshot timestamps. Do not infer a
+  2023-2024 game-odds source leaderboard from this release.
+- Next action: push this branch and notify the lab action-note channel with
+  exact object and report identities. The lab can then reopen the artifacts
+  and run 092a-market immediately; no cloud experiment lane is required for
+  the input handoff.
 
 ### Active-session polling contract
 
