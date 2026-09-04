@@ -41327,3 +41327,23 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   selection law. Exact next action is deploy/launch the one-off job, verify
   terminal success, and prove unique 2026-W1 target keys before relying on the
   cache. Experiment 091 remains held.
+
+## 2026-09-04 — Week-1 TabPFN 8/32 retry active
+
+- The standing `tabpfn-gen` job was temporarily updated from generation 4 to
+  generation 5 with only its resource limits changed from 4 vCPU / 16 GiB to
+  8 vCPU / 32 GiB. Its immutable image, one L4 GPU, one task, zero-retry law,
+  one-hour timeout, environment, service account, and entrypoint remained
+  unchanged.
+- Execution `tabpfn-gen-9zh5p`, immutable UID
+  `1757f627-5138-4545-a95d-6db9e61127c4`, started at
+  `2026-09-04T18:45:48.045138Z`. Direct execution inspection proves exact
+  `TABPFN_UPCOMING=2026:1`, image digest
+  `sha256:474d3c463b9286f080ef9c377e5fca5ec4be7b9eae5f0f1a4ac51b28d21ab68c`,
+  8 vCPU / 32 GiB, one L4, 1/1 task/parallelism, zero retries, and the
+  production service account.
+- Exact next action is to monitor this one execution to terminal, verify the
+  target table and 2026-W1 uniqueness on success, then restore `tabpfn-gen` to
+  4 vCPU / 16 GiB regardless of outcome. No further signal-11 retry is
+  authorized. Experiment 095 bank 692 remains independently active and clean;
+  experiment 091 remains held.
