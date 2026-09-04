@@ -41164,3 +41164,23 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   Production co-signed the binary/phi support adaptation before the 095 read;
   lab commits `03b34e7` and `26ba113` align its implementation. Work Package B
   must remain sealed until the 095 first-read transcript exists.
+
+## 2026-09-04 — PREREG-066 Work Package B independently reviewed before outcomes
+
+- Production reviewed lab `main` commit `26ba113654cbf17fac9645b61cd42a1547f56360`
+  without opening any 095 outcome. The cohort, beneficiary flag, book-beat
+  target, exact-key settlement boundary, co-signed binary support rule,
+  bootstrap/sign-flip/LOSO machinery, and three-way routing are substantively
+  aligned with the adopted follow-up plan.
+- Independent validation passed 7/7 focused Work Package B and frozen-reader
+  tests; Ruff is clean.
+- Three bounded pre-execution repairs are required: prove the transcript is the
+  committed `HEAD` blob and pin all analysis identities; make the declared
+  one-run output create-once and require an immutable post-seal eligibility
+  release; route on raw rather than rounded statistics and add the promised
+  slate denominators.
+- Full findings and the exact requested disposition are in
+  `reports/2026-09-04-production-review-prereg066-work-package-b.md`. These
+  repairs do not affect or delay running experiment 095. Work Package B remains
+  sealed, experiment 091 remains held, and the live registered 095 coordinator
+  remains the sole owner of prefixes `095b690r1,095b691r1,095b692r1`.
