@@ -41893,3 +41893,28 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   efficacy lanes remain active. Exact next action is to keep polling 096;
   launch SD-B only after the 096 coordinator releases the shared lane. 091
   remains held.
+
+## 2026-09-04 — SD-A sealed interpretation received
+
+- Lab committed the annotated SD-A artifact and first read to lab
+  `origin/main` at commits `b053d5f` and `2e02d08`. Artifact
+  `results/selection_book_max_pit_v1.json` has SHA-256
+  `a782827750ac3d14deeb3609a188791198af28ebacedbc72cdeb0665f3a78884`,
+  retains the original matrix-generation source commit `8e0b6b84...` and
+  script SHA-256 `c9faab1a...`, and separately records the clean annotation
+  identity at `03117c6...`.
+- The read accounts for all 864 expected arm-cells as 860 valid plus the four
+  explicit 2021-W8/bank-690 exclusions. Its finding is broad,
+  threshold-growing optimism in the modeled book-maximum upper tail: realized
+  versus held-out-predicted exceedance is 0.144 versus 0.249 at 200 and 0.013
+  versus 0.066 at 220. The pattern is neither selection-dual-specific nor
+  arm-specific; it varies materially by season and does not discriminate
+  high-scoring slates reliably.
+- This is diagnostic/development-only and promotes no change. It makes
+  marginal/dependence calibration a live hypothesis, but routing still waits
+  for SD-B and SD-C to distinguish belief/ranking error from search failure
+  and to localize player/phenotype errors.
+- The registered 096 coordinator remains alive with banks 700 and 701 active;
+  bank 702 will launch after the first entire bank seals cleanly. SD-B remains
+  staged and must launch promptly after 096 releases the shared lane. 091
+  remains held.
