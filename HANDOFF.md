@@ -41268,3 +41268,29 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 - The coordinator remains live and retains sole ownership until bank 692 is
   terminal. The lab first read remains sealed until all three banks are clean;
   production has opened no outcome artifact. Experiment 091 remains held.
+
+## 2026-09-04 — Week-1 TabPFN marginal refresh launched in parallel
+
+- A broad production execution census found that the daily
+  `check-freshness-smh97` run failed at `2026-09-04T13:03:37Z` on four feeds:
+  the not-yet-published 2026 nflverse injury snapshot, the manual TabPFN
+  marginal/component caches, and the weather table. This was not a crashed
+  collector: nflverse and weather both completed cleanly, but nflreadpy still
+  reports season 2025 for injury data while its roster clock is 2026, and the
+  weather collector intentionally queries only games within four days. The
+  Sunday main slate is still nine days away.
+- The successful current feature build contains a complete 2026-W1 inference
+  frame of 905 unique players. Under the documented cadence to run the manual
+  GPU marginal job after a feature build, production launched an
+  execution-only `TABPFN_UPCOMING=2026:1` refresh; no job template, image,
+  feature contract, or scientific arm changed.
+- Execution `tabpfn-gen-xrvkj`, immutable UID
+  `9c5920c7-d1a7-48ad-b49e-e17865f90d37`, started at
+  `2026-09-04T18:30:50.037069Z` with one L4 task, 4 vCPU / 16 GiB, zero
+  retries, and the existing immutable image
+  `sha256:474d3c463b9286f080ef9c377e5fca5ec4be7b9eae5f0f1a4ac51b28d21ab68c`.
+  It runs in the production project and does not consume either 095 CPU lane.
+- Exact next action is to verify terminal success and that the refreshed
+  marginal table contains unique 2026-W1 keys. The component-cache refresh
+  remains a separate follow-on; injury and weather should be rechecked when
+  their upstream windows open. Experiment 091 remains held.
