@@ -40134,3 +40134,32 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   forms, and leaves the broader candidate-lineage/first-loss program open.
   No scoring, production policy, graph, paid-entry, or cloud state was changed
   by the review.
+
+## 2026-09-04 — Week-1 `us_dfs` capture deployed and populated
+
+- Production deployed the default-off bounded `us_dfs` collector from exact
+  source `3e1dd916bb118ee9e179acca19b5319aba49d12f`; Cloud Build
+  `00cae15f-ba06-4e0a-82bb-f3a97a4f662c` passed and published immutable image
+  digest `sha256:590dfe12b81b80a34cf3a449ab4fac1d827575ec45112cb590f2801326974ea3`.
+  Cloud Run job `ingest-us-dfs` generation 3 is zero-retry, and schedulers
+  `s-us-dfs` / `s-us-dfs-sun` are enabled in `America/Chicago` through the
+  final 16:30Z pre-lock snapshot.
+- The first attempt `ingest-us-dfs-6m7qq` failed before provider contact because
+  the direct deployment omitted `GCP_PROJECT`; the job was corrected to the
+  declarative contract. Execution `ingest-us-dfs-d9fqp` then completed 1/1
+  with zero retries and loaded 934 rows across all 12 eligible Week-1 games.
+- The redacted census found two platforms, five returned markets, 143 player
+  references, 416 multiplier rows, and 202 multi-platform quote groups; 110 of
+  those groups disagreed on the line. All 13 requests succeeded, cost 55
+  provider-reported credits, and left 99,721 credits. Full aggregate details
+  are in `reports/2026-09-04-us-dfs-week1-capture-implementation.md`; no player
+  or event identity is disclosed there.
+- The project was at its 1,000 Cloud Run job-definition quota. Production
+  verified and removed only the unscheduled, terminal-success one-off
+  `atlas-minimal-c-smoke-inj` definition from 2026-08-18 to create this job.
+  No active/scheduled experiment was touched. Longer-term stale-definition
+  retention is non-blocking future infrastructure work.
+- This remains collection-only. No model, projection, scoring, selector,
+  experiment, Neo4j graph, or paid-entry state changed. Next action is to give
+  the lab the aggregate D7 receipt while scheduled prospective capture
+  continues.

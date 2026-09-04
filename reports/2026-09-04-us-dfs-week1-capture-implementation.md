@@ -2,7 +2,7 @@
 
 Date: 2026-09-04 UTC
 
-Status: implemented and locally validated; deployment/capture receipt pending
+Status: deployed; first bounded Week-1 capture completed successfully
 
 ## Purpose
 
@@ -67,13 +67,73 @@ The scoped image build includes the runtime, raw-table contract, exact focused
 tests, and an offline disabled-command smoke. It does not include reports,
 large research artifacts, or a Git checkout.
 
+## Deployment and first-capture receipt
+
+- Exact source: `3e1dd916bb118ee9e179acca19b5319aba49d12f`.
+- Scoped Cloud Build: `00cae15f-ba06-4e0a-82bb-f3a97a4f662c`, `SUCCESS`.
+- Immutable image:
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:590dfe12b81b80a34cf3a449ab4fac1d827575ec45112cb590f2801326974ea3`.
+- Cloud Run job: `ingest-us-dfs`, generation 3, one task, 1 vCPU, 2 GiB,
+  900-second timeout, zero retries.
+- Schedulers: `s-us-dfs` and `s-us-dfs-sun`, both enabled in
+  `America/Chicago` with the schedules above.
+- Successful execution: `ingest-us-dfs-d9fqp`, one of one tasks successful,
+  zero failures and zero retries, completed at 2026-09-04T03:27:25Z.
+
+The first launch attempt, `ingest-us-dfs-6m7qq`, failed before making any
+provider request because the direct deployment command omitted `GCP_PROJECT`.
+The job was corrected in place to the declarative contract, then the single
+bounded capture was run once. This was a deployment configuration defect, not
+a provider or data failure, and it consumed no API credits.
+
+Creating the new job also encountered the project's 1,000-job-definition
+limit. Production verified that `atlas-minimal-c-smoke-inj` was an unscheduled,
+terminal-success, one-off smoke definition last used on 2026-08-18 and removed
+that job definition before creating `ingest-us-dfs`. Its historical execution
+logs and immutable image remain the reproducibility sources; no active or
+scheduled scientific job was removed.
+
+## Redacted first-capture findings
+
+The 2026-09-04T03:27:03Z snapshot contains:
+
+- 934 quote rows covering all 12 eligible Week-1 Sunday-afternoon games;
+- 143 distinct player references, two platforms, and five returned markets;
+- 416 rows with displayed multipliers and all 934 rows with a price value;
+- median market age 0.60 minutes, mean 0.63, and p95 1.82 at ingestion;
+- 13 successful provider requests (one event census plus 12 event requests),
+  no request errors, and 55 provider-reported credits consumed;
+- 99,721 credits remaining after the capture, safely above the 5,000 reserve.
+
+Returned market breadth was:
+
+| Market | Events | Players | Rows | Platforms |
+|---|---:|---:|---:|---:|
+| Passing yards | 12 | 24 | 96 | 2 |
+| Passing touchdowns | 7 | 9 | 22 | 2 |
+| Rushing yards | 12 | 54 | 204 | 2 |
+| Receiving yards | 12 | 118 | 460 | 2 |
+| Receptions | 12 | 60 | 152 | 2 |
+
+The requested anytime-touchdown market was absent in this snapshot. Of 265
+event/market/player quote groups, 202 appeared on both platforms and 110 of
+those multi-platform groups had different lines. The median nonzero line range
+was 1.0 and the mean was 1.627 in each market's native unit. These are raw
+coverage/disagreement facts, not evidence that either platform is more
+accurate or that a line should enter scoring.
+
+For licensing-safe coordination, platform identities are represented only as
+stable aliases. `P01` supplied 518 rows across 140 players and all five markets
+with no displayed-multiplier values. `P02` supplied 416 rows across 140 players
+and all five markets, with displayed multipliers on every row. No player or
+event identity is included in this report.
+
 ## Next actions
 
-1. Commit and push the exact implementation.
-2. Build the scoped collection image from that exact pushed source.
-3. Create the raw table, deploy only `ingest-us-dfs`, and create/update its two
-   schedulers without changing the existing odds/prop jobs.
-4. Run one bounded Week-1 capture, verify request cost and table row counts,
-   and publish a redacted coverage summary for the lab.
-5. Continue prospective snapshots; do not start a historical backfill or a
-   scoring experiment unless D7's already-frozen calibration gate licenses it.
+1. Give the lab this redacted schema/coverage receipt for its D7 work.
+2. Continue the prospective schedules and measure stability, additions,
+   removals, freshness, and cross-platform disagreement across snapshots.
+3. Join coverage to the Week-1 candidate universe only inside the governed
+   lineage path; missing platform rows remain explicit missingness, never zero.
+4. Do not start a historical backfill or change scoring/selection unless the
+   already-frozen D7 calibration gate licenses a later experiment.
