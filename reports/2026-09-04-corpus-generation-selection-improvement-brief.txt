@@ -1,4 +1,4 @@
-# Corpus generation and selection improvement brief
+# Corpus generation and selection improvement brief (plain-text sharing copy)
 
 Date: 2026-09-04 UTC
 

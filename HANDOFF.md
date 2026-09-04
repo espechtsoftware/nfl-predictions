@@ -41013,7 +41013,7 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 - A self-contained explanation of the generation-versus-selection situation,
   current baseline, experiment evidence, exact loss cohort, 095 decision path,
   and bounded beneficiary-rescue fallback is in
-  `reports/2026-09-04-corpus-generation-selection-improvement-brief.md`.
+  `reports/2026-09-04-corpus-generation-selection-improvement-brief.txt`.
 
 ## 2026-09-04 — First scheduled `us_dfs` capture succeeded
 
