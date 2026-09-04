@@ -2,9 +2,9 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# The scoped DK collection image is intentionally distinct from the
-# all-purpose application image.  It supports only the collection-only CFB
-# and NFL-contest jobs; both override the command explicitly at deployment.
+# The scoped collection image is intentionally distinct from the all-purpose
+# application image.  It supports only the bounded CFB, NFL-contest, and
+# us_dfs raw-collection jobs; each overrides the command at deployment.
 ARG SOURCE_COMMIT_SHA=invalid
 LABEL org.opencontainers.image.revision="${SOURCE_COMMIT_SHA}"
 ENV IMAGE_SOURCE_COMMIT_SHA="${SOURCE_COMMIT_SHA}"
@@ -21,6 +21,7 @@ COPY src ./src
 # cfb_job.py; no unrelated report or research artifact enters this image.
 COPY sql/raw/005_dk_contests.sql ./sql/raw/005_dk_contests.sql
 COPY sql/raw/006_cfb_dk_salaries.sql ./sql/raw/006_cfb_dk_salaries.sql
+COPY sql/raw/008_odds_api_shadow.sql ./sql/raw/008_odds_api_shadow.sql
 
 RUN pip install --no-cache-dir ".[gcp]"
 

@@ -22,6 +22,29 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-04 bounded `us_dfs` Week-1 capture implementation
+
+- Production implemented the lab-requested D7 prospective capture as a
+  separate, default-off `ingest-us-dfs` command and raw
+  `nfl_raw.prop_lines_us_dfs` table. It preserves platform/market/player/line,
+  quote timestamps, price, and displayed multiplier verbatim; capture grants
+  no model, scoring, selection, or historical-backfill authority.
+- The request population is the next regular-season domestic Sunday-afternoon
+  slate only. A fixed six-market bundle is refused unless the latest provider
+  quota header proves the request will preserve 5,000 credits. The declarative
+  Cloud Run job has zero retries. Schedules run once Wednesday-Saturday and
+  four times Sunday, ending 30 minutes before lock without overlapping.
+- The existing scoped collection-image gate now includes the new runtime,
+  table contract, exact test module, import/compile checks, and a disabled
+  command smoke. Validation is 11/11 collector tests, 4/4 scoped-image
+  contracts, and 4/4 deployment contracts plus import/F, compilation, shell,
+  and whitespace checks.
+- Full rationale and boundary:
+  `reports/2026-09-04-us-dfs-week1-capture-implementation.md`. Next action is
+  exact-source commit/build, isolated job/table/scheduler deployment, then one
+  bounded Week-1 capture and redacted lab coverage summary. Keep 091 held and
+  do not alter the active 092/D6/093 sequence.
+
 ### 2026-09-03 Week-1 A5 contest-capture repair
 
 - DraftKings now advertises the 2026 Week-1 Sunday-main draft group

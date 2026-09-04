@@ -37,6 +37,7 @@ steps:
           tests/test_cfb_job.py \
           tests/test_contest_job.py \
           tests/test_dk_client.py \
+          tests/test_oddsapi_import.py \
           tests/test_bq_load.py \
           tests/test_cfb_deployment_contract.py
 
@@ -49,7 +50,8 @@ steps:
           src/nfl_dfs/cli.py \
           src/nfl_dfs/ingest/cfb_job.py \
           src/nfl_dfs/ingest/contest_job.py \
-          src/nfl_dfs/ingest/dk_client.py
+          src/nfl_dfs/ingest/dk_client.py \
+          src/nfl_dfs/ingest/oddsapi_import.py
         bash -n deploy/deploy_jobs.sh
         bash -n scripts/build_cfb_collection_repair_image.sh
 
@@ -85,7 +87,7 @@ steps:
         # Import the exact runtime modules and verify both table contracts are
         # in the image.  This is offline and outcome-blind.
         docker run --rm "$$CFB_IMAGE" python -c \
-          'from pathlib import Path; from nfl_dfs import bq; from nfl_dfs.ingest import cfb_job, contest_job, dk_client; assert callable(cfb_job.run); assert callable(contest_job.run); assert callable(bq.load_dataframe); assert dk_client.CFB_SPORT_ID == 5; salary = Path("sql/raw/006_cfb_dk_salaries.sql").read_text(); contests = Path("sql/raw/005_dk_contests.sql").read_text(); assert "CLUSTER BY draft_group_id, dk_player_id" in salary; assert "CLUSTER BY draft_group_id, contest_id" in contests'
+          'from pathlib import Path; from nfl_dfs import bq; from nfl_dfs.ingest import cfb_job, contest_job, dk_client, oddsapi_import; assert callable(cfb_job.run); assert callable(contest_job.run); assert callable(oddsapi_import.run_us_dfs_live); assert callable(bq.load_dataframe); assert dk_client.CFB_SPORT_ID == 5; salary = Path("sql/raw/006_cfb_dk_salaries.sql").read_text(); contests = Path("sql/raw/005_dk_contests.sql").read_text(); us_dfs = Path("sql/raw/008_odds_api_shadow.sql").read_text(); assert "CLUSTER BY draft_group_id, dk_player_id" in salary; assert "CLUSTER BY draft_group_id, contest_id" in contests; assert "prop_lines_us_dfs" in us_dfs'
 
         # Prove the installed console entry point advertises and dispatches
         # ingest-cfb.  Leaving the enable flag empty exercises the real CLI
@@ -96,6 +98,8 @@ steps:
           "$$CFB_IMAGE" nfl-dfs ingest-cfb
         docker run --rm --env INGEST_CONTESTS_ENABLED= \
           "$$CFB_IMAGE" nfl-dfs ingest-contests
+        docker run --rm --env ODDS_US_DFS_ENABLED= \
+          "$$CFB_IMAGE" nfl-dfs ingest-us-dfs
 
 images:
   - ${_CFB_IMAGE}

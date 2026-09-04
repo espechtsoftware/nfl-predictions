@@ -15,6 +15,7 @@ FOCUSED_MODULES = (
     "tests/test_cfb_job.py",
     "tests/test_contest_job.py",
     "tests/test_dk_client.py",
+    "tests/test_oddsapi_import.py",
     "tests/test_bq_load.py",
     "tests/test_cfb_deployment_contract.py",
 )
@@ -34,7 +35,7 @@ def _script(step_id: str) -> str:
     return _step(step_id)["args"][-1]
 
 
-def test_validation_step_runs_exact_34_test_boundary() -> None:
+def test_validation_step_runs_exact_collection_test_boundary() -> None:
     script = _script("cfb-focused-validation")
 
     start = script.index("PYTHONPATH=src pytest \\")
@@ -66,11 +67,15 @@ def test_image_smoke_is_offline_and_checks_runtime_assets() -> None:
     assert "from nfl_dfs.ingest import cfb_job, contest_job, dk_client" in script
     assert "sql/raw/005_dk_contests.sql" in script
     assert "sql/raw/006_cfb_dk_salaries.sql" in script
+    assert "sql/raw/008_odds_api_shadow.sql" in script
     assert "nfl-dfs --help" in script
     assert "INGEST_CFB_ENABLED=" in script
     assert "nfl-dfs ingest-cfb" in script
     assert "INGEST_CONTESTS_ENABLED=" in script
     assert "nfl-dfs ingest-contests" in script
+    assert "oddsapi_import.run_us_dfs_live" in script
+    assert "ODDS_US_DFS_ENABLED=" in script
+    assert "nfl-dfs ingest-us-dfs" in script
 
 
 def test_exact_archive_excludes_unrelated_heavy_inputs() -> None:
@@ -84,4 +89,5 @@ def test_exact_archive_excludes_unrelated_heavy_inputs() -> None:
     assert 'build context unexpectedly contains reports' in source
     assert "COPY reports" not in dockerfile
     assert "COPY src ./src" in dockerfile
+    assert "sql/raw/008_odds_api_shadow.sql" in dockerfile
     assert 'CMD ["nfl-dfs", "ingest-cfb"]' in dockerfile

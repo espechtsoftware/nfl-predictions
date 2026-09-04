@@ -49,6 +49,16 @@ SHADOW_MARKET_KEYS = (
     "player_rush_reception_tds",
 )
 SHADOW_MARKETS = ",".join(SHADOW_MARKET_KEYS)
+US_DFS_TABLE = "prop_lines_us_dfs"
+US_DFS_MARKET_KEYS = (
+    "player_pass_yds",
+    "player_pass_tds",
+    "player_rush_yds",
+    "player_reception_yds",
+    "player_receptions",
+    "player_anytime_td",
+)
+US_DFS_MARKETS = ",".join(US_DFS_MARKET_KEYS)
 SNAPSHOT_BEFORE_H = 2   # hours before kickoff
 PAUSE_S = 0.35          # stay far under the per-minute rate limit
 
@@ -247,6 +257,18 @@ def _event_is_in_window(event: dict, first_day, last_day) -> bool:
     return pd.Timestamp(first_day).date() <= game_day <= pd.Timestamp(last_day).date()
 
 
+def _event_is_sunday_main(event: dict) -> bool:
+    """Return true for the domestic Sunday afternoon classic-slate window."""
+    try:
+        kickoff = pd.Timestamp(event["commence_time"])
+        if kickoff.tzinfo is None:
+            kickoff = kickoff.tz_localize("UTC")
+        local = kickoff.tz_convert("America/New_York")
+    except (KeyError, TypeError, ValueError):
+        return False
+    return local.weekday() == 6 and 12 <= local.hour < 19
+
+
 def _shadow_request_allowed(audit_rows: list[dict]) -> bool:
     """Fail closed unless the last response proves the reserve is protected."""
     if not settings.odds_shadow_markets_enabled or not audit_rows:
@@ -256,6 +278,54 @@ def _shadow_request_allowed(audit_rows: list[dict]) -> bool:
         return False
     estimated_cost = len(SHADOW_MARKET_KEYS)  # one region; provider formula
     return remaining - estimated_cost >= settings.odds_shadow_min_remaining
+
+
+def _us_dfs_request_allowed(audit_rows: list[dict]) -> bool:
+    """Fail closed unless one frozen us_dfs bundle preserves the reserve."""
+    if not settings.odds_us_dfs_enabled or not audit_rows:
+        return False
+    remaining = audit_rows[-1].get("requests_remaining")
+    if remaining is None:
+        return False
+    estimated_cost = len(US_DFS_MARKET_KEYS)  # one region; provider formula
+    return remaining - estimated_cost >= settings.odds_us_dfs_min_remaining
+
+
+def parse_us_dfs_event_odds(
+    payload: dict, season: int, week: int, snapshot_utc: str
+) -> list[dict]:
+    """Preserve raw us_dfs platform/market/outcome rows without inference."""
+    rows: list[dict] = []
+    for platform in payload.get("bookmakers") or []:
+        platform_id = platform.get("key")
+        if not platform_id:
+            raise ValueError("us_dfs bookmaker is missing its platform key")
+        for market in platform.get("markets") or []:
+            market_key = market.get("key")
+            if not market_key:
+                raise ValueError("us_dfs market is missing its key")
+            for outcome in market.get("outcomes") or []:
+                rows.append({
+                    "season": season,
+                    "week": week,
+                    "event_id": payload.get("id"),
+                    "commence_time": payload.get("commence_time"),
+                    "home_team": payload.get("home_team"),
+                    "away_team": payload.get("away_team"),
+                    "snapshot_utc": snapshot_utc,
+                    "platform": platform_id,
+                    "platform_title": platform.get("title"),
+                    "platform_last_update": platform.get("last_update"),
+                    "market": market_key,
+                    "market_last_update": market.get("last_update"),
+                    "outcome_name": outcome.get("name"),
+                    "player_ref": outcome.get("description") or outcome.get("name"),
+                    "line": outcome.get("point"),
+                    "price": outcome.get("price"),
+                    "displayed_multiplier": outcome.get("multiplier"),
+                    "pulled_at": datetime.now(timezone.utc),
+                })
+    return rows
 
 
 def _load_prop_rows(rows: list[dict], table: str) -> None:
@@ -382,6 +452,129 @@ def run_live() -> None:
     audit_rows: list[dict] = []
     try:
         _run_live(audit_rows)
+    finally:
+        persist_request_audits(audit_rows)
+
+
+def _run_us_dfs_live(audit_rows: list[dict]) -> None:
+    """Capture one bounded current-week us_dfs snapshot into an isolated table."""
+    from ..config import current_season
+
+    if not settings.odds_us_dfs_enabled:
+        log.info("ODDS_US_DFS_ENABLED is not set; skipping us_dfs capture")
+        return
+    if not settings.odds_api_key:
+        raise RuntimeError("ODDS_API_KEY is not set")
+    season = current_season()
+    sched = query_df(
+        f"""SELECT week AS wk, MIN(gameday) AS first_day,
+                   MAX(gameday) AS last_day
+            FROM `{settings.raw}.schedules`
+            WHERE season = {season}
+              AND game_type = 'REG'
+              AND gameday >= CAST(CURRENT_DATE() AS STRING)
+            GROUP BY week ORDER BY week LIMIT 1"""
+    )
+    if sched.empty or pd.isna(sched.wk.iloc[0]):
+        log.info("No upcoming regular-season week; skipping us_dfs capture")
+        return
+    week = int(sched.wk.iloc[0])
+    first_day = sched.first_day.iloc[0]
+    last_day = sched.last_day.iloc[0]
+    events = _get(
+        f"/sports/{SPORT}/events",
+        audit_rows=audit_rows,
+        request_kind="live_us_dfs_events",
+        is_shadow=True,
+        season=season,
+        week=week,
+    )
+    events = [
+        event
+        for event in (events or [])
+        if _event_is_in_window(event, first_day, last_day)
+        and _event_is_sunday_main(event)
+    ]
+    if not events:
+        log.info(
+            "No Odds API events in regular-season %s week %s window %s..%s",
+            season,
+            week,
+            first_day,
+            last_day,
+        )
+        return
+
+    snapshot_utc = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    rows: list[dict] = []
+    attempted_events = 0
+    for event in events:
+        if not _us_dfs_request_allowed(audit_rows):
+            log.warning(
+                "Stopping us_dfs capture before event %s: remaining=%s, "
+                "protected reserve=%s",
+                event.get("id"),
+                audit_rows[-1].get("requests_remaining") if audit_rows else None,
+                settings.odds_us_dfs_min_remaining,
+            )
+            break
+        time.sleep(PAUSE_S)
+        try:
+            odds = _get(
+                f"/sports/{SPORT}/events/{event['id']}/odds",
+                audit_rows=audit_rows,
+                request_kind="live_us_dfs_props",
+                is_shadow=True,
+                season=season,
+                week=week,
+                event_id=str(event["id"]),
+                regions="us_dfs",
+                markets=US_DFS_MARKETS,
+                oddsFormat="american",
+                includeMultipliers="true",
+            )
+        except OddsApiRequestError as exc:
+            log.warning(
+                "us_dfs prop pull failed %s (status=%s, error=%s)",
+                event.get("id"),
+                exc.status_code,
+                exc.error_type,
+            )
+            continue
+        attempted_events += 1
+        rows.extend(parse_us_dfs_event_odds(odds, season, week, snapshot_utc))
+
+    if rows:
+        frame = pd.DataFrame(rows)
+        for column in (
+            "commence_time",
+            "snapshot_utc",
+            "platform_last_update",
+            "market_last_update",
+            "pulled_at",
+        ):
+            frame[column] = pd.to_datetime(frame[column], utc=True)
+        load_dataframe(
+            frame,
+            f"{settings.raw}.{US_DFS_TABLE}",
+            write_disposition="WRITE_APPEND",
+            partition_field="pulled_at",
+            clustering_fields=("season", "week", "market", "platform"),
+        )
+    log.info(
+        "us_dfs capture: %d rows from %d/%d Week-%s events",
+        len(rows),
+        attempted_events,
+        len(events),
+        week,
+    )
+
+
+def run_us_dfs_live() -> None:
+    """Run one capture and always preserve its request/quota audit rows."""
+    audit_rows: list[dict] = []
+    try:
+        _run_us_dfs_live(audit_rows)
     finally:
         persist_request_audits(audit_rows)
 

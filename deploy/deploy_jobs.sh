@@ -57,6 +57,7 @@ job ingest-odds      ingest-odds     2Gi 1 "" "ODDS_API_KEY=odds-api-key:latest"
 # and stops before each paid request unless the provider-reported remaining
 # balance will preserve the 5,000-credit reserve.
 job ingest-props     ingest-props    2Gi 1 "ODDS_SHADOW_MARKETS_ENABLED=1|ODDS_SHADOW_MIN_REMAINING=5000" "ODDS_API_KEY=odds-api-key:latest"
+job ingest-us-dfs    ingest-us-dfs   2Gi 1 "ODDS_US_DFS_ENABLED=1|ODDS_US_DFS_MIN_REMAINING=5000" "ODDS_API_KEY=odds-api-key:latest" 900 0
 job ingest-weather   ingest-weather
 job ingest-cfb       ingest-cfb      2Gi 1 "INGEST_CFB_ENABLED=1" "" 3600 0
 # Public NFL lobby census used to freeze the Week-1 A5 contest identities and
@@ -172,6 +173,8 @@ sched s-contests    ingest-contests "0 10 * * 3-6"
 sched s-contests-sun ingest-contests "0 6-11 * * 7"
 sched s-odds        ingest-odds     "0 9,15 * * 3-7"
 sched s-props       ingest-props    "0 11 * * 4"
+sched s-us-dfs      ingest-us-dfs   "30 10 * * 3-6"
+sched s-us-dfs-sun  ingest-us-dfs   "30 6,8,10,11 * * 0"
 sched s-weather     ingest-weather  "0 6,12,18 * * 5,6,0"
 sched s-score       score-entries   "0 8 * * 2"
 sched s-trends      trends-alerts   "15 8 * * 2"

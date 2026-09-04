@@ -47,3 +47,28 @@ CREATE TABLE IF NOT EXISTS `${raw}.prop_lines_shadow` (
 )
 PARTITION BY DATE(pulled_at)
 CLUSTER BY season, week, market, bookmaker;
+
+-- Raw pick'em/DFS-platform observations from the provider's ``us_dfs``
+-- region.  Capture does not license these fields for scoring or selection.
+CREATE TABLE IF NOT EXISTS `${raw}.prop_lines_us_dfs` (
+  season INT64,
+  week INT64,
+  event_id STRING,
+  commence_time TIMESTAMP,
+  home_team STRING,
+  away_team STRING,
+  snapshot_utc TIMESTAMP,
+  platform STRING,
+  platform_title STRING,
+  platform_last_update TIMESTAMP,
+  market STRING,
+  market_last_update TIMESTAMP,
+  outcome_name STRING,
+  player_ref STRING,
+  line FLOAT64,
+  price FLOAT64,
+  displayed_multiplier FLOAT64,
+  pulled_at TIMESTAMP
+)
+PARTITION BY DATE(pulled_at)
+CLUSTER BY season, week, market, platform;

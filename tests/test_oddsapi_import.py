@@ -27,6 +27,31 @@ def _event(event_id, commence_time, market):
     }
 
 
+def _us_dfs_event(event_id="regular"):
+    return {
+        "id": event_id,
+        "commence_time": "2026-09-13T17:00:00Z",
+        "home_team": "Chicago Bears",
+        "away_team": "Detroit Lions",
+        "bookmakers": [{
+            "key": "prizepicks",
+            "title": "PrizePicks",
+            "last_update": "2026-09-03T19:00:00Z",
+            "markets": [{
+                "key": "player_reception_yds",
+                "last_update": "2026-09-03T18:59:00Z",
+                "outcomes": [{
+                    "name": "Over",
+                    "description": "Player One",
+                    "price": -119,
+                    "point": 64.5,
+                    "multiplier": 1.5,
+                }],
+            }],
+        }],
+    }
+
+
 def test_event_window_uses_nfl_local_date():
     # This is Monday in UTC but still the Sunday main slate in the US.
     event = {"commence_time": "2026-09-14T00:20:00Z"}
@@ -37,6 +62,18 @@ def test_event_window_uses_nfl_local_date():
         {"commence_time": "2026-08-09T17:00:00Z"},
         "2026-09-10", "2026-09-14",
     )
+
+
+def test_us_dfs_sunday_main_window_excludes_primetime():
+    assert oddsapi_import._event_is_sunday_main({
+        "commence_time": "2026-09-13T17:00:00Z",
+    })
+    assert not oddsapi_import._event_is_sunday_main({
+        "commence_time": "2026-09-14T00:20:00Z",
+    })
+    assert not oddsapi_import._event_is_sunday_main({
+        "commence_time": "2026-09-11T00:20:00Z",
+    })
 
 
 def test_shadow_guard_requires_header_and_protects_reserve(monkeypatch):
@@ -60,6 +97,128 @@ def test_shadow_guard_requires_header_and_protects_reserve(monkeypatch):
     assert not oddsapi_import._shadow_request_allowed([
         {"requests_remaining": 4999 + cost}
     ])
+
+
+def test_us_dfs_guard_requires_enable_header_and_protected_reserve(monkeypatch):
+    monkeypatch.setattr(
+        oddsapi_import,
+        "settings",
+        replace(
+            settings,
+            odds_us_dfs_enabled=True,
+            odds_us_dfs_min_remaining=5000,
+        ),
+    )
+    cost = len(oddsapi_import.US_DFS_MARKET_KEYS)
+    assert not oddsapi_import._us_dfs_request_allowed([])
+    assert not oddsapi_import._us_dfs_request_allowed([
+        {"requests_remaining": None}
+    ])
+    assert oddsapi_import._us_dfs_request_allowed([
+        {"requests_remaining": 5000 + cost}
+    ])
+    assert not oddsapi_import._us_dfs_request_allowed([
+        {"requests_remaining": 4999 + cost}
+    ])
+
+
+def test_us_dfs_parser_preserves_platform_line_and_multiplier():
+    rows = oddsapi_import.parse_us_dfs_event_odds(
+        _us_dfs_event(), 2026, 1, "2026-09-03T19:01:00Z"
+    )
+
+    assert len(rows) == 1
+    row = rows[0]
+    assert row["platform"] == "prizepicks"
+    assert row["market"] == "player_reception_yds"
+    assert row["player_ref"] == "Player One"
+    assert row["outcome_name"] == "Over"
+    assert row["line"] == 64.5
+    assert row["displayed_multiplier"] == 1.5
+    assert row["market_last_update"] == "2026-09-03T18:59:00Z"
+
+
+def test_us_dfs_live_capture_isolated_and_quota_guarded(monkeypatch):
+    monkeypatch.setattr(
+        oddsapi_import,
+        "settings",
+        replace(
+            settings,
+            odds_api_key="set",
+            odds_us_dfs_enabled=True,
+            odds_us_dfs_min_remaining=5000,
+        ),
+    )
+    monkeypatch.setattr(oddsapi_import.time, "sleep", lambda _: None)
+    monkeypatch.setattr(
+        oddsapi_import,
+        "query_df",
+        lambda _: pd.DataFrame([{
+            "wk": 1, "first_day": "2026-09-10", "last_day": "2026-09-14",
+        }]),
+    )
+    calls = []
+
+    def fake_get(path, *, audit_rows, request_kind, **kwargs):
+        calls.append((path, request_kind, kwargs))
+        if request_kind == "live_us_dfs_events":
+            audit_rows.append({"requests_remaining": 6000})
+            return [
+                _event("preseason", "2026-08-09T17:00:00Z", "ignored"),
+                _us_dfs_event(),
+            ]
+        audit_rows.append({"requests_remaining": 5994})
+        return _us_dfs_event()
+
+    monkeypatch.setattr(oddsapi_import, "_get", fake_get)
+    loaded = []
+    monkeypatch.setattr(
+        oddsapi_import,
+        "load_dataframe",
+        lambda df, table, **kwargs: loaded.append((df, table, kwargs)),
+    )
+
+    oddsapi_import._run_us_dfs_live([])
+
+    assert [kind for _, kind, _ in calls] == [
+        "live_us_dfs_events", "live_us_dfs_props",
+    ]
+    paid = calls[1]
+    assert "preseason" not in paid[0]
+    assert paid[2]["regions"] == "us_dfs"
+    assert paid[2]["markets"] == oddsapi_import.US_DFS_MARKETS
+    assert paid[2]["includeMultipliers"] == "true"
+    assert "bookmakers" not in paid[2]
+    assert len(loaded) == 1
+    frame, table, options = loaded[0]
+    assert table.endswith(".prop_lines_us_dfs")
+    assert set(frame.platform) == {"prizepicks"}
+    assert options["partition_field"] == "pulled_at"
+    assert options["clustering_fields"] == (
+        "season", "week", "market", "platform",
+    )
+
+
+def test_us_dfs_live_disabled_makes_no_query_or_api_request(monkeypatch):
+    monkeypatch.setattr(
+        oddsapi_import,
+        "settings",
+        replace(settings, odds_us_dfs_enabled=False),
+    )
+    monkeypatch.setattr(
+        oddsapi_import,
+        "query_df",
+        lambda _: (_ for _ in ()).throw(AssertionError("must not query")),
+    )
+    monkeypatch.setattr(
+        oddsapi_import,
+        "_get",
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            AssertionError("must not call the API")
+        ),
+    )
+
+    oddsapi_import._run_us_dfs_live([])
 
 
 def test_live_shadow_isolated_and_preseason_event_filtered(monkeypatch):

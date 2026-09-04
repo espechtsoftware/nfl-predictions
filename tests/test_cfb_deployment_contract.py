@@ -74,3 +74,26 @@ def test_nfl_contest_capture_is_declarative_and_nonretrying() -> None:
         source,
         flags=re.MULTILINE,
     )
+
+
+def test_us_dfs_capture_is_isolated_nonretrying_and_prelock() -> None:
+    source = DEPLOY.read_text(encoding="utf-8")
+
+    assert re.search(
+        r'^job\s+ingest-us-dfs\s+ingest-us-dfs\s+2Gi\s+1\s+'
+        r'"ODDS_US_DFS_ENABLED=1\|ODDS_US_DFS_MIN_REMAINING=5000"\s+'
+        r'"ODDS_API_KEY=odds-api-key:latest"\s+900\s+0$',
+        source,
+        flags=re.MULTILINE,
+    )
+    assert re.search(
+        r'^sched\s+s-us-dfs\s+ingest-us-dfs\s+"30 10 \* \* 3-6"$',
+        source,
+        flags=re.MULTILINE,
+    )
+    assert re.search(
+        r'^sched\s+s-us-dfs-sun\s+ingest-us-dfs\s+'
+        r'"30 6,8,10,11 \* \* 0"$',
+        source,
+        flags=re.MULTILINE,
+    )

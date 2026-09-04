@@ -78,6 +78,17 @@ class Settings:
             os.environ.get("ODDS_SHADOW_MIN_REMAINING", "5000")
         )
     )
+    # Pick'em/DFS platform lines from The Odds API's ``us_dfs`` region.
+    # This is a separate, raw, collection-only feed.  It is never blended
+    # into projections merely because capture is enabled.
+    odds_us_dfs_enabled: bool = field(
+        default_factory=lambda: _env_bool("ODDS_US_DFS_ENABLED")
+    )
+    odds_us_dfs_min_remaining: int = field(
+        default_factory=lambda: int(
+            os.environ.get("ODDS_US_DFS_MIN_REMAINING", "5000")
+        )
+    )
     # SportsDataIO DiscoveryLab key (ingest/discoverylab_import.py); lives
     # in .env. Empty = importer unavailable.
     sportsdata_api_key: str = field(

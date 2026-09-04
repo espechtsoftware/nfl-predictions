@@ -49,6 +49,10 @@ def main(argv: list[str] | None = None) -> None:
                    help="Score last week's entered lineups vs actuals")
     sub.add_parser("ingest-props", help="Snapshot live prop lines (in-season)")
     sub.add_parser(
+        "ingest-us-dfs",
+        help="Capture current-week pick'em/DFS platform lines (raw, isolated)",
+    )
+    sub.add_parser(
         "check-odds-quota",
         help="Record Odds API quota via the provider's free sports endpoint",
     )
@@ -1025,9 +1029,9 @@ def main(argv: list[str] | None = None) -> None:
         showdown_replay.run(season=args.season, n_entries=args.entries,
                             days=args.days)
     elif args.command == "score-entries":
-        from .config import current_season
         from . import notes as _n
         from .bq import query_df as _q
+        from .config import current_season
         from .config import settings as _s
 
         season = current_season()
@@ -1039,6 +1043,10 @@ def main(argv: list[str] | None = None) -> None:
         from .ingest import oddsapi_import
 
         oddsapi_import.run_live()
+    elif args.command == "ingest-us-dfs":
+        from .ingest import oddsapi_import
+
+        oddsapi_import.run_us_dfs_live()
     elif args.command == "check-odds-quota":
         from .ingest import oddsapi_import
 

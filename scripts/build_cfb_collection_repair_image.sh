@@ -50,6 +50,7 @@ ARCHIVE_PATHS=(
   scripts/build_cfb_collection_repair_image.sh
   sql/raw/005_dk_contests.sql
   sql/raw/006_cfb_dk_salaries.sql
+  sql/raw/008_odds_api_shadow.sql
   src
   tests/test_bq_load.py
   tests/test_cfb_cloudbuild_contract.py
@@ -57,6 +58,7 @@ ARCHIVE_PATHS=(
   tests/test_cfb_job.py
   tests/test_contest_job.py
   tests/test_dk_client.py
+  tests/test_oddsapi_import.py
 )
 for relative_path in "${ARCHIVE_PATHS[@]}"; do
   git -C "$SOURCE_ROOT" cat-file -e "${CODE_SHA}:${relative_path}" || \
@@ -97,7 +99,8 @@ tar -xf "$ARCHIVE" -C "$CONTEXT"
     tests/test_cfb_deployment_contract.py \
     tests/test_cfb_job.py \
     tests/test_contest_job.py \
-    tests/test_dk_client.py | sort)" ]] || \
+    tests/test_dk_client.py \
+    tests/test_oddsapi_import.py | sort)" ]] || \
   die "build context test set differs from the exact CFB allowlist"
 
 # Refresh and recheck the remote-tracking authority immediately before upload.
