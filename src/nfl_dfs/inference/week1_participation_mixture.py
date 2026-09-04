@@ -497,6 +497,18 @@ def build_participation_selection_v1(
     lineups = [_lineup_id(item, label="candidate lineup ID") for item in lineup_ids]
     if len(lineups) != len(rosters) or len(lineups) != len(set(lineups)):
         _fail("candidate lineup identities must be unique and roster-aligned")
+    retained_rosters: list[list[str]] = []
+    for ordinal, raw_roster in enumerate(rosters):
+        roster = [
+            _player_id(item, label=f"candidate roster[{ordinal}] player ID")
+            for item in raw_roster
+        ]
+        if len(roster) != 9 or len(set(roster)) != 9:
+            _fail("every candidate roster must contain nine unique players")
+        expected_lineup_id = f"lineup-v1-{canonical_sha256(sorted(roster))}"
+        if lineups[ordinal] != expected_lineup_id:
+            _fail("candidate lineup ID does not bind its player membership")
+        retained_rosters.append(roster)
     if type(mixture_seed) is not int or mixture_seed < 0:
         _fail("mixture seed must be a nonnegative integer")
     validated_snapshot = validate_prelock_snapshot_v1(snapshot, player_ids=players)
@@ -520,7 +532,7 @@ def build_participation_selection_v1(
     for index, row in enumerate(validated_snapshot["rows"]):
         status = row["injury_status"]
         if status == "Out":
-            if any(players[index] in roster for roster in rosters):
+            if any(players[index] in roster for roster in retained_rosters):
                 _fail("candidate supply contains a player designated Out")
             continue
         if status not in {"Questionable", "Doubtful"}:
@@ -555,16 +567,20 @@ def build_participation_selection_v1(
         })
 
     control_incumbent = _candidate_matrix(
-        player_scores=incumbent, player_ids=players, rosters=rosters
+        player_scores=incumbent, player_ids=players, rosters=retained_rosters
     )
     control_corrected = _candidate_matrix(
-        player_scores=corrected, player_ids=players, rosters=rosters
+        player_scores=corrected, player_ids=players, rosters=retained_rosters
     )
     mixed_incumbent_totals = _candidate_matrix(
-        player_scores=mixed_incumbent, player_ids=players, rosters=rosters
+        player_scores=mixed_incumbent,
+        player_ids=players,
+        rosters=retained_rosters,
     )
     mixed_corrected_totals = _candidate_matrix(
-        player_scores=mixed_corrected, player_ids=players, rosters=rosters
+        player_scores=mixed_corrected,
+        player_ids=players,
+        rosters=retained_rosters,
     )
     control_scores = np.concatenate([control_incumbent, control_corrected], axis=1)
     mixed_scores = np.concatenate(
@@ -584,7 +600,7 @@ def build_participation_selection_v1(
         "exact_k": EXACT_K,
         "candidate_count": len(lineups),
         "candidate_ids_sha256": canonical_sha256(lineups),
-        "candidate_rosters_sha256": canonical_sha256([list(row) for row in rosters]),
+        "candidate_rosters_sha256": canonical_sha256(retained_rosters),
         "snapshot_sha256": validated_snapshot["snapshot_sha256"],
         "participation_map_sha256": validated_map["map_sha256"],
         "mixture_seed": mixture_seed,

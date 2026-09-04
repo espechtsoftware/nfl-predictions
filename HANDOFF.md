@@ -218,6 +218,14 @@ agent or developer:
   P_CTRL for paid entries. The next action is to commit/push this recovered
   draft on its isolated branch, then complete those boundaries against current
   production `origin/main` without changing the historical estimand.
+- Candidate authority is now stronger: every supplied `lineup-v1` identifier
+  must equal the canonical SHA-256 of its exact nine-player roster membership;
+  duplicate players, non-nine-player rosters, and ID/roster mismatches fail
+  before any selection. The selector thereafter operates only on the retained
+  validated rosters, and its roster-set digest binds that same normalized
+  membership. The focused suite is 8/8, including duplicate-ID and forged-ID
+  failures. This is an identity-boundary repair only; it changes no score,
+  probability, arm, seed, candidate supply, or selection law.
 
 ### Active-session polling contract
 

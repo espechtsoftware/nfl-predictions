@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import hashlib
-
 import numpy as np
 import pytest
 
+from nfl_dfs.inference.generation_exposure import canonical_sha256
 from nfl_dfs.inference import week1_participation_mixture as pmix
 
 
@@ -21,7 +20,7 @@ def _rosters(players: list[str]) -> list[list[str]]:
 
 def _lineup_ids(rosters: list[list[str]]) -> list[str]:
     return [
-        "lineup-v1-" + hashlib.sha256("|".join(sorted(roster)).encode()).hexdigest()
+        "lineup-v1-" + canonical_sha256(sorted(roster))
         for roster in rosters
     ]
 
@@ -215,4 +214,24 @@ def test_out_player_in_candidate_supply_fails_closed() -> None:
     inputs = _selection_inputs()
     inputs["snapshot"] = _snapshot(inputs["player_ids"], status="Out")
     with pytest.raises(pmix.Week1ParticipationMixtureError, match="designated Out"):
+        pmix.build_participation_selection_v1(**inputs)
+
+
+def test_candidate_lineup_id_must_bind_exact_roster_membership() -> None:
+    inputs = _selection_inputs()
+    inputs["lineup_ids"] = list(inputs["lineup_ids"])
+    inputs["lineup_ids"][0] = inputs["lineup_ids"][1]
+    with pytest.raises(
+        pmix.Week1ParticipationMixtureError,
+        match="lineup identities must be unique",
+    ):
+        pmix.build_participation_selection_v1(**inputs)
+
+    inputs = _selection_inputs()
+    inputs["lineup_ids"] = list(inputs["lineup_ids"])
+    inputs["lineup_ids"][0] = "lineup-v1-" + "f" * 64
+    with pytest.raises(
+        pmix.Week1ParticipationMixtureError,
+        match="does not bind its player membership",
+    ):
         pmix.build_participation_selection_v1(**inputs)
