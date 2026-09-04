@@ -40163,3 +40163,26 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   experiment, Neo4j graph, or paid-entry state changed. Next action is to give
   the lab the aggregate D7 receipt while scheduled prospective capture
   continues.
+
+## 2026-09-04 — PREREG-056 / experiment 087 independently reproduced
+
+- Production reran the exact frozen PREREG-056 reader from lab source
+  `57ebcfd76ceb29cf71c4097f359ccd6d2125aa16` against revision-2 runs
+  `087b610r2-20260902T171112Z`, `087b611r2-20260902T171342Z`, and
+  `087b612r2-20260902T175550Z`. Provider state confirms 18/18 success for
+  every execution with zero failures, cancellations, and observed retries.
+- The independent reader exited zero and reproduced every reported result:
+  D8_WEMAX-D8_DEMAX is `+0.00022 [-0.00307,+0.00507]`, `p=0.9136`, verdict
+  `UNPASSED_NEAR_MISS`; raw K80 maximum change is `+0.251` points. D8_WEMAX
+  reshaped the book (`J=0.664`) but did not clear the adoption gate, and all
+  smaller raw prefixes were negative. D8_DEMAX therefore remains the selector.
+- The production stdout SHA-256 is
+  `a025fd17ea9a70aec8473ec9fc4168de2df67e46eff814b24673a4f4dbad512f`.
+  The lab ledger records a different original-output hash, `6ab96e62...`, but
+  the underlying lab transcript is not committed. Exact result reproduction
+  is established; byte-level transcript identity is not. This is a
+  non-blocking retention request, not a reason to rerun the cohort.
+- Full disposition:
+  `reports/2026-09-04-prereg056-production-independent-review.md`. No scoring,
+  policy, graph, paid-entry, or cloud state changed. D6/093 and the broader
+  candidate-lineage work remain in progress; 091 remains held.
