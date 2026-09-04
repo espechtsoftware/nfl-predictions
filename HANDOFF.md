@@ -40984,3 +40984,33 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   add behavioral tests. Implementation may continue, but smoke/freeze/build
   wait for those exact repairs. No outcome was opened and no cloud work was
   wasted.
+
+## 2026-09-04 — Experiment 094 added-candidate lineage reconstructed
+
+- Production performed a read-only descriptive reconstruction from the three
+  already opened and independently validated PREREG-065 runs. Within every
+  season/week/bank cell, canonical roster hashes partition the PG_REDIST and
+  PG_CTRL pools into exact added, displaced, and shared cohorts; frozen
+  settlements and candidate traces provide realized score, K80 selection, and
+  beneficiary-only labels. No experiment, verdict, or live policy changed.
+- Redistribution created 38,349 added roster instances and displaced 38,355.
+  The added cohort contains 131 >=200 candidates versus 68 in the displaced
+  cohort, exactly explaining the net +63 supply result. Added-minus-displaced
+  counts are +28 at 210, +9 at 220, and +1 at 230.
+- The useful additions are strongly localized: 103/131 added >=200 candidates,
+  48/59 added >=210, 18/21 added >=220, and all 6 added >=230 are
+  beneficiary-only. Incumbent DEMAX selected only 18/131 added >=200
+  candidates (13.7%), while control had selected 17/68 displaced >=200
+  candidates (25.0%). This gives experiment 095 a precise, hash-defined
+  first-loss cohort rather than an aggregate count alone.
+- Durable evidence and scope are in
+  `reports/2026-09-04-prereg065-redist-only-candidate-lineage.md`. Experiment
+  095 remains unchanged and its local clean-source mechanics smoke has
+  completed with both generation and retrieval engaged. Exact next action is
+  still to accept the lab's durable frozen contract after its smoke/full-suite
+  commit, then build once and run cloud mechanics before banks 690--692.
+  Experiment 091 remains held.
+- A self-contained explanation of the generation-versus-selection situation,
+  current baseline, experiment evidence, exact loss cohort, 095 decision path,
+  and bounded beneficiary-rescue fallback is in
+  `reports/2026-09-04-corpus-generation-selection-improvement-brief.md`.
