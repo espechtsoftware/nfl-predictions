@@ -22,6 +22,38 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-03 PREREG-064 corrected market-extract implementation
+
+- Isolated branch `codex/prereg064-market-extract` starts from production
+  `origin/main` `bc555c5ca2777451035afa2fd2f2142676a10e9b`. It implements the
+  production half of the lab's frozen PREREG-064/experiment-092 source
+  scoreboard without touching scoring, deployment, or any active experiment.
+- `src/nfl_dfs/analysis/prereg064_market_extract.py` builds a player/book/
+  market/line extract using the latest source row strictly before the earliest
+  domestic Sunday-main kickoff. It preserves per-side prices and timestamps,
+  flags alternate ladders, de-vigs complete two-way pairs, applies the existing
+  disclosed one-way anytime-TD hold law, resolves player identities only
+  against the frozen Sunday-main player snapshot, and attaches frozen
+  incumbent projections plus canonical realized components.
+- `scripts/export_prereg064_market_extract.py` reads the three named BigQuery
+  sources, verifies the frozen snapshot SHA-256, emits a deterministic Parquet
+  artifact and source/audit manifest, and can publish both create-only to GCS.
+  Outcome-bearing rows remain outside Git.
+- Validation: 10/10 focused extract and incumbent market tests pass; Python
+  compilation and `git diff --check` pass. A real 2023-2024 no-publication
+  smoke processed 188,927 raw rows, excluded 65,375 post-common-lock rows,
+  retained 119,659 pre-lock rows, and emitted 74,291 paired rows across all 36
+  available slates. All output rows are strictly pre-lock; 74,291 comparisons
+  between the frozen panel's DK actual and the training label are exact.
+- Source limitation: historical prop coverage begins in 2023 and contains only
+  DraftKings and FanDuel, so the market half covers 36 development slates even
+  though the paid-feature half covers 72 slates. The first real smoke used
+  mutable warehouse identities and is not the release artifact.
+- Next action: commit this implementation, rerun from that exact commit, publish
+  the create-once 092a-market Parquet/manifest to the lab bucket, write the
+  defender-role field audit and release receipt, then push and notify the lab's
+  action-note channel with exact object identities.
+
 ### Active-session polling contract
 
 - At the start of every production working turn, fetch and inspect lab
