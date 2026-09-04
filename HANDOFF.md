@@ -41030,3 +41030,25 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   manual census/canary. It does not change scoring or activate any market
   feature. Continue the scheduled snapshots for prospective coverage and
   calibration evidence.
+
+## 2026-09-04 — PREREG-066 / experiment 095 frozen after engaged smoke
+
+- Production confirmed the clean detached real-artifact 2022-W8/bank-690
+  smoke completed at implementation source
+  `79e2cd9959eea729464e76145acb8d6c34d272bb` in 592.6 seconds. It generated
+  exact 800-candidate CTRL and REDIST pools, zeroed 5,560 generation cells,
+  transferred all 56,539.469 removed points with 0.0 unallocated, and produced
+  CTRL/REDIST candidate Jaccard 0.948842875.
+- Both retrieval treatments engaged at exact K80: CTRL NOV/DEMAX overlap was
+  61/80 and REDIST NOV/DEMAX overlap was 63/80. Shared within-row count-match,
+  held-out +900/+981/+982 seed identities, mass conservation, and the
+  no-outcome boundary passed. The complete correct-source lab suite passed
+  616 tests with 1 skipped.
+- Production froze the already-approved contract without altering any arm,
+  endpoint, seed, ladder, K, transfer law, veto, or interpretation rule. Lab
+  main commit `d2da974` contains the frozen `PREREG-066.md`, frozen single-file
+  launch contract, and production acceptance note.
+- Exact next action is one immutable image build from `d2da974`, binding the
+  full source SHA and image digest, followed by registered cloud mechanics
+  run `095m690r1-` and independent gate reproduction. Efficacy banks 690--692
+  remain gated on that mechanics pass. Experiment 091 remains held.
