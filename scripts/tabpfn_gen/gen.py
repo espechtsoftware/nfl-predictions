@@ -8,11 +8,13 @@ Modes:
   player_week_inference (context = all prior TRAINING rows) and append
   them — this is what makes the lever live on Sundays. Run weekly.
 """
+import gc
 import hashlib
 import json
 import os
 import re
 import time
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -25,24 +27,34 @@ OUTPUT_TABLE = os.environ.get(
 CODE_SHA = os.environ.get("CODE_SHA", "").strip()
 PIT_OUTPUT_TABLE = "tabpfn_projections_pit_v2"
 OUTPUT_PREFIX = "TABPFN_GEN_JSON="
+UPCOMING_ONLY = os.environ.get("TABPFN_UPCOMING_ONLY", "").strip()
+UPCOMING = os.environ.get("TABPFN_UPCOMING", "").strip()
 QS = [0.01, 0.05, 0.10, 0.20, 0.30, 0.40, 0.50,
       0.60, 0.70, 0.80, 0.90, 0.95, 0.99]
 QCOLS = [f"q{int(q*100):02d}" for q in QS]
+OUTPUT_COLUMNS = ["season", "week", "gsis_id", "mean", *QCOLS]
 CTX_MAX = 28_000
 SEASONS = [2019, 2021, 2022, 2023, 2024, 2025]
 
 bq = bigquery.Client(project=PROJECT)
-feature_bytes = open("/app/features.txt", "rb").read()
+feature_bytes = Path("/app/features.txt").read_bytes()
 feats = feature_bytes.decode("utf-8").split()
 feature_sha = hashlib.sha256(feature_bytes).hexdigest()
 if OUTPUT_TABLE not in {"tabpfn_projections", PIT_OUTPUT_TABLE}:
     raise ValueError(f"unlicensed TABPFN_OUTPUT_TABLE={OUTPUT_TABLE!r}")
+if UPCOMING_ONLY not in {"", "0", "1"}:
+    raise ValueError("TABPFN_UPCOMING_ONLY must be empty, 0, or 1")
+if UPCOMING_ONLY == "1" and not UPCOMING:
+    raise ValueError("TABPFN_UPCOMING_ONLY=1 requires TABPFN_UPCOMING=season:week")
+if UPCOMING_ONLY == "1" and OUTPUT_TABLE != "tabpfn_projections":
+    raise ValueError("upcoming-only refresh is allowed only for the mutable live cache")
 if OUTPUT_TABLE == PIT_OUTPUT_TABLE:
     if not re.fullmatch(r"[0-9a-f]{7,40}", CODE_SHA):
         raise ValueError("PIT-clean canonical cache requires immutable CODE_SHA")
     forbidden = {
         "TABPFN_COMPONENTS": os.environ.get("TABPFN_COMPONENTS", ""),
-        "TABPFN_UPCOMING": os.environ.get("TABPFN_UPCOMING", ""),
+        "TABPFN_UPCOMING": UPCOMING,
+        "TABPFN_UPCOMING_ONLY": UPCOMING_ONLY,
         "TABPFN_SEASONS": os.environ.get("TABPFN_SEASONS", ""),
         "TABPFN_WRITE": os.environ.get("TABPFN_WRITE", ""),
     }
@@ -94,26 +106,100 @@ def fit_predict(tr, te):
                           random_state=7)
     reg.fit(tr[X_cols].to_numpy(np.float32),
             tr.y_dk_points.to_numpy(np.float32))
-    qs = reg.predict(te[X_cols].to_numpy(np.float32),
-                     output_type="quantiles", quantiles=QS)
-    mean = reg.predict(te[X_cols].to_numpy(np.float32))
-    f = te[["season", "week", "gsis_id"]].copy()
-    f["mean"] = np.asarray(mean, float)
-    for c, arr in zip(QCOLS, qs):
-        f[c] = np.maximum(np.asarray(arr, float), 0.0)
+    try:
+        qs = reg.predict(te[X_cols].to_numpy(np.float32),
+                         output_type="quantiles", quantiles=QS)
+        mean = reg.predict(te[X_cols].to_numpy(np.float32))
+        f = te[["season", "week", "gsis_id"]].copy()
+        f["mean"] = np.asarray(mean, float)
+        for c, arr in zip(QCOLS, qs):
+            f[c] = np.maximum(np.asarray(arr, float), 0.0)
+    finally:
+        # TabPFN/PyTorch retains native allocator state across repeated fits.
+        # Release it explicitly so a full walk-forward refresh does not grow
+        # until the container is terminated between adjacent seasons.
+        del reg
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
     return f
 
 
+def validate_output_frame(frame, label):
+    missing = set(OUTPUT_COLUMNS) - set(frame.columns)
+    if missing:
+        raise ValueError(f"{label} missing columns {sorted(missing)}")
+    if frame.empty:
+        raise ValueError(f"{label} is empty")
+    if frame[["season", "week", "gsis_id"]].isna().any().any():
+        raise ValueError(f"{label} contains null target keys")
+    if frame.duplicated(["season", "week", "gsis_id"]).any():
+        raise ValueError(f"{label} target keys are not unique")
+    values = frame[["mean", *QCOLS]].to_numpy(float)
+    if not np.isfinite(values).all():
+        raise ValueError(f"{label} contains non-finite predictions")
+    if np.any(np.diff(frame[QCOLS].to_numpy(float), axis=1) < -1e-8):
+        raise ValueError(f"{label} contains unordered quantiles")
+
+
+upcoming_target = None
+if UPCOMING:
+    if not re.fullmatch(r"\d{4}:\d{1,2}", UPCOMING):
+        raise ValueError("TABPFN_UPCOMING must have season:week form")
+    upcoming_target = tuple(int(x) for x in UPCOMING.split(":"))
+
 out = []
-for S in SEASONS:
-    tr = panel[(panel.season < S) & panel.y_dk_points.notna()]
-    te = panel[panel.season == S]
-    if tr.empty or te.empty:
-        print(f"skip {S}", flush=True)
-        continue
-    t0 = time.time()
-    out.append(fit_predict(tr, te))
-    print(f"season {S}: pred {len(te):,} ({time.time()-t0:.0f}s)", flush=True)
+base_cache = None
+if UPCOMING_ONLY == "1":
+    us, uw = upcoming_target
+    cache_table = f"{PROJECT}.nfl_features.{OUTPUT_TABLE}"
+    cache_meta = bq.get_table(cache_table)
+    if not cache_meta.etag or cache_meta.modified is None:
+        raise ValueError("existing live cache lacks immutable metadata")
+    schema_names = [field.name for field in cache_meta.schema]
+    if schema_names != OUTPUT_COLUMNS:
+        raise ValueError("existing live cache schema/order differs")
+    cached = bq.query(
+        f"SELECT {','.join(OUTPUT_COLUMNS)} FROM `{cache_table}`"
+    ).to_dataframe()
+    validate_output_frame(cached, "existing live cache")
+    missing_seasons = sorted(set(SEASONS) - set(cached.season.astype(int)))
+    if missing_seasons:
+        raise ValueError(
+            f"existing live cache lacks historical seasons {missing_seasons}"
+        )
+    base_checksum = int(bq.query(f"""
+        SELECT BIT_XOR(FARM_FINGERPRINT(TO_JSON_STRING(t))) AS checksum
+        FROM `{cache_table}` t
+    """).to_dataframe().iloc[0]["checksum"])
+    cached = cached[
+        ~(
+            cached.season.astype(int).eq(us)
+            & cached.week.astype(int).eq(uw)
+        )
+    ].copy()
+    out.append(cached)
+    base_cache = {
+        "table": cache_table,
+        "etag": cache_meta.etag,
+        "last_modified": cache_meta.modified.isoformat(),
+        "rows": int(cache_meta.num_rows),
+        "content_checksum": base_checksum,
+    }
+    print(
+        f"upcoming-only: preserving {len(cached):,} validated cache rows",
+        flush=True,
+    )
+else:
+    for S in SEASONS:
+        tr = panel[(panel.season < S) & panel.y_dk_points.notna()]
+        te = panel[panel.season == S]
+        if tr.empty or te.empty:
+            print(f"skip {S}", flush=True)
+            continue
+        t0 = time.time()
+        out.append(fit_predict(tr, te))
+        print(f"season {S}: pred {len(te):,} ({time.time()-t0:.0f}s)", flush=True)
 
 # TABPFN_COMPONENTS=1: instead of dk-points quantiles, generate
 # walk-forward per-COMPONENT means (the 11 component-model targets,
@@ -122,6 +208,8 @@ for S in SEASONS:
 # the work across executions (the 1h GPU task cap); TABPFN_WRITE=append
 # accumulates the second half.
 if os.environ.get("TABPFN_COMPONENTS", "") not in ("", "0"):
+    if UPCOMING_ONLY == "1":
+        raise ValueError("component mode cannot be combined with upcoming-only")
     seasons = [int(s) for s in os.environ.get(
         "TABPFN_SEASONS", ",".join(map(str, SEASONS))).split(",")]
     y = panel
@@ -167,6 +255,10 @@ if os.environ.get("TABPFN_COMPONENTS", "") not in ("", "0"):
                     label.to_numpy(np.float32))
             f[name] = np.asarray(
                 reg.predict(te[X_cols].to_numpy(np.float32)), float)
+            del reg
+            gc.collect()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
             print(f"comp {S}/{name}: ctx {len(rows):,} ({time.time()-t0:.0f}s)",
                   flush=True)
         frames.append(f)
@@ -180,9 +272,8 @@ if os.environ.get("TABPFN_COMPONENTS", "") not in ("", "0"):
           flush=True)
     raise SystemExit(0)
 
-up = os.environ.get("TABPFN_UPCOMING", "")
-if up:
-    us, uw = (int(x) for x in up.split(":"))
+if upcoming_target is not None:
+    us, uw = upcoming_target
     inf = bq.query(
         f"SELECT * FROM `{PROJECT}.nfl_features.player_week_inference` "
         f"WHERE season={us} AND week={uw}").to_dataframe()
@@ -198,13 +289,15 @@ if up:
 
 allf = pd.concat(out, ignore_index=True).drop_duplicates(
     ["season", "week", "gsis_id"], keep="last")
-if allf.duplicated(["season", "week", "gsis_id"]).any():
-    raise ValueError("TabPFN canonical cache target keys are not unique")
-values = allf[["mean", *QCOLS]].to_numpy(float)
-if not np.isfinite(values).all():
-    raise ValueError("TabPFN canonical cache contains non-finite predictions")
-if np.any(np.diff(allf[QCOLS].to_numpy(float), axis=1) < -1e-8):
-    raise ValueError("TabPFN canonical cache contains unordered quantiles")
+validate_output_frame(allf, "TabPFN canonical cache")
+if base_cache is not None:
+    current_cache_meta = bq.get_table(base_cache["table"])
+    if (
+        current_cache_meta.etag != base_cache["etag"]
+        or int(current_cache_meta.num_rows) != base_cache["rows"]
+        or current_cache_meta.modified.isoformat() != base_cache["last_modified"]
+    ):
+        raise ValueError("live cache changed after upcoming-only read")
 disposition = (bigquery.WriteDisposition.WRITE_EMPTY
                if OUTPUT_TABLE == PIT_OUTPUT_TABLE
                else bigquery.WriteDisposition.WRITE_TRUNCATE)
@@ -217,10 +310,13 @@ report = {
     "code_sha": CODE_SHA,
     "output_table": f"{PROJECT}.nfl_features.{OUTPUT_TABLE}",
     "write_disposition": str(disposition),
-    "output_rows": int(len(allf)),
+    "output_rows": len(allf),
     "unique_keys": int(
         allf[["season", "week", "gsis_id"]].drop_duplicates().shape[0]),
-    "target_seasons": SEASONS,
+    "target_seasons": [] if UPCOMING_ONLY == "1" else SEASONS,
+    "upcoming_target": list(upcoming_target) if upcoming_target else None,
+    "upcoming_only": UPCOMING_ONLY == "1",
+    "base_cache": base_cache,
     "context_law": "all-prior-nonnull-labels",
     "context_max": CTX_MAX,
     "random_seed": 7,
@@ -231,7 +327,7 @@ report = {
         "last_modified": source_meta.modified.isoformat(),
         "schema_sha256": source_schema_sha,
         "content_checksum": source_checksum,
-        "rows": int(len(panel)),
+        "rows": len(panel),
         "active_rows": int(panel.was_active.fillna(False).astype(bool).sum()),
         "inactive_rows": int((~panel.was_active.fillna(False).astype(bool)).sum()),
     },

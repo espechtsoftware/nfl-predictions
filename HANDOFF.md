@@ -41347,3 +41347,37 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   4 vCPU / 16 GiB regardless of outcome. No further signal-11 retry is
   authorized. Experiment 095 bank 692 remains independently active and clean;
   experiment 091 remains held.
+
+## 2026-09-04 — Week-1 TabPFN r2 void; upcoming-only repair implemented locally
+
+- Execution `tabpfn-gen-9zh5p` terminated at
+  `2026-09-04T18:56:54.522602Z` with the same provider signal 11 after
+  completing seasons 2019--2024. It is 0/1 failed with zero retries. The
+  larger host-memory envelope moved the failure one fit later but did not
+  repair the cumulative native-process failure; no third unchanged-image
+  retry is allowed.
+- Production immediately restored the standing `tabpfn-gen` job at generation
+  6 to its exact prior 4 vCPU / 16 GiB envelope. Direct inspection confirms
+  the prior immutable image, GCP-only default environment, one L4 GPU, one
+  task, zero retries, one-hour timeout, and production service account. The
+  target table remains unchanged at 65,455 rows with modification identity
+  `1786108014717`; r2 performed no partial publication.
+- The existing cache already contains unique keys for every frozen historical
+  season through 2025 (6,226 / 6,922 / 13,246 / 13,084 / 13,132 / 12,845
+  rows). Only the 905 unique 2026-W1 inference targets are absent. Production
+  therefore added a fail-closed `TABPFN_UPCOMING_ONLY=1` mode that validates
+  and preserves the existing cache, trains exactly one upcoming model on all
+  prior labeled rows, replaces only the requested season/week keys, validates
+  the combined key/finite/quantile contract, proves the base table did not
+  change during computation, and only then performs the standing atomic
+  truncate/load. It also explicitly releases Python/CUDA allocator state
+  between fits for future full refreshes.
+- Syntax compilation, Ruff, and 5/5 focused upcoming-only/canonical-PIT tests
+  pass. A broader 23-test selection had one unrelated pre-existing failure:
+  `test_manifest_matches_live_code` still expects the retired $49,000 salary
+  floor while the legality-only production default is $0.
+- Exact next action is commit this repair, build a fresh immutable
+  `tabpfn-gen` image, deploy it at the standing 4/16 envelope, and execute once
+  with `TABPFN_UPCOMING=2026:1,TABPFN_UPCOMING_ONLY=1` plus the exact source
+  commit. The old digest must not be retried. Experiment 095 bank 692 remains
+  active; experiment 091 remains held.
