@@ -40671,3 +40671,27 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   zero failure, cancellation, or retry. On exact success the coordinator will
   publish the create-once mechanics receipt; only then will production bind
   the reader and release banks 680--682.
+
+## 2026-09-04 — Experiment 094 mechanics passed; efficacy banks 680--681 active
+
+- Mechanics execution `lab-run-z7km5` completed 1/1 tasks successfully with
+  zero retries. The registered coordinator published create-once gate receipt
+  `gs://nfl-2-506823-lab/gates/PREREG-065/094m680r1-20260904T100350Z.json`
+  with SHA-256
+  `7ea3e08b5a33109727dbe8120465f71840afe4b57415bdb599492abf4393e04b`.
+  The exact frozen gate passed: all six arms used the shared judge, each arm
+  produced 800 candidates, redistribution zeroed 5,532 cells and transferred
+  57,444.103 points with zero unallocated mass, and both requested pool/book
+  contrasts engaged.
+- Production bound the exact reader to the frozen code, image digest, gate run,
+  and gate receipt. The reader SHA-256 is
+  `1d7eb3a1b614e29eb390fc6822cda0eabe3eab2f17a824e40ba0d47706f34060`;
+  the efficacy launch binding is durable on lab `main` at `cb2d394` and 41
+  focused contract/runtime/launch checks pass.
+- The registered efficacy coordinator owns lane `nfl2-lab-jobs`. Bank 680 is
+  run `094b680r1-20260904T103431Z` on execution `lab-run-l9cs7`; bank 681 is
+  run `094b681r1-20260904T103705Z` on execution `lab-run-slow-267jk`. Both
+  exact 2-vCPU / 8-GiB executions have all 18 tasks running with zero failure,
+  cancellation, or retry. Bank 682 remains held for automatic launch only
+  after both initial banks reach exact terminal success. The efficacy reader
+  remains unopened and experiment 091 remains held.
