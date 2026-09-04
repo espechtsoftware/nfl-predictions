@@ -72,10 +72,11 @@ agent or developer:
   panel: `nfl_raw.odds_snapshots` begins in 2026 and omits bookmaker, while
   historical schedule lines lack source snapshot timestamps. Do not infer a
   2023-2024 game-odds source leaderboard from this release.
-- Next action: push this branch and notify the lab action-note channel with
-  exact object and report identities. The lab can then reopen the artifacts
-  and run 092a-market immediately; no cloud experiment lane is required for
-  the input handoff.
+- The implementation and audit are pushed on
+  `origin/codex/prereg064-market-extract`. Next action is lab reopening of the
+  exact objects and immediate 092a-market execution. Production should poll
+  the lab action note for acknowledgement/results; no Cloud Run experiment
+  lane is required for this input handoff.
 
 ### Active-session polling contract
 
