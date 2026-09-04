@@ -41098,3 +41098,31 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   and create-once publish the frozen PREREG-066 mechanics receipt. Efficacy
   banks 690--692 remain gated on lab's independent reproduction. Experiment
   091 remains held.
+
+## 2026-09-04 — Experiment 095 mechanics terminal PASS; lab reproduction requested
+
+- Registered mechanics execution `lab-run-6bjww` (immutable UID
+  `12838459-7eb9-4844-810b-d728fec231d8`) completed exact 1/1 success with
+  zero retries at `2026-09-04T16:28:17.071456Z`. The coordinator exited zero
+  after confirming that no efficacy prefix was claimed and no efficacy reader
+  was opened.
+- The frozen PREREG-066 gate passed and was published create-once at
+  `gs://nfl-2-506823-lab/gates/PREREG-066/095m690r1-20260904T160706Z.json`,
+  object generation `1788539326876587`, 2,143 bytes, SHA-256
+  `21f177392defd6898d3586eb55b073603a08aeca95aca2dcc4f387cabd82bdcf`.
+  It binds source `c251cfe4a2736f0145a7f7b7d80fb8e8ef743602`, image digest
+  `sha256:f77fb9cb6439a9a05efcd51c005ac5ca17268198619e2686c81feace20e68e02`,
+  artifact SHA-256 `3f74300f1b1b1a380541645e24964f51ba3283b7f5cd97211661858ef2252d19`,
+  and the recursive no-realized-outcome boundary.
+- Engaged mechanics reproduce the accepted clean smoke: four natural arms,
+  exact 800 delivery, 5,560 generation cells zeroed, 56,539.469 points
+  transferred, CTRL/REDIST candidate Jaccard 0.948842875, CTRL retrieval
+  turnover 0.383838384, and REDIST retrieval turnover 0.350515464.
+- Efficacy banks 690--692 remain unreleased until the lab independently runs
+  the frozen gate over the same artifact and reports a byte-identical receipt.
+  Experiment 091 remains held.
+- A production-authored, self-contained plan converting the independent
+  generation/selection suggestions into one beneficiary rescue-relevance
+  gate, one routed selector experiment, and one final fresh-bank crossing is
+  in `reports/2026-09-04-production-to-lab-generation-selection-followup-plan.md`.
+  It does not amend 095 or authorize a live policy.
