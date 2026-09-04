@@ -42011,3 +42011,9 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   literal FAIL label (bank 700 interval entirely negative). Full review:
   `reports/2026-09-04-prereg067-production-independent-review.md`. D4 remains
   non-decision-bearing, SD-B remains active, and 091 remains held.
+
+  The cross-verification and terminology-only correction request were
+  delivered to the lab's monitored `main` as
+  `handoffs/PRODUCTION-TO-LAB-PREREG067-CROSS-VERIFICATION-2026-09-04.md`
+  at lab commit `634aa5d`. This unblocks the lab's post-read D4 sidecar; it
+  does not nominate another score-bearing experiment.
