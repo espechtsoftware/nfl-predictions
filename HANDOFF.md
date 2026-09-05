@@ -20,10 +20,78 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current science index -- 2026-09-02
+## Current science index -- 2026-09-03
 
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
+
+### 2026-09-05 selection-sweep and prop-odds-universe plan drafted
+
+- On production branch `main` at commit `9333502e` (the new local report
+  commit), added
+  `reports/2026-09-05-selection-sweep-and-prop-odds-universe-plan.md`. The
+  note gives the lab a narrow next-step plan for two separate historical
+  experiments: a conservative weak-player / weak-lineup pre-selection sweep,
+  and a prop-odds-only offensive universe arm with DST exempt.
+- The recommended order is to start with the prop-odds-only universe because
+  it is the cleanest and easiest to interpret, then test the weak-player /
+  weak-lineup sweep as a separate arm if the support census passes. Do not
+  merge the two mechanisms, and do not turn either one into a threshold grid
+  before the first simple read.
+- No executable code, cloud jobs, or selection policy changed in this step.
+  Next action is to share the plan with the lab and wait for a feasibility and
+  support response before any launch work.
+
+### 2026-09-03 selection-gap external research review and untried-intervention routing
+
+- On production branch `main` at starting commit
+  `cf0ab9284dd7637e631b3da15a024bafb9b58fd9` (35 commits behind
+  `origin/main` and with substantial pre-existing unrelated local changes),
+  reviewed the lab's requested state memo from the `../nfl2` Git object at
+  introducing commit `2f7d144ff64ca96a2e3e5e88ad220e4c063ab826`, blob
+  `779947d397c854d23917c4c9e4e6e71f4cbff76b`, and file SHA-256
+  `5c2d9484d72307e6a3c51f4466dafc9c012ca3b3986517bef8f8e16d5522dc48`.
+  The memo is absent from the sibling repository's current checked-out branch
+  but is present in its fetched `origin/main` history.
+- Added
+  `reports/2026-09-03-selection-gap-untried-overcoding-review.md`. The review
+  cross-checked the current queue and prior idea inventories, then proposed six
+  bounded interventions: roster-incidence/leverage-weighted KG5b with
+  correlation-preserving source controls; an outcome-open shock-equivalence
+  audit of apparent leverage regret; new `us_dfs` pick'em desk/multiplier
+  capture; covariate-conditioned extremal dependence at the role/team-game
+  unit; a one-slate decision-diagram/configuration-sampling feasibility spike;
+  and one-case-per-slate matched-winner retrieval challenges.
+- Recommended routing is unchanged work through 085 and PREREG-060; run the
+  shock-equivalence audit before a new KG5 spend; use KG5/KG5b only if the
+  exact D800 pool contains separable missed quality; route a barren-pool result
+  toward a new conditional law and only then a different supply engine. The
+  review explicitly rejects effective rank or independent-shot count as an
+  optimization target.
+- Validation: repository-wide Markdown/code searches found no prior
+  `us_dfs`/pick'em multiplier integration, conditional-extremes implementation,
+  or decision-diagram sampler in `nfl2`; related statistical-unit, player
+  residual, and feature-control ideas are disclosed rather than relabeled as
+  wholly new. A no-index Git whitespace check reports no error for the new
+  report, and `git diff --check` passes for this handoff change. No executable
+  code changed, no tests or cloud jobs were run, no cloud IDs were created,
+  and no production/lab state or policy was mutated.
+- Risks: every proposed score gain remains unproven; the historical panel is
+  development-only and already exposed; Model-X-style controls do not inherit
+  iid/FDR guarantees under NFL time/slate dependence; exact decision diagrams
+  may explode; and vendor DFS historical coverage, quota cost, PIT semantics,
+  and multiplier meaning require a census. Do not silently modify the frozen
+  PREREG-061/KG5 contract after a read—use a preread amendment or separately
+  named follow-up.
+- The exact next action, if the owner accepts the review, is to specify an
+  analysis-only `selection_regret_shock_equivalence_v1` artifact over already
+  opened outcomes, with player/game residual concentration and leave-one-shock
+  persistence fixed before computing it. In parallel, a score-free
+  `odds_us_dfs_coverage_census_v1` can measure whether the proposed source is
+  actually available. This documentation-only milestone is not committed or
+  pushed because the shared worktree is materially dirty and the current
+  branch is behind its upstream; preserve the new report and this entry during
+  the next clean integration.
 
 ### 2026-09-02 PREREG-056 / experiment 087 r1 void; memory-bounded r2 mechanics ready
 
