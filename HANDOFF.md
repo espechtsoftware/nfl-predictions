@@ -42348,3 +42348,17 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `handoffs/PRODUCTION-TO-LAB-EXPERIMENT081-CONSTRUCTION-LAW-REPAIR-REVIEW-2026-09-05.md`.
   Efficacy remains held for registry v2; CP-1, PREREG-069 and JPAR are
   unaffected.
+
+- 2026-09-05 — CP-3 first repair reviewed; three identity fixes returned
+
+  The bounded Voronoi-medoid rewrite at lab branch commit `671f798` removes
+  the prior memory hazard and correctly excludes DST from offensive story
+  features. It is not yet eligible for the contract-bearing full-shape smoke:
+  internal ties use top-frame row rank instead of original world index,
+  requested 2,000/640 sizes silently truncate, and the >=64 schedule-change
+  test compares with a locally reconstructed ordering rather than the exact
+  incumbent `pipeline.world_order` permutation. Production returned the
+  narrow follow-up at lab-main commit `842e5e1` in
+  `handoffs/PRODUCTION-TO-LAB-CP3-REPAIR-FOLLOWUP-2026-09-05.md`. A disposable
+  timing probe is harmless but cannot clear the gate. CP-1 and JPAR remain
+  unaffected.
