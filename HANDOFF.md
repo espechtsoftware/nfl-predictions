@@ -42074,3 +42074,35 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   identity. Next action: review the local commit, then explicitly choose
   whether to integrate and deploy it; do not change the live service as part
   of this preparation task.
+
+- 2026-09-05 — Cloud Run notification residual review repaired
+
+  Independent review of `codex/monitor-notification-residuals` found and
+  repaired five bounded persistence/display edges on top of commit
+  `1eb807c11941`. A pre-latch v3 failed-delivery backlog now seeds the durable
+  receipt-key latch instead of acquiring a timestamped duplicate; an existing
+  latch survives monitor-identity and supported-schema logical startups; and
+  a transient invalid registry read no longer relabels a coordinator already
+  known to have succeeded as provider-terminal-without-acceptance. Successful
+  same-receipt acceptance now filters both the superseded provider-terminal
+  event and a queued `registered_coordinator_post_provider_pending` alert
+  before error-title selection and five-item display truncation. It does not
+  suppress cleanup-required or unrelated-registration alerts.
+
+  A replacement live receipt also rearms the unclaimed-prefix grace timer.
+  The reset is persisted even when the receipt is first observed during a
+  provider-query failure, so the next healthy poll cannot resurrect the prior
+  failed receipt's age. Historical failure attention remains durable while
+  the current capacity alert clears and can rearm for the replacement.
+
+  Validation in the isolated worktree: focused monitor tests pass 46/46,
+  in-memory syntax compilation and `git diff --check` pass. Ruff was not
+  installed in the shared virtualenv, so no Ruff result is claimed. No Cloud
+  Run mutation, launcher/registry mutation, systemd change, live-state write,
+  or notification delivery was performed. The receipt latch deliberately
+  records event emission rather than user-toast delivery; enabling a
+  previously disabled toast transport does not replay old event-only records.
+  An old-binary rollback can discard the additive v3 latch field, so a later
+  re-upgrade is at-least-once and may repeat one toast. Next action: review and
+  explicitly integrate the follow-up commit into production, then restart the
+  user monitor from the production worktree only if deployment is authorized.

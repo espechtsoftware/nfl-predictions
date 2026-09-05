@@ -272,6 +272,73 @@ def test_unchanged_poll_is_silent_then_idle_unclaimed_raises_once(tmp_path: Path
     assert lines == []
 
 
+def test_live_replacement_resets_unclaimed_age_through_query_failure(
+    tmp_path: Path,
+) -> None:
+    prefix = "sdc095r1"
+    registry = tmp_path / "launchers"
+    registry.mkdir()
+    failed_receipt = _write_registry_receipt(registry, [prefix])
+    failed_completion = _write_completion(failed_receipt, 1)
+    failed_receipt.unlink()
+    fake = FakeGcloud(
+        [
+            [],
+            [],
+            [],
+            [],
+            FailedCall(),
+            [],
+            [],
+            [],
+        ]
+    )
+    config = monitor.Config(
+        state_file=tmp_path / "status.json",
+        attention_file=tmp_path / "attention.json",
+        launcher_registry_dirs=(registry,),
+        launcher_lane="nfl2-lab-jobs",
+        queue_grace_seconds=60,
+    )
+
+    monitor.run_once(
+        config, runner=fake, clock=FakeClock(10), emit=lambda _: None
+    )
+    aged = monitor.run_once(
+        config, runner=fake, clock=FakeClock(80), emit=lambda _: None
+    )
+    capacity_alert = f"lane-capacity-unclaimed:{prefix}"
+    failure_alert = f"registered-coordinator-failure:{failed_completion.stem}"
+    assert aged["capacity_unclaimed_since_epoch"] == {prefix: 10.0}
+    assert capacity_alert in aged["alerts"]
+    assert failure_alert in aged["alerts"]
+
+    replacement = _write_registry_receipt(
+        registry,
+        [prefix],
+        name="replacement.json",
+        acquired_at="2026-09-02T00:00:00Z",
+    )
+    replacement_key = hashlib.sha256(replacement.read_bytes()).hexdigest()
+    unavailable = monitor.run_once(
+        config, runner=fake, clock=FakeClock(90), emit=lambda _: None
+    )
+    assert unavailable["registered_coordinator"]["registration_key"] == replacement_key
+    assert unavailable["lane"]["state"] == "unknown"
+    assert unavailable["capacity_unclaimed_since_epoch"] == {}
+    assert capacity_alert not in unavailable["alerts"]
+
+    healthy = monitor.run_once(
+        config, runner=fake, clock=FakeClock(100), emit=lambda _: None
+    )
+    assert healthy["expected_prefixes"][prefix]["state"] == "unclaimed"
+    assert healthy["capacity_unclaimed_since_epoch"] == {prefix: 100.0}
+    assert capacity_alert not in healthy["alerts"]
+    attention = monitor.load_attention(config.attention_file)
+    assert attention is not None
+    assert failure_alert in attention["entries"]
+
+
 def test_stall_alert_is_transition_only_and_progress_clears_it(tmp_path: Path) -> None:
     active = _execution("lab-run-a1", "lab-run", "active")
     progressed = _execution("lab-run-a1", "lab-run", "active", retried=1)
@@ -1036,6 +1103,198 @@ def test_provider_terminal_notification_latch_survives_provider_query_failure(
     assert not any(
         event["event"] == "provider_cohort_completed_without_acceptance"
         for event in _events(recovered_lines)
+    )
+
+
+def test_provider_terminal_notification_migrates_legacy_failed_delivery_backlog(
+    tmp_path: Path,
+) -> None:
+    registry = tmp_path / "launchers"
+    registry.mkdir()
+    _write_registry_receipt(registry, ["cohort-a"])
+    active = _execution("lab-run-a", "lab-run", "active", run_id="cohort-a-run")
+    succeeded = _execution(
+        "lab-run-a", "lab-run", "success", run_id="cohort-a-run"
+    )
+    fake = FakeGcloud(
+        [[active], [], [succeeded], [], [succeeded], []]
+    )
+    notifier = FakeNotifier(returncode=1, stderr="toast unavailable")
+    config = monitor.Config(
+        state_file=tmp_path / "status.json",
+        launcher_registry_dirs=(registry,),
+        launcher_lane="nfl2-lab-jobs",
+        windows_toast_command="powershell.exe",
+    )
+
+    monitor.run_once(
+        config,
+        runner=fake,
+        notifier=notifier,
+        clock=FakeClock(10),
+        emit=lambda _: None,
+    )
+    terminal = monitor.run_once(
+        config,
+        runner=fake,
+        notifier=notifier,
+        clock=FakeClock(20),
+        emit=lambda _: None,
+    )
+    registration_key = terminal["registered_coordinator"]["registration_key"]
+    assert len(terminal["notification"]["pending_events"]) == 1
+    assert len(notifier.calls) == 1
+
+    # Simulate a failed-delivery status written by 2eba8157 before the
+    # independent receipt-key latch existed.
+    legacy = json.loads(config.state_file.read_text(encoding="utf-8"))
+    del legacy["notification"][monitor.PROVIDER_TERMINAL_NOTIFICATION_KEYS]
+    config.state_file.write_text(
+        json.dumps(legacy, sort_keys=True, separators=(",", ":")) + "\n",
+        encoding="utf-8",
+    )
+
+    migrated_lines: list[str] = []
+    migrated = monitor.run_once(
+        config,
+        runner=fake,
+        notifier=notifier,
+        clock=FakeClock(30),
+        emit=migrated_lines.append,
+    )
+
+    assert migrated["notification"][
+        monitor.PROVIDER_TERMINAL_NOTIFICATION_KEYS
+    ] == [registration_key]
+    assert len(migrated["notification"]["pending_events"]) == 1
+    assert len(notifier.calls) == 1
+    assert not any(
+        event["event"] == "provider_cohort_completed_without_acceptance"
+        for event in _events(migrated_lines)
+    )
+
+
+@pytest.mark.parametrize("startup_kind", ["identity", "schema"])
+def test_provider_terminal_notification_latch_survives_logical_startup(
+    tmp_path: Path,
+    startup_kind: str,
+) -> None:
+    registry = tmp_path / "launchers"
+    registry.mkdir()
+    _write_registry_receipt(registry, ["cohort-a"])
+    succeeded = _execution(
+        "lab-run-a", "lab-run", "success", run_id="cohort-a-run"
+    )
+    fake = FakeGcloud([[succeeded], [], [succeeded], []])
+    notifier = FakeNotifier()
+    config = monitor.Config(
+        state_file=tmp_path / "status.json",
+        launcher_registry_dirs=(registry,),
+        launcher_lane="nfl2-lab-jobs",
+        windows_toast_command="powershell.exe",
+    )
+
+    first = monitor.run_once(
+        config,
+        runner=fake,
+        notifier=notifier,
+        clock=FakeClock(10),
+        emit=lambda _: None,
+    )
+    registration_key = first["registered_coordinator"]["registration_key"]
+    assert first["notification"][
+        monitor.PROVIDER_TERMINAL_NOTIFICATION_KEYS
+    ] == [registration_key]
+    assert len(notifier.calls) == 1
+
+    next_config = config
+    if startup_kind == "identity":
+        next_config = monitor.Config(
+            state_file=config.state_file,
+            launcher_registry_dirs=(registry,),
+            launcher_lane="nfl2-lab-jobs",
+            queue_grace_seconds=121,
+            windows_toast_command="powershell.exe",
+        )
+    else:
+        legacy = json.loads(config.state_file.read_text(encoding="utf-8"))
+        legacy["schema_version"] = "cloud-run-lane-monitor-status/v2"
+        config.state_file.write_text(
+            json.dumps(legacy, sort_keys=True, separators=(",", ":")) + "\n",
+            encoding="utf-8",
+        )
+
+    startup_lines: list[str] = []
+    restarted = monitor.run_once(
+        next_config,
+        runner=fake,
+        notifier=notifier,
+        clock=FakeClock(20),
+        emit=startup_lines.append,
+    )
+
+    assert restarted["notification"][
+        monitor.PROVIDER_TERMINAL_NOTIFICATION_KEYS
+    ] == [registration_key]
+    assert len(notifier.calls) == 1
+    assert [event["event"] for event in _events(startup_lines)] == [
+        "monitor_started"
+    ]
+
+
+def test_prior_acceptance_does_not_become_without_acceptance_on_registry_error(
+    tmp_path: Path,
+) -> None:
+    registry = tmp_path / "launchers"
+    registry.mkdir()
+    receipt = _write_registry_receipt(registry, ["cohort-a"])
+    completion = _write_completion(receipt, 0)
+    receipt.unlink()
+    succeeded = _execution(
+        "lab-run-a", "lab-run", "success", run_id="cohort-a-run"
+    )
+    fake = FakeGcloud([[succeeded], [], [succeeded], []])
+    notifier = FakeNotifier()
+    config = monitor.Config(
+        state_file=tmp_path / "status.json",
+        launcher_registry_dirs=(registry,),
+        launcher_lane="nfl2-lab-jobs",
+        windows_toast_command="powershell.exe",
+    )
+
+    accepted = monitor.run_once(
+        config,
+        runner=fake,
+        notifier=notifier,
+        clock=FakeClock(70),
+        emit=lambda _: None,
+    )
+    assert accepted["cohort"]["state"] == "succeeded"
+    assert accepted["registered_coordinator"]["state"] == "succeeded"
+    assert accepted["notification"][
+        monitor.PROVIDER_TERMINAL_NOTIFICATION_KEYS
+    ] == []
+
+    completion.chmod(0o640)
+    degraded_lines: list[str] = []
+    degraded = monitor.run_once(
+        config,
+        runner=fake,
+        notifier=notifier,
+        clock=FakeClock(80),
+        emit=degraded_lines.append,
+    )
+
+    assert degraded["authorized_queue"]["state"] == "error"
+    assert degraded["registered_coordinator"]["state"] == "succeeded"
+    assert degraded["registered_coordinator"]["acceptance_state"] == "unverifiable"
+    assert degraded["cohort"]["state"] == "pending_acceptance"
+    assert degraded["notification"][
+        monitor.PROVIDER_TERMINAL_NOTIFICATION_KEYS
+    ] == []
+    assert not any(
+        event["event"] == "provider_cohort_completed_without_acceptance"
+        for event in _events(degraded_lines)
     )
 
 
@@ -1874,6 +2133,94 @@ def test_notification_failure_never_loses_status_or_pending_alert(
     assert status["notification"]["last_error"] == "toast unavailable"
     ledger = _events(config.events_file.read_text(encoding="utf-8").splitlines())
     assert ledger[-1]["event"] == "notification_delivery_failed"
+
+
+def test_accepted_receipt_supersedes_failed_post_provider_notification(
+    tmp_path: Path,
+) -> None:
+    registry = tmp_path / "launchers"
+    registry.mkdir()
+    receipt = _write_registry_receipt(registry, ["cohort-a"])
+    active = _execution("lab-run-a", "lab-run", "active", run_id="cohort-a-run")
+    succeeded = _execution(
+        "lab-run-a", "lab-run", "success", run_id="cohort-a-run"
+    )
+    fake = FakeGcloud(
+        [
+            [active],
+            [],
+            [succeeded],
+            [],
+            [succeeded],
+            [],
+            [succeeded],
+            [],
+        ]
+    )
+    notifier = FakeNotifier(returncode=1, stderr="toast unavailable")
+    config = monitor.Config(
+        state_file=tmp_path / "status.json",
+        launcher_registry_dirs=(registry,),
+        launcher_lane="nfl2-lab-jobs",
+        coordinator_post_provider_grace_seconds=180,
+        windows_toast_command="powershell.exe",
+    )
+
+    monitor.run_once(
+        config,
+        runner=fake,
+        notifier=notifier,
+        clock=FakeClock(10),
+        emit=lambda _: None,
+    )
+    terminal = monitor.run_once(
+        config,
+        runner=fake,
+        notifier=notifier,
+        clock=FakeClock(20),
+        emit=lambda _: None,
+    )
+    registration_key = terminal["registered_coordinator"]["registration_key"]
+    assert len(notifier.calls) == 1
+
+    escalated = monitor.run_once(
+        config,
+        runner=fake,
+        notifier=notifier,
+        clock=FakeClock(220),
+        emit=lambda _: None,
+    )
+    assert len(notifier.calls) == 2
+    assert any(
+        event.get("event") in ("alert_raised", "alert_updated")
+        and event.get("alert", {}).get("kind")
+        == "registered_coordinator_post_provider_pending"
+        for event in escalated["notification"]["pending_events"]
+    )
+
+    _write_completion(receipt, 0)
+    receipt.unlink()
+    notifier.returncode = 0
+    notifier.stderr = ""
+    accepted = monitor.run_once(
+        config,
+        runner=fake,
+        notifier=notifier,
+        clock=FakeClock(230),
+        emit=lambda _: None,
+    )
+
+    assert accepted["cohort"]["state"] == "succeeded"
+    assert accepted["registered_coordinator"]["registration_key"] == registration_key
+    assert accepted["notification"]["pending_events"] == []
+    assert accepted["notification"]["last_error"] is None
+    assert len(notifier.calls) == 3
+    _, kwargs = notifier.calls[-1]
+    assert kwargs["env"]["NFL_MONITOR_TITLE"] == "NFL cloud cohort completed"
+    assert "acceptance gate is pending" not in kwargs["env"]["NFL_MONITOR_BODY"]
+    assert "coordinator accepted provider results" in kwargs["env"][
+        "NFL_MONITOR_BODY"
+    ]
 
 
 def test_notification_copy_distinguishes_failed_and_superseded_acceptance() -> None:
