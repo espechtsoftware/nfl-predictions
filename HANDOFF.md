@@ -36,9 +36,17 @@ agent or developer:
   `cp1_main_slate_membership.py` while removing or changing the source
   `SlateSalaryMap` variant. Existing tests validate a prebuilt overlay and its
   downstream join, not the authoritative classifier rule.
+- A second P0 invalidates v5 for outcome-blind qualification: all 36 raw
+  LineStar payloads parsed by the builder contain post-lock/outcome material,
+  including final game scores, ownership contest results, perfect-lineup IDs,
+  and populated result/stat fields. Projecting those fields out of the final
+  overlay is insufficient because the builder had direct access to them and
+  the raw objects were published under the lab input prefix. The replacement
+  must quarantine those objects and use a trusted broker to emit a strict,
+  fail-closed salary-map-only projection with raw-object provenance.
 - Production published the full NO-GO and exact repair/test requirements as
   `handoffs/PRODUCTION-TO-LAB-CP1-R12-REVIEW-2026-09-05.md` on lab main commit
-  `2479a45`. `cp1smoke-a2` must not be consumed. CP-1 full mode, PREREG-069
+  `445736d` (initial review `2479a45`). `cp1smoke-a2` must not be consumed. CP-1 full mode, PREREG-069
   publication, and GE7 nomination remain held. The active PREREG-071 R3 support
   census is unaffected.
 - Next concrete action: review the lab's replacement membership revision and
