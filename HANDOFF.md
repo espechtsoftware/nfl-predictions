@@ -42936,3 +42936,36 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `handoffs/PRODUCTION-TO-LAB-PREREG071-R2-CONTRACT-REVIEW-2026-09-05.md`.
   No tests, build, outcomes, or cloud state were opened. Next: review only that
   repair; a clean result advances immediately to the immutable r2 build.
+
+- 2026-09-05 — JPAR-1 r2 source accepted and immutable build started; CP-1
+  `b54b2f7` smoke remains held
+
+  Lab commit `682249ccc40583edc10982b02d63e9fed5b33fb1` implements the
+  last literal primitive-domain repair exactly: primitive team keys must equal
+  derived engaged teams and each team's literal world-string keys must equal
+  its canonical engaged worlds before integer conversion. The leading-zero
+  alias and extra empty-team coherent-rehash negatives are present; the prior
+  four accepted repair groups remain unchanged. Production published GO for an
+  immutable r2 build at lab-main commit `0c54d63`.
+
+  A detached clean worktree at that exact source was verified with empty index
+  and worktree diffs. Regional Cloud Build
+  `10359815-f212-41f2-b514-455ca5ec67b3` was submitted asynchronously for the
+  fresh tag
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2:100r2-682249c`.
+  The first submission command stopped before creating a build because this
+  gcloud configuration rejects explicit `--no-cache` when Kaniko is disabled;
+  the successful submission omitted that CLI flag and uses Cloud Build's
+  generated Docker builder, as the prior immutable build did. No mechanics or
+  efficacy prefix has been claimed. Next: verify terminal build success,
+  resolved source object and digest, then bind fresh r2 image mechanics.
+
+  Separately, production reviewed CP-1 Update 98 `b54b2f7` and published its
+  two remaining blockers at the same lab-main commit `0c54d63`. The runner did
+  not implement the already-published four-cell owner amendment and still
+  makes GPP QB+2/B1/$49k topology mandatory in every arm. Its `_list`/`_fetch`
+  wrappers also permit direct raw access to allowlisted parquet prefixes
+  without the filtered table boundary. Preserve the other six repairs, but do
+  not run the boundary smoke until the construction-law rekey and deny-all raw
+  capability repair pass focused review. No CP-1 real artifact or outcome was
+  opened.
