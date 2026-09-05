@@ -42745,3 +42745,33 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   Next: review one repair commit; on GO, immediately build one immutable r2
   image, run fresh mechanics and the authenticated joint preflight census,
   seal/reopen the census, bind exact unused r2 identities, and launch efficacy.
+
+- 2026-09-05 — JPAR-1 r2 repair `c3e7e1a` independently reviewed; launch remains held
+
+  Two independent read-only reviews agree that lab Update 92 correctly repairs
+  the typed `run_cell` boundary, the one-pass regeneration check, r1 VOID
+  guards, and complete-slate reporting, but remains NO-GO for an image build or
+  cloud launch. The efficacy-side census loader trusts seal-supplied run IDs and
+  disables benchmark/full-identity checks; pool-mismatch cells may omit role
+  and signature evidence; support-state hashes/digests are not recomputed and
+  allocator weights are rounded; the reader does not authenticate the retained
+  cell's `regen_signature_check`; and the runner emits a four-key census
+  identity that the released reader's three-key contract rejects. The existing
+  coordinator also lacks the required score-free prelaunch census/mechanics
+  validation.
+
+  Production published the bounded five-item repair disposition to lab main at
+  `31bc9bf` by appending
+  `handoffs/PRODUCTION-TO-LAB-PREREG071-R2-CONTRACT-REVIEW-2026-09-05.md`.
+  No outcome object, image build, cloud execution, prefix, or cloud mutation was
+  opened. Cloud lanes remain correctly idle. PREREG-069 r6a1 remains the sole
+  heavy local process (`PID 2182696` in `nfl2-092`) and was verified live at
+  `2026-09-05T17:45:21Z`, through source bank 681 / 2023-W9. Lab main also
+  advanced CP-1 score-free repairs through `c0db35b`; its real-artifact smoke
+  remains queued behind this active census.
+
+  Next: independently re-review one narrow lab repair for the five remaining
+  JPAR boundaries. On GO, proceed directly to a new immutable image, fresh
+  mechanics, authenticated 162-cell joint preflight/seal/gate, unused r2
+  efficacy prefixes, terminal cohort seal, and first read. Do not add arms,
+  rehydrate candidates, retry for a match, or reuse any r1 identity.
