@@ -42593,10 +42593,15 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   scenario-reduction, residual-feedback, and diverse-pool claims.
 
   The complete lab implementation plan is commit
-  `0613f90` on branch `production/cp1-mechanics-review-20260905` in the `nfl2`
+  `2a3bfff` on branch `production/cp1-mechanics-review-20260905` in the `nfl2`
   repository:
   `handoffs/PRODUCTION-TO-LAB-CP1-CORPUS-POPULATION-IMPLEMENTATION-PLAN-2026-09-05.md`.
-  It passed whitespace/diff validation and was pushed. No lab code, cloud,
+  Its independent second review added safe-leaf imports, the exact contextual
+  094/095 law identity, non-circular source/CP-1 support derivation, explicit
+  negative-smoke semantics, canonical projection provenance, immutable-image
+  mechanics ordering, numeric engagement/continuation rules, and unambiguous
+  first-loss labels. It passed whitespace/diff validation and was pushed. No
+  lab code, cloud,
   score, outcome, or live policy was changed. Lab may implement the bounded
   score-free P0 repairs while PREREG-069 and JPAR-1 continue; the required next
   action is focused validation after the one-heavy-process slot clears, then a
