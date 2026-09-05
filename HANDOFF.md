@@ -42613,3 +42613,15 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   reopen the exact result and require all nine gate checks. Next: on gate PASS,
   bind/review fresh R3 support census `100c730r3`–`100c732r3`; do not launch a
   duplicate coordinator.
+
+- 2026-09-05 — stale lab dependency wait corrected
+
+  Production clarified on lab main at commit `ab29d07` that the shorthand
+  “waiting on census exit, production's gate, branch reviews” is stale.
+  PREREG-069 r6a1 has exited; JPAR R3 support banks 730 and 731 are terminal
+  clean and bank 732 (`lab-run-rl4kd`, run
+  `100c732r3-20260905T221200Z`) is actively owned by the registered
+  coordinator; there is no second gate or launch to start. The 081 and CP-3
+  bounded branch reviews are cleared, CP-4 remains sequenced behind CP-1, and
+  CP-1 R13 remains NO-GO under review commit `ba930c6` pending a narrow lab R14.
+  No outcome object was opened and no frozen identity or policy changed.
