@@ -42625,3 +42625,16 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   bounded branch reviews are cleared, CP-4 remains sequenced behind CP-1, and
   CP-1 R13 remains NO-GO under review commit `ba930c6` pending a narrow lab R14.
   No outcome object was opened and no frozen identity or policy changed.
+
+- 2026-09-05 — JPAR R3 efficacy launch path pre-staged fail closed
+
+  Production prepared and pushed branch
+  `production/prereg071-r3-efficacy-prep-20260905` at `56bf230`. The R2
+  coordinator template was advanced to the accepted R3 source, image, build,
+  mechanics-gate, launch-authority, and support-run identities; the stale
+  embedded mechanics envelope was corrected. Both shell scripts pass
+  `bash -n` and the focused template suite passes 8/8. The terminal support
+  seal, launch-bound reader SHA, and fresh efficacy run IDs remain explicit
+  `__BIND_AT_LAUNCH__` values, so this branch cannot claim a prefix or touch
+  cloud state. It is preparation only; binding/review waits for the registered
+  support coordinator's clean terminal seal and authentication transcript.
