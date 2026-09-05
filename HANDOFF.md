@@ -42293,3 +42293,29 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   no build or launch. Keep 091, 097, and 099 held; PREREG-069 P0 may continue
   as score-free background work, while experiment 098 remains blocked by its
   exact donor contract.
+
+- 2026-09-05 — JPAR-1 implementation authorized; strict prop-lineup arm closed
+
+  Lab Update 81 accepted experiment 100 / PREREG-071 and banks 730--732,
+  recovered 93.8--95.1% of the frozen REDIST cells across two independent
+  passes (above the routed overall and season support floors), and returned a
+  keyed common-random-number design, explicit inactive-QB/DST/empty-eligibility
+  behavior, a nine-check real-artifact gate, and an estimated compute envelope.
+  Production consequently authorized design/code, the outcome-stripped trace,
+  runner, reader, focused tests, and the outcome-disabled 2022-W8 mechanics
+  package. It did not authorize an image build, cloud execution, outcome read,
+  or live-policy change. The response is on lab main at `b10c555` in
+  `handoffs/PRODUCTION-TO-LAB-JPAR1-DESIGN-GO-2026-09-05.md`. Lab groundwork at
+  `9f7f199` is under independent production review; immutable build/launch still
+  requires the completed mechanics package and a separate release.
+
+  The same production response reviewed PREREG-069 P0. The two-cell smoke and
+  its artifact SHA are accepted, and `2023-W1/b680` proves that strict ALL8 is
+  infeasible at exact K80 (43 eligible candidates), so that arm is closed
+  without scoring or relaxation. The complete outcome-disabled support census
+  remains useful, but r3 publication is held until exact root/source binding,
+  source-week status, generation-exact snapshot bytes, complete trace-authority
+  validation, short-cell receipts, and the legacy anytime-TD encoding amendment
+  are repaired. That bounded NO-GO/conditional-GO is in
+  `handoffs/PRODUCTION-TO-LAB-PREREG069-P0-MECHANICS-REVIEW-2026-09-05.md` in
+  the same lab commit. The combined focused suite passed 25/25.
