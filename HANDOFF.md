@@ -42607,3 +42607,32 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   action is focused validation after the one-heavy-process slot clears, then a
   source-sparse/high-recipient/unavailable real-artifact smoke and independent
   production review before any mechanics publication, freeze, build, or score.
+
+- 2026-09-05 — JPAR-1 mechanics accepted after host assertion repair
+
+  Cloud Run execution `lab-run-csspg` and its outcome-disabled result remained
+  scientifically valid, but two post-provider coordinator attempts failed
+  before gate publication. Independent review located the exact host defect: a
+  one-character typo in the coordinator's expected benchmark hash
+  (`04710846d67fb6c6c` instead of frozen `04710846d67fb6c6`). Production
+  corrected the assertion through a shared constant and hard-bound recovery to
+  exact run `100m730r2-20260905T151853Z`, execution `lab-run-csspg`, result
+  generation `1788622191724374`, bytes `6003138`, and SHA-256
+  `6b7aa1d1b9af45b671d959728ae95bbd26690e71872f396e716990e4f714d4bf`.
+  The validation-only path rejects extra result objects, downloads the bound
+  generation, and cannot update or execute Cloud Run. Independent review
+  returned GO.
+
+  Lab-main commit `8bce3a664e4ec165468687ca60d009ec7c1f6677`
+  contains the repair. Registered recovery completed with exit zero under
+  launcher receipt
+  `fca1438047881436a296e141bd005deece52086ed40c795e70fd94b5a4d48114`;
+  it launched no new compute. All nine mechanics checks passed. The gate was
+  published create-once at
+  `gs://nfl-2-506823-lab/gates/PREREG-071/100m730r2-20260905T151853Z.json`,
+  generation `1788623419866783`, bytes `6173`, SHA-256
+  `4fac1370df402995d8d347b3854864f1685d74321257208377a598a64f37c48c`,
+  and reopened byte-for-byte. No efficacy prefix or outcome reader was opened.
+  Next: bind the reader and efficacy banks 730--732 to these exact identities,
+  launch through the registered shared lane, then seal the complete cohort
+  before any outcome read. PREREG-069 r6a1 remains the sole heavy local process.
