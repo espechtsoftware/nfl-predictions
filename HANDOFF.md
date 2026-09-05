@@ -42507,9 +42507,11 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   frozen script bytes; exact string bank keys are normalized through `int`
   and therefore accept aliases such as `"0730"`; and the cohort does not carry
   and validate a complete schema/mode plus exact key contract. Banks 730--732
-  remain held. Required next action: publish these bounded residual defects to
-  lab, review their repairs, build one immutable image, run a fresh image-bound
-  create-once mechanics cell/gate, and launch only after the real reader passes.
+  remain held. The bounded addendum, including exact single mechanics-cell
+  reconciliation, was published to lab main at `9f752f5` in the existing final
+  P0 review. Required next action: review the lab's repairs, build one immutable
+  image, run a fresh image-bound create-once mechanics cell/gate, and launch
+  only after the real reader passes.
 
   The separate PREREG-069 r6 source publication is accepted for its score-free
   census: all 188,927 raw rows are conserved in the disposition ledger, exact
@@ -42518,4 +42520,6 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   reopen by generation/bytes/SHA, and the builder identity matches. The real
   r6 source happens to contain no duplicate/tie cases, so those branches remain
   regression-test evidence. Production may release the one score-free 108-cell
-  census without releasing any scored experiment.
+  census without releasing any scored experiment. That explicit release and
+  exact r6 root identity were published at lab commit `9f752f5` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG069-R6-CENSUS-RELEASE-2026-09-05.md`.
