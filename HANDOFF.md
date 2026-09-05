@@ -51,6 +51,20 @@ agent or developer:
 - Next action: share the plan with the lab. The lab should perform P0 only in
   parallel, return its exact support census and artifact contract, and leave
   any efficacy launch behind SD-C terminal release and routing.
+- Lab then implemented and published the first P0 builder at
+  `2e253529a01477447dfa2f7fa54f369b67713f15` and reported the donor census
+  running in Update 77 (`536e120`). Production's exact review is committed at
+  `872ee688` in
+  `reports/2026-09-05-production-review-lab-prop-availability-p0.md` and is a
+  **NO-GO** for that artifact: unrestricted `slates`/`slate_frame` physically
+  materialize outcome columns before slicing; anytime-TD rows are checked for
+  a synthetic `Yes` shape that production ingestion never writes; normalized
+  identity collisions can overwrite; and repeated-ingest dedup rejects
+  resolvable rows. The published mask and its in-progress census must not be
+  treated as accepted P0 evidence. Stop the current local census, preserve its
+  artifacts as failed diagnostics without overwriting them, then repair,
+  publish a fresh generation/root, and restart the score-free census; no
+  efficacy launch is authorized.
 
 ### 2026-09-04 bounded `us_dfs` Week-1 capture implementation
 

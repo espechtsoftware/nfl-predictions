@@ -11,6 +11,14 @@ pre-lock boundary. Repair these before running the real 36-slate census. The
 absence of the D800 join/census in this commit is expected and is listed
 separately; it is not the reason for this no-go.
 
+**Immediate disposition:** stop the local PREREG-069 donor census reported in
+lab Update 77. Its published mask/root and any census output derived from that
+mask are void as P0 evidence. Preserve them only as explicitly failed
+diagnostic artifacts; do not overwrite or delete create-once objects. Repair
+the builder, publish a fresh generation under a new root identity, and restart
+the score-free census from that accepted input. This changes no score-bearing
+experiment and does not affect SD-C.
+
 ## P0 blockers
 
 ### 1. The physical no-outcome boundary is not yet real
