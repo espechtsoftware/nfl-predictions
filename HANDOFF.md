@@ -42384,3 +42384,17 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   do not launch or bind a parallel copy. Next: require clean 18/18 terminal
   state, then capture its support seal and authentication transcript before
   preparing any efficacy binding.
+
+- 2026-09-05 — CP-3 algorithm repairs accepted; smoke identity fix remains
+
+  Production accepted the lab's original-world tie keys, exact 2,000/640
+  fail-closed shape proofs, and exact caller-supplied `pipeline.world_order`
+  comparator at branch commits `490f357` and `6974dd8`. The bounded algorithm
+  itself no longer needs redesign. The contract-bearing full-shape smoke still
+  lacks a clean commit/diff identity, hashes for its script/medoid/comparator
+  modules, create-once output, and exact method assertions. Those narrow
+  conditions plus compact D800 coverage-gate checks were returned on lab main
+  at commit `f1578c4` in
+  `handoffs/PRODUCTION-TO-LAB-CP3-REPAIR-CLEARANCE-2026-09-05.md`. Once repaired,
+  one exact score-free full-shape smoke is cleared after CP-1; no outcome read
+  or D800 integration is authorized yet.
