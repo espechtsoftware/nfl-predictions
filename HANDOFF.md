@@ -42479,3 +42479,43 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   constructor landed on lab main at `1907371`; it remains background mechanics
   work behind JPAR and awaits the repaired authoritative PREREG-069 mask. The
   strict ALL8 universe remains closed.
+
+- 2026-09-05 — Corrected corpus-population plan published; JPAR a9 remains NO-GO; PREREG-069 r6 source release accepted
+
+  Production reviewed `reports/2026-09-05-corpus-population-suggestions.md`
+  and replaced the confounded first pilot with a three-arm, same-world test:
+  `U_FULL`, `U_RECIPIENT_PROJ_MATCHED`, and
+  `U_PROP_RECIPIENT_FILL60`. Both reduced arms carry the exact positive-share,
+  point-in-time transfer-recipient core; the primary control matches the
+  treatment's per-position counts by served projection, so the estimand
+  isolates prop identity rather than shrinkage or beneficiary retention. The
+  boom/leverage visit orders must be computed once on the full frame and
+  reused verbatim across arms. Only DK legality is universal; no stack,
+  bring-back, game-side, cheap-player, or salary-floor restoration is allowed.
+  D800 is fixed work with natural yield plus a deterministic family-stratified
+  fixed-count view, not an exact-800-unique requirement. The complete plan and
+  disposition of U1--U6/S1--S2/M1--M2 are on lab main at `be61529` in
+  `handoffs/PRODUCTION-TO-LAB-CORPUS-POPULATION-EXPERIMENT-PLAN-2026-09-05.md`.
+  Score-free implementation may proceed after the authoritative mask release;
+  CP-1 is the first generation score slot, corrected residual-feedback CP-2
+  waits for accepted JPAR, and tail-regime CP-3 is third.
+
+  Independent review of lab JPAR commit `9ddd0f3` found that the published a9
+  mechanics object is not image-bound (`image_digest` is empty), so the exact
+  committed reader rejects it. The reader also does not authenticate the
+  envelope's gate-script SHA against both the gate's internal identity and the
+  frozen script bytes; exact string bank keys are normalized through `int`
+  and therefore accept aliases such as `"0730"`; and the cohort does not carry
+  and validate a complete schema/mode plus exact key contract. Banks 730--732
+  remain held. Required next action: publish these bounded residual defects to
+  lab, review their repairs, build one immutable image, run a fresh image-bound
+  create-once mechanics cell/gate, and launch only after the real reader passes.
+
+  The separate PREREG-069 r6 source publication is accepted for its score-free
+  census: all 188,927 raw rows are conserved in the disposition ledger, exact
+  duplicates have an explicit disposition, conflicting-tie rejection applies
+  only at the winning snapshot/pull position, root and four child artifacts
+  reopen by generation/bytes/SHA, and the builder identity matches. The real
+  r6 source happens to contain no duplicate/tie cases, so those branches remain
+  regression-test evidence. Production may release the one score-free 108-cell
+  census without releasing any scored experiment.
