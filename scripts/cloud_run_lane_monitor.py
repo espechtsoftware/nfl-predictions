@@ -1964,34 +1964,42 @@ def _notifiable_events(events: Iterable[Mapping[str, object]]) -> list[dict[str,
     return selected
 
 
-def _notification_text(events: list[Mapping[str, object]]) -> tuple[str, str]:
-    accepted_registration_keys: set[str] = set()
+def _accepted_registration_keys(
+    events: Iterable[Mapping[str, object]], *, require_effective_success: bool
+) -> set[str]:
+    keys: set[str] = set()
     for event in events:
-        if (
-            event.get("event") != "registered_coordinator_accepted"
-            or event.get("effective_state") != "succeeded"
+        if event.get("event") != "registered_coordinator_accepted" or (
+            require_effective_success and event.get("effective_state") != "succeeded"
         ):
             continue
         registration_key = event.get("registration_key")
         if isinstance(registration_key, str) and registration_key:
-            accepted_registration_keys.add(registration_key)
+            keys.add(registration_key)
+    return keys
+
+
+def _supersedable_registration_key(event: Mapping[str, object]) -> str | None:
+    registration_key: object = None
+    if event.get("event") == "provider_cohort_completed_without_acceptance":
+        registration_key = event.get("registration_key")
+    elif event.get("event") in ("alert_raised", "alert_updated"):
+        alert = event.get("alert")
+        if (
+            isinstance(alert, Mapping)
+            and alert.get("kind") == "registered_coordinator_post_provider_pending"
+        ):
+            registration_key = alert.get("registration_key")
+    return registration_key if isinstance(registration_key, str) else None
+
+
+def _notification_text(events: list[Mapping[str, object]]) -> tuple[str, str]:
+    accepted_registration_keys = _accepted_registration_keys(
+        events, require_effective_success=True
+    )
     display_events: list[Mapping[str, object]] = []
     for event in events:
-        superseded_registration_key: object = None
-        if event.get("event") == "provider_cohort_completed_without_acceptance":
-            superseded_registration_key = event.get("registration_key")
-        elif event.get("event") in ("alert_raised", "alert_updated"):
-            alert = event.get("alert")
-            if (
-                isinstance(alert, Mapping)
-                and alert.get("kind")
-                == "registered_coordinator_post_provider_pending"
-            ):
-                superseded_registration_key = alert.get("registration_key")
-        if (
-            isinstance(superseded_registration_key, str)
-            and superseded_registration_key in accepted_registration_keys
-        ):
+        if _supersedable_registration_key(event) in accepted_registration_keys:
             continue
         display_events.append(event)
     errors = any(
@@ -2004,7 +2012,10 @@ def _notification_text(events: list[Mapping[str, object]]) -> tuple[str, str]:
             event.get("event") == "cohort_transition"
             and event.get("after") == "succeeded"
         )
-        or event.get("event") == "registered_coordinator_accepted"
+        or (
+            event.get("event") == "registered_coordinator_accepted"
+            and event.get("effective_state") == "succeeded"
+        )
         for event in display_events
     )
     unresolved_without_acceptance = [
@@ -2120,8 +2131,25 @@ def _prepare_notification(
     prior = _old_mapping(previous, "notification")
     pending_raw = prior.get("pending_events", [])
     pending = [dict(item) for item in pending_raw if isinstance(item, Mapping)]
+    event_records = [dict(event) for event in events]
+    # An immutable exit-zero completion is enough to cancel same-receipt
+    # acceptance-pending backlog even when a provider query outage prevents the
+    # current effective cohort from being called succeeded. The positive
+    # completion toast remains gated in _notifiable_events.
+    accepted_registration_keys = _accepted_registration_keys(
+        [*pending, *event_records], require_effective_success=False
+    )
+    pending = [
+        event
+        for event in pending
+        if _supersedable_registration_key(event) not in accepted_registration_keys
+    ]
     known = {_notification_event_id(item) for item in pending}
-    new_events = _notifiable_events(events)
+    new_events = [
+        event
+        for event in _notifiable_events(event_records)
+        if _supersedable_registration_key(event) not in accepted_registration_keys
+    ]
     provider_terminal_keys = _provider_terminal_notification_keys(previous)
     for event in new_events:
         identity = _notification_event_id(event)

@@ -2223,6 +2223,100 @@ def test_accepted_receipt_supersedes_failed_post_provider_notification(
     ]
 
 
+def test_accepted_receipt_cancels_pending_backlog_during_provider_query_failure(
+    tmp_path: Path,
+) -> None:
+    registry = tmp_path / "launchers"
+    registry.mkdir()
+    receipt = _write_registry_receipt(registry, ["cohort-a"])
+    succeeded = _execution(
+        "lab-run-a", "lab-run", "success", run_id="cohort-a-run"
+    )
+    fake = FakeGcloud(
+        [
+            [succeeded],
+            [],
+            [succeeded],
+            [],
+            FailedCall(),
+            [],
+            [succeeded],
+            [],
+        ]
+    )
+    notifier = FakeNotifier(returncode=1, stderr="toast unavailable")
+    config = monitor.Config(
+        state_file=tmp_path / "status.json",
+        launcher_registry_dirs=(registry,),
+        launcher_lane="nfl2-lab-jobs",
+        coordinator_post_provider_grace_seconds=180,
+        windows_toast_command="powershell.exe",
+    )
+
+    terminal = monitor.run_once(
+        config,
+        runner=fake,
+        notifier=notifier,
+        clock=FakeClock(10),
+        emit=lambda _: None,
+    )
+    registration_key = terminal["registered_coordinator"]["registration_key"]
+    escalated = monitor.run_once(
+        config,
+        runner=fake,
+        notifier=notifier,
+        clock=FakeClock(200),
+        emit=lambda _: None,
+    )
+    assert len(notifier.calls) == 2
+    assert any(
+        event.get("event") in ("alert_raised", "alert_updated")
+        and event.get("alert", {}).get("kind")
+        == "registered_coordinator_post_provider_pending"
+        for event in escalated["notification"]["pending_events"]
+    )
+
+    _write_completion(receipt, 0)
+    receipt.unlink()
+    notifier.returncode = 0
+    notifier.stderr = ""
+    unavailable = monitor.run_once(
+        config,
+        runner=fake,
+        notifier=notifier,
+        clock=FakeClock(210),
+        emit=lambda _: None,
+    )
+
+    assert unavailable["cohort"]["state"] == "unknown"
+    assert unavailable["registered_coordinator"]["state"] == "succeeded"
+    assert unavailable["registered_coordinator"]["registration_key"] == registration_key
+    assert unavailable["notification"]["pending_events"] == []
+    assert len(notifier.calls) == 3
+    _, kwargs = notifier.calls[-1]
+    assert kwargs["env"]["NFL_MONITOR_TITLE"] == "NFL cloud jobs need attention"
+    assert "provider query failed" in kwargs["env"]["NFL_MONITOR_BODY"]
+    assert "provider cohort complete" not in kwargs["env"]["NFL_MONITOR_BODY"]
+    assert "acceptance gate is pending" not in kwargs["env"]["NFL_MONITOR_BODY"]
+    assert "coordinator accepted provider results" not in kwargs["env"][
+        "NFL_MONITOR_BODY"
+    ]
+
+    recovered = monitor.run_once(
+        config,
+        runner=fake,
+        notifier=notifier,
+        clock=FakeClock(220),
+        emit=lambda _: None,
+    )
+    assert recovered["cohort"]["state"] == "succeeded"
+    assert recovered["notification"]["pending_events"] == []
+    assert len(notifier.calls) == 4
+    _, kwargs = notifier.calls[-1]
+    assert kwargs["env"]["NFL_MONITOR_TITLE"] == "NFL cloud cohort completed"
+    assert "cohort is succeeded" in kwargs["env"]["NFL_MONITOR_BODY"]
+
+
 def test_notification_copy_distinguishes_failed_and_superseded_acceptance() -> None:
     failed = {
         "event": "provider_cohort_completed_without_acceptance",
