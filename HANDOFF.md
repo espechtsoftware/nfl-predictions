@@ -42300,3 +42300,31 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   historical outcome path has been opened. Next: monitor the two executions;
   after authenticated census acceptance, bind fresh r2 efficacy runs and the
   returned authority/seal identities atomically before any efficacy launch.
+
+- 2026-09-05 — CP-3 and CP-4 score-free branch reviews returned for repair
+
+  Production completed independent, outcome-blind interface reviews of the
+  two new generation branches without disturbing PREREG-069, CP-1, or the
+  active JPAR support census. Both scientific ideas remain worth testing, but
+  neither implementation is ready for D800 integration yet.
+
+  CP-3 is held because the current `n=2,000`, `k=640` exhaustive PAM path
+  materializes an unsafe three-dimensional distance temporary and has an
+  infeasible exhaustive swap budget. Its story vector also includes DST draws
+  in quantities described as offensive game/team scoring. The bounded repair
+  is recorded on lab main at commit `f39d29f` in
+  `handoffs/PRODUCTION-TO-LAB-CP3-SCORE-FREE-MECHANICS-REVIEW-2026-09-05.md`.
+
+  CP-4 is held because exhausted bookkeeping ordinals are counted as if they
+  were actual contextual solves, repeated core visits reuse identical solver
+  inputs, the effective construction law can be falsely labelled DK-only,
+  and the declared weighted allocation is currently equal round-robin. It
+  also still lacks the full paired D800 runner and outcome-disabled gate. The
+  required six-part repair is recorded on lab main at commit `9d95aa1` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-MECHANICS-REVIEW-2026-09-05.md`.
+
+  These are branch-local repair holds, not queue-wide holds. PREREG-069
+  remains healthy at PID `2182696`; after it exits, the already-cleared CP-1
+  four-cell boundary smoke is the next use of that local heavy-compute slot.
+  The JPAR coordinator remains the authority for active banks 730/731 and the
+  predeclared bank-732 release.
