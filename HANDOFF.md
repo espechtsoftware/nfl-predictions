@@ -42465,7 +42465,7 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   missing receipt block, so they do not exercise the production path.
 
   The bounded NO-GO and exact repair/relaunch sequence are on lab main at
-  `f4e14ae67eb60bd67a70e34be9f916b032ef75cd` in
+  `f4e14ae8768e5fba0fc73c0beb95007231d68082` in
   `handoffs/PRODUCTION-TO-LAB-JPAR1-FINAL-P0-REVIEW-2026-09-05.md`.
   Next action is to review only those repairs, build the accepted immutable
   image, run one fresh image-bound create-once mechanics cell, bind its exact
