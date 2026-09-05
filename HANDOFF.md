@@ -65,6 +65,13 @@ agent or developer:
   artifacts as failed diagnostics without overwriting them, then repair,
   publish a fresh generation/root, and restart the score-free census; no
   efficacy launch is authorized.
+- The no-go was committed directly to lab `main` at `c4b8a9d`, then extended
+  at `e36ee43` after inspecting census commit `85345dd`. The census downloads
+  full outcome-bearing 094 envelopes before stripping them and derives its
+  expected cohort from whatever blobs it discovers, allowing missing or
+  duplicate cells to disappear. Restart additionally requires a physically
+  separate pre-lock trace input and an independent exact 54-object/108-cell
+  manifest.
 
 ### 2026-09-04 bounded `us_dfs` Week-1 capture implementation
 
