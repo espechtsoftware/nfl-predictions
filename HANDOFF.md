@@ -22,6 +22,68 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-05 JPAR-1 runner/reader final-boundary review
+
+- Production routed the accepted SD-C result to JPAR-1 / experiment 100 /
+  PREREG-071 on this branch, then reviewed lab reader release `b1dfad5` and
+  repair commits `990d043` and `ebf5c38`. The treatment-mask, exact
+  decision/held-out mask sharing, lossless held-out CDF counts, four-way
+  target/carry conservation, role-key, trace-generation reopen, and universal
+  DK legality repairs reproduce. The focused lab suite at `990d043` passed 46
+  with one skipped and one deselected; a separate 47-test focused pass had
+  also been recorded before the final two-line import change.
+- The unique local outcome-disabled attempt
+  `100m730r1-mechanics-a3` ran from exact lab source `ebf5c38` and runner
+  SHA-256 `69fd5449a0dd4a61d402f9fc1699006741dce812d4f931fc12623513f926a6e2`.
+  Its envelope SHA-256 is
+  `ecc18e84c690f4269ae3bceec22d9b01c4090ffea451db8407d89d583705415d`;
+  runtime was 340.3 seconds, peak RSS 2770.7 MiB, hsim turnover 0.0096563,
+  and K80 turnover 0.0625. Exact replay of the nine-check mechanics gate
+  returned **FAIL**: the emitted artifact marks checks 1 and 3--9 passing, but
+  check 2 correctly rejected both runtime audits because `nfl2.scorecard`
+  remained transitively loaded. Subsequent inspection also proves check 4 is
+  not yet a faithful exact-mask/byte-identity gate. The attempt is
+  diagnostic/void and cannot bind a build or cohort.
+- Independent reachability review found that imported functions still expose
+  outcome helpers through module globals: `select_expected_max` reaches
+  `winner_utility`, pipeline helpers reach `candidate_actual`, and the trace
+  helper reaches `reader_settlement_join`. Inlining `slice_for_task` removed
+  only a fourth path. The runner must isolate/copy the needed outcome-free
+  helpers and audit imported function globals before a fresh mechanics ID.
+- Real-artifact mask reconstruction found the required engaged-offense plus
+  inactive-non-offense mask has 125,674 cells, while the runner reports
+  126,070. It overmasks 396 sampled-inactive offensive cells from four
+  non-engaged rows (ARI RB 117, LV WR 91, MIA TE 93, LA WR 95), hiding them
+  from the outside-treatment assertion. The current `np.array_equal`/`==`
+  checks are also numeric equality, not literal byte identity: they can accept
+  a dtype change or signed-zero change. Narrow the mask and bind
+  shape/dtype/contiguous bytes in the fresh gate.
+- The released reader remains NO-GO independently: its placeholders do not
+  authenticate/reopen the real gate; exact three-run/18-shard/162-cell
+  authority and 90%/85% support floors are unenforced; K80/D800/trace/CDF
+  objects and settlement joins fail open; one-bank/one-season fragments can
+  yield pass-like intervals; current-policy-reference and mixed-bank-sign
+  disposition rules are missing; and the frozen co-report surface is
+  incomplete. The complete prioritized review is on lab `main` at
+  `handoffs/PRODUCTION-TO-LAB-JPAR1-READER-REVIEW-2026-09-05.md`, latest
+  production note commit `986abfd` after rebasing over the lab's committed
+  failed `a3` mechanics artifact at `5f0b6a6`.
+- PREREG-069 P0 also remains unsealed. Its supplemental anytime-TD receipt
+  labels observed-minus-accepted attrition as identity rejection even though
+  that residual includes de-duplication/tie attrition, and lacks its own
+  reopened publication identity. At 08:39 CDT production found two local P0
+  censuses racing on the same final path; the second launcher had deleted the
+  destination while the old process remained live. The lab note explicitly
+  orders both attempts/tailers stopped and their outputs void.
+- No Cloud Run efficacy execution or Cloud Build is active or authorized for
+  JPAR-1. Both reusable lanes remain intentionally idle until the physical
+  runner and outcome-reader boundaries pass. Exact next action: lab halts the
+  duplicate P0 work, repairs the runner import graph and reader fail-closed
+  authority, runs serial focused/adversarial tests, and returns one fresh
+  uniquely identified 2022-W8 outcome-disabled mechanics artifact. Production
+  independently reopens it before any image build or 730--732 launch. Keep
+  091, 097, and 099/S0 held.
+
 ### 2026-09-04 bounded `us_dfs` Week-1 capture implementation
 
 - Production implemented the lab-requested D7 prospective capture as a
