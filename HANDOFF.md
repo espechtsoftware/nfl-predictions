@@ -42268,3 +42268,28 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `results/read-transcripts/sdc095r2-production-crossverify-merge-transcript.txt`.
   This confirms reproducibility only: SD-C remains diagnostic/development-only,
   promotes nothing, and nominates no experiment by itself.
+
+- 2026-09-05 — SD-C immediate routing: JPAR-1 nominated for lab design
+
+  Production combined the independently reproduced SD-C result with SD-A and
+  SD-B and selected one next mechanism: integrate the existing walk-forward
+  P_MIX participation draw into hsim before team target/carry allocation.
+  This targets the beneficiary-only calibration defect while preserving team
+  opportunity totals. It is not the failed post-score redistribution,
+  another greedy-search variant, a global marginal remap, or a reranker.
+
+  The lab-ready contract is
+  `reports/2026-09-05-production-to-lab-sdc-jpar1-routing.md`. It proposes
+  J0=current REDIST critic versus J1=participation-conditioned coherent hsim,
+  with current PG_CTRL D800 as an operational reference when available.
+  Co-primary development requirements are favorable paired K80 winner-CDF
+  utility and improved held-out beneficiary-only 200–260 twCRPS. A pass can
+  earn only a 2026 prospective shadow or separately frozen end-to-end test.
+
+  Suggested identity is experiment 100 / PREREG-071, banks 730–732, subject
+  to lab confirmation. The lab must first return fixed-pool feasibility,
+  keyed-RNG design, empty-eligibility behavior, one-cell compute, and a
+  real-artifact outcome-disabled mechanics contract. This document authorizes
+  no build or launch. Keep 091, 097, and 099 held; PREREG-069 P0 may continue
+  as score-free background work, while experiment 098 remains blocked by its
+  exact donor contract.
