@@ -42454,13 +42454,18 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   matrix digest equality, slate-first aggregates, and absolute J0/J1 book-max
   reporting. Independent adversarial inspection nevertheless found two P0
   defects: the gate CLI never emits the claimed mechanics-envelope object
-  identity and the reader never reopens/authenticates that exact object; and a
-  persisted held-out CDF digest mismatch can still leave gate check 9 at PASS.
-  The positive test manually injects the missing receipt block, so it does not
-  exercise the production path.
+  identity and the reader never reopens/authenticates that exact object; a
+  persisted held-out CDF digest mismatch can still leave gate check 9 at PASS;
+  the real runner's lowercase plan keys disagree with the reader's uppercase
+  keys; the GSIS-only ID regex rejects every real `DST_*` roster ID and DST
+  activity lacks a frozen settlement policy; cohort/container/trace authority
+  remains incomplete; settlement does not use the required exact slate/roster
+  join; and mixed-sign reference results are mislabeled as failure rather than
+  unresolved. The positive tests use hand-built schema and manually inject the
+  missing receipt block, so they do not exercise the production path.
 
   The bounded NO-GO and exact repair/relaunch sequence are on lab main at
-  `37117776d7636415566553118534496aa639fa03` in
+  `f4e14ae67eb60bd67a70e34be9f916b032ef75cd` in
   `handoffs/PRODUCTION-TO-LAB-JPAR1-FINAL-P0-REVIEW-2026-09-05.md`.
   Next action is to review only those repairs, build the accepted immutable
   image, run one fresh image-bound create-once mechanics cell, bind its exact
