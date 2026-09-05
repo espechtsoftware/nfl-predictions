@@ -42695,3 +42695,17 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   an all-162-cell prelaunch check for this class, new immutable identities and
   unused prefixes. Preserve r1 objects only as invalid diagnostics and never
   mix them into another cohort.
+
+  Follow-up outcome-free diagnosis at lab-main `c21d841` established that the
+  frozen production route already requires this condition to make the whole
+  bank-cell unavailable; the runner failed to translate the generic exception
+  into that receipt, and the mandated 162-cell support census was not run.
+  A light PIT mask scan found the class only in 2023-W14 SEA for all three
+  source banks (carry support only), so a compliant r2 likely retains the
+  authority floors, but the exact immutable-image census must prove it. The
+  proposed narrow repair is a typed empty-eligibility exception caught only at
+  the cell boundary, a frozen `unavailable_empty_opportunity_support` valid-set
+  receipt, and a gate/reader bound to the full census. No new carry sink,
+  redistribution, mask conditioning, or other scientific law is authorized.
+  The lab must also freeze complete-slate intersection versus surviving-bank
+  averaging before any read; production recommends complete-slate intersection.
