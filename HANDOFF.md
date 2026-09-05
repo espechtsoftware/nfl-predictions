@@ -42775,3 +42775,60 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   mechanics, authenticated 162-cell joint preflight/seal/gate, unused r2
   efficacy prefixes, terminal cohort seal, and first read. Do not add arms,
   rehydrate candidates, retry for a match, or reuse any r1 identity.
+
+- 2026-09-05 — CP-1 post-repair review published; experiment design retained,
+  mechanics still NO-GO
+
+  Production statically reviewed lab CP-1 repair `27a5260` and the frozen
+  boundary-smoke addendum `c0db35b`. The three-arm experiment remains the
+  approved simple first test: full universe, recipient-protected
+  projection-matched control, and all-prop + exact-recipient + projection-fill
+  treatment at matched position counts. No new arm, dose grid, or score access
+  was added.
+
+  The repair is not yet safe to execute as an accepted smoke or release. The
+  remaining blockers are a chained-inequality mask-identity bug; empty-string
+  mode bypass; unbound/self-selected full census; incomplete eligible-set and
+  as-of authority join; outcome-capable globals still reachable through the
+  purported safe pipeline; a validator missing DK minimum-games/maximum-team
+  checks and a separate frozen-context receipt; discarded ordered D800 attempt
+  lineage; an all-arm-intersection rather than pairwise draw proof; no
+  executable treatment-engagement gate; and stale PREREG-072 code/seed/work
+  wording. Production converted these into one bounded repair and rapid
+  execution sequence in lab-main commit `5f462b1`:
+  `handoffs/PRODUCTION-TO-LAB-CP1-CORPUS-POPULATION-IMPLEMENTATION-PLAN-2026-09-05.md`.
+  No cloud, score, outcome, or live-policy state changed.
+
+  Next: lab repairs CP1-R1 through CP1-R9 without redesign. Only the final
+  census publication pins wait for PREREG-069 r6a1; all source work can proceed
+  now. After focused review, run the exact two-positive/one-unavailable smoke,
+  then full outcome-disabled mechanics, immutable image-bound mechanics, and
+  one-bank efficacy under the plan's existing nomination rule.
+
+- 2026-09-05 — JPAR-1 second r2 repair `504be692` independently reviewed;
+  build remains held
+
+  Two independent production reviewers returned NO-GO. The repair correctly
+  fixes exact source-run mapping, lossless float64 weight serialization,
+  retained-cell regeneration reconciliation, and the three-key runner/reader
+  census identity. Remaining blockers are: the shared `nfl2.jpar.census`
+  validator bytes are outside the frozen identity chain; the embedded support
+  state cannot semantically derive masks/engagement/totals/refusals/sinks; each
+  cell's participation artifact is not cross-bound to the immutable authority;
+  the trace-root identity is incomplete; and the checked-in launch contract
+  and registered coordinators still authorize the void r1 image/runs and never
+  invoke the new authentication mode. The authentication mode also lacks a
+  complete r2 prelaunch-pin check and durable transcript.
+
+  Production published the exact remaining repair and accepted portions on lab
+  main at `8acb4fd` by appending
+  `handoffs/PRODUCTION-TO-LAB-PREREG071-R2-CONTRACT-REVIEW-2026-09-05.md`.
+  No build, execution, result, outcome object, or cloud mutation was opened.
+  Cloud lanes remain intentionally idle rather than launching a contract that
+  can accept semantically false support or reuse r1 authority.
+
+  PREREG-069 r6a1 remains the sole heavy local process (PID `2182696`). At
+  `2026-09-05T18:02Z` it was live through source bank 681 / 2023-W16. Next:
+  review one narrow lab repair; if clean, immediately build fresh r2 mechanics,
+  run/seal/authenticate the 162-cell census, bind a new registered r2
+  coordinator, and launch the efficacy cohort.
