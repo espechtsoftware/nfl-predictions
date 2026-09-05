@@ -42328,3 +42328,23 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   four-cell boundary smoke is the next use of that local heavy-compute slot.
   The JPAR coordinator remains the authority for active banks 730/731 and the
   predeclared bank-732 release.
+
+- 2026-09-05 — experiment 081 repair independently reviewed
+
+  Production's static, outcome-blind review holds the 081 engaged mechanics
+  smoke on two concrete defects. First, the image does not carry Git metadata,
+  so the runner's `git rev-parse` source identity becomes `UNKNOWN` while its
+  gate requires a full 40-character commit. Second, the D400 attempt ledger can
+  count synthetic `exhausted` ordinals after leverage generation stops as if
+  they were actual solver calls and does not require meaningful boom-family
+  engagement. The repair must bind the immutable full source SHA and expose
+  real calls/retries/exhaustion separately before the smoke.
+
+  The source semantics themselves were accepted: the two laws are explicit,
+  their current values are correct, draws/order/requested budgets are shared,
+  exact-core completion is sound, and the 062 labels are safely qualified
+  without changing sealed artifacts. The review is on lab main at commit
+  `088d879` in
+  `handoffs/PRODUCTION-TO-LAB-EXPERIMENT081-CONSTRUCTION-LAW-REPAIR-REVIEW-2026-09-05.md`.
+  Efficacy remains held for registry v2; CP-1, PREREG-069 and JPAR are
+  unaffected.
