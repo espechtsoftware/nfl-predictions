@@ -57,6 +57,15 @@ agent or developer:
   old-vs-new exclusion diff; authorize only after the four valid Hines rows are
   members, all 33 cross-slate sub-floor rows remain excluded, and the exact
   source-map mutation tests pass.
+- Lab returned R13 at `6abc481`. It fixes the Hines rows and unmatched count,
+  but production's delta review remains NO-GO: the projection scanner samples
+  only the first 50 list elements and accepts nested outcome-bearing values at
+  element 51; manifest rows lack exact type/schema validation; the quarantine
+  is descriptive while all raw objects remain readable at their ordinary
+  input URIs; the projection publication identities remain an unbound
+  sidecar; and the acquisition helper references undefined symbols. Exact R14
+  repairs are published on lab main in the same review handoff at `ba930c6`.
+  This is a narrow CP-1 hold and does not affect JPAR R3.
 
 ### 2026-09-05 external waits cleared; JPAR R3 mechanics passed
 
