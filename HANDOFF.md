@@ -42051,3 +42051,26 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   service is active with effective cohort `succeeded`, zero integrity alerts,
   and an empty notification backlog. Full evidence and operational rule:
   `reports/2026-09-05-sdb-terminal-adjudication-and-monitor-repair.md`.
+
+- 2026-09-05 — Cloud Run provider-terminal notification residuals prepared
+
+  A follow-up repair is prepared on branch
+  `codex/monitor-notification-residuals`, based on production commit
+  `2eba8157331f`. The monitor now persists every registered coordinator receipt
+  key for which it emitted `provider_cohort_completed_without_acceptance`.
+  That independent latch survives successful-toast backlog clearing and a
+  transient provider-query `unknown` cycle, while a new immutable receipt key
+  rearms notification. The condition is level-triggered for registered
+  coordinators, so a cold start or upgrade that first observes provider success
+  without acceptance emits once immediately. Superseded same-receipt events
+  are filtered before notification display truncation, ensuring a later
+  acceptance remains visible even behind five stale queued events.
+
+  Validation in the isolated worktree: the focused monitor suite passes 40/40;
+  in-memory syntax compilation and `git diff --check` pass. No Cloud Run,
+  registry, systemd, live state, or notification transport was queried or
+  changed. The fallback for a provider-only cohort without a registration key
+  deliberately retains edge semantics because it has no immutable receipt
+  identity. Next action: review the local commit, then explicitly choose
+  whether to integrate and deploy it; do not change the live service as part
+  of this preparation task.

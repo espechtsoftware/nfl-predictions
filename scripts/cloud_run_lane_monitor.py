@@ -35,6 +35,9 @@ ATTENTION_SCHEMA = "cloud-run-lane-monitor-attention/v1"
 REGISTRY_SCHEMA = "shared-launcher-registry/v1"
 COMPLETION_SCHEMA = "shared-launcher-completion/v1"
 ALERT_POLICY = "expected-execution-retry-capacity-and-coordinator/v3"
+PROVIDER_TERMINAL_NOTIFICATION_KEYS = (
+    "provider_terminal_without_acceptance_registration_keys"
+)
 DEFAULT_PROJECT = "nfl-2-506823"
 DEFAULT_REGION = "us-central1"
 DEFAULT_JOBS = ("lab-run", "lab-run-slow")
@@ -652,6 +655,17 @@ def _describe_e4(config: Config, runner: Runner | None) -> Mapping[str, object]:
 def _old_mapping(previous: Mapping[str, object] | None, key: str) -> Mapping[str, object]:
     value = previous.get(key, {}) if previous else {}
     return value if isinstance(value, Mapping) else {}
+
+
+def _provider_terminal_notification_keys(
+    status: Mapping[str, object] | None,
+) -> set[str]:
+    raw = _old_mapping(status, "notification").get(
+        PROVIDER_TERMINAL_NOTIFICATION_KEYS, []
+    )
+    if not isinstance(raw, list):
+        return set()
+    return {value for value in raw if isinstance(value, str) and value}
 
 
 def _track(
@@ -1528,14 +1542,48 @@ def transition_events(
                 "recovered": previous is None,
             }
         )
-    if (
+    startup = (
         previous is None
         or previous.get("monitor") != current.get("monitor")
         or previous.get("schema_version") != STATUS_SCHEMA
-    ):
+    )
+    new_cohort = _old_mapping(current, "cohort").get("state")
+    new_provider_cohort = _old_mapping(current, "cohort").get("provider_state")
+    old_provider_cohort = (
+        None if startup else _old_mapping(previous, "cohort").get("provider_state")
+    )
+    coordinator = _old_mapping(current, "registered_coordinator")
+    registration_key = coordinator.get("registration_key")
+    # Delivery clears pending events, so the immutable receipt key is the
+    # durable once-only identity across later provider-query outages. A
+    # provider-only cohort has no such identity and retains edge semantics.
+    prior_notification_keys = (
+        set() if startup else _provider_terminal_notification_keys(previous)
+    )
+    has_registration_key = isinstance(registration_key, str) and bool(registration_key)
+    unnotified_registration = (
+        registration_key not in prior_notification_keys
+        if has_registration_key
+        else old_provider_cohort != new_provider_cohort
+    )
+    provider_terminal_event = (
+        {
+            **base,
+            "event": "provider_cohort_completed_without_acceptance",
+            "effective_state": new_cohort,
+            "coordinator_state": coordinator.get("state"),
+            "registration_key": registration_key,
+        }
+        if new_provider_cohort == "succeeded"
+        and new_cohort != "succeeded"
+        and unnotified_registration
+        else None
+    )
+    if startup:
         return [
             {**base, "event": "monitor_started", "lane_state": current["lane"]["state"]},
             *completion_events,
+            *([provider_terminal_event] if provider_terminal_event is not None else []),
             *(
                 {**base, "event": "alert_raised", "key": key, "alert": alert}
                 for key, alert in sorted(alerts.items())
@@ -1577,7 +1625,6 @@ def transition_events(
             {**base, "event": "lane_transition", "before": old_lane, "after": new_lane}
         )
     old_cohort = _old_mapping(previous, "cohort").get("state")
-    new_cohort = _old_mapping(current, "cohort").get("state")
     if old_cohort != new_cohort:
         events.append(
             {
@@ -1587,23 +1634,8 @@ def transition_events(
                 "after": new_cohort,
             }
         )
-    old_provider_cohort = _old_mapping(previous, "cohort").get("provider_state")
-    new_provider_cohort = _old_mapping(current, "cohort").get("provider_state")
-    if (
-        old_provider_cohort != new_provider_cohort
-        and new_provider_cohort == "succeeded"
-        and new_cohort != "succeeded"
-    ):
-        coordinator = _old_mapping(current, "registered_coordinator")
-        events.append(
-            {
-                **base,
-                "event": "provider_cohort_completed_without_acceptance",
-                "effective_state": new_cohort,
-                "coordinator_state": coordinator.get("state"),
-                "registration_key": coordinator.get("registration_key"),
-            }
-        )
+    if provider_terminal_event is not None:
+        events.append(provider_terminal_event)
     old_coordinator = _old_mapping(previous, "registered_coordinator")
     new_coordinator = _old_mapping(current, "registered_coordinator")
     coordinator_fields = (
@@ -1954,8 +1986,16 @@ def _notification_text(events: list[Mapping[str, object]]) -> tuple[str, str]:
         title = "NFL cloud cohort completed"
     else:
         title = "NFL cloud jobs need attention" if errors else "NFL cloud job warning"
+    display_events = [
+        event
+        for event in events
+        if not (
+            event.get("event") == "provider_cohort_completed_without_acceptance"
+            and event.get("registration_key") in accepted_registration_keys
+        )
+    ]
     details: list[str] = []
-    for event in events[:5]:
+    for event in display_events[:5]:
         if event.get("event") == "cohort_transition":
             details.append(f"cohort is {event.get('after')}")
             continue
@@ -1999,8 +2039,8 @@ def _notification_text(events: list[Mapping[str, object]]) -> tuple[str, str]:
             )
         else:
             details.append(f"{execution}: {kind}")
-    if len(events) > 5:
-        details.append(f"and {len(events) - 5} more")
+    if len(display_events) > 5:
+        details.append(f"and {len(display_events) - 5} more")
     return title, "; ".join(details)[:900]
 
 
@@ -2048,11 +2088,16 @@ def _prepare_notification(
     pending = [dict(item) for item in pending_raw if isinstance(item, Mapping)]
     known = {_notification_event_id(item) for item in pending}
     new_events = _notifiable_events(events)
+    provider_terminal_keys = _provider_terminal_notification_keys(previous)
     for event in new_events:
         identity = _notification_event_id(event)
         if identity not in known:
             pending.append(event)
             known.add(identity)
+        if event.get("event") == "provider_cohort_completed_without_acceptance":
+            registration_key = event.get("registration_key")
+            if isinstance(registration_key, str) and registration_key:
+                provider_terminal_keys.add(registration_key)
     last_attempt_epoch = prior.get("last_attempt_at_epoch")
     retry_due = (
         not isinstance(last_attempt_epoch, (int, float))
@@ -2072,6 +2117,7 @@ def _prepare_notification(
             "last_attempt_at_epoch": last_attempt_epoch,
             "last_success_at": prior.get("last_success_at"),
             "last_error": prior.get("last_error"),
+            PROVIDER_TERMINAL_NOTIFICATION_KEYS: sorted(provider_terminal_keys),
         },
         should_attempt,
     )
