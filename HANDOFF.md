@@ -42362,3 +42362,25 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `handoffs/PRODUCTION-TO-LAB-CP3-REPAIR-FOLLOWUP-2026-09-05.md`. A disposable
   timing probe is harmless but cannot clear the gate. CP-1 and JPAR remain
   unaffected.
+
+- 2026-09-05 — JPAR support census rotated into final bank
+
+  Bank 730 execution `lab-run-g8pqm` completed at
+  `2026-09-05T20:42:38Z` with 18/18 tasks successful and zero failures,
+  cancellations, or retries. Bank 731 execution `lab-run-slow-dkptw` (UID
+  `03d0f0f1-6eb4-45e3-baff-fde5feef4df2`) completed at
+  `2026-09-05T20:41:29Z` with the same clean 18/18 census. Each create-once
+  run prefix now contains exactly 18 objects.
+
+  The registered coordinator then claimed the predeclared bank-732 prefix and
+  launched execution `lab-run-slow-rdqzf`, UID
+  `60966968-0ae1-4ad1-9072-466cb88754ac`, start
+  `2026-09-05T20:42:26Z`. Direct provider inspection confirms 18 tasks at
+  parallelism 18, 2 vCPU/8 GiB, timeout 36,000 seconds, `maxRetries=1`, source
+  `682249ccc40583edc10982b02d63e9fed5b33fb1`, immutable image digest
+  `sha256:9356a5eb356830f3b361fca5d3475fc491323490ad5a0e96260cdbab63b4d825`,
+  run `100c732r2-20260905T195500Z`, bank 732, and support-census mode only.
+  It began with 18 tasks running. The same coordinator remains authoritative;
+  do not launch or bind a parallel copy. Next: require clean 18/18 terminal
+  state, then capture its support seal and authentication transcript before
+  preparing any efficacy binding.
