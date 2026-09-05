@@ -42400,3 +42400,39 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `handoffs/PRODUCTION-TO-LAB-JPAR1-GROUNDWORK-REVIEW-2026-09-05.md`.
   Production must review the repaired SHAs and real 2022-W8 mechanics package
   before an immutable build or execution is released.
+
+- 2026-09-05 — JPAR runner authority repaired; reader and PREREG-069 P0 remain bounded NO-GO
+
+  Lab commit `5df332b196540dae37e7ed5931faccf12b468e42`
+  removed the last unguarded `slates()`/table authority read from experiment
+  100. The runner now derives its frozen 54-slate work list solely from the
+  authenticated outcome-stripped REDIST trace. Production accepts that
+  specific repair for a fresh mechanics attempt; the failed `a3` mechanics
+  artifact remains void.
+
+  Independent adversarial review of the reader at `eb7f083` remains NO-GO
+  before an efficacy launch or outcome opening. The outstanding boundary is
+  narrow but material: exact named gate semantics and full identities; a
+  terminal generation/hash-bound, create-once cohort seal; exact shard,
+  task, argument and cell authority; allowlisted unavailable reasons; complete
+  J0/K80/CDF/lineage validation; binary activity and exact settlement joins;
+  and an authenticated PREREG-065 PG_CTRL reference rather than arbitrary
+  local JSON. The current reader tests accepted adversarial wrong-experiment,
+  wrong-task and invented-gate fixtures, so no build or bank 730--732 launch
+  is authorized yet.
+
+  Production published the consolidated repair list to lab main at
+  `cfd2ebb` in
+  `handoffs/PRODUCTION-TO-LAB-JPAR1-READER-REVIEW-2026-09-05.md`.
+  That note also identifies two independent PREREG-069 P0 ledger issues:
+  exact-duplicate multiplicity disappears before the TD disposition ledger,
+  and older rows are incorrectly classified as conflicting top ties rather
+  than superseded. These block only a fresh authoritative P0 root/census, not
+  JPAR work.
+
+  Cloud Run and Cloud Build lanes are currently idle. Next action: review the
+  lab's bounded reader/ledger repairs, accept and rerun one fresh real
+  2022-W8 outcome-disabled JPAR mechanics gate, then—only if that passes and
+  the frozen reader/cohort seal is independently accepted—build and launch
+  experiment 100 banks 730--732. PREREG-069 can continue in parallel as
+  score-free work. Experiments 091, 097 and 099/S0 remain held.
