@@ -58,6 +58,34 @@ agent or developer:
   the registered coordinator once, and continue monitoring it; in parallel,
   the lab repairs CP-1 at the Main-Classic salary-map membership boundary.
 
+### 2026-09-05 PREREG-071 R3 support census launched in both lanes
+
+- Lab main commit `6485df5a72084f391cb31d1b121f8e22841b23c9`
+  binds the exact R3 mechanics artifacts and predeclared support cohort
+  `100c730r3-20260905T221200Z`, `100c731r3-20260905T221200Z`, and
+  `100c732r3-20260905T221200Z`. Existing claims are fully authenticated before
+  authority publication; bank 732 requires a create-once receipt proving an
+  initial bank's zero-retry terminal success and strict
+  completion-before-receipt-before-claim ordering. Independent review returned
+  GO with no P0/P1 finding. Validation passed 67 related tests, shell syntax,
+  source-identity, stale-revision, and whitespace checks.
+- The production-registered coordinator acquired the `nfl2-lab-jobs` lane and
+  launched bank 730 as `lab-run-5dzl7`, UID
+  `9b6ab84c-f02f-431d-8a34-274e7cbf17c2`, created
+  `2026-09-05T22:26:47.382008Z`, and bank 731 as
+  `lab-run-slow-6fx7c`, UID `68f0908e-9129-4057-9c9d-e0373af643b9`,
+  created `2026-09-05T22:29:25.832507Z`. Both have 18 tasks running on the
+  exact 2-vCPU/8-GiB, retry-1, 36,000-second R3 envelope. Bank 732 remains
+  unclaimed until the durable release condition is met; the same coordinator
+  owns its eventual launch. No duplicate coordinator or efficacy/outcome read
+  is authorized.
+- Lab main `cfa9644` separately reports the CP-1 R12 Main-Classic membership
+  repair at branch commit `ce47ee4`; independent production review is in
+  progress while the support census runs.
+- Next concrete action: poll the two initial support banks without logs; the
+  coordinator will publish the bank-732 release receipt and use the first free
+  lane after a clean terminal. Review CP-1 R12 before allowing a2.
+
 ### 2026-09-04 bounded `us_dfs` Week-1 capture implementation
 
 - Production implemented the lab-requested D7 prospective capture as a
