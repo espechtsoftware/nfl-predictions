@@ -42204,3 +42204,39 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   Release requires 48/48 succeeded, zero failure/cancel/retry, exactly 48
   nonempty create-once objects, and an exit-zero immutable coordinator
   completion record. Only then may the lab merge and perform its first read.
+
+- 2026-09-05 — SD-C revision 2 passed terminal acceptance; lab merge/read released
+
+  Exact run `sdc095r2-20260905T095517Z` completed as Cloud Run execution
+  `lab-run-mxrkn` (UID `11fe5877-d7d4-48c8-b2ac-bc1ef5b1c898`) at
+  `2026-09-05T12:04:44.859448Z`. Provider and independent task-level censuses
+  found exactly 48 indexed tasks, all succeeded with true terminal conditions,
+  zero failures, cancellations, retries, or nonzero final attempts. The frozen
+  revision-2 envelope remained source
+  `223572885106b4672f8aa358a3c181317f1e1fb1`, image
+  `sha256:64ac0a15f481046dd599f2dc559d8d8231a57f698a972adb6f92b0024d7112e0`,
+  48 tasks at parallelism 36, 2 vCPU/8 GiB, 14,400-second timeout, and
+  `maxRetries=0` under binding `ee01e7000b9b71243b141ff58718d02094cbaf68`.
+
+  The metadata-only publication census found exactly 48 nonempty create-once
+  objects named `shard-0.json` through `shard-47.json` and no extras beneath
+  `gs://nfl-2-506823-lab/diagnostics/sdc095r2-20260905T095517Z/`. Production
+  opened no shard payload or outcome-bearing result. Persistent coordinator
+  `nfl-sdc095-revision2-coordinator.service` used invocation
+  `d20f3453b28a4d67be2e0b346a972617`; its immutable completion record is keyed
+  by live-receipt SHA-256
+  `7c796f85999cb739e39cb5a0a5030b06755ff4f1ae34cba7d7ad6d3c44ad5acc`,
+  has SHA-256
+  `834aa5fd5b0176a4baba041aa92e789415c632cbe610b6316316b62134b90f6d`,
+  and records exit 0 at `2026-09-05T12:05:06Z` with matching process, lane,
+  owner, launcher, and sole `sdc095r2` prefix identity.
+
+  Production published the exact lab merge/read release at lab-main commit
+  `80e83693fe0169f27ef0964ef6bef3b2863ed026` in
+  `handoffs/PRODUCTION-TO-LAB-SDC-REVISION2-TERMINAL-AND-MERGE-RELEASE-2026-09-05.md`;
+  that file's SHA-256 is
+  `d9a8231436960dadde69893fa12123333d3b4ad36c947a89a4833348d477fa58`.
+  Next action is the lab-owned strict merge and first read. Production may
+  independently reproduce/cross-verify only after the lab commits that first
+  read; do not open the shards before that commit. Revision 1 remains void and
+  must never be mixed into this cohort.
