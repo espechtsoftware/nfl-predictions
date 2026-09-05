@@ -22,6 +22,36 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-05 corpus-sieve and prop-covered admission plan
+
+- Documentation branch `docs/corpus-sieve-prop-universe-20260905`, based on
+  production `5bad62b17771f367f95e3378dba26914cbaf8cb6`, now carries the
+  lab-ready plan at
+  `reports/2026-09-05-production-to-lab-corpus-sieve-and-prop-universe-plan.md`.
+  The report itself is committed at `04546223cea5be2d3dfa87730fd4f4a9f35f9d9a`.
+- The first proposed step is outcome-disabled and cheap: derive a score-free
+  point-in-time prop-availability mask from raw prop lines and census the exact
+  sealed D800 donor population. A strict all-eight-covered efficacy read may
+  proceed only if every `(season, week, bank, generation_arm)` cell contains
+  at least 80 eligible unique rosters.
+- The first efficacy design is fixed-pool: unchanged D800 versus an all-eight
+  prop-covered admission mask versus a deterministic count-matched neutral
+  mask. It does not regenerate, replenish, rescore, or change matrices. The
+  operator's stricter player-universe generation proposal is retained as a
+  separately earned successor.
+- A second, later exploratory experiment tests a simultaneous local-dominance
+  candidate sieve versus a protected, size-matched neutral sieve after SD-C
+  routes the relevant belief-error mechanism. Only DK legality remains a
+  universal law; neither proposal changes Week-1 paid books.
+- Validation: `git diff --check` passed; all referenced implementation and
+  evidence files were present. No code, cloud, Neo4j, scoring, deployment, or
+  paid-entry state changed. The unrelated active SD-C revision-2 cohort is
+  `lab-run-mxrkn` / `sdc095r2-20260905T095517Z` and remains under its existing
+  coordinator; this documentation work did not touch it.
+- Next action: share the plan with the lab. The lab should perform P0 only in
+  parallel, return its exact support census and artifact contract, and leave
+  any efficacy launch behind SD-C terminal release and routing.
+
 ### 2026-09-04 bounded `us_dfs` Week-1 capture implementation
 
 - Production implemented the lab-requested D7 prospective capture as a
