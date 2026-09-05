@@ -42087,7 +42087,10 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   same-receipt acceptance now filters both the superseded provider-terminal
   event and a queued `registered_coordinator_post_provider_pending` alert
   before error-title selection and five-item display truncation. It does not
-  suppress cleanup-required or unrelated-registration alerts.
+  suppress cleanup-required or unrelated-registration alerts. An exit-zero
+  acceptance observed during a provider-query outage also cancels that stale
+  same-receipt backlog without claiming a positive cohort-complete toast until
+  provider success is independently observable again.
 
   A replacement live receipt also rearms the unclaimed-prefix grace timer.
   The reset is persisted even when the receipt is first observed during a
@@ -42095,7 +42098,7 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   failed receipt's age. Historical failure attention remains durable while
   the current capacity alert clears and can rearm for the replacement.
 
-  Validation in the isolated worktree: focused monitor tests pass 46/46,
+  Validation in the isolated worktree: focused monitor tests pass 47/47,
   in-memory syntax compilation and `git diff --check` pass. Ruff was not
   installed in the shared virtualenv, so no Ruff result is claimed. No Cloud
   Run mutation, launcher/registry mutation, systemd change, live-state write,
