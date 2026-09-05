@@ -42109,3 +42109,39 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   re-upgrade is at-least-once and may repeat one toast. Next action: review and
   explicitly integrate the follow-up commit into production, then restart the
   user monitor from the production worktree only if deployment is authorized.
+
+- 2026-09-05 — SD-C launched; notification hardening deployed
+
+  Lab Update 75 released SD-C after the one-row real-artifact smoke exited zero
+  and passed its schema check. Production then launched the bound diagnostic
+  from lab-main `5f935c0a...` using persistent unit
+  `nfl-sdc095-coordinator-r2.service` (invocation
+  `348a8c9e30bb472a91dd464cbff0c3cd`). Run
+  `sdc095r1-20260905T022341Z` is Cloud Run execution `lab-run-cth8k` (UID
+  `9c10953f-70ee-4be1-851d-1db939978886`), with 48 tasks, parallelism 36,
+  2 vCPU/8 GiB, 14,400-second timeout, `maxRetries=1`, source
+  `223572885106b4672f8aa358a3c181317f1e1fb1`, and image digest
+  `sha256:64ac0a15f481046dd599f2dc559d8d8231a57f698a972adb6f92b0024d7112e0`.
+  Thirty-six tasks are running with zero failures, cancellations, or retries.
+  Live receipt/registration key is
+  `d1e775433f00ac8538a309655cd18d79c0a2e0b2b604ec66cb30bd473d30192c`.
+  The coordinator owns terminal provider and exact 48-object censuses; no
+  shard payload has been opened. The launch receipt is durable on lab main in
+  `handoffs/PRODUCTION-TO-LAB-SDC-LAUNCH-2026-09-05.md` at `90d00a3`.
+
+  The independently reviewed monitor-hardening series was integrated as
+  `f252112c`, `b86e586e`, and `92e1db10`. It adds once-only receipt-key
+  latching, legacy pending-state migration, same-receipt acceptance
+  supersession (including provider-query failure), and a fresh capacity-grace
+  clock for replacement receipts. Full focused validation passes 47/47 plus
+  compilation and diff checks. The live read-only monitor was restarted from
+  this production worktree as invocation `39be4385c71c42edb98ae188692bdf89`;
+  it is active with zero restarts, tracks SD-C as running, and has an empty
+  notification backlog. The handoff and repository monitors remain at
+  120-second intervals, Cloud Run at 60 seconds, and the liveness heartbeat at
+  10 minutes. Routine unchanged polls remain silent.
+
+  Next action: leave the persistent coordinator and monitors running. On
+  provider terminal state, require 48/48 task success and the exact create-once
+  object census, confirm the immutable completion receipt, then publish the
+  terminal acceptance to the lab so it can merge and perform the first read.
