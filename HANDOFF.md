@@ -42569,3 +42569,36 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   PREREG-069 census `r6a1` remains the sole heavy local process and continues
   independently. Next: accept or stop on the exact mechanics gate; if it
   passes, commit the result/gate identities and bind efficacy banks 730--732.
+
+- 2026-09-05 — CP-1 implementation review published; current runner remains pre-freeze NO-GO
+
+  Production reviewed the lab's corpus-population suggestions, CP-1 universe
+  implementation `6d399e2`, mechanics runner `badc949`, and PREREG-072 draft
+  `dc2fc88`. The simple first experiment remains approved: keep every eligible
+  historical pre-lock prop-covered offensive player, every exact frozen095
+  transfer recipient, and every DST, then fill per-position to at least 60%
+  using the frozen served projection. Its primary control carries the same
+  recipient core and exact final position counts but gives prop coverage no
+  priority; `U_FULL` remains context.
+
+  The current mechanics implementation is not ready for a real-artifact
+  release or freeze. P0 findings include a legality expression that can accept
+  illegal populations whenever natural yield is below 800; an outcome-open
+  experiment-094 import inside the purportedly score-free process; an optional
+  and summary-only census binding; incomplete player-authority and projection
+  identity joins; vacuous/rounded world-order tests; non-atomic output; and
+  candidate hashes without the composition needed for exposure and Neo4j
+  rescue analysis. The review also corrects the suggestions report's
+  beneficiary, house-law, historical us_dfs, LP-dual, world-exposure,
+  scenario-reduction, residual-feedback, and diverse-pool claims.
+
+  The complete lab implementation plan is commit
+  `0613f90` on branch `production/cp1-mechanics-review-20260905` in the `nfl2`
+  repository:
+  `handoffs/PRODUCTION-TO-LAB-CP1-CORPUS-POPULATION-IMPLEMENTATION-PLAN-2026-09-05.md`.
+  It passed whitespace/diff validation and was pushed. No lab code, cloud,
+  score, outcome, or live policy was changed. Lab may implement the bounded
+  score-free P0 repairs while PREREG-069 and JPAR-1 continue; the required next
+  action is focused validation after the one-heavy-process slot clears, then a
+  source-sparse/high-recipient/unavailable real-artifact smoke and independent
+  production review before any mechanics publication, freeze, build, or score.
