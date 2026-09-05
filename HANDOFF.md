@@ -42268,3 +42268,35 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `results/read-transcripts/sdc095r2-production-crossverify-merge-transcript.txt`.
   This confirms reproducibility only: SD-C remains diagnostic/development-only,
   promotes nothing, and nominates no experiment by itself.
+
+- 2026-09-05 — PREREG-071/JPAR-1 r2 support census launched
+
+  Production independently reviewed, rebased, and pushed the outcome-disabled
+  support-census coordinator to lab `main` at commit `9529a41`. The frozen
+  runtime remains source `682249ccc40583edc10982b02d63e9fed5b33fb1`, Cloud
+  Build `10359815-f212-41f2-b514-455ca5ec67b3`, and image digest
+  `sha256:9356a5eb356830f3b361fca5d3475fc491323490ad5a0e96260cdbab63b4d825`.
+  The accepted mechanics gate is run `100m730r3-20260905T192602Z`, generation
+  `1788637184149798`, SHA-256
+  `885e3ae28e422ede9f82fb157f501eec79f7aabd81d886adb49de15f3109b1bd`.
+
+  The create-once launch authority is
+  `gs://nfl-2-506823-lab/authorities/PREREG-071/100c730r2-100c731r2-100c732r2.json`,
+  generation `1788638906170077`, bytes `1621`, SHA-256
+  `9eb2f9a752e0f0ebc4ac474fea27f002384d4324c96d9a69aa527b695df80238`.
+  Initial support-census executions are active with the exact 18-task,
+  2-vCPU/8-GiB, `maxRetries=1` envelope and no outcome arguments:
+
+  - bank 730, run `100c730r2-20260905T195500Z`: execution
+    `lab-run-g8pqm`, 18 running, start `2026-09-05T20:10:04Z`;
+  - bank 731, run `100c731r2-20260905T195500Z`: execution
+    `lab-run-slow-dkptw`, 18 running, start `2026-09-05T20:12:44Z`.
+
+  The registered coordinator owns all three census prefixes. It will launch
+  predeclared bank 732 only after one initial bank reaches terminal 18/18
+  success with zero retries, then require all three banks to pass before it
+  writes the exact support-census seal and invokes only the released reader's
+  `--authenticate-census` path. No efficacy prefix has been claimed and no
+  historical outcome path has been opened. Next: monitor the two executions;
+  after authenticated census acceptance, bind fresh r2 efficacy runs and the
+  returned authority/seal identities atomically before any efficacy launch.
