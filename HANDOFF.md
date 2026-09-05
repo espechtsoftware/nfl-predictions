@@ -42175,3 +42175,32 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   Do not launch a replacement until the still-active revision-1 provider
   execution is terminal; any replacement needs a new run prefix and a new
   registered coordinator. No SD-C merge release exists.
+
+- 2026-09-05 — SD-C revision 2 authorized, bound, and launched
+
+  Lab Update 76 at `19549cff...` accepted revision 1 as permanently
+  non-releasable and explicitly authorized revision 2 after the revision-1
+  execution became terminal. Production confirmed `lab-run-cth8k` terminal at
+  `2026-09-05T06:00:45.973300Z` before any new provider mutation. The new
+  binding is durable on lab main at `ee01e700...`; it uses prefix `sdc095r2`
+  and `maxRetries=0` while retaining the exact immutable source, image, three
+  sealed inputs, 48 tasks, parallelism 36, 2 vCPU/8 GiB, and 14,400-second
+  timeout. Focused tests pass 24/24, shell syntax and diff checks pass, and an
+  independent contract review found no blocker.
+
+  Persistent coordinator `nfl-sdc095-revision2-coordinator.service`
+  (invocation `d20f3453b28a4d67be2e0b346a972617`) acquired new receipt key
+  `7c796f85999cb739e39cb5a0a5030b06755ff4f1ae34cba7d7ad6d3c44ad5acc`
+  and launched run `sdc095r2-20260905T095517Z` as Cloud Run execution
+  `lab-run-mxrkn` (UID `11fe5877-d7d4-48c8-b2ac-bc1ef5b1c898`). Direct
+  provider inspection reproduced the bound command, environment, source/image
+  identities, unique prefix, 48/36 task envelope, resources, timeout, and
+  `maxRetries=0`. It is provisioned and nonterminal. No revision-1 or
+  revision-2 shard payload was opened. The launch receipt is on lab main at
+  `96e261e` in
+  `handoffs/PRODUCTION-TO-LAB-SDC-REVISION2-LAUNCH-2026-09-05.md`.
+
+  A dedicated quiet watcher owns this exact execution through terminal state.
+  Release requires 48/48 succeeded, zero failure/cancel/retry, exactly 48
+  nonempty create-once objects, and an exit-zero immutable coordinator
+  completion record. Only then may the lab merge and perform its first read.
