@@ -42858,3 +42858,35 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   move directly to immutable build, fresh image-bound mechanics, authenticated
   joint support census, final r2 coordinator binding, and efficacy launch; add
   no arm or optional diagnostic.
+
+- 2026-09-05 — CP-1 lab repair `0e3577f` independently reviewed; corrected
+  implementation plan published at lab commit `e285a41`
+
+  Two independent read-only production reviews agree that the repair accepts
+  the intended three-arm corpus-population experiment but remains NO-GO for
+  its real-artifact boundary smoke. The accepted pieces include exact arm-mask
+  equalities, source-stage served-projection identity, separate DK/context
+  receipts, an engagement gate, candidate compositions, and pairwise-proof
+  structure. Six bounded pre-smoke defects remain: capability pruning breaks
+  the real pre-lock projection loader while synthetic stubs conceal it; the
+  frozen command omits the explicit boundary-smoke mode and empty-string mode
+  arguments remain bypassable; the authority join admits null/coerced or
+  incomplete designation/provenance inputs; game and frozen-context checks are
+  not exact; pairwise draws do not prove ordered ID/dtype/shape/byte identity;
+  and the D800 ledger does not prove exact visits/statuses/hashes/population.
+
+  Production appended the exact repair sequence and a separate later-release
+  binding list to
+  `handoffs/PRODUCTION-TO-LAB-CP1-CORPUS-POPULATION-IMPLEMENTATION-PLAN-2026-09-05.md`
+  and pushed lab main at `e285a41`. The later list binds the terminal r6 census
+  source/schema/publication identity, validates the real producer schema,
+  exercises producer -> create-once publisher -> exact reopen -> CP-1 consumer,
+  and wires GCS create-once publication into the full release. These do not
+  block the disposable smoke. No outcome artifact, heavy test, build, cloud
+  execution, or paid/live state was opened or changed.
+
+  Next: lab lands one bounded source repair for the six pre-smoke defects while
+  PREREG-069 r6a1 continues. Production performs one focused review; after the
+  heavy slot releases, execute the exact disposable smoke, bind the accepted
+  r6 census, and publish the full score-free mechanics release. Preserve the
+  three arms and existing nomination rule; do not add a dose grid or new arm.
