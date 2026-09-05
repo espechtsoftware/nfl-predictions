@@ -42734,6 +42734,11 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   No r2 image, mechanics/census execution, efficacy prefix, outcome object, or
   cloud state was opened by this review. Cloud lanes are intentionally idle
   until the lab repair is committed and production independently re-reviews it.
+  Follow-up feasibility review found that the existing stripped trace lacks the
+  nine player IDs and cannot directly rehydrate all 800 candidates. Lab-main
+  commit `e10c0c5` therefore binds the minimal route: one outcome-disabled
+  joint preflight regeneration, persist the exact matched membership sidecar,
+  and rehydrate it during efficacy without a second CBC generation.
   Next: review one repair commit; on GO, immediately build one immutable r2
   image, run fresh mechanics and the authenticated joint preflight census,
   seal/reopen the census, bind exact unused r2 identities, and launch efficacy.
