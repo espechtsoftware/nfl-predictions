@@ -42436,3 +42436,41 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   the frozen reader/cohort seal is independently accepted—build and launch
   experiment 100 banks 730--732. PREREG-069 can continue in parallel as
   score-free work. Experiments 091, 097 and 099/S0 remain held.
+
+- 2026-09-05 — JPAR attempt a8 accepted for mechanism only; final reader authentication remains NO-GO
+
+  Production downloaded the exact create-once attempt-a8 mechanics envelope
+  for 2022-W8/source bank 690 by URI and generation, verified its 6,003,098
+  bytes and SHA-256
+  `bced56b754c1967801d0895c272aa995e3e1e9c7e3d3a833560dbcc007197d33`,
+  and independently reran the nine-check gate. All nine checks passed and the
+  recomputed canonical gate core was byte-identical to the committed result.
+  This accepts the source-level JPAR mechanism and permits a build only after
+  the reader's final receipt path is repaired; it does not authorize outcomes
+  or efficacy banks.
+
+  Focused tests on lab main through `b7300c2` passed 22/22, and production
+  accepts its create-once writer, valid-cell-only settlement loading, held-out
+  matrix digest equality, slate-first aggregates, and absolute J0/J1 book-max
+  reporting. Independent adversarial inspection nevertheless found two P0
+  defects: the gate CLI never emits the claimed mechanics-envelope object
+  identity and the reader never reopens/authenticates that exact object; and a
+  persisted held-out CDF digest mismatch can still leave gate check 9 at PASS.
+  The positive test manually injects the missing receipt block, so it does not
+  exercise the production path.
+
+  The bounded NO-GO and exact repair/relaunch sequence are on lab main at
+  `37117776d7636415566553118534496aa639fa03` in
+  `handoffs/PRODUCTION-TO-LAB-JPAR1-FINAL-P0-REVIEW-2026-09-05.md`.
+  Next action is to review only those repairs, build the accepted immutable
+  image, run one fresh image-bound create-once mechanics cell, bind its exact
+  authenticated gate, and then launch banks 730--732. No outcome data was
+  opened.
+
+  Separately, the operator-approved player-universe pilot is now defined as
+  `U_FULL`, count-matched `U_RANDOM60`, and `U_PROP_CORE_FILL60`: retain every
+  prop-covered offensive player and every DST, then fill each position to 60%
+  with the strongest uncovered `proj_tourney` candidates. The outcome-free
+  constructor landed on lab main at `1907371`; it remains background mechanics
+  work behind JPAR and awaits the repaired authoritative PREREG-069 mask. The
+  strict ALL8 universe remains closed.
