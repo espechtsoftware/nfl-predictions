@@ -42890,3 +42890,49 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   heavy slot releases, execute the exact disposable smoke, bind the accepted
   r6 census, and publish the full score-free mechanics release. Preserve the
   three arms and existing nomination rule; do not add a dose grid or new arm.
+
+- 2026-09-05 — owner clarified CP-1 topology boundary; primary universe test
+  moved to DK-only construction at lab commit `cf19b07`
+
+  Code inspection confirmed that CP-1's prior “held-constant context” was not
+  merely descriptive: every optimizer call inherited `PRODUCTION_STACK` and
+  `PRODUCTION_ENV`, so every candidate in every arm required QB + two
+  same-team WR/TE, one opposing RB/WR/TE bring-back, salary >= $49,000, no RB
+  against the rostered DST, and no two same-team RBs. The label correctly
+  distinguished those house rules from universal validity, but operationally
+  they were mandatory throughout CP-1 and did not implement the owner's
+  legality-only final architecture.
+
+  Production amended the implementation plan before any CP-1 smoke or score.
+  The first read is now four cells: the three universe arms under explicit
+  `DK_ONLY_V1`, plus `U_FULL × GPP_CONTEXT_V1` as a separately named historical
+  topology reference. This preserves a clean same-size prop-versus-projection
+  universe estimand under the intended architecture and adds one cheap
+  construction-law ablation without expanding to a six-cell factorial. Only
+  DK Classic legality is universal. A later interaction crossing is launched
+  only if either primary comparison moves.
+
+  The amendment also promotes three score-bearing items into this week's
+  parallel queue: one frozen walk-forward rich point-in-time filler, the
+  accepted-JPAR priced residual iteration, and one tail-regime diversification
+  treatment. Schema/provenance/create-once work remains mandatory but cannot
+  affect scores. Historical `us_dfs` is still not backfilled. No code, smoke,
+  build, outcome, cloud, or live-policy state changed. Next: lab acknowledges
+  the amendment, updates PREREG-072/runner/tests/gate/reader/lineage identities,
+  and combines the explicit four-cell interface with the six bounded §8.1
+  repairs before production's next static review.
+
+- 2026-09-05 — JPAR-1 fourth r2 repair `8af8b4b` reviewed; one exact-domain
+  defect remains before build
+
+  Independent static review accepted weight eligibility, non-circular
+  dropback/sack/carry primitives, transitive census-module binding, exact
+  seven-key trace identity, and the canonical benchmark digest. The source is
+  still NO-GO for an immutable build because primitive world keys are checked
+  through integer conversion: a coherently rehashed `"033"` alias can collapse
+  onto world `"33"` and be ignored, while an extra empty-team mapping can also
+  pass. Production published the single literal team/world-domain repair and
+  two coherent-rehash negatives at lab commit `24f7f94` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG071-R2-CONTRACT-REVIEW-2026-09-05.md`.
+  No tests, build, outcomes, or cloud state were opened. Next: review only that
+  repair; a clean result advances immediately to the immutable r2 build.
