@@ -118,9 +118,21 @@ agent or developer:
 - Lab main `cfa9644` separately reports the CP-1 R12 Main-Classic membership
   repair at branch commit `ce47ee4`; independent production review is in
   progress while the support census runs.
-- Next concrete action: poll the two initial support banks without logs; the
-  coordinator will publish the bank-732 release receipt and use the first free
-  lane after a clean terminal. Review CP-1 R12 before allowing a2.
+- Bank 730 (`lab-run-5dzl7`) completed 18/18 at
+  `2026-09-05T23:00:07.089750Z`, and bank 731
+  (`lab-run-slow-6fx7c`) also completed 18/18, both with zero failures or
+  retries. The coordinator then published the create-once bank-732 release
+  receipt at generation `1788649304504588`, 815 bytes, SHA-256
+  `fd9c71c3ef3f1ff6ada6eb06e8cf48405601cd3fb4852219df8a300e94196bc2`,
+  proving the exact bank-730 prerequisite and release ordering.
+- Bank 732 was claimed only after that receipt and launched as Cloud Run
+  execution `lab-run-rl4kd`, UID
+  `bf838925-b641-47b7-9815-e29fc6a34854`, created
+  `2026-09-05T23:02:04.773591Z`; all 18 tasks are running on the frozen R3
+  envelope. The ordering gate therefore engaged as designed.
+- Next concrete action: poll bank 732 and the registered coordinator to clean
+  terminal, authenticate all three census banks, seal the support cohort, and
+  bind the frozen reader before any first read.
 
 ### 2026-09-04 bounded `us_dfs` Week-1 capture implementation
 
