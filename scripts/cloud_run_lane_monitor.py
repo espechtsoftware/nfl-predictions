@@ -660,12 +660,30 @@ def _old_mapping(previous: Mapping[str, object] | None, key: str) -> Mapping[str
 def _provider_terminal_notification_keys(
     status: Mapping[str, object] | None,
 ) -> set[str]:
-    raw = _old_mapping(status, "notification").get(
-        PROVIDER_TERMINAL_NOTIFICATION_KEYS, []
+    notification = _old_mapping(status, "notification")
+    raw = notification.get(PROVIDER_TERMINAL_NOTIFICATION_KEYS, [])
+    keys = (
+        {value for value in raw if isinstance(value, str) and value}
+        if isinstance(raw, list)
+        else set()
     )
-    if not isinstance(raw, list):
-        return set()
-    return {value for value in raw if isinstance(value, str) and value}
+    # Statuses written before the explicit latch can already hold an
+    # undelivered provider-terminal event. Treat that durable backlog entry as
+    # the same once-only evidence instead of appending a timestamped duplicate
+    # during upgrade.
+    pending = notification.get("pending_events", [])
+    if isinstance(pending, list):
+        for event in pending:
+            if (
+                not isinstance(event, Mapping)
+                or event.get("event")
+                != "provider_cohort_completed_without_acceptance"
+            ):
+                continue
+            registration_key = event.get("registration_key")
+            if isinstance(registration_key, str) and registration_key:
+                keys.add(registration_key)
+    return keys
 
 
 def _track(
@@ -1334,6 +1352,11 @@ def collect_status(
             reason="authorized prefix matched more than one provider execution",
             execution_names=item["execution_names"],
         )
+    old_capacity = (
+        {}
+        if rearmed_live_receipt
+        else _old_mapping(previous, "capacity_unclaimed_since_epoch")
+    )
     if lab_ok:
         for job in config.jobs:
             rows = [
@@ -1391,7 +1414,6 @@ def collect_status(
                     unchanged_seconds=int(age),
                     threshold_seconds=config.stall_seconds,
                 )
-        old_capacity = _old_mapping(previous, "capacity_unclaimed_since_epoch")
         capacity_unclaimed_since: dict[str, float] = {}
         if available_jobs:
             for prefix, item in prefix_status.items():
@@ -1410,9 +1432,7 @@ def collect_status(
                         grace_seconds=config.queue_grace_seconds,
                     )
     else:
-        capacity_unclaimed_since = dict(
-            _old_mapping(previous, "capacity_unclaimed_since_epoch")
-        )
+        capacity_unclaimed_since = dict(old_capacity)
 
     e4_key = f"e4:{config.e4_execution}" if config.e4_execution else None
     if e4_key is not None:
@@ -1557,9 +1577,7 @@ def transition_events(
     # Delivery clears pending events, so the immutable receipt key is the
     # durable once-only identity across later provider-query outages. A
     # provider-only cohort has no such identity and retains edge semantics.
-    prior_notification_keys = (
-        set() if startup else _provider_terminal_notification_keys(previous)
-    )
+    prior_notification_keys = _provider_terminal_notification_keys(previous)
     has_registration_key = isinstance(registration_key, str) and bool(registration_key)
     unnotified_registration = (
         registration_key not in prior_notification_keys
@@ -1576,6 +1594,7 @@ def transition_events(
         }
         if new_provider_cohort == "succeeded"
         and new_cohort != "succeeded"
+        and coordinator.get("state") != "succeeded"
         and unnotified_registration
         else None
     )
@@ -1946,29 +1965,52 @@ def _notifiable_events(events: Iterable[Mapping[str, object]]) -> list[dict[str,
 
 
 def _notification_text(events: list[Mapping[str, object]]) -> tuple[str, str]:
+    accepted_registration_keys: set[str] = set()
+    for event in events:
+        if (
+            event.get("event") != "registered_coordinator_accepted"
+            or event.get("effective_state") != "succeeded"
+        ):
+            continue
+        registration_key = event.get("registration_key")
+        if isinstance(registration_key, str) and registration_key:
+            accepted_registration_keys.add(registration_key)
+    display_events: list[Mapping[str, object]] = []
+    for event in events:
+        superseded_registration_key: object = None
+        if event.get("event") == "provider_cohort_completed_without_acceptance":
+            superseded_registration_key = event.get("registration_key")
+        elif event.get("event") in ("alert_raised", "alert_updated"):
+            alert = event.get("alert")
+            if (
+                isinstance(alert, Mapping)
+                and alert.get("kind")
+                == "registered_coordinator_post_provider_pending"
+            ):
+                superseded_registration_key = alert.get("registration_key")
+        if (
+            isinstance(superseded_registration_key, str)
+            and superseded_registration_key in accepted_registration_keys
+        ):
+            continue
+        display_events.append(event)
     errors = any(
         isinstance(event.get("alert"), Mapping)
         and event["alert"].get("severity") == "error"
-        for event in events
+        for event in display_events
     )
-    accepted_registration_keys = {
-        event.get("registration_key")
-        for event in events
-        if event.get("event") == "registered_coordinator_accepted"
-    }
     successful_acceptance = any(
         (
             event.get("event") == "cohort_transition"
             and event.get("after") == "succeeded"
         )
         or event.get("event") == "registered_coordinator_accepted"
-        for event in events
+        for event in display_events
     )
     unresolved_without_acceptance = [
         event
-        for event in events
+        for event in display_events
         if event.get("event") == "provider_cohort_completed_without_acceptance"
-        and event.get("registration_key") not in accepted_registration_keys
     ]
     failed_acceptance = any(
         event.get("effective_state") == "failed"
@@ -1986,14 +2028,6 @@ def _notification_text(events: list[Mapping[str, object]]) -> tuple[str, str]:
         title = "NFL cloud cohort completed"
     else:
         title = "NFL cloud jobs need attention" if errors else "NFL cloud job warning"
-    display_events = [
-        event
-        for event in events
-        if not (
-            event.get("event") == "provider_cohort_completed_without_acceptance"
-            and event.get("registration_key") in accepted_registration_keys
-        )
-    ]
     details: list[str] = []
     for event in display_events[:5]:
         if event.get("event") == "cohort_transition":
