@@ -42638,3 +42638,18 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `__BIND_AT_LAUNCH__` values, so this branch cannot claim a prefix or touch
   cloud state. It is preparation only; binding/review waits for the registered
   support coordinator's clean terminal seal and authentication transcript.
+
+- 2026-09-05 — CP-1 R14 reviewed; narrow R15 returned
+
+  Production independently reviewed lab branch commit `2f7cbe8`; the formal
+  review is durable on lab main at `71b835d` in
+  `handoffs/PRODUCTION-TO-LAB-CP1-R14-REVIEW-2026-09-05.md`.
+  Disposition remains NO-GO for `cp1smoke-a2` and for the proposed deletion
+  sequence as written. R14's checked-in artifacts are internally consistent
+  and the focused suite passes 28/28, but raw nested outcome fields can still
+  be string-coerced into allowed projection values, publication coverage is
+  not a required bijection, projection/manifest raw identities can disagree,
+  and the quarantine receipt is not exact-set/type closed. Production returned
+  one bounded R15 plus a two-phase copy/verify then generation-conditioned
+  delete contract. Bucket versioning is currently off and soft delete is seven
+  days. No raw payload/outcome was opened and no object or cloud state changed.
