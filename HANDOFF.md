@@ -42541,3 +42541,31 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   (~888 MB RSS, no error). Accept the result only after all 108 cells complete
   and its final artifact is published/reopened create-once under a durable
   receipt. CP-1 score-free implementation has started in parallel.
+
+- 2026-09-05 — JPAR immutable build succeeded; fresh mechanics execution active
+
+  Production accepted exact repaired JPAR source
+  `e63a6efb0d2bc0bdce08287035a5908c30605e9c` after the exact-argument
+  repair. Regional Cloud Build
+  `523b763e-447d-42d3-8f31-8d13c5d462ff` completed successfully from
+  source object generation `1788620428783634` and produced immutable image
+  digest
+  `sha256:a67d52b50320468dc7e8976c4d4a26a90563e10b2618d2e0cca014f82df46825`
+  under tag `100-e63a6ef`.
+
+  The production-owned registered mechanics coordinator is durable on lab
+  main at `12b6ce33136b26e72efb8b6b197d309d8d785d1d`. It claimed only
+  prefix `100m730r2` and launched Cloud Run execution
+  `lab-run-csspg`, run id
+  `100m730r2-20260905T151853Z`, for the single outcome-disabled
+  2022-W8/source-bank-690 cell. The actual container command is
+  `python -m nfl2.jpar.run` with the exact no-suffix mechanics arguments;
+  one task, 2 vCPU/8 GiB, maxRetries 1. Independent prelaunch review returned
+  GO. No efficacy prefix or outcome reader is authorized. The coordinator
+  retains the canonical `nfl2-lab-jobs` registry lane through terminal
+  execution, exact-generation result reopening, the nine-check gate, and
+  create-once gate publication.
+
+  PREREG-069 census `r6a1` remains the sole heavy local process and continues
+  independently. Next: accept or stop on the exact mechanics gate; if it
+  passes, commit the result/gate identities and bind efficacy banks 730--732.
