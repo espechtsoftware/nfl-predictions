@@ -42319,3 +42319,22 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   are repaired. That bounded NO-GO/conditional-GO is in
   `handoffs/PRODUCTION-TO-LAB-PREREG069-P0-MECHANICS-REVIEW-2026-09-05.md` in
   the same lab commit. The combined focused suite passed 25/25.
+
+- 2026-09-05 — JPAR-1 groundwork review found bounded pre-freeze defects
+
+  Production reviewed lab groundwork `9f7f199` before mechanics release. The
+  J0 capture/calibration parity and general keyed recomputation shape are
+  acceptable, but bounded defects make the code a NO-GO for the real gate as
+  written: assigning offensive `dk_points` over every team row erased a
+  non-inactive DST's unchanged J0 score (synthetic 4.0 -> 0.0), replacement-QB
+  selection could award passing production to a QB excluded by the frozen PIT
+  activity mask (synthetic ineligible backup received 6.96 instead of using
+  the sink), J1 omitted J0's 3x red-zone/goal-line TD tilt, decision and
+  held-out auxiliary RNG streams lacked a role separator, and the reusable
+  trace publisher did not generation-exactly reopen/hash its root. No build or
+  cloud execution had been authorized, so no cohort is affected.
+
+  The bounded repair/test requirements are on lab main at `719b9e5` in
+  `handoffs/PRODUCTION-TO-LAB-JPAR1-GROUNDWORK-REVIEW-2026-09-05.md`.
+  Production must review the repaired SHAs and real 2022-W8 mechanics package
+  before an immutable build or execution is released.
