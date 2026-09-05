@@ -42832,3 +42832,29 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   review one narrow lab repair; if clean, immediately build fresh r2 mechanics,
   run/seal/authenticate the 162-cell census, bind a new registered r2
   coordinator, and launch the efficacy cohort.
+
+- 2026-09-05 — JPAR-1 third r2 repair `977a754` reviewed; five narrow
+  pre-build defects returned
+
+  Two independent production reviewers accepted the r1 coordinator retirement,
+  lossless masks, typed state, derived engagement/refusal/zero/sink checks, and
+  cell-to-authority participation binding. The source is still NO-GO for an
+  immutable build because positive weights remain legal on PIT-inactive or
+  position-ineligible rows; sampled target/carry totals are trusted rather than
+  derived from lossless world primitives; `census_module_sha256` is not bound
+  through the mechanics/efficacy gate; reader comparisons use only trace-root
+  generation/SHA rather than the full bucket/object/URI/bytes/schema identity;
+  and benchmark hashes accept an arbitrary nonempty string.
+
+  Production published the exact bounded repair and coherent-mutation requests
+  to lab main at `12b2b5b` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG071-R2-CONTRACT-REVIEW-2026-09-05.md`.
+  No test, image, result, outcome object, or cloud state was opened. The future
+  concrete r2 coordinator and run pins correctly remain post-build production
+  work. PREREG-069 r6a1 remains the sole heavy local process (PID `2182696`),
+  verified live at `2026-09-05T18:24Z` through source bank 681 / 2024-W1.
+
+  Next: re-review one focused repair for only these five source defects. On GO,
+  move directly to immutable build, fresh image-bound mechanics, authenticated
+  joint support census, final r2 coordinator binding, and efficacy launch; add
+  no arm or optional diagnostic.
