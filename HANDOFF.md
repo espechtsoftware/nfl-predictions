@@ -22,6 +22,42 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-05 external waits cleared; JPAR R3 mechanics passed
+
+- The lab's shorthand wait on census exit, production gate, and branch reviews
+  is superseded. PREREG-069 r6a1 exited zero at 108/108 cells; 081 and CP-3
+  reviews were returned; and CP-4 remains explicitly held rather than awaiting
+  review. Production published the exact dependency disposition to lab main as
+  `handoffs/PRODUCTION-TO-LAB-DEPENDENCY-STATUS-2026-09-05.md`, commit
+  `d2235e7`.
+- PREREG-071 fresh mechanics run `100m730r4-20260905T215730Z`, Cloud Run
+  execution `lab-run-s6zn7`, UID
+  `059ffb71-2cc0-483f-8e45-e5cafacb3554`, completed 1/1 with zero failures,
+  retries, or cancellations. All nine frozen mechanics checks passed. Exact
+  result object: generation `1788646044167419`, 8,800,306 bytes, SHA-256
+  `34dbb9a74713f6e78b4e5089e8c59849c78e4137ae07d55f36c9123dda659bd0`.
+  Exact gate object: generation `1788646098458637`, 7,233 bytes, SHA-256
+  `7e9224fd317344def643e45815a1894ecd6b40de38e36b17a88e6f58ad2d8459`.
+  Registered coordinator completion receipt SHA-256 is
+  `87b8fd0200b4a04f8f705279e52cf4ad3bf08b4373fcb5fe873982026e41b652`.
+  No efficacy prefix was claimed and no efficacy/outcome reader was opened.
+- Fresh R3 support-census runs are predeclared as
+  `100c730r3-20260905T221200Z`, `100c731r3-20260905T221200Z`, and
+  `100c732r3-20260905T221200Z`. Before binding and launch, the coordinator is
+  being hardened to authenticate any pre-existing provider claim before
+  authority publication and to persist a create-once bank-732 release receipt.
+- The CP-1 source audit found 33 sub-$2,000 authority rows (31 unique players,
+  20 slates), all trace cohorts potentially exposed. The published PREREG-069
+  and PREREG-071 trace schemas contain roster hashes but no player membership,
+  so exact candidate/K80 exposure is unknown rather than zero. Accordingly,
+  the completed PREREG-069 census remains diagnostic-only and must not nominate
+  GE7 until exact Main-Classic membership or an outcome-disabled membership
+  reconstruction qualifies affected cells. CP-1 a2 remains held for the same
+  slate-aware source repair.
+- Next concrete action: commit/review the exact R3 support-census binding, run
+  the registered coordinator once, and continue monitoring it; in parallel,
+  the lab repairs CP-1 at the Main-Classic salary-map membership boundary.
+
 ### 2026-09-04 bounded `us_dfs` Week-1 capture implementation
 
 - Production implemented the lab-requested D7 prospective capture as a
