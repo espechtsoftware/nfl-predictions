@@ -42671,3 +42671,27 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   opened. Next: let the registered coordinator stage 732, require all three
   zero-retry terminal successes, publish/reopen the exact cohort seal, make the
   seal-only reader binding commit, then release the lab first read.
+
+- 2026-09-05 — JPAR-1 efficacy r1 invalidated by deterministic zero-recipient refusal
+
+  Both initial experiment-100 executions recorded one provider retry and are
+  therefore already invalid under the frozen zero-retry terminal rule. Task 13
+  failed on the same 2023-W14 SEA state in each bank:
+  `lab-run-xgg8z` / bank 730 at world 33 with 19 carries, and
+  `lab-run-slow-w6tmr` / bank 731 at world 109 with 15 carries. Both errors are
+  the explicit `participation_conditioned` refusal: positive carries with no
+  active eligible recipient. This is a deterministic mechanics/design case,
+  not a transient provider error. No efficacy result or target outcome was
+  opened; evidence came only from provider metadata and exception logs.
+
+  Bank 732 remains unclaimed. The registered coordinator retains the lane while
+  both initial executions reach their natural terminal state and will refuse
+  the staged bank when it observes the retry after capacity releases. No
+  cancellation, relaunch, seal, reader invocation, or gate relaxation is
+  authorized. Production published the full r1 disposition and requested
+  score-free lab analysis at lab-main commit `8e3c2ad`:
+  `handoffs/PRODUCTION-TO-LAB-PREREG071-EFFICACY-R1-FAILURE-2026-09-05.md`.
+  Any r2 requires an independently reviewed scientific/mechanics disposition,
+  an all-162-cell prelaunch check for this class, new immutable identities and
+  unused prefixes. Preserve r1 objects only as invalid diagnostics and never
+  mix them into another cohort.
