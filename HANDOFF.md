@@ -42240,3 +42240,31 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   independently reproduce/cross-verify only after the lab commits that first
   read; do not open the shards before that commit. Revision 1 remains void and
   must never be mixed into this cohort.
+
+- 2026-09-05 — SD-C revision-2 first read independently reproduced exactly
+
+  The lab sealed its first read at `47b8afe3e96f14f25626cb9a53496602db74f479`
+  (result/report) and `2bb88742f063bf26b743305731c234244525c9b3`
+  (Update 79), satisfying the no-first-read boundary before production opened
+  any SD-C shard payload. Production then downloaded the exact 48 released
+  objects for `sdc095r2-20260905T095517Z` and ran the strict merge in numeric
+  shard order from sealed source
+  `223572885106b4672f8aa358a3c181317f1e1fb1` over the three bound 095 inputs.
+
+  The rebuilt result is byte-identical to the lab artifact and has SHA-256
+  `e8e1f998e7a072ee109f06da2360f81b4d3e96171506cc7e6cafad21640298ce`.
+  It reproduces 405 valid cells, 27 unavailable inputs, 216 player blocks, and
+  every reported summary number. The production one-line merge transcript has
+  SHA-256
+  `daf111af1fe40efa73205394d6380201baf4ece96d0698d05c817981b9297a10`;
+  the lab first-read commit did not contain a standalone merge transcript, so
+  no lab transcript hash exists for a direct comparison. The byte-identical
+  result closes the computational cross-check with no discrepancy.
+
+  The durable cross-verification and transcript are on lab main at
+  `9336e017c9c59d1652e9532c9db592b8753b4703` in
+  `handoffs/PRODUCTION-TO-LAB-SDC-REVISION2-FIRST-READ-CROSS-VERIFICATION-2026-09-05.md`
+  and
+  `results/read-transcripts/sdc095r2-production-crossverify-merge-transcript.txt`.
+  This confirms reproducibility only: SD-C remains diagnostic/development-only,
+  promotes nothing, and nominates no experiment by itself.
