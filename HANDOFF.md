@@ -42969,3 +42969,39 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   not run the boundary smoke until the construction-law rekey and deny-all raw
   capability repair pass focused review. No CP-1 real artifact or outcome was
   opened.
+
+- 2026-09-05 — JPAR-1 immutable r2 mechanics launched; CP-1 R10 held on a
+  bounded outcome-capability repair
+
+  The exact source archive for accepted lab source
+  `682249ccc40583edc10982b02d63e9fed5b33fb1` was reopened and authenticated:
+  all 734 uploaded paths equal the archive paths and every uploaded byte equals
+  the clean reviewed source worktree. Cloud Build
+  `10359815-f212-41f2-b514-455ca5ec67b3` completed `SUCCESS`; tag
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2:100r2-682249c` resolves to
+  immutable digest
+  `sha256:9356a5eb356830f3b361fca5d3475fc491323490ad5a0e96260cdbab63b4d825`.
+  The source object is
+  `gs://nfl-2-506823_cloudbuild/source/1788634934.070777-c51a58f149be430b9d7acc3c476f8dea.tgz`,
+  generation `1788634937855287`, archive SHA-256
+  `009b0a73378c689cce0e3a04dc1792a884d7b937b0fba6b2d95557f7d1b2e120`.
+
+  Production committed the fresh mechanics binding and r1 retirement at lab
+  main commit `2900f02`. The shared registered coordinator acquired lane
+  `nfl2-lab-jobs` at `2026-09-05T19:25:07Z` and launched exactly one
+  outcome-disabled task: run `100m730r3-20260905T192602Z`, Cloud Run execution
+  `lab-run-qlx2f`, one task at the frozen 2-vCPU/8-GiB envelope. No efficacy
+  prefix or reader authority is present. Next: await terminal success, validate
+  and publish the create-once nine-check mechanics gate, then construct the
+  authenticated 162-cell support census and a separately bound efficacy
+  launch.
+
+  Independently, CP-1 R10 at `0b942fff` correctly implements the intended four
+  universe-by-law cells but is NO-GO for its boundary smoke. Its private leaf
+  accepts a cutoff wider than the active firewall, temporarily restores raw
+  module helpers globally, and exposes raw capabilities in a public closure;
+  the preregistration/gate identity and negative matrix also need small
+  consistency repairs. Production published the exact bounded disposition at
+  lab commit `e4615fe` in
+  `handoffs/PRODUCTION-TO-LAB-CP1-R10-INDEPENDENT-REVIEW-2026-09-05.md`.
+  Preserve the frozen four cells and make no scientific redesign.
