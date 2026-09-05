@@ -42398,3 +42398,51 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `handoffs/PRODUCTION-TO-LAB-CP3-REPAIR-CLEARANCE-2026-09-05.md`. Once repaired,
   one exact score-free full-shape smoke is cleared after CP-1; no outcome read
   or D800 integration is authorized yet.
+
+- 2026-09-05 — JPAR R2 support-census authentication failed closed; canonical JSON repair prepared
+
+  All three support-census executions finished terminal-clean (730
+  `lab-run-g8pqm`, 731 `lab-run-slow-dkptw`, 732 `lab-run-slow-rdqzf`; 18/18
+  each, zero failure/cancel/retry). The registered coordinator published its
+  deterministic R2 support-seal object, then the released
+  `--authenticate-census` path rejected the first reopened shard before any
+  efficacy claim or outcome access: `decision support_state_sha256 does not
+  recompute from the embedded state`. Coordinator completion receipt
+  `09feb506bdd38002d2ff17ea388c10a1d126c4be4c8769daf84010bbbeb62f18`
+  records exit 1 at `2026-09-05T21:18:56Z`. The R2 census artifacts/seal are
+  invalid and must not be rewritten, relaxed, or used for efficacy.
+
+  Production reproduced the root cause from the exact 730 t00 object. The
+  writer hashed nested integer world-index keys in `primitives` and
+  `totals_engaged`; JSON persisted them as strings, changing canonical sort
+  order on reopen. Converting only those reopened keys back to integers
+  reproduces the claimed digest exactly. The minimal repair canonicalizes the
+  two maps to decimal strings before hashing and adds a real 10,000-world
+  writer -> JSON -> reader-state regression. Independent static review clears
+  the repair subject to its deferred focused test after PREREG-069 releases
+  the local-compute slot. Repair branch/commit is
+  `production/prereg071-support-state-json-roundtrip-r3` /
+  `1073ddd`; the production-to-lab diagnosis is on that branch. Next JPAR
+  action after the test: selectively merge, rebuild once, issue fresh R3
+  mechanics/authority/run/seal identities, and rerun all three outcome-disabled
+  support banks atomically. Efficacy remains held.
+
+- 2026-09-05 — pending branch decisions returned to lab
+
+  Lab main commit `f3c7495` clears one exact outcome-disabled experiment-081
+  engaged mechanics smoke at repair `0fc2942`, under the prior seven launch
+  mandates; efficacy remains `HOLD_REGISTRY_V2`. It also clears CP-3's exact
+  synthetic 2,000/640 full-shape smoke at `8a49afe` after CP-1, while returning
+  a nonblocking D800 coverage-gate defect: complete scheduled boom delivery,
+  not only the truncated prefix, must satisfy exact count/canonical-world
+  coverage. Lab main commit `255d689` records the independent CP-4 repair
+  review and keeps that branch on HOLD for incomplete DK-only law binding,
+  silent participation/activity defaults, misimplemented allocation weights,
+  repeated completion worlds, and incomplete snapshot/draw/pool identity.
+  These decisions clear the branch-review waiting state without authorizing an
+  outcome read.
+
+  PREREG-069 census PID `2182696` remains healthy and progressed to 2024-W12 of
+  the final bank (102/108 cells at the last check). The already-cleared CP-1
+  boundary smoke remains the immediate next local action after that process
+  exits; do not run parallel pytest or local simulation before then.
