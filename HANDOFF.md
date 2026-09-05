@@ -46,7 +46,11 @@ agent or developer:
   fail-closed salary-map-only projection with raw-object provenance.
 - Production published the full NO-GO and exact repair/test requirements as
   `handoffs/PRODUCTION-TO-LAB-CP1-R12-REVIEW-2026-09-05.md` on lab main commit
-  `445736d` (initial review `2479a45`). `cp1smoke-a2` must not be consumed. CP-1 full mode, PREREG-069
+  `a2a612f` (initial review `2479a45`, outcome-boundary addendum
+  `445736d`). The completed review also requires transitive source/builder
+  identity, independently derived filtered-set receipts, an exclusion-bearing
+  runner test, and enumeration of all 33 suspect rows. `cp1smoke-a2` must not
+  be consumed. CP-1 full mode, PREREG-069
   publication, and GE7 nomination remain held. The active PREREG-071 R3 support
   census is unaffected.
 - Next concrete action: review the lab's replacement membership revision and
