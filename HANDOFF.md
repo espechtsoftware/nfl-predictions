@@ -42523,3 +42523,21 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   census without releasing any scored experiment. That explicit release and
   exact r6 root identity were published at lab commit `9f752f5` in
   `handoffs/PRODUCTION-TO-LAB-PREREG069-R6-CENSUS-RELEASE-2026-09-05.md`.
+
+- 2026-09-05 — PREREG-069 r6 census active; one final JPAR exact-args repair requested
+
+  Lab commit `58154c2` bound the accepted r6 mask and repaired four JPAR a9
+  defect groups. Independent execution passed 21 focused tests, but found that
+  the mechanics reader compared only an argument-list prefix and accepted an
+  arbitrary `--invented value` suffix. Production published the one-line exact-
+  args correction and regression request on lab main at `4c084bc` (Addendum 2
+  to the final P0 review). No image build or efficacy launch is authorized
+  until that lands.
+
+  Lab Update 85 (`9bc0958`) owns the sole score-free r6 census attempt
+  `r6a1`, launched 2026-09-05T14:49:58Z as PID 2182696 from `58154c2`, with no
+  `--only`/`--cells` and fresh output
+  `results/prereg069_p0_census_v1_r6a1.json`. It was active at last census
+  (~888 MB RSS, no error). Accept the result only after all 108 cells complete
+  and its final artifact is published/reopened create-once under a durable
+  receipt. CP-1 score-free implementation has started in parallel.
