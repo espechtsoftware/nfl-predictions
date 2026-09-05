@@ -910,19 +910,35 @@ def collect_status(
     registry = _live_registry_targets(config)
     previous_queue = _old_mapping(previous, "authorized_queue")
     previous_coordinator = _old_mapping(previous, "registered_coordinator")
-    completion_records = [
-        item for item in registry.get("completions", []) if isinstance(item, Mapping)
-    ]
-    completion_by_key = {
-        str(item["receipt_sha256"]): item
-        for item in completion_records
-        if isinstance(item.get("receipt_sha256"), str)
-    }
+    prior_completions = _old_mapping(previous, "launcher_completions")
+    registry_error = registry.get("state") == "error"
+    if registry_error:
+        # A fail-closed registry read says nothing about whether previously
+        # observed immutable records disappeared. Retain the last valid
+        # ledger until the directory can be validated again; otherwise one
+        # transient unsafe-mode or partial-publication observation falsely
+        # marks every historical completion as missing and then changed.
+        completion_by_key = {
+            str(key): dict(value)
+            for key, value in prior_completions.items()
+            if isinstance(key, str) and isinstance(value, Mapping)
+        }
+        completion_records = list(completion_by_key.values())
+    else:
+        completion_records = [
+            item
+            for item in registry.get("completions", [])
+            if isinstance(item, Mapping)
+        ]
+        completion_by_key = {
+            str(item["receipt_sha256"]): item
+            for item in completion_records
+            if isinstance(item.get("receipt_sha256"), str)
+        }
     prior_seen = {
         str(value) for value in (previous or {}).get("seen_completion_keys", [])
     }
     current_keys = set(completion_by_key)
-    prior_completions = _old_mapping(previous, "launcher_completions")
     changed_completion_keys = sorted(
         key
         for key in current_keys & set(prior_completions)
@@ -1123,14 +1139,26 @@ def collect_status(
         else:
             cohort_state = "unknown"
 
-    registered_coordinator = _registered_coordinator_status(
-        config,
-        registry,
-        previous,
-        retained_prefixes=registry_prefixes,
-        provider_cohort_state=cohort_state,
-        observed=observed,
-    )
+    if registry_error and previous_coordinator:
+        prior_state = str(previous_coordinator.get("state", "untracked"))
+        registered_coordinator = {
+            **previous_coordinator,
+            "acceptance_state": (
+                "failed" if prior_state in ("failed", "orphaned") else "unverifiable"
+            ),
+            "source": "retained_during_registry_error",
+            "post_provider_seconds": None,
+            "error": registry.get("error"),
+        }
+    else:
+        registered_coordinator = _registered_coordinator_status(
+            config,
+            registry,
+            previous,
+            retained_prefixes=registry_prefixes,
+            provider_cohort_state=cohort_state,
+            observed=observed,
+        )
     if (
         registered_coordinator.get("registration_key")
         in completion_integrity_failure_keys
@@ -1238,14 +1266,22 @@ def collect_status(
     coordinator_state = registered_coordinator["state"]
     coordinator_identity = registered_coordinator["registration_key"]
     if coordinator_state == "failed" and not blocking_failure_keys:
+        coordinator_error = registered_coordinator.get("error")
+        coordinator_exit_status = registered_coordinator.get("exit_status")
         alerts[f"registered-coordinator-failure:{coordinator_identity}"] = _alert(
             "registered_coordinator_failed",
             "error",
             coordinator=registered_coordinator.get("script_path"),
             registration_key=coordinator_identity,
             state=coordinator_state,
-            reason="nonzero coordinator exit",
-            exit_status=registered_coordinator.get("exit_status"),
+            reason=(
+                coordinator_error
+                if isinstance(coordinator_error, str) and coordinator_error
+                else "nonzero coordinator exit"
+                if coordinator_exit_status not in (None, 0)
+                else "coordinator acceptance failed"
+            ),
+            exit_status=coordinator_exit_status,
             completion_path=registered_coordinator.get("completion_path"),
             prefixes=registered_coordinator["prefixes"],
             provider_cohort_state=cohort_state,
@@ -1551,6 +1587,23 @@ def transition_events(
                 "after": new_cohort,
             }
         )
+    old_provider_cohort = _old_mapping(previous, "cohort").get("provider_state")
+    new_provider_cohort = _old_mapping(current, "cohort").get("provider_state")
+    if (
+        old_provider_cohort != new_provider_cohort
+        and new_provider_cohort == "succeeded"
+        and new_cohort != "succeeded"
+    ):
+        coordinator = _old_mapping(current, "registered_coordinator")
+        events.append(
+            {
+                **base,
+                "event": "provider_cohort_completed_without_acceptance",
+                "effective_state": new_cohort,
+                "coordinator_state": coordinator.get("state"),
+                "registration_key": coordinator.get("registration_key"),
+            }
+        )
     old_coordinator = _old_mapping(previous, "registered_coordinator")
     new_coordinator = _old_mapping(current, "registered_coordinator")
     coordinator_fields = (
@@ -1853,6 +1906,8 @@ def _notifiable_events(events: Iterable[Mapping[str, object]]) -> list[dict[str,
         ) or (
             kind == "registered_coordinator_accepted"
             and event.get("effective_state") == "succeeded"
+        ) or (
+            kind == "provider_cohort_completed_without_acceptance"
         ):
             selected.append(dict(event))
     return selected
@@ -1864,14 +1919,38 @@ def _notification_text(events: list[Mapping[str, object]]) -> tuple[str, str]:
         and event["alert"].get("severity") == "error"
         for event in events
     )
-    if any(
+    accepted_registration_keys = {
+        event.get("registration_key")
+        for event in events
+        if event.get("event") == "registered_coordinator_accepted"
+    }
+    successful_acceptance = any(
         (
             event.get("event") == "cohort_transition"
             and event.get("after") == "succeeded"
         )
         or event.get("event") == "registered_coordinator_accepted"
         for event in events
-    ) and not errors:
+    )
+    unresolved_without_acceptance = [
+        event
+        for event in events
+        if event.get("event") == "provider_cohort_completed_without_acceptance"
+        and event.get("registration_key") not in accepted_registration_keys
+    ]
+    failed_acceptance = any(
+        event.get("effective_state") == "failed"
+        for event in unresolved_without_acceptance
+    )
+    pending_acceptance = any(
+        event.get("effective_state") == "pending_acceptance"
+        for event in unresolved_without_acceptance
+    )
+    if failed_acceptance and not errors:
+        title = "NFL cloud results need adjudication"
+    elif pending_acceptance and not errors:
+        title = "NFL cloud results await acceptance"
+    elif successful_acceptance and not errors:
         title = "NFL cloud cohort completed"
     else:
         title = "NFL cloud jobs need attention" if errors else "NFL cloud job warning"
@@ -1882,6 +1961,18 @@ def _notification_text(events: list[Mapping[str, object]]) -> tuple[str, str]:
             continue
         if event.get("event") == "registered_coordinator_accepted":
             details.append("coordinator accepted provider results")
+            continue
+        if event.get("event") == "provider_cohort_completed_without_acceptance":
+            if event.get("registration_key") in accepted_registration_keys:
+                continue
+            if event.get("effective_state") == "failed":
+                details.append(
+                    "provider cohort complete; coordinator acceptance was not obtained"
+                )
+            else:
+                details.append(
+                    "provider cohort complete; coordinator acceptance is pending"
+                )
             continue
         alert = event.get("alert", {})
         if not isinstance(alert, Mapping):

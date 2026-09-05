@@ -798,7 +798,7 @@ def test_live_receipt_with_published_completion_is_valid_terminalizing_state(
     assert "launcher-registry" not in status["alerts"]
 
 
-def test_provider_success_is_pending_and_not_notified_until_coordinator_accepts(
+def test_provider_success_pending_acceptance_notifies_once_then_acceptance_notifies(
     tmp_path: Path,
 ) -> None:
     registry = tmp_path / "launchers"
@@ -835,9 +835,16 @@ def test_provider_success_is_pending_and_not_notified_until_coordinator_accepts(
     )
     assert pending["cohort"]["provider_state"] == "succeeded"
     assert pending["cohort"]["state"] == "pending_acceptance"
-    assert not notifier.calls
+    assert len(notifier.calls) == 1
+    assert notifier.calls[0][1]["env"]["NFL_MONITOR_TITLE"] == (
+        "NFL cloud results await acceptance"
+    )
     assert not any(
         event["event"] == "cohort_transition" and event.get("after") == "succeeded"
+        for event in _events(lines)
+    )
+    assert any(
+        event["event"] == "provider_cohort_completed_without_acceptance"
         for event in _events(lines)
     )
 
@@ -851,8 +858,8 @@ def test_provider_success_is_pending_and_not_notified_until_coordinator_accepts(
         emit=lambda _: None,
     )
     assert accepted["cohort"]["state"] == "succeeded"
-    assert len(notifier.calls) == 1
-    assert notifier.calls[0][1]["env"]["NFL_MONITOR_TITLE"] == (
+    assert len(notifier.calls) == 2
+    assert notifier.calls[1][1]["env"]["NFL_MONITOR_TITLE"] == (
         "NFL cloud cohort completed"
     )
 
@@ -1329,6 +1336,78 @@ def test_current_completion_integrity_failure_stays_failed_until_rearm(
     assert third["cohort"]["state"] == "failed"
     assert third["completion_integrity_failure_keys"] == [completion.stem]
     assert alert_key in third["alerts"]
+    coordinator_alert = third["alerts"][
+        f"registered-coordinator-failure:{completion.stem}"
+    ]
+    assert coordinator_alert["exit_status"] == 0
+    assert coordinator_alert["reason"] == (
+        "registered completion evidence failed immutable-ledger integrity"
+    )
+
+
+def test_transient_invalid_registry_read_does_not_poison_completion_ledger(
+    tmp_path: Path,
+) -> None:
+    registry = tmp_path / "launchers"
+    registry.mkdir()
+    receipt = _write_registry_receipt(registry, ["current"])
+    completion = _write_completion(receipt, 0)
+    receipt.unlink()
+    succeeded = _execution(
+        "lab-run-current", "lab-run", "success", run_id="current-run"
+    )
+    fake = FakeGcloud(
+        [[succeeded], [], [succeeded], [], [succeeded], []]
+    )
+    config = monitor.Config(
+        state_file=tmp_path / "status.json",
+        attention_file=tmp_path / "attention.json",
+        launcher_registry_dirs=(registry,),
+        launcher_lane="nfl2-lab-jobs",
+    )
+
+    first = monitor.run_once(
+        config, runner=fake, clock=FakeClock(10), emit=lambda _: None
+    )
+    assert first["cohort"]["state"] == "succeeded"
+    original_record_sha256 = first["launcher_completions"][completion.stem][
+        "record_sha256"
+    ]
+
+    completion.chmod(0o644)
+    invalid_lines: list[str] = []
+    invalid = monitor.run_once(
+        config, runner=fake, clock=FakeClock(70), emit=invalid_lines.append
+    )
+    assert invalid["authorized_queue"]["state"] == "error"
+    assert invalid["registered_coordinator"]["acceptance_state"] == "unverifiable"
+    assert invalid["changed_completion_keys"] == []
+    assert invalid["new_completion_keys"] == []
+    assert invalid["completion_integrity_failure_keys"] == []
+    assert invalid["seen_completion_keys"] == [completion.stem]
+    assert invalid["launcher_completions"][completion.stem][
+        "record_sha256"
+    ] == original_record_sha256
+    assert "launcher-registry" in invalid["alerts"]
+
+    completion.chmod(0o600)
+    recovered_lines: list[str] = []
+    recovered = monitor.run_once(
+        config, runner=fake, clock=FakeClock(130), emit=recovered_lines.append
+    )
+    assert recovered["authorized_queue"]["state"] == "no_live_receipt"
+    assert recovered["registered_coordinator"]["state"] == "succeeded"
+    assert recovered["cohort"]["state"] == "succeeded"
+    assert recovered["changed_completion_keys"] == []
+    assert recovered["new_completion_keys"] == []
+    assert recovered["completion_integrity_failure_keys"] == []
+    assert not any(
+        key.startswith("launcher-completion-") for key in recovered["alerts"]
+    )
+    assert not any(
+        event["event"] == "registered_coordinator_accepted"
+        for event in _events([*invalid_lines, *recovered_lines])
+    )
 
 
 def test_failure_between_polls_alerts_without_poisoning_live_replacement(
@@ -1620,6 +1699,33 @@ def test_notification_failure_never_loses_status_or_pending_alert(
     assert status["notification"]["last_error"] == "toast unavailable"
     ledger = _events(config.events_file.read_text(encoding="utf-8").splitlines())
     assert ledger[-1]["event"] == "notification_delivery_failed"
+
+
+def test_notification_copy_distinguishes_failed_and_superseded_acceptance() -> None:
+    failed = {
+        "event": "provider_cohort_completed_without_acceptance",
+        "effective_state": "failed",
+        "registration_key": "receipt-a",
+    }
+    title, body = monitor._notification_text([failed])
+    assert title == "NFL cloud results need adjudication"
+    assert "was not obtained" in body
+
+    accepted = {
+        "event": "registered_coordinator_accepted",
+        "effective_state": "succeeded",
+        "registration_key": "receipt-a",
+    }
+    title, body = monitor._notification_text([failed, accepted])
+    assert title == "NFL cloud cohort completed"
+    assert "was not obtained" not in body
+    assert "coordinator accepted provider results" in body
+
+    other_accepted = {**accepted, "registration_key": "receipt-b"}
+    title, body = monitor._notification_text([failed, other_accepted])
+    assert title == "NFL cloud results need adjudication"
+    assert "was not obtained" in body
+    assert "coordinator accepted provider results" in body
 
 
 def test_tracked_user_unit_is_persistent_and_uses_durable_alert_outputs() -> None:

@@ -42017,3 +42017,37 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `handoffs/PRODUCTION-TO-LAB-PREREG067-CROSS-VERIFICATION-2026-09-04.md`
   at lab commit `634aa5d`. This unblocks the lab's post-read D4 sidecar; it
   does not nominate another score-bearing experiment.
+
+- 2026-09-05 — SD-B terminal gate released; Cloud Run monitor repaired
+
+  SD-B run `sdb095r1-20260904T223841Z` completed as Cloud Run execution
+  `lab-run-6v6sx` (UID `4c843930-f7bb-4e6b-98f3-443466bae839`) at
+  `2026-09-05T00:51:26.590545Z`: 48/48 tasks succeeded with zero failures,
+  cancellations, or retries. A metadata-only census found exactly the
+  required nonempty `shard-0.json` through `shard-47.json` objects and no
+  extras; production opened no shard payload.
+
+  The shell-detached launcher parent had died while its isolated coordinator
+  continued. Production preserved and adjudicated original receipt key
+  `c151bcd5...`, then ran the exact restart-safe registered wrapper. It found
+  the existing provider claim, launched nothing, repeated the terminal census,
+  and exited zero under recovery key `73504434...`. The original log SHA is
+  `d5391f4f...`; recovery completion-record SHA is `8e0ee17a...`; the explicit
+  manual original-key adjudication record SHA is `3425be54...`.
+
+  Lab merge/read release is durable on lab `main` at `ca9673f` in
+  `handoffs/PRODUCTION-TO-LAB-SDB-TERMINAL-AND-MERGE-RELEASE-2026-09-05.md`.
+  The lab now owns the strict merge and first read.
+
+  The provider monitor had detected terminal success within 51 seconds but
+  did not notify because provider-terminal-without-acceptance was deliberately
+  excluded. A second bug allowed one transient invalid completion-file mode
+  to poison all historical completion hashes. The production monitor now
+  preserves the last valid ledger during registry errors and emits one
+  event-only notification when provider success still needs coordinator
+  acceptance/adjudication. The poisoned state was archived recoverably under
+  `~/.local/state/nfl-dfs/cloud-run-lane-monitor/recovery-20260905T015701Z/`.
+  Validation: monitor tests 38/38, compilation and diff checks pass; live
+  service is active with effective cohort `succeeded`, zero integrity alerts,
+  and an empty notification backlog. Full evidence and operational rule:
+  `reports/2026-09-05-sdb-terminal-adjudication-and-monitor-repair.md`.
