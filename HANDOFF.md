@@ -42653,3 +42653,37 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   one bounded R15 plus a two-phase copy/verify then generation-conditioned
   delete contract. Bucket versioning is currently off and soft delete is seven
   days. No raw payload/outcome was opened and no object or cloud state changed.
+
+- 2026-09-05 — PREREG-071 R3 support accepted; efficacy binding independently cleared
+
+  The registered R3 support coordinator completed all three runs
+  (`100c730r3-20260905T221200Z`, `100c731r3-20260905T221200Z`, and
+  `100c732r3-20260905T221200Z`) at exact 18/18 success with zero failures,
+  cancellations, or retries. It published and reopened support seal
+  `gs://nfl-2-506823-lab/seals/PREREG-071/support-census-100c730r3-100c731r3-100c732r3.json`,
+  generation `1788651566747010`, 8,285 bytes, SHA-256
+  `554dc9a00777b92db44f7310fc35a392f319c6c09994c5d840be536ec37d6dca`.
+  The released reader authenticated the support state and persisted transcript
+  generation `1788652130993056`, 1,374 bytes, SHA-256
+  `6d36cdc9333149a4caa572bb6689444a57e1852793a0971c8bfcc004429b94c5`.
+  The coordinator exited zero and never opened an efficacy or outcome path.
+
+  Production then bound fresh efficacy runs
+  `100b730r3-20260905T235002Z`, `100b731r3-20260905T235002Z`, and
+  `100b732r3-20260905T235002Z` at exact binding commit `306b993`. An
+  independent review returned GO: reader SHA-256
+  `7e40f5fd6693ef9bb872b6f1634b07771544c12a1eb3129ccc1c8d11206fd386`,
+  all source/image/gate/mechanics/support identities, 18-task 2-vCPU/8-GiB
+  envelope, create-once controls, zero-retry acceptance, and the no-outcome
+  boundary were rechecked. The binding and review disposition are durable on
+  lab main at `c7d4e0b`; 13 focused tests and both shell syntax checks pass.
+
+  One obsolete test briefly invoked the registered wrapper before main
+  durability. Local registry receipt
+  `f04d0002863d35a868308e09c74b0db4bea7ce516e1c27d436747abe5786b0ce`
+  records exit 1 before provider/GCS contact; a fresh census confirmed all
+  efficacy prefixes remained unclaimed. The test is now static-only and this
+  was not an efficacy attempt. Next: invoke only the registered efficacy
+  coordinator, allow it to launch 730/731 and release 732 after one clean
+  initial-bank terminal, then bind the terminal cohort seal before the lab's
+  first outcome read.
