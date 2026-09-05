@@ -22,6 +22,30 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-05 CP-1 R12 review returned NO-GO; exact membership repair requested
+
+- Independent production review of lab branch commit `ce47ee4` found that the
+  v5 Main-Classic overlay falsely excludes canonical player `00-0034367`
+  (Nyheim Hines, CLE RB, salary 4000) in 2024 weeks 14--17. Each frozen
+  LineStar payload contains the valid Main member as `Nyheim Miller-Hines`, PID
+  5398, with a variant in the exact Main `SlateSalaryMap`. The resolver removes
+  the hyphen instead of preserving a token boundary, then its team/position/
+  salary fallback is ambiguous against other CLE RBs at 4000. Therefore the
+  artifact is conservative, not an exact Main universe.
+- The review also found no classifier-level mutation test that executes
+  `cp1_main_slate_membership.py` while removing or changing the source
+  `SlateSalaryMap` variant. Existing tests validate a prebuilt overlay and its
+  downstream join, not the authoritative classifier rule.
+- Production published the full NO-GO and exact repair/test requirements as
+  `handoffs/PRODUCTION-TO-LAB-CP1-R12-REVIEW-2026-09-05.md` on lab main commit
+  `2479a45`. `cp1smoke-a2` must not be consumed. CP-1 full mode, PREREG-069
+  publication, and GE7 nomination remain held. The active PREREG-071 R3 support
+  census is unaffected.
+- Next concrete action: review the lab's replacement membership revision and
+  old-vs-new exclusion diff; authorize only after the four valid Hines rows are
+  members, all 33 cross-slate sub-floor rows remain excluded, and the exact
+  source-map mutation tests pass.
+
 ### 2026-09-05 external waits cleared; JPAR R3 mechanics passed
 
 - The lab's shorthand wait on census exit, production gate, and branch reviews
