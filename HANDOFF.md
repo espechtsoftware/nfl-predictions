@@ -42145,3 +42145,33 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   provider terminal state, require 48/48 task success and the exact create-once
   object census, confirm the immutable completion receipt, then publish the
   terminal acceptance to the lab so it can merge and perform the first read.
+
+- 2026-09-05 — SD-C revision 1 failed the zero-retry gate; no merge release
+
+  At `2026-09-05T04:43:38Z`, the persistent SD-C coordinator
+  `nfl-sdc095-coordinator-r2.service` (invocation
+  `348a8c9e30bb472a91dd464cbff0c3cd`) stopped with exit status 1 after the
+  provider reported one actual retry. Exact run
+  `sdc095r1-20260905T022341Z` / execution `lab-run-cth8k` / UID
+  `9c10953f-70ee-4be1-851d-1db939978886` was then nonterminal with 47 tasks
+  succeeded and task `lab-run-cth8k-task2` running its retry. Task 2's prior
+  attempt ended with provider status code 13, `Internal error.` The execution
+  reported `retriedCount=1`; therefore a later successful retry cannot satisfy
+  the bound zero-retry cohort contract.
+
+  The launcher completion record is keyed by the original live-receipt
+  SHA-256
+  `d1e775433f00ac8538a309655cd18d79c0a2e0b2b604ec66cb30bd473d30192c`,
+  has SHA-256
+  `e7f3b7e59ccca6405c55b0240ff492478f9f9c705c984ca1be4436dedb154c52`,
+  and records the matching lane, owner, launcher, PID/process-start identity,
+  acquisition time, `sdc095r1` prefix, and exit status 1. The host registry
+  lane was released normally. Production did not open any shard payload,
+  merge/read any result, cancel or alter the execution, or launch a duplicate.
+
+  A no-release alert is durable on lab main at commit `93e148a` in
+  `handoffs/PRODUCTION-TO-LAB-SDC-RETRY-FAILURE-NO-RELEASE-2026-09-05.md`.
+  The lab owns the protocol disposition and any explicit revision-2 request.
+  Do not launch a replacement until the still-active revision-1 provider
+  execution is terminal; any replacement needs a new run prefix and a new
+  registered coordinator. No SD-C merge release exists.
