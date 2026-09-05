@@ -42709,3 +42709,31 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   redistribution, mask conditioning, or other scientific law is authorized.
   The lab must also freeze complete-slate intersection versus surviving-bank
   averaging before any read; production recommends complete-slate intersection.
+
+- 2026-09-05 — JPAR-1 proposed r2 contract independently reviewed; NO-GO pending bounded repairs
+
+  Lab commits `0e4ebd07` and `a7a5b27` correctly implement the underlying
+  typed empty-support refusal and preserve the frozen participation law, but
+  two independent production reviews found that the proposed preflight census
+  is not yet an executable launch boundary. The reader can accept impossible
+  census envelopes (including execution bank 690 even though the runner accepts
+  730--732), and does not authenticate exact 10,000-world params, run/shard/task
+  authority, args, benchmark, execution-to-source mapping, expected cells, or
+  full code/trace/module identities. Efficacy also compares only the census
+  status, not the actual support-state receipt, and could still discover
+  `unavailable_pool_not_reproduced` after launch rather than freezing both
+  unavailable sets. Mechanics check 7 exercises the conversion helper rather
+  than the `run_cell` decision/held-out boundary that failed r1.
+
+  Production published the complete bounded repair contract on lab main at
+  commit `b320372`:
+  `handoffs/PRODUCTION-TO-LAB-PREREG071-R2-CONTRACT-REVIEW-2026-09-05.md`.
+  It also requires reconciled complete-slate counts (including all-bank-invalid
+  slates), final census lineage, narrow exception syntax, corrected harness
+  documentation, and regeneration/removal of the stale-hash light forecast.
+  No r2 image, mechanics/census execution, efficacy prefix, outcome object, or
+  cloud state was opened by this review. Cloud lanes are intentionally idle
+  until the lab repair is committed and production independently re-reviews it.
+  Next: review one repair commit; on GO, immediately build one immutable r2
+  image, run fresh mechanics and the authenticated joint preflight census,
+  seal/reopen the census, bind exact unused r2 identities, and launch efficacy.
