@@ -42636,3 +42636,38 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   Next: bind the reader and efficacy banks 730--732 to these exact identities,
   launch through the registered shared lane, then seal the complete cohort
   before any outcome read. PREREG-069 r6a1 remains the sole heavy local process.
+
+- 2026-09-05 — JPAR-1 efficacy cohort launched after independent binding review
+
+  Production froze the complete experiment-100 efficacy package on lab main at
+  `d278e83b`, then repaired one pre-provider static assertion at `d02118ea`:
+  `MECHANICS_PARAMS.sims` is the identical value 10,000 but is now an AST-literal
+  that the fail-closed launcher can authenticate. The first registered attempt
+  exited before any Cloud Run update, execution, prefix claim, or GCS result;
+  completion receipt SHA-256
+  `43d7baa9ca2514652363c144b1c1d481b47b946b9ba5a38e87428989b19684b8`.
+
+  Independent review returned GO on the repaired package. It authenticates the
+  exact mechanics gate/result, immutable tag/digest, successful Cloud Build,
+  resolved source-object generation and source-tar SHA; validates all efficacy
+  shards and cells before any reference or target outcome loader; stages the
+  third bank only after an initial success with neither initial failure; and
+  requires exact 54/54 terminal shards with zero retries before publishing an
+  opaque-byte create-once cohort seal. The reader remains mechanically closed
+  on the terminal seal identity. The exact first read is frozen with
+  `--with-reference`, and its direct local dependencies are hash-frozen.
+
+  The repaired registered coordinator acquired canonical lane `nfl2-lab-jobs`
+  at `2026-09-05T16:29:09Z` under PID `2276601` and active receipt
+  `/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launchers/queue_100_efficacy_registered.sh-2276601.json`.
+  It launched exact predeclared runs
+  `100b730r1-20260905T160017Z` (`lab-run-xgg8z`, bank 730 -> source 690) and
+  `100b731r1-20260905T160017Z` (`lab-run-slow-w6tmr`, bank 731 -> source 691),
+  each with 18 tasks / parallelism 18, 2 vCPU / 8 GiB, maxRetries 1. At the
+  durable checkpoint, bank 730 had 18 running tasks and bank 731 was pending;
+  neither had a failure, cancellation, or retry. Exact bank-732 run
+  `100b732r1-20260905T160017Z` remains correctly unclaimed until a lane releases
+  under the frozen staging rule. No efficacy object or outcome reader has been
+  opened. Next: let the registered coordinator stage 732, require all three
+  zero-retry terminal successes, publish/reopen the exact cohort seal, make the
+  seal-only reader binding commit, then release the lab first read.
