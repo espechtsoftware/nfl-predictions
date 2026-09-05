@@ -42446,3 +42446,49 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   the final bank (102/108 cells at the last check). The already-cleared CP-1
   boundary smoke remains the immediate next local action after that process
   exits; do not run parallel pytest or local simulation before then.
+
+- 2026-09-05 — PREREG-069 completed; CP-1 exposed a real salary-source defect
+
+  The outcome-disabled PREREG-069 r6a1 census completed 108/108 cells and exited
+  zero. Artifact
+  `/home/erich/projects/nfl2-092/results/prereg069_p0_census_v1_r6a1.json`
+  is 11,730,256 bytes with SHA-256
+  `111b63b9c48cc0163fe10ac0698dd9ac5429c8cd8aff63c2e1a53f73883fcac3`:
+  100 cells ok, eight unavailable, exact-K80 all-eight support in 27 cells and
+  at-least-seven support in 94. No outcome read was involved.
+
+  The exact CP-1 boundary smoke attempt `cp1smoke-a1` then failed closed before
+  generation on the authority salary-domain check; no result artifact was
+  written and the a1 path is consumed. The real r6 authority/frame includes
+  $200/$800 rows. Independent inspection found that at least the Week-18 $200
+  rows are Showdown variants not members of the Main Classic salary map, so
+  merely relaxing the floor and receipting parity would preserve shared source
+  corruption rather than prove DraftKings eligibility. CP-1 a2 is held pending
+  a bounded, slate-aware eligibility/source repair and review. CP-3/CP-4 remain
+  behind the CP-1 gate.
+
+- 2026-09-05 — PREREG-071 fresh R3 mechanics is running
+
+  Lab and production independently cleared the canonical decimal-string world
+  key repair and the added real persisted-envelope support-receipt gate. The
+  focused suite passed 72/72; the two critical JSON-roundtrip tests passed again
+  after rebase. Repair source `544766203672b4aba52674be78c362f752a667ab`
+  is on lab main. R2 census objects and seal remain VOID diagnostic evidence;
+  no R2 efficacy run or outcome read occurred.
+
+  Immutable build `a1583673-40a5-413b-a589-45b7e28f1711` succeeded from source
+  object `source/1788645008.756936-5850eb1765e642db93345eba7aae3a29.tgz`
+  generation `1788645012498731`, 2,609,062 bytes, SHA-256
+  `9dff0b02e37f9070aed2f74d77a65b8a711fe088d6e24ec0902a6b12dd23f744`.
+  Image `nfl2:100r3-5447662` resolves to
+  `sha256:16fe841a18cff47cf472bdd53626db319ec5126099540c65f67301017c69460a`.
+  Binding commit `f5252f2` is durable on lab main.
+
+  Registered coordinator launched run `100m730r4-20260905T215730Z` as Cloud Run
+  execution `lab-run-s6zn7`, UID `059ffb71-2cc0-483f-8e45-e5cafacb3554`:
+  one task/parallelism one, 2 vCPU/8 GiB, one retry, 36,000 seconds, exact 2022-W8
+  outcome-disabled mechanics args. Initial state is one running, zero
+  failed/retried/cancelled. The coordinator remains authoritative and will
+  reopen the exact result and require all nine gate checks. Next: on gate PASS,
+  bind/review fresh R3 support census `100c730r3`–`100c732r3`; do not launch a
+  duplicate coordinator.
