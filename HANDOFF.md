@@ -43054,3 +43054,19 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `--help` in the immutable image, then bind and launch only the registered
   two-execution score-free gate. The full R4 cohort remains held until that
   gate passes.
+
+- 2026-09-05 — PREREG-071 R4 integration branch established
+
+  Current lab main `f08d9f3`, accepted cache repair `adb02f2`, and the repaired
+  restart-safe coordinator `d1fdb49` are integrated and pushed on
+  `production/prereg071-r4-probe-integration-20260906` at `98edfa7`. This is
+  an unbound preparation branch only: all launch identities remain
+  placeholders and both entrypoints fail before provider access.
+
+  Independent integrated validation passes 25/25 focused cache, comparator,
+  and coordinator tests plus Ruff, both shell syntax checks, and the diff
+  check. The exact D800 producer/comparator and explicit Docker COPY are still
+  being completed separately; no image was built and no cloud execution was
+  launched. Next action is to integrate that final source delta, validate the
+  complete unbound package, and request independent source review before the
+  immutable build.
