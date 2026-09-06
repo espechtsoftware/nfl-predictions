@@ -43742,3 +43742,55 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   remains held pending completion of current-byte tests and a narrow
   pre-outcome amendment of that command to v12; no further owner authorization
   is required.
+
+- 2026-09-06 — Corrected Week-1 image passed the bounded build and project canary
+
+  Commit `f574e7807a78a4e46fee06a6b0b824533c2a5afe` (handoff head before this
+  entry `918f5574ee9f8f9be68b194994cf897c06706c8d`) completed bounded Cloud Build
+  `978c0665-52ba-4be7-8b40-e423e30157fe`: 235 tests, image construction, and
+  image smoke all passed. The immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:0471df533de9505c47744ef62ad20dbd864afd48ebfbbe2271e6c33cd9197816`.
+
+  Production changed only the `project-slate` image and launched the canary
+  through the production launcher registry. Execution `project-slate-9smpn`
+  (UID `725274fe-95e1-4866-825e-e9662629970c`) completed successfully at
+  `2026-09-06T16:23:26.463031Z`; registry completion-receipt SHA-256 is
+  `c952eb3f691860476f0cec4a5dd124e1fb4f1df10f8670d7ddc70b76a08e4185`.
+  The atomic batch contained 535/535 unique DraftKings rows: 503 skill and 32
+  DST, with zero incomplete or non-finite rows. Riley Nowakowski appeared once
+  as DK RB and never under the wrong optimizer position. The job contract,
+  normalized to exclude only the image, was unchanged (SHA-256
+  `1de23c206d09bcdee1542764ac2132e565f00ae3608e564080d57ac4269712ce`).
+  Scheduler `s-project-su` was resumed and verified enabled on its original
+  `0 6-11 * * 7` America/Chicago schedule.
+
+  The paired candidate-only shadow job was then updated atomically to the same
+  immutable image and `CODE_SHA=918f5574ee9f8f9be68b194994cf897c06706c8d`.
+  Its normalized contract excluding only image and CODE_SHA is unchanged
+  (SHA-256
+  `937fd270c5c005cfe8a1afae60cc033f6b06c3fb4a26b6bb0f32edf53f049969`).
+  Registry-wrapped canary `shadow-cbwu-oi-paired-rnf9k` (UID
+  `75bea5ac-4e99-4158-8222-6f4d9789d306`) is currently running. Both paired
+  shadow schedulers remain paused until that execution succeeds and its
+  create-only, no-outcome manifest and membership artifacts authenticate.
+
+- 2026-09-06 — CP-1 a3 failed closed; PREREG-073 repair receipts in progress
+
+  The lab amended the post-delete CP-1 smoke from consumed a2 to fresh a3
+  without changing code, inputs, cells, bank, seed, simulations, or method;
+  production issued the one-shot score-free clearance at lab-main commit
+  `a4d07910f54ba9612ea00cdfaf4e0898e012f684`. The invocation terminated
+  without writing `results/cp1_boundary_smoke_a3.json`; its log ends
+  `is_cold_start not Boolean-like`. Production therefore treated a3 and its
+  output path as consumed, continued to hold efficacy, and pushed the request
+  for a truthful failure receipt, typed-domain diagnosis, narrow tested repair,
+  and fresh a4 identity to lab main at `f364131`. No rerun is cleared yet.
+
+  For PREREG-073/JPAR-1b, lab commit `6836b78e43e6cc3212945feaa8480dd41393ec38`
+  fixes the two final production findings: the bank-label text now names
+  750/751/752, and each census shard must bind an exact
+  `read_dependency_sha256` map with omission/mutation negatives. The selected
+  suite reports 179 passing tests. The required 2022-W8 and 2024-W1 real-cell
+  mechanics receipts are being regenerated from those exact repaired bytes.
+  Production's next action is a narrow final delta/receipt review; immutable
+  build and cloud mechanics gates remain held until that review passes.
