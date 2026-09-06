@@ -43035,3 +43035,22 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   the local P0 census exit 0 and artifact SHA, both branch-review decisions,
   and the exact remaining R4 gate so the lab is no longer waiting on an
   unstated production disposition.
+
+- 2026-09-05 — Lab external waits narrowed to the exact PREREG-071 R4 gate
+
+  Production published a follow-up on lab main at `f08d9f3` making the
+  disposition explicit: the P0 census exit and both requested branch reviews
+  are complete; only the exact D800, outcome-disabled production gate remains
+  open. A second adversarial review of coordinator head `502782f` found a
+  narrow restart/resume hole and incomplete Docker producer, sealed-trace,
+  create-once diagnostic, and Cloud Build identity proofs. The corrected
+  command/args, container envelope, exact environment and zero-retry closure
+  otherwise match the intended two-execution design.
+
+  The coordinator is being repaired in place while the exact 160-leverage plus
+  640-boom producer is completed atop accepted cache repair `adb02f2`. No
+  build or Cloud Run execution has started. The next action is to integrate
+  those two reviewed branches, prove the producer is present and inert under
+  `--help` in the immutable image, then bind and launch only the registered
+  two-execution score-free gate. The full R4 cohort remains held until that
+  gate passes.
