@@ -43969,6 +43969,26 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   efficacy read. In parallel, clear one fresh CP-1 `cp1full-a2` score-free
   census from the reviewed `Note`-domain repair; do not rerun a4 or a5.
 
+  The r2 coordinator subsequently exact-reopened the frozen mechanics and
+  support chain and published a successful score-free authentication
+  transcript at generation `1788737331305554`, 1,373 bytes, SHA-256
+  `0240b5f01450efd9948cd01d649095ff4a09df163933fd3cc82451b0c5c46107`.
+  It published the create-once efficacy authority at generation
+  `1788737378492385`, 5,052 bytes, SHA-256
+  `5a8d5f8673628f6d224cfda195a83322298a04ce7c30dc92c1f6fe807e8af2dd`.
+
+  Initial bank 750 is execution `lab-run-ltgsz`, UID
+  `cbac8aae-234b-44d5-b3c8-6f7a6cc6877c`, created
+  `2026-09-06T23:31:21.429209Z`; bank 751 is execution
+  `lab-run-slow-kj9xq`, UID `5e61e0c5-5d7d-4440-b159-5531ff7fb9cb`,
+  created `2026-09-06T23:33:20.829029Z`. Both provider snapshots exact-match
+  the frozen source/image, support bindings, 18-task/parallelism-18,
+  2-vCPU/8-GiB, 36,000-second, `maxRetries=0`, one-thread, and
+  `PYTHONHASHSEED=11` envelope. Bank 750 entered running at
+  `2026-09-06T23:31:34.049081Z`; bank 751 was still provisioning at this
+  checkpoint. Neither showed a task failure, cancellation, or provider retry.
+  Bank 752 remains unclaimed behind its exact terminal release rule.
+
 - 2026-09-06 — CP-1 R23 accepted; fresh full census a2 active
 
   Independent production review returned GO for the narrow R23 repair at lab
