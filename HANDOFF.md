@@ -42939,3 +42939,22 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   quarantine objects, versioning false, soft-delete retention 604,800 seconds,
   and metageneration 2. No raw outcome was opened, no object was deleted, and
   `cp1smoke-a2` remains held.
+
+- 2026-09-05 — PREREG-071 cutoff-cache repair returned for dual review
+
+  Production branch `production/prereg071-r4-recovery-20260905` at exact
+  commit `adb02f2af129f042629b7b592eb9bf099032038b` contains only the
+  cutoff-safe hsim repair, causal regression, outcome-denying diff comparator,
+  and durable root-cause note. The active outcome-firewall cutoff becomes a
+  read-only cache key for the derived `team_games` table; no calibration,
+  quantization, thread, RNG, generator, selector, arm, or retry policy changed.
+  Reported validation: focused 12 passed, PREREG-071 75 passed, non-slow hsim
+  12 passed/one slow deselected, full-core 7 passed, plus Ruff, compilation,
+  shell syntax, and diff checks.
+
+  The branch is under independent production review. A parallel lab review
+  request is durable on lab main at `f0efe83` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG071-CUTOFF-REPAIR-REVIEW-REQUEST-2026-09-06.md`.
+  The added comparator does not itself emit the required four-cell probes and
+  the 2022-W13 candidate mismatch remains unresolved. No merge, build, launch,
+  binding, gate relaxation, or outcome read is authorized pending both reviews.
