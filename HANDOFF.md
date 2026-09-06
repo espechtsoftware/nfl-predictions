@@ -43521,7 +43521,9 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 
   Worktree `/home/erich/projects/nfl-predictions-project-slate-null-mask-fix`
   on branch `fix/project-slate-null-coldstart-mask-20260906` now contains the
-  durable defense: explicit nullable-boolean conversion plus a live-boundary
+  durable defense at implementation commit
+  `b154a6b0795e1faf5a6aa45a239b9970d86bf584`: explicit nullable-boolean
+  conversion plus a live-boundary
   row-presence sentinel and fail-closed checks for missing or structurally
   incomplete inference rows. Independent read-only review found no blocker
   for the refresh/query/canary recovery and correctly notes that freshness
