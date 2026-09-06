@@ -42823,3 +42823,47 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   unclaimed, and no R3 outcome read/seal is allowed. Implementation is being
   prepared on a feature branch for independent review; no R4 launch is yet
   authorized.
+
+- 2026-09-05 — PREREG-071 same-source R4 superseded and held
+
+  Score-free provider logs from the still-running invalid R3 cohort established
+  that the failure is not transport-only. Bank 731 reported decision/heldout
+  support-state digest mismatches on 2023-W5 and 2023-W12 and a sealed-candidate
+  reproduction failure on 2022-W13; bank 730 reported the same support-state
+  mismatch on 2024-W18. Retried-task counts subsequently rose above the first
+  observed retry. These failures make the accepted R3 support state
+  non-reproducible through the efficacy execution path and therefore invalidate
+  any R4 that merely changes run IDs or retry policy while reusing the same
+  source/support contract.
+
+  Production superseded the earlier recovery instruction and pushed the hard
+  HOLD to lab main at `e6b4a81` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG071-R4-HOLD-SUPPORT-REPRODUCTION-2026-09-05.md`.
+  R3 remains whole-cohort VOID / NO READ, bank 732 remains unclaimed, and no
+  R4 binding, build, launch, seal, or outcome read is authorized. Both active
+  invalid R3 executions remain uncancelled pending explicit operator authority.
+  The next action is a score-free, fresh-subprocess comparison of support-census
+  and efficacy call paths on the four observed slates, including ordered input
+  fingerprints, field-level support diffs, intervening-call bracketing, and
+  candidate reproduction against sealed trace identities. Any source or
+  contract repair requires a fresh image, mechanics gate, and all three support
+  banks before efficacy.
+
+- 2026-09-05 — CP-1 R18 deletion implementation reviewed; narrow R19 required
+
+  Production independently reviewed exact lab commit
+  `141ef0829071c93ef41a2b2b248f5e14da479e67`; the formal review is durable on
+  lab main at `3b0950f` in
+  `handoffs/PRODUCTION-TO-LAB-CP1-R18-REVIEW-2026-09-05.md`. Disposition is
+  CODE NO-GO and actual deletion NO-GO. The 37-object plan,
+  generation-conditioned deletes, preflight metadata, partial-failure receipt,
+  and guarded-reopen design are otherwise sound, but two fail-closed boundaries
+  remain: live bucket recovery policy is recorded without exact comparison to
+  quarantine-v2 before deletion, and the command can report
+  `deleted_verified`/exit zero without making the exact post-delete proof and
+  quarantine-v3 validation control success.
+
+  R19 is limited to those two repairs and adversarial real-command tests. Cloud
+  state remains 37 source objects plus 37 matching quarantine copies; versioning
+  is false and soft-delete retention is 604,800 seconds. No source object was
+  deleted or mutated, no raw outcome was opened, and `cp1smoke-a2` remains held.
