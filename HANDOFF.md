@@ -42765,3 +42765,26 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   deletion, or smoke prefix was touched. R17 must close only the full-key
   bijection and raw-publication exact schema/count boundary; deletion remains
   a separate written authorization after another independent GO.
+
+- 2026-09-05 — PREREG-071 R3 efficacy cohort invalidated by observed retry
+
+  The repaired registered coordinator reused the authentication transcript
+  byte-identically and published efficacy launch authority generation
+  `1788654100023449`, 4,153 bytes, SHA-256
+  `de2f38c2372a97530f650fe41b0a9b0d6c34080bbf833be5081ea9b7444ef123`.
+  It then claimed bank 730 as `lab-run-dfcnc` (UID
+  `04296226-4770-40ec-8b70-8eea8d202c59`) and bank 731 as
+  `lab-run-slow-xngfn` (UID `f0fc02db-2962-48fb-9701-3fb0aec031e6`),
+  both with the exact frozen source/image/args and 18-task 2-vCPU/8-GiB
+  envelope.
+
+  At `2026-09-06T00:27:11Z`, provider metadata recorded task 8 of bank 731
+  attempt 0 exiting `1` with `Application failed to start`, followed by
+  execution `retriedCount=1`. This is a genuine task retry, not a polling
+  status artifact. The frozen acceptance requires zero retries, so the entire
+  R3 efficacy cohort is irreversibly invalid even if all tasks later succeed.
+  Bank 732 remains unclaimed and must not launch; no cohort seal or outcome
+  read is permitted. Bank 730 remains clean/running at this milestone. No
+  execution has been cancelled pending explicit authorization. Next: seal the
+  R3 failure disposition without opening outputs and bind an independently
+  reviewed fresh recovery cohort; do not relax the zero-retry gate.
