@@ -43737,3 +43737,34 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   resubmit the bounded immutable build from that exact commit, and proceed to
   the registered project and candidate-only shadow canaries only if all build
   stages pass.
+
+- 2026-09-06 — PREREG-073 support census terminal PASS; efficacy preparation cleared
+
+  The registered outcome-disabled PREREG-073 / experiment 101 support census
+  completed under source `406b73b14a7ab9a2681c705cec49a64197b28995`,
+  image digest
+  `sha256:367ab978aa103be97823538be9a9e42b6ad6c3709f0d7ed8999fec75c019d801`,
+  and bound runs `101c750r1-20260906T182200Z`,
+  `101c751r1-20260906T182200Z`, and
+  `101c752r1-20260906T182200Z`. Executions `lab-run-s6xmz`,
+  `lab-run-slow-dmp7q`, and `lab-run-w5lgg` each reached 18/18 successful
+  tasks with zero failures, cancellations, or retries. The coordinator exited
+  zero under launcher completion receipt
+  `02d2cea0ca34db4ee426046167daa6d1e0b083822013ad847511b2718f77c121`.
+
+  Production exact-reopened the support seal at generation
+  `1788725644157691`, 8,285 bytes, SHA-256
+  `932282150d627d54cc90bca13e3b3f18e61b20ca8e40355edc106444fd7bd3c4`,
+  and the released-reader authentication transcript at generation
+  `1788726182683395`, 1,373 bytes, SHA-256
+  `ee603407db6a79f267d2a628e288b06a730c89520d58085bdb7dbabe23d2ebdf`.
+  The score-free reader authenticated 162 authority cells, 152 valid
+  (93.827%); season shares are 94.444% / 92.593% / 94.444% for
+  2022/2023/2024, with 3 empty-opportunity and 7 pool-not-reproduced typed
+  dispositions. Both the 90% overall and 85% per-season floors pass.
+
+  No efficacy prefix or outcome path was opened. A production-to-lab
+  disposition clears only fail-closed efficacy-coordinator preparation for
+  `101b750r1`/`101b751r1`/`101b752r1`; a separately reviewed, bound CODE GO is
+  required before any provider claim, and the final cohort seal remains
+  unbound until terminal acceptance.
