@@ -42991,7 +42991,8 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 
   The formal disposition is pushed on lab branch
   `production/cp1-r20-review-20260906` at `c949e9455572d70100e889f672267ee7a27fb8b5`
-  in `handoffs/PRODUCTION-TO-LAB-CP1-R20-REVIEW-2026-09-06.md`. No delete is
+  and is durable on lab main at `502f73c` in
+  `handoffs/PRODUCTION-TO-LAB-CP1-R20-REVIEW-2026-09-06.md`. No delete is
   authorized or executed: the destructive one-shot still requires explicit
   owner authorization against the exact v2 receipt and a final live metadata
   check. `cp1smoke-a2` remains held until the resulting quarantine-v3 ->
@@ -43016,7 +43017,8 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 
   The formal NO-GO is pushed on lab branch
   `production/prereg071-cutoff-branch-review-20260906` at exact commit
-  `e33983f0a859f3f29ec7165a32f98c1b9986e8ab` in
+  `e33983f0a859f3f29ec7165a32f98c1b9986e8ab` and is durable on lab main at
+  `2b13c08` in
   `handoffs/PRODUCTION-TO-LAB-PREREG071-CUTOFF-BRANCH-REVIEW-2026-09-06.md`.
   No merge, build, launch, or gate relaxation is authorized from `e15a5ad`.
   Production is completing the already-started exact-preamble probe atop
