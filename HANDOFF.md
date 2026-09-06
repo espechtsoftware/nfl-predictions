@@ -43815,3 +43815,35 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   Let the same coordinator release bank 752 only under the frozen terminal
   rule, then exact-census and seal the cohort. Do not duplicate a prefix or
   open the efficacy reader before the terminal seal is separately bound.
+
+- 2026-09-06 — PREREG-073 efficacy r1 cannot pass after provider startup failure
+
+  The coordinator published a clean score-free authentication transcript at
+  generation `1788730695617318`, 1,373 bytes, SHA-256
+  `1d391c51fae039d24c8f03ba8577e0c21640946657f53c11d918546a42166c1d`,
+  and the efficacy launch authority at generation `1788730741653816`, 4,577
+  bytes, SHA-256
+  `739ea17bf3d2e9576a3f63094418162b3f2db163801a9d03d160101ce0532aba`.
+  It then claimed bank 750 as `lab-run-q8r6k` (UID
+  `0dd23506-e444-4dbb-9454-9fb59fc3f1d9`) and bank 751 as
+  `lab-run-slow-7w8wl` (UID
+  `cbc73fbc-0dec-4b64-bf11-ff40be20fc73`). Both snapshots match the frozen
+  18-task/parallelism-18, 2-CPU/8-GiB, 36,000-second, `maxRetries=0`, exact
+  image and argument envelope.
+
+  At `2026-09-06T21:42:07.604650003Z`, bank-750 task index 8 attempt 0
+  failed with Cloud Run's provider diagnostic `Application failed to start:
+  The container may have exited abnormally.` Its provider counts became 17
+  running / 1 failed / 0 retried. That single failure makes r1 irreversibly
+  ineligible under its zero-failure acceptance gate. Bank 751's second
+  initial-pair launch was already in flight; bank 752 remains unclaimed and
+  must not release. No result body, cohort seal, efficacy reader, cancellation,
+  duplicate prefix, or gate relaxation has occurred.
+
+  Production's failure disposition is durable on lab main at
+  `6eae79278c61c630cf65e8d363d5f032006a9904`. Next concrete action: monitor
+  both initial executions and the same registered coordinator to exact
+  terminal failure, preserve bank 752 as unclaimed, and record the completion
+  receipt. The lab may prepare a same-estimand/same-envelope r2 recovery, but
+  production must separately review and clear its fresh prefixes after r1's
+  terminal disposition.
