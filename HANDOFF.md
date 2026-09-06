@@ -43912,3 +43912,21 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   required two steps and issue written CODE GO. Continue the single CP-1 full
   census without duplication; review its terminal score-free artifact before
   any publication or efficacy work.
+
+- 2026-09-06 — CP-1 full census a1 failed closed on a new input-domain value
+
+  Unit `nfl-cp1-full-census-a1-20260906.service` reached terminal failure at
+  `2026-09-06T22:35:37Z` with exit status 1. It emitted 19/36 completed cells
+  (2023 weeks 1--18 and 2024 week 1); all 19 were `ok`, every arm/law cell had
+  800 unique candidates, and every emitted gate was true. It then refused
+  2024 week 2 before simulation with
+  `injury_status outside the frozen domain: ['Note']` at the designation
+  input-domain boundary. The intended full-census artifact is absent and no
+  outcome was opened. The staging receipt remains 1,404 bytes at SHA-256
+  `221435b1ba742e45bf7f2fa6ae94f924f0212f7c6c74391e65ae2209e16bf373`.
+
+  Production returned the typed failure and a score-free diagnosis request to
+  lab main at `c8535fc`; no retry, resume, coercion, or new attempt is
+  authorized. Lab should establish whether `Note` is a real source category
+  or a field-mapping defect and return a narrow unbound amendment with a full
+  historical domain census. A4 remains consumed and superseded by a5.
