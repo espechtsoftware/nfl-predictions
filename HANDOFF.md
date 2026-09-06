@@ -43267,3 +43267,66 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   W13 order, followed by a new immutable image and a fresh two-host,
   outcome-disabled probe under new prefixes. Exact-order gating remains in
   force; the failure is not waived or converted to set equality.
+
+- 2026-09-06 — PREREG-071 R5 host-determinism probe passed exactly
+
+  Production implemented the Amendment-3 total-world-order repair at immutable
+  lab source `c23adadb8884b28e5390a8e72019a0764e783b23`. The change is confined to
+  `mode="total"`: float32 totals are accumulated in fixed row order and sorted
+  by descending total with descending world index as the explicit tie-break.
+  The pinned 2022-W13 cache-only regression reproduces full-order SHA-256
+  `0376158b2de08d170e0edbb56457d674f1f4611e708104fc99fd226003d7430b`
+  and first-640 SHA-256
+  `9a009b949310eb844fe21e90e4e30a35e68390fd870366b37d8dbd7878bcc8d0`,
+  with worlds 9503 and 8350 at positions 228 and 229. Independent source review
+  returned GO after 93 focused tests, 120/120 exact non-total comparisons, and
+  an outcome-disabled live cache regression.
+
+  Immutable build `501d2d9e-f3cf-4f46-b556-10bf31ed776e` produced exact digest
+  `sha256:929faece69600d19a4aefd3e5be0aae4df81b80d4b98ddc03f2de5d110a078b8`.
+  Its sole build receipt is generation `1788679338171109`, 1,613 bytes,
+  SHA-256
+  `5926f3d48eb0ee3220767cfa84d83cb695fd554a6e8d1b50a56f0ae1cb8a50b8`.
+  Independent build review authenticated the source tree, provider archive,
+  critical-source manifest, Cloud Build record, Artifact Registry digest, and
+  container contents. Binding commit
+  `f8987a5c8d48fbf512a70b57b114406c7614fdd1` is durable on lab `main`; 94
+  focused binding tests and an exact-digest local image smoke passed.
+
+  The first registered invocation failed closed locally because the isolated
+  binding worktree had no `.venv`; completion receipt SHA-256 is
+  `0e59ae8421c14d72ea83786f4a262dacf965791ce56bc916b3236d0bdba0bbe5`.
+  It performed no provider update, launch, or object publication. Production
+  attached an ignored local bridge to the canonical lab Python environment and
+  reran the unchanged durable launcher. The sole create-once suffix claim is
+  generation `1788680191461445`, 255 bytes, SHA-256
+  `f0a8a8ad6cdf8515bc5d944fd857ec9bba6c106d9cb02c2869860cd3401e7d0c`;
+  launch authority generation `1788680453966032` is 1,224 bytes with SHA-256
+  `cab4a377c9191b3ab5cc2d4fa7f80fd199bccdad00a444dcc3c80579252d67bc`.
+  Exactly two 2-CPU / 8-GiB / one-task / zero-retry executions ran:
+
+  - `lab-run-cn966`, UID `0f0f1d19-2921-4713-ba16-463f39f089fe`, run
+    `100p731r5a-20260906T073630Z`, completed 1/1 with zero retries;
+  - `lab-run-slow-sf2x5`, UID `849e8af8-f9eb-45d0-9c4d-1f8fafbfacb8`, run
+    `100p731r5b-20260906T073630Z`, completed 1/1 with zero retries.
+
+  The registered coordinator authenticated both terminal diagnostics and
+  published the sole create-once R5 gate at
+  `gs://nfl-2-506823-lab/gates/PREREG-071/100p731r5a-100p731r5b.json`,
+  generation `1788681845412994`, 2,289 bytes, SHA-256
+  `574e7dab890c748f87ea652e702d3759f187abca3637f4cb31f649546d59b4e4`.
+  It is a full PASS: census A equals efficacy A, efficacy A equals efficacy B,
+  all four support cells agree, the W13 D800 order equals the sealed trace, all
+  first-divergence fields are null, and `outcome_accessed=false`. Coordinator
+  completion receipt SHA-256 is
+  `52cc0c82071ac60068109c749b1da3be868e0d56d919fc13bc145c28cb5752e7`.
+  No support census, efficacy cohort, or outcome reader was launched.
+
+  Independent exact reopen returned GATE GO: one live gate generation, no
+  soft-deleted versions, exact terminal/provider identities, and no diagnostic
+  or outcome-body access. Next action: port—not wholesale cherry-pick—the held
+  `ee5972d` mechanics preparation to fresh R5 names and prefix `100m730r5`.
+  Rebind it to the R5 gate and existing immutable image, explicitly pin/smoke
+  `src/nfl2/pipeline.py`, and review the provider/object census before launching
+  only the one-task mechanics gate. An R5 mechanics PASS still does not
+  authorize support, efficacy, or outcome-bearing work.
