@@ -43070,3 +43070,21 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   launched. Next action is to integrate that final source delta, validate the
   complete unbound package, and request independent source review before the
   immutable build.
+
+- 2026-09-05 — Lab R2 diagnostics reinforce the exact in-image gate
+
+  Lab main advanced to `9867bc5` / Update 103v. Its corrected workstation R2
+  branch `e36ab4a` independently reports identical repaired support state for
+  all four target cells and exact 800-row generation across three local
+  process chronologies. Against the authenticated sealed 2022-W13 trace, the
+  first divergence is candidate 388 (boom visit 228 / world 8350); the local
+  optimum is unique with a 0.365-point top-two gap and the sealed roster is
+  neither local top two. This rules out a simple local CBC tie at that point
+  but cannot adjudicate image/runtime input differences.
+
+  Production did not merge the lab branch or treat its workstation receipt as
+  launch evidence. The lab note was merged into the durable integration branch
+  `production/prereg071-r4-probe-integration-20260906` at `183ed5d`; the
+  production in-image producer will report the exact first differing stage and
+  candidate if equality fails. Cloud state remains unchanged and no outcome
+  was opened.
