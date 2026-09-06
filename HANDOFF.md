@@ -42747,3 +42747,21 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   of the persisted transcript, exact artifact-chain verification, and then
   observe the registered claims for frozen runs 730/731; bank 732 remains
   gated on a clean initial-bank terminal.
+
+- 2026-09-05 — CP-1 R16 reviewed; narrow R17 returned
+
+  Production independently reviewed exact lab commit `d9b1ec7`. R16 closes
+  the R15 raw-type, recursive quarantine-schema, and history-preservation
+  findings; v2 is restored exactly, v3/v9/quarantine remain byte-identical,
+  and v4/v10 are internally consistent. The review nevertheless remains
+  NO-GO for deletion and `cp1smoke-a2` because the real builder still joins
+  publication to manifest by basename rather than canonical full output key,
+  and it accepts a coherently rebound raw-publication authority with invented
+  schema/extra key and 38 rows containing a duplicate.
+
+  The two-item R17 request is durable on lab main at `bb94f01` in
+  `handoffs/PRODUCTION-TO-LAB-CP1-R16-REVIEW-2026-09-05.md`. The quarantine
+  remains exact 37/37, all originals remain present, and no raw payload,
+  deletion, or smoke prefix was touched. R17 must close only the full-key
+  bijection and raw-publication exact schema/count boundary; deletion remains
+  a separate written authorization after another independent GO.
