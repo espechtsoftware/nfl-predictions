@@ -43768,3 +43768,13 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `101b750r1`/`101b751r1`/`101b752r1`; a separately reviewed, bound CODE GO is
   required before any provider claim, and the final cohort seal remains
   unbound until terminal acceptance.
+
+  Lab Update 124 completed the separately cleared score-free residual
+  diagnostic. All seven `unavailable_pool_not_reproduced` cells reproduce
+  their frozen 095 traces exactly; the traces themselves contain only
+  736--799 unique candidates rather than the PREREG-073 adapter's frozen
+  exact-800 requirement. The correct `trace_signature_invalid` dispositions
+  therefore remain part of this cohort. This is neither membership drift nor
+  non-tie ordering drift and does not alter the support PASS or efficacy
+  preparation. A future registration may bind each trace's actual unique
+  length instead of literal 800, but this cohort must not be amended.
