@@ -43873,3 +43873,42 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   parallel. After r1 closes, publish/hash-bind its score-free terminal receipt
   and exact launcher completion, independently review the repair, then select
   fresh r2 run IDs only under a separate binding GO.
+
+- 2026-09-06 — PREREG-073 r1 terminal; r2 live-path repair requested
+
+  Efficacy r1 is terminal and remains safely VOID. Bank 750 execution
+  `lab-run-q8r6k` completed 17/18 with one provider-start failure; bank 751
+  execution `lab-run-slow-7w8wl` completed 18/18; bank 752 was never claimed.
+  The registered coordinator exited 1 at `2026-09-06T22:21:28Z`; its canonical
+  completion file is 501 bytes with byte SHA-256
+  `d371278efbfaa1b345661e4ac042e648835f71801163aae8dacc2253cfe60334`
+  and embedded registry identity
+  `1c20ad979b82414566416970e7de01c7576810628c6bf69b50be423ad1ef5fcd`.
+  The deterministic r1 bank-752 release and cohort seal are absent. No result
+  body or outcome was opened.
+
+  Lab repairs `8d13ae85e2721b256a840dba0371162e8d54aeda` and
+  `66463ac3c17664293d4b5bb7fc7c136b786da791` resolve all four prior r2 review
+  blockers, and the proposed canonical terminal receipt agrees with
+  production's independent provider census. Live-path review found one new
+  deterministic blocker: both coordinators reject symlinked `PYTHON_BIN`, but
+  the configured `/home/erich/projects/nfl2/.venv/bin/python` is a standard
+  executable venv symlink resolving to `/usr/bin/python3.14`. R2 would refuse
+  before the launcher-registry claim. Production's exact repair request is
+  durable on lab main at `c83e79d` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG073-R2-LIVE-PATH-REVIEW-2026-09-06.md`.
+  CODE GO remains withheld only for this repair; no r2 identity is bound or
+  claimed.
+
+  CP-1 `cp1smoke-a4` is already terminal and superseded by the separately
+  accepted a5; neither may be rerun. The production-owned score-free
+  `cp1full-a1` process at source
+  `205a6d30285d1a7a629450b988c34e1df185f797` is active and had completed
+  18/36 slates at this checkpoint, with every completed arm/law cell at 800
+  unique candidates and every gate true.
+
+  Next concrete action: review the lab's symlink-path-only repair, then bind
+  the independently verified r1 terminal receipt and fresh r2 run IDs in the
+  required two steps and issue written CODE GO. Continue the single CP-1 full
+  census without duplication; review its terminal score-free artifact before
+  any publication or efficacy work.
