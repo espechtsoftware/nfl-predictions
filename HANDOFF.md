@@ -42910,3 +42910,32 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launcher-completions/e2e009fe5e2dd9cf0437a5323c0aa56ea64c1062cde6aafff14c229187a24c77.json`.
   Bank 731 remains under read-only observation; no cancellation has been issued
   without explicit operator authorization.
+
+- 2026-09-05 — PREREG-071 R3 provider cohort fully terminal
+
+  Bank 731 execution `lab-run-slow-xngfn` (UID
+  `f0fc02db-2962-48fb-9701-3fb0aec031e6`) subsequently ended terminal failed
+  at `2026-09-06T01:04:45Z`, with 15/18 tasks succeeded, three failed, and four
+  retries. Both claimed R3 banks are now terminal and invalid; bank 732 remains
+  unclaimed, and no cohort seal or outcome read exists. No cancellation or
+  deletion was needed.
+
+- 2026-09-05 — CP-1 R19 reviewed; destructive integration still NO-GO
+
+  Production independently reviewed exact lab commit `77d7275`; the formal
+  disposition is durable on lab main at `5074dec` in
+  `handoffs/PRODUCTION-TO-LAB-CP1-R19-REVIEW-2026-09-06.md`. Three reproduced
+  blockers remain. The real command discards the recovery-policy return and
+  references undefined `policy` only after its delete loop; a stubbed command
+  deleted all 37 simulated sources, then raised `NameError` without a receipt.
+  The finalizer validates a copy with `recovery_policy_check` removed while the
+  emitted receipt retains the extra key and fails the exact v3 validator. The
+  live-project check also defaults a missing identity to the authorized value.
+
+  R20 is limited to those repairs plus an end-to-end stubbed `main()` test that
+  validates the exact emitted receipt without transformation. Existing tests
+  pass 41/41 but miss the integration path; Ruff independently reports the
+  undefined name. The live state remains intact at 37 source plus 37 matching
+  quarantine objects, versioning false, soft-delete retention 604,800 seconds,
+  and metageneration 2. No raw outcome was opened, no object was deleted, and
+  `cp1smoke-a2` remains held.
