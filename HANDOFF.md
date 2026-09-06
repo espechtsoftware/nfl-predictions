@@ -42788,3 +42788,38 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   execution has been cancelled pending explicit authorization. Next: seal the
   R3 failure disposition without opening outputs and bind an independently
   reviewed fresh recovery cohort; do not relax the zero-retry gate.
+
+- 2026-09-05 — CP-1 R17 boundary GO; deletion implementation only authorized
+
+  Independent review of exact lab commit `7a04ecc` returned GO for the CP-1
+  code boundary through copy/recovery. Both R16 bypasses now fail through the
+  real builder: manifest/publication identity is canonical-full-key exact, and
+  the raw-publication authority is schema/type/count closed at exactly 37
+  unique rows and URIs. Historical v2/v8, v3/v9/quarantine, and v4/v10 chains
+  remain byte-identical; additive evidence v11 SHA-256 is
+  `9fbce7f5b55a8e85312d1d551bac3f71256d9c86c3fc02ccf90dc193271051dd`.
+  Focused tests pass 36/36, and the fresh metadata census again confirms 37/37
+  recoverable copies with every source present.
+
+  Production's exact disposition is durable on lab main at `1fde493` in
+  `handoffs/PRODUCTION-TO-LAB-CP1-R17-REVIEW-2026-09-05.md`. It authorizes the
+  lab to build and return a closed 37-object, generation-conditioned deletion
+  implementation/dry run. It does not authorize execution. After independent
+  review, any approved deletion must prove unversioned `NotFound` and guarded
+  reopen refusal, then add quarantine-v3 -> manifest-v5 -> evidence-v12 before
+  `cp1smoke-a2`; no prior artifact may be overwritten.
+
+- 2026-09-05 — PREREG-071 R4 efficacy recovery contract returned to lab
+
+  Production recorded the whole-cohort R3 void and narrow R4 recovery at lab
+  main `9fffc9e` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG071-R3-FAILURE-R4-RECOVERY-2026-09-05.md`.
+  R4 will use wholly fresh `100b730r4`–`100b732r4` identities and new
+  create-once authority/transcript/seal objects, while reusing the accepted
+  immutable source/image, R4 mechanics gate, and R3 support census. All R4
+  efficacy banks move together at `maxRetries=0`; the zero-retry acceptance is
+  unchanged, and the amendment prevents a provider retry from consuming an
+  already invalid cohort. R3 files/objects stay immutable, R3 bank 732 stays
+  unclaimed, and no R3 outcome read/seal is allowed. Implementation is being
+  prepared on a feature branch for independent review; no R4 launch is yet
+  authorized.
