@@ -43794,3 +43794,26 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   mechanics receipts are being regenerated from those exact repaired bytes.
   Production's next action is a narrow final delta/receipt review; immutable
   build and cloud mechanics gates remain held until that review passes.
+
+- 2026-09-06 — PREREG-073 CODE GO/build green; CP-1 a4 reduced to two literal repairs
+
+  Production independently cleared the final PREREG-073 source branch at
+  `78a40314ef97da839ca4aadf6b32b20895449190` and published the CODE GO to lab
+  main at `f012564`. Cloud Build
+  `a8cf128c-8769-4abf-bdda-b3db3b0aae95` completed successfully from that
+  exact source. The immutable experiment-101 image is
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2@sha256:d12ff0ff253c903c56f1ce8182dc9e13ed9eac15501dd6e3f053ca0e418e8e49`.
+  Production is binding a registry-wrapped coordinator for the two required,
+  outcome-disabled mechanics cells (2022-W8 identical and 2024-W1 reindexed)
+  before any support census. No efficacy or outcome reader is authorized.
+
+  CP-1 R21 at lab branch `d27f7896c7f6eb2b3f45f429e555b75673e3b50a`
+  now passes an independent 46/46 focused test run, and its executable typed
+  boundary and fail-fast ordering are acceptable. Production nevertheless
+  withheld a4 for two exact receipt/binding corrections: state raw-null-mask
+  equality to the DST mask rather than the weaker "null allowed" wording,
+  and identify the actual seed namespaces as generator 740 plus
+  selector/judge 790. The bounded response is durable on lab main at
+  `b0e16a9`; a2/a3 remain consumed, a4 remains unrun, and efficacy remains
+  held. The next CP-1 action is immediate final review of that two-literal
+  repair, followed by one-shot a4 clearance if exact.
