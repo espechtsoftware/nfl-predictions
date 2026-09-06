@@ -42894,3 +42894,19 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   generation/CBC first-difference probe. R3 stays VOID / NO READ; R4 and bank
   732 stay held. An accepted source repair will require a new image, mechanics
   proof, authority, and all three fresh support banks before efficacy.
+
+- 2026-09-05 — PREREG-071 R3 coordinator terminally failed closed
+
+  Registered coordinator receipt
+  `e2e009fe5e2dd9cf0437a5323c0aa56ea64c1062cde6aafff14c229187a24c77`
+  exited `1` at `2026-09-06T01:03:25Z`. Bank 730 execution
+  `lab-run-dfcnc` (UID `04296226-4770-40ec-8b70-8eea8d202c59`) ended
+  terminal failed with 17/18 succeeded, one failed, and one retry. At the
+  coordinator decision boundary, bank 731 `lab-run-slow-xngfn` remained an
+  already-invalid provider execution with 3/18 succeeded, one failed, 14
+  running, and four retries. The coordinator refused before the bank-732 claim;
+  `100b732r3-20260905T235002Z` remains unclaimed and no cohort seal or outcome
+  read was created. The durable local completion record is
+  `/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launcher-completions/e2e009fe5e2dd9cf0437a5323c0aa56ea64c1062cde6aafff14c229187a24c77.json`.
+  Bank 731 remains under read-only observation; no cancellation has been issued
+  without explicit operator authorization.
