@@ -43670,3 +43670,75 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   resubmit the bounded immutable build from that exact commit, and proceed to
   the registered project and candidate-only shadow canaries only if all build
   stages pass.
+
+- 2026-09-06 — Live DK-position boundary repaired after registered canary refusal
+
+  Bounded Cloud Build `ccf73efb-26a3-48b1-a976-6f2dfe506a92` completed all
+  235 tests, image construction, image smoke, and publication for exact source
+  `a37c6f8477996fa88e143f5f101599ad26761db2`. Its immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:a307937842ae813f495ebbc3d2192f250dd3484bf58f593d5f2d9ceb9b3c7302`.
+  Production paused scheduler `s-project-su`, changed only the `project-slate`
+  image through the host launcher registry, and launched canary
+  `project-slate-kkjkx` (UID `43f2645d-b396-4417-bf38-c7928c374769`,
+  completion-receipt SHA-256
+  `a74f1a7287b88f07289c891732dd2285ced8d1fb8129598333e0383b1df2a0fc`).
+  The canary failed closed on both attempts before writing a projection batch.
+  `s-project-su` remains paused, both paired-shadow schedulers remain paused,
+  and the shadow job was not changed.
+
+  The refusal localized exactly 19 current rows. Eighteen Rams players are a
+  harmless provider vocabulary difference: DraftKings `LAR` versus canonical
+  current-roster and inference `LA`, with matching positions. Riley Nowakowski
+  is the sole position variant: all 184 current DraftKings observations name
+  him PIT RB, while the fresh active roster and inference row name him PIT TE.
+  His player-id map is already explicitly frozen as
+  `reviewed_position_variant`. Prior successful projection batches incorrectly
+  persisted him as TE, which would not match his DraftKings eligibility.
+
+  Implementation commit
+  `f574e7807a78a4e46fee06a6b0b824533c2a5afe` preserves the current-roster TE
+  role for cold-start features, component prediction, calibration, and
+  simulation, while serving the validated DraftKings RB position to stored
+  projections and the live optimizer. Feature team/position is now checked
+  against canonical current-roster authority; a DraftKings-versus-model role
+  difference is accepted only when the identity source is exactly
+  `reviewed_position_variant`. Missing DK position, invalid classic positions,
+  ambiguous current-roster roles, stale feature roles/teams, and unreviewed
+  platform variants all still fail closed. A live read-only query over the
+  actual 535-player Week-1 pool admits exactly the 18 aliases and one reviewed
+  role variant. Focused source-boundary and complete offline live-lineup tests
+  pass; selected Ruff fatal/error checks, compilation, and diff checks pass.
+
+  Next action: rerun the bounded live image gate from `f574e780`, require a
+  green registry-wrapped `project-slate` canary with a complete atomic batch,
+  and only then resume `s-project-su`. After that, update the paired shadow
+  image together with exact `CODE_SHA`, run a candidate-only outcome-blind
+  canary, validate its immutable manifest, and resume its two schedulers only
+  on success.
+
+- 2026-09-06 — CP-1 exact LineStar source quarantine deletion completed; smoke held
+
+  Following the owner's explicit one-shot authorization and production's
+  generation-pinned GO at lab-main commit `79b1215`, the lab's exact released
+  path deleted 37/37 ordinary-source objects with generation preconditions and
+  zero failures. The scope was the 36 weekly 2023--2024 LineStar raw salary
+  payloads plus `periods_p0.json`; no prefix, glob, latest-generation, or
+  quarantine deletion was authorized. Verification found all 37 current
+  source URIs absent, all 37 quarantine copies intact, 74/74 guarded reopens
+  refused before client construction, and zero client-factory calls.
+
+  The post-delete chain is lab branch head
+  `be58f3fd8399d1af8b6ddb5b0e2679b063aefb98`: receipt v3 SHA-256
+  `b24cfbd63e0a79e8fc1a653e9d3c0728b7ed9abe085aa3d11fe6de1037d4c9cd`,
+  manifest v5 SHA-256
+  `fc39038a23c452d850fddd3d0bffea66a401cc12b8a25ad615c3c702b2d81904`,
+  evidence v12 SHA-256
+  `38fb24bfd5997e8b71cdfd9ed0d6feb909cc931b1f0fe1630f1da970d1cf67a2`,
+  and v11-to-v12 diff SHA-256
+  `76ae1167e30170fa7da679809fad4e3ad8ebbede5dbbe21f9633b9ffb43554fc`.
+  Independent production review has so far authenticated this evidence and
+  current storage state, but found the PREREG-072 a2 launch command still
+  names membership v11 while the current runner pins v12. `cp1smoke-a2`
+  remains held pending completion of current-byte tests and a narrow
+  pre-outcome amendment of that command to v12; no further owner authorization
+  is required.
