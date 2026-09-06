@@ -43436,3 +43436,38 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   exact executions and the coordinator; allow only its receipt-gated bank-732
   release, then authenticate/seal all 54 shards. A support PASS authorizes only
   a separately prepared and reviewed efficacy stage.
+
+- 2026-09-06 — PREREG-071 R5 support authentication failed closed
+
+  Bank 730 `lab-run-hn697`, bank 731 `lab-run-slow-vh486`, and receipt-gated
+  bank 732 `lab-run-5q9x9` (UID
+  `a6e52045-4c2e-45f3-a0d7-aa59b495b313`) all completed at exact 18/18
+  success with zero failures, cancellations, or retries. Bank 732 ran as
+  `100c732r5-20260906T094850Z` only after the create-once release receipt,
+  generation `1788690595778619`, 815 bytes, SHA-256
+  `2dfed9146b979830b705898ced7c28cd6b2c645a9ebda4a6bf7ab03a17b4a169`.
+
+  The coordinator published the complete 54-shard support seal at
+  `gs://nfl-2-506823-lab/seals/PREREG-071/support-census-100c730r5-100c731r5-100c732r5.json`,
+  generation `1788693096581160`, 8,285 bytes, SHA-256
+  `c8ccaff303994f3724a90572037e78a862f41764d27c3611550b72a938aba44d`.
+  The released reader's score-free `--authenticate-census` path then rejected
+  the frozen overall availability floor: 141/162 valid (`0.87037037`), with
+  three `unavailable_empty_opportunity_support` and 18
+  `unavailable_pool_not_reproduced`. Per-season shares were 2022
+  `0.90740741`, 2023 `0.85185185`, and 2024 `0.85185185`; the season floor
+  passed but the registered 90% overall floor failed. The coordinator exited
+  `1` at `2026-09-06T11:19:40Z`; completion-record identity is
+  `90f5bec5e080dd227c69947a9025110731c5538fba3ae176324bb0ba751749c0`.
+
+  Authority, release, and seal each have one live generation and no
+  soft-deleted version. The R5 authentication transcript is absent, and a
+  direct external census found no R5 efficacy authority, claim, result, seal,
+  or transcript. No efficacy or outcome path was opened. Production published
+  the urgent lab hold at lab-main commit
+  `551e162f611d4a2cf1c641bd7ee60d51a08e9cd5` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG071-R5-SUPPORT-AUTH-FAILURE-2026-09-06.md`.
+  Preserve the consumed R5 evidence; do not waive/rewrite the floor or launch
+  efficacy. Next action: finish the independent exact-shard reopen and classify
+  the 18 pool-reproduction cells against the R3 149/162 support census before
+  proposing any fresh pre-outcome amendment or identities.
