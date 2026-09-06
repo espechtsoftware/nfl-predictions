@@ -43930,3 +43930,41 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   authorized. Lab should establish whether `Note` is a real source category
   or a field-mapping defect and return a narrow unbound amendment with a full
   historical domain census. A4 remains consumed and superseded by a5.
+
+- 2026-09-06 — PREREG-073 efficacy r2 authorized and registered coordinator active
+
+  Production completed the two-step r2 recovery binding after the VOID r1
+  terminal prerequisite. The atomic run/reader binding is lab commit
+  `cfba12aac339cac2fe15f3602ccfd6963e3c61ca`, integrated on lab main through
+  `b574569dbf72e10e5a7a41f48131f3372cfc61ae`. Lab's independent review at
+  `46b37f9a636b1f51daf210171e8503992e6bfc6c` accepted the exact identities,
+  focused 62-test gate, and zero-claim census. The separate production CODE GO
+  is durable on lab main at
+  `858767e9e7edd0979d358c9eef2c10af29b027be`.
+
+  The frozen runs are `101b750r2-20260906T224651Z`,
+  `101b751r2-20260906T224651Z`, and
+  `101b752r2-20260906T224651Z`; launch-reader SHA-256 is
+  `1137f276b7acfd3b101379d8cda63e8fb371fc84a5d70b1f288d23b280ed8b46`.
+  A final census at `2026-09-06T23:01:24Z`, repeated at launch, found both
+  Cloud Run lanes idle, both Cloud Build projects idle, no exact provider or
+  canonical-registry claim, and no live or all-version object at any r2
+  result or deterministic cohort path.
+
+  At `2026-09-06T23:08:28Z`, production invoked only
+  `scripts/queue_prereg073_efficacy_registered.sh` as detached user unit
+  `nfl-prereg073-efficacy-r2-20260906.service`, invocation
+  `4a71dd096ae243c5abfa167724ebd598`. It acquired canonical lane
+  `nfl2-lab-jobs` under PID `818101`; active receipt
+  `queue_prereg073_efficacy_registered.sh-818101.json` is 356 bytes with
+  SHA-256
+  `623b542bbcad086a6b7a746cc5d463795a6793839719d85e9d58bcd595e93abc`.
+  The registered child is executing the immutable queue snapshot from
+  `cfba12a`; the no-outcome boundary remains intact.
+
+  Next concrete action: monitor authentication and the exact bank-750/751
+  provider claims, verify the frozen 18-task, 2-vCPU/8-GiB, zero-retry
+  envelopes, and let only the same coordinator release bank 752. On exact
+  terminal success, bind the opaque cohort seal separately before any first
+  efficacy read. In parallel, clear one fresh CP-1 `cp1full-a2` score-free
+  census from the reviewed `Note`-domain repair; do not rerun a4 or a5.
