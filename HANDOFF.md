@@ -43146,3 +43146,44 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   recover and independently authenticate the receipt, then bind the receipt and
   image identities in one durable commit. Only after that binding review may the
   registered two-execution gate launch.
+
+- 2026-09-05 — PREREG-071 R4 build receipt recovered and exact gate binding cleared
+
+  The already-successful immutable build was recovered without rebuilding or
+  repointing its tag. Build `6ed268da-081e-4b50-9fa1-f393ebf8d3d0`, exact source
+  `6eff0b6eb3293c34c8e870836e4505f3f248377b`, tag
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2:100p731r4-6eff0b6eb329`,
+  and digest
+  `sha256:49177ffad9f0a20cb7f6d8008ad36922c95a754a9da1e750fdea6bf49d38903b`
+  were reauthenticated against the provider record and exact uploaded source.
+  The authoritative create-once receipt is
+  `gs://nfl-2-506823-lab/build-receipts/PREREG-071/100p731r4-6eff0b6eb3293c34c8e870836e4505f3f248377b.json`, generation
+  `1788664548335093`, 1,613 bytes, SHA-256
+  `a3f6996d8ce26572006bc7517770581ee31d9355403cdccd4d6d705d9e6933c5`.
+  Its recovery sidecar is generation `1788664545638477`, 1,037 bytes, SHA-256
+  `421f249d58e5282b27594d7f929dc0134ccae97350fae6191cec98782a2eff2f`.
+  Independent review confirmed each key has exactly one live generation, zero
+  soft-deleted remnants, and byte-identical local/remote evidence.
+
+  Exact launch binding commit
+  `438383a4224903ebb65ed1ea816b6d26131cb705` is now durable on lab `main`.
+  Two independent reviews returned CODE GO (62 and 98 focused tests,
+  respectively, plus Ruff, shell syntax, source-tree equality, and diff
+  checks). The binding changes only the two launchers and their contract test;
+  all runtime source remains byte-identical to built source `6eff0b6`. It binds
+  the authenticated receipt, sealed trace root generation
+  `1788613084045480` / SHA-256
+  `45f8f1f003a7dc1412098e430e234855c08ec8f20db2f51c075525e48109c33e`,
+  and exactly two resumable outcome-disabled executions:
+  `100p731r4a-*` on `lab-run` and `100p731r4b-*` on `lab-run-slow`, each at one
+  task, 2 CPU, 8 GiB, and `maxRetries=0`. No Cloud Run execution or job update
+  has occurred yet.
+
+  The only remaining host prerequisite is Docker socket access for the
+  contract-required immutable-image smoke. User `erich` is not yet a member of
+  group `docker`; noninteractive sudo is unavailable. The owner has been asked
+  to run `sudo usermod -aG docker erich`. After that, invoke only
+  `scripts/queue_prereg071_r4_probe_registered.sh` from the exact lab binding
+  worktree in a fresh `docker` group shell. Preserve any valid scientific FAIL
+  gate and do not launch the R4 census/efficacy cohort unless this exact
+  score-free gate passes.
