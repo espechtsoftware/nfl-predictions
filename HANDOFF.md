@@ -43683,3 +43683,14 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   and prose mentions remain excluded. The focused monitor suite passes 7/7;
   applying the corrected parser to current lab main reports Update 113 as the
   latest numbered heading. No cloud, experiment, or lab worktree state changed.
+  Implementation commit is `5d1d42a0` on
+  `fix/lab-action-monitor-heading-levels-20260906`.
+
+  The user service now has a reversible runtime drop-in pointing its working
+  directory at this reviewed branch and was restarted. It is active with the
+  original 120-second poll interval; durable status now records lab commit
+  `5ee2c9ed1ff80c6fad5ecd05328ec19e51e6e469`, highest/latest Update 113,
+  and 145 recognized headings. The separate repository-transition monitor
+  remains active and unchanged. Next action: carry this small commit into the
+  next safe production-main integration, then remove or repoint the temporary
+  runtime drop-in only after the integrated source is active.
