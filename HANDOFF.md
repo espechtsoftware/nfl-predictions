@@ -43471,3 +43471,40 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   efficacy. Next action: finish the independent exact-shard reopen and classify
   the 18 pool-reproduction cells against the R3 149/162 support census before
   proposing any fresh pre-outcome amendment or identities.
+
+- 2026-09-06 — PREREG-071 R5 support failure localized; narrow score-free probe requested
+
+  Production and independent reviewers localized all R5 non-ok cells. Source
+  690 mismatched at 2022-W02; 2023-W03/W12/W18; and
+  2024-W01/W02/W03/W04/W13/W18. Source 691 mismatched at 2022-W02/W12,
+  2023-W01, and 2024-W10. Source 692 mismatched at 2022-W02/W11,
+  2023-W04, and 2024-W15. The remaining three non-ok cells are the expected
+  2023-W14 empty-support disposition in each bank. The complete three-bank
+  intersection is 37/54 slates.
+
+  Against R3, four pool mismatches persisted, six were cured, and 14 are new
+  (net eight additional mismatches). Source 691/2022-W13 now reproduces, so R5
+  fixed the exact cross-host defect it targeted. All transport and strict
+  source/image/authority/shard/cell authentication reached the registered
+  `CENSUS.floors()` check; no infrastructure, binding, or wire failure was
+  found. The leading explanation is compatibility between R5's canonical
+  total-world order and legacy host-dependent 095 pool ordering, with the
+  changed thread envelope still a secondary generation-stage possibility.
+  A separate in-memory execution of the exact released reader (SHA-256
+  `7e40f5fd6693ef9bb872b6f1634b07771544c12a1eb3129ccc1c8d11206fd386`)
+  reopened and authenticated all approximately 2.37 GiB of sealed shard bytes
+  and independently raised only the same registered floor exception.
+
+  Production appended the exact delta and a single authorized next diagnostic
+  to the lab hold report. The diagnostic is outcome-disabled and limited to
+  the 18 mismatches: ordered signature versus roster/tag multiset and set,
+  first differing visit/member, legacy-versus-R5 world-order hashes, duplicate
+  counts, and a labeled R3-thread-envelope comparison. If every mismatch is
+  order-only, a fresh amendment may reindex by unique frozen roster/tag
+  identity. Membership changes require either a newly frozen canonical-pool
+  experiment or closure/reconstruction; the R5 floor remains failed and no
+  efficacy launch is authorized. Associated production branch is
+  `production/prereg071-r5-disposition-20260906` at `6a4cdb28` before this
+  update; the lab diagnosis was committed and pushed to lab `main` at
+  `23bedc8a` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG071-R5-SUPPORT-AUTH-FAILURE-2026-09-06.md`.
