@@ -185,15 +185,27 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
             sl.*,
             q.receipt_is_valid AS roster_receipt_is_valid,
             m.gsis_id,
+            m.match_source AS identity_match_source,
             a.gsis_id AS active_gsis_id,
+            a.team_abbr AS active_roster_team,
+            a.active_roster_position,
+            a.active_roster_position_count,
             n.clean_name AS active_exact_name
           FROM slate sl
           CROSS JOIN current_roster_receipt_quality q
           LEFT JOIN `{settings.features}.player_id_map` m
             USING (dk_player_id)
           LEFT JOIN (
-            SELECT DISTINCT gsis_id, team_abbr
+            SELECT
+              gsis_id,
+              team_abbr,
+              MIN(IF(roster_position = 'FB', 'RB', roster_position))
+                AS active_roster_position,
+              COUNT(DISTINCT IF(
+                roster_position = 'FB', 'RB', roster_position
+              )) AS active_roster_position_count
             FROM current_active_fantasy_roster
+            GROUP BY gsis_id, team_abbr
           ) a
             ON a.gsis_id = m.gsis_id
            AND a.team_abbr = CASE UPPER(TRIM(sl.team_abbr))
@@ -293,40 +305,65 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
                 ["dk_player_id", "display_name", "gsis_id", "dk_position", "team_abbr"]
             ].head(20).to_string(index=False)
         )
-    required_structure = ["position", "team", "opponent", "is_cold_start"]
+    required_structure = [
+        "position",
+        "team",
+        "opponent",
+        "is_cold_start",
+        "identity_match_source",
+        "active_roster_team",
+        "active_roster_position",
+        "active_roster_position_count",
+    ]
     absent = [column for column in required_structure if column not in skill]
     if absent:
         raise RuntimeError(
-            "player_week_inference omitted required live columns: "
+            "live identity/inference query omitted required columns: "
             + ", ".join(absent)
         )
     incomplete = skill[skill[required_structure].isna().any(axis=1)]
     if not incomplete.empty:
         raise RuntimeError(
-            f"{len(incomplete)} active slate players have an incomplete "
-            "player_week_inference row — rebuild features before projecting:\n"
+            f"{len(incomplete)} active slate players have incomplete current "
+            "identity/inference evidence — rebuild features before projecting:\n"
             + incomplete[
                 ["dk_player_id", "display_name", "gsis_id", "dk_position", "team_abbr"]
             ].head(20).to_string(index=False)
         )
-    normalized_dk_team = skill["team_abbr"].astype("string").str.strip().str.upper()
-    normalized_feature_team = skill["team"].astype("string").str.strip().str.upper()
+    # Team aliases are a provider vocabulary difference (for example DK LAR
+    # versus nflverse LA), not stale feature evidence.  Reuse the same
+    # canonical key as the DST and schedule joins rather than maintaining a
+    # second alias table at this boundary.
+    from .dst_projections import _team_key
+
+    normalized_dk_team = _team_key(skill["team_abbr"])
+    normalized_feature_team = _team_key(skill["team"])
+    normalized_roster_team = _team_key(skill["active_roster_team"])
     normalized_dk_position = (
         skill["dk_position"].astype("string").str.strip().str.upper()
     )
     normalized_feature_position = (
         skill["position"].astype("string").str.strip().str.upper()
     )
-    incoherent = skill[
-        (normalized_dk_team != normalized_feature_team)
-        | (normalized_dk_position != normalized_feature_position)
+    normalized_roster_position = (
+        skill["active_roster_position"].astype("string").str.strip().str.upper()
+    ).replace({"FB": "RB"})
+    ambiguous_roster_position = (
+        pd.to_numeric(skill["active_roster_position_count"], errors="coerce")
+        != 1
+    )
+    stale_identity = skill[
+        (normalized_dk_team != normalized_roster_team)
+        | (normalized_feature_team != normalized_roster_team)
+        | (normalized_roster_position != normalized_feature_position)
+        | ambiguous_roster_position
     ]
-    if not incoherent.empty:
+    if not stale_identity.empty:
         raise RuntimeError(
-            f"{len(incoherent)} active slate players have stale team/position "
+            f"{len(stale_identity)} active slate players have stale team/position "
             "in player_week_inference — rebuild features after the latest "
             "roster pull before projecting:\n"
-            + incoherent[
+            + stale_identity[
                 [
                     "dk_player_id",
                     "display_name",
@@ -338,7 +375,53 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
                 ]
             ].head(20).to_string(index=False)
         )
+    unreviewed_position_variant = skill[
+        (normalized_dk_position != normalized_feature_position)
+        & skill["identity_match_source"].ne("reviewed_position_variant")
+    ]
+    if not unreviewed_position_variant.empty:
+        raise RuntimeError(
+            f"{len(unreviewed_position_variant)} active slate players have "
+            "an unreviewed DraftKings-versus-roster position variant:\n"
+            + unreviewed_position_variant[
+                [
+                    "dk_player_id",
+                    "display_name",
+                    "gsis_id",
+                    "identity_match_source",
+                    "dk_position",
+                    "position",
+                ]
+            ].head(20).to_string(index=False)
+        )
     return df
+
+
+def _served_position(feats: pd.DataFrame) -> pd.Series:
+    """Return the platform eligibility used to build and export lineups.
+
+    ``position`` is the nflverse/model role and remains authoritative for
+    feature transforms, component prediction, calibration, and simulation.
+    DraftKings occasionally assigns a different eligible roster slot to a
+    hybrid player.  Once the current-roster identity boundary has proved the
+    feature role is current, ``dk_position`` must own the served lineup slot;
+    otherwise a legal DK RB can be emitted as an ineligible TE (or vice
+    versa).
+    """
+    if "dk_position" not in feats:
+        raise RuntimeError(
+            "live projection omitted DraftKings position authority"
+        )
+    served = feats["dk_position"].astype("string").str.strip().str.upper()
+    if served.isna().any() or served.eq("").any():
+        raise RuntimeError("live projection contains an empty served position")
+    invalid = ~served.isin({"QB", "RB", "WR", "TE"})
+    if invalid.any():
+        raise RuntimeError(
+            "live projection contains an invalid DraftKings skill position: "
+            + ", ".join(sorted(set(served[invalid].astype(str))))
+        )
+    return served
 
 
 def project(
@@ -454,7 +537,7 @@ def project(
             "gsis_id": feats.get("gsis_id"),
             "dk_player_id": feats.get("dk_player_id"),
             "display_name": feats.get("display_name"),
-            "position": feats.get("position", feats.get("dk_position")),
+            "position": _served_position(feats),
             "team": feats.get("team", feats.get("team_abbr")),
             "opponent": feats.get("opponent"),
             "salary": feats.get("salary"),

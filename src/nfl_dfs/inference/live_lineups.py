@@ -252,6 +252,7 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                                 shift_draws_to_means)
     from .run_projections import (
         _props_first_market_with_dk_fallback,
+        _served_position,
         upcoming_slate_features,
     )
 
@@ -391,8 +392,9 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
         "id": skill.dk_player_id.astype(int),
         "gsis_id": skill.gsis_id,
         "name": skill.display_name,
-        "pos": skill.position if "position" in skill.columns
-               else skill.dk_position,
+        # Model-role position remains in ``skill.position`` for simulation;
+        # the optimizer must receive the actual DraftKings eligibility.
+        "pos": _served_position(skill),
         "team": skill.get("team", skill.get("team_abbr")),
         "opp": skill.get("opponent"),
         "salary": pd.to_numeric(skill.salary, errors="coerce"),

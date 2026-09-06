@@ -95,6 +95,7 @@ def test_projection_accepts_none_policy_env_and_uses_dk_ppg(monkeypatch):
         "gsis_id": ["p1", "p2"],
         "display_name": ["One", "Two"],
         "position": ["WR", "RB"],
+        "dk_position": ["RB", "RB"],
         "team": ["A", "B"],
         "opponent": ["B", "A"],
         "salary": [6_000, 5_000],
@@ -114,6 +115,7 @@ def test_projection_accepts_none_policy_env_and_uses_dk_ppg(monkeypatch):
     class FakeModel:
         def predict_components(self, frame):
             assert frame.gsis_id.tolist() == ["p1", "p2"]
+            assert frame.position.tolist() == ["WR", "RB"]
             return object()
 
     monkeypatch.setattr(
@@ -167,6 +169,7 @@ def test_projection_accepts_none_policy_env_and_uses_dk_ppg(monkeypatch):
         0.45 * 10.0 + 0.55 * 20.0,
         0.45 * 12.0 + 0.55 * 8.0,
     ])
+    assert out.position.tolist() == ["RB", "RB"]
 
 
 @pytest.fixture()
@@ -249,6 +252,17 @@ def test_live_build_chain_offline(monkeypatch, panel, live_slate):
     slate, _ = live_lineups.build_slate_with_draws(
         season, 3, n_sims=20, seed=7, salary_overrides={100: 4321})
     assert int(slate.loc[slate.id == 100, "salary"].iloc[0]) == 4321
+
+    # A hybrid can have a current nflverse/model role that differs from the
+    # DraftKings eligible slot.  Simulation keeps the model role, while the
+    # optimizer must receive the DK slot to produce an uploadable lineup.
+    hybrid_index = live_slate.index[live_slate.position.eq("TE")][0]
+    hybrid_id = int(live_slate.loc[hybrid_index, "dk_player_id"])
+    live_slate.loc[hybrid_index, "dk_position"] = "RB"
+    hybrid_slate, _ = live_lineups.build_slate_with_draws(
+        season, 3, n_sims=20, seed=7,
+    )
+    assert hybrid_slate.loc[hybrid_slate.id == hybrid_id, "pos"].iloc[0] == "RB"
 
     # The stored projection path retains known inactive rows at zero, but the
     # live simulator must exclude them before component sampling.  A selected
