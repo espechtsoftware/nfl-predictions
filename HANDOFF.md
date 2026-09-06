@@ -43187,3 +43187,46 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   worktree in a fresh `docker` group shell. Preserve any valid scientific FAIL
   gate and do not launch the R4 census/efficacy cohort unless this exact
   score-free gate passes.
+
+- 2026-09-06 — PREREG-071 R4 exact score-free gate launched in both lanes
+
+  After the owner enabled Docker access, the first registered invocation failed
+  closed at the local image smoke because Docker lacked Artifact Registry
+  authentication. Production installed the standard `gcloud` Docker credential
+  helper and pulled the already-bound digest; no rebuild or tag movement
+  occurred. The next invocation passed the smoke and reserved the exact suffix,
+  then Cloud SDK 583 rejected five numeric-looking YAML environment values as
+  non-strings before any `UpdateJob` RPC. Both reusable jobs remained on their
+  prior generations and no execution had been created. Completion-record
+  SHA-256 values for those two pre-provider/pre-update refusals are
+  `b9627ffe91e156bb82b4bd20fb09901f46cb8d7468cd479332aa265136ada328` and
+  `99282fb30d4a318b76aa1dace1ac5057af9f7d7cd52b24be378a2414a0210936`.
+
+  Narrow host-only repair commit
+  `b5ab165abea2010f57da7bbffdc46107e284e25c` quotes all twelve emitted YAML
+  values, changes no frozen value or image/runtime byte, and is durable on lab
+  `main`. Two independent reviews returned CODE GO after exercising the exact
+  map through installed Cloud SDK 583; focused validation passed 126/126 plus
+  Ruff, `bash -n`, and diff checks. Its durable lab coordination note is
+  `handoffs/PRODUCTION-TO-LAB-PREREG071-R4-LAUNCH-SERIALIZATION-REPAIR-2026-09-06.md`.
+
+  The retried registered launcher reused the sole create-once suffix claim
+  `20260906T053335Z` (claim generation `1788672816286709`, SHA-256
+  `1e5e04dfce3bded857715af0bc1ac316c7081f55aac8b9967d84c7755f0643cd`),
+  installed the exact reviewed 2 CPU / 8 GiB / one-task / zero-retry envelope on
+  both jobs, and launched exactly two outcome-disabled executions:
+
+  - `lab-run-8hl7q`, UID `5dd9c292-cdef-483c-bbeb-b5edf9e0c67a`, run ID
+    `100p731r4a-20260906T053335Z`, profile `l-a`;
+  - `lab-run-slow-c5x6j`, UID `40b382e1-d710-4662-b39e-b10919c587ed`, run ID
+    `100p731r4b-20260906T053335Z`, profile `l-b`.
+
+  Both were running with zero failures and zero retries at the last census. The
+  create-once launch authority is generation `1788673734208763`, 1,224 bytes,
+  SHA-256
+  `48e0606830fad4c6a33bf1aed7961f181f69c110a860577e0773d104315356c5`.
+  Registered coordinator PID 16014 remains attached and will authenticate both
+  terminal executions and diagnostics before publishing the exact gate. Next
+  action: monitor these exact execution IDs; preserve and adjudicate the gate.
+  Launch no R4 support or efficacy work unless every frozen gate component is
+  true. R3 remains VOID / NO READ.
