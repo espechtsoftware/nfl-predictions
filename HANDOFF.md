@@ -42729,3 +42729,21 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   expedited independent review; do not relaunch until that exact review is GO
   and the repair is durable on lab main. The immutable authentication
   transcript may be reused only if regeneration reopens byte-identically.
+
+- 2026-09-05 — PREREG-071 R3 transport repair cleared and registered retry active
+
+  Independent review returned GO for exact repair `631a4ab`: only the Cloud
+  Build lookup moved to `BUILD_REGION=global`; Cloud Run remains
+  `us-central1`, the reader and all frozen scientific/run identities are
+  unchanged, and create-once transcript reuse is byte-equality gated. The
+  repair and review disposition are durable on lab main at `2b1d6aa`.
+  Twenty-six focused checks and both coordinator shell syntax checks pass.
+
+  Production invoked only the registered coordinator at
+  `2026-09-06T00:12:37Z`; active registry identity begins `e2e009fe5e2d`.
+  It reopened the accepted R3 mechanics gate and is recomputing the score-free
+  support authentication. At this milestone no efficacy authority, provider
+  execution, or result object is claimed. Next: require byte-identical reuse
+  of the persisted transcript, exact artifact-chain verification, and then
+  observe the registered claims for frozen runs 730/731; bank 732 remains
+  gated on a clean initial-bank terminal.
