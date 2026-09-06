@@ -43390,3 +43390,49 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   until its exact unbound contract, freshness census, timestamp binding, and
   durable binding receive independent GO; a support PASS still precedes any
   efficacy or score read.
+
+- 2026-09-06 — PREREG-071 R5 support census bound and launched in both lanes
+
+  The outcome-disabled R5 support package is durable on lab `main`: unbound
+  preparation commit `ddb9f6dbe4dbe0c97a5d58fa52829a5525d46e3c` and exact
+  binding commit `a62694a3a77113f44ec3d2e0a49681a31e2a0e80`. PREREG-071
+  Amendment 4 freezes the R5-only transport envelope before launch:
+  `maxRetries=0`, all numerical thread controls equal to one, and
+  `PYTHONHASHSEED=11`; the support method, bank/source-run map, random streams,
+  floors, arms, selectors, estimands, and outcome boundary are unchanged.
+  Independent implementation and binding reviews returned GO after 121 focused
+  tests, Bash syntax, Ruff, formatting, and whitespace checks.
+
+  A fresh prebinding census at `2026-09-06T09:48:29Z` checked all 301 provider
+  executions across both reusable jobs, nine GCS roots with versions and soft
+  deletes, four deterministic create-once keys, and 57 launcher-registry JSON
+  receipts. It found zero claim or artifact for `100c730r5`, `100c731r5`, or
+  `100c732r5`. The common binding suffix is `20260906T094850Z`. The registered
+  coordinator acquired the `nfl2-lab-jobs` registry lane at
+  `2026-09-06T09:54:10Z`, repeated the freshness checks under the provider lock,
+  authenticated the R5 proof/mechanics chain, and published the create-once
+  launch authority at
+  `gs://nfl-2-506823-lab/authorities/PREREG-071/100c730r5-100c731r5-100c732r5.json`,
+  generation `1788688505731821`, 1,621 bytes, SHA-256
+  `6e4a3fc75da754f06dcbceaf799667aff05e0855b80a32dd19ba55650cbd3243`.
+
+  Exactly two initial 18-task, parallelism-18, 2-CPU/8-GiB, zero-retry
+  executions are active on immutable image digest
+  `sha256:929faece69600d19a4aefd3e5be0aae4df81b80d4b98ddc03f2de5d110a078b8`:
+
+  - bank 730: `lab-run-hn697`, UID
+    `d5f0f1e7-0ac4-4f57-81cf-b328b8ca724f`, run
+    `100c730r5-20260906T094850Z`, started `2026-09-06T09:56:39.383391Z`;
+  - bank 731: `lab-run-slow-vh486`, UID
+    `f927b964-d71b-4a89-9b26-78cd7a5dcccc`, run
+    `100c731r5-20260906T094850Z`, started `2026-09-06T09:59:21.356924Z`.
+
+  Both were running 18/18 with zero failures, cancellations, or retries at the
+  last census. Bank 732 remains unclaimed by design until one initial bank has
+  exact terminal zero-retry success and the create-once temporal release
+  receipt is authenticated. The registered coordinator remains attached in
+  unified execution session `96496`. No efficacy prefix, contest outcome, or
+  efficacy/outcome reader was claimed or opened. Next action: monitor these two
+  exact executions and the coordinator; allow only its receipt-gated bank-732
+  release, then authenticate/seal all 54 shards. A support PASS authorizes only
+  a separately prepared and reviewed efficacy stage.
