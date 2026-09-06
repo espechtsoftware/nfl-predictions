@@ -42958,3 +42958,21 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   The added comparator does not itself emit the required four-cell probes and
   the 2022-W13 candidate mismatch remains unresolved. No merge, build, launch,
   binding, gate relaxation, or outcome read is authorized pending both reviews.
+
+- 2026-09-05 — PREREG-071 cutoff repair independently CODE GO
+
+  Independent production review cleared exact commit `adb02f2` as a narrow
+  source repair. The full disposition is durable on lab main at `ccebe9d` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG071-CUTOFF-REPAIR-REVIEW-2026-09-06.md`.
+  Review reproduced the causal chronology, verified that the derived cache is
+  keyed by the active cutoff, and found no change to the scientific laws or
+  outcome firewall. Validation passed 12 new tests, 12 non-slow hsim tests, 7
+  full-core tests, 34 firewall/contract tests, 39 reader/runner/support tests,
+  Ruff, compilation, and diff checks.
+
+  Merge/build/launch remain NO-GO pending the lab's independent review and a
+  separately reviewed four-cell probe producer. The existing comparator must
+  also close arbitrary process metadata, include the reference in stability
+  classification, and use full canonical support validation before Cloud use.
+  Those limitations do not invalidate the cache fix. The 2022-W13 candidate
+  mismatch remains a distinct blocker.
