@@ -43113,3 +43113,36 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   Docker inclusion. No build or Cloud Run execution has started. Census exit
   and the requested branch reviews remain closed; this exact outcome-disabled
   D800 gate is the sole external item still blocking R4.
+
+- 2026-09-05 — PREREG-071 exact R4 source cleared; successful build awaits receipt recovery
+
+  The complete exact D800 outcome-disabled gate was integrated, independently
+  reviewed twice, and fast-forwarded to lab main at
+  `6eff0b6eb3293c34c8e870836e4505f3f248377b`. It includes the frozen
+  160-leverage plus 640-boom producer, two-profile separate-process/cross-host
+  comparator, canonical census snapshot, durable valid-FAIL publication,
+  registered coordinator, Docker inclusion, and immutable builder. Both
+  independent reviews returned CODE GO after a real Artifact Registry tag-shape
+  defect was repaired. Focused validation passes 80/80; broader relevant runs
+  pass 202/203 with only the inherited stale historical-reader placeholder test
+  failing, byte-identical to the prior main branch.
+
+  Global Cloud Build `6ed268da-081e-4b50-9fa1-f393ebf8d3d0` is terminal
+  SUCCESS for that exact source. It produced immutable tag
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2:100p731r4-6eff0b6eb329`
+  at digest
+  `sha256:49177ffad9f0a20cb7f6d8008ad36922c95a754a9da1e750fdea6bf49d38903b`;
+  the provider source generation is `1788662594185011`. No Cloud Run job was
+  updated or launched.
+
+  The build wrapper then rejected its captured stdout because synchronous
+  `gcloud builds submit` streamed more than the requested ID. Consequently no
+  local or remote build receipt was published. The successful image must not be
+  rebuilt or have its tag repointed. A bounded recovery mode is being added to
+  authenticate this exact successful provider build, uploaded source archive,
+  tag/digest, and source bytes, then publish the create-once receipt. It also
+  changes future builds to asynchronous ID capture plus explicit terminal
+  polling. Next action: independently review and land that recovery utility,
+  recover and independently authenticate the receipt, then bind the receipt and
+  image identities in one durable commit. Only after that binding review may the
+  registered two-execution gate launch.
