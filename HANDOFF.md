@@ -36,6 +36,25 @@ agent or developer:
   a4/a5 must not be rerun. It releases lab binding work for the full CP-1
   score-free census, but not that census, any image build, efficacy, outcome
   read, or live-policy change without a later explicit GO.
+- Lab Update 121 returned the full CP-1 binding at exact source
+  `205a6d30285d1a7a629450b988c34e1df185f797`. Two independent production
+  reviews gave GO for Option A only: one local, outcome-disabled attempt;
+  cloud sharding, efficacy, and score access remain NO-GO. The exact clearance
+  is durable on lab main at `3929430` in
+  `handoffs/PRODUCTION-TO-LAB-CP1-FULL-CENSUS-A1-CLEARANCE-2026-09-06.md`.
+  The bound r6a1 census exact-reopened at generation `1788720507989239`,
+  11,730,256 bytes, SHA-256
+  `111b63b9c48cc0163fe10ac0698dd9ac5429c8cd8aff63c2e1a53f73883fcac3`.
+  Input staging completed with all four children at their bound identities;
+  the preserved staging-receipt SHA-256 is
+  `221435b1ba742e45bf7f2fa6ae94f924f0212f7c6c74391e65ae2209e16bf373`.
+  The one-shot `cp1full-a1` process is active in user-systemd unit
+  `nfl-cp1-full-census-a1-20260906.service`, PID `600536`, started
+  `2026-09-06T19:18:39Z` at nice 10 from the exact clean detached source.
+  Output is `results/cp1_full_census_a1.json`; it was absent before launch.
+  Terminal acceptance requires all 36 expected cells, all accepted-cell gates
+  true, at least 30 supported overall and 12 per season. Do not retry on
+  failure or publish/open outcomes without the next explicit review.
 - PREREG-073 / experiment 101 immutable mechanics passed on both required
   adapter boundaries. Production selectively integrated and independently
   reviewed the support-census coordinator: 27/27 static queue tests and
