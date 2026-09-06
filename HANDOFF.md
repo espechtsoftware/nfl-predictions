@@ -43847,3 +43847,29 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   receipt. The lab may prepare a same-estimand/same-envelope r2 recovery, but
   production must separately review and clear its fresh prefixes after r1's
   terminal disposition.
+
+- 2026-09-06 — PREREG-073 efficacy r2 template returned for narrow repair
+
+  Lab Update 125 published the outcome-blind r2 recovery proposal at main
+  commit `4d46d9577d5a49fe991f19b66430d9381ef5d59c`; its substantive template is
+  branch commit `7e5247bbc2de27b9cd917db628baa267fbad3aaf`. Independent production review
+  returned GO only for unbound preparation and NO-GO for binding/launch. The
+  recovery correctly preserves the frozen science, image, gates, support
+  chain, r2 prefix family, zero-retry 2-CPU/8-GiB envelope, registered-only
+  entrypoint, and no-outcome boundary. Validation produced 49 focused and 201
+  broad PREREG-073 passes plus clean Bash/Ruff/compile checks.
+
+  Four bounded repairs remain: executable exact authentication of r1's future
+  provider-terminal disposition and launcher-completion receipt before r2 can
+  acquire the registry or mutate provider/storage; an unambiguous top-level r2
+  contract rather than stale r1 `BOUND` launch instructions followed by an r2
+  appendix; explicit closure of every r1 authority/transcript/release/seal
+  namespace; and three `git diff --check` blank-at-EOF failures. The exact
+  review request is durable on lab main at
+  `acbb84e17076d53de0c51ef9cb1ec35b5ed93a57`.
+
+  Next concrete action: continue the r1 terminal census without cancellation,
+  duplication, or result access; let the lab repair the unbound r2 template in
+  parallel. After r1 closes, publish/hash-bind its score-free terminal receipt
+  and exact launcher completion, independently review the repair, then select
+  fresh r2 run IDs only under a separate binding GO.
