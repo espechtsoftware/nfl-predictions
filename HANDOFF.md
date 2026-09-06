@@ -43649,3 +43649,24 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   only the two paired-shadow schedulers after both pass. The shadow deployment
   must update `CODE_SHA` with the image so create-only artifacts cannot carry
   false provenance.
+
+- 2026-09-06 — Bounded live build context repaired after fail-closed gate
+
+  Bounded Cloud Build `67c1a200-3625-4b3c-b722-e53c2f479bbc`, submitted
+  from exact source `ae393ea2d827cf002995b9e8caf34e6ccac477d2`, failed before the
+  image step at `2026-09-06T15:39:26.245361Z`. The expanded gate completed
+  with 233 passing tests and two failures. Both failures were
+  `FileNotFoundError` while source-registration tests read
+  `deploy/deploy_jobs.sh`: the bounded context builder copied `src`, `sql`,
+  `scripts`, and `tests`, but not the small tracked `deploy` directory. This
+  was a release-context omission, not an executable projection or shadow
+  failure; no image was emitted and no Cloud Run job changed.
+
+  `scripts/build_week1_live_image.sh` now includes the tracked `deploy`
+  directory in its ephemeral context. `Dockerfile.week1-live` still copies
+  only runtime `src` and `sql`, so deployment sources are available to the
+  test gate but do not enter the runtime image. Local syntax and the same
+  235-test boundary remain green. Next action: commit/push the context repair,
+  resubmit the bounded immutable build from that exact commit, and proceed to
+  the registered project and candidate-only shadow canaries only if all build
+  stages pass.
