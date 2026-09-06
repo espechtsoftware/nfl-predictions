@@ -72,15 +72,17 @@ agent or developer:
   was re-invoked there after verifying `docker info`; no prefix had been
   consumed. Active launcher PID is `578410`; registry receipt SHA-256 is
   `02d2cea0ca34db4ee426046167daa6d1e0b083822013ad847511b2718f77c121`.
-- At `2026-09-06T19:00:06Z`, bank 750 run
-  `101c750r1-20260906T182200Z` is active as execution `lab-run-s6xmz`, UID
-  `a005e3c2-7b2b-4f03-afc3-2c46e2960768`; bank 751 run
-  `101c751r1-20260906T182200Z` is active as execution
-  `lab-run-slow-dmp7q`, UID `d08f6b23-dc23-41ea-baf7-dbac2cab113d`.
-  Both report zero failures, cancellations, and retries. Bank 752 run
-  `101c752r1-20260906T182200Z` remains unclaimed until at least one initial
-  bank has exact terminal success and neither initial bank has failed or
-  retried. This stage is outcome-disabled.
+- Banks 750 and 751 reached exact 18/18 terminal success with zero failures,
+  cancellations, or retries. Run `101c750r1-20260906T182200Z` is execution
+  `lab-run-s6xmz`, UID `a005e3c2-7b2b-4f03-afc3-2c46e2960768`; run
+  `101c751r1-20260906T182200Z` is execution `lab-run-slow-dmp7q`, UID
+  `d08f6b23-dc23-41ea-baf7-dbac2cab113d`. Their exact success released bank
+  752 through create-once receipt generation `1788722874838250`, 815 bytes,
+  SHA-256 `e9abb27863ab576bd735f866caeba380ca57201535cee7c4bbfca40dfe85ba24`.
+  At `2026-09-06T19:29:47Z`, run `101c752r1-20260906T182200Z` is active as
+  execution `lab-run-w5lgg`, UID `3f5cab00-6866-4eea-b51d-e2568794a0b0`,
+  with zero failures, cancellations, or retries. This stage is
+  outcome-disabled.
 - Next action: monitor the registered coordinator and both exact executions.
   On an initial exact success, allow its already-frozen release receipt to
   gate bank 752. After all three exact successes, verify the 54 shards, the
