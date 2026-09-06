@@ -42976,3 +42976,53 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   classification, and use full canonical support validation before Cloud use.
   Those limitations do not invalidate the cache fix. The 2022-W13 candidate
   mismatch remains a distinct blocker.
+
+- 2026-09-05 — CP-1 R20 code cleared; destructive execution still requires owner authorization
+
+  Independent production review of exact lab commit
+  `580969a1bd5ca67361c9ac5d55d42ef52790215a` returned CODE GO. It closes all
+  three R19 blockers: the exact recovery-policy result is bound before any
+  delete, the exact emitted and reopened v3 receipt is validated without
+  projection, and absent/wrong-typed/wrong project identity fails closed.
+  Four targeted tests and the full 43-test CP-1 suite pass. Read-only live
+  revalidation again found 37/37 current sources and 37/37 byte-identical
+  quarantine copies; dry-run-v3 SHA-256 is
+  `b10edcee9d33f10be6480c26848e3eb6c636be14b621b5b7c00d1f48eeeb303d`.
+
+  The formal disposition is pushed on lab branch
+  `production/cp1-r20-review-20260906` at `c949e9455572d70100e889f672267ee7a27fb8b5`
+  in `handoffs/PRODUCTION-TO-LAB-CP1-R20-REVIEW-2026-09-06.md`. No delete is
+  authorized or executed: the destructive one-shot still requires explicit
+  owner authorization against the exact v2 receipt and a final live metadata
+  check. `cp1smoke-a2` remains held until the resulting quarantine-v3 ->
+  manifest-v5 -> evidence-v12 chain is built and independently validated.
+
+- 2026-09-05 — Lab PREREG-071 hardening/probe branch is not launchable as returned
+
+  Lab main `41ec263` independently confirmed the cutoff-cache root cause,
+  withdrew the numeric-drift hypothesis, and returned branch
+  `lab/prereg071-cutoff-cache-repair` at exact commit `e15a5ad`. Its local
+  support-state evidence reinforces the causal diagnosis, but independent
+  production review found the branch/probe package CODE NO-GO for R4. The
+  purported 2022-W13 frozen-pool probe calls `generate_candidates` with
+  `n_lev=80,n_boom=320` and its own receipt records 400 candidates, while the
+  frozen JPAR runner requires 160/640 and exactly 800. Its local-to-sealed
+  mismatch therefore cannot establish an environment effect. The branch is
+  parallel to rather than descended from accepted repair `adb02f2`, drops the
+  public `team_games.cache_clear` and `laws.cache_clear` hooks still used by
+  experiment 068, and its private cached-body guards do not run on cache hits.
+  The evidence also runs only on the workstation and does not authenticate the
+  immutable image or sealed trace root.
+
+  The formal NO-GO is pushed on lab branch
+  `production/prereg071-cutoff-branch-review-20260906` at exact commit
+  `e33983f0a859f3f29ec7165a32f98c1b9986e8ab` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG071-CUTOFF-BRANCH-REVIEW-2026-09-06.md`.
+  No merge, build, launch, or gate relaxation is authorized from `e15a5ad`.
+  Production is completing the already-started exact-preamble probe atop
+  `adb02f2`: import frozen 160/640 constants, authenticate and compare the
+  ordered sealed trace, retain the compatibility hooks, use an uncached guard,
+  and execute separate-process plus cross-host checks inside one new immutable
+  image. R4 can advance only if exact D800 generation and support state agree;
+  otherwise the first differing stage is the next repair boundary. R3 remains
+  VOID / NO READ, and no Cloud Run execution is currently active.
