@@ -42687,3 +42687,22 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   coordinator, allow it to launch 730/731 and release 732 after one clean
   initial-bank terminal, then bind the terminal cohort seal before the lab's
   first outcome read.
+
+- 2026-09-05 — CP-1 R15 independently reviewed; deletion remains held
+
+  Production reviewed exact lab commit `7436ff6` and pushed the formal NO-GO
+  disposition to lab main at `b7f70e1` in
+  `handoffs/PRODUCTION-TO-LAB-CP1-R15-REVIEW-2026-09-05.md`. Metadata-only
+  reinspection corroborated the quarantine copy phase: exactly 37 source and
+  37 destination objects, matching size/MD5/CRC32C, with all originals still
+  present; bucket versioning remains off and soft delete is seven days.
+
+  Deletion and `cp1smoke-a2` remain prohibited. Adversarial checks reproduced
+  four blockers: raw discriminator/container type coercion, a duplicate-
+  basename publication-bijection bypass, non-exact nested quarantine receipt
+  validation, and removal of the 36 tracked projection-v2 files still bound by
+  preserved v8 evidence. Existing tests pass 22/22 but do not cover those
+  failures. The requested R16 is limited to closing those cases and restoring
+  v2 history; exact-generation deletion remains a separate written decision
+  after another independent GO. No raw outcome payload was opened and no
+  source or quarantine object was mutated.
