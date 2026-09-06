@@ -43817,3 +43817,50 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `b0e16a9`; a2/a3 remain consumed, a4 remains unrun, and efficacy remains
   held. The next CP-1 action is immediate final review of that two-literal
   repair, followed by one-shot a4 clearance if exact.
+
+- 2026-09-06 — Week-1 paired shadow canary authenticated; both schedulers resumed
+
+  Registered candidate-only canary `shadow-cbwu-oi-paired-rnf9k` (UID
+  `75bea5ac-4e99-4158-8222-6f4d9789d306`) completed successfully, one task
+  of one, at `2026-09-06T17:16:05.225443Z` on immutable image
+  `sha256:0471df533de9505c47744ef62ad20dbd864afd48ebfbbe2271e6c33cd9197816`
+  with `CODE_SHA=918f5574ee9f8f9be68b194994cf897c06706c8d`. Its create-only root is
+  `gs://nfl-predictions-503414-raw/recourse_worlds/2026/week-01/prospective-cbwu-oi-2026w01-20260906T162624Z/`.
+  The root contains exactly one live generation apiece and no noncurrent or
+  soft-deleted objects: control generation `1788714957168569`, SHA-256
+  `6641281f966d118ff3782811628426867c3f1a6f1deb704e4a598bf395d67eca`;
+  treatment generation `1788714961663972`, SHA-256
+  `7fbffa37b54dc9bf1ccf2e96d169a736c331ec9e7949fa0416effe15b6e4ae44`;
+  and manifest generation `1788714961864093`, SHA-256
+  `80e1e5758138f873f2dd2c5d74ec8ca69204daf21759e4cb6423f0db3341e732`.
+  GCS and downloaded byte counts and MD5 identities agree.
+
+  Independent reopen found 398 unique players and finite, byte-identical
+  `398 x 50,000` worlds in both arms; each arm has 262 unique candidates.
+  Overlap/union recompute exactly to 169/355. All candidates and every
+  K20/K40/K80 member are exact-nine, unique, members of the correct arm,
+  valid nested prefixes, and legal against the authoritative latest classic
+  salary pull for draft group 151307 (`2026-09-06T17:01:53.991988Z`): one
+  QB, one DST, legal RB/WR/TE flex counts, and salary from $49,000 through
+  $50,000. No candidate contains a current OUT or IR player. Artifact and
+  manifest context, counts, hashes, generations, and false outcome-boundary
+  flags authenticate; no actual, rank, payout, ROI, or other post-lock field
+  is present.
+
+  After a fresh pre-mutation reopen showed both schedulers still PAUSED with
+  their original targets and schedules, production resumed exactly
+  `s-shadow-cbwu-oi-paired-early` (`45 9 * * 7`) and
+  `s-shadow-cbwu-oi-paired-late` (`45 10 * * 7`) in
+  `us-central1`. At `2026-09-06T17:43:42Z`, both reopened ENABLED in
+  `America/Chicago`, still POSTing to the unchanged
+  `shadow-cbwu-oi-paired:run` target; the target job retained the same image,
+  command, arguments, and code identity.
+
+  Nonblocking operational defect: the canary's best-effort
+  `nfl_predictions.own_shadow` append failed because `booster_own` was a
+  float64 value while the existing BigQuery column is STRING. The exception
+  was caught and did not affect candidate generation, selection, artifacts,
+  or this scheduler decision. Do not rely on `own_shadow` until its schema or
+  write conversion is repaired and verified. Next action: allow the normal
+  paired-shadow cadence to run while repairing that isolated typed-write
+  boundary separately.
