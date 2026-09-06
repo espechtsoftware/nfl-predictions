@@ -43330,3 +43330,63 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `src/nfl2/pipeline.py`, and review the provider/object census before launching
   only the one-task mechanics gate. An R5 mechanics PASS still does not
   authorize support, efficacy, or outcome-bearing work.
+
+- 2026-09-06 — PREREG-071 R5 nine-check mechanics gate passed
+
+  Production narrowly ported the held mechanics preparation to the R5 source
+  and image, added version- and soft-delete-aware freshness checks across all
+  nine relevant GCS roots, repaired registered-wrapper snapshot cleanup, and
+  expanded the exact-image smoke to hash/compile the runner and import the
+  census and repaired pipeline. Preparation commit
+  `871248f8022de82bb6ded11a7c5e4f749ca3565b` and exact binding commit
+  `4a37125912edd972402d24bc3af60b23deddb097` are durable on lab `main`.
+  Independent reviews returned CODE GO and BINDING GO after 135 focused tests,
+  Bash syntax, Ruff, formatting, compilation, source/runtime equality, and a
+  provider/GCS/registry freshness census. The bound run is
+  `100m730r5-20260906T083303Z`; no assignment placeholder remains.
+
+  The production-owned registered coordinator launched exactly one
+  outcome-disabled mechanics execution: `lab-run-pdn4h`, UID
+  `0bd72d91-48c7-4490-b2a1-805ecb7a038b`. Its immutable live envelope was one
+  task, parallelism one, `maxRetries=0`, 2 CPU / 8 GiB, all thread controls one,
+  source `c23adadb8884b28e5390a8e72019a0764e783b23`, image digest
+  `sha256:929faece69600d19a4aefd3e5be0aae4df81b80d4b98ddc03f2de5d110a078b8`,
+  and exact command `python -m nfl2.jpar.run experiments/100_jpar1.py --bank
+  730 --season 2022 --weeks 8 --mechanics-only`. It completed successfully
+  1/1 with zero retries at `2026-09-06T08:51:29.575983Z` after 8m42s provider
+  time.
+
+  The sole mechanics envelope is
+  `gs://nfl-2-506823-lab/results/100_jpar1/100m730r5-20260906T083303Z/result-t00.json`,
+  generation `1788684683172652`, 8,800,306 bytes, SHA-256
+  `8b7b01715f8fecd7e7e347ddabb4cb1390efabeb5d557a8a85ef30e826133c9a`.
+  The create-once mechanics gate is
+  `gs://nfl-2-506823-lab/gates/PREREG-071/100m730r5-20260906T083303Z.json`,
+  generation `1788684735667780`, 7,307 bytes, SHA-256
+  `a45da624ed6b8b489cbadbb2dce1242fe4a27c7a6fd60d67dd10dd7f62c52ee8`.
+  It records `pass=true` and all nine checks true: identities, physical-input
+  boundary, J0 reproduction, shared masks/RNG, inactive-zero behavior,
+  conservation, fail-closed/sink behavior, deterministic finite replay with
+  engagement, and disjoint held-out worlds. The engagement check changed five
+  of 80 selected lineups (`k80_turnover=0.0625`) while remaining deterministic.
+  Cell generation took 358.4 seconds; total cell time was 451.7 seconds and
+  peak RSS was 2,563.7 MiB. Repeated empty-slice warnings were non-fatal and
+  did not fail any gate check.
+
+  The registered coordinator exited zero and published completion record
+  `/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launcher-completions/21f363d2d384e33ec055ee69a3be955ccac2a43228e2b13aaf0cbf7dbad7b84c.json`;
+  its canonical embedded receipt SHA-256 is
+  `21f363d2d384e33ec055ee69a3be955ccac2a43228e2b13aaf0cbf7dbad7b84c`.
+  Independent terminal review returned GATE GO: provider counts were 1
+  succeeded / 0 failed / 0 cancelled / 0 retried; result and gate each have one
+  live generation and no soft-deleted version; an in-memory rerun of the frozen
+  gate reproduced the stored 7,307 bytes exactly; the completion receipt
+  reconstructed to its embedded identity; and unlimited provider plus
+  version-aware storage censuses found only the authorized R5 probe and
+  mechanics evidence. The coordinator and independent exact reopen did not
+  launch or open a support census, efficacy cohort, contest outcome, or outcome
+  reader. Next action: separately prepare and review fresh R5 support-census
+  prefixes `100c730r5`, `100c731r5`, and `100c732r5`. Do not launch that census
+  until its exact unbound contract, freshness census, timestamp binding, and
+  durable binding receive independent GO; a support PASS still precedes any
+  efficacy or score read.
