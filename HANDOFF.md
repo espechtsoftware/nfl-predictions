@@ -43088,3 +43088,28 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   production in-image producer will report the exact first differing stage and
   candidate if equality fails. Cloud state remains unchanged and no outcome
   was opened.
+
+- 2026-09-06 — PREREG-071 exact-gate coordinator now preserves scientific FAIL
+
+  The R4 probe coordinator repair is independently validated and integrated on
+  lab branch `production/prereg071-r4-probe-integration-20260906` at
+  `f0c87df`. A structurally valid scientific FAIL is now published create-once,
+  reopened at its exact identity, and left durable before the coordinator exits
+  nonzero; malformed comparator output remains unpublished. The coordinator
+  also verifies the gate schema, run/trace identities, exact Boolean decision
+  fields, and `pass == AND(component decisions)` before it can route.
+
+  Integrated cache/coordinator validation passes 17/17 with the integration
+  worktree explicitly placed first on `PYTHONPATH`, plus Ruff, both shell syntax
+  checks, and the diff check. This explicit path is required because the shared
+  virtualenv is editable-installed against the older `/home/erich/projects/nfl2`
+  checkout; invoking its `pytest` binary without the worktree `src` path can
+  silently test the wrong source. No product-source regression was found.
+
+  The exact D800 producer/comparator remains in adversarial review: its current
+  checkpoint passes 26 focused tests and Ruff and includes canonical
+  support-state validation, deterministic serialization, valid PASS/FAIL exit
+  semantics, exact trace/publication keys, frozen 160+640 generation, and
+  Docker inclusion. No build or Cloud Run execution has started. Census exit
+  and the requested branch reviews remain closed; this exact outcome-disabled
+  D800 gate is the sole external item still blocking R4.
