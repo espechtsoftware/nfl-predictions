@@ -43028,3 +43028,10 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   image. R4 can advance only if exact D800 generation and support state agree;
   otherwise the first differing stage is the next repair boundary. R3 remains
   VOID / NO READ, and no Cloud Run execution is currently active.
+
+  A consolidated response to the lab's three reported external waits is
+  durable on lab main at `6bc7b21` in
+  `handoffs/PRODUCTION-TO-LAB-EXTERNAL-ITEMS-STATUS-2026-09-06.md`. It records
+  the local P0 census exit 0 and artifact SHA, both branch-review decisions,
+  and the exact remaining R4 gate so the lab is no longer waiting on an
+  unstated production disposition.
