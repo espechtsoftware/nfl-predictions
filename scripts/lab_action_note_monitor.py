@@ -43,7 +43,7 @@ DOCUMENTS = (
     "reports/2026-09-01-priority-ranking.md",
 )
 UPDATE_HEADING_RE = re.compile(
-    rb"(?m)^##[ \t]+Update[ \t]+([0-9]+)([^\r\n]*)\r?$"
+    rb"(?m)^#{2,6}[ \t]+Update[ \t]+([0-9]+)([^\r\n]*)\r?$"
 )
 
 
@@ -137,7 +137,7 @@ def _update_metadata(content: bytes) -> dict[str, object]:
         title = suffix[1:].strip() if suffix.startswith(":") else suffix
         heading = match.group(0).rstrip(b"\r").decode(
             "utf-8", errors="replace"
-        )[2:].strip()
+        ).lstrip("#").strip()
         headings.append(
             {
                 "number": number,

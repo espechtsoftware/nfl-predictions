@@ -268,6 +268,70 @@ def test_duplicate_update_numbers_still_identify_and_notify_new_revision(
     )
 
 
+def test_mixed_markdown_heading_levels_advance_update_metadata_and_toast(
+    tmp_path: Path,
+) -> None:
+    first = "3" * 40
+    second = "4" * 40
+    original = (
+        b"# Lab to production\n\n"
+        b"## Update 103 (2026-09-05): prior action\n\n"
+        b"Waiting.\n"
+    )
+    revised = original + (
+        b"\n### Update 104 (2026-09-06): repaired\n\n"
+        b"Ready.\n\n"
+        b"###### Update 105 (2026-09-06): launch requested\n\n"
+        b"Launch.\n\n"
+        b"# Update 999 is an H1 and not an action-note entry\n"
+        b"Prose mentioning ## Update 998 is not a heading.\n"
+    )
+    fake = FakeGit(
+        [
+            *_snapshot_primary(first, original),
+            *_snapshot_primary(second, revised),
+        ]
+    )
+    notifier = FakeNotifier()
+    config = _config(tmp_path, windows_toast_command="powershell.exe")
+    monitor.poll_once(
+        config,
+        runner=fake,
+        notifier=notifier,
+        clock=lambda: 100.0,
+        emit=lambda _: None,
+    )
+    notifier.calls.clear()
+
+    status = monitor.poll_once(
+        config,
+        runner=fake,
+        notifier=notifier,
+        clock=lambda: 200.0,
+        emit=lambda _: None,
+    )
+
+    last_good = status["last_good"]
+    assert last_good["primary_highest_update"] == 105
+    assert last_good["primary_update_heading_count"] == 3
+    assert last_good["primary_latest_heading"] == {
+        "number": 105,
+        "ordinal": 3,
+        "occurrence_for_number": 1,
+        "line": 11,
+        "heading": "Update 105 (2026-09-06): launch requested",
+        "title": "(2026-09-06): launch requested",
+    }
+    assert len(notifier.calls) == 1
+    assert "Update 105" in notifier.calls[0][1]["env"]["NFL_MONITOR_BODY"]
+    events = [
+        event
+        for event in _ledger(config.events_file)
+        if event.get("commit") == second
+    ]
+    assert any(event["event"] == "new_highest_update" for event in events)
+
+
 def test_fetch_failure_alerts_once_and_never_overwrites_last_good_hashes(
     tmp_path: Path,
 ) -> None:

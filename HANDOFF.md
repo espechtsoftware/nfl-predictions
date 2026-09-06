@@ -43670,3 +43670,16 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   resubmit the bounded immutable build from that exact commit, and proceed to
   the registered project and candidate-only shadow canaries only if all build
   stages pass.
+- 2026-09-06 — Lab action-note heading parser repaired for H2–H6 updates
+
+  The action-note monitor continued detecting document-hash changes, and the
+  independent repository-transition monitor continued detecting every commit,
+  but numbered metadata had stopped at Update 103d. The parser accepted only
+  `## Update ...`; the lab began using `### Update ...` at 103e. The parser now
+  accepts CommonMark H2 through H6 update headings and removes the complete
+  Markdown hash prefix when recording the heading. A mixed H2/H3/H6 regression
+  proves that newer update numbers, line/occurrence metadata, the
+  `new_highest_update` event, and the bounded notification all advance while H1
+  and prose mentions remain excluded. The focused monitor suite passes 7/7;
+  applying the corrected parser to current lab main reports Update 113 as the
+  latest numbered heading. No cloud, experiment, or lab worktree state changed.
