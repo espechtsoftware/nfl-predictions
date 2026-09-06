@@ -43612,3 +43612,40 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   update; the lab diagnosis was committed and pushed to lab `main` at
   `23bedc8a` in
   `handoffs/PRODUCTION-TO-LAB-PREREG071-R5-SUPPORT-AUTH-FAILURE-2026-09-06.md`.
+
+- 2026-09-06 — Sunday live-image release routed through the bounded gate
+
+  Cloud Build `9fbe4136-8ed2-42ec-a8f2-eabb5dcf2477` was submitted from
+  exact source `d45f6a99adf542843b6544fa5edf3c63c54c1154` with the generic
+  repository-wide `cloudbuild.yaml`. The image step never started. Production
+  cancelled the build by exact id at `2026-09-06T15:30:28.778430Z` after its
+  test step exposed failures already present in parent `f2fb6f34`, including
+  stale API assertions, deliberately frozen pre-boom-first shadow assertions,
+  and historical ATLAS self-hash guards whose shared runner had changed in
+  earlier commit `f29c6da4`. None of the first eight reproduced failures
+  touched a file changed by the Sunday projection repair. No image or Cloud
+  Run release authority was emitted by the cancelled build; historical hash
+  assertions were not weakened or repinned.
+
+  The correct existing live release path is
+  `scripts/build_week1_live_image.sh` plus
+  `cloudbuild.week1-live.yaml`. Its bounded test gate now also covers the live
+  multiseed engine, frozen CBWU-OI shadow, CBWU portfolio combine, and recourse
+  artifact contracts. The stale CBWU-OI test now compares the shadow against
+  the intentionally retained pre-adoption 160-leverage/40-boom control, while
+  separately proving that the current money generator is 40/160. An additive
+  clarification in the frozen prospective spec records the pre-outcome
+  `def26c98` boundary; executable shadow behavior and grading are unchanged.
+  The expanded 235-test live gate passes locally with `PYTHONPATH=src`, and
+  `git diff --check` passes.
+
+  Scheduler `s-features-sun` fired for the first time at
+  `2026-09-06T15:30:01Z`, creating `build-features-zn9h8` (UID
+  `08cd3293-038d-476d-91eb-0df152e05c5f`). It was running normally with zero
+  failed tasks at this milestone. `s-project-su` remains enabled; both
+  `s-shadow-cbwu-oi-paired-*` schedulers remain paused. Next action: commit and
+  push this live-gate clarification, run the bounded immutable build, require
+  a green project canary and outcome-blind paired-shadow canary, and resume
+  only the two paired-shadow schedulers after both pass. The shadow deployment
+  must update `CODE_SHA` with the image so create-only artifacts cannot carry
+  false provenance.

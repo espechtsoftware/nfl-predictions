@@ -11,7 +11,11 @@ steps:
         PYTHONPATH=src pytest \
           tests/test_week1_source_readiness.py \
           tests/test_live_smoke.py \
+          tests/test_live_multiseed.py \
           tests/test_blend_coldstart.py \
+          tests/test_cbwu_oi_shadow.py \
+          tests/test_multiseed_portfolio.py \
+          tests/test_recourse_worlds.py \
           tests/test_production_policy.py \
           tests/test_week1_participation_mixture.py \
           tests/test_week1_adopted_pair.py \

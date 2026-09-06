@@ -1,8 +1,9 @@
 """CBWU-OI prospective shadow wiring: policy env, variant table, dispatch.
 
 Spec: reports/2026-08-18-cbwu-oi-prospective-shadow-spec.md (frozen before
-first collection). These tests pin the two-key env delta, the variant
-registry, and that production paths remain untouched.
+first collection). These tests pin the two-key env delta from the frozen
+pre-adoption control, the variant registry, and that production paths remain
+untouched.
 """
 
 import pytest
@@ -11,16 +12,19 @@ from nfl_dfs.inference import prospective_shadow
 from nfl_dfs.inference.production_policy import ADOPTED_CLASSIC_POLICY
 
 
-def test_cbwu_oi_shadow_env_changes_exactly_two_keys():
+def test_cbwu_oi_shadow_retains_frozen_pre_adoption_population():
     money = ADOPTED_CLASSIC_POLICY.engine_environment({})
+    control = ADOPTED_CLASSIC_POLICY.incumbent_control_environment({})
     shadow = ADOPTED_CLASSIC_POLICY.cbwu_oi_shadow_environment({})
     assert shadow["MULTISEED_PORTFOLIO"] == "CBWU_OI_SHADOW"
     assert shadow["PROSPECTIVE_SHADOW_ID"] == "2026-cbwu-oi-v1"
     changed = {
-        key for key in set(money) | set(shadow)
-        if money.get(key) != shadow.get(key)
+        key for key in set(control) | set(shadow)
+        if control.get(key) != shadow.get(key)
     }
     assert changed == {"MULTISEED_PORTFOLIO", "PROSPECTIVE_SHADOW_ID"}
+    assert (shadow["N_LEV"], shadow["N_BOOM"]) == ("160", "40")
+    assert (money["N_LEV"], money["N_BOOM"]) == ("40", "160")
 
 
 def test_production_engine_environment_is_untouched():

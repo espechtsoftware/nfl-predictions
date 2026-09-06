@@ -75,6 +75,19 @@ after any outcome is visible voids the shadow.
   80 entries, identical seeds R0-R4 — all inherited unchanged from the
   adopted money policy.
 
+## Pre-season allocation clarification (2026-08-30)
+
+Before any 2026 regular-season outcome or valid weekly panel existed, the
+money generator moved from the 160-leverage/40-boom allocation to boom-first
+40/160. This older prospective comparison retained its original 160/40
+population so its only treatment difference remains the CBWU combination law;
+it does not silently inherit later money-generator changes. Commit `def26c98`
+implemented that boundary through `incumbent_control_environment` for both
+the captured population and control selector. The phrases "adopted money
+environment" above therefore refer to the environment frozen for this shadow,
+not to later production allocations. This clarification changes no grading
+threshold, membership size, selector, outcome boundary, or production path.
+
 ## Rider: Week 1 live entry of the OI top-20 (operator decision, 2026-08-18)
 
 After this spec was frozen, the operator raised the Week 1 entry budget to
