@@ -43778,3 +43778,40 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   non-tie ordering drift and does not alter the support PASS or efficacy
   preparation. A future registration may bind each trace's actual unique
   length instead of literal 800, but this cohort must not be amended.
+
+- 2026-09-06 — PREREG-073 efficacy binding cleared and registered coordinator started
+
+  Production atomically bound the frozen efficacy runs
+  `101b750r1-20260906T211117Z`, `101b751r1-20260906T211117Z`, and
+  `101b752r1-20260906T211117Z` in lab commit
+  `9e055a06c58f42343a6e2466409661402b5edb29`. The launch-bound reader
+  SHA-256 is
+  `8aaf1ab49e071e9efe2bbd8128212e0a0b3eaae091aa1c0e7707d7987d314bca`;
+  only its terminal `VALID_COHORT_SEAL` identity remains deliberately
+  unbound. Independent narrow review returned GO after 30 focused and 209
+  broad passing tests, exact reader-logic normalization, Bash/Ruff/compile
+  checks, and verification of every source, image, mechanics, support, and
+  envelope identity. One transient report named nonexistent `9e055a04...`;
+  that was a transcription error, not an artifact identity.
+
+  The binding and separate written CODE GO are durable on lab `origin/main`
+  at `a2070fe871191ff66433cc7ba6c555349c9eb03b`. A final provider census found
+  both Cloud Run lanes idle, no ongoing Cloud Build, and no active canonical
+  launcher. At `2026-09-06T21:26:26Z`, production invoked only
+  `scripts/queue_prereg073_efficacy_registered.sh` as detached user unit
+  `nfl-prereg073-efficacy-r1-20260906.service` (invocation
+  `7be07a43b30443669006688420f1f3cd`). It acquired the canonical
+  `nfl2-lab-jobs` lane under PID `719259`; active receipt
+  `queue_prereg073_efficacy_registered.sh-719259.json` is 357 bytes with
+  SHA-256
+  `1c20ad979b82414566416970e7de01c7576810628c6bf69b50be423ad1ef5fcd`.
+  The coordinator has exact-reopened both accepted mechanics objects through
+  the released reader and remains within the no-outcome boundary. No efficacy
+  provider execution had yet been claimed at this checkpoint.
+
+  Next concrete action: monitor the exact registered coordinator until it
+  publishes the score-free authentication/authority and claims banks 750 and
+  751; verify immutable 18-task, 2-CPU/8-GiB, zero-provider-retry envelopes.
+  Let the same coordinator release bank 752 only under the frozen terminal
+  rule, then exact-census and seal the cohort. Do not duplicate a prefix or
+  open the efficacy reader before the terminal seal is separately bound.
