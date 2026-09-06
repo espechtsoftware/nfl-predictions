@@ -42867,3 +42867,30 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   state remains 37 source objects plus 37 matching quarantine copies; versioning
   is false and soft-delete retention is 604,800 seconds. No source object was
   deleted or mutated, no raw outcome was opened, and `cp1smoke-a2` remains held.
+
+- 2026-09-05 — PREREG-071 support mismatch traced to cutoff-blind derived cache
+
+  Lab commit `d3243d4` established that the failing support states share exact
+  player/game order, masks, participation topology, and source inputs, while
+  calibrated weights and downstream primitives differ. Its proposed
+  cross-host numeric-drift repair was not accepted as the first intervention.
+  Production traced the task-specific failure pattern to
+  `src/nfl2/hsim/tables.py`: zero-argument cached `team_games()` reads through
+  the active outcome firewall without including its cutoff in the cache key.
+  The support census warms the cache in 2022 even for pool-unavailable cells;
+  efficacy skips those cells before hsim and first warms it in 2023 or 2024.
+  Exact census chronology predicts all three observed support failures, and a
+  retry reproduced the same wrong 2023-W5 digests byte-for-byte.
+
+  The formal review and narrow source-repair request are durable on lab main at
+  `c56c8d9` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG071-SUPPORT-DIAGNOSIS-REVIEW-2026-09-06.md`.
+  It authorizes only local, outcome-disabled implementation/tests: make the
+  derived cache cutoff-safe, reproduce census-versus-efficacy paths on the four
+  implicated cells, and audit JPAR-reachable zero-argument table caches. It
+  explicitly prohibits quantizing or otherwise changing the scientific laws,
+  relaxing equality, building, launching, or reading. The independent
+  2022-W13 candidate-pool mismatch remains unresolved and requires a separate
+  generation/CBC first-difference probe. R3 stays VOID / NO READ; R4 and bank
+  732 stay held. An accepted source repair will require a new image, mechanics
+  proof, authority, and all three fresh support banks before efficacy.
