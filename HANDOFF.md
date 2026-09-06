@@ -22,6 +22,52 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-06 CP-1 a5 accepted; PREREG-073 support census launched
+
+- Production independently accepted CP-1 `cp1smoke-a5` as PASS. The reviewed
+  source is `050dff3f38cb11c86110fdf2ef536e825a13f4da`; result commit
+  `3a41cce098b6aeb8b27095b472aa34dd46bdcaba`; and artifact SHA-256
+  `33fb70be08336d5351a3789ff31155eacdb92c97238efc1589289db0f5e80319`
+  over 6,245,107 bytes. Both engaged slates were `ok`, all 48/48 arm-gate
+  booleans passed, each of eight arm/law cells had 800/800 unique legal
+  rosters and exact K80 support, and the unavailable 2022-W1 control behaved
+  as designed. No outcome field was present. The durable production
+  disposition is on lab main at `be1cc821eda1476da3cbdd634fcd4b71fd82c161`;
+  a4/a5 must not be rerun. It releases lab binding work for the full CP-1
+  score-free census, but not that census, any image build, efficacy, outcome
+  read, or live-policy change without a later explicit GO.
+- PREREG-073 / experiment 101 immutable mechanics passed on both required
+  adapter boundaries. Production selectively integrated and independently
+  reviewed the support-census coordinator: 27/27 static queue tests and
+  170/170 full PREREG-073 tests pass, with shell, Ruff, and diff checks clean.
+  The exact contract and registered launcher are durable on lab main at
+  `44d2e22457dbcd09a14ac2a4c950d80101dd991c`. Scientific source is
+  `406b73b14a7ab9a2681c705cec49a64197b28995`; image digest is
+  `sha256:367ab978aa103be97823538be9a9e42b6ad6c3709f0d7ed8999fec75c019d801`;
+  Cloud Build is `4beb740b-d174-4df1-b3af-32935a083330`.
+- The first registered invocation failed closed before any provider claim
+  because the existing user-systemd manager lacked the newly granted Docker
+  group. Completion-receipt SHA-256:
+  `87a8ca31429b3936b214317f4df5abfbee107f148557fd49f4dc3a10bd50ef24`.
+  The interactive shell had the correct group, so the same immutable launcher
+  was re-invoked there after verifying `docker info`; no prefix had been
+  consumed. Active launcher PID is `578410`; registry receipt SHA-256 is
+  `02d2cea0ca34db4ee426046167daa6d1e0b083822013ad847511b2718f77c121`.
+- At `2026-09-06T19:00:06Z`, bank 750 run
+  `101c750r1-20260906T182200Z` is active as execution `lab-run-s6xmz`, UID
+  `a005e3c2-7b2b-4f03-afc3-2c46e2960768`; bank 751 run
+  `101c751r1-20260906T182200Z` is active as execution
+  `lab-run-slow-dmp7q`, UID `d08f6b23-dc23-41ea-baf7-dbac2cab113d`.
+  Both report zero failures, cancellations, and retries. Bank 752 run
+  `101c752r1-20260906T182200Z` remains unclaimed until at least one initial
+  bank has exact terminal success and neither initial bank has failed or
+  retried. This stage is outcome-disabled.
+- Next action: monitor the registered coordinator and both exact executions.
+  On an initial exact success, allow its already-frozen release receipt to
+  gate bank 752. After all three exact successes, verify the 54 shards, the
+  162-cell support seal, and the released reader's dual-gate score-free
+  authentication transcript before any efficacy decision.
+
 ### 2026-09-05 CP-1 R12 review returned NO-GO; exact membership repair requested
 
 - Independent production review of lab branch commit `ce47ee4` found that the
