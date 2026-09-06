@@ -43968,3 +43968,40 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   terminal success, bind the opaque cohort seal separately before any first
   efficacy read. In parallel, clear one fresh CP-1 `cp1full-a2` score-free
   census from the reviewed `Note`-domain repair; do not rerun a4 or a5.
+
+- 2026-09-06 — CP-1 R23 accepted; fresh full census a2 active
+
+  Independent production review returned GO for the narrow R23 repair at lab
+  branch commit `259b9c4888ce854282ec0ced9e3b2d874d0a5a2e`. The repair admits
+  exact injury-report row type `Note` as non-null and non-designating, makes
+  `Questionable`/`Doubtful` the explicit designating set, and adds score-free
+  domain/histogram evidence. Warehouse and frame checks reproduced all six
+  authentic 2024 raw `Note` rows and both rows reaching the frozen panel.
+  Arms, laws, draws, budgets, input identities, participation artifact,
+  gates, and outcome firewall are unchanged. The clearance is durable on lab
+  main at `e81d9c6` in
+  `handoffs/PRODUCTION-TO-LAB-CP1-FULL-CENSUS-A2-CLEARANCE-2026-09-06.md`.
+  It explicitly supersedes the stale a4 request: a4 and a5 must not rerun.
+
+  Production created a clean detached worktree at exact `259b9c4`, confirmed
+  the fresh a2 staging/output paths and process identity were absent, and ran
+  the exact score-free staging command once. The fresh receipt
+  `results/cp1_full_census_a2_staging.json` is 1,404 bytes at SHA-256
+  `221435b1ba742e45bf7f2fa6ae94f924f0212f7c6c74391e65ae2209e16bf373`;
+  all four children authenticated against their exact GCS generations,
+  lengths, hashes, root, and publication receipt. Its bytes happen to equal
+  the preserved a1 staging receipt, but it is a separately generated a2 path.
+
+  At `2026-09-06T23:21:24Z`, production launched exactly one local full
+  census as user unit `nfl-cp1-full-census-a2-20260906.service`, invocation
+  `2211f7e659db4508bafacb5f12da042c`, PID `824750`. The process is rooted at
+  source `259b9c4`, with `PYTHONPATH` bound to that worktree, `Nice=10`, bank
+  740, 10,000 simulations, the same 36 sorted slates and D800/K80 arm/law
+  budgets, attempt `cp1full-a2`, and create-once output
+  `results/cp1_full_census_a2.json`. No outcome or cloud execution is part of
+  this process.
+
+  Next concrete action: monitor the unit without duplicating or resuming it.
+  On success, require exactly 36 cells, all accepted arm/law cells at 800
+  unique candidates, every gate true, and the overall/per-season support
+  floors. Publication or efficacy remains separately gated.
