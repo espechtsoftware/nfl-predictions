@@ -43230,3 +43230,40 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   action: monitor these exact execution IDs; preserve and adjudicate the gate.
   Launch no R4 support or efficacy work unless every frozen gate component is
   true. R3 remains VOID / NO READ.
+
+- 2026-09-06 — PREREG-071 R4 score-free gate sealed as a valid scientific FAIL
+
+  Both registered probe executions completed successfully with one task, zero
+  retries, and the exact frozen source/image identities: `lab-run-8hl7q`
+  (`100p731r4a-20260906T053335Z`) and `lab-run-slow-c5x6j`
+  (`100p731r4b-20260906T053335Z`). The coordinator authenticated the terminal
+  census and published the sole create-once gate at
+  `gs://nfl-2-506823-lab/gates/PREREG-071/100p731r4a-100p731r4b.json`,
+  generation `1788676033123498`, 2,969 bytes, SHA-256
+  `60b56dcdad39b8e49507671ab17e75a7cd7f232af873e9acb6a092cbca08987f`.
+  It records `outcome_accessed=false`; all 28 boundary audits are clean. The
+  coordinator's completion receipt is SHA-256
+  `f33124cbd975a502988f8841f82ac54da1eaddf1fe4d5b62f60a448732c74180`
+  and its exit status `2` is the expected fail-closed scientific disposition.
+
+  Independent byte-for-byte comparator replay confirmed the gate. The only
+  real cross-host divergence begins at `world_order`: after identical draws,
+  masks, redistribution, candidate sets, LP models, and CBC identity, the AMD
+  execution orders worlds `8350, 9503` at candidate positions 388–389 while
+  the Intel execution and sealed D800 order them `9503, 8350`. Both totals
+  collapse to the same float32 value; the current
+  `np.argsort(d.sum(axis=0))[::-1]` has neither a canonical reduction nor an
+  explicit tie-break. Candidate and model multisets are unchanged. The false
+  four-cell support flag is downstream diagnostic short-circuiting: the A
+  efficacy path stops after its ordered-pool mismatch, while the reached
+  support cells agree exactly. It is not evidence of support or CBC drift.
+
+  Disposition: preserve the R4 FAIL and R3 VOID / NO READ; launch no R4
+  mechanics, support, efficacy, or outcome-bearing work from this image. The
+  unbound mechanics preparation at lab commit `ee5972d122cc8dcdb595815409228d639b0e4e1e`
+  remains held and must be rebound after a passing replacement gate. The next
+  action is a narrow runtime repair using fixed-order float32 accumulation and
+  an explicit descending-world-index tie-break, with regression hashes for the
+  W13 order, followed by a new immutable image and a fresh two-host,
+  outcome-disabled probe under new prefixes. Exact-order gating remains in
+  force; the failure is not waived or converted to set equality.
