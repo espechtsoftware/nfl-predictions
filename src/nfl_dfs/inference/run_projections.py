@@ -241,7 +241,7 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
         )
         SELECT sl.* EXCEPT (
           active_gsis_id, active_exact_name, season
-        ), t.*
+        ), t.gsis_id IS NOT NULL AS inference_row_present, t.*
         FROM classified_slate sl
         LEFT JOIN `{settings.features}.player_week_inference` t
           ON t.gsis_id = sl.gsis_id
@@ -274,6 +274,69 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
             f"to nfl_features.player_id_overrides before projecting:\n"
             + unmatched[["dk_player_id", "display_name", "team_abbr"]]
             .head(20).to_string(index=False)
+        )
+    skill = df[df.dk_position.isin(["QB", "RB", "WR", "TE"])]
+    if "inference_row_present" not in df:
+        raise RuntimeError(
+            "upcoming-slate query omitted inference-row provenance; "
+            "refusing to project an unauditable player pool"
+        )
+    missing_inference = skill[
+        ~skill["inference_row_present"].fillna(False).astype(bool)
+    ]
+    if not missing_inference.empty:
+        raise RuntimeError(
+            f"{len(missing_inference)} active slate players have no current "
+            "player_week_inference row — run build-features after the latest "
+            "roster pull before projecting:\n"
+            + missing_inference[
+                ["dk_player_id", "display_name", "gsis_id", "dk_position", "team_abbr"]
+            ].head(20).to_string(index=False)
+        )
+    required_structure = ["position", "team", "opponent", "is_cold_start"]
+    absent = [column for column in required_structure if column not in skill]
+    if absent:
+        raise RuntimeError(
+            "player_week_inference omitted required live columns: "
+            + ", ".join(absent)
+        )
+    incomplete = skill[skill[required_structure].isna().any(axis=1)]
+    if not incomplete.empty:
+        raise RuntimeError(
+            f"{len(incomplete)} active slate players have an incomplete "
+            "player_week_inference row — rebuild features before projecting:\n"
+            + incomplete[
+                ["dk_player_id", "display_name", "gsis_id", "dk_position", "team_abbr"]
+            ].head(20).to_string(index=False)
+        )
+    normalized_dk_team = skill["team_abbr"].astype("string").str.strip().str.upper()
+    normalized_feature_team = skill["team"].astype("string").str.strip().str.upper()
+    normalized_dk_position = (
+        skill["dk_position"].astype("string").str.strip().str.upper()
+    )
+    normalized_feature_position = (
+        skill["position"].astype("string").str.strip().str.upper()
+    )
+    incoherent = skill[
+        (normalized_dk_team != normalized_feature_team)
+        | (normalized_dk_position != normalized_feature_position)
+    ]
+    if not incoherent.empty:
+        raise RuntimeError(
+            f"{len(incoherent)} active slate players have stale team/position "
+            "in player_week_inference — rebuild features after the latest "
+            "roster pull before projecting:\n"
+            + incoherent[
+                [
+                    "dk_player_id",
+                    "display_name",
+                    "gsis_id",
+                    "dk_position",
+                    "position",
+                    "team_abbr",
+                    "team",
+                ]
+            ].head(20).to_string(index=False)
         )
     return df
 

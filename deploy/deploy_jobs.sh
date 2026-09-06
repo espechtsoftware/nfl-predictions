@@ -125,6 +125,10 @@ job check-freshness  check-freshness 1Gi 1
 # observation times; the scheduler remains paused in the off-season.
 sched s-nflverse    ingest-nflverse "0 5 * * *"
 sched s-features    build-features  "30 6 * * 2"
+# Sunday roster/DK inputs continue changing after Tuesday's training build.
+# Refresh at :30 after each 05:00-10:00 DK pull and before the following
+# hourly projection so a newly listed active player cannot lack inference.
+sched s-features-sun build-features "30 5-10 * * 7"
 sched s-train       train-weekly    "30 7 * * 2"
 sched s-train-k1    train-weekly-k1 "30 8 * * 2"
 sched s-train-k1-role train-weekly-k1-role "45 8 * * 2"

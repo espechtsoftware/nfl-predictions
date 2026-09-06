@@ -247,7 +247,7 @@ The in-season weekly rhythm:
 | When | Job | Purpose |
 |---|---|---|
 | Daily (in-season) | `s-nflverse` | Pull nflverse, giving the injury collector real pre-lock observation times |
-| Tue 06:30 | `s-features` | Rebuild feature tables (leakage checks gate it) |
+| Tue 06:30 / Sun 05:30–10:30 hourly | `s-features`, `s-features-sun` | Rebuild feature tables (leakage checks gate it); Sunday refreshes follow changing roster/DK inputs before each projection |
 | Tue 07:30+ | `s-train*` | Retrain the production and isolated-treatment registries |
 | Thu | `s-features-route`, `s-train-k1-route*` | Rebuild after licensed Route Share lands |
 | Tue 09:30 / Sun hourly | `s-project-tu`, `s-project-su` | Project the upcoming slate |

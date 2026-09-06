@@ -23,6 +23,13 @@ ROOT = Path(__file__).resolve().parents[1]
 PLAYER_ID_MAP_SQL = ROOT / "sql" / "features" / "001_player_id_map.sql"
 
 
+def test_sunday_feature_refresh_precedes_each_hourly_projection() -> None:
+    deploy = (ROOT / "deploy" / "deploy_jobs.sh").read_text(encoding="utf-8")
+
+    assert 'sched s-features-sun build-features "30 5-10 * * 7"' in deploy
+    assert 'sched s-project-su  project-slate   "0 6-11 * * 7"' in deploy
+
+
 class _FakeFrame:
     def __init__(self, frame: pd.DataFrame):
         self._frame = frame
@@ -585,7 +592,13 @@ def test_upcoming_projection_pool_is_bound_to_exact_reg_week_gamedays(
         return pd.DataFrame({
             "gsis_id": ["00-0000001"],
             "dk_position": ["QB"],
+            "team_abbr": ["A"],
             "roster_receipt_is_valid": [True],
+            "inference_row_present": [True],
+            "position": ["QB"],
+            "team": ["A"],
+            "opponent": ["B"],
+            "is_cold_start": [False],
         })
 
     monkeypatch.setattr(run_projections, "query_df", fake_query)
@@ -603,6 +616,7 @@ def test_upcoming_projection_pool_is_bound_to_exact_reg_week_gamedays(
     assert sql.count("FROM ELIGIBLE_SALARIES") >= 2
     assert "T.SEASON = @SEASON" in sql
     assert "T.WEEK = @WEEK" in sql
+    assert "T.GSIS_ID IS NOT NULL AS INFERENCE_ROW_PRESENT" in sql
     assert "CURRENT_ACTIVE_FANTASY_ROSTER AS" in sql
     assert "UNIQUE_CURRENT_ACTIVE_IDENTITY AS" in sql
     assert "HAVING COUNT(DISTINCT GSIS_ID) = 1" in sql
@@ -647,4 +661,100 @@ def test_live_eligibility_rejects_invalid_roster_receipt(monkeypatch):
     )
 
     with pytest.raises(RuntimeError, match="roster eligibility receipt"):
+        run_projections.upcoming_slate_features(2026, 1)
+
+
+def test_live_projection_rejects_player_missing_inference_row(monkeypatch):
+    monkeypatch.setattr(
+        run_projections,
+        "query_df",
+        lambda *_args, **_kwargs: pd.DataFrame({
+            "dk_player_id": [101],
+            "display_name": ["Late Player"],
+            "gsis_id": ["00-0000001"],
+            "dk_position": ["TE"],
+            "team_abbr": ["A"],
+            "roster_receipt_is_valid": [True],
+            "inference_row_present": [False],
+            "position": [pd.NA],
+            "team": [pd.NA],
+            "opponent": [pd.NA],
+            "is_cold_start": pd.Series([pd.NA], dtype="boolean"),
+        }),
+    )
+
+    with pytest.raises(RuntimeError, match="no current player_week_inference"):
+        run_projections.upcoming_slate_features(2026, 1)
+
+
+def test_live_projection_rejects_incomplete_inference_structure(monkeypatch):
+    monkeypatch.setattr(
+        run_projections,
+        "query_df",
+        lambda *_args, **_kwargs: pd.DataFrame({
+            "dk_player_id": [101],
+            "display_name": ["Incomplete Player"],
+            "gsis_id": ["00-0000001"],
+            "dk_position": ["TE"],
+            "team_abbr": ["A"],
+            "roster_receipt_is_valid": [True],
+            "inference_row_present": [True],
+            "position": ["TE"],
+            "team": ["A"],
+            "opponent": [pd.NA],
+            "is_cold_start": pd.Series([True], dtype="boolean"),
+        }),
+    )
+
+    with pytest.raises(RuntimeError, match="incomplete player_week_inference"):
+        run_projections.upcoming_slate_features(2026, 1)
+
+
+@pytest.mark.parametrize("sentinel", [False, pd.NA])
+def test_live_projection_rejects_false_or_unknown_inference_sentinel(
+    monkeypatch,
+    sentinel,
+):
+    monkeypatch.setattr(
+        run_projections,
+        "query_df",
+        lambda *_args, **_kwargs: pd.DataFrame({
+            "dk_player_id": [101],
+            "display_name": ["Late Player"],
+            "gsis_id": ["00-0000001"],
+            "dk_position": ["TE"],
+            "team_abbr": ["A"],
+            "roster_receipt_is_valid": [True],
+            "inference_row_present": pd.Series([sentinel], dtype="boolean"),
+            "position": [pd.NA],
+            "team": [pd.NA],
+            "opponent": [pd.NA],
+            "is_cold_start": pd.Series([pd.NA], dtype="boolean"),
+        }),
+    )
+
+    with pytest.raises(RuntimeError, match="no current player_week_inference"):
+        run_projections.upcoming_slate_features(2026, 1)
+
+
+def test_live_projection_rejects_stale_feature_team_or_position(monkeypatch):
+    monkeypatch.setattr(
+        run_projections,
+        "query_df",
+        lambda *_args, **_kwargs: pd.DataFrame({
+            "dk_player_id": [101],
+            "display_name": ["Moved Player"],
+            "gsis_id": ["00-0000001"],
+            "dk_position": ["TE"],
+            "team_abbr": ["NEW"],
+            "roster_receipt_is_valid": [True],
+            "inference_row_present": [True],
+            "position": ["WR"],
+            "team": ["OLD"],
+            "opponent": ["B"],
+            "is_cold_start": pd.Series([True], dtype="boolean"),
+        }),
+    )
+
+    with pytest.raises(RuntimeError, match="stale team/position"):
         run_projections.upcoming_slate_features(2026, 1)

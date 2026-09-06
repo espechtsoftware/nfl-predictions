@@ -74,10 +74,11 @@ def test_receipt_must_match_pushed_origin_main_bytes(tmp_path, monkeypatch):
 
 
 def test_scheduler_inventory_is_exact_and_unique():
-    assert len(resume.SCHEDULERS) == 27
-    assert len(set(resume.SCHEDULERS)) == 27
+    assert len(resume.SCHEDULERS) == 28
+    assert len(set(resume.SCHEDULERS)) == 28
     assert set(resume.SCHEDULERS) == set(resume.SCHEDULER_CONTRACTS)
     assert "s-features" in resume.SCHEDULERS
+    assert "s-features-sun" in resume.SCHEDULERS
     assert "s-project-su" in resume.SCHEDULERS
     assert "s-shadow-archetype-paired-early" in resume.SCHEDULERS
     assert "s-shadow-archetype-paired-late" in resume.SCHEDULERS
@@ -109,6 +110,7 @@ def test_scheduler_contracts_freeze_tracked_jobs_and_cadences():
     assert resume.SCHEDULER_CONTRACTS == {
         "s-nflverse": ("ingest-nflverse", "0 5 * * *"),
         "s-features": ("build-features", "30 6 * * 2"),
+        "s-features-sun": ("build-features", "30 5-10 * * 7"),
         "s-features-route": ("build-features", "30 6 * * 4"),
         "s-train": ("train-weekly", "30 7 * * 2"),
         "s-train-k1": ("train-weekly-k1", "30 8 * * 2"),
@@ -195,7 +197,7 @@ def test_preflight_describes_and_validates_all_before_resume(monkeypatch, tmp_pa
 
     monkeypatch.setattr(resume, "_run", fake_run)
     resume.preflight_scheduler_contracts(tmp_path)
-    assert len(commands) == 27
+    assert len(commands) == 28
     assert all(command[3] == "describe" for command in commands)
     assert [command[4] for command in commands] == list(resume.SCHEDULERS)
 
@@ -288,7 +290,7 @@ def test_mid_loop_resume_failure_rolls_back_attempted_and_verifies_all_paused(
     cloud = _SchedulerStateMachine(fail_resume_at=failure_index)
     monkeypatch.setattr(resume, "_run", cloud.run)
 
-    with pytest.raises(RuntimeError, match="restored all 27.*PAUSED"):
+    with pytest.raises(RuntimeError, match="restored all 28.*PAUSED"):
         resume.resume_scheduler_contracts(tmp_path)
 
     attempted = list(resume.SCHEDULERS[: failure_index + 1])
@@ -339,7 +341,7 @@ def test_resume_failure_rejects_false_successful_rollback_postcondition(
     assert cloud.states[sticky] == "ENABLED"
 
 
-def test_resume_success_requires_all_27_enabled(monkeypatch, tmp_path):
+def test_resume_success_requires_all_28_enabled(monkeypatch, tmp_path):
     cloud = _SchedulerStateMachine()
     monkeypatch.setattr(resume, "_run", cloud.run)
 
@@ -358,7 +360,7 @@ def test_failed_enabled_postcondition_rolls_every_scheduler_back(
     cloud = _SchedulerStateMachine(sticky_resume_for=sticky)
     monkeypatch.setattr(resume, "_run", cloud.run)
 
-    with pytest.raises(RuntimeError, match="restored all 27.*PAUSED"):
+    with pytest.raises(RuntimeError, match="restored all 28.*PAUSED"):
         resume.resume_scheduler_contracts(tmp_path)
 
     assert cloud.resume_calls == list(resume.SCHEDULERS)

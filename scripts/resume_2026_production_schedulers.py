@@ -2,7 +2,7 @@
 """Resume 2026 production schedulers only after aggregate forensic cleanup.
 
 No scheduler mutation occurs until the immutable repair3-plus-repair4 cleanup
-receipt has passed and all 27 schedulers exactly match the tracked paused-state,
+receipt has passed and all 28 schedulers exactly match the tracked paused-state,
 cadence, timezone, HTTP method, and Cloud Run target contract.
 """
 
@@ -28,6 +28,7 @@ SCHEDULER_SERVICE_ACCOUNT = (
 SCHEDULER_CONTRACTS: dict[str, tuple[str, str]] = {
     "s-nflverse": ("ingest-nflverse", "0 5 * * *"),
     "s-features": ("build-features", "30 6 * * 2"),
+    "s-features-sun": ("build-features", "30 5-10 * * 7"),
     "s-features-route": ("build-features", "30 6 * * 4"),
     "s-train": ("train-weekly", "30 7 * * 2"),
     "s-train-k1": ("train-weekly-k1", "30 8 * * 2"),
@@ -213,7 +214,7 @@ def resume_scheduler_contracts(repo_root: Path) -> None:
             except Exception as exc:
                 rollback_failures.append(f"pause {scheduler}: {exc}")
         try:
-            # This checks all 27, including schedulers not reached by the
+            # This checks all 28, including schedulers not reached by the
             # failed resume loop and any ambiguous in-flight mutation.
             preflight_scheduler_contracts(repo_root, expected_state="PAUSED")
         except Exception as exc:
@@ -225,7 +226,7 @@ def resume_scheduler_contracts(repo_root: Path) -> None:
                 "PAUSED state: " + "; ".join(rollback_failures)
             ) from resume_error
         raise RuntimeError(
-            "scheduler resume failed; rollback restored all 27 schedulers "
+            "scheduler resume failed; rollback restored all 28 schedulers "
             "to PAUSED."
         ) from resume_error
 
@@ -278,7 +279,7 @@ def main() -> int:
     if not args.resume:
         print(
             "PASS: aggregate forensic corpus is absent, the immutable receipt "
-            "is pushed, and all 27 scheduler contracts are exactly PAUSED; "
+            "is pushed, and all 28 scheduler contracts are exactly PAUSED; "
             "no scheduler was resumed."
         )
         return 0

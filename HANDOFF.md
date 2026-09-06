@@ -43467,6 +43467,108 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   the urgent lab hold at lab-main commit
   `551e162f611d4a2cf1c641bd7ee60d51a08e9cd5` in
   `handoffs/PRODUCTION-TO-LAB-PREREG071-R5-SUPPORT-AUTH-FAILURE-2026-09-06.md`.
+
+- 2026-09-06 — Sunday projection scheduler held after nullable cold-start failure
+
+  The scheduled production execution `project-slate-7wgp5` (UID
+  `ffa3d941-4f24-4212-ad69-0e0505ce218d`) started at
+  `2026-09-06T14:00:52.876297Z` and failed terminally at
+  `2026-09-06T14:05:27.381831Z` after one provider retry. Both attempts on
+  image digest
+  `sha256:1a7cd6c5d87f4eb2a41427f6ef057dcd9df9e51881d34a4a1f138fe369b60818`
+  reached `coldstart.widen_cold_start_quantiles` and raised because a pandas
+  nullable `is_cold_start` series containing `NA` was implicitly converted to
+  a NumPy boolean array. No successful projection batch was produced by this
+  execution.
+
+  At `2026-09-06T14:39:37Z`, before their next scheduled attempts, production
+  paused exactly `s-project-su`, `s-shadow-cbwu-oi-paired-early`, and
+  `s-shadow-cbwu-oi-paired-late`. All three were independently reopened as
+  `PAUSED`; no other scheduler was changed. This prevents a deterministic
+  repeat failure and prevents the paired shadow consumer from using a stale
+  projection batch. The reversible pause remains in force only through a
+  tested image, one manually launched green `project-slate` canary, validation
+  of its atomic projection batch, and a green dependent shadow canary.
+
+  Exact warehouse diagnosis found two current active DraftKings skill players
+  absent from the entire `player_week_inference` table, not merely one
+  nullable boolean value: Tyler Conklin (`00-0034270`) and Brevin Jordan
+  (`00-0036556`). A boolean-only fallback would therefore have hidden
+  structurally incomplete inference rows. Production launched the existing
+  `build-features` job through the host launcher registry as execution
+  `build-features-sq8rb` (UID
+  `2b1024c9-636d-4453-957b-cd0acbf0780c`); it completed successfully at
+  `2026-09-06T14:52:04Z`, with registry completion receipt
+  `3804b5c1e4e5fd14d60f0860121670cc27623be361995b14353217f8fdfabc02`.
+  The rebuilt Week-1 inference table has 918 distinct players, zero null
+  structural rows, and complete cold-start rows for both named players.
+
+  The unchanged live `project-slate` image then passed registered manual
+  canary `project-slate-vp6vx` (UID
+  `0cd1c559-4082-48a0-9a7f-98e8469b7e05`) at
+  `2026-09-06T14:56:30Z`; registry completion receipt is
+  `b1068fde73183aa7923f1e43ca4e64f82cf0e28ac034e258d620cb08a670007c`.
+  Its single atomic batch at `2026-09-06T14:56:23.989001Z` contains 535
+  unique DK players (503 skill plus 32 DST), zero incomplete/nonfinite rows,
+  both repaired players, zero missing/incomplete inference joins, and zero
+  team/position/opponent mismatches. Production consequently resumed exactly
+  the three paused schedulers. Because the intended 09:45 paired shadow was
+  safely skipped, registered recovery execution
+  `shadow-cbwu-oi-paired-lg9ns` was launched at `2026-09-06T14:59:01Z`;
+  launcher completion receipt is
+  `431cdad1c8016f3785877b580a6e976f265ead948615761f4198e7101a03d121`.
+  The normal 10:45 paired shadow remains enabled.
+
+  Worktree `/home/erich/projects/nfl-predictions-project-slate-null-mask-fix`
+  on branch `fix/project-slate-null-coldstart-mask-20260906` now contains the
+  durable defense: explicit nullable-boolean conversion plus a live-boundary
+  row-presence sentinel and fail-closed checks for missing or structurally
+  incomplete inference rows. Independent read-only review found no blocker
+  for the refresh/query/canary recovery and correctly notes that freshness
+  must ultimately be coupled to the latest roster receipt. Validation awaits
+  the lab's authorized R5 18-cell diagnostic because that remains the single
+  active resource-intensive local command. Next action: after it exits, run
+  focused tests/static checks, close any test gaps, commit/push, and add a
+  Sunday pre-projection feature refresh so later roster additions cannot
+  reproduce this failure.
+
+  The first restored scheduled projection, `project-slate-jjmk7` (UID
+  `15181a76-d935-4516-8cff-67cb72a251ac`), also completed successfully at
+  `2026-09-06T15:03:43Z`. The recovered paired-shadow execution did not:
+  `shadow-cbwu-oi-paired-lg9ns` (UID
+  `0a4bc341-6041-4950-8f0e-e85e2b5ec589`) failed before candidate generation
+  because its August 18 image predates the current active-roster projection
+  boundary and still admits 65 unmapped DK listings. Production paused only
+  its two paired-shadow schedulers again before the 10:45 firing; the healthy
+  projection scheduler remains enabled. No shadow panel was emitted. Next
+  action for this consumer: deploy the validated current source to this one
+  shadow job without changing its CLI, environment, resources, or grading
+  contract; require a green manual candidate-only canary before resuming its
+  two schedulers.
+
+  Durable source changes add (1) a Sunday `build-features` cadence at
+  05:30--10:30 CT, between each hourly DK pull and following projection; (2)
+  row-presence, non-null structure, and DK-versus-feature team/position
+  coherence checks; and (3) explicit nullable-boolean handling as a final
+  defense. The off-season scheduler inventory and runbook now track 28 jobs.
+  Focused validation: 74 projection/cold-start/scheduler tests pass, the
+  existing live-smoke suite passed in the prior focused run, shell syntax and
+  whitespace checks pass, selected Ruff fatal/error rules pass, and Python
+  compilation passes. Legacy broad Ruff findings in touched old modules were
+  not mechanically rewritten.
+
+- 2026-09-06 — PREREG-071 R5 diagnostic complete; fresh recovery only
+
+  Lab main `f79f26fccd211744e791a5f679eddde358e5f821` seals both authorized
+  18-cell, score-free envelopes. All 18 cells have identical 800-member
+  roster/tag multisets with no duplicates or membership drift; the 38 moved
+  positions are exactly 19 float32 tie groups wholly inside the boom
+  block, and deterministic frozen-identity reindexing restores every ordered
+  signature. Single-thread and default-thread receipts agree cell-for-cell,
+  so the resource envelope is not causal. Per the frozen support-floor law,
+  R5 remains consumed `FAIL / NO EFFICACY`; lab accepted production's direction
+  to prepare a fresh JPAR-1b shared-pool preregistration with new identities.
+  No R5 coordinator, authentication, or efficacy command is authorized.
   Preserve the consumed R5 evidence; do not waive/rewrite the floor or launch
   efficacy. Next action: finish the independent exact-shard reopen and classify
   the 18 pool-reproduction cells against the R3 149/162 support census before

@@ -113,7 +113,13 @@ def widen_cold_start_quantiles(
     """Stretch the p10–p90 band around the median and scale the std on
     cold-start rows: role priors say where the middle is, not how wide."""
     out = preds.copy()
-    mask = np.asarray(is_cold_start, dtype=bool)
+    # Keep the widening policy consistent with ``fill_cold_start_features``:
+    # unknown provenance is not evidence of a cold start.  Pandas' nullable
+    # boolean dtype refuses an implicit NumPy conversion when it contains NA,
+    # so make that policy explicit before building the positional mask.
+    mask = pd.array(is_cold_start, dtype="boolean").to_numpy(
+        dtype=bool, na_value=False
+    )
     if not mask.any():
         return out
     p50 = out.loc[mask, "proj_p50"]

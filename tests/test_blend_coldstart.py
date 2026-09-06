@@ -156,3 +156,21 @@ def test_widen_cold_start_quantiles():
     assert out.proj_p10.iloc[0] == pytest.approx(2.5)
     assert out.proj_p90.iloc[0] == pytest.approx(17.5)
     assert out.proj_std.iloc[0] == pytest.approx(6.0)
+
+
+def test_widen_cold_start_quantiles_treats_nullable_unknown_as_false():
+    preds = pd.DataFrame(
+        {
+            "proj_p10": [5.0, 6.0, 7.0],
+            "proj_p50": [10.0, 11.0, 12.0],
+            "proj_p90": [15.0, 16.0, 17.0],
+            "proj_std": [4.0, 5.0, 6.0],
+        }
+    )
+    cold = pd.Series([True, pd.NA, False], dtype="boolean")
+
+    out = coldstart.widen_cold_start_quantiles(preds, cold, widen=1.5)
+
+    assert out.loc[0].tolist() == pytest.approx([2.5, 10.0, 17.5, 6.0])
+    assert out.loc[1].tolist() == pytest.approx(preds.loc[1].tolist())
+    assert out.loc[2].tolist() == pytest.approx(preds.loc[2].tolist())
