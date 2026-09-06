@@ -42706,3 +42706,26 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   v2 history; exact-generation deletion remains a separate written decision
   after another independent GO. No raw outcome payload was opened and no
   source or quarantine object was mutated.
+
+- 2026-09-05 — PREREG-071 R3 first efficacy invocation failed closed on build location
+
+  Registered coordinator receipt
+  `c9ac62b920fd012f991e2bf1e55149cf05be59f1a9f98585b8ae25ac78f2aa86`
+  exited `1` at `2026-09-06T00:08:30Z`. The released reader first
+  authenticated the support census and created the score-free efficacy
+  transcript at generation `1788653271873970`, 1,374 bytes, SHA-256
+  `e12270a4fab0eaa9744e0a6f7fe11798c4346de34820fea20b4453288793f4a0`.
+  The next prelaunch check then failed because the coordinator queried build
+  `a1583673-40a5-413b-a589-45b7e28f1711` in Cloud Run region
+  `us-central1`; direct provider inspection proves the build is registered in
+  Cloud Build location `global`. No efficacy authority, Cloud Run execution,
+  or result object was created, and all three frozen run identities remain
+  unclaimed.
+
+  Narrow repair commit `631a4ab` separates `BUILD_REGION=global` from
+  `REGION=us-central1`, adds a static regression, and records the failed-closed
+  attempt. Fourteen focused tests and both shell syntax checks pass. The repair
+  is pushed only to `production/prereg071-r3-efficacy-prep-20260905` pending
+  expedited independent review; do not relaunch until that exact review is GO
+  and the repair is durable on lab main. The immutable authentication
+  transcript may be reused only if regeneration reopens byte-identically.
