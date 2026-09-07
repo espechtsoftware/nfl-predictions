@@ -22,6 +22,34 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 CP-4 R14 held; narrow R15 independent-column authority requested
+
+- Independent review covered R14 code
+  `55679f768557175cf6855dc6ee19697aba11d1af` and evidence
+  `8e36df091a4a994feb97aef607e13aea8ed48476`. Its law-derived decision
+  sequence, authenticated schema/order, strict row shapes, 136 total versus
+  131 unregistered excluded-nullable distinction, and explicit legacy
+  candidate/selection equivalence are sound. Serial review passed 12
+  allocation and 29 D800 tests (424.68s).
+- The serialized consumer still trusts important snapshot material after a
+  coordinated outer-hash restatement. Starting from an honest artifact,
+  production independently changed a column's values, null-mask or column
+  digest, the decision-frame digest, or the receipt law (including empty),
+  recomputed only `snapshot_sha256`, and each artifact was accepted. The
+  validator compares receipt dtype/kind/null counts to sidecar material but
+  not the three per-column digests or full/decision content digests. Summary
+  equality also accepts Boolean equivalents for integer counts.
+- R14 is HOLD. Its exact clean `r14` smoke is consumed and must not be retried:
+  it failed pre-frame during the 120-second GCS authority reopen, with stderr
+  SHA-256
+  `dd1d0957c9adc14dc74ad4789f86020425d0b718ebbc34451ea42218bd949cc1`,
+  and emitted no smoke/mechanics artifact, candidate, outcome, score, build or
+  cloud execution. R15 is limited to independent canonical per-column and
+  full/decision-frame authority, exact summary types/law, and serialized
+  coordinated-restatement negatives. After code acceptance, one fresh remote
+  outcome-disabled pre-candidate smoke is required. The durable lab note is
+  `handoffs/PRODUCTION-TO-LAB-CP4-R14-HOLD-AND-R15-INDEPENDENT-COLUMN-AUTHORITY-GO-2026-09-07.md`.
+
 ### 2026-09-07 experiment 081 R6 held; narrow R7 authentication repair requested
 
 - Production independently reviewed returned R6 source
