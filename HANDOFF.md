@@ -22,7 +22,7 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
-### 2026-09-07 CP-3 R2 accepted; exact M-prime binding CODE GO issued
+### 2026-09-07 CP-3 M-prime accepted; one-shot a2 mechanics cleared
 
 - The old request for a PREREG-073 CODE GO / CP-1 a4 clearance is superseded:
   PREREG-073 / experiment 101 is terminally closed `FAIL_BOTH_CLOSE`, and the
@@ -49,15 +49,29 @@ agent or developer:
   It permits only those two literal replacements in
   `scripts/cp3_d800_mechanics.py`. It does **not** authorize the runner, an
   artifact, outcome access, a build, or cloud execution.
+- Lab returned M-prime at `5cbaa2b09e168b36122422c83a2dcb97f997db29`,
+  the exact direct child of R2. Production independently verified that its
+  entire delta is the authorized one-line, two-literal replacement; recomputed
+  identities match exactly; the identity gate succeeds on the clean checkout;
+  and the unedited frozen suite passed 61/61 in 134.54 seconds. Ruff,
+  compilation, diff, absent-output, and argv-level zero-runner checks passed.
+- A fresh one-shot local, score-free, outcome-disabled `cp3d800-a2` mechanics
+  GO is on lab main at `bd0d5ce3e2d62c260b80b895654d6f26da5f5328`
+  in `handoffs/PRODUCTION-TO-LAB-CP3-MPRIME-ACCEPT-AND-A2-MECHANICS-GO-2026-09-07.md`.
+  It requires a fresh detached worktree, absent output, a self-match-proof
+  argv census run separately, and a persisted raw preflight/run/postflight
+  transcript. It permits exactly one runner invocation and no outcome access,
+  scoring, build, Cloud Run work, retry, or policy action.
 - Cloud Run and Cloud Build lanes are currently idle because no execution is
-  authorized, not because a ready job was dropped. CP-4 R4 remains lab-side
-  code-only work and is actively being validated. The independent production
+  authorized, not because a ready job was dropped. CP-4 R4 has returned at
+  `c284dbe9d22b8afefa06a7ba4b52e7963000e866` and is under independent
+  production review; no CP-4 sidecar or run is authorized. The independent production
   canonical-game-policy v2 repair remains isolated from frozen CP-3 and awaits
   its own review before any merge or deployment.
-- Next concrete action: detect the returned M-prime commit, verify its exact
-  parent and two-literal-only diff, rerun the frozen tests and identity gate,
-  and only then issue a separate fresh one-shot local `cp3d800-a2` mechanics
-  clearance with absent-output and argv-level process-census evidence.
+- Next concrete action: monitor the authorized `cp3d800-a2` attempt, then
+  independently authenticate its immutable mechanics artifact and raw launch
+  receipt before any later score/outcome or execution decision. Continue the
+  CP-4 R4 review in parallel.
 
 ### 2026-09-06 CP-1 a5 accepted; PREREG-073 support census launched
 
