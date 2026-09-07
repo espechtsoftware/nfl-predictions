@@ -44374,3 +44374,17 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   review; and review the returned bounded CP-4 R3 branch when it arrives.
   PREREG-073 remains closed and CP-1 `a4` remains superseded—neither has a
   pending CODE GO or clearance.
+
+  Independent review of `b405399` completed with 46/46 expanded focused tests,
+  Ruff, compilation, diff, and detached-cleanliness checks passing, but the
+  binding delta remains HOLD on two narrow P0 identity defects. Because
+  `results/` is ignored, an ignored untracked exact-path sidecar can pass the
+  byte/SHA check while Git still reports a clean source; the loader must prove
+  one ordinary stage-0 tracked entry at `HEAD` and consume those exact blob
+  bytes. The masked runner hash also removes the entire mechanics literal,
+  leaving cell/bank/simulation/attempt/output outside both executable digests;
+  only the self-referential identity slots may be masked while the immutable
+  invocation contract remains covered. Production's repair-only review is
+  durable on lab main at `3adc78c0a200a0db5287f9d5dae0197e94ed63a8` in
+  `handoffs/PRODUCTION-TO-LAB-CP3-D800-BINDING-DELTA-R1-REVIEW-2026-09-07.md`.
+  The valid sidecar re-clearance is unaffected; mechanics remains HOLD.
