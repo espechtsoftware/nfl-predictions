@@ -22,6 +22,33 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 PREREG-074 R9/fm3 published and independently authenticated
+
+- Production accepted the minimal R9 rollover at exact source
+  `1b133dc9677372a63192ab31d8bc39202f792409`, confirmed the canonical fm3
+  object was absent across live, versioned, and soft-deleted state, and then
+  consumed exactly one authorized outcome-disabled invocation from a clean
+  detached checkout. It completed successfully with all 36 cells.
+- The immutable frame-manifest reference is
+  `frame-manifests/PREREG-074/prereg074-fm3.json`, generation
+  `1788809465188678`, 96,459 bytes, SHA-256
+  `a88128cd10fee715ae13efb663c35f68e403c00e2f899cef7f576ff9af0a881c`.
+  A fresh exact-generation media reopen matched those bytes and digest;
+  all-generation census found exactly one live generation and no soft-deleted
+  generation. The exact R9 validator independently accepted the strict JSON,
+  all 36 cells, exact source and 17-path code map, clean start/after-load/end
+  capability audits, clean object-graph audits, and `outcome_opened: false`.
+- No candidate, selector, judge, outcome value, score read, build, image, job
+  update or Cloud Run execution occurred. The immutable builder is still held
+  because its four `python -I` validation blocks ignore their `PYTHONPATH` and
+  can import `nfl2` from an ambient foreign checkout. A narrow direct-child
+  repair is active: explicitly insert the passed build tree's `src`, assert
+  the imported cohort module resides beneath that tree, remove the misleading
+  environment assignment, refuse obsolete source/tag identities, and bind
+  the authenticated fm3 reference. Independent review is required before any
+  build. The production-to-lab disposition is being published as
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-FM3-AUTHENTICATED-BUILDER-REPAIR-GO-2026-09-07.md`.
+
 ### 2026-09-07 CP-4 R13 urgently held before a third smoke
 
 - Lab returned exact R13 commit `e34aefb`, direct child of held R12
