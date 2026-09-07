@@ -289,6 +289,41 @@ def combine_cbwu_books(
                             "construction_preset_receipt", {}
                         )
                     ),
+                    "model_artifact_receipt": dict(
+                        books[name].metadata.get(
+                            "model_artifact_receipt", {}
+                        )
+                    ),
+                    "role_model_artifact_receipt": dict(
+                        books[name].metadata.get(
+                            "role_model_artifact_receipt", {}
+                        )
+                    ),
+                    "model_feature_input_receipt": dict(
+                        books[name].metadata.get(
+                            "model_feature_input_receipt", {}
+                        )
+                    ),
+                    "role_model_feature_input_receipt": dict(
+                        books[name].metadata.get(
+                            "role_model_feature_input_receipt", {}
+                        )
+                    ),
+                    "component_notes_receipt": dict(
+                        books[name].metadata.get(
+                            "component_notes_receipt", {}
+                        )
+                    ),
+                    "role_component_notes_receipt": dict(
+                        books[name].metadata.get(
+                            "role_component_notes_receipt", {}
+                        )
+                    ),
+                    "preference_receipt": dict(
+                        books[name].metadata.get(
+                            "preference_receipt", {}
+                        )
+                    ),
                 }
                 for name in order
             },

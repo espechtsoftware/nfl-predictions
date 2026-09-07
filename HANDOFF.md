@@ -22,6 +22,60 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 canonical-game v2 independent-review R2 repair (review-ready)
+
+- Worktree `/home/erich/projects/nfl-predictions-canonical-game-v2`, branch
+  `fix/canonical-game-policy-v2-20260907`, exact parent
+  `a5e39f7362114430278e9473d7096a16ee3da061`. The required deliverable is one
+  clean direct-child commit; nothing has been rebased, pushed, built,
+  deployed, loaded into Neo4j, or used for a paid action.
+- Engine receipts are now opaque engine-issued objects created only after the
+  final selected book exists. Simulation evidence binds the registered five
+  seed pairs, 10,000 worlds per block/50,000 selection worlds, exact in-memory
+  model hashes and versions, one coherent exact model-input feature snapshot,
+  component-note/preference state, locks/bans/theses, effective construction,
+  request inputs, policy environment, and selected objectives. The terminal
+  paid validator independently reopens those claims and rejects caller-authored
+  mappings or altered receipt content. Exact untransformed catalog objectives
+  retain a validator-issued deterministic proof for Week-1 v2 compatibility.
+- Certified `proj_p50`, `proj_p90`, and positive `proj_std` survive the joined
+  paid catalog. MILP supports the certified point/p50/p90 objectives; the
+  simulation law rejects unsupported distribution objectives explicitly, and
+  any batch without certified positive sigma fails rather than producing
+  degenerate confidence ranks.
+- Cloud Build provider evidence is authenticated against the exact committed
+  build law before any Cloud Run mutation. A second, exclusive-create
+  attestation then binds the successful Cloud Build ID, full source commit,
+  image digest, deployed `@sha256` URI, observed ready revision, exact runtime
+  identity, and 100% traffic. No release command was executed here.
+- Canonical retrieval-v3 now authenticates the suite before choosing any
+  result/completion/graph schema or path, reopens the real execution contract,
+  prefix claim, IAM evidence, launch intent and both launch ledgers, and calls
+  the v3 semantic validator with `replay=True`. A v3 suite repackaged as v1 is
+  rejected; legacy v1 remains available only through its explicit legacy law.
+- Canonical-game policy inventory v7 currently regenerates at 65 rules, 134
+  classified inputs, and 290 direct read sites. Current identities are:
+  inventory `de290be1ef2f65014919bc57b775e4de13d1a4153d8bd9221bc88847e9e44c25`,
+  source set `93da1da1473772733a5eff3cf1d30d6fcd83eba3e533f58c2e9390b5ddb64b37`,
+  rule universe `0de128a919dff6d39283ba1ee5390110fbf3eb5d11a6d0348dc43307b58289b4`,
+  and classified-input projection
+  `28173788062fdbad85cf77d33ee35cea06ecc391b31fb3ddf7c49f12a18af3f7`.
+- The production lead explicitly released the shared serial pytest lane before
+  validation. Serial results are **364 passing tests** and zero product
+  failures: 87 paid/deployment/Week-1; 90 retrieval/Neo4j/transport (the first
+  invocation had 89 passes and one test-hook typo, then the corrected affected
+  test passed); 111 multiseed/policy/paid-v2/canonical-v2 compatibility; 57
+  application compatibility with one unrelated Starlette deprecation warning;
+  and 19 policy-inventory. The shared lane was explicitly released afterward.
+- Static validation is green: modified Python/test sources compile, both paid
+  shell helpers pass `bash -n`, Cloud Build YAML parses, targeted fatal Ruff
+  checks and full Ruff on the new deployment module/tests pass, the v7
+  inventory regenerates, and `git diff --check` passes.
+
+  Next concrete action: create exactly one direct-child commit from
+  `a5e39f7362114430278e9473d7096a16ee3da061`, leave it clean and unpushed, and
+  obtain independent review before any merge/build/deployment/paid action.
+
 ### 2026-09-07 canonical-game v2 five-HOLD repair candidate (local, unpushed)
 
 - Worktree `/home/erich/projects/nfl-predictions-canonical-game-v2`, branch

@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import io
+import json
 from pathlib import Path
 
 import pandas as pd
@@ -13,17 +15,27 @@ from fastapi import HTTPException
 from nfl_dfs.app import main as app_main
 from nfl_dfs.app.store import BigQueryStore
 from nfl_dfs.config import settings
+from nfl_dfs.inference.production_policy import ADOPTED_CLASSIC_POLICY
+from nfl_dfs.optimizer.construction_presets import LEGALITY_ONLY_PRESET_ID
 from nfl_dfs.optimizer.lineup import Lineup
 from nfl_dfs.optimizer.paid_classic_book_v2 import (
     PAID_CLASSIC_BOUNDARY_ID as PAID_CLASSIC_BOUNDARY_ID_V2,
 )
 from nfl_dfs.optimizer.paid_classic_book_v3 import (
-    PAID_CLASSIC_IMAGE_DIGEST_ENV,
+    _ENGINE_RECEIPT_ISSUER,
     PAID_CLASSIC_BOUNDARY_ID,
+    PAID_CLASSIC_BUILD_ID_ENV,
     PAID_CLASSIC_GAME_CATALOG_SCHEMA,
+    PAID_CLASSIC_IMAGE_DIGEST_ENV,
+    PAID_CLASSIC_IMAGE_URI_ENV,
+    PAID_CLASSIC_REVISION_ENV,
     PAID_CLASSIC_SOURCE_COMMIT_ENV,
+    PaidClassicEngineReceiptV3,
+    _canonical_sha256,
+    _issue_paid_classic_engine_receipt_v3,
     build_paid_classic_catalog_v3,
     fill_paid_entries_csv_v3,
+    paid_classic_projection_authority_v3,
     paid_classic_projection_derivation_receipt_v3,
     to_paid_dk_csv_v3,
     validate_paid_classic_book_v3,
@@ -34,6 +46,9 @@ _GENERATED_AT = pd.Timestamp("2026-09-01T15:30:00Z")
 _VALIDATED_AT = pd.Timestamp("2026-09-01T16:00:00Z")
 _SOURCE_COMMIT = "a" * 40
 _IMAGE_DIGEST = "sha256:" + "b" * 64
+_BUILD_ID = "12345678-1234-1234-1234-123456789abc"
+_IMAGE_URI = "us-central1-docker.pkg.dev/project/repo/app@" + _IMAGE_DIGEST
+_REVISION = "nfl-dfs-app-paidv3-aaaaaaaa-12345678"
 
 
 def _salary_rows() -> pd.DataFrame:
@@ -89,6 +104,9 @@ def _projection_rows() -> pd.DataFrame:
                 "team": team,
                 "opponent": opponents[team],
                 "proj_points": 18.0,
+                "proj_p50": 17.0,
+                "proj_p90": 28.0,
+                "proj_std": 7.0,
             }
         )
     return pd.DataFrame(rows)
@@ -132,6 +150,9 @@ def _catalog(
         week=1,
         source_commit_sha=_SOURCE_COMMIT,
         immutable_image_digest=_IMAGE_DIGEST,
+        cloud_build_id=_BUILD_ID,
+        immutable_image_uri=_IMAGE_URI,
+        running_revision=_REVISION,
         validated_at=_VALIDATED_AT,
     )
 
@@ -186,6 +207,154 @@ def _ranked(book: list[Lineup]) -> list[dict]:
     ]
 
 
+def _engine_receipt(catalog, book: list[Lineup]):
+    pairs = [
+        {
+            "label": f"R{index}",
+            "projection_seed": pair[0],
+            "role_seed": pair[1],
+        }
+        for index, pair in enumerate(
+            ADOPTED_CLASSIC_POLICY.multiseed_seed_pairs
+        )
+    ]
+    def artifact(version: str, component: str, digest: str) -> dict:
+        value = {
+            "schema_version": "loaded-component-model-artifacts/v1",
+            "model_version": version,
+            "components": [{
+                "component": component,
+                "member_count": 1,
+                "member_sha256": [digest],
+            }],
+        }
+        value["artifact_sha256"] = hashlib.sha256(json.dumps(
+            value, sort_keys=True, separators=(",", ":")
+        ).encode()).hexdigest()
+        return value
+
+    artifacts = {
+        row["label"]: {
+            "projection": artifact(
+                "pooled/components__tail_k1/2026-W35", "receiving", "c" * 64
+            ),
+            "role": artifact(
+                "pooled/components__tail_k1_role/2026-W35",
+                "receiving", "d" * 64,
+            ),
+        }
+        for row in pairs
+    }
+    features = {
+        row["label"]: {
+            "projection": {
+                "sha256": "e" * 64, "rows": 13, "columns": ["id"]
+            },
+            "role": {
+                "sha256": "e" * 64, "rows": 13, "columns": ["id"]
+            },
+        }
+        for row in pairs
+    }
+    notes = {
+        row["label"]: {
+            "projection_component_notes": {
+                "state": "disabled",
+                "before_sha256": "1" * 64,
+                "effective_sha256": "1" * 64,
+                "changed": False,
+            },
+            "role_component_notes": {
+                "state": "disabled",
+                "before_sha256": "2" * 64,
+                "effective_sha256": "2" * 64,
+                "changed": False,
+            },
+            "preferences": {
+                "state": "disabled",
+                "source_rows_sha256": None,
+                "applied_ban_player_ids": [],
+                "applied_boost_player_ids": [],
+            },
+        }
+        for row in pairs
+    }
+    construction = ADOPTED_CLASSIC_POLICY.construction_preset()
+    allowed = sorted(catalog.by_player_id)
+    salary_items = sorted(
+        (int(player_id), int(row["salary"]))
+        for player_id, row in catalog.by_player_id.items()
+    )
+
+    def digest(value: object) -> str:
+        return hashlib.sha256(json.dumps(
+            value, sort_keys=True, separators=(",", ":")
+        ).encode()).hexdigest()
+    return _issue_paid_classic_engine_receipt_v3(
+        paid_classic_projection_authority_v3(catalog),
+        mode="simulation",
+        lineups=book,
+        seed_pairs=pairs,
+        worlds_per_block=10_000,
+        selection_world_count=50_000,
+        model_artifacts=artifacts,
+        feature_snapshots=features,
+        notes_preferences=notes,
+        locks=[],
+        bans=[],
+        theses=[],
+        construction_policy=construction.receipt(),
+        request_inputs={
+            "season": 2026,
+            "week": 1,
+            "draft_group_id": 9001,
+            "n_entries": len(book),
+            "contest_max_entries": 150,
+            "objective": "proj_points",
+            "field_size": None,
+            "requested_tail_line": None,
+            "requested_leverage_scale": 1.0,
+            "apply_notes": False,
+            "construction_preset_id": construction.preset_id,
+            "tail_line": ADOPTED_CLASSIC_POLICY.tail_line,
+            "leverage_scale": 1.0,
+            "allowed_player_count": len(allowed),
+            "allowed_player_ids_sha256": digest(allowed),
+            "salary_override_count": len(salary_items),
+            "salary_overrides_sha256": digest(salary_items),
+        },
+        policy_environment=ADOPTED_CLASSIC_POLICY.engine_environment(
+            construction_preset=construction
+        ),
+    )
+
+
+def _attach_engine_receipt(catalog, book: list[Lineup]) -> list[Lineup]:
+    receipt = _engine_receipt(catalog, book)
+    for lineup in book:
+        lineup.paid_projection_derivation_receipt = receipt
+    return book
+
+
+def _mutated_engine_receipt(receipt, mutation) -> PaidClassicEngineReceiptV3:
+    payload = receipt.as_dict()
+    payload.pop("receipt_sha256")
+    mutation(payload)
+    payload["receipt_sha256"] = _canonical_sha256(payload)
+    return PaidClassicEngineReceiptV3(
+        payload, _issuer=_ENGINE_RECEIPT_ISSUER
+    )
+
+
+def _mutate_projection_model_version(body: dict) -> None:
+    artifact = body["model_artifacts"]["R0"]["projection"]
+    artifact["model_version"] = "pooled/components__wrong/2026-W35"
+    artifact["artifact_sha256"] = _canonical_sha256({
+        key: value for key, value in artifact.items()
+        if key != "artifact_sha256"
+    })
+
+
 def _entries() -> str:
     return (
         "Entry ID,Contest Name,Contest ID,Entry Fee,"
@@ -197,7 +366,8 @@ def _entries() -> str:
 
 def test_v3_uses_joined_authorities_and_accepts_real_team_aliases() -> None:
     catalog = _catalog()
-    exported = to_paid_dk_csv_v3(_book(), expected_entries=2, catalog=catalog)
+    book = _attach_engine_receipt(catalog, _book())
+    exported = to_paid_dk_csv_v3(book, expected_entries=2, catalog=catalog)
 
     assert PAID_CLASSIC_BOUNDARY_ID_V2 == "paid-classic-book-boundary-v2"
     assert exported.receipt["boundary_id"] == PAID_CLASSIC_BOUNDARY_ID
@@ -226,8 +396,10 @@ def test_v3_uses_joined_authorities_and_accepts_real_team_aliases() -> None:
 
 
 def test_v3_accepts_exact_authoritative_schedule_game_ids() -> None:
+    catalog = _catalog()
+    book = _attach_engine_receipt(catalog, _book(schedule_ids=True))
     receipt = validate_paid_classic_book_v3(
-        _book(schedule_ids=True), expected_entries=2, catalog=_catalog()
+        book, expected_entries=2, catalog=catalog
     )
     assert receipt["game_claims_match_authority"] is True
 
@@ -290,16 +462,64 @@ def test_catalog_requires_full_commit_and_immutable_image_digest(
             week=1,
             source_commit_sha=commit,
             immutable_image_digest=digest,
+            cloud_build_id=_BUILD_ID,
+            immutable_image_uri=_IMAGE_URI,
+            running_revision=_REVISION,
             validated_at=_VALIDATED_AT,
+        )
+
+
+@pytest.mark.parametrize(
+    ("deployment", "message"),
+    [
+        ({"cloud_build_id": ""}, "Cloud Build ID"),
+        (
+            {"immutable_image_uri": "registry.example/app:latest"},
+            "runtime image URI must be immutable",
+        ),
+        (
+            {
+                "immutable_image_uri": (
+                    "registry.example/app@sha256:" + "c" * 64
+                )
+            },
+            "match IMAGE_DIGEST",
+        ),
+        ({"running_revision": ""}, "running Cloud Run revision"),
+    ],
+)
+def test_catalog_requires_complete_runtime_deployment_identity(
+    deployment: dict[str, str], message: str,
+) -> None:
+    values = {
+        "cloud_build_id": _BUILD_ID,
+        "immutable_image_uri": _IMAGE_URI,
+        "running_revision": _REVISION,
+        **deployment,
+    }
+    with pytest.raises(ValueError, match=message):
+        build_paid_classic_catalog_v3(
+            _salary_rows(),
+            _projection_rows(),
+            _schedule_rows(),
+            draft_group_id=9001,
+            season=2026,
+            week=1,
+            source_commit_sha=_SOURCE_COMMIT,
+            immutable_image_digest=_IMAGE_DIGEST,
+            validated_at=_VALIDATED_AT,
+            **values,
         )
 
 
 def test_v3_entries_fill_retains_exact_book_and_upgrades_capture() -> None:
     captures: list[dict] = []
+    catalog = _catalog()
+    book = _attach_engine_receipt(catalog, _book())
     exported = fill_paid_entries_csv_v3(
         _entries(),
-        _book(),
-        catalog=_catalog(),
+        book,
+        catalog=catalog,
         contest_id="77",
         prepared_entry_capture=captures.append,
     )
@@ -335,7 +555,8 @@ class _AuthoritativeStore:
 def test_paid_v3_routes_bind_game_authority_and_v2_routes_still_exist(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    book = _book()
+    catalog = _catalog()
+    book = _attach_engine_receipt(catalog, _book())
     build_calls = []
 
     def build_once(req, store, **kwargs):
@@ -348,6 +569,9 @@ def test_paid_v3_routes_bind_game_authority_and_v2_routes_still_exist(
     )
     monkeypatch.setenv(PAID_CLASSIC_SOURCE_COMMIT_ENV, _SOURCE_COMMIT)
     monkeypatch.setenv(PAID_CLASSIC_IMAGE_DIGEST_ENV, _IMAGE_DIGEST)
+    monkeypatch.setenv(PAID_CLASSIC_BUILD_ID_ENV, _BUILD_ID)
+    monkeypatch.setenv(PAID_CLASSIC_IMAGE_URI_ENV, _IMAGE_URI)
+    monkeypatch.setenv(PAID_CLASSIC_REVISION_ENV, _REVISION)
     monkeypatch.setattr(app_main, "_with_watch_notes", lambda players: players)
     monkeypatch.setattr(
         "nfl_dfs.notes.record_entered_lineups", lambda *args, **kwargs: None
@@ -371,6 +595,9 @@ def test_paid_v3_routes_bind_game_authority_and_v2_routes_still_exist(
     assert len(response.headers["x-paid-book-game-catalog-sha256"]) == 64
     assert response.headers["x-paid-book-source-commit"] == _SOURCE_COMMIT
     assert response.headers["x-paid-book-image-digest"] == _IMAGE_DIGEST
+    assert response.headers["x-paid-book-cloud-build"] == _BUILD_ID
+    assert response.headers["x-paid-book-image-uri"] == _IMAGE_URI
+    assert response.headers["x-paid-book-revision"] == _REVISION
 
     entries_request = app_main.FillEntriesRequest(
         season=2026,
@@ -463,6 +690,138 @@ def test_paid_generation_frame_uses_catalog_batch_not_latest_projection_read() -
         player_id: int(row["draftable_id"])
         for player_id, row in catalog.by_player_id.items()
     }
+    assert catalog.projection_distribution_columns == (
+        "proj_p50", "proj_p90", "proj_std"
+    )
+    assert {"proj_p50", "proj_p90", "proj_std"} <= set(frame.columns)
+
+
+@pytest.mark.parametrize("objective", ["proj_points", "proj_p50", "proj_p90"])
+def test_paid_milp_issues_post_execution_receipt_and_reopens_objectives(
+    objective: str,
+) -> None:
+    catalog = _catalog()
+    request = app_main.LineupRequest(
+        season=2026,
+        week=1,
+        draft_group_id=9001,
+        n_lineups=2,
+        sim=False,
+        apply_notes=False,
+        objective=objective,
+        construction_preset_id=LEGALITY_ONLY_PRESET_ID,
+    )
+    lineups, ranked = app_main._build_classic(
+        request, _AuthoritativeStore(), paid_catalog=catalog
+    )
+    assert len(lineups) == len(ranked) == 2
+    assert all(
+        isinstance(
+            getattr(lineup, "paid_projection_derivation_receipt", None),
+            PaidClassicEngineReceiptV3,
+        )
+        for lineup in lineups
+    )
+    receipt = validate_paid_classic_book_v3(
+        lineups, expected_entries=2, catalog=catalog
+    )
+    derivation = receipt["projection_derivation_receipt"]
+    assert derivation["mode"] == "milp"
+    assert derivation["request_inputs"]["objective"] == objective
+
+
+def test_paid_milp_rejects_unimplemented_thesis_floor() -> None:
+    request = app_main.LineupRequest(
+        season=2026,
+        week=1,
+        draft_group_id=9001,
+        n_lineups=2,
+        sim=False,
+        apply_notes=False,
+        construction_preset_id=LEGALITY_ONLY_PRESET_ID,
+        theses=[{"players": [101, 301], "min": 1}],
+    )
+    with pytest.raises(HTTPException, match="does not implement portfolio thesis"):
+        app_main._build_classic(
+            request, _AuthoritativeStore(), paid_catalog=_catalog()
+        )
+
+
+def test_paid_generation_rejects_unsupported_distribution_objectives_cleanly() -> None:
+    projections = _projection_rows().drop(
+        columns=["proj_p50", "proj_p90", "proj_std"]
+    )
+    catalog = _catalog(projections=projections)
+    request = app_main.LineupRequest(
+        season=2026,
+        week=1,
+        draft_group_id=9001,
+        n_lineups=2,
+        sim=False,
+        objective="proj_p90",
+    )
+    with pytest.raises(HTTPException, match="objective proj_p90 is unsupported"):
+        app_main._build_classic(
+            request, _AuthoritativeStore(), paid_catalog=catalog
+        )
+
+
+def test_paid_sim_rejects_uncertified_distribution_objective_cleanly() -> None:
+    request = app_main.LineupRequest(
+        season=2026,
+        week=1,
+        draft_group_id=9001,
+        n_lineups=2,
+        sim=True,
+        objective="proj_p90",
+    )
+    with pytest.raises(
+        HTTPException, match="simulation objective proj_p90 is unsupported"
+    ):
+        app_main._build_classic(
+            request, _AuthoritativeStore(), paid_catalog=_catalog()
+        )
+
+
+def test_paid_generation_rejects_missing_sigma_instead_of_degenerate_confidence() -> None:
+    projections = _projection_rows().drop(
+        columns=["proj_p50", "proj_p90", "proj_std"]
+    )
+    catalog = _catalog(projections=projections)
+    request = app_main.LineupRequest(
+        season=2026,
+        week=1,
+        draft_group_id=9001,
+        n_lineups=2,
+        sim=False,
+    )
+    with pytest.raises(HTTPException, match="requires certified positive proj_std"):
+        app_main._build_classic(
+            request, _AuthoritativeStore(), paid_catalog=catalog
+        )
+
+
+def test_catalog_rejects_partial_distribution_authority() -> None:
+    projections = _projection_rows().drop(columns=["proj_std"])
+    with pytest.raises(ValueError, match="must provide proj_p50, proj_p90"):
+        _catalog(projections=projections)
+
+
+@pytest.mark.parametrize(
+    ("column", "value", "message"),
+    [
+        ("proj_std", 0.0, "proj_std must be positive"),
+        ("proj_std", float("nan"), "proj_std is invalid"),
+        ("proj_p50", 29.0, "proj_p50 above proj_p90"),
+    ],
+)
+def test_catalog_rejects_invalid_distribution_authority(
+    column: str, value: float, message: str,
+) -> None:
+    projections = _projection_rows()
+    projections.loc[0, column] = value
+    with pytest.raises(ValueError, match=message):
+        _catalog(projections=projections)
 
 
 def test_paid_sim_generation_receives_exact_batch_and_bound_transform(
@@ -470,12 +829,13 @@ def test_paid_sim_generation_receives_exact_batch_and_bound_transform(
 ) -> None:
     captured: dict[str, object] = {}
     book = _book()
+    catalog = _catalog()
 
     def build_sim(*args, **kwargs):
         captured.update(kwargs)
-        receipt = kwargs["projection_authority_receipt"]
+        receipt = _engine_receipt(catalog, book)
         for lineup in book:
-            lineup.paid_projection_derivation_receipt = dict(receipt)
+            lineup.paid_projection_derivation_receipt = receipt
         return book
 
     monkeypatch.setattr(
@@ -489,7 +849,6 @@ def test_paid_sim_generation_receives_exact_batch_and_bound_transform(
         sim=True,
         apply_notes=False,
     )
-    catalog = _catalog()
     lineups, _ = app_main._build_classic(
         request, _AuthoritativeStore(), paid_catalog=catalog
     )
@@ -498,10 +857,33 @@ def test_paid_sim_generation_receives_exact_batch_and_bound_transform(
         player_id: float(row["projection"])
         for player_id, row in catalog.by_player_id.items()
     }
-    derivation = captured["projection_authority_receipt"]
-    assert derivation["projection_batch_sha256"] == catalog.projection_batch_sha256
-    assert derivation["transformation"]["mode"] == "simulation"
-    assert derivation["transformation"]["world_count"] == 30_000
+    authority = captured["projection_authority_receipt"]
+    assert authority.as_dict()["projection_batch_sha256"] == (
+        catalog.projection_batch_sha256
+    )
+    assert "transformation" not in authority.as_dict()
+    assert captured["paid_request_inputs"]["objective"] == "proj_points"
+
+
+def test_paid_sim_generation_rejects_missing_engine_receipt(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "nfl_dfs.inference.live_lineups.build_sim_lineups",
+        lambda *args, **kwargs: _book(),
+    )
+    request = app_main.LineupRequest(
+        season=2026,
+        week=1,
+        draft_group_id=9001,
+        n_lineups=2,
+        sim=True,
+        apply_notes=False,
+    )
+    with pytest.raises(HTTPException, match="engine-produced post-execution"):
+        app_main._build_classic(
+            request, _AuthoritativeStore(), paid_catalog=_catalog()
+        )
 
 
 def test_paid_v3_rejects_nonfinite_and_non_prelock_projection_authority() -> None:
@@ -530,35 +912,143 @@ def test_paid_v3_rejects_nonfinite_selected_lineup_projection() -> None:
         )
 
 
+def test_exact_catalog_objectives_use_validator_created_deterministic_receipt() -> None:
+    receipt = validate_paid_classic_book_v3(
+        _book(), expected_entries=2, catalog=_catalog()
+    )
+    derivation = receipt["projection_derivation_receipt"]
+    assert derivation["mode"] == "deterministic-exact"
+    assert derivation["schema_version"] == (
+        "paid-classic-deterministic-projection/v2"
+    )
+    assert derivation["receipt_sha256"] == _canonical_sha256(
+        {key: value for key, value in derivation.items() if key != "receipt_sha256"}
+    )
+
+
 def test_transformed_projection_requires_exact_certified_batch_receipt() -> None:
     catalog = _catalog()
     book = _book()
     book[0].players[0]["proj"] = 19.0
     with pytest.raises(ValueError, match="not bound to the certified"):
         validate_paid_classic_book_v3(book, expected_entries=2, catalog=catalog)
-    derivation = paid_classic_projection_derivation_receipt_v3(
-        catalog,
-        transformation={"mode": "simulation", "seed": 42},
-    )
+    with pytest.raises(ValueError, match="caller-supplied"):
+        paid_classic_projection_derivation_receipt_v3(
+            catalog,
+            transformation={"mode": "simulation", "seed": 42},
+        )
+    forged = paid_classic_projection_authority_v3(catalog).as_dict()
     for lineup in book:
-        lineup.paid_projection_derivation_receipt = dict(derivation)
+        lineup.paid_projection_derivation_receipt = forged
+    with pytest.raises(ValueError, match="not engine-produced"):
+        validate_paid_classic_book_v3(
+            book, expected_entries=2, catalog=catalog
+        )
+    derivation = _engine_receipt(catalog, book)
+    for lineup in book:
+        lineup.paid_projection_derivation_receipt = derivation
     receipt = validate_paid_classic_book_v3(
         book, expected_entries=2, catalog=catalog
     )
     assert receipt["projection_batch_sha256"] == catalog.projection_batch_sha256
 
 
-def test_paid_v3_rejects_mixed_deterministic_and_transformed_derivations() -> None:
+def test_paid_v3_rejects_mixed_engine_and_deterministic_derivations() -> None:
     catalog = _catalog()
     book = _book()
     book[0].players[0]["proj"] = 19.0
-    book[0].paid_projection_derivation_receipt = (
-        paid_classic_projection_derivation_receipt_v3(
-            catalog,
-            transformation={"mode": "simulation", "seed": 42},
-        )
-    )
+    book[0].paid_projection_derivation_receipt = _engine_receipt(catalog, book)
     with pytest.raises(ValueError, match="mix projection transformations"):
+        validate_paid_classic_book_v3(
+            book, expected_entries=2, catalog=catalog
+        )
+
+
+@pytest.mark.parametrize(
+    ("mutation", "message"),
+    [
+        (
+            lambda body: body["seed_pairs"][0].update(role_seed=999),
+            "exact five production seeds",
+        ),
+        (
+            lambda body: body.update(selection_world_count=49_999),
+            "50,000 selection worlds",
+        ),
+        (
+            lambda body: body["model_artifacts"]["R0"]["projection"]
+            ["components"][0]["member_sha256"].__setitem__(0, "z" * 64),
+            "model artifact is invalid",
+        ),
+        (_mutate_projection_model_version, "model version differs"),
+        (
+            lambda body: body["feature_snapshots"]["R0"]["role"].update(rows=0),
+            "feature snapshot is invalid",
+        ),
+        (
+            lambda body: body["feature_snapshots"]["R0"]["role"].update(
+                sha256="f" * 64
+            ),
+            "mixes feature snapshots",
+        ),
+        (
+            lambda body: body["notes_preferences"]["R0"]
+            ["projection_component_notes"].update(changed=True),
+            "component-notes state is invalid",
+        ),
+        (
+            lambda body: body["construction_policy"].update(min_salary=0),
+            "construction policy receipt is invalid",
+        ),
+        (
+            lambda body: body["request_inputs"].update(draft_group_id=42),
+            "request context differs",
+        ),
+        (
+            lambda body: body["request_inputs"].pop("field_size"),
+            "request schema differs",
+        ),
+        (
+            lambda body: body["request_inputs"].update(
+                requested_leverage_scale=0.5
+            ),
+            "effective request inputs differ",
+        ),
+        (
+            lambda body: body["request_inputs"].update(
+                allowed_player_ids_sha256="0" * 64
+            ),
+            "slate inputs differ",
+        ),
+        (
+            lambda body: body["policy_environment"].update(N_BOOM="159"),
+            "policy environment differs",
+        ),
+        (
+            lambda body: body.update(locks=[101]),
+            "locks/bans differ from the book",
+        ),
+        (
+            lambda body: body.update(
+                theses=[{"players": [101, 102], "min": 1}]
+            ),
+            "thesis differs from the book",
+        ),
+        (
+            lambda body: body.update(
+                selected_projection_objectives_sha256="0" * 64
+            ),
+            "selected objectives differ",
+        ),
+    ],
+)
+def test_engine_receipt_semantic_claims_fail_closed(mutation, message: str) -> None:
+    catalog = _catalog()
+    book = _book()
+    receipt = _mutated_engine_receipt(_engine_receipt(catalog, book), mutation)
+    for lineup in book:
+        lineup.paid_projection_derivation_receipt = receipt
+    with pytest.raises(ValueError, match=message):
         validate_paid_classic_book_v3(
             book, expected_entries=2, catalog=catalog
         )

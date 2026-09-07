@@ -2301,6 +2301,27 @@ def tail_select_lineups(
             "role_candidate_input_receipt": dict(
                 slate.attrs.get("role_candidate_input_receipt") or {}
             ),
+            "model_artifact_receipt": dict(
+                slate.attrs.get("model_artifact_receipt") or {}
+            ),
+            "role_model_artifact_receipt": dict(
+                slate.attrs.get("role_model_artifact_receipt") or {}
+            ),
+            "model_feature_input_receipt": dict(
+                slate.attrs.get("model_feature_input_receipt") or {}
+            ),
+            "role_model_feature_input_receipt": dict(
+                slate.attrs.get("role_model_feature_input_receipt") or {}
+            ),
+            "component_notes_receipt": dict(
+                slate.attrs.get("component_notes_receipt") or {}
+            ),
+            "role_component_notes_receipt": dict(
+                slate.attrs.get("role_component_notes_receipt") or {}
+            ),
+            "preference_receipt": dict(
+                slate.attrs.get("preference_receipt") or {}
+            ),
             "generation_allocation": {
                 "leverage_requested": int(n_lev_solves),
                 "leverage_unique": int(leverage_unique),

@@ -17,6 +17,11 @@ V2_ENV = {
     **ENV,
     "IMAGE_SOURCE_COMMIT_SHA": "c" * 40,
     "IMAGE_DIGEST": "sha256:" + "d" * 64,
+    "IMAGE_URI": (
+        "us-central1-docker.pkg.dev/project/repo/app@sha256:" + "d" * 64
+    ),
+    "PAID_V3_CLOUD_BUILD_ID": "12345678-1234-1234-1234-123456789abc",
+    "K_REVISION": "app-paidv3-cccccccc-12345678",
 }
 
 
@@ -111,6 +116,7 @@ def test_v2_load_adds_the_fixed_projection_authority(
     def build(
         *, exact_book, salary_rows, projection_rows, schedule_rows,
         validated_at, source_commit_sha, immutable_image_digest,
+        cloud_build_id, immutable_image_uri, running_revision,
     ):
         assert exact_book == exact
         assert salary_rows == [{"salary": "authority"}]
@@ -119,6 +125,9 @@ def test_v2_load_adds_the_fixed_projection_authority(
         assert validated_at is marker
         assert source_commit_sha == "c" * 40
         assert immutable_image_digest == "sha256:" + "d" * 64
+        assert cloud_build_id == V2_ENV["PAID_V3_CLOUD_BUILD_ID"]
+        assert immutable_image_uri == V2_ENV["IMAGE_URI"]
+        assert running_revision == V2_ENV["K_REVISION"]
         return payload
 
     monkeypatch.setattr(api, "build_week1_operating_book_export_v2", build)

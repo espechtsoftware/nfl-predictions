@@ -52,9 +52,20 @@ PAID_CLASSIC_PROJECTION_DERIVATION_ID: Final = (
 )
 PAID_CLASSIC_SOURCE_COMMIT_ENV: Final = "IMAGE_SOURCE_COMMIT_SHA"
 PAID_CLASSIC_IMAGE_DIGEST_ENV: Final = "IMAGE_DIGEST"
+PAID_CLASSIC_IMAGE_URI_ENV: Final = "IMAGE_URI"
+PAID_CLASSIC_BUILD_ID_ENV: Final = "PAID_V3_CLOUD_BUILD_ID"
+PAID_CLASSIC_REVISION_ENV: Final = "K_REVISION"
 _POSITIONS: Final = frozenset({"QB", "RB", "WR", "TE", "DST"})
 _COMMIT_RE: Final = re.compile(r"^[0-9a-f]{40}$")
 _DIGEST_RE: Final = re.compile(r"^sha256:[0-9a-f]{64}$")
+_BUILD_ID_RE: Final = re.compile(
+    r"^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+)
+_IMAGE_URI_RE: Final = re.compile(r"^[^\s@]+@sha256:[0-9a-f]{64}$")
+_REVISION_RE: Final = re.compile(r"^[a-z][a-z0-9-]{0,62}$")
+_ENGINE_RECEIPT_SCHEMA: Final = "paid-classic-engine-transformation/v2"
+_PROJECTION_AUTHORITY_SCHEMA: Final = "paid-classic-projection-authority/v2"
+_ENGINE_RECEIPT_ISSUER: Final = object()
 
 
 @dataclass(frozen=True)
@@ -70,6 +81,7 @@ class PaidClassicCatalogV3:
     rows: int
     projection_generated_at: str
     projection_batch_sha256: str
+    projection_distribution_columns: tuple[str, ...]
     projection_derivation_id: str
     schedule_sha256: str
     schedule_games: int
@@ -77,6 +89,45 @@ class PaidClassicCatalogV3:
     slate_lock_at: str
     source_commit_sha: str
     immutable_image_digest: str
+    cloud_build_id: str
+    immutable_image_uri: str
+    running_revision: str
+    runtime_deployment_identity_sha256: str
+
+
+@dataclass(frozen=True)
+class PaidClassicProjectionAuthorityV3:
+    """Opaque, catalog-derived authority passed into the lineup engine.
+
+    This object contains no caller-supplied transformation claim.  The engine
+    consumes it before execution and emits a separate sealed receipt only
+    after it has produced the selected book.
+    """
+
+    payload_json: str
+
+    def as_dict(self) -> dict[str, object]:
+        return json.loads(self.payload_json)
+
+
+class PaidClassicEngineReceiptV3:
+    """Engine-issued immutable evidence for a completed transformation."""
+
+    __slots__ = ("_payload_json",)
+
+    def __init__(self, payload: Mapping[str, object], *, _issuer: object) -> None:
+        if _issuer is not _ENGINE_RECEIPT_ISSUER:
+            raise TypeError("paid-v3 engine receipts can only be issued by the engine")
+        self._payload_json = json.dumps(
+            dict(payload), sort_keys=True, separators=(",", ":"),
+            ensure_ascii=True, allow_nan=False,
+        )
+
+    def as_dict(self) -> dict[str, object]:
+        return json.loads(self._payload_json)
+
+    def __deepcopy__(self, memo):
+        return self
 
 
 def _fail(message: str) -> None:
@@ -89,6 +140,7 @@ def _canonical_sha256(value: Any) -> str:
         sort_keys=True,
         separators=(",", ":"),
         ensure_ascii=True,
+        allow_nan=False,
     ).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
 
@@ -106,6 +158,41 @@ def validate_paid_classic_runtime_identity_v3(
     if _DIGEST_RE.fullmatch(digest) is None:
         _fail("image digest must be an immutable sha256 digest")
     return commit, digest
+
+
+def validate_paid_classic_deployment_identity_v3(
+    *,
+    source_commit_sha: object,
+    immutable_image_digest: object,
+    cloud_build_id: object,
+    immutable_image_uri: object,
+    running_revision: object,
+) -> dict[str, str]:
+    """Validate the runtime half of a provider-attested deployment."""
+
+    commit, digest = validate_paid_classic_runtime_identity_v3(
+        source_commit_sha, immutable_image_digest
+    )
+    build_id = str(cloud_build_id or "").strip()
+    image_uri = str(immutable_image_uri or "").strip()
+    revision = str(running_revision or "").strip()
+    if _BUILD_ID_RE.fullmatch(build_id) is None:
+        _fail("Cloud Build ID must be a full provider build identity")
+    if _IMAGE_URI_RE.fullmatch(image_uri) is None or image_uri.rsplit(
+        "@", 1
+    )[1] != digest:
+        _fail("runtime image URI must be immutable and match IMAGE_DIGEST")
+    if _REVISION_RE.fullmatch(revision) is None:
+        _fail("running Cloud Run revision is missing or malformed")
+    body = {
+        "source_commit_sha": commit,
+        "immutable_image_digest": digest,
+        "cloud_build_id": build_id,
+        "immutable_image_uri": image_uri,
+        "running_revision": revision,
+    }
+    body["runtime_deployment_identity_sha256"] = _canonical_sha256(body)
+    return body
 
 
 def _integer(value: Any, *, label: str, positive: bool = True) -> int:
@@ -167,6 +254,9 @@ def build_paid_classic_catalog_v3(
     week: int,
     source_commit_sha: str,
     immutable_image_digest: str,
+    cloud_build_id: str,
+    immutable_image_uri: str,
+    running_revision: str,
     validated_at: datetime | pd.Timestamp | None = None,
 ) -> PaidClassicCatalogV3:
     """Build a fail-closed salary/projection/schedule authority join.
@@ -181,9 +271,15 @@ def build_paid_classic_catalog_v3(
     gid = _integer(draft_group_id, label="draft_group_id")
     target_season = _integer(season, label="season")
     target_week = _integer(week, label="week")
-    source_commit, image_digest = validate_paid_classic_runtime_identity_v3(
-        source_commit_sha, immutable_image_digest
+    deployment = validate_paid_classic_deployment_identity_v3(
+        source_commit_sha=source_commit_sha,
+        immutable_image_digest=immutable_image_digest,
+        cloud_build_id=cloud_build_id,
+        immutable_image_uri=immutable_image_uri,
+        running_revision=running_revision,
     )
+    source_commit = deployment["source_commit_sha"]
+    image_digest = deployment["immutable_image_digest"]
     if validated_at is None:
         _fail("validated_at is required")
     validation_time = _timestamp(validated_at, label="validated_at")
@@ -229,6 +325,16 @@ def build_paid_classic_catalog_v3(
     missing = projection_required - set(projection_rows.columns)
     if missing:
         _fail("projection authority is missing " + ", ".join(sorted(missing)))
+    distribution_columns = ("proj_p50", "proj_p90", "proj_std")
+    present_distribution_columns = tuple(
+        column for column in distribution_columns
+        if column in projection_rows.columns
+    )
+    if present_distribution_columns not in ((), distribution_columns):
+        _fail(
+            "projection authority must provide proj_p50, proj_p90, and "
+            "proj_std together"
+        )
 
     projections: dict[int, dict[str, Any]] = {}
     projection_batch_identity: list[dict[str, Any]] = []
@@ -271,6 +377,19 @@ def build_paid_classic_catalog_v3(
             _fail(f"projection row {ordinal} proj_points is invalid")
         if not math.isfinite(projection_points):
             _fail(f"projection row {ordinal} proj_points is invalid")
+        distribution: dict[str, float] = {}
+        for column in present_distribution_columns:
+            try:
+                value = float(row.get(column))
+            except (TypeError, ValueError, OverflowError):
+                _fail(f"projection row {ordinal} {column} is invalid")
+            if not math.isfinite(value):
+                _fail(f"projection row {ordinal} {column} is invalid")
+            if column == "proj_std" and value <= 0:
+                _fail(f"projection row {ordinal} proj_std must be positive")
+            distribution[column] = value
+        if distribution and distribution["proj_p50"] > distribution["proj_p90"]:
+            _fail(f"projection row {ordinal} has proj_p50 above proj_p90")
         projections[player_id] = {
             "player_id": player_id,
             "position": _position(
@@ -281,6 +400,7 @@ def build_paid_classic_catalog_v3(
             "canonical_game_key": game_key,
             "generated_at": generated_at,
             "projection": projection_points,
+            **distribution,
             "raw_team": _text(
                 row.get("team"), label=f"projection row {ordinal} team"
             ),
@@ -299,6 +419,7 @@ def build_paid_classic_catalog_v3(
                 "team": team,
                 "opponent": opponent,
                 "proj_points": projection_points,
+                **distribution,
             }
         )
 
@@ -415,6 +536,10 @@ def build_paid_classic_catalog_v3(
                 "canonical_game_key": str(projection["canonical_game_key"]),
                 "schedule_game_id": str(schedule["schedule_game_id"]),
                 "projection": float(projection["projection"]),
+                **{
+                    column: float(projection[column])
+                    for column in present_distribution_columns
+                },
             }
         )
 
@@ -454,9 +579,18 @@ def build_paid_classic_catalog_v3(
         "salary_catalog_sha256": salary_catalog.sha256,
         "projection_generated_at": projection_generated_at,
         "projection_batch_sha256": projection_batch_sha256,
+        "projection_distribution_columns": list(
+            present_distribution_columns
+        ),
         "projection_derivation_id": PAID_CLASSIC_PROJECTION_DERIVATION_ID,
         "source_commit_sha": source_commit,
         "immutable_image_digest": image_digest,
+        "cloud_build_id": deployment["cloud_build_id"],
+        "immutable_image_uri": deployment["immutable_image_uri"],
+        "running_revision": deployment["running_revision"],
+        "runtime_deployment_identity_sha256": deployment[
+            "runtime_deployment_identity_sha256"
+        ],
         "validated_at": validation_time.isoformat(),
         "slate_lock_at": slate_lock.isoformat(),
         "schedule_sha256": schedule_sha256,
@@ -472,6 +606,7 @@ def build_paid_classic_catalog_v3(
         rows=len(joined),
         projection_generated_at=projection_generated_at,
         projection_batch_sha256=projection_batch_sha256,
+        projection_distribution_columns=present_distribution_columns,
         projection_derivation_id=PAID_CLASSIC_PROJECTION_DERIVATION_ID,
         schedule_sha256=schedule_sha256,
         schedule_games=len(schedule_identity),
@@ -479,6 +614,12 @@ def build_paid_classic_catalog_v3(
         slate_lock_at=slate_lock.isoformat(),
         source_commit_sha=source_commit,
         immutable_image_digest=image_digest,
+        cloud_build_id=deployment["cloud_build_id"],
+        immutable_image_uri=deployment["immutable_image_uri"],
+        running_revision=deployment["running_revision"],
+        runtime_deployment_identity_sha256=deployment[
+            "runtime_deployment_identity_sha256"
+        ],
     )
 
 
@@ -516,24 +657,644 @@ def _claimed_game_matches_authority(token: Any, source: Mapping[str, Any]) -> bo
     return False
 
 
-def paid_classic_projection_derivation_receipt_v3(
+def paid_classic_projection_authority_v3(
     catalog: PaidClassicCatalogV3,
-    *,
-    transformation: Mapping[str, object] | None = None,
-) -> dict[str, object]:
-    """Return the exact authority/transform claim attached by sim generation."""
+) -> PaidClassicProjectionAuthorityV3:
+    """Create the catalog-only token accepted by paid simulation.
 
-    transform = dict(transformation or {"mode": "deterministic-exact"})
-    return {
-        "schema_version": "paid-classic-projection-derivation/v1",
+    In particular, callers cannot put seeds, world counts, model claims, or
+    objectives into this token.  Those facts are observed and sealed by the
+    engine after execution.
+    """
+
+    body: dict[str, object] = {
+        "schema_version": _PROJECTION_AUTHORITY_SCHEMA,
+        "authoritative_game_catalog_sha256": catalog.sha256,
         "projection_batch_sha256": catalog.projection_batch_sha256,
         "projection_generated_at": catalog.projection_generated_at,
         "projection_derivation_id": catalog.projection_derivation_id,
         "source_commit_sha": catalog.source_commit_sha,
         "immutable_image_digest": catalog.immutable_image_digest,
-        "transformation": transform,
-        "transformation_sha256": _canonical_sha256(transform),
+        "cloud_build_id": catalog.cloud_build_id,
+        "immutable_image_uri": catalog.immutable_image_uri,
+        "running_revision": catalog.running_revision,
+        "runtime_deployment_identity_sha256": (
+            catalog.runtime_deployment_identity_sha256
+        ),
     }
+    body["authority_sha256"] = _canonical_sha256(body)
+    return PaidClassicProjectionAuthorityV3(
+        json.dumps(body, sort_keys=True, separators=(",", ":"))
+    )
+
+
+def paid_classic_projection_derivation_receipt_v3(
+    catalog: PaidClassicCatalogV3,
+    *,
+    transformation: Mapping[str, object] | None = None,
+) -> PaidClassicProjectionAuthorityV3:
+    """Compatibility name for the pre-execution authority token.
+
+    The old API accepted a caller-authored transformation mapping.  That was
+    not evidence of what the engine ran, so paid-v3 now rejects it.
+    """
+
+    if transformation is not None:
+        _fail("caller-supplied transformation receipts are forbidden")
+    return paid_classic_projection_authority_v3(catalog)
+
+
+def _selected_projection_objectives(
+    lineups: Sequence[Lineup],
+) -> list[dict[str, object]]:
+    rows: list[dict[str, object]] = []
+    for lineup in lineups:
+        objectives: list[dict[str, object]] = []
+        for player in lineup.players:
+            player_id = _integer(
+                player.get("id"), label="selected objective player ID"
+            )
+            try:
+                objective = float(player.get("proj"))
+            except (TypeError, ValueError, OverflowError):
+                _fail("selected projection objective is invalid")
+            if not math.isfinite(objective):
+                _fail("selected projection objective is invalid")
+            objectives.append({
+                "player_id": player_id,
+                "objective": objective,
+            })
+        objectives.sort(key=lambda row: int(row["player_id"]))
+        lineup_key = _canonical_sha256([
+            int(row["player_id"]) for row in objectives
+        ])
+        rows.append({
+            "lineup_sha256": lineup_key,
+            "objectives": objectives,
+        })
+    rows.sort(key=lambda row: str(row["lineup_sha256"]))
+    return rows
+
+
+def _validate_engine_model_artifact(
+    value: object, *, label: str,
+) -> str:
+    """Reopen the engine's exact in-memory model fingerprint."""
+
+    if not isinstance(value, Mapping):
+        _fail(f"engine receipt {label} model artifact is invalid")
+    artifact = dict(value)
+    claimed = artifact.pop("artifact_sha256", None)
+    if (
+        artifact.get("schema_version")
+        != "loaded-component-model-artifacts/v1"
+        or not str(artifact.get("model_version", ""))
+        or not isinstance(artifact.get("components"), list)
+        or not artifact["components"]
+        or claimed != _canonical_sha256(artifact)
+    ):
+        _fail(f"engine receipt {label} model artifact is invalid")
+    names: list[str] = []
+    for row in artifact["components"]:
+        if not isinstance(row, Mapping):
+            _fail(f"engine receipt {label} model component is invalid")
+        if set(row) != {"component", "member_count", "member_sha256"}:
+            _fail(f"engine receipt {label} model component schema differs")
+        name = str(row.get("component", ""))
+        members = row.get("member_sha256")
+        count = row.get("member_count")
+        if (
+            not name
+            or type(count) is not int
+            or count <= 0
+            or not isinstance(members, list)
+            or len(members) != count
+            or any(_DIGEST_RE.fullmatch("sha256:" + str(item)) is None
+                   for item in members)
+        ):
+            _fail(f"engine receipt {label} model component is invalid")
+        names.append(name)
+    if names != sorted(set(names)):
+        _fail(f"engine receipt {label} model components are not canonical")
+    return str(artifact["model_version"])
+
+
+def _validate_engine_feature_snapshot(
+    value: object, *, label: str,
+) -> None:
+    if not isinstance(value, Mapping) or set(value) != {
+        "sha256", "rows", "columns",
+    }:
+        _fail(f"engine receipt {label} feature snapshot is invalid")
+    columns = value.get("columns")
+    if (
+        _DIGEST_RE.fullmatch("sha256:" + str(value.get("sha256", ""))) is None
+        or type(value.get("rows")) is not int
+        or int(value["rows"]) <= 0
+        or not isinstance(columns, list)
+        or not columns
+        or any(not isinstance(column, str) or not column for column in columns)
+        or columns != sorted(set(columns))
+    ):
+        _fail(f"engine receipt {label} feature snapshot is invalid")
+
+
+def _validate_component_notes(value: object, *, label: str) -> None:
+    if not isinstance(value, Mapping) or set(value) != {
+        "state", "before_sha256", "effective_sha256", "changed",
+    }:
+        _fail(f"engine receipt {label} component-notes state is invalid")
+    before = str(value.get("before_sha256", ""))
+    effective = str(value.get("effective_sha256", ""))
+    if (
+        value.get("state") not in {"enabled", "disabled"}
+        or _DIGEST_RE.fullmatch("sha256:" + before) is None
+        or _DIGEST_RE.fullmatch("sha256:" + effective) is None
+        or type(value.get("changed")) is not bool
+        or value["changed"] != (before != effective)
+        or (value["state"] == "disabled" and value["changed"] is not False)
+    ):
+        _fail(f"engine receipt {label} component-notes state is invalid")
+
+
+def _validate_preference_state(value: object, *, label: str) -> None:
+    if not isinstance(value, Mapping):
+        _fail(f"engine receipt {label} preference state is invalid")
+    state = value.get("state")
+    expected_keys = {
+        "state", "source_rows_sha256", "applied_ban_player_ids",
+        "applied_boost_player_ids",
+    }
+    if set(value) != expected_keys or state not in {"enabled", "disabled"}:
+        _fail(f"engine receipt {label} preference state is invalid")
+    source_hash = value.get("source_rows_sha256")
+    if state == "enabled":
+        if _DIGEST_RE.fullmatch("sha256:" + str(source_hash or "")) is None:
+            _fail(f"engine receipt {label} preference source is invalid")
+    elif source_hash is not None:
+        _fail(f"engine receipt {label} preference source is invalid")
+    for field in ("applied_ban_player_ids", "applied_boost_player_ids"):
+        rows = value.get(field)
+        if (
+            not isinstance(rows, list)
+            or any(type(item) is not int or item <= 0 for item in rows)
+            or rows != sorted(set(rows))
+        ):
+            _fail(f"engine receipt {label} {field} is invalid")
+    if state == "disabled" and any(
+        value[field]
+        for field in ("applied_ban_player_ids", "applied_boost_player_ids")
+    ):
+        _fail(f"engine receipt {label} disabled preferences changed players")
+
+
+def _reopen_construction_policy(value: object):
+    from .construction_presets import ConstructionPreset
+
+    if not isinstance(value, Mapping):
+        _fail("engine transformation receipt lacks construction_policy")
+    raw = dict(value)
+    try:
+        from .lineup import StackRules
+
+        stack = raw.get("stack")
+        if not isinstance(stack, Mapping):
+            raise TypeError("stack")
+        preset = ConstructionPreset(
+            preset_id=str(raw.get("base_preset_id", "")),
+            stack=StackRules(**dict(stack)),
+            min_salary=raw.get("min_salary"),
+            min_games=raw.get("min_games"),
+            punt_min=raw.get("punt_min"),
+            punt_max_salary=raw.get("punt_max_salary"),
+            punt_strict=raw.get("punt_strict"),
+            value2_min=raw.get("value2_min"),
+            value2_max=raw.get("value2_max"),
+            own_barbell=raw.get("own_barbell"),
+            own_barbell_low=raw.get("own_barbell_low"),
+            own_barbell_high=raw.get("own_barbell_high"),
+            own_barbell_nlow=raw.get("own_barbell_nlow"),
+            own_barbell_nhigh=raw.get("own_barbell_nhigh"),
+            max_per_game=raw.get("max_per_game"),
+            min_lowown=raw.get("min_lowown"),
+            max_overlap=raw.get("max_overlap"),
+        )
+    except (TypeError, ValueError):
+        _fail("engine construction policy is invalid")
+    if raw != preset.receipt():
+        _fail("engine construction policy receipt is invalid")
+    return preset
+
+
+def _issue_paid_classic_engine_receipt_v3(
+    authority: PaidClassicProjectionAuthorityV3,
+    *,
+    mode: str,
+    lineups: Sequence[Lineup],
+    seed_pairs: Sequence[Mapping[str, object]],
+    worlds_per_block: int,
+    selection_world_count: int,
+    model_artifacts: Mapping[str, object],
+    feature_snapshots: Mapping[str, object],
+    notes_preferences: Mapping[str, object],
+    locks: Sequence[int],
+    bans: Sequence[int],
+    theses: Sequence[Mapping[str, object]],
+    construction_policy: Mapping[str, object],
+    request_inputs: Mapping[str, object],
+    policy_environment: Mapping[str, object],
+) -> PaidClassicEngineReceiptV3:
+    """Seal facts observed by the engine after a selected book exists."""
+
+    if not isinstance(authority, PaidClassicProjectionAuthorityV3):
+        _fail("paid engine requires a typed projection authority")
+    if mode not in {"simulation", "milp"}:
+        _fail("paid engine transformation mode is unsupported")
+    objective_rows = _selected_projection_objectives(lineups)
+    if not lineups or any(len(lineup.players) != 9 for lineup in lineups):
+        _fail("paid engine cannot seal an empty or malformed selected book")
+    body: dict[str, object] = {
+        "schema_version": _ENGINE_RECEIPT_SCHEMA,
+        "issuer": "nfl-dfs-paid-classic-engine-v3",
+        "issued_after_execution": True,
+        "mode": mode,
+        "projection_authority": authority.as_dict(),
+        "seed_pairs": [dict(row) for row in seed_pairs],
+        "worlds_per_block": int(worlds_per_block),
+        "selection_world_count": int(selection_world_count),
+        "model_artifacts": dict(model_artifacts),
+        "feature_snapshots": dict(feature_snapshots),
+        "notes_preferences": dict(notes_preferences),
+        "locks": sorted({int(value) for value in locks}),
+        "bans": sorted({int(value) for value in bans}),
+        "theses": [dict(row) for row in theses],
+        "construction_policy": dict(construction_policy),
+        "request_inputs": dict(request_inputs),
+        "policy_environment": dict(sorted(policy_environment.items())),
+        "selected_entries": len(lineups),
+        "selected_projection_objectives_sha256": _canonical_sha256(
+            objective_rows
+        ),
+    }
+    body["receipt_sha256"] = _canonical_sha256(body)
+    return PaidClassicEngineReceiptV3(body, _issuer=_ENGINE_RECEIPT_ISSUER)
+
+
+def _validate_paid_classic_engine_receipt_v3(
+    receipt: PaidClassicEngineReceiptV3,
+    *,
+    catalog: PaidClassicCatalogV3,
+    lineups: Sequence[Lineup],
+) -> dict[str, object]:
+    if not isinstance(receipt, PaidClassicEngineReceiptV3):
+        _fail("projection transformation receipt was not engine-produced")
+    body = receipt.as_dict()
+    expected_keys = {
+        "schema_version", "issuer", "issued_after_execution", "mode",
+        "projection_authority", "seed_pairs", "worlds_per_block",
+        "selection_world_count", "model_artifacts", "feature_snapshots",
+        "notes_preferences", "locks", "bans", "theses",
+        "construction_policy", "request_inputs", "policy_environment",
+        "selected_entries", "selected_projection_objectives_sha256",
+        "receipt_sha256",
+    }
+    if set(body) != expected_keys:
+        _fail("engine transformation receipt schema differs")
+    claimed_hash = body.pop("receipt_sha256", None)
+    if claimed_hash != _canonical_sha256(body):
+        _fail("engine transformation receipt hash is invalid")
+    body["receipt_sha256"] = claimed_hash
+    expected_authority = paid_classic_projection_authority_v3(catalog).as_dict()
+    if body.get("projection_authority") != expected_authority:
+        _fail("engine transformation receipt names another projection authority")
+    if (
+        body.get("schema_version") != _ENGINE_RECEIPT_SCHEMA
+        or body.get("issuer") != "nfl-dfs-paid-classic-engine-v3"
+        or body.get("issued_after_execution") is not True
+    ):
+        _fail("engine transformation receipt identity is invalid")
+    mode = body.get("mode")
+    if mode == "simulation":
+        from ..inference.production_policy import ADOPTED_CLASSIC_POLICY
+
+        expected_pairs = [
+            {
+                "label": f"R{index}",
+                "projection_seed": int(pair[0]),
+                "role_seed": int(pair[1]),
+            }
+            for index, pair in enumerate(
+                ADOPTED_CLASSIC_POLICY.multiseed_seed_pairs
+            )
+        ]
+        expected_worlds = int(
+            ADOPTED_CLASSIC_POLICY.multiseed_worlds_per_block
+        )
+        if body.get("seed_pairs") != expected_pairs:
+            _fail("engine receipt does not bind the exact five production seeds")
+        if body.get("worlds_per_block") != expected_worlds:
+            _fail("engine receipt does not bind 10,000 worlds per block")
+        if body.get("selection_world_count") != (
+            len(expected_pairs) * expected_worlds
+        ):
+            _fail("engine receipt does not bind 50,000 selection worlds")
+        labels = {row["label"] for row in expected_pairs}
+        for field in ("model_artifacts", "feature_snapshots"):
+            value = body.get(field)
+            if not isinstance(value, Mapping) or set(value) != labels:
+                _fail(f"engine receipt {field} do not cover exact seed blocks")
+        artifact_bodies: dict[str, list[dict[str, object]]] = {
+            "projection": [], "role": [],
+        }
+        for label, artifacts in body["model_artifacts"].items():
+            if not isinstance(artifacts, Mapping) or set(artifacts) != {
+                "projection", "role",
+            }:
+                _fail(f"engine receipt model artifact for {label} is invalid")
+            for family, expected_variant in (
+                ("projection", ADOPTED_CLASSIC_POLICY.model_variant),
+                ("role", ADOPTED_CLASSIC_POLICY.role_model_variant),
+            ):
+                version = _validate_engine_model_artifact(
+                    artifacts.get(family), label=f"{label} {family}"
+                )
+                if not version.startswith(
+                    f"pooled/components__{expected_variant}/"
+                ):
+                    _fail(
+                        f"engine receipt {label} {family} model version differs"
+                    )
+                artifact_bodies[family].append(dict(artifacts[family]))
+        if any(
+            len({_canonical_sha256(row) for row in rows}) != 1
+            for rows in artifact_bodies.values()
+        ):
+            _fail("engine receipt mixes model artifacts across seed blocks")
+        feature_snapshot_hashes: set[str] = set()
+        for label, snapshots in body["feature_snapshots"].items():
+            if not isinstance(snapshots, Mapping) or set(snapshots) != {
+                "projection", "role",
+            }:
+                _fail(f"engine receipt feature snapshot for {label} is invalid")
+            for family in ("projection", "role"):
+                _validate_engine_feature_snapshot(
+                    snapshots.get(family), label=f"{label} {family}"
+                )
+                feature_snapshot_hashes.add(
+                    _canonical_sha256(snapshots[family])
+                )
+        if len(feature_snapshot_hashes) != 1:
+            _fail("engine receipt mixes feature snapshots across seed blocks")
+        notes = body.get("notes_preferences")
+        if not isinstance(notes, Mapping) or set(notes) != labels:
+            _fail("engine receipt notes/preferences do not cover exact seed blocks")
+        for label, note_state in notes.items():
+            if not isinstance(note_state, Mapping) or set(note_state) != {
+                "projection_component_notes", "role_component_notes",
+                "preferences",
+            }:
+                _fail(f"engine receipt notes/preferences for {label} is invalid")
+            _validate_component_notes(
+                note_state["projection_component_notes"],
+                label=f"{label} projection",
+            )
+            _validate_component_notes(
+                note_state["role_component_notes"], label=f"{label} role"
+            )
+            _validate_preference_state(
+                note_state["preferences"], label=str(label)
+            )
+    elif mode == "milp":
+        if (
+            body.get("seed_pairs") != []
+            or body.get("worlds_per_block") != 0
+            or body.get("selection_world_count") != 0
+            or body.get("model_artifacts") != {}
+        ):
+            _fail("MILP receipt falsely claims simulation worlds")
+        snapshots = body.get("feature_snapshots")
+        notes = body.get("notes_preferences")
+        if (
+            not isinstance(snapshots, Mapping)
+            or set(snapshots) != {"effective_optimizer_pool"}
+        ):
+            _fail("MILP receipt effective optimizer pool is invalid")
+        pool_snapshot = snapshots["effective_optimizer_pool"]
+        if (
+            not isinstance(pool_snapshot, Mapping)
+            or set(pool_snapshot) != {"sha256", "rows"}
+            or _DIGEST_RE.fullmatch(
+                "sha256:" + str(pool_snapshot.get("sha256", ""))
+            ) is None
+            or type(pool_snapshot.get("rows")) is not int
+            or int(pool_snapshot["rows"]) <= 0
+        ):
+            _fail("MILP receipt effective optimizer pool is invalid")
+        if (
+            not isinstance(notes, Mapping)
+            or set(notes) != {"state", "effective_optimizer_pool_sha256"}
+            or notes.get("state") not in {"enabled", "disabled"}
+            or notes.get("effective_optimizer_pool_sha256")
+            != pool_snapshot["sha256"]
+        ):
+            _fail("MILP receipt notes state is invalid")
+    else:
+        _fail("engine transformation receipt mode is unsupported")
+    for field in ("construction_policy", "request_inputs", "policy_environment"):
+        if not isinstance(body.get(field), Mapping):
+            _fail(f"engine transformation receipt lacks {field}")
+    if not isinstance(body.get("locks"), list) or not isinstance(
+        body.get("bans"), list
+    ) or not isinstance(body.get("theses"), list):
+        _fail("engine transformation receipt lacks request constraints")
+    locks = body["locks"]
+    bans = body["bans"]
+    if (
+        any(type(item) is not int or item <= 0 for item in locks + bans)
+        or locks != sorted(set(locks))
+        or bans != sorted(set(bans))
+        or set(locks) & set(bans)
+        or not set(locks + bans) <= set(catalog.by_player_id)
+    ):
+        _fail("engine transformation request locks/bans are invalid")
+    if any(
+        not set(locks) <= {int(player["id"]) for player in lineup.players}
+        or set(bans) & {int(player["id"]) for player in lineup.players}
+        for lineup in lineups
+    ):
+        _fail("engine transformation request locks/bans differ from the book")
+
+    theses = body["theses"]
+    for thesis in theses:
+        if not isinstance(thesis, Mapping) or set(thesis) != {"players", "min"}:
+            _fail("engine transformation thesis schema differs")
+        players = thesis.get("players")
+        minimum = thesis.get("min")
+        if (
+            not isinstance(players, list)
+            or not players
+            or any(type(item) is not int or item <= 0 for item in players)
+            or len(players) != len(set(players))
+            or not set(players) <= set(catalog.by_player_id)
+            or type(minimum) is not int
+            or not 0 < minimum <= len(lineups)
+        ):
+            _fail("engine transformation thesis is invalid")
+        combo = set(players)
+        if sum(
+            combo <= {int(player["id"]) for player in lineup.players}
+            for lineup in lineups
+        ) < minimum:
+            _fail("engine transformation thesis differs from the book")
+
+    construction = _reopen_construction_policy(body["construction_policy"])
+    request = body["request_inputs"]
+    base_request_keys = {
+        "season", "week", "draft_group_id", "n_entries",
+        "contest_max_entries", "objective", "field_size",
+        "requested_tail_line", "requested_leverage_scale",
+        "construction_preset_id", "tail_line", "leverage_scale",
+        "apply_notes",
+    }
+    simulation_request_keys = base_request_keys | {
+        "allowed_player_count", "allowed_player_ids_sha256",
+        "salary_override_count", "salary_overrides_sha256",
+    }
+    expected_request_keys = (
+        simulation_request_keys if mode == "simulation" else base_request_keys
+    )
+    if set(request) != expected_request_keys:
+        _fail("engine transformation request schema differs")
+    if (
+        request.get("season") != catalog.season
+        or request.get("week") != catalog.week
+        or request.get("draft_group_id") != catalog.draft_group_id
+        or request.get("n_entries") != len(lineups)
+        or request.get("construction_preset_id") != construction.preset_id
+    ):
+        _fail("engine transformation request context differs")
+    objective = request.get("objective")
+    supported_objectives = {"proj_points"} | set(
+        catalog.projection_distribution_columns
+    )
+    if objective not in supported_objectives:
+        _fail("engine transformation request objective is unsupported")
+    if mode == "simulation" and objective != "proj_points":
+        _fail("engine simulation objective is unsupported")
+    apply_notes = request.get("apply_notes")
+    if type(apply_notes) is not bool:
+        _fail("engine transformation request apply_notes is invalid")
+    contest_max_entries = request.get("contest_max_entries")
+    requested_leverage = request.get("requested_leverage_scale")
+    requested_tail = request.get("requested_tail_line")
+    field_size = request.get("field_size")
+    if (
+        type(contest_max_entries) is not int
+        or not 1 <= contest_max_entries <= 150
+        or isinstance(requested_leverage, bool)
+        or not isinstance(requested_leverage, (int, float))
+        or not math.isfinite(float(requested_leverage))
+        or not 0.0 <= float(requested_leverage) <= 2.0
+        or (
+            field_size is not None
+            and (type(field_size) is not int or field_size < 100)
+        )
+        or (
+            requested_tail is not None
+            and (
+                isinstance(requested_tail, bool)
+                or not isinstance(requested_tail, (int, float))
+                or not math.isfinite(float(requested_tail))
+                or not 100.0 <= float(requested_tail) <= 300.0
+            )
+        )
+    ):
+        _fail("engine transformation request inputs are invalid")
+    from ..inference.production_policy import (
+        ADOPTED_CLASSIC_POLICY,
+        contest_entry_policy,
+    )
+
+    try:
+        entry_policy = contest_entry_policy(
+            contest_max_entries,
+            len(lineups),
+            float(requested_leverage),
+        )
+    except (TypeError, ValueError) as exc:
+        _fail(f"engine transformation contest entry policy is invalid: {exc}")
+    expected_tail = (
+        float(requested_tail)
+        if requested_tail is not None
+        else float(ADOPTED_CLASSIC_POLICY.tail_line)
+    )
+    if (
+        request.get("tail_line") != expected_tail
+        or request.get("leverage_scale")
+        != float(entry_policy["effective_leverage_scale"])
+    ):
+        _fail("engine transformation effective request inputs differ")
+    if mode == "simulation":
+        allowed_ids = sorted(catalog.by_player_id)
+        salary_items = sorted(
+            (int(player_id), int(row["salary"]))
+            for player_id, row in catalog.by_player_id.items()
+        )
+        if (
+            request.get("allowed_player_count") != len(allowed_ids)
+            or request.get("allowed_player_ids_sha256")
+            != _canonical_sha256(allowed_ids)
+            or request.get("salary_override_count") != len(salary_items)
+            or request.get("salary_overrides_sha256")
+            != _canonical_sha256(salary_items)
+        ):
+            _fail("engine transformation request slate inputs differ")
+        expected_component_state = "enabled" if apply_notes else "disabled"
+        notes_differ = any(
+            state[component]["state"] != expected_component_state
+            for state in body["notes_preferences"].values()
+            for component in (
+                "projection_component_notes", "role_component_notes",
+            )
+        )
+        preferences_differ = any(
+            (
+                state["preferences"]["state"] == "disabled"
+                if apply_notes
+                else state["preferences"]["state"] != "disabled"
+            )
+            for state in body["notes_preferences"].values()
+        )
+        if notes_differ or preferences_differ:
+            _fail("engine notes/preferences differ from apply_notes request")
+        from ..inference.production_policy import POLICY_ENV_PASSTHROUGH
+
+        supplied_environment = dict(body["policy_environment"])
+        base = {
+            key: str(supplied_environment[key])
+            for key in POLICY_ENV_PASSTHROUGH
+            if key in supplied_environment
+        }
+        expected_environment = ADOPTED_CLASSIC_POLICY.engine_environment(
+            base, construction_preset=construction
+        )
+        if supplied_environment != expected_environment:
+            _fail("engine transformation policy environment differs")
+    else:
+        if body["notes_preferences"]["state"] != (
+            "enabled" if apply_notes else "disabled"
+        ):
+            _fail("MILP notes state differs from apply_notes request")
+        if dict(body["policy_environment"]) != construction.optimizer_environment():
+            _fail("MILP transformation policy environment differs")
+    objective_rows = _selected_projection_objectives(lineups)
+    if (
+        body.get("selected_entries") != len(lineups)
+        or body.get("selected_projection_objectives_sha256")
+        != _canonical_sha256(objective_rows)
+    ):
+        _fail("engine receipt selected objectives differ from the book")
+    return body
 
 
 def _reopen_paid_classic_book_v3(
@@ -552,9 +1313,18 @@ def _reopen_paid_classic_book_v3(
     authoritative_lineups: list[Lineup] = []
     semantic_audits: list[dict[str, object]] = []
     projection_objectives: list[list[dict[str, object]]] = []
-    bound_derivations: dict[str, dict[str, object]] = {}
-    expected_derivation_base = paid_classic_projection_derivation_receipt_v3(
-        catalog
+    bound_derivations: dict[
+        str, dict[str, object] | PaidClassicEngineReceiptV3
+    ] = {}
+    deterministic_derivation: dict[str, object] = {
+        "schema_version": "paid-classic-deterministic-projection/v2",
+        "mode": "deterministic-exact",
+        "projection_authority": paid_classic_projection_authority_v3(
+            catalog
+        ).as_dict(),
+    }
+    deterministic_derivation["receipt_sha256"] = _canonical_sha256(
+        deterministic_derivation
     )
     for lineup_ordinal, lineup in enumerate(lineups, start=1):
         authoritative_players: list[dict[str, Any]] = []
@@ -612,7 +1382,6 @@ def _reopen_paid_classic_book_v3(
                 abs_tol=1e-9,
             ):
                 transformed_projection = True
-
             authoritative = dict(player)
             authoritative.update(
                 {
@@ -648,40 +1417,23 @@ def _reopen_paid_classic_book_v3(
                     f"lineup {lineup_ordinal} transformed projections are not "
                     "bound to the certified coherent batch"
                 )
-            normalized_derivation = dict(expected_derivation_base)
+            normalized_derivation: (
+                dict[str, object] | PaidClassicEngineReceiptV3
+            ) = dict(deterministic_derivation)
         else:
-            if not isinstance(derivation, Mapping):
+            if not isinstance(derivation, PaidClassicEngineReceiptV3):
                 _fail(
-                    f"lineup {lineup_ordinal} projection derivation receipt "
-                    "is invalid"
+                    f"lineup {lineup_ordinal} projection transformation "
+                    "receipt was not engine-produced"
                 )
-            base_keys = set(expected_derivation_base) - {
-                "transformation", "transformation_sha256"
-            }
-            transformation = derivation.get("transformation")
-            mode = (
-                transformation.get("mode")
-                if isinstance(transformation, Mapping)
-                else None
-            )
-            if (
-                any(
-                    derivation.get(key) != expected_derivation_base[key]
-                    for key in base_keys
-                )
-                or not isinstance(transformation, Mapping)
-                or mode not in {"deterministic-exact", "simulation", "milp"}
-                or (transformed_projection and mode == "deterministic-exact")
-                or derivation.get("transformation_sha256")
-                != _canonical_sha256(dict(transformation))
-            ):
-                _fail(
-                    f"lineup {lineup_ordinal} transformed projections are not "
-                    "bound to the certified coherent batch"
-                )
-            normalized_derivation = dict(derivation)
+            normalized_derivation = derivation
+        normalized_body = (
+            normalized_derivation.as_dict()
+            if isinstance(normalized_derivation, PaidClassicEngineReceiptV3)
+            else normalized_derivation
+        )
         bound_derivations[
-            _canonical_sha256(normalized_derivation)
+            _canonical_sha256(normalized_body)
         ] = normalized_derivation
         authoritative_lineup = Lineup(
             players=authoritative_players,
@@ -704,10 +1456,19 @@ def _reopen_paid_classic_book_v3(
 
     if len(bound_derivations) > 1:
         _fail("selected lineups mix projection transformations")
-    projection_derivation_receipt = (
+    selected_derivation = (
         next(iter(bound_derivations.values()))
         if bound_derivations
-        else expected_derivation_base
+        else deterministic_derivation
+    )
+    projection_derivation_receipt = (
+        _validate_paid_classic_engine_receipt_v3(
+            selected_derivation,
+            catalog=catalog,
+            lineups=authoritative_lineups,
+        )
+        if isinstance(selected_derivation, PaidClassicEngineReceiptV3)
+        else dict(selected_derivation)
     )
 
     try:
@@ -743,6 +1504,12 @@ def _reopen_paid_classic_book_v3(
             ),
             "source_commit_sha": catalog.source_commit_sha,
             "immutable_image_digest": catalog.immutable_image_digest,
+            "cloud_build_id": catalog.cloud_build_id,
+            "immutable_image_uri": catalog.immutable_image_uri,
+            "running_revision": catalog.running_revision,
+            "runtime_deployment_identity_sha256": (
+                catalog.runtime_deployment_identity_sha256
+            ),
             "validated_at": catalog.validated_at,
             "slate_lock_at": catalog.slate_lock_at,
             "schedule_catalog_sha256": catalog.schedule_sha256,
@@ -876,16 +1643,23 @@ def fill_paid_entries_csv_v3(
 
 __all__ = [
     "PAID_CLASSIC_BOUNDARY_ID",
+    "PAID_CLASSIC_BUILD_ID_ENV",
     "PAID_CLASSIC_GAME_CATALOG_SCHEMA",
     "PAID_CLASSIC_IMAGE_DIGEST_ENV",
+    "PAID_CLASSIC_IMAGE_URI_ENV",
     "PAID_CLASSIC_PROJECTION_DERIVATION_ID",
+    "PAID_CLASSIC_REVISION_ENV",
     "PAID_CLASSIC_SOURCE_COMMIT_ENV",
     "PaidClassicCatalogV3",
+    "PaidClassicEngineReceiptV3",
+    "PaidClassicProjectionAuthorityV3",
     "build_paid_classic_catalog_v3",
     "fill_paid_entries_csv_v3",
-    "paid_entry_count_v3",
+    "paid_classic_projection_authority_v3",
     "paid_classic_projection_derivation_receipt_v3",
+    "paid_entry_count_v3",
     "to_paid_dk_csv_v3",
     "validate_paid_classic_book_v3",
+    "validate_paid_classic_deployment_identity_v3",
     "validate_paid_classic_runtime_identity_v3",
 ]

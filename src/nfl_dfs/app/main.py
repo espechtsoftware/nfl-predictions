@@ -7,6 +7,7 @@ Run locally:  uvicorn nfl_dfs.app.main:app --reload
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 import os
 import re
@@ -39,10 +40,12 @@ from ..optimizer.paid_classic_book_v2 import (
 )
 from ..optimizer.paid_classic_book_v3 import (
     PaidClassicCatalogV3,
+    PaidClassicEngineReceiptV3,
+    _issue_paid_classic_engine_receipt_v3,
     build_paid_classic_catalog_v3,
     fill_paid_entries_csv_v3,
     paid_entry_count_v3,
-    paid_classic_projection_derivation_receipt_v3,
+    paid_classic_projection_authority_v3,
     to_paid_dk_csv_v3,
 )
 from ..optimizer.construction_presets import (
@@ -2470,8 +2473,9 @@ def _classic_projections(
             or paid_catalog.draft_group_id != req.draft_group_id
         ):
             raise HTTPException(422, "Paid projection authority context differs")
-        df = pd.DataFrame([
-            {
+        rows = []
+        for row in paid_catalog.by_player_id.values():
+            projected = {
                 "dk_player_id": int(row["player_id"]),
                 "display_name": str(row["name"]),
                 "position": str(row["pos"]),
@@ -2480,8 +2484,10 @@ def _classic_projections(
                 "salary": int(row["salary"]),
                 "proj_points": float(row["projection"]),
             }
-            for row in paid_catalog.by_player_id.values()
-        ])
+            for column in paid_catalog.projection_distribution_columns:
+                projected[column] = float(row[column])
+            rows.append(projected)
+        df = pd.DataFrame(rows)
         return df, {
             int(player_id): int(row["draftable_id"])
             for player_id, row in paid_catalog.by_player_id.items()
@@ -2538,6 +2544,29 @@ def _build_classic(
     paid_catalog: PaidClassicCatalogV3 | None = None,
 ) -> tuple:
     df, dk_ids = _classic_projections(req, store, paid_catalog=paid_catalog)
+    if paid_catalog is not None:
+        if req.objective not in df.columns:
+            raise HTTPException(
+                422,
+                f"Paid Classic v3 objective {req.objective} is unsupported "
+                "by this certified projection batch.",
+            )
+        if req.sim and req.objective != "proj_points":
+            raise HTTPException(
+                422,
+                f"Paid Classic v3 simulation objective {req.objective} is "
+                "unsupported; the certified simulation law uses proj_points.",
+            )
+        if "proj_std" not in df.columns or (
+            pd.to_numeric(df["proj_std"], errors="coerce").isna().any()
+            or (pd.to_numeric(df["proj_std"], errors="coerce") <= 0).any()
+        ):
+            raise HTTPException(
+                422,
+                "Paid Classic v3 confidence ranking requires certified "
+                "positive proj_std for every player; this batch cannot be "
+                "used for a money-bound book.",
+            )
     from .. import notes as _notes
 
     entry_policy = req.entry_policy()
@@ -2563,31 +2592,23 @@ def _build_classic(
                      if pd.notna(r.dk_player_id) and pd.notna(r.salary)}
                     if req.draft_group_id is not None else None)
         from ..inference.live_lineups import (
-            LIVE_SIMS_DEFAULT,
             RoleBeliefUnavailable,
             build_sim_lineups,
         )
-        projection_derivation_receipt = (
-            paid_classic_projection_derivation_receipt_v3(
-                paid_catalog,
-                transformation={
-                    "mode": "simulation",
-                    "entry_seed": 42,
-                    "projection_seed_law": str(
-                        policy_env.get("MULTISEED_SEED_PAIRS", "single:42")
-                    ),
-                    "world_count": int(
-                        policy_env.get("LIVE_SIMS", LIVE_SIMS_DEFAULT)
-                    ),
-                    "tail_line": float(req.line()),
-                    "leverage_scale": float(effective_lev_scale),
-                    "model_variant": str(policy.model_variant),
-                    "belief_model_variant": str(policy.role_model_variant),
-                    "model_ensemble": int(policy.model_ensemble),
-                    "construction_preset_receipt": construction.receipt(),
-                    "policy_environment": dict(sorted(policy_env.items())),
-                },
-            )
+        projection_authority_receipt = (
+            paid_classic_projection_authority_v3(paid_catalog)
+            if paid_catalog is not None else None
+        )
+        paid_request_inputs = (
+            {
+                "draft_group_id": int(req.draft_group_id),
+                "contest_max_entries": int(req.contest_max_entries),
+                "objective": str(req.objective),
+                "field_size": req.field_size,
+                "requested_tail_line": req.tail_line,
+                "requested_leverage_scale": float(req.lev_scale),
+                "construction_preset_id": str(req.construction_preset_id),
+            }
             if paid_catalog is not None else None
         )
         try:
@@ -2611,8 +2632,9 @@ def _build_classic(
                     if paid_catalog is not None else None
                 ),
                 projection_authority_receipt=(
-                    projection_derivation_receipt
+                    projection_authority_receipt
                 ),
+                paid_request_inputs=paid_request_inputs,
                 construction_preset_receipt=construction.receipt())
         except RoleBeliefUnavailable as exc:
             if not policy.role_outage_fallback_allowed:
@@ -2629,31 +2651,6 @@ def _build_classic(
                       exc)
             fallback_env = policy.fallback_environment(
                 os.environ, construction_preset=construction,
-            )
-            fallback_projection_derivation_receipt = (
-                paid_classic_projection_derivation_receipt_v3(
-                    paid_catalog,
-                    transformation={
-                        "mode": "simulation",
-                        "entry_seed": 42,
-                        "projection_seed_law": str(
-                            fallback_env.get(
-                                "MULTISEED_SEED_PAIRS", "single:42"
-                            )
-                        ),
-                        "world_count": int(
-                            fallback_env.get("LIVE_SIMS", LIVE_SIMS_DEFAULT)
-                        ),
-                        "tail_line": float(req.line()),
-                        "leverage_scale": float(effective_lev_scale),
-                        "model_variant": str(policy.model_variant),
-                        "belief_model_variant": "",
-                        "model_ensemble": int(policy.model_ensemble),
-                        "construction_preset_receipt": construction.receipt(),
-                        "policy_environment": dict(sorted(fallback_env.items())),
-                    },
-                )
-                if paid_catalog is not None else None
             )
             try:
                 lineups = build_sim_lineups(
@@ -2674,8 +2671,9 @@ def _build_classic(
                         if paid_catalog is not None else None
                     ),
                     projection_authority_receipt=(
-                        fallback_projection_derivation_receipt
+                        projection_authority_receipt
                     ),
+                    paid_request_inputs=paid_request_inputs,
                     construction_preset_receipt=construction.receipt())
             except Exception as fallback_exc:
                 log.exception("CE fallback lineup build also failed")
@@ -2697,6 +2695,18 @@ def _build_classic(
             raise HTTPException(
                 422, "Sim-mode found no feasible lineups under the given "
                      "constraints")
+        if paid_catalog is not None and any(
+            not isinstance(
+                getattr(lineup, "paid_projection_derivation_receipt", None),
+                PaidClassicEngineReceiptV3,
+            )
+            for lineup in lineups
+        ):
+            raise HTTPException(
+                503,
+                "Paid Classic v3 simulation returned a book without its "
+                "engine-produced post-execution receipt.",
+            )
         # dk_id + kickoff onto sim-built players: kickoff drives the
         # latest-kickoff FLEX preference (late-swap flexibility) and was
         # silently absent from the sim path (2026-08-04 audit).
@@ -2716,6 +2726,12 @@ def _build_classic(
         _annotate_leverage([r["lineup"] for r in ranked], slate=df)
         return [r["lineup"] for r in ranked], ranked
 
+    if paid_catalog is not None and req.theses:
+        raise HTTPException(
+            422,
+            "Paid Classic v3 MILP does not implement portfolio thesis floors; "
+            "use the certified simulation path or remove theses.",
+        )
     pool = _player_pool(
         df, req.objective, dk_ids, lev_scale=effective_lev_scale,
     )
@@ -2727,23 +2743,64 @@ def _build_classic(
         max_overlap=construction.max_overlap,
         env=construction.optimizer_environment(),
     )
-    milp_projection_derivation_receipt = (
-        paid_classic_projection_derivation_receipt_v3(
-            paid_catalog,
-            transformation={
-                "mode": "milp",
-                "objective": str(req.objective),
-                "leverage_scale": float(effective_lev_scale),
-                "construction_preset_receipt": construction.receipt(),
-                "optimizer_environment": construction.optimizer_environment(),
-            },
+    milp_projection_derivation_receipt = None
+    if paid_catalog is not None and lineups:
+        # Hash the complete effective optimizer records after note/preference
+        # handling.  Restricting this to a hand-picked field list would let a
+        # newly consumed optimizer input escape the transformation receipt.
+        pool_identity = [dict(player) for player in pool]
+        pool_sha256 = hashlib.sha256(json.dumps(
+            pool_identity,
+            sort_keys=True,
+            separators=(",", ":"),
+            default=str,
+            allow_nan=False,
+        ).encode("utf-8")).hexdigest()
+        milp_projection_derivation_receipt = (
+            _issue_paid_classic_engine_receipt_v3(
+                paid_classic_projection_authority_v3(paid_catalog),
+                mode="milp",
+                lineups=lineups,
+                seed_pairs=[],
+                worlds_per_block=0,
+                selection_world_count=0,
+                model_artifacts={},
+                feature_snapshots={
+                    "effective_optimizer_pool": {
+                        "sha256": pool_sha256,
+                        "rows": len(pool_identity),
+                    }
+                },
+                notes_preferences={
+                    "state": "enabled" if req.apply_notes else "disabled",
+                    "effective_optimizer_pool_sha256": pool_sha256,
+                },
+                locks=req.locks,
+                bans=req.bans,
+                theses=req.theses,
+                construction_policy=construction.receipt(),
+                request_inputs={
+                    "season": int(req.season),
+                    "week": int(req.week),
+                    "draft_group_id": int(req.draft_group_id),
+                    "n_entries": int(req.n_lineups),
+                    "contest_max_entries": int(req.contest_max_entries),
+                    "objective": str(req.objective),
+                    "construction_preset_id": construction.preset_id,
+                    "field_size": req.field_size,
+                    "tail_line": float(req.line()),
+                    "requested_tail_line": req.tail_line,
+                    "requested_leverage_scale": float(req.lev_scale),
+                    "leverage_scale": float(effective_lev_scale),
+                    "apply_notes": bool(req.apply_notes),
+                },
+                policy_environment=construction.optimizer_environment(),
+            )
         )
-        if paid_catalog is not None else None
-    )
     for lu in lineups:
         lu.construction_preset_receipt = construction.receipt()
         if milp_projection_derivation_receipt is not None:
-            lu.paid_projection_derivation_receipt = dict(
+            lu.paid_projection_derivation_receipt = (
                 milp_projection_derivation_receipt
             )
     if not lineups:
@@ -3477,6 +3534,9 @@ def _paid_classic_catalog_v3(
             week=req.week,
             source_commit_sha=os.environ.get("IMAGE_SOURCE_COMMIT_SHA", ""),
             immutable_image_digest=os.environ.get("IMAGE_DIGEST", ""),
+            cloud_build_id=os.environ.get("PAID_V3_CLOUD_BUILD_ID", ""),
+            immutable_image_uri=os.environ.get("IMAGE_URI", ""),
+            running_revision=os.environ.get("K_REVISION", ""),
             validated_at=validated_at,
         )
     except ValueError as exc:
@@ -3508,6 +3568,12 @@ def _paid_classic_headers_v3(receipt: dict) -> dict[str, str]:
         ),
         "X-Paid-Book-Source-Commit": str(receipt["source_commit_sha"]),
         "X-Paid-Book-Image-Digest": str(receipt["immutable_image_digest"]),
+        "X-Paid-Book-Cloud-Build": str(receipt["cloud_build_id"]),
+        "X-Paid-Book-Image-URI": str(receipt["immutable_image_uri"]),
+        "X-Paid-Book-Revision": str(receipt["running_revision"]),
+        "X-Paid-Book-Deployment-Identity": str(
+            receipt["runtime_deployment_identity_sha256"]
+        ),
         "X-Paid-Book-Projection-Batch-SHA256": str(
             receipt["projection_batch_sha256"]
         ),

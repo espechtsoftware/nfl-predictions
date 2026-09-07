@@ -120,6 +120,9 @@ def load_week1_operating_book_export_v2(
             validated_at=validated_at,
             source_commit_sha=env.get("IMAGE_SOURCE_COMMIT_SHA", ""),
             immutable_image_digest=env.get("IMAGE_DIGEST", ""),
+            cloud_build_id=env.get("PAID_V3_CLOUD_BUILD_ID", ""),
+            immutable_image_uri=env.get("IMAGE_URI", ""),
+            running_revision=env.get("K_REVISION", ""),
         )
     except Exception as exc:
         raise Week1OperatingBookAPIError(

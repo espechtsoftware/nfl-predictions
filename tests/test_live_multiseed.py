@@ -1,3 +1,6 @@
+import hashlib
+import json
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -6,6 +9,10 @@ from nfl_dfs.backtest.engine import CandidateBatch
 from nfl_dfs.inference import live_lineups
 from nfl_dfs.inference.production_policy import ADOPTED_CLASSIC_POLICY
 from nfl_dfs.optimizer.lineup import Lineup, select_from_support
+from nfl_dfs.optimizer.paid_classic_book_v3 import (
+    PaidClassicEngineReceiptV3,
+    PaidClassicProjectionAuthorityV3,
+)
 
 
 def _frame(seed):
@@ -51,6 +58,171 @@ def test_live_simulation_groups_aliases_and_raw_ids_by_physical_game() -> None:
     games, teams = live_lineups._canonical_simulation_units(skill)
     assert games.tolist() == ["JAX|TEN", "JAX|TEN"]
     assert teams.tolist() == ["JAX", "TEN"]
+
+
+def test_paid_cbwu_engine_issues_receipt_only_after_exact_combined_selection(
+    monkeypatch,
+) -> None:
+    """Exercise the real outer engine receipt path, not a route-side mock."""
+
+    policy = ADOPTED_CLASSIC_POLICY
+    feature_snapshot = {
+        "sha256": "e" * 64,
+        "rows": 13,
+        "columns": ["id"],
+    }
+    component_notes = {
+        "state": "disabled",
+        "before_sha256": "f" * 64,
+        "effective_sha256": "f" * 64,
+        "changed": False,
+    }
+    def artifact(version: str, digest: str) -> dict[str, object]:
+        body: dict[str, object] = {
+            "schema_version": "loaded-component-model-artifacts/v1",
+            "model_version": version,
+            "components": [{
+                "component": "receiving",
+                "member_count": 1,
+                "member_sha256": [digest],
+            }],
+        }
+        body["artifact_sha256"] = hashlib.sha256(json.dumps(
+            body, sort_keys=True, separators=(",", ":")
+        ).encode()).hexdigest()
+        return body
+
+    def fake_slate(
+        season, week, n_sims=None, seed=42, model_variant=None,
+        log_ownership_shadow=True, **kwargs,
+    ):
+        frame = _frame(seed)
+        frame["id"] = frame["id"] + 100
+        frame["draw_idx"] = np.arange(len(frame))
+        is_role = model_variant == policy.role_model_variant
+        frame.attrs.update({
+            "model_version": (
+                "pooled/components__tail_k1_role/2026-W35"
+                if is_role else "pooled/components__tail_k1/2026-W35"
+            ),
+            "model_artifact_receipt": artifact(
+                "pooled/components__tail_k1_role/2026-W35"
+                if is_role else "pooled/components__tail_k1/2026-W35",
+                "d" * 64 if is_role else "c" * 64,
+            ),
+            "model_feature_input_receipt": dict(feature_snapshot),
+            "component_notes_receipt": dict(component_notes),
+        })
+        draws = np.stack([
+            np.full(n_sims, 10 + player_id + (int(seed) % 7), dtype=np.float32)
+            for player_id in range(len(frame))
+        ])
+        return frame, draws
+
+    def fake_tail(
+        slate, pool, draws, n_entries, candidate_capture=None,
+        candidate_transform=None, **kwargs,
+    ):
+        rosters = [
+            Lineup([pool[player_id] for player_id in ids], tag="lev")
+            for ids in (
+                [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                [0, 1, 2, 3, 4, 5, 6, 7, 9],
+            )
+        ]
+        row_draws = np.asarray(draws, dtype=np.float32)
+        id_to_row = {
+            int(player_id): index
+            for index, player_id in enumerate(slate.id.tolist())
+        }
+        totals = np.stack([
+            row_draws[[id_to_row[int(player_id)] for player_id in lineup.ids]]
+            .sum(axis=0)
+            for lineup in rosters
+        ]).astype(np.float32)
+        batch = CandidateBatch(
+            candidates=tuple(rosters),
+            candidate_totals=totals,
+            player_ids=tuple(slate.id.tolist()),
+            player_rows=tuple(slate.to_dict("records")),
+            row_draws=row_draws,
+            all_tags={lineup.ids: ("lev",) for lineup in rosters},
+            metadata={
+                "model_artifact_receipt": dict(
+                    slate.attrs["model_artifact_receipt"]
+                ),
+                "role_model_artifact_receipt": dict(
+                    slate.attrs["role_model_artifact_receipt"]
+                ),
+                "model_feature_input_receipt": dict(
+                    slate.attrs["model_feature_input_receipt"]
+                ),
+                "role_model_feature_input_receipt": dict(
+                    slate.attrs["role_model_feature_input_receipt"]
+                ),
+                "component_notes_receipt": dict(
+                    slate.attrs["component_notes_receipt"]
+                ),
+                "role_component_notes_receipt": dict(
+                    slate.attrs["role_component_notes_receipt"]
+                ),
+                "preference_receipt": dict(slate.attrs["preference_receipt"]),
+            },
+        )
+        if candidate_capture is not None:
+            candidate_capture(batch)
+        if candidate_transform is not None:
+            batch = candidate_transform(batch)
+        return list(batch.candidates[:n_entries])
+
+    monkeypatch.setattr(live_lineups, "build_slate_with_draws", fake_slate)
+    monkeypatch.setattr(
+        "nfl_dfs.backtest.engine.tail_select_lineups", fake_tail
+    )
+    environment = policy.engine_environment()
+    authority = PaidClassicProjectionAuthorityV3(payload_json=json.dumps({
+        "schema_version": "test-catalog-authority/v1",
+    }))
+    construction = policy.construction_preset()
+    selected = live_lineups.build_sim_lineups(
+        2026,
+        1,
+        n_entries=1,
+        stack=construction.stack,
+        tail_line=policy.tail_line,
+        n_sims=policy.multiseed_worlds_per_block,
+        apply_notes=False,
+        model_variant=policy.model_variant,
+        belief_model_variant=policy.role_model_variant,
+        expected_model_k=policy.model_ensemble,
+        policy_env=environment,
+        allowed_ids=set(range(100, 113)),
+        salary_overrides={player_id: 5_000 for player_id in range(100, 113)},
+        projection_authority={player_id: 20.0 for player_id in range(100, 113)},
+        projection_authority_receipt=authority,
+        paid_request_inputs={
+            "draft_group_id": 9001,
+            "contest_max_entries": 150,
+            "objective": "proj_points",
+            "field_size": None,
+            "requested_tail_line": None,
+            "requested_leverage_scale": 1.0,
+            "construction_preset_id": construction.preset_id,
+        },
+        construction_preset_receipt=construction.receipt(),
+    )
+
+    assert len(selected) == 1
+    receipt = selected[0].paid_projection_derivation_receipt
+    assert isinstance(receipt, PaidClassicEngineReceiptV3)
+    body = receipt.as_dict()
+    assert body["issued_after_execution"] is True
+    assert body["worlds_per_block"] == 10_000
+    assert body["selection_world_count"] == 50_000
+    assert [row["label"] for row in body["seed_pairs"]] == [
+        "R0", "R1", "R2", "R3", "R4",
+    ]
+    assert body["feature_snapshots"]["R4"]["role"] == feature_snapshot
 
 
 @pytest.mark.parametrize(

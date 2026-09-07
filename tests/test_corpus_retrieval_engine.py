@@ -92,6 +92,9 @@ def _build_completed_run(
     suite_schema: str,
     strategies: list[dict[str, object]],
     run_id: str,
+    input_prefix: str = "gs://fixture/",
+    engine_release: dict[str, str] | None = None,
+    execution: dict[str, object] | None = None,
 ) -> dict[str, Any]:
     store = MemoryObjects()
     player_ids = np.asarray([f"p{index:02d}" for index in range(18)])
@@ -122,7 +125,7 @@ def _build_completed_run(
         )
         raw = _source_npz(player_ids, draws, rosters)
         artifact_identity = store.add(
-            f"gs://fixture/source/{block_id}.npz", raw
+            f"{input_prefix}source/{block_id}.npz", raw
         )
         blocks.append({
             "ordinal": ordinal,
@@ -173,11 +176,12 @@ def _build_completed_run(
         player_query=player_query,
     )
     source_authority = store.add(
-        "gs://fixture/source/source-authority.json",
+        f"{input_prefix}source/source-authority.json",
         retrieval.canonical_json_bytes(query_authority),
     )
     producer_authority = store.add(
-        "gs://fixture/source/producer-authority.json", b'{"producer":"fixture"}'
+        f"{input_prefix}source/producer-authority.json",
+        b'{"producer":"fixture"}',
     )
     player_body = retrieval.build_player_catalog_object(
         task_id="slate-2023-w1",
@@ -185,7 +189,7 @@ def _build_completed_run(
         players=normalized_player_rows,
     )
     player_identity = store.add(
-        "gs://fixture/snapshots/players.json",
+        f"{input_prefix}snapshots/players.json",
         retrieval.canonical_json_bytes(player_body),
     )
     candidate_body = retrieval.build_candidate_rows_object(
@@ -196,7 +200,7 @@ def _build_completed_run(
         rows=normalized_candidate_rows,
     )
     candidate_identity = store.add(
-        "gs://fixture/snapshots/candidates.json",
+        f"{input_prefix}snapshots/candidates.json",
         retrieval.canonical_json_bytes(candidate_body),
     )
     snapshot = retrieval.build_snapshot_manifest(
@@ -218,10 +222,17 @@ def _build_completed_run(
         }],
     )
     snapshot_identity = store.add(
-        "gs://fixture/snapshots/snapshot.json",
+        f"{input_prefix}snapshots/snapshot.json",
         retrieval.canonical_json_bytes(snapshot),
     )
     image_digest = f"sha256:{'a' * 64}"
+    release = engine_release or {
+        "engine_version": "corpus-retrieval-engine-v1",
+        "code_repository": "fixture/repository",
+        "code_commit": "b" * 40,
+        "image_uri": f"registry.example/fixture@{image_digest}",
+        "image_digest": image_digest,
+    }
     suite = retrieval.build_suite_manifest(
         run_id=run_id,
         created_at_utc="2026-08-21T12:31:00Z",
@@ -229,13 +240,7 @@ def _build_completed_run(
         snapshot_manifest=snapshot,
         snapshot_manifest_identity=snapshot_identity,
         entry_budget=80,
-        engine_release={
-            "engine_version": "corpus-retrieval-engine-v1",
-            "code_repository": "fixture/repository",
-            "code_commit": "b" * 40,
-            "image_uri": f"registry.example/fixture@{image_digest}",
-            "image_digest": image_digest,
-        },
+        engine_release=release,
         strategies=strategies,
         suite_schema=suite_schema,
     )
@@ -248,16 +253,16 @@ def _build_completed_run(
         snapshot_manifest=snapshot,
         snapshot_manifest_identity=snapshot_identity,
         task_index=0,
-        execution={
+        execution=execution or {
             "execution_id": "fixture-execution",
             "execution_name": "fixture-execution",
             "task_index": 0,
             "attempt": 0,
             "retry_count": 0,
             "mode": "local-real-smoke",
-            "code_commit": "b" * 40,
-            "image_uri": f"registry.example/fixture@{image_digest}",
-            "image_digest": image_digest,
+            "code_commit": release["code_commit"],
+            "image_uri": release["image_uri"],
+            "image_digest": release["image_digest"],
         },
         read_object=store.read,
         publish_create_once=store.publish,

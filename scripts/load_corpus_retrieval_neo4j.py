@@ -6,8 +6,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 from typing import Any
 
 from nfl_dfs.research.corpus_neo4j_extensions import (
@@ -15,9 +15,9 @@ from nfl_dfs.research.corpus_neo4j_extensions import (
     append_retrieval_analytics,
 )
 from nfl_dfs.research.corpus_retrieval_neo4j import (
-    CorpusRetrievalNeo4jError,
     LOAD_RESULT_SCHEMA,
     SCHEMA_STATEMENTS,
+    CorpusRetrievalNeo4jError,
     apply_load_plan,
     build_load_plan,
     canonical_json_bytes,
@@ -26,7 +26,6 @@ from nfl_dfs.research.corpus_retrieval_neo4j import (
     parse_canonical_json_bytes,
     require_execute_gate,
 )
-
 
 URI_ENV = "CORPUS_RETRIEVAL_NEO4J_URI"
 DATABASE_ENV = "CORPUS_RETRIEVAL_NEO4J_DATABASE"
@@ -196,7 +195,13 @@ def _build(args: argparse.Namespace):
         batch_completion_raw=args.batch_completion.read_bytes(),
         task_result_raw=task_result_raw,
         graph_projection_raw=graph_raw,
-        read_object=read_exact,
+        # Legacy v1 evidence does not carry the authenticated suite objects
+        # required by canonical v3.  Supplying an empty exact-reader here
+        # would make a legacy validate/dry-run pretend that such an authority
+        # exists and then fail while looking for it.  Canonical v3 always
+        # supplies --exact-object entries and therefore always receives the
+        # fail-closed authenticated reader.
+        read_object=read_exact if args.exact_object else None,
     )
     if sidecars:
         plan = append_retrieval_analytics(

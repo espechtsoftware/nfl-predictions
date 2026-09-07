@@ -699,6 +699,16 @@ def _validate_terminal(
 ObjectReader = Callable[[Mapping[str, object]], bytes]
 
 
+@dataclass(frozen=True, slots=True)
+class _AuthenticatedSuite:
+    suite: dict[str, object]
+    suite_identity: dict[str, object]
+    snapshot: dict[str, object]
+    snapshot_identity: dict[str, object]
+    task: dict[str, object]
+    artifact_law: dict[str, object]
+
+
 def _read_authenticated_object(
     value: object,
     *,
@@ -720,6 +730,388 @@ def _read_authenticated_object(
     return raw
 
 
+def _authenticate_suite_before_evidence(
+    *,
+    terminal: Mapping[str, object],
+    terminal_identity: Mapping[str, object],
+    read_object: ObjectReader,
+) -> _AuthenticatedSuite:
+    """Authenticate the version authority before accepting derived schemas.
+
+    The suite, rather than a caller-supplied completion object, selects the
+    task/completion/graph artifact law.  This ordering is security relevant:
+    otherwise a suite-v3 terminal can be repackaged with internally consistent
+    legacy-v1 result objects and silently evade the canonical-game validator.
+    """
+
+    try:
+        from nfl_dfs.research import corpus_retrieval_engine_v3 as engine_v3
+
+        suite_identity = _identity(
+            terminal.get("suite_manifest_identity"),
+            label="suite manifest identity",
+        )
+        suite_raw = _read_authenticated_object(
+            suite_identity,
+            read_object=read_object,
+            label="suite manifest",
+        )
+        suite = engine_v3.validate_suite_manifest(
+            engine_v3.parse_canonical_json_bytes(
+                suite_raw, label="Neo4j authenticated suite manifest"
+            )
+        )
+        if suite["suite_manifest_uri"] != suite_identity["uri"]:
+            raise CorpusRetrievalNeo4jError(
+                "terminal suite authority differs from authenticated suite"
+            )
+        prefix = str(suite["output_prefix"])
+        if terminal_identity["uri"] != (
+            f"{prefix}governance/terminal-receipt.json"
+        ):
+            raise CorpusRetrievalNeo4jError(
+                "terminal receipt is outside the authenticated suite namespace"
+            )
+
+        snapshot_identity = _identity(
+            terminal.get("snapshot_manifest_identity"),
+            label="snapshot manifest identity",
+        )
+        if snapshot_identity != suite["snapshot_manifest_identity"]:
+            raise CorpusRetrievalNeo4jError(
+                "terminal snapshot identity differs from authenticated suite"
+            )
+        snapshot_raw = _read_authenticated_object(
+            snapshot_identity,
+            read_object=read_object,
+            label="snapshot manifest",
+        )
+        snapshot = engine_v3.validate_snapshot_manifest(
+            engine_v3.parse_canonical_json_bytes(
+                snapshot_raw, label="Neo4j authenticated snapshot manifest"
+            )
+        )
+        if (
+            snapshot["snapshot_id"] != suite["snapshot_id"]
+            or snapshot["snapshot_manifest_sha256"]
+            != suite["snapshot_manifest_sha256"]
+        ):
+            raise CorpusRetrievalNeo4jError(
+                "authenticated suite/snapshot authority differs"
+            )
+        task_index = _integer(
+            terminal.get("task_index"), label="terminal task index"
+        )
+        tasks = _sequence(suite["tasks"], label="authenticated suite tasks")
+        if task_index >= len(tasks):
+            raise CorpusRetrievalNeo4jError(
+                "terminal task is outside the authenticated suite"
+            )
+        task = dict(_mapping(tasks[task_index], label="authenticated suite task"))
+        if terminal.get("task_id") != task["task_id"]:
+            raise CorpusRetrievalNeo4jError(
+                "terminal task differs from authenticated suite"
+            )
+        return _AuthenticatedSuite(
+            suite=dict(suite),
+            suite_identity=suite_identity,
+            snapshot=dict(snapshot),
+            snapshot_identity=snapshot_identity,
+            task=task,
+            artifact_law=engine_v3.suite_artifact_law(
+                suite["schema_version"]
+            ),
+        )
+    except CorpusRetrievalNeo4jError:
+        raise
+    except Exception as exc:
+        raise CorpusRetrievalNeo4jError(
+            "suite-first evidence authentication failed"
+        ) from exc
+
+
+def _authenticated_json_object(
+    identity: object,
+    *,
+    read_object: ObjectReader,
+    label: str,
+) -> tuple[dict[str, object], dict[str, object]]:
+    normalized = _identity(identity, label=f"{label} identity")
+    raw = _read_authenticated_object(
+        normalized, read_object=read_object, label=label
+    )
+    parsed = dict(_mapping(
+        parse_canonical_json_bytes(raw, label=label), label=label
+    ))
+    return parsed, normalized
+
+
+def _validate_authenticated_governance_chain(
+    *,
+    terminal: Mapping[str, object],
+    terminal_identity: Mapping[str, object],
+    authenticated: _AuthenticatedSuite,
+    completion_identity: Mapping[str, object],
+    task_result_identity: Mapping[str, object],
+    task_result: Mapping[str, object],
+    read_object: ObjectReader,
+) -> None:
+    """Reopen and validate the retained transport governance chain.
+
+    The terminal's Boolean claims are consequences, not authentication.  The
+    exact contract, claim, IAM evidence, intent, launch-consumption ledger and
+    execution-name ledger must all reopen and cross-bind to the suite task.
+    """
+
+    try:
+        from scripts import run_corpus_retrieval_transport as transport
+
+        suite = authenticated.suite
+        snapshot = authenticated.snapshot
+        suite_identity = authenticated.suite_identity
+        snapshot_identity = authenticated.snapshot_identity
+        task = authenticated.task
+        task_index = int(task["task_index"])
+        prefix = str(suite["output_prefix"])
+        paths = transport._preflight_paths({
+            "output_prefix": prefix,
+            "task_index": task_index,
+        })
+        if (
+            terminal_identity["uri"] != paths["terminal_receipt_uri"]
+            or completion_identity["uri"] != paths["completion_uri"]
+            or task_result_identity["uri"] != task["result_uri"]
+        ):
+            raise CorpusRetrievalNeo4jError(
+                "authenticated suite artifact paths differ"
+            )
+
+        contract_raw, contract_identity = _authenticated_json_object(
+            terminal["execution_contract"],
+            read_object=read_object,
+            label="execution contract",
+        )
+        contract = transport.validate_execution_contract(contract_raw)
+        expected_contract = {
+            "suite_manifest_identity": suite_identity,
+            "snapshot_manifest_identity": snapshot_identity,
+            "snapshot_id": suite["snapshot_id"],
+            "task_index": task_index,
+            "task_id": task["task_id"],
+            "output_prefix": prefix,
+            "result_uri": task["result_uri"],
+            **paths,
+        }
+        if any(
+            contract.get(key) != value
+            for key, value in expected_contract.items()
+        ):
+            raise CorpusRetrievalNeo4jError(
+                "execution contract differs from authenticated suite task"
+            )
+        transport.validate_suite_build_binding(suite, contract["build"])
+
+        claim_raw, claim_identity = _authenticated_json_object(
+            terminal["prefix_claim"],
+            read_object=read_object,
+            label="prefix claim",
+        )
+        if claim_identity["uri"] != paths["prefix_claim_uri"]:
+            raise CorpusRetrievalNeo4jError("prefix claim path differs")
+        transport.validate_prefix_claim(
+            claim_raw, execution_contract=contract
+        )
+
+        iam_raw, iam_identity = _authenticated_json_object(
+            terminal["runtime_iam_evidence"],
+            read_object=read_object,
+            label="runtime IAM evidence",
+        )
+        if (
+            iam_identity["uri"] != paths["runtime_iam_evidence_uri"]
+            or iam_identity["sha256"]
+            != contract["runtime_iam_evidence_sha256"]
+            or iam_identity["bytes"] != contract["runtime_iam_evidence_bytes"]
+        ):
+            raise CorpusRetrievalNeo4jError(
+                "runtime IAM identity differs from execution contract"
+            )
+        snapshot_task = _mapping(
+            snapshot["tasks"][task_index], label="authenticated snapshot task"
+        )
+        candidate_identity = _identity(
+            snapshot_task["candidate_rows_object"],
+            label="candidate rows identity",
+        )
+        player_identity = _identity(
+            snapshot_task["player_catalog_object"],
+            label="player catalog identity",
+        )
+        from nfl_dfs.research import corpus_retrieval_engine_v3 as engine_v3
+
+        required_reads = transport._task_required_read_uris(
+            suite_identity=transport.ObjectIdentity(**suite_identity),
+            snapshot_identity=transport.ObjectIdentity(**snapshot_identity),
+            snapshot=snapshot,
+            task_index=task_index,
+            candidate_rows_raw=_read_authenticated_object(
+                candidate_identity,
+                read_object=read_object,
+                label="candidate rows object",
+            ),
+            player_catalog_raw=_read_authenticated_object(
+                player_identity,
+                read_object=read_object,
+                label="player catalog object",
+            ),
+            core=engine_v3,
+        )
+        transport.validate_runtime_iam_evidence(
+            iam_raw,
+            service_account=str(contract["service_account"]),
+            required_read_uris=required_reads,
+            output_prefix=prefix,
+        )
+
+        intent_raw, intent_identity = _authenticated_json_object(
+            terminal["launch_intent"],
+            read_object=read_object,
+            label="launch intent",
+        )
+        if intent_identity["uri"] != paths["launch_intent_uri"]:
+            raise CorpusRetrievalNeo4jError("launch intent path differs")
+        intent = transport.validate_launch_intent(
+            intent_raw,
+            execution_contract=contract,
+            execution_contract_identity=contract_identity,
+        )
+        if (
+            intent["prefix_claim"] != claim_identity
+            or intent["runtime_iam_evidence"] != iam_identity
+        ):
+            raise CorpusRetrievalNeo4jError(
+                "launch intent governance identities differ"
+            )
+
+        launch_raw, launch_identity = _authenticated_json_object(
+            terminal["launch_ledger"],
+            read_object=read_object,
+            label="launch ledger",
+        )
+        if launch_identity["uri"] != paths["launch_ledger_uri"]:
+            raise CorpusRetrievalNeo4jError("launch ledger path differs")
+        transport.validate_launch_ledger(
+            launch_raw,
+            contract=contract,
+            contract_identity=transport.ObjectIdentity(**contract_identity),
+            intent_identity=intent_identity,
+        )
+
+        name_raw, name_identity = _authenticated_json_object(
+            terminal["execution_name_ledger"],
+            read_object=read_object,
+            label="execution-name ledger",
+        )
+        if name_identity["uri"] != paths["execution_name_ledger_uri"]:
+            raise CorpusRetrievalNeo4jError(
+                "execution-name ledger path differs"
+            )
+        name_ledger = transport.validate_execution_name_ledger(
+            name_raw,
+            contract=contract,
+            contract_identity=transport.ObjectIdentity(**contract_identity),
+            launch_identity=launch_identity,
+        )
+
+        execution = _mapping(terminal["execution"], label="terminal execution")
+        _exact_keys(execution, {
+            "execution_id", "execution_name", "execution_uid", "job",
+            "job_uid", "job_generation", "job_spec_sha256", "task_count",
+            "attempt", "retry_count", "state", "counters",
+            "metadata_sha256",
+        }, label="terminal execution")
+        active_job = _mapping(contract["job_execution"], label="active job")
+        if (
+            execution["execution_id"] != name_ledger["execution_id"]
+            or execution["execution_name"] != name_ledger["execution_name"]
+            or execution["execution_uid"] != name_ledger["execution_uid"]
+            or execution["metadata_sha256"]
+            != name_ledger["execution_metadata_sha256"]
+            or execution["job"] != transport.PARKED_JOB
+            or execution["job_uid"] != active_job["uid"]
+            or str(execution["job_generation"])
+            != str(active_job["generation"])
+            or execution["job_spec_sha256"] != active_job["spec_sha256"]
+            or execution["task_count"] != 1
+            or execution["attempt"] != 0
+            or execution["retry_count"] != 0
+            or execution["state"] != "True"
+            or execution["counters"] != {
+                "succeeded": 1,
+                "failed": 0,
+                "cancelled": 0,
+                "retried": 0,
+            }
+            or terminal["post_terminal_job"] != active_job
+        ):
+            raise CorpusRetrievalNeo4jError(
+                "terminal execution governance binding differs"
+            )
+        result_execution = _mapping(
+            task_result["execution"], label="task result execution"
+        )
+        if (
+            result_execution.get("code_commit")
+            != contract["build"]["code_sha"]
+            or result_execution.get("image_uri")
+            != contract["build"]["image"]
+            or result_execution.get("image_digest")
+            != str(contract["build"]["image"]).rsplit("@", 1)[-1]
+        ):
+            raise CorpusRetrievalNeo4jError(
+                "task execution release differs from governance contract"
+            )
+
+        required_identities = [
+            suite_identity,
+            claim_identity,
+            iam_identity,
+            contract_identity,
+            intent_identity,
+            launch_identity,
+            name_identity,
+            task_result_identity,
+            completion_identity,
+            *(
+                _identity(
+                    row["object_identity"], label="task sidecar identity"
+                )
+                for row in _sequence(
+                    task_result["sidecars"], label="task result sidecars"
+                )
+                if isinstance(row, Mapping)
+            ),
+        ]
+        expected_inventory = sorted(
+            ({
+                "uri": item["uri"],
+                "generation": item["generation"],
+                "bytes": item["bytes"],
+            } for item in required_identities),
+            key=lambda row: (row["uri"], row["generation"]),
+        )
+        if terminal["output_inventory_before_terminal"] != expected_inventory:
+            raise CorpusRetrievalNeo4jError(
+                "terminal inventory differs from exact governance/output set"
+            )
+    except CorpusRetrievalNeo4jError:
+        raise
+    except Exception as exc:
+        raise CorpusRetrievalNeo4jError(
+            "transport governance chain authentication failed"
+        ) from exc
+
+
 def _validate_canonical_v3_semantic_replay(
     *,
     terminal: Mapping[str, object],
@@ -734,8 +1126,8 @@ def _validate_canonical_v3_semantic_replay(
     candidate properties or topology.  The v3 engine's public validator
     reopens every exact sidecar and rebuilds the analytical graph from the
     suite, snapshot, lineup table, score/event matrices, and strategy rows.
-    ``replay=False`` skips the source-world replay but retains this complete
-    analytical and graph reconstruction.
+    ``replay=True`` additionally reopens the exact five source world artifacts
+    and proves the retained score matrices were generated from those sources.
     """
 
     if read_object is None:
@@ -784,7 +1176,7 @@ def _validate_canonical_v3_semantic_replay(
             ),
             snapshot_manifest_identity=snapshot_identity,
             read_object=bound_reader,
-            replay=False,
+            replay=True,
         )
     except CorpusRetrievalNeo4jError:
         raise
@@ -876,33 +1268,104 @@ def build_load_plan(
     read_object: ObjectReader | None = None,
 ) -> Neo4jLoadPlan:
     """Validate an accepted evidence chain and construct an immutable plan."""
+    terminal_identity_preflight = _bind_body(
+        terminal_receipt_raw,
+        terminal_receipt_identity,
+        label="terminal receipt preflight",
+    )
+    terminal_preflight = _mapping(
+        parse_canonical_json_bytes(
+            terminal_receipt_raw, label="terminal receipt preflight"
+        ),
+        label="terminal receipt preflight",
+    )
+    if terminal_preflight.get("schema_version") != TERMINAL_SCHEMA:
+        raise CorpusRetrievalNeo4jError("terminal receipt schema differs")
+    _validate_self_hash(
+        terminal_preflight,
+        "terminal_receipt_sha256",
+        label="terminal receipt preflight",
+    )
+    authenticated = None
+    if read_object is not None:
+        authenticated = _authenticate_suite_before_evidence(
+            terminal=terminal_preflight,
+            terminal_identity=terminal_identity_preflight,
+            read_object=read_object,
+        )
+
     completion_identity_hint = _mapping(
-        parse_canonical_json_bytes(
-            terminal_receipt_raw, label="terminal receipt preflight"
-        ),
-        label="terminal receipt preflight",
-    ).get("batch_completion")
+        terminal_preflight.get("batch_completion"),
+        label="terminal completion identity",
+    )
     result_identity_hint = _mapping(
-        parse_canonical_json_bytes(
-            terminal_receipt_raw, label="terminal receipt preflight"
-        ),
-        label="terminal receipt preflight",
-    ).get("result_object")
+        terminal_preflight.get("result_object"),
+        label="terminal result identity",
+    )
     completion, completion_identity = _validate_completion(
         batch_completion_raw, completion_identity_hint
     )
-    task_schema, graph_schema, _ = _EVIDENCE_SCHEMA_LAW[
-        str(completion["schema_version"])
-    ]
+    if authenticated is not None:
+        expected_completion_schema = str(
+            authenticated.artifact_law["completion_schema"]
+        )
+        if completion["schema_version"] != expected_completion_schema:
+            raise CorpusRetrievalNeo4jError(
+                "completion schema is a downgrade from authenticated suite law"
+            )
+        task_schema = str(authenticated.artifact_law["result_schema"])
+        graph_schema = str(authenticated.artifact_law["graph_schema"])
+        if (
+            completion_identity["uri"]
+            != f"{authenticated.suite['output_prefix']}governance/completion.json"
+            or result_identity_hint["uri"]
+            != authenticated.task["result_uri"]
+        ):
+            raise CorpusRetrievalNeo4jError(
+                "derived evidence path differs from authenticated suite law"
+            )
+    else:
+        task_schema, graph_schema, _ = _EVIDENCE_SCHEMA_LAW[
+            str(completion["schema_version"])
+        ]
+        if completion["schema_version"] == COMPLETION_SCHEMA_V2:
+            raise CorpusRetrievalNeo4jError(
+                "canonical suite-v3 evidence requires an authenticated "
+                "exact-object reader"
+            )
     task_result, task_result_identity = _validate_task_result(
         task_result_raw, result_identity_hint, expected_schema=task_schema
     )
+    if authenticated is not None:
+        if (
+            task_result["suite_manifest_identity"]
+            != authenticated.suite_identity
+            or task_result["snapshot_manifest_identity"]
+            != authenticated.snapshot_identity
+            or task_result["suite_manifest_sha256"]
+            != authenticated.suite["suite_manifest_sha256"]
+            or task_result["snapshot_manifest_sha256"]
+            != authenticated.snapshot["snapshot_manifest_sha256"]
+            or task_result["snapshot_task_sha256"]
+            != authenticated.task["snapshot_task_sha256"]
+        ):
+            raise CorpusRetrievalNeo4jError(
+                "task result differs from authenticated suite/snapshot"
+            )
     graph, graph_identity = _validate_graph(
         graph_projection_raw,
         task_result["graph_projection_object"],
         task_result=task_result,
         expected_schema=graph_schema,
     )
+    if authenticated is not None and graph_identity["uri"] != (
+        f"{authenticated.suite['output_prefix']}tasks/"
+        f"{int(authenticated.task['task_index']):04d}/"
+        f"{authenticated.artifact_law['graph_path']}"
+    ):
+        raise CorpusRetrievalNeo4jError(
+            "graph projection path differs from authenticated suite law"
+        )
     terminal, terminal_identity = _validate_terminal(
         terminal_receipt_raw,
         terminal_receipt_identity,
@@ -911,6 +1374,16 @@ def build_load_plan(
         task_result=task_result,
         task_result_identity=task_result_identity,
     )
+    if authenticated is not None:
+        _validate_authenticated_governance_chain(
+            terminal=terminal,
+            terminal_identity=terminal_identity,
+            authenticated=authenticated,
+            completion_identity=completion_identity,
+            task_result_identity=task_result_identity,
+            task_result=task_result,
+            read_object=read_object,
+        )
     if graph_schema == GRAPH_SCHEMA_V2:
         _validate_canonical_v3_semantic_replay(
             terminal=terminal,

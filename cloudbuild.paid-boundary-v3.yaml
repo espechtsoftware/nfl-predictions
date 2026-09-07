@@ -39,6 +39,7 @@ steps:
           tests/test_winner_registry_v2.py \
           tests/test_paid_classic_book_v2.py \
           tests/test_paid_classic_book_v3.py \
+          tests/test_paid_classic_deployment_v3.py \
           tests/test_week1_operating_book_export.py \
           tests/test_week1_operating_book_api.py \
           tests/test_contest_capture_rehearsal.py \

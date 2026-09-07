@@ -305,6 +305,9 @@ def build_week1_operating_book_export_v2(
     validated_at: object,
     source_commit_sha: str,
     immutable_image_digest: str,
+    cloud_build_id: str,
+    immutable_image_uri: str,
+    running_revision: str,
 ) -> dict[str, object]:
     """Versioned live successor with an independent semantic-game audit.
 
@@ -327,6 +330,9 @@ def build_week1_operating_book_export_v2(
             week=WEEK1_WEEK,
             source_commit_sha=source_commit_sha,
             immutable_image_digest=immutable_image_digest,
+            cloud_build_id=cloud_build_id,
+            immutable_image_uri=immutable_image_uri,
+            running_revision=running_revision,
             validated_at=validated_at,
         )
     except ValueError as exc:

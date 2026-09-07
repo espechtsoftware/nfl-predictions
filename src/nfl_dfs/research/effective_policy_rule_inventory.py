@@ -127,20 +127,20 @@ V7_SOURCE_SET_ID = (
     "adopted-classic-policy-20260907-canonical-game-v7"
 )
 V7_CLASSIFIED_INPUT_PROJECTION_SHA256 = (
-    "76cc09d86dc9d5be15b1aa6dfd50d261137a262a689713093631d350ae68d644"
+    "28173788062fdbad85cf77d33ee35cea06ecc391b31fb3ddf7c49f12a18af3f7"
 )
-V7_DIRECT_INPUT_READ_SITE_COUNT = 288
-V7_CLASSIFIED_INPUT_KEY_COUNT = 132
+V7_DIRECT_INPUT_READ_SITE_COUNT = 290
+V7_CLASSIFIED_INPUT_KEY_COUNT = 134
 V7_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
     **V6_FROZEN_SOURCE_SHA256,
     "src/nfl_dfs/app/main.py": (
-        "09a0a95952f51a338ebaf717af645340b365a97e4c87940d5d662ec442e0ea5f"
+        "bbb1daa9ec04855f68f01d2b9cf49ec91721fe4dafc2bda95dce5c13c6b704a2"
     ),
     "src/nfl_dfs/app/week1_operating_book_api.py": (
-        "51c9b5256184d95122dfcef74da8fd166a86466e96097132cff277f7a537822d"
+        "f831abd034bc6caf89fe51e467854e148533a5b95a1a7fea4c55b17052fb3bf8"
     ),
     "src/nfl_dfs/backtest/engine.py": (
-        "03c7e70e4f917f0918dcc38d6b4c02f9abfe25d0ec323a5c05611ca594cbf1ae"
+        "1799451c19a54d80851a0def4b0e6b85587a694fc698c4a3746686cb0e09d472"
     ),
     "src/nfl_dfs/backtest/replay.py": (
         "a0b21d9cde2520c246fc3a815ab948f0dfc479e19ebeed7ea84894c3c7ec30fc"
@@ -149,13 +149,16 @@ V7_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
         "29261bd6fec48205279a9a57ab94182554ca62412265f61a6299652d9c6552fe"
     ),
     "src/nfl_dfs/inference/live_lineups.py": (
-        "fc86f235cc87e4a91478fff51d8fa55dc0fcfbeeb2457ce2a9e590bb5edfd508"
+        "1796aa379ff887043dca602ae6db78ac62e8250322c925dd9057db7e35c72350"
+    ),
+    "src/nfl_dfs/inference/multiseed_portfolio.py": (
+        "ca540f7463333146e2f8c54390f11676d9ad5c1e8c1f368622341c79c9027bc9"
     ),
     "src/nfl_dfs/inference/run_projections.py": (
         "2db965e57ad3c756ff68f477d380fbc8d9fcae24ae735bae50fa15eedfebab72"
     ),
     "src/nfl_dfs/inference/week1_operating_book_export.py": (
-        "062cd01b883e9773b794f8d15069e23c4852609796c8e793afcd433e4ebe4ec5"
+        "6dd2ac0dcbdf488844d05c3978911e3c4d3af88eb42ea3f2750d3551191f7572"
     ),
     "src/nfl_dfs/optimizer/lineup.py": (
         "b8d55c3acc2795281f6ae11270b58e85c24d1917c480c0a93f1123d40fed5cb0"
@@ -255,6 +258,8 @@ INFRASTRUCTURE_INPUT_KEYS = frozenset({
     "IMAGE_DIGEST",
     "IMAGE_SOURCE_COMMIT_SHA",
     "IMAGE_URI",
+    "K_REVISION",
+    "PAID_V3_CLOUD_BUILD_ID",
     "PANEL_RUN_ID",
     "PROSPECTIVE_SHADOW_ID",
     "REPLAY_LINEUPS_TABLE",

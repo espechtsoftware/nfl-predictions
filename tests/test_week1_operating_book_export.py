@@ -10,6 +10,10 @@ from nfl_dfs.inference import week1_operating_book_export as export
 
 
 LOCK_AT = "2026-09-13T17:00:00+00:00"
+BUILD_ID = "12345678-1234-1234-1234-123456789abc"
+IMAGE_DIGEST = "sha256:" + "b" * 64
+IMAGE_URI = "us-central1-docker.pkg.dev/project/repo/app@" + IMAGE_DIGEST
+REVISION = "app-paidv3-aaaaaaaa-12345678"
 
 
 def _fixture() -> tuple[dict[str, object], list[dict[str, object]]]:
@@ -172,7 +176,10 @@ def test_v2_final_boundary_adds_and_checks_semantic_game_identity(
         schedule_rows=_schedule_rows(),
         validated_at="2026-09-11T16:30:00+00:00",
         source_commit_sha="a" * 40,
-        immutable_image_digest="sha256:" + "b" * 64,
+        immutable_image_digest=IMAGE_DIGEST,
+        cloud_build_id=BUILD_ID,
+        immutable_image_uri=IMAGE_URI,
+        running_revision=REVISION,
     )
     assert result["schema_version"] == export.SCHEMA_VERSION_V2
     assert result["final_semantic_draftkings_legal"] is True
@@ -202,7 +209,10 @@ def test_v2_final_boundary_adds_and_checks_semantic_game_identity(
             schedule_rows=_schedule_rows(),
             validated_at="2026-09-11T16:30:00+00:00",
             source_commit_sha="a" * 40,
-            immutable_image_digest="sha256:" + "b" * 64,
+            immutable_image_digest=IMAGE_DIGEST,
+            cloud_build_id=BUILD_ID,
+            immutable_image_uri=IMAGE_URI,
+            running_revision=REVISION,
         )
 
 
