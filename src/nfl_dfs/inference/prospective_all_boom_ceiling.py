@@ -29,6 +29,7 @@ import numpy as np
 
 from ..backtest.engine import CandidateBatch, _validate_candidate_batch
 from ..optimizer.construction_presets import ConstructionPreset
+from ..optimizer.game_identity import canonical_game_counts
 from ..optimizer.lineup import (
     MAX_FROM_TEAM,
     ROSTER_SIZE,
@@ -464,8 +465,10 @@ def _validate_lineup(
     teams = Counter(str(player["team"]) for player in rebuilt)
     if max(teams.values()) > MAX_FROM_TEAM:
         _fail("boom solver roster exceeds the production team cap")
-    games = {str(player.get("game_id") or "") for player in rebuilt}
-    games.discard("")
+    try:
+        games = canonical_game_counts(rebuilt)
+    except ValueError as exc:
+        _fail(f"boom solver roster has invalid canonical game identity: {exc}")
     if len(games) < preset.min_games:
         _fail("boom solver roster violates the production game minimum")
     qb = next(player for player in rebuilt if str(player["pos"]).upper() == "QB")

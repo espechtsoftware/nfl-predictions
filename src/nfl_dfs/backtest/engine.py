@@ -20,6 +20,7 @@ from dataclasses import dataclass, field as dc_field, replace as dc_replace
 import numpy as np
 import pandas as pd
 
+from ..optimizer.game_identity import canonical_game_identities
 from ..optimizer.lineup import (Lineup, StackRules, optimize, optimize_many,
                                 select_tail_entries)
 from ..research.candidate_features import PLAYER_SNAPSHOT_FEATURES
@@ -30,6 +31,20 @@ log = logging.getLogger(__name__)
 
 REQUIRED_COLS = {"id", "name", "pos", "team", "opp", "game_id",
                  "salary", "proj", "actual"}
+
+
+def _canonical_game_projection(slate: pd.DataFrame) -> pd.Series:
+    """Rank physical games while preserving every provider ``game_id``."""
+
+    game_frame = slate.copy()
+    game_frame["_canonical_game_key"] = [
+        identity.canonical_game_key
+        for identity in canonical_game_identities(game_frame.to_dict("records"))
+    ]
+    return (
+        game_frame.groupby("_canonical_game_key")["proj"]
+        .sum().sort_values(ascending=False)
+    )
 
 
 # ADOPTED generation budget. The independent-seed CE confirmation did not
@@ -2050,9 +2065,12 @@ def tail_select_lineups(
     # force >= 5 players from that game. Winners take 50-80% of points
     # from one game; these are deliberately lower-mean, higher-variance
     # candidates — coverage selection decides how many survive.
-    game_proj = (slate[slate.get("game_id").notna()]
-                 .groupby("game_id")["proj"].sum().sort_values(ascending=False)
-                 if "game_id" in slate.columns else pd.Series(dtype=float))
+    if n_game_stacks or int(runtime_env.get("N_DARKGAME", "10")):
+        # Rank and lock physical games, not provider representations.  Keep
+        # the raw ``game_id`` column untouched for lineage/provenance.
+        game_proj = _canonical_game_projection(slate)
+    else:
+        game_proj = pd.Series(dtype=float)
     game_targets = list(game_proj.head(n_game_stacks).index)
     if exposure_ledger is not None and game_targets:
         exposure_expected["game_stack"] = len(game_targets) * n_per_game

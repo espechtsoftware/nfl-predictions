@@ -11,10 +11,12 @@ from ..inference.prospective_generation_shadow_operator import (
     ImmutableObjectStore,
 )
 from ..inference.week1_operating_book_export import (
-    build_week1_operating_book_export_v1,
+    build_week1_operating_book_export_v2,
 )
 from ..inference.week1_operating_book_operator import (
     WEEK1_DRAFT_GROUP_ID,
+    WEEK1_SEASON,
+    WEEK1_WEEK,
     read_week1_operating_book_v1,
 )
 
@@ -76,8 +78,11 @@ def load_week1_operating_book_export(
         salaries = projection_store.classic_salaries(
             int(WEEK1_DRAFT_GROUP_ID)
         )
-        return build_week1_operating_book_export_v1(
-            exact_book=exact, salary_rows=salaries
+        projections = projection_store.projections(WEEK1_SEASON, WEEK1_WEEK)
+        return build_week1_operating_book_export_v2(
+            exact_book=exact,
+            salary_rows=salaries,
+            projection_rows=projections,
         )
     except Exception as exc:
         raise Week1OperatingBookAPIError(

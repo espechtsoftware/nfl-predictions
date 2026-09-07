@@ -18,10 +18,15 @@ ENV = {
 class ProjectionStore:
     def __init__(self) -> None:
         self.gids: list[int] = []
+        self.projection_calls: list[tuple[int, int]] = []
 
     def classic_salaries(self, draft_group_id: int):
         self.gids.append(draft_group_id)
         return [{"salary": "authority"}]
+
+    def projections(self, season: int, week: int):
+        self.projection_calls.append((season, week))
+        return [{"projection": "authority"}]
 
 
 def test_deployment_identity_is_all_or_nothing_and_generation_pinned() -> None:
@@ -56,13 +61,14 @@ def test_load_uses_only_deployment_identity_and_fixed_week1_group(
         calls.append((store, materialization_identity))
         return exact
 
-    def build(*, exact_book, salary_rows):
+    def build(*, exact_book, salary_rows, projection_rows):
         assert exact_book == exact
         assert salary_rows == [{"salary": "authority"}]
+        assert projection_rows == [{"projection": "authority"}]
         return payload
 
     monkeypatch.setattr(api, "read_week1_operating_book_v1", read)
-    monkeypatch.setattr(api, "build_week1_operating_book_export_v1", build)
+    monkeypatch.setattr(api, "build_week1_operating_book_export_v2", build)
     projection_store = ProjectionStore()
     object_store = object()
     assert api.load_week1_operating_book_export(
@@ -71,6 +77,7 @@ def test_load_uses_only_deployment_identity_and_fixed_week1_group(
         environment=ENV,
     ) == payload
     assert projection_store.gids == [151307]
+    assert projection_store.projection_calls == [(2026, 1)]
     assert calls == [(object_store, api.materialization_identity_from_environment(ENV))]
 
 

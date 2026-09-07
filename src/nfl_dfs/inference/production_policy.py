@@ -19,6 +19,7 @@ from ..optimizer.construction_presets import (
     ConstructionPreset,
     resolve_construction_preset,
 )
+from ..optimizer.game_identity import CANONICAL_GAME_POLICY_ID
 
 
 POLICY_ENV_PASSTHROUGH = frozenset({
@@ -100,7 +101,8 @@ def contest_entry_policy(
 
 @dataclass(frozen=True)
 class ClassicProductionPolicy:
-    policy_id: str = "classic-k1-role12-lev40-boom160-poscal-cbwu-v5"
+    policy_id: str = "classic-k1-role12-lev40-boom160-poscal-cbwu-cgame-v6"
+    canonical_game_policy_id: str = CANONICAL_GAME_POLICY_ID
     source_panel: str = (
         "20260813-multiseed-candidate-world-v1")
     model_variant: str = "tail_k1"
@@ -515,6 +517,7 @@ class ClassicProductionPolicy:
         ce_solves = int(engine_env["N_CE"])
         return {
             "policy_id": self.policy_id,
+            "canonical_game_policy_id": self.canonical_game_policy_id,
             "source_panel": self.source_panel,
             "model_variant": self.model_variant,
             "model_ensemble": self.model_ensemble,

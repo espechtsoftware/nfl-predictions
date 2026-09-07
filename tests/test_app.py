@@ -1135,12 +1135,15 @@ def test_all_three_classic_routes_expose_same_policy(client, monkeypatch):
     entries = client.post("/lineups/entries.csv", json={
         **req, "entries_csv": one_entry})
 
-    policy_id = "classic-k1-role12-lev40-boom160-poscal-cbwu-v5"
+    policy_id = "classic-k1-role12-lev40-boom160-poscal-cbwu-cgame-v6"
     assert preview.json()["policy"]["policy_id"] == policy_id
     assert preview.json()["policy"]["model_ensemble"] == 1
-    assert preview.json()["policy"]["portfolio_allocation"] == {
-        "ce": 0, "role": 12, "boom": 160,
-        "total_generation_solves": 172}
+    allocation = preview.json()["policy"]["portfolio_allocation"]
+    assert {
+        key: allocation[key]
+        for key in ("ce", "role", "boom", "total_generation_solves")
+    } == {"ce": 0, "role": 12, "boom": 160,
+          "total_generation_solves": 172}
     assert preview.json()["policy"]["served_position_scales"] == (
         "QB:0.970,RB:1.005,TE:0.940,WR:1.070")
     assert preview.json()["policy"]["candidate_world_portfolio"] == {

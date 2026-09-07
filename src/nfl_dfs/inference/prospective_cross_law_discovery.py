@@ -31,6 +31,10 @@ from scipy.special import ndtri
 
 from ..backtest.engine import CandidateBatch, _validate_candidate_batch
 from ..optimizer.lineup import Lineup, StackRules, optimize
+from ..optimizer.game_identity import (
+    CANONICAL_GAME_POLICY_ID,
+    canonical_game_counts,
+)
 from .generation_exposure import (
     LEDGER_SCHEMA,
     SolveExposureLedger,
@@ -744,7 +748,12 @@ def _construction_audit_row(
         str(row.get("game_id")) for row in authoritative
         if row.get("game_id")
     }
-    if len(games) < int(preset.get("min_games") or 1):
+    try:
+        canonical_games = canonical_game_counts(authoritative)
+    except ValueError:
+        canonical_games = Counter()
+        violations.append("canonical-game-identity")
+    if len(canonical_games) < int(preset.get("min_games") or 1):
         violations.append("minimum-games")
     if not locks <= set(raw_ids):
         violations.append("locks")
@@ -847,11 +856,7 @@ def _construction_audit_row(
             violations.append("own-barbell-high")
     max_per_game = int(preset.get("max_per_game") or 0)
     if max_per_game:
-        game_counts = Counter(
-            str(row.get("game_id")) for row in authoritative
-            if row.get("game_id")
-        )
-        if game_counts and max(game_counts.values()) > max_per_game:
+        if canonical_games and max(canonical_games.values()) > max_per_game:
             violations.append("max-per-game")
     min_lowown = int(preset.get("min_lowown") or 0)
     if min_lowown:
@@ -871,6 +876,11 @@ def _construction_audit_row(
         "position_counts": dict(sorted(positions.items())),
         "team_count": len(teams),
         "game_count": len(games),
+        "canonical_game_count": len(canonical_games),
+        "canonical_max_players_same_game": (
+            max(canonical_games.values()) if canonical_games else 0
+        ),
+        "canonical_game_policy_id": CANONICAL_GAME_POLICY_ID,
         "dk_legality_pass": True,
         "salary_pass": True,
         "stack_rules_pass": True,

@@ -82,6 +82,7 @@ def _lineup(ids: list[int], rows: pd.DataFrame | None = None) -> Lineup:
     rows = _salary_rows() if rows is None else rows
     by_id = rows.set_index("dk_player_id").to_dict("index")
     players = []
+    opponents = {"A": "B", "B": "A", "C": "D", "D": "C"}
     for player_id in ids:
         row = by_id[player_id]
         players.append(
@@ -91,6 +92,11 @@ def _lineup(ids: list[int], rows: pd.DataFrame | None = None) -> Lineup:
                 "name": row["display_name"],
                 "pos": row["position"],
                 "team": row["team_abbr"],
+                "opp": opponents[row["team_abbr"]],
+                "game_id": (
+                    "provider-ab" if row["team_abbr"] in {"A", "B"}
+                    else f"{row['team_abbr']}@{opponents[row['team_abbr']]}"
+                ),
                 "salary": int(row["salary"]),
                 "proj": 10.0,
             }
@@ -146,6 +152,10 @@ def test_paid_upload_is_exact_unique_legal_and_receipted() -> None:
     assert receipt["actual_entries"] == 2
     assert receipt["unique_rosters"] == 2
     assert receipt["draftkings_legal"] is True
+    assert receipt["semantic_draftkings_legal"] is True
+    assert receipt["canonical_game_policy_id"] == (
+        "unordered-normalized-team-opponent-v2"
+    )
     assert receipt["active_eligible"] is True
     assert receipt["salary_catalog_pulled_at"] == _PULLED_AT.isoformat()
     assert receipt["salary_catalog_validated_at"] == _VALIDATED_AT.isoformat()
@@ -154,6 +164,15 @@ def test_paid_upload_is_exact_unique_legal_and_receipted() -> None:
     assert receipt["salary_catalog_fresh"] is True
     assert len(receipt["salary_catalog_sha256"]) == 64
     assert len(receipt["csv_sha256"]) == 64
+
+
+def test_paid_boundary_independently_rejects_bad_game_semantics() -> None:
+    book = _book()
+    book[0].players[0]["opp"] = book[0].players[0]["team"]
+    with pytest.raises(ValueError, match="fails final semantic legality"):
+        validate_paid_classic_book_v2(
+            book, expected_entries=2, catalog=_catalog()
+        )
 
 
 def test_paid_catalog_accepts_the_documented_two_hour_boundary() -> None:

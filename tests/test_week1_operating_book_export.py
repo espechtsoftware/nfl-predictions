@@ -100,6 +100,19 @@ def _patch_validator(monkeypatch: pytest.MonkeyPatch) -> None:
     )
 
 
+def _projection_rows(salaries: list[dict[str, object]]) -> list[dict[str, object]]:
+    return [
+        {
+            "dk_player_id": row["dk_player_id"],
+            "team": row["team_abbr"],
+            "opponent": "BBB" if row["team_abbr"] == "AAA" else "AAA",
+            "position": row["position"],
+            "salary": row["salary"],
+        }
+        for row in salaries
+    ]
+
+
 def test_exact_book_projects_to_fixed_tier_counts_and_dk_csv(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -127,6 +140,38 @@ def test_exact_book_projects_to_fixed_tier_counts_and_dk_csv(
     assert [player["position"] for player in first["players"]] == [
         "QB", "RB", "RB", "WR", "WR", "WR", "TE", "RB", "DST"
     ]
+
+
+def test_v2_final_boundary_adds_and_checks_semantic_game_identity(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _patch_validator(monkeypatch)
+    exact, salaries = _fixture()
+    result = export.build_week1_operating_book_export_v2(
+        exact_book=exact,
+        salary_rows=salaries,
+        projection_rows=_projection_rows(salaries),
+    )
+    assert result["schema_version"] == export.SCHEMA_VERSION_V2
+    assert result["final_semantic_draftkings_legal"] is True
+    assert result["canonical_game_policy_id"] == (
+        "unordered-normalized-team-opponent-v2"
+    )
+    assert result["lineups"][0]["semantic_game_audit"][
+        "canonical_game_count"
+    ] == 1
+
+    projections = _projection_rows(salaries)
+    projections[0]["opponent"] = "AAA"
+    with pytest.raises(
+        export.Week1OperatingBookExportError,
+        match="final semantic DK legality",
+    ):
+        export.build_week1_operating_book_export_v2(
+            exact_book=exact,
+            salary_rows=salaries,
+            projection_rows=projections,
+        )
 
 
 @pytest.mark.parametrize("mutation", ("missing", "duplicate", "salary", "team"))

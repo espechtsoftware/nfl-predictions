@@ -120,6 +120,41 @@ V6_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
     ),
 }
 
+# Canonical-game v7 is the separately versioned successor.  V5 and v6 remain
+# immutable above; this source set binds the active semantic-game enforcement
+# without rewriting either historical identity.
+V7_SOURCE_SET_ID = (
+    "adopted-classic-policy-20260907-canonical-game-v7"
+)
+V7_CLASSIFIED_INPUT_PROJECTION_SHA256 = (
+    "115538b28a41b1c1ef0152d86e6d3cbd9b71d895b6b35f8a32aaf0479c6f5d5c"
+)
+V7_DIRECT_INPUT_READ_SITE_COUNT = 280
+V7_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
+    **V6_FROZEN_SOURCE_SHA256,
+    "src/nfl_dfs/app/week1_operating_book_api.py": (
+        "e5821783945de77f18d00fccd2579962aee4d5bc575aeb35cf261033f787827f"
+    ),
+    "src/nfl_dfs/backtest/engine.py": (
+        "b5e717f089307fee7039e34046dba3e9fdff08d76576d510c5c187f190b16a0d"
+    ),
+    "src/nfl_dfs/inference/production_policy.py": (
+        "29261bd6fec48205279a9a57ab94182554ca62412265f61a6299652d9c6552fe"
+    ),
+    "src/nfl_dfs/inference/live_lineups.py": (
+        "95ccc439badad13714432fabb7396a16177bb92674bbcdaed2dc7e71fb2e6864"
+    ),
+    "src/nfl_dfs/inference/run_projections.py": (
+        "2db965e57ad3c756ff68f477d380fbc8d9fcae24ae735bae50fa15eedfebab72"
+    ),
+    "src/nfl_dfs/inference/week1_operating_book_export.py": (
+        "008b51ef5fcd6630609b289f66731cadde9f2ebc9560743dbeac219dcec3aa6a"
+    ),
+    "src/nfl_dfs/optimizer/lineup.py": (
+        "6bdac8f620c77119816b699ed542bdb3dea9b12f8560cc7babd8f29cef561dc7"
+    ),
+}
+
 SOURCE_ROLES: Mapping[str, str] = {
     "scripts/publish_week1_operating_book.py": (
         "week1_exact_publication_operator_command"
@@ -481,6 +516,17 @@ _V6_SOURCE_SET = _SourceSetContract(
     classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
     direct_input_read_site_count=DIRECT_INPUT_READ_SITE_COUNT,
     frozen_source_sha256=tuple(sorted(V6_FROZEN_SOURCE_SHA256.items())),
+)
+_V7_SOURCE_SET = _SourceSetContract(
+    schema=SCHEMA,
+    source_set_id=V7_SOURCE_SET_ID,
+    policy_env_sha256=POLICY_ENV_SHA256,
+    classified_input_projection_sha256=(
+        V7_CLASSIFIED_INPUT_PROJECTION_SHA256
+    ),
+    classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
+    direct_input_read_site_count=V7_DIRECT_INPUT_READ_SITE_COUNT,
+    frozen_source_sha256=tuple(sorted(V7_FROZEN_SOURCE_SHA256.items())),
 )
 
 
@@ -2076,6 +2122,15 @@ def generate_effective_policy_rule_inventory_v6(
     )
 
 
+def generate_effective_policy_rule_inventory_v7(
+    root: Path,
+) -> dict[str, Any]:
+    """Generate the explicit canonical-game current-source v7 inventory."""
+    return _generate_effective_policy_rule_inventory(
+        root, source_set=_V7_SOURCE_SET
+    )
+
+
 def _source_set_for_inventory(
     inventory: Mapping[str, Any],
 ) -> _SourceSetContract:
@@ -2084,6 +2139,8 @@ def _source_set_for_inventory(
         return _V5_SOURCE_SET
     if source_set_id == V6_SOURCE_SET_ID:
         return _V6_SOURCE_SET
+    if source_set_id == V7_SOURCE_SET_ID:
+        return _V7_SOURCE_SET
     raise EffectivePolicyInventoryError(
         "effective-policy inventory source-set id is not registered"
     )
@@ -2112,9 +2169,14 @@ __all__ = [
     "V6_CLASSIFIED_INPUT_PROJECTION_SHA256",
     "V6_FROZEN_SOURCE_SHA256",
     "V6_SOURCE_SET_ID",
+    "V7_CLASSIFIED_INPUT_PROJECTION_SHA256",
+    "V7_DIRECT_INPUT_READ_SITE_COUNT",
+    "V7_FROZEN_SOURCE_SHA256",
+    "V7_SOURCE_SET_ID",
     "canonical_json_bytes",
     "canonical_sha256",
     "generate_effective_policy_rule_inventory",
     "generate_effective_policy_rule_inventory_v6",
+    "generate_effective_policy_rule_inventory_v7",
     "validate_effective_policy_rule_inventory",
 ]

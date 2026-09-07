@@ -23,9 +23,13 @@ from typing import Any
 import pandas as pd
 
 from .export import ENTRY_META_HEADER, fill_entries_csv
+from .game_identity import (
+    CANONICAL_GAME_POLICY_ID,
+    audit_classic_roster_semantics,
+)
 from .lineup import MAX_FROM_TEAM, ROSTER_SIZE, SALARY_CAP, Lineup
 
-PAID_CLASSIC_BOUNDARY_ID = "paid-classic-book-boundary-v2"
+PAID_CLASSIC_BOUNDARY_ID = "paid-classic-book-boundary-v3-canonical-game"
 INACTIVE_STATUSES = frozenset({"O", "OUT", "IR"})
 # ``ingest-dk`` is an hourly live snapshot.  Two hours permits one missed
 # hourly pull while refusing a catalog old enough to miss multiple status or
@@ -284,7 +288,7 @@ def _validate_roster(
     *,
     catalog: PaidClassicCatalog,
     lineup_ordinal: int,
-) -> tuple[tuple[int, ...], tuple[int, ...]]:
+) -> tuple[tuple[int, ...], tuple[int, ...], dict[str, object]]:
     raw_ids: list[int] = []
     draftable_ids: list[int] = []
     authoritative: list[Mapping[str, Any]] = []
@@ -369,7 +373,16 @@ def _validate_roster(
     ]
     if len(ordered_ids) != ROSTER_SIZE or set(ordered_ids) != set(raw_ids):
         _fail(f"lineup {lineup_ordinal} cannot be represented in Classic slots")
-    return tuple(sorted(raw_ids)), tuple(sorted(draftable_ids))
+    # Independent terminal audit: recompute legality and physical-game facts
+    # from the selected roster itself after the salary-catalog comparison.
+    # This is intentionally separate from the optimizer's constraints.
+    try:
+        semantic_audit = audit_classic_roster_semantics(
+            lineup.players, salary_cap=SALARY_CAP, max_from_team=MAX_FROM_TEAM,
+        )
+    except ValueError as exc:
+        _fail(f"lineup {lineup_ordinal} fails final semantic legality: {exc}")
+    return tuple(sorted(raw_ids)), tuple(sorted(draftable_ids)), semantic_audit
 
 
 def validate_paid_classic_book_v2(
@@ -383,12 +396,14 @@ def validate_paid_classic_book_v2(
     assert_exact_unique_classic_book_v2(lineups, expected_entries=expected_entries)
     identities: list[tuple[int, ...]] = []
     draftable_identities: list[tuple[int, ...]] = []
+    semantic_audits: list[dict[str, object]] = []
     for ordinal, lineup in enumerate(lineups, start=1):
-        stable, draftable = _validate_roster(
+        stable, draftable, semantic = _validate_roster(
             lineup, catalog=catalog, lineup_ordinal=ordinal
         )
         identities.append(stable)
         draftable_identities.append(draftable)
+        semantic_audits.append(semantic)
     if len(set(draftable_identities)) != len(lineups):
         _fail("book contains duplicate draftable-ID rosters")
     body: dict[str, Any] = {
@@ -411,6 +426,10 @@ def validate_paid_classic_book_v2(
         "unique": True,
         "draftkings_legal": True,
         "active_eligible": True,
+        "canonical_game_policy_id": CANONICAL_GAME_POLICY_ID,
+        "semantic_roster_audits": semantic_audits,
+        "semantic_roster_audits_sha256": _canonical_sha256(semantic_audits),
+        "semantic_draftkings_legal": True,
     }
     body["receipt_sha256"] = _canonical_sha256(body)
     return body

@@ -32,6 +32,11 @@ from typing import Any, Final
 
 import numpy as np
 
+from nfl_dfs.optimizer.game_identity import (
+    CANONICAL_GAME_POLICY_ID,
+    canonical_game_counts,
+)
+
 
 SNAPSHOT_SCHEMA: Final = "corpus-retrieval-snapshot-manifest/v1"
 STRATEGY_SCHEMA: Final = "corpus-retrieval-strategy/v1"
@@ -1320,6 +1325,7 @@ def _lineup_features(
     positions = Counter(str(row["pos"]) for row in rows)
     teams = Counter(str(row["team"]) for row in rows)
     games = Counter(str(row["game_id"]) for row in rows)
+    canonical_games = canonical_game_counts(rows)
     qbs = [row for row in rows if row["pos"] == "QB"]
     qb_stack = 0
     bring_back = 0
@@ -1348,6 +1354,10 @@ def _lineup_features(
         "max_players_same_team": max(teams.values()),
         "game_count": len(games),
         "max_players_same_game": max(games.values()),
+        "canonical_game_player_counts": dict(sorted(canonical_games.items())),
+        "canonical_game_count": len(canonical_games),
+        "canonical_max_players_same_game": max(canonical_games.values()),
+        "canonical_game_policy_id": CANONICAL_GAME_POLICY_ID,
         "qb_stack_teammates": qb_stack,
         "bring_back_players": bring_back,
     }

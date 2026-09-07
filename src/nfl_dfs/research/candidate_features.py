@@ -16,9 +16,14 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+from ..optimizer.game_identity import (
+    CANONICAL_GAME_POLICY_ID,
+    canonical_game_counts,
+)
+
 # Bump when a definition changes; reports and models record it so a
 # feature drift can never be mistaken for a modelling result.
-FEATURE_DEF_VERSION = "cf-1.0.0"
+FEATURE_DEF_VERSION = "cf-1.1.0-canonical-game-additive"
 
 # Point-in-time player state that must survive projection replay, slate
 # construction, and the immutable warehouse snapshot as one contract.  Keeping
@@ -131,6 +136,15 @@ def candidate_aggregates(
         out["n_games"] = int(pl.game_id.nunique())
     else:
         out["max_from_game"], out["n_games"] = -1, -1
+    if "team" in pl.columns and ({"opp", "opponent"} & set(pl.columns)):
+        canonical_counts = canonical_game_counts(pl.to_dict("records"))
+        out["canonical_max_from_game"] = max(canonical_counts.values())
+        out["canonical_n_games"] = len(canonical_counts)
+        out["canonical_game_policy_id"] = CANONICAL_GAME_POLICY_ID
+    else:
+        out["canonical_max_from_game"] = -1
+        out["canonical_n_games"] = -1
+        out["canonical_game_policy_id"] = CANONICAL_GAME_POLICY_ID
     for p in _SLOTS:
         out[f"n_{p.lower()}"] = int((pl.pos == p).sum())
     return out

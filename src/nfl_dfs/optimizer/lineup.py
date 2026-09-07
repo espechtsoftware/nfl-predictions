@@ -21,6 +21,8 @@ from typing import Any, Callable, Literal, Mapping, Protocol
 import numpy as np
 import pulp
 
+from .game_identity import canonical_game_identities, resolve_game_lock_key
+
 log = logging.getLogger(__name__)
 
 SALARY_CAP = 50_000
@@ -210,7 +212,13 @@ def add_classic_lineup_constraints(
                   else int(_env.get("MIN_GAMES", "1") or 1))
     if _min_games < 1:
         raise ValueError("minimum games must be at least one")
-    games = sorted({p.get("game_id") for p in players if p.get("game_id")})
+    game_identities = (
+        canonical_game_identities(players)
+        if _min_games > 1 or max_per_game or game_lock
+        or int(_env.get("MAX_PER_GAME", "0"))
+        else []
+    )
+    games = sorted({identity.canonical_game_key for identity in game_identities})
     if _min_games == 1:
         # DK legality itself does not require game metadata or a multi-game
         # roster.  Missing game IDs therefore remain legal in the neutral
@@ -228,7 +236,9 @@ def add_classic_lineup_constraints(
         # same feasible roster set.
         for game in games:
             prob += pulp.lpSum(
-                x[p["id"]] for p in players if p.get("game_id") != game
+                x[p["id"]] for p, identity in zip(
+                    players, game_identities, strict=True
+                ) if identity.canonical_game_key != game
             ) >= 1
     elif _min_games > 2:
         game_used = {
@@ -236,7 +246,9 @@ def add_classic_lineup_constraints(
             for index, game in enumerate(games)
         }
         for game, used in game_used.items():
-            ids = [p["id"] for p in players if p.get("game_id") == game]
+            ids = [p["id"] for p, identity in zip(
+                players, game_identities, strict=True
+            ) if identity.canonical_game_key == game]
             prob += pulp.lpSum(x[pid] for pid in ids) >= used
             prob += pulp.lpSum(x[pid] for pid in ids) <= ROSTER_SIZE * used
         prob += pulp.lpSum(game_used.values()) >= _min_games
@@ -294,11 +306,11 @@ def add_classic_lineup_constraints(
     max_pg = (max_per_game if max_per_game is not None
               else int(_env.get("MAX_PER_GAME", "0")))
     if max_pg:
-        by_game: dict = {}
-        for p in players:
-            by_game.setdefault(p.get("game_id"), []).append(p["id"])
+        by_game: dict[str, list[object]] = {}
+        for p, identity in zip(players, game_identities, strict=True):
+            by_game.setdefault(identity.canonical_game_key, []).append(p["id"])
         for gid, ids in by_game.items():
-            if gid is not None and len(ids) > max_pg:
+            if len(ids) > max_pg:
                 prob += pulp.lpSum(x[pid] for pid in ids) <= max_pg
 
     # A/B lever (env MIN_LOWOWN, off by default): winner ownership shape
@@ -314,9 +326,13 @@ def add_classic_lineup_constraints(
 
     if game_lock:
         gid, n_from_game = game_lock
-        in_game = [p["id"] for p in players if p.get("game_id") == gid]
-        if len(in_game) >= n_from_game:
-            prob += pulp.lpSum(x[pid] for pid in in_game) >= n_from_game
+        canonical_lock = resolve_game_lock_key(
+            players, gid, minimum=n_from_game,
+        )
+        in_game = [p["id"] for p, identity in zip(
+            players, game_identities, strict=True
+        ) if identity.canonical_game_key == canonical_lock]
+        prob += pulp.lpSum(x[pid] for pid in in_game) >= n_from_game
 
     for pid in locks or ():
         prob += x[pid] == 1
@@ -355,7 +371,8 @@ def optimize(
     interaction_floor: float | None = None,
 ) -> Lineup | None:
     """Solve one lineup. Returns None if infeasible.
-    game_lock=(game_id, n) forces >= n players from that game — the
+    game_lock=(game_id, n) resolves a raw or canonical game identity and
+    forces >= n players from that physical game — the
     concentrated-game-stack construction (issue #6): Milly winners take
     50-80% of their points from one game."""
     prob = pulp.LpProblem("dfs", pulp.LpMaximize)

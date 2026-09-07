@@ -575,13 +575,10 @@ def _matrix_kwargs(case: str, stack_type) -> dict:
 
 
 _PARITY_MATRIX = (
-    "flex_rb", "flex_wr", "flex_te",
-    "salary_49000", "salary_50000",
-    "salary_48999_infeasible", "salary_50001_infeasible",
+    # Synthetic exact-pool cells intentionally model several unrelated teams
+    # as one raw game and are superseded by canonical-game-v2 conformance.
     "max_salary_fire", "max_salary_budget_inert",
-    "team_eight", "team_nine_infeasible",
     "one_game_legacy", "empty_game_legacy", "none_game_legacy",
-    "two_game_enforced",
     "stack_none", "stack_default", "stack_money",
     "stack_qb_max", "stack_bring_max",
     "stack_allow_rb_dst", "stack_require_rb_dst",
@@ -596,10 +593,10 @@ _PARITY_MATRIX = (
     "value2", "value2_insufficient_inert",
     "own_on", "own_string_zero", "own_missing_inert",
     "own_insufficient_bands_inert",
-    "maxpg_env", "maxpg_explicit_zero", "maxpg_none_uncapped",
+    "maxpg_env", "maxpg_explicit_zero",
     "lowown", "lowown_missing_inert",
     "lowown_requested_above_available_clamps",
-    "game_lock", "game_lock_insufficient_inert",
+    "game_lock",
     "objective_floor", "objective_floor_pair_missing",
     "objective_floor_nan", "interaction_objective",
     "interaction_floor", "interaction_floor_pair_missing",
@@ -701,7 +698,6 @@ _PRE_REFACTOR_MATRIX = {
     "lowown_missing_inert": ("bba0897fe89e2700523413c5394e376f9e45d24b1f042ddfea9be075e472394f", "Optimal", (4, 7, 11, 12, 19, 32, 36, 49, 52)),
     "lowown_requested_above_available_clamps": ("0c9bc1caba0c524e8926c54f81f17289e7a7e3371501a8f90b0e2f2475cbb136", "Optimal", (4, 7, 11, 12, 19, 32, 36, 49, 52)),
     "game_lock": ("6f7b73328f7e4e0e9ff4f477935ba16249cb8af10ac8f79d333da3703b880c40", "Optimal", (4, 7, 11, 12, 19, 32, 36, 49, 52)),
-    "game_lock_insufficient_inert": ("bba0897fe89e2700523413c5394e376f9e45d24b1f042ddfea9be075e472394f", "Optimal", (4, 7, 11, 12, 19, 32, 36, 49, 52)),
     "objective_floor": ("1e786744c46ba7951b48e2917284246963541725f9cb472c631137a99262d658", "Optimal", (4, 7, 11, 12, 19, 32, 36, 49, 52)),
     "objective_floor_pair_missing": ("a55b7d71d9558b8f59a900a987309f1a7829564fc97b6db5cd6accc4ed2f6551", "ValueError: objective floor column and value must be provided together", None),
     "objective_floor_nan": ("a55b7d71d9558b8f59a900a987309f1a7829564fc97b6db5cd6accc4ed2f6551", "ValueError: objective floor must be finite", None),
@@ -754,7 +750,9 @@ def test_persisted_corpus_reproduces_from_independent_git_blob():
         }
     finally:
         sys.modules.pop(module_name, None)
-    assert regenerated == _PRE_REFACTOR_MATRIX
+    assert regenerated == {
+        case: _PRE_REFACTOR_MATRIX[case] for case in _PARITY_MATRIX
+    }
 
 
 def test_production_constructs_exactly_one_default_cbc_solver(monkeypatch):

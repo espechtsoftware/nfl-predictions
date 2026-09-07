@@ -36,6 +36,10 @@ from nfl_dfs.research import corpus_r6_no_rescore_funnel_v1 as no_rescore_funnel
 from nfl_dfs.research import corpus_r6_player_catalog_v1 as player_catalog
 from nfl_dfs.research import residual_world_columns
 from nfl_dfs.research.corpus_batch_evidence_contract import MICRO_DK_PER_POINT
+from nfl_dfs.optimizer.game_identity import (
+    CANONICAL_GAME_POLICY_ID,
+    canonical_game_counts,
+)
 
 
 PLAN_SCHEMA: Final = "corpus-r6-historical-neo4j-slice-plan/v1"
@@ -1005,6 +1009,7 @@ def _dk_structural_phenotype(
     positions = Counter(str(player["pos"]) for player in players)
     teams = Counter(str(player["team"]) for player in players)
     games = Counter(str(player["game_id"]) for player in players)
+    canonical_games = canonical_game_counts(players)
     if (
         len(players) != 9
         or positions["QB"] != 1
@@ -1031,6 +1036,9 @@ def _dk_structural_phenotype(
         "distinct_game_count": len(games),
         "maximum_same_team_count": max(teams.values()),
         "maximum_same_game_count": max(games.values()),
+        "canonical_distinct_game_count": len(canonical_games),
+        "canonical_maximum_same_game_count": max(canonical_games.values()),
+        "canonical_game_policy_id": CANONICAL_GAME_POLICY_ID,
         "qb_team": qb_team,
         "qb_opponent": qb_opponent,
         "qb_teammate_count": sum(
