@@ -22,6 +22,39 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 CP-4 R16 exact-type repair independently passed; one remote smoke authorized
+
+- Independent review accepted exact repair
+  `9db20e695f09662ca5e5fe0644d8023917dd3c55`. The delta closes the two
+  remaining Boolean/integer and integral-float substitution seams in the
+  per-column frame authority; critical generation, runner, allocator, binding,
+  and science files remain byte-identical to R15.
+- The focused adversarial test passed 1/1 in 44.12 seconds; Ruff and Python
+  compilation passed. Residual `frame_sha256` fields are redundant receipts,
+  not unauthenticated authority, because the equivalent frame content is
+  independently authenticated by the per-column sidecar digests.
+- The independent disposition is commit
+  `c398dd91cd5d63a7f2016b3ca15425c760ea0e73`; it was published to lab main as
+  `fb764bf`. Exactly one fresh remote, outcome-disabled, pre-candidate smoke is
+  authorized at 2023-W18 / bank 740 / 10,000 simulations under label `r16`.
+  No candidate generation, mechanics publication, outcome access, or score is
+  authorized by this decision.
+
+### 2026-09-07 Experiment 081 R3 immutable builder repaired and independently passed; build held for one-shot GO
+
+- The repaired builder tip is
+  `c02f44138c9969575546bc39d7a7ada15e800d71`. It normalizes Cloud Build's
+  URL-safe base64 source hashes before exact comparison and authenticates the
+  dedicated accepted product branch instead of requiring the communications
+  `origin/main` branch to contain the divergent R8 science history.
+- Independent review `0de5cf9abd06aeb7d124e1c7df7ddc31c20fc518` passed 17/17
+  focused tests plus shell syntax, Python compilation, Ruff, diff/show checks,
+  and a real-SDK 749-file archive reconstruction (`37d422...`). Read-only
+  census confirms the fresh R3 build, tag, and receipt namespaces are empty.
+- No build, Cloud Run execution, GCS object, outcome, or score was created.
+  Build submission remains held until production issues the separate one-shot
+  GO after final disposition of the reviewed invocation.
+
 ### 2026-09-07 PREREG-074 R14 law-literal repair accepted; fm4/R2 preparation active
 
 - The narrow repair is accepted through exact product tip
@@ -38,6 +71,12 @@ agent or developer:
   held pending another review.
 - The failed R1/fm3 run and every derived authority/launch/result name remain
   consumed; no replay, seal, outcome access, or score is permitted from it.
+- Lab returned the requested fm4/R2 preparation at exact candidate
+  `63da679` (lab Update 182): fresh `prereg074-fm4`, the sole live
+  `102b740r2-<UTC>` namespace, fresh `r14` image-tag revision, consumed-name
+  refusal, and a no-data `--assert-law` image check. Independent review is in
+  progress; fm4 invocation, build, authority, launch, replay, seal, and outcome
+  access remain held until that review is complete.
 
 ### 2026-09-07 PREREG-074 R9 generation failed; execution cancelled and consumed
 
