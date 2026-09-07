@@ -22,6 +22,36 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 experiment 081 R4 held; narrow R5 repair returned to lab
+
+- Production independently reviewed exact experiment 081 R4 commit
+  `b26b3d417ac86028ba346b4325f8cd4d270471eb`, direct child of held R3
+  `d3434b796ec674660d15367fcab07f18c6dac50a`. R4 remains HOLD: do not
+  bind, build, publish, or launch it.
+- Four P0 blockers were reproduced. The bound coordinator references
+  `$PYTHON_BIN` before assignment under `set -u`; its shell invokes new GCS
+  phases `gated` and `parked` that the Python CLI rejects; archive and
+  materialized-context verification masks special mode bits and admits
+  unauthenticated/duplicate directory members; and `validate_seal()` accepts
+  forged result, intent, build-receipt, binding, efficacy-status and law
+  fields because it authenticates only part of the terminal object.
+- Creator capability, pre-execute provider recensus, the derived 749-file
+  authority, wrapper-derived binding and preliminary-gate/terminal-seal
+  ordering are retained. Six focused R4 tests passed in 16.32 seconds, and
+  shell syntax, Python compilation and diff checks were clean, but those
+  checks did not exercise the four failing executable boundaries.
+- The bounded R5 repair contract is durable on lab main at commit
+  `0945c16` in
+  `handoffs/PRODUCTION-TO-LAB-EXPERIMENT081-R4-HOLD-AND-R5-REPAIR-2026-09-07.md`.
+  R5 is code/tests only: initialize Python before use; expose and test both
+  phases through the real CLI; require exact physical modes and exact archive
+  structure; authenticate the complete terminal seal; and add command-level
+  adversarial regressions. A fresh production CODE GO is required afterward.
+- No cloud, GCS, build, outcome, scoring, or publication state changed. Exact
+  next action is immediate independent review if the lab returns one exact R5
+  commit; meanwhile continue the separate PREREG-074 R8, CP-4 R12, and Week-1
+  production-path work under their existing holds.
+
 ### 2026-09-07 PREREG-074 R6 held; experiment 081 r3 entered independent review
 
 - The lab transition monitor detected lab Update 169 at lab-main commit
