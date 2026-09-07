@@ -33,6 +33,26 @@ def _frame(seed):
     return frame
 
 
+def test_live_simulation_groups_aliases_and_raw_ids_by_physical_game() -> None:
+    skill = pd.DataFrame([
+        {
+            "dk_player_id": 1,
+            "team": "JAC",
+            "opponent": "TEN",
+            "game_id": "provider-game",
+        },
+        {
+            "dk_player_id": 2,
+            "team": "TEN",
+            "opponent": "JAX",
+            "game_id": "TEN@JAX",
+        },
+    ])
+    games, teams = live_lineups._canonical_simulation_units(skill)
+    assert games.tolist() == ["JAX|TEN", "JAX|TEN"]
+    assert teams.tolist() == ["JAX", "TEN"]
+
+
 @pytest.mark.parametrize(
     "column",
     ["actual_points", "fantasy_points_ppr", "realized_points", "y_dk_points"],

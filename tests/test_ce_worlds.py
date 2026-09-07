@@ -69,8 +69,8 @@ def test_ce_batch_wires_into_generator(monkeypatch):
                         ("TE", 6, 3800), ("DST", 4, 3000)):
         for k in range(n):
             pool.append({"id": f"{pos}{k}", "name": f"{pos}{k}", "pos": pos,
-                         "team": f"T{ix % 4}", "opp": f"T{(ix + 1) % 4}",
-                         "game_id": f"g{ix % 2}", "salary": sal + 137 * k,
+                         "team": f"T{ix % 4}", "opp": f"T{(ix % 4) ^ 1}",
+                         "game_id": f"g{(ix % 4) // 2}", "salary": sal + 137 * k,
                          "proj": 8.0 + (k % 5), "actual": 10.0})
             ix += 1
     slate = pd.DataFrame(pool)

@@ -102,8 +102,8 @@ def _build_completed_run(
             "RB" if index < 5 else "WR" if index < 13 else "TE"
         ),
         "team": f"T{index % 6}",
-        "opp": f"T{(index % 6 + 1) % 6}",
-        "game_id": f"G{index % 3}",
+        "opp": f"T{(index % 6) ^ 1}",
+        "game_id": f"G{(index % 6) // 2}",
         "salary": 4_000 + index * 100,
         "proj": 10.0 + index / 10,
     } for index, player_id in enumerate(player_ids.tolist())]
@@ -1046,6 +1046,97 @@ def test_v2_suite_is_executable_end_to_end(
         "all_tasks_complete": True,
         "all_strategies_equal_budget": True,
     }
+
+
+def test_v3_canonical_suite_publishes_replays_and_completes_end_to_end(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from nfl_dfs.research import corpus_retrieval_engine_v3 as retrieval_v3
+    from nfl_dfs.research import corpus_retrieval_neo4j as neo4j_mod
+
+    # Reuse the full artifact factory under the actual v3 module rather than
+    # aliasing v3 callables under v2 names.
+    monkeypatch.setattr(
+        __import__(__name__), "retrieval", retrieval_v3, raising=True
+    )
+    run = _build_completed_run(
+        suite_schema=retrieval_v3.SUITE_SCHEMA_V3,
+        strategies=retrieval_v3.frozen_retrieval_strategies_v2(80),
+        run_id="fixture-retrieval-v3-canonical",
+    )
+    authority = retrieval_v3.validate_retrieval_task_result(
+        published_result=run["published"],
+        suite_manifest=run["suite"],
+        suite_manifest_identity=run["suite_identity"],
+        snapshot_manifest=run["snapshot"],
+        snapshot_manifest_identity=run["snapshot_identity"],
+        read_object=run["store"].read,
+        replay=True,
+    )
+    assert authority["schema_version"] == retrieval_v3.TASK_RESULT_SCHEMA_V2
+    lineup_receipt = next(
+        row for row in authority["sidecars"] if row["role"] == "unique-lineups"
+    )
+    lineup_body = retrieval_v3.parse_canonical_json_bytes(
+        run["store"].read(lineup_receipt["object_identity"]), label="v3 lineups"
+    )
+    assert lineup_body["schema_version"] == retrieval_v3.LINEUP_TABLE_SCHEMA_V2
+    assert "canonical_game_player_counts" in lineup_body["lineups"][0]["features"]
+    enrichment_receipt = next(
+        row
+        for row in authority["sidecars"]
+        if row["role"] == "enrichment-discovery"
+    )
+    enrichment_body = retrieval_v3.parse_canonical_json_bytes(
+        run["store"].read(enrichment_receipt["object_identity"]),
+        label="v3 enrichment",
+    )
+    assert enrichment_body["schema_version"] == retrieval_v3.ENRICHMENT_SCHEMA_V2
+    assert enrichment_body["teams"]
+    assert all("@" not in row["team"] for row in enrichment_body["teams"])
+    assert all("|" in row["game_id"] for row in enrichment_body["games"])
+    fill_receipt = next(
+        row for row in authority["sidecars"] if row["role"] == "fill-insight"
+    )
+    fill_body = retrieval_v3.parse_canonical_json_bytes(
+        run["store"].read(fill_receipt["object_identity"]), label="v3 fill insight"
+    )
+    assert fill_body["schema_version"] == retrieval_v3.FILL_INSIGHT_SCHEMA_V2
+
+    completion = retrieval_v3.build_retrieval_batch_completion(
+        suite_manifest=run["suite"],
+        suite_manifest_identity=run["suite_identity"],
+        snapshot_manifest=run["snapshot"],
+        snapshot_manifest_identity=run["snapshot_identity"],
+        published_results=[run["published"]],
+        read_object=run["store"].read,
+    )
+    validated = retrieval_v3.validate_retrieval_batch_completion(
+        completion,
+        suite_manifest=run["suite"],
+        suite_manifest_identity=run["suite_identity"],
+        snapshot_manifest=run["snapshot"],
+        snapshot_manifest_identity=run["snapshot_identity"],
+        published_results=[run["published"]],
+        read_object=run["store"].read,
+    )
+    assert validated["schema_version"] == retrieval_v3.COMPLETION_SCHEMA_V2
+
+    result_raw = retrieval_v3.canonical_json_bytes(authority)
+    neo4j_mod._validate_task_result(
+        result_raw,
+        run["published"]["object_identity"],
+        expected_schema=neo4j_mod.TASK_RESULT_SCHEMA_V2,
+    )
+    graph_receipt = next(
+        row for row in authority["sidecars"] if row["role"] == "graph-projection"
+    )
+    neo4j_mod._validate_graph(
+        run["store"].read(graph_receipt["object_identity"]),
+        graph_receipt["object_identity"],
+        task_result=authority,
+        expected_schema=neo4j_mod.GRAPH_SCHEMA_V2,
+    )
 
 
 def test_v2_task_result_passes_independent_graph_count_law(

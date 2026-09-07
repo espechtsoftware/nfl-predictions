@@ -22,18 +22,24 @@ from nfl_dfs.inference.prelock_input_boundary_v1 import (
     build_prelock_input_read_manifest_v1,
 )
 from nfl_dfs.inference.prelock_lineage_runtime_v2 import (
+    CAPTURE_SCHEMA,
+    CAPTURE_SCHEMA_V3,
     EFFECTIVE_POLICY_SCHEMA,
     EFFECTIVE_POLICY_SOURCE_SET_ID,
+    EFFECTIVE_POLICY_SOURCE_SET_ID_V7,
     EXECUTION_RECEIPT_SCHEMA,
     LINEAGE_ADAPTER_MANIFEST_SCHEMA,
+    LINEAGE_ADAPTER_MANIFEST_SCHEMA_V3,
     SEED_LABELS,
     PrelockLineageRuntimeV2Error,
     build_capture_authority_v2,
+    build_capture_authority_v3,
     build_salary_snapshot_v2,
     build_sidecar_from_capture_v2,
     canonical_selector_matrix_bytes,
     selected_roster_order,
     validate_capture_authority_v2,
+    validate_capture_authority_v3,
 )
 from nfl_dfs.inference.prelock_lineage_settlement_v2 import (
     SOURCE_ROLES,
@@ -258,7 +264,9 @@ def _model_artifacts() -> dict[str, object]:
     return body
 
 
-def _authorities() -> tuple[dict[str, object], ...]:
+def _authorities(
+    lineage_version: int = 2,
+) -> tuple[dict[str, object], ...]:
     environment = _environment()
     base_environment = dict(environment)
     assert base_environment.pop("PROSPECTIVE_GENERATION_EXPOSURE") == "1"
@@ -288,7 +296,11 @@ def _authorities() -> tuple[dict[str, object], ...]:
         "schema": EFFECTIVE_POLICY_SCHEMA,
         "scope": {},
         "source_identities": source_identities,
-        "source_set_id": EFFECTIVE_POLICY_SOURCE_SET_ID,
+        "source_set_id": (
+            EFFECTIVE_POLICY_SOURCE_SET_ID
+            if lineage_version == 2
+            else EFFECTIVE_POLICY_SOURCE_SET_ID_V7
+        ),
         "source_set_sha256": sha256(
             canonical_json_bytes(source_identities) + b"\n"
         ).hexdigest(),
@@ -297,7 +309,11 @@ def _authorities() -> tuple[dict[str, object], ...]:
         canonical_json_bytes(policy) + b"\n"
     ).hexdigest()
     adapter: dict[str, object] = {
-        "schema_version": LINEAGE_ADAPTER_MANIFEST_SCHEMA,
+        "schema_version": (
+            LINEAGE_ADAPTER_MANIFEST_SCHEMA
+            if lineage_version == 2
+            else LINEAGE_ADAPTER_MANIFEST_SCHEMA_V3
+        ),
         "files": [
             {
                 "path": "src/nfl_dfs/inference/prelock_lineage_runtime_v2.py",
@@ -305,7 +321,9 @@ def _authorities() -> tuple[dict[str, object], ...]:
                 "bytes": 10,
             }
         ],
-        "effective_policy_inventory_required": "v6",
+        "effective_policy_inventory_required": (
+            "v6" if lineage_version == 2 else "v7"
+        ),
         "transitive_scoring_surface_claimed_here": False,
     }
     adapter["manifest_sha256"] = canonical_sha256(adapter)
@@ -361,18 +379,29 @@ def _input_read_manifest() -> dict[str, object]:
     )
 
 
-def _capture() -> tuple[dict[str, object], CandidateBatch]:
+def _capture(
+    lineage_version: int = 2,
+) -> tuple[dict[str, object], CandidateBatch]:
     books = _five_books()
     combined = combine_cbwu_books(
         books,
         SEED_LABELS,
         expected_worlds_per_book=11,
     )
-    policy, adapter, execution, models, method = _authorities()
-    capture = build_capture_authority_v2(
+    policy, adapter, execution, models, method = _authorities(lineage_version)
+    builder = (
+        build_capture_authority_v2
+        if lineage_version == 2
+        else build_capture_authority_v3
+    )
+    capture = builder(
         run={
             "run_id": "week1-lineage-001",
-            "run_type": "prospective-lineage-shadow-v2",
+            "run_type": (
+                "prospective-lineage-shadow-v2"
+                if lineage_version == 2
+                else "prospective-lineage-shadow-v3-canonical-game"
+            ),
             "season": 2026,
             "week": 1,
             "slate_id": "dk-123",
@@ -400,6 +429,23 @@ def _capture() -> tuple[dict[str, object], CandidateBatch]:
         entry_budget=2,
     )
     return capture, combined
+
+
+@pytest.mark.parametrize(
+    ("lineage_version", "schema", "validator"),
+    [
+        (2, CAPTURE_SCHEMA, validate_capture_authority_v2),
+        (3, CAPTURE_SCHEMA_V3, validate_capture_authority_v3),
+    ],
+)
+def test_genuine_v2_and_v3_capture_contracts_build_and_validate(
+    lineage_version,
+    schema,
+    validator,
+) -> None:
+    capture, _ = _capture(lineage_version)
+    assert capture["schema_version"] == schema
+    assert validator(capture) == capture
 
 
 def test_real_r0_r4_union_cbwu_typed_selector_seals_v1_sidecar() -> None:

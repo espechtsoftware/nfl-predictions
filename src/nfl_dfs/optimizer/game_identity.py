@@ -15,6 +15,8 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any, Final
 
+import pandas as pd
+
 CANONICAL_GAME_POLICY_ID: Final = "unordered-normalized-team-opponent-v2"
 
 # The aliases are deliberately local to the identity policy.  Importing an
@@ -46,11 +48,31 @@ class CanonicalGameIdentity:
 def _required_text(value: object, *, label: str) -> str:
     if value is None:
         raise ValueError(f"{CANONICAL_GAME_POLICY_ID}: {label} is missing")
+    # Missing pandas/NumPy scalars must be rejected before ``str`` turns them
+    # into plausible identifiers such as ``<NA>`` or ``NaT``.  ``pd.isna``
+    # also covers NumPy floating NaN and datetime64/timedelta64 NaT.  Reject
+    # non-scalar results rather than allowing their truth value to be guessed.
+    try:
+        missing = pd.isna(value)
+    except (TypeError, ValueError):
+        missing = False
+    if isinstance(missing, bool) and missing:
+        raise ValueError(f"{CANONICAL_GAME_POLICY_ID}: {label} is missing")
+    if not isinstance(missing, bool) and hasattr(missing, "item"):
+        try:
+            if bool(missing.item()):
+                raise ValueError(
+                    f"{CANONICAL_GAME_POLICY_ID}: {label} is missing"
+                )
+        except ValueError:
+            raise
+        except (TypeError, AttributeError):
+            pass
     if isinstance(value, float) and not math.isfinite(value):
         raise ValueError(f"{CANONICAL_GAME_POLICY_ID}: {label} is missing")
     text = str(value).strip()
     if not text or text.upper() in {
-        "NAN", "NONE", "NULL", "INF", "+INF", "-INF", "INFINITY",
+        "NAN", "NAT", "<NA>", "NONE", "NULL", "INF", "+INF", "-INF", "INFINITY",
         "+INFINITY", "-INFINITY",
     }:
         raise ValueError(f"{CANONICAL_GAME_POLICY_ID}: {label} is missing")
@@ -79,6 +101,7 @@ def canonical_game_key(team: object, opponent: object) -> str:
 def player_game_identity(player: Mapping[str, object]) -> CanonicalGameIdentity:
     """Derive identity while retaining the provider's raw ``game_id``."""
 
+    _required_text(player.get("id"), label="player id")
     opponent = player.get("opp")
     if opponent is None:
         opponent = player.get("opponent")
@@ -222,8 +245,11 @@ def audit_classic_roster_semantics(
 
     if len(players) != 9:
         raise ValueError(f"{CANONICAL_GAME_POLICY_ID}: roster size is not nine")
-    player_ids = [player.get("id") for player in players]
-    if any(player_id is None for player_id in player_ids) or len(set(player_ids)) != 9:
+    player_ids = [
+        _required_text(player.get("id"), label="player id")
+        for player in players
+    ]
+    if len(set(player_ids)) != 9:
         raise ValueError(
             f"{CANONICAL_GAME_POLICY_ID}: roster player IDs are not unique"
         )

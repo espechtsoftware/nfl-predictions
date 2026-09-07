@@ -8,6 +8,10 @@ steps:
     args:
       - -ceu
       - |
+        if [[ ! '${_CODE_SHA}' =~ ^[0-9a-f]{40}$ ]]; then
+          echo '_CODE_SHA must be the full immutable source commit' >&2
+          exit 2
+        fi
         apt-get update
         apt-get install -y --no-install-recommends git libgomp1
         pip install --no-cache-dir '.[gcp,app,dev]'
@@ -44,6 +48,9 @@ steps:
           "from nfl_dfs.app.main import app; paths={getattr(r,'path',None) for r in app.routes}; assert {'/lineups/paid-v2','/lineups/paid-v2.csv','/lineups/entries/paid-v2.csv','/lineups/paid-v3','/lineups/paid-v3.csv','/lineups/entries/paid-v3.csv'} <= paths"
         docker run --rm '${_IMAGE}' python -c \
           "from nfl_dfs.optimizer.paid_classic_book_v2 import PAID_CLASSIC_BOUNDARY_ID as V2; from nfl_dfs.optimizer.paid_classic_book_v3 import PAID_CLASSIC_BOUNDARY_ID as V3; assert V2 == 'paid-classic-book-boundary-v2'; assert V3 == 'paid-classic-book-boundary-v3-canonical-game'"
+        docker run --rm -e EXPECTED_SOURCE_COMMIT='${_CODE_SHA}' '${_IMAGE}' \
+          python -c \
+          'import os; assert os.environ["IMAGE_SOURCE_COMMIT_SHA"] == os.environ["EXPECTED_SOURCE_COMMIT"]'
 images:
   - '${_IMAGE}'
 substitutions:

@@ -39,6 +39,7 @@ def _fixture() -> tuple[dict[str, object], list[dict[str, object]]]:
                 "salary": salary,
             })
             salaries.append({
+                "pulled_at": "2026-09-11T15:00:00+00:00",
                 "draft_group_id": 151307,
                 "dk_player_id": 200_000 + entry_rank * 10 + player_ordinal,
                 "dk_draftable_id": int(dk_id),
@@ -46,6 +47,8 @@ def _fixture() -> tuple[dict[str, object], list[dict[str, object]]]:
                 "position": position,
                 "team_abbr": team,
                 "salary": salary,
+                "game_start": LOCK_AT,
+                "status": "",
             })
         roster.sort()
         roster_sha = canonical_sha256(roster)
@@ -104,13 +107,28 @@ def _projection_rows(salaries: list[dict[str, object]]) -> list[dict[str, object
     return [
         {
             "dk_player_id": row["dk_player_id"],
+            "generated_at": "2026-09-11T16:00:00+00:00",
+            "season": 2026,
+            "week": 1,
             "team": row["team_abbr"],
             "opponent": "BBB" if row["team_abbr"] == "AAA" else "AAA",
             "position": row["position"],
             "salary": row["salary"],
+            "proj_points": 18.0,
         }
         for row in salaries
     ]
+
+
+def _schedule_rows() -> list[dict[str, object]]:
+    return [{
+        "game_id": "2026_01_BBB_AAA",
+        "season": 2026,
+        "week": 1,
+        "game_type": "REG",
+        "home_team": "AAA",
+        "away_team": "BBB",
+    }]
 
 
 def test_exact_book_projects_to_fixed_tier_counts_and_dk_csv(
@@ -151,9 +169,17 @@ def test_v2_final_boundary_adds_and_checks_semantic_game_identity(
         exact_book=exact,
         salary_rows=salaries,
         projection_rows=_projection_rows(salaries),
+        schedule_rows=_schedule_rows(),
+        validated_at="2026-09-11T16:30:00+00:00",
     )
     assert result["schema_version"] == export.SCHEMA_VERSION_V2
     assert result["final_semantic_draftkings_legal"] is True
+    assert result["one_coherent_prelock_projection_batch"] is True
+    assert result["projection_generated_at"] == "2026-09-11T16:00:00+00:00"
+    assert result["authority_validated_at"] == "2026-09-11T16:30:00+00:00"
+    assert result["slate_lock_at"] == LOCK_AT
+    assert result["paid_classic_catalog_sha256"]
+    assert result["paid_classic_receipt_sha256"]
     assert result["canonical_game_policy_id"] == (
         "unordered-normalized-team-opponent-v2"
     )
@@ -165,12 +191,14 @@ def test_v2_final_boundary_adds_and_checks_semantic_game_identity(
     projections[0]["opponent"] = "AAA"
     with pytest.raises(
         export.Week1OperatingBookExportError,
-        match="final semantic DK legality",
+        match="paid-v3 salary/projection/schedule authority",
     ):
         export.build_week1_operating_book_export_v2(
             exact_book=exact,
             salary_rows=salaries,
             projection_rows=projections,
+            schedule_rows=_schedule_rows(),
+            validated_at="2026-09-11T16:30:00+00:00",
         )
 
 

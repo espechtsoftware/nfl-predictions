@@ -22,6 +22,66 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 canonical-game v2 independent-BLOCK repairs ready (local, unpushed)
+
+- Worktree `/home/erich/projects/nfl-predictions-canonical-game-v2`, branch
+  `fix/canonical-game-policy-v2-20260907`, repairs reviewed commit
+  `2a07b27f`. The repair commit is the commit containing this entry. This
+  section supersedes the earlier readiness claim for `2a07b27f`; no push,
+  merge, build, deploy, cloud execution, paid action, or outcome read occurred.
+- Closed all three independent-review P0s. Retrieval suite v3 now routes
+  through the successor engine, publishes versioned enrichment/fill/lineup/
+  graph/result artifacts, passes the selected graph schema and canonical-game
+  feature law into replay, and completes a genuine v3 publish -> validate ->
+  replay -> completion chain. Canonical identity parsing rejects pandas and
+  NumPy missing/NaT scalars for player, team, opponent, and raw-game fields
+  before text conversion, including final-roster paths. Active Week-1 export
+  v2 now exact-joins fresh paid-v3 salary identity, one global point-in-time
+  projection batch, and the authoritative regular-season schedule, then runs
+  paid-v3 terminal validation before making its independent-authentication
+  claims.
+- Closed the operational P1s in scope. The transport and analytical Neo4j
+  loader route coherent v1 versus canonical-v2 evidence schemas and result
+  names. Prospective lineage emits genuine, disjoint v2/v6 and v3/v7 run and
+  candidate identities, with parameterized contract tests. Canonical v3
+  enrichment uses normalized team/physical-game groups. Neutral legality-only
+  stack rules no longer require opponent data; active opponent rules still
+  fail closed. Retrieval stack features count only WR/TE QB catchers and
+  RB/WR/TE bring-backs, matching the optimizer law. Gumbel, epistemic-game,
+  hyper-boom, CE, live multiseed, and historical replay simulation grouping
+  now use canonical physical games while retaining raw IDs as provenance.
+- Paid-v3 now rejects non-finite projections, mixed projection timestamps,
+  post-validation/post-lock batches, missing or reached slate locks, and
+  unknown/abbreviated build SHAs. BigQuery and in-memory stores expose a
+  coherent global projection-batch read rather than independent latest rows
+  per player. Cloud Build YAML parses, but no build was submitted.
+- Frozen v1/v2 implementation sources remain byte-identical at their retained
+  reference commits (`paid_classic_book_v2.py` and
+  `corpus_retrieval_engine.py` versus `e3e27d84`; Week-1 v1 exporter and
+  materializer versus `2a07b27f`). The regenerated current successor is
+  `adopted-classic-policy-20260907-canonical-game-v7`: 21 sources, 65 rules,
+  complete for scope; inventory SHA-256
+  `f5d85ad1e08580786b91b1efe075568f974b35532f2fd67dbe399e182a4590ad`,
+  source-set SHA-256
+  `78cc20d7cee189ec5c4d6d326c546aa94c3ff0dc2b674941d508bdfcaa742f21`,
+  rule-universe SHA-256
+  `5e00f6047b063f28b917155772e9f1b8f8fa86b59009f0b7ed28db6b20dd3520`,
+  and classified-input projection SHA-256
+  `e15caf29d3d4be6caa1c323e5f9e8cb8f93177aaec4f933f487886cfafb7da8d`.
+- Serial validation is green: 321/321 changed-surface tests and 167/167
+  frozen compatibility tests (488 distinct tests total), including the true
+  retrieval-v3 E2E replay/completion, v3 Neo4j chain, both lineage versions,
+  paid/Week-1 boundaries, live/replay physical-game grouping, optimizer,
+  baseline, and game simulation. `compileall`, `git diff --check`, YAML parsing,
+  frozen-source equality, exact v7 regeneration/validation, and Ruff fatal-
+  error checks (`E9,F63,F7,F82`) across every modified Python file pass.
+  Repository-wide style Ruff retains pre-existing debt and is not claimed.
+- No known blocker from the independent review remains. Next concrete action:
+  independently re-review this local repair commit, with special attention to
+  the Week-1 paid-v3 authority join and transport v3 routing. Do not push,
+  merge, build, deploy, run cloud work, access outcomes, or activate policy
+  until that review accepts the repair and provides the applicable authority.
+
 ### 2026-09-07 production canonical-game policy v2 ready for review (local only)
 
 - Isolated worktree `/home/erich/projects/nfl-predictions-canonical-game-v2`,

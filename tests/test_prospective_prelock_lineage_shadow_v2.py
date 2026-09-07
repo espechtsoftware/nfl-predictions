@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from copy import deepcopy
 from datetime import UTC, datetime, timedelta
 from itertools import combinations, islice
@@ -20,17 +21,22 @@ from nfl_dfs.inference.prelock_model_artifact_authority_v1 import (
     MODEL_ARTIFACT_MANIFEST_SCHEMA,
 )
 from nfl_dfs.inference.prospective_prelock_lineage_shadow_v2 import (
-    OBJECT_NAMES_V3 as OBJECT_NAMES,
+    OBJECT_NAMES as OBJECT_NAMES_V2,
+)
+from nfl_dfs.inference.prospective_prelock_lineage_shadow_v2 import (
+    OBJECT_NAMES_V3,
     GcsClosedObjectStore,
     ProspectivePrelockLineageShadowV2Error,
     build_execution_receipt_v1,
-    run_prelock_lineage_shadow_v3 as run_prelock_lineage_shadow_v2,
+    run_prelock_lineage_shadow_v2,
+    run_prelock_lineage_shadow_v3,
 )
 from nfl_dfs.models.components import COMPONENT_NAMES
 from nfl_dfs.optimizer.lineup import Lineup, select_tail_entries
 
 LOCK = datetime(2026, 9, 13, 17, 0, tzinfo=UTC)
 RUN_ID = "week1-lineage-publication-001"
+OBJECT_NAMES = OBJECT_NAMES_V3
 PREFIX = f"prelock-lineage-v3/2026/week-01/{RUN_ID}"
 MODEL_WEEK = "2026-W36"
 
@@ -157,10 +163,17 @@ class _SalaryStore:
 
 
 class _ClosedStore:
-    def __init__(self, *, fail_after: str | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        fail_after: str | None = None,
+        object_names: dict[str, str] | None = None,
+        prefix: str = PREFIX,
+    ) -> None:
         self.bucket_name = settings.gcs_bucket
-        self.prefix = PREFIX
-        self.allowed_names = frozenset(OBJECT_NAMES.values())
+        self.prefix = prefix
+        self.object_names = OBJECT_NAMES if object_names is None else object_names
+        self.allowed_names = frozenset(self.object_names.values())
         self.objects: dict[str, tuple[bytes, dict[str, object]]] = {}
         self.create_attempts: list[str] = []
         self._generation = 100
@@ -215,13 +228,14 @@ class _ClosedStore:
 
 
 def _player(player_id: int) -> dict[str, object]:
+    team_index = player_id % 6
     return {
         "id": player_id,
         "name": f"P{player_id}",
         "pos": "WR",
-        "team": f"T{player_id % 6}",
-        "opp": f"T{(player_id + 1) % 6}",
-        "game_id": f"G{player_id % 3}",
+        "team": f"T{team_index}",
+        "opp": f"T{team_index ^ 1}",
+        "game_id": f"G{team_index // 2}",
         "salary": 5_000,
         "proj": 20.0,
     }
@@ -321,7 +335,7 @@ def _run(
     *,
     now: datetime,
 ):
-    return run_prelock_lineage_shadow_v2(
+    return run_prelock_lineage_shadow_v3(
         store=salary_store,
         object_store=object_store,
         run_id=RUN_ID,
@@ -334,6 +348,44 @@ def _run(
         now_factory=lambda: now,
         build_lineups_fn=builder,
     )
+
+
+@pytest.mark.parametrize(
+    ("lineage_version", "runner", "object_names", "candidate_version"),
+    [
+        (2, run_prelock_lineage_shadow_v2, OBJECT_NAMES_V2, shadow_v2.VERSION),
+        (3, run_prelock_lineage_shadow_v3, OBJECT_NAMES_V3, shadow_v2.VERSION_V3),
+    ],
+)
+def test_public_lineage_versions_have_genuine_disjoint_contracts(
+    lineage_version,
+    runner,
+    object_names,
+    candidate_version,
+) -> None:
+    assert callable(runner)
+    assert candidate_version.endswith(
+        "/v2" if lineage_version == 2 else "/v3-canonical-game"
+    )
+    expected_suffix = "" if lineage_version == 2 else "-v3"
+    assert object_names["capture-authority"] == (
+        f"capture-authority{expected_suffix}.json"
+    )
+    assert set(OBJECT_NAMES_V2.values()).isdisjoint(OBJECT_NAMES_V3.values())
+
+
+def test_v3_public_runner_routes_to_canonical_lineage_version(monkeypatch) -> None:
+    observed: dict[str, object] = {}
+
+    def _base(**kwargs):
+        observed.update(kwargs)
+        return {"complete": True}
+
+    monkeypatch.setattr(shadow_v2, "run_prelock_lineage_shadow_v2", _base)
+    assert shadow_v2.run_prelock_lineage_shadow_v3(sentinel="v3") == {
+        "complete": True
+    }
+    assert observed == {"sentinel": "v3", "_lineage_version": 3}
 
 
 def test_subsecond_provider_time_root_last_and_real_clock_resume(
@@ -361,6 +413,13 @@ def test_subsecond_provider_time_root_last_and_real_clock_resume(
     assert builder.model_authority.reopen_calls == 1
     assert builder.kwargs["_log_ownership_shadow"] is False
     assert builder.kwargs["cand_log_table"] == ""
+    assert builder.kwargs["candidate_run_type"] == shadow_v2.VERSION_V3
+    capture = json.loads(
+        object_store.objects[OBJECT_NAMES["capture-authority"]][0]
+    )
+    assert capture["run"]["run_type"] == (
+        "prospective-lineage-shadow-v3-canonical-game"
+    )
 
     second = _run(
         salary_store,

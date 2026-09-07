@@ -4,9 +4,12 @@ from __future__ import annotations
 
 from copy import deepcopy
 
+import numpy as np
+import pandas as pd
 import pytest
 
 from nfl_dfs.backtest.engine import _canonical_game_projection
+from nfl_dfs.backtest.replay import _canonical_replay_simulation_units
 from nfl_dfs.optimizer.game_identity import (
     CANONICAL_GAME_POLICY_ID,
     audit_classic_roster_semantics,
@@ -206,6 +209,56 @@ def test_indirect_participant_conflict_and_null_provenance_fail_closed() -> None
         canonical_game_identities(poisoned)
 
 
+@pytest.mark.parametrize(
+    "missing", [pd.NA, pd.NaT, np.nan, np.datetime64("NaT", "ns")],
+)
+@pytest.mark.parametrize("field", ["id", "team", "opp", "game_id"])
+def test_all_canonical_identity_fields_reject_scalar_missing_before_text(
+    field: str, missing: object,
+) -> None:
+    player = deepcopy(_pool()[0])
+    player[field] = missing
+    with pytest.raises(ValueError, match="is missing"):
+        player_game_identity(player)
+
+
+@pytest.mark.parametrize(
+    "missing", [pd.NA, pd.NaT, np.nan, np.datetime64("NaT", "ns")],
+)
+@pytest.mark.parametrize("field", ["id", "team", "opp", "game_id"])
+def test_terminal_roster_rejects_missing_identity_before_text(
+    field: str, missing: object,
+) -> None:
+    lineup = optimize(_pool(), min_games=1)
+    assert lineup is not None
+    poisoned = deepcopy(lineup.players)
+    poisoned[0][field] = missing
+    with pytest.raises(ValueError, match="is missing"):
+        audit_classic_roster_semantics(poisoned)
+
+
+def test_neutral_stack_needs_no_opponent_but_active_rule_does() -> None:
+    neutral = deepcopy(_pool())
+    for player in neutral:
+        player.pop("opp")
+    assert optimize(neutral, min_games=1, stack=StackRules()) is not None
+    with pytest.raises(ValueError, match="opponent is missing"):
+        optimize(
+            neutral,
+            min_games=1,
+            stack=StackRules(bring_back_min=1),
+        )
+
+
+def test_retrieval_canonical_qb_stack_counts_only_wr_te_catchers() -> None:
+    catalog = {str(row["id"]): {**row, "id": str(row["id"])} for row in _pool()}
+    roster = ["1", "2", "3", "4", "5", "6", "11", "12", "15"]
+    features = _lineup_features_v2(roster, catalog)
+    # LA QB has one same-team RB plus WR and TE. Only the WR/TE are pass
+    # catchers under the optimizer's frozen stack law.
+    assert features["canonical_qb_stack_teammates"] == 2
+
+
 def test_retrieval_v3_uses_distinct_canonical_artifact_contracts() -> None:
     retained = suite_artifact_law(SUITE_SCHEMA_V2)
     successor = suite_artifact_law(SUITE_SCHEMA_V3)
@@ -216,3 +269,39 @@ def test_retrieval_v3_uses_distinct_canonical_artifact_contracts() -> None:
     assert retained["lineup_path"] != successor["lineup_path"]
     assert retained["graph_path"] != successor["graph_path"]
     assert retained["result_name"] != successor["result_name"]
+
+
+def test_replay_simulation_uses_week_scoped_physical_games_not_raw_ids() -> None:
+    rows = pd.DataFrame([
+        {
+            "gsis_id": "p1",
+            "season": 2025,
+            "week": 1,
+            "team": "JAC",
+            "opponent": "TEN",
+            "game_id": "provider-1",
+        },
+        {
+            "gsis_id": "p2",
+            "season": 2025,
+            "week": 1,
+            "team": "TEN",
+            "opponent": "JAX",
+            "game_id": "TEN@JAX",
+        },
+        {
+            "gsis_id": "p3",
+            "season": 2025,
+            "week": 2,
+            "team": "JAX",
+            "opponent": "TEN",
+            "game_id": "provider-2",
+        },
+    ])
+    games, teams = _canonical_replay_simulation_units(rows)
+    assert games.tolist() == [
+        "2025-W01:JAX|TEN",
+        "2025-W01:JAX|TEN",
+        "2025-W02:JAX|TEN",
+    ]
+    assert teams.tolist() == ["JAX", "TEN", "JAX"]

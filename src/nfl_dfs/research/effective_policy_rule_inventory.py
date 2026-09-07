@@ -127,37 +127,40 @@ V7_SOURCE_SET_ID = (
     "adopted-classic-policy-20260907-canonical-game-v7"
 )
 V7_CLASSIFIED_INPUT_PROJECTION_SHA256 = (
-    "8e3fde727ee9772f84deddaf916f351b628159e3ea18fe48d731d5987b5920ae"
+    "e15caf29d3d4be6caa1c323e5f9e8cb8f93177aaec4f933f487886cfafb7da8d"
 )
 V7_DIRECT_INPUT_READ_SITE_COUNT = 280
 V7_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
     **V6_FROZEN_SOURCE_SHA256,
     "src/nfl_dfs/app/main.py": (
-        "54fd0f2af8914ffa39946bbe12ba1168a92e198a49164c0ae627b59c36df878d"
+        "e97881be9522c218404ad8e52275b0c4bade7d46132d663ea11a02545bfbf225"
     ),
     "src/nfl_dfs/app/week1_operating_book_api.py": (
-        "b2817edb6dd4407bf8232f96ee5447283a55c0e0b578f327dec3b3c1c05caaf0"
+        "d207f76578ede8f42b56321178f35d8bafbcd52f656c96bba8eb0db198babdf0"
     ),
     "src/nfl_dfs/backtest/engine.py": (
-        "b5e717f089307fee7039e34046dba3e9fdff08d76576d510c5c187f190b16a0d"
+        "03c7e70e4f917f0918dcc38d6b4c02f9abfe25d0ec323a5c05611ca594cbf1ae"
+    ),
+    "src/nfl_dfs/backtest/replay.py": (
+        "a0b21d9cde2520c246fc3a815ab948f0dfc479e19ebeed7ea84894c3c7ec30fc"
     ),
     "src/nfl_dfs/inference/production_policy.py": (
         "29261bd6fec48205279a9a57ab94182554ca62412265f61a6299652d9c6552fe"
     ),
     "src/nfl_dfs/inference/live_lineups.py": (
-        "95ccc439badad13714432fabb7396a16177bb92674bbcdaed2dc7e71fb2e6864"
+        "d4365aa824234f3f9c46d549e0b198700902298396cc5cbe1a8de76025d703f6"
     ),
     "src/nfl_dfs/inference/run_projections.py": (
         "2db965e57ad3c756ff68f477d380fbc8d9fcae24ae735bae50fa15eedfebab72"
     ),
     "src/nfl_dfs/inference/week1_operating_book_export.py": (
-        "008b51ef5fcd6630609b289f66731cadde9f2ebc9560743dbeac219dcec3aa6a"
+        "9b97f4678cbe2ee2839b28bd2a4c4e15c6c3a36c71ac6436e27af6ec3a994206"
     ),
     "src/nfl_dfs/optimizer/lineup.py": (
-        "152ec20265257c9aac3d2b0ede860363f381e63ed0c68c36f6de1627304f3d6b"
+        "b8d55c3acc2795281f6ae11270b58e85c24d1917c480c0a93f1123d40fed5cb0"
     ),
     "src/nfl_dfs/optimizer/game_identity.py": (
-        "bb1391b3ef2fd5cf06fd89bd67be047ec4d52bc02d7831d8a5e3d9b23c8a8388"
+        "cd364f8a4503abed8162b1d9032d4baa8df71f8268b9eef1ad62903e6a4e39f3"
     ),
 }
 

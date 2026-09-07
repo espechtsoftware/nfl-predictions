@@ -3,7 +3,6 @@ from __future__ import annotations
 from copy import deepcopy
 from hashlib import sha256
 import importlib.util
-import json
 from pathlib import Path
 import subprocess
 import sys
@@ -125,6 +124,7 @@ def _build() -> dict:
             "args": [
                 "python scripts/run_corpus_retrieval_transport.py --help",
                 "python -c 'import nfl_dfs.research.corpus_retrieval_engine'",
+                "python -c 'import nfl_dfs.research.corpus_retrieval_engine_v3'",
             ],
         }],
     }
@@ -287,6 +287,148 @@ def test_repository_cloudbuild_contains_required_transport_fragments():
     source = (ROOT / "cloudbuild.yaml").read_text(encoding="utf-8")
     for fragment in transport.REQUIRED_BUILD_FRAGMENTS:
         assert fragment in source
+
+
+def test_v3_suite_routes_to_successor_core_and_versioned_result_uri(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    imported = []
+
+    def import_module(name):
+        imported.append(name)
+        return object()
+
+    monkeypatch.setattr(transport.importlib, "import_module", import_module)
+    suite = {
+        "schema_version": transport.SUITE_SCHEMA_V3,
+        "output_prefix": "gs://fixture-bucket/retrieval/run-v3/",
+        "tasks": [{
+            "result_uri": (
+                "gs://fixture-bucket/retrieval/run-v3/tasks/0000/result-v2.json"
+            ),
+        }],
+    }
+    assert transport._core_module(suite=suite) is not None
+    assert imported == [transport.CORE_MODULE_V3]
+
+    class Core:
+        @staticmethod
+        def task_transport_binding(_suite, task_index):
+            return {
+                "output_prefix": suite["output_prefix"],
+                "snapshot_manifest_identity": _identity(
+                    "gs://fixture-bucket/snapshot.json", b"snapshot"
+                ),
+                "task_index": task_index,
+                "task_id": "slate-v3",
+                "result_uri": suite["tasks"][0]["result_uri"],
+            }
+
+    assert transport._transport_binding(Core(), suite, 0)["result_uri"].endswith(
+        "/result-v2.json"
+    )
+
+
+@pytest.mark.parametrize("result_name", ["result.json", "result-v2.json"])
+def test_preflight_validator_accepts_each_registered_result_namespace(
+    result_name: str,
+) -> None:
+    prefix = "gs://fixture-bucket/retrieval/route-test/"
+    suite_identity = _identity(
+        prefix + "governance/suite-manifest.json", b"suite"
+    )
+    snapshot_identity = _identity(
+        "gs://fixture-bucket/inputs/snapshot.json", b"snapshot"
+    )
+    result_uri = prefix + "tasks/0000/" + result_name
+    binding = {
+        "output_prefix": prefix,
+        "snapshot_manifest_identity": snapshot_identity,
+        "task_index": 0,
+        "task_id": "slate-route-test",
+        "result_uri": result_uri,
+    }
+    inventory = [{
+        "uri": suite_identity["uri"],
+        "generation": suite_identity["generation"],
+        "bytes": suite_identity["bytes"],
+    }]
+    body = {
+        "schema_version": transport.TRANSPORT_PREFLIGHT_SCHEMA,
+        "created_at_utc": "2026-08-21T18:00:00Z",
+        "project": transport.PROJECT,
+        "region": transport.REGION,
+        "suite_manifest_identity": suite_identity,
+        "snapshot_manifest_identity": snapshot_identity,
+        "snapshot_id": "snapshot-route-test",
+        "task_index": 0,
+        "task_id": binding["task_id"],
+        "output_prefix": prefix,
+        "result_uri": result_uri,
+        **transport._preflight_paths(binding),
+        "build": {
+            "build_id": BUILD_ID,
+            "code_repository": transport.EXPECTED_CODE_REPOSITORY,
+            "code_sha": CODE_SHA,
+            "image": IMAGE,
+        },
+        "service_account": SERVICE_ACCOUNT,
+        "runtime_iam_evidence_sha256": "1" * 64,
+        "runtime_iam_evidence_bytes": 1,
+        "job_before": {
+            "name": transport.PARKED_JOB,
+            "uid": JOB_UID,
+            "generation": "7",
+            "observed_generation": "7",
+            "spec_sha256": "2" * 64,
+        },
+        "job_before_export_sha256": "3" * 64,
+        "job_before_export_bytes": 1,
+        "execution_census_sha256": "4" * 64,
+        "execution_names_before": [],
+        "scheduler_census_sha256": "5" * 64,
+        "output_inventory": inventory,
+        "output_inventory_sha256": transport.canonical_sha256(inventory),
+        "task_count": 1,
+        "parallelism": 1,
+        "max_retries": 0,
+        "cloud_run_task_attempt": 0,
+        "create_once": True,
+        "prior_spec_rollback_before_acceptance_only": True,
+        "successful_deployment_remains_parked": True,
+        "uses_realized_outcomes": False,
+        "bigquery_access_licensed": False,
+        "corpus_fill_licensed": False,
+        "live_policy_access_licensed": False,
+        "production_change_licensed": False,
+    }
+    preflight = transport._self_hash(body, field="preflight_sha256")
+    assert transport.validate_transport_preflight(preflight)["result_uri"] == (
+        result_uri
+    )
+
+
+def test_create_once_recovery_reports_changed_bytes_without_name_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = transport.GenerationPinnedStorage.__new__(
+        transport.GenerationPinnedStorage
+    )
+
+    def fail_publish(*_args, **_kwargs):
+        raise RuntimeError("lost create response")
+
+    monkeypatch.setattr(store, "publish", fail_publish)
+    monkeypatch.setattr(
+        store,
+        "resolve_unique",
+        lambda _uri: ({"uri": _uri}, b"different"),
+    )
+    with pytest.raises(
+        transport.CorpusRetrievalTransportError,
+        match="existing create-once object differs",
+    ):
+        store.publish_or_reopen("gs://bucket/result-v2.json", b"expected", "json")
 
 
 def test_suite_release_must_equal_the_validated_build():
@@ -1039,7 +1181,7 @@ def test_worker_governance_reopens_exact_names_without_list(monkeypatch):
             pytest.fail(f"unexpected identity read: {identity}")
 
     store = Store()
-    monkeypatch.setattr(transport, "_core_module", lambda: object())
+    monkeypatch.setattr(transport, "_core_module", lambda **_kwargs: object())
     monkeypatch.setattr(
         transport, "_validate_suite_with_core", lambda _core, _raw: suite
     )

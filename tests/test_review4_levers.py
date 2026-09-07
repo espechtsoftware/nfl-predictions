@@ -141,8 +141,8 @@ def test_hyper_boom_injects_tagged_candidates(monkeypatch):
             team = f"T{ix % 4}"
             pool.append({
                 "id": f"{pos}{k}", "name": f"{pos}{k}", "pos": pos,
-                "team": team, "opp": f"T{(ix + 1) % 4}",
-                "game_id": f"g{ix % 2}", "salary": sal + 137 * k,
+                "team": team, "opp": f"T{(ix % 4) ^ 1}",
+                "game_id": f"g{(ix % 4) // 2}", "salary": sal + 137 * k,
                 "proj": 8.0 + (k % 5), "actual": 10.0})
             ix += 1
     slate = pd.DataFrame(pool)
@@ -179,8 +179,8 @@ def test_gumbel_batch_injects_and_default_off(monkeypatch):
         for k in range(n):
             pool.append({
                 "id": f"{pos}{k}", "name": f"{pos}{k}", "pos": pos,
-                "team": f"T{ix % 4}", "opp": f"T{(ix + 1) % 4}",
-                "game_id": f"g{ix % 2}", "salary": sal + 137 * k,
+                "team": f"T{ix % 4}", "opp": f"T{(ix % 4) ^ 1}",
+                "game_id": f"g{(ix % 4) // 2}", "salary": sal + 137 * k,
                 "proj": 8.0 + (k % 5), "actual": 10.0})
             ix += 1
     slate = pd.DataFrame(pool)
@@ -203,21 +203,25 @@ def test_epistemic_scenarios_use_complete_member_and_game_vectors():
     from nfl_dfs.backtest.engine import _epistemic_scenarios
 
     pool = [
-        {"proj": 10.0, "game_id": "g1", "ensemble_point_0": 12.0,
+        {"id": "p0", "team": "A", "opp": "B", "proj": 10.0,
+         "game_id": "provider-g1", "ensemble_point_0": 12.0,
          "model_points_pre": 11.0, "market_points": 8.0},
-        {"proj": 10.0, "game_id": "g1", "ensemble_point_0": 9.0,
+        {"id": "p1", "team": "B", "opp": "A", "proj": 10.0,
+         "game_id": "B@A", "ensemble_point_0": 9.0,
          "model_points_pre": 12.0, "market_points": 9.0},
-        {"proj": 10.0, "game_id": "g2", "ensemble_point_0": 8.0,
+        {"id": "p2", "team": "C", "opp": "D", "proj": 10.0,
+         "game_id": "provider-g2", "ensemble_point_0": 8.0,
          "model_points_pre": 10.0, "market_points": 10.0},
-        {"proj": 6.0, "game_id": "g2", "ensemble_point_0": np.nan,
+        {"id": "p3", "team": "D", "opp": "C", "proj": 6.0,
+         "game_id": "D@C", "ensemble_point_0": np.nan,
          "model_points_pre": np.nan, "market_points": np.nan},
     ]
     scenarios = dict(_epistemic_scenarios(pool, "proj"))
     assert np.array_equal(scenarios["ensemble_point_0"],
                           [12.0, 9.0, 8.0, 6.0])
-    assert np.array_equal(scenarios["game_model:g1"],
+    assert np.array_equal(scenarios["game_model:A|B"],
                           [11.0, 12.0, 10.0, 6.0])
-    assert np.array_equal(scenarios["game_market:g1"],
+    assert np.array_equal(scenarios["game_market:A|B"],
                           [8.0, 9.0, 10.0, 6.0])
 
 
@@ -278,8 +282,8 @@ def test_epistemic_batch_fires_and_is_inert_without_market(monkeypatch):
         for k in range(n):
             pool.append({
                 "id": f"{pos}{k}", "name": f"{pos}{k}", "pos": pos,
-                "team": f"T{ix % 4}", "opp": f"T{(ix + 1) % 4}",
-                "game_id": f"g{ix % 2}", "salary": sal + 137 * k,
+                "team": f"T{ix % 4}", "opp": f"T{(ix % 4) ^ 1}",
+                "game_id": f"g{(ix % 4) // 2}", "salary": sal + 137 * k,
                 "proj": 8.0 + (k % 5), "actual": 10.0,
                 "model_points_pre": 8.0 + (k % 5) + 0.7,
                 "market_points": 8.0 + (k % 5) - 0.7,

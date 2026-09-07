@@ -14,19 +14,23 @@ conflicting repeat makes the enclosing transaction fail.
 
 from __future__ import annotations
 
+import json
+import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from hashlib import sha256
-import json
-import re
-from typing import Any, Final
-
+from typing import Final
 
 LOAD_SCHEMA: Final = "corpus-retrieval-neo4j-load-plan/v1"
 LOAD_RESULT_SCHEMA: Final = "corpus-retrieval-neo4j-load-result/v2"
 TASK_RESULT_SCHEMA: Final = "corpus-retrieval-task-result/v1"
+TASK_RESULT_SCHEMA_V2: Final = "corpus-retrieval-task-result/v2-canonical-game"
 COMPLETION_SCHEMA: Final = "corpus-retrieval-batch-completion/v1"
+COMPLETION_SCHEMA_V2: Final = (
+    "corpus-retrieval-batch-completion/v2-canonical-game"
+)
 GRAPH_SCHEMA: Final = "corpus-retrieval-graph-projection/v1"
+GRAPH_SCHEMA_V2: Final = "corpus-retrieval-graph-projection/v2-canonical-game"
 TERMINAL_SCHEMA: Final = "corpus-retrieval-transport-terminal/v1"
 ENABLE_ENV: Final = "CORPUS_RETRIEVAL_NEO4J_ENABLED"
 
@@ -35,6 +39,10 @@ ENABLE_ENV: Final = "CORPUS_RETRIEVAL_NEO4J_ENABLED"
 # suite law (corpus_retrieval_engine._SUITE_STRATEGY_LAW): v1 suites carry
 # exactly four strategies, v2 suites exactly seven. Update both together.
 _SUITE_STRATEGY_COUNTS: Final = frozenset({4, 7})
+_EVIDENCE_SCHEMA_LAW: Final = {
+    COMPLETION_SCHEMA: (TASK_RESULT_SCHEMA, GRAPH_SCHEMA),
+    COMPLETION_SCHEMA_V2: (TASK_RESULT_SCHEMA_V2, GRAPH_SCHEMA_V2),
+}
 
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _GENERATION = re.compile(r"^[1-9][0-9]*$")
@@ -357,7 +365,7 @@ def _validate_completion(
         "snapshot_manifest_sha256", "run_id", "snapshot_id", "coverage",
         "task_results", "licenses", "batch_completion_sha256",
     }, label="batch completion")
-    if item["schema_version"] != COMPLETION_SCHEMA:
+    if item["schema_version"] not in _EVIDENCE_SCHEMA_LAW:
         raise CorpusRetrievalNeo4jError("batch completion schema differs")
     _validate_self_hash(item, "batch_completion_sha256", label="batch completion")
     coverage = _mapping(item["coverage"], label="batch completion coverage")
@@ -388,7 +396,7 @@ def _validate_completion(
 
 
 def _validate_task_result(
-    raw: bytes, identity: object,
+    raw: bytes, identity: object, *, expected_schema: str = TASK_RESULT_SCHEMA,
 ) -> tuple[dict[str, object], dict[str, object]]:
     retained = _bind_body(raw, identity, label="task result")
     item = dict(_mapping(
@@ -403,7 +411,7 @@ def _validate_task_result(
         "strategy_results", "graph_projection_object", "fill_insight_object",
         "licenses", "task_result_sha256",
     }, label="task result")
-    if item["schema_version"] != TASK_RESULT_SCHEMA:
+    if item["schema_version"] != expected_schema:
         raise CorpusRetrievalNeo4jError("task result schema differs")
     _validate_self_hash(item, "task_result_sha256", label="task result")
     coverage = _mapping(item["coverage"], label="task result coverage")
@@ -450,6 +458,7 @@ def _validate_graph(
     identity: object,
     *,
     task_result: Mapping[str, object],
+    expected_schema: str = GRAPH_SCHEMA,
 ) -> tuple[dict[str, object], dict[str, object]]:
     retained = _bind_body(raw, identity, label="graph projection")
     item = dict(_mapping(
@@ -463,7 +472,7 @@ def _validate_graph(
         "graph_projection_sha256",
     }, label="graph projection")
     if (
-        item["schema_version"] != GRAPH_SCHEMA
+        item["schema_version"] != expected_schema
         or item["dedicated_analytical_graph_only"] is not True
         or item["authoritative_source"] != "create-once-sidecars-and-task-result"
         or item["large_bodies_are_pointers"] is not True
@@ -738,13 +747,17 @@ def build_load_plan(
     completion, completion_identity = _validate_completion(
         batch_completion_raw, completion_identity_hint
     )
+    task_schema, graph_schema = _EVIDENCE_SCHEMA_LAW[
+        str(completion["schema_version"])
+    ]
     task_result, task_result_identity = _validate_task_result(
-        task_result_raw, result_identity_hint
+        task_result_raw, result_identity_hint, expected_schema=task_schema
     )
     graph, graph_identity = _validate_graph(
         graph_projection_raw,
         task_result["graph_projection_object"],
         task_result=task_result,
+        expected_schema=graph_schema,
     )
     terminal, terminal_identity = _validate_terminal(
         terminal_receipt_raw,
@@ -1275,17 +1288,17 @@ def require_execute_gate(*, execute: bool, environ: Mapping[str, str]) -> None:
 
 
 __all__ = [
-    "CorpusRetrievalNeo4jError",
-    "CypherStatement",
     "ENABLE_ENV",
-    "LOAD_SCHEMA",
     "LOAD_RESULT_SCHEMA",
+    "LOAD_SCHEMA",
     "NODE_UPSERT_CYPHER",
-    "Neo4jLoadPlan",
     "RELATIONSHIP_UPSERT_CYPHER",
     "SCHEMA_STATEMENTS",
-    "apply_load_plan",
+    "CorpusRetrievalNeo4jError",
+    "CypherStatement",
+    "Neo4jLoadPlan",
     "append_load_plan",
+    "apply_load_plan",
     "build_load_plan",
     "build_load_result_receipt",
     "canonical_json_bytes",

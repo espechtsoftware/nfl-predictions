@@ -65,6 +65,36 @@ _OUTCOME_INPUT_COLUMNS = frozenset({
 })
 
 
+def _canonical_simulation_units(
+    skill: pd.DataFrame,
+) -> tuple[pd.Series, pd.Series]:
+    """Return semantic game/team factors while retaining raw IDs elsewhere."""
+
+    from ..optimizer.game_identity import canonical_game_identities
+
+    rows = []
+    for row in skill.to_dict("records"):
+        rows.append({
+            "id": row.get("dk_player_id"),
+            "team": row.get("team", row.get("team_abbr")),
+            "opp": row.get("opponent", row.get("opp")),
+            "game_id": row.get("game_id"),
+        })
+    identities = canonical_game_identities(rows)
+    return (
+        pd.Series(
+            [identity.canonical_game_key for identity in identities],
+            index=skill.index,
+            dtype="object",
+        ),
+        pd.Series(
+            [identity.team for identity in identities],
+            index=skill.index,
+            dtype="object",
+        ),
+    )
+
+
 def _canonical_input_cell(value: object) -> object:
     """Return a stable JSON scalar for a score-blind player-input hash."""
     if isinstance(value, np.generic):
@@ -304,13 +334,14 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     from ..research import sis_asoe_final_served as asoe_module
 
     asoe_enabled = asoe_module.treatment_enabled(runtime_env)
+    simulation_game_ids, simulation_team_ids = _canonical_simulation_units(skill)
     sim = simulate.simulate(
         comps,
         n_sims=n_sims,
         seed=seed,
         keep_draws=True,
-        game_ids=skill.get("game_id"),
-        team_ids=skill.get("team"),
+        game_ids=simulation_game_ids,
+        team_ids=simulation_team_ids,
         game_totals=skill.get("game_total"),
         keep_target_receiving=asoe_enabled,
         env=runtime_env,
@@ -323,8 +354,8 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
             comps,
             n_sims=n_sims,
             seed=seed,
-            game_ids=skill.get("game_id"),
-            team_ids=skill.get("team"),
+            game_ids=simulation_game_ids,
+            team_ids=simulation_team_ids,
             game_totals=skill.get("game_total"),
             target_allocation_multipliers=multipliers,
             keep_target_receiving=True,

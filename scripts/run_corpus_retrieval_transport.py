@@ -29,7 +29,7 @@ from pathlib import Path
 import re
 import sys
 import time
-from typing import Any, Final
+from typing import Final
 
 
 ROOT: Final = Path(__file__).resolve().parents[1]
@@ -61,7 +61,10 @@ RUNTIME_IAM_EVIDENCE_SCHEMA: Final = (
 )
 
 CORE_MODULE: Final = "nfl_dfs.research.corpus_retrieval_engine"
+CORE_MODULE_V3: Final = "nfl_dfs.research.corpus_retrieval_engine_v3"
 SUITE_SCHEMA: Final = "corpus-retrieval-suite-manifest/v1"
+SUITE_SCHEMA_V2: Final = "corpus-retrieval-suite-manifest/v2"
+SUITE_SCHEMA_V3: Final = "corpus-retrieval-suite-manifest/v3-canonical-game"
 TASK_RESULT_SCHEMA: Final = "corpus-retrieval-task-result/v1"
 BATCH_COMPLETION_SCHEMA: Final = "corpus-retrieval-batch-completion/v1"
 
@@ -79,6 +82,7 @@ EXPECTED_MAX_RETRIES: Final = 0
 REQUIRED_BUILD_FRAGMENTS: Final = (
     "python scripts/run_corpus_retrieval_transport.py --help",
     "import nfl_dfs.research.corpus_retrieval_engine",
+    "import nfl_dfs.research.corpus_retrieval_engine_v3",
 )
 EXPECTED_CODE_REPOSITORY: Final = (
     "https://github.com/espechtsoftware/nfl-predictions.git"
@@ -343,9 +347,40 @@ def require_execute_gate(*, execute: bool, environ: Mapping[str, str]) -> None:
         raise CorpusRetrievalTransportError(f"{ENABLE_ENV}=1 is required")
 
 
-def _core_module():
+def _suite_schema(
+    *, suite_raw: bytes | None = None,
+    suite: Mapping[str, object] | None = None,
+) -> str:
+    if (suite_raw is None) == (suite is None):
+        raise CorpusRetrievalTransportError(
+            "exactly one suite authority is required for core routing"
+        )
+    value = (
+        _mapping(
+            strict_json_bytes(suite_raw, label="retrieval suite routing"),
+            label="retrieval suite routing",
+        )
+        if suite_raw is not None
+        else _mapping(suite, label="retrieval suite routing")
+    )
+    schema = value.get("schema_version", value.get("schema"))
+    if schema not in {SUITE_SCHEMA, SUITE_SCHEMA_V2, SUITE_SCHEMA_V3}:
+        raise CorpusRetrievalTransportError("retrieval suite schema differs")
+    return str(schema)
+
+
+def _core_module(
+    *, suite_raw: bytes | None = None,
+    suite: Mapping[str, object] | None = None,
+):
     """Import only after the execute gate for any score-producing command."""
-    return importlib.import_module(CORE_MODULE)
+    if suite_raw is None and suite is None:
+        # Compatibility for read-only helpers/tests that explicitly request
+        # the frozen v1 core. All executable paths route from suite authority.
+        return importlib.import_module(CORE_MODULE)
+    schema = _suite_schema(suite_raw=suite_raw, suite=suite)
+    module_name = CORE_MODULE_V3 if schema == SUITE_SCHEMA_V3 else CORE_MODULE
+    return importlib.import_module(module_name)
 
 
 def _task_spec(value: Mapping[str, object]) -> Mapping[str, object]:
@@ -966,6 +1001,7 @@ def _task_required_read_uris(
     task_index: int,
     candidate_rows_raw: bytes,
     player_catalog_raw: bytes,
+    core: object | None = None,
 ) -> list[str]:
     tasks = snapshot.get("tasks")
     if type(tasks) is not list or task_index >= len(tasks):
@@ -989,7 +1025,8 @@ def _task_required_read_uris(
             raise CorpusRetrievalTransportError(
                 f"{label} bytes differ from snapshot identity"
             )
-    core = _core_module()
+    if core is None:
+        core = _core_module()
     candidate_validator = getattr(core, "validate_candidate_rows_object", None)
     player_validator = getattr(core, "validate_player_catalog_object", None)
     if not callable(candidate_validator) or not callable(player_validator):
@@ -1094,7 +1131,7 @@ def build_transport_preflight(
         or sha256(snapshot_raw).hexdigest() != snapshot_identity.sha256
     ):
         raise CorpusRetrievalTransportError("preflight snapshot identity differs")
-    core = _core_module()
+    core = _core_module(suite_raw=suite_raw)
     suite = _validate_suite_with_core(core, suite_raw)
     snapshot = _validate_snapshot_with_core(core, snapshot_raw)
     _require_one_task_manifests(suite, snapshot, task_index)
@@ -1127,6 +1164,7 @@ def build_transport_preflight(
             task_index=task_index,
             candidate_rows_raw=candidate_rows_raw,
             player_catalog_raw=player_catalog_raw,
+            core=core,
         ),
         output_prefix=str(binding["output_prefix"]),
     )
@@ -1270,11 +1308,14 @@ def validate_transport_preflight(value: object) -> dict[str, object]:
         "result_uri": item["result_uri"],
     }
     paths = _preflight_paths(binding)
+    registered_result_uris = {
+        f"{item['output_prefix']}tasks/{index:04d}/result.json",
+        f"{item['output_prefix']}tasks/{index:04d}/result-v2.json",
+    }
     if (
         suite.uri != f"{item['output_prefix']}governance/suite-manifest.json"
         or any(item[key] != value for key, value in paths.items())
-        or item["result_uri"]
-        != f"{item['output_prefix']}tasks/{index:04d}/result.json"
+        or item["result_uri"] not in registered_result_uris
         or item["output_inventory"] != [{
             "uri": suite.uri,
             "generation": suite.generation,
@@ -2042,14 +2083,14 @@ class GenerationPinnedStorage:
         except Exception as publish_error:
             try:
                 identity, reopened = self.resolve_unique(uri)
-            except Exception as resolve_error:
+            except Exception:
                 raise CorpusRetrievalTransportError(
                     "create-once publication is absent or ambiguous after failure"
                 ) from publish_error
             if reopened != raw:
                 raise CorpusRetrievalTransportError(
                     "existing create-once object differs during recovery"
-                ) from resolve_error
+                ) from publish_error
             return identity
 
     def publish_consumption_ledger(
@@ -2204,8 +2245,9 @@ def _reopen_governance(
         contract["snapshot_manifest_identity"],
         label="governance snapshot identity",
     )
-    core = _core_module()
-    suite = _validate_suite_with_core(core, storage.read(suite_identity.as_dict()))
+    suite_raw = storage.read(suite_identity.as_dict())
+    core = _core_module(suite_raw=suite_raw)
+    suite = _validate_suite_with_core(core, suite_raw)
     snapshot = _validate_snapshot_with_core(
         core, storage.read(snapshot_identity.as_dict())
     )
@@ -2235,6 +2277,7 @@ def _reopen_governance(
                     "player_catalog_object"
                 ]
             ),
+            core=core,
         ),
         output_prefix=str(contract["output_prefix"]),
     )
@@ -2878,7 +2921,8 @@ def _validate_suite_with_core(core: object, raw: bytes) -> Mapping[str, object]:
     )
     normalized = validator(value)
     result = _mapping(normalized, label="validated retrieval suite")
-    if result.get("schema_version", result.get("schema")) != SUITE_SCHEMA:
+    schema = result.get("schema_version", result.get("schema"))
+    if schema not in {SUITE_SCHEMA, SUITE_SCHEMA_V2, SUITE_SCHEMA_V3}:
         raise CorpusRetrievalTransportError("retrieval suite schema differs")
     return result
 
@@ -2933,11 +2977,27 @@ def _transport_binding(
         result["output_prefix"], label="transport output prefix"
     )
     result_uri = _string(result["result_uri"], label="transport result URI")
+    tasks = suite.get("tasks")
+    if type(tasks) is not list or task_index >= len(tasks):
+        raise CorpusRetrievalTransportError("retrieval suite task differs")
+    expected_result_uri = _string(
+        _mapping(tasks[task_index], label="retrieval suite task").get(
+            "result_uri"
+        ),
+        label="retrieval suite task result URI",
+    )
+    expected_name = (
+        "result-v2.json"
+        if _suite_schema(suite=suite) == SUITE_SCHEMA_V3
+        else "result.json"
+    )
     if (
         not output_prefix.startswith("gs://")
         or not output_prefix.endswith("/")
         or not result_uri.startswith(output_prefix)
-        or result_uri != f"{output_prefix}tasks/{task_index:04d}/result.json"
+        or result_uri != expected_result_uri
+        or result_uri
+        != f"{output_prefix}tasks/{task_index:04d}/{expected_name}"
     ):
         raise CorpusRetrievalTransportError(
             "retrieval task output namespace differs"
@@ -3093,7 +3153,7 @@ def run_local_task(
 ) -> dict[str, object]:
     """Execute one real-artifact task through filesystem capability seams."""
     require_execute_gate(execute=execute, environ=environ)
-    core = _core_module()
+    core = _core_module(suite_raw=suite_raw)
     suite = _validate_suite_with_core(core, suite_raw)
     snapshot = _validate_snapshot_with_core(core, snapshot_raw)
     _require_one_task_manifests(suite, snapshot, task_index)
@@ -3212,8 +3272,8 @@ def execute_cloud_task(
     # not bucket-wide LIST.  Every known authority object is reopened and
     # content-bound above.  The operator performs the sole-generation and
     # no-extra-object censuses immediately before launch and at acceptance.
-    core = _core_module()
     suite = _mapping(governance["suite"], label="Cloud suite")
+    core = _core_module(suite=suite)
     snapshot = _mapping(governance["snapshot"], label="Cloud snapshot")
     binding = _transport_binding(core, suite, task_index)
     if (
@@ -3483,8 +3543,8 @@ def finish_cloud_task(
     snapshot_identity = object_identity(
         governance["snapshot_identity"], label="terminal snapshot identity"
     )
-    core = _core_module()
     suite = _mapping(governance["suite"], label="terminal suite")
+    core = _core_module(suite=suite)
     snapshot = _mapping(governance["snapshot"], label="terminal snapshot")
     result_identity_raw, result_raw = store.resolve_unique(str(contract["result_uri"]))
     result_authority = _mapping(
@@ -3700,7 +3760,7 @@ def validate_only(
         or sha256(snapshot_raw).hexdigest() != snapshot_identity.sha256
     ):
         raise CorpusRetrievalTransportError("local snapshot identity differs")
-    core = _core_module()
+    core = _core_module(suite_raw=suite_raw)
     suite = _validate_suite_with_core(core, suite_raw)
     snapshot = _validate_snapshot_with_core(core, snapshot_raw)
     _require_one_task_manifests(suite, snapshot, task_index)
@@ -4124,7 +4184,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "build-runtime-iam-evidence":
         snapshot_identity = _identity_from_args(args, "snapshot")
         snapshot_raw = args.snapshot.read_bytes()
-        core = _core_module()
+        core = _core_module(suite_raw=suite_raw)
         suite = _validate_suite_with_core(core, suite_raw)
         snapshot = _validate_snapshot_with_core(core, snapshot_raw)
         _require_one_task_manifests(suite, snapshot, args.task_index)
@@ -4158,6 +4218,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 task_index=args.task_index,
                 candidate_rows_raw=args.candidate_rows.read_bytes(),
                 player_catalog_raw=args.player_catalog.read_bytes(),
+                core=core,
             ),
             bucket_metadata=_mapping(
                 _load_json_file(

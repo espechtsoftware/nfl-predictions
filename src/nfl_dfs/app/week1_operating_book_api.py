@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from datetime import datetime, timezone
 import os
 
 from ..inference import prospective_generation_shadow_evaluation as shadow
@@ -102,19 +103,33 @@ def load_week1_operating_book_export_v2(
         exact = read_week1_operating_book_v1(
             store=storage, materialization_identity=identity
         )
+        validated_at = _week1_paid_validation_time_v2()
         salaries = projection_store.classic_salaries(
             int(WEEK1_DRAFT_GROUP_ID)
         )
-        projections = projection_store.projections(WEEK1_SEASON, WEEK1_WEEK)
+        projections = projection_store.projection_batch(
+            WEEK1_SEASON, WEEK1_WEEK, as_of=validated_at
+        )
+        schedules = projection_store.schedule_games(
+            WEEK1_SEASON, WEEK1_WEEK
+        )
         return build_week1_operating_book_export_v2(
             exact_book=exact,
             salary_rows=salaries,
             projection_rows=projections,
+            schedule_rows=schedules,
+            validated_at=validated_at,
         )
     except Exception as exc:
         raise Week1OperatingBookAPIError(
             "canonical Week-1 book failed exact read or v2 semantic validation"
         ) from exc
+
+
+def _week1_paid_validation_time_v2() -> datetime:
+    """Server-owned point-in-time boundary shared by all Week-1 joins."""
+
+    return datetime.now(timezone.utc)
 
 
 __all__ = [

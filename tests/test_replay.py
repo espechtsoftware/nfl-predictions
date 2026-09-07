@@ -196,7 +196,7 @@ def _dst(seed=3):
     for t in range(8):
         for wk in range(1, 18):
             rows.append({"season": 2022, "week": wk, "team": f"T{t}",
-                         "opp": f"T{(t + 1) % 8}", "salary": 2900,
+                         "opp": f"T{t ^ 1}", "salary": 2900,
                          "actual": max(0.0, rng.normal(7, 5))})
     return pd.DataFrame(rows)
 

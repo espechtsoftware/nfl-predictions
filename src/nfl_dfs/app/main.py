@@ -3340,8 +3340,11 @@ def _paid_classic_catalog_v3(
             "Paid Classic export v3 requires draft_group_id; choose the "
             "exact DraftKings slate before generating upload bytes.",
         )
+    validated_at = _paid_classic_now_v3()
     salaries = store.classic_salaries(req.draft_group_id)
-    projections = store.projections(req.season, req.week)
+    projections = store.projection_batch(
+        req.season, req.week, as_of=validated_at
+    )
     schedules = store.schedule_games(req.season, req.week)
     try:
         return build_paid_classic_catalog_v3(
@@ -3351,7 +3354,7 @@ def _paid_classic_catalog_v3(
             draft_group_id=req.draft_group_id,
             season=req.season,
             week=req.week,
-            validated_at=_paid_classic_now_v3(),
+            validated_at=validated_at,
         )
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc

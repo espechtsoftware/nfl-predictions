@@ -521,10 +521,20 @@ def _apply_stack_rules(
 
     catchers_by_team: dict[str, list] = {}
     qbs_by_team: dict[str, list] = {}
-    normalized_opponents = {
-        p["id"]: normalize_team(p.get("opp"), label="opponent")
-        for p in players
-    }
+    needs_opponents = bool(
+        stack.bring_back_min
+        or stack.bring_back_max is not None
+        or stack.forbid_rb_vs_dst
+        or stack.require_rb_vs_dst
+    )
+    normalized_opponents = (
+        {
+            p["id"]: normalize_team(p.get("opp"), label="opponent")
+            for p in players
+        }
+        if needs_opponents
+        else {}
+    )
     for p in players:
         team = normalized_teams[p["id"]]
         if p["pos"] in ("WR", "TE"):

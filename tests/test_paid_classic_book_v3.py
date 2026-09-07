@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import io
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -82,6 +83,7 @@ def _projection_rows() -> pd.DataFrame:
                 "position": salary["position"],
                 "team": team,
                 "opponent": opponents[team],
+                "proj_points": 18.0,
             }
         )
     return pd.DataFrame(rows)
@@ -287,6 +289,10 @@ class _AuthoritativeStore:
         rows = _projection_rows()
         return rows[(rows.season == season) & (rows.week == week)].copy()
 
+    def projection_batch(self, season: int, week: int, *, as_of) -> pd.DataFrame:
+        assert pd.Timestamp(as_of) == _VALIDATED_AT
+        return self.projections(season, week)
+
     def schedule_games(self, season: int, week: int) -> pd.DataFrame:
         rows = _schedule_rows()
         return rows[(rows.season == season) & (rows.week == week)].copy()
@@ -380,7 +386,59 @@ def test_schedule_store_reads_only_authoritative_regular_season_week(
     assert calls[0][1] == {"season": 2026, "week": 1}
 
 
+def test_projection_batch_store_reads_one_global_asof_batch(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls = []
+
+    def query(sql, *, params):
+        calls.append((sql, params))
+        return pd.DataFrame()
+
+    monkeypatch.setattr("nfl_dfs.bq.query_df", query)
+    BigQueryStore().projection_batch(2026, 1, as_of=_VALIDATED_AT)
+    sql, params = calls[0]
+    assert "MAX(generated_at)" in sql
+    assert "generated_at <= TIMESTAMP(@as_of)" in sql
+    assert "ROW_NUMBER" not in sql
+    assert params == {"season": 2026, "week": 1, "as_of": _VALIDATED_AT}
+
+
+def test_paid_v3_rejects_nonfinite_and_non_prelock_projection_authority() -> None:
+    projections = _projection_rows()
+    projections.loc[0, "proj_points"] = float("nan")
+    with pytest.raises(ValueError, match="proj_points is invalid"):
+        _catalog(projections=projections)
+
+    projections = _projection_rows()
+    projections["generated_at"] = _VALIDATED_AT + pd.Timedelta(seconds=1)
+    with pytest.raises(ValueError, match="later than validation"):
+        _catalog(projections=projections)
+
+    salaries = _salary_rows()
+    salaries["game_start"] = _VALIDATED_AT
+    with pytest.raises(ValueError, match="reaches or follows slate lock"):
+        _catalog(salaries=salaries)
+
+
+def test_paid_v3_rejects_nonfinite_selected_lineup_projection() -> None:
+    book = _book()
+    book[0].players[0]["proj"] = float("inf")
+    with pytest.raises(ValueError, match="projection is invalid"):
+        validate_paid_classic_book_v3(
+            book, expected_entries=2, catalog=_catalog()
+        )
+
+
 def test_classic_web_ui_uses_paid_v3_successor() -> None:
     html = app_main.lineups_page()
     assert "sd?'/showdown/lineups':'/lineups/paid-v3'" in html
     assert "paid v3 exact K" in html
+
+
+def test_paid_v3_cloud_build_rejects_unknown_or_abbreviated_code_sha() -> None:
+    source = Path("cloudbuild.paid-boundary-v3.yaml").read_text()
+    assert "_CODE_SHA: unknown" in source
+    assert "^[0-9a-f]{40}$" in source
+    assert "_CODE_SHA must be the full immutable source commit" in source
+    assert 'IMAGE_SOURCE_COMMIT_SHA"] == os.environ["EXPECTED_SOURCE_COMMIT' in source

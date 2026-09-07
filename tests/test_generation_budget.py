@@ -236,10 +236,10 @@ def test_hierarchical_gumbel_has_frozen_game_and_team_correlation():
     from nfl_dfs.backtest.engine import _gumbel_perturbations
 
     pool = [
-        {"id": "a1", "game_id": "g1", "team": "A"},
-        {"id": "a2", "game_id": "g1", "team": "A"},
-        {"id": "b1", "game_id": "g1", "team": "B"},
-        {"id": "c1", "game_id": "g2", "team": "C"},
+        {"id": "a1", "game_id": "provider-g1", "team": "A", "opp": "B"},
+        {"id": "a2", "game_id": "provider-g1", "team": "A", "opp": "B"},
+        {"id": "b1", "game_id": "B@A", "team": "B", "opp": "A"},
+        {"id": "c1", "game_id": "provider-g2", "team": "C", "opp": "D"},
     ]
     rng = np.random.default_rng(91)
     draws = np.stack([_gumbel_perturbations(

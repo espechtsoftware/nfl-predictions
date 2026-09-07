@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
@@ -62,6 +63,8 @@ class PaidClassicCatalogV3:
     projection_generated_at: str
     schedule_sha256: str
     schedule_games: int
+    validated_at: str
+    slate_lock_at: str
 
 
 def _fail(message: str) -> None:
@@ -149,6 +152,9 @@ def build_paid_classic_catalog_v3(
     gid = _integer(draft_group_id, label="draft_group_id")
     target_season = _integer(season, label="season")
     target_week = _integer(week, label="week")
+    if validated_at is None:
+        _fail("validated_at is required")
+    validation_time = _timestamp(validated_at, label="validated_at")
     try:
         salary_catalog = build_paid_classic_catalog_v2(
             salary_rows,
@@ -157,6 +163,24 @@ def build_paid_classic_catalog_v3(
         )
     except ValueError as exc:
         _translate_v2_error(exc)
+
+    salary_records = salary_rows.to_dict("records")
+    target_salary_records = [
+        row for row in salary_records
+        if _integer(row.get("draft_group_id"), label="salary draft_group_id")
+        == gid
+    ]
+    if not target_salary_records or any(
+        "game_start" not in row for row in target_salary_records
+    ):
+        _fail("salary authority lacks a slate-lock timestamp")
+    salary_game_starts = [
+        _timestamp(row.get("game_start"), label="salary game_start")
+        for row in target_salary_records
+    ]
+    slate_lock = min(salary_game_starts)
+    if validation_time >= slate_lock:
+        _fail("validation timestamp reaches or follows slate lock")
 
     if not isinstance(projection_rows, pd.DataFrame) or projection_rows.empty:
         _fail("projection authority is empty")
@@ -168,12 +192,14 @@ def build_paid_classic_catalog_v3(
         "position",
         "team",
         "opponent",
+        "proj_points",
     }
     missing = projection_required - set(projection_rows.columns)
     if missing:
         _fail("projection authority is missing " + ", ".join(sorted(missing)))
 
     projections: dict[int, dict[str, Any]] = {}
+    projection_batch_values: set[int] = set()
     for ordinal, row in enumerate(projection_rows.to_dict("records"), start=1):
         row_season = _integer(
             row.get("season"), label=f"projection row {ordinal} season"
@@ -201,6 +227,17 @@ def build_paid_classic_catalog_v3(
             game_key = canonical_game_key(team, opponent)
         except ValueError as exc:
             _fail(f"projection row {ordinal} has invalid game facts: {exc}")
+        generated_at = _timestamp(
+            row.get("generated_at"),
+            label=f"projection row {ordinal} generated_at",
+        )
+        projection_batch_values.add(int(generated_at.value))
+        try:
+            projection_points = float(row.get("proj_points"))
+        except (TypeError, ValueError, OverflowError):
+            _fail(f"projection row {ordinal} proj_points is invalid")
+        if not math.isfinite(projection_points):
+            _fail(f"projection row {ordinal} proj_points is invalid")
         projections[player_id] = {
             "player_id": player_id,
             "position": _position(
@@ -209,10 +246,8 @@ def build_paid_classic_catalog_v3(
             "team": team,
             "opponent": opponent,
             "canonical_game_key": game_key,
-            "generated_at": _timestamp(
-                row.get("generated_at"),
-                label=f"projection row {ordinal} generated_at",
-            ),
+            "generated_at": generated_at,
+            "projection": projection_points,
             "raw_team": _text(
                 row.get("team"), label=f"projection row {ordinal} team"
             ),
@@ -221,6 +256,16 @@ def build_paid_classic_catalog_v3(
                 label=f"projection row {ordinal} opponent",
             ),
         }
+
+    if len(projection_batch_values) != 1:
+        _fail("projection authority mixes generated_at batches")
+    projection_batch_time = pd.Timestamp(
+        next(iter(projection_batch_values)), unit="ns", tz="UTC"
+    )
+    if projection_batch_time > validation_time:
+        _fail("projection batch is later than validation time")
+    if projection_batch_time >= slate_lock:
+        _fail("projection batch reaches or follows slate lock")
 
     if not isinstance(schedule_rows, pd.DataFrame) or schedule_rows.empty:
         _fail("schedule authority is empty")
@@ -322,6 +367,7 @@ def build_paid_classic_catalog_v3(
                 "opponent": str(projection["opponent"]),
                 "canonical_game_key": str(projection["canonical_game_key"]),
                 "schedule_game_id": str(schedule["schedule_game_id"]),
+                "projection": float(projection["projection"]),
             }
         )
 
@@ -334,7 +380,12 @@ def build_paid_classic_catalog_v3(
     try:
         canonical_game_identities(
             [
-                {"team": row["team"], "opp": row["opponent"]}
+                {
+                    "id": row["player_id"],
+                    "team": row["team"],
+                    "opp": row["opponent"],
+                    "game_id": row["schedule_game_id"],
+                }
                 for row in joined
             ]
         )
@@ -355,6 +406,8 @@ def build_paid_classic_catalog_v3(
         "week": target_week,
         "salary_catalog_sha256": salary_catalog.sha256,
         "projection_generated_at": projection_generated_at,
+        "validated_at": validation_time.isoformat(),
+        "slate_lock_at": slate_lock.isoformat(),
         "schedule_sha256": schedule_sha256,
         "players": joined,
     }
@@ -369,6 +422,8 @@ def build_paid_classic_catalog_v3(
         projection_generated_at=projection_generated_at,
         schedule_sha256=schedule_sha256,
         schedule_games=len(schedule_identity),
+        validated_at=validation_time.isoformat(),
+        slate_lock_at=slate_lock.isoformat(),
     )
 
 
@@ -467,6 +522,8 @@ def _reopen_paid_classic_book_v3(
                 projection = float(player.get("proj"))
             except (TypeError, ValueError, OverflowError):
                 _fail(f"{label} projection is invalid")
+            if not math.isfinite(projection):
+                _fail(f"{label} projection is invalid")
 
             authoritative = dict(player)
             authoritative.update(
@@ -531,6 +588,8 @@ def _reopen_paid_classic_book_v3(
             "authoritative_game_catalog_sha256": catalog.sha256,
             "authoritative_game_catalog_rows": catalog.rows,
             "projection_generated_at": catalog.projection_generated_at,
+            "validated_at": catalog.validated_at,
+            "slate_lock_at": catalog.slate_lock_at,
             "schedule_catalog_sha256": catalog.schedule_sha256,
             "schedule_game_count": catalog.schedule_games,
             "canonical_game_policy_id": CANONICAL_GAME_POLICY_ID,

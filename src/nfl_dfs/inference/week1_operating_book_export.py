@@ -8,19 +8,25 @@ team and salary) must match the frozen pre-lock player bridge exactly.
 
 from __future__ import annotations
 
-from collections import Counter
-from collections.abc import Mapping, Sequence
 import csv
 import hashlib
 import io
-from numbers import Integral
 import re
+from collections import Counter
+from collections.abc import Mapping, Sequence
+from numbers import Integral
 from typing import Final
+
+import pandas as pd
 
 from ..optimizer.game_identity import (
     CANONICAL_GAME_POLICY_ID,
-    audit_classic_roster_semantics,
     normalize_team,
+)
+from ..optimizer.lineup import Lineup
+from ..optimizer.paid_classic_book_v3 import (
+    build_paid_classic_catalog_v3,
+    validate_paid_classic_book_v3,
 )
 from . import prospective_generation_shadow_evaluation as shadow_evaluation
 from .generation_exposure import canonical_sha256
@@ -33,7 +39,6 @@ from .week1_operating_book_operator import (
 from .week1_operating_roster_materializer import (
     validate_week1_operating_roster_materialization_v1,
 )
-
 
 SCHEMA_VERSION: Final = "week1-operating-book-export/v1"
 SCHEMA_VERSION_V2: Final = "week1-operating-book-export/v2-canonical-game"
@@ -296,6 +301,8 @@ def build_week1_operating_book_export_v2(
     exact_book: object,
     salary_rows: object,
     projection_rows: object,
+    schedule_rows: object,
+    validated_at: object,
 ) -> dict[str, object]:
     """Versioned live successor with an independent semantic-game audit.
 
@@ -308,65 +315,72 @@ def build_week1_operating_book_export_v2(
     base = build_week1_operating_book_export_v1(
         exact_book=exact_book, salary_rows=salary_rows,
     )
-    projections = _salary_records(projection_rows)
-    by_player_id: dict[int, dict[str, object]] = {}
-    for ordinal, row in enumerate(projections):
-        required = {"dk_player_id", "team", "opponent", "position", "salary"}
-        if not required <= set(row):
-            _fail(f"projection row[{ordinal}] lacks semantic export fields")
-        player_id = _int(row["dk_player_id"], label="projection DK player ID")
-        if player_id in by_player_id:
-            _fail("projection authority repeats a selected DK player ID")
-        by_player_id[player_id] = row
+    try:
+        catalog = build_paid_classic_catalog_v3(
+            salary_rows if isinstance(salary_rows, pd.DataFrame) else pd.DataFrame(_salary_records(salary_rows)),
+            projection_rows if isinstance(projection_rows, pd.DataFrame) else pd.DataFrame(_salary_records(projection_rows)),
+            schedule_rows if isinstance(schedule_rows, pd.DataFrame) else pd.DataFrame(_salary_records(schedule_rows)),
+            draft_group_id=int(WEEK1_DRAFT_GROUP_ID),
+            season=WEEK1_SEASON,
+            week=WEEK1_WEEK,
+            validated_at=validated_at,
+        )
+    except ValueError as exc:
+        raise Week1OperatingBookExportError(
+            "paid-v3 salary/projection/schedule authority is invalid"
+        ) from exc
 
     lineups: list[dict[str, object]] = []
-    audits: list[dict[str, object]] = []
+    authoritative_lineups: list[Lineup] = []
     for ordinal, raw_lineup in enumerate(base["lineups"], start=1):
         lineup = dict(raw_lineup)
         players: list[dict[str, object]] = []
         for raw_player in raw_lineup["players"]:
             player = dict(raw_player)
-            source = by_player_id.get(int(player["dk_player_id"]))
+            source = catalog.by_player_id.get(int(player["dk_player_id"]))
             if source is None:
-                _fail("projection authority does not resolve a selected player")
-            source_position = str(source["position"]).strip().upper()
-            if source_position in {"DEF", "D/ST"}:
-                source_position = "DST"
-            try:
-                source_team = normalize_team(source["team"])
-                selected_team = normalize_team(player["team"])
-                opponent = normalize_team(source["opponent"], label="opponent")
-            except ValueError as exc:
-                raise Week1OperatingBookExportError(
-                    "projection game identity is invalid"
-                ) from exc
+                _fail("paid-v3 authority does not resolve a selected player")
+            source_position = str(source["pos"])
+            source_team = str(source["team"])
+            selected_team = normalize_team(player["team"])
+            opponent = str(source["opponent"])
             if (
                 source_position != player["position"]
                 or source_team != selected_team
-                or _int(source["salary"], label="projection salary")
+                or int(source["salary"])
                 != player["salary"]
             ):
-                _fail("projection identity differs from materialized salary identity")
+                _fail("paid-v3 identity differs from materialized salary identity")
             player.update({
                 "id": player["dk_player_id"],
+                "dk_id": int(source["draftable_id"]),
+                "name": str(source["name"]),
                 "pos": player["position"],
                 "opp": opponent,
-                "game_id": f"{player['team']}@{opponent}",
+                "game_id": str(source["schedule_game_id"]),
+                "proj": float(source["projection"]),
                 "game_id_provenance": (
-                    "directional-derived-from-live-projection-team-opponent"
+                    "authoritative-paid-v3-schedule-join"
                 ),
             })
             players.append(player)
-        try:
-            audit = audit_classic_roster_semantics(players)
-        except ValueError as exc:
-            raise Week1OperatingBookExportError(
-                f"lineup {ordinal} fails final semantic DK legality"
-            ) from exc
+        authoritative_lineups.append(Lineup(players=players))
         lineup["players"] = players
-        lineup["semantic_game_audit"] = audit
         lineups.append(lineup)
-        audits.append(audit)
+
+    try:
+        paid_receipt = validate_paid_classic_book_v3(
+            authoritative_lineups,
+            expected_entries=int(base["k"]),
+            catalog=catalog,
+        )
+    except ValueError as exc:
+        raise Week1OperatingBookExportError(
+            "Week-1 book fails the paid-v3 terminal authority"
+        ) from exc
+    audits = list(paid_receipt["semantic_roster_audits"])
+    for lineup, audit in zip(lineups, audits, strict=True):
+        lineup["semantic_game_audit"] = audit
 
     body = dict(base)
     body.pop("export_sha256", None)
@@ -375,6 +389,13 @@ def build_week1_operating_book_export_v2(
         "lineups": lineups,
         "canonical_game_policy_id": CANONICAL_GAME_POLICY_ID,
         "semantic_game_audits_sha256": canonical_sha256(audits),
+        "paid_classic_boundary_id": paid_receipt["boundary_id"],
+        "paid_classic_receipt_sha256": paid_receipt["receipt_sha256"],
+        "paid_classic_catalog_sha256": catalog.sha256,
+        "projection_generated_at": catalog.projection_generated_at,
+        "authority_validated_at": catalog.validated_at,
+        "slate_lock_at": catalog.slate_lock_at,
+        "one_coherent_prelock_projection_batch": True,
         "final_semantic_draftkings_legal": True,
     })
     # The added semantic fields do not alter the already-reopened CSV bytes.

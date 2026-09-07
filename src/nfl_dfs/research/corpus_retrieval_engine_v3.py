@@ -61,10 +61,16 @@ LINEUP_TABLE_SCHEMA_V2: Final = (
 )
 SELECTION_SCHEMA: Final = "corpus-retrieval-selection/v1"
 ENRICHMENT_SCHEMA: Final = "corpus-retrieval-enrichment/v1"
+ENRICHMENT_SCHEMA_V2: Final = (
+    "corpus-retrieval-enrichment/v2-canonical-game"
+)
 REDUNDANCY_SCHEMA: Final = "corpus-retrieval-redundancy-topk/v1"
 GRAPH_SCHEMA: Final = "corpus-retrieval-graph-projection/v1"
 GRAPH_SCHEMA_V2: Final = "corpus-retrieval-graph-projection/v2-canonical-game"
 FILL_INSIGHT_SCHEMA: Final = "corpus-retrieval-fill-insight-input/v1"
+FILL_INSIGHT_SCHEMA_V2: Final = (
+    "corpus-retrieval-fill-insight-input/v2-canonical-game"
+)
 
 PUBLICATION_MODE: Final = "create_once"
 SCORE_UNIT: Final = "dk_points_float32"
@@ -998,6 +1004,11 @@ _ARTIFACT_LAW: Final = {
         "result_schema": TASK_RESULT_SCHEMA,
         "result_name": "result.json",
         "completion_schema": COMPLETION_SCHEMA,
+        "enrichment_schema": ENRICHMENT_SCHEMA,
+        "enrichment_discovery_path": "artifacts/enrichment-discovery-r0-r3.json",
+        "enrichment_full_path": "artifacts/enrichment-all-r0-r4.json",
+        "fill_insight_schema": FILL_INSIGHT_SCHEMA,
+        "fill_insight_path": "artifacts/fill-insight.json",
     },
     SUITE_SCHEMA_V2: {
         "canonical_game_features": False,
@@ -1008,6 +1019,11 @@ _ARTIFACT_LAW: Final = {
         "result_schema": TASK_RESULT_SCHEMA,
         "result_name": "result.json",
         "completion_schema": COMPLETION_SCHEMA,
+        "enrichment_schema": ENRICHMENT_SCHEMA,
+        "enrichment_discovery_path": "artifacts/enrichment-discovery-r0-r3.json",
+        "enrichment_full_path": "artifacts/enrichment-all-r0-r4.json",
+        "fill_insight_schema": FILL_INSIGHT_SCHEMA,
+        "fill_insight_path": "artifacts/fill-insight.json",
     },
     SUITE_SCHEMA_V3: {
         "canonical_game_features": True,
@@ -1018,6 +1034,13 @@ _ARTIFACT_LAW: Final = {
         "result_schema": TASK_RESULT_SCHEMA_V2,
         "result_name": "result-v2.json",
         "completion_schema": COMPLETION_SCHEMA_V2,
+        "enrichment_schema": ENRICHMENT_SCHEMA_V2,
+        "enrichment_discovery_path": (
+            "artifacts/enrichment-discovery-r0-r3-v2.json"
+        ),
+        "enrichment_full_path": "artifacts/enrichment-all-r0-r4-v2.json",
+        "fill_insight_schema": FILL_INSIGHT_SCHEMA_V2,
+        "fill_insight_path": "artifacts/fill-insight-v2.json",
     },
 }
 
@@ -1447,7 +1470,7 @@ def _lineup_features_v2(
         canonical_stack = sum(
             normalize_team(row.get("team")) == qb_team
             and row["id"] != qb["id"]
-            and row["pos"] in {"WR", "TE", "RB"}
+            and row["pos"] in {"WR", "TE"}
             for row in rows
         )
         canonical_bring_back = sum(
@@ -2178,7 +2201,14 @@ def _split_metrics(scores: np.ndarray, selected: Sequence[int]) -> dict[str, obj
 def _build_enrichment(
     *, lineup_rows: Sequence[Mapping[str, object]], scores: np.ndarray,
     analysis_scope: str, world_blocks: Sequence[str],
+    canonical_game_features: bool = False,
+    schema_version: str = ENRICHMENT_SCHEMA,
 ) -> dict[str, object]:
+    expected_schema = (
+        ENRICHMENT_SCHEMA_V2 if canonical_game_features else ENRICHMENT_SCHEMA
+    )
+    if schema_version != expected_schema:
+        raise CorpusRetrievalError("enrichment schema/feature law differs")
     scope = _identifier(analysis_scope, label="enrichment analysis scope")
     blocks = [
         _string(value, label="enrichment world block")
@@ -2222,14 +2252,25 @@ def _build_enrichment(
         for tag in row["tags"]:
             tag_lineups[str(tag)].append(local_index)
         features = row["features"]
+        prefix = "canonical_" if canonical_game_features else ""
         signature = (
-            f"qb-stack:{features['qb_stack_teammates']}|"
-            f"bring-back:{features['bring_back_players']}|"
-            f"games:{features['game_count']}"
+            f"qb-stack:{features[f'{prefix}qb_stack_teammates']}|"
+            f"bring-back:{features[f'{prefix}bring_back_players']}|"
+            f"games:{features[f'{prefix}game_count']}"
         )
         stack_lineups[signature].append(local_index)
-        teams = [str(value) for value in features["teams"]]
-        games = [str(value) for value in features["games"]]
+        if canonical_game_features:
+            teams = [
+                str(value)
+                for value in features["canonical_team_player_counts"]
+            ]
+            games = [
+                str(value)
+                for value in features["canonical_game_player_counts"]
+            ]
+        else:
+            teams = [str(value) for value in features["teams"]]
+            games = [str(value) for value in features["games"]]
         for team in teams:
             team_lineups[team].append(local_index)
         for left, right in combinations(teams, 2):
@@ -2260,7 +2301,7 @@ def _build_enrichment(
         return result
 
     body = {
-        "schema_version": ENRICHMENT_SCHEMA,
+        "schema_version": schema_version,
         "analysis_scope": scope,
         "world_blocks": blocks,
         "heldout_worlds_used": blocks == list(WORLD_BLOCKS),
@@ -2461,8 +2502,18 @@ def _build_fill_insight(
     *, enrichment: Mapping[str, object],
     source_enrichment_object: Mapping[str, object],
     task_id: str,
+    schema_version: str = FILL_INSIGHT_SCHEMA,
 ) -> dict[str, object]:
+    expected_enrichment_schema = (
+        ENRICHMENT_SCHEMA_V2
+        if schema_version == FILL_INSIGHT_SCHEMA_V2
+        else ENRICHMENT_SCHEMA
+    )
+    if schema_version not in {FILL_INSIGHT_SCHEMA, FILL_INSIGHT_SCHEMA_V2}:
+        raise CorpusRetrievalError("fill insight schema differs")
     if (
+        enrichment.get("schema_version") != expected_enrichment_schema
+        or
         enrichment.get("analysis_scope") != "discovery-r0-r3"
         or enrichment.get("world_blocks") != list(DISCOVERY_BLOCKS)
         or enrichment.get("heldout_worlds_used") is not False
@@ -2482,7 +2533,7 @@ def _build_fill_insight(
             "fill source enrichment identity does not bind enrichment bytes"
         )
     body = {
-        "schema_version": FILL_INSIGHT_SCHEMA,
+        "schema_version": schema_version,
         "task_id": task_id,
         "knowledge_class": "retrieval-derived-observation",
         "primary_event": {
@@ -2949,9 +3000,11 @@ def run_retrieval_task(
         scores=discovery_scores,
         analysis_scope="discovery-r0-r3",
         world_blocks=DISCOVERY_BLOCKS,
+        canonical_game_features=bool(artifact_law["canonical_game_features"]),
+        schema_version=str(artifact_law["enrichment_schema"]),
     )
     discovery_enrichment_receipt = _publish_json_sidecar(
-        uri=f"{prefix}artifacts/enrichment-discovery-r0-r3.json",
+        uri=f"{prefix}{artifact_law['enrichment_discovery_path']}",
         role="enrichment-discovery",
         body=discovery_enrichment,
         publisher=publish_create_once,
@@ -2962,9 +3015,11 @@ def run_retrieval_task(
         scores=scores,
         analysis_scope="all-r0-r4-descriptive",
         world_blocks=WORLD_BLOCKS,
+        canonical_game_features=bool(artifact_law["canonical_game_features"]),
+        schema_version=str(artifact_law["enrichment_schema"]),
     )
     sidecars.append(_publish_json_sidecar(
-        uri=f"{prefix}artifacts/enrichment-all-r0-r4.json",
+        uri=f"{prefix}{artifact_law['enrichment_full_path']}",
         role="enrichment-all-worlds",
         body=full_enrichment,
         publisher=publish_create_once,
@@ -2980,9 +3035,10 @@ def run_retrieval_task(
         enrichment=discovery_enrichment,
         source_enrichment_object=discovery_enrichment_receipt["object_identity"],
         task_id=str(task["task_id"]),
+        schema_version=str(artifact_law["fill_insight_schema"]),
     )
     sidecars.append(_publish_json_sidecar(
-        uri=f"{prefix}artifacts/fill-insight.json",
+        uri=f"{prefix}{artifact_law['fill_insight_path']}",
         role="fill-insight",
         body=fill_insight,
         publisher=publish_create_once,
@@ -3136,14 +3192,14 @@ def _sidecar_map(
         ("strict-gt-200-events", "", "artifacts/strict-gt-200-events.npz"),
         (
             "enrichment-discovery", "",
-            "artifacts/enrichment-discovery-r0-r3.json",
+            str(artifact_law["enrichment_discovery_path"]),
         ),
         (
             "enrichment-all-worlds", "",
-            "artifacts/enrichment-all-r0-r4.json",
+            str(artifact_law["enrichment_full_path"]),
         ),
         ("redundancy-topk", "", "artifacts/redundancy-topk.json"),
-        ("fill-insight", "", "artifacts/fill-insight.json"),
+        ("fill-insight", "", str(artifact_law["fill_insight_path"])),
     ]
     for strategy in suite["strategies"]:
         ordinal = int(strategy["ordinal"])
@@ -3487,14 +3543,14 @@ def validate_retrieval_task_result(
     for body, schema, hash_field, label, sidecar_key in (
         (
             discovery_enrichment,
-            ENRICHMENT_SCHEMA,
+            artifact_law["enrichment_schema"],
             "enrichment_sha256",
             "discovery enrichment",
             ("enrichment-discovery", ""),
         ),
         (
             full_enrichment,
-            ENRICHMENT_SCHEMA,
+            artifact_law["enrichment_schema"],
             "enrichment_sha256",
             "all-world descriptive enrichment",
             ("enrichment-all-worlds", ""),
@@ -3504,7 +3560,7 @@ def validate_retrieval_task_result(
             ("redundancy-topk", ""),
         ),
         (
-            fill_insight, FILL_INSIGHT_SCHEMA, "fill_insight_sha256",
+            fill_insight, artifact_law["fill_insight_schema"], "fill_insight_sha256",
             "fill insight", ("fill-insight", ""),
         ),
         (
@@ -3639,12 +3695,16 @@ def validate_retrieval_task_result(
         scores=discovery_scores,
         analysis_scope="discovery-r0-r3",
         world_blocks=DISCOVERY_BLOCKS,
+        canonical_game_features=bool(artifact_law["canonical_game_features"]),
+        schema_version=str(artifact_law["enrichment_schema"]),
     )
     rebuilt_full_enrichment = _build_enrichment(
         lineup_rows=lineup_rows,
         scores=scores,
         analysis_scope="all-r0-r4-descriptive",
         world_blocks=WORLD_BLOCKS,
+        canonical_game_features=bool(artifact_law["canonical_game_features"]),
+        schema_version=str(artifact_law["enrichment_schema"]),
     )
     rebuilt_redundancy = _build_redundancy(
         lineup_rows=lineup_rows, scores=scores
@@ -3655,6 +3715,7 @@ def validate_retrieval_task_result(
             "object_identity"
         ],
         task_id=str(snapshot_task["task_id"]),
+        schema_version=str(artifact_law["fill_insight_schema"]),
     )
     rebuilt_graph = _build_graph_projection(
         suite=suite,
@@ -3668,6 +3729,7 @@ def validate_retrieval_task_result(
         artifact_sidecars=[
             row for row in sidecars if row["role"] != "graph-projection"
         ],
+        graph_schema=str(artifact_law["graph_schema"]),
     )
     if any(
         canonical_json_bytes(left) != canonical_json_bytes(right)
@@ -3701,7 +3763,12 @@ def validate_retrieval_task_result(
 
     if replay:
         _, replay_lineups, replay_scores, source_receipts = _prepare_task_sources(
-            snapshot=snapshot, task_index=index, reader=read_object
+            snapshot=snapshot,
+            task_index=index,
+            reader=read_object,
+            canonical_game_features=bool(
+                artifact_law["canonical_game_features"]
+            ),
         )
         if (
             canonical_json_bytes(replay_lineups) != canonical_json_bytes(lineup_rows)

@@ -19,6 +19,7 @@ class ProjectionStore:
     def __init__(self) -> None:
         self.gids: list[int] = []
         self.projection_calls: list[tuple[int, int]] = []
+        self.schedule_calls: list[tuple[int, int]] = []
 
     def classic_salaries(self, draft_group_id: int):
         self.gids.append(draft_group_id)
@@ -27,6 +28,14 @@ class ProjectionStore:
     def projections(self, season: int, week: int):
         self.projection_calls.append((season, week))
         return [{"projection": "authority"}]
+
+    def projection_batch(self, season: int, week: int, *, as_of):
+        self.projection_calls.append((season, week))
+        return [{"projection": "authority", "as_of": as_of}]
+
+    def schedule_games(self, season: int, week: int):
+        self.schedule_calls.append((season, week))
+        return [{"schedule": "authority"}]
 
 
 def test_deployment_identity_is_all_or_nothing_and_generation_pinned() -> None:
@@ -91,10 +100,18 @@ def test_v2_load_adds_the_fixed_projection_authority(
         lambda **_kwargs: exact,
     )
 
-    def build(*, exact_book, salary_rows, projection_rows):
+    marker = object()
+    monkeypatch.setattr(api, "_week1_paid_validation_time_v2", lambda: marker)
+
+    def build(
+        *, exact_book, salary_rows, projection_rows, schedule_rows,
+        validated_at,
+    ):
         assert exact_book == exact
         assert salary_rows == [{"salary": "authority"}]
-        assert projection_rows == [{"projection": "authority"}]
+        assert projection_rows == [{"projection": "authority", "as_of": marker}]
+        assert schedule_rows == [{"schedule": "authority"}]
+        assert validated_at is marker
         return payload
 
     monkeypatch.setattr(api, "build_week1_operating_book_export_v2", build)
@@ -106,6 +123,7 @@ def test_v2_load_adds_the_fixed_projection_authority(
     ) == payload
     assert projection_store.gids == [151307]
     assert projection_store.projection_calls == [(2026, 1)]
+    assert projection_store.schedule_calls == [(2026, 1)]
 
 
 def test_canonical_routes_accept_no_build_request_and_share_one_payload(

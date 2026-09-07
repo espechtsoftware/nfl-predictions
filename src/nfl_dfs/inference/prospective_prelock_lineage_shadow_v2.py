@@ -1088,7 +1088,11 @@ def run_prelock_lineage_shadow_v2(
         environment["PROSPECTIVE_GENERATION_EXPOSURE"] = "1"
         run = {
             "run_id": run_id,
-            "run_type": "prospective-lineage-shadow-v2",
+            "run_type": (
+                "prospective-lineage-shadow-v2"
+                if _lineage_version == 2
+                else "prospective-lineage-shadow-v3-canonical-game"
+            ),
             "season": season,
             "week": week,
             "slate_id": f"dk-{draft_group_id}",
@@ -1172,7 +1176,9 @@ def run_prelock_lineage_shadow_v2(
                 cand_log_async=False,
                 cand_log_required=False,
                 panel_run_id=run_id,
-                candidate_run_type=VERSION,
+                candidate_run_type=(
+                    VERSION if _lineage_version == 2 else VERSION_V3
+                ),
                 policy_env=environment,
                 construction_preset_receipt=construction.receipt(),
                 expected_model_k=policy.model_ensemble,

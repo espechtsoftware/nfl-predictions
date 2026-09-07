@@ -3,6 +3,7 @@ without a warehouse and swappable later."""
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Protocol
 
 import pandas as pd
@@ -38,6 +39,9 @@ SCHEDULE_GAME_COLUMNS = [
 class ProjectionStore(Protocol):
     def slates(self) -> pd.DataFrame: ...
     def projections(self, season: int, week: int) -> pd.DataFrame: ...
+    def projection_batch(
+        self, season: int, week: int, *, as_of: datetime | pd.Timestamp,
+    ) -> pd.DataFrame: ...
     def defense_points_against(self, season: int | None = None) -> pd.DataFrame: ...
     def showdown_salaries(self) -> pd.DataFrame: ...
     def classic_slates(self) -> pd.DataFrame: ...
@@ -98,6 +102,29 @@ class BigQueryStore:
             ORDER BY proj_points DESC
             """,
             params={"season": season, "week": week},
+        )
+
+    def projection_batch(
+        self, season: int, week: int, *, as_of: datetime | pd.Timestamp,
+    ) -> pd.DataFrame:
+        """One coherent point-in-time projection batch, never per-player latest."""
+        from ..bq import query_df
+
+        return query_df(
+            f"""
+            WITH chosen_batch AS (
+              SELECT MAX(generated_at) AS generated_at
+              FROM `{settings.predictions}.player_projections`
+              WHERE season = @season AND week = @week
+                AND generated_at <= TIMESTAMP(@as_of)
+            )
+            SELECT p.*
+            FROM `{settings.predictions}.player_projections` p
+            JOIN chosen_batch b USING (generated_at)
+            WHERE p.season = @season AND p.week = @week
+            ORDER BY p.dk_player_id
+            """,
+            params={"season": season, "week": week, "as_of": as_of},
         )
 
 
@@ -357,3 +384,18 @@ class InMemoryStore:
     def projections(self, season: int, week: int) -> pd.DataFrame:
         df = self.frame
         return df[(df.season == season) & (df.week == week)].reset_index(drop=True)
+
+    def projection_batch(
+        self, season: int, week: int, *, as_of: datetime | pd.Timestamp,
+    ) -> pd.DataFrame:
+        frame = self.projections(season, week)
+        if frame.empty or "generated_at" not in frame:
+            return frame
+        timestamps = pd.to_datetime(frame["generated_at"], utc=True, errors="coerce")
+        cutoff = pd.Timestamp(as_of)
+        cutoff = cutoff.tz_localize("UTC") if cutoff.tzinfo is None else cutoff.tz_convert("UTC")
+        eligible = timestamps[timestamps <= cutoff]
+        if eligible.empty:
+            return frame.iloc[0:0].copy()
+        chosen = eligible.max()
+        return frame[timestamps == chosen].reset_index(drop=True)

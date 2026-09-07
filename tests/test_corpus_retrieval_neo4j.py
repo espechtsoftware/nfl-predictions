@@ -38,7 +38,7 @@ def _placeholder_identity(name: str, generation: int) -> dict[str, object]:
 
 def _bundle(
     *, completion_complete: bool = True, result_production_license: bool = False,
-    analytics: bool = False,
+    analytics: bool = False, evidence_v2: bool = False,
 ) -> dict[str, Any]:
     manifest_raw = b"fixture-manifest"
     suite_identity = _identity(
@@ -227,7 +227,9 @@ def _bundle(
         "properties": {},
     }]
     graph = _self_hash({
-        "schema_version": projection.GRAPH_SCHEMA,
+        "schema_version": (
+            projection.GRAPH_SCHEMA_V2 if evidence_v2 else projection.GRAPH_SCHEMA
+        ),
         "dedicated_analytical_graph_only": True,
         "authoritative_source": "create-once-sidecars-and-task-result",
         "large_bodies_are_pointers": True,
@@ -258,7 +260,10 @@ def _bundle(
     })
 
     task_result = _self_hash({
-        "schema_version": projection.TASK_RESULT_SCHEMA,
+        "schema_version": (
+            projection.TASK_RESULT_SCHEMA_V2
+            if evidence_v2 else projection.TASK_RESULT_SCHEMA
+        ),
         "publication_mode": "create_once",
         "suite_manifest_identity": suite_identity,
         "suite_manifest_sha256": "b" * 64,
@@ -316,13 +321,17 @@ def _bundle(
     }, "task_result_sha256")
     task_result_raw = projection.canonical_json_bytes(task_result)
     task_result_identity = _identity(
-        "gs://dedicated-research/run/tasks/0000/result.json",
+        "gs://dedicated-research/run/tasks/0000/"
+        + ("result-v2.json" if evidence_v2 else "result.json"),
         ordinal + 1,
         task_result_raw,
     )
 
     completion = _self_hash({
-        "schema_version": projection.COMPLETION_SCHEMA,
+        "schema_version": (
+            projection.COMPLETION_SCHEMA_V2
+            if evidence_v2 else projection.COMPLETION_SCHEMA
+        ),
         "publication_mode": "create_once",
         "suite_manifest_identity": suite_identity,
         "suite_manifest_sha256": "b" * 64,
@@ -763,6 +772,12 @@ def test_builds_receipt_bound_pointer_only_plan() -> None:
     assert all(type(row["source_bytes"]) is int and row["source_bytes"] > 0 for row in plan.nodes)
     assert plan.graph_projection_identity["generation"]
     assert plan.terminal_receipt_identity["sha256"]
+
+
+def test_builds_full_canonical_v3_evidence_chain_plan() -> None:
+    plan = _plan(_bundle(evidence_v2=True))
+    assert plan.run_id == "20260821-retrieval-fixture-v1"
+    assert plan.summary()["large_world_bodies_stored"] is False
 
 
 def test_rejects_incomplete_completion_and_unsafe_result() -> None:
