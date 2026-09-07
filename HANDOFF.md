@@ -41,15 +41,17 @@ agent or developer:
   GCS publication was reached. Authenticated HTTP/2 direct-object plus
   versions/soft-delete checks after failure confirmed the fm2 object remains
   absent. `prereg074-fm2` is consumed and may not be retried.
-- Reproduction isolates the fault to this machine's HTTP/1.1 route to
-  `storage.googleapis.com`; Python urllib/requests/Google Storage and gcloud
-  storage hang, while authenticated curl HTTP/2 succeeds immediately. A
-  bounded R9/fresh-fm3 transport repair is active. It must use an exact,
-  token-safe authenticated HTTP/2 boundary for exact-generation reopen and
-  create-once upload, authenticate returned/reopened identity and bytes, and
-  preserve all R8 scientific behavior. The durable contract is on lab main at
-  `e1c8c50` in
-  `handoffs/PRODUCTION-TO-LAB-PREREG074-FM2-TRANSPORT-FAILURE-AND-R9-FM3-GO-2026-09-07.md`.
+- During the incident, HTTP/1.1 requests to `storage.googleapis.com` returned
+  no bytes while authenticated curl HTTP/2 succeeded. At 19:06Z HTTP/1.1
+  recovered, and the exact R8 Python-client authority preflight then completed
+  in about 74 seconds with all 36 cells and 159 exclusions reconciled; its
+  local non-lineage receipt is 9,047 bytes, SHA-256
+  `fae11f078035d302da13e738aa056a787e5172b99c859fb42950e25c15560636`.
+  Production therefore narrowed R9 to the minimum fresh-attempt repair: advance
+  fm2 to fm3, preserve/refuse both consumed attempts, and make no transport or
+  scientific change. The scope correction is durable on lab main at
+  `357981a` in
+  `handoffs/PRODUCTION-TO-LAB-GCS-RECOVERY-AND-PREREG074-R9-SCOPE-NARROWING-2026-09-07.md`.
   No fm3 invocation/build/cloud/outcome/score action is yet authorized.
 
 ### 2026-09-07 experiment 081 R5 independently held; narrow R6 returned to lab
