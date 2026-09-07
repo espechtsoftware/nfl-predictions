@@ -22,6 +22,31 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 experiment 081 R6 held; narrow R7 authentication repair requested
+
+- Production independently reviewed returned R6 source
+  `6c3b1d62185a910e81a7674a0cfc55c50cd66ebe`. R6 correctly pins the
+  validating interpreter and recovery interval, refuses archive-root aliases,
+  reopens canonical seal inputs by exact identity, and retains the provider,
+  source, image, and outcome boundaries. Static checks and the returned/focused
+  tests pass.
+- One P0 remains. `validate_seal()` does not compare the queue, host-contract,
+  or launch-contract digests to their values in the exact reopened gate, so a
+  coordinated terminal seal plus validator-argument restatement is accepted.
+  The shared preliminary-gate validator also lacks exact adjudication/nested
+  field censuses and does not authenticate `gate_script_sha256`, recompute
+  `base_gate_sha256`, or require adjudication `efficacy_status` to remain
+  `HOLD_REGISTRY_V2`. Independent reproduction made `seal_document()` return
+  `consumable: true` from an exact canonical gate with both script/base
+  digests restated and adjudication status changed to `PROMOTED`.
+- R6 is HOLD with no bind/build/publication/launch/consumption authority. R7
+  is limited to one central exact adjudication validator shared by producer
+  and consumer: authenticate all four binding digests, the frozen gate-script
+  digest, recomputed canonical base-gate digest, exact status/booleans and all
+  nested field censuses, with coordinated-restatement negatives. The durable
+  lab note is
+  `handoffs/PRODUCTION-TO-LAB-EXPERIMENT081-R6-HOLD-AND-R7-ADJUDICATION-AUTHENTICATION-GO-2026-09-07.md`.
+
 ### 2026-09-07 PREREG-074 R9/fm3 published and independently authenticated
 
 - Production accepted the minimal R9 rollover at exact source
