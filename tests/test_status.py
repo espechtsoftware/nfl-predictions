@@ -164,6 +164,31 @@ def test_injury_snapshot_status_pages_on_missed_daily_capture():
     assert "collector time" in feed.note
 
 
+def test_tabpfn_component_cache_is_research_only_and_does_not_page(monkeypatch):
+    feed = next(
+        item for item in status.FEEDS if item.key == "tabpfn_components"
+    )
+    adopted = next(
+        item for item in status.FEEDS if item.key == "tabpfn_projections"
+    )
+    assert feed.table == "tabpfn_components"
+    assert not feed.alert
+    assert "research-only" in feed.note
+    assert "default-off" in feed.note
+    assert adopted.table == "tabpfn_projections"
+    assert adopted.alert
+
+    def info(dataset, table):
+        if table == "tabpfn_components":
+            return IN_SEASON - timedelta(days=60), 29_644
+        return IN_SEASON - timedelta(hours=1), 1_000
+
+    monkeypatch.setattr(status, "_table_info", info)
+    by_key = {c["key"]: c for c in status.system_status(now=IN_SEASON)}
+    assert by_key["tabpfn_components"]["state"] == "stale"
+    status.check_freshness(now=IN_SEASON)
+
+
 def test_nav_html_requires_ephemeral_gpp_standings_capture():
     assert "full contest standings CSV" in app_main._NAV_HTML
     assert "ownership for exact placement and ROI analysis" in app_main._NAV_HTML
