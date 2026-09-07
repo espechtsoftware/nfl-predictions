@@ -22,6 +22,25 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 PREREG-074 generation cohort is active
+
+- Independent review accepted exact R9 for one fresh authority and generation
+  launch. Production published authority
+  `authorities/PREREG-074/102b740r1-20260907T214713Z.json#1788818052479999`
+  (7,950 bytes, SHA-256 `be4fe7d5...`) and independently reopened its sole
+  generation before launch.
+- The registered launch reconciled Cloud Run execution `lab-run-nstwg` and
+  create-once launch receipt
+  `launches/PREREG-074/102b740r1-20260907T214713Z.json#1788818218718665`
+  (2,315 bytes, SHA-256 `a3b11078...`). The first provider observation showed
+  12/36 tasks running, zero failures/cancellations, with the exact source,
+  immutable image, command, args and environment.
+- Monitor to exactly 36 succeeded / 0 failed / 0 cancelled / completed. Replay
+  remains held until the coordinator independently authenticates that terminal
+  state, sole execution identity, and complete generation namespace. Seal,
+  pins, release and outcome read remain later boundaries. Durable lab-main
+  record is `handoffs/PRODUCTION-TO-LAB-PREREG074-R9-GENERATION-LAUNCHED-2026-09-07.md`.
+
 ### 2026-09-07 PREREG-074 immutable build receipt is sealed
 
 - Independent review accepted R13 and its focused tests passed 11/11. The one
