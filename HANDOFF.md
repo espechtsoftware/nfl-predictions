@@ -22,6 +22,27 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 Experiment 081 R3 provider build succeeded; receipt recovery held after wrapper ID-parse failure
+
+- Production consumed the one authorized R3 build attempt. Cloud Build
+  `351c7a92-d15f-4100-98ac-e1fc0d4c7ab7` completed `SUCCESS` from the exact
+  source archive generation and produced immutable image
+  `sha256:db6db8454c28a7f39a1c98a8597240a20b8d8d2f4dbfe24ac647c47f61cc6252`
+  under tag `081-79031403-r3`. It ran from
+  `2026-09-07T23:16:26.598703042Z` to
+  `2026-09-07T23:18:18.073430Z`; no Cloud Run state changed.
+- The wrapper then exited 1 because its captured `gcloud builds submit`
+  stdout did not match the expected UUID, before it persisted
+  `successful-build-v1.json`. The exact `attempt-v1.json` and submit stderr
+  transcript exist; the provider has exactly one successful build for the
+  fresh tag and Artifact Registry resolves it to the digest above.
+- The attempt, tag, and image are consumed and **must not be resubmitted**.
+  The image remains inert; no canonical build receipt, mechanics execution,
+  outcome, or score exists. A code-only repair is preparing a fail-closed
+  provider reconciliation for this exact missing-success-file case. Receipt
+  recovery and publication remain held for a separate review and GO. Durable
+  lab notice: `a879524`.
+
 ### 2026-09-07 CP-4 R16 exact-type repair independently passed; one remote smoke authorized
 
 - Independent review accepted exact repair
@@ -39,6 +60,10 @@ agent or developer:
   authorized at 2023-W18 / bank 740 / 10,000 simulations under label `r16`.
   No candidate generation, mechanics publication, outcome access, or score is
   authorized by this decision.
+- Lab confirmed the R16 delta independently but cannot invoke the remote
+  smoke. Production authorized lab to prepare only a clean-checkout remote
+  driver at exact R16, with a fresh immutable image/namespace and
+  `maxRetries=0`; build and execution remain held pending another review.
 
 ### 2026-09-07 Experiment 081 R3 immutable builder repaired and independently passed; build held for one-shot GO
 
