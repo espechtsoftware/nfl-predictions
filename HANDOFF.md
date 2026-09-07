@@ -22,6 +22,61 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 production canonical-game policy v2 ready for review (local only)
+
+- Isolated worktree `/home/erich/projects/nfl-predictions-canonical-game-v2`,
+  branch `fix/canonical-game-policy-v2-20260907`, was created from and finally
+  rebased onto production `origin/main` `e3e27d84`. Implementation commit is
+  `0960d49c4da074fd3ab994cc8844db6b183cb16e`. Per the review request, neither
+  commit has been pushed, merged, built, deployed, or used for cloud/outcome
+  work.
+- Added semantic game policy `unordered-normalized-team-opponent-v2`. It
+  derives an order-invariant key from normalized `team`/`opp`, retains raw
+  `game_id` values as provenance, detects team/opponent ambiguity, and does
+  not mutate source rows. Shared `min_games` and `max_per_game` now group on
+  physical games. `game_lock` accepts a unique raw or canonical target and
+  raises on zero, ambiguous, or insufficient matches instead of disappearing.
+- Active backtest game-stack and dark-game ranking now aggregates and locks
+  the same canonical physical games. Frozen CP-1/CP-3 code, artifacts,
+  launchers, jobs, and receipts were not edited or invoked.
+- Added independent final semantic DK audits at both paid Classic boundary
+  `paid-classic-book-boundary-v3-canonical-game` and the separately versioned
+  active Week-1 export successor `week1-operating-book-export/v2-canonical-game`.
+  The Week-1 v1 renderer remains unchanged and the v2 API additionally exact-
+  joins selected players to the current pre-lock projection authority before
+  serving the already-reopened CSV. The old paid v2 Cloud Build file remains
+  frozen; new `cloudbuild.paid-boundary-v3.yaml` gates the successor.
+- Prospective all-boom and cross-law conformance now validates canonical game
+  structure. Candidate features moved to additive definition
+  `cf-1.1.0-canonical-game-additive`; old raw game aggregates remain under
+  their old names while new `canonical_*` fields and the policy ID are emitted
+  by candidate, retrieval, and Neo4j-derived phenotype paths. No retained old
+  artifact is silently reinterpreted.
+- Production identity is
+  `classic-k1-role12-lev40-boom160-poscal-cbwu-cgame-v6`. Frozen effective-
+  policy inventory v5/v6 literals remain intact; explicit current-source
+  successor `adopted-classic-policy-20260907-canonical-game-v7` validates with
+  inventory SHA-256
+  `c294b6f96a5ec80a72b5163944a8fd5c83e9c51a9145be31e5a1343e743cb92c`.
+- Validation: 271/271 focused tests passed across canonical identity, shared
+  optimizer parity/conformance, paid and Week-1 boundaries, production policy
+  and source inventory, application routes, active backtest, prospective
+  transforms, candidate features, retrieval, and historical Neo4j slice.
+  `git diff --check`, Python compilation/`compileall`, and an independent v7
+  inventory regeneration passed. Ruff could not be executed because it is not
+  installed in the available repository virtual environment; no substitute
+  lint result is claimed.
+- Review risks: confirm that requiring a current projection row for every
+  selected Week-1 player is the desired fail-closed live behavior; confirm the
+  additive graph properties are acceptable on the next projection while raw
+  legacy properties remain present; and independently review the alias table
+  and the deliberate retirement of legacy synthetic raw-game parity cells.
+- Next concrete action: root production review of commits `0960d49c` and this
+  handoff commit. If accepted, run an independent Ruff/full-suite gate and a
+  candidate-only mixed-representation smoke before any selective merge. A
+  later explicit decision is required for push, merge, build, deployment,
+  cloud execution, outcome access, or policy activation.
+
 ### 2026-09-07 CP-3 M-prime accepted; one-shot a2 mechanics cleared
 
 - The old request for a PREREG-073 CODE GO / CP-1 a4 clearance is superseded:
