@@ -76,7 +76,115 @@ agent or developer:
   candidate-only mixed-representation smoke before any selective merge. A
   later explicit decision is required for push, merge, build, deployment,
   cloud execution, outcome access, or policy activation.
+### 2026-09-07 CP-4 binding accepted; PREREG-074 prep held for bounded R2
 
+- Production independently accepted CP-4 binding commit
+  `ddbdb817b3f90d533256fcff207d4ec5c6eaeb21`, exact child of accepted
+  sidecar commit `ec2a16679d9fd83a05293538d23e2d2f20284550`. The whole delta is
+  the binding literal, its refusal-test template, focused tests, and receipt.
+  The exact tracked 93,821-byte sidecar with SHA-256
+  `31bb967a8a9c2e806cf6537be618de711af1ecb2430b633c61062c0d5f74f269`
+  reopens through the shipped binding; no placeholders remain. Independent
+  Ruff, compilation, diff, direct loader checks, and the focused suite passed
+  (32/32 in 96.57 seconds).
+- The binding acceptance is durable on lab main in
+  `handoffs/PRODUCTION-TO-LAB-CP4-BINDING-ACCEPT-R6-PENDING-2026-09-07.md`.
+  It is not a mechanics GO. Lab has now returned the separately reviewable R6
+  lineage repair at `b07c2e32b912494b0292203dd03286949bf6ce26`, exact child of
+  the accepted binding. Independent R6 review passed its 34/34 focused suite
+  but reproduced four remaining composed-gate bypasses: a changed boom-ledger
+  token; a consistently restated boom visit-to-roster swap; a cross-family
+  duplicate redirected to the wrong contextual source; and a contextual
+  duplicate consistently redirected to an earlier roster that does not carry
+  its own locks. The raw attempt sequence is also omitted from the written
+  mechanics artifact, preventing independent recomputation.
+- CP-4 mechanics therefore remains HOLD under the narrow R7 CODE GO at lab
+  main `6bbecf3` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-R6-HOLD-AND-R7-LINEAGE-REPAIR-2026-09-07.md`.
+  R7 must reconcile generator output to raw attempts and admission by visit,
+  bind exact duplicate sources and locks, serialize the raw evidence, and add
+  the four non-vacuous adversarial cases. The follow-up at lab main `51c0e49`
+  clarifies that generator-level boom duplicates must resolve against the
+  complete pre-admission visit map, including a valid boom-to-earlier-lev
+  duplicate; the boom-only comparison and later contextual admission remain
+  distinct. No CP-4 run, build, cloud action, or outcome access is authorized
+  yet.
+- Production independently reviewed PREREG-074 efficacy preparation commit
+  `ab6d41ec4e29f3f1c9a2a95cdbae8370c3cff408`, exact child of the accepted
+  CP-3 mechanics result. The scientific estimand and 36-cell task assignment
+  remain accepted, but the package is HOLD before build/launch. Material
+  blockers include: no executable coordinator; tasks not bound to launch
+  authority/image/run; no prospective feature-content binding across all 36
+  frames; a circular embedded read-release identity; validators that trust
+  summary booleans instead of reconciling sealed lineage; overwriteable
+  diagnostic harness envelopes represented as create-once evidence; an
+  incomplete result/nomination contract; and an incompletely bound runtime
+  envelope.
+- One bounded R2 repair instruction is durable on lab main at commit
+  `30dd74f` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-EFFICACY-PREP-R1-HOLD-2026-09-07.md`.
+  It preserves the arms and adds no experiment. Production selected exact run
+  id shape `102b740r1-YYYYMMDDTHHMMSSZ`, parallelism 12, the proposed
+  packaging additions, max retries 0, timeout 45m, 4 vCPU/8 GiB, and an exact
+  aggressive nomination rule. No build, candidate generation, Cloud Run,
+  seal, read, score, or publication is authorized until R2 is returned and
+  accepted.
+- PREREG-073 remains terminal `FAIL_BOTH_CLOSE / NONE`; CP-1 a4 remains
+  consumed and superseded. The next concrete actions are independent review
+  of CP-4 R6 and the isolated canonical-game-policy v2 branch, while the lab
+  prepares the bounded PREREG-074 R2 repair.
+
+### 2026-09-07 CP-4 R5 sidecar path accepted; mechanics held for one narrow R6 repair
+
+- Production reviewed CP-4 R5 code
+  `faf33d5d74fab0fd0a284f9f5e0a7be99662672b` and its exact child smoke
+  evidence `14aa1539da18ff4f3b4fba6e6626153cee9e1664`. The code is an exact
+  direct child of accepted CP-3 M-prime `5cbaa2b`. Independent focused tests
+  passed 31/31 in 92.35 seconds; Ruff, compilation, ancestry/file-boundary,
+  whole-delta diff, and all nine smoke-transcript byte/SHA checks passed. The
+  real-boundary smoke ran once, exited 0, constructed and validated the
+  sidecar in memory, wrote nothing, consumed no `fb1`, opened no outcome, and
+  performed no build/cloud action.
+- The receipt reconciliation, scoped three-timestamp/source law, strict
+  sidecar loader, and no-identifier-coercion repairs are accepted for the
+  sidecar stage. Production authorized exactly one local outcome-disabled
+  `cp4d800-fb1` sidecar-generation invocation from clean detached source
+  `14aa153`; binding, mechanics, build, cloud, outcome, and scoring remain
+  unauthorized. The durable instruction is on lab main at
+  `9dca37a6d393d6374b7ccf1775f50c3e9fe6020b` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-R5-SIDECAR-GO-AND-MECHANICS-R6-REPAIR-2026-09-07.md`.
+- CP-4 mechanics remains HOLD. Production reproduced that changing actual
+  boom-row lineup identities in both arms while leaving the stored digests
+  unchanged still lets `cp4_gate` pass, and changing a contextual duplicate
+  row's lineup identity also leaves `overlay_lineage_reconciled` true. The
+  gate compares trusted stored boom digests instead of recomputing them from
+  the actual raw rows; duplicate rows omit their canonical 64-hex roster
+  identity; and contextual duplicate-row identity is not reconciled.
+- Bounded R6 CODE GO requires a separate immutable raw-boom attempt sequence,
+  canonical roster hashes for new and duplicate attempts, in-gate digest/count
+  recomputation, complete boom-row/population/duplicate-target reconciliation,
+  and contextual duplicate-row authentication. It may proceed in parallel
+  with the sidecar generation and must not alter the scientific treatment.
+- Lab generated `cp4d800-fb1` exactly once from clean detached source
+  `14aa153`, exit 0. The accepted sidecar is committed at
+  `ec2a16679d9fd83a05293538d23e2d2f20284550`, path
+  `results/cp4_frame_binding_2023-w18-b740.json`, 93,821 bytes, SHA-256
+  `31bb967a8a9c2e806cf6537be618de711af1ecb2430b633c61062c0d5f74f269`.
+  Production independently reproduced all eleven transcript identities,
+  strict sidecar validation, exact source/attempt, zero pre/post processes,
+  one authority reopen, and no outcome/build/cloud/binding action. A bound
+  copy with the exact sidecar values passed both binding validation and the
+  tracked-HEAD loader.
+- Exact binding-only CODE GO is on lab main at
+  `dc937e8d991cb4e167d1aa23e1107dfd64831c7b` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-FB1-ACCEPT-AND-BINDING-CODE-GO-2026-09-07.md`.
+  The binding and R6 repair must remain independently reviewable and then be
+  composed without changing the accepted sidecar bytes. No CP-4 mechanics
+  invocation is authorized yet.
+- PREREG-073 remains terminal `FAIL_BOTH_CLOSE / NONE`; CP-1 `a4` remains
+  consumed and superseded. The next action is to review the returned CP-4
+  binding and R6 repair independently, while reviewing the forthcoming CP-3
+  one-bank efficacy preparation package.
 ### 2026-09-07 CP-3 M-prime accepted; one-shot a2 mechanics cleared
 
 - The old request for a PREREG-073 CODE GO / CP-1 a4 clearance is superseded:
