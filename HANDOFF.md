@@ -22,6 +22,67 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 Week-1 injury freshness cause isolated and bounded repair ready
+
+- Production freshness execution `check-freshness-ghf7h` failed on two
+  tables: empty `nfl_raw.injury_snapshots` (36-hour live bar) and stale
+  `nfl_features.tabpfn_components` (216-hour bar). The latest scheduled
+  collector execution, `ingest-nflverse-66pgw`, was terminal-successful but
+  loaded only the completed 2025 injury file: `current_season()` was 2026,
+  `nflreadpy.get_current_season()` was still 2025, and the collector appended
+  a snapshot only when those clocks were equal. The official
+  `injuries_2026.parquet` asset first appeared at `2026-09-07T13:00:58Z`,
+  after the day's 10:00Z collector; it currently contains 11 unique Week-1
+  rows and omits exactly four nullable fields (`date_modified`,
+  `practice_secondary_injury`, `report_primary_injury`, and
+  `report_secondary_injury`). The unchanged active-season path would reject
+  that sparse schema after the ordinary clock rolls.
+- The repair is isolated on branch
+  `fix/week1-injury-freshness-20260907`, based on exact production main
+  `beb68a17335e9e35ca764dc8250e25cf796e3a4e`. Code/data-deficiency commit
+  `da7176ef854f4b95178db28e8f086ccc28d3e0b5` adds an exact planning-year
+  injury-path bypass analogous to the roster bypass, permitted only when the
+  planning and roster year are the same and exactly one year ahead of the
+  ordinary data clock. It validates the source before any warehouse
+  mutation, requires a nonempty single planning season, integral Week 1--22,
+  nonblank GSIS/team keys, and unique `(season, week, gsis_id)`, synthesizes
+  NULL only for the four known nullable omissions, and uses the existing
+  append-only collector-time snapshot path. It does not mix the partial 2026
+  file into the completed-season `raw.injuries` replacement and does not
+  backdate any row.
+- The same commit keeps the adopted live `tabpfn_projections` cache alerting
+  but marks `tabpfn_components` visible, stale, research-only and
+  non-alerting. The component table is a one-time historical cache used only
+  behind the default-off `TABPFN_COMPONENTS` arm; no production Cloud Run job
+  or app deployment enables it, and rerunning its one-off append-mode builder
+  would risk duplicate historical rows. This changes health classification,
+  not projection, generation, selection, or scientific identity.
+- Focused validation passed independently: `test_nflverse_job.py` 13/13,
+  `test_status.py` 18/18, `test_week1_source_readiness.py` 38/38,
+  `test_leakage.py` 24/24, `test_backup.py` 6/6, and
+  `test_feature_sql.py` 77 passed/1 intentional skip. A direct outcome-blind
+  read of the exact live 2026 source produced 11 snapshot rows, one season,
+  one week, unique keys, one collector capture, eleven row hashes, and NULLs
+  in only the four absent fields. Modified modules compile and `git diff
+  --check` passes. Available Ruff 0.16.5 passes the changed files after
+  ignoring only `UP017`, `DTZ001`, and `RUF046`; an unrestricted run reports
+  the exact same ten pre-existing findings on the base files and no new
+  finding.
+- No branch was pushed and no cloud, BigQuery, scheduler, deployment, or
+  source-data state was mutated. The exact next action is independent review,
+  merge, then a clean immutable build from the accepted SHA. Update only
+  `ingest-nflverse` and `check-freshness` to that digest while preserving
+  their commands, service accounts, environment, resources and retry policy;
+  run one manual incremental `ingest-nflverse` (never `--full`), verify the
+  exact append receipt/keyset, run the existing `build-features`, and rerun
+  `check-freshness`. Require the snapshot table to be nonempty and within 36
+  hours, 2026 Week-1 feature provenance to respect collector time, and the
+  adopted `tabpfn_projections` check to remain green. Because the provider's
+  first Week-1 file arrived after today's scheduled collector, plan one
+  explicit catch-up collection after the next provider refresh and before
+  the final Sunday-main feature/projection window; do not change the recurring
+  cadence as part of this code repair.
+
 ### 2026-09-07 CP-4 binding accepted; PREREG-074 prep held for bounded R2
 
 - Production independently accepted CP-4 binding commit
