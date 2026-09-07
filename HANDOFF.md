@@ -34,8 +34,13 @@ agent or developer:
   consumed. No valid cohort, replay, seal, release, outcome access, score read,
   or scientific result exists; partial objects may not be merged or read.
 - All PREREG-074 cloud and outcome-bearing steps are held while production
-  compares the exact rebuilt literal with the frozen source constant and adds
-  a prelaunch reproducer. Any continuation requires a narrow repair,
+  repairs the confirmed representation defect: `D.LAW_LITERAL` is nested as
+  `stack`/`env`, while `D.law_objects()` writes an otherwise equivalent flat
+  mapping into the real cell before the validator requires the nested form.
+  The executable DK-only law itself was correct. Existing fixtures manufactured
+  the expected nested value and therefore missed the real producer failure.
+  Any continuation requires a narrow representational repair and a real
+  producer-path prepublication regression,
   independent review, a fresh revision/build identity as required, a fresh run
   id, and all original empty-namespace and authority gates. The durable lab
   notice is
