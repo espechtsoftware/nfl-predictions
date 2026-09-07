@@ -44895,3 +44895,19 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   fresh image and launch contract; review CP-4 R9 and PREREG-074 R5 immediately
   when returned. Keep all lanes idle until one of those exact gates clears;
   do not launch the stale 081 image or R4 PREREG-074 package.
+
+  Experiment-081 R22 independent review completed HOLD on exact repair commit
+  `fa2b4afb3ede62b226828080acadd6fc9605f3a0`. The source repair is accepted:
+  the parent failure reproduced, all 36 frozen slates engage, malformed inputs
+  fail before computation, the physical-game legality regression passes, and
+  canonicalization leaves a 100-world draw bank byte-identical. Independent
+  validation passed 20 focused plus 58 adjacent tests with clean Ruff,
+  compilation and diff checks. The remaining defect is confined to gate v3:
+  its self-consistent aggregate receipt is not reconciled to season/week or
+  draw rows, so fabricated 999999 row counts, hyphenated canonical keys, stale
+  `1999_99_*` ids, and only one mixed game are accepted. Production published
+  the narrow evidence-binding repair at lab main `2e78091` in
+  `handoffs/PRODUCTION-TO-LAB-EXPERIMENT081-R22-SOURCE-ACCEPT-GATE-V3-HOLD-2026-09-07.md`.
+  It preserves the accepted source logic and requires exact per-game raw-form
+  counts, all-game mixed engagement and row/draw reconciliation. No build,
+  run prefix, provider claim, GCS object or outcome was authorized or consumed.
