@@ -22,6 +22,20 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 Experiment 081 R8 exact-type repair accepted
+
+- Exact R8 `de1397f3e354cca74b44abc2ba523d4bdea4cb6b` closes the
+  Boolean/integer/integral-float substitution defect across the base gate,
+  adjudication and terminal seal. Independent static/adversarial review passed;
+  production's clean detached verification passed all 52 tests in the three
+  exact coordinator/command-path modules.
+- R8 is accepted. The next step is the fresh R3 immutable image required by
+  the earlier R2 build-provenance hold: exact source `79031403...`, its derived
+  749-file tracked-only context, a new R3 tag/build, and authenticated provider
+  source archive. Build preparation is authorized; submission waits for review
+  of the one-shot wrapper and pre-submit census. Cloud Run mechanics, GCS
+  mechanics artifacts, outcomes, scores and efficacy remain held.
+
 ### 2026-09-07 PREREG-074 generation cohort is active
 
 - Independent review accepted exact R9 for one fresh authority and generation
