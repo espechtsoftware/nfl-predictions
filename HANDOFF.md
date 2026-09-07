@@ -37,12 +37,20 @@ agent or developer:
   `validate_frame_columns_receipt()` also derives its required consumed set
   from the caller's own role declarations rather than the frozen decision law;
   a receipt marking `own_est` excluded passes after self-consistent count/role
-  restatement (`ACCEPTED_FORGED_ROLE_MAP`).
+  restatement (`ACCEPTED_FORGED_ROLE_MAP`). It additionally accepts malformed
+  scalar material such as string row counts, negative null counts, null dtype,
+  and non-hex content digests.
 - Production withdrew the recovered-transport smoke permission immediately.
   The urgent hold is durable on lab main at `d76a18c` in
   `handoffs/PRODUCTION-TO-LAB-CP4-R13-INTERIM-HOLD-DO-NOT-RERUN-SMOKE-2026-09-07.md`.
-  Await the complete independent review/R14 contract; no further R13 smoke,
-  a2, build, cloud/GCS, outcome or score action is authorized.
+  The complete narrow R14 contract is durable on lab main at `c6617bc` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-R13-HOLD-AND-R14-RECEIPT-AUTHENTICATION-GO-2026-09-07.md`.
+  R14 must derive roles/counts from the frozen decision law and authenticated
+  schema, enforce closed typed per-column rows/digests, bind them to the
+  sidecar/frame-schema evidence, distinguish 136 total excluded-nullable from
+  the optional 131 unregistered-excluded diagnostic, and return one clean
+  exact-source smoke. No further R13 smoke, a2, build, cloud/GCS, outcome or
+  score action is authorized.
 
 ### 2026-09-07 PREREG-074 R8 accepted; fm2 transport-failed closed; R9/fm3 repair active
 
