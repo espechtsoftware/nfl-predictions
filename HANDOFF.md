@@ -62,23 +62,36 @@ agent or developer:
   argv census run separately, and a persisted raw preflight/run/postflight
   transcript. It permits exactly one runner invocation and no outcome access,
   scoring, build, Cloud Run work, retry, or policy action.
-- Lab completed the cleared preflight and invoked `cp3d800-a2` exactly once at
-  `2026-09-07T09:49:55Z` from fresh detached worktree
-  `/home/erich/projects/nfl2-cp3-d800-a2` at exact M-prime. The live runner is
-  PID `1301468` with the exact cleared argv (2023-W1, bank 740, 10,000 sims,
-  attempt a2, frozen output path). At the latest production census it remained
-  live, the source checkout was clean, and the output was still absent.
+- Lab invoked `cp3d800-a2` exactly once from `2026-09-07T09:49:56Z` through
+  `09:56:58Z`; exit 0. Result commit
+  `18ddbc114e5889b31cd5b9464cfbcfb516178ff5` is a direct child of M-prime.
+  Artifact `results/cp3_d800_mechanics_a2.json` is 1,010,190 bytes with
+  SHA-256 `0e53d083aae482d08880c8806653dd7ec001857dc9e0ba6291879c24a354639a`.
+  Production independently verified every transcript size/hash, strict JSON,
+  clean source, exact argv, zero pre/post runners, one invocation, and no
+  outcome/build/cloud action. Mechanics PASS: 12/12 gates, 800/800 legal per
+  arm, natural and fixed K80 support, schedule symdiff 676, and treatment
+  coverage 1.0000 versus control 0.8435. The a2 mechanics attempt is consumed.
+- Production accepted this PASS and issued code/preparation-only GO for the
+  frozen one-bank 36-cell CP-3 efficacy cohort and held reader. The disposition
+  is on lab main commit `9057b180cee063f9b2e3ad306e772844bf0f952f` in
+  `handoffs/PRODUCTION-TO-LAB-CP3-A2-MECHANICS-PASS-AND-EFFICACY-PREP-GO-2026-09-07.md`.
+  No build, generation, cloud run, outcome access, or scoring is authorized.
 - Cloud Run and Cloud Build lanes are currently idle because no execution is
-  authorized, not because a ready job was dropped. CP-4 R4 has returned at
-  `c284dbe9d22b8afefa06a7ba4b52e7963000e866` and is under independent
-  production review; no CP-4 sidecar or run is authorized. The independent production
+  authorized, not because a ready job was dropped. CP-4 R4 at
+  `c284dbe9d22b8afefa06a7ba4b52e7963000e866` is HOLD after production
+  reproduced six P0 defects: deterministic duplicate-receipt sidecar failure,
+  unsupported common-lock source timing, an incomplete sidecar loader,
+  non-injective duplicate-attempt boom hashes, unreconciled overlay lineage,
+  and identifier-coercion collisions. The bounded R5 repair GO and approved
+  canonical-copy design are in the second handoff at lab main `9057b180`;
+  no CP-4 sidecar or run is authorized. The independent production
   canonical-game-policy v2 repair remains isolated from frozen CP-3 and awaits
   its own review before any merge or deployment.
-- Next concrete action: monitor live PID `1301468` and the authorized
-  `cp3d800-a2` attempt, then
-  independently authenticate its immutable mechanics artifact and raw launch
-  receipt before any later score/outcome or execution decision. Continue the
-  CP-4 R4 review in parallel.
+- Next concrete action: review the returned CP-3 efficacy implementation and
+  frozen execution contract, then separately authorize an immutable build and
+  outcome-disabled cohort only if exact. In parallel, review CP-4 R5 and the
+  separately versioned production canonical-game-law repair when returned.
 
 ### 2026-09-06 CP-1 a5 accepted; PREREG-073 support census launched
 
