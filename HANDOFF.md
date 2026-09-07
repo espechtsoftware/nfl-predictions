@@ -22,6 +22,60 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 PREREG-074 R8 accepted; fm2 transport-failed closed; R9/fm3 repair active
+
+- Independent review accepted exact R8 source
+  `05236d526d5804f78966b12ffd7b4fc5b115747c` narrowly for one fresh,
+  outcome-disabled `prereg074-fm2` manifest. The all-cell preflight reconciled
+  all 36 cells and 159 exclusions (156 numeric players, three DSTs); focused
+  serial review passed 37 tests with the two historical CP-3 identity checks
+  explicitly adjudicated. The accepted historical CP-3 mechanics artifact is
+  immutable evidence and must not be rebound or rewritten. Production's R8
+  disposition was published on lab main at `e7c25c7`.
+- Production censused the exact fm2 object as empty across live, noncurrent and
+  soft-deleted generations, then invoked the one authorized command from a
+  clean detached R8 checkout. It failed before any frame load/work during the
+  exact accepted-authority reopen: the Google Storage Python HTTP/1.1 transport
+  returned no bytes and exhausted its 120-second retry window. No candidate,
+  selector, judge, outcome, score, build, job mutation, Cloud Run execution or
+  GCS publication was reached. Authenticated HTTP/2 direct-object plus
+  versions/soft-delete checks after failure confirmed the fm2 object remains
+  absent. `prereg074-fm2` is consumed and may not be retried.
+- Reproduction isolates the fault to this machine's HTTP/1.1 route to
+  `storage.googleapis.com`; Python urllib/requests/Google Storage and gcloud
+  storage hang, while authenticated curl HTTP/2 succeeds immediately. A
+  bounded R9/fresh-fm3 transport repair is active. It must use an exact,
+  token-safe authenticated HTTP/2 boundary for exact-generation reopen and
+  create-once upload, authenticate returned/reopened identity and bytes, and
+  preserve all R8 scientific behavior. The durable contract is on lab main at
+  `e1c8c50` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-FM2-TRANSPORT-FAILURE-AND-R9-FM3-GO-2026-09-07.md`.
+  No fm3 invocation/build/cloud/outcome/score action is yet authorized.
+
+### 2026-09-07 experiment 081 R5 independently held; narrow R6 returned to lab
+
+- Production reviewed exact R5 commit
+  `9858dc2bafa0b4e0f27b5d346084e56f6b9c7349`. Its Python initialization,
+  executable `gated`/`parked` phases, ordinary/special file-mode checks,
+  non-root directory checks, expanded terminal validation, and real-command
+  harness are retained, but R5 remains HOLD on three reproduced P0s.
+- The registered path inherits `EXP081_PYTHON_BIN` and
+  `EXP081_RECOVERY_SLEEP_SECONDS`, making the production validator executable
+  and fixed recovery window caller-replaceable. Archive root members return
+  before absolute/duplicate checks, and the real CLI accepted `/`, `./`, and
+  `.` aliases added to the exact 749-file archive. The terminal seal still
+  trusts coordinated caller identity files; an actual bound function-path
+  reproduction published `PASS (SEALED)` with restated result identity, an
+  `OTHER-RUN` build receipt, and a build SHA differing from the frozen receipt.
+- The bounded R6 contract pins/sanitizes the registered interpreter and timing,
+  validates every root member before special handling, authenticates every
+  seal input to exact reopened upstream bytes/documents, refuses booleans as
+  integers, and adds coordinated-forgery command tests while preserving the
+  working R5 repairs and all science. It is durable on lab main at `f0ec4a6`
+  in
+  `handoffs/PRODUCTION-TO-LAB-EXPERIMENT081-R5-HOLD-AND-R6-AUTHENTICATED-COMMAND-PATH-GO-2026-09-07.md`.
+  No binding/build/cloud/GCS/outcome/score action is authorized from R5.
+
 ### 2026-09-07 CP-4 R12 held; narrow contextual-snapshot R13 authorized
 
 - Production independently reviewed exact CP-4 R12 commit
