@@ -63,8 +63,9 @@ _BUILD_ID_RE: Final = re.compile(
 )
 _IMAGE_URI_RE: Final = re.compile(r"^[^\s@]+@sha256:[0-9a-f]{64}$")
 _REVISION_RE: Final = re.compile(r"^[a-z][a-z0-9-]{0,62}$")
-_ENGINE_RECEIPT_SCHEMA: Final = "paid-classic-engine-transformation/v2"
+_ENGINE_RECEIPT_SCHEMA: Final = "paid-classic-engine-transformation/v3"
 _PROJECTION_AUTHORITY_SCHEMA: Final = "paid-classic-projection-authority/v2"
+_EXECUTION_AUTHORITY_SCHEMA: Final = "paid-classic-execution-authority/v1"
 _ENGINE_RECEIPT_ISSUER: Final = object()
 
 
@@ -93,6 +94,7 @@ class PaidClassicCatalogV3:
     immutable_image_uri: str
     running_revision: str
     runtime_deployment_identity_sha256: str
+    activation_authority_sha256: str = ""
 
 
 @dataclass(frozen=True)
@@ -110,24 +112,154 @@ class PaidClassicProjectionAuthorityV3:
         return json.loads(self.payload_json)
 
 
-class PaidClassicEngineReceiptV3:
-    """Engine-issued immutable evidence for a completed transformation."""
+class PaidClassicExecutionAuthorityV3:
+    """Closed, server-derived authority for one paid execution.
 
-    __slots__ = ("_payload_json",)
+    This token is made before the lineup engine runs from the request and
+    policy objects held by the server.  It is deliberately separate from the
+    post-execution engine receipt: a receipt cannot authenticate a restated
+    request if the terminal validator has this independently constructed
+    authority in hand.
+    """
 
-    def __init__(self, payload: Mapping[str, object], *, _issuer: object) -> None:
-        if _issuer is not _ENGINE_RECEIPT_ISSUER:
-            raise TypeError("paid-v3 engine receipts can only be issued by the engine")
-        self._payload_json = json.dumps(
-            dict(payload), sort_keys=True, separators=(",", ":"),
-            ensure_ascii=True, allow_nan=False,
-        )
+    __slots__ = ("_payload_json", "_sealed")
+
+    def __init__(self, payload_json: str) -> None:
+        object.__setattr__(self, "_payload_json", str(payload_json))
+        object.__setattr__(self, "_sealed", True)
+
+    def __setattr__(self, name: str, value: object) -> None:
+        if getattr(self, "_sealed", False):
+            raise AttributeError("paid-v3 execution authority is immutable")
+        object.__setattr__(self, name, value)
 
     def as_dict(self) -> dict[str, object]:
         return json.loads(self._payload_json)
 
     def __deepcopy__(self, memo):
         return self
+
+
+class PaidClassicEngineReceiptV3:
+    """Engine-issued immutable evidence for a completed transformation."""
+
+    __slots__ = ("_payload_json", "_sealed")
+
+    def __init__(self, payload: Mapping[str, object], *, _issuer: object) -> None:
+        if _issuer is not _ENGINE_RECEIPT_ISSUER:
+            raise TypeError("paid-v3 engine receipts can only be issued by the engine")
+        object.__setattr__(self, "_payload_json", json.dumps(
+            dict(payload), sort_keys=True, separators=(",", ":"),
+            ensure_ascii=True, allow_nan=False,
+        ))
+        object.__setattr__(self, "_sealed", True)
+
+    def __setattr__(self, name: str, value: object) -> None:
+        if getattr(self, "_sealed", False):
+            raise AttributeError("paid-v3 engine receipts are immutable")
+        object.__setattr__(self, name, value)
+
+    def as_dict(self) -> dict[str, object]:
+        return json.loads(self._payload_json)
+
+    def __deepcopy__(self, memo):
+        return self
+
+
+@dataclass(frozen=True)
+class PaidClassicEngineResultV3:
+    """Immutable result envelope returned by a paid engine execution."""
+
+    lineups: tuple[Lineup, ...]
+    receipt: PaidClassicEngineReceiptV3
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.receipt, PaidClassicEngineReceiptV3):
+            raise TypeError("paid-v3 result receipt is not sealed")
+        object.__setattr__(self, "lineups", tuple(self.lineups))
+
+
+def paid_classic_execution_authority_v3(
+    catalog: PaidClassicCatalogV3,
+    *,
+    mode: str,
+    request_inputs: Mapping[str, object],
+    policy_environment: Mapping[str, object],
+    locks: Sequence[int] = (),
+    bans: Sequence[int] = (),
+    theses: Sequence[Mapping[str, object]] = (),
+    construction_policy: Mapping[str, object],
+    seed_pairs: Sequence[Mapping[str, object]] = (),
+    worlds_per_block: int = 0,
+    selection_world_count: int = 0,
+) -> PaidClassicExecutionAuthorityV3:
+    """Create the independent pre-execution authority for a paid request."""
+
+    if mode not in {"simulation", "milp"}:
+        _fail("execution authority mode is unsupported")
+    if not isinstance(request_inputs, Mapping):
+        _fail("execution authority request inputs are invalid")
+    body: dict[str, object] = {
+        "schema_version": _EXECUTION_AUTHORITY_SCHEMA,
+        "projection_authority": paid_classic_projection_authority_v3(
+            catalog
+        ).as_dict(),
+        "mode": mode,
+        "request_inputs": json.loads(json.dumps(dict(request_inputs), sort_keys=True)),
+        "policy_environment": dict(sorted(policy_environment.items())),
+        "locks": sorted({int(value) for value in locks}),
+        "bans": sorted({int(value) for value in bans}),
+        "theses": json.loads(json.dumps(list(theses), sort_keys=True)),
+        "construction_policy": json.loads(
+            json.dumps(dict(construction_policy), sort_keys=True)
+        ),
+        "seed_pairs": json.loads(json.dumps(list(seed_pairs), sort_keys=True)),
+        "worlds_per_block": int(worlds_per_block),
+        "selection_world_count": int(selection_world_count),
+    }
+    body["authority_sha256"] = _canonical_sha256(body)
+    return PaidClassicExecutionAuthorityV3(
+        json.dumps(body, sort_keys=True, separators=(",", ":"))
+    )
+
+
+def _validate_execution_authority_v3(
+    authority: PaidClassicExecutionAuthorityV3,
+    *,
+    catalog: PaidClassicCatalogV3,
+) -> dict[str, object]:
+    if not isinstance(authority, PaidClassicExecutionAuthorityV3):
+        _fail("paid-v3 terminal validation requires an independent execution authority")
+    body = authority.as_dict()
+    expected = {
+        "schema_version", "projection_authority", "mode", "request_inputs",
+        "policy_environment", "locks", "bans", "theses",
+        "construction_policy", "seed_pairs", "worlds_per_block",
+        "selection_world_count", "authority_sha256",
+    }
+    if set(body) != expected:
+        _fail("execution authority schema differs")
+    claimed = body.pop("authority_sha256", None)
+    if claimed != _canonical_sha256(body):
+        _fail("execution authority hash is invalid")
+    if body.get("schema_version") != _EXECUTION_AUTHORITY_SCHEMA:
+        _fail("execution authority identity is invalid")
+    if body.get("projection_authority") != paid_classic_projection_authority_v3(
+        catalog
+    ).as_dict():
+        _fail("execution authority names another projection authority")
+    if body.get("mode") not in {"simulation", "milp"}:
+        _fail("execution authority mode is unsupported")
+    body["authority_sha256"] = claimed
+    return body
+
+
+def seal_paid_classic_engine_result_v3(
+    lineups: Sequence[Lineup], receipt: PaidClassicEngineReceiptV3
+) -> PaidClassicEngineResultV3:
+    """Return one immutable result envelope for the paid engine boundary."""
+
+    return PaidClassicEngineResultV3(tuple(lineups), receipt)
 
 
 def _fail(message: str) -> None:
@@ -258,6 +390,7 @@ def build_paid_classic_catalog_v3(
     immutable_image_uri: str,
     running_revision: str,
     validated_at: datetime | pd.Timestamp | None = None,
+    activation_authority_sha256: str = "",
 ) -> PaidClassicCatalogV3:
     """Build a fail-closed salary/projection/schedule authority join.
 
@@ -591,6 +724,7 @@ def build_paid_classic_catalog_v3(
         "runtime_deployment_identity_sha256": deployment[
             "runtime_deployment_identity_sha256"
         ],
+        "activation_authority_sha256": str(activation_authority_sha256 or ""),
         "validated_at": validation_time.isoformat(),
         "slate_lock_at": slate_lock.isoformat(),
         "schedule_sha256": schedule_sha256,
@@ -620,6 +754,7 @@ def build_paid_classic_catalog_v3(
         runtime_deployment_identity_sha256=deployment[
             "runtime_deployment_identity_sha256"
         ],
+        activation_authority_sha256=str(activation_authority_sha256 or ""),
     )
 
 
@@ -681,6 +816,7 @@ def paid_classic_projection_authority_v3(
         "runtime_deployment_identity_sha256": (
             catalog.runtime_deployment_identity_sha256
         ),
+        "activation_authority_sha256": catalog.activation_authority_sha256,
     }
     body["authority_sha256"] = _canonical_sha256(body)
     return PaidClassicProjectionAuthorityV3(
@@ -903,6 +1039,7 @@ def _issue_paid_classic_engine_receipt_v3(
     construction_policy: Mapping[str, object],
     request_inputs: Mapping[str, object],
     policy_environment: Mapping[str, object],
+    world_binding: Mapping[str, object] | None = None,
 ) -> PaidClassicEngineReceiptV3:
     """Seal facts observed by the engine after a selected book exists."""
 
@@ -931,6 +1068,14 @@ def _issue_paid_classic_engine_receipt_v3(
         "construction_policy": dict(construction_policy),
         "request_inputs": dict(request_inputs),
         "policy_environment": dict(sorted(policy_environment.items())),
+        "world_binding": dict(world_binding or {
+            "schema_version": "paid-classic-world-binding/v1",
+            "block_count": len(seed_pairs),
+            "worlds_per_block": int(worlds_per_block),
+            "selection_world_count": int(selection_world_count),
+            "combined_matrix_sha256": _canonical_sha256([]),
+            "selected_index_order_sha256": _canonical_sha256(objective_rows),
+        }),
         "selected_entries": len(lineups),
         "selected_projection_objectives_sha256": _canonical_sha256(
             objective_rows
@@ -945,6 +1090,7 @@ def _validate_paid_classic_engine_receipt_v3(
     *,
     catalog: PaidClassicCatalogV3,
     lineups: Sequence[Lineup],
+    execution_authority: PaidClassicExecutionAuthorityV3 | None = None,
 ) -> dict[str, object]:
     if not isinstance(receipt, PaidClassicEngineReceiptV3):
         _fail("projection transformation receipt was not engine-produced")
@@ -955,6 +1101,7 @@ def _validate_paid_classic_engine_receipt_v3(
         "selection_world_count", "model_artifacts", "feature_snapshots",
         "notes_preferences", "locks", "bans", "theses",
         "construction_policy", "request_inputs", "policy_environment",
+        "world_binding",
         "selected_entries", "selected_projection_objectives_sha256",
         "receipt_sha256",
     }
@@ -967,6 +1114,20 @@ def _validate_paid_classic_engine_receipt_v3(
     expected_authority = paid_classic_projection_authority_v3(catalog).as_dict()
     if body.get("projection_authority") != expected_authority:
         _fail("engine transformation receipt names another projection authority")
+    if execution_authority is not None:
+        expected_execution = _validate_execution_authority_v3(
+            execution_authority, catalog=catalog
+        )
+        for field in (
+            "mode", "request_inputs", "policy_environment", "locks", "bans",
+            "theses", "construction_policy", "seed_pairs", "worlds_per_block",
+            "selection_world_count",
+        ):
+            if body.get(field) != expected_execution.get(field):
+                _fail(
+                    "engine transformation receipt differs from the "
+                    "independent execution authority"
+                )
     if (
         body.get("schema_version") != _ENGINE_RECEIPT_SCHEMA
         or body.get("issuer") != "nfl-dfs-paid-classic-engine-v3"
@@ -1103,6 +1264,27 @@ def _validate_paid_classic_engine_receipt_v3(
     for field in ("construction_policy", "request_inputs", "policy_environment"):
         if not isinstance(body.get(field), Mapping):
             _fail(f"engine transformation receipt lacks {field}")
+    world_binding = body.get("world_binding")
+    if (
+        not isinstance(world_binding, Mapping)
+        or set(world_binding) != {
+            "schema_version", "block_count", "worlds_per_block",
+            "selection_world_count", "combined_matrix_sha256",
+            "selected_index_order_sha256",
+        }
+        or world_binding.get("schema_version") != "paid-classic-world-binding/v1"
+        or type(world_binding.get("block_count")) is not int
+        or world_binding["block_count"] < 0
+        or type(world_binding.get("worlds_per_block")) is not int
+        or world_binding["worlds_per_block"] < 0
+        or type(world_binding.get("selection_world_count")) is not int
+        or world_binding["selection_world_count"] < 0
+        or any(
+            re.fullmatch(r"[0-9a-f]{64}", str(world_binding.get(field, ""))) is None
+            for field in ("combined_matrix_sha256", "selected_index_order_sha256")
+        )
+    ):
+        _fail("engine world binding is invalid")
     if not isinstance(body.get("locks"), list) or not isinstance(
         body.get("bans"), list
     ) or not isinstance(body.get("theses"), list):
@@ -1302,6 +1484,8 @@ def _reopen_paid_classic_book_v3(
     *,
     expected_entries: int,
     catalog: PaidClassicCatalogV3,
+    execution_authority: PaidClassicExecutionAuthorityV3 | None = None,
+    engine_result: PaidClassicEngineResultV3 | None = None,
 ) -> tuple[list[Lineup], list[dict[str, object]], dict[str, Any]]:
     try:
         assert_exact_unique_classic_book_v2(
@@ -1461,11 +1645,21 @@ def _reopen_paid_classic_book_v3(
         if bound_derivations
         else deterministic_derivation
     )
+    if engine_result is not None:
+        if not isinstance(engine_result, PaidClassicEngineResultV3):
+            _fail("paid-v3 terminal validation requires a typed engine result")
+        if tuple(authoritative_lineups) != tuple(engine_result.lineups):
+            _fail("typed engine result lineups differ from terminal book")
+        if not isinstance(selected_derivation, PaidClassicEngineReceiptV3) or (
+            selected_derivation.as_dict() != engine_result.receipt.as_dict()
+        ):
+            _fail("typed engine result receipt differs from terminal evidence")
     projection_derivation_receipt = (
         _validate_paid_classic_engine_receipt_v3(
             selected_derivation,
             catalog=catalog,
             lineups=authoritative_lineups,
+            execution_authority=execution_authority,
         )
         if isinstance(selected_derivation, PaidClassicEngineReceiptV3)
         else dict(selected_derivation)
@@ -1533,6 +1727,8 @@ def validate_paid_classic_book_v3(
     *,
     expected_entries: int,
     catalog: PaidClassicCatalogV3,
+    execution_authority: PaidClassicExecutionAuthorityV3 | None = None,
+    engine_result: PaidClassicEngineResultV3 | None = None,
 ) -> dict[str, Any]:
     """Validate the selected book against independent joined authorities."""
 
@@ -1540,6 +1736,8 @@ def validate_paid_classic_book_v3(
         lineups,
         expected_entries=expected_entries,
         catalog=catalog,
+        execution_authority=execution_authority,
+        engine_result=engine_result,
     )[2]
 
 
@@ -1548,6 +1746,8 @@ def to_paid_dk_csv_v3(
     *,
     expected_entries: int,
     catalog: PaidClassicCatalogV3,
+    execution_authority: PaidClassicExecutionAuthorityV3 | None = None,
+    engine_result: PaidClassicEngineResultV3 | None = None,
 ) -> PaidClassicExport:
     """Serialize authoritative names/IDs after the v3 terminal audit."""
 
@@ -1555,6 +1755,8 @@ def to_paid_dk_csv_v3(
         lineups,
         expected_entries=expected_entries,
         catalog=catalog,
+        execution_authority=execution_authority,
+        engine_result=engine_result,
     )
     try:
         base = to_paid_dk_csv_v2(
@@ -1587,6 +1789,8 @@ def fill_paid_entries_csv_v3(
     catalog: PaidClassicCatalogV3,
     contest_id: str | None,
     prepared_entry_capture: (Callable[[Mapping[str, Any]], None] | None) = None,
+    execution_authority: PaidClassicExecutionAuthorityV3 | None = None,
+    engine_result: PaidClassicEngineResultV3 | None = None,
 ) -> PaidClassicExport:
     """Fill DKEntries one-to-one after the authoritative v3 game audit."""
 
@@ -1594,6 +1798,8 @@ def fill_paid_entries_csv_v3(
         lineups,
         expected_entries=paid_entry_count_v3(entries_csv, contest_id=contest_id),
         catalog=catalog,
+        execution_authority=execution_authority,
+        engine_result=engine_result,
     )
     v2_captures: list[Mapping[str, Any]] = []
     try:
@@ -1652,10 +1858,14 @@ __all__ = [
     "PAID_CLASSIC_SOURCE_COMMIT_ENV",
     "PaidClassicCatalogV3",
     "PaidClassicEngineReceiptV3",
+    "PaidClassicEngineResultV3",
+    "PaidClassicExecutionAuthorityV3",
     "PaidClassicProjectionAuthorityV3",
     "build_paid_classic_catalog_v3",
     "fill_paid_entries_csv_v3",
     "paid_classic_projection_authority_v3",
+    "paid_classic_execution_authority_v3",
+    "seal_paid_classic_engine_result_v3",
     "paid_classic_projection_derivation_receipt_v3",
     "paid_entry_count_v3",
     "to_paid_dk_csv_v3",

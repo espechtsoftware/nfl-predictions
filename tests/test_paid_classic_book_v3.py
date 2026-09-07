@@ -31,6 +31,7 @@ from nfl_dfs.optimizer.paid_classic_book_v3 import (
     PAID_CLASSIC_REVISION_ENV,
     PAID_CLASSIC_SOURCE_COMMIT_ENV,
     PaidClassicEngineReceiptV3,
+    paid_classic_execution_authority_v3,
     _canonical_sha256,
     _issue_paid_classic_engine_receipt_v3,
     build_paid_classic_catalog_v3,
@@ -336,6 +337,23 @@ def _attach_engine_receipt(catalog, book: list[Lineup]) -> list[Lineup]:
     return book
 
 
+def _execution_authority(catalog, book: list[Lineup]):
+    receipt = _engine_receipt(catalog, book).as_dict()
+    return paid_classic_execution_authority_v3(
+        catalog,
+        mode=receipt["mode"],
+        request_inputs=receipt["request_inputs"],
+        policy_environment=receipt["policy_environment"],
+        locks=receipt["locks"],
+        bans=receipt["bans"],
+        theses=receipt["theses"],
+        construction_policy=receipt["construction_policy"],
+        seed_pairs=receipt["seed_pairs"],
+        worlds_per_block=receipt["worlds_per_block"],
+        selection_world_count=receipt["selection_world_count"],
+    )
+
+
 def _mutated_engine_receipt(receipt, mutation) -> PaidClassicEngineReceiptV3:
     payload = receipt.as_dict()
     payload.pop("receipt_sha256")
@@ -393,6 +411,33 @@ def test_v3_uses_joined_authorities_and_accepts_real_team_aliases() -> None:
     }
     reopened = list(csv.reader(io.StringIO(exported.csv_text)))
     assert reopened[1][0].startswith("Salary Player ")
+
+
+def test_engine_receipt_rejects_ordinary_post_issue_assignment() -> None:
+    catalog = _catalog()
+    receipt = _engine_receipt(catalog, _book())
+    with pytest.raises(AttributeError, match="immutable"):
+        receipt._payload_json = "{}"
+
+
+def test_independent_execution_authority_rejects_coordinated_request_restatement() -> None:
+    catalog = _catalog()
+    book = _book()
+    receipt = _engine_receipt(catalog, book)
+    authority = _execution_authority(catalog, book)
+    mutated = _mutated_engine_receipt(
+        receipt,
+        lambda body: body["request_inputs"].update(
+            requested_tail_line=210.0, tail_line=210.0
+        ),
+    )
+    for lineup in book:
+        lineup.paid_projection_derivation_receipt = mutated
+    with pytest.raises(ValueError, match="independent execution authority"):
+        validate_paid_classic_book_v3(
+            book, expected_entries=2, catalog=catalog,
+            execution_authority=authority,
+        )
 
 
 def test_v3_accepts_exact_authoritative_schedule_game_ids() -> None:

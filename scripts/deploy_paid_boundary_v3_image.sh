@@ -50,6 +50,26 @@ TMP=$(mktemp -d "$TMP_ROOT/paid-v3-deploy.XXXXXX")
 cleanup() { rm -rf -- "$TMP"; }
 trap cleanup EXIT
 
+# Capture the current assignment before creating a revision.  It is the only
+# safe rollback target if provider attestation or activation publication
+# fails after the revision has been admitted.
+gcloud run services describe "$SERVICE" --project="$PROJECT" \
+  --region="$REGION" --platform=managed --format=json >"$TMP/previous-service.json"
+PREVIOUS_TRAFFIC=$(jq -c '.status.traffic // []' "$TMP/previous-service.json")
+ACTIVATION_BUCKET=${PAID_V3_AUTHORITY_BUCKET:-${PROJECT}-paid-authority}
+ACTIVATION_URI="gs://${ACTIVATION_BUCKET}/paid-v3/${SERVICE}/${REVISION}/activation.json"
+ROLLBACK_ARMED=0
+rollback_traffic() {
+  [[ "$ROLLBACK_ARMED" == 1 ]] || return 0
+  if [[ "$PREVIOUS_TRAFFIC" != "[]" ]]; then
+    gcloud run services update-traffic "$SERVICE" --project="$PROJECT" \
+      --region="$REGION" --platform=managed --quiet \
+      --to-revisions="$(jq -r '[.[] | select(.revisionName != null) | "\(.revisionName)=\(.percent)"] | join(",")' <<<"$PREVIOUS_TRAFFIC")" \
+      >/dev/null || printf '%s\n' "ERROR: rollback traffic command failed" >&2
+  fi
+}
+trap rollback_traffic ERR
+
 gcloud builds describe "$BUILD_ID" --project="$PROJECT" --format=json \
   >"$TMP/build.json"
 DIGEST=${IMAGE##*@}
@@ -74,7 +94,8 @@ PYTHONPATH="$SOURCE_ROOT/src" python -m \
 gcloud run deploy "$SERVICE" \
   --project="$PROJECT" --region="$REGION" --platform=managed --quiet \
   --image="$IMAGE" --revision-suffix="$REVISION_SUFFIX" \
-  --update-env-vars="IMAGE_SOURCE_COMMIT_SHA=$CODE_SHA,IMAGE_DIGEST=$DIGEST,IMAGE_URI=$IMAGE,PAID_V3_CLOUD_BUILD_ID=$BUILD_ID"
+  --no-traffic \
+  --update-env-vars="IMAGE_SOURCE_COMMIT_SHA=$CODE_SHA,IMAGE_DIGEST=$DIGEST,IMAGE_URI=$IMAGE,PAID_V3_CLOUD_BUILD_ID=$BUILD_ID,PAID_V3_SERVICE=$SERVICE,PAID_V3_ACTIVATION_URI=$ACTIVATION_URI"
 
 gcloud run services describe "$SERVICE" --project="$PROJECT" \
   --region="$REGION" --platform=managed --format=json >"$TMP/service.json"
@@ -87,5 +108,52 @@ PYTHONPATH="$SOURCE_ROOT/src" python -m \
   --build-contract "$SOURCE_ROOT/cloudbuild.paid-boundary-v3.yaml" \
   --build-id "$BUILD_ID" \
   --source-commit "$CODE_SHA" --image "$IMAGE" --service "$SERVICE" \
-  --revision "$REVISION" --output "$RECEIPT"
+  --revision "$REVISION" --activation-uri "$ACTIVATION_URI" \
+  --pre-activation --output "$TMP/pre-activation.json"
+
+# The pre-activation authority is create-once and durable.  A local receipt is
+# not sufficient evidence for the money path.
+gcloud storage cp --no-clobber "$TMP/pre-activation.json" \
+  "$ACTIVATION_URI.pre-activation.json" >/dev/null
+
+gcloud run services update-traffic "$SERVICE" --project="$PROJECT" \
+  --region="$REGION" --platform=managed --quiet \
+  --to-revisions="$REVISION=100"
+ROLLBACK_ARMED=1
+
+gcloud run services describe "$SERVICE" --project="$PROJECT" \
+  --region="$REGION" --platform=managed --format=json >"$TMP/service-final.json"
+gcloud run revisions describe "$REVISION" --project="$PROJECT" \
+  --region="$REGION" --platform=managed --format=json >"$TMP/revision-final.json"
+PYTHONPATH="$SOURCE_ROOT/src" python -m \
+  nfl_dfs.optimizer.paid_classic_deployment_v3 \
+  --build-json "$TMP/build.json" --service-json "$TMP/service-final.json" \
+  --revision-json "$TMP/revision-final.json" \
+  --build-contract "$SOURCE_ROOT/cloudbuild.paid-boundary-v3.yaml" \
+  --build-id "$BUILD_ID" --source-commit "$CODE_SHA" --image "$IMAGE" \
+  --service "$SERVICE" --revision "$REVISION" --activation-uri "$ACTIVATION_URI" \
+  --output "$RECEIPT"
+gcloud storage cp --no-clobber "$RECEIPT" "$ACTIVATION_URI.traffic.json" >/dev/null
+python3 - "$TMP/pre-activation.json" "$RECEIPT" "$TMP/activation.json" "$BUILD_ID" "$IMAGE" "$SERVICE" "$REVISION" <<'PY'
+import hashlib, json, pathlib, sys
+pre = json.loads(pathlib.Path(sys.argv[1]).read_text())
+traffic = json.loads(pathlib.Path(sys.argv[2]).read_text())
+body = {
+    "schema_version": "paid-classic-activation-authority/v1",
+    "cloud_build_id": sys.argv[4],
+    "immutable_image_uri": sys.argv[5],
+    "cloud_run_service": sys.argv[6],
+    "cloud_run_revision": sys.argv[7],
+    "pre_activation": pre,
+    "traffic_activation": traffic,
+    "active": True,
+}
+raw = json.dumps(body, sort_keys=True, separators=(",", ":"))
+body["authority_sha256"] = hashlib.sha256(raw.encode()).hexdigest()
+pathlib.Path(sys.argv[3]).write_text(
+    json.dumps(body, indent=2, sort_keys=True) + "\n"
+)
+PY
+gcloud storage cp --no-clobber "$TMP/activation.json" "$ACTIVATION_URI" >/dev/null
+ROLLBACK_ARMED=0
 printf 'PAID_V3_DEPLOYMENT_ATTESTATION=%s\n' "$RECEIPT"

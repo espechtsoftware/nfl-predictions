@@ -45034,3 +45034,21 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   it, then issue the separate one-shot a2 mechanics clearance. Review the
   production canonical-game branch before any merge/deployment and continue
   watching CP-4 R4.
+
+  Paid/deployment repair branch `codex/canonical-v3-paid-repair` is based
+  directly on `a6007f2fd6cc5aca662489994a5f1d590b26f164`. Code-only work adds
+  immutable engine receipts and a separately derived execution authority,
+  native world-matrix identity fields, closed-world Cloud Build law checks
+  (including test bypass/reordering controls), timestamp ordering, strict
+  traffic attestation, staged `--no-traffic` deployment with durable
+  pre-activation/traffic authority publication, rollback to captured traffic,
+  and paid-runtime reopening of the activation authority. Added adversarial
+  negatives cover ordinary receipt mutation and coordinated request
+  restatement. Static Python compilation, shell parsing, and diff checks pass;
+  no pytest or cloud/paid execution was performed (pytest lane held by the
+  production coordinator). The terminal export also receives an immutable
+  engine-result envelope, so coordinated model/feature/note restatements are
+  compared with retained post-execution bytes rather than only self-hashes.
+  Next action: root reviews/cherry-picks the repair,
+  then authorizes one serial focused pytest lane and resolves any compatibility
+  findings before considering deployment.

@@ -12,6 +12,7 @@ import argparse
 import hashlib
 import json
 import re
+from datetime import datetime, timezone
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any, Final
@@ -93,19 +94,56 @@ def _reviewed_build_law(
     if not isinstance(steps, list) or not isinstance(images, list):
         _fail("reviewed Cloud Build contract is malformed")
     projected_steps: list[dict[str, object]] = []
-    allowed = {"id", "name", "entrypoint", "args", "dir", "env"}
+    # These are all caller-controlled Cloud Build step semantics.  Provider
+    # observations (status, timing, digest, etc.) are intentionally excluded,
+    # but an execution field is never silently projected away.
+    allowed = {
+        "id", "name", "entrypoint", "args", "dir", "env", "script",
+        "secretEnv", "volumes", "timeout", "waitFor", "allowExitCodes",
+        "allowFailure", "automapSubstitutions",
+    }
+    defaults: dict[str, object] = {
+        "entrypoint": None, "args": None, "dir": None, "env": None,
+        "script": None, "secretEnv": None, "volumes": None, "timeout": None,
+        "waitFor": None, "allowExitCodes": None, "allowFailure": None,
+        "automapSubstitutions": None,
+    }
     for row in steps:
         if not isinstance(row, Mapping):
             _fail("reviewed Cloud Build step is malformed")
-        projected = {
-            key: child
-            for key, child in row.items()
-            if key in allowed
-        }
+        unknown = set(row) - allowed
+        # Cloud Build adds observational fields to returned step records.  A
+        # field outside the reviewed contract is otherwise an ambiguity: fail
+        # closed if it is not one of the documented provider observations.
+        if unknown - {"status", "timing", "pullTiming", "outputImages", "failureInfo"}:
+            _fail("provider build step contains unreviewed execution fields")
+        projected = {key: row.get(key, default) for key, default in defaults.items()}
+        projected.update({"id": row.get("id"), "name": row.get("name")})
         if not projected.get("id") or not projected.get("name"):
             _fail("reviewed Cloud Build step lacks identity")
         projected_steps.append(projected)
-    return {"steps": projected_steps, "images": list(images)}
+    top_allowed = {
+        "steps", "images", "timeout", "options", "serviceAccount",
+        "secrets", "availableSecrets", "substitutions",
+    }
+    unknown_top = set(value) - top_allowed - {
+        "id", "status", "createTime", "finishTime", "logUrl", "logsBucket",
+        "projectId", "results", "source", "sourceProvenance", "timing",
+        "failureInfo", "warnings", "queueTtl", "buildTriggerId", "tags",
+    }
+    if unknown_top:
+        _fail("provider build contains unreviewed execution fields")
+    return {
+        "steps": projected_steps,
+        "images": list(images),
+        **{
+            key: value.get(key) if key in value else None
+            for key in (
+                "timeout", "options", "serviceAccount", "secrets",
+                "availableSecrets", "substitutions",
+            )
+        },
+    }
 
 
 def _normalize_provider_build_law(
@@ -130,9 +168,40 @@ def _normalize_provider_build_law(
         return item
 
     normalized = normalize(projected)
+    # Reviewed YAML uses symbolic defaults while provider records contain
+    # concrete substitutions.  Keep the comparison closed-world: only the
+    # two declared substitutions may be expanded.
+    substitutions = normalized.get("substitutions")
+    if isinstance(substitutions, Mapping):
+        normalized["substitutions"] = {
+            key: (f"${{{key}}}" if key in {"_CODE_SHA", "_BUILD_IMAGE"} else value)
+            for key, value in substitutions.items()
+        }
     if not isinstance(normalized, dict):  # pragma: no cover - defensive
         _fail("normalized Cloud Build law is malformed")
     return normalized
+
+
+def _normalize_reviewed_build_law(value: Mapping[str, Any]) -> dict[str, object]:
+    projected = _reviewed_build_law(value)
+    substitutions = projected.get("substitutions")
+    if isinstance(substitutions, Mapping):
+        projected["substitutions"] = {
+            key: (f"${{{key}}}" if key in {"_CODE_SHA", "_BUILD_IMAGE"} else val)
+            for key, val in substitutions.items()
+        }
+    return projected
+
+
+def _provider_time(value: object, *, label: str) -> datetime:
+    try:
+        text = str(value).replace("Z", "+00:00")
+        parsed = datetime.fromisoformat(text)
+    except (TypeError, ValueError):
+        _fail(f"{label} is not an RFC3339 timestamp")
+    if parsed.tzinfo is None:
+        _fail(f"{label} is not timezone-aware")
+    return parsed.astimezone(timezone.utc)
 
 
 def validate_paid_classic_build_evidence_v3(
@@ -158,6 +227,10 @@ def validate_paid_classic_build_evidence_v3(
         _fail("Cloud Build provider record is not the successful expected build")
     if not build.get("createTime") or not build.get("finishTime"):
         _fail("Cloud Build provider record lacks terminal timestamps")
+    build_created = _provider_time(build["createTime"], label="Cloud Build createTime")
+    build_finished = _provider_time(build["finishTime"], label="Cloud Build finishTime")
+    if not build_created < build_finished:
+        _fail("Cloud Build timestamps are not ordered")
     substitutions = build.get("substitutions")
     if not isinstance(substitutions, Mapping) or substitutions.get(
         "_CODE_SHA"
@@ -178,7 +251,7 @@ def validate_paid_classic_build_evidence_v3(
     built_name = built_reference.rsplit(":", 1)[0]
     if built_reference != image_name and built_name != image_name:
         _fail("Cloud Build image repository differs")
-    reviewed_law = _reviewed_build_law(reviewed_build_contract)
+    reviewed_law = _normalize_reviewed_build_law(reviewed_build_contract)
     normalized_provider_law = _normalize_provider_build_law(
         build,
         source_commit=expected_source_commit,
@@ -202,6 +275,7 @@ def validate_paid_classic_build_evidence_v3(
         "provider_build_finish_time": build["finishTime"],
         "provider_build_record_sha256": _sha(build),
         "reviewed_build_contract_sha256": _sha(reviewed_law),
+        "provider_build_created_before_finished": True,
     }
 
 
@@ -216,6 +290,8 @@ def attest_paid_classic_deployment_v3(
     expected_immutable_image: str,
     expected_service: str,
     expected_revision: str,
+    require_traffic: bool = True,
+    expected_activation_uri: str | None = None,
 ) -> dict[str, object]:
     """Validate real provider descriptions and return a self-hashed receipt."""
 
@@ -237,13 +313,28 @@ def attest_paid_classic_deployment_v3(
     ) != expected_revision:
         _fail("Cloud Run latest ready revision differs")
     traffic = status.get("traffic")
-    if not isinstance(traffic, list) or sum(
-        int(row.get("percent", 0))
-        for row in traffic
-        if isinstance(row, Mapping)
-        and row.get("revisionName") == expected_revision
-    ) != 100:
-        _fail("Cloud Run traffic is not wholly on the attested revision")
+    if not isinstance(traffic, list):
+        _fail("Cloud Run traffic is malformed")
+    matching = [
+        row for row in traffic
+        if isinstance(row, Mapping) and row.get("revisionName") == expected_revision
+    ]
+    if len(matching) > 1:
+        _fail("Cloud Run traffic contains duplicate revision rows")
+    if require_traffic:
+        row = matching[0] if matching else None
+        if (
+            len(traffic) != 1
+            or not isinstance(row, Mapping)
+            or type(row.get("percent")) is not int
+            or row.get("percent") != 100
+        ):
+            _fail("Cloud Run traffic is not wholly on the attested revision")
+        traffic_percent = 100
+    else:
+        if matching and matching[0].get("percent") not in (0, "0"):
+            _fail("pre-activation revision already receives traffic")
+        traffic_percent = 0
     if (revision.get("metadata") or {}).get("name") != expected_revision:
         _fail("Cloud Run revision provider record differs")
     _ready(revision, label="revision")
@@ -252,13 +343,20 @@ def attest_paid_classic_deployment_v3(
     )
     if not revision_created:
         _fail("Cloud Run revision provider record lacks a creation timestamp")
+    if _provider_time(revision_created, label="Cloud Run revision creation") < _provider_time(
+        build["finishTime"], label="Cloud Build finishTime"
+    ):
+        _fail("Cloud Run revision was created before the successful build finished")
 
     expected_env = {
         "IMAGE_SOURCE_COMMIT_SHA": expected_source_commit,
         "IMAGE_DIGEST": image_digest,
         "IMAGE_URI": expected_immutable_image,
         "PAID_V3_CLOUD_BUILD_ID": expected_build_id,
+        "PAID_V3_SERVICE": expected_service,
     }
+    if expected_activation_uri is not None:
+        expected_env["PAID_V3_ACTIVATION_URI"] = expected_activation_uri
     for label, document in (("service", service), ("revision", revision)):
         container = _containers(document)[0]
         if container.get("image") != expected_immutable_image:
@@ -290,7 +388,9 @@ def attest_paid_classic_deployment_v3(
             "reviewed_build_contract_sha256"
         ],
         "provider_ready": True,
-        "provider_traffic_percent": 100,
+        "provider_traffic_percent": traffic_percent,
+        "activation_stage": "traffic" if require_traffic else "pre-activation",
+        "activation_uri": expected_activation_uri,
     }
     body["attestation_sha256"] = _sha(body)
     return body
@@ -309,7 +409,8 @@ def validate_paid_classic_deployment_attestation_v3(
         "provider_build_record_sha256", "provider_service_record_sha256",
         "provider_revision_record_sha256", "reviewed_build_contract_sha256",
         "provider_ready",
-        "provider_traffic_percent", "attestation_sha256",
+        "provider_traffic_percent", "activation_stage", "activation_uri",
+        "attestation_sha256",
     }
     body = dict(value)
     if set(body) != expected:
@@ -331,7 +432,13 @@ def validate_paid_classic_deployment_attestation_v3(
         or not body.get("provider_build_finish_time")
         or not body.get("provider_revision_create_time")
         or body.get("provider_ready") is not True
-        or body.get("provider_traffic_percent") != 100
+        or body.get("activation_stage") not in {"pre-activation", "traffic"}
+        or body.get("provider_traffic_percent") != (
+            100 if body.get("activation_stage") == "traffic" else 0
+        )
+        or (body.get("activation_uri") is not None and not str(
+            body.get("activation_uri")
+        ).startswith("gs://"))
         or any(
             re.fullmatch(r"[0-9a-f]{64}", str(body.get(field, ""))) is None
             for field in (
@@ -347,12 +454,64 @@ def validate_paid_classic_deployment_attestation_v3(
     return body
 
 
+def validate_paid_classic_activation_authority_v3(
+    value: Mapping[str, object],
+    *,
+    expected_build_id: str,
+    expected_image: str,
+    expected_service: str,
+    expected_revision: str,
+) -> dict[str, object]:
+    """Validate the durable post-cutover authority consumed by paid runtime."""
+
+    expected = {
+        "schema_version", "cloud_build_id", "immutable_image_uri",
+        "cloud_run_service", "cloud_run_revision", "pre_activation",
+        "traffic_activation", "active", "authority_sha256",
+    }
+    body = dict(value)
+    if set(body) != expected:
+        _fail("activation authority schema differs")
+    claimed = body.pop("authority_sha256", None)
+    if claimed != _sha(body):
+        _fail("activation authority hash differs")
+    if (
+        body.get("schema_version") != "paid-classic-activation-authority/v1"
+        or body.get("cloud_build_id") != expected_build_id
+        or body.get("immutable_image_uri") != expected_image
+        or body.get("cloud_run_service") != expected_service
+        or body.get("cloud_run_revision") != expected_revision
+        or body.get("active") is not True
+        or not isinstance(body.get("pre_activation"), Mapping)
+        or not isinstance(body.get("traffic_activation"), Mapping)
+    ):
+        _fail("activation authority identity differs")
+    for field, expected_stage in (
+        ("pre_activation", "pre-activation"),
+        ("traffic_activation", "traffic"),
+    ):
+        nested = body[field]
+        if nested.get("activation_stage") != expected_stage:
+            _fail("activation authority stage differs")
+        try:
+            validate_paid_classic_deployment_attestation_v3(nested)
+        except ValueError as exc:
+            _fail(f"activation authority {field} is invalid: {exc}")
+    body["authority_sha256"] = claimed
+    return body
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--verify-build-only",
         action="store_true",
         help="authenticate build/provider law without mutating or attesting Cloud Run",
+    )
+    parser.add_argument(
+        "--pre-activation",
+        action="store_true",
+        help="attest the Ready revision while it receives no traffic",
     )
     parser.add_argument("--build-json", type=Path, required=True)
     parser.add_argument("--service-json", type=Path)
@@ -363,6 +522,7 @@ def main() -> int:
     parser.add_argument("--image", required=True)
     parser.add_argument("--service")
     parser.add_argument("--revision")
+    parser.add_argument("--activation-uri")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     build = json.loads(args.build_json.read_text())
@@ -395,6 +555,8 @@ def main() -> int:
         expected_immutable_image=args.image,
         expected_service=args.service,
         expected_revision=args.revision,
+        require_traffic=not args.pre_activation,
+        expected_activation_uri=args.activation_uri,
     )
     with args.output.open("x", encoding="utf-8") as stream:
         stream.write(json.dumps(receipt, indent=2, sort_keys=True) + "\n")

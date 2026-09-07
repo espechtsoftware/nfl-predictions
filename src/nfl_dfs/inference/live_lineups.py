@@ -1051,6 +1051,7 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                 )
             from ..optimizer.paid_classic_book_v3 import (
                 _issue_paid_classic_engine_receipt_v3,
+                seal_paid_classic_engine_result_v3,
             )
 
             model_artifacts = {
@@ -1139,9 +1140,43 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                 construction_policy=dict(construction_preset_receipt or {}),
                 request_inputs=observed_request,
                 policy_environment=dict(runtime_env),
+                world_binding={
+                    "schema_version": "paid-classic-world-binding/v1",
+                    "block_count": len(parsed),
+                    "worlds_per_block": int(worlds_per_block),
+                    "selection_world_count": int(combined.row_draws.shape[1]),
+                    "combined_matrix_sha256": hashlib.sha256(
+                        combined.row_draws.tobytes(order="C")
+                    ).hexdigest(),
+                    "selected_index_order_sha256": hashlib.sha256(
+                        json.dumps(
+                            {
+                                "keys": [
+                                    sorted(int(value) for value in key)
+                                    for key in sorted(
+                                        combined.all_tags,
+                                        key=lambda item: tuple(sorted(item)),
+                                    )
+                                ],
+                                "tags": [
+                                    list(combined.all_tags[key])
+                                    for key in sorted(
+                                        combined.all_tags,
+                                        key=lambda item: tuple(sorted(item)),
+                                    )
+                                ],
+                            },
+                            sort_keys=True,
+                            separators=(",", ":"),
+                        ).encode()
+                    ).hexdigest(),
+                },
+            )
+            engine_result = seal_paid_classic_engine_result_v3(
+                selected, engine_receipt
             )
             for lineup in selected:
-                lineup.paid_projection_derivation_receipt = engine_receipt
+                lineup.paid_projection_derivation_receipt = engine_result.receipt
         return selected
 
     authority_kwargs = (
