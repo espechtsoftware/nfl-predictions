@@ -44388,3 +44388,49 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   durable on lab main at `3adc78c0a200a0db5287f9d5dae0197e94ed63a8` in
   `handoffs/PRODUCTION-TO-LAB-CP3-D800-BINDING-DELTA-R1-REVIEW-2026-09-07.md`.
   The valid sidecar re-clearance is unaffected; mechanics remains HOLD.
+
+  The corrected one-shot `cp3d800-fb1` run completed exactly once at source
+  `85eb3620b151548846602fcf0fdac86ecf1f0b7a`, from
+  `2026-09-07T07:49:12Z` through `07:50:00Z`, exit zero. Stdout was 1,139
+  bytes / SHA-256 `eda4d41b1d0a74fc99f0c8a299922fc2943f07ee565d27230077bf21cc7c53af`;
+  stderr was zero bytes / SHA-256 `e3b0c442...b855`. The exact create-once
+  artifact is 81,531 bytes / SHA-256
+  `085297a387d86ed2b222459ce259a0bda3e036502675c0b7297b6c492d535e1e`,
+  force-tracked as an ordinary `100644` blob with its run receipt at lab
+  branch commit `66f4e1f8699d6445853ff6d38c55b3b4c73b4bac`.
+
+  Production and two independent reviewers accepted the artifact: strict
+  parsing/redaction, all eight generated-source code hashes, the accepted raw
+  authority/transport identity, five cutoff-2023 broker receipts, private
+  frame and salary facts, draw digest, per-column digests, and all
+  boundary/capability checks pass. The pre-lock frame is 773 x 192; exactly
+  14 registered wholly-null forbidden fields were removed to 773 x 178; 743
+  rows remain. The canonical first-640 digest equals CP-1's stored digest
+  `bbd6ee15...a7dd`; no outcome, candidate score, or player identifier is in
+  the sidecar.
+
+  Lab returned binding-law R2 at
+  `7e45ee49da76faf594a842b05b569ddec8263d1d`. Production reproduced 13/13
+  frame-binding and 10/10 D800 tests, Ruff, compilation, diff/cleanliness,
+  exact tracked-HEAD reopening, and a satisfiable real-checkout identity.
+  R2 closes both holds: the loader consumes only the exact stage-0 `100644`
+  `HEAD` blob after working-tree equality, and the runner masks only four
+  self-referential identity-fill values while retaining the complete frozen
+  invocation in its digest.
+
+  Production accepted the artifact and R2 laws and issued code-only GO at lab
+  main `0efd9df9fdfdddb4faf94d7187650b254a01e8e1` for two literal commits:
+  first bind the ten exact `FRAME_BINDING` values to the accepted artifact,
+  then on its direct child bind the four mechanics identity fields to that
+  frame commit and the recomputed executable hashes. Only binding validation
+  functions may run. `cp3d800-a1`, raw reopening, simulation, lineup
+  generation, cloud work, outcomes, and scoring remain HOLD pending independent
+  review of both returned commits.
+
+  Lab Update 143 also returned CP-4 R3/P0-6 code at exact branch commit
+  `c27f85f`; two independent production reviews are active. Nothing from CP-4
+  has run or changed policy.
+
+  Next concrete action: monitor for CP-3 frame/identity binding commits and
+  review them immediately; in parallel finish both CP-4 R3/P0-6 code reviews.
+  No cloud lane is currently authorized merely by these code returns.
