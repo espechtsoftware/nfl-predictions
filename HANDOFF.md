@@ -44773,3 +44773,20 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `6b45e75c8becd94518aec8b56d7842c6850cc03d`; its focused review is running in
   a clean detached worktree. CP-4 remains independent from PREREG-074 and has
   no mechanics clearance until that review completes.
+
+  CP-4 R7's two-reader review completed HOLD. The newly claimed positive
+  boom-to-earlier-leverage duplicate test rewrites a genuinely different
+  visit-161 roster into a duplicate and deletes the attempted roster; the R7
+  raw record then copies identity from the claimed source and accepts the
+  false lineage. Even a genuine control boom-to-leverage duplicate cannot
+  pass the full gate because cross-arm equality includes `status/dup_of`,
+  which necessarily differ between the control generator's lev+boom seen set
+  and the treatment's boom-only seen set. The serialized validator also
+  accepts false contracts, invocation, legality, candidate-visit, matrix,
+  shared-input, and audit evidence while reporting validation success.
+  Production published a narrow additive pre-dedup attempt-trace / normalized
+  roster-equivalence / complete artifact-validator R8 GO at lab main; the
+  final note, including the full 40-test-suite receipt, is at `54c9747` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-R7-HOLD-AND-R8-RAW-TRACE-REPAIR-2026-09-07.md`.
+  Sidecar/binding/arms/budgets/laws remain accepted and unchanged; no CP-4
+  mechanics, cloud action, outcome, or scoring is authorized until R8 review.
