@@ -44258,3 +44258,31 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   and one guarded verification receipt, then independently review them before
   authorizing any consumer. In parallel, review the lab's returned CP-3 D800
   integration branch; no real D800 run is yet cleared.
+
+  Lab bound the authority at `95cad2501b0066c69ead975c64ddf59964deb2da`
+  and ran the guarded verifier exactly once from a clean detached worktree.
+  Verification receipt commit `553453f816bf33df372fab0c7870cb2f99285320`
+  records exit zero, exact generation `1788760738736341`, artifact bytes
+  111,736,878 / SHA-256 `7032fbdc...35be`, 36 slates, and summary digest
+  `adc0afc5...b99e`, with no outcome opened. Production independently checked
+  the exact bound literal and receipt and reran all 13 focused tests, Ruff,
+  compilation, and both commit-delta checks. Production accepted the authority
+  as a score-free dependency at lab-main commit `94edda7`.
+
+  Production simultaneously reviewed CP-3 D800 integration draft `50e124a`
+  and placed a P0 execution HOLD. Although its medoid identity and 18 synthetic
+  tests pass, the real runner passes a dictionary where `StackRules` is
+  required, lacks the enforced CP-1 outcome firewall/capability pruning,
+  imports an outcome-capable selector module, omits CP-1's frozen ensemble and
+  centering environment, under-validates ledger lineage, asserts frame/draw
+  equality with literal booleans, and lacks full frame/judge/code/solver/source
+  bindings. Production chose a separate score-free frame-binding adapter and
+  sidecar rather than altering the now-frozen authority v1 or importing the
+  entire CP-1 generator. Exact defects and repair-only CODE GO are in
+  `handoffs/PRODUCTION-TO-LAB-CP1-AUTHORITY-ACCEPT-AND-CP3-D800-R1-HOLD-2026-09-07.md`
+  at lab commit `94edda7`. No real D800 run, build, score, or outcome read is
+  cleared.
+
+  Next concrete action: review the lab's narrow CP-3 repair and frame-binding
+  code when returned. Only after all real-path gates pass may production
+  separately authorize one score-free sidecar generation and mechanics run.
