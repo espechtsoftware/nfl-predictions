@@ -22,6 +22,28 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 CP-4 R13 urgently held before a third smoke
+
+- Lab returned exact R13 commit `e34aefb`, direct child of held R12
+  `6e4f2c9`. Its two local real-frame smoke labels failed before frame loading
+  in the same transient GCS HTTP/1.1 outage that consumed PREREG-074 fm2; no
+  snapshot, candidate, artifact, judge sidecar, outcome, score, build, cloud
+  execution or GCS publication resulted, and `cp4d800-a2` remains absent.
+- Independent review then reproduced two deterministic R13 defects unrelated
+  to transport. The live 175-column model-only frame has 146 nullable columns;
+  ten nullable columns are consumed by the contextual decision frame, so the
+  correct excluded-nullable count is 136, while the smoke requires 131 (which
+  accidentally omits the five R12 audit fields that are also excluded).
+  `validate_frame_columns_receipt()` also derives its required consumed set
+  from the caller's own role declarations rather than the frozen decision law;
+  a receipt marking `own_est` excluded passes after self-consistent count/role
+  restatement (`ACCEPTED_FORGED_ROLE_MAP`).
+- Production withdrew the recovered-transport smoke permission immediately.
+  The urgent hold is durable on lab main at `d76a18c` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-R13-INTERIM-HOLD-DO-NOT-RERUN-SMOKE-2026-09-07.md`.
+  Await the complete independent review/R14 contract; no further R13 smoke,
+  a2, build, cloud/GCS, outcome or score action is authorized.
+
 ### 2026-09-07 PREREG-074 R8 accepted; fm2 transport-failed closed; R9/fm3 repair active
 
 - Independent review accepted exact R8 source
