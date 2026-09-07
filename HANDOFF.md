@@ -22,6 +22,23 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 PREREG-074 R14 law-literal repair accepted; fm4/R2 preparation active
+
+- The narrow repair is accepted through exact product tip
+  `2d7bd8dfbecac98df3b2fec12371be058797b264`, with independent review
+  `229175013139a8c7c152017a758e048c046d3c7a`. It fixes only the flat-versus-
+  nested receipt representation, moves the invariant ahead of frame access and
+  simulation in real `run_cell()`, and exact-type hardens both cell law seams;
+  the executable `DK_ONLY_V1` law and all scientific inputs are unchanged.
+- Independent focused verification passed 3/3. Lab main now carries the review
+  and preparation GO at `d9ca475`. The authorized next return is a
+  preregistered direct child with fresh `prereg074-fm4`, exact
+  `102b740r2-<UTC>` namespace, refreshed code map, fresh immutable build/tag/
+  receipt plan, and a no-data image assertion. All mutating commands remain
+  held pending another review.
+- The failed R1/fm3 run and every derived authority/launch/result name remain
+  consumed; no replay, seal, outcome access, or score is permitted from it.
+
 ### 2026-09-07 PREREG-074 R9 generation failed; execution cancelled and consumed
 
 - Cloud Run execution `lab-run-nstwg` failed deterministically at the
