@@ -62,13 +62,20 @@ agent or developer:
   argv census run separately, and a persisted raw preflight/run/postflight
   transcript. It permits exactly one runner invocation and no outcome access,
   scoring, build, Cloud Run work, retry, or policy action.
+- Lab completed the cleared preflight and invoked `cp3d800-a2` exactly once at
+  `2026-09-07T09:49:55Z` from fresh detached worktree
+  `/home/erich/projects/nfl2-cp3-d800-a2` at exact M-prime. The live runner is
+  PID `1301468` with the exact cleared argv (2023-W1, bank 740, 10,000 sims,
+  attempt a2, frozen output path). At the latest production census it remained
+  live, the source checkout was clean, and the output was still absent.
 - Cloud Run and Cloud Build lanes are currently idle because no execution is
   authorized, not because a ready job was dropped. CP-4 R4 has returned at
   `c284dbe9d22b8afefa06a7ba4b52e7963000e866` and is under independent
   production review; no CP-4 sidecar or run is authorized. The independent production
   canonical-game-policy v2 repair remains isolated from frozen CP-3 and awaits
   its own review before any merge or deployment.
-- Next concrete action: monitor the authorized `cp3d800-a2` attempt, then
+- Next concrete action: monitor live PID `1301468` and the authorized
+  `cp3d800-a2` attempt, then
   independently authenticate its immutable mechanics artifact and raw launch
   receipt before any later score/outcome or execution decision. Continue the
   CP-4 R4 review in parallel.
