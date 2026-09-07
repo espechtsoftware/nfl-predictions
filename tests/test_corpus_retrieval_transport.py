@@ -156,6 +156,16 @@ def test_execute_gate_precedes_any_enabled_work():
     )
 
 
+def test_real_transport_terminal_path_matches_canonical_loader_contract():
+    prefix = "gs://bucket/retrieval/run-1/task-0000/"
+    paths = transport._preflight_paths(
+        {"output_prefix": prefix, "task_index": 0}
+    )
+    assert paths["terminal_receipt_uri"] == (
+        prefix + "governance/terminal-receipt.json"
+    )
+
+
 def test_parked_command_is_default_off_and_client_free(capsys):
     assert transport.main(["parked"]) == 0
     output = capsys.readouterr().out

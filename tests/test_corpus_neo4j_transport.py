@@ -799,6 +799,83 @@ def test_task0_manifest_requires_all_compact_analytics_and_never_lists() -> None
         )
 
 
+def test_canonical_v3_mandatory_analytics_requires_all_seven_strategies() -> None:
+    storage = FakeStorage()
+    strategy_ids = [f"strategy-{index}" for index in range(7)]
+    sidecars: list[dict[str, object]] = []
+    expected_keys = {
+        *((role, "") for role in (
+            *transport._MANDATORY_ANALYTIC_ROLES,
+            *transport._CANONICAL_V3_ADDITIONAL_ANALYTIC_ROLES,
+        )),
+        *(("strategy-selection", strategy_id) for strategy_id in strategy_ids),
+    }
+    for ordinal, (role, strategy_id) in enumerate(sorted(expected_keys), start=1):
+        raw = projection.canonical_json_bytes({
+            "role": role,
+            "strategy_id": strategy_id,
+        })
+        identity = _identity(
+            f"gs://dedicated-research/v3/{ordinal:02d}.json", ordinal, raw
+        )
+        storage.add(identity, raw)
+        sidecars.append({
+            "role": role,
+            "strategy_id": strategy_id,
+            "object_identity": identity,
+        })
+    identities, bodies = transport._mandatory_analytics(
+        storage=storage,
+        task_result={
+            "schema_version": projection.TASK_RESULT_SCHEMA_V2,
+            "strategy_results": [
+                {"strategy_id": strategy_id} for strategy_id in strategy_ids
+            ],
+            "sidecars": sidecars,
+        },
+    )
+    assert len(identities) == 11
+    assert set(bodies) == expected_keys
+
+    with pytest.raises(
+        transport.CorpusNeo4jTransportError,
+        match="strategy identity coverage differs",
+    ):
+        transport._mandatory_analytics(
+            storage=storage,
+            task_result={
+                "schema_version": projection.TASK_RESULT_SCHEMA_V2,
+                "strategy_results": [
+                    {"strategy_id": strategy_id} for strategy_id in strategy_ids[:4]
+                ],
+                "sidecars": sidecars,
+            },
+        )
+
+
+def test_accepted_task0_replays_canonical_v3_semantics() -> None:
+    source = FIXTURES._canonical_v3_bundle()
+    storage = FakeStorage()
+    for (uri, generation), raw in source["store"]._raw.items():
+        storage.add(
+            {
+                "uri": uri,
+                "generation": generation,
+                "sha256": sha256(raw).hexdigest(),
+                "bytes": len(raw),
+            },
+            raw,
+        )
+    accepted, plan = transport._accepted_task0(
+        storage, source["terminal_receipt_identity"]
+    )
+    assert len(accepted["mandatory_analytics"]) == 11
+    assert sum(
+        row["kind"] == "RetrievalStrategyResult" for row in plan.nodes
+    ) == 7
+    assert sum(row["kind"] == "CorpusFillInsight" for row in plan.nodes) == 1
+
+
 @pytest.mark.parametrize(
     "field,value,match",
     [

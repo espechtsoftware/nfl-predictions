@@ -22,6 +22,61 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 canonical-game v2 five-HOLD repair candidate (local, unpushed)
+
+- Worktree `/home/erich/projects/nfl-predictions-canonical-game-v2`, branch
+  `fix/canonical-game-policy-v2-20260907`, exact independently reviewed source
+  `72c5fbe2d2d2c5caa4cf413a3704fc660062b331`. This entry supersedes the
+  readiness language in the earlier canonical-game section below for the five
+  newly confirmed HOLD findings. The repair commit is the commit containing
+  this entry.
+- Paid-v3 builds now use a clean detached checkout fetched from the exact
+  pushed production commit, never the caller's worktree bytes. The new submit
+  helper requires the commit to equal `origin/main`, resolves the durable Cloud
+  Build result's immutable image digest, and reports the immutable image plus
+  `IMAGE_DIGEST`. Runtime paid-v3 fails closed unless full
+  `IMAGE_SOURCE_COMMIT_SHA` and immutable `IMAGE_DIGEST` are present.
+- Paid-v3 catalog identities, terminal validation/export receipts, prepared-
+  entry capture, and CSV headers bind full source commit, image digest,
+  coherent projection-batch SHA, transformation identity, and selected
+  objective values. The paid routes certify the point-in-time batch before
+  generation and do not fall back to per-player-latest projections. MILP and
+  simulation objectives may apply their explicit tournament transforms;
+  simulations are restricted to certified IDs and recentered on certified
+  batch means, and transformed books must carry one matching derivation
+  receipt. Every selected player must resolve in the certified joined catalog.
+- The real retrieval transport terminal path now exactly matches the canonical
+  Neo4j loader path. Canonical retrieval-v3 requires exactly seven strategies
+  and an authenticated exact-object reader. It reopens and semantically
+  reconstructs the complete graph-v2 projection from generation-pinned v3
+  evidence with the versioned engine validator (`replay=False`), rather than
+  accepting node counts and valid endpoints. Legacy graph-v1 retains its
+  registered four-or-seven compatibility. Governed transport and compact
+  analytics now honor the canonical v2 enrichment/fill schema law.
+- The canonical-game v7 effective-policy inventory was regenerated around the
+  four changed active-policy sources. Its inventory/source-set/rule-universe/
+  classified-input hashes are respectively `57ee7318d831fc443e66a971a26118b6b50973484bef257a3aa1d10573799d38`,
+  `7e713c527150718db74b9e4a709ef7e0d5e59ea83c4ccb97d6bbebc9bff52b81`,
+  `7c4548e363e8b931f3ef6cacd3914b932f13ebdc9326b03ff3616226cf66d552`,
+  and `76cc09d86dc9d5be15b1aa6dfd50d261137a262a689713093631d350ae68d644`.
+  Both runtime release coordinates are explicitly infrastructure-only; the
+  regenerated projection has 132 keys and 288 direct read sites.
+- Serial focused validation is green: `65 + 55 + 63 + 57 = 240` tests passed,
+  zero failures; the final application run carried one unrelated Starlette
+  deprecation warning. Changed Python files compile, the paid build helper
+  passes `bash -n`, Cloud Build YAML parses with the expected steps/image,
+  and `git diff --check` passes.
+- Detailed disposition:
+  `reports/2026-09-07-canonical-game-v2-hold-repairs.md`. No Cloud Build,
+  deployment, Cloud Run/GCS action, paid-entry read/write, Neo4j mutation,
+  outcome read, or push occurred.
+
+  Next concrete action: root independently reviews this local repair commit.
+  If accepted, push first; then use only the exact committed paid-v3 helper,
+  retain the build ID/digest, deploy by immutable image URI, and set the exact
+  digest in `IMAGE_DIGEST`. Do not build, deploy, mutate Neo4j, or emit paid
+  bytes from this unreviewed local branch.
+
 ### 2026-09-07 canonical-game v2 independent-BLOCK repairs ready (local, unpushed)
 
 - Worktree `/home/erich/projects/nfl-predictions-canonical-game-v2`, branch

@@ -264,6 +264,8 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                            forbidden_model_features: tuple[str, ...] = (),
                            route_source_policy: bool = False,
                            log_ownership_shadow: bool = True,
+                           projection_authority: dict[int, float] | None = None,
+                           projection_authority_receipt: dict | None = None,
                            ) -> tuple[pd.DataFrame, np.ndarray]:
     """Engine-ready slate frame + aligned draw matrix for the live week."""
     from ..backtest.field import naive_ownership
@@ -288,6 +290,29 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     import os as _os
 
     runtime_env = _os.environ if policy_env is None else policy_env
+    if (projection_authority is None) != (projection_authority_receipt is None):
+        raise ValueError(
+            "projection authority and its derivation receipt are all-or-none"
+        )
+    certified_projection: dict[int, float] | None = None
+    if projection_authority is not None:
+        certified_projection = {}
+        for raw_id, raw_value in projection_authority.items():
+            player_id = int(raw_id)
+            value = float(raw_value)
+            if player_id <= 0 or not np.isfinite(value):
+                raise ValueError("certified projection authority is invalid")
+            if player_id in certified_projection:
+                raise ValueError("certified projection authority repeats a player")
+            certified_projection[player_id] = value
+        if not certified_projection:
+            raise ValueError("certified projection authority is empty")
+        if allowed_ids is not None and not set(allowed_ids) <= set(
+            certified_projection
+        ):
+            raise ValueError(
+                "allowed player IDs exceed the certified projection batch"
+            )
 
     if n_sims is None:
         n_sims = int(runtime_env.get("LIVE_SIMS", LIVE_SIMS_DEFAULT))
@@ -319,6 +344,10 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
         .reset_index(drop=True)
     skill = coldstart.fill_cold_start_features(skill)
     skill, _ = _apply_live_inactive_policy(skill, season)
+    if certified_projection is not None:
+        skill = skill[
+            skill.dk_player_id.astype(int).isin(certified_projection)
+        ].reset_index(drop=True)
     if route_source_policy:
         from .route_share_shadow import apply_live_route_policy
 
@@ -417,6 +446,20 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     draws = apply_served_tail_scale(draws, skill.position, env=runtime_env)
     draws = apply_served_position_scales(
         draws, skill.position, env=runtime_env)
+    if certified_projection is not None:
+        authority_means = skill.dk_player_id.astype(int).map(
+            certified_projection
+        )
+        if authority_means.isna().any():
+            raise ValueError(
+                "simulator player is absent from certified projection batch"
+            )
+        # The distribution shape, seed, correlations, and tournament tilts
+        # remain the bound transform.  Its only base mean authority is the
+        # one coherent point-in-time batch certified by paid-v3.
+        draws = shift_draws_to_means(
+            draws, authority_means.to_numpy(dtype=float)
+        )
 
     frame = pd.DataFrame({
         "id": skill.dk_player_id.astype(int),
@@ -459,6 +502,13 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
 
         dst = project_dst(season, week, model_version=version)
         if not dst.empty:
+            if certified_projection is not None:
+                dst = dst[
+                    dst.dk_player_id.astype(int).isin(certified_projection)
+                ].copy()
+                dst["proj_points"] = dst.dk_player_id.astype(int).map(
+                    certified_projection
+                )
             d = pd.DataFrame({
                 "id": dst.dk_player_id.astype(int),
                 "gsis_id": "", "name": dst.display_name,
@@ -546,6 +596,10 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     frame["low_own"] = (own * frame.pos.map(slots).fillna(1.0)
                         .to_numpy()) < 0.05
     frame.attrs["model_version"] = version
+    if projection_authority_receipt is not None:
+        frame.attrs["paid_projection_derivation_receipt"] = dict(
+            projection_authority_receipt
+        )
     return frame, draws
 
 
@@ -581,7 +635,9 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                       _latent_scenario_receipt=None,
                       _latent_scenario_factory=None,
                       _multiseed_inner: bool = False,
-                      _log_ownership_shadow: bool = True) -> list:
+                      _log_ownership_shadow: bool = True,
+                      projection_authority: dict[int, float] | None = None,
+                      projection_authority_receipt: dict | None = None) -> list:
     """Full validated pipeline on the live slate -> selected entries in
     coverage order (first = broadest boom coverage).
 
@@ -731,6 +787,8 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                 belief_required_features=belief_required_features,
                 belief_forbidden_features=belief_forbidden_features,
                 route_source_policy=route_source_policy,
+                projection_authority=projection_authority,
+                projection_authority_receipt=projection_authority_receipt,
                 _candidate_capture=(
                     holder.append if effective_transform is None else None
                 ),
@@ -895,6 +953,13 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
             label, projection_seed, role_seed,
             transform=_combine, persist=True)
 
+    authority_kwargs = (
+        {
+            "projection_authority": projection_authority,
+            "projection_authority_receipt": projection_authority_receipt,
+        }
+        if projection_authority is not None else {}
+    )
     slate, draws = build_slate_with_draws(
         season, week, n_sims=n_sims, seed=seed, lev_scale=lev_scale,
         apply_notes=apply_notes, model_variant=model_variant,
@@ -903,7 +968,8 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
         required_model_features=model_required_features,
         forbidden_model_features=model_forbidden_features,
         route_source_policy=route_source_policy,
-        log_ownership_shadow=_log_ownership_shadow)
+        log_ownership_shadow=_log_ownership_shadow,
+        **authority_kwargs)
     model_version = slate.attrs.get("model_version")
     wants_role = (
         int(runtime_env.get("N_EPISTEMIC", "0") or 0) > 0
@@ -954,7 +1020,8 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                 required_model_features=belief_required_features,
                 forbidden_model_features=belief_forbidden_features,
                 route_source_policy=route_source_policy,
-                log_ownership_shadow=False)
+                log_ownership_shadow=False,
+                **authority_kwargs)
             role_model_version = belief_slate.attrs.get("model_version")
         except Exception as exc:
             raise RoleBeliefUnavailable(
@@ -1121,4 +1188,8 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
             latent_scenario_receipt.get("conditional_model_version")
             if wants_latent_role else role_model_version
         )
+        if projection_authority_receipt is not None:
+            lineup.paid_projection_derivation_receipt = dict(
+                projection_authority_receipt
+            )
     return lineups

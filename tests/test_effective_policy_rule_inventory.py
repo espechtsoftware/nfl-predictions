@@ -27,6 +27,7 @@ from nfl_dfs.research.effective_policy_rule_inventory import (
     SCHEMA,
     SOURCE_SET_ID,
     V7_CLASSIFIED_INPUT_PROJECTION_SHA256,
+    V7_CLASSIFIED_INPUT_KEY_COUNT,
     V7_DIRECT_INPUT_READ_SITE_COUNT,
     V7_FROZEN_SOURCE_SHA256,
     V7_SOURCE_SET_ID,
@@ -375,7 +376,7 @@ def test_effective_policy_and_ambient_boundary_are_bound(inventory):
 def test_runtime_input_projection_is_an_exact_classified_partition(inventory):
     projection = inventory["classified_input_projection"]
     inputs = _inputs(inventory)
-    assert projection["input_count"] == CLASSIFIED_INPUT_KEY_COUNT == len(inputs)
+    assert projection["input_count"] == V7_CLASSIFIED_INPUT_KEY_COUNT == len(inputs)
     assert projection["direct_input_read_site_count"] == (
         V7_DIRECT_INPUT_READ_SITE_COUNT
     )

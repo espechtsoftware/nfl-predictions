@@ -13,6 +13,11 @@ ENV = {
     "WEEK1_OPERATING_BOOK_SHA256": "a" * 64,
     "WEEK1_OPERATING_BOOK_BYTES": "456",
 }
+V2_ENV = {
+    **ENV,
+    "IMAGE_SOURCE_COMMIT_SHA": "c" * 40,
+    "IMAGE_DIGEST": "sha256:" + "d" * 64,
+}
 
 
 class ProjectionStore:
@@ -105,13 +110,15 @@ def test_v2_load_adds_the_fixed_projection_authority(
 
     def build(
         *, exact_book, salary_rows, projection_rows, schedule_rows,
-        validated_at,
+        validated_at, source_commit_sha, immutable_image_digest,
     ):
         assert exact_book == exact
         assert salary_rows == [{"salary": "authority"}]
         assert projection_rows == [{"projection": "authority", "as_of": marker}]
         assert schedule_rows == [{"schedule": "authority"}]
         assert validated_at is marker
+        assert source_commit_sha == "c" * 40
+        assert immutable_image_digest == "sha256:" + "d" * 64
         return payload
 
     monkeypatch.setattr(api, "build_week1_operating_book_export_v2", build)
@@ -119,7 +126,7 @@ def test_v2_load_adds_the_fixed_projection_authority(
     assert api.load_week1_operating_book_export_v2(
         projection_store=projection_store,
         object_store=object(),
-        environment=ENV,
+        environment=V2_ENV,
     ) == payload
     assert projection_store.gids == [151307]
     assert projection_store.projection_calls == [(2026, 1)]

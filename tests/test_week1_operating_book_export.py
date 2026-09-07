@@ -171,6 +171,8 @@ def test_v2_final_boundary_adds_and_checks_semantic_game_identity(
         projection_rows=_projection_rows(salaries),
         schedule_rows=_schedule_rows(),
         validated_at="2026-09-11T16:30:00+00:00",
+        source_commit_sha="a" * 40,
+        immutable_image_digest="sha256:" + "b" * 64,
     )
     assert result["schema_version"] == export.SCHEMA_VERSION_V2
     assert result["final_semantic_draftkings_legal"] is True
@@ -199,6 +201,8 @@ def test_v2_final_boundary_adds_and_checks_semantic_game_identity(
             projection_rows=projections,
             schedule_rows=_schedule_rows(),
             validated_at="2026-09-11T16:30:00+00:00",
+            source_commit_sha="a" * 40,
+            immutable_image_digest="sha256:" + "b" * 64,
         )
 
 

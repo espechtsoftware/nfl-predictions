@@ -21,8 +21,6 @@ from ..inference.week1_operating_book_operator import (
     WEEK1_WEEK,
     read_week1_operating_book_v1,
 )
-
-
 IDENTITY_ENV = {
     "uri": "WEEK1_OPERATING_BOOK_URI",
     "generation": "WEEK1_OPERATING_BOOK_GENERATION",
@@ -97,7 +95,8 @@ def load_week1_operating_book_export_v2(
 ) -> dict[str, object]:
     """Render the canonical-game successor from exact live authorities."""
 
-    identity = materialization_identity_from_environment(environment)
+    env = os.environ if environment is None else environment
+    identity = materialization_identity_from_environment(env)
     storage = GCSImmutableObjectStore() if object_store is None else object_store
     try:
         exact = read_week1_operating_book_v1(
@@ -119,6 +118,8 @@ def load_week1_operating_book_export_v2(
             projection_rows=projections,
             schedule_rows=schedules,
             validated_at=validated_at,
+            source_commit_sha=env.get("IMAGE_SOURCE_COMMIT_SHA", ""),
+            immutable_image_digest=env.get("IMAGE_DIGEST", ""),
         )
     except Exception as exc:
         raise Week1OperatingBookAPIError(

@@ -13,6 +13,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
@@ -46,7 +47,14 @@ PAID_CLASSIC_BOUNDARY_ID: Final = "paid-classic-book-boundary-v3-canonical-game"
 PAID_CLASSIC_GAME_CATALOG_SCHEMA: Final = (
     "paid-classic-authoritative-game-catalog/v3"
 )
+PAID_CLASSIC_PROJECTION_DERIVATION_ID: Final = (
+    "certified-coherent-batch-centered-simulation/v1"
+)
+PAID_CLASSIC_SOURCE_COMMIT_ENV: Final = "IMAGE_SOURCE_COMMIT_SHA"
+PAID_CLASSIC_IMAGE_DIGEST_ENV: Final = "IMAGE_DIGEST"
 _POSITIONS: Final = frozenset({"QB", "RB", "WR", "TE", "DST"})
+_COMMIT_RE: Final = re.compile(r"^[0-9a-f]{40}$")
+_DIGEST_RE: Final = re.compile(r"^sha256:[0-9a-f]{64}$")
 
 
 @dataclass(frozen=True)
@@ -61,10 +69,14 @@ class PaidClassicCatalogV3:
     sha256: str
     rows: int
     projection_generated_at: str
+    projection_batch_sha256: str
+    projection_derivation_id: str
     schedule_sha256: str
     schedule_games: int
     validated_at: str
     slate_lock_at: str
+    source_commit_sha: str
+    immutable_image_digest: str
 
 
 def _fail(message: str) -> None:
@@ -79,6 +91,21 @@ def _canonical_sha256(value: Any) -> str:
         ensure_ascii=True,
     ).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
+
+
+def validate_paid_classic_runtime_identity_v3(
+    source_commit_sha: object,
+    immutable_image_digest: object,
+) -> tuple[str, str]:
+    """Validate the immutable release coordinates required at money time."""
+
+    commit = str(source_commit_sha or "").strip()
+    digest = str(immutable_image_digest or "").strip()
+    if _COMMIT_RE.fullmatch(commit) is None:
+        _fail("source commit must be the full 40-character commit SHA")
+    if _DIGEST_RE.fullmatch(digest) is None:
+        _fail("image digest must be an immutable sha256 digest")
+    return commit, digest
 
 
 def _integer(value: Any, *, label: str, positive: bool = True) -> int:
@@ -138,6 +165,8 @@ def build_paid_classic_catalog_v3(
     draft_group_id: int,
     season: int,
     week: int,
+    source_commit_sha: str,
+    immutable_image_digest: str,
     validated_at: datetime | pd.Timestamp | None = None,
 ) -> PaidClassicCatalogV3:
     """Build a fail-closed salary/projection/schedule authority join.
@@ -152,6 +181,9 @@ def build_paid_classic_catalog_v3(
     gid = _integer(draft_group_id, label="draft_group_id")
     target_season = _integer(season, label="season")
     target_week = _integer(week, label="week")
+    source_commit, image_digest = validate_paid_classic_runtime_identity_v3(
+        source_commit_sha, immutable_image_digest
+    )
     if validated_at is None:
         _fail("validated_at is required")
     validation_time = _timestamp(validated_at, label="validated_at")
@@ -199,6 +231,7 @@ def build_paid_classic_catalog_v3(
         _fail("projection authority is missing " + ", ".join(sorted(missing)))
 
     projections: dict[int, dict[str, Any]] = {}
+    projection_batch_identity: list[dict[str, Any]] = []
     projection_batch_values: set[int] = set()
     for ordinal, row in enumerate(projection_rows.to_dict("records"), start=1):
         row_season = _integer(
@@ -256,6 +289,18 @@ def build_paid_classic_catalog_v3(
                 label=f"projection row {ordinal} opponent",
             ),
         }
+        projection_batch_identity.append(
+            {
+                "dk_player_id": player_id,
+                "generated_at": generated_at.isoformat(),
+                "season": row_season,
+                "week": row_week,
+                "position": projections[player_id]["position"],
+                "team": team,
+                "opponent": opponent,
+                "proj_points": projection_points,
+            }
+        )
 
     if len(projection_batch_values) != 1:
         _fail("projection authority mixes generated_at batches")
@@ -266,6 +311,8 @@ def build_paid_classic_catalog_v3(
         _fail("projection batch is later than validation time")
     if projection_batch_time >= slate_lock:
         _fail("projection batch reaches or follows slate lock")
+    projection_batch_identity.sort(key=lambda row: int(row["dk_player_id"]))
+    projection_batch_sha256 = _canonical_sha256(projection_batch_identity)
 
     if not isinstance(schedule_rows, pd.DataFrame) or schedule_rows.empty:
         _fail("schedule authority is empty")
@@ -406,6 +453,10 @@ def build_paid_classic_catalog_v3(
         "week": target_week,
         "salary_catalog_sha256": salary_catalog.sha256,
         "projection_generated_at": projection_generated_at,
+        "projection_batch_sha256": projection_batch_sha256,
+        "projection_derivation_id": PAID_CLASSIC_PROJECTION_DERIVATION_ID,
+        "source_commit_sha": source_commit,
+        "immutable_image_digest": image_digest,
         "validated_at": validation_time.isoformat(),
         "slate_lock_at": slate_lock.isoformat(),
         "schedule_sha256": schedule_sha256,
@@ -420,10 +471,14 @@ def build_paid_classic_catalog_v3(
         sha256=_canonical_sha256(identity),
         rows=len(joined),
         projection_generated_at=projection_generated_at,
+        projection_batch_sha256=projection_batch_sha256,
+        projection_derivation_id=PAID_CLASSIC_PROJECTION_DERIVATION_ID,
         schedule_sha256=schedule_sha256,
         schedule_games=len(schedule_identity),
         validated_at=validation_time.isoformat(),
         slate_lock_at=slate_lock.isoformat(),
+        source_commit_sha=source_commit,
+        immutable_image_digest=image_digest,
     )
 
 
@@ -461,6 +516,26 @@ def _claimed_game_matches_authority(token: Any, source: Mapping[str, Any]) -> bo
     return False
 
 
+def paid_classic_projection_derivation_receipt_v3(
+    catalog: PaidClassicCatalogV3,
+    *,
+    transformation: Mapping[str, object] | None = None,
+) -> dict[str, object]:
+    """Return the exact authority/transform claim attached by sim generation."""
+
+    transform = dict(transformation or {"mode": "deterministic-exact"})
+    return {
+        "schema_version": "paid-classic-projection-derivation/v1",
+        "projection_batch_sha256": catalog.projection_batch_sha256,
+        "projection_generated_at": catalog.projection_generated_at,
+        "projection_derivation_id": catalog.projection_derivation_id,
+        "source_commit_sha": catalog.source_commit_sha,
+        "immutable_image_digest": catalog.immutable_image_digest,
+        "transformation": transform,
+        "transformation_sha256": _canonical_sha256(transform),
+    }
+
+
 def _reopen_paid_classic_book_v3(
     lineups: Sequence[Lineup],
     *,
@@ -476,9 +551,15 @@ def _reopen_paid_classic_book_v3(
 
     authoritative_lineups: list[Lineup] = []
     semantic_audits: list[dict[str, object]] = []
+    projection_objectives: list[list[dict[str, object]]] = []
+    bound_derivations: dict[str, dict[str, object]] = {}
+    expected_derivation_base = paid_classic_projection_derivation_receipt_v3(
+        catalog
+    )
     for lineup_ordinal, lineup in enumerate(lineups, start=1):
         authoritative_players: list[dict[str, Any]] = []
         audit_players: list[dict[str, Any]] = []
+        transformed_projection = False
         for player_ordinal, player in enumerate(lineup.players, start=1):
             if not isinstance(player, Mapping):
                 _fail(
@@ -524,6 +605,13 @@ def _reopen_paid_classic_book_v3(
                 _fail(f"{label} projection is invalid")
             if not math.isfinite(projection):
                 _fail(f"{label} projection is invalid")
+            if not math.isclose(
+                projection,
+                float(source["projection"]),
+                rel_tol=0.0,
+                abs_tol=1e-9,
+            ):
+                transformed_projection = True
 
             authoritative = dict(player)
             authoritative.update(
@@ -553,11 +641,59 @@ def _reopen_paid_classic_book_v3(
                     "salary": int(source["salary"]),
                 }
             )
+        derivation = getattr(lineup, "paid_projection_derivation_receipt", None)
+        if derivation is None:
+            if transformed_projection:
+                _fail(
+                    f"lineup {lineup_ordinal} transformed projections are not "
+                    "bound to the certified coherent batch"
+                )
+            normalized_derivation = dict(expected_derivation_base)
+        else:
+            if not isinstance(derivation, Mapping):
+                _fail(
+                    f"lineup {lineup_ordinal} projection derivation receipt "
+                    "is invalid"
+                )
+            base_keys = set(expected_derivation_base) - {
+                "transformation", "transformation_sha256"
+            }
+            transformation = derivation.get("transformation")
+            mode = (
+                transformation.get("mode")
+                if isinstance(transformation, Mapping)
+                else None
+            )
+            if (
+                any(
+                    derivation.get(key) != expected_derivation_base[key]
+                    for key in base_keys
+                )
+                or not isinstance(transformation, Mapping)
+                or mode not in {"deterministic-exact", "simulation", "milp"}
+                or (transformed_projection and mode == "deterministic-exact")
+                or derivation.get("transformation_sha256")
+                != _canonical_sha256(dict(transformation))
+            ):
+                _fail(
+                    f"lineup {lineup_ordinal} transformed projections are not "
+                    "bound to the certified coherent batch"
+                )
+            normalized_derivation = dict(derivation)
+        bound_derivations[
+            _canonical_sha256(normalized_derivation)
+        ] = normalized_derivation
         authoritative_lineup = Lineup(
             players=authoritative_players,
             tag=lineup.tag,
         )
         authoritative_lineups.append(authoritative_lineup)
+        projection_objectives.append(
+            [
+                {"player_id": int(player["id"]), "objective": float(player["proj"])}
+                for player in authoritative_players
+            ]
+        )
         try:
             semantic_audits.append(audit_classic_roster_semantics(audit_players))
         except ValueError as exc:
@@ -565,6 +701,14 @@ def _reopen_paid_classic_book_v3(
                 f"lineup {lineup_ordinal} fails authoritative semantic "
                 f"legality: {exc}"
             )
+
+    if len(bound_derivations) > 1:
+        _fail("selected lineups mix projection transformations")
+    projection_derivation_receipt = (
+        next(iter(bound_derivations.values()))
+        if bound_derivations
+        else expected_derivation_base
+    )
 
     try:
         v2_receipt = validate_paid_classic_book_v2(
@@ -588,6 +732,17 @@ def _reopen_paid_classic_book_v3(
             "authoritative_game_catalog_sha256": catalog.sha256,
             "authoritative_game_catalog_rows": catalog.rows,
             "projection_generated_at": catalog.projection_generated_at,
+            "projection_batch_sha256": catalog.projection_batch_sha256,
+            "projection_derivation_id": catalog.projection_derivation_id,
+            "projection_derivation_receipt": projection_derivation_receipt,
+            "projection_derivation_receipt_sha256": _canonical_sha256(
+                projection_derivation_receipt
+            ),
+            "selected_projection_objectives_sha256": _canonical_sha256(
+                projection_objectives
+            ),
+            "source_commit_sha": catalog.source_commit_sha,
+            "immutable_image_digest": catalog.immutable_image_digest,
             "validated_at": catalog.validated_at,
             "slate_lock_at": catalog.slate_lock_at,
             "schedule_catalog_sha256": catalog.schedule_sha256,
@@ -705,6 +860,10 @@ def fill_paid_entries_csv_v3(
             {
                 "schema_version": "paid-entry-capture/v2-canonical-game",
                 "authoritative_game_catalog_sha256": catalog.sha256,
+                "projection_batch_sha256": catalog.projection_batch_sha256,
+                "projection_derivation_id": catalog.projection_derivation_id,
+                "source_commit_sha": catalog.source_commit_sha,
+                "immutable_image_digest": catalog.immutable_image_digest,
                 "canonical_game_policy_id": CANONICAL_GAME_POLICY_ID,
                 "paid_export_receipt_sha256": export_receipt[
                     "export_receipt_sha256"
@@ -718,10 +877,15 @@ def fill_paid_entries_csv_v3(
 __all__ = [
     "PAID_CLASSIC_BOUNDARY_ID",
     "PAID_CLASSIC_GAME_CATALOG_SCHEMA",
+    "PAID_CLASSIC_IMAGE_DIGEST_ENV",
+    "PAID_CLASSIC_PROJECTION_DERIVATION_ID",
+    "PAID_CLASSIC_SOURCE_COMMIT_ENV",
     "PaidClassicCatalogV3",
     "build_paid_classic_catalog_v3",
     "fill_paid_entries_csv_v3",
     "paid_entry_count_v3",
+    "paid_classic_projection_derivation_receipt_v3",
     "to_paid_dk_csv_v3",
     "validate_paid_classic_book_v3",
+    "validate_paid_classic_runtime_identity_v3",
 ]

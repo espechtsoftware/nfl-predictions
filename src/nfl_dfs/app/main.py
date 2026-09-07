@@ -42,6 +42,7 @@ from ..optimizer.paid_classic_book_v3 import (
     build_paid_classic_catalog_v3,
     fill_paid_entries_csv_v3,
     paid_entry_count_v3,
+    paid_classic_projection_derivation_receipt_v3,
     to_paid_dk_csv_v3,
 )
 from ..optimizer.construction_presets import (
@@ -2451,13 +2452,40 @@ def _rank_by_confidence(lineups: list, df: pd.DataFrame,
 
 
 def _classic_projections(
-    req: LineupRequest, store: ProjectionStore
+    req: LineupRequest,
+    store: ProjectionStore,
+    *,
+    paid_catalog: PaidClassicCatalogV3 | None = None,
 ) -> tuple[pd.DataFrame, dict[int, int]]:
     """The week's projections plus draftable IDs, restricted to the chosen
     classic slate when the request names one. Slate salaries and draftable
     IDs override the projection row's — both are slate-specific, and a CSV
     with another slate's draftable IDs is a CSV DK rejects."""
-    df = store.projections(req.season, req.week)
+    if paid_catalog is None:
+        df = store.projections(req.season, req.week)
+    else:
+        if (
+            paid_catalog.season != req.season
+            or paid_catalog.week != req.week
+            or paid_catalog.draft_group_id != req.draft_group_id
+        ):
+            raise HTTPException(422, "Paid projection authority context differs")
+        df = pd.DataFrame([
+            {
+                "dk_player_id": int(row["player_id"]),
+                "display_name": str(row["name"]),
+                "position": str(row["pos"]),
+                "team": str(row["team"]),
+                "opponent": str(row["opponent"]),
+                "salary": int(row["salary"]),
+                "proj_points": float(row["projection"]),
+            }
+            for row in paid_catalog.by_player_id.values()
+        ])
+        return df, {
+            int(player_id): int(row["draftable_id"])
+            for player_id, row in paid_catalog.by_player_id.items()
+        }
     if df.empty:
         raise HTTPException(404, f"No projections for {req.season} week {req.week}")
     if req.draft_group_id is None:
@@ -2503,8 +2531,13 @@ def _request_construction_preset(req: LineupRequest):
     )
 
 
-def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
-    df, dk_ids = _classic_projections(req, store)
+def _build_classic(
+    req: LineupRequest,
+    store: ProjectionStore,
+    *,
+    paid_catalog: PaidClassicCatalogV3 | None = None,
+) -> tuple:
+    df, dk_ids = _classic_projections(req, store, paid_catalog=paid_catalog)
     from .. import notes as _notes
 
     entry_policy = req.entry_policy()
@@ -2530,7 +2563,33 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                      if pd.notna(r.dk_player_id) and pd.notna(r.salary)}
                     if req.draft_group_id is not None else None)
         from ..inference.live_lineups import (
-            RoleBeliefUnavailable, build_sim_lineups)
+            LIVE_SIMS_DEFAULT,
+            RoleBeliefUnavailable,
+            build_sim_lineups,
+        )
+        projection_derivation_receipt = (
+            paid_classic_projection_derivation_receipt_v3(
+                paid_catalog,
+                transformation={
+                    "mode": "simulation",
+                    "entry_seed": 42,
+                    "projection_seed_law": str(
+                        policy_env.get("MULTISEED_SEED_PAIRS", "single:42")
+                    ),
+                    "world_count": int(
+                        policy_env.get("LIVE_SIMS", LIVE_SIMS_DEFAULT)
+                    ),
+                    "tail_line": float(req.line()),
+                    "leverage_scale": float(effective_lev_scale),
+                    "model_variant": str(policy.model_variant),
+                    "belief_model_variant": str(policy.role_model_variant),
+                    "model_ensemble": int(policy.model_ensemble),
+                    "construction_preset_receipt": construction.receipt(),
+                    "policy_environment": dict(sorted(policy_env.items())),
+                },
+            )
+            if paid_catalog is not None else None
+        )
         try:
             lineups = build_sim_lineups(
                 req.season, req.week, n_entries=req.n_lineups,
@@ -2544,6 +2603,16 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                 belief_model_variant=policy.role_model_variant,
                 expected_model_k=policy.model_ensemble,
                 policy_env=policy_env,
+                projection_authority=(
+                    {
+                        int(player_id): float(row["projection"])
+                        for player_id, row in paid_catalog.by_player_id.items()
+                    }
+                    if paid_catalog is not None else None
+                ),
+                projection_authority_receipt=(
+                    projection_derivation_receipt
+                ),
                 construction_preset_receipt=construction.receipt())
         except RoleBeliefUnavailable as exc:
             if not policy.role_outage_fallback_allowed:
@@ -2561,6 +2630,31 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
             fallback_env = policy.fallback_environment(
                 os.environ, construction_preset=construction,
             )
+            fallback_projection_derivation_receipt = (
+                paid_classic_projection_derivation_receipt_v3(
+                    paid_catalog,
+                    transformation={
+                        "mode": "simulation",
+                        "entry_seed": 42,
+                        "projection_seed_law": str(
+                            fallback_env.get(
+                                "MULTISEED_SEED_PAIRS", "single:42"
+                            )
+                        ),
+                        "world_count": int(
+                            fallback_env.get("LIVE_SIMS", LIVE_SIMS_DEFAULT)
+                        ),
+                        "tail_line": float(req.line()),
+                        "leverage_scale": float(effective_lev_scale),
+                        "model_variant": str(policy.model_variant),
+                        "belief_model_variant": "",
+                        "model_ensemble": int(policy.model_ensemble),
+                        "construction_preset_receipt": construction.receipt(),
+                        "policy_environment": dict(sorted(fallback_env.items())),
+                    },
+                )
+                if paid_catalog is not None else None
+            )
             try:
                 lineups = build_sim_lineups(
                     req.season, req.week, n_entries=req.n_lineups,
@@ -2572,6 +2666,16 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                     model_variant=policy.model_variant,
                     expected_model_k=policy.model_ensemble,
                     policy_env=fallback_env,
+                    projection_authority=(
+                        {
+                            int(player_id): float(row["projection"])
+                            for player_id, row in paid_catalog.by_player_id.items()
+                        }
+                        if paid_catalog is not None else None
+                    ),
+                    projection_authority_receipt=(
+                        fallback_projection_derivation_receipt
+                    ),
                     construction_preset_receipt=construction.receipt())
             except Exception as fallback_exc:
                 log.exception("CE fallback lineup build also failed")
@@ -2623,8 +2727,25 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
         max_overlap=construction.max_overlap,
         env=construction.optimizer_environment(),
     )
+    milp_projection_derivation_receipt = (
+        paid_classic_projection_derivation_receipt_v3(
+            paid_catalog,
+            transformation={
+                "mode": "milp",
+                "objective": str(req.objective),
+                "leverage_scale": float(effective_lev_scale),
+                "construction_preset_receipt": construction.receipt(),
+                "optimizer_environment": construction.optimizer_environment(),
+            },
+        )
+        if paid_catalog is not None else None
+    )
     for lu in lineups:
         lu.construction_preset_receipt = construction.receipt()
+        if milp_projection_derivation_receipt is not None:
+            lu.paid_projection_derivation_receipt = dict(
+                milp_projection_derivation_receipt
+            )
     if not lineups:
         raise HTTPException(422, "No feasible lineup under the given constraints")
     # Confidence order everywhere (JSON + CSVs): first lineup = strongest
@@ -3354,6 +3475,8 @@ def _paid_classic_catalog_v3(
             draft_group_id=req.draft_group_id,
             season=req.season,
             week=req.week,
+            source_commit_sha=os.environ.get("IMAGE_SOURCE_COMMIT_SHA", ""),
+            immutable_image_digest=os.environ.get("IMAGE_DIGEST", ""),
             validated_at=validated_at,
         )
     except ValueError as exc:
@@ -3383,6 +3506,14 @@ def _paid_classic_headers_v3(receipt: dict) -> dict[str, str]:
         "X-Paid-Book-Canonical-Game-Policy": str(
             receipt["canonical_game_policy_id"]
         ),
+        "X-Paid-Book-Source-Commit": str(receipt["source_commit_sha"]),
+        "X-Paid-Book-Image-Digest": str(receipt["immutable_image_digest"]),
+        "X-Paid-Book-Projection-Batch-SHA256": str(
+            receipt["projection_batch_sha256"]
+        ),
+        "X-Paid-Book-Projection-Derivation": str(
+            receipt["projection_derivation_id"]
+        ),
         "X-Paid-Book-Entries": str(receipt["actual_entries"]),
         "X-Paid-Book-Exact-K": "true",
         "X-Paid-Book-Unique": "true",
@@ -3397,7 +3528,8 @@ def _build_paid_classic_export_v3(
 ) -> tuple[list, list, PaidClassicExport]:
     """Build once, then audit the selection against reopened authorities."""
 
-    lineups, ranked = _build_classic(req, store)
+    catalog = _paid_classic_catalog_v3(req, store)
+    lineups, ranked = _build_classic(req, store, paid_catalog=catalog)
     if len(ranked) != len(lineups) or any(
         row.get("lineup") is not lineup
         for row, lineup in zip(ranked, lineups, strict=False)
@@ -3406,7 +3538,6 @@ def _build_paid_classic_export_v3(
             500,
             "Paid Classic v3 preview order differs from the selected export book.",
         )
-    catalog = _paid_classic_catalog_v3(req, store)
     try:
         exported = to_paid_dk_csv_v3(
             lineups, expected_entries=req.n_lineups, catalog=catalog
@@ -3635,8 +3766,10 @@ def fill_paid_classic_entries_v3(
             422, f"{paid_entries} entries exceeds DK's {MAX_ENTRIES}-row limit"
         )
     build_req = req.model_copy(update={"n_lineups": paid_entries})
-    lineups = _build_classic(build_req, store)[0]
     catalog = _paid_classic_catalog_v3(build_req, store)
+    lineups = _build_classic(
+        build_req, store, paid_catalog=catalog
+    )[0]
     try:
         exported = fill_paid_entries_csv_v3(
             req.entries_csv,

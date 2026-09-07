@@ -34,14 +34,28 @@ GRAPH_SCHEMA_V2: Final = "corpus-retrieval-graph-projection/v2-canonical-game"
 TERMINAL_SCHEMA: Final = "corpus-retrieval-transport-terminal/v1"
 ENABLE_ENV: Final = "CORPUS_RETRIEVAL_NEO4J_ENABLED"
 
-# This module independently re-validates published bytes and deliberately
-# does not import the engine. These counts mirror the engine's versioned
-# suite law (corpus_retrieval_engine._SUITE_STRATEGY_LAW): v1 suites carry
-# exactly four strategies, v2 suites exactly seven. Update both together.
-_SUITE_STRATEGY_COUNTS: Final = frozenset({4, 7})
+# Legacy graph-v1 evidence is shared by the four-strategy suite-v1 and the
+# seven-strategy suite-v2.  Canonical graph-v2 evidence is emitted only by
+# suite-v3 and therefore has exactly seven strategies.  Keep the distinction
+# here: a global ``{4, 7}`` allowance silently admitted a four-strategy body
+# under the canonical schema.
+_LEGACY_STRATEGY_COUNTS: Final = frozenset({4, 7})
+_CANONICAL_V3_STRATEGY_COUNTS: Final = frozenset({7})
 _EVIDENCE_SCHEMA_LAW: Final = {
-    COMPLETION_SCHEMA: (TASK_RESULT_SCHEMA, GRAPH_SCHEMA),
-    COMPLETION_SCHEMA_V2: (TASK_RESULT_SCHEMA_V2, GRAPH_SCHEMA_V2),
+    COMPLETION_SCHEMA: (
+        TASK_RESULT_SCHEMA,
+        GRAPH_SCHEMA,
+        _LEGACY_STRATEGY_COUNTS,
+    ),
+    COMPLETION_SCHEMA_V2: (
+        TASK_RESULT_SCHEMA_V2,
+        GRAPH_SCHEMA_V2,
+        _CANONICAL_V3_STRATEGY_COUNTS,
+    ),
+}
+_TASK_STRATEGY_COUNTS: Final = {
+    TASK_RESULT_SCHEMA: _LEGACY_STRATEGY_COUNTS,
+    TASK_RESULT_SCHEMA_V2: _CANONICAL_V3_STRATEGY_COUNTS,
 }
 
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -378,6 +392,13 @@ def _validate_completion(
     strategy_count = _integer(
         coverage["strategy_count"], label="completion strategy count", minimum=1
     )
+    allowed_strategy_counts = _EVIDENCE_SCHEMA_LAW[
+        str(item["schema_version"])
+    ][2]
+    if strategy_count not in allowed_strategy_counts:
+        raise CorpusRetrievalNeo4jError(
+            "batch completion strategy count differs from its schema"
+        )
     if (
         len(tasks) != task_count
         or coverage["task_strategy_cell_count"] != task_count * strategy_count
@@ -396,7 +417,7 @@ def _validate_completion(
 
 
 def _validate_task_result(
-    raw: bytes, identity: object, *, expected_schema: str = TASK_RESULT_SCHEMA,
+    raw: bytes, identity: object, *, expected_schema: str | None = None,
 ) -> tuple[dict[str, object], dict[str, object]]:
     retained = _bind_body(raw, identity, label="task result")
     item = dict(_mapping(
@@ -411,7 +432,17 @@ def _validate_task_result(
         "strategy_results", "graph_projection_object", "fill_insight_object",
         "licenses", "task_result_sha256",
     }, label="task result")
-    if item["schema_version"] != expected_schema:
+    # Standalone consumers such as the compact-analytics extension accept
+    # either registered task-result generation.  Evidence-chain callers pass
+    # the completion-derived schema explicitly, so a cross-version chain still
+    # fails closed.
+    effective_schema = (
+        item["schema_version"] if expected_schema is None else expected_schema
+    )
+    if item["schema_version"] != effective_schema:
+        raise CorpusRetrievalNeo4jError("task result schema differs")
+    allowed_strategy_counts = _TASK_STRATEGY_COUNTS.get(str(effective_schema))
+    if allowed_strategy_counts is None:
         raise CorpusRetrievalNeo4jError("task result schema differs")
     _validate_self_hash(item, "task_result_sha256", label="task result")
     coverage = _mapping(item["coverage"], label="task result coverage")
@@ -429,12 +460,15 @@ def _validate_task_result(
     strategy_count = _integer(
         coverage["strategy_count"], label="strategy count", minimum=1
     )
+    if strategy_count not in allowed_strategy_counts:
+        raise CorpusRetrievalNeo4jError(
+            "task result strategy count differs from its schema"
+        )
     if (
         coverage["source_block_count"] != 5
         or world_count != 50_000
         or coverage["lineup_world_score_count"] != lineup_count * world_count
         or coverage["every_unique_lineup_scored_in_every_world"] is not True
-        or strategy_count not in _SUITE_STRATEGY_COUNTS
         or coverage["exact_budget_per_strategy"] != 80
         or coverage["all_strategies_exact_budget"] is not True
     ):
@@ -620,6 +654,13 @@ def _validate_terminal(
         or item["task_id"] != task_result["task_id"]
     ):
         raise CorpusRetrievalNeo4jError("terminal receipt evidence binding differs")
+    if any(
+        item[key] != completion[key] or item[key] != task_result[key]
+        for key in ("suite_manifest_identity", "snapshot_manifest_identity")
+    ):
+        raise CorpusRetrievalNeo4jError(
+            "terminal receipt manifest identity binding differs"
+        )
     execution = _mapping(item["execution"], label="terminal execution")
     result_execution = _mapping(task_result["execution"], label="task execution")
     if (
@@ -653,6 +694,108 @@ def _validate_terminal(
     ):
         raise CorpusRetrievalNeo4jError("terminal inventory omits accepted objects")
     return item, retained
+
+
+ObjectReader = Callable[[Mapping[str, object]], bytes]
+
+
+def _read_authenticated_object(
+    value: object,
+    *,
+    read_object: ObjectReader,
+    label: str,
+) -> bytes:
+    identity = _identity(value, label=f"{label} identity")
+    try:
+        raw = read_object(identity)
+    except CorpusRetrievalNeo4jError:
+        raise
+    except Exception as exc:
+        raise CorpusRetrievalNeo4jError(
+            f"{label} exact object read failed"
+        ) from exc
+    if type(raw) is not bytes:
+        raise CorpusRetrievalNeo4jError(f"{label} exact object read is not bytes")
+    _bind_body(raw, identity, label=label)
+    return raw
+
+
+def _validate_canonical_v3_semantic_replay(
+    *,
+    terminal: Mapping[str, object],
+    task_result: Mapping[str, object],
+    task_result_identity: Mapping[str, object],
+    task_result_raw: bytes,
+    read_object: ObjectReader | None,
+) -> None:
+    """Reconstruct graph-v2 from its generation-pinned v3 evidence.
+
+    Structural node counts and existing edge endpoints cannot authenticate
+    candidate properties or topology.  The v3 engine's public validator
+    reopens every exact sidecar and rebuilds the analytical graph from the
+    suite, snapshot, lineup table, score/event matrices, and strategy rows.
+    ``replay=False`` skips the source-world replay but retains this complete
+    analytical and graph reconstruction.
+    """
+
+    if read_object is None:
+        raise CorpusRetrievalNeo4jError(
+            "canonical graph-v2 requires an authenticated exact-object reader"
+        )
+    try:
+        from nfl_dfs.research import corpus_retrieval_engine_v3 as engine_v3
+
+        suite_identity = _identity(
+            terminal["suite_manifest_identity"], label="suite manifest identity"
+        )
+        snapshot_identity = _identity(
+            terminal["snapshot_manifest_identity"],
+            label="snapshot manifest identity",
+        )
+        suite_raw = _read_authenticated_object(
+            suite_identity,
+            read_object=read_object,
+            label="suite manifest",
+        )
+        snapshot_raw = _read_authenticated_object(
+            snapshot_identity,
+            read_object=read_object,
+            label="snapshot manifest",
+        )
+
+        def bound_reader(value: Mapping[str, object]) -> bytes:
+            return _read_authenticated_object(
+                value,
+                read_object=read_object,
+                label="canonical v3 evidence object",
+            )
+
+        replayed = engine_v3.validate_retrieval_task_result(
+            published_result={
+                "authority": dict(task_result),
+                "object_identity": dict(task_result_identity),
+            },
+            suite_manifest=engine_v3.parse_canonical_json_bytes(
+                suite_raw, label="Neo4j canonical v3 suite manifest"
+            ),
+            suite_manifest_identity=suite_identity,
+            snapshot_manifest=engine_v3.parse_canonical_json_bytes(
+                snapshot_raw, label="Neo4j canonical v3 snapshot manifest"
+            ),
+            snapshot_manifest_identity=snapshot_identity,
+            read_object=bound_reader,
+            replay=False,
+        )
+    except CorpusRetrievalNeo4jError:
+        raise
+    except Exception as exc:
+        raise CorpusRetrievalNeo4jError(
+            "canonical graph-v2 semantic replay differs"
+        ) from exc
+    if canonical_json_bytes(replayed) != task_result_raw:
+        raise CorpusRetrievalNeo4jError(
+            "canonical graph-v2 task authority semantic replay differs"
+        )
 
 
 def _authority_node(
@@ -730,6 +873,7 @@ def build_load_plan(
     batch_completion_raw: bytes,
     task_result_raw: bytes,
     graph_projection_raw: bytes,
+    read_object: ObjectReader | None = None,
 ) -> Neo4jLoadPlan:
     """Validate an accepted evidence chain and construct an immutable plan."""
     completion_identity_hint = _mapping(
@@ -747,7 +891,7 @@ def build_load_plan(
     completion, completion_identity = _validate_completion(
         batch_completion_raw, completion_identity_hint
     )
-    task_schema, graph_schema = _EVIDENCE_SCHEMA_LAW[
+    task_schema, graph_schema, _ = _EVIDENCE_SCHEMA_LAW[
         str(completion["schema_version"])
     ]
     task_result, task_result_identity = _validate_task_result(
@@ -767,6 +911,14 @@ def build_load_plan(
         task_result=task_result,
         task_result_identity=task_result_identity,
     )
+    if graph_schema == GRAPH_SCHEMA_V2:
+        _validate_canonical_v3_semantic_replay(
+            terminal=terminal,
+            task_result=task_result,
+            task_result_identity=task_result_identity,
+            task_result_raw=task_result_raw,
+            read_object=read_object,
+        )
 
     task_rows = _sequence(completion["task_results"], label="completion task rows")
     matching = [

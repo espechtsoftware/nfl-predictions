@@ -303,6 +303,8 @@ def build_week1_operating_book_export_v2(
     projection_rows: object,
     schedule_rows: object,
     validated_at: object,
+    source_commit_sha: str,
+    immutable_image_digest: str,
 ) -> dict[str, object]:
     """Versioned live successor with an independent semantic-game audit.
 
@@ -323,6 +325,8 @@ def build_week1_operating_book_export_v2(
             draft_group_id=int(WEEK1_DRAFT_GROUP_ID),
             season=WEEK1_SEASON,
             week=WEEK1_WEEK,
+            source_commit_sha=source_commit_sha,
+            immutable_image_digest=immutable_image_digest,
             validated_at=validated_at,
         )
     except ValueError as exc:
@@ -393,6 +397,10 @@ def build_week1_operating_book_export_v2(
         "paid_classic_receipt_sha256": paid_receipt["receipt_sha256"],
         "paid_classic_catalog_sha256": catalog.sha256,
         "projection_generated_at": catalog.projection_generated_at,
+        "projection_batch_sha256": catalog.projection_batch_sha256,
+        "projection_derivation_id": catalog.projection_derivation_id,
+        "source_commit_sha": catalog.source_commit_sha,
+        "immutable_image_digest": catalog.immutable_image_digest,
         "authority_validated_at": catalog.validated_at,
         "slate_lock_at": catalog.slate_lock_at,
         "one_coherent_prelock_projection_batch": True,

@@ -986,9 +986,10 @@ def _preflight_paths(binding: Mapping[str, object]) -> dict[str, str]:
         "execution_name_ledger_uri": (
             f"{prefix}governance/task-{index:04d}-execution-name.json"
         ),
-        "terminal_receipt_uri": (
-            f"{prefix}governance/task-{index:04d}-terminal.json"
-        ),
+        # One task per transport prefix.  This is the canonical terminal path
+        # consumed by the authenticated Neo4j loader; producer and consumer
+        # must not maintain divergent aliases for the same authority object.
+        "terminal_receipt_uri": f"{prefix}governance/terminal-receipt.json",
         "completion_uri": f"{prefix}governance/completion.json",
     }
 

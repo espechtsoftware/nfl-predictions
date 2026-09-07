@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from hashlib import sha256
+import importlib.util
 from pathlib import Path
 import re
 from typing import Any
@@ -11,6 +12,7 @@ import pytest
 from nfl_dfs.research import corpus_retrieval_neo4j as projection
 from nfl_dfs.research import corpus_neo4j_extensions as extensions
 from scripts import load_corpus_retrieval_neo4j as cli
+from scripts import run_corpus_retrieval_transport as transport_producer
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -436,13 +438,240 @@ def _bundle(
 
 
 def _plan(bundle: dict[str, Any]) -> projection.Neo4jLoadPlan:
-    return projection.build_load_plan(**{
+    values = {
         key: bundle[key]
         for key in (
             "terminal_receipt_raw", "terminal_receipt_identity",
             "batch_completion_raw", "task_result_raw", "graph_projection_raw",
         )
+    }
+    if "read_object" in bundle:
+        values["read_object"] = bundle["read_object"]
+    return projection.build_load_plan(**values)
+
+
+def _canonical_v3_bundle() -> dict[str, Any]:
+    """Build genuine v3 evidence plus the terminal wrapper Neo4j consumes."""
+
+    from nfl_dfs.research import corpus_retrieval_engine_v3 as engine_v3
+
+    source = ROOT / "tests/test_corpus_retrieval_engine.py"
+    spec = importlib.util.spec_from_file_location(
+        "_neo4j_canonical_v3_fixture_source", source
+    )
+    assert spec is not None and spec.loader is not None
+    fixtures = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(fixtures)
+    fixtures.retrieval = engine_v3
+    run = fixtures._build_completed_run(
+        suite_schema=engine_v3.SUITE_SCHEMA_V3,
+        strategies=engine_v3.frozen_retrieval_strategies_v2(80),
+        run_id="fixture-neo4j-retrieval-v3",
+    )
+    store = run["store"]
+    authority = deepcopy(run["published"]["authority"])
+    authority.pop("task_result_sha256")
+    authority["execution"] = {
+        **authority["execution"],
+        "mode": "cloud-run-task",
+    }
+    authority = _self_hash(authority, "task_result_sha256")
+    task_result_raw = engine_v3.canonical_json_bytes(authority)
+    task_result_identity = store.add(
+        str(run["suite"]["tasks"][0]["result_uri"]), task_result_raw
+    )
+    published = {
+        "authority": authority,
+        "object_identity": task_result_identity,
+    }
+    completion = engine_v3.build_retrieval_batch_completion(
+        suite_manifest=run["suite"],
+        suite_manifest_identity=run["suite_identity"],
+        snapshot_manifest=run["snapshot"],
+        snapshot_manifest_identity=run["snapshot_identity"],
+        published_results=[published],
+        read_object=store.read,
+    )
+    completion_raw = engine_v3.canonical_json_bytes(completion)
+    completion_identity = store.add(
+        f"{run['suite']['output_prefix']}governance/completion-v2.json",
+        completion_raw,
+    )
+    graph_receipt = next(
+        row for row in authority["sidecars"] if row["role"] == "graph-projection"
+    )
+    graph_identity = graph_receipt["object_identity"]
+    graph_raw = store.read(graph_identity)
+    inventory_identities = [
+        completion_identity,
+        task_result_identity,
+        *(row["object_identity"] for row in authority["sidecars"]),
+    ]
+    inventory = sorted(
+        (
+            {
+                "uri": row["uri"],
+                "generation": row["generation"],
+                "bytes": row["bytes"],
+            }
+            for row in inventory_identities
+        ),
+        key=lambda row: (row["uri"], row["generation"]),
+    )
+    terminal = _self_hash({
+        "schema_version": projection.TERMINAL_SCHEMA,
+        "finished_at_utc": "2026-09-07T12:00:00Z",
+        "execution_contract": _placeholder_identity("v3/contract.json", 1001),
+        "prefix_claim": _placeholder_identity("v3/claim.json", 1002),
+        "runtime_iam_evidence": _placeholder_identity("v3/iam.json", 1003),
+        "launch_intent": _placeholder_identity("v3/intent.json", 1004),
+        "launch_ledger": _placeholder_identity("v3/launch.json", 1005),
+        "execution_name_ledger": _placeholder_identity("v3/name.json", 1006),
+        "execution": {
+            "execution_id": authority["execution"]["execution_id"],
+            "execution_name": authority["execution"]["execution_name"],
+        },
+        "suite_manifest_identity": run["suite_identity"],
+        "snapshot_manifest_identity": run["snapshot_identity"],
+        "task_index": 0,
+        "task_id": authority["task_id"],
+        "result_object": task_result_identity,
+        "task_result_sha256": authority["task_result_sha256"],
+        "batch_completion": completion_identity,
+        "batch_completion_sha256": completion["batch_completion_sha256"],
+        "post_terminal_job": {"name": "parked-job", "uid": "fixed"},
+        "output_inventory_before_terminal": inventory,
+        "output_inventory_before_terminal_sha256": projection.canonical_sha256(
+            inventory
+        ),
+        "one_execution": True,
+        "attempt_zero": True,
+        "retry_count": 0,
+        "generation_pinned_replay": True,
+        "successful_deployment_remains_parked": True,
+        "uses_realized_outcomes": False,
+        "bigquery_access_licensed": False,
+        "corpus_fill_licensed": False,
+        "live_policy_access_licensed": False,
+        "production_change_licensed": False,
+    }, "terminal_receipt_sha256")
+    terminal_raw = projection.canonical_json_bytes(terminal)
+    producer_paths = transport_producer._preflight_paths({
+        "output_prefix": run["suite"]["output_prefix"],
+        "task_index": authority["task_index"],
     })
+    terminal_identity = store.add(
+        producer_paths["terminal_receipt_uri"], terminal_raw
+    )
+    return {
+        "terminal_receipt_raw": terminal_raw,
+        "terminal_receipt_identity": terminal_identity,
+        "batch_completion_raw": completion_raw,
+        "task_result_raw": task_result_raw,
+        "graph_projection_raw": graph_raw,
+        "read_object": store.read,
+        "store": store,
+        "run": run,
+    }
+
+
+@pytest.fixture(scope="module")
+def canonical_v3_bundle() -> dict[str, Any]:
+    return _canonical_v3_bundle()
+
+
+def _rebind_canonical_v3_graph(
+    bundle: dict[str, Any], graph: dict[str, Any],
+) -> dict[str, Any]:
+    """Keep the whole synthetic envelope hash-consistent after graph drift."""
+
+    store = bundle["store"]
+    graph.pop("graph_projection_sha256", None)
+    graph = _self_hash(graph, "graph_projection_sha256")
+    graph_raw = projection.canonical_json_bytes(graph)
+    task_result = projection.parse_canonical_json_bytes(
+        bundle["task_result_raw"], label="v3 task result"
+    )
+    assert isinstance(task_result, dict)
+    graph_sidecar = next(
+        row for row in task_result["sidecars"] if row["role"] == "graph-projection"
+    )
+    graph_identity = store.add(
+        str(graph_sidecar["object_identity"]["uri"]), graph_raw
+    )
+    graph_sidecar["object_identity"] = graph_identity
+    graph_sidecar["semantic"] = {
+        "schema_version": projection.GRAPH_SCHEMA_V2,
+        "canonical_json_sha256": graph_identity["sha256"],
+    }
+    task_result["graph_projection_object"] = graph_identity
+    task_result.pop("task_result_sha256")
+    task_result = _self_hash(task_result, "task_result_sha256")
+    task_result_raw = projection.canonical_json_bytes(task_result)
+    old_terminal = projection.parse_canonical_json_bytes(
+        bundle["terminal_receipt_raw"], label="v3 terminal"
+    )
+    assert isinstance(old_terminal, dict)
+    task_result_identity = store.add(
+        str(old_terminal["result_object"]["uri"]), task_result_raw
+    )
+
+    completion = projection.parse_canonical_json_bytes(
+        bundle["batch_completion_raw"], label="v3 completion"
+    )
+    assert isinstance(completion, dict)
+    completion["task_results"][0]["task_result_sha256"] = task_result[
+        "task_result_sha256"
+    ]
+    completion["task_results"][0]["task_result_object"] = task_result_identity
+    completion.pop("batch_completion_sha256")
+    completion = _self_hash(completion, "batch_completion_sha256")
+    completion_raw = projection.canonical_json_bytes(completion)
+    completion_identity = store.add(
+        str(old_terminal["batch_completion"]["uri"]), completion_raw
+    )
+
+    identities = [
+        completion_identity,
+        task_result_identity,
+        *(row["object_identity"] for row in task_result["sidecars"]),
+    ]
+    inventory = sorted(
+        (
+            {
+                "uri": row["uri"],
+                "generation": row["generation"],
+                "bytes": row["bytes"],
+            }
+            for row in identities
+        ),
+        key=lambda row: (row["uri"], row["generation"]),
+    )
+    terminal = deepcopy(old_terminal)
+    terminal.update({
+        "result_object": task_result_identity,
+        "task_result_sha256": task_result["task_result_sha256"],
+        "batch_completion": completion_identity,
+        "batch_completion_sha256": completion["batch_completion_sha256"],
+        "output_inventory_before_terminal": inventory,
+        "output_inventory_before_terminal_sha256": projection.canonical_sha256(
+            inventory
+        ),
+    })
+    terminal.pop("terminal_receipt_sha256")
+    terminal = _self_hash(terminal, "terminal_receipt_sha256")
+    terminal_raw = projection.canonical_json_bytes(terminal)
+    terminal_identity = store.add(
+        str(bundle["terminal_receipt_identity"]["uri"]), terminal_raw
+    )
+    return {
+        "terminal_receipt_raw": terminal_raw,
+        "terminal_receipt_identity": terminal_identity,
+        "batch_completion_raw": completion_raw,
+        "task_result_raw": task_result_raw,
+        "graph_projection_raw": graph_raw,
+        "read_object": store.read,
+    }
 
 
 def _parametric_bundle(task_index: int = 0) -> dict[str, Any]:
@@ -774,10 +1003,66 @@ def test_builds_receipt_bound_pointer_only_plan() -> None:
     assert plan.terminal_receipt_identity["sha256"]
 
 
-def test_builds_full_canonical_v3_evidence_chain_plan() -> None:
-    plan = _plan(_bundle(evidence_v2=True))
-    assert plan.run_id == "20260821-retrieval-fixture-v1"
+def test_canonical_v3_rejects_four_strategy_chain() -> None:
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="completion strategy count differs",
+    ):
+        _plan(_bundle(evidence_v2=True))
+
+
+def test_builds_full_canonical_v3_evidence_chain_plan(
+    canonical_v3_bundle: dict[str, Any],
+) -> None:
+    plan = _plan(canonical_v3_bundle)
+    assert plan.run_id == "fixture-neo4j-retrieval-v3"
     assert plan.summary()["large_world_bodies_stored"] is False
+    assert sum(
+        row["kind"] == "RetrievalStrategyResult" for row in plan.nodes
+    ) == 7
+
+
+def test_canonical_v3_requires_authenticated_semantic_evidence(
+    canonical_v3_bundle: dict[str, Any],
+) -> None:
+    without_reader = {
+        key: value
+        for key, value in canonical_v3_bundle.items()
+        if key in {
+            "terminal_receipt_raw",
+            "terminal_receipt_identity",
+            "batch_completion_raw",
+            "task_result_raw",
+            "graph_projection_raw",
+        }
+    }
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="authenticated exact-object reader",
+    ):
+        _plan(without_reader)
+
+
+@pytest.mark.parametrize("corruption", ["task-property", "selected-topology"])
+def test_canonical_v3_rejects_rehashed_semantic_graph_drift(
+    canonical_v3_bundle: dict[str, Any], corruption: str,
+) -> None:
+    graph = projection.parse_canonical_json_bytes(
+        canonical_v3_bundle["graph_projection_raw"], label="canonical v3 graph"
+    )
+    assert isinstance(graph, dict)
+    if corruption == "task-property":
+        task = next(row for row in graph["nodes"] if row["kind"] == "RetrievalTask")
+        task["properties"]["heldout_content_is_descriptive_only"] = False
+    else:
+        selected = next(row for row in graph["edges"] if row["type"] == "SELECTED")
+        selected["properties"]["selection_rank"] += 1
+    changed = _rebind_canonical_v3_graph(canonical_v3_bundle, graph)
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="canonical graph-v2 semantic replay differs",
+    ):
+        _plan(changed)
 
 
 def test_rejects_incomplete_completion_and_unsafe_result() -> None:

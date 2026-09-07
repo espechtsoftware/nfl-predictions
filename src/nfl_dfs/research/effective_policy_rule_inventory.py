@@ -127,16 +127,17 @@ V7_SOURCE_SET_ID = (
     "adopted-classic-policy-20260907-canonical-game-v7"
 )
 V7_CLASSIFIED_INPUT_PROJECTION_SHA256 = (
-    "e15caf29d3d4be6caa1c323e5f9e8cb8f93177aaec4f933f487886cfafb7da8d"
+    "76cc09d86dc9d5be15b1aa6dfd50d261137a262a689713093631d350ae68d644"
 )
-V7_DIRECT_INPUT_READ_SITE_COUNT = 280
+V7_DIRECT_INPUT_READ_SITE_COUNT = 288
+V7_CLASSIFIED_INPUT_KEY_COUNT = 132
 V7_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
     **V6_FROZEN_SOURCE_SHA256,
     "src/nfl_dfs/app/main.py": (
-        "e97881be9522c218404ad8e52275b0c4bade7d46132d663ea11a02545bfbf225"
+        "09a0a95952f51a338ebaf717af645340b365a97e4c87940d5d662ec442e0ea5f"
     ),
     "src/nfl_dfs/app/week1_operating_book_api.py": (
-        "d207f76578ede8f42b56321178f35d8bafbcd52f656c96bba8eb0db198babdf0"
+        "51c9b5256184d95122dfcef74da8fd166a86466e96097132cff277f7a537822d"
     ),
     "src/nfl_dfs/backtest/engine.py": (
         "03c7e70e4f917f0918dcc38d6b4c02f9abfe25d0ec323a5c05611ca594cbf1ae"
@@ -148,13 +149,13 @@ V7_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
         "29261bd6fec48205279a9a57ab94182554ca62412265f61a6299652d9c6552fe"
     ),
     "src/nfl_dfs/inference/live_lineups.py": (
-        "d4365aa824234f3f9c46d549e0b198700902298396cc5cbe1a8de76025d703f6"
+        "fc86f235cc87e4a91478fff51d8fa55dc0fcfbeeb2457ce2a9e590bb5edfd508"
     ),
     "src/nfl_dfs/inference/run_projections.py": (
         "2db965e57ad3c756ff68f477d380fbc8d9fcae24ae735bae50fa15eedfebab72"
     ),
     "src/nfl_dfs/inference/week1_operating_book_export.py": (
-        "9b97f4678cbe2ee2839b28bd2a4c4e15c6c3a36c71ac6436e27af6ec3a994206"
+        "062cd01b883e9773b794f8d15069e23c4852609796c8e793afcd433e4ebe4ec5"
     ),
     "src/nfl_dfs/optimizer/lineup.py": (
         "b8d55c3acc2795281f6ae11270b58e85c24d1917c480c0a93f1123d40fed5cb0"
@@ -251,6 +252,8 @@ INFRASTRUCTURE_INPUT_KEYS = frozenset({
     "CAND_LOG_TABLE",
     "CODE_SHA",
     "GCP_PROJECT",
+    "IMAGE_DIGEST",
+    "IMAGE_SOURCE_COMMIT_SHA",
     "IMAGE_URI",
     "PANEL_RUN_ID",
     "PROSPECTIVE_SHADOW_ID",
@@ -543,7 +546,7 @@ _V7_SOURCE_SET = _SourceSetContract(
     classified_input_projection_sha256=(
         V7_CLASSIFIED_INPUT_PROJECTION_SHA256
     ),
-    classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
+    classified_input_key_count=V7_CLASSIFIED_INPUT_KEY_COUNT,
     direct_input_read_site_count=V7_DIRECT_INPUT_READ_SITE_COUNT,
     frozen_source_sha256=tuple(sorted(V7_FROZEN_SOURCE_SHA256.items())),
     source_roles=tuple(sorted(V7_SOURCE_ROLES.items())),
@@ -2221,6 +2224,7 @@ __all__ = [
     "V6_FROZEN_SOURCE_SHA256",
     "V6_SOURCE_SET_ID",
     "V7_CLASSIFIED_INPUT_PROJECTION_SHA256",
+    "V7_CLASSIFIED_INPUT_KEY_COUNT",
     "V7_DIRECT_INPUT_READ_SITE_COUNT",
     "V7_FROZEN_SOURCE_SHA256",
     "V7_SOURCE_ROLES",
