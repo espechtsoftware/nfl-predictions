@@ -22,6 +22,27 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 experiment 081 R7 held; exact-type R8 requested
+
+- Independent review of exact R7
+  `43576d51aaea8ce2b45bc2983051e4b646cad722` confirmed its central
+  producer/consumer/CLI adjudication validator, four wrapper-derived hashes,
+  frozen gate-script digest, recomputed canonical base digest, exact field
+  censuses, and both `HOLD_REGISTRY_V2` statuses. Its returned suite passed
+  52/52 in 87.73 seconds and static checks were clean.
+- One P0 remains: ordinary Python equality is not type-exact. Production
+  reproduced accepted coordinated substitutions including Boolean provider
+  counts, integer gate/checkout booleans, integral-float bank/slate counts,
+  Boolean task counts, and integer terminal/consumable/outcome flags. The
+  restated gate caused `seal_document()` to emit `consumable: true`, and
+  `validate_seal()` accepted it.
+- R7 is HOLD. R8 is limited to exact scalar/nested types at the base gate,
+  adjudication and terminal seal, shared by producer/consumer/CLI, plus direct
+  and command-path bool/int and int/float substitution negatives. No identity,
+  science, resource, build, cloud, outcome or score change is authorized. The
+  durable lab note is
+  `handoffs/PRODUCTION-TO-LAB-EXPERIMENT081-R7-HOLD-AND-R8-EXACT-TYPE-GO-2026-09-07.md`.
+
 ### 2026-09-07 CP-4 R14 held; narrow R15 independent-column authority requested
 
 - Independent review covered R14 code
