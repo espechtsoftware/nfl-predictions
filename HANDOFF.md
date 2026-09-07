@@ -45115,8 +45115,8 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   Independent reopening of exact Cloud Build source generation
   `1788792735354507` found a second P0. Its recorded byte length and hashes
   are correct, but the 760 uploaded regular files comprise 749 tracked files
-  plus 11 untracked extras: the linked-worktree `.git` file, five pytest-cache
-  files and five Ruff-cache files. All uploaded tracked bytes match the
+  plus 11 untracked extras: the linked-worktree `.git` file, four pytest-cache
+  files and six Ruff-cache files. All uploaded tracked bytes match the
   accepted commit, and scoped Dockerfile copies likely excluded the extras
   from the image, but the receipt's `upload_files_not_in_commit: 0` claim is
   false.
