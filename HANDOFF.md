@@ -53,9 +53,25 @@ agent or developer:
   recomputation, complete boom-row/population/duplicate-target reconciliation,
   and contextual duplicate-row authentication. It may proceed in parallel
   with the sidecar generation and must not alter the scientific treatment.
+- Lab generated `cp4d800-fb1` exactly once from clean detached source
+  `14aa153`, exit 0. The accepted sidecar is committed at
+  `ec2a16679d9fd83a05293538d23e2d2f20284550`, path
+  `results/cp4_frame_binding_2023-w18-b740.json`, 93,821 bytes, SHA-256
+  `31bb967a8a9c2e806cf6537be618de711af1ecb2430b633c61062c0d5f74f269`.
+  Production independently reproduced all eleven transcript identities,
+  strict sidecar validation, exact source/attempt, zero pre/post processes,
+  one authority reopen, and no outcome/build/cloud/binding action. A bound
+  copy with the exact sidecar values passed both binding validation and the
+  tracked-HEAD loader.
+- Exact binding-only CODE GO is on lab main at
+  `dc937e8d991cb4e167d1aa23e1107dfd64831c7b` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-FB1-ACCEPT-AND-BINDING-CODE-GO-2026-09-07.md`.
+  The binding and R6 repair must remain independently reviewable and then be
+  composed without changing the accepted sidecar bytes. No CP-4 mechanics
+  invocation is authorized yet.
 - PREREG-073 remains terminal `FAIL_BOTH_CLOSE / NONE`; CP-1 `a4` remains
   consumed and superseded. The next action is to review the returned CP-4
-  sidecar and R6 repair independently, while reviewing the forthcoming CP-3
+  binding and R6 repair independently, while reviewing the forthcoming CP-3
   one-bank efficacy preparation package.
 
 ### 2026-09-07 CP-3 M-prime accepted; one-shot a2 mechanics cleared
