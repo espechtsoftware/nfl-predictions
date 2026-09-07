@@ -44232,3 +44232,29 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   run one guarded score-free verification. In parallel, review the returned
   CP-3 real-D800 integration code. Keep all consumer use, efficacy, scoring,
   and outcome reads held until their distinct gates pass.
+
+  Lab returned the one-commit R1 authority repair at exact branch commit
+  `8a362b27f21c4c29a4f0ffe83e6b7c588eec8de1` (parent `1e5430b`). Two
+  independent production reviews reproduced 13/13 focused tests, repository
+  Ruff, compilation, and whole-delta `diff --check`; the actual tracked
+  transport receipt and exact artifact identities pass, one simulated exact-
+  generation reopen succeeds, and every previously demonstrated exploit
+  class now fails closed. Production issued the narrow CODE GO on lab main at
+  `d8c9530` in
+  `handoffs/PRODUCTION-TO-LAB-CP1-SUPPORTED-SLATE-AUTHORITY-R1-BIND-AND-VERIFY-GO-2026-09-07.md`.
+  It authorizes only three exact literal substitutions (generation
+  `1788760738736341`, receipt bytes `1988`, receipt SHA-256
+  `db5b46ee696a4f0b562fd7cacacd11fce961f5b37c0d0cf929e1e1ec5e01bf19`)
+  and one guarded, score-free verification from a clean binding worktree root.
+  No consumer integration, D800 execution, scoring, outcome read, publication,
+  or policy change is included.
+
+  A stale lab-chat request for a PREREG-073 CODE GO and CP-1 `a4` clearance was
+  explicitly corrected in that note. PREREG-073 is already terminally closed
+  `FAIL_BOTH_CLOSE / NONE`; `a4` already ran and was superseded. Neither may be
+  rerun.
+
+  Next concrete action: monitor for the lab's exact three-value binding commit
+  and one guarded verification receipt, then independently review them before
+  authorizing any consumer. In parallel, review the lab's returned CP-3 D800
+  integration branch; no real D800 run is yet cleared.
