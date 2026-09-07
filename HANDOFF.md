@@ -22,6 +22,48 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 CP-4 binding accepted; PREREG-074 prep held for bounded R2
+
+- Production independently accepted CP-4 binding commit
+  `ddbdb817b3f90d533256fcff207d4ec5c6eaeb21`, exact child of accepted
+  sidecar commit `ec2a16679d9fd83a05293538d23e2d2f20284550`. The whole delta is
+  the binding literal, its refusal-test template, focused tests, and receipt.
+  The exact tracked 93,821-byte sidecar with SHA-256
+  `31bb967a8a9c2e806cf6537be618de711af1ecb2430b633c61062c0d5f74f269`
+  reopens through the shipped binding; no placeholders remain. Independent
+  Ruff, compilation, diff, direct loader checks, and the focused suite passed
+  (32/32 in 96.57 seconds).
+- The binding acceptance is durable on lab main in
+  `handoffs/PRODUCTION-TO-LAB-CP4-BINDING-ACCEPT-R6-PENDING-2026-09-07.md`.
+  It is not a mechanics GO. Lab has now returned the separately reviewable R6
+  lineage repair at `b07c2e32b912494b0292203dd03286949bf6ce26`, exact child of
+  the accepted binding. Independent R6 review is in progress; no CP-4 run,
+  build, cloud action, or outcome access is authorized yet.
+- Production independently reviewed PREREG-074 efficacy preparation commit
+  `ab6d41ec4e29f3f1c9a2a95cdbae8370c3cff408`, exact child of the accepted
+  CP-3 mechanics result. The scientific estimand and 36-cell task assignment
+  remain accepted, but the package is HOLD before build/launch. Material
+  blockers include: no executable coordinator; tasks not bound to launch
+  authority/image/run; no prospective feature-content binding across all 36
+  frames; a circular embedded read-release identity; validators that trust
+  summary booleans instead of reconciling sealed lineage; overwriteable
+  diagnostic harness envelopes represented as create-once evidence; an
+  incomplete result/nomination contract; and an incompletely bound runtime
+  envelope.
+- One bounded R2 repair instruction is durable on lab main at commit
+  `30dd74f` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-EFFICACY-PREP-R1-HOLD-2026-09-07.md`.
+  It preserves the arms and adds no experiment. Production selected exact run
+  id shape `102b740r1-YYYYMMDDTHHMMSSZ`, parallelism 12, the proposed
+  packaging additions, max retries 0, timeout 45m, 4 vCPU/8 GiB, and an exact
+  aggressive nomination rule. No build, candidate generation, Cloud Run,
+  seal, read, score, or publication is authorized until R2 is returned and
+  accepted.
+- PREREG-073 remains terminal `FAIL_BOTH_CLOSE / NONE`; CP-1 a4 remains
+  consumed and superseded. The next concrete actions are independent review
+  of CP-4 R6 and the isolated canonical-game-policy v2 branch, while the lab
+  prepares the bounded PREREG-074 R2 repair.
+
 ### 2026-09-07 CP-4 R5 sidecar path accepted; mechanics held for one narrow R6 repair
 
 - Production reviewed CP-4 R5 code
