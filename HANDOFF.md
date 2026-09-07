@@ -76,6 +76,73 @@ agent or developer:
   candidate-only mixed-representation smoke before any selective merge. A
   later explicit decision is required for push, merge, build, deployment,
   cloud execution, outcome access, or policy activation.
+### 2026-09-07 canonical-game v2 repair gate complete (local, unpushed)
+
+- Branch `fix/canonical-game-policy-v2-20260907` now includes the original
+  implementation `0960d49c`, handoff `92a3b916`, and the latest production
+  handoff state through local merge `44328475` (upstream `6f1a48af`). The
+  repair commit is the commit containing this entry. Nothing was pushed,
+  built, deployed, executed in cloud, or used to read outcomes.
+- Repaired the source-authority boundary. Effective-policy v5/v6 remain
+  registered historical identities; v7 now pins the canonical-game helper as
+  its 21st source and validates 65 rules, 280 direct input reads, inventory
+  SHA-256 `6872a6c622c704fd186fc63de70e300aff06cdc33a9bd34b3294bc5ab2937564`,
+  rule-universe SHA-256
+  `f59fdf60c74720e0ded0a5783b050e0b27969d657118bd89047146ec6e464c2f`,
+  source-set SHA-256
+  `d3afc7a5a1ab7b6f0416668a287bb269923ac7ebc328197fb6644c95fb1d91ed`,
+  and classified-input projection SHA-256
+  `8e3fde727ee9772f84deddaf916f351b628159e3ea18fe48d731d5987b5920ae`.
+  Current parametric preparation now requests v7 and publishes the genuine
+  additive evidence-contract v3; the pre-lock lineage current path is an
+  isolated v3/v7 namespace while v2/v6 reopen behavior remains registered.
+- Normalized every active team/opponent comparison covered by this change:
+  DK team cap, QB catcher/bring-back logic, RB-vs-DST, same-team RB rules,
+  minimum/maximum players per physical game, game locks, all-boom
+  conformance, cross-law conformance, and candidate stack features. Indirect
+  participant conflicts, one raw id naming multiple physical games, missing
+  provenance, and non-finite provenance now fail closed. Adversarial alias,
+  mixed-representation, ambiguity, and cap-bypass tests cover those cases.
+- Restored `paid_classic_book_v2.py` byte-for-byte to base `e3e27d84` and
+  moved canonical paid behavior to `paid_classic_book_v3.py`. V3 exact-joins
+  the fresh DK salary slate, one pre-lock projection batch, and the raw
+  regular-season schedule, verifies every selected roster claim, rebuilds the
+  final roster from authority fields, and independently audits semantic DK
+  legality before emitting preview, upload, or entry-fill bytes. V2 routes
+  remain available; the UI and v3 release gate use the successor. Week-1 v1
+  export/API behavior likewise remains available while distinct v2 routes
+  require the projection-backed terminal semantic audit.
+- Restored `corpus_retrieval_engine.py` byte-for-byte to base `e3e27d84`, so
+  its frozen v2 implementation contract passes again. Canonical retrieval is
+  isolated in `corpus_retrieval_engine_v3.py`, with distinct v3 suite,
+  result, completion, lineup-table, graph schemas and non-colliding object
+  names. Historical Neo4j v1 output remains exact; its additive v2 projection
+  uses a distinct namespace/schema and exposes canonical properties.
+  Prospective all-boom and cross-law outputs carry bumped canonical-game
+  version/schema identities rather than masquerading as their predecessors.
+- Validation is green for a 446-test focused/compatibility set spanning
+  optimizer/adversarial parity, app and live routes, paid v2/v3, Week-1
+  v1/v2, v7 inventory, parametric v3 preparation/evidence, pre-lock v2/v3,
+  retrieval v1/v2/v3, Neo4j v1/v2, and both prospective paths. The frozen
+  retrieval-v2 source-identity contract now passes. `compileall`,
+  `git diff --check`, v7 regeneration/validation, paid-v2 source equality,
+  retrieval-v1/v2 source equality, and Ruff on the new standalone helper and
+  successor modules/tests pass.
+- Deliberate residual: 16 tests in the source-authenticated historical
+  composite/roadmap suites fail at their literal upstream-source guard
+  because the shared optimizer callable has intentionally changed. They do
+  not expose a functional regression or touch a frozen artifact; they prove
+  that those frozen experiments cannot be replayed from this new production
+  source identity. Do not remint their hashes. Replay them only from their
+  pinned historical checkout. Repository-wide Ruff also retains unrelated
+  pre-existing lint debt; no claim of a whole-repository Ruff pass is made.
+- Frozen CP-1/CP-3/CP-4 sources, identities, artifacts, launchers, receipts,
+  and cloud state were not edited or invoked. Next concrete action is an
+  independent review of this repair commit, including the paid v3 authority
+  join, v7/v3 routing, namespaced artifacts, and the documented expected
+  historical guard failures. No merge, push, build, deployment, cloud run,
+  outcome access, or money-policy activation is authorized by this entry.
+
 ### 2026-09-07 CP-4 binding accepted; PREREG-074 prep held for bounded R2
 
 - Production independently accepted CP-4 binding commit

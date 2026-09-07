@@ -19,6 +19,7 @@ import pandas as pd
 from ..optimizer.game_identity import (
     CANONICAL_GAME_POLICY_ID,
     canonical_game_counts,
+    normalize_team,
 )
 
 # Bump when a definition changes; reports and models record it so a
@@ -60,10 +61,17 @@ def _stack_shape(pl: pd.DataFrame) -> tuple[int, int]:
     qb = pl[pl.pos == "QB"]
     if qb.empty:
         return 0, 0
-    qb_team = qb.team.iloc[0]
-    qb_opp = qb.opp.iloc[0] if "opp" in pl.columns else None
-    mates = int(((pl.team == qb_team) & (pl.pos.isin(("WR", "TE", "RB")))).sum())
-    bring = int((pl.team == qb_opp).sum()) if qb_opp is not None else 0
+    normalized_teams = pl.team.map(normalize_team)
+    qb_team = normalize_team(qb.team.iloc[0])
+    qb_opp = (
+        normalize_team(qb.opp.iloc[0], label="opponent")
+        if "opp" in pl.columns else None
+    )
+    mates = int((
+        (normalized_teams == qb_team)
+        & (pl.pos.isin(("WR", "TE", "RB")))
+    ).sum())
+    bring = int((normalized_teams == qb_opp).sum()) if qb_opp else 0
     return mates, bring
 
 
@@ -107,8 +115,14 @@ def candidate_aggregates(
         out["div_qb"] = (float(qb.consensus_div.iloc[0])
                          if len(qb) and "consensus_div" in qb else np.nan)
         mates, bring = _stack_shape(pl)
-        qb_team = qb.team.iloc[0] if len(qb) else None
-        stack_rows = pl[(pl.team == qb_team) & (pl.pos != "QB")] if qb_team else pl.iloc[0:0]
+        qb_team = normalize_team(qb.team.iloc[0]) if len(qb) else None
+        stack_rows = (
+            pl[
+                pl.team.map(normalize_team).eq(qb_team)
+                & (pl.pos != "QB")
+            ]
+            if qb_team else pl.iloc[0:0]
+        )
         out["div_stack_sum"] = (float(stack_rows.consensus_div.sum())
                                 if "consensus_div" in stack_rows else np.nan)
     else:

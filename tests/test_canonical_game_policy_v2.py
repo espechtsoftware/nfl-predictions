@@ -6,20 +6,32 @@ from copy import deepcopy
 
 import pytest
 
+from nfl_dfs.backtest.engine import _canonical_game_projection
 from nfl_dfs.optimizer.game_identity import (
     CANONICAL_GAME_POLICY_ID,
     audit_classic_roster_semantics,
     canonical_game_counts,
+    canonical_game_identities,
     player_game_identity,
     resolve_game_lock_key,
 )
-from nfl_dfs.optimizer.lineup import optimize
+from nfl_dfs.optimizer.lineup import StackRules, optimize
 from nfl_dfs.research.candidate_features import candidate_aggregates
-from nfl_dfs.backtest.engine import _canonical_game_projection
 from nfl_dfs.research.corpus_r6_historical_neo4j_slice_v1 import (
     _dk_structural_phenotype,
 )
-from nfl_dfs.research.corpus_retrieval_engine import _lineup_features
+from nfl_dfs.research.corpus_retrieval_engine import (
+    GRAPH_SCHEMA,
+    LINEUP_TABLE_SCHEMA,
+    SUITE_SCHEMA_V2,
+)
+from nfl_dfs.research.corpus_retrieval_engine_v3 import (
+    GRAPH_SCHEMA_V2,
+    LINEUP_TABLE_SCHEMA_V2,
+    SUITE_SCHEMA_V3,
+    _lineup_features_v2,
+    suite_artifact_law,
+)
 
 
 def _player(
@@ -132,8 +144,10 @@ def test_final_boundary_and_candidate_features_agree() -> None:
     )
     catalog = {str(row["id"]): row for row in lineup.players}
     roster = list(catalog)
-    neo4j = _dk_structural_phenotype(roster, catalog)
-    retrieval = _lineup_features(roster, catalog)
+    neo4j = _dk_structural_phenotype(
+        roster, catalog, canonical_game=True
+    )
+    retrieval = _lineup_features_v2(roster, catalog)
     assert neo4j["canonical_distinct_game_count"] == (
         audit["canonical_game_count"]
     )
@@ -149,3 +163,56 @@ def test_final_boundary_and_candidate_features_agree() -> None:
     invalid[0]["opp"] = invalid[0]["team"]
     with pytest.raises(ValueError, match="identical"):
         audit_classic_roster_semantics(invalid)
+
+
+def test_aliases_cannot_bypass_team_cap_or_stack_comparisons() -> None:
+    pool = _pool()
+    for row in pool[:7]:
+        row["team"] = "LAR" if row["team"] == "LA" else row["team"]
+        row["opp"] = "LAR" if row["opp"] == "LA" else row["opp"]
+    pool[0]["team"] = "LA"
+    # A ninth LA/LAR player would make the raw spellings look like two teams,
+    # but the universal cap must count them as the same franchise.
+    aliases = [
+        _player(index, pos, "LA" if index % 2 else "LAR", "SEA", "g", 20)
+        for index, pos in enumerate(
+            ("QB", "RB", "RB", "WR", "WR", "WR", "TE", "TE"),
+            start=100,
+        )
+    ]
+    aliases.append(_player(200, "DST", "LAR", "SEA", "g", 5))
+    assert optimize(aliases, min_games=1) is None
+
+    lineup = optimize(
+        pool,
+        min_games=1,
+        stack=StackRules(qb_stack_min=2, bring_back_min=1),
+    )
+    assert lineup is not None
+
+
+def test_indirect_participant_conflict_and_null_provenance_fail_closed() -> None:
+    indirect = [
+        _player(1, "QB", "A", "B", "g1", 1),
+        _player(2, "WR", "B", "C", "g2", 1),
+        _player(3, "WR", "C", "B", "g2", 1),
+    ]
+    with pytest.raises(ValueError, match="participant maps to multiple games"):
+        canonical_game_identities(indirect)
+
+    poisoned = _pool()
+    poisoned[0]["game_id"] = float("nan")
+    with pytest.raises(ValueError, match="raw game_id provenance is missing"):
+        canonical_game_identities(poisoned)
+
+
+def test_retrieval_v3_uses_distinct_canonical_artifact_contracts() -> None:
+    retained = suite_artifact_law(SUITE_SCHEMA_V2)
+    successor = suite_artifact_law(SUITE_SCHEMA_V3)
+    assert retained["lineup_schema"] == LINEUP_TABLE_SCHEMA
+    assert successor["lineup_schema"] == LINEUP_TABLE_SCHEMA_V2
+    assert retained["graph_schema"] == GRAPH_SCHEMA
+    assert successor["graph_schema"] == GRAPH_SCHEMA_V2
+    assert retained["lineup_path"] != successor["lineup_path"]
+    assert retained["graph_path"] != successor["graph_path"]
+    assert retained["result_name"] != successor["result_name"]

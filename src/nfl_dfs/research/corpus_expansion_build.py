@@ -22,6 +22,7 @@ EXPECTED_CODE_REPOSITORY: Final = (
 EXPANSION_DOCKERFILE: Final = "Dockerfile.corpus-research-expansion"
 
 FOCUSED_TEST_FILES: Final = (
+    "tests/test_canonical_game_policy_v2.py",
     "tests/test_corpus_retrieval_engine.py",
     "tests/test_corpus_retrieval_transport.py",
     "tests/test_corpus_artifact_source_authority.py",
@@ -97,7 +98,7 @@ PARAMETRIC_SMOKE_COMMANDS: Final = (
         "Path(nfl_dfs.__file__).resolve() == package_root / '__init__.py'; "
         "assert Path(i.__file__).resolve() == package_root / "
         "'research/effective_policy_rule_inventory.py'; "
-        "print(i.generate_effective_policy_rule_inventory_v6(root)"
+        "print(i.generate_effective_policy_rule_inventory_v7(root)"
         "['inventory_sha256'])",
     ),
     (

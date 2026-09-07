@@ -61,14 +61,13 @@ def test_load_uses_only_deployment_identity_and_fixed_week1_group(
         calls.append((store, materialization_identity))
         return exact
 
-    def build(*, exact_book, salary_rows, projection_rows):
+    def build(*, exact_book, salary_rows):
         assert exact_book == exact
         assert salary_rows == [{"salary": "authority"}]
-        assert projection_rows == [{"projection": "authority"}]
         return payload
 
     monkeypatch.setattr(api, "read_week1_operating_book_v1", read)
-    monkeypatch.setattr(api, "build_week1_operating_book_export_v2", build)
+    monkeypatch.setattr(api, "build_week1_operating_book_export_v1", build)
     projection_store = ProjectionStore()
     object_store = object()
     assert api.load_week1_operating_book_export(
@@ -77,8 +76,36 @@ def test_load_uses_only_deployment_identity_and_fixed_week1_group(
         environment=ENV,
     ) == payload
     assert projection_store.gids == [151307]
-    assert projection_store.projection_calls == [(2026, 1)]
+    assert projection_store.projection_calls == []
     assert calls == [(object_store, api.materialization_identity_from_environment(ENV))]
+
+
+def test_v2_load_adds_the_fixed_projection_authority(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    exact = {"identity": "exact", "materialization": "book"}
+    payload = {"complete": True, "dk_csv": "QB\r\n"}
+    monkeypatch.setattr(
+        api,
+        "read_week1_operating_book_v1",
+        lambda **_kwargs: exact,
+    )
+
+    def build(*, exact_book, salary_rows, projection_rows):
+        assert exact_book == exact
+        assert salary_rows == [{"salary": "authority"}]
+        assert projection_rows == [{"projection": "authority"}]
+        return payload
+
+    monkeypatch.setattr(api, "build_week1_operating_book_export_v2", build)
+    projection_store = ProjectionStore()
+    assert api.load_week1_operating_book_export_v2(
+        projection_store=projection_store,
+        object_store=object(),
+        environment=ENV,
+    ) == payload
+    assert projection_store.gids == [151307]
+    assert projection_store.projection_calls == [(2026, 1)]
 
 
 def test_canonical_routes_accept_no_build_request_and_share_one_payload(
@@ -103,6 +130,28 @@ def test_canonical_routes_accept_no_build_request_and_share_one_payload(
     assert response.headers["x-week1-export-sha256"] == "b" * 64
 
 
+def test_v2_routes_use_only_the_versioned_semantic_export(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    payload = {
+        "dk_csv": "QB\r\n",
+        "materialization_sha256": "a" * 64,
+        "export_sha256": "b" * 64,
+        "canonical_game_policy_id": "unordered-normalized-team-opponent-v2",
+    }
+    monkeypatch.setattr(
+        main,
+        "load_week1_operating_book_export_v2",
+        lambda *, projection_store: payload,
+    )
+    assert main.week1_operating_book_v2(store=object()) == payload
+    response = main.week1_operating_book_csv_v2(store=object())
+    assert bytes(response.body).decode() == payload["dk_csv"]
+    assert response.headers["x-week1-canonical-game-policy"] == (
+        payload["canonical_game_policy_id"]
+    )
+
+
 def test_canonical_route_fails_503_instead_of_using_generic_builder(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -120,5 +169,5 @@ def test_lineup_page_exposes_canonical_book_visuals_separately() -> None:
     assert "Week 1 canonical operating book" in page
     assert "id='week1sources'" in page
     assert "id='week1exposure'" in page
-    assert "href='/week1/operating-book.csv'" in page
-    assert "fetch('/week1/operating-book')" in page
+    assert "href='/week1/operating-book-v2.csv'" in page
+    assert "fetch('/week1/operating-book-v2')" in page

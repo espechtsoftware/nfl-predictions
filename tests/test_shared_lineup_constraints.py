@@ -604,6 +604,38 @@ _PARITY_MATRIX = (
 )
 
 
+@pytest.mark.parametrize(
+    ("case", "feasible"),
+    (
+        ("flex_rb", True),
+        ("flex_wr", True),
+        ("flex_te", True),
+        ("salary_49000", True),
+        ("salary_50000", True),
+        ("salary_48999_infeasible", False),
+        ("salary_50001_infeasible", False),
+        ("team_eight", True),
+        ("team_nine_infeasible", False),
+    ),
+)
+def test_unrelated_classic_legality_cells_remain_covered(
+    case: str, feasible: bool
+) -> None:
+    """Canonical game repair must not erase salary/flex/team coverage."""
+
+    kwargs = _matrix_kwargs(case, StackRules)
+    kwargs["env"] = {**kwargs["env"], "MIN_GAMES": "1"}
+    direct_problem, direct_roster = _direct_shared_solve(
+        _matrix_pool(case), **kwargs
+    )
+    production = optimize(_matrix_pool(case), **kwargs)
+    assert (pulp.LpStatus[direct_problem.status] == "Optimal") is feasible
+    assert (direct_roster is not None) is feasible
+    assert (production is not None) is feasible
+    if production is not None:
+        assert production.ids == direct_roster
+
+
 def _run_optimizer_with_model_receipt(
     module,
     case: str,

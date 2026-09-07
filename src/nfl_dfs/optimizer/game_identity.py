@@ -9,11 +9,11 @@ field.
 
 from __future__ import annotations
 
+import math
 from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any, Final
-
 
 CANONICAL_GAME_POLICY_ID: Final = "unordered-normalized-team-opponent-v2"
 
@@ -46,8 +46,13 @@ class CanonicalGameIdentity:
 def _required_text(value: object, *, label: str) -> str:
     if value is None:
         raise ValueError(f"{CANONICAL_GAME_POLICY_ID}: {label} is missing")
+    if isinstance(value, float) and not math.isfinite(value):
+        raise ValueError(f"{CANONICAL_GAME_POLICY_ID}: {label} is missing")
     text = str(value).strip()
-    if not text or text.upper() in {"NAN", "NONE", "NULL"}:
+    if not text or text.upper() in {
+        "NAN", "NONE", "NULL", "INF", "+INF", "-INF", "INFINITY",
+        "+INFINITY", "-INFINITY",
+    }:
         raise ValueError(f"{CANONICAL_GAME_POLICY_ID}: {label} is missing")
     return text
 
@@ -77,19 +82,22 @@ def player_game_identity(player: Mapping[str, object]) -> CanonicalGameIdentity:
     opponent = player.get("opp")
     if opponent is None:
         opponent = player.get("opponent")
-    if player.get("opp") is not None and player.get("opponent") is not None:
-        if normalize_team(player["opp"], label="opp") != normalize_team(
-            player["opponent"], label="opponent"
-        ):
-            raise ValueError(
-                f"{CANONICAL_GAME_POLICY_ID}: opp and opponent disagree"
-            )
+    if (
+        player.get("opp") is not None
+        and player.get("opponent") is not None
+        and normalize_team(player["opp"], label="opp")
+        != normalize_team(player["opponent"], label="opponent")
+    ):
+        raise ValueError(
+            f"{CANONICAL_GAME_POLICY_ID}: opp and opponent disagree"
+        )
     team = normalize_team(player.get("team"), label="team")
     opp = normalize_team(opponent, label="opponent")
     raw = player.get("game_id")
-    raw_text = None if raw is None else str(raw).strip()
-    if raw_text is not None and not raw_text:
-        raw_text = None
+    raw_text = (
+        None if raw is None
+        else _required_text(raw, label="raw game_id provenance")
+    )
     return CanonicalGameIdentity(
         canonical_game_key=canonical_game_key(team, opp),
         team=team,
@@ -103,8 +111,16 @@ def canonical_game_identities(
 ) -> list[CanonicalGameIdentity]:
     identities = [player_game_identity(player) for player in players]
     opponents_by_team: dict[str, set[str]] = defaultdict(set)
+    games_by_participant: dict[str, set[str]] = defaultdict(set)
+    games_by_raw_id: dict[str, set[str]] = defaultdict(set)
     for identity in identities:
         opponents_by_team[identity.team].add(identity.opponent)
+        games_by_participant[identity.team].add(identity.canonical_game_key)
+        games_by_participant[identity.opponent].add(identity.canonical_game_key)
+        if identity.raw_game_id is not None:
+            games_by_raw_id[identity.raw_game_id].add(
+                identity.canonical_game_key
+            )
     ambiguous = sorted(
         team for team, opponents in opponents_by_team.items()
         if len(opponents) != 1
@@ -113,6 +129,25 @@ def canonical_game_identities(
         raise ValueError(
             f"{CANONICAL_GAME_POLICY_ID}: team maps to multiple opponents: "
             + ",".join(ambiguous)
+        )
+    participant_ambiguous = sorted(
+        team for team, games in games_by_participant.items()
+        if len(games) != 1
+    )
+    if participant_ambiguous:
+        raise ValueError(
+            f"{CANONICAL_GAME_POLICY_ID}: participant maps to multiple games: "
+            + ",".join(participant_ambiguous)
+        )
+    raw_ambiguous = sorted(
+        raw_id for raw_id, games in games_by_raw_id.items()
+        if len(games) != 1
+    )
+    if raw_ambiguous:
+        raise ValueError(
+            f"{CANONICAL_GAME_POLICY_ID}: raw game_id is ambiguous across "
+            "multiple games: "
+            + ",".join(raw_ambiguous)
         )
     return identities
 

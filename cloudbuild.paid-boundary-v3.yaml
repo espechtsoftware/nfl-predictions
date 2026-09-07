@@ -15,6 +15,7 @@ steps:
           tests/test_canonical_game_policy_v2.py \
           tests/test_winner_registry_v2.py \
           tests/test_paid_classic_book_v2.py \
+          tests/test_paid_classic_book_v3.py \
           tests/test_week1_operating_book_export.py \
           tests/test_week1_operating_book_api.py \
           tests/test_contest_capture_rehearsal.py \
@@ -40,9 +41,9 @@ steps:
       - -ceu
       - |
         docker run --rm '${_IMAGE}' python -c \
-          "from nfl_dfs.app.main import app; paths={getattr(r,'path',None) for r in app.routes}; assert {'/lineups/paid-v2','/lineups/paid-v2.csv','/lineups/entries/paid-v2.csv'} <= paths"
+          "from nfl_dfs.app.main import app; paths={getattr(r,'path',None) for r in app.routes}; assert {'/lineups/paid-v2','/lineups/paid-v2.csv','/lineups/entries/paid-v2.csv','/lineups/paid-v3','/lineups/paid-v3.csv','/lineups/entries/paid-v3.csv'} <= paths"
         docker run --rm '${_IMAGE}' python -c \
-          "from nfl_dfs.optimizer.paid_classic_book_v2 import PAID_CLASSIC_BOUNDARY_ID; assert PAID_CLASSIC_BOUNDARY_ID == 'paid-classic-book-boundary-v3-canonical-game'"
+          "from nfl_dfs.optimizer.paid_classic_book_v2 import PAID_CLASSIC_BOUNDARY_ID as V2; from nfl_dfs.optimizer.paid_classic_book_v3 import PAID_CLASSIC_BOUNDARY_ID as V3; assert V2 == 'paid-classic-book-boundary-v2'; assert V3 == 'paid-classic-book-boundary-v3-canonical-game'"
 images:
   - '${_IMAGE}'
 substitutions:

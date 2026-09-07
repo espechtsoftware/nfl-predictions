@@ -30,6 +30,11 @@ CLASSIC_COLUMNS = [
 ]
 
 
+SCHEDULE_GAME_COLUMNS = [
+    "game_id", "season", "week", "game_type", "home_team", "away_team",
+]
+
+
 class ProjectionStore(Protocol):
     def slates(self) -> pd.DataFrame: ...
     def projections(self, season: int, week: int) -> pd.DataFrame: ...
@@ -38,6 +43,7 @@ class ProjectionStore(Protocol):
     def classic_slates(self) -> pd.DataFrame: ...
     def classic_salaries(self, draft_group_id: int) -> pd.DataFrame: ...
     def classic_draftable_ids(self) -> pd.DataFrame: ...
+    def schedule_games(self, season: int, week: int) -> pd.DataFrame: ...
 
 
 def _empty_on_missing(fn):
@@ -235,6 +241,22 @@ class BigQueryStore:
         )
 
     @_empty_on_missing
+    def schedule_games(self, season: int, week: int) -> pd.DataFrame:
+        """Authoritative regular-season game identities for one NFL week."""
+        from ..bq import query_df
+
+        return query_df(
+            f"""
+            SELECT DISTINCT CAST(game_id AS STRING) AS game_id,
+                   season, week, game_type, home_team, away_team
+            FROM `{settings.raw}.schedules`
+            WHERE season = @season AND week = @week AND game_type = 'REG'
+            ORDER BY game_id
+            """,
+            params={"season": int(season), "week": int(week)},
+        )
+
+    @_empty_on_missing
     def classic_draftable_ids(self) -> pd.DataFrame:
         """dk_player_id -> draftable ID from the latest classic pull. The
         upload CSV needs draftable IDs (the DKSalaries 'ID' column), which
@@ -273,7 +295,8 @@ class InMemoryStore:
     def __init__(self, frame: pd.DataFrame, defense: pd.DataFrame | None = None,
                  showdown: pd.DataFrame | None = None,
                  draftables: pd.DataFrame | None = None,
-                 classic: pd.DataFrame | None = None):
+                 classic: pd.DataFrame | None = None,
+                 games: pd.DataFrame | None = None):
         self.frame = frame
         self.defense = defense if defense is not None else pd.DataFrame(
             columns=["team", "season", "week", "position", "fp_allowed",
@@ -287,6 +310,9 @@ class InMemoryStore:
         )
         self.classic = classic if classic is not None else pd.DataFrame(
             columns=CLASSIC_COLUMNS
+        )
+        self.games = games if games is not None else pd.DataFrame(
+            columns=SCHEDULE_GAME_COLUMNS
         )
 
     def showdown_salaries(self) -> pd.DataFrame:
@@ -310,6 +336,12 @@ class InMemoryStore:
 
     def classic_draftable_ids(self) -> pd.DataFrame:
         return self.draftables
+
+    def schedule_games(self, season: int, week: int) -> pd.DataFrame:
+        games = self.games
+        return games[
+            (games.season == season) & (games.week == week)
+        ].reset_index(drop=True)
 
     def defense_points_against(self, season: int | None = None) -> pd.DataFrame:
         df = self.defense

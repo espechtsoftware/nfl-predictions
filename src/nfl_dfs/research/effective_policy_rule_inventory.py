@@ -127,13 +127,16 @@ V7_SOURCE_SET_ID = (
     "adopted-classic-policy-20260907-canonical-game-v7"
 )
 V7_CLASSIFIED_INPUT_PROJECTION_SHA256 = (
-    "115538b28a41b1c1ef0152d86e6d3cbd9b71d895b6b35f8a32aaf0479c6f5d5c"
+    "8e3fde727ee9772f84deddaf916f351b628159e3ea18fe48d731d5987b5920ae"
 )
 V7_DIRECT_INPUT_READ_SITE_COUNT = 280
 V7_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
     **V6_FROZEN_SOURCE_SHA256,
+    "src/nfl_dfs/app/main.py": (
+        "54fd0f2af8914ffa39946bbe12ba1168a92e198a49164c0ae627b59c36df878d"
+    ),
     "src/nfl_dfs/app/week1_operating_book_api.py": (
-        "e5821783945de77f18d00fccd2579962aee4d5bc575aeb35cf261033f787827f"
+        "b2817edb6dd4407bf8232f96ee5447283a55c0e0b578f327dec3b3c1c05caaf0"
     ),
     "src/nfl_dfs/backtest/engine.py": (
         "b5e717f089307fee7039e34046dba3e9fdff08d76576d510c5c187f190b16a0d"
@@ -151,7 +154,10 @@ V7_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
         "008b51ef5fcd6630609b289f66731cadde9f2ebc9560743dbeac219dcec3aa6a"
     ),
     "src/nfl_dfs/optimizer/lineup.py": (
-        "6bdac8f620c77119816b699ed542bdb3dea9b12f8560cc7babd8f29cef561dc7"
+        "152ec20265257c9aac3d2b0ede860363f381e63ed0c68c36f6de1627304f3d6b"
+    ),
+    "src/nfl_dfs/optimizer/game_identity.py": (
+        "bb1391b3ef2fd5cf06fd89bd67be047ec4d52bc02d7831d8a5e3d9b23c8a8388"
     ),
 }
 
@@ -193,6 +199,13 @@ SOURCE_ROLES: Mapping[str, str] = {
     "src/nfl_dfs/research/final_forensic.py": "independent_dk_only_validator",
     "src/nfl_dfs/research/lr8_historical_arm.py": (
         "independent_five_rule_relaxation_with_legacy_min_games"
+    ),
+}
+
+V7_SOURCE_ROLES: Mapping[str, str] = {
+    **SOURCE_ROLES,
+    "src/nfl_dfs/optimizer/game_identity.py": (
+        "canonical_game_identity_and_final_semantic_audit"
     ),
 }
 
@@ -495,6 +508,7 @@ class _SourceSetContract:
     classified_input_key_count: int
     direct_input_read_site_count: int
     frozen_source_sha256: tuple[tuple[str, str], ...]
+    source_roles: tuple[tuple[str, str], ...]
 
 
 _V5_SOURCE_SET = _SourceSetContract(
@@ -505,6 +519,7 @@ _V5_SOURCE_SET = _SourceSetContract(
     classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
     direct_input_read_site_count=DIRECT_INPUT_READ_SITE_COUNT,
     frozen_source_sha256=tuple(sorted(FROZEN_SOURCE_SHA256.items())),
+    source_roles=tuple(sorted(SOURCE_ROLES.items())),
 )
 _V6_SOURCE_SET = _SourceSetContract(
     schema=SCHEMA,
@@ -516,6 +531,7 @@ _V6_SOURCE_SET = _SourceSetContract(
     classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
     direct_input_read_site_count=DIRECT_INPUT_READ_SITE_COUNT,
     frozen_source_sha256=tuple(sorted(V6_FROZEN_SOURCE_SHA256.items())),
+    source_roles=tuple(sorted(SOURCE_ROLES.items())),
 )
 _V7_SOURCE_SET = _SourceSetContract(
     schema=SCHEMA,
@@ -527,6 +543,7 @@ _V7_SOURCE_SET = _SourceSetContract(
     classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
     direct_input_read_site_count=V7_DIRECT_INPUT_READ_SITE_COUNT,
     frozen_source_sha256=tuple(sorted(V7_FROZEN_SOURCE_SHA256.items())),
+    source_roles=tuple(sorted(V7_SOURCE_ROLES.items())),
 )
 
 
@@ -616,7 +633,8 @@ def _load_sources(
     text_by_path: dict[str, str] = {}
     tree_by_path: dict[str, ast.Module] = {}
     frozen_source_sha256 = dict(source_set.frozen_source_sha256)
-    if set(frozen_source_sha256) != set(SOURCE_ROLES):
+    source_roles = dict(source_set.source_roles)
+    if set(frozen_source_sha256) != set(source_roles):
         raise EffectivePolicyInventoryError("source role coverage differs")
     for relative in sorted(frozen_source_sha256):
         path = _source_path(root, relative)
@@ -636,7 +654,7 @@ def _load_sources(
         identities.append({
             "bytes": len(body),
             "path": relative,
-            "role": SOURCE_ROLES[relative],
+            "role": source_roles[relative],
             "sha256": digest,
         })
         text_by_path[relative] = text
@@ -1547,7 +1565,11 @@ def _parse_multiseed_seed_pairs(spec: str) -> list[dict[str, int | str]]:
     return pairs
 
 
-def _rules(env: Mapping[str, str]) -> tuple[_Rule, ...]:
+def _rules(
+    env: Mapping[str, str],
+    *,
+    source_set: _SourceSetContract,
+) -> tuple[_Rule, ...]:
     lineup = "src/nfl_dfs/optimizer/lineup.py"
     engine = "src/nfl_dfs/backtest/engine.py"
     replay = "src/nfl_dfs/backtest/replay.py"
@@ -1560,6 +1582,11 @@ def _rules(env: Mapping[str, str]) -> tuple[_Rule, ...]:
     game_sim = "src/nfl_dfs/models/game_sim.py"
     forensic = "src/nfl_dfs/research/final_forensic.py"
     lr8 = "src/nfl_dfs/research/lr8_historical_arm.py"
+    canonical_game = "src/nfl_dfs/optimizer/game_identity.py"
+    canonical_locators = (
+        (_loc(canonical_game, "module:CANONICAL_GAME_POLICY_ID"),)
+        if source_set.source_set_id == V7_SOURCE_SET_ID else ()
+    )
 
     common_soft_locators = (
         _loc(lineup, "function:_apply_stack_rules"),
@@ -1595,11 +1622,13 @@ def _rules(env: Mapping[str, str]) -> tuple[_Rule, ...]:
         _Rule("rule:dk-team-cap-eight", "At most eight players per team",
               "dk_hard", "generation", "active", 8, (ALL_GENERATION,),
               (_loc(lineup, "module:MAX_FROM_TEAM"),
-               _loc(lr8, "function:audit_dk_classic_identity"))),
+               _loc(lr8, "function:audit_dk_classic_identity"))
+              + canonical_locators),
         _Rule("rule:min-two-games", "At least two games represented",
               "house_soft", "generation", "active", 2, (ALL_GENERATION,),
               (_loc(presets, "module:_PRESETS"),
-               _loc(lineup, "function:add_classic_lineup_constraints"))),
+               _loc(lineup, "function:add_classic_lineup_constraints"))
+              + canonical_locators),
 
         # The exact five-field legal-feasibility parameter surface.
         _Rule("rule:salary-floor-49000", "Minimum salary 49000",
@@ -1643,7 +1672,8 @@ def _rules(env: Mapping[str, str]) -> tuple[_Rule, ...]:
         _Rule("rule:game-lock-min-five", "Family game lock of five players",
               "house_soft", "generation", "active", 5, (GAME, DARK),
               (_loc(lineup, "function:add_classic_lineup_constraints"),
-               _loc(engine, "function:tail_select_lineups"))),
+               _loc(engine, "function:tail_select_lineups"))
+              + canonical_locators),
 
         # Every optional feasibility seam gets its own row, even when dormant.
         _Rule("rule:punt-minimum", "Minimum punt-priced players", "house_soft",
@@ -1671,7 +1701,8 @@ def _rules(env: Mapping[str, str]) -> tuple[_Rule, ...]:
               "house_soft", "generation", "inactive", 0,
               (ALL_GENERATION,),
               (_loc(lineup, "function:add_classic_lineup_constraints"),
-               _loc(policy, "class:ClassicProductionPolicy:method:engine_environment")),
+               _loc(policy, "class:ClassicProductionPolicy:method:engine_environment"))
+              + canonical_locators,
               optional=True),
         _Rule("rule:min-low-ownership", "Low-ownership player minimum",
               "house_soft", "generation", "inactive", 0,
@@ -1891,6 +1922,21 @@ def _rules(env: Mapping[str, str]) -> tuple[_Rule, ...]:
               (SELECTION,), (_loc(engine, "function:tail_select_lineups"),),
               optional=True),
     ]
+    if source_set.source_set_id == V7_SOURCE_SET_ID:
+        rows.append(_Rule(
+            "rule:canonical-game-identity",
+            "Canonical game identity from normalized team/opponent pair",
+            "house_soft",
+            "generation",
+            "active",
+            "unordered-normalized-team-opponent-v2",
+            (ALL_GENERATION,),
+            (
+                _loc(canonical_game, "module:CANONICAL_GAME_POLICY_ID"),
+                _loc(canonical_game, "function:canonical_game_identities"),
+                _loc(lineup, "function:add_classic_lineup_constraints"),
+            ),
+        ))
     return tuple(rows)
 
 
@@ -2042,7 +2088,9 @@ def _generate_effective_policy_rule_inventory(
             "classified runtime-input projection SHA-256 differs"
         )
     rules = _materialize_rules(
-        _rules(env), source_by_path=source_by_path, tree_by_path=tree_by_path
+        _rules(env, source_set=source_set),
+        source_by_path=source_by_path,
+        tree_by_path=tree_by_path,
     )
     _validate_constraint_rule_coverage(rules)
     parametric_surface = _validate_parametric_surface(rules)
@@ -2172,6 +2220,7 @@ __all__ = [
     "V7_CLASSIFIED_INPUT_PROJECTION_SHA256",
     "V7_DIRECT_INPUT_READ_SITE_COUNT",
     "V7_FROZEN_SOURCE_SHA256",
+    "V7_SOURCE_ROLES",
     "V7_SOURCE_SET_ID",
     "canonical_json_bytes",
     "canonical_sha256",

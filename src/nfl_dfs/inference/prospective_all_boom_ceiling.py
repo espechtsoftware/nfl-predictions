@@ -29,7 +29,7 @@ import numpy as np
 
 from ..backtest.engine import CandidateBatch, _validate_candidate_batch
 from ..optimizer.construction_presets import ConstructionPreset
-from ..optimizer.game_identity import canonical_game_counts
+from ..optimizer.game_identity import canonical_game_counts, normalize_team
 from ..optimizer.lineup import (
     MAX_FROM_TEAM,
     ROSTER_SIZE,
@@ -47,13 +47,15 @@ from .generation_exposure import (
 from .production_policy import ADOPTED_CLASSIC_POLICY
 
 
-VERSION: Final = "prospective-all-boom-ceiling-shadow-v1"
-SHADOW_ID: Final = "2026-all-boom-ceiling-unpassed-optional-v1"
+VERSION: Final = "prospective-all-boom-ceiling-shadow-v2-canonical-game"
+SHADOW_ID: Final = "2026-all-boom-ceiling-unpassed-optional-v2-canonical-game"
 EVIDENCE_STATUS: Final = "unpassed_optional"
 WORLD_ORDER_ID: Final = "nfl2-prereg017-legal-roster-ceiling-v1"
 SELECTION_ID: Final = "base-law-coverage-194-v1"
-PRELOCK_SCHEMA: Final = "prospective-all-boom-ceiling-prelock/v1"
-TRANSFORM_SCHEMA: Final = "prospective-all-boom-ceiling-transform/v1"
+PRELOCK_SCHEMA: Final = "prospective-all-boom-ceiling-prelock/v2-canonical-game"
+TRANSFORM_SCHEMA: Final = (
+    "prospective-all-boom-ceiling-transform/v2-canonical-game"
+)
 BOOM_ATTEMPTS: Final = 200
 LEVERAGE_ATTEMPTS: Final = 0
 CORE_ATTEMPTS: Final = 200
@@ -462,7 +464,7 @@ def _validate_lineup(
         _fail("boom solver roster violates Classic position bounds")
     if not preset.min_salary <= canonical.salary <= SALARY_CAP:
         _fail("boom solver roster violates the production salary bounds")
-    teams = Counter(str(player["team"]) for player in rebuilt)
+    teams = Counter(normalize_team(player.get("team")) for player in rebuilt)
     if max(teams.values()) > MAX_FROM_TEAM:
         _fail("boom solver roster exceeds the production team cap")
     try:
@@ -472,14 +474,15 @@ def _validate_lineup(
     if len(games) < preset.min_games:
         _fail("boom solver roster violates the production game minimum")
     qb = next(player for player in rebuilt if str(player["pos"]).upper() == "QB")
-    qb_team, qb_opp = str(qb["team"]), str(qb["opp"])
+    qb_team = normalize_team(qb.get("team"))
+    qb_opp = normalize_team(qb.get("opp"), label="opponent")
     catchers = sum(
-        str(player["team"]) == qb_team
+        normalize_team(player.get("team")) == qb_team
         and str(player["pos"]).upper() in {"WR", "TE"}
         for player in rebuilt
     )
     bring_backs = sum(
-        str(player["team"]) == qb_opp
+        normalize_team(player.get("team")) == qb_opp
         and str(player["pos"]).upper() in {"RB", "WR", "TE"}
         for player in rebuilt
     )
@@ -490,20 +493,19 @@ def _validate_lineup(
     dst = next(player for player in rebuilt if str(player["pos"]).upper() == "DST")
     if preset.stack.forbid_rb_vs_dst and any(
         str(player["pos"]).upper() == "RB"
-        and str(player["team"]) == str(dst["opp"])
+        and normalize_team(player.get("team"))
+        == normalize_team(dst.get("opp"), label="opponent")
         for player in rebuilt
     ):
         _fail("boom solver roster contains an RB against its DST")
     if preset.stack.forbid_two_rb_same_team:
         rb_teams = Counter(
-            str(player["team"]) for player in rebuilt
+            normalize_team(player.get("team")) for player in rebuilt
             if str(player["pos"]).upper() == "RB"
         )
         if rb_teams and max(rb_teams.values()) > 1:
             _fail("boom solver roster contains two same-team RBs")
-    if preset.max_per_game and max(
-        Counter(str(player["game_id"]) for player in rebuilt).values()
-    ) > preset.max_per_game:
+    if preset.max_per_game and max(games.values()) > preset.max_per_game:
         _fail("boom solver roster violates the production game cap")
     return canonical
 

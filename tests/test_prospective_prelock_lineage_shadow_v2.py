@@ -20,18 +20,18 @@ from nfl_dfs.inference.prelock_model_artifact_authority_v1 import (
     MODEL_ARTIFACT_MANIFEST_SCHEMA,
 )
 from nfl_dfs.inference.prospective_prelock_lineage_shadow_v2 import (
-    OBJECT_NAMES,
+    OBJECT_NAMES_V3 as OBJECT_NAMES,
     GcsClosedObjectStore,
     ProspectivePrelockLineageShadowV2Error,
     build_execution_receipt_v1,
-    run_prelock_lineage_shadow_v2,
+    run_prelock_lineage_shadow_v3 as run_prelock_lineage_shadow_v2,
 )
 from nfl_dfs.models.components import COMPONENT_NAMES
 from nfl_dfs.optimizer.lineup import Lineup, select_tail_entries
 
 LOCK = datetime(2026, 9, 13, 17, 0, tzinfo=UTC)
 RUN_ID = "week1-lineage-publication-001"
-PREFIX = f"prelock-lineage-v1/2026/week-01/{RUN_ID}"
+PREFIX = f"prelock-lineage-v3/2026/week-01/{RUN_ID}"
 MODEL_WEEK = "2026-W36"
 
 
@@ -656,7 +656,7 @@ class _GcsClient:
 
 def test_gcs_create_race_reopens_exact_generation_and_rejects_other_bytes() -> None:
     client = _GcsClient()
-    store = GcsClosedObjectStore(client, prefix=PREFIX)
+    store = GcsClosedObjectStore(client, prefix=PREFIX, lineage_version=3)
     object_name = OBJECT_NAMES["selector-matrix"]
     provider_name = f"{PREFIX}/{object_name}"
     payload = b"immutable selector matrix"

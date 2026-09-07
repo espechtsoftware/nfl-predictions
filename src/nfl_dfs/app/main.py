@@ -37,6 +37,13 @@ from ..optimizer.paid_classic_book_v2 import (
     paid_entry_count_v2,
     to_paid_dk_csv_v2,
 )
+from ..optimizer.paid_classic_book_v3 import (
+    PaidClassicCatalogV3,
+    build_paid_classic_catalog_v3,
+    fill_paid_entries_csv_v3,
+    paid_entry_count_v3,
+    to_paid_dk_csv_v3,
+)
 from ..optimizer.construction_presets import (
     INCUMBENT_GPP_PRESET_ID,
     LEGALITY_ONLY_PRESET_ID,
@@ -52,6 +59,7 @@ from .store import BigQueryStore, ProjectionStore
 from .week1_operating_book_api import (
     Week1OperatingBookAPIError,
     load_week1_operating_book_export,
+    load_week1_operating_book_export_v2,
 )
 
 app = FastAPI(title="Fingerblasters' Brain", version="0.1.0")
@@ -633,7 +641,7 @@ async function loadWeek1OperatingBook(){
         csv=document.getElementById('week1csv');
   status.textContent='Exact-reading the immutable Week-1 book...';viz.hidden=true;csv.hidden=true;
   try{
-    const r=await fetch('/week1/operating-book'),j=await r.json();
+    const r=await fetch('/week1/operating-book-v2'),j=await r.json();
     if(!r.ok){status.textContent='Canonical book not available yet: '+(j.detail||r.status);return;}
     status.textContent=`K${j.k} · exact artifact ${j.materialization_sha256.slice(0,12)}… · `+
       `cap-4 off · Tier 3 ${j.tier3_used?'on':'empty'} · no tuning controls accepted.`;
@@ -772,14 +780,14 @@ async function build(){
   document.getElementById('go').disabled=true;
   try{
     const body=reqBody();
-    const r=await fetch(sd?'/showdown/lineups':'/lineups/paid-v2',{method:'POST',
+    const r=await fetch(sd?'/showdown/lineups':'/lineups/paid-v3',{method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(body)});
     const j=await r.json();
     if(!r.ok){st.textContent='Error: '+(j.detail||r.status);return;}
     lastBuild={key:buildKey(body),payload:j,showdown:sd};
     const paidStatus=!sd&&j.paid_export
-      ? ` · paid v2 exact K${j.paid_export.actual_entries} / `+
+      ? ` · paid v3 exact K${j.paid_export.actual_entries} / `+
         `${j.paid_export.unique_rosters} unique / DK-legal / active \u2713`
       : '';
     st.textContent=sd
@@ -1024,7 +1032,7 @@ def lineups_page() -> str:
         f"tail lines, construction changes, cap-4, or other build controls.</p>"
         f"<div class='week1-actions'><button id='week1load' type='button'>"
         f"Refresh exact book</button><a id='week1csv' hidden "
-        f"href='/week1/operating-book.csv'>Download exact DK CSV</a>"
+        f"href='/week1/operating-book-v2.csv'>Download exact DK CSV</a>"
         f"<span id='week1status'>Waiting for the pre-lock artifact.</span></div>"
         f"<div id='week1viz' class='week1-viz' hidden>"
         f"<section class='week1-chart'><h3>Book composition</h3>"
@@ -2819,6 +2827,44 @@ def week1_operating_book_csv(
     )
 
 
+@app.get("/week1/operating-book-v2")
+def week1_operating_book_v2(
+    store: ProjectionStore = Depends(get_store),
+) -> dict[str, object]:
+    """Canonical-game successor; the retained v1 route remains replayable."""
+
+    try:
+        return load_week1_operating_book_export_v2(projection_store=store)
+    except Week1OperatingBookAPIError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/week1/operating-book-v2.csv")
+def week1_operating_book_csv_v2(
+    store: ProjectionStore = Depends(get_store),
+) -> Response:
+    """Download the independently semantic-audited v2 operating book."""
+
+    try:
+        payload = load_week1_operating_book_export_v2(projection_store=store)
+    except Week1OperatingBookAPIError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return Response(
+        content=str(payload["dk_csv"]),
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": (
+                "attachment; filename=dk_week1_operating_book.csv"
+            ),
+            "X-Week1-Book-SHA256": str(payload["materialization_sha256"]),
+            "X-Week1-Export-SHA256": str(payload["export_sha256"]),
+            "X-Week1-Canonical-Game-Policy": str(
+                payload["canonical_game_policy_id"]
+            ),
+        },
+    )
+
+
 class CoreLineupRequest(LineupRequest):
     """Core-and-variations mode: a consensus core (picked on the stable
     median objective) locked into every entry, with the remaining spots
@@ -3283,6 +3329,146 @@ def build_paid_lineups_csv_v2(
     )
 
 
+def _paid_classic_catalog_v3(
+    req: LineupRequest, store: ProjectionStore
+) -> PaidClassicCatalogV3:
+    """Reopen and join all authorities required by the v3 money boundary."""
+
+    if req.draft_group_id is None:
+        raise HTTPException(
+            422,
+            "Paid Classic export v3 requires draft_group_id; choose the "
+            "exact DraftKings slate before generating upload bytes.",
+        )
+    salaries = store.classic_salaries(req.draft_group_id)
+    projections = store.projections(req.season, req.week)
+    schedules = store.schedule_games(req.season, req.week)
+    try:
+        return build_paid_classic_catalog_v3(
+            salaries,
+            projections,
+            schedules,
+            draft_group_id=req.draft_group_id,
+            season=req.season,
+            week=req.week,
+            validated_at=_paid_classic_now_v3(),
+        )
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+
+
+def _paid_classic_now_v3() -> datetime:
+    """Independent server-owned v3 validation clock."""
+
+    return datetime.now(timezone.utc)
+
+
+def _paid_classic_headers_v3(receipt: dict) -> dict[str, str]:
+    return {
+        "X-Paid-Book-Boundary": str(receipt["boundary_id"]),
+        "X-Paid-Book-Receipt-SHA256": str(receipt["export_receipt_sha256"]),
+        "X-Paid-Book-Catalog-SHA256": str(receipt["salary_catalog_sha256"]),
+        "X-Paid-Book-Catalog-Pulled-At": str(
+            receipt["salary_catalog_pulled_at"]
+        ),
+        "X-Paid-Book-Catalog-Age-Seconds": str(
+            receipt["salary_catalog_age_seconds"]
+        ),
+        "X-Paid-Book-Game-Catalog-SHA256": str(
+            receipt["authoritative_game_catalog_sha256"]
+        ),
+        "X-Paid-Book-Canonical-Game-Policy": str(
+            receipt["canonical_game_policy_id"]
+        ),
+        "X-Paid-Book-Entries": str(receipt["actual_entries"]),
+        "X-Paid-Book-Exact-K": "true",
+        "X-Paid-Book-Unique": "true",
+        "X-Paid-Book-DK-Legal": "true",
+        "X-Paid-Book-Active": "true",
+        "X-Paid-Book-Game-Authority": "true",
+    }
+
+
+def _build_paid_classic_export_v3(
+    req: LineupRequest, store: ProjectionStore
+) -> tuple[list, list, PaidClassicExport]:
+    """Build once, then audit the selection against reopened authorities."""
+
+    lineups, ranked = _build_classic(req, store)
+    if len(ranked) != len(lineups) or any(
+        row.get("lineup") is not lineup
+        for row, lineup in zip(ranked, lineups, strict=False)
+    ):
+        raise HTTPException(
+            500,
+            "Paid Classic v3 preview order differs from the selected export book.",
+        )
+    catalog = _paid_classic_catalog_v3(req, store)
+    try:
+        exported = to_paid_dk_csv_v3(
+            lineups, expected_entries=req.n_lineups, catalog=catalog
+        )
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    return lineups, ranked, exported
+
+
+@app.post("/lineups/paid-v3")
+def build_paid_lineups_v3(
+    req: LineupRequest, store: ProjectionStore = Depends(get_store)
+) -> dict:
+    """Canonical-game paid preview carrying the exact audited CSV bytes."""
+
+    lineups, ranked, exported = _build_paid_classic_export_v3(req, store)
+    return {
+        "policy": _classic_policy_identity(req, lineups),
+        "model_health": (
+            _marginals_health(req.season, req.week)
+            if req.sim
+            else {"marginals": "n/a (MILP path)", "warning": None}
+        ),
+        "tail_line": req.line(),
+        "lineups": [
+            {
+                "rank": index + 1,
+                "confidence": row["confidence"],
+                "proj_mean": row["proj_mean"],
+                "players": _with_watch_notes(row["lineup"].slot_order()),
+                "salary": row["lineup"].salary,
+                "proj": round(row["lineup"].proj, 2),
+            }
+            for index, row in enumerate(ranked)
+        ],
+        "exposure": exposure_summary(lineups),
+        "dk_csv": exported.csv_text,
+        "paid_export": dict(exported.receipt),
+    }
+
+
+@app.post("/lineups/paid-v3.csv")
+def build_paid_lineups_csv_v3(
+    req: LineupRequest, store: ProjectionStore = Depends(get_store)
+) -> Response:
+    """Canonical-game paid Classic upload; v2 routes remain compatible."""
+
+    lineups, _, exported = _build_paid_classic_export_v3(req, store)
+    try:
+        from .. import notes as _n
+
+        _n.record_entered_lineups(req.season, req.week, lineups)
+    except Exception:
+        log.exception("could not record entered lineups")
+    return Response(
+        content=exported.csv_text,
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=dk_lineups.csv",
+            **_classic_policy_headers(req, lineups),
+            **_paid_classic_headers_v3(dict(exported.receipt)),
+        },
+    )
+
+
 # --- DKEntries filling ----------------------------------------------------
 #
 # The other DK import path: for contests already entered, download
@@ -3425,6 +3611,45 @@ def fill_paid_classic_entries_v2(
             "Content-Disposition": "attachment; filename=DKEntries.csv",
             **_classic_policy_headers(build_req, lineups),
             **_paid_classic_headers_v2(dict(exported.receipt)),
+        },
+    )
+
+
+@app.post("/lineups/entries/paid-v3.csv")
+def fill_paid_classic_entries_v3(
+    req: FillEntriesRequest, store: ProjectionStore = Depends(get_store)
+) -> Response:
+    """Canonical-game one-to-one paid entry fill; never cycles a book."""
+
+    try:
+        paid_entries = paid_entry_count_v3(
+            req.entries_csv, contest_id=req.contest_id
+        )
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    if paid_entries > MAX_ENTRIES:
+        raise HTTPException(
+            422, f"{paid_entries} entries exceeds DK's {MAX_ENTRIES}-row limit"
+        )
+    build_req = req.model_copy(update={"n_lineups": paid_entries})
+    lineups = _build_classic(build_req, store)[0]
+    catalog = _paid_classic_catalog_v3(build_req, store)
+    try:
+        exported = fill_paid_entries_csv_v3(
+            req.entries_csv,
+            lineups,
+            catalog=catalog,
+            contest_id=req.contest_id,
+        )
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    return Response(
+        content=exported.csv_text,
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=DKEntries.csv",
+            **_classic_policy_headers(build_req, lineups),
+            **_paid_classic_headers_v3(dict(exported.receipt)),
         },
     )
 

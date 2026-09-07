@@ -1,4 +1,4 @@
-"""Pure, versioned retrieval engine for immutable lineup corpora.
+"""Canonical-game v3 retrieval successor for immutable lineup corpora.
 
 The corpus *producer* and the corpus *retriever* are deliberately separate.
 This module consumes one immutable, generation-pinned snapshot made of five
@@ -6,7 +6,10 @@ candidate/world blocks.  It never generates a lineup, reads an outcome,
 changes a live policy, or talks to GCP.  Callers provide two tiny capability
 seams: an exact-object reader and a create-once publisher.
 
-V1 is intentionally narrow enough to run against the retained 2023-W1
+V1/V2 behavior is retained in ``corpus_retrieval_engine`` byte-for-byte.
+This module adds a disjoint v3 suite/output namespace while retaining those
+laws internally for deterministic comparison. V1 is intentionally narrow
+enough to run against the retained 2023-W1
 R0--R4 artifacts: candidate provenance and a player catalog are canonical
 JSON objects; each world block is the retained NPZ body containing
 ``cand_ix``, ``totals``, ``player_ids`` and ``player_draws``.  The engine
@@ -20,33 +23,47 @@ projections contain compact summaries plus generation/SHA/byte pointers.
 
 from __future__ import annotations
 
+import json
+import math
+import re
 from collections import Counter, defaultdict
 from collections.abc import Callable, Mapping, Sequence
 from hashlib import sha256
 from io import BytesIO
 from itertools import combinations
-import json
-import math
-import re
-from typing import Any, Final
+from typing import Final
 
 import numpy as np
 
+from nfl_dfs.optimizer.game_identity import (
+    CANONICAL_GAME_POLICY_ID,
+    canonical_game_counts,
+    normalize_team,
+)
 
 SNAPSHOT_SCHEMA: Final = "corpus-retrieval-snapshot-manifest/v1"
 STRATEGY_SCHEMA: Final = "corpus-retrieval-strategy/v1"
 SUITE_SCHEMA: Final = "corpus-retrieval-suite-manifest/v1"
 SUITE_SCHEMA_V2: Final = "corpus-retrieval-suite-manifest/v2"
+SUITE_SCHEMA_V3: Final = "corpus-retrieval-suite-manifest/v3-canonical-game"
 CANDIDATE_ROWS_SCHEMA: Final = "corpus-retrieval-candidate-rows/v1"
 PLAYER_CATALOG_SCHEMA: Final = "corpus-retrieval-player-catalog/v1"
 INPUT_QUERY_AUTHORITY_SCHEMA: Final = "corpus-retrieval-input-query-authority/v1"
 TASK_RESULT_SCHEMA: Final = "corpus-retrieval-task-result/v1"
+TASK_RESULT_SCHEMA_V2: Final = "corpus-retrieval-task-result/v2-canonical-game"
 COMPLETION_SCHEMA: Final = "corpus-retrieval-batch-completion/v1"
+COMPLETION_SCHEMA_V2: Final = (
+    "corpus-retrieval-batch-completion/v2-canonical-game"
+)
 LINEUP_TABLE_SCHEMA: Final = "corpus-retrieval-unique-lineups/v1"
+LINEUP_TABLE_SCHEMA_V2: Final = (
+    "corpus-retrieval-unique-lineups/v2-canonical-game"
+)
 SELECTION_SCHEMA: Final = "corpus-retrieval-selection/v1"
 ENRICHMENT_SCHEMA: Final = "corpus-retrieval-enrichment/v1"
 REDUNDANCY_SCHEMA: Final = "corpus-retrieval-redundancy-topk/v1"
 GRAPH_SCHEMA: Final = "corpus-retrieval-graph-projection/v1"
+GRAPH_SCHEMA_V2: Final = "corpus-retrieval-graph-projection/v2-canonical-game"
 FILL_INSIGHT_SCHEMA: Final = "corpus-retrieval-fill-insight-input/v1"
 
 PUBLICATION_MODE: Final = "create_once"
@@ -964,7 +981,56 @@ _SUITE_STRATEGY_LAW: Final = {
         "validator": validate_retrieval_strategy_v2,
         "strategy_count": 7,
     },
+    SUITE_SCHEMA_V3: {
+        "registry": frozen_retrieval_strategies_v2,
+        "validator": validate_retrieval_strategy_v2,
+        "strategy_count": 7,
+    },
 }
+
+_ARTIFACT_LAW: Final = {
+    SUITE_SCHEMA: {
+        "canonical_game_features": False,
+        "lineup_schema": LINEUP_TABLE_SCHEMA,
+        "lineup_path": "artifacts/unique-lineups.json",
+        "graph_schema": GRAPH_SCHEMA,
+        "graph_path": "graph-projection.json",
+        "result_schema": TASK_RESULT_SCHEMA,
+        "result_name": "result.json",
+        "completion_schema": COMPLETION_SCHEMA,
+    },
+    SUITE_SCHEMA_V2: {
+        "canonical_game_features": False,
+        "lineup_schema": LINEUP_TABLE_SCHEMA,
+        "lineup_path": "artifacts/unique-lineups.json",
+        "graph_schema": GRAPH_SCHEMA,
+        "graph_path": "graph-projection.json",
+        "result_schema": TASK_RESULT_SCHEMA,
+        "result_name": "result.json",
+        "completion_schema": COMPLETION_SCHEMA,
+    },
+    SUITE_SCHEMA_V3: {
+        "canonical_game_features": True,
+        "lineup_schema": LINEUP_TABLE_SCHEMA_V2,
+        "lineup_path": "artifacts/unique-lineups-v2.json",
+        "graph_schema": GRAPH_SCHEMA_V2,
+        "graph_path": "graph-projection-v2.json",
+        "result_schema": TASK_RESULT_SCHEMA_V2,
+        "result_name": "result-v2.json",
+        "completion_schema": COMPLETION_SCHEMA_V2,
+    },
+}
+
+
+def suite_artifact_law(suite_schema: object) -> dict[str, object]:
+    """Return immutable output contracts for a registered suite version."""
+
+    law = _ARTIFACT_LAW.get(suite_schema)  # type: ignore[arg-type]
+    if law is None:
+        raise CorpusRetrievalError(
+            f"unregistered suite artifact law {suite_schema!r}"
+        )
+    return dict(law)
 
 
 def suite_strategy_law(suite_schema: object) -> dict[str, object]:
@@ -1044,11 +1110,15 @@ def build_suite_manifest(
         law["validator"](row, expected_ordinal=index, entry_budget=budget)
         for index, row in enumerate(raw_strategies)
     ]
+    artifact_law = suite_artifact_law(suite_schema)
     tasks = [{
         "task_index": int(task["task_index"]),
         "task_id": str(task["task_id"]),
         "snapshot_task_sha256": str(task["task_sha256"]),
-        "result_uri": f"{prefix}tasks/{int(task['task_index']):04d}/result.json",
+        "result_uri": (
+            f"{prefix}tasks/{int(task['task_index']):04d}/"
+            f"{artifact_law['result_name']}"
+        ),
     } for task in snapshot["tasks"]]
     body = {
         "schema_version": suite_schema,
@@ -1089,6 +1159,7 @@ def validate_suite_manifest(value: object) -> dict[str, object]:
     if item["publication_mode"] != PUBLICATION_MODE:
         raise CorpusRetrievalError("suite schema/publication mode differs")
     law = suite_strategy_law(item["schema_version"])
+    artifact_law = suite_artifact_law(item["schema_version"])
     run_id = _identifier(item["run_id"], label="suite run id")
     prefix = _gcs_uri(item["output_prefix"], label="suite output prefix", prefix=True)
     if not prefix.endswith(f"/{run_id}/") or item["suite_manifest_uri"] != (
@@ -1129,7 +1200,9 @@ def validate_suite_manifest(value: object) -> dict[str, object]:
             ),
             "result_uri": _gcs_uri(task["result_uri"], label="task result URI"),
         })
-        if tasks[-1]["result_uri"] != f"{prefix}tasks/{index:04d}/result.json":
+        if tasks[-1]["result_uri"] != (
+            f"{prefix}tasks/{index:04d}/{artifact_law['result_name']}"
+        ):
             raise CorpusRetrievalError("suite task result URI differs")
     licenses = _mapping(item["licenses"], label="suite licenses")
     expected_licenses = {
@@ -1353,11 +1426,55 @@ def _lineup_features(
     }
 
 
+def _lineup_features_v2(
+    roster: Sequence[str], players: Mapping[str, Mapping[str, object]],
+) -> dict[str, object]:
+    """Add normalized team/game semantics without changing retained v1."""
+
+    features = _lineup_features(roster, players)
+    rows = [players[player_id] for player_id in roster]
+    canonical_games = canonical_game_counts(rows)
+    canonical_teams = Counter(
+        normalize_team(row.get("team")) for row in rows
+    )
+    qbs = [row for row in rows if row["pos"] == "QB"]
+    canonical_stack = 0
+    canonical_bring_back = 0
+    if len(qbs) == 1:
+        qb = qbs[0]
+        qb_team = normalize_team(qb.get("team"))
+        qb_opp = normalize_team(qb.get("opp"), label="opponent")
+        canonical_stack = sum(
+            normalize_team(row.get("team")) == qb_team
+            and row["id"] != qb["id"]
+            and row["pos"] in {"WR", "TE", "RB"}
+            for row in rows
+        )
+        canonical_bring_back = sum(
+            normalize_team(row.get("team")) == qb_opp
+            and row["pos"] in {"WR", "TE", "RB"}
+            for row in rows
+        )
+    features.update({
+        "canonical_team_player_counts": dict(sorted(canonical_teams.items())),
+        "canonical_team_count": len(canonical_teams),
+        "canonical_max_players_same_team": max(canonical_teams.values()),
+        "canonical_game_player_counts": dict(sorted(canonical_games.items())),
+        "canonical_game_count": len(canonical_games),
+        "canonical_max_players_same_game": max(canonical_games.values()),
+        "canonical_qb_stack_teammates": canonical_stack,
+        "canonical_bring_back_players": canonical_bring_back,
+        "canonical_game_policy_id": CANONICAL_GAME_POLICY_ID,
+    })
+    return features
+
+
 def _prepare_task_sources(
     *,
     snapshot: Mapping[str, object],
     task_index: int,
     reader: ObjectReader,
+    canonical_game_features: bool = False,
 ) -> tuple[dict[str, object], list[dict[str, object]], np.ndarray, list[dict[str, object]]]:
     """Reopen exact sources and create the complete unique-lineup matrix."""
     task = snapshot["tasks"][task_index]
@@ -1456,7 +1573,7 @@ def _prepare_task_sources(
     memberships: dict[tuple[str, ...], list[dict[str, object]]] = defaultdict(list)
     for block, artifact in zip(task["world_blocks"], artifacts, strict=True):
         panel_rows = sorted(rows_by_panel[str(block["panel_id"])], key=lambda row: int(row["cand_ix"]))
-        artifact_ids = set(str(value) for value in artifact["player_ids"])
+        artifact_ids = {str(value) for value in artifact["player_ids"]}
         for row in panel_rows:
             roster_ordered = tuple(str(value) for value in row["players"])
             if set(roster_ordered) - artifact_ids:
@@ -1526,7 +1643,11 @@ def _prepare_task_sources(
             "roster_player_ids": list(roster),
             "source_memberships": sources,
             "tags": tags,
-            "features": _lineup_features(roster, players),
+            "features": (
+                _lineup_features_v2(roster, players)
+                if canonical_game_features
+                else _lineup_features(roster, players)
+            ),
         })
     return task, lineup_rows, scores, source_receipts
 
@@ -1668,15 +1789,12 @@ def _select_ladder(
             )
             for index in remaining
         }
-        best = sorted(
-            remaining,
-            key=lambda index: (
+        best = min(remaining, key=lambda index: (
                 -utilities[index],
                 -int(primary_counts[index]),
                 -float(means[index]),
                 lineup_ids[index],
-            ),
-        )[0]
+            ))
         selected.append(best)
         trace.append({
             "selection_rank": len(selected) - 1,
@@ -1762,15 +1880,12 @@ def _select_expected_max(
         gain_by_index = {
             index: float(gain) for index, gain in zip(order, gains)
         }
-        best = sorted(
-            order,
-            key=lambda index: (
+        best = min(order, key=lambda index: (
                 -gain_by_index[index],
                 -int(primary_counts[index]),
                 -float(means[index]),
                 lineup_ids[index],
-            ),
-        )[0]
+            ))
         selected.append(best)
         trace.append({
             "selection_rank": len(selected) - 1,
@@ -1838,15 +1953,12 @@ def _select_block_supported_ladder(
             )
             for index in remaining
         }
-        best = sorted(
-            remaining,
-            key=lambda index: (
+        best = min(remaining, key=lambda index: (
                 -utilities[index],
                 -int(primary_counts[index]),
                 -float(means[index]),
                 lineup_ids[index],
-            ),
-        )[0]
+            ))
         selected.append(best)
         trace.append({
             "selection_rank": len(selected) - 1,
@@ -1912,15 +2024,12 @@ def _select_blockmin_ladder(
             )
             for position, index in enumerate(order)
         }
-        best = sorted(
-            order,
-            key=lambda index: (
+        best = min(order, key=lambda index: (
                 leximin_key[index],
                 -int(primary_counts[index]),
                 -float(means[index]),
                 lineup_ids[index],
-            ),
-        )[0]
+            ))
         best_position = order.index(best)
         selected.append(best)
         best_after = after[best_position]
@@ -2131,7 +2240,7 @@ def _build_enrichment(
     def rows_for(groups: Mapping[object, Sequence[int]], *, key_name: str) -> list[dict[str, object]]:
         result: list[dict[str, object]] = []
         for key, indices_raw in groups.items():
-            indices = sorted(set(int(value) for value in indices_raw))
+            indices = sorted({int(value) for value in indices_raw})
             lineup_support = len(indices)
             opportunity_count = lineup_support * worlds
             event_count = int(event_counts[indices].sum())
@@ -2184,7 +2293,7 @@ def _build_redundancy(
         or scores.shape[1] != len(WORLD_BLOCKS) * WORLDS_PER_BLOCK
     ):
         raise CorpusRetrievalError("redundancy requires the full R0--R4 matrix")
-    rosters = [set(str(value) for value in row["roster_player_ids"]) for row in lineup_rows]
+    rosters = [{str(value) for value in row["roster_player_ids"]} for row in lineup_rows]
     lineup_ids = [str(row["lineup_id"]) for row in lineup_rows]
     candidates = []
     for first, second in combinations(range(len(rosters)), 2):
@@ -2498,7 +2607,7 @@ def _event_arrays(scores: np.ndarray) -> tuple[list[tuple[str, np.ndarray]], dic
         "operator": PRIMARY_EVENT_OPERATOR,
         "threshold": PRIMARY_EVENT_THRESHOLD,
         "sort_order": ["block_index", "world_index", "lineup_index"],
-        "event_count": int(len(lineup)),
+        "event_count": len(lineup),
         "lineups_with_event": int(np.count_nonzero(event.any(axis=1))),
         "worlds_with_any_event": int(np.count_nonzero(event.any(axis=0))),
         "event_count_by_block": [int(value) for value in counts_by_block],
@@ -2556,6 +2665,7 @@ def _build_graph_projection(
     lineup_event_counts: np.ndarray,
     strategy_rows: Sequence[Mapping[str, object]],
     artifact_sidecars: Sequence[Mapping[str, object]],
+    graph_schema: str = GRAPH_SCHEMA,
 ) -> dict[str, object]:
     if any(row["role"] == "graph-projection" for row in artifact_sidecars):
         raise CorpusRetrievalError("graph projection cannot point to itself")
@@ -2710,7 +2820,7 @@ def _build_graph_projection(
         str(row["from"]), str(row["type"]), str(row["to"]), canonical_json_bytes(row["properties"])
     ))
     body = {
-        "schema_version": GRAPH_SCHEMA,
+        "schema_version": graph_schema,
         "dedicated_analytical_graph_only": True,
         "authoritative_source": "create-once-sidecars-and-task-result",
         "large_bodies_are_pointers": True,
@@ -2768,8 +2878,14 @@ def run_retrieval_task(
     ):
         raise CorpusRetrievalError("suite task does not bind snapshot task")
     normalized_execution = _normalize_execution(execution, suite=suite, task_index=index)
+    artifact_law = suite_artifact_law(suite["schema_version"])
     task, lineup_rows, scores, source_receipts = _prepare_task_sources(
-        snapshot=snapshot, task_index=index, reader=read_object
+        snapshot=snapshot,
+        task_index=index,
+        reader=read_object,
+        canonical_game_features=bool(
+            artifact_law["canonical_game_features"]
+        ),
     )
     budget = int(suite["entry_budget"])
     if len(lineup_rows) < budget:
@@ -2778,7 +2894,7 @@ def run_retrieval_task(
     sidecars: list[dict[str, object]] = []
 
     lineup_body = _self_hash({
-        "schema_version": LINEUP_TABLE_SCHEMA,
+        "schema_version": artifact_law["lineup_schema"],
         "task_id": task["task_id"],
         "lineup_count": len(lineup_rows),
         "roster_size": ROSTER_SIZE,
@@ -2786,7 +2902,7 @@ def run_retrieval_task(
         "lineups": lineup_rows,
     }, "lineup_table_sha256")
     sidecars.append(_publish_json_sidecar(
-        uri=f"{prefix}artifacts/unique-lineups.json",
+        uri=f"{prefix}{artifact_law['lineup_path']}",
         role="unique-lineups",
         body=lineup_body,
         publisher=publish_create_once,
@@ -2945,9 +3061,10 @@ def run_retrieval_task(
         lineup_event_counts=lineup_event_counts,
         strategy_rows=strategy_results,
         artifact_sidecars=sidecars,
+        graph_schema=str(artifact_law["graph_schema"]),
     )
     graph_receipt = _publish_json_sidecar(
-        uri=f"{prefix}graph-projection.json",
+        uri=f"{prefix}{artifact_law['graph_path']}",
         role="graph-projection",
         body=graph,
         publisher=publish_create_once,
@@ -2955,7 +3072,7 @@ def run_retrieval_task(
     sidecars.append(graph_receipt)
 
     result_body = {
-        "schema_version": TASK_RESULT_SCHEMA,
+        "schema_version": artifact_law["result_schema"],
         "publication_mode": PUBLICATION_MODE,
         "suite_manifest_identity": suite_identity,
         "suite_manifest_sha256": suite["suite_manifest_sha256"],
@@ -3012,8 +3129,9 @@ def _sidecar_map(
     value: object, *, suite: Mapping[str, object], task_index: int,
 ) -> tuple[list[dict[str, object]], dict[tuple[str, str], dict[str, object]]]:
     rows_raw = _sequence(value, label="task result sidecars")
+    artifact_law = suite_artifact_law(suite["schema_version"])
     expected_order: list[tuple[str, str, str]] = [
-        ("unique-lineups", "", "artifacts/unique-lineups.json"),
+        ("unique-lineups", "", str(artifact_law["lineup_path"])),
         ("unique-lineup-scores", "", "artifacts/unique-lineup-scores.npz"),
         ("strict-gt-200-events", "", "artifacts/strict-gt-200-events.npz"),
         (
@@ -3035,7 +3153,9 @@ def _sidecar_map(
             ("strategy-selection", strategy_id, f"{relative}selection.json"),
             ("strategy-selected-scores", strategy_id, f"{relative}selected-scores.npz"),
         ])
-    expected_order.append(("graph-projection", "", "graph-projection.json"))
+    expected_order.append((
+        "graph-projection", "", str(artifact_law["graph_path"])
+    ))
     if len(rows_raw) != len(expected_order):
         raise CorpusRetrievalError("task sidecar coverage differs")
     prefix = f"{suite['output_prefix']}tasks/{task_index:04d}/"
@@ -3120,7 +3240,8 @@ def _validate_result_structure(
         "graph_projection_object", "fill_insight_object", "licenses",
         "task_result_sha256",
     }, label="task result authority")
-    if authority["schema_version"] != TASK_RESULT_SCHEMA or authority[
+    artifact_law = suite_artifact_law(suite["schema_version"])
+    if authority["schema_version"] != artifact_law["result_schema"] or authority[
         "publication_mode"
     ] != PUBLICATION_MODE:
         raise CorpusRetrievalError("task result schema/publication mode differs")
@@ -3188,6 +3309,7 @@ def validate_retrieval_task_result(
         reader=read_object,
     )
     index = int(authority["task_index"])
+    artifact_law = suite_artifact_law(suite["schema_version"])
     coverage = _mapping(authority["coverage"], label="task result coverage")
     _keys(coverage, {
         "source_block_count", "source_candidate_rows", "unique_lineup_count",
@@ -3243,11 +3365,11 @@ def validate_retrieval_task_result(
         by_key[("unique-lineups", "")], read_object, label="unique lineup table"
     )
     if (
-        lineup_body.get("schema_version") != LINEUP_TABLE_SCHEMA
+        lineup_body.get("schema_version") != artifact_law["lineup_schema"]
         or lineup_body.get("lineup_count") != lineup_count
         or lineup_body.get("roster_size") != ROSTER_SIZE
         or by_key[("unique-lineups", "")]["semantic"] != {
-            "schema_version": LINEUP_TABLE_SCHEMA,
+            "schema_version": artifact_law["lineup_schema"],
             "canonical_json_sha256": by_key[("unique-lineups", "")][
                 "object_identity"
             ]["sha256"],
@@ -3386,7 +3508,8 @@ def validate_retrieval_task_result(
             "fill insight", ("fill-insight", ""),
         ),
         (
-            graph, GRAPH_SCHEMA, "graph_projection_sha256", "graph projection",
+            graph, artifact_law["graph_schema"],
+            "graph_projection_sha256", "graph projection",
             ("graph-projection", ""),
         ),
     ):
@@ -3650,7 +3773,9 @@ def build_retrieval_batch_completion(
             "exact_budget_per_strategy": authority["coverage"]["exact_budget_per_strategy"],
         })
     body = {
-        "schema_version": COMPLETION_SCHEMA,
+        "schema_version": suite_artifact_law(
+            suite["schema_version"]
+        )["completion_schema"],
         "publication_mode": PUBLICATION_MODE,
         "suite_manifest_identity": suite_identity,
         "suite_manifest_sha256": suite["suite_manifest_sha256"],
@@ -3694,7 +3819,10 @@ def validate_retrieval_batch_completion(
         "snapshot_manifest_sha256", "run_id", "snapshot_id", "coverage",
         "task_results", "licenses", "batch_completion_sha256",
     }, label="retrieval batch completion")
-    if item["schema_version"] != COMPLETION_SCHEMA:
+    suite = validate_suite_manifest(suite_manifest)
+    if item["schema_version"] != suite_artifact_law(
+        suite["schema_version"]
+    )["completion_schema"]:
         raise CorpusRetrievalError("completion schema differs")
     _validate_self_hash(item, "batch_completion_sha256", label="completion")
     rebuilt = build_retrieval_batch_completion(
@@ -3713,7 +3841,7 @@ def validate_retrieval_batch_completion(
 __all__ = [
     "CANDIDATE_ROWS_SCHEMA",
     "COMPLETION_SCHEMA",
-    "CorpusRetrievalError",
+    "COMPLETION_SCHEMA_V2",
     "DEFAULT_ENTRY_BUDGET",
     "DISCOVERY_BLOCKS",
     "HELDOUT_BLOCKS",
@@ -3722,8 +3850,11 @@ __all__ = [
     "STRATEGY_SCHEMA",
     "SUITE_SCHEMA",
     "SUITE_SCHEMA_V2",
+    "SUITE_SCHEMA_V3",
     "TASK_RESULT_SCHEMA",
+    "TASK_RESULT_SCHEMA_V2",
     "WORLD_BLOCKS",
+    "CorpusRetrievalError",
     "build_candidate_rows_object",
     "build_player_catalog_object",
     "build_retrieval_batch_completion",
@@ -3738,6 +3869,7 @@ __all__ = [
     "normalize_player_query_rows",
     "object_identity_for_bytes",
     "run_retrieval_task",
+    "suite_artifact_law",
     "suite_strategy_law",
     "task_transport_binding",
     "validate_candidate_rows_object",

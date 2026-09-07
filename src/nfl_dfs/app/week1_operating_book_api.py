@@ -11,6 +11,7 @@ from ..inference.prospective_generation_shadow_operator import (
     ImmutableObjectStore,
 )
 from ..inference.week1_operating_book_export import (
+    build_week1_operating_book_export_v1,
     build_week1_operating_book_export_v2,
 )
 from ..inference.week1_operating_book_operator import (
@@ -78,6 +79,32 @@ def load_week1_operating_book_export(
         salaries = projection_store.classic_salaries(
             int(WEEK1_DRAFT_GROUP_ID)
         )
+        return build_week1_operating_book_export_v1(
+            exact_book=exact, salary_rows=salaries,
+        )
+    except Exception as exc:
+        raise Week1OperatingBookAPIError(
+            "canonical Week-1 book failed exact read or DK export validation"
+        ) from exc
+
+
+def load_week1_operating_book_export_v2(
+    *,
+    projection_store,
+    object_store: ImmutableObjectStore | None = None,
+    environment: Mapping[str, str] | None = None,
+) -> dict[str, object]:
+    """Render the canonical-game successor from exact live authorities."""
+
+    identity = materialization_identity_from_environment(environment)
+    storage = GCSImmutableObjectStore() if object_store is None else object_store
+    try:
+        exact = read_week1_operating_book_v1(
+            store=storage, materialization_identity=identity
+        )
+        salaries = projection_store.classic_salaries(
+            int(WEEK1_DRAFT_GROUP_ID)
+        )
         projections = projection_store.projections(WEEK1_SEASON, WEEK1_WEEK)
         return build_week1_operating_book_export_v2(
             exact_book=exact,
@@ -86,7 +113,7 @@ def load_week1_operating_book_export(
         )
     except Exception as exc:
         raise Week1OperatingBookAPIError(
-            "canonical Week-1 book failed exact read or DK export validation"
+            "canonical Week-1 book failed exact read or v2 semantic validation"
         ) from exc
 
 
@@ -94,5 +121,6 @@ __all__ = [
     "IDENTITY_ENV",
     "Week1OperatingBookAPIError",
     "load_week1_operating_book_export",
+    "load_week1_operating_book_export_v2",
     "materialization_identity_from_environment",
 ]

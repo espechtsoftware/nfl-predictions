@@ -39,6 +39,7 @@ from nfl_dfs.research.corpus_batch_evidence_contract import MICRO_DK_PER_POINT
 from nfl_dfs.optimizer.game_identity import (
     CANONICAL_GAME_POLICY_ID,
     canonical_game_counts,
+    normalize_team,
 )
 
 
@@ -46,6 +47,12 @@ PLAN_SCHEMA: Final = "corpus-r6-historical-neo4j-slice-plan/v1"
 MANIFEST_SCHEMA: Final = "corpus-r6-historical-neo4j-slice-manifest/v1"
 NODE_SCHEMA: Final = "corpus-r6-historical-neo4j-node/v1"
 RELATIONSHIP_SCHEMA: Final = "corpus-r6-historical-neo4j-relationship/v1"
+PLAN_SCHEMA_V2: Final = "corpus-r6-historical-neo4j-slice-plan/v2"
+MANIFEST_SCHEMA_V2: Final = "corpus-r6-historical-neo4j-slice-manifest/v2"
+NODE_SCHEMA_V2: Final = "corpus-r6-historical-neo4j-node/v2"
+RELATIONSHIP_SCHEMA_V2: Final = (
+    "corpus-r6-historical-neo4j-relationship/v2"
+)
 EXACT_OBJECT_SCHEMA: Final = "corpus-r6-historical-exact-object/v1"
 EVIDENCE_CLASS: Final = "descriptive-development-only"
 THRESHOLD_DK: Final = 200
@@ -252,6 +259,11 @@ class HistoricalNeo4jGraphPlanV1:
             "production_policy_mutation": False,
             "promotion_authority": False,
         }
+
+
+@dataclass(frozen=True, slots=True)
+class HistoricalNeo4jGraphPlanV2(HistoricalNeo4jGraphPlanV1):
+    """Collision-free canonical-game successor to the retained v1 plan."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -961,12 +973,19 @@ def _validate_attribution_chain(
     return root, tuple(shards)
 
 
-def _node(kind: str, logical_id: str, properties: Mapping[str, object]) -> dict[str, object]:
+def _node(
+    kind: str,
+    logical_id: str,
+    properties: Mapping[str, object],
+    *,
+    schema: str = NODE_SCHEMA,
+    namespace: str = "historical-r6",
+) -> dict[str, object]:
     normalized = dict(properties)
     payload_sha = canonical_sha256(normalized)
-    node_id = f"historical-r6:{kind}:{canonical_sha256(logical_id)}"
+    node_id = f"{namespace}:{kind}:{canonical_sha256(logical_id)}"
     return {
-        "schema_version": NODE_SCHEMA,
+        "schema_version": schema,
         "id": node_id,
         "kind": kind,
         "logical_id": logical_id,
@@ -983,6 +1002,8 @@ def _relationship(
     to_id: str,
     relationship_type: str,
     properties: Mapping[str, object],
+    *,
+    schema: str = RELATIONSHIP_SCHEMA,
 ) -> dict[str, object]:
     normalized = dict(properties)
     coordinate = {
@@ -991,7 +1012,7 @@ def _relationship(
         "relationship_type": relationship_type,
     }
     return {
-        "schema_version": RELATIONSHIP_SCHEMA,
+        "schema_version": schema,
         **coordinate,
         "edge_key": canonical_sha256(coordinate),
         "properties_json": canonical_json_bytes(normalized).decode("utf-8"),
@@ -1003,13 +1024,15 @@ def _relationship(
 
 
 def _dk_structural_phenotype(
-    roster: Sequence[str], catalog_by_id: Mapping[str, Mapping[str, object]]
+    roster: Sequence[str],
+    catalog_by_id: Mapping[str, Mapping[str, object]],
+    *,
+    canonical_game: bool = False,
 ) -> dict[str, object]:
     players = [catalog_by_id[player_id] for player_id in roster]
     positions = Counter(str(player["pos"]) for player in players)
     teams = Counter(str(player["team"]) for player in players)
     games = Counter(str(player["game_id"]) for player in players)
-    canonical_games = canonical_game_counts(players)
     if (
         len(players) != 9
         or positions["QB"] != 1
@@ -1026,7 +1049,7 @@ def _dk_structural_phenotype(
     qb = next(player for player in players if player["pos"] == "QB")
     qb_team = str(qb["team"])
     qb_opponent = str(qb["opp"])
-    return {
+    phenotype: dict[str, object] = {
         "salary": total_salary,
         "position_counts": {
             position: positions[position]
@@ -1036,9 +1059,6 @@ def _dk_structural_phenotype(
         "distinct_game_count": len(games),
         "maximum_same_team_count": max(teams.values()),
         "maximum_same_game_count": max(games.values()),
-        "canonical_distinct_game_count": len(canonical_games),
-        "canonical_maximum_same_game_count": max(canonical_games.values()),
-        "canonical_game_policy_id": CANONICAL_GAME_POLICY_ID,
         "qb_team": qb_team,
         "qb_opponent": qb_opponent,
         "qb_teammate_count": sum(
@@ -1049,6 +1069,39 @@ def _dk_structural_phenotype(
             player["team"] == qb_opponent for player in players
         ),
     }
+    if canonical_game:
+        canonical_games = canonical_game_counts(players)
+        canonical_teams = Counter(
+            normalize_team(player.get("team")) for player in players
+        )
+        canonical_qb_team = normalize_team(qb.get("team"))
+        canonical_qb_opponent = normalize_team(
+            qb.get("opp"), label="opponent"
+        )
+        phenotype.update({
+            "canonical_distinct_game_count": len(canonical_games),
+            "canonical_maximum_same_game_count": max(
+                canonical_games.values()
+            ),
+            "canonical_game_policy_id": CANONICAL_GAME_POLICY_ID,
+            "canonical_distinct_team_count": len(canonical_teams),
+            "canonical_maximum_same_team_count": max(
+                canonical_teams.values()
+            ),
+            "canonical_qb_team": canonical_qb_team,
+            "canonical_qb_opponent": canonical_qb_opponent,
+            "canonical_qb_teammate_count": sum(
+                normalize_team(player.get("team")) == canonical_qb_team
+                and player["pos"] != "QB"
+                for player in players
+            ),
+            "canonical_qb_opponent_count": sum(
+                normalize_team(player.get("team"))
+                == canonical_qb_opponent
+                for player in players
+            ),
+        })
+    return phenotype
 
 
 def _project_graph_from_validated_sources(
@@ -1060,7 +1113,45 @@ def _project_graph_from_validated_sources(
     source_root_identities: Mapping[str, Mapping[str, object]],
     source_manifest: Sequence[Mapping[str, object]],
     expectations: _Expectations,
+    graph_version: int = 1,
 ) -> HistoricalNeo4jGraphPlanV1:
+    if graph_version not in {1, 2}:
+        _fail("historical graph version is not registered")
+    plan_schema = PLAN_SCHEMA if graph_version == 1 else PLAN_SCHEMA_V2
+    manifest_schema = (
+        MANIFEST_SCHEMA if graph_version == 1 else MANIFEST_SCHEMA_V2
+    )
+    node_schema = NODE_SCHEMA if graph_version == 1 else NODE_SCHEMA_V2
+    relationship_schema = (
+        RELATIONSHIP_SCHEMA
+        if graph_version == 1 else RELATIONSHIP_SCHEMA_V2
+    )
+    namespace = "historical-r6" if graph_version == 1 else "historical-r6-v2"
+
+    def graph_node(
+        kind: str, logical_id: str, properties: Mapping[str, object]
+    ) -> dict[str, object]:
+        return _node(
+            kind,
+            logical_id,
+            properties,
+            schema=node_schema,
+            namespace=namespace,
+        )
+
+    def graph_relationship(
+        from_id: str,
+        to_id: str,
+        relationship_type: str,
+        properties: Mapping[str, object],
+    ) -> dict[str, object]:
+        return _relationship(
+            from_id,
+            to_id,
+            relationship_type,
+            properties,
+            schema=relationship_schema,
+        )
     if not (
         len(candidate_artifacts)
         == len(candidate_lineages)
@@ -1073,14 +1164,14 @@ def _project_graph_from_validated_sources(
     relationships: list[dict[str, object]] = []
     source_nodes: dict[str, dict[str, object]] = {}
     for role, identity in sorted(source_root_identities.items()):
-        source_node = _node(
+        source_node = graph_node(
             "SourceAuthority",
             f"source:{role}:{identity['sha256']}",
             {"role": role, "identity": dict(identity)},
         )
         source_nodes[role] = source_node
         nodes.append(source_node)
-    slice_node = _node(
+    slice_node = graph_node(
         "HistoricalCorpusSlice",
         "r6-fixed-g0-full-union-realized-ge200-v1",
         {
@@ -1092,7 +1183,7 @@ def _project_graph_from_validated_sources(
     )
     nodes.append(slice_node)
     for role, source_node in sorted(source_nodes.items()):
-        relationships.append(_relationship(
+        relationships.append(graph_relationship(
             slice_node["id"],
             source_node["id"],
             "DERIVED_FROM",
@@ -1198,7 +1289,7 @@ def _project_graph_from_validated_sources(
         total_books += int(shard["book_count"])
         total_selections += int(shard["selection_count"])
 
-        slate_node = _node(
+        slate_node = graph_node(
             "Slate",
             f"slate:{source_ordinal}:{slate_id}",
             {
@@ -1211,7 +1302,7 @@ def _project_graph_from_validated_sources(
             },
         )
         nodes.append(slate_node)
-        relationships.append(_relationship(
+        relationships.append(graph_relationship(
             slice_node["id"], slate_node["id"], "CONTAINS_SLATE", {}
         ))
 
@@ -1265,8 +1356,12 @@ def _project_graph_from_validated_sources(
             ):
                 _fail("attribution generation summary differs from exact lineage")
             roster = [str(value) for value in realized_row["roster_player_ids"]]
-            phenotype = _dk_structural_phenotype(roster, catalog_by_id)
-            lineup_node = _node(
+            phenotype = _dk_structural_phenotype(
+                roster,
+                catalog_by_id,
+                canonical_game=graph_version == 2,
+            )
+            lineup_node = graph_node(
                 "LineupCandidate",
                 f"lineup:{source_ordinal}:{lineup_id}",
                 {
@@ -1293,7 +1388,7 @@ def _project_graph_from_validated_sources(
             )
             nodes.append(lineup_node)
             high_lineup_nodes[lineup_id] = lineup_node
-            relationships.append(_relationship(
+            relationships.append(graph_relationship(
                 slate_node["id"],
                 lineup_node["id"],
                 "HAS_HIGH_SCORER",
@@ -1301,7 +1396,7 @@ def _project_graph_from_validated_sources(
             ))
             for roster_ordinal, player_id in enumerate(roster):
                 player = catalog_by_id[player_id]
-                player_node = _node(
+                player_node = graph_node(
                     "PlayerSlate",
                     f"player-slate:{source_ordinal}:{player_id}",
                     {
@@ -1316,7 +1411,7 @@ def _project_graph_from_validated_sources(
                     },
                 )
                 nodes.append(player_node)
-                relationships.append(_relationship(
+                relationships.append(graph_relationship(
                     lineup_node["id"],
                     player_node["id"],
                     "CONTAINS_PLAYER",
@@ -1395,20 +1490,20 @@ def _project_graph_from_validated_sources(
                 "full_population_candidate_count": len(lineages),
             }
             denominator_rows.append(denominator_row)
-            denom_node = _node(
+            denom_node = graph_node(
                 "GenerationDenominator",
                 f"denominator:{source_ordinal}:{kind}:{value}:{block}",
                 denominator_row,
             )
             nodes.append(denom_node)
-            relationships.append(_relationship(
+            relationships.append(graph_relationship(
                 slate_node["id"], denom_node["id"], "HAS_DENOMINATOR", {}
             ))
             if kind == "arm-block":
                 for lineup_id, lineup_node in sorted(high_lineup_nodes.items()):
                     count = high_cell_counts[lineup_id][(value, block)]
                     if count:
-                        relationships.append(_relationship(
+                        relationships.append(graph_relationship(
                             lineup_node["id"],
                             denom_node["id"],
                             "GENERATED_IN_CELL",
@@ -1463,7 +1558,7 @@ def _project_graph_from_validated_sources(
             ):
                 _fail("final-fit selected book roster/order differs")
             selection_by_id = {str(row["lineup_id"]): row for row in selections}
-            book_node = _node(
+            book_node = graph_node(
                 "FinalFitBook",
                 f"book:{source_ordinal}:{book_id}",
                 {
@@ -1485,13 +1580,13 @@ def _project_graph_from_validated_sources(
                 },
             )
             nodes.append(book_node)
-            relationships.append(_relationship(
+            relationships.append(graph_relationship(
                 slate_node["id"], book_node["id"], "HAS_FINAL_FIT_BOOK", {}
             ))
             for lineup_id, lineup_node in sorted(high_lineup_nodes.items()):
                 selected_row = selection_by_id.get(lineup_id)
                 if selected_row is None:
-                    relationships.append(_relationship(
+                    relationships.append(graph_relationship(
                         book_node["id"],
                         lineup_node["id"],
                         "MISSED_HIGH_SCORER",
@@ -1499,7 +1594,7 @@ def _project_graph_from_validated_sources(
                     ))
                 else:
                     selected_final_count[lineup_id] += 1
-                    relationships.append(_relationship(
+                    relationships.append(graph_relationship(
                         book_node["id"],
                         lineup_node["id"],
                         "SELECTED_HIGH_SCORER",
@@ -1512,7 +1607,7 @@ def _project_graph_from_validated_sources(
                     ))
         # Replace each high-lineup node once so its selection-stability property is exact.
         replacements = {
-            node["id"]: _node(
+            node["id"]: graph_node(
                 "LineupCandidate",
                 node["logical_id"],
                 {
@@ -1649,7 +1744,7 @@ def _project_graph_from_validated_sources(
     }
     source_rows = [dict(row) for row in source_manifest]
     manifest_body: dict[str, object] = {
-        "schema_version": MANIFEST_SCHEMA,
+        "schema_version": manifest_schema,
         "evidence_class": EVIDENCE_CLASS,
         "threshold_dk": THRESHOLD_DK,
         "threshold_micro": THRESHOLD_MICRO,
@@ -1686,13 +1781,17 @@ def _project_graph_from_validated_sources(
     }
     manifest_body["manifest_sha256"] = canonical_sha256(manifest_body)
     plan_body = {
-        "schema_version": PLAN_SCHEMA,
+        "schema_version": plan_schema,
         "manifest": manifest_body,
         "nodes": list(ordered_nodes),
         "relationships": list(ordered_relationships),
     }
-    return HistoricalNeo4jGraphPlanV1(
-        schema_version=PLAN_SCHEMA,
+    plan_type = (
+        HistoricalNeo4jGraphPlanV1
+        if graph_version == 1 else HistoricalNeo4jGraphPlanV2
+    )
+    return plan_type(
+        schema_version=plan_schema,
         manifest=manifest_body,
         nodes=ordered_nodes,
         relationships=ordered_relationships,
@@ -1700,12 +1799,13 @@ def _project_graph_from_validated_sources(
     )
 
 
-def build_historical_corpus_graph_plan_v1(
+def _build_historical_corpus_graph_plan(
     *,
     exact_objects: Iterable[ExactJsonInputV1],
     candidate_root_identity: Mapping[str, object],
     catalog_outer_identity: Mapping[str, object],
     attribution_root_identity: Mapping[str, object],
+    graph_version: int,
 ) -> HistoricalNeo4jGraphPlanV1:
     """Validate the three accepted chains and build the bounded graph plan.
 
@@ -1754,7 +1854,47 @@ def build_historical_corpus_graph_plan_v1(
         source_root_identities=root_identities,
         source_manifest=source_manifest,
         expectations=_PRODUCTION_EXPECTATIONS,
+        graph_version=graph_version,
     )
+
+
+def build_historical_corpus_graph_plan_v1(
+    *,
+    exact_objects: Iterable[ExactJsonInputV1],
+    candidate_root_identity: Mapping[str, object],
+    catalog_outer_identity: Mapping[str, object],
+    attribution_root_identity: Mapping[str, object],
+) -> HistoricalNeo4jGraphPlanV1:
+    """Reproduce the retained raw-provider-game v1 projection exactly."""
+
+    return _build_historical_corpus_graph_plan(
+        exact_objects=exact_objects,
+        candidate_root_identity=candidate_root_identity,
+        catalog_outer_identity=catalog_outer_identity,
+        attribution_root_identity=attribution_root_identity,
+        graph_version=1,
+    )
+
+
+def build_historical_corpus_graph_plan_v2(
+    *,
+    exact_objects: Iterable[ExactJsonInputV1],
+    candidate_root_identity: Mapping[str, object],
+    catalog_outer_identity: Mapping[str, object],
+    attribution_root_identity: Mapping[str, object],
+) -> HistoricalNeo4jGraphPlanV2:
+    """Build collision-free nodes with canonical-game phenotypes."""
+
+    result = _build_historical_corpus_graph_plan(
+        exact_objects=exact_objects,
+        candidate_root_identity=candidate_root_identity,
+        catalog_outer_identity=catalog_outer_identity,
+        attribution_root_identity=attribution_root_identity,
+        graph_version=2,
+    )
+    if not isinstance(result, HistoricalNeo4jGraphPlanV2):
+        _fail("historical graph v2 builder returned the wrong plan type")
+    return result
 
 
 SCHEMA_STATEMENTS: Final[tuple[str, ...]] = (
@@ -1833,14 +1973,18 @@ __all__ = [
     "ExactJsonFileV1",
     "ExactJsonObjectV1",
     "HistoricalNeo4jGraphPlanV1",
+    "HistoricalNeo4jGraphPlanV2",
     "MANIFEST_SCHEMA",
+    "MANIFEST_SCHEMA_V2",
     "NODE_UPSERT_CYPHER",
     "PLAN_SCHEMA",
+    "PLAN_SCHEMA_V2",
     "RELATIONSHIP_UPSERT_CYPHER",
     "SCHEMA_STATEMENTS",
     "THRESHOLD_DK",
     "CorpusR6HistoricalNeo4jSliceV1Error",
     "build_historical_corpus_graph_plan_v1",
+    "build_historical_corpus_graph_plan_v2",
     "canonical_json_bytes",
     "canonical_sha256",
 ]

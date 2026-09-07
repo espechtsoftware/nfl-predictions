@@ -42,6 +42,7 @@ from .prelock_model_artifact_authority_v1 import (
 )
 
 CAPTURE_SCHEMA: Final = "prelock-lineage-capture-envelope/v2"
+CAPTURE_SCHEMA_V3: Final = "prelock-lineage-capture-envelope/v3-canonical-game"
 MATRIX_SCHEMA: Final = "prelock-selector-matrix-raw/v1"
 SALARY_SNAPSHOT_SCHEMA: Final = "prelock-classic-salary-snapshot/v1"
 SEED_LABELS: Final = ("R0", "R1", "R2", "R3", "R4")
@@ -53,7 +54,13 @@ EFFECTIVE_POLICY_SCHEMA: Final = "nfl-dfs-effective-policy-rule-inventory/v2"
 EFFECTIVE_POLICY_SOURCE_SET_ID: Final = (
     "adopted-classic-policy-20260902-week1-boom-first-selector-lineage-v6"
 )
+EFFECTIVE_POLICY_SOURCE_SET_ID_V7: Final = (
+    "adopted-classic-policy-20260907-canonical-game-v7"
+)
 LINEAGE_ADAPTER_MANIFEST_SCHEMA: Final = "prelock-lineage-adapter-manifest/v2"
+LINEAGE_ADAPTER_MANIFEST_SCHEMA_V3: Final = (
+    "prelock-lineage-adapter-manifest/v3-canonical-game"
+)
 EXECUTION_RECEIPT_SCHEMA: Final = "prelock-lineage-execution-receipt/v1"
 
 _SHA256: Final = re.compile(r"^[0-9a-f]{64}$")
@@ -156,7 +163,11 @@ def _digest(value: object, *, label: str) -> str:
     return value
 
 
-def _validate_effective_policy_inventory(value: object) -> dict[str, object]:
+def _validate_effective_policy_inventory(
+    value: object,
+    *,
+    expected_source_set_id: str = EFFECTIVE_POLICY_SOURCE_SET_ID,
+) -> dict[str, object]:
     if not isinstance(value, Mapping):
         _fail("effective-policy inventory is not a mapping")
     item = _clone(value)
@@ -189,7 +200,7 @@ def _validate_effective_policy_inventory(value: object) -> dict[str, object]:
     )
     if (
         item.get("schema") != EFFECTIVE_POLICY_SCHEMA
-        or item.get("source_set_id") != EFFECTIVE_POLICY_SOURCE_SET_ID
+        or item.get("source_set_id") != expected_source_set_id
         or item.get("complete_for_scope") is not True
         or _digest(retained_hash, label="effective-policy inventory")
         != inventory_digest
@@ -231,7 +242,12 @@ def _validate_effective_policy_inventory(value: object) -> dict[str, object]:
     return {**item, "inventory_sha256": retained_hash}
 
 
-def _validate_adapter_manifest(value: object) -> dict[str, object]:
+def _validate_adapter_manifest(
+    value: object,
+    *,
+    expected_schema: str = LINEAGE_ADAPTER_MANIFEST_SCHEMA,
+    expected_inventory_version: str = "v6",
+) -> dict[str, object]:
     if not isinstance(value, Mapping):
         _fail("lineage adapter manifest is not a mapping")
     item = _clone(value)
@@ -246,8 +262,9 @@ def _validate_adapter_manifest(value: object) -> dict[str, object]:
     retained_hash = item.pop("manifest_sha256")
     files = item.get("files")
     if (
-        item.get("schema_version") != LINEAGE_ADAPTER_MANIFEST_SCHEMA
-        or item.get("effective_policy_inventory_required") != "v6"
+        item.get("schema_version") != expected_schema
+        or item.get("effective_policy_inventory_required")
+        != expected_inventory_version
         or item.get("transitive_scoring_surface_claimed_here") is not False
         or _digest(retained_hash, label="lineage adapter manifest")
         != canonical_sha256(item)
@@ -839,6 +856,10 @@ def build_capture_authority_v2(
     retrieval_preset_id: str,
     tail_line: float,
     entry_budget: int,
+    _capture_schema: str = CAPTURE_SCHEMA,
+    _policy_source_set_id: str = EFFECTIVE_POLICY_SOURCE_SET_ID,
+    _adapter_schema: str = LINEAGE_ADAPTER_MANIFEST_SCHEMA,
+    _adapter_inventory_version: str = "v6",
 ) -> dict[str, object]:
     """Build the first immutable object, sufficient for boundary resume."""
 
@@ -855,8 +876,15 @@ def build_capture_authority_v2(
     )
     _identifier(selector_id, label="selector ID")
     _identifier(retrieval_preset_id, label="retrieval preset ID")
-    policy_inventory = _validate_effective_policy_inventory(effective_policy_inventory)
-    adapter_manifest = _validate_adapter_manifest(lineage_adapter_manifest)
+    policy_inventory = _validate_effective_policy_inventory(
+        effective_policy_inventory,
+        expected_source_set_id=_policy_source_set_id,
+    )
+    adapter_manifest = _validate_adapter_manifest(
+        lineage_adapter_manifest,
+        expected_schema=_adapter_schema,
+        expected_inventory_version=_adapter_inventory_version,
+    )
     execution = _validate_execution_receipt(execution_receipt)
     model_artifacts = validate_model_artifact_manifest_v1(model_artifact_manifest)
     if model_artifacts_exact_reopened_after_generation is not True:
@@ -974,7 +1002,7 @@ def build_capture_authority_v2(
     ):
         _fail("salary snapshot scope differs from the capture run")
     body: dict[str, object] = {
-        "schema_version": CAPTURE_SCHEMA,
+        "schema_version": _capture_schema,
         "run": run_item,
         "entry_budget": entry_budget,
         "selector_configuration": {
@@ -1031,10 +1059,23 @@ def build_capture_authority_v2(
         "production_enabled": False,
     }
     body["capture_sha256"] = canonical_sha256(body)
-    return validate_capture_authority_v2(body)
+    return _validate_capture_authority(
+        body,
+        capture_schema=_capture_schema,
+        policy_source_set_id=_policy_source_set_id,
+        adapter_schema=_adapter_schema,
+        adapter_inventory_version=_adapter_inventory_version,
+    )
 
 
-def validate_capture_authority_v2(value: object) -> dict[str, object]:
+def _validate_capture_authority(
+    value: object,
+    *,
+    capture_schema: str,
+    policy_source_set_id: str,
+    adapter_schema: str,
+    adapter_inventory_version: str,
+) -> dict[str, object]:
     if not isinstance(value, Mapping):
         _fail("capture authority is not a mapping")
     item = _clone(value)
@@ -1069,7 +1110,7 @@ def validate_capture_authority_v2(value: object) -> dict[str, object]:
     if set(item) != fields:
         _fail("capture authority fields differ")
     retained_hash = item.pop("capture_sha256")
-    if item["schema_version"] != CAPTURE_SCHEMA or _digest(
+    if item["schema_version"] != capture_schema or _digest(
         retained_hash, label="capture authority"
     ) != canonical_sha256(item):
         _fail("capture authority schema or self-hash differs")
@@ -1098,9 +1139,14 @@ def validate_capture_authority_v2(value: object) -> dict[str, object]:
     _timestamp(run.get("slate_lock_at_utc"), label="capture slate lock")
     _timestamp(run.get("capture_started_at_utc"), label="capture start")
     policy_inventory = _validate_effective_policy_inventory(
-        item.get("effective_policy_inventory")
+        item.get("effective_policy_inventory"),
+        expected_source_set_id=policy_source_set_id,
     )
-    adapter_manifest = _validate_adapter_manifest(item.get("lineage_adapter_manifest"))
+    adapter_manifest = _validate_adapter_manifest(
+        item.get("lineage_adapter_manifest"),
+        expected_schema=adapter_schema,
+        expected_inventory_version=adapter_inventory_version,
+    )
     execution = _validate_execution_receipt(item.get("execution_receipt"))
     model_artifacts = validate_model_artifact_manifest_v1(
         item.get("model_artifact_manifest")
@@ -1317,6 +1363,42 @@ def validate_capture_authority_v2(value: object) -> dict[str, object]:
     }:
         _fail("capture write manifest is not the closed five-object set")
     return {**item, "capture_sha256": retained_hash}
+
+
+def validate_capture_authority_v2(value: object) -> dict[str, object]:
+    """Validate the retained v2/v6 capture contract exactly."""
+
+    return _validate_capture_authority(
+        value,
+        capture_schema=CAPTURE_SCHEMA,
+        policy_source_set_id=EFFECTIVE_POLICY_SOURCE_SET_ID,
+        adapter_schema=LINEAGE_ADAPTER_MANIFEST_SCHEMA,
+        adapter_inventory_version="v6",
+    )
+
+
+def build_capture_authority_v3(**kwargs: Any) -> dict[str, object]:
+    """Build the canonical-game v3/v7 capture successor."""
+
+    return build_capture_authority_v2(
+        **kwargs,
+        _capture_schema=CAPTURE_SCHEMA_V3,
+        _policy_source_set_id=EFFECTIVE_POLICY_SOURCE_SET_ID_V7,
+        _adapter_schema=LINEAGE_ADAPTER_MANIFEST_SCHEMA_V3,
+        _adapter_inventory_version="v7",
+    )
+
+
+def validate_capture_authority_v3(value: object) -> dict[str, object]:
+    """Validate the canonical-game v3/v7 capture successor."""
+
+    return _validate_capture_authority(
+        value,
+        capture_schema=CAPTURE_SCHEMA_V3,
+        policy_source_set_id=EFFECTIVE_POLICY_SOURCE_SET_ID_V7,
+        adapter_schema=LINEAGE_ADAPTER_MANIFEST_SCHEMA_V3,
+        adapter_inventory_version="v7",
+    )
 
 
 def _generation_records(capture: Mapping[str, object]) -> dict[str, Any]:
@@ -1612,10 +1694,17 @@ def build_sidecar_from_capture_v2(
     capture: Mapping[str, object],
     capture_identity: Mapping[str, object],
     frozen_at_utc: str,
+    _capture_version: int = 2,
 ) -> dict[str, object]:
     """Normalize captured R0-R4 evidence into the immutable linear v1 law."""
 
-    retained = validate_capture_authority_v2(capture)
+    if _capture_version not in {2, 3}:
+        _fail("capture sidecar version is not registered")
+    retained = (
+        validate_capture_authority_v2(capture)
+        if _capture_version == 2
+        else validate_capture_authority_v3(capture)
+    )
     _timestamp(frozen_at_utc, label="sidecar freeze")
     identity_fields = {"uri", "generation", "sha256", "bytes"}
     if not isinstance(capture_identity, Mapping) or set(capture_identity) != (
@@ -1736,8 +1825,19 @@ def build_sidecar_from_capture_v2(
     return validate_prelock_candidate_lineage_v1(sidecar)
 
 
+def build_sidecar_from_capture_v3(**kwargs: Any) -> dict[str, object]:
+    """Project a v3 capture through the retained additive v1 sidecar law."""
+
+    return build_sidecar_from_capture_v2(**kwargs, _capture_version=3)
+
+
 def selected_roster_order(capture: Mapping[str, object]) -> list[list[str]]:
-    retained = validate_capture_authority_v2(capture)
+    schema = capture.get("schema_version") if isinstance(capture, Mapping) else None
+    retained = (
+        validate_capture_authority_v3(capture)
+        if schema == CAPTURE_SCHEMA_V3
+        else validate_capture_authority_v2(capture)
+    )
     effective = retained["effective_candidates"]
     return [
         list(effective["candidate_rosters"][index])
@@ -1747,12 +1847,15 @@ def selected_roster_order(capture: Mapping[str, object]) -> list[list[str]]:
 
 __all__ = [
     "CAPTURE_SCHEMA",
+    "CAPTURE_SCHEMA_V3",
     "CBWU_PRESET_ID",
     "EFFECTIVE_POLICY_SCHEMA",
     "EFFECTIVE_POLICY_SOURCE_SET_ID",
+    "EFFECTIVE_POLICY_SOURCE_SET_ID_V7",
     "EFFECTIVE_STAGE_ID",
     "EXECUTION_RECEIPT_SCHEMA",
     "LINEAGE_ADAPTER_MANIFEST_SCHEMA",
+    "LINEAGE_ADAPTER_MANIFEST_SCHEMA_V3",
     "MATRIX_SCHEMA",
     "NATIVE_UNION_STAGE_ID",
     "PLAYER_FEATURE_COLUMNS",
@@ -1761,11 +1864,14 @@ __all__ = [
     "SEED_LABELS",
     "PrelockLineageRuntimeV2Error",
     "build_capture_authority_v2",
+    "build_capture_authority_v3",
     "build_salary_snapshot_v2",
     "build_sidecar_from_capture_v2",
+    "build_sidecar_from_capture_v3",
     "canonical_selector_matrix_bytes",
     "reopen_selector_matrix_v2",
     "selected_roster_order",
     "validate_capture_authority_v2",
+    "validate_capture_authority_v3",
     "validate_salary_snapshot_v2",
 ]
