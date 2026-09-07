@@ -18,12 +18,14 @@ from nfl_dfs.research.corpus_retrieval_neo4j import (
     LOAD_RESULT_SCHEMA,
     SCHEMA_STATEMENTS,
     CorpusRetrievalNeo4jError,
+    Neo4jEvidenceMode,
     apply_load_plan,
     build_load_plan,
     canonical_json_bytes,
     canonical_sha256,
     load_statements,
     parse_canonical_json_bytes,
+    require_executable_plan,
     require_execute_gate,
 )
 
@@ -56,8 +58,9 @@ def _add_inputs(parser: argparse.ArgumentParser) -> None:
         default=[],
         metavar="GCS_URI=PATH",
         help=(
-            "generation-pinned evidence body used for canonical-v3 semantic "
-            "replay; repeat for the suite, snapshot, and retained sidecars"
+            "generation-pinned body used for suite-first authentication and "
+            "canonical-v3 semantic replay; repeat for the suite, snapshot, "
+            "governance chain, and retained evidence"
         ),
     )
     parser.add_argument("--parametric-batch-completion", type=Path)
@@ -74,13 +77,28 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
     validate = sub.add_parser(
-        "validate", help="validate an accepted evidence chain without Neo4j"
+        "validate",
+        help="authenticate canonical evidence without contacting Neo4j",
     )
     _add_inputs(validate)
     dry_run = sub.add_parser(
-        "dry-run", help="validate and describe parameterized writes without Neo4j"
+        "dry-run",
+        help=(
+            "authenticate canonical evidence and describe parameterized writes "
+            "without Neo4j"
+        ),
     )
     _add_inputs(dry_run)
+    validate_legacy = sub.add_parser(
+        "validate-legacy",
+        help="validate legacy v1 evidence without granting execution authority",
+    )
+    _add_inputs(validate_legacy)
+    dry_run_legacy = sub.add_parser(
+        "dry-run-legacy",
+        help="describe legacy v1 writes without granting execution authority",
+    )
+    _add_inputs(dry_run_legacy)
     execute = sub.add_parser(
         "execute", help="load one accepted chain into a dedicated Neo4j database"
     )
@@ -122,6 +140,20 @@ def _build(args: argparse.Namespace):
     if not isinstance(terminal, dict) or not isinstance(task_result, dict):
         raise CorpusRetrievalNeo4jError(
             "terminal receipt and task result must be objects"
+        )
+
+    legacy_validation_only = args.command in {
+        "validate-legacy",
+        "dry-run-legacy",
+    }
+    if legacy_validation_only and args.exact_object:
+        raise CorpusRetrievalNeo4jError(
+            "legacy-validation-only commands reject --exact-object; use "
+            "validate, dry-run, or execute for suite-authenticated evidence"
+        )
+    if not legacy_validation_only and not args.exact_object:
+        raise CorpusRetrievalNeo4jError(
+            "suite-authenticated commands require --exact-object bodies"
         )
 
     exact_bodies: dict[str, bytes] = {}
@@ -195,13 +227,12 @@ def _build(args: argparse.Namespace):
         batch_completion_raw=args.batch_completion.read_bytes(),
         task_result_raw=task_result_raw,
         graph_projection_raw=graph_raw,
-        # Legacy v1 evidence does not carry the authenticated suite objects
-        # required by canonical v3.  Supplying an empty exact-reader here
-        # would make a legacy validate/dry-run pretend that such an authority
-        # exists and then fail while looking for it.  Canonical v3 always
-        # supplies --exact-object entries and therefore always receives the
-        # fail-closed authenticated reader.
-        read_object=read_exact if args.exact_object else None,
+        evidence_mode=(
+            Neo4jEvidenceMode.LEGACY_VALIDATION_ONLY
+            if legacy_validation_only
+            else Neo4jEvidenceMode.AUTHENTICATED_SUITE
+        ),
+        read_object=None if legacy_validation_only else read_exact,
     )
     if sidecars:
         plan = append_retrieval_analytics(
@@ -318,6 +349,7 @@ def _write_load_result_create_exclusive(
 
 
 def _execute(plan: Any, *, environ: dict[str, str]) -> dict[str, object]:
+    require_executable_plan(plan)
     uri = environ.get(URI_ENV, "")
     database = environ.get(DATABASE_ENV, "")
     username = environ.get(USERNAME_ENV, "")
@@ -379,10 +411,15 @@ def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
         plan = _build(args)
-        if args.command == "validate":
-            result = {**plan.summary(), "mode": "validate", "neo4j_contacted": False}
-        elif args.command == "dry-run":
+        if args.command in {"validate", "validate-legacy"}:
+            result = {
+                **plan.summary(),
+                "mode": args.command,
+                "neo4j_contacted": False,
+            }
+        elif args.command in {"dry-run", "dry-run-legacy"}:
             result = _dry_run(plan)
+            result["mode"] = args.command
         elif args.command == "execute":
             require_execute_gate(execute=args.execute, environ=os.environ)
             if os.path.lexists(args.receipt_output):

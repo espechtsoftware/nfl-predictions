@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import importlib.util
 from copy import deepcopy
 from dataclasses import replace
 from hashlib import sha256
-import importlib.util
 from pathlib import Path
 from types import ModuleType
 
@@ -11,11 +11,10 @@ import pytest
 
 from nfl_dfs.research import corpus_parametric_batch as batch
 from nfl_dfs.research import corpus_retrieval_engine as retrieval
+from nfl_dfs.research import corpus_retrieval_neo4j as projection
 from nfl_dfs.research import corpus_strategy_registry as registry
 from nfl_dfs.research import corpus_strategy_registry_release as release
-from nfl_dfs.research import corpus_retrieval_neo4j as projection
 from nfl_dfs.research.corpus_neo4j_transport import ObjectIdentity
-
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -390,6 +389,7 @@ def _named_context() -> tuple[projection.Neo4jLoadPlan, dict[str, object]]:
         nodes=tuple(nodes),
         relationships=(),
         plan_sha256="0" * 64,
+        evidence_mode=projection.Neo4jEvidenceMode.LEGACY_VALIDATION_ONLY,
     )
     context = {
         "terminal": terminal,

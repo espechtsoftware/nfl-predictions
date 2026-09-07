@@ -18,6 +18,7 @@ import json
 import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
+from enum import Enum
 from hashlib import sha256
 from typing import Final
 
@@ -33,6 +34,19 @@ GRAPH_SCHEMA: Final = "corpus-retrieval-graph-projection/v1"
 GRAPH_SCHEMA_V2: Final = "corpus-retrieval-graph-projection/v2-canonical-game"
 TERMINAL_SCHEMA: Final = "corpus-retrieval-transport-terminal/v1"
 ENABLE_ENV: Final = "CORPUS_RETRIEVAL_NEO4J_ENABLED"
+
+
+class Neo4jEvidenceMode(str, Enum):
+    """Typed authority boundary for graph-plan construction.
+
+    Historical v1 fixtures remain useful for validation and dry-run
+    compatibility, but only a suite-first, exact-object-authenticated plan is
+    eligible to contact Neo4j.
+    """
+
+    AUTHENTICATED_SUITE = "authenticated-suite"
+    LEGACY_VALIDATION_ONLY = "legacy-validation-only"
+
 
 # Legacy graph-v1 evidence is shared by the four-strategy suite-v1 and the
 # seven-strategy suite-v2.  Canonical graph-v2 evidence is emitted only by
@@ -57,6 +71,11 @@ _TASK_STRATEGY_COUNTS: Final = {
     TASK_RESULT_SCHEMA: _LEGACY_STRATEGY_COUNTS,
     TASK_RESULT_SCHEMA_V2: _CANONICAL_V3_STRATEGY_COUNTS,
 }
+_AUTHENTICATED_SUITE_SCHEMAS: Final = frozenset({
+    "corpus-retrieval-suite-manifest/v1",
+    "corpus-retrieval-suite-manifest/v2",
+    "corpus-retrieval-suite-manifest/v3-canonical-game",
+})
 
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _GENERATION = re.compile(r"^[1-9][0-9]*$")
@@ -89,6 +108,9 @@ class Neo4jLoadPlan:
     nodes: tuple[dict[str, object], ...]
     relationships: tuple[dict[str, object], ...]
     plan_sha256: str
+    evidence_mode: Neo4jEvidenceMode
+    authenticated_suite_identity: dict[str, object] | None = None
+    authenticated_suite_schema_version: str = ""
 
     def summary(self) -> dict[str, object]:
         return {
@@ -101,6 +123,10 @@ class Neo4jLoadPlan:
             "graph_projection_identity": self.graph_projection_identity,
             "node_count": len(self.nodes),
             "relationship_count": len(self.relationships),
+            "evidence_mode": self.evidence_mode.value,
+            "execution_authorized": (
+                self.evidence_mode is Neo4jEvidenceMode.AUTHENTICATED_SUITE
+            ),
             "large_world_bodies_stored": False,
             "production_policy_mutation": False,
             "plan_sha256": self.plan_sha256,
@@ -1258,6 +1284,52 @@ def _relationship(
     }
 
 
+def _load_plan_hash_body(
+    *,
+    run_id: str,
+    task_id: str,
+    terminal_receipt_identity: Mapping[str, object],
+    batch_completion_identity: Mapping[str, object],
+    task_result_identity: Mapping[str, object],
+    graph_projection_identity: Mapping[str, object],
+    nodes: Sequence[Mapping[str, object]],
+    relationships: Sequence[Mapping[str, object]],
+    evidence_mode: Neo4jEvidenceMode,
+    authenticated_suite_identity: Mapping[str, object] | None,
+    authenticated_suite_schema_version: str,
+) -> dict[str, object]:
+    """Return the exact content bound by a load plan's SHA.
+
+    The legacy body intentionally retains its historical byte shape.  An
+    authenticated plan adds a version-authority block so extension plans
+    cannot shed the suite-first authentication decision while retaining the
+    same digest.
+    """
+
+    body: dict[str, object] = {
+        "schema_version": LOAD_SCHEMA,
+        "run_id": run_id,
+        "task_id": task_id,
+        "terminal_receipt_identity": dict(terminal_receipt_identity),
+        "batch_completion_identity": dict(batch_completion_identity),
+        "task_result_identity": dict(task_result_identity),
+        "graph_projection_identity": dict(graph_projection_identity),
+        "nodes": list(nodes),
+        "relationships": list(relationships),
+    }
+    if evidence_mode is Neo4jEvidenceMode.AUTHENTICATED_SUITE:
+        if authenticated_suite_identity is None:
+            raise CorpusRetrievalNeo4jError(
+                "authenticated load plan omits its suite identity"
+            )
+        body["evidence_authentication"] = {
+            "mode": evidence_mode.value,
+            "suite_manifest_identity": dict(authenticated_suite_identity),
+            "suite_schema_version": authenticated_suite_schema_version,
+        }
+    return body
+
+
 def build_load_plan(
     *,
     terminal_receipt_raw: bytes,
@@ -1265,9 +1337,28 @@ def build_load_plan(
     batch_completion_raw: bytes,
     task_result_raw: bytes,
     graph_projection_raw: bytes,
+    evidence_mode: Neo4jEvidenceMode,
     read_object: ObjectReader | None = None,
 ) -> Neo4jLoadPlan:
     """Validate an accepted evidence chain and construct an immutable plan."""
+    if type(evidence_mode) is not Neo4jEvidenceMode:
+        raise CorpusRetrievalNeo4jError(
+            "Neo4j evidence mode must be one explicit typed authority"
+        )
+    if (
+        evidence_mode is Neo4jEvidenceMode.AUTHENTICATED_SUITE
+        and read_object is None
+    ):
+        raise CorpusRetrievalNeo4jError(
+            "authenticated-suite mode requires an exact-object reader"
+        )
+    if (
+        evidence_mode is Neo4jEvidenceMode.LEGACY_VALIDATION_ONLY
+        and read_object is not None
+    ):
+        raise CorpusRetrievalNeo4jError(
+            "legacy-validation-only mode cannot accept execution authority"
+        )
     terminal_identity_preflight = _bind_body(
         terminal_receipt_raw,
         terminal_receipt_identity,
@@ -1287,7 +1378,8 @@ def build_load_plan(
         label="terminal receipt preflight",
     )
     authenticated = None
-    if read_object is not None:
+    if evidence_mode is Neo4jEvidenceMode.AUTHENTICATED_SUITE:
+        assert read_object is not None
         authenticated = _authenticate_suite_before_evidence(
             terminal=terminal_preflight,
             terminal_identity=terminal_identity_preflight,
@@ -1614,17 +1706,25 @@ def build_load_plan(
         raise CorpusRetrievalNeo4jError("physical Neo4j node IDs repeat")
     if len({str(row["edge_key"]) for row in relationships}) != len(relationships):
         raise CorpusRetrievalNeo4jError("physical Neo4j relationship keys repeat")
-    plan_body = {
-        "schema_version": LOAD_SCHEMA,
-        "run_id": run_id,
-        "task_id": task_id,
-        "terminal_receipt_identity": terminal_identity,
-        "batch_completion_identity": completion_identity,
-        "task_result_identity": task_result_identity,
-        "graph_projection_identity": graph_identity,
-        "nodes": nodes,
-        "relationships": relationships,
-    }
+    authenticated_suite_identity = (
+        None if authenticated is None else dict(authenticated.suite_identity)
+    )
+    authenticated_suite_schema_version = (
+        "" if authenticated is None else str(authenticated.suite["schema_version"])
+    )
+    plan_body = _load_plan_hash_body(
+        run_id=run_id,
+        task_id=task_id,
+        terminal_receipt_identity=terminal_identity,
+        batch_completion_identity=completion_identity,
+        task_result_identity=task_result_identity,
+        graph_projection_identity=graph_identity,
+        nodes=nodes,
+        relationships=relationships,
+        evidence_mode=evidence_mode,
+        authenticated_suite_identity=authenticated_suite_identity,
+        authenticated_suite_schema_version=authenticated_suite_schema_version,
+    )
     return Neo4jLoadPlan(
         schema_version=LOAD_SCHEMA,
         run_id=run_id,
@@ -1636,6 +1736,9 @@ def build_load_plan(
         nodes=tuple(nodes),
         relationships=tuple(relationships),
         plan_sha256=canonical_sha256(plan_body),
+        evidence_mode=evidence_mode,
+        authenticated_suite_identity=authenticated_suite_identity,
+        authenticated_suite_schema_version=authenticated_suite_schema_version,
     )
 
 
@@ -1649,6 +1752,79 @@ def load_statements(plan: Neo4jLoadPlan) -> tuple[CypherStatement, ...]:
             "merge-relationships", RELATIONSHIP_UPSERT_CYPHER, plan.relationships
         ),
     )
+
+
+def require_executable_plan(plan: Neo4jLoadPlan) -> None:
+    """Reject any plan that lacks suite-first exact-object authentication.
+
+    This check must run before opening a driver, bootstrapping schema, or
+    invoking a transaction callback.  Legacy evidence can still be validated
+    and described, but cannot acquire mutation authority.
+    """
+
+    if not isinstance(plan, Neo4jLoadPlan) or plan.schema_version != LOAD_SCHEMA:
+        raise CorpusRetrievalNeo4jError("load plan schema differs")
+    if plan.evidence_mode is not Neo4jEvidenceMode.AUTHENTICATED_SUITE:
+        raise CorpusRetrievalNeo4jError(
+            "legacy-validation-only load plan is not executable"
+        )
+    suite_identity = _identity(
+        plan.authenticated_suite_identity,
+        label="authenticated load-plan suite identity",
+    )
+    suite_schema = _string(
+        plan.authenticated_suite_schema_version,
+        label="authenticated load-plan suite schema",
+    )
+    if suite_schema not in _AUTHENTICATED_SUITE_SCHEMAS:
+        raise CorpusRetrievalNeo4jError(
+            "authenticated load-plan suite schema differs"
+        )
+    expected_sha = canonical_sha256(_load_plan_hash_body(
+        run_id=plan.run_id,
+        task_id=plan.task_id,
+        terminal_receipt_identity=plan.terminal_receipt_identity,
+        batch_completion_identity=plan.batch_completion_identity,
+        task_result_identity=plan.task_result_identity,
+        graph_projection_identity=plan.graph_projection_identity,
+        nodes=plan.nodes,
+        relationships=plan.relationships,
+        evidence_mode=plan.evidence_mode,
+        authenticated_suite_identity=suite_identity,
+        authenticated_suite_schema_version=suite_schema,
+    ))
+    if plan.plan_sha256 != expected_sha:
+        raise CorpusRetrievalNeo4jError(
+            "authenticated load-plan content identity differs"
+        )
+    task_result_identity = _identity(
+        plan.task_result_identity,
+        label="authenticated load-plan task-result identity",
+    )
+    task_nodes = [
+        row
+        for row in plan.nodes
+        if row.get("kind") == "CorpusTaskResult"
+        and all(
+            row.get(f"source_{key}") == task_result_identity[key]
+            for key in ("uri", "generation", "sha256", "bytes")
+        )
+    ]
+    if len(task_nodes) != 1:
+        raise CorpusRetrievalNeo4jError(
+            "authenticated load plan omits its exact task authority"
+        )
+    task_payload = _mapping(
+        parse_canonical_json_bytes(
+            str(task_nodes[0]["properties_json"]).encode("utf-8"),
+            label="authenticated load-plan task authority",
+        ),
+        label="authenticated load-plan task authority",
+    )
+    if task_payload.get("suite_manifest_identity") != suite_identity:
+        raise CorpusRetrievalNeo4jError(
+            "authenticated load-plan suite identity differs from task authority"
+        )
 
 
 def append_load_plan(
@@ -1734,17 +1910,21 @@ def append_load_plan(
         raise CorpusRetrievalNeo4jError("appended relationship endpoint is absent")
     combined_nodes.sort(key=lambda row: str(row["id"]))
     combined_relationships.sort(key=lambda row: str(row["edge_key"]))
-    body = {
-        "schema_version": LOAD_SCHEMA,
-        "run_id": plan.run_id,
-        "task_id": plan.task_id,
-        "terminal_receipt_identity": plan.terminal_receipt_identity,
-        "batch_completion_identity": plan.batch_completion_identity,
-        "task_result_identity": plan.task_result_identity,
-        "graph_projection_identity": plan.graph_projection_identity,
-        "nodes": combined_nodes,
-        "relationships": combined_relationships,
-    }
+    body = _load_plan_hash_body(
+        run_id=plan.run_id,
+        task_id=plan.task_id,
+        terminal_receipt_identity=plan.terminal_receipt_identity,
+        batch_completion_identity=plan.batch_completion_identity,
+        task_result_identity=plan.task_result_identity,
+        graph_projection_identity=plan.graph_projection_identity,
+        nodes=combined_nodes,
+        relationships=combined_relationships,
+        evidence_mode=plan.evidence_mode,
+        authenticated_suite_identity=plan.authenticated_suite_identity,
+        authenticated_suite_schema_version=(
+            plan.authenticated_suite_schema_version
+        ),
+    )
     return Neo4jLoadPlan(
         schema_version=LOAD_SCHEMA,
         run_id=plan.run_id,
@@ -1756,6 +1936,15 @@ def append_load_plan(
         nodes=tuple(combined_nodes),
         relationships=tuple(combined_relationships),
         plan_sha256=canonical_sha256(body),
+        evidence_mode=plan.evidence_mode,
+        authenticated_suite_identity=(
+            None
+            if plan.authenticated_suite_identity is None
+            else dict(plan.authenticated_suite_identity)
+        ),
+        authenticated_suite_schema_version=(
+            plan.authenticated_suite_schema_version
+        ),
     )
 
 
@@ -1880,6 +2069,7 @@ def apply_load_plan(
     database: str,
 ) -> dict[str, object]:
     """Apply a plan through an injected transaction-bound statement runner."""
+    require_executable_plan(plan)
     counts: dict[str, int] = {}
     for statement in load_statements(plan):
         result = _mapping(
@@ -1921,6 +2111,7 @@ __all__ = [
     "SCHEMA_STATEMENTS",
     "CorpusRetrievalNeo4jError",
     "CypherStatement",
+    "Neo4jEvidenceMode",
     "Neo4jLoadPlan",
     "append_load_plan",
     "apply_load_plan",
@@ -1930,5 +2121,6 @@ __all__ = [
     "canonical_sha256",
     "load_statements",
     "parse_canonical_json_bytes",
+    "require_executable_plan",
     "require_execute_gate",
 ]

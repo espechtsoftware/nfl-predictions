@@ -1,24 +1,24 @@
 from __future__ import annotations
 
-from copy import deepcopy
-from hashlib import sha256
+import hashlib
 import importlib.util
-from pathlib import Path
 import re
 import shlex
+from copy import deepcopy
+from dataclasses import replace
+from functools import cache
+from hashlib import sha256
+from pathlib import Path
 from types import ModuleType
 from typing import Any
 
 import pytest
 
 from nfl_dfs.research import corpus_expansion_build as expansion_build
-import hashlib
-
 from nfl_dfs.research import corpus_neo4j_extensions as extensions
 from nfl_dfs.research import corpus_neo4j_transport as transport
 from nfl_dfs.research import corpus_retrieval_neo4j as projection
 from scripts import run_corpus_neo4j_transport as run_cli
-
 
 ROOT = Path(__file__).resolve().parents[1]
 BUILD_ID = "12345678-1234-1234-1234-123456789abc"
@@ -544,24 +544,26 @@ def _deployment(storage: FakeStorage) -> tuple[dict[str, object], dict[str, obje
     return deployment, identity
 
 
+@cache
+def _authenticated_retrieval_fixture() -> dict[str, Any]:
+    # Governed transport is executable, so its fixture must carry the complete
+    # suite-first exact-object authority rather than the old placeholder v1
+    # chain used by validation-only planner tests.
+    return FIXTURES._canonical_v3_bundle()
+
+
 def _retrieval(storage: FakeStorage) -> dict[str, Any]:
-    bundle = FIXTURES._bundle(analytics=True)
-    terminal = projection.parse_canonical_json_bytes(
-        bundle["terminal_receipt_raw"], label="fixture terminal"
-    )
-    result = projection.parse_canonical_json_bytes(
-        bundle["task_result_raw"], label="fixture result"
-    )
-    assert isinstance(terminal, dict) and isinstance(result, dict)
-    storage.add(bundle["terminal_receipt_identity"], bundle["terminal_receipt_raw"])
-    storage.add(terminal["batch_completion"], bundle["batch_completion_raw"])
-    storage.add(terminal["result_object"], bundle["task_result_raw"])
-    storage.add(result["graph_projection_object"], bundle["graph_projection_raw"])
-    bodies = bundle["sidecar_bodies"]
-    for sidecar in result["sidecars"]:
-        key = (sidecar["role"], sidecar["strategy_id"])
-        if key in bodies:
-            storage.add(sidecar["object_identity"], bodies[key])
+    bundle = _authenticated_retrieval_fixture()
+    for (uri, generation), raw in bundle["store"]._raw.items():
+        storage.add(
+            {
+                "uri": uri,
+                "generation": generation,
+                "sha256": sha256(raw).hexdigest(),
+                "bytes": len(raw),
+            },
+            raw,
+        )
     return bundle
 
 
@@ -578,9 +580,14 @@ def _strategy_registry(storage: FakeStorage) -> dict[str, object]:
     return release_identity
 
 
-def _prepare_task0(
-    storage: FakeStorage,
-) -> tuple[dict[str, object], transport.ValidatedLoadBundle, dict[str, object]]:
+@cache
+def _prepared_task0_fixture() -> tuple[
+    FakeStorage,
+    dict[str, object],
+    transport.ValidatedLoadBundle,
+    dict[str, object],
+]:
+    storage = FakeStorage()
     deployment, deployment_identity = _deployment(storage)
     retrieval = _retrieval(storage)
     strategy_registry_release = _strategy_registry(storage)
@@ -606,6 +613,20 @@ def _prepare_task0(
     bundle = transport.validate_load_manifest(
         storage=storage, manifest_identity=manifest_identity.as_dict()
     )
+    return storage, deployment, bundle, retrieval
+
+
+def _prepare_task0(
+    storage: FakeStorage,
+) -> tuple[dict[str, object], transport.ValidatedLoadBundle, dict[str, object]]:
+    # The authenticated semantic replay is intentionally expensive.  Build it
+    # once, then copy its immutable exact-object state into each test's fresh
+    # storage so individual receipt mutations remain isolated.
+    template, deployment, bundle, retrieval = _prepared_task0_fixture()
+    storage.exact = dict(template.exact)
+    storage.current = dict(template.current)
+    storage.next_generation = template.next_generation
+    storage.list_calls = 0
     return deployment, bundle, retrieval
 
 
@@ -770,7 +791,7 @@ def test_task0_manifest_requires_all_compact_analytics_and_never_lists() -> None
     assert bundle.manifest["worker_object_access_mode"] == (
         "generation-pinned-exact-get-no-list"
     )
-    assert len(bundle.manifest["retrieval"]["mandatory_analytics"]) == 7
+    assert len(bundle.manifest["retrieval"]["mandatory_analytics"]) == 11
     assert storage.list_calls == 0
 
     result = projection.parse_canonical_json_bytes(
@@ -854,26 +875,53 @@ def test_canonical_v3_mandatory_analytics_requires_all_seven_strategies() -> Non
 
 
 def test_accepted_task0_replays_canonical_v3_semantics() -> None:
-    source = FIXTURES._canonical_v3_bundle()
     storage = FakeStorage()
-    for (uri, generation), raw in source["store"]._raw.items():
-        storage.add(
-            {
-                "uri": uri,
-                "generation": generation,
-                "sha256": sha256(raw).hexdigest(),
-                "bytes": len(raw),
-            },
-            raw,
-        )
-    accepted, plan = transport._accepted_task0(
-        storage, source["terminal_receipt_identity"]
-    )
+    _, bundle, _ = _prepare_task0(storage)
+    accepted = bundle.manifest["retrieval"]
+    plan = bundle.retrieval_plan
+    assert isinstance(accepted, dict)
     assert len(accepted["mandatory_analytics"]) == 11
     assert sum(
         row["kind"] == "RetrievalStrategyResult" for row in plan.nodes
     ) == 7
     assert sum(row["kind"] == "CorpusFillInsight" for row in plan.nodes) == 1
+
+
+def test_transport_rejects_validation_only_plan_before_graph_contact() -> None:
+    storage = FakeStorage()
+    _, bundle, _ = _prepare_task0(storage)
+    validation_only = replace(
+        bundle.retrieval_plan,
+        evidence_mode=projection.Neo4jEvidenceMode.LEGACY_VALIDATION_ONLY,
+        authenticated_suite_identity=None,
+        authenticated_suite_schema_version="",
+    )
+    changed_bundle = replace(bundle, retrieval_plan=validation_only)
+
+    class NoGraphContact:
+        def __getattribute__(self, name: str) -> object:
+            if name.startswith("__"):
+                return super().__getattribute__(name)
+            raise AssertionError(f"graph was contacted through {name}")
+
+    for operation in (
+        lambda: transport.bootstrap_schema(
+            storage=storage,
+            graph=NoGraphContact(),  # type: ignore[arg-type]
+            bundle=changed_bundle,
+        ),
+        lambda: transport.load_plan(
+            storage=storage,
+            graph=NoGraphContact(),  # type: ignore[arg-type]
+            bundle=changed_bundle,
+            task_index=None,
+        ),
+    ):
+        with pytest.raises(
+            transport.CorpusNeo4jTransportError,
+            match="legacy-validation-only load plan is not executable",
+        ):
+            operation()
 
 
 @pytest.mark.parametrize(

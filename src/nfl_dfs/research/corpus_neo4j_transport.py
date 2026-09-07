@@ -17,11 +17,11 @@ or stores world matrices in Neo4j.
 
 from __future__ import annotations
 
+import os
+import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from hashlib import sha256
-import os
-import re
 from typing import Any, Final, Protocol
 from urllib.parse import urlparse
 
@@ -34,19 +34,20 @@ from nfl_dfs.research.corpus_neo4j_extensions import (
     append_retrieval_analytics,
 )
 from nfl_dfs.research.corpus_retrieval_neo4j import (
-    CorpusRetrievalNeo4jError,
-    Neo4jLoadPlan,
     SCHEMA_STATEMENTS,
     TASK_RESULT_SCHEMA,
     TASK_RESULT_SCHEMA_V2,
+    CorpusRetrievalNeo4jError,
+    Neo4jEvidenceMode,
+    Neo4jLoadPlan,
     apply_load_plan,
     build_load_plan,
     build_load_result_receipt,
     canonical_json_bytes,
     canonical_sha256,
     parse_canonical_json_bytes,
+    require_executable_plan,
 )
-
 
 DEPLOYMENT_SCHEMA: Final = "corpus-neo4j-dedicated-deployment/v2"
 POPULATION_DEPLOYMENT_SCHEMA: Final = "corpus-neo4j-dedicated-deployment/v3"
@@ -1160,6 +1161,7 @@ def _accepted_task0(
             batch_completion_raw=completion_raw,
             task_result_raw=result_raw,
             graph_projection_raw=graph_raw,
+            evidence_mode=Neo4jEvidenceMode.AUTHENTICATED_SUITE,
             read_object=read_authenticated,
         )
         plan = append_retrieval_analytics(
@@ -2161,6 +2163,16 @@ def _plan_for_task(
     return bundle.parametric_plans[task_index]
 
 
+def _require_executable_transport_plan(plan: Neo4jLoadPlan) -> None:
+    """Translate the core plan-authority guard at the transport boundary."""
+    try:
+        require_executable_plan(plan)
+    except CorpusRetrievalNeo4jError as exc:
+        raise CorpusNeo4jTransportError(
+            f"graph execution authority differs: {exc}"
+        ) from exc
+
+
 def _validate_plan_verification(
     value: object, *, plan: Neo4jLoadPlan,
 ) -> dict[str, object]:
@@ -2251,6 +2263,7 @@ def bootstrap_schema(
     *, storage: ExactObjectStore, graph: GraphBackend,
     bundle: ValidatedLoadBundle,
 ) -> dict[str, object]:
+    _require_executable_transport_plan(bundle.retrieval_plan)
     if bundle.manifest_identity is None:
         raise CorpusNeo4jTransportError("published load manifest identity is required")
     uri = str(_mapping(bundle.manifest["receipt_uris"], label="receipt URIs")["bootstrap"])
@@ -2304,6 +2317,7 @@ def load_plan(
     bundle: ValidatedLoadBundle, task_index: int | None,
 ) -> dict[str, object]:
     plan = _plan_for_task(bundle, task_index=task_index)
+    _require_executable_transport_plan(plan)
     _require_bootstrap(storage, bundle)
     uri = _receipt_uri(bundle, task_index=task_index)
     existing = storage.resolve_optional(uri)
@@ -2339,6 +2353,7 @@ def recover_plan_receipt(
 ) -> dict[str, object]:
     """Publish a missing receipt only after exact read-only graph replay."""
     plan = _plan_for_task(bundle, task_index=task_index)
+    _require_executable_transport_plan(plan)
     _require_bootstrap(storage, bundle)
     uri = _receipt_uri(bundle, task_index=task_index)
     existing = storage.resolve_optional(uri)
@@ -2406,6 +2421,8 @@ def load_strategy_registry(
     bundle: ValidatedLoadBundle,
 ) -> dict[str, object]:
     """Idempotently load the outcome-blind v2 registry after retrieval task 0."""
+    plan = _strategy_registry_plan(bundle)
+    _require_executable_transport_plan(plan)
     _require_bootstrap(storage, bundle)
     retrieval = storage.resolve_optional(_receipt_uri(bundle, task_index=None))
     if retrieval is None:
@@ -2426,7 +2443,6 @@ def load_strategy_registry(
         )
         _publish_strategy_projection_receipt(storage=storage, bundle=bundle)
         return receipt
-    plan = _strategy_registry_plan(bundle)
     _validate_component(bundle.deployment, graph.component())
     _require_allowed_census(bundle.deployment, graph.census(), initially_empty=False)
     core = dict(graph.apply(plan))
@@ -2453,6 +2469,8 @@ def recover_strategy_registry_receipt(
     bundle: ValidatedLoadBundle,
 ) -> dict[str, object]:
     """Recover only after an exact read-only replay of the full registry plan."""
+    plan = _strategy_registry_plan(bundle)
+    _require_executable_transport_plan(plan)
     _require_bootstrap(storage, bundle)
     retrieval = storage.resolve_optional(_receipt_uri(bundle, task_index=None))
     if retrieval is None:
@@ -2473,7 +2491,6 @@ def recover_strategy_registry_receipt(
         )
         _publish_strategy_projection_receipt(storage=storage, bundle=bundle)
         return receipt
-    plan = _strategy_registry_plan(bundle)
     _validate_component(bundle.deployment, graph.component())
     _require_allowed_census(bundle.deployment, graph.census(), initially_empty=False)
     verification = _validate_plan_verification(graph.verify(plan), plan=plan)
@@ -3350,6 +3367,7 @@ class Neo4jDriverBackend:
                 session.run(statement).consume()
 
     def apply(self, plan: Neo4jLoadPlan) -> Mapping[str, object]:
+        require_executable_plan(plan)
         with self._driver.session(database=self.database) as session:
             def write(transaction: Any) -> dict[str, object]:
                 def runner(query: str, parameters: Mapping[str, object]) -> Mapping[str, object]:

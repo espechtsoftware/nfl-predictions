@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import re
 from copy import deepcopy
+from dataclasses import replace
 from hashlib import sha256
 from pathlib import Path
 from typing import Any
@@ -446,6 +447,9 @@ def _plan(bundle: dict[str, Any]) -> projection.Neo4jLoadPlan:
     }
     if "read_object" in bundle:
         values["read_object"] = bundle["read_object"]
+        values["evidence_mode"] = projection.Neo4jEvidenceMode.AUTHENTICATED_SUITE
+    else:
+        values["evidence_mode"] = projection.Neo4jEvidenceMode.LEGACY_VALIDATION_ONLY
     return projection.build_load_plan(**values)
 
 
@@ -974,6 +978,112 @@ def _rebind_canonical_v3_graph(
     }
 
 
+def _repackage_canonical_v3_as_legacy_without_reader(
+    bundle: dict[str, Any],
+) -> dict[str, Any]:
+    """Build the exact coherent downgrade shape from the independent review."""
+
+    store = bundle["store"]
+    terminal = projection.parse_canonical_json_bytes(
+        bundle["terminal_receipt_raw"], label="repackaged terminal"
+    )
+    task_result = projection.parse_canonical_json_bytes(
+        bundle["task_result_raw"], label="repackaged task result"
+    )
+    completion = projection.parse_canonical_json_bytes(
+        bundle["batch_completion_raw"], label="repackaged completion"
+    )
+    graph = projection.parse_canonical_json_bytes(
+        bundle["graph_projection_raw"], label="repackaged graph"
+    )
+    assert isinstance(terminal, dict)
+    assert isinstance(task_result, dict)
+    assert isinstance(completion, dict)
+    assert isinstance(graph, dict)
+
+    graph["schema_version"] = projection.GRAPH_SCHEMA
+    graph.pop("graph_projection_sha256")
+    graph = _self_hash(graph, "graph_projection_sha256")
+    graph_raw = projection.canonical_json_bytes(graph)
+    graph_sidecar = next(
+        row for row in task_result["sidecars"] if row["role"] == "graph-projection"
+    )
+    graph_identity = store.add(
+        str(graph_sidecar["object_identity"]["uri"]), graph_raw
+    )
+    graph_sidecar["object_identity"] = graph_identity
+    graph_sidecar["semantic"] = {
+        "schema_version": projection.GRAPH_SCHEMA,
+        "canonical_json_sha256": graph_identity["sha256"],
+    }
+
+    task_result["schema_version"] = projection.TASK_RESULT_SCHEMA
+    task_result["graph_projection_object"] = graph_identity
+    task_result.pop("task_result_sha256")
+    task_result = _self_hash(task_result, "task_result_sha256")
+    task_result_raw = projection.canonical_json_bytes(task_result)
+    task_result_identity = store.add(
+        str(terminal["result_object"]["uri"]), task_result_raw
+    )
+
+    completion["schema_version"] = projection.COMPLETION_SCHEMA
+    completion["task_results"][0]["task_result_sha256"] = task_result[
+        "task_result_sha256"
+    ]
+    completion["task_results"][0]["task_result_object"] = task_result_identity
+    completion.pop("batch_completion_sha256")
+    completion = _self_hash(completion, "batch_completion_sha256")
+    completion_raw = projection.canonical_json_bytes(completion)
+    completion_identity = store.add(
+        str(terminal["batch_completion"]["uri"]), completion_raw
+    )
+
+    terminal["result_object"] = task_result_identity
+    terminal["task_result_sha256"] = task_result["task_result_sha256"]
+    terminal["batch_completion"] = completion_identity
+    terminal["batch_completion_sha256"] = completion["batch_completion_sha256"]
+    retained_identities = [
+        terminal["suite_manifest_identity"],
+        terminal["prefix_claim"],
+        terminal["runtime_iam_evidence"],
+        terminal["execution_contract"],
+        terminal["launch_intent"],
+        terminal["launch_ledger"],
+        terminal["execution_name_ledger"],
+        completion_identity,
+        task_result_identity,
+        *(row["object_identity"] for row in task_result["sidecars"]),
+    ]
+    inventory = sorted(
+        (
+            {
+                "uri": row["uri"],
+                "generation": row["generation"],
+                "bytes": row["bytes"],
+            }
+            for row in retained_identities
+        ),
+        key=lambda row: (row["uri"], row["generation"]),
+    )
+    terminal["output_inventory_before_terminal"] = inventory
+    terminal["output_inventory_before_terminal_sha256"] = (
+        projection.canonical_sha256(inventory)
+    )
+    terminal.pop("terminal_receipt_sha256")
+    terminal = _self_hash(terminal, "terminal_receipt_sha256")
+    terminal_raw = projection.canonical_json_bytes(terminal)
+    terminal_identity = store.add(
+        str(bundle["terminal_receipt_identity"]["uri"]), terminal_raw
+    )
+    return {
+        "terminal_receipt_raw": terminal_raw,
+        "terminal_receipt_identity": terminal_identity,
+        "batch_completion_raw": completion_raw,
+        "task_result_raw": task_result_raw,
+        "graph_projection_raw": graph_raw,
+    }
+
+
 def _parametric_bundle(task_index: int = 0) -> dict[str, Any]:
     batch_id = "20260821-corpus-parametric-fixture-v1"
     manifest_sha = "2" * 64
@@ -1296,6 +1406,8 @@ def test_builds_receipt_bound_pointer_only_plan() -> None:
     assert plan.task_id == "slate-2023-w1"
     assert plan.summary()["large_world_bodies_stored"] is False
     assert plan.summary()["production_policy_mutation"] is False
+    assert plan.summary()["execution_authorized"] is False
+    assert plan.summary()["evidence_mode"] == "legacy-validation-only"
     assert any(row["kind"] == "LineupCandidate" for row in plan.nodes)
     assert any(row["kind"] == "CorpusArtifactPointer" for row in plan.nodes)
     assert all(type(row["source_bytes"]) is int and row["source_bytes"] > 0 for row in plan.nodes)
@@ -1317,6 +1429,8 @@ def test_builds_full_canonical_v3_evidence_chain_plan(
     plan = _plan(canonical_v3_bundle)
     assert plan.run_id == "fixture-neo4j-retrieval-v3"
     assert plan.summary()["large_world_bodies_stored"] is False
+    assert plan.summary()["execution_authorized"] is True
+    assert plan.summary()["evidence_mode"] == "authenticated-suite"
     assert sum(
         row["kind"] == "RetrievalStrategyResult" for row in plan.nodes
     ) == 7
@@ -1469,6 +1583,109 @@ def test_canonical_v3_requires_authenticated_semantic_evidence(
         _plan(without_reader)
 
 
+def test_build_load_plan_requires_explicit_typed_evidence_mode(
+    canonical_v3_bundle: dict[str, Any],
+) -> None:
+    values = {
+        key: canonical_v3_bundle[key]
+        for key in (
+            "terminal_receipt_raw",
+            "terminal_receipt_identity",
+            "batch_completion_raw",
+            "task_result_raw",
+            "graph_projection_raw",
+        )
+    }
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="explicit typed authority",
+    ):
+        projection.build_load_plan(
+            **values,
+            evidence_mode="authenticated-suite",  # type: ignore[arg-type]
+            read_object=canonical_v3_bundle["read_object"],
+        )
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="requires an exact-object reader",
+    ):
+        projection.build_load_plan(
+            **values,
+            evidence_mode=projection.Neo4jEvidenceMode.AUTHENTICATED_SUITE,
+        )
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="cannot accept execution authority",
+    ):
+        projection.build_load_plan(
+            **values,
+            evidence_mode=projection.Neo4jEvidenceMode.LEGACY_VALIDATION_ONLY,
+            read_object=canonical_v3_bundle["read_object"],
+        )
+
+
+def test_repackaged_suite_v3_legacy_chain_cannot_execute(
+    canonical_v3_bundle: dict[str, Any],
+) -> None:
+    repackaged = _repackage_canonical_v3_as_legacy_without_reader(
+        canonical_v3_bundle
+    )
+    plan = _plan(repackaged)
+    assert plan.evidence_mode is projection.Neo4jEvidenceMode.LEGACY_VALIDATION_ONLY
+    assert plan.authenticated_suite_identity is None
+    calls: list[str] = []
+
+    def must_not_run(
+        _query: str, _parameters: dict[str, object]
+    ) -> dict[str, object]:
+        calls.append("neo4j")
+        return {"row_count": 0, "accepted_count": 0}
+
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="legacy-validation-only load plan is not executable",
+    ):
+        projection.apply_load_plan(
+            plan,
+            run_statement=must_not_run,
+            database="corpus-research",
+        )
+    assert calls == []
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="legacy-validation-only load plan is not executable",
+    ):
+        cli._execute(plan, environ={})  # noqa: SLF001
+
+
+def test_authenticated_plan_rejects_changed_suite_identity_before_apply(
+    canonical_v3_bundle: dict[str, Any],
+) -> None:
+    plan = _plan(canonical_v3_bundle)
+    assert plan.authenticated_suite_identity is not None
+    changed_identity = dict(plan.authenticated_suite_identity)
+    changed_identity["generation"] = str(int(changed_identity["generation"]) + 1)
+    changed = replace(plan, authenticated_suite_identity=changed_identity)
+    calls: list[str] = []
+
+    def must_not_run(
+        _query: str, _parameters: dict[str, object]
+    ) -> dict[str, object]:
+        calls.append("neo4j")
+        return {"row_count": 0, "accepted_count": 0}
+
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="content identity differs",
+    ):
+        projection.apply_load_plan(
+            changed,
+            run_statement=must_not_run,
+            database="corpus-research",
+        )
+    assert calls == []
+
+
 @pytest.mark.parametrize("corruption", ["task-property", "selected-topology"])
 def test_canonical_v3_rejects_rehashed_semantic_graph_drift(
     canonical_v3_bundle: dict[str, Any], corruption: str,
@@ -1525,8 +1742,10 @@ def test_rejects_changed_graph_bytes_and_generation_binding() -> None:
         _plan(changed)
 
 
-def test_cypher_is_parameterized_and_apply_is_idempotent() -> None:
-    plan = _plan(_bundle())
+def test_cypher_is_parameterized_and_apply_is_idempotent(
+    canonical_v3_bundle: dict[str, Any],
+) -> None:
+    plan = _plan(canonical_v3_bundle)
     statements = projection.load_statements(plan)
     assert len(statements) == 2
     assert all("$rows" in statement.query for statement in statements)
@@ -1559,8 +1778,10 @@ def test_cypher_is_parameterized_and_apply_is_idempotent() -> None:
     assert len(calls) == 4
 
 
-def test_immutable_conflict_fails_closed() -> None:
-    plan = _plan(_bundle())
+def test_immutable_conflict_fails_closed(
+    canonical_v3_bundle: dict[str, Any],
+) -> None:
+    plan = _plan(canonical_v3_bundle)
 
     def conflict(query: str, parameters: dict[str, object]) -> dict[str, object]:
         del query
@@ -1606,13 +1827,84 @@ def test_cli_validate_and_dry_run_never_contact_neo4j(
         "--task-result", str(paths["task_result_raw"]),
         "--graph-projection", str(paths["graph_projection_raw"]),
     ]
-    assert cli.main(["validate", *common]) == 0
+    assert cli.main(["validate-legacy", *common]) == 0
     validate = capsys.readouterr().out
     assert '"neo4j_contacted":false' in validate
-    assert cli.main(["dry-run", *common]) == 0
+    assert cli.main(["dry-run-legacy", *common]) == 0
     dry_run = capsys.readouterr().out
     assert '"parameter_names":["rows"]' in dry_run
     assert '"neo4j_contacted":false' in dry_run
+
+
+def test_cli_execute_requires_matching_exact_suite_before_neo4j_contact(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+    canonical_v3_bundle: dict[str, Any],
+) -> None:
+    paths: dict[str, Path] = {}
+    for key in (
+        "terminal_receipt_raw",
+        "batch_completion_raw",
+        "task_result_raw",
+        "graph_projection_raw",
+    ):
+        path = tmp_path / f"{key}.json"
+        path.write_bytes(canonical_v3_bundle[key])
+        paths[key] = path
+    identity_path = tmp_path / "terminal-identity.json"
+    identity_path.write_bytes(projection.canonical_json_bytes(
+        canonical_v3_bundle["terminal_receipt_identity"]
+    ))
+    receipt_path = tmp_path / "load-result.json"
+    common = [
+        "--terminal-receipt", str(paths["terminal_receipt_raw"]),
+        "--terminal-receipt-identity", str(identity_path),
+        "--batch-completion", str(paths["batch_completion_raw"]),
+        "--task-result", str(paths["task_result_raw"]),
+        "--graph-projection", str(paths["graph_projection_raw"]),
+        "--execute",
+        "--receipt-output", str(receipt_path),
+    ]
+    contacted: list[str] = []
+
+    def must_not_contact(*_args: object, **_kwargs: object) -> dict[str, object]:
+        contacted.append("neo4j")
+        return {}
+
+    monkeypatch.setattr(cli, "_execute", must_not_contact)
+    monkeypatch.setenv(projection.ENABLE_ENV, "1")
+    assert cli.main(["execute", *common]) == 2
+    assert "require --exact-object" in capsys.readouterr().err
+    assert contacted == []
+
+    terminal = projection.parse_canonical_json_bytes(
+        canonical_v3_bundle["terminal_receipt_raw"], label="CLI terminal"
+    )
+    assert isinstance(terminal, dict)
+    suite_identity = terminal["suite_manifest_identity"]
+    suite_path = tmp_path / "suite.json"
+    suite_path.write_bytes(canonical_v3_bundle["store"].read(suite_identity))
+    assert cli.main([
+        "execute",
+        *common,
+        "--exact-object",
+        f"{suite_identity['uri']}={suite_path}",
+    ]) == 2
+    assert "exact object body is absent" in capsys.readouterr().err
+    assert contacted == []
+
+    wrong_suite = tmp_path / "wrong-suite.json"
+    wrong_suite.write_bytes(b"{}")
+    assert cli.main([
+        "execute",
+        *common,
+        "--exact-object",
+        f"{suite_identity['uri']}={wrong_suite}",
+    ]) == 2
+    assert "suite manifest content identity differs" in capsys.readouterr().err
+    assert contacted == []
+    assert not receipt_path.exists()
 
 
 def test_schema_file_matches_runtime_statements() -> None:
@@ -1815,9 +2107,9 @@ def test_cross_task_retained_object_alias_is_rejected() -> None:
 
 
 def test_load_result_receipt_is_create_exclusive_and_secret_free(
-    tmp_path: Path,
+    tmp_path: Path, canonical_v3_bundle: dict[str, Any],
 ) -> None:
-    plan = _plan(_bundle())
+    plan = _plan(canonical_v3_bundle)
 
     def accepted(_query: str, parameters: dict[str, object]) -> dict[str, object]:
         count = len(parameters["rows"])

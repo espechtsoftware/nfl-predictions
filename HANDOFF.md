@@ -22,6 +22,52 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 canonical-v2 R2 Neo4j downgrade repair (independent candidate)
+
+- Isolated worktree
+  `/home/erich/projects/nfl-predictions-canonical-v3-neo-repair`, branch
+  `codex/canonical-v3-neo-repair`, exact parent
+  `3c51fd3fb5cf6f3c52dfc9f1762661b94e1a67c9`. The repair is limited to the
+  remaining Neo4j downgrade HOLD from the independent review of `a6007f2f`;
+  it changes no generation, scoring, admission, selector, paid-entry, or
+  production-policy behavior.
+- Neo4j load-plan construction now requires an explicit typed evidence mode.
+  The executable mode requires suite-first authentication through an exact-
+  object reader. Historical v1 evidence remains available only through an
+  explicit validation-only authority, exposed by the separately named
+  `validate-legacy` and `dry-run-legacy` CLI modes; those plans are ineligible
+  for graph execution.
+- Authenticated plans bind the reopened suite identity and suite schema into
+  the plan SHA. That authority survives retrieval-analytics, parametric,
+  population, and strategy-registry plan extension. Core apply, governed
+  transport load/recovery, the real driver backend, and the standalone CLI all
+  reject a validation-only or altered authenticated plan before graph contact.
+- Adversarial coverage coherently repackages a genuine suite-v3 chain as
+  legacy completion/result/graph v1 and proves that no statement callback can
+  run. CLI coverage proves execute rejects absent suite bodies, an absent
+  downstream exact object, and a mismatched suite body before `_execute` can
+  contact Neo4j. A transport-level adversary proves validation-only plans are
+  rejected before even an injected graph backend is accessed. Governed-
+  transport tests now install a complete canonical-v3 exact-object fixture
+  instead of the stale legacy placeholder chain that cannot authenticate.
+- Static validation is green: changed source/test compilation with the
+  isolated source tree first on `PYTHONPATH`, `git diff --check`, and fatal/
+  import Ruff (`E9,F63,F7,F82,I001`) across all six modified Python files.
+  The exact governed-transport module passed **33/33** with zero failures and
+  explicit `PYTHONPATH=$PWD/src:$PWD`. Two earlier starts were intentionally
+  terminated after the lab's recurring serial test reacquired the lane; those
+  interrupted processes are discarded and are not counted as evidence. The
+  full three-module regression remains held behind the score-path review lane.
+- The concise implementation and evidence report is
+  `reports/2026-09-07-canonical-v2-r2-neo4j-suite-authority-repair.md`.
+- No cloud, Neo4j, paid-entry, deployment, or production state was read or
+  mutated. Nothing here grants merge, release, build, deployment, or load
+  authorization.
+
+  Next concrete action: independently review the pushed candidate and, when
+  the shared pytest lane is explicitly released, run the retrieval and
+  strategy-registry regressions serially before any release decision.
+
 ### 2026-09-07 canonical-game v2 independent-review R2 repair (review-ready)
 
 - Worktree `/home/erich/projects/nfl-predictions-canonical-game-v2`, branch
