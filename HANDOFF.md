@@ -68,9 +68,37 @@ agent or developer:
   ignoring only `UP017`, `DTZ001`, and `RUF046`; an unrestricted run reports
   the exact same ten pre-existing findings on the base files and no new
   finding.
+- Independent review found one point-in-time launch blocker in that initial
+  implementation: the collector assigned `pulled_at` at job start, before the
+  injury source returned. A request beginning before the Sunday-main lock and
+  returning afterward could therefore make post-lock contents appear
+  pre-lock; on an active-season `--full` run, the gap could span the earlier
+  source loads. Direct-child repair
+  `c234f5e2f8f3ec6c6faaf8db1d1752808dc90aa0` replaces that timestamp only
+  for injury evidence with a dedicated observation time captured after the
+  applicable frame has returned and passed normalization. The planning-year
+  bypass retains its own post-return time even though the completed-season
+  raw injury frame is loaded later; the ordinary active-season path receives
+  its own post-return time. All roster/depth timestamps and every other ingest
+  behavior remain unchanged.
+- The repair adds a run-level adversarial boundary test for both paths. In
+  each case the job begins one second before a synthetic lock and the relevant
+  injury source returns one second afterward; the append must carry the
+  post-lock return time, never the earlier run-start time. The repaired
+  `test_nflverse_job.py` passes 15/15. The unchanged companion suites pass
+  `test_status.py` 18/18, `test_week1_source_readiness.py` 38/38,
+  `test_leakage.py` 24/24, `test_backup.py` 6/6, and
+  `test_feature_sql.py` 77 passed/1 intentional skip. Changed-file Ruff with
+  the three documented base ignores, compilation, and `git diff --check` are
+  clean. A second exact live-source read still returns the expected 11 unique
+  2026 Week-1 rows and the same four nullable absences. The code review is GO
+  after this narrow repair, subject to clean integration on current production
+  main and the already-declared immutable deployment sequence.
 - No branch was pushed and no cloud, BigQuery, scheduler, deployment, or
-  source-data state was mutated. The exact next action is independent review,
-  merge, then a clean immutable build from the accepted SHA. Update only
+  source-data state was mutated. The exact next action is clean integration
+  onto current production main, verification that the resolved delta remains
+  limited to this accepted repair, then a clean immutable build from the
+  accepted SHA. Update only
   `ingest-nflverse` and `check-freshness` to that digest while preserving
   their commands, service accounts, environment, resources and retry policy;
   run one manual incremental `ingest-nflverse` (never `--full`), verify the
