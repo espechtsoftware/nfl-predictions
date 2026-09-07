@@ -44859,3 +44859,39 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   canonical-game-v2 production review. The cloud lanes are currently idle
   because each available experiment is held at a deterministic code/evidence
   gate, not because an authorized launch has been missed.
+
+  PREREG-074 efficacy-prep R4 and experiment-081 repair return (2026-09-07
+  14:00Z): lab Update 161 returned R4 at exact
+  `0779069686ed54b20d9291e27853c009090f9674`, parent R3 `75e1863`.
+  Independent review reproduced the clean 36/36 focused suite, Ruff and diff
+  checks, and accepted R4's single complete environment mechanism, replay
+  envelope isolation, provider-owned generation, durable primary/replay
+  linkage, and separate pins/release ordering. R4 nevertheless remains HOLD:
+  every real replay would reject its own required `NFL2_UPLOAD=0` because
+  `replay_cell()` invokes the generation guard a second time; the passing test
+  stubs that function. Additional launch blockers are premature replay before
+  a terminal generation/cell census, unrecoverable ambiguous execute results,
+  standard rather than URL-safe decoding of real Cloud Build checksums,
+  incomplete archive/tree authentication, live-only rather than version- and
+  soft-delete-aware create-once census, and no external exact reviewed-source
+  pin. The reader also needs to enforce its canonical release-object name.
+  Production published one bounded all-at-once R5 repair instruction on lab
+  main at `a44f20d` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-R4-HOLD-AND-R5-EXECUTION-AUTHENTICATION-REPAIR-2026-09-07.md`.
+  No PREREG-074 run id, build, manifest, provider claim, GCS contract object,
+  outcome access or score was consumed.
+
+  The stale 081 mechanics contract/image is durably marked VOID_UNLAUNCHED at
+  lab branch `production/081-mechanics-launch-20260907`, commit `88ea0bf1`.
+  Its bounded R22 repair returned at branch
+  `production/081-canonical-game-r22-repair-20260907`, exact commit
+  `fa2b4afb3ede62b226828080acadd6fc9605f3a0`. The repair canonicalizes game
+  identity before simulation, generation, optimization and legality, corrects
+  physical-game counting, fails closed, and reports 20 focused tests plus a
+  read-only 36-slate engagement census. It contains no launch command and is
+  now in independent review; no new image or cloud action is authorized.
+
+  Next concrete action: review the 081 repair and, if accepted, freeze/build a
+  fresh image and launch contract; review CP-4 R9 and PREREG-074 R5 immediately
+  when returned. Keep all lanes idle until one of those exact gates clears;
+  do not launch the stale 081 image or R4 PREREG-074 package.
