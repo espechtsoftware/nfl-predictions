@@ -22,6 +22,23 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 PREREG-074 R15 launch packet held; narrow R16 prelaunch repair requested
+
+- Independent static review held candidate `63da6796...` before every fm4,
+  build, image assertion, authority, job, launch, replay, seal, outcome, and
+  score action. The science delta is sound and does not require another costly
+  CP-3 mechanics run.
+- Three prelaunch defects block it: the advertised production builder is
+  recovery-only and cannot submit a fresh image; the alleged built-image law
+  assertion is ordered before the image build and is actually host Python;
+  and the declared 17-path code-map digest / context count (`811cee...` / 893)
+  do not match the candidate (`e602761a...` / 895).
+- R16 must provide a reviewed fresh-submit/recovery builder, recompute all
+  identities from its final clean source, use a true digest-bound no-network
+  container assertion after the build, and preserve the fm4 -> build -> image
+  assertion -> authority -> launch order. Full-generation fm4 census must be
+  explicit. Durable lab review: `313e31c`.
+
 ### 2026-09-07 Experiment 081 R3 provider build succeeded; receipt recovery held after wrapper ID-parse failure
 
 - Production consumed the one authorized R3 build attempt. Cloud Build
@@ -64,6 +81,11 @@ agent or developer:
   smoke. Production authorized lab to prepare only a clean-checkout remote
   driver at exact R16, with a fresh immutable image/namespace and
   `maxRetries=0`; build and execution remain held pending another review.
+- Lab returned that held driver at `d38016b` (Update 184), with a one-task
+  `r16` attempt, full-generation censuses, digest-only image binding,
+  single-writer lane receipt, and no transport probe. No real cloud contact or
+  mutation occurred. Independent production review is now active; its proposed
+  4 CPU / 16 GiB envelope and reused-job choice are not yet accepted.
 
 ### 2026-09-07 Experiment 081 R3 immutable builder repaired and independently passed; build held for one-shot GO
 
