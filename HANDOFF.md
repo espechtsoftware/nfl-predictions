@@ -44523,3 +44523,44 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   fresh one-shot a2 mechanics clearance. Continue monitoring CP-4 R4 in
   parallel. PREREG-073 is terminally closed and CP-1 a4 remains superseded;
   neither is waiting on production.
+
+  Lab returned CP-3 Commit R `bc2c03e264bfeaafcb920c4c65096e5a60a181dc`
+  as the direct child of `98973e5`. Production reproduced its a2/output-a2
+  contract, typed execution hold, complete observed-team/nflverse-pair and
+  non-vacuous engagement gates, exact accepted R22 validator, canonical-copy
+  isolation, representation invariance, runner wiring, PREREG-074 amendment,
+  absent output/process, 61/61 serial focused tests, changed-file Ruff,
+  compilation, diff and cleanliness. The runtime repair is accepted.
+
+  A binding-transition review found that two focused tests unconditionally
+  require Commit R's placeholder values and `mechanics_binding_unbound`.
+  Therefore a direct-child M-prime changing only its two authorized identity
+  literals would make the suite fail. A new mixed-form legality test also
+  contained a vacuous conditional one-game branch (the chosen pair lacks a
+  DST), although accepted R22 tests independently cover the behavior.
+  Production held M-prime and published a test-only R2 GO on lab main at
+  `3e4d276` in
+  `handoffs/PRODUCTION-TO-LAB-CP3-COMMIT-R-REVIEW-AND-R2-TEST-GO-2026-09-07.md`.
+  R2 may change only the two test files and their summary, must accept exactly
+  the exact typed-unbound or exact self-authenticated-bound identity state,
+  must make the one-game negative non-vacuous, and must leave all executable
+  source/identities held. No mechanics, artifact, cloud action, outcome or
+  score is authorized.
+
+  Separately, a read-only production audit proved a live semantic-game risk:
+  skill rows retain nflverse game ids while DST rows use directional
+  `TEAM@OPP`, but the shared optimizer's minimum-games, max-per-game and game-
+  lock constraints group raw strings. A one-physical-game roster can satisfy
+  the raw two-game constraint; top/dark-game locks can omit same-game DST or
+  silently become inert; and some research/Neo4j phenotypes repeat the same
+  false grouping. Accepted CP-1 and frozen CP-3 remain valid because exact R22
+  final legality is fail-closed and all accepted CP-1 candidates passed it.
+  A separate clean production branch is implementing a versioned canonical
+  unordered team/opponent constraint plus an independent final-entry check;
+  it must not alter frozen CP-3.
+
+  Next concrete action: review the returned CP-3 test-only R2 immediately;
+  if accepted, authorize the true two-literal M-prime, independently review
+  it, then issue the separate one-shot a2 mechanics clearance. Review the
+  production canonical-game branch before any merge/deployment and continue
+  watching CP-4 R4.
