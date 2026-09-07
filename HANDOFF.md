@@ -55,15 +55,28 @@ agent or developer:
   real task runner. It authorizes code/tests only—no source binding, build,
   GCS contract publication, cloud execution, outcome access, score read, or
   publication.
-- CP-4 R11 `4d8d634` is also returned and awaiting independent production
-  review. The cloud monitor sees no active `nfl-2-506823` build; two old
+- CP-4 R11 exact commit
+  `4d8d63404302c4a86605ffe08d752e17c34b6639` was independently accepted.
+  Source inspection confirms the candidate order is now derived from the
+  authenticated frame order for `lev`/`boom` and sorted authenticated player
+  ids for `ctx`, never from the artifact's claimed permutation. The coherent
+  permutation-forgery and actual-lineup-object matrix-parity tests passed
+  independently (`2 passed in 53.30s`); `git diff --check` is clean. The
+  separate one-shot, local, outcome-disabled `cp4d800-a1` mechanics GO is
+  durable on lab main at commit
+  `ac7378b56bd43a795690175291ec901e2e113f98` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-R11-ACCEPT-AND-A1-MECHANICS-GO-2026-09-07.md`.
+  It does not authorize build, cloud, outcome, efficacy, publication, or
+  promotion; a failed/partial attempt must be preserved without rerun.
+- The cloud monitor sees no active `nfl-2-506823` build; two old
   `nfl-predictions-503414` builds (`2fa0d5cd-57f1-4f6c-ae37-b9b978ab6aeb`
   and `7670b3fd-4e6c-4986-8398-627faf38b6d1`) still report WORKING and are
   treated as freshness/staleness items, not authorization to launch.
 - Exact next actions: finish the experiment 081 r3 independent review; issue
   ACCEPT plus a separate clean-context build/binding decision or return a
-  narrow repair; independently review CP-4 R11; review the lab's returned
-  PREREG-074 R7 when it arrives. Preserve all outcome and publication holds.
+  narrow repair; independently review the returned CP-4 a1 mechanics evidence;
+  review the lab's returned PREREG-074 R7 when it arrives. Preserve all outcome
+  and publication holds.
 
 ### 2026-09-07 CP-4 binding accepted; PREREG-074 prep held for bounded R2
 
