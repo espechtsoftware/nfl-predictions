@@ -68,6 +68,36 @@ agent or developer:
   the shared pytest lane is explicitly released, run the retrieval and
   strategy-registry regressions serially before any release decision.
 
+### 2026-09-07 canonical-v3 Neo4j suite-authority independent review
+
+- Independent exact-commit static review of `0b9f266e` is **HOLD**. The
+  candidate correctly closes the original unauthenticated core/standalone
+  write path, binds authenticated suite identity/schema into the plan SHA,
+  preserves that authority through supported extensions, and adds guards to
+  governed bootstrap/load/recovery and registry load/recovery.
+- The literal fail-before-any-graph-contact contract remains incomplete.
+  `query_strategy_registry`, `finish_suite`, and `query_smoke` can reach their
+  injected graph backend without first checking plan authority. The governed
+  live CLI also opens `Neo4jDriverBackend` and runs `verify_connectivity`
+  before the action-level guard executes. Existing adversarial transport
+  coverage exercises only bootstrap and task-0 load.
+- A second specification ambiguity must be adjudicated: authenticated suite
+  schemas v1, v2, and v3 are all executable in the code, while the candidate
+  report can be read as promising that all legacy v1 evidence is validation-
+  only. Either restrict execution to suite-v3 or explicitly document and test
+  that “legacy” means only the unauthenticated validation mode.
+- Isolated compilation, fatal/import Ruff, and diff checks pass. Pytest was
+  deliberately not started because higher-priority PREREG-074 and experiment-
+  081 recovery reviews own the serial lane. No cloud, Neo4j, paid-entry,
+  deployment, scoring, or production state was touched.
+- Durable review:
+  `reports/2026-09-07-canonical-v3-neo-suite-authority-independent-review.md`.
+
+  Next concrete action: add operation-aware authority checking before the
+  governed live backend is opened, guard all public graph-contact functions,
+  adjudicate suite-v1/v2 execution compatibility, add the missing adversarial
+  tests, and then run the three focused modules serially.
+
 ### 2026-09-07 canonical-game v2 independent-review R2 repair (review-ready)
 
 - Worktree `/home/erich/projects/nfl-predictions-canonical-game-v2`, branch
