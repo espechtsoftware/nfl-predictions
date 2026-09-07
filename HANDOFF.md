@@ -44015,6 +44015,33 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   result bodies. Independently validate and bind that seal into the frozen
   reader before releasing the lab's first efficacy read.
 
+  Bank 752 then reached exact terminal success at
+  `2026-09-07T00:49:07.060975Z`: execution `lab-run-mtw8m` completed 18/18
+  with zero failures, cancellations, or retries. All three r2 banks are
+  therefore terminal-clean. The registered coordinator exited zero at
+  `2026-09-07T00:52:41Z`; its canonical 500-byte completion record has SHA-256
+  `eef2ac7ec42b7af71925dad6a8e0191531a53424243f95003dfc7a132f8349f7`.
+  It explicitly logged that no efficacy result or outcome-reader path was
+  opened.
+
+  The coordinator published the opaque cohort seal at
+  `gs://nfl-2-506823-lab/seals/PREREG-073/101b750r2-101b751r2-101b752r2.json`,
+  generation `1788742361175060`, 8,285 bytes, SHA-256
+  `2661c6e6413678cb8709ae49cd00f8e8a916a8414fbcbf0c5ebe18ae04589d58`.
+  Production reproduced that identity without parsing the object and bound
+  only this four-field value into the already launch-bound reader. Lab commit
+  `3b54242` is durable on `origin/main`; terminal reader SHA-256 is
+  `b74003ac84c3ad866436bfa084a2b14fc5ef9e094d7c32570860399520e60c67`.
+  The combined score-free contract/reader/verifier/integration gate passed
+  145 tests; Ruff, compilation, and diff checks are clean. The first reader
+  invocation remains held pending independent review, and it must explicitly
+  bind this checkout's `src`/environment rather than inherit another
+  worktree's editable venv.
+
+  Next concrete action: complete independent review of `3b54242`, then issue
+  one durable lab-first-read release. Lab must commit the one-shot output and
+  transcript atomically; production independently reproduces only afterward.
+
 - 2026-09-06 — CP-1 R23 accepted; fresh full census a2 active
 
   Independent production review returned GO for the narrow R23 repair at lab
