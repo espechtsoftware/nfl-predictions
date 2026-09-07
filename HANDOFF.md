@@ -22,6 +22,43 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 CP-3 R2 accepted; exact M-prime binding CODE GO issued
+
+- The old request for a PREREG-073 CODE GO / CP-1 a4 clearance is superseded:
+  PREREG-073 / experiment 101 is terminally closed `FAIL_BOTH_CLOSE`, and the
+  accepted full CP-1 attempt is `cp1full-a2`. Neither item is waiting on a new
+  production clearance. The active score-queue dependency is CP-3.
+- Production independently reviewed lab CP-3 test-only Commit R2
+  `e3afd6b4c2af264dd2e5f15ed29a83eac5b5b8b5`, direct child of Commit R
+  `bc2c03e264bfeaafcb920c4c65096e5a60a181dc`. Its delta is exactly the two
+  authorized test files plus `results/cp3_commit_r2/pytest_summary.txt`.
+  The frozen focused suite passed 61/61 in 136.37 seconds; changed-file Ruff,
+  compilation, whole-delta diff checks, and the clean-worktree check passed.
+  The single-game R22 negative is non-vacuous, and the executable-identity
+  tests admit only the exact unbound and self-authenticated bound phases.
+- Production independently computed the only valid M-prime values:
+  `runner_sha256_masked =
+  a7a74980aa13bed571598977a601449d8c2fdd150abb7363480c9f0b8c4c011c` and
+  `code_sha256 =
+  759f0048525b92f7a5b7f59f9b70772ea520aa6fb383806950bac754652b1305`.
+  In a disposable checkout, filling only those two literals made both frozen
+  bound-phase tests pass unaltered (2/2); the checkout was then removed.
+- The exact direct-child M-prime CODE GO is on lab main at
+  `00aa99196ee05c42e6377ff5e2bf9995e001dec2` in
+  `handoffs/PRODUCTION-TO-LAB-CP3-R2-ACCEPT-AND-MPRIME-CODE-GO-2026-09-07.md`.
+  It permits only those two literal replacements in
+  `scripts/cp3_d800_mechanics.py`. It does **not** authorize the runner, an
+  artifact, outcome access, a build, or cloud execution.
+- Cloud Run and Cloud Build lanes are currently idle because no execution is
+  authorized, not because a ready job was dropped. CP-4 R4 remains lab-side
+  code-only work and is actively being validated. The independent production
+  canonical-game-policy v2 repair remains isolated from frozen CP-3 and awaits
+  its own review before any merge or deployment.
+- Next concrete action: detect the returned M-prime commit, verify its exact
+  parent and two-literal-only diff, rerun the frozen tests and identity gate,
+  and only then issue a separate fresh one-shot local `cp3d800-a2` mechanics
+  clearance with absent-output and argv-level process-census evidence.
+
 ### 2026-09-06 CP-1 a5 accepted; PREREG-073 support census launched
 
 - Production independently accepted CP-1 `cp1smoke-a5` as PASS. The reviewed
