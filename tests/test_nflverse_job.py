@@ -5,7 +5,7 @@ loads only the current season, and _load's old unconditional WRITE_TRUNCATE
 wiped the 2014-2024 backfill from every season-scoped raw table. The
 incremental path must delete-then-append, never truncate."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 
 import pandas as pd
 import pytest
@@ -85,6 +85,35 @@ def _injury_frame() -> FakeFrame:
     return FakeFrame(pd.DataFrame(rows))
 
 
+def _early_planning_injury_frame() -> FakeFrame:
+    """Match the sparse schema in nflverse's first 2026 release."""
+    return FakeFrame(pd.DataFrame([{
+        "season": 2026,
+        "season_type": "REG",
+        "game_type": "REG",
+        "team": "CHI",
+        "week": 1,
+        "gsis_id": "00-live",
+        "position": "WR",
+        "full_name": "Example Player",
+        "first_name": "Example",
+        "last_name": "Player",
+        "report_status": None,
+        "practice_primary_injury": "Hamstring",
+        "practice_status": "Limited Participation in Practice",
+    }]))
+
+
+class _InjuryDownloader:
+    def __init__(self, frame: FakeFrame):
+        self.frame = frame
+        self.calls = []
+
+    def download(self, repository, path, **kwargs):
+        self.calls.append((repository, path, kwargs))
+        return self.frame
+
+
 def test_injury_snapshot_is_live_season_only_and_preserves_null_source_time():
     pulled_at = datetime(2026, 9, 4, 16, 30, tzinfo=timezone.utc)
     out = nflverse_job.prepare_injury_snapshot(
@@ -103,6 +132,84 @@ def test_injury_snapshot_is_live_season_only_and_preserves_null_source_time():
     )
     assert later.capture_id.iloc[0] != out.capture_id.iloc[0]
     assert later.source_row_sha256.iloc[0] == out.source_row_sha256.iloc[0]
+
+
+def test_early_injury_schema_normalizes_only_known_nullable_absences():
+    pulled_at = datetime(2026, 9, 7, 14, 0, tzinfo=UTC)
+
+    out = nflverse_job.prepare_injury_snapshot(
+        _early_planning_injury_frame(),
+        planning_season=2026,
+        pulled_at=pulled_at,
+    )
+
+    assert out.gsis_id.tolist() == ["00-live"]
+    assert set(nflverse_job.INJURY_OPTIONAL_ABSENT_COLUMNS) <= set(out.columns)
+    assert out[list(nflverse_job.INJURY_OPTIONAL_ABSENT_COLUMNS)].isna().all().all()
+
+    missing_required = _early_planning_injury_frame().to_pandas().drop(
+        columns=["practice_status"],
+    )
+    with pytest.raises(ValueError, match=r"missing required columns.*practice_status"):
+        nflverse_job.prepare_injury_snapshot(
+            FakeFrame(missing_required),
+            planning_season=2026,
+            pulled_at=pulled_at,
+        )
+
+
+def test_planning_season_injury_bypass_is_exact_and_key_validated(monkeypatch):
+    downloader = _InjuryDownloader(_early_planning_injury_frame())
+    monkeypatch.setattr(
+        nflverse_job, "_injury_downloader", lambda: downloader,
+    )
+
+    out = nflverse_job._planning_season_injury_frame(
+        planning_season=2026,
+        data_season=2025,
+        roster_year=2026,
+    )
+
+    assert downloader.calls == [(
+        "nflverse-data",
+        "injuries/injuries_2026",
+        {"season": 2026},
+    )]
+    assert out.gsis_id.tolist() == ["00-live"]
+    with pytest.raises(ValueError, match="exactly one year"):
+        nflverse_job._planning_season_injury_frame(
+            planning_season=2027,
+            data_season=2025,
+            roster_year=2026,
+        )
+
+
+@pytest.mark.parametrize(
+    ("change", "message"),
+    (
+        (lambda frame: frame.iloc[0:0], "is empty"),
+        (lambda frame: frame.assign(season=2025), "has seasons"),
+        (lambda frame: frame.assign(gsis_id=" "), "empty gsis_id"),
+        (lambda frame: frame.assign(team=" "), "empty team"),
+        (lambda frame: pd.concat([frame, frame], ignore_index=True), "duplicate"),
+    ),
+)
+def test_planning_season_injury_bypass_rejects_bad_source(
+    monkeypatch, change, message,
+):
+    frame = change(_early_planning_injury_frame().to_pandas())
+    monkeypatch.setattr(
+        nflverse_job,
+        "_injury_downloader",
+        lambda: _InjuryDownloader(FakeFrame(frame)),
+    )
+
+    with pytest.raises(ValueError, match=message):
+        nflverse_job._planning_season_injury_frame(
+            planning_season=2026,
+            data_season=2025,
+            roster_year=2026,
+        )
 
 
 def test_injury_snapshot_rejects_naive_collector_time():

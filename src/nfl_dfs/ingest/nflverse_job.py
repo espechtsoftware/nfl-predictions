@@ -42,6 +42,20 @@ INJURY_SOURCE_COLUMNS = (
     "practice_secondary_injury", "practice_status", "date_modified",
     "season_type",
 )
+# nflverse's early-season injury artifact omits nullable columns until at
+# least one source row carries a value.  These four fields are nullable in
+# the landed schema and downstream PIT logic already treats a missing source
+# modification time as collector-time-only evidence.  No other missing
+# column is accepted.
+INJURY_OPTIONAL_ABSENT_COLUMNS = frozenset({
+    "report_primary_injury",
+    "report_secondary_injury",
+    "practice_secondary_injury",
+    "date_modified",
+})
+INJURY_REQUIRED_SOURCE_COLUMNS = (
+    frozenset(INJURY_SOURCE_COLUMNS) - INJURY_OPTIONAL_ABSENT_COLUMNS
+)
 WEEKLY_ROSTER_REQUIRED_COLUMNS = frozenset({
     "season", "week", "gsis_id", "team", "position", "full_name",
     "football_name", "last_name", "jersey_number", "game_type",
@@ -122,6 +136,86 @@ def _weekly_roster_downloader():
     from nflreadpy.downloader import get_downloader
 
     return get_downloader()
+
+
+def _injury_downloader():
+    """Return nflreadpy's downloader through one monkeypatchable seam."""
+    from nflreadpy.downloader import get_downloader
+
+    return get_downloader()
+
+
+def _injury_source_frame(frame) -> pd.DataFrame:
+    """Normalize the exact nullable-column behavior of nflverse injuries."""
+    pdf = frame.copy() if isinstance(frame, pd.DataFrame) else frame.to_pandas()
+    pdf = pdf.copy()
+    missing = INJURY_REQUIRED_SOURCE_COLUMNS - set(pdf.columns)
+    if missing:
+        raise ValueError(
+            f"nflverse injuries missing required columns {sorted(missing)}"
+        )
+    for column in sorted(INJURY_OPTIONAL_ABSENT_COLUMNS - set(pdf.columns)):
+        pdf[column] = pd.NA
+    return pdf
+
+
+def _planning_season_injury_frame(
+    *,
+    planning_season: int,
+    data_season: int,
+    roster_year: int,
+) -> pd.DataFrame:
+    """Load the published planning-year injury artifact before season roll.
+
+    nflreadpy 0.1.5 rejects the coming season until the Thursday after Labor
+    Day even when nflverse has already published that season's injury file.
+    This bypass is restricted to the exact current roster year one year after
+    the data clock.  The returned source must be a nonempty, unique planning-
+    season player-week keyset before any collector write can occur.
+    """
+    planning = int(planning_season)
+    data = int(data_season)
+    roster = int(roster_year)
+    if not (planning == roster == data + 1):
+        raise ValueError(
+            "planning-season injury bypass requires planning/roster year "
+            f"{planning}/{roster} exactly one year after data season {data}"
+        )
+
+    source_path = f"injuries/injuries_{planning}"
+    frame = _injury_downloader().download(
+        "nflverse-data", source_path, season=planning,
+    )
+    pdf = _injury_source_frame(frame)
+    if pdf.empty:
+        raise ValueError(f"planning-season injury source {planning} is empty")
+
+    seasons = pd.to_numeric(pdf["season"], errors="raise")
+    weeks = pd.to_numeric(pdf["week"], errors="raise")
+    if seasons.isna().any() or (seasons % 1 != 0).any():
+        raise ValueError("planning-season injury source has invalid season keys")
+    if weeks.isna().any() or (weeks % 1 != 0).any():
+        raise ValueError("planning-season injury source has invalid week keys")
+    observed_seasons = set(seasons.astype(int).unique())
+    if observed_seasons != {planning}:
+        raise ValueError(
+            f"planning-season injury source has seasons {sorted(observed_seasons)}"
+        )
+    if not weeks.between(1, 22).all():
+        raise ValueError("planning-season injury source has week outside 1..22")
+
+    for column in ("gsis_id", "team"):
+        values = pdf[column].astype("string").str.strip()
+        if values.isna().any() or values.eq("").any():
+            raise ValueError(
+                f"planning-season injury source has empty {column} key"
+            )
+    keys = ["season", "week", "gsis_id"]
+    if pdf.duplicated(keys).any():
+        raise ValueError(
+            "planning-season injury source has duplicate season/week/gsis_id keys"
+        )
+    return pdf
 
 
 def _prospective_source_seasons(
@@ -347,12 +441,7 @@ def prepare_injury_snapshot(
     if stamp.tzinfo is None:
         raise ValueError("injury snapshot pulled_at must be timezone-aware")
     stamp = stamp.tz_convert("UTC")
-    pdf = frame.to_pandas().copy()
-    missing = set(INJURY_SOURCE_COLUMNS) - set(pdf.columns)
-    if missing:
-        raise ValueError(
-            f"nflverse injuries missing snapshot columns {sorted(missing)}"
-        )
+    pdf = _injury_source_frame(frame)
     season = pd.to_numeric(pdf["season"], errors="coerce")
     pdf = pdf[season.eq(int(planning_season))].copy()
     if pdf.empty:
@@ -430,6 +519,15 @@ def run(full_refresh: bool = False) -> None:
     # Incremental runs replace just-loaded seasons in place; --full rebuilds
     # the whole table, where truncate is the correct disposition.
     inc = None if full_refresh else seasons
+    planning_injury_frame = None
+    if planning_season == roster_year == season + 1:
+        # Validate this small source before the first warehouse mutation.  It
+        # is already published before nflreadpy's ordinary season clock rolls.
+        planning_injury_frame = _planning_season_injury_frame(
+            planning_season=planning_season,
+            data_season=season,
+            roster_year=roster_year,
+        )
 
     _load(nfl.load_pbp(seasons), "pbp", replace_seasons=inc)
     _load(nfl.load_player_stats(seasons), "weekly_stats", replace_seasons=inc)
@@ -475,15 +573,27 @@ def run(full_refresh: bool = False) -> None:
         _load(nfl.load_snap_counts(snaps), "snap_counts",
               replace_seasons=None if full_refresh else snaps)
     if inj := [s for s in seasons if s >= INJURIES_FIRST_SEASON]:
-        injury_frame = nfl.load_injuries(inj)
+        # Normalize/validate before _load can delete an existing partition.
+        injury_frame = _injury_source_frame(nfl.load_injuries(inj))
         _load(injury_frame, "injuries",
               replace_seasons=None if full_refresh else inj)
         # Do not stamp the completed prior season during the offseason.  Only
         # a pull of the active planning season can become a future pre-lock
         # source; all historical final files remain timestamp-untrusted.
         if season == planning_season:
+            snapshot_frame = injury_frame
+        elif planning_injury_frame is not None:
+            # nflverse can publish the new injury artifact before
+            # nflreadpy's ordinary season clock rolls on opening Thursday.
+            # Read only that exact official path for collector-time evidence;
+            # do not mix the partial planning-year artifact into the
+            # completed-season raw replacement above.
+            snapshot_frame = planning_injury_frame
+        else:
+            snapshot_frame = None
+        if snapshot_frame is not None:
             append_injury_snapshot(
-                injury_frame,
+                snapshot_frame,
                 planning_season=planning_season,
                 pulled_at=pulled_at,
             )
