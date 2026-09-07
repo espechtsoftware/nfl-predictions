@@ -45033,3 +45033,43 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   incremental NFL ingest, verify the 2026 Week-1 injury snapshot, run
   `build-features`, and require `check-freshness` to pass. Do not run a full
   historical refresh and do not backdate any snapshot.
+
+- 2026-09-07 — PREREG-074 efficacy-prep R5 independently held
+
+  Production reviewed exact lab commit
+  `1d33114992e9ac650dd33c3d635a6037b445658f`. All 40 declared focused
+  tests and diff checks passed; real read-only probes confirmed that gcloud
+  583.0.0 execution-list rows contain the full provider spec R5 normalizes.
+  Replay ordering and the source/archive/tree identity work are retained.
+
+  R5 remains HOLD because its intent-only execute recovery can issue a second
+  Cloud Run execution while the first is temporarily invisible, then accept
+  the first when only it becomes visible. The seal does not repeat the
+  exact-match execution census. Its object census also infers noncurrent
+  versions from `time_deleted` instead of subtracting the independently listed
+  live generation, discovers run-prefix names through a live-only listing,
+  and does not implement its stated census-at-every-reopen rule end to end.
+  Production published the bounded R6 repair to lab main at `3dd419b` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-R5-HOLD-AND-R6-EXECUTION-NAMESPACE-REPAIR-2026-09-07.md`.
+  R6 must add a pre-execute create-once marker that makes recovery poll-only,
+  recensuses the sole matching execution at later gates, correctly enumerates
+  live/noncurrent/soft-deleted generations and the complete run namespace,
+  and closes or explicitly narrows every-reopen/canonical-name authentication.
+  No PREREG-074 publication, build, launch, replay, outcome access, or score
+  read is authorized from R5.
+
+- 2026-09-07 — Week-1 freshness immutable validation builds active
+
+  Exact integrated source is
+  `a01a6c84f60a678d3f76e684ba73fa487918f1f8`. A long asynchronous upload
+  returned locally before exposing its build identity; the retry registered a
+  second validation-only build from the same exact source. The builds are
+  `7670b3fd-4e6c-4986-8398-627faf38b6d1` and
+  `2fa0d5cd-57f1-4f6c-ae37-b9b978ab6aeb`, both using tag
+  `week1-freshness-a01a6c84f60a`. Neither build can deploy or update a job.
+  Treat the builds independently and bind any deployment to one explicitly
+  selected successful build's immutable digest, never to mutable tag state.
+  Current full-suite logs contain failures and therefore no deployment is
+  authorized unless a build reaches terminal SUCCESS; collect the exact
+  failures before deciding whether they are source regressions or unrelated
+  repository baseline failures.
