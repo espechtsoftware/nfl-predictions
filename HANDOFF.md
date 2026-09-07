@@ -22,6 +22,49 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 PREREG-074 R6 held; experiment 081 r3 entered independent review
+
+- The lab transition monitor detected lab Update 169 at lab-main commit
+  `83de1c32e7f500c6fcd4864b2765debef60e4ab8`. It returns the unbound
+  experiment 081 r3 exactly-once coordinator on `lab/081-r3-exactly-once`
+  at `d3434b7`, based on r2 binding tip `85729a8`. The package claims a
+  tracked-only Git-archive build context, create-once launch intent,
+  recovery-only behavior after intent creation, provider execution-name/UID
+  censuses, and new r3 identities. No r3 build, binding, publication, launch,
+  outcome access, or score read has occurred. Independent review of the exact
+  r3 delta is in progress; no build or launch is authorized before acceptance.
+- Independent review of PREREG-074 efficacy-prep R6 exact commit
+  `7fd6b79f96dee825e5ca15b101a00e06287a4915` returned HOLD. R6 correctly
+  repairs versions-minus-live generation classification, complete result-prefix
+  census, delayed-visibility recovery without a second execute, provider
+  sole-match checks, and linked-worktree `.git` rejection. Four focused tests
+  passed in 34.44 seconds and `git diff --check` was clean.
+- Three launch-chain blockers remain: execute-attempt markers are not linked
+  into launch receipts/seal/pins/release/reader and a valid seal can be made
+  after both markers are soft-deleted; a byte-identical noncanonical generation
+  launch-receipt clone can authorize replay side effects before its late
+  rejection; and the real `experiments/102_cp3_efficacy.py` runner reopens
+  authority, manifest, and replay cells without mandatory generation-history
+  census. These are mechanics/provenance failures, not changes to the frozen
+  scientific estimand.
+- The narrow R7 repair contract is now durable on lab main at commit
+  `1ef34e828400bb80f339be530cdfa1d4819e5563` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-R6-HOLD-AND-R7-SEALED-ATTEMPT-LINKAGE-REPAIR-2026-09-07.md`.
+  It requires canonical marker linkage through the entire sealed chain,
+  pre-side-effect canonical-name authentication, and mandatory census in the
+  real task runner. It authorizes code/tests only—no source binding, build,
+  GCS contract publication, cloud execution, outcome access, score read, or
+  publication.
+- CP-4 R11 `4d8d634` is also returned and awaiting independent production
+  review. The cloud monitor sees no active `nfl-2-506823` build; two old
+  `nfl-predictions-503414` builds (`2fa0d5cd-57f1-4f6c-ae37-b9b978ab6aeb`
+  and `7670b3fd-4e6c-4986-8398-627faf38b6d1`) still report WORKING and are
+  treated as freshness/staleness items, not authorization to launch.
+- Exact next actions: finish the experiment 081 r3 independent review; issue
+  ACCEPT plus a separate clean-context build/binding decision or return a
+  narrow repair; independently review CP-4 R11; review the lab's returned
+  PREREG-074 R7 when it arrives. Preserve all outcome and publication holds.
+
 ### 2026-09-07 CP-4 binding accepted; PREREG-074 prep held for bounded R2
 
 - Production independently accepted CP-4 binding commit
