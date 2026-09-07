@@ -44143,3 +44143,39 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   On success, require exactly 36 cells, all accepted arm/law cells at 800
   unique candidates, every gate true, and the overall/per-season support
   floors. Publication or efficacy remains separately gated.
+
+  The one authorized `cp1full-a2` process completed successfully at
+  `2026-09-07T05:26:14Z` after 6h04m49s. The terminal artifact is
+  `results/cp1_full_census_a2.json`, 111,736,878 bytes, SHA-256
+  `7032fbdc393bfc516c995d95812c0ac76ce5f29ef68534b62fc039359ee335be`.
+  The transient unit was garbage-collected after exit, but its journal
+  preserves invocation `2211f7e659db4508bafacb5f12da042c`, the exact
+  cleared command, all cell records, the terminal artifact record, and a
+  successful exit. The source remained exact clean commit `259b9c4` apart
+  from its permitted untracked virtual-environment link.
+
+  Production and two independent reviewers validated the complete artifact:
+  exactly 36 supported and engaged slates (18 per season), four arm/law cells
+  per slate, and exactly 800 unique candidates per cell (160 leverage plus
+  640 boom; 115,200 candidate records total). All 864 nested arm gates and
+  all 1,008 emitted gate booleans are true. Draw, visit-order, engagement,
+  world, construction-law, DraftKings-legality, and K80 checks pass. The two
+  authentic `Note` rows occur only at 2024 W2 and W4 and never designate a
+  player. Recorded inputs and module hashes match the frozen source and no
+  outcome fields or non-finite values are present. The 180 NumPy masked-divide
+  warnings from `hsim/world.py:66` are non-blocking cleanup; they did not alter
+  the serialized artifact or any gate.
+
+  Production released this exact artifact for one independent, score-free lab
+  structural review at lab-main commit `e684695` in
+  `handoffs/PRODUCTION-TO-LAB-CP1-FULL-CENSUS-A2-TERMINAL-REVIEW-2026-09-07.md`.
+  That release is review-only: it is not authorization for a rerun,
+  publication, binding, efficacy, outcome access, or policy change. The old
+  `cp1smoke-a4` request remains superseded and must not be run. PREREG-073 is
+  separately closed at `FAIL_BOTH_CLOSE` / promotion `NONE`; no CODE GO is
+  pending there.
+
+  Next concrete action: lab independently returns ACCEPT/HOLD on the exact
+  `cp1full-a2` artifact and proposes the exact create-once publication URI and
+  mechanics. Production then separately reviews and authorizes durable
+  publication/binding. Do not reopen PREREG-073 or run CP-1 a4/a5.
