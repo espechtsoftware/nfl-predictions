@@ -22,6 +22,26 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 PREREG-074 R10 builder held; narrow R11 tag binding requested
+
+- Independent review of exact R10 builder
+  `8aa9cf1ec799810462a05823f4fe21b648ab1f31` accepted its exact R9/fm3
+  binding, all-generation manifest authentication before build, all four
+  isolated source-tree imports, obsolete R7/R8 refusal before provider use,
+  durable self-byte check, and guarded cleanup. Focused tests passed 5/5 and
+  static checks were clean.
+- One P0 remains: recovery reduces Artifact Registry state to a name-only tag
+  count. It never requires the current tag row's `version` to equal the digest
+  from the selected successful build, and a fresh build does not refresh the
+  post-build mapping. A repointed exact tag plus an older successful build can
+  therefore pass and publish the older digest.
+- R10 is HOLD. R11 is limited to a post-build/recovery fresh tag listing,
+  exactly one closed exact-tag row, and exact `version` equality to the
+  selected image digest, with mismatched-valid-digest and missing-refresh
+  negatives. No build/cloud/GCS/outcome/score action is authorized. The
+  durable lab note is
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-R10-BUILDER-HOLD-AND-R11-TAG-DIGEST-GO-2026-09-07.md`.
+
 ### 2026-09-07 experiment 081 R7 held; exact-type R8 requested
 
 - Independent review of exact R7
