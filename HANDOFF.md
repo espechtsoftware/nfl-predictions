@@ -44931,3 +44931,37 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   added, and support must distinguish 152 valid pre-intersection cells from
   144 analyzed cells. These are record-only changes: no outcome reopen,
   rescoring, new read, promotion or policy change is authorized.
+
+- 2026-09-07 — CP-4 R9 independently held; bounded R10 repair issued
+
+  Production independently reviewed lab CP-4 R9 commit
+  `89567cad64d6798fc1782ea487b34bba7988f7fc` on exact R8 parent
+  `e2eb73f00715f926fb38cb22dd5fd09a60a8d7a8`. The complete focused
+  validation remained green (26 serialized-artifact tests in 299.25 seconds
+  plus 17 binding/allocation tests; Ruff, compilation and diff checks clean),
+  and R9's persisted-judge reconstruction and selector reruns are retained.
+  The one-shot `cp4d800-a1` mechanics execution remains HOLD on three P0
+  authentication defects.
+
+  First, R9 changed the frozen numerical method: it sorts roster player IDs,
+  widens to float64, accumulates serially and casts to float32, whereas the
+  production pipeline uses NumPy indexed row summation in the lineup's
+  existing order. A runner-shaped comparison differed bitwise in 3,460,210
+  control and 3,361,118 treatment cells (maximum absolute difference about
+  `4.58e-05`). Second, the judge-row labels remain self-authored and are not
+  bound to the accepted sidecar's `eligible_ids_ordered_sha256`; a coherent
+  two-label swap with all downstream evidence restated passes. Third,
+  execution receipts still accept non-exact or fabricated authority reopen,
+  pruning, broker, audit and source-closure facts; the runtime dependency
+  `src/nfl2/participation.py` is absent from the explicit code map.
+
+  Production published the narrow R10 instruction to lab main at `d159d20`:
+  `handoffs/PRODUCTION-TO-LAB-CP4-R9-HOLD-AND-R10-FROZEN-NUMERICAL-EVIDENCE-REPAIR-2026-09-07.md`.
+  R10 must reproduce the exact frozen production matrix law, bind judge row
+  order to the accepted sidecar, and authenticate the complete execution
+  boundary rather than checking plausible shapes. Arms, budgets, schedule,
+  laws, generator, allocator, selector, judge definition, frame, draws,
+  sidecar, binding and outcome boundary are unchanged. No mechanics run,
+  image build, cloud action, artifact publication, outcome access or score is
+  authorized. Next action is an immediate independent review when the narrow
+  R10 commit returns.
