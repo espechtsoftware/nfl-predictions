@@ -22,6 +22,42 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 CP-4 R5 sidecar path accepted; mechanics held for one narrow R6 repair
+
+- Production reviewed CP-4 R5 code
+  `faf33d5d74fab0fd0a284f9f5e0a7be99662672b` and its exact child smoke
+  evidence `14aa1539da18ff4f3b4fba6e6626153cee9e1664`. The code is an exact
+  direct child of accepted CP-3 M-prime `5cbaa2b`. Independent focused tests
+  passed 31/31 in 92.35 seconds; Ruff, compilation, ancestry/file-boundary,
+  whole-delta diff, and all nine smoke-transcript byte/SHA checks passed. The
+  real-boundary smoke ran once, exited 0, constructed and validated the
+  sidecar in memory, wrote nothing, consumed no `fb1`, opened no outcome, and
+  performed no build/cloud action.
+- The receipt reconciliation, scoped three-timestamp/source law, strict
+  sidecar loader, and no-identifier-coercion repairs are accepted for the
+  sidecar stage. Production authorized exactly one local outcome-disabled
+  `cp4d800-fb1` sidecar-generation invocation from clean detached source
+  `14aa153`; binding, mechanics, build, cloud, outcome, and scoring remain
+  unauthorized. The durable instruction is on lab main at
+  `9dca37a6d393d6374b7ccf1775f50c3e9fe6020b` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-R5-SIDECAR-GO-AND-MECHANICS-R6-REPAIR-2026-09-07.md`.
+- CP-4 mechanics remains HOLD. Production reproduced that changing actual
+  boom-row lineup identities in both arms while leaving the stored digests
+  unchanged still lets `cp4_gate` pass, and changing a contextual duplicate
+  row's lineup identity also leaves `overlay_lineage_reconciled` true. The
+  gate compares trusted stored boom digests instead of recomputing them from
+  the actual raw rows; duplicate rows omit their canonical 64-hex roster
+  identity; and contextual duplicate-row identity is not reconciled.
+- Bounded R6 CODE GO requires a separate immutable raw-boom attempt sequence,
+  canonical roster hashes for new and duplicate attempts, in-gate digest/count
+  recomputation, complete boom-row/population/duplicate-target reconciliation,
+  and contextual duplicate-row authentication. It may proceed in parallel
+  with the sidecar generation and must not alter the scientific treatment.
+- PREREG-073 remains terminal `FAIL_BOTH_CLOSE / NONE`; CP-1 `a4` remains
+  consumed and superseded. The next action is to review the returned CP-4
+  sidecar and R6 repair independently, while reviewing the forthcoming CP-3
+  one-bank efficacy preparation package.
+
 ### 2026-09-07 CP-3 M-prime accepted; one-shot a2 mechanics cleared
 
 - The old request for a PREREG-073 CODE GO / CP-1 a4 clearance is superseded:
