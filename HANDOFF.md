@@ -22,6 +22,25 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 PREREG-074 R9 generation failed; execution cancelled and consumed
+
+- Cloud Run execution `lab-run-nstwg` failed deterministically at the
+  pre-generation construction-law check: rebuilt cell `law_literal` differed
+  from the frozen `DK_ONLY_V1` literal. Production confirmed the same traceback
+  across multiple tasks and cancelled the irrecoverable remainder at
+  0 succeeded / 10 failed / 12 cancelled / 0 running, with `maxRetries=0`.
+- Run `102b740r1-20260907T214713Z`, its authority, execute marker, launch
+  receipt, and execution UID `74852935-7ae5-4d0a-9ce6-9293447b7f07` are
+  consumed. No valid cohort, replay, seal, release, outcome access, score read,
+  or scientific result exists; partial objects may not be merged or read.
+- All PREREG-074 cloud and outcome-bearing steps are held while production
+  compares the exact rebuilt literal with the frozen source constant and adds
+  a prelaunch reproducer. Any continuation requires a narrow repair,
+  independent review, a fresh revision/build identity as required, a fresh run
+  id, and all original empty-namespace and authority gates. The durable lab
+  notice is
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-R9-GENERATION-FAILURE-HOLD-2026-09-07.md`.
+
 ### 2026-09-07 Experiment 081 R8 exact-type repair accepted
 
 - Exact R8 `de1397f3e354cca74b44abc2ba523d4bdea4cb6b` closes the
@@ -36,7 +55,7 @@ agent or developer:
   of the one-shot wrapper and pre-submit census. Cloud Run mechanics, GCS
   mechanics artifacts, outcomes, scores and efficacy remain held.
 
-### 2026-09-07 PREREG-074 generation cohort is active
+### 2026-09-07 PREREG-074 generation cohort was launched (superseded by failure above)
 
 - Independent review accepted exact R9 for one fresh authority and generation
   launch. Production published authority
@@ -49,11 +68,9 @@ agent or developer:
   (2,315 bytes, SHA-256 `a3b11078...`). The first provider observation showed
   12/36 tasks running, zero failures/cancellations, with the exact source,
   immutable image, command, args and environment.
-- Monitor to exactly 36 succeeded / 0 failed / 0 cancelled / completed. Replay
-  remains held until the coordinator independently authenticates that terminal
-  state, sole execution identity, and complete generation namespace. Seal,
-  pins, release and outcome read remain later boundaries. Durable lab-main
-  record is `handoffs/PRODUCTION-TO-LAB-PREREG074-R9-GENERATION-LAUNCHED-2026-09-07.md`.
+- This launch later failed and was cancelled; the current disposition is the
+  superseding entry above. The historical launch record is
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-R9-GENERATION-LAUNCHED-2026-09-07.md`.
 
 ### 2026-09-07 PREREG-074 immutable build receipt is sealed
 
