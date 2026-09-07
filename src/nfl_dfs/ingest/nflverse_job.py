@@ -145,6 +145,11 @@ def _injury_downloader():
     return get_downloader()
 
 
+def _utc_now() -> datetime:
+    """Return current UTC time through one boundary-testable seam."""
+    return datetime.now(timezone.utc)
+
+
 def _injury_source_frame(frame) -> pd.DataFrame:
     """Normalize the exact nullable-column behavior of nflverse injuries."""
     pdf = frame.copy() if isinstance(frame, pd.DataFrame) else frame.to_pandas()
@@ -514,12 +519,13 @@ def run(full_refresh: bool = False) -> None:
     planning_season = current_season()
     season = min(planning_season, nfl.get_current_season())
     roster_year = int(nfl.get_current_season(roster=True))
-    pulled_at = datetime.now(timezone.utc)
+    pulled_at = _utc_now()
     seasons = list(range(settings.first_season, season + 1)) if full_refresh else [season]
     # Incremental runs replace just-loaded seasons in place; --full rebuilds
     # the whole table, where truncate is the correct disposition.
     inc = None if full_refresh else seasons
     planning_injury_frame = None
+    planning_injury_pulled_at = None
     if planning_season == roster_year == season + 1:
         # Validate this small source before the first warehouse mutation.  It
         # is already published before nflreadpy's ordinary season clock rolls.
@@ -528,6 +534,10 @@ def run(full_refresh: bool = False) -> None:
             data_season=season,
             roster_year=roster_year,
         )
+        # Collector time must be no earlier than source retrieval.  A run
+        # that starts before lock but receives the artifact after lock must
+        # never make the returned contents look pre-lock.
+        planning_injury_pulled_at = _utc_now()
 
     _load(nfl.load_pbp(seasons), "pbp", replace_seasons=inc)
     _load(nfl.load_player_stats(seasons), "weekly_stats", replace_seasons=inc)
@@ -575,6 +585,7 @@ def run(full_refresh: bool = False) -> None:
     if inj := [s for s in seasons if s >= INJURIES_FIRST_SEASON]:
         # Normalize/validate before _load can delete an existing partition.
         injury_frame = _injury_source_frame(nfl.load_injuries(inj))
+        injury_pulled_at = _utc_now()
         _load(injury_frame, "injuries",
               replace_seasons=None if full_refresh else inj)
         # Do not stamp the completed prior season during the offseason.  Only
@@ -582,6 +593,7 @@ def run(full_refresh: bool = False) -> None:
         # source; all historical final files remain timestamp-untrusted.
         if season == planning_season:
             snapshot_frame = injury_frame
+            snapshot_pulled_at = injury_pulled_at
         elif planning_injury_frame is not None:
             # nflverse can publish the new injury artifact before
             # nflreadpy's ordinary season clock rolls on opening Thursday.
@@ -589,13 +601,17 @@ def run(full_refresh: bool = False) -> None:
             # do not mix the partial planning-year artifact into the
             # completed-season raw replacement above.
             snapshot_frame = planning_injury_frame
+            snapshot_pulled_at = planning_injury_pulled_at
         else:
             snapshot_frame = None
+            snapshot_pulled_at = None
         if snapshot_frame is not None:
+            if snapshot_pulled_at is None:  # pragma: no cover - invariant
+                raise AssertionError("injury source lacks collector time")
             append_injury_snapshot(
                 snapshot_frame,
                 planning_season=planning_season,
-                pulled_at=pulled_at,
+                pulled_at=snapshot_pulled_at,
             )
     if ngs := [s for s in seasons if s >= NGS_FIRST_SEASON]:
         for stat_type in ("receiving", "rushing", "passing"):

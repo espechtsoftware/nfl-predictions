@@ -212,6 +212,92 @@ def test_planning_season_injury_bypass_rejects_bad_source(
         )
 
 
+@pytest.mark.parametrize(
+    ("data_season", "roster_year", "uses_planning_bypass"),
+    ((2025, 2026, True), (2026, 2026, False)),
+)
+def test_run_stamps_injury_after_source_returns_across_lock(
+    monkeypatch, data_season, roster_year, uses_planning_bypass,
+):
+    """A source returned after lock can never inherit the run-start time."""
+    import nflreadpy as nfl
+
+    planning_season = 2026
+    slate_lock = datetime(2026, 9, 13, 17, 0, tzinfo=UTC)
+    run_started_at = slate_lock - pd.Timedelta(seconds=1)
+    source_returned_at = slate_lock + pd.Timedelta(seconds=1)
+    later_ordinary_return = source_returned_at + pd.Timedelta(seconds=1)
+    times = iter((run_started_at, source_returned_at, later_ordinary_return))
+    events = []
+    appended = []
+
+    monkeypatch.setattr(nflverse_job, "current_season", lambda: planning_season)
+    monkeypatch.setattr(
+        nfl,
+        "get_current_season",
+        lambda roster=False: roster_year if roster else data_season,
+    )
+    monkeypatch.setattr(
+        nflverse_job,
+        "_utc_now",
+        lambda: events.append("clock") or next(times),
+    )
+    monkeypatch.setattr(
+        nflverse_job,
+        "_prospective_source_seasons",
+        lambda *args, **kwargs: ([data_season], []),
+    )
+    monkeypatch.setattr(
+        nflverse_job,
+        "_weekly_roster_frame",
+        lambda *args, **kwargs: pd.DataFrame({"season": [data_season]}),
+    )
+    monkeypatch.setattr(nflverse_job, "_load", lambda *args, **kwargs: None)
+
+    ordinary = _early_planning_injury_frame().to_pandas().assign(
+        season=data_season,
+    )
+    planning = _early_planning_injury_frame().to_pandas()
+
+    def load_injuries(*args, **kwargs):
+        events.append("ordinary-source-returned")
+        return FakeFrame(ordinary)
+
+    def load_planning(**kwargs):
+        events.append("planning-source-returned")
+        return planning
+
+    monkeypatch.setattr(nfl, "load_injuries", load_injuries)
+    monkeypatch.setattr(
+        nflverse_job, "_planning_season_injury_frame", load_planning,
+    )
+    monkeypatch.setattr(
+        nflverse_job,
+        "append_injury_snapshot",
+        lambda frame, **kwargs: appended.append((frame, kwargs)) or len(frame),
+    )
+
+    blank = FakeFrame(pd.DataFrame({"season": [data_season]}))
+    for name in (
+        "load_pbp", "load_player_stats", "load_schedules", "load_officials",
+        "load_ff_playerids", "load_draft_picks", "load_combine",
+        "load_snap_counts", "load_nextgen_stats", "load_ftn_charting",
+        "load_pfr_advstats",
+    ):
+        monkeypatch.setattr(nfl, name, lambda *args, **kwargs: blank)
+
+    nflverse_job.run()
+
+    assert len(appended) == 1
+    assert appended[0][1]["pulled_at"] == source_returned_at
+    assert appended[0][1]["pulled_at"] > slate_lock
+    if uses_planning_bypass:
+        assert events.index("planning-source-returned") < events.index("clock", 1)
+    else:
+        assert "planning-source-returned" not in events
+        assert events.index("ordinary-source-returned") < events.index("clock", 1)
+
+
 def test_injury_snapshot_rejects_naive_collector_time():
     with pytest.raises(ValueError, match="timezone-aware"):
         nflverse_job.prepare_injury_snapshot(
