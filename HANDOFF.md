@@ -27,12 +27,23 @@ agent or developer:
 - The lab transition monitor detected lab Update 169 at lab-main commit
   `83de1c32e7f500c6fcd4864b2765debef60e4ab8`. It returns the unbound
   experiment 081 r3 exactly-once coordinator on `lab/081-r3-exactly-once`
-  at `d3434b7`, based on r2 binding tip `85729a8`. The package claims a
+  at exact commit `d3434b796ec674660d15367fcab07f18c6dac50a`, based on r2
+  binding tip `85729a8`. The package claims a
   tracked-only Git-archive build context, create-once launch intent,
   recovery-only behavior after intent creation, provider execution-name/UID
-  censuses, and new r3 identities. No r3 build, binding, publication, launch,
-  outcome access, or score read has occurred. Independent review of the exact
-  r3 delta is in progress; no build or launch is authorized before acceptance.
+  censuses, and new r3 identities. Independent review returned HOLD despite
+  40/40 focused tests passing. Reproduced P0s are: a 412 create-once race lets
+  a process that did not create the intent retain execute capability; a PASS
+  gate is published before final provider uniqueness; the contract repeats
+  the false 760-file count while its own derivation proves 749; wrapper and
+  helper use incompatible binding-commit authorities; the archive verifier
+  silently ignores traversal/absolute members and does not authenticate modes;
+  and no exact job/provider recensus occurs immediately before execute.
+- The narrow experiment 081 r4 repair contract is durable on lab main at
+  commit `c89f270ab7f3243055fc9cc65f8d423912aa999b` in
+  `handoffs/PRODUCTION-TO-LAB-EXPERIMENT081-R3-HOLD-AND-R4-EXACTLY-ONCE-REPAIR-2026-09-07.md`.
+  R3 must not be bound, built, published, or launched. R4 is code/tests only;
+  no cloud/GCS/outcome/score action is authorized.
 - Independent review of PREREG-074 efficacy-prep R6 exact commit
   `7fd6b79f96dee825e5ca15b101a00e06287a4915` returned HOLD. R6 correctly
   repairs versions-minus-live generation classification, complete result-prefix
@@ -72,11 +83,10 @@ agent or developer:
   `nfl-predictions-503414` builds (`2fa0d5cd-57f1-4f6c-ae37-b9b978ab6aeb`
   and `7670b3fd-4e6c-4986-8398-627faf38b6d1`) still report WORKING and are
   treated as freshness/staleness items, not authorization to launch.
-- Exact next actions: finish the experiment 081 r3 independent review; issue
-  ACCEPT plus a separate clean-context build/binding decision or return a
-  narrow repair; independently review the returned CP-4 a1 mechanics evidence;
-  review the lab's returned PREREG-074 R7 when it arrives. Preserve all outcome
-  and publication holds.
+- Exact next actions: independently review the returned CP-4 a1 mechanics
+  evidence; review experiment 081 r4 and PREREG-074 R7 when they arrive; only
+  then decide their separate build/binding steps. Preserve all outcome and
+  publication holds.
 
 ### 2026-09-07 CP-4 binding accepted; PREREG-074 prep held for bounded R2
 
