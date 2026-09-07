@@ -49,8 +49,12 @@ agent or developer:
   `handoffs/PRODUCTION-TO-LAB-CP4-R6-HOLD-AND-R7-LINEAGE-REPAIR-2026-09-07.md`.
   R7 must reconcile generator output to raw attempts and admission by visit,
   bind exact duplicate sources and locks, serialize the raw evidence, and add
-  the four non-vacuous adversarial cases. No CP-4 run, build, cloud action, or
-  outcome access is authorized yet.
+  the four non-vacuous adversarial cases. The follow-up at lab main `51c0e49`
+  clarifies that generator-level boom duplicates must resolve against the
+  complete pre-admission visit map, including a valid boom-to-earlier-lev
+  duplicate; the boom-only comparison and later contextual admission remain
+  distinct. No CP-4 run, build, cloud action, or outcome access is authorized
+  yet.
 - Production independently reviewed PREREG-074 efficacy preparation commit
   `ab6d41ec4e29f3f1c9a2a95cdbae8370c3cff408`, exact child of the accepted
   CP-3 mechanics result. The scientific estimand and 36-cell task assignment
