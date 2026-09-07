@@ -44434,3 +44434,47 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   Next concrete action: monitor for CP-3 frame/identity binding commits and
   review them immediately; in parallel finish both CP-4 R3/P0-6 code reviews.
   No cloud lane is currently authorized merely by these code returns.
+
+  Lab returned the authorized CP-3 two-stage binding chain: Commit F
+  `439d1970747a7e3659d12f269275ab1a77305593` is the direct child of reviewed
+  R2 and fills only the ten exact frame-sidecar identities; Commit M
+  `c19176b422f20faf217b3f6cab9d80d0969f48ac` is F's direct child and fills
+  only the four executable identity fields. Two independent production checks
+  reopened the exact tracked stage-0 `100644` sidecar (81,531 bytes,
+  `085297a3...35e1e`), recomputed masked runner `df7d9ab2...85b7` and non-runner
+  composite `00bddd31...45a0`, matched all eleven per-file hashes, reproduced
+  the 26 focused tests, and passed Ruff/compilation/diff/cleanliness. Production
+  accepted F/M and issued the first one-shot score-free mechanics GO at lab
+  main `75c0b1f`.
+
+  That first clearance was consumed by a preflight-only false positive: its
+  `pgrep -f` saw the launch wrapper's own future runner command. Lab Update 145
+  proves the chain stopped before any interpreter, runner, authority reopen,
+  broker load, simulation, lineup, transcript, or output existed. Production
+  classified it `VOID_PREFLIGHT_SELF_MATCH`, not a mechanics failure, and
+  issued a fresh-path re-clearance at lab main `c4ba8eb` using a NUL-delimited
+  `/proc/<pid>/cmdline` census that requires the runner and attempt as actual
+  Python argv entries and cannot match its own wrapper. The accepted source
+  and exact `cp3d800-a1` invocation are unchanged. Outcome access and scoring
+  remain held after the mechanics artifact returns.
+
+  Both independent reviews of CP-4 R3/P0-6 exact `c27f85f` reproduced its
+  17 happy-path tests and clean scoped checks but found six execution-blocking
+  bypass classes. The runner unconditionally stops before invoking the CP-4
+  experiment; schedule and snapshot authority are circular caller assertions;
+  caller-supplied QB-stack/bring-back/environment laws can pass; the inherited
+  fixed-count routine drops both the 160 `lev` and 160 `ctx` replacement
+  sleeves and compares only boom; boolean-only legality/K80 and empty audit
+  receipts can pass; omission-only novelty, invalid duplicate lineage, and
+  incomplete outcome/PIT/domain checks remain possible. Production therefore
+  held all CP-4 execution and issued only a bounded R4 repair authorization at
+  lab main `2a2feee`. R4 must start from then-current accepted lab main rather
+  than merge `c27f85f` wholesale, because the latter contains superseded CP-3
+  R1 ancestry. No CP-4 sidecar, mechanics, cloud, outcome, or score work is
+  authorized.
+
+  Next concrete action: monitor the fresh CP-3 mechanics preflight and actual
+  one-shot run; authenticate its immutable gate artifact immediately on
+  return. In parallel review the CP-4 R4 code-only repair when returned. Do not
+  reopen PREREG-073 or CP-1 a4, and do not authorize any outcome read from a
+  merely score-free mechanics result.
