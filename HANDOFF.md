@@ -44790,3 +44790,30 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `handoffs/PRODUCTION-TO-LAB-CP4-R7-HOLD-AND-R8-RAW-TRACE-REPAIR-2026-09-07.md`.
   Sidecar/binding/arms/budgets/laws remain accepted and unchanged; no CP-4
   mechanics, cloud action, outcome, or scoring is authorized until R8 review.
+
+  PREREG-074 efficacy-prep R3 review and 081 image-only build (2026-09-07
+  13:10Z): lab Update 159 returned R3 at
+  `75e1863882391a117dbdb490393b76986c0d50de`. Two independent production
+  reviews reproduced the green focused suite (full production run: 31/31),
+  Ruff, compilation and diff checks, but found the real orchestration path
+  still cannot complete. The coordinator emits mutually exclusive
+  `--clear-env-vars` and `--set-env-vars`; generation and replay reuse the same
+  create-once `result-tNN.json` harness envelopes, so every replay task would
+  fail after publishing its replay receipt; the seal discards replay
+  launch/execution provenance; missing provider generation is backfilled from
+  the launch claim; the build receipt remains caller-asserted; and no
+  executable pins/release producer is shipped. Production pushed the bounded
+  R4 HOLD to lab main at `19dc7f8`:
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-EFFICACY-PREP-R3-HOLD-2026-09-07.md`.
+  The estimand, cells, arms, budgets, mechanics, nomination rule and
+  no-outcome boundary remain accepted and frozen. No PREREG-074 build,
+  manifest, Cloud Run execution, seal or read is authorized; CP-4 R8 may
+  continue independently.
+
+  Separately, the already source-authorized experiment-081 mechanics image
+  build completed successfully as Cloud Build
+  `44b55d6c-6f55-497a-9452-8e267a761091`, source `0fc2942`, immutable digest
+  `sha256:92ccd0cc70f1328a2f6a6e0e0c324aa546e7cbc8e764c2a0df8cf9464ec3e796`.
+  This consumed no Cloud Run execution and opened no outcome. The image remains
+  unlaunched because the final exact mechanics boundary/coordinator receipt is
+  not yet frozen; efficacy remains held on registry v2.
