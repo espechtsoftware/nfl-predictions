@@ -44312,7 +44312,7 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   the score-free `2023-W01-b740` frame-sidecar generation. Binding and the
   one-cell D800 mechanics run remain later, separate decisions.
 
-  Lab returned CP-3 R3 at exact `85eb362e273b4daf99cd4518248ea3e1aa5a09b0`.
+  Lab returned CP-3 R3 at exact `85eb3620b151548846602fcf0fdac86ecf1f0b7a`.
   Production and an independent reviewer reproduced 44/44 focused tests,
   clean Ruff/compilation/diff checks, and a successful real pre-lock boundary
   exercise: the firewalled 2023-W1 frame was 773 x 192, exactly the 14
@@ -44339,3 +44339,38 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   Next concrete action: monitor the one exact sidecar completion; validate its
   bytes, transcript, frame/world-order facts, and binding delta immediately on
   return. Do not run `cp3d800-a1` yet.
+
+  The first sidecar clearance transcribed the reviewed R3 full SHA incorrectly
+  as nonexistent `85eb362e273b4daf99cd4518248ea3e1aa5a09b0`. Lab Update 142
+  records that `git worktree add` exited 128 before any runner, interpreter,
+  authority reopen, broker load, simulation, output, transcript, worktree, or
+  sidecar process existed. Production accepted the fail-closed receipt and
+  issued a fresh one-shot clearance at lab-main commit
+  `de2dd7d859add952b1a61a9c062bb0d2e9aac91f` for the actual reviewed source
+  `85eb3620b151548846602fcf0fdac86ecf1f0b7a`. The exact command and all
+  score-free/no-outcome limits are unchanged. The old clearance is consumed
+  and void; this is a new authority, not a retry under it. CP-3 mechanics
+  remains HOLD.
+
+  In parallel, lab returned the path/self-reference binding-law delta at
+  `b405399cdaba1999c244466f897c48410f92919b`; independent review is active.
+  It is not admitted by the sidecar re-clearance and may not be used to run
+  mechanics until separately accepted and bound.
+
+  Production also completed independent review of the CP-4 R2 code at
+  `daa73202a5384c6c623089c825a11f6a767ff767`. P0-2 allocation arithmetic and
+  P0-3 internal `DK_ONLY_V1` construction pass, but mechanics stays HOLD:
+  core-spec schedule identity/uniqueness is incomplete; snapshot verification
+  accepts altered or forged frame/input facts and arbitrary outcome-bearing
+  pool fields; source/as-of/domain validation is incomplete; and the required
+  D800 P0-6 integration gate is absent. Production authorized only a bounded
+  R3 repair plus P0-6 code implementation at lab-main commit `ff58d27` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-R2-REVIEW-AND-P0-6-CODE-GO-2026-09-07.md`.
+  No CP-4 mechanics, build, historical read, scoring, or outcome access is
+  authorized.
+
+  Next concrete action: monitor the corrected one-shot CP-3 sidecar run and
+  review its artifact immediately; finish the independent `b405399` delta
+  review; and review the returned bounded CP-4 R3 branch when it arrives.
+  PREREG-073 remains closed and CP-1 `a4` remains superseded—neither has a
+  pending CODE GO or clearance.
