@@ -44965,3 +44965,38 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   image build, cloud action, artifact publication, outcome access or score is
   authorized. Next action is an immediate independent review when the narrow
   R10 commit returns.
+
+- 2026-09-07 — experiment 081 gate v4 accepted; fresh r2 image built
+
+  Independent production review accepted exact gate-v4 commit
+  `79031403bcd3180073c0c0576cbe31ed18adcfc2`, direct child of accepted R22
+  source repair `fa2b4afb3ede62b226828080acadd6fc9605f3a0`. The real
+  outcome-firewalled engagement census passed all 36 frozen slates; all 68
+  focused, adjacent and broader integration tests passed; adversarial stale,
+  fabricated, incomplete, duplicate, foreign and self-consistently restated
+  receipts failed closed. Ruff, compilation and diff checks passed. The source
+  and v4 gate are accepted without arm, budget, simulation, seed, estimand or
+  outcome-boundary drift. Production published the code/build GO to lab main
+  at `af40278`.
+
+  A fresh immutable image was built from that exact clean source as Cloud
+  Build `10c9ce38-eb4d-4063-b280-0d2828682c1e`, terminal `SUCCESS`. Tag
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2:081-79031403-r2`
+  resolves to
+  `sha256:4e578dc5ecb208c3c005d7b44dc7dd8f4b7590a0534b7f3db3079c3db6c89e1c`.
+  The exact source object is
+  `gs://nfl-2-506823_cloudbuild/source/1788792731.44556-790c973798a743a6840b1a16f3784ba6.tgz#1788792735354507`;
+  it is 2,624,038 bytes with SHA-256
+  `8d817808cf5bee063e79940f22981bb9b82aa9ea6d1188fd0ce968c4f373f557`
+  and MD5 `ce9440ea780b5f51a784ae27742abac2`. All 760 staged regular
+  files matched the accepted source byte-for-byte, with no missing/extra file
+  or symlink; upload-manifest SHA-256 is
+  `468580fb0e8b02e7b9b1d6f1cae53ed3c5f91598085b0092084f35545004267a`.
+  The build updated no reusable job and launched no execution.
+
+  The old `081m560r1` source/image/attempt remain `VOID_UNLAUNCHED`. The new
+  image is not yet a launch authorization. Next concrete action: independently
+  review and bind a fresh production-owned `081m560r2-*` registered mechanics
+  coordinator, then launch exactly one full-budget outcome-disabled task only
+  if the final provider/GCS create-once census is empty. Efficacy remains
+  `HOLD_REGISTRY_V2`.
