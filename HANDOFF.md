@@ -44478,3 +44478,48 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   return. In parallel review the CP-4 R4 code-only repair when returned. Do not
   reopen PREREG-073 or CP-1 a4, and do not authorize any outcome read from a
   merely score-free mechanics result.
+
+  The re-cleared CP-3 `cp3d800-a1` runner was invoked exactly once from
+  accepted Commit M `c19176b` and failed before either arm at
+  `M.select -> M.validate`: the real bound frame carries nflverse game ids on
+  skill rows and team-relative ids on DST rows, so the pre-R22 medoid path
+  interpreted one game as several. Receipt commit `61d0042` records exit 1,
+  empty stdout, 1,027-byte stderr SHA-256 `daa0a2fa...a87`, no mechanics
+  artifact, no arm, and no outcome. Because Python entered the runner and
+  generated the shared draw banks, attempt `cp3d800-a1` is consumed even
+  though no output was written.
+
+  Lab returned an R22 repair at `98973e5`: the accepted CP-1 validator from
+  `259b9c4` is copied byte-identically (SHA-256
+  `b5ccce89d2d44f4c4c9e1071dded29236701ccf8c3ffc11a38638257c3e33f78`),
+  and a copied canonical-game frame is supplied only to the accepted medoid
+  selection and its coverage reconstruction after bound-frame equality.
+  Independent review reproduced 45/45 focused tests and accepted the
+  mechanism, but held identity fill and execution: the runner still binds the
+  consumed a1/output-a1 identity; the validator test checks only the first 16
+  digest characters; and canonicalization does not yet prove both teams are
+  actually observed, one nflverse id maps to each canonical pair, or that the
+  mixed-form repair is non-vacuously engaged.
+
+  Production published the bounded response on lab main at `10d466a`, then
+  tightened its verification requirements at `233f8db`:
+  `handoffs/PRODUCTION-TO-LAB-CP3-R22-R1-REVIEW-AND-A2-REPAIR-GO-2026-09-07.md`.
+  It authorizes one code-only repair commit that changes the invocation to
+  `cp3d800-a2` / `results/cp3_d800_mechanics_a2.json`, adds complete observed-
+  team/nflverse-pair/engagement proofs, pins the full R22 digest, adds an
+  end-to-end mixed-form legality test, records the PREREG-074 amendment, and
+  leaves runner/code identities explicitly unbound. No runner, cloud work,
+  outcome, or score is authorized. It also requires medoid/story-vector
+  representation invariance, runner-wiring isolation, and a complete raw a2
+  launch transcript. The frozen CP-3 repair must not silently route the
+  canonical copy into generation; the optimizer's raw-id two-game constraint
+  is a separate production-law correction, while final R22 legality remains
+  fail-closed. CP-4 R4 must also handle this real-frame R22 identity class at
+  its authenticated input boundary.
+
+  Next concrete action: review the returned CP-3 code-only a2 repair, then—if
+  accepted—authorize and independently review a direct-child M-prime that
+  fills only the newly computed runner/code identities before issuing any
+  fresh one-shot a2 mechanics clearance. Continue monitoring CP-4 R4 in
+  parallel. PREREG-073 is terminally closed and CP-1 a4 remains superseded;
+  neither is waiting on production.
