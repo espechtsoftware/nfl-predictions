@@ -22,6 +22,34 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 CP-4 R12 held; narrow contextual-snapshot R13 authorized
+
+- Production independently reviewed exact CP-4 R12 commit
+  `6e4f2c9ee6b73cfea3c484a40cf39b905beca031`, direct child of accepted R11
+  `4d8d63404302c4a86605ffe08d752e17c34b6639`. The five-field audit repair is
+  sound in its intended scope, and its one-shot outcome-disabled real-frame
+  smoke failed closed correctly: the authenticated model-only frame has 175
+  columns, 146 nullable columns, and 131 nullable columns outside the narrow
+  contextual contract. `cp4d800-a2` and its judge sidecar remain absent.
+- R12 is HOLD because treating those 131 columns as globally audit-only would
+  remove inputs still consumed upstream by simulation, activity, control/boom
+  generation, pool construction, legality, and judging. Production selected
+  R13 option (a): retain and authenticate the complete frame, then make an
+  exact deterministic projection only inside `snapshot()` for contextual
+  ranking/allocation/solver decisions. Do not create 131 hand-written domain
+  laws and do not project before upstream generation work.
+- The R13 contract requires exact ordered full-schema authentication, a
+  per-column full-frame receipt, separate full-frame and decision-frame
+  digests, scoped consumption roles, preservation of the R12 five-field
+  validation and mutation observations, and a fresh outcome-disabled smoke on
+  the real 624-row/175-column frame that stops before candidate generation.
+  The disposition is durable on lab main at commit `de6a584` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-R12-HOLD-AND-R13-SNAPSHOT-PROJECTION-GO-2026-09-07.md`.
+- This is code plus local outcome-disabled smoke authorization only. No
+  mechanics run, build, cloud execution, GCS publication, outcome access,
+  scoring, or promotion is authorized. Next action is immediate independent
+  review of one exact R13 return; `cp4d800-a2` remains uninvoked meanwhile.
+
 ### 2026-09-07 duplicate Week-1 validation builds cancelled; canonical-game repair held
 
 - Cloud Builds `7670b3fd-4e6c-4986-8398-627faf38b6d1` and
