@@ -22,6 +22,49 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 canonical-game v2 R2 paid/deployment review is HOLD
+
+- Independent review of proposed implementation
+  `a6007f2fd6cc5aca662489994a5f1d590b26f164` reproduced two decisive P0
+  authentication bypasses. A caller can mutate the supposedly opaque paid
+  receipt, restate requested/effective tail and field size, recompute its
+  ordinary hash, and have terminal validation accept it without an independent
+  request authority. Coordinated model-member, feature-frame and note
+  replacement/re-hashing is also accepted.
+- The Cloud Build-law projection drops behavior-capable provider fields.
+  Added `allowExitCodes`, dependency-changing `waitFor`, and a different
+  top-level service account were accepted, so a provider SUCCESS could mask a
+  failed focused-test step. The deploy sequence also shifts traffic before
+  postdeploy attestation, and the paid runtime does not reopen a durable
+  provider activation authority.
+- The proposal is not authorized for merge, deployment, Neo4j apply, paid
+  generation or entry. Preserve its correct exact five-block/50,000-world,
+  Git-free and image-digest controls while repairing immutable independently
+  bound request authority, complete build behavior authentication,
+  no-traffic/attest/traffic/reattest ordering with rollback, and mandatory
+  runtime activation reopening. The durable review is
+  `reports/2026-09-07-canonical-game-v2-r2-paid-deployment-independent-review.md`.
+
+### 2026-09-07 PREREG-074 R12 context-ignore repair returned for review
+
+- Local exact R12 code is
+  `ea56e34db7b3806fff19d11794cb10d3709a6875`, a direct child of accepted
+  R11 `965e914382867f90092d56523a099f524d77559b6`. It advances the namespace
+  to R12, creates a temporary ignore file outside the detached exact-R9 tree,
+  and adds exact `.git` and `.git/` exclusions without changing any source
+  byte.
+- The installed `gcloud meta list-files-for-upload` surface does not implement
+  `--ignore-file`. The corrected contract therefore uses the installed Cloud
+  Build SDK's exact `cloudbuild.snapshot.Snapshot` class for the pre-submit
+  census and passes the same absolute ignore file to `gcloud builds submit`.
+  The correction is durable on lab main through `5a26e8e` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-R12-CONTEXT-CENSUS-CONTRACT-CORRECTION-2026-09-07.md`.
+- Focused tests pass 10/10; Ruff, shell syntax and diff checks pass. An exact
+  local R9 census produced 893 expected and 893 observed paths, no missing or
+  extra path, and no `.git`. R12 is in independent review. No push of the code
+  branch and no build, tag, image, GCS write, job mutation, execution, outcome
+  access or score read is authorized until that review accepts it.
+
 ### 2026-09-07 PREREG-074 R11 build invocation failed closed before submit; R12 active
 
 - Production invoked the one cleared R11 builder from durable integration
@@ -37,10 +80,10 @@ agent or developer:
   candidate, outcome or score. Cleanup removed the temporary context. The R11
   invocation is consumed and must not be retried.
 - R12 is limited to a fresh revision/tag namespace and one temporary external
-  ignore file derived from exact R9 `.gcloudignore` plus `.git`/`.git/`, passed
-  identically to the meta census and real submit. Exact 893-path equality and
-  every accepted R11 provenance/authentication boundary remain. The durable
-  lab note is
+  ignore file derived from exact R9 `.gcloudignore` plus `.git`/`.git/`, used
+  by both the exact Cloud Build SDK snapshot census and real submit. Exact
+  893-path equality and every accepted R11 provenance/authentication boundary
+  remain. The original durable lab note is
   `handoffs/PRODUCTION-TO-LAB-PREREG074-R11-PRESUBMIT-FAILURE-AND-R12-CONTEXT-IGNORE-GO-2026-09-07.md`.
 
 ### 2026-09-07 PREREG-074 R11 accepted and integrated; one immutable build cleared
