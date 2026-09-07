@@ -44911,3 +44911,23 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   It preserves the accepted source logic and requires exact per-game raw-form
   counts, all-game mixed engagement and row/draw reconciliation. No build,
   run prefix, provider claim, GCS object or outcome was authorized or consumed.
+
+- 2026-09-07 — PREREG-073 terminology and reporting audit published
+
+  Production reviewed the frozen PREREG-073 result and its byte-identical
+  independent reproduction in
+  `reports/2026-09-07-prereg073-negative-legitimacy-review.md`. The formal
+  `promotion: NONE` disposition remains correct and the opened panel must not
+  be rerun or tuned. The observed scoring direction was favorable, however:
+  raw K80 weekly maximum improved by `+1.0806` points with 16 wins, 5 losses
+  and 27 ties, while weeks at or above 200 increased from 8 to 10. The exact
+  score-axis label is therefore `UNPASSED_NEAR_MISS`, not a negative scoring
+  effect. Only the tested binary designated-player implementation closes;
+  richer participation mechanisms remain untested.
+
+  The review also confirms four documentation/reporting repairs for the lab:
+  calibration W/L labels must respect negative-is-favorable direction, the
+  PREREG-073 header must be marked terminal, the missing ledger row must be
+  added, and support must distinguish 152 valid pre-intersection cells from
+  144 analyzed cells. These are record-only changes: no outcome reopen,
+  rescoring, new read, promotion or policy change is authorized.
