@@ -45073,3 +45073,61 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   authorized unless a build reaches terminal SUCCESS; collect the exact
   failures before deciding whether they are source regressions or unrelated
   repository baseline failures.
+
+- 2026-09-07 — CP-4 R10 independently held for player-order authentication
+
+  Production reviewed exact lab commit
+  `c605885f6a4584974570a3581b17ff2d98c97d3c`. R10's persisted-matrix,
+  judge-row and runtime-closure repairs are retained, but the one-shot
+  `cp4d800-a1` mechanics execution remains HOLD. The validator proves only
+  that each persisted `player_order` is a permutation of the authenticated
+  roster, then uses that self-declared order to reconstruct and authenticate
+  the numerical matrix. Production demonstrated a coherent forgery by
+  reversing one candidate's nine-player order and restating the matrix,
+  selections and gate digests; the artifact still validated with the genuine
+  external judge receipt.
+
+  The narrow R11 code-only repair must derive generated leverage/boom order
+  from the authenticated judge/frame row sequence filtered to the roster and
+  contextual order from the lexical ID sequence used by
+  `allocate.solver_rows`, then require exact equality in both the runner and
+  serialized validator. Fully restated reorder negatives are required for
+  both routes. The production disposition is published on lab main as
+  `d30150742ceb2bd79dced488ff6059e98fb6b873` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-R10-HOLD-AND-R11-PLAYER-ORDER-AUTHENTICATION-GO-2026-09-07.md`.
+  No mechanics, build, cloud, artifact-publication or outcome action is
+  authorized from R10.
+
+- 2026-09-07 — experiment 081 r2 build/binding void before execution
+
+  Production prepared local binding commit
+  `85729a8ed601bb0e8b53e1b3d348a6d2ff80d158` for frozen mechanics run
+  `081m560r2-20260907T145924Z`. Its seven additive files passed 46 focused
+  tests plus Ruff, shell syntax, compilation, JSON and diff checks; no cloud
+  or GCS state was changed. Independent review nevertheless found the same
+  execution-namespace defect just established for PREREG-074 R5: the
+  coordinator issues no durable create-once marker immediately before the
+  execute RPC. After an accepted-but-temporarily-invisible execute or a
+  signal in that window, a later invocation can see no provider claim and
+  issue a second execution. The coordinator also lacks a final post-gate
+  sole-provider recensus.
+
+  Independent reopening of exact Cloud Build source generation
+  `1788792735354507` found a second P0. Its recorded byte length and hashes
+  are correct, but the 760 uploaded regular files comprise 749 tracked files
+  plus 11 untracked extras: the linked-worktree `.git` file, five pytest-cache
+  files and five Ruff-cache files. All uploaded tracked bytes match the
+  accepted commit, and scoped Dockerfile copies likely excluded the extras
+  from the image, but the receipt's `upload_files_not_in_commit: 0` claim is
+  false.
+
+  The r2 build, preliminary binding and unused run are therefore
+  `VOID_UNLAUNCHED`. The next attempt must use a fresh r3 tag/digest/build and
+  run namespace from a sanitized tracked-only context at accepted source
+  `79031403bcd3180073c0c0576cbe31ed18adcfc2`. Its coordinator must add a
+  deterministic create-once pre-execute marker whose existing generation
+  forces poll/reconcile-only recovery, reject unmarked or duplicate claims,
+  refuse launch around any unrelated active `lab-run` execution even when
+  the job spec already matches, and repeat provider uniqueness before
+  terminal acceptance and after gate publication. Do not push, merge or
+  launch the preliminary r2 binding.
