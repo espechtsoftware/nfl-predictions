@@ -22,6 +22,27 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 PREREG-074 R12 build succeeded; receipt recovery is held for R13
+
+- The one authorized R12 Cloud Build completed `SUCCESS`: build
+  `f6c42003-41ba-4cd0-9b72-336f38a781c1`, immutable image digest
+  `sha256:11295b4098494204402e690b993f2e580cdae0b28dc59b7aaac0483afbf10f93`,
+  tag `102b740-r12-1b133dc96773`, and exact 893-path context SHA-256
+  `cafd1c2b4543f7de1d7854ddeba30921f9b624f2a22e59694b41a870e68e45cf`.
+- R12 failed closed after the build because its tag validator expected the
+  fabricated two-field shape `tag,version`; the installed provider returns the
+  exact three-field shape `image,tag,version`. The one R12 recovery attempt
+  reproduced the refusal without submitting another build. No receipt, job
+  update, execution, outcome access, or score exists from either invocation.
+- Production authorized only a code-level R13 repair in durable lab-main note
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-R12-RECOVERY-FAILURE-AND-R13-TAG-SCHEMA-GO-2026-09-07.md`.
+  Candidate R13 commit `2431f9b` is recovery-only for the exact successful
+  build above, has no build-submit path, requires the genuine closed
+  `image,tag,version` row and exact digest, and preserves R9/fm3/context and
+  create-once receipt boundaries. Shell syntax, Ruff and diff checks pass;
+  focused pytest and independent review are pending. Do not run the recovery,
+  mutate a job, or launch until both accept it.
+
 ### 2026-09-07 canonical-game v2 R2 paid/deployment review is HOLD
 
 - Independent review of proposed implementation
