@@ -22,6 +22,38 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 duplicate Week-1 validation builds cancelled; canonical-game repair held
+
+- Cloud Builds `7670b3fd-4e6c-4986-8398-627faf38b6d1` and
+  `2fa0d5cd-57f1-4f6c-ae37-b9b978ab6aeb` were duplicate validation-only
+  submissions of exact source
+  `a01a6c84f60a678d3f76e684ba73fa487918f1f8` and the same mutable image tag.
+  Both full pytest steps had already emitted numerous failures, so neither
+  could reach image-build or smoke steps. The lagging first build was cancelled
+  at provider finish `2026-09-07T17:29:51.677642Z`; the second was cancelled
+  after it stopped emitting output at 77 percent for more than 20 minutes.
+  Their logs remain durable. No image from either build is accepted or may be
+  deployed.
+- A candidate repair for the five canonical-game/paid/Neo4j HOLD findings was
+  created locally at exact unpushed commit
+  `a5e39f7362114430278e9473d7096a16ee3da061`. Independent review held it. Its
+  paid transformation receipt states 30,000 worlds and an inert seed although
+  the active CBWU engine executes five 10,000-world blocks; arbitrary
+  self-authored transformation receipts/objectives validate; model, feature,
+  note and lineup-instruction authorities are incomplete; runtime commit/image
+  values are syntax-checked self-assertions rather than a deployed-revision
+  attestation; paid `proj_p50`/`proj_p90` requests regress; and Neo4j claims a
+  generation-pinned replay while invoking the v3 validator with `replay=False`
+  and trusting an incomplete governance chain.
+- Exact-source build authentication, producer/loader terminal-path alignment,
+  seven-strategy registry enforcement, derived graph replay and Week-1 v1
+  compatibility did pass review and should be retained. A bounded direct-child
+  repair is active locally; it must truthfully bind the completed engine
+  execution and all mutable inputs, add immutable deployed-revision
+  attestation, resolve paid objective support, and perform genuine exact-object
+  retrieval-v3 replay before integration. No push, deployment, paid action or
+  Neo4j mutation is authorized from `a5e39f73`.
+
 ### 2026-09-07 experiment 081 R4 held; narrow R5 repair returned to lab
 
 - Production independently reviewed exact experiment 081 R4 commit
