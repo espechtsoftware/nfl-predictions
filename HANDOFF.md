@@ -44042,6 +44042,23 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   one durable lab-first-read release. Lab must commit the one-shot output and
   transcript atomically; production independently reproduces only afterward.
 
+  Lab independently accepted the terminal seal binding at commit `57bebac`:
+  its provider/seal census matched production, the reader delta from
+  `cfba12a` was exactly the one `VALID_COHORT_SEAL` literal, terminal reader
+  SHA matched, and its expanded score-free gate passed 214 tests. Production
+  then issued the separate one-shot lab-first-read GO at lab-main commit
+  `7e585e6` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG073-R2-FIRST-READ-GO-2026-09-07.md`.
+  The release pins the reader, seal, three runs, five read-dependency hashes,
+  `--with-reference`, output/transcript paths, and an absolute-worktree
+  `PYTHONPATH`/import-origin guard. No efficacy artifact has yet been opened by
+  production.
+
+  Next concrete action: monitor the lab's single first-reader process. On its
+  atomic result/transcript commit, independently reproduce the exact reader
+  from the same bound identities and route the finding; never initiate a
+  second first-read attempt.
+
 - 2026-09-06 — CP-1 R23 accepted; fresh full census a2 active
 
   Independent production review returned GO for the narrow R23 repair at lab
