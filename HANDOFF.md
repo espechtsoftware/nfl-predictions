@@ -44087,6 +44087,22 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   result and transcript, then publish the cross-verification and final route.
   Do not run another lab first read or launch any PREREG-073 descendant.
 
+  Production's independent reproduction completed at
+  `2026-09-07T01:58:45Z` from a fresh clean detached lab worktree at exact
+  commit `0619a8f`. It invoked the frozen reader once with the absolute
+  worktree `PYTHONPATH`, exited zero, left the worktree clean, and reproduced
+  both artifacts byte-for-byte: result SHA-256 `9f54ceef...57c8a`, transcript
+  SHA-256 `4c3da8e...30df`, with both `cmp` checks returning zero. The reader and
+  all five read dependencies retained their bound hashes. Production's final
+  cross-verification and frozen disposition are durable on lab main at commit
+  `3cddf6b` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG073-R2-CROSSVERIFICATION-AND-DISPOSITION-2026-09-07.md`.
+  PREREG-073 r2 is closed: JPAR-1b is not adopted or promoted, it will not be
+  tuned or relaunched on this opened panel, and no paid-policy change follows.
+
+  Next concrete action: none for PREREG-073. Preserve the closed disposition
+  while the independently gated CP-1 full census continues.
+
 - 2026-09-06 — CP-1 R23 accepted; fresh full census a2 active
 
   Independent production review returned GO for the narrow R23 repair at lab
