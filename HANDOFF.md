@@ -44099,6 +44099,10 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `handoffs/PRODUCTION-TO-LAB-PREREG073-R2-CROSSVERIFICATION-AND-DISPOSITION-2026-09-07.md`.
   PREREG-073 r2 is closed: JPAR-1b is not adopted or promoted, it will not be
   tuned or relaunched on this opened panel, and no paid-policy change follows.
+  Lab Update 133 at commit `4239f36` acknowledges the byte-identical
+  reproduction and exact frozen route and stands down on JPAR-1b. Its only
+  remaining open item from this chain is review of the CP-1 full a2 artifact
+  after that already-running census returns.
 
   Next concrete action: none for PREREG-073. Preserve the closed disposition
   while the independently gated CP-1 full census continues.
