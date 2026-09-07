@@ -44817,3 +44817,45 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   This consumed no Cloud Run execution and opened no outcome. The image remains
   unlaunched because the final exact mechanics boundary/coordinator receipt is
   not yet frozen; efficacy remains held on registry v2.
+
+  CP-4 R8 and experiment-081 prelaunch adjudication (2026-09-07 13:45Z):
+  independent review of exact R8 `e2eb73f00715f926fb38cb22dd5fd09a60a8d7a8`
+  accepts the additive pre-dedup observer and normalized cross-arm boom-roster
+  sequence, but holds `cp4d800-a1` on serialized artifact authentication. The
+  R8 validator accepted false clean/source, pruning, source-consumption,
+  seed/environment, canonical-game engagement and authority-reopen claims. It
+  also accepted a coordinated replacement of the actual natural-K80 indexes
+  with `[0..79]` after selected hashes and the stored gate were restated, and
+  accepted a forged candidate-matrix digest after the same internal
+  restatement. The artifact lacks the numerical evidence or immutable receipt
+  needed to independently recompute the selector result. The exact focused
+  suite still passed 41/41 in 162.19 seconds; Ruff, compilation and diff checks
+  were clean. Production published the narrow R9 repair GO on lab main at
+  `157ad78daf125064f78b766ed442b053e57b4930` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-R8-HOLD-AND-R9-ARTIFACT-AUTHENTICATION-REPAIR-2026-09-07.md`.
+  P0-1/P0-2, the sidecar, binding, arms, budgets, schedule, laws, selector and
+  judge remain accepted and unchanged. No CP-4 mechanics/build/cloud/outcome
+  action is authorized before R9 independent review.
+
+  The durable experiment-081 launch binding was prepared at nfl2 branch
+  `production/081-mechanics-launch-20260907`, commit `895703c`, but the final
+  real-boundary preflight found a deterministic blocker before any Cloud Run
+  mutation. On exact source `0fc2942`, outcome-disabled `slate_frame(2023, 1)`
+  has 773 rows, 26 teams and 39 raw `game_id` strings for 13 physical games;
+  `winner_regret.maps` raises `frame game identity disagrees with
+  team/opponent` on the DST rows. The image contains the pre-R22 validator
+  (`2ba7bb6e...`) and would therefore fail before either construction law is
+  solved; its raw-id two-game check could also misclassify physical-game
+  legality. The immutable build remains valid evidence but is
+  **VOID_UNLAUNCHED** for this mechanics attempt. No provider execution or GCS
+  result/gate claim exists. A bounded canonical unordered team/opponent repair
+  with the laws, budgets, arguments and no-outcome boundary unchanged is in
+  progress; it requires source review and a new immutable image before any
+  launch.
+
+  Next concrete action: independently review the returned CP-4 R9 and the
+  experiment-081 canonical-game repair when committed; only then issue their
+  one-shot mechanics clearances. Continue the separate PREREG-074 R4 wait and
+  canonical-game-v2 production review. The cloud lanes are currently idle
+  because each available experiment is held at a deterministic code/evidence
+  gate, not because an authorized launch has been missed.
