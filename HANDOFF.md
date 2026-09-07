@@ -44179,3 +44179,56 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `cp1full-a2` artifact and proposes the exact create-once publication URI and
   mechanics. Production then separately reviews and authorizes durable
   publication/binding. Do not reopen PREREG-073 or run CP-1 a4/a5.
+
+  Lab independently returned ACCEPT at Update 134 / lab main `4681f0d`; its
+  review receipt at branch `a0a9c7c` agrees with the artifact, support floors,
+  arm/candidate counts, every gate, R23 evidence, identities, redaction, and
+  no-outcome boundary. Production accepted that review and split preservation
+  from authority binding at lab commit `f723ff6`.
+
+  The first preservation transport invoked the existing Python publisher once
+  and exited on a network write timeout before creating an object or receipt.
+  Exact post-failure metadata and all-version checks returned 404, so r1 is
+  durable as `VOID_NO_OBJECT_NO_RECEIPT`. Production recorded the disposition
+  and one-shot Cloud SDK recovery at lab commit `595f41d`; it did not rerun the
+  ambiguous command.
+
+  Preservation transport r2 then created the exact immutable object at
+  `gs://nfl-2-506823-lab/inputs/cp1/census/full-a2/cp1_full_census_a2.json`,
+  generation `1788760738736341`, 111,736,878 bytes, MD5
+  `JtdUUA+MiL6oTY4KHvPYww==`, CRC32C `Ls0QWg==`, under
+  `if_generation_match=0`. A version-specific Cloud SDK reopen produced all
+  111,736,878 bytes; SHA-256 was
+  `7032fbdc393bfc516c995d95812c0ac76ce5f29ef68534b62fc039359ee335be`
+  and `cmp` against the accepted local artifact returned zero. The force-
+  tracked preservation receipt is 1,988 bytes, SHA-256
+  `db5b46ee696a4f0b562fd7cacacd11fce961f5b37c0d0cf929e1e1ec5e01bf19`,
+  at lab-main commit `cb7eb2f`. It is transport evidence only; no supported-
+  slate authority or consumer is bound.
+
+  Lab also completed the separately cleared CP-3 synthetic full-shape smoke
+  once at exact source `8a49afe`; receipt commit `eaae69a`, result SHA-256
+  `e5dccbcf8bfdcbc76a0097c35718e03e1b2c02c5c61a51ad652ca217b0e97468`.
+  Production independently accepted exact 2,000/640 shape, 640 unique medoids,
+  mass 2,000, deterministic replay, 639 BUILD passes, cap five, all proofs,
+  clean source, schedule symmetric difference 894, and no outcome access.
+  Production also accepted `7cc1df8` as closing the complete-set prefix-escape
+  defect and issued CODE GO for score-free D800 integration only at lab main
+  `3a197ce`. No D800 execution, build, score read, or outcome access is yet
+  authorized.
+
+  Lab's initial supported-slate authority implementation at `327195b`, amended
+  for the real receipt schema at `1e5430b`, correctly produces canonical
+  redacted summaries but remains CODE/BINDING HOLD. Independent production
+  review reproduced optional receipt authentication, format-only rather than
+  exact identity pins, duplicate-JSON-key acceptance, vacuous emitted-gate
+  acceptance, untyped malformed-input failures, a missing allowlist contract
+  test, and a Ruff `UP035` failure. The exact repair and negative-test contract
+  is durable at lab main `38be82f` in
+  `handoffs/PRODUCTION-TO-LAB-CP1-SUPPORTED-SLATE-AUTHORITY-R1-REVIEW-2026-09-07.md`.
+
+  Next concrete action: review the lab's narrow CP-1 authority repair when it
+  returns, then separately bind the exact generation and transport receipt and
+  run one guarded score-free verification. In parallel, review the returned
+  CP-3 real-D800 integration code. Keep all consumer use, efficacy, scoring,
+  and outcome reads held until their distinct gates pass.
