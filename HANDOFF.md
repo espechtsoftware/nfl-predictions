@@ -38,6 +38,11 @@ agent or developer:
   container assertion after the build, and preserve the fm4 -> build -> image
   assertion -> authority -> launch order. Full-generation fm4 census must be
   explicit. Durable lab review: `313e31c`.
+- Lab returned R16 at code commit `19da2d8` with report-only tip `8d49b1b`
+  (Updates 185-186): a new submit-capable builder, runtime-derived identities,
+  digest-bound post-build assertion, accurate storage transport/census wording,
+  and 35/35 focused tests. Nothing was invoked. Independent review is active;
+  all fm4/build/image/authority/launch actions remain held meanwhile.
 
 ### 2026-09-07 Experiment 081 R3 provider build succeeded; receipt recovery held after wrapper ID-parse failure
 
@@ -86,6 +91,14 @@ agent or developer:
   single-writer lane receipt, and no transport probe. No real cloud contact or
   mutation occurred. Independent production review is now active; its proposed
   4 CPU / 16 GiB envelope and reused-job choice are not yet accepted.
+- Independent static review held `d38016b`: its source gate is impossible for
+  the commit that contains the driver; its image is not a full Cloud Run digest
+  URI or authenticated to an exact build; the container-local result is never
+  published; the provider census/attempt/lane/deploy semantics are not
+  authoritative; and terminal evidence cannot be sealed. The proposed 16 GiB
+  envelope is also unsupported, so the repair baseline is 2 CPU / 8 GiB absent
+  an exact amendment. The `r16` label remains unconsumed. Durable lab review:
+  `444aec2`.
 
 ### 2026-09-07 Experiment 081 R3 immutable builder repaired and independently passed; build held for one-shot GO
 
