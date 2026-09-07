@@ -44286,3 +44286,28 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   Next concrete action: review the lab's narrow CP-3 repair and frame-binding
   code when returned. Only after all real-path gates pass may production
   separately authorize one score-free sidecar generation and mechanics run.
+
+  Lab returned CP-3 D800 R2 at exact branch commit
+  `704cd8faeb7385d2ab6bed036fc2dcfc89697d08`. Production independently
+  reproduced all 42 focused tests plus clean Ruff and diff checks, accepted
+  the current canonical float32/higher-world-index tie law for this
+  prospective experiment, and confirmed that the CP-1 pre-lock extraction
+  and accepted authority ancestry are exact. The frame sidecar and mechanics
+  remain on HOLD because a real-path review found execution-blocking defects
+  that the synthetic fixtures missed: the firewalled target frame retains 14
+  null-valued forbidden column names and therefore halts at the outcome-name
+  check; the frame digest is not injective/type-preserving; no create-once
+  sidecar writer or strict sidecar/binding authenticator exists; arm identity
+  strings are copied from one pre-arm computation rather than independently
+  observed; and private cell/run fields are under-bound. The bounded R3 repair
+  contract is durable on lab main at `da2f222` in
+  `handoffs/PRODUCTION-TO-LAB-CP3-D800-R2-REVIEW-2026-09-07.md`.
+
+  The same note explicitly reconciles the stale request: PREREG-073 is closed
+  `FAIL_BOTH_CLOSE / NONE`, and CP-1 `a4` was superseded by the accepted full
+  `a2`; neither has any pending clearance or may be rerun.
+
+  Next concrete action: monitor for one clean CP-3 R3 repair commit, perform a
+  narrow delta review, and—only if it passes—issue a separate one-shot GO for
+  the score-free `2023-W01-b740` frame-sidecar generation. Binding and the
+  one-cell D800 mechanics run remain later, separate decisions.
