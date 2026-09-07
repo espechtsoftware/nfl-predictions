@@ -5583,6 +5583,66 @@ and operator decisions.  The older entries remain the durable chronology.
   `origin/main == d5946133`; committing or pushing now would invalidate that
   binding.
 
+- 2026-09-07 — PREREG-074 R7 accepted, then held after the one-shot frame-manifest preflight failed closed
+
+  Production independently accepted exact R7 source
+  `380d24c0f561ffffb2dd077847cc8f53ab48a3f3`: the three decisive
+  adversarial tests passed in 21.55 seconds, the execute-attempt markers are
+  now sealed/censused evidence, canonical receipt names are checked before
+  provider side effects, and the real runner binds the mandatory generation
+  census into cells and replays. The acceptance/production-chain GO is on lab
+  main at `244014edb0ebbe232ddbfe2248b8cfbf02b1a004`.
+
+  Production added a fail-closed immutable build-only helper on lab main at
+  `476d2cd`; it is durable but **has not been executed**. Before building,
+  production censused the exact `prereg074-fm1` object as unused and invoked
+  the frozen outcome-disabled frame-manifest command once from a clean
+  detached R7 worktree. It failed at `2023-w11-b740` with
+  `excluded_ids_malformed`; it published no object, and the post-failure GCS
+  census is `live=[]`, `noncurrent=[]`, `soft_deleted=[]`. No candidate,
+  selector, outcome, score, build, job update or execution occurred.
+
+  Redacted inspection found the accepted authority carries 156 numeric
+  excluded player IDs and three excluded canonical `DST_*` IDs, with no
+  unexpected shape. The adapter accepts only numeric IDs; this is an adapter
+  defect. `prereg074-fm1` is consumed, R7 is held before build, and production
+  published the narrow R8/fresh-`prereg074-fm2` repair contract to lab main at
+  `4c43972` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-FM1-FAILURE-HOLD-AND-R8-CANONICAL-ID-REPAIR-2026-09-07.md`.
+  Next action is independent review of returned R8, then a fresh fm2/build
+  chain GO if and only if the all-36-cell outcome-disabled preflight passes.
+
+- 2026-09-07 — CP-4 a1 failed closed on real-frame missingness; R12 repair requested
+
+  Lab's exact one-shot `cp4d800-a1` attempt at accepted R11 source
+  `4d8d63404302c4a86605ffe08d752e17c34b6639` is consumed. Evidence commit
+  `1ac2e78b87addce5a886632b375663a61f880f70` records exit 1 before
+  candidate generation, with neither mechanics artifact nor judge file and no
+  cloud/GCS/outcome/score action. The authenticated real frame exposed five
+  audit-only columns whose missingness the synthetic tests had not registered:
+  `name`, `market_points`, `model_points_pre`, `component_mean_carries`, and
+  `component_mean_catch_rate`.
+
+  Production published the R12 repair contract on lab main at `a0c1ca7` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-A1-FAILURE-DISPOSITION-AND-R12-REAL-FRAME-REPAIR-2026-09-07.md`.
+  The fields may remain fully hashed and explicitly receipted as
+  `audit_only_not_consumed`, with typed present-value validation, but may not
+  be imputed or promoted into the intervention. The general unexpected-
+  missingness refusal stays closed. A real bound-frame outcome-disabled smoke
+  must reach `A.snapshot()` before production reviews R12 and separately
+  clears fresh attempt `cp4d800-a2`.
+
+- 2026-09-07 — experiment 081 R4 returned and is under independent review
+
+  Lab Update 172 returned exact commit
+  `b26b3d417ac86028ba346b4325f8cd4d270471eb` as a direct child of held R3.
+  It claims repairs for creator capability, immediate pre-execute provider/job
+  recensus with parked intents, preliminary non-consumable gate plus terminal
+  seal, wrapper-derived binding commit, derived 749-file context authority,
+  and strict archive members/modes. No R4 build, binding, publication, cloud
+  action, outcome access or score read occurred. Independent production review
+  is active; no build/bind/launch is authorized until its disposition lands.
+
 ## Current handoff -- 2026-08-30 (four-hundred-thirtieth update)
 
 ### Final task-0 gate passed and the exact 54-task replacement cohort is live
