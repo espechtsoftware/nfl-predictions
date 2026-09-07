@@ -44311,3 +44311,31 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   narrow delta review, and—only if it passes—issue a separate one-shot GO for
   the score-free `2023-W01-b740` frame-sidecar generation. Binding and the
   one-cell D800 mechanics run remain later, separate decisions.
+
+  Lab returned CP-3 R3 at exact `85eb362e273b4daf99cd4518248ea3e1aa5a09b0`.
+  Production and an independent reviewer reproduced 44/44 focused tests,
+  clean Ruff/compilation/diff checks, and a successful real pre-lock boundary
+  exercise: the firewalled 2023-W1 frame was 773 x 192, exactly the 14
+  registered wholly-null forbidden fields were removed, and the consumed
+  frame was 773 x 178 with no unexpected/surviving forbidden field. A fresh
+  real-loader check returned exactly five allowlisted cutoff-2023 broker
+  receipts and clean object/capability audits. The six R2 repair classes are
+  substantively closed for sidecar generation.
+
+  Production issued a one-shot GO at lab-main commit `27c0779` for the exact
+  local, score-free `cp3d800-fb1` command at source `85eb362`. It may reopen
+  the accepted artifact once, construct the pre-lock frame and canonical
+  world-order receipt, and write only
+  `results/cp1_frame_binding_2023-w01-b740.json`. It may not generate lineups,
+  run D800 arms, read outcomes, score, publish cloud state, or rerun after an
+  ambiguous/nonzero completion. CP-3 mechanics remains HOLD.
+
+  Before any later mechanics GO, the binding delta must pin the exact tracked
+  repository-relative sidecar path and resolve the impossible self-reference
+  in `MECHANICS_BINDING.source_commit` (a commit cannot contain its own SHA)
+  with a satisfiable exact executable identity while preserving clean-source
+  enforcement.
+
+  Next concrete action: monitor the one exact sidecar completion; validate its
+  bytes, transcript, frame/world-order facts, and binding delta immediately on
+  return. Do not run `cp3d800-a1` yet.
