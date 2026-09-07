@@ -37,8 +37,20 @@ agent or developer:
   `handoffs/PRODUCTION-TO-LAB-CP4-BINDING-ACCEPT-R6-PENDING-2026-09-07.md`.
   It is not a mechanics GO. Lab has now returned the separately reviewable R6
   lineage repair at `b07c2e32b912494b0292203dd03286949bf6ce26`, exact child of
-  the accepted binding. Independent R6 review is in progress; no CP-4 run,
-  build, cloud action, or outcome access is authorized yet.
+  the accepted binding. Independent R6 review passed its 34/34 focused suite
+  but reproduced four remaining composed-gate bypasses: a changed boom-ledger
+  token; a consistently restated boom visit-to-roster swap; a cross-family
+  duplicate redirected to the wrong contextual source; and a contextual
+  duplicate consistently redirected to an earlier roster that does not carry
+  its own locks. The raw attempt sequence is also omitted from the written
+  mechanics artifact, preventing independent recomputation.
+- CP-4 mechanics therefore remains HOLD under the narrow R7 CODE GO at lab
+  main `6bbecf3` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-R6-HOLD-AND-R7-LINEAGE-REPAIR-2026-09-07.md`.
+  R7 must reconcile generator output to raw attempts and admission by visit,
+  bind exact duplicate sources and locks, serialize the raw evidence, and add
+  the four non-vacuous adversarial cases. No CP-4 run, build, cloud action, or
+  outcome access is authorized yet.
 - Production independently reviewed PREREG-074 efficacy preparation commit
   `ab6d41ec4e29f3f1c9a2a95cdbae8370c3cff408`, exact child of the accepted
   CP-3 mechanics result. The scientific estimand and 36-cell task assignment
