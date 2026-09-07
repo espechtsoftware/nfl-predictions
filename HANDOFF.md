@@ -44059,6 +44059,34 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   from the same bound identities and route the finding; never initiate a
   second first-read attempt.
 
+  The lab's one authorized first reader exited zero and atomically committed
+  its result, transcript, environment receipt, and Update 132 at lab commit
+  `0619a8f76ad2c54900693d82e84527bc6d1470aa`. The result is 351,538 bytes
+  with SHA-256
+  `9f54ceef55db419ae63d3c9ce16b2dd58d0c47c5b4baac010e81599e7ec57c8a`;
+  the transcript is 3,729 bytes with SHA-256
+  `4c3da8e840e0d9f98dc7fcc812c31aa7140c72a449963e13119718a4106830df`.
+  Receipt evidence authenticates exactly one invocation from the released
+  worktree and reader/dependency identities, with no ambient editable import.
+
+  The frozen read reports `FAIL_BOTH_CLOSE` / promotion `NONE`. On the 48-slate
+  complete intersection, J1-J0 K80 winner-CDF utility is `+0.0039001452`,
+  95% season-clustered CI `[-0.0000504754,+0.0083768389]`; beneficiary twCRPS
+  is `-0.0000106015`, CI `[-0.0000492732,+0.0000129516]`. Both required
+  interval gates therefore fail. The raw K80 realized-max delta is
+  `+1.0805556` points, CI `[-0.1262745,+2.0924444]`, but the treatment captures
+  only 24 of 645 outside-J0 candidates whose realized score beat the J0 book
+  maximum. The frozen route is to close only JPAR-1b's binary designated-player
+  pre-allocation treatment, make no paid-policy change, and not tune it on this
+  opened panel. Richer role states, all-player participation, and
+  market-conditioned dependence remain separate untested ideas rather than
+  descendants authorized by this result.
+
+  Next concrete action: finish the already-running independent production
+  reproduction from the exact committed identities, compare the deterministic
+  result and transcript, then publish the cross-verification and final route.
+  Do not run another lab first read or launch any PREREG-073 descendant.
+
 - 2026-09-06 — CP-1 R23 accepted; fresh full census a2 active
 
   Independent production review returned GO for the narrow R23 repair at lab
