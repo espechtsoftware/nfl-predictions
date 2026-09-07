@@ -43989,6 +43989,32 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   checkpoint. Neither showed a task failure, cancellation, or provider retry.
   Bank 752 remains unclaimed behind its exact terminal release rule.
 
+  Bank 750 subsequently reached exact terminal success at
+  `2026-09-07T00:09:43.203272Z`: execution `lab-run-ltgsz` completed 18/18
+  tasks with zero failures, cancellations, or retries. With bank 751 still
+  healthy and no initial-bank failure, the same registered coordinator—not a
+  manual launcher—published the deterministic bank-752 release object at
+  generation `1788739856364370`. The object is 824 bytes with SHA-256
+  `7f1b151ed1c015d94a9c8188073bc3d48ff1d7e11245e9b9404f3c93b3caf144`.
+
+  The coordinator then claimed bank 752 exactly once as execution
+  `lab-run-mtw8m`, UID `3af36850-35b5-47a2-b582-84afc5cde123`, created
+  `2026-09-07T00:11:17.706028Z` and started
+  `2026-09-07T00:11:30.057338Z`. Its provider snapshot exact-matches run
+  `101b752r2-20260906T224651Z`, source `406b73b1`, image digest
+  `sha256:367ab978aa103be97823538be9a9e42b6ad6c3709f0d7ed8999fec75c019d801`,
+  the frozen support bindings, and the 18-task/parallelism-18, 2-vCPU/8-GiB,
+  36,000-second, `maxRetries=0`, one-thread envelope. At this checkpoint all
+  18 bank-752 tasks are running with zero failures, cancellations, or retries.
+  Bank 751 also reached exact terminal success at
+  `2026-09-07T00:13:19.945120Z`: execution `lab-run-slow-kj9xq` completed
+  18/18 with zero failures, cancellations, or retries.
+
+  Next concrete action: allow the same coordinator to observe bank 752 through
+  exact terminal success and publish the opaque cohort seal. Do not access
+  result bodies. Independently validate and bind that seal into the frozen
+  reader before releasing the lab's first efficacy read.
+
 - 2026-09-06 — CP-1 R23 accepted; fresh full census a2 active
 
   Independent production review returned GO for the narrow R23 repair at lab
