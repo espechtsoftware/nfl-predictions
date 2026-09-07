@@ -45000,3 +45000,36 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   coordinator, then launch exactly one full-budget outcome-disabled task only
   if the final provider/GCS create-once census is empty. Efficacy remains
   `HOLD_REGISTRY_V2`.
+
+- 2026-09-07 — Week-1 injury freshness repair independently accepted and integrated
+
+  Production traced the failing freshness check to two distinct conditions:
+  nflverse had published its first 2026 injury artifact before
+  `nflreadpy==0.1.5` advanced the ordinary data-season clock, and the
+  default-off historical `tabpfn_components` cache was incorrectly treated as
+  a recurring live dependency. The early injury artifact contains 11 unique
+  2026 Week-1 rows and omits exactly four nullable fields. The bounded repair
+  reads only the official planning-year injury artifact during the exact
+  one-year clock gap, validates its season/week/key domain before any warehouse
+  mutation, synthesizes NULL only for those four nullable omissions, appends a
+  collector-time snapshot, keeps adopted `tabpfn_projections` alerting, and
+  leaves `tabpfn_components` visible but non-alerting.
+
+  Independent review held the first implementation because its run-start
+  timestamp could predate a source response received after lock. Direct-child
+  repair `c234f5e2f8f3ec6c6faaf8db1d1752808dc90aa0` gives the planning-bypass
+  and ordinary active-season injury paths distinct observation times captured
+  only after the applicable source frame returns and normalizes. Adversarial
+  run-level tests cross lock on both paths and require the stored observation
+  time to remain post-lock. The repaired sequence passed 178 tests with one
+  intentional skip, plus Ruff, compilation and diff checks; an exact live
+  source read confirmed the 11-row/4-nullable-field assumptions. It is
+  integrated additively here as commits `8ea30a10` and `0e194c5a`; no cloud,
+  BigQuery or scheduler state has yet changed.
+
+  Next action: build one immutable production image from this clean integrated
+  source, update only `ingest-nflverse` and `check-freshness` to that exact
+  digest while preserving their remaining specifications, run one manual
+  incremental NFL ingest, verify the 2026 Week-1 injury snapshot, run
+  `build-features`, and require `check-freshness` to pass. Do not run a full
+  historical refresh and do not backdate any snapshot.
