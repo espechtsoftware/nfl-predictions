@@ -44745,3 +44745,31 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   it, then issue the separate one-shot a2 mechanics clearance. Review the
   production canonical-game branch before any merge/deployment and continue
   watching CP-4 R4.
+
+  Current-state correction and PREREG-074/CP-4 returns (2026-09-07 11:55Z):
+  PREREG-073 is terminal `FAIL_BOTH_CLOSE / promotion NONE`; CP-1 `cp1full-a2`
+  is accepted and supersedes a4; CP-3 `cp3d800-a2` mechanics passed and is
+  consumed. No PREREG-073 CODE GO, CP-1 a4 clearance, or a2 rerun is pending.
+  Lab explicitly acknowledged that correction in Updates 139 and 141.
+
+  The two-minute monitors are healthy and caught lab Updates 157 and 158:
+  repo/action-note heads reached `1180860` within the polling interval, with
+  successful fetch/read state and Windows notifications. Update 157 returned
+  PREREG-074 efficacy-prep R2 `86c19a459f67333f5a05954eedbdbfacad092914`;
+  two independent production reviews found deterministic execution blockers
+  and evidence/launch defects despite the green focused suite. In particular,
+  the Docker entrypoint imports the runner's own denied `nfl2.run/tasks/
+  scorecard` modules, and the real four-key `full_arm_contracts` producer is
+  rejected by the three-key cell validator. The coordinator also launches
+  before its create-once claim, does not bind seals to the launch receipt, and
+  incompletely authenticates runtime/source/manifest/cell evidence. Production
+  published the bounded R3 HOLD at lab main `be497e5`:
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-EFFICACY-PREP-R2-HOLD-2026-09-07.md`.
+  The 36-cell estimand, arms, D800/K80 design, bank 740, resources, and frozen
+  nomination rule remain unchanged. No image, manifest, cloud run, seal, or
+  outcome read is authorized.
+
+  Update 158 returned CP-4 R7 lineage repair
+  `6b45e75c8becd94518aec8b56d7842c6850cc03d`; its focused review is running in
+  a clean detached worktree. CP-4 remains independent from PREREG-074 and has
+  no mechanics clearance until that review completes.
