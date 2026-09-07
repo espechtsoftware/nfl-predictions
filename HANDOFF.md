@@ -22,6 +22,29 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 PREREG-074 R11 accepted and integrated; one immutable build cleared
+
+- Independent review accepted exact R11
+  `965e914382867f90092d56523a099f524d77559b`: after resolving the terminal
+  build digest, both fresh and recovery paths re-list Artifact Registry and
+  require exactly one closed exact-tag row whose version equals that digest.
+  Mismatched valid digests, absent/malformed/open/duplicate rows all refuse;
+  focused review passed 8/8 tests.
+- The builder is durable on lab main at integration commit
+  `925992009ead3ef3664d54c18671573dbb5da615`. Its product script blob is
+  byte-identical to reviewed R11. The test fixture alone was adapted to archive
+  exact R9 when simulating the detached build tree (lab main itself is not the
+  R9 source); integrated tests passed 8/8. Exact R9 source
+  `1b133dc9677372a63192ab31d8bc39202f792409` and authenticated fm3
+  generation `1788809465188678` remain the only accepted inputs.
+- One invocation of
+  `bash scripts/build_prereg074_immutable.sh 1b133dc9677372a63192ab31d8bc39202f792409`
+  is cleared to create fresh tag `102b740-r11-1b133dc96773` and a create-once
+  immutable build receipt. Job update, Cloud Run, candidate, outcome and score
+  actions remain held pending post-build authentication. The durable lab note
+  is
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-R11-ACCEPT-AND-ONE-IMMUTABLE-BUILD-GO-2026-09-07.md`.
+
 ### 2026-09-07 PREREG-074 R10 builder held; narrow R11 tag binding requested
 
 - Independent review of exact R10 builder
