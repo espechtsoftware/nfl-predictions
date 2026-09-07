@@ -22,6 +22,24 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 PREREG-074 immutable build receipt is sealed
+
+- Independent review accepted R13 and its focused tests passed 11/11. The one
+  recovery-only invocation then authenticated the already successful R12
+  provider build and published the create-once receipt without submitting a
+  build or changing/executing a Cloud Run job.
+- Receipt object
+  `builds/PREREG-074/f6c42003-41ba-4cd0-9b72-336f38a781c1.json`, generation
+  `1788816748219748`, 3,054 bytes, SHA-256
+  `aeb0e5943fcc3d3fc0315ed90e10dcf68a21ad9a8e03e45b549723a79b66e500`
+  binds source `1b133dc...`, the 893-file context, provider source archive, and
+  image digest
+  `sha256:11295b4098494204402e690b993f2e580cdae0b28dc59b7aaac0483afbf10f93`.
+- Lab main contains the code, review, authorization, and success seal through
+  `0332789`. The next action is independent review of the exact job-binding and
+  mechanics launcher. Job mutation and execution remain unapproved until a
+  separate decision records that review.
+
 ### 2026-09-07 PREREG-074 R12 build succeeded; receipt recovery is held for R13
 
 - The one authorized R12 Cloud Build completed `SUCCESS`: build
