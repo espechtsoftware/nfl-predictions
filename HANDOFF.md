@@ -22,6 +22,27 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 PREREG-074 R11 build invocation failed closed before submit; R12 active
+
+- Production invoked the one cleared R11 builder from durable integration
+  `925992009ead3ef3664d54c18671573dbb5da615` for exact R9 source
+  `1b133dc9677372a63192ab31d8bc39202f792409`. R9/fm3 authentication
+  passed and yielded a frozen 893-path context, SHA-256
+  `cafd1c2b4543f7de1d7854ddeba30921f9b624f2a22e59694b41a870e68e45cf`,
+  tree `18bee5724183d7ede98e5b3546072d01f15d620c`.
+- The pre-submit upload-set equality gate then refused exactly one extra path:
+  `.git`. Exact R9 ignores `.git/`, but a linked detached worktree has a root
+  `.git` marker file. No `gcloud builds submit` occurred; there is no build ID,
+  image, tag, receipt, GCS publication, job update, Cloud Run execution,
+  candidate, outcome or score. Cleanup removed the temporary context. The R11
+  invocation is consumed and must not be retried.
+- R12 is limited to a fresh revision/tag namespace and one temporary external
+  ignore file derived from exact R9 `.gcloudignore` plus `.git`/`.git/`, passed
+  identically to the meta census and real submit. Exact 893-path equality and
+  every accepted R11 provenance/authentication boundary remain. The durable
+  lab note is
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-R11-PRESUBMIT-FAILURE-AND-R12-CONTEXT-IGNORE-GO-2026-09-07.md`.
+
 ### 2026-09-07 PREREG-074 R11 accepted and integrated; one immutable build cleared
 
 - Independent review accepted exact R11
