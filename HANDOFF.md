@@ -75,13 +75,19 @@ agent or developer:
   `abf1427d9303939709fd9ba10a3ea435819cc4ba` grants conditional CODE GO for
   the default-off scaffold only: the injected authority protocol can still be
   self-authored by a caller and is not a governed live collector.
-- Selective integration is pushed at
-  `318b27d6eb27116deafe3e9322892e1bea201a83` on
-  `origin/production/week1-capture-v3-p2-integration-20260908`, preserving the
-  operational P0 HOLD. Remaining deadline-critical work is the concrete
-  governed collector/immutable acquisition ledger, repository-owned
-  non-substitutable authority adapter, real active-entry locator and shape,
-  full-field rehearsal, and exact lobby/salary/book/allocation-root binding.
+- The default-off scaffold is now selectively integrated on the production
+  line at `123bc6b4` from reviewed integration commit
+  `530dc39a86a8456605f9fa97c0e5d74ac93eb8de`. Its imported source, tests,
+  documentation, and review chain are byte-identical to independent-review
+  tip `abf1427d9303939709fd9ba10a3ea435819cc4ba`; divergent donor handoff
+  snapshots were excluded. The exact implementation path is recorded in
+  `reports/2026-09-08-week1-capture-v3-p2-selective-integration.md`.
+- The **P0 operational HOLD remains** for manifest publication, acceptance or
+  settlement claims, live provider contact, and paid-entry use. Remaining
+  deadline-critical work is the concrete governed collector/immutable
+  acquisition ledger, repository-owned non-substitutable read-only authority
+  adapter, real active-entry locator and response shape, full-field rehearsal,
+  and exact lobby/salary/book/allocation-root publication and binding.
 - The authenticated Fantasy Points ownership session now verifies, but the
   2026 ownership surface currently reports no visible grid/table or headers.
   Recheck at first Week-1 publication; authentication is no longer the
