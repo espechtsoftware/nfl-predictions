@@ -22,6 +22,38 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 KG-3A D800 admission-lineage audit closes a false queue branch
+
+- On branch `codex/kg3a-admission-lineage`, a focused audit of production's
+  E0/v1 lineage and A250/A500 admission code plus lab `origin/main`'s frozen
+  PREREG-066/095 trace established that the current D800 funnel has **no
+  admission/pool-cap stage**. Every delivered unique D800 candidate is passed
+  to the selector, so baseline first loss at admission is exactly zero by
+  construction; current D800 misses route to selection or generation yield.
+- `reports/2026-09-08-kg3a-d800-admission-lineage-executable-spec.md` records
+  the evidence, the immediate outcome-free 095 census/settlement procedure,
+  the source fields required in the next D800 trace, and the exact A500
+  equal-budget contract for a future broader-union admission experiment.
+- No scoring, generator, selector, deployment, graph, cloud, data, or frozen
+  lineage schema changed. No experiment was launched. The exact blocker to a
+  production D800 adapter is source evidence: 095 lacks player IDs and
+  request/attempt/occurrence rows, has no admission decisions because no such
+  stage exists, and does not retain a complete DEMAX dynamic trace. Those
+  fields must be emitted at the lab D800 source; production must not synthesize
+  them retrospectively.
+- Validation: `git diff --check` passed; 28 focused existing lineage/admission
+  tests passed with the isolated worktree source forced on `PYTHONPATH`
+  (`test_prelock_candidate_lineage_v1.py`,
+  `test_prelock_lineage_runtime_v2.py`, and
+  `test_corpus_r6_broad_admission_tournament_v1.py`). An initial invocation
+  without that `PYTHONPATH` was non-evidentiary because the shared editable
+  virtualenv resolved `nfl_dfs` from the primary worktree; it failed collection
+  before executing tests and made no change.
+- Next action: ask lab to seal the existing 095 outcome-free lineage census
+  (`delivered_unique == admitted == selector_eligible`) and route current D800
+  work to same-pool selector diagnostics. Run KG-3A only if a broader union is
+  introduced and every arm retains the same predeclared A500 count.
+
 ### 2026-09-08 Week-1 injury-freshness image authenticated and bounded ingest active
 
 - Focused Cloud Build `5c66aeb2-f3b2-4d3c-a19c-284b5230816c`
