@@ -22,6 +22,31 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 injury-freshness image authenticated and bounded ingest active
+
+- Focused Cloud Build `5c66aeb2-f3b2-4d3c-a19c-284b5230816c`
+  completed `SUCCESS` at `2026-09-08T13:29:46Z`. Its exact source commit is
+  `a01a6c84f60a678d3f76e684ba73fa487918f1f8`, source object is
+  `gs://nfl-predictions-503414_cloudbuild/source/1788873583.88711-e33ee643c1bf457c947e96fc0bc82ba5.tgz#1788873844974302`,
+  and immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:1800e21030dead17aaeb6aca73e54eb626a3a5aafdcf042573ddd1f8257a1662`.
+  The focused boundary suite passed 235 tests; image build, container smoke,
+  revision-label check and push all passed. A second local pull by exact
+  digest verified the same `org.opencontainers.image.revision` and
+  `IMAGE_SOURCE_COMMIT_SHA`, then imported the live feature and inference
+  modules successfully.
+- Production updated only Cloud Run jobs `ingest-nflverse` and
+  `check-freshness` to the immutable digest. Their commands, arguments,
+  environment, service account, CPU, memory, timeout, task count and
+  `maxRetries=0` remained unchanged; resulting job generations are 36 and 14
+  respectively. No scheduler was changed.
+- One bounded incremental `ingest-nflverse` execution is active as
+  `ingest-nflverse-2npqq`. This is not a historical/full refresh and no
+  snapshot will be backdated. Next action after terminal success: verify the
+  expected 2026 Week-1 injury snapshot, run `build-features`, then require an
+  exact-digest `check-freshness` execution to pass. On failure, stop and
+  diagnose the exact execution before any retry.
+
 ### 2026-09-08 Week-1 injury-freshness focused image build queued
 
 - The two earlier validation builds from accepted source
