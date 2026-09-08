@@ -59,6 +59,12 @@ agent or developer:
   smoke using an ephemeral Credential Access Boundary token restricted to the
   exact pinned object and read-only permission. The candidate image receives
   no owner ADC, refresh token, Cloud SDK directory, key, or source credential.
+- A host-only proof then successfully minted the exact-object Credential
+  Access Boundary token without opening the artifact, and Google Auth loaded a
+  token-and-expiry-only, non-refreshable credential document from tmpfs. The
+  simpler memory-only transfer mechanism is recorded at nfl2
+  `4e0947fa22cda06f8d25b161df538fce725f488c`; no token value was printed or
+  retained and no GCS object was read.
 - Controlling record:
   `handoffs/PRODUCTION-TO-LAB-CP4-R21-PINNED-SMOKE-IDENTITY-DISPOSITION-2026-09-08.md`.
   Cloud Build/Run, publication, outcome, score and efficacy work remain held.
