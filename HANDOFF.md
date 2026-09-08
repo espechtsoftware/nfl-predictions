@@ -22,6 +22,33 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 capture durable-ledger P0-A integrated default-off
+
+- Independent review accepted exact candidate
+  `563af790efc475a85e4cd8da7de4f58384643a10` (tree `67cc749e`) at review
+  commit `b8e6904928b97db11da2acf944c4b25eac4a065e` (tree
+  `1c705eea21d7c997895aa1224c6507a9265303ba`). The review report is
+  `reports/2026-09-08-week1-capture-v3-p0a-r2-independent-review.md`.
+- The accepted governed collector and additive v3 acceptance/final-field
+  provider-capture/evidence contracts are selectively integrated on branch
+  `production/week1-capture-v3-p0a-r2-integration-20260908` from production
+  parent `6381dc422ef5a346d64507547bf91818f982b7ee`. Exact integration details
+  are in
+  `reports/2026-09-08-week1-capture-v3-p0a-r2-selective-integration.md`.
+- The durable successor binds each root-last ledger's exact identity/provider
+  time into the stored provider capture. Downstream evidence exact-reopens the
+  capture generation and enforces `receipt <= ledger <= capture <= cutoff`;
+  final field checks contest-detail and standings ledgers independently.
+- Integration-tree serial validation passed 26/26 governed/v3 tests, 42/42
+  unchanged P2 tests and 15/15 unchanged legacy-v2 rehearsal tests. Python
+  compilation, Ruff and `git diff --check` pass. Reviewed source, test,
+  document and review blobs match their accepted trees exactly.
+- The integration is dormant: every activation pin remains absent and no live
+  caller was added. P0-B facts, provider contact, publication, deployment,
+  paid entry and outcomes remain HOLD. Exact next action after push is the
+  separate real-fact P0-B review; the future whole-root path must consume v3
+  evidence rather than fall back to live v2.
+
 ### 2026-09-08 Week-1 injury-freshness image authenticated and bounded ingest active
 
 - Focused Cloud Build `5c66aeb2-f3b2-4d3c-a19c-284b5230816c`
