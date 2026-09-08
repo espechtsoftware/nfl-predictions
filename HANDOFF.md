@@ -22,6 +22,44 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 capture-v3 P2 independent review: scaffold GO, live HOLD
+
+- Independently reviewed exact P2 implementation
+  `96cd87a8dcc37e008db3c69f14d35af63ac8ae84`, tree
+  `277b4f8630b5df9cbc67fc0f17f6e9bcf0d6e2bc`, and handoff tip
+  `96c58f68a336a66fd0e5501e0526b89ddf66114e` on isolated branch
+  `codex/week1-capture-v3-p2-independent-review-20260908`. The durable review
+  is
+  `reports/2026-09-08-week1-a5-capture-v3-p2-independent-review.md`.
+- Verdict is **conditional code GO** to integrate the default-off contract
+  scaffold and **P0 operational HOLD** for live evidence, allocation/manifest
+  authority, settlement, or paid upload. The new contract correctly separates
+  generic storage from acquisition authority, exact-reopens receipt/raw/trace
+  identities, closes profiles and locators, reauthenticates downstream, and
+  requires prepared/filled artifacts to predate the provider observation.
+- The remaining boundary is concrete rather than cosmetic: this tree contains
+  only a caller-injected authority `Protocol`, not a governed collector,
+  immutable authority ledger/signature root, collector allowlist, or live
+  publisher. The test authority can register arbitrary self-authored receipts.
+  An independent executable probe confirmed that a permissive caller-supplied
+  mirror authority accepts the ordinary self-authored fixture. The included
+  local byte-shape smoke also cannot discover/authenticate the missing active-
+  entry URL or HTTP/session facts by itself.
+- Validation used two separately verified empty global-pytest windows. Focused
+  P2 passed 42/42 in 16.30 seconds at 144,324 KiB maximum RSS; unchanged legacy
+  v2 passed 15/15 in 1.16 seconds at 147,352 KiB maximum RSS. Same-shell
+  post-censuses were empty. Python compilation and candidate/review diff checks
+  pass. No broad test, simulation, provider/browser/DraftKings call, cloud or
+  warehouse action, paid action, outcome read, scoring, generation, selection,
+  or deployment occurred.
+- Exact next action: merge only with default-off/HOLD semantics; implement a
+  repository-owned collector and read-only authority adapter that pins exact
+  collector source/code/image and immutable ledger/signature identity, then
+  independently review it. Establish the active-entry locator/headers through
+  that collector, perform the settled-shape check and 832,342-row rehearsal,
+  and finish the lobby/bridge/books/allocation/publisher gates before any live
+  authorization.
+
 ### 2026-09-08 Week-1 capture-v3 P2 provider-acquisition repair; operational HOLD
 
 - The bounded repair is implemented in isolated worktree
