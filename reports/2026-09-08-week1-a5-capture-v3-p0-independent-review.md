@@ -203,4 +203,3 @@ requested for a terminal PASS. The next safe action is a bounded successor
 that anchors accepted-entry and displayed-final-size claims to exact raw
 provider observations, followed by independent static review, a real-shape
 smoke, the 832,342-row scale rehearsal, and then the focused serial suite.
-
