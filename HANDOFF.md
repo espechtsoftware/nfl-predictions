@@ -22,6 +22,42 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 capture-v3 P0-A independent review holds candidate
+
+- Independent review of exact implementation
+  `538f0f6ea9ee2bdb6f307c53c7c270dbe556b8fd` and candidate tip
+  `47183b0cc442735579f401284fb93facf022c935` is **HOLD**. The review is on
+  branch `codex/week1-capture-v3-p0a-independent-review-20260908`, report
+  commit `ca13fd2a97813d126096e9b3db3d26d8d3fd6cd7`, at
+  `reports/2026-09-08-week1-capture-v3-p0a-independent-review.md`.
+- Three P0s were independently reproduced. The bucket-governance projection
+  ignores a direct `roles/storage.objectUser` binding and therefore can report
+  the approved sole writer while another object writer exists. The root-last
+  ledger provider time is not returned or compared with the pre-lock cutoff,
+  so a ledger created after lock authenticated a pre-lock receipt/capture in
+  the exact offline path. Finally, the HTTP transport uses automatic redirects
+  and checks locator families only after all redirected requests have already
+  occurred; explicit non-443 ports also pass the family predicate.
+- One P1 corrects the caller-construction claim: the exported class can be
+  instantiated with its importable module token and caller evidence/ledger/
+  policy. The fixed live publisher signatures remain non-injectable, so the
+  repair should make provider governance plus the closed operational call
+  graph the real boundary rather than treating Python token privacy as one.
+- Retained properties: every activation/allocation/acceptance locator pin is
+  absent; live booleans default false; no non-test production caller imports
+  the new module; raw/trace/receipt content identity checks work; and the
+  legacy v2 source/test blobs are byte-identical to the exact production
+  parent. Independent serial validation passed 13/13 P0-A, 42/42 P2, and
+  15/15 legacy-v2 tests after separate empty global pytest censuses.
+  `git diff --check` passed.
+- No provider, network, DraftKings, cloud, publication, deployment, paid-entry
+  or outcome operation occurred. Exact next action: return one bounded
+  code/test-only successor that binds the complete IAM-policy/effective-writer
+  evidence, carries the exact ledger identity/time through the cutoff and
+  derived-capture ordering checks, performs hop-by-hop pre-contact redirect
+  validation, and corrects the caller-construction semantics. Preserve all
+  dormant pins and obtain fresh independent review before any P0-B action.
+
 ### 2026-09-08 Week-1 capture-v3 P0-A governed collector ready for independent review
 
 - A default-off P0-A candidate is complete at implementation commit
