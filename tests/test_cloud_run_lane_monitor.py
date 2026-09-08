@@ -610,8 +610,33 @@ def test_prefix_matching_uses_only_exact_run_id_environment(tmp_path: Path) -> N
         emit=lambda _: None,
     )
 
-    assert status["expected_prefixes"][prefix]["state"] == "unclaimed"
-    assert status["cohort"]["provider_state"] == "waiting"
+    assert status["expected_prefixes"][prefix]["state"] == "claimed"
+    assert status["expected_prefixes"][prefix]["execution_names"] == [
+        "exact-without-separator"
+    ]
+    assert status["cohort"]["provider_state"] == "succeeded"
+
+
+def test_full_run_id_registration_does_not_raise_unclaimed_capacity_alert(
+    tmp_path: Path,
+) -> None:
+    run_id = "102b740r1-20260907T214713Z"
+    row = _execution("lab-run-a", "lab-run", "failed", run_id=run_id)
+    config = monitor.Config(
+        state_file=tmp_path / "status.json",
+        expected_prefixes=(run_id,),
+        queue_grace_seconds=60,
+    )
+
+    status = monitor.run_once(
+        config,
+        runner=FakeGcloud([[row], []]),
+        clock=FakeClock(120),
+        emit=lambda _: None,
+    )
+
+    assert status["expected_prefixes"][run_id]["state"] == "claimed"
+    assert f"lane-capacity-unclaimed:{run_id}" not in status["alerts"]
 
 
 def test_distinct_trailing_delimiter_prefixes_cannot_collapse() -> None:
