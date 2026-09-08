@@ -30,7 +30,9 @@ agent or developer:
   `233e33a65d1b973adf5ff8d705bc9a75c1db4009`. The supplied
   `b8768e497d7e72033e8c5d880a5199b03fb2e545` is the two-commit series base;
   the candidate's direct parent is
-  `e6422990eddf8b4612fcf4bd4d66c3eaf48466b9`.
+  `e6422990eddf8b4612fcf4bd4d66c3eaf48466b9`. The review report and initial
+  handoff are durable commit
+  `cbe93a5c2c1247dc3faa0028e2873b6c3a4e3238`.
 - Verdict is **P0 HOLD before manifest freeze or paid upload**. Blocking defects
   are: acceptance rejects a legitimate production min-churn permutation;
   semantic self-hashes are incorrectly required to equal raw serialized-object

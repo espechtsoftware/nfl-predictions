@@ -1,11 +1,11 @@
 # Week-1 A5 capture-v3 independent static review
 
-Date: 2026-09-08  
-Reviewer branch: `codex/week1-capture-v3-independent-review-20260908`  
-Candidate branch: `codex/week1-capture-v3-20260908`  
-Candidate commit: `58b7c98bccdbabff54c530ba515d14b22533e977`  
-Candidate tree: `233e33a65d1b973adf5ff8d705bc9a75c1db4009`  
-Supplied series base: `b8768e497d7e72033e8c5d880a5199b03fb2e545`  
+Date: 2026-09-08
+Reviewer branch: `codex/week1-capture-v3-independent-review-20260908`
+Candidate branch: `codex/week1-capture-v3-20260908`
+Candidate commit: `58b7c98bccdbabff54c530ba515d14b22533e977`
+Candidate tree: `233e33a65d1b973adf5ff8d705bc9a75c1db4009`
+Supplied series base: `b8768e497d7e72033e8c5d880a5199b03fb2e545`
 Candidate direct parent: `e6422990eddf8b4612fcf4bd4d66c3eaf48466b9`
 
 ## Decision
