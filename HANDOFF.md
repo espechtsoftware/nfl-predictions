@@ -222,11 +222,32 @@ agent or developer:
   Exact bytes, SHA-256, provider size/MD5, the frozen build-receipt validator,
   recovery-transcript validator, local `r25a2` assertion record/sidecars, and
   preserved R24 evidence all passed. This was read-only and outcome-blind.
-  Independent post-recovery authentication is still active. **Do not launch
-  Cloud Run until it returns PASS and production records a separate launch
-  GO.** On PASS, census the fresh R3 run namespace, create/authenticate the
-  exact authority from fm5 plus this build receipt, and launch the 36-task
-  generation cohort without rebuilding.
+  Independent post-recovery authentication returned **PASS** at original
+  review commit `389c25989609adae5d6adc25f0634b8f7c313ad9`, report SHA-256
+  `dad8bea668fa0b53273c94a72051f89d2d1f4e5d0e01961fd5b76fa69da86651`.
+- Production censused every authority/launch/result/seal/pins/release prefix
+  for fresh run `102b740r3-20260908T081638Z` through live, all-version and
+  soft-deleted views; all were empty. The separate launch GO was published on
+  lab main in
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-R3-GENERATION-LAUNCH-GO-2026-09-08.md`.
+  The exact authority then published and reopened at
+  `authorities/PREREG-074/102b740r3-20260908T081638Z.json`, generation
+  `1788855706964141`, 7,950 bytes, SHA-256
+  `164a7a6b2713070f03808cc61059b78b8adb6eafad8db9e3790b74b765d71e2b`.
+- The governed generation launch returned exit zero and Cloud Run execution
+  `lab-run-9rwk6` is active. Its create-once intent is generation
+  `1788855725020815`, 1,595 bytes, SHA-256
+  `dfcb3da581e3f1392e84f4aac3864c13ad2dc196217f2f29baf9be4744c5f105`;
+  its execute marker is generation `1788855734532594`, 1,977 bytes, SHA-256
+  `dd970eb36bc6063ba54c145d64c9890d2378006797d031d5e7c583e7cb44adab`;
+  and its launch receipt is generation `1788855804953940`, 2,315 bytes,
+  SHA-256
+  `30414ffb897c17dabf8405de3db006d3b16cfa8399a9abe255483f1e045011cd`.
+  The provider reports job generation 119, 36 tasks, 12 running at the first
+  observation, and zero failures. **Do not relaunch.** Observe this exact
+  execution to terminal. Replay remains held until it is exactly 36
+  succeeded / 0 failed / 0 cancelled and the complete 36-cell namespace
+  passes the coordinator's gate.
 
 ### 2026-09-08 PREREG-074 R23 passed independently; one-shot fm5 active
 
