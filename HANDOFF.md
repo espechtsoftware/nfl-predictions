@@ -42,6 +42,45 @@ agent or developer:
   alert cleared while the genuine cancelled-execution record remains visible.
   No cloud, launcher-registry, or experiment state changed.
 
+### 2026-09-08 PREREG-074 R17 held before fm4/build; R18 repair returned
+
+- Independent static review of exact lab candidate
+  `5c5d33f86e2e59ac5eee891505b5e011da184c50` found two unconditional
+  pre-submit failures: the installed SDK rejects its
+  `gcloud storage ls --all-versions --format=json` calls, and the builder
+  compares fm4's required 17-key code map with a scalar digest. Even after
+  those, build-census failure can become `[]`, required provider source/hash
+  facts are optional, Artifact Registry authentication is incomplete, and the
+  recovery/assertion state machine can adopt the wrong build or dead-end.
+- R17 remains held before every fm4, build, tag, image, receipt, authority,
+  job, execution, outcome, score, and promotion action. Accepted science and
+  the unconsumed names remain unchanged.
+- The consolidated ten-point R18 repair contract is durable on lab main at
+  `b3fe6c0` in
+  `reports/2026-09-08-prereg074-r17-prelaunch-independent-review.md`. It rules
+  out ambient production test overrides and requires pure provider decision/
+  authentication seams plus a credentials-incapable process harness if one is
+  still needed. No pytest or cloud/provider mutation occurred.
+
+### 2026-09-08 Experiment 081 R3 mechanics binding entered independent launch review
+
+- Bound queue authority `9d69e96829d226b7d63ceeab9268b0c65b1bfb88`
+  freezes the recovered build/receipt identities and fresh run
+  `081m560r3-20260908T000800Z`; report and test-only follow-ups are on durable
+  branch `origin/production/081-r3-mechanics-binding-20260907` through
+  `e83e8c1`.
+- The author's focused suite passed 19/19. Independent execution from the
+  initial report tip correctly failed closed in three fake command-path cases:
+  the fixture used documentation-only branch `HEAD`, while the production
+  wrapper intentionally authenticates the latest durable commit touching the
+  bound queue. Test-only repair `7a57dff` makes the fixture use that same rule;
+  a root rerun passed 19/19 in 96.48 seconds. No executable, contract, receipt,
+  source, cloud, GCS, coordinator, or experiment identity changed.
+- A separate reviewer is now checking the repaired tip and authoritative
+  provider evidence. Mechanics remains unlaunched and outcome-disabled;
+  efficacy remains `HOLD_REGISTRY_V2`. Launch only if that review returns
+  PASS, through the registered wrapper on the durable product branch.
+
 ### 2026-09-08 CP-4 R16 remote-driver v2 held on real provider evidence
 
 - Lab returned driver v2 at
@@ -64,6 +103,11 @@ agent or developer:
   `lab-run-slow`, 2 CPU / 8 GiB, one task, zero retries. No build, preflight,
   job update, execution, GCS publication, candidate, mechanics, outcome, or
   score action is authorized until a corrected packet independently passes.
+- Lab returned the complete v3 candidate at exact commit `5e8cd01` (Update
+  191), claiming all required census, image-mode, builder/receipt, packaging,
+  job-state, intent/recovery, and terminal-seal repairs with no provider
+  action and the `r16` label still unconsumed. Independent review is active;
+  the existing hold remains in force meanwhile.
 
 ### 2026-09-08 Experiment 081 R3 immutable build and receipt recovered cleanly; mechanics binding active
 
