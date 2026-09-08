@@ -22,6 +22,43 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 A5 capture-v3 independent review: P0 HOLD
+
+- Independent static review completed on branch
+  `codex/week1-capture-v3-independent-review-20260908` against exact candidate
+  `58b7c98bccdbabff54c530ba515d14b22533e977`, tree
+  `233e33a65d1b973adf5ff8d705bc9a75c1db4009`. The supplied
+  `b8768e497d7e72033e8c5d880a5199b03fb2e545` is the two-commit series base;
+  the candidate's direct parent is
+  `e6422990eddf8b4612fcf4bd4d66c3eaf48466b9`.
+- Verdict is **P0 HOLD before manifest freeze or paid upload**. Blocking defects
+  are: acceptance rejects a legitimate production min-churn permutation;
+  semantic self-hashes are incorrectly required to equal raw serialized-object
+  hashes; every purported immutable identity is syntactic/dangling because no
+  generation-exact provider reopen binds its bytes, semantics, or creation
+  time; the exact known contest ID/name/cap/limit/template/qualifier facts and
+  one terminal allocation root are not pinned; and settlement can certify a
+  caller-supplied truncated/cross-wired field as complete underfill.
+- Additional release blockers cover unbound book/player materializations,
+  missing paid-final-roster and 270-shadow settlement joins, unauthoritative
+  qualifier/ticket/underfill payout semantics, the absent governed A5
+  publisher/runtime, direct shared-job commands that omit the required launcher
+  registry, and contradictory live v2 underfill instructions. The durable
+  review and bounded repair contract are in
+  `reports/2026-09-08-week1-a5-capture-v3-independent-review.md`.
+- Validation was deliberately static under the assigned serial-lane boundary:
+  README/CLAUDE/HANDOFF and all affected contracts, callers, docs, and reference
+  implementations were inspected; candidate commit/tree/base were reproduced;
+  and `git diff --check` passed. **No pytest invocation or broad test ran.** No
+  cloud, DraftKings, paid-entry, deployment, or `main` mutation occurred.
+- Exact next action: repair on a new isolated implementation branch using
+  distinct semantic SHA and raw `{uri,generation,sha256,bytes}` identity,
+  provider-exact reopens/creation times, raw acceptance-evidence projection
+  binding, exact A5 constants plus terminal semantic/raw root pin, realized
+  min-churn edge bijections, and a source-backed complete-field/shadow
+  settlement adapter. Add the reverse-permutation and raw-identity adversaries,
+  then obtain a fresh independent review before any owner paid action.
+
 ### 2026-09-08 Week-1 A5 immutable capture-v3 successor implemented
 
 - Production implemented the default-off Week-1 A5 capture-v3 successor on
