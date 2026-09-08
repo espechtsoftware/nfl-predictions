@@ -22,6 +22,34 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 A5 capture-v3 P0 repair independent HOLD
+
+- Independent static review of pushed handoff tip
+  `7b24024c96222e5c08ccf8db05fb26e39cf3277d`, exact code/report candidate
+  `4713cb835bd7e190e1cd1015125bbaeee1f397b5`, tree
+  `e4b42af4347bd44c0cf07764a6e0653077a3ebbd`, returns **P0 HOLD**. The review
+  branch is `codex/week1-capture-v3-p0-independent-review-20260908`; the durable
+  report is `reports/2026-09-08-week1-a5-capture-v3-p0-independent-review.md`.
+- The repair passes static review for min-churn permutations, distinct raw and
+  semantic identities, exact reopens of supplied references, pinned A5 facts,
+  the salary/player/book bridge, and intentionally absent live pins. Two
+  evidence roots remain self-authored normalized assertions: accepted-entry
+  rows have no exact underlying DraftKings observation, and final displayed
+  size/settled state come from a compact caller-built wrapper rather than raw
+  provider bytes plus a deterministic parser. Consequently a top-N standings
+  prefix paired with a wrapper falsely asserting size N can still be called a
+  complete underfilled field.
+- Python compilation and `git diff --check` pass. Ruff was unavailable in the
+  production virtual environment. Per the active serial-lane instruction, no
+  pytest ran. No provider, cloud, DraftKings, paid, score, outcome, deployment,
+  or production-main state changed.
+- Exact next action: retain the repaired identity/permutation/bridge logic but
+  bind accepted-entry and final-field facts to exact lossless provider
+  observations and deterministic extraction, add the matching-size truncated
+  prefix adversary, then repeat independent static review and the real-shape/
+  scale gates before requesting a serial pytest window. Do not publish live A5
+  manifests or perform a paid upload from the reviewed candidate.
+
 ### 2026-09-08 Week-1 A5 capture-v3 P0 repair candidate; operational HOLD
 
 - The bounded repair is in isolated worktree
