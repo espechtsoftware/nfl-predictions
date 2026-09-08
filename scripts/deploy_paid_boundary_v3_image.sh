@@ -51,7 +51,8 @@ STAGING_REVISION="${SERVICE}-${STAGING_SUFFIX}"
 ACTIVE_REVISION="${SERVICE}-${ACTIVE_SUFFIX}"
 [[ ${#STAGING_REVISION} -le 63 && ${#ACTIVE_REVISION} -le 63 ]] || \
   die "derived Cloud Run revision is too long"
-ACTIVATION_URI="gs://${AUTHORITY_BUCKET}/paid-v3/${SERVICE}/${ACTIVE_REVISION}/activation.json"
+DEPLOYMENT_AUTHORIZATION_URI="gs://${AUTHORITY_BUCKET}/paid-v3/${SERVICE}/${ACTIVE_REVISION}/deployment-authorization.json"
+FINAL_ACTIVATION_URI="gs://${AUTHORITY_BUCKET}/paid-v3/${SERVICE}/${ACTIVE_REVISION}/activation.json"
 DIGEST=${IMAGE##*@}
 
 TMP_ROOT="$SOURCE_ROOT/.build-contexts"
@@ -142,14 +143,32 @@ PYTHONPATH="$SOURCE_ROOT/src" python -m \
   --build-id "$BUILD_ID" --source-commit "$CODE_SHA" --image "$IMAGE" \
   >"$TMP/build-evidence.json"
 
+# A retry may not reuse a previously published money gate. Provider NotFound
+# is the only accepted observation; permission, transport, or malformed
+# generation evidence fails before any Cloud Run mutation.
+PYTHONPATH="$SOURCE_ROOT/src" python - \
+  "$PROJECT" "$SERVICE" "$ACTIVE_REVISION" <<'PY'
+import sys
+
+from nfl_dfs.optimizer.paid_classic_deployment_v3 import (
+    require_paid_classic_final_activation_absent_v3,
+)
+
+require_paid_classic_final_activation_absent_v3(
+    expected_project=sys.argv[1],
+    expected_service=sys.argv[2],
+    expected_revision=sys.argv[3],
+)
+PY
+
 # Stage 1 authenticates a Ready, no-traffic provider revision and the future
-# activation URI. It intentionally lacks exact object coordinates, so every
-# money path remains disabled in this revision.
+# deployment-authorization URI. It intentionally lacks exact object
+# coordinates, so every money path remains disabled in this revision.
 gcloud run deploy "$SERVICE" \
   --project="$PROJECT" --region="$REGION" --platform=managed --quiet \
   --image="$IMAGE" --revision-suffix="$STAGING_SUFFIX" --no-traffic \
   --remove-env-vars="PAID_V3_ACTIVATION_GENERATION,PAID_V3_ACTIVATION_SHA256,PAID_V3_ACTIVATION_BYTES,PAID_V3_ACTIVATION_AUTHORITY_JSON" \
-  --update-env-vars="IMAGE_SOURCE_COMMIT_SHA=$CODE_SHA,IMAGE_DIGEST=$DIGEST,IMAGE_URI=$IMAGE,PAID_V3_CLOUD_BUILD_ID=$BUILD_ID,PAID_V3_SERVICE=$SERVICE,PAID_V3_PROJECT=$PROJECT,PAID_V3_REGION=$REGION,PAID_V3_ACTIVATION_URI=$ACTIVATION_URI"
+  --update-env-vars="IMAGE_SOURCE_COMMIT_SHA=$CODE_SHA,IMAGE_DIGEST=$DIGEST,IMAGE_URI=$IMAGE,PAID_V3_CLOUD_BUILD_ID=$BUILD_ID,PAID_V3_SERVICE=$SERVICE,PAID_V3_PROJECT=$PROJECT,PAID_V3_REGION=$REGION,PAID_V3_ACTIVATION_URI=$DEPLOYMENT_AUTHORIZATION_URI"
 gcloud run services describe "$SERVICE" --project="$PROJECT" \
   --region="$REGION" --platform=managed --format=json >"$TMP/service-stage.json"
 gcloud run revisions describe "$STAGING_REVISION" --project="$PROJECT" \
@@ -162,18 +181,19 @@ PYTHONPATH="$SOURCE_ROOT/src" python -m \
   --build-contract "$SOURCE_ROOT/cloudbuild.paid-boundary-v3.yaml" \
   --build-id "$BUILD_ID" --source-commit "$CODE_SHA" --image "$IMAGE" \
   --service "$SERVICE" --revision "$STAGING_REVISION" \
-  --activation-uri "$ACTIVATION_URI" --pre-activation \
+  --activation-uri "$DEPLOYMENT_AUTHORIZATION_URI" --pre-activation \
   --output "$TMP/staging-pre-activation.json"
 gcloud storage cp --no-clobber "$TMP/staging-pre-activation.json" \
-  "$ACTIVATION_URI.staging-pre-activation.json" >/dev/null
+  "$DEPLOYMENT_AUTHORIZATION_URI.staging-pre-activation.json" >/dev/null
 
-# This authority names a distinct predeclared runtime revision. It is created
-# before that revision, so its exact immutable coordinates can be injected
-# without asking a running revision to authenticate a future version of itself.
+# This object authorizes deployment of a distinct predeclared runtime revision,
+# but cannot authorize money output. It is created before that revision so its
+# exact immutable coordinates can be injected without asking a running revision
+# to authenticate a future version of itself.
 PYTHONPATH="$SOURCE_ROOT/src" python - \
-  "$TMP/staging-pre-activation.json" "$TMP/activation.json" \
+  "$TMP/staging-pre-activation.json" "$TMP/deployment-authorization.json" \
   "$PROJECT" "$REGION" "$BUILD_ID" "$CODE_SHA" "$IMAGE" "$SERVICE" \
-  "$ACTIVE_REVISION" "$ACTIVATION_URI" <<'PY'
+  "$ACTIVE_REVISION" "$DEPLOYMENT_AUTHORIZATION_URI" <<'PY'
 import json
 from pathlib import Path
 import sys
@@ -197,25 +217,31 @@ authority = create_paid_classic_activation_authority_v3(
 with Path(sys.argv[2]).open("x", encoding="utf-8") as stream:
     stream.write(json.dumps(authority, sort_keys=True, separators=(",", ":")))
 PY
-ACTIVATION_SHA256=$(sha256sum "$TMP/activation.json" | awk '{print $1}')
-ACTIVATION_BYTES=$(wc -c <"$TMP/activation.json" | tr -d '[:space:]')
-gcloud storage cp --no-clobber "$TMP/activation.json" "$ACTIVATION_URI" \
+DEPLOYMENT_AUTHORIZATION_SHA256=$(sha256sum \
+  "$TMP/deployment-authorization.json" | awk '{print $1}')
+DEPLOYMENT_AUTHORIZATION_BYTES=$(wc -c \
+  <"$TMP/deployment-authorization.json" | tr -d '[:space:]')
+gcloud storage cp --no-clobber "$TMP/deployment-authorization.json" \
+  "$DEPLOYMENT_AUTHORIZATION_URI" \
   >/dev/null
-gcloud storage objects describe "$ACTIVATION_URI" --format=json \
-  >"$TMP/activation-object.json"
-ACTIVATION_GENERATION=$(jq -er '.generation | tostring' \
-  "$TMP/activation-object.json")
-REMOTE_BYTES=$(jq -er '.size | tonumber' "$TMP/activation-object.json")
-[[ "$ACTIVATION_GENERATION" =~ ^[0-9]+$ && "$ACTIVATION_GENERATION" != 0 ]] || \
-  die "activation provider generation is invalid"
-[[ "$REMOTE_BYTES" == "$ACTIVATION_BYTES" ]] || \
-  die "activation provider byte length differs"
+gcloud storage objects describe "$DEPLOYMENT_AUTHORIZATION_URI" --format=json \
+  >"$TMP/deployment-authorization-object.json"
+DEPLOYMENT_AUTHORIZATION_GENERATION=$(jq -er '.generation | tostring' \
+  "$TMP/deployment-authorization-object.json")
+REMOTE_BYTES=$(jq -er '.size | tonumber' \
+  "$TMP/deployment-authorization-object.json")
+[[ "$DEPLOYMENT_AUTHORIZATION_GENERATION" =~ ^[0-9]+$ && \
+  "$DEPLOYMENT_AUTHORIZATION_GENERATION" != 0 ]] || \
+  die "deployment authorization provider generation is invalid"
+[[ "$REMOTE_BYTES" == "$DEPLOYMENT_AUTHORIZATION_BYTES" ]] || \
+  die "deployment authorization provider byte length differs"
 
-# Reopen the exact remote generation before the authorized revision is made.
-PAID_V3_ACTIVATION_URI="$ACTIVATION_URI" \
-PAID_V3_ACTIVATION_GENERATION="$ACTIVATION_GENERATION" \
-PAID_V3_ACTIVATION_SHA256="$ACTIVATION_SHA256" \
-PAID_V3_ACTIVATION_BYTES="$ACTIVATION_BYTES" \
+# Reopen the exact remote deployment authorization before the runtime revision
+# is made. This does not attempt to open the not-yet-created final money gate.
+PAID_V3_ACTIVATION_URI="$DEPLOYMENT_AUTHORIZATION_URI" \
+PAID_V3_ACTIVATION_GENERATION="$DEPLOYMENT_AUTHORIZATION_GENERATION" \
+PAID_V3_ACTIVATION_SHA256="$DEPLOYMENT_AUTHORIZATION_SHA256" \
+PAID_V3_ACTIVATION_BYTES="$DEPLOYMENT_AUTHORIZATION_BYTES" \
 PAID_V3_PROJECT="$PROJECT" PAID_V3_REGION="$REGION" \
 PAID_V3_CLOUD_BUILD_ID="$BUILD_ID" \
 IMAGE_SOURCE_COMMIT_SHA="$CODE_SHA" IMAGE_URI="$IMAGE" \
@@ -225,18 +251,22 @@ import json
 import os
 
 from nfl_dfs.optimizer.paid_classic_deployment_v3 import (
-    reopen_paid_classic_activation_authority_v3,
+    reopen_paid_classic_deployment_authorization_v3,
 )
 
-print(json.dumps(reopen_paid_classic_activation_authority_v3(os.environ), sort_keys=True))
+print(json.dumps(
+    reopen_paid_classic_deployment_authorization_v3(os.environ),
+    sort_keys=True,
+))
 PY
 
-# Stage 2 receives the exact authority identity but still receives no traffic.
+# Stage 2 receives the exact deployment-authorization identity but still
+# receives no traffic. Its runtime money gate remains absent.
 gcloud run deploy "$SERVICE" \
   --project="$PROJECT" --region="$REGION" --platform=managed --quiet \
   --image="$IMAGE" --revision-suffix="$ACTIVE_SUFFIX" --no-traffic \
   --remove-env-vars="PAID_V3_ACTIVATION_AUTHORITY_JSON" \
-  --update-env-vars="IMAGE_SOURCE_COMMIT_SHA=$CODE_SHA,IMAGE_DIGEST=$DIGEST,IMAGE_URI=$IMAGE,PAID_V3_CLOUD_BUILD_ID=$BUILD_ID,PAID_V3_SERVICE=$SERVICE,PAID_V3_PROJECT=$PROJECT,PAID_V3_REGION=$REGION,PAID_V3_ACTIVATION_URI=$ACTIVATION_URI,PAID_V3_ACTIVATION_GENERATION=$ACTIVATION_GENERATION,PAID_V3_ACTIVATION_SHA256=$ACTIVATION_SHA256,PAID_V3_ACTIVATION_BYTES=$ACTIVATION_BYTES"
+  --update-env-vars="IMAGE_SOURCE_COMMIT_SHA=$CODE_SHA,IMAGE_DIGEST=$DIGEST,IMAGE_URI=$IMAGE,PAID_V3_CLOUD_BUILD_ID=$BUILD_ID,PAID_V3_SERVICE=$SERVICE,PAID_V3_PROJECT=$PROJECT,PAID_V3_REGION=$REGION,PAID_V3_ACTIVATION_URI=$DEPLOYMENT_AUTHORIZATION_URI,PAID_V3_ACTIVATION_GENERATION=$DEPLOYMENT_AUTHORIZATION_GENERATION,PAID_V3_ACTIVATION_SHA256=$DEPLOYMENT_AUTHORIZATION_SHA256,PAID_V3_ACTIVATION_BYTES=$DEPLOYMENT_AUTHORIZATION_BYTES"
 gcloud run services describe "$SERVICE" --project="$PROJECT" \
   --region="$REGION" --platform=managed --format=json \
   >"$TMP/service-active-pre.json"
@@ -250,13 +280,13 @@ PYTHONPATH="$SOURCE_ROOT/src" python -m \
   --build-contract "$SOURCE_ROOT/cloudbuild.paid-boundary-v3.yaml" \
   --build-id "$BUILD_ID" --source-commit "$CODE_SHA" --image "$IMAGE" \
   --service "$SERVICE" --revision "$ACTIVE_REVISION" \
-  --activation-uri "$ACTIVATION_URI" \
-  --activation-generation "$ACTIVATION_GENERATION" \
-  --activation-sha256 "$ACTIVATION_SHA256" \
-  --activation-bytes "$ACTIVATION_BYTES" --pre-activation \
+  --activation-uri "$DEPLOYMENT_AUTHORIZATION_URI" \
+  --activation-generation "$DEPLOYMENT_AUTHORIZATION_GENERATION" \
+  --activation-sha256 "$DEPLOYMENT_AUTHORIZATION_SHA256" \
+  --activation-bytes "$DEPLOYMENT_AUTHORIZATION_BYTES" --pre-activation \
   --output "$TMP/active-pre-activation.json"
 gcloud storage cp --no-clobber "$TMP/active-pre-activation.json" \
-  "$ACTIVATION_URI.active-pre-activation.json" >/dev/null
+  "$DEPLOYMENT_AUTHORIZATION_URI.active-pre-activation.json" >/dev/null
 
 # Arm rollback before the provider mutation. A nonzero command can be an
 # ambiguous success, so observed traffic is reconciled before deciding whether
@@ -305,15 +335,71 @@ PYTHONPATH="$SOURCE_ROOT/src" python -m \
   --build-contract "$SOURCE_ROOT/cloudbuild.paid-boundary-v3.yaml" \
   --build-id "$BUILD_ID" --source-commit "$CODE_SHA" --image "$IMAGE" \
   --service "$SERVICE" --revision "$ACTIVE_REVISION" \
-  --activation-uri "$ACTIVATION_URI" \
-  --activation-generation "$ACTIVATION_GENERATION" \
-  --activation-sha256 "$ACTIVATION_SHA256" \
-  --activation-bytes "$ACTIVATION_BYTES" --output "$RECEIPT"
+  --activation-uri "$DEPLOYMENT_AUTHORIZATION_URI" \
+  --activation-generation "$DEPLOYMENT_AUTHORIZATION_GENERATION" \
+  --activation-sha256 "$DEPLOYMENT_AUTHORIZATION_SHA256" \
+  --activation-bytes "$DEPLOYMENT_AUTHORIZATION_BYTES" --output "$RECEIPT"
 gcloud storage cp --no-clobber "$RECEIPT" \
-  "$ACTIVATION_URI.traffic.json" >/dev/null
+  "$FINAL_ACTIVATION_URI.traffic.json" >/dev/null
+
+# All provider checks and durable traffic evidence now exist while the runtime
+# remains externally disabled. Construct the separate final authority from
+# those exact facts. No pretraffic receipt can satisfy this validator.
+PYTHONPATH="$SOURCE_ROOT/src" python - \
+  "$TMP/deployment-authorization.json" \
+  "$TMP/deployment-authorization-object.json" \
+  "$RECEIPT" "$TMP/final-activation.json" \
+  "$PROJECT" "$REGION" "$BUILD_ID" "$CODE_SHA" "$IMAGE" "$SERVICE" \
+  "$ACTIVE_REVISION" <<'PY'
+import json
+from pathlib import Path
+import sys
+
+from nfl_dfs.optimizer.paid_classic_deployment_v3 import (
+    create_paid_classic_final_activation_authority_v3,
+)
+
+authorization = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+provider = json.loads(Path(sys.argv[2]).read_text(encoding="utf-8"))
+identity = {
+    "uri": authorization["activation_uri"],
+    "generation": str(provider["generation"]),
+    "sha256": __import__("hashlib").sha256(
+        Path(sys.argv[1]).read_bytes()
+    ).hexdigest(),
+    "bytes": Path(sys.argv[1]).stat().st_size,
+}
+traffic = json.loads(Path(sys.argv[3]).read_text(encoding="utf-8"))
+authority = create_paid_classic_final_activation_authority_v3(
+    authorization,
+    identity,
+    traffic,
+    expected_project=sys.argv[5],
+    expected_region=sys.argv[6],
+    expected_build_id=sys.argv[7],
+    expected_source_commit=sys.argv[8],
+    expected_image=sys.argv[9],
+    expected_service=sys.argv[10],
+    expected_revision=sys.argv[11],
+)
+with Path(sys.argv[4]).open("x", encoding="utf-8") as stream:
+    stream.write(json.dumps(authority, sort_keys=True, separators=(",", ":")))
+PY
+
+# The create-once final upload is the last state change. Until this exact line,
+# rollback remains armed and a failed attestation leaves no valid money gate.
+# After it, either the atomic create did not happen (gate absent) or a fully
+# authenticated posttraffic gate exists; there is no unsafe partial payload.
 ROLLBACK_ARMED=0
+gcloud storage cp --if-generation-match=0 "$TMP/final-activation.json" \
+  "$FINAL_ACTIVATION_URI" >/dev/null
 printf 'PAID_V3_DEPLOYMENT_ATTESTATION=%s\n' "$RECEIPT"
-printf 'PAID_V3_ACTIVATION_URI=%s\n' "$ACTIVATION_URI"
-printf 'PAID_V3_ACTIVATION_GENERATION=%s\n' "$ACTIVATION_GENERATION"
-printf 'PAID_V3_ACTIVATION_SHA256=%s\n' "$ACTIVATION_SHA256"
-printf 'PAID_V3_ACTIVATION_BYTES=%s\n' "$ACTIVATION_BYTES"
+printf 'PAID_V3_DEPLOYMENT_AUTHORIZATION_URI=%s\n' \
+  "$DEPLOYMENT_AUTHORIZATION_URI"
+printf 'PAID_V3_DEPLOYMENT_AUTHORIZATION_GENERATION=%s\n' \
+  "$DEPLOYMENT_AUTHORIZATION_GENERATION"
+printf 'PAID_V3_DEPLOYMENT_AUTHORIZATION_SHA256=%s\n' \
+  "$DEPLOYMENT_AUTHORIZATION_SHA256"
+printf 'PAID_V3_DEPLOYMENT_AUTHORIZATION_BYTES=%s\n' \
+  "$DEPLOYMENT_AUTHORIZATION_BYTES"
+printf 'PAID_V3_ACTIVATION_URI=%s\n' "$FINAL_ACTIVATION_URI"

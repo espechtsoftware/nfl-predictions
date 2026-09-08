@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import os
 from collections.abc import Callable, Mapping
 from datetime import datetime, timezone
-import os
 
 from ..inference import prospective_generation_shadow_evaluation as shadow
 from ..inference.prospective_generation_shadow_operator import (
@@ -24,6 +24,7 @@ from ..inference.week1_operating_book_operator import (
 from ..optimizer.paid_classic_deployment_v3 import (
     reopen_paid_classic_activation_authority_v3,
 )
+
 IDENTITY_ENV = {
     "uri": "WEEK1_OPERATING_BOOK_URI",
     "generation": "WEEK1_OPERATING_BOOK_GENERATION",
@@ -98,6 +99,9 @@ def load_week1_operating_book_export_v2(
     activation_object_reader: (
         Callable[[Mapping[str, object]], bytes] | None
     ) = None,
+    final_activation_object_reader: (
+        Callable[[str], tuple[Mapping[str, object], bytes]] | None
+    ) = None,
 ) -> dict[str, object]:
     """Render the canonical-game successor from exact live authorities."""
 
@@ -106,7 +110,9 @@ def load_week1_operating_book_export_v2(
     storage = GCSImmutableObjectStore() if object_store is None else object_store
     try:
         activation = reopen_paid_classic_activation_authority_v3(
-            env, object_reader=activation_object_reader
+            env,
+            object_reader=activation_object_reader,
+            final_object_reader=final_activation_object_reader,
         )
         exact = read_week1_operating_book_v1(
             store=storage, materialization_identity=identity

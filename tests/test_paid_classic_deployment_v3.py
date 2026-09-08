@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
 import hashlib
 import json
+import os
+import subprocess
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
@@ -17,12 +19,16 @@ from nfl_dfs.optimizer.paid_classic_deployment_v3 import (
     _sha,
     attest_paid_classic_deployment_v3,
     create_paid_classic_activation_authority_v3,
+    create_paid_classic_final_activation_authority_v3,
     paid_classic_activation_identity_from_environment_v3,
     reopen_paid_classic_activation_authority_v3,
-    validate_paid_classic_active_traffic_state_v3,
+    reopen_paid_classic_deployment_authorization_v3,
+    require_paid_classic_final_activation_absent_v3,
     validate_paid_classic_activation_authority_v3,
+    validate_paid_classic_active_traffic_state_v3,
     validate_paid_classic_build_evidence_v3,
     validate_paid_classic_deployment_attestation_v3,
+    validate_paid_classic_final_activation_authority_v3,
 )
 
 BUILD_ID = "12345678-1234-1234-1234-123456789abc"
@@ -37,7 +43,11 @@ SERVICE = PAID_V3_SERVICE
 REVISION = "nfl-dfs-app-paidv3-aaaaaaaa-12345678"
 STAGING_REVISION = "nfl-dfs-app-paidv3s-aaaaaaaa-12345678"
 PREVIOUS_REVISION = "nfl-dfs-app-previous"
-ACTIVATION_URI = (
+DEPLOYMENT_AUTHORIZATION_URI = (
+    f"gs://{PAID_V3_PROJECT}-paid-authority/paid-v3/"
+    f"{SERVICE}/{REVISION}/deployment-authorization.json"
+)
+FINAL_ACTIVATION_URI = (
     f"gs://{PAID_V3_PROJECT}-paid-authority/paid-v3/"
     f"{SERVICE}/{REVISION}/activation.json"
 )
@@ -216,7 +226,7 @@ def _staging_receipt() -> dict[str, object]:
     build, service, revision, reviewed = _provider_records(
         revision_name=STAGING_REVISION,
         require_traffic=False,
-        activation_uri=ACTIVATION_URI,
+        activation_uri=DEPLOYMENT_AUTHORIZATION_URI,
     )
     return _attest(
         build,
@@ -225,7 +235,7 @@ def _staging_receipt() -> dict[str, object]:
         reviewed,
         revision_name=STAGING_REVISION,
         require_traffic=False,
-        activation_uri=ACTIVATION_URI,
+        activation_uri=DEPLOYMENT_AUTHORIZATION_URI,
     )
 
 
@@ -239,8 +249,85 @@ def _activation_authority() -> dict[str, object]:
         expected_image=IMAGE,
         expected_service=SERVICE,
         authorized_runtime_revision=REVISION,
-        activation_uri=ACTIVATION_URI,
+        activation_uri=DEPLOYMENT_AUTHORIZATION_URI,
     )
+
+
+def _deployment_authorization_envelope() -> tuple[
+    dict[str, object], dict[str, object], bytes
+]:
+    authority = _activation_authority()
+    raw = json.dumps(
+        authority, sort_keys=True, separators=(",", ":")
+    ).encode()
+    identity = {
+        "uri": DEPLOYMENT_AUTHORIZATION_URI,
+        "generation": "987654321",
+        "sha256": hashlib.sha256(raw).hexdigest(),
+        "bytes": len(raw),
+    }
+    return authority, identity, raw
+
+
+def _active_traffic_receipt(
+    identity: dict[str, object],
+) -> dict[str, object]:
+    build, service, revision, reviewed = _provider_records(
+        activation_identity=identity,
+    )
+    return _attest(
+        build,
+        service,
+        revision,
+        reviewed,
+        activation_uri=DEPLOYMENT_AUTHORIZATION_URI,
+        activation_identity=identity,
+    )
+
+
+def _final_activation_envelope() -> tuple[
+    dict[str, object], dict[str, object], bytes,
+    dict[str, object], dict[str, object], bytes,
+]:
+    authorization, identity, raw = _deployment_authorization_envelope()
+    final = create_paid_classic_final_activation_authority_v3(
+        authorization,
+        identity,
+        _active_traffic_receipt(identity),
+        expected_project=PAID_V3_PROJECT,
+        expected_region=PAID_V3_REGION,
+        expected_build_id=BUILD_ID,
+        expected_source_commit=SOURCE_COMMIT,
+        expected_image=IMAGE,
+        expected_service=SERVICE,
+        expected_revision=REVISION,
+    )
+    final_raw = json.dumps(
+        final, sort_keys=True, separators=(",", ":")
+    ).encode()
+    final_identity = {
+        "uri": FINAL_ACTIVATION_URI,
+        "generation": "987654322",
+        "sha256": hashlib.sha256(final_raw).hexdigest(),
+        "bytes": len(final_raw),
+    }
+    return final, final_identity, final_raw, authorization, identity, raw
+
+
+def _activation_environment(identity: dict[str, object]) -> dict[str, str]:
+    return {
+        "PAID_V3_PROJECT": PAID_V3_PROJECT,
+        "PAID_V3_REGION": PAID_V3_REGION,
+        "PAID_V3_CLOUD_BUILD_ID": BUILD_ID,
+        "IMAGE_SOURCE_COMMIT_SHA": SOURCE_COMMIT,
+        "IMAGE_URI": IMAGE,
+        "PAID_V3_SERVICE": SERVICE,
+        "K_REVISION": REVISION,
+        "PAID_V3_ACTIVATION_URI": str(identity["uri"]),
+        "PAID_V3_ACTIVATION_GENERATION": str(identity["generation"]),
+        "PAID_V3_ACTIVATION_SHA256": str(identity["sha256"]),
+        "PAID_V3_ACTIVATION_BYTES": str(identity["bytes"]),
+    }
 
 
 def test_provider_realistic_build_and_deployment_attestation_pass() -> None:
@@ -408,33 +495,96 @@ def test_provider_or_runtime_drift_fails_closed(mutation, message: str) -> None:
 
 
 def test_activation_authority_is_cross_bound_and_exact_read() -> None:
-    authority = _activation_authority()
-    raw = json.dumps(authority, sort_keys=True, separators=(",", ":")).encode()
-    identity = {
-        "uri": ACTIVATION_URI,
-        "generation": "987654321",
-        "sha256": hashlib.sha256(raw).hexdigest(),
-        "bytes": len(raw),
-    }
-    environment = {
-        "PAID_V3_PROJECT": PAID_V3_PROJECT,
-        "PAID_V3_REGION": PAID_V3_REGION,
-        "PAID_V3_CLOUD_BUILD_ID": BUILD_ID,
-        "IMAGE_SOURCE_COMMIT_SHA": SOURCE_COMMIT,
-        "IMAGE_URI": IMAGE,
-        "PAID_V3_SERVICE": SERVICE,
-        "K_REVISION": REVISION,
-        "PAID_V3_ACTIVATION_URI": identity["uri"],
-        "PAID_V3_ACTIVATION_GENERATION": identity["generation"],
-        "PAID_V3_ACTIVATION_SHA256": identity["sha256"],
-        "PAID_V3_ACTIVATION_BYTES": str(identity["bytes"]),
-    }
-    reopened = reopen_paid_classic_activation_authority_v3(
+    final, final_identity, final_raw, authority, identity, raw = (
+        _final_activation_envelope()
+    )
+    environment = _activation_environment(identity)
+    deployment = reopen_paid_classic_deployment_authorization_v3(
         environment,
         object_reader=lambda observed: raw if observed == identity else b"",
     )
-    assert reopened["authority"] == authority
-    assert reopened["object_identity"] == identity
+    assert deployment["authority"] == authority
+    assert deployment["object_identity"] == identity
+    reopened = reopen_paid_classic_activation_authority_v3(
+        environment,
+        object_reader=lambda observed: raw if observed == identity else b"",
+        final_object_reader=lambda uri: (
+            (final_identity, final_raw) if uri == FINAL_ACTIVATION_URI
+            else ({}, b"")
+        ),
+    )
+    assert reopened["authority"] == final
+    assert reopened["object_identity"] == final_identity
+    assert reopened["deployment_authorization"] == authority
+    assert reopened["deployment_authorization_object_identity"] == identity
+
+
+def test_pretraffic_deployment_authorization_cannot_enable_money_output() -> None:
+    _, identity, raw = _deployment_authorization_envelope()
+    environment = _activation_environment(identity)
+    with pytest.raises(ValueError, match="final activation exact object read failed"):
+        reopen_paid_classic_activation_authority_v3(
+            environment,
+            object_reader=lambda _observed: raw,
+            final_object_reader=lambda _uri: (_ for _ in ()).throw(
+                FileNotFoundError("final gate is absent")
+            ),
+        )
+
+
+def test_create_once_final_gate_requires_authenticated_absence() -> None:
+    observed: list[str] = []
+    assert require_paid_classic_final_activation_absent_v3(
+        expected_project=PAID_V3_PROJECT,
+        expected_service=SERVICE,
+        expected_revision=REVISION,
+        object_probe=lambda uri: observed.append(uri) or None,
+    ) == FINAL_ACTIVATION_URI
+    assert observed == [FINAL_ACTIVATION_URI]
+    with pytest.raises(ValueError, match="already exists"):
+        require_paid_classic_final_activation_absent_v3(
+            expected_project=PAID_V3_PROJECT,
+            expected_service=SERVICE,
+            expected_revision=REVISION,
+            object_probe=lambda _uri: "123",
+        )
+    with pytest.raises(ValueError, match="absence could not be authenticated"):
+        require_paid_classic_final_activation_absent_v3(
+            expected_project=PAID_V3_PROJECT,
+            expected_service=SERVICE,
+            expected_revision=REVISION,
+            object_probe=lambda _uri: (_ for _ in ()).throw(
+                PermissionError("denied")
+            ),
+        )
+
+
+def test_final_gate_rejects_preactivation_or_rehashed_traffic_fact() -> None:
+    final, _, _, authorization, identity, _ = _final_activation_envelope()
+    final["active_traffic_attestation"]["activation_stage"] = "pre-activation"
+    final["active_traffic_attestation"]["provider_traffic_percent"] = 0
+    nested = final["active_traffic_attestation"]
+    nested["attestation_sha256"] = _sha({
+        key: value for key, value in nested.items()
+        if key != "attestation_sha256"
+    })
+    final["authority_sha256"] = _sha({
+        key: value for key, value in final.items()
+        if key != "authority_sha256"
+    })
+    with pytest.raises(ValueError, match="exact active provider traffic"):
+        validate_paid_classic_final_activation_authority_v3(
+            final,
+            deployment_authorization=authorization,
+            deployment_authorization_identity=identity,
+            expected_project=PAID_V3_PROJECT,
+            expected_region=PAID_V3_REGION,
+            expected_build_id=BUILD_ID,
+            expected_source_commit=SOURCE_COMMIT,
+            expected_image=IMAGE,
+            expected_service=SERVICE,
+            expected_revision=REVISION,
+        )
 
 
 @pytest.mark.parametrize(
@@ -448,7 +598,7 @@ def test_activation_authority_is_cross_bound_and_exact_read() -> None:
 )
 def test_activation_identity_has_no_uri_only_or_partial_mode(missing: str) -> None:
     environment = {
-        "PAID_V3_ACTIVATION_URI": ACTIVATION_URI,
+        "PAID_V3_ACTIVATION_URI": DEPLOYMENT_AUTHORIZATION_URI,
         "PAID_V3_ACTIVATION_GENERATION": "123",
         "PAID_V3_ACTIVATION_SHA256": "a" * 64,
         "PAID_V3_ACTIVATION_BYTES": "100",
@@ -461,7 +611,7 @@ def test_activation_identity_has_no_uri_only_or_partial_mode(missing: str) -> No
 def test_exact_activation_read_rejects_non_object_json() -> None:
     raw = b"[]"
     environment = {
-        "PAID_V3_ACTIVATION_URI": ACTIVATION_URI,
+        "PAID_V3_ACTIVATION_URI": DEPLOYMENT_AUTHORIZATION_URI,
         "PAID_V3_ACTIVATION_GENERATION": "123",
         "PAID_V3_ACTIVATION_SHA256": hashlib.sha256(raw).hexdigest(),
         "PAID_V3_ACTIVATION_BYTES": str(len(raw)),
@@ -508,7 +658,7 @@ def test_activation_authority_rejects_rehashed_unrelated_nested_receipt() -> Non
 
 def test_active_revision_and_attestation_bind_exact_activation_object() -> None:
     identity = {
-        "uri": ACTIVATION_URI,
+        "uri": DEPLOYMENT_AUTHORIZATION_URI,
         "generation": "123",
         "sha256": "a" * 64,
         "bytes": 321,
@@ -521,7 +671,7 @@ def test_active_revision_and_attestation_bind_exact_activation_object() -> None:
         service,
         revision,
         reviewed,
-        activation_uri=ACTIVATION_URI,
+        activation_uri=DEPLOYMENT_AUTHORIZATION_URI,
         activation_identity=identity,
     )
     assert receipt["activation_object_identity"] == identity
@@ -532,7 +682,7 @@ def test_active_revision_and_attestation_bind_exact_activation_object() -> None:
             service,
             revision,
             reviewed,
-            activation_uri=ACTIVATION_URI,
+            activation_uri=DEPLOYMENT_AUTHORIZATION_URI,
             activation_identity=identity,
         )
 
@@ -541,7 +691,7 @@ def test_staging_attestation_refuses_stale_or_inline_activation_authority() -> N
     build, service, revision, reviewed = _provider_records(
         revision_name=STAGING_REVISION,
         require_traffic=False,
-        activation_uri=ACTIVATION_URI,
+        activation_uri=DEPLOYMENT_AUTHORIZATION_URI,
     )
     for name, value, message in (
         ("PAID_V3_ACTIVATION_GENERATION", "12", "stale exact activation"),
@@ -564,7 +714,7 @@ def test_staging_attestation_refuses_stale_or_inline_activation_authority() -> N
                 reviewed,
                 revision_name=STAGING_REVISION,
                 require_traffic=False,
-                activation_uri=ACTIVATION_URI,
+                activation_uri=DEPLOYMENT_AUTHORIZATION_URI,
             )
 
 
@@ -603,6 +753,20 @@ def test_deployer_arms_and_reconciles_before_traffic_mutation() -> None:
     assert "trap 'on_signal 143' TERM" in source
     assert "PAID_V3_ACTIVATION_GENERATION" in source
     assert '[[ "$SERVICE" == "nfl-dfs-app" ]]' in source
+    absence = source.index("require_paid_classic_final_activation_absent_v3")
+    stage = source.index('gcloud run deploy "$SERVICE"')
+    final_attestation = source.index('--output "$RECEIPT"')
+    final_create = source.index(
+        "create_paid_classic_final_activation_authority_v3"
+    )
+    disarmed = source.index("ROLLBACK_ARMED=0", final_create)
+    final_publish = source.index(
+        '"$FINAL_ACTIVATION_URI" >/dev/null', disarmed
+    )
+    assert absence < stage < traffic < final_attestation < final_create
+    assert final_create < disarmed < final_publish
+    assert "reopen_paid_classic_deployment_authorization_v3" in source
+    assert "gcloud storage cp --if-generation-match=0" in source
 
     app_source = Path("src/nfl_dfs/app/main.py").read_text(encoding="utf-8")
     assert "PAID_V3_ACTIVATION_AUTHORITY_JSON" not in app_source
@@ -626,6 +790,155 @@ def test_ambiguous_cutover_reconciliation_is_exact_and_fail_closed() -> None:
             expected_service=SERVICE,
             expected_revision=REVISION,
         )
+
+
+def test_executable_cutover_leaves_no_gate_when_final_attestation_and_rollback_fail(
+    tmp_path: Path,
+) -> None:
+    """Exercise the real shell order with provider mutations fully stubbed.
+
+    The traffic command succeeds, the final provider attestor fails, and the
+    compensating rollback also fails. The retained simulated provider state
+    must still lack the only object which the runtime accepts as a money gate.
+    """
+
+    fake_bin = tmp_path / "bin"
+    state = tmp_path / "state"
+    fake_bin.mkdir()
+    state.mkdir()
+    root = Path.cwd().resolve()
+    receipt = tmp_path / "final-traffic.json"
+
+    git_stub = fake_bin / "git"
+    git_stub.write_text(
+        """#!/usr/bin/python3
+import os
+import sys
+
+args = sys.argv[1:]
+if "rev-parse" in args and "--show-toplevel" in args:
+    print(os.environ["FAKE_SOURCE_ROOT"])
+elif "rev-parse" in args:
+    print(os.environ["FAKE_CODE_SHA"])
+sys.exit(0)
+""",
+        encoding="utf-8",
+    )
+    git_stub.chmod(0o755)
+
+    python_stub = fake_bin / "python"
+    python_stub.write_text(
+        """#!/usr/bin/python3
+import os
+from pathlib import Path
+import sys
+
+args = sys.argv[1:]
+if args[:1] == ["-m"]:
+    if "--output" in args:
+        output = Path(args[args.index("--output") + 1])
+        if output == Path(os.environ["FAKE_FINAL_RECEIPT"]):
+            sys.exit(47)
+        output.write_text("{}", encoding="utf-8")
+    else:
+        print("{}")
+elif args[:1] == ["-"]:
+    if len(args) >= 10:
+        Path(args[2]).write_text("{}", encoding="utf-8")
+    else:
+        print("{}")
+sys.exit(0)
+""",
+        encoding="utf-8",
+    )
+    python_stub.chmod(0o755)
+
+    gcloud_stub = fake_bin / "gcloud"
+    gcloud_stub.write_text(
+        """#!/usr/bin/python3
+import json
+import os
+from pathlib import Path
+import shutil
+import sys
+
+args = sys.argv[1:]
+state = Path(os.environ["FAKE_STATE"])
+if args[:2] == ["builds", "describe"]:
+    print(json.dumps({
+        "id": os.environ["FAKE_BUILD_ID"],
+        "projectId": "nfl-predictions-503414",
+        "status": "SUCCESS",
+        "substitutions": {"_CODE_SHA": os.environ["FAKE_CODE_SHA"]},
+        "results": {"images": [{"digest": os.environ["FAKE_DIGEST"]}]},
+    }))
+elif args[:3] == ["run", "services", "describe"]:
+    if "--format=export" in args:
+        print("apiVersion: serving.knative.dev/v1\\nkind: Service")
+    else:
+        print("{}")
+elif args[:3] == ["run", "revisions", "describe"]:
+    print("{}")
+elif args[:3] == ["run", "services", "update-traffic"]:
+    (state / "traffic-applied").write_text("yes", encoding="utf-8")
+elif args[:3] == ["run", "services", "replace"]:
+    (state / "rollback-attempted").write_text("yes", encoding="utf-8")
+    sys.exit(53)
+elif args[:2] == ["run", "deploy"]:
+    pass
+elif args[:2] == ["storage", "cp"]:
+    source = Path(args[-2])
+    destination = args[-1]
+    with (state / "destinations.log").open("a", encoding="utf-8") as stream:
+        stream.write(destination + "\\n")
+    if destination.endswith("/deployment-authorization.json"):
+        shutil.copyfile(source, state / "deployment-authorization.bytes")
+    elif destination.endswith("/activation.json"):
+        (state / "final-gate").write_bytes(source.read_bytes())
+elif args[:3] == ["storage", "objects", "describe"]:
+    payload = state / "deployment-authorization.bytes"
+    print(json.dumps({"generation": "123", "size": payload.stat().st_size}))
+sys.exit(0)
+""",
+        encoding="utf-8",
+    )
+    gcloud_stub.chmod(0o755)
+
+    env = {
+        **os.environ,
+        "PATH": f"{fake_bin}:{os.environ['PATH']}",
+        "FAKE_SOURCE_ROOT": str(root),
+        "FAKE_CODE_SHA": SOURCE_COMMIT,
+        "FAKE_BUILD_ID": BUILD_ID,
+        "FAKE_DIGEST": DIGEST,
+        "FAKE_FINAL_RECEIPT": str(receipt),
+        "FAKE_STATE": str(state),
+    }
+    result = subprocess.run(
+        [
+            "bash",
+            "scripts/deploy_paid_boundary_v3_image.sh",
+            "--execute",
+            SOURCE_COMMIT,
+            BUILD_ID,
+            IMAGE,
+            SERVICE,
+            str(receipt),
+        ],
+        cwd=root,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 47
+    assert (state / "traffic-applied").is_file()
+    assert (state / "rollback-attempted").is_file()
+    assert not (state / "final-gate").exists()
+    assert not receipt.exists()
+    destinations = (state / "destinations.log").read_text(encoding="utf-8")
+    assert FINAL_ACTIVATION_URI not in destinations.splitlines()
+    assert "provider traffic rollback could not be authenticated" in result.stderr
 
 
 def test_attestor_module_uses_exclusive_output_creation() -> None:

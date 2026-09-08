@@ -20,7 +20,8 @@ from typing import Any, Final
 import yaml
 
 SCHEMA: Final = "paid-classic-cloud-run-deployment-attestation/v2"
-ACTIVATION_SCHEMA: Final = "paid-classic-activation-authority/v2"
+ACTIVATION_SCHEMA: Final = "paid-classic-pretraffic-deployment-authorization/v1"
+FINAL_ACTIVATION_SCHEMA: Final = "paid-classic-final-activation-authority/v1"
 PAID_V3_PROJECT: Final = "nfl-predictions-503414"
 PAID_V3_REGION: Final = "us-central1"
 PAID_V3_SERVICE: Final = "nfl-dfs-app"
@@ -168,6 +169,24 @@ def _validate_activation_object_identity(
         "sha256": sha256,
         "bytes": byte_value,
     }
+
+
+def _deployment_authorization_uri(
+    *, project: str, service: str, revision: str,
+) -> str:
+    return (
+        f"gs://{project}-paid-authority/paid-v3/{service}/{revision}/"
+        "deployment-authorization.json"
+    )
+
+
+def _final_activation_uri(
+    *, project: str, service: str, revision: str,
+) -> str:
+    return (
+        f"gs://{project}-paid-authority/paid-v3/{service}/{revision}/"
+        "activation.json"
+    )
 
 
 def _containers(document: Mapping[str, Any]) -> Sequence[Mapping[str, Any]]:
@@ -773,9 +792,10 @@ def validate_paid_classic_activation_authority_v3(
     claimed = body.pop("authority_sha256", None)
     if claimed != _sha(body):
         _fail("activation authority hash differs")
-    expected_activation_uri = (
-        f"gs://{expected_project}-paid-authority/paid-v3/{expected_service}/"
-        f"{expected_revision}/activation.json"
+    expected_activation_uri = _deployment_authorization_uri(
+        project=expected_project,
+        service=expected_service,
+        revision=expected_revision,
     )
     if (
         body.get("schema_version") != ACTIVATION_SCHEMA
@@ -872,6 +892,178 @@ def create_paid_classic_activation_authority_v3(
     )
 
 
+def validate_paid_classic_final_activation_authority_v3(
+    value: Mapping[str, object],
+    *,
+    deployment_authorization: Mapping[str, object],
+    deployment_authorization_identity: Mapping[str, object],
+    expected_project: str,
+    expected_region: str,
+    expected_build_id: str,
+    expected_source_commit: str,
+    expected_image: str,
+    expected_service: str,
+    expected_revision: str,
+) -> dict[str, object]:
+    """Authenticate the post-traffic fact which alone enables money output."""
+
+    authorization_identity = _validate_activation_object_identity(
+        deployment_authorization_identity,
+        allow_none=False,
+    )
+    if authorization_identity is None:  # pragma: no cover - narrowed above
+        _fail("deployment authorization identity is absent")
+    authorization = validate_paid_classic_activation_authority_v3(
+        deployment_authorization,
+        expected_project=expected_project,
+        expected_region=expected_region,
+        expected_build_id=expected_build_id,
+        expected_source_commit=expected_source_commit,
+        expected_image=expected_image,
+        expected_service=expected_service,
+        expected_revision=expected_revision,
+    )
+    if authorization_identity["uri"] != authorization["activation_uri"]:
+        _fail("deployment authorization object URI differs")
+    if not isinstance(value, Mapping):
+        _fail("final activation authority is not an object")
+    expected = {
+        "schema_version", "cloud_project", "cloud_region", "cloud_build_id",
+        "source_commit_sha", "immutable_image_uri", "cloud_run_service",
+        "cloud_run_revision", "activation_uri",
+        "deployment_authorization_identity",
+        "deployment_authorization_sha256", "active_traffic_attestation",
+        "money_output_authorized", "authority_sha256",
+    }
+    body = dict(value)
+    if set(body) != expected:
+        _fail("final activation authority schema differs")
+    claimed = body.pop("authority_sha256", None)
+    if claimed != _sha(body):
+        _fail("final activation authority hash differs")
+    expected_final_uri = _final_activation_uri(
+        project=expected_project,
+        service=expected_service,
+        revision=expected_revision,
+    )
+    if (
+        body.get("schema_version") != FINAL_ACTIVATION_SCHEMA
+        or body.get("cloud_project") != expected_project
+        or body.get("cloud_region") != expected_region
+        or body.get("cloud_build_id") != expected_build_id
+        or body.get("source_commit_sha") != expected_source_commit
+        or body.get("immutable_image_uri") != expected_image
+        or body.get("cloud_run_service") != expected_service
+        or body.get("cloud_run_revision") != expected_revision
+        or body.get("activation_uri") != expected_final_uri
+        or body.get("deployment_authorization_identity")
+        != authorization_identity
+        or body.get("deployment_authorization_sha256")
+        != authorization["authority_sha256"]
+        or body.get("money_output_authorized") is not True
+        or not isinstance(body.get("active_traffic_attestation"), Mapping)
+    ):
+        _fail("final activation authority identity differs")
+    try:
+        traffic = validate_paid_classic_deployment_attestation_v3(
+            body["active_traffic_attestation"]
+        )
+    except ValueError as exc:
+        _fail(f"final activation traffic attestation is invalid: {exc}")
+    cross_fields = {
+        "cloud_project": "cloud_project",
+        "cloud_region": "cloud_region",
+        "cloud_build_id": "cloud_build_id",
+        "source_commit_sha": "source_commit_sha",
+        "immutable_image_uri": "immutable_image_uri",
+        "cloud_run_service": "cloud_run_service",
+        "cloud_run_revision": "cloud_run_revision",
+    }
+    if (
+        traffic.get("activation_stage") != "traffic"
+        or traffic.get("provider_traffic_percent") != 100
+        or traffic.get("activation_uri") != authorization["activation_uri"]
+        or traffic.get("activation_object_identity")
+        != authorization_identity
+        or any(
+            body.get(outer) != traffic.get(inner)
+            for outer, inner in cross_fields.items()
+        )
+    ):
+        _fail("final activation is not bound to exact active provider traffic")
+    body["active_traffic_attestation"] = traffic
+    body["authority_sha256"] = claimed
+    return body
+
+
+def create_paid_classic_final_activation_authority_v3(
+    deployment_authorization: Mapping[str, object],
+    deployment_authorization_identity: Mapping[str, object],
+    active_traffic_attestation: Mapping[str, object],
+    *,
+    expected_project: str,
+    expected_region: str,
+    expected_build_id: str,
+    expected_source_commit: str,
+    expected_image: str,
+    expected_service: str,
+    expected_revision: str,
+) -> dict[str, object]:
+    """Create the final gate only from authenticated active provider state."""
+
+    authorization = validate_paid_classic_activation_authority_v3(
+        deployment_authorization,
+        expected_project=expected_project,
+        expected_region=expected_region,
+        expected_build_id=expected_build_id,
+        expected_source_commit=expected_source_commit,
+        expected_image=expected_image,
+        expected_service=expected_service,
+        expected_revision=expected_revision,
+    )
+    identity = _validate_activation_object_identity(
+        deployment_authorization_identity,
+        allow_none=False,
+    )
+    if identity is None:  # pragma: no cover - narrowed above
+        _fail("deployment authorization identity is absent")
+    traffic = validate_paid_classic_deployment_attestation_v3(
+        active_traffic_attestation
+    )
+    body: dict[str, object] = {
+        "schema_version": FINAL_ACTIVATION_SCHEMA,
+        "cloud_project": expected_project,
+        "cloud_region": expected_region,
+        "cloud_build_id": expected_build_id,
+        "source_commit_sha": expected_source_commit,
+        "immutable_image_uri": expected_image,
+        "cloud_run_service": expected_service,
+        "cloud_run_revision": expected_revision,
+        "activation_uri": _final_activation_uri(
+            project=expected_project,
+            service=expected_service,
+            revision=expected_revision,
+        ),
+        "deployment_authorization_identity": identity,
+        "deployment_authorization_sha256": authorization["authority_sha256"],
+        "active_traffic_attestation": traffic,
+        "money_output_authorized": True,
+    }
+    body["authority_sha256"] = _sha(body)
+    return validate_paid_classic_final_activation_authority_v3(
+        body,
+        deployment_authorization=authorization,
+        deployment_authorization_identity=identity,
+        expected_project=expected_project,
+        expected_region=expected_region,
+        expected_build_id=expected_build_id,
+        expected_source_commit=expected_source_commit,
+        expected_image=expected_image,
+        expected_service=expected_service,
+        expected_revision=expected_revision,
+    )
+
+
 _ACTIVATION_IDENTITY_ENV: Final = {
     "uri": "PAID_V3_ACTIVATION_URI",
     "generation": "PAID_V3_ACTIVATION_GENERATION",
@@ -912,12 +1104,99 @@ def _read_exact_gcs_activation_v3(identity: Mapping[str, object]) -> bytes:
     return blob.download_as_bytes()
 
 
-def reopen_paid_classic_activation_authority_v3(
+def _read_current_gcs_final_activation_v3(
+    uri: str,
+) -> tuple[dict[str, object], bytes]:
+    """Snapshot one current final gate, then download that exact generation."""
+
+    from google.cloud import storage
+
+    bucket_name, object_name = uri[5:].split("/", 1)
+    bucket = storage.Client().bucket(bucket_name)
+    current = bucket.blob(object_name)
+    current.reload()
+    generation = str(current.generation or "")
+    if not generation.isdigit() or int(generation) <= 0:
+        _fail("final activation provider generation is invalid")
+    pinned = bucket.blob(object_name, generation=int(generation))
+    raw = pinned.download_as_bytes()
+    identity = _validate_activation_object_identity(
+        {
+            "uri": uri,
+            "generation": generation,
+            "sha256": hashlib.sha256(raw).hexdigest(),
+            "bytes": len(raw),
+        },
+        allow_none=False,
+    )
+    if identity is None:  # pragma: no cover - narrowed above
+        _fail("final activation exact identity is absent")
+    return identity, raw
+
+
+def _probe_current_gcs_generation_v3(uri: str) -> str | None:
+    from google.api_core.exceptions import NotFound
+    from google.cloud import storage
+
+    bucket_name, object_name = uri[5:].split("/", 1)
+    blob = storage.Client().bucket(bucket_name).blob(object_name)
+    try:
+        blob.reload()
+    except NotFound:
+        return None
+    generation = str(blob.generation or "")
+    if not generation.isdigit() or int(generation) <= 0:
+        _fail("final activation provider generation is invalid")
+    return generation
+
+
+def require_paid_classic_final_activation_absent_v3(
+    *,
+    expected_project: str,
+    expected_service: str,
+    expected_revision: str,
+    object_probe: Callable[[str], str | None] | None = None,
+) -> str:
+    """Fail closed unless the create-once money gate is currently absent."""
+
+    if (
+        expected_project != PAID_V3_PROJECT
+        or expected_service != PAID_V3_SERVICE
+        or _REVISION.fullmatch(expected_revision) is None
+    ):
+        _fail("final activation absence target differs from paid-v3 policy")
+    uri = _final_activation_uri(
+        project=expected_project,
+        service=expected_service,
+        revision=expected_revision,
+    )
+    probe = _probe_current_gcs_generation_v3 if object_probe is None else object_probe
+    try:
+        generation = probe(uri)
+    except ValueError:
+        raise
+    except Exception as exc:
+        _fail(
+            "final activation absence could not be authenticated "
+            f"({type(exc).__name__})"
+        )
+    if generation is not None:
+        _fail("final activation gate already exists")
+    return uri
+
+
+def reopen_paid_classic_deployment_authorization_v3(
     environment: Mapping[str, str],
     *,
     object_reader: Callable[[Mapping[str, object]], bytes] | None = None,
 ) -> dict[str, object]:
-    """Exact-read and authenticate the only authority accepted by money paths."""
+    """Reopen the exact pretraffic object used only to stage a revision.
+
+    This object deliberately cannot authorize money output.  It exists so the
+    runtime revision can carry immutable coordinates before Cloud Run traffic
+    is changed; the separate final activation authority is created only after
+    provider traffic is reconciled.
+    """
 
     identity = paid_classic_activation_identity_from_environment_v3(environment)
     reader = _read_exact_gcs_activation_v3 if object_reader is None else object_reader
@@ -940,7 +1219,7 @@ def reopen_paid_classic_activation_authority_v3(
         value = json.loads(raw.decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
         _fail(f"activation authority bytes are not canonical JSON: {exc}")
-    authority = validate_paid_classic_activation_authority_v3(
+    deployment_authorization = validate_paid_classic_activation_authority_v3(
         value,
         expected_project=str(environment.get("PAID_V3_PROJECT", "")),
         expected_region=str(environment.get("PAID_V3_REGION", "")),
@@ -950,9 +1229,86 @@ def reopen_paid_classic_activation_authority_v3(
         expected_service=str(environment.get("PAID_V3_SERVICE", "")),
         expected_revision=str(environment.get("K_REVISION", "")),
     )
-    if authority.get("activation_uri") != identity["uri"]:
-        _fail("activation authority URI differs from its exact object identity")
-    return {"authority": authority, "object_identity": identity}
+    if deployment_authorization.get("activation_uri") != identity["uri"]:
+        _fail("deployment authorization URI differs from its exact object identity")
+    return {
+        "authority": deployment_authorization,
+        "object_identity": identity,
+    }
+
+
+def reopen_paid_classic_activation_authority_v3(
+    environment: Mapping[str, str],
+    *,
+    object_reader: Callable[[Mapping[str, object]], bytes] | None = None,
+    final_object_reader: (
+        Callable[[str], tuple[Mapping[str, object], bytes]] | None
+    ) = None,
+) -> dict[str, object]:
+    """Require both pretraffic authorization and the exact post-traffic gate."""
+
+    deployment_envelope = reopen_paid_classic_deployment_authorization_v3(
+        environment,
+        object_reader=object_reader,
+    )
+    deployment_authorization = deployment_envelope["authority"]
+    identity = deployment_envelope["object_identity"]
+
+    final_uri = _final_activation_uri(
+        project=str(environment.get("PAID_V3_PROJECT", "")),
+        service=str(environment.get("PAID_V3_SERVICE", "")),
+        revision=str(environment.get("K_REVISION", "")),
+    )
+    final_reader = (
+        _read_current_gcs_final_activation_v3
+        if final_object_reader is None
+        else final_object_reader
+    )
+    try:
+        final_identity_raw, final_raw = final_reader(final_uri)
+    except ValueError:
+        raise
+    except Exception as exc:
+        _fail(
+            "final activation exact object read failed "
+            f"({type(exc).__name__})"
+        )
+    final_identity = _validate_activation_object_identity(
+        final_identity_raw,
+        allow_none=False,
+    )
+    if final_identity is None:  # pragma: no cover - narrowed above
+        _fail("final activation exact object identity is absent")
+    if final_identity["uri"] != final_uri:
+        _fail("final activation URI differs from the runtime gate URI")
+    if not isinstance(final_raw, bytes):
+        _fail("final activation reader did not return bytes")
+    if len(final_raw) != final_identity["bytes"]:
+        _fail("final activation byte length differs")
+    if hashlib.sha256(final_raw).hexdigest() != final_identity["sha256"]:
+        _fail("final activation bytes hash differs")
+    try:
+        final_value = json.loads(final_raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        _fail(f"final activation bytes are not canonical JSON: {exc}")
+    authority = validate_paid_classic_final_activation_authority_v3(
+        final_value,
+        deployment_authorization=deployment_authorization,
+        deployment_authorization_identity=identity,
+        expected_project=str(environment.get("PAID_V3_PROJECT", "")),
+        expected_region=str(environment.get("PAID_V3_REGION", "")),
+        expected_build_id=str(environment.get("PAID_V3_CLOUD_BUILD_ID", "")),
+        expected_source_commit=str(environment.get("IMAGE_SOURCE_COMMIT_SHA", "")),
+        expected_image=str(environment.get("IMAGE_URI", "")),
+        expected_service=str(environment.get("PAID_V3_SERVICE", "")),
+        expected_revision=str(environment.get("K_REVISION", "")),
+    )
+    return {
+        "authority": authority,
+        "object_identity": final_identity,
+        "deployment_authorization": deployment_authorization,
+        "deployment_authorization_object_identity": identity,
+    }
 
 
 def main() -> int:

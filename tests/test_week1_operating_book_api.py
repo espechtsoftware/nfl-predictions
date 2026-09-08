@@ -6,7 +6,6 @@ from fastapi import HTTPException
 from nfl_dfs.app import main
 from nfl_dfs.app import week1_operating_book_api as api
 
-
 ENV = {
     "WEEK1_OPERATING_BOOK_URI": "gs://test/prelock/week1-book.json",
     "WEEK1_OPERATING_BOOK_GENERATION": "123",
@@ -27,12 +26,17 @@ V2_ENV = {
     "K_REVISION": "app-paidv3-cccccccc-12345678",
     "PAID_V3_ACTIVATION_URI": (
         "gs://nfl-predictions-503414-paid-authority/paid-v3/"
-        "nfl-dfs-app/app-paidv3-cccccccc-12345678/activation.json"
+        "nfl-dfs-app/app-paidv3-cccccccc-12345678/"
+        "deployment-authorization.json"
     ),
     "PAID_V3_ACTIVATION_GENERATION": "987",
     "PAID_V3_ACTIVATION_SHA256": "e" * 64,
     "PAID_V3_ACTIVATION_BYTES": "2048",
 }
+V2_FINAL_ACTIVATION_URI = (
+    "gs://nfl-predictions-503414-paid-authority/paid-v3/"
+    "nfl-dfs-app/app-paidv3-cccccccc-12345678/activation.json"
+)
 
 
 def _activation_envelope() -> dict[str, object]:
@@ -44,10 +48,10 @@ def _activation_envelope() -> dict[str, object]:
             "authority_sha256": "f" * 64,
         },
         "object_identity": {
-            "uri": V2_ENV["PAID_V3_ACTIVATION_URI"],
-            "generation": V2_ENV["PAID_V3_ACTIVATION_GENERATION"],
-            "sha256": V2_ENV["PAID_V3_ACTIVATION_SHA256"],
-            "bytes": int(V2_ENV["PAID_V3_ACTIVATION_BYTES"]),
+            "uri": V2_FINAL_ACTIVATION_URI,
+            "generation": "988",
+            "sha256": "9" * 64,
+            "bytes": 4096,
         },
     }
 
@@ -140,8 +144,10 @@ def test_v2_load_adds_the_fixed_projection_authority(
     monkeypatch.setattr(
         api,
         "reopen_paid_classic_activation_authority_v3",
-        lambda environment, object_reader=None: (
-            activation_calls.append((environment, object_reader))
+        lambda environment, object_reader=None, final_object_reader=None: (
+            activation_calls.append(
+                (environment, object_reader, final_object_reader)
+            )
             or _activation_envelope()
         ),
     )
@@ -171,10 +177,10 @@ def test_v2_load_adds_the_fixed_projection_authority(
         assert cloud_project == V2_ENV["PAID_V3_PROJECT"]
         assert cloud_region == V2_ENV["PAID_V3_REGION"]
         assert cloud_run_service == V2_ENV["PAID_V3_SERVICE"]
-        assert activation_authority_uri == V2_ENV["PAID_V3_ACTIVATION_URI"]
-        assert activation_authority_generation == "987"
-        assert activation_authority_object_sha256 == "e" * 64
-        assert activation_authority_bytes == 2048
+        assert activation_authority_uri == V2_FINAL_ACTIVATION_URI
+        assert activation_authority_generation == "988"
+        assert activation_authority_object_sha256 == "9" * 64
+        assert activation_authority_bytes == 4096
         assert activation_authority_sha256 == "f" * 64
         return payload
 
@@ -188,7 +194,7 @@ def test_v2_load_adds_the_fixed_projection_authority(
     assert projection_store.gids == [151307]
     assert projection_store.projection_calls == [(2026, 1)]
     assert projection_store.schedule_calls == [(2026, 1)]
-    assert activation_calls == [(V2_ENV, None)]
+    assert activation_calls == [(V2_ENV, None, None)]
 
 
 def test_v2_load_refuses_missing_exact_activation_identity() -> None:

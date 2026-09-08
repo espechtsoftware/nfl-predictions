@@ -22,6 +22,52 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 canonical-v3 paid/deployment bounded R3 (review candidate)
+
+- Isolated worktree
+  `/home/erich/projects/nfl-predictions-canonical-paid-r3-repair-20260908`,
+  branch `codex/canonical-v3-paid-r3-repair-20260908`, repairs exact R2
+  `7fbcf5c310185e7ce5d6aa183485318bf0bbe10a` against the independent HOLD
+  on production-main commit
+  `12532ec6842967e4b0cece0740e32fbb068aa29b`. The candidate is the commit
+  containing this entry; its exact pushed tip must be recorded in the
+  independent review. It has not been merged, built, deployed, loaded, scored,
+  used to read outcomes, or used for any paid action.
+- The R2 pretraffic object is now explicitly a generation-pinned deployment
+  authorization at `deployment-authorization.json`, not a money gate. The
+  staged revision remains externally disabled because every paid-v3 request
+  also exact-reads a separate create-once `activation.json` whose closed schema
+  contains the exact deployment-authorization identity and the authenticated
+  active-revision/100%-traffic provider receipt. Downstream paid catalogs bind
+  the final object's exact generation/bytes/hash and authority hash.
+- The deployer proves the final gate absent before any Cloud Run mutation,
+  keeps rollback armed through final provider attestation and durable traffic
+  evidence, then publishes the validated final object as its last atomic
+  generation-zero-preconditioned state change. If traffic applies and both
+  final attestation and rollback fail, no valid gate is published and money
+  output remains denied.
+- Adversarial coverage includes pretraffic-only runtime rejection, rehashed
+  preactivation receipt rejection, existing/uncertain final-gate refusal, a
+  successful posttraffic exact-read, and execution of the real deployment
+  shell with stubbed traffic success plus final-attestation and rollback
+  failure. The latter proves the retained state has traffic but no final gate.
+- Fresh global process censuses preceded both serial gates. Validation is green:
+  **131/131** focused paid/deployment/Week-1 tests and **281/281** exact Cloud
+  Build release-gate tests; registry-v2 verification, Python compilation,
+  both shell syntax checks, paid Cloud Build YAML checks, import lint, direct
+  runtime/executable-path exercises, and `git diff --check` pass. The serial
+  pytest lane was explicitly released afterward.
+- Durable disposition:
+  `reports/2026-09-08-canonical-v3-paid-deployment-r3-repair-candidate.md`.
+  All accepted R2 engine/world/build laws remain intact. Scoring, generation,
+  selection, money policy, experiment defaults, frozen v1/v2 algorithms, and
+  canonical-v3 Neo4j semantics are unchanged.
+
+  Next concrete action: push this review-candidate branch and obtain an
+  independent review against the sole R2 activation/cutover HOLD. Do not merge,
+  build, deploy, load a graph, run scoring/outcomes, activate a money route, or
+  emit paid bytes merely because the local gates pass.
+
 ### 2026-09-07 canonical-v3 paid/deployment bounded R2 (review candidate)
 
 - Isolated worktree
