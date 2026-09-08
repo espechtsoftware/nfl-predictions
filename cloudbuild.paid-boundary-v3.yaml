@@ -40,6 +40,7 @@ steps:
           tests/test_paid_classic_book_v2.py \
           tests/test_paid_classic_book_v3.py \
           tests/test_paid_classic_deployment_v3.py \
+          tests/test_paid_v3_authority_readiness.py \
           tests/test_week1_operating_book_export.py \
           tests/test_week1_operating_book_api.py \
           tests/test_contest_capture_rehearsal.py \
@@ -77,6 +78,8 @@ steps:
         docker run --rm --network none -e EXPECTED_SOURCE_COMMIT='${_CODE_SHA}' '${_BUILD_IMAGE}' \
           python -c \
           'import os; assert os.environ["IMAGE_SOURCE_COMMIT_SHA"] == os.environ["EXPECTED_SOURCE_COMMIT"]'
+        docker run --rm --network none '${_BUILD_IMAGE}' python -c \
+          "import json; from nfl_dfs.ops.paid_v3_authority_readiness import assert_storage_api_support_v1; print(json.dumps(assert_storage_api_support_v1(), sort_keys=True))"
 
 images:
   - '${_BUILD_IMAGE}'

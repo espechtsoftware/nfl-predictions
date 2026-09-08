@@ -22,6 +22,55 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 canonical-v3 R4 provider-readiness repair candidate
+
+- Isolated worktree
+  `/home/erich/projects/nfl-predictions-canonical-paid-r4-provider-readiness-repair-20260908`,
+  branch `codex/canonical-paid-r4-provider-readiness-repair-20260908`, starts
+  at provider-HOLD report commit
+  `b5fe57af11729459d2b6763b1cb81446d5e4a32b`, whose direct parent is exact
+  integrated R4 `1d75c71f9a08fd61b281435895b59116a9b1ff3c`. The candidate commit is the
+  commit containing this entry.
+- The package floor is raised to `google-cloud-storage>=2.16.0`, the first
+  soft-delete-list-capable release required by R4. All project-extra images
+  inherit that floor, the one unbounded standalone LEM Dockerfile now carries
+  it explicitly, and the exact paid-v3 image gate performs an offline
+  installed-version/API-signature smoke before a build can succeed.
+- New installed command `paid-v3-authority-readiness` is no-contact dry-run by
+  default. Its separately confirmed apply subcommand is pinned to exact bucket
+  `nfl-predictions-503414-paid-authority` in `us-central1`, uniform bucket-level
+  access, enforced public-access prevention, 604800-second soft delete,
+  deployer Object Viewer+Creator, runtime Object Viewer, and one fixed
+  outcome-blind create-once canary. It never deletes/recreates the bucket,
+  changes existing bucket configuration, overwrites/deletes an object, or
+  removes an IAM binding; the only existing-state mutation is adding a missing
+  required IAM member. Apply also requires a full source plus immutable image
+  identity matching the running image environment.
+- Read-only deployer/runtime preflights bind exact source/image and ADC
+  principals, fully consume live/versioned/soft-deleted exact-name views, then
+  generation-pin reload/download the fixed canary without decoding or printing
+  it. Deployer authenticates metadata/IAM; runtime Object Viewer binds that
+  hash-valid deployer receipt and independently proves list/get. Both write
+  create-only receipts. The canary does not replace the unchanged exact final
+  `activation.json` empty-history gate.
+- Static validation is green: new implementation/test AST, TOML and Cloud
+  Build YAML parse; no-contact plan JSON; installed 3.13.1 Storage API and
+  synthetic create-property checks; and `git diff --check`. Ruff is unavailable
+  and was not installed. Per the PREREG-074/R25-owned serial lane, no pytest
+  ran.
+- Durable candidate report:
+  `reports/2026-09-08-canonical-v3-paid-deployment-r4-provider-readiness-repair-candidate.md`.
+  No credential/provider call, Cloud Build, deployment, traffic, GCS/bucket/IAM
+  mutation, paid action, graph operation, score, or outcome read occurred.
+
+  Next concrete action: independently review this exact pushed candidate and,
+  only after PREREG-074/R25 is terminal, obtain a fresh serial pytest lane.
+  Exact-image apply authorization, proof of the fixed runtime service-account
+  execution, and selection of a non-ephemeral durable receipt destination are
+  explicit unresolved operational HOLDs. A code/test PASS remains distinct
+  from bucket/IAM, build, runtime preflight, deployment, traffic, activation,
+  and paid-output GO decisions; current disposition remains HOLD.
+
 ### 2026-09-08 canonical-v3 paid/deployment R4 integrated for review
 
 - Isolated worktree

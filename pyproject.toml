@@ -24,7 +24,8 @@ gcp = [
     "google-cloud-bigquery>=3.13",
     "google-cloud-bigquery-storage>=2.24",
     "pandas-gbq>=0.26.1",  # future BQ client versions delegate DataFrame loads to this
-    "google-cloud-storage>=2.13",
+    # R4 requires Bucket.list_blobs(..., soft_deleted=True), added in 2.16.0.
+    "google-cloud-storage>=2.16.0",
     "nflreadpy==0.1.5",
     "polars>=0.20",
 ]
@@ -56,6 +57,7 @@ fantasy-points-matchups = "nfl_dfs.ops.fantasy_points_matchups:main"
 fantasy-points-ownership = "nfl_dfs.ops.fantasy_points_ownership:main"
 sis-download = "nfl_dfs.ops.sis_downloads:main"
 nfl-weekly-data = "nfl_dfs.ops.weekly_vendor_data:main"
+paid-v3-authority-readiness = "nfl_dfs.ops.paid_v3_authority_readiness:main"
 
 [tool.setuptools.package-data]
 "nfl_dfs.app" = ["static/*", "static/vendor/*"]
