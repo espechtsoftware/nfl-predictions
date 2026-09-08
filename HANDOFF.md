@@ -65,8 +65,17 @@ agent or developer:
   while retaining R19's corrected canonical provider authentication,
   recovery-only/no-submit surface, exact fixed tuple, full-commit future
   intent scoping and create-once publication. A cross-commit executable-path
-  regression is mandatory. R20 implementation is active; recovery and cloud
-  execution remain held until another independent PASS.
+  regression is mandatory.
+- R20 implementation is now pushed at exact implementation commit
+  `90a160cab507a7b458cac4c576ec0024d4fd3565`, final branch tip
+  `b5edf808b33ecdc3d7029a0a6a6bec65d5ce5e8f`, on
+  `origin/production/cp4-r20-v3-recovery-20260908`. It retains strict internal
+  v4/provider authentication, proves the projection delta is exactly the two
+  v4-only provider fields, and emits the immutable consumer's exact v3 wire
+  shape. The candidate reports 112 focused and 132 broad CP-4 tests passed
+  with empty pre/post censuses, plus Ruff/compile/diff checks. No provider or
+  cloud state changed. Fresh independent review is active; recovery and cloud
+  execution remain held until that exact candidate earns PASS.
 
 ### 2026-09-08 Week-1 capture P2 scaffold integrated default-off; live authority still held
 
