@@ -7,6 +7,12 @@ Branch: `codex/week1-capture-v3-p2-repair-20260908`
 Implementation base: lab-independent-review tip
 `1c63b7028e8dcc8e9ec138b834757f0de89fc419`
 
+Implementation candidate:
+`96cd87a8dcc37e008db3c69f14d35af63ac8ae84`
+
+Implementation candidate tree:
+`277b4f8630b5df9cbc67fc0f17f6e9bcf0d6e2bc`
+
 Independent P1 HOLD report commit:
 `04686eb4d9dcdc2a8b6c4c5594f2e20af904328e`
 

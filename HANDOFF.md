@@ -22,6 +22,48 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 capture-v3 P2 provider-acquisition repair; operational HOLD
+
+- The bounded repair is implemented in isolated worktree
+  `/home/erich/projects/nfl-predictions-week1-capture-v3-p2-repair-20260908`
+  on branch `codex/week1-capture-v3-p2-repair-20260908`, based on the
+  independent P1 HOLD branch at
+  `1c63b7028e8dcc8e9ec138b834757f0de89fc419`. The exact implementation
+  candidate is `96cd87a8dcc37e008db3c69f14d35af63ac8ae84`, tree
+  `277b4f8630b5df9cbc67fc0f17f6e9bcf0d6e2bc`. Its detailed report is
+  `reports/2026-09-08-week1-a5-capture-v3-p2-provider-acquisition-authority-repair.md`.
+- Generic immutable storage and provider acquisition are now separate trust
+  boundaries. Acceptance, contest-detail, and full-standings captures require
+  exact authority-recognized acquisition receipts binding canonical GET
+  locator, authenticated surface, contest/draft group, observation and HTTP
+  metadata, collector source/code/image identity, immutable transport trace,
+  and raw-object identity/provider creation time. Downstream v2 acceptance,
+  root, normalization, and settlement validators reauthenticate the chain;
+  old provider-capture v1 entry points fail explicitly.
+- Prepared capture and filled upload creation must precede the authenticated
+  acceptance observation. Contest detail and standings require distinct
+  authority events. A copied upload with a shaped but unrecognized receipt and
+  a caller-authored false-N body paired with a matching standings prefix are
+  executable refusal cases. The real active-entry response/download locator
+  is deliberately unpinned, so live acquisition fails closed rather than
+  treating the human `mycontests` page as a download locator.
+- Exact empty global pytest censuses preceded the serial validation runs and
+  same-shell post-censuses were empty. The final focused v3 suite passes 42/42
+  in 15.87 seconds at 140,060 KiB maximum RSS; unchanged legacy v2 passes
+  15/15 in 1.04 seconds at 145,712 KiB maximum RSS. Python compilation and
+  `git diff --check` pass. Ruff is unavailable. One earlier fresh focused run
+  correctly refused to start when the global census found a lab PREREG-074
+  pytest; no overlap occurred.
+- No cloud, provider, browser, DraftKings, paid-entry, deployment, scoring,
+  generation, selection, warehouse, outcome, or production-main action
+  occurred. Operational HOLD remains: implement and independently review the
+  concrete governed authority adapter, establish the exact active-entry
+  locator from one redacted real-shape smoke, check settled source shapes, run
+  the 832,342-row rehearsal, and complete the still-missing allocation/book/
+  publisher gates. Exact next action: push this branch and commission a fresh
+  independent review of the exact implementation commit/tree. Do not infer
+  live capture or paid-upload authorization from this contract candidate.
+
 ### 2026-09-08 Week-1 capture-v3 provider-authority repair: independent P0 HOLD
 
 - Independent review of exact candidate
