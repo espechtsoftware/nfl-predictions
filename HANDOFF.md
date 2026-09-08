@@ -29,7 +29,7 @@ agent or developer:
   `277b4f8630b5df9cbc67fc0f17f6e9bcf0d6e2bc`, and handoff tip
   `96c58f68a336a66fd0e5501e0526b89ddf66114e` on isolated branch
   `codex/week1-capture-v3-p2-independent-review-20260908`. The durable review
-  is
+  findings commit is `b88dba19ed35aa58970d1c3e00c214fbf878534a`; the report is
   `reports/2026-09-08-week1-a5-capture-v3-p2-independent-review.md`.
 - Verdict is **conditional code GO** to integrate the default-off contract
   scaffold and **P0 operational HOLD** for live evidence, allocation/manifest

@@ -4,6 +4,9 @@ Date: 2026-09-08
 
 Review branch: `codex/week1-capture-v3-p2-independent-review-20260908`
 
+Review findings commit:
+`b88dba19ed35aa58970d1c3e00c214fbf878534a`
+
 Reviewed handoff tip:
 `96c58f68a336a66fd0e5501e0526b89ddf66114e`
 
