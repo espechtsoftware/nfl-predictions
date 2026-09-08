@@ -22,6 +22,29 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 PREREG-074 R31 independently accepted for one immutable build
+
+- Production independently reviewed exact candidate
+  `8c48315f65c521d2d209a77f1edf246f93050d03` on
+  `codex/prereg074-r31-controller-argv-repair-20260908`. The repair deletes
+  exactly the redundant Docker `--env`, validates the complete ordered Docker
+  grammar before persistent state mutation, and coherently advances the
+  consumed FM7/R5/R17 identities to fresh FM8/R6/R18 identities. A zero-context
+  science diff confirms that arms, cells, budgets, resources, generation,
+  selection, judge and outcome laws are unchanged.
+- Independent exact-envelope validation passed 121 tests in 140.51 seconds.
+  The review also added a provider-free caller-level regression on separate
+  review branch `production/prereg074-r31-review-repair-20260908` at
+  `4076f59`: injecting the consumed malformed tuple through `execute_fm8`
+  refuses before any state write or Docker call. The build source remains the
+  exact reviewed `8c48315f` candidate; the test-only review branch is not a
+  replacement source.
+- Production authorizes exactly one immutable R31/R18 build from
+  `8c48315f65c521d2d209a77f1edf246f93050d03` through the source-pinned builder.
+  This does not authorize FM8, the runtime probe, the 36-task efficacy cohort,
+  an outcome read, or promotion. Preserve any ambiguous or failed build as
+  consumed evidence and do not retry it.
+
 ### 2026-09-08 CP-4 R18 candidate-only smoke passed; merged-main closure repaired
 
 - The registered, outcome-disabled CP-4 R18 smoke completed successfully as
