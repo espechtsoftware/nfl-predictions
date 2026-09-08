@@ -6,6 +6,16 @@ Parent implementation: `51e3dd4b098b46933fab701d9711065d6bf844a9`
 
 Branch: `production/week1-capture-v3-p0b-local-rehearsal-r2-20260908`
 
+Implementation commit: `be3062405ff4b59df318a458bfb22d0376bca3e4`
+
+Implementation tree: `1d08d9f6ec386a4d1aa88bf031eef30ed5c67be2`
+
+Rehearsal module SHA-256:
+`4f96b259608fec19674d1d85b45fe7d0455f0b294cbd91a9073af4a882234ed5`
+
+Focused test SHA-256:
+`810782fc07329f4c4af774362e116b53bb97fbc5368859ece2f6f60257ea5270`
+
 ## Disposition
 
 **CODE/TEST CANDIDATE; LOCAL PROVIDER CONTACT HOLD.**
