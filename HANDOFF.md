@@ -22,6 +22,33 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Experiment 081 R4 mechanics execution launched and is running
+
+- Independent review returned **CODE GO** on nfl2 main commit
+  `6acc710bfce959148f91cbf5b2ea8fadef6e3b22`. The sole authorized product is
+  `230ba197dac708dccff3288055e69c3b5d457084`, with queue authority
+  `a709d35179756c6305692a2c5b6cbd3611a77ca9`. R4 narrowly repairs the runtime
+  identity to the existing
+  `nfl-lab-runner@nfl-2-506823.iam.gserviceaccount.com`; it preserves the R3
+  source, immutable image, build, run namespace, and mechanics-only design.
+- The final authoritative census at `2026-09-08T02:44:22Z` was clean: no
+  active execution, no exact or prefix claim on either lane, and an empty
+  all-generation/soft-delete scientific namespace. The exact immutable image
+  was present in the local Docker cache and the corrected service account
+  existed. The registered coordinator acquired its sole invocation at
+  `02:44:32Z`.
+- Launch intent generation `1788835512737183` was created before the execute
+  RPC. Cloud Run created execution `lab-run-z8jxk`, UID
+  `b5ae9e76-8946-416d-bff7-8d2bccddb846`, at
+  `2026-09-08T02:45:23.559729Z`. At the `02:47:52Z` observation it was running
+  one task with zero failed tasks. This execution is mechanics-only with
+  outcomes disabled; Experiment 081 efficacy remains held on registry v2.
+
+  Next concrete action: monitor this exact coordinator/execution through its
+  terminal mechanics seal, authenticate the intent/result generations and
+  receipt identities, and record the terminal disposition. Never issue a
+  second execute for this intent.
+
 ### 2026-09-08 Canonical-v3 paid/deployment repair independently held
 
 - Independent review of exact paid/deployment candidate
