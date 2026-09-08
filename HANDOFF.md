@@ -22,7 +22,7 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
-### 2026-09-08 PREREG-074 R23 immutable Cloud Build active
+### 2026-09-08 PREREG-074 R23 image built; post-build authentication held
 
 - fm5 completed exit zero in 3 minutes 40.75 seconds and published all 36
   cells at exact immutable reference
@@ -34,21 +34,34 @@ agent or developer:
   `df26790255320db60f39cb3ed4565d48ca89ada6`.
 - Production invoked the one authorized immutable builder at
   `2026-09-08T05:42:58Z` from exact source
-  `9928c6a4a429e9f33374f7092db77f9601597db4`. Unified exec session `2481`
-  remains the authoritative local handle. Provider-real upload parity was
-  906/906. Cloud Build
-  `9b404ab9-a1db-45eb-8b35-8397988c996b` started at
-  `2026-09-08T05:43:16.482759881Z` in project `nfl-2-506823`, global location,
-  for immutable tag
-  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2:102b740-r15-9928c6a4a429`;
-  it was `WORKING` at the latest direct provider observation.
-- The attempt is consumed. Observe session 2481 and that exact build to
-  terminal without restart. On success, allow the wrapper to authenticate the
-  archive/image, run the local in-image law assertion, and publish/reopen the
-  build receipt; then independently authenticate the final receipt before any
-  Cloud Run authority or execution. On failure/ambiguity, do not submit again;
-  use only the reviewed recovery path after explicit adjudication. No Cloud
-  Run job, outcome, score, or promotion state has changed.
+  `9928c6a4a429e9f33374f7092db77f9601597db4`. Provider-real upload parity was
+  906/906. Cloud Build `9b404ab9-a1db-45eb-8b35-8397988c996b` succeeded at
+  `2026-09-08T05:45:08.573231Z` in project `nfl-2-506823`, global location.
+  It produced immutable tag
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2:102b740-r15-9928c6a4a429`
+  at digest
+  `sha256:c96bf21f9d4c92d6e67d03d40599bb3006d2dac7256d33e6ec4424edb0038b99`.
+  The exact source archive is
+  `gs://nfl-2-506823_cloudbuild/source/1788846186.918511-af351c3594fe463fa6ccff795b74ea68.tgz`,
+  generation `1788846194842404`, with provider MD5
+  `6MQ99a78cYrV7lD2scehkg==` and SHA-256
+  `u9EJLsIkBTnicHqO4O8JEPMdCpLd7bYciX-kVZEzW_0=`.
+- The accepted wrapper then exited 2 before archive/image authentication,
+  in-image law assertion, and build-receipt publication. Its provider response
+  required a scalar `location` field, while the real Cloud Build response
+  proves `global` through canonical resource name
+  `projects/625514296901/locations/global/builds/9b404ab9-a1db-45eb-8b35-8397988c996b`
+  and omits the scalar field. The successful-build state and submit receipt
+  bind the exact build, source, tag, and submit time. This is a control-schema
+  mismatch after a successful provider build, not a build failure.
+- The build attempt is consumed. **Do not submit another build and do not
+  launch Cloud Run yet.** A narrow independently reviewed recovery repair must
+  authenticate the canonical provider resource name, preserve image/source
+  identity as R23 `9928c6a4...`, finish exact archive/image and in-image
+  checks, and create/reopen the receipt truthfully. No Cloud Run job,
+  execution, outcome, score, or promotion state changed. Exact next action:
+  finish and independently pass that recovery control, then recover this
+  exact successful build and separately adjudicate launch authority.
 
 ### 2026-09-08 PREREG-074 R23 passed independently; one-shot fm5 active
 
