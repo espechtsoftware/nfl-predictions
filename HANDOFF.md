@@ -248,6 +248,24 @@ agent or developer:
   execution to terminal. Replay remains held until it is exactly 36
   succeeded / 0 failed / 0 cancelled and the complete 36-cell namespace
   passes the coordinator's gate.
+- That execution failed closed during its first wave. Multiple independent
+  tasks raised the same frozen cell-validator refusal at
+  `src/nfl2/tailregime/cohort.py:790`: the generated cell's
+  frame/draw/world-order identity did not reproduce the bound fm5 per-cell
+  matrix contract. Confirmed examples include 2023 weeks 3, 4, 5, 6, 8 and
+  10. Once the provider showed five failures and seven tasks still running,
+  production cancelled the remaining compute; terminal provider state at
+  `2026-09-08T08:32:12.255531Z` is 9 failed, 13 cancelled, completion reason
+  `Cancelled`. The exact result prefix has zero live, versioned or
+  soft-deleted objects, so no cell, replay, outcome or score artifact was
+  published.
+- Run `102b740r3-20260908T081638Z`, its authority, intent, execute marker and
+  launch receipt are consumed failure evidence. **Do not relaunch, replay,
+  seal, pin or read it.** A bounded outcome-blind root-cause review is active
+  against the exact fm5/runtime identity derivations. Any successor requires
+  a repaired and independently reviewed source, fresh source-bound manifest,
+  fresh image/build/receipt, fresh R4 namespace and a separate GO; do not
+  reinterpret or overwrite any R3 object.
 
 ### 2026-09-08 PREREG-074 R23 passed independently; one-shot fm5 active
 
