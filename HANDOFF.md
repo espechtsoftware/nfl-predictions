@@ -34,11 +34,13 @@ agent or developer:
   ambiguous matches. A regression covers the exact full-run-ID case and proves
   that it cannot raise `lane_capacity_with_unclaimed_prefix`.
 - Validation: `tests/test_cloud_run_lane_monitor.py` passed 48/48; Python
-  compilation and `git diff --check` passed. No cloud, launcher-registry, or
-  experiment state changed. Next action: integrate this commit onto production
-  main, update the installed monitoring worktree, restart only
-  `nfl-cloud-run-lane-monitor.service`, and verify the stale false-positive
-  clears while normal provider polling remains healthy.
+  compilation and `git diff --check` passed. The repair was integrated to
+  production main at `ec4644a2`; the installed monitoring worktree was fast-
+  forwarded and only `nfl-cloud-run-lane-monitor.service` was restarted. Its
+  `2026-09-08T00:37:37Z` provider poll is healthy and now identifies the exact
+  registered run as `claimed`; the false `lane_capacity_with_unclaimed_prefix`
+  alert cleared while the genuine cancelled-execution record remains visible.
+  No cloud, launcher-registry, or experiment state changed.
 
 ### 2026-09-08 CP-4 R16 remote-driver v2 held on real provider evidence
 
