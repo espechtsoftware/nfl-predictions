@@ -180,6 +180,18 @@ agent or developer:
   through a deterministic single-output wrapper; the strict one-document
   validator remains unchanged. It requires independent review and a new exact
   one-shot recovery GO before provider action. Cloud Run remains unlaunched.
+- That successor is now pushed as R25 at exact commit
+  `c91c1b1060a3d3d5a903b28ec76869074cd52b3e`, tree
+  `70c0958edffedb4cd0cedbc7cf0b8ff9ade71bd8`, on
+  `origin/production/prereg074-r25-one-line-assertion-recovery-20260908`.
+  It authenticates the exact 596/2,820-byte R24 failure sidecars, never
+  overwrites them, advances the passing attempt to `r25a2`, carries the Docker
+  invocation as argv tokens end to end, loads the immutable experiment file
+  under a non-`__main__` name, and prints the same reviewed law function once.
+  The strict one-document validator is unchanged. Targeted tests passed 5/5,
+  the exact serial five-file suite passed 85/85 in 258.10 seconds, and all
+  static gates passed. Independent review is active; no recovery or launch is
+  authorized by this candidate.
 
 ### 2026-09-08 PREREG-074 R23 passed independently; one-shot fm5 active
 
