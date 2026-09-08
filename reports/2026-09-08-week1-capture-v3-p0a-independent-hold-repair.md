@@ -10,6 +10,9 @@ Reviewed candidate tip:
 Independent HOLD tip:
 `36e573d8fdb4c0b5f7b55e432b128b8b909f5ee0`
 
+Exact repair implementation commit:
+`49d896e7c91490ef12ee30a38ea0bb00dea9d1a0`
+
 Controlling review:
 `reports/2026-09-08-week1-capture-v3-p0a-independent-review.md`
 

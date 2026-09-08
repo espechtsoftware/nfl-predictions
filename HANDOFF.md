@@ -28,8 +28,9 @@ agent or developer:
   `codex/week1-capture-v3-p0a-review-repair-20260908`, based on independent
   HOLD tip `36e573d8fdb4c0b5f7b55e432b128b8b909f5ee0`. The complete disposition is
   `reports/2026-09-08-week1-capture-v3-p0a-independent-hold-repair.md`; the
-  exact implementation commit is recorded by the immediately following final
-  handoff commit because a commit cannot contain its own identity.
+  exact repair implementation commit is
+  `49d896e7c91490ef12ee30a38ea0bb00dea9d1a0`. The immediately following
+  metadata-only commit records that identity in the report and this handoff.
 - P0-1 is repaired by retaining and hashing the complete direct authority-
   bucket IAM policy version, provider ETag and every binding/condition.
   `roles/storage.objectUser` is a direct mutator; every custom/new/unreviewed
