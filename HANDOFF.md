@@ -22,6 +22,34 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 capture-v3 P0-B provider-reality gate candidate
+
+- A fresh production worktree from exact `origin/main`
+  `054b09460a952d4a363d904a27c39f898e342bc0` now carries the code/test-only
+  P0-B audit on branch
+  `production/week1-capture-v3-p0b-provider-reality-gate-20260908`.
+- The audit is default no-contact and requires a canonical independently
+  reviewed intent, explicit confirmation, private locator file and absent
+  create-once local evidence paths before its real mode. It authenticates the
+  exact build source generation/bytes, immutable registry image and one-task
+  Cloud Run job, fixed secret version/mount, locked bucket/direct IAM, complete
+  effective inherited mutation authority, both managed-service-account
+  impersonation surfaces, and job-update authority. It uses the accepted P0-A
+  manual-redirect transport for one redacted active-entry shape probe and
+  rechecks all provider authority/runtime facts afterward.
+- Every activation/live pin remains absent. The accepted P0-A collector and
+  capture-v3 implementation are unchanged; no legacy-v2 fallback or live
+  publisher was added. No network, provider, DraftKings, GCS, Cloud Build,
+  Cloud Run, deployment, paid-entry, score or outcome action occurred.
+- Candidate design and the separately gated future real-fact invocation are
+  recorded in
+  `reports/2026-09-08-week1-capture-v3-p0b-provider-reality-gate-candidate.md`.
+  Empty-census serial validation passed 26/26 new P0-B tests and 52/52 combined
+  accepted P0-A plus P0-B tests. Ruff, Python compilation, `git diff --check`,
+  and the unchanged legacy-v2 SHA checks pass. The exact next action after
+  push is independent code review; production must not create a real-fact
+  intent or authorize the documented invocation before that review.
+
 ### 2026-09-08 CP-4 R18 candidate-only smoke passed; merged-main closure repaired
 
 - The registered, outcome-disabled CP-4 R18 smoke completed successfully as
