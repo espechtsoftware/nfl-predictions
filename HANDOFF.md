@@ -105,6 +105,18 @@ agent or developer:
   source bytes, with copied-upload and matching-false-N adversaries. It must
   remain default-off and cannot contact DraftKings, publish, deploy, enter,
   pay, or open outcomes during implementation/review.
+- The P2 implementation is now pushed at exact code commit
+  `96cd87a8dcc37e008db3c69f14d35af63ac8ae84`, final handoff tip
+  `96c58f68a336a66fd0e5501e0526b89ddf66114e`, on
+  `origin/codex/week1-capture-v3-p2-repair-20260908`. It introduces a separate
+  injected acquisition-authority boundary, binds exact authority receipt/raw
+  response/transport trace/method/locator/session/status/collector facts,
+  enforces prepared and filled time no later than authenticated acceptance,
+  and separates final detail from standings acquisitions. Final focused v3
+  validation passed 42/42 and unchanged v2 passed 15/15 with empty pre/post
+  censuses; compilation and diff checks passed. A fresh independent review is
+  active. Live use remains fail-closed because no governed authority adapter
+  or observed active-entry locator is yet bound.
 
 ### 2026-09-08 CP-4 R16 item-5 remains HOLD; architecture repair authorized
 
