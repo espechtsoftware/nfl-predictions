@@ -22,6 +22,30 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 PREREG-074 R23 passed independently; one-shot fm5 active
+
+- Exact R23 source `9928c6a4a429e9f33374f7092db77f9601597db4`,
+  tree `2adee5d31f23702373829018c73661eba993c555`, received independent
+  **PASS / CODE GO**. A separate pinned checkout reproduced all derived
+  identities and passed the exact five-file suite 76/76 in 160.96 seconds
+  after a fresh empty global pytest census. The initial review command omitted
+  the checkout `PYTHONPATH` and failed during collection only; it ran no test
+  body and made no provider call. Durable review/fm5 authorization is lab
+  `main` commit `98f81e5af319c67f50602807af40e13b2a499a31`.
+- The exact fm5 name was freshly censused through the Storage client as zero
+  live, zero noncurrent, and zero soft-deleted generations. From clean detached
+  checkout `/home/erich/projects/nfl2-prereg074-fm5-bind` at the accepted
+  source/tree, production invoked the one outcome-disabled manifest command at
+  `2026-09-08T05:36:39Z`. Unified exec session `64090` is the authoritative
+  local process handle. The attempt is consumed and must never be restarted or
+  retried.
+- No Cloud Build, image, job mutation, Cloud Run execution, outcome, score, or
+  promotion action has been authorized. Exact next action: observe session
+  64090 to terminal. On success, authenticate the published generation,
+  bytes/SHA, source/code map, all 36 cells, and post-publication all-generation
+  census before separately considering the immutable build. On failure or
+  ambiguity, hold fm5 permanently.
+
 ### 2026-09-08 launch repairs queued behind one serial-test window; Week-1 capture P0 contract started
 
 - PREREG-074 R23 is code-complete at exact candidate
