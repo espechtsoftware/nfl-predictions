@@ -22,6 +22,29 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 PREREG-074 R20 held before provider spend; R21 returned to lab
+
+- Independent prelaunch review held exact R20 candidate
+  `493656fbf96f45a2f1eda63a2fea6bba99684606`. The candidate's own focused
+  suite passed 67/67, but end-to-end fake-port probes reproduced two authority
+  failures that those tests did not cover.
+- A request can bind a context digest and count that contradict its exact
+  manifest, publish a create-once receipt accepted by the immediate validator,
+  and then fail only when the frozen authority applies
+  `require_archive_is_checkout`. Recovery also accepts foreign embedded attempt
+  identities, a nonempty attempt build ID and noncanonical recovery-binding
+  candidate sets. Provider metadata strings are coerced rather than refused.
+- The complete docs-only HOLD and bounded R21 repair contract are durable on
+  nfl2 main at `e2f6f8f5a27c5db040302f8441162d850cbe9f24` in
+  `reports/2026-09-08-prereg074-r20-prelaunch-independent-review.md` and
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-R20-HOLD-AND-R21-REPAIR-2026-09-08.md`.
+  No fm4 name, provider attempt, build, image, GCS object, Cloud Run execution,
+  outcome or score was consumed.
+
+  Next concrete action: lab returns the narrow R21 repair; production reviews
+  it independently before any fm4 publication or provider spend. Do not invoke
+  R20.
+
 ### 2026-09-08 Experiment 081 R4 mechanics execution passed and sealed
 
 - Lab independently reopened the terminal chain at
