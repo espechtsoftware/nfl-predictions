@@ -22,6 +22,34 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 PREREG-074 R23 immutable Cloud Build active
+
+- fm5 completed exit zero in 3 minutes 40.75 seconds and published all 36
+  cells at exact immutable reference
+  `frame-manifests/PREREG-074/prereg074-fm5.json|1788846020148874|96459|ec6a02f21e5afc9b1203683fb17355ddd8a7b1ab93da07b8be4431382b6d1cc3`.
+  A fresh post-publication census found exactly that one live generation and
+  no noncurrent/soft-deleted history; exact media, source/code map, canonical
+  object, 36 cells, and `outcome_opened: false` authenticated. Durable fm5
+  disposition and build GO are lab `main` commit
+  `df26790255320db60f39cb3ed4565d48ca89ada6`.
+- Production invoked the one authorized immutable builder at
+  `2026-09-08T05:42:58Z` from exact source
+  `9928c6a4a429e9f33374f7092db77f9601597db4`. Unified exec session `2481`
+  remains the authoritative local handle. Provider-real upload parity was
+  906/906. Cloud Build
+  `9b404ab9-a1db-45eb-8b35-8397988c996b` started at
+  `2026-09-08T05:43:16.482759881Z` in project `nfl-2-506823`, global location,
+  for immutable tag
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2:102b740-r15-9928c6a4a429`;
+  it was `WORKING` at the latest direct provider observation.
+- The attempt is consumed. Observe session 2481 and that exact build to
+  terminal without restart. On success, allow the wrapper to authenticate the
+  archive/image, run the local in-image law assertion, and publish/reopen the
+  build receipt; then independently authenticate the final receipt before any
+  Cloud Run authority or execution. On failure/ambiguity, do not submit again;
+  use only the reviewed recovery path after explicit adjudication. No Cloud
+  Run job, outcome, score, or promotion state has changed.
+
 ### 2026-09-08 PREREG-074 R23 passed independently; one-shot fm5 active
 
 - Exact R23 source `9928c6a4a429e9f33374f7092db77f9601597db4`,
