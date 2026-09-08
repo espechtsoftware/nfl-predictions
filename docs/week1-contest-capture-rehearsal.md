@@ -5,6 +5,12 @@ the nonrecoverable 2026 Week-1 DraftKings standings window. It complements
 [`dk-full-field-capture.md`](dk-full-field-capture.md); it does not replace the
 real post-settlement `capture-dk-standings --apply` operation.
 
+For the live 2026 A5 allocation, also follow the additive
+[`Week-1 A5 capture contract v3`](week1-a5-capture-contract-v3.md). The v2
+rehearsal remains unchanged, but its historical `field_size` convention must
+not be used to overwrite advertised capacity with an underfilled contest's
+post-settlement final field size.
+
 The checked-in fixture contains only synthetic settlement values. A real-mode
 run reads outcome-bearing scores, ranks, ownership, and payouts and says so in
 its receipt; it is never outcome-blind. The rehearsal performs no network,
