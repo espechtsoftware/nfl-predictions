@@ -44,6 +44,21 @@ agent or developer:
   This does not authorize FM8, the runtime probe, the 36-task efficacy cohort,
   an outcome read, or promotion. Preserve any ambiguous or failed build as
   consumed evidence and do not retry it.
+- That build completed successfully as Cloud Build
+  `ecd5d56f-87dd-4aec-be8e-e8f24f6b3e6a`, producing immutable image
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2@sha256:3a17b3968361d75ed468adf44f10e282b5c67fa066e50b8dd5e4287d67529e1a`.
+  The authenticated receipt is
+  `builds/PREREG-074/ecd5d56f-87dd-4aec-be8e-e8f24f6b3e6a.json#1788899702042244`,
+  7,019 bytes, SHA-256
+  `fd4b3605289d53e439cf26352718020dadebe1dc6069eab6a35073f29ddd063f`.
+  The provider independently reports SUCCESS and the same image digest; the
+  build updated no job and opened no data or outcome.
+- Production now authorizes exactly one FM8 trusted-host controller invocation
+  from the same reviewed source, exact image and exact receipt. It may publish
+  only the fresh score-free frame manifest under the closed contract. It does
+  not authorize the runtime probe, efficacy cohort, outcome read, scoring or
+  promotion. Any ambiguous/failing FM8 transition is consumed and must not be
+  retried.
 
 ### 2026-09-08 CP-4 R18 candidate-only smoke passed; merged-main closure repaired
 
