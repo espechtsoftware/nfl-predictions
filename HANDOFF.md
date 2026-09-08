@@ -22,6 +22,41 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 capture-v3 provider-authority repair: independent P0 HOLD
+
+- Independent review of exact candidate
+  `cb2a398fe0ff467665b4f415f2aa71f0aa1ee669`, tree
+  `33d004f26f6328452e909f33f931a0424fdca24a`, returned **P0 HOLD** at
+  report commit `04686eb4` on branch
+  `codex/week1-capture-v3-p1-independent-review-20260908`. The durable report
+  is
+  `reports/2026-09-08-week1-a5-capture-v3-p1-independent-review.md`.
+- The candidate correctly improves immutable byte integrity, downstream exact
+  reopens, raw/semantic separation, count agreement, prospective publication
+  cutoffs, min-churn, and v2 compatibility. It does not close source
+  authority: both capture builders still accept arbitrary caller-selected raw
+  object identities and stamp fixed DraftKings locators/methods afterward.
+  The acceptance fixture archives the exact locally filled upload bytes a
+  second time and calls that provider truth; the final-field fixture directly
+  authors the alleged provider response and its chosen `entries` value.
+  Therefore a copied unsubmitted upload can still become `accepted`, and a
+  fake provider-shaped body saying N plus an N-row prefix can still be
+  certified internally consistent.
+- Python compilation and diff checks passed. The focused repaired-v3 suite
+  passed 36 cases in 16.16 seconds after an empty exact global pytest census.
+  An initial v2 run raced with a new lab CP-4 process after its pre-command
+  empty census and was discarded; after CP-4 terminated, a fresh empty census,
+  15/15 v2 pass in 1.06 seconds, and same-shell empty post-census supplied the
+  terminal compatibility result. No broad suite or real-shape file ran.
+- No provider, DraftKings, cloud, paid, scoring, generation, selection,
+  deployment, or outcome action occurred. Exact next action: implement one
+  governed provider-acquisition receipt for the authenticated active-entry
+  export, contest-detail response, and contest-scoped full-standings download;
+  require the prepared/filled artifacts to predate the acceptance observation;
+  add copied-upload and matching-false-N raw-source adversaries; then obtain a
+  fresh independent review. Do not freeze live A5 artifacts or perform a paid
+  upload from this candidate.
+
 ### 2026-09-08 Week-1 A5 capture-v3 P0 repair candidate; operational HOLD
 
 - The bounded repair is in isolated worktree
