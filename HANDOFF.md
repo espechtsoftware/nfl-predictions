@@ -22,6 +22,41 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 capture-v3 P2 selectively integrated default-off; operational P0 HOLD
+
+- The final P2 capture-contract scaffold and complete review chain are
+  selectively integrated over production base
+  `6c0ceb796b38ac3cfa3f95ca807569e62f9ebb20` on branch
+  `production/week1-capture-v3-p2-integration-20260908`. The exact scaffold
+  commit is `530dc39a86a8456605f9fa97c0e5d74ac93eb8de`; its 12 imported blobs are
+  byte-identical to independent-review tip
+  `abf1427d9303939709fd9ba10a3ea435819cc4ba`. Divergent donor `HANDOFF.md`
+  snapshots were deliberately excluded rather than replayed over newer
+  production state.
+- Disposition is **CONDITIONAL CODE GO for default-off integration; P0
+  OPERATIONAL HOLD for every live provider, manifest, acceptance, settlement,
+  and paid-entry use**. The scaffold correctly separates generic immutable
+  storage from authenticated acquisition and exact-binds receipt/raw/trace
+  objects, but the tree still contains only an injectable authority Protocol.
+  It contains no governed collector, production authority adapter, immutable
+  issuance ledger, collector allowlist, or non-injectable live publisher.
+- Static integration checks passed: exact donor-blob parity, scoped call-site
+  sweep, and `git diff --check`. `live_capture_pins()` remains fail-closed
+  because the allocation pins are absent; the active-entry locator is also
+  `None`; and no production caller imports the new module. No pytest,
+  simulation, cloud/provider/DraftKings call, publication, deployment,
+  outcome read, or paid action ran in this integration. Donor evidence remains
+  42/42 focused P2 and 15/15 unchanged v2 tests.
+- The complete minimal implementation path is in
+  `reports/2026-09-08-week1-capture-v3-p2-selective-integration.md`. Exact next
+  action is a narrow P0 successor: implement collector-only immutable
+  acquisition issuance plus a read-only repository-owned authority adapter;
+  independently review it; discover and pin the real active-entry transport
+  facts; and, in parallel, exact-publish the existing lobby projection,
+  salary/player bridge, four books, and allocation root. Do not invent absent
+  pins or expose an arbitrary authority adapter through the operational entry
+  point.
+
 ### 2026-09-08 CP-4 immutable build succeeded; receipt recovery held on provider-shape repair
 
 - Production integrated the exact R18 candidate and independent PASS onto lab
