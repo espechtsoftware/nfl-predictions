@@ -147,12 +147,13 @@ Checks completed on the isolated worktree:
 - Python compilation: pass;
 - Ruff on the new module/test: pass;
 - `git diff --check`: pass; and
-- corrected focused suite: **11/11 pass in 1.93 seconds**.
+- successor focused suite: **11/11 pass in 1.93 seconds**; and
+- unchanged legacy v2 rehearsal suite: **15/15 pass in 0.99 seconds**.
 
 The first focused pytest invocation exposed only a timestamp-text normalization
 error and terminated with 9 failures before the fix. That bug is repaired and
-the complete successor suite now passes. The unchanged legacy v2 rehearsal
-suite was intentionally not started because the global serial lane was
-released immediately for the higher-priority PREREG-074 review. It remains a
-bounded integration check before merge; no broad suite is warranted for this
+the complete successor suite now passes. After a second exact empty global
+pytest census and a separately granted serial window, the unchanged legacy v2
+rehearsal module also passed. The lane was released immediately after each
+terminal invocation. No broad suite was started or is warranted for this
 isolated, default-off contract.

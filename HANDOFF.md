@@ -22,6 +22,41 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 A5 immutable capture-v3 successor implemented
+
+- Production implemented the default-off Week-1 A5 capture-v3 successor on
+  branch `codex/week1-capture-v3-20260908`, rebased over exact `origin/main`
+  parent `b8768e497d7e72033e8c5d880a5199b03fb2e545`. It preserves manifest/v2
+  unchanged and does not touch scoring, generation, selection, cloud,
+  deployment, or DraftKings paid-entry state.
+- `src/nfl_dfs/ingest/week1_a5_capture_contracts.py` adds the pre-lock
+  `dk-contest-manifest/v3`, per-contest and four-contest
+  `week1-a5-entry-acceptance/v1` contracts, exact contest/book binding, and
+  `dk-contest-settlement/v1`. Pre-lock advertised capacity and the current
+  observed-entry snapshot are distinct sourced fields; post-settlement final
+  field size cannot retrospectively overwrite either. The contracts bind the
+  exact A5 allocation root, four contest edge slices, 90 paid plus 270 shadow
+  book identities, exact DK Entry IDs and rosters, and the explicit zero-based
+  export-ordinal to one-based A5-rank bridge. Settlement validates competition
+  ranks, ties, payouts, full-field evidence, and fail-closed underfill
+  semantics.
+- Exact empty global pytest censuses preceded both focused invocations. The
+  successor module passed **11/11 in 1.93 seconds** and the unchanged legacy
+  v2 rehearsal module passed **15/15 in 0.99 seconds**. Ruff, Python
+  compilation, and `git diff --check` pass. An initial nine-failure successor
+  run exposed a timestamp-text normalization bug; it was repaired before the
+  green run. No broad suite was started.
+- The implementation report is
+  `reports/2026-09-08-week1-a5-capture-v3-implementation.md`; the exact
+  operational order is `docs/week1-a5-capture-contract-v3.md`. Remaining P0
+  work is operational and separately authorized: restore fresh pre-lock
+  injury/projection inputs; implement and independently review the missing
+  governed four-book/P_MIX A5 publisher; clear the canonical paid-v3 boundary;
+  freeze four manifests and the allocation root; have the owner perform the
+  paid upload; capture immutable acceptance receipts/root; then download and
+  settle all four contests without outcome data entering any pre-lock
+  artifact.
+
 ### 2026-09-08 PREREG-074 R23 image built; post-build authentication held
 
 - fm5 completed exit zero in 3 minutes 40.75 seconds and published all 36
