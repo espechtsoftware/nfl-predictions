@@ -545,6 +545,16 @@ def test_release_projects_complete_batch_as_descriptive_no_promotion(
         storage=storage,
         release_identity=published.release_identity.as_dict(),
     )
+    assert (
+        bundle.plan.evidence_mode
+        is projection.Neo4jEvidenceMode.LEGACY_VALIDATION_ONLY
+    )
+    assert bundle.plan.authenticated_suite_identity is None
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="legacy-validation-only load plan is not executable",
+    ):
+        projection.require_executable_plan(bundle.plan)
 
     assert len(bundle.release["fill_presets"]) == 7
     assert len(bundle.release["retrieval_presets"]) == 1

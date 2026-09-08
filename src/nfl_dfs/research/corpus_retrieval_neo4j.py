@@ -34,14 +34,17 @@ GRAPH_SCHEMA: Final = "corpus-retrieval-graph-projection/v1"
 GRAPH_SCHEMA_V2: Final = "corpus-retrieval-graph-projection/v2-canonical-game"
 TERMINAL_SCHEMA: Final = "corpus-retrieval-transport-terminal/v1"
 ENABLE_ENV: Final = "CORPUS_RETRIEVAL_NEO4J_ENABLED"
+EXECUTABLE_SUITE_SCHEMA: Final = (
+    "corpus-retrieval-suite-manifest/v3-canonical-game"
+)
 
 
 class Neo4jEvidenceMode(str, Enum):
     """Typed authority boundary for graph-plan construction.
 
-    Historical v1 fixtures remain useful for validation and dry-run
-    compatibility, but only a suite-first, exact-object-authenticated plan is
-    eligible to contact Neo4j.
+    Historical v1/v2 fixtures remain useful for validation and dry-run
+    compatibility, but only a suite-first, exact-object-authenticated
+    canonical-game v3 plan is eligible to contact Neo4j.
     """
 
     AUTHENTICATED_SUITE = "authenticated-suite"
@@ -71,12 +74,6 @@ _TASK_STRATEGY_COUNTS: Final = {
     TASK_RESULT_SCHEMA: _LEGACY_STRATEGY_COUNTS,
     TASK_RESULT_SCHEMA_V2: _CANONICAL_V3_STRATEGY_COUNTS,
 }
-_AUTHENTICATED_SUITE_SCHEMAS: Final = frozenset({
-    "corpus-retrieval-suite-manifest/v1",
-    "corpus-retrieval-suite-manifest/v2",
-    "corpus-retrieval-suite-manifest/v3-canonical-game",
-})
-
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _GENERATION = re.compile(r"^[1-9][0-9]*$")
 
@@ -126,6 +123,9 @@ class Neo4jLoadPlan:
             "evidence_mode": self.evidence_mode.value,
             "execution_authorized": (
                 self.evidence_mode is Neo4jEvidenceMode.AUTHENTICATED_SUITE
+                and self.authenticated_suite_identity is not None
+                and self.authenticated_suite_schema_version
+                == EXECUTABLE_SUITE_SCHEMA
             ),
             "large_world_bodies_stored": False,
             "production_policy_mutation": False,
@@ -1385,6 +1385,11 @@ def build_load_plan(
             terminal_identity=terminal_identity_preflight,
             read_object=read_object,
         )
+        if authenticated.suite["schema_version"] != EXECUTABLE_SUITE_SCHEMA:
+            raise CorpusRetrievalNeo4jError(
+                "only canonical-game suite-v3 evidence can grant Neo4j "
+                "execution authority; suite-v1/v2 are validation-only"
+            )
 
     completion_identity_hint = _mapping(
         terminal_preflight.get("batch_completion"),
@@ -1776,9 +1781,10 @@ def require_executable_plan(plan: Neo4jLoadPlan) -> None:
         plan.authenticated_suite_schema_version,
         label="authenticated load-plan suite schema",
     )
-    if suite_schema not in _AUTHENTICATED_SUITE_SCHEMAS:
+    if suite_schema != EXECUTABLE_SUITE_SCHEMA:
         raise CorpusRetrievalNeo4jError(
-            "authenticated load-plan suite schema differs"
+            "authenticated load-plan suite schema is not executable canonical "
+            "suite-v3; suite-v1/v2 are validation-only"
         )
     expected_sha = canonical_sha256(_load_plan_hash_body(
         run_id=plan.run_id,
@@ -2104,6 +2110,7 @@ def require_execute_gate(*, execute: bool, environ: Mapping[str, str]) -> None:
 
 __all__ = [
     "ENABLE_ENV",
+    "EXECUTABLE_SUITE_SCHEMA",
     "LOAD_RESULT_SCHEMA",
     "LOAD_SCHEMA",
     "NODE_UPSERT_CYPHER",

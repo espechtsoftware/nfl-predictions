@@ -2173,6 +2173,59 @@ def _require_executable_transport_plan(plan: Neo4jLoadPlan) -> None:
         ) from exc
 
 
+def require_executable_operation_bundle(
+    bundle: ValidatedLoadBundle,
+    *,
+    operation: str,
+    task_index: int | None,
+    require_complete_suite: bool,
+) -> None:
+    """Authenticate every plan before one governed operation can contact Neo4j.
+
+    Task-scoped operations require the canonical retrieval authority plus the
+    selected extension.  Whole-suite operations validate their entire plan
+    cohort up front so they cannot partially contact or mutate the graph before
+    encountering a downgraded later task.  Every extension must retain the
+    retrieval plan's exact suite identity and canonical-game v3 schema.
+    """
+
+    _operation_key(
+        operation,
+        task_index=task_index,
+        require_complete_suite=require_complete_suite,
+    )
+    plans = [bundle.retrieval_plan]
+    if operation in {"load-parametric-task", "recover-parametric-receipt"}:
+        plans.append(_plan_for_task(bundle, task_index=task_index))
+    elif operation in {"load-suite", "finish-suite"} or (
+        operation == "query-smoke" and require_complete_suite
+    ):
+        if len(bundle.parametric_plans) != 54:
+            raise CorpusNeo4jTransportError(
+                "complete 54-task graph manifest is required"
+            )
+        plans.extend(bundle.parametric_plans)
+    if operation in {
+        "load-strategy-registry",
+        "recover-strategy-registry-receipt",
+        "query-strategy-registry",
+        "finish-suite",
+    } or (operation == "query-smoke" and require_complete_suite):
+        plans.append(_strategy_registry_plan(bundle))
+
+    expected_identity = bundle.retrieval_plan.authenticated_suite_identity
+    expected_schema = bundle.retrieval_plan.authenticated_suite_schema_version
+    for plan in plans:
+        _require_executable_transport_plan(plan)
+        if (
+            plan.authenticated_suite_identity != expected_identity
+            or plan.authenticated_suite_schema_version != expected_schema
+        ):
+            raise CorpusNeo4jTransportError(
+                "graph operation load-plan suite authority differs"
+            )
+
+
 def _validate_plan_verification(
     value: object, *, plan: Neo4jLoadPlan,
 ) -> dict[str, object]:
@@ -2263,7 +2316,12 @@ def bootstrap_schema(
     *, storage: ExactObjectStore, graph: GraphBackend,
     bundle: ValidatedLoadBundle,
 ) -> dict[str, object]:
-    _require_executable_transport_plan(bundle.retrieval_plan)
+    require_executable_operation_bundle(
+        bundle,
+        operation="bootstrap-schema",
+        task_index=None,
+        require_complete_suite=False,
+    )
     if bundle.manifest_identity is None:
         raise CorpusNeo4jTransportError("published load manifest identity is required")
     uri = str(_mapping(bundle.manifest["receipt_uris"], label="receipt URIs")["bootstrap"])
@@ -2316,8 +2374,13 @@ def load_plan(
     *, storage: ExactObjectStore, graph: GraphBackend,
     bundle: ValidatedLoadBundle, task_index: int | None,
 ) -> dict[str, object]:
+    require_executable_operation_bundle(
+        bundle,
+        operation=("load-task0" if task_index is None else "load-parametric-task"),
+        task_index=task_index,
+        require_complete_suite=False,
+    )
     plan = _plan_for_task(bundle, task_index=task_index)
-    _require_executable_transport_plan(plan)
     _require_bootstrap(storage, bundle)
     uri = _receipt_uri(bundle, task_index=task_index)
     existing = storage.resolve_optional(uri)
@@ -2352,8 +2415,17 @@ def recover_plan_receipt(
     bundle: ValidatedLoadBundle, task_index: int | None,
 ) -> dict[str, object]:
     """Publish a missing receipt only after exact read-only graph replay."""
+    require_executable_operation_bundle(
+        bundle,
+        operation=(
+            "recover-task0-receipt"
+            if task_index is None
+            else "recover-parametric-receipt"
+        ),
+        task_index=task_index,
+        require_complete_suite=False,
+    )
     plan = _plan_for_task(bundle, task_index=task_index)
-    _require_executable_transport_plan(plan)
     _require_bootstrap(storage, bundle)
     uri = _receipt_uri(bundle, task_index=task_index)
     existing = storage.resolve_optional(uri)
@@ -2421,8 +2493,13 @@ def load_strategy_registry(
     bundle: ValidatedLoadBundle,
 ) -> dict[str, object]:
     """Idempotently load the outcome-blind v2 registry after retrieval task 0."""
+    require_executable_operation_bundle(
+        bundle,
+        operation="load-strategy-registry",
+        task_index=None,
+        require_complete_suite=False,
+    )
     plan = _strategy_registry_plan(bundle)
-    _require_executable_transport_plan(plan)
     _require_bootstrap(storage, bundle)
     retrieval = storage.resolve_optional(_receipt_uri(bundle, task_index=None))
     if retrieval is None:
@@ -2469,8 +2546,13 @@ def recover_strategy_registry_receipt(
     bundle: ValidatedLoadBundle,
 ) -> dict[str, object]:
     """Recover only after an exact read-only replay of the full registry plan."""
+    require_executable_operation_bundle(
+        bundle,
+        operation="recover-strategy-registry-receipt",
+        task_index=None,
+        require_complete_suite=False,
+    )
     plan = _strategy_registry_plan(bundle)
-    _require_executable_transport_plan(plan)
     _require_bootstrap(storage, bundle)
     retrieval = storage.resolve_optional(_receipt_uri(bundle, task_index=None))
     if retrieval is None:
@@ -2513,6 +2595,12 @@ def query_strategy_registry(
     bundle: ValidatedLoadBundle,
 ) -> dict[str, object]:
     """Run the bounded registry catalog through the dedicated reader role."""
+    require_executable_operation_bundle(
+        bundle,
+        operation="query-strategy-registry",
+        task_index=None,
+        require_complete_suite=False,
+    )
     from nfl_dfs.research import corpus_strategy_registry as registry
 
     if bundle.manifest_identity is None:
@@ -2590,8 +2678,12 @@ def load_parametric_suite(
     *, storage: ExactObjectStore, graph: GraphBackend,
     bundle: ValidatedLoadBundle,
 ) -> dict[str, object]:
-    if len(bundle.parametric_plans) != 54:
-        raise CorpusNeo4jTransportError("complete 54-task graph manifest is required")
+    require_executable_operation_bundle(
+        bundle,
+        operation="load-suite",
+        task_index=None,
+        require_complete_suite=False,
+    )
     retrieval_uri = _receipt_uri(bundle, task_index=None)
     if storage.resolve_optional(retrieval_uri) is None:
         raise CorpusNeo4jTransportError("accepted retrieval graph load is required first")
@@ -2724,8 +2816,12 @@ def finish_suite(
     *, storage: ExactObjectStore, graph: GraphBackend,
     bundle: ValidatedLoadBundle,
 ) -> dict[str, object]:
-    if len(bundle.parametric_plans) != 54:
-        raise CorpusNeo4jTransportError("complete 54-task graph manifest is required")
+    require_executable_operation_bundle(
+        bundle,
+        operation="finish-suite",
+        task_index=None,
+        require_complete_suite=False,
+    )
     if bundle.manifest_identity is None:
         raise CorpusNeo4jTransportError("published load manifest identity is required")
     receipts = _mapping(bundle.manifest["receipt_uris"], label="receipt URIs")
@@ -2846,6 +2942,12 @@ def query_smoke(
     *, storage: ExactObjectStore, graph: GraphBackend,
     bundle: ValidatedLoadBundle, require_complete_suite: bool,
 ) -> dict[str, object]:
+    require_executable_operation_bundle(
+        bundle,
+        operation="query-smoke",
+        task_index=None,
+        require_complete_suite=require_complete_suite,
+    )
     if bundle.manifest_identity is None:
         raise CorpusNeo4jTransportError("published load manifest identity is required")
     receipts = _mapping(bundle.manifest["receipt_uris"], label="receipt URIs")
@@ -3625,6 +3727,7 @@ __all__ = [
     "query_strategy_registry",
     "recover_plan_receipt",
     "recover_strategy_registry_receipt",
+    "require_executable_operation_bundle",
     "require_execute_gate",
     "validate_connection_binding",
     "validate_build_metadata",

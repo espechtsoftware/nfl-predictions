@@ -872,6 +872,59 @@ def _canonical_v3_bundle() -> dict[str, Any]:
     }
 
 
+def _rebind_authenticated_suite_version(
+    bundle: dict[str, Any], *, suite_schema: str,
+) -> dict[str, Any]:
+    """Give the genuine retained terminal a valid legacy suite authority.
+
+    The production builder must stop immediately after authenticating this
+    exact suite.  Downstream v3 objects intentionally remain untouched: none
+    may be consulted after a v1/v2 suite is classified as validation-only.
+    """
+
+    from nfl_dfs.research import corpus_retrieval_engine_v3 as engine_v3
+
+    run = bundle["run"]
+    original = run["suite"]
+    strategies = (
+        engine_v3.frozen_retrieval_strategies(80)
+        if suite_schema == engine_v3.SUITE_SCHEMA
+        else engine_v3.frozen_retrieval_strategies_v2(80)
+    )
+    suite = engine_v3.build_suite_manifest(
+        run_id=original["run_id"],
+        created_at_utc=original["created_at_utc"],
+        output_prefix=original["output_prefix"],
+        snapshot_manifest=run["snapshot"],
+        snapshot_manifest_identity=run["snapshot_identity"],
+        entry_budget=original["entry_budget"],
+        engine_release=original["engine_release"],
+        strategies=strategies,
+        suite_schema=suite_schema,
+    )
+    store = bundle["store"]
+    suite_identity = store.add(
+        str(suite["suite_manifest_uri"]),
+        projection.canonical_json_bytes(suite),
+    )
+    terminal = projection.parse_canonical_json_bytes(
+        bundle["terminal_receipt_raw"], label="legacy-authority terminal"
+    )
+    assert isinstance(terminal, dict)
+    terminal["suite_manifest_identity"] = suite_identity
+    terminal.pop("terminal_receipt_sha256")
+    terminal = _self_hash(terminal, "terminal_receipt_sha256")
+    terminal_raw = projection.canonical_json_bytes(terminal)
+    return {
+        **bundle,
+        "terminal_receipt_raw": terminal_raw,
+        "terminal_receipt_identity": store.add(
+            str(bundle["terminal_receipt_identity"]["uri"]), terminal_raw
+        ),
+        "read_object": store.read,
+    }
+
+
 @pytest.fixture(scope="module")
 def canonical_v3_bundle() -> dict[str, Any]:
     return _canonical_v3_bundle()
@@ -1436,6 +1489,26 @@ def test_builds_full_canonical_v3_evidence_chain_plan(
     ) == 7
 
 
+@pytest.mark.parametrize(
+    "suite_schema",
+    (
+        "corpus-retrieval-suite-manifest/v1",
+        "corpus-retrieval-suite-manifest/v2",
+    ),
+)
+def test_authenticated_legacy_suite_versions_remain_validation_only(
+    canonical_v3_bundle: dict[str, Any], suite_schema: str,
+) -> None:
+    changed = _rebind_authenticated_suite_version(
+        canonical_v3_bundle, suite_schema=suite_schema
+    )
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="suite-v1/v2 are validation-only",
+    ):
+        _plan(changed)
+
+
 def test_canonical_v3_authenticates_suite_before_completion_law(
     canonical_v3_bundle: dict[str, Any],
 ) -> None:
@@ -1684,6 +1757,45 @@ def test_authenticated_plan_rejects_changed_suite_identity_before_apply(
             database="corpus-research",
         )
     assert calls == []
+
+
+@pytest.mark.parametrize(
+    "suite_schema",
+    (
+        "corpus-retrieval-suite-manifest/v1",
+        "corpus-retrieval-suite-manifest/v2",
+    ),
+)
+def test_core_apply_rejects_legacy_suite_schema_before_graph_contact(
+    canonical_v3_bundle: dict[str, Any], suite_schema: str,
+) -> None:
+    plan = replace(
+        _plan(canonical_v3_bundle),
+        authenticated_suite_schema_version=suite_schema,
+    )
+    contacted: list[str] = []
+
+    def must_not_run(
+        _query: str, _parameters: dict[str, object]
+    ) -> dict[str, object]:
+        contacted.append("neo4j")
+        return {"row_count": 0, "accepted_count": 0}
+
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="suite-v1/v2 are validation-only",
+    ):
+        projection.apply_load_plan(
+            plan,
+            run_statement=must_not_run,
+            database="corpus-research",
+        )
+    assert contacted == []
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="suite-v1/v2 are validation-only",
+    ):
+        cli._execute(plan, environ={})  # noqa: SLF001
 
 
 @pytest.mark.parametrize("corruption", ["task-property", "selected-topology"])
@@ -2326,6 +2438,61 @@ def test_population_appender_projects_bounded_namespace() -> None:
     assert repeated.plan_sha256 == plan.plan_sha256
     # Base retrieval namespace untouched.
     assert len(plan.nodes) == len(parent.nodes) + 3
+
+
+def test_all_graph_extensions_retain_exact_canonical_suite_authority(
+    canonical_v3_bundle: dict[str, Any],
+) -> None:
+    parent = _plan(canonical_v3_bundle)
+    task_result = projection.parse_canonical_json_bytes(
+        canonical_v3_bundle["task_result_raw"],
+        label="canonical extension task result",
+    )
+    assert isinstance(task_result, dict)
+    analytic_receipt = next(
+        row
+        for row in task_result["sidecars"]
+        if row["role"] == "enrichment-discovery"
+    )
+    analytic_key = (
+        str(analytic_receipt["role"]),
+        str(analytic_receipt["strategy_id"]),
+    )
+    retrieval_extended = extensions.append_retrieval_analytics(
+        parent,
+        task_result_raw=canonical_v3_bundle["task_result_raw"],
+        json_sidecar_bodies={
+            analytic_key: canonical_v3_bundle["store"].read(
+                analytic_receipt["object_identity"]
+            )
+        },
+    )
+    parametric_extended = extensions.append_parametric_batch(
+        parent, **_parametric_bundle()
+    )
+    _, population_raw, population_identity = _population_analysis(parent)
+    population_extended = extensions.append_population_phenotypes(
+        parent,
+        analysis_raw=population_raw,
+        analysis_identity=population_identity,
+        population_authorization=_population_authorization(),
+    )
+
+    for extended in (
+        retrieval_extended,
+        parametric_extended,
+        population_extended,
+    ):
+        assert extended.evidence_mode is projection.Neo4jEvidenceMode.AUTHENTICATED_SUITE
+        assert (
+            extended.authenticated_suite_identity
+            == parent.authenticated_suite_identity
+        )
+        assert (
+            extended.authenticated_suite_schema_version
+            == projection.EXECUTABLE_SUITE_SCHEMA
+        )
+        projection.require_executable_plan(extended)
 
 
 def test_population_appender_is_fail_closed() -> None:

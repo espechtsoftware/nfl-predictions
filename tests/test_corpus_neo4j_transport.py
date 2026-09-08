@@ -9,7 +9,7 @@ from dataclasses import replace
 from functools import cache
 from hashlib import sha256
 from pathlib import Path
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
 from typing import Any
 
 import pytest
@@ -885,43 +885,267 @@ def test_accepted_task0_replays_canonical_v3_semantics() -> None:
         row["kind"] == "RetrievalStrategyResult" for row in plan.nodes
     ) == 7
     assert sum(row["kind"] == "CorpusFillInsight" for row in plan.nodes) == 1
+    registry_plan = bundle.strategy_registry_bundle.plan
+    assert (
+        registry_plan.evidence_mode
+        is projection.Neo4jEvidenceMode.AUTHENTICATED_SUITE
+    )
+    assert registry_plan.authenticated_suite_identity == (
+        plan.authenticated_suite_identity
+    )
+    assert (
+        registry_plan.authenticated_suite_schema_version
+        == projection.EXECUTABLE_SUITE_SCHEMA
+    )
+    projection.require_executable_plan(registry_plan)
 
 
-def test_transport_rejects_validation_only_plan_before_graph_contact() -> None:
-    storage = FakeStorage()
-    _, bundle, _ = _prepare_task0(storage)
-    validation_only = replace(
-        bundle.retrieval_plan,
+class NoGraphContact:
+    def __getattribute__(self, name: str) -> object:
+        if name.startswith("__"):
+            return super().__getattribute__(name)
+        raise AssertionError(f"graph was contacted through {name}")
+
+
+class NoStorageContact:
+    def __getattribute__(self, name: str) -> object:
+        if name.startswith("__"):
+            return super().__getattribute__(name)
+        raise AssertionError(f"storage was contacted through {name}")
+
+
+_GRAPH_OPERATION_CASES = (
+    ("bootstrap-schema", False),
+    ("load-task0", False),
+    ("load-parametric-task", False),
+    ("load-suite", False),
+    ("load-strategy-registry", False),
+    ("recover-task0-receipt", False),
+    ("recover-parametric-receipt", False),
+    ("recover-strategy-registry-receipt", False),
+    ("finish-suite", False),
+    ("query-smoke", False),
+    ("query-smoke", True),
+    ("query-strategy-registry", False),
+)
+
+
+def _validation_only_plan(
+    plan: projection.Neo4jLoadPlan,
+) -> projection.Neo4jLoadPlan:
+    return replace(
+        plan,
         evidence_mode=projection.Neo4jEvidenceMode.LEGACY_VALIDATION_ONLY,
         authenticated_suite_identity=None,
         authenticated_suite_schema_version="",
     )
-    changed_bundle = replace(bundle, retrieval_plan=validation_only)
 
-    class NoGraphContact:
-        def __getattribute__(self, name: str) -> object:
-            if name.startswith("__"):
-                return super().__getattribute__(name)
-            raise AssertionError(f"graph was contacted through {name}")
 
-    for operation in (
-        lambda: transport.bootstrap_schema(
-            storage=storage,
-            graph=NoGraphContact(),  # type: ignore[arg-type]
-            bundle=changed_bundle,
-        ),
-        lambda: transport.load_plan(
-            storage=storage,
-            graph=NoGraphContact(),  # type: ignore[arg-type]
-            bundle=changed_bundle,
-            task_index=None,
-        ),
+def _rejected_operation_bundle(
+    bundle: transport.ValidatedLoadBundle,
+    *,
+    operation: str,
+    require_complete_suite: bool,
+) -> transport.ValidatedLoadBundle:
+    valid_parametric = tuple(bundle.retrieval_plan for _ in range(54))
+    if operation in {
+        "bootstrap-schema",
+        "load-task0",
+        "recover-task0-receipt",
+    } or (operation == "query-smoke" and not require_complete_suite):
+        return replace(
+            bundle, retrieval_plan=_validation_only_plan(bundle.retrieval_plan)
+        )
+    if operation in {
+        "load-parametric-task",
+        "recover-parametric-receipt",
+    }:
+        invalid = list(valid_parametric)
+        invalid[0] = _validation_only_plan(bundle.retrieval_plan)
+        return replace(bundle, parametric_plans=tuple(invalid))
+    if operation == "load-suite" or (
+        operation == "query-smoke" and require_complete_suite
     ):
-        with pytest.raises(
-            transport.CorpusNeo4jTransportError,
-            match="legacy-validation-only load plan is not executable",
-        ):
-            operation()
+        invalid = list(valid_parametric)
+        invalid[-1] = _validation_only_plan(bundle.retrieval_plan)
+        return replace(bundle, parametric_plans=tuple(invalid))
+    registry_plan = bundle.strategy_registry_bundle.plan
+    registry_bundle = replace(
+        bundle.strategy_registry_bundle,
+        plan=_validation_only_plan(registry_plan),
+    )
+    return replace(
+        bundle,
+        parametric_plans=(
+            valid_parametric if operation == "finish-suite" else ()
+        ),
+        strategy_registry_bundle=registry_bundle,
+    )
+
+
+def _invoke_graph_operation(
+    operation: str,
+    *,
+    bundle: transport.ValidatedLoadBundle,
+    require_complete_suite: bool,
+) -> None:
+    common = {
+        "storage": NoStorageContact(),
+        "graph": NoGraphContact(),
+        "bundle": bundle,
+    }
+    if operation == "bootstrap-schema":
+        transport.bootstrap_schema(**common)  # type: ignore[arg-type]
+    elif operation == "load-task0":
+        transport.load_plan(**common, task_index=None)  # type: ignore[arg-type]
+    elif operation == "load-parametric-task":
+        transport.load_plan(**common, task_index=0)  # type: ignore[arg-type]
+    elif operation == "load-suite":
+        transport.load_parametric_suite(**common)  # type: ignore[arg-type]
+    elif operation == "load-strategy-registry":
+        transport.load_strategy_registry(**common)  # type: ignore[arg-type]
+    elif operation == "recover-task0-receipt":
+        transport.recover_plan_receipt(  # type: ignore[arg-type]
+            **common, task_index=None
+        )
+    elif operation == "recover-parametric-receipt":
+        transport.recover_plan_receipt(  # type: ignore[arg-type]
+            **common, task_index=0
+        )
+    elif operation == "recover-strategy-registry-receipt":
+        transport.recover_strategy_registry_receipt(  # type: ignore[arg-type]
+            **common
+        )
+    elif operation == "finish-suite":
+        transport.finish_suite(**common)  # type: ignore[arg-type]
+    elif operation == "query-smoke":
+        transport.query_smoke(  # type: ignore[arg-type]
+            **common, require_complete_suite=require_complete_suite
+        )
+    elif operation == "query-strategy-registry":
+        transport.query_strategy_registry(**common)  # type: ignore[arg-type]
+    else:  # pragma: no cover - the fixed operation table owns this domain
+        raise AssertionError(operation)
+
+
+@pytest.mark.parametrize(
+    "operation,require_complete_suite", _GRAPH_OPERATION_CASES
+)
+def test_every_governed_operation_rejects_before_storage_or_graph_contact(
+    operation: str, require_complete_suite: bool,
+) -> None:
+    storage = FakeStorage()
+    _, bundle, _ = _prepare_task0(storage)
+    changed_bundle = _rejected_operation_bundle(
+        bundle,
+        operation=operation,
+        require_complete_suite=require_complete_suite,
+    )
+    assert {row[0] for row in _GRAPH_OPERATION_CASES} == set(
+        transport._ROLE_BY_OPERATION  # noqa: SLF001
+    )
+    with pytest.raises(
+        transport.CorpusNeo4jTransportError,
+        match="legacy-validation-only load plan is not executable",
+    ):
+        _invoke_graph_operation(
+            operation,
+            bundle=changed_bundle,
+            require_complete_suite=require_complete_suite,
+        )
+
+
+@pytest.mark.parametrize(
+    "operation,require_complete_suite", _GRAPH_OPERATION_CASES
+)
+def test_live_cli_rejects_authority_before_opening_bound_backend(
+    monkeypatch: pytest.MonkeyPatch,
+    operation: str,
+    require_complete_suite: bool,
+) -> None:
+    fixture_storage = FakeStorage()
+    _, bundle, _ = _prepare_task0(fixture_storage)
+    changed_bundle = _rejected_operation_bundle(
+        bundle,
+        operation=operation,
+        require_complete_suite=require_complete_suite,
+    )
+    opened: list[str] = []
+    acted: list[str] = []
+    storage = object()
+    monkeypatch.setattr(run_cli, "require_execute_gate", lambda **_kwargs: None)
+    monkeypatch.setattr(
+        run_cli, "GoogleCloudObjectStore", lambda *, project: storage
+    )
+    monkeypatch.setattr(
+        run_cli,
+        "validate_load_manifest",
+        lambda *, storage, manifest_identity: changed_bundle,
+    )
+    monkeypatch.setattr(run_cli, "_release_gate", lambda _bundle: None)
+
+    def must_not_open(**_kwargs: object) -> object:
+        opened.append("neo4j")
+        raise AssertionError("bound Neo4j backend was opened")
+
+    def must_not_act(*_args: object) -> dict[str, object]:
+        acted.append("operation")
+        return {}
+
+    monkeypatch.setattr(run_cli, "open_bound_backend", must_not_open)
+    args = SimpleNamespace(
+        execute=True,
+        project="fixture",
+        command=operation,
+        task_index=(
+            0
+            if operation
+            in {"load-parametric-task", "recover-parametric-receipt"}
+            else None
+        ),
+        require_complete_suite=require_complete_suite,
+        manifest_uri="gs://fixture/load-manifest.json",
+        manifest_generation="1",
+        manifest_sha256="a" * 64,
+        manifest_bytes=1,
+    )
+    with pytest.raises(
+        transport.CorpusNeo4jTransportError,
+        match="legacy-validation-only load plan is not executable",
+    ):
+        run_cli._live(  # noqa: SLF001
+            args,
+            role=transport._ROLE_BY_OPERATION[operation],  # noqa: SLF001
+            action=must_not_act,
+        )
+    assert opened == []
+    assert acted == []
+
+
+@pytest.mark.parametrize(
+    "suite_schema",
+    (
+        "corpus-retrieval-suite-manifest/v1",
+        "corpus-retrieval-suite-manifest/v2",
+    ),
+)
+def test_live_driver_apply_rejects_legacy_schema_before_session_contact(
+    suite_schema: str,
+) -> None:
+    storage = FakeStorage()
+    _, bundle, _ = _prepare_task0(storage)
+    plan = replace(
+        bundle.retrieval_plan,
+        authenticated_suite_schema_version=suite_schema,
+    )
+    backend = object.__new__(transport.Neo4jDriverBackend)
+    backend.database = "corpus-research"
+    backend._driver = NoGraphContact()  # type: ignore[attr-defined]  # noqa: SLF001
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="suite-v1/v2 are validation-only",
+    ):
+        backend.apply(plan)
 
 
 @pytest.mark.parametrize(

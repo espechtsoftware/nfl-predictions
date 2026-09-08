@@ -6,8 +6,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 from nfl_dfs.research.corpus_neo4j_transport import (
     CorpusNeo4jTransportError,
@@ -26,11 +26,12 @@ from nfl_dfs.research.corpus_neo4j_transport import (
     query_strategy_registry,
     recover_plan_receipt,
     recover_strategy_registry_receipt,
+    require_executable_operation_bundle,
     require_execute_gate,
     validate_build_metadata,
+    validate_load_manifest,
     validate_parked_job,
     validate_reuse_preflight,
-    validate_load_manifest,
 )
 from nfl_dfs.research.corpus_retrieval_neo4j import canonical_json_bytes
 
@@ -284,6 +285,14 @@ def _live(
     storage = GoogleCloudObjectStore(project=args.project)
     bundle = validate_load_manifest(storage=storage, manifest_identity=_identity(args))
     _release_gate(bundle)
+    require_executable_operation_bundle(
+        bundle,
+        operation=args.command,
+        task_index=getattr(args, "task_index", None),
+        require_complete_suite=bool(
+            getattr(args, "require_complete_suite", False)
+        ),
+    )
     backend = open_bound_backend(
         deployment=bundle.deployment, role=role, environ=os.environ
     )

@@ -22,6 +22,44 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 canonical-v3 Neo4j strict suite-authority R2 (review-ready)
+
+- Isolated worktree
+  `/home/erich/projects/nfl-predictions-canonical-v3-neo-authority-r2`, branch
+  `codex/canonical-v3-neo-authority-r2`, exact parent
+  `0b9f266ea3476da3b48bfe01bc89a765be943c5e`. Policy is now unambiguous: only
+  exact `corpus-retrieval-suite-manifest/v3-canonical-game` evidence is
+  executable; v1/v2 remain inspection/validation-only.
+- The planner rejects authenticated v1/v2 before accepting downstream
+  evidence. Core authority checks repeat the exact schema decision. All public
+  governed transport operations now preflight every plan they use; complete
+  suite paths validate all 54 task extensions before any partial graph work,
+  and terminal/complete-query paths also validate the registry extension.
+  The live CLI performs the same operation guard before opening a backend.
+- Adversarial coverage now includes all governed public and live CLI routes,
+  both query-smoke scopes, direct live-driver apply, and authority retention
+  through retrieval-analytics, parametric, population, and strategy-registry
+  extensions. Legacy registry extension remains validation-only.
+- Static validation is green: all six changed Python files compile with the
+  isolated source first on `PYTHONPATH`; Ruff fatal/import checks
+  (`E9,F63,F7,F82,I001`) pass; `git diff --check` passes. After a fresh empty
+  process census, focused PID `2640761` passed **104/104** cases across the
+  exact retrieval (41), transport (58), and registry-release (5) modules in
+  one isolated-source pytest process, exit 0. PID `2632305` is excluded because
+  the isolated `PYTHONPATH` was omitted and collection resolved the production
+  worktree (three import errors, zero tests). Corrected PID `2633239` is also
+  excluded: PREREG-074 R18 entered the shared lane three seconds earlier, so
+  the coordinator terminated this colliding run with exit 143 before a
+  terminal result. Neither preliminary start is product evidence.
+- Detailed report:
+  `reports/2026-09-07-canonical-v3-neo-suite-authority-r2-repair.md`. No graph,
+  cloud, load, deployment, scoring, paid-entry, or production-policy action was
+  performed or authorized.
+
+  Next concrete action: independently review the exact pushed commit. Do not
+  merge, deploy, connect, load, score, or change policy from this candidate
+  without a separate release decision.
+
 ### 2026-09-07 canonical-v2 R2 Neo4j downgrade repair (independent candidate)
 
 - Isolated worktree
