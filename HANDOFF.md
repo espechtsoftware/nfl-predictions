@@ -22,6 +22,45 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 PREREG-074 R21/R21b and CP-4 v5d remain prelaunch HOLD
+
+- Production independently reviewed PREREG-074 R21 exact
+  `c1f280440e6e246aea3faddd2c07877cfba5b8d9` and its superseding R21b exact
+  `ea6e12cf64772f031e88552e6b82c43f1dd33a11`. Both are **HOLD** before
+  fm4, Docker, build, or provider spend. A syntactically valid but false
+  `source_tree` can complete submit, Docker, and receipt publication before
+  frozen authority rejects it; a coherent one-file-short context manifest can
+  consume submit/attempt/success records before archive authentication rejects
+  it. R21b only removes genuinely unreachable provider wrappers and leaves
+  both executable transition defects unchanged. Exact focused suites passed
+  71/71 and 72/72 respectively, confirming a coverage gap rather than
+  clearance.
+- The production-to-lab R21 and R21b reviews are durably published on lab
+  `main` through commit
+  `2b111d0194d1bcf7e8f73fa7d9adf4d7795aeb7e`. Required R22 repair remains:
+  recompute and authenticate HEAD/tree/code-map and the complete context from
+  the exact clean build root before opening the provider port, consume only
+  canonical returned identities, and add full-transition negative tests. No
+  provider, cloud, Docker, outcome, scoring, or paid-entry state changed.
+- CP-4 R16 driver v5d exact
+  `fde988a65c1a20954aec6f381be2d08d15bc9b59` is also **HOLD** before build
+  or provider spend under the ongoing full independent review. The omitted
+  zero-counter normalization is directionally correct, but the executable
+  builder currently censuses a wrong receipt-like name and swallows census
+  failure, publishes its remote intent before rejecting a stale local attempt,
+  and lacks a demonstrated successful ordinary or lost-response recovery path.
+  The complete reviewed defect list and bounded successor contract must be
+  published before any successor can receive CODE GO.
+- Cloud Build and Cloud Run lanes were confirmed idle at
+  `2026-09-08T04:03:41Z`; no already-cleared execution was waiting. The last
+  legitimate execution remains Experiment 081 R4 mechanics, which completed
+  and sealed cleanly and is held before efficacy by winner-registry v2.
+- Exact next action: finish and publish the CP-4 v5d review, independently
+  review the lab's repaired R22 and CP-4 successor when they land, and launch
+  the first successor only after its exact clean tip clears. In parallel,
+  finish canonical paid R3 and the Week-1 capture-readiness audit; do not spend
+  compute merely to keep a lane visually occupied.
+
 ### 2026-09-08 canonical-v3 paid/deployment bounded R2 independent HOLD
 
 - Independently reviewed exact candidate
