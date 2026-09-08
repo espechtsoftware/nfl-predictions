@@ -15,6 +15,12 @@ PINNED_COLLECTOR_SERVICE_ACCOUNT: Final[str | None] = None
 PINNED_AUTHORITY_READER_SERVICE_ACCOUNT: Final[str | None] = None
 PINNED_AUTHORITY_BUCKET_METAGENERATION: Final[str | None] = None
 PINNED_AUTHORITY_RETENTION_SECONDS: Final[int | None] = None
+PINNED_AUTHORITY_IAM_POLICY_VERSION: Final[int | None] = None
+PINNED_AUTHORITY_IAM_POLICY_ETAG_BASE64: Final[str | None] = None
+PINNED_AUTHORITY_IAM_POLICY_SHA256: Final[str | None] = None
+PINNED_AUTHORITY_IAM_POLICY_BINDINGS: Final[
+    tuple[dict[str, object], ...] | None
+] = None
 PINNED_ACCEPTANCE_EFFECTIVE_LOCATOR_FAMILIES: Final[
     tuple[tuple[str, str, str], ...] | None
 ] = None

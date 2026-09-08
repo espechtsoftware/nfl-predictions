@@ -71,6 +71,14 @@ object identity/provider creation time. Every consumer requires both the
 generic exact reopen and the independent authority reopen; a caller-created
 object in a provider-looking namespace is insufficient.
 
+The authority read is bounded to the exact prospective publication cutoff and
+phase used by the fixed live publisher. It exact-reopens the sole root-last
+ledger generation twice, requires `receipt <= ledger <= cutoff`, requires a
+pre-lock ledger strictly before lock (or a settled ledger strictly after it),
+and requires the derived provider-capture generation to be created no earlier
+than every ledger on which it depends. A receipt cannot gain pre-lock authority
+from a ledger added after the cutoff.
+
 The known `https://www.draftkings.com/mycontests` account page is not silently
 treated as the active-entry export locator. The exact download/response URL is
 currently unpinned, so the live acceptance acquisition fails closed until a
@@ -79,13 +87,21 @@ redacted real-shape smoke establishes it and independent review accepts it.
 The default-off P0-A candidate implementation is
 `src/nfl_dfs/ingest/week1_a5_dk_acquisition.py`; its separately reviewable
 activation pins are in `src/nfl_dfs/ingest/week1_a5_dk_acquisition_pins.py`.
-It supplies the concrete collector-only issuance ledger and read-only
-authority adapter required by the scaffold, but every live entry point remains
-on HOLD while the source commit, implementation SHA, immutable image,
-collector/reader identities, authority-bucket governance, exact acceptance
-locator, and all observed redirect/response locator families are absent. The
-candidate performed no provider acquisition and supplies no real transport
-fact by itself.
+It supplies the concrete collector-only issuance ledger and private read-only
+authority implementation required by the scaffold. The exported live surface
+does not return or accept a caller-built authority; its fixed publishers build
+the adapter from repository-owned stores, policy, runtime identity and cutoff.
+The bucket census retains and hashes the complete direct IAM bindings plus
+policy version and provider ETag, counts `roles/storage.objectUser` as a
+mutator, and rejects every unreviewed/custom bucket role rather than guessing
+that it is read-only. The HTTP adapter disables automatic redirects and admits
+each initial locator, response URL, port and redirect target before the next
+request. Every live entry point remains on HOLD while the source commit,
+implementation SHA, immutable image, collector/reader identities, complete
+authority-bucket/effective-IAM governance, exact acceptance locator, and all
+observed redirect/response locator families are absent. The candidate
+performed no provider acquisition and supplies no real transport fact by
+itself.
 
 `frozen_at`, `accepted_at`, and `publish_by` are prospective create-once
 publication cutoffs: the bytes are serialized first, the object is published,
@@ -204,11 +220,13 @@ the exact pooled cents with floor/one-cent-remainder allocation; no
 2. Finish and exact-publish the player bridge and all four exact K80 books.
 3. Build, create-once publish, independently reopen, and code-pin the allocation
    raw identity and semantic SHA.
-4. Independently review the default-off P0-A collector/authority candidate. It
+4. Independently review the repaired default-off P0-A collector/authority
+   candidate. It
    must recognize only receipts emitted by the governed authenticated
    collector, never arbitrary generic-store objects; activation then requires
-   a separate pin-only change plus reviewed authority-bucket and runtime-image
-   governance.
+   a separate pin-only change plus reviewed direct and inherited effective IAM,
+   service-account impersonation, job-update, authority-bucket and
+   runtime-image governance.
 5. Independently review this repair and run its focused adversarial suite plus
    an outcome-blind smoke against the five real source objects and a
    representative production prepared-entry/filled-CSV/active-entry-export

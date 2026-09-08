@@ -18,6 +18,7 @@ storage contact today.
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import os
@@ -40,6 +41,7 @@ COLLECTOR_LEDGER_SCHEMA: Final = "dk-a5-collector-issuance-ledger/v1"
 COLLECTOR_TRANSPORT_EVENT_SCHEMA: Final = "dk-a5-http-transport-event/v1"
 COLLECTOR_SESSION_PROFILE: Final = "dk-playwright-storage-state-cookie-bridge/v1"
 COLLECTOR_AUTHORITY_PROFILE: Final = capture.PROVIDER_ACQUISITION_AUTHORITY_PROFILE
+MAX_REDIRECTS: Final = 5
 
 LIVE_PROJECT: Final = "nfl-predictions-503414"
 LIVE_EVIDENCE_BUCKET: Final = "nfl-predictions-503414-raw"
@@ -87,6 +89,27 @@ _TRANSPORT_EVENT_FIELDS = frozenset(
         "body_sha256",
         "body_bytes",
     }
+)
+_DIRECT_OBJECT_MUTATOR_ROLES: Final = frozenset(
+    {
+        "roles/storage.admin",
+        "roles/storage.legacyBucketOwner",
+        "roles/storage.legacyBucketWriter",
+        "roles/storage.legacyObjectOwner",
+        "roles/storage.objectAdmin",
+        "roles/storage.objectCreator",
+        "roles/storage.objectUser",
+    }
+)
+_DIRECT_OBJECT_VIEWER_ROLES: Final = frozenset(
+    {
+        "roles/storage.legacyBucketReader",
+        "roles/storage.legacyObjectReader",
+        "roles/storage.objectViewer",
+    }
+)
+_REVIEWED_DIRECT_BUCKET_ROLES: Final = (
+    _DIRECT_OBJECT_MUTATOR_ROLES | _DIRECT_OBJECT_VIEWER_ROLES
 )
 
 
@@ -177,6 +200,12 @@ def _assert_uri_scope(uri: str, *, bucket: str, prefix: str, label: str) -> None
 def _canonical_url(value: object, *, label: str) -> str:
     text = _string(value, label=label)
     parsed = urlsplit(text)
+    try:
+        parsed_port = parsed.port
+    except ValueError as exc:
+        raise Week1A5DraftKingsAcquisitionError(
+            f"{label} has an invalid explicit port"
+        ) from exc
     if (
         parsed.scheme.lower() != "https"
         or not parsed.hostname
@@ -186,7 +215,7 @@ def _canonical_url(value: object, *, label: str) -> str:
     ):
         _fail(f"{label} must be one credential-free HTTPS locator")
     host = parsed.hostname.lower()
-    port = f":{parsed.port}" if parsed.port is not None else ""
+    port = f":{parsed_port}" if parsed_port is not None else ""
     path = parsed.path or "/"
     return urlunsplit(("https", f"{host}{port}", path, parsed.query, ""))
 
@@ -242,16 +271,97 @@ def _validate_redacted_locator(value: object, *, label: str) -> dict[str, object
     }
 
 
+def _canonical_iam_value(value: object, *, label: str) -> object:
+    """Retain an IAM condition without dropping provider-returned fields."""
+
+    if value is None or type(value) in {str, int, bool}:
+        return value
+    if isinstance(value, Mapping):
+        if any(type(key) is not str or not key for key in value):
+            _fail(f"{label} must have canonical string keys")
+        return {
+            key: _canonical_iam_value(value[key], label=f"{label}.{key}")
+            for key in sorted(value)
+        }
+    if isinstance(value, Sequence) and not isinstance(
+        value, (str, bytes, bytearray)
+    ):
+        return [
+            _canonical_iam_value(item, label=f"{label}[{ordinal}]")
+            for ordinal, item in enumerate(value)
+        ]
+    _fail(f"{label} contains a non-JSON IAM value")
+
+
+def _normalize_iam_bindings(
+    value: object, *, label: str
+) -> tuple[dict[str, object], ...]:
+    """Normalize the complete direct bucket policy without role projection."""
+
+    if isinstance(value, (str, bytes, bytearray)) or not isinstance(value, Sequence):
+        _fail(f"{label} must be an array")
+    retained: list[dict[str, object]] = []
+    for ordinal, raw_binding in enumerate(value):
+        binding = _mapping(raw_binding, label=f"{label}[{ordinal}]")
+        if set(binding) not in ({"role", "members"}, {"role", "members", "condition"}):
+            _fail(f"{label}[{ordinal}] has an unrecognized provider field")
+        role = _string(binding["role"], label=f"{label}[{ordinal}].role")
+        # The authority bucket is deliberately simple.  A custom or newly
+        # introduced role is not guessed to be read-only: it stays HOLD until
+        # an independently reviewed source revision understands its complete
+        # permission set.
+        if role not in _REVIEWED_DIRECT_BUCKET_ROLES:
+            _fail(f"{label}[{ordinal}] contains an unreviewed bucket role")
+        raw_members = binding["members"]
+        if isinstance(raw_members, (str, bytes, bytearray)) or not isinstance(
+            raw_members, Sequence
+        ):
+            _fail(f"{label}[{ordinal}].members must be an array")
+        members = tuple(
+            _string(member, label=f"{label}[{ordinal}].members")
+            for member in raw_members
+        )
+        if members != tuple(sorted(set(members))):
+            _fail(f"{label}[{ordinal}].members must be unique and sorted")
+        item: dict[str, object] = {"role": role, "members": list(members)}
+        if "condition" in binding:
+            condition = _canonical_iam_value(
+                binding["condition"], label=f"{label}[{ordinal}].condition"
+            )
+            if not isinstance(condition, Mapping) or not condition:
+                _fail(f"{label}[{ordinal}].condition must be a nonempty object")
+            item["condition"] = condition
+        retained.append(item)
+    encoded = [canonical_json_bytes(item) for item in retained]
+    if encoded != sorted(set(encoded)):
+        _fail(f"{label} must be unique and canonically sorted")
+    return tuple(retained)
+
+
+def _iam_policy_sha256(
+    *, version: int, etag_base64: str, bindings: Sequence[Mapping[str, object]]
+) -> str:
+    return canonical_sha256(
+        {
+            "version": version,
+            "etag_base64": etag_base64,
+            "bindings": [dict(binding) for binding in bindings],
+        }
+    )
+
+
 @dataclass(frozen=True)
 class LocatorFamily:
     scheme: str
     host: str
     path_prefix: str
+    port: int = 443
 
     def as_dict(self) -> dict[str, object]:
         return {
             "scheme": self.scheme,
             "host": self.host,
+            "port": self.port,
             "path_prefix": self.path_prefix,
         }
 
@@ -260,6 +370,7 @@ class LocatorFamily:
         return (
             parsed.scheme == self.scheme
             and parsed.hostname == self.host
+            and (parsed.port or 443) == self.port
             and parsed.path.startswith(self.path_prefix)
         )
 
@@ -293,7 +404,11 @@ class CollectorGovernance:
     retention_locked: bool
     versioning_enabled: bool
     uniform_bucket_level_access: bool
-    object_creator_members: tuple[str, ...]
+    iam_policy_version: int
+    iam_policy_etag_base64: str
+    iam_policy_sha256: str
+    iam_policy_bindings: tuple[Mapping[str, object], ...]
+    object_mutator_members: tuple[str, ...]
     object_viewer_members: tuple[str, ...]
     public_members: tuple[str, ...]
 
@@ -304,7 +419,11 @@ class CollectorGovernance:
             "retention_locked": self.retention_locked,
             "versioning_enabled": self.versioning_enabled,
             "uniform_bucket_level_access": self.uniform_bucket_level_access,
-            "object_creator_members": list(self.object_creator_members),
+            "iam_policy_version": self.iam_policy_version,
+            "iam_policy_etag_base64": self.iam_policy_etag_base64,
+            "iam_policy_sha256": self.iam_policy_sha256,
+            "iam_policy_bindings": [dict(item) for item in self.iam_policy_bindings],
+            "object_mutator_members": list(self.object_mutator_members),
             "object_viewer_members": list(self.object_viewer_members),
             "public_members": list(self.public_members),
         }
@@ -377,6 +496,15 @@ class CollectorIssuance:
     redacted_transport: dict[str, object]
 
 
+@dataclass(frozen=True)
+class _AuthorityReadBoundary:
+    profiles: tuple[str, ...]
+    phase: str
+    publish_by: str
+    not_after: datetime
+    not_before: datetime | None
+
+
 class _Transport(Protocol):
     def perform(self, *, method: str, locator: str) -> TransportEvent: ...
 
@@ -411,7 +539,11 @@ def _validate_governance(value: object, *, label: str) -> CollectorGovernance:
         "retention_locked",
         "versioning_enabled",
         "uniform_bucket_level_access",
-        "object_creator_members",
+        "iam_policy_version",
+        "iam_policy_etag_base64",
+        "iam_policy_sha256",
+        "iam_policy_bindings",
+        "object_mutator_members",
         "object_viewer_members",
         "public_members",
     }
@@ -431,8 +563,34 @@ def _validate_governance(value: object, *, label: str) -> CollectorGovernance:
     ):
         if row[field] is not True:
             _fail(f"{label}.{field} must be true")
+    policy_version = row["iam_policy_version"]
+    if type(policy_version) is not int or policy_version not in {1, 3}:
+        _fail(f"{label}.iam_policy_version must be provider policy version 1 or 3")
+    etag_base64 = _string(
+        row["iam_policy_etag_base64"], label=f"{label}.iam_policy_etag_base64"
+    )
+    try:
+        decoded_etag = base64.b64decode(etag_base64, validate=True)
+    except (ValueError, TypeError) as exc:
+        raise Week1A5DraftKingsAcquisitionError(
+            f"{label}.iam_policy_etag_base64 must be canonical base64"
+        ) from exc
+    if not decoded_etag or base64.b64encode(decoded_etag).decode() != etag_base64:
+        _fail(f"{label}.iam_policy_etag_base64 must be canonical base64")
+    bindings = _normalize_iam_bindings(
+        row["iam_policy_bindings"], label=f"{label}.iam_policy_bindings"
+    )
+    policy_sha = _sha(
+        row["iam_policy_sha256"], label=f"{label}.iam_policy_sha256"
+    )
+    if policy_sha != _iam_policy_sha256(
+        version=policy_version,
+        etag_base64=etag_base64,
+        bindings=bindings,
+    ):
+        _fail(f"{label}.iam_policy_sha256 differs from the complete IAM policy")
     member_fields: dict[str, tuple[str, ...]] = {}
-    for field in ("object_creator_members", "object_viewer_members", "public_members"):
+    for field in ("object_mutator_members", "object_viewer_members", "public_members"):
         raw = row[field]
         if isinstance(raw, (str, bytes, bytearray)) or not isinstance(raw, Sequence):
             _fail(f"{label}.{field} must be an array")
@@ -440,6 +598,42 @@ def _validate_governance(value: object, *, label: str) -> CollectorGovernance:
         if tuple(sorted(set(members))) != members:
             _fail(f"{label}.{field} must be unique and sorted")
         member_fields[field] = members
+    derived_mutators = tuple(
+        sorted(
+            {
+                str(member)
+                for binding in bindings
+                if binding["role"] in _DIRECT_OBJECT_MUTATOR_ROLES
+                for member in binding["members"]
+            }
+        )
+    )
+    derived_viewers = tuple(
+        sorted(
+            {
+                str(member)
+                for binding in bindings
+                if binding["role"] in _DIRECT_OBJECT_VIEWER_ROLES
+                for member in binding["members"]
+            }
+        )
+    )
+    derived_public = tuple(
+        sorted(
+            {
+                str(member)
+                for binding in bindings
+                for member in binding["members"]
+                if member in {"allUsers", "allAuthenticatedUsers"}
+            }
+        )
+    )
+    if member_fields["object_mutator_members"] != derived_mutators:
+        _fail(f"{label}.object_mutator_members differs from the complete IAM policy")
+    if member_fields["object_viewer_members"] != derived_viewers:
+        _fail(f"{label}.object_viewer_members differs from the complete IAM policy")
+    if member_fields["public_members"] != derived_public:
+        _fail(f"{label}.public_members differs from the complete IAM policy")
     if member_fields["public_members"]:
         _fail(f"{label} must not grant public access")
     return CollectorGovernance(
@@ -448,7 +642,11 @@ def _validate_governance(value: object, *, label: str) -> CollectorGovernance:
         retention_locked=True,
         versioning_enabled=True,
         uniform_bucket_level_access=True,
-        object_creator_members=member_fields["object_creator_members"],
+        iam_policy_version=policy_version,
+        iam_policy_etag_base64=etag_base64,
+        iam_policy_sha256=policy_sha,
+        iam_policy_bindings=bindings,
+        object_mutator_members=member_fields["object_mutator_members"],
         object_viewer_members=member_fields["object_viewer_members"],
         public_members=(),
     )
@@ -477,9 +675,14 @@ def _build_allowlist(
     ):
         if _SERVICE_ACCOUNT.fullmatch(value) is None:
             _fail(f"{label} is not an exact service account")
+    if not isinstance(governance, CollectorGovernance):
+        _fail("collector governance must be its sealed repository type")
+    governance = _validate_governance(
+        governance.as_dict(), label="collector allowlist governance"
+    )
     expected_creator = (f"serviceAccount:{collector_service_account}",)
-    if governance.object_creator_members != expected_creator:
-        _fail("authority ledger has another object creator")
+    if governance.object_mutator_members != expected_creator:
+        _fail("authority ledger has another direct object mutator")
     reader_member = f"serviceAccount:{authority_reader_service_account}"
     if reader_member not in governance.object_viewer_members:
         _fail("authority reader is not present in the exact viewer set")
@@ -489,17 +692,18 @@ def _build_allowlist(
     ) -> tuple[LocatorFamily, ...]:
         if not values or any(not isinstance(value, LocatorFamily) for value in values):
             _fail(f"{label} must be a nonempty exact locator-family tuple")
-        semantic: list[tuple[str, str, str]] = []
+        semantic: list[tuple[str, str, int, str]] = []
         for value in values:
             if (
                 value.scheme != "https"
                 or value.host != value.host.lower()
                 or not value.host
+                or value.port != 443
                 or value.path_prefix != value.path_prefix.strip()
                 or not value.path_prefix.startswith("/")
             ):
                 _fail(f"{label} contains a noncanonical locator family")
-            semantic.append((value.scheme, value.host, value.path_prefix))
+            semantic.append((value.scheme, value.host, value.port, value.path_prefix))
         if semantic != sorted(set(semantic)):
             _fail(f"{label} must be unique and sorted")
         return values
@@ -592,6 +796,22 @@ def live_collector_allowlist() -> CollectorAllowlist:
             ),
             ("authority retention", live_pins.PINNED_AUTHORITY_RETENTION_SECONDS),
             (
+                "authority IAM policy version",
+                live_pins.PINNED_AUTHORITY_IAM_POLICY_VERSION,
+            ),
+            (
+                "authority IAM policy etag",
+                live_pins.PINNED_AUTHORITY_IAM_POLICY_ETAG_BASE64,
+            ),
+            (
+                "authority IAM policy SHA",
+                live_pins.PINNED_AUTHORITY_IAM_POLICY_SHA256,
+            ),
+            (
+                "authority IAM policy bindings",
+                live_pins.PINNED_AUTHORITY_IAM_POLICY_BINDINGS,
+            ),
+            (
                 "acceptance effective locator families",
                 live_pins.PINNED_ACCEPTANCE_EFFECTIVE_LOCATOR_FAMILIES,
             ),
@@ -619,26 +839,36 @@ def live_collector_allowlist() -> CollectorAllowlist:
             raise AssertionError("live locator families are absent")
         return tuple(LocatorFamily(*item) for item in raw)
 
-    governance = CollectorGovernance(
-        authority_bucket_metageneration=str(
-            live_pins.PINNED_AUTHORITY_BUCKET_METAGENERATION
-        ),
-        retention_seconds=int(live_pins.PINNED_AUTHORITY_RETENTION_SECONDS),
-        retention_locked=True,
-        versioning_enabled=True,
-        uniform_bucket_level_access=True,
-        object_creator_members=(
-            f"serviceAccount:{live_pins.PINNED_COLLECTOR_SERVICE_ACCOUNT}",
-        ),
-        object_viewer_members=tuple(
-            sorted(
+    pinned_bindings = live_pins.PINNED_AUTHORITY_IAM_POLICY_BINDINGS
+    if pinned_bindings is None:  # unreachable after the missing-pin gate
+        raise AssertionError("live IAM bindings are absent")
+    governance = _validate_governance(
+        {
+            "authority_bucket_metageneration": str(
+                live_pins.PINNED_AUTHORITY_BUCKET_METAGENERATION
+            ),
+            "retention_seconds": int(live_pins.PINNED_AUTHORITY_RETENTION_SECONDS),
+            "retention_locked": True,
+            "versioning_enabled": True,
+            "uniform_bucket_level_access": True,
+            "iam_policy_version": live_pins.PINNED_AUTHORITY_IAM_POLICY_VERSION,
+            "iam_policy_etag_base64": (
+                live_pins.PINNED_AUTHORITY_IAM_POLICY_ETAG_BASE64
+            ),
+            "iam_policy_sha256": live_pins.PINNED_AUTHORITY_IAM_POLICY_SHA256,
+            "iam_policy_bindings": list(pinned_bindings),
+            "object_mutator_members": [
+                f"serviceAccount:{live_pins.PINNED_COLLECTOR_SERVICE_ACCOUNT}"
+            ],
+            "object_viewer_members": sorted(
                 {
                     f"serviceAccount:{live_pins.PINNED_COLLECTOR_SERVICE_ACCOUNT}",
                     f"serviceAccount:{live_pins.PINNED_AUTHORITY_READER_SERVICE_ACCOUNT}",
                 }
-            )
-        ),
-        public_members=(),
+            ),
+            "public_members": [],
+        },
+        label="pinned live authority governance",
     )
     return _build_allowlist(
         source_commit=str(live_pins.PINNED_COLLECTOR_SOURCE_COMMIT),
@@ -718,7 +948,7 @@ def _normalize_transport_event(
             else None
         )
         if ordinal < len(value.hops) - 1:
-            if not 300 <= hop.status <= 399 or target is None:
+            if hop.status not in {301, 302, 303, 307, 308} or target is None:
                 _fail("nonterminal transport hop is not one explicit redirect")
         elif hop.status != 200 or target is not None:
             _fail("terminal transport hop must be a nonredirect HTTP 200")
@@ -838,7 +1068,7 @@ def _validate_ledger_transport_event(
             else None
         )
         if ordinal < len(raw_chain) - 1:
-            if not 300 <= status <= 399 or target is None:
+            if status not in {301, 302, 303, 307, 308} or target is None:
                 _fail("collector ledger nonterminal hop is not one redirect")
         elif status != 200 or target is not None:
             _fail("collector ledger terminal hop is not a nonredirect HTTP 200")
@@ -1184,32 +1414,36 @@ def _read_exact_evidence(
     return retained, created_at, created, raw
 
 
-_AUTHORITY_TOKEN = object()
-
-
-class ProductionDraftKingsAcquisitionAuthority:
+class _ProductionDraftKingsAcquisitionAuthority:
     """Read-only adapter over the collector-only create-once ledger.
 
-    Construction is intentionally restricted to this module's fixed live
-    factory (and its private offline test seam).  The public surface has one
-    method and no register, mirror, publish, enroll, or writer capability.
+    This class is an implementation detail, not a Python trust boundary.  The
+    production trust boundary is the repository-owned live call graph, which
+    constructs it with fixed stores, policy, runtime identity and an exact
+    publication-time boundary.  Tests use one explicitly private seam.
     """
 
-    __slots__ = ("__evidence", "__ledger", "__policy")
+    __slots__ = (
+        "__boundary",
+        "__evidence",
+        "__ledger",
+        "__ledger_evidence",
+        "__policy",
+    )
 
     def __init__(
         self,
         *,
-        token: object,
         evidence: _EvidenceStore,
         ledger: _LedgerReader,
         policy: CollectorAllowlist,
+        boundary: _AuthorityReadBoundary,
     ) -> None:
-        if token is not _AUTHORITY_TOKEN:
-            _fail("production acquisition authority is not caller-constructible")
         self.__evidence = evidence
         self.__ledger = ledger
         self.__policy = policy
+        self.__boundary = boundary
+        self.__ledger_evidence: dict[str, dict[str, object]] = {}
 
     def read_authenticated_acquisition(
         self, *, identity: Mapping[str, object]
@@ -1250,7 +1484,7 @@ class ProductionDraftKingsAcquisitionAuthority:
             or hashlib.sha256(ledger_raw).hexdigest() != ledger_identity["sha256"]
         ):
             _fail("authority ledger exact bytes differ")
-        _, ledger_created = _timestamp(
+        ledger_created_at, ledger_created = _timestamp(
             reopened_ledger["created_at"], label="authority ledger created_at"
         )
         event = _parse_semantic(ledger_raw, label="collector issuance ledger event")
@@ -1308,6 +1542,20 @@ class ProductionDraftKingsAcquisitionAuthority:
         profile = _string(event["acquisition_profile"], label="ledger profile")
         if profile not in policy.rules:
             _fail("collector issuance profile is outside the exact allowlist")
+        boundary = self.__boundary
+        if profile not in boundary.profiles:
+            _fail("collector issuance profile is outside this repository-owned read")
+        if ledger_created > boundary.not_after:
+            _fail("collector ledger was created after the exact publication cutoff")
+        if boundary.phase == "prelock":
+            _, lock = _timestamp(capture.EXPECTED_LOCK_UTC, label="A5 lock")
+            if ledger_created >= lock:
+                _fail("pre-lock collector ledger was not created strictly before lock")
+        elif boundary.phase == "postlock":
+            if boundary.not_before is None or ledger_created <= boundary.not_before:
+                _fail("post-lock collector ledger was not created strictly after lock")
+        else:  # pragma: no cover - the private constructor closes this enum
+            raise AssertionError(boundary.phase)
         (
             reopened_receipt_identity,
             receipt_created_at,
@@ -1425,6 +1673,40 @@ class ProductionDraftKingsAcquisitionAuthority:
         # this authority rather than relying on the downstream P2 builder.
         if observed_at != retained["observed_at"]:  # pragma: no cover
             _fail("collector observation time is not canonical")
+        # Reopen through the sole-generation reader after all dependent
+        # evidence.  A timeless receipt is never enough: the same exact
+        # provider generation and creation time must remain authoritative at
+        # the end of every read.
+        final_ledger = _mapping(
+            self.__ledger.read_single_generation(uri=ledger_uri),
+            label="authority ledger final exact read",
+        )
+        _exact(
+            final_ledger,
+            {"identity", "created_at", "raw"},
+            label="authority ledger final exact read",
+        )
+        if (
+            _identity(final_ledger["identity"], label="final authority ledger identity")
+            != ledger_identity
+            or _timestamp(
+                final_ledger["created_at"], label="final authority ledger created_at"
+            )[0]
+            != ledger_created_at
+            or final_ledger["raw"] != ledger_raw
+        ):
+            _fail("authority ledger changed during the authenticated read")
+        final_governance = _validate_governance(
+            self.__ledger.governance(),
+            label="final live authority-ledger governance",
+        )
+        if final_governance != policy.governance:
+            _fail("authority-ledger governance changed during the authenticated read")
+        self.__ledger_evidence[event_id] = {
+            "identity": ledger_identity,
+            "created_at": ledger_created_at,
+            "publish_by": boundary.publish_by,
+        }
         return {
             "identity": receipt_identity,
             "created_at": receipt_created_at,
@@ -1432,17 +1714,79 @@ class ProductionDraftKingsAcquisitionAuthority:
             "authority_event_id": event_id,
         }
 
+    def _ledger_evidence_for(self, event_id: str) -> dict[str, object]:
+        """Internal publisher check; never part of the injected P2 protocol."""
+
+        if event_id not in self.__ledger_evidence:
+            _fail("derived capture did not authenticate its ledger in this call")
+        return dict(self.__ledger_evidence[event_id])
+
+
+def _authority_boundary(
+    *, profiles: tuple[str, ...], phase: str, publish_by: object
+) -> _AuthorityReadBoundary:
+    if not profiles or profiles != tuple(sorted(set(profiles))):
+        _fail("authority read profiles must be one exact sorted set")
+    if any(profile not in _CAPTURE_PROFILES for profile in profiles):
+        _fail("authority read profile is unsupported")
+    publish_text, cutoff = capture._publish_by(
+        publish_by,
+        label="repository-owned authority publish_by",
+        phase=phase,
+    )
+    _, lock = _timestamp(capture.EXPECTED_LOCK_UTC, label="A5 lock")
+    expected = (
+        (capture.ACCEPTANCE_ACQUISITION_PROFILE,)
+        if phase == "prelock"
+        else tuple(
+            sorted(
+                (
+                    capture.CONTEST_DETAIL_ACQUISITION_PROFILE,
+                    capture.STANDINGS_ACQUISITION_PROFILE,
+                )
+            )
+        )
+    )
+    if profiles != expected:
+        _fail("authority read profiles differ from the exact phase")
+    return _AuthorityReadBoundary(
+        profiles=profiles,
+        phase=phase,
+        publish_by=publish_text,
+        not_after=cutoff,
+        not_before=lock if phase == "postlock" else None,
+    )
+
+
+_CAPTURE_PROFILES: Final = frozenset(
+    {
+        capture.ACCEPTANCE_ACQUISITION_PROFILE,
+        capture.CONTEST_DETAIL_ACQUISITION_PROFILE,
+        capture.STANDINGS_ACQUISITION_PROFILE,
+    }
+)
+
 
 def _authority_from_reviewed_ports(
     *,
     policy: CollectorAllowlist,
     evidence: _EvidenceStore,
     ledger: _LedgerReader,
-) -> ProductionDraftKingsAcquisitionAuthority:
+    profiles: tuple[str, ...],
+    phase: str,
+    publish_by: object,
+) -> capture.AuthenticatedProviderAcquisitionAuthority:
     """Private offline construction seam; never accepted by a live publisher."""
 
-    return ProductionDraftKingsAcquisitionAuthority(
-        token=_AUTHORITY_TOKEN, evidence=evidence, ledger=ledger, policy=policy
+    return _ProductionDraftKingsAcquisitionAuthority(
+        evidence=evidence,
+        ledger=ledger,
+        policy=policy,
+        boundary=_authority_boundary(
+            profiles=profiles,
+            phase=phase,
+            publish_by=publish_by,
+        ),
     )
 
 
@@ -1553,32 +1897,69 @@ class _GcsLedgerReader:
         bucket = self._client.bucket(self._policy.authority_bucket)
         bucket.reload()
         policy = bucket.get_iam_policy(requested_policy_version=3)
-        creators = sorted(
-            member
-            for binding in policy.bindings
-            if binding.get("role")
-            in {
-                "roles/storage.objectCreator",
-                "roles/storage.objectAdmin",
-                "roles/storage.admin",
+        raw_bindings: list[dict[str, object]] = []
+        for binding in policy.bindings:
+            item: dict[str, object] = {
+                "role": binding.get("role"),
+                "members": sorted(binding.get("members", ())),
             }
-            for member in binding.get("members", ())
+            if binding.get("condition") is not None:
+                condition = binding["condition"]
+                if not isinstance(condition, Mapping):
+                    try:
+                        condition = dict(condition)
+                    except (TypeError, ValueError) as exc:
+                        raise Week1A5DraftKingsAcquisitionError(
+                            "authority IAM condition cannot be retained completely"
+                        ) from exc
+                item["condition"] = dict(condition)
+            raw_bindings.append(item)
+        raw_bindings.sort(key=canonical_json_bytes)
+        bindings = _normalize_iam_bindings(
+            raw_bindings, label="provider authority IAM bindings"
+        )
+        mutators = sorted(
+            {
+                str(member)
+                for binding in bindings
+                if binding["role"] in _DIRECT_OBJECT_MUTATOR_ROLES
+                for member in binding["members"]
+            }
         )
         viewers = sorted(
-            member
-            for binding in policy.bindings
-            if binding.get("role")
-            in {
-                "roles/storage.objectViewer",
-                "roles/storage.legacyBucketReader",
+            {
+                str(member)
+                for binding in bindings
+                if binding["role"] in _DIRECT_OBJECT_VIEWER_ROLES
+                for member in binding["members"]
             }
-            for member in binding.get("members", ())
         )
         public = sorted(
-            member
-            for member in (*creators, *viewers)
-            if member in {"allUsers", "allAuthenticatedUsers"}
+            {
+                str(member)
+                for binding in bindings
+                for member in binding["members"]
+                if member in {"allUsers", "allAuthenticatedUsers"}
+            }
         )
+        raw_etag = policy.etag
+        if isinstance(raw_etag, bytes):
+            etag_base64 = base64.b64encode(raw_etag).decode()
+        elif type(raw_etag) is str:
+            etag_base64 = raw_etag
+        else:
+            _fail("authority IAM policy lacks its provider etag")
+        # Validate the provider representation now rather than allowing the
+        # later policy hash to canonically bless malformed or empty ETags.
+        try:
+            decoded_etag = base64.b64decode(etag_base64, validate=True)
+        except (ValueError, TypeError) as exc:
+            raise Week1A5DraftKingsAcquisitionError(
+                "authority IAM policy etag is not canonical base64"
+            ) from exc
+        if not decoded_etag or base64.b64encode(decoded_etag).decode() != etag_base64:
+            _fail("authority IAM policy etag is not canonical base64")
+        policy_version = int(policy.version or 1)
         iam_configuration = bucket.iam_configuration
         return {
             "authority_bucket_metageneration": str(bucket.metageneration),
@@ -1588,7 +1969,15 @@ class _GcsLedgerReader:
             "uniform_bucket_level_access": bool(
                 iam_configuration.uniform_bucket_level_access_enabled
             ),
-            "object_creator_members": creators,
+            "iam_policy_version": policy_version,
+            "iam_policy_etag_base64": etag_base64,
+            "iam_policy_sha256": _iam_policy_sha256(
+                version=policy_version,
+                etag_base64=etag_base64,
+                bindings=bindings,
+            ),
+            "iam_policy_bindings": list(bindings),
+            "object_mutator_members": mutators,
             "object_viewer_members": viewers,
             "public_members": public,
         }
@@ -1633,13 +2022,27 @@ class _GcsLedgerReader:
 class _RequestsSessionTransport:
     """Fixed authenticated cookie bridge; callers never supply a URL."""
 
-    def __init__(self, *, storage_state_path: Path, session_profile: str) -> None:
+    def __init__(
+        self,
+        *,
+        storage_state_path: Path,
+        session_profile: str,
+        locator_families: tuple[LocatorFamily, ...],
+    ) -> None:
         self._storage_state_path = storage_state_path
         self._session_profile = session_profile
+        self._locator_families = locator_families
+
+    def _admit_locator(self, locator: object, *, label: str) -> str:
+        retained = _canonical_url(locator, label=label)
+        if not any(family.accepts(retained) for family in self._locator_families):
+            _fail(f"{label} is outside the exact family allowlist")
+        return retained
 
     def perform(self, *, method: str, locator: str) -> TransportEvent:
         if method != "GET":
             _fail("DraftKings collector permits GET only")
+        current = self._admit_locator(locator, label="initial request locator")
         try:
             import requests
         except ImportError as exc:  # pragma: no cover - base dependency
@@ -1675,38 +2078,63 @@ class _RequestsSessionTransport:
             admitted += 1
         if admitted < 1:
             _fail("fixed session contains no DraftKings-domain cookie")
-        response = session.get(
-            locator,
-            allow_redirects=True,
-            timeout=(10, 120),
-            headers={
-                "Accept": "application/json,text/csv,*/*;q=0.1",
-                "User-Agent": "nfl-dfs-governed-dk-collector/1",
-            },
-        )
+        headers = {
+            "Accept": "application/json,text/csv,*/*;q=0.1",
+            "User-Agent": "nfl-dfs-governed-dk-collector/1",
+        }
+        seen: set[str] = set()
+        hops: list[TransportHop] = []
+        response: object | None = None
+        redirect_statuses = {301, 302, 303, 307, 308}
+        for redirect_count in range(MAX_REDIRECTS + 1):
+            if current in seen:
+                _fail("DraftKings redirect loop was rejected before another request")
+            seen.add(current)
+            response = session.get(
+                current,
+                allow_redirects=False,
+                timeout=(10, 120),
+                headers=headers,
+            )
+            if getattr(response, "history", ()):
+                _fail("HTTP adapter followed an unreviewed redirect internally")
+            response_url = self._admit_locator(
+                str(response.url), label="provider response locator"
+            )
+            if response_url != current:
+                _fail("provider response locator differs from the requested hop")
+            status = int(response.status_code)
+            location = response.headers.get("Location")
+            if status in redirect_statuses:
+                if type(location) is not str or not location:
+                    _fail("DraftKings redirect omits its Location target")
+                next_locator = self._admit_locator(
+                    urljoin(current, location), label="redirect target"
+                )
+                hops.append(TransportHop(current, status, str(location)))
+                if redirect_count == MAX_REDIRECTS:
+                    _fail("DraftKings redirect count exceeds the exact bound")
+                if next_locator in seen:
+                    _fail("DraftKings redirect loop was rejected before another request")
+                current = next_locator
+                continue
+            if 300 <= status <= 399:
+                _fail("DraftKings returned an unsupported redirect status")
+            if location is not None:
+                _fail("nonredirect DraftKings response contains a redirect target")
+            hops.append(TransportHop(current, status, None))
+            break
+        if response is None or not hops:  # pragma: no cover - loop is nonempty
+            raise AssertionError("transport did not issue its initial request")
         body = bytes(response.content)
         observed = datetime.now(UTC).isoformat().replace("+00:00", "Z")
-        chain = [*response.history, response]
-        hops = tuple(
-            TransportHop(
-                locator=str(item.url),
-                status=int(item.status_code),
-                redirect_target=(
-                    str(item.headers["Location"])
-                    if 300 <= int(item.status_code) <= 399
-                    and "Location" in item.headers
-                    else None
-                ),
-            )
-            for item in chain
-        )
         final_path = urlsplit(str(response.url)).path.lower()
         if any(marker in final_path for marker in ("/login", "/signin", "/register")):
             _fail("DraftKings request terminated on an authentication surface")
         return TransportEvent(
             body=body,
             observed_at=observed,
-            hops=hops,
+            hops=tuple(hops),
             response_content_type=str(response.headers.get("Content-Type", "")),
             response_content_disposition=(
                 str(response.headers["Content-Disposition"])
@@ -1727,19 +2155,68 @@ def _google_storage_client(project: str) -> object:
     return storage.Client(project=project)
 
 
-def production_acquisition_authority() -> ProductionDraftKingsAcquisitionAuthority:
-    """Construct the fixed read-only adapter; accepts no caller authority."""
+def _live_acquisition_authority(
+    *,
+    policy: CollectorAllowlist,
+    client: object,
+    profiles: tuple[str, ...],
+    phase: str,
+    publish_by: object,
+) -> _ProductionDraftKingsAcquisitionAuthority:
+    """Build the private live adapter from repository-owned dependencies."""
 
-    policy = live_collector_allowlist()
-    _authority_runtime_matches(policy)
-    client = _google_storage_client(policy.project)
     evidence = _GcsExactStore(
         client=client, bucket=policy.evidence_bucket, prefix=policy.evidence_prefix
     )
     ledger = _GcsLedgerReader(client=client, policy=policy)
-    return ProductionDraftKingsAcquisitionAuthority(
-        token=_AUTHORITY_TOKEN, evidence=evidence, ledger=ledger, policy=policy
+    return _ProductionDraftKingsAcquisitionAuthority(
+        evidence=evidence,
+        ledger=ledger,
+        policy=policy,
+        boundary=_authority_boundary(
+            profiles=profiles,
+            phase=phase,
+            publish_by=publish_by,
+        ),
     )
+
+
+def _verify_derived_publication_after_ledgers(
+    *,
+    authority: _ProductionDraftKingsAcquisitionAuthority,
+    publication: Mapping[str, object],
+    event_ids: Sequence[str],
+    publish_by: object,
+    phase: str,
+) -> dict[str, object]:
+    retained = _mapping(publication, label="derived capture publication")
+    _exact(
+        retained,
+        {"artifact_identity", "semantic_sha256", "created_at"},
+        label="derived capture publication",
+    )
+    created_at, created = _timestamp(
+        retained["created_at"], label="derived capture provider creation time"
+    )
+    publish_text, cutoff = capture._publish_by(
+        publish_by,
+        label="derived capture publish_by",
+        phase=phase,
+    )
+    if created > cutoff:
+        _fail("derived capture was created after its exact publication cutoff")
+    for event_id in event_ids:
+        ledger = authority._ledger_evidence_for(event_id)
+        if ledger["publish_by"] != publish_text:
+            _fail("derived capture and authority ledger use another cutoff")
+        _, ledger_created = _timestamp(
+            ledger["created_at"], label="derived capture ledger creation time"
+        )
+        if ledger_created > created:
+            _fail("derived capture predates an authority ledger it depends on")
+        _identity(ledger["identity"], label="derived capture authority ledger identity")
+    retained["created_at"] = created_at
+    return retained
 
 
 def run_live_authenticated_acquisition(
@@ -1767,9 +2244,12 @@ def run_live_authenticated_acquisition(
     ledger = _GcsExactStore(
         client=client, bucket=policy.authority_bucket, prefix=policy.authority_prefix
     )
+    if acquisition_profile not in policy.rules:
+        _fail("acquisition profile is outside the exact allowlist")
     transport = _RequestsSessionTransport(
         storage_state_path=LIVE_SESSION_STATE_PATH,
         session_profile=policy.session_profile,
+        locator_families=policy.rules[acquisition_profile].effective_locator_families,
     )
     return _collect_with_reviewed_ports(
         policy=policy,
@@ -1797,11 +2277,12 @@ def publish_live_acceptance_provider_capture_v2(
     _authority_runtime_matches(policy)
     client = _google_storage_client(policy.project)
     store = _GcsProviderCaptureStore(client=client, policy=policy)
-    authority = ProductionDraftKingsAcquisitionAuthority(
-        token=_AUTHORITY_TOKEN,
-        evidence=store,
-        ledger=_GcsLedgerReader(client=client, policy=policy),
+    authority = _live_acquisition_authority(
         policy=policy,
+        client=client,
+        profiles=(capture.ACCEPTANCE_ACQUISITION_PROFILE,),
+        phase="prelock",
+        publish_by=publish_by,
     )
     artifact = capture.build_acceptance_provider_capture_v2(
         store=store,
@@ -1811,7 +2292,7 @@ def publish_live_acceptance_provider_capture_v2(
         publish_by=publish_by,
     )
     event_id = str(artifact["acquisition_authority_event_id"])
-    return capture.publish_semantic_artifact(
+    publication = capture.publish_semantic_artifact(
         store,
         uri=(
             f"gs://{policy.evidence_bucket}/{policy.provider_capture_prefix}/"
@@ -1819,6 +2300,13 @@ def publish_live_acceptance_provider_capture_v2(
         ),
         artifact=artifact,
         not_after=publish_by,
+    )
+    return _verify_derived_publication_after_ledgers(
+        authority=authority,
+        publication=publication,
+        event_ids=(event_id,),
+        publish_by=publish_by,
+        phase="prelock",
     )
 
 
@@ -1838,11 +2326,19 @@ def publish_live_final_field_provider_capture_v2(
     _authority_runtime_matches(policy)
     client = _google_storage_client(policy.project)
     store = _GcsProviderCaptureStore(client=client, policy=policy)
-    authority = ProductionDraftKingsAcquisitionAuthority(
-        token=_AUTHORITY_TOKEN,
-        evidence=store,
-        ledger=_GcsLedgerReader(client=client, policy=policy),
+    authority = _live_acquisition_authority(
         policy=policy,
+        client=client,
+        profiles=tuple(
+            sorted(
+                (
+                    capture.CONTEST_DETAIL_ACQUISITION_PROFILE,
+                    capture.STANDINGS_ACQUISITION_PROFILE,
+                )
+            )
+        ),
+        phase="postlock",
+        publish_by=publish_by,
     )
     artifact = capture.build_final_field_provider_capture_v2(
         store=store,
@@ -1853,7 +2349,7 @@ def publish_live_final_field_provider_capture_v2(
         publish_by=publish_by,
     )
     event_id = str(artifact["provider_authority_event_id"])
-    return capture.publish_semantic_artifact(
+    publication = capture.publish_semantic_artifact(
         store,
         uri=(
             f"gs://{policy.evidence_bucket}/{policy.provider_capture_prefix}/"
@@ -1863,14 +2359,22 @@ def publish_live_final_field_provider_capture_v2(
         not_before=capture.EXPECTED_LOCK_UTC,
         not_after=publish_by,
     )
+    return _verify_derived_publication_after_ledgers(
+        authority=authority,
+        publication=publication,
+        event_ids=(
+            str(artifact["provider_authority_event_id"]),
+            str(artifact["standings_authority_event_id"]),
+        ),
+        publish_by=publish_by,
+        phase="postlock",
+    )
 
 
 __all__ = [
     "CollectorIssuance",
-    "ProductionDraftKingsAcquisitionAuthority",
     "Week1A5DraftKingsAcquisitionError",
     "live_collector_allowlist",
-    "production_acquisition_authority",
     "publish_live_acceptance_provider_capture_v2",
     "publish_live_final_field_provider_capture_v2",
     "run_live_authenticated_acquisition",

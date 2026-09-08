@@ -22,6 +22,45 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 capture-v3 P0-A independent-HOLD repair ready for review
+
+- The bounded repair is complete on branch
+  `codex/week1-capture-v3-p0a-review-repair-20260908`, based on independent
+  HOLD tip `36e573d8fdb4c0b5f7b55e432b128b8b909f5ee0`. The complete disposition is
+  `reports/2026-09-08-week1-capture-v3-p0a-independent-hold-repair.md`; the
+  exact implementation commit is recorded by the immediately following final
+  handoff commit because a commit cannot contain its own identity.
+- P0-1 is repaired by retaining and hashing the complete direct authority-
+  bucket IAM policy version, provider ETag and every binding/condition.
+  `roles/storage.objectUser` is a direct mutator; every custom/new/unreviewed
+  bucket role fails closed. The projected mutator/viewer/public sets must
+  exactly reproduce the full policy. Inherited effective IAM,
+  impersonation and job-update authority remain explicit P0-B provider facts,
+  not source claims.
+- P0-2 is repaired by constructing each private live authority with the exact
+  phase/profile/publish-by boundary. Every read requires receipt <= root-last
+  ledger <= cutoff, enforces the lock side, exact-reopens the sole ledger
+  generation twice, and requires the derived provider-capture generation to
+  follow every authenticated ledger. A September 14 ledger can no longer
+  authenticate a September 13 pre-lock capture.
+- P0-3 is repaired by disabling automatic redirects and validating the
+  initial locator, every response URL, explicit/implicit port and resolved
+  redirect target before the next request. Only five allowlisted HTTPS/443
+  redirects are possible; off-family targets and loops fail before contact.
+  The exported authority class/factory were removed, the live publishers
+  retain closed signatures, and only an explicitly private boundary-bearing
+  test seam remains.
+- Serial validation passed 21/21 repaired P0-A, 42/42 unchanged P2 and 15/15
+  unchanged legacy-v2 tests after separate empty global pytest censuses.
+  Ruff, compilation and `git diff --check` pass. The P2 source/test blobs are
+  byte-identical to production parent `0391390c`.
+- Every activation pin remains absent and repository search finds no non-test
+  caller. No network, provider, DraftKings, cloud, GCS publication,
+  deployment, paid-entry, score, generation, selection or outcome action was
+  performed. Exact next action: push the candidate and obtain a fresh
+  independent review of this exact delta. P0-B and every live action remain
+  HOLD until that review passes and production issues a separate gate.
+
 ### 2026-09-08 Week-1 capture-v3 P0-A independent review holds candidate
 
 - Independent review of exact implementation

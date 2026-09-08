@@ -9,6 +9,7 @@ import inspect
 import io
 import json
 from dataclasses import dataclass
+from pathlib import Path
 
 import pytest
 
@@ -61,13 +62,15 @@ class MemoryLedgerReader:
     def __init__(
         self,
         store: MemoryStore,
-        governance: acquisition.CollectorGovernance,
+        governance: acquisition.CollectorGovernance | dict[str, object],
     ) -> None:
         self.store = store
         self._governance = governance
 
     def governance(self) -> dict[str, object]:
-        return self._governance.as_dict()
+        if isinstance(self._governance, acquisition.CollectorGovernance):
+            return self._governance.as_dict()
+        return copy.deepcopy(self._governance)
 
     def read_single_generation(self, *, uri: str) -> dict[str, object]:
         matches = [
@@ -91,13 +94,37 @@ class FixedTransport:
 
 
 def _governance() -> acquisition.CollectorGovernance:
+    bindings_list = [
+        {
+            "role": "roles/storage.objectCreator",
+            "members": [
+                "serviceAccount:dk-capture@nfl-predictions-503414.iam.gserviceaccount.com"
+            ],
+        },
+        {
+            "role": "roles/storage.objectViewer",
+            "members": [
+                "serviceAccount:dk-capture@nfl-predictions-503414.iam.gserviceaccount.com",
+                "serviceAccount:dk-reader@nfl-predictions-503414.iam.gserviceaccount.com",
+            ],
+        },
+    ]
+    bindings_list.sort(key=canonical_json_bytes)
+    bindings = tuple(bindings_list)
+    etag = "Zml4dHVyZS1ldGFn"
     return acquisition.CollectorGovernance(
         authority_bucket_metageneration="7",
         retention_seconds=31_536_000,
         retention_locked=True,
         versioning_enabled=True,
         uniform_bucket_level_access=True,
-        object_creator_members=(
+        iam_policy_version=3,
+        iam_policy_etag_base64=etag,
+        iam_policy_sha256=acquisition._iam_policy_sha256(
+            version=3, etag_base64=etag, bindings=bindings
+        ),
+        iam_policy_bindings=bindings,
+        object_mutator_members=(
             "serviceAccount:dk-capture@nfl-predictions-503414.iam.gserviceaccount.com",
         ),
         object_viewer_members=(
@@ -179,7 +206,7 @@ class IssuedFixture:
     evidence: MemoryStore
     ledger: MemoryStore
     policy: acquisition.CollectorAllowlist
-    authority: acquisition.ProductionDraftKingsAcquisitionAuthority
+    authority: capture.AuthenticatedProviderAcquisitionAuthority
     issuance: acquisition.CollectorIssuance
     transport: FixedTransport
 
@@ -204,6 +231,9 @@ def issued(monkeypatch: pytest.MonkeyPatch) -> IssuedFixture:
         policy=policy,
         evidence=evidence,
         ledger=MemoryLedgerReader(ledger, policy.governance),
+        profiles=(capture.ACCEPTANCE_ACQUISITION_PROFILE,),
+        phase="prelock",
+        publish_by="2026-09-13T15:30:00Z",
     )
     return IssuedFixture(evidence, ledger, policy, authority, issuance, transport)
 
@@ -229,6 +259,35 @@ def _replace_ledger_event(
     stored["raw"] = raw
 
 
+def _governance_with_binding(
+    base: acquisition.CollectorGovernance,
+    *,
+    role: str,
+    member: str,
+) -> dict[str, object]:
+    value = base.as_dict()
+    bindings = list(value["iam_policy_bindings"])
+    bindings.append({"role": role, "members": [member]})
+    bindings.sort(key=canonical_json_bytes)
+    value["iam_policy_bindings"] = bindings
+    if role in acquisition._DIRECT_OBJECT_MUTATOR_ROLES:
+        value["object_mutator_members"] = sorted(
+            {*value["object_mutator_members"], member}
+        )
+    if role in acquisition._DIRECT_OBJECT_VIEWER_ROLES:
+        value["object_viewer_members"] = sorted(
+            {*value["object_viewer_members"], member}
+        )
+    if member in {"allUsers", "allAuthenticatedUsers"}:
+        value["public_members"] = sorted({*value["public_members"], member})
+    value["iam_policy_sha256"] = acquisition._iam_policy_sha256(
+        version=int(value["iam_policy_version"]),
+        etag_base64=str(value["iam_policy_etag_base64"]),
+        bindings=bindings,
+    )
+    return value
+
+
 def test_collector_derives_and_issues_exact_transport_event(
     issued: IssuedFixture,
 ) -> None:
@@ -251,21 +310,18 @@ def test_collector_derives_and_issues_exact_transport_event(
     }
 
 
-def test_authority_is_read_only_and_not_caller_constructible(
+def test_live_authority_is_private_and_operational_surface_is_noninjectable(
     issued: IssuedFixture,
 ) -> None:
     assert not hasattr(issued.authority, "register")
     assert not hasattr(issued.authority, "publish")
-    with pytest.raises(
-        acquisition.Week1A5DraftKingsAcquisitionError,
-        match="not caller-constructible",
-    ):
-        acquisition.ProductionDraftKingsAcquisitionAuthority(
-            token=object(),
-            evidence=issued.evidence,
-            ledger=MemoryLedgerReader(issued.ledger, issued.policy.governance),
-            policy=issued.policy,
-        )
+    assert "ProductionDraftKingsAcquisitionAuthority" not in acquisition.__all__
+    assert not hasattr(acquisition, "ProductionDraftKingsAcquisitionAuthority")
+    assert not hasattr(acquisition, "production_acquisition_authority")
+    parameters = inspect.signature(
+        acquisition._authority_from_reviewed_ports
+    ).parameters
+    assert {"profiles", "phase", "publish_by"} <= set(parameters)
 
 
 def test_live_publishers_have_no_authority_or_store_injection_surface() -> None:
@@ -390,6 +446,61 @@ def test_unapproved_collector_image_fails_before_capture_publication(
             publish_by="2026-09-13T15:30:00Z",
         )
     assert len(issued.evidence.objects) == before
+
+
+def test_post_cutoff_root_last_ledger_cannot_authenticate_prelock_capture(
+    issued: IssuedFixture,
+) -> None:
+    ledger_key = (
+        str(issued.issuance.ledger_identity["uri"]),
+        str(issued.issuance.ledger_identity["generation"]),
+    )
+    issued.ledger.objects[ledger_key]["created_at"] = "2026-09-14T15:03:00Z"
+    with pytest.raises(
+        acquisition.Week1A5DraftKingsAcquisitionError,
+        match="after the exact publication cutoff",
+    ):
+        issued.authority.read_authenticated_acquisition(
+            identity=issued.issuance.acquisition_receipt["artifact_identity"]
+        )
+    before = len(issued.evidence.objects)
+    with pytest.raises(capture.Week1A5CaptureContractError, match="not recognized"):
+        capture.build_acceptance_provider_capture_v2(
+            store=issued.evidence,
+            acquisition_authority=issued.authority,
+            contest_role="milly-5",
+            acquisition_receipt=issued.issuance.acquisition_receipt,
+            publish_by="2026-09-13T16:00:00Z",
+        )
+    assert len(issued.evidence.objects) == before
+
+
+def test_derived_capture_must_be_created_after_exact_ledger(
+    issued: IssuedFixture,
+) -> None:
+    issued.authority.read_authenticated_acquisition(
+        identity=issued.issuance.acquisition_receipt["artifact_identity"]
+    )
+    with pytest.raises(
+        acquisition.Week1A5DraftKingsAcquisitionError,
+        match="predates an authority ledger",
+    ):
+        acquisition._verify_derived_publication_after_ledgers(
+            authority=issued.authority,
+            publication={
+                "artifact_identity": {
+                    "uri": "gs://fixture/capture.json",
+                    "generation": "99",
+                    "sha256": "f" * 64,
+                    "bytes": 1,
+                },
+                "semantic_sha256": "e" * 64,
+                "created_at": "2026-09-13T15:02:30Z",
+            },
+            event_ids=(EVENT_ID,),
+            publish_by="2026-09-13T15:30:00Z",
+            phase="prelock",
+        )
 
 
 def test_recognized_event_cross_wired_role_contest_fails_before_publication(
@@ -534,19 +645,171 @@ def test_redirect_chain_and_locator_family_are_closed(
         )
 
 
+def test_fixed_transport_rejects_off_family_redirect_before_contact(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    import requests
+
+    class Cookies:
+        def __init__(self) -> None:
+            self.values: list[tuple[tuple[object, ...], dict[str, object]]] = []
+
+        def set(self, *args: object, **kwargs: object) -> None:
+            self.values.append((args, kwargs))
+
+    class Response:
+        def __init__(self) -> None:
+            self.url = FIXTURE_LOCATOR
+            self.status_code = 302
+            self.headers = {"Location": "https://evil.invalid/steal"}
+            self.content = b"redirect"
+
+    class Session:
+        def __init__(self) -> None:
+            self.cookies = Cookies()
+            self.calls: list[tuple[str, dict[str, object]]] = []
+
+        def get(self, locator: str, **kwargs: object) -> Response:
+            self.calls.append((locator, kwargs))
+            return Response()
+
+    path = tmp_path / "storage-state.json"
+    path.write_text(
+        json.dumps(
+            {
+                "cookies": [
+                    {
+                        "domain": ".draftkings.com",
+                        "name": "session",
+                        "value": "fixture-only",
+                        "path": "/",
+                        "secure": True,
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    session = Session()
+    monkeypatch.setattr(requests, "Session", lambda: session)
+    transport = acquisition._RequestsSessionTransport(
+        storage_state_path=path,
+        session_profile=acquisition.COLLECTOR_SESSION_PROFILE,
+        locator_families=(
+            acquisition.LocatorFamily(
+                "https", "fixture.draftkings.invalid", "/account/"
+            ),
+        ),
+    )
+    with pytest.raises(
+        acquisition.Week1A5DraftKingsAcquisitionError,
+        match="redirect target is outside",
+    ):
+        transport.perform(method="GET", locator=FIXTURE_LOCATOR)
+    assert [call[0] for call in session.calls] == [FIXTURE_LOCATOR]
+    assert session.calls[0][1]["allow_redirects"] is False
+    assert all("evil.invalid" not in call[0] for call in session.calls)
+
+
+def test_fixed_transport_rejects_explicit_nonstandard_port_before_session(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "absent-storage-state.json"
+    transport = acquisition._RequestsSessionTransport(
+        storage_state_path=path,
+        session_profile=acquisition.COLLECTOR_SESSION_PROFILE,
+        locator_families=(
+            acquisition.LocatorFamily(
+                "https", "fixture.draftkings.invalid", "/account/"
+            ),
+        ),
+    )
+    with pytest.raises(
+        acquisition.Week1A5DraftKingsAcquisitionError,
+        match="initial request locator is outside",
+    ):
+        transport.perform(
+            method="GET",
+            locator="https://fixture.draftkings.invalid:444/account/active.csv",
+        )
+
+
+def test_fixed_transport_rejects_redirect_loop_before_second_contact(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    import requests
+
+    class Cookies:
+        def set(self, *_: object, **__: object) -> None:
+            pass
+
+    class Response:
+        def __init__(self) -> None:
+            self.url = FIXTURE_LOCATOR
+            self.status_code = 302
+            self.headers = {"Location": FIXTURE_LOCATOR}
+            self.content = b"redirect"
+
+    class Session:
+        def __init__(self) -> None:
+            self.cookies = Cookies()
+            self.calls: list[str] = []
+
+        def get(self, locator: str, **_: object) -> Response:
+            self.calls.append(locator)
+            return Response()
+
+    path = tmp_path / "storage-state.json"
+    path.write_text(
+        json.dumps(
+            {
+                "cookies": [
+                    {
+                        "domain": ".draftkings.com",
+                        "name": "session",
+                        "value": "fixture-only",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    session = Session()
+    monkeypatch.setattr(requests, "Session", lambda: session)
+    transport = acquisition._RequestsSessionTransport(
+        storage_state_path=path,
+        session_profile=acquisition.COLLECTOR_SESSION_PROFILE,
+        locator_families=(
+            acquisition.LocatorFamily(
+                "https", "fixture.draftkings.invalid", "/account/"
+            ),
+        ),
+    )
+    with pytest.raises(
+        acquisition.Week1A5DraftKingsAcquisitionError,
+        match="redirect loop",
+    ):
+        transport.perform(method="GET", locator=FIXTURE_LOCATOR)
+    assert session.calls == [FIXTURE_LOCATOR]
+
+
 def test_governance_change_invalidates_previously_issued_event(
     issued: IssuedFixture,
 ) -> None:
-    weakened = acquisition.CollectorGovernance(
-        **{
-            **issued.policy.governance.__dict__,
-            "public_members": ("allAuthenticatedUsers",),
-        }
+    weakened = _governance_with_binding(
+        issued.policy.governance,
+        role="roles/storage.objectViewer",
+        member="allAuthenticatedUsers",
     )
     authority = acquisition._authority_from_reviewed_ports(
         policy=issued.policy,
         evidence=issued.evidence,
         ledger=MemoryLedgerReader(issued.ledger, weakened),
+        profiles=(capture.ACCEPTANCE_ACQUISITION_PROFILE,),
+        phase="prelock",
+        publish_by="2026-09-13T15:30:00Z",
     )
     with pytest.raises(
         acquisition.Week1A5DraftKingsAcquisitionError,
@@ -555,3 +818,90 @@ def test_governance_change_invalidates_previously_issued_event(
         authority.read_authenticated_acquisition(
             identity=issued.issuance.acquisition_receipt["artifact_identity"]
         )
+
+
+@pytest.mark.parametrize(
+    ("role", "member", "message"),
+    [
+        (
+            "roles/storage.objectUser",
+            "serviceAccount:second-writer@nfl-predictions-503414.iam.gserviceaccount.com",
+            "governance differs",
+        ),
+        (
+            "projects/nfl-predictions-503414/roles/customObjectWriter",
+            "serviceAccount:custom-writer@nfl-predictions-503414.iam.gserviceaccount.com",
+            "unreviewed bucket role",
+        ),
+    ],
+)
+def test_complete_governance_rejects_every_unreviewed_direct_binding(
+    issued: IssuedFixture,
+    role: str,
+    member: str,
+    message: str,
+) -> None:
+    observed = _governance_with_binding(
+        issued.policy.governance,
+        role=role,
+        member=member,
+    )
+    authority = acquisition._authority_from_reviewed_ports(
+        policy=issued.policy,
+        evidence=issued.evidence,
+        ledger=MemoryLedgerReader(issued.ledger, observed),
+        profiles=(capture.ACCEPTANCE_ACQUISITION_PROFILE,),
+        phase="prelock",
+        publish_by="2026-09-13T15:30:00Z",
+    )
+    with pytest.raises(acquisition.Week1A5DraftKingsAcquisitionError, match=message):
+        authority.read_authenticated_acquisition(
+            identity=issued.issuance.acquisition_receipt["artifact_identity"]
+        )
+
+
+def test_gcs_governance_census_retains_object_user_binding() -> None:
+    extra = (
+        "serviceAccount:second-writer@"
+        "nfl-predictions-503414.iam.gserviceaccount.com"
+    )
+
+    class Policy:
+        def __init__(self) -> None:
+            self.version = 3
+            self.etag = "cHJvdmlkZXItZXRhZw=="
+            self.bindings = [
+                {
+                    "role": "roles/storage.objectUser",
+                    "members": {extra},
+                }
+            ]
+
+    class IamConfiguration:
+        uniform_bucket_level_access_enabled = True
+
+    class Bucket:
+        metageneration = 9
+        retention_period = 31_536_000
+        retention_policy_locked = True
+        versioning_enabled = True
+        iam_configuration = IamConfiguration()
+
+        def reload(self) -> None:
+            pass
+
+        def get_iam_policy(self, *, requested_policy_version: int) -> Policy:
+            assert requested_policy_version == 3
+            return Policy()
+
+    class Client:
+        def bucket(self, _: str) -> Bucket:
+            return Bucket()
+
+    observed = acquisition._GcsLedgerReader(
+        client=Client(), policy=_policy()
+    ).governance()
+    assert observed["object_mutator_members"] == [extra]
+    assert observed["iam_policy_bindings"] == [
+        {"role": "roles/storage.objectUser", "members": [extra]}
+    ]
