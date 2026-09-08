@@ -543,7 +543,12 @@ def _summary(
     def matches_prefix(prefix: str) -> bool:
         if run_id is None:
             return False
-        return run_id.startswith(f"{prefix}-")
+        # Launcher registrations normally carry a stable prefix (for example
+        # ``083b580r1``), but one-shot coordinators may freeze the complete
+        # RUN_ID as their only admissible target.  Treat that exact identity
+        # as a claim too, while retaining the delimiter boundary that keeps
+        # ``foo`` from matching unrelated ``foobar-*`` runs.
+        return run_id == prefix or run_id.startswith(f"{prefix}-")
     return {
         "name": name,
         "uid": metadata.get("uid"),

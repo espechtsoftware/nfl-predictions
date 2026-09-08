@@ -22,6 +22,24 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Cloud Run monitor accepts exact frozen RUN_ID registrations
+
+- A completed one-shot coordinator registered the full identity
+  `102b740r1-20260907T214713Z`, while the monitor only recognized a registered
+  value when the provider `RUN_ID` contained that value plus another hyphen.
+  The already cancelled execution was therefore falsely reported as an
+  unclaimed prefix even though the provider execution existed.
+- Prefix matching now accepts either an exact `RUN_ID` or the existing
+  delimiter-bounded `prefix-*` form. It still refuses embedded and delimiter-
+  ambiguous matches. A regression covers the exact full-run-ID case and proves
+  that it cannot raise `lane_capacity_with_unclaimed_prefix`.
+- Validation: `tests/test_cloud_run_lane_monitor.py` passed 48/48; Python
+  compilation and `git diff --check` passed. No cloud, launcher-registry, or
+  experiment state changed. Next action: integrate this commit onto production
+  main, update the installed monitoring worktree, restart only
+  `nfl-cloud-run-lane-monitor.service`, and verify the stale false-positive
+  clears while normal provider polling remains healthy.
+
 ### 2026-09-08 CP-4 R16 remote-driver v2 held on real provider evidence
 
 - Lab returned driver v2 at
