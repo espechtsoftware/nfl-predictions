@@ -22,6 +22,40 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 CP-4 R16 mechanics failed terminally; R21 image-closure repair active
+
+- The one authorized R16 mechanics attempt ran through the registered wrapper
+  from exact packaging commit
+  `45642be70621932b82bef812eaeb3f95a47b14aa` and immutable image
+  `sha256:11a22b5374068c3a52bbae05fc741b394fb1fd956079e289f67a2b388aebe01e`.
+  Cloud Run execution `lab-run-slow-g2rrs`, UID
+  `f3fa98f8-211b-4be2-9a61-163922594cff`, completed terminal **FAILED** at
+  `2026-09-08T12:21:54.618572Z`: 0 succeeded, 1 failed, 0 cancelled and 0
+  retried. The registered coordinator exited 2 and correctly refused terminal
+  acceptance.
+- The exact container traceback terminates at
+  `FileNotFoundError: /app/scripts/cp1_prelock_broker.py`. The accepted source
+  contains that broker and `src/nfl2/cp1_prelock.py` hashes and invokes it,
+  but the exact Dockerfile copied only the CP-4 entry/mechanics/contract
+  scripts and omitted this transitive runtime dependency. Source-level and
+  inventory tests did not execute the exact entry path inside the built image.
+- Immutable R16 intent generation `1788869965028982` and claim generation
+  `1788869975443321` exist and must be preserved. Disposition, smoke result
+  and terminal seal objects are absent. No outcome-bearing artifact or score
+  was opened or written. The R16 attempt and namespace are spent: never
+  relaunch, delete, replace or reuse them.
+- Production sealed the incident and granted a bounded CP-4 R21
+  code/test-only repair on lab `main` at
+  `f1f822ee0101d0ae6e73fcb2bc27db9cb154a5e7`. The controlling records are
+  `reports/2026-09-08-cp4-r16-mechanics-terminal-failure-and-r21-repair-boundary.md`
+  and
+  `handoffs/PRODUCTION-TO-LAB-CP4-R16-TERMINAL-FAILURE-AND-R21-IMAGE-CLOSURE-REPAIR-GO-2026-09-08.md`.
+  R21 must prove the complete transitive repository-file closure in the final
+  image, run the exact entry command in a real outcome-disabled local built
+  image with removal adversaries, and use a fresh proposed `r17` namespace.
+  No build, provider mutation, execution or outcome action is authorized
+  before exact-candidate independent review.
+
 ### 2026-09-08 PREREG-074 R26 composite held; R27 host-preflight repair active
 
 - Independent review of exact R26/R4 composite candidate
