@@ -58,9 +58,14 @@ artifact_identity = {uri, generation, sha256, bytes}
 The two hashes are not compared for equality. Every consumer generation-
 exactly reopens the external identity, verifies byte length and raw SHA-256,
 parses those bytes, and then recomputes `semantic_sha256`. Provider creation
-time—not a caller timestamp or URI spelling—enforces pre-lock and settlement
-boundaries. Create-once publication is followed by an independent exact
-reopen before its receipt is returned.
+time—not a URI spelling—enforces pre-lock and settlement boundaries.
+`frozen_at`, `accepted_at`, and `publish_by` are prospective create-once
+publication cutoffs: the bytes are serialized first, the object is published,
+and its provider creation time must be no later than that already-declared
+cutoff. They are not backdated observation times. Raw source `observed_at`
+values are separate and must be no later than the provider creation time of
+the archived source bytes. Create-once publication is followed by an
+independent exact reopen before its receipt is returned.
 
 ## Evidence sequence
 
@@ -101,11 +106,19 @@ later than the declared freeze and strictly before lock.
 
 - the production exporter's `paid-entry-capture/v1` JSON;
 - the filled DK CSV whose raw SHA/bytes the prepared capture records;
-- a canonical raw accepted-entry evidence artifact;
+- a separately archived raw DraftKings active-entry export;
+- `dk-accepted-entry-provider-capture/v1`, which binds that raw export to the
+  allowlisted authenticated provider method, exact A5 contest, observation
+  time, raw generation, and prospective publication cutoff; and
+- `dk-accepted-entry-evidence/v2`, rebuilt only from that capture/raw export;
 - the manifest, allocation, P_MIX book, and player bridge.
 
-Accepted rows are a deterministic projection of the reopened evidence; callers
-cannot provide independent rows. Min-churn assignment is a legitimate
+Accepted Entry IDs and ordered slot IDs are parsed from the reopened provider
+CSV. `complete=true`, accepted status, exact K, and the normalized rows are
+therefore derived facts, not caller inputs. The provider observation must be a
+separate archived object from the locally filled upload; roster truth is then
+joined back to the filled CSV and exact book. A free-standing JSON array of
+`status=accepted` rows is rejected. Min-churn assignment is a legitimate
 permutation:
 
 ```text
@@ -120,14 +133,21 @@ globally unique Entry IDs before lock.
 
 ### 4. Complete-field normalization and settlement
 
-A canonical `dk-final-field-evidence/v1` artifact derives the exact contest,
-draft group, settled state, displayed final submitted field size, and capture
-time from an exact `dk-final-field-provider-source/v1` raw object and binds the
-exact raw standings identity. `dk-normalized-complete-field/v1` is rebuilt only
-from that provider source, evidence, exact raw CSV, and exact player bridge. It
-derives every Entry ID, competition rank, signed score, cash payout, ticket
-award, settled time-remaining value, and final roster. Raw parsed row count
-must exactly equal the independently captured displayed size.
+A `dk-final-field-provider-capture/v1` receipt binds two exact raw objects in
+one capture: the DraftKings contest-detail HTTP response body and the full
+standings export. Reviewed code derives contest ID, draft group, settled state,
+and final submitted entry count from `contestDetail` in the raw provider body;
+it stream-counts the exact standings Entry IDs and refuses publication unless
+that count agrees. The retired `dk-final-field-provider-source/v1` caller
+wrapper cannot authorize a field, even when a truncated CSV and false claimed
+N agree.
+
+`dk-final-field-evidence/v2` and `dk-normalized-complete-field/v2` are rebuilt
+only from that generation-exact provider capture, its two raw objects, and the
+exact player bridge. Normalization derives every Entry ID, competition rank,
+signed score, cash payout, ticket award, settled time-remaining value, and
+final roster. Raw parsed row count must exactly equal the entry count parsed
+from the settled provider response.
 
 `dk-contest-settlement/v2` reopens the normalized artifact, raw CSV,
 final-size evidence, four-contest acceptance root, per-contest manifest and
@@ -150,7 +170,11 @@ the exact pooled cents with floor/one-cent-remainder allocation; no
    raw identity and semantic SHA.
 4. Independently review this repair and run its focused adversarial suite plus
    an outcome-blind smoke against the five real source objects and a
-   representative production prepared-entry/filled-CSV/Entry-History shape.
+   representative production prepared-entry/filled-CSV/active-entry-export
+   shape. `scripts/week1_a5_capture_real_shape_smoke.py` is default-off,
+   performs no writes or network calls, emits only redacted counts/hashes, and
+   requires `--execute-real-shape-smoke`. Its post-lock mode additionally
+   requires `--allow-postlock-outcome-bytes`.
 5. Only after those gates, publish four manifests, perform owner-authorized
    uploads, capture raw acceptance evidence, and publish the 90-entry root.
 6. After contests settle, preserve all four complete fields inside DK's short
@@ -162,9 +186,11 @@ not manually stitch JSON. Any future shared Cloud Run refresh must use
 durably record execution IDs and terminal counters. The direct `gcloud run
 jobs execute` examples from the held candidate are withdrawn.
 
-The legacy v2 rehearsal remains available for fixtures and historical
-compatibility, but its single mutable-meaning `field_size` procedure is not a
-live A5 authority.
+The separate legacy v2 rehearsal module and its tests remain available for
+fixtures and historical compatibility, but its single mutable-meaning
+`field_size` procedure is not a live A5 authority. The held caller-normalized
+accepted-evidence and final-field-source v1 adapter shapes are explicitly
+retired rather than retained as a fallback.
 
 ## Validation boundary
 

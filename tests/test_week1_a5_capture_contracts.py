@@ -16,18 +16,33 @@ from nfl_dfs.inference.generation_exposure import (
     canonical_sha256,
 )
 from nfl_dfs.ingest import week1_a5_capture_contracts as capture
+from scripts import week1_a5_capture_real_shape_smoke as shape_smoke_cli
 
 PRELOCK_SOURCE_TIME = "2026-09-04T10:55:35.926577+00:00"
 BRIDGE_TIME = "2026-09-10T10:00:00Z"
 SALARY_PULLED_AT = "2026-09-10T09:00:00+00:00"
 ALLOCATION_TIME = "2026-09-11T10:00:00Z"
+ALLOCATION_CREATED_AT = "2026-09-11T09:55:00Z"
 MANIFEST_TIME = "2026-09-12T10:00:00Z"
+MANIFEST_CREATED_AT = "2026-09-12T09:55:00Z"
 ACCEPTANCE_SOURCE_TIME = "2026-09-13T15:00:00Z"
+ACCEPTANCE_RAW_ARCHIVED_AT = "2026-09-13T15:02:00Z"
+ACCEPTANCE_CAPTURE_TIME = "2026-09-13T15:10:00Z"
+ACCEPTANCE_CAPTURE_PUBLISH_BY = "2026-09-13T15:15:00Z"
+ACCEPTANCE_EVIDENCE_TIME = "2026-09-13T15:20:00Z"
+ACCEPTANCE_EVIDENCE_PUBLISH_BY = "2026-09-13T15:30:00Z"
 ACCEPTED_AT = "2026-09-13T16:00:00Z"
+ACCEPTANCE_RECEIPT_CREATED_AT = "2026-09-13T15:50:00Z"
 ROOT_TIME = "2026-09-13T16:30:00Z"
+ROOT_CREATED_AT = "2026-09-13T16:20:00Z"
 SETTLEMENT_SOURCE_TIME = "2026-09-14T20:00:00Z"
+SETTLEMENT_SOURCE_ARCHIVED_AT = "2026-09-14T20:02:00Z"
+FINAL_FIELD_CAPTURE_TIME = "2026-09-14T20:10:00Z"
+FINAL_FIELD_CAPTURE_PUBLISH_BY = "2026-09-14T20:15:00Z"
 FINAL_FIELD_EVIDENCE_TIME = "2026-09-14T20:30:00Z"
+FINAL_FIELD_EVIDENCE_CREATED_AT = "2026-09-14T20:20:00Z"
 SETTLEMENT_TIME = "2026-09-14T21:00:00Z"
+NORMALIZED_FIELD_CREATED_AT = "2026-09-14T20:50:00Z"
 PREFIX = "gs://fixture/week1-a5-v3-repair"
 
 
@@ -438,7 +453,6 @@ def _install_acceptance(
     if k >= 2:
         permutation[:2] = [1, 0]
     prepared_entries = []
-    evidence_entries = []
     bridge_by_draftable = {
         item["dk_draftable_id"]: item for item in bridge["players"]
     }
@@ -455,15 +469,6 @@ def _install_acceptance(
                 ),
                 "dk_draftable_ids": sorted(book["slot_dk_draftable_ids"]),
                 "paid_input_book_ordinal": book_ordinal,
-                "slot_dk_draftable_ids": book["slot_dk_draftable_ids"],
-            }
-        )
-        evidence_entries.append(
-            {
-                "entry_id": entry_id,
-                "contest_id": pin.contest_id,
-                "draft_group_id": capture.EXPECTED_DRAFT_GROUP_ID,
-                "status": "accepted",
                 "slot_dk_draftable_ids": book["slot_dk_draftable_ids"],
             }
         )
@@ -488,7 +493,7 @@ def _install_acceptance(
         )
     filled = filled_stream.getvalue().encode()
     filled_identity = store.put_raw(
-        f"filled-{pin.role}.csv", filled, created_at=ACCEPTANCE_SOURCE_TIME
+        f"filled-{pin.role}.csv", filled, created_at=ACCEPTANCE_RAW_ARCHIVED_AT
     )
     prepared = {
         "schema_version": "paid-entry-capture/v1",
@@ -505,24 +510,38 @@ def _install_acceptance(
     prepared_identity = store.put_raw(
         f"prepared-{pin.role}.json",
         canonical_json_bytes(prepared),
-        created_at=ACCEPTANCE_SOURCE_TIME,
+        created_at=ACCEPTANCE_RAW_ARCHIVED_AT,
     )
-    evidence = capture.seal_semantic_artifact(
-        {
-            "schema_version": capture.ACCEPTED_EVIDENCE_SCHEMA,
-            "complete": True,
-            "captured_at": ACCEPTANCE_SOURCE_TIME,
-            "contest_id": pin.contest_id,
-            "draft_group_id": capture.EXPECTED_DRAFT_GROUP_ID,
-            "entries": evidence_entries,
-        }
+    provider_observation_identity = store.put_raw(
+        f"provider-active-entries-{pin.role}.csv",
+        filled,
+        created_at=ACCEPTANCE_RAW_ARCHIVED_AT,
+    )
+    provider_capture = capture.build_acceptance_provider_capture_v1(
+        store=store,
+        contest_role=pin.role,
+        raw_observation_identity=provider_observation_identity,
+        observed_at=ACCEPTANCE_SOURCE_TIME,
+        publish_by=ACCEPTANCE_CAPTURE_PUBLISH_BY,
+    )
+    provider_capture_publication = _publish_semantic(
+        store,
+        f"accepted-provider-capture-{pin.role}",
+        provider_capture,
+        created_at=ACCEPTANCE_CAPTURE_TIME,
+        not_after=ACCEPTANCE_CAPTURE_PUBLISH_BY,
+    )
+    evidence = capture.build_accepted_entry_evidence_v2(
+        store=store,
+        provider_capture=_ref(provider_capture_publication),
+        frozen_at=ACCEPTANCE_EVIDENCE_PUBLISH_BY,
     )
     evidence_publication = _publish_semantic(
         store,
         f"accepted-evidence-{pin.role}",
         evidence,
-        created_at=ACCEPTANCE_SOURCE_TIME,
-        not_after=ACCEPTED_AT,
+        created_at=ACCEPTANCE_EVIDENCE_TIME,
+        not_after=ACCEPTANCE_EVIDENCE_PUBLISH_BY,
     )
     receipt = capture.build_week1_entry_acceptance_v2(
         store=store,
@@ -537,8 +556,8 @@ def _install_acceptance(
         store,
         f"acceptance-{pin.role}",
         receipt,
-        created_at=ACCEPTED_AT,
-        not_after=ROOT_TIME,
+        created_at=ACCEPTANCE_RECEIPT_CREATED_AT,
+        not_after=ACCEPTED_AT,
     )
     return _ref(receipt_publication), prepared, _ref(evidence_publication)
 
@@ -563,8 +582,8 @@ def _make_cohort(
         store,
         "allocation",
         allocation,
-        created_at=ALLOCATION_TIME,
-        not_after=MANIFEST_TIME,
+        created_at=ALLOCATION_CREATED_AT,
+        not_after=ALLOCATION_TIME,
     )
     pins = capture.A5CapturePins(
         source=source_pins,
@@ -583,8 +602,8 @@ def _make_cohort(
             store,
             f"manifest-{pin.role}",
             manifest,
-            created_at=MANIFEST_TIME,
-            not_after=ACCEPTED_AT,
+            created_at=MANIFEST_CREATED_AT,
+            not_after=MANIFEST_TIME,
         )
         manifests[pin.role] = _ref(publication)
     paid_book = _read_json_ref(store, book_refs["P_MIX"])
@@ -611,8 +630,8 @@ def _make_cohort(
         store,
         "acceptance-root",
         root,
-        created_at=ROOT_TIME,
-        not_after=capture.EXPECTED_LOCK_UTC,
+        created_at=ROOT_CREATED_AT,
+        not_after=ROOT_TIME,
     )
     return Cohort(
         store=store,
@@ -729,44 +748,58 @@ def _normalized_ref(
     raw_identity = cohort.store.put_raw(
         f"standings-{role}-{suffix}.csv",
         raw,
-        created_at=SETTLEMENT_SOURCE_TIME,
+        created_at=SETTLEMENT_SOURCE_ARCHIVED_AT,
     )
     evidence_pin = capture.A5_ROLE_TABLE[evidence_contest_role or role]
     size = displayed_size
     if size is None:
         size = len(cohort.acceptance_values[role]["realized_entry_lineup_bijection"])
     provider_source = {
-        "schema_version": capture.FINAL_FIELD_SOURCE_SCHEMA,
-        "captured_at": SETTLEMENT_SOURCE_TIME,
-        "endpoint": "https://www.draftkings.com/contest/gamecenter/"
-        f"{evidence_pin.contest_id}",
-        "source": {
-            "contest_id": evidence_pin.contest_id,
-            "draft_group_id": capture.EXPECTED_DRAFT_GROUP_ID,
-            "contest_state": "Settled",
-            "displayed_final_field_size": size,
+        "errorStatus": {},
+        "contestDetail": {
+            "contestKey": evidence_pin.contest_id,
+            "draftGroupId": int(capture.EXPECTED_DRAFT_GROUP_ID),
+            "contestState": "Completed",
+            "contestStateDetail": "Final",
+            "entries": size,
         },
     }
     provider_source_identity = cohort.store.put_raw(
         f"final-field-provider-{role}-{suffix}.json",
         canonical_json_bytes(provider_source),
-        created_at=SETTLEMENT_SOURCE_TIME,
+        created_at=SETTLEMENT_SOURCE_ARCHIVED_AT,
     )
-    evidence = capture.build_final_field_evidence_v1(
+    provider_capture = capture.build_final_field_provider_capture_v1(
         store=cohort.store,
-        provider_source_identity=provider_source_identity,
+        contest_role=evidence_pin.role,
+        raw_provider_body_identity=provider_source_identity,
         raw_standings_identity=raw_identity,
+        provider_observed_at=SETTLEMENT_SOURCE_TIME,
+        standings_observed_at=SETTLEMENT_SOURCE_TIME,
+        publish_by=FINAL_FIELD_CAPTURE_PUBLISH_BY,
+    )
+    provider_capture_publication = _publish_semantic(
+        cohort.store,
+        f"final-field-provider-capture-{role}-{suffix}",
+        provider_capture,
+        created_at=FINAL_FIELD_CAPTURE_TIME,
+        not_after=FINAL_FIELD_CAPTURE_PUBLISH_BY,
+        not_before=capture.EXPECTED_LOCK_UTC,
+    )
+    evidence = capture.build_final_field_evidence_v2(
+        store=cohort.store,
+        provider_capture=_ref(provider_capture_publication),
         frozen_at=FINAL_FIELD_EVIDENCE_TIME,
     )
     evidence_publication = _publish_semantic(
         cohort.store,
         f"final-field-evidence-{role}-{suffix}",
         evidence,
-        created_at=FINAL_FIELD_EVIDENCE_TIME,
-        not_after=SETTLEMENT_TIME,
+        created_at=FINAL_FIELD_EVIDENCE_CREATED_AT,
+        not_after=FINAL_FIELD_EVIDENCE_TIME,
         not_before=capture.EXPECTED_LOCK_UTC,
     )
-    normalized = capture.build_normalized_standings_v1(
+    normalized = capture.build_normalized_standings_v2(
         store=cohort.store,
         final_field_evidence=_ref(evidence_publication),
         player_bridge=cohort.bridge_ref,
@@ -776,8 +809,8 @@ def _normalized_ref(
         cohort.store,
         f"normalized-{role}-{suffix}",
         normalized,
-        created_at=SETTLEMENT_TIME,
-        not_after="2026-09-14T22:00:00Z",
+        created_at=NORMALIZED_FIELD_CREATED_AT,
+        not_after=SETTLEMENT_TIME,
         not_before=capture.EXPECTED_LOCK_UTC,
     )
     return _ref(publication)
@@ -790,6 +823,22 @@ def test_live_capture_remains_hold_without_real_lobby_and_allocation_pins() -> N
         capture.live_capture_pins()
     pins = capture.pinned_source_pins()
     assert pins.template_projection_identity is None
+
+
+def test_real_shape_smoke_is_default_off_before_opening_a_file(tmp_path) -> None:
+    missing = tmp_path / "must-not-be-opened.csv"
+    with pytest.raises(SystemExit) as exc:
+        shape_smoke_cli.main(
+            [
+                "--phase",
+                "prelock-acceptance",
+                "--contest-role",
+                "milly-5",
+                "--acceptance-source",
+                str(missing),
+            ]
+        )
+    assert exc.value.code == 2
 
 
 def test_semantic_hash_and_raw_object_hash_are_distinct_and_both_verify(
@@ -807,6 +856,74 @@ def test_semantic_hash_and_raw_object_hash_are_distinct_and_both_verify(
         store=cohort.store,
         pins=cohort.pins,
     )
+
+
+def test_acceptance_rows_rebuild_from_separately_archived_provider_export(
+    cohort: Cohort,
+) -> None:
+    role = "milly-5"
+    evidence = _read_json_ref(cohort.store, cohort.evidence[role])
+    provider = _read_json_ref(cohort.store, evidence["provider_capture"])
+    receipt = cohort.acceptance_values[role]
+    assert evidence["raw_observation_identity"] == provider["raw_observation_identity"]
+    assert evidence["raw_observation_identity"] != receipt["filled_upload_identity"]
+    assert provider["capture_method"] == capture.ACCEPTANCE_CAPTURE_METHOD
+    assert provider["observed_entry_count"] == capture.EXPECTED_ROLE_ENTRIES[role]
+    capture.validate_accepted_entry_evidence_v2(evidence, store=cohort.store)
+
+
+def test_fabricated_normalized_acceptance_cannot_borrow_raw_provider_capture(
+    cohort: Cohort,
+) -> None:
+    evidence = _read_json_ref(cohort.store, cohort.evidence["milly-5"])
+    evidence["entries"][0]["entry_id"] = "999999999999999"
+    evidence.pop("semantic_sha256")
+    fabricated = capture.seal_semantic_artifact(evidence)
+    with pytest.raises(
+        capture.Week1A5CaptureContractError,
+        match="differs from exact provider observation",
+    ):
+        capture.validate_accepted_entry_evidence_v2(
+            fabricated,
+            store=cohort.store,
+        )
+
+
+def test_acceptance_provider_observation_must_precede_raw_archive_creation(
+    cohort: Cohort,
+) -> None:
+    evidence = _read_json_ref(cohort.store, cohort.evidence["milly-5"])
+    provider = _read_json_ref(cohort.store, evidence["provider_capture"])
+    cloned_store = copy.deepcopy(cohort.store)
+    identity = provider["raw_observation_identity"]
+    key = (str(identity["uri"]), str(identity["generation"]))
+    cloned_store.objects[key]["created_at"] = "2026-09-13T14:59:59Z"
+    with pytest.raises(
+        capture.Week1A5CaptureContractError,
+        match="created before it was observed",
+    ):
+        capture.validate_acceptance_provider_capture_v1(
+            provider,
+            store=cloned_store,
+        )
+
+
+def test_acceptance_capture_must_publish_by_prospective_cutoff(
+    cohort: Cohort,
+) -> None:
+    evidence = _read_json_ref(cohort.store, cohort.evidence["milly-5"])
+    cloned_store = copy.deepcopy(cohort.store)
+    identity = evidence["provider_capture"]["artifact_identity"]
+    key = (str(identity["uri"]), str(identity["generation"]))
+    cloned_store.objects[key]["created_at"] = "2026-09-13T15:15:01Z"
+    with pytest.raises(
+        capture.Week1A5CaptureContractError,
+        match="published after its cutoff",
+    ):
+        capture.validate_accepted_entry_evidence_v2(
+            evidence,
+            store=cloned_store,
+        )
 
 
 def test_reverse_min_churn_permutation_is_a_valid_realized_bijection(
@@ -1026,7 +1143,7 @@ def test_truncated_raw_field_cannot_masquerade_as_source_backed_underfill(
 ) -> None:
     with pytest.raises(
         capture.Week1A5CaptureContractError,
-        match="row count differs.*displayed final size",
+        match="standings count differs.*final submitted count",
     ):
         _normalized_ref(
             cohort,
@@ -1034,6 +1151,87 @@ def test_truncated_raw_field_cannot_masquerade_as_source_backed_underfill(
             displayed_size=58,
             suffix="truncated",
         )
+
+
+def test_old_false_n_wrapper_is_not_an_authoritative_provider_source(
+    cohort: Cohort,
+) -> None:
+    pin = capture.A5_ROLE_TABLE["milly-5"]
+    false_wrapper = canonical_json_bytes(
+        {
+            "schema_version": capture.FINAL_FIELD_SOURCE_SCHEMA,
+            "captured_at": SETTLEMENT_SOURCE_TIME,
+            "endpoint": f"https://www.draftkings.com/contest/gamecenter/{pin.contest_id}",
+            "source": {
+                "contest_id": pin.contest_id,
+                "draft_group_id": capture.EXPECTED_DRAFT_GROUP_ID,
+                "contest_state": "Settled",
+                "displayed_final_field_size": pin.planned_entries,
+            },
+        }
+    )
+    with pytest.raises(
+        capture.Week1A5CaptureContractError,
+        match="source wrappers are retired",
+    ):
+        capture._parse_final_field_provider_body(false_wrapper)
+
+
+def test_matching_false_n_projection_cannot_borrow_exact_provider_body(
+    cohort: Cohort,
+) -> None:
+    role = "championship-qualifier-18"
+    normalized_ref = _normalized_ref(cohort, role, suffix="false-n-projection")
+    normalized = _read_json_ref(cohort.store, normalized_ref)
+    evidence = _read_json_ref(cohort.store, normalized["final_field_evidence"])
+    evidence["displayed_final_field_size"] -= 1
+    evidence.pop("semantic_sha256")
+    fabricated = capture.seal_semantic_artifact(evidence)
+    with pytest.raises(
+        capture.Week1A5CaptureContractError,
+        match="differs from exact raw-source projection",
+    ):
+        capture.validate_final_field_evidence_v2(
+            fabricated,
+            store=cohort.store,
+        )
+
+
+def test_shape_smokes_are_redacted_and_write_free(cohort: Cohort) -> None:
+    role = "championship-qualifier-18"
+    evidence = _read_json_ref(cohort.store, cohort.evidence[role])
+    accepted_raw = cohort.store.read_exact(
+        identity=evidence["raw_observation_identity"]
+    )["raw"]
+    accepted_smoke = capture.inspect_acceptance_provider_bytes_v1(
+        accepted_raw,
+        contest_role=role,
+    )
+    assert accepted_smoke["entry_count"] == 3
+    assert accepted_smoke["writes_performed"] is False
+    assert "entries" not in accepted_smoke
+
+    standings_raw = _standings_csv(cohort, role)
+    provider_raw = canonical_json_bytes(
+        {
+            "errorStatus": {},
+            "contestDetail": {
+                "contestKey": capture.A5_ROLE_TABLE[role].contest_id,
+                "draftGroupId": int(capture.EXPECTED_DRAFT_GROUP_ID),
+                "contestState": "Completed",
+                "contestStateDetail": "Final",
+                "entries": 3,
+            },
+        }
+    )
+    final_smoke = capture.inspect_final_field_provider_bytes_v1(
+        provider_raw,
+        standings_raw,
+        contest_role=role,
+    )
+    assert final_smoke["provider_final_entry_count"] == 3
+    assert final_smoke["writes_performed"] is False
+    assert "rows" not in final_smoke
 
 
 def test_cross_wired_complete_field_cannot_settle_another_contest(

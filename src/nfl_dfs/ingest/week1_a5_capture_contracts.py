@@ -35,13 +35,34 @@ ALLOCATION_SCHEMA: Final = "week1-a5-allocation-authority/v2"
 BOOK_SCHEMA: Final = "week1-a5-book-materialization/v2"
 SALARY_CATALOG_SCHEMA: Final = "week1-a5-paid-salary-catalog/v1"
 PLAYER_BRIDGE_SCHEMA: Final = "week1-a5-player-bridge/v1"
-ACCEPTED_EVIDENCE_SCHEMA: Final = "dk-accepted-entry-evidence/v1"
+ACCEPTANCE_PROVIDER_CAPTURE_SCHEMA: Final = (
+    "dk-accepted-entry-provider-capture/v1"
+)
+ACCEPTED_EVIDENCE_SCHEMA: Final = "dk-accepted-entry-evidence/v2"
 ACCEPTANCE_SCHEMA: Final = "week1-a5-entry-acceptance/v2"
 ACCEPTANCE_ROOT_SCHEMA: Final = "week1-a5-entry-acceptance-root/v2"
+# Retained only so old callers receive an explicit retirement error.  The v1
+# shape put caller-authored contest state and field size next to a source URL;
+# those values were not parsed from the provider response.
 FINAL_FIELD_SOURCE_SCHEMA: Final = "dk-final-field-provider-source/v1"
-FINAL_FIELD_EVIDENCE_SCHEMA: Final = "dk-final-field-evidence/v1"
-NORMALIZED_STANDINGS_SCHEMA: Final = "dk-normalized-complete-field/v1"
+FINAL_FIELD_PROVIDER_CAPTURE_SCHEMA: Final = (
+    "dk-final-field-provider-capture/v1"
+)
+FINAL_FIELD_EVIDENCE_SCHEMA: Final = "dk-final-field-evidence/v2"
+NORMALIZED_STANDINGS_SCHEMA: Final = "dk-normalized-complete-field/v2"
 SETTLEMENT_SCHEMA: Final = "dk-contest-settlement/v2"
+
+ACCEPTANCE_CAPTURE_METHOD: Final = "authenticated-active-entry-export-csv"
+FINAL_FIELD_CAPTURE_METHOD: Final = (
+    "contest-detail-api-and-full-standings-export"
+)
+ACCEPTANCE_SOURCE_LOCATOR: Final = "https://www.draftkings.com/mycontests"
+FINAL_FIELD_SOURCE_LOCATOR_PREFIX: Final = (
+    "https://api.draftkings.com/contests/v1/contests/"
+)
+_SETTLED_CONTEST_STATES: Final = frozenset(
+    {"Complete", "Completed", "Final", "Settled"}
+)
 
 EXPECTED_ROLE_ENTRIES: Final = MappingProxyType(
     {
@@ -302,6 +323,34 @@ def _timestamp(value: object, *, label: str) -> tuple[str, datetime]:
     return parsed.isoformat().replace("+00:00", "Z"), parsed
 
 
+def _publish_by(
+    value: object,
+    *,
+    label: str,
+    phase: str,
+) -> tuple[str, datetime]:
+    """Validate an executable prospective create-once publication cutoff.
+
+    ``frozen_at`` and ``accepted_at`` fields in this module are deadlines by
+    which the artifact itself must exist at its immutable provider generation;
+    they are not claims that a GCS object was created before it was uploaded.
+    Source observation times are represented separately and must precede the
+    provider creation time of their archived raw bytes.
+    """
+
+    text, cutoff = _timestamp(value, label=label)
+    _, lock = _timestamp(EXPECTED_LOCK_UTC, label="A5 lock")
+    if phase == "prelock":
+        if cutoff >= lock:
+            _fail(f"{label} must be strictly before lock")
+    elif phase == "postlock":
+        if cutoff <= lock:
+            _fail(f"{label} must be strictly after lock")
+    else:  # Defensive because phase is an internal control, not caller data.
+        raise AssertionError(f"unsupported publication phase {phase!r}")
+    return text, cutoff
+
+
 def _identity(value: object, *, label: str) -> dict[str, object]:
     row = _mapping(value, label=label)
     _exact(row, _IDENTITY_FIELDS, label=label)
@@ -453,6 +502,12 @@ def publish_semantic_artifact(
         if not_before is not None
         else None
     )
+    if (
+        boundary_after is not None
+        and boundary_before is not None
+        and boundary_before > boundary_after
+    ):
+        _fail("publication time window is inverted")
     reopened_value, reopened = _reopen_semantic(
         store,
         identity,
@@ -1371,10 +1426,11 @@ def build_week1_allocation_authority_v2(
 ) -> dict[str, object]:
     """Build an allocation only from exact source, bridge, and book bytes."""
 
-    frozen_text, frozen = _timestamp(frozen_at, label="allocation frozen_at")
-    _, lock = _timestamp(EXPECTED_LOCK_UTC, label="A5 lock")
-    if frozen >= lock:
-        _fail("allocation must be frozen strictly before lock")
+    frozen_text, frozen = _publish_by(
+        frozen_at,
+        label="allocation frozen_at",
+        phase="prelock",
+    )
     source = load_pinned_contest_sources(store, source_pins, not_after=frozen_text)
     templates, template_identity = _load_template_projection(
         store, source_pins, not_after=frozen
@@ -1516,10 +1572,11 @@ def build_week1_prelock_manifest_v3(
 
     if contest_role not in A5_ROLE_TABLE:
         _fail("manifest contest role is not in exact A5")
-    frozen_text, frozen = _timestamp(manifest_frozen_at, label="manifest frozen_at")
-    _, lock = _timestamp(EXPECTED_LOCK_UTC, label="A5 lock")
-    if frozen >= lock:
-        _fail("manifest must be frozen strictly before lock")
+    frozen_text, frozen = _publish_by(
+        manifest_frozen_at,
+        label="manifest frozen_at",
+        phase="prelock",
+    )
     allocation, _ = _load_allocation(store, pins, not_after=frozen)
     sources = load_pinned_contest_sources(store, pins.source, not_after=frozen_text)
     contest = sources[contest_role]
@@ -1846,16 +1903,237 @@ def _parse_filled_upload(
     return projection
 
 
-def _parse_accepted_evidence(value: object, *, contest: Mapping[str, object]) -> dict[str, object]:
+def _pin_for_role(value: object) -> ContestPin:
+    role = _string(value, label="A5 contest role")
+    try:
+        return A5_ROLE_TABLE[role]
+    except KeyError as exc:
+        raise Week1A5CaptureContractError(
+            "contest role is outside the exact A5 allocation"
+        ) from exc
+
+
+def _parse_active_entry_export(
+    raw: bytes,
+    *,
+    pin: ContestPin,
+) -> list[dict[str, object]]:
+    """Derive accepted rows from one raw DK active-entry export.
+
+    The provider export itself is the observation.  No status, row, roster,
+    or completeness value supplied by a caller enters this projection.
+    Draft-group identity comes from the exact contest manifest because the DK
+    edit-entries CSV does not expose it.
+    """
+
+    rows = _parse_filled_upload(
+        raw,
+        contest_id=pin.contest_id,
+        contest_name=pin.name,
+        entry_fee_micro=pin.entry_fee_micro,
+        expected_entries=pin.planned_entries,
+    )
+    entries = [
+        {
+            "entry_id": item["entry_id"],
+            "status": "accepted",
+            "slot_dk_draftable_ids": item["slot_dk_draftable_ids"],
+        }
+        for item in rows
+    ]
+    entries.sort(key=lambda item: str(item["entry_id"]))
+    return entries
+
+
+def inspect_acceptance_provider_bytes_v1(
+    raw: bytes,
+    *,
+    contest_role: object,
+) -> dict[str, object]:
+    """Return a redacted, write-free real-shape smoke projection."""
+
+    pin = _pin_for_role(contest_role)
+    entries = _parse_active_entry_export(raw, pin=pin)
+    return {
+        "schema_version": "week1-a5-acceptance-shape-smoke/v1",
+        "source_profile": ACCEPTANCE_CAPTURE_METHOD,
+        "contest_role": pin.role,
+        "contest_id": pin.contest_id,
+        "entry_count": len(entries),
+        "unique_entry_count": len({item["entry_id"] for item in entries}),
+        "all_rosters_have_nine_unique_draftables": all(
+            len(item["slot_dk_draftable_ids"]) == 9
+            and len(set(item["slot_dk_draftable_ids"])) == 9
+            for item in entries
+        ),
+        "raw_sha256": hashlib.sha256(raw).hexdigest(),
+        "raw_bytes": len(raw),
+        "entry_projection_sha256": canonical_sha256(entries),
+        "writes_performed": False,
+    }
+
+
+def build_acceptance_provider_capture_v1(
+    *,
+    store: ImmutableObjectStore,
+    contest_role: object,
+    raw_observation_identity: object,
+    observed_at: object,
+    publish_by: object,
+) -> dict[str, object]:
+    """Bind one raw authenticated DK active-entry export create-once."""
+
+    pin = _pin_for_role(contest_role)
+    observed_text, observed = _timestamp(
+        observed_at, label="acceptance provider observed_at"
+    )
+    publish_text, cutoff = _publish_by(
+        publish_by,
+        label="acceptance provider capture publish_by",
+        phase="prelock",
+    )
+    if observed > cutoff:
+        _fail("acceptance provider observation is after its publish-by cutoff")
+    raw_obj = _reopen_exact(
+        store,
+        raw_observation_identity,
+        label="raw accepted-entry provider observation",
+        not_after=cutoff,
+    )
+    if observed > raw_obj.created:
+        _fail("accepted-entry raw object was created before it was observed")
+    entries = _parse_active_entry_export(raw_obj.raw, pin=pin)
+    return seal_semantic_artifact(
+        {
+            "schema_version": ACCEPTANCE_PROVIDER_CAPTURE_SCHEMA,
+            "source_system": "draftkings",
+            "capture_method": ACCEPTANCE_CAPTURE_METHOD,
+            "source_locator": ACCEPTANCE_SOURCE_LOCATOR,
+            "contest_role": pin.role,
+            "contest_id": pin.contest_id,
+            "draft_group_id": EXPECTED_DRAFT_GROUP_ID,
+            "observed_at": observed_text,
+            "publish_by": publish_text,
+            "raw_observation_identity": raw_obj.identity,
+            "observed_entry_count": len(entries),
+            "entry_projection_sha256": canonical_sha256(entries),
+        }
+    )
+
+
+def validate_acceptance_provider_capture_v1(
+    value: object,
+    *,
+    store: ImmutableObjectStore,
+) -> dict[str, object]:
+    row = validate_semantic_artifact(value, label="acceptance provider capture")
+    _exact(
+        row,
+        {
+            "schema_version",
+            "source_system",
+            "capture_method",
+            "source_locator",
+            "contest_role",
+            "contest_id",
+            "draft_group_id",
+            "observed_at",
+            "publish_by",
+            "raw_observation_identity",
+            "observed_entry_count",
+            "entry_projection_sha256",
+            "semantic_sha256",
+        },
+        label="acceptance provider capture",
+    )
+    if row["schema_version"] != ACCEPTANCE_PROVIDER_CAPTURE_SCHEMA:
+        _fail("acceptance provider capture schema differs")
+    rebuilt = build_acceptance_provider_capture_v1(
+        store=store,
+        contest_role=row["contest_role"],
+        raw_observation_identity=row["raw_observation_identity"],
+        observed_at=row["observed_at"],
+        publish_by=row["publish_by"],
+    )
+    if row != rebuilt:
+        _fail("acceptance provider capture differs from exact raw observation")
+    return row
+
+
+def build_accepted_entry_evidence_v2(
+    *,
+    store: ImmutableObjectStore,
+    provider_capture: object,
+    frozen_at: object,
+) -> dict[str, object]:
+    """Project accepted Entry IDs/rosters only from raw provider bytes."""
+
+    frozen_text, frozen = _publish_by(
+        frozen_at,
+        label="accepted-entry evidence frozen_at",
+        phase="prelock",
+    )
+    capture_ref = _semantic_ref(provider_capture, label="acceptance provider capture")
+    capture_raw, capture_obj = _reopen_semantic(
+        store,
+        capture_ref["artifact_identity"],
+        label="acceptance provider capture",
+        expected_semantic_sha256=capture_ref["semantic_sha256"],
+        not_after=frozen,
+    )
+    provider = validate_acceptance_provider_capture_v1(
+        capture_raw,
+        store=store,
+    )
+    provider_cutoff = _publish_by(
+        provider["publish_by"],
+        label="acceptance provider capture publish_by",
+        phase="prelock",
+    )[1]
+    if capture_obj.created > provider_cutoff:
+        _fail("acceptance provider capture was published after its cutoff")
+    if provider_cutoff > frozen:
+        _fail("acceptance provider capture cutoff is after evidence cutoff")
+    raw_obj = _reopen_exact(
+        store,
+        provider["raw_observation_identity"],
+        label="raw accepted-entry provider observation",
+        not_after=provider_cutoff,
+    )
+    if capture_obj.created < raw_obj.created:
+        _fail("acceptance provider capture predates its raw observation archive")
+    pin = _pin_for_role(provider["contest_role"])
+    entries = _parse_active_entry_export(raw_obj.raw, pin=pin)
+    return seal_semantic_artifact(
+        {
+            "schema_version": ACCEPTED_EVIDENCE_SCHEMA,
+            "complete": True,
+            "observed_at": provider["observed_at"],
+            "frozen_at": frozen_text,
+            "contest_role": pin.role,
+            "contest_id": pin.contest_id,
+            "draft_group_id": EXPECTED_DRAFT_GROUP_ID,
+            "provider_capture": capture_ref,
+            "raw_observation_identity": raw_obj.identity,
+            "entries": entries,
+        }
+    )
+
+
+def _parse_accepted_evidence(value: object) -> dict[str, object]:
     row = validate_semantic_artifact(value, label="accepted-entry evidence")
     _exact(
         row,
         {
             "schema_version",
             "complete",
-            "captured_at",
+            "observed_at",
+            "frozen_at",
+            "contest_role",
             "contest_id",
             "draft_group_id",
+            "provider_capture",
+            "raw_observation_identity",
             "entries",
             "semantic_sha256",
         },
@@ -1863,33 +2141,37 @@ def _parse_accepted_evidence(value: object, *, contest: Mapping[str, object]) ->
     )
     if row["schema_version"] != ACCEPTED_EVIDENCE_SCHEMA or row["complete"] is not True:
         _fail("accepted-entry evidence is not a complete supported capture")
+    pin = _pin_for_role(row["contest_role"])
     if (
-        row["contest_id"] != contest["contest_id"]
+        row["contest_id"] != pin.contest_id
         or row["draft_group_id"] != EXPECTED_DRAFT_GROUP_ID
     ):
         _fail("accepted-entry evidence is cross-wired")
-    captured_at, captured = _timestamp(row["captured_at"], label="accepted evidence captured_at")
-    _, lock = _timestamp(EXPECTED_LOCK_UTC, label="A5 lock")
-    if captured >= lock:
-        _fail("accepted-entry evidence was captured after lock")
+    observed_text, observed = _timestamp(
+        row["observed_at"], label="accepted evidence observed_at"
+    )
+    frozen_text, frozen = _publish_by(
+        row["frozen_at"],
+        label="accepted evidence frozen_at",
+        phase="prelock",
+    )
+    if observed > frozen:
+        _fail("accepted-entry observation is after its evidence cutoff")
     entries: list[dict[str, object]] = []
     ids: set[str] = set()
-    for ordinal, raw in enumerate(_sequence(row["entries"], label="accepted evidence entries")):
+    for ordinal, raw in enumerate(
+        _sequence(row["entries"], label="accepted evidence entries")
+    ):
         entry = _mapping(raw, label=f"accepted evidence entries[{ordinal}]")
         _exact(
             entry,
-            {"entry_id", "contest_id", "draft_group_id", "status", "slot_dk_draftable_ids"},
+            {"entry_id", "status", "slot_dk_draftable_ids"},
             label=f"accepted evidence entries[{ordinal}]",
         )
         entry_id = _entry_id(entry["entry_id"], label="accepted Entry ID")
         if entry_id in ids:
             _fail("accepted-entry evidence repeats an Entry ID")
         ids.add(entry_id)
-        if (
-            entry["contest_id"] != contest["contest_id"]
-            or entry["draft_group_id"] != EXPECTED_DRAFT_GROUP_ID
-        ):
-            _fail("accepted-entry evidence contains a cross-wired row")
         if entry["status"] != "accepted":
             _fail("accepted-entry evidence contains a non-accepted row")
         slot_ids = [
@@ -1903,15 +2185,38 @@ def _parse_accepted_evidence(value: object, *, contest: Mapping[str, object]) ->
         entries.append(
             {
                 "entry_id": entry_id,
-                "contest_id": contest["contest_id"],
-                "draft_group_id": EXPECTED_DRAFT_GROUP_ID,
                 "status": "accepted",
                 "slot_dk_draftable_ids": slot_ids,
             }
         )
-    entries.sort(key=lambda item: item["entry_id"])
-    row["captured_at"] = captured_at
+    entries.sort(key=lambda item: str(item["entry_id"]))
+    if len(entries) != pin.planned_entries:
+        _fail("accepted-entry evidence count differs from exact A5 K")
+    row["observed_at"] = observed_text
+    row["frozen_at"] = frozen_text
+    row["provider_capture"] = _semantic_ref(
+        row["provider_capture"], label="acceptance provider capture"
+    )
+    row["raw_observation_identity"] = _identity(
+        row["raw_observation_identity"], label="raw acceptance observation identity"
+    )
     row["entries"] = entries
+    return row
+
+
+def validate_accepted_entry_evidence_v2(
+    value: object,
+    *,
+    store: ImmutableObjectStore,
+) -> dict[str, object]:
+    row = _parse_accepted_evidence(value)
+    rebuilt = build_accepted_entry_evidence_v2(
+        store=store,
+        provider_capture=row["provider_capture"],
+        frozen_at=row["frozen_at"],
+    )
+    if row != rebuilt:
+        _fail("accepted-entry evidence differs from exact provider observation")
     return row
 
 
@@ -1925,12 +2230,13 @@ def build_week1_entry_acceptance_v2(
     acceptance_evidence: object,
     accepted_at: object,
 ) -> dict[str, object]:
-    """Project one accepted receipt from exact reopened pre-lock bytes."""
+    """Project one receipt by a prospective pre-lock publication cutoff."""
 
-    accepted_text, accepted = _timestamp(accepted_at, label="accepted_at")
-    _, lock = _timestamp(EXPECTED_LOCK_UTC, label="A5 lock")
-    if accepted >= lock:
-        _fail("accepted entries must be proven strictly before lock")
+    accepted_text, accepted = _publish_by(
+        accepted_at,
+        label="accepted_at publication cutoff",
+        phase="prelock",
+    )
     manifest_ref = _semantic_ref(manifest, label="manifest")
     manifest_value, _ = _load_manifest(
         store,
@@ -1992,16 +2298,31 @@ def build_week1_entry_acceptance_v2(
         expected_semantic_sha256=evidence_ref["semantic_sha256"],
         not_after=accepted,
     )
-    evidence = _parse_accepted_evidence(evidence_raw, contest=contest)
+    evidence = validate_accepted_entry_evidence_v2(
+        evidence_raw,
+        store=store,
+    )
     if evidence_obj.created > accepted:
         _fail("accepted-entry evidence provider time is after accepted_at")
-    if _timestamp(evidence["captured_at"], label="evidence captured_at")[1] > accepted:
-        _fail("accepted-entry evidence captured_at is after accepted_at")
+    evidence_cutoff = _publish_by(
+        evidence["frozen_at"],
+        label="accepted-entry evidence frozen_at",
+        phase="prelock",
+    )[1]
+    if evidence_obj.created > evidence_cutoff:
+        _fail("accepted-entry evidence was published after its prospective cutoff")
+    if evidence_cutoff > accepted:
+        _fail("accepted-entry evidence cutoff is after accepted_at")
+    if _timestamp(evidence["observed_at"], label="evidence observed_at")[1] > accepted:
+        _fail("accepted-entry observation is after accepted_at")
     if (
-        _timestamp(evidence["captured_at"], label="evidence captured_at")[1]
-        > evidence_obj.created
+        evidence["contest_role"] != contest["contest_role"]
+        or evidence["contest_id"] != contest["contest_id"]
+        or evidence["draft_group_id"] != EXPECTED_DRAFT_GROUP_ID
     ):
-        _fail("accepted-entry evidence provider creation precedes its capture")
+        _fail("accepted-entry evidence is cross-wired to another A5 contest")
+    if evidence["raw_observation_identity"] == filled_obj.identity:
+        _fail("provider acceptance observation must be archived separately from upload")
     by_id = {item["entry_id"]: item for item in evidence["entries"]}
     if set(by_id) != {item["entry_id"] for item in prepared["entries"]}:
         _fail("accepted-entry raw projection Entry IDs differ from prepared capture")
@@ -2121,10 +2442,11 @@ def build_week1_acceptance_root_v2(
     acceptances: object,
     frozen_at: object,
 ) -> dict[str, object]:
-    frozen_text, frozen = _timestamp(frozen_at, label="acceptance root frozen_at")
-    _, lock = _timestamp(EXPECTED_LOCK_UTC, label="A5 lock")
-    if frozen >= lock:
-        _fail("acceptance root must be frozen strictly before lock")
+    frozen_text, frozen = _publish_by(
+        frozen_at,
+        label="acceptance root frozen_at",
+        phase="prelock",
+    )
     _load_allocation(store, pins, not_after=frozen)
     manifest_refs = _mapping(manifests, label="manifest references")
     acceptance_refs = _mapping(acceptances, label="acceptance references")
@@ -2391,99 +2713,326 @@ def _parse_raw_standings(
     return rows
 
 
-def _parse_final_field_source(raw: bytes) -> dict[str, object]:
-    wrapper = _parse_json(raw, label="final-field provider source")
-    _exact(
-        wrapper,
-        {"schema_version", "captured_at", "endpoint", "source"},
-        label="final-field provider source",
+def _source_integer(value: object, *, label: str, minimum: int = 0) -> int:
+    if type(value) is str and value.isdigit():
+        value = int(value)
+    return _integer(value, label=label, minimum=minimum)
+
+
+def _parse_final_field_provider_body(raw: bytes) -> dict[str, object]:
+    """Parse the exact DK contest-detail HTTP response body, not a wrapper."""
+
+    body = _parse_json(raw, label="raw final-field provider response")
+    if body.get("schema_version") == FINAL_FIELD_SOURCE_SCHEMA or "source" in body:
+        _fail("caller-authored final-field source wrappers are retired")
+    error_status = body.get("errorStatus", {})
+    if error_status not in ({}, None, False):
+        _fail("final-field provider response contains an error status")
+    detail = _mapping(body.get("contestDetail"), label="provider contestDetail")
+    contest_id = _entry_id(
+        detail.get("contestKey"), label="provider final-field contest ID"
     )
-    if wrapper["schema_version"] != FINAL_FIELD_SOURCE_SCHEMA:
-        _fail("final-field provider source schema differs")
-    captured_at, captured = _timestamp(
-        wrapper["captured_at"], label="final-field provider captured_at"
+    draft_group_id = str(
+        _source_integer(
+            detail.get("draftGroupId"),
+            label="provider final-field draft group",
+            minimum=1,
+        )
     )
-    _, lock = _timestamp(EXPECTED_LOCK_UTC, label="A5 lock")
-    if captured <= lock:
-        _fail("final-field provider source was captured before settlement")
-    source = _mapping(wrapper["source"], label="final-field provider source body")
-    _exact(
-        source,
-        {
-            "contest_id",
-            "draft_group_id",
-            "contest_state",
-            "displayed_final_field_size",
-        },
-        label="final-field provider source body",
+    state = _string(detail.get("contestState"), label="provider contestState")
+    state_detail_value = detail.get("contestStateDetail")
+    state_detail = (
+        _string(state_detail_value, label="provider contestStateDetail")
+        if state_detail_value not in (None, "")
+        else state
     )
-    contest_id = _string(source["contest_id"], label="final-field contest ID")
-    if source["draft_group_id"] != EXPECTED_DRAFT_GROUP_ID:
-        _fail("final-field provider draft group differs")
-    if source["contest_state"] != "Settled":
-        _fail("final-field provider source does not show settled state")
-    endpoint = _string(wrapper["endpoint"], label="final-field provider endpoint")
-    if endpoint != f"https://www.draftkings.com/contest/gamecenter/{contest_id}":
-        _fail("final-field provider endpoint is cross-wired")
+    if state not in _SETTLED_CONTEST_STATES:
+        _fail("raw final-field provider response does not show settled state")
+    final_size = _source_integer(
+        detail.get("entries"),
+        label="provider final submitted entry count",
+        minimum=1,
+    )
     return {
         "contest_id": contest_id,
-        "draft_group_id": EXPECTED_DRAFT_GROUP_ID,
+        "draft_group_id": draft_group_id,
+        "provider_contest_state": state,
+        "provider_contest_state_detail": state_detail,
         "settled": True,
-        "displayed_final_field_size": _integer(
-            source["displayed_final_field_size"],
-            label="displayed final field size",
-            minimum=1,
-        ),
-        "captured_at": captured_at,
+        "displayed_final_field_size": final_size,
     }
 
 
-def build_final_field_evidence_v1(
+def _count_raw_standings_entries(raw: bytes) -> int:
+    """Stream-count exact provider rows without interpreting score columns."""
+
+    try:
+        reader = csv.DictReader(io.StringIO(raw.decode("utf-8-sig")))
+    except UnicodeDecodeError as exc:
+        raise Week1A5CaptureContractError(
+            "raw standings are not UTF-8 CSV"
+        ) from exc
+    fields = set(reader.fieldnames or ())
+    required = {"Rank", "EntryId", "Lineup"}
+    if not required <= fields:
+        _fail("raw standings are missing entry-count authority columns")
+    seen: set[str] = set()
+    count = 0
+    for row in reader:
+        has_rank = bool(str(row.get("Rank") or "").strip())
+        has_lineup = bool(str(row.get("Lineup") or "").strip())
+        if not has_rank and not has_lineup:
+            continue
+        if not has_rank or not has_lineup:
+            _fail("raw standings contain a partial entry row")
+        entry_id = _entry_id(row.get("EntryId"), label="standings Entry ID")
+        if entry_id in seen:
+            _fail("raw standings repeat an Entry ID")
+        seen.add(entry_id)
+        count += 1
+    if count < 1:
+        _fail("raw standings contain no entry rows")
+    return count
+
+
+def inspect_final_field_provider_bytes_v1(
+    provider_raw: bytes,
+    standings_raw: bytes,
+    *,
+    contest_role: object,
+) -> dict[str, object]:
+    """Return a redacted, write-free final-field real-shape projection."""
+
+    pin = _pin_for_role(contest_role)
+    projection = _parse_final_field_provider_body(provider_raw)
+    if (
+        projection["contest_id"] != pin.contest_id
+        or projection["draft_group_id"] != EXPECTED_DRAFT_GROUP_ID
+    ):
+        _fail("raw final-field provider response is cross-wired")
+    if projection["displayed_final_field_size"] > pin.advertised_field_capacity:
+        _fail("provider final submitted count exceeds advertised A5 capacity")
+    parsed_count = _count_raw_standings_entries(standings_raw)
+    if parsed_count != projection["displayed_final_field_size"]:
+        _fail("raw standings count differs from provider final submitted count")
+    return {
+        "schema_version": "week1-a5-final-field-shape-smoke/v1",
+        "source_profile": FINAL_FIELD_CAPTURE_METHOD,
+        "contest_role": pin.role,
+        "contest_id": pin.contest_id,
+        "provider_contest_state": projection["provider_contest_state"],
+        "provider_contest_state_detail": projection[
+            "provider_contest_state_detail"
+        ],
+        "provider_final_entry_count": projection["displayed_final_field_size"],
+        "parsed_standings_entry_count": parsed_count,
+        "provider_raw_sha256": hashlib.sha256(provider_raw).hexdigest(),
+        "provider_raw_bytes": len(provider_raw),
+        "standings_raw_sha256": hashlib.sha256(standings_raw).hexdigest(),
+        "standings_raw_bytes": len(standings_raw),
+        "writes_performed": False,
+    }
+
+
+def build_final_field_provider_capture_v1(
     *,
     store: ImmutableObjectStore,
-    provider_source_identity: object,
+    contest_role: object,
+    raw_provider_body_identity: object,
     raw_standings_identity: object,
-    frozen_at: object,
+    provider_observed_at: object,
+    standings_observed_at: object,
+    publish_by: object,
 ) -> dict[str, object]:
-    """Project displayed size/contest/state from exact provider-source bytes."""
+    """Bind exact DK contest-detail and standings bytes in one receipt."""
 
-    frozen_text, frozen = _timestamp(frozen_at, label="final-field evidence frozen_at")
+    pin = _pin_for_role(contest_role)
+    provider_observed_text, provider_observed = _timestamp(
+        provider_observed_at, label="final-field provider observed_at"
+    )
+    standings_observed_text, standings_observed = _timestamp(
+        standings_observed_at, label="standings observed_at"
+    )
+    publish_text, cutoff = _publish_by(
+        publish_by,
+        label="final-field provider capture publish_by",
+        phase="postlock",
+    )
     _, lock = _timestamp(EXPECTED_LOCK_UTC, label="A5 lock")
-    if frozen <= lock:
-        _fail("final-field evidence must be frozen after lock")
-    provider = _reopen_exact(
+    if provider_observed <= lock or standings_observed <= lock:
+        _fail("final-field sources must be observed strictly after lock")
+    if provider_observed > cutoff or standings_observed > cutoff:
+        _fail("final-field source observation is after its publish-by cutoff")
+    provider_obj = _reopen_exact(
         store,
-        provider_source_identity,
-        label="final-field provider source",
-        not_after=frozen,
+        raw_provider_body_identity,
+        label="raw final-field provider response",
+        not_after=cutoff,
         not_before=lock,
     )
-    if provider.created <= lock:
-        _fail("final-field provider source creation time is not post-lock")
-    projection = _parse_final_field_source(provider.raw)
-    if _timestamp(projection["captured_at"], label="provider captured_at")[1] > frozen:
-        _fail("final-field provider captured_at is after evidence freeze")
-    if (
-        _timestamp(projection["captured_at"], label="provider captured_at")[1]
-        > provider.created
-    ):
-        _fail("final-field provider creation precedes its declared capture")
-    raw_standings = _reopen_exact(
+    standings_obj = _reopen_exact(
         store,
         raw_standings_identity,
         label="raw complete standings",
+        not_after=cutoff,
+        not_before=lock,
+    )
+    if provider_obj.created <= lock or standings_obj.created <= lock:
+        _fail("final-field source archive creation is not strictly post-lock")
+    if provider_observed > provider_obj.created:
+        _fail("provider response archive was created before it was observed")
+    if standings_observed > standings_obj.created:
+        _fail("standings archive was created before it was observed")
+    projection = _parse_final_field_provider_body(provider_obj.raw)
+    if (
+        projection["contest_id"] != pin.contest_id
+        or projection["draft_group_id"] != EXPECTED_DRAFT_GROUP_ID
+    ):
+        _fail("raw final-field provider response is cross-wired")
+    if projection["displayed_final_field_size"] > pin.advertised_field_capacity:
+        _fail("provider final submitted count exceeds advertised A5 capacity")
+    parsed_count = _count_raw_standings_entries(standings_obj.raw)
+    if parsed_count != projection["displayed_final_field_size"]:
+        _fail("raw standings count differs from provider final submitted count")
+    return seal_semantic_artifact(
+        {
+            "schema_version": FINAL_FIELD_PROVIDER_CAPTURE_SCHEMA,
+            "source_system": "draftkings",
+            "capture_method": FINAL_FIELD_CAPTURE_METHOD,
+            "source_locator": f"{FINAL_FIELD_SOURCE_LOCATOR_PREFIX}{pin.contest_id}",
+            "contest_role": pin.role,
+            "contest_id": pin.contest_id,
+            "draft_group_id": EXPECTED_DRAFT_GROUP_ID,
+            "provider_observed_at": provider_observed_text,
+            "standings_observed_at": standings_observed_text,
+            "publish_by": publish_text,
+            "raw_provider_body_identity": provider_obj.identity,
+            "raw_standings_identity": standings_obj.identity,
+            "provider_contest_state": projection["provider_contest_state"],
+            "provider_contest_state_detail": projection[
+                "provider_contest_state_detail"
+            ],
+            "provider_final_entry_count": projection[
+                "displayed_final_field_size"
+            ],
+            "parsed_standings_entry_count": parsed_count,
+        }
+    )
+
+
+def validate_final_field_provider_capture_v1(
+    value: object,
+    *,
+    store: ImmutableObjectStore,
+) -> dict[str, object]:
+    row = validate_semantic_artifact(value, label="final-field provider capture")
+    _exact(
+        row,
+        {
+            "schema_version",
+            "source_system",
+            "capture_method",
+            "source_locator",
+            "contest_role",
+            "contest_id",
+            "draft_group_id",
+            "provider_observed_at",
+            "standings_observed_at",
+            "publish_by",
+            "raw_provider_body_identity",
+            "raw_standings_identity",
+            "provider_contest_state",
+            "provider_contest_state_detail",
+            "provider_final_entry_count",
+            "parsed_standings_entry_count",
+            "semantic_sha256",
+        },
+        label="final-field provider capture",
+    )
+    if row["schema_version"] != FINAL_FIELD_PROVIDER_CAPTURE_SCHEMA:
+        _fail("final-field provider capture schema differs")
+    rebuilt = build_final_field_provider_capture_v1(
+        store=store,
+        contest_role=row["contest_role"],
+        raw_provider_body_identity=row["raw_provider_body_identity"],
+        raw_standings_identity=row["raw_standings_identity"],
+        provider_observed_at=row["provider_observed_at"],
+        standings_observed_at=row["standings_observed_at"],
+        publish_by=row["publish_by"],
+    )
+    if row != rebuilt:
+        _fail("final-field provider capture differs from exact source bytes")
+    return row
+
+
+def build_final_field_evidence_v2(
+    *,
+    store: ImmutableObjectStore,
+    provider_capture: object,
+    frozen_at: object,
+) -> dict[str, object]:
+    """Project final size/state only from a validated raw-source receipt."""
+
+    frozen_text, frozen = _publish_by(
+        frozen_at,
+        label="final-field evidence frozen_at",
+        phase="postlock",
+    )
+    _, lock = _timestamp(EXPECTED_LOCK_UTC, label="A5 lock")
+    capture_ref = _semantic_ref(provider_capture, label="final-field provider capture")
+    capture_raw, capture_obj = _reopen_semantic(
+        store,
+        capture_ref["artifact_identity"],
+        label="final-field provider capture",
+        expected_semantic_sha256=capture_ref["semantic_sha256"],
         not_after=frozen,
         not_before=lock,
     )
-    if raw_standings.created <= lock:
-        _fail("raw standings provider time is not post-lock")
+    capture = validate_final_field_provider_capture_v1(capture_raw, store=store)
+    capture_cutoff = _publish_by(
+        capture["publish_by"],
+        label="final-field provider capture publish_by",
+        phase="postlock",
+    )[1]
+    if capture_obj.created > capture_cutoff:
+        _fail("final-field provider capture was published after its cutoff")
+    if capture_cutoff > frozen:
+        _fail("final-field provider capture cutoff is after evidence cutoff")
+    provider_obj = _reopen_exact(
+        store,
+        capture["raw_provider_body_identity"],
+        label="raw final-field provider response",
+        not_after=capture_cutoff,
+        not_before=lock,
+    )
+    standings_obj = _reopen_exact(
+        store,
+        capture["raw_standings_identity"],
+        label="raw complete standings",
+        not_after=capture_cutoff,
+        not_before=lock,
+    )
+    if capture_obj.created < max(provider_obj.created, standings_obj.created):
+        _fail("final-field provider capture predates one of its raw archives")
     return seal_semantic_artifact(
         {
             "schema_version": FINAL_FIELD_EVIDENCE_SCHEMA,
-            **projection,
+            "contest_id": capture["contest_id"],
+            "draft_group_id": capture["draft_group_id"],
+            "settled": True,
+            "provider_contest_state": capture["provider_contest_state"],
+            "provider_contest_state_detail": capture[
+                "provider_contest_state_detail"
+            ],
+            "displayed_final_field_size": capture[
+                "provider_final_entry_count"
+            ],
+            "captured_at": capture["provider_observed_at"],
+            "standings_captured_at": capture["standings_observed_at"],
             "frozen_at": frozen_text,
-            "provider_source_identity": provider.identity,
-            "raw_standings_identity": raw_standings.identity,
+            "provider_capture": capture_ref,
+            "provider_source_identity": provider_obj.identity,
+            "raw_standings_identity": standings_obj.identity,
         }
     )
 
@@ -2497,9 +3046,13 @@ def _parse_final_field_evidence(value: object) -> dict[str, object]:
             "contest_id",
             "draft_group_id",
             "settled",
+            "provider_contest_state",
+            "provider_contest_state_detail",
             "displayed_final_field_size",
             "captured_at",
+            "standings_captured_at",
             "frozen_at",
+            "provider_capture",
             "provider_source_identity",
             "raw_standings_identity",
             "semantic_sha256",
@@ -2510,6 +3063,11 @@ def _parse_final_field_evidence(value: object) -> dict[str, object]:
         _fail("final-field evidence schema differs")
     if row["settled"] is not True:
         _fail("final-field evidence does not prove settled state")
+    _string(row["provider_contest_state"], label="provider contest state")
+    _string(
+        row["provider_contest_state_detail"],
+        label="provider contest state detail",
+    )
     _string(row["contest_id"], label="final-field contest ID")
     if row["draft_group_id"] != EXPECTED_DRAFT_GROUP_ID:
         _fail("final-field evidence draft group differs")
@@ -2524,10 +3082,21 @@ def _parse_final_field_evidence(value: object) -> dict[str, object]:
     _, lock = _timestamp(EXPECTED_LOCK_UTC, label="A5 lock")
     if captured <= lock:
         _fail("final-field evidence must be captured after lock")
+    standings_captured_text, standings_captured = _timestamp(
+        row["standings_captured_at"], label="standings captured_at"
+    )
+    if standings_captured <= lock:
+        _fail("standings evidence must be captured after lock")
     row["captured_at"] = captured_text
-    row["frozen_at"] = _timestamp(
-        row["frozen_at"], label="final-field evidence frozen_at"
+    row["standings_captured_at"] = standings_captured_text
+    row["frozen_at"] = _publish_by(
+        row["frozen_at"],
+        label="final-field evidence frozen_at",
+        phase="postlock",
     )[0]
+    row["provider_capture"] = _semantic_ref(
+        row["provider_capture"], label="final-field provider capture"
+    )
     row["provider_source_identity"] = _identity(
         row["provider_source_identity"], label="final-field provider source identity"
     )
@@ -2537,24 +3106,31 @@ def _parse_final_field_evidence(value: object) -> dict[str, object]:
     return row
 
 
-def validate_final_field_evidence_v1(
+def validate_final_field_evidence_v2(
     value: object,
     *,
     store: ImmutableObjectStore,
 ) -> dict[str, object]:
     row = _parse_final_field_evidence(value)
-    rebuilt = build_final_field_evidence_v1(
+    rebuilt = build_final_field_evidence_v2(
         store=store,
-        provider_source_identity=row["provider_source_identity"],
-        raw_standings_identity=row["raw_standings_identity"],
+        provider_capture=row["provider_capture"],
         frozen_at=row["frozen_at"],
     )
     if row != rebuilt:
-        _fail("final-field evidence differs from exact provider-source projection")
+        _fail("final-field evidence differs from exact raw-source projection")
     return row
 
 
-def build_normalized_standings_v1(
+def build_final_field_evidence_v1(**_: object) -> dict[str, object]:
+    _fail("final-field evidence/v1 is retired; use raw-source evidence/v2")
+
+
+def validate_final_field_evidence_v1(**_: object) -> dict[str, object]:
+    _fail("final-field evidence/v1 is retired; use raw-source evidence/v2")
+
+
+def build_normalized_standings_v2(
     *,
     store: ImmutableObjectStore,
     final_field_evidence: object,
@@ -2563,10 +3139,12 @@ def build_normalized_standings_v1(
 ) -> dict[str, object]:
     """Normalize a complete field only from exact raw/evidence/bridge bytes."""
 
-    frozen_text, frozen = _timestamp(frozen_at, label="normalized field frozen_at")
+    frozen_text, frozen = _publish_by(
+        frozen_at,
+        label="normalized field frozen_at",
+        phase="postlock",
+    )
     _, lock = _timestamp(EXPECTED_LOCK_UTC, label="A5 lock")
-    if frozen <= lock:
-        _fail("normalized field must be frozen after lock")
     evidence_ref = _semantic_ref(final_field_evidence, label="final-field evidence")
     evidence_raw, evidence_obj = _reopen_semantic(
         store,
@@ -2576,7 +3154,7 @@ def build_normalized_standings_v1(
         not_after=frozen,
         not_before=lock,
     )
-    evidence = validate_final_field_evidence_v1(evidence_raw, store=store)
+    evidence = validate_final_field_evidence_v2(evidence_raw, store=store)
     if evidence_obj.created <= lock:
         _fail("final-field evidence provider time is not post-lock")
     if evidence_obj.created > _timestamp(
@@ -2587,6 +3165,13 @@ def build_normalized_standings_v1(
         _fail("final-field evidence freeze is after normalized-field freeze")
     if _timestamp(evidence["captured_at"], label="evidence captured_at")[1] > frozen:
         _fail("final-field captured_at is after normalized freeze")
+    if (
+        _timestamp(
+            evidence["standings_captured_at"], label="standings captured_at"
+        )[1]
+        > frozen
+    ):
+        _fail("standings captured_at is after normalized freeze")
     bridge, bridge_ref, _ = _load_player_bridge(
         store,
         bridge_ref=player_bridge,
@@ -2637,7 +3222,7 @@ def build_normalized_standings_v1(
     )
 
 
-def validate_normalized_standings_v1(
+def validate_normalized_standings_v2(
     value: object,
     *,
     store: ImmutableObjectStore,
@@ -2664,7 +3249,7 @@ def validate_normalized_standings_v1(
     )
     if row["schema_version"] != NORMALIZED_STANDINGS_SCHEMA:
         _fail("normalized standings schema differs")
-    rebuilt = build_normalized_standings_v1(
+    rebuilt = build_normalized_standings_v2(
         store=store,
         final_field_evidence=row["final_field_evidence"],
         player_bridge=row["player_bridge"],
@@ -2673,6 +3258,14 @@ def validate_normalized_standings_v1(
     if row != rebuilt:
         _fail("normalized standings differ from exact raw/evidence projection")
     return row
+
+
+def build_normalized_standings_v1(**_: object) -> dict[str, object]:
+    _fail("normalized complete-field/v1 is retired; use v2")
+
+
+def validate_normalized_standings_v1(**_: object) -> dict[str, object]:
+    _fail("normalized complete-field/v1 is retired; use v2")
 
 
 def _tier_for_rank(
@@ -2769,12 +3362,12 @@ def build_week1_settlement_v2(
 ) -> dict[str, object]:
     """Build a source-backed settlement from one exact complete field."""
 
-    frozen_text, frozen = _timestamp(
-        settlement_frozen_at, label="settlement frozen_at"
+    frozen_text, frozen = _publish_by(
+        settlement_frozen_at,
+        label="settlement frozen_at",
+        phase="postlock",
     )
     _, lock = _timestamp(EXPECTED_LOCK_UTC, label="A5 lock")
-    if frozen <= lock:
-        _fail("settlement must be frozen after lock")
     root_ref = _semantic_ref(acceptance_root, label="acceptance root")
     root_raw, root_obj = _reopen_semantic(
         store,
@@ -2797,7 +3390,7 @@ def build_week1_settlement_v2(
     )
     if normalized_obj.created <= lock:
         _fail("normalized standings provider time is not post-lock")
-    normalized = validate_normalized_standings_v1(normalized_raw, store=store)
+    normalized = validate_normalized_standings_v2(normalized_raw, store=store)
     if normalized_obj.created > _timestamp(
         normalized["frozen_at"], label="normalized frozen_at"
     )[1]:
