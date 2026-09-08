@@ -22,7 +22,57 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
-### 2026-09-08 canonical paid-v3 R4 integrated candidate; provider readiness HOLD
+### 2026-09-08 Week-1 A5 capture-v3 P0 repair candidate; operational HOLD
+
+- The bounded repair is in isolated worktree
+  `/home/erich/projects/nfl-predictions-week1-capture-v3-p0-repair-20260908`
+  on branch `codex/week1-capture-v3-p0-repair-20260908`. Its final commit is
+  being sealed directly over current production `503c41f9`, retaining the
+  original capture implementation and independent HOLD report in its tree; the
+  exact candidate commit/tree will be recorded immediately after creation.
+- The held in-memory contract has been replaced by one exact-generation object
+  boundary. Semantic JSON hashes exclude only `semantic_sha256`; external raw
+  identities bind the complete serialized bytes. Create-once publication is
+  independently reopened, and every source/allocation/book/bridge/prepared
+  capture/filled CSV/acceptance/manifest/root/raw standings/normalized field is
+  generation/bytes/SHA/provider-time checked before use.
+- The terminal September 4 source manifest and four contest-detail identities
+  are hard-pinned. Exact source bytes derive contest IDs/names, draft group,
+  lock, fees, capacities, limits, qualifier/guarantee facts, payout tiers, and
+  complete qualifier ticket terms. Template IDs remain explicitly qualified
+  to the earlier lobby projection rather than falsely attributed to contest
+  detail.
+- Player bridge validation now exact-reopens a production-normalized paid
+  salary catalog, recomputes its catalog SHA, and proves complete one-to-one
+  canonical-internal/stable-DK/draftable identity. Four-book validation replays
+  active/slate membership, ordered Classic positions, team limit, salary cap,
+  exact K, canonical roster SHA, and `lineup-v1-<roster SHA>`. Acceptance derives
+  rows only from exact reopened raw evidence and supports independent
+  `entry_index`/`lineup_rank` bijections, including reverse min-churn
+  permutation. Settlement derives complete size, contest, ranks, signed scores,
+  cash/tickets, settled state, and final rosters from exact raw/evidence bytes;
+  it rejects truncation, cross-wiring, and unproven roster drift.
+- Validation is terminal for this implementation pass: the five supplied real
+  source files' byte lengths/SHA-256 values match their published identities;
+  Python compilation and `git diff --check` pass; the focused repaired v3 suite
+  passes 28/28 in 15.22 seconds; and unchanged legacy v2 passes 15/15 in 1.02
+  seconds. Two earlier environment attempts ran no test items (system Python
+  lacked pytest; the shared venv initially imported the production checkout),
+  and the first correctly isolated focused execution exposed one synthetic
+  qualifier-ticket total bug before the terminal rerun. The exact command and
+  interim-result audit is in the repair report. No cloud, DraftKings, paid
+  entry, deployment, production `main`, score, generation, or selection state
+  changed.
+- Operational **P0 HOLD remains intentional**: no generation-pinned raw lobby
+  projection exists, so no truthful final allocation raw/semantic identity can
+  yet be published or code-pinned. `live_capture_pins()` fails closed. The
+  governed end-to-end publisher, real outcome-blind shape smoke, 832,342-row
+  scale rehearsal, post-lock fields, and independent review also remain gates.
+  Exact next action: commit/push this isolated candidate and request independent
+  review. Do not freeze a manifest or perform a paid upload from this worktree.
+  The authorized pytest lane was released after both terminal passes.
+
++### 2026-09-08 canonical paid-v3 R4 integrated candidate; provider readiness HOLD
 
 - The independently passed R4 code is selectively integrated over current
   production at exact branch commit
@@ -248,24 +298,117 @@ agent or developer:
   execution to terminal. Replay remains held until it is exactly 36
   succeeded / 0 failed / 0 cancelled and the complete 36-cell namespace
   passes the coordinator's gate.
-- That execution failed closed during its first wave. Multiple independent
-  tasks raised the same frozen cell-validator refusal at
-  `src/nfl2/tailregime/cohort.py:790`: the generated cell's
-  frame/draw/world-order identity did not reproduce the bound fm5 per-cell
-  matrix contract. Confirmed examples include 2023 weeks 3, 4, 5, 6, 8 and
-  10. Once the provider showed five failures and seven tasks still running,
-  production cancelled the remaining compute; terminal provider state at
-  `2026-09-08T08:32:12.255531Z` is 9 failed, 13 cancelled, completion reason
-  `Cancelled`. The exact result prefix has zero live, versioned or
-  soft-deleted objects, so no cell, replay, outcome or score artifact was
-  published.
-- Run `102b740r3-20260908T081638Z`, its authority, intent, execute marker and
-  launch receipt are consumed failure evidence. **Do not relaunch, replay,
-  seal, pin or read it.** A bounded outcome-blind root-cause review is active
-  against the exact fm5/runtime identity derivations. Any successor requires
-  a repaired and independently reviewed source, fresh source-bound manifest,
-  fresh image/build/receipt, fresh R4 namespace and a separate GO; do not
-  reinterpret or overwrite any R3 object.
+
+
+### 2026-09-08 Week-1 A5 capture-v3 independent review: P0 HOLD
+
+- Independent static review completed on branch
+  `codex/week1-capture-v3-independent-review-20260908` against exact candidate
+  `58b7c98bccdbabff54c530ba515d14b22533e977`, tree
+  `233e33a65d1b973adf5ff8d705bc9a75c1db4009`. The supplied
+  `b8768e497d7e72033e8c5d880a5199b03fb2e545` is the two-commit series base;
+  the candidate's direct parent is
+  `e6422990eddf8b4612fcf4bd4d66c3eaf48466b9`. The review report and initial
+  handoff are durable commit
+  `cbe93a5c2c1247dc3faa0028e2873b6c3a4e3238`.
+- Verdict is **P0 HOLD before manifest freeze or paid upload**. Blocking defects
+  are: acceptance rejects a legitimate production min-churn permutation;
+  semantic self-hashes are incorrectly required to equal raw serialized-object
+  hashes; every purported immutable identity is syntactic/dangling because no
+  generation-exact provider reopen binds its bytes, semantics, or creation
+  time; the exact known contest ID/name/cap/limit/template/qualifier facts and
+  one terminal allocation root are not pinned; and settlement can certify a
+  caller-supplied truncated/cross-wired field as complete underfill.
+- Additional release blockers cover unbound book/player materializations,
+  missing paid-final-roster and 270-shadow settlement joins, unauthoritative
+  qualifier/ticket/underfill payout semantics, the absent governed A5
+  publisher/runtime, direct shared-job commands that omit the required launcher
+  registry, and contradictory live v2 underfill instructions. The durable
+  review and bounded repair contract are in
+  `reports/2026-09-08-week1-a5-capture-v3-independent-review.md`.
+- Validation was deliberately static under the assigned serial-lane boundary:
+  README/CLAUDE/HANDOFF and all affected contracts, callers, docs, and reference
+  implementations were inspected; candidate commit/tree/base were reproduced;
+  and `git diff --check` passed. **No pytest invocation or broad test ran.** No
+  cloud, DraftKings, paid-entry, deployment, or `main` mutation occurred.
+- Exact next action: repair on a new isolated implementation branch using
+  distinct semantic SHA and raw `{uri,generation,sha256,bytes}` identity,
+  provider-exact reopens/creation times, raw acceptance-evidence projection
+  binding, exact A5 constants plus terminal semantic/raw root pin, realized
+  min-churn edge bijections, and a source-backed complete-field/shadow
+  settlement adapter. Add the reverse-permutation and raw-identity adversaries,
+  then obtain a fresh independent review before any owner paid action.
+
+### 2026-09-08 Week-1 A5 capture-v3 candidate ready for independent review
+
+- The bounded capture-v3 successor is finalized and pushed at exact candidate
+  `58b7c98bccdbabff54c530ba515d14b22533e977`, tree
+  `233e33a65d1b973adf5ff8d705bc9a75c1db4009`, on
+  `origin/codex/week1-capture-v3-20260908`, based on production commit
+  `b8768e497d7e72033e8c5d880a5199b03fb2e545`. It preserves v2 and adds
+  immutable pre-lock contest facts, exact DK Entry-ID/roster acceptance,
+  four-contest 90-entry acceptance-root, and post-settlement contracts without
+  changing generation, scoring, selection, deployment, or paid-entry behavior.
+- Static validation passed: Ruff, Python compilation, and `git diff --check`.
+  Under two separately authorized empty-census serial windows, the focused v3
+  suite passed 11/11 in 1.93 seconds and the unchanged v2 rehearsal suite
+  passed 15/15 in 0.99 seconds. Independent review is active; do not merge or
+  operate it until that review is terminal.
+- Remaining operational P0s are separate from this schema candidate: restore
+  fresh point-in-time Week-1 injury/projection inputs; implement and review the
+  missing governed P_MIX/P_CTRL/D400_DEMAX/D800_WEMAX A5 book/allocation
+  publisher; clear canonical paid-v3 R4 and its provider-reality check; freeze
+  the four manifests/allocation root; obtain the owner's paid upload; publish
+  exact 90-entry acceptance evidence; and capture/settle all four contests
+  after lock. No operational artifact, cloud state, or paid entry was created.
+### 2026-09-08 PREREG-074 R23 image built; post-build authentication held
+
+- fm5 completed exit zero in 3 minutes 40.75 seconds and published all 36
+  cells at exact immutable reference
+  `frame-manifests/PREREG-074/prereg074-fm5.json|1788846020148874|96459|ec6a02f21e5afc9b1203683fb17355ddd8a7b1ab93da07b8be4431382b6d1cc3`.
+  A fresh post-publication census found exactly that one live generation and
+  no noncurrent/soft-deleted history; exact media, source/code map, canonical
+  object, 36 cells, and `outcome_opened: false` authenticated. Durable fm5
+  disposition and build GO are lab `main` commit
+  `df26790255320db60f39cb3ed4565d48ca89ada6`.
+- Production invoked the one authorized immutable builder at
+  `2026-09-08T05:42:58Z` from exact source
+  `9928c6a4a429e9f33374f7092db77f9601597db4`. Provider-real upload parity was
+  906/906. Cloud Build `9b404ab9-a1db-45eb-8b35-8397988c996b` succeeded at
+  `2026-09-08T05:45:08.573231Z` in project `nfl-2-506823`, global location.
+  It produced immutable tag
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2:102b740-r15-9928c6a4a429`
+  at digest
+  `sha256:c96bf21f9d4c92d6e67d03d40599bb3006d2dac7256d33e6ec4424edb0038b99`.
+  The exact source archive is
+  `gs://nfl-2-506823_cloudbuild/source/1788846186.918511-af351c3594fe463fa6ccff795b74ea68.tgz`,
+  generation `1788846194842404`, with provider MD5
+  `6MQ99a78cYrV7lD2scehkg==` and SHA-256
+  `u9EJLsIkBTnicHqO4O8JEPMdCpLd7bYciX-kVZEzW_0=`.
+- The accepted wrapper then exited 2 before archive/image authentication,
+  in-image law assertion, and build-receipt publication. Its provider response
+  required a scalar `location` field, while the real Cloud Build response
+  proves `global` through canonical resource name
+  `projects/625514296901/locations/global/builds/9b404ab9-a1db-45eb-8b35-8397988c996b`
+  and omits the scalar field. The successful-build state and submit receipt
+  bind the exact build, source, tag, and submit time. This is a control-schema
+  mismatch after a successful provider build, not a build failure.
+- The build attempt is consumed. **Do not submit another build and do not
+  launch Cloud Run yet.** A narrow independently reviewed recovery repair must
+  authenticate the canonical provider resource name, preserve image/source
+  identity as R23 `9928c6a4...`, finish exact archive/image and in-image
+  checks, and create/reopen the receipt truthfully. No Cloud Run job,
+  execution, outcome, score, or promotion state changed. Exact next action:
+  finish and independently pass that recovery control, then recover this
+  exact successful build and separately adjudicate launch authority.
+- Independent provider-schema contract
+  `d2d1f86b5a292e6c6a7a81d5c13516fa1aaf553b` confirms recovery without
+  rebuild. It requires separate R23 artifact and R24 controller identities,
+  exact Resource Manager project-ID-to-number proof for the canonical Build
+  name, and the provider-real Artifact Registry tag representation where
+  `image` is a Docker URI while `tag` and `version` are resource names. The
+  active R24 implementation must close both real-provider mismatches, retain
+  zero submit/launch capability, and pass independent review before recovery.
 
 ### 2026-09-08 PREREG-074 R23 passed independently; one-shot fm5 active
 
