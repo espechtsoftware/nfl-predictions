@@ -22,6 +22,74 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 CP-4 R18 candidate-only smoke passed; merged-main closure repaired
+
+- The registered, outcome-disabled CP-4 R18 smoke completed successfully as
+  Cloud Run execution `lab-run-slow-jmqj5`: one task succeeded, zero failed,
+  zero retried, and `maxRetries=0`. The terminal seal is
+  `gs://nfl-2-506823-lab/seals/CP-4/cp4-real-frame-smoke-r18.json#1788895642860516`.
+  It records no candidate generation, mechanics artifact, judge-sidecar open,
+  outcome access or score read.
+- The execution used exact source
+  `0928b3ac20ddd388c75139e8f19b012928142a04`, immutable image
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2@sha256:0cc9179d5bbd04a64c10455863f2f0bb89b2ca5fc3444fc2a656b23884858801`,
+  and build `4a9dcaab-60e5-42fe-9a4c-9141a6c4b5da`. The build receipt is
+  `builds/CP-4/4a9dcaab-60e5-42fe-9a4c-9141a6c4b5da.json#1788895145168542`
+  with SHA-256
+  `6b9c43ba1c6cbc3926eae3e74fe9b694cde86b037f3dc20c9efb26e06e6ff99b`.
+- Lab Update 244 correctly found that the later PREREG-074 R30 merge made
+  lab `main` red by changing three CP-4 runtime-closure members after the
+  closure had been derived. This does not compromise the sealed R18 smoke:
+  its image is bound to the earlier exact `0928b3ac` source, whose closure
+  matches its own bytes. It did block any later CP-4 build from merged main.
+- Production accepted lab's test-only offline-stop-law candidate and
+  re-derived the 42-member closure offline against merged main. The repair is
+  pushed to lab `main` at `466c3f6` on branch
+  `production/cp4-r26-merged-closure-refresh-20260908`. Validation passed all
+  22 closure tests and the broad CP-4 selection (175 passed, 20 intentionally
+  skipped, 1,550 deselected), plus the Dockerfile coverage check and diff
+  check. No provider, build, job, outcome or score action was taken by the
+  repair.
+- Next concrete action: treat R18 as the accepted real-frame mechanics smoke,
+  review the exact full contextual-generator efficacy launch binding, and do
+  not build a successor from a tree whose runtime closure is not rechecked
+  after integration.
+
+### 2026-09-08 PREREG-074 R30 image built; FM7 consumed by a pre-container argv defect
+
+- Independent review accepted R30's host-invariant numeric-runtime repair,
+  and lab main integrated it at `6461f50ae42e055fa9343987e9eea3808ce94763`.
+  Cloud Build `90c99dab-6c6a-496b-8085-1ea7ee38b7c1` succeeded from exact
+  source `acd903d783596ae59923b8955b57f51c9dc19a07`, producing immutable image
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2@sha256:64ecc716fa926cad67531190ec281c8050c3b2abeca7d4f7e43d9fb6f82f097e`.
+  Its build receipt is
+  `builds/PREREG-074/90c99dab-6c6a-496b-8085-1ea7ee38b7c1.json#1788895526321253`
+  with SHA-256
+  `9e6babab6f3407c065c4589d402013ef6bb62226a9d12fa280ea41d9e7ffa3bd`.
+- The first FM7 controller attempt then failed locally with Docker exit 125
+  before the container, data, provider or outcome boundary. Its argv carried
+  one redundant standalone `--env`, causing Docker to parse
+  `PYTHONHASHSEED=0` as an image reference. FM7/R5/R17 and the R30 image are
+  consumed for manifest progression; they must not be retried.
+- A bounded R31 repair is active. It removes only the extra token, adds an
+  argv-order parser/regression, and advances every affected identity to a
+  fresh FM8/R6/R18/source/image namespace. After independent review, the path
+  is one immutable build, FM8, one outcome-blind runtime probe, probe review,
+  and only then the 36-task efficacy cohort.
+
+### 2026-09-08 CP-1 fresh-retrieval candidate passed its real-artifact local smoke
+
+- Exact CP-1 retrieval candidate
+  `d99c8f7076d3476efbd74d1bd1a79e617bf55761` and independent review
+  `ef424a29ceed81092c1b67ca12e09fe7a03194f2` passed the full source review.
+  A local real-artifact smoke used the accepted 115,200-candidate census
+  artifact (111,736,878 bytes, SHA-256
+  `7032fbdc393bfc516c995d95812c0ac76ce5f29ef68534b62fc039359ee335be`),
+  exited zero, wrote no remote object, and recorded `outcome_opened=false`.
+- The next action is a governed immutable-image build and exact build receipt,
+  followed by a binding-only release and independent binding review before
+  any remote retrieval cohort. No cloud CP-1 execution is currently active.
+
 ### 2026-09-08 CP-4 reached the real candidate frame; R17 failed on a redundant JSON-order assertion
 
 - Production independently accepted the CP-4 physical-prelock candidate at
