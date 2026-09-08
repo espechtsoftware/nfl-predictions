@@ -192,6 +192,41 @@ agent or developer:
   the exact serial five-file suite passed 85/85 in 258.10 seconds, and all
   static gates passed. Independent review is active; no recovery or launch is
   authorized by this candidate.
+- Independent R25 review returned **PASS** at exact lab commit
+  `5c8ec1a8a0706993be7fad2be57afcffcf002941`, tree
+  `e286c16b3417d4c0a72a803e89e3aa70f032932b`. It reproduced the full
+  five-file suite at 85/85 in 249.65 seconds and exercised the real-port argv
+  seam without Docker or provider mutation. Production recorded the exact
+  one-shot recovery GO on lab `main` at
+  `281ca4398e13fa183518739dbb3852f054f605b9` and invoked it once.
+- The R25 recovery completed successfully. It reused the exact successful
+  Cloud Build `9b404ab9-a1db-45eb-8b35-8397988c996b` and immutable image
+  digest
+  `sha256:c96bf21f9d4c92d6e67d03d40599bb3006d2dac7256d33e6ec4424edb0038b99`;
+  it submitted no build, wrote no image, updated no job, launched no
+  execution, and opened no outcome. The passing in-image assertion is the new
+  create-once attempt `r25a2`; the consumed R24 raw stdout/stderr remain
+  byte-identical and its assertion record remains absent.
+- The authenticated build receipt is
+  `builds/PREREG-074/9b404ab9-a1db-45eb-8b35-8397988c996b.json`, generation
+  `1788854931680153`, 2,833 bytes, SHA-256
+  `3a4a0a489c046ea222ce1c2c0d3834285e15dad90d7f375194867f7e44740418`,
+  provider MD5 `gxl8oRjbjYANEvlQY40Jeg==`. The controller-separated recovery
+  transcript is
+  `recoveries/PREREG-074/9b404ab9-a1db-45eb-8b35-8397988c996b.json`,
+  generation `1788854932790278`, 5,534 bytes, SHA-256
+  `56e169f4bb0cf574670d5c9e3e2815a970846861241a033e4d768e5a7ffb54f8`,
+  provider MD5 `9S4gNtRXd5eXH26IGi2q0w==`.
+- Production independently reopened both exact generations and found exactly
+  one live generation and no noncurrent or soft-deleted history for either.
+  Exact bytes, SHA-256, provider size/MD5, the frozen build-receipt validator,
+  recovery-transcript validator, local `r25a2` assertion record/sidecars, and
+  preserved R24 evidence all passed. This was read-only and outcome-blind.
+  Independent post-recovery authentication is still active. **Do not launch
+  Cloud Run until it returns PASS and production records a separate launch
+  GO.** On PASS, census the fresh R3 run namespace, create/authenticate the
+  exact authority from fm5 plus this build receipt, and launch the 36-task
+  generation cohort without rebuilding.
 
 ### 2026-09-08 PREREG-074 R23 passed independently; one-shot fm5 active
 
