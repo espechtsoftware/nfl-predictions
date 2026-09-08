@@ -26,7 +26,9 @@ ALLOCATION_CREATED_AT = "2026-09-11T09:55:00Z"
 MANIFEST_TIME = "2026-09-12T10:00:00Z"
 MANIFEST_CREATED_AT = "2026-09-12T09:55:00Z"
 ACCEPTANCE_SOURCE_TIME = "2026-09-13T15:00:00Z"
+PREPARED_UPLOAD_CREATED_AT = "2026-09-13T14:50:00Z"
 ACCEPTANCE_RAW_ARCHIVED_AT = "2026-09-13T15:02:00Z"
+ACCEPTANCE_ACQUISITION_RECEIPT_TIME = "2026-09-13T15:05:00Z"
 ACCEPTANCE_CAPTURE_TIME = "2026-09-13T15:10:00Z"
 ACCEPTANCE_CAPTURE_PUBLISH_BY = "2026-09-13T15:15:00Z"
 ACCEPTANCE_EVIDENCE_TIME = "2026-09-13T15:20:00Z"
@@ -37,6 +39,7 @@ ROOT_TIME = "2026-09-13T16:30:00Z"
 ROOT_CREATED_AT = "2026-09-13T16:20:00Z"
 SETTLEMENT_SOURCE_TIME = "2026-09-14T20:00:00Z"
 SETTLEMENT_SOURCE_ARCHIVED_AT = "2026-09-14T20:02:00Z"
+SETTLEMENT_ACQUISITION_RECEIPT_TIME = "2026-09-14T20:05:00Z"
 FINAL_FIELD_CAPTURE_TIME = "2026-09-14T20:10:00Z"
 FINAL_FIELD_CAPTURE_PUBLISH_BY = "2026-09-14T20:15:00Z"
 FINAL_FIELD_EVIDENCE_TIME = "2026-09-14T20:30:00Z"
@@ -44,6 +47,9 @@ FINAL_FIELD_EVIDENCE_CREATED_AT = "2026-09-14T20:20:00Z"
 SETTLEMENT_TIME = "2026-09-14T21:00:00Z"
 NORMALIZED_FIELD_CREATED_AT = "2026-09-14T20:50:00Z"
 PREFIX = "gs://fixture/week1-a5-v3-repair"
+FIXTURE_ACCEPTANCE_DOWNLOAD_LOCATOR = (
+    "https://fixture.draftkings.invalid/mycontests/active-entry-export.csv"
+)
 
 
 class MemoryStore:
@@ -89,6 +95,37 @@ class MemoryStore:
         return dict(receipt["identity"])
 
 
+class MemoryAcquisitionAuthority:
+    """Test trust root that recognizes only explicitly issued receipts."""
+
+    def __init__(self) -> None:
+        self.records: dict[tuple[str, str], dict[str, object]] = {}
+
+    def register(
+        self,
+        *,
+        store: MemoryStore,
+        receipt_identity: dict[str, object],
+        authority_event_id: str,
+    ) -> None:
+        reopened = store.read_exact(identity=receipt_identity)
+        key = (str(receipt_identity["uri"]), str(receipt_identity["generation"]))
+        self.records[key] = {
+            "identity": copy.deepcopy(reopened["identity"]),
+            "created_at": reopened["created_at"],
+            "raw": reopened["raw"],
+            "authority_event_id": authority_event_id,
+        }
+
+    def read_authenticated_acquisition(
+        self, *, identity: dict[str, object]
+    ) -> dict[str, object]:
+        key = (str(identity["uri"]), str(identity["generation"]))
+        if key not in self.records:
+            raise ValueError("receipt was not emitted by the acquisition authority")
+        return copy.deepcopy(self.records[key])
+
+
 def _ref(publication: dict[str, object]) -> dict[str, object]:
     return {
         "artifact_identity": publication["artifact_identity"],
@@ -113,6 +150,104 @@ def _publish_semantic(
         not_after=not_after,
         not_before=not_before,
     )
+
+
+def _issue_acquisition(
+    *,
+    store: MemoryStore,
+    authority: MemoryAcquisitionAuthority,
+    pin: capture.ContestPin,
+    profile: str,
+    raw_identity: dict[str, object],
+    observed_at: str,
+    receipt_created_at: str,
+    suffix: str,
+    register: bool = True,
+    authority_event_id: str | None = None,
+) -> dict[str, object]:
+    if profile == capture.ACCEPTANCE_ACQUISITION_PROFILE:
+        locator = capture.PINNED_ACCEPTANCE_DOWNLOAD_LOCATOR
+        if locator is None:
+            raise AssertionError("fixture acceptance locator is not pinned")
+    elif profile == capture.CONTEST_DETAIL_ACQUISITION_PROFILE:
+        locator = f"{capture.FINAL_FIELD_SOURCE_LOCATOR_PREFIX}{pin.contest_id}"
+    elif profile == capture.STANDINGS_ACQUISITION_PROFILE:
+        locator = f"{capture.FINAL_STANDINGS_SOURCE_LOCATOR_PREFIX}{pin.contest_id}"
+    else:
+        raise AssertionError(profile)
+    raw_created_at = str(store.read_exact(identity=raw_identity)["created_at"])
+    event_id = authority_event_id or (
+        f"fixture-{pin.contest_id}-{profile.split('/', 1)[0]}-{suffix}"
+    )
+    is_json = profile == capture.CONTEST_DETAIL_ACQUISITION_PROFILE
+    response_content_type = (
+        "application/json" if is_json else "text/csv; charset=utf-8"
+    )
+    response_content_disposition = (
+        None if is_json else 'attachment; filename="DraftKings-export.csv"'
+    )
+    collector_source_commit = "a" * 40
+    collector_code_sha256 = "b" * 64
+    collector_image_digest = f"sha256:{'c' * 64}"
+    trace_identity = store.put_raw(
+        f"transport-trace-{pin.role}-{suffix}.json",
+        canonical_json_bytes(
+            {
+                "schema_version": capture.PROVIDER_TRANSPORT_TRACE_SCHEMA,
+                "authority_event_id": event_id,
+                "request_method": "GET",
+                "canonical_locator": locator,
+                "authenticated_surface": capture.PROVIDER_AUTHENTICATED_SURFACE,
+                "observed_at": observed_at,
+                "response_status": 200,
+                "response_content_type": response_content_type,
+                "response_content_disposition": response_content_disposition,
+                "collector_source_commit": collector_source_commit,
+                "collector_code_sha256": collector_code_sha256,
+                "collector_image_digest": collector_image_digest,
+                "raw_object_identity": raw_identity,
+            }
+        ),
+        created_at=raw_created_at,
+    )
+    receipt = capture.seal_semantic_artifact(
+        {
+            "schema_version": capture.PROVIDER_ACQUISITION_SCHEMA,
+            "authority_profile": capture.PROVIDER_ACQUISITION_AUTHORITY_PROFILE,
+            "authority_event_id": event_id,
+            "acquisition_profile": profile,
+            "source_system": "draftkings",
+            "authenticated_surface": capture.PROVIDER_AUTHENTICATED_SURFACE,
+            "request_method": "GET",
+            "canonical_locator": locator,
+            "contest_role": pin.role,
+            "contest_id": pin.contest_id,
+            "draft_group_id": capture.EXPECTED_DRAFT_GROUP_ID,
+            "observed_at": observed_at,
+            "response_status": 200,
+            "response_content_type": response_content_type,
+            "response_content_disposition": response_content_disposition,
+            "collector_source_commit": collector_source_commit,
+            "collector_code_sha256": collector_code_sha256,
+            "collector_image_digest": collector_image_digest,
+            "transport_trace_identity": trace_identity,
+            "raw_object_identity": raw_identity,
+            "raw_provider_created_at": raw_created_at,
+        }
+    )
+    publication = _publish_semantic(
+        store,
+        f"acquisition-{pin.role}-{suffix}",
+        receipt,
+        created_at=receipt_created_at,
+    )
+    if register:
+        authority.register(
+            store=store,
+            receipt_identity=publication["artifact_identity"],
+            authority_event_id=event_id,
+        )
+    return _ref(publication)
 
 
 def _source_payout_summary(pin: capture.ContestPin) -> list[dict[str, object]]:
@@ -426,6 +561,7 @@ def _install_bridge_and_books(
 @dataclass
 class Cohort:
     store: MemoryStore
+    acquisition_authority: MemoryAcquisitionAuthority
     source_pins: capture.A5SourcePins
     pins: capture.A5CapturePins
     bridge_ref: dict[str, object]
@@ -442,6 +578,7 @@ class Cohort:
 
 def _install_acceptance(
     store: MemoryStore,
+    acquisition_authority: MemoryAcquisitionAuthority,
     pins: capture.A5CapturePins,
     manifest_ref: dict[str, object],
     pin: capture.ContestPin,
@@ -493,7 +630,7 @@ def _install_acceptance(
         )
     filled = filled_stream.getvalue().encode()
     filled_identity = store.put_raw(
-        f"filled-{pin.role}.csv", filled, created_at=ACCEPTANCE_RAW_ARCHIVED_AT
+        f"filled-{pin.role}.csv", filled, created_at=PREPARED_UPLOAD_CREATED_AT
     )
     prepared = {
         "schema_version": "paid-entry-capture/v1",
@@ -510,18 +647,28 @@ def _install_acceptance(
     prepared_identity = store.put_raw(
         f"prepared-{pin.role}.json",
         canonical_json_bytes(prepared),
-        created_at=ACCEPTANCE_RAW_ARCHIVED_AT,
+        created_at=PREPARED_UPLOAD_CREATED_AT,
     )
     provider_observation_identity = store.put_raw(
         f"provider-active-entries-{pin.role}.csv",
         filled,
         created_at=ACCEPTANCE_RAW_ARCHIVED_AT,
     )
-    provider_capture = capture.build_acceptance_provider_capture_v1(
+    acquisition_receipt = _issue_acquisition(
         store=store,
-        contest_role=pin.role,
-        raw_observation_identity=provider_observation_identity,
+        authority=acquisition_authority,
+        pin=pin,
+        profile=capture.ACCEPTANCE_ACQUISITION_PROFILE,
+        raw_identity=provider_observation_identity,
         observed_at=ACCEPTANCE_SOURCE_TIME,
+        receipt_created_at=ACCEPTANCE_ACQUISITION_RECEIPT_TIME,
+        suffix="accepted-entries",
+    )
+    provider_capture = capture.build_acceptance_provider_capture_v2(
+        store=store,
+        acquisition_authority=acquisition_authority,
+        contest_role=pin.role,
+        acquisition_receipt=acquisition_receipt,
         publish_by=ACCEPTANCE_CAPTURE_PUBLISH_BY,
     )
     provider_capture_publication = _publish_semantic(
@@ -533,6 +680,7 @@ def _install_acceptance(
     )
     evidence = capture.build_accepted_entry_evidence_v2(
         store=store,
+        acquisition_authority=acquisition_authority,
         provider_capture=_ref(provider_capture_publication),
         frozen_at=ACCEPTANCE_EVIDENCE_PUBLISH_BY,
     )
@@ -545,6 +693,7 @@ def _install_acceptance(
     )
     receipt = capture.build_week1_entry_acceptance_v2(
         store=store,
+        acquisition_authority=acquisition_authority,
         pins=pins,
         manifest=manifest_ref,
         prepared_capture_identity=prepared_identity,
@@ -568,7 +717,10 @@ def _read_json_ref(store: MemoryStore, value: dict[str, object]) -> dict[str, ob
 
 
 def _make_cohort(
-    *, store: MemoryStore, source_pins: capture.A5SourcePins
+    *,
+    store: MemoryStore,
+    acquisition_authority: MemoryAcquisitionAuthority,
+    source_pins: capture.A5SourcePins,
 ) -> Cohort:
     bridge_ref, book_refs, bridge = _install_bridge_and_books(store)
     allocation = capture.build_week1_allocation_authority_v2(
@@ -613,7 +765,13 @@ def _make_cohort(
     evidence: dict[str, dict[str, object]] = {}
     for pin in capture.A5_ROLE_TABLE.values():
         acceptance_ref, prepared_value, evidence_ref = _install_acceptance(
-            store, pins, manifests[pin.role], pin, paid_book, bridge
+            store,
+            acquisition_authority,
+            pins,
+            manifests[pin.role],
+            pin,
+            paid_book,
+            bridge,
         )
         acceptances[pin.role] = acceptance_ref
         acceptance_values[pin.role] = _read_json_ref(store, acceptance_ref)
@@ -621,6 +779,7 @@ def _make_cohort(
         evidence[pin.role] = evidence_ref
     root = capture.build_week1_acceptance_root_v2(
         store=store,
+        acquisition_authority=acquisition_authority,
         pins=pins,
         manifests=manifests,
         acceptances=acceptances,
@@ -635,6 +794,7 @@ def _make_cohort(
     )
     return Cohort(
         store=store,
+        acquisition_authority=acquisition_authority,
         source_pins=source_pins,
         pins=pins,
         bridge_ref=bridge_ref,
@@ -653,6 +813,7 @@ def _make_cohort(
 @pytest.fixture(scope="module")
 def cohort() -> Cohort:
     store = MemoryStore()
+    acquisition_authority = MemoryAcquisitionAuthority()
     source_pins = _install_sources(store)
     patcher = pytest.MonkeyPatch()
     patcher.setattr(
@@ -670,8 +831,17 @@ def cohort() -> Cohort:
         "TEMPLATE_PROJECTION_SEMANTIC_SHA256",
         source_pins.template_projection_semantic_sha256,
     )
+    patcher.setattr(
+        capture,
+        "PINNED_ACCEPTANCE_DOWNLOAD_LOCATOR",
+        FIXTURE_ACCEPTANCE_DOWNLOAD_LOCATOR,
+    )
     try:
-        yield _make_cohort(store=store, source_pins=source_pins)
+        yield _make_cohort(
+            store=store,
+            acquisition_authority=acquisition_authority,
+            source_pins=source_pins,
+        )
     finally:
         patcher.undo()
 
@@ -769,13 +939,32 @@ def _normalized_ref(
         canonical_json_bytes(provider_source),
         created_at=SETTLEMENT_SOURCE_ARCHIVED_AT,
     )
-    provider_capture = capture.build_final_field_provider_capture_v1(
+    provider_acquisition = _issue_acquisition(
         store=cohort.store,
+        authority=cohort.acquisition_authority,
+        pin=evidence_pin,
+        profile=capture.CONTEST_DETAIL_ACQUISITION_PROFILE,
+        raw_identity=provider_source_identity,
+        observed_at=SETTLEMENT_SOURCE_TIME,
+        receipt_created_at=SETTLEMENT_ACQUISITION_RECEIPT_TIME,
+        suffix=f"contest-detail-{suffix}",
+    )
+    standings_acquisition = _issue_acquisition(
+        store=cohort.store,
+        authority=cohort.acquisition_authority,
+        pin=evidence_pin,
+        profile=capture.STANDINGS_ACQUISITION_PROFILE,
+        raw_identity=raw_identity,
+        observed_at=SETTLEMENT_SOURCE_TIME,
+        receipt_created_at=SETTLEMENT_ACQUISITION_RECEIPT_TIME,
+        suffix=f"standings-{suffix}",
+    )
+    provider_capture = capture.build_final_field_provider_capture_v2(
+        store=cohort.store,
+        acquisition_authority=cohort.acquisition_authority,
         contest_role=evidence_pin.role,
-        raw_provider_body_identity=provider_source_identity,
-        raw_standings_identity=raw_identity,
-        provider_observed_at=SETTLEMENT_SOURCE_TIME,
-        standings_observed_at=SETTLEMENT_SOURCE_TIME,
+        provider_acquisition_receipt=provider_acquisition,
+        standings_acquisition_receipt=standings_acquisition,
         publish_by=FINAL_FIELD_CAPTURE_PUBLISH_BY,
     )
     provider_capture_publication = _publish_semantic(
@@ -788,6 +977,7 @@ def _normalized_ref(
     )
     evidence = capture.build_final_field_evidence_v2(
         store=cohort.store,
+        acquisition_authority=cohort.acquisition_authority,
         provider_capture=_ref(provider_capture_publication),
         frozen_at=FINAL_FIELD_EVIDENCE_TIME,
     )
@@ -801,6 +991,7 @@ def _normalized_ref(
     )
     normalized = capture.build_normalized_standings_v2(
         store=cohort.store,
+        acquisition_authority=cohort.acquisition_authority,
         final_field_evidence=_ref(evidence_publication),
         player_bridge=cohort.bridge_ref,
         frozen_at=SETTLEMENT_TIME,
@@ -854,6 +1045,7 @@ def test_semantic_hash_and_raw_object_hash_are_distinct_and_both_verify(
     capture.validate_week1_entry_acceptance_v2(
         cohort.acceptance_values["milly-5"],
         store=cohort.store,
+        acquisition_authority=cohort.acquisition_authority,
         pins=cohort.pins,
     )
 
@@ -869,7 +1061,90 @@ def test_acceptance_rows_rebuild_from_separately_archived_provider_export(
     assert evidence["raw_observation_identity"] != receipt["filled_upload_identity"]
     assert provider["capture_method"] == capture.ACCEPTANCE_CAPTURE_METHOD
     assert provider["observed_entry_count"] == capture.EXPECTED_ROLE_ENTRIES[role]
-    capture.validate_accepted_entry_evidence_v2(evidence, store=cohort.store)
+    capture.validate_accepted_entry_evidence_v2(
+        evidence,
+        store=cohort.store,
+        acquisition_authority=cohort.acquisition_authority,
+    )
+
+
+def test_copied_upload_without_authority_receipt_cannot_become_accepted(
+    cohort: Cohort,
+) -> None:
+    role = "milly-5"
+    pin = capture.A5_ROLE_TABLE[role]
+    filled_identity = cohort.acceptance_values[role]["filled_upload_identity"]
+    copied_raw = cohort.store.read_exact(identity=filled_identity)["raw"]
+    copied_identity = cohort.store.put_raw(
+        "copied-unsubmitted-upload-as-provider.csv",
+        copied_raw,
+        created_at=ACCEPTANCE_RAW_ARCHIVED_AT,
+    )
+    unissued_receipt = _issue_acquisition(
+        store=cohort.store,
+        authority=cohort.acquisition_authority,
+        pin=pin,
+        profile=capture.ACCEPTANCE_ACQUISITION_PROFILE,
+        raw_identity=copied_identity,
+        observed_at=ACCEPTANCE_SOURCE_TIME,
+        receipt_created_at=ACCEPTANCE_ACQUISITION_RECEIPT_TIME,
+        suffix="copied-upload-unissued",
+        register=False,
+    )
+    with pytest.raises(
+        capture.Week1A5CaptureContractError,
+        match="not recognized by the authority",
+    ):
+        capture.build_acceptance_provider_capture_v2(
+            store=cohort.store,
+            acquisition_authority=cohort.acquisition_authority,
+            contest_role=role,
+            acquisition_receipt=unissued_receipt,
+            publish_by=ACCEPTANCE_CAPTURE_PUBLISH_BY,
+        )
+
+
+@pytest.mark.parametrize(
+    "artifact_identity_field",
+    ["prepared_capture_identity", "filled_upload_identity"],
+)
+def test_prepared_and_filled_uploads_must_exist_before_provider_observation(
+    cohort: Cohort,
+    artifact_identity_field: str,
+) -> None:
+    cloned = copy.deepcopy(cohort)
+    receipt = cloned.acceptance_values["milly-5"]
+    identity = receipt[artifact_identity_field]
+    key = (str(identity["uri"]), str(identity["generation"]))
+    cloned.store.objects[key]["created_at"] = "2026-09-13T15:00:01Z"
+    with pytest.raises(
+        capture.Week1A5CaptureContractError,
+        match="must predate the provider acceptance observation",
+    ):
+        capture.validate_week1_entry_acceptance_v2(
+            receipt,
+            store=cloned.store,
+            acquisition_authority=cloned.acquisition_authority,
+            pins=cloned.pins,
+        )
+
+
+def test_absent_live_acceptance_download_locator_fails_closed(
+    cohort: Cohort,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    evidence = _read_json_ref(cohort.store, cohort.evidence["milly-5"])
+    provider = _read_json_ref(cohort.store, evidence["provider_capture"])
+    monkeypatch.setattr(capture, "PINNED_ACCEPTANCE_DOWNLOAD_LOCATOR", None)
+    with pytest.raises(
+        capture.Week1A5CaptureContractError,
+        match="live acceptance acquisition locator is not pinned",
+    ):
+        capture.validate_acceptance_provider_capture_v2(
+            provider,
+            store=cohort.store,
+            acquisition_authority=cohort.acquisition_authority,
+        )
 
 
 def test_fabricated_normalized_acceptance_cannot_borrow_raw_provider_capture(
@@ -886,6 +1161,7 @@ def test_fabricated_normalized_acceptance_cannot_borrow_raw_provider_capture(
         capture.validate_accepted_entry_evidence_v2(
             fabricated,
             store=cohort.store,
+            acquisition_authority=cohort.acquisition_authority,
         )
 
 
@@ -900,11 +1176,12 @@ def test_acceptance_provider_observation_must_precede_raw_archive_creation(
     cloned_store.objects[key]["created_at"] = "2026-09-13T14:59:59Z"
     with pytest.raises(
         capture.Week1A5CaptureContractError,
-        match="created before it was observed",
+        match="archives predate the authenticated observation",
     ):
-        capture.validate_acceptance_provider_capture_v1(
+        capture.validate_acceptance_provider_capture_v2(
             provider,
             store=cloned_store,
+            acquisition_authority=cohort.acquisition_authority,
         )
 
 
@@ -923,6 +1200,7 @@ def test_acceptance_capture_must_publish_by_prospective_cutoff(
         capture.validate_accepted_entry_evidence_v2(
             evidence,
             store=cloned_store,
+            acquisition_authority=cohort.acquisition_authority,
         )
 
 
@@ -951,7 +1229,10 @@ def test_duplicate_or_missing_realized_rank_fails_against_exact_prepared_bytes(
         capture.Week1A5CaptureContractError, match="exact raw evidence projection"
     ):
         capture.validate_week1_entry_acceptance_v2(
-            fabricated, store=cohort.store, pins=cohort.pins
+            fabricated,
+            store=cohort.store,
+            acquisition_authority=cohort.acquisition_authority,
+            pins=cohort.pins,
         )
 
 
@@ -967,7 +1248,10 @@ def test_fabricated_projection_cannot_borrow_honest_raw_acceptance_identity(
         capture.Week1A5CaptureContractError, match="exact raw evidence projection"
     ):
         capture.validate_week1_entry_acceptance_v2(
-            fabricated, store=cohort.store, pins=cohort.pins
+            fabricated,
+            store=cohort.store,
+            acquisition_authority=cohort.acquisition_authority,
+            pins=cohort.pins,
         )
 
 
@@ -1046,7 +1330,10 @@ def test_provider_creation_after_lock_invalidates_prelock_acceptance(
         capture.Week1A5CaptureContractError, match="provider creation time"
     ):
         capture.validate_week1_entry_acceptance_v2(
-            receipt, store=cloned.store, pins=cloned.pins
+            receipt,
+            store=cloned.store,
+            acquisition_authority=cloned.acquisition_authority,
+            pins=cloned.pins,
         )
 
 
@@ -1177,6 +1464,132 @@ def test_old_false_n_wrapper_is_not_an_authoritative_provider_source(
         capture._parse_final_field_provider_body(false_wrapper)
 
 
+def test_caller_authored_false_n_and_matching_prefix_lack_provider_authority(
+    cohort: Cohort,
+) -> None:
+    role = "championship-qualifier-18"
+    pin = capture.A5_ROLE_TABLE[role]
+    standings_raw = _standings_csv(cohort, role)
+    standings_identity = cohort.store.put_raw(
+        "false-n-matching-prefix.csv",
+        standings_raw,
+        created_at=SETTLEMENT_SOURCE_ARCHIVED_AT,
+    )
+    false_provider_body = canonical_json_bytes(
+        {
+            "errorStatus": {},
+            "contestDetail": {
+                "contestKey": pin.contest_id,
+                "draftGroupId": int(capture.EXPECTED_DRAFT_GROUP_ID),
+                "contestState": "Completed",
+                "contestStateDetail": "Final",
+                "entries": pin.planned_entries,
+            },
+        }
+    )
+    false_provider_identity = cohort.store.put_raw(
+        "caller-authored-false-n.json",
+        false_provider_body,
+        created_at=SETTLEMENT_SOURCE_ARCHIVED_AT,
+    )
+    unissued_provider_receipt = _issue_acquisition(
+        store=cohort.store,
+        authority=cohort.acquisition_authority,
+        pin=pin,
+        profile=capture.CONTEST_DETAIL_ACQUISITION_PROFILE,
+        raw_identity=false_provider_identity,
+        observed_at=SETTLEMENT_SOURCE_TIME,
+        receipt_created_at=SETTLEMENT_ACQUISITION_RECEIPT_TIME,
+        suffix="false-n-unissued",
+        register=False,
+    )
+    issued_standings_receipt = _issue_acquisition(
+        store=cohort.store,
+        authority=cohort.acquisition_authority,
+        pin=pin,
+        profile=capture.STANDINGS_ACQUISITION_PROFILE,
+        raw_identity=standings_identity,
+        observed_at=SETTLEMENT_SOURCE_TIME,
+        receipt_created_at=SETTLEMENT_ACQUISITION_RECEIPT_TIME,
+        suffix="false-n-matching-prefix-issued",
+    )
+    with pytest.raises(
+        capture.Week1A5CaptureContractError,
+        match="not recognized by the authority",
+    ):
+        capture.build_final_field_provider_capture_v2(
+            store=cohort.store,
+            acquisition_authority=cohort.acquisition_authority,
+            contest_role=role,
+            provider_acquisition_receipt=unissued_provider_receipt,
+            standings_acquisition_receipt=issued_standings_receipt,
+            publish_by=FINAL_FIELD_CAPTURE_PUBLISH_BY,
+        )
+
+
+def test_final_field_sources_require_separate_authority_events(
+    cohort: Cohort,
+) -> None:
+    role = "championship-qualifier-18"
+    pin = capture.A5_ROLE_TABLE[role]
+    standings_identity = cohort.store.put_raw(
+        "same-event-standings.csv",
+        _standings_csv(cohort, role),
+        created_at=SETTLEMENT_SOURCE_ARCHIVED_AT,
+    )
+    provider_identity = cohort.store.put_raw(
+        "same-event-contest-detail.json",
+        canonical_json_bytes(
+            {
+                "errorStatus": {},
+                "contestDetail": {
+                    "contestKey": pin.contest_id,
+                    "draftGroupId": int(capture.EXPECTED_DRAFT_GROUP_ID),
+                    "contestState": "Completed",
+                    "contestStateDetail": "Final",
+                    "entries": pin.planned_entries,
+                },
+            }
+        ),
+        created_at=SETTLEMENT_SOURCE_ARCHIVED_AT,
+    )
+    shared_event = f"fixture-{pin.contest_id}-incorrect-shared-event"
+    provider_receipt = _issue_acquisition(
+        store=cohort.store,
+        authority=cohort.acquisition_authority,
+        pin=pin,
+        profile=capture.CONTEST_DETAIL_ACQUISITION_PROFILE,
+        raw_identity=provider_identity,
+        observed_at=SETTLEMENT_SOURCE_TIME,
+        receipt_created_at=SETTLEMENT_ACQUISITION_RECEIPT_TIME,
+        suffix="same-event-provider",
+        authority_event_id=shared_event,
+    )
+    standings_receipt = _issue_acquisition(
+        store=cohort.store,
+        authority=cohort.acquisition_authority,
+        pin=pin,
+        profile=capture.STANDINGS_ACQUISITION_PROFILE,
+        raw_identity=standings_identity,
+        observed_at=SETTLEMENT_SOURCE_TIME,
+        receipt_created_at=SETTLEMENT_ACQUISITION_RECEIPT_TIME,
+        suffix="same-event-standings",
+        authority_event_id=shared_event,
+    )
+    with pytest.raises(
+        capture.Week1A5CaptureContractError,
+        match="do not have separate authority events",
+    ):
+        capture.build_final_field_provider_capture_v2(
+            store=cohort.store,
+            acquisition_authority=cohort.acquisition_authority,
+            contest_role=role,
+            provider_acquisition_receipt=provider_receipt,
+            standings_acquisition_receipt=standings_receipt,
+            publish_by=FINAL_FIELD_CAPTURE_PUBLISH_BY,
+        )
+
+
 def test_matching_false_n_projection_cannot_borrow_exact_provider_body(
     cohort: Cohort,
 ) -> None:
@@ -1194,6 +1607,7 @@ def test_matching_false_n_projection_cannot_borrow_exact_provider_body(
         capture.validate_final_field_evidence_v2(
             fabricated,
             store=cohort.store,
+            acquisition_authority=cohort.acquisition_authority,
         )
 
 
@@ -1246,6 +1660,7 @@ def test_cross_wired_complete_field_cannot_settle_another_contest(
     with pytest.raises(capture.Week1A5CaptureContractError, match="omits an accepted"):
         capture.build_week1_settlement_v2(
             store=cohort.store,
+            acquisition_authority=cohort.acquisition_authority,
             pins=cohort.pins,
             acceptance_root=cohort.root_ref,
             normalized_standings=normalized_ref,
@@ -1262,6 +1677,7 @@ def test_final_roster_drift_fails_without_frozen_late_swap_transition(
     with pytest.raises(capture.Week1A5CaptureContractError, match="roster drift"):
         capture.build_week1_settlement_v2(
             store=cohort.store,
+            acquisition_authority=cohort.acquisition_authority,
             pins=cohort.pins,
             acceptance_root=cohort.root_ref,
             normalized_standings=normalized_ref,
@@ -1276,6 +1692,7 @@ def test_source_backed_qualifier_ticket_and_negative_score_settle(
     normalized_ref = _normalized_ref(cohort, role, suffix="ticket-negative")
     settlement = capture.build_week1_settlement_v2(
         store=cohort.store,
+        acquisition_authority=cohort.acquisition_authority,
         pins=cohort.pins,
         acceptance_root=cohort.root_ref,
         normalized_standings=normalized_ref,

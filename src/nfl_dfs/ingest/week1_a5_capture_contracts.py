@@ -2,8 +2,10 @@
 
 This module is an evidence adapter only.  It does not score, generate, select,
 upload, or settle entries.  Every fact used by a contract is parsed from bytes
-reopened at one exact object generation.  A semantic artifact hash and the
-hash of its serialized object are intentionally different identities.
+reopened at one exact object generation.  Provider observations additionally
+require recognition by a separate authenticated-acquisition authority; a raw
+object-store identity alone has no source authority.  A semantic artifact hash
+and the hash of its serialized object are intentionally different identities.
 
 The live allocation pins remain deliberately unset until the four final books,
 player bridge, and allocation object have been published create-once and
@@ -35,8 +37,19 @@ ALLOCATION_SCHEMA: Final = "week1-a5-allocation-authority/v2"
 BOOK_SCHEMA: Final = "week1-a5-book-materialization/v2"
 SALARY_CATALOG_SCHEMA: Final = "week1-a5-paid-salary-catalog/v1"
 PLAYER_BRIDGE_SCHEMA: Final = "week1-a5-player-bridge/v1"
+PROVIDER_ACQUISITION_SCHEMA: Final = "dk-authenticated-provider-acquisition/v1"
+PROVIDER_TRANSPORT_TRACE_SCHEMA: Final = "dk-authenticated-transport-trace/v1"
+PROVIDER_ACQUISITION_AUTHORITY_PROFILE: Final = (
+    "repository-governed-dk-acquisition/v1"
+)
+PROVIDER_AUTHENTICATED_SURFACE: Final = (
+    "draftkings-authenticated-account-session/v1"
+)
+ACCEPTANCE_ACQUISITION_PROFILE: Final = "active-entry-export-download/v1"
+CONTEST_DETAIL_ACQUISITION_PROFILE: Final = "contest-detail-api-get/v1"
+STANDINGS_ACQUISITION_PROFILE: Final = "full-standings-export-download/v1"
 ACCEPTANCE_PROVIDER_CAPTURE_SCHEMA: Final = (
-    "dk-accepted-entry-provider-capture/v1"
+    "dk-accepted-entry-provider-capture/v2"
 )
 ACCEPTED_EVIDENCE_SCHEMA: Final = "dk-accepted-entry-evidence/v2"
 ACCEPTANCE_SCHEMA: Final = "week1-a5-entry-acceptance/v2"
@@ -46,7 +59,7 @@ ACCEPTANCE_ROOT_SCHEMA: Final = "week1-a5-entry-acceptance-root/v2"
 # those values were not parsed from the provider response.
 FINAL_FIELD_SOURCE_SCHEMA: Final = "dk-final-field-provider-source/v1"
 FINAL_FIELD_PROVIDER_CAPTURE_SCHEMA: Final = (
-    "dk-final-field-provider-capture/v1"
+    "dk-final-field-provider-capture/v2"
 )
 FINAL_FIELD_EVIDENCE_SCHEMA: Final = "dk-final-field-evidence/v2"
 NORMALIZED_STANDINGS_SCHEMA: Final = "dk-normalized-complete-field/v2"
@@ -57,8 +70,17 @@ FINAL_FIELD_CAPTURE_METHOD: Final = (
     "contest-detail-api-and-full-standings-export"
 )
 ACCEPTANCE_SOURCE_LOCATOR: Final = "https://www.draftkings.com/mycontests"
+# No exact active-entry download URL/HAR profile has been observed yet.  The
+# account page above is a human-facing surface, not an acquisition locator.
+# Live acquisition therefore fails closed until a redacted real-shape smoke
+# establishes and an independent review pins the exact response/download
+# locator.  Tests replace only this explicit absent pin with a fixture URL.
+PINNED_ACCEPTANCE_DOWNLOAD_LOCATOR: Final[str | None] = None
 FINAL_FIELD_SOURCE_LOCATOR_PREFIX: Final = (
     "https://api.draftkings.com/contests/v1/contests/"
+)
+FINAL_STANDINGS_SOURCE_LOCATOR_PREFIX: Final = (
+    "https://www.draftkings.com/contest/exportfullstandingscsv/"
 )
 _SETTLED_CONTEST_STATES: Final = frozenset(
     {"Complete", "Completed", "Final", "Settled"}
@@ -222,6 +244,9 @@ _PLAYER = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}\Z")
 _FILLED_CELL = re.compile(r"^.+ \(([0-9]+)\)$")
 _IDENTITY_FIELDS = frozenset({"uri", "generation", "sha256", "bytes"})
 _CENT_MICRO = 10_000
+_COMMIT = re.compile(r"[0-9a-f]{40}\Z")
+_IMAGE_DIGEST = re.compile(r"sha256:[0-9a-f]{64}\Z")
+_AUTHORITY_EVENT = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{7,127}\Z")
 
 
 class Week1A5CaptureContractError(ValueError):
@@ -236,6 +261,22 @@ class ImmutableObjectStore(Protocol):
     ) -> Mapping[str, object]: ...
 
     def read_exact(
+        self, *, identity: Mapping[str, object]
+    ) -> Mapping[str, object]: ...
+
+
+class AuthenticatedProviderAcquisitionAuthority(Protocol):
+    """Independent trust root for one governed authenticated acquisition.
+
+    The generic object store proves byte immutability only.  This separate
+    boundary must refuse any receipt that was not emitted by the governed
+    authenticated collector.  Implementations may back this with a signed
+    collector ledger, an independently retained browser/download event log,
+    or an equivalent reviewed authority.  Callers cannot promote a raw GCS
+    object merely by placing it in a provider-looking namespace.
+    """
+
+    def read_authenticated_acquisition(
         self, *, identity: Mapping[str, object]
     ) -> Mapping[str, object]: ...
 
@@ -261,6 +302,13 @@ class ReopenedObject:
     created_at: str
     created: datetime
     raw: bytes
+
+
+@dataclass(frozen=True)
+class ReopenedAcquisition:
+    receipt: dict[str, object]
+    receipt_object: ReopenedObject
+    raw_object: ReopenedObject
 
 
 def _fail(message: str) -> None:
@@ -907,6 +955,293 @@ def _ref(identity: object, semantic_sha256: object) -> dict[str, object]:
         "artifact_identity": _identity(identity, label="artifact identity"),
         "semantic_sha256": _sha(semantic_sha256, label="semantic sha256"),
     }
+
+
+def _collector_commit(value: object, *, label: str) -> str:
+    text = _string(value, label=label)
+    if _COMMIT.fullmatch(text) is None:
+        _fail(f"{label} must be one exact lowercase Git commit")
+    return text
+
+
+def _collector_image(value: object, *, label: str) -> str:
+    text = _string(value, label=label)
+    if _IMAGE_DIGEST.fullmatch(text) is None:
+        _fail(f"{label} must be one immutable sha256 image digest")
+    return text
+
+
+def _authority_event(value: object, *, label: str) -> str:
+    text = _string(value, label=label)
+    if _AUTHORITY_EVENT.fullmatch(text) is None:
+        _fail(f"{label} must be one canonical acquisition event ID")
+    return text
+
+
+def _expected_acquisition_locator(profile: str, pin: ContestPin) -> str:
+    if profile == ACCEPTANCE_ACQUISITION_PROFILE:
+        if PINNED_ACCEPTANCE_DOWNLOAD_LOCATOR is None:
+            _fail("live acceptance acquisition locator is not pinned")
+        return PINNED_ACCEPTANCE_DOWNLOAD_LOCATOR
+    if profile == CONTEST_DETAIL_ACQUISITION_PROFILE:
+        return f"{FINAL_FIELD_SOURCE_LOCATOR_PREFIX}{pin.contest_id}"
+    if profile == STANDINGS_ACQUISITION_PROFILE:
+        return f"{FINAL_STANDINGS_SOURCE_LOCATOR_PREFIX}{pin.contest_id}"
+    raise AssertionError(f"unsupported acquisition profile {profile!r}")
+
+
+def _validate_acquisition_receipt_body(
+    value: object,
+    *,
+    expected_profile: str,
+    pin: ContestPin,
+) -> dict[str, object]:
+    """Validate one authority-issued request/download receipt body.
+
+    Source authority is deliberately not inferred here.  The separate
+    ``AuthenticatedProviderAcquisitionAuthority`` must first attest the exact
+    serialized receipt generation.  This parser then enforces the closed
+    request, response, collector, contest, and raw-object contract.
+    """
+
+    row = validate_semantic_artifact(value, label="provider acquisition receipt")
+    _exact(
+        row,
+        {
+            "schema_version",
+            "authority_profile",
+            "authority_event_id",
+            "acquisition_profile",
+            "source_system",
+            "authenticated_surface",
+            "request_method",
+            "canonical_locator",
+            "contest_role",
+            "contest_id",
+            "draft_group_id",
+            "observed_at",
+            "response_status",
+            "response_content_type",
+            "response_content_disposition",
+            "collector_source_commit",
+            "collector_code_sha256",
+            "collector_image_digest",
+            "transport_trace_identity",
+            "raw_object_identity",
+            "raw_provider_created_at",
+            "semantic_sha256",
+        },
+        label="provider acquisition receipt",
+    )
+    if row["schema_version"] != PROVIDER_ACQUISITION_SCHEMA:
+        _fail("provider acquisition receipt schema differs")
+    if row["authority_profile"] != PROVIDER_ACQUISITION_AUTHORITY_PROFILE:
+        _fail("provider acquisition authority profile differs")
+    row["authority_event_id"] = _authority_event(
+        row["authority_event_id"], label="provider authority event ID"
+    )
+    if row["acquisition_profile"] != expected_profile:
+        _fail("provider acquisition profile differs")
+    if row["source_system"] != "draftkings":
+        _fail("provider acquisition source system differs")
+    if row["authenticated_surface"] != PROVIDER_AUTHENTICATED_SURFACE:
+        _fail("provider acquisition did not use the authenticated surface")
+    if row["request_method"] != "GET":
+        _fail("provider acquisition request method differs")
+    expected_locator = _expected_acquisition_locator(expected_profile, pin)
+    if row["canonical_locator"] != expected_locator:
+        _fail("provider acquisition locator differs from its exact profile")
+    if (
+        row["contest_role"] != pin.role
+        or row["contest_id"] != pin.contest_id
+        or row["draft_group_id"] != EXPECTED_DRAFT_GROUP_ID
+    ):
+        _fail("provider acquisition receipt is cross-wired")
+    row["observed_at"] = _timestamp(
+        row["observed_at"], label="provider acquisition observed_at"
+    )[0]
+    row["response_status"] = _integer(
+        row["response_status"], label="provider acquisition response status"
+    )
+    if row["response_status"] != 200:
+        _fail("provider acquisition response status is not 200")
+    content_type = _string(
+        row["response_content_type"], label="provider acquisition content type"
+    ).lower()
+    media_type = content_type.split(";", 1)[0].strip()
+    expected_media = (
+        "application/json"
+        if expected_profile == CONTEST_DETAIL_ACQUISITION_PROFILE
+        else "text/csv"
+    )
+    if media_type != expected_media:
+        _fail("provider acquisition response content type differs")
+    disposition = row["response_content_disposition"]
+    if expected_profile == CONTEST_DETAIL_ACQUISITION_PROFILE:
+        if disposition is not None:
+            _fail("contest-detail acquisition unexpectedly claims a download")
+    else:
+        disposition_text = _string(
+            disposition, label="provider acquisition content disposition"
+        ).lower()
+        if "attachment" not in disposition_text or ".csv" not in disposition_text:
+            _fail("provider download lacks an attachment CSV disposition")
+    row["collector_source_commit"] = _collector_commit(
+        row["collector_source_commit"], label="provider collector source commit"
+    )
+    row["collector_code_sha256"] = _sha(
+        row["collector_code_sha256"], label="provider collector code SHA"
+    )
+    row["collector_image_digest"] = _collector_image(
+        row["collector_image_digest"], label="provider collector image"
+    )
+    row["transport_trace_identity"] = _identity(
+        row["transport_trace_identity"], label="provider transport trace identity"
+    )
+    row["raw_object_identity"] = _identity(
+        row["raw_object_identity"], label="provider raw-object identity"
+    )
+    row["raw_provider_created_at"] = _timestamp(
+        row["raw_provider_created_at"], label="provider raw-object creation time"
+    )[0]
+    return row
+
+
+def _reopen_authenticated_acquisition(
+    *,
+    store: ImmutableObjectStore,
+    acquisition_authority: AuthenticatedProviderAcquisitionAuthority,
+    receipt: object,
+    expected_profile: str,
+    pin: ContestPin,
+    not_after: datetime,
+    not_before: datetime | None = None,
+) -> ReopenedAcquisition:
+    """Reopen and authenticate one governed request/download acquisition.
+
+    The ordinary object store and the acquisition authority are intentionally
+    two different dependencies.  Byte-identical objects in the ordinary store
+    are not provider observations unless the independent authority recognizes
+    that exact receipt generation and authority event.
+    """
+
+    reference = _semantic_ref(receipt, label="provider acquisition receipt")
+    receipt_value, receipt_obj = _reopen_semantic(
+        store,
+        reference["artifact_identity"],
+        label="provider acquisition receipt",
+        expected_semantic_sha256=reference["semantic_sha256"],
+        not_after=not_after,
+        not_before=not_before,
+    )
+    try:
+        authority_read = _mapping(
+            acquisition_authority.read_authenticated_acquisition(
+                identity=receipt_obj.identity
+            ),
+            label="authenticated acquisition authority read",
+        )
+    except Exception as exc:
+        if isinstance(exc, Week1A5CaptureContractError):
+            raise
+        raise Week1A5CaptureContractError(
+            "provider acquisition receipt is not recognized by the authority"
+        ) from exc
+    _exact(
+        authority_read,
+        {"identity", "created_at", "raw", "authority_event_id"},
+        label="authenticated acquisition authority read",
+    )
+    _identity_equal(
+        authority_read["identity"],
+        receipt_obj.identity,
+        label="authority-issued acquisition receipt identity",
+    )
+    authority_created_at, _ = _timestamp(
+        authority_read["created_at"], label="authority acquisition created_at"
+    )
+    if authority_created_at != receipt_obj.created_at:
+        _fail("acquisition authority creation time differs from object provider")
+    authority_raw = authority_read["raw"]
+    if not isinstance(authority_raw, bytes) or authority_raw != receipt_obj.raw:
+        _fail("acquisition authority bytes differ from exact receipt generation")
+    receipt_value = _validate_acquisition_receipt_body(
+        receipt_value,
+        expected_profile=expected_profile,
+        pin=pin,
+    )
+    if _authority_event(
+        authority_read["authority_event_id"],
+        label="authority-recognized acquisition event ID",
+    ) != receipt_value["authority_event_id"]:
+        _fail("acquisition authority event differs from receipt")
+    raw_obj = _reopen_exact(
+        store,
+        receipt_value["raw_object_identity"],
+        label="authority-bound provider raw object",
+        not_after=receipt_obj.created,
+        not_before=not_before,
+    )
+    trace_obj = _reopen_exact(
+        store,
+        receipt_value["transport_trace_identity"],
+        label="authority-bound provider transport trace",
+        not_after=receipt_obj.created,
+        not_before=not_before,
+    )
+    trace = _parse_json(
+        trace_obj.raw,
+        label="authority-bound provider transport trace",
+        canonical=True,
+    )
+    _exact(
+        trace,
+        {
+            "schema_version",
+            "authority_event_id",
+            "request_method",
+            "canonical_locator",
+            "authenticated_surface",
+            "observed_at",
+            "response_status",
+            "response_content_type",
+            "response_content_disposition",
+            "collector_source_commit",
+            "collector_code_sha256",
+            "collector_image_digest",
+            "raw_object_identity",
+        },
+        label="authority-bound provider transport trace",
+    )
+    if trace.pop("schema_version") != PROVIDER_TRANSPORT_TRACE_SCHEMA:
+        _fail("provider transport trace schema differs")
+    trace_projection = {
+        key: receipt_value[key]
+        for key in (
+            "authority_event_id",
+            "request_method",
+            "canonical_locator",
+            "authenticated_surface",
+            "observed_at",
+            "response_status",
+            "response_content_type",
+            "response_content_disposition",
+            "collector_source_commit",
+            "collector_code_sha256",
+            "collector_image_digest",
+            "raw_object_identity",
+        )
+    }
+    if trace != trace_projection:
+        _fail("provider acquisition receipt differs from its exact transport trace")
+    observed = _timestamp(
+        receipt_value["observed_at"], label="provider acquisition observed_at"
+    )[1]
+    if observed > raw_obj.created or observed > trace_obj.created:
+        _fail("provider acquisition archives predate the authenticated observation")
+    if receipt_value["raw_provider_created_at"] != raw_obj.created_at:
+        _fail("provider acquisition raw creation time differs from exact reopen")
+    return ReopenedAcquisition(receipt_value, receipt_obj, raw_obj)
 
 
 def _load_ref(
@@ -1973,58 +2308,67 @@ def inspect_acceptance_provider_bytes_v1(
     }
 
 
-def build_acceptance_provider_capture_v1(
+def build_acceptance_provider_capture_v2(
     *,
     store: ImmutableObjectStore,
+    acquisition_authority: AuthenticatedProviderAcquisitionAuthority,
     contest_role: object,
-    raw_observation_identity: object,
-    observed_at: object,
+    acquisition_receipt: object,
     publish_by: object,
 ) -> dict[str, object]:
-    """Bind one raw authenticated DK active-entry export create-once."""
+    """Bind one authority-issued DK active-entry acquisition."""
 
     pin = _pin_for_role(contest_role)
-    observed_text, observed = _timestamp(
-        observed_at, label="acceptance provider observed_at"
-    )
     publish_text, cutoff = _publish_by(
         publish_by,
         label="acceptance provider capture publish_by",
         phase="prelock",
     )
-    if observed > cutoff:
-        _fail("acceptance provider observation is after its publish-by cutoff")
-    raw_obj = _reopen_exact(
-        store,
-        raw_observation_identity,
-        label="raw accepted-entry provider observation",
+    acquisition = _reopen_authenticated_acquisition(
+        store=store,
+        acquisition_authority=acquisition_authority,
+        receipt=acquisition_receipt,
+        expected_profile=ACCEPTANCE_ACQUISITION_PROFILE,
+        pin=pin,
         not_after=cutoff,
     )
-    if observed > raw_obj.created:
-        _fail("accepted-entry raw object was created before it was observed")
-    entries = _parse_active_entry_export(raw_obj.raw, pin=pin)
+    observed_text, observed = _timestamp(
+        acquisition.receipt["observed_at"],
+        label="acceptance provider observed_at",
+    )
+    if observed > cutoff:
+        _fail("acceptance provider observation is after its publish-by cutoff")
+    entries = _parse_active_entry_export(acquisition.raw_object.raw, pin=pin)
+    acquisition_ref = _semantic_ref(
+        acquisition_receipt, label="acceptance provider acquisition receipt"
+    )
     return seal_semantic_artifact(
         {
             "schema_version": ACCEPTANCE_PROVIDER_CAPTURE_SCHEMA,
             "source_system": "draftkings",
             "capture_method": ACCEPTANCE_CAPTURE_METHOD,
-            "source_locator": ACCEPTANCE_SOURCE_LOCATOR,
+            "source_locator": acquisition.receipt["canonical_locator"],
             "contest_role": pin.role,
             "contest_id": pin.contest_id,
             "draft_group_id": EXPECTED_DRAFT_GROUP_ID,
             "observed_at": observed_text,
             "publish_by": publish_text,
-            "raw_observation_identity": raw_obj.identity,
+            "acquisition_receipt": acquisition_ref,
+            "acquisition_authority_event_id": acquisition.receipt[
+                "authority_event_id"
+            ],
+            "raw_observation_identity": acquisition.raw_object.identity,
             "observed_entry_count": len(entries),
             "entry_projection_sha256": canonical_sha256(entries),
         }
     )
 
 
-def validate_acceptance_provider_capture_v1(
+def validate_acceptance_provider_capture_v2(
     value: object,
     *,
     store: ImmutableObjectStore,
+    acquisition_authority: AuthenticatedProviderAcquisitionAuthority,
 ) -> dict[str, object]:
     row = validate_semantic_artifact(value, label="acceptance provider capture")
     _exact(
@@ -2039,6 +2383,8 @@ def validate_acceptance_provider_capture_v1(
             "draft_group_id",
             "observed_at",
             "publish_by",
+            "acquisition_receipt",
+            "acquisition_authority_event_id",
             "raw_observation_identity",
             "observed_entry_count",
             "entry_projection_sha256",
@@ -2048,11 +2394,11 @@ def validate_acceptance_provider_capture_v1(
     )
     if row["schema_version"] != ACCEPTANCE_PROVIDER_CAPTURE_SCHEMA:
         _fail("acceptance provider capture schema differs")
-    rebuilt = build_acceptance_provider_capture_v1(
+    rebuilt = build_acceptance_provider_capture_v2(
         store=store,
+        acquisition_authority=acquisition_authority,
         contest_role=row["contest_role"],
-        raw_observation_identity=row["raw_observation_identity"],
-        observed_at=row["observed_at"],
+        acquisition_receipt=row["acquisition_receipt"],
         publish_by=row["publish_by"],
     )
     if row != rebuilt:
@@ -2060,9 +2406,26 @@ def validate_acceptance_provider_capture_v1(
     return row
 
 
+def build_acceptance_provider_capture_v1(**_: object) -> dict[str, object]:
+    _fail(
+        "acceptance provider capture/v1 is retired; "
+        "use authority-bound capture/v2"
+    )
+
+
+def validate_acceptance_provider_capture_v1(
+    *_: object, **__: object
+) -> dict[str, object]:
+    _fail(
+        "acceptance provider capture/v1 is retired; "
+        "use authority-bound capture/v2"
+    )
+
+
 def build_accepted_entry_evidence_v2(
     *,
     store: ImmutableObjectStore,
+    acquisition_authority: AuthenticatedProviderAcquisitionAuthority,
     provider_capture: object,
     frozen_at: object,
 ) -> dict[str, object]:
@@ -2081,9 +2444,10 @@ def build_accepted_entry_evidence_v2(
         expected_semantic_sha256=capture_ref["semantic_sha256"],
         not_after=frozen,
     )
-    provider = validate_acceptance_provider_capture_v1(
+    provider = validate_acceptance_provider_capture_v2(
         capture_raw,
         store=store,
+        acquisition_authority=acquisition_authority,
     )
     provider_cutoff = _publish_by(
         provider["publish_by"],
@@ -2208,10 +2572,12 @@ def validate_accepted_entry_evidence_v2(
     value: object,
     *,
     store: ImmutableObjectStore,
+    acquisition_authority: AuthenticatedProviderAcquisitionAuthority,
 ) -> dict[str, object]:
     row = _parse_accepted_evidence(value)
     rebuilt = build_accepted_entry_evidence_v2(
         store=store,
+        acquisition_authority=acquisition_authority,
         provider_capture=row["provider_capture"],
         frozen_at=row["frozen_at"],
     )
@@ -2223,6 +2589,7 @@ def validate_accepted_entry_evidence_v2(
 def build_week1_entry_acceptance_v2(
     *,
     store: ImmutableObjectStore,
+    acquisition_authority: AuthenticatedProviderAcquisitionAuthority,
     pins: A5CapturePins,
     manifest: object,
     prepared_capture_identity: object,
@@ -2301,6 +2668,7 @@ def build_week1_entry_acceptance_v2(
     evidence = validate_accepted_entry_evidence_v2(
         evidence_raw,
         store=store,
+        acquisition_authority=acquisition_authority,
     )
     if evidence_obj.created > accepted:
         _fail("accepted-entry evidence provider time is after accepted_at")
@@ -2313,8 +2681,16 @@ def build_week1_entry_acceptance_v2(
         _fail("accepted-entry evidence was published after its prospective cutoff")
     if evidence_cutoff > accepted:
         _fail("accepted-entry evidence cutoff is after accepted_at")
-    if _timestamp(evidence["observed_at"], label="evidence observed_at")[1] > accepted:
+    evidence_observed = _timestamp(
+        evidence["observed_at"], label="evidence observed_at"
+    )[1]
+    if evidence_observed > accepted:
         _fail("accepted-entry observation is after accepted_at")
+    if prepared_obj.created > evidence_observed or filled_obj.created > evidence_observed:
+        _fail(
+            "prepared/filled upload artifacts must predate the provider "
+            "acceptance observation"
+        )
     if (
         evidence["contest_role"] != contest["contest_role"]
         or evidence["contest_id"] != contest["contest_id"]
@@ -2392,6 +2768,7 @@ def validate_week1_entry_acceptance_v2(
     value: object,
     *,
     store: ImmutableObjectStore,
+    acquisition_authority: AuthenticatedProviderAcquisitionAuthority,
     pins: A5CapturePins,
 ) -> dict[str, object]:
     row = validate_semantic_artifact(value, label="entry acceptance")
@@ -2422,6 +2799,7 @@ def validate_week1_entry_acceptance_v2(
         _fail("entry acceptance schema differs")
     rebuilt = build_week1_entry_acceptance_v2(
         store=store,
+        acquisition_authority=acquisition_authority,
         pins=pins,
         manifest=row["manifest"],
         prepared_capture_identity=row["prepared_capture_identity"],
@@ -2437,6 +2815,7 @@ def validate_week1_entry_acceptance_v2(
 def build_week1_acceptance_root_v2(
     *,
     store: ImmutableObjectStore,
+    acquisition_authority: AuthenticatedProviderAcquisitionAuthority,
     pins: A5CapturePins,
     manifests: object,
     acceptances: object,
@@ -2478,7 +2857,10 @@ def build_week1_acceptance_root_v2(
             not_after=frozen,
         )
         acceptance = validate_week1_entry_acceptance_v2(
-            acceptance_raw, store=store, pins=pins
+            acceptance_raw,
+            store=store,
+            acquisition_authority=acquisition_authority,
+            pins=pins,
         )
         declared_acceptance = _timestamp(
             acceptance["accepted_at"], label="accepted_at"
@@ -2527,6 +2909,7 @@ def validate_week1_acceptance_root_v2(
     value: object,
     *,
     store: ImmutableObjectStore,
+    acquisition_authority: AuthenticatedProviderAcquisitionAuthority,
     pins: A5CapturePins,
 ) -> dict[str, object]:
     row = validate_semantic_artifact(value, label="acceptance root")
@@ -2549,6 +2932,7 @@ def validate_week1_acceptance_root_v2(
         _fail("acceptance root schema differs")
     rebuilt = build_week1_acceptance_root_v2(
         store=store,
+        acquisition_authority=acquisition_authority,
         pins=pins,
         manifests=row["manifests"],
         acceptances=row["acceptances"],
@@ -2834,55 +3218,63 @@ def inspect_final_field_provider_bytes_v1(
     }
 
 
-def build_final_field_provider_capture_v1(
+def build_final_field_provider_capture_v2(
     *,
     store: ImmutableObjectStore,
+    acquisition_authority: AuthenticatedProviderAcquisitionAuthority,
     contest_role: object,
-    raw_provider_body_identity: object,
-    raw_standings_identity: object,
-    provider_observed_at: object,
-    standings_observed_at: object,
+    provider_acquisition_receipt: object,
+    standings_acquisition_receipt: object,
     publish_by: object,
 ) -> dict[str, object]:
-    """Bind exact DK contest-detail and standings bytes in one receipt."""
+    """Bind authority-issued contest-detail and standings acquisitions."""
 
     pin = _pin_for_role(contest_role)
-    provider_observed_text, provider_observed = _timestamp(
-        provider_observed_at, label="final-field provider observed_at"
-    )
-    standings_observed_text, standings_observed = _timestamp(
-        standings_observed_at, label="standings observed_at"
-    )
     publish_text, cutoff = _publish_by(
         publish_by,
         label="final-field provider capture publish_by",
         phase="postlock",
     )
     _, lock = _timestamp(EXPECTED_LOCK_UTC, label="A5 lock")
+    provider_acquisition = _reopen_authenticated_acquisition(
+        store=store,
+        acquisition_authority=acquisition_authority,
+        receipt=provider_acquisition_receipt,
+        expected_profile=CONTEST_DETAIL_ACQUISITION_PROFILE,
+        pin=pin,
+        not_after=cutoff,
+        not_before=lock,
+    )
+    standings_acquisition = _reopen_authenticated_acquisition(
+        store=store,
+        acquisition_authority=acquisition_authority,
+        receipt=standings_acquisition_receipt,
+        expected_profile=STANDINGS_ACQUISITION_PROFILE,
+        pin=pin,
+        not_after=cutoff,
+        not_before=lock,
+    )
+    provider_observed_text, provider_observed = _timestamp(
+        provider_acquisition.receipt["observed_at"],
+        label="final-field provider observed_at",
+    )
+    standings_observed_text, standings_observed = _timestamp(
+        standings_acquisition.receipt["observed_at"],
+        label="standings observed_at",
+    )
+    if (
+        provider_acquisition.receipt["authority_event_id"]
+        == standings_acquisition.receipt["authority_event_id"]
+    ):
+        _fail("final-field sources do not have separate authority events")
     if provider_observed <= lock or standings_observed <= lock:
         _fail("final-field sources must be observed strictly after lock")
     if provider_observed > cutoff or standings_observed > cutoff:
         _fail("final-field source observation is after its publish-by cutoff")
-    provider_obj = _reopen_exact(
-        store,
-        raw_provider_body_identity,
-        label="raw final-field provider response",
-        not_after=cutoff,
-        not_before=lock,
-    )
-    standings_obj = _reopen_exact(
-        store,
-        raw_standings_identity,
-        label="raw complete standings",
-        not_after=cutoff,
-        not_before=lock,
-    )
+    provider_obj = provider_acquisition.raw_object
+    standings_obj = standings_acquisition.raw_object
     if provider_obj.created <= lock or standings_obj.created <= lock:
         _fail("final-field source archive creation is not strictly post-lock")
-    if provider_observed > provider_obj.created:
-        _fail("provider response archive was created before it was observed")
-    if standings_observed > standings_obj.created:
-        _fail("standings archive was created before it was observed")
     projection = _parse_final_field_provider_body(provider_obj.raw)
     if (
         projection["contest_id"] != pin.contest_id
@@ -2906,6 +3298,20 @@ def build_final_field_provider_capture_v1(
             "provider_observed_at": provider_observed_text,
             "standings_observed_at": standings_observed_text,
             "publish_by": publish_text,
+            "provider_acquisition_receipt": _semantic_ref(
+                provider_acquisition_receipt,
+                label="contest-detail acquisition receipt",
+            ),
+            "standings_acquisition_receipt": _semantic_ref(
+                standings_acquisition_receipt,
+                label="standings acquisition receipt",
+            ),
+            "provider_authority_event_id": provider_acquisition.receipt[
+                "authority_event_id"
+            ],
+            "standings_authority_event_id": standings_acquisition.receipt[
+                "authority_event_id"
+            ],
             "raw_provider_body_identity": provider_obj.identity,
             "raw_standings_identity": standings_obj.identity,
             "provider_contest_state": projection["provider_contest_state"],
@@ -2920,10 +3326,11 @@ def build_final_field_provider_capture_v1(
     )
 
 
-def validate_final_field_provider_capture_v1(
+def validate_final_field_provider_capture_v2(
     value: object,
     *,
     store: ImmutableObjectStore,
+    acquisition_authority: AuthenticatedProviderAcquisitionAuthority,
 ) -> dict[str, object]:
     row = validate_semantic_artifact(value, label="final-field provider capture")
     _exact(
@@ -2939,6 +3346,10 @@ def validate_final_field_provider_capture_v1(
             "provider_observed_at",
             "standings_observed_at",
             "publish_by",
+            "provider_acquisition_receipt",
+            "standings_acquisition_receipt",
+            "provider_authority_event_id",
+            "standings_authority_event_id",
             "raw_provider_body_identity",
             "raw_standings_identity",
             "provider_contest_state",
@@ -2951,13 +3362,12 @@ def validate_final_field_provider_capture_v1(
     )
     if row["schema_version"] != FINAL_FIELD_PROVIDER_CAPTURE_SCHEMA:
         _fail("final-field provider capture schema differs")
-    rebuilt = build_final_field_provider_capture_v1(
+    rebuilt = build_final_field_provider_capture_v2(
         store=store,
+        acquisition_authority=acquisition_authority,
         contest_role=row["contest_role"],
-        raw_provider_body_identity=row["raw_provider_body_identity"],
-        raw_standings_identity=row["raw_standings_identity"],
-        provider_observed_at=row["provider_observed_at"],
-        standings_observed_at=row["standings_observed_at"],
+        provider_acquisition_receipt=row["provider_acquisition_receipt"],
+        standings_acquisition_receipt=row["standings_acquisition_receipt"],
         publish_by=row["publish_by"],
     )
     if row != rebuilt:
@@ -2965,9 +3375,26 @@ def validate_final_field_provider_capture_v1(
     return row
 
 
+def build_final_field_provider_capture_v1(**_: object) -> dict[str, object]:
+    _fail(
+        "final-field provider capture/v1 is retired; "
+        "use authority-bound capture/v2"
+    )
+
+
+def validate_final_field_provider_capture_v1(
+    *_: object, **__: object
+) -> dict[str, object]:
+    _fail(
+        "final-field provider capture/v1 is retired; "
+        "use authority-bound capture/v2"
+    )
+
+
 def build_final_field_evidence_v2(
     *,
     store: ImmutableObjectStore,
+    acquisition_authority: AuthenticatedProviderAcquisitionAuthority,
     provider_capture: object,
     frozen_at: object,
 ) -> dict[str, object]:
@@ -2988,7 +3415,11 @@ def build_final_field_evidence_v2(
         not_after=frozen,
         not_before=lock,
     )
-    capture = validate_final_field_provider_capture_v1(capture_raw, store=store)
+    capture = validate_final_field_provider_capture_v2(
+        capture_raw,
+        store=store,
+        acquisition_authority=acquisition_authority,
+    )
     capture_cutoff = _publish_by(
         capture["publish_by"],
         label="final-field provider capture publish_by",
@@ -3110,10 +3541,12 @@ def validate_final_field_evidence_v2(
     value: object,
     *,
     store: ImmutableObjectStore,
+    acquisition_authority: AuthenticatedProviderAcquisitionAuthority,
 ) -> dict[str, object]:
     row = _parse_final_field_evidence(value)
     rebuilt = build_final_field_evidence_v2(
         store=store,
+        acquisition_authority=acquisition_authority,
         provider_capture=row["provider_capture"],
         frozen_at=row["frozen_at"],
     )
@@ -3133,6 +3566,7 @@ def validate_final_field_evidence_v1(**_: object) -> dict[str, object]:
 def build_normalized_standings_v2(
     *,
     store: ImmutableObjectStore,
+    acquisition_authority: AuthenticatedProviderAcquisitionAuthority,
     final_field_evidence: object,
     player_bridge: object,
     frozen_at: object,
@@ -3154,7 +3588,11 @@ def build_normalized_standings_v2(
         not_after=frozen,
         not_before=lock,
     )
-    evidence = validate_final_field_evidence_v2(evidence_raw, store=store)
+    evidence = validate_final_field_evidence_v2(
+        evidence_raw,
+        store=store,
+        acquisition_authority=acquisition_authority,
+    )
     if evidence_obj.created <= lock:
         _fail("final-field evidence provider time is not post-lock")
     if evidence_obj.created > _timestamp(
@@ -3226,6 +3664,7 @@ def validate_normalized_standings_v2(
     value: object,
     *,
     store: ImmutableObjectStore,
+    acquisition_authority: AuthenticatedProviderAcquisitionAuthority,
 ) -> dict[str, object]:
     row = validate_semantic_artifact(value, label="normalized standings")
     _exact(
@@ -3251,6 +3690,7 @@ def validate_normalized_standings_v2(
         _fail("normalized standings schema differs")
     rebuilt = build_normalized_standings_v2(
         store=store,
+        acquisition_authority=acquisition_authority,
         final_field_evidence=row["final_field_evidence"],
         player_bridge=row["player_bridge"],
         frozen_at=row["frozen_at"],
@@ -3355,6 +3795,7 @@ def _reconcile_source_payouts(
 def build_week1_settlement_v2(
     *,
     store: ImmutableObjectStore,
+    acquisition_authority: AuthenticatedProviderAcquisitionAuthority,
     pins: A5CapturePins,
     acceptance_root: object,
     normalized_standings: object,
@@ -3376,7 +3817,12 @@ def build_week1_settlement_v2(
         expected_semantic_sha256=root_ref["semantic_sha256"],
         not_after=lock,
     )
-    root = validate_week1_acceptance_root_v2(root_raw, store=store, pins=pins)
+    root = validate_week1_acceptance_root_v2(
+        root_raw,
+        store=store,
+        acquisition_authority=acquisition_authority,
+        pins=pins,
+    )
     if root_obj.created > _timestamp(root["frozen_at"], label="root frozen_at")[1]:
         _fail("acceptance-root provider creation is after its declared freeze")
     normalized_ref = _semantic_ref(normalized_standings, label="normalized standings")
@@ -3390,7 +3836,11 @@ def build_week1_settlement_v2(
     )
     if normalized_obj.created <= lock:
         _fail("normalized standings provider time is not post-lock")
-    normalized = validate_normalized_standings_v2(normalized_raw, store=store)
+    normalized = validate_normalized_standings_v2(
+        normalized_raw,
+        store=store,
+        acquisition_authority=acquisition_authority,
+    )
     if normalized_obj.created > _timestamp(
         normalized["frozen_at"], label="normalized frozen_at"
     )[1]:
@@ -3418,7 +3868,10 @@ def build_week1_settlement_v2(
         not_after=lock,
     )
     acceptance = validate_week1_entry_acceptance_v2(
-        acceptance_raw, store=store, pins=pins
+        acceptance_raw,
+        store=store,
+        acquisition_authority=acquisition_authority,
+        pins=pins,
     )
     if normalized["player_bridge"] != manifest["player_bridge"]:
         _fail("normalized standings name another exact player bridge")
@@ -3499,6 +3952,7 @@ def validate_week1_settlement_v2(
     value: object,
     *,
     store: ImmutableObjectStore,
+    acquisition_authority: AuthenticatedProviderAcquisitionAuthority,
     pins: A5CapturePins,
 ) -> dict[str, object]:
     row = validate_semantic_artifact(value, label="settlement")
@@ -3532,6 +3986,7 @@ def validate_week1_settlement_v2(
         _fail("settlement schema differs")
     rebuilt = build_week1_settlement_v2(
         store=store,
+        acquisition_authority=acquisition_authority,
         pins=pins,
         acceptance_root=row["acceptance_root"],
         normalized_standings=row["normalized_standings"],

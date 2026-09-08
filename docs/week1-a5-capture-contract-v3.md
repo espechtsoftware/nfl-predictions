@@ -59,6 +59,23 @@ The two hashes are not compared for equality. Every consumer generation-
 exactly reopens the external identity, verifies byte length and raw SHA-256,
 parses those bytes, and then recomputes `semantic_sha256`. Provider creation
 time—not a URI spelling—enforces pre-lock and settlement boundaries.
+
+Generic object storage is not provider authority. Each accepted-entry,
+contest-detail, and standings source must first have a separately retained
+`dk-authenticated-provider-acquisition/v1` receipt recognized at its exact
+generation by the repository-governed authenticated acquisition authority.
+That receipt binds an immutable transport trace, exact method and canonical
+locator, authenticated-session profile, contest/draft group, HTTP status and
+media type, observation time, collector source/code/image identity, and raw
+object identity/provider creation time. Every consumer requires both the
+generic exact reopen and the independent authority reopen; a caller-created
+object in a provider-looking namespace is insufficient.
+
+The known `https://www.draftkings.com/mycontests` account page is not silently
+treated as the active-entry export locator. The exact download/response URL is
+currently unpinned, so the live acceptance acquisition fails closed until a
+redacted real-shape smoke establishes it and independent review accepts it.
+
 `frozen_at`, `accepted_at`, and `publish_by` are prospective create-once
 publication cutoffs: the bytes are serialized first, the object is published,
 and its provider creation time must be no later than that already-declared
@@ -107,9 +124,12 @@ later than the declared freeze and strictly before lock.
 - the production exporter's `paid-entry-capture/v1` JSON;
 - the filled DK CSV whose raw SHA/bytes the prepared capture records;
 - a separately archived raw DraftKings active-entry export;
-- `dk-accepted-entry-provider-capture/v1`, which binds that raw export to the
+- an authority-recognized `dk-authenticated-provider-acquisition/v1` receipt
+  and its exact transport trace for the active-entry download;
+- `dk-accepted-entry-provider-capture/v2`, which derives the raw export,
   allowlisted authenticated provider method, exact A5 contest, observation
-  time, raw generation, and prospective publication cutoff; and
+  time, raw generation, and prospective publication cutoff only from that
+  acquisition;
 - `dk-accepted-entry-evidence/v2`, rebuilt only from that capture/raw export;
 - the manifest, allocation, P_MIX book, and player bridge.
 
@@ -129,18 +149,23 @@ lineup_rank = paid_input_book_ordinal + 1
 The two domains must independently be complete bijections over `1..K`.
 `entry_index == lineup_rank` is not required after fill. The root exactly
 reopens all four manifests/receipts and requires K57/K20/K3/K10 plus 90
-globally unique Entry IDs before lock.
+globally unique Entry IDs before lock. Both the prepared capture and filled
+upload must exist no later than the authenticated provider observation they
+are supposed to precede.
 
 ### 4. Complete-field normalization and settlement
 
-A `dk-final-field-provider-capture/v1` receipt binds two exact raw objects in
-one capture: the DraftKings contest-detail HTTP response body and the full
-standings export. Reviewed code derives contest ID, draft group, settled state,
-and final submitted entry count from `contestDetail` in the raw provider body;
-it stream-counts the exact standings Entry IDs and refuses publication unless
-that count agrees. The retired `dk-final-field-provider-source/v1` caller
-wrapper cannot authorize a field, even when a truncated CSV and false claimed
-N agree.
+A `dk-final-field-provider-capture/v2` receipt binds two separately authority-
+recognized acquisitions in one capture: the DraftKings contest-detail HTTP
+response and the exact contest-scoped full-standings download. Their immutable
+transport traces must reproduce the exact GET locator, authenticated surface,
+HTTP response metadata, collector identity, observation time, and raw object.
+Reviewed code derives contest ID, draft group, settled state, and final
+submitted entry count from `contestDetail` in the authority-bound raw provider
+body; it stream-counts the exact authority-bound standings Entry IDs and
+refuses publication unless that count agrees. The retired
+`dk-final-field-provider-source/v1` caller wrapper cannot authorize a field,
+even when a truncated CSV and false claimed N agree.
 
 `dk-final-field-evidence/v2` and `dk-normalized-complete-field/v2` are rebuilt
 only from that generation-exact provider capture, its two raw objects, and the
@@ -168,16 +193,19 @@ the exact pooled cents with floor/one-cent-remainder allocation; no
 2. Finish and exact-publish the player bridge and all four exact K80 books.
 3. Build, create-once publish, independently reopen, and code-pin the allocation
    raw identity and semantic SHA.
-4. Independently review this repair and run its focused adversarial suite plus
+4. Implement and independently review the live acquisition-authority adapter;
+   it must recognize only receipts emitted by the governed authenticated
+   collector, never arbitrary generic-store objects.
+5. Independently review this repair and run its focused adversarial suite plus
    an outcome-blind smoke against the five real source objects and a
    representative production prepared-entry/filled-CSV/active-entry-export
    shape. `scripts/week1_a5_capture_real_shape_smoke.py` is default-off,
    performs no writes or network calls, emits only redacted counts/hashes, and
    requires `--execute-real-shape-smoke`. Its post-lock mode additionally
    requires `--allow-postlock-outcome-bytes`.
-5. Only after those gates, publish four manifests, perform owner-authorized
+6. Only after those gates, publish four manifests, perform owner-authorized
    uploads, capture raw acceptance evidence, and publish the 90-entry root.
-6. After contests settle, preserve all four complete fields inside DK's short
+7. After contests settle, preserve all four complete fields inside DK's short
    export window and publish normalized/settlement evidence.
 
 There is still no governed repository-owned end-to-end A5 publisher/CLI. Do
@@ -198,6 +226,8 @@ The adversarial suite covers raw-versus-semantic identity, wrong generation,
 bytes and raw SHA, alternate allocation roots, post-lock provider time,
 reverse min-churn permutation, missing/duplicate realized ranks, fabricated
 projections against genuine raw evidence, immutable contest facts, truncated
-and cross-wired fields, final-roster drift, qualifier tickets, and negative
-scores. No test, smoke, cloud call, DK action, or paid action is authorized by
-this document itself.
+and cross-wired fields, a copied filled upload presented without an authority-
+recognized acquisition, a same-shaped false-N body paired with a matching
+standings prefix but no authority event, final-roster drift, qualifier tickets,
+and negative scores. No test, smoke, cloud call, DK action, or paid action is
+authorized by this document itself.
