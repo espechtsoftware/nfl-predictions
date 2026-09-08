@@ -34,7 +34,11 @@ agent or developer:
   revision-label check and push all passed. A second local pull by exact
   digest verified the same `org.opencontainers.image.revision` and
   `IMAGE_SOURCE_COMMIT_SHA`, then imported the live feature and inference
-  modules successfully.
+  modules successfully. Independent authentication also matched the
+  153,953,588-byte source archive to Cloud Build's provenance hash, found no
+  Git, environment, cache or bytecode artifacts, and found zero tracked or
+  untracked source-context differences from the accepted commit (apart from
+  Cloud Build's expected `.gitignore` exclusion).
 - Production updated only Cloud Run jobs `ingest-nflverse` and
   `check-freshness` to the immutable digest. Their commands, arguments,
   environment, service account, CPU, memory, timeout, task count and
@@ -47,10 +51,13 @@ agent or developer:
   missing player/team identity, and NULL for all 11 rows in each of the four
   explicitly nullable columns absent from the early source. This was not a
   historical/full refresh and no snapshot was backdated.
-- The unchanged `build-features` job is now executing as
-  `build-features-hrs67`. Next action after terminal success: execute the
-  exact-digest `check-freshness` job and require a clean gate. On failure,
-  stop and diagnose the exact execution before any retry.
+- The unchanged `build-features` job execution `build-features-hrs67`
+  completed successfully at `2026-09-08T13:59:03Z` with one succeeded task;
+  its feature-leakage checks were clean. Exact-digest freshness execution
+  `check-freshness-bs2fn` then completed successfully at
+  `2026-09-08T14:02:54Z`, one succeeded task, no retry, and printed
+  `All feeds fresh`. This closes the bounded Week-1 injury-freshness rollout.
+  Continue normal scheduled collection; do not backdate the accepted snapshot.
 
 ### 2026-09-08 PREREG-074 R27 held at host trust closure; R28 repair issued
 
