@@ -22,6 +22,57 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 CP-4 R16 item-5 remains HOLD; architecture repair authorized
+
+- Lab Update 220 returned the serial lane after an exact 88/88 focused pass at
+  `dfda9ce3b65891c67e9127338cf04067005b2185`, but the tree is not a
+  candidate. The executable builder had always stopped before any provider
+  path because it expanded `PYTHON_BIN` under `set -u` one line before
+  assigning it. The repair at `7d7a892` is retained, but the seven required
+  exactly-once transition tests cannot drive the production shell because its
+  provider/state-root override guard correctly refuses test redirection.
+- A flaky signal test exposed a second real gap: the remote-smoke driver writes
+  its observable intent artifact immediately before setting the matching
+  phase. A HUP/TERM in that interval exits safely without an execution but
+  emits no durable disposition, so the attempt is not adjudicable. The green
+  rerun does not erase that failure. Older candidate `aa0b2a2` still contains
+  all four previously identified builder defects and remains forbidden.
+- Production selected the lab's option 2 and published a code/test-only GO on
+  lab `main` at `219b3b0`: move the exactly-once transition state machine into
+  a Python module behind a narrow port, keep the production shell thin and
+  fail-closed with no ambient redirect, implement all seven transition tests,
+  and deterministically cover and repair the signal window. No build, provider
+  mutation, mechanics execution, or efficacy launch is authorized.
+- Exact next action: lab returns the bounded candidate and empty serial lane;
+  production independently reviews it and issues a separate build GO only if
+  the executable transition and interruption evidence pass.
+
+### 2026-09-08 Week-1 capture-v3 P0 raw-authority HOLD
+
+- Independent static review of exact repair candidate
+  `4713cb835bd7e190e1cd1015125bbaeee1f397b5` is pushed at review commit
+  `1f4e0f82` / branch tip `e15a6bb1` on
+  `origin/codex/week1-capture-v3-p0-independent-review-20260908`. The
+  min-churn permutation, raw/semantic identity split, exact-generation source
+  reopens, exact A5 facts, player/DK/catalog/book bridge, and fail-closed live
+  pins are directionally sound.
+- Release remains **P0 HOLD** for two independent raw-authority gaps.
+  Accepted-entry evidence is still caller-built normalized JSON without the
+  exact underlying DraftKings observation. Final-field state and size are
+  likewise caller assertions rather than facts derived from exact provider
+  source bytes, so a truncated top-N file paired with the same false row count
+  can pass. Synthetic K-vs-K+1 tests do not close that coherent forgery.
+- A bounded successor is active to bind and exact-generation-reopen the raw DK
+  acceptance observation, derive final-field completeness/state from raw
+  authoritative bytes, make publication timestamps executable against a real
+  create-once store, and retain all v2 behavior. It remains default-off and
+  cannot touch provider, DK, outcome, entry, scoring, generation, or paid
+  state during repair.
+- Exact next action: independently review the repaired candidate, then run the
+  focused serial suite and one outcome-blind real-shape/default-off smoke.
+  Live operational publication still depends on a governed exact-generation
+  source identity for the Week-1 lobby/salary facts.
+
 ### 2026-09-08 canonical paid-v3 R4 integrated candidate; provider readiness HOLD
 
 - The independently passed R4 code is selectively integrated over current
