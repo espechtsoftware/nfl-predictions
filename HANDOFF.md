@@ -43,9 +43,22 @@ agent or developer:
   fail-closed with no ambient redirect, implement all seven transition tests,
   and deterministically cover and repair the signal window. No build, provider
   mutation, mechanics execution, or efficacy launch is authorized.
-- Exact next action: lab returns the bounded candidate and empty serial lane;
-  production independently reviews it and issues a separate build GO only if
-  the executable transition and interruption evidence pass.
+- Lab returned candidate `52cf2cad9124667fb683199c680662b5f0835b42`,
+  tree `a6f7f94468472f8bf577337f68b9819340c1f353`, and an empty lane after
+  101/101 focused tests. Independent review reproduced 101/101 but returned
+  **HOLD** at report commit
+  `c1dbaa6ced63cc8625b7c1c83436f7fee8262007`. The intent publish still
+  precedes phase advance; disposition failures fall through and report false
+  success; an after-execute signal is falsely sealed as
+  `execute_attempted:false`; and asynchronous build submit is immediately
+  required to be `SUCCESS` after the old terminal wait was removed. The real
+  disposition-status contradiction was reproduced through the bound shell.
+- Production published the bounded successor GO and review on lab `main`
+  through `f5aa753`. It requires before-operation phases, truthful disposition
+  returns, explicit execute-attempted recovery, a testable pending/working to
+  terminal build transition, and deterministic coverage of all four states.
+  Exact next action: lab returns that repair and empty serial lane; production
+  independently reviews it. No build or cloud action is authorized.
 
 ### 2026-09-08 Week-1 capture-v3 P0 raw-authority HOLD
 
@@ -62,12 +75,18 @@ agent or developer:
   likewise caller assertions rather than facts derived from exact provider
   source bytes, so a truncated top-N file paired with the same false row count
   can pass. Synthetic K-vs-K+1 tests do not close that coherent forgery.
-- A bounded successor is active to bind and exact-generation-reopen the raw DK
-  acceptance observation, derive final-field completeness/state from raw
-  authoritative bytes, make publication timestamps executable against a real
-  create-once store, and retain all v2 behavior. It remains default-off and
-  cannot touch provider, DK, outcome, entry, scoring, generation, or paid
-  state during repair.
+- The bounded successor is pushed at exact code/report commit
+  `cb2a398fe0ff467665b4f415f2aa71f0aa1ee669`, tree
+  `33d004f26f6328452e909f33f931a0424fdca24a`, on
+  `origin/codex/week1-capture-v3-p1-repair-20260908` (HANDOFF-only tip
+  `57e84f79c0bd7bfa62c241f5b987c15e7d54adb9`). It binds and
+  exact-generation-reopens a raw DraftKings active-entry export, derives final
+  state/N from raw contest-detail bytes, count-matches the exact standings
+  export, gives timestamps prospective publish-by semantics, and adds a
+  default-off write-free redacted shape smoke. Compilation/diff checks pass;
+  pytest was correctly deferred. Independent review is active. The candidate
+  remains default-off and has not touched provider, DK, outcome, entry,
+  scoring, generation, or paid state.
 - Exact next action: independently review the repaired candidate, then run the
   focused serial suite and one outcome-blind real-shape/default-off smoke.
   Live operational publication still depends on a governed exact-generation
