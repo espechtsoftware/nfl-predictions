@@ -45,6 +45,11 @@ agent or developer:
 - Production published the exact bounded R18 code/test-only repair contract on
   nfl2 `main` at `78a6a24` in
   `handoffs/PRODUCTION-TO-LAB-CP4-R17-HOLD-AND-R18-CALLER-STATUS-REPAIR-GO-2026-09-08.md`.
+  The complete independent report and exact-shell reproduction are integrated
+  on lab `main` through `e91ff96` in
+  `reports/2026-09-08-cp4-r17-independent-review.md`; exact-final validation
+  passed 74/74 plus the separate contamination-sensitive collection test,
+  with clean pre/post serial censuses.
   R18 must consume the caller status, report success versus absence truthfully,
   and add the combined real-port adversary. No CP-4 build, provider mutation,
   mechanics/efficacy execution, artifact publication, or outcome access is
