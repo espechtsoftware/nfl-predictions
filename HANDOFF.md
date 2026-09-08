@@ -47523,3 +47523,38 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   the exact effective environment in the coordinator tests and receipt. Any
   source/image/FM identity changed by that repair requires a fresh immutable
   build and fresh frame manifest before one successor probe; never reuse p1.
+
+- 2026-09-08 — lab repair queue reopened from production review
+
+  Lab Update 248 independently swept the accepted PREREG-074 image and
+  confirmed that `WAREHOUSE_PROJECT` is the only baked image variable that
+  intersects the runtime probe's forbidden capability set. Production accepted
+  that finding and pushed the code-only R32/p2 repair request to lab main at
+  `86de908`. The request preserves the efficacy image's warehouse default but
+  requires an explicit empty probe override, task-entry enforcement, fresh
+  p2/FM9/r19 identities, and no cloud action before independent review.
+
+  CP-4 mechanics A2 candidate
+  `e6a31c9814acbdb7bbe70b8104cef6049cb5fb5c` is held on two narrow
+  enforcement gaps: its broker-drift regression bypasses the real `main()`
+  call path, and its closure source commit/tree are well-shaped caller text
+  rather than Git-authenticated provenance. The independent report is
+  `reports/2026-09-08-cp4-mechanics-a2-independent-review.md` on lab branch
+  `codex/cp4-mechanics-a2-independent-review-20260908` at
+  `a5c68d28b90fcc953ed3ebd7043f0b17011ea9c1`. Production pushed the two-fix
+  code-only request to lab main at `fb35e26`; A2 was not invoked.
+
+  Production also held PREREG-076 build-source candidate
+  `f890adce0d8e3bf1fc99c506df906d93b02b261d` before its one-shot build. Its
+  35 focused tests pass, but `Dockerfile.prereg076` uses a mutable base and
+  resolves ranged dependencies during build, has no final-image runtime
+  assertion, and its intent-before-local-attempt transition can strand an
+  unsubmitted build after interruption. The bounded repair request was pushed
+  to lab main at `af7771b`; no PREREG-076 provider/build/launch/outcome action
+  occurred.
+
+  No Cloud Run execution is active after terminal probe `lab-run-xwhvz`.
+  Lab/repository/Cloud Run/Cloud Build monitor processes remain active. Next
+  actions are independent review of the returned R32, CP-4 A2, and PREREG-076
+  repair candidates, followed by only the narrowly authorized mechanics/build
+  step for each candidate that passes.
