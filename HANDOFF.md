@@ -46190,3 +46190,36 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   the job spec already matches, and repeat provider uniqueness before
   terminal acceptance and after gate publication. Do not push, merge or
   launch the preliminary r2 binding.
+
+- 2026-09-07 — winner registry v2 evidence inventory completed
+
+  Production completed a bounded, read-only inventory on branch
+  `docs/winner-registry-v2-evidence-inventory-20260907` from production base
+  `746f98d3530f64c8d95a3e7e9b648dd8cc3400df`. The durable report is
+  `reports/2026-09-07-winner-registry-v2-evidence-inventory-and-unblocking-plan.md`
+  at report commit `230ee7ca409c90fb4553f527400e1166dc1d3c0c`.
+
+  The strict-v2 blocker is unchanged: no historical first-party DraftKings
+  standings/result export was found in the inspected local, GCS or warehouse
+  evidence, so the accepted official cohort remains empty and
+  winner-referenced efficacy for 080/081/082 remains held. Registry v2 code,
+  validators, data, policies and receipts were not changed. No held outcome
+  body was opened and no cloud, warehouse, graph, experiment or deployment
+  state was mutated.
+
+  The inventory adds one useful identity-only route. Legacy LineStar-derived
+  `nfl_raw.contest_ownership` rows retain exact-looking contest IDs plus names,
+  entry counts and fees, with at least one standard Millionaire locator for
+  every 2023--2025 week. A receipted raw LineStar refetch can reduce the
+  target-identity search space after the owner freezes an identity-only
+  policy, but the feed contains no winner rank, roster or score and cannot
+  populate `official_target_winning_score`.
+
+  Next concrete action is an owner decision on the target-contest identity
+  policy, followed by one immutable LineStar refetch/locator map and a search
+  of owner-controlled backups by exact contest ID for original DraftKings
+  exports. If official exports remain unavailable, production must stop the
+  strict path and ask whether the owner wants a separately named non-official
+  historical cohort. This milestone does not grant that authorization or
+  permit weakening the strict validator. Prospective Week-1 full-field
+  capture remains the adoption-authority safeguard against repeating the gap.
