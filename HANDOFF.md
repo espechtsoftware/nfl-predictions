@@ -59,6 +59,22 @@ agent or developer:
   not authorize the runtime probe, efficacy cohort, outcome read, scoring or
   promotion. Any ambiguous/failing FM8 transition is consumed and must not be
   retried.
+- FM8 completed successfully and published the validated 36-cell manifest
+  `frame-manifests/PREREG-074/prereg074-fm8.json#1788900006162568`, 103,584
+  bytes, SHA-256
+  `a8e791b1881109e789927b7378f6ccab1062bd7f393b8eb41093065186bc8320`.
+  The exact-generation reopen passes the frozen manifest validator, binds the
+  reviewed source/image/build receipt and numeric-runtime SHA-256
+  `783637ffce409a70b74f6e32842a6920a6c945239665b2c36393a89664fe81ad`,
+  and records `outcome_opened=false`.
+- Production authorizes exactly one registered, one-task, outcome-blind runtime
+  probe with fresh id `102b740p1-20260908T204213Z`, exact source/image/build
+  receipt/FM8 manifest above, `maxRetries=0`, and no efficacy namespace. The
+  coordinator may update the reused `lab-run` job to the closed probe spec,
+  reserve one create-once execute marker, launch once, and publish a gate only
+  after terminal 1-success/0-failed/0-cancelled reconciliation. A failure or
+  ambiguous return is consumed; never issue a second execute. This does not
+  authorize the 36-task efficacy cohort, outcome read, scoring or promotion.
 
 ### 2026-09-08 CP-4 R18 candidate-only smoke passed; merged-main closure repaired
 
