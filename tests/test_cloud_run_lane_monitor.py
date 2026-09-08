@@ -309,8 +309,11 @@ def test_live_replacement_resets_unclaimed_age_through_query_failure(
     )
     capacity_alert = f"lane-capacity-unclaimed:{prefix}"
     failure_alert = f"registered-coordinator-failure:{failed_completion.stem}"
-    assert aged["capacity_unclaimed_since_epoch"] == {prefix: 10.0}
-    assert capacity_alert in aged["alerts"]
+    # The failed terminal registration is spent. It remains visible as a
+    # failure, but must not also pressure an unsafe same-prefix retry as an
+    # unclaimed queue item.
+    assert aged["capacity_unclaimed_since_epoch"] == {}
+    assert capacity_alert not in aged["alerts"]
     assert failure_alert in aged["alerts"]
 
     replacement = _write_registry_receipt(

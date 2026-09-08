@@ -22,6 +22,28 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 monitor no longer pressures retries of spent failed registrations
+
+- The Cloud Run lane monitor correctly caught CP-4 execution
+  `lab-run-slow-g2rrs` and its nonzero registered-coordinator completion, but
+  also retained the failed prefix as an `unclaimed` queue target while both
+  jobs were idle. That contradictory capacity alert could pressure an unsafe
+  retry of a spent exactly-once registration and create repeated operator
+  wakeups.
+- The monitor now suppresses only the capacity/unclaimed timer for prefixes
+  owned by the currently tracked terminal nonzero coordinator. The terminal
+  coordinator and execution failure alerts remain active. A new live
+  replacement registration still rearms the same logical prefix and begins a
+  fresh ordinary grace window; provider-query failures preserve that state.
+- Exact validation: 48/48 `tests/test_cloud_run_lane_monitor.py` passed under
+  an empty serial-test census; Python compilation, changed-rule Ruff and diff
+  checks passed. Full-file Ruff still reports unrelated pre-existing import,
+  datetime and test f-string findings, so it was not used as a broad-clean
+  claim. No monitor process, service, cloud or provider state has yet been
+  changed. Next action is commit/push, then restart only the user monitor
+  service/process onto this exact source and verify one healthy poll clears
+  the false unclaimed alert while retaining the R16 terminal failure.
+
 ### 2026-09-08 CP-4 R16 mechanics failed terminally; R21 image-closure repair active
 
 - The one authorized R16 mechanics attempt ran through the registered wrapper

@@ -1362,6 +1362,20 @@ def collect_status(
         if rearmed_live_receipt
         else _old_mapping(previous, "capacity_unclaimed_since_epoch")
     )
+    # A terminal nonzero launcher completion spends that exact registration.
+    # Its prefixes remain useful failure evidence, but they are not an
+    # actionable queue: the coordinator must be replaced/rearmed before any
+    # new provider attempt.  Treating them as merely "unclaimed" produces a
+    # contradictory empty-lane alert that pressures an unsafe same-attempt
+    # retry (and repeatedly wakes the operator after a correctly sealed
+    # failure).  A later live replacement receipt clears/rearms this set via
+    # ``rearmed_live_receipt`` above and starts an ordinary grace window.
+    spent_failed_prefixes = (
+        {str(value) for value in registered_coordinator.get("prefixes", [])}
+        if registered_coordinator.get("state") == "failed"
+        and registered_coordinator.get("exit_status") not in (None, 0)
+        else set()
+    )
     if lab_ok:
         for job in config.jobs:
             rows = [
@@ -1422,7 +1436,10 @@ def collect_status(
         capacity_unclaimed_since: dict[str, float] = {}
         if available_jobs:
             for prefix, item in prefix_status.items():
-                if item["state"] != "unclaimed":
+                if (
+                    item["state"] != "unclaimed"
+                    or prefix in spent_failed_prefixes
+                ):
                     continue
                 since = float(old_capacity.get(prefix, observed))
                 capacity_unclaimed_since[prefix] = since
