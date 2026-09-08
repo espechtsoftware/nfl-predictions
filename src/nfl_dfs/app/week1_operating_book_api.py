@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from datetime import datetime, timezone
 import os
 
@@ -20,6 +20,9 @@ from ..inference.week1_operating_book_operator import (
     WEEK1_SEASON,
     WEEK1_WEEK,
     read_week1_operating_book_v1,
+)
+from ..optimizer.paid_classic_deployment_v3 import (
+    reopen_paid_classic_activation_authority_v3,
 )
 IDENTITY_ENV = {
     "uri": "WEEK1_OPERATING_BOOK_URI",
@@ -92,6 +95,9 @@ def load_week1_operating_book_export_v2(
     projection_store,
     object_store: ImmutableObjectStore | None = None,
     environment: Mapping[str, str] | None = None,
+    activation_object_reader: (
+        Callable[[Mapping[str, object]], bytes] | None
+    ) = None,
 ) -> dict[str, object]:
     """Render the canonical-game successor from exact live authorities."""
 
@@ -99,6 +105,9 @@ def load_week1_operating_book_export_v2(
     identity = materialization_identity_from_environment(env)
     storage = GCSImmutableObjectStore() if object_store is None else object_store
     try:
+        activation = reopen_paid_classic_activation_authority_v3(
+            env, object_reader=activation_object_reader
+        )
         exact = read_week1_operating_book_v1(
             store=storage, materialization_identity=identity
         )
@@ -123,6 +132,26 @@ def load_week1_operating_book_export_v2(
             cloud_build_id=env.get("PAID_V3_CLOUD_BUILD_ID", ""),
             immutable_image_uri=env.get("IMAGE_URI", ""),
             running_revision=env.get("K_REVISION", ""),
+            cloud_project=str(activation["authority"]["cloud_project"]),
+            cloud_region=str(activation["authority"]["cloud_region"]),
+            cloud_run_service=str(
+                activation["authority"]["cloud_run_service"]
+            ),
+            activation_authority_uri=str(
+                activation["object_identity"]["uri"]
+            ),
+            activation_authority_generation=str(
+                activation["object_identity"]["generation"]
+            ),
+            activation_authority_object_sha256=str(
+                activation["object_identity"]["sha256"]
+            ),
+            activation_authority_bytes=int(
+                activation["object_identity"]["bytes"]
+            ),
+            activation_authority_sha256=str(
+                activation["authority"]["authority_sha256"]
+            ),
         )
     except Exception as exc:
         raise Week1OperatingBookAPIError(

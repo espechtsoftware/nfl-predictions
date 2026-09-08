@@ -22,6 +22,47 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 canonical-v3 paid/deployment bounded R2 (review candidate)
+
+- Isolated worktree
+  `/home/erich/projects/nfl-predictions-canonical-paid-r2-repair-20260908`,
+  branch `codex/canonical-v3-paid-r2-repair-20260908`, repairs exact held
+  candidate `3c51fd3fb5cf6f3c52dfc9f1762661b94e1a67c9` (whose parent is the
+  required `a6007f2fd6cc5aca662489994a5f1d590b26f164`). It has not been
+  merged, built, deployed, loaded, scored, or used for any paid action.
+- The actual engine result now crosses the engine/application boundary as a
+  detached immutable roster/objective/receipt/world snapshot. Transformed
+  paid-v3 terminal APIs require it together with an independently constructed
+  pre-execution authority. Simulation binds all five exact native matrix and
+  candidate orders, the combined matrix/order, and actual selected indices;
+  MILP carries an explicit no-world identity. Dynamic paths cannot use the
+  separate deterministic Week-1 compatibility validator.
+- Build authentication now accepts retained provider observations and only the
+  two exact provider-expanded defaults seen in the reviewed record, while
+  closed-world comparing every step/top-level execution and bypass field. The
+  service account, queue TTL, project, region, repository, service, provider
+  UIDs/resource-kind self-links, and causal timestamps are bound.
+- Money paths accept only an exact activation
+  `{uri,generation,sha256,bytes}`. Inline JSON is removed and forbidden;
+  staging removes/refuses inherited exact coordinates; nested evidence is
+  cross-bound; the active Week-1 v2 CSV uses the same gate. The deployer arms
+  rollback before traffic, reconciles an ambiguous nonzero return, traps
+  ERR/INT/TERM, and restores a complete prior provider export if reconciliation
+  is not exact.
+- Serial validation after a fresh global pytest census is green: **127/127**
+  focused repaired-surface tests and **277/277** exact Cloud Build release-gate
+  tests. Registry-v2 check, Python compilation, both shell syntax checks, and
+  `git diff --check` pass. Ruff/Black were unavailable; no package was added.
+- Durable disposition:
+  `reports/2026-09-07-canonical-v3-paid-deployment-r2-repair-candidate.md`.
+  Scoring, money policy, experiment defaults, frozen v1/v2 algorithms, and v3
+  Neo4j semantics are unchanged.
+
+  Next concrete action: push the review-candidate branch, then obtain a new
+  independent review against the HOLD. Do not merge, build, deploy, load a
+  graph, run scoring/outcomes, activate a money route, or emit paid bytes from
+  this candidate merely because its local tests pass.
+
 ### 2026-09-07 canonical-game v2 independent-review R2 repair (review-ready)
 
 - Worktree `/home/erich/projects/nfl-predictions-canonical-game-v2`, branch

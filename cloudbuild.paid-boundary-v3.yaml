@@ -84,5 +84,7 @@ substitutions:
   _CODE_SHA: unknown
   _BUILD_IMAGE: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:paid-v3-unknown
 timeout: 3600s
+queueTtl: 3600s
+serviceAccount: projects/nfl-predictions-503414/serviceAccounts/817589974517-compute@developer.gserviceaccount.com
 options:
   machineType: E2_HIGHCPU_8

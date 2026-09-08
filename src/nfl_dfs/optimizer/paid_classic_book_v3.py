@@ -29,6 +29,11 @@ from .game_identity import (
     normalize_team,
 )
 from .lineup import Lineup
+from .paid_classic_deployment_v3 import (
+    PAID_V3_PROJECT,
+    PAID_V3_REGION,
+    PAID_V3_SERVICE,
+)
 from .paid_classic_book_v2 import (
     PAID_CLASSIC_BOUNDARY_ID as PAID_CLASSIC_BOUNDARY_ID_V2,
 )
@@ -63,10 +68,14 @@ _BUILD_ID_RE: Final = re.compile(
 )
 _IMAGE_URI_RE: Final = re.compile(r"^[^\s@]+@sha256:[0-9a-f]{64}$")
 _REVISION_RE: Final = re.compile(r"^[a-z][a-z0-9-]{0,62}$")
+_SHA256_RE: Final = re.compile(r"^[0-9a-f]{64}$")
 _ENGINE_RECEIPT_SCHEMA: Final = "paid-classic-engine-transformation/v3"
 _PROJECTION_AUTHORITY_SCHEMA: Final = "paid-classic-projection-authority/v2"
 _EXECUTION_AUTHORITY_SCHEMA: Final = "paid-classic-execution-authority/v1"
+_ENGINE_RESULT_SCHEMA: Final = "paid-classic-engine-result/v1"
+_WORLD_BINDING_SCHEMA: Final = "paid-classic-world-binding/v2"
 _ENGINE_RECEIPT_ISSUER: Final = object()
+_ENGINE_RESULT_ISSUER: Final = object()
 
 
 @dataclass(frozen=True)
@@ -93,8 +102,15 @@ class PaidClassicCatalogV3:
     cloud_build_id: str
     immutable_image_uri: str
     running_revision: str
+    cloud_project: str
+    cloud_region: str
+    cloud_run_service: str
     runtime_deployment_identity_sha256: str
-    activation_authority_sha256: str = ""
+    activation_authority_uri: str
+    activation_authority_generation: str
+    activation_authority_object_sha256: str
+    activation_authority_bytes: int
+    activation_authority_sha256: str
 
 
 @dataclass(frozen=True)
@@ -166,17 +182,42 @@ class PaidClassicEngineReceiptV3:
         return self
 
 
-@dataclass(frozen=True)
 class PaidClassicEngineResultV3:
-    """Immutable result envelope returned by a paid engine execution."""
+    """Immutable, detached result evidence returned by the paid engine.
 
-    lineups: tuple[Lineup, ...]
-    receipt: PaidClassicEngineReceiptV3
+    Mutable ``Lineup`` and player dictionaries deliberately do not cross this
+    boundary.  The result retains canonical roster/objective bytes and an
+    independent copy of the receipt bytes observed at issue time.  Presentation
+    enrichment or ranking may reorder the live lineup objects later, but it
+    cannot silently change the selected roster/objective set or the world law.
+    """
 
-    def __post_init__(self) -> None:
-        if not isinstance(self.receipt, PaidClassicEngineReceiptV3):
-            raise TypeError("paid-v3 result receipt is not sealed")
-        object.__setattr__(self, "lineups", tuple(self.lineups))
+    __slots__ = ("_payload_json", "_sealed")
+
+    def __init__(self, payload_json: str, *, _issuer: object) -> None:
+        if _issuer is not _ENGINE_RESULT_ISSUER:
+            raise TypeError("paid-v3 engine results can only be issued by the engine")
+        object.__setattr__(self, "_payload_json", str(payload_json))
+        object.__setattr__(self, "_sealed", True)
+
+    def __setattr__(self, name: str, value: object) -> None:
+        if getattr(self, "_sealed", False):
+            raise AttributeError("paid-v3 engine results are immutable")
+        object.__setattr__(self, name, value)
+
+    def as_dict(self) -> dict[str, object]:
+        return json.loads(self._payload_json)
+
+    @property
+    def receipt(self) -> PaidClassicEngineReceiptV3:
+        """Do not synthesize a second receipt from detached result bytes."""
+
+        raise AttributeError(
+            "paid-v3 engine result retains receipt bytes, not a mutable receipt"
+        )
+
+    def __deepcopy__(self, memo):
+        return self
 
 
 def paid_classic_execution_authority_v3(
@@ -254,12 +295,32 @@ def _validate_execution_authority_v3(
     return body
 
 
-def seal_paid_classic_engine_result_v3(
+def _seal_paid_classic_engine_result_v3(
     lineups: Sequence[Lineup], receipt: PaidClassicEngineReceiptV3
 ) -> PaidClassicEngineResultV3:
-    """Return one immutable result envelope for the paid engine boundary."""
+    """Return detached immutable result evidence at the engine boundary."""
 
-    return PaidClassicEngineResultV3(tuple(lineups), receipt)
+    if not isinstance(receipt, PaidClassicEngineReceiptV3):
+        _fail("paid-v3 result receipt is not sealed")
+    receipt_body = receipt.as_dict()
+    world_binding = receipt_body.get("world_binding")
+    body: dict[str, object] = {
+        "schema_version": _ENGINE_RESULT_SCHEMA,
+        "lineup_objectives": _selected_projection_objectives(lineups),
+        "receipt": receipt_body,
+        "world_binding": world_binding,
+    }
+    body["result_sha256"] = _canonical_sha256(body)
+    return PaidClassicEngineResultV3(
+        json.dumps(
+            body,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=True,
+            allow_nan=False,
+        ),
+        _issuer=_ENGINE_RESULT_ISSUER,
+    )
 
 
 def _fail(message: str) -> None:
@@ -299,7 +360,15 @@ def validate_paid_classic_deployment_identity_v3(
     cloud_build_id: object,
     immutable_image_uri: object,
     running_revision: object,
-) -> dict[str, str]:
+    cloud_project: object,
+    cloud_region: object,
+    cloud_run_service: object,
+    activation_authority_uri: object,
+    activation_authority_generation: object,
+    activation_authority_object_sha256: object,
+    activation_authority_bytes: object,
+    activation_authority_sha256: object,
+) -> dict[str, object]:
     """Validate the runtime half of a provider-attested deployment."""
 
     commit, digest = validate_paid_classic_runtime_identity_v3(
@@ -308,6 +377,19 @@ def validate_paid_classic_deployment_identity_v3(
     build_id = str(cloud_build_id or "").strip()
     image_uri = str(immutable_image_uri or "").strip()
     revision = str(running_revision or "").strip()
+    project = str(cloud_project or "").strip()
+    region = str(cloud_region or "").strip()
+    service = str(cloud_run_service or "").strip()
+    activation_uri = str(activation_authority_uri or "").strip()
+    activation_generation = str(activation_authority_generation or "").strip()
+    activation_object_sha256 = str(
+        activation_authority_object_sha256 or ""
+    ).strip()
+    activation_bytes = _integer(
+        activation_authority_bytes,
+        label="activation authority bytes",
+    )
+    activation_sha256 = str(activation_authority_sha256 or "").strip()
     if _BUILD_ID_RE.fullmatch(build_id) is None:
         _fail("Cloud Build ID must be a full provider build identity")
     if _IMAGE_URI_RE.fullmatch(image_uri) is None or image_uri.rsplit(
@@ -316,12 +398,38 @@ def validate_paid_classic_deployment_identity_v3(
         _fail("runtime image URI must be immutable and match IMAGE_DIGEST")
     if _REVISION_RE.fullmatch(revision) is None:
         _fail("running Cloud Run revision is missing or malformed")
+    if (
+        project != PAID_V3_PROJECT
+        or region != PAID_V3_REGION
+        or service != PAID_V3_SERVICE
+    ):
+        _fail("runtime project, region, or service differs from paid-v3 policy")
+    expected_activation_uri = (
+        f"gs://{project}-paid-authority/paid-v3/{service}/{revision}/"
+        "activation.json"
+    )
+    if (
+        activation_uri != expected_activation_uri
+        or not activation_generation.isdigit()
+        or int(activation_generation) <= 0
+        or _SHA256_RE.fullmatch(activation_object_sha256) is None
+        or _SHA256_RE.fullmatch(activation_sha256) is None
+    ):
+        _fail("activation authority exact object identity is invalid")
     body = {
         "source_commit_sha": commit,
         "immutable_image_digest": digest,
         "cloud_build_id": build_id,
         "immutable_image_uri": image_uri,
         "running_revision": revision,
+        "cloud_project": project,
+        "cloud_region": region,
+        "cloud_run_service": service,
+        "activation_authority_uri": activation_uri,
+        "activation_authority_generation": activation_generation,
+        "activation_authority_object_sha256": activation_object_sha256,
+        "activation_authority_bytes": str(activation_bytes),
+        "activation_authority_sha256": activation_sha256,
     }
     body["runtime_deployment_identity_sha256"] = _canonical_sha256(body)
     return body
@@ -389,8 +497,15 @@ def build_paid_classic_catalog_v3(
     cloud_build_id: str,
     immutable_image_uri: str,
     running_revision: str,
+    cloud_project: str,
+    cloud_region: str,
+    cloud_run_service: str,
+    activation_authority_uri: str,
+    activation_authority_generation: str,
+    activation_authority_object_sha256: str,
+    activation_authority_bytes: int,
+    activation_authority_sha256: str,
     validated_at: datetime | pd.Timestamp | None = None,
-    activation_authority_sha256: str = "",
 ) -> PaidClassicCatalogV3:
     """Build a fail-closed salary/projection/schedule authority join.
 
@@ -410,6 +525,16 @@ def build_paid_classic_catalog_v3(
         cloud_build_id=cloud_build_id,
         immutable_image_uri=immutable_image_uri,
         running_revision=running_revision,
+        cloud_project=cloud_project,
+        cloud_region=cloud_region,
+        cloud_run_service=cloud_run_service,
+        activation_authority_uri=activation_authority_uri,
+        activation_authority_generation=activation_authority_generation,
+        activation_authority_object_sha256=(
+            activation_authority_object_sha256
+        ),
+        activation_authority_bytes=activation_authority_bytes,
+        activation_authority_sha256=activation_authority_sha256,
     )
     source_commit = deployment["source_commit_sha"]
     image_digest = deployment["immutable_image_digest"]
@@ -721,10 +846,25 @@ def build_paid_classic_catalog_v3(
         "cloud_build_id": deployment["cloud_build_id"],
         "immutable_image_uri": deployment["immutable_image_uri"],
         "running_revision": deployment["running_revision"],
+        "cloud_project": deployment["cloud_project"],
+        "cloud_region": deployment["cloud_region"],
+        "cloud_run_service": deployment["cloud_run_service"],
         "runtime_deployment_identity_sha256": deployment[
             "runtime_deployment_identity_sha256"
         ],
-        "activation_authority_sha256": str(activation_authority_sha256 or ""),
+        "activation_authority_uri": deployment["activation_authority_uri"],
+        "activation_authority_generation": deployment[
+            "activation_authority_generation"
+        ],
+        "activation_authority_object_sha256": deployment[
+            "activation_authority_object_sha256"
+        ],
+        "activation_authority_bytes": deployment[
+            "activation_authority_bytes"
+        ],
+        "activation_authority_sha256": deployment[
+            "activation_authority_sha256"
+        ],
         "validated_at": validation_time.isoformat(),
         "slate_lock_at": slate_lock.isoformat(),
         "schedule_sha256": schedule_sha256,
@@ -751,10 +891,21 @@ def build_paid_classic_catalog_v3(
         cloud_build_id=deployment["cloud_build_id"],
         immutable_image_uri=deployment["immutable_image_uri"],
         running_revision=deployment["running_revision"],
+        cloud_project=deployment["cloud_project"],
+        cloud_region=deployment["cloud_region"],
+        cloud_run_service=deployment["cloud_run_service"],
         runtime_deployment_identity_sha256=deployment[
             "runtime_deployment_identity_sha256"
         ],
-        activation_authority_sha256=str(activation_authority_sha256 or ""),
+        activation_authority_uri=deployment["activation_authority_uri"],
+        activation_authority_generation=deployment[
+            "activation_authority_generation"
+        ],
+        activation_authority_object_sha256=deployment[
+            "activation_authority_object_sha256"
+        ],
+        activation_authority_bytes=int(deployment["activation_authority_bytes"]),
+        activation_authority_sha256=deployment["activation_authority_sha256"],
     )
 
 
@@ -813,9 +964,20 @@ def paid_classic_projection_authority_v3(
         "cloud_build_id": catalog.cloud_build_id,
         "immutable_image_uri": catalog.immutable_image_uri,
         "running_revision": catalog.running_revision,
+        "cloud_project": catalog.cloud_project,
+        "cloud_region": catalog.cloud_region,
+        "cloud_run_service": catalog.cloud_run_service,
         "runtime_deployment_identity_sha256": (
             catalog.runtime_deployment_identity_sha256
         ),
+        "activation_authority_uri": catalog.activation_authority_uri,
+        "activation_authority_generation": (
+            catalog.activation_authority_generation
+        ),
+        "activation_authority_object_sha256": (
+            catalog.activation_authority_object_sha256
+        ),
+        "activation_authority_bytes": catalog.activation_authority_bytes,
         "activation_authority_sha256": catalog.activation_authority_sha256,
     }
     body["authority_sha256"] = _canonical_sha256(body)
@@ -870,6 +1032,38 @@ def _selected_projection_objectives(
         })
     rows.sort(key=lambda row: str(row["lineup_sha256"]))
     return rows
+
+
+def _selected_roster_order(lineups: Sequence[Lineup]) -> list[list[int]]:
+    """Canonical player identities in the engine's selected order."""
+
+    result: list[list[int]] = []
+    for lineup in lineups:
+        roster = sorted(
+            _integer(player.get("id"), label="selected roster player ID")
+            for player in lineup.players
+        )
+        if len(roster) != 9 or len(set(roster)) != 9:
+            _fail("selected engine roster is malformed")
+        result.append(roster)
+    if len(result) != len({tuple(row) for row in result}):
+        _fail("selected engine result contains duplicate rosters")
+    return result
+
+
+def _milp_world_binding_v3(
+    lineups: Sequence[Lineup],
+) -> dict[str, object]:
+    """Explicit no-world identity for the deterministic MILP engine."""
+
+    return {
+        "schema_version": _WORLD_BINDING_SCHEMA,
+        "mode": "milp",
+        "native_blocks": [],
+        "combined": None,
+        "selected_indices": [],
+        "selected_roster_player_ids": _selected_roster_order(lineups),
+    }
 
 
 def _validate_engine_model_artifact(
@@ -1050,6 +1244,10 @@ def _issue_paid_classic_engine_receipt_v3(
     objective_rows = _selected_projection_objectives(lineups)
     if not lineups or any(len(lineup.players) != 9 for lineup in lineups):
         _fail("paid engine cannot seal an empty or malformed selected book")
+    if world_binding is None:
+        if mode != "milp":
+            _fail("paid simulation must retain its exact world binding")
+        world_binding = _milp_world_binding_v3(lineups)
     body: dict[str, object] = {
         "schema_version": _ENGINE_RECEIPT_SCHEMA,
         "issuer": "nfl-dfs-paid-classic-engine-v3",
@@ -1068,14 +1266,7 @@ def _issue_paid_classic_engine_receipt_v3(
         "construction_policy": dict(construction_policy),
         "request_inputs": dict(request_inputs),
         "policy_environment": dict(sorted(policy_environment.items())),
-        "world_binding": dict(world_binding or {
-            "schema_version": "paid-classic-world-binding/v1",
-            "block_count": len(seed_pairs),
-            "worlds_per_block": int(worlds_per_block),
-            "selection_world_count": int(selection_world_count),
-            "combined_matrix_sha256": _canonical_sha256([]),
-            "selected_index_order_sha256": _canonical_sha256(objective_rows),
-        }),
+        "world_binding": json.loads(json.dumps(dict(world_binding))),
         "selected_entries": len(lineups),
         "selected_projection_objectives_sha256": _canonical_sha256(
             objective_rows
@@ -1083,6 +1274,196 @@ def _issue_paid_classic_engine_receipt_v3(
     }
     body["receipt_sha256"] = _canonical_sha256(body)
     return PaidClassicEngineReceiptV3(body, _issuer=_ENGINE_RECEIPT_ISSUER)
+
+
+def _validate_matrix_identity_v3(
+    value: object,
+    *,
+    label: str,
+    expected_rows: int,
+    expected_columns: int,
+) -> None:
+    if not isinstance(value, Mapping) or set(value) != {
+        "shape", "dtype", "sha256",
+    }:
+        _fail(f"engine world binding {label} matrix schema differs")
+    shape = value.get("shape")
+    if (
+        not isinstance(shape, list)
+        or shape != [expected_rows, expected_columns]
+        or not isinstance(value.get("dtype"), str)
+        or not str(value["dtype"])
+        or re.fullmatch(r"[0-9a-f]{64}", str(value.get("sha256", ""))) is None
+    ):
+        _fail(f"engine world binding {label} matrix identity is invalid")
+
+
+def _validate_roster_order_v3(
+    value: object,
+    *,
+    label: str,
+    player_universe: set[int] | None = None,
+) -> list[list[int]]:
+    if not isinstance(value, list):
+        _fail(f"engine world binding {label} roster order is invalid")
+    result: list[list[int]] = []
+    for roster in value:
+        if (
+            not isinstance(roster, list)
+            or len(roster) != 9
+            or any(type(player_id) is not int or player_id <= 0 for player_id in roster)
+            or roster != sorted(set(roster))
+            or (
+                player_universe is not None
+                and not set(roster) <= player_universe
+            )
+        ):
+            _fail(f"engine world binding {label} roster identity is invalid")
+        result.append(list(roster))
+    if len(result) != len({tuple(roster) for roster in result}):
+        _fail(f"engine world binding {label} contains duplicate rosters")
+    return result
+
+
+def _validate_world_binding_v3(
+    value: object,
+    *,
+    mode: str,
+    seed_pairs: object,
+    worlds_per_block: object,
+    selection_world_count: object,
+    lineups: Sequence[Lineup],
+) -> dict[str, object]:
+    expected_keys = {
+        "schema_version", "mode", "native_blocks", "combined",
+        "selected_indices", "selected_roster_player_ids",
+    }
+    if not isinstance(value, Mapping) or set(value) != expected_keys:
+        _fail("engine world binding schema differs")
+    body = json.loads(json.dumps(dict(value)))
+    if (
+        body.get("schema_version") != _WORLD_BINDING_SCHEMA
+        or body.get("mode") != mode
+    ):
+        _fail("engine world binding identity differs")
+    selected_rosters = _validate_roster_order_v3(
+        body.get("selected_roster_player_ids"), label="selected",
+    )
+    current_rosters = _selected_roster_order(lineups)
+    if sorted(selected_rosters) != sorted(current_rosters):
+        _fail("engine world binding selected rosters differ from the book")
+
+    if mode == "milp":
+        if (
+            seed_pairs != []
+            or worlds_per_block != 0
+            or selection_world_count != 0
+            or body.get("native_blocks") != []
+            or body.get("combined") is not None
+            or body.get("selected_indices") != []
+        ):
+            _fail("MILP world binding falsely claims simulated worlds")
+        return body
+
+    if mode != "simulation":
+        _fail("engine world binding mode is unsupported")
+    if (
+        not isinstance(seed_pairs, list)
+        or not seed_pairs
+        or type(worlds_per_block) is not int
+        or worlds_per_block <= 0
+        or type(selection_world_count) is not int
+        or selection_world_count != len(seed_pairs) * worlds_per_block
+    ):
+        _fail("engine world binding dose differs")
+    blocks = body.get("native_blocks")
+    if not isinstance(blocks, list) or len(blocks) != len(seed_pairs):
+        _fail("engine world binding native block count differs")
+    base_player_ids: list[int] | None = None
+    for ordinal, (block, expected_seed) in enumerate(
+        zip(blocks, seed_pairs, strict=True)
+    ):
+        if not isinstance(block, Mapping) or set(block) != {
+            "seed_identity", "player_ids", "ordered_candidate_player_ids",
+            "candidate_totals", "row_draws",
+        }:
+            _fail("engine world binding native block schema differs")
+        if block.get("seed_identity") != expected_seed:
+            _fail("engine world binding native seed identity differs")
+        player_ids = block.get("player_ids")
+        if (
+            not isinstance(player_ids, list)
+            or not player_ids
+            or any(type(player_id) is not int or player_id <= 0 for player_id in player_ids)
+            or len(player_ids) != len(set(player_ids))
+        ):
+            _fail("engine world binding native player order is invalid")
+        if base_player_ids is None:
+            base_player_ids = list(player_ids)
+        elif player_ids != base_player_ids:
+            _fail("engine world binding native player orders differ")
+        rosters = _validate_roster_order_v3(
+            block.get("ordered_candidate_player_ids"),
+            label=f"native block {ordinal}",
+            player_universe=set(player_ids),
+        )
+        if not rosters:
+            _fail("engine world binding native candidate order is empty")
+        _validate_matrix_identity_v3(
+            block.get("candidate_totals"),
+            label=f"native block {ordinal} candidate totals",
+            expected_rows=len(rosters),
+            expected_columns=worlds_per_block,
+        )
+        _validate_matrix_identity_v3(
+            block.get("row_draws"),
+            label=f"native block {ordinal} player worlds",
+            expected_rows=len(player_ids),
+            expected_columns=worlds_per_block,
+        )
+
+    combined = body.get("combined")
+    if not isinstance(combined, Mapping) or set(combined) != {
+        "world_block_order", "player_ids", "ordered_candidate_player_ids",
+        "candidate_totals", "row_draws",
+    }:
+        _fail("engine world binding combined schema differs")
+    expected_labels = [str(row["label"]) for row in seed_pairs]
+    if combined.get("world_block_order") != expected_labels:
+        _fail("engine world binding combined block order differs")
+    if combined.get("player_ids") != base_player_ids:
+        _fail("engine world binding combined player order differs")
+    combined_rosters = _validate_roster_order_v3(
+        combined.get("ordered_candidate_player_ids"),
+        label="combined",
+        player_universe=set(base_player_ids or ()),
+    )
+    if not combined_rosters:
+        _fail("engine world binding combined candidate order is empty")
+    _validate_matrix_identity_v3(
+        combined.get("candidate_totals"),
+        label="combined candidate totals",
+        expected_rows=len(combined_rosters),
+        expected_columns=selection_world_count,
+    )
+    _validate_matrix_identity_v3(
+        combined.get("row_draws"),
+        label="combined player worlds",
+        expected_rows=len(base_player_ids or ()),
+        expected_columns=selection_world_count,
+    )
+    selected_indices = body.get("selected_indices")
+    if (
+        not isinstance(selected_indices, list)
+        or len(selected_indices) != len(selected_rosters)
+        or any(type(index) is not int for index in selected_indices)
+        or len(selected_indices) != len(set(selected_indices))
+        or any(not 0 <= index < len(combined_rosters) for index in selected_indices)
+        or [combined_rosters[index] for index in selected_indices]
+        != selected_rosters
+    ):
+        _fail("engine world binding selected index order differs")
+    return body
 
 
 def _validate_paid_classic_engine_receipt_v3(
@@ -1264,27 +1645,14 @@ def _validate_paid_classic_engine_receipt_v3(
     for field in ("construction_policy", "request_inputs", "policy_environment"):
         if not isinstance(body.get(field), Mapping):
             _fail(f"engine transformation receipt lacks {field}")
-    world_binding = body.get("world_binding")
-    if (
-        not isinstance(world_binding, Mapping)
-        or set(world_binding) != {
-            "schema_version", "block_count", "worlds_per_block",
-            "selection_world_count", "combined_matrix_sha256",
-            "selected_index_order_sha256",
-        }
-        or world_binding.get("schema_version") != "paid-classic-world-binding/v1"
-        or type(world_binding.get("block_count")) is not int
-        or world_binding["block_count"] < 0
-        or type(world_binding.get("worlds_per_block")) is not int
-        or world_binding["worlds_per_block"] < 0
-        or type(world_binding.get("selection_world_count")) is not int
-        or world_binding["selection_world_count"] < 0
-        or any(
-            re.fullmatch(r"[0-9a-f]{64}", str(world_binding.get(field, ""))) is None
-            for field in ("combined_matrix_sha256", "selected_index_order_sha256")
-        )
-    ):
-        _fail("engine world binding is invalid")
+    body["world_binding"] = _validate_world_binding_v3(
+        body.get("world_binding"),
+        mode=str(mode),
+        seed_pairs=body.get("seed_pairs"),
+        worlds_per_block=body.get("worlds_per_block"),
+        selection_world_count=body.get("selection_world_count"),
+        lineups=lineups,
+    )
     if not isinstance(body.get("locks"), list) or not isinstance(
         body.get("bans"), list
     ) or not isinstance(body.get("theses"), list):
@@ -1479,6 +1847,36 @@ def _validate_paid_classic_engine_receipt_v3(
     return body
 
 
+def _validate_paid_classic_engine_result_v3(
+    result: PaidClassicEngineResultV3,
+    *,
+    lineups: Sequence[Lineup],
+    receipt: PaidClassicEngineReceiptV3,
+) -> dict[str, object]:
+    if not isinstance(result, PaidClassicEngineResultV3):
+        _fail("paid-v3 terminal validation requires a typed engine result")
+    body = result.as_dict()
+    if set(body) != {
+        "schema_version", "lineup_objectives", "receipt", "world_binding",
+        "result_sha256",
+    }:
+        _fail("typed engine result schema differs")
+    claimed = body.pop("result_sha256", None)
+    if claimed != _canonical_sha256(body):
+        _fail("typed engine result hash differs")
+    if body.get("schema_version") != _ENGINE_RESULT_SCHEMA:
+        _fail("typed engine result identity differs")
+    receipt_body = receipt.as_dict()
+    if body.get("receipt") != receipt_body:
+        _fail("typed engine result receipt differs from terminal evidence")
+    if body.get("world_binding") != receipt_body.get("world_binding"):
+        _fail("typed engine result world binding differs from terminal evidence")
+    if body.get("lineup_objectives") != _selected_projection_objectives(lineups):
+        _fail("typed engine result lineups differ from terminal book")
+    body["result_sha256"] = claimed
+    return body
+
+
 def _reopen_paid_classic_book_v3(
     lineups: Sequence[Lineup],
     *,
@@ -1486,7 +1884,18 @@ def _reopen_paid_classic_book_v3(
     catalog: PaidClassicCatalogV3,
     execution_authority: PaidClassicExecutionAuthorityV3 | None = None,
     engine_result: PaidClassicEngineResultV3 | None = None,
+    deterministic_compatibility: bool = False,
 ) -> tuple[list[Lineup], list[dict[str, object]], dict[str, Any]]:
+    if deterministic_compatibility:
+        if execution_authority is not None or engine_result is not None:
+            _fail("deterministic compatibility cannot accept engine authorities")
+    elif not isinstance(
+        execution_authority, PaidClassicExecutionAuthorityV3
+    ) or not isinstance(engine_result, PaidClassicEngineResultV3):
+        _fail(
+            "transformed paid-v3 validation requires both the independent "
+            "execution authority and immutable engine result"
+        )
     try:
         assert_exact_unique_classic_book_v2(
             lineups, expected_entries=expected_entries
@@ -1596,6 +2005,11 @@ def _reopen_paid_classic_book_v3(
             )
         derivation = getattr(lineup, "paid_projection_derivation_receipt", None)
         if derivation is None:
+            if not deterministic_compatibility:
+                _fail(
+                    f"lineup {lineup_ordinal} lacks engine-produced terminal "
+                    "evidence"
+                )
             if transformed_projection:
                 _fail(
                     f"lineup {lineup_ordinal} transformed projections are not "
@@ -1605,6 +2019,11 @@ def _reopen_paid_classic_book_v3(
                 dict[str, object] | PaidClassicEngineReceiptV3
             ) = dict(deterministic_derivation)
         else:
+            if deterministic_compatibility:
+                _fail(
+                    "deterministic compatibility cannot accept an engine "
+                    "transformation receipt"
+                )
             if not isinstance(derivation, PaidClassicEngineReceiptV3):
                 _fail(
                     f"lineup {lineup_ordinal} projection transformation "
@@ -1645,15 +2064,15 @@ def _reopen_paid_classic_book_v3(
         if bound_derivations
         else deterministic_derivation
     )
-    if engine_result is not None:
-        if not isinstance(engine_result, PaidClassicEngineResultV3):
-            _fail("paid-v3 terminal validation requires a typed engine result")
-        if tuple(authoritative_lineups) != tuple(engine_result.lineups):
-            _fail("typed engine result lineups differ from terminal book")
-        if not isinstance(selected_derivation, PaidClassicEngineReceiptV3) or (
-            selected_derivation.as_dict() != engine_result.receipt.as_dict()
-        ):
-            _fail("typed engine result receipt differs from terminal evidence")
+    engine_result_identity: dict[str, object] | None = None
+    if not deterministic_compatibility:
+        if not isinstance(selected_derivation, PaidClassicEngineReceiptV3):
+            _fail("transformed paid-v3 book lacks engine receipt evidence")
+        engine_result_identity = _validate_paid_classic_engine_result_v3(
+            engine_result,
+            lineups=authoritative_lineups,
+            receipt=selected_derivation,
+        )
     projection_derivation_receipt = (
         _validate_paid_classic_engine_receipt_v3(
             selected_derivation,
@@ -1693,6 +2112,14 @@ def _reopen_paid_classic_book_v3(
             "projection_derivation_receipt_sha256": _canonical_sha256(
                 projection_derivation_receipt
             ),
+            "engine_result_sha256": (
+                engine_result_identity["result_sha256"]
+                if engine_result_identity is not None else None
+            ),
+            "engine_world_binding_sha256": (
+                _canonical_sha256(engine_result_identity["world_binding"])
+                if engine_result_identity is not None else None
+            ),
             "selected_projection_objectives_sha256": _canonical_sha256(
                 projection_objectives
             ),
@@ -1701,9 +2128,21 @@ def _reopen_paid_classic_book_v3(
             "cloud_build_id": catalog.cloud_build_id,
             "immutable_image_uri": catalog.immutable_image_uri,
             "running_revision": catalog.running_revision,
+            "cloud_project": catalog.cloud_project,
+            "cloud_region": catalog.cloud_region,
+            "cloud_run_service": catalog.cloud_run_service,
             "runtime_deployment_identity_sha256": (
                 catalog.runtime_deployment_identity_sha256
             ),
+            "activation_authority_uri": catalog.activation_authority_uri,
+            "activation_authority_generation": (
+                catalog.activation_authority_generation
+            ),
+            "activation_authority_object_sha256": (
+                catalog.activation_authority_object_sha256
+            ),
+            "activation_authority_bytes": catalog.activation_authority_bytes,
+            "activation_authority_sha256": catalog.activation_authority_sha256,
             "validated_at": catalog.validated_at,
             "slate_lock_at": catalog.slate_lock_at,
             "schedule_catalog_sha256": catalog.schedule_sha256,
@@ -1727,10 +2166,10 @@ def validate_paid_classic_book_v3(
     *,
     expected_entries: int,
     catalog: PaidClassicCatalogV3,
-    execution_authority: PaidClassicExecutionAuthorityV3 | None = None,
-    engine_result: PaidClassicEngineResultV3 | None = None,
+    execution_authority: PaidClassicExecutionAuthorityV3,
+    engine_result: PaidClassicEngineResultV3,
 ) -> dict[str, Any]:
-    """Validate the selected book against independent joined authorities."""
+    """Validate an engine-transformed book against independent authorities."""
 
     return _reopen_paid_classic_book_v3(
         lineups,
@@ -1741,13 +2180,34 @@ def validate_paid_classic_book_v3(
     )[2]
 
 
+def validate_paid_classic_deterministic_book_v3(
+    lineups: Sequence[Lineup],
+    *,
+    expected_entries: int,
+    catalog: PaidClassicCatalogV3,
+) -> dict[str, Any]:
+    """Validate an exact-projection compatibility artifact explicitly.
+
+    This path cannot accept transformation receipts or engine authorities.  It
+    exists for the separately frozen Week-1 deterministic materialization and
+    is deliberately not used by dynamic paid generation/export routes.
+    """
+
+    return _reopen_paid_classic_book_v3(
+        lineups,
+        expected_entries=expected_entries,
+        catalog=catalog,
+        deterministic_compatibility=True,
+    )[2]
+
+
 def to_paid_dk_csv_v3(
     lineups: Sequence[Lineup],
     *,
     expected_entries: int,
     catalog: PaidClassicCatalogV3,
-    execution_authority: PaidClassicExecutionAuthorityV3 | None = None,
-    engine_result: PaidClassicEngineResultV3 | None = None,
+    execution_authority: PaidClassicExecutionAuthorityV3,
+    engine_result: PaidClassicEngineResultV3,
 ) -> PaidClassicExport:
     """Serialize authoritative names/IDs after the v3 terminal audit."""
 
@@ -1789,8 +2249,8 @@ def fill_paid_entries_csv_v3(
     catalog: PaidClassicCatalogV3,
     contest_id: str | None,
     prepared_entry_capture: (Callable[[Mapping[str, Any]], None] | None) = None,
-    execution_authority: PaidClassicExecutionAuthorityV3 | None = None,
-    engine_result: PaidClassicEngineResultV3 | None = None,
+    execution_authority: PaidClassicExecutionAuthorityV3,
+    engine_result: PaidClassicEngineResultV3,
 ) -> PaidClassicExport:
     """Fill DKEntries one-to-one after the authoritative v3 game audit."""
 
@@ -1865,11 +2325,11 @@ __all__ = [
     "fill_paid_entries_csv_v3",
     "paid_classic_projection_authority_v3",
     "paid_classic_execution_authority_v3",
-    "seal_paid_classic_engine_result_v3",
     "paid_classic_projection_derivation_receipt_v3",
     "paid_entry_count_v3",
     "to_paid_dk_csv_v3",
     "validate_paid_classic_book_v3",
+    "validate_paid_classic_deterministic_book_v3",
     "validate_paid_classic_deployment_identity_v3",
     "validate_paid_classic_runtime_identity_v3",
 ]

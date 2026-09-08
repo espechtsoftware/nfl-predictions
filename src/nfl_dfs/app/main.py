@@ -40,19 +40,20 @@ from ..optimizer.paid_classic_book_v2 import (
 )
 from ..optimizer.paid_classic_book_v3 import (
     PaidClassicCatalogV3,
+    PaidClassicEngineResultV3,
     PaidClassicExecutionAuthorityV3,
     PaidClassicEngineReceiptV3,
     _issue_paid_classic_engine_receipt_v3,
+    _seal_paid_classic_engine_result_v3,
     build_paid_classic_catalog_v3,
     fill_paid_entries_csv_v3,
     paid_entry_count_v3,
     paid_classic_projection_authority_v3,
     paid_classic_execution_authority_v3,
-    seal_paid_classic_engine_result_v3,
     to_paid_dk_csv_v3,
 )
 from ..optimizer.paid_classic_deployment_v3 import (
-    validate_paid_classic_activation_authority_v3,
+    reopen_paid_classic_activation_authority_v3,
 )
 from ..optimizer.construction_presets import (
     INCUMBENT_GPP_PRESET_ID,
@@ -2548,7 +2549,13 @@ def _build_classic(
     store: ProjectionStore,
     *,
     paid_catalog: PaidClassicCatalogV3 | None = None,
+    paid_engine_result_capture=None,
 ) -> tuple:
+    if paid_catalog is not None and paid_engine_result_capture is None:
+        raise HTTPException(
+            500,
+            "Paid Classic v3 engine result capture is required before generation.",
+        )
     df, dk_ids = _classic_projections(req, store, paid_catalog=paid_catalog)
     if paid_catalog is not None:
         if req.objective not in df.columns:
@@ -2618,7 +2625,7 @@ def _build_classic(
             if paid_catalog is not None else None
         )
         try:
-            lineups = build_sim_lineups(
+            engine_output = build_sim_lineups(
                 req.season, req.week, n_entries=req.n_lineups,
                 stack=stack, tail_line=req.line(),
                 lev_scale=effective_lev_scale,
@@ -2642,6 +2649,21 @@ def _build_classic(
                 ),
                 paid_request_inputs=paid_request_inputs,
                 construction_preset_receipt=construction.receipt())
+            if paid_catalog is not None:
+                if (
+                    not isinstance(engine_output, tuple)
+                    or len(engine_output) != 2
+                    or not isinstance(engine_output[1], PaidClassicEngineResultV3)
+                ):
+                    raise HTTPException(
+                        503,
+                        "Paid Classic v3 simulation did not return immutable "
+                        "engine result evidence.",
+                    )
+                lineups, paid_engine_result = engine_output
+                paid_engine_result_capture(paid_engine_result)
+            else:
+                lineups = engine_output
         except RoleBeliefUnavailable as exc:
             if not policy.role_outage_fallback_allowed:
                 log.exception(
@@ -2659,7 +2681,7 @@ def _build_classic(
                 os.environ, construction_preset=construction,
             )
             try:
-                lineups = build_sim_lineups(
+                engine_output = build_sim_lineups(
                     req.season, req.week, n_entries=req.n_lineups,
                     stack=stack, tail_line=req.line(),
                     lev_scale=effective_lev_scale, locks=set(req.locks),
@@ -2681,6 +2703,23 @@ def _build_classic(
                     ),
                     paid_request_inputs=paid_request_inputs,
                     construction_preset_receipt=construction.receipt())
+                if paid_catalog is not None:
+                    if (
+                        not isinstance(engine_output, tuple)
+                        or len(engine_output) != 2
+                        or not isinstance(
+                            engine_output[1], PaidClassicEngineResultV3
+                        )
+                    ):
+                        raise HTTPException(
+                            503,
+                            "Paid Classic v3 fallback did not return immutable "
+                            "engine result evidence.",
+                        )
+                    lineups, paid_engine_result = engine_output
+                    paid_engine_result_capture(paid_engine_result)
+                else:
+                    lineups = engine_output
             except Exception as fallback_exc:
                 log.exception("CE fallback lineup build also failed")
                 raise HTTPException(
@@ -2803,6 +2842,9 @@ def _build_classic(
                 policy_environment=construction.optimizer_environment(),
             )
         )
+        paid_engine_result_capture(_seal_paid_classic_engine_result_v3(
+            lineups, milp_projection_derivation_receipt
+        ))
     for lu in lineups:
         lu.construction_preset_receipt = construction.receipt()
         if milp_projection_derivation_receipt is not None:
@@ -3544,8 +3586,27 @@ def _paid_classic_catalog_v3(
             cloud_build_id=os.environ.get("PAID_V3_CLOUD_BUILD_ID", ""),
             immutable_image_uri=os.environ.get("IMAGE_URI", ""),
             running_revision=os.environ.get("K_REVISION", ""),
+            cloud_project=str(activation["authority"]["cloud_project"]),
+            cloud_region=str(activation["authority"]["cloud_region"]),
+            cloud_run_service=str(
+                activation["authority"]["cloud_run_service"]
+            ),
+            activation_authority_uri=str(
+                activation["object_identity"]["uri"]
+            ),
+            activation_authority_generation=str(
+                activation["object_identity"]["generation"]
+            ),
+            activation_authority_object_sha256=str(
+                activation["object_identity"]["sha256"]
+            ),
+            activation_authority_bytes=int(
+                activation["object_identity"]["bytes"]
+            ),
             validated_at=validated_at,
-            activation_authority_sha256=str(activation["authority_sha256"]),
+            activation_authority_sha256=str(
+                activation["authority"]["authority_sha256"]
+            ),
         )
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
@@ -3558,50 +3619,11 @@ def _paid_classic_now_v3() -> datetime:
 
 
 def _paid_v3_activation_authority() -> dict[str, object]:
-    """Reopen the durable post-cutover authority at every paid request."""
+    """Reopen one generation-pinned activation object at every paid request."""
 
-    uri = os.environ.get("PAID_V3_ACTIVATION_URI", "").strip()
-    if uri.startswith("gs://"):
-        try:
-            from google.cloud import storage
-
-            bucket_name, blob_name = uri[5:].split("/", 1)
-            blob = storage.Client().bucket(bucket_name).blob(blob_name)
-            raw = blob.download_as_bytes()
-            expected_sha = os.environ.get("PAID_V3_ACTIVATION_SHA256", "")
-            expected_bytes = os.environ.get("PAID_V3_ACTIVATION_BYTES", "")
-            expected_generation = os.environ.get(
-                "PAID_V3_ACTIVATION_GENERATION", ""
-            )
-            if expected_sha and hashlib.sha256(raw).hexdigest() != expected_sha:
-                raise ValueError("activation bytes hash differs")
-            if expected_bytes and len(raw) != int(expected_bytes):
-                raise ValueError("activation bytes length differs")
-            if expected_generation and str(blob.generation) != expected_generation:
-                raise ValueError("activation generation differs")
-        except Exception as exc:
-            raise HTTPException(
-                503,
-                f"Paid Classic v3 activation authority cannot be reopened: {exc}",
-            ) from exc
-    else:
-        raw_text = os.environ.get("PAID_V3_ACTIVATION_AUTHORITY_JSON", "")
-        if not raw_text:
-            raise HTTPException(
-                503,
-                "Paid Classic v3 activation authority is absent; money routes are disabled",
-            )
-        raw = raw_text.encode("utf-8")
     try:
-        authority = json.loads(raw.decode("utf-8"))
-        return validate_paid_classic_activation_authority_v3(
-            authority,
-            expected_build_id=os.environ.get("PAID_V3_CLOUD_BUILD_ID", ""),
-            expected_image=os.environ.get("IMAGE_URI", ""),
-            expected_service=os.environ.get("PAID_V3_SERVICE", ""),
-            expected_revision=os.environ.get("K_REVISION", ""),
-        )
-    except (ValueError, json.JSONDecodeError) as exc:
+        return reopen_paid_classic_activation_authority_v3(os.environ)
+    except ValueError as exc:
         raise HTTPException(
             503, f"Paid Classic v3 activation authority is invalid: {exc}"
         ) from exc
@@ -3633,7 +3655,13 @@ def _paid_classic_headers_v3(receipt: dict) -> dict[str, str]:
             receipt["runtime_deployment_identity_sha256"]
         ),
         "X-Paid-Book-Activation-Authority": str(
-            receipt.get("activation_authority_sha256", "")
+            receipt["activation_authority_sha256"]
+        ),
+        "X-Paid-Book-Activation-Object": str(
+            receipt["activation_authority_object_sha256"]
+        ),
+        "X-Paid-Book-Activation-Generation": str(
+            receipt["activation_authority_generation"]
         ),
         "X-Paid-Book-Projection-Batch-SHA256": str(
             receipt["projection_batch_sha256"]
@@ -3722,16 +3750,19 @@ def _build_paid_classic_export_v3(
 
     catalog = _paid_classic_catalog_v3(req, store)
     execution_authority = _paid_classic_execution_authority(req, catalog)
-    lineups, ranked = _build_classic(req, store, paid_catalog=catalog)
-    engine_result = None
-    if lineups and isinstance(
-        getattr(lineups[0], "paid_projection_derivation_receipt", None),
-        PaidClassicEngineReceiptV3,
-    ):
-        engine_result = seal_paid_classic_engine_result_v3(
-            lineups,
-            lineups[0].paid_projection_derivation_receipt,
+    engine_results: list[PaidClassicEngineResultV3] = []
+    lineups, ranked = _build_classic(
+        req,
+        store,
+        paid_catalog=catalog,
+        paid_engine_result_capture=engine_results.append,
+    )
+    if len(engine_results) != 1:
+        raise HTTPException(
+            500,
+            "Paid Classic v3 engine returned an ambiguous result envelope.",
         )
+    engine_result = engine_results[0]
     if len(ranked) != len(lineups) or any(
         row.get("lineup") is not lineup
         for row, lineup in zip(ranked, lineups, strict=False)
@@ -3974,18 +4005,19 @@ def fill_paid_classic_entries_v3(
     build_req = req.model_copy(update={"n_lineups": paid_entries})
     catalog = _paid_classic_catalog_v3(build_req, store)
     execution_authority = _paid_classic_execution_authority(build_req, catalog)
+    engine_results: list[PaidClassicEngineResultV3] = []
     lineups = _build_classic(
-        build_req, store, paid_catalog=catalog
+        build_req,
+        store,
+        paid_catalog=catalog,
+        paid_engine_result_capture=engine_results.append,
     )[0]
-    engine_result = None
-    if lineups and isinstance(
-        getattr(lineups[0], "paid_projection_derivation_receipt", None),
-        PaidClassicEngineReceiptV3,
-    ):
-        engine_result = seal_paid_classic_engine_result_v3(
-            lineups,
-            lineups[0].paid_projection_derivation_receipt,
+    if len(engine_results) != 1:
+        raise HTTPException(
+            500,
+            "Paid Classic v3 engine returned an ambiguous result envelope.",
         )
+    engine_result = engine_results[0]
     try:
         exported = fill_paid_entries_csv_v3(
             req.entries_csv,

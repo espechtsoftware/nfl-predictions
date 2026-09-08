@@ -132,6 +132,88 @@ def _canonical_input_cell(value: object) -> object:
     return [type(value).__name__, normalized]
 
 
+def _paid_matrix_identity_v3(value: object) -> dict[str, object]:
+    """Describe exact in-memory matrix bytes without retaining the matrix."""
+
+    array = np.ascontiguousarray(np.asarray(value))
+    if array.ndim != 2 or not np.isfinite(array).all():
+        raise ValueError("paid-v3 world matrix must be finite and two-dimensional")
+    return {
+        "shape": [int(array.shape[0]), int(array.shape[1])],
+        "dtype": array.dtype.str,
+        "sha256": hashlib.sha256(array.tobytes(order="C")).hexdigest(),
+    }
+
+
+def _paid_roster_order_v3(lineups: object) -> list[list[int]]:
+    rows: list[list[int]] = []
+    for lineup in lineups:
+        roster = sorted(int(player["id"]) for player in lineup.players)
+        if len(roster) != 9 or len(set(roster)) != 9:
+            raise ValueError("paid-v3 world binding found a malformed roster")
+        rows.append(roster)
+    if len(rows) != len({tuple(row) for row in rows}):
+        raise ValueError("paid-v3 world binding found duplicate rosters")
+    return rows
+
+
+def _paid_world_binding_v3(
+    native_books: dict[str, object],
+    combined: object,
+    parsed_seeds: list[tuple[str, int, int]],
+    selected: object,
+) -> dict[str, object]:
+    """Bind every native/combined matrix and the selector's actual order."""
+
+    native_blocks: list[dict[str, object]] = []
+    for label, projection_seed, role_seed in parsed_seeds:
+        batch = native_books[label]
+        native_blocks.append({
+            "seed_identity": {
+                "label": label,
+                "projection_seed": int(projection_seed),
+                "role_seed": int(role_seed),
+            },
+            "player_ids": [int(value) for value in batch.player_ids],
+            "ordered_candidate_player_ids": _paid_roster_order_v3(
+                batch.candidates
+            ),
+            "candidate_totals": _paid_matrix_identity_v3(
+                batch.candidate_totals
+            ),
+            "row_draws": _paid_matrix_identity_v3(batch.row_draws),
+        })
+    combined_rosters = _paid_roster_order_v3(combined.candidates)
+    index_by_roster = {
+        tuple(roster): index for index, roster in enumerate(combined_rosters)
+    }
+    selected_rosters = _paid_roster_order_v3(selected)
+    try:
+        selected_indices = [
+            int(index_by_roster[tuple(roster)]) for roster in selected_rosters
+        ]
+    except KeyError as exc:
+        raise ValueError(
+            "paid-v3 selected roster is absent from the combined candidate order"
+        ) from exc
+    return {
+        "schema_version": "paid-classic-world-binding/v2",
+        "mode": "simulation",
+        "native_blocks": native_blocks,
+        "combined": {
+            "world_block_order": [label for label, _, _ in parsed_seeds],
+            "player_ids": [int(value) for value in combined.player_ids],
+            "ordered_candidate_player_ids": combined_rosters,
+            "candidate_totals": _paid_matrix_identity_v3(
+                combined.candidate_totals
+            ),
+            "row_draws": _paid_matrix_identity_v3(combined.row_draws),
+        },
+        "selected_indices": selected_indices,
+        "selected_roster_player_ids": selected_rosters,
+    }
+
+
 def _score_blind_player_input_receipt(frame: pd.DataFrame) -> dict[str, object]:
     """Hash every non-outcome player input in its effective row order."""
     outcome_columns = sorted(
@@ -711,7 +793,7 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                       projection_authority: dict[int, float] | None = None,
                       projection_authority_receipt: object | None = None,
                       paid_request_inputs: dict[str, object] | None = None,
-                      ) -> list:
+                      ) -> object:
     """Full validated pipeline on the live slate -> selected entries in
     coverage order (first = broadest boom coverage).
 
@@ -897,6 +979,7 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
             _run_seed(label, projection_seed, role_seed)
 
         completed_combination = []
+        completed_native_books: list[dict[str, object]] = []
 
         def _combine(r0_batch):
             books = {"R0": r0_batch, **captured}
@@ -1031,6 +1114,7 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                     )
             if _candidate_capture is not None:
                 _candidate_capture(combined)
+            completed_native_books.append(dict(books))
             completed_combination.append(combined)
             return combined
 
@@ -1039,11 +1123,15 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
             label, projection_seed, role_seed,
             transform=_combine, persist=True)
         if projection_authority_receipt is not None:
-            if len(completed_combination) != 1:
+            if (
+                len(completed_combination) != 1
+                or len(completed_native_books) != 1
+            ):
                 raise RuntimeError(
-                    "paid-v3 engine did not retain one completed CBWU batch"
+                    "paid-v3 engine did not retain one completed CBWU world set"
                 )
             combined = completed_combination[0]
+            native_books = completed_native_books[0]
             native = combined.metadata.get("native_generation_receipts")
             if not isinstance(native, dict):
                 raise RuntimeError(
@@ -1051,7 +1139,7 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                 )
             from ..optimizer.paid_classic_book_v3 import (
                 _issue_paid_classic_engine_receipt_v3,
-                seal_paid_classic_engine_result_v3,
+                _seal_paid_classic_engine_result_v3,
             )
 
             model_artifacts = {
@@ -1140,43 +1228,16 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                 construction_policy=dict(construction_preset_receipt or {}),
                 request_inputs=observed_request,
                 policy_environment=dict(runtime_env),
-                world_binding={
-                    "schema_version": "paid-classic-world-binding/v1",
-                    "block_count": len(parsed),
-                    "worlds_per_block": int(worlds_per_block),
-                    "selection_world_count": int(combined.row_draws.shape[1]),
-                    "combined_matrix_sha256": hashlib.sha256(
-                        combined.row_draws.tobytes(order="C")
-                    ).hexdigest(),
-                    "selected_index_order_sha256": hashlib.sha256(
-                        json.dumps(
-                            {
-                                "keys": [
-                                    sorted(int(value) for value in key)
-                                    for key in sorted(
-                                        combined.all_tags,
-                                        key=lambda item: tuple(sorted(item)),
-                                    )
-                                ],
-                                "tags": [
-                                    list(combined.all_tags[key])
-                                    for key in sorted(
-                                        combined.all_tags,
-                                        key=lambda item: tuple(sorted(item)),
-                                    )
-                                ],
-                            },
-                            sort_keys=True,
-                            separators=(",", ":"),
-                        ).encode()
-                    ).hexdigest(),
-                },
+                world_binding=_paid_world_binding_v3(
+                    native_books, combined, parsed, selected
+                ),
             )
-            engine_result = seal_paid_classic_engine_result_v3(
+            engine_result = _seal_paid_classic_engine_result_v3(
                 selected, engine_receipt
             )
             for lineup in selected:
-                lineup.paid_projection_derivation_receipt = engine_result.receipt
+                lineup.paid_projection_derivation_receipt = engine_receipt
+            return selected, engine_result
         return selected
 
     authority_kwargs = (

@@ -21,8 +21,35 @@ V2_ENV = {
         "us-central1-docker.pkg.dev/project/repo/app@sha256:" + "d" * 64
     ),
     "PAID_V3_CLOUD_BUILD_ID": "12345678-1234-1234-1234-123456789abc",
+    "PAID_V3_PROJECT": "nfl-predictions-503414",
+    "PAID_V3_REGION": "us-central1",
+    "PAID_V3_SERVICE": "nfl-dfs-app",
     "K_REVISION": "app-paidv3-cccccccc-12345678",
+    "PAID_V3_ACTIVATION_URI": (
+        "gs://nfl-predictions-503414-paid-authority/paid-v3/"
+        "nfl-dfs-app/app-paidv3-cccccccc-12345678/activation.json"
+    ),
+    "PAID_V3_ACTIVATION_GENERATION": "987",
+    "PAID_V3_ACTIVATION_SHA256": "e" * 64,
+    "PAID_V3_ACTIVATION_BYTES": "2048",
 }
+
+
+def _activation_envelope() -> dict[str, object]:
+    return {
+        "authority": {
+            "cloud_project": V2_ENV["PAID_V3_PROJECT"],
+            "cloud_region": V2_ENV["PAID_V3_REGION"],
+            "cloud_run_service": V2_ENV["PAID_V3_SERVICE"],
+            "authority_sha256": "f" * 64,
+        },
+        "object_identity": {
+            "uri": V2_ENV["PAID_V3_ACTIVATION_URI"],
+            "generation": V2_ENV["PAID_V3_ACTIVATION_GENERATION"],
+            "sha256": V2_ENV["PAID_V3_ACTIVATION_SHA256"],
+            "bytes": int(V2_ENV["PAID_V3_ACTIVATION_BYTES"]),
+        },
+    }
 
 
 class ProjectionStore:
@@ -109,6 +136,15 @@ def test_v2_load_adds_the_fixed_projection_authority(
         "read_week1_operating_book_v1",
         lambda **_kwargs: exact,
     )
+    activation_calls = []
+    monkeypatch.setattr(
+        api,
+        "reopen_paid_classic_activation_authority_v3",
+        lambda environment, object_reader=None: (
+            activation_calls.append((environment, object_reader))
+            or _activation_envelope()
+        ),
+    )
 
     marker = object()
     monkeypatch.setattr(api, "_week1_paid_validation_time_v2", lambda: marker)
@@ -117,6 +153,10 @@ def test_v2_load_adds_the_fixed_projection_authority(
         *, exact_book, salary_rows, projection_rows, schedule_rows,
         validated_at, source_commit_sha, immutable_image_digest,
         cloud_build_id, immutable_image_uri, running_revision,
+        cloud_project, cloud_region, cloud_run_service,
+        activation_authority_uri, activation_authority_generation,
+        activation_authority_object_sha256, activation_authority_bytes,
+        activation_authority_sha256,
     ):
         assert exact_book == exact
         assert salary_rows == [{"salary": "authority"}]
@@ -128,6 +168,14 @@ def test_v2_load_adds_the_fixed_projection_authority(
         assert cloud_build_id == V2_ENV["PAID_V3_CLOUD_BUILD_ID"]
         assert immutable_image_uri == V2_ENV["IMAGE_URI"]
         assert running_revision == V2_ENV["K_REVISION"]
+        assert cloud_project == V2_ENV["PAID_V3_PROJECT"]
+        assert cloud_region == V2_ENV["PAID_V3_REGION"]
+        assert cloud_run_service == V2_ENV["PAID_V3_SERVICE"]
+        assert activation_authority_uri == V2_ENV["PAID_V3_ACTIVATION_URI"]
+        assert activation_authority_generation == "987"
+        assert activation_authority_object_sha256 == "e" * 64
+        assert activation_authority_bytes == 2048
+        assert activation_authority_sha256 == "f" * 64
         return payload
 
     monkeypatch.setattr(api, "build_week1_operating_book_export_v2", build)
@@ -140,6 +188,22 @@ def test_v2_load_adds_the_fixed_projection_authority(
     assert projection_store.gids == [151307]
     assert projection_store.projection_calls == [(2026, 1)]
     assert projection_store.schedule_calls == [(2026, 1)]
+    assert activation_calls == [(V2_ENV, None)]
+
+
+def test_v2_load_refuses_missing_exact_activation_identity() -> None:
+    broken = dict(V2_ENV)
+    broken.pop("PAID_V3_ACTIVATION_GENERATION")
+    with pytest.raises(
+        api.Week1OperatingBookAPIError,
+        match="failed exact read or v2 semantic validation",
+    ):
+        api.load_week1_operating_book_export_v2(
+            projection_store=ProjectionStore(),
+            object_store=object(),
+            environment=broken,
+            activation_object_reader=lambda _identity: b"{}",
+        )
 
 
 def test_canonical_routes_accept_no_build_request_and_share_one_payload(

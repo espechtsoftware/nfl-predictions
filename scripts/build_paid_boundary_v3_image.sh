@@ -22,14 +22,9 @@ git -C "$SOURCE_ROOT" cat-file -e \
   "${CODE_SHA}:cloudbuild.paid-boundary-v3.yaml" || \
   die "paid-v3 build contract is absent from the exact commit"
 
-PROJECT=${GCP_PROJECT:-nfl-predictions-503414}
-REGION=${GCP_REGION:-us-central1}
-REPOSITORY=${PAID_V3_ARTIFACT_REPOSITORY:-nfl-dfs}
-[[ "$PROJECT" =~ ^[a-z][a-z0-9-]{4,61}[a-z0-9]$ ]] || \
-  die "GCP_PROJECT is invalid"
-[[ "$REGION" =~ ^[a-z0-9-]+$ ]] || die "GCP_REGION is invalid"
-[[ "$REPOSITORY" =~ ^[a-z][a-z0-9._-]*$ ]] || \
-  die "PAID_V3_ARTIFACT_REPOSITORY is invalid"
+PROJECT=nfl-predictions-503414
+REGION=us-central1
+REPOSITORY=nfl-dfs
 IMAGE_TAG="${REGION}-docker.pkg.dev/${PROJECT}/${REPOSITORY}/nfl-dfs:paid-v3-${CODE_SHA}"
 
 BUILD_ROOT="$SOURCE_ROOT/.build-contexts"

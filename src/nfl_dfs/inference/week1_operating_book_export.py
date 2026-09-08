@@ -26,7 +26,7 @@ from ..optimizer.game_identity import (
 from ..optimizer.lineup import Lineup
 from ..optimizer.paid_classic_book_v3 import (
     build_paid_classic_catalog_v3,
-    validate_paid_classic_book_v3,
+    validate_paid_classic_deterministic_book_v3,
 )
 from . import prospective_generation_shadow_evaluation as shadow_evaluation
 from .generation_exposure import canonical_sha256
@@ -308,6 +308,14 @@ def build_week1_operating_book_export_v2(
     cloud_build_id: str,
     immutable_image_uri: str,
     running_revision: str,
+    cloud_project: str,
+    cloud_region: str,
+    cloud_run_service: str,
+    activation_authority_uri: str,
+    activation_authority_generation: str,
+    activation_authority_object_sha256: str,
+    activation_authority_bytes: int,
+    activation_authority_sha256: str,
 ) -> dict[str, object]:
     """Versioned live successor with an independent semantic-game audit.
 
@@ -333,6 +341,16 @@ def build_week1_operating_book_export_v2(
             cloud_build_id=cloud_build_id,
             immutable_image_uri=immutable_image_uri,
             running_revision=running_revision,
+            cloud_project=cloud_project,
+            cloud_region=cloud_region,
+            cloud_run_service=cloud_run_service,
+            activation_authority_uri=activation_authority_uri,
+            activation_authority_generation=activation_authority_generation,
+            activation_authority_object_sha256=(
+                activation_authority_object_sha256
+            ),
+            activation_authority_bytes=activation_authority_bytes,
+            activation_authority_sha256=activation_authority_sha256,
             validated_at=validated_at,
         )
     except ValueError as exc:
@@ -379,7 +397,7 @@ def build_week1_operating_book_export_v2(
         lineups.append(lineup)
 
     try:
-        paid_receipt = validate_paid_classic_book_v3(
+        paid_receipt = validate_paid_classic_deterministic_book_v3(
             authoritative_lineups,
             expected_entries=int(base["k"]),
             catalog=catalog,
@@ -407,6 +425,15 @@ def build_week1_operating_book_export_v2(
         "projection_derivation_id": catalog.projection_derivation_id,
         "source_commit_sha": catalog.source_commit_sha,
         "immutable_image_digest": catalog.immutable_image_digest,
+        "activation_authority_uri": catalog.activation_authority_uri,
+        "activation_authority_generation": (
+            catalog.activation_authority_generation
+        ),
+        "activation_authority_object_sha256": (
+            catalog.activation_authority_object_sha256
+        ),
+        "activation_authority_bytes": catalog.activation_authority_bytes,
+        "activation_authority_sha256": catalog.activation_authority_sha256,
         "authority_validated_at": catalog.validated_at,
         "slate_lock_at": catalog.slate_lock_at,
         "one_coherent_prelock_projection_batch": True,

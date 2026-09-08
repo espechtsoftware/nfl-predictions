@@ -14,6 +14,25 @@ BUILD_ID = "12345678-1234-1234-1234-123456789abc"
 IMAGE_DIGEST = "sha256:" + "b" * 64
 IMAGE_URI = "us-central1-docker.pkg.dev/project/repo/app@" + IMAGE_DIGEST
 REVISION = "app-paidv3-aaaaaaaa-12345678"
+PROJECT = "nfl-predictions-503414"
+REGION = "us-central1"
+SERVICE = "nfl-dfs-app"
+ACTIVATION_URI = (
+    f"gs://{PROJECT}-paid-authority/paid-v3/{SERVICE}/{REVISION}/activation.json"
+)
+
+
+def _paid_identity_kwargs() -> dict[str, object]:
+    return {
+        "cloud_project": PROJECT,
+        "cloud_region": REGION,
+        "cloud_run_service": SERVICE,
+        "activation_authority_uri": ACTIVATION_URI,
+        "activation_authority_generation": "123",
+        "activation_authority_object_sha256": "c" * 64,
+        "activation_authority_bytes": 2048,
+        "activation_authority_sha256": "d" * 64,
+    }
 
 
 def _fixture() -> tuple[dict[str, object], list[dict[str, object]]]:
@@ -180,6 +199,7 @@ def test_v2_final_boundary_adds_and_checks_semantic_game_identity(
         cloud_build_id=BUILD_ID,
         immutable_image_uri=IMAGE_URI,
         running_revision=REVISION,
+        **_paid_identity_kwargs(),
     )
     assert result["schema_version"] == export.SCHEMA_VERSION_V2
     assert result["final_semantic_draftkings_legal"] is True
@@ -213,6 +233,7 @@ def test_v2_final_boundary_adds_and_checks_semantic_game_identity(
             cloud_build_id=BUILD_ID,
             immutable_image_uri=IMAGE_URI,
             running_revision=REVISION,
+            **_paid_identity_kwargs(),
         )
 
 
