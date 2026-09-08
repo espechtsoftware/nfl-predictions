@@ -150,6 +150,26 @@ agent or developer:
   Ruff, and diff checks passed. Independent delta re-review is active. Do not
   recover, rebuild, publish the receipt, create authority, or launch until it
   returns PASS and production records a separate exact one-shot GO.
+- Independent delta review returned PASS at
+  `c01dc8813335344c3a4f2f0bf13ca393b582eaca`; production recorded exact
+  recovery GO at lab-main commit `f2732a5845fc5d6b8a1239b08462fac8758096e3`
+  and invoked it once. The recovery failed closed after 46.83 seconds at the
+  no-data/no-outcome image assertion: the immutable experiment CLI emitted
+  two semantically identical valid JSON receipts because both its
+  `--assert-law` branch and outer `__main__` print the returned document, while
+  the controller correctly required one line. Docker exit was zero. Raw
+  stdout/stderr are preserved at 596/2,820 bytes with SHA-256
+  `b1208d97...` / `fd73d693...`; there is no assertion JSON record, receipt
+  candidate, local receipt, or recovery transcript. Exact post-failure GCS
+  censuses for the build receipt and recovery transcript are each zero live,
+  zero noncurrent, zero soft-deleted. Durable failure disposition is lab-main
+  commit `9ac007467a7af92b719d32707fc0683c1ecf4709`.
+- The R24 one-shot GO is consumed. **Do not rerun it and do not rebuild.** A
+  bounded successor is active to preserve the failed raw evidence, advance to
+  a fresh assertion-attempt namespace, and call the same in-image law function
+  through a deterministic single-output wrapper; the strict one-document
+  validator remains unchanged. It requires independent review and a new exact
+  one-shot recovery GO before provider action. Cloud Run remains unlaunched.
 
 ### 2026-09-08 PREREG-074 R23 passed independently; one-shot fm5 active
 
