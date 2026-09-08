@@ -47558,3 +47558,31 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   actions are independent review of the returned R32, CP-4 A2, and PREREG-076
   repair candidates, followed by only the narrowly authorized mechanics/build
   step for each candidate that passes.
+
+- 2026-09-08 — Week-1 provider rehearsal narrowed from deployment certification
+
+  Production reviewed the P0-B plan emitted by candidate
+  `51e3dd4b098b46933fab701d9711065d6bf844a9`. The candidate's documented live
+  invocation cannot run on the current host: it fixes the Playwright session
+  state to `/var/run/secrets/nfl-dfs/draftkings-storage-state.json`, which is
+  absent locally. More importantly, it makes an organization-wide Cloud Asset
+  IAM, build, bucket, job, service-account and Secret Manager census a
+  prerequisite for one authenticated DraftKings response-shape check. That
+  deployment certification is separable from the dated capture rehearsal and
+  conflicts with the operator's prior direction to remove IAM census work from
+  the experiment path.
+
+  A bounded code-only successor is assigned in the existing Week-1 capture
+  worktree. It must leave accepted P0-A/v3 and every live pin unchanged, accept
+  only private `0600` local session-state and acceptance-locator files after a
+  canonical intent/confirmation gate, perform one allowlisted GET with
+  redirect-before-contact checks, reject login/non-CSV surfaces, and persist
+  only redacted structural evidence create-once. It must contain no gcloud,
+  Cloud Asset, IAM, cloud mutation, contest-entry, standings, outcome or score
+  surface. The broader infrastructure certification may remain a separately
+  named later artifact but cannot block this local provider rehearsal.
+
+  No DraftKings/provider/cloud contact occurred. Next action after the clean
+  successor returns is independent code review, followed by preparing the two
+  private local inputs; a real rehearsal still requires operator-authenticated
+  DraftKings session state and the acceptance-download locator.
