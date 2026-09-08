@@ -92,6 +92,22 @@ agent or developer:
   the four manifests/allocation root; obtain the owner's paid upload; publish
   exact 90-entry acceptance evidence; and capture/settle all four contests
   after lock. No operational artifact, cloud state, or paid entry was created.
+- The bounded P0 repair is now pushed cleanly on
+  `origin/codex/week1-capture-v3-p0-repair-20260908`: code/report commit
+  `4713cb835bd7e190e1cd1015125bbaeee1f397b5`, code tree
+  `e4b42af4347bd44c0cf07764a6e0653077a3ebbd`, handoff tip
+  `7b24024c96222e5c08ccf8db05fb26e39cf3277d`. It adds exact-generation
+  reopens, raw/semantic identity separation, complete accepted-entry evidence,
+  exact contest/source/allocation linkage, and a production-internal-to-DK
+  player bridge rooted in an exact paid salary catalog. Focused repaired-v3
+  tests passed 28/28, unchanged v2 compatibility passed 15/15, and compilation
+  and diff checks passed. Independent static review is active; provider/cloud,
+  DK, paid-entry, outcome and production-main state remain unchanged.
+- The live operational blocker remains real rather than synthetic: the
+  September-4 lobby projection has a semantic digest but no exact raw
+  generation identity. Until a governed default-off publisher supplies that
+  source identity, the live template authority, exact salary/player bridge,
+  books and final allocation raw/semantic pins must continue to fail closed.
 
 ### 2026-09-08 PREREG-074 R23 image built; R24 recovery re-review active
 
@@ -266,6 +282,26 @@ agent or developer:
   a repaired and independently reviewed source, fresh source-bound manifest,
   fresh image/build/receipt, fresh R4 namespace and a separate GO; do not
   reinterpret or overwrite any R3 object.
+- The immediate refusal is an identity-law inconsistency, not a score result.
+  The fm5 manifest hashes filtered IDs as comma-joined ordered text;
+  `D.identity_receipt` hashes a canonical JSON list; and the later frame-map
+  check hashes sorted comma-joined keys. Real 2023-W03 produces three distinct
+  digests because its frame order is not sorted. Synthetic tests copied the
+  manifest digest directly into the fake identity and used sorted IDs, hiding
+  both contradictions. The successor must distinguish ordered row identity
+  from unordered map membership and test the real producer/manifest/validator
+  crossing on deliberately unsorted IDs.
+- A separate P0 reproducibility defect also must be repaired before a successor
+  image. fm5 ran under Python 3.14.4 / NumPy 2.5.2 / pandas 3.0.5 / SciPy
+  1.18.1, while the exact R3 image reports Python 3.11.16 / NumPy 2.4.6 /
+  pandas 3.0.5 / SciPy 1.17.1. The Dockerfile installs floating pyproject
+  ranges and never consumes `requirements.lock`. The runtime's explicit
+  checks show draw/order hashes happened to match fm5 before the later ID
+  refusal, so this did not cause the observed exception; it nevertheless
+  prevents a declared reproducible manifest/image environment and would make
+  another build unsafe. The R4 successor must run fm6 and cells under one
+  exact pinned interpreter/dependency contract and bind that contract before
+  another build or launch.
 
 ### 2026-09-08 PREREG-074 R23 passed independently; one-shot fm5 active
 
