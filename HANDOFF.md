@@ -22,6 +22,29 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 A5 capture-v3 candidate ready for independent review
+
+- The bounded capture-v3 successor is finalized and pushed at exact candidate
+  `58b7c98bccdbabff54c530ba515d14b22533e977`, tree
+  `233e33a65d1b973adf5ff8d705bc9a75c1db4009`, on
+  `origin/codex/week1-capture-v3-20260908`, based on production commit
+  `b8768e497d7e72033e8c5d880a5199b03fb2e545`. It preserves v2 and adds
+  immutable pre-lock contest facts, exact DK Entry-ID/roster acceptance,
+  four-contest 90-entry acceptance-root, and post-settlement contracts without
+  changing generation, scoring, selection, deployment, or paid-entry behavior.
+- Static validation passed: Ruff, Python compilation, and `git diff --check`.
+  Under two separately authorized empty-census serial windows, the focused v3
+  suite passed 11/11 in 1.93 seconds and the unchanged v2 rehearsal suite
+  passed 15/15 in 0.99 seconds. Independent review is active; do not merge or
+  operate it until that review is terminal.
+- Remaining operational P0s are separate from this schema candidate: restore
+  fresh point-in-time Week-1 injury/projection inputs; implement and review the
+  missing governed P_MIX/P_CTRL/D400_DEMAX/D800_WEMAX A5 book/allocation
+  publisher; clear canonical paid-v3 R4 and its provider-reality check; freeze
+  the four manifests/allocation root; obtain the owner's paid upload; publish
+  exact 90-entry acceptance evidence; and capture/settle all four contests
+  after lock. No operational artifact, cloud state, or paid entry was created.
+
 ### 2026-09-08 PREREG-074 R23 image built; post-build authentication held
 
 - fm5 completed exit zero in 3 minutes 40.75 seconds and published all 36
@@ -62,6 +85,14 @@ agent or developer:
   execution, outcome, score, or promotion state changed. Exact next action:
   finish and independently pass that recovery control, then recover this
   exact successful build and separately adjudicate launch authority.
+- Independent provider-schema contract
+  `d2d1f86b5a292e6c6a7a81d5c13516fa1aaf553b` confirms recovery without
+  rebuild. It requires separate R23 artifact and R24 controller identities,
+  exact Resource Manager project-ID-to-number proof for the canonical Build
+  name, and the provider-real Artifact Registry tag representation where
+  `image` is a Docker URI while `tag` and `version` are resource names. The
+  active R24 implementation must close both real-provider mismatches, retain
+  zero submit/launch capability, and pass independent review before recovery.
 
 ### 2026-09-08 PREREG-074 R23 passed independently; one-shot fm5 active
 
