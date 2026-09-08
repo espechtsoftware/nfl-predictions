@@ -22,6 +22,61 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 active score lanes, Week-1 rehearsal, and lab repair state
+
+- Production `main` is at `d2e6907174200c9260f632b664e0e0c130e77028`
+  after selectively integrating the Week-1 capture-v3 P0-B local provider
+  rehearsal. The accepted path passed 69/69 focused tests and 95/95 combined
+  P0-A/P0-B tests, plus Ruff, compilation, and diff checks. A private-data-
+  free local intent was created at
+  `reports/week1-a5-p0b-local-runs/20260908-local-r1/intent.json` in the
+  integration worktree: 1,059 bytes, SHA-256
+  `5ca98fc13b8e5ac459eee791074189205e03b9a919dd1b5ec40f9c24490e735c`.
+  No DraftKings contact occurred. Live rehearsal remains blocked on two
+  private mode-0600 inputs that are intentionally absent from Git:
+  `var/week1-a5-p0b/playwright-storage-state.json` and
+  `var/week1-a5-p0b/acceptance-download-locator.txt`.
+- PREREG-074 R33 source
+  `a81500d5d94ac7a4a9f5da0a22f4186a5e549e6e` passed independent review.
+  Immutable build `87a28f60-0a2a-4322-81cd-87275b043b98` produced image
+  digest `sha256:2041d88f209a55166e757b81167accffd1a9bdb5fbf86c763f98019c2463c550`.
+  FM10 and runtime probe `102b740p3-20260908T225609Z` passed. Score-bearing
+  generation run `102b740r6-20260908T230144Z` is Cloud Run execution
+  `lab-run-4cjzv`, frozen at 36 tasks / parallelism 12 / 4 CPU / 8 GiB /
+  zero retries. At the last handoff observation 24 tasks had succeeded, 11
+  were running, one had not started, and zero had failed, cancelled, or
+  retried. Generation authority is
+  `authorities/PREREG-074/102b740r6-20260908T230144Z.json|1788908527041644|11489|1839593195091ca49c6b47c7e98a59f347e2e7d3248cc6293f754f0cb11ebad2`;
+  launch is
+  `launches/PREREG-074/102b740r6-20260908T230144Z.json|1788908655140390|2422|c6fcddc73a63f616b84ae3a3676873f89659dadd1117b8652256bfa4074c44af`.
+  Exact next action is to wait for terminal 36/0/0, then invoke the registered
+  coordinator's replay against that exact launch; after replay reaches
+  36/0/0, seal, create pins, separately release, and run the held reader.
+- PREREG-076 source
+  `b627a47dc647b2d62f24017d45ff836cba005a09` passed its independent 22-test
+  source-authority review, but its sole governed build
+  `ef9e285d-9758-4d3f-a1c6-4377b48abbb6` ended `FAILURE` before producing an
+  image. The Python 3.11 base cannot install lock entries NumPy 2.5.2 and
+  SciPy 1.18.1, which require Python 3.12+. The attempt is consumed; no tag,
+  receipt, job update, execution, data read, or outcome read occurred.
+  Production sent the narrow R2 repair GO at lab-main commit `2cf8aac`: align
+  base and lock (Python 3.14 is the recommended minimal route), add a real
+  outcome-blind pre-submit compatibility check, and roll only the failed build
+  identities. Never resubmit or recover the failed R1 source.
+- CP-4 efficacy candidate
+  `df8fdb659e112e8b868827511323bac122ef3c68` passed 35 scaffold tests but is
+  held: its cohort runner refuses every real cell, the seal is local rather
+  than exact-generation/provider bound, the outcome file is not tied to its
+  claimed authority, `winner_cdf_v1` is named but not computed, promised
+  turnover/representation measures are absent, and the interval treats 162
+  bank/slate rows as IID instead of first averaging independent banks within
+  each of 54 slates. Production's complete-path repair GO is on lab `main` at
+  `74dc17c`; no CP-4 cloud or outcome action is authorized meanwhile.
+- The detached monitors remain active at the intended quiet cadence: Cloud
+  Build and Cloud Run lanes every 60 seconds, lab action-note and repository
+  transitions every 120 seconds. They write durable state/events and alert
+  only on changes; unchanged polling must remain silent.
+
 ### 2026-09-08 PREREG-074 R31 independently accepted for one immutable build
 
 - Production independently reviewed exact candidate
