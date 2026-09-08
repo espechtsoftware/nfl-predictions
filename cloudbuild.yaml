@@ -107,7 +107,7 @@ steps:
           python scripts/run_corpus_retrieval_transport.py parked | \
           grep -F 'CORPUS_RETRIEVAL_PARKED default_off=true client_constructed=false' >/dev/null
         docker run --rm "$$IMG" \
-          python -c 'import nfl_dfs.research.corpus_retrieval_engine as e; assert e.DEFAULT_ENTRY_BUDGET == 80'
+          python -c 'import nfl_dfs.research.corpus_retrieval_engine as e; import nfl_dfs.research.corpus_retrieval_engine_v3 as e3; assert e.DEFAULT_ENTRY_BUDGET == e3.DEFAULT_ENTRY_BUDGET == 80'
         docker run --rm "$$IMG" \
           bash -n scripts/cloud_corpus_retrieval_v1_reuse.sh
         docker run --rm "$$IMG" \

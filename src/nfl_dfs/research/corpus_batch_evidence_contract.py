@@ -40,6 +40,7 @@ from .corpus_parametric_batch import (
 
 SCHEMA: Final = "corpus-parametric-batch-evidence-contract/v1"
 V2_SCHEMA: Final = "corpus-parametric-batch-evidence-contract/v2"
+V3_SCHEMA: Final = "corpus-parametric-batch-evidence-contract/v3-canonical-game"
 CONTRACT_PHASE: Final = "pre_run_outcome_blind"
 KNOWLEDGE_CLASS: Final = "outcome_blind"
 INCUMBENT_PARAMETER_SET_ID: Final = "incumbent"
@@ -72,6 +73,18 @@ V2_EXPECTED_INVENTORY_SOURCE_SET_SHA256: Final = (
 V2_EXPECTED_CLASSIFIED_INPUT_PROJECTION_SHA256: Final = (
     "d3ad2c67c3e57e6199c83a3e4de8c3c6ef07fde44a4c289d1f85464f9c52a779"
 )
+V3_EXPECTED_INVENTORY_SHA256: Final = (
+    "6872a6c622c704fd186fc63de70e300aff06cdc33a9bd34b3294bc5ab2937564"
+)
+V3_EXPECTED_RULE_UNIVERSE_SHA256: Final = (
+    "f59fdf60c74720e0ded0a5783b050e0b27969d657118bd89047146ec6e464c2f"
+)
+V3_EXPECTED_INVENTORY_SOURCE_SET_SHA256: Final = (
+    "d3afc7a5a1ab7b6f0416668a287bb269923ac7ebc328197fb6644c95fb1d91ed"
+)
+V3_EXPECTED_CLASSIFIED_INPUT_PROJECTION_SHA256: Final = (
+    "8e3fde727ee9772f84deddaf916f351b628159e3ea18fe48d731d5987b5920ae"
+)
 
 
 @dataclass(frozen=True)
@@ -102,6 +115,16 @@ _V2_CONTRACT: Final = _EvidenceContractVersion(
     inventory_source_set_sha256=V2_EXPECTED_INVENTORY_SOURCE_SET_SHA256,
     classified_input_projection_sha256=(
         V2_EXPECTED_CLASSIFIED_INPUT_PROJECTION_SHA256
+    ),
+)
+_V3_CONTRACT: Final = _EvidenceContractVersion(
+    schema=V3_SCHEMA,
+    contract_suffix="v3-canonical-game",
+    inventory_sha256=V3_EXPECTED_INVENTORY_SHA256,
+    rule_universe_sha256=V3_EXPECTED_RULE_UNIVERSE_SHA256,
+    inventory_source_set_sha256=V3_EXPECTED_INVENTORY_SOURCE_SET_SHA256,
+    classified_input_projection_sha256=(
+        V3_EXPECTED_CLASSIFIED_INPUT_PROJECTION_SHA256
     ),
 )
 
@@ -1360,6 +1383,20 @@ def build_corpus_batch_evidence_contract_v2(
     )
 
 
+def build_corpus_batch_evidence_contract_v3(
+    *,
+    batch_manifest: Mapping[str, object],
+    batch_manifest_identity: Mapping[str, object],
+) -> dict[str, object]:
+    """Build the canonical-game contract bound to source inventory v7."""
+
+    return _build_corpus_batch_evidence_contract(
+        batch_manifest=batch_manifest,
+        batch_manifest_identity=batch_manifest_identity,
+        version=_V3_CONTRACT,
+    )
+
+
 def validate_corpus_batch_evidence_contract(
     value: object,
     *,
@@ -1374,6 +1411,8 @@ def validate_corpus_batch_evidence_contract(
         builder = build_corpus_batch_evidence_contract
     elif schema == V2_SCHEMA:
         builder = build_corpus_batch_evidence_contract_v2
+    elif schema == V3_SCHEMA:
+        builder = build_corpus_batch_evidence_contract_v3
     else:
         raise CorpusBatchEvidenceContractError(
             "evidence contract schema version is unsupported"
@@ -1465,9 +1504,11 @@ __all__ = [
     "PAIRED_TEST_LAW",
     "SCHEMA",
     "V2_SCHEMA",
+    "V3_SCHEMA",
     "THRESHOLDS_DK",
     "build_corpus_batch_evidence_contract",
     "build_corpus_batch_evidence_contract_v2",
+    "build_corpus_batch_evidence_contract_v3",
     "endpoint_registry",
     "validate_corpus_batch_evidence_contract",
     "validate_corpus_batch_evidence_contract_bytes",

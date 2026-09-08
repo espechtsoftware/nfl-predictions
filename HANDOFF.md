@@ -22,6 +22,128 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 canonical-v3 paid/deployment R4 integrated for review
+
+- Isolated worktree
+  `/home/erich/projects/nfl-predictions-canonical-paid-r4-integration-20260908`,
+  branch `production/canonical-paid-r4-integration-20260908`, starts at exact
+  production `origin/main`
+  `19bc428a96ff24a0b0c3e7893aa49a2c5f308c3d`. The integration commit is the
+  commit containing this entry. Its second parent is exact independent-review
+  commit `eb57454677c074603b8a9d5a360937a6582436fa`, whose direct parent is the
+  passed R4 candidate `9dfc767f141053efd29e6471519c711bce3a86f6`, tree
+  `9b3a3fc70bfc0481d77926a1a14b0f0a288cd558`.
+- The only path changed on both production and the reviewed candidate lineage
+  since merge base `6f1a48aff379ecd0394f0a61ad8b0c81745fcb3a` was `HANDOFF.md`.
+  That conflict was resolved by retaining every current-production entry and
+  adding the exact R4 candidate and independent-PASS milestones. All 68
+  non-handoff paths from the reviewed lineage retain their exact reviewed Git
+  blobs; the R4 candidate and independent-review reports are included.
+- Static integration validation passed: exact candidate tree and review-parent
+  identity, zero unresolved index entries or conflict markers, staged and
+  unstaged `git diff --check`, `bash -n` for both paid-v3 build/deploy wrappers,
+  AST parsing of all 58 changed Python/test files, and YAML parsing of the
+  three changed Cloud Build contracts. Fatal-only Ruff was unavailable in the
+  shared production virtual environment (`No module named ruff`); no package
+  was installed. Per the serial-lane instruction, no pytest command ran.
+- No Cloud Build, deployment, Cloud Run or GCS mutation/read, traffic change,
+  graph load, score/outcome read, contest entry, paid output, or production-main
+  push occurred. The integration is code-only and does not grant operational
+  or paid authority.
+- Remaining pre-cutover requirement: from the exact release image and service
+  identities, authenticate the intended authority bucket's live,
+  all-version/noncurrent, and `soft_deleted=True` exact-name list operations
+  plus exact-generation reload/download. Any policy, IAM, pagination,
+  transport, or representation uncertainty remains fail-closed. A nonzero
+  return after final publication must be reconciled against the exact provider
+  generation and must never be blindly retried; paid-v2 and the legacy Week-1
+  route remain outside paid-v3 authority.
+
+  Next concrete action: production reviews this integration commit and grants
+  a serial pytest lane before any test rerun. Only after that gate may an
+  operator perform the outcome-blind provider-reality check. This integration
+  does not authorize a build, deployment, traffic cutover, activation, or paid
+  output.
+
+### 2026-09-08 canonical-v3 paid/deployment bounded R4 independent PASS
+
+- Independent isolated review of exact candidate
+  `9dfc767f141053efd29e6471519c711bce3a86f6`, tree
+  `9b3a3fc70bfc0481d77926a1a14b0f0a288cd558`, confirms that it is the single
+  direct child of reviewed R3 `999204cc42602a43b8f94df12bbeb590db37ff40`.
+  No Cloud Build, deploy, Cloud Run/GCS mutation, traffic change, graph load,
+  score/outcome read, contest entry, or paid action occurred.
+- Disposition: **PASS for bounded integration.** The R3 create-once blocker is
+  closed. Deployment and runtime share a fully consumed exact-name census of
+  live, all-version/noncurrent, and soft-deleted generations; publication is
+  conditional on empty history and exact-reopens the provider-returned sole
+  generation; runtime closes on deletion, recreation, tombstones, multiple
+  generations, partial/uncertain enumeration, or census/read drift.
+- The accepted R3 posttraffic/rollback boundary is preserved. Normalized AST
+  hashes of the build validator, deployment attestor/validator, and final-
+  authority creator/validator are unchanged; the paid-v3 book, application
+  router, and paid Cloud Build contract retain exact R3 blobs. Shell order
+  keeps rollback armed through final traffic attestation and final-authority
+  construction.
+- Fresh global pytest censuses preceded both serial gates. Independent results:
+  **148/148** focused R4 tests in 8.03 seconds and **298/298** exact Cloud Build
+  release-gate tests in 21.61 seconds. Direct-child/tree, `git diff --check`,
+  Python compilation, both paid shell syntax checks, registry-v2 verification,
+  provider-client API inspection, and scope/identity comparisons are green.
+- Durable review:
+  `reports/2026-09-08-canonical-v3-paid-deployment-r4-independent-review.md`.
+  The authority bucket and exact release identities must still authenticate
+  live/version/soft-delete list plus exact-generation get before cutover; code
+  fails closed if that provider contract is unavailable. A nonzero return
+  after final publication must be reconciled, never blindly retried.
+
+  Next concrete action: integrate the exact R4 candidate through production's
+  review path, then perform the outcome-blind provider readiness check before
+  any live cutover. This PASS alone does not authorize build, deployment,
+  traffic, activation, or paid output.
+
+### 2026-09-08 canonical-v3 paid/deployment bounded R4 (review candidate)
+
+- Isolated worktree
+  `/home/erich/projects/nfl-predictions-canonical-paid-r4-repair-20260908`,
+  branch `codex/canonical-v3-paid-r4-repair-20260908`, repairs exact R3
+  `999204cc42602a43b8f94df12bbeb590db37ff40` against the independent HOLD on
+  production-main commit `680c7aa120c5400779d849a13b03f24c2670c720`.
+  It has not been merged, built, deployed, used to change traffic, loaded,
+  scored, used to read outcomes, or used for any paid action.
+- Deployment and runtime now require a fully consumed, exact-name provider
+  census across live, all-version/noncurrent, and soft-deleted generations of
+  final `activation.json`. Publication requires every view empty; runtime
+  requires exactly one live generation and no other historical generation.
+  Permission, pagination, malformed representation, overlap, deletion,
+  recreation, and census/read races fail closed.
+- The deployer censuses before Cloud Run mutation and again at the final
+  publication boundary. Its provider publisher retains atomic
+  `if_generation_match=0`, accepts only the generation returned by a normally
+  completed create, exact-reopens and hashes those bytes, recensuses, and
+  retains the exact identity in a closed companion receipt and transcript.
+- Provider-realistic adversaries cover soft-delete only, soft-delete plus
+  recreation, live plus noncurrent generations, partial-pagination and
+  permission errors, collision, a post-create second generation, malformed
+  censuses, and runtime census drift. The accepted R3 traffic-success plus
+  final-attestation/rollback-failure shell test remains in the gate.
+- After the globally first-positioned PREREG-074 R23 gate explicitly released
+  the lane, fresh global process censuses preceded both serial R4 gates.
+  Validation is green: **148/148** focused paid/deployment/Week-1 tests in
+  7.78 seconds and **298/298** exact Cloud Build release-gate tests in 21.10
+  seconds. Static compilation, deploy-shell syntax, changed-surface lint, and
+  `git diff --check` are also green apart from retained R3 lint findings. The
+  lane was explicitly released to the waiting R23 reviewer afterward.
+- Durable disposition:
+  `reports/2026-09-08-canonical-v3-paid-deployment-r4-repair-candidate.md`.
+  Accepted R2/R3 engine, world, build, posttraffic, and rollback laws remain;
+  scoring, generation, selection, money policy, frozen v1/v2, experiment
+  defaults, and canonical-v3 graph semantics are unchanged.
+
+  Next concrete action: commit and push the exact candidate, then obtain
+  independent review against the R3 HOLD. Do not merge, build, deploy, load,
+  score, activate, or emit paid bytes before that review.
+
 ### 2026-09-08 Week-1 A5 capture-v3 candidate ready for independent review
 
 - The bounded capture-v3 successor is finalized and pushed at exact candidate

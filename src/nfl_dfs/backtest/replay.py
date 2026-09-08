@@ -59,6 +59,44 @@ def replay_projection_seed(env: dict | None = None) -> int:
     return seed
 
 
+def _canonical_replay_simulation_units(
+    rows: pd.DataFrame,
+) -> tuple[pd.Series, pd.Series]:
+    """Build week-scoped physical-game factors for a season-wide replay."""
+
+    from ..optimizer.game_identity import canonical_game_identities
+
+    game_units: list[str | None] = [None] * len(rows)
+    team_units: list[str | None] = [None] * len(rows)
+    for (season, week), indices in rows.groupby(
+        ["season", "week"], sort=False
+    ).groups.items():
+        positions = [int(index) for index in indices]
+        records = rows.loc[positions].to_dict("records")
+        identity_rows = [
+            {
+                "id": row.get("gsis_id", row.get("dk_player_id")),
+                "team": row.get("team", row.get("team_abbr")),
+                "opp": row.get("opponent", row.get("opp")),
+                "game_id": row.get("game_id"),
+            }
+            for row in records
+        ]
+        identities = canonical_game_identities(identity_rows)
+        for position, identity in zip(positions, identities, strict=True):
+            game_units[position] = (
+                f"{int(season)}-W{int(week):02d}:"
+                f"{identity.canonical_game_key}"
+            )
+            team_units[position] = identity.team
+    if any(value is None for value in game_units + team_units):
+        raise ValueError("canonical replay simulation units are incomplete")
+    return (
+        pd.Series(game_units, index=rows.index, dtype="object"),
+        pd.Series(team_units, index=rows.index, dtype="object"),
+    )
+
+
 def own_mode(env: dict | None = None) -> str:
     """OWN_MODEL env, normalized. Default "" ADOPTED 2026-08-05
     (Addenda 77/80/84): the chalk fade STAYS (its true deletion cost
@@ -170,9 +208,12 @@ def replay_projections(
     if return_draws:
         from ..research import sis_asoe_final_served as asoe_module
         asoe_enabled = asoe_module.treatment_enabled()
+    simulation_game_ids, simulation_team_ids = (
+        _canonical_replay_simulation_units(rows)
+    )
     sim = simulate.simulate(comps, n_sims=n_sims,
-                        seed=seed, game_ids=rows.get("game_id"),
-                        team_ids=rows.get("team"),
+                        seed=seed, game_ids=simulation_game_ids,
+                        team_ids=simulation_team_ids,
                         game_totals=rows.get("game_total"),
                         bigplay_rate=bigplay,
                         keep_draws=return_draws,
@@ -187,7 +228,7 @@ def replay_projections(
         )
         treatment_sim = simulate.simulate(
             comps, n_sims=n_sims, seed=seed,
-            game_ids=rows.get("game_id"), team_ids=rows.get("team"),
+            game_ids=simulation_game_ids, team_ids=simulation_team_ids,
             game_totals=rows.get("game_total"), bigplay_rate=bigplay,
             target_allocation_multipliers=multipliers,
             keep_draws=False, keep_target_receiving=True,

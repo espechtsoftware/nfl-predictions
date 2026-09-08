@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from dataclasses import replace
 from datetime import datetime, timezone
 from itertools import combinations
 
@@ -61,6 +62,28 @@ def _players_and_rosters() -> tuple[list[dict], list[list[str]]]:
             ])
     assert len(rosters) >= arm.BOOM_ATTEMPTS
     return players, rosters
+
+
+def test_canonical_game_cap_cannot_be_bypassed_by_raw_ids() -> None:
+    players, rosters = _players_and_rosters()
+    by_id = {player["id"]: player for player in players}
+    chosen = [by_id[player_id] for player_id in rosters[0]]
+    for index, player in enumerate(chosen):
+        player["game_id"] = f"provider-representation-{index}"
+    lineup = Lineup(chosen, tag="boom")
+    preset = replace(
+        ADOPTED_CLASSIC_POLICY.construction_preset(),
+        max_per_game=3,
+    )
+    with pytest.raises(
+        arm.AllBoomCeilingContractError,
+        match="production game cap",
+    ):
+        arm._validate_lineup(
+            lineup,
+            source_by_id={player["id"]: player for player in players},
+            preset=preset,
+        )
 
 
 def _source_batches() -> tuple[CandidateBatch, CandidateBatch, list[list[str]]]:

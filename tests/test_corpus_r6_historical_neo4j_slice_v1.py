@@ -380,6 +380,42 @@ def test_projection_is_deterministic_and_preserves_high_score_decisions() -> Non
     assert first.manifest["policy_feedback_authority"] is False
 
 
+def test_v2_canonical_projection_is_collision_free_from_retained_v1() -> None:
+    expectations, artifacts, lineages, catalogs, shards = _fixture()
+    kwargs = {
+        "candidate_artifacts": artifacts,
+        "candidate_lineages": lineages,
+        "catalogs": catalogs,
+        "attribution_shards": shards,
+        "source_root_identities": _root_identities(),
+        "source_manifest": [],
+        "expectations": expectations,
+    }
+    retained = subject._project_graph_from_validated_sources(
+        **kwargs, graph_version=1
+    )
+    successor = subject._project_graph_from_validated_sources(
+        **kwargs, graph_version=2
+    )
+    assert retained.schema_version == subject.PLAN_SCHEMA
+    assert successor.schema_version == subject.PLAN_SCHEMA_V2
+    assert {row["id"] for row in retained.nodes}.isdisjoint(
+        row["id"] for row in successor.nodes
+    )
+    v1_lineup = next(
+        row for row in retained.nodes if row["kind"] == "LineupCandidate"
+    )
+    v2_lineup = next(
+        row for row in successor.nodes if row["kind"] == "LineupCandidate"
+    )
+    v1_props = json.loads(v1_lineup["properties_json"])
+    v2_props = json.loads(v2_lineup["properties_json"])
+    assert "canonical_game_policy_id" not in v1_props["structural_phenotype"]
+    assert v2_props["structural_phenotype"][
+        "canonical_game_policy_id"
+    ] == "unordered-normalized-team-opponent-v2"
+
+
 def test_projection_fails_on_roster_mismatch_before_slicing() -> None:
     expectations, artifacts, lineages, catalogs, shards = _fixture()
     broken = deepcopy(shards)

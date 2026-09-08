@@ -1066,7 +1066,7 @@ def _flat_output_uris(uris: Mapping[str, object]) -> list[str]:
 def _inventory_body(repository_root: Path) -> dict[str, object]:
     try:
         generated = (
-            policy_inventory.generate_effective_policy_rule_inventory_v6(
+            policy_inventory.generate_effective_policy_rule_inventory_v7(
                 repository_root
             )
         )
@@ -1208,7 +1208,7 @@ def _preflight(
         manifest_identity = _synthetic_identity(
             str(uris["manifest"]), manifest_raw, 1000,
         )
-        contract = evidence.build_corpus_batch_evidence_contract_v2(
+        contract = evidence.build_corpus_batch_evidence_contract_v3(
             batch_manifest=manifest, batch_manifest_identity=manifest_identity,
         )
         evidence.validate_corpus_batch_evidence_contract(
@@ -1610,7 +1610,7 @@ def execute_preparer(
             label="batch manifest",
         )
     )
-    contract = evidence.build_corpus_batch_evidence_contract_v2(
+    contract = evidence.build_corpus_batch_evidence_contract_v3(
         batch_manifest=manifest, batch_manifest_identity=manifest_identity,
     )
     contract_raw = evidence.canonical_json_bytes(contract)

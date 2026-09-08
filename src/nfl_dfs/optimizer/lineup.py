@@ -21,6 +21,12 @@ from typing import Any, Callable, Literal, Mapping, Protocol
 import numpy as np
 import pulp
 
+from .game_identity import (
+    canonical_game_identities,
+    normalize_team,
+    resolve_game_lock_key,
+)
+
 log = logging.getLogger(__name__)
 
 SALARY_CAP = 50_000
@@ -200,9 +206,16 @@ def add_classic_lineup_constraints(
     prob += count("TE") >= 1
     prob += count("TE") <= 2
 
-    teams = sorted({p["team"] for p in players})
+    normalized_teams = {
+        p["id"]: normalize_team(p.get("team"), label="team")
+        for p in players
+    }
+    teams = sorted(set(normalized_teams.values()))
     for team in teams:
-        prob += pulp.lpSum(x[p["id"]] for p in players if p["team"] == team) <= MAX_FROM_TEAM
+        prob += pulp.lpSum(
+            x[p["id"]] for p in players
+            if normalized_teams[p["id"]] == team
+        ) <= MAX_FROM_TEAM
 
     # Multi-game diversity is strategy, not DK legality. The incumbent named
     # preset supplies 2; the universal layer resolves to 1 (disabled).
@@ -210,7 +223,13 @@ def add_classic_lineup_constraints(
                   else int(_env.get("MIN_GAMES", "1") or 1))
     if _min_games < 1:
         raise ValueError("minimum games must be at least one")
-    games = sorted({p.get("game_id") for p in players if p.get("game_id")})
+    game_identities = (
+        canonical_game_identities(players)
+        if _min_games > 1 or max_per_game or game_lock
+        or int(_env.get("MAX_PER_GAME", "0"))
+        else []
+    )
+    games = sorted({identity.canonical_game_key for identity in game_identities})
     if _min_games == 1:
         # DK legality itself does not require game metadata or a multi-game
         # roster.  Missing game IDs therefore remain legal in the neutral
@@ -228,7 +247,9 @@ def add_classic_lineup_constraints(
         # same feasible roster set.
         for game in games:
             prob += pulp.lpSum(
-                x[p["id"]] for p in players if p.get("game_id") != game
+                x[p["id"]] for p, identity in zip(
+                    players, game_identities, strict=True
+                ) if identity.canonical_game_key != game
             ) >= 1
     elif _min_games > 2:
         game_used = {
@@ -236,7 +257,9 @@ def add_classic_lineup_constraints(
             for index, game in enumerate(games)
         }
         for game, used in game_used.items():
-            ids = [p["id"] for p in players if p.get("game_id") == game]
+            ids = [p["id"] for p, identity in zip(
+                players, game_identities, strict=True
+            ) if identity.canonical_game_key == game]
             prob += pulp.lpSum(x[pid] for pid in ids) >= used
             prob += pulp.lpSum(x[pid] for pid in ids) <= ROSTER_SIZE * used
         prob += pulp.lpSum(game_used.values()) >= _min_games
@@ -294,11 +317,11 @@ def add_classic_lineup_constraints(
     max_pg = (max_per_game if max_per_game is not None
               else int(_env.get("MAX_PER_GAME", "0")))
     if max_pg:
-        by_game: dict = {}
-        for p in players:
-            by_game.setdefault(p.get("game_id"), []).append(p["id"])
+        by_game: dict[str, list[object]] = {}
+        for p, identity in zip(players, game_identities, strict=True):
+            by_game.setdefault(identity.canonical_game_key, []).append(p["id"])
         for gid, ids in by_game.items():
-            if gid is not None and len(ids) > max_pg:
+            if len(ids) > max_pg:
                 prob += pulp.lpSum(x[pid] for pid in ids) <= max_pg
 
     # A/B lever (env MIN_LOWOWN, off by default): winner ownership shape
@@ -314,9 +337,13 @@ def add_classic_lineup_constraints(
 
     if game_lock:
         gid, n_from_game = game_lock
-        in_game = [p["id"] for p in players if p.get("game_id") == gid]
-        if len(in_game) >= n_from_game:
-            prob += pulp.lpSum(x[pid] for pid in in_game) >= n_from_game
+        canonical_lock = resolve_game_lock_key(
+            players, gid, minimum=n_from_game,
+        )
+        in_game = [p["id"] for p, identity in zip(
+            players, game_identities, strict=True
+        ) if identity.canonical_game_key == canonical_lock]
+        prob += pulp.lpSum(x[pid] for pid in in_game) >= n_from_game
 
     for pid in locks or ():
         prob += x[pid] == 1
@@ -328,7 +355,10 @@ def add_classic_lineup_constraints(
         prob += pulp.lpSum(x[pid] for pid in prev if pid in x) <= max_overlap
 
     if stack:
-        _apply_stack_rules(prob, x, players, teams, stack)
+        _apply_stack_rules(
+            prob, x, players, teams, stack,
+            normalized_teams=normalized_teams,
+        )
 
 
 def optimize(
@@ -355,7 +385,8 @@ def optimize(
     interaction_floor: float | None = None,
 ) -> Lineup | None:
     """Solve one lineup. Returns None if infeasible.
-    game_lock=(game_id, n) forces >= n players from that game — the
+    game_lock=(game_id, n) resolves a raw or canonical game identity and
+    forces >= n players from that physical game — the
     concentrated-game-stack construction (issue #6): Milly winners take
     50-80% of their points from one game."""
     prob = pulp.LpProblem("dfs", pulp.LpMaximize)
@@ -460,7 +491,15 @@ def optimize(
     return Lineup(chosen)
 
 
-def _apply_stack_rules(prob, x, players, teams, stack: StackRules) -> None:
+def _apply_stack_rules(
+    prob,
+    x,
+    players,
+    teams,
+    stack: StackRules,
+    *,
+    normalized_teams: Mapping[object, str],
+) -> None:
     for label, value in (
         ("qb_stack_min", stack.qb_stack_min),
         ("bring_back_min", stack.bring_back_min),
@@ -482,11 +521,26 @@ def _apply_stack_rules(prob, x, players, teams, stack: StackRules) -> None:
 
     catchers_by_team: dict[str, list] = {}
     qbs_by_team: dict[str, list] = {}
+    needs_opponents = bool(
+        stack.bring_back_min
+        or stack.bring_back_max is not None
+        or stack.forbid_rb_vs_dst
+        or stack.require_rb_vs_dst
+    )
+    normalized_opponents = (
+        {
+            p["id"]: normalize_team(p.get("opp"), label="opponent")
+            for p in players
+        }
+        if needs_opponents
+        else {}
+    )
     for p in players:
+        team = normalized_teams[p["id"]]
         if p["pos"] in ("WR", "TE"):
-            catchers_by_team.setdefault(p["team"], []).append(p["id"])
+            catchers_by_team.setdefault(team, []).append(p["id"])
         elif p["pos"] == "QB":
-            qbs_by_team.setdefault(p["team"], []).append(p["id"])
+            qbs_by_team.setdefault(team, []).append(p["id"])
 
     for team in teams:
         qbs = qbs_by_team.get(team, [])
@@ -503,10 +557,15 @@ def _apply_stack_rules(prob, x, players, teams, stack: StackRules) -> None:
             )
         # Bring-back: >= k skill players from the QB's opponent
         if stack.bring_back_min or stack.bring_back_max is not None:
-            opps = {p["opp"] for p in players if p["pos"] == "QB" and p["team"] == team}
+            opps = {
+                normalized_opponents[p["id"]] for p in players
+                if p["pos"] == "QB"
+                and normalized_teams[p["id"]] == team
+            }
             opp_skill = [
                 p["id"] for p in players
-                if p["team"] in opps and p["pos"] in ("RB", "WR", "TE")
+                if normalized_teams[p["id"]] in opps
+                and p["pos"] in ("RB", "WR", "TE")
             ]
             prob += pulp.lpSum(x[i] for i in opp_skill) >= (
                 stack.bring_back_min * qb_sum
@@ -522,7 +581,9 @@ def _apply_stack_rules(prob, x, players, teams, stack: StackRules) -> None:
         for dst in dsts:
             opposing_rbs = [
                 p["id"] for p in players
-                if p["pos"] == "RB" and p["team"] == dst["opp"]
+                if p["pos"] == "RB"
+                and normalized_teams[p["id"]]
+                == normalized_opponents[dst["id"]]
             ]
             for rb_id in opposing_rbs:
                 prob += x[rb_id] + x[dst["id"]] <= 1
@@ -532,7 +593,9 @@ def _apply_stack_rules(prob, x, players, teams, stack: StackRules) -> None:
         for dst in dsts:
             opposing_rbs = [
                 p["id"] for p in players
-                if p["pos"] == "RB" and p["team"] == dst["opp"]
+                if p["pos"] == "RB"
+                and normalized_teams[p["id"]]
+                == normalized_opponents[dst["id"]]
             ]
             prob += pulp.lpSum(x[rb_id] for rb_id in opposing_rbs) >= x[
                 dst["id"]
@@ -542,7 +605,9 @@ def _apply_stack_rules(prob, x, players, teams, stack: StackRules) -> None:
         rbs_by_team: dict[str, list] = {}
         for p in players:
             if p["pos"] == "RB":
-                rbs_by_team.setdefault(p["team"], []).append(p["id"])
+                rbs_by_team.setdefault(
+                    normalized_teams[p["id"]], []
+                ).append(p["id"])
         for ids in rbs_by_team.values():
             if len(ids) > 1:
                 prob += pulp.lpSum(x[i] for i in ids) <= 1
@@ -551,7 +616,9 @@ def _apply_stack_rules(prob, x, players, teams, stack: StackRules) -> None:
         rbs_by_team: dict[str, list] = {}
         for p in players:
             if p["pos"] == "RB":
-                rbs_by_team.setdefault(p["team"], []).append(p["id"])
+                rbs_by_team.setdefault(
+                    normalized_teams[p["id"]], []
+                ).append(p["id"])
         witnesses = []
         for index, (team, ids) in enumerate(sorted(rbs_by_team.items())):
             if len(ids) < 2:

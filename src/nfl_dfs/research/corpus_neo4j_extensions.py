@@ -18,6 +18,8 @@ from typing import Final
 from nfl_dfs.research.corpus_retrieval_neo4j import (
     CorpusRetrievalNeo4jError,
     Neo4jLoadPlan,
+    TASK_RESULT_SCHEMA,
+    TASK_RESULT_SCHEMA_V2,
     _bind_body,
     _exact_keys,
     _identity,
@@ -37,6 +39,32 @@ from nfl_dfs.research.corpus_retrieval_neo4j import (
 RETRIEVAL_NAMESPACE: Final = "corpus-retrieval-research"
 PARAMETRIC_NAMESPACE: Final = "corpus-parametric-research"
 POPULATION_NAMESPACE: Final = "corpus-population-research"
+ENRICHMENT_SCHEMA: Final = "corpus-retrieval-enrichment/v1"
+ENRICHMENT_SCHEMA_V2: Final = (
+    "corpus-retrieval-enrichment/v2-canonical-game"
+)
+FILL_INSIGHT_SCHEMA: Final = "corpus-retrieval-fill-insight-input/v1"
+FILL_INSIGHT_SCHEMA_V2: Final = (
+    "corpus-retrieval-fill-insight-input/v2-canonical-game"
+)
+REDUNDANCY_SCHEMA: Final = "corpus-retrieval-redundancy-topk/v1"
+SELECTION_SCHEMA: Final = "corpus-retrieval-selection/v1"
+_RETRIEVAL_ANALYTIC_SCHEMA_LAW: Final = {
+    TASK_RESULT_SCHEMA: {
+        "enrichment-discovery": (ENRICHMENT_SCHEMA, "enrichment_sha256"),
+        "enrichment-all-worlds": (ENRICHMENT_SCHEMA, "enrichment_sha256"),
+        "fill-insight": (FILL_INSIGHT_SCHEMA, "fill_insight_sha256"),
+        "redundancy-topk": (REDUNDANCY_SCHEMA, "redundancy_sha256"),
+        "strategy-selection": (SELECTION_SCHEMA, "selection_sha256"),
+    },
+    TASK_RESULT_SCHEMA_V2: {
+        "enrichment-discovery": (ENRICHMENT_SCHEMA_V2, "enrichment_sha256"),
+        "enrichment-all-worlds": (ENRICHMENT_SCHEMA_V2, "enrichment_sha256"),
+        "fill-insight": (FILL_INSIGHT_SCHEMA_V2, "fill_insight_sha256"),
+        "redundancy-topk": (REDUNDANCY_SCHEMA, "redundancy_sha256"),
+        "strategy-selection": (SELECTION_SCHEMA, "selection_sha256"),
+    },
+}
 PARAMETRIC_TASK_SCHEMA: Final = "corpus-parametric-task-result-v2"
 PARAMETRIC_COMPLETION_SCHEMA: Final = "corpus-parametric-batch-completion-v2"
 PARAMETRIC_TERMINAL_SCHEMA: Final = "corpus-legal-feasibility-task-terminal/v1"
@@ -186,20 +214,11 @@ def append_retrieval_analytics(
         if key in receipts:
             raise CorpusRetrievalNeo4jError("task sidecar keys repeat")
         receipts[key] = receipt
-    allowed = {
-        "enrichment-discovery": (
-            "corpus-retrieval-enrichment/v1", "enrichment_sha256"
-        ),
-        "enrichment-all-worlds": (
-            "corpus-retrieval-enrichment/v1", "enrichment_sha256"
-        ),
-        "redundancy-topk": (
-            "corpus-retrieval-redundancy-topk/v1", "redundancy_sha256"
-        ),
-        "strategy-selection": (
-            "corpus-retrieval-selection/v1", "selection_sha256"
-        ),
-    }
+    allowed = _RETRIEVAL_ANALYTIC_SCHEMA_LAW.get(
+        str(task_result["schema_version"])
+    )
+    if allowed is None:
+        raise CorpusRetrievalNeo4jError("task result analytic schema law differs")
     nodes: list[dict[str, object]] = []
     relationships: list[dict[str, object]] = []
     projection_id = _authority_id(plan, "CorpusGraphProjection")
@@ -263,6 +282,56 @@ def append_retrieval_analytics(
                         task_index=0,
                         slate_id=task_id,
                     ))
+        elif role == "fill-insight":
+            _exact_keys(body, {
+                "schema_version", "task_id", "knowledge_class",
+                "primary_event", "source_enrichment_object",
+                "source_enrichment_sha256", "source_analysis_scope",
+                "source_world_blocks", "heldout_worlds_used",
+                "top_supported_players", "top_supported_pairs",
+                "top_supported_tags", "top_supported_stack_signatures",
+                "top_supported_teams", "top_supported_team_pairs",
+                "top_supported_games", "interpretation", "licenses",
+                "fill_insight_sha256",
+            }, label="fill insight")
+            discovery = receipts.get(("enrichment-discovery", ""))
+            if discovery is None:
+                raise CorpusRetrievalNeo4jError(
+                    "fill insight discovery source is absent"
+                )
+            if (
+                body["task_id"] != task_id
+                or body["knowledge_class"]
+                != "retrieval-derived-observation"
+                or body["source_enrichment_object"]
+                != discovery["object_identity"]
+                or body["source_analysis_scope"] != "discovery-r0-r3"
+                or body["heldout_worlds_used"] is not False
+                or body["licenses"] != {
+                    "corpus_generation": False,
+                    "corpus_mutation": False,
+                    "live_policy_change": False,
+                }
+            ):
+                raise CorpusRetrievalNeo4jError("fill insight authority differs")
+            node = _source_node(
+                kind="CorpusFillInsight",
+                logical_id=f"retrieval-fill-insight:{task_id}",
+                run_id=run_id,
+                task_id=task_id,
+                identity=source_identity,
+                payload=body,
+                namespace=RETRIEVAL_NAMESPACE,
+                task_index=0,
+                task_index_present=True,
+                slate_id=task_id,
+                analysis_scope="discovery-r0-r3",
+            )
+            nodes.append(node)
+            relationships.append(_relationship(
+                projection_id, "HAS_FILL_INSIGHT", str(node["id"]),
+                {"role": role}, task_index=0, slate_id=task_id,
+            ))
         elif role == "redundancy-topk":
             for row in _sequence(body.get("pairs"), label="redundancy pairs"):
                 measurement = dict(_mapping(row, label="redundancy pair"))

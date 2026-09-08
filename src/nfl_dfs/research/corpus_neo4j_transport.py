@@ -37,6 +37,8 @@ from nfl_dfs.research.corpus_retrieval_neo4j import (
     CorpusRetrievalNeo4jError,
     Neo4jLoadPlan,
     SCHEMA_STATEMENTS,
+    TASK_RESULT_SCHEMA,
+    TASK_RESULT_SCHEMA_V2,
     apply_load_plan,
     build_load_plan,
     build_load_result_receipt,
@@ -92,6 +94,7 @@ _MANDATORY_ANALYTIC_ROLES: Final = (
     "enrichment-all-worlds",
     "redundancy-topk",
 )
+_CANONICAL_V3_ADDITIONAL_ANALYTIC_ROLES: Final = ("fill-insight",)
 _TASK_ACCEPTANCE_SCHEMA: Final = "corpus-parametric-task-acceptance/v1"
 _BATCH_ACCEPTANCE_SCHEMA: Final = "corpus-parametric-batch-acceptance/v1"
 _BUILD = re.compile(
@@ -1070,10 +1073,25 @@ def _mandatory_analytics(
     for ordinal, raw in enumerate(strategy_rows):
         row = _mapping(raw, label=f"strategy[{ordinal}]")
         strategy_ids.append(_string(row.get("strategy_id"), label="strategy id"))
-    if len(strategy_ids) != 4 or len(set(strategy_ids)) != 4:
+    result_schema = task_result.get("schema_version")
+    if result_schema == TASK_RESULT_SCHEMA_V2:
+        allowed_counts = {7}
+        mandatory_roles = (
+            *_MANDATORY_ANALYTIC_ROLES,
+            *_CANONICAL_V3_ADDITIONAL_ANALYTIC_ROLES,
+        )
+    elif result_schema == TASK_RESULT_SCHEMA:
+        allowed_counts = {4, 7}
+        mandatory_roles = _MANDATORY_ANALYTIC_ROLES
+    else:
+        raise CorpusNeo4jTransportError("retrieval task-result schema differs")
+    if (
+        len(strategy_ids) not in allowed_counts
+        or len(set(strategy_ids)) != len(strategy_ids)
+    ):
         raise CorpusNeo4jTransportError("retrieval strategy identity coverage differs")
     expected_keys = {
-        *((role, "") for role in _MANDATORY_ANALYTIC_ROLES),
+        *((role, "") for role in mandatory_roles),
         *(("strategy-selection", strategy_id) for strategy_id in strategy_ids),
     }
     receipts: dict[tuple[str, str], Mapping[str, object]] = {}
@@ -1126,6 +1144,15 @@ def _accepted_task0(
     analytic_identities, analytic_bodies = _mandatory_analytics(
         storage=storage, task_result=result
     )
+
+    def read_authenticated(value: Mapping[str, object]) -> bytes:
+        _, raw = _read_exact(
+            storage,
+            value,
+            label="canonical retrieval-v3 semantic evidence",
+        )
+        return raw
+
     try:
         plan = build_load_plan(
             terminal_receipt_raw=terminal_raw,
@@ -1133,6 +1160,7 @@ def _accepted_task0(
             batch_completion_raw=completion_raw,
             task_result_raw=result_raw,
             graph_projection_raw=graph_raw,
+            read_object=read_authenticated,
         )
         plan = append_retrieval_analytics(
             plan,

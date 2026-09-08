@@ -31,6 +31,12 @@ from scipy.special import ndtri
 
 from ..backtest.engine import CandidateBatch, _validate_candidate_batch
 from ..optimizer.lineup import Lineup, StackRules, optimize
+from ..optimizer.game_identity import (
+    CANONICAL_GAME_POLICY_ID,
+    canonical_game_identities,
+    canonical_game_counts,
+    normalize_team,
+)
 from .generation_exposure import (
     LEDGER_SCHEMA,
     SolveExposureLedger,
@@ -40,10 +46,12 @@ from .generation_exposure import (
 )
 
 
-VERSION: Final = "prospective-cross-law-discovery-v2"
-RECEIPT_SCHEMA: Final = "prospective-cross-law-discovery-receipt/v2"
+VERSION: Final = "prospective-cross-law-discovery-v3-canonical-game"
+RECEIPT_SCHEMA: Final = (
+    "prospective-cross-law-discovery-receipt/v3-canonical-game"
+)
 INFLUENCE_TRACE_SCHEMA: Final = (
-    "prospective-cross-law-production-influence-trace/v1"
+    "prospective-cross-law-production-influence-trace/v2-canonical-game"
 )
 EXPOSURE_SCHEMA: Final = LEDGER_SCHEMA
 FAMILY: Final = "boom:xlaw"
@@ -521,8 +529,7 @@ def _discovery_seed(
 def _validate_player_rows(
     batch: CandidateBatch,
 ) -> tuple[list[str], list[str], list[str], tuple[int, ...]]:
-    games: list[str] = []
-    teams: list[str] = []
+    rows: list[dict[str, object]] = []
     positions: list[str] = []
     dst_indices: list[int] = []
     for index, raw_row in enumerate(batch.player_rows):
@@ -547,11 +554,16 @@ def _validate_player_rows(
             dst_indices.append(index)
         elif not game:
             _fail(f"cross-law non-DST player row[{index}] lacks game_id")
-        games.append(game)
-        teams.append(team)
+        rows.append(row)
         positions.append(position)
     if not dst_indices:
         _fail("cross-law player universe lacks DST rows")
+    try:
+        identities = canonical_game_identities(rows)
+    except ValueError as exc:
+        _fail(f"cross-law player universe has invalid game identity: {exc}")
+    games = [identity.canonical_game_key for identity in identities]
+    teams = [identity.team for identity in identities]
     return games, teams, positions, tuple(dst_indices)
 
 
@@ -733,7 +745,22 @@ def _construction_audit_row(
     )
     if not expected_positions:
         violations.append("dk-position-shape")
-    teams = Counter(str(row.get("team") or "") for row in authoritative)
+    try:
+        normalized_teams = {
+            row["id"]: normalize_team(row.get("team"))
+            for row in authoritative
+        }
+        normalized_opponents = {
+            row["id"]: normalize_team(
+                row.get("opp"), label="opponent"
+            )
+            for row in authoritative
+        }
+    except ValueError:
+        normalized_teams = {}
+        normalized_opponents = {}
+        violations.append("canonical-team-identity")
+    teams = Counter(normalized_teams.values())
     if len(teams) < 2 or (teams and max(teams.values()) > 8):
         violations.append("dk-team-shape")
     salary = sum(int(row.get("salary") or 0) for row in authoritative)
@@ -744,7 +771,12 @@ def _construction_audit_row(
         str(row.get("game_id")) for row in authoritative
         if row.get("game_id")
     }
-    if len(games) < int(preset.get("min_games") or 1):
+    try:
+        canonical_games = canonical_game_counts(authoritative)
+    except ValueError:
+        canonical_games = Counter()
+        violations.append("canonical-game-identity")
+    if len(canonical_games) < int(preset.get("min_games") or 1):
         violations.append("minimum-games")
     if not locks <= set(raw_ids):
         violations.append("locks")
@@ -753,12 +785,14 @@ def _construction_audit_row(
     if len(qbs) == 1:
         qb = qbs[0]
         same_team_catchers = sum(
-            row.get("team") == qb.get("team")
+            normalized_teams.get(row.get("id"))
+            == normalized_teams.get(qb.get("id"))
             and row.get("pos") in {"WR", "TE"}
             for row in authoritative
         )
         bring_backs = sum(
-            row.get("team") == qb.get("opp")
+            normalized_teams.get(row.get("id"))
+            == normalized_opponents.get(qb.get("id"))
             and row.get("pos") in {"RB", "WR", "TE"}
             for row in authoritative
         )
@@ -780,14 +814,17 @@ def _construction_audit_row(
     selected_rbs = [row for row in authoritative if row.get("pos") == "RB"]
     selected_dsts = [row for row in authoritative if row.get("pos") == "DST"]
     has_rb_vs_dst = any(
-        rb.get("team") == dst.get("opp")
+        normalized_teams.get(rb.get("id"))
+        == normalized_opponents.get(dst.get("id"))
         for rb in selected_rbs for dst in selected_dsts
     )
     if stack.forbid_rb_vs_dst and has_rb_vs_dst:
         violations.append("forbid-rb-vs-dst")
     if stack.require_rb_vs_dst and not has_rb_vs_dst:
         violations.append("require-rb-vs-dst")
-    rb_teams = Counter(str(row.get("team") or "") for row in selected_rbs)
+    rb_teams = Counter(
+        normalized_teams.get(row.get("id")) for row in selected_rbs
+    )
     has_same_team_rbs = bool(rb_teams) and max(rb_teams.values()) >= 2
     if stack.forbid_two_rb_same_team and has_same_team_rbs:
         violations.append("forbid-two-rb-same-team")
@@ -847,11 +884,7 @@ def _construction_audit_row(
             violations.append("own-barbell-high")
     max_per_game = int(preset.get("max_per_game") or 0)
     if max_per_game:
-        game_counts = Counter(
-            str(row.get("game_id")) for row in authoritative
-            if row.get("game_id")
-        )
-        if game_counts and max(game_counts.values()) > max_per_game:
+        if canonical_games and max(canonical_games.values()) > max_per_game:
             violations.append("max-per-game")
     min_lowown = int(preset.get("min_lowown") or 0)
     if min_lowown:
@@ -871,6 +904,11 @@ def _construction_audit_row(
         "position_counts": dict(sorted(positions.items())),
         "team_count": len(teams),
         "game_count": len(games),
+        "canonical_game_count": len(canonical_games),
+        "canonical_max_players_same_game": (
+            max(canonical_games.values()) if canonical_games else 0
+        ),
+        "canonical_game_policy_id": CANONICAL_GAME_POLICY_ID,
         "dk_legality_pass": True,
         "salary_pass": True,
         "stack_rules_pass": True,

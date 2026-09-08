@@ -65,6 +65,36 @@ _OUTCOME_INPUT_COLUMNS = frozenset({
 })
 
 
+def _canonical_simulation_units(
+    skill: pd.DataFrame,
+) -> tuple[pd.Series, pd.Series]:
+    """Return semantic game/team factors while retaining raw IDs elsewhere."""
+
+    from ..optimizer.game_identity import canonical_game_identities
+
+    rows = []
+    for row in skill.to_dict("records"):
+        rows.append({
+            "id": row.get("dk_player_id"),
+            "team": row.get("team", row.get("team_abbr")),
+            "opp": row.get("opponent", row.get("opp")),
+            "game_id": row.get("game_id"),
+        })
+    identities = canonical_game_identities(rows)
+    return (
+        pd.Series(
+            [identity.canonical_game_key for identity in identities],
+            index=skill.index,
+            dtype="object",
+        ),
+        pd.Series(
+            [identity.team for identity in identities],
+            index=skill.index,
+            dtype="object",
+        ),
+    )
+
+
 def _canonical_input_cell(value: object) -> object:
     """Return a stable JSON scalar for a score-blind player-input hash."""
     if isinstance(value, np.generic):
@@ -102,6 +132,88 @@ def _canonical_input_cell(value: object) -> object:
     return [type(value).__name__, normalized]
 
 
+def _paid_matrix_identity_v3(value: object) -> dict[str, object]:
+    """Describe exact in-memory matrix bytes without retaining the matrix."""
+
+    array = np.ascontiguousarray(np.asarray(value))
+    if array.ndim != 2 or not np.isfinite(array).all():
+        raise ValueError("paid-v3 world matrix must be finite and two-dimensional")
+    return {
+        "shape": [int(array.shape[0]), int(array.shape[1])],
+        "dtype": array.dtype.str,
+        "sha256": hashlib.sha256(array.tobytes(order="C")).hexdigest(),
+    }
+
+
+def _paid_roster_order_v3(lineups: object) -> list[list[int]]:
+    rows: list[list[int]] = []
+    for lineup in lineups:
+        roster = sorted(int(player["id"]) for player in lineup.players)
+        if len(roster) != 9 or len(set(roster)) != 9:
+            raise ValueError("paid-v3 world binding found a malformed roster")
+        rows.append(roster)
+    if len(rows) != len({tuple(row) for row in rows}):
+        raise ValueError("paid-v3 world binding found duplicate rosters")
+    return rows
+
+
+def _paid_world_binding_v3(
+    native_books: dict[str, object],
+    combined: object,
+    parsed_seeds: list[tuple[str, int, int]],
+    selected: object,
+) -> dict[str, object]:
+    """Bind every native/combined matrix and the selector's actual order."""
+
+    native_blocks: list[dict[str, object]] = []
+    for label, projection_seed, role_seed in parsed_seeds:
+        batch = native_books[label]
+        native_blocks.append({
+            "seed_identity": {
+                "label": label,
+                "projection_seed": int(projection_seed),
+                "role_seed": int(role_seed),
+            },
+            "player_ids": [int(value) for value in batch.player_ids],
+            "ordered_candidate_player_ids": _paid_roster_order_v3(
+                batch.candidates
+            ),
+            "candidate_totals": _paid_matrix_identity_v3(
+                batch.candidate_totals
+            ),
+            "row_draws": _paid_matrix_identity_v3(batch.row_draws),
+        })
+    combined_rosters = _paid_roster_order_v3(combined.candidates)
+    index_by_roster = {
+        tuple(roster): index for index, roster in enumerate(combined_rosters)
+    }
+    selected_rosters = _paid_roster_order_v3(selected)
+    try:
+        selected_indices = [
+            int(index_by_roster[tuple(roster)]) for roster in selected_rosters
+        ]
+    except KeyError as exc:
+        raise ValueError(
+            "paid-v3 selected roster is absent from the combined candidate order"
+        ) from exc
+    return {
+        "schema_version": "paid-classic-world-binding/v2",
+        "mode": "simulation",
+        "native_blocks": native_blocks,
+        "combined": {
+            "world_block_order": [label for label, _, _ in parsed_seeds],
+            "player_ids": [int(value) for value in combined.player_ids],
+            "ordered_candidate_player_ids": combined_rosters,
+            "candidate_totals": _paid_matrix_identity_v3(
+                combined.candidate_totals
+            ),
+            "row_draws": _paid_matrix_identity_v3(combined.row_draws),
+        },
+        "selected_indices": selected_indices,
+        "selected_roster_player_ids": selected_rosters,
+    }
+
+
 def _score_blind_player_input_receipt(frame: pd.DataFrame) -> dict[str, object]:
     """Hash every non-outcome player input in its effective row order."""
     outcome_columns = sorted(
@@ -131,6 +243,45 @@ def _score_blind_player_input_receipt(frame: pd.DataFrame) -> dict[str, object]:
         "rows": len(frame),
         "columns": columns,
     }
+
+
+def _loaded_model_artifact_receipt(
+    model: object, model_version: object,
+) -> dict[str, object]:
+    """Hash the exact in-memory boosters that produced this invocation."""
+
+    component_models = getattr(model, "models", None)
+    if not isinstance(component_models, dict) or not component_models:
+        raise RuntimeError("paid-v3 cannot identify the loaded component models")
+    components: list[dict[str, object]] = []
+    for name in sorted(component_models):
+        wrapper = component_models[name]
+        members = list(getattr(wrapper, "members", None) or [wrapper])
+        member_hashes: list[str] = []
+        for member in members:
+            serializer = getattr(member, "model_to_string", None)
+            if not callable(serializer):
+                raise TypeError(
+                    f"paid-v3 cannot fingerprint loaded model {name}"
+                )
+            encoded = str(serializer()).encode("utf-8")
+            member_hashes.append(hashlib.sha256(encoded).hexdigest())
+        components.append({
+            "component": str(name),
+            "member_count": len(members),
+            "member_sha256": member_hashes,
+        })
+    identity: dict[str, object] = {
+        "schema_version": "loaded-component-model-artifacts/v1",
+        "model_version": str(model_version or ""),
+        "components": components,
+    }
+    if not identity["model_version"]:
+        raise RuntimeError("paid-v3 loaded model version is empty")
+    identity["artifact_sha256"] = hashlib.sha256(json.dumps(
+        identity, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")).hexdigest()
+    return identity
 
 
 def _apply_live_inactive_policy(
@@ -234,6 +385,8 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                            forbidden_model_features: tuple[str, ...] = (),
                            route_source_policy: bool = False,
                            log_ownership_shadow: bool = True,
+                           projection_authority: dict[int, float] | None = None,
+                           projection_authority_receipt: object | None = None,
                            ) -> tuple[pd.DataFrame, np.ndarray]:
     """Engine-ready slate frame + aligned draw matrix for the live week."""
     from ..backtest.field import naive_ownership
@@ -258,6 +411,40 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     import os as _os
 
     runtime_env = _os.environ if policy_env is None else policy_env
+    if (projection_authority is None) != (projection_authority_receipt is None):
+        raise ValueError(
+            "projection authority and its derivation receipt are all-or-none"
+        )
+    if projection_authority_receipt is not None:
+        from ..optimizer.paid_classic_book_v3 import (
+            PaidClassicProjectionAuthorityV3,
+        )
+
+        if not isinstance(
+            projection_authority_receipt, PaidClassicProjectionAuthorityV3
+        ):
+            raise ValueError(
+                "paid projection authority receipt was not catalog-produced"
+            )
+    certified_projection: dict[int, float] | None = None
+    if projection_authority is not None:
+        certified_projection = {}
+        for raw_id, raw_value in projection_authority.items():
+            player_id = int(raw_id)
+            value = float(raw_value)
+            if player_id <= 0 or not np.isfinite(value):
+                raise ValueError("certified projection authority is invalid")
+            if player_id in certified_projection:
+                raise ValueError("certified projection authority repeats a player")
+            certified_projection[player_id] = value
+        if not certified_projection:
+            raise ValueError("certified projection authority is empty")
+        if allowed_ids is not None and not set(allowed_ids) <= set(
+            certified_projection
+        ):
+            raise ValueError(
+                "allowed player IDs exceed the certified projection batch"
+            )
 
     if n_sims is None:
         n_sims = int(runtime_env.get("LIVE_SIMS", LIVE_SIMS_DEFAULT))
@@ -275,6 +462,10 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
             raise RuntimeError(
                 f"registry variant {model_variant} contains K={loaded_k}, "
                 f"but MODEL_ENSEMBLE={expected_k}")
+    model_artifact_receipt = (
+        _loaded_model_artifact_receipt(model, version)
+        if projection_authority_receipt is not None else {}
+    )
     if required_model_features or forbidden_model_features:
         from .route_share_shadow import validate_component_feature_contract
 
@@ -289,11 +480,24 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
         .reset_index(drop=True)
     skill = coldstart.fill_cold_start_features(skill)
     skill, _ = _apply_live_inactive_policy(skill, season)
+    if certified_projection is not None:
+        skill = skill[
+            skill.dk_player_id.astype(int).isin(certified_projection)
+        ].reset_index(drop=True)
     if route_source_policy:
         from .route_share_shadow import apply_live_route_policy
 
         skill = apply_live_route_policy(skill, season, week)
+    # This is the exact row/column/value frame handed to the loaded component
+    # family. Keep it distinct from the later candidate-input receipt: the
+    # latter includes modeled outputs and selection features, while this one
+    # proves which point-in-time inputs the fitted artifacts actually saw.
+    model_feature_input_receipt = (
+        _score_blind_player_input_receipt(skill)
+        if projection_authority_receipt is not None else {}
+    )
     comps = model.predict_components(skill)
+    component_notes_before = _score_blind_player_input_receipt(comps)
     if apply_notes:
         # Multiplier notes (chat-converted opportunity scalers). Gated by
         # the same "My notes" toggle as boost/ban prefs (2026-08-04) —
@@ -301,16 +505,25 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
         # projections (run_projections) bake these in; only this live
         # recompute honors the toggle fully.
         comps = manual_notes.apply_notes(comps, skill, season, week)
+    component_notes_after = _score_blind_player_input_receipt(comps)
+    component_notes_receipt = {
+        "state": "enabled" if apply_notes else "disabled",
+        "before_sha256": component_notes_before["sha256"],
+        "effective_sha256": component_notes_after["sha256"],
+        "changed": component_notes_before["sha256"]
+        != component_notes_after["sha256"],
+    }
     from ..research import sis_asoe_final_served as asoe_module
 
     asoe_enabled = asoe_module.treatment_enabled(runtime_env)
+    simulation_game_ids, simulation_team_ids = _canonical_simulation_units(skill)
     sim = simulate.simulate(
         comps,
         n_sims=n_sims,
         seed=seed,
         keep_draws=True,
-        game_ids=skill.get("game_id"),
-        team_ids=skill.get("team"),
+        game_ids=simulation_game_ids,
+        team_ids=simulation_team_ids,
         game_totals=skill.get("game_total"),
         keep_target_receiving=asoe_enabled,
         env=runtime_env,
@@ -323,8 +536,8 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
             comps,
             n_sims=n_sims,
             seed=seed,
-            game_ids=skill.get("game_id"),
-            team_ids=skill.get("team"),
+            game_ids=simulation_game_ids,
+            team_ids=simulation_team_ids,
             game_totals=skill.get("game_total"),
             target_allocation_multipliers=multipliers,
             keep_target_receiving=True,
@@ -386,6 +599,20 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     draws = apply_served_tail_scale(draws, skill.position, env=runtime_env)
     draws = apply_served_position_scales(
         draws, skill.position, env=runtime_env)
+    if certified_projection is not None:
+        authority_means = skill.dk_player_id.astype(int).map(
+            certified_projection
+        )
+        if authority_means.isna().any():
+            raise ValueError(
+                "simulator player is absent from certified projection batch"
+            )
+        # The distribution shape, seed, correlations, and tournament tilts
+        # remain the bound transform.  Its only base mean authority is the
+        # one coherent point-in-time batch certified by paid-v3.
+        draws = shift_draws_to_means(
+            draws, authority_means.to_numpy(dtype=float)
+        )
 
     frame = pd.DataFrame({
         "id": skill.dk_player_id.astype(int),
@@ -428,6 +655,13 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
 
         dst = project_dst(season, week, model_version=version)
         if not dst.empty:
+            if certified_projection is not None:
+                dst = dst[
+                    dst.dk_player_id.astype(int).isin(certified_projection)
+                ].copy()
+                dst["proj_points"] = dst.dk_player_id.astype(int).map(
+                    certified_projection
+                )
             d = pd.DataFrame({
                 "id": dst.dk_player_id.astype(int),
                 "gsis_id": "", "name": dst.display_name,
@@ -515,6 +749,11 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     frame["low_own"] = (own * frame.pos.map(slots).fillna(1.0)
                         .to_numpy()) < 0.05
     frame.attrs["model_version"] = version
+    frame.attrs["model_artifact_receipt"] = model_artifact_receipt
+    frame.attrs["model_feature_input_receipt"] = model_feature_input_receipt
+    frame.attrs["component_notes_receipt"] = component_notes_receipt
+    if projection_authority_receipt is not None:
+        frame.attrs["paid_projection_authority"] = projection_authority_receipt
     return frame, draws
 
 
@@ -550,7 +789,11 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                       _latent_scenario_receipt=None,
                       _latent_scenario_factory=None,
                       _multiseed_inner: bool = False,
-                      _log_ownership_shadow: bool = True) -> list:
+                      _log_ownership_shadow: bool = True,
+                      projection_authority: dict[int, float] | None = None,
+                      projection_authority_receipt: object | None = None,
+                      paid_request_inputs: dict[str, object] | None = None,
+                      ) -> object:
     """Full validated pipeline on the live slate -> selected entries in
     coverage order (first = broadest boom coverage).
 
@@ -568,6 +811,14 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
     }
     if portfolio and portfolio not in multiseed_portfolios:
         raise ValueError(f"unknown MULTISEED_PORTFOLIO={portfolio!r}")
+    if (
+        projection_authority_receipt is not None
+        and not _multiseed_inner
+        and portfolio != "CBWU"
+    ):
+        raise ValueError(
+            "paid-v3 simulation requires the exact production CBWU portfolio"
+        )
     if portfolio in multiseed_portfolios and not _multiseed_inner:
         if _candidate_transform is not None:
             raise ValueError("outer CBWU build cannot accept a candidate transform")
@@ -700,6 +951,9 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                 belief_required_features=belief_required_features,
                 belief_forbidden_features=belief_forbidden_features,
                 route_source_policy=route_source_policy,
+                projection_authority=projection_authority,
+                projection_authority_receipt=projection_authority_receipt,
+                paid_request_inputs=paid_request_inputs,
                 _candidate_capture=(
                     holder.append if effective_transform is None else None
                 ),
@@ -723,6 +977,9 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
         # persisted; the final R0 call runs only after all four succeeded.
         for label, projection_seed, role_seed in parsed[1:]:
             _run_seed(label, projection_seed, role_seed)
+
+        completed_combination = []
+        completed_native_books: list[dict[str, object]] = []
 
         def _combine(r0_batch):
             books = {"R0": r0_batch, **captured}
@@ -857,13 +1114,139 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                     )
             if _candidate_capture is not None:
                 _candidate_capture(combined)
+            completed_native_books.append(dict(books))
+            completed_combination.append(combined)
             return combined
 
         label, projection_seed, role_seed = parsed[0]
-        return _run_seed(
+        selected = _run_seed(
             label, projection_seed, role_seed,
             transform=_combine, persist=True)
+        if projection_authority_receipt is not None:
+            if (
+                len(completed_combination) != 1
+                or len(completed_native_books) != 1
+            ):
+                raise RuntimeError(
+                    "paid-v3 engine did not retain one completed CBWU world set"
+                )
+            combined = completed_combination[0]
+            native_books = completed_native_books[0]
+            native = combined.metadata.get("native_generation_receipts")
+            if not isinstance(native, dict):
+                raise RuntimeError(
+                    "paid-v3 engine lacks native generation receipts"
+                )
+            from ..optimizer.paid_classic_book_v3 import (
+                _issue_paid_classic_engine_receipt_v3,
+                _seal_paid_classic_engine_result_v3,
+            )
 
+            model_artifacts = {
+                name: {
+                    "projection": dict(
+                        native[name].get("model_artifact_receipt") or {}
+                    ),
+                    "role": dict(
+                        native[name].get("role_model_artifact_receipt") or {}
+                    ),
+                }
+                for name in labels
+            }
+            feature_snapshots = {
+                name: {
+                    "projection": dict(
+                        native[name].get("model_feature_input_receipt") or {}
+                    ),
+                    "role": dict(
+                        native[name].get(
+                            "role_model_feature_input_receipt"
+                        ) or {}
+                    ),
+                }
+                for name in labels
+            }
+            notes_preferences = {
+                name: {
+                    "projection_component_notes": dict(
+                        native[name].get("component_notes_receipt") or {}
+                    ),
+                    "role_component_notes": dict(
+                        native[name].get("role_component_notes_receipt") or {}
+                    ),
+                    "preferences": dict(
+                        native[name].get("preference_receipt") or {}
+                    ),
+                }
+                for name in labels
+            }
+            normalized_theses = json.loads(json.dumps(
+                list(theses or ()), sort_keys=True, default=str
+            ))
+            allowed = sorted(int(value) for value in (allowed_ids or ()))
+            salary_items = sorted(
+                (int(key), int(value))
+                for key, value in (salary_overrides or {}).items()
+            )
+            observed_request = {
+                **dict(paid_request_inputs or {}),
+                "season": int(season),
+                "week": int(week),
+                "n_entries": int(n_entries),
+                "tail_line": float(tail_line),
+                "leverage_scale": float(lev_scale),
+                "apply_notes": bool(apply_notes),
+                "allowed_player_ids_sha256": hashlib.sha256(json.dumps(
+                    allowed, separators=(",", ":")
+                ).encode("utf-8")).hexdigest(),
+                "allowed_player_count": len(allowed),
+                "salary_overrides_sha256": hashlib.sha256(json.dumps(
+                    salary_items, separators=(",", ":")
+                ).encode("utf-8")).hexdigest(),
+                "salary_override_count": len(salary_items),
+            }
+            engine_receipt = _issue_paid_classic_engine_receipt_v3(
+                projection_authority_receipt,
+                mode="simulation",
+                lineups=selected,
+                seed_pairs=[
+                    {
+                        "label": name,
+                        "projection_seed": int(projection_seed),
+                        "role_seed": int(role_seed),
+                    }
+                    for name, projection_seed, role_seed in parsed
+                ],
+                worlds_per_block=int(worlds_per_block),
+                selection_world_count=int(combined.row_draws.shape[1]),
+                model_artifacts=model_artifacts,
+                feature_snapshots=feature_snapshots,
+                notes_preferences=notes_preferences,
+                locks=sorted(int(value) for value in (locks or ())),
+                bans=sorted(int(value) for value in (bans or ())),
+                theses=normalized_theses,
+                construction_policy=dict(construction_preset_receipt or {}),
+                request_inputs=observed_request,
+                policy_environment=dict(runtime_env),
+                world_binding=_paid_world_binding_v3(
+                    native_books, combined, parsed, selected
+                ),
+            )
+            engine_result = _seal_paid_classic_engine_result_v3(
+                selected, engine_receipt
+            )
+            for lineup in selected:
+                lineup.paid_projection_derivation_receipt = engine_receipt
+            return selected, engine_result
+        return selected
+
+    authority_kwargs = (
+        {
+            "projection_authority": projection_authority,
+            "projection_authority_receipt": projection_authority_receipt,
+        }
+        if projection_authority is not None else {}
+    )
     slate, draws = build_slate_with_draws(
         season, week, n_sims=n_sims, seed=seed, lev_scale=lev_scale,
         apply_notes=apply_notes, model_variant=model_variant,
@@ -872,8 +1255,18 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
         required_model_features=model_required_features,
         forbidden_model_features=model_forbidden_features,
         route_source_policy=route_source_policy,
-        log_ownership_shadow=_log_ownership_shadow)
+        log_ownership_shadow=_log_ownership_shadow,
+        **authority_kwargs)
     model_version = slate.attrs.get("model_version")
+    model_artifact_receipt = dict(
+        slate.attrs.get("model_artifact_receipt") or {}
+    )
+    model_feature_input_receipt = dict(
+        slate.attrs.get("model_feature_input_receipt") or {}
+    )
+    component_notes_receipt = dict(
+        slate.attrs.get("component_notes_receipt") or {}
+    )
     wants_role = (
         int(runtime_env.get("N_EPISTEMIC", "0") or 0) > 0
         and runtime_env.get("EPISTEMIC_FAMILY") == "role_draws"
@@ -908,6 +1301,9 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
     belief_slate = None
     belief_draws = None
     role_model_version = None
+    role_model_artifact_receipt: dict[str, object] = {}
+    role_model_feature_input_receipt: dict[str, object] = {}
+    role_component_notes_receipt: dict[str, object] = {}
     if wants_role:
         if not belief_model_variant:
             raise RoleBeliefUnavailable(
@@ -923,8 +1319,18 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                 required_model_features=belief_required_features,
                 forbidden_model_features=belief_forbidden_features,
                 route_source_policy=route_source_policy,
-                log_ownership_shadow=False)
+                log_ownership_shadow=False,
+                **authority_kwargs)
             role_model_version = belief_slate.attrs.get("model_version")
+            role_model_artifact_receipt = dict(
+                belief_slate.attrs.get("model_artifact_receipt") or {}
+            )
+            role_model_feature_input_receipt = dict(
+                belief_slate.attrs.get("model_feature_input_receipt") or {}
+            )
+            role_component_notes_receipt = dict(
+                belief_slate.attrs.get("component_notes_receipt") or {}
+            )
         except Exception as exc:
             raise RoleBeliefUnavailable(
                 f"alternate role model {belief_model_variant} unavailable: "
@@ -937,6 +1343,12 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
         slate = slate[~slate.id.isin(bans)]
         if belief_slate is not None:
             belief_slate = belief_slate[~belief_slate.id.isin(bans)]
+    preference_receipt: dict[str, object] = {
+        "state": "disabled",
+        "source_rows_sha256": None,
+        "applied_ban_player_ids": [],
+        "applied_boost_player_ids": [],
+    }
     if apply_notes:
         # Converted watch-notes (boost/ban prefs) applied INSIDE the sim
         # path (2026-08-04 — previously MILP-only, so the default build
@@ -947,13 +1359,37 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
 
             p = query_df(f"SELECT norm, kind FROM `{_prefs_table()}` WHERE "
                          f"season={int(season)} AND week={int(week)}")
+            preference_source = sorted(
+                (
+                    {"norm": str(row.norm), "kind": str(row.kind)}
+                    for row in p[["norm", "kind"]].itertuples(index=False)
+                ),
+                key=lambda row: (row["norm"], row["kind"]),
+            )
+            preference_receipt = {
+                "state": "enabled",
+                "source_rows_sha256": hashlib.sha256(json.dumps(
+                    preference_source,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode("utf-8")).hexdigest(),
+                "applied_ban_player_ids": [],
+                "applied_boost_player_ids": [],
+            }
             if not p.empty:
                 nb = set(p[p.kind == "ban"].norm)
                 bo = set(p[p.kind == "boost"].norm)
                 norms = slate.name.map(norm_name)
                 drop = norms.isin(nb) & ~slate.id.isin(locks or set())
+                applied_bans = sorted(
+                    int(value) for value in slate.loc[drop, "id"]
+                )
                 slate = slate[~drop]
                 bmask = slate.name.map(norm_name).isin(bo)
+                preference_receipt["applied_ban_player_ids"] = applied_bans
+                preference_receipt["applied_boost_player_ids"] = sorted(
+                    int(value) for value in slate.loc[bmask, "id"]
+                )
                 slate.loc[bmask, "proj_tourney"] += BOOST_BONUS
                 if belief_slate is not None:
                     belief_norms = belief_slate.name.map(norm_name)
@@ -966,8 +1402,20 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                         belief_boost, "proj_tourney"] += BOOST_BONUS
                 log.info("notes applied in sim path: %d banned, %d boosted",
                          int(drop.sum()), int(bmask.sum()))
-        except Exception:
+        except Exception as exc:
+            preference_receipt = {
+                "state": "enabled-source-unavailable",
+                "error_type": type(exc).__name__,
+                "source_rows_sha256": None,
+                "applied_ban_player_ids": [],
+                "applied_boost_player_ids": [],
+            }
             log.exception("note prefs unavailable; building without them")
+            if projection_authority_receipt is not None:
+                raise RuntimeError(
+                    "paid-v3 requested notes/preferences, but the preference "
+                    "authority was unavailable"
+                ) from exc
     slate = slate.reset_index(drop=True)
     if belief_slate is not None:
         belief_slate = belief_slate.reset_index(drop=True)
@@ -985,6 +1433,17 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
             raise ValueError(f"locked players not in slate: {sorted(missing)}")
     slate.attrs["model_version"] = str(model_version or "")
     slate.attrs["role_model_version"] = str(role_model_version or "")
+    slate.attrs["model_artifact_receipt"] = model_artifact_receipt
+    slate.attrs["role_model_artifact_receipt"] = role_model_artifact_receipt
+    slate.attrs["model_feature_input_receipt"] = model_feature_input_receipt
+    slate.attrs["role_model_feature_input_receipt"] = (
+        role_model_feature_input_receipt
+    )
+    slate.attrs["component_notes_receipt"] = component_notes_receipt
+    slate.attrs["role_component_notes_receipt"] = (
+        role_component_notes_receipt
+    )
+    slate.attrs["preference_receipt"] = preference_receipt
     slate.attrs["candidate_input_receipt"] = (
         _score_blind_player_input_receipt(slate)
     )

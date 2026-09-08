@@ -38,6 +38,8 @@ def test_aggregates_are_deterministic_and_structural():
     assert f["stack_mates"] == 2          # WR1 + TE1 with the QB
     assert f["bring_back"] == 1           # WR2 from the opponent
     assert f["max_from_game"] == 4 and f["n_games"] == 2
+    assert f["canonical_max_from_game"] == 4
+    assert f["canonical_n_games"] == 2
     assert f["own_n_low"] == 2 and f["own_n_high"] == 2
     assert f["div_abs_sum"] == 5.4
     assert f["div_qb"] == 1.2

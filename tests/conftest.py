@@ -30,8 +30,9 @@ def synthetic_panel(n_players=120, seasons=range(2018, 2025), seed=11) -> pd.Dat
                 rows.append({
                     "gsis_id": f"00-{p:07d}",
                     "season": season, "week": week,
-                    "team": f"T{p % 32}", "opponent": f"T{(p + 7) % 32}",
-                    "game_id": f"{season}_{week:02d}_T{p % 32}",
+                    "team": f"T{p % 32}",
+                    "opponent": f"T{(p % 32) ^ 1}",
+                    "game_id": f"{season}_{week:02d}_G{(p % 32) // 2}",
                     "position": pos,
                     "target_share_l4": usage if pos in ("WR", "TE") else usage / 3,
                     "carry_share_l4": usage if pos == "RB" else usage / 5,

@@ -1,17 +1,18 @@
 from __future__ import annotations
 
+import importlib.util
+import re
 from copy import deepcopy
 from hashlib import sha256
 from pathlib import Path
-import re
 from typing import Any
 
 import pytest
 
-from nfl_dfs.research import corpus_retrieval_neo4j as projection
 from nfl_dfs.research import corpus_neo4j_extensions as extensions
+from nfl_dfs.research import corpus_retrieval_neo4j as projection
 from scripts import load_corpus_retrieval_neo4j as cli
-
+from scripts import run_corpus_retrieval_transport as transport_producer
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -38,7 +39,7 @@ def _placeholder_identity(name: str, generation: int) -> dict[str, object]:
 
 def _bundle(
     *, completion_complete: bool = True, result_production_license: bool = False,
-    analytics: bool = False,
+    analytics: bool = False, evidence_v2: bool = False,
 ) -> dict[str, Any]:
     manifest_raw = b"fixture-manifest"
     suite_identity = _identity(
@@ -227,7 +228,9 @@ def _bundle(
         "properties": {},
     }]
     graph = _self_hash({
-        "schema_version": projection.GRAPH_SCHEMA,
+        "schema_version": (
+            projection.GRAPH_SCHEMA_V2 if evidence_v2 else projection.GRAPH_SCHEMA
+        ),
         "dedicated_analytical_graph_only": True,
         "authoritative_source": "create-once-sidecars-and-task-result",
         "large_bodies_are_pointers": True,
@@ -258,7 +261,10 @@ def _bundle(
     })
 
     task_result = _self_hash({
-        "schema_version": projection.TASK_RESULT_SCHEMA,
+        "schema_version": (
+            projection.TASK_RESULT_SCHEMA_V2
+            if evidence_v2 else projection.TASK_RESULT_SCHEMA
+        ),
         "publication_mode": "create_once",
         "suite_manifest_identity": suite_identity,
         "suite_manifest_sha256": "b" * 64,
@@ -316,13 +322,17 @@ def _bundle(
     }, "task_result_sha256")
     task_result_raw = projection.canonical_json_bytes(task_result)
     task_result_identity = _identity(
-        "gs://dedicated-research/run/tasks/0000/result.json",
+        "gs://dedicated-research/run/tasks/0000/"
+        + ("result-v2.json" if evidence_v2 else "result.json"),
         ordinal + 1,
         task_result_raw,
     )
 
     completion = _self_hash({
-        "schema_version": projection.COMPLETION_SCHEMA,
+        "schema_version": (
+            projection.COMPLETION_SCHEMA_V2
+            if evidence_v2 else projection.COMPLETION_SCHEMA
+        ),
         "publication_mode": "create_once",
         "suite_manifest_identity": suite_identity,
         "suite_manifest_sha256": "b" * 64,
@@ -427,13 +437,541 @@ def _bundle(
 
 
 def _plan(bundle: dict[str, Any]) -> projection.Neo4jLoadPlan:
-    return projection.build_load_plan(**{
+    values = {
         key: bundle[key]
         for key in (
             "terminal_receipt_raw", "terminal_receipt_identity",
             "batch_completion_raw", "task_result_raw", "graph_projection_raw",
         )
+    }
+    if "read_object" in bundle:
+        values["read_object"] = bundle["read_object"]
+    return projection.build_load_plan(**values)
+
+
+def _canonical_v3_bundle() -> dict[str, Any]:
+    """Build genuine v3 evidence and its retained transport governance."""
+
+    from nfl_dfs.research import corpus_retrieval_engine_v3 as engine_v3
+
+    source = ROOT / "tests/test_corpus_retrieval_engine.py"
+    spec = importlib.util.spec_from_file_location(
+        "_neo4j_canonical_v3_fixture_source", source
+    )
+    assert spec is not None and spec.loader is not None
+    fixtures = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(fixtures)
+    fixtures.retrieval = engine_v3
+    build_id = "12345678-abcd-abcd-abcd-123456789abc"
+    code_sha = "b" * 40
+    image = (
+        "us-central1-docker.pkg.dev/nfl-predictions-503414/"
+        "nfl-dfs/nfl-dfs@sha256:" + "a" * 64
+    )
+    execution_id = f"{transport_producer.PARKED_JOB}-abcde"
+    execution_name = (
+        f"projects/{transport_producer.PROJECT}/locations/"
+        f"{transport_producer.REGION}/jobs/{transport_producer.PARKED_JOB}/"
+        f"executions/{execution_id}"
+    )
+    run = fixtures._build_completed_run(
+        suite_schema=engine_v3.SUITE_SCHEMA_V3,
+        strategies=engine_v3.frozen_retrieval_strategies_v2(80),
+        run_id="fixture-neo4j-retrieval-v3",
+        input_prefix="gs://fixture/input/canonical-v3/",
+        engine_release={
+            "engine_version": "corpus-retrieval-engine-v1",
+            "code_repository": transport_producer.EXPECTED_CODE_REPOSITORY,
+            "code_commit": code_sha,
+            "image_uri": image,
+            "image_digest": image.rsplit("@", 1)[1],
+        },
+        execution={
+            "execution_id": execution_id,
+            "execution_name": execution_name,
+            "task_index": 0,
+            "attempt": 0,
+            "retry_count": 0,
+            "mode": "cloud-run-task",
+            "code_commit": code_sha,
+            "image_uri": image,
+            "image_digest": image.rsplit("@", 1)[1],
+        },
+    )
+    store = run["store"]
+    authority = run["published"]["authority"]
+    task_result_raw = engine_v3.canonical_json_bytes(authority)
+    task_result_identity = run["published"]["object_identity"]
+    completion = engine_v3.build_retrieval_batch_completion(
+        suite_manifest=run["suite"],
+        suite_manifest_identity=run["suite_identity"],
+        snapshot_manifest=run["snapshot"],
+        snapshot_manifest_identity=run["snapshot_identity"],
+        published_results=[run["published"]],
+        read_object=store.read,
+    )
+    completion_raw = engine_v3.canonical_json_bytes(completion)
+    producer_paths = transport_producer._preflight_paths({
+        "output_prefix": run["suite"]["output_prefix"],
+        "task_index": authority["task_index"],
     })
+    completion_identity = store.add(
+        producer_paths["completion_uri"], completion_raw
+    )
+    graph_receipt = next(
+        row for row in authority["sidecars"] if row["role"] == "graph-projection"
+    )
+    graph_identity = graph_receipt["object_identity"]
+    graph_raw = store.read(graph_identity)
+    snapshot_task = run["snapshot"]["tasks"][0]
+    required_read_uris = transport_producer._task_required_read_uris(
+        suite_identity=transport_producer.ObjectIdentity(**run["suite_identity"]),
+        snapshot_identity=transport_producer.ObjectIdentity(
+            **run["snapshot_identity"]
+        ),
+        snapshot=run["snapshot"],
+        task_index=0,
+        candidate_rows_raw=store.read(snapshot_task["candidate_rows_object"]),
+        player_catalog_raw=store.read(snapshot_task["player_catalog_object"]),
+        core=engine_v3,
+    )
+    service_account = (
+        "corpus-retrieval-runtime@nfl-predictions-503414."
+        "iam.gserviceaccount.com"
+    )
+    read_prefixes = [
+        "gs://fixture/input/canonical-v3/",
+        run["suite"]["output_prefix"],
+    ]
+    member = f"serviceAccount:{service_account}"
+    viewer_targets = [
+        transport_producer._resource_prefix(prefix)
+        for prefix in read_prefixes
+    ]
+    iam = transport_producer.build_runtime_iam_evidence(
+        captured_at_utc="2026-09-07T11:55:00Z",
+        service_account=service_account,
+        read_prefixes=read_prefixes,
+        output_prefix=run["suite"]["output_prefix"],
+        project_policy={"bindings": []},
+        bucket_policies=[{
+            "bucket": "fixture",
+            "policy": {"bindings": [
+                {
+                    "role": "roles/storage.objectViewer",
+                    "members": [member],
+                    "condition": {
+                        "title": "corpus-retrieval-read-v1",
+                        "expression": " || ".join(
+                            f'resource.name.startsWith("{target}")'
+                            for target in viewer_targets
+                        ),
+                    },
+                },
+                {
+                    "role": "roles/storage.objectCreator",
+                    "members": [member],
+                    "condition": {
+                        "title": "corpus-retrieval-create-v1",
+                        "expression": (
+                            'resource.name.startsWith("'
+                            + transport_producer._resource_prefix(
+                                run["suite"]["output_prefix"]
+                            )
+                            + '")'
+                        ),
+                    },
+                },
+            ]},
+        }],
+        required_read_uris=required_read_uris,
+        bucket_metadata={
+            "name": "fixture",
+            "iamConfiguration": {
+                "uniformBucketLevelAccess": {"enabled": True},
+                "publicAccessPrevention": "enforced",
+            },
+        },
+    )
+    iam_raw = transport_producer.canonical_json_bytes(iam)
+    iam_identity = store.add(
+        producer_paths["runtime_iam_evidence_uri"], iam_raw
+    )
+    prior_job = {
+        "name": transport_producer.PARKED_JOB,
+        "uid": "fixture-job-uid",
+        "generation": "7",
+        "observed_generation": "7",
+        "spec_sha256": "c" * 64,
+    }
+    active_job = {
+        **prior_job,
+        "generation": "8",
+        "observed_generation": "8",
+        "spec_sha256": "d" * 64,
+    }
+    contract = transport_producer._self_hash({
+        "schema_version": transport_producer.EXECUTION_CONTRACT_SCHEMA,
+        "created_at_utc": "2026-09-07T11:56:00Z",
+        "project": transport_producer.PROJECT,
+        "region": transport_producer.REGION,
+        "preflight_sha256": "e" * 64,
+        "suite_manifest_identity": run["suite_identity"],
+        "snapshot_manifest_identity": run["snapshot_identity"],
+        "snapshot_id": run["suite"]["snapshot_id"],
+        "task_index": 0,
+        "task_id": authority["task_id"],
+        "output_prefix": run["suite"]["output_prefix"],
+        "result_uri": run["suite"]["tasks"][0]["result_uri"],
+        **producer_paths,
+        "build": {
+            "build_id": build_id,
+            "code_repository": transport_producer.EXPECTED_CODE_REPOSITORY,
+            "code_sha": code_sha,
+            "image": image,
+        },
+        "service_account": service_account,
+        "runtime_iam_evidence_sha256": iam_identity["sha256"],
+        "runtime_iam_evidence_bytes": iam_identity["bytes"],
+        "job_before": prior_job,
+        "execution_names_before": [],
+        "job_execution": active_job,
+        "task_count": 1,
+        "parallelism": 1,
+        "max_retries": 0,
+        "cloud_run_task_attempt": 0,
+        "default_command": transport_producer.PARKED_COMMAND,
+        "default_args": transport_producer.PARKED_ARGS,
+        "execute_override_required": True,
+        "create_once": True,
+        "uses_realized_outcomes": False,
+        "bigquery_access_licensed": False,
+        "corpus_fill_licensed": False,
+        "live_policy_access_licensed": False,
+        "production_change_licensed": False,
+    }, field="execution_contract_sha256")
+    transport_producer.validate_execution_contract(contract)
+    contract_raw = transport_producer.canonical_json_bytes(contract)
+    contract_identity = store.add(
+        producer_paths["execution_contract_uri"], contract_raw
+    )
+    claim = transport_producer._self_hash({
+        "schema_version": transport_producer.PREFIX_CLAIM_SCHEMA,
+        "published_at_utc": "2026-09-07T11:57:00Z",
+        "preflight_sha256": contract["preflight_sha256"],
+        "suite_manifest_identity": run["suite_identity"],
+        "snapshot_manifest_identity": run["snapshot_identity"],
+        "task_index": 0,
+        "task_id": authority["task_id"],
+        "output_prefix": run["suite"]["output_prefix"],
+        "result_uri": task_result_identity["uri"],
+        "job": transport_producer.PARKED_JOB,
+        "job_uid": prior_job["uid"],
+        "job_prior_generation": prior_job["generation"],
+        "runtime_iam_evidence_uri": iam_identity["uri"],
+        "runtime_iam_evidence_sha256": iam_identity["sha256"],
+        "runtime_iam_evidence_bytes": iam_identity["bytes"],
+        "create_once": True,
+        "uses_realized_outcomes": False,
+        "bigquery_access_licensed": False,
+        "corpus_fill_licensed": False,
+        "live_policy_access_licensed": False,
+        "production_change_licensed": False,
+    }, field="claim_sha256")
+    transport_producer.validate_prefix_claim(
+        claim, execution_contract=contract
+    )
+    claim_raw = transport_producer.canonical_json_bytes(claim)
+    claim_identity = store.add(producer_paths["prefix_claim_uri"], claim_raw)
+    worker_args = transport_producer.cloud_worker_args(
+        execution_contract=contract,
+        execution_contract_identity=contract_identity,
+    )
+    intent = transport_producer._self_hash({
+        "schema_version": transport_producer.LAUNCH_INTENT_SCHEMA,
+        "published_at_utc": "2026-09-07T11:58:00Z",
+        "preflight_sha256": contract["preflight_sha256"],
+        "execution_contract": contract_identity,
+        "prefix_claim": claim_identity,
+        "runtime_iam_evidence": iam_identity,
+        "suite_manifest_identity": run["suite_identity"],
+        "snapshot_manifest_identity": run["snapshot_identity"],
+        "task_index": 0,
+        "task_id": authority["task_id"],
+        "result_uri": task_result_identity["uri"],
+        "job": transport_producer.PARKED_JOB,
+        "job_uid": active_job["uid"],
+        "job_generation": active_job["generation"],
+        "job_spec_sha256": active_job["spec_sha256"],
+        "worker_command": transport_producer.PARKED_COMMAND,
+        "worker_args": worker_args,
+        "worker_args_sha256": transport_producer.canonical_sha256(worker_args),
+        "one_execution": True,
+        "task_count": 1,
+        "max_retries": 0,
+        "cloud_run_task_attempt": 0,
+        "execute_override_required": True,
+        "create_once": True,
+        "uses_realized_outcomes": False,
+        "bigquery_access_licensed": False,
+        "corpus_fill_licensed": False,
+        "live_policy_access_licensed": False,
+        "production_change_licensed": False,
+    }, field="launch_intent_sha256")
+    transport_producer.validate_launch_intent(
+        intent,
+        execution_contract=contract,
+        execution_contract_identity=contract_identity,
+    )
+    intent_raw = transport_producer.canonical_json_bytes(intent)
+    intent_identity = store.add(producer_paths["launch_intent_uri"], intent_raw)
+    launch = transport_producer._self_hash({
+        "schema_version": transport_producer.LAUNCH_LEDGER_SCHEMA,
+        "created_at_utc": "2026-09-07T11:59:00Z",
+        "execution_contract": contract_identity,
+        "launch_intent": intent_identity,
+        "job": active_job,
+        "execution_names_before": [],
+        "worker_args_sha256": transport_producer.canonical_sha256(worker_args),
+        "launch_authority_consumed": True,
+        "one_execution": True,
+        "automatic_relaunch_licensed": False,
+        "ambiguous_response_requires_census_recovery": True,
+        "uses_realized_outcomes": False,
+    }, field="launch_ledger_sha256")
+    transport_producer.validate_launch_ledger(
+        launch,
+        contract=contract,
+        contract_identity=transport_producer.ObjectIdentity(**contract_identity),
+        intent_identity=intent_identity,
+    )
+    launch_raw = transport_producer.canonical_json_bytes(launch)
+    launch_identity = store.add(producer_paths["launch_ledger_uri"], launch_raw)
+    metadata_sha = "f" * 64
+    execution_uid = "fixture-execution-uid"
+    name_ledger = transport_producer._self_hash({
+        "schema_version": transport_producer.EXECUTION_NAME_LEDGER_SCHEMA,
+        "created_at_utc": "2026-09-07T12:00:00Z",
+        "execution_contract": contract_identity,
+        "launch_ledger": launch_identity,
+        "execution_id": execution_id,
+        "execution_name": execution_name,
+        "execution_uid": execution_uid,
+        "execution_metadata_sha256": metadata_sha,
+        "job_uid": active_job["uid"],
+        "job_generation": active_job["generation"],
+        "exactly_one_new_execution": True,
+        "attempt": 0,
+        "max_retries": 0,
+        "automatic_relaunch_licensed": False,
+        "uses_realized_outcomes": False,
+    }, field="execution_name_ledger_sha256")
+    transport_producer.validate_execution_name_ledger(
+        name_ledger,
+        contract=contract,
+        contract_identity=transport_producer.ObjectIdentity(**contract_identity),
+        launch_identity=launch_identity,
+    )
+    name_raw = transport_producer.canonical_json_bytes(name_ledger)
+    name_identity = store.add(
+        producer_paths["execution_name_ledger_uri"], name_raw
+    )
+    inventory_identities = [
+        run["suite_identity"],
+        claim_identity,
+        iam_identity,
+        contract_identity,
+        intent_identity,
+        launch_identity,
+        name_identity,
+        completion_identity,
+        task_result_identity,
+        *(row["object_identity"] for row in authority["sidecars"]),
+    ]
+    inventory = sorted(
+        (
+            {
+                "uri": row["uri"],
+                "generation": row["generation"],
+                "bytes": row["bytes"],
+            }
+            for row in inventory_identities
+        ),
+        key=lambda row: (row["uri"], row["generation"]),
+    )
+    terminal = _self_hash({
+        "schema_version": projection.TERMINAL_SCHEMA,
+        "finished_at_utc": "2026-09-07T12:01:00Z",
+        "execution_contract": contract_identity,
+        "prefix_claim": claim_identity,
+        "runtime_iam_evidence": iam_identity,
+        "launch_intent": intent_identity,
+        "launch_ledger": launch_identity,
+        "execution_name_ledger": name_identity,
+        "execution": {
+            "execution_id": execution_id,
+            "execution_name": execution_name,
+            "execution_uid": execution_uid,
+            "job": transport_producer.PARKED_JOB,
+            "job_uid": active_job["uid"],
+            "job_generation": active_job["generation"],
+            "job_spec_sha256": active_job["spec_sha256"],
+            "task_count": 1,
+            "attempt": 0,
+            "retry_count": 0,
+            "state": "True",
+            "counters": {
+                "succeeded": 1,
+                "failed": 0,
+                "cancelled": 0,
+                "retried": 0,
+            },
+            "metadata_sha256": metadata_sha,
+        },
+        "suite_manifest_identity": run["suite_identity"],
+        "snapshot_manifest_identity": run["snapshot_identity"],
+        "task_index": 0,
+        "task_id": authority["task_id"],
+        "result_object": task_result_identity,
+        "task_result_sha256": authority["task_result_sha256"],
+        "batch_completion": completion_identity,
+        "batch_completion_sha256": completion["batch_completion_sha256"],
+        "post_terminal_job": active_job,
+        "output_inventory_before_terminal": inventory,
+        "output_inventory_before_terminal_sha256": projection.canonical_sha256(
+            inventory
+        ),
+        "one_execution": True,
+        "attempt_zero": True,
+        "retry_count": 0,
+        "generation_pinned_replay": True,
+        "successful_deployment_remains_parked": True,
+        "uses_realized_outcomes": False,
+        "bigquery_access_licensed": False,
+        "corpus_fill_licensed": False,
+        "live_policy_access_licensed": False,
+        "production_change_licensed": False,
+    }, "terminal_receipt_sha256")
+    terminal_raw = projection.canonical_json_bytes(terminal)
+    terminal_identity = store.add(
+        producer_paths["terminal_receipt_uri"], terminal_raw
+    )
+    return {
+        "terminal_receipt_raw": terminal_raw,
+        "terminal_receipt_identity": terminal_identity,
+        "batch_completion_raw": completion_raw,
+        "task_result_raw": task_result_raw,
+        "graph_projection_raw": graph_raw,
+        "read_object": store.read,
+        "store": store,
+        "run": run,
+    }
+
+
+@pytest.fixture(scope="module")
+def canonical_v3_bundle() -> dict[str, Any]:
+    return _canonical_v3_bundle()
+
+
+def _rebind_canonical_v3_graph(
+    bundle: dict[str, Any], graph: dict[str, Any],
+) -> dict[str, Any]:
+    """Keep the whole synthetic envelope hash-consistent after graph drift."""
+
+    store = bundle["store"]
+    graph.pop("graph_projection_sha256", None)
+    graph = _self_hash(graph, "graph_projection_sha256")
+    graph_raw = projection.canonical_json_bytes(graph)
+    task_result = projection.parse_canonical_json_bytes(
+        bundle["task_result_raw"], label="v3 task result"
+    )
+    assert isinstance(task_result, dict)
+    graph_sidecar = next(
+        row for row in task_result["sidecars"] if row["role"] == "graph-projection"
+    )
+    graph_identity = store.add(
+        str(graph_sidecar["object_identity"]["uri"]), graph_raw
+    )
+    graph_sidecar["object_identity"] = graph_identity
+    graph_sidecar["semantic"] = {
+        "schema_version": projection.GRAPH_SCHEMA_V2,
+        "canonical_json_sha256": graph_identity["sha256"],
+    }
+    task_result["graph_projection_object"] = graph_identity
+    task_result.pop("task_result_sha256")
+    task_result = _self_hash(task_result, "task_result_sha256")
+    task_result_raw = projection.canonical_json_bytes(task_result)
+    old_terminal = projection.parse_canonical_json_bytes(
+        bundle["terminal_receipt_raw"], label="v3 terminal"
+    )
+    assert isinstance(old_terminal, dict)
+    task_result_identity = store.add(
+        str(old_terminal["result_object"]["uri"]), task_result_raw
+    )
+
+    completion = projection.parse_canonical_json_bytes(
+        bundle["batch_completion_raw"], label="v3 completion"
+    )
+    assert isinstance(completion, dict)
+    completion["task_results"][0]["task_result_sha256"] = task_result[
+        "task_result_sha256"
+    ]
+    completion["task_results"][0]["task_result_object"] = task_result_identity
+    completion.pop("batch_completion_sha256")
+    completion = _self_hash(completion, "batch_completion_sha256")
+    completion_raw = projection.canonical_json_bytes(completion)
+    completion_identity = store.add(
+        str(old_terminal["batch_completion"]["uri"]), completion_raw
+    )
+
+    identities = [
+        old_terminal["suite_manifest_identity"],
+        old_terminal["prefix_claim"],
+        old_terminal["runtime_iam_evidence"],
+        old_terminal["execution_contract"],
+        old_terminal["launch_intent"],
+        old_terminal["launch_ledger"],
+        old_terminal["execution_name_ledger"],
+        completion_identity,
+        task_result_identity,
+        *(row["object_identity"] for row in task_result["sidecars"]),
+    ]
+    inventory = sorted(
+        (
+            {
+                "uri": row["uri"],
+                "generation": row["generation"],
+                "bytes": row["bytes"],
+            }
+            for row in identities
+        ),
+        key=lambda row: (row["uri"], row["generation"]),
+    )
+    terminal = deepcopy(old_terminal)
+    terminal.update({
+        "result_object": task_result_identity,
+        "task_result_sha256": task_result["task_result_sha256"],
+        "batch_completion": completion_identity,
+        "batch_completion_sha256": completion["batch_completion_sha256"],
+        "output_inventory_before_terminal": inventory,
+        "output_inventory_before_terminal_sha256": projection.canonical_sha256(
+            inventory
+        ),
+    })
+    terminal.pop("terminal_receipt_sha256")
+    terminal = _self_hash(terminal, "terminal_receipt_sha256")
+    terminal_raw = projection.canonical_json_bytes(terminal)
+    terminal_identity = store.add(
+        str(bundle["terminal_receipt_identity"]["uri"]), terminal_raw
+    )
+    return {
+        "terminal_receipt_raw": terminal_raw,
+        "terminal_receipt_identity": terminal_identity,
+        "batch_completion_raw": completion_raw,
+        "task_result_raw": task_result_raw,
+        "graph_projection_raw": graph_raw,
+        "read_object": store.read,
+    }
 
 
 def _parametric_bundle(task_index: int = 0) -> dict[str, Any]:
@@ -763,6 +1301,194 @@ def test_builds_receipt_bound_pointer_only_plan() -> None:
     assert all(type(row["source_bytes"]) is int and row["source_bytes"] > 0 for row in plan.nodes)
     assert plan.graph_projection_identity["generation"]
     assert plan.terminal_receipt_identity["sha256"]
+
+
+def test_canonical_v3_rejects_four_strategy_chain() -> None:
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="completion strategy count differs",
+    ):
+        _plan(_bundle(evidence_v2=True))
+
+
+def test_builds_full_canonical_v3_evidence_chain_plan(
+    canonical_v3_bundle: dict[str, Any],
+) -> None:
+    plan = _plan(canonical_v3_bundle)
+    assert plan.run_id == "fixture-neo4j-retrieval-v3"
+    assert plan.summary()["large_world_bodies_stored"] is False
+    assert sum(
+        row["kind"] == "RetrievalStrategyResult" for row in plan.nodes
+    ) == 7
+
+
+def test_canonical_v3_authenticates_suite_before_completion_law(
+    canonical_v3_bundle: dict[str, Any],
+) -> None:
+    changed = dict(canonical_v3_bundle)
+    completion = projection.parse_canonical_json_bytes(
+        changed["batch_completion_raw"], label="canonical completion downgrade"
+    )
+    assert isinstance(completion, dict)
+    completion["schema_version"] = projection.COMPLETION_SCHEMA
+    completion.pop("batch_completion_sha256")
+    completion = _self_hash(completion, "batch_completion_sha256")
+    completion_raw = projection.canonical_json_bytes(completion)
+    completion_identity = changed["store"].add(
+        str(changed["run"]["suite"]["output_prefix"])
+        + "governance/completion.json",
+        completion_raw,
+    )
+    terminal = projection.parse_canonical_json_bytes(
+        changed["terminal_receipt_raw"], label="canonical downgrade terminal"
+    )
+    assert isinstance(terminal, dict)
+    terminal["batch_completion"] = completion_identity
+    terminal["batch_completion_sha256"] = completion[
+        "batch_completion_sha256"
+    ]
+    terminal.pop("terminal_receipt_sha256")
+    terminal = _self_hash(terminal, "terminal_receipt_sha256")
+    terminal_raw = projection.canonical_json_bytes(terminal)
+    changed.update({
+        "batch_completion_raw": completion_raw,
+        "terminal_receipt_raw": terminal_raw,
+        "terminal_receipt_identity": changed["store"].add(
+            str(changed["terminal_receipt_identity"]["uri"]), terminal_raw
+        ),
+    })
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="downgrade from authenticated suite law",
+    ):
+        _plan(changed)
+
+
+def test_canonical_v3_rejects_caller_selected_completion_alias(
+    canonical_v3_bundle: dict[str, Any],
+) -> None:
+    changed = dict(canonical_v3_bundle)
+    terminal = projection.parse_canonical_json_bytes(
+        changed["terminal_receipt_raw"], label="canonical alias terminal"
+    )
+    assert isinstance(terminal, dict)
+    aliased = {
+        **terminal["batch_completion"],
+        "uri": str(terminal["batch_completion"]["uri"]).replace(
+            "completion.json", "completion-v2.json"
+        ),
+    }
+    terminal["batch_completion"] = aliased
+    terminal.pop("terminal_receipt_sha256")
+    terminal = _self_hash(terminal, "terminal_receipt_sha256")
+    terminal_raw = projection.canonical_json_bytes(terminal)
+    changed.update({
+        "terminal_receipt_raw": terminal_raw,
+        "terminal_receipt_identity": changed["store"].add(
+            str(changed["terminal_receipt_identity"]["uri"]), terminal_raw
+        ),
+    })
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="derived evidence path differs",
+    ):
+        _plan(changed)
+
+
+@pytest.mark.parametrize(
+    "field",
+    (
+        "execution_contract",
+        "prefix_claim",
+        "runtime_iam_evidence",
+        "launch_intent",
+        "launch_ledger",
+        "execution_name_ledger",
+    ),
+)
+def test_canonical_v3_reopens_every_governance_object(
+    canonical_v3_bundle: dict[str, Any], field: str,
+) -> None:
+    terminal = projection.parse_canonical_json_bytes(
+        canonical_v3_bundle["terminal_receipt_raw"],
+        label="canonical governance terminal",
+    )
+    assert isinstance(terminal, dict)
+    target = terminal[field]
+
+    def corrupt_governance(identity: dict[str, object]) -> bytes:
+        if identity == target:
+            return b"{}"
+        return canonical_v3_bundle["store"].read(identity)
+
+    changed = dict(canonical_v3_bundle)
+    changed["read_object"] = corrupt_governance
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="content identity differs",
+    ):
+        _plan(changed)
+
+
+def test_canonical_v3_generation_pinned_claim_forces_source_replay(
+    canonical_v3_bundle: dict[str, Any],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from nfl_dfs.research import corpus_retrieval_engine_v3 as engine_v3
+
+    seen: list[bool] = []
+    original = engine_v3.validate_retrieval_task_result
+
+    def observe(*args, **kwargs):
+        seen.append(kwargs.get("replay"))
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(engine_v3, "validate_retrieval_task_result", observe)
+    _plan(canonical_v3_bundle)
+    assert seen == [True]
+
+
+def test_canonical_v3_requires_authenticated_semantic_evidence(
+    canonical_v3_bundle: dict[str, Any],
+) -> None:
+    without_reader = {
+        key: value
+        for key, value in canonical_v3_bundle.items()
+        if key in {
+            "terminal_receipt_raw",
+            "terminal_receipt_identity",
+            "batch_completion_raw",
+            "task_result_raw",
+            "graph_projection_raw",
+        }
+    }
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="authenticated exact-object reader",
+    ):
+        _plan(without_reader)
+
+
+@pytest.mark.parametrize("corruption", ["task-property", "selected-topology"])
+def test_canonical_v3_rejects_rehashed_semantic_graph_drift(
+    canonical_v3_bundle: dict[str, Any], corruption: str,
+) -> None:
+    graph = projection.parse_canonical_json_bytes(
+        canonical_v3_bundle["graph_projection_raw"], label="canonical v3 graph"
+    )
+    assert isinstance(graph, dict)
+    if corruption == "task-property":
+        task = next(row for row in graph["nodes"] if row["kind"] == "RetrievalTask")
+        task["properties"]["heldout_content_is_descriptive_only"] = False
+    else:
+        selected = next(row for row in graph["edges"] if row["type"] == "SELECTED")
+        selected["properties"]["selection_rank"] += 1
+    changed = _rebind_canonical_v3_graph(canonical_v3_bundle, graph)
+    with pytest.raises(
+        projection.CorpusRetrievalNeo4jError,
+        match="canonical graph-v2 semantic replay differs",
+    ):
+        _plan(changed)
 
 
 def test_rejects_incomplete_completion_and_unsafe_result() -> None:

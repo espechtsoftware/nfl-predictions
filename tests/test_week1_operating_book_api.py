@@ -6,22 +6,77 @@ from fastapi import HTTPException
 from nfl_dfs.app import main
 from nfl_dfs.app import week1_operating_book_api as api
 
-
 ENV = {
     "WEEK1_OPERATING_BOOK_URI": "gs://test/prelock/week1-book.json",
     "WEEK1_OPERATING_BOOK_GENERATION": "123",
     "WEEK1_OPERATING_BOOK_SHA256": "a" * 64,
     "WEEK1_OPERATING_BOOK_BYTES": "456",
 }
+V2_ENV = {
+    **ENV,
+    "IMAGE_SOURCE_COMMIT_SHA": "c" * 40,
+    "IMAGE_DIGEST": "sha256:" + "d" * 64,
+    "IMAGE_URI": (
+        "us-central1-docker.pkg.dev/project/repo/app@sha256:" + "d" * 64
+    ),
+    "PAID_V3_CLOUD_BUILD_ID": "12345678-1234-1234-1234-123456789abc",
+    "PAID_V3_PROJECT": "nfl-predictions-503414",
+    "PAID_V3_REGION": "us-central1",
+    "PAID_V3_SERVICE": "nfl-dfs-app",
+    "K_REVISION": "app-paidv3-cccccccc-12345678",
+    "PAID_V3_ACTIVATION_URI": (
+        "gs://nfl-predictions-503414-paid-authority/paid-v3/"
+        "nfl-dfs-app/app-paidv3-cccccccc-12345678/"
+        "deployment-authorization.json"
+    ),
+    "PAID_V3_ACTIVATION_GENERATION": "987",
+    "PAID_V3_ACTIVATION_SHA256": "e" * 64,
+    "PAID_V3_ACTIVATION_BYTES": "2048",
+}
+V2_FINAL_ACTIVATION_URI = (
+    "gs://nfl-predictions-503414-paid-authority/paid-v3/"
+    "nfl-dfs-app/app-paidv3-cccccccc-12345678/activation.json"
+)
+
+
+def _activation_envelope() -> dict[str, object]:
+    return {
+        "authority": {
+            "cloud_project": V2_ENV["PAID_V3_PROJECT"],
+            "cloud_region": V2_ENV["PAID_V3_REGION"],
+            "cloud_run_service": V2_ENV["PAID_V3_SERVICE"],
+            "authority_sha256": "f" * 64,
+        },
+        "object_identity": {
+            "uri": V2_FINAL_ACTIVATION_URI,
+            "generation": "988",
+            "sha256": "9" * 64,
+            "bytes": 4096,
+        },
+    }
 
 
 class ProjectionStore:
     def __init__(self) -> None:
         self.gids: list[int] = []
+        self.projection_calls: list[tuple[int, int]] = []
+        self.schedule_calls: list[tuple[int, int]] = []
 
     def classic_salaries(self, draft_group_id: int):
         self.gids.append(draft_group_id)
         return [{"salary": "authority"}]
+
+    def projections(self, season: int, week: int):
+        self.projection_calls.append((season, week))
+        return [{"projection": "authority"}]
+
+    def projection_batch(self, season: int, week: int, *, as_of):
+        self.projection_calls.append((season, week))
+        return [{"projection": "authority", "as_of": as_of}]
+
+    def schedule_games(self, season: int, week: int):
+        self.schedule_calls.append((season, week))
+        return [{"schedule": "authority"}]
 
 
 def test_deployment_identity_is_all_or_nothing_and_generation_pinned() -> None:
@@ -71,7 +126,90 @@ def test_load_uses_only_deployment_identity_and_fixed_week1_group(
         environment=ENV,
     ) == payload
     assert projection_store.gids == [151307]
+    assert projection_store.projection_calls == []
     assert calls == [(object_store, api.materialization_identity_from_environment(ENV))]
+
+
+def test_v2_load_adds_the_fixed_projection_authority(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    exact = {"identity": "exact", "materialization": "book"}
+    payload = {"complete": True, "dk_csv": "QB\r\n"}
+    monkeypatch.setattr(
+        api,
+        "read_week1_operating_book_v1",
+        lambda **_kwargs: exact,
+    )
+    activation_calls = []
+    monkeypatch.setattr(
+        api,
+        "reopen_paid_classic_activation_authority_v3",
+        lambda environment, object_reader=None, final_object_reader=None: (
+            activation_calls.append(
+                (environment, object_reader, final_object_reader)
+            )
+            or _activation_envelope()
+        ),
+    )
+
+    marker = object()
+    monkeypatch.setattr(api, "_week1_paid_validation_time_v2", lambda: marker)
+
+    def build(
+        *, exact_book, salary_rows, projection_rows, schedule_rows,
+        validated_at, source_commit_sha, immutable_image_digest,
+        cloud_build_id, immutable_image_uri, running_revision,
+        cloud_project, cloud_region, cloud_run_service,
+        activation_authority_uri, activation_authority_generation,
+        activation_authority_object_sha256, activation_authority_bytes,
+        activation_authority_sha256,
+    ):
+        assert exact_book == exact
+        assert salary_rows == [{"salary": "authority"}]
+        assert projection_rows == [{"projection": "authority", "as_of": marker}]
+        assert schedule_rows == [{"schedule": "authority"}]
+        assert validated_at is marker
+        assert source_commit_sha == "c" * 40
+        assert immutable_image_digest == "sha256:" + "d" * 64
+        assert cloud_build_id == V2_ENV["PAID_V3_CLOUD_BUILD_ID"]
+        assert immutable_image_uri == V2_ENV["IMAGE_URI"]
+        assert running_revision == V2_ENV["K_REVISION"]
+        assert cloud_project == V2_ENV["PAID_V3_PROJECT"]
+        assert cloud_region == V2_ENV["PAID_V3_REGION"]
+        assert cloud_run_service == V2_ENV["PAID_V3_SERVICE"]
+        assert activation_authority_uri == V2_FINAL_ACTIVATION_URI
+        assert activation_authority_generation == "988"
+        assert activation_authority_object_sha256 == "9" * 64
+        assert activation_authority_bytes == 4096
+        assert activation_authority_sha256 == "f" * 64
+        return payload
+
+    monkeypatch.setattr(api, "build_week1_operating_book_export_v2", build)
+    projection_store = ProjectionStore()
+    assert api.load_week1_operating_book_export_v2(
+        projection_store=projection_store,
+        object_store=object(),
+        environment=V2_ENV,
+    ) == payload
+    assert projection_store.gids == [151307]
+    assert projection_store.projection_calls == [(2026, 1)]
+    assert projection_store.schedule_calls == [(2026, 1)]
+    assert activation_calls == [(V2_ENV, None, None)]
+
+
+def test_v2_load_refuses_missing_exact_activation_identity() -> None:
+    broken = dict(V2_ENV)
+    broken.pop("PAID_V3_ACTIVATION_GENERATION")
+    with pytest.raises(
+        api.Week1OperatingBookAPIError,
+        match="failed exact read or v2 semantic validation",
+    ):
+        api.load_week1_operating_book_export_v2(
+            projection_store=ProjectionStore(),
+            object_store=object(),
+            environment=broken,
+            activation_object_reader=lambda _identity: b"{}",
+        )
 
 
 def test_canonical_routes_accept_no_build_request_and_share_one_payload(
@@ -96,6 +234,28 @@ def test_canonical_routes_accept_no_build_request_and_share_one_payload(
     assert response.headers["x-week1-export-sha256"] == "b" * 64
 
 
+def test_v2_routes_use_only_the_versioned_semantic_export(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    payload = {
+        "dk_csv": "QB\r\n",
+        "materialization_sha256": "a" * 64,
+        "export_sha256": "b" * 64,
+        "canonical_game_policy_id": "unordered-normalized-team-opponent-v2",
+    }
+    monkeypatch.setattr(
+        main,
+        "load_week1_operating_book_export_v2",
+        lambda *, projection_store: payload,
+    )
+    assert main.week1_operating_book_v2(store=object()) == payload
+    response = main.week1_operating_book_csv_v2(store=object())
+    assert bytes(response.body).decode() == payload["dk_csv"]
+    assert response.headers["x-week1-canonical-game-policy"] == (
+        payload["canonical_game_policy_id"]
+    )
+
+
 def test_canonical_route_fails_503_instead_of_using_generic_builder(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -113,5 +273,5 @@ def test_lineup_page_exposes_canonical_book_visuals_separately() -> None:
     assert "Week 1 canonical operating book" in page
     assert "id='week1sources'" in page
     assert "id='week1exposure'" in page
-    assert "href='/week1/operating-book.csv'" in page
-    assert "fetch('/week1/operating-book')" in page
+    assert "href='/week1/operating-book-v2.csv'" in page
+    assert "fetch('/week1/operating-book-v2')" in page

@@ -7,6 +7,7 @@ Run locally:  uvicorn nfl_dfs.app.main:app --reload
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 import os
 import re
@@ -37,6 +38,23 @@ from ..optimizer.paid_classic_book_v2 import (
     paid_entry_count_v2,
     to_paid_dk_csv_v2,
 )
+from ..optimizer.paid_classic_book_v3 import (
+    PaidClassicCatalogV3,
+    PaidClassicEngineResultV3,
+    PaidClassicExecutionAuthorityV3,
+    PaidClassicEngineReceiptV3,
+    _issue_paid_classic_engine_receipt_v3,
+    _seal_paid_classic_engine_result_v3,
+    build_paid_classic_catalog_v3,
+    fill_paid_entries_csv_v3,
+    paid_entry_count_v3,
+    paid_classic_projection_authority_v3,
+    paid_classic_execution_authority_v3,
+    to_paid_dk_csv_v3,
+)
+from ..optimizer.paid_classic_deployment_v3 import (
+    reopen_paid_classic_activation_authority_v3,
+)
 from ..optimizer.construction_presets import (
     INCUMBENT_GPP_PRESET_ID,
     LEGALITY_ONLY_PRESET_ID,
@@ -52,6 +70,7 @@ from .store import BigQueryStore, ProjectionStore
 from .week1_operating_book_api import (
     Week1OperatingBookAPIError,
     load_week1_operating_book_export,
+    load_week1_operating_book_export_v2,
 )
 
 app = FastAPI(title="Fingerblasters' Brain", version="0.1.0")
@@ -633,7 +652,7 @@ async function loadWeek1OperatingBook(){
         csv=document.getElementById('week1csv');
   status.textContent='Exact-reading the immutable Week-1 book...';viz.hidden=true;csv.hidden=true;
   try{
-    const r=await fetch('/week1/operating-book'),j=await r.json();
+    const r=await fetch('/week1/operating-book-v2'),j=await r.json();
     if(!r.ok){status.textContent='Canonical book not available yet: '+(j.detail||r.status);return;}
     status.textContent=`K${j.k} · exact artifact ${j.materialization_sha256.slice(0,12)}… · `+
       `cap-4 off · Tier 3 ${j.tier3_used?'on':'empty'} · no tuning controls accepted.`;
@@ -772,14 +791,14 @@ async function build(){
   document.getElementById('go').disabled=true;
   try{
     const body=reqBody();
-    const r=await fetch(sd?'/showdown/lineups':'/lineups/paid-v2',{method:'POST',
+    const r=await fetch(sd?'/showdown/lineups':'/lineups/paid-v3',{method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(body)});
     const j=await r.json();
     if(!r.ok){st.textContent='Error: '+(j.detail||r.status);return;}
     lastBuild={key:buildKey(body),payload:j,showdown:sd};
     const paidStatus=!sd&&j.paid_export
-      ? ` · paid v2 exact K${j.paid_export.actual_entries} / `+
+      ? ` · paid v3 exact K${j.paid_export.actual_entries} / `+
         `${j.paid_export.unique_rosters} unique / DK-legal / active \u2713`
       : '';
     st.textContent=sd
@@ -1024,7 +1043,7 @@ def lineups_page() -> str:
         f"tail lines, construction changes, cap-4, or other build controls.</p>"
         f"<div class='week1-actions'><button id='week1load' type='button'>"
         f"Refresh exact book</button><a id='week1csv' hidden "
-        f"href='/week1/operating-book.csv'>Download exact DK CSV</a>"
+        f"href='/week1/operating-book-v2.csv'>Download exact DK CSV</a>"
         f"<span id='week1status'>Waiting for the pre-lock artifact.</span></div>"
         f"<div id='week1viz' class='week1-viz' hidden>"
         f"<section class='week1-chart'><h3>Book composition</h3>"
@@ -2443,13 +2462,43 @@ def _rank_by_confidence(lineups: list, df: pd.DataFrame,
 
 
 def _classic_projections(
-    req: LineupRequest, store: ProjectionStore
+    req: LineupRequest,
+    store: ProjectionStore,
+    *,
+    paid_catalog: PaidClassicCatalogV3 | None = None,
 ) -> tuple[pd.DataFrame, dict[int, int]]:
     """The week's projections plus draftable IDs, restricted to the chosen
     classic slate when the request names one. Slate salaries and draftable
     IDs override the projection row's — both are slate-specific, and a CSV
     with another slate's draftable IDs is a CSV DK rejects."""
-    df = store.projections(req.season, req.week)
+    if paid_catalog is None:
+        df = store.projections(req.season, req.week)
+    else:
+        if (
+            paid_catalog.season != req.season
+            or paid_catalog.week != req.week
+            or paid_catalog.draft_group_id != req.draft_group_id
+        ):
+            raise HTTPException(422, "Paid projection authority context differs")
+        rows = []
+        for row in paid_catalog.by_player_id.values():
+            projected = {
+                "dk_player_id": int(row["player_id"]),
+                "display_name": str(row["name"]),
+                "position": str(row["pos"]),
+                "team": str(row["team"]),
+                "opponent": str(row["opponent"]),
+                "salary": int(row["salary"]),
+                "proj_points": float(row["projection"]),
+            }
+            for column in paid_catalog.projection_distribution_columns:
+                projected[column] = float(row[column])
+            rows.append(projected)
+        df = pd.DataFrame(rows)
+        return df, {
+            int(player_id): int(row["draftable_id"])
+            for player_id, row in paid_catalog.by_player_id.items()
+        }
     if df.empty:
         raise HTTPException(404, f"No projections for {req.season} week {req.week}")
     if req.draft_group_id is None:
@@ -2495,8 +2544,42 @@ def _request_construction_preset(req: LineupRequest):
     )
 
 
-def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
-    df, dk_ids = _classic_projections(req, store)
+def _build_classic(
+    req: LineupRequest,
+    store: ProjectionStore,
+    *,
+    paid_catalog: PaidClassicCatalogV3 | None = None,
+    paid_engine_result_capture=None,
+) -> tuple:
+    if paid_catalog is not None and paid_engine_result_capture is None:
+        raise HTTPException(
+            500,
+            "Paid Classic v3 engine result capture is required before generation.",
+        )
+    df, dk_ids = _classic_projections(req, store, paid_catalog=paid_catalog)
+    if paid_catalog is not None:
+        if req.objective not in df.columns:
+            raise HTTPException(
+                422,
+                f"Paid Classic v3 objective {req.objective} is unsupported "
+                "by this certified projection batch.",
+            )
+        if req.sim and req.objective != "proj_points":
+            raise HTTPException(
+                422,
+                f"Paid Classic v3 simulation objective {req.objective} is "
+                "unsupported; the certified simulation law uses proj_points.",
+            )
+        if "proj_std" not in df.columns or (
+            pd.to_numeric(df["proj_std"], errors="coerce").isna().any()
+            or (pd.to_numeric(df["proj_std"], errors="coerce") <= 0).any()
+        ):
+            raise HTTPException(
+                422,
+                "Paid Classic v3 confidence ranking requires certified "
+                "positive proj_std for every player; this batch cannot be "
+                "used for a money-bound book.",
+            )
     from .. import notes as _notes
 
     entry_policy = req.entry_policy()
@@ -2522,9 +2605,27 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                      if pd.notna(r.dk_player_id) and pd.notna(r.salary)}
                     if req.draft_group_id is not None else None)
         from ..inference.live_lineups import (
-            RoleBeliefUnavailable, build_sim_lineups)
+            RoleBeliefUnavailable,
+            build_sim_lineups,
+        )
+        projection_authority_receipt = (
+            paid_classic_projection_authority_v3(paid_catalog)
+            if paid_catalog is not None else None
+        )
+        paid_request_inputs = (
+            {
+                "draft_group_id": int(req.draft_group_id),
+                "contest_max_entries": int(req.contest_max_entries),
+                "objective": str(req.objective),
+                "field_size": req.field_size,
+                "requested_tail_line": req.tail_line,
+                "requested_leverage_scale": float(req.lev_scale),
+                "construction_preset_id": str(req.construction_preset_id),
+            }
+            if paid_catalog is not None else None
+        )
         try:
-            lineups = build_sim_lineups(
+            engine_output = build_sim_lineups(
                 req.season, req.week, n_entries=req.n_lineups,
                 stack=stack, tail_line=req.line(),
                 lev_scale=effective_lev_scale,
@@ -2536,7 +2637,33 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                 belief_model_variant=policy.role_model_variant,
                 expected_model_k=policy.model_ensemble,
                 policy_env=policy_env,
+                projection_authority=(
+                    {
+                        int(player_id): float(row["projection"])
+                        for player_id, row in paid_catalog.by_player_id.items()
+                    }
+                    if paid_catalog is not None else None
+                ),
+                projection_authority_receipt=(
+                    projection_authority_receipt
+                ),
+                paid_request_inputs=paid_request_inputs,
                 construction_preset_receipt=construction.receipt())
+            if paid_catalog is not None:
+                if (
+                    not isinstance(engine_output, tuple)
+                    or len(engine_output) != 2
+                    or not isinstance(engine_output[1], PaidClassicEngineResultV3)
+                ):
+                    raise HTTPException(
+                        503,
+                        "Paid Classic v3 simulation did not return immutable "
+                        "engine result evidence.",
+                    )
+                lineups, paid_engine_result = engine_output
+                paid_engine_result_capture(paid_engine_result)
+            else:
+                lineups = engine_output
         except RoleBeliefUnavailable as exc:
             if not policy.role_outage_fallback_allowed:
                 log.exception(
@@ -2554,7 +2681,7 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                 os.environ, construction_preset=construction,
             )
             try:
-                lineups = build_sim_lineups(
+                engine_output = build_sim_lineups(
                     req.season, req.week, n_entries=req.n_lineups,
                     stack=stack, tail_line=req.line(),
                     lev_scale=effective_lev_scale, locks=set(req.locks),
@@ -2564,7 +2691,35 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                     model_variant=policy.model_variant,
                     expected_model_k=policy.model_ensemble,
                     policy_env=fallback_env,
+                    projection_authority=(
+                        {
+                            int(player_id): float(row["projection"])
+                            for player_id, row in paid_catalog.by_player_id.items()
+                        }
+                        if paid_catalog is not None else None
+                    ),
+                    projection_authority_receipt=(
+                        projection_authority_receipt
+                    ),
+                    paid_request_inputs=paid_request_inputs,
                     construction_preset_receipt=construction.receipt())
+                if paid_catalog is not None:
+                    if (
+                        not isinstance(engine_output, tuple)
+                        or len(engine_output) != 2
+                        or not isinstance(
+                            engine_output[1], PaidClassicEngineResultV3
+                        )
+                    ):
+                        raise HTTPException(
+                            503,
+                            "Paid Classic v3 fallback did not return immutable "
+                            "engine result evidence.",
+                        )
+                    lineups, paid_engine_result = engine_output
+                    paid_engine_result_capture(paid_engine_result)
+                else:
+                    lineups = engine_output
             except Exception as fallback_exc:
                 log.exception("CE fallback lineup build also failed")
                 raise HTTPException(
@@ -2585,6 +2740,18 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
             raise HTTPException(
                 422, "Sim-mode found no feasible lineups under the given "
                      "constraints")
+        if paid_catalog is not None and any(
+            not isinstance(
+                getattr(lineup, "paid_projection_derivation_receipt", None),
+                PaidClassicEngineReceiptV3,
+            )
+            for lineup in lineups
+        ):
+            raise HTTPException(
+                503,
+                "Paid Classic v3 simulation returned a book without its "
+                "engine-produced post-execution receipt.",
+            )
         # dk_id + kickoff onto sim-built players: kickoff drives the
         # latest-kickoff FLEX preference (late-swap flexibility) and was
         # silently absent from the sim path (2026-08-04 audit).
@@ -2604,6 +2771,12 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
         _annotate_leverage([r["lineup"] for r in ranked], slate=df)
         return [r["lineup"] for r in ranked], ranked
 
+    if paid_catalog is not None and req.theses:
+        raise HTTPException(
+            422,
+            "Paid Classic v3 MILP does not implement portfolio thesis floors; "
+            "use the certified simulation path or remove theses.",
+        )
     pool = _player_pool(
         df, req.objective, dk_ids, lev_scale=effective_lev_scale,
     )
@@ -2615,8 +2788,69 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
         max_overlap=construction.max_overlap,
         env=construction.optimizer_environment(),
     )
+    milp_projection_derivation_receipt = None
+    if paid_catalog is not None and lineups:
+        # Hash the complete effective optimizer records after note/preference
+        # handling.  Restricting this to a hand-picked field list would let a
+        # newly consumed optimizer input escape the transformation receipt.
+        pool_identity = [dict(player) for player in pool]
+        pool_sha256 = hashlib.sha256(json.dumps(
+            pool_identity,
+            sort_keys=True,
+            separators=(",", ":"),
+            default=str,
+            allow_nan=False,
+        ).encode("utf-8")).hexdigest()
+        milp_projection_derivation_receipt = (
+            _issue_paid_classic_engine_receipt_v3(
+                paid_classic_projection_authority_v3(paid_catalog),
+                mode="milp",
+                lineups=lineups,
+                seed_pairs=[],
+                worlds_per_block=0,
+                selection_world_count=0,
+                model_artifacts={},
+                feature_snapshots={
+                    "effective_optimizer_pool": {
+                        "sha256": pool_sha256,
+                        "rows": len(pool_identity),
+                    }
+                },
+                notes_preferences={
+                    "state": "enabled" if req.apply_notes else "disabled",
+                    "effective_optimizer_pool_sha256": pool_sha256,
+                },
+                locks=req.locks,
+                bans=req.bans,
+                theses=req.theses,
+                construction_policy=construction.receipt(),
+                request_inputs={
+                    "season": int(req.season),
+                    "week": int(req.week),
+                    "draft_group_id": int(req.draft_group_id),
+                    "n_entries": int(req.n_lineups),
+                    "contest_max_entries": int(req.contest_max_entries),
+                    "objective": str(req.objective),
+                    "construction_preset_id": construction.preset_id,
+                    "field_size": req.field_size,
+                    "tail_line": float(req.line()),
+                    "requested_tail_line": req.tail_line,
+                    "requested_leverage_scale": float(req.lev_scale),
+                    "leverage_scale": float(effective_lev_scale),
+                    "apply_notes": bool(req.apply_notes),
+                },
+                policy_environment=construction.optimizer_environment(),
+            )
+        )
+        paid_engine_result_capture(_seal_paid_classic_engine_result_v3(
+            lineups, milp_projection_derivation_receipt
+        ))
     for lu in lineups:
         lu.construction_preset_receipt = construction.receipt()
+        if milp_projection_derivation_receipt is not None:
+            lu.paid_projection_derivation_receipt = (
+                milp_projection_derivation_receipt
+            )
     if not lineups:
         raise HTTPException(422, "No feasible lineup under the given constraints")
     # Confidence order everywhere (JSON + CSVs): first lineup = strongest
@@ -2815,6 +3049,44 @@ def week1_operating_book_csv(
             ),
             "X-Week1-Book-SHA256": str(payload["materialization_sha256"]),
             "X-Week1-Export-SHA256": str(payload["export_sha256"]),
+        },
+    )
+
+
+@app.get("/week1/operating-book-v2")
+def week1_operating_book_v2(
+    store: ProjectionStore = Depends(get_store),
+) -> dict[str, object]:
+    """Canonical-game successor; the retained v1 route remains replayable."""
+
+    try:
+        return load_week1_operating_book_export_v2(projection_store=store)
+    except Week1OperatingBookAPIError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/week1/operating-book-v2.csv")
+def week1_operating_book_csv_v2(
+    store: ProjectionStore = Depends(get_store),
+) -> Response:
+    """Download the independently semantic-audited v2 operating book."""
+
+    try:
+        payload = load_week1_operating_book_export_v2(projection_store=store)
+    except Week1OperatingBookAPIError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return Response(
+        content=str(payload["dk_csv"]),
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": (
+                "attachment; filename=dk_week1_operating_book.csv"
+            ),
+            "X-Week1-Book-SHA256": str(payload["materialization_sha256"]),
+            "X-Week1-Export-SHA256": str(payload["export_sha256"]),
+            "X-Week1-Canonical-Game-Policy": str(
+                payload["canonical_game_policy_id"]
+            ),
         },
     )
 
@@ -3283,6 +3555,291 @@ def build_paid_lineups_csv_v2(
     )
 
 
+def _paid_classic_catalog_v3(
+    req: LineupRequest, store: ProjectionStore
+) -> PaidClassicCatalogV3:
+    """Reopen and join all authorities required by the v3 money boundary."""
+
+    if req.draft_group_id is None:
+        raise HTTPException(
+            422,
+            "Paid Classic export v3 requires draft_group_id; choose the "
+            "exact DraftKings slate before generating upload bytes.",
+        )
+    activation = _paid_v3_activation_authority()
+    validated_at = _paid_classic_now_v3()
+    salaries = store.classic_salaries(req.draft_group_id)
+    projections = store.projection_batch(
+        req.season, req.week, as_of=validated_at
+    )
+    schedules = store.schedule_games(req.season, req.week)
+    try:
+        return build_paid_classic_catalog_v3(
+            salaries,
+            projections,
+            schedules,
+            draft_group_id=req.draft_group_id,
+            season=req.season,
+            week=req.week,
+            source_commit_sha=os.environ.get("IMAGE_SOURCE_COMMIT_SHA", ""),
+            immutable_image_digest=os.environ.get("IMAGE_DIGEST", ""),
+            cloud_build_id=os.environ.get("PAID_V3_CLOUD_BUILD_ID", ""),
+            immutable_image_uri=os.environ.get("IMAGE_URI", ""),
+            running_revision=os.environ.get("K_REVISION", ""),
+            cloud_project=str(activation["authority"]["cloud_project"]),
+            cloud_region=str(activation["authority"]["cloud_region"]),
+            cloud_run_service=str(
+                activation["authority"]["cloud_run_service"]
+            ),
+            activation_authority_uri=str(
+                activation["object_identity"]["uri"]
+            ),
+            activation_authority_generation=str(
+                activation["object_identity"]["generation"]
+            ),
+            activation_authority_object_sha256=str(
+                activation["object_identity"]["sha256"]
+            ),
+            activation_authority_bytes=int(
+                activation["object_identity"]["bytes"]
+            ),
+            validated_at=validated_at,
+            activation_authority_sha256=str(
+                activation["authority"]["authority_sha256"]
+            ),
+        )
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+
+
+def _paid_classic_now_v3() -> datetime:
+    """Independent server-owned v3 validation clock."""
+
+    return datetime.now(timezone.utc)
+
+
+def _paid_v3_activation_authority() -> dict[str, object]:
+    """Reopen one generation-pinned activation object at every paid request."""
+
+    try:
+        return reopen_paid_classic_activation_authority_v3(os.environ)
+    except ValueError as exc:
+        raise HTTPException(
+            503, f"Paid Classic v3 activation authority is invalid: {exc}"
+        ) from exc
+
+
+def _paid_classic_headers_v3(receipt: dict) -> dict[str, str]:
+    return {
+        "X-Paid-Book-Boundary": str(receipt["boundary_id"]),
+        "X-Paid-Book-Receipt-SHA256": str(receipt["export_receipt_sha256"]),
+        "X-Paid-Book-Catalog-SHA256": str(receipt["salary_catalog_sha256"]),
+        "X-Paid-Book-Catalog-Pulled-At": str(
+            receipt["salary_catalog_pulled_at"]
+        ),
+        "X-Paid-Book-Catalog-Age-Seconds": str(
+            receipt["salary_catalog_age_seconds"]
+        ),
+        "X-Paid-Book-Game-Catalog-SHA256": str(
+            receipt["authoritative_game_catalog_sha256"]
+        ),
+        "X-Paid-Book-Canonical-Game-Policy": str(
+            receipt["canonical_game_policy_id"]
+        ),
+        "X-Paid-Book-Source-Commit": str(receipt["source_commit_sha"]),
+        "X-Paid-Book-Image-Digest": str(receipt["immutable_image_digest"]),
+        "X-Paid-Book-Cloud-Build": str(receipt["cloud_build_id"]),
+        "X-Paid-Book-Image-URI": str(receipt["immutable_image_uri"]),
+        "X-Paid-Book-Revision": str(receipt["running_revision"]),
+        "X-Paid-Book-Deployment-Identity": str(
+            receipt["runtime_deployment_identity_sha256"]
+        ),
+        "X-Paid-Book-Activation-Authority": str(
+            receipt["activation_authority_sha256"]
+        ),
+        "X-Paid-Book-Activation-Object": str(
+            receipt["activation_authority_object_sha256"]
+        ),
+        "X-Paid-Book-Activation-Generation": str(
+            receipt["activation_authority_generation"]
+        ),
+        "X-Paid-Book-Projection-Batch-SHA256": str(
+            receipt["projection_batch_sha256"]
+        ),
+        "X-Paid-Book-Projection-Derivation": str(
+            receipt["projection_derivation_id"]
+        ),
+        "X-Paid-Book-Entries": str(receipt["actual_entries"]),
+        "X-Paid-Book-Exact-K": "true",
+        "X-Paid-Book-Unique": "true",
+        "X-Paid-Book-DK-Legal": "true",
+        "X-Paid-Book-Active": "true",
+        "X-Paid-Book-Game-Authority": "true",
+    }
+
+
+def _paid_classic_execution_authority(
+    req: LineupRequest, catalog: PaidClassicCatalogV3
+) -> PaidClassicExecutionAuthorityV3:
+    """Build the terminal validator's authority directly from the request."""
+
+    construction = _request_construction_preset(req)
+    entry_policy = req.entry_policy()
+    allowed = sorted(int(pid) for pid in catalog.by_player_id)
+    salaries = sorted(
+        (int(pid), int(row["salary"]))
+        for pid, row in catalog.by_player_id.items()
+    )
+    request_inputs: dict[str, object] = {
+        "season": int(req.season),
+        "week": int(req.week),
+        "draft_group_id": int(req.draft_group_id),
+        "n_entries": int(req.n_lineups),
+        "contest_max_entries": int(req.contest_max_entries),
+        "objective": str(req.objective),
+        "field_size": req.field_size,
+        "requested_tail_line": req.tail_line,
+        "requested_leverage_scale": float(req.lev_scale),
+        "construction_preset_id": construction.preset_id,
+        "tail_line": float(req.line()),
+        "leverage_scale": float(entry_policy["effective_leverage_scale"]),
+        "apply_notes": bool(req.apply_notes),
+    }
+    if req.sim:
+        request_inputs.update({
+            "allowed_player_count": len(allowed),
+            "allowed_player_ids_sha256": hashlib.sha256(json.dumps(
+                allowed, separators=(",", ":")
+            ).encode()).hexdigest(),
+            "salary_override_count": len(salaries),
+            "salary_overrides_sha256": hashlib.sha256(json.dumps(
+                salaries, separators=(",", ":")
+            ).encode()).hexdigest(),
+        })
+    return paid_classic_execution_authority_v3(
+        catalog,
+        mode="simulation" if req.sim else "milp",
+        request_inputs=request_inputs,
+        policy_environment=ADOPTED_CLASSIC_POLICY.engine_environment(
+            os.environ, construction_preset=construction
+        ) if req.sim else construction.optimizer_environment(),
+        locks=req.locks,
+        bans=req.bans,
+        theses=req.theses,
+        construction_policy=construction.receipt(),
+        seed_pairs=(
+            [
+                {"label": f"R{index}", "projection_seed": int(pair[0]), "role_seed": int(pair[1])}
+                for index, pair in enumerate(ADOPTED_CLASSIC_POLICY.multiseed_seed_pairs)
+            ] if req.sim else []
+        ),
+        worlds_per_block=(
+            int(ADOPTED_CLASSIC_POLICY.multiseed_worlds_per_block) if req.sim else 0
+        ),
+        selection_world_count=(
+            int(len(ADOPTED_CLASSIC_POLICY.multiseed_seed_pairs) * ADOPTED_CLASSIC_POLICY.multiseed_worlds_per_block)
+            if req.sim else 0
+        ),
+    )
+
+
+def _build_paid_classic_export_v3(
+    req: LineupRequest, store: ProjectionStore
+) -> tuple[list, list, PaidClassicExport]:
+    """Build once, then audit the selection against reopened authorities."""
+
+    catalog = _paid_classic_catalog_v3(req, store)
+    execution_authority = _paid_classic_execution_authority(req, catalog)
+    engine_results: list[PaidClassicEngineResultV3] = []
+    lineups, ranked = _build_classic(
+        req,
+        store,
+        paid_catalog=catalog,
+        paid_engine_result_capture=engine_results.append,
+    )
+    if len(engine_results) != 1:
+        raise HTTPException(
+            500,
+            "Paid Classic v3 engine returned an ambiguous result envelope.",
+        )
+    engine_result = engine_results[0]
+    if len(ranked) != len(lineups) or any(
+        row.get("lineup") is not lineup
+        for row, lineup in zip(ranked, lineups, strict=False)
+    ):
+        raise HTTPException(
+            500,
+            "Paid Classic v3 preview order differs from the selected export book.",
+        )
+    try:
+        exported = to_paid_dk_csv_v3(
+            lineups,
+            expected_entries=req.n_lineups,
+            catalog=catalog,
+            execution_authority=execution_authority,
+            engine_result=engine_result,
+        )
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    return lineups, ranked, exported
+
+
+@app.post("/lineups/paid-v3")
+def build_paid_lineups_v3(
+    req: LineupRequest, store: ProjectionStore = Depends(get_store)
+) -> dict:
+    """Canonical-game paid preview carrying the exact audited CSV bytes."""
+
+    lineups, ranked, exported = _build_paid_classic_export_v3(req, store)
+    return {
+        "policy": _classic_policy_identity(req, lineups),
+        "model_health": (
+            _marginals_health(req.season, req.week)
+            if req.sim
+            else {"marginals": "n/a (MILP path)", "warning": None}
+        ),
+        "tail_line": req.line(),
+        "lineups": [
+            {
+                "rank": index + 1,
+                "confidence": row["confidence"],
+                "proj_mean": row["proj_mean"],
+                "players": _with_watch_notes(row["lineup"].slot_order()),
+                "salary": row["lineup"].salary,
+                "proj": round(row["lineup"].proj, 2),
+            }
+            for index, row in enumerate(ranked)
+        ],
+        "exposure": exposure_summary(lineups),
+        "dk_csv": exported.csv_text,
+        "paid_export": dict(exported.receipt),
+    }
+
+
+@app.post("/lineups/paid-v3.csv")
+def build_paid_lineups_csv_v3(
+    req: LineupRequest, store: ProjectionStore = Depends(get_store)
+) -> Response:
+    """Canonical-game paid Classic upload; v2 routes remain compatible."""
+
+    lineups, _, exported = _build_paid_classic_export_v3(req, store)
+    try:
+        from .. import notes as _n
+
+        _n.record_entered_lineups(req.season, req.week, lineups)
+    except Exception:
+        log.exception("could not record entered lineups")
+    return Response(
+        content=exported.csv_text,
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=dk_lineups.csv",
+            **_classic_policy_headers(req, lineups),
+            **_paid_classic_headers_v3(dict(exported.receipt)),
+        },
+    )
+
+
 # --- DKEntries filling ----------------------------------------------------
 #
 # The other DK import path: for contests already entered, download
@@ -3425,6 +3982,60 @@ def fill_paid_classic_entries_v2(
             "Content-Disposition": "attachment; filename=DKEntries.csv",
             **_classic_policy_headers(build_req, lineups),
             **_paid_classic_headers_v2(dict(exported.receipt)),
+        },
+    )
+
+
+@app.post("/lineups/entries/paid-v3.csv")
+def fill_paid_classic_entries_v3(
+    req: FillEntriesRequest, store: ProjectionStore = Depends(get_store)
+) -> Response:
+    """Canonical-game one-to-one paid entry fill; never cycles a book."""
+
+    try:
+        paid_entries = paid_entry_count_v3(
+            req.entries_csv, contest_id=req.contest_id
+        )
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    if paid_entries > MAX_ENTRIES:
+        raise HTTPException(
+            422, f"{paid_entries} entries exceeds DK's {MAX_ENTRIES}-row limit"
+        )
+    build_req = req.model_copy(update={"n_lineups": paid_entries})
+    catalog = _paid_classic_catalog_v3(build_req, store)
+    execution_authority = _paid_classic_execution_authority(build_req, catalog)
+    engine_results: list[PaidClassicEngineResultV3] = []
+    lineups = _build_classic(
+        build_req,
+        store,
+        paid_catalog=catalog,
+        paid_engine_result_capture=engine_results.append,
+    )[0]
+    if len(engine_results) != 1:
+        raise HTTPException(
+            500,
+            "Paid Classic v3 engine returned an ambiguous result envelope.",
+        )
+    engine_result = engine_results[0]
+    try:
+        exported = fill_paid_entries_csv_v3(
+            req.entries_csv,
+            lineups,
+            catalog=catalog,
+            contest_id=req.contest_id,
+            execution_authority=execution_authority,
+            engine_result=engine_result,
+        )
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    return Response(
+        content=exported.csv_text,
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=DKEntries.csv",
+            **_classic_policy_headers(build_req, lineups),
+            **_paid_classic_headers_v3(dict(exported.receipt)),
         },
     )
 

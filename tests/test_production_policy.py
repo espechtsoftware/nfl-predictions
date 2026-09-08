@@ -37,7 +37,10 @@ def test_contest_entry_policy_rejects_book_beyond_limit(limit, entries):
 
 def test_adopted_policy_is_the_week1_boom_first_position_calibrated_book():
     p = ADOPTED_CLASSIC_POLICY
-    assert p.policy_id == "classic-k1-role12-lev40-boom160-poscal-cbwu-v5"
+    assert p.policy_id == (
+        "classic-k1-role12-lev40-boom160-poscal-cbwu-cgame-v6"
+    )
+    assert p.canonical_game_policy_id == "unordered-normalized-team-opponent-v2"
     assert p.source_panel == (
         "20260813-multiseed-candidate-world-v1")
     assert (p.model_variant, p.model_ensemble) == ("tail_k1", 1)

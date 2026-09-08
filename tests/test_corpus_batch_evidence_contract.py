@@ -156,6 +156,31 @@ def _manifest_v2() -> dict[str, object]:
     )
 
 
+def _manifest_v3() -> dict[str, object]:
+    common = _common_law()
+    common.update({
+        "effective_policy_inventory_sha256": (
+            evidence.V3_EXPECTED_INVENTORY_SHA256
+        ),
+        "effective_policy_rule_universe_sha256": (
+            evidence.V3_EXPECTED_RULE_UNIVERSE_SHA256
+        ),
+        "effective_policy_inventory_source_set_sha256": (
+            evidence.V3_EXPECTED_INVENTORY_SOURCE_SET_SHA256
+        ),
+        "effective_policy_classified_input_projection_sha256": (
+            evidence.V3_EXPECTED_CLASSIFIED_INPUT_PROJECTION_SHA256
+        ),
+    })
+    return batch.build_batch_manifest(
+        batch_id="corpus-demo-v1",
+        created_at_utc="2026-08-21T12:00:00Z",
+        output_prefix="gs://test-bucket/batches/corpus-demo-v1/",
+        common_law=common,
+        tasks=_tasks(),
+    )
+
+
 def _manifest_identity(manifest: dict[str, object]) -> dict[str, object]:
     return batch.object_identity_for_json(
         manifest, uri=manifest["manifest_uri"], generation="100"
@@ -220,6 +245,25 @@ def test_v2_contract_strictly_binds_v6_foundation() -> None:
     assert contract["contract_id"].endswith(":v2")
     assert contract["batch_binding"]["effective_policy_inventory_sha256"] == (
         evidence.V2_EXPECTED_INVENTORY_SHA256
+    )
+    assert evidence.validate_corpus_batch_evidence_contract(
+        contract,
+        batch_manifest=manifest,
+        batch_manifest_identity=identity,
+    ) == contract
+
+
+def test_v3_contract_strictly_binds_v7_foundation() -> None:
+    manifest = _manifest_v3()
+    identity = _manifest_identity(manifest)
+    contract = evidence.build_corpus_batch_evidence_contract_v3(
+        batch_manifest=manifest,
+        batch_manifest_identity=identity,
+    )
+    assert contract["schema_version"] == evidence.V3_SCHEMA
+    assert contract["contract_id"].endswith(":v3-canonical-game")
+    assert contract["batch_binding"]["effective_policy_inventory_sha256"] == (
+        evidence.V3_EXPECTED_INVENTORY_SHA256
     )
     assert evidence.validate_corpus_batch_evidence_contract(
         contract,

@@ -506,8 +506,8 @@ def test_paid_entries_api_requires_contest_before_build(
 
 def test_classic_web_ui_uses_the_single_build_paid_preview() -> None:
     html = app_main.lineups_page()
-    assert "sd?'/showdown/lineups':'/lineups/paid-v2'" in html
-    assert "paid v2 exact K" in html
+    assert "sd?'/showdown/lineups':'/lineups/paid-v3'" in html
+    assert "paid v3 exact K" in html
     assert "lastBuild.payload.dk_csv" in html
     assert "CSV always downloads that exact preview" in html
 

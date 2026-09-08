@@ -8,17 +8,28 @@ team and salary) must match the frozen pre-lock player bridge exactly.
 
 from __future__ import annotations
 
-from collections import Counter
-from collections.abc import Mapping, Sequence
 import csv
 import hashlib
 import io
-from numbers import Integral
 import re
+from collections import Counter
+from collections.abc import Mapping, Sequence
+from numbers import Integral
 from typing import Final
 
-from .generation_exposure import canonical_sha256
+import pandas as pd
+
+from ..optimizer.game_identity import (
+    CANONICAL_GAME_POLICY_ID,
+    normalize_team,
+)
+from ..optimizer.lineup import Lineup
+from ..optimizer.paid_classic_book_v3 import (
+    build_paid_classic_catalog_v3,
+    validate_paid_classic_deterministic_book_v3,
+)
 from . import prospective_generation_shadow_evaluation as shadow_evaluation
+from .generation_exposure import canonical_sha256
 from .week1_operating_book import BASE_SOURCE_ORDER
 from .week1_operating_book_operator import (
     WEEK1_DRAFT_GROUP_ID,
@@ -29,8 +40,8 @@ from .week1_operating_roster_materializer import (
     validate_week1_operating_roster_materialization_v1,
 )
 
-
 SCHEMA_VERSION: Final = "week1-operating-book-export/v1"
+SCHEMA_VERSION_V2: Final = "week1-operating-book-export/v2-canonical-game"
 DK_HEADER: Final = ("QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST")
 _POSITIONS: Final = frozenset({"QB", "RB", "WR", "TE", "DST"})
 _SHA256 = re.compile(r"[0-9a-f]{64}\Z")
@@ -285,8 +296,162 @@ def build_week1_operating_book_export_v1(
     return body
 
 
+def build_week1_operating_book_export_v2(
+    *,
+    exact_book: object,
+    salary_rows: object,
+    projection_rows: object,
+    schedule_rows: object,
+    validated_at: object,
+    source_commit_sha: str,
+    immutable_image_digest: str,
+    cloud_build_id: str,
+    immutable_image_uri: str,
+    running_revision: str,
+    cloud_project: str,
+    cloud_region: str,
+    cloud_run_service: str,
+    activation_authority_uri: str,
+    activation_authority_generation: str,
+    activation_authority_object_sha256: str,
+    activation_authority_bytes: int,
+    activation_authority_sha256: str,
+) -> dict[str, object]:
+    """Versioned live successor with an independent semantic-game audit.
+
+    V1 remains byte-reproducible above.  This active successor resolves each
+    selected DK player against the current pre-lock projection authority,
+    derives a directional provenance token, and independently revalidates the
+    final roster after materialization and immediately before CSV delivery.
+    """
+
+    base = build_week1_operating_book_export_v1(
+        exact_book=exact_book, salary_rows=salary_rows,
+    )
+    try:
+        catalog = build_paid_classic_catalog_v3(
+            salary_rows if isinstance(salary_rows, pd.DataFrame) else pd.DataFrame(_salary_records(salary_rows)),
+            projection_rows if isinstance(projection_rows, pd.DataFrame) else pd.DataFrame(_salary_records(projection_rows)),
+            schedule_rows if isinstance(schedule_rows, pd.DataFrame) else pd.DataFrame(_salary_records(schedule_rows)),
+            draft_group_id=int(WEEK1_DRAFT_GROUP_ID),
+            season=WEEK1_SEASON,
+            week=WEEK1_WEEK,
+            source_commit_sha=source_commit_sha,
+            immutable_image_digest=immutable_image_digest,
+            cloud_build_id=cloud_build_id,
+            immutable_image_uri=immutable_image_uri,
+            running_revision=running_revision,
+            cloud_project=cloud_project,
+            cloud_region=cloud_region,
+            cloud_run_service=cloud_run_service,
+            activation_authority_uri=activation_authority_uri,
+            activation_authority_generation=activation_authority_generation,
+            activation_authority_object_sha256=(
+                activation_authority_object_sha256
+            ),
+            activation_authority_bytes=activation_authority_bytes,
+            activation_authority_sha256=activation_authority_sha256,
+            validated_at=validated_at,
+        )
+    except ValueError as exc:
+        raise Week1OperatingBookExportError(
+            "paid-v3 salary/projection/schedule authority is invalid"
+        ) from exc
+
+    lineups: list[dict[str, object]] = []
+    authoritative_lineups: list[Lineup] = []
+    for ordinal, raw_lineup in enumerate(base["lineups"], start=1):
+        lineup = dict(raw_lineup)
+        players: list[dict[str, object]] = []
+        for raw_player in raw_lineup["players"]:
+            player = dict(raw_player)
+            source = catalog.by_player_id.get(int(player["dk_player_id"]))
+            if source is None:
+                _fail("paid-v3 authority does not resolve a selected player")
+            source_position = str(source["pos"])
+            source_team = str(source["team"])
+            selected_team = normalize_team(player["team"])
+            opponent = str(source["opponent"])
+            if (
+                source_position != player["position"]
+                or source_team != selected_team
+                or int(source["salary"])
+                != player["salary"]
+            ):
+                _fail("paid-v3 identity differs from materialized salary identity")
+            player.update({
+                "id": player["dk_player_id"],
+                "dk_id": int(source["draftable_id"]),
+                "name": str(source["name"]),
+                "pos": player["position"],
+                "opp": opponent,
+                "game_id": str(source["schedule_game_id"]),
+                "proj": float(source["projection"]),
+                "game_id_provenance": (
+                    "authoritative-paid-v3-schedule-join"
+                ),
+            })
+            players.append(player)
+        authoritative_lineups.append(Lineup(players=players))
+        lineup["players"] = players
+        lineups.append(lineup)
+
+    try:
+        paid_receipt = validate_paid_classic_deterministic_book_v3(
+            authoritative_lineups,
+            expected_entries=int(base["k"]),
+            catalog=catalog,
+        )
+    except ValueError as exc:
+        raise Week1OperatingBookExportError(
+            "Week-1 book fails the paid-v3 terminal authority"
+        ) from exc
+    audits = list(paid_receipt["semantic_roster_audits"])
+    for lineup, audit in zip(lineups, audits, strict=True):
+        lineup["semantic_game_audit"] = audit
+
+    body = dict(base)
+    body.pop("export_sha256", None)
+    body.update({
+        "schema_version": SCHEMA_VERSION_V2,
+        "lineups": lineups,
+        "canonical_game_policy_id": CANONICAL_GAME_POLICY_ID,
+        "semantic_game_audits_sha256": canonical_sha256(audits),
+        "paid_classic_boundary_id": paid_receipt["boundary_id"],
+        "paid_classic_receipt_sha256": paid_receipt["receipt_sha256"],
+        "paid_classic_catalog_sha256": catalog.sha256,
+        "projection_generated_at": catalog.projection_generated_at,
+        "projection_batch_sha256": catalog.projection_batch_sha256,
+        "projection_derivation_id": catalog.projection_derivation_id,
+        "source_commit_sha": catalog.source_commit_sha,
+        "immutable_image_digest": catalog.immutable_image_digest,
+        "activation_authority_uri": catalog.activation_authority_uri,
+        "activation_authority_generation": (
+            catalog.activation_authority_generation
+        ),
+        "activation_authority_object_sha256": (
+            catalog.activation_authority_object_sha256
+        ),
+        "activation_authority_bytes": catalog.activation_authority_bytes,
+        "activation_authority_sha256": catalog.activation_authority_sha256,
+        "authority_validated_at": catalog.validated_at,
+        "slate_lock_at": catalog.slate_lock_at,
+        "one_coherent_prelock_projection_batch": True,
+        "final_semantic_draftkings_legal": True,
+    })
+    # The added semantic fields do not alter the already-reopened CSV bytes.
+    if body["dk_csv_sha256"] != hashlib.sha256(
+        str(body["dk_csv"]).encode("utf-8")
+    ).hexdigest():
+        _fail("v2 semantic projection changed the bound DK CSV bytes")
+    body["export_sha256"] = canonical_sha256(body)
+    return body
+
+
 __all__ = [
     "SCHEMA_VERSION",
+    "SCHEMA_VERSION_V2",
     "Week1OperatingBookExportError",
     "build_week1_operating_book_export_v1",
+    "build_week1_operating_book_export_v2",
 ]

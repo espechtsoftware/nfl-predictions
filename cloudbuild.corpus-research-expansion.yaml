@@ -13,6 +13,7 @@ steps:
         apt-get install -y --no-install-recommends git jq libgomp1
         pip install --no-cache-dir '.[gcp,app,graph,dev]'
         PYTHONPATH=src python -m pytest -q \
+          tests/test_canonical_game_policy_v2.py \
           tests/test_corpus_retrieval_engine.py \
           tests/test_corpus_retrieval_transport.py \
           tests/test_corpus_artifact_source_authority.py \
@@ -63,7 +64,7 @@ steps:
     args:
       - -ceu
       - |
-        docker run --rm '${_IMAGE}' python -c "from pathlib import Path; import nfl_dfs; from nfl_dfs.research import effective_policy_rule_inventory as i; root = Path('/app'); package_root = root / 'src/nfl_dfs'; assert Path(nfl_dfs.__file__).resolve() == package_root / '__init__.py'; assert Path(i.__file__).resolve() == package_root / 'research/effective_policy_rule_inventory.py'; print(i.generate_effective_policy_rule_inventory_v6(root)['inventory_sha256'])"
+        docker run --rm '${_IMAGE}' python -c "from pathlib import Path; import nfl_dfs; from nfl_dfs.research import effective_policy_rule_inventory as i; root = Path('/app'); package_root = root / 'src/nfl_dfs'; assert Path(nfl_dfs.__file__).resolve() == package_root / '__init__.py'; assert Path(i.__file__).resolve() == package_root / 'research/effective_policy_rule_inventory.py'; print(i.generate_effective_policy_rule_inventory_v7(root)['inventory_sha256'])"
         docker run --rm '${_IMAGE}' python -c "from pathlib import Path; from nfl_dfs.research import corpus_legal_feasibility as c; assert c._CODE_SOURCE_BUILD_PATHS == ('Dockerfile.corpus-research-expansion', 'cloudbuild.corpus-research-expansion.yaml'); print({name: c._repository_source_sha256(Path('/app'), name) for name in c._CODE_SOURCE_BUILD_PATHS})"
         docker run --rm '${_IMAGE}' python scripts/run_corpus_parametric_transport.py --help
         docker run --rm '${_IMAGE}' python scripts/run_corpus_parametric_transport.py parked

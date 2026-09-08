@@ -27,6 +27,7 @@ import pulp
 from ..config import settings
 from ..research.effective_policy_rule_inventory import (
     generate_effective_policy_rule_inventory_v6,
+    generate_effective_policy_rule_inventory_v7,
 )
 from ..research.prelock_lineage_graph_v2 import (
     CREATE_ONCE_PUBLICATION_MODE,
@@ -47,11 +48,14 @@ from .prelock_input_boundary_v1 import (
 from .prelock_lineage_runtime_v2 import (
     SEED_LABELS,
     build_capture_authority_v2,
+    build_capture_authority_v3,
     build_salary_snapshot_v2,
     build_sidecar_from_capture_v2,
+    build_sidecar_from_capture_v3,
     canonical_selector_matrix_bytes,
     selected_roster_order,
     validate_capture_authority_v2,
+    validate_capture_authority_v3,
 )
 from .prelock_model_artifact_authority_v1 import ModelArtifactAuthority
 from .production_policy import ADOPTED_CLASSIC_POLICY
@@ -61,9 +65,16 @@ from .week1_operating_book_suite_adapter import (
 )
 
 VERSION: Final = "prospective-prelock-lineage-shadow/v2"
+VERSION_V3: Final = "prospective-prelock-lineage-shadow/v3-canonical-game"
 FINAL_MANIFEST_SCHEMA: Final = "prelock-lineage-final-manifest/v2"
+FINAL_MANIFEST_SCHEMA_V3: Final = (
+    "prelock-lineage-final-manifest/v3-canonical-game"
+)
 EXECUTION_RECEIPT_SCHEMA: Final = "prelock-lineage-execution-receipt/v1"
 ADAPTER_MANIFEST_SCHEMA: Final = "prelock-lineage-adapter-manifest/v2"
+ADAPTER_MANIFEST_SCHEMA_V3: Final = (
+    "prelock-lineage-adapter-manifest/v3-canonical-game"
+)
 ENTRY_BUDGET: Final = 80
 OBJECT_NAMES: Final[Mapping[str, str]] = {
     "capture-authority": "capture-authority.json",
@@ -71,6 +82,13 @@ OBJECT_NAMES: Final[Mapping[str, str]] = {
     "candidate-lineage-sidecar": "candidate-lineage.json",
     "aggregate-graph-projection": "graph-summary-v2.json",
     "final-manifest": "final-manifest.json",
+}
+OBJECT_NAMES_V3: Final[Mapping[str, str]] = {
+    "capture-authority": "capture-authority-v3.json",
+    "selector-matrix": "selector-matrix-v3.raw",
+    "candidate-lineage-sidecar": "candidate-lineage-v3.json",
+    "aggregate-graph-projection": "graph-summary-v3.json",
+    "final-manifest": "final-manifest-v3.json",
 }
 _PREDECESSOR_ROLES: Final = tuple(
     role for role in OBJECT_NAMES if role != "final-manifest"
@@ -103,6 +121,10 @@ _ADAPTER_PATHS: Final = (
     "src/nfl_dfs/research/effective_policy_rule_inventory.py",
     "src/nfl_dfs/research/prelock_lineage_graph_v2.py",
 )
+_ADAPTER_PATHS_V3: Final = tuple(sorted({
+    *_ADAPTER_PATHS,
+    "src/nfl_dfs/optimizer/game_identity.py",
+}))
 
 
 class ProspectivePrelockLineageShadowV2Error(ValueError):
@@ -166,12 +188,16 @@ def _closed_json(raw: bytes, *, label: str) -> dict[str, object]:
 
 def lineage_adapter_manifest_v2(
     repository: Path | None = None,
+    *,
+    _schema: str = ADAPTER_MANIFEST_SCHEMA,
+    _inventory_version: str = "v6",
+    _paths: Sequence[str] = _ADAPTER_PATHS,
 ) -> dict[str, object]:
     """Bind every adapter/helper source not delegated solely to v6."""
 
     root = repository or Path(__file__).resolve().parents[3]
     files: list[dict[str, object]] = []
-    for relative in _ADAPTER_PATHS:
+    for relative in _paths:
         path = root / relative
         if not path.is_file() or path.is_symlink():
             _fail(f"lineage adapter source is unavailable: {relative}")
@@ -184,13 +210,26 @@ def lineage_adapter_manifest_v2(
             }
         )
     body: dict[str, object] = {
-        "schema_version": ADAPTER_MANIFEST_SCHEMA,
+        "schema_version": _schema,
         "files": files,
-        "effective_policy_inventory_required": "v6",
+        "effective_policy_inventory_required": _inventory_version,
         "transitive_scoring_surface_claimed_here": False,
     }
     body["manifest_sha256"] = canonical_sha256(body)
     return body
+
+
+def lineage_adapter_manifest_v3(
+    repository: Path | None = None,
+) -> dict[str, object]:
+    """Bind the canonical-game v3 adapter and v7 inventory dependency."""
+
+    return lineage_adapter_manifest_v2(
+        repository,
+        _schema=ADAPTER_MANIFEST_SCHEMA_V3,
+        _inventory_version="v7",
+        _paths=_ADAPTER_PATHS_V3,
+    )
 
 
 def _validate_clean_source_checkout_v1(
@@ -452,12 +491,21 @@ class ClosedObjectStore(Protocol):
 class GcsClosedObjectStore:
     """GCS implementation with a fixed bucket, prefix, and write set."""
 
-    def __init__(self, storage_client: object, *, prefix: str) -> None:
+    def __init__(
+        self,
+        storage_client: object,
+        *,
+        prefix: str,
+        lineage_version: int = 2,
+    ) -> None:
         if not prefix or prefix.startswith("/") or ".." in prefix.split("/"):
             _fail("closed object prefix is invalid")
+        if lineage_version not in {2, 3}:
+            _fail("closed object lineage version is not registered")
         self.bucket_name = settings.gcs_bucket
         self.prefix = prefix.rstrip("/")
-        self.allowed_names = frozenset(OBJECT_NAMES.values())
+        object_names = OBJECT_NAMES if lineage_version == 2 else OBJECT_NAMES_V3
+        self.allowed_names = frozenset(object_names.values())
         self._bucket = storage_client.bucket(self.bucket_name)
 
     def _blob(self, object_name: str):
@@ -583,20 +631,32 @@ def _build_final_manifest(
     sidecar_frozen_at_utc: str,
     projection_created_at_utc: str,
     graph_release_id: str,
+    lineage_version: int = 2,
 ) -> dict[str, object]:
+    if lineage_version not in {2, 3}:
+        _fail("final manifest lineage version is not registered")
+    object_names = OBJECT_NAMES if lineage_version == 2 else OBJECT_NAMES_V3
+    final_schema = (
+        FINAL_MANIFEST_SCHEMA
+        if lineage_version == 2 else FINAL_MANIFEST_SCHEMA_V3
+    )
     if set(objects) != set(_PREDECESSOR_ROLES):
         _fail("final manifest predecessor object set differs")
-    retained = validate_capture_authority_v2(capture)
+    retained = (
+        validate_capture_authority_v2(capture)
+        if lineage_version == 2
+        else validate_capture_authority_v3(capture)
+    )
     bindings = [
         {
             "role": role,
-            "object_name": OBJECT_NAMES[role],
+            "object_name": object_names[role],
             "identity": _object_identity(objects[role], label=role),
         }
         for role in _PREDECESSOR_ROLES
     ]
     body: dict[str, object] = {
-        "schema_version": FINAL_MANIFEST_SCHEMA,
+        "schema_version": final_schema,
         "run_id": retained["run"]["run_id"],
         "season": retained["run"]["season"],
         "week": retained["run"]["week"],
@@ -627,10 +687,22 @@ def _build_final_manifest(
         "post_lock_data_read": False,
     }
     body["manifest_sha256"] = canonical_sha256(body)
-    return validate_final_manifest_v2(body)
+    return _validate_final_manifest(
+        body,
+        lineage_version=lineage_version,
+    )
 
 
-def validate_final_manifest_v2(value: object) -> dict[str, object]:
+def _validate_final_manifest(
+    value: object, *, lineage_version: int
+) -> dict[str, object]:
+    if lineage_version not in {2, 3}:
+        _fail("final manifest lineage version is not registered")
+    final_schema = (
+        FINAL_MANIFEST_SCHEMA
+        if lineage_version == 2 else FINAL_MANIFEST_SCHEMA_V3
+    )
+    object_names = OBJECT_NAMES if lineage_version == 2 else OBJECT_NAMES_V3
     if not isinstance(value, Mapping):
         _fail("final manifest is not a mapping")
     item = json.loads(canonical_json_bytes(value))
@@ -664,7 +736,7 @@ def validate_final_manifest_v2(value: object) -> dict[str, object]:
         _fail("final manifest fields differ")
     retained_hash = item.pop("manifest_sha256")
     if (
-        item["schema_version"] != FINAL_MANIFEST_SCHEMA
+        item["schema_version"] != final_schema
         or type(retained_hash) is not str
         or _SHA256.fullmatch(retained_hash) is None
         or retained_hash != canonical_sha256(item)
@@ -701,7 +773,7 @@ def validate_final_manifest_v2(value: object) -> dict[str, object]:
         }:
             _fail("final manifest predecessor binding fields differ")
         role = str(row["role"])
-        if row["object_name"] != OBJECT_NAMES[role]:
+        if row["object_name"] != object_names[role]:
             _fail("final manifest predecessor object name differs")
         identity = _object_identity(row["identity"], label=role)
         if (
@@ -712,13 +784,24 @@ def validate_final_manifest_v2(value: object) -> dict[str, object]:
     return {**item, "manifest_sha256": retained_hash}
 
 
+def validate_final_manifest_v2(value: object) -> dict[str, object]:
+    return _validate_final_manifest(value, lineage_version=2)
+
+
+def validate_final_manifest_v3(value: object) -> dict[str, object]:
+    return _validate_final_manifest(value, lineage_version=3)
+
+
 def _validate_store_boundary(
-    object_store: ClosedObjectStore, *, expected_prefix: str
+    object_store: ClosedObjectStore,
+    *,
+    expected_prefix: str,
+    object_names: Mapping[str, str],
 ) -> None:
     if (
         object_store.bucket_name != settings.gcs_bucket
         or object_store.prefix != expected_prefix
-        or object_store.allowed_names != frozenset(OBJECT_NAMES.values())
+        or object_store.allowed_names != frozenset(object_names.values())
     ):
         _fail("object store differs from the fixed bucket/prefix/write manifest")
 
@@ -752,9 +835,11 @@ def _reopen_complete(
     final_bytes: bytes,
     final_identity: Mapping[str, object],
     request: Mapping[str, object],
+    lineage_version: int = 2,
 ) -> dict[str, object]:
-    final = validate_final_manifest_v2(
-        _closed_json(final_bytes, label="final manifest")
+    final = _validate_final_manifest(
+        _closed_json(final_bytes, label="final manifest"),
+        lineage_version=lineage_version,
     )
     _assert_scope(final, request)
     bound: dict[str, tuple[bytes, dict[str, object]]] = {}
@@ -764,7 +849,11 @@ def _reopen_complete(
         payload = object_store.reopen_exact(str(row["object_name"]), identity)
         bound[role] = (payload, identity)
 
-    capture = validate_capture_authority_v2(
+    capture_validator = (
+        validate_capture_authority_v2
+        if lineage_version == 2 else validate_capture_authority_v3
+    )
+    capture = capture_validator(
         _closed_json(bound["capture-authority"][0], label="capture authority")
     )
     _assert_scope(capture["run"], request)
@@ -776,7 +865,11 @@ def _reopen_complete(
     if matrix != bound["selector-matrix"][0]:
         _fail("root-bound raw selector matrix differs from capture replay")
     capture_identity = _graph_identity(bound["capture-authority"][1])
-    expected_sidecar = build_sidecar_from_capture_v2(
+    sidecar_builder = (
+        build_sidecar_from_capture_v2
+        if lineage_version == 2 else build_sidecar_from_capture_v3
+    )
+    expected_sidecar = sidecar_builder(
         capture=capture,
         capture_identity=capture_identity,
         frozen_at_utc=str(final["sidecar_frozen_at_utc"]),
@@ -811,7 +904,7 @@ def _reopen_complete(
     ):
         _fail("root-bound selected roster order differs")
     return {
-        "schema_version": VERSION,
+        "schema_version": VERSION if lineage_version == 2 else VERSION_V3,
         "complete": True,
         "run_id": final["run_id"],
         "season": final["season"],
@@ -844,9 +937,34 @@ def run_prelock_lineage_shadow_v2(
     now_factory: Callable[[], datetime] | None = None,
     build_lineups_fn: Callable[..., Sequence[object]] | None = None,
     repository: Path | None = None,
+    _lineage_version: int = 2,
 ) -> dict[str, object]:
     """Run once or resume exactly; never publish or generate after lock."""
 
+    if _lineage_version not in {2, 3}:
+        _fail("pre-lock lineage version is not registered")
+    object_names = OBJECT_NAMES if _lineage_version == 2 else OBJECT_NAMES_V3
+    inventory_factory = (
+        generate_effective_policy_rule_inventory_v6
+        if _lineage_version == 2
+        else generate_effective_policy_rule_inventory_v7
+    )
+    adapter_factory = (
+        lineage_adapter_manifest_v2
+        if _lineage_version == 2 else lineage_adapter_manifest_v3
+    )
+    capture_validator = (
+        validate_capture_authority_v2
+        if _lineage_version == 2 else validate_capture_authority_v3
+    )
+    capture_builder = (
+        build_capture_authority_v2
+        if _lineage_version == 2 else build_capture_authority_v3
+    )
+    sidecar_builder = (
+        build_sidecar_from_capture_v2
+        if _lineage_version == 2 else build_sidecar_from_capture_v3
+    )
     if _RUN_ID.fullmatch(run_id) is None:
         _fail("run_id is not a path-safe identifier")
     season = int(season)
@@ -857,8 +975,16 @@ def run_prelock_lineage_shadow_v2(
     expected_lock = _aware(expected_lock_at, label="expected lock").replace(
         microsecond=0
     )
-    prefix = f"prelock-lineage-v1/{season}/week-{week:02d}/{run_id}"
-    _validate_store_boundary(object_store, expected_prefix=prefix)
+    prefix_version = "v1" if _lineage_version == 2 else "v3"
+    prefix = (
+        f"prelock-lineage-{prefix_version}/{season}/"
+        f"week-{week:02d}/{run_id}"
+    )
+    _validate_store_boundary(
+        object_store,
+        expected_prefix=prefix,
+        object_names=object_names,
+    )
     request = _request_scope(
         run_id=run_id,
         season=season,
@@ -868,13 +994,14 @@ def run_prelock_lineage_shadow_v2(
     )
 
     # Complete-root first: this path is read-only and remains legal after lock.
-    final_reopen = object_store.try_reopen(OBJECT_NAMES["final-manifest"])
+    final_reopen = object_store.try_reopen(object_names["final-manifest"])
     if final_reopen is not None:
         result = _reopen_complete(
             object_store=object_store,
             final_bytes=final_reopen[0],
             final_identity=final_reopen[1],
             request=request,
+            lineage_version=_lineage_version,
         )
         return {**result, "resumed": True, "generation_performed": False}
 
@@ -892,8 +1019,8 @@ def run_prelock_lineage_shadow_v2(
     if observed_execution != execution:
         _fail("execution receipt differs from the current solver/compute process")
     root = repository or Path(__file__).resolve().parents[3]
-    adapter_manifest = lineage_adapter_manifest_v2(root)
-    policy_inventory = generate_effective_policy_rule_inventory_v6(root)
+    adapter_manifest = adapter_factory(root)
+    policy_inventory = inventory_factory(root)
     source_binding_mode = _validate_runtime_source_binding_v1(
         root,
         expected_commit=str(execution["source_commit"]),
@@ -902,11 +1029,11 @@ def run_prelock_lineage_shadow_v2(
             *[str(row["path"]) for row in policy_inventory["source_identities"]],
         ],
     )
-    capture_reopen = object_store.try_reopen(OBJECT_NAMES["capture-authority"])
+    capture_reopen = object_store.try_reopen(object_names["capture-authority"])
     generation_performed = False
     returned_book_verified = False
     if capture_reopen is not None:
-        capture = validate_capture_authority_v2(
+        capture = capture_validator(
             _closed_json(capture_reopen[0], label="capture authority")
         )
         capture_identity = capture_reopen[1]
@@ -961,7 +1088,11 @@ def run_prelock_lineage_shadow_v2(
         environment["PROSPECTIVE_GENERATION_EXPOSURE"] = "1"
         run = {
             "run_id": run_id,
-            "run_type": "prospective-lineage-shadow-v2",
+            "run_type": (
+                "prospective-lineage-shadow-v2"
+                if _lineage_version == 2
+                else "prospective-lineage-shadow-v3-canonical-game"
+            ),
             "season": season,
             "week": week,
             "slate_id": f"dk-{draft_group_id}",
@@ -991,7 +1122,7 @@ def run_prelock_lineage_shadow_v2(
             )
             if reopened_model_artifacts != model_artifacts:
                 _fail("post-generation model authority differs from preflight")
-            captured = build_capture_authority_v2(
+            captured = capture_builder(
                 run=run,
                 native_batches=native_batches,
                 effective_batch=batch,
@@ -1011,7 +1142,7 @@ def run_prelock_lineage_shadow_v2(
             )
             payload = canonical_json_bytes(captured)
             identity = object_store.create_or_reopen(
-                OBJECT_NAMES["capture-authority"],
+                object_names["capture-authority"],
                 payload,
                 content_type="application/json",
                 must_precede=expected_lock,
@@ -1045,7 +1176,9 @@ def run_prelock_lineage_shadow_v2(
                 cand_log_async=False,
                 cand_log_required=False,
                 panel_run_id=run_id,
-                candidate_run_type=VERSION,
+                candidate_run_type=(
+                    VERSION if _lineage_version == 2 else VERSION_V3
+                ),
                 policy_env=environment,
                 construction_preset_receipt=construction.receipt(),
                 expected_model_k=policy.model_ensemble,
@@ -1068,24 +1201,24 @@ def run_prelock_lineage_shadow_v2(
 
     if _now() >= expected_lock:
         _fail("lineage run reached a publication boundary at or after lock")
-    capture = validate_capture_authority_v2(capture)
+    capture = capture_validator(capture)
     matrix_bytes = canonical_selector_matrix_bytes(
         capture["effective_candidates"]["selector_matrix_archive"]
     )
     matrix_identity = object_store.create_or_reopen(
-        OBJECT_NAMES["selector-matrix"],
+        object_names["selector-matrix"],
         matrix_bytes,
         content_type="application/octet-stream",
         must_precede=expected_lock,
     )
     sidecar_frozen = _seconds(str(capture_identity["time_created_utc"]), mode="floor")
-    sidecar = build_sidecar_from_capture_v2(
+    sidecar = sidecar_builder(
         capture=capture,
         capture_identity=_graph_identity(capture_identity),
         frozen_at_utc=sidecar_frozen,
     )
     sidecar_identity = object_store.create_or_reopen(
-        OBJECT_NAMES["candidate-lineage-sidecar"],
+        object_names["candidate-lineage-sidecar"],
         canonical_json_bytes(sidecar),
         content_type="application/json",
         must_precede=expected_lock,
@@ -1099,7 +1232,10 @@ def run_prelock_lineage_shadow_v2(
             capture["selector_configuration"]["retrieval_preset_id"]
         )
     }
-    graph_release_id = f"prelock:{run_id}"
+    graph_release_id = (
+        f"prelock:{run_id}"
+        if _lineage_version == 2 else f"prelock-v3:{run_id}"
+    )
     projection = project_prelock_lineage_summary_v2(
         sidecar=sidecar,
         sidecar_identity=_graph_identity(sidecar_identity),
@@ -1110,7 +1246,7 @@ def run_prelock_lineage_shadow_v2(
         sidecar_provider_receipt=sidecar_receipt,
     )
     graph_identity = object_store.create_or_reopen(
-        OBJECT_NAMES["aggregate-graph-projection"],
+        object_names["aggregate-graph-projection"],
         canonical_projection_json_bytes(projection),
         content_type="application/json",
         must_precede=expected_lock,
@@ -1123,30 +1259,32 @@ def run_prelock_lineage_shadow_v2(
     }
     # Exact-reopen every predecessor immediately before root publication.
     for role, identity in objects.items():
-        object_store.reopen_exact(OBJECT_NAMES[role], identity)
+        object_store.reopen_exact(object_names[role], identity)
     final = _build_final_manifest(
         capture=capture,
         objects=objects,
         sidecar_frozen_at_utc=sidecar_frozen,
         projection_created_at_utc=projection_created,
         graph_release_id=graph_release_id,
+        lineage_version=_lineage_version,
     )
     final_bytes = canonical_json_bytes(final)
     final_identity = object_store.create_or_reopen(
-        OBJECT_NAMES["final-manifest"],
+        object_names["final-manifest"],
         final_bytes,
         content_type="application/json",
         must_precede=expected_lock,
     )
     # The root itself is exact-reopened as the fifth and final object.
     reopened_final = object_store.reopen_exact(
-        OBJECT_NAMES["final-manifest"], final_identity
+        object_names["final-manifest"], final_identity
     )
     result = _reopen_complete(
         object_store=object_store,
         final_bytes=reopened_final,
         final_identity=final_identity,
         request=request,
+        lineage_version=_lineage_version,
     )
     return {
         **result,
@@ -1156,18 +1294,31 @@ def run_prelock_lineage_shadow_v2(
     }
 
 
+def run_prelock_lineage_shadow_v3(**kwargs: Any) -> dict[str, object]:
+    """Run the canonical-game v3/v7 successor in its own namespace."""
+
+    return run_prelock_lineage_shadow_v2(**kwargs, _lineage_version=3)
+
+
 __all__ = [
     "ADAPTER_MANIFEST_SCHEMA",
+    "ADAPTER_MANIFEST_SCHEMA_V3",
     "ENTRY_BUDGET",
     "EXECUTION_RECEIPT_SCHEMA",
     "FINAL_MANIFEST_SCHEMA",
+    "FINAL_MANIFEST_SCHEMA_V3",
     "OBJECT_NAMES",
+    "OBJECT_NAMES_V3",
     "VERSION",
+    "VERSION_V3",
     "GcsClosedObjectStore",
     "ProspectivePrelockLineageShadowV2Error",
     "build_execution_receipt_v1",
     "lineage_adapter_manifest_v2",
+    "lineage_adapter_manifest_v3",
     "run_prelock_lineage_shadow_v2",
+    "run_prelock_lineage_shadow_v3",
     "validate_execution_receipt_v1",
     "validate_final_manifest_v2",
+    "validate_final_manifest_v3",
 ]

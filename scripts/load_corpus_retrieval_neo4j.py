@@ -6,8 +6,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 from typing import Any
 
 from nfl_dfs.research.corpus_neo4j_extensions import (
@@ -15,9 +15,9 @@ from nfl_dfs.research.corpus_neo4j_extensions import (
     append_retrieval_analytics,
 )
 from nfl_dfs.research.corpus_retrieval_neo4j import (
-    CorpusRetrievalNeo4jError,
     LOAD_RESULT_SCHEMA,
     SCHEMA_STATEMENTS,
+    CorpusRetrievalNeo4jError,
     apply_load_plan,
     build_load_plan,
     canonical_json_bytes,
@@ -26,7 +26,6 @@ from nfl_dfs.research.corpus_retrieval_neo4j import (
     parse_canonical_json_bytes,
     require_execute_gate,
 )
-
 
 URI_ENV = "CORPUS_RETRIEVAL_NEO4J_URI"
 DATABASE_ENV = "CORPUS_RETRIEVAL_NEO4J_DATABASE"
@@ -49,6 +48,16 @@ def _add_inputs(parser: argparse.ArgumentParser) -> None:
         help=(
             "optional compact retrieval JSON sidecar; NPZ/world bodies are "
             "intentionally unsupported"
+        ),
+    )
+    parser.add_argument(
+        "--exact-object",
+        action="append",
+        default=[],
+        metavar="GCS_URI=PATH",
+        help=(
+            "generation-pinned evidence body used for canonical-v3 semantic "
+            "replay; repeat for the suite, snapshot, and retained sidecars"
         ),
     )
     parser.add_argument("--parametric-batch-completion", type=Path)
@@ -105,13 +114,42 @@ def _load_identity(path: Path, *, label: str = "terminal receipt identity") -> d
 
 
 def _build(args: argparse.Namespace):
-    plan = build_load_plan(
-        terminal_receipt_raw=args.terminal_receipt.read_bytes(),
-        terminal_receipt_identity=_load_identity(args.terminal_receipt_identity),
-        batch_completion_raw=args.batch_completion.read_bytes(),
-        task_result_raw=args.task_result.read_bytes(),
-        graph_projection_raw=args.graph_projection.read_bytes(),
-    )
+    terminal_raw = args.terminal_receipt.read_bytes()
+    task_result_raw = args.task_result.read_bytes()
+    graph_raw = args.graph_projection.read_bytes()
+    terminal = parse_canonical_json_bytes(terminal_raw, label="terminal receipt")
+    task_result = parse_canonical_json_bytes(task_result_raw, label="task result")
+    if not isinstance(terminal, dict) or not isinstance(task_result, dict):
+        raise CorpusRetrievalNeo4jError(
+            "terminal receipt and task result must be objects"
+        )
+
+    exact_bodies: dict[str, bytes] = {}
+
+    def add_exact(uri: object, raw: bytes, *, label: str) -> None:
+        if not isinstance(uri, str) or not uri.startswith("gs://"):
+            raise CorpusRetrievalNeo4jError(f"{label} URI differs")
+        prior = exact_bodies.get(uri)
+        if prior is not None and prior != raw:
+            raise CorpusRetrievalNeo4jError(
+                f"{label} repeats with different bytes"
+            )
+        exact_bodies[uri] = raw
+
+    result_identity = terminal.get("result_object")
+    graph_identity = task_result.get("graph_projection_object")
+    if isinstance(result_identity, dict):
+        add_exact(result_identity.get("uri"), task_result_raw, label="task result")
+    if isinstance(graph_identity, dict):
+        add_exact(graph_identity.get("uri"), graph_raw, label="graph projection")
+    for spec in args.exact_object:
+        uri, marker, path_text = spec.partition("=")
+        if not marker or not uri or not path_text:
+            raise CorpusRetrievalNeo4jError(
+                "--exact-object must be GCS_URI=PATH"
+            )
+        add_exact(uri, Path(path_text).read_bytes(), label="exact object")
+
     sidecars: dict[tuple[str, str], bytes] = {}
     for spec in args.json_sidecar:
         key_text, marker, path_text = spec.partition("=")
@@ -123,7 +161,48 @@ def _build(args: argparse.Namespace):
         key = (role, strategy_id if separator else "")
         if key in sidecars:
             raise CorpusRetrievalNeo4jError("--json-sidecar keys repeat")
-        sidecars[key] = Path(path_text).read_bytes()
+        raw = Path(path_text).read_bytes()
+        sidecars[key] = raw
+        matching = [
+            row
+            for row in task_result.get("sidecars", [])
+            if isinstance(row, dict)
+            and (row.get("role"), row.get("strategy_id", "")) == key
+        ]
+        if len(matching) != 1 or not isinstance(
+            matching[0].get("object_identity"), dict
+        ):
+            raise CorpusRetrievalNeo4jError(
+                "--json-sidecar does not match one task-result receipt"
+            )
+        add_exact(
+            matching[0]["object_identity"].get("uri"),
+            raw,
+            label="JSON sidecar",
+        )
+
+    def read_exact(value: dict[str, object]) -> bytes:
+        uri = value.get("uri")
+        if not isinstance(uri, str) or uri not in exact_bodies:
+            raise CorpusRetrievalNeo4jError(
+                f"exact object body is absent for {uri!r}"
+            )
+        return exact_bodies[uri]
+
+    plan = build_load_plan(
+        terminal_receipt_raw=terminal_raw,
+        terminal_receipt_identity=_load_identity(args.terminal_receipt_identity),
+        batch_completion_raw=args.batch_completion.read_bytes(),
+        task_result_raw=task_result_raw,
+        graph_projection_raw=graph_raw,
+        # Legacy v1 evidence does not carry the authenticated suite objects
+        # required by canonical v3.  Supplying an empty exact-reader here
+        # would make a legacy validate/dry-run pretend that such an authority
+        # exists and then fail while looking for it.  Canonical v3 always
+        # supplies --exact-object entries and therefore always receives the
+        # fail-closed authenticated reader.
+        read_object=read_exact if args.exact_object else None,
+    )
     if sidecars:
         plan = append_retrieval_analytics(
             plan,

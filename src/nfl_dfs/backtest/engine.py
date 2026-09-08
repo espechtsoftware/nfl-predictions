@@ -20,6 +20,7 @@ from dataclasses import dataclass, field as dc_field, replace as dc_replace
 import numpy as np
 import pandas as pd
 
+from ..optimizer.game_identity import canonical_game_identities, normalize_team
 from ..optimizer.lineup import (Lineup, StackRules, optimize, optimize_many,
                                 select_tail_entries)
 from ..research.candidate_features import PLAYER_SNAPSHOT_FEATURES
@@ -30,6 +31,20 @@ log = logging.getLogger(__name__)
 
 REQUIRED_COLS = {"id", "name", "pos", "team", "opp", "game_id",
                  "salary", "proj", "actual"}
+
+
+def _canonical_game_projection(slate: pd.DataFrame) -> pd.Series:
+    """Rank physical games while preserving every provider ``game_id``."""
+
+    game_frame = slate.copy()
+    game_frame["_canonical_game_key"] = [
+        identity.canonical_game_key
+        for identity in canonical_game_identities(game_frame.to_dict("records"))
+    ]
+    return (
+        game_frame.groupby("_canonical_game_key")["proj"]
+        .sum().sort_values(ascending=False)
+    )
 
 
 # ADOPTED generation budget. The independent-seed CE confirmation did not
@@ -452,10 +467,14 @@ def _gumbel_perturbations(pool: list[dict], rng: np.random.Generator,
     # Center each component. The common mean is irrelevant to a MILP argmax,
     # but centering keeps diagnostics interpretable when levels are combined.
     center = np.euler_gamma * component_scale
-    game_keys = [str(p.get("game_id") or f"__game_{i}")
-                 for i, p in enumerate(pool)]
-    team_keys = [(game_keys[i], str(p.get("team") or f"__team_{i}"))
-                 for i, p in enumerate(pool)]
+    game_keys = [
+        identity.canonical_game_key
+        for identity in canonical_game_identities(pool)
+    ]
+    team_keys = [
+        (game_keys[i], normalize_team(p.get("team")))
+        for i, p in enumerate(pool)
+    ]
     game_shock = {k: rng.gumbel(0.0, component_scale) - center
                   for k in dict.fromkeys(game_keys)}
     team_shock = {k: rng.gumbel(0.0, component_scale) - center
@@ -501,14 +520,18 @@ def _epistemic_scenarios(pool: list[dict], objective_col: str
             ("market_heavy", w * mkt + (1.0 - w) * mdl),
             ("model_heavy", w * mdl + (1.0 - w) * mkt),
         ])
+        game_keys = [
+            identity.canonical_game_key
+            for identity in canonical_game_identities(pool)
+        ]
         game_scores: dict[str, float] = {}
-        for i, p in enumerate(pool):
-            gid = p.get("game_id")
-            if gid and have_market[i] and have_model[i]:
+        for i, _ in enumerate(pool):
+            gid = game_keys[i]
+            if have_market[i] and have_model[i]:
                 game_scores[gid] = game_scores.get(gid, 0.0) + abs(
                     model[i] - market[i])
         for gid in sorted(game_scores, key=game_scores.get, reverse=True)[:2]:
-            in_game = np.asarray([p.get("game_id") == gid for p in pool])
+            in_game = np.asarray([game_key == gid for game_key in game_keys])
             scenarios.append((f"game_model:{gid}",
                               np.where(in_game, mdl, base)))
             scenarios.append((f"game_market:{gid}",
@@ -1544,17 +1567,19 @@ def tail_select_lineups(
 
     n_hyper = int(runtime_env.get("HYPER_BOOM", "0") or 0)
     if n_hyper:
+        canonical_game_keys = [
+            identity.canonical_game_key
+            for identity in canonical_game_identities(pool)
+        ]
         game_tot: dict = {}
-        for p in pool:
-            gid = p.get("game_id")
-            if gid:
-                game_tot[gid] = game_tot.get(gid, 0.0) + float(p["proj"])
+        for p, gid in zip(pool, canonical_game_keys, strict=True):
+            game_tot[gid] = game_tot.get(gid, 0.0) + float(p["proj"])
         q_hi = np.quantile(rd, 0.98, axis=1)
         q_md = np.quantile(rd, 0.50, axis=1)
         for gid in sorted(game_tot, key=game_tot.get,
                           reverse=True)[:n_hyper]:
             hpool = [{**p, "proj_hyper": float(
-                q_hi[i] if p.get("game_id") == gid else q_md[i])}
+                q_hi[i] if canonical_game_keys[i] == gid else q_md[i])}
                 for i, p in enumerate(pool)]
             try:
                 lu = optimize(hpool, stack=stack,
@@ -1581,22 +1606,25 @@ def tail_select_lineups(
         try:
             from ..research.ce_worlds import apply_knobs, ce_iterate
 
+            canonical_game_keys = [
+                identity.canonical_game_key
+                for identity in canonical_game_identities(pool)
+            ]
             game_totals: dict[str, float] = {}
-            for p in pool:
-                gid = p.get("game_id")
-                if gid:
-                    game_totals[gid] = game_totals.get(gid, 0.0) + float(
-                        p[objective_col])
+            for p, gid in zip(pool, canonical_game_keys, strict=True):
+                game_totals[gid] = game_totals.get(gid, 0.0) + float(
+                    p[objective_col])
             max_games = int(runtime_env.get("CE_GAMES", "4") or 4)
             active_games = sorted(game_totals, key=game_totals.get,
                                   reverse=True)[:max_games]
-            active = np.asarray([p.get("game_id") in active_games
-                                 for p in pool])
+            active = np.asarray([
+                game_key in active_games for game_key in canonical_game_keys
+            ])
             if not active.any():
                 raise ValueError("CE requires game_id on the player pool")
             active_pool_idx = np.flatnonzero(active)
             active_game = pd.Categorical(
-                [pool[i].get("game_id") for i in active_pool_idx],
+                [canonical_game_keys[i] for i in active_pool_idx],
                 categories=active_games, ordered=True).codes
             active_team = pd.factorize(pd.Series(
                 [pool[i].get("team") for i in active_pool_idx]).fillna("_"))[0]
@@ -2050,9 +2078,12 @@ def tail_select_lineups(
     # force >= 5 players from that game. Winners take 50-80% of points
     # from one game; these are deliberately lower-mean, higher-variance
     # candidates — coverage selection decides how many survive.
-    game_proj = (slate[slate.get("game_id").notna()]
-                 .groupby("game_id")["proj"].sum().sort_values(ascending=False)
-                 if "game_id" in slate.columns else pd.Series(dtype=float))
+    if n_game_stacks or int(runtime_env.get("N_DARKGAME", "10")):
+        # Rank and lock physical games, not provider representations.  Keep
+        # the raw ``game_id`` column untouched for lineage/provenance.
+        game_proj = _canonical_game_projection(slate)
+    else:
+        game_proj = pd.Series(dtype=float)
     game_targets = list(game_proj.head(n_game_stacks).index)
     if exposure_ledger is not None and game_targets:
         exposure_expected["game_stack"] = len(game_targets) * n_per_game
@@ -2269,6 +2300,27 @@ def tail_select_lineups(
             ),
             "role_candidate_input_receipt": dict(
                 slate.attrs.get("role_candidate_input_receipt") or {}
+            ),
+            "model_artifact_receipt": dict(
+                slate.attrs.get("model_artifact_receipt") or {}
+            ),
+            "role_model_artifact_receipt": dict(
+                slate.attrs.get("role_model_artifact_receipt") or {}
+            ),
+            "model_feature_input_receipt": dict(
+                slate.attrs.get("model_feature_input_receipt") or {}
+            ),
+            "role_model_feature_input_receipt": dict(
+                slate.attrs.get("role_model_feature_input_receipt") or {}
+            ),
+            "component_notes_receipt": dict(
+                slate.attrs.get("component_notes_receipt") or {}
+            ),
+            "role_component_notes_receipt": dict(
+                slate.attrs.get("role_component_notes_receipt") or {}
+            ),
+            "preference_receipt": dict(
+                slate.attrs.get("preference_receipt") or {}
             ),
             "generation_allocation": {
                 "leverage_requested": int(n_lev_solves),

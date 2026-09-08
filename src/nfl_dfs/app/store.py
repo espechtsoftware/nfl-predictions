@@ -3,6 +3,7 @@ without a warehouse and swappable later."""
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Protocol
 
 import pandas as pd
@@ -30,14 +31,23 @@ CLASSIC_COLUMNS = [
 ]
 
 
+SCHEDULE_GAME_COLUMNS = [
+    "game_id", "season", "week", "game_type", "home_team", "away_team",
+]
+
+
 class ProjectionStore(Protocol):
     def slates(self) -> pd.DataFrame: ...
     def projections(self, season: int, week: int) -> pd.DataFrame: ...
+    def projection_batch(
+        self, season: int, week: int, *, as_of: datetime | pd.Timestamp,
+    ) -> pd.DataFrame: ...
     def defense_points_against(self, season: int | None = None) -> pd.DataFrame: ...
     def showdown_salaries(self) -> pd.DataFrame: ...
     def classic_slates(self) -> pd.DataFrame: ...
     def classic_salaries(self, draft_group_id: int) -> pd.DataFrame: ...
     def classic_draftable_ids(self) -> pd.DataFrame: ...
+    def schedule_games(self, season: int, week: int) -> pd.DataFrame: ...
 
 
 def _empty_on_missing(fn):
@@ -92,6 +102,29 @@ class BigQueryStore:
             ORDER BY proj_points DESC
             """,
             params={"season": season, "week": week},
+        )
+
+    def projection_batch(
+        self, season: int, week: int, *, as_of: datetime | pd.Timestamp,
+    ) -> pd.DataFrame:
+        """One coherent point-in-time projection batch, never per-player latest."""
+        from ..bq import query_df
+
+        return query_df(
+            f"""
+            WITH chosen_batch AS (
+              SELECT MAX(generated_at) AS generated_at
+              FROM `{settings.predictions}.player_projections`
+              WHERE season = @season AND week = @week
+                AND generated_at <= TIMESTAMP(@as_of)
+            )
+            SELECT p.*
+            FROM `{settings.predictions}.player_projections` p
+            JOIN chosen_batch b USING (generated_at)
+            WHERE p.season = @season AND p.week = @week
+            ORDER BY p.dk_player_id
+            """,
+            params={"season": season, "week": week, "as_of": as_of},
         )
 
 
@@ -235,6 +268,22 @@ class BigQueryStore:
         )
 
     @_empty_on_missing
+    def schedule_games(self, season: int, week: int) -> pd.DataFrame:
+        """Authoritative regular-season game identities for one NFL week."""
+        from ..bq import query_df
+
+        return query_df(
+            f"""
+            SELECT DISTINCT CAST(game_id AS STRING) AS game_id,
+                   season, week, game_type, home_team, away_team
+            FROM `{settings.raw}.schedules`
+            WHERE season = @season AND week = @week AND game_type = 'REG'
+            ORDER BY game_id
+            """,
+            params={"season": int(season), "week": int(week)},
+        )
+
+    @_empty_on_missing
     def classic_draftable_ids(self) -> pd.DataFrame:
         """dk_player_id -> draftable ID from the latest classic pull. The
         upload CSV needs draftable IDs (the DKSalaries 'ID' column), which
@@ -273,7 +322,8 @@ class InMemoryStore:
     def __init__(self, frame: pd.DataFrame, defense: pd.DataFrame | None = None,
                  showdown: pd.DataFrame | None = None,
                  draftables: pd.DataFrame | None = None,
-                 classic: pd.DataFrame | None = None):
+                 classic: pd.DataFrame | None = None,
+                 games: pd.DataFrame | None = None):
         self.frame = frame
         self.defense = defense if defense is not None else pd.DataFrame(
             columns=["team", "season", "week", "position", "fp_allowed",
@@ -287,6 +337,9 @@ class InMemoryStore:
         )
         self.classic = classic if classic is not None else pd.DataFrame(
             columns=CLASSIC_COLUMNS
+        )
+        self.games = games if games is not None else pd.DataFrame(
+            columns=SCHEDULE_GAME_COLUMNS
         )
 
     def showdown_salaries(self) -> pd.DataFrame:
@@ -311,6 +364,12 @@ class InMemoryStore:
     def classic_draftable_ids(self) -> pd.DataFrame:
         return self.draftables
 
+    def schedule_games(self, season: int, week: int) -> pd.DataFrame:
+        games = self.games
+        return games[
+            (games.season == season) & (games.week == week)
+        ].reset_index(drop=True)
+
     def defense_points_against(self, season: int | None = None) -> pd.DataFrame:
         df = self.defense
         return df[df.season == season] if season else df
@@ -325,3 +384,18 @@ class InMemoryStore:
     def projections(self, season: int, week: int) -> pd.DataFrame:
         df = self.frame
         return df[(df.season == season) & (df.week == week)].reset_index(drop=True)
+
+    def projection_batch(
+        self, season: int, week: int, *, as_of: datetime | pd.Timestamp,
+    ) -> pd.DataFrame:
+        frame = self.projections(season, week)
+        if frame.empty or "generated_at" not in frame:
+            return frame
+        timestamps = pd.to_datetime(frame["generated_at"], utc=True, errors="coerce")
+        cutoff = pd.Timestamp(as_of)
+        cutoff = cutoff.tz_localize("UTC") if cutoff.tzinfo is None else cutoff.tz_convert("UTC")
+        eligible = timestamps[timestamps <= cutoff]
+        if eligible.empty:
+            return frame.iloc[0:0].copy()
+        chosen = eligible.max()
+        return frame[timestamps == chosen].reset_index(drop=True)
