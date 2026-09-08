@@ -22,6 +22,38 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 CP-1 one-bank raw score read complete; prop gate closed, optional context sleeve nominated
+
+- The independently reviewed CP-1 reader executed exactly once against the
+  accepted 115,200-candidate artifact and the frozen 2023-2024 outcome
+  snapshot. The executable package is
+  `802accb742c59c98b1452e9d3c2410b1cf8cd629`, independent review is
+  `4b31cebf6cfd5139f22c77f670a3c708849d9bf4`, binding-only release is
+  `df5e1ad375cc4fdbea4dda2bfe7eec30d4cddc24`, and the result/report branch is
+  `origin/production/cp1-one-bank-read-go-20260908` at `c9cb826`.
+- The prop-recipient-plus-fill player universe failed nomination: mean K80
+  delta `-1.107` versus its position-count-matched control, interval
+  `[-2.895,+0.568]`, and no additional >=200 supply. Do not use prop
+  availability as a hard universe gate; retain market data for calibrated
+  feature/ranking tests.
+- The optional historical GPP-context generator averaged `181.325` versus
+  `179.849` for full-universe DK-only generation and created 47 versus 21
+  >=200 candidates. Its mean candidate oracle was `195.109`, but the selected
+  book left `13.784` mean oracle regret and selected none of four 220+
+  candidates. This nominates an optional structured generator sleeve and a
+  fixed-pool retrieval/rescue follow-up; it does not restore stacking or
+  bring-back rules as universal laws.
+- Durable full report and compressed result are on nfl2 `main` at
+  `02c5d4a93f4102d92e84f6b6e4026001e0c1e58d`:
+  `reports/2026-09-08-prereg072-cp1-one-bank-raw-score-result.md` and
+  `results/prereg072_cp1_one_bank_raw_read_v1.json.gz`. Uncompressed result
+  SHA-256 is
+  `50c401261c4c1fb9b4e76bf8130f05a42608bab713fe3e6625fb4a300a6bb697`.
+- This is a 36-slate, one-bank development diagnostic, not a new production
+  baseline or live-policy adoption result. Exact next score work is to finish
+  CP-3 and CP-4's already active trust gates, then run a fresh-bank fixed-K80
+  context/DK allocation screen and the omitted-high-scorer retrieval analysis.
+
 ### 2026-09-08 Week-1 capture durable-ledger P0-A integrated default-off
 
 - Independent review accepted exact candidate
