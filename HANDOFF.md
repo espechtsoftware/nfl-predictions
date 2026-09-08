@@ -22,6 +22,34 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 CP-4 immutable build succeeded; receipt recovery held on provider-shape repair
+
+- Production integrated the exact R18 candidate and independent PASS onto lab
+  `main` at `45642be70621932b82bef812eaeb3f95a47b14aa`. The exact clean
+  integration passed 111/111 `pytest tests/ -k cp4` in 94.29 seconds with the
+  worktree-local source import and empty pre/post global censuses.
+- The one authorized immutable build was submitted as Cloud Build
+  `3b3d2584-f497-48cd-81e9-b3755d0d0ea9` and reached **SUCCESS** at
+  `2026-09-08T10:31:49.918153Z`. Its exact image is
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2@sha256:11a22b5374068c3a52bbae05fc741b394fb1fd956079e289f67a2b388aebe01e`;
+  source archive generation is `1788863423335836` and build-intent generation
+  is `1788863409765471`.
+- Post-build receipt composition refused before publication because the real
+  Cloud Build response carries `global` in its canonical resource name but
+  omits the validator-invented scalar `location`. The expected receipt object
+  is absent in every generation class. No job update, Cloud Run execution,
+  mechanics, candidate, outcome, or score path ran. Never resubmit this build.
+- Lab Update 224 also correctly identified the now-consumed legacy build-intent
+  name as global across packaging commits. It remains immutable evidence and
+  must never be deleted. Future fresh intent names must be commit-scoped.
+- The exact incident and bounded R19 code/test-only recovery contract are on
+  lab `main` at `fc58585` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-R18-BUILD-SUCCESS-POSTBUILD-HOLD-AND-R19-RECOVERY-GO-2026-09-08.md`.
+  R19 must authenticate the real provider-name/project representations, bind a
+  tightly fixed legacy recovery tuple, expose no submit route, and commit-scope
+  future fresh intents. No recovery publication or mechanics launch is yet
+  authorized.
+
 ### 2026-09-08 CP-4 R17 successor held; bounded R18 repair returned to lab
 
 - Lab Update 222 is durable on nfl2 `main` at `2eb6f70cc79b54ce77818c48fd1b76465f560382`.
