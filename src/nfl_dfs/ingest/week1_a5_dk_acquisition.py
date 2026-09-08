@@ -35,6 +35,7 @@ from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
 from nfl_dfs.inference.generation_exposure import canonical_json_bytes, canonical_sha256
 from nfl_dfs.ingest import week1_a5_capture_contracts as capture
 from nfl_dfs.ingest import week1_a5_dk_acquisition_pins as live_pins
+from nfl_dfs.ingest import week1_a5_governed_capture_v3 as governed_capture
 
 COLLECTOR_ALLOWLIST_SCHEMA: Final = "dk-a5-collector-allowlist/v1"
 COLLECTOR_LEDGER_SCHEMA: Final = "dk-a5-collector-issuance-ledger/v1"
@@ -1721,6 +1722,27 @@ class _ProductionDraftKingsAcquisitionAuthority:
             _fail("derived capture did not authenticate its ledger in this call")
         return dict(self.__ledger_evidence[event_id])
 
+    def read_authenticated_acquisition_with_ledger(
+        self, *, identity: Mapping[str, object]
+    ) -> Mapping[str, object]:
+        """Return the receipt plus the exact root-last ledger it depends on.
+
+        The ordinary v2 authority method remains available for legacy
+        validators.  The governed v3 capture path uses this successor return
+        so the ledger generation and provider time survive publication and
+        can be checked again by downstream evidence builders.
+        """
+
+        receipt = dict(self.read_authenticated_acquisition(identity=identity))
+        event_id = str(receipt["authority_event_id"])
+        ledger = self._ledger_evidence_for(event_id)
+        return {
+            **receipt,
+            "authority_ledger_identity": ledger["identity"],
+            "authority_ledger_created_at": ledger["created_at"],
+            "authority_ledger_publish_by": ledger["publish_by"],
+        }
+
 
 def _authority_boundary(
     *, profiles: tuple[str, ...], phase: str, publish_by: object
@@ -2371,11 +2393,122 @@ def publish_live_final_field_provider_capture_v2(
     )
 
 
+def publish_live_acceptance_provider_capture_v3(
+    *,
+    contest_role: str,
+    acquisition_receipt: object,
+    publish_by: object,
+    execute_live_publication: bool = False,
+) -> dict[str, object]:
+    """Publish a pre-lock capture carrying its durable ledger edge."""
+
+    if execute_live_publication is not True:
+        _fail("live provider-capture publication is default-off")
+    policy = live_collector_allowlist()
+    _authority_runtime_matches(policy)
+    client = _google_storage_client(policy.project)
+    store = _GcsProviderCaptureStore(client=client, policy=policy)
+    authority = _live_acquisition_authority(
+        policy=policy,
+        client=client,
+        profiles=(capture.ACCEPTANCE_ACQUISITION_PROFILE,),
+        phase="prelock",
+        publish_by=publish_by,
+    )
+    artifact = governed_capture.build_acceptance_provider_capture_v3(
+        store=store,
+        acquisition_authority=authority,
+        contest_role=contest_role,
+        acquisition_receipt=acquisition_receipt,
+        publish_by=publish_by,
+    )
+    event_id = str(artifact["acquisition_authority_event_id"])
+    publication = capture.publish_semantic_artifact(
+        store,
+        uri=(
+            f"gs://{policy.evidence_bucket}/{policy.provider_capture_prefix}/"
+            f"acceptance-v3/{contest_role}/{event_id}.json"
+        ),
+        artifact=artifact,
+        not_after=publish_by,
+    )
+    return _verify_derived_publication_after_ledgers(
+        authority=authority,
+        publication=publication,
+        event_ids=(event_id,),
+        publish_by=publish_by,
+        phase="prelock",
+    )
+
+
+def publish_live_final_field_provider_capture_v3(
+    *,
+    contest_role: str,
+    provider_acquisition_receipt: object,
+    standings_acquisition_receipt: object,
+    publish_by: object,
+    execute_live_publication: bool = False,
+) -> dict[str, object]:
+    """Publish a settled-field capture carrying both durable ledger edges."""
+
+    if execute_live_publication is not True:
+        _fail("live provider-capture publication is default-off")
+    policy = live_collector_allowlist()
+    _authority_runtime_matches(policy)
+    client = _google_storage_client(policy.project)
+    store = _GcsProviderCaptureStore(client=client, policy=policy)
+    authority = _live_acquisition_authority(
+        policy=policy,
+        client=client,
+        profiles=tuple(
+            sorted(
+                (
+                    capture.CONTEST_DETAIL_ACQUISITION_PROFILE,
+                    capture.STANDINGS_ACQUISITION_PROFILE,
+                )
+            )
+        ),
+        phase="postlock",
+        publish_by=publish_by,
+    )
+    artifact = governed_capture.build_final_field_provider_capture_v3(
+        store=store,
+        acquisition_authority=authority,
+        contest_role=contest_role,
+        provider_acquisition_receipt=provider_acquisition_receipt,
+        standings_acquisition_receipt=standings_acquisition_receipt,
+        publish_by=publish_by,
+    )
+    event_id = str(artifact["provider_authority_event_id"])
+    publication = capture.publish_semantic_artifact(
+        store,
+        uri=(
+            f"gs://{policy.evidence_bucket}/{policy.provider_capture_prefix}/"
+            f"final-field-v3/{contest_role}/{event_id}.json"
+        ),
+        artifact=artifact,
+        not_before=capture.EXPECTED_LOCK_UTC,
+        not_after=publish_by,
+    )
+    return _verify_derived_publication_after_ledgers(
+        authority=authority,
+        publication=publication,
+        event_ids=(
+            str(artifact["provider_authority_event_id"]),
+            str(artifact["standings_authority_event_id"]),
+        ),
+        publish_by=publish_by,
+        phase="postlock",
+    )
+
+
 __all__ = [
     "CollectorIssuance",
     "Week1A5DraftKingsAcquisitionError",
     "live_collector_allowlist",
     "publish_live_acceptance_provider_capture_v2",
+    "publish_live_acceptance_provider_capture_v3",
     "publish_live_final_field_provider_capture_v2",
+    "publish_live_final_field_provider_capture_v3",
     "run_live_authenticated_acquisition",
 ]

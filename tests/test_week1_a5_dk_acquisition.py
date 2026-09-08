@@ -16,6 +16,7 @@ import pytest
 from nfl_dfs.inference.generation_exposure import canonical_json_bytes
 from nfl_dfs.ingest import week1_a5_capture_contracts as capture
 from nfl_dfs.ingest import week1_a5_dk_acquisition as acquisition
+from nfl_dfs.ingest import week1_a5_governed_capture_v3 as governed_capture
 
 FIXTURE_LOCATOR = "https://fixture.draftkings.invalid/account/active.csv"
 OBSERVED_AT = "2026-09-13T15:00:00Z"
@@ -308,6 +309,18 @@ def test_collector_derives_and_issues_exact_transport_event(
         "locator_sha256": hashlib.sha256(FIXTURE_LOCATOR.encode()).hexdigest(),
         "query_parameter_names": [],
     }
+    ledger_bound = issued.authority.read_authenticated_acquisition_with_ledger(
+        identity=issued.issuance.acquisition_receipt["artifact_identity"]
+    )
+    assert ledger_bound["authority_ledger_identity"] == (
+        issued.issuance.ledger_identity
+    )
+    assert ledger_bound["authority_ledger_created_at"] == (
+        "2026-09-13T15:03:00Z"
+    )
+    assert ledger_bound["authority_ledger_publish_by"] == (
+        "2026-09-13T15:30:00Z"
+    )
 
 
 def test_live_authority_is_private_and_operational_surface_is_noninjectable(
@@ -327,7 +340,9 @@ def test_live_authority_is_private_and_operational_surface_is_noninjectable(
 def test_live_publishers_have_no_authority_or_store_injection_surface() -> None:
     for function in (
         acquisition.publish_live_acceptance_provider_capture_v2,
+        acquisition.publish_live_acceptance_provider_capture_v3,
         acquisition.publish_live_final_field_provider_capture_v2,
+        acquisition.publish_live_final_field_provider_capture_v3,
     ):
         parameters = inspect.signature(function).parameters
         assert "acquisition_authority" not in parameters
@@ -348,6 +363,281 @@ def test_live_publishers_have_no_authority_or_store_injection_surface() -> None:
             publish_by="2026-09-13T16:00:00Z",
             execute_live_publication=True,
             acquisition_authority=MirrorAuthority(),  # type: ignore[call-arg]
+        )
+
+
+def _acceptance_capture_v3(issued: IssuedFixture) -> dict[str, object]:
+    return governed_capture.build_acceptance_provider_capture_v3(
+        store=issued.evidence,
+        acquisition_authority=issued.authority,
+        contest_role="milly-5",
+        acquisition_receipt=issued.issuance.acquisition_receipt,
+        publish_by="2026-09-13T15:30:00Z",
+    )
+
+
+def _postlock_transport(
+    *,
+    body: bytes,
+    locator: str,
+    observed_at: str,
+    content_type: str,
+    content_disposition: str | None,
+) -> FixedTransport:
+    return FixedTransport(
+        event=acquisition.TransportEvent(
+            body=body,
+            observed_at=observed_at,
+            hops=(acquisition.TransportHop(locator, 200, None),),
+            response_content_type=content_type,
+            response_content_disposition=content_disposition,
+            session_profile=acquisition.COLLECTOR_SESSION_PROFILE,
+        ),
+        calls=[],
+    )
+
+
+def _issue_final_field_sources(
+    *,
+    evidence: MemoryStore,
+    ledger: MemoryStore,
+    policy: acquisition.CollectorAllowlist,
+) -> tuple[acquisition.CollectorIssuance, acquisition.CollectorIssuance, object]:
+    pin = capture.A5_ROLE_TABLE["milly-5"]
+    provider_locator = f"{capture.FINAL_FIELD_SOURCE_LOCATOR_PREFIX}{pin.contest_id}"
+    provider_body = canonical_json_bytes(
+        {
+            "contestDetail": {
+                "contestKey": pin.contest_id,
+                "draftGroupId": int(capture.EXPECTED_DRAFT_GROUP_ID),
+                "contestState": "Complete",
+                "contestStateDetail": "Final",
+                "entries": pin.planned_entries,
+            },
+            "errorStatus": {},
+        }
+    )
+    evidence.now = "2026-09-13T18:02:00Z"
+    ledger.now = "2026-09-13T18:03:00Z"
+    provider = acquisition._collect_with_reviewed_ports(
+        policy=policy,
+        evidence_store=evidence,
+        ledger_writer=ledger,
+        transport=_postlock_transport(
+            body=provider_body,
+            locator=provider_locator,
+            observed_at="2026-09-13T18:01:00Z",
+            content_type="application/json",
+            content_disposition=None,
+        ),
+        profile=capture.CONTEST_DETAIL_ACQUISITION_PROFILE,
+        contest_role="milly-5",
+        authority_event_id=(
+            "dk-a5-20260913T180100Z-11111111111111111111111111111111"
+        ),
+    )
+
+    output = io.StringIO(newline="")
+    writer = csv.DictWriter(output, fieldnames=["Rank", "EntryId", "Lineup"])
+    writer.writeheader()
+    for ordinal in range(1, pin.planned_entries + 1):
+        writer.writerow(
+            {"Rank": ordinal, "EntryId": ordinal, "Lineup": f"QB Player {ordinal}"}
+        )
+    standings_locator = (
+        f"{capture.FINAL_STANDINGS_SOURCE_LOCATOR_PREFIX}{pin.contest_id}"
+    )
+    evidence.now = "2026-09-13T18:04:00Z"
+    ledger.now = "2026-09-13T18:05:00Z"
+    standings = acquisition._collect_with_reviewed_ports(
+        policy=policy,
+        evidence_store=evidence,
+        ledger_writer=ledger,
+        transport=_postlock_transport(
+            body=output.getvalue().encode(),
+            locator=standings_locator,
+            observed_at="2026-09-13T18:03:30Z",
+            content_type="text/csv",
+            content_disposition='attachment; filename="standings.csv"',
+        ),
+        profile=capture.STANDINGS_ACQUISITION_PROFILE,
+        contest_role="milly-5",
+        authority_event_id=(
+            "dk-a5-20260913T180330Z-22222222222222222222222222222222"
+        ),
+    )
+    authority = acquisition._authority_from_reviewed_ports(
+        policy=policy,
+        evidence=evidence,
+        ledger=MemoryLedgerReader(ledger, policy.governance),
+        profiles=tuple(
+            sorted(
+                (
+                    capture.CONTEST_DETAIL_ACQUISITION_PROFILE,
+                    capture.STANDINGS_ACQUISITION_PROFILE,
+                )
+            )
+        ),
+        phase="postlock",
+        publish_by="2026-09-13T19:00:00Z",
+    )
+    return provider, standings, authority
+
+
+def test_v3_downstream_accepts_only_capture_created_after_bound_ledger(
+    issued: IssuedFixture,
+) -> None:
+    artifact = _acceptance_capture_v3(issued)
+    ledger = artifact["authority_ledger"]
+    assert isinstance(ledger, dict)
+    assert ledger["identity"] == issued.issuance.ledger_identity
+    assert ledger["provider_created_at"] == "2026-09-13T15:03:00Z"
+
+    issued.evidence.now = "2026-09-13T15:04:00Z"
+    publication = capture.publish_semantic_artifact(
+        issued.evidence,
+        uri="gs://fixture/week1/provider-captures/v1/acceptance-v3/good.json",
+        artifact=artifact,
+        not_after="2026-09-13T15:30:00Z",
+    )
+    evidence = governed_capture.build_accepted_entry_evidence_v3(
+        store=issued.evidence,
+        acquisition_authority=issued.authority,
+        provider_capture={
+            "artifact_identity": publication["artifact_identity"],
+            "semantic_sha256": publication["semantic_sha256"],
+        },
+        frozen_at="2026-09-13T15:40:00Z",
+    )
+    assert evidence["schema_version"] == "dk-accepted-entry-evidence/v3"
+    assert len(evidence["entries"]) == 57
+
+
+def test_v3_downstream_rejects_capture_generation_that_predates_ledger(
+    issued: IssuedFixture,
+) -> None:
+    artifact = _acceptance_capture_v3(issued)
+    issued.evidence.now = "2026-09-13T15:02:30Z"
+    publication = capture.publish_semantic_artifact(
+        issued.evidence,
+        uri="gs://fixture/week1/provider-captures/v1/acceptance-v3/early.json",
+        artifact=artifact,
+        not_after="2026-09-13T15:30:00Z",
+    )
+    with pytest.raises(
+        capture.Week1A5CaptureContractError,
+        match="predates an authority ledger",
+    ):
+        governed_capture.build_accepted_entry_evidence_v3(
+            store=issued.evidence,
+            acquisition_authority=issued.authority,
+            provider_capture={
+                "artifact_identity": publication["artifact_identity"],
+                "semantic_sha256": publication["semantic_sha256"],
+            },
+            frozen_at="2026-09-13T15:40:00Z",
+        )
+
+
+def test_v3_capture_rejects_substituted_durable_ledger_record(
+    issued: IssuedFixture,
+) -> None:
+    artifact = _acceptance_capture_v3(issued)
+    artifact.pop("semantic_sha256")
+    ledger = dict(artifact["authority_ledger"])
+    ledger["provider_created_at"] = "2026-09-13T15:03:01Z"
+    artifact["authority_ledger"] = ledger
+    tampered = capture.seal_semantic_artifact(artifact)
+    with pytest.raises(
+        capture.Week1A5CaptureContractError,
+        match="durable authority",
+    ):
+        governed_capture.validate_acceptance_provider_capture_v3(
+            tampered,
+            store=issued.evidence,
+            acquisition_authority=issued.authority,
+        )
+
+
+def test_v3_final_field_checks_each_ledger_before_capture() -> None:
+    common = {
+        "identity": {
+            "uri": "gs://fixture/authority/ledger.json",
+            "generation": "1",
+            "sha256": "a" * 64,
+            "bytes": 1,
+        },
+        "provider_created_at": "2026-09-13T18:02:00Z",
+        "publish_by": "2026-09-13T19:00:00Z",
+    }
+    first = {**common, "authority_event_id": EVENT_ID}
+    assert governed_capture._assert_ledger_precedes_capture(
+        first,
+        capture_created="2026-09-13T18:03:00Z",
+        expected_event_id=EVENT_ID,
+        publish_by="2026-09-13T19:00:00Z",
+        phase="postlock",
+        label="provider authority ledger",
+    )
+    second_event = "dk-a5-20260913T180000Z-fedcba9876543210fedcba9876543210"
+    second = {
+        **common,
+        "authority_event_id": second_event,
+        "identity": {
+            **common["identity"],
+            "uri": "gs://fixture/authority/standings-ledger.json",
+        },
+        "provider_created_at": "2026-09-13T18:04:00Z",
+    }
+    with pytest.raises(
+        capture.Week1A5CaptureContractError,
+        match="predates an authority ledger",
+    ):
+        governed_capture._assert_ledger_precedes_capture(
+            second,
+            capture_created="2026-09-13T18:03:00Z",
+            expected_event_id=second_event,
+            publish_by="2026-09-13T19:00:00Z",
+            phase="postlock",
+            label="standings authority ledger",
+        )
+
+
+def test_v3_final_field_downstream_rejects_capture_before_second_ledger() -> None:
+    evidence = MemoryStore(now="2026-09-13T18:02:00Z")
+    ledger = MemoryStore(now="2026-09-13T18:03:00Z")
+    policy = _policy()
+    provider, standings, authority = _issue_final_field_sources(
+        evidence=evidence, ledger=ledger, policy=policy
+    )
+    artifact = governed_capture.build_final_field_provider_capture_v3(
+        store=evidence,
+        acquisition_authority=authority,
+        contest_role="milly-5",
+        provider_acquisition_receipt=provider.acquisition_receipt,
+        standings_acquisition_receipt=standings.acquisition_receipt,
+        publish_by="2026-09-13T19:00:00Z",
+    )
+    evidence.now = "2026-09-13T18:04:30Z"
+    publication = capture.publish_semantic_artifact(
+        evidence,
+        uri="gs://fixture/week1/provider-captures/v1/final-field-v3/early.json",
+        artifact=artifact,
+        not_before=capture.EXPECTED_LOCK_UTC,
+        not_after="2026-09-13T19:00:00Z",
+    )
+    with pytest.raises(
+        capture.Week1A5CaptureContractError,
+        match="predates an authority ledger",
+    ):
+        governed_capture.build_final_field_evidence_v3(
+            store=evidence,
+            acquisition_authority=authority,
+            provider_capture={
+                "artifact_identity": publication["artifact_identity"],
+                "semantic_sha256": publication["semantic_sha256"],
+            },
+            frozen_at="2026-09-13T19:10:00Z",
         )
 
 
@@ -393,7 +683,28 @@ def test_live_surfaces_fail_before_client_or_transport_contact(
         acquisition.Week1A5DraftKingsAcquisitionError,
         match="remains HOLD",
     ):
+        acquisition.publish_live_acceptance_provider_capture_v3(
+            contest_role="milly-5",
+            acquisition_receipt={},
+            publish_by="2026-09-13T16:00:00Z",
+            execute_live_publication=True,
+        )
+    with pytest.raises(
+        acquisition.Week1A5DraftKingsAcquisitionError,
+        match="remains HOLD",
+    ):
         acquisition.publish_live_final_field_provider_capture_v2(
+            contest_role="milly-5",
+            provider_acquisition_receipt={},
+            standings_acquisition_receipt={},
+            publish_by="2026-09-16T00:00:00Z",
+            execute_live_publication=True,
+        )
+    with pytest.raises(
+        acquisition.Week1A5DraftKingsAcquisitionError,
+        match="remains HOLD",
+    ):
+        acquisition.publish_live_final_field_provider_capture_v3(
             contest_role="milly-5",
             provider_acquisition_receipt={},
             standings_acquisition_receipt={},

@@ -22,6 +22,35 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 capture-v3 durable-ledger successor ready for review
+
+- The bounded successor is complete on branch
+  `codex/week1-capture-v3-p0a-r2-repair-20260908`, based on independent HOLD
+  tip `a929aa57d6b00d30a0eef9c3b92ba92a8bb4e64c`. The disposition is
+  `reports/2026-09-08-week1-capture-v3-p0a-durable-ledger-successor.md`.
+- Additive v3 acceptance and final-field provider-capture/evidence contracts
+  durably bind each root-last ledger's exact object identity, provider creation
+  time, authority event, and cutoff. Downstream builders exact-reopen the
+  stored provider-capture generation, reconstruct its current sole-generation
+  authority, and enforce `receipt <= ledger <= stored capture <= cutoff`.
+  Final field checks the contest-detail and standings ledgers separately.
+- The exact downstream adversaries now reject an acceptance capture stored
+  before its later ledger and a final-field capture stored after its first
+  ledger but before its second. A substituted retained ledger timestamp also
+  fails against durable authority.
+- Existing v2 contracts are unchanged. Their source/test SHA-256 values remain
+  `90c712df78e61c290cc4e41cef739de6693b7c1c33de76dd7176eb25a45ff2c8`
+  and `78850f72c351411b10a2494b7ca6db8491170583d499a7c97e75e98f2bfe4706`.
+  All pins remain absent, v3 live publishers remain default-off and
+  non-injectable, and no production call site imports the successor.
+- Serial validation after empty global pytest censuses passed 26/26 governed
+  acquisition/successor tests, 42/42 unchanged P2 tests, and 15/15 unchanged
+  legacy-v2 rehearsal tests. Python compilation, Ruff lint, and
+  `git diff --check` pass. No provider, network, GCS, cloud, deployment,
+  paid-entry, score, generation, selection, or outcome action occurred.
+- Exact next action: commit/push this candidate and obtain a fresh independent
+  review of the exact commit/tree. P0-B and every live operation remain HOLD.
+
 ### 2026-09-08 Week-1 capture-v3 P0-A repair independent review remains HOLD
 
 - Fresh independent review of exact repair implementation
