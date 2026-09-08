@@ -82,6 +82,10 @@ agent or developer:
   tip `abf1427d9303939709fd9ba10a3ea435819cc4ba`; divergent donor handoff
   snapshots were excluded. The exact implementation path is recorded in
   `reports/2026-09-08-week1-capture-v3-p2-selective-integration.md`.
+- The exact integrated checkout passed 42/42 focused capture-v3 tests in
+  16.03 seconds under separately empty pre/post global pytest censuses. Python
+  byte compilation and `git diff --check` also passed. No provider, network,
+  publication, deployment, outcome, or paid-entry action occurred.
 - The **P0 operational HOLD remains** for manifest publication, acceptance or
   settlement claims, live provider contact, and paid-entry use. Remaining
   deadline-critical work is the concrete governed collector/immutable
