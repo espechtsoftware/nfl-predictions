@@ -45,6 +45,16 @@ agent or developer:
   floor (soft-delete support begins at 2.16), add exact bucket/IAM/policy
   provisioning and preflight, and keep all mutation default-off until an
   independent GO. Do not deploy, route traffic, activate, or emit paid output.
+- The default-off provider-readiness repair is now pushed at exact commit
+  `87d5672db06e26dfe38f129c5ddfaed77a30889c`, tree
+  `eba6e0820d5ce49dadb59e8ba03e66b9f17a1dd2`, on
+  `origin/codex/canonical-paid-r4-provider-readiness-repair-20260908`.
+  Static AST/TOML/YAML/diff checks, its no-contact default plan, installed
+  Storage 3.13.1 signature check, local property serialization, and dependency
+  census passed. It has not run pytest or contacted/mutated a provider. Queue
+  independent review and the serial suite after PREREG-074. Exact-image apply,
+  runtime-service-account proof, and the durable receipt destination remain
+  explicit operational HOLDs; do not infer them from the code candidate.
 
 ### 2026-09-08 Week-1 A5 capture-v3 independent HOLD; bounded repair active
 
