@@ -22,6 +22,44 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 capture-v3 P0-B local rehearsal R2 candidate
+
+- Branch `production/week1-capture-v3-p0b-local-rehearsal-r2-20260908`
+  carries the bounded code/test-only successor to P0-B implementation
+  `51e3dd4b098b46933fab701d9711065d6bf844a9`. Its exact implementation commit
+  is recorded by the metadata-only successor commit at branch tip.
+- The immediate gate is now only one local authenticated DraftKings
+  acceptance-download rehearsal. The organization-wide IAM, Cloud Asset,
+  Cloud Build, Artifact Registry, bucket, Cloud Run job, service-account and
+  Secret Manager census is absent from the executable path and cannot block
+  this provider-response rehearsal. Any future deployment certification must
+  be a separately named artifact.
+- The audit requires an exact confirmation phrase and canonical hashed intent,
+  reserves private create-once local evidence/receipt paths, securely reads
+  exact mode-0600 owner-only locator and Playwright storage-state files without
+  persisting their paths or contents, performs GET only with automatic
+  redirects disabled, admits every hop before contact against fixed
+  DraftKings HTTPS families, and rejects named auth/action/outcome surfaces. It
+  requires an exact attachment CSV and accepted structural A5 DKEntries facts.
+  Evidence retains only redacted locator projections, response metadata, body
+  size/SHA and role-level structural facts; no locator suffix/query, cookie,
+  token, filename, row, entry or roster value is retained.
+- Every activation/live pin remains absent. The accepted P0-A collector,
+  collector tests, capture contracts, capture-contract tests and capture-v3
+  module are byte-identical to parent `e71ce651791fe6539876112068c211be0af2bf1e`.
+  Empty-census serial validation passed 69/69 R2 tests and 95/95 combined P0-A
+  plus R2 tests; Ruff, compilation, diff and ignore checks pass. A fresh
+  read-only source/docs safety audit returned PASS after confirming the sole
+  default-real-network path remains behind every CLI gate.
+- No provider/network, gcloud, Google Cloud, GCS, build, deployment, job,
+  publication, contest-entry, standings, score or outcome action occurred.
+  The exact separately gated future invocation and required private artifacts
+  are in
+  `reports/2026-09-08-week1-capture-v3-p0b-local-provider-rehearsal-r2.md`.
+  Next action is independent review of the exact pushed source and offline
+  intent; only a distinct production authorization may permit that documented
+  local provider rehearsal.
+
 ### 2026-09-08 Week-1 capture-v3 P0-B provider-reality gate candidate
 
 - A fresh production worktree from exact `origin/main`

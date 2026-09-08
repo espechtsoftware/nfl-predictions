@@ -27,5 +27,9 @@ notebooks/.ipynb_checkpoints/
 /.build-contexts/
 /.scratch-score-sprint/
 /.tmp/
+# Private Week-1 local-rehearsal inputs and create-once outputs. These may
+# contain authenticated provider material and must never enter version control.
+/var/week1-a5-p0b/
+/reports/week1-a5-p0b-local-runs/
 # Frontend dependency cache; the deterministic production bundle is tracked.
 /frontend/node_modules/

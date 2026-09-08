@@ -1,5 +1,12 @@
 # Week-1 capture-v3 P0-B provider-reality gate candidate
 
+> Superseded for the immediate provider-response rehearsal by the local-only
+> R2 successor. This document describes historical implementation commit
+> `51e3dd4b098b46933fab701d9711065d6bf844a9`; its organization/cloud
+> deployment census is not on the R2 rehearsal execution path and must not
+> block that local rehearsal. See
+> `reports/2026-09-08-week1-capture-v3-p0b-local-provider-rehearsal-r2.md`.
+
 Date: 2026-09-08
 
 Base: production `origin/main` at
