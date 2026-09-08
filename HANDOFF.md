@@ -22,6 +22,39 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 canonical-v3 Neo4j strict suite-authority R2 independent PASS
+
+- Independently reviewed exact candidate
+  `9ec524344f47483e59ad15adbca6aec824e506d8`, a direct child of required
+  parent `0b9f266ea3476da3b48bfe01bc89a765be943c5e`, in isolated worktree
+  `/home/erich/projects/nfl-predictions-canonical-v3-neo-authority-r2-independent`
+  on branch `codex/canonical-v3-neo-authority-r2-independent`.
+- Disposition is **PASS** with no P0/P1 finding. Only exact-object-
+  authenticated `corpus-retrieval-suite-manifest/v3-canonical-game` evidence
+  can execute. Suite v1/v2 and legacy evidence remain validation-only. The
+  plan builder and executable-plan boundary independently enforce this law.
+- All eleven governed graph operation names are guarded before graph contact.
+  Full-suite paths authenticate retrieval plus all 54 parametric plans before
+  partial work; finish and complete-query paths also authenticate the registry
+  extension. The live transport CLI guards before backend construction, while
+  the standalone loader and live driver apply path repeat the core guard.
+- After an empty process census, one isolated-source process passed **104/104**
+  cases across `test_corpus_retrieval_neo4j.py`,
+  `test_corpus_neo4j_transport.py`, and
+  `test_corpus_strategy_registry_release.py`, exit 0. Changed-file
+  `py_compile` and `git diff --check` also passed. Ruff was unavailable in the
+  independent environment and was not counted as independent evidence.
+- Durable review report commit:
+  `5b4b1983029db47809b583824057828042a1e378`; report
+  `reports/2026-09-08-canonical-v3-neo-suite-authority-r2-independent-review.md`.
+  No graph, cloud, deployment, load, scoring, outcome, paid-entry, default, or
+  production-policy state was read or changed.
+
+  Next concrete action: selectively integrate the exact reviewed candidate
+  and independent report. Keep Neo4j default-off; any actual graph load still
+  requires its own exact manifest, launch gate, state census, and explicit
+  release decision.
+
 ### 2026-09-07 canonical-v3 Neo4j strict suite-authority R2 (review-ready)
 
 - Isolated worktree
