@@ -22,6 +22,43 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 canonical-v3 paid/deployment bounded R4 independent PASS
+
+- Independent isolated review of exact candidate
+  `9dfc767f141053efd29e6471519c711bce3a86f6`, tree
+  `9b3a3fc70bfc0481d77926a1a14b0f0a288cd558`, confirms that it is the single
+  direct child of reviewed R3 `999204cc42602a43b8f94df12bbeb590db37ff40`.
+  No Cloud Build, deploy, Cloud Run/GCS mutation, traffic change, graph load,
+  score/outcome read, contest entry, or paid action occurred.
+- Disposition: **PASS for bounded integration.** The R3 create-once blocker is
+  closed. Deployment and runtime share a fully consumed exact-name census of
+  live, all-version/noncurrent, and soft-deleted generations; publication is
+  conditional on empty history and exact-reopens the provider-returned sole
+  generation; runtime closes on deletion, recreation, tombstones, multiple
+  generations, partial/uncertain enumeration, or census/read drift.
+- The accepted R3 posttraffic/rollback boundary is preserved. Normalized AST
+  hashes of the build validator, deployment attestor/validator, and final-
+  authority creator/validator are unchanged; the paid-v3 book, application
+  router, and paid Cloud Build contract retain exact R3 blobs. Shell order
+  keeps rollback armed through final traffic attestation and final-authority
+  construction.
+- Fresh global pytest censuses preceded both serial gates. Independent results:
+  **148/148** focused R4 tests in 8.03 seconds and **298/298** exact Cloud Build
+  release-gate tests in 21.61 seconds. Direct-child/tree, `git diff --check`,
+  Python compilation, both paid shell syntax checks, registry-v2 verification,
+  provider-client API inspection, and scope/identity comparisons are green.
+- Durable review:
+  `reports/2026-09-08-canonical-v3-paid-deployment-r4-independent-review.md`.
+  The authority bucket and exact release identities must still authenticate
+  live/version/soft-delete list plus exact-generation get before cutover; code
+  fails closed if that provider contract is unavailable. A nonzero return
+  after final publication must be reconciled, never blindly retried.
+
+  Next concrete action: integrate the exact R4 candidate through production's
+  review path, then perform the outcome-blind provider readiness check before
+  any live cutover. This PASS alone does not authorize build, deployment,
+  traffic, activation, or paid output.
+
 ### 2026-09-08 canonical-v3 paid/deployment bounded R4 (review candidate)
 
 - Isolated worktree
