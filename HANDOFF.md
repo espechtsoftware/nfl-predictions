@@ -22,7 +22,7 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
-### 2026-09-08 CP-4 R17 successor returned; exact independent review active
+### 2026-09-08 CP-4 R17 successor held; bounded R18 repair returned to lab
 
 - Lab Update 222 is durable on nfl2 `main` at `2eb6f70cc79b54ce77818c48fd1b76465f560382`.
   The exact candidate is `75e399d2b7172f58076d086abaa2ec82111c5383`,
@@ -35,12 +35,21 @@ agent or developer:
   the execute RPC may have begun, and bounded asynchronous Cloud Build
   polling/recovery. It also repairs a pre-existing test-order dependency by
   evicting the imported `google` namespace before loading the fake.
-- Production began independent review of this exact successor immediately.
-  No CP-4 build, provider mutation, mechanics execution, efficacy execution,
-  artifact publication, or outcome access is authorized until that review
-  returns PASS. Exact next action: finish the independent code/test review;
-  on PASS, publish the launch disposition and execute only the frozen bounded
-  CP-4 mechanics path.
+- Independent review accepted the before-operation phases, execute-attempted
+  recovery, bounded asynchronous build wait, and import-order repair, but
+  reproduced one remaining P0 in the exact bound shell/file-provider path.
+  When both an ambiguous update and disposition publication fail, the caller
+  ignores `record_disposition`'s nonzero status and exits with contradictory
+  `NO DISPOSITION` and durable-disposition-published messages while no verdict
+  exists.
+- Production published the exact bounded R18 code/test-only repair contract on
+  nfl2 `main` at `78a6a24` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-R17-HOLD-AND-R18-CALLER-STATUS-REPAIR-GO-2026-09-08.md`.
+  R18 must consume the caller status, report success versus absence truthfully,
+  and add the combined real-port adversary. No CP-4 build, provider mutation,
+  mechanics/efficacy execution, artifact publication, or outcome access is
+  authorized. Exact next action: lab returns the narrow repair and empty
+  serial lane; production performs one narrow independent delta review.
 
 ### 2026-09-08 Week-1 capture-v3 P1 remains P0 HOLD; P2 repair active
 
