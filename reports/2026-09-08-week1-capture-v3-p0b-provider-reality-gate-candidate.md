@@ -7,6 +7,9 @@ Base: production `origin/main` at
 
 Branch: `production/week1-capture-v3-p0b-provider-reality-gate-20260908`
 
+Candidate implementation: `51e3dd4b098b46933fab701d9711065d6bf844a9`
+(tree `d8222bcc3a6b4c25e8e27aa4fc023c1dbbf11574`)
+
 ## Disposition
 
 **CODE/TEST CANDIDATE; REAL-FACT HOLD.**

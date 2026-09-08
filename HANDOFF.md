@@ -81,7 +81,9 @@ agent or developer:
 - A fresh production worktree from exact `origin/main`
   `054b09460a952d4a363d904a27c39f898e342bc0` now carries the code/test-only
   P0-B audit on branch
-  `production/week1-capture-v3-p0b-provider-reality-gate-20260908`.
+  `production/week1-capture-v3-p0b-provider-reality-gate-20260908`. The exact
+  implementation commit is `51e3dd4b098b46933fab701d9711065d6bf844a9`
+  (tree `d8222bcc3a6b4c25e8e27aa4fc023c1dbbf11574`).
 - The audit is default no-contact and requires a canonical independently
   reviewed intent, explicit confirmation, private locator file and absent
   create-once local evidence paths before its real mode. It authenticates the
