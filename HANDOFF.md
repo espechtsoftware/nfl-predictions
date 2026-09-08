@@ -40,12 +40,49 @@ agent or developer:
   environment, service account, CPU, memory, timeout, task count and
   `maxRetries=0` remained unchanged; resulting job generations are 36 and 14
   respectively. No scheduler was changed.
-- One bounded incremental `ingest-nflverse` execution is active as
-  `ingest-nflverse-2npqq`. This is not a historical/full refresh and no
-  snapshot will be backdated. Next action after terminal success: verify the
-  expected 2026 Week-1 injury snapshot, run `build-features`, then require an
-  exact-digest `check-freshness` execution to pass. On failure, stop and
-  diagnose the exact execution before any retry.
+- Bounded incremental execution `ingest-nflverse-2npqq` completed successfully
+  at `2026-09-08T13:49:20Z` with one succeeded task and no retry. It appended
+  capture `ffc2b90441138ac6cc116fecd0ff8da3f7271419bfcf853817370281274bfeec`:
+  exactly 11 distinct 2026 Week-1 players at one collector timestamp, no
+  missing player/team identity, and NULL for all 11 rows in each of the four
+  explicitly nullable columns absent from the early source. This was not a
+  historical/full refresh and no snapshot was backdated.
+- The unchanged `build-features` job is now executing as
+  `build-features-hrs67`. Next action after terminal success: execute the
+  exact-digest `check-freshness` job and require a clean gate. On failure,
+  stop and diagnose the exact execution before any retry.
+
+### 2026-09-08 PREREG-074 R27 held at host trust closure; R28 repair issued
+
+- Fresh independent review held exact R27 candidate
+  `e38315648f98f31605cdb30583784a7bc19c8bfb` despite its 37/37 focused
+  tests and clean source-only bootstrap. Repository-local Git network config
+  remained able to influence a private credential-bearing fetch, and later
+  controller Git calls did not disable executable `core.fsmonitor` config.
+  The bootstrap also admitted a mutable user-owned venv before receipt/image
+  authentication; importing the controller loaded hundreds of unauthenticated
+  third-party Python/native modules.
+- The bounded HOLD/R28 instruction is on lab `main` at
+  `f4abb6d91baebdc1a433f727c67c176fe11e807b` in
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-R27-HOLD-AND-R28-TRUST-CLOSURE-GO-2026-09-08.md`.
+  R28 must isolate/close Git configuration and authenticate or eliminate the
+  pre-receipt runtime dependency chain, with behavioral substitution
+  negatives. No R27 build, FM6, provider, data, outcome or score action is
+  authorized.
+
+### 2026-09-08 CP-4 R21 image-closure candidate returned for review
+
+- Lab Update 228 returned exact candidate
+  `b3208008659d59dc161586a10ad2550975cfdcf2` on
+  `lab/cp4-r21-image-closure`. Lab reports 139 tests, a clean tree, observed
+  lower-bound closure, 39/39 final-image members and five non-package removal
+  adversaries, and has retired the spent R16 namespace in favor of R17.
+- One stale-image inventory result was correctly discarded after the
+  associated local build was found to have failed; the candidate now checks
+  label/object identity from inside the image before accepting image evidence.
+  Lab performed no provider action. A fresh independent source review is
+  active; final build and the production-owned exact-object read-only smoke
+  remain held until it passes.
 
 ### 2026-09-08 Week-1 injury-freshness focused image build queued
 
