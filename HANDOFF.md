@@ -22,6 +22,48 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 CP-4 R19 held at immutable-consumer seam; R20 repair authorized
+
+- Production R19 candidate `5ee9c88a846b17e255bd5f6104afa31aca8eef2f`
+  passed 108 focused and 128 broad CP-4 tests, but independent review found a
+  launch-blocking cross-commit incompatibility: the recovery would publish a
+  v4 build receipt while the exact registered consumer at packaging commit
+  `45642be70621932b82bef812eaeb3f95a47b14aa` accepts only the immutable v3
+  wire contract. Running the v4 consumer from the repair checkout instead is
+  correctly refused by the packaging-source identity gate.
+- The independent HOLD is durable on nfl2 `main` through `2948ba3`; the full
+  report is `reports/2026-09-08-cp4-r19-independent-review.md`. No receipt was
+  published, no build was repeated, and no provider/job/execution/outcome
+  action occurred.
+- The bounded R20 code/test-only repair is authorized on nfl2 `main` at
+  `846a15b` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-R19-HOLD-AND-R20-V3-RECOVERY-GO-2026-09-08.md`.
+  It must emit the exact v3 wire shape accepted by the immutable consumer
+  while retaining R19's corrected canonical provider authentication,
+  recovery-only/no-submit surface, exact fixed tuple, full-commit future
+  intent scoping and create-once publication. A cross-commit executable-path
+  regression is mandatory. R20 implementation is active; recovery and cloud
+  execution remain held until another independent PASS.
+
+### 2026-09-08 Week-1 capture P2 scaffold integrated default-off; live authority still held
+
+- Exact P2 implementation `96cd87a8dcc37e008db3c69f14d35af63ac8ae84`
+  passed 42 focused and 15 unchanged-v2 tests. Independent review at
+  `abf1427d9303939709fd9ba10a3ea435819cc4ba` grants conditional CODE GO for
+  the default-off scaffold only: the injected authority protocol can still be
+  self-authored by a caller and is not a governed live collector.
+- Selective integration is pushed at
+  `318b27d6eb27116deafe3e9322892e1bea201a83` on
+  `origin/production/week1-capture-v3-p2-integration-20260908`, preserving the
+  operational P0 HOLD. Remaining deadline-critical work is the concrete
+  governed collector/immutable acquisition ledger, repository-owned
+  non-substitutable authority adapter, real active-entry locator and shape,
+  full-field rehearsal, and exact lobby/salary/book/allocation-root binding.
+- The authenticated Fantasy Points ownership session now verifies, but the
+  2026 ownership surface currently reports no visible grid/table or headers.
+  Recheck at first Week-1 publication; authentication is no longer the
+  blocker, availability/entitlement is. No player row was captured.
+
 ### 2026-09-08 CP-4 immutable build succeeded; receipt recovery held on provider-shape repair
 
 - Production integrated the exact R18 candidate and independent PASS onto lab
