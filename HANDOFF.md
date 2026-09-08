@@ -22,6 +22,59 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Experiment 081 R3 mechanics launch preflight failed cleanly; cache-only retry preparation active
+
+- Production issued the independently reviewed one-run mechanics GO for exact
+  run `081m560r3-20260908T000800Z`, bank 560, accepted source
+  `79031403bcd3180073c0c0576cbe31ed18adcfc2`, reviewed binding tip
+  `e83e8c1ca48f9e53271aedb1b5c863074199da0f`, build
+  `351c7a92-d15f-4100-98ac-e1fc0d4c7ab7`, and immutable image
+  `sha256:db6db8454c28a7f39a1c98a8597240a20b8d8d2f4dbfe24ac647c47f61cc6252`.
+  The registered coordinator ran from `2026-09-08T01:01:15Z` through
+  `01:15:13Z` under launcher receipt
+  `073c5391ce5c2a28b26295d98af74ec2e35c1ca746c2c19dbb251688450d3abd`.
+- It failed closed during the local isolated immutable-image smoke because the
+  Artifact Registry layer transfer was reset by the network. This occurred
+  before intent publication or the execute RPC. Post-failure authoritative
+  checks found both the exact intent and result objects absent (404) and zero
+  matching executions on both `lab-run` and `lab-run-slow`; therefore no
+  experiment attempt, outcome read, or scientific namespace was consumed.
+- Production is caching the same immutable digest locally through authenticated
+  range retrieval before rerunning the unchanged registered coordinator. This
+  changes only local image-cache state. Before the rerun, re-confirm the exact
+  intent/result absence and zero provider claims; never issue a second execute
+  if any intent or claim appears.
+
+### 2026-09-08 PREREG-074 R18 and CP-4 R16 v3 remain prelaunch HOLD
+
+- Independent review held exact PREREG-074 R18 `ca29925`: the executable still
+  compares the real 17-key fm4 code map with a scalar digest, and most new
+  build/recovery/authentication helpers are dead code rather than wired into
+  the builder. The docs-only review and R19 repair contract reached lab main at
+  `a8f7e8b0ea25323671e4fe797b7cf134edb18f34`. No fm4, build, launch, or outcome
+  action is authorized from R18.
+- Independent review held exact CP-4 R16 v3
+  `5e8cd01fddb080a298f4bff42f448c1d870b945c`. Its registered archive omits an
+  executed census helper, the real build context contradicts its tracked-file
+  assertion, image-mode/build and image-smoke paths cannot execute as written,
+  Cloud Run update arguments conflict, and recovery/seal validation remains
+  incomplete. The bounded v4 repair contract reached lab main at
+  `daa1e684b2195f0601a3e6d3447591a4e4f88877`. No CP-4 build or launch is
+  authorized from v3.
+
+### 2026-09-08 Canonical-v3 Neo4j strict-authority repair independently passed, integration still held
+
+- Exact candidate `9ec524344f47483e59ad15adbca6aec824e506d8` passed its author and
+  independent focused suites (104/104 each). It makes v3 the only executable
+  suite authority, rejects v1/v2 before backend contact, and guards all eleven
+  governed graph operations. No graph, load, deployment, score, or policy state
+  changed.
+- Do not cherry-pick it alone: current production main lacks its canonical-game,
+  retrieval-v3 and paid-boundary ancestry. The candidate's 69-file lineage
+  contains paid/deployment repair `3c51fd3`, which is now undergoing independent
+  review. Integrate only after that dependency and the full merge composition
+  are independently cleared.
+
 ### 2026-09-08 Cloud Run monitor accepts exact frozen RUN_ID registrations
 
 - A completed one-shot coordinator registered the full identity
