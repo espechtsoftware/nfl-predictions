@@ -22,6 +22,29 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 CP-4 R16 remote-driver v2 held on real provider evidence
+
+- Lab returned driver v2 at
+  `88792eb12ba0757c0c5df5f0bf94fcddffb3a53d`. It correctly repairs several
+  first-driver defects, but production's required real-SDK present/absent
+  probe proved that its noncurrent-generation command
+  (`gcloud storage ls --all-versions --format=json`) exits 1 under installed
+  SDK 583.0.0. Every real preflight would therefore stop before mutation.
+- The consolidated review also holds launch because no reviewed image-builder/
+  receipt producer exists; the container receipt does not require the
+  packaging commit; inherited job state and the post-update spec are not
+  authenticated; real execution job generation lives in metadata labels the
+  validator does not inspect; the occupied claim has no recovery-only adopt
+  path; and no exact-generation terminal seal binds the provider and smoke
+  evidence. Production chose explicit authenticated image mode over a
+  synthetic Git repository in the image.
+- Durable review/driver-v3 repair contract is lab-main commit `7c49e6f`:
+  `reports/2026-09-08-cp4-r16-remote-driver-r2-independent-review.md`.
+  Preserve accepted R16 science and the unconsumed `r16` label. Use
+  `lab-run-slow`, 2 CPU / 8 GiB, one task, zero retries. No build, preflight,
+  job update, execution, GCS publication, candidate, mechanics, outcome, or
+  score action is authorized until a corrected packet independently passes.
+
 ### 2026-09-08 Experiment 081 R3 immutable build and receipt recovered cleanly; mechanics binding active
 
 - The independent lost-build-ID recovery review passed at exact commit
