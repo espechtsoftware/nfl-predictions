@@ -22,6 +22,39 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 capture-v3 P0-A repair independent review remains HOLD
+
+- Fresh independent review of exact repair implementation
+  `49d896e7c91490ef12ee30a38ea0bb00dea9d1a0` and candidate tip
+  `fcdc25b8a129a90aaa31b5c4e6abf4782016faa2` is **HOLD**. The durable review
+  is commit `bf355043` on branch
+  `codex/week1-capture-v3-p0a-repair-independent-review-20260908`, at
+  `reports/2026-09-08-week1-capture-v3-p0a-repair-independent-review.md`.
+- The direct-bucket IAM, hop-by-hop redirect, cutoff/lock, private live
+  authority, absent-pin, no-call-site and compatibility repairs pass. One
+  original P0-2 edge remains: exact root-last ledger identity/time exists only
+  in the live authority's in-memory cache and is not bound into the unchanged
+  provider-capture v2 artifact/authority return. The immediate publisher
+  rejects `derived capture < ledger`, but downstream accepted-evidence
+  validation does not know the provider-capture creation time relative to the
+  ledger.
+- An offline adversary reproduced acceptance of a provider-capture generation
+  created at `2026-09-13T15:02:30Z` under a root-last ledger created later at
+  `15:03:00Z`; `build_accepted_entry_evidence_v2()` accepted it, while only the
+  immediate private wrapper rejected it. Honest wrapper call order is not
+  durable artifact evidence.
+- Serial validation independently passed 21/21 repaired P0-A, 42/42 unchanged
+  P2 and 15/15 legacy-v2 tests under empty global pytest censuses. Ruff,
+  compilation, diff checks, source identities, exports/default pins and
+  repository call-site inspection passed. No network, cloud, provider, GCS,
+  DraftKings, deployment, paid-entry or outcome action occurred.
+- Exact next action: add a successor authority/provider-capture contract (or
+  equivalent authenticated sidecar) binding each ledger's exact identity and
+  provider time, then make downstream validation exact-reopen it and enforce
+  `receipt <= ledger <= stored provider-capture creation <= cutoff`. Preserve
+  existing v2 bytes as compatibility and retain every already-passed repair.
+  Fresh review is required before P0-B or any live action.
+
 ### 2026-09-08 Week-1 capture-v3 P0-A independent-HOLD repair ready for review
 
 - The bounded repair is complete on branch
