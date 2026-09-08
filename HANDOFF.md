@@ -49,7 +49,7 @@ agent or developer:
   deployment R2 against the cited exact requirements; only then review the full
   canonical-v3/Neo4j merge composition.
 
-### 2026-09-08 Experiment 081 R3 mechanics launch preflight failed cleanly; cache-only retry preparation active
+### 2026-09-08 Experiment 081 R3 mechanics launch attempts failed cleanly before intent; R4 service-account repair active
 
 - Production issued the independently reviewed one-run mechanics GO for exact
   run `081m560r3-20260908T000800Z`, bank 560, accepted source
@@ -66,11 +66,28 @@ agent or developer:
   checks found both the exact intent and result objects absent (404) and zero
   matching executions on both `lab-run` and `lab-run-slow`; therefore no
   experiment attempt, outcome read, or scientific namespace was consumed.
-- Production is caching the same immutable digest locally through authenticated
-  range retrieval before rerunning the unchanged registered coordinator. This
-  changes only local image-cache state. Before the rerun, re-confirm the exact
-  intent/result absence and zero provider claims; never issue a second execute
-  if any intent or claim appears.
+- Production reconstructed and loaded the exact registry image from individually
+  authenticated, size-checked and SHA-256-checked OCI blobs after the WSL Docker
+  transport repeatedly reset. `docker image inspect` then proved the exact
+  immutable RepoDigest. A second authoritative pretry census again proved the
+  intent/result absent and both jobs at zero matching claims.
+- Registered attempt 2 began at `2026-09-08T02:05:55Z` and passed the image
+  smoke, but failed closed during the pre-intent job update. The frozen R3
+  contract names nonexistent service account
+  `lab-runner@nfl-2-506823.iam.gserviceaccount.com`; the authoritative service-
+  account census and current `lab-run` template instead identify the existing
+  runner as `nfl-lab-runner@nfl-2-506823.iam.gserviceaccount.com`. The provider
+  reported `iam.serviceAccounts.actAs` against the nonexistent identity. The
+  attempt ended at `02:06:25Z` under launcher completion
+  `a3f9fbfdd1ffe4cb2859d47db9517c6c46025bdadb6d5c5e6445ff302c26c988`.
+  No launch intent or execute RPC had been reached.
+- R3 is now HOLD. Do not create the misspelled service account, grant IAM to it,
+  or weaken runtime identity. R4 must narrowly replace every coherent contract,
+  host-helper, coordinator, test and documentation binding with the existing
+  `nfl-lab-runner` identity, regenerate all dependent hashes, and receive an
+  independent review before another registered invocation. Preserve the exact
+  image/build/source/science and re-confirm zero intent/result/provider claims
+  immediately before any retry.
 
 ### 2026-09-08 PREREG-074 R18 and CP-4 R16 v3 remain prelaunch HOLD
 
