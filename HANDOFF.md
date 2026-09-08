@@ -24,6 +24,21 @@ agent or developer:
 
 ### 2026-09-08 Experiment 081 R4 mechanics execution passed and sealed
 
+- Lab independently reopened the terminal chain at
+  `2026-09-08T03:12:51Z` and returned **PASS** on nfl2 main commit
+  `e5c5a675ba37de437e3b02c6ca981929eebd383a`. All four exact object
+  generations reproduced their bound byte counts and SHA-256 identities; the
+  sole provider execution, UID, immutable source/image, corrected service
+  account, mechanics-only argv and one-task envelope also matched. The lab
+  listed both jobs and every relevant object prefix and found no second
+  execution or duplicate object. It did not interpret result contents or open
+  any winner, outcome, efficacy or scoring path.
+- The provider's current execution describe/list representation omits
+  zero-valued failed/cancelled/retried counters. The reopened gate and seal
+  carry and authenticate the explicit zero values used by the frozen host
+  contract, so this is a representation observation rather than a disposition
+  change. Mechanics remains PASS/SEALED and efficacy remains
+  `HOLD_REGISTRY_V2`.
 - Independent review returned **CODE GO** on nfl2 main commit
   `6acc710bfce959148f91cbf5b2ea8fadef6e3b22`. The sole authorized product is
   `230ba197dac708dccff3288055e69c3b5d457084`, with queue authority
