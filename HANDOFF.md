@@ -33,7 +33,11 @@ agent or developer:
   `2026-09-08T10:31:49.918153Z`. Its exact image is
   `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2@sha256:11a22b5374068c3a52bbae05fc741b394fb1fd956079e289f67a2b388aebe01e`;
   source archive generation is `1788863423335836` and build-intent generation
-  is `1788863409765471`.
+  is `1788863409765471`. Independent exact-generation reopening measured the
+  5,244,605-byte archive at SHA-256
+  `2cea0e37ea4f435396543d3473c507163212ad7829564be5dd1513768a71b527`
+  and MD5 base64 `gBSsC+YX946oypB7j0W1fg==`; the lab recovery contract now carries those pins
+  through `1bd0f47`.
 - Post-build receipt composition refused before publication because the real
   Cloud Build response carries `global` in its canonical resource name but
   omits the validator-invented scalar `location`. The expected receipt object
