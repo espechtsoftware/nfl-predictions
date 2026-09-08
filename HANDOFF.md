@@ -22,6 +22,23 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 CP-4 R16 remote-driver v5 held on real provider counters
+
+- Lab returned v5 at exact tip
+  `1016da659abc20d63f7bede483037f1fa506ff66`. During independent review,
+  production passed the unchanged v5 `provider-identity` command the exact
+  current provider document for sealed successful execution `lab-run-z8jxk`.
+  It exited 2 because Cloud Run omits zero-valued `failedCount`,
+  `cancelledCount` and `retriedCount`; only `succeededCount: 1` is present.
+- V5 uses the same raw execution-describe representation after its one-shot
+  `--wait` execution. It would therefore spend a clean attempt and then fail
+  adjudication before the terminal seal. The early HOLD and narrow
+  provider-normalization requirement are durable on nfl2 main at
+  `e47862b` in
+  `handoffs/PRODUCTION-TO-LAB-CP4-R16-REMOTE-DRIVER-V5-PROVIDER-COUNTER-HOLD-2026-09-08.md`.
+  The broader independent v5 audit remains open. No CP-4 provider/build/GCS
+  action or `r16` namespace was consumed.
+
 ### 2026-09-08 PREREG-074 R20 held before provider spend; R21 returned to lab
 
 - Independent prelaunch review held exact R20 candidate
