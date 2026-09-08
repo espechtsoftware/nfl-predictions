@@ -1,9 +1,10 @@
 """Provider-evidence attestation for the paid Classic v3 Cloud Run release.
 
-This module is deliberately read-only.  The deployment wrapper performs the
-mutation, then supplies the durable Cloud Build, Service, and Revision JSON
-descriptions here.  A successful receipt therefore records observed provider
-state, not strings found in a shell script or YAML file.
+Provider build and Cloud Run attestation remain read-only. The sole mutation
+surface is the final activation publisher: it conditionally creates one
+posttraffic object, inventories all of its provider-visible history, and
+exact-reopens the returned generation. Successful receipts therefore record
+observed provider state, not strings found in a shell script or YAML file.
 """
 
 from __future__ import annotations
@@ -22,6 +23,9 @@ import yaml
 SCHEMA: Final = "paid-classic-cloud-run-deployment-attestation/v2"
 ACTIVATION_SCHEMA: Final = "paid-classic-pretraffic-deployment-authorization/v1"
 FINAL_ACTIVATION_SCHEMA: Final = "paid-classic-final-activation-authority/v1"
+FINAL_ACTIVATION_PUBLICATION_SCHEMA: Final = (
+    "paid-classic-final-activation-publication/v1"
+)
 PAID_V3_PROJECT: Final = "nfl-predictions-503414"
 PAID_V3_REGION: Final = "us-central1"
 PAID_V3_SERVICE: Final = "nfl-dfs-app"
@@ -1104,22 +1108,134 @@ def _read_exact_gcs_activation_v3(identity: Mapping[str, object]) -> bytes:
     return blob.download_as_bytes()
 
 
-def _read_current_gcs_final_activation_v3(
-    uri: str,
-) -> tuple[dict[str, object], bytes]:
-    """Snapshot one current final gate, then download that exact generation."""
+_FINAL_GENERATION_CENSUS_KEYS: Final = {
+    "live", "noncurrent", "soft_deleted",
+}
 
-    from google.cloud import storage
 
-    bucket_name, object_name = uri[5:].split("/", 1)
-    bucket = storage.Client().bucket(bucket_name)
-    current = bucket.blob(object_name)
-    current.reload()
-    generation = str(current.generation or "")
-    if not generation.isdigit() or int(generation) <= 0:
+def _gcs_target_v3(uri: str) -> tuple[str, str]:
+    if not isinstance(uri, str) or not uri.startswith("gs://"):
+        _fail("final activation URI is invalid")
+    try:
+        bucket_name, object_name = uri[5:].split("/", 1)
+    except ValueError:
+        _fail("final activation URI is invalid")
+    if not bucket_name or not object_name:
+        _fail("final activation URI is invalid")
+    return bucket_name, object_name
+
+
+def _generation_token_v3(value: object) -> str:
+    if isinstance(value, bool):
         _fail("final activation provider generation is invalid")
-    pinned = bucket.blob(object_name, generation=int(generation))
-    raw = pinned.download_as_bytes()
+    generation = str(value or "")
+    if (
+        not generation.isdigit()
+        or int(generation) <= 0
+        or generation != str(int(generation))
+    ):
+        _fail("final activation provider generation is invalid")
+    return generation
+
+
+def validate_paid_classic_final_generation_census_v3(
+    value: Mapping[str, object],
+) -> dict[str, list[str]]:
+    """Normalize one complete exact-name live/version/tombstone inventory."""
+
+    if not isinstance(value, Mapping) or set(value) != _FINAL_GENERATION_CENSUS_KEYS:
+        _fail("final activation generation census schema differs")
+    normalized: dict[str, list[str]] = {}
+    all_generations: list[str] = []
+    for label in ("live", "noncurrent", "soft_deleted"):
+        rows = value[label]
+        if (
+            not isinstance(rows, Sequence)
+            or isinstance(rows, (str, bytes, bytearray))
+        ):
+            _fail("final activation generation census is malformed")
+        generations = [_generation_token_v3(row) for row in rows]
+        if len(generations) != len(set(generations)):
+            _fail("final activation generation census is duplicated")
+        generations.sort(key=int)
+        normalized[label] = generations
+        all_generations.extend(generations)
+    if len(all_generations) != len(set(all_generations)):
+        _fail("final activation generation census categories overlap")
+    return normalized
+
+
+def read_paid_classic_final_generation_census_v3(
+    uri: str,
+    *,
+    storage_client: object | None = None,
+) -> dict[str, list[str]]:
+    """Fully consume every provider view for one exact activation name."""
+
+    if storage_client is None:
+        from google.cloud import storage
+
+        storage_client = storage.Client()
+    bucket_name, object_name = _gcs_target_v3(uri)
+    bucket = storage_client.bucket(bucket_name)  # type: ignore[attr-defined]
+
+    def exact_generations(rows: object) -> list[str]:
+        # Materializing the iterator is intentional: a later-page provider
+        # error must fail the census rather than silently yield a prefix.
+        materialized = list(rows)  # type: ignore[arg-type]
+        generations: list[str] = []
+        for blob in materialized:
+            name = getattr(blob, "name", None)
+            if not isinstance(name, str):
+                _fail("final activation generation census is malformed")
+            if name != object_name:
+                continue
+            generations.append(_generation_token_v3(
+                getattr(blob, "generation", None)
+            ))
+        if len(generations) != len(set(generations)):
+            _fail("final activation generation census is duplicated")
+        return generations
+
+    live = exact_generations(bucket.list_blobs(prefix=object_name))
+    versions = exact_generations(
+        bucket.list_blobs(prefix=object_name, versions=True)
+    )
+    soft_deleted = exact_generations(
+        bucket.list_blobs(prefix=object_name, soft_deleted=True)
+    )
+    if not set(live).issubset(versions):
+        _fail("final activation generation census provider views disagree")
+    return validate_paid_classic_final_generation_census_v3({
+        "live": live,
+        "noncurrent": sorted(set(versions) - set(live), key=int),
+        "soft_deleted": soft_deleted,
+    })
+
+
+def _read_exact_gcs_final_activation_v3(
+    uri: str,
+    generation: str,
+    *,
+    storage_client: object | None = None,
+) -> tuple[dict[str, object], bytes]:
+    """Download only the generation selected by the complete census."""
+
+    if storage_client is None:
+        from google.cloud import storage
+
+        storage_client = storage.Client()
+    generation = _generation_token_v3(generation)
+    bucket_name, object_name = _gcs_target_v3(uri)
+    blob = storage_client.bucket(bucket_name).blob(  # type: ignore[attr-defined]
+        object_name, generation=int(generation)
+    )
+    blob.reload()
+    if _generation_token_v3(getattr(blob, "generation", None)) != generation:
+        _fail("final activation provider generation differs")
+    raw = blob.download_as_bytes()
+    if not isinstance(raw, bytes):
+        _fail("final activation provider did not return bytes")
     identity = _validate_activation_object_identity(
         {
             "uri": uri,
@@ -1134,20 +1250,44 @@ def _read_current_gcs_final_activation_v3(
     return identity, raw
 
 
-def _probe_current_gcs_generation_v3(uri: str) -> str | None:
-    from google.api_core.exceptions import NotFound
-    from google.cloud import storage
-
-    bucket_name, object_name = uri[5:].split("/", 1)
-    blob = storage.Client().bucket(bucket_name).blob(object_name)
+def _read_generation_census_v3(
+    uri: str,
+    reader: Callable[[str], Mapping[str, object]],
+    *,
+    action: str,
+) -> dict[str, list[str]]:
     try:
-        blob.reload()
-    except NotFound:
-        return None
-    generation = str(blob.generation or "")
-    if not generation.isdigit() or int(generation) <= 0:
-        _fail("final activation provider generation is invalid")
-    return generation
+        census = reader(uri)
+    except ValueError:
+        raise
+    except Exception as exc:  # noqa: BLE001 - all provider uncertainty closes
+        _fail(
+            f"final activation {action} could not be authenticated "
+            f"({type(exc).__name__})"
+        )
+    return validate_paid_classic_final_generation_census_v3(census)
+
+
+def _require_empty_final_generation_census_v3(
+    census: Mapping[str, object],
+) -> dict[str, list[str]]:
+    normalized = validate_paid_classic_final_generation_census_v3(census)
+    if any(normalized.values()):
+        _fail("final activation generation history already exists")
+    return normalized
+
+
+def _require_unique_final_generation_census_v3(
+    census: Mapping[str, object],
+) -> tuple[dict[str, list[str]], str]:
+    normalized = validate_paid_classic_final_generation_census_v3(census)
+    if (
+        len(normalized["live"]) != 1
+        or normalized["noncurrent"]
+        or normalized["soft_deleted"]
+    ):
+        _fail("final activation does not have one unique historical generation")
+    return normalized, normalized["live"][0]
 
 
 def require_paid_classic_final_activation_absent_v3(
@@ -1155,9 +1295,11 @@ def require_paid_classic_final_activation_absent_v3(
     expected_project: str,
     expected_service: str,
     expected_revision: str,
-    object_probe: Callable[[str], str | None] | None = None,
+    generation_census_reader: (
+        Callable[[str], Mapping[str, object]] | None
+    ) = None,
 ) -> str:
-    """Fail closed unless the create-once money gate is currently absent."""
+    """Fail closed unless every provider history view is empty."""
 
     if (
         expected_project != PAID_V3_PROJECT
@@ -1170,19 +1312,113 @@ def require_paid_classic_final_activation_absent_v3(
         service=expected_service,
         revision=expected_revision,
     )
-    probe = _probe_current_gcs_generation_v3 if object_probe is None else object_probe
+    reader = (
+        read_paid_classic_final_generation_census_v3
+        if generation_census_reader is None
+        else generation_census_reader
+    )
+    census = _read_generation_census_v3(uri, reader, action="absence")
+    _require_empty_final_generation_census_v3(census)
+    return uri
+
+
+def publish_paid_classic_final_activation_authority_v3(
+    raw: bytes,
+    *,
+    expected_project: str,
+    expected_service: str,
+    expected_revision: str,
+    storage_client: object | None = None,
+) -> dict[str, object]:
+    """Atomically create, census, and exact-reopen the final money gate."""
+
+    if (
+        expected_project != PAID_V3_PROJECT
+        or expected_service != PAID_V3_SERVICE
+        or _REVISION.fullmatch(expected_revision) is None
+    ):
+        _fail("final activation publication target differs from paid-v3 policy")
+    if not isinstance(raw, bytes) or not raw:
+        _fail("final activation publication bytes are invalid")
+    uri = _final_activation_uri(
+        project=expected_project,
+        service=expected_service,
+        revision=expected_revision,
+    )
     try:
-        generation = probe(uri)
-    except ValueError:
-        raise
-    except Exception as exc:
+        payload = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        _fail(f"final activation publication bytes are not JSON: {exc}")
+    if not isinstance(payload, Mapping):
+        _fail("final activation publication payload is not an object")
+    payload_body = dict(payload)
+    claimed = payload_body.pop("authority_sha256", None)
+    if (
+        payload.get("schema_version") != FINAL_ACTIVATION_SCHEMA
+        or payload.get("activation_uri") != uri
+        or payload.get("money_output_authorized") is not True
+        or claimed != _sha(payload_body)
+    ):
+        _fail("final activation publication payload identity differs")
+
+    if storage_client is None:
+        from google.cloud import storage
+
+        storage_client = storage.Client()
+    census_reader = lambda target: read_paid_classic_final_generation_census_v3(
+        target, storage_client=storage_client
+    )
+    before = _read_generation_census_v3(
+        uri, census_reader, action="prepublication census"
+    )
+    _require_empty_final_generation_census_v3(before)
+    bucket_name, object_name = _gcs_target_v3(uri)
+    blob = storage_client.bucket(bucket_name).blob(  # type: ignore[attr-defined]
+        object_name
+    )
+    try:
+        blob.upload_from_string(
+            raw,
+            content_type="application/json",
+            if_generation_match=0,
+        )
+    except Exception as exc:  # noqa: BLE001 - conditional ambiguity closes
         _fail(
-            "final activation absence could not be authenticated "
+            "final activation conditional publication failed "
             f"({type(exc).__name__})"
         )
-    if generation is not None:
-        _fail("final activation gate already exists")
-    return uri
+    provider_generation = _generation_token_v3(
+        getattr(blob, "generation", None)
+    )
+    after = _read_generation_census_v3(
+        uri, census_reader, action="postpublication census"
+    )
+    normalized_after, unique_generation = (
+        _require_unique_final_generation_census_v3(after)
+    )
+    if unique_generation != provider_generation:
+        _fail("final activation provider-returned generation differs")
+    identity, reopened = _read_exact_gcs_final_activation_v3(
+        uri,
+        provider_generation,
+        storage_client=storage_client,
+    )
+    if reopened != raw:
+        _fail("final activation exact-reopened bytes differ")
+    final_census = _read_generation_census_v3(
+        uri, census_reader, action="exact-reopen census"
+    )
+    if final_census != normalized_after:
+        _fail("final activation generation census changed during exact reopen")
+    body: dict[str, object] = {
+        "schema_version": FINAL_ACTIVATION_PUBLICATION_SCHEMA,
+        "activation_object_identity": identity,
+        "generation_census": final_census,
+        "create_precondition": {"if_generation_match": 0},
+        "created_now": True,
+    }
+    body["receipt_sha256"] = _sha(body)
+    return body
 
 
 def reopen_paid_classic_deployment_authorization_v3(
@@ -1242,10 +1478,13 @@ def reopen_paid_classic_activation_authority_v3(
     *,
     object_reader: Callable[[Mapping[str, object]], bytes] | None = None,
     final_object_reader: (
-        Callable[[str], tuple[Mapping[str, object], bytes]] | None
+        Callable[[str, str], tuple[Mapping[str, object], bytes]] | None
+    ) = None,
+    final_generation_census_reader: (
+        Callable[[str], Mapping[str, object]] | None
     ) = None,
 ) -> dict[str, object]:
-    """Require both pretraffic authorization and the exact post-traffic gate."""
+    """Require pretraffic authority plus one historically unique final gate."""
 
     deployment_envelope = reopen_paid_classic_deployment_authorization_v3(
         environment,
@@ -1259,13 +1498,26 @@ def reopen_paid_classic_activation_authority_v3(
         service=str(environment.get("PAID_V3_SERVICE", "")),
         revision=str(environment.get("K_REVISION", "")),
     )
+    census_reader = (
+        read_paid_classic_final_generation_census_v3
+        if final_generation_census_reader is None
+        else final_generation_census_reader
+    )
+    census_before = _read_generation_census_v3(
+        final_uri, census_reader, action="runtime census"
+    )
+    normalized_census, final_generation = (
+        _require_unique_final_generation_census_v3(census_before)
+    )
     final_reader = (
-        _read_current_gcs_final_activation_v3
+        _read_exact_gcs_final_activation_v3
         if final_object_reader is None
         else final_object_reader
     )
     try:
-        final_identity_raw, final_raw = final_reader(final_uri)
+        final_identity_raw, final_raw = final_reader(
+            final_uri, final_generation
+        )
     except ValueError:
         raise
     except Exception as exc:
@@ -1281,6 +1533,8 @@ def reopen_paid_classic_activation_authority_v3(
         _fail("final activation exact object identity is absent")
     if final_identity["uri"] != final_uri:
         _fail("final activation URI differs from the runtime gate URI")
+    if final_identity["generation"] != final_generation:
+        _fail("final activation identity differs from the unique generation")
     if not isinstance(final_raw, bytes):
         _fail("final activation reader did not return bytes")
     if len(final_raw) != final_identity["bytes"]:
@@ -1303,6 +1557,11 @@ def reopen_paid_classic_activation_authority_v3(
         expected_service=str(environment.get("PAID_V3_SERVICE", "")),
         expected_revision=str(environment.get("K_REVISION", "")),
     )
+    census_after = _read_generation_census_v3(
+        final_uri, census_reader, action="runtime exact-reopen census"
+    )
+    if census_after != normalized_census:
+        _fail("final activation generation census changed during runtime read")
     return {
         "authority": authority,
         "object_identity": final_identity,

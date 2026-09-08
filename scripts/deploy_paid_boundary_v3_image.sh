@@ -11,6 +11,7 @@ BUILD_ID=$3
 IMAGE=$4
 SERVICE=$5
 RECEIPT=$6
+FINAL_ACTIVATION_PUBLICATION_RECEIPT="${RECEIPT}.activation-publication.json"
 [[ "$CODE_SHA" =~ ^[0-9a-f]{40}$ ]] || die "source commit is malformed"
 [[ "$BUILD_ID" =~ ^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$ ]] || \
   die "Cloud Build ID is malformed"
@@ -19,6 +20,8 @@ RECEIPT=$6
 [[ "$SERVICE" == "nfl-dfs-app" ]] || \
   die "paid-v3 deployment is pinned to nfl-dfs-app"
 [[ ! -e "$RECEIPT" ]] || die "attestation output already exists"
+[[ ! -e "$FINAL_ACTIVATION_PUBLICATION_RECEIPT" ]] || \
+  die "final activation publication receipt already exists"
 command -v git >/dev/null || die "git is required"
 command -v gcloud >/dev/null || die "gcloud is required"
 command -v jq >/dev/null || die "jq is required"
@@ -143,9 +146,10 @@ PYTHONPATH="$SOURCE_ROOT/src" python -m \
   --build-id "$BUILD_ID" --source-commit "$CODE_SHA" --image "$IMAGE" \
   >"$TMP/build-evidence.json"
 
-# A retry may not reuse a previously published money gate. Provider NotFound
-# is the only accepted observation; permission, transport, or malformed
-# generation evidence fails before any Cloud Run mutation.
+# A retry may not reuse or recreate a previously published money gate. All
+# live, versioned/noncurrent, and soft-deleted exact-name views must be empty;
+# permission, pagination, transport, or malformed evidence fails before any
+# Cloud Run mutation.
 PYTHONPATH="$SOURCE_ROOT/src" python - \
   "$PROJECT" "$SERVICE" "$ACTIVE_REVISION" <<'PY'
 import sys
@@ -386,14 +390,59 @@ with Path(sys.argv[4]).open("x", encoding="utf-8") as stream:
     stream.write(json.dumps(authority, sort_keys=True, separators=(",", ":")))
 PY
 
-# The create-once final upload is the last state change. Until this exact line,
-# rollback remains armed and a failed attestation leaves no valid money gate.
-# After it, either the atomic create did not happen (gate absent) or a fully
-# authenticated posttraffic gate exists; there is no unsafe partial payload.
+# Repeat the full live/version/soft-delete inventory at the last possible
+# prepublication boundary. The publisher repeats it internally immediately
+# before its conditional create, then exact-reopens the provider-returned
+# generation and proves that it is the sole historical generation.
+PYTHONPATH="$SOURCE_ROOT/src" python - \
+  "$PROJECT" "$SERVICE" "$ACTIVE_REVISION" <<'PY'
+import sys
+
+from nfl_dfs.optimizer.paid_classic_deployment_v3 import (
+    require_paid_classic_final_activation_absent_v3,
+)
+
+require_paid_classic_final_activation_absent_v3(
+    expected_project=sys.argv[1],
+    expected_service=sys.argv[2],
+    expected_revision=sys.argv[3],
+)
+PY
+
+# The atomic create is the last state change. Until this exact line, rollback
+# remains armed. Once it is disarmed, the publication helper either produces
+# no authenticated receipt or proves the exact, sole create-now generation.
 ROLLBACK_ARMED=0
-gcloud storage cp --if-generation-match=0 "$TMP/final-activation.json" \
-  "$FINAL_ACTIVATION_URI" >/dev/null
+PYTHONPATH="$SOURCE_ROOT/src" python - \
+  "$TMP/final-activation.json" "$FINAL_ACTIVATION_PUBLICATION_RECEIPT" \
+  "$PROJECT" "$SERVICE" "$ACTIVE_REVISION" <<'PY'
+import json
+from pathlib import Path
+import sys
+
+from nfl_dfs.optimizer.paid_classic_deployment_v3 import (
+    publish_paid_classic_final_activation_authority_v3,
+)
+
+receipt = publish_paid_classic_final_activation_authority_v3(
+    Path(sys.argv[1]).read_bytes(),
+    expected_project=sys.argv[3],
+    expected_service=sys.argv[4],
+    expected_revision=sys.argv[5],
+)
+with Path(sys.argv[2]).open("x", encoding="utf-8") as stream:
+    stream.write(json.dumps(receipt, sort_keys=True, separators=(",", ":")))
+PY
+FINAL_ACTIVATION_GENERATION=$(jq -er \
+  '.activation_object_identity.generation' \
+  "$FINAL_ACTIVATION_PUBLICATION_RECEIPT")
+FINAL_ACTIVATION_SHA256=$(jq -er '.activation_object_identity.sha256' \
+  "$FINAL_ACTIVATION_PUBLICATION_RECEIPT")
+FINAL_ACTIVATION_BYTES=$(jq -er '.activation_object_identity.bytes' \
+  "$FINAL_ACTIVATION_PUBLICATION_RECEIPT")
 printf 'PAID_V3_DEPLOYMENT_ATTESTATION=%s\n' "$RECEIPT"
+printf 'PAID_V3_ACTIVATION_PUBLICATION_RECEIPT=%s\n' \
+  "$FINAL_ACTIVATION_PUBLICATION_RECEIPT"
 printf 'PAID_V3_DEPLOYMENT_AUTHORIZATION_URI=%s\n' \
   "$DEPLOYMENT_AUTHORIZATION_URI"
 printf 'PAID_V3_DEPLOYMENT_AUTHORIZATION_GENERATION=%s\n' \
@@ -403,3 +452,6 @@ printf 'PAID_V3_DEPLOYMENT_AUTHORIZATION_SHA256=%s\n' \
 printf 'PAID_V3_DEPLOYMENT_AUTHORIZATION_BYTES=%s\n' \
   "$DEPLOYMENT_AUTHORIZATION_BYTES"
 printf 'PAID_V3_ACTIVATION_URI=%s\n' "$FINAL_ACTIVATION_URI"
+printf 'PAID_V3_ACTIVATION_GENERATION=%s\n' "$FINAL_ACTIVATION_GENERATION"
+printf 'PAID_V3_ACTIVATION_SHA256=%s\n' "$FINAL_ACTIVATION_SHA256"
+printf 'PAID_V3_ACTIVATION_BYTES=%s\n' "$FINAL_ACTIVATION_BYTES"

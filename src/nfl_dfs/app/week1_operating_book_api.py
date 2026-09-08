@@ -100,7 +100,7 @@ def load_week1_operating_book_export_v2(
         Callable[[Mapping[str, object]], bytes] | None
     ) = None,
     final_activation_object_reader: (
-        Callable[[str], tuple[Mapping[str, object], bytes]] | None
+        Callable[[str, str], tuple[Mapping[str, object], bytes]] | None
     ) = None,
 ) -> dict[str, object]:
     """Render the canonical-game successor from exact live authorities."""

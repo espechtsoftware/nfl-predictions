@@ -21,6 +21,8 @@ from nfl_dfs.optimizer.paid_classic_deployment_v3 import (
     create_paid_classic_activation_authority_v3,
     create_paid_classic_final_activation_authority_v3,
     paid_classic_activation_identity_from_environment_v3,
+    publish_paid_classic_final_activation_authority_v3,
+    read_paid_classic_final_generation_census_v3,
     reopen_paid_classic_activation_authority_v3,
     reopen_paid_classic_deployment_authorization_v3,
     require_paid_classic_final_activation_absent_v3,
@@ -29,6 +31,7 @@ from nfl_dfs.optimizer.paid_classic_deployment_v3 import (
     validate_paid_classic_build_evidence_v3,
     validate_paid_classic_deployment_attestation_v3,
     validate_paid_classic_final_activation_authority_v3,
+    validate_paid_classic_final_generation_census_v3,
 )
 
 BUILD_ID = "12345678-1234-1234-1234-123456789abc"
@@ -330,6 +333,119 @@ def _activation_environment(identity: dict[str, object]) -> dict[str, str]:
     }
 
 
+def _unique_final_census(generation: object) -> dict[str, list[str]]:
+    return {
+        "live": [str(generation)],
+        "noncurrent": [],
+        "soft_deleted": [],
+    }
+
+
+class _ListedBlob:
+    def __init__(self, name: str, generation: str) -> None:
+        self.name = name
+        self.generation = generation
+
+
+class _ProviderBlob:
+    def __init__(
+        self,
+        bucket: _ProviderBucket,
+        name: str,
+        generation: int | None,
+    ) -> None:
+        self._bucket = bucket
+        self.name = name
+        self.generation = generation
+
+    def upload_from_string(self, raw: bytes, **kwargs) -> None:
+        self._bucket.upload_calls.append(kwargs)
+        if self._bucket.collision:
+            generation = str(self._bucket.next_generation)
+            self._bucket.live = [generation]
+            self._bucket.versions.append(generation)
+            self._bucket.objects[generation] = raw
+            raise RuntimeError("provider precondition collision")
+        if self._bucket.live or kwargs.get("if_generation_match") != 0:
+            raise RuntimeError("conditional create refused")
+        generation = str(self._bucket.next_generation)
+        self.generation = int(generation)
+        self._bucket.live = [generation]
+        self._bucket.versions.append(generation)
+        self._bucket.objects[generation] = raw
+        if self._bucket.inject_second_generation:
+            second = str(self._bucket.next_generation + 1)
+            self._bucket.live = [second]
+            self._bucket.versions.append(second)
+            self._bucket.objects[second] = raw
+
+    def reload(self) -> None:
+        generation = str(self.generation or "")
+        if generation not in self._bucket.objects:
+            raise FileNotFoundError(generation)
+
+    def download_as_bytes(self) -> bytes:
+        return self._bucket.objects[str(self.generation)]
+
+
+class _ProviderBucket:
+    def __init__(
+        self,
+        *,
+        live: list[str] | None = None,
+        versions: list[str] | None = None,
+        soft_deleted: list[str] | None = None,
+    ) -> None:
+        self.live = list(live or [])
+        self.versions = list(versions or self.live)
+        self.soft_deleted = list(soft_deleted or [])
+        self.objects: dict[str, bytes] = {}
+        self.next_generation = 700
+        self.upload_calls: list[dict[str, object]] = []
+        self.list_calls: list[dict[str, object]] = []
+        self.list_error: Exception | None = None
+        self.pagination_error = False
+        self.collision = False
+        self.inject_second_generation = False
+
+    def list_blobs(self, *, prefix: str, **kwargs):
+        self.list_calls.append({"prefix": prefix, **kwargs})
+        if self.list_error is not None:
+            raise self.list_error
+        if kwargs.get("soft_deleted"):
+            values = self.soft_deleted
+        elif kwargs.get("versions"):
+            values = self.versions
+        else:
+            values = self.live
+        rows = [
+            _ListedBlob(FINAL_ACTIVATION_URI.split("/", 3)[3], generation)
+            for generation in values
+        ]
+        rows.append(_ListedBlob(
+            FINAL_ACTIVATION_URI.split("/", 3)[3] + ".traffic.json",
+            "999",
+        ))
+        if self.pagination_error and kwargs.get("versions"):
+            def fail_late():
+                yield from rows[:1]
+                raise RuntimeError("later page unavailable")
+
+            return fail_late()
+        return iter(rows)
+
+    def blob(self, name: str, generation: int | None = None) -> _ProviderBlob:
+        return _ProviderBlob(self, name, generation)
+
+
+class _ProviderClient:
+    def __init__(self, bucket: _ProviderBucket) -> None:
+        self.provider_bucket = bucket
+
+    def bucket(self, _name: str) -> _ProviderBucket:
+        return self.provider_bucket
+
+
 def test_provider_realistic_build_and_deployment_attestation_pass() -> None:
     build, service, revision, reviewed = _provider_records()
     receipt = _attest(build, service, revision, reviewed)
@@ -508,9 +624,16 @@ def test_activation_authority_is_cross_bound_and_exact_read() -> None:
     reopened = reopen_paid_classic_activation_authority_v3(
         environment,
         object_reader=lambda observed: raw if observed == identity else b"",
-        final_object_reader=lambda uri: (
-            (final_identity, final_raw) if uri == FINAL_ACTIVATION_URI
+        final_object_reader=lambda uri, generation: (
+            (final_identity, final_raw)
+            if (
+                uri == FINAL_ACTIVATION_URI
+                and generation == final_identity["generation"]
+            )
             else ({}, b"")
+        ),
+        final_generation_census_reader=lambda _uri: _unique_final_census(
+            final_identity["generation"]
         ),
     )
     assert reopened["authority"] == final
@@ -526,37 +649,260 @@ def test_pretraffic_deployment_authorization_cannot_enable_money_output() -> Non
         reopen_paid_classic_activation_authority_v3(
             environment,
             object_reader=lambda _observed: raw,
-            final_object_reader=lambda _uri: (_ for _ in ()).throw(
+            final_object_reader=lambda _uri, _generation: (_ for _ in ()).throw(
                 FileNotFoundError("final gate is absent")
+            ),
+            final_generation_census_reader=lambda _uri: _unique_final_census(
+                "987654322"
             ),
         )
 
 
 def test_create_once_final_gate_requires_authenticated_absence() -> None:
     observed: list[str] = []
+    empty = {"live": [], "noncurrent": [], "soft_deleted": []}
     assert require_paid_classic_final_activation_absent_v3(
         expected_project=PAID_V3_PROJECT,
         expected_service=SERVICE,
         expected_revision=REVISION,
-        object_probe=lambda uri: observed.append(uri) or None,
+        generation_census_reader=lambda uri: observed.append(uri) or empty,
     ) == FINAL_ACTIVATION_URI
     assert observed == [FINAL_ACTIVATION_URI]
-    with pytest.raises(ValueError, match="already exists"):
+    with pytest.raises(ValueError, match="history already exists"):
         require_paid_classic_final_activation_absent_v3(
             expected_project=PAID_V3_PROJECT,
             expected_service=SERVICE,
             expected_revision=REVISION,
-            object_probe=lambda _uri: "123",
+            generation_census_reader=lambda _uri: _unique_final_census("123"),
         )
+    denied_bucket = _ProviderBucket()
+    denied_bucket.list_error = PermissionError("denied")
     with pytest.raises(ValueError, match="absence could not be authenticated"):
         require_paid_classic_final_activation_absent_v3(
             expected_project=PAID_V3_PROJECT,
             expected_service=SERVICE,
             expected_revision=REVISION,
-            object_probe=lambda _uri: (_ for _ in ()).throw(
-                PermissionError("denied")
+            generation_census_reader=lambda uri: (
+                read_paid_classic_final_generation_census_v3(
+                    uri, storage_client=_ProviderClient(denied_bucket)
+                )
             ),
         )
+
+
+def test_provider_census_reads_all_views_and_only_the_exact_name() -> None:
+    bucket = _ProviderBucket(
+        live=["303"],
+        versions=["202", "303"],
+        soft_deleted=["101"],
+    )
+    census = read_paid_classic_final_generation_census_v3(
+        FINAL_ACTIVATION_URI,
+        storage_client=_ProviderClient(bucket),
+    )
+    assert census == {
+        "live": ["303"],
+        "noncurrent": ["202"],
+        "soft_deleted": ["101"],
+    }
+    assert bucket.list_calls == [
+        {"prefix": FINAL_ACTIVATION_URI.split("/", 3)[3]},
+        {
+            "prefix": FINAL_ACTIVATION_URI.split("/", 3)[3],
+            "versions": True,
+        },
+        {
+            "prefix": FINAL_ACTIVATION_URI.split("/", 3)[3],
+            "soft_deleted": True,
+        },
+    ]
+
+
+@pytest.mark.parametrize(
+    ("live", "versions", "soft_deleted"),
+    [
+        ([], [], ["41"]),
+        (["42"], ["42"], ["41"]),
+        (["42"], ["41", "42"], []),
+    ],
+)
+def test_absence_refuses_deleted_recreated_or_multiple_history(
+    live: list[str],
+    versions: list[str],
+    soft_deleted: list[str],
+) -> None:
+    bucket = _ProviderBucket(
+        live=live, versions=versions, soft_deleted=soft_deleted
+    )
+    with pytest.raises(ValueError, match="generation history already exists"):
+        require_paid_classic_final_activation_absent_v3(
+            expected_project=PAID_V3_PROJECT,
+            expected_service=SERVICE,
+            expected_revision=REVISION,
+            generation_census_reader=lambda uri: (
+                read_paid_classic_final_generation_census_v3(
+                    uri, storage_client=_ProviderClient(bucket)
+                )
+            ),
+        )
+
+
+def test_provider_pagination_uncertainty_fails_absence_closed() -> None:
+    bucket = _ProviderBucket()
+    bucket.pagination_error = True
+    with pytest.raises(ValueError, match="absence could not be authenticated"):
+        require_paid_classic_final_activation_absent_v3(
+            expected_project=PAID_V3_PROJECT,
+            expected_service=SERVICE,
+            expected_revision=REVISION,
+            generation_census_reader=lambda uri: (
+                read_paid_classic_final_generation_census_v3(
+                    uri, storage_client=_ProviderClient(bucket)
+                )
+            ),
+        )
+
+
+@pytest.mark.parametrize(
+    ("live", "versions", "soft_deleted"),
+    [
+        ([], [], ["987654322"]),
+        (["987654323"], ["987654323"], ["987654322"]),
+        (["987654323"], ["987654322", "987654323"], []),
+    ],
+)
+def test_runtime_refuses_deleted_recreated_or_second_generation(
+    live: list[str],
+    versions: list[str],
+    soft_deleted: list[str],
+) -> None:
+    _, _, _, _, identity, raw = _final_activation_envelope()
+    bucket = _ProviderBucket(
+        live=live, versions=versions, soft_deleted=soft_deleted
+    )
+    with pytest.raises(ValueError, match="one unique historical generation"):
+        reopen_paid_classic_activation_authority_v3(
+            _activation_environment(identity),
+            object_reader=lambda _observed: raw,
+            final_generation_census_reader=lambda uri: (
+                read_paid_classic_final_generation_census_v3(
+                    uri, storage_client=_ProviderClient(bucket)
+                )
+            ),
+            final_object_reader=lambda _uri, _generation: pytest.fail(
+                "runtime must reject history before reading final bytes"
+            ),
+        )
+
+
+def test_runtime_recensuses_and_refuses_generation_change_during_read() -> None:
+    _, final_identity, final_raw, _, identity, raw = (
+        _final_activation_envelope()
+    )
+    censuses = iter([
+        _unique_final_census(final_identity["generation"]),
+        {
+            "live": [str(int(str(final_identity["generation"])) + 1)],
+            "noncurrent": [str(final_identity["generation"])],
+            "soft_deleted": [],
+        },
+    ])
+    with pytest.raises(ValueError, match="changed during runtime read"):
+        reopen_paid_classic_activation_authority_v3(
+            _activation_environment(identity),
+            object_reader=lambda _observed: raw,
+            final_generation_census_reader=lambda _uri: next(censuses),
+            final_object_reader=lambda _uri, _generation: (
+                final_identity, final_raw
+            ),
+        )
+
+
+def test_atomic_publication_exact_reopens_provider_returned_generation() -> None:
+    final, _, final_raw, _, _, _ = _final_activation_envelope()
+    assert final["activation_uri"] == FINAL_ACTIVATION_URI
+    bucket = _ProviderBucket()
+    receipt = publish_paid_classic_final_activation_authority_v3(
+        final_raw,
+        expected_project=PAID_V3_PROJECT,
+        expected_service=SERVICE,
+        expected_revision=REVISION,
+        storage_client=_ProviderClient(bucket),
+    )
+    assert bucket.upload_calls == [{
+        "content_type": "application/json",
+        "if_generation_match": 0,
+    }]
+    assert receipt["created_now"] is True
+    assert receipt["generation_census"] == _unique_final_census("700")
+    assert receipt["activation_object_identity"] == {
+        "uri": FINAL_ACTIVATION_URI,
+        "generation": "700",
+        "sha256": hashlib.sha256(final_raw).hexdigest(),
+        "bytes": len(final_raw),
+    }
+    receipt_body = dict(receipt)
+    claimed = receipt_body.pop("receipt_sha256")
+    assert claimed == _sha(receipt_body)
+
+
+def test_publication_rechecks_soft_deleted_history_before_create() -> None:
+    _, _, final_raw, _, _, _ = _final_activation_envelope()
+    bucket = _ProviderBucket(soft_deleted=["699"])
+    with pytest.raises(ValueError, match="generation history already exists"):
+        publish_paid_classic_final_activation_authority_v3(
+            final_raw,
+            expected_project=PAID_V3_PROJECT,
+            expected_service=SERVICE,
+            expected_revision=REVISION,
+            storage_client=_ProviderClient(bucket),
+        )
+    assert bucket.upload_calls == []
+
+
+def test_conditional_publication_collision_never_returns_creator_receipt() -> None:
+    _, _, final_raw, _, _, _ = _final_activation_envelope()
+    bucket = _ProviderBucket()
+    bucket.collision = True
+    with pytest.raises(ValueError, match="conditional publication failed"):
+        publish_paid_classic_final_activation_authority_v3(
+            final_raw,
+            expected_project=PAID_V3_PROJECT,
+            expected_service=SERVICE,
+            expected_revision=REVISION,
+            storage_client=_ProviderClient(bucket),
+        )
+    assert bucket.live == ["700"]
+
+
+def test_publication_refuses_racing_second_generation_after_create() -> None:
+    _, _, final_raw, _, _, _ = _final_activation_envelope()
+    bucket = _ProviderBucket()
+    bucket.inject_second_generation = True
+    with pytest.raises(ValueError, match="one unique historical generation"):
+        publish_paid_classic_final_activation_authority_v3(
+            final_raw,
+            expected_project=PAID_V3_PROJECT,
+            expected_service=SERVICE,
+            expected_revision=REVISION,
+            storage_client=_ProviderClient(bucket),
+        )
+
+
+@pytest.mark.parametrize(
+    "census",
+    [
+        {"live": ["1"], "noncurrent": [], "soft_deleted": ["1"]},
+        {"live": ["1", "1"], "noncurrent": [], "soft_deleted": []},
+        {"live": ["01"], "noncurrent": [], "soft_deleted": []},
+        {"live": ["1"], "noncurrent": []},
+    ],
+)
+def test_generation_census_representation_uncertainty_fails_closed(
+    census: dict[str, list[str]],
+) -> None:
+    with pytest.raises(ValueError, match="final activation"):
+        validate_paid_classic_final_generation_census_v3(census)
 
 
 def test_final_gate_rejects_preactivation_or_rehashed_traffic_fact() -> None:
@@ -759,14 +1105,17 @@ def test_deployer_arms_and_reconciles_before_traffic_mutation() -> None:
     final_create = source.index(
         "create_paid_classic_final_activation_authority_v3"
     )
+    second_absence = source.index(
+        "require_paid_classic_final_activation_absent_v3", final_create
+    )
     disarmed = source.index("ROLLBACK_ARMED=0", final_create)
     final_publish = source.index(
-        '"$FINAL_ACTIVATION_URI" >/dev/null', disarmed
+        "publish_paid_classic_final_activation_authority_v3", disarmed
     )
     assert absence < stage < traffic < final_attestation < final_create
-    assert final_create < disarmed < final_publish
+    assert final_create < second_absence < disarmed < final_publish
     assert "reopen_paid_classic_deployment_authorization_v3" in source
-    assert "gcloud storage cp --if-generation-match=0" in source
+    assert "FINAL_ACTIVATION_PUBLICATION_RECEIPT" in source
 
     app_source = Path("src/nfl_dfs/app/main.py").read_text(encoding="utf-8")
     assert "PAID_V3_ACTIVATION_AUTHORITY_JSON" not in app_source
@@ -936,6 +1285,7 @@ sys.exit(0)
     assert (state / "rollback-attempted").is_file()
     assert not (state / "final-gate").exists()
     assert not receipt.exists()
+    assert not Path(f"{receipt}.activation-publication.json").exists()
     destinations = (state / "destinations.log").read_text(encoding="utf-8")
     assert FINAL_ACTIVATION_URI not in destinations.splitlines()
     assert "provider traffic rollback could not be authenticated" in result.stderr

@@ -22,6 +22,48 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 canonical-v3 paid/deployment bounded R4 (review candidate)
+
+- Isolated worktree
+  `/home/erich/projects/nfl-predictions-canonical-paid-r4-repair-20260908`,
+  branch `codex/canonical-v3-paid-r4-repair-20260908`, repairs exact R3
+  `999204cc42602a43b8f94df12bbeb590db37ff40` against the independent HOLD on
+  production-main commit `680c7aa120c5400779d849a13b03f24c2670c720`.
+  It has not been merged, built, deployed, used to change traffic, loaded,
+  scored, used to read outcomes, or used for any paid action.
+- Deployment and runtime now require a fully consumed, exact-name provider
+  census across live, all-version/noncurrent, and soft-deleted generations of
+  final `activation.json`. Publication requires every view empty; runtime
+  requires exactly one live generation and no other historical generation.
+  Permission, pagination, malformed representation, overlap, deletion,
+  recreation, and census/read races fail closed.
+- The deployer censuses before Cloud Run mutation and again at the final
+  publication boundary. Its provider publisher retains atomic
+  `if_generation_match=0`, accepts only the generation returned by a normally
+  completed create, exact-reopens and hashes those bytes, recensuses, and
+  retains the exact identity in a closed companion receipt and transcript.
+- Provider-realistic adversaries cover soft-delete only, soft-delete plus
+  recreation, live plus noncurrent generations, partial-pagination and
+  permission errors, collision, a post-create second generation, malformed
+  censuses, and runtime census drift. The accepted R3 traffic-success plus
+  final-attestation/rollback-failure shell test remains in the gate.
+- After the globally first-positioned PREREG-074 R23 gate explicitly released
+  the lane, fresh global process censuses preceded both serial R4 gates.
+  Validation is green: **148/148** focused paid/deployment/Week-1 tests in
+  7.78 seconds and **298/298** exact Cloud Build release-gate tests in 21.10
+  seconds. Static compilation, deploy-shell syntax, changed-surface lint, and
+  `git diff --check` are also green apart from retained R3 lint findings. The
+  lane was explicitly released to the waiting R23 reviewer afterward.
+- Durable disposition:
+  `reports/2026-09-08-canonical-v3-paid-deployment-r4-repair-candidate.md`.
+  Accepted R2/R3 engine, world, build, posttraffic, and rollback laws remain;
+  scoring, generation, selection, money policy, frozen v1/v2, experiment
+  defaults, and canonical-v3 graph semantics are unchanged.
+
+  Next concrete action: commit and push the exact candidate, then obtain
+  independent review against the R3 HOLD. Do not merge, build, deploy, load,
+  score, activate, or emit paid bytes before that review.
+
 ### 2026-09-08 canonical-v3 paid/deployment bounded R3 (review candidate)
 
 - Isolated worktree
