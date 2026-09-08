@@ -22,6 +22,48 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 CP-4 R17 successor returned; exact independent review active
+
+- Lab Update 222 is durable on nfl2 `main` at `2eb6f70cc79b54ce77818c48fd1b76465f560382`.
+  The exact candidate is `75e399d2b7172f58076d086abaa2ec82111c5383`,
+  tree `62755b7d8c377351c2409d7673a1ea59a5628626`. The lab reports both
+  its six-file focused selection and `pytest tests/ -k cp4` at 109/109,
+  plus Ruff and source-import checks, with an empty serial lane on return.
+- The candidate claims to close every R16 independent-review P0: truthful
+  before-operation phases including the provider-observable upload interval,
+  nonzero disposition-write failure, no false no-execute disposition after
+  the execute RPC may have begun, and bounded asynchronous Cloud Build
+  polling/recovery. It also repairs a pre-existing test-order dependency by
+  evicting the imported `google` namespace before loading the fake.
+- Production began independent review of this exact successor immediately.
+  No CP-4 build, provider mutation, mechanics execution, efficacy execution,
+  artifact publication, or outcome access is authorized until that review
+  returns PASS. Exact next action: finish the independent code/test review;
+  on PASS, publish the launch disposition and execute only the frozen bounded
+  CP-4 mechanics path.
+
+### 2026-09-08 Week-1 capture-v3 P1 remains P0 HOLD; P2 repair active
+
+- Independent review of exact P1 candidate
+  `cb2a398fe0ff467665b4f415f2aa71f0aa1ee669` is durable at report commit
+  `04686eb4d9dcdc2a8b6c4c5594f2e20af904328e`, branch tip
+  `1c63b7028e8dcc8e9ec138b834757f0de89fc419`, on
+  `origin/codex/week1-capture-v3-p1-independent-review-20260908`.
+  Repaired-v3 tests passed 36/36 and unchanged v2 tests passed 15/15 under
+  separately confirmed empty serial windows, but the verdict is **P0 HOLD**.
+- Exact storage integrity is no longer the missing property; provider
+  acquisition authority is. The acceptance fixture archives a second copy of
+  the locally filled upload as if it were a DraftKings observation, and the
+  final-field fixture authors its own `contestDetail.entries` response.
+  Same-shaped arbitrary bytes can therefore certify copied intent as accepted
+  and a coherent false field size as complete. Fixed locators stamped after
+  reopen do not authenticate the request/download that produced those bytes.
+- A bounded P2 repair is active to require governed authenticated acquisition
+  receipts and temporal ordering for both accepted-entry and contest-detail
+  source bytes, with copied-upload and matching-false-N adversaries. It must
+  remain default-off and cannot contact DraftKings, publish, deploy, enter,
+  pay, or open outcomes during implementation/review.
+
 ### 2026-09-08 CP-4 R16 item-5 remains HOLD; architecture repair authorized
 
 - Lab Update 220 returned the serial lane after an exact 88/88 focused pass at
