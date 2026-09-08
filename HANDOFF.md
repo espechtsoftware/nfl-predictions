@@ -22,6 +22,45 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 canonical-v3 paid/deployment bounded R3 independent HOLD
+
+- Independently reviewed exact candidate
+  `999204cc42602a43b8f94df12bbeb590db37ff40` on
+  `origin/codex/canonical-v3-paid-r3-repair-20260908`, whose sole parent is the
+  reviewed R2 `7fbcf5c310185e7ce5d6aa183485318bf0bbe10a`. Work occurred in
+  `/home/erich/projects/nfl-predictions-canonical-paid-r3-independent-review-20260908`
+  on branch `codex/canonical-v3-paid-r3-independent-review-20260908`. No cloud,
+  provider, build, deployment, GCS, graph, score, outcome, entry, or paid
+  action occurred.
+- Accepted R3 repair: the environment-pinned pretraffic object is now only a
+  deployment authorization. Every executable paid-v3 route and the active
+  Week-1 v2 successor additionally resolve a distinct final object whose
+  closed schema embeds the exact deployment authorization plus the exact
+  active-revision/100%-traffic attestation. The executable adversary confirms
+  traffic success followed by final-attestation failure and rollback failure
+  publishes no final gate, so the runtime remains closed.
+- Remaining P0: `activation.json` is not create-once across provider history.
+  Preflight probes only the currently live blob, `if-generation-match=0`
+  permits recreation after deletion/soft deletion, and runtime accepts
+  whatever valid generation is current at the fixed URI. An independent
+  adversarial probe held the runtime/pretraffic identity constant and showed
+  two distinct consecutive final generations at the same URI were both
+  accepted. The claimed sole immutable money fact can therefore be replaced.
+- Exact retained R2 laws were confirmed: the paid-v3 book, main application
+  router, and Cloud Build YAML retain identical Git blobs, and the provider
+  build/deployment-attestation function source is byte-identical. Static
+  checks, registry-v2 check, and shell/AST/YAML gates passed. Fresh-census
+  serial pytest passed **131/131** focused tests and **281/281** exact Cloud
+  Build release-gate tests; the global pytest lane was then released.
+- Durable review:
+  `reports/2026-09-08-canonical-v3-paid-deployment-r3-independent-review.md`.
+  Exact disposition is **HOLD** from integration, build, deployment,
+  activation, and paid use. Next action is bounded R4: all-generation and
+  soft-delete-aware exact-name absence/uniqueness, atomic create plus exact
+  reopen, runtime refusal of any second/tombstoned generation, and matching
+  provider-realistic adversaries. Preserve all R2 engine/world/build laws and
+  the accepted R3 posttraffic/rollback behavior.
+
 ### 2026-09-08 canonical-v3 paid/deployment bounded R2 independent HOLD
 
 - Independently reviewed exact candidate
