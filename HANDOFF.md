@@ -39,10 +39,13 @@ agent or developer:
   an empty serial-test census; Python compilation, changed-rule Ruff and diff
   checks passed. Full-file Ruff still reports unrelated pre-existing import,
   datetime and test f-string findings, so it was not used as a broad-clean
-  claim. No monitor process, service, cloud or provider state has yet been
-  changed. Next action is commit/push, then restart only the user monitor
-  service/process onto this exact source and verify one healthy poll clears
-  the false unclaimed alert while retaining the R16 terminal failure.
+  claim. The dedicated operational monitor checkout was fast-forwarded to
+  exact source `382a326058d85ae423c2cdef1003ad42ae1cf275` and only the user
+  `nfl-cloud-run-lane-monitor.service` was restarted. Its first healthy poll
+  at `2026-09-08T12:46:20Z` kept both terminal R16 failure alerts, cleared
+  `lane-capacity-unclaimed:cp4-real-frame-smoke-r16`, and left the capacity
+  timer empty. Both Cloud Run jobs remained idle; no provider state was
+  mutated.
 
 ### 2026-09-08 CP-4 R16 mechanics failed terminally; R21 image-closure repair active
 
