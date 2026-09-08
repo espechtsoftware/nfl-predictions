@@ -22,6 +22,29 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 PREREG-074 R26 composite held; R27 host-preflight repair active
+
+- Independent review of exact R26/R4 composite candidate
+  `3908a6a6710dcbca81d9c50e8b6f1e0c9a976475` returned **HOLD**. The fm6
+  shell accepts a caller-selected syntactically valid image digest and build
+  receipt reference, writes durable attempt evidence, and mounts read-only
+  Cloud SDK credentials into that image before a trusted host authenticates
+  it. The first meaningful receipt/source/runtime validation occurs inside the
+  still-untrusted image. A secondary P1 found that the purported historical
+  v2 validator is parameterized by current R26 laws rather than the exact
+  frozen r15/17-path contract. No cloud or provider action occurred.
+- The review and bounded R27 code/test-only repair authority are durable on
+  nfl2 `main` at `8334265d38aca39f72f3ce41627ea4b0b6f9236d`. Exact records are
+  `reports/2026-09-08-prereg074-r26-r4-composite-independent-review.md` and
+  `handoffs/PRODUCTION-TO-LAB-PREREG074-R26-HOLD-AND-R27-HOST-PREFLIGHT-GO-2026-09-08.md`.
+- R27 must authenticate the exact v3 receipt/source/code map/image/tag/runtime
+  on the trusted host before intent, attempt, Docker, or credential access;
+  bind a closed preflight attestation into durable evidence; add
+  before-boundary substitution adversaries; and either freeze the exact v2
+  historical law separately or retire the executable compatibility claim.
+  Implementation is active. Build, fm6, authority, generation, replay, seal,
+  reader, and promotion remain held pending an independently reviewed PASS.
+
 ### 2026-09-08 CP-4 R19 held at immutable-consumer seam; R20 repair authorized
 
 - Production R19 candidate `5ee9c88a846b17e255bd5f6104afa31aca8eef2f`
