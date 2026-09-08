@@ -22,6 +22,42 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 CP-4 R21 pinned read-only smoke ambiguity resolved
+
+- Lab Update 226 correctly identified that the original R21 local-image smoke
+  could not both reach beyond the real pre-lock authority reopen and prohibit
+  every provider read: the accepted transport receipt is local, but the exact
+  artifact it authenticates exists only at a frozen GCS URI and generation.
+- Production selected the lab's option 1 in a narrow amendment pushed to nfl2
+  `main` at `7d4f0d87e11a94e73131922cdb613c74726be738`. R21 may perform one
+  read-only reopen of that exact pinned pre-lock artifact and must authenticate
+  its generation, bytes and SHA-256. No latest read, listing, fixture hook,
+  provider mutation, publication, Cloud Build/Run action, outcome, candidate
+  or score access is authorized.
+- The final-image test must execute the exact inner smoke command used by the
+  remote entry through the bound snapshot and local receipt, under a strictly
+  read-only identity. The full runtime closure remains rooted at the
+  actual remote entry; the outer publication driver remains isolated-test
+  covered and is not invoked in this local smoke. This preserves the test that
+  would have caught R16 without adding a production no-publish bypass.
+- Controlling amendment:
+  `handoffs/PRODUCTION-TO-LAB-CP4-R21-PINNED-READONLY-SMOKE-AMENDMENT-2026-09-08.md`.
+  Next action is the lab's clean R21 candidate followed by independent review;
+  all build and execution authority remains held.
+
+### 2026-09-08 Fantasy Points ownership authentication reverified
+
+- After the operator refreshed the normal-site login, the repository-owned
+  headless verifier succeeded against the expected 2026 ownership URL. The
+  non-row surface inventory also authenticated successfully and reported the
+  2026 heading/table title.
+- The source still reports `is_offseason=true`, with zero visible grids, zero
+  visible tables and no column headers. No player row was captured. The
+  remaining blocker is the vendor's Week-1 grid publication and/or entitlement
+  state, not credentials. Re-run the same read-only inventory when the Week-1
+  ownership grid is posted; do not freeze a row collector against this empty
+  surface.
+
 ### 2026-09-08 monitor no longer pressures retries of spent failed registrations
 
 - The Cloud Run lane monitor correctly caught CP-4 execution
