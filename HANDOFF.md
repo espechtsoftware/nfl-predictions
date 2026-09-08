@@ -78,11 +78,11 @@ agent or developer:
 
 ### 2026-09-08 Week-1 capture-v3 P0-B local rehearsal R2 candidate
 
-- Branch `production/week1-capture-v3-p0b-local-rehearsal-r2-20260908`
+- Integrated branch `production/week1-p0b-r2-integration-20260908`
   carries the bounded code/test-only successor to P0-B implementation
   `51e3dd4b098b46933fab701d9711065d6bf844a9`. Its exact implementation commit
-  is `be3062405ff4b59df318a458bfb22d0376bca3e4` (tree
-  `1d08d9f6ec386a4d1aa88bf031eef30ed5c67be2`; rehearsal module SHA-256
+  is `c2065aebc79e4236f35c88b9b5314546c15378b4` (tree
+  `660f1d17563c047d4186c9cb5ac618090b6864fd`; rehearsal module SHA-256
   `4f96b259608fec19674d1d85b45fe7d0455f0b294cbd91a9073af4a882234ed5`).
 - The immediate gate is now only one local authenticated DraftKings
   acceptance-download rehearsal. The organization-wide IAM, Cloud Asset,
