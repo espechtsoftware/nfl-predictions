@@ -22,6 +22,42 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 launch repairs queued behind one serial-test window; Week-1 capture P0 contract started
+
+- PREREG-074 R23 is code-complete at exact candidate
+  `098e3e459404f81a3cad959429548843d286a7cc`, tree
+  `f7acbc06070ccffe5c9ce87d9e361eff4df34f74`, on
+  `origin/production/prereg074-r23-provider-cli-repair-20260908`. It replaces
+  the unsupported Cloud SDK ignore override with one temporary shared clone,
+  the clone's tracked default `.gcloudignore`, and an exact provider-real
+  upload-set parity gate. It advances the source-bound manifest/run/image
+  identities to fm5/R3/r15 while preserving fm4/R22c as consumed history. No
+  fm5, Cloud Build, image, job, execution, outcome, or score exists yet.
+- Canonical paid/deployment R4 is also code-complete in an isolated branch. It
+  adds all-generation plus soft-delete uniqueness, atomic create/exact reopen,
+  runtime historical-generation authentication, and deletion/recreation
+  adversaries. It has not run its focused/release pytest gates and has changed
+  no deployment, traffic, paid-entry, or cloud state.
+- Both candidates are waiting behind a lab-owned global pytest invocation.
+  Production published the non-interrupting serial-lane release request on lab
+  `main` at `769feb2c30441d3dd32b6b375c9c0d10a1c89021`: finish the current lab run,
+  then leave the lane empty for PREREG-074 R23 followed by canonical R4. CP-4
+  v6 was nine of ten repairs complete at lab Update 209 and remains unaccepted.
+- A fresh Week-1 capture audit found the four A5 contest-source objects and
+  their immutable manifest, but zero governed D800/D400/P_MIX/P_CTRL/WEMAX,
+  allocation, paid/shadow book, upload, or accepted-entry artifacts. Week-1
+  injury tables are empty, and the current capture v2 conflates advertised
+  capacity with final field size and never binds A5 roster edges to accepted
+  DraftKings Entry IDs. A bounded, outcome-blind capture-v3/A5-acceptance/
+  settlement successor is now being implemented on
+  `codex/week1-capture-v3-20260908`; it touches neither scoring nor paid state.
+- Exact next action: when the global pytest census is empty, run the exact R23
+  focused suite and independently review the final tip. Only a clean review may
+  authorize one freshly censused fm5 invocation, then the immutable build.
+  Validate canonical R4 next. In parallel, finish the versioned capture
+  successor and separately restore accepted Week-1 injury inputs before final
+  book generation.
+
 ### 2026-09-08 PREREG-074 fm4 passed; R22c build stopped pre-submit
 
 - The one-shot fm4 process completed exit 0 with all 36 cells. Its exact
