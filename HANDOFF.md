@@ -22,6 +22,27 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 injury-freshness focused image build queued
+
+- The two earlier validation builds from accepted source
+  `a01a6c84f60a678d3f76e684ba73fa487918f1f8` were confirmed terminal
+  `CANCELLED`; neither produced an image or deployment authority. They used
+  the generic full-repository validation gate and did not move the accepted
+  Week-1 injury fix into production.
+- Production submitted one replacement through the repository's focused
+  `cloudbuild.week1-live.yaml` gate, which retains the live boundary suite,
+  source compilation, scoped `Dockerfile.week1-live` build, container smoke,
+  and immutable revision-label check. Cloud Build
+  `5c66aeb2-f3b2-4d3c-a19c-284b5230816c` is currently `QUEUED`; exact tag is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:week1-freshness-a01a6c84-narrow-r1`.
+- Exact source archive is
+  `gs://nfl-predictions-503414_cloudbuild/source/1788873583.88711-e33ee643c1bf457c947e96fc0bc82ba5.tgz#1788873844974302`.
+  The build binds `_CODE_SHA` to the full accepted commit. No job, scheduler,
+  BigQuery table or runtime has changed. On terminal success, authenticate the
+  immutable digest before updating only `ingest-nflverse` and
+  `check-freshness`; then run the bounded incremental ingest/build/freshness
+  sequence. On failure, inspect the exact focused failure before any rebuild.
+
 ### 2026-09-08 Week-1 capture-v3 P0-A independently held; bounded repair active
 
 - Independent review of default-off P0-A candidate tip
