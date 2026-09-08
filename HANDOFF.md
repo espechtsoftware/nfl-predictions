@@ -22,6 +22,45 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 canonical-v3 paid/deployment bounded R2 independent HOLD
+
+- Independently reviewed exact candidate
+  `7fbcf5c310185e7ce5d6aa183485318bf0bbe10a` (direct child of held
+  `3c51fd3fb5cf6f3c52dfc9f1762661b94e1a67c9`) in isolated worktree
+  `/home/erich/projects/nfl-predictions-canonical-paid-r2-review-20260908`,
+  branch `codex/canonical-v3-paid-r2-independent-review-20260908`. No cloud,
+  graph, deployment, load, scoring, outcome, contest-entry, or paid action was
+  taken.
+- Accepted repairs: the actual detached immutable engine result now crosses
+  the simulation/MILP boundary; every transformed terminal exporter requires
+  it plus the independent request authority; five native and combined world
+  matrix/order/selected-index identities are retained and validated; and the
+  provider-realistic Cloud Build law closes every prior step/top-level bypass
+  field. The active Week-1 v2 successor exact-reads the same generation-pinned
+  activation object as dynamic paid-v3.
+- Remaining P0: `activation.json` is created from a zero-traffic staging
+  receipt before the authorized runtime revision exists and before traffic is
+  moved. The runtime consumes that pre-traffic object, while the later active
+  provider attestation and `*.traffic.json` receipt are never consumed by the
+  allow/deny path. A final-attestation plus rollback failure can therefore
+  leave 100% traffic on a revision whose pre-created money gate remains valid;
+  even the clean path enables the boundary before its final traffic
+  attestation. This does not close the prior P0-3/P0-4 contract.
+- Independent static checks passed (ancestry/scope, Python compile, both shell
+  parses, YAML shape, and diff checks). Fresh-census serial validation passed
+  **127/127** repaired-surface tests and **277/277** exact Cloud Build
+  release-gate tests; registry-v2 check passed with 117 observations and the
+  expected candidate-only status. Green tests support the accepted portions
+  but do not cover the post-traffic runtime-gate invariant.
+- Durable review:
+  `reports/2026-09-08-canonical-v3-paid-deployment-r2-independent-review.md`.
+  Exact candidate disposition is **HOLD** from integration, build, deployment,
+  activation, and paid use. Next action is a narrow R3 retaining the accepted
+  engine/world/build work while separating pre-traffic deployment authorization
+  from the post-traffic fact that enables money output, plus an adversarial
+  final-attestation-and-rollback-failure test. No scoring, selection,
+  generation, money-policy, Neo4j, or frozen v1/v2 algorithm change is needed.
+
 ### 2026-09-08 CP-4 R16 remote-driver v5 held on real provider counters
 
 - Lab returned v5 at exact tip
