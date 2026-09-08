@@ -22,6 +22,33 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Canonical-v3 paid/deployment repair independently held
+
+- Independent review of exact paid/deployment candidate
+  `3c51fd3fb5cf6f3c52dfc9f1762661b94e1a67c9`, direct child of
+  `a6007f2fd6cc5aca662489994a5f1d590b26f164`, returned **HOLD**. The
+  docs-only review is commit `0ca6493fff03d6ab2381d7e786e85b769c7a204f`;
+  complete evidence is in
+  `reports/2026-09-07-canonical-v3-paid-deployment-repair-independent-review.md`.
+- The exact focused paid/deployment modules produced **61 passed, 11 failed**.
+  They are mandatory in the committed Cloud Build gate. Remaining P0s are:
+  return and retain one immutable engine result end to end; make authority and
+  result mandatory for transformed paid output; bind all native world blocks,
+  ordered combined candidates/matrix, and actual selected-index order; normalize
+  real provider observations/defaults while closed-world checking execution
+  controls; and require an exact generation/SHA/bytes-pinned, cross-bound
+  activation authority on every active money CSV path, including Week-1 v2.
+  The staged `--no-traffic` sequence must also reconcile an ambiguous traffic
+  update before deciding whether rollback is required.
+- Candidate `3c51fd3` and dependent canonical-v3 Neo4j candidate `9ec52434`
+  remain held from integration, build, deployment, activation, graph use, and
+  paid use. This milestone imports no candidate code or lineage. No provider,
+  graph, test, scoring, outcome, or paid action occurred while publishing it.
+
+  Next concrete action: return and independently review one bounded paid/
+  deployment R2 against the cited exact requirements; only then review the full
+  canonical-v3/Neo4j merge composition.
+
 ### 2026-09-08 Experiment 081 R3 mechanics launch preflight failed cleanly; cache-only retry preparation active
 
 - Production issued the independently reviewed one-run mechanics GO for exact
