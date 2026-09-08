@@ -22,6 +22,61 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 canonical-v3 paid/deployment R4 provider readiness HOLD
+
+- Outcome-blind, read-only provider reality checking of integration
+  `1d75c71f9a08fd61b281435895b59116a9b1ff3c` is durable on branch
+  `codex/canonical-paid-r4-provider-reality-check-20260908` in report commit
+  `b5fe57af11729459d2b6763b1cb81446d5e4a32b`, report
+  `reports/2026-09-08-canonical-v3-paid-deployment-r4-provider-reality-check.md`.
+  Disposition is **HOLD for deployment, traffic, activation, and paid-v3
+  output**; this operational HOLD does not reverse the independent R4 code
+  PASS.
+- The reviewed deployer hard-codes
+  `gs://nfl-predictions-503414-paid-authority`. Both the active gcloud account
+  and Python ADC observed zero exact buckets, metadata reload returned
+  `NotFound` / HTTP 404, and the exact R4 census reader failed closed rather
+  than interpreting the missing bucket as empty history. Therefore no target
+  soft-delete policy, IAM policy, live/version/soft-delete list capability,
+  exact-generation read capability, or clean activation history can yet be
+  authenticated.
+- The generic provider path is real and green. Shared production venv
+  `google-cloud-storage==3.13.1` exposes the required method signatures. With
+  the active ADC, the unchanged R4 reader fully consumed live,
+  `versions=True`, and `soft_deleted=True` views on the policy-enabled raw
+  bucket; its exact-generation helper reloaded/downloaded the governed
+  2,664-byte Week-1 public-contest pre-lock manifest and matched durable
+  generation/SHA evidence without decoding or printing content. The target
+  failure is configuration-specific, not a generic client/API failure.
+- Current Cloud Run service identity is
+  `817589974517-compute@developer.gserviceaccount.com`; the active gcloud/ADC
+  principal is `espechtsoftware@gmail.com`. Their project bindings are
+  `roles/editor` and `roles/owner`, respectively. Runtime impersonation failed
+  safely on `iam.serviceAccounts.getAccessToken`, so target data-plane ability
+  must be proved from the actual service identity after provisioning rather
+  than inferred from those broad project roles. No impersonation token was
+  printed. The Policy Troubleshooter API was disabled and was not enabled.
+- A second readiness risk is durable: `pyproject.toml` permits
+  `google-cloud-storage>=2.13`, while upstream introduced soft-delete support
+  in 2.16.0. No exact R4 image exists and none was built or pulled. Raise/lock
+  the dependency floor and authenticate the exact release image API before
+  cutover.
+- No bucket/IAM/GCS mutation, build, deployment, Cloud Run execution, service
+  traffic, graph operation, outcome/score read, contest entry, paid action, or
+  pytest occurred. The only cloud interactions were bounded metadata/IAM and
+  Storage reads.
+
+  Exact next action: under separate infrastructure authority, create the exact
+  paid-authority bucket with an explicit nonzero soft-delete policy, uniform
+  bucket-level access, and public-access prevention; explicitly grant the
+  deployer Object Viewer + Object Creator and the exact runtime service
+  account Object Viewer; then repeat all three exact-name lists and a governed
+  exact-generation read from both identities. The intended activation census
+  must be exactly empty. If the globally unique bucket name is unavailable,
+  repair and independently review the hard-coded target instead of silently
+  substituting it. Do not deploy, cut traffic, activate, or emit paid-v3 output
+  while this HOLD remains.
+
 ### 2026-09-08 canonical-v3 paid/deployment R4 integrated for review
 
 - Isolated worktree
