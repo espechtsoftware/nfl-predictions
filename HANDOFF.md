@@ -22,6 +22,40 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 capture-v3 P0-A governed collector ready for independent review
+
+- A default-off P0-A candidate is complete at implementation commit
+  `538f0f6ea9ee2bdb6f307c53c7c270dbe556b8fd` on branch
+  `codex/week1-capture-v3-p0a-collector-20260908`, rebased onto production
+  `0391390ca82df6bcc0661e84e2c179f20e2975b6`. The full disposition is
+  `reports/2026-09-08-week1-capture-v3-p0a-governed-collector.md`.
+- The candidate adds the repository-owned authenticated DraftKings collector,
+  exact source/image/service-account/profile/contest/draft-group/method/
+  locator-family allowlist, dedicated create-once collector-only issuance
+  ledger, and concrete read-only acquisition authority. The authority
+  exact-reopens the sole ledger generation, acquisition receipt, raw response,
+  and transport trace, then verifies the complete redacted redirect event and
+  all identities/times. Live provider-capture publishers construct that fixed
+  adapter internally and expose no authority/store/locator/enrollment input.
+- Adversaries cover mirror-authority injection, copied receipt upload, unknown
+  generation, self-authored matching final-N receipt, unapproved image,
+  cross-wired role/contest, redirect substitution, raw/trace substitution, and
+  governance weakening. Validation passed 13/13 new P0-A tests, 42/42
+  unchanged P2 tests, and 15/15 legacy-v2 tests after separate empty global
+  pytest censuses; Ruff, compilation, and `git diff --check` passed.
+- **Operational HOLD remains.** Every activation pin is absent. No real
+  network/provider/cloud/publication/deployment/paid-entry/outcome action was
+  taken, and no real locator, redirect, media/disposition, or response-shape
+  fact is claimed. Independent review must precede a separate, explicitly
+  authorized outcome-blind P0-B acquisition. That later gate must bind the
+  immutable image/source, dedicated collector and reader identities, complete
+  effective IAM/job governance, authority bucket metageneration/locked
+  retention, exact active-entry locator, and all observed effective locator
+  families. P0-C and P0-D are not completed by this candidate.
+- Exact next action: push the candidate branch and request an independent code
+  review of the fixed trust interface. Do not fill pins, contact DraftKings,
+  publish, deploy, or enter contests during that review.
+
 ### 2026-09-08 CP-4 R16 mechanics failed terminally; R21 image-closure repair active
 
 - The one authorized R16 mechanics attempt ran through the registered wrapper

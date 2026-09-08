@@ -7,6 +7,9 @@ Branch: `codex/week1-capture-v3-p0a-collector-20260908`
 Production base at implementation start:
 `545709bc098a573fd4aba50e86cd94e57524760a`
 
+Implementation commit after rebase to current production:
+`538f0f6ea9ee2bdb6f307c53c7c270dbe556b8fd`
+
 ## Disposition
 
 **CODE CANDIDATE READY FOR INDEPENDENT REVIEW. LIVE ACQUISITION,
