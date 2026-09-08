@@ -76,6 +76,17 @@ treated as the active-entry export locator. The exact download/response URL is
 currently unpinned, so the live acceptance acquisition fails closed until a
 redacted real-shape smoke establishes it and independent review accepts it.
 
+The default-off P0-A candidate implementation is
+`src/nfl_dfs/ingest/week1_a5_dk_acquisition.py`; its separately reviewable
+activation pins are in `src/nfl_dfs/ingest/week1_a5_dk_acquisition_pins.py`.
+It supplies the concrete collector-only issuance ledger and read-only
+authority adapter required by the scaffold, but every live entry point remains
+on HOLD while the source commit, implementation SHA, immutable image,
+collector/reader identities, authority-bucket governance, exact acceptance
+locator, and all observed redirect/response locator families are absent. The
+candidate performed no provider acquisition and supplies no real transport
+fact by itself.
+
 `frozen_at`, `accepted_at`, and `publish_by` are prospective create-once
 publication cutoffs: the bytes are serialized first, the object is published,
 and its provider creation time must be no later than that already-declared
@@ -193,9 +204,11 @@ the exact pooled cents with floor/one-cent-remainder allocation; no
 2. Finish and exact-publish the player bridge and all four exact K80 books.
 3. Build, create-once publish, independently reopen, and code-pin the allocation
    raw identity and semantic SHA.
-4. Implement and independently review the live acquisition-authority adapter;
-   it must recognize only receipts emitted by the governed authenticated
-   collector, never arbitrary generic-store objects.
+4. Independently review the default-off P0-A collector/authority candidate. It
+   must recognize only receipts emitted by the governed authenticated
+   collector, never arbitrary generic-store objects; activation then requires
+   a separate pin-only change plus reviewed authority-bucket and runtime-image
+   governance.
 5. Independently review this repair and run its focused adversarial suite plus
    an outcome-blind smoke against the five real source objects and a
    representative production prepared-entry/filled-CSV/active-entry-export
