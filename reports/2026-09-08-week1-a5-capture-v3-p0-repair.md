@@ -2,6 +2,9 @@
 
 Date: 2026-09-08
 Branch: `codex/week1-capture-v3-p0-repair-20260908`
+Candidate commit: `4713cb835bd7e190e1cd1015125bbaeee1f397b5`
+Candidate tree: `e4b42af4347bd44c0cf07764a6e0653077a3ebbd`
+Production parent: `03f0ea35183c9523e4a1018ca260b1dabea74514`
 Disposition: **implementation candidate; operational HOLD**
 
 ## Scope and outcome
@@ -158,7 +161,7 @@ The authorized serial-lane command record is:
 
 The lane was released immediately after the v2 terminal result. No broad test,
 cloud call, provider call, DraftKings action, paid action, or outcome read ran.
-Final candidate commit/tree are recorded at handoff after the static closeout.
+The candidate identity is recorded above and in tracked `HANDOFF.md`.
 
 ## Remaining operational blockers
 
