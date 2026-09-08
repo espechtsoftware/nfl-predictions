@@ -47489,3 +47489,37 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   historical cohort. This milestone does not grant that authorization or
   permit weakening the strict validator. Prospective Week-1 full-field
   capture remains the adoption-authority safeguard against repeating the gap.
+
+- 2026-09-08 — PREREG-074 R31 runtime probe failed closed on inherited image environment
+
+  Production launched exactly one outcome-blind runtime probe under ID
+  `102b740p1-20260908T204213Z` from accepted source
+  `8c48315f65c521d2d209a77f1edf246f93050d03`, immutable image
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2@sha256:3a17b3968361d75ed468adf44f10e282b5c67fa066e50b8dd5e4287d67529e1a`,
+  build receipt
+  `builds/PREREG-074/ecd5d56f-87dd-4aec-be8e-e8f24f6b3e6a.json#1788899702042244`,
+  and FM8 manifest
+  `frame-manifests/PREREG-074/prereg074-fm8.json#1788900006162568`.
+  The registered launcher completion is
+  `/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launcher-completions/9feac4276dabe431d8340e655b0ec31a1cb30befc4d239d3196490b2da859100.json`.
+  Cloud Run execution `lab-run-xwhvz` is terminal failed with one failed
+  task and no retry. Only the create-once intent and execute records exist;
+  no task receipt or terminal gate exists. This probe ID and execute record
+  are consumed and MUST NOT be retried.
+
+  The container log gives the exact pre-data refusal:
+  `forbidden_capability: unexpected efficacy/data environment ['WAREHOUSE_PROJECT']`.
+  Independent inspection shows the Cloud Run job template carried the
+  intended minimal probe environment, while the image config inherited
+  `WAREHOUSE_PROJECT=nfl-predictions-503414` from Dockerfile `ENV`. The
+  failure was therefore not a numeric-runtime/SIMD mismatch and did not open
+  an authority, frame, warehouse data, score, or outcome artifact. Lab Update
+  247 correctly observed the terminal failure and deferred diagnosis to
+  production.
+
+  Next concrete action: prepare and independently review a fresh successor
+  probe namespace whose effective process environment neutralizes the baked
+  warehouse variable while retaining the fail-closed no-data boundary. Bind
+  the exact effective environment in the coordinator tests and receipt. Any
+  source/image/FM identity changed by that repair requires a fresh immutable
+  build and fresh frame manifest before one successor probe; never reuse p1.
