@@ -22,6 +22,44 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 PREREG-074 fm4 passed; R22c build stopped pre-submit
+
+- The one-shot fm4 process completed exit 0 with all 36 cells. Its exact
+  immutable reference is
+  `frame-manifests/PREREG-074/prereg074-fm4.json|1788842316129097|96459|143645bd20c4dee3216a3cb820afec3f734342150e8bb916eb045b8367ddf89f`.
+  A fresh post-publication Storage-client census found exactly that one live
+  generation and zero noncurrent or soft-deleted generations. Exact-generation
+  bytes/SHA and the strict R22c validator authenticate the 17-path code map,
+  exact source `21a2be7482e397a47d6d68e4b64e62bcbadabaa0`, all 36 cells, and
+  `outcome_opened: false`.
+- The separately authorized immutable-builder invocation then failed before
+  the orchestrator and before Cloud Build submission. Installed Google Cloud
+  SDK 583.0.0 rejects
+  `gcloud meta list-files-for-upload <root> --ignore-file=<path>` because that
+  internal command accepts no `--ignore-file` flag. The failure happened at
+  approximately `2026-09-08T04:42:49Z`.
+- Post-failure evidence proves no provider attempt: no source-specific local
+  attempt, successful-submit, or raw-submit record exists; no new Cloud Build
+  exists (the newest remains 081 build
+  `351c7a92-d15f-4100-98ac-e1fc0d4c7ab7`); no image, tag, receipt, authority,
+  execution, outcome, or score was created. Only a pre-provider identities
+  scratch file exists. Do not rerun the exact R22c builder.
+- A default provider upload census of the linked worktree produces the 904
+  frozen members plus one extra `.git` file. Bypassing the reviewed wrapper,
+  modifying the Cloud SDK, or injecting a PATH shim is prohibited. The narrow
+  R23 contract uses a temporary shared clone and the same default
+  `.gcloudignore` for both the real upload census and submit, with a
+  provider-real command test and exact parity mutation checks.
+- Because fm4 truthfully binds the exact R22c source/code map, a repaired
+  source must advance to fresh fm5 rather than relabel fm4. Preserve all
+  scientific laws and attempt history; advance the source/image namespace,
+  independently review, then run one new all-generation-censused manifest.
+  Durable production-to-lab failure/repair disposition is lab `main` commit
+  `2e21ed3eb3fb6e5a56430a5a77aa2b49992a810a`.
+- Exact next action: independently review the narrow R23 candidate when
+  returned. fm4 and the R22c builder path are consumed/held; no downstream
+  authority or Cloud Run action is permitted from them.
+
 ### 2026-09-08 PREREG-074 R22c accepted; one-shot fm4 invocation active
 
 - Exact PREREG-074 R22c source
