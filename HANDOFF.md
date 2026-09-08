@@ -22,6 +22,74 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 CP-4 reached the real candidate frame; R17 failed on a redundant JSON-order assertion
+
+- Production independently accepted the CP-4 physical-prelock candidate at
+  `824186a797c2f883ead882dba35646a9efd7b5c3`. The five exact sanitized
+  prelock objects and their unchanged R23 manifest are bound by source
+  authority `576f210...`, manifest SHA-256 `86034ba...`, and runtime closure
+  SHA-256 `3e30a5d...`. The first build
+  `5fd027b4-872d-4d0d-b8d9-15346537eb89` failed before producing an image
+  because `.gcloudignore` omitted a literal Docker `COPY` source; no job or
+  execution resulted.
+- The bounded R24 upload repair is exact commit
+  `2f1c5a8d60ec9a024aa072186737ac7bcf8340ef`, independently accepted at
+  `67d96f8`, and merged with current lab main at
+  `67e2c3dcf8f71c23ac3f62eaffcc4a04f8f0b25c`. Clean integrated validation
+  passed 189 tests. Replacement Cloud Build
+  `4f66f7c4-1535-430d-90b4-19b796dcc52f` succeeded and published immutable
+  image
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2@sha256:b561e450e9f1b2a5e93db4f9a7e52455d227154ed7c6b3175506a0828ad22e6b`.
+  Its receipt is
+  `builds/CP-4/4f66f7c4-1535-430d-90b4-19b796dcc52f.json#1788890910465538`
+  with SHA-256
+  `3c6cfe008f2802a9661aa4dc95340d49883795fcf823c7423d4b11d82ebe2c70`.
+- The registered preflight passed, then the single authorized candidate-only
+  R17 smoke launched as execution `lab-run-slow-njd4j` (job generation 66,
+  one task, 2 CPU, 8 GiB, `maxRetries=0`). It failed cleanly before candidate
+  publication, outcome access, or scoring with
+  `frame_schema_mismatch: ... sidecar per-column material does not cover the
+  source columns in order`. The registered completion is
+  `a705c4d681a7045caa1c9133b39b92312f9466ca13b5880337487859bcff9ed6`;
+  R17 is consumed and must not be relaunched.
+- Exact reconstruction confirms the 624-row by 178-column physical frame is
+  correct: source-order SHA-256
+  `962beb7cc8b759eeb8e65ce232f17c5fece7ea1a8736ce3a97bb2d6963dea2ca`
+  matches the accepted sidecar, and all 178 per-column names and contents
+  match. The writer's outer `sort_keys=True` alphabetized the decoded JSON
+  mapping, so the later dictionary-iteration-order assertion is redundant and
+  false even though the authenticated source order already passed. A bounded
+  R25 repair is active: retain the immutable sidecar and physical objects,
+  replace only that redundant assertion with exact key/count coverage plus a
+  JSON-round-trip regression, consume R17, and issue a fresh code/image/smoke
+  identity. No R18 smoke or efficacy cohort is authorized until that candidate
+  receives independent review and a fresh immutable build.
+
+### 2026-09-08 PREREG-074 R4 failed before data on host-variable NumPy SIMD identity; R30 repair active
+
+- R4 execution `lab-run-s4zb2` failed identically in its first five tasks
+  before data/frame access; production cancelled the remainder. It wrote no
+  outcome or score cells. R4 is void and consumed.
+- The failure is confined to NumPy runtime identity: host-dependent
+  `simd.found/not_found` differed across Cloud Run workers even under the same
+  image. The bounded R30 repair pins
+  `NPY_DISABLE_CPU_FEATURES=X86_V3,X86_V4,AVX512_ICL,AVX512_SPR` and
+  `OPENBLAS_CORETYPE=Nehalem` through build, frame-manifest, provider and job
+  paths, authenticates the resulting SIMD law, and adds a one-task
+  outcome-blind runtime probe before any efficacy cohort. On return, require
+  independent review, one immutable build, a fresh FM7/R5 namespace, and a
+  clean probe before releasing the full cohort.
+
+### 2026-09-08 persistent production monitors confirmed active after reboot
+
+- Enabled user services `nfl-cloud-run-lane-monitor`,
+  `nfl-cloud-build-monitor`, `nfl-lab-action-note-monitor`, and
+  `nfl-lab-repo-transition-monitor` restarted automatically and are polling at
+  60/60/120/120 seconds. They detected both CP-4 builds, the R17 execution
+  failure and lab Updates 238--240, with Windows notifications delivered.
+  Monitoring is read-only and silent unless state changes or attention is
+  required.
+
 ### 2026-09-08 CP-1 one-bank raw score read complete; prop gate closed, optional context sleeve nominated
 
 - The independently reviewed CP-1 reader executed exactly once against the
