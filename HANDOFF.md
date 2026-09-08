@@ -83,7 +83,7 @@ agent or developer:
   exact 90-entry acceptance evidence; and capture/settle all four contests
   after lock. No operational artifact, cloud state, or paid entry was created.
 
-### 2026-09-08 PREREG-074 R23 image built; post-build authentication held
+### 2026-09-08 PREREG-074 R23 image built; R24 recovery re-review active
 
 - fm5 completed exit zero in 3 minutes 40.75 seconds and published all 36
   cells at exact immutable reference
@@ -131,6 +131,25 @@ agent or developer:
   `image` is a Docker URI while `tag` and `version` are resource names. The
   active R24 implementation must close both real-provider mismatches, retain
   zero submit/launch capability, and pass independent review before recovery.
+- The first exact R24 recovery-controller candidate
+  `6af26225247c88a4ad7ab6fed5bd7f892d893485`, tree
+  `1ba414f655fd2aab55d1622d042bccc3c549f4d7`, passed its independent
+  five-file suite 83/83 in 249.66 seconds but received a correct **HOLD**:
+  Python's timestamp comparison lost Cloud Build's nanosecond precision, the
+  independently reopened transcript did not recheck Build-time ordering, and
+  three Markdown additions made the advertised `git diff --check` red. Review
+  commit `894494ec04ce87c5dceb90cf10dfed23cd447e8a` records the findings.
+- The bounded repair is pushed at exact candidate
+  `4c2c02bd33829b03d12b8f68f25d15fc69e1b39a`, tree
+  `85a59150dd354fa23b7ac55d19ec0ddbb93b89f1`, on
+  `origin/production/prereg074-r24-global-build-recovery-20260908`. It retains
+  exact one-to-nine-digit fractional seconds as nanoseconds, applies the same
+  ordering law to provider Build and reopened transcript, adds both requested
+  adversaries, and fixes the static record. Focused tests passed 2/2; the
+  five-file suite passed 83/83 in 215.60 seconds; bash syntax, compilation,
+  Ruff, and diff checks passed. Independent delta re-review is active. Do not
+  recover, rebuild, publish the receipt, create authority, or launch until it
+  returns PASS and production records a separate exact one-shot GO.
 
 ### 2026-09-08 PREREG-074 R23 passed independently; one-shot fm5 active
 
