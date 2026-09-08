@@ -22,7 +22,7 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
-### 2026-09-08 Experiment 081 R4 mechanics execution launched and is running
+### 2026-09-08 Experiment 081 R4 mechanics execution passed and sealed
 
 - Independent review returned **CODE GO** on nfl2 main commit
   `6acc710bfce959148f91cbf5b2ea8fadef6e3b22`. The sole authorized product is
@@ -40,14 +40,28 @@ agent or developer:
 - Launch intent generation `1788835512737183` was created before the execute
   RPC. Cloud Run created execution `lab-run-z8jxk`, UID
   `b5ae9e76-8946-416d-bff7-8d2bccddb846`, at
-  `2026-09-08T02:45:23.559729Z`. At the `02:47:52Z` observation it was running
-  one task with zero failed tasks. This execution is mechanics-only with
-  outcomes disabled; Experiment 081 efficacy remains held on registry v2.
+  `2026-09-08T02:45:23.559729Z`. It completed successfully at
+  `02:51:24.752619Z`: one succeeded task, zero failed, zero cancelled, and
+  zero retried. The registered coordinator exited 0 at `02:52:56Z` under
+  completion/receipt key
+  `b62d70252c6b386a08b795711c813ae7b78b32ad0f87daa094a8320c36401394`.
+- The terminal artifact chain is exact and sealed: intent generation
+  `1788835512737183`, 2,826 bytes, SHA-256
+  `b0856014595e5787fce9f83407faab67ca4a59fe870b4a9d0b39b0258395b02d`;
+  result generation `1788835879265484`, 2,067,077 bytes, SHA-256
+  `10353e03d070718a6543b3847e45223f92a3598f1e93f51b8d6c7e41221d0fbf`;
+  gate generation `1788835945903480`, 2,196 bytes, SHA-256
+  `39742f09de42943ee23fc23232ee8c092078e7476470ab4c8eeac602844eb309`;
+  and seal generation `1788835967259640`, 2,355 bytes, SHA-256
+  `9ec1f695561caffe414e3aec74d1b7e5dd392bc335c736613aa365aad19226a5`.
+- The coordinator stopped at the frozen mechanics boundary before support
+  census, winner registry, efficacy, scoring, or policy work. Outcomes remained
+  disabled and Experiment 081 efficacy remains held on registry v2. This PASS
+  must not be interpreted as a score result or permission to cross that hold.
 
-  Next concrete action: monitor this exact coordinator/execution through its
-  terminal mechanics seal, authenticate the intent/result generations and
-  receipt identities, and record the terminal disposition. Never issue a
-  second execute for this intent.
+  Next concrete action: retain this sealed mechanics record for independent
+  cross-verification and keep the efficacy path held until registry v2 is
+  independently cleared. Never issue a second execute for this intent.
 
 ### 2026-09-08 Canonical-v3 paid/deployment repair independently held
 
