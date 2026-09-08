@@ -22,6 +22,65 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Experiment 081 R3 immutable build and receipt recovered cleanly; mechanics binding active
+
+- The independent lost-build-ID recovery review passed at exact commit
+  `a167f9952f226197eb9de6df648d1af6e6b0bb6f`; its focused suite passed
+  28/28. The read-only reconciliation then authenticated the sole successful
+  provider build, its exact source generation, all 749 tracked context files,
+  the Artifact Registry tag/digest, and an empty receipt namespace.
+- GO-1 created only the exact local 352-byte `successful-build-v1.json`
+  identity (mode `0600`, SHA-256
+  `021c19041c17cea078d2d3048afdf45a7784320728bc7c8f009edaa1c117bac8`).
+  The unchanged reviewed `c02f441` recovery path then executed under GO-2;
+  it did not rebuild or retag anything.
+- Canonical build receipt
+  `gs://nfl-2-506823-lab/build-receipts/EXPERIMENT-081/081-79031403bcd3180073c0c0576cbe31ed18adcfc2-r3.json`
+  was created once at generation `1788825710013246`. Local and exact-
+  generation GCS bytes are both 3,465 with SHA-256
+  `ea67838ee5f076550b5f0cba7c3d443da8d067f463f9edde1d0bdd8cc017369e`.
+  It binds Cloud Build `351c7a92-d15f-4100-98ac-e1fc0d4c7ab7`, immutable
+  image digest
+  `sha256:db6db8454c28a7f39a1c98a8597240a20b8d8d2f4dbfe24ac647c47f61cc6252`,
+  source archive generation `1788822986211398`, and the clean 749-file
+  context. No Cloud Run job/execution, mechanics result/gate/seal, outcome,
+  or score state was touched.
+- Exact transcripts and separate authorizations are durable on lab main
+  through `887a494`. Next action: fill and independently review the R3
+  mechanics binding from accepted R8 `de1397f3`, choose one fresh
+  `081m560r3-*` identity after a zero-namespace census, then use the registered
+  coordinator for one outcome-disabled mechanics execution only. Efficacy
+  remains `HOLD_REGISTRY_V2`.
+
+### 2026-09-08 PREREG-074 R16 independently held; bounded R17 repair returned to lab
+
+- Independent prelaunch review held R16 code `19da2d8` / report tip
+  `8d49b1b` before fm4, build, image assertion, authority, job mutation,
+  launch, replay, outcome, or score access. Nine execution/provenance defects
+  remain, including receipt-schema incompatibility, an unreachable recovery
+  branch, incorrect Artifact Registry tag identity, unauthenticated fm4/source/
+  archive/image bytes, unbound running-builder identity, ambiguous build-ID
+  persistence, and a prose-only digest assertion.
+- The accepted R14 science and CP-3 mechanics are unchanged and need not be
+  rerun. The durable R17 repair contract is
+  `64e1e683acd93b405dfd830ddf80f788d0f8cccd`, integrated to lab main in
+  `680c20b`. All PREREG-074 mutating actions remain HOLD until the lab returns
+  a narrow R17 candidate and production independently accepts it.
+
+### 2026-09-08 Canonical-v3 Neo4j suite-authority candidate held for complete pre-contact guards
+
+- Independent static review held candidate
+  `0b9f266ea3476da3b48bfe01bc89a765be943c5e`. Although its mutation paths
+  correctly retain authenticated suite identity, `query_strategy_registry`,
+  `finish_suite`, `query_smoke`, and the live CLI can still contact Neo4j
+  before the executable-plan guard. The new test covered only bootstrap/load.
+- Production adjudicates that only exact `v3-canonical-game` suite evidence
+  is executable; suite-v1/v2 remain validation/inspection-only. A bounded
+  repair is active to guard every governed path before backend creation,
+  expand NoGraphContact coverage, and run the three focused modules. No merge,
+  graph contact/load, deployment, scoring, selection, or cloud action has
+  occurred.
+
 ### 2026-09-07 PREREG-074 R15 launch packet held; narrow R16 prelaunch repair requested
 
 - Independent static review held candidate `63da6796...` before every fm4,
