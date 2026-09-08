@@ -22,7 +22,31 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
-### 2026-09-08 Week-1 A5 capture-v3 candidate ready for independent review
+### 2026-09-08 canonical paid-v3 R4 integrated candidate; provider readiness HOLD
+
+- The independently passed R4 code is selectively integrated over current
+  production at exact branch commit
+  `1d75c71f9a08fd61b281435895b59116a9b1ff3c`, tree
+  `5d32ee18bdc79ead106dfb1c25ee6965ba092185`, on
+  `origin/production/canonical-paid-r4-integration-20260908`. It remains off
+  production `main` and carries no build/deploy/traffic/paid authorization.
+- Outcome-blind provider reality check is an operational **HOLD**. The exact
+  hard-coded authority bucket `nfl-predictions-503414-paid-authority` does not
+  exist: both gcloud and ADC observed zero exact buckets and exact reload/list
+  returned NotFound rather than an empty authority namespace. Consequently
+  its soft-delete policy, IAM, three-view listing, exact-generation read, and
+  runtime identity access cannot yet pass. The generic code path did pass
+  all-generation/soft-delete/exact-generation reads against the known
+  zero-outcome Week-1 pre-lock manifest without decoding its content.
+- Durable provider review is
+  `origin/codex/canonical-paid-r4-provider-reality-check-20260908` tip
+  `c90b47c83b63c1d0be6efcb3fdb5ac567602d3f9`. A bounded repair is active to
+  raise the minimum `google-cloud-storage` version from the unsafe `>=2.13`
+  floor (soft-delete support begins at 2.16), add exact bucket/IAM/policy
+  provisioning and preflight, and keep all mutation default-off until an
+  independent GO. Do not deploy, route traffic, activate, or emit paid output.
+
+### 2026-09-08 Week-1 A5 capture-v3 independent HOLD; bounded repair active
 
 - The bounded capture-v3 successor is finalized and pushed at exact candidate
   `58b7c98bccdbabff54c530ba515d14b22533e977`, tree
@@ -32,11 +56,25 @@ agent or developer:
   immutable pre-lock contest facts, exact DK Entry-ID/roster acceptance,
   four-contest 90-entry acceptance-root, and post-settlement contracts without
   changing generation, scoring, selection, deployment, or paid-entry behavior.
-- Static validation passed: Ruff, Python compilation, and `git diff --check`.
+- Initial static validation passed: Ruff, Python compilation, and `git diff --check`.
   Under two separately authorized empty-census serial windows, the focused v3
   suite passed 11/11 in 1.93 seconds and the unchanged v2 rehearsal suite
-  passed 15/15 in 0.99 seconds. Independent review is active; do not merge or
-  operate it until that review is terminal.
+  passed 15/15 in 0.99 seconds. Independent review nevertheless returned
+  **P0 HOLD** at report commit
+  `cbe93a5c2c1247dc3faa0028e2873b6c3a4e3238`, final handoff tip
+  `e3dc01eb9aac55617695c01cc7e18f0f0a497530`, because those tests encoded
+  synthetic premises rather than the live artifact contract.
+- The repair must accept legitimate min-churn entry/book permutations; split
+  semantic self-hash from raw URI/generation/bytes/SHA identity; reopen all
+  source, allocation, manifest, acceptance, book, and settlement evidence by
+  exact provider generation; bind raw accepted-entry rows; freeze the exact
+  A5 contest/draft-group/lock/cap/fee/limit facts; and prevent a caller-selected
+  truncated or cross-wired standings prefix from being certified as a complete
+  field. The exact generation-pinned public pre-lock manifest and its four
+  contest-detail children were safely downloaded as outcome-blind repair
+  fixtures and reproduced every published byte count and SHA. No live A5
+  allocation identity exists yet, so its final exact raw/semantic pin remains
+  an operational blocker rather than a value to invent.
 - Remaining operational P0s are separate from this schema candidate: restore
   fresh point-in-time Week-1 injury/projection inputs; implement and review the
   missing governed P_MIX/P_CTRL/D400_DEMAX/D800_WEMAX A5 book/allocation
