@@ -1,104 +1,86 @@
-"""Fail-closed tests for the Week-1 capture-v3 P0-B fact gate."""
+"""Adversarial tests for the local Week-1 provider-response rehearsal."""
 
 from __future__ import annotations
 
+import ast
 import copy
 import csv
-import hashlib
+import inspect
 import io
 import json
+import os
+import stat
+import traceback
+from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
 
-from nfl_dfs.inference.generation_exposure import canonical_json_bytes
 from nfl_dfs.ingest import week1_a5_capture_contracts as capture
 from nfl_dfs.ingest import week1_a5_dk_acquisition as acquisition
 from nfl_dfs.ingest import week1_a5_dk_acquisition_pins as live_pins
 from nfl_dfs.ingest import week1_a5_governed_capture_v3 as capture_v3
 from nfl_dfs.ingest import week1_a5_p0b_provider_reality as subject
 
-SOURCE_BYTES = b"exact reviewed Cloud Build source archive fixture\n"
-FIXTURE_LOCATOR = "https://fixture.draftkings.com/account/active?opaque=do-not-retain"
-EFFECTIVE_LOCATOR = (
-    "https://fixture.draftkings.com/account/entries.csv?signature=also-private"
+COOKIE_NAME_CANARY = "COOKIE_NAME_CANARY"
+COOKIE_VALUE_CANARY = "COOKIE_VALUE_CANARY"
+QUERY_VALUE_CANARY = "QUERY_VALUE_CANARY"
+PATH_VALUE_CANARY = "PATH_VALUE_CANARY"
+HEADER_VALUE_CANARY = "HEADER_VALUE_CANARY"
+ROW_VALUE_CANARY = "ROW_VALUE_CANARY"
+LOCATOR = (
+    "https://www.draftkings.com/lineup/getlineups/"
+    f"{PATH_VALUE_CANARY}?ticket={QUERY_VALUE_CANARY}"
 )
-AUDITOR = "user:release-reviewer@example.com"
-COLLECTOR = "wk1-a5-capture@nfl-predictions-503414.iam.gserviceaccount.com"
-READER = "wk1-a5-reader@nfl-predictions-503414.iam.gserviceaccount.com"
-IMAGE_TAG = (
-    "us-central1-docker.pkg.dev/nfl-predictions-503414/week1/dk-capture:p0b-reviewed"
+EFFECTIVE = (
+    "https://www.draftkings.com/lineup/export/"
+    f"{PATH_VALUE_CANARY}?signature={QUERY_VALUE_CANARY}"
 )
-IMAGE = f"{IMAGE_TAG.rsplit(':', 1)[0]}@sha256:{'b' * 64}"
-PROJECT_NUMBER = "817589974517"
-ORGANIZATION = "123456789012"
 
 
-def _expected_access() -> dict[str, list[dict[str, object]]]:
-    values: dict[str, list[dict[str, object]]] = {}
-    for surface, permissions in subject.SURFACE_PERMISSIONS.items():
-        principal = AUDITOR
-        if surface == "session_secret":
-            principal = f"serviceAccount:{COLLECTOR}"
-        values[surface] = [
-            {"permission": permission, "principals": [principal]}
-            for permission in permissions
-        ]
-    return values
-
-
-def _intent() -> dict[str, object]:
+def _intent(role: str = "milly-5") -> dict[str, object]:
     return subject._seal(
         {
             "schema_version": subject.INTENT_SCHEMA,
-            "created_at_utc": "2026-09-08T18:00:00Z",
-            "project": subject.PROJECT,
-            "project_number": PROJECT_NUMBER,
-            "organization": ORGANIZATION,
-            "region": "us-central1",
-            "audit_principal": AUDITOR,
-            "source_commit": "a" * 40,
+            "created_at_utc": "2026-09-08T20:00:00Z",
+            "rehearsal_module_sha256": subject._module_sha256(),
             "collector_module_sha256": acquisition._module_sha256(),
-            "build_id": "11111111-1111-4111-8111-111111111111",
-            "build_region": "global",
-            "source_archive": {
-                "uri": (
-                    "gs://nfl-predictions-503414_cloudbuild/source/p0b-reviewed.tgz"
-                ),
-                "generation": "101",
-                "sha256": hashlib.sha256(SOURCE_BYTES).hexdigest(),
-                "bytes": len(SOURCE_BYTES),
-            },
-            "image_tag": IMAGE_TAG,
-            "image": IMAGE,
-            "collector_job": {
-                "name": "week1-a5-capture-p0b",
-                "uid": "22222222-2222-4222-8222-222222222222",
-                "generation": "7",
-            },
-            "collector_service_account": COLLECTOR,
-            "authority_reader_service_account": READER,
-            "session_secret": {
-                "name": "week1-a5-dk-storage-state",
-                "version": "3",
-                "volume_name": "dk-session-state",
-            },
-            "contest_role": "milly-5",
-            "locator_families": [
-                {
-                    "scheme": "https",
-                    "host": "fixture.draftkings.com",
-                    "port": 443,
-                    "path_prefix": "/account/",
-                }
-            ],
-            "expected_effective_access": _expected_access(),
-            "outcome_data_access_authorized": False,
+            "contest_role": role,
+            "http_method": "GET",
+            "session_profile": acquisition.COLLECTOR_SESSION_PROFILE,
+            "fixed_locator_families": subject._family_rows(),
+            "maximum_redirects": acquisition.MAX_REDIRECTS,
+            "capture_v3_schema": capture_v3.ACCEPTANCE_PROVIDER_CAPTURE_SCHEMA,
+            "provider_contact_authorized": True,
+            "cloud_contact_authorized": False,
             "cloud_mutation_authorized": False,
+            "gcs_publication_authorized": False,
+            "pin_change_authorized": False,
+            "contest_entry_authorized": False,
+            "outcome_or_standings_access_authorized": False,
+            "legacy_v2_live_fallback_authorized": False,
         },
         field="intent_sha256",
     )
+
+
+def _storage_state() -> bytes:
+    return json.dumps(
+        {
+            "cookies": [
+                {
+                    "name": COOKIE_NAME_CANARY,
+                    "value": COOKIE_VALUE_CANARY,
+                    "domain": ".draftkings.com",
+                    "path": "/",
+                    "secure": True,
+                    "httpOnly": True,
+                }
+            ],
+            "origins": [],
+        }
+    ).encode()
 
 
 def _active_entry_csv(role: str = "milly-5") -> bytes:
@@ -118,746 +100,713 @@ def _active_entry_csv(role: str = "milly-5") -> bytes:
                 pin.contest_id,
                 f"${pin.entry_fee_micro // 1_000_000}",
             ]
-            + [f"Player {value} ({value})" for value in range(first, first + 9)]
+            + [
+                f"{ROW_VALUE_CANARY}-{value} ({value})"
+                for value in range(first, first + 9)
+            ]
         )
     return output.getvalue().encode()
 
 
-def _job() -> dict[str, object]:
-    return {
-        "metadata": {
-            "name": "week1-a5-capture-p0b",
-            "uid": "22222222-2222-4222-8222-222222222222",
-            "generation": 7,
-        },
-        "spec": {
-            "template": {
-                "spec": {
-                    "taskCount": 1,
-                    "parallelism": 1,
-                    "template": {
-                        "spec": {
-                            "maxRetries": 0,
-                            "serviceAccountName": COLLECTOR,
-                            "containers": [
-                                {
-                                    "image": IMAGE,
-                                    "env": [
-                                        {"name": "CODE_SHA", "value": "a" * 40},
-                                        {
-                                            "name": "COLLECTOR_IMAGE_DIGEST",
-                                            "value": f"sha256:{'b' * 64}",
-                                        },
-                                    ],
-                                    "volumeMounts": [
-                                        {
-                                            "name": "dk-session-state",
-                                            "mountPath": "/var/run/secrets/nfl-dfs",
-                                        }
-                                    ],
-                                }
-                            ],
-                            "volumes": [
-                                {
-                                    "name": "dk-session-state",
-                                    "secret": {
-                                        "secretName": "week1-a5-dk-storage-state",
-                                        "items": [
-                                            {
-                                                "key": "3",
-                                                "path": (
-                                                    "draftkings-storage-state.json"
-                                                ),
-                                            }
-                                        ],
-                                    },
-                                }
-                            ],
-                        }
-                    },
-                }
-            }
-        },
-        "status": {
-            "observedGeneration": 7,
-            "conditions": [{"type": "Ready", "status": "True"}],
-        },
-    }
-
-
-def _bucket_policy() -> dict[str, object]:
-    bindings = [
-        {
-            "role": "roles/storage.objectCreator",
-            "members": [f"serviceAccount:{COLLECTOR}"],
-        },
-        {
-            "role": "roles/storage.objectViewer",
-            "members": [
-                f"serviceAccount:{COLLECTOR}",
-                f"serviceAccount:{READER}",
-            ],
-        },
-    ]
-    bindings.sort(key=canonical_json_bytes)
-    return {"version": 3, "etag": "Zml4dHVyZS1ldGFn", "bindings": bindings}
-
-
-def _asset_response(*, surface: str, intent: dict[str, object]) -> dict[str, object]:
-    permissions = subject.SURFACE_PERMISSIONS[surface]
-    target = subject._asset_target(surface, intent)
-    expected = intent["expected_effective_access"][surface]  # type: ignore[index]
-    results = []
-    for access in expected:
-        permission = access["permission"]
-        principals = list(access["principals"])
-        if not principals:
-            continue
-        results.append(
-            {
-                "fullyExplored": True,
-                "nonCriticalErrors": [],
-                "attachedResourceFullName": (
-                    f"//cloudresourcemanager.googleapis.com/organizations/"
-                    f"{ORGANIZATION}"
-                ),
-                "iamBinding": {
-                    "role": "roles/p0bFixtureAuthority",
-                    "members": principals,
-                },
-                "identityList": {
-                    "identities": [{"name": item} for item in principals],
-                    "groupEdges": [],
-                },
-                "accessControlLists": [
-                    {
-                        "resources": [{"fullResourceName": target}],
-                        "accesses": [
-                            {"role": "roles/p0bFixtureAuthority"},
-                            {"permission": permission},
-                        ],
-                        "resourceEdges": [],
-                    }
-                ],
-            }
-        )
-    return {
-        "fullyExplored": True,
-        "nonCriticalErrors": [],
-        "mainAnalysis": {
-            "fullyExplored": True,
-            "nonCriticalErrors": [],
-            "analysisQuery": {
-                "accessSelector": {"permissions": list(permissions)},
-                "resourceSelector": {"fullResourceName": target},
-                "options": subject._asset_options(surface),
-                "scope": f"organizations/{ORGANIZATION}",
-            },
-            "analysisResults": results,
-        },
-    }
-
-
-class FixturePort:
-    def __init__(self, intent: dict[str, object]) -> None:
-        self.intent = intent
-        self.calls: list[tuple[str, tuple[str, ...]]] = []
-        self.overrides: dict[str, object] = {}
-
-    def json(self, *, label: str, argv: list[str]) -> object:
-        self.calls.append((label, tuple(argv)))
-        if label in self.overrides:
-            return copy.deepcopy(self.overrides[label])
-        if label == "active-gcloud-principal":
-            return [{"account": AUDITOR.split(":", 1)[1], "status": "ACTIVE"}]
-        if label == "project-ancestry":
-            return [
-                {"type": "project", "id": PROJECT_NUMBER},
-                {"type": "folder", "id": "444444444444"},
-                {"type": "organization", "id": ORGANIZATION},
-            ]
-        if label == "source-archive-metadata":
-            return {
-                "bucket": "nfl-predictions-503414_cloudbuild",
-                "name": "source/p0b-reviewed.tgz",
-                "generation": "101",
-                "metageneration": "1",
-                "size": str(len(SOURCE_BYTES)),
-            }
-        if label == "cloud-build":
-            storage_source = {
-                "bucket": "nfl-predictions-503414_cloudbuild",
-                "object": "source/p0b-reviewed.tgz",
-                "generation": "101",
-            }
-            return {
-                "id": "11111111-1111-4111-8111-111111111111",
-                "status": "SUCCESS",
-                "source": {"storageSource": storage_source},
-                "sourceProvenance": {"resolvedStorageSource": storage_source},
-                "substitutions": {"_CODE_SHA": "a" * 40, "_IMAGE": IMAGE_TAG},
-                "results": {
-                    "images": [{"name": IMAGE_TAG, "digest": f"sha256:{'b' * 64}"}]
-                },
-            }
-        if label == "artifact-registry-image":
-            return {
-                "image_summary": {
-                    "digest": f"sha256:{'b' * 64}",
-                    "fully_qualified_digest": IMAGE,
-                }
-            }
-        if label.startswith("authority-bucket-policy-"):
-            return _bucket_policy()
-        if label.startswith("authority-bucket-"):
-            return {
-                "name": acquisition.LIVE_AUTHORITY_BUCKET,
-                "projectNumber": PROJECT_NUMBER,
-                "metageneration": "9",
-                "iamConfiguration": {
-                    "uniformBucketLevelAccess": {"enabled": True},
-                    "publicAccessPrevention": "enforced",
-                },
-                "retentionPolicy": {
-                    "isLocked": True,
-                    "retentionPeriod": "31536000",
-                },
-                "versioning": {"enabled": True},
-            }
-        if label.startswith("collector-job-policy-"):
-            return {"version": 1, "etag": "am9i", "bindings": []}
-        if label.startswith("collector-job-"):
-            return _job()
-        if "service-account-policy" in label:
-            return {"version": 1, "etag": "c2E=", "bindings": []}
-        if label.startswith("session-secret-version-"):
-            return {
-                "name": (
-                    f"projects/{PROJECT_NUMBER}/secrets/"
-                    "week1-a5-dk-storage-state/versions/3"
-                ),
-                "state": "ENABLED",
-            }
-        if label.startswith("session-secret-policy-"):
-            return {"version": 1, "etag": "c2VjcmV0", "bindings": []}
-        if label.startswith("asset-"):
-            surface = label.removeprefix("asset-").rsplit("-", 1)[0]
-            return _asset_response(surface=surface, intent=self.intent)
-        raise AssertionError(label)
-
-    def raw(self, *, label: str, argv: list[str]) -> bytes:
-        self.calls.append((label, tuple(argv)))
-        assert label == "source-archive-content-identity"
-        return SOURCE_BYTES
-
-
 @dataclass
-class FixtureTransport:
-    event: acquisition.TransportEvent
-    calls: list[tuple[str, str]]
+class FakeResponse:
+    url: str
+    status_code: int
+    headers: dict[str, str]
+    content: bytes
+    history: tuple[object, ...] = ()
+    body_iterated: bool = False
 
-    def perform(self, *, method: str, locator: str) -> acquisition.TransportEvent:
-        self.calls.append((method, locator))
-        return self.event
-
-
-class FixtureTransportFactory:
-    def __init__(self, event: acquisition.TransportEvent | None = None) -> None:
-        self.calls: list[dict[str, object]] = []
-        self.transport = FixtureTransport(
-            event=event
-            or acquisition.TransportEvent(
-                body=_active_entry_csv(),
-                observed_at="2026-09-08T18:01:00Z",
-                hops=(
-                    acquisition.TransportHop(FIXTURE_LOCATOR, 302, EFFECTIVE_LOCATOR),
-                    acquisition.TransportHop(EFFECTIVE_LOCATOR, 200, None),
-                ),
-                response_content_type="text/csv; charset=utf-8",
-                response_content_disposition=('attachment; filename="DKEntries.csv"'),
-                session_profile=acquisition.COLLECTOR_SESSION_PROFILE,
-            ),
-            calls=[],
+    def iter_content(self, *, chunk_size: int, decode_unicode: bool) -> Iterator[bytes]:
+        assert decode_unicode is False
+        self.body_iterated = True
+        yield from (
+            self.content[offset : offset + chunk_size]
+            for offset in range(0, len(self.content), chunk_size)
         )
 
-    def __call__(self, **kwargs: object) -> FixtureTransport:
-        self.calls.append(kwargs)
-        return self.transport
+
+class FakeCookieJar:
+    def __init__(self) -> None:
+        self.values: list[tuple[str, str, dict[str, object]]] = []
+
+    def set(self, name: str, value: str, **kwargs: object) -> None:
+        self.values.append((name, value, kwargs))
 
 
-def _audit(
+class FakeSession:
+    def __init__(self, responses: list[FakeResponse | BaseException]) -> None:
+        self.responses = list(responses)
+        self.cookies = FakeCookieJar()
+        self.calls: list[tuple[str, dict[str, object], bool]] = []
+        self.returned: list[FakeResponse] = []
+        self.trust_env = True
+        self.closed = False
+
+    def get(self, locator: str, **kwargs: object) -> FakeResponse:
+        self.calls.append((locator, kwargs, self.trust_env))
+        response = self.responses.pop(0)
+        if isinstance(response, BaseException):
+            raise response
+        self.returned.append(response)
+        return response
+
+    def close(self) -> None:
+        self.closed = True
+
+
+class SessionFactory:
+    def __init__(self, responses: list[FakeResponse | BaseException]) -> None:
+        self.responses = responses
+        self.sessions: list[FakeSession] = []
+
+    def __call__(self) -> FakeSession:
+        session = FakeSession(copy.deepcopy(self.responses))
+        self.sessions.append(session)
+        return session
+
+
+def _response(
     *,
-    port: FixturePort | None = None,
-    transport: FixtureTransportFactory | None = None,
-) -> tuple[dict[str, object], FixturePort, FixtureTransportFactory]:
-    intent = _intent()
-    retained_port = port or FixturePort(intent)
-    retained_transport = transport or FixtureTransportFactory()
-    receipt = subject.audit_provider_reality_v1(
-        intent=intent,
-        acceptance_locator=FIXTURE_LOCATOR,
-        fact_port=retained_port,
-        transport_factory=retained_transport,
-        observed_at_utc="2026-09-08T18:02:00Z",
+    url: str = LOCATOR,
+    status: int = 200,
+    body: bytes | None = None,
+    content_type: str = "text/csv; charset=utf-8",
+    disposition: str | None = None,
+    **headers: str,
+) -> FakeResponse:
+    raw = body if body is not None else _active_entry_csv()
+    retained_headers = {
+        "Content-Type": content_type,
+        "Content-Disposition": (
+            disposition or f'attachment; filename="{HEADER_VALUE_CANARY}.csv"'
+        ),
+        "Content-Length": str(len(raw)),
+        **headers,
+    }
+    if disposition == "ABSENT":
+        retained_headers.pop("Content-Disposition")
+    return FakeResponse(url, status, retained_headers, raw)
+
+
+def _success_factory() -> SessionFactory:
+    return SessionFactory(
+        [
+            FakeResponse(
+                LOCATOR,
+                302,
+                {"Location": EFFECTIVE},
+                b"",
+            ),
+            _response(url=EFFECTIVE),
+        ]
     )
-    return receipt, retained_port, retained_transport
 
 
-def test_default_plan_is_no_contact_and_every_pin_remains_absent(
+def _run(factory: SessionFactory | None = None) -> dict[str, dict[str, object]]:
+    return subject._rehearse_acceptance_download_v1(
+        intent=_intent(),
+        storage_state=_storage_state(),
+        acceptance_locator=LOCATOR,
+        session_factory=factory or _success_factory(),
+    )
+
+
+def _private_file(path: Path, raw: bytes) -> None:
+    path.write_bytes(raw)
+    path.chmod(0o600)
+
+
+def _cli_args(tmp_path: Path) -> tuple[list[str], Path, Path]:
+    intent_path = tmp_path / "intent.json"
+    _private_file(intent_path, subject._canonical_bytes(_intent()))
+    state_path = tmp_path / "state.json"
+    _private_file(state_path, _storage_state())
+    locator_path = tmp_path / "locator"
+    _private_file(locator_path, (LOCATOR + "\n").encode())
+    evidence = tmp_path / "evidence"
+    receipt = tmp_path / "receipt.json"
+    return (
+        [
+            "audit",
+            "--confirm",
+            subject.CONFIRMATION_PHRASE,
+            "--intent",
+            str(intent_path),
+            "--storage-state-file",
+            str(state_path),
+            "--acceptance-locator-file",
+            str(locator_path),
+            "--evidence-directory",
+            str(evidence),
+            "--receipt",
+            str(receipt),
+        ],
+        evidence,
+        receipt,
+    )
+
+
+def test_default_plan_is_inert_and_every_live_pin_is_absent(
     capsysbinary: pytest.CaptureFixture[bytes],
 ) -> None:
-    def bomb(*args: object, **kwargs: object) -> object:
-        raise AssertionError((args, kwargs))
-
-    assert subject.main([], fact_port_factory=bomb, transport_factory=bomb) == 0
-    assert subject.main(["plan"], fact_port_factory=bomb, transport_factory=bomb) == 0
-    output = capsysbinary.readouterr().out
-    assert output.count(b'"mode":"no-contact-plan"') == 2
-    assert b'"provider_contacted":false' in output
-    assert b'"outcome_data_access_authorized":false' in output
+    assert subject.main([]) == 0
+    plan = json.loads(capsysbinary.readouterr().out)
+    assert plan["mode"] == "no-contact-plan"
+    assert plan["provider_contacted"] is False
+    assert plan["cloud_contacted"] is False
+    assert plan["fixed_locator_families"] == subject._family_rows()
     assert capture.PINNED_ACCEPTANCE_DOWNLOAD_LOCATOR is None
     assert {
         value for name, value in vars(live_pins).items() if name.startswith("PINNED_")
     } == {None}
 
 
-def test_real_fact_fixture_authenticates_release_iam_runtime_and_probe() -> None:
-    receipt, port, transport = _audit()
+def test_offline_intent_command_is_canonical_and_network_free(
+    capsysbinary: pytest.CaptureFixture[bytes],
+) -> None:
+    assert (
+        subject.main(
+            [
+                "intent",
+                "--created-at-utc",
+                "2026-09-08T20:00:00Z",
+                "--contest-role",
+                "milly-5",
+            ]
+        )
+        == 0
+    )
+    raw = capsysbinary.readouterr().out
+    value = json.loads(raw)
+    assert raw == subject._canonical_bytes(value)
+    assert subject.validate_intent_v1(value) == value
+    assert value["provider_contact_authorized"] is True
+    assert value["cloud_contact_authorized"] is False
 
+
+def test_success_retains_only_redacted_transport_and_structural_facts() -> None:
+    factory = _success_factory()
+    bundle = _run(factory)
+    evidence = bundle["evidence"]
+    receipt = bundle["receipt"]
+
+    assert evidence["schema_version"] == subject.EVIDENCE_SCHEMA
     assert receipt["schema_version"] == subject.RECEIPT_SCHEMA
+    assert receipt["evidence_sha256"] == evidence["evidence_sha256"]
     assert receipt["release_gate"] == (
         "HOLD_FOR_INDEPENDENT_REVIEW_AND_PIN_ONLY_SUCCESSOR"
     )
-    assert receipt["transport_probe"]["capture_v3_schema"] == (
-        capture_v3.ACCEPTANCE_PROVIDER_CAPTURE_SCHEMA
-    )
-    assert receipt["transport_probe"]["legacy_v2_live_fallback_used"] is False
-    event = receipt["transport_probe"]["transport_event"]
-    assert [hop["status"] for hop in event["redirect_chain"]] == [302, 200]
-    assert "do-not-retain" not in str(event)
-    assert "also-private" not in str(event)
-    assert event["requested_locator"]["query_parameter_names"] == ["opaque"]
-    assert event["effective_locator"]["query_parameter_names"] == ["signature"]
-    assert receipt["transport_probe"]["response_shape"]["entry_count"] == 57
-    assert receipt["transport_probe"]["response_shape"]["body_retained"] is False
-    assert transport.transport.calls == [("GET", FIXTURE_LOCATOR)]
-    assert transport.calls == [
-        {
-            "storage_state_path": acquisition.LIVE_SESSION_STATE_PATH,
-            "session_profile": acquisition.COLLECTOR_SESSION_PROFILE,
-            "locator_families": (
-                acquisition.LocatorFamily(
-                    "https", "fixture.draftkings.com", "/account/", 443
-                ),
-            ),
-        }
-    ]
-    labels = [label for label, _ in port.calls]
-    assert labels.count("asset-authority_bucket-before") == 1
-    assert labels.count("asset-authority_bucket-after") == 1
-    assert len([label for label in labels if label.startswith("asset-")]) == 10
-    assert labels.index("source-archive-content-identity") < labels.index(
-        "authority-bucket-before"
-    )
-    forbidden = {
-        "create",
-        "update",
-        "delete",
-        "execute",
-        "submit",
-        "add-iam-policy-binding",
+    transport = evidence["transport"]
+    assert transport["terminal_status"] == 200
+    assert transport["redirect_count"] == 1
+    assert transport["http_response_count"] == 2
+    assert transport["media_type"] == "text/csv"
+    assert transport["content_disposition"] == {
+        "disposition": "attachment",
+        "filename_present": True,
+        "filename_extension": ".csv",
+        "raw_header_retained": False,
     }
-    for label, argv in port.calls:
-        assert not forbidden.intersection(argv), label
-        if label.startswith("asset-"):
-            assert argv.count("--expand-groups") == 1
-            assert "--expand-roles" in argv
-            assert "--expand-resources" in argv
-            assert "--output-resource-edges" in argv
-            assert "--output-group-edges" in argv
-            if "service_account" in label:
-                assert "--analyze-service-account-impersonation" in argv
-            else:
-                assert "--analyze-service-account-impersonation" not in argv
+    assert evidence["response_shape"]["observed_role_entry_count"] == 57
+    assert "contest_id" not in evidence["response_shape"]
+    assert evidence["response_shape"]["exact_header"] == [
+        "Entry ID",
+        "Contest Name",
+        "Contest ID",
+        "Entry Fee",
+        *capture.CLASSIC_SLOTS,
+    ]
+    serialized = subject._canonical_bytes(bundle).decode()
+    pin = capture.A5_ROLE_TABLE["milly-5"]
+    assert pin.contest_id not in serialized
+    assert pin.name not in serialized
+    assert str(int(pin.contest_id) * 1_000 + 1) not in serialized
+    for canary in (
+        COOKIE_NAME_CANARY,
+        COOKIE_VALUE_CANARY,
+        QUERY_VALUE_CANARY,
+        PATH_VALUE_CANARY,
+        HEADER_VALUE_CANARY,
+        ROW_VALUE_CANARY,
+    ):
+        assert canary not in serialized
+    assert factory.sessions[0].cookies.values[0][0:2] == (
+        COOKIE_NAME_CANARY,
+        COOKIE_VALUE_CANARY,
+    )
+    for _, kwargs, trust_env in factory.sessions[0].calls:
+        assert trust_env is False
+        assert kwargs["allow_redirects"] is False
+        assert kwargs["stream"] is True
+        assert kwargs["verify"] is True
+        assert kwargs["headers"]["Accept-Encoding"] == "identity"
+    assert factory.sessions[0].closed is True
 
 
 @pytest.mark.parametrize(
-    ("field", "value", "message"),
+    ("field", "replacement", "message"),
     [
-        ("image", "mutable:latest", "malformed or mutable"),
-        ("outcome_data_access_authorized", True, "must not authorize outcome"),
-        ("cloud_mutation_authorized", True, "must not authorize cloud mutation"),
+        ("http_method", "POST", "GET only"),
+        ("fixed_locator_families", [], "families differ"),
+        ("provider_contact_authorized", False, "forbidden operation"),
+        ("cloud_contact_authorized", True, "forbidden operation"),
+        ("outcome_or_standings_access_authorized", True, "forbidden operation"),
+        ("legacy_v2_live_fallback_authorized", True, "forbidden operation"),
     ],
 )
-def test_intent_is_canonical_exact_and_authorizes_no_live_action(
-    field: str, value: object, message: str
+def test_intent_is_exact_and_grants_only_one_provider_rehearsal(
+    field: str, replacement: object, message: str
 ) -> None:
     intent = _intent()
-    intent[field] = value
+    intent[field] = replacement
     intent["intent_sha256"] = subject._canonical_sha(
-        {key: item for key, item in intent.items() if key != "intent_sha256"}
+        {key: value for key, value in intent.items() if key != "intent_sha256"}
     )
     with pytest.raises(subject.Week1A5P0BProviderRealityError, match=message):
         subject.validate_intent_v1(intent)
 
 
-def test_tampered_intent_hash_fails_before_any_fact_or_transport() -> None:
+def test_tampered_intent_fails_before_session_construction() -> None:
     intent = _intent()
-    intent["source_commit"] = "c" * 40
-    port = FixturePort(intent)
-    transport = FixtureTransportFactory()
+    intent["contest_role"] = "large-20max-3"
+    factory = SessionFactory([_response()])
     with pytest.raises(subject.Week1A5P0BProviderRealityError, match="hash differs"):
-        subject.audit_provider_reality_v1(
+        subject._rehearse_acceptance_download_v1(
             intent=intent,
-            acceptance_locator=FIXTURE_LOCATOR,
-            fact_port=port,
-            transport_factory=transport,
+            storage_state=_storage_state(),
+            acceptance_locator=LOCATOR,
+            session_factory=factory,
         )
-    assert port.calls == []
-    assert transport.calls == []
+    assert factory.sessions == []
 
 
-def test_unexpected_effective_inherited_principal_fails_before_transport() -> None:
+def test_noncanonical_intent_timestamp_fails_before_session_construction() -> None:
     intent = _intent()
-    port = FixturePort(intent)
-    response = _asset_response(surface="authority_bucket", intent=intent)
-    response["mainAnalysis"]["analysisResults"][0]["identityList"]["identities"].append(
-        {"name": "user:unreviewed@example.com"}
+    intent["created_at_utc"] = "2026-09-08T15:00:00-05:00"
+    intent["intent_sha256"] = subject._canonical_sha(
+        {key: value for key, value in intent.items() if key != "intent_sha256"}
     )
-    response["mainAnalysis"]["analysisResults"][0]["iamBinding"]["members"].append(
-        "user:unreviewed@example.com"
-    )
-    port.overrides["asset-authority_bucket-before"] = response
-    transport = FixtureTransportFactory()
+    factory = SessionFactory([_response()])
     with pytest.raises(
-        subject.Week1A5P0BProviderRealityError,
-        match="effective authority differs",
+        subject.Week1A5P0BProviderRealityError, match="not canonical UTC"
     ):
-        subject.audit_provider_reality_v1(
+        subject._rehearse_acceptance_download_v1(
             intent=intent,
-            acceptance_locator=FIXTURE_LOCATOR,
-            fact_port=port,
-            transport_factory=transport,
+            storage_state=_storage_state(),
+            acceptance_locator=LOCATOR,
+            session_factory=factory,
         )
-    assert transport.calls == []
+    assert factory.sessions == []
+
+
+def test_transport_is_get_only_before_session_construction() -> None:
+    factory = SessionFactory([_response()])
+    transport = subject._LocalAcceptanceTransport(
+        subject._playwright_cookies(_storage_state()), factory
+    )
+    with pytest.raises(subject.Week1A5P0BProviderRealityError, match="GET only"):
+        transport.perform(method="POST", locator=LOCATOR)
+    assert factory.sessions == []
 
 
 @pytest.mark.parametrize(
-    "defect", ["partial", "group-edge", "wrong-query", "outside-ancestry"]
-)
-def test_incomplete_or_ambiguous_cloud_asset_analysis_fails_closed(
-    defect: str,
-) -> None:
-    intent = _intent()
-    port = FixturePort(intent)
-    response = _asset_response(surface="collector_job", intent=intent)
-    if defect == "partial":
-        response["mainAnalysis"]["fullyExplored"] = False
-    elif defect == "group-edge":
-        response["mainAnalysis"]["analysisResults"][0]["identityList"]["groupEdges"] = [
-            {"group": "group:mutable@example.com"}
-        ]
-    elif defect == "wrong-query":
-        response["mainAnalysis"]["analysisQuery"]["scope"] = (
-            "organizations/999999999999"
-        )
-    else:
-        response["mainAnalysis"]["analysisResults"][0]["attachedResourceFullName"] = (
-            "//cloudresourcemanager.googleapis.com/folders/999999999999"
-        )
-    port.overrides["asset-collector_job-before"] = response
-    with pytest.raises(subject.Week1A5P0BProviderRealityError):
-        subject.audit_provider_reality_v1(
-            intent=intent,
-            acceptance_locator=FIXTURE_LOCATOR,
-            fact_port=port,
-            transport_factory=FixtureTransportFactory(),
-        )
-
-
-def test_conditioned_effective_binding_is_preserved_for_review() -> None:
-    intent = _intent()
-    response = _asset_response(surface="authority_bucket", intent=intent)
-    result = response["mainAnalysis"]["analysisResults"][0]
-    condition = {
-        "title": "exact capture prefix",
-        "expression": "resource.name.startsWith('projects/_/buckets/exact/')",
-    }
-    result["iamBinding"]["condition"] = condition
-    result["accessControlLists"][0]["conditionEvaluation"] = {
-        "evaluationValue": "CONDITIONAL"
-    }
-    projection = subject._asset_effective_access(
-        response,
-        scope=f"organizations/{ORGANIZATION}",
-        target=subject._asset_target("authority_bucket", intent),
-        allowed_attachments=frozenset(
-            {f"//cloudresourcemanager.googleapis.com/organizations/{ORGANIZATION}"}
-        ),
-        options=subject._asset_options("authority_bucket"),
-        permissions=subject.AUTHORITY_BUCKET_PERMISSIONS,
-        expected=intent["expected_effective_access"]["authority_bucket"],
-    )
-    conditioned = next(
-        item
-        for item in projection["binding_provenance"]
-        if item["condition"] is not None
-    )
-    assert conditioned["condition"] == condition
-    assert conditioned["condition_evaluations"] == [{"evaluationValue": "CONDITIONAL"}]
-
-
-@pytest.mark.parametrize(
-    ("mutate", "message"),
+    ("target", "message"),
     [
+        ("https://evil.example/steal", "outside the fixed"),
         (
-            lambda job: job["metadata"].__setitem__("generation", 8),
-            "identity/generation differs",
+            "https://www.draftkings.com/lineup/login?next=export",
+            "auth, action, or outcome surface",
         ),
         (
-            lambda job: job["spec"]["template"]["spec"]["template"]["spec"][
-                "containers"
-            ][0].__setitem__("image", "mutable:latest"),
-            "exact immutable image",
+            "https://www.draftkings.com/lineup/Login.aspx?next=export",
+            "auth, action, or outcome surface",
         ),
         (
-            lambda job: job["spec"]["template"]["spec"].__setitem__("taskCount", 2),
-            "one-task",
+            "https://www.draftkings.com/lineup/log-in?next=export",
+            "auth, action, or outcome surface",
         ),
         (
-            lambda job: job["spec"]["template"]["spec"]["template"]["spec"]["volumes"][
-                0
-            ]["secret"]["items"][0].__setitem__("key", "latest"),
-            "secret/version/path mount differs",
+            "https://www.draftkings.com/mycontests/standings?contest=secret",
+            "auth, action, or outcome surface",
+        ),
+        (
+            "https://www.draftkings.com/mycontests/ContestResults.csv",
+            "auth, action, or outcome surface",
+        ),
+        (
+            "https://www.draftkings.com/lineup/upload?contest=secret",
+            "auth, action, or outcome surface",
+        ),
+        (
+            "https://www.draftkings.com/lineup/entry?contest=secret",
+            "auth, action, or outcome surface",
+        ),
+        (
+            "https://www.draftkings.com/lineup/enter-contest?contest=secret",
+            "auth, action, or outcome surface",
+        ),
+        (
+            "https://www.draftkings.com/lineup/edit?contest=secret",
+            "auth, action, or outcome surface",
+        ),
+        (
+            "https://www.draftkings.com/lineup/create?contest=secret",
+            "auth, action, or outcome surface",
+        ),
+        (
+            "https://www.draftkings.com/lineup/join?contest=secret",
+            "auth, action, or outcome surface",
+        ),
+        (
+            "https://www.draftkings.com/lineup/../account",
+            "ambiguous path encoding",
+        ),
+        (
+            "https://www.draftkings.com/lineup/%2e%2e/login",
+            "ambiguous path encoding",
+        ),
+        (
+            "https://www.draftkings.com/lineup/%6cogin",
+            "ambiguous path encoding",
         ),
     ],
 )
-def test_mutable_or_cross_wired_runtime_fails_before_transport(
-    mutate: object, message: str
+def test_redirect_target_is_rejected_before_second_contact(
+    target: str, message: str
 ) -> None:
-    intent = _intent()
-    port = FixturePort(intent)
-    job = _job()
-    mutate(job)  # type: ignore[operator]
-    port.overrides["collector-job-before"] = job
-    transport = FixtureTransportFactory()
+    factory = SessionFactory([FakeResponse(LOCATOR, 302, {"Location": target}, b"")])
     with pytest.raises(subject.Week1A5P0BProviderRealityError, match=message):
-        subject.audit_provider_reality_v1(
-            intent=intent,
-            acceptance_locator=FIXTURE_LOCATOR,
-            fact_port=port,
-            transport_factory=transport,
-        )
-    assert transport.calls == []
+        _run(factory)
+    assert len(factory.sessions) == 1
+    assert len(factory.sessions[0].calls) == 1
+
+
+def test_redirect_loop_is_rejected_before_recontact() -> None:
+    factory = SessionFactory([FakeResponse(LOCATOR, 302, {"Location": LOCATOR}, b"")])
+    with pytest.raises(subject.Week1A5P0BProviderRealityError, match="loop"):
+        _run(factory)
+    assert len(factory.sessions[0].calls) == 1
+
+
+def test_adapter_history_is_refused() -> None:
+    response = _response()
+    response.history = (object(),)
+    factory = SessionFactory([response])
+    with pytest.raises(
+        subject.Week1A5P0BProviderRealityError, match="adapter followed"
+    ):
+        _run(factory)
+    assert len(factory.sessions[0].calls) == 1
 
 
 @pytest.mark.parametrize(
-    ("event_change", "message"),
+    ("response", "message"),
     [
+        (_response(status=204), "exact HTTP 200"),
+        (_response(status=401), "exact HTTP 200"),
+        (_response(status=403), "exact HTTP 200"),
+        (_response(status=429), "exact HTTP 200"),
+        (_response(status=500), "exact HTTP 200"),
+        (_response(content_type="text/html"), "media type"),
+        (_response(content_type="text/csv; charset=latin-1"), "media type"),
+        (_response(disposition="inline; filename=entries.csv"), "not an attachment"),
+        (_response(disposition="attachment"), "parameters differ"),
+        (_response(disposition="attachment; filename=entries.exe"), "name a CSV"),
+        (_response(disposition="ABSENT"), "content disposition"),
+        (_response(Content_Encoding="gzip"), "content encoding"),
         (
-            {"response_content_type": "text/html"},
-            "media type differs",
+            _response(Content_Length=str(subject.MAX_RESPONSE_BYTES + 1)),
+            "Content-Length",
         ),
+        (_response(body=b""), "body is empty"),
         (
-            {"response_content_disposition": "inline"},
-            "not an attached CSV",
-        ),
-        (
-            {"body": b"login required"},
-            "not a DKEntries CSV",
+            _response(body=b"x" * (subject.MAX_RESPONSE_BYTES + 1)),
+            "Content-Length",
         ),
     ],
 )
-def test_status_media_disposition_and_response_shape_fail_closed(
-    event_change: dict[str, object], message: str
+def test_status_content_headers_and_body_fail_closed(
+    response: FakeResponse, message: str
 ) -> None:
-    event = acquisition.TransportEvent(
-        body=_active_entry_csv(),
-        observed_at="2026-09-08T18:01:00Z",
-        hops=(acquisition.TransportHop(FIXTURE_LOCATOR, 200, None),),
-        response_content_type="text/csv",
-        response_content_disposition='attachment; filename="entries.csv"',
-        session_profile=acquisition.COLLECTOR_SESSION_PROFILE,
-    )
-    event = acquisition.TransportEvent(
-        **{**event.__dict__, **event_change}  # type: ignore[arg-type]
-    )
-    with pytest.raises(Exception, match=message):
-        _audit(transport=FixtureTransportFactory(event))
+    # Keyword spelling is normalized here so parametrized dict expansion can
+    # model actual HTTP header names without teaching the production code.
+    response.headers = {
+        key.replace("_", "-"): value for key, value in response.headers.items()
+    }
+    factory = SessionFactory([response])
+    with pytest.raises(subject.Week1A5P0BProviderRealityError, match=message):
+        _run(factory)
 
 
-def test_off_family_effective_redirect_is_refused() -> None:
-    event = acquisition.TransportEvent(
-        body=_active_entry_csv(),
-        observed_at="2026-09-08T18:01:00Z",
-        hops=(
-            acquisition.TransportHop(
-                FIXTURE_LOCATOR, 302, "https://evil.example/steal.csv"
-            ),
-            acquisition.TransportHop("https://evil.example/steal.csv", 200, None),
-        ),
-        response_content_type="text/csv",
-        response_content_disposition='attachment; filename="entries.csv"',
-        session_profile=acquisition.COLLECTOR_SESSION_PROFILE,
-    )
-    with pytest.raises(Exception, match="outside the profile's exact family"):
-        _audit(transport=FixtureTransportFactory(event))
+def test_login_html_is_rejected_from_headers_before_body_read() -> None:
+    response = _response(content_type="text/html; charset=utf-8")
+    factory = SessionFactory([response])
+    with pytest.raises(subject.Week1A5P0BProviderRealityError, match="media type"):
+        _run(factory)
+    assert factory.sessions[0].returned[0].body_iterated is False
 
 
-def test_provider_fact_drift_after_http_probe_is_a_hold() -> None:
-    intent = _intent()
-    port = FixturePort(intent)
-    changed = _job()
-    changed["status"]["conditions"].append({"type": "Reconciling", "status": "False"})
-    port.overrides["collector-job-after"] = changed
-    transport = FixtureTransportFactory()
+def test_body_size_cap_does_not_depend_on_content_length() -> None:
+    response = _response(body=b"x" * (subject.MAX_RESPONSE_BYTES + 1))
+    response.headers.pop("Content-Length")
+    factory = SessionFactory([response])
     with pytest.raises(
-        subject.Week1A5P0BProviderRealityError,
-        match="changed during the transport probe",
+        subject.Week1A5P0BProviderRealityError, match="body is oversized"
     ):
-        subject.audit_provider_reality_v1(
-            intent=intent,
-            acceptance_locator=FIXTURE_LOCATOR,
-            fact_port=port,
-            transport_factory=transport,
+        _run(factory)
+
+
+def test_content_length_must_match_body_bytes() -> None:
+    response = _response(Content_Length="1")
+    response.headers = {
+        key.replace("_", "-"): value for key, value in response.headers.items()
+    }
+    factory = SessionFactory([response])
+    with pytest.raises(
+        subject.Week1A5P0BProviderRealityError, match="differs from body bytes"
+    ):
+        _run(factory)
+
+
+@pytest.mark.parametrize("defect", ["header", "extra", "ragged", "role", "count"])
+def test_exact_outcome_free_dkentries_shape_is_required(defect: str) -> None:
+    rows = list(csv.reader(io.StringIO(_active_entry_csv().decode())))
+    if defect == "header":
+        rows[0][0] = "Rank"
+    elif defect == "extra":
+        rows[0].append("Fantasy Points")
+        for row in rows[1:]:
+            row.append("0")
+    elif defect == "ragged":
+        rows[1].pop()
+    elif defect == "role":
+        rows[1][1] = "Another Contest"
+    else:
+        rows.pop()
+    output = io.StringIO(newline="")
+    csv.writer(output).writerows(rows)
+    factory = SessionFactory([_response(body=output.getvalue().encode())])
+    with pytest.raises((subject.Week1A5P0BProviderRealityError, ValueError)):
+        _run(factory)
+
+
+@pytest.mark.parametrize(
+    "state",
+    [
+        b"not-json",
+        json.dumps({"cookies": []}).encode(),
+        json.dumps(
+            {"cookies": [{"name": "x", "value": "y", "domain": "evil.example"}]}
+        ).encode(),
+    ],
+)
+def test_invalid_storage_state_fails_before_session(state: bytes) -> None:
+    factory = SessionFactory([_response()])
+    with pytest.raises(subject.Week1A5P0BProviderRealityError):
+        subject._rehearse_acceptance_download_v1(
+            intent=_intent(),
+            storage_state=state,
+            acceptance_locator=LOCATOR,
+            session_factory=factory,
         )
-    assert transport.transport.calls == [("GET", FIXTURE_LOCATOR)]
+    assert factory.sessions == []
 
 
-def test_cli_requires_separate_confirmation_before_files_or_clients(
+def test_network_exception_detail_is_never_exposed() -> None:
+    factory = SessionFactory(
+        [RuntimeError(f"failed signed URL {QUERY_VALUE_CANARY} {COOKIE_VALUE_CANARY}")]
+    )
+    with pytest.raises(subject.Week1A5P0BProviderRealityError) as raised:
+        _run(factory)
+    assert "exception detail was not retained" in str(raised.value)
+    assert QUERY_VALUE_CANARY not in str(raised.value)
+    assert COOKIE_VALUE_CANARY not in str(raised.value)
+    rendered = "".join(
+        traceback.format_exception(type(raised.value), raised.value, raised.value.__traceback__)
+    )
+    assert QUERY_VALUE_CANARY not in rendered
+    assert COOKIE_VALUE_CANARY not in rendered
+
+
+def test_wrong_confirmation_precedes_every_file_and_network_read(
     tmp_path: Path,
 ) -> None:
-    def bomb(*args: object, **kwargs: object) -> object:
+    factory = SessionFactory([_response()])
+    result = subject.main(
+        [
+            "audit",
+            "--confirm",
+            "wrong",
+            "--intent",
+            str(tmp_path / "absent-intent"),
+            "--storage-state-file",
+            str(tmp_path / "absent-state"),
+            "--acceptance-locator-file",
+            str(tmp_path / "absent-locator"),
+            "--evidence-directory",
+            str(tmp_path / "evidence"),
+            "--receipt",
+            str(tmp_path / "receipt"),
+        ],
+        session_factory=factory,
+    )
+    assert result == 2
+    assert factory.sessions == []
+    assert list(tmp_path.iterdir()) == []
+
+
+@pytest.mark.parametrize(("which", "mode"), [("locator", 0o644), ("state", 0o400)])
+def test_private_inputs_require_exact_mode_0600_before_network(
+    tmp_path: Path, which: str, mode: int
+) -> None:
+    args, _, _ = _cli_args(tmp_path)
+    path = tmp_path / ("locator" if which == "locator" else "state.json")
+    path.chmod(mode)
+    factory = SessionFactory([_response()])
+    assert subject.main(args, session_factory=factory) == 2
+    assert factory.sessions == []
+
+
+@pytest.mark.parametrize("which", ["locator", "state"])
+def test_private_inputs_reject_symlinks_before_network(
+    tmp_path: Path, which: str
+) -> None:
+    args, _, _ = _cli_args(tmp_path)
+    path = tmp_path / ("locator" if which == "locator" else "state.json")
+    target = tmp_path / f"{which}-target"
+    path.rename(target)
+    path.symlink_to(target)
+    factory = SessionFactory([_response()])
+    assert subject.main(args, session_factory=factory) == 2
+    assert factory.sessions == []
+
+
+@pytest.mark.parametrize("which", ["locator", "state"])
+def test_private_inputs_reject_hardlinks_before_network(
+    tmp_path: Path, which: str
+) -> None:
+    args, _, _ = _cli_args(tmp_path)
+    path = tmp_path / ("locator" if which == "locator" else "state.json")
+    os.link(path, tmp_path / f"{which}-second-link")
+    factory = SessionFactory([_response()])
+    assert subject.main(args, session_factory=factory) == 2
+    assert factory.sessions == []
+
+
+def test_invalid_locator_precedes_secret_state_read_and_network(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    args, _, _ = _cli_args(tmp_path)
+    _private_file(tmp_path / "locator", b"https://evil.example/steal\n")
+    original = subject._read_private_regular
+
+    def guarded(path: Path, *, label: str) -> bytes:
+        if "storage-state" in label:
+            raise AssertionError("secret state must not be opened")
+        return original(path, label=label)
+
+    monkeypatch.setattr(subject, "_read_private_regular", guarded)
+    factory = SessionFactory([_response()])
+    assert subject.main(args, session_factory=factory) == 2
+    assert factory.sessions == []
+
+
+def test_existing_output_fails_before_private_input_read_or_network(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    args, evidence, _ = _cli_args(tmp_path)
+    evidence.mkdir()
+
+    def bomb(*args: object, **kwargs: object) -> bytes:
         raise AssertionError((args, kwargs))
 
-    evidence = tmp_path / "evidence"
-    receipt = tmp_path / "receipt.json"
-    assert (
-        subject.main(
-            [
-                "audit",
-                "--confirm",
-                "wrong",
-                "--intent",
-                str(tmp_path / "absent.json"),
-                "--acceptance-locator-file",
-                str(tmp_path / "absent-locator"),
-                "--evidence-directory",
-                str(evidence),
-                "--receipt",
-                str(receipt),
-            ],
-            fact_port_factory=bomb,
-            transport_factory=bomb,
-        )
-        == 2
-    )
-    assert not evidence.exists()
-    assert not receipt.exists()
+    monkeypatch.setattr(subject, "_read_private_regular", bomb)
+    factory = SessionFactory([_response()])
+    assert subject.main(args, session_factory=factory) == 2
+    assert factory.sessions == []
 
 
-def test_cli_success_writes_create_once_intent_and_receipt(
+def test_nonprivate_output_parent_fails_before_private_input_read_or_network(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    args, _, _ = _cli_args(tmp_path)
+    tmp_path.chmod(0o755)
+
+    def bomb(*args: object, **kwargs: object) -> bytes:
+        raise AssertionError((args, kwargs))
+
+    monkeypatch.setattr(subject, "_read_private_regular", bomb)
+    factory = SessionFactory([_response()])
+    assert subject.main(args, session_factory=factory) == 2
+    assert factory.sessions == []
+
+
+def test_cli_success_is_private_create_once_and_canary_free(
     tmp_path: Path, capsysbinary: pytest.CaptureFixture[bytes]
 ) -> None:
-    intent = _intent()
-    intent_path = tmp_path / "intent.json"
-    intent_path.write_bytes(subject._canonical_bytes(intent))
-    locator_path = tmp_path / "locator"
-    locator_path.write_text(FIXTURE_LOCATOR, encoding="utf-8")
-    locator_path.chmod(0o600)
-    evidence = tmp_path / "evidence"
-    receipt_path = tmp_path / "receipt.json"
-    port = FixturePort(intent)
-    transport = FixtureTransportFactory()
+    args, evidence, receipt = _cli_args(tmp_path)
+    factory = _success_factory()
+    assert subject.main(args, session_factory=factory) == 0
+    stdout = capsysbinary.readouterr().out
+    evidence_path = evidence / "rehearsal-evidence.json"
+    intent_path = evidence / "intent.json"
+    assert stat.S_IMODE(evidence.stat().st_mode) == 0o700
+    for path in (evidence_path, intent_path, receipt):
+        assert stat.S_IMODE(path.stat().st_mode) == 0o600
+    persisted = stdout + evidence_path.read_bytes() + receipt.read_bytes()
+    for canary in (
+        COOKIE_NAME_CANARY,
+        COOKIE_VALUE_CANARY,
+        QUERY_VALUE_CANARY,
+        PATH_VALUE_CANARY,
+        HEADER_VALUE_CANARY,
+        ROW_VALUE_CANARY,
+    ):
+        assert canary.encode() not in persisted
+    session_count = len(factory.sessions)
+    assert subject.main(args, session_factory=factory) == 2
+    assert len(factory.sessions) == session_count
 
-    assert (
-        subject.main(
-            [
-                "audit",
-                "--confirm",
-                subject.CONFIRMATION_PHRASE,
-                "--intent",
-                str(intent_path),
-                "--acceptance-locator-file",
-                str(locator_path),
-                "--evidence-directory",
-                str(evidence),
-                "--receipt",
-                str(receipt_path),
-            ],
-            fact_port_factory=lambda path: port,
-            transport_factory=transport,
-        )
-        == 0
-    )
-    assert (evidence / "intent.json").read_bytes() == subject._canonical_bytes(intent)
-    receipt = json.loads(receipt_path.read_bytes())
-    assert receipt["schema_version"] == subject.RECEIPT_SCHEMA
-    assert receipt["release_gate"].startswith("HOLD_")
-    assert capsysbinary.readouterr().out == receipt_path.read_bytes()
 
-    assert (
-        subject.main(
-            [
-                "audit",
-                "--confirm",
-                subject.CONFIRMATION_PHRASE,
-                "--intent",
-                str(intent_path),
-                "--acceptance-locator-file",
-                str(locator_path),
-                "--evidence-directory",
-                str(evidence),
-                "--receipt",
-                str(receipt_path),
-            ],
-            fact_port_factory=lambda path: (_ for _ in ()).throw(AssertionError(path)),
-            transport_factory=lambda **kwargs: (_ for _ in ()).throw(
-                AssertionError(kwargs)
-            ),
-        )
-        == 2
+def test_runtime_module_has_no_cloud_gcloud_or_subprocess_surface() -> None:
+    source = Path(subject.__file__).read_text(encoding="utf-8")
+    tree = ast.parse(source)
+    imports = {
+        alias.name
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.Import, ast.ImportFrom))
+        for alias in node.names
+    }
+    assert not {"subprocess", "google", "google.cloud"}.intersection(imports)
+    assert "subprocess.run" not in source
+    assert "storage buckets" not in source
+    assert "run jobs" not in source
+    assert "analyze-iam-policy" not in source
+    parsers = [subject._parser()]
+    cli_surface: list[str] = []
+    while parsers:
+        parser = parsers.pop()
+        for action in parser._actions:
+            cli_surface.extend(action.option_strings)
+            cli_surface.append(action.dest)
+            if action.__class__.__name__ == "_SubParsersAction":
+                parsers.extend(action.choices.values())
+    rendered_surface = " ".join(cli_surface).casefold()
+    assert not any(
+        marker in rendered_surface
+        for marker in ("gcloud", "cloud", "bucket", "iam", "job", "secret")
     )
 
 
-def test_private_locator_refuses_symlink_or_readable_mode(tmp_path: Path) -> None:
-    locator = tmp_path / "locator"
-    locator.write_text(FIXTURE_LOCATOR, encoding="utf-8")
-    locator.chmod(0o644)
-    with pytest.raises(subject.Week1A5P0BProviderRealityError, match="private"):
-        subject._private_locator(locator, families=_intent()["locator_families"])
-    locator.chmod(0o600)
-    link = tmp_path / "link"
-    link.symlink_to(locator)
-    with pytest.raises(subject.Week1A5P0BProviderRealityError, match="private"):
-        subject._private_locator(link, families=_intent()["locator_families"])
-
-
-def test_recording_port_rejects_credential_material_before_persistence(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    class Completed:
-        stdout = b'{"accessToken":"not-safe"}'
-
-    monkeypatch.setattr(subject.subprocess, "run", lambda *args, **kwargs: Completed())
-    port = subject._RecordingGcloudPort(tmp_path)
-    with pytest.raises(
-        subject.Week1A5P0BProviderRealityError, match="credential material"
-    ):
-        port.json(label="unsafe", argv=["auth", "list"])
-    assert list(tmp_path.iterdir()) == []
-
-
-def test_recording_port_rejects_secret_named_environment_before_persistence(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    class Completed:
-        stdout = b'{"env":[{"name":"API_TOKEN","value":"not-safe"}]}'
-
-    monkeypatch.setattr(subject.subprocess, "run", lambda *args, **kwargs: Completed())
-    port = subject._RecordingGcloudPort(tmp_path)
-    with pytest.raises(
-        subject.Week1A5P0BProviderRealityError, match="credential material"
-    ):
-        port.json(label="unsafe-env", argv=["run", "jobs", "describe", "job"])
-    assert list(tmp_path.iterdir()) == []
+def test_no_public_or_default_real_network_rehearsal_callable_exists() -> None:
+    assert not hasattr(subject, "rehearse_acceptance_download_v1")
+    assert "rehearse_acceptance_download_v1" not in subject.__all__
+    rehearsal_parameters = inspect.signature(
+        subject._rehearse_acceptance_download_v1
+    ).parameters
+    transport_parameters = inspect.signature(
+        subject._LocalAcceptanceTransport
+    ).parameters
+    assert rehearsal_parameters["session_factory"].default is inspect.Parameter.empty
+    assert transport_parameters["session_factory"].default is inspect.Parameter.empty
