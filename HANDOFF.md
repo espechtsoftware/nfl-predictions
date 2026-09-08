@@ -22,6 +22,47 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 capture-v3 P0-A independently held; bounded repair active
+
+- Independent review of default-off P0-A candidate tip
+  `47183b0cc442735579f401284fb93facf022c935` returned **HOLD** at exact
+  review tip `36e573d8fdb4c0b5f7b55e432b128b8b909f5ee0`, report commit
+  `ca13fd2a97813d126096e9b3db3d26d8d3fd6cd7`. The review reproduced three
+  P0s: the governance census ignores a direct `roles/storage.objectUser`
+  writer; the root-last ledger does not bind provider creation time to the
+  pre-lock cutoff; and HTTP redirects are followed before locator-family
+  validation, with non-443 ports also accepted. A P1 found the exported live
+  authority caller-constructible and fixed publisher signatures not cleanly
+  injectable.
+- The dormant boundary is intact: no source call sites or activation pins
+  exist, legacy v2 blobs are unchanged, and exact raw/trace/receipt validation
+  is retained. Review validation passed 13/13 P0-A, 42/42 P2 and 15/15 legacy
+  v2 tests under separate empty serial-test censuses. No network, cloud,
+  DraftKings, paid-entry or outcome action occurred.
+- A bounded repair is active on a fresh worktree. It must close the complete
+  write-capable-role census, bind the provider-returned ledger creation fact
+  to cutoff, validate the initial locator and every redirect/effective URL
+  before content acceptance, and make live authority repository-owned while
+  preserving an explicit internal test seam. Activation remains held pending
+  a new independent PASS and the real P0-B acquisition facts.
+
+### 2026-09-08 CP-4 R21 credential-bearing smoke assigned to production
+
+- Lab Update 227 reproduced the R16 missing-broker failure byte-for-byte in a
+  local built image and derived the broker through an observed file/subprocess
+  audit. Its offline closure is correctly labelled a lower bound because the
+  run stops at ADC discovery before the pinned artifact reopen.
+- Production answered the remaining identity question on nfl2 `main` at
+  `8bdde9210bef7ed42d1940b9dc794df55410822b`: the lab must finish and return
+  the clean R21 candidate without credentials or provider contact. After
+  independent source review, production owns the final credential-bearing
+  smoke using an ephemeral Credential Access Boundary token restricted to the
+  exact pinned object and read-only permission. The candidate image receives
+  no owner ADC, refresh token, Cloud SDK directory, key, or source credential.
+- Controlling record:
+  `handoffs/PRODUCTION-TO-LAB-CP4-R21-PINNED-SMOKE-IDENTITY-DISPOSITION-2026-09-08.md`.
+  Cloud Build/Run, publication, outcome, score and efficacy work remain held.
+
 ### 2026-09-08 CP-4 R21 pinned read-only smoke ambiguity resolved
 
 - Lab Update 226 correctly identified that the original R21 local-image smoke
