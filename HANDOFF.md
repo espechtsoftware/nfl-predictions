@@ -22,6 +22,38 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 capture-v3 durable-ledger successor independently passes
+
+- Fresh independent review of exact candidate
+  `563af790efc475a85e4cd8da7de4f58384643a10`, tree
+  `67cc749eb246121ceb490d3b78595ce701122465`, returns **PASS / CODE GO for
+  selective integration of the additive default-off successor only**. The
+  durable review is
+  `reports/2026-09-08-week1-capture-v3-p0a-r2-independent-review.md` on branch
+  `codex/week1-capture-v3-p0a-r2-independent-review-20260908`.
+- The v3 provider-capture artifacts durably bind each authority event, exact
+  root-last ledger identity, provider creation time and cutoff. Downstream
+  evidence builders exact-reopen the stored provider-capture generation,
+  reconstruct its current sole-generation authority and enforce
+  `receipt <= ledger <= stored capture <= cutoff`. Final field applies the
+  check separately to the contest-detail and standings ledgers.
+- Independent reproduction rejected the original acceptance
+  capture-before-ledger attack and the two-ledger final-field variant where
+  the capture followed the first ledger but preceded the second. Positive
+  acceptance and final-field paths also passed after both ledgers existed.
+- Serial validation under separately empty pytest censuses passed 26/26
+  governed acquisition/successor tests, 42/42 frozen P2 tests, and 15/15
+  legacy-v2 rehearsal tests. Compilation, changed-file Ruff, source identity,
+  call-site/default-pin/signature and diff checks passed. The frozen v2
+  source/test SHA-256 values remain `90c712df...` and `78850f72...`.
+- No network, DraftKings, provider, GCS, cloud, deployment, publication,
+  paid-entry, score, generation, selection or outcome action occurred. P0-B
+  and every live action remain HOLD. Exact next action: selectively integrate
+  the candidate plus review, keep pins absent, then independently review the
+  narrow outcome-blind provider-reality gate. A later acceptance/settlement
+  integration must explicitly consume v3 evidence; no live v2 fallback is
+  authorized.
+
 ### 2026-09-08 Week-1 capture-v3 durable-ledger successor ready for review
 
 - The bounded successor is complete on branch
