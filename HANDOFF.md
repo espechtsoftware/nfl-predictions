@@ -22,6 +22,37 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-07 canonical-v3 paid/deployment repair independent review (HOLD)
+
+- Independently reviewed exact candidate
+  `3c51fd3fb5cf6f3c52dfc9f1762661b94e1a67c9`, direct child of
+  `a6007f2fd6cc5aca662489994a5f1d590b26f164`, in isolated branch
+  `codex/canonical-v3-paid-repair-independent`. The seven-file candidate delta
+  is confined to paid-v3 evidence/application/deployment wiring, its focused
+  test, and handoff; no scoring, lineup-selection policy, or construction
+  default changed.
+- Verdict is **HOLD**. The pre-execution request authority, closed-world build
+  fields, and staged `--no-traffic` deployment are useful repairs, but the
+  engine result is discarded/re-created after mutable processing, world
+  evidence lacks native-block/candidate/selected-index binding, and terminal
+  authority/result inputs remain optional. Paid activation is URI-latest rather
+  than generation/SHA/bytes pinned, accepts an inline self-authored JSON
+  fallback, does not cross-bind nested attestations, and is bypassed by the
+  active Week-1 v2 CSV path. The build-law normalizer also rejects normal
+  provider observations/defaults.
+- After an empty serial-pytest process census, the exact focused paid and
+  deployment modules produced **61 passed, 11 failed** in 6.97 seconds. Those
+  same modules are mandatory in `cloudbuild.paid-boundary-v3.yaml`, so the
+  exact candidate cannot pass its own committed release gate. Static diff,
+  shell syntax, Python compilation, and YAML-shape checks passed.
+- Detailed evidence and repair requirements are in
+  `reports/2026-09-07-canonical-v3-paid-deployment-repair-independent-review.md`.
+  No cloud, graph, deployment, load, scoring, outcome, or paid action occurred.
+
+  Next concrete action: commit/push this independent HOLD report only and
+  return a narrow R2 repair. Do not integrate `3c51fd3` or its dependent
+  canonical-v3/Neo4j lineage before that repair independently passes.
+
 ### 2026-09-07 canonical-game v2 independent-review R2 repair (review-ready)
 
 - Worktree `/home/erich/projects/nfl-predictions-canonical-game-v2`, branch
