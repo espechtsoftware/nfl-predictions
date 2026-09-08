@@ -27,7 +27,9 @@ agent or developer:
 - Branch `production/week1-capture-v3-p0b-local-rehearsal-r2-20260908`
   carries the bounded code/test-only successor to P0-B implementation
   `51e3dd4b098b46933fab701d9711065d6bf844a9`. Its exact implementation commit
-  is recorded by the metadata-only successor commit at branch tip.
+  is `be3062405ff4b59df318a458bfb22d0376bca3e4` (tree
+  `1d08d9f6ec386a4d1aa88bf031eef30ed5c67be2`; rehearsal module SHA-256
+  `4f96b259608fec19674d1d85b45fe7d0455f0b294cbd91a9073af4a882234ed5`).
 - The immediate gate is now only one local authenticated DraftKings
   acceptance-download rehearsal. The organization-wide IAM, Cloud Asset,
   Cloud Build, Artifact Registry, bucket, Cloud Run job, service-account and
