@@ -22,6 +22,43 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 PREREG-074 R22c accepted; one-shot fm4 invocation active
+
+- Exact PREREG-074 R22c source
+  `21a2be7482e397a47d6d68e4b64e62bcbadabaa0`, tree
+  `308e9899c5f8f4afb69490119679d44ee22a8629`, received independent
+  **PASS / CODE GO**. A fresh empty global pytest census preceded the exact
+  five-file suite; it passed 74/74 in 158.09 seconds with no concurrent
+  pytest. Wrong tree, missing/changed/extra context, wrong code map, wrong or
+  dirty checkout, and non-checkout paths all refuse before provider effect.
+  The builder-to-orchestrator seam uses the same authenticated build root.
+- The final review and binding instruction are on lab `main` at
+  `95d80e30d5f33d3ce27caefea75ca04481cc41b3`. The lab acknowledged and froze
+  `origin/lab/prereg074-fm4-r2-prep` at the exact accepted source; optional
+  test-receipt/header and shared-clone cleanup were cancelled before binding so
+  they cannot drift the source, tree, context, tag, or review identity.
+- Production freshly resolved the durable remote and clean detached worktree
+  to the accepted source/tree. The exact frozen Storage-client census for
+  `frame-manifests/PREREG-074/prereg074-fm4.json` returned zero live, zero
+  noncurrent, and zero soft-deleted generations.
+- At `2026-09-08T04:34:58Z`, production invoked the one authorized,
+  outcome-disabled fm4 command with attempt `prereg074-fm4`, bank 740, 10,000
+  simulations, and the canonical object name. Local process PID 2976133 / tool
+  session 95627 was live at the first observation. The attempt is consumed;
+  never invoke it again even after a failure or ambiguous exit. Durable lab
+  notice is commit `cafb3b7bf326a8cd8d94687e18c6cfd13b22bae0`.
+- CP-4 v5e exact `aa0b2a20246a916532f5d9786173b44896b8f910`
+  remains **HOLD**. Its provider omitted-field fixture repair is accepted, but
+  five executable probes reproduce unsafe/foreign receipt, intent, claim,
+  seal, and terminal-state acceptance; ordinary/lost-response recovery is not
+  demonstrated. Full v6 repair contract is on lab `main` at
+  `8cf648673467f7f5de554000e6eef50b688875fd`.
+- Exact next action: observe session 95627 to terminal without restart. On
+  success, run and retain the post-publication all-generation census, exact-
+  generation media reopen, byte/SHA check, and strict manifest authentication
+  before considering the separately gated immutable build. On failure or
+  ambiguity, hold fm4 permanently and do not rerun it.
+
 ### 2026-09-08 PREREG-074 R21/R21b and CP-4 v5d remain prelaunch HOLD
 
 - Production independently reviewed PREREG-074 R21 exact
