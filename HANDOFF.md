@@ -22,6 +22,52 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 Week-1 capture-v3 raw-provider authority successor; operational HOLD
+
+- The bounded successor to independent HOLD report commit `1f4e0f82`
+  (formatting tip `e15a6bb121f586d62e873f4c07542dde95a0e32b`) is
+  implemented from exact candidate base
+  `4713cb835bd7e190e1cd1015125bbaeee1f397b5` at code/report commit
+  `cb2a398fe0ff467665b4f415f2aa71f0aa1ee669`, tree
+  `33d004f26f6328452e909f33f931a0424fdca24a`, on branch
+  `codex/week1-capture-v3-p1-repair-20260908` in isolated worktree
+  `/home/erich/projects/nfl-predictions-week1-capture-v3-p1-repair-20260908`.
+- Accepted-entry truth now follows exact raw DraftKings active-entry export
+  bytes through `dk-accepted-entry-provider-capture/v1` and deterministic
+  `dk-accepted-entry-evidence/v2`; callers cannot submit accepted rows. The
+  provider observation must be separately archived from the intended upload,
+  and Entry IDs plus ordered roster slots must still reconcile to the exact
+  prepared/filled/book lineage.
+- Final field size/state now derive from an exact raw contest-detail response
+  bound in the same provider-capture receipt as the exact standings export.
+  The raw standings unique-entry count must equal the settled provider
+  `contestDetail.entries` value. The caller-authored v1 wrapper and its
+  matching-false-N/top-N route are explicitly retired; evidence and normalized
+  field projections advance to v2.
+- `observed_at` fields are source observation times; `publish_by`, `frozen_at`,
+  and `accepted_at` are prospective create-once publication cutoffs. Nested
+  cutoffs are monotone, and every raw/archive/capture/artifact provider time
+  must satisfy the executable chronology. A default-off, local-only, redacted,
+  write-free real-shape smoke is available at
+  `scripts/week1_a5_capture_real_shape_smoke.py`. The separate legacy v2
+  rehearsal module/tests remain untouched.
+- Static validation passes: Python compilation of the changed contract,
+  focused tests, and smoke script; staged/final `git diff --check`. Ruff is not
+  available in this environment. Pytest was intentionally not run because the
+  lab owns the global serial lane. No provider, cloud, DraftKings, paid,
+  scoring, generation, selection, deployment, or outcome action occurred; no
+  durable cloud execution ID exists for this local implementation.
+- Disposition remains **operational HOLD**. Exact blockers are: authenticate a
+  redacted real post-upload acceptance shape and true locator; authenticate a
+  real settled contest-detail shape and meaning of `entries`; implement/review
+  the governed GCS create-once publisher/store; supply the still-absent lobby
+  generation and final bridge/book/allocation pins; then obtain independent
+  review and run the focused serial suite, unchanged legacy-v2 suite,
+  outcome-blind real-shape smoke, and 832,342-row scale rehearsal. Paid upload
+  and post-lock settlement remain later owner/provider events. Exact next
+  action: push this branch and request independent static review; do not freeze
+  manifests or authorize paid/live capture from this candidate.
+
 ### 2026-09-08 Week-1 A5 capture-v3 P0 repair candidate; operational HOLD
 
 - The bounded repair is in isolated worktree
