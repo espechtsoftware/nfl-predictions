@@ -22,6 +22,45 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-09 Week-1 authenticated DraftKings lineups API capture validated
+
+- The terminal/Edge bridge successfully produced an authenticated, pre-lock
+  DraftKings lineups API response for exact draft group `151307`. The private
+  raw body remains ignored and owner-only at
+  `var/week1-a5-p0b/lineups-api.private.json`: 13,060 bytes, SHA-256
+  `a2edd4bf22a1bbda593eb0337705bb0f0bde273a1f8ea3904107fbe6670d036c`.
+  The reviewed one-shot CDP collector has SHA-256
+  `05f3d044c8bf0db165f0ed44964665e16e7562a1c9abcc72adb4ebbd070be315`;
+  it writes only after exactly one allowlisted lineups-family GET returns HTTP
+  200. Credentials, cookie values, the user UUID, query values, entry IDs,
+  lineup IDs, and player values are absent from tracked evidence.
+- New offline validator
+  `week1_draftkings_lineups_api_capture.py` strictly rejects duplicate or
+  non-finite JSON, response/schema drift, a neighboring locator, extra query
+  capability, post-lock capture, wrong draft group/lock/status, incomplete or
+  duplicated entries, an allocation change, roster/slot/draftable drift, and
+  salary non-reconciliation. It validates the private response as one upcoming
+  nine-player NFL Classic lineup with exactly 90 unique accepted entries across
+  the four pinned contests in the planned 57 / 20 / 3 / 10 allocation and no
+  unexpected contest.
+- The redacted create-once local receipt is
+  `reports/2026-09-09-week1-draftkings-lineups-api-capture.json`, 1,643 bytes,
+  file SHA-256
+  `e0e8e377e3a96cd774baf56cc7837f9ffabded8d283540d83c5f1b9d6ef799b9`
+  and internal receipt digest
+  `f1b71a36241ff302f6a6ef9a078c9110555bab0ea48e4fa4c5e9ca9ea719d2a9`.
+  It records the raw body identity and only a redacted endpoint template,
+  query-name set, structural counts, planned role counts, salary totals, and
+  negative authority flags. It records `standings_or_outcome_opened=false`.
+  Focused tests pass 17/17; compilation and diff checks pass. Ruff remains
+  unavailable in the repository environment.
+- This closes the missing authenticated API retrieval fact, but it does not
+  silently relabel the response as the older expected DKEntries CSV and does
+  not change an activation pin. Exact next action: publish the private raw body
+  and redacted receipt create-once to the private production raw bucket after
+  an all-generation exact-name absence census, record their provider
+  generations, then add the narrow reviewed API-to-A5 acceptance projection.
+
 ### 2026-09-09 Week-1 Fantasy Points live-matchup capture sealed
 
 - The Week-1 live-matchup collection is complete from three independently
