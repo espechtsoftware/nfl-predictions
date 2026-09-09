@@ -1043,10 +1043,22 @@ def collect_status(
         for value in (previous or {}).get("blocking_completion_failure_keys", [])
     }
     latest_for_tracking = registry.get("latest_completion")
+    latest_tracking_key = (
+        latest_for_tracking.get("receipt_sha256")
+        if isinstance(latest_for_tracking, Mapping)
+        else None
+    )
+    latest_is_actionable = bool(
+        isinstance(latest_tracking_key, str)
+        and (
+            (previous is None and latest_tracking_key in cold_recent_keys)
+            or latest_tracking_key in new_completion_keys
+            or latest_tracking_key == previous_coordinator.get("registration_key")
+        )
+    )
     if (
-        previous is None
-        and isinstance(latest_for_tracking, Mapping)
-        and latest_for_tracking.get("receipt_sha256") not in cold_recent_keys
+        isinstance(latest_for_tracking, Mapping)
+        and not latest_is_actionable
     ):
         latest_for_tracking = None
     advance_to_latest_terminal = bool(

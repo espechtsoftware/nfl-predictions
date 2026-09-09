@@ -34,7 +34,8 @@ records remain fully recoverable from the directory above.
 The first required cold restart exposed a separate bootstrap defect: it
 replayed all older immutable failures as new once and selected the newest old
 success prefix as current queue work. The monitor is now covered by explicit
-stale/recent terminal tests and applies a 900-second cold-start lookback. Older
-records remain visible and integrity-checked but are baselined rather than
-replayed or selected as current work. Deployment and two-poll steady-state
-evidence are recorded in `HANDOFF.md` after activation.
+stale/recent terminal tests, including the next poll after bootstrap, and
+applies a 900-second cold-start lookback. Older records remain visible and
+integrity-checked but are baselined rather than replayed or selected as current
+work. Deployment and two-poll steady-state evidence are recorded in
+`HANDOFF.md` after activation.

@@ -43,8 +43,11 @@ agent or developer:
   actionable. Stale history remains in `launcher_completions` and
   `seen_completion_keys` for integrity checking; it is no longer selected as
   the current coordinator, current prefix set, or a newly failed completion.
-  Two explicit stale/recent cold-start regressions were added. The complete
-  Cloud Run monitor suite passes 50/50, compilation and diff checks pass.
+  Explicit stale/recent cold-start regressions were added, including the
+  second poll after stale-history bootstrap; a terminal record may now become
+  current only when it is recent at bootstrap, newly appears afterward, or is
+  the exact coordinator already being tracked. The complete Cloud Run monitor
+  suite passes 50/50, compilation and diff checks pass.
   Exact next action: deploy the updated tracked user unit, perform a clean
   status bootstrap, and verify two consecutive 60-second polls before
   recording the steady queue state.

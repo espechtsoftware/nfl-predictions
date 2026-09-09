@@ -1664,6 +1664,22 @@ def test_cold_start_baselines_stale_terminal_history(tmp_path: Path) -> None:
         for key in status["alerts"]
     )
 
+    second = monitor.run_once(
+        config,
+        runner=FakeGcloud([[], []]),
+        clock=FakeClock(observed + 60),
+        emit=lambda _: None,
+    )
+    assert second["new_completion_keys"] == []
+    assert second["authorized_queue"]["prefixes"] == []
+    assert second["authorized_queue"]["effective_prefixes"] == []
+    assert second["registered_coordinator"]["state"] == "untracked"
+    assert not any(
+        key.startswith("registered-coordinator-failure:")
+        or key.startswith("lane-capacity-unclaimed:")
+        for key in second["alerts"]
+    )
+
 
 def test_cold_start_keeps_recent_terminal_actionable(tmp_path: Path) -> None:
     registry = tmp_path / "launchers"
