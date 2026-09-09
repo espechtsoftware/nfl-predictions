@@ -44,14 +44,31 @@ agent or developer:
   promotion rule, lineup policy or outcome boundary.
 - Focused matchup and unified-weekly tests pass 13/13; module compilation and
   `git diff --check` pass. Supplemental scheduled odds execution
-  `ingest-odds-4m54r` completed successfully. The saved Fantasy Points session
-  is authenticated. The saved SIS session expired at its login boundary; no
-  SIS query was submitted, and the Week-1 recurring contract licenses none.
-- Exact next action: push this repair, rerun all three Week-1 Fantasy Points
-  matchup captures before the first kickoff, require all normalized schedule
-  gates and archive writes to pass, then preserve the complete manifest and
-  archive identities. SIS session renewal remains separate and must not be
-  represented as Week-1 SIS data acquisition.
+  `ingest-odds-4m54r` / UID
+  `3841acef-6782-4bef-9ec4-f23a609a4884` completed successfully at
+  `2026-09-09T15:33:11.298360Z`. The saved Fantasy Points session is
+  authenticated. The saved SIS session expired at its login boundary; no SIS
+  query was submitted, and the Week-1 recurring contract licenses none.
+- The exact pushed repair is `0a20bef31252055ed2f0987ad27296bdeddf80b1`.
+  Its first post-repair run
+  `20260909T154018Z__2026-live-matchups-v1__week-01` accepted and archived the
+  QB artifact at the hash-addressed URI for SHA-256 `ff52a4dd...`, with all 32
+  normalized current schedule pairs and the explicit 2025 early-season
+  regime. WR then remained fail-closed: one capture showed Carolina-Arizona
+  instead of Carolina-Chicago; a separate no-archive render probe was byte-
+  stable from 0 through 10 seconds but showed the reciprocal Arizona-Carolina
+  instead of Arizona-LAC. The warehouse and current ESPN Week-1 schedule both
+  say Carolina-Chicago and Arizona-LAC. This is therefore a changing vendor
+  WR schedule surface, not permission to treat prior-season metrics as stale
+  and not a render-delay repair. No WR archive or OL/DL capture was accepted.
+- One exact retry is durably armed for `2026-09-09T17:00:00Z` as transient user
+  timer `nfl-week1-fp-matchup-retry-20260909.timer`, invocation
+  `b71466b2e4934d50b4d76e2501caba09`, running the pushed source with the
+  established private configuration. Exact next action: inspect only its
+  terminal manifest/gates; retain the strict current-opponent check and accept
+  all three archives only if the complete capture passes before first kickoff.
+  SIS session renewal remains separate and must not be represented as Week-1
+  SIS data acquisition.
 
 ### 2026-09-09 CP-4 multicell successor independently held for R2 repair
 
