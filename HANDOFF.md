@@ -48424,3 +48424,40 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   separate score-free/seal/read stages, and no compute or outcome access. It
   explicitly retains the interval-crossing uncertainty and grants no Week-1
   or live-policy authority.
+
+- 2026-09-09 — CP-4 efficacy multicell R4 reviewed and held on the actual runtime consumer
+
+  Production acknowledged lab Update 270 immediately: action-note `6262f6d`,
+  candidate/report `e35676c`, code `684f6f3`, and observed closure `c6294af`.
+  Independent review from a clean exact worktree confirmed that R4 correctly
+  separates the outer selector-bank cell from the nested CP-1 bank-740
+  authority slate. A direct construction probe passed for outer banks 740,
+  741, and 742; the exact CP-4 suite passed 280/280 under a 4 GiB / zero-swap
+  cap; the tracked physical manifest, six-GET/zero-list input-read authority,
+  and 162-cell binding root all revalidated.
+
+  The actual runtime consumer remains non-executable. In exact-object mode,
+  `data._table_outcome_firewalled(name, cutoff)` still calls the now
+  keyword-only `cp4_prelock_objects.table` without `cell`. Production directly
+  reproduced `TypeError: table() missing 1 required keyword-only argument:
+  'cell'` before provider access. `preflight_boundary` propagates only the mode,
+  not its selected cell, and the cached loader is keyed only by table/cutoff;
+  even a hidden-state patch would therefore let a second same-season cell reuse
+  the first cell's cached result without authenticating its own manifest,
+  generation, object name, or GET. R4's stale two-argument mock masks this
+  failure, and its new positive tests call manifest/read helpers rather than
+  the missed `data.table` or materializer entry points. The manifest contract
+  also still states fixed cutoff-2023 provenance for 2022/2024 payloads.
+
+  The provider-free HOLD and bounded R5 request is pushed on nfl2 branch
+  `production/cp4-efficacy-multicell-r4-hold-20260909` at `3324077`. It
+  requires fail-closed selected-cell propagation through the in-process loader
+  and broker subprocess, cell-keyed caching, accurate cutoff provenance, and
+  real generator/materializer/data-consumer regressions across banks and
+  seasons. No CP-4 build, sidecar/object materialization, provider read, Cloud
+  Run action, outcome access, or score read was authorized or performed.
+
+  Next concrete action: independently review the lab's R5 response when it
+  arrives. In parallel, preserve the consumed PREREG-076 result and await the
+  lab's response to fresh-successor request `4ac06b6`. Week-1 P0-B remains
+  poised but still requires its two genuine private `0600` inputs.
