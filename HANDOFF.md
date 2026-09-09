@@ -22,6 +22,42 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-09 production freshness lane green; all matchup reports independently captured but vendor schedule still invalid
+
+- Production source `4d2aa0d6e920d2c357e2af92f6bd575014f25b71` on
+  `production/week1-licensed-asof-repair-20260909` preserves independent
+  report progress: a schedule failure in one Fantasy Points report no longer
+  suppresses the remaining report captures, while the overall run still
+  fails closed. Focused validation passed 13/13; compilation and diff checks
+  passed; Ruff remains unavailable in the repository virtual environment.
+- The exact post-repair governed run
+  `20260909T181609Z__2026-live-matchups-v1__week-01` captured QB, WR and OL/DL
+  bytes, all explicitly typed `source_season=2025` and
+  `vendor-prior-season-early`. At that instant all three vendor surfaces
+  carried Carolina-Arizona instead of the authenticated Carolina-Chicago and
+  Arizona-LAC Week-1 games, so all three schedule gates failed and none was
+  archived. The changing QB bytes do not invalidate the earlier accepted
+  17:00Z QB archive at SHA-256 `ff52a4dd38a9ded48673ff1cca1b01ac62dd32385d3ef5cac7137492364e3767`.
+  No current-opponent check was weakened and the raw failed captures remain
+  local evidence only.
+- The production refresh sequence is now green. `check-freshness-lzndc` first
+  failed only because weather was 77.6 hours old. Registered execution
+  `ingest-nflverse-6t5sx` / UID
+  `d7c055fc-ff70-491a-8a16-40d96141d11c` succeeded at 18:23:45Z;
+  `build-features-fjp55` / UID
+  `1a1a1892-ef04-4236-b4fe-ba7a5868c1e6` succeeded at 18:31:00Z;
+  `ingest-weather-x5254` / UID
+  `89517af6-2099-44f6-8260-5ab7c9ce0513` succeeded at 18:40:50Z; and final
+  `check-freshness-tpb6f` / UID
+  `7b9c3f30-a5c6-44a6-be3e-d30cb82a70d4` succeeded at 18:43:39Z. No Cloud
+  Build remains active.
+- Exact next action: keep the strict Fantasy Points retry path alive before
+  first kickoff and archive a report only when its current 32-pair schedule
+  gate passes. Continue the 60-second production monitors; no production
+  freshness remediation is presently due. SIS remains authenticated-session
+  work, not authority to invent an unreviewed Week-1 query or to represent
+  historical research inputs as a live adopted feature.
+
 ### 2026-09-09 Week-1 matchup capture now preserves independent report progress
 
 - The governed `17:00Z` retry remained fail-closed because the Fantasy Points
