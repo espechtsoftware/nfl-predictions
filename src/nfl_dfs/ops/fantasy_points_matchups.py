@@ -146,14 +146,48 @@ def validate_matchup_pairs(
     report: str,
 ) -> dict[str, Any]:
     """Fail on stale/wrong opponents or missing scheduled teams."""
-    unexpected = sorted(observed - expected)
-    missing = sorted(expected - observed)
+    normalized: set[tuple[str, str]] = set()
+    reconciled: list[dict[str, list[str]]] = []
+    for team, opponent in sorted(observed):
+        pair = (team, opponent)
+        if pair in expected:
+            normalized.add(pair)
+            continue
+
+        # In the early-season prior-year regime, Fantasy Points can retain a
+        # comma-separated list of teams for a player who changed clubs during
+        # the source season.  The OPP field is still the selected current
+        # schedule week.  Reconcile only when exactly one listed team forms an
+        # expected current-week pair; every other composite or stale identity
+        # remains an ordinary gate failure.
+        raw_parts = team.split(",")
+        parts = tuple(
+            dict.fromkeys(_team(part) for part in raw_parts if part.strip())
+        )
+        matches = sorted(
+            (candidate, opponent)
+            for candidate in parts
+            if (candidate, opponent) in expected
+        )
+        if len(raw_parts) >= 2 and len(parts) >= 2 and len(matches) == 1:
+            normalized.add(matches[0])
+            reconciled.append({
+                "observed": [team, opponent],
+                "normalized": list(matches[0]),
+            })
+        else:
+            normalized.add(pair)
+
+    unexpected = sorted(normalized - expected)
+    missing = sorted(expected - normalized)
     passed = not unexpected and not missing
     return {
         "report": report,
         "passes": passed,
         "observed_pairs": len(observed),
+        "normalized_observed_pairs": len(normalized),
         "expected_pairs": len(expected),
+        "reconciled_multi_team_pairs": reconciled,
         "unexpected_pairs": [list(pair) for pair in unexpected],
         "missing_pairs": [list(pair) for pair in missing],
     }
