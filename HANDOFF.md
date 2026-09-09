@@ -48375,3 +48375,45 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   output path is consumed, validate and commit its result and interpretation,
   and report the frozen nomination decision. CP-4 and Week-1 states remain as
   recorded above.
+
+- 2026-09-09 — PREREG-076 R2 first read completed; UNION_EMAX nominated for a fresh cohort
+
+  Production invoked the frozen scorer exactly once from the clean exact-host
+  lineage under a 6 GiB cap, using candidate artifact
+  `/home/erich/projects/nfl2-cp1-full-census-a2/results/cp1_full_census_a2.json`
+  and seal generation `1788960730683819`. It exited zero with empty stderr and
+  created `results/prereg076_fresh_retrieval_score_v1.json` via `xb`: 111,761
+  bytes, SHA-256
+  `85d16a3eeb1e7e9fe693286573f05b655ba5a26a09174dc8cf603cd4c8cb1163`.
+  The path is consumed and must never be rerun or replaced.
+
+  Post-write strict parsing confirmed canonical newline JSON, schema
+  `cp1-fresh-retrieval-score/v1`, all exact input identities, the three run IDs
+  and 108-cell census, and recomputed the frozen decision. The primary
+  `UNION_EMAX - CTX0_DK80` proxy mean is `+0.007519`; bank means are
+  `+0.004134`, `+0.009191`, and `+0.009232`; season means are `+0.001645` and
+  `+0.013393`. All required signs are positive, so the exact decision is
+  `NOMINATE_UNION_EMAX_FOR_NEXT_FRESH_GENERATION_COHORT`. The paired record is
+  21 wins / 10 losses / 5 ties and the proxy bootstrap 95% interval is
+  `[-0.006856, +0.021670]`, which crosses zero.
+
+  The required raw weekly-K80 diagnostic is `+3.7781` points overall
+  (`+3.8978` in 2023, `+3.6585` in 2024), with 95% interval
+  `[+0.1989, +7.3474]`. Bank-averaged weeks at or above 194 rise 6 to 10 and at
+  or above 200 rise 4 to 7; both books have three weeks at or above 210 and
+  none at or above 220/230. The prespecified CTX40/DK40 secondary is also
+  positive (`+0.009532` proxy, `+3.4383` raw), but does not establish a
+  universal context allocation.
+
+  Because these candidate outcomes were previously opened, this is adaptive
+  development evidence only. The proxy interval crossing zero reinforces the
+  frozen scope: `adoption=false`, `promotion=NONE`, no universal context law,
+  and no Week-1 entered-policy change. Its only action is to nominate
+  UNION_EMAX for a later genuinely fresh generation cohort.
+
+  Exact result, transcript, and interpretation are committed and pushed on
+  nfl2 branch `production/prereg076-r2-score-free-seal-review-20260909` at
+  `d3df9a1`. Next concrete action: preserve the consumed result and route this
+  nomination into a separately preregistered fresh-generation successor; do
+  not rerun or tune PREREG-076. Continue reviewing CP-4 R4 when returned and
+  keep Week-1 capture poised at its two absent private inputs.
