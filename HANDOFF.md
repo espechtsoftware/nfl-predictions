@@ -48270,3 +48270,34 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   cohort seal; never rerun a claimed bank. Independently review the lab's R3
   response when it arrives. Week-1 P0-B still awaits the private `0600`
   Playwright session-state and acceptance-locator files.
+
+- 2026-09-09 — PREREG-076 R2 score-free cohort sealed
+
+  Bank 772 execution `lab-run-nh62n` (UID
+  `00e3456e-265b-4fe0-a9ef-4e5ae38bfb46`) completed successfully at
+  `2026-09-09T13:31:03.195879Z` with exactly 36 succeeded, zero failed, zero
+  cancelled, zero running, and zero retried tasks. Run ID
+  `103b772r2-20260909T060000Z` is terminal and must never be retried. Together,
+  banks 770, 771, and 772 are three exact zero-retry 36/0/0 successes.
+
+  The same registered coordinator authenticated all 108 expected score-free
+  objects (36 per bank) and published the create-once terminal cohort seal:
+  `gs://nfl-2-506823-lab/seals/PREREG-076/103b770r2-103b771r2-103b772r2.json`,
+  generation `1788960730683819`, 31,057 bytes, SHA-256
+  `5ccdd9154d3ce4975d79e360bdb91da90e74d3245d75d1f549de04566975995e`.
+  Independent generation-pinned reopening reproduced that SHA-256 and verified
+  schema `cp1-fresh-retrieval-cohort-seal/v1`, status
+  `TERMINAL_COMPLETE_SCORE_FREE_COHORT`, the three exact run IDs, 108 objects,
+  each execution's 36/0/0 zero-retry counts, `outcome_opened=false`, and
+  `scoring_authority="NONE; seal authenticates score-free K80 books only"`.
+
+  The production launcher registry completed at `2026-09-09T13:32:10Z` with
+  exit status zero. Durable completion:
+  `/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launcher-completions/733f8fe3fd1c8f60aafb879c5d388e024f14340cb8caf967c1e3b140fcbf3ad6.json`.
+  The scorer was not invoked; no outcome or score was opened.
+
+  Next concrete action: preserve these consumed run IDs and immutable seal,
+  keep the cloud lanes idle, and route the exact score-free cohort to the
+  separately reviewed scoring/nomination gate. Independently review CP-4 R3
+  when lab responds to production hold `47b7c40`. Week-1 P0-B still awaits the
+  two absent private `0600` inputs before its local provider rehearsal.
