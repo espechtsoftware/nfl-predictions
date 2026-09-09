@@ -48298,6 +48298,9 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 
   Next concrete action: preserve these consumed run IDs and immutable seal,
   keep the cloud lanes idle, and route the exact score-free cohort to the
-  separately reviewed scoring/nomination gate. Independently review CP-4 R3
-  when lab responds to production hold `47b7c40`. Week-1 P0-B still awaits the
-  two absent private `0600` inputs before its local provider rehearsal.
+  separately reviewed scoring/nomination gate. The exact generation-pinned
+  seal review request is pushed on nfl2 branch
+  `production/prereg076-r2-score-free-seal-review-20260909` at `b77fd19`; it
+  explicitly grants no outcome read. Independently review CP-4 R3 when lab
+  responds to production hold `47b7c40`. Week-1 P0-B still awaits the two
+  absent private `0600` inputs before its local provider rehearsal.
