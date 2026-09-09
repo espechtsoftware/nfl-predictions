@@ -22,6 +22,26 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 PREREG-074 R7 sealed and read: NO_NOMINATION
+
+- Generation `lab-run-6rxqk` and replay `lab-run-7msxb` both completed
+  terminal-clean at 36 succeeded / 0 failed / 0 cancelled / 0 retried. The
+  exact 108-object namespace replayed byte-for-byte and produced seal
+  `seals/PREREG-074/102b740r7-20260909T023807Z.json|1788924568418671|30025|1dbeb6b2979ea64ebbae810ed128abec3c46ae6dfcf1b320fd83b4d6c0836343`,
+  pins generation `1788924666481456`, and release generation
+  `1788924748051521`.
+- The released reader returned `NO_NOMINATION`. Primary and fixed-count K80
+  expected-max proxy delta were both `-0.00550794`, interval
+  `[-0.02439681, 0.01338092]`, with 13 wins / 19 losses / 4 ties. The medoid
+  schedule also lowered realized pool-oracle mean from `188.7883` to
+  `188.0567`; its selected K80 coverage was lower at >=194, >=200 and >=210,
+  equal at >=220, and zero for both schedules at >=230. This arm does not
+  alter the production baseline or advance.
+- Complete evidence and threshold counts are in
+  `reports/2026-09-08-prereg074-r7-tail-regime-read.md`. The next scoring
+  priority is PREREG-076's fresh-judge retrieval crossing, whose bound
+  no-mutation provider preflight can now run because the shared lane is idle.
+
 ### 2026-09-08 PREREG-076 R4b binding integrated; provider preflight waits for the lane
 
 - Production independently reviewed lab source
