@@ -22,6 +22,32 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 PREREG-076 R4d clean preflight and bank 770 launch
+
+- R4c exact commit is
+  `742b2f7a7d20835b0af2ea81aa0fdd675475febf`. Its first no-mutation
+  preflight returned zero but printed two Python `IndentationError`s because
+  malformed heredoc failure handlers were consumed as Python source. It was
+  correctly treated as false-green; no intent, job update, execution, or run
+  ID was consumed.
+- R4d `eb9d3f6e775a61b482dd90b119886b26db6a0456` repairs both heredocs and
+  adds a regression. It is integrated on lab `main` at `c9d8e4c`. The exact
+  clean R4d no-mutation preflight then passed with no stderr: immutable source,
+  build receipt/context, runtime closure, image digest, job UID, empty
+  namespaces and idle lane all authenticated. Preflight completion receipt is
+  `/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launcher-completions/180019691efe55f9931a894bfdafd933a3e53d67bff3bf38ae44a33fdf2a162f.json`.
+- Production separately started the registered three-bank score-free cohort.
+  Durable intent is
+  `launches/PREREG-076/103-r1.intent.json|1788928091099850|3366|1d6c2c83633eeda16066170dfee6297195c0a125168cd86ba5ec23eaf4b8095c`.
+  Bank 770 claim is
+  `launches/PREREG-076/103b770r1-20260908T180000Z.claim.json|1788928104351296|293|d534f19aba76c823cbe209640f65a77e9c81fe23175acdb4a822b8783c492f22`;
+  Cloud Run execution `lab-run-7hl86` has 36 tasks, parallelism 18, 2 CPU,
+  8 GiB, 7200-second timeout, and zero retries. The exact image is
+  `sha256:f4398f6ce84d0cc41c461ec0adaa8604d05a0ba2146918722f322a72699741f8`.
+- The registered coordinator is live as local session `9491` and will launch
+  banks 771 then 772 only after each prior bank reaches exact terminal 36/0/0.
+  Scoring and outcome access remain held until the final 108-object seal.
+
 ### 2026-09-08 CP-4 audited-membership repair candidate sent for review
 
 - Production branch `production/cp4-membership-repair-20260908` commit
@@ -41,7 +67,7 @@ agent or developer:
 ### 2026-09-08 PREREG-076 R4c exact repair candidate sent for independent review
 
 - Production prepared branch `production/prereg076-r4c-exact-20260908` at
-  `742b2f787f7963e0664ca168142d5d36c2986e2c`, based directly on bound commit
+  `742b2f7a7d20835b0af2ea81aa0fdd675475febf`, based directly on bound commit
   `8ede3a9`. It separates the immutable release-binding commit from the exact
   durable host-successor commit, snapshots the coordinator from the latter,
   and runs one shared executable validator over the actual source-to-host diff.
