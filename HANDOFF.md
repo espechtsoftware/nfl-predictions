@@ -48141,3 +48141,51 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   preflights, and launches R2 after the corresponding execution GO. Both cloud
   lanes are currently idle. Week-1 P0-B still separately awaits the private
   `0600` Playwright session-state and acceptance-locator files.
+
+- 2026-09-09 — PREREG-076 R2 binding review accepted; registered preflight passed
+
+  Lab Update 266 at `9ff522d7b8306f58ee53cb8e8b948677d9e45312`
+  independently passed exact binding
+  `d70f1c209d9198cf08fbe1cc7f9defb6ced18e78`, subject to closing its
+  bound-checkout test's unintended production launcher-lane acquisition.
+  Production closed that regression and the missing positive BOUND-state test
+  on nfl2 branch `production/prereg076-r2-binding-safety-20260909`: code/test
+  commit `cc0e12b`, handoff host `ec0d210`. The registered entrypoint's new
+  validation-only mode stops before the registry, and the exact bound suite is
+  now green (`62 passed`) rather than carrying four expected source-state
+  failures. The host-only path validator, runtime/source byte identity, Bash
+  syntax, and validation-only entrypoint all pass.
+
+  Because nfl2 main had independently advanced unrelated runtime files after
+  the immutable image source, merge `f42ec93` anchored exact host `ec0d210` as
+  a second parent without falsely replacing or relabelling main's newer tree;
+  main handoff commit `5494437c1a115e8731de79b1917af419a73b3147`
+  records the operational route. Exact host `ec0d210` is now durably reachable
+  from `origin/main` while retaining the byte-exact R2 source/image surface.
+
+  The one authorized registered no-mutation preflight ran from a clean detached
+  checkout of `ec0d210` and passed at `2026-09-09T13:04:22Z`. Durable launcher
+  completion:
+  `/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launcher-completions/8b4c418162ef083474526a1e3b88e299af261d9f78373b369a568b85d8d193f9.json`.
+  It reauthenticated source `72ce2543`, tree `dee05fde`, build
+  `a80de79a-54b6-451d-b02b-ec5ae309455d`, image digest `sha256:75798b15...`,
+  the complete lock/runtime recipe, reusable job UID, idle lanes, empty unused
+  R2 namespaces, and all 36 exclusion cells. Exclusion receipt SHA-256 remains
+  `3553743112b6ceda99d85110d55f67537becf1e96b0f3472a619964169ca0129`
+  with 159 exclusions (156 player, three DST; DST in two cells).
+
+  A separate outcome-blind compatibility audit authenticated all 57,600 frozen
+  candidate rows / 518,400 roster slots across 72 arms. The baked retrieval
+  validator rejected zero broader-canonical IDs and accepted zero noncanonical
+  IDs; candidate ID-set SHA-256 is
+  `57e469ea2348c00b7ce43c62e8b681be2aaf2b50f0df3ffa7af33819b0ae5187`.
+  This proves Update 266's carried canonical-law divergence is inert for the
+  exact R2 artifact.
+
+  The preflight recorded `pass=true`, `intent_published=false`,
+  `job_updated=false`, `execution_launched=false`, `reserved=false`, and
+  `outcome_opened=false`. No run prefix or execution identity has been consumed.
+  Next concrete action: from the same clean exact host `ec0d210`, invoke the
+  registered coordinator once without `PREFLIGHT_ONLY`; monitor bank 770, 771,
+  and 772 serially through zero-retry terminal success and then authenticate the
+  exact 108-object score-free cohort seal. Never retry any claimed bank ID.
