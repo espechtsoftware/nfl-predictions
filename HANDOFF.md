@@ -86,9 +86,17 @@ agent or developer:
   binds execute marker generation `1788921581757170` and exactly one Cloud Run
   execution, `lab-run-6rxqk`. Launcher-registry completion is
   `/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launcher-completions/4268535b52e4914c70932ca396174956cf852bc81ec974abd563f64c11cba8f9.json`.
-  Replay remains held until generation is terminal-clean at 36/0/0 with an
-  exact namespace census; seal, pins, release and outcome read remain later
-  gates.
+  Generation completed terminal-clean at `2026-09-09T03:16:08Z`, 36 succeeded
+  / 0 failed / 0 cancelled / 0 retried. Its exact namespace contains 72 live
+  objects (36 cells and 36 diagnostic envelopes) and exactly 72 all-version
+  rows.
+- Production then launched the separately gated replay. Replay receipt
+  `launches/PREREG-074/102b740r7-20260909T023807Z.replay.json|1788923945745283|2697|d2b36f0cdf827cf1b3e8fbcc5634c49d80132caed36121f19ae8f0654cc2bd07`
+  binds execute marker generation `1788923881985496` and exactly one Cloud Run
+  execution, `lab-run-7msxb`. Registry completion is
+  `/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launcher-completions/a15be89ca25ae5f6df7bcc16f45bc38e392cff3218c683d1da0f94fbdd8da8dd.json`.
+  Seal, pins, release and outcome read remain held until replay is exactly
+  terminal-clean and the byte-level replay/linkage gate passes.
 
 ### 2026-09-08 PREREG-076 R4 build success and launch-preflight hold
 
