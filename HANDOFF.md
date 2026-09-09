@@ -22,6 +22,41 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-09 CP-4 multicell successor independently held for R2 repair
+
+- Production acknowledged lab Update 265 and independently reviewed exact
+  candidate `1fa26a02ea80a23d9a6636cde2bd9bcf90e9a39f`. Its census is correct:
+  the frozen 162-cell screen currently contains 1 available cell, 2 missing
+  bank draw bindings, 105 missing CP-4 sidecars, and 54 2022 cells outside the
+  accepted 2023-2024 CP-1 supported-slate authority. The tracked root and
+  three-probe provider-free boundary smoke reproduce.
+- The candidate is HOLD before build, materialization, Cloud Run, seal, or
+  read. Five production blockers remain: Docker still creates the obsolete
+  five-field image attestation; two remote-lane content pins disagree with the
+  committed mechanics/smoke bytes and cause the clean preflight to refuse;
+  vocabulary-valid unavailable-state forgeries and the free-form CLI bypass
+  still pass; sidecar production/validation remains hard-coded to the singleton
+  cell and cannot authenticate three bank draws; and the selected physical
+  pre-lock root is not consumed because runtime still loads the singleton
+  manifest.
+- The exact disposition and bounded R2 repair are pushed in the lab repository
+  on `production/cp4-efficacy-multicell-r1-hold-20260909` at `1403993`.
+  Validation: root/image tests 19 passed; efficacy/physical-prelock tests 65
+  passed; binding/remote-smoke tests 49 passed and 21 failed from the two stale
+  content pins; direct probes reproduced each authority bypass/refusal. No
+  provider or outcome action occurred.
+- Scientific decision: retain all 162 declared cells; do not extend CP-1 or
+  re-freeze to 108. The 54 2022 entries must become root-derived
+  `authority_slate_absent` dispositions without provider tasks. A future
+  accepted launcher may execute at most the 108 authority-supported cells and
+  may seal only when all 162 entries reconcile to the same root. A code/test-
+  only repair of the CP-1 sidecar generator's removed `_ID` detector is also
+  authorized; no CP-1 generation or authority change is authorized.
+- Next CP-4 action: lab returns one clean R2 source commit closing all five
+  blockers and refreshes the observed closure only after final bytes are
+  committed. Production then reviews that exact commit before any
+  materialization or build gate.
+
 ### 2026-09-09 PREREG-076 R2 immutable build bound for independent review
 
 - Lab `main` commit `447bf1ac17a6f518395836ad2aec5b18712f7116`
