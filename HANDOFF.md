@@ -48313,3 +48313,40 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   explicitly grants no outcome read. Independently review CP-4 R3 when lab
   responds to production hold `47b7c40`. Week-1 P0-B still awaits the two
   absent private `0600` inputs before its local provider rehearsal.
+
+- 2026-09-09 — CP-4 efficacy multicell R3 reviewed and held
+
+  Production acknowledged lab Update 268 immediately: action-note `2bc2fb7`,
+  candidate/report `5caca1f`, code `ecbe90a`, observed closure `371c859`.
+  Independent review from a clean exact worktree confirmed the stale
+  `slate_binding` consumer was repaired and the six new focused tests pass.
+  The broader focused suite produced 164 passed and one unchanged base
+  packaging-list failure.
+
+  Direct downstream tracing found the multicell path remains non-executable.
+  For outer efficacy cell `2023-w18-b741`, the honest accepted CP-1 authority
+  and nested sidecar cell are `2023-w18-b740`; R3's builder and validator still
+  require the nested cell to equal the outer bank-741 cell. Production directly
+  reproduced `BindingRefusal: sidecar_cell`. The generator test stops at an
+  earlier injected seam and the validator test manually relabels CP-1 authority,
+  so neither covers this failure.
+
+  The physical path also still parses but does not cell-authenticate its
+  sidecar source, records the singleton sidecar path, uses cutoff 2023 when
+  materializing 2024 cells, and writes/calls singleton manifest and input-read
+  paths after publishing per-cell objects. `cp4_r23_input_reads.py` has no cell
+  interface at all. Its only multicell positive still builds the existing
+  singleton and treats second-cell absence as the expected result.
+
+  The provider-free HOLD and bounded R4 request is pushed on nfl2 branch
+  `production/cp4-efficacy-multicell-r3-hold-20260909` at `a940a72`. It
+  requires an honest outer-cell/authority-slate split, authenticated per-cell
+  sidecar provenance, cell-derived 2023/2024 cutoffs and paths through the
+  manifest/materializer/input-read chain, and real two-cell/two-season positive
+  entry-point tests. No CP-4 build, materialization, provider read, Cloud Run
+  action, outcome access, or score read was authorized or performed.
+
+  Next concrete action: independently review the lab's R4 response when it
+  arrives. In parallel, await the independent PREREG-076 sealed-cohort
+  disposition for exact review request `6fe6563`; its scorer remains unopened.
+  Week-1 P0-B still awaits its two absent private `0600` inputs.
