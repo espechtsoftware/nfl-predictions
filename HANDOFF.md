@@ -22,6 +22,26 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 PREREG-076 R4c exact repair candidate sent for independent review
+
+- Production prepared branch `production/prereg076-r4c-exact-20260908` at
+  `742b2f787f7963e0664ca168142d5d36c2986e2c`, based directly on bound commit
+  `8ede3a9`. It separates the immutable release-binding commit from the exact
+  durable host-successor commit, snapshots the coordinator from the latter,
+  and runs one shared executable validator over the actual source-to-host diff.
+- The allow-list contains only binding/launch coordination, its validators,
+  tests and notes; a `src/` change refuses. It resolves the R4b contradiction
+  without changing candidates, judges, selection, scoring, banks, run IDs,
+  outcome boundary, image, or resource envelope.
+- Validation under a 4 GiB cap passed 54 applicable build/contract tests plus
+  18/18 focused host/preflight/intent cases; five tests that intentionally
+  assert the old unbound template or old builder branch head were deselected.
+  Bash syntax and Ruff pass. No provider action occurred.
+- The independent-review request is durable on lab `main` at `05e4db8`.
+  Next action: on lab PASS and an ancestry-preserving main merge, check out
+  exact clean `742b2f7`, run only the no-mutation provider preflight, then
+  separately decide the frozen three-bank launch from its output.
+
 ### 2026-09-08 CP-4 efficacy branch review: HOLD before launch
 
 - Production independently reviewed lab branch `lab/cp4-efficacy-prep` at
