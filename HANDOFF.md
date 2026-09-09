@@ -22,6 +22,30 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 PREREG-074 R7 build success and fm10 downstream hold
+
+- Exact R7 source `4b9a39b406d215e0e45b480482c9937cce21c0fd` passed
+  independent review: 119/119 focused tests, Ruff, compilation, shell syntax,
+  diff checks, clean checkout, and exact remote-head identity. Production's
+  review/build GO is lab-main commit `9a2f06d`.
+- The one authorized immutable build
+  `754aa920-99e1-467a-8b24-a4091122ac76` succeeded. It produced image
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2@sha256:3a4d0e45a50df597aa581aaa949ab70d2be414beba06a2a02ea892f86fb767ea`
+  and create-once receipt
+  `builds/PREREG-074/754aa920-99e1-467a-8b24-a4091122ac76.json|1788914157328583|7019|586288e8aefbdb39ae8789ddee056ac835150a659df635d6fb26061a26b546bc`.
+  The builder authenticated the source archive, registry digest, numeric
+  runtime, and in-image assertion; no job, execution, data, score, or outcome
+  path was touched.
+- Downstream is held before manifest invocation. The R7 source retained the
+  canonical `prereg074-fm10` name, but that create-once object already exists
+  at generation `1788908130030446` and binds R6 source `a81500d5...`, its old
+  image, and its old build receipt. The authority correctly requires exact
+  source/image/build equality, so fm10 cannot be reused or replaced for R7.
+  A narrow fm11 identity-roll repair is being returned to lab; the valid R7
+  build is downstream-inadmissible. No runtime probe or Cloud Run mutation was
+  attempted. The next action is independent review of the lab's fresh fm11
+  candidate, followed by one new immutable build if accepted.
+
 ### 2026-09-08 PREREG-074 R6 replay refusal, PREREG-076 R3 build refusal, and host-memory incident
 
 - PREREG-074 generation `lab-run-4cjzv` and independent replay
