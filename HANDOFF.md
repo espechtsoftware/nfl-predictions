@@ -22,6 +22,30 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 PREREG-074 R7b fm11 manifest published; p4 probe is next
+
+- Exact reviewed R7b source `5aecdf0f1979133985a174da926159aef8178b39`
+  passed 149/149 focused tests, Ruff, compilation, shell syntax, diff, clean
+  checkout and remote-head checks. The fresh identity repair binds manifest
+  `prereg074-fm11`, image revision r21 and runtime-probe namespace
+  `102b740p4`; it preserves the R7 frame-order replay repair and the held
+  efficacy namespace `102b740r7`.
+- Cloud Build `b39f7ea5-c1f6-4322-a094-0dd8bf62a925` succeeded and produced
+  immutable image
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2@sha256:09ac4990fb46dfd91aac92f2fa9b489bc02c006272c65844e37532758c8d322c`.
+  Its authenticated receipt is
+  `builds/PREREG-074/b39f7ea5-c1f6-4322-a094-0dd8bf62a925.json|1788915908634990|7019|e83936928b7a837e7c81d045d8ddcee97530775d1639fd6eca86c6b835a53c48`.
+- After an exact live/noncurrent/soft-deleted census proved fm11 unused,
+  production invoked the reviewed one-shot host controller once. It completed
+  successfully for all 36 cells and published
+  `frame-manifests/PREREG-074/prereg074-fm11.json|1788916350515999|103586|48e6609f9cfde73260005f52efe2b566758ce66bcc09d2b6b634f221ba61cd10`.
+  No efficacy run, reader, score or outcome was opened.
+- Next concrete action is the separately registered, one-task, outcome-blind
+  `102b740p4` runtime probe using these exact source/image/build/manifest
+  identities. Production must review its empty namespace and invocation,
+  launch exactly once, and review the terminal gate before considering the
+  36-task R7 efficacy cohort.
+
 ### 2026-09-08 PREREG-076 R4 build success and launch-preflight hold
 
 - Exact R4 source `b130be6f209e90544c85216efeabfb0a0b7a630b` passed
