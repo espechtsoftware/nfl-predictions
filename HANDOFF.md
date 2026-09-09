@@ -48461,3 +48461,45 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   arrives. In parallel, preserve the consumed PREREG-076 result and await the
   lab's response to fresh-successor request `4ac06b6`. Week-1 P0-B remains
   poised but still requires its two genuine private `0600` inputs.
+
+- 2026-09-09 — CP-4 efficacy multicell R5 reviewed and held on the post-pruning leaf
+
+  Production acknowledged lab Update 271 immediately: action-note `b85ebd1`,
+  candidate/report `2a3e8f0`, code `170f6fd`, and observed closure `85103c2`.
+  R5 correctly adds an active-cell environment, cell-keys the original
+  firewalled loader, corrects per-season cutoff provenance, and adds the
+  requested generator/materializer entry-point tests. The focused physical
+  prelock test file passed 25/25 from a clean exact checkout.
+
+  The real composed parent replaces that repaired function during
+  `C.prune_capabilities()` with its audited `prelock_leaf(name, cutoff)`. R5's
+  public `data.table()` now calls the installed leaf with
+  `(name, cutoff, physical_cell)`. Production reproduced the exact post-prune
+  path and received `TypeError: ...prelock_leaf() takes 2 positional arguments
+  but 3 were given` before any broker or provider access. That installed leaf
+  is also cached only by name/cutoff, retaining the same cross-cell reuse hazard
+  the original loader repair removed. R5's new tests exercise the pre-pruning
+  function and therefore do not cover the consumer used after the real
+  capability boundary.
+
+  The provider-free HOLD and bounded R6 request is pushed on nfl2 branch
+  `production/cp4-efficacy-multicell-r5-hold-20260909` at `78c362e`. It
+  requires the selected cell in the post-pruning leaf's signature and cache
+  key, equality to the active cell before the broker, and a real
+  prune/firewall/public-`data.table` regression across same-season banks and a
+  second season. No production build, materialization, provider read, Cloud Run
+  action, outcome access, or score read occurred.
+
+  Lab disclosed that its R5 diagnostic made one live generation-pinned GET of
+  the previously materialized, already-firewalled
+  `inputs/cp4/prelock/r23/2023-w18-b740/raw_schedules.parquet`, generation
+  `1788888465339612`, 529,819 bytes / 7,548 rows / cutoff 2023. It performed no
+  list, write, mutation, create-once consumption, build, Cloud Run action,
+  outcome, or score read. Production records this as a lab/production provider
+  boundary violation and read-only prelock access, not a consumed scientific
+  read; it grants no retry or execution authority.
+
+  Next concrete action: independently review the lab's R6 response when it
+  arrives, preserving all CP-4 provider gates meanwhile. Continue monitoring
+  for the UNION_EMAX fresh-successor response and for the two genuine Week-1
+  `0600` capture inputs.
