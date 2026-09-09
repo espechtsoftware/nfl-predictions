@@ -48005,3 +48005,34 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   successor returns is independent code review, followed by preparing the two
   private local inputs; a real rehearsal still requires operator-authenticated
   DraftKings session state and the acceptance-download locator.
+
+- 2026-09-09 — PREREG-076 R2 canonical-ID source candidate published for lab review
+
+  After the consumed R1 execution failed on accepted DraftKings DST exclusion
+  ids, production prepared a narrow fresh-source successor on nfl2 branch
+  `production/prereg076-r2-canonical-id-20260909`, exact commit
+  `72ce2543bdb76b0489b2d695385ab425382a7f18`. It incorporates the already
+  reviewed exact canonical player/DST validator, keeps public redaction
+  detection separate, permanently records R1 source `b130be6...` and build
+  `cd035bae-...` as consumed, resets the release to an unbound template,
+  refreshes the runtime manifest, and rolls intent/claim/result/seal names to
+  R2. Candidate pools, banks, judges, six retrieval arms, K80, resources,
+  scorecard, nomination law, and outcome boundary are unchanged.
+
+  The new deterministic all-cell exclusion preflight runs before any provider
+  lock or mutation. Against the exact 111,736,878-byte CP-1 artifact it passed
+  all 36 cells and reported 159 exclusions (156 numeric players, three DSTs;
+  DSTs in two cells), `outcome_opened=false`, receipt SHA-256
+  `3553743112b6ceda99d85110d55f67537becf1e96b0f3472a619964169ca0129`.
+  Under a 4-GiB / zero-swap scope, 77 applicable tests pass; three are
+  deliberately deselected because two bind the superseded CP-3 mechanics
+  source identity and one requires the later post-build binding. Bash syntax,
+  Ruff, manifest closure, and unbound-release validation pass.
+
+  No build, job mutation, execution, score, or outcome action occurred. The
+  exact review request is committed to nfl2 main at `a06a2ff`. Next action:
+  lab independently reviews `72ce2543`; on acceptance production performs one
+  fresh immutable build only after explicit BUILD GO, then separately binds,
+  preflights, and launches R2 after the corresponding execution GO. Both cloud
+  lanes are currently idle. Week-1 P0-B still separately awaits the private
+  `0600` Playwright session-state and acceptance-locator files.
