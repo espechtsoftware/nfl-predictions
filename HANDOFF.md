@@ -22,6 +22,23 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 PREREG-076 R1 bank 770 failed; remainder cancelled
+
+- Cloud Run `lab-run-7hl86` failed deterministically on task 10,
+  `2023-w11-b740`, with `excluded_ids_malformed`. Once exact 36/0/0 became
+  impossible, production cancelled the remainder. Final state is 17 succeeded
+  / 1 failed / 18 cancelled / 0 retried; 17 create-once cell objects exist.
+  Banks 771 and 772 were never claimed or launched. Coordinator completion is
+  `/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launcher-completions/deb8944ebc42d27c6193d37fab28fb7a83419dfc892c72fa56216d39370c9e71.json`.
+- Root cause is the frozen image's stale canonical-ID validator, which rejects
+  the accepted 2023-W11 numeric player and DST exclusions. PREREG-074 already
+  repaired this exact class at lab commit `05236d5` and proved all 36 cells.
+- R1 is consumed and preserved; no score/outcome was opened. Required successor
+  is a fresh source/image/binding and all-bank R2 namespace carrying the
+  reviewed validator plus an all-expected-cell prelaunch authentication. Full
+  disposition is
+  `reports/2026-09-08-prereg076-r1-execution-failure.md`.
+
 ### 2026-09-08 PREREG-076 R4d clean preflight and bank 770 launch
 
 - R4c exact commit is
