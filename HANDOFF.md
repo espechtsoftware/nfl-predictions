@@ -57,6 +57,16 @@ agent or developer:
   freshness remediation is presently due. SIS remains authenticated-session
   work, not authority to invent an unreviewed Week-1 query or to represent
   historical research inputs as a live adopted feature.
+- Recurring transient timer `nfl-week1-fp-matchup-watch-v2.timer`, invocation
+  `69d9386e97d24281a2ac166ad52df8d4`, is active every 30 minutes from the exact
+  source worktree with project identity `nfl-predictions-503414`. Its immediate
+  test run `20260909T190118Z__2026-live-matchups-v1__week-01` reached all three
+  vendor pages and again rejected all reports: QB now showed both ARI-CAR and
+  CAR-ARI, while WR and OL/DL retained the same invalid two-game substitution.
+  Nothing was archived. The superseded first timer lacked `GCP_PROJECT`,
+  failed before vendor access or run creation, and was stopped/collected.
+  Leave v2 armed until a complete valid capture or first kickoff, then stop it
+  to avoid needless licensed-site traffic.
 
 ### 2026-09-09 Week-1 matchup capture now preserves independent report progress
 
