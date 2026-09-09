@@ -22,6 +22,37 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-09 Week-1 Fantasy Points prior-season identity gate repaired
+
+- The first governed Week-1 live-matchup attempt correctly identified the
+  export as `source_season=2025` / `vendor-prior-season-early`, but falsely
+  classified the current schedule as stale. All 32 expected 2026 Week-1
+  team/opponent pairs were present. The only extra identity was a QB row whose
+  prior-season Team cell listed `CLV, CIN`; its current Schedule Week 1
+  opponent was Tampa Bay, so exactly one listed team, Cincinnati, matched the
+  authenticated current schedule. Failed local run
+  `20260909T152811Z__2026-live-matchups-v1__week-01` remains unarchived with
+  raw SHA-256
+  `ff52a4dd38a9ded48673ff1cca1b01ac62dd32385d3ef5cac7137492364e3767`.
+- Branch `production/fp-week1-multiteam-repair-20260909`, based on
+  `506b006e11fa22eedd81e4fe617850deeea57dff`, now reconciles a comma-separated
+  historical Team cell only when exactly one normalized listed team forms an
+  expected current-week pair with the exported opponent. The gate records the
+  original and normalized identity. Missing, stale, unmatched or ambiguous
+  composites still fail. This is an intake-mechanics correction; it does not
+  change the vendor's early-season warning, any metric, model feature,
+  promotion rule, lineup policy or outcome boundary.
+- Focused matchup and unified-weekly tests pass 13/13; module compilation and
+  `git diff --check` pass. Supplemental scheduled odds execution
+  `ingest-odds-4m54r` completed successfully. The saved Fantasy Points session
+  is authenticated. The saved SIS session expired at its login boundary; no
+  SIS query was submitted, and the Week-1 recurring contract licenses none.
+- Exact next action: push this repair, rerun all three Week-1 Fantasy Points
+  matchup captures before the first kickoff, require all normalized schedule
+  gates and archive writes to pass, then preserve the complete manifest and
+  archive identities. SIS session renewal remains separate and must not be
+  represented as Week-1 SIS data acquisition.
+
 ### 2026-09-09 CP-4 multicell successor independently held for R2 repair
 
 - Production acknowledged lab Update 265 and independently reviewed exact

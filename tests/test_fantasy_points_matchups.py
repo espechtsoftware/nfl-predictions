@@ -61,6 +61,49 @@ def test_schedule_gate_rejects_stale_or_missing_pairs():
     assert stale["missing_pairs"] == [["BUF", "BAL"]]
 
 
+def test_schedule_gate_reconciles_one_prior_season_multi_team_identity():
+    schedule = pd.DataFrame([{"home_team": "CIN", "away_team": "TB"}])
+    expected = matchups.expected_schedule_pairs(schedule)
+    gate = matchups.validate_matchup_pairs(
+        {
+            ("CIN", "TB"),
+            ("TB", "CIN"),
+            ("CLV, CIN", "TB"),
+        },
+        expected,
+        report="qb-coverage-matchup",
+    )
+    assert gate == {
+        "report": "qb-coverage-matchup",
+        "passes": True,
+        "observed_pairs": 3,
+        "normalized_observed_pairs": 2,
+        "expected_pairs": 2,
+        "reconciled_multi_team_pairs": [
+            {
+                "observed": ["CLV, CIN", "TB"],
+                "normalized": ["CIN", "TB"],
+            }
+        ],
+        "unexpected_pairs": [],
+        "missing_pairs": [],
+    }
+
+
+def test_schedule_gate_rejects_unmatched_multi_team_identity():
+    schedule = pd.DataFrame([{"home_team": "CIN", "away_team": "TB"}])
+    expected = matchups.expected_schedule_pairs(schedule)
+    gate = matchups.validate_matchup_pairs(
+        {("CLV, BAL", "TB"), ("TB", "CIN")},
+        expected,
+        report="qb-coverage-matchup",
+    )
+    assert not gate["passes"]
+    assert gate["reconciled_multi_team_pairs"] == []
+    assert gate["unexpected_pairs"] == [["CLV, BAL", "TB"]]
+    assert gate["missing_pairs"] == [["CIN", "TB"]]
+
+
 def test_first_kickoff_is_eastern_and_all_games_not_sunday_only():
     schedule = pd.DataFrame([
         {"gameday": "2026-09-10", "gametime": "20:20"},
