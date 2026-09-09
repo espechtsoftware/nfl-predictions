@@ -48213,3 +48213,24 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   serially. On any terminal mismatch, stop and preserve the claim—never rerun
   the consumed ID. After all three exact successes, authenticate and record the
   create-once 108-object cohort seal before any scoring action.
+
+- 2026-09-09 — PREREG-076 R2 bank 770 passed; bank 771 launched
+
+  Bank 770 execution `lab-run-4h66m` (UID
+  `00e4b71d-891f-4180-aad8-13bc76c6cb87`) completed successfully at
+  `2026-09-09T13:16:02.564927Z` with exactly 36 succeeded, zero failed, zero
+  cancelled, zero running, and zero retried tasks. Run ID
+  `103b770r2-20260909T060000Z` is terminal and must never be retried.
+
+  The same still-live registered coordinator then created the bank 771
+  create-once claim, generation `1788959784525957`, and reconciled exactly one
+  provider execution: `lab-run-cxqb6`, UID
+  `f5287cef-a75d-4a0c-8b3b-a5cdb6b8269a`, created
+  `2026-09-09T13:16:25.930071Z` for run ID
+  `103b771r2-20260909T060000Z`. At the recorded observation it has 18 running,
+  zero failed/cancelled/retried tasks and is not terminal. The 771 ID is now
+  claimed and must never be retried.
+
+  Next concrete action: preserve and monitor the existing coordinator and
+  `lab-run-cxqb6` to exact terminal acceptance; only that same process may then
+  claim bank 772. Keep CP-4 R2 review provider-free while this lane is active.
