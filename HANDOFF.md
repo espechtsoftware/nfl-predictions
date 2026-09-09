@@ -48234,3 +48234,39 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   Next concrete action: preserve and monitor the existing coordinator and
   `lab-run-cxqb6` to exact terminal acceptance; only that same process may then
   claim bank 772. Keep CP-4 R2 review provider-free while this lane is active.
+
+- 2026-09-09 — PREREG-076 R2 bank 771 passed; bank 772 launched; CP-4 R2 held
+
+  Bank 771 execution `lab-run-cxqb6` (UID
+  `f5287cef-a75d-4a0c-8b3b-a5cdb6b8269a`) completed successfully at
+  `2026-09-09T13:23:10.186074Z` with exactly 36 succeeded, zero failed, zero
+  cancelled, zero running, and zero retried tasks. Run ID
+  `103b771r2-20260909T060000Z` is terminal and must never be retried.
+
+  The same registered coordinator created the bank 772 create-once claim,
+  generation `1788960207281469`, and reconciled exactly one provider
+  execution: `lab-run-nh62n`, UID
+  `00e3456e-265b-4fe0-a9ef-4e5ae38bfb46`, created
+  `2026-09-09T13:23:28.708052Z` for run ID
+  `103b772r2-20260909T060000Z`. At `2026-09-09T13:27:29Z` it had 14
+  succeeded and four running tasks, with zero failed/cancelled/retried tasks.
+  The 772 ID is claimed and must never be retried.
+
+  Separately, production acknowledged and independently reviewed lab CP-4
+  Update 267: action-note `f01b94c`, candidate/report `1a28670`. Its focused
+  suite produced 158 passed and one unrelated pre-existing packaging-list
+  failure, but direct call-path review found that the only available R2 member
+  crashes on stale `member["slate_binding"]`, while the sidecar generator,
+  nested CP-1 validator, and physical pre-lock producer/consumer path remain
+  singleton-backed. The provider-free HOLD and bounded R3 code/test request is
+  pushed on nfl2 branch
+  `production/cp4-efficacy-multicell-r2-hold-20260909` at `47b7c40`. No CP-4
+  build, materialization, provider read, launch, outcome access, or score read
+  was authorized or performed.
+
+  Next concrete action: preserve and monitor the existing coordinator and
+  `lab-run-nh62n` to exact 36/0/0 zero-retry terminal acceptance. The same
+  process must then authenticate and publish the exact 108-object score-free
+  cohort seal; never rerun a claimed bank. Independently review the lab's R3
+  response when it arrives. Week-1 P0-B still awaits the private `0600`
+  Playwright session-state and acceptance-locator files.
