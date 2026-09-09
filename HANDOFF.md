@@ -22,6 +22,33 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-09 Cloud Run queue cold-start replay repaired
+
+- Seven one-second-or-shorter exit-1 completion records emitted by the former
+  no-argument launcher regression were newer than the genuine PREREG-076 R2
+  completion and caused the idle Cloud Run lane to remain classified failed.
+  The test is already repaired at nfl2 `e3f91a1`: it now refuses on an invalid
+  argument before registry acquisition.
+- The exact seven records were moved intact from `launcher-completions` to the
+  recoverable local quarantine
+  `lab-launcher-registry/quarantine/false-test-invocations-20260909/`; nothing
+  was deleted and no provider or cloud state changed. Exact keys and the
+  evidence classification are in
+  `reports/2026-09-09-launcher-registry-test-receipt-quarantine.md`.
+- A second monitor defect became visible on the required cold restart: every
+  historical immutable completion was emitted once as new, and the latest
+  stale success supplied an old run prefix to the current idle queue. The
+  monitor now baselines terminal records older than a configurable cold-start
+  lookback while preserving records from the most recent 900 seconds as
+  actionable. Stale history remains in `launcher_completions` and
+  `seen_completion_keys` for integrity checking; it is no longer selected as
+  the current coordinator, current prefix set, or a newly failed completion.
+  Two explicit stale/recent cold-start regressions were added. The complete
+  Cloud Run monitor suite passes 50/50, compilation and diff checks pass.
+  Exact next action: deploy the updated tracked user unit, perform a clean
+  status bootstrap, and verify two consecutive 60-second polls before
+  recording the steady queue state.
+
 ### 2026-09-09 Week-1 authenticated DraftKings lineups API capture validated
 
 - The exact API-to-A5 projection is now implemented and deliberately narrower

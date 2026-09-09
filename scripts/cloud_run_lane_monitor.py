@@ -68,6 +68,7 @@ class Config:
     expected_prefixes: tuple[str, ...] = ()
     launcher_registry_dirs: tuple[Path, ...] = ()
     launcher_lane: str | None = None
+    bootstrap_terminal_lookback_seconds: float = 900.0
     queue_grace_seconds: float = 120.0
     stall_seconds: float = 3_600.0
     coordinator_post_provider_grace_seconds: float = 180.0
@@ -88,6 +89,9 @@ class Config:
             "expected_prefixes": list(self.expected_prefixes),
             "launcher_registry_dirs": [str(path) for path in self.launcher_registry_dirs],
             "launcher_lane": self.launcher_lane,
+            "bootstrap_terminal_lookback_seconds": (
+                self.bootstrap_terminal_lookback_seconds
+            ),
             "queue_grace_seconds": self.queue_grace_seconds,
             "stall_seconds": self.stall_seconds,
             "coordinator_post_provider_grace_seconds": (
@@ -116,6 +120,31 @@ def _epoch(value: object) -> float | None:
     except ValueError:
         return None
     return parsed.timestamp() if parsed.tzinfo else None
+
+
+def _recent_terminal_keys(
+    completions: Mapping[str, Mapping[str, object]],
+    *,
+    observed: float,
+    lookback_seconds: float,
+) -> set[str]:
+    """Return terminal records still actionable during a cold start.
+
+    The registry is an immutable historical ledger. A monitor restart must
+    baseline old records, not replay them as new queue work. Records inside
+    this bounded window remain actionable so a restart immediately after a
+    coordinator exits cannot lose its terminal transition.
+    """
+    threshold = observed - lookback_seconds
+    return {
+        key
+        for key, completion in completions.items()
+        if (
+            (completed_at := _epoch(completion.get("completed_at_utc")))
+            is not None
+            and completed_at >= threshold
+        )
+    }
 
 
 def _count(value: object, label: str) -> int:
@@ -972,10 +1001,23 @@ def collect_status(
             for item in completion_records
             if isinstance(item.get("receipt_sha256"), str)
         }
-    prior_seen = {
-        str(value) for value in (previous or {}).get("seen_completion_keys", [])
-    }
     current_keys = set(completion_by_key)
+    cold_recent_keys = (
+        _recent_terminal_keys(
+            completion_by_key,
+            observed=observed,
+            lookback_seconds=config.bootstrap_terminal_lookback_seconds,
+        )
+        if previous is None
+        else set()
+    )
+    prior_seen = (
+        current_keys - cold_recent_keys
+        if previous is None
+        else {
+            str(value) for value in previous.get("seen_completion_keys", [])
+        }
+    )
     changed_completion_keys = sorted(
         key
         for key in current_keys & set(prior_completions)
@@ -1001,6 +1043,12 @@ def collect_status(
         for value in (previous or {}).get("blocking_completion_failure_keys", [])
     }
     latest_for_tracking = registry.get("latest_completion")
+    if (
+        previous is None
+        and isinstance(latest_for_tracking, Mapping)
+        and latest_for_tracking.get("receipt_sha256") not in cold_recent_keys
+    ):
+        latest_for_tracking = None
     advance_to_latest_terminal = bool(
         isinstance(latest_for_tracking, Mapping)
         and previous_coordinator.get("state") in ("succeeded", "failed")
@@ -1038,7 +1086,7 @@ def collect_status(
         if rearmed_live_receipt
         else {key for key in new_failure_keys if key == tracked_registration_key}
     )
-    latest_completion = registry.get("latest_completion")
+    latest_completion = latest_for_tracking
     completion_follows_previous = bool(
         isinstance(latest_completion, Mapping)
         and (
@@ -1188,9 +1236,12 @@ def collect_status(
             "error": registry.get("error"),
         }
     else:
+        coordinator_registry = registry
+        if registry.get("latest_completion") is not latest_for_tracking:
+            coordinator_registry = {**registry, "latest_completion": latest_for_tracking}
         registered_coordinator = _registered_coordinator_status(
             config,
-            registry,
+            coordinator_registry,
             previous,
             retained_prefixes=registry_prefixes,
             provider_cohort_state=cohort_state,
@@ -2308,6 +2359,9 @@ def _parser() -> argparse.ArgumentParser:
         "--launcher-registry-dir", action="append", type=Path, default=[]
     )
     parser.add_argument("--launcher-lane")
+    parser.add_argument(
+        "--bootstrap-terminal-lookback-seconds", type=_positive, default=900.0
+    )
     parser.add_argument("--queue-grace-seconds", type=_positive, default=120.0)
     parser.add_argument("--stall-seconds", type=_positive, default=3_600.0)
     parser.add_argument(
@@ -2362,6 +2416,9 @@ def _config(args: argparse.Namespace) -> Config:
         expected_prefixes=prefixes,
         launcher_registry_dirs=registry_dirs,
         launcher_lane=args.launcher_lane,
+        bootstrap_terminal_lookback_seconds=(
+            args.bootstrap_terminal_lookback_seconds
+        ),
         queue_grace_seconds=args.queue_grace_seconds,
         stall_seconds=args.stall_seconds,
         coordinator_post_provider_grace_seconds=(

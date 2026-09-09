@@ -151,7 +151,12 @@ def _write_registry_receipt(
     return path
 
 
-def _write_completion(receipt_path: Path, exit_status: int) -> Path:
+def _write_completion(
+    receipt_path: Path,
+    exit_status: int,
+    *,
+    completed_at: str = "2026-09-01T23:53:46Z",
+) -> Path:
     raw = receipt_path.read_bytes()
     receipt = json.loads(raw)
     receipt_sha256 = hashlib.sha256(raw).hexdigest()
@@ -162,7 +167,7 @@ def _write_completion(receipt_path: Path, exit_status: int) -> Path:
         json.dumps(
             {
                 "acquired_at_utc": receipt["acquired_at_utc"],
-                "completed_at_utc": "2026-09-01T23:53:46Z",
+                "completed_at_utc": completed_at,
                 "exit_status": exit_status,
                 "lane": receipt["lane"],
                 "owner": receipt["owner"],
@@ -1606,6 +1611,92 @@ def test_cold_start_success_notifies_once_after_exact_acceptance(tmp_path: Path)
     assert len(notifier.calls) == 1
 
 
+def test_cold_start_baselines_stale_terminal_history(tmp_path: Path) -> None:
+    registry = tmp_path / "launchers"
+    registry.mkdir()
+    failed_receipt = _write_registry_receipt(registry, ["historical-failed"])
+    failed_completion = _write_completion(
+        failed_receipt,
+        1,
+        completed_at="2026-09-01T23:53:46Z",
+    )
+    failed_receipt.unlink()
+    latest_receipt = _write_registry_receipt(
+        registry,
+        ["historical-success"],
+        name="latest.json",
+        acquired_at="2026-09-02T00:00:00Z",
+    )
+    latest_completion = _write_completion(
+        latest_receipt,
+        0,
+        completed_at="2026-09-02T00:01:00Z",
+    )
+    latest_receipt.unlink()
+    config = monitor.Config(
+        state_file=tmp_path / "status.json",
+        launcher_registry_dirs=(registry,),
+        launcher_lane="nfl2-lab-jobs",
+        bootstrap_terminal_lookback_seconds=900,
+    )
+    observed = monitor._epoch("2026-09-09T22:50:00Z")
+    assert observed is not None
+
+    status = monitor.run_once(
+        config,
+        runner=FakeGcloud([[], []]),
+        clock=FakeClock(observed),
+        emit=lambda _: None,
+    )
+
+    assert status["new_completion_keys"] == []
+    assert status["seen_completion_keys"] == sorted(
+        [failed_completion.stem, latest_completion.stem]
+    )
+    assert status["authorized_queue"]["prefixes"] == []
+    assert status["authorized_queue"]["effective_prefixes"] == []
+    assert status["registered_coordinator"]["state"] == "untracked"
+    assert status["registered_coordinator"]["registration_key"] is None
+    assert status["blocking_completion_failure_keys"] == []
+    assert not any(
+        key.startswith("registered-coordinator-failure:")
+        or key.startswith("lane-capacity-unclaimed:")
+        for key in status["alerts"]
+    )
+
+
+def test_cold_start_keeps_recent_terminal_actionable(tmp_path: Path) -> None:
+    registry = tmp_path / "launchers"
+    registry.mkdir()
+    receipt = _write_registry_receipt(registry, ["recent"])
+    completion = _write_completion(
+        receipt,
+        0,
+        completed_at="2026-09-09T22:49:00Z",
+    )
+    receipt.unlink()
+    config = monitor.Config(
+        state_file=tmp_path / "status.json",
+        launcher_registry_dirs=(registry,),
+        launcher_lane="nfl2-lab-jobs",
+        bootstrap_terminal_lookback_seconds=900,
+    )
+    observed = monitor._epoch("2026-09-09T22:50:00Z")
+    assert observed is not None
+
+    status = monitor.run_once(
+        config,
+        runner=FakeGcloud([[], []]),
+        clock=FakeClock(observed),
+        emit=lambda _: None,
+    )
+
+    assert status["new_completion_keys"] == [completion.stem]
+    assert status["authorized_queue"]["prefixes"] == ["recent"]
+    assert status["registered_coordinator"]["state"] == "succeeded"
+    assert status["registered_coordinator"]["registration_key"] == completion.stem
+
+
 def test_cold_start_latest_success_is_not_poisoned_by_historical_failure(
     tmp_path: Path,
 ) -> None:
@@ -2395,5 +2486,6 @@ def test_tracked_user_unit_is_persistent_and_uses_durable_alert_outputs() -> Non
         "--launcher-registry-dir "
         "%h/.local/state/nfl-dfs/lab-launcher-registry/launchers"
     ) in unit
+    assert "--bootstrap-terminal-lookback-seconds 900" in unit
     assert "--coordinator-post-provider-grace-seconds 180" in unit
     assert "--windows-toast-command" in unit
