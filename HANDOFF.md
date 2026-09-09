@@ -57,6 +57,25 @@ agent or developer:
   committed. Production then reviews that exact commit before any
   materialization or build gate.
 
+### 2026-09-09 lab commit monitor expanded to every remote branch
+
+- The 120-second lab repository watcher was healthy but watched only
+  `origin/main`; therefore it did not surface Update 265 on the lab's two
+  unmerged handoff/review branches. Production commit `64500f6d` adds an
+  explicit `--all-branches` mode that fetches/prunes every ordinary remote
+  branch, records branch create/update/delete transitions, attributes newly
+  reachable commits to a branch, and retains wake filtering by handoff/report/
+  contract paths. A main-only state migrates by baselining current refs once,
+  avoiding a historical event flood.
+- Focused monitor/action-note tests pass 11/11; compilation, diff check, and an
+  actual provider-free poll pass. The live user service was reloaded and
+  restarted at `2026-09-09T12:32:16Z` with the exact pushed worktree and
+  `--all-branches`. It is active and baselined 173 remote branches at
+  `2026-09-09T12:32:17Z`, with `ref: origin/*` and a successful poll.
+- The main-specific action-note watcher remains independently active. Next
+  monitor action is automatic: every 120 seconds, surface only new material
+  branch commits or poll failures; unchanged polls remain silent.
+
 ### 2026-09-09 PREREG-076 R2 immutable build bound for independent review
 
 - Lab `main` commit `447bf1ac17a6f518395836ad2aec5b18712f7116`
