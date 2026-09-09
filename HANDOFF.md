@@ -48189,3 +48189,27 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   registered coordinator once without `PREFLIGHT_ONLY`; monitor bank 770, 771,
   and 772 serially through zero-retry terminal success and then authenticate the
   exact 108-object score-free cohort seal. Never retry any claimed bank ID.
+
+- 2026-09-09 — PREREG-076 R2 registered cohort launch started
+
+  Production invoked the registered coordinator exactly once from clean exact
+  nfl2 host `ec0d210538eae5b218697c6b9b5767ce6ccc89b2` at
+  `2026-09-09T13:07:20Z`. Launcher-registry PID 84106 owns lane
+  `nfl2-lab-jobs` and prefixes `103b770r2`, `103b771r2`, and `103b772r2` from
+  `/home/erich/projects/.nfl2-worktrees/076-r2-preflight-host-20260909/scripts/queue_103_retrieval_registered.sh`.
+
+  The create-once cohort launch intent now exists at
+  `gs://nfl-2-506823-lab/launches/PREREG-076/103-r2.intent.json`, generation
+  `1788959290569834`, 3,592 bytes. The existing `lab-run` job accepted the exact
+  immutable image/envelope update. Bank 770 run ID
+  `103b770r2-20260909T060000Z` has exactly one provider execution:
+  `lab-run-4h66m`, UID `00e4b71d-891f-4180-aad8-13bc76c6cb87`, created
+  `2026-09-09T13:08:24.065510Z`. It is starting with zero retries and is not yet
+  terminal. This run ID is now claimed and MUST NOT be retried.
+
+  Next concrete action: keep the active coordinator process/session and both
+  cloud monitors under observation. Accept bank 770 only on exact 36/0/0,
+  zero-retry terminal success; the same process may then claim 771 and 772
+  serially. On any terminal mismatch, stop and preserve the claim—never rerun
+  the consumed ID. After all three exact successes, authenticate and record the
+  create-once 108-object cohort seal before any scoring action.
