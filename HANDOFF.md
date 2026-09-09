@@ -22,6 +22,38 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-09 PREREG-076 R2 immutable build bound for independent review
+
+- Lab `main` commit `447bf1ac17a6f518395836ad2aec5b18712f7116`
+  independently accepted exact R2 source
+  `72ce2543bdb76b0489b2d695385ab425382a7f18` / tree
+  `dee05fde6c00fff0a6b41709db69309f396215ba` and authorized exactly one
+  immutable build, but explicitly did not authorize a release binding or
+  Cloud Run execution.
+- The one build completed successfully as Cloud Build
+  `a80de79a-54b6-451d-b02b-ec5ae309455d`. Its authenticated receipt SHA-256
+  is `ca876f1a9b0d1255235f65a81f861ea3744ee8371146d740cfd086a3f8396780`;
+  the resulting immutable image is
+  `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2@sha256:75798b152664efd0030b589d84ac1dfaa151b50023f86c1e74f46af7cc652649`.
+- The provider-free post-build binding is committed and pushed without source
+  changes on lab branch `production/prereg076-r2-binding-20260909` at
+  `d70f1c2`. Binding SHA-256 is
+  `12675a01f13518c74c6683c362af259e082e28a73a467cad256c220f038b51ce`;
+  strict receipt/binding canonicalization, contract validation, exact
+  receipt-to-binding identity, and `git diff --check` passed. Four applicable
+  contract tests passed; the two template-state tests correctly reject the
+  intentionally bound successor and are not post-binding validations.
+- A premature registered-coordinator invocation at `2026-09-09T10:48:24Z`
+  exited 1 in one second because the binding was still uncommitted/dirty. It
+  claimed none of `103b770r2/771r2/772r2`; no intent, job update, execution,
+  result, seal, score, or outcome read occurred. Completion receipt is
+  `/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launcher-completions/b2989099e178f4950c6ff1e341074fe863a19be289f7b5f08ccd5396b1a6a045.json`.
+- The exact next action is independent lab review of `d70f1c2`, followed by
+  ancestry-preserving integration and an explicit execution GO. Only then may
+  production run the registered no-mutation preflight from a clean exact
+  checkout; the three-bank execution remains a separate decision after that
+  preflight passes. Never retry the failed dirty-checkout registration.
+
 ### 2026-09-09 CP-4 162-cell efficacy binding mismatch found before build
 
 - While preparing CP-4's missing provider launcher, production proved that the
