@@ -22,6 +22,36 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-09 Week-1 Fantasy Points WR and OL/DL schedule gates passed; QB retry remains armed
+
+- Governed run
+  `20260909T193116Z__2026-live-matchups-v1__week-01` materially supersedes
+  the earlier all-report failure. WR and OL/DL now reproduce all 32 expected
+  directional 2026 Week-1 matchup pairs while retaining the vendor's explicit
+  `source_season=2025` / `vendor-prior-season-early` regime. They are archived
+  immutably at SHA-256 `a71b1eb7a8531b32fa8388cfc607515882d439c8c458febd03732559cd0ea969`
+  and `0fa47fb18776e84edf7bbcf03c445183ad98f624c2c6bd9dbf92e32b1d79f9a6`,
+  respectively, under the existing hash-addressed Week-1 prefix in
+  `gs://nfl-predictions-503414-raw/licensed/fantasy-points/live-matchups/`.
+  Chicago-Carolina is valid in both directions. No accepted row was rewritten.
+- QB alone remains fail-closed. Its latest export has the valid Carolina-Chicago
+  pair and every other expected pair except one: `ARI -> CAR` is present where
+  authoritative Week 1 requires `ARI -> LAC`. Direct inspection of the QB
+  `/values` response confirmed that the endpoint's schedule context itself
+  still carries the bad Arizona mapping; this is not evidence that the entire
+  page or the prior-season metric regime is invalid. The raw failed QB file is
+  preserved locally and unarchived. The strict schedule gate has not been
+  weakened, and valid WR/OL-DL progress is retained independently.
+- The superseded 30-minute `nfl-week1-fp-matchup-watch-v2.timer` is stopped.
+  Recurring retry is now armed every five minutes as transient user timer
+  `nfl-week1-fp-matchup-watch-v3.timer`, invocation
+  `1af5fd0373804d2797683d20381204af`, from exact pushed source `422329a4` with
+  project identity `nfl-predictions-503414`. Exact next action: inspect each
+  terminal manifest silently; stop the timer as soon as QB reproduces all 32
+  expected pairs and archives successfully, or at the first-kickoff boundary.
+  Do not discard the two accepted artifacts and do not substitute Carolina's
+  opponent metrics into Arizona's row.
+
 ### 2026-09-09 production freshness lane green; all matchup reports independently captured but vendor schedule still invalid
 
 - Production source `4d2aa0d6e920d2c357e2af92f6bd575014f25b71` on
