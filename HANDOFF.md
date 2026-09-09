@@ -52,9 +52,18 @@ agent or developer:
   `/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launcher-completions/860714cacd9f898291bfbab679d9f56823b0457ecb54bba4932f11db2a73e779.json`.
 - The p4 gate therefore passes. The next concrete action is an exact empty
   census and one fresh `102b740r7-<UTC>` authority/generation launch under the
-  launcher registry. Replay remains held until generation is terminal-clean
-  at 36/0/0 with an exact namespace census; seal, pins, release and outcome
-  read remain later gates.
+  launcher registry.
+- That action is now in flight under run `102b740r7-20260909T023807Z`.
+  Authority
+  `authorities/PREREG-074/102b740r7-20260909T023807Z.json|1788921550469605|11489|dd9d2115f1c7b2d689823b9db826af3167474ad64d7250ac0f0c075508cde6df`
+  authenticated and reopened. Generation launch
+  `launches/PREREG-074/102b740r7-20260909T023807Z.json|1788921739860361|2422|07e65899887ed4c2e14d95f23b8e5c037f2370c13854f28ed3e28a09eac966da`
+  binds execute marker generation `1788921581757170` and exactly one Cloud Run
+  execution, `lab-run-6rxqk`. Launcher-registry completion is
+  `/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launcher-completions/4268535b52e4914c70932ca396174956cf852bc81ec974abd563f64c11cba8f9.json`.
+  Replay remains held until generation is terminal-clean at 36/0/0 with an
+  exact namespace census; seal, pins, release and outcome read remain later
+  gates.
 
 ### 2026-09-08 PREREG-076 R4 build success and launch-preflight hold
 
