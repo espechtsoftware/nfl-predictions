@@ -22,6 +22,22 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 CP-4 audited-membership repair candidate sent for review
+
+- Production branch `production/cp4-membership-repair-20260908` commit
+  `f18e4689afbb9ee8da83f13482f64215b064dfc1` now carries the exact natural
+  and fixed-count K80 selector memberships already computed by the accepted
+  mechanics evidence. Fixed-count indices are correctly mapped through their
+  retained subsequence; both selected hash sets and selector identity are
+  authenticated before a receipt can be emitted.
+- A behavioral regression uses distinct non-prefix natural/fixed selections
+  and proves that neither generator-order first-80 nor the full pool can be
+  substituted. Validation passed 50/50 under a 4 GiB cap with Ruff clean.
+  No scientific workload, provider action, outcome, or score was opened.
+- Lab review request is durable on `nfl2` main at `6e1956f`. This closes only
+  the membership defect if accepted; the provider launcher and create-once
+  162-cell terminal seal remain required before CP-4 can launch.
+
 ### 2026-09-08 PREREG-076 R4c exact repair candidate sent for independent review
 
 - Production prepared branch `production/prereg076-r4c-exact-20260908` at
