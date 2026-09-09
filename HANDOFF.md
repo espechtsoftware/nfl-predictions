@@ -22,7 +22,18 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
-### 2026-09-09 Week-1 Fantasy Points WR and OL/DL schedule gates passed; QB retry remains armed
+### 2026-09-09 Week-1 Fantasy Points live-matchup capture sealed
+
+- The Week-1 live-matchup collection is complete from three independently
+  validated, pre-kickoff, immutable report captures. The tracked seal is
+  `reports/2026-09-09-week1-fantasy-points-live-matchup-capture-seal.json`,
+  3,300 bytes, SHA-256
+  `d79b1a9cc0fbe3544ab009aa938355725503201a27898db454bd1c346dcfa6ee`.
+  Its create-once cloud copy is generation `1788982884721705` at
+  `gs://nfl-predictions-503414-raw/licensed/fantasy-points/live-matchups/season=2026/week=01/seals/sha256=d79b1a9cc0fbe3544ab009aa938355725503201a27898db454bd1c346dcfa6ee/capture-seal.json`.
+  It generation-pins each raw object, binds its source run/code/retrieval time,
+  and requires 32 normalized observed pairs with zero unexpected or missing
+  pairs. No failed export or rewritten vendor row is admitted.
 
 - Governed run
   `20260909T193116Z__2026-live-matchups-v1__week-01` materially supersedes
@@ -34,16 +45,18 @@ agent or developer:
   respectively, under the existing hash-addressed Week-1 prefix in
   `gs://nfl-predictions-503414-raw/licensed/fantasy-points/live-matchups/`.
   Chicago-Carolina is valid in both directions. No accepted row was rewritten.
-- QB alone remains fail-closed. Its latest export has the valid Carolina-Chicago
-  pair and every other expected pair except one: `ARI -> CAR` is present where
-  authoritative Week 1 requires `ARI -> LAC`. Direct inspection of the QB
-  `/values` response confirmed that the endpoint's schedule context itself
-  still carries the bad Arizona mapping; this is not evidence that the entire
-  page or the prior-season metric regime is invalid. The raw failed QB file is
-  preserved locally and unarchived. The strict schedule gate has not been
-  weakened, and valid WR/OL-DL progress is retained independently.
+- In the 19:31Z run, QB alone remained fail-closed: its export had the valid
+  Carolina-Chicago pair and every other expected pair except `ARI -> LAC`.
+  Direct inspection of the QB `/values` response confirmed that endpoint's
+  schedule context itself still carried `ARI -> CAR`; this was not evidence
+  that the entire page or prior-season metric regime was invalid. The next
+  governed run `20260909T193712Z__2026-live-matchups-v1__week-01` reproduced
+  all 32 QB pairs and reopened the accepted QB hash-addressed artifact. That
+  completed the independently validated three-report set even though WR and
+  OL/DL happened to show the oscillating Arizona edge in the later browser
+  run. The strict per-report gate was never weakened.
 - The superseded 30-minute `nfl-week1-fp-matchup-watch-v2.timer` is stopped.
-  Recurring retry is now armed every five minutes as transient user timer
+  Retry was temporarily armed every five minutes as transient user timer
   `nfl-week1-fp-matchup-watch-v3.timer`, invocation
   `1af5fd0373804d2797683d20381204af`, from this source worktree with project
   identity `nfl-predictions-503414`. Its first invocation
@@ -51,11 +64,12 @@ agent or developer:
   before any vendor export: the route heading was visible before the
   client-rendered Schedule Week filter. The capture now waits explicitly for
   that visible control before selecting it. Focused matchup plus unified
-  weekly validation passes 13/13; compilation and diff checks pass. Exact next
-  action: inspect each terminal manifest silently; stop the timer as soon as
-  QB reproduces all 32 expected pairs and archives successfully, or at the
-  first-kickoff boundary. Do not discard the two accepted artifacts and do not
-  substitute Carolina's opponent metrics into Arizona's row.
+  weekly validation passes 13/13; compilation and diff checks pass. After the
+  complete independent collection was sealed, v3 was stopped and reset to
+  inactive at `2026-09-09T19:41:37Z`; no further licensed-site retry is due.
+  Exact next action: consume only the three generation-pinned members of the
+  seal, preserve the explicit prior-season-early regime, and do not admit any
+  failed local export.
 
 ### 2026-09-09 production freshness lane green; all matchup reports independently captured but vendor schedule still invalid
 
