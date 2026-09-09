@@ -13,7 +13,7 @@ ExecStart=%h/projects/nfl-predictions/.venv/bin/python \
   --repo %h/projects/nfl2 \
   --state-file %h/.local/state/nfl-dfs/lab-repo-monitor/status.json \
   --events-file %h/.local/state/nfl-dfs/lab-repo-monitor/events.jsonl \
-  --poll-seconds 120 --command-timeout-seconds 45 \
+  --poll-seconds 120 --command-timeout-seconds 45 --all-branches \
   --windows-toast-command /mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/powershell.exe \
   --notification-timeout-seconds 10 \
   --git /usr/bin/git

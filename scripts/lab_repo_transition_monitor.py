@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Watch every lab ``origin/main`` transition and surface actionable commits.
+"""Watch lab remote-ref transitions and surface actionable commits.
 
 The monitor never changes the lab checkout.  It fetches the remote tracking
-ref, records every newly reachable commit, and marks commits touching the
-research handoff/contract/result surfaces as wake-worthy.  Poll failures are
-events too, so a dead network or invalid repository cannot look like an idle
-queue.
+refs, records every newly reachable commit, and marks commits touching the
+research handoff/contract/result surfaces as wake-worthy.  ``--all-branches``
+also observes review and handoff branches that have not reached ``main``. Poll
+failures are events too, so a dead network or invalid repository cannot look
+like an idle queue.
 """
 
 from __future__ import annotations
@@ -53,6 +54,7 @@ class Config:
     command_timeout_seconds: float = 45.0
     windows_toast_command: str | None = None
     notification_timeout_seconds: float = 10.0
+    all_branches: bool = False
 
     @property
     def ref(self) -> str:
@@ -117,6 +119,36 @@ def _head(config: Config, *, runner: Runner | None = None) -> str:
     return value
 
 
+def _heads(config: Config, *, runner: Runner | None = None) -> dict[str, str]:
+    """Fetch and return every ordinary branch under the configured remote."""
+    refspec = f"+refs/heads/*:refs/remotes/{config.remote}/*"
+    _git(config, "fetch", "--quiet", "--prune", config.remote, refspec, runner=runner)
+    raw = _git(
+        config,
+        "for-each-ref",
+        "--format=%(refname)%00%(objectname)%00%(symref)",
+        f"refs/remotes/{config.remote}",
+        runner=runner,
+    )
+    prefix = f"refs/remotes/{config.remote}/"
+    heads: dict[str, str] = {}
+    for line in raw.splitlines():
+        fields = line.split(b"\0")
+        if len(fields) != 3:
+            raise RepoReadError("for-each-ref returned a malformed row")
+        refname = fields[0].decode("utf-8", errors="strict")
+        value = fields[1].decode("ascii", errors="strict")
+        symref = fields[2].decode("utf-8", errors="strict")
+        if symref:
+            continue
+        if not refname.startswith(prefix) or SHA_RE.fullmatch(value) is None:
+            raise RepoReadError("for-each-ref returned a malformed branch")
+        heads[refname.removeprefix(prefix)] = value
+    if config.branch not in heads:
+        raise RepoReadError(f"fetched branch {config.branch!r} is absent")
+    return dict(sorted(heads.items()))
+
+
 def _wake_path(path: str) -> bool:
     """Return whether a changed path can request or unblock production work."""
     pure = PurePosixPath(path)
@@ -155,13 +187,18 @@ def _commit_rows(
 ) -> tuple[list[dict[str, object]], bool]:
     if SHA_RE.fullmatch(previous_head) is None:
         raise RepoReadError("previous head is not a full SHA-1")
-    raw = _git(
-        config,
-        "rev-list",
-        "--reverse",
-        f"{previous_head}..{head}",
-        runner=runner,
+    return _commit_rows_for_revisions(
+        config, [f"{previous_head}..{head}"], runner=runner
     )
+
+
+def _commit_rows_for_revisions(
+    config: Config,
+    revisions: list[str],
+    *,
+    runner: Runner | None = None,
+) -> tuple[list[dict[str, object]], bool]:
+    raw = _git(config, "rev-list", "--reverse", *revisions, runner=runner)
     commits = [line for line in raw.decode("ascii").splitlines() if line]
     truncated = len(commits) > MAX_COMMITS_PER_POLL
     commits = commits[-MAX_COMMITS_PER_POLL:]
@@ -205,6 +242,76 @@ def _commit_rows(
     return rows, truncated
 
 
+def _branch_transitions(
+    config: Config,
+    previous_heads: Mapping[str, object],
+    heads: Mapping[str, str],
+    at: str,
+    *,
+    runner: Runner | None = None,
+) -> tuple[list[dict[str, object]], list[dict[str, object]], bool]:
+    """Return branch lifecycle events and each commit newly reachable this poll."""
+    prior: dict[str, str] = {}
+    for branch, value in previous_heads.items():
+        if not isinstance(branch, str) or not isinstance(value, str):
+            raise MonitorError("stored branch heads are malformed")
+        if SHA_RE.fullmatch(value) is None:
+            raise MonitorError("stored branch head is not a full SHA-1")
+        prior[branch] = value
+
+    lifecycle: list[dict[str, object]] = []
+    rows: list[dict[str, object]] = []
+    truncated = False
+    seen_commits: set[str] = set()
+    prior_values = sorted(set(prior.values()))
+
+    for branch in sorted(set(prior) - set(heads)):
+        lifecycle.append(
+            _event("remote_branch_deleted", at, branch=branch, previous_head=prior[branch])
+        )
+
+    for branch in sorted(set(heads) - set(prior)):
+        head = heads[branch]
+        lifecycle.append(_event("remote_branch_created", at, branch=branch, head=head))
+        revisions = [head]
+        if prior_values:
+            revisions.extend(["--not", *prior_values])
+        branch_rows, branch_truncated = _commit_rows_for_revisions(
+            config, revisions, runner=runner
+        )
+        truncated = truncated or branch_truncated
+        for row in branch_rows:
+            commit = str(row["commit"])
+            if commit not in seen_commits:
+                rows.append({**row, "branch": branch})
+                seen_commits.add(commit)
+
+    for branch in sorted(set(heads) & set(prior)):
+        head, previous_head = heads[branch], prior[branch]
+        if head == previous_head:
+            continue
+        branch_rows, branch_truncated = _commit_rows(
+            config, previous_head, head, runner=runner
+        )
+        truncated = truncated or branch_truncated
+        if not branch_rows:
+            lifecycle.append(
+                _event(
+                    "remote_history_replaced",
+                    at,
+                    branch=branch,
+                    previous_head=previous_head,
+                    head=head,
+                )
+            )
+        for row in branch_rows:
+            commit = str(row["commit"])
+            if commit not in seen_commits:
+                rows.append({**row, "branch": branch})
+                seen_commits.add(commit)
+    return lifecycle, rows, truncated
+
+
 def _load(path: Path) -> dict[str, object] | None:
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
@@ -240,23 +347,40 @@ def poll_once(
     if previous is None:
         events.append(_event("monitor_started", at))
     try:
-        head = _head(config, runner=runner)
         rows: list[dict[str, object]] = []
         truncated = False
-        if isinstance(prior_head, str) and prior_head != head:
-            rows, truncated = _commit_rows(
-                config, prior_head, head, runner=runner
-            )
-            if not rows:
-                # A force-push still must be visible even if old..new is empty.
-                events.append(
-                    _event(
-                        "remote_history_replaced",
-                        at,
-                        previous_head=prior_head,
-                        head=head,
-                    )
+        heads: dict[str, str] | None = None
+        if config.all_branches:
+            heads = _heads(config, runner=runner)
+            head = heads[config.branch]
+            prior_heads = previous.get("heads") if previous else None
+            if isinstance(prior_heads, Mapping):
+                lifecycle, rows, truncated = _branch_transitions(
+                    config, prior_heads, heads, at, runner=runner
                 )
+                events.extend(lifecycle)
+            elif previous is not None:
+                # A v1 main-only state has no branch map. Baseline all refs once
+                # instead of replaying the repository's entire branch history.
+                events.append(
+                    _event("all_branches_baselined", at, branches=len(heads))
+                )
+        else:
+            head = _head(config, runner=runner)
+            if isinstance(prior_head, str) and prior_head != head:
+                rows, truncated = _commit_rows(
+                    config, prior_head, head, runner=runner
+                )
+                if not rows:
+                    # A force-push still must be visible even if old..new is empty.
+                    events.append(
+                        _event(
+                            "remote_history_replaced",
+                            at,
+                            previous_head=prior_head,
+                            head=head,
+                        )
+                    )
         if isinstance(prior_poll, Mapping) and prior_poll.get("ok") is False:
             events.append(_event("poll_recovered", at, head=head))
         for row in rows:
@@ -267,7 +391,7 @@ def poll_once(
             "observed_at": at,
             "observed_at_epoch": now,
             "repo": str(config.repo),
-            "ref": config.ref,
+            "ref": f"{config.remote}/*" if config.all_branches else config.ref,
             "head": head,
             "poll": {"ok": True, "error": None},
             "commits_truncated": truncated,
@@ -275,6 +399,9 @@ def poll_once(
                 previous.get("last_transition") if previous else None
             ),
         }
+        if heads is not None:
+            status["heads"] = heads
+            status["branch_count"] = len(heads)
     except (RepoReadError, UnicodeError) as exc:
         error = str(exc)
         if not isinstance(prior_poll, Mapping) or (
@@ -287,12 +414,15 @@ def poll_once(
             "observed_at": at,
             "observed_at_epoch": now,
             "repo": str(config.repo),
-            "ref": config.ref,
+            "ref": f"{config.remote}/*" if config.all_branches else config.ref,
             "head": prior_head,
             "poll": {"ok": False, "error": error},
             "commits_truncated": False,
             "last_transition": previous.get("last_transition") if previous else None,
         }
+        if config.all_branches and previous and isinstance(previous.get("heads"), Mapping):
+            status["heads"] = previous["heads"]
+            status["branch_count"] = len(previous["heads"])
 
     append_events(config.events_file, events)
     write_json_atomic(config.state_file, status)
@@ -306,8 +436,9 @@ def poll_once(
         latest = wake_events[-1]
         if latest.get("event") == "new_commit":
             title = "NFL lab repository changed"
+            branch = f" on {latest.get('branch')}" if latest.get("branch") else ""
             body = (
-                f"{str(latest.get('commit'))[:12]} {latest.get('subject')}; "
+                f"{str(latest.get('commit'))[:12]}{branch} {latest.get('subject')}; "
                 f"wake paths: {', '.join(str(v) for v in latest.get('wake_paths', [])[:4])}"
             )
         else:
@@ -356,6 +487,11 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--remote", default="origin")
     parser.add_argument("--branch", default="main")
+    parser.add_argument(
+        "--all-branches",
+        action="store_true",
+        help="watch every ordinary branch under the configured remote",
+    )
     parser.add_argument("--git", default="git")
     parser.add_argument("--command-timeout-seconds", type=_positive, default=45.0)
     parser.add_argument("--poll-seconds", type=_positive, default=120.0)
@@ -379,6 +515,7 @@ def main(argv: list[str] | None = None) -> int:
         command_timeout_seconds=args.command_timeout_seconds,
         windows_toast_command=args.windows_toast_command,
         notification_timeout_seconds=args.notification_timeout_seconds,
+        all_branches=args.all_branches,
     )
     if not config.repo.is_dir():
         raise SystemExit(f"lab repository does not exist: {config.repo}")
