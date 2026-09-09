@@ -45,12 +45,17 @@ agent or developer:
 - The superseded 30-minute `nfl-week1-fp-matchup-watch-v2.timer` is stopped.
   Recurring retry is now armed every five minutes as transient user timer
   `nfl-week1-fp-matchup-watch-v3.timer`, invocation
-  `1af5fd0373804d2797683d20381204af`, from exact pushed source `422329a4` with
-  project identity `nfl-predictions-503414`. Exact next action: inspect each
-  terminal manifest silently; stop the timer as soon as QB reproduces all 32
-  expected pairs and archives successfully, or at the first-kickoff boundary.
-  Do not discard the two accepted artifacts and do not substitute Carolina's
-  opponent metrics into Arizona's row.
+  `1af5fd0373804d2797683d20381204af`, from this source worktree with project
+  identity `nfl-predictions-503414`. Its first invocation
+  `121402c7f5164b2ebc06a3e336e110ee` exposed a page-readiness race and failed
+  before any vendor export: the route heading was visible before the
+  client-rendered Schedule Week filter. The capture now waits explicitly for
+  that visible control before selecting it. Focused matchup plus unified
+  weekly validation passes 13/13; compilation and diff checks pass. Exact next
+  action: inspect each terminal manifest silently; stop the timer as soon as
+  QB reproduces all 32 expected pairs and archives successfully, or at the
+  first-kickoff boundary. Do not discard the two accepted artifacts and do not
+  substitute Carolina's opponent metrics into Arizona's row.
 
 ### 2026-09-09 production freshness lane green; all matchup reports independently captured but vendor schedule still invalid
 

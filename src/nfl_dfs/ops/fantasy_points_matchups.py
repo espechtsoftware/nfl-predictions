@@ -253,6 +253,13 @@ def _navigate(page: Any, definition: MatchupDefinition, timeout_ms: int) -> None
     page.get_by_text(definition.title, exact=True).first.wait_for(
         state="visible", timeout=timeout_ms
     )
+    # The route heading is server-rendered before the client-side filter
+    # controls.  A fast authenticated load can therefore expose the heading
+    # while _filter_container still has nothing to select.  Bind the capture
+    # to the actual Schedule Week control, not merely the route shell.
+    page.get_by_text("Schedule Week", exact=True).wait_for(
+        state="visible", timeout=timeout_ms
+    )
 
 
 def _verify_schedule_week(page: Any, week: int) -> None:
