@@ -48296,6 +48296,15 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launcher-completions/733f8fe3fd1c8f60aafb879c5d388e024f14340cb8caf967c1e3b140fcbf3ad6.json`.
   The scorer was not invoked; no outcome or score was opened.
 
+  A separate production replay from clean exact R2 host source then reopened
+  all 108 generation-pinned cell objects (9,552,082 bytes total), authenticated
+  the exact 111,736,878-byte candidate artifact, and ran the full
+  `validate_cohort_seal` path with the candidate document and all cell bodies
+  under a 6 GiB cap. It passed with 108 objects / 108 identities, reproduced
+  candidate SHA-256 `7032fbdc...` and seal SHA-256 `5ccdd915...`, and retained
+  `outcome_opened=false`. This added evidence is pushed with the review request
+  at nfl2 commit `6fe6563`; it did not import or open settlement/scoring data.
+
   Next concrete action: preserve these consumed run IDs and immutable seal,
   keep the cloud lanes idle, and route the exact score-free cohort to the
   separately reviewed scoring/nomination gate. The exact generation-pinned
