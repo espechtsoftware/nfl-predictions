@@ -48417,3 +48417,10 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   nomination into a separately preregistered fresh-generation successor; do
   not rerun or tune PREREG-076. Continue reviewing CP-4 R4 when returned and
   keep Week-1 capture poised at its two absent private inputs.
+
+  The bounded design/code request for that fresh successor is now pushed at
+  nfl2 commit `4ac06b6`. It requires new generation/selector identities,
+  pre-outcome freeze, unchanged nominated UNION_EMAX versus CTX0_DK80 laws,
+  separate score-free/seal/read stages, and no compute or outcome access. It
+  explicitly retains the interval-crossing uncertainty and grants no Week-1
+  or live-policy authority.
