@@ -22,6 +22,25 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-09 CP-4 162-cell efficacy binding mismatch found before build
+
+- While preparing CP-4's missing provider launcher, production proved that the
+  declared 162-cell cohort still reuses a mechanics path physically bound to
+  singleton cell `2023-w18-b740`: `binding.CELL`, its tracked sidecar, private
+  facts, frame/draw identities, gate authority, and image-mode attestation are
+  all singleton. Only one of the declared 162 cells can satisfy that boundary.
+- The cohort also falls back to `git rev-parse HEAD` for receipt source identity
+  even though the accepted image is deliberately Git-free. A frozen execution
+  identity must replace that container-only lookup.
+- Production discarded its unbound launcher draft before any build, provider,
+  namespace, outcome, or score action. Exact findings and the bounded multicell
+  repair request are in
+  `reports/2026-09-09-cp4-efficacy-multicell-binding-hold.md`.
+- CP-4 alone remains HOLD after the valid audited-membership candidate
+  `f18e468`. Next CP-4 action is a lab per-cell binding-root successor and one
+  non-singleton outcome-disabled boundary smoke. PREREG-076 R2 remains the
+  independent next scoring priority at production candidate `72ce2543`.
+
 ### 2026-09-08 PREREG-076 R1 bank 770 failed; remainder cancelled
 
 - Cloud Run `lab-run-7hl86` failed deterministically on task 10,
