@@ -22,6 +22,31 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 PREREG-076 R4b binding integrated; provider preflight waits for the lane
+
+- Production independently reviewed lab source
+  `2fe1143cac9884bad65275d8c6994069aba9e6f7`. The R4b delta is host-only:
+  one shared behavioral JQ validator for the actual v3 build intent, its queue
+  integration, a binding/source-delta guard, and `PREFLIGHT_ONLY=1`. The
+  relevant prebinding suite passed 57/57 under a 4 GiB local cap; Ruff and
+  shell syntax passed. No runtime/science/image member changed.
+- Production reopened exact R4 receipt
+  `build-receipts/PREREG-076/build-b130be6f209e90544c85216efeabfb0a0b7a630b.json|1788915164531243|2535|94ed715bdcb20f2869bb29b41ec35b1e41c83ed2df8f3191053b3e809365e663`
+  and ran the provider-free binder from the clean exact build-source checkout.
+  The resulting canonical release binding is 3,115 bytes, SHA-256
+  `821a14d811fa474373e3adcafca0bb6a5225e63a9e7d7d1968dc8949a4550638`.
+  It was committed as direct host-only successor
+  `8ede3a99ac4c0eeebecf94fdd3c627839b6d937b`, pushed, and made an ancestor of
+  lab main by merge `a1b0415`. Contract validation and exact generated-byte
+  comparison passed.
+- The real no-mutation provider preflight is ready but must wait until the
+  active PREREG-074 generation/replay chain releases reused job `lab-run`;
+  PREREG-076 correctly requires both shared Cloud Run jobs idle. After that,
+  run only `PREFLIGHT_ONLY=1 scripts/queue_103_retrieval_registered.sh` from
+  exact clean binding commit `8ede3a9`, review its PASS record, and separately
+  decide the three-bank score-free launch. No PREREG-076 job, execution,
+  result, seal, scorer or outcome was touched at this milestone.
+
 ### 2026-09-08 PREREG-074 R7b fm11 manifest published; p4 probe is next
 
 - Exact reviewed R7b source `5aecdf0f1979133985a174da926159aef8178b39`
