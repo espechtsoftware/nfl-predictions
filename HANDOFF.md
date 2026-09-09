@@ -22,6 +22,45 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 PREREG-074 R6 replay refusal, PREREG-076 R3 build refusal, and host-memory incident
+
+- PREREG-074 generation `lab-run-4cjzv` and independent replay
+  `lab-run-kjcdv` both completed terminal-clean at 36 succeeded / 0 failed /
+  0 cancelled / 0 retried. The replay launch is
+  `launches/PREREG-074/102b740r6-20260908T230144Z.replay.json|1788911437437180|2697|334e43bf4a8c31aea5422edfdae1c2d27a3fa0bef4b680dc2ec99221b5880b9e`.
+  The seal then refused before publication or outcome access because every
+  candidate-matrix byte hash differed. A complete pre-outcome audit showed
+  36/36 exact judge matches, 36/36 exact natural/fixed K80 ordered-book
+  matches, 36/36 legality/coverage matches, but 36/36 candidate-matrix hash
+  mismatches. The probable defect is replay rebuilding rosters in lexical ID
+  order rather than generation's frame order, changing floating-point sum
+  low bits. R6 is consumed and unread. The narrow R7 repair GO is on lab main
+  at `05c4279`; it preserves the exact matrix gate and scientific path.
+- PREREG-076 R3 source
+  `15796b213f503ad393f36c876fb9c1430d887239` passed independent review:
+  33/33 focused tests, Ruff, compile, clean checkout and remote-head identity.
+  Its sole immutable build `8990e678-9c30-4625-975b-7f4999c51b9e` nevertheless
+  failed in Docker step 0 after the complete lock installed: the subsequent
+  editable project install could not import `setuptools.build_meta`, absent
+  from the slim base and lock. Intent
+  `intents/PREREG-076/build-15796b213f503ad393f36c876fb9c1430d887239.json|1788912637997909|1035|958e8b3aeaf38d0564cc1efa3a5240bb5b5c64bb5659e56f3b1756d3651abf27`
+  and source archive generation `1788912640124850` are durable; no image,
+  receipt, job, execution, data, score or outcome resulted. R3 is consumed.
+  Lab-main commit `aa0d268` authorizes only a local R4 repair: remove the
+  unnecessary editable install in favor of fixed `/app/src` import closure,
+  and make the pre-submit observation prove the complete prospective image
+  recipe rather than lock resolution alone.
+- Two WSL/VS Code hangs were followed by operator reboots. Prior-boot kernel
+  evidence proves severe local memory pressure: essentially all 31 GiB RAM
+  and all 8 GiB swap were consumed, with allocation failures and broken WSL
+  channels. It does not identify an offender because the host was rebooted
+  before an OOM kill. `/tmp` was nearly empty after reboot; remote Cloud Run
+  work cannot consume host RAM; the PREREG-074 seal process was observed at
+  approximately 286 MiB RSS. Current four monitors total under 110 MiB RSS.
+  Until the offender is identified, local coordinator/test processes are
+  capped at 4--8 GiB virtual memory and high-memory scientific work remains
+  remote; broad bucket listings and unnecessary local builds are avoided.
+
 ### 2026-09-08 active score lanes, Week-1 rehearsal, and lab repair state
 
 - Production `main` is at `d2e6907174200c9260f632b664e0e0c130e77028`
