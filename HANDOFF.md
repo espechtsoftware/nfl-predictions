@@ -22,6 +22,28 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 PREREG-076 R4 build success and launch-preflight hold
+
+- Exact R4 source `b130be6f209e90544c85216efeabfb0a0b7a630b` passed
+  48/48 focused tests, Ruff, compilation, clean/remote identity checks, and a
+  real disposable Docker recipe proof showing lock install, package import,
+  entry-module resolution, and numeric assertion all true. Production's
+  one-build clearance is lab-main commit `f76134c`.
+- Cloud Build `cd035bae-1e14-4436-9365-6fbcce3057a7` succeeded and produced
+  image `us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2@sha256:f4398f6ce84d0cc41c461ec0adaa8604d05a0ba2146918722f322a72699741f8`.
+  Intent `intents/PREREG-076/build-b130be6f209e90544c85216efeabfb0a0b7a630b.json|1788914951750697|1129|89f921c8e650ce6d785d815324d9e761d7d9e81844e54795fa52242fa262d3da`
+  and receipt `build-receipts/PREREG-076/build-b130be6f209e90544c85216efeabfb0a0b7a630b.json|1788915164531243|2535|94ed715bdcb20f2869bb29b41ec35b1e41c83ed2df8f3191053b3e809365e663`
+  are durable and authenticated. No job, execution, score, or outcome was
+  touched.
+- Downstream is held before binding or mutation: the live queue's build-binding
+  preflight still hard-codes build-intent v1 and its old key set, while the
+  valid R4 intent is v3 and includes the four-check compatibility observation.
+  A test explicitly preserved the stale fragment. The valid image need not be
+  rebuilt if a narrowly constrained binding-successor host coordinator repairs
+  this check. Production is returning that request to lab; the next action is
+  independent review of its host-only candidate and then one real no-mutation
+  provider preflight.
+
 ### 2026-09-08 PREREG-074 R7 build success and fm10 downstream hold
 
 - Exact R7 source `4b9a39b406d215e0e45b480482c9937cce21c0fd` passed
