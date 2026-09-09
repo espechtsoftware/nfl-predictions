@@ -22,6 +22,22 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 CP-4 efficacy branch review: HOLD before launch
+
+- Production independently reviewed lab branch `lab/cp4-efficacy-prep` at
+  `538f8b74682a206e5bda58275dd8a2da0717df31`. The formerly recursive test is
+  repaired; its focused suite passes 49/49 under a 4 GiB virtual-memory cap.
+- The cohort mapper ignores the accepted mechanics selector evidence. It calls
+  `arm_record(serialized, hashes, hashes[:80], hashes, hashes)`, making every
+  candidate admitted, the natural book the generator-order prefix, and the
+  fixed-count book the full pool. This invalidates the declared selection,
+  retention, first-loss, turnover, regret and decomposition measures.
+- The branch also lacks a frozen provider launcher and create-once 162-cell
+  seal path. Exact findings and the narrow repair are in
+  `reports/2026-09-08-cp4-efficacy-branch-review.md`. CP-4 remains held before
+  build, cloud cohort, release or score read; PREREG-076 remains the next
+  scoring priority once its R4b preflight contradiction is repaired.
+
 ### 2026-09-08 PREREG-076 R4b preflight refused before provider mutation
 
 - Production ran only
