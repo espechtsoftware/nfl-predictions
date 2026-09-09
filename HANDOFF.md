@@ -48350,3 +48350,28 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   arrives. In parallel, await the independent PREREG-076 sealed-cohort
   disposition for exact review request `6fe6563`; its scorer remains unopened.
   Week-1 P0-B still awaits its two absent private `0600` inputs.
+
+- 2026-09-09 — PREREG-076 R2 sealed-cohort review passed; first-read gate cleared
+
+  Lab Update 269 at `4328ff54de6658c7989b107c2a09ecae1c2a75e1`
+  independently reviewed exact clean host `ec0d210`, source `72ce2543`, release
+  binding `12675a01...`, the frozen scorer bytes, scorer/launcher separation,
+  the contract-derived 108-cell census, and the development-only nomination
+  law. Disposition: PASS, with no objection to production's separate one-time
+  outcome-read decision. Lab correctly disclosed that it performed no provider
+  reopen; cloud authentication remains the coordinator's deep pre-seal check
+  plus production's independent generation-pinned 108-object replay.
+
+  Production cleared exactly one local frozen-scorer invocation and pushed the
+  durable GO on nfl2 branch
+  `production/prereg076-r2-score-free-seal-review-20260909` at `3447b86`.
+  It binds seal generation `1788960730683819`, seal SHA-256 `5ccdd915...`, the
+  exact candidate authority, exact clean host lineage, scorer inputs, and
+  create-once output `results/prereg076_fresh_retrieval_score_v1.json`. The
+  read can only nominate a retrieval law for a later genuinely fresh
+  generation cohort; `adoption=false` and `promotion=NONE` under every result.
+
+  Next concrete action: invoke that exact scorer once, never rerun after the
+  output path is consumed, validate and commit its result and interpretation,
+  and report the frozen nomination decision. CP-4 and Week-1 states remain as
+  recorded above.
