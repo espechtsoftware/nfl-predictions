@@ -24,6 +24,19 @@ agent or developer:
 
 ### 2026-09-09 Week-1 authenticated DraftKings lineups API capture validated
 
+- The validated private response and redacted receipt are now published
+  create-once after exact-name all-generation absence checks, and both exact
+  generations were reopened with their expected bytes and SHA-256. The raw
+  response is generation `1788992412368971` at
+  `gs://nfl-predictions-503414-raw/licensed/draftkings/lineups-api/season=2026/week=01/draft_group=151307/raw/sha256=a2edd4bf22a1bbda593eb0337705bb0f0bde273a1f8ea3904107fbe6670d036c/lineups.json`;
+  the redacted receipt is generation `1788992413136232` at
+  `gs://nfl-predictions-503414-raw/licensed/draftkings/lineups-api/season=2026/week=01/draft_group=151307/receipts/sha256=e0e8e377e3a96cd774baf56cc7837f9ffabded8d283540d83c5f1b9d6ef799b9/capture-receipt.json`.
+  Post-publication census found exactly one live generation and zero
+  noncurrent or soft-deleted generations at each name. The tracked publication
+  record is
+  `reports/2026-09-09-week1-draftkings-lineups-api-publication.json`, SHA-256
+  `bc82fe91b3e6b88f46a9339d16afabbb3780d6a482dd17bec5f9a76fb0ed445a`.
+
 - The terminal/Edge bridge successfully produced an authenticated, pre-lock
   DraftKings lineups API response for exact draft group `151307`. The private
   raw body remains ignored and owner-only at
@@ -54,12 +67,13 @@ agent or developer:
   negative authority flags. It records `standings_or_outcome_opened=false`.
   Focused tests pass 17/17; compilation and diff checks pass. Ruff remains
   unavailable in the repository environment.
-- This closes the missing authenticated API retrieval fact, but it does not
-  silently relabel the response as the older expected DKEntries CSV and does
-  not change an activation pin. Exact next action: publish the private raw body
-  and redacted receipt create-once to the private production raw bucket after
-  an all-generation exact-name absence census, record their provider
-  generations, then add the narrow reviewed API-to-A5 acceptance projection.
+- This closes the missing authenticated API retrieval and immutable provider
+  publication facts, but it does not silently relabel the response as the
+  older expected DKEntries CSV and does not change an activation pin. The
+  receipt's `private_raw_body_published=false` was true when that validation
+  receipt was created; the separately generation-pinned publication above is
+  the subsequent publication event. Exact next action: add the narrow reviewed
+  API-to-A5 acceptance projection from this generation-pinned authority.
 
 ### 2026-09-09 Week-1 Fantasy Points live-matchup capture sealed
 

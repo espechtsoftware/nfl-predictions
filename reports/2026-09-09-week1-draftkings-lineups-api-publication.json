@@ -1,0 +1,42 @@
+{
+  "bucket": "nfl-predictions-503414-raw",
+  "draft_group_id": "151307",
+  "objects": {
+    "capture_receipt": {
+      "bytes": 1643,
+      "created_at_utc": "2026-09-09T22:20:13Z",
+      "generation": "1788992413136232",
+      "name": "licensed/draftkings/lineups-api/season=2026/week=01/draft_group=151307/receipts/sha256=e0e8e377e3a96cd774baf56cc7837f9ffabded8d283540d83c5f1b9d6ef799b9/capture-receipt.json",
+      "postpublication_all_generation_census": {
+        "live": 1,
+        "noncurrent": 0,
+        "soft_deleted": 0
+      },
+      "prepublication_all_generation_census": {
+        "total": 0
+      },
+      "sha256": "e0e8e377e3a96cd774baf56cc7837f9ffabded8d283540d83c5f1b9d6ef799b9"
+    },
+    "private_raw_response": {
+      "bytes": 13060,
+      "created_at_utc": "2026-09-09T22:20:12Z",
+      "generation": "1788992412368971",
+      "name": "licensed/draftkings/lineups-api/season=2026/week=01/draft_group=151307/raw/sha256=a2edd4bf22a1bbda593eb0337705bb0f0bde273a1f8ea3904107fbe6670d036c/lineups.json",
+      "postpublication_all_generation_census": {
+        "live": 1,
+        "noncurrent": 0,
+        "soft_deleted": 0
+      },
+      "prepublication_all_generation_census": {
+        "total": 0
+      },
+      "sha256": "a2edd4bf22a1bbda593eb0337705bb0f0bde273a1f8ea3904107fbe6670d036c"
+    }
+  },
+  "outcome_or_standings_authority": false,
+  "publication_completed_at_utc": "2026-09-09T22:20:13Z",
+  "publication_mode": "create-once-if-generation-match-zero",
+  "schema_version": "week1-draftkings-lineups-api-publication/v1",
+  "season": 2026,
+  "week": 1
+}
