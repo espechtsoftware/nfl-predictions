@@ -40,11 +40,21 @@ agent or developer:
   successfully for all 36 cells and published
   `frame-manifests/PREREG-074/prereg074-fm11.json|1788916350515999|103586|48e6609f9cfde73260005f52efe2b566758ce66bcc09d2b6b634f221ba61cd10`.
   No efficacy run, reader, score or outcome was opened.
-- Next concrete action is the separately registered, one-task, outcome-blind
-  `102b740p4` runtime probe using these exact source/image/build/manifest
-  identities. Production must review its empty namespace and invocation,
-  launch exactly once, and review the terminal gate before considering the
-  36-task R7 efficacy cohort.
+- Production then launched exactly one separately registered, one-task,
+  outcome-blind runtime probe, `102b740p4-20260909T022134Z`. Cloud Run
+  execution `lab-run-xrcfk` completed at 1 succeeded / 0 failed / 0 cancelled
+  / 0 retried and published gate
+  `runtime-probes/PREREG-074/102b740p4-20260909T022134Z/gate.json|1788920698032265|3276|ef6be4fd88ea5021c5d3666227c2e8bd6ca9677385e23847bb0ce1274e97981e`.
+  Production reopened the gate and task receipt independently. Source, image,
+  build receipt, fm11 reference, code map and numeric-runtime identity match;
+  `match` is true; authority, frame, data and outcome access booleans are all
+  false. The registry completion is
+  `/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launcher-completions/860714cacd9f898291bfbab679d9f56823b0457ecb54bba4932f11db2a73e779.json`.
+- The p4 gate therefore passes. The next concrete action is an exact empty
+  census and one fresh `102b740r7-<UTC>` authority/generation launch under the
+  launcher registry. Replay remains held until generation is terminal-clean
+  at 36/0/0 with an exact namespace census; seal, pins, release and outcome
+  read remain later gates.
 
 ### 2026-09-08 PREREG-076 R4 build success and launch-preflight hold
 
