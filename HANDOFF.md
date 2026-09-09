@@ -22,6 +22,27 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-09 Week-1 matchup capture now preserves independent report progress
+
+- The governed `17:00Z` retry remained fail-closed because the Fantasy Points
+  WR surface still paired Arizona with Carolina instead of the authenticated
+  2026 Week-1 Arizona-LAC / Carolina-Chicago games. The QB report passed all
+  32 schedule pairs and reopened the same hash-addressed artifact. This is a
+  vendor-surface defect; the prior-season metric regime remains explicitly
+  typed and the current-opponent gate has not been weakened.
+- Branch `production/week1-licensed-asof-repair-20260909` changes the capture
+  loop so one report's schedule failure is recorded but does not prevent later
+  independent reports from being validated and archived. The overall run
+  still fails closed until every requested report passes. This permits the
+  OL/DL artifact to be captured while WR remains invalid and prevents a
+  changing vendor surface from hiding independent progress.
+- Focused validation passes 13/13 matchup and unified weekly tests; Python
+  compilation and `git diff --check` pass. Ruff is not installed in the
+  repository virtual environment. Exact next action: push the source, run one
+  pre-kickoff live capture from that commit, and preserve the terminal
+  manifest and archive identities. Do not accept or rewrite the vendor's
+  invalid Arizona/Carolina WR opponent rows.
+
 ### 2026-09-09 Week-1 Fantasy Points prior-season identity gate repaired
 
 - The first governed Week-1 live-matchup attempt correctly identified the

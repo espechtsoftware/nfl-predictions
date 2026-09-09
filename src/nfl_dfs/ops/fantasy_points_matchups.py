@@ -374,6 +374,7 @@ def run(
         "first_kickoff_utc": deadline.isoformat(),
         "expected_schedule_pairs": [list(pair) for pair in sorted(expected)],
         "reports": [],
+        "schedule_gate_failures": [],
         "archive_requested": archive,
     }
     manifest_path = run_dir / "manifest.json"
@@ -446,9 +447,17 @@ def run(
                         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
                     )
                     if not pair_gate["passes"]:
-                        raise RuntimeError(
-                            f"{definition.title} schedule pairs do not match 2026 Week {week}"
+                        # A vendor surface can publish one report before the
+                        # others settle onto the selected schedule. Preserve
+                        # the failed report, but continue so later independent
+                        # reports can be validated and archived. The complete
+                        # capture still fails closed below until every report
+                        # has passed.
+                        manifest["schedule_gate_failures"].append(definition.key)
+                        manifest_path.write_text(
+                            json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
                         )
+                        continue
                     if pd.Timestamp.now(tz="UTC") >= deadline:
                         raise RuntimeError(
                             f"{definition.title} capture completed after first kickoff"
@@ -462,6 +471,11 @@ def run(
                     )
             finally:
                 context.close()
+        if manifest["schedule_gate_failures"]:
+            failed = ", ".join(manifest["schedule_gate_failures"])
+            raise RuntimeError(
+                f"matchup schedule gate failed for: {failed}"
+            )
     except Exception as exc:
         manifest["status"] = "failed"
         manifest["error"] = f"{type(exc).__name__}: {exc}"
