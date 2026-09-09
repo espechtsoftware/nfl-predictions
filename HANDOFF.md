@@ -22,6 +22,26 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-08 PREREG-076 R4b preflight refused before provider mutation
+
+- Production ran only
+  `PREFLIGHT_ONLY=1 scripts/queue_103_retrieval_registered.sh` from exact
+  bound commit `8ede3a99ac4c0eeebecf94fdd3c627839b6d937b` after PREREG-074 released
+  both Cloud Run jobs. The registered preflight acquired and released its
+  launcher record, published no intent, mutated no job, launched no execution,
+  and consumed none of the frozen 103 run IDs.
+- It correctly refused with
+  `binding successor changed frozen source: scripts/queue_103_retrieval_bound.sh`.
+  R4b's host-only assertion explicitly permits that coordinator to differ from
+  built source `b130be6f209e90544c85216efeabfb0a0b7a630b`, while the immediately
+  following identity loop includes `$SELF_REL` and requires the same file to
+  be identical. Because R4b changed it, the frozen executable cannot pass.
+- The exact refusal and a narrow R4c repair request are durable on lab `main`
+  at `1d6005e`. Production must not bypass the check or launch banks 770--772.
+  Next action is independent review of a lab successor that reconciles the two
+  checks, rolls/rebinds the required identity, and proves the exact bound-
+  successor preflight provider-free without changing science or run IDs.
+
 ### 2026-09-08 PREREG-074 R7 sealed and read: NO_NOMINATION
 
 - Generation `lab-run-6rxqk` and replay `lab-run-7msxb` both completed
