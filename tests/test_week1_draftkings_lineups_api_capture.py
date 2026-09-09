@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+from pathlib import Path
 
 import pytest
 
@@ -216,3 +217,129 @@ def test_wrong_collector_and_postlock_capture_refuse() -> None:
         subject.build_receipt(
             _raw(), captured_at_utc="2026-09-13T17:00:00Z", locator=LOCATOR
         )
+
+
+def _reservation_inputs(monkeypatch) -> tuple[bytes, bytes, bytes]:
+    raw = _raw()
+    receipt_raw = subject.canonical(
+        subject.build_receipt(
+            raw, captured_at_utc="2026-09-09T21:37:15Z", locator=LOCATOR
+        )
+    )
+    publication = {
+        "bucket": "nfl-predictions-503414-raw",
+        "draft_group_id": "151307",
+        "objects": {
+            "capture_receipt": {
+                "bytes": len(receipt_raw),
+                "created_at_utc": "2026-09-09T22:20:13Z",
+                "generation": subject.RECEIPT_OBJECT_GENERATION,
+                "name": subject.RECEIPT_OBJECT_NAME,
+                "postpublication_all_generation_census": {
+                    "live": 1,
+                    "noncurrent": 0,
+                    "soft_deleted": 0,
+                },
+                "prepublication_all_generation_census": {"total": 0},
+                "sha256": subject.CAPTURE_RECEIPT_FILE_SHA256,
+            },
+            "private_raw_response": {
+                "bytes": len(raw),
+                "created_at_utc": "2026-09-09T22:20:12Z",
+                "generation": subject.RAW_OBJECT_GENERATION,
+                "name": subject.RAW_OBJECT_NAME,
+                "postpublication_all_generation_census": {
+                    "live": 1,
+                    "noncurrent": 0,
+                    "soft_deleted": 0,
+                },
+                "prepublication_all_generation_census": {"total": 0},
+                "sha256": subject.RAW_RESPONSE_SHA256,
+            },
+        },
+        "outcome_or_standings_authority": False,
+        "publication_completed_at_utc": "2026-09-09T22:20:13Z",
+        "publication_mode": "create-once-if-generation-match-zero",
+        "schema_version": "week1-draftkings-lineups-api-publication/v1",
+        "season": 2026,
+        "week": 1,
+    }
+    publication_raw = json.dumps(publication, indent=2, sort_keys=True).encode() + b"\n"
+    monkeypatch.setattr(subject, "RAW_RESPONSE_BYTES", len(raw))
+    monkeypatch.setattr(subject, "RAW_RESPONSE_SHA256", subject.hashlib.sha256(raw).hexdigest())
+    monkeypatch.setattr(subject, "CAPTURE_RECEIPT_BYTES", len(receipt_raw))
+    monkeypatch.setattr(
+        subject,
+        "CAPTURE_RECEIPT_FILE_SHA256",
+        subject.hashlib.sha256(receipt_raw).hexdigest(),
+    )
+    publication["objects"]["capture_receipt"]["sha256"] = (
+        subject.CAPTURE_RECEIPT_FILE_SHA256
+    )
+    publication["objects"]["private_raw_response"]["sha256"] = (
+        subject.RAW_RESPONSE_SHA256
+    )
+    publication_raw = json.dumps(publication, indent=2, sort_keys=True).encode() + b"\n"
+    monkeypatch.setattr(subject, "PUBLICATION_RECORD_BYTES", len(publication_raw))
+    monkeypatch.setattr(
+        subject,
+        "PUBLICATION_RECORD_FILE_SHA256",
+        subject.hashlib.sha256(publication_raw).hexdigest(),
+    )
+    return raw, receipt_raw, publication_raw
+
+
+def test_api_bridge_proves_reservations_but_not_final_a5_roster_acceptance(
+    monkeypatch,
+) -> None:
+    raw, receipt_raw, publication_raw = _reservation_inputs(monkeypatch)
+    bridge = subject.build_a5_reservation_bridge(
+        raw,
+        capture_receipt_raw=receipt_raw,
+        publication_record_raw=publication_raw,
+    )
+    projection = bridge["a5_projection"]
+    assert projection["entry_count"] == projection["unique_entry_count"] == 90
+    assert projection["reservation_and_contest_allocation_authority"] is True
+    assert projection["final_entry_roster_acceptance_authority"] is False
+    assert projection["prepared_filled_book_lineage_present"] is False
+    assert bridge["standings_or_outcome_opened"] is False
+    encoded = subject.canonical(bridge)
+    for private_value in (
+        "11111111-2222-4333-8444-555555555555",
+        "2000000001",
+        "1000000001",
+        "Player 1",
+    ):
+        assert private_value.encode() not in encoded
+
+
+@pytest.mark.parametrize("target", ["raw", "receipt", "publication"])
+def test_api_bridge_refuses_any_unpinned_source_bytes(monkeypatch, target: str) -> None:
+    raw, receipt_raw, publication_raw = _reservation_inputs(monkeypatch)
+    values = {
+        "raw": raw + b" ",
+        "receipt": receipt_raw + b" ",
+        "publication": publication_raw + b" ",
+    }
+    with pytest.raises(subject.DraftKingsLineupsCaptureError, match="identity differs"):
+        subject.build_a5_reservation_bridge(
+            values.get("raw", raw) if target == "raw" else raw,
+            capture_receipt_raw=(
+                values["receipt"] if target == "receipt" else receipt_raw
+            ),
+            publication_record_raw=(
+                values["publication"] if target == "publication" else publication_raw
+            ),
+        )
+
+
+def test_tracked_api_to_a5_bridge_is_redacted_and_fail_closed() -> None:
+    root = Path(__file__).resolve().parents[1]
+    raw = (
+        root
+        / "reports/2026-09-09-week1-draftkings-lineups-api-a5-reservation.json"
+    ).read_bytes()
+    bridge = subject.validate_a5_reservation_bridge(subject.parse_strict(raw))
+    assert bridge["a5_projection"]["final_entry_roster_acceptance_authority"] is False
+    assert bridge["credentials_or_private_values_retained"] is False

@@ -24,6 +24,28 @@ agent or developer:
 
 ### 2026-09-09 Week-1 authenticated DraftKings lineups API capture validated
 
+- The exact API-to-A5 projection is now implemented and deliberately narrower
+  than the older CSV contract. It generation-binds the private response and
+  redacted receipt through the exact publication record, rebuilds all facts
+  from the private response, and emits no entry, lineup, player, user, cookie,
+  or query value. The tracked bridge is
+  `reports/2026-09-09-week1-draftkings-lineups-api-a5-reservation.json`, 1,833
+  bytes, SHA-256
+  `48ff270b018302c04cb61e42ffad5ef1b382abfd1c2a71e609404202229ac4e0`,
+  with internal bridge digest
+  `660d304a193a4322626ff2f6368a08d61b29e7f5ba524791e6d15ca6b8a30964`.
+  It truthfully establishes 90 unique upcoming paid reservations in the exact
+  57 / 20 / 3 / 10 A5 contest allocation.
+- The provider response currently carries one lineup record shared by those
+  90 entries. The bridge therefore explicitly records
+  `final_entry_roster_acceptance_authority=false` and
+  `prepared_filled_book_lineage_present=false`. It must not be used to claim
+  that the intended contest-ready A5 books have been assigned. This is a
+  concrete operational distinction, not a missing historical-test input.
+  Focused bridge/capture validation passes 22/22; the combined capture, A5
+  contract, governed acquisition, and provider-reality selection passes
+  159/159; compilation and diff checks pass. Ruff remains unavailable.
+
 - The validated private response and redacted receipt are now published
   create-once after exact-name all-generation absence checks, and both exact
   generations were reopened with their expected bytes and SHA-256. The raw
@@ -72,8 +94,11 @@ agent or developer:
   older expected DKEntries CSV and does not change an activation pin. The
   receipt's `private_raw_body_published=false` was true when that validation
   receipt was created; the separately generation-pinned publication above is
-  the subsequent publication event. Exact next action: add the narrow reviewed
-  API-to-A5 acceptance projection from this generation-pinned authority.
+  the subsequent publication event. Exact next action: consume the new bridge
+  only as paid-reservation/allocation authority, finish and assign the exact
+  prepared/filled/book lineage, then repeat the authenticated pre-lock API
+  capture and admit final roster acceptance only if every entry-to-book edge
+  reconstructs. Do not activate the older CSV-only path from this API body.
 
 ### 2026-09-09 Week-1 Fantasy Points live-matchup capture sealed
 

@@ -27,8 +27,36 @@ from nfl_dfs.ingest import week1_a5_capture_contracts as capture
 
 SCHEMA: Final = "week1-draftkings-lineups-api-capture/v1"
 CAPTURE_PROFILE: Final = "authenticated-edge-cdp-lineups-api-http200/v1"
+A5_RESERVATION_SCHEMA: Final = "week1-a5-draftkings-entry-reservation/v1"
 COLLECTOR_SHA256: Final = (
     "05f3d044c8bf0db165f0ed44964665e16e7562a1c9abcc72adb4ebbd070be315"
+)
+RAW_RESPONSE_BYTES: Final = 13_060
+RAW_RESPONSE_SHA256: Final = (
+    "a2edd4bf22a1bbda593eb0337705bb0f0bde273a1f8ea3904107fbe6670d036c"
+)
+CAPTURE_RECEIPT_BYTES: Final = 1_643
+CAPTURE_RECEIPT_FILE_SHA256: Final = (
+    "e0e8e377e3a96cd774baf56cc7837f9ffabded8d283540d83c5f1b9d6ef799b9"
+)
+PUBLICATION_RECORD_BYTES: Final = 1_584
+PUBLICATION_RECORD_FILE_SHA256: Final = (
+    "bc82fe91b3e6b88f46a9339d16afabbb3780d6a482dd17bec5f9a76fb0ed445a"
+)
+RAW_OBJECT_NAME: Final = (
+    "licensed/draftkings/lineups-api/season=2026/week=01/draft_group=151307/"
+    "raw/sha256=a2edd4bf22a1bbda593eb0337705bb0f0bde273a1f8ea3904107fbe6670d036c/"
+    "lineups.json"
+)
+RAW_OBJECT_GENERATION: Final = "1788992412368971"
+RECEIPT_OBJECT_NAME: Final = (
+    "licensed/draftkings/lineups-api/season=2026/week=01/draft_group=151307/"
+    "receipts/sha256=e0e8e377e3a96cd774baf56cc7837f9ffabded8d283540d83c5f1b9d6ef799b9/"
+    "capture-receipt.json"
+)
+RECEIPT_OBJECT_GENERATION: Final = "1788992413136232"
+PUBLICATION_RECORD_PATH: Final = (
+    "reports/2026-09-09-week1-draftkings-lineups-api-publication.json"
 )
 QUERY_NAMES: Final = (
     "embed",
@@ -95,6 +123,7 @@ _GUID = re.compile(
     r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-"
     r"[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\Z"
 )
+_SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 
 
 class DraftKingsLineupsCaptureError(ValueError):
@@ -415,6 +444,359 @@ def build_receipt(
     }
     receipt["receipt_sha256"] = hashlib.sha256(canonical({k: v for k, v in receipt.items() if k != "receipt_sha256"})).hexdigest()
     return receipt
+
+
+def _authenticate_pinned_json(
+    raw: bytes, *, expected_bytes: int, expected_sha256: str, label: str
+) -> dict[str, object]:
+    if len(raw) != expected_bytes or hashlib.sha256(raw).hexdigest() != expected_sha256:
+        _fail(f"{label} exact file identity differs")
+    return parse_strict(raw)
+
+
+def authenticate_capture_receipt(
+    raw_response: bytes, receipt_raw: bytes
+) -> dict[str, object]:
+    """Rebuild the redacted facts from the exact raw body and receipt bytes."""
+
+    if (
+        len(raw_response) != RAW_RESPONSE_BYTES
+        or hashlib.sha256(raw_response).hexdigest() != RAW_RESPONSE_SHA256
+    ):
+        _fail("private raw response exact identity differs")
+    receipt = _authenticate_pinned_json(
+        receipt_raw,
+        expected_bytes=CAPTURE_RECEIPT_BYTES,
+        expected_sha256=CAPTURE_RECEIPT_FILE_SHA256,
+        label="capture receipt",
+    )
+    _exact(
+        receipt,
+        frozenset(
+            {
+                "schema_version",
+                "capture_profile",
+                "season",
+                "week",
+                "captured_at_utc",
+                "captured_at_basis",
+                "prelock",
+                "collector_sha256",
+                "request",
+                "response",
+                "facts",
+                "private_raw_body_published",
+                "credentials_or_cookie_values_retained",
+                "entry_lineup_player_values_retained",
+                "standings_or_outcome_opened",
+                "receipt_sha256",
+            }
+        ),
+        label="capture receipt",
+    )
+    if (
+        receipt["schema_version"] != SCHEMA
+        or receipt["capture_profile"] != CAPTURE_PROFILE
+        or receipt["season"] != 2026
+        or receipt["week"] != 1
+        or receipt["captured_at_utc"] != _captured_at(receipt["captured_at_utc"])
+        or receipt["prelock"] is not True
+        or receipt["collector_sha256"] != COLLECTOR_SHA256
+        or receipt["private_raw_body_published"] is not False
+        or receipt["credentials_or_cookie_values_retained"] is not False
+        or receipt["entry_lineup_player_values_retained"] is not False
+        or receipt["standings_or_outcome_opened"] is not False
+    ):
+        _fail("capture receipt identity or negative-authority law differs")
+    request = _exact(
+        receipt["request"],
+        frozenset(
+            {
+                "scheme",
+                "host",
+                "path_template",
+                "query_parameter_names",
+                "locator_sha256",
+                "user_or_query_values_retained",
+            }
+        ),
+        label="capture receipt request",
+    )
+    if (
+        request["scheme"] != "https"
+        or request["host"] != "api.draftkings.com"
+        or request["path_template"] != "/lineups/v1/users/<redacted>/lineups"
+        or request["query_parameter_names"] != list(QUERY_NAMES)
+        or type(request["locator_sha256"]) is not str
+        or _SHA256.fullmatch(request["locator_sha256"]) is None
+        or request["user_or_query_values_retained"] is not False
+    ):
+        _fail("capture receipt request projection differs")
+    response = _exact(
+        receipt["response"],
+        frozenset({"http_status", "status_basis", "bytes", "sha256"}),
+        label="capture receipt response",
+    )
+    if (
+        response["http_status"] != 200
+        or response["bytes"] != RAW_RESPONSE_BYTES
+        or response["sha256"] != RAW_RESPONSE_SHA256
+    ):
+        _fail("capture receipt response identity differs")
+    facts = inspect_lineups(raw_response)
+    if receipt["facts"] != facts:
+        _fail("capture receipt facts do not rebuild from the private response")
+    digest = hashlib.sha256(
+        canonical({key: value for key, value in receipt.items() if key != "receipt_sha256"})
+    ).hexdigest()
+    if receipt["receipt_sha256"] != digest:
+        _fail("capture receipt internal digest differs")
+    return receipt
+
+
+def authenticate_publication_record(publication_raw: bytes) -> dict[str, object]:
+    """Authenticate the exact record that bridges local bytes to GCS generations."""
+
+    publication = _authenticate_pinned_json(
+        publication_raw,
+        expected_bytes=PUBLICATION_RECORD_BYTES,
+        expected_sha256=PUBLICATION_RECORD_FILE_SHA256,
+        label="publication record",
+    )
+    if (
+        publication.get("schema_version")
+        != "week1-draftkings-lineups-api-publication/v1"
+        or publication.get("bucket") != "nfl-predictions-503414-raw"
+        or publication.get("season") != 2026
+        or publication.get("week") != 1
+        or publication.get("draft_group_id") != capture.EXPECTED_DRAFT_GROUP_ID
+        or publication.get("publication_mode")
+        != "create-once-if-generation-match-zero"
+        or publication.get("outcome_or_standings_authority") is not False
+    ):
+        _fail("publication record identity or authority law differs")
+    objects = _exact(
+        publication.get("objects"),
+        frozenset({"private_raw_response", "capture_receipt"}),
+        label="publication objects",
+    )
+    expected = {
+        "private_raw_response": (
+            RAW_OBJECT_NAME,
+            RAW_OBJECT_GENERATION,
+            RAW_RESPONSE_BYTES,
+            RAW_RESPONSE_SHA256,
+        ),
+        "capture_receipt": (
+            RECEIPT_OBJECT_NAME,
+            RECEIPT_OBJECT_GENERATION,
+            CAPTURE_RECEIPT_BYTES,
+            CAPTURE_RECEIPT_FILE_SHA256,
+        ),
+    }
+    for label, (name, generation, size, sha256) in expected.items():
+        item = _exact(
+            objects[label],
+            frozenset(
+                {
+                    "bytes",
+                    "created_at_utc",
+                    "generation",
+                    "name",
+                    "postpublication_all_generation_census",
+                    "prepublication_all_generation_census",
+                    "sha256",
+                }
+            ),
+            label=f"publication {label}",
+        )
+        if (
+            item["name"] != name
+            or item["generation"] != generation
+            or item["bytes"] != size
+            or item["sha256"] != sha256
+            or item["prepublication_all_generation_census"] != {"total": 0}
+            or item["postpublication_all_generation_census"]
+            != {"live": 1, "noncurrent": 0, "soft_deleted": 0}
+        ):
+            _fail(f"publication {label} identity or census differs")
+    return publication
+
+
+def build_a5_reservation_bridge(
+    raw_response: bytes,
+    *,
+    capture_receipt_raw: bytes,
+    publication_record_raw: bytes,
+) -> dict[str, object]:
+    """Classify exactly what the authenticated API capture proves for A5.
+
+    It proves the 90 paid reservations and their contest allocation. It does
+    not replace the separate prepared/filled/book lineage required to claim
+    final per-entry roster acceptance.
+    """
+
+    receipt = authenticate_capture_receipt(raw_response, capture_receipt_raw)
+    publication = authenticate_publication_record(publication_record_raw)
+    facts = receipt["facts"]
+    objects = publication["objects"]
+    bridge: dict[str, object] = {
+        "schema_version": A5_RESERVATION_SCHEMA,
+        "season": 2026,
+        "week": 1,
+        "draft_group_id": capture.EXPECTED_DRAFT_GROUP_ID,
+        "lock_utc": capture.EXPECTED_LOCK_UTC,
+        "observed_at_utc": receipt["captured_at_utc"],
+        "provider_surface": CAPTURE_PROFILE,
+        "source_authority": {
+            "private_raw_response": {
+                "uri": f"gs://{publication['bucket']}/{RAW_OBJECT_NAME}",
+                "generation": objects["private_raw_response"]["generation"],
+                "bytes": RAW_RESPONSE_BYTES,
+                "sha256": RAW_RESPONSE_SHA256,
+            },
+            "redacted_capture_receipt": {
+                "uri": f"gs://{publication['bucket']}/{RECEIPT_OBJECT_NAME}",
+                "generation": objects["capture_receipt"]["generation"],
+                "bytes": CAPTURE_RECEIPT_BYTES,
+                "sha256": CAPTURE_RECEIPT_FILE_SHA256,
+            },
+            "publication_record": {
+                "path": PUBLICATION_RECORD_PATH,
+                "bytes": PUBLICATION_RECORD_BYTES,
+                "sha256": PUBLICATION_RECORD_FILE_SHA256,
+            },
+        },
+        "a5_projection": {
+            "entry_count": facts["entry_count"],
+            "unique_entry_count": facts["unique_entry_count"],
+            "role_entry_counts": facts["role_entry_counts"],
+            "provider_lineup_record_count": facts["lineup_count"],
+            "provider_status": facts["lineup_status"],
+            "reservation_and_contest_allocation_authority": True,
+            "final_entry_roster_acceptance_authority": False,
+            "prepared_filled_book_lineage_present": False,
+            "classification": "accepted-reservations-not-final-a5-roster-assignment",
+        },
+        "credentials_or_private_values_retained": False,
+        "standings_or_outcome_opened": False,
+        "draftkings_mutation_performed": False,
+        "bridge_sha256": "",
+    }
+    bridge["bridge_sha256"] = hashlib.sha256(
+        canonical({key: value for key, value in bridge.items() if key != "bridge_sha256"})
+    ).hexdigest()
+    return validate_a5_reservation_bridge(bridge)
+
+
+def validate_a5_reservation_bridge(value: object) -> dict[str, object]:
+    """Validate the redacted bridge without reopening private response values."""
+
+    bridge = _exact(
+        value,
+        frozenset(
+            {
+                "schema_version",
+                "season",
+                "week",
+                "draft_group_id",
+                "lock_utc",
+                "observed_at_utc",
+                "provider_surface",
+                "source_authority",
+                "a5_projection",
+                "credentials_or_private_values_retained",
+                "standings_or_outcome_opened",
+                "draftkings_mutation_performed",
+                "bridge_sha256",
+            }
+        ),
+        label="A5 reservation bridge",
+    )
+    if (
+        bridge["schema_version"] != A5_RESERVATION_SCHEMA
+        or bridge["season"] != 2026
+        or bridge["week"] != 1
+        or bridge["draft_group_id"] != capture.EXPECTED_DRAFT_GROUP_ID
+        or bridge["lock_utc"] != capture.EXPECTED_LOCK_UTC
+        or bridge["observed_at_utc"] != _captured_at(bridge["observed_at_utc"])
+        or bridge["provider_surface"] != CAPTURE_PROFILE
+        or bridge["credentials_or_private_values_retained"] is not False
+        or bridge["standings_or_outcome_opened"] is not False
+        or bridge["draftkings_mutation_performed"] is not False
+    ):
+        _fail("A5 reservation bridge identity or negative-authority law differs")
+    projection = _exact(
+        bridge["a5_projection"],
+        frozenset(
+            {
+                "entry_count",
+                "unique_entry_count",
+                "role_entry_counts",
+                "provider_lineup_record_count",
+                "provider_status",
+                "reservation_and_contest_allocation_authority",
+                "final_entry_roster_acceptance_authority",
+                "prepared_filled_book_lineage_present",
+                "classification",
+            }
+        ),
+        label="A5 reservation projection",
+    )
+    expected_counts = {
+        role: pin.planned_entries for role, pin in capture.A5_ROLE_TABLE.items()
+    }
+    if (
+        projection["entry_count"] != capture.EXPECTED_PLANNED_ENTRIES
+        or projection["unique_entry_count"] != capture.EXPECTED_PLANNED_ENTRIES
+        or projection["role_entry_counts"] != expected_counts
+        or projection["provider_lineup_record_count"] != 1
+        or projection["provider_status"] != "Upcoming"
+        or projection["reservation_and_contest_allocation_authority"] is not True
+        or projection["final_entry_roster_acceptance_authority"] is not False
+        or projection["prepared_filled_book_lineage_present"] is not False
+        or projection["classification"]
+        != "accepted-reservations-not-final-a5-roster-assignment"
+    ):
+        _fail("A5 reservation projection overclaims or differs")
+    source = _exact(
+        bridge["source_authority"],
+        frozenset(
+            {
+                "private_raw_response",
+                "redacted_capture_receipt",
+                "publication_record",
+            }
+        ),
+        label="A5 reservation source authority",
+    )
+    expected_source = {
+        "private_raw_response": {
+            "uri": f"gs://nfl-predictions-503414-raw/{RAW_OBJECT_NAME}",
+            "generation": RAW_OBJECT_GENERATION,
+            "bytes": RAW_RESPONSE_BYTES,
+            "sha256": RAW_RESPONSE_SHA256,
+        },
+        "redacted_capture_receipt": {
+            "uri": f"gs://nfl-predictions-503414-raw/{RECEIPT_OBJECT_NAME}",
+            "generation": RECEIPT_OBJECT_GENERATION,
+            "bytes": CAPTURE_RECEIPT_BYTES,
+            "sha256": CAPTURE_RECEIPT_FILE_SHA256,
+        },
+        "publication_record": {
+            "path": PUBLICATION_RECORD_PATH,
+            "bytes": PUBLICATION_RECORD_BYTES,
+            "sha256": PUBLICATION_RECORD_FILE_SHA256,
+        },
+    }
+    if source != expected_source:
+        _fail("A5 reservation source authority differs")
+    digest = hashlib.sha256(
+        canonical({key: item for key, item in bridge.items() if key != "bridge_sha256"})
+    ).hexdigest()
+    if bridge["bridge_sha256"] != digest:
+        _fail("A5 reservation bridge digest differs")
+    return bridge
 
 
 def canonical(value: object) -> bytes:
