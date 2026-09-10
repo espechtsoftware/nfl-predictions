@@ -22,6 +22,49 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 Week-1 generation suite launched on the repaired immutable source
+
+- Immutable Cloud Build `fbf02fe1-b718-4ec8-8cd7-d14ca593138f` passed from
+  exact source commit `607e184e63b34a0c6f56c92a22160fe8579a863c`. It
+  produced image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:225d1ade42385154ed0cb9b5b7eb98e940ee281d4a6eb43eccb30859cb1c78dd`.
+  This is the first image that includes both the reviewed Week-1
+  roster/source repair and the current Cloud Run provider-shape validation.
+- The first create attempt failed before a job resource existed because the
+  launcher's default service account,
+  `nfl-dfs-runner@nfl-predictions-503414.iam.gserviceaccount.com`, does not
+  exist. The project service-account census confirmed that this was a stale
+  launcher default, not a missing `actAs` grant. The retry explicitly used the
+  established runtime identity
+  `817589974517-compute@developer.gserviceaccount.com` without changing the
+  pinned image, source, slate, draft group, or lock.
+- The dedicated Cloud Run job `generation-shadow-suite` was created in the
+  operator-freed slot with UID `5372f7da-5e9c-46ad-95bd-ac8300ce1c0d`,
+  generation/observed generation `1/1`. Its exact template is one task,
+  parallelism one, zero retries, 8 CPU, 32 GiB, 86,400-second timeout, the
+  immutable image above, source SHA `607e184e...`, season 2026, week 1,
+  DraftKings draft group `151307`, and slate lock
+  `2026-09-13T17:00:00Z`. The `us-central1` job census is now exactly 1,000.
+- Execution `generation-shadow-suite-vx76b`, UID
+  `f04daff5-0699-4267-8ef5-9c99b95fc111`, was created at
+  `2026-09-10T10:56:12.178796Z`. The image import completed in 23.43 seconds,
+  the deployed execution started at `2026-09-10T10:58:27.691306Z`, and the
+  latest recorded state is one running task with no failure or cancellation.
+- Repair commit `5dbb0179` changes the launcher default to the real existing
+  runtime identity and updates its current-provider test fixtures. Shell
+  parsing and `git diff --check` pass; the focused deployment/clean-build
+  suite passes 14/14. This host-side default repair does not relabel the
+  already-running image or execution.
+- Exact next action: monitor `generation-shadow-suite-vx76b` to terminal
+  success. From a checkout whose HEAD is the exact execution source
+  `607e184e63b34a0c6f56c92a22160fe8579a863c`, run the launcher's read-only
+  collection mode with the explicit compute service account and exact Week-1
+  coordinates; bind the returned manifest and terminal object identities,
+  validate the generated books, then adapt/freeze/assign the P_CTRL/P_MIX and
+  A5 books. Do not treat the existing 90 paid reservations as final roster
+  acceptance until the repeat authenticated API capture reconstructs every
+  entry-to-book edge.
+
 ### 2026-09-10 Week-1 generation image gate repaired without relabelling frozen source
 
 - Production deleted only the operator-approved obsolete Cloud Run job
