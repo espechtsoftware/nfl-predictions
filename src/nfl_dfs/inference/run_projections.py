@@ -24,6 +24,21 @@ from . import cascade_adjust
 
 log = logging.getLogger(__name__)
 
+_LIVE_TEAM_ALIASES = {
+    "ARZ": "ARI", "BLT": "BAL", "CLV": "CLE", "HST": "HOU",
+    "GBP": "GB", "GNB": "GB", "JAC": "JAX", "KCC": "KC",
+    "KAN": "KC", "LVR": "LV", "OAK": "LV", "LAR": "LA",
+    "RAM": "LA", "STL": "LA", "NEP": "NE", "NWE": "NE",
+    "NOS": "NO", "NOR": "NO", "SDC": "LAC", "SDG": "LAC",
+    "SD": "LAC", "SFO": "SF", "TBB": "TB", "TAM": "TB",
+    "WSH": "WAS",
+}
+
+
+def _canonical_live_team(values: pd.Series) -> pd.Series:
+    normalized = values.astype("string").str.strip().str.upper()
+    return normalized.replace(_LIVE_TEAM_ALIASES)
+
 
 def _props_first_market_with_dk_fallback(
     dk_ppg_market: pd.Series | np.ndarray,
@@ -192,7 +207,7 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
           LEFT JOIN `{settings.features}.player_id_map` m
             USING (dk_player_id)
           LEFT JOIN (
-            SELECT DISTINCT gsis_id, team_abbr
+            SELECT DISTINCT gsis_id, team_abbr, roster_position
             FROM current_active_fantasy_roster
           ) a
             ON a.gsis_id = m.gsis_id
@@ -213,6 +228,10 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
              WHEN 'WSH' THEN 'WAS'
              ELSE UPPER(TRIM(sl.team_abbr))
            END
+           AND (
+             a.roster_position = UPPER(TRIM(sl.dk_position))
+             OR (a.roster_position = 'FB' AND UPPER(TRIM(sl.dk_position)) = 'RB')
+           )
           LEFT JOIN unique_current_active_identity n
             ON n.clean_name = REGEXP_REPLACE(
                  REGEXP_REPLACE(
@@ -309,8 +328,8 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
                 ["dk_player_id", "display_name", "gsis_id", "dk_position", "team_abbr"]
             ].head(20).to_string(index=False)
         )
-    normalized_dk_team = skill["team_abbr"].astype("string").str.strip().str.upper()
-    normalized_feature_team = skill["team"].astype("string").str.strip().str.upper()
+    normalized_dk_team = _canonical_live_team(skill["team_abbr"])
+    normalized_feature_team = _canonical_live_team(skill["team"])
     normalized_dk_position = (
         skill["dk_position"].astype("string").str.strip().str.upper()
     )

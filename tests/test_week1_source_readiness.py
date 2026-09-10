@@ -622,7 +622,10 @@ def test_upcoming_projection_pool_is_bound_to_exact_reg_week_gamedays(
     assert "HAVING COUNT(DISTINCT GSIS_ID) = 1" in sql
     assert "UPPER(TRIM(R.POSITION)) IN ('QB', 'RB', 'WR', 'TE', 'FB')" in sql
     assert "NFL_FEATURES.PLAYER_ID_MAP" in sql
+    assert "SELECT DISTINCT GSIS_ID, TEAM_ABBR, ROSTER_POSITION" in sql
     assert "A.GSIS_ID = M.GSIS_ID" in sql
+    assert "A.ROSTER_POSITION = UPPER(TRIM(SL.DK_POSITION))" in sql
+    assert "A.ROSTER_POSITION = 'FB'" in sql
     assert "N.ROSTER_POSITION = UPPER(TRIM(SL.DK_POSITION))" in sql
     assert "SL.ACTIVE_GSIS_ID IS NOT NULL" in sql
     assert "SL.ACTIVE_EXACT_NAME IS NOT NULL" in sql
@@ -758,3 +761,27 @@ def test_live_projection_rejects_stale_feature_team_or_position(monkeypatch):
 
     with pytest.raises(RuntimeError, match="stale team/position"):
         run_projections.upcoming_slate_features(2026, 1)
+
+
+def test_live_projection_accepts_equivalent_team_alias(monkeypatch):
+    monkeypatch.setattr(
+        run_projections,
+        "query_df",
+        lambda *_args, **_kwargs: pd.DataFrame({
+            "dk_player_id": [101],
+            "display_name": ["Rams Player"],
+            "gsis_id": ["00-0000001"],
+            "dk_position": ["WR"],
+            "team_abbr": ["LAR"],
+            "roster_receipt_is_valid": [True],
+            "inference_row_present": [True],
+            "position": ["WR"],
+            "team": ["LA"],
+            "opponent": ["SF"],
+            "is_cold_start": pd.Series([False], dtype="boolean"),
+        }),
+    )
+
+    result = run_projections.upcoming_slate_features(2026, 1)
+
+    assert result.display_name.tolist() == ["Rams Player"]
