@@ -37,8 +37,16 @@ agent or developer:
   source/image above, one task, parallelism one, zero retries, 8 CPU, 32 GiB,
   86,400-second timeout, runtime service account
   `817589974517-compute@developer.gserviceaccount.com`, season 2026, week 1,
-  draft group `151307`, and lock `2026-09-13T17:00:00Z`. Image import is in
-  progress and no terminal artifact exists yet.
+  draft group `151307`, and lock `2026-09-13T17:00:00Z`. Image import completed
+  in 23.67 seconds and the deployed task started at
+  `2026-09-10T14:43:03.376714Z`.
+- The repaired one-source preflight completed all eleven seeded builds and
+  continued into candidate work. Logs prove exactly one prop-market source
+  query and consistent 207/493-row coverage across all eleven builds; there
+  are no execution errors. The live prop source had advanced to 19,498 input
+  rows / 4,156 prelock rows from `j5qzl`'s 16,883 / 3,843, confirming that
+  repeated live reads were an unsafe pairing boundary. Execution `28wzf`
+  remains active with one running task and no terminal artifact yet.
 - Exact next action: monitor `generation-shadow-suite-28wzf` through its
   single-source preflight and candidate blocks. On provider-terminal success,
   collect from an exact detached `3eb17309` checkout and accept only a
