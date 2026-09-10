@@ -1,0 +1,32 @@
+{
+  "collector_source_sha": "2ee848c13ee9cdd2653803aab2ca694f8df40a0a",
+  "complete": true,
+  "execution": {
+    "cancelled_count": 0,
+    "completion_time": "2026-09-10T18:22:03.382850Z",
+    "failed_count": 0,
+    "name": "generation-shadow-suite-8mz64",
+    "succeeded_count": 1,
+    "task_count": 1,
+    "uid": "bcf7e194-bfb8-4373-96b0-c0dfc8f21cb6"
+  },
+  "logging_payload_contract": "jsonPayload-or-textPayload",
+  "manifest_identity": {
+    "bytes": 670420,
+    "generation": "1789064517601740",
+    "sha256": "eccfc04ed1602e7a12740d0f65cc0ece1971781e6277feb56c7e321865d41ae3",
+    "uri": "gs://nfl-predictions-503414-raw/generation_shadow/2026/week-01/prospective-generation-2026w01-generation-shadow-suite-8mz64/manifest.json"
+  },
+  "production_enabled": false,
+  "registry_sha256": "7a8761c6182e0f41cc773347b99d31c8076804bc9e1d1e9f38b01fe9a5808943",
+  "run_id": "prospective-generation-2026w01-generation-shadow-suite-8mz64",
+  "schema_version": "prospective-generation-shadow-cloud-collection/v2",
+  "terminal_identity": {
+    "bytes": 63478,
+    "generation": "1789064517828563",
+    "sha256": "b4cdf22625e61f688fc93b84d8d1dba80278b307dbfccaf89b672ceb6aca34f6",
+    "uri": "gs://nfl-predictions-503414-raw/generation_shadow/2026/week-01/prospective-generation-2026w01-generation-shadow-suite-8mz64/terminal.json"
+  },
+  "uses_realized_outcomes": false,
+  "workload_source_sha": "ee87e7d39e68634cd50411f6c3763798ecc7c7fc"
+}

@@ -22,6 +22,33 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 `8mz64` succeeded and exact collection is complete
+
+- `generation-shadow-suite-8mz64`, UID
+  `bcf7e194-bfb8-4373-96b0-c0dfc8f21cb6`, completed successfully at
+  `2026-09-10T18:22:03.382850Z` with one succeeded task and zero failed,
+  cancelled or running tasks. The exact workload source is `ee87e7d3...`, its
+  immutable image is `sha256:56613633...`, and `production_enabled=false`.
+- The original exact-source collector correctly passed the provider execution
+  contract but found no `textPayload`: Cloud Logging promoted the terminal
+  JSON line to structured `jsonPayload`. Host-only repair `7cce7fc3` accepts
+  either transport while retaining an exact single-receipt requirement;
+  follow-up `2ee848c1` normalizes integral structured-log generations to
+  positive decimal strings. The collector records distinct workload and
+  collector sources, requires ancestry, and allowlists their entire path
+  delta. The parameterized transport suite passes 10/10.
+- Exact v2 collection is frozen at
+  `reports/2026-09-10-generation-shadow-8mz64-collection.json`. Manifest
+  identity is generation `1789064517601740`, 670,420 bytes, SHA-256
+  `eccfc04ed1602e7a12740d0f65cc0ece1971781e6277feb56c7e321865d41ae3`;
+  terminal identity is generation `1789064517828563`, 63,478 bytes, SHA-256
+  `b4cdf22625e61f688fc93b84d8d1dba80278b307dbfccaf89b672ceb6aca34f6`.
+  Both precede the Week-1 lock. No outcome was read and no money policy changed.
+- Exact next action: run the default-off `freeze-week` request in
+  `config/2026-week1-generation-shadow-freeze-week.json`, exact-reopen the
+  resulting terminal root/envelope, publish its safety row, then construct and
+  publish P_MIX and the four governed A5 books. Do not launch another suite.
+
 ### 2026-09-10 `28wzf` failed safely; deterministic score order repaired
 
 - Cloud Run execution `generation-shadow-suite-28wzf`, UID

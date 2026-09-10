@@ -1,0 +1,29 @@
+{
+  "preregistration_identity": {
+    "bytes": 10495,
+    "generation": "1789039074510112",
+    "sha256": "c422a2e8cbb247664f1ed69f582b9154d483b5507470ab1031655e3d54382dbb",
+    "uri": "gs://nfl-predictions-503414-raw/generation_shadow/2026/authorities/preregistration.json"
+  },
+  "seed_crossing_identity": {
+    "bytes": 4945,
+    "generation": "1789039091072628",
+    "sha256": "46a822f5a2509fd922492a757c0e1bfc7ccb902a0208100d0ea7205f26451992",
+    "uri": "gs://nfl-predictions-503414-raw/generation_shadow/2026/authorities/seed-crossing.json"
+  },
+  "slate_id": "dk-151307",
+  "suite_manifest_identity": {
+    "bytes": 670420,
+    "generation": "1789064517601740",
+    "sha256": "eccfc04ed1602e7a12740d0f65cc0ece1971781e6277feb56c7e321865d41ae3",
+    "uri": "gs://nfl-predictions-503414-raw/generation_shadow/2026/week-01/prospective-generation-2026w01-generation-shadow-suite-8mz64/manifest.json"
+  },
+  "suite_terminal_identity": {
+    "bytes": 63478,
+    "generation": "1789064517828563",
+    "sha256": "b4cdf22625e61f688fc93b84d8d1dba80278b307dbfccaf89b672ceb6aca34f6",
+    "uri": "gs://nfl-predictions-503414-raw/generation_shadow/2026/week-01/prospective-generation-2026w01-generation-shadow-suite-8mz64/terminal.json"
+  },
+  "terminal_envelope_uri": "gs://nfl-predictions-503414-raw/generation_shadow/2026/week-01/evaluation/terminal-envelope.json",
+  "terminal_root_uri": "gs://nfl-predictions-503414-raw/generation_shadow/2026/week-01/evaluation/terminal-root.json"
+}
