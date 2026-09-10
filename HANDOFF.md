@@ -24,6 +24,14 @@ agent or developer:
 
 ### 2026-09-10 Week-1 freeze identity boundary repaired
 
+- The generation-pinned safety publication is complete at generation
+  `1789079337043256`, 6,183,059 bytes, file SHA-256
+  `102bb31a...37c3c`, and self hash `66b3d9f7...f086c`. Independent exact
+  reopen returns `integrity_gate_status=pass`, an empty reason vector, zero
+  illegal/duplicate lineups, zero exposure violations, zero solve failures or
+  request shortfalls, and zero missing/stale required sources. Automatic
+  adoption and efficacy/promotion remain false. The compact receipt is
+  `reports/2026-09-10-generation-shadow-week1-safety-receipt.json`.
 - Repair commit `6b9140d6188750259fdf130a5f424d830d2f0758` is pushed on
   `production/generation-shadow-jsonpayload-collector-20260910`. The unchanged
   exact suite froze successfully. Root object generation
@@ -48,10 +56,10 @@ agent or developer:
 - Validation: the focused namespace and forged-candidate regression passes
   2/2; the full generation-shadow evaluator test file passes; deployment and
   operator tests pass 27/27; `git diff --check` passes.
-- Exact next action: publish the generation-pinned request in
-  `config/2026-week1-generation-shadow-safety-week.json`, exact-reopen and
-  receipt the Week-1 safety row, then construct P_MIX and the four governed A5
-  books. Do not launch another generation suite.
+- Exact next action: construct and exact-reopen P_MIX from the repaired live
+  D800/D400 pair, then publish the salary catalog, player bridge, and four
+  governed A5 books. Do not launch another generation suite and do not treat
+  the old 90-entry allocation as a bankroll recommendation.
 
 ### 2026-09-10 `8mz64` succeeded and exact collection is complete
 

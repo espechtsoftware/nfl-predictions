@@ -1,0 +1,41 @@
+{
+  "automatic_adoption": false,
+  "integrity_gate_status": "pass",
+  "publication_sha256": "82e1d8535d6ebf319da25912d558376917874bd4f2ca43b41e51f8f4094dc84e",
+  "safety_metrics": {
+    "duplicate_lineup_count": 0,
+    "exposure_violation_count": 0,
+    "illegal_lineup_count": 0,
+    "maximum_observed_player_exposure_bps": 8500,
+    "missing_evidence_authority_count": 0,
+    "missing_expected_arm_count": 0,
+    "missing_expected_block_count": 0,
+    "missing_expected_book_count": 0,
+    "missing_expected_prefix_count": 0,
+    "missing_required_source_count": 0,
+    "missing_suite_manifest_count": 0,
+    "missing_terminal_count": 0,
+    "solve_failure_count": 0,
+    "solve_request_shortfall_count": 0,
+    "stale_required_source_count": 0
+  },
+  "schema_version": "generation-shadow-week1-safety-publication-receipt/v1",
+  "season": 2026,
+  "slate_id": "dk-151307",
+  "source_code_sha": "9befbaab10091cea685c81059601cc14dd71b390",
+  "terminal_prelock_envelope_identity": {
+    "bytes": 6058423,
+    "generation": "1789079197508795",
+    "sha256": "771fb99c9d26e2e1ffb86f0fcc596266a2f1ed64defaf511b36f2d45023661ef",
+    "uri": "gs://nfl-predictions-503414-raw/generation_shadow/2026/week-01/evaluation/terminal-envelope.json"
+  },
+  "uses_realized_outcomes": false,
+  "week": 1,
+  "weekly_safety_receipt_identity": {
+    "bytes": 6183059,
+    "generation": "1789079337043256",
+    "sha256": "102bb31af7e98532c1c5bc929e837fa0a1458d7c890400ddd80bb96b9e837c3c",
+    "uri": "gs://nfl-predictions-503414-raw/generation_shadow/2026/week-01/safety/weekly-safety-receipt.json"
+  },
+  "weekly_safety_receipt_sha256": "66b3d9f7c4a45bcca57f9ed139c1a4f272de5b8206b288b28ffcd89f604f086c"
+}
