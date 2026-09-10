@@ -22,6 +22,49 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 Week-1 generation image gate repaired without relabelling frozen source
+
+- Production deleted only the operator-approved obsolete Cloud Run job
+  `schaake-smoke-ba157ab`. A direct post-delete census proved the job absent
+  and the `us-central1` project count fell from 1,000 to 999. The dedicated
+  `generation-shadow-suite` job remains absent, so the single freed slot is
+  still available. Provider-side history for the deleted job is not
+  recoverable; its exact job/execution/image identities are preserved in the
+  preceding handoff entry.
+- Immutable Cloud Build `a8c037b8-8f45-4ff0-a501-a37ef35f218b`, submitted
+  from exact source commit `fa174c36ecb8524275167d98dc5019a8d2d23a2b`,
+  failed closed in its first test step and produced no image. The gate recorded
+  533 passed, one skipped, two deselected, two direct failures and 22 dependent
+  setup errors. Every failure had the same root: the current production tree
+  was being generated as frozen effective-policy source-set v6 even though
+  governed `live_lineups.py` had changed after v6 and the reviewed Week-1
+  identity repair had changed `run_projections.py`.
+- The repair preserves historical v5 and v6 literals byte-for-byte and adds
+  explicit current source-set v7
+  `adopted-classic-policy-20260910-week1-licensed-asof-v7`. It binds
+  `live_lineups.py` SHA-256 `95ccc439...`, `run_projections.py` SHA-256
+  `24a49e90...`, all other exact v6 identities, source-set SHA-256
+  `7a135dea58ae5498486abd647e32bf6b17170849a292ef07390c5ba91f83bc46`,
+  classified-input projection SHA-256
+  `e9b8779f0dacb530311b321d9e761d132b95ad2b40d0a64e776e10eab01599a2`,
+  rule-universe SHA-256
+  `32d939bce1d09daecfff5f1c963b0e7a9ad1aa8b7e698bdea29f464363f93bf3`,
+  and inventory SHA-256
+  `88f62c5a60d4b375b9eb134c143e56c122837d5d596c1757036f0b46e8f896fa`.
+  Current-source corpus validation tests now request v7; versioned v6 launch
+  scripts and pre-lock lineage v2 contracts remain unchanged and must still run
+  only from their exact historical source.
+- Focused validation on branch
+  `production/week1-licensed-asof-repair-20260909` passes effective-policy
+  inventory 19/19, corpus legal feasibility 34/34, and parametric snapshot
+  5/5. `git diff --check` passes. Ruff is unavailable in the retained local
+  environment, so no Ruff result is claimed.
+- Exact next action: commit and push the v7 repair, resubmit the complete
+  immutable generation-image gate from that exact commit, and only after it
+  passes create/execute `generation-shadow-suite` for season 2026, week 1,
+  DraftKings draft group 151307 and lock `2026-09-13T17:00:00Z`. Preserve the
+  999-job census until that dedicated job is created.
+
 ### 2026-09-10 operator-approved Cloud Run job retirement
 
 - The operator explicitly authorized removal of one job to free the single

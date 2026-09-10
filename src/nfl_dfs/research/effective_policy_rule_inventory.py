@@ -120,6 +120,26 @@ V6_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
     ),
 }
 
+# Source-set v7 binds the current Week-1 production tree after the reviewed
+# live prop-completeness guard and active-slate licensed-source identity repair.
+# V5 and v6 remain immutable historical identities; never rewrite their hashes
+# to make a newer checkout appear to be an older source set.
+V7_SOURCE_SET_ID = (
+    "adopted-classic-policy-20260910-week1-licensed-asof-v7"
+)
+V7_CLASSIFIED_INPUT_PROJECTION_SHA256 = (
+    "e9b8779f0dacb530311b321d9e761d132b95ad2b40d0a64e776e10eab01599a2"
+)
+V7_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
+    **V6_FROZEN_SOURCE_SHA256,
+    "src/nfl_dfs/inference/live_lineups.py": (
+        "95ccc439badad13714432fabb7396a16177bb92674bbcdaed2dc7e71fb2e6864"
+    ),
+    "src/nfl_dfs/inference/run_projections.py": (
+        "24a49e904d0859d52b3e85eb259247aec8f68a6d19aca11d739740b3572738c4"
+    ),
+}
+
 SOURCE_ROLES: Mapping[str, str] = {
     "scripts/publish_week1_operating_book.py": (
         "week1_exact_publication_operator_command"
@@ -481,6 +501,17 @@ _V6_SOURCE_SET = _SourceSetContract(
     classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
     direct_input_read_site_count=DIRECT_INPUT_READ_SITE_COUNT,
     frozen_source_sha256=tuple(sorted(V6_FROZEN_SOURCE_SHA256.items())),
+)
+_V7_SOURCE_SET = _SourceSetContract(
+    schema=SCHEMA,
+    source_set_id=V7_SOURCE_SET_ID,
+    policy_env_sha256=POLICY_ENV_SHA256,
+    classified_input_projection_sha256=(
+        V7_CLASSIFIED_INPUT_PROJECTION_SHA256
+    ),
+    classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
+    direct_input_read_site_count=DIRECT_INPUT_READ_SITE_COUNT,
+    frozen_source_sha256=tuple(sorted(V7_FROZEN_SOURCE_SHA256.items())),
 )
 
 
@@ -2076,6 +2107,15 @@ def generate_effective_policy_rule_inventory_v6(
     )
 
 
+def generate_effective_policy_rule_inventory_v7(
+    root: Path,
+) -> dict[str, Any]:
+    """Generate the explicit current Week-1 source-set v7 inventory."""
+    return _generate_effective_policy_rule_inventory(
+        root, source_set=_V7_SOURCE_SET
+    )
+
+
 def _source_set_for_inventory(
     inventory: Mapping[str, Any],
 ) -> _SourceSetContract:
@@ -2084,6 +2124,8 @@ def _source_set_for_inventory(
         return _V5_SOURCE_SET
     if source_set_id == V6_SOURCE_SET_ID:
         return _V6_SOURCE_SET
+    if source_set_id == V7_SOURCE_SET_ID:
+        return _V7_SOURCE_SET
     raise EffectivePolicyInventoryError(
         "effective-policy inventory source-set id is not registered"
     )
@@ -2112,9 +2154,13 @@ __all__ = [
     "V6_CLASSIFIED_INPUT_PROJECTION_SHA256",
     "V6_FROZEN_SOURCE_SHA256",
     "V6_SOURCE_SET_ID",
+    "V7_CLASSIFIED_INPUT_PROJECTION_SHA256",
+    "V7_FROZEN_SOURCE_SHA256",
+    "V7_SOURCE_SET_ID",
     "canonical_json_bytes",
     "canonical_sha256",
     "generate_effective_policy_rule_inventory",
     "generate_effective_policy_rule_inventory_v6",
+    "generate_effective_policy_rule_inventory_v7",
     "validate_effective_policy_rule_inventory",
 ]
