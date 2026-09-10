@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts/cloud_generation_shadow_suite.sh"
 BUILD = ROOT / "cloudbuild.generation-shadow-suite.yaml"
 TEST_CODE_SHA = "1" * 40
+SERVICE_ACCOUNT = "817589974517-compute@developer.gserviceaccount.com"
 
 
 def _install_fake_git(directory: Path, code_sha: str = TEST_CODE_SHA) -> None:
@@ -40,6 +41,8 @@ def test_launcher_and_build_contract_are_isolated_and_bounded() -> None:
     assert "IMAGE_URI=$IMAGE" in script
     assert "GCP_PROJECT=$PROJECT" in script
     assert "GCS_BUCKET=$BUCKET" in script
+    assert SERVICE_ACCOUNT in script
+    assert "nfl-dfs-runner@" not in script
     assert "ANALYSIS_IMAGE" not in script
     assert "--async --format=json" in script
     assert "scheduler" not in script.lower()
@@ -102,7 +105,7 @@ if a[:3] == ['run','jobs','describe'] and any('value(metadata.name)' in x for x 
 if a[:3] == ['run','jobs','describe']:
  print(json.dumps({'spec':{'template':{'spec':{'taskCount':1,
   'template':{'spec':{'maxRetries':0,'timeoutSeconds':'86400','serviceAccountName':
-  'nfl-dfs-runner@nfl-predictions-503414.iam.gserviceaccount.com','containers':[container]}}}}}})); sys.exit()
+  '817589974517-compute@developer.gserviceaccount.com','containers':[container]}}}}}})); sys.exit()
 if a[:3] == ['run','jobs','execute']:
  print(json.dumps({'metadata':{'name':job+'-abc12'}})); sys.exit()
 if a[:4] == ['run','jobs','executions','describe']:
@@ -168,7 +171,7 @@ if a[:4] == ['run','jobs','executions','describe']:
   'labels':{'run.googleapis.com/job':job}},
   'spec':{'taskCount':1,'parallelism':1,'template':{'spec':{'maxRetries':0,
    'timeoutSeconds':'86400','serviceAccountName':
-   'nfl-dfs-runner@nfl-predictions-503414.iam.gserviceaccount.com',
+   '817589974517-compute@developer.gserviceaccount.com',
    'containers':[container]}}},
   'status':{'conditions':[{'type':'Completed','status':'True'}],
    'completionTime':'2026-09-01T01:02:03Z','succeededCount':1}})); sys.exit()
@@ -244,7 +247,7 @@ if a[:3] == ['run','jobs','describe'] and any('value(metadata.name)' in x for x 
 if a[:3] == ['run','jobs','describe']:
  print(json.dumps({'spec':{'template':{'spec':{'taskCount':1,
   'template':{'spec':{'maxRetries':0,'timeoutSeconds':'86400','serviceAccountName':
-  'nfl-dfs-runner@nfl-predictions-503414.iam.gserviceaccount.com','containers':[container]}}}}}})); sys.exit()
+  '817589974517-compute@developer.gserviceaccount.com','containers':[container]}}}}}})); sys.exit()
 if a[:3] == ['run','jobs','execute']:
  sys.exit(88)
 sys.exit(0)
