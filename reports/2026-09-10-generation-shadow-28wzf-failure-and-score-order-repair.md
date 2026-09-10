@@ -1,7 +1,7 @@
 # Generation-shadow `28wzf` failure and deterministic score-order repair
 
 Date: 2026-09-10
-Status: implementation repaired and validated; replacement image/run pending
+Status: implementation repaired and validated; replacement run active
 
 ## Provider-terminal finding
 
@@ -46,7 +46,11 @@ Validation:
 
 This is a mechanics repair only. It does not change candidate membership,
 selection policy, adopted scoring, paid-entry behavior, or experimental
-authority. Build a new immutable image from the pushed repair commit, update
-the dedicated unscheduled job, and launch one fresh zero-retry Week-1 suite.
-Preserve `28wzf`, `j5qzl`, and `vx76b` as failed evidence.
-
+authority. Repair commit `ee87e7d39e68634cd50411f6c3763798ecc7c7fc`
+produced passing Cloud Build `701ee02e-c63f-4a81-a978-7873ef39c2ca` and
+digest-pinned image `sha256:56613633cb5e49067455b921b54c465c62e15b82e4b4f147cc45ca95724029bd`.
+The existing dedicated job launched fresh zero-retry execution
+`generation-shadow-suite-8mz64`, UID
+`bcf7e194-bfb8-4373-96b0-c0dfc8f21cb6`. Monitor it to provider terminality
+and collect only on success. Preserve `28wzf`, `j5qzl`, and `vx76b` as failed
+evidence.

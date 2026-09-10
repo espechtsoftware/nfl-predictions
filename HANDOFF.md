@@ -46,6 +46,20 @@ agent or developer:
   from that exact pushed source, update the existing unscheduled job, and
   launch one fresh zero-retry Week-1 execution. This repair changes no
   candidate membership, scoring law, adopted policy, or paid-entry behavior.
+- Repair commit `ee87e7d39e68634cd50411f6c3763798ecc7c7fc` is pushed on
+  both `main` and
+  `production/generation-shadow-paired-input-v2-20260910`. Immutable Cloud
+  Build `701ee02e-c63f-4a81-a978-7873ef39c2ca` passed and produced image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:56613633cb5e49067455b921b54c465c62e15b82e4b4f147cc45ca95724029bd`.
+- The existing dedicated job was updated and fresh execution
+  `generation-shadow-suite-8mz64`, UID
+  `bcf7e194-bfb8-4373-96b0-c0dfc8f21cb6`, was launched at
+  `2026-09-10T16:54:52.534689Z`. Its initial provider snapshot binds the exact
+  repair source/image, one task, parallelism one, zero retries, 8 CPU, 32 GiB,
+  86,400-second timeout, season 2026, week 1, draft group `151307`, and lock
+  `2026-09-13T17:00:00Z`. Exact next action is to monitor `8mz64` to provider
+  terminality and collect only on one-task success with a valid fresh
+  manifest/terminal; preserve it uncollected on any failure.
 
 ### 2026-09-10 scoring objective is bankroll-safe breakout ordering
 
