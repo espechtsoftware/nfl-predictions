@@ -22,6 +22,28 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 Week-1 freeze identity boundary repaired
+
+- Branch `production/generation-shadow-jsonpayload-collector-20260910` now
+  repairs the host-side `freeze-week` validator failure observed after exact
+  collection of `generation-shadow-suite-8mz64`. The immutable suite remains
+  valid and must not be rerun.
+- Exact diagnosis against the 59,898,735-byte incumbent bundle: suite
+  candidate IDs hash DK draftable-player membership, while canonical solve
+  ledgers hash internal-player membership. Direct comparison matched 0/260;
+  reconstruction through the suite's frozen, validated player-identity bridge
+  matched 260/260 with no missing provenance. The validator now reconstructs
+  candidate-namespace hashes from canonical ledger rows through that bridge;
+  native same-namespace validation remains intact, and forged candidates still
+  fail closed.
+- Validation: the focused namespace and forged-candidate regression passes
+  2/2; the full generation-shadow evaluator test file passes; deployment and
+  operator tests pass 27/27; `git diff --check` passes.
+- Exact next action: commit and push this repair, rerun the existing
+  `config/2026-week1-generation-shadow-freeze-week.json` against the unchanged
+  generation-pinned suite objects, then exact-reopen and receipt the published
+  terminal root/envelope before publishing the Week-1 safety row.
+
 ### 2026-09-10 `8mz64` succeeded and exact collection is complete
 
 - `generation-shadow-suite-8mz64`, UID

@@ -887,8 +887,28 @@ def _derived_safety_terminal_authority_v2(
     expected_books = [str(value) for value in rule["expected_book_ids"]]
     expected_blocks = [str(value) for value in rule["expected_block_labels"]]
     expected_prefixes = [int(value) for value in rule["expected_prefix_sizes"]]
+    bridge = _sequence(
+        suite["player_identity_bridge"],
+        label="safety player identity bridge",
+    )
+    dk_id_by_internal_id = {
+        _string(
+            _mapping(raw_player, label=f"safety player bridge[{ordinal}]")[
+                "internal_player_id"
+            ],
+            label="safety internal player ID",
+        ): _string(
+            _mapping(raw_player, label=f"safety player bridge[{ordinal}]")[
+                "dk_draftable_id"
+            ],
+            label="safety DK draftable ID",
+        )
+        for ordinal, raw_player in enumerate(bridge)
+    }
     arms = [
-        validate_arm_freeze_v1(value)
+        validate_arm_freeze_v1(
+            value, ledger_player_id_bridge=dk_id_by_internal_id
+        )
         for value in _sequence(root["arms"], label="safety terminal arms")
     ]
     arm_by_id = {str(arm["arm_id"]): arm for arm in arms}
@@ -912,12 +932,7 @@ def _derived_safety_terminal_authority_v2(
         memberships[str(PREFIX_SIZES[-1])],
         label="safety K80 frozen memberships",
     )
-    bridge = _sequence(
-        suite["player_identity_bridge"],
-        label="safety player identity bridge",
-    )
     player_by_dk_id: dict[str, dict[str, object]] = {}
-    dk_id_by_internal_id: dict[str, str] = {}
     for ordinal, raw_player in enumerate(bridge):
         player = _mapping(raw_player, label=f"safety player bridge[{ordinal}]")
         dk_id = _string(
@@ -927,7 +942,8 @@ def _derived_safety_terminal_authority_v2(
             player["internal_player_id"], label="safety internal player ID"
         )
         player_by_dk_id[dk_id] = player
-        dk_id_by_internal_id[internal_id] = dk_id
+        if dk_id_by_internal_id.get(internal_id) != dk_id:
+            _fail("safety player identity bridge differs")
 
     # Candidate IDs are hashes of DK-draftable roster membership.  Native
     # ledgers retain internal IDs, so exact reconstruction goes through the
@@ -2015,6 +2031,7 @@ def _validate_exact_candidate_provenance(
     preexisting_ids: Sequence[str],
     *,
     arm_id: str,
+    ledger_player_id_bridge: Mapping[str, str] | None = None,
 ) -> None:
     candidate_digests = {
         _candidate_roster_digest(value, label=f"{arm_id} candidate digest")
@@ -2030,6 +2047,31 @@ def _validate_exact_candidate_provenance(
         for row in ledger["rows"]
         if row["roster_sha256"] is not None
     }
+    if ledger_player_id_bridge is not None:
+        # Suite candidate IDs hash DK draftable IDs, while native solve
+        # ledgers intentionally retain internal player IDs.  Reconstruct the
+        # candidate-namespace digest from each canonical ledger roster through
+        # the already validated, frozen player bridge.  Keep the native digest
+        # too so same-namespace callers remain valid.
+        for ledger in ledgers:
+            for row in ledger["rows"]:
+                raw_roster = row["player_ids"]
+                if raw_roster is None:
+                    continue
+                try:
+                    translated = [
+                        ledger_player_id_bridge[str(player_id)]
+                        for player_id in raw_roster
+                    ]
+                except KeyError:
+                    continue
+                try:
+                    translated_digest = exposure.roster_identity(translated)[
+                        "roster_sha256"
+                    ]
+                except exposure.GenerationExposureError:
+                    continue
+                ledger_digests.add(str(translated_digest))
     if not candidate_digests <= ledger_digests | preexisting_digests:
         _fail(f"{arm_id} candidate pool contains unledgered provenance")
 
@@ -2196,6 +2238,7 @@ def build_arm_freeze_v1(
     shared_simulation_identity: Mapping[str, object],
     untouched_selection_bank_identity: Mapping[str, object],
     seed_crossing_sha256: str,
+    ledger_player_id_bridge: Mapping[str, str] | None = None,
 ) -> dict[str, object]:
     """Build one arm projection after validating its canonical solve ledger."""
 
@@ -2287,6 +2330,7 @@ def build_arm_freeze_v1(
         candidates,
         preexisting,
         arm_id=arm,
+        ledger_player_id_bridge=ledger_player_id_bridge,
     )
     raw_artifacts = _mapping(artifacts, label=f"{arm} artifacts")
     if set(raw_artifacts) != {
@@ -2496,7 +2540,11 @@ def build_arm_freeze_v1(
     return _with_hash(body, field="arm_freeze_sha256")
 
 
-def validate_arm_freeze_v1(value: object) -> dict[str, object]:
+def validate_arm_freeze_v1(
+    value: object,
+    *,
+    ledger_player_id_bridge: Mapping[str, str] | None = None,
+) -> dict[str, object]:
     item = _mapping(value, label="shadow arm freeze")
     fields = {
         "schema_version", "arm_id", "population_label", "cap_label",
@@ -2747,6 +2795,7 @@ def validate_arm_freeze_v1(value: object) -> dict[str, object]:
         candidates,
         preexisting,
         arm_id=arm,
+        ledger_player_id_bridge=ledger_player_id_bridge,
     )
     _identifier(item.get("population_label"), label=f"{arm} population label")
     _identifier(item.get("cap_label"), label=f"{arm} cap label")
@@ -4223,6 +4272,10 @@ def _decoded_suite_arm_freezes_v2(
         str(row["dk_draftable_id"]): str(row["internal_player_id"])
         for row in player_identity_bridge
     }
+    dk_player_id_by_internal_id = {
+        str(row["internal_player_id"]): str(row["dk_draftable_id"])
+        for row in player_identity_bridge
+    }
     artifact_player_order = [
         str(row["dk_draftable_id"]) for row in player_identity_bridge
     ]
@@ -4523,6 +4576,7 @@ def _decoded_suite_arm_freezes_v2(
             shared_simulation_identity=shared_identity,
             untouched_selection_bank_identity=shared_identity,
             seed_crossing_sha256=seed_crossing_sha256,
+            ledger_player_id_bridge=dk_player_id_by_internal_id,
             **extra,
         ))
     return arms
@@ -4606,7 +4660,16 @@ def build_terminal_prelock_root_v1(
         _fail("Week-1 root lock differs from the preregistered lock")
     seed = validate_seed_crossing_v1(seed_crossing)
     suite = validate_suite_authority_v1(suite_authority)
-    normalized_arms = [validate_arm_freeze_v1(arm) for arm in arms]
+    ledger_player_id_bridge = {
+        str(row["internal_player_id"]): str(row["dk_draftable_id"])
+        for row in suite["player_identity_bridge"]
+    }
+    normalized_arms = [
+        validate_arm_freeze_v1(
+            arm, ledger_player_id_bridge=ledger_player_id_bridge
+        )
+        for arm in arms
+    ]
     suite_manifest = suite["manifest"]
     assert isinstance(suite_manifest, Mapping)
     suite_worlds = _mapping(
@@ -4765,7 +4828,16 @@ def validate_terminal_prelock_root_body_v1(value: object) -> dict[str, object]:
     ):
         _fail("terminal root suite authority binding differs")
     raw_arms = _sequence(root.get("arms"), label="terminal root arms")
-    arms = [validate_arm_freeze_v1(arm) for arm in raw_arms]
+    ledger_player_id_bridge = {
+        str(row["internal_player_id"]): str(row["dk_draftable_id"])
+        for row in suite["player_identity_bridge"]
+    }
+    arms = [
+        validate_arm_freeze_v1(
+            arm, ledger_player_id_bridge=ledger_player_id_bridge
+        )
+        for arm in raw_arms
+    ]
     if (
         [arm["arm_id"] for arm in arms] != list(ARM_ORDER)
         or root.get("arms_sha256") != canonical_sha256_v1(arms)

@@ -2152,6 +2152,41 @@ def test_missing_attempt_and_unledgered_candidate_fail() -> None:
         shadow.validate_arm_freeze_v1(arm)
 
 
+def test_candidate_provenance_accepts_frozen_player_id_bridge() -> None:
+    internal_roster = [f"internal-{ordinal}" for ordinal in range(9)]
+    draftable_roster = [f"draftable-{ordinal}" for ordinal in range(9)]
+    builder = exposure.SolveExposureLedger(source_label="fixture-R0")
+    builder.record(
+        family="boom", requested_ordinal=0, status="new",
+        roster_ids=internal_roster,
+    )
+    ledger = builder.finalize(expected_requests_by_family={"boom": 1})
+    candidate = (
+        "lineup-v1-"
+        + str(exposure.roster_identity(draftable_roster)["roster_sha256"])
+    )
+    with pytest.raises(
+        shadow.ProspectiveGenerationShadowEvaluationError,
+        match="unledgered provenance",
+    ):
+        shadow._validate_exact_candidate_provenance(
+            [ledger], [candidate], [], arm_id="incumbent-160-40"
+        )
+    shadow._validate_exact_candidate_provenance(
+        [ledger], [candidate], [], arm_id="incumbent-160-40",
+        ledger_player_id_bridge=dict(zip(internal_roster, draftable_roster)),
+    )
+    forged = f"lineup-v1-{shadow.canonical_sha256_v1({'forged': True})}"
+    with pytest.raises(
+        shadow.ProspectiveGenerationShadowEvaluationError,
+        match="unledgered provenance",
+    ):
+        shadow._validate_exact_candidate_provenance(
+            [ledger], [forged], [], arm_id="incumbent-160-40",
+            ledger_player_id_bridge=dict(zip(internal_roster, draftable_roster)),
+        )
+
+
 def test_postlock_mutation_arm_omission_and_prefix_fail() -> None:
     _, root, _, _ = _case()
     broken = deepcopy(root)
