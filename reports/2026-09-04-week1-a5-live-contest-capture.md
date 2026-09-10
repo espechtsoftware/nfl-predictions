@@ -92,6 +92,17 @@ is:
 
 `5a98a3ebeb03e0f95afe8845e1f66cf7a21882054f45dd23ef9e85cde60611ee`
 
+That value is the raw SHA-256 of the original newline-bearing compact JSON
+serialization. Its parsed, canonically reserialized JSON has the distinct
+semantic SHA-256
+`dc449a918f15e9bee25171c4867039b4097fac4bc11008e437845b684936f7a0`.
+The original bytes were published create-once on 2026-09-10 at
+`gs://nfl-predictions-503414-raw/week1/prelock/2026-w01/contests/a5/20260904T104754Z/lobby-template-projection.json`,
+generation `1789039703362881`, 2,104 bytes, retaining raw SHA-256
+`5a98a3ebeb03e0f95afe8845e1f66cf7a21882054f45dd23ef9e85cde60611ee`.
+The generation-exact reopen reproduced both digests and all four template
+bindings without another provider request.
+
 This completes the immutable public-lobby metadata identity. It does not
 upgrade the two payout-description summaries into complete qualifier ticket
 terms; that separate evidence remains required before the final A5 seal.

@@ -1,9 +1,9 @@
 # Week-1 A5 capture contract v3
 
 Status: **HOLD before manifest publication or paid upload.** The evidence
-adapter is fail-closed, but a generation-pinned lobby projection and the final
-four-book allocation raw/semantic identity do not yet exist. The code must not
-invent either identity.
+adapter is fail-closed, and the generation-pinned lobby projection now exists.
+The final four-book allocation raw/semantic identity does not yet exist. The
+code must not invent that identity.
 
 This contract records evidence for the already approved A5 allocation. It does
 not change scoring, generation, selection, paid-entry behavior, or deployment.
@@ -28,9 +28,15 @@ guarantee, payout ladder, and qualifier ticket terms are rederived from the
 exact contest-detail bytes. Template IDs are source-qualified to the earlier
 public-lobby projection recorded in
 `reports/2026-09-04-week1-a5-live-contest-capture.md`; contest-detail bytes do
-not contain them. That projection currently has only semantic SHA-256
-`5a98a3ebeb03e0f95afe8845e1f66cf7a21882054f45dd23ef9e85cde60611ee`,
-not a raw object identity. Allocation publication therefore remains blocked.
+not contain them. The original newline-bearing compact projection is now
+published create-once at
+`gs://nfl-predictions-503414-raw/week1/prelock/2026-w01/contests/a5/20260904T104754Z/lobby-template-projection.json`,
+generation `1789039703362881`, 2,104 bytes, with raw SHA-256
+`5a98a3ebeb03e0f95afe8845e1f66cf7a21882054f45dd23ef9e85cde60611ee`.
+Its parsed canonical JSON has the distinct semantic SHA-256
+`dc449a918f15e9bee25171c4867039b4097fac4bc11008e437845b684936f7a0`.
+The earlier report called the raw newline-bearing digest a semantic digest;
+the pinned contract now records the two identities correctly.
 
 The pinned terminal contest-source manifest is:
 
@@ -215,28 +221,26 @@ the exact pooled cents with floor/one-cent-remainder allocation; no
 
 ## Operational order and remaining gates
 
-1. Publish a generation-pinned copy of the already recorded lobby projection,
-   without rereading or changing its September 4 semantics.
-2. Finish and exact-publish the player bridge and all four exact K80 books.
-3. Build, create-once publish, independently reopen, and code-pin the allocation
+1. Finish and exact-publish the player bridge and all four exact K80 books.
+2. Build, create-once publish, independently reopen, and code-pin the allocation
    raw identity and semantic SHA.
-4. Independently review the repaired default-off P0-A collector/authority
+3. Independently review the repaired default-off P0-A collector/authority
    candidate. It
    must recognize only receipts emitted by the governed authenticated
    collector, never arbitrary generic-store objects; activation then requires
    a separate pin-only change plus reviewed direct and inherited effective IAM,
    service-account impersonation, job-update, authority-bucket and
    runtime-image governance.
-5. Independently review this repair and run its focused adversarial suite plus
+4. Independently review this repair and run its focused adversarial suite plus
    an outcome-blind smoke against the five real source objects and a
    representative production prepared-entry/filled-CSV/active-entry-export
    shape. `scripts/week1_a5_capture_real_shape_smoke.py` is default-off,
    performs no writes or network calls, emits only redacted counts/hashes, and
    requires `--execute-real-shape-smoke`. Its post-lock mode additionally
    requires `--allow-postlock-outcome-bytes`.
-6. Only after those gates, publish four manifests, perform owner-authorized
+5. Only after those gates, publish four manifests, perform owner-authorized
    uploads, capture raw acceptance evidence, and publish the 90-entry root.
-7. After contests settle, preserve all four complete fields inside DK's short
+6. After contests settle, preserve all four complete fields inside DK's short
    export window and publish normalized/settlement evidence.
 
 There is still no governed repository-owned end-to-end A5 publisher/CLI. Do

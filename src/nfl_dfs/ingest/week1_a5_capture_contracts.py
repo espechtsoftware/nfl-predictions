@@ -111,7 +111,7 @@ QUALIFIER_TICKET_NAMES: Final = (
     "NFL 2026 $1.5M FFWC Afternoon Only Contest Ticket",
 )
 TEMPLATE_PROJECTION_SEMANTIC_SHA256: Final = (
-    "5a98a3ebeb03e0f95afe8845e1f66cf7a21882054f45dd23ef9e85cde60611ee"
+    "dc449a918f15e9bee25171c4867039b4097fac4bc11008e437845b684936f7a0"
 )
 TEMPLATE_AUTHORITY: Final = (
     "reports/2026-09-04-week1-a5-live-contest-capture.md#public-lobby-projection"
@@ -231,6 +231,15 @@ PINNED_CONTEST_SOURCE_IDENTITIES: Final = MappingProxyType(
                 "bytes": 4901,
             }
         ),
+    }
+)
+PINNED_TEMPLATE_PROJECTION_IDENTITY: Final = MappingProxyType(
+    {
+        "uri": "gs://nfl-predictions-503414-raw/week1/prelock/2026-w01/"
+        "contests/a5/20260904T104754Z/lobby-template-projection.json",
+        "generation": "1789039703362881",
+        "sha256": "5a98a3ebeb03e0f95afe8845e1f66cf7a21882054f45dd23ef9e85cde60611ee",
+        "bytes": 2104,
     }
 )
 
@@ -580,7 +589,7 @@ def pinned_source_pins() -> A5SourcePins:
             contest_id: dict(identity)
             for contest_id, identity in PINNED_CONTEST_SOURCE_IDENTITIES.items()
         },
-        template_projection_identity=None,
+        template_projection_identity=dict(PINNED_TEMPLATE_PROJECTION_IDENTITY),
         template_projection_semantic_sha256=TEMPLATE_PROJECTION_SEMANTIC_SHA256,
     )
 
@@ -601,6 +610,11 @@ def _require_exact_source_pins(source_pins: A5SourcePins) -> None:
             expected,
             label=f"contest {contest_id} source identity",
         )
+    _identity_equal(
+        source_pins.template_projection_identity,
+        PINNED_TEMPLATE_PROJECTION_IDENTITY,
+        label="lobby/template projection identity",
+    )
     if (
         _sha(
             source_pins.template_projection_semantic_sha256,

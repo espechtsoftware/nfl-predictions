@@ -828,6 +828,11 @@ def cohort() -> Cohort:
     )
     patcher.setattr(
         capture,
+        "PINNED_TEMPLATE_PROJECTION_IDENTITY",
+        source_pins.template_projection_identity,
+    )
+    patcher.setattr(
+        capture,
         "TEMPLATE_PROJECTION_SEMANTIC_SHA256",
         source_pins.template_projection_semantic_sha256,
     )
@@ -1007,13 +1012,19 @@ def _normalized_ref(
     return _ref(publication)
 
 
-def test_live_capture_remains_hold_without_real_lobby_and_allocation_pins() -> None:
+def test_live_capture_remains_hold_without_allocation_pins() -> None:
     with pytest.raises(
         capture.Week1A5CaptureContractError, match="allocation raw/semantic identity"
     ):
         capture.live_capture_pins()
     pins = capture.pinned_source_pins()
-    assert pins.template_projection_identity is None
+    assert pins.template_projection_identity == dict(
+        capture.PINNED_TEMPLATE_PROJECTION_IDENTITY
+    )
+    assert (
+        pins.template_projection_semantic_sha256
+        == capture.TEMPLATE_PROJECTION_SEMANTIC_SHA256
+    )
 
 
 def test_real_shape_smoke_is_default_off_before_opening_a_file(tmp_path) -> None:
@@ -1310,6 +1321,23 @@ def test_alternate_terminal_source_identity_fails_before_fact_parsing(
         manifest_identity=manifest_identity,
         contest_identities=cohort.source_pins.contest_identities,
         template_projection_identity=cohort.source_pins.template_projection_identity,
+        template_projection_semantic_sha256=(
+            cohort.source_pins.template_projection_semantic_sha256
+        ),
+    )
+    with pytest.raises(capture.Week1A5CaptureContractError, match="exact pinned identity"):
+        capture.load_pinned_contest_sources(cohort.store, source_pins)
+
+
+def test_alternate_template_projection_identity_fails_before_fact_parsing(
+    cohort: Cohort,
+) -> None:
+    template_identity = dict(cohort.source_pins.template_projection_identity)
+    template_identity["bytes"] = int(template_identity["bytes"]) + 1
+    source_pins = capture.A5SourcePins(
+        manifest_identity=cohort.source_pins.manifest_identity,
+        contest_identities=cohort.source_pins.contest_identities,
+        template_projection_identity=template_identity,
         template_projection_semantic_sha256=(
             cohort.source_pins.template_projection_semantic_sha256
         ),

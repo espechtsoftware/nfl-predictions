@@ -22,6 +22,34 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 A5 lobby/template projection generation-pinned
+
+- Production reconstructed the exact September 4 public-lobby projection from
+  its outcome-blind warehouse snapshot using the originally recorded query and
+  serialization contract. Before publication it reproduced raw SHA-256
+  `5a98a3ebeb03e0f95afe8845e1f66cf7a21882054f45dd23ef9e85cde60611ee`.
+  The exact original newline-bearing 2,104 bytes are now published create-once
+  at
+  `gs://nfl-predictions-503414-raw/week1/prelock/2026-w01/contests/a5/20260904T104754Z/lobby-template-projection.json`,
+  generation `1789039703362881`. A generation-exact download reproduced the
+  byte count and raw digest.
+- The publication exposed a latent raw-versus-semantic pin defect: the prior
+  contract called the newline-bearing raw digest a semantic digest, while its
+  validator hashes parsed canonical JSON without that newline. The correct
+  parsed semantic SHA-256 is
+  `dc449a918f15e9bee25171c4867039b4097fac4bc11008e437845b684936f7a0`.
+  Production now pins both identities distinctly and requires the exact
+  template object identity alongside the already-pinned four contest-detail
+  objects. A real GCS exact reopen reconstructs all four template IDs; the
+  focused A5 contract suite passes 42/42, compilation and `git diff --check`
+  pass.
+- This closes the lobby/template prerequisite without a new DraftKings
+  request, outcome read, paid action, or policy change. The A5 live pin remains
+  fail-closed only on the not-yet-published player bridge, four K80 books, and
+  allocation root. Exact next action is to finish the running generation
+  suite, freeze and reopen its terminal authority, then publish those derived
+  book/bridge/allocation objects through one governed repository operator.
+
 ### 2026-09-10 R6 bankroll-prefix and breakout-ranking failure isolated
 
 - Development commit `ae62baf55b7ca207fddd8be408f5c909d047c4c5` adds a
