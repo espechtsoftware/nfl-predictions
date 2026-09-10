@@ -22,6 +22,42 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 scoring diagnosis moved beyond the Neo4j importer
+
+- Production froze further importer work unless it blocks a real analysis.
+  The loaded PREREG-083 graph already answers the first decision question:
+  ordering has 18.707/17.415 points of control/treatment hindsight headroom at
+  K20, but only 6.106/5.001 at K80. Across all 14,400 frozen candidates there
+  is no 230+ roster; the absolute maximum is 227.20. Ranking can improve the
+  reduced-bankroll K20 book, but it cannot create championship-range candidates
+  the generator did not supply.
+- Each arm supplied 12 realized 200+ candidates. Current K20 captured only
+  2/12 per arm, while K80 captured 7/12 control and 8/12 treatment. The two
+  treatment 220+ candidates were both omitted from K80 and ranked only 83/100
+  by q99 and 108/108 by simulated P(200+), isolating a tail-belief and
+  selection interaction rather than an importer problem.
+- A fast, fixed chronological diagnostic trained deterministic LightGBM
+  LambdaRank on 2023 and evaluated 2024. Standalone learned marginal ordering
+  lost 2.823/6.670 points at K20 and 4.999/3.673 at K80 versus the incumbent
+  control/treatment books. Do not replace coverage selection with an
+  individual learned score. Continue only the set-aware scenario-coverage
+  portion of PREREG-085 while moving the main gain thesis to rare-event beliefs
+  and candidate supply.
+- The published Week-1 books were also compared at K20. P_MIX reduces
+  concentration/designation risk but does not improve held-in maximum;
+  D800_WEMAX carries the highest held-in WEMAX and independent marginal P(194+)
+  mass but lower expected maximum and 70% peak exposure. The independent live
+  audit matrix was not persisted, so neither is an independently verified paid
+  ordering change. No allocation or entry submission was made.
+- Full numbers and the immediate scoring queue are in
+  `reports/2026-09-10-scoring-bottleneck-and-week1-ordering-audit.md` on branch
+  `production/generation-shadow-jsonpayload-collector-20260910`, based on
+  source tip `9c283ac0`, PREREG-083 score SHA-256 `fece63a5...9d56`, and Week-1
+  publication run `20260910t2315z-fa5d035`. Exact next action: route the
+  chronological negative to PREREG-085, require future live runs to retain the
+  full independent audit matrix, and prioritize the first bounded
+  belief/supply intervention capable of generating 230+ candidates.
+
 ### 2026-09-10 PREREG-083 is live in the localhost Neo4j diagnostic fixture
 
 - Production verified the exact remote PREREG-083 graph receipt and runtime
@@ -44,15 +80,15 @@ agent or developer:
 - Query replay confirms the decisive selection gap: the treatment pool has
   two realized 220+ candidates and K80 selects zero; control has one and
   selects it. At K80, mean candidate-oracle regret remains 5.001 points for
-  treatment and 6.281 for control. Mean/sim-mean association is only about
+  treatment and 6.106 for control. Mean/sim-mean association is only about
   0.240 in treatment, q90 about 0.208, and q99 about 0.167, so q99 alone is
   not an adequate ranking prescription.
 - Full evidence and prefix diagnostics are in
   `reports/2026-09-10-prereg083-local-neo4j-load-and-ranking-audit.md`. This is
   a localhost development index, not a dedicated production service or live
-  selection authority. Exact next action: harden the export's loader to use
-  indexed batched transactions, then advance PREREG-085's identical-population
-  ranker comparison and prospective confirmation path.
+  selection authority. The export loader is now hardened and no longer active
+  scoring work. Exact next action: advance PREREG-085's set-aware
+  identical-population comparison and the rare-event belief/supply path.
 
 ### 2026-09-10 Week-1 P_MIX and four governed books published
 
