@@ -83,9 +83,10 @@ if [[ -n "$COLLECT_EXECUTION" ]]; then
     (.status.failedCount // 0) == 0 and
     (.status.cancelledCount // 0) == 0 and
     (.status.runningCount // 0) == 0 and
-    .spec.taskCount == 1 and .spec.parallelism == 1 and
+    .spec.taskCount == 1 and (.spec.parallelism // 1) == 1 and
     .spec.template.spec.maxRetries == 0 and
-    (.spec.template.spec.timeout == "86400s" or
+    (.spec.template.spec.timeoutSeconds == "86400" or
+     .spec.template.spec.timeout == "86400s" or
      .spec.template.spec.timeout == "86400.000000000s") and
     .spec.template.spec.serviceAccountName == $service_account and
     (.spec.template.spec.containers | length) == 1 and
@@ -197,8 +198,10 @@ jq -e --arg image "$IMAGE" --arg sha "$CODE_SHA" --arg sa "$SERVICE_ACCOUNT" \
   .spec.template.spec as $outer |
   $outer.template.spec as $task |
   $task.containers[0] as $c |
-  $outer.taskCount == 1 and $outer.parallelism == 1 and
-  $task.maxRetries == 0 and ($task.timeout == "86400s" or $task.timeout == "86400.000000000s") and
+  $outer.taskCount == 1 and ($outer.parallelism // 1) == 1 and
+  $task.maxRetries == 0 and
+  ($task.timeoutSeconds == "86400" or $task.timeout == "86400s" or
+   $task.timeout == "86400.000000000s") and
   $task.serviceAccountName == $sa and
   ($task.containers | length) == 1 and
   $c.image == $image and $c.command == ["nfl-dfs"] and
@@ -227,9 +230,11 @@ jq -e --arg job "$JOB" --arg image "$IMAGE" --arg sha "$CODE_SHA" \
   --arg bucket "$BUCKET" '
   (.metadata.name | startswith($job + "-"))
   and (.metadata.labels["run.googleapis.com/job"] == $job)
-  and (.spec.taskCount == 1) and (.spec.parallelism == 1)
+  and (.spec.taskCount == 1) and ((.spec.parallelism // 1) == 1)
   and (.spec.template.spec.maxRetries == 0)
-  and (.spec.template.spec.timeout == "86400s" or .spec.template.spec.timeout == "86400.000000000s")
+  and (.spec.template.spec.timeoutSeconds == "86400" or
+       .spec.template.spec.timeout == "86400s" or
+       .spec.template.spec.timeout == "86400.000000000s")
   and (.spec.template.spec.containers | length == 1)
   and (.spec.template.spec.containers[0].image == $image)
   and (.spec.template.spec.containers[0].command == ["nfl-dfs"])

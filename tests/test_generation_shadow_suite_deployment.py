@@ -34,6 +34,8 @@ def test_launcher_and_build_contract_are_isolated_and_bounded() -> None:
     assert "shadow-generation-suite" in script
     assert "--tasks 1" in script and "--parallelism 1" in script
     assert "--max-retries 0" in script and "--task-timeout 86400s" in script
+    assert 'timeoutSeconds == "86400"' in script
+    assert "parallelism // 1" in script
     assert "--cpu 8" in script and "--memory 32Gi" in script
     assert "IMAGE_URI=$IMAGE" in script
     assert "GCP_PROJECT=$PROJECT" in script
@@ -98,15 +100,15 @@ container={'image':image,'command':['nfl-dfs'],'args':args,
 if a[:3] == ['run','jobs','describe'] and any('value(metadata.name)' in x for x in a):
  sys.exit(1)
 if a[:3] == ['run','jobs','describe']:
- print(json.dumps({'spec':{'template':{'spec':{'taskCount':1,'parallelism':1,
-  'template':{'spec':{'maxRetries':0,'timeout':'86400s','serviceAccountName':
+ print(json.dumps({'spec':{'template':{'spec':{'taskCount':1,
+  'template':{'spec':{'maxRetries':0,'timeoutSeconds':'86400','serviceAccountName':
   'nfl-dfs-runner@nfl-predictions-503414.iam.gserviceaccount.com','containers':[container]}}}}}})); sys.exit()
 if a[:3] == ['run','jobs','execute']:
  print(json.dumps({'metadata':{'name':job+'-abc12'}})); sys.exit()
 if a[:4] == ['run','jobs','executions','describe']:
  print(json.dumps({'metadata':{'name':job+'-abc12','labels':{'run.googleapis.com/job':job}},
   'spec':{'taskCount':1,'parallelism':1,'template':{'spec':{'maxRetries':0,
-  'timeout':'86400s','containers':[container]}}}})); sys.exit()
+  'timeoutSeconds':'86400','containers':[container]}}}})); sys.exit()
 sys.exit(0)
 """
     )
@@ -165,7 +167,7 @@ if a[:4] == ['run','jobs','executions','describe']:
  print(json.dumps({'metadata':{'name':execution,'uid':'execution-uid',
   'labels':{'run.googleapis.com/job':job}},
   'spec':{'taskCount':1,'parallelism':1,'template':{'spec':{'maxRetries':0,
-   'timeout':'86400s','serviceAccountName':
+   'timeoutSeconds':'86400','serviceAccountName':
    'nfl-dfs-runner@nfl-predictions-503414.iam.gserviceaccount.com',
    'containers':[container]}}},
   'status':{'conditions':[{'type':'Completed','status':'True'}],
@@ -240,8 +242,8 @@ container={'image':image,'command':['nfl-dfs'],'args':['shadow-generation-suite'
 if a[:3] == ['run','jobs','describe'] and any('value(metadata.name)' in x for x in a):
  sys.exit(1)
 if a[:3] == ['run','jobs','describe']:
- print(json.dumps({'spec':{'template':{'spec':{'taskCount':1,'parallelism':1,
-  'template':{'spec':{'maxRetries':0,'timeout':'86400s','serviceAccountName':
+ print(json.dumps({'spec':{'template':{'spec':{'taskCount':1,
+  'template':{'spec':{'maxRetries':0,'timeoutSeconds':'86400','serviceAccountName':
   'nfl-dfs-runner@nfl-predictions-503414.iam.gserviceaccount.com','containers':[container]}}}}}})); sys.exit()
 if a[:3] == ['run','jobs','execute']:
  sys.exit(88)

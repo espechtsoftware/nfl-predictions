@@ -60,9 +60,25 @@ agent or developer:
   inventory 19/19, corpus legal feasibility 34/34, and parametric snapshot
   5/5. `git diff --check` passes. Ruff is unavailable in the retained local
   environment, so no Ruff result is claimed.
-- Exact next action: commit and push the v7 repair, resubmit the complete
-  immutable generation-image gate from that exact commit, and only after it
-  passes create/execute `generation-shadow-suite` for season 2026, week 1,
+- The repaired immutable build passed from exact pushed handoff commit
+  `44b648bcdbd0167dd64f046971300a1d5c806349`: Cloud Build
+  `b6118432-ce35-4cb7-b595-2074c6b84e41` completed successfully with 556
+  passed, two skipped and two deselected tests in the main gate plus 6 passed
+  in the secondary gate. It produced immutable image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:7bd2e1ab8af6d4b54d05401e5362a13b8b219d212aaa1fdd10f685e2e9a6111c`.
+- A read-only comparison against current `gcloud run jobs describe` and
+  `executions describe` output caught another fail-closed launcher defect
+  before job creation: job JSON omits default `parallelism=1`, and current job
+  and execution JSON expose `timeoutSeconds="86400"` rather than the older
+  `timeout="86400s"` shape used by all test fakes. The launcher now accepts
+  only explicit parallelism 1 or its provider-default omission and exact
+  86,400 seconds in either provider representation. Test fixtures now model
+  the observed current provider shape; the focused deployment/clean-build
+  suite passes 14/14, shell parsing and `git diff --check` pass. No job or
+  execution was created from the superseded image.
+- Exact next action: commit and push the provider-shape repair, rebuild from
+  that exact source because the launcher is part of the immutable context,
+  then create/execute `generation-shadow-suite` for season 2026, week 1,
   DraftKings draft group 151307 and lock `2026-09-13T17:00:00Z`. Preserve the
   999-job census until that dedicated job is created.
 
