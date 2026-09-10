@@ -43,7 +43,7 @@ def _fixture() -> tuple[
         totals = np.stack(
             [
                 row_draws[
-                    [int(str(player_id)[1:]) for player_id in lineup.ids]
+                    [int(str(player["id"])[1:]) for player in lineup.players]
                 ].sum(axis=0)
                 for lineup in lineups
             ]
@@ -261,6 +261,30 @@ def test_crossing_rejects_candidate_scores_not_from_shared_bank() -> None:
             mapping,
             independent_audit_row_draws=_audit_draws(populations),
         )
+
+
+def test_base_scoring_uses_the_producers_ordered_player_sequence() -> None:
+    populations, _books, _mapping = _fixture()
+    batch = populations["incumbent-160-40"]
+    row_by_id = {
+        player_id: index for index, player_id in enumerate(batch.player_ids)
+    }
+    ordered = np.stack([
+        batch.row_draws[
+            [row_by_id[player["id"]] for player in lineup.players]
+        ].sum(axis=0)
+        for lineup in batch.candidates
+    ]).astype(np.float32)
+    legacy_unordered = np.stack([
+        batch.row_draws[
+            [row_by_id[player_id] for player_id in lineup.ids]
+        ].sum(axis=0)
+        for lineup in batch.candidates
+    ]).astype(np.float32)
+
+    assert np.array_equal(ordered, batch.candidate_totals)
+    assert not np.array_equal(legacy_unordered, batch.candidate_totals)
+    crossing._validate_base_scoring(batch)
 
 
 def test_crossing_rejects_non_common_player_world_bank() -> None:

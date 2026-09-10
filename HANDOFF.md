@@ -22,6 +22,53 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 `28wzf` failed safely; deterministic score order repaired
+
+- Cloud Run execution `generation-shadow-suite-28wzf`, UID
+  `edba950d-3629-47ae-8d9c-1762badda9fa`, failed terminally at
+  `2026-09-10T16:07:27.350800Z` with one failed task and zero retries. It
+  completed all five treatment-arm candidate blocks, then stopped before a
+  prelock manifest or terminal was published. Do not collect, relabel, reuse,
+  or retry into its namespace; preserve it with `j5qzl` and `vx76b`.
+- Root cause is exact and local: the producer sums each candidate's float32
+  player rows in stable `Lineup.players` order, while the crossing validator
+  used hash-dependent `Lineup.ids` frozenset order. The same nine inputs can
+  differ by one ULP solely from addition order, so exact equality rejected an
+  authentic bank. The independent-audit sum had the same nondeterminism.
+- Production now uses ordered player sequences in both paths, constructs the
+  fixture the same way, and pins the failure with a regression where the
+  ordered total exactly equals the producer and the old unordered total does
+  not. The focused test passes 8/8; the generation suite, evaluation,
+  crossing, live-multiseed, portfolio, boom-first and deployment cohort passes
+  96/96; `git diff --check` passes. Full evidence is in
+  `reports/2026-09-10-generation-shadow-28wzf-failure-and-score-order-repair.md`.
+- Exact next action: commit and push this repair, build a new immutable image
+  from that exact pushed source, update the existing unscheduled job, and
+  launch one fresh zero-retry Week-1 execution. This repair changes no
+  candidate membership, scoring law, adopted policy, or paid-entry behavior.
+
+### 2026-09-10 scoring objective is bankroll-safe breakout ordering
+
+- The user reports no historical lineup has beaten the Milly Maker winner,
+  historical weekly maximum is about 183, and a competitive winning target is
+  closer to 230 than 200. Betting volume is therefore reduced until evidence
+  supports stronger performance. No experimental result may be presented as
+  justification to restore the former spend level.
+- Scoring work must distinguish candidate supply from ordering quality. Report
+  realized maximum and 200/210/220/230/240 capture for K1/K3/K5/K10/K20/K40/
+  K57/K80, the realized-best candidate's treatment rank, rank correlation or
+  equivalent ordering discrimination, and regret from each prefix to the full
+  eligible-pool maximum. The reduced-bankroll K20 prefix is the primary
+  operating view; exact K80 remains an experimental comparison, not a betting
+  recommendation.
+- Diagnostics must expose known/missing feature coverage and relationships to
+  high realized scores. Neo4j may organize slate, lineup, player, feature,
+  source and outcome lineage, but a graph is not evidence by itself: all
+  reported associations need point-in-time provenance, walk-forward folds and
+  held-out evaluation. PREREG-082 experiment
+  `106_r6_breakout_reranker` is the active ordering lane; it keeps K80
+  membership fixed so its result isolates ranking rather than generation.
+
 ### 2026-09-10 PREREG-082 pool-wide belief blocker cleared
 
 - The accepted outcome-free R6 panel freeze is a complete structural

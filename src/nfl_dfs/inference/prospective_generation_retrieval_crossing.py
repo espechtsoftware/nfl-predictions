@@ -128,8 +128,14 @@ def _validate_base_scoring(batch: CandidateBatch) -> None:
     }
     for ordinal, lineup in enumerate(batch.candidates):
         try:
-            player_rows = [row_by_id[player_id] for player_id in lineup.ids]
-        except KeyError as exc:
+            # Candidate totals are constructed from the ordered Lineup player
+            # sequence. ``lineup.ids`` is a frozenset, so summing float32 rows
+            # in its hash-dependent order can differ by an ULP even when the
+            # identical nine rows are present.
+            player_rows = [
+                row_by_id[player["id"]] for player in lineup.players
+            ]
+        except (KeyError, TypeError) as exc:
             raise ProspectiveGenerationRetrievalCrossingError(
                 "retrieval roster escapes the common player-world bank"
             ) from exc
@@ -690,9 +696,9 @@ def build_generation_retrieval_crossing(
             player_id: ordinal for ordinal, player_id in enumerate(batch.player_ids)
         }
         audit_scores = np.stack([
-            audit_draws[[row_by_player[player_id] for player_id in lineup.ids]].sum(
-                axis=0, dtype=np.float32
-            )
+            audit_draws[
+                [row_by_player[player["id"]] for player in lineup.players]
+            ].sum(axis=0, dtype=np.float32)
             for lineup in batch.candidates
         ]).astype(np.float32, copy=False)
 
