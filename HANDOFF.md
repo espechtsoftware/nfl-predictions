@@ -66,7 +66,8 @@ agent or developer:
   passed, two skipped and two deselected tests in the main gate plus 6 passed
   in the secondary gate. It produced immutable image
   `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:7bd2e1ab8af6d4b54d05401e5362a13b8b219d212aaa1fdd10f685e2e9a6111c`.
-- A read-only comparison against current `gcloud run jobs describe` and
+- Repair commit `dc93ed5ab6d3cbe6c9615d0d673ad9c7fd4ca868` follows a read-only
+  comparison against current `gcloud run jobs describe` and
   `executions describe` output caught another fail-closed launcher defect
   before job creation: job JSON omits default `parallelism=1`, and current job
   and execution JSON expose `timeoutSeconds="86400"` rather than the older
