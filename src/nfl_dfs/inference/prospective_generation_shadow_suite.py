@@ -9,6 +9,7 @@ separate module and can run only from the terminal prelock root.
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from contextlib import contextmanager
 from dataclasses import replace
 from datetime import datetime, timezone
 import json
@@ -241,6 +242,100 @@ def _registered_seed_pairs(
     return tuple(parsed)
 
 
+@contextmanager
+def _freeze_live_source_reads(*, season: int, week: int):
+    """Serve one immutable upstream snapshot to every seeded build.
+
+    ``build_slate_with_draws`` deliberately rebuilds live features, markets,
+    late-inactive inputs, DST inputs, and model registry objects on each call.
+    Repeating that live read eleven times does not freeze a source: a provider
+    update between calls can produce an honestly different frame.  Cache the
+    provider results at their first use for this suite-local preflight while
+    leaving the adopted live builder itself untouched.
+    """
+
+    from ..models import prop_market, train_job
+    from . import dst_projections, run_projections
+
+    original_upcoming = run_projections.upcoming_slate_features
+    original_cascade = run_projections._cascade_adjuster
+    original_market = prop_market.market_points
+    original_dst = dst_projections.project_dst
+    original_models = train_job.load_latest_component_models
+
+    upcoming_snapshot: pd.DataFrame | None = None
+    cascade_snapshot = None
+    market_snapshot: pd.DataFrame | None = None
+    dst_snapshot: pd.DataFrame | None = None
+    model_snapshots: dict[str | None, tuple[object, str]] = {}
+
+    def frozen_upcoming(request_season: int, request_week: int) -> pd.DataFrame:
+        nonlocal upcoming_snapshot
+        if int(request_season) != season or int(request_week) != week:
+            _fail("frozen generation-shadow feature source request differs")
+        if upcoming_snapshot is None:
+            upcoming_snapshot = original_upcoming(request_season, request_week)
+        return upcoming_snapshot.copy(deep=True)
+
+    def frozen_cascade(request_season: int):
+        nonlocal cascade_snapshot
+        if int(request_season) != season:
+            _fail("frozen generation-shadow cascade source request differs")
+        if cascade_snapshot is None:
+            cascade_snapshot = original_cascade(request_season)
+        return cascade_snapshot
+
+    def frozen_market(
+        seasons: tuple[int, ...] = (2023, 2024, 2025), *,
+        minimum_markets: int = 1,
+    ) -> pd.DataFrame:
+        nonlocal market_snapshot
+        if tuple(int(value) for value in seasons) != (season,) or int(
+            minimum_markets
+        ) != 2:
+            _fail("frozen generation-shadow prop-market request differs")
+        if market_snapshot is None:
+            market_snapshot = original_market(
+                seasons, minimum_markets=minimum_markets
+            )
+        return market_snapshot.copy(deep=True)
+
+    def frozen_dst(
+        request_season: int, request_week: int, model_version: str,
+    ) -> pd.DataFrame:
+        nonlocal dst_snapshot
+        if int(request_season) != season or int(request_week) != week:
+            _fail("frozen generation-shadow DST source request differs")
+        if dst_snapshot is None:
+            dst_snapshot = original_dst(
+                request_season, request_week, model_version
+            )
+        result = dst_snapshot.copy(deep=True)
+        if "model_version" in result:
+            result["model_version"] = model_version
+        return result
+
+    def frozen_models(variant: str | None = None):
+        key = None if variant is None else str(variant)
+        if key not in model_snapshots:
+            model_snapshots[key] = original_models(variant)
+        return model_snapshots[key]
+
+    run_projections.upcoming_slate_features = frozen_upcoming
+    run_projections._cascade_adjuster = frozen_cascade
+    prop_market.market_points = frozen_market
+    dst_projections.project_dst = frozen_dst
+    train_job.load_latest_component_models = frozen_models
+    try:
+        yield
+    finally:
+        run_projections.upcoming_slate_features = original_upcoming
+        run_projections._cascade_adjuster = original_cascade
+        prop_market.market_points = original_market
+        dst_projections.project_dst = original_dst
+        train_job.load_latest_component_models = original_models
+
+
 def _freeze_suite_slate_draw_inputs(
     *,
     season: int,
@@ -290,67 +385,79 @@ def _freeze_suite_slate_draw_inputs(
             log_ownership_shadow=log_ownership_shadow,
         )
 
-    # Main-model R0--R4 plus the independent audit seed are loaded together
-    # so their stable-source receipts can be compared before optimization.
-    for label, projection_seed, role_seed in seed_pairs:
-        seed_environment = dict(base_environment)
-        seed_environment["REPLAY_PROJECTION_SEED"] = str(projection_seed)
-        seed_environment["ROLE_BELIEF_SEED"] = str(role_seed)
-        seed_environment["MULTISEED_SOURCE_LABEL"] = label
-        pair = _build(
-            seed=projection_seed,
+    # Main-model R0--R4, the independent audit seed, and role R0--R4 are
+    # derived from one suite-local upstream snapshot.  The eleven simulation
+    # banks remain seed-distinct; only their live provider inputs are cached.
+    with _freeze_live_source_reads(season=season, week=week):
+        for label, projection_seed, role_seed in seed_pairs:
+            seed_environment = dict(base_environment)
+            seed_environment["REPLAY_PROJECTION_SEED"] = str(projection_seed)
+            seed_environment["ROLE_BELIEF_SEED"] = str(role_seed)
+            seed_environment["MULTISEED_SOURCE_LABEL"] = label
+            pair = _build(
+                seed=projection_seed,
+                variant=model_variant,
+                environment=seed_environment,
+                log_ownership_shadow=(label == "R0"),
+            )
+            cache[("candidate", label)] = pair
+            candidate_frames.append(pair[0])
+
+        audit_environment = dict(base_environment)
+        audit_environment["MULTISEED_SOURCE_LABEL"] = "AUDIT"
+        audit_environment["REPLAY_PROJECTION_SEED"] = str(AUDIT_WORLD_SEED)
+        audit_pair = _build(
+            seed=AUDIT_WORLD_SEED,
             variant=model_variant,
-            environment=seed_environment,
-            log_ownership_shadow=(label == "R0"),
-        )
-        cache[("candidate", label)] = pair
-        candidate_frames.append(pair[0])
-
-    audit_environment = dict(base_environment)
-    audit_environment["MULTISEED_SOURCE_LABEL"] = "AUDIT"
-    audit_environment["REPLAY_PROJECTION_SEED"] = str(AUDIT_WORLD_SEED)
-    audit_pair = _build(
-        seed=AUDIT_WORLD_SEED,
-        variant=model_variant,
-        environment=audit_environment,
-        log_ownership_shadow=False,
-    )
-    candidate_frames.append(audit_pair[0])
-
-    for label, projection_seed, role_seed in seed_pairs:
-        seed_environment = dict(base_environment)
-        seed_environment["REPLAY_PROJECTION_SEED"] = str(projection_seed)
-        seed_environment["ROLE_BELIEF_SEED"] = str(role_seed)
-        seed_environment["MULTISEED_SOURCE_LABEL"] = label
-        pair = _build(
-            seed=role_seed,
-            variant=role_model_variant,
-            environment=seed_environment,
+            environment=audit_environment,
             log_ownership_shadow=False,
         )
-        cache[("role", label)] = pair
-        role_frames.append(pair[0])
+        candidate_frames.append(audit_pair[0])
+
+        for label, projection_seed, role_seed in seed_pairs:
+            seed_environment = dict(base_environment)
+            seed_environment["REPLAY_PROJECTION_SEED"] = str(projection_seed)
+            seed_environment["ROLE_BELIEF_SEED"] = str(role_seed)
+            seed_environment["MULTISEED_SOURCE_LABEL"] = label
+            pair = _build(
+                seed=role_seed,
+                variant=role_model_variant,
+                environment=seed_environment,
+                log_ownership_shadow=False,
+            )
+            cache[("role", label)] = pair
+            role_frames.append(pair[0])
 
     expected_player_order = candidate_frames[0]["id"].tolist()
     candidate_source = _stable_player_source_receipt(candidate_frames[0])
     role_source = _stable_player_source_receipt(role_frames[0])
-    if (
-        any(
+    candidate_labels = (*SEED_LABELS, "AUDIT")
+    for label, frame in zip(candidate_labels, candidate_frames, strict=True):
+        current_source = _stable_player_source_receipt(frame)
+        if (
             frame["id"].tolist() != expected_player_order
-            or _stable_player_source_receipt(frame) != candidate_source
+            or current_source != candidate_source
             or str(frame.attrs.get("model_version") or "")
             != str(candidate_frames[0].attrs.get("model_version") or "")
-            for frame in candidate_frames
-        )
-        or any(
+        ):
+            _fail(
+                "frozen generation-shadow preflight source drift: "
+                f"candidate/{label} {current_source['sha256']} differs from "
+                f"{candidate_source['sha256']}"
+            )
+    for label, frame in zip(SEED_LABELS, role_frames, strict=True):
+        current_source = _stable_player_source_receipt(frame)
+        if (
             frame["id"].tolist() != expected_player_order
-            or _stable_player_source_receipt(frame) != role_source
+            or current_source != role_source
             or str(frame.attrs.get("model_version") or "")
             != str(role_frames[0].attrs.get("model_version") or "")
-            for frame in role_frames
-        )
-    ):
-        _fail("frozen generation-shadow preflight source drift")
+        ):
+            _fail(
+                "frozen generation-shadow preflight source drift: "
+                f"role/{label} {current_source['sha256']} differs from "
+                f"{role_source['sha256']}"
+            )
     return cache, audit_pair
 
 

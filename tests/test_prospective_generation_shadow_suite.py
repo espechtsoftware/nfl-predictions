@@ -282,6 +282,109 @@ def test_suite_freezes_all_seed_inputs_before_candidate_work(monkeypatch) -> Non
     assert draws.shape == (1, suite.WORLDS_PER_BLOCK)
 
 
+def test_suite_reads_each_live_provider_once_for_all_seed_inputs(
+    monkeypatch,
+) -> None:
+    from nfl_dfs.inference import dst_projections, live_lineups, run_projections
+    from nfl_dfs.models import prop_market, train_job
+
+    calls = {
+        "upcoming": 0,
+        "cascade": 0,
+        "market": 0,
+        "dst": 0,
+        "models": {},
+    }
+
+    def fake_upcoming(season, week):
+        del season, week
+        calls["upcoming"] += 1
+        return pd.DataFrame({"source_revision": [calls["upcoming"]]})
+
+    def fake_cascade(season):
+        del season
+        calls["cascade"] += 1
+        return lambda frame: (frame.copy(deep=True), [])
+
+    def fake_market(seasons=(2023, 2024, 2025), *, minimum_markets=1):
+        del seasons, minimum_markets
+        calls["market"] += 1
+        return pd.DataFrame({"source_revision": [calls["market"]]})
+
+    def fake_dst(season, week, model_version):
+        del season, week
+        calls["dst"] += 1
+        return pd.DataFrame({
+            "source_revision": [calls["dst"]],
+            "model_version": [model_version],
+        })
+
+    def fake_models(variant=None):
+        key = None if variant is None else str(variant)
+        calls["models"][key] = calls["models"].get(key, 0) + 1
+        return object(), f"model/{key}"
+
+    def fake_slate(
+        season, week, *, n_sims, seed, model_variant, **kwargs,
+    ):
+        del kwargs
+        features = run_projections.upcoming_slate_features(season, week)
+        adjust = run_projections._cascade_adjuster(season)
+        features, _ = adjust(features)
+        market = prop_market.market_points((season,), minimum_markets=2)
+        _, version = train_job.load_latest_component_models(model_variant)
+        dst = dst_projections.project_dst(season, week, version)
+        source_revision = int(
+            features.loc[0, "source_revision"]
+            + market.loc[0, "source_revision"]
+            + dst.loc[0, "source_revision"]
+        )
+        frame = pd.DataFrame({
+            "id": [1, 2],
+            "draw_idx": [0, -1],
+            "salary": [5_000, 3_000],
+            "source_revision": [source_revision, source_revision],
+            "source_variant": [model_variant, model_variant],
+            "proj": [float(seed), 7.0],
+            "proj_tourney": [float(seed) - 1.0, 7.0],
+        })
+        frame.attrs["model_version"] = version
+        return frame, np.full((1, n_sims), float(seed), dtype=np.float32)
+
+    monkeypatch.setattr(run_projections, "upcoming_slate_features", fake_upcoming)
+    monkeypatch.setattr(run_projections, "_cascade_adjuster", fake_cascade)
+    monkeypatch.setattr(prop_market, "market_points", fake_market)
+    monkeypatch.setattr(dst_projections, "project_dst", fake_dst)
+    monkeypatch.setattr(train_job, "load_latest_component_models", fake_models)
+    monkeypatch.setattr(live_lineups, "build_slate_with_draws", fake_slate)
+
+    cache, audit = suite._freeze_suite_slate_draw_inputs(
+        season=2026,
+        week=1,
+        allowed_ids={1, 2},
+        salary_overrides={1: 5_000, 2: 3_000},
+        environments=suite.arm_environments(),
+        model_variant="main",
+        role_model_variant="role",
+        expected_model_k=1,
+    )
+
+    assert len(cache) == 10
+    assert audit[1].shape == (1, suite.AUDIT_WORLD_COUNT)
+    assert calls == {
+        "upcoming": 1,
+        "cascade": 1,
+        "market": 1,
+        "dst": 1,
+        "models": {"main": 1, "role": 1},
+    }
+    assert run_projections.upcoming_slate_features is fake_upcoming
+    assert run_projections._cascade_adjuster is fake_cascade
+    assert prop_market.market_points is fake_market
+    assert dst_projections.project_dst is fake_dst
+    assert train_job.load_latest_component_models is fake_models
+
+
 def test_suite_frozen_input_preflight_rejects_source_drift(monkeypatch) -> None:
     calls = 0
 
