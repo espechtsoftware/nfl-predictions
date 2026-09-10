@@ -22,6 +22,29 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 single-source image passed; fresh suite execution launched
+
+- Immutable Cloud Build `751bee28-471a-4221-9138-91a1b7292d55` passed from
+  exact pushed source `3eb173098e1568182dc9fe72f79a126c0e55140c`.
+  Its gate reports 564 passed / 2 skipped / 2 deselected tests plus six passed
+  compatibility tests, followed by a successful image build and isolated
+  container smoke. The digest-pinned image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:16ab7c2bb9cef29fa5d0b7fb3c469f220ab7301f71899bdd657930c2783dcbe7`.
+- The existing dedicated job was updated in place and fresh execution
+  `generation-shadow-suite-28wzf`, UID
+  `edba950d-3629-47ae-8d9c-1762badda9fa`, was created at
+  `2026-09-10T14:42:32.062251Z`. Its provider snapshot verifies the exact
+  source/image above, one task, parallelism one, zero retries, 8 CPU, 32 GiB,
+  86,400-second timeout, runtime service account
+  `817589974517-compute@developer.gserviceaccount.com`, season 2026, week 1,
+  draft group `151307`, and lock `2026-09-13T17:00:00Z`. Image import is in
+  progress and no terminal artifact exists yet.
+- Exact next action: monitor `generation-shadow-suite-28wzf` through its
+  single-source preflight and candidate blocks. On provider-terminal success,
+  collect from an exact detached `3eb17309` checkout and accept only a
+  paired-input-v2 manifest/terminal root. Preserve `vx76b` and `j5qzl` as
+  failures; do not collect or reuse them.
+
 ### 2026-09-10 second suite failed safely; single-source preflight repaired
 
 - Execution `generation-shadow-suite-j5qzl`, UID
