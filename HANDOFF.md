@@ -22,6 +22,37 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 PREREG-082 pool-wide belief blocker cleared
+
+- The accepted outcome-free R6 panel freeze is a complete structural
+  authority, not merely the selected-subset attribution trace.  For every one
+  of the 54 slates it binds the exact task result, all final-fit candidate
+  rosters, and R0--R4 player-by-10,000-world NPZ artifacts.  Summing each
+  roster's nine player rows therefore reconstructs authentic pre-lock belief
+  for every eligible candidate without imputation or an outcome read.
+- Production implemented the fail-closed reader on pushed nfl2 branch
+  `production/prereg082-pool-belief-mechanics-r1-20260910`: code commit
+  `2228e731cd81a46e7e1cec0f0419b95344a91495`, handoff tip `a11d62e`.
+  It authenticates the exact panel/task/result/surface/final-fit/world chain,
+  physical NPZ bytes, shared player identities, shapes, types and finiteness;
+  computes mean, standard deviation, q75/q90/q95/q99 and probabilities at
+  187/194/200/210/220/230/240; permits only R0--R3 in the search API; and
+  reserves R4 as unopened audit authority.
+- A real outcome-disabled source-ordinal-0 reopen produced features for
+  3,815/3,815 candidates from 40,000 search worlds in about seven seconds.
+  Output SHA-256 is
+  `904832c7b50a21725bb2a9886437d358bf511db34b52d49ad6fe7fac008838a5`.
+  One reconstructed lineup mean differed from its independently stored trace
+  by less than 0.0000003.  R4's identity metadata was checked but its body was
+  neither retrieved nor opened.  Combined reader/belief validation is 24/24
+  tests plus Ruff, Python compile and diff checks.
+- The prior 6.81% coverage concern is resolved: the frozen eligible pool now
+  has 100% authentic pre-lock belief coverage.  Exact next action: implement
+  and freeze the membership-invariant hybrid reranker from R0--R3 beliefs plus
+  roster/generation phenotype and point-in-time catalogs, then use R4 only for
+  audit after the ordering rule is frozen.  No score read, adoption, promotion
+  or Week-1 policy change is authorized by this mechanics result.
+
 ### 2026-09-10 PREREG-082 corpus reader authenticated for ranking work
 
 - Lab Update 320 was delivered only on remote branch
@@ -41,11 +72,9 @@ agent or developer:
   Validation is 17/17 tests plus Ruff/compile/diff checks. A full real reopen
   accepted 54/54 shards, 199,244 lineup rows, and 207,360 selection rows in
   about 54 seconds.
-- The headline audit remains valid, but R1's requested hybrid still lacks
-  unbiased pool-wide pre-lock belief features for 93.19% of eligible rows.
-  Exact next action: inspect the frozen candidate/selection artifacts for an
-  authentic pool-wide candidate-world surface, otherwise implement and label
-  the phenotype-only baseline. No R1 score read is authorized yet.
+- The headline audit remains valid.  The former 93.19% pool-wide belief gap is
+  superseded by the authenticated panel/world reconstruction documented in the
+  section above.  No R1 score read is authorized yet.
 
 ### 2026-09-10 PREREG-083 supply gate reviewed and repaired directly
 
