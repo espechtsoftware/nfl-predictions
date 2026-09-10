@@ -22,6 +22,31 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 PREREG-082 corpus reader authenticated for ranking work
+
+- Lab Update 320 was delivered only on remote branch
+  `lab/prereg082-r1-breakout-reranker-mechanics-20260910`, code `866d1d4`
+  and update tip `104b39d`. It correctly reproduces production's 200/230
+  supply/capture counts and measures only 6.81% belief/marginal coverage over
+  the eligible pool. Its original 12 tests pass, but its integrity check
+  trusted self-declared hashes in each shard, accepted any nonempty directory,
+  and did not reconcile lineup/scope/selection/book joins.
+- Production repaired the reader directly at nfl2 commit
+  `ba8228bdffcbf9cb8f2753cd18cf8d35d3df2241`, with review note at pushed
+  branch tip `6cf0f40` on
+  `production/prereg082-r1-corpus-review-r1-20260910`. The reader now pins the
+  no-rescore release self-hash `4bb8dc9b...96965`, requires its exact 54-file
+  physical object set and external inner hashes, requires all false authority
+  fields, and reconciles every lineup, scope, selection, and book join.
+  Validation is 17/17 tests plus Ruff/compile/diff checks. A full real reopen
+  accepted 54/54 shards, 199,244 lineup rows, and 207,360 selection rows in
+  about 54 seconds.
+- The headline audit remains valid, but R1's requested hybrid still lacks
+  unbiased pool-wide pre-lock belief features for 93.19% of eligible rows.
+  Exact next action: inspect the frozen candidate/selection artifacts for an
+  authentic pool-wide candidate-world surface, otherwise implement and label
+  the phenotype-only baseline. No R1 score read is authorized yet.
+
 ### 2026-09-10 PREREG-083 supply gate reviewed and repaired directly
 
 - Lab Update 322 was discovered on remote branch
@@ -75,9 +100,10 @@ agent or developer:
   are no execution errors. The live prop source had advanced to 19,498 input
   rows / 4,156 prelock rows from `j5qzl`'s 16,883 / 3,843, confirming that
   repeated live reads were an unsafe pairing boundary. Execution `28wzf`
-  remains active with one running task and no terminal artifact yet. Its first
-  two candidate blocks completed at `2026-09-10T14:55:46Z` and
-  `2026-09-10T15:05:05Z`, each with 260 candidates and no execution error.
+  remains active with one running task and no terminal artifact yet. All five
+  incumbent blocks completed and the 260-candidate incumbent arm persisted at
+  `2026-09-10T15:33:55Z`; the next arm then began and produced 261 candidates
+  in each of its first three observed blocks. There is no execution error.
 - Exact next action: monitor `generation-shadow-suite-28wzf` through its
   single-source preflight and candidate blocks. On provider-terminal success,
   collect from an exact detached `3eb17309` checkout and accept only a
