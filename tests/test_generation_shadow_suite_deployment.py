@@ -6,6 +6,8 @@ from pathlib import Path
 import stat
 import subprocess
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts/cloud_generation_shadow_suite.sh"
@@ -144,8 +146,9 @@ sys.exit(0)
     assert "scheduler" not in calls
 
 
+@pytest.mark.parametrize("log_payload_kind", ["text", "json"])
 def test_launcher_collects_one_terminal_execution_without_mutating_job(
-    tmp_path: Path,
+    tmp_path: Path, log_payload_kind: str,
 ) -> None:
     code_sha = TEST_CODE_SHA
     image = "us.example/research/shadow@sha256:" + "8" * 64
@@ -185,7 +188,9 @@ if a[:2] == ['logging','read']:
  result={'complete':True,'run_id':run_id,'cloud_run_execution':execution,
   'manifest':receipt('manifest',101),'terminal':receipt('terminal',102),
   'registry_sha256':'b'*64,'production_enabled':False}
- print(json.dumps([{'textPayload':json.dumps(result,sort_keys=True)}])); sys.exit()
+ payload = ({'jsonPayload':result} if os.environ['LOG_PAYLOAD_KIND'] == 'json'
+            else {'textPayload':json.dumps(result,sort_keys=True)})
+ print(json.dumps([payload])); sys.exit()
 sys.exit(97)
 """
     )
@@ -198,6 +203,7 @@ sys.exit(97)
         "EXPECTED_IMAGE": image,
         "EXPECTED_SHA": code_sha,
         "EXPECTED_EXECUTION": execution,
+        "LOG_PAYLOAD_KIND": log_payload_kind,
         "GENERATION_SHADOW_COLLECT_EXECUTION": execution,
         "GENERATION_SHADOW_SEASON": "2026",
         "GENERATION_SHADOW_WEEK": "1",
@@ -211,8 +217,11 @@ sys.exit(97)
     assert result.returncode == 0, result.stderr
     receipt = json.loads(result.stdout)
     assert receipt["schema_version"] == (
-        "prospective-generation-shadow-cloud-collection/v1"
+        "prospective-generation-shadow-cloud-collection/v2"
     )
+    assert receipt["workload_source_sha"] == code_sha
+    assert receipt["collector_source_sha"] == code_sha
+    assert receipt["logging_payload_contract"] == "jsonPayload-or-textPayload"
     assert receipt["execution"]["name"] == execution
     assert receipt["manifest_identity"]["generation"] == "101"
     assert receipt["terminal_identity"]["generation"] == "102"

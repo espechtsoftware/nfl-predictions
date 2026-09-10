@@ -89,9 +89,18 @@ scripts/cloud_generation_shadow_suite.sh IMAGE FULL_PUSHED_CODE_SHA
 Collection exact-describes only that execution, proves one successful task,
 zero failures/cancellations/running tasks, the immutable image/code/project/
 bucket/resources and exact slate arguments, then accepts exactly one matching
-JSON stdout receipt.  It returns normalized generation-pinned manifest and
+JSON stdout receipt from Cloud Logging's structured `jsonPayload` or legacy
+string `textPayload`. It returns normalized generation-pinned manifest and
 terminal identities for `freeze-week`.  It never describes, updates, deploys,
 or executes the mutable job and never reads outcomes.
+
+If Cloud Logging transport behavior requires a host-only collector repair
+after the workload ran, set `GENERATION_SHADOW_COLLECTOR_CODE_SHA` to the exact
+current checkout commit while leaving the positional workload code SHA
+unchanged. The launcher requires that the collector commit descend from the
+workload commit and that their entire path delta contain only the collector,
+its test, reports and `HANDOFF.md`. The v2 collection receipt records both
+source identities and the accepted logging-payload contract.
 
 ## 1. Publish the pre-Week-1 family rule
 

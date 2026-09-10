@@ -9,6 +9,7 @@ die() { printf '%s\n' "ERROR: $*" >&2; exit 2; }
 [[ $# -eq 2 ]] || die "usage: $0 IMAGE@sha256:DIGEST FULL_CODE_SHA"
 IMAGE=$1
 CODE_SHA=$2
+COLLECTOR_CODE_SHA=${GENERATION_SHADOW_COLLECTOR_CODE_SHA:-$CODE_SHA}
 PROJECT=nfl-predictions-503414
 REGION=${GCP_REGION:-us-central1}
 BUCKET=nfl-predictions-503414-raw
@@ -25,6 +26,8 @@ SLATE_LOCK_AT=${GENERATION_SHADOW_SLATE_LOCK_AT:-}
 [[ "$IMAGE" =~ ^[^[:space:]@]+@sha256:[0-9a-f]{64}$ ]] || \
   die "image must be immutable and digest-pinned"
 [[ "$CODE_SHA" =~ ^[0-9a-f]{40}$ ]] || die "CODE_SHA must be a full Git commit"
+[[ "$COLLECTOR_CODE_SHA" =~ ^[0-9a-f]{40}$ ]] || \
+  die "GENERATION_SHADOW_COLLECTOR_CODE_SHA must be a full Git commit"
 [[ "${GCP_PROJECT:-$PROJECT}" == "$PROJECT" ]] || \
   die "GCP_PROJECT must be the frozen production project"
 [[ "${GCS_BUCKET:-$BUCKET}" == "$BUCKET" ]] || \
@@ -40,11 +43,26 @@ if [[ -n "$COLLECT_EXECUTION" ]]; then
     die "GENERATION_SHADOW_COLLECT_EXECUTION must name one exact suite execution"
   [[ "$EXECUTE" == "0" && "$ALLOW_CREATE" == "0" ]] || \
     die "collection cannot deploy, create, or execute the job"
+else
+  [[ "$COLLECTOR_CODE_SHA" == "$CODE_SHA" ]] || \
+    die "a distinct collector source is allowed only during collection"
 fi
 ROOT=$(git rev-parse --show-toplevel)
-[[ "$(git -C "$ROOT" rev-parse HEAD)" == "$CODE_SHA" ]] || \
-  die "CODE_SHA must equal repository HEAD"
+[[ "$(git -C "$ROOT" rev-parse HEAD)" == "$COLLECTOR_CODE_SHA" ]] || \
+  die "collector source must equal repository HEAD"
 git -C "$ROOT" cat-file -e "${CODE_SHA}^{commit}" || die "CODE_SHA is absent"
+git -C "$ROOT" cat-file -e "${COLLECTOR_CODE_SHA}^{commit}" || \
+  die "collector source is absent"
+if [[ "$COLLECTOR_CODE_SHA" != "$CODE_SHA" ]]; then
+  git -C "$ROOT" merge-base --is-ancestor "$CODE_SHA" "$COLLECTOR_CODE_SHA" || \
+    die "collector repair does not descend from the workload source"
+  while IFS= read -r changed_path; do
+    case "$changed_path" in
+      HANDOFF.md|reports/*|scripts/cloud_generation_shadow_suite.sh|tests/test_generation_shadow_suite_deployment.py) ;;
+      *) die "collector repair contains a non-collector change: $changed_path" ;;
+    esac
+  done < <(git -C "$ROOT" diff --name-only "$CODE_SHA" "$COLLECTOR_CODE_SHA")
+fi
 
 JOB_ARGS_CSV=shadow-generation-suite
 if [[ "$EXECUTE" == "1" || -n "$COLLECT_EXECUTION" ]]; then
@@ -102,11 +120,14 @@ if [[ -n "$COLLECT_EXECUTION" ]]; then
     )
   ' "$execution_json" >/dev/null || die "terminal execution differs from the frozen suite contract"
 
-  log_filter="resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$COLLECT_EXECUTION\" AND logName=\"projects/$PROJECT/logs/run.googleapis.com%2Fstdout\" AND textPayload:*"
+  log_filter="resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$COLLECT_EXECUTION\" AND logName=\"projects/$PROJECT/logs/run.googleapis.com%2Fstdout\""
   gcloud logging read "$log_filter" --project "$PROJECT" --limit 100 \
     --order=asc --format=json >"$logs_json"
   jq -e --arg execution "$COLLECT_EXECUTION" '
-    [ .[] | .textPayload? | select(type == "string") | fromjson?
+    [ .[]
+      | if (.jsonPayload? | type) == "object" then .jsonPayload
+        elif (.textPayload? | type) == "string" then (.textPayload | fromjson?)
+        else empty end
       | select(
           .complete == true and
           .cloud_run_execution == $execution and
@@ -136,9 +157,11 @@ if [[ -n "$COLLECT_EXECUTION" ]]; then
     .manifest.uri == $manifest_uri and .terminal.uri == $terminal_uri
   ' "$suite_json" >/dev/null || die "suite receipt identities differ"
 
-  jq -cS --arg schema "prospective-generation-shadow-cloud-collection/v1" \
+  jq -cS --arg schema "prospective-generation-shadow-cloud-collection/v2" \
     --arg execution_uid "$(jq -er '.metadata.uid' "$execution_json")" \
-    --arg completion_time "$(jq -er '.status.completionTime' "$execution_json")" '
+    --arg completion_time "$(jq -er '.status.completionTime' "$execution_json")" \
+    --arg workload_source_sha "$CODE_SHA" \
+    --arg collector_source_sha "$COLLECTOR_CODE_SHA" '
     def identity: {uri, generation:(.generation | tostring), sha256, bytes};
     {
       schema_version:$schema,
@@ -152,6 +175,9 @@ if [[ -n "$COLLECT_EXECUTION" ]]; then
         completion_time:$completion_time
       },
       run_id:.run_id,
+      workload_source_sha:$workload_source_sha,
+      collector_source_sha:$collector_source_sha,
+      logging_payload_contract:"jsonPayload-or-textPayload",
       registry_sha256:.registry_sha256,
       manifest_identity:(.manifest | identity),
       terminal_identity:(.terminal | identity),
