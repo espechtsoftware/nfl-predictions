@@ -22,6 +22,37 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 Week-1 active-slate identity preflight repaired
+
+- Branch `production/week1-licensed-asof-repair-20260909`, source commit
+  `5ceae636b689c837ee25d721cf69106b0ebc615e`, repairs two live projection
+  blockers found by an outcome-blind query against the exact Week-1 A5 draft
+  group `151307`. DraftKings' `LAR` and the inference table's canonical `LA`
+  are now compared through the same reviewed team-alias map, and mapped
+  roster admission now requires a coherent fantasy position (with the
+  explicit NFL `FB` to DraftKings `RB` equivalence). This excludes the one
+  ambiguous Riley Nowakowski listing (`DK RB`, active roster/inference `TE`)
+  instead of admitting it or failing the complete slate.
+- Focused source-readiness validation passes 39/39; Python compilation and
+  `git diff --check` pass. The real production preflight now passes on a
+  fresh, complete 32-team roster receipt. The exact A5 salary snapshot has
+  744 rows; 397 are active and eligible (373 skill players plus 24 DSTs)
+  across all 26 slate teams, while 347 stale/inactive/mismatched salary rows
+  are excluded. No outcome was read and no heavy simulation ran locally.
+- All 373 eligible skill rows are marked `is_cold_start` by the established
+  Week-1 law because usage windows reset by season. This is deliberate and
+  historically replayed: Week-1 training rows use salary, depth, draft and
+  game context rather than silently borrowing prior-season roles. It is not
+  evidence that historical scoring is unavailable, and changing that law
+  days before lock would require a separate validated experiment.
+- The Fantasy Points `source_regime` week-3/week-4 boundary is already closed:
+  weeks 1-3 may carry the explicitly typed prior-season vendor regime, while
+  week 4 onward requires the target season. No Week-1 code change is due.
+  Exact next action: push/merge the repair, build the exact immutable
+  production image, run the outcome-blind Week-1 generation suite on Cloud
+  Run, and bind its validated books into the P_CTRL/P_MIX and A5 allocation
+  path before the `2026-09-13T17:00:00Z` lock.
+
 ### 2026-09-09 Cloud Run queue cold-start replay repaired
 
 - Seven one-second-or-shorter exit-1 completion records emitted by the former
