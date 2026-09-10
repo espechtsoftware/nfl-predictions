@@ -22,6 +22,35 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 PREREG-083 supply gate reviewed and repaired directly
+
+- Lab Update 322 was discovered on remote branch
+  `lab/prereg083-r2-supply-gate-mechanics-20260910`, not on nfl2 `main`.
+  The reviewed code commit is
+  `888103441d48002565242c637ea59df3297b14c3`; the update-record tip is
+  `5be28961cf0c5d152c8bf7632e53d4639665d005`. Its original 17 focused
+  tests pass, but the v1 gate was incomplete relative to production's R2
+  work order: it omitted simulated 200/220/230 opportunity and the 187/200
+  support-collapse guard, computed movement over illegal emissions, did not
+  bind asserted counts/rosters to exact lineup identities, omitted real
+  construction novelty, and did not require equal selector budgets.
+- Production repaired the gate directly in nfl2 commit
+  `d05c53ab68cbccbe3a18a845770c65c0e7481449` and recorded the disposition
+  at branch tip `8939f52` on pushed branch
+  `production/prereg083-r2-supply-gate-r1-20260910`. Schema v2 now requires
+  exact attempted/accepted work and selector parity, legal-unique movement,
+  identity-bound construction/team-spine maps, and exact per-candidate
+  pre-lock 187/200/220/230 probabilities. A score read is warranted only when
+  an extreme-tail threshold improves, 187/200 support stays within the 5%
+  guard, and a novel legal candidate reaches the identical selector.
+  Validation is 25/25 focused tests, Ruff, Python compile, and diff check.
+- No provider, outcome, Cloud Build, Cloud Run lab execution, or score reader
+  was invoked. The v1 gate is held and no PREREG-083 score lane is open.
+  Exact next action: integrate v2 into experiment 105, connect one matched
+  incumbent/direct-tail outcome-disabled generator pair, and publish a
+  complete trace. Missing point-in-time player/team/position or simulated
+  opportunity inputs must keep the trace and score lane closed.
+
 ### 2026-09-10 single-source image passed; fresh suite execution launched
 
 - Immutable Cloud Build `751bee28-471a-4221-9138-91a1b7292d55` passed from
@@ -46,7 +75,9 @@ agent or developer:
   are no execution errors. The live prop source had advanced to 19,498 input
   rows / 4,156 prelock rows from `j5qzl`'s 16,883 / 3,843, confirming that
   repeated live reads were an unsafe pairing boundary. Execution `28wzf`
-  remains active with one running task and no terminal artifact yet.
+  remains active with one running task and no terminal artifact yet. Its first
+  two candidate blocks completed at `2026-09-10T14:55:46Z` and
+  `2026-09-10T15:05:05Z`, each with 260 candidates and no execution error.
 - Exact next action: monitor `generation-shadow-suite-28wzf` through its
   single-source preflight and candidate blocks. On provider-terminal success,
   collect from an exact detached `3eb17309` checkout and accept only a
