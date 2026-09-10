@@ -36,6 +36,14 @@ agent or developer:
   treatment 220+ candidates were both omitted from K80 and ranked only 83/100
   by q99 and 108/108 by simulated P(200+), isolating a tail-belief and
   selection interaction rather than an importer problem.
+- The older stage-complete diagnostics sharpen the intervention. The 72-slate
+  miss funnel had a 254.34 house-rule hindsight optimum and 251.16 touched-
+  player optimum versus a 185.20 delivered-pool oracle. Experiment 062 then
+  measured only 4.295 points of house-cell core-discovery loss but 57.753 of
+  completion loss (15.403/58.108 under DK-only legality). The main missing
+  object is the full nine-player completion, not player support or graph
+  transport. PREREG-037 warns that current beliefs cannot judge it reliably:
+  +0.667 simulated audit E[max] collapsed to +0.094 realized K80.
 - A fast, fixed chronological diagnostic trained deterministic LightGBM
   LambdaRank on 2023 and evaluated 2024. Standalone learned marginal ordering
   lost 2.823/6.670 points at K20 and 4.999/3.673 at K80 versus the incumbent
@@ -51,12 +59,15 @@ agent or developer:
   ordering change. No allocation or entry submission was made.
 - Full numbers and the immediate scoring queue are in
   `reports/2026-09-10-scoring-bottleneck-and-week1-ordering-audit.md` on branch
-  `production/generation-shadow-jsonpayload-collector-20260910`, based on
-  source tip `9c283ac0`, PREREG-083 score SHA-256 `fece63a5...9d56`, and Week-1
-  publication run `20260910t2315z-fa5d035`. Exact next action: route the
-  chronological negative to PREREG-085, require future live runs to retain the
-  full independent audit matrix, and prioritize the first bounded
-  belief/supply intervention capable of generating 230+ candidates.
+  `production/generation-shadow-jsonpayload-collector-20260910`; first durable
+  report commit is `98d046aa`. The lab priority correction is pushed to nfl2
+  branch `production/prereg083-r2-supply-gate-r1-20260910` at `e2cb655`.
+  Evidence binds PREREG-083 score SHA-256 `fece63a5...9d56` and Week-1
+  publication run `20260910t2315z-fa5d035`. Exact next action: finish the
+  bounded set-aware PREREG-085 comparison, require future live runs to retain
+  the full independent audit matrix, and prioritize belief-gated multi-player
+  completion under an independent joint player/game critic. Do not relaunch
+  the prior full-core implementation that failed its mechanics-yield gate.
 
 ### 2026-09-10 PREREG-083 is live in the localhost Neo4j diagnostic fixture
 

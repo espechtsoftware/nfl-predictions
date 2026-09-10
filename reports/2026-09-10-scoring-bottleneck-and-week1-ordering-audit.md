@@ -25,6 +25,24 @@ The full corpus has no realized 230+ candidate. Its absolute best candidate is
 The path to a championship-range score must change candidate supply or the
 underlying rare-event beliefs as well as ordering.
 
+This is not merely an inference from the missing 230s. The already-verified
+72-slate miss funnel measured a 254.34 mean hindsight optimum under the house
+construction rules and 251.16 when restricted to players the generator had
+touched, versus only 185.20 for the best candidate it actually assembled.
+Experiment 062 then decomposed that middle loss: under the house cell,
+core-discovery loss was only 4.295 points while completion loss was 57.753;
+under DK-only legality they were 15.403 and 58.108. Useful players and usually
+useful proposed cores exist. The system is failing to build and identify the
+right full nine-player completions.
+
+The caution is equally concrete. PREREG-037's one-player completion editor
+improved untouched simulated audit E[max] by 0.667 but improved realized K80
+by only 0.094. The prior full-core implementation then failed its
+outcome-disabled mechanics gate because fewer than 90% of targets yielded a
+legal two-player completion. Therefore the next construction attempt needs a
+better independent belief/critic and a mechanically feasible completion law;
+simply widening the optimizer is not supported.
+
 Selection recall confirms the smaller-book problem. Each arm supplied 12
 realized 200+ candidates. Only 2/12 in each arm appeared in its K20 prefix;
 the K80 books recovered 7/12 control and 8/12 treatment. The treatment supplied
@@ -100,10 +118,11 @@ entry count are fixed.
    current local graph is sufficient and the immutable JSON remains authority.
 2. Finish only the set-aware portion of PREREG-085 and reject the standalone
    marginal LightGBM path demonstrated above.
-3. Put the principal experimental effort on rare-event belief and candidate
-   supply: diagnose which high-realized rosters the simulated tail ranks below
-   80, then change the joint player/game outcome model or generation search
-   that failed to surface them.
+3. Put the principal experimental effort on belief-gated multi-player
+   completion: use the already-proposed cores, generate multiple legal full
+   completions, and evaluate them with a genuinely independent joint
+   player/game critic. The critic must first pass walk-forward joint-tail and
+   calibration checks; same-model proposal and judging repeats the failure.
 4. Persist the complete independent candidate-by-world audit matrix in every
    future live generation. Candidate marginal probabilities cannot evaluate a
    portfolio maximum or redundancy-aware ordering independently.
