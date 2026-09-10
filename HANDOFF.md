@@ -22,6 +22,34 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 paired-input-v2 image passed and fresh Week-1 suite launched
+
+- Production repair source commit
+  `e7572a315aa42d2d7f318ded6e596da1c28e8cf6` is pushed on `main` and
+  retains the paired-input-v2 repair described below. Immutable Cloud Build
+  `7fcf9d2a-09eb-4f84-9c80-f6a97fcaa4c4` passed its allowlisted exact-commit
+  tests, container build, and isolated smoke. It produced digest-pinned image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:2ea4548f14e284ec0e70750175ede36dcb2213e55cc79edae0ac508274fd43ce`.
+- The existing dedicated `generation-shadow-suite` job was updated in place;
+  no job was created or deleted. Fresh execution
+  `generation-shadow-suite-j5qzl`, UID
+  `d27793ab-e535-4315-83bd-9a0b43594ef1`, was created at
+  `2026-09-10T14:06:39.999752Z`. Its provider snapshot verifies one task,
+  parallelism one, zero retries, 8 CPU, 32 GiB, 86,400-second timeout, runtime
+  service account `817589974517-compute@developer.gserviceaccount.com`, exact
+  source/image bindings above, season 2026, week 1, DraftKings draft group
+  `151307`, and lock `2026-09-13T17:00:00Z`. The current provider state is
+  image import in progress; there is not yet a terminal artifact.
+- Failed predecessor `generation-shadow-suite-vx76b` remains terminally failed
+  and preserved. None of its diagnostic rows was deleted, retried, collected,
+  or relabelled, and no paid-entry or adopted-policy mutation occurred.
+- Exact next action: monitor `generation-shadow-suite-j5qzl` to provider
+  terminal. On success, use collection mode from exact source `e7572a3` and
+  accept only paired-input-authority-v2 manifest/terminal artifacts. Then
+  construct and publish/reopen P_MIX and the governed A5 bridge/four-book
+  capture authority. On failure, preserve the execution and diagnose it before
+  any retry.
+
 ### 2026-09-10 generation-shadow terminal failure isolated and paired-input v2 repaired
 
 - Cloud Run execution `generation-shadow-suite-vx76b` completed all 25
