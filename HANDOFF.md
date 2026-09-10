@@ -39,7 +39,8 @@ agent or developer:
   was being generated as frozen effective-policy source-set v6 even though
   governed `live_lineups.py` had changed after v6 and the reviewed Week-1
   identity repair had changed `run_projections.py`.
-- The repair preserves historical v5 and v6 literals byte-for-byte and adds
+- Repair commit `846db0552d28b665cdd1650de7cfc973f7bec581` preserves historical
+  v5 and v6 literals byte-for-byte and adds
   explicit current source-set v7
   `adopted-classic-policy-20260910-week1-licensed-asof-v7`. It binds
   `live_lineups.py` SHA-256 `95ccc439...`, `run_projections.py` SHA-256
