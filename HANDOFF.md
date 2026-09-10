@@ -22,6 +22,42 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 R6 bankroll-prefix and breakout-ranking failure isolated
+
+- Development commit `ae62baf55b7ca207fddd8be408f5c909d047c4c5` adds a
+  deterministic, row-free reader for the 54 accepted R6 attribution shards.
+  It validates every shard before decomposing each K1/K3/K5/K10/K20/K40/K57/
+  K80 threshold outcome into no candidate supply, eligible-but-K80 miss,
+  K80-hit-below-prefix, or prefix capture. It also measures within-slate
+  Spearman association between realized score and selection priority,
+  training mean, selector event count, objective gain, discovery mean, and
+  discovery event count. It performs no outcome query, rescore, graph mutation,
+  or production-policy change.
+- The exact completed audit over all 54 slates and eight final-fit strategies
+  has SHA-256
+  `2731f8c25e8c49b13781f929e163f2c39e81f7a60a9ca0427b32f3dcdf00198d`.
+  Mean final-book maximum is 176.003--178.435 versus the shared eligible-union
+  mean 202.662, leaving 24.227--26.660 points of mean selector regret.
+  Selection priority has only +0.0161 to +0.0424 mean within-slate Spearman
+  association with realized score, and the median rank of each realized K80
+  maximum ranges from 32.5 to 51.0. The current order is therefore not evidence
+  that a reduced bankroll's first entries have the best breakout probability.
+- At 230 points, candidate supply exists on only 3/54 slates. The strongest
+  K80 strategies capture two, but none places a 230 scorer in the first 20.
+  At 200 points, supply exists on 29/54 slates while every K80 strategy captures
+  only six or seven. The durable interpretation and reproduction command are
+  in `reports/2026-09-10-r6-prefix-ranking-and-breakout-capture-audit.md`.
+  The focused unit suite passes 3/3, Python compilation and `git diff --check`
+  pass; Ruff is unavailable in the retained environment.
+- Exact next science action: keep full-book generation separate from paid
+  prefix selection. Freeze two non-confounded development screens: (1) an
+  equal-compute extreme-tail supply arm targeting eligible-union opportunity
+  at 220/230, and (2) an identical-pool walk-forward reranker using only
+  portable pre-lock features and separate search/audit banks. The reranker
+  must report every audited prefix/threshold plus calibration, rank/NDCG,
+  scenario overlap, and full-book utility. The opened historical panel has no
+  adoption authority; prospective 2026 settlement remains required.
+
 ### 2026-09-10 Week-1 generation suite launched on the repaired immutable source
 
 - Immutable Cloud Build `fbf02fe1-b718-4ec8-8cd7-d14ca593138f` passed from
