@@ -43,6 +43,7 @@ def _live_inputs() -> tuple[
                     "pos": position,
                     "team": team,
                     "salary": 5_000,
+                    "status": pd.NA,
                     "roster_status": pd.NA if position == "DST" else "ACT",
                 }
             )
@@ -71,6 +72,13 @@ def _receipt(*, lev: int, boom: int, candidates: int) -> dict[str, object]:
         "salary_pull": "2026-09-04 09:03:18.206098+00:00",
         "identity": {"sha": "a" * 40, "dirty": False, "diff_sha256": None},
         "inputs": {
+            "dk_status_invariant": {
+                "eligibility_policy": "draftkings-inactive-denylist-v1",
+                "inactive_statuses": ["IR", "O", "OUT"],
+                "removed": 2,
+                "removed_by_status": {"IR": 1, "OUT": 1},
+                "retained_designations": {"D": 1, "Q": 2},
+            },
             "roster_status_invariant": {
                 "eligibility_policy": "target-week-active-skill-allowlist-v1",
                 "required_skill_status": "ACT",
@@ -144,3 +152,34 @@ def test_rejects_non_active_skill_player_in_frozen_frame() -> None:
 
     with pytest.raises(Week1LivePairAdapterError, match="non-ACT skill"):
         _adapt(frame=frame)
+
+
+def test_rejects_draftkings_inactive_player_in_frozen_frame() -> None:
+    frame, _candidates, _csv_rows = _live_inputs()
+    frame.loc[frame.id == "q0", "status"] = "OUT"
+
+    with pytest.raises(Week1LivePairAdapterError, match="DraftKings-inactive"):
+        _adapt(frame=frame)
+
+
+def test_rejects_missing_draftkings_status_invariant() -> None:
+    frame, paid_candidates, paid_csv = _live_inputs()
+    paid_receipt = _receipt(lev=160, boom=640, candidates=800)
+    del paid_receipt["inputs"]["dk_status_invariant"]
+
+    with pytest.raises(
+        Week1LivePairAdapterError,
+        match="DraftKings status eligibility receipt",
+    ):
+        adapt_week1_live_pair_v1(
+            paid_receipt=paid_receipt,
+            shadow_receipt=_receipt(lev=80, boom=320, candidates=400),
+            paid_frame=frame,
+            shadow_frame=frame.copy(),
+            paid_candidates=paid_candidates,
+            shadow_candidates=paid_candidates.iloc[:400].copy(),
+            paid_csv_rows=paid_csv,
+            shadow_csv_rows=paid_csv,
+            paid_frame_sha256="b" * 64,
+            shadow_frame_sha256="b" * 64,
+        )

@@ -104,7 +104,11 @@ EXPECTED_PLANNED_ENTRIES: Final = 90
 EXPECTED_PLANNED_SPEND_MICRO: Final = 449_000_000
 EXPECTED_BOOK_SIZE: Final = 80
 SALARY_CAP: Final = 50_000
-MAX_FROM_TEAM: Final = 4
+# NFL Classic requires the nine-player roster to span at least two teams.
+# Therefore the exact per-team ceiling is eight, matching the production
+# optimizer and DraftKings' current Classic rules.  The former value of four
+# was an unsupported capture-layer restriction and rejected legal live books.
+MAX_FROM_TEAM: Final = 8
 CLASSIC_SLOTS: Final = ("QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST")
 QUALIFIER_TICKET_NAMES: Final = (
     "NFL 2026 $12.5M FFWC Contest Ticket",
@@ -1609,6 +1613,37 @@ def _validate_book(value: object, *, bridge: Mapping[str, object]) -> dict[str, 
     retained["player_bridge"] = bridge_ref
     retained["entries"] = entries
     return retained
+
+
+def validate_week1_paid_salary_catalog_v1(value: object) -> dict[str, object]:
+    """Validate one exact, pre-lock DraftKings salary catalog."""
+
+    return _validate_salary_catalog(value)
+
+
+def validate_week1_player_bridge_v1(
+    value: object,
+    *,
+    catalog: Mapping[str, object],
+    salary_catalog_ref: Mapping[str, object],
+) -> dict[str, object]:
+    """Validate a complete internal-to-DraftKings Week-1 player bridge."""
+
+    return _validate_player_bridge(
+        value,
+        catalog=_validate_salary_catalog(catalog),
+        expected_catalog_ref=salary_catalog_ref,
+    )
+
+
+def validate_week1_book_materialization_v2(
+    value: object,
+    *,
+    bridge: Mapping[str, object],
+) -> dict[str, object]:
+    """Validate one exact-K80 A5 book against its frozen player bridge."""
+
+    return _validate_book(value, bridge=bridge)
 
 
 def _load_player_bridge(

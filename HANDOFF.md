@@ -22,6 +22,51 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 Week-1 inactive-player repair and three A5 books validated
+
+- The prior `e5ecce6` live pair is superseded and must not be promoted: its
+  `D800_WEMAX` book retained DraftKings-OUT Michael Penix Jr.  Current nfl2
+  `main` is `fa5d035ba99928f71736cbb77222515e9cdd94a8`, which applies the
+  explicit `draftkings-inactive-denylist-v1` boundary before simulation and
+  candidate generation while retaining Q/D designations.  The repaired D800
+  run is `20260910T123108360022Z-fa5d035`; the repaired D400 run is
+  `20260910T123841482022Z-fa5d035`.  Both bind the same `2026-09-10
+  12:01:43.749785+00:00` salary pull and exact 397-player frame.  D800 produced
+  800 candidates plus its same-pool WEMAX sidecar in 246.3 seconds; D400
+  produced 400 candidates in 112.2 seconds.
+- The production adapter now requires that exact DraftKings status receipt,
+  requires it to agree across the pair, and independently rejects any
+  O/OUT/IR player remaining in either frame.  It accepts the repaired pair at
+  shared frame SHA-256
+  `2ac1bfcfe74a44e42bc55fea753e32f48e997f0457ae214aa90e829420a9cc63`,
+  shared input SHA-256
+  `d43263568c98b7f9c905117182910d0372f917d911a2e68f916c3057ab110dd4`,
+  adapter SHA-256
+  `3cd5bf4ac742221bf1f376f2201cb1ba8da18e74613fb858901d08308c5b8cad`,
+  exact D400-within-D800 containment, and 38/80 control-book overlap.
+- The capture-v3 team ceiling was also corrected from an unsupported four to
+  the DraftKings Classic requirement represented exactly as at least two
+  teams / at most eight of nine players from one team.  The new storage-free
+  A5 materializer builds and strictly validates the 397-player salary catalog
+  and one-to-one internal/DK/draftable bridge, then converts ordered selector
+  results into exact-K80 capture books.  The repaired live pair now validates
+  P_CTRL SHA-256
+  `2d3c49223968ebe80847bde79583b42ba4ce457db8ff83d2deaf6751e163bf5f`,
+  D400_DEMAX SHA-256
+  `5f1a401bdf730094691bd5f78ce4cfd6e62d570b4903410d809756d3e6cb56b0`,
+  and D800_WEMAX SHA-256
+  `dca0b1626e28bf058164c455dc7d7ad1dfbca08ce5f484afd62dae775e8c7ffe`;
+  all have 80 unique legal entries and zero inactive catalog rows.  The
+  catalog semantic SHA-256 is
+  `8dad990ea7780e5dc6d0c1dd56de8ae6837c2d112c38b006c0393f888e99c29a`
+  and the bridge semantic SHA-256 is
+  `cf63675b2e5aa8cf120c9300a17b817ed95da233f63e8971059dd458969dee18`.
+- Exact next action: finish and collect/freeze the running generation suite,
+  construct P_MIX from its independently reopened participation inputs, and
+  publish/reopen the catalog, bridge, and four books through a default-off
+  governed A5 publisher.  Do not publish the old 90-entry/$449 allocation as
+  the user's final paid plan; bankroll sizing and prefix ranking remain open.
+
 ### 2026-09-10 Week-1 A5 same-pool books unblocked and live pair refreshed
 
 - Production repaired the lab live runner on top of current nfl2 `main` and

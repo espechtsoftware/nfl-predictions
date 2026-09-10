@@ -27,6 +27,8 @@ from .generation_exposure import canonical_sha256
 
 SCHEMA_VERSION: Final = "week1-live-pair-adapter/v1"
 ACTIVE_POLICY: Final = "target-week-active-skill-allowlist-v1"
+DK_STATUS_POLICY: Final = "draftkings-inactive-denylist-v1"
+DK_INACTIVE_STATUSES: Final = ("IR", "O", "OUT")
 BOOK_HEADER: Final = tuple(pair_operator.DK_SLOT_ORDER)
 _POSITIONS: Final = frozenset({"QB", "RB", "WR", "TE", "DST"})
 _FLEX: Final = frozenset({"RB", "WR", "TE"})
@@ -128,6 +130,30 @@ def _validate_receipt(
         or status.get("kept_nonact_skill_statuses") != {}
     ):
         _fail(f"{arm_id} did not use the active-skill allowlist")
+    dk_status = _mapping(
+        inputs.get("dk_status_invariant"),
+        label=f"{arm_id} DraftKings status eligibility receipt",
+    )
+    removed_by_status = _mapping(
+        dk_status.get("removed_by_status"),
+        label=f"{arm_id} DraftKings removals by status",
+    )
+    retained_designations = _mapping(
+        dk_status.get("retained_designations"),
+        label=f"{arm_id} retained DraftKings designations",
+    )
+    removed = dk_status.get("removed")
+    if (
+        dk_status.get("eligibility_policy") != DK_STATUS_POLICY
+        or dk_status.get("inactive_statuses") != list(DK_INACTIVE_STATUSES)
+        or type(removed) is not int
+        or removed < 0
+        or any(key not in DK_INACTIVE_STATUSES for key in removed_by_status)
+        or any(type(value) is not int or value < 0 for value in removed_by_status.values())
+        or sum(removed_by_status.values()) != removed
+        or any(key in DK_INACTIVE_STATUSES for key in retained_designations)
+    ):
+        _fail(f"{arm_id} did not apply the DraftKings inactive denylist")
     if not isinstance(inputs.get("content_hashes"), Mapping):
         _fail(f"{arm_id} input content hashes are absent")
     return receipt
@@ -136,7 +162,15 @@ def _validate_receipt(
 def _player_bridge(
     frame: pd.DataFrame,
 ) -> tuple[list[dict[str, object]], dict[str, str]]:
-    required = {"id", "dk_player_id", "pos", "team", "salary", "roster_status"}
+    required = {
+        "id",
+        "dk_player_id",
+        "pos",
+        "team",
+        "salary",
+        "status",
+        "roster_status",
+    }
     if required - set(frame.columns) or frame.empty:
         _fail("live frame is empty or lacks player-authority fields")
     rows: list[dict[str, object]] = []
@@ -147,6 +181,7 @@ def _player_bridge(
         position = str(row.pos)
         team = str(row.team)
         salary_raw = row.salary
+        dk_status = "" if pd.isna(row.status) else str(row.status).strip().upper()
         roster_status = row.roster_status
         dk_raw = row.dk_player_id
         if (
@@ -163,6 +198,8 @@ def _player_bridge(
             pd.isna(roster_status) or str(roster_status) != "ACT"
         ):
             _fail(f"live frame retains non-ACT skill player {player_id}")
+        if dk_status in DK_INACTIVE_STATUSES:
+            _fail(f"live frame retains DraftKings-inactive player {player_id}")
         dk_player_id = str(int(dk_raw))
         if dk_player_id in dk_to_player:
             _fail("live frame repeats a DraftKings player ID")
@@ -316,6 +353,8 @@ def adapt_week1_live_pair_v1(
         or paid.get("salary_pull") != shadow.get("salary_pull")
         or paid_inputs.get("content_hashes") != shadow_inputs.get("content_hashes")
         or paid_inputs.get("proj_tourney") != shadow_inputs.get("proj_tourney")
+        or paid_inputs.get("dk_status_invariant")
+        != shadow_inputs.get("dk_status_invariant")
         or paid_frame_sha256 != shadow_frame_sha256
     ):
         _fail("D800/D400 shared source, input, bank, or frame identity differs")
@@ -423,6 +462,8 @@ def adapt_week1_live_pair_directories_v1(
 
 __all__ = [
     "ACTIVE_POLICY",
+    "DK_INACTIVE_STATUSES",
+    "DK_STATUS_POLICY",
     "SCHEMA_VERSION",
     "Week1LivePairAdapterError",
     "adapt_week1_live_pair_directories_v1",
