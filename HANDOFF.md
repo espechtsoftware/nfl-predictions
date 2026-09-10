@@ -22,6 +22,35 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 Week-1 P_MIX and four governed books published
+
+- Exact clean production source
+  `2fc453284f1469d0c56fefc8173882705a52c4ca` executed run
+  `20260910t2315z-fa5d035` once. It create-once published the repaired adopted
+  D800/D400 pair, the prior-season participation package, salary catalog,
+  player bridge, and four exact-K80 books. The root-last terminal is
+  `gs://nfl-predictions-503414-raw/week1/prelock/2026-w01/a5-books/20260910t2315z-fa5d035/terminal.json`,
+  generation `1789080700983712`, 8,110 bytes, physical SHA-256
+  `2927af4a...7256`, and semantic SHA-256 `55c14171...e57b`.
+- Independent generation-pinned reopening revalidated the terminal, adopted
+  pair, participation package and every book. Pair contract SHA-256 is
+  `27db68ba...0b0e`; participation-package self hash is
+  `61186482...e97f`; selection receipt is `255c251b...c810`. All four books
+  contain exactly 80 legal materialized entries. P_MIX turns over 16 members
+  per side relative to P_CTRL from 24 live designations and a 1,460-row
+  2022--2025 participation fit.
+- The terminal binds the passing generation-safety receipt and exact contest
+  source/template pins, reads no target-week outcomes, and explicitly records
+  `entry_allocation_published=false` and `contest_entries_submitted=false`.
+  The compact durable receipt is
+  `reports/2026-09-10-week1-a5-four-book-publication.json`.
+- Exact next action: preserve the sealed books, refresh the live designation
+  state only through the governed pre-lock refresh law, and separately decide
+  a reduced-bankroll allocation before any final capture/entry artifact. In
+  parallel, continue the PREREG-085 breakout-ranker path with prefix recall,
+  candidate-oracle loss and ranking regret; do not mistake the existing
+  PREREG-083 graph export for a deployed Neo4j service.
+
 ### 2026-09-10 Week-1 four-book publisher passed real-data preflight
 
 - On branch `production/generation-shadow-jsonpayload-collector-20260910`,

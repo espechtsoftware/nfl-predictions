@@ -1,0 +1,87 @@
+{
+  "adopted_pair_manifest_identity": {
+    "bytes": 111200,
+    "generation": "1789080652464656",
+    "sha256": "15acedc7e74b534e8d7fbec47d34fc49fbfa9bf2995982e4378a5913c41aa559",
+    "uri": "gs://nfl-predictions-503414-raw/week1/prelock/2026-w01/a5-books/20260910t2315z-fa5d035/adopted-pair/manifest.json"
+  },
+  "book_count": 4,
+  "books": {
+    "D400_DEMAX": {
+      "artifact_identity": {
+        "bytes": 36673,
+        "generation": "1789080699672497",
+        "sha256": "addb7589f75714fe4a9e8d58ce13e1125c006090d9bd6f80e6ecb3f0189535fa",
+        "uri": "gs://nfl-predictions-503414-raw/week1/prelock/2026-w01/a5-books/20260910t2315z-fa5d035/books/D400_DEMAX.json"
+      },
+      "lineup_count": 80,
+      "semantic_sha256": "e1d55d74907fdcd999e4525e81cc5696566a9c917c19517eef67b20ae32dd873"
+    },
+    "D800_WEMAX": {
+      "artifact_identity": {
+        "bytes": 36676,
+        "generation": "1789080700347721",
+        "sha256": "95717f5a8521181fac0a13cdd94f22708b44b09e1197fa97f8b7933dc6b2fd4f",
+        "uri": "gs://nfl-predictions-503414-raw/week1/prelock/2026-w01/a5-books/20260910t2315z-fa5d035/books/D800_WEMAX.json"
+      },
+      "lineup_count": 80,
+      "semantic_sha256": "d1f2e318774b8dba9b9b4d953c488e92017cca6664967728baeb674e5b53459d"
+    },
+    "P_CTRL": {
+      "artifact_identity": {
+        "bytes": 36671,
+        "generation": "1789080698312420",
+        "sha256": "418e481ee342d833bfdea2455d7020aae1d8c5628eaaf7820a33fc0e6d1d4a37",
+        "uri": "gs://nfl-predictions-503414-raw/week1/prelock/2026-w01/a5-books/20260910t2315z-fa5d035/books/P_CTRL.json"
+      },
+      "lineup_count": 80,
+      "semantic_sha256": "efcdb0cd0fe0348e48f4a70ad4967de9caca656d8769b0f3341a50f50396ac53"
+    },
+    "P_MIX": {
+      "artifact_identity": {
+        "bytes": 36667,
+        "generation": "1789080698995816",
+        "sha256": "c5e8652d6cb3934ffbac22a18df47549d6ea8c75e451961e15d9c2364167be0b",
+        "uri": "gs://nfl-predictions-503414-raw/week1/prelock/2026-w01/a5-books/20260910t2315z-fa5d035/books/P_MIX.json"
+      },
+      "lineup_count": 80,
+      "semantic_sha256": "90620b78ab86df0ca95f9686c39ae95ec15bb89cf440da81046dada43469a241"
+    }
+  },
+  "contest_entries_submitted": false,
+  "designation_count": 24,
+  "entry_allocation_published": false,
+  "history_rows": 1460,
+  "history_seasons": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "independent_exact_reopen": true,
+  "live_pair_source_commit": "fa5d035ba99928f71736cbb77222515e9cdd94a8",
+  "pair_contract_sha256": "27db68ba01c50d8b2eedc94b9b87d4fa8bb534c6c9b6ce8c8ce0557344380b0e",
+  "participation_map_sha256": "6f8603105dd83fe995c7c595b956eccfe216e4d6d18be2e97db6bf404dc667a6",
+  "participation_package_identity": {
+    "bytes": 2695,
+    "generation": "1789080689222512",
+    "sha256": "d5fdbdaed054b3516d0ba3529e4b924d3d469b243b9557ff7da33f48d85b0fc9",
+    "uri": "gs://nfl-predictions-503414-raw/week1/prelock/2026-w01/participation/20260910t2315z-fa5d035/package.json"
+  },
+  "participation_package_sha256": "61186482fb1fc614aed871ec0af6d66bf43ce820edeb3019dae7c087241ee97f",
+  "pmix_turnover_per_side": 16,
+  "run_id": "20260910t2315z-fa5d035",
+  "schema_version": "week1-a5-four-book-publication-receipt/v1",
+  "selection_receipt_sha256": "255c251b2504039a090771d6b6594eabcd237f00e8180744ed1fac856239c810",
+  "source_code_sha": "2fc453284f1469d0c56fefc8173882705a52c4ca",
+  "terminal": {
+    "artifact_identity": {
+      "bytes": 8110,
+      "generation": "1789080700983712",
+      "sha256": "2927af4acea550972b20e44ebee9c580938c0f82104f040803b2eef784087256",
+      "uri": "gs://nfl-predictions-503414-raw/week1/prelock/2026-w01/a5-books/20260910t2315z-fa5d035/terminal.json"
+    },
+    "semantic_sha256": "55c14171f106e5afa6e33686e97686dfdb83cf53b70a51933f1fb1ce960be57b"
+  },
+  "uses_target_week_outcomes": false
+}
