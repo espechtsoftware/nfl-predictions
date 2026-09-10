@@ -91,6 +91,26 @@ agent or developer:
   parsing and `git diff --check` pass; the focused deployment/clean-build
   suite passes 14/14. This host-side default repair does not relabel the
   already-running image or execution.
+- A pre-freeze GCS absence check found that the already-frozen prospective
+  family rule and crossed seed design had never been published at their
+  create-once authority names. Production closed both gaps before the suite
+  terminal and before lock, without changing or reading the running suite.
+  The preregistration was published with truthful registration time
+  `2026-09-10T11:17:40Z`: generation `1789039074510112`, 10,495 bytes,
+  SHA-256
+  `c422a2e8cbb247664f1ed69f582b9154d483b5507470ab1031655e3d54382dbb`
+  at
+  `gs://nfl-predictions-503414-raw/generation_shadow/2026/authorities/preregistration.json`.
+  The seed-crossing authority is generation `1789039091072628`, 4,945 bytes,
+  SHA-256
+  `46a822f5a2509fd922492a757c0e1bfc7ccb902a0208100d0ea7205f26451992`
+  at
+  `gs://nfl-predictions-503414-raw/generation_shadow/2026/authorities/seed-crossing.json`.
+  Both exact generations were independently downloaded and reproduced their
+  recorded byte counts and SHA-256 values. The crossing retains the tracked
+  distinct fit seeds `2026083001/2026083002` and world seeds
+  `2026083011/2026083012`; neither authority grants automatic adoption or an
+  allocation recommendation.
 - Exact next action: monitor `generation-shadow-suite-vx76b` to terminal
   success. From a checkout whose HEAD is the exact execution source
   `607e184e63b34a0c6f56c92a22160fe8579a863c`, run the launcher's read-only
