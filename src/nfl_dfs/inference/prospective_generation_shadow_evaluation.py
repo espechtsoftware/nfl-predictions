@@ -27,6 +27,7 @@ from typing import Final
 from . import generation_exposure as exposure
 from .prospective_boom_first import (
     native_input_source_projection,
+    stable_native_input_source_projection,
     validate_paired_native_input_authority,
 )
 from .prospective_cross_law_supply_trace import (
@@ -4295,9 +4296,13 @@ def _decoded_suite_arm_freezes_v2(
             _fail(f"decoded {arm} native input/source block grid differs")
         for block in _BLOCK_LABELS:
             try:
-                source_projection = native_input_source_projection(
+                source_projection = stable_native_input_source_projection(
                     native_input_receipts[block],
                     label=f"decoded {arm}/{block} native generation receipt",
+                )
+                execution_projection = native_input_source_projection(
+                    native_input_receipts[block],
+                    label=f"decoded {arm}/{block} native execution receipt",
                 )
             except ValueError as exc:
                 raise ProspectiveGenerationShadowEvaluationError(
@@ -4308,6 +4313,14 @@ def _decoded_suite_arm_freezes_v2(
                 or canonical_sha256_v1(source_projection)
                 != paired_native_input_authority[
                     "native_source_projection_sha256_by_arm"
+                ][arm][block]
+                or execution_projection
+                != paired_native_input_authority[
+                    "native_execution_projection_by_block"
+                ][block]
+                or canonical_sha256_v1(execution_projection)
+                != paired_native_input_authority[
+                    "native_execution_projection_sha256_by_arm"
                 ][arm][block]
             ):
                 _fail(f"decoded {arm}/{block} native input/source drift")

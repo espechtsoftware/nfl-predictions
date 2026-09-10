@@ -29,11 +29,13 @@ from .prospective_boom_first import (
     _array_receipt,
     _artifact_batch_without_runtime_timing,
     _slate_identity,
+    _validated_input_receipt,
     _validated_cloud_execution_context,
     _validated_image_uri,
     build_paired_native_input_authority,
     native_input_source_projection,
     player_identity_bridge,
+    stable_native_input_source_projection,
     validate_constraint_contract,
     validate_paired_native_input_authority,
 )
@@ -68,7 +70,7 @@ WORLDS_PER_BLOCK: Final = 10_000
 AUDIT_WORLD_SEED: Final = 2_026_083_001
 AUDIT_WORLD_COUNT: Final = 10_000
 AUDIT_INPUT_BINDING_SCHEMA: Final = (
-    "prospective-generation-independent-audit-input-binding/v1"
+    "prospective-generation-independent-audit-input-binding/v2"
 )
 AUDIT_BANK_SCHEMA: Final = (
     "prospective-generation-independent-audit-bank/v2"
@@ -221,6 +223,277 @@ def validate_arm_environments(
     }
 
 
+def _registered_seed_pairs(
+    environment: Mapping[str, str],
+) -> tuple[tuple[str, int, int], ...]:
+    parsed: list[tuple[str, int, int]] = []
+    try:
+        for item in str(environment["MULTISEED_SEED_PAIRS"]).split(";"):
+            label, values = item.split("=", 1)
+            projection_seed, role_seed = values.split(":", 1)
+            parsed.append((label, int(projection_seed), int(role_seed)))
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ProspectiveGenerationShadowError(
+            "registered generation-shadow seed pairs are malformed"
+        ) from exc
+    if tuple(label for label, _, _ in parsed) != SEED_LABELS:
+        _fail("registered generation-shadow seed block order differs")
+    return tuple(parsed)
+
+
+def _freeze_suite_slate_draw_inputs(
+    *,
+    season: int,
+    week: int,
+    allowed_ids: set,
+    salary_overrides: Mapping[int, int],
+    environments: Mapping[str, Mapping[str, str]],
+    model_variant: str,
+    role_model_variant: str,
+    expected_model_k: int,
+) -> tuple[
+    dict[tuple[str, str], tuple[pd.DataFrame, np.ndarray]],
+    tuple[pd.DataFrame, np.ndarray],
+]:
+    """Load every seeded slate once before any candidate solve starts.
+
+    This turns a two-hour multi-arm experiment into a comparison against one
+    frozen player/market source.  It also fails before expensive solves if the
+    source changes while the small preflight bank is being assembled.
+    """
+
+    from .live_lineups import build_slate_with_draws
+
+    base_environment = dict(environments[ARM_ORDER[0]])
+    seed_pairs = _registered_seed_pairs(base_environment)
+    cache: dict[tuple[str, str], tuple[pd.DataFrame, np.ndarray]] = {}
+    candidate_frames: list[pd.DataFrame] = []
+    role_frames: list[pd.DataFrame] = []
+
+    def _build(
+        *, seed: int, variant: str, environment: dict[str, str],
+        log_ownership_shadow: bool,
+    ) -> tuple[pd.DataFrame, np.ndarray]:
+        return build_slate_with_draws(
+            season,
+            week,
+            n_sims=WORLDS_PER_BLOCK,
+            seed=seed,
+            lev_scale=1.0,
+            apply_notes=False,
+            model_variant=variant,
+            allowed_ids=allowed_ids,
+            salary_overrides=dict(salary_overrides),
+            policy_env=environment,
+            expected_model_k=expected_model_k,
+            route_source_policy=False,
+            log_ownership_shadow=log_ownership_shadow,
+        )
+
+    # Main-model R0--R4 plus the independent audit seed are loaded together
+    # so their stable-source receipts can be compared before optimization.
+    for label, projection_seed, role_seed in seed_pairs:
+        seed_environment = dict(base_environment)
+        seed_environment["REPLAY_PROJECTION_SEED"] = str(projection_seed)
+        seed_environment["ROLE_BELIEF_SEED"] = str(role_seed)
+        seed_environment["MULTISEED_SOURCE_LABEL"] = label
+        pair = _build(
+            seed=projection_seed,
+            variant=model_variant,
+            environment=seed_environment,
+            log_ownership_shadow=(label == "R0"),
+        )
+        cache[("candidate", label)] = pair
+        candidate_frames.append(pair[0])
+
+    audit_environment = dict(base_environment)
+    audit_environment["MULTISEED_SOURCE_LABEL"] = "AUDIT"
+    audit_environment["REPLAY_PROJECTION_SEED"] = str(AUDIT_WORLD_SEED)
+    audit_pair = _build(
+        seed=AUDIT_WORLD_SEED,
+        variant=model_variant,
+        environment=audit_environment,
+        log_ownership_shadow=False,
+    )
+    candidate_frames.append(audit_pair[0])
+
+    for label, projection_seed, role_seed in seed_pairs:
+        seed_environment = dict(base_environment)
+        seed_environment["REPLAY_PROJECTION_SEED"] = str(projection_seed)
+        seed_environment["ROLE_BELIEF_SEED"] = str(role_seed)
+        seed_environment["MULTISEED_SOURCE_LABEL"] = label
+        pair = _build(
+            seed=role_seed,
+            variant=role_model_variant,
+            environment=seed_environment,
+            log_ownership_shadow=False,
+        )
+        cache[("role", label)] = pair
+        role_frames.append(pair[0])
+
+    expected_player_order = candidate_frames[0]["id"].tolist()
+    candidate_source = _stable_player_source_receipt(candidate_frames[0])
+    role_source = _stable_player_source_receipt(role_frames[0])
+    if (
+        any(
+            frame["id"].tolist() != expected_player_order
+            or _stable_player_source_receipt(frame) != candidate_source
+            or str(frame.attrs.get("model_version") or "")
+            != str(candidate_frames[0].attrs.get("model_version") or "")
+            for frame in candidate_frames
+        )
+        or any(
+            frame["id"].tolist() != expected_player_order
+            or _stable_player_source_receipt(frame) != role_source
+            or str(frame.attrs.get("model_version") or "")
+            != str(role_frames[0].attrs.get("model_version") or "")
+            for frame in role_frames
+        )
+    ):
+        _fail("frozen generation-shadow preflight source drift")
+    return cache, audit_pair
+
+
+_SEEDED_PLAYER_OUTPUT_COLUMNS: Final = frozenset({
+    "low_own",
+    "mean_projection",
+    "model_points_pre",
+    "proj",
+    "proj_p10",
+    "proj_p50",
+    "proj_p90",
+    "proj_std",
+    "proj_tourney",
+})
+
+
+def _stable_player_source_receipt(frame: pd.DataFrame) -> dict[str, object]:
+    """Hash upstream player inputs without registered-seed output summaries."""
+
+    from .live_lineups import _score_blind_player_input_receipt
+
+    source = frame.loc[:, [
+        column for column in frame.columns
+        if str(column) not in _SEEDED_PLAYER_OUTPUT_COLUMNS
+    ]].copy()
+    if "proj" in frame and "draw_idx" in frame:
+        draw_idx = pd.to_numeric(frame["draw_idx"], errors="coerce")
+        source["unseeded_projection"] = np.where(
+            draw_idx < 0,
+            pd.to_numeric(frame["proj"], errors="coerce"),
+            np.nan,
+        )
+    return _score_blind_player_input_receipt(source)
+
+
+def _copy_frozen_slate_draw_pair(
+    value: object, *, label: str,
+) -> tuple[pd.DataFrame, np.ndarray]:
+    if (
+        not isinstance(value, tuple)
+        or len(value) != 2
+        or not isinstance(value[0], pd.DataFrame)
+    ):
+        _fail(f"frozen {label} slate/draw input is malformed")
+    frame = value[0].copy(deep=True)
+    draws = np.asarray(value[1], dtype=np.float32).copy()
+    draw_idx = pd.to_numeric(frame.get("draw_idx"), errors="coerce")
+    required_rows = (
+        int(draw_idx[draw_idx >= 0].max()) + 1
+        if draw_idx is not None and bool((draw_idx >= 0).any())
+        else 0
+    )
+    if (
+        draws.ndim != 2
+        or draws.shape[0] < required_rows
+        or draws.shape[1] != WORLDS_PER_BLOCK
+    ):
+        _fail(f"frozen {label} slate/draw shape differs")
+    return frame, draws
+
+
+def _frozen_build_slate_with_draws(
+    cache: Mapping[tuple[str, str], tuple[pd.DataFrame, np.ndarray]],
+    *,
+    model_variant: str,
+    role_model_variant: str,
+):
+    """Return a strict suite-local replacement for the live source loader."""
+
+    def _build(*args, **kwargs):
+        del args
+        environment = kwargs.get("policy_env")
+        if not isinstance(environment, Mapping):
+            _fail("frozen generation-shadow call lacks its environment")
+        label = str(environment.get("MULTISEED_SOURCE_LABEL") or "").upper()
+        variant = str(kwargs.get("model_variant") or "")
+        kind = (
+            "candidate" if variant == model_variant
+            else "role" if variant == role_model_variant
+            else ""
+        )
+        key = (kind, label)
+        if kind == "" or key not in cache:
+            _fail(f"frozen generation-shadow source lacks {kind}/{label}")
+        expected_seed = int(environment[
+            "REPLAY_PROJECTION_SEED"
+            if kind == "candidate" else "ROLE_BELIEF_SEED"
+        ])
+        if (
+            int(kwargs.get("seed")) != expected_seed
+            or int(kwargs.get("n_sims")) != WORLDS_PER_BLOCK
+            or kwargs.get("apply_notes") is not False
+            or kwargs.get("route_source_policy", False) is not False
+        ):
+            _fail(f"frozen generation-shadow {kind}/{label} call differs")
+        return _copy_frozen_slate_draw_pair(
+            cache[key], label=f"{kind} {label}"
+        )
+
+    return _build
+
+
+def _run_with_frozen_slate_draw_inputs(
+    builder,
+    frozen_builder,
+    **kwargs,
+):
+    """Run one arm with a restored-on-exit suite-local live-loader patch."""
+
+    from . import live_lineups
+
+    original = live_lineups.build_slate_with_draws
+    live_lineups.build_slate_with_draws = frozen_builder
+    try:
+        return builder(**kwargs)
+    finally:
+        live_lineups.build_slate_with_draws = original
+
+
+def _bind_frozen_source_receipts(
+    batch: CandidateBatch,
+    cache: Mapping[tuple[str, str], tuple[pd.DataFrame, np.ndarray]],
+) -> CandidateBatch:
+    metadata = dict(batch.metadata)
+    raw_receipts = metadata.get("native_generation_receipts")
+    if not isinstance(raw_receipts, Mapping) or set(raw_receipts) != set(
+        SEED_LABELS
+    ):
+        _fail("frozen generation-shadow native receipt grid differs")
+    receipts: dict[str, object] = {}
+    for label in SEED_LABELS:
+        receipt = dict(raw_receipts[label])
+        receipt["candidate_source_input_receipt"] = (
+            _stable_player_source_receipt(cache[("candidate", label)][0])
+        )
+        receipt["role_candidate_source_input_receipt"] = (
+            _stable_player_source_receipt(cache[("role", label)][0])
+        )
+        receipts[label] = receipt
+    metadata["native_generation_receipts"] = receipts
+    return replace(batch, metadata=metadata)
+
+
 def _validated_transform_ledger(
     arm: str,
     receipt: Mapping[str, object],
@@ -370,6 +643,7 @@ def build_independent_audit_input_binding(
     *,
     paired_native_input_authority: Mapping[str, object],
     observed_model_version: str,
+    observed_candidate_source_input_receipt: Mapping[str, object],
     observed_candidate_input_receipt: Mapping[str, object],
     observed_internal_player_ids: Sequence[object],
 ) -> dict[str, object]:
@@ -395,12 +669,14 @@ def build_independent_audit_input_binding(
     expected_projection = authority["native_source_projection"]
     observed_ids = [str(value) for value in observed_internal_player_ids]
     try:
-        effective_projection = native_input_source_projection({
+        effective_projection = stable_native_input_source_projection({
             "model_version": observed_model_version,
             "role_model_version": expected_projection["role_model_version"],
-            "candidate_input_receipt": dict(observed_candidate_input_receipt),
-            "role_candidate_input_receipt": expected_projection[
-                "role_candidate_input_receipt"
+            "candidate_source_input_receipt": dict(
+                observed_candidate_source_input_receipt
+            ),
+            "role_candidate_source_input_receipt": expected_projection[
+                "role_candidate_source_input_receipt"
             ],
             "construction_preset_receipt": expected_projection[
                 "construction_preset_receipt"
@@ -423,8 +699,8 @@ def build_independent_audit_input_binding(
         _fail("independent audit effective native input/source differs")
     inherited = {
         "role_model_version": expected_projection["role_model_version"],
-        "role_candidate_input_receipt": expected_projection[
-            "role_candidate_input_receipt"
+        "role_candidate_source_input_receipt": expected_projection[
+            "role_candidate_source_input_receipt"
         ],
         "effective_construction_source_identity": authority[
             "effective_construction_source_identity"
@@ -439,15 +715,20 @@ def build_independent_audit_input_binding(
         ],
         "audit_observed_main_source_identity": {
             "model_version": str(observed_model_version),
-            "candidate_input_receipt": effective_projection[
-                "candidate_input_receipt"
+            "candidate_source_input_receipt": effective_projection[
+                "candidate_source_input_receipt"
             ],
+            "candidate_execution_input_receipt": _validated_input_receipt(
+                observed_candidate_input_receipt,
+                "independent audit candidate execution input receipt",
+            ),
             "internal_player_id_order_sha256": (
                 observed_internal_order_sha256
             ),
         },
         "inherited_frozen_candidate_provenance": inherited,
         "audit_observed_main_source_matches_paired_native_authority": True,
+        "audit_execution_input_is_an_independent_registered_seed": True,
         "role_and_construction_are_frozen_candidate_provenance_not_audit_execution_inputs": True,
         "audit_has_no_candidate_generation_or_construction_path": True,
         "uses_realized_outcomes": False,
@@ -489,6 +770,7 @@ def validate_independent_audit_input_binding(
         "audit_observed_main_source_identity",
         "inherited_frozen_candidate_provenance",
         "audit_observed_main_source_matches_paired_native_authority",
+        "audit_execution_input_is_an_independent_registered_seed",
         "role_and_construction_are_frozen_candidate_provenance_not_audit_execution_inputs",
         "audit_has_no_candidate_generation_or_construction_path",
         "uses_realized_outcomes", "post_lock_data_read", "binding_sha256",
@@ -499,7 +781,7 @@ def validate_independent_audit_input_binding(
     if retained_hash != canonical_sha256(item):
         _fail("independent audit input binding hash differs")
     try:
-        projection = native_input_source_projection(
+        projection = stable_native_input_source_projection(
             item.get("effective_native_source_projection"),
             label="independent audit effective native source",
         )
@@ -513,15 +795,26 @@ def validate_independent_audit_input_binding(
     expected_internal_order_sha256 = canonical_sha256([
         str(value) for value in expected_internal_player_ids
     ])
+    try:
+        audit_execution_receipt = _validated_input_receipt(
+            observed.get("candidate_execution_input_receipt")
+            if isinstance(observed, Mapping) else None,
+            "independent audit candidate execution input receipt",
+        )
+    except ValueError as exc:
+        raise ProspectiveGenerationShadowError(
+            "independent audit candidate execution input differs"
+        ) from exc
     if (
         not isinstance(observed, Mapping)
         or set(observed) != {
-            "model_version", "candidate_input_receipt",
+            "model_version", "candidate_source_input_receipt",
+            "candidate_execution_input_receipt",
             "internal_player_id_order_sha256",
         }
         or not isinstance(inherited, Mapping)
         or set(inherited) != {
-            "role_model_version", "role_candidate_input_receipt",
+            "role_model_version", "role_candidate_source_input_receipt",
             "effective_construction_source_identity",
         }
         or item.get("schema_version") != AUDIT_INPUT_BINDING_SCHEMA
@@ -534,19 +827,22 @@ def validate_independent_audit_input_binding(
         != authority["native_source_projection_sha256"]
         or dict(observed) != {
             "model_version": expected_projection["model_version"],
-            "candidate_input_receipt": expected_projection[
-                "candidate_input_receipt"
+            "candidate_source_input_receipt": expected_projection[
+                "candidate_source_input_receipt"
             ],
+            "candidate_execution_input_receipt": audit_execution_receipt,
             "internal_player_id_order_sha256": expected_internal_order_sha256,
         }
+        or audit_execution_receipt["rows"] != len(expected_internal_player_ids)
+        or "id" not in audit_execution_receipt["columns"]
         or expected_internal_order_sha256
         != authority["effective_player_source_identity"][
             "internal_player_id_order_sha256"
         ]
         or dict(inherited) != {
             "role_model_version": expected_projection["role_model_version"],
-            "role_candidate_input_receipt": expected_projection[
-                "role_candidate_input_receipt"
+            "role_candidate_source_input_receipt": expected_projection[
+                "role_candidate_source_input_receipt"
             ],
             "effective_construction_source_identity": authority[
                 "effective_construction_source_identity"
@@ -554,6 +850,9 @@ def validate_independent_audit_input_binding(
         }
         or item.get(
             "audit_observed_main_source_matches_paired_native_authority"
+        ) is not True
+        or item.get(
+            "audit_execution_input_is_an_independent_registered_seed"
         ) is not True
         or item.get(
             "role_and_construction_are_frozen_candidate_provenance_not_audit_execution_inputs"
@@ -580,32 +879,52 @@ def build_independent_audit_world_bank(
     expected_player_ids: Sequence[object],
     expected_model_version: str,
     paired_native_input_authority: Mapping[str, object],
+    prepared_slate_draws: tuple[pd.DataFrame, np.ndarray] | None = None,
 ) -> tuple[np.ndarray, dict[str, object]]:
     """Build one score-only world bank; no candidate solve or selection runs."""
 
-    from .live_lineups import build_slate_with_draws
+    from .live_lineups import (
+        _score_blind_player_input_receipt,
+        build_slate_with_draws,
+    )
     from ..backtest.engine import _row_draws
 
     audit_env = dict(policy_env)
     audit_env["MULTISEED_SOURCE_LABEL"] = "AUDIT"
-    slate, raw_draws = build_slate_with_draws(
-        season,
-        week,
-        n_sims=AUDIT_WORLD_COUNT,
-        seed=AUDIT_WORLD_SEED,
-        lev_scale=1.0,
-        apply_notes=False,
-        model_variant=model_variant,
-        allowed_ids=allowed_ids,
-        salary_overrides=dict(salary_overrides),
-        policy_env=audit_env,
-        expected_model_k=expected_model_k,
-        route_source_policy=False,
-        log_ownership_shadow=False,
-    )
+    audit_env["REPLAY_PROJECTION_SEED"] = str(AUDIT_WORLD_SEED)
+    if prepared_slate_draws is None:
+        slate, raw_draws = build_slate_with_draws(
+            season,
+            week,
+            n_sims=AUDIT_WORLD_COUNT,
+            seed=AUDIT_WORLD_SEED,
+            lev_scale=1.0,
+            apply_notes=False,
+            model_variant=model_variant,
+            allowed_ids=allowed_ids,
+            salary_overrides=dict(salary_overrides),
+            policy_env=audit_env,
+            expected_model_k=expected_model_k,
+            route_source_policy=False,
+            log_ownership_shadow=False,
+        )
+    else:
+        if (
+            not isinstance(prepared_slate_draws, tuple)
+            or len(prepared_slate_draws) != 2
+            or not isinstance(prepared_slate_draws[0], pd.DataFrame)
+        ):
+            _fail("prepared independent audit slate/draw input is malformed")
+        slate = prepared_slate_draws[0].copy(deep=True)
+        raw_draws = np.asarray(
+            prepared_slate_draws[1], dtype=np.float32
+        ).copy()
     model_version = str(slate.attrs.get("model_version") or "")
-    observed_candidate_input_receipt = dict(
-        slate.attrs.get("candidate_input_receipt") or {}
+    observed_candidate_input_receipt = _score_blind_player_input_receipt(
+        slate
+    )
+    observed_candidate_source_input_receipt = _stable_player_source_receipt(
+        slate
     )
     expected = list(expected_player_ids)
     if set(slate["id"]) != set(expected):
@@ -621,6 +940,9 @@ def build_independent_audit_world_bank(
     input_binding = build_independent_audit_input_binding(
         paired_native_input_authority=paired_native_input_authority,
         observed_model_version=model_version,
+        observed_candidate_source_input_receipt=(
+            observed_candidate_source_input_receipt
+        ),
         observed_candidate_input_receipt=observed_candidate_input_receipt,
         observed_internal_player_ids=expected,
     )
@@ -1163,7 +1485,25 @@ def run(
         "construction_preset_receipt": construction.receipt(),
     }
 
+    frozen_slate_draw_cache, prepared_audit_slate_draws = (
+        _freeze_suite_slate_draw_inputs(
+            season=season,
+            week=week,
+            allowed_ids=allowed,
+            salary_overrides=salary_overrides,
+            environments=environments,
+            model_variant=policy.model_variant,
+            role_model_variant=policy.role_model_variant,
+            expected_model_k=policy.model_ensemble,
+        )
+    )
     from .live_lineups import build_sim_lineups
+
+    frozen_builder = _frozen_build_slate_with_draws(
+        frozen_slate_draw_cache,
+        model_variant=policy.model_variant,
+        role_model_variant=policy.role_model_variant,
+    )
 
     batches: dict[str, CandidateBatch] = {}
     books: dict[str, list[Lineup]] = {}
@@ -1211,7 +1551,9 @@ def run(
             )
         captured: list[CandidateBatch] = []
         arm_started = time.perf_counter()
-        books[arm] = build_sim_lineups(
+        books[arm] = _run_with_frozen_slate_draw_inputs(
+            build_sim_lineups,
+            frozen_builder,
             **common,
             panel_run_id=f"{run_id}-{arm}",
             candidate_run_type=f"prospective_generation_{arm}",
@@ -1222,7 +1564,9 @@ def run(
         build_seconds[arm] = float(time.perf_counter() - arm_started)
         if len(captured) != 1:
             _fail(f"{arm} did not capture exactly one combined book")
-        batches[arm] = captured[0]
+        batches[arm] = _bind_frozen_source_receipts(
+            captured[0], frozen_slate_draw_cache
+        )
 
     if set(cross_law_native_batches) != set(SEED_LABELS):
         _fail("cross-law native block capture differs")
@@ -1261,6 +1605,7 @@ def run(
         expected_player_ids=control_batch.player_ids,
         expected_model_version=expected_model_version,
         paired_native_input_authority=paired_native_input_authority,
+        prepared_slate_draws=prepared_audit_slate_draws,
     )
     prelock = multiarm_prelock_receipt(
         batches,

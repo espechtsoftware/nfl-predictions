@@ -22,6 +22,48 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 generation-shadow terminal failure isolated and paired-input v2 repaired
+
+- Cloud Run execution `generation-shadow-suite-vx76b` completed all 25
+  declared arm/seed candidate-generation blocks, then failed terminally at
+  `2026-09-10T12:50:04.749871Z` before any audit bank, world artifact,
+  manifest, or terminal root was published. The exact failure was
+  `prospective paired native input/source authority differs`, caused by the
+  v1 checker rejecting `incumbent-160-40/R1` as source drift. Do not collect,
+  adopt, relabel, or promote this failed execution.
+- The five execution-specific combined candidate logs contain exactly 1,506
+  rows: 260 incumbent, 261 boom-first, 261 cross-law, 461 boom-dose, and 263
+  ceiling-all-boom. All record 50,000 selection worlds and zero score-artifact
+  URIs. They are retained as diagnostic evidence only and cannot reconstruct
+  the missing full player-world/audit terminal authority.
+- Root cause is a contract defect plus a real pairing exposure. The v1 law
+  required one byte-identical receipt across R0--R4 even though that receipt
+  includes seed-derived projection summaries and the five blocks deliberately
+  use different projection/role seeds. It also independently refetched the
+  live source for every treatment arm, so corresponding-block receipt hashes
+  differed across arms. Weakening the check would have accepted an unpaired
+  experiment and was rejected.
+- The repair introduces paired-input authority v2: one byte-identical stable
+  player/market/model/construction source across all blocks and arms; distinct
+  registered R0--R4 execution inputs; and exact corresponding-block execution
+  equality across every arm. The suite now preloads five main-model matrices,
+  five role-model matrices, and the independent audit matrix before any
+  optimizer solve, fails early on stable-source drift, and reuses only those
+  exact matrices. The audit may use its independent seed while remaining
+  bound to the same stable source.
+- The implementation is confined to the prospective suite and its authority
+  and evaluation validators. The separate adopted-policy files frozen by the
+  Week-1 effective-policy inventory remain byte-for-byte unchanged. Focused
+  compilation, diff, suite, multiseed, clean-reopen, evaluation, and pairing
+  tests pass, including new cross-block, same-block, audit-independence,
+  preload, and early-drift regressions. Full evidence is in
+  `reports/2026-09-10-generation-shadow-vx76b-terminal-failure-and-paired-input-v2-repair.md`.
+- Exact next action: build and review one immutable image from this repair,
+  update the existing dedicated job without changing season 2026, week 1,
+  draft group `151307`, lock `2026-09-13T17:00:00Z`, zero retries, or runtime
+  identity, and launch one new execution. Accept only a successful v2 terminal
+  root. Preserve failed `vx76b`; do not retry or delete its diagnostic rows.
+
 ### 2026-09-10 Week-1 inactive-player repair and three A5 books validated
 
 - The prior `e5ecce6` live pair is superseded and must not be promoted: its

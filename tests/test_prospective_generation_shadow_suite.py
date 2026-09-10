@@ -124,7 +124,13 @@ def _fixture():
                         "candidate_input_receipt": dict(
                             candidate_input_receipt
                         ),
+                        "candidate_source_input_receipt": dict(
+                            candidate_input_receipt
+                        ),
                         "role_candidate_input_receipt": dict(
+                            role_candidate_input_receipt
+                        ),
+                        "role_candidate_source_input_receipt": dict(
                             role_candidate_input_receipt
                         ),
                         "construction_preset_receipt": dict(
@@ -157,6 +163,7 @@ def _fixture():
     audit_input_binding = suite.build_independent_audit_input_binding(
         paired_native_input_authority=paired_native_input_authority,
         observed_model_version="tail-k1/test",
+        observed_candidate_source_input_receipt=candidate_input_receipt,
         observed_candidate_input_receipt=candidate_input_receipt,
         observed_internal_player_ids=[player["id"] for player in players],
     )
@@ -209,6 +216,134 @@ def test_arm_environment_drift_fails_closed() -> None:
         suite.validate_arm_environments(environments)
 
 
+def test_suite_freezes_all_seed_inputs_before_candidate_work(monkeypatch) -> None:
+    calls = []
+
+    def fake_slate(
+        season, week, *, n_sims, seed, model_variant,
+        log_ownership_shadow, **kwargs,
+    ):
+        del season, week, kwargs
+        calls.append((model_variant, int(seed), bool(log_ownership_shadow)))
+        frame = pd.DataFrame({
+            "id": [1, 2],
+            "draw_idx": [0, -1],
+            "salary": [5_000, 3_000],
+            "source_variant": [model_variant, model_variant],
+            "proj": [float(seed), 7.0],
+            "proj_tourney": [float(seed) - 1.0, 7.0],
+        })
+        frame.attrs["model_version"] = f"model/{model_variant}"
+        return frame, np.full((1, n_sims), float(seed), dtype=np.float32)
+
+    monkeypatch.setattr(
+        "nfl_dfs.inference.live_lineups.build_slate_with_draws", fake_slate
+    )
+    environments = suite.arm_environments()
+    cache, audit = suite._freeze_suite_slate_draw_inputs(
+        season=2026,
+        week=1,
+        allowed_ids={1, 2},
+        salary_overrides={1: 5_000, 2: 3_000},
+        environments=environments,
+        model_variant="main",
+        role_model_variant="role",
+        expected_model_k=1,
+    )
+    assert len(calls) == 11
+    assert len(cache) == 10
+    assert calls[0][2] is True
+    assert sum(int(call[2]) for call in calls) == 1
+    assert audit[1].shape == (1, suite.AUDIT_WORLD_COUNT)
+
+    label, projection_seed, role_seed = suite._registered_seed_pairs(
+        environments[suite.ARM_ORDER[0]]
+    )[1]
+    environment = dict(environments[suite.ARM_ORDER[0]])
+    environment.update({
+        "MULTISEED_SOURCE_LABEL": label,
+        "REPLAY_PROJECTION_SEED": str(projection_seed),
+        "ROLE_BELIEF_SEED": str(role_seed),
+    })
+    frozen = suite._frozen_build_slate_with_draws(
+        cache, model_variant="main", role_model_variant="role"
+    )
+    frame, draws = frozen(
+        2026,
+        1,
+        n_sims=suite.WORLDS_PER_BLOCK,
+        seed=projection_seed,
+        model_variant="main",
+        apply_notes=False,
+        route_source_policy=False,
+        policy_env=environment,
+    )
+    assert frame.loc[0, "proj"] == float(projection_seed)
+    assert draws.shape == (1, suite.WORLDS_PER_BLOCK)
+
+
+def test_suite_frozen_input_preflight_rejects_source_drift(monkeypatch) -> None:
+    calls = 0
+
+    def drifting_slate(
+        season, week, *, n_sims, seed, model_variant, **kwargs,
+    ):
+        nonlocal calls
+        del season, week, kwargs
+        calls += 1
+        frame = pd.DataFrame({
+            "id": [1],
+            "draw_idx": [0],
+            "salary": [5_000 + int(calls == 2)],
+            "source_variant": [model_variant],
+            "proj": [float(seed)],
+            "proj_tourney": [float(seed)],
+        })
+        frame.attrs["model_version"] = f"model/{model_variant}"
+        return frame, np.zeros((1, n_sims), dtype=np.float32)
+
+    monkeypatch.setattr(
+        "nfl_dfs.inference.live_lineups.build_slate_with_draws",
+        drifting_slate,
+    )
+    environments = suite.arm_environments()
+    with pytest.raises(
+        suite.ProspectiveGenerationShadowError,
+        match="preflight source drift",
+    ):
+        suite._freeze_suite_slate_draw_inputs(
+            season=2026,
+            week=1,
+            allowed_ids={1},
+            salary_overrides={1: 5_000},
+            environments=environments,
+            model_variant="main",
+            role_model_variant="role",
+            expected_model_k=1,
+        )
+
+
+def test_suite_frozen_live_loader_is_restored_after_failure() -> None:
+    from nfl_dfs.inference import live_lineups
+
+    original = live_lineups.build_slate_with_draws
+
+    def frozen(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("builder should own the injected call")
+
+    def failing_builder(**kwargs):
+        del kwargs
+        assert live_lineups.build_slate_with_draws is frozen
+        raise RuntimeError("expected arm failure")
+
+    with pytest.raises(RuntimeError, match="expected arm failure"):
+        suite._run_with_frozen_slate_draw_inputs(
+            failing_builder, frozen, marker=True
+        )
+    assert live_lineups.build_slate_with_draws is original
+
+
 def test_multiarm_receipt_freezes_pools_prefixes_and_diagnostics() -> None:
     batches, selected, mapping, audit, audit_receipt = _fixture()
     receipt = suite.multiarm_prelock_receipt(
@@ -219,7 +354,10 @@ def test_multiarm_receipt_freezes_pools_prefixes_and_diagnostics() -> None:
 
     assert receipt["player_worlds_identical_across_all_arms"] is True
     assert receipt["paired_native_input_authority"][
-        "all_arm_blocks_byte_identical_inputs"
+        "all_arm_blocks_share_byte_identical_source_inputs"
+    ] is True
+    assert receipt["paired_native_input_authority"][
+        "corresponding_arm_blocks_byte_identical_execution_inputs"
     ] is True
     assert receipt["paired_native_input_authority_sha256"] == receipt[
         "paired_native_input_authority"
@@ -280,7 +418,9 @@ def test_multiarm_receipt_freezes_pools_prefixes_and_diagnostics() -> None:
     "field",
     (
         "candidate_input_receipt",
+        "candidate_source_input_receipt",
         "role_candidate_input_receipt",
+        "role_candidate_source_input_receipt",
         "model_version",
         "role_model_version",
         "construction_preset_receipt",
@@ -311,6 +451,51 @@ def test_multiarm_receipt_rejects_native_input_source_drift(field: str) -> None:
             suite.arm_environments(),
             audit_row_draws=audit,
             audit_bank_receipt=audit_receipt,
+        )
+
+
+def test_paired_authority_allows_registered_block_inputs_but_pairs_arms() -> None:
+    batches, _selected, mapping, _audit, _audit_receipt = _fixture()
+    altered = {}
+    for arm, batch in batches.items():
+        metadata = deepcopy(batch.metadata)
+        for label in suite.SEED_LABELS:
+            native = metadata["native_generation_receipts"][label]
+            native["candidate_input_receipt"]["sha256"] = (
+                suite.canonical_sha256({"candidate-block": label})
+            )
+            native["role_candidate_input_receipt"]["sha256"] = (
+                suite.canonical_sha256({"role-block": label})
+            )
+        altered[arm] = replace(batch, metadata=metadata)
+
+    authority = suite.build_paired_native_input_authority(
+        altered,
+        arm_order=suite.ARM_ORDER,
+        block_labels=suite.SEED_LABELS,
+        artifact_player_id_by_player_id=mapping,
+    )
+    first_arm = authority["native_execution_projection_sha256_by_arm"][
+        suite.ARM_ORDER[0]
+    ]
+    assert len(set(first_arm.values())) == len(suite.SEED_LABELS)
+    assert authority[
+        "corresponding_arm_blocks_byte_identical_execution_inputs"
+    ] is True
+
+    broken = dict(altered)
+    source = altered[suite.ARM_ORDER[-1]]
+    metadata = deepcopy(source.metadata)
+    metadata["native_generation_receipts"]["R2"][
+        "candidate_input_receipt"
+    ]["sha256"] = "f" * 64
+    broken[suite.ARM_ORDER[-1]] = replace(source, metadata=metadata)
+    with pytest.raises(ValueError, match="execution drift"):
+        suite.build_paired_native_input_authority(
+            broken,
+            arm_order=suite.ARM_ORDER,
+            block_labels=suite.SEED_LABELS,
+            artifact_player_id_by_player_id=mapping,
         )
 
 
@@ -483,3 +668,37 @@ def test_audit_input_binding_clean_json_reopen_and_source_drift_rejection() -> N
             audit_row_draws=audit,
             audit_bank_receipt=tampered,
         )
+
+
+def test_audit_binding_accepts_independent_seed_execution_receipt() -> None:
+    batches, _selected, mapping, _audit, audit_receipt = _fixture()
+    paired = suite.build_paired_native_input_authority(
+        batches,
+        arm_order=suite.ARM_ORDER,
+        block_labels=suite.SEED_LABELS,
+        artifact_player_id_by_player_id=mapping,
+    )
+    source = paired["native_source_projection"][
+        "candidate_source_input_receipt"
+    ]
+    independent_execution = dict(source)
+    independent_execution["sha256"] = suite.canonical_sha256({
+        "registered-independent-audit-seed": suite.AUDIT_WORLD_SEED
+    })
+    binding = suite.build_independent_audit_input_binding(
+        paired_native_input_authority=paired,
+        observed_model_version=paired["effective_model_source_identity"][
+            "model_version"
+        ],
+        observed_candidate_source_input_receipt=source,
+        observed_candidate_input_receipt=independent_execution,
+        observed_internal_player_ids=batches[
+            suite.ARM_ORDER[0]
+        ].player_ids,
+    )
+    assert binding[
+        "audit_execution_input_is_an_independent_registered_seed"
+    ] is True
+    assert binding["audit_observed_main_source_identity"][
+        "candidate_execution_input_receipt"
+    ]["sha256"] == independent_execution["sha256"]

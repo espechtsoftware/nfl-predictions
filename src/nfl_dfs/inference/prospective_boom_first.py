@@ -42,10 +42,13 @@ from .recourse_worlds import persist_recourse_world_artifact
 VERSION = "prospective-boom-first-paired-shadow-v1"
 TERMINAL_SCHEMA = "prospective-boom-first-paired-terminal/v1"
 PAIRED_NATIVE_INPUT_AUTHORITY_SCHEMA = (
-    "prospective-generation-paired-native-input-authority/v1"
+    "prospective-generation-paired-native-input-authority/v2"
 )
 NATIVE_INPUT_SOURCE_PROJECTION_SCHEMA = (
     "prospective-generation-native-input-source-projection/v1"
+)
+NATIVE_STABLE_SOURCE_PROJECTION_SCHEMA = (
+    "prospective-generation-native-stable-source-projection/v1"
 )
 ENTRIES = 80
 TAIL_LINE = 194.0
@@ -300,13 +303,50 @@ def native_input_source_projection(
     }
 
 
+def stable_native_input_source_projection(
+    value: object, *, label: str = "native generation receipt",
+) -> dict[str, object]:
+    """Normalize the seed-independent model/player/construction source."""
+
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{label} is not a mapping")
+    model_version = str(value.get("model_version") or "").strip()
+    role_model_version = str(value.get("role_model_version") or "").strip()
+    if not model_version or not role_model_version:
+        raise ValueError(f"{label} model source identity is incomplete")
+    candidate_source = _validated_input_receipt(
+        value.get("candidate_source_input_receipt"),
+        f"{label} candidate stable-source receipt",
+    )
+    role_candidate_source = _validated_input_receipt(
+        value.get("role_candidate_source_input_receipt"),
+        f"{label} role stable-source receipt",
+    )
+    if "id" not in candidate_source["columns"] or "id" not in (
+        role_candidate_source["columns"]
+    ):
+        raise ValueError(f"{label} stable player source receipt lacks id")
+    construction = _validated_construction_preset_receipt(
+        value.get("construction_preset_receipt"),
+        f"{label} construction preset receipt",
+    )
+    return {
+        "schema_version": NATIVE_STABLE_SOURCE_PROJECTION_SCHEMA,
+        "model_version": model_version,
+        "role_model_version": role_model_version,
+        "candidate_source_input_receipt": candidate_source,
+        "role_candidate_source_input_receipt": role_candidate_source,
+        "construction_preset_receipt": construction,
+    }
+
+
 def validate_paired_native_input_authority(
     value: object,
     *,
     expected_arm_order: Sequence[str] | None = None,
     expected_block_labels: Sequence[str] | None = None,
 ) -> dict[str, object]:
-    """Validate one self-hashed all-arm/all-block input-source authority."""
+    """Validate stable-source pairing plus per-seed execution pairing."""
 
     if not isinstance(value, Mapping):
         raise ValueError("paired native input authority is not a mapping")
@@ -315,10 +355,14 @@ def validate_paired_native_input_authority(
         "schema_version", "arm_order", "block_labels",
         "native_source_projection", "native_source_projection_sha256",
         "native_source_projection_sha256_by_arm",
+        "native_execution_projection_by_block",
+        "native_execution_projection_sha256_by_arm",
         "effective_player_source_identity", "effective_model_source_identity",
         "effective_construction_source_identity",
-        "all_arm_blocks_byte_identical_inputs", "uses_realized_outcomes",
-        "post_lock_data_read", "authority_sha256",
+        "all_arm_blocks_share_byte_identical_source_inputs",
+        "corresponding_arm_blocks_byte_identical_execution_inputs",
+        "cross_block_execution_inputs_may_differ_by_registered_seed",
+        "uses_realized_outcomes", "post_lock_data_read", "authority_sha256",
     }
     if set(item) != fields:
         raise ValueError("paired native input authority fields differ")
@@ -348,27 +392,67 @@ def validate_paired_native_input_authority(
         expected_block_labels
     ):
         raise ValueError("paired native input authority block order differs")
-    projection = native_input_source_projection(
+
+    projection = stable_native_input_source_projection(
         item.get("native_source_projection"),
-        label="paired native reference source",
+        label="paired native stable reference source",
     )
     projection_hash = _source_authority_sha256(projection)
     if item.get("native_source_projection_sha256") != projection_hash:
-        raise ValueError("paired native reference source hash differs")
-    grid = item.get("native_source_projection_sha256_by_arm")
-    if not isinstance(grid, Mapping) or set(grid) != set(arms):
-        raise ValueError("paired native input authority arm grid differs")
+        raise ValueError("paired native stable reference source hash differs")
+    source_grid = item.get("native_source_projection_sha256_by_arm")
+    if not isinstance(source_grid, Mapping) or set(source_grid) != set(arms):
+        raise ValueError("paired native stable-source arm grid differs")
     for arm in arms:
-        arm_grid = grid.get(arm)
+        arm_grid = source_grid.get(arm)
         if not isinstance(arm_grid, Mapping) or set(arm_grid) != set(blocks):
-            raise ValueError(f"paired native input authority {arm} grid differs")
+            raise ValueError(f"paired native stable-source {arm} grid differs")
         if any(value != projection_hash for value in arm_grid.values()):
-            raise ValueError(f"paired native input authority {arm} source drift")
+            raise ValueError(f"paired native stable-source {arm} source drift")
+
+    execution_by_block = item.get("native_execution_projection_by_block")
+    execution_grid = item.get("native_execution_projection_sha256_by_arm")
+    if (
+        not isinstance(execution_by_block, Mapping)
+        or set(execution_by_block) != set(blocks)
+        or not isinstance(execution_grid, Mapping)
+        or set(execution_grid) != set(arms)
+    ):
+        raise ValueError("paired native execution input grid differs")
+    execution_hash_by_block: dict[str, str] = {}
+    for block in blocks:
+        execution = native_input_source_projection(
+            execution_by_block[block],
+            label=f"paired native {block} execution source",
+        )
+        if (
+            execution["model_version"] != projection["model_version"]
+            or execution["role_model_version"]
+            != projection["role_model_version"]
+            or execution["construction_preset_receipt"]
+            != projection["construction_preset_receipt"]
+        ):
+            raise ValueError(f"paired native {block} execution source drift")
+        execution_hash_by_block[block] = _source_authority_sha256(execution)
+    for arm in arms:
+        arm_grid = execution_grid.get(arm)
+        if not isinstance(arm_grid, Mapping) or set(arm_grid) != set(blocks):
+            raise ValueError(f"paired native execution {arm} grid differs")
+        if any(
+            arm_grid[block] != execution_hash_by_block[block]
+            for block in blocks
+        ):
+            raise ValueError(
+                f"paired native execution {arm} corresponding-block drift"
+            )
+
     player = item.get("effective_player_source_identity")
     expected_player = {
-        "candidate_input_receipt": projection["candidate_input_receipt"],
-        "role_candidate_input_receipt": projection[
-            "role_candidate_input_receipt"
+        "candidate_source_input_receipt": projection[
+            "candidate_source_input_receipt"
+        ],
+        "role_candidate_source_input_receipt": projection[
+            "role_candidate_source_input_receipt"
         ],
     }
     if not isinstance(player, Mapping) or set(player) != {
@@ -378,16 +462,16 @@ def validate_paired_native_input_authority(
     }:
         raise ValueError("paired effective player source identity differs")
     if (
-        player.get("candidate_input_receipt")
-        != expected_player["candidate_input_receipt"]
-        or player.get("role_candidate_input_receipt")
-        != expected_player["role_candidate_input_receipt"]
+        player.get("candidate_source_input_receipt")
+        != expected_player["candidate_source_input_receipt"]
+        or player.get("role_candidate_source_input_receipt")
+        != expected_player["role_candidate_source_input_receipt"]
         or type(player.get("player_count")) is not int
         or int(player["player_count"]) < 1
         or int(player["player_count"])
-        != projection["candidate_input_receipt"]["rows"]
+        != projection["candidate_source_input_receipt"]["rows"]
         or int(player["player_count"])
-        != projection["role_candidate_input_receipt"]["rows"]
+        != projection["role_candidate_source_input_receipt"]["rows"]
         or any(
             _SHA256.fullmatch(str(player.get(field) or "")) is None
             for field in (
@@ -409,7 +493,13 @@ def validate_paired_native_input_authority(
     }:
         raise ValueError("paired effective construction source identity differs")
     if (
-        item.get("all_arm_blocks_byte_identical_inputs") is not True
+        item.get("all_arm_blocks_share_byte_identical_source_inputs") is not True
+        or item.get(
+            "corresponding_arm_blocks_byte_identical_execution_inputs"
+        ) is not True
+        or item.get(
+            "cross_block_execution_inputs_may_differ_by_registered_seed"
+        ) is not True
         or item.get("uses_realized_outcomes") is not False
         or item.get("post_lock_data_read") is not False
     ):
@@ -424,16 +514,18 @@ def build_paired_native_input_authority(
     block_labels: Sequence[str],
     artifact_player_id_by_player_id: Mapping[object, str | int],
 ) -> dict[str, object]:
-    """Prove every native arm/block used one byte-identical input source."""
+    """Prove one stable source and exact corresponding-block arm pairing."""
 
     arms = list(arm_order)
     blocks = list(block_labels)
     if set(batches) != set(arms):
         raise ValueError("paired native input batch arm grid differs")
-    reference: dict[str, object] | None = None
+    stable_reference: dict[str, object] | None = None
+    execution_reference_by_block: dict[str, dict[str, object]] = {}
     reference_internal_order: list[str] | None = None
     reference_artifact_order: list[str] | None = None
-    grid: dict[str, dict[str, str]] = {}
+    source_grid: dict[str, dict[str, str]] = {}
+    execution_grid: dict[str, dict[str, str]] = {}
     for arm in arms:
         batch = batches[arm]
         _validate_candidate_batch(batch)
@@ -463,43 +555,67 @@ def build_paired_native_input_authority(
         receipts = batch.metadata.get("native_generation_receipts")
         if not isinstance(receipts, Mapping) or set(receipts) != set(blocks):
             raise ValueError(f"paired native input authority {arm} block grid differs")
-        grid[arm] = {}
+        source_grid[arm] = {}
+        execution_grid[arm] = {}
         for block in blocks:
-            projection = native_input_source_projection(
+            stable_projection = stable_native_input_source_projection(
                 receipts[block], label=f"{arm}/{block} native generation receipt",
             )
-            if projection["candidate_input_receipt"]["rows"] != len(
+            execution_projection = native_input_source_projection(
+                receipts[block], label=f"{arm}/{block} native execution receipt",
+            )
+            if stable_projection["candidate_source_input_receipt"]["rows"] != len(
                 batch.player_ids
-            ) or projection["role_candidate_input_receipt"]["rows"] != len(
+            ) or stable_projection["role_candidate_source_input_receipt"]["rows"] != len(
+                batch.player_ids
+            ) or execution_projection["candidate_input_receipt"]["rows"] != len(
+                batch.player_ids
+            ) or execution_projection["role_candidate_input_receipt"]["rows"] != len(
                 batch.player_ids
             ):
                 raise ValueError(f"paired native input authority {arm}/{block} row drift")
-            if reference is None:
-                reference = projection
-            elif projection != reference:
+            if stable_reference is None:
+                stable_reference = stable_projection
+            elif stable_projection != stable_reference:
                 raise ValueError(
-                    f"paired native input authority {arm}/{block} source drift"
+                    f"paired native input authority {arm}/{block} stable-source drift"
                 )
-            grid[arm][block] = _source_authority_sha256(projection)
+            if block not in execution_reference_by_block:
+                execution_reference_by_block[block] = execution_projection
+            elif execution_projection != execution_reference_by_block[block]:
+                raise ValueError(
+                    f"paired native input authority {arm}/{block} execution drift"
+                )
+            source_grid[arm][block] = _source_authority_sha256(
+                stable_projection
+            )
+            execution_grid[arm][block] = _source_authority_sha256(
+                execution_projection
+            )
     if (
-        reference is None
+        stable_reference is None
         or reference_internal_order is None
         or reference_artifact_order is None
+        or set(execution_reference_by_block) != set(blocks)
     ):
         raise ValueError("paired native input authority is empty")
-    projection_hash = _source_authority_sha256(reference)
-    construction = reference["construction_preset_receipt"]
+    projection_hash = _source_authority_sha256(stable_reference)
+    construction = stable_reference["construction_preset_receipt"]
     body: dict[str, object] = {
         "schema_version": PAIRED_NATIVE_INPUT_AUTHORITY_SCHEMA,
         "arm_order": arms,
         "block_labels": blocks,
-        "native_source_projection": reference,
+        "native_source_projection": stable_reference,
         "native_source_projection_sha256": projection_hash,
-        "native_source_projection_sha256_by_arm": grid,
+        "native_source_projection_sha256_by_arm": source_grid,
+        "native_execution_projection_by_block": execution_reference_by_block,
+        "native_execution_projection_sha256_by_arm": execution_grid,
         "effective_player_source_identity": {
-            "candidate_input_receipt": reference["candidate_input_receipt"],
-            "role_candidate_input_receipt": reference[
-                "role_candidate_input_receipt"
+            "candidate_source_input_receipt": stable_reference[
+                "candidate_source_input_receipt"
+            ],
+            "role_candidate_source_input_receipt": stable_reference[
+                "role_candidate_source_input_receipt"
             ],
             "player_count": len(reference_internal_order),
             "internal_player_id_order_sha256": _source_authority_sha256(
@@ -510,14 +626,16 @@ def build_paired_native_input_authority(
             ),
         },
         "effective_model_source_identity": {
-            "model_version": reference["model_version"],
-            "role_model_version": reference["role_model_version"],
+            "model_version": stable_reference["model_version"],
+            "role_model_version": stable_reference["role_model_version"],
         },
         "effective_construction_source_identity": {
             "effective_id": construction["effective_id"],
             "sha256": construction["sha256"],
         },
-        "all_arm_blocks_byte_identical_inputs": True,
+        "all_arm_blocks_share_byte_identical_source_inputs": True,
+        "corresponding_arm_blocks_byte_identical_execution_inputs": True,
+        "cross_block_execution_inputs_may_differ_by_registered_seed": True,
         "uses_realized_outcomes": False,
         "post_lock_data_read": False,
     }

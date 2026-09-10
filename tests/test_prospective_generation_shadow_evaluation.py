@@ -139,7 +139,9 @@ def _native_input_receipts(player_count: int = 180) -> dict[str, object]:
             "model_version": "fixture-model-v1",
             "role_model_version": "fixture-role-model-v1",
             "candidate_input_receipt": dict(candidate),
+            "candidate_source_input_receipt": dict(candidate),
             "role_candidate_input_receipt": dict(role),
+            "role_candidate_source_input_receipt": dict(role),
             "construction_preset_receipt": dict(construction),
         }
         for block in _BLOCKS
@@ -151,18 +153,27 @@ def _paired_native_input_authority(
     *,
     player_count: int,
 ) -> dict[str, object]:
-    reference = shadow.native_input_source_projection(
+    reference = shadow.stable_native_input_source_projection(
         generation_metadata_by_arm[shadow.ARM_ORDER[0]][
             "native_generation_receipts"
         ][_BLOCKS[0]],
         label="fixture native input/source receipt",
     )
+    execution_by_block = {
+        block: shadow.native_input_source_projection(
+            generation_metadata_by_arm[shadow.ARM_ORDER[0]][
+                "native_generation_receipts"
+            ][block],
+            label=f"fixture native {block} execution receipt",
+        )
+        for block in _BLOCKS
+    }
     reference_sha256 = shadow.canonical_sha256_v1(reference)
     player_ids = [f"p{value:03d}" for value in range(player_count)]
     construction = reference["construction_preset_receipt"]
     body: dict[str, object] = {
         "schema_version": (
-            "prospective-generation-paired-native-input-authority/v1"
+            "prospective-generation-paired-native-input-authority/v2"
         ),
         "arm_order": list(shadow.ARM_ORDER),
         "block_labels": list(_BLOCKS),
@@ -174,12 +185,20 @@ def _paired_native_input_authority(
             }
             for arm_id in shadow.ARM_ORDER
         },
+        "native_execution_projection_by_block": execution_by_block,
+        "native_execution_projection_sha256_by_arm": {
+            arm_id: {
+                block: shadow.canonical_sha256_v1(execution_by_block[block])
+                for block in _BLOCKS
+            }
+            for arm_id in shadow.ARM_ORDER
+        },
         "effective_player_source_identity": {
-            "candidate_input_receipt": reference[
-                "candidate_input_receipt"
+            "candidate_source_input_receipt": reference[
+                "candidate_source_input_receipt"
             ],
-            "role_candidate_input_receipt": reference[
-                "role_candidate_input_receipt"
+            "role_candidate_source_input_receipt": reference[
+                "role_candidate_source_input_receipt"
             ],
             "player_count": player_count,
             "internal_player_id_order_sha256": shadow.canonical_sha256_v1(
@@ -197,7 +216,9 @@ def _paired_native_input_authority(
             "effective_id": construction["effective_id"],
             "sha256": construction["sha256"],
         },
-        "all_arm_blocks_byte_identical_inputs": True,
+        "all_arm_blocks_share_byte_identical_source_inputs": True,
+        "corresponding_arm_blocks_byte_identical_execution_inputs": True,
+        "cross_block_execution_inputs_may_differ_by_registered_seed": True,
         "uses_realized_outcomes": False,
         "post_lock_data_read": False,
     }
@@ -524,6 +545,9 @@ def _suite_authority(
     audit_input_binding = generation_suite.build_independent_audit_input_binding(
         paired_native_input_authority=paired_native_input_authority,
         observed_model_version=str(reference_native_receipt["model_version"]),
+        observed_candidate_source_input_receipt=reference_native_receipt[
+            "candidate_source_input_receipt"
+        ],
         observed_candidate_input_receipt=reference_native_receipt[
             "candidate_input_receipt"
         ],
