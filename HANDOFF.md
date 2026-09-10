@@ -41,7 +41,7 @@ agent or developer:
   Production now pins both identities distinctly and requires the exact
   template object identity alongside the already-pinned four contest-detail
   objects. A real GCS exact reopen reconstructs all four template IDs; the
-  focused A5 contract suite passes 42/42, compilation and `git diff --check`
+  focused A5 contract suite passes 43/43, compilation and `git diff --check`
   pass.
 - This closes the lobby/template prerequisite without a new DraftKings
   request, outcome read, paid action, or policy change. The A5 live pin remains
