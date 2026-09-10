@@ -22,6 +22,38 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 PREREG-083 is live in the localhost Neo4j diagnostic fixture
+
+- Production verified the exact remote PREREG-083 graph receipt and runtime
+  CSV hashes, collision-checked all 28,165 node IDs against the existing
+  fixture with zero overlaps, and loaded the release into the isolated
+  `nfl-kg-local-smoke` Neo4j 5.26.30 container. Release census is exactly
+  28,165 nodes / 165,889 relationships; total shared-fixture census is
+  32,600 / 174,536. An identical second relationship pass was idempotent.
+- Full graph-versus-CSV comparison matched every node and relationship
+  property payload and found zero duplicate triples. Canonical logical graph
+  SHA-256 is `067cb2ef...5c1f`. All 12,960 rosters have nine player edges; all
+  5,760 selected candidates have exactly one book edge; all 8,640 unselected
+  candidates have none; arm/roster/slate lineage has zero gaps.
+- The supplied label-free, monolithic relationship loader was not operational
+  at this scale. Its slow transaction was explicitly terminated and rolled
+  back at zero relationships; an indexed attempt resolved the rows but hit
+  the configured transaction-memory cap and also rolled back at zero. The
+  successful transport added a unique release label and used indexed endpoint
+  lookup in 5,000-row transactions. No source CSV was changed.
+- Query replay confirms the decisive selection gap: the treatment pool has
+  two realized 220+ candidates and K80 selects zero; control has one and
+  selects it. At K80, mean candidate-oracle regret remains 5.001 points for
+  treatment and 6.281 for control. Mean/sim-mean association is only about
+  0.240 in treatment, q90 about 0.208, and q99 about 0.167, so q99 alone is
+  not an adequate ranking prescription.
+- Full evidence and prefix diagnostics are in
+  `reports/2026-09-10-prereg083-local-neo4j-load-and-ranking-audit.md`. This is
+  a localhost development index, not a dedicated production service or live
+  selection authority. Exact next action: harden the export's loader to use
+  indexed batched transactions, then advance PREREG-085's identical-population
+  ranker comparison and prospective confirmation path.
+
 ### 2026-09-10 Week-1 P_MIX and four governed books published
 
 - Exact clean production source
