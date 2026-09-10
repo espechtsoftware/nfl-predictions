@@ -24,6 +24,15 @@ agent or developer:
 
 ### 2026-09-10 Week-1 freeze identity boundary repaired
 
+- Repair commit `6b9140d6188750259fdf130a5f424d830d2f0758` is pushed on
+  `production/generation-shadow-jsonpayload-collector-20260910`. The unchanged
+  exact suite froze successfully. Root object generation
+  `1789079187452181` is 6,057,738 bytes with file SHA-256
+  `396f3f5f...b77830` and self hash `b0e39f6e...cdd123`; envelope generation
+  `1789079197508795` is 6,058,423 bytes with file SHA-256
+  `771fb99c...361ef` and self hash `5c02e70b...627c96`. Exact local reopen
+  confirmed Week 1 / slate `dk-151307`, complete=true, no outcome access,
+  no post-lock data and no production-change license.
 - Branch `production/generation-shadow-jsonpayload-collector-20260910` now
   repairs the host-side `freeze-week` validator failure observed after exact
   collection of `generation-shadow-suite-8mz64`. The immutable suite remains
@@ -39,10 +48,10 @@ agent or developer:
 - Validation: the focused namespace and forged-candidate regression passes
   2/2; the full generation-shadow evaluator test file passes; deployment and
   operator tests pass 27/27; `git diff --check` passes.
-- Exact next action: commit and push this repair, rerun the existing
-  `config/2026-week1-generation-shadow-freeze-week.json` against the unchanged
-  generation-pinned suite objects, then exact-reopen and receipt the published
-  terminal root/envelope before publishing the Week-1 safety row.
+- Exact next action: publish the generation-pinned request in
+  `config/2026-week1-generation-shadow-safety-week.json`, exact-reopen and
+  receipt the Week-1 safety row, then construct P_MIX and the four governed A5
+  books. Do not launch another generation suite.
 
 ### 2026-09-10 `8mz64` succeeded and exact collection is complete
 

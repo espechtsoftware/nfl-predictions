@@ -1,0 +1,17 @@
+{
+  "preregistration_identity": {
+    "bytes": 10495,
+    "generation": "1789039074510112",
+    "sha256": "c422a2e8cbb247664f1ed69f582b9154d483b5507470ab1031655e3d54382dbb",
+    "uri": "gs://nfl-predictions-503414-raw/generation_shadow/2026/authorities/preregistration.json"
+  },
+  "slate_id": "dk-151307",
+  "target_uri": "gs://nfl-predictions-503414-raw/generation_shadow/2026/week-01/safety/weekly-safety-receipt.json",
+  "terminal_prelock_envelope_identity": {
+    "bytes": 6058423,
+    "generation": "1789079197508795",
+    "sha256": "771fb99c9d26e2e1ffb86f0fcc596266a2f1ed64defaf511b36f2d45023661ef",
+    "uri": "gs://nfl-predictions-503414-raw/generation_shadow/2026/week-01/evaluation/terminal-envelope.json"
+  },
+  "week": 1
+}
