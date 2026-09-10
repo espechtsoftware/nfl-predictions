@@ -22,6 +22,35 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 Week-1 four-book publisher passed real-data preflight
+
+- On branch `production/generation-shadow-jsonpayload-collector-20260910`,
+  production added `scripts/publish_week1_a5_books.py`, a default-dry-run,
+  explicit-execute publisher for the repaired live D800/D400 pair, the
+  governed P_CTRL/P_MIX participation package, salary catalog, player bridge,
+  and exact-K80 P_CTRL/P_MIX/D400_DEMAX/D800_WEMAX books. It publishes and
+  generation-exact-reopens sources and terminal roots create-once. It
+  deliberately cannot publish an entry allocation or submit a contest entry.
+- Real-data preflight used repaired nfl2 source commit
+  `fa5d035ba99928f71736cbb77222515e9cdd94a8`, D800 run
+  `20260910T123108360022Z-fa5d035`, and D400 run
+  `20260910T123841482022Z-fa5d035`. It authenticated 1,460 historical
+  participation rows across every 2022--2025 season, the complete 397-player
+  live DraftKings status universe with 24 designations, and exact reproduction
+  of the repaired D800 paid book by P_CTRL. P_MIX changes 16 members per side
+  at K80. Its participation-map SHA-256 is
+  `6f8603105dd83fe995c7c595b956eccfe216e4d6d18be2e97db6bf404dc667a6`.
+- Validation is 42/42 across the live-pair adapter, A5 book materializer,
+  adopted-pair operator, and participation-mixture suites; Python compilation
+  and `git diff --check` pass. The dry run published nothing and submitted no
+  entry. The 2025 injury source has no provider modification timestamps, so
+  the frozen history artifact records the completed-season active-stat/snap
+  derivation explicitly; target-week outcomes remain unread.
+- Exact next action: commit and push the publisher from a clean source tree,
+  execute once under fresh run ID `20260910t2315z-fa5d035`, exact-reopen and
+  record every durable identity, and preserve `entry_allocation_published=false`
+  until the user separately decides reduced bankroll and contest counts.
+
 ### 2026-09-10 Week-1 freeze identity boundary repaired
 
 - The generation-pinned safety publication is complete at generation
