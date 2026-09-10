@@ -183,11 +183,14 @@ if a[:2] == ['logging','read']:
  root='gs://nfl-predictions-503414-raw/generation_shadow/2026/week-01/'+run_id
  def receipt(name, generation):
   return {'uri':root+'/'+name+'.json','generation':generation,'sha256':'a'*64,
-   'bytes':123,'gcs_time_created':'2026-09-01T01:00:00+00:00',
-   'precedes_slate_lock':True,'create_only':True}
+    'bytes':123,'gcs_time_created':'2026-09-01T01:00:00+00:00',
+    'precedes_slate_lock':True,'create_only':True}
  result={'complete':True,'run_id':run_id,'cloud_run_execution':execution,
   'manifest':receipt('manifest',101),'terminal':receipt('terminal',102),
   'registry_sha256':'b'*64,'production_enabled':False}
+ if os.environ['LOG_PAYLOAD_KIND'] == 'json':
+  result['manifest']['generation'] = 101.0
+  result['terminal']['generation'] = 102.0
  payload = ({'jsonPayload':result} if os.environ['LOG_PAYLOAD_KIND'] == 'json'
             else {'textPayload':json.dumps(result,sort_keys=True)})
  print(json.dumps([payload])); sys.exit()

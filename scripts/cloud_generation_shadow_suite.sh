@@ -162,7 +162,11 @@ if [[ -n "$COLLECT_EXECUTION" ]]; then
     --arg completion_time "$(jq -er '.status.completionTime' "$execution_json")" \
     --arg workload_source_sha "$CODE_SHA" \
     --arg collector_source_sha "$COLLECTOR_CODE_SHA" '
-    def identity: {uri, generation:(.generation | tostring), sha256, bytes};
+    def decimal_generation:
+      if type == "number" and . >= 1 and . == floor then (floor | tostring)
+      elif type == "string" and test("^[1-9][0-9]*$") then .
+      else error("object generation is not a positive integer") end;
+    def identity: {uri, generation:(.generation | decimal_generation), sha256, bytes};
     {
       schema_version:$schema,
       execution:{
