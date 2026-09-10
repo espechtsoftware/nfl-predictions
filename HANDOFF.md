@@ -22,6 +22,69 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 Week-1 A5 same-pool books unblocked and live pair refreshed
+
+- Production repaired the lab live runner on top of current nfl2 `main` and
+  pushed commit `e5ecce68bde973e2321200c45e44344becaa0ea6`.  Its new explicit
+  `--emit-a5-sidecars` mode is valid only with `dual_emax`; it retains the
+  exact incumbent/corrected-hsim player-world banks and selects an exact-K80
+  `D800_WEMAX` shadow from the same D800 candidate matrix.  It also retains
+  raw hashes/shapes/dtypes, `book_wemax.csv`, `book_wemax.json`, and candidate
+  `book_rank_wemax`.  The active-skill allowlist and completeness guards are
+  included.  The focused live/A5/selector suite passes 25/25, Python
+  compilation and diff checks pass, and the change reads no outcomes or paid
+  entry state.
+- Before that implementation changed the source, production ran a fresh
+  candidate-only D800/D400 rehearsal from clean reviewed nfl2 commit
+  `0aea3c3ae1fe584d651a3d93b003e207f4d90190`.  D800 completed in 320.7
+  seconds and D400 in 108.4 seconds; each produced exact-K80 with zero DK or
+  named-house-contract violations.  The production adapter accepted exact
+  D400-in-D800 containment, identical input/frame/bank identity, 39/80 book
+  overlap, and adapter SHA-256
+  `06169d0f1e457a968a7ddf308ca5dbb70fd07fd05fb1fdad1c9797a7ae9c42f0`.
+  Both use salary pull `2026-09-10 11:02:03.499696+00:00`, 744 salary rows,
+  a 402-player active frame, 16,883 prop rows, and 905 TabPFN rows.  The
+  current Sunday-slate snapshot has no Questionable/Doubtful/Out designation
+  and Fantasy Points ownership remains unavailable, so this pair is a valid
+  outcome-blind rehearsal, not the final pre-lock authority.
+- The saved Fantasy Points ownership session was independently verified as
+  authenticated.  Its table response still declares `isOffseason=true` and
+  has zero values/visible rows; projected ownership therefore remains absent,
+  never coerced to zero.  The saved SIS session is expired/missing.  Existing
+  SIS warehouse tables remain historical inputs, but there is no adopted
+  Week-1 live SIS query and no claim that an unavailable live SIS row was used.
+- The running generation-shadow suite completed the five 10,000-world blocks
+  for each of its first two arms and is still building the remaining declared
+  arms.  Its best-effort ownership calibration write then exposed a warehouse
+  type drift: `nfl_predictions.own_shadow.booster_own` was `STRING` because all
+  prior values were null while the current booster emits `FLOAT64`.  Production
+  cloned all 17,181 existing rows to
+  `nfl_backups.own_shadow_20260910_pretype`, replaced only that column with
+  `FLOAT64`, and reverified the complete row count.  The governed schema now
+  lives at `sql/predictions/002_own_shadow.sql`.  The already-running suite is
+  unaffected except that the two rejected best-effort writes are absent; its
+  completed candidate pools remain valid and the execution continues.
+- The clean current-source sidecar pair is now complete at exact nfl2 source
+  `e5ecce68bde973e2321200c45e44344becaa0ea6`.  D800 lives at
+  `20260910T120233065514Z-e5ecce6` and D400 at
+  `20260910T120639791270Z-e5ecce6`; both use the same 744-row salary pull,
+  402-row active frame, and exact float32 402-by-10,000 player score banks.
+  The production adapter accepted exact 800/400 candidate counts, exact-K80
+  books, 39/80 overlap, shared frame SHA-256
+  `3357acec386284af693dcc65e86c4d02ac957eea97bf6ef47b500a0c0deb23d9`,
+  shared input identity
+  `9d3b22a4d357c5b700e8989fc9f238ad19fe99c1aa5340ee258b4f799c72afa9`,
+  and adapter SHA-256
+  `9f9ef697441b61220a36e0cf122b43aa9a8939eb837a4dd63deb23e84efd3957`.
+  This remains a rehearsal because live designation coverage and Fantasy
+  Points ownership are not yet available; no paid-entry authority follows.
+- Exact next action: materialize and validate the P_CTRL/P_MIX,
+  D400_DEMAX and D800_WEMAX capture books.  Continue monitoring Cloud Run
+  execution `generation-shadow-suite-vx76b`; on terminal success collect its
+  exact artifacts from source `607e184e`, freeze/reopen the suite authority,
+  publish the safety receipt and canonical operating book, and repair/backfill
+  the non-authoritative ownership shadow log without rerunning valid pools.
+
 ### 2026-09-10 A5 lobby/template projection generation-pinned
 
 - Production reconstructed the exact September 4 public-lobby projection from
