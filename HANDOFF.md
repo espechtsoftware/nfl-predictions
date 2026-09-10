@@ -22,6 +22,30 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 operator-approved Cloud Run job retirement
+
+- The operator explicitly authorized removal of one job to free the single
+  slot needed by the dedicated Week-1 generation suite. The selected target is
+  `schaake-smoke-ba157ab`: current tracked source contains zero references to
+  that exact name, Cloud Scheduler has zero targets, and its complete execution
+  census is exactly one terminal success with no active work.
+- Preserved identity before deletion: job UID
+  `7adc7309-c34a-4499-98e0-f28c5b3e460e`, generation `1`, created
+  `2026-08-06T12:33:34.981474Z`, canonical job-spec SHA-256
+  `838db6695cc0d2e67d9c9603d114cfee75d91466488005c6420cb8a179f364eb`,
+  immutable image digest
+  `sha256:1096e1b92319f53446bc36f5777b0ca0caf250ad5c7b505c2c5ebd7c6924b8cb`.
+  Its sole execution was `schaake-smoke-ba157ab-2nc5t`, UID
+  `48ca0dbc-151c-4caa-9d8b-7d95dfe3123d`, started
+  `2026-08-06T12:34:11.898320Z`, completed successfully
+  `2026-08-06T12:35:43.397710Z`, with one succeeded task and zero failed or
+  cancelled tasks. Deletion intentionally removes that provider-side job and
+  execution history; the durable identity above remains in the repository.
+- Exact next action: delete only `schaake-smoke-ba157ab`, verify the project
+  census falls from 1,000 to 999, then create `generation-shadow-suite` in the
+  freed slot. Do not delete or replace `atlas-minimal-c-smoke`, which remains
+  the repository's pinned reusable-job lane.
+
 ### 2026-09-10 Week-1 active-slate identity preflight repaired
 
 - Branch `production/week1-licensed-asof-repair-20260909`, source commit
