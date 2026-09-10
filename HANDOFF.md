@@ -22,6 +22,36 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 second suite failed safely; single-source preflight repaired
+
+- Execution `generation-shadow-suite-j5qzl`, UID
+  `d27793ab-e535-4315-83bd-9a0b43594ef1`, failed terminally at
+  `2026-09-10T14:15:15.226784Z` with one failed task, zero success, and zero
+  retries. It stopped at `frozen generation-shadow preflight source drift`
+  before any candidate solve, candidate-log append, artifact write, manifest,
+  or terminal publication. Preserve it with failed predecessor `vx76b`; do not
+  collect, retry, relabel, or reuse either execution.
+- The first v2 repair cached eleven completed player/draw matrices but still
+  assembled them with eleven independent live-provider reads. Commit
+  `74152ef5164a511a6fdcddbac69a2693da6aecab` closes that gap by freezing the
+  feature, inactive/cascade, prop-market, DST, and named component-model
+  providers at first use, then deriving each distinct registered seed bank
+  from that one suite-local source snapshot. All provider replacements are
+  restored on exit. Adopted-policy files remain unchanged.
+- The focused suite/evaluation/live-multiseed/portfolio/boom-first/deployment
+  set passes 88/88. A mutating-provider regression proves one read per source
+  and one load per named model variant across all eleven seeded builds. A
+  bounded real Week-1 check produced distinct 10,000-world R0/R1 banks with
+  one identical 395-row stable candidate source SHA-256
+  `31a757f3569c7eeb376c73cf871f2b2fb69ad7200def44a696d49a195e5789af`;
+  the role source also remained stable. Full evidence is in
+  `reports/2026-09-10-generation-shadow-j5qzl-preflight-failure-and-single-source-repair.md`.
+- Exact next action: push the repair and this handoff, build one immutable
+  image from the resulting pushed code source, update the same dedicated job,
+  and launch one fresh zero-retry Week-1 execution. Accept only a successful
+  paired-input-v2 terminal; no paid-entry or policy mutation follows from the
+  repair.
+
 ### 2026-09-10 paired-input-v2 image passed and fresh Week-1 suite launched
 
 - Production repair source commit
