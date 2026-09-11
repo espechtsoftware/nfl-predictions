@@ -22,6 +22,46 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 normalized FP/SIS metadata-query failure repaired
+
+- Normalized task0 execution `atlas-cbc-32g-full-2023-w8-v1-7spxf`
+  failed safely. Exact BigQuery job
+  `r6_paid_snapshot_20260910_fp_sis_normalized_successor_v1_0_44389d1880ea`
+  rejected the frozen query because its correlated
+  `INFORMATION_SCHEMA.COLUMNS` subquery referenced
+  `frozen_tables.table_id` and could not be decorrelated. No normalized
+  publication from that execution is eligible, and its request, run ID,
+  namespace, execution, and query job ID must not be retried or reused. The
+  container's failure cleanup also reached an EXIT trap after the local
+  `work` variable had left scope and reported `work: unbound variable`.
+- On branch `production/fp-sis-normalized-query-repair-20260910`, exact
+  implementation commit `9eea68b2187ed146e4b90d3869bb7793fe26172f`
+  replaces both normalized Fantasy Points and SIS metadata correlations with
+  an exact relation-scoped `relation_columns` CTE. It preaggregates ordered
+  column structures once per `table_name` and joins that result to
+  `__TABLES__`; the relation inventory remains exact, and the
+  `TIMESTAMP_MILLIS(frozen_tables.last_modified_time)` predicate still
+  filters at native millisecond precision before the retained timestamp is
+  formatted. The same correlated-query defect was present in all five
+  immediately downstream seven-pack warehouse specs and is closed by the
+  same preaggregate-and-join shape before that stage can launch.
+- Container cleanup now stores the `mktemp` directory in a script-scope
+  variable that remains defined when the EXIT trap fires, while retaining an
+  exact quoted cleanup target. An executable regression returns from a local
+  function scope under `set -u`, runs the real extracted cleanup function at
+  shell exit, and proves the payload directory is removed without masking the
+  preceding status.
+- Validation is 30/30 across normalized core, CLI, cloud-wrapper, and
+  seven-pack tests. Bash syntax, Python compilation, and `git diff --check`
+  pass. No BigQuery query, Cloud Build, Cloud Run mutation/execution, GCS
+  access, outcome read, or scoring action was performed by this repair.
+- Exact next action: independently review and settle both repair commits onto
+  current `origin/main`, build the resulting exact durable source, and create
+  a newly frozen normalized request at a new canonical UTC second with a new
+  run ID, GCS prefix, and query job IDs. Run task0 only after rechecking the
+  shared job's exact latest terminal-idle execution; never reuse `7spxf` or
+  the failed `20260910-fp-sis-normalized-successor-v1` namespace.
+
 ### 2026-09-10 shared Cloud Run stale-terminal gate class is cleared
 
 - On branch `production/fp-sis-retrieval-release-20260910`, implementation
