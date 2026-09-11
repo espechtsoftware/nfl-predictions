@@ -349,7 +349,7 @@ if [[ "$ACTION" == "collect" || "$ACTION" == "reopen-collect" ]]; then
   request=$tmp/request.json
   key=manifest_identity
   [[ "$ACTION" == "reopen-collect" ]] && key=terminal_identity
-  jq -cS --arg execution "$PREDECESSOR" --arg key "$key" --slurpfile identity "$PAYLOAD" '{($key):$identity[0],execution_id:$execution}' >"$request"
+  jq -n -cS --arg execution "$PREDECESSOR" --arg key "$key" --slurpfile identity "$PAYLOAD" '{($key):$identity[0],execution_id:$execution}' >"$request"
   export "$ENABLE_ENV=$ENABLE_VALUE" "$MODE_ENV=$ACTION" "$OUTCOMES_ENV=false"
   "$ROOT/.venv/bin/python" "$ROOT/scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py" "$ACTION" --request "$request" --execute
   exit 0

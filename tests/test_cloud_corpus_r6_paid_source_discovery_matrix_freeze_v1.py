@@ -97,3 +97,23 @@ def test_execution_parallelism_is_verified_against_the_job_not_the_task_count():
     # task0 must still be a single task, and the cohort still 54.
     assert "mode=task0 tasks=1" in text
     assert "mode=$ACTION tasks=54" in text
+
+
+def test_request_building_jq_uses_null_input():
+    """jq that builds a document purely from --slurpfile must pass -n.
+
+    Without it jq reads stdin, gets EOF, and writes a zero-byte file. The
+    collect and reopen-collect requests were built that way, so both phases
+    failed at `collect request bytes differ` on every run that ever reached
+    them -- the request was empty, not malformed.
+
+    Scoped to --slurpfile deliberately: a jq with a positional input file is
+    fed properly and must NOT be flagged, or this test condemns working code.
+    """
+    text = SCRIPT.read_text(encoding="utf-8")
+    offenders = [
+        line.strip() for line in text.splitlines()
+        if line.strip().startswith("jq ") and "--slurpfile" in line
+        and not re.search(r"\bjq\s+-n\b|\bjq\s+-[a-zA-Z]*n[a-zA-Z]*\s", line)
+    ]
+    assert not offenders, f"jq builds a document from --slurpfile without -n: {offenders}"
