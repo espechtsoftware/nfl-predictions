@@ -67,6 +67,10 @@ NFL_TEAM_COUNT = 32
 MIN_WEEKLY_ROSTER_GSIS_IDS = 1_000
 MIN_DEPTH_SNAPSHOT_GSIS_IDS = 1_000
 MAX_DEPTH_SNAPSHOT_AGE_DAYS = 14
+SNAP_COUNTS_RELEASE_URL = (
+    "https://github.com/nflverse/nflverse-data/releases/download/"
+    "snap_counts/snap_counts_{season}.parquet"
+)
 WEEKLY_ROSTER_STRING_COLUMNS = frozenset({
     "team", "position", "depth_chart_position", "jersey_number", "status",
     "full_name", "first_name", "last_name", "college", "gsis_id",
@@ -418,6 +422,87 @@ def _load(df, table: str, replace_seasons: list[int] | None = None) -> None:
     load_dataframe(pdf, table)
 
 
+def _is_expected_current_snap_counts_absence(
+    error: Exception,
+    *,
+    season: int,
+) -> bool:
+    """Identify only nflverse's unpublished active-season snap-count file.
+
+    nflreadpy wraps the requests HTTPError in ConnectionError. Inspect the
+    actual exception chain and response identity rather than accepting a
+    message containing ``404``. Any different URL/status or an exception
+    without provider response evidence remains fatal.
+    """
+    expected_url = SNAP_COUNTS_RELEASE_URL.format(season=int(season))
+    current: BaseException | None = error
+    visited: set[int] = set()
+    while current is not None and id(current) not in visited:
+        visited.add(id(current))
+        response = getattr(current, "response", None)
+        status = getattr(response, "status_code", None)
+        response_url = getattr(response, "url", None)
+        request = getattr(current, "request", None)
+        request_url = getattr(request, "url", None)
+        if status == 404 and (
+            response_url == expected_url or request_url == expected_url
+        ):
+            return True
+        current = current.__cause__ or current.__context__
+    return False
+
+
+def _load_snap_counts(
+    nfl,
+    seasons: list[int],
+    *,
+    full_refresh: bool,
+    expected_unpublished_season: int | None,
+) -> None:
+    """Load snap counts, preserving a not-yet-published active partition.
+
+    The exception is allowed only when it authenticates a 404 for the exact
+    current-season nflverse release object. Incremental collection then
+    leaves the existing table untouched. A full refresh still replaces the
+    table with every available historical season rather than discarding the
+    whole feed because its new-season object is not published yet.
+    """
+    requested = [int(value) for value in seasons]
+    if not requested:
+        return
+    try:
+        frame = nfl.load_snap_counts(requested)
+    except Exception as error:
+        allowed = (
+            expected_unpublished_season is not None
+            and int(expected_unpublished_season) in requested
+            and _is_expected_current_snap_counts_absence(
+                error,
+                season=int(expected_unpublished_season),
+            )
+        )
+        if not allowed:
+            raise
+        available = [
+            value for value in requested
+            if value != int(expected_unpublished_season)
+        ]
+        log.warning(
+            "nflverse snap_counts source is not yet published for active "
+            "season %d; preserving that partition",
+            int(expected_unpublished_season),
+        )
+        if not available:
+            return
+        frame = nfl.load_snap_counts(available)
+        requested = available
+    _load(
+        frame,
+        "snap_counts",
+        replace_seasons=None if full_refresh else requested,
+    )
+
+
 def _json_value(value):
     """Canonical JSON scalar for one raw injury cell."""
     if pd.isna(value):
@@ -580,8 +665,14 @@ def run(full_refresh: bool = False) -> None:
     _load(nfl.load_combine(), "combine")
 
     if snaps := [s for s in seasons if s >= SNAPS_FIRST_SEASON]:
-        _load(nfl.load_snap_counts(snaps), "snap_counts",
-              replace_seasons=None if full_refresh else snaps)
+        _load_snap_counts(
+            nfl,
+            snaps,
+            full_refresh=full_refresh,
+            expected_unpublished_season=(
+                planning_season if season == planning_season else None
+            ),
+        )
     if inj := [s for s in seasons if s >= INJURIES_FIRST_SEASON]:
         # Normalize/validate before _load can delete an existing partition.
         injury_frame = _injury_source_frame(nfl.load_injuries(inj))

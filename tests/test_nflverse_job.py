@@ -21,6 +21,33 @@ class FakeFrame:
         return self._pdf
 
 
+class _ProviderResponse:
+    def __init__(self, status_code: int, url: str):
+        self.status_code = status_code
+        self.url = url
+
+
+class _SnapCountsSource:
+    def __init__(self, *, error: Exception | None = None):
+        self.error = error
+        self.calls: list[list[int]] = []
+
+    def load_snap_counts(self, seasons):
+        requested = [int(value) for value in seasons]
+        self.calls.append(requested)
+        if self.error is not None and 2026 in requested:
+            raise self.error
+        return FakeFrame(pd.DataFrame({"season": requested, "snap": 1}))
+
+
+def _wrapped_provider_error(*, status_code: int, url: str) -> ConnectionError:
+    provider = RuntimeError("provider response")
+    provider.response = _ProviderResponse(status_code, url)
+    wrapped = ConnectionError("nflreadpy download failed")
+    wrapped.__cause__ = provider
+    return wrapped
+
+
 def _capture(monkeypatch):
     loads, deletes = [], []
     monkeypatch.setattr(
@@ -55,6 +82,116 @@ def test_incremental_without_season_column_falls_back_to_truncate(monkeypatch):
     nflverse_job._load(df, "depth_charts_snapshots", replace_seasons=[2025])
     assert deletes == []
     assert loads == [("depth_charts_snapshots", "WRITE_TRUNCATE")]
+
+
+def test_current_snap_counts_exact_404_preserves_existing_partition(
+    monkeypatch, caplog,
+):
+    loads, deletes = _capture(monkeypatch)
+    url = nflverse_job.SNAP_COUNTS_RELEASE_URL.format(season=2026)
+    source = _SnapCountsSource(error=_wrapped_provider_error(
+        status_code=404,
+        url=url,
+    ))
+
+    with caplog.at_level("WARNING"):
+        nflverse_job._load_snap_counts(
+            source,
+            [2026],
+            full_refresh=False,
+            expected_unpublished_season=2026,
+        )
+
+    assert source.calls == [[2026]]
+    assert deletes == []
+    assert loads == []
+    assert "not yet published for active season 2026" in caplog.text
+
+
+def test_full_snap_counts_refresh_omits_only_unpublished_current_season(
+    monkeypatch,
+):
+    loads, deletes = _capture(monkeypatch)
+    url = nflverse_job.SNAP_COUNTS_RELEASE_URL.format(season=2026)
+    source = _SnapCountsSource(error=_wrapped_provider_error(
+        status_code=404,
+        url=url,
+    ))
+
+    nflverse_job._load_snap_counts(
+        source,
+        [2014, 2025, 2026],
+        full_refresh=True,
+        expected_unpublished_season=2026,
+    )
+
+    assert source.calls == [[2014, 2025, 2026], [2014, 2025]]
+    assert deletes == []
+    assert loads == [("snap_counts", "WRITE_TRUNCATE")]
+
+
+@pytest.mark.parametrize(
+    ("error", "expected_unpublished_season"),
+    (
+        (
+            _wrapped_provider_error(
+                status_code=503,
+                url=nflverse_job.SNAP_COUNTS_RELEASE_URL.format(season=2026),
+            ),
+            2026,
+        ),
+        (
+            _wrapped_provider_error(
+                status_code=404,
+                url=nflverse_job.SNAP_COUNTS_RELEASE_URL.format(season=2025),
+            ),
+            2026,
+        ),
+        (
+            _wrapped_provider_error(
+                status_code=404,
+                url=nflverse_job.SNAP_COUNTS_RELEASE_URL.format(season=2026),
+            ),
+            None,
+        ),
+        (ConnectionError("404 without authenticated response"), 2026),
+    ),
+)
+def test_snap_counts_preserves_all_other_failures(
+    monkeypatch, error, expected_unpublished_season,
+):
+    loads, deletes = _capture(monkeypatch)
+    source = _SnapCountsSource(error=error)
+
+    with pytest.raises(type(error), match=str(error)):
+        nflverse_job._load_snap_counts(
+            source,
+            [2026],
+            full_refresh=False,
+            expected_unpublished_season=expected_unpublished_season,
+        )
+
+    assert source.calls == [[2026]]
+    assert deletes == []
+    assert loads == []
+
+
+def test_published_current_snap_counts_still_replaces_incremental_partition(
+    monkeypatch,
+):
+    loads, deletes = _capture(monkeypatch)
+    source = _SnapCountsSource()
+
+    nflverse_job._load_snap_counts(
+        source,
+        [2026],
+        full_refresh=False,
+        expected_unpublished_season=2026,
+    )
+
+    assert source.calls == [[2026]]
+    assert deletes == [("snap_counts", (2026,))]
+    assert loads == [("snap_counts", "WRITE_APPEND")]
 
 
 def _injury_frame() -> FakeFrame:
@@ -230,6 +367,7 @@ def test_run_stamps_injury_after_source_returns_across_lock(
     times = iter((run_started_at, source_returned_at, later_ordinary_return))
     events = []
     appended = []
+    snap_calls = []
 
     monkeypatch.setattr(nflverse_job, "current_season", lambda: planning_season)
     monkeypatch.setattr(
@@ -276,6 +414,15 @@ def test_run_stamps_injury_after_source_returns_across_lock(
         "append_injury_snapshot",
         lambda frame, **kwargs: appended.append((frame, kwargs)) or len(frame),
     )
+    monkeypatch.setattr(
+        nflverse_job,
+        "_load_snap_counts",
+        lambda source, seasons, **kwargs: snap_calls.append((
+            source,
+            list(seasons),
+            kwargs,
+        )),
+    )
 
     blank = FakeFrame(pd.DataFrame({"season": [data_season]}))
     for name in (
@@ -289,6 +436,16 @@ def test_run_stamps_injury_after_source_returns_across_lock(
     nflverse_job.run()
 
     assert len(appended) == 1
+    assert snap_calls == [(
+        nfl,
+        [data_season],
+        {
+            "full_refresh": False,
+            "expected_unpublished_season": (
+                planning_season if data_season == planning_season else None
+            ),
+        },
+    )]
     assert appended[0][1]["pulled_at"] == source_returned_at
     assert appended[0][1]["pulled_at"] > slate_lock
     if uses_planning_bypass:
