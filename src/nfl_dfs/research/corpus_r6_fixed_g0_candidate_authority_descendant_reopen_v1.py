@@ -6,12 +6,16 @@ HEAD is operational context, not an immutable predecessor: resolving the same
 unchanged lock chain at a later clean descendant therefore changes only that
 hash and the enclosing candidate-binding self-hash.
 
-This adapter accepts exactly that one representation drift.  It independently
-resolves the catalog-recovery capability at both the candidate root's bound
-implementation commit and the current clean durable descendant, proves their
-lock/code projections identical, projects only the replay-HEAD capability
-hash, and then performs the complete candidate-v2 predecessor replay.  It
-does not expose publication, outcome, scoring, graph, or policy capability.
+The frozen candidate-v1 predecessor also records that replay-time HEAD in two
+non-scientific leaves: the G0 source commit and the catalog terminal-lock
+binding copied into all 54 slate receipts.  This adapter accepts exactly those
+two leaf classes, their deterministic 112-hash cascade, and the outer recovery
+capability representation drift.  It proves the transitive authority code and
+selection bytes unchanged between the historical and current commits, then
+performs independent complete candidate-v1 replays of both the projected
+current bundle and retained historical bundle before rebuilding the exact
+candidate-v2 predecessor.  It does not expose publication, outcome, scoring,
+graph, or policy capability.
 """
 
 from __future__ import annotations
@@ -19,6 +23,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from copy import deepcopy
 from pathlib import Path
+import stat
 from typing import Final
 
 from nfl_dfs.research import (
@@ -36,6 +41,75 @@ ADAPTER_MODULE_PATH: Final = (
     "src/nfl_dfs/research/"
     "corpus_r6_fixed_g0_candidate_authority_descendant_reopen_v1.py"
 )
+
+# These are the transitive authority validators that can influence the two
+# replay-time HEAD representations accepted below.  They deliberately exclude
+# the much broader historical panel runtime surface: ordinary v1 byte replay
+# still rejects any scientific-output drift in those modules.  The descendant
+# adapter itself did not exist at the historical commit and is instead
+# measured by the current capture-plan successor.
+REPLAY_HEAD_STABLE_IMPLEMENTATION_PATHS: Final = tuple(sorted({
+    core.FROZEN_CORE_V1_MODULE_PATH,
+    core.CORE_V2_MODULE_PATH,
+    core.RELEASE_V2_MODULE_PATH,
+    core.recovery_downstream.DOWNSTREAM_MODULE_PATH,
+    recovery.RECOVERY_MODULE_PATH,
+    "src/nfl_dfs/research/corpus_extreme_tail_panel_execution.py",
+    "src/nfl_dfs/research/corpus_v12_panel_index.py",
+    "src/nfl_dfs/research/corpus_artifact_source_authority.py",
+    "src/nfl_dfs/research/corpus_parametric_batch.py",
+    "src/nfl_dfs/research/lr8_later_period_source.py",
+    "src/nfl_dfs/research/lr8_historical_arm.py",
+    "src/nfl_dfs/research/residual_world_columns.py",
+    "src/nfl_dfs/research/object_identity.py",
+    core_v1.catalog_successor.MODULE_PATH,
+    core_v1.catalog_adapter.FIXED_ADAPTER_MODULE_PATH,
+    core_v1.catalog_adapter.FIXED_CATALOG_MODULE_PATH,
+    "src/nfl_dfs/research/corpus_r6_matchup_source_v2.py",
+    "src/nfl_dfs/research/corpus_v12_import.py",
+    "src/nfl_dfs/research/corpus_legal_feasibility.py",
+}))
+
+REPLAY_HEAD_STABLE_SELECTION_PATHS: Final = tuple(sorted({
+    core_v1.panel_execution.FROZEN_G0_AUTHORITY_LOCK_RELATIVE_PATH,
+    core_v1.panel_execution.FROZEN_G0_PUBLICATION_RECEIPT_RELATIVE_PATH,
+    *core_v1.panel_execution.FROZEN_G0_LANE_RECEIPT_RELATIVE_PATHS,
+    core_v1.catalog_successor.FINAL_LOCK_PATH,
+    core_v1.catalog_successor.REVIEW_LOCK_PATH,
+    core_v1.catalog_successor.OLD_FINAL_LOCK_PATH,
+    core_v1.catalog_successor.FAILURE_REPORT_PATH,
+    core_v1.catalog_successor.FOCUSED_OUTPUT_PATH,
+}))
+
+REPLAY_HEAD_STABLE_PATHS: Final = tuple(sorted({
+    *REPLAY_HEAD_STABLE_IMPLEMENTATION_PATHS,
+    *REPLAY_HEAD_STABLE_SELECTION_PATHS,
+}))
+
+_G0_RUNTIME_SELECTION_PATHS: Final = {
+    core_v1.panel_execution.FROZEN_G0_AUTHORITY_LOCK_RELATIVE_PATH: (
+        core_v1.panel_execution.FROZEN_G0_AUTHORITY_LOCK_PATH
+    ),
+    core_v1.panel_execution.FROZEN_G0_PUBLICATION_RECEIPT_RELATIVE_PATH: (
+        core_v1.panel_execution.FROZEN_G0_PUBLICATION_RECEIPT_PATH
+    ),
+    **{
+        relative_path: runtime_path
+        for relative_path, runtime_path in zip(
+            core_v1.panel_execution.FROZEN_G0_LANE_RECEIPT_RELATIVE_PATHS,
+            core_v1.panel_execution.FROZEN_G0_LANE_RECEIPT_PATHS,
+            strict=True,
+        )
+    },
+}
+
+_CATALOG_TERMINAL_BINDING_FIELDS: Final = frozenset({
+    "relative_path",
+    "git_commit_sha",
+    "sha256",
+    "bytes",
+    "projection_successor_final_lock_sha256",
+})
 
 
 class CorpusR6FixedG0CandidateAuthorityDescendantReopenV1Error(ValueError):
@@ -159,6 +233,320 @@ def validate_replay_head_only_binding_drift_v1(
     if projected != descendant:
         _fail("candidate binding drift exceeds replay-time capability SHA")
     return retained
+
+
+def _validate_v1_self_hash(
+    value: Mapping[str, object], *, field: str, label: str,
+) -> None:
+    try:
+        core_v1._validate_self_hash(value, field=field, label=label)
+    except Exception as exc:
+        raise CorpusR6FixedG0CandidateAuthorityDescendantReopenV1Error(
+            f"{label} differs before replay-HEAD projection: {exc}"
+        ) from exc
+
+
+def _replace_terminal_binding_head(
+    value: object,
+    *,
+    historical_head: str,
+    descendant_head: str,
+    label: str,
+) -> dict[str, object]:
+    binding = _mapping(value, label=label)
+    if set(binding) != _CATALOG_TERMINAL_BINDING_FIELDS:
+        _fail(f"{label} field schema differs")
+    if binding.get("git_commit_sha") != historical_head:
+        _fail(f"{label} is not bound to the candidate historical HEAD")
+    binding["git_commit_sha"] = descendant_head
+    return binding
+
+
+def _project_v1_replay_head_only_bundle(
+    value: object,
+    *,
+    historical_head: str,
+    descendant_head: str,
+) -> dict[str, object]:
+    """Project the two v1 replay-time HEAD leaves to a durable descendant.
+
+    Candidate-v1 records the current HEAD twice even though both values only
+    attest that immutable tracked locks were clean when replayed: once in the
+    G0 ``source_commit_sha`` and once in the catalog terminal-lock binding.
+    The latter is copied into all 54 slate receipts.  This function accepts
+    exactly those two direct leaf changes and deterministically rebuilds only
+    their dependent receipt, panel, manifest, and bundle hashes.
+
+    The returned projection is validation-only.  The retained historical
+    bundle remains the authority returned by the descendant reopener.
+    """
+
+    try:
+        historical = core._commit(
+            historical_head, label="candidate historical replay HEAD"
+        )
+        descendant = core._commit(
+            descendant_head, label="candidate descendant replay HEAD"
+        )
+    except Exception as exc:
+        raise CorpusR6FixedG0CandidateAuthorityDescendantReopenV1Error(
+            str(exc)
+        ) from exc
+
+    bundle = _mapping(value, label="retained v1 candidate bundle")
+    _validate_v1_self_hash(
+        bundle,
+        field="candidate_authority_bundle_sha256",
+        label="retained v1 candidate bundle",
+    )
+    if (
+        bundle.get("schema_version") != core_v1.AUTHORITY_BUNDLE_SCHEMA
+        or bundle.get("task_count") != source.TASK_COUNT
+    ):
+        _fail("retained v1 candidate bundle schema/cardinality differs")
+    try:
+        raw_receipts = core._sequence(
+            bundle.get("slate_derivation_receipts"),
+            label="retained v1 slate receipts",
+        )
+    except Exception as exc:
+        raise CorpusR6FixedG0CandidateAuthorityDescendantReopenV1Error(
+            str(exc)
+        ) from exc
+    if len(raw_receipts) != source.TASK_COUNT:
+        _fail("retained v1 slate receipt cardinality differs")
+
+    retained_receipts: list[dict[str, object]] = []
+    projected_receipts: list[dict[str, object]] = []
+    retained_terminal_binding: dict[str, object] | None = None
+    for ordinal, raw_receipt in enumerate(raw_receipts):
+        receipt = _mapping(
+            raw_receipt, label=f"retained v1 slate receipt[{ordinal}]"
+        )
+        _validate_v1_self_hash(
+            receipt,
+            field="slate_derivation_sha256",
+            label=f"retained v1 slate receipt[{ordinal}]",
+        )
+        if (
+            receipt.get("schema_version") != core_v1.SLATE_DERIVATION_SCHEMA
+            or receipt.get("source_task_ordinal") != ordinal
+        ):
+            _fail(f"retained v1 slate receipt[{ordinal}] schema/order differs")
+        terminal_binding = _mapping(
+            receipt.get("catalog_terminal_final_lock_binding"),
+            label=f"retained v1 slate receipt[{ordinal}] terminal binding",
+        )
+        if retained_terminal_binding is None:
+            retained_terminal_binding = terminal_binding
+        elif terminal_binding != retained_terminal_binding:
+            _fail("retained v1 slate terminal bindings differ")
+        projected = deepcopy(receipt)
+        projected["catalog_terminal_final_lock_binding"] = (
+            _replace_terminal_binding_head(
+                terminal_binding,
+                historical_head=historical,
+                descendant_head=descendant,
+                label=f"retained v1 slate receipt[{ordinal}] terminal binding",
+            )
+        )
+        projected.pop("slate_derivation_sha256", None)
+        projected["slate_derivation_sha256"] = source.canonical_sha256(projected)
+        retained_receipts.append(receipt)
+        projected_receipts.append(projected)
+    if retained_terminal_binding is None:  # Cardinality check makes this defensive.
+        _fail("retained v1 slate terminal binding is absent")
+
+    retained_receipt_manifest_sha = source.canonical_sha256(retained_receipts)
+    if (
+        bundle.get("slate_derivation_manifest_sha256")
+        != retained_receipt_manifest_sha
+    ):
+        _fail("retained v1 bundle slate receipt manifest differs")
+
+    panel = _mapping(
+        bundle.get("panel_derivation_receipt"),
+        label="retained v1 panel receipt",
+    )
+    _validate_v1_self_hash(
+        panel,
+        field="panel_derivation_sha256",
+        label="retained v1 panel receipt",
+    )
+    if (
+        panel.get("schema_version") != core_v1.PANEL_DERIVATION_SCHEMA
+        or panel.get("task_count") != source.TASK_COUNT
+    ):
+        _fail("retained v1 panel receipt schema/cardinality differs")
+    if panel.get("g0_source_commit_sha") != historical:
+        _fail("retained v1 panel G0 source is not the candidate historical HEAD")
+    panel_terminal_binding = _mapping(
+        panel.get("catalog_terminal_final_lock_binding"),
+        label="retained v1 panel terminal binding",
+    )
+    if panel_terminal_binding != retained_terminal_binding:
+        _fail("retained v1 panel/slate terminal bindings differ")
+    if panel.get("slate_derivation_manifest_sha256") != retained_receipt_manifest_sha:
+        _fail("retained v1 panel slate receipt manifest differs")
+    try:
+        panel_slates = [
+            _mapping(row, label=f"retained v1 panel slate[{ordinal}]")
+            for ordinal, row in enumerate(
+                core._sequence(panel.get("slates"), label="retained v1 panel slates")
+            )
+        ]
+    except Exception as exc:
+        raise CorpusR6FixedG0CandidateAuthorityDescendantReopenV1Error(
+            str(exc)
+        ) from exc
+    if len(panel_slates) != source.TASK_COUNT:
+        _fail("retained v1 panel slate cardinality differs")
+
+    projected_panel_slates: list[dict[str, object]] = []
+    for ordinal, row in enumerate(panel_slates):
+        if (
+            row.get("source_task_ordinal") != ordinal
+            or row.get("slate_derivation_sha256")
+            != retained_receipts[ordinal]["slate_derivation_sha256"]
+        ):
+            _fail(f"retained v1 panel slate[{ordinal}] receipt order differs")
+        projected_row = deepcopy(row)
+        projected_row["slate_derivation_sha256"] = projected_receipts[ordinal][
+            "slate_derivation_sha256"
+        ]
+        projected_panel_slates.append(projected_row)
+
+    projected_panel = deepcopy(panel)
+    projected_panel["catalog_terminal_final_lock_binding"] = (
+        _replace_terminal_binding_head(
+            panel_terminal_binding,
+            historical_head=historical,
+            descendant_head=descendant,
+            label="retained v1 panel terminal binding",
+        )
+    )
+    projected_panel["g0_source_commit_sha"] = descendant
+    projected_panel["slates"] = projected_panel_slates
+    projected_receipt_manifest_sha = source.canonical_sha256(projected_receipts)
+    projected_panel["slate_derivation_manifest_sha256"] = (
+        projected_receipt_manifest_sha
+    )
+    projected_panel.pop("panel_derivation_sha256", None)
+    projected_panel["panel_derivation_sha256"] = source.canonical_sha256(
+        projected_panel
+    )
+
+    projected_bundle = deepcopy(bundle)
+    projected_bundle["slate_derivation_receipts"] = projected_receipts
+    projected_bundle["slate_derivation_manifest_sha256"] = (
+        projected_receipt_manifest_sha
+    )
+    projected_bundle["panel_derivation_receipt"] = projected_panel
+    projected_bundle.pop("candidate_authority_bundle_sha256", None)
+    projected_bundle["candidate_authority_bundle_sha256"] = (
+        source.canonical_sha256(projected_bundle)
+    )
+    return projected_bundle
+
+
+def _require_transitive_replay_paths_stable(
+    *,
+    repository_root: Path,
+    historical_head: str,
+    descendant_head: str,
+    git_blob: core.GitBlob,
+    git_status: core.GitStatus,
+) -> None:
+    """Prove every HEAD-sensitive validator/selection byte stayed exact."""
+
+    try:
+        historical = core._commit(
+            historical_head, label="transitive historical replay HEAD"
+        )
+        descendant = core._commit(
+            descendant_head, label="transitive descendant replay HEAD"
+        )
+        status_raw = git_status(repository_root, REPLAY_HEAD_STABLE_PATHS)
+    except Exception as exc:
+        raise CorpusR6FixedG0CandidateAuthorityDescendantReopenV1Error(
+            f"transitive replay path Git boundary failed: {exc}"
+        ) from exc
+    if type(status_raw) is not bytes or status_raw != b"":
+        _fail("transitive replay paths must be tracked-clean at current HEAD")
+
+    repository = Path(repository_root)
+    for ordinal, relative_path in enumerate(REPLAY_HEAD_STABLE_PATHS):
+        relative = Path(relative_path)
+        if (
+            relative.is_absolute()
+            or not relative.parts
+            or any(part in {"", ".", ".."} for part in relative.parts)
+        ):
+            _fail(f"transitive replay path[{ordinal}] differs")
+        runtime_path = _G0_RUNTIME_SELECTION_PATHS.get(
+            relative_path, repository / relative
+        )
+        try:
+            mode = runtime_path.lstat().st_mode
+            historical_raw = git_blob(repository, historical, relative_path)
+            descendant_raw = git_blob(repository, descendant, relative_path)
+            runtime_raw = runtime_path.read_bytes()
+        except Exception as exc:
+            raise CorpusR6FixedG0CandidateAuthorityDescendantReopenV1Error(
+                f"transitive replay path[{ordinal}] exact read failed: "
+                f"{relative_path}"
+            ) from exc
+        if (
+            stat.S_ISLNK(mode)
+            or not stat.S_ISREG(mode)
+            or type(historical_raw) is not bytes
+            or type(descendant_raw) is not bytes
+            or historical_raw != descendant_raw
+            or descendant_raw != runtime_raw
+        ):
+            _fail(
+                f"transitive replay path[{ordinal}] changed between candidate "
+                f"and descendant HEAD: {relative_path}"
+            )
+
+
+def _historical_git_head(
+    *, repository_root: Path, historical_head: str,
+) -> core.GitHead:
+    """Return a root-bound callback for the second, historical v1 replay."""
+
+    expected_root = Path(repository_root).resolve()
+    try:
+        retained_head = core._commit(
+            historical_head, label="historical v1 replay HEAD"
+        )
+    except Exception as exc:
+        raise CorpusR6FixedG0CandidateAuthorityDescendantReopenV1Error(
+            str(exc)
+        ) from exc
+
+    def callback(candidate_root: Path) -> str:
+        if Path(candidate_root).resolve() != expected_root:
+            _fail("historical v1 replay repository root differs")
+        return retained_head
+
+    return callback
+
+
+def _require_current_head_unchanged(
+    *, repository_root: Path, expected_head: str,
+) -> None:
+    try:
+        observed = catalog_adapter.SubprocessGitRepositoryV1(
+            repository_root
+        ).require_current_clean_head()
+        expected = core._commit(expected_head, label="expected final clean HEAD")
+    except Exception as exc:
+        raise CorpusR6FixedG0CandidateAuthorityDescendantReopenV1Error(
+            f"candidate final Git boundary differs: {exc}"
+        ) from exc
+    if observed != expected:
+        _fail("candidate clean HEAD changed during descendant replay")
 
 
 def _resolve_replay_heads(
@@ -289,6 +677,13 @@ def reopen_fixed_g0_candidate_authority_from_descendant_v1(
         ) from exc
     if callback_head != current_head:
         _fail("candidate callback and durable current HEAD differ")
+    _require_transitive_replay_paths_stable(
+        repository_root=repository_root,
+        historical_head=bound_head,
+        descendant_head=current_head,
+        git_blob=git_blob,
+        git_status=git_status,
+    )
 
     try:
         authority, descendant_binding = core._open_outer_and_binding(
@@ -387,31 +782,71 @@ def reopen_fixed_g0_candidate_authority_from_descendant_v1(
     )
     try:
         core._require_bundle_binding(bundle, expected_binding=retained_binding)
-        guarded_reader, require_complete_catalog_replay = (
+        current_reader, require_complete_current_catalog_replay = (
             core._outer_manifest_gated_reader(
                 authority=authority, read_exact=read_exact
             )
         )
-        projected_v1 = core._downgrade_bundle(bundle)
-        validated_v1 = core_v1.validate_fixed_g0_candidate_authority_v1(
-            projected_v1,
-            repository_root=repository_root,
-            catalog_replay_receipt_identity=(authority.inner_replay_receipt_identity),
-            read_exact=guarded_reader,
-            git_head=git_head,
-            git_blob=git_blob,
-            git_status=git_status,
+        historical_reader, require_complete_historical_catalog_replay = (
+            core._outer_manifest_gated_reader(
+                authority=authority, read_exact=read_exact
+            )
         )
-        require_complete_catalog_replay()
+        retained_v1 = core._downgrade_bundle(bundle)
+        descendant_v1 = _project_v1_replay_head_only_bundle(
+            retained_v1,
+            historical_head=bound_head,
+            descendant_head=current_head,
+        )
+        validated_descendant_v1 = (
+            core_v1.validate_fixed_g0_candidate_authority_v1(
+                descendant_v1,
+                repository_root=repository_root,
+                catalog_replay_receipt_identity=(
+                    authority.inner_replay_receipt_identity
+                ),
+                read_exact=current_reader,
+                git_head=git_head,
+                git_blob=git_blob,
+                git_status=git_status,
+            )
+        )
+        if source.canonical_json_bytes(
+            validated_descendant_v1
+        ) != source.canonical_json_bytes(descendant_v1):
+            _fail("candidate descendant v1 replay differs from HEAD projection")
+        require_complete_current_catalog_replay()
+        historical_head_callback = _historical_git_head(
+            repository_root=repository_root,
+            historical_head=bound_head,
+        )
+        validated_historical_v1 = (
+            core_v1.validate_fixed_g0_candidate_authority_v1(
+                retained_v1,
+                repository_root=repository_root,
+                catalog_replay_receipt_identity=(
+                    authority.inner_replay_receipt_identity
+                ),
+                read_exact=historical_reader,
+                git_head=historical_head_callback,
+                git_blob=git_blob,
+                git_status=git_status,
+            )
+        )
+        if source.canonical_json_bytes(
+            validated_historical_v1
+        ) != source.canonical_json_bytes(retained_v1):
+            _fail("candidate historical v1 replay differs from retained bundle")
+        require_complete_historical_catalog_replay()
         validated_panel = core._mapping(
-            validated_v1.get("panel_derivation_receipt"),
+            validated_descendant_v1.get("panel_derivation_receipt"),
             label="validated v1 panel",
         )
         material_projection = {
             "slate_predecessor_bindings": [
                 {"catalog_binding": receipt["catalog_binding"]}
                 for receipt in core._sequence(
-                    validated_v1.get("slate_derivation_receipts"),
+                    validated_descendant_v1.get("slate_derivation_receipts"),
                     label="validated v1 slate receipts",
                 )
             ],
@@ -425,7 +860,9 @@ def reopen_fixed_g0_candidate_authority_from_descendant_v1(
             ],
         }
         core._require_outer_manifest(authority=authority, material=material_projection)
-        rebuilt_bundle = core._upgrade_bundle(validated_v1, binding=retained_binding)
+        rebuilt_bundle = core._upgrade_bundle(
+            validated_historical_v1, binding=retained_binding
+        )
     except Exception as exc:
         raise CorpusR6FixedG0CandidateAuthorityDescendantReopenV1Error(
             f"candidate-authority v2 predecessor replay failed: {exc}"
@@ -447,6 +884,9 @@ def reopen_fixed_g0_candidate_authority_from_descendant_v1(
     )
     if source.canonical_json_bytes(root) != source.canonical_json_bytes(expected_root):
         _fail("candidate-authority v2 root predecessor replay differs")
+    _require_current_head_unchanged(
+        repository_root=repository_root, expected_head=current_head
+    )
     return release.ReopenedFixedG0CandidateAuthorityV2(
         root=root,
         root_identity=reopened_root_identity,
@@ -459,6 +899,9 @@ def reopen_fixed_g0_candidate_authority_from_descendant_v1(
 __all__ = [
     "ADAPTER_MODULE_PATH",
     "CorpusR6FixedG0CandidateAuthorityDescendantReopenV1Error",
+    "REPLAY_HEAD_STABLE_IMPLEMENTATION_PATHS",
+    "REPLAY_HEAD_STABLE_PATHS",
+    "REPLAY_HEAD_STABLE_SELECTION_PATHS",
     "reopen_fixed_g0_candidate_authority_from_descendant_v1",
     "validate_replay_head_only_binding_drift_v1",
 ]
