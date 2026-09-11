@@ -22,6 +22,38 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-11 discovery-matrix shared-job mutation guard is isolated and green
+
+- Isolated branch `codex/discovery-latest-execution-gate-20260911` is based
+  on the settled source-controller repair
+  `a25ef6f0ecd75830641eec9081dc54ff5dd24e1a`. Narrow implementation commit
+  `b2465712a0c2fff0f0953814d634a82200e673c1` changes only the discovery-matrix
+  Cloud Run wrapper and its two focused shared-job test modules.
+- The discovery-matrix wrapper previously checked the reused job UID and
+  Ready condition but could then update the install template or create a
+  task0, 54-task, or 54-task-reopen execution without proving that the job's
+  exact latest execution was terminal and idle. It now applies the settled
+  shared-job predecessor law before each of those four mutating actions:
+  terminal success, failure, or cancellation is admissible only with a
+  completion timestamp, at least one terminal task, zero running tasks, and
+  exact ownership by `atlas-cbc-32g-full-2023-w8-v1`. Missing, running,
+  unknown, contradictory, zero-terminal-count, and wrong-job observations
+  fail closed before `jobs update` or `jobs execute`. Read-only prepare,
+  collect, reopen-collect, and result actions do not acquire a new terminal
+  predicate.
+- Validation passes **87/87** across discovery-matrix core, CLI, cloud
+  wrapper, and the shared reused-job predicate suite. Behavioral fake-provider
+  tests exercise all four mutating actions and prove every unsafe or absent
+  latest-execution state reaches neither Cloud Run mutation command. Shell
+  syntax and `git diff --check` pass. Ruff and ShellCheck are unavailable in
+  the existing environment. No real Cloud Build, Cloud Run, BigQuery, GCS,
+  outcome, scoring, or policy operation was performed.
+- Independent review is pending. After review, cherry-pick the implementation
+  commit only after `a25ef6f0` is present in the production integration,
+  resolve the current HANDOFF additively, and rerun the same 87 focused tests.
+  This hardening changes no frozen request, matrix identity, science contract,
+  image, or namespace; it authorizes no discovery launch by itself.
+
 ### 2026-09-10 source-v3 provider-result boundary repair is isolated and green
 
 - Branch `codex/source-v3-controller-normalization-20260911` is based on exact
