@@ -22,6 +22,83 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-11 seven-pack v4 sealed; capture-plan freeze exposed historical-HEAD replay bug
+
+- Fresh successor `20260911-fp-sis-seven-pack-successor-v4` froze from exact
+  pushed source `05df154694152231d4b9775d5b170226ee636334`, request-file
+  SHA-256 `d1726c6d5d009d38ef5beb446e1f17af709abe76c210212e38dabafbd6492385`,
+  and inner request SHA-256
+  `93f8b3d28e71bf0af058501ef1fb887113d951f1fe42b4771e7579cf3ce2e904`.
+  Cloud Build `c7130a5f-db75-44ca-85c8-df7a030cab2e` passed and produced
+  immutable image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:40531e37b3d7df5e03a50635055592c30313efb1fb54a46ba353e578f0b82922`.
+  Task0 `atlas-cbc-32g-full-2023-w8-v1-2s4wr`, UID
+  `dc445a5f-159f-48c0-9289-bcbda6ad4341`, succeeded at
+  `2026-09-11T05:36:06.984918Z`; its result SHA-256 is
+  `5156f0a1881fbaa9695c5e98a7db2280589ec72d6a0f836d25e9164ef085df37`.
+  It charged 26 generation-exact reads and 58,151,778 bytes, with zero
+  warehouse queries, writes, or publications.
+- Publish `atlas-cbc-32g-full-2023-w8-v1-sznrh`, UID
+  `5a5ba573-b756-44e8-93e9-25cd18720b5f`, succeeded at
+  `2026-09-11T06:03:14.100272Z`; independent read-only reopen
+  `atlas-cbc-32g-full-2023-w8-v1-kflbl`, UID
+  `0a8f0874-8226-4d69-82b2-7b703c531f8a`, succeeded at
+  `2026-09-11T06:08:50.868891Z`. Publish-result SHA-256 is
+  `5cada2e5d46fb8f282a17163fab008f1b3c3f02319eb3d18478b1f56ab48c942`;
+  reopen-result SHA-256 is
+  `28fcc1d1fd75ff8b3fcbbab92f531ddea98f312c10e55e333c5f4de360e0e911`.
+  The independent nested reopen SHA-256 is
+  `9ff94dd663abbb617c72efab6560bc541192d88df107de59aaa8f41d3d731f8e`;
+  it reopened all seven rows objects, seven provenance objects, artifact
+  manifests/shards/predecessors, and 138,890,020 bytes with no write or
+  warehouse-query capability. All authority/license flags remain false,
+  no outcome column was read, and synthetic fallback is false.
+- The exact five deterministic warehouse jobs (suffixes
+  `0_20355081105a`, `1_66eb8c9bb0ac`, `2_fb98afde8719`,
+  `3_529240c2eeae`, and `4_848fee70b131`) all completed without error and
+  processed respectively 10,982,496, 43,228,143, 33,603,378, 64,287,348,
+  and 34,495,277 bytes. The seven canonical row counts are 1,087 schedules,
+  72,383 weekly stats, 99,497 exact-distinct legacy depth rows, 355,101
+  snapshot-depth rows, 161,848 PFR defense/snap rows, 45,172 Fantasy Points
+  rows, and 17,651 SIS rows. All 15 objects were created once with the
+  terminal root last. The terminal root is generation `1789106359079526`,
+  22,925 bytes, SHA-256
+  `1de61029e63907530d1d4182c1b37189828be4a9d9e635bd61fe2529b8af34e5`.
+- The original host driver exited 2 immediately after launching the one exact
+  publish because Cloud Run initially omitted its `Completed` condition.
+  No phase was relaunched. An attach-only recovery bound job UID
+  `1f4bcf0a-2300-4afa-9fc1-9981844c8275`, generation 60, the exact publish
+  UID/config/environment, and the complete released-lane census before it
+  collected publish and launched the sole reopen. Canonical recovery
+  completion is
+  `67efb330ca4699ca547a9ae67fce067948190a4e241dd0b537e3c0b710c24d8d`
+  (file SHA-256
+  `78db0b53056b328db81c33569f4c527c1ce9486bf9c0dec8d78692059bf2355b`,
+  exit 0). All finalized local receipts have link count one and there is no
+  failure receipt or live continuation.
+- The now-eligible capture-plan-v3 freeze correctly wrote no lock and exited
+  2 with `candidate-authority v2 exact reopen failed: candidate-authority v2
+  root recovery/code binding differs`. A generation-exact diagnostic proved
+  every substantive field equal. The only leaf difference is
+  `catalog_recovery_code_and_lock_binding.capability_sha256`: the immutable
+  candidate root retains `cf92683b9a5469b67d977db3dba568aff7c93f5d15cd15ce5aa0d06592b1467d`,
+  while replay at current HEAD computes
+  `d47081b01d786389087a4e60addb68004424f52c0e96989e5e576f7ef355b670`.
+  That capability hash includes replay-time `current_clean_commit_sha`;
+  resolving it at the root-bound original clean commit
+  `346b2a27a55c29cd5c2a30719b1a0739baae4b50` reproduces the retained hash
+  exactly. This is a durability bug in the historical replay seam, not a
+  data-quality, scoring, or seven-pack failure.
+- Do not rerun the unchanged freezer and do not recapture the sealed v4 data.
+  Exact next action: add and independently review a fail-closed compatibility
+  replay that validates the historical capability at the candidate root's
+  bound commit while also proving the active clean HEAD is its descendant and
+  all stable code/lock/data bindings remain exact. Commit and push that as the
+  new Commit A, rerun the freezer once against the same sealed v4 terminal,
+  validate the sole new capture-plan lock, then create distinct Commit B.
+  Only after Commit B should source-v3 repair `a25ef6f0` and independently
+  reviewed discovery shared-lane guard `b2465712` be integrated and built.
+
 ### 2026-09-11 seven-pack v3 failed safely on exact legacy-depth duplicates
 
 - Fresh successor `20260911-fp-sis-seven-pack-successor-v3` froze from exact
