@@ -39375,3 +39375,22 @@ a changed one (`978d00be`).
   before Week 1. Additive and fail-closed, but live.
 - Defect 5 above is unfixed; the capture-plan freeze cannot complete.
 - The factorial protocol decision is unmade.
+
+#### Defect 5: exact code location (traced 2026-09-11, not implemented)
+
+`src/nfl_dfs/research/corpus_r6_matchup_capture_plan_v1.py`:
+
+- `_code_identity()` at line 1132 takes a single `commit_sha` and stamps it as
+  `source_commit_sha` alongside the file's own `module_sha256`.
+- Called at 1191/1196 (build) and 1373/1378 (validate), both passing the one
+  `implementation_commit_sha` parameter for BOTH modules.
+- That parameter is HEAD, supplied by the bridge.
+
+So the repair is not a one-line swap: one commit value currently feeds several
+per-module identities, and making it per-file changes the signature and the
+plan schema. Weigh that against simply comparing these identities by CONTENT
+(`module_sha256`, which already matches) and treating the commit as
+informational -- frozen-chain rule 2 argues for the latter and it is the
+smaller change. Either way the committed lock at `305fc6c6` must be regenerated
+and the chain re-verified (~85 min, and the ancestry gate requires the CLI's
+last-touching commit to be on origin/main first).
