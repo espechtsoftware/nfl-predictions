@@ -22,6 +22,34 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-11 Commit-A freeze passed the repaired gate and exposed a deeper historical replay seam
+
+- Commit A is exact clean pushed `e9cacf6b56a3f23bfd6ba3ee4b75c8962cdaee64`
+  on both `origin/main` and
+  `origin/production/seven-pack-successor-v1-20260911`.  A live read-only Git
+  boundary resolution from the candidate-bound commit `346b2a27` reproduced
+  historical recovery capability SHA-256 `cf92683b...`, computed current
+  capability SHA-256 `5043c2f3...`, and proved the stable capability and
+  tracked-attempt projections equal.
+- The sole post-repair freeze attempt (`capture-plan-freeze-attempt3`) against
+  the unchanged sealed-v4 terminal generation `1789106359079526` passed the
+  repaired outer candidate-binding comparison, then exited 2 fail-closed with
+  `candidate-authority v2 predecessor replay failed: fixed-G0 candidate
+  release/receipts differ from exact predecessor replay`.  Stdout is empty
+  (SHA-256 `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`);
+  stderr is 167 bytes with SHA-256
+  `b9604b9d5abf2ebaa444762b5332d87c29fb92282ce16e48babe19145fd4e7dc`.
+  No capture-plan lock exists and no publication, warehouse query, recapture,
+  relabel, or provider mutation occurred.
+- Initial read-only inspection identifies the next exact seam: the immutable
+  candidate root retains `g0_source_commit_sha=346b2a27...`, while the v1
+  predecessor builder obtains the tracked G0 lock binding from replay-time
+  Git HEAD.  This is not yet accepted as the complete delta.  Do not rerun the
+  freezer.  Exact next action: obtain the recursive original-versus-rebuilt v1
+  bundle diff from generation-pinned predecessors, prove the complete allowed
+  historical-HEAD surface, and independently review a narrow fail-closed
+  repair before another attempt against the same v4 terminal.
+
 ### 2026-09-11 candidate historical replay repaired and independently accepted
 
 - The narrow historical-HEAD compatibility repair from pushed review commit
