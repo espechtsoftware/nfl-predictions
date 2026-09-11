@@ -163,7 +163,12 @@ EXPECTED_DEFAULTS = {
     "OWN_MODEL": "",
     "PUNT_MIN": 0,
     "PUNT_BOOM": 0.0,
-    "MIN_LINEUP_SALARY": 49_000,
+    # 0, not 49_000: "Make Classic construction rules explicit" (f29c6da4)
+    # moved the $49k floor from an implicit optimizer default to caller-supplied
+    # data, so that omitting the strategy environment cannot silently activate a
+    # house rule. The floor is NOT gone -- the production policy carries it, and
+    # test_production_policy_still_carries_the_49k_floor below asserts that.
+    "MIN_LINEUP_SALARY": 0,
     "SELECT_LSE": 0.0,
     "TD_LEDGER": False,
     "TABPFN_MARGINALS": True,
@@ -357,3 +362,19 @@ def test_manifest_pins_adopted_generation_budget():
     assert d["N_CE"] == 0 and d["N_BOOM"] == 40
     assert d["GEN_TOTAL_BUDGET"] == 40
     assert d["N_CE"] + d["N_EPISTEMIC"] + d["N_BOOM"] == 40
+
+
+def test_production_policy_still_carries_the_49k_floor():
+    """The $49k floor moved from an implicit default to explicit supply.
+
+    `MIN_LINEUP_SALARY` defaulting to 0 in `optimizer.lineup` is deliberate --
+    omission must not activate a house rule -- but the floor is a retained part
+    of the production stack, so the money path must carry it explicitly. Without
+    this assertion, correcting the manifest default would leave the floor itself
+    uncovered, and deleting it from the policy would pass silently.
+    """
+    from nfl_dfs.inference.production_policy import ClassicProductionPolicy
+
+    policy = ClassicProductionPolicy()
+    assert policy.engine_environment()["MIN_LINEUP_SALARY"] == "49000"
+    assert policy.public_identity()["construction_preset"]["min_salary"] == 49_000

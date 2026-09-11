@@ -17,14 +17,46 @@ Two independent checks agree.
 ./scripts/test_lanes.sh money  ->  218 passed, 1 skipped, 0 failed, 4m17s
 ```
 
-**2. The failing modules do not import the scoring path.** No known-failing
-module imports `nfl_dfs.optimizer`, `nfl_dfs.inference`, `nfl_dfs.models` or
-`nfl_dfs.backtest`. They live in `nfl_dfs.research.*` and `nfl_dfs.analysis.*`,
-and `test_finish_a7_select_ladder` imports no `nfl_dfs` at all.
+**2. The construction-path failures are stale tests, and the money path
+provably still carries every incumbent rule.**
 
-A failing test that never executes scoring code cannot produce a scoring
-defect. These are audit chains reporting that the policy changed — which it
-did, deliberately.
+*Correction to an earlier draft of this file:* it claimed no failing module
+imports the scoring path. That was drawn from a partial failure list and was
+wrong. Four modules do import it — `test_single_stack_boom_solves`,
+`test_wr_lowown_levers`, `test_research_infra` and `test_persistence_contract`
+reach `nfl_dfs.optimizer.lineup`, `nfl_dfs.backtest.replay`,
+`nfl_dfs.inference.live_lineups` and `nfl_dfs.models.blend`. Each was therefore
+investigated individually rather than dismissed.
+
+All four share one root cause: `f29c6da4` "Make Classic construction rules
+explicit" moved construction levers from ambient process environment to
+caller-supplied data, so that *omitting* the strategy environment cannot
+silently activate a house rule. The tests still assert the old ambient
+behaviour. Verified directly:
+
+```
+no env                    -> low_own 1      (lever inactive, by design)
+explicit MIN_LOWOWN=2     -> low_own 2      lever works
+explicit MAX_PER_GAME=3   -> max/game 3     lever works
+```
+
+The production construction preset `classic-incumbent-gpp-v1` carries every
+incumbent rule:
+
+```
+forbid_rb_vs_dst: true      forbid_two_rb_same_team: true
+min_salary: 49000           min_games: 2        max_overlap: 7
+qb_stack_min: 2             bring_back_min: 1
+```
+
+So the `$49k` floor and the RB-vs-DST and same-team-RB rules are live on the
+money path. `MIN_LINEUP_SALARY` reading 0 in the config manifest is the
+deliberate default (explicit, not ambient), not a deleted floor.
+
+All four were repaired to supply what they claim to check, and the hardening
+itself is now asserted — exported-but-not-supplied levers must NOT bind — so
+the property that replaced the old behaviour is covered rather than merely
+accommodated.
 
 ## What needs fixing, in priority order
 

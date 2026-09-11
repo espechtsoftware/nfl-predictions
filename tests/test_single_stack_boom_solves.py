@@ -50,7 +50,14 @@ def _candidates(extra_env):
     }
     engine.tail_select_lineups(
         slate, pool, draws, tail_line=95.0, n_entries=4,
-        stack=StackRules(qb_stack_min=2, bring_back_min=1),
+        # The incumbent rules live on the production preset's stack block, not
+        # in the policy environment, so a StackRules built without them does not
+        # carry them.  The carve test asserts they survive; supply them here so
+        # it is actually checking that rather than an unconstrained solve.
+        stack=StackRules(
+            qb_stack_min=2, bring_back_min=1,
+            forbid_rb_vs_dst=True, forbid_two_rb_same_team=True,
+        ),
         objective_col="proj", n_boom_solves=6, policy_env=policy_env,
         candidate_capture=lambda batch: captured.__setitem__("batch", batch),
     )

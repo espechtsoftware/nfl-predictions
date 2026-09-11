@@ -99,17 +99,20 @@ case "${1:-money}" in
   full)
     echo "FULL LANE -- everything (~77 min).  Quarantine is classified, not hidden."
     log=$(mktemp)
-    $PY -m pytest -p no:cacheprovider -rf --tb=no | tee "$log"
+    # -rfE, not -rf: pytest reports errors separately from failures, and a
+    # lane that can only see failures reports success when a fixture breaks.
+    $PY -m pytest -p no:cacheprovider -rfE --tb=no | tee "$log"
     echo
     echo "==================== CLASSIFICATION ===================="
-    grep '^FAILED' "$log" | sed 's/^FAILED //; s/ - .*//' > "$log.f" || true
+    grep -E '^(FAILED|ERROR)' "$log" \
+      | sed -E 's/^(FAILED|ERROR) //; s/ - .*//' > "$log.f" || true
     quarantined_modules > "$log.q"
     known=0 new=0
     while read -r line; do
       [ -n "$line" ] || continue
       mod=$(basename "${line%%::*}")
       if grep -qxF "$mod" "$log.q"; then known=$((known+1)); else
-        new=$((new+1)); echo "NEW FAILURE: $line"
+        new=$((new+1)); echo "NEW: $line"
       fi
     done < "$log.f"
     echo
