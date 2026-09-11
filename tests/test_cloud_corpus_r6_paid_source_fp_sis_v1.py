@@ -2,16 +2,19 @@ from __future__ import annotations
 
 import base64
 import gzip
+import json
+import os
+import re
+import stat
+import subprocess
 from hashlib import sha256
 from pathlib import Path
-import re
-import subprocess
 
+import pytest
 import yaml
 
 from nfl_dfs.research import paid_source_ablation_execution_v1 as execution
 from nfl_dfs.research import paid_source_ablation_registry_v1 as registry
-
 
 ROOT = Path(__file__).resolve().parents[1]
 LAUNCH = ROOT / "scripts/cloud_corpus_r6_paid_source_fp_sis_v1.sh"
@@ -19,6 +22,214 @@ RUNNER = ROOT / "scripts/run_corpus_r6_paid_source_fp_sis_v1.py"
 DOCKERFILE = ROOT / "Dockerfile.corpus-r6-paid-source-fp-sis"
 DOCKERIGNORE = ROOT / "Dockerfile.corpus-r6-paid-source-fp-sis.dockerignore"
 BUILD = ROOT / "cloudbuild.corpus-r6-paid-source-fp-sis.yaml"
+CODE_SHA = "1" * 40
+BUILD_ID = "11111111-2222-3333-4444-555555555555"
+IMAGE = (
+    "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/"
+    "nfl-dfs@sha256:" + "a" * 64
+)
+JOB = "atlas-cbc-32g-full-2023-w8-v1"
+JOB_UID = "1f4bcf0a-2300-4afa-9fc1-9981844c8275"
+SERVICE_ACCOUNT = "817589974517-compute@developer.gserviceaccount.com"
+
+
+def _install_fake_git(directory: Path) -> None:
+    fake = directory / "git"
+    fake.write_text(
+        "#!/usr/bin/env python3\n"
+        "import sys\n"
+        f"root = {str(ROOT)!r}\n"
+        f"code = {CODE_SHA!r}\n"
+        "args = sys.argv[1:]\n"
+        "if args == ['rev-parse', '--show-toplevel']:\n"
+        "    print(root)\n"
+        "elif args == ['-C', root, 'rev-parse', 'HEAD']:\n"
+        "    print(code)\n"
+        "elif args == ['-C', root, 'rev-parse', '--verify', "
+        "'refs/remotes/origin/main^{commit}']:\n"
+        "    print(code)\n"
+        "elif len(args) == 5 and args[:4] == "
+        "['-C', root, 'cat-file', '-e'] and args[4].startswith(code + ':'):\n"
+        "    pass\n"
+        "elif len(args) >= 7 and args[:5] == "
+        "['-C', root, 'status', '--porcelain', '--untracked-files=all'] "
+        "and args[5] == '--':\n"
+        "    pass\n"
+        "else:\n"
+        "    print('unexpected fake git call: ' + ' '.join(args), file=sys.stderr)\n"
+        "    raise SystemExit(98)\n",
+        encoding="utf-8",
+    )
+    fake.chmod(fake.stat().st_mode | stat.S_IXUSR)
+
+
+def _install_fake_gcloud(directory: Path) -> tuple[Path, Path]:
+    state = directory / "gcloud-state.json"
+    calls = directory / "gcloud-calls.log"
+    state.write_text(json.dumps({"installed": False}), encoding="utf-8")
+    fake = directory / "gcloud"
+    fake.write_text(
+        r"""#!/usr/bin/env python3
+import json
+import os
+from pathlib import Path
+import sys
+
+args = sys.argv[1:]
+state_path = Path(os.environ["FAKE_GCLOUD_STATE"])
+calls_path = Path(os.environ["FAKE_GCLOUD_CALLS"])
+state = json.loads(state_path.read_text(encoding="utf-8"))
+with calls_path.open("a", encoding="utf-8") as handle:
+    handle.write(" ".join(args) + "\n")
+
+job = "atlas-cbc-32g-full-2023-w8-v1"
+job_uid = "1f4bcf0a-2300-4afa-9fc1-9981844c8275"
+service_account = "817589974517-compute@developer.gserviceaccount.com"
+image = os.environ["EXPECTED_IMAGE"]
+code = os.environ["EXPECTED_CODE_SHA"]
+build_id = os.environ["EXPECTED_BUILD_ID"]
+digest = image.rsplit("@", 1)[1]
+image_tag = image.rsplit("@", 1)[0] + ":paid-source-fp-sis-" + code
+
+if args[:2] == ["builds", "describe"]:
+    print(json.dumps({
+        "id": build_id,
+        "status": "SUCCESS",
+        "source": {"gitSource": {
+            "url": "https://github.com/espechtsoftware/nfl-predictions.git",
+            "revision": code,
+        }},
+        "sourceProvenance": {"resolvedGitSource": {
+            "url": "https://github.com/espechtsoftware/nfl-predictions.git",
+            "revision": code,
+        }},
+        "substitutions": {
+            "_CODE_SHA": code,
+            "_BUILD_IMAGE": image_tag,
+            "_SOURCE_REPOSITORY": (
+                "https://github.com/espechtsoftware/nfl-predictions.git"
+            ),
+        },
+        "results": {"images": [{"name": image_tag, "digest": digest}]},
+    }))
+    raise SystemExit
+
+if args[:3] == ["run", "jobs", "update"]:
+    state["installed"] = True
+    state_path.write_text(json.dumps(state), encoding="utf-8")
+    raise SystemExit
+
+if args[:3] == ["run", "jobs", "describe"]:
+    installed_env = {
+        "CODE_SHA": code,
+        "IMAGE_SOURCE_COMMIT_SHA": code,
+        "IMAGE_DIGEST": digest,
+        "BUILD_ID": build_id,
+        "IMAGE_URI": image,
+        "R6_PAID_SOURCE_FP_SIS_ENABLE": "DISABLED_INSTALL_ONLY",
+        "R6_PAID_SOURCE_FP_SIS_OUTCOMES_ALLOWED": "false",
+    }
+    body = {
+        "metadata": {
+            "name": job,
+            "uid": job_uid,
+            "generation": 8 if state["installed"] else 7,
+        },
+        "status": {
+            "conditions": [{"type": "Ready", "status": "True"}],
+            "latestCreatedExecution": {"name": job + "-old00"},
+        },
+    }
+    if state["installed"]:
+        body["spec"] = {"template": {"spec": {
+            "taskCount": 54,
+            "parallelism": 54,
+            "template": {"spec": {
+                "maxRetries": 0,
+                "serviceAccountName": service_account,
+                "containers": [{
+                    "image": image,
+                    "command": ["/bin/bash"],
+                    "args": [
+                        "/app/scripts/cloud_corpus_r6_paid_source_fp_sis_v1.sh",
+                        "container-help",
+                    ],
+                    "resources": {"limits": {"cpu": "8", "memory": "32Gi"}},
+                    "env": [
+                        {"name": name, "value": value}
+                        for name, value in installed_env.items()
+                    ],
+                }],
+            }},
+        }}}
+    if os.environ.get("LATEST_MODE") == "wrong-job-uid":
+        body["metadata"]["uid"] = "wrong-job-uid"
+    print(json.dumps(body))
+    raise SystemExit
+
+if args[:4] == ["run", "jobs", "executions", "describe"]:
+    mode = os.environ.get("LATEST_MODE", "success")
+    status = {
+        "conditions": [{
+            "type": "Completed",
+            "status": "True" if mode == "success" else "False",
+        }],
+        "completionTime": "2026-09-01T23:35:49.869929Z",
+        "succeededCount": 1 if mode == "success" else 0,
+        "failedCount": 1 if mode in {"failed", "contradictory"} else 0,
+        "cancelledCount": 1 if mode == "cancelled" else 0,
+        "runningCount": 1 if mode in {"running", "contradictory"} else 0,
+    }
+    if mode in {"running", "unknown"}:
+        status.pop("completionTime")
+    if mode == "running":
+        status["conditions"][0]["status"] = "Unknown"
+    if mode == "unknown":
+        status["conditions"] = [{"type": "Started", "status": "True"}]
+    if mode == "zero-terminal-count":
+        status["failedCount"] = 0
+    labels = {"run.googleapis.com/job": job}
+    if mode == "wrong-execution-job":
+        labels["run.googleapis.com/job"] = "another-job"
+    print(json.dumps({
+        "metadata": {"name": job + "-old00", "labels": labels},
+        "status": status,
+    }))
+    raise SystemExit
+
+print("unexpected fake gcloud call: " + " ".join(args), file=sys.stderr)
+raise SystemExit(97)
+""",
+        encoding="utf-8",
+    )
+    fake.chmod(fake.stat().st_mode | stat.S_IXUSR)
+    return state, calls
+
+
+def _install_with_latest_mode(
+    tmp_path: Path,
+    mode: str,
+) -> subprocess.CompletedProcess[str]:
+    tmp_path.mkdir(parents=True)
+    _install_fake_git(tmp_path)
+    state, calls = _install_fake_gcloud(tmp_path)
+    return subprocess.run(
+        ["bash", str(LAUNCH), "install", IMAGE, CODE_SHA, BUILD_ID],
+        cwd=ROOT,
+        env={
+            **os.environ,
+            "PATH": f"{tmp_path}:{os.environ['PATH']}",
+            "EXPECTED_IMAGE": IMAGE,
+            "EXPECTED_CODE_SHA": CODE_SHA,
+            "EXPECTED_BUILD_ID": BUILD_ID,
+            "FAKE_GCLOUD_STATE": str(state),
+            "FAKE_GCLOUD_CALLS": str(calls),
+            "LATEST_MODE": mode,
+        },
+        text=True,
+        capture_output=True,
+        check=False,
+    )
 
 
 def test_container_dispatch_is_narrow_default_off_and_cleanup_safe() -> None:
@@ -196,3 +407,46 @@ def test_shell_parses_and_help_is_side_effect_free() -> None:
         "grade-reopen GRADE_REOPEN_REQUEST",
     ):
         assert phase in host.stdout
+
+
+@pytest.mark.parametrize("mode", ["success", "failed", "cancelled"])
+def test_install_accepts_exact_terminal_idle_predecessor(
+    tmp_path: Path,
+    mode: str,
+) -> None:
+    case = tmp_path / mode
+    result = _install_with_latest_mode(case, mode)
+    assert result.returncode == 0, result.stderr
+    receipt = json.loads(result.stdout)
+    assert receipt["install_only"] is True
+    assert receipt["execution_launched"] is False
+    calls = (case / "gcloud-calls.log").read_text(encoding="utf-8")
+    assert f"run jobs update {JOB}" in calls
+    assert "run jobs execute" not in calls
+
+
+@pytest.mark.parametrize(
+    "mode",
+    [
+        "running",
+        "unknown",
+        "contradictory",
+        "zero-terminal-count",
+        "wrong-execution-job",
+        "wrong-job-uid",
+    ],
+)
+def test_install_rejects_nonidle_unknown_or_wrong_job_before_update(
+    tmp_path: Path,
+    mode: str,
+) -> None:
+    case = tmp_path / mode
+    result = _install_with_latest_mode(case, mode)
+    assert result.returncode == 2
+    calls = (case / "gcloud-calls.log").read_text(encoding="utf-8")
+    assert f"run jobs update {JOB}" not in calls
+    assert "run jobs execute" not in calls
+    if mode == "wrong-job-uid":
+        assert "identity/readiness differs" in result.stderr
+    else:
+        assert "latest execution is not terminal and idle" in result.stderr
