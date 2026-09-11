@@ -22,6 +22,35 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 shared Cloud Run stale-terminal gate class is cleared
+
+- On branch `production/fp-sis-retrieval-release-20260910`, implementation
+  commit `d8766fa9` extends the reviewed idle-terminal predecessor rule from the
+  final FP/SIS launcher to the normalized paid snapshot, seven-pack capture,
+  source-v3 controller, and construction-allocation wrappers. A failed or
+  cancelled execution may now relinquish the shared job only when the exact
+  job-owned provider execution has a completion timestamp, at least one
+  terminal task count, and zero running tasks. Running, unknown,
+  contradictory, zero-terminal-count, wrong-job, and wrong-UID states remain
+  fail-closed before any job update or launch.
+- Read-only provider evidence confirms the current predecessor
+  `atlas-cbc-32g-full-2023-w8-v1-7zpd4` belongs to the exact reused job/UID and
+  is terminal-idle: `Completed=False`, completion time
+  `2026-09-01T23:35:49.869929Z`, failed count one, and running count zero.
+  Its old task failure is therefore not an active execution and no longer
+  falsely blocks a new immutable installation.
+- Validation: all five shared-job predicates were exercised directly against
+  success, failure, cancellation, running, unknown, contradictory,
+  zero-terminal-count, and wrong-job fixtures. The focused cloud-wrapper set
+  passes 83/83; Bash syntax, Ruff, and `git diff --check` pass. No Cloud Run
+  job was updated or launched, no build or warehouse query ran, and no GCS or
+  outcome object was read or written by this repair.
+- Exact next action: push the implementation and this handoff to
+  `origin/main`, freeze the one authorized normalized successor request at a
+  canonical UTC second, build its exact immutable image, and start the
+  normalized task0/publish/reopen chain. Keep the shared job serialized and
+  recheck its exact latest execution before every mutation.
+
 ### 2026-09-10 FP/SIS paid-source retrieval successor is release-ready
 
 - The abandoned normalized request at `2026-08-31T05:25:27Z` is outside the
