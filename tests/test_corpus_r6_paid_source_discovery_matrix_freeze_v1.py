@@ -5,6 +5,7 @@ from hashlib import sha256
 from io import BytesIO
 import json
 from pathlib import Path
+import re
 from types import SimpleNamespace
 
 import numpy as np
@@ -239,7 +240,7 @@ def _provider(
         "payload_identity": payload_identity,
         "payload_sha256": "6" * 64,
         "task_count": task_count,
-        "parallelism": 1 if mode == "task0" else freeze.TASK_COUNT,
+        "parallelism": freeze.JOB_PARALLELISM,
         "succeeded_count": task_count,
         "failed_count": 0,
         "cancelled_count": 0,
@@ -362,7 +363,7 @@ def test_matrix_v2_binds_lineage_and_never_reads_r4(
         "job_name": freeze.JOB_NAME,
         "job_uid": freeze.JOB_UID,
         "task_count": 1,
-        "parallelism": 1,
+        "parallelism": freeze.JOB_PARALLELISM,
         "succeeded_count": 1,
         "failed_count": 0,
         "cancelled_count": 0,
@@ -588,3 +589,42 @@ def test_matrix_fails_closed_on_candidate_order_tamper(
             read_exact=lambda identity: objects[identity["uri"]],
             destination=tmp_path / "tampered.bin",
         )
+
+
+def test_no_site_expects_task0_to_run_at_parallelism_one():
+    """Sweep the whole class, not one site.
+
+    Cloud Run has no per-execution parallelism override, so an execution always
+    carries the job's deployed parallelism. Three separate places encoded
+    "task0 runs at parallelism 1" -- the shell verifier, the runner's
+    provider-execution gate, and this module's receipt validator -- and each one
+    independently made task0 unverifiable, which made the 54-task phase
+    unreachable. Fixing one at a time simply moved the failure.
+    """
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    paths = [
+        root / "src/nfl_dfs/research/corpus_r6_paid_source_discovery_matrix_freeze_v1.py",
+        root / "scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py",
+        root / "scripts/cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.sh",
+    ]
+    offenders = []
+    for path in paths:
+        text = path.read_text(encoding="utf-8")
+        flat = " ".join(text.split())
+        # Only PARALLELISM conditionals are wrong. The sibling task_count
+        # conditional -- (1 if task0 else 54) -- is correct: task0 really does
+        # run one task. A sweep that cannot tell them apart would condemn the
+        # right code alongside the wrong.
+        if re.search(r'parallelism[^;\n]{0,60}\(\s*1 if', flat):
+            offenders.append(path.name)
+        if '--argjson expected_parallelism "$tasks"' in flat:
+            offenders.append(path.name)
+    assert not offenders, f"task0-parallelism-1 assumption survives in: {offenders}"
+
+
+def test_job_parallelism_is_the_job_value_not_the_task_count_of_a_phase():
+    import nfl_dfs.research.corpus_r6_paid_source_discovery_matrix_freeze_v1 as f
+
+    assert f.JOB_PARALLELISM == f.TASK_COUNT == 54

@@ -108,7 +108,7 @@ def test_provider_uses_one_exact_execution_and_requires_job_uid(
         },
         "spec": {
             "taskCount": 1,
-            "parallelism": 1,
+            "parallelism": 54,
             "template": {"spec": {
                 "maxRetries": 0,
                 "timeoutSeconds": freeze.TASK_TIMEOUT_SECONDS,

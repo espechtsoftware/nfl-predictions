@@ -466,7 +466,7 @@ def _execution(
         or type(item.get("execution_uid")) is not str
         or not item["execution_uid"]
         or item.get("task_count") != task_count
-        or item.get("parallelism") != (1 if mode == "task0" else freeze.TASK_COUNT)
+        or item.get("parallelism") != freeze.JOB_PARALLELISM
         or item.get("succeeded_count") != task_count
         or item.get("failed_count") != 0
         or item.get("cancelled_count") != 0

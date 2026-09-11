@@ -67,6 +67,11 @@ MATRIX_ENVELOPE_SCHEMA: Final = "r6-paid-source-discovery-world-matrix-bytes/v2"
 SCORING_LAW_ID: Final = "candidate-roster-r0-r3-float64-sum/v1"
 
 TASK_COUNT: Final = 54
+# Cloud Run has no per-execution parallelism override: `jobs execute` accepts
+# --tasks only. Every execution therefore carries the JOB's deployed
+# parallelism regardless of its own task count, so task0 -- a single task under
+# a job deployed at 54 -- reports 54, not 1.
+JOB_PARALLELISM: Final = TASK_COUNT
 WORLD_BLOCKS: Final = ("R0", "R1", "R2", "R3", "R4")
 DISCOVERY_BLOCKS: Final = WORLD_BLOCKS[:4]
 HELDOUT_BLOCK: Final = "R4"
@@ -313,8 +318,7 @@ def validate_provider_execution_receipt_v1(
         or type(receipt.get("payload_sha256")) is not str
         or _SHA.fullmatch(str(receipt.get("payload_sha256"))) is None
         or receipt.get("task_count") != expected_task_count
-        or receipt.get("parallelism")
-        != (1 if expected_mode == "task0" else TASK_COUNT)
+        or receipt.get("parallelism") != JOB_PARALLELISM
         or receipt.get("succeeded_count") != expected_task_count
         or receipt.get("failed_count") != 0
         or receipt.get("cancelled_count") != 0
