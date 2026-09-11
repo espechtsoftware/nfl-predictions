@@ -23,10 +23,27 @@ def _pool(n_low=3):
 
 
 def test_min_lowown_constraint(monkeypatch):
+    """The lever binds when the caller supplies it.
+
+    The strategy environment is caller-supplied data, never ambient process
+    state, so the constraint is passed explicitly rather than exported.
+    """
+    lu = optimize(_pool(), stack=None, env={"MIN_LOWOWN": "2"})
+    assert lu is not None
+    assert sum(1 for p in lu.players if p.get("low_own")) >= 2
+
+
+def test_ambient_min_lowown_cannot_activate_the_house_rule(monkeypatch):
+    """Exporting the lever must NOT bind it; omission cannot activate a rule.
+
+    This is the property that replaced the old ambient-env behaviour, and it is
+    the reason the test above passes `env=` explicitly.  Asserting it here keeps
+    the hardening covered rather than merely accommodated.
+    """
     monkeypatch.setenv("MIN_LOWOWN", "2")
     lu = optimize(_pool(), stack=None)
     assert lu is not None
-    assert sum(1 for p in lu.players if p.get("low_own")) >= 2
+    assert sum(1 for p in lu.players if p.get("low_own")) < 2
 
 
 def test_min_lowown_off_by_default(monkeypatch):
@@ -53,14 +70,26 @@ def test_wr_boom_flags_top_decile():
     assert set(df[pct >= 0.90].gsis_id) == {"W17", "W18", "W19"}
 
 
+def _per_game(lu) -> dict[str, int]:
+    games: dict[str, int] = {}
+    for p in lu.players:
+        games[p["game_id"]] = games.get(p["game_id"], 0) + 1
+    return games
+
+
 def test_max_per_game_cap(monkeypatch):
+    """Supplied explicitly, the cap binds."""
+    lu = optimize(_pool(), stack=None, env={"MAX_PER_GAME": "3"})
+    assert lu is not None
+    assert max(_per_game(lu).values()) <= 3
+
+
+def test_ambient_max_per_game_cannot_activate_the_house_rule(monkeypatch):
+    """Exported but not supplied, the cap must not bind."""
     monkeypatch.setenv("MAX_PER_GAME", "3")
     lu = optimize(_pool(), stack=None)
     assert lu is not None
-    games = {}
-    for p in lu.players:
-        games[p["game_id"]] = games.get(p["game_id"], 0) + 1
-    assert max(games.values()) <= 3
+    assert max(_per_game(lu).values()) > 3
 
 
 def test_value2_barbell(monkeypatch):
