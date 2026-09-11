@@ -22,6 +22,51 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-11 candidate-v1 deeper historical-HEAD replay repaired; independent review pending
+
+- Capture-plan freeze attempt 3 at pushed Commit A
+  `e9cacf6b56a3f23bfd6ba3ee4b75c8962cdaee64` passed the repaired outer
+  binding and then failed safely, before any lock, with `candidate-authority
+  v2 predecessor replay failed: fixed-G0 candidate release/receipts differ
+  from exact predecessor replay`. The sealed seven-pack-v4 root remains exact
+  at generation `1789106359079526`, SHA-256
+  `1de61029e63907530d1d4182c1b37189828be4a9d9e635bd61fe2529b8af34e5`.
+  Do not recapture, relabel, or rerun the unchanged freezer.
+- Generation-exact, outcome-blind reads of only the candidate root, panel, and
+  54 slate receipts proved the deeper v1 replay has exactly two direct
+  replay-time HEAD leaf classes: panel `g0_source_commit_sha`, and catalog
+  terminal-lock `git_commit_sha` copied into all 54 receipts and the panel.
+  All 56 retain candidate publication HEAD
+  `346b2a27a55c29cd5c2a30719b1a0739baae4b50`. Their deterministic cascade is
+  exactly 168 changed scalar paths: 56 HEAD leaves, 54 receipt self-hashes, 54
+  panel-row receipt hashes, two manifest hashes, the panel hash, and the bundle
+  hash. There is no other body or scientific-output delta. Full diagnosis and
+  hashes are in
+  `reports/2026-09-11-candidate-v1-deeper-replay-head-repair.md`.
+- Pushed implementation commit
+  `025d8ca8e9c8b8b9520fc166f86342c4d731ac40` on
+  `origin/codex/seven-pack-v4-predecessor-diagnosis-20260911` changes only the
+  existing descendant reopener and its tests; all frozen v1/v2/release modules
+  remain unchanged. It validates the exact 168-path projection only after
+  proving historical/current/runtime byte equality across a test-pinned 19
+  authority-validator plus nine lock/evidence path closure. It then runs two
+  independent unchanged ordinary-v1 validations, with distinct complete outer
+  manifest guards: projected bytes under the real current clean HEAD and
+  retained bytes under a root-bound historical HEAD. Only the retained bundle
+  is rebuilt/returned, and the actual clean current HEAD is rechecked last.
+- Serial validation is green: descendant reopener 23/23, capture-plan-v3 9/9,
+  unchanged frozen candidate-v1 36/36, Python compilation, and diff check.
+  Real Git audit also proved all 28 guarded paths byte-identical between
+  `346b2a27...` and `e9cacf6b...`. No freezer, recapture, warehouse query,
+  storage write, Cloud Build, or Cloud Run action occurred. Independent final
+  review of `025d8ca8` remains the only unresolved gate.
+- Exact next action: obtain immutable-diff/test GO, integrate this repair and
+  its reviewed HANDOFF onto the current production line, and push a clean new
+  Commit A. Only then run one freeze attempt against the same sealed v4 root,
+  validate the sole create-once lock/receipt, and push it separately as Commit
+  B. Source-v3 and discovery successor integration/launch remain NO-GO until
+  Commit B.
+
 ### 2026-09-11 candidate historical replay repaired and independently accepted
 
 - The narrow historical-HEAD compatibility repair from pushed review commit
