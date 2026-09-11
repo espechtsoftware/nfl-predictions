@@ -25,6 +25,118 @@ agent or developer:
 This section supersedes older sections headed "Current handoff" for scientific
 and operator decisions.  The older entries remain the durable chronology.
 
+### 2026-09-10 Neo4j and paid-data influence review
+
+- On the materially dirty production `main` checkout at starting commit
+  `8d7140f4` (`main...origin/main [ahead 3, behind 449]`), added
+  `reports/2026-09-10-neo4j-fantasy-points-sis-influence-review.md`. This is a
+  read-only, evidence-first review of how production and lab have used Neo4j
+  and whether Fantasy Points or SIS observations can be traced through player
+  distributions, candidate supply, admission/ranking, selected books, and
+  realized tail score. No graph, model, runner, cloud job, outcome authority,
+  live policy, or contest entry changed.
+- The review included fetched production history through `origin/main`
+  `d45d5e6d` and newer diagnostic commits `9c283ac0`, `98d046aa`, and
+  `37298ff2`; it included fetched lab history through `origin/main` `49ee33a`
+  and the newer PREREG-083 through PREREG-086 work through `83dd02d`. The lab
+  has no `CLAUDE.md` or `HANDOFF.md` in the reviewed checkout/fetched main;
+  `LAB_RULES.md`, `COORDINATION.md`, `LEDGER.md`, and active action/preregistered
+  records were used as its operating authority. No branch was checked out or
+  merged.
+- Scientific conclusion: Neo4j is useful as an immutable-authority lineage,
+  structural-phenotype, candidate-supply, and selection-loss index. E0 did not
+  attach point-in-time paid traits, and PREREG-083 did not intervene on FP or
+  SIS, so neither graph establishes either vendor's incremental value. Outside
+  Neo4j, narrow historical tests show FP/SIS bundles can alter player
+  distributions or selected-lineup identity; FP has no convincing selected-
+  book score gain, while SIS pass-tail and ASOE show small, mixed research
+  gains that do not justify a live production claim.
+- The correct next paid-data experiment already exists as
+  `fp-sis-retrieval-only-cross-v1`: FP on/off x SIS on/off with physical source
+  removal, shared candidate/world bytes, downstream influence traces, fixed
+  selection budget, conditional source effects, interaction, and independent
+  grading. Its registry still correctly says `value_claim=not_evaluated` and
+  `source_value_established=false`. A 2026-09-10 read-only GCS listing found no
+  objects at
+  `gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-paid-source-fp-sis/`;
+  treat it as not run, not as a zero or failed effect. No new durable cloud
+  execution/build ID was created. Existing PREREG-083 Neo4j evidence authorities
+  reviewed include node generation `1789077354637540`, edge generation
+  `1789077374391998`, load-Cypher generation `1789077322471013`, and receipt
+  generation `1789077322562477`.
+- Recommendations are to execute the existing four cells unchanged after
+  authority/task-0 reconciliation; persist a compact source-to-score influence
+  sidecar and index only its identities/relationships in Neo4j; then test
+  source-sensitive generation/completion separately and prospectively. Do not
+  enlarge the graph before a named evidence query is blocked. The most recent
+  funnel assigns roughly 58 points to completion/candidate-supply loss versus
+  roughly five to six points of K80 ordering regret, so completion remains the
+  larger parallel opportunity.
+- Validation: the report is 656 lines / 5,075 words, SHA-256
+  `abebf53264a62ae60761fedb3eddb34968470e8879a4a148f665fa7e4449dfb0`;
+  repository citations and all numbered primary-method references were checked,
+  and scoped `git diff --check` passes. No code tests were necessary for this
+  documentation-only milestone. Existing unrelated worktree changes were left
+  untouched.
+- Risks: the historical panel is repeatedly exposed; the four-cell design is
+  retrieval-only and cannot measure paid-source candidate discovery; paid
+  fields are correlated; current live Week 1 consumer lineage does not show FP
+  or SIS use; and both checkouts are dirty while production is substantially
+  divergent from fetched main. This milestone is intentionally not committed
+  or pushed to avoid mixing unrelated state.
+- Exact next action: review the report, then—if the frozen authorities still
+  reconcile—run the existing paid-source task-0 preflight and one immutable
+  four-cell execution/independent grade. Stop on any point-in-time violation,
+  candidate/world byte mismatch, or unequal resource budget. In parallel,
+  continue the bounded PREREG-086 completion-mechanics lane without opening
+  outcomes early.
+
+### 2026-09-07 PREREG-073 negative-legitimacy re-review
+
+- On production `main` at starting commit `e5605621`, added
+  `reports/2026-09-07-prereg073-negative-legitimacy-review.md`. This is a
+  read-only scientific/provenance review of the closed lab PREREG-073 /
+  experiment-101 / JPAR-1b result. No runner, reader, outcome, cloud resource,
+  live policy, or laboratory artifact was changed or reopened.
+- The formal no-promotion decision is legitimate. The frozen reader correctly
+  applied both co-primary interval gates to 48 common-support slates: score
+  utility `+0.0039001452 [-0.0000504754,+0.0083768389]` and beneficiary
+  twCRPS `-0.0000106015 [-0.0000492732,+0.0000129516]`; neither interval
+  cleared its strict favorable boundary. R1 was properly voided before a read,
+  r2 completed all three banks 18/18 without failure/cancellation/retry, the
+  lab reader ran once, and production's independent reproduction was
+  byte-identical.
+- The shorthand “negative” is too strong. All score banks and score LOSOs were
+  positive; raw K80 maximum improved `+1.0805556` points
+  `[-0.1262745,+2.0924444]`. With only three season clusters, the registered
+  95% bootstrap interval necessarily spans the worst and best season effects;
+  the score misses because 2022 is microscopically adverse while 2023 and 2024
+  are favorable. Calibration remains genuinely weak/season-dependent. The
+  correct description is formal two-gate FAIL / no promotion, with an
+  `UNPASSED_NEAR_MISS` score axis—not evidence of harm or closure of the
+  broader participation/dependence family.
+- Non-verdict reporting debt should be repaired promptly in the lab: the
+  PREREG-073 header still says `PROPOSED`/nothing read; `LEDGER.md` has no 073
+  row despite `LAB_RULES.md`; the reader omits the required near-miss axis; and
+  generic calibration W/L labels count positive (worse) twCRPS deltas as
+  “wins.” The pre-adjudication 48-score winner registry also limits the exact
+  proxy claim, but does not justify promotion because raw score and calibration
+  remain non-conclusive.
+- Validation for this documentation milestone: exact hashes of the frozen
+  result, transcript, reader, and scientific runner match their committed
+  receipts; the launch-bound-to-terminal reader diff changes only the cohort
+  seal assignment; three independent read-only audits agreed on the
+  disposition. The final report is 271 lines / 2,011 words, SHA-256
+  `f8a82d3249009d5fdda3f013bac73509c790fb0af24e3a3f5f1e20f572675d8e`;
+  `git diff --check` passes. No tests, simulations, cloud calls, outcome reads,
+  or rescoring were run. Existing unrelated worktree changes were left
+  untouched.
+- Exact next action: share the report with the lab implementer; update only the
+  stale status/ledger/reporting labels without recomputing PREREG-073. Preserve
+  `promotion: NONE`, prohibit same-panel tuning/relaunch of the exact arm, and
+  require any richer or new-objective follow-up to use a fresh preregistration
+  and authority.
+
 ### 2026-09-05 selection-sweep and prop-odds-universe plan drafted
 
 - On production branch `main` at commit `9333502e` (the new local report
@@ -39148,3 +39260,118 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   chain. Do not launch the paid-source ablation until its request binds the
   resulting `discovery_matrix_freeze_terminal_identity` and passes the
   canonical registry deep reopen.
+
+## 2026-09-11 — capture-plan chain repairs, factorial drift, test lanes (agent acting as production)
+
+Production ran out of tokens mid-session; the operator handed this agent
+production's role. Everything below is nfl-predictions work. The PREREG-086
+efficacy read is recorded separately in the nfl2 lab action note (Update 388).
+
+### Season readiness: VERIFIED HEALTHY (checked 2026-09-11, Week 1 is 09-13)
+
+Read-only scheduler/execution census. `s-train` (Tue 07:30 CT) is ENABLED and
+`train-weekly` succeeded 2026-09-08, so models are current for Week 1. The four
+PAUSED `s-train-k1*` jobs are research role/route arms, correctly parked --
+they are NOT the production training path, despite the similar names.
+`s-features-sun` next fires 2026-09-13T10:30Z (05:30 CT, first of six slots)
+and `s-project-su` at 11:00Z (06:00 CT). `s-nflverse`, `s-dk`, `s-props`,
+`s-odds`, `s-weather`, `s-contests`, `s-freshness` all ran 09-11.
+
+The 4-of-7 `project-slate` failures on Sunday 09-06 were NOT systemic: they
+failed closed on `19 active slate players have stale team/position in
+player_week_inference`, because `s-features-sun` had `userUpdateTime`
+2026-09-06T15:12Z -- reconfigured at 10:12 CT that morning, so only the 10:30
+slot ever fired. Setup artifact. Watch at lock time anyway: projections at :00
+depend on features from :30 the prior hour, and that is the tightest coupling
+in the chain.
+
+### Capture-plan freeze: FIVE stacked never-completable defects
+
+Production burned four attempts, all dying at 3.4s on the first defect. Each
+defect was invisible until the previous one was fixed.
+
+1. **`--repository-root` did not bind module resolution.** The flag fixes the
+   tree whose commit is recorded as provenance; Python still imports through
+   the interpreter, so an editable install served the main checkout's code
+   under a worktree root. Fixed + swept across all 8 drivers taking the flag
+   (branch `production/seven-pack-repository-root-code-binding-20260911`,
+   `b72e2c30`, `326b1592`, `3389a157`). The risk was not the failure but the
+   silent case: the same invocation stamps the declared commit on another
+   tree's output wherever the divergence is not hash-gated.
+2. **Wrote an untracked artifact, then required tracked-clean including
+   untracked** -- in the same invocation. Died at 35 min.
+3. **Create-once refused the path its own previous run created.** Made
+   re-enterable: an existing file is accepted only when byte-identical to the
+   plan just derived; a different plan is still refused (`3023bc5e`, pushed to
+   main; mirrored as `3389a157`).
+4. **Attempt marker had to be reachable from `origin/main`.** The marker
+   resolves to whatever last touched the CLI script, so any local commit there
+   breaks it. Landed `305fc6c6` + `3023bc5e` on main (operator-authorised
+   fast-forward `e9915372..3023bc5e`).
+5. **The plan records HEAD, and committing the plan changes HEAD.** Confirmed
+   by a read-only derivation harness: 6 of 95 fields differ, all 106,016 bytes,
+   and in every case the CONTENT is identical and only the commit label moved:
+
+   ```
+   source_v2_code_identity           module_sha256 57da2d82... SAME, commit e9915372 -> 3023bc5e
+   component_producer_code_identity  module_sha256 93ac1909... SAME, commit e9915372 -> 3023bc5e
+   adapter_final_release_lock_binding sha256 6f9f0fc3..., bytes 6560 SAME, commit moved
+   implementation_commit_sha / capture_successor_implementation_commit_sha  label only
+   capture_plan_sha256               downstream of the above
+   ```
+
+**Defect 5 is structural and unfixed.** Plan records HEAD -> plan must be
+committed -> marker must reach origin/main -> HEAD moves -> recorded HEAD can
+never match. No retry count fixes it. This is frozen-chain rule 2 exactly:
+compare by CONTENT identity, never by representation.
+
+**Next exact action:** change the plan's `source_commit_sha` /
+`implementation_commit_sha` fields to record `git log -1 -- <path>` (the commit
+that last touched each referenced file) instead of HEAD. Then committing a
+`reports/` artifact cannot perturb identities pointing at `src/nfl_dfs/research/*`
+and the circularity disappears. This invalidates the committed lock at
+`305fc6c6`, which must be regenerated. Each verification costs ~85 minutes, so
+do not iterate blind: the divergence reporter patch is at
+`/home/erich/divergence-reporter.patch` and the read-only harness at
+`/home/erich/capture_plan_divergence.py`. The lock currently committed is
+substantively correct -- byte-identical code, stale labels only.
+
+### Extreme-tail factorial: 115 failures are a TRUE POSITIVE, not harness noise
+
+Reconstructing `ClassicProductionPolicy` at the freeze commit `c876e7f2`
+reproduces the pinned P0 hash exactly, so the drift is measured: 11 environment
+keys moved since 2026-08-24 (`N_BOOM` 40->160, `GEN_TOTAL_BUDGET` 52->172,
+plus `N_LEV` and 8 new construction levers). Do NOT relax the
+`BOOM_UNIQUE_FILL` sentinel (tried and reverted -- it deletes the earliest
+alarm in one true signal) and do NOT repoint at
+`incumbent_control_environment` (restores n_boom=40 but still misses the hash).
+The decision is protocol-level; the design defect is that the chain re-derives
+a frozen constant from a mutable live object. Full analysis:
+`reports/2026-09-11-frozen-factorial-policy-drift.md`. No Week-1 impact.
+
+`CLAUDE.md` was corrected: it documented `N_BOOM=40`; the live money path is
+160 with `N_LEV=40`.
+
+### Test lanes
+
+Full suite is 7,722 tests / ~77 min, and ~1/3 of the test files are frozen
+research chains. `scripts/test_lanes.sh` adds `money` (live Week-1 path,
+**218 passed, 1 skipped, 4m17s -- green**), `changed` (git-diff driven), `full`
+(classifies failures as KNOWN-quarantined vs NEW, and flags quarantine entries
+that stopped failing), and `quarantine`. Quarantine never hides a failure:
+quarantined modules still run in the full lane.
+
+`test_app.py::test_all_three_classic_routes_expose_same_policy` was a genuinely
+stale expectation, not a quarantine candidate: the app deliberately grew
+`portfolio_allocation` to disclose `leverage` 40 / `boom` 160 / `core_lev_boom`
+200 and the nominal-request figures while retaining the legacy keys. Every
+value was verified to derive from the policy before the literal was updated,
+and the derivations are now asserted so a wrong subtotal fails rather than only
+a changed one (`978d00be`).
+
+### Unresolved risks
+
+- `origin/main` now carries `3023bc5e`, a frozen-chain script change, two days
+  before Week 1. Additive and fail-closed, but live.
+- Defect 5 above is unfixed; the capture-plan freeze cannot complete.
+- The factorial protocol decision is unmade.
