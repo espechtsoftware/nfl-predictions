@@ -22,6 +22,66 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 normalized v2 failed safely; unresolved multiplicity repaired
+
+- Fresh normalized request `20260911-fp-sis-normalized-successor-v2`, frozen
+  at `2026-09-11T02:28:24Z`, has request inner SHA-256
+  `d5ca02ca1be0416cfa086be80be23a7c05c6e06df924c2fdfdcd79ae4ac5ac8a`
+  and request-file SHA-256
+  `38e6afd7e724ee4c179ae722b4d947bd4cabb9f9f997d8ebaa0165761f5b015c`.
+  Its fixed query job IDs are
+  `r6_paid_snapshot_20260911_fp_sis_normalized_successor_v2_0_e02afe7ce2df`
+  and
+  `r6_paid_snapshot_20260911_fp_sis_normalized_successor_v2_1_efb3a727dd82`.
+  Task0 execution suffix `8w6zq` succeeded, but publication execution
+  `atlas-cbc-32g-full-2023-w8-v1-5rfkm` failed terminally with `artifact row
+  shard contains duplicate rows`. There is no terminal root. The request,
+  run ID, execution, query job IDs, and exact namespace
+  `gs://nfl-predictions-503414-corpus-source/research/corpus-r6-paid-source-normalized-snapshots-v1/20260911-fp-sis-normalized-successor-v2`
+  are poisoned and must never be retried, relabelled, or reused.
+- The failed namespace contains exactly two partial, create-once FP objects:
+  `packs/fantasy-points-normalized-2022-2025/source-query-extract.json`,
+  generation `1789094570660044`, 11,959,726 bytes, SHA-256
+  `7fd3b299968b4540b99345ffb41c0c423f6b1b18fd0b4e24dc34472ed7ac8e36`;
+  and `packs/fantasy-points-normalized-2022-2025/source-query-receipt.json`,
+  generation `1789094571382694`, 16,363 bytes, SHA-256
+  `d6fb06cf324869c7434c56055d3589da86c0259f0ff47a39ffbbe781e33a0c1b`.
+  Preserve both as failure evidence; neither is a normalized manifest or
+  release authority.
+- The exact FP extract has canonical-projection collision excess only in
+  unresolved rows: `fp-alignment` 13, `fp-receiver-shell` 14, and
+  `fp-route-share` 17; every inspected collision sample has `gsis_id=null`.
+  The predecessor ingestion contracts had already suppressed true duplicate
+  groups. Source-only diagnostic BigQuery job
+  `bqjob_r64a0e97eb0f39234_000001a08e5da46e_1` wrapped the frozen SIS
+  projection at the same request timestamp and returned 15,477
+  defender-alignment plus 2,174 run-context rows with zero exact projection
+  collisions, resolved or unresolved.
+- Root cause was the shard validator applying positive-row uniqueness to the
+  complete lossy projection before separating unresolved rows. The frozen
+  positive schema intentionally omits vendor identity/source-row fields, so
+  distinct unresolved source records can project to identical canonical JSON.
+  On branch `production/fp-unresolved-multiplicity-repair-20260910`, code
+  commit `c08a018d0d50ad4398c7e042adbb3930cda6c1a3` preserves every such
+  unresolved occurrence. Ordered `rows_sha256`, per-occurrence missing-row
+  digests, missing fingerprint lists, counts, and aggregate hashes already
+  form multiplicity-sensitive multisets. Unresolved rows remain excluded from
+  positive pack rows; exact resolved duplicates remain fatal within a shard
+  and after rows are combined across shards. No schema, frozen query,
+  evidence class, point-in-time law, or scoring policy changed.
+- The repair descends from current `origin/main`
+  `b766d87611b8156315c2673c1121e66e90be4434`. Validation passes 34/34 across
+  normalized core/CLI/cloud wrapper and seven-pack capture tests, including
+  exact `13/14/17` collision-shaped publication plus same-shard and
+  cross-shard resolved-duplicate adversaries. Bash syntax, focused Ruff,
+  Python compilation, and `git diff --check` pass. This repair performed no
+  cloud query, build, execution, publication, outcome read, or scoring action.
+- Exact next action: independently review and settle this commit and handoff
+  onto current `origin/main`, build that exact pushed source, and freeze a new
+  normalized request at a new canonical UTC second with a new run ID, GCS
+  prefix, and query job IDs. Preserve the two partial v2 objects and never
+  reuse `5rfkm`, `20260911-fp-sis-normalized-successor-v2`, or its namespace.
+
 ### 2026-09-10 Fantasy Points Week-3/Week-4 source boundary is regression-pinned
 
 - The runtime contract on current `origin/main` was already correct: a matchup
