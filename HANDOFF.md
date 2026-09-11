@@ -22,6 +22,43 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 set-aware ranking closed; tail calibration routes scoring to completion
+
+- Production replaced the lab's scalar pseudo-set-aware selector with an exact
+  candidate-by-30,000-world greedy tail-portfolio selector and ran the complete
+  chronological development diagnostic: deterministic 2023 fit, all 18 2024
+  slates, both exact PREREG-083 source populations. At K20/K80, realized raw
+  maximum changed by control `+0.156/+0.647` and direct-tail
+  `-0.993/-3.179`. The learned marginal model was negative. This exact
+  ranking implementation is closed as a material-gain lever; adoption is
+  false, promotion is `NONE`, and Week-1 policy is unchanged.
+- The already-open candidate calibration curve resolves the next branch.
+  Direct-tail predicted/observed candidate events were 67.400/43 at 187,
+  22.901/12 at 200, 9.145/5 at 210, 3.338/2 at 220, and 1.122/0 at 230.
+  A 100,000-draw slate-cluster bootstrap gives a 200-level
+  observed-minus-expected interval of `[-0.508,-0.029]` per slate. The
+  direct-tail generator is amplifying an optimistic belief curve; do not
+  increase generic shared shock or dependence from this result.
+- The exact result is on nfl2 branch
+  `production/prereg083-r2-supply-gate-r1-20260910`: clean execution commit
+  `d331656`, result
+  `results/prereg085_setaware_development_r1.json`, result SHA-256
+  `fd2dbb73...040c4`, model SHA-256 `ee12d9f1...ec4`. Full review is
+  `reports/2026-09-10-prereg085-setaware-and-calibration-read.md`.
+- Lab Update 369 independently acknowledged its first selector defect and
+  delivered a full-matrix variant. Production did not merge its authority:
+  its digest does not bind the ordered candidate-id axis, and its raw
+  expected-max objective duplicates the existing EMAX family. Production
+  handed back the measured result and a new bounded task.
+- Exact next scoring action: use the existing incumbent + corrected-hsim-v0.14
+  dual critic on disjoint worlds to judge a new minimal-core completion
+  neighbourhood. Allocate fixed work to 400 standard solves plus 40 proposed
+  core seeds x 10 distinct legal full completions, permitting legal core
+  expansion. Mechanics must achieve at least eight unique legal >=2-player
+  completions on 95% of seeds before any outcome read. Report full-pool 230+
+  supply/oracle first, then K20/K80 capture. Neo4j/importer work remains off
+  this scoring path.
+
 ### 2026-09-10 scoring diagnosis moved beyond the Neo4j importer
 
 - Production froze further importer work unless it blocks a real analysis.
