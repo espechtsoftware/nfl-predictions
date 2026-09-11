@@ -22,6 +22,22 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 graph diagnostic converted directly into a scoring experiment
+
+- Neo4j importer packaging is closed as a priority. Across both PREREG-083 arms,
+  all 24 realized 200+ candidates had alternatives sharing the same QB plus at
+  least one same-team WR/TE. The three 220+ candidates had 6--10 alternatives,
+  yet the winning completion was ranked 64 or rejected.
+- The remaining six roster slots account for most of the K20-to-pool hindsight
+  gap: `+11.972/+11.511` control/treatment versus `+6.735/+5.904` from the top
+  three scoring players. This routes the next test to completion choice and
+  candidate supply, not graph transport or visualization.
+- Exact definitions, artifact hashes, and reproduction notes are tracked in
+  `reports/2026-09-10-prereg083-minimal-core-neighborhood-diagnostic.md`.
+  The bounded PREREG-086 fixed-work mechanics comparison is the only active
+  graph-derived implementation; it must report full-pool 230+ supply/oracle
+  before K20/K80 and cannot change Week-1 policy without prospective evidence.
+
 ### 2026-09-10 PREREG-086 narrowed to score-producing mechanics
 
 - Production reviewed lab draft `a941d8a` and accepted the multi-player
