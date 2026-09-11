@@ -58,6 +58,15 @@ agent or developer:
   recovery and attribution both exist they must be exactly equal, including
   during completed-launch loading. Current wrong name, UID, or configuration
   fails before attribution/launch creation and cannot recall the launcher.
+- Independent immutable review of exact code commit
+  `eca72045633b193da177f9e980f020b65cf436f8` is GO with no P0, P1, or P2
+  finding. It reproduced both nested missing-to-true second-crash targets and
+  all three wrong-current-provider adversaries: frozen recovery/attribution
+  bytes remained identical, successful resume retained one launcher call, and
+  wrong current name, UID, or configuration created no attribution, receipt,
+  or launch and made no second launcher call. Independent driver 21/21,
+  nested 2/2, wrong-current 3/3, exact focus 43/43, compilation, and diff
+  checks pass.
 - The driver validates requested and resolved direct-Git build provenance,
   freezes and directly checks all 2,865 exact output URIs without listing,
   proves one continuous canonical production registry lease, and persists
@@ -80,16 +89,15 @@ agent or developer:
 - This is not launch authority. The historical candidate capability replay
   repair and the resulting freeze remain a separate production gate; the same
   sealed v4 must create the sole capture-plan-v3 lock, and that reviewed lock
-  must reach a distinct clean pushed Commit B. Exact next action for this
-  branch is independent immutable-diff/test review of
-  `eca72045633b193da177f9e980f020b65cf436f8`; after Commit B, integration
-  must cherry-pick `dbfe5b87a9cf0ed7e09cfe50c3b137230b9537d0`,
+  must reach a distinct clean pushed Commit B. Preparation and review on this
+  branch are complete. After Commit B, the exact next action is to cherry-pick
+  `dbfe5b87a9cf0ed7e09cfe50c3b137230b9537d0`,
   `9bab943843678364efd2d989ddc5f5fe74eb4e24`, and then
   `eca72045633b193da177f9e980f020b65cf436f8` onto that resulting release
   line (plus separately reviewed predecessors
   `a25ef6f0ecd75830641eec9081dc54ff5dd24e1a` and
   `b2465712a0c2fff0f0953814d634a82200e673c1`),
-  resolve only genuine surrounding drift, rerun the 39-test focus, push the
+  resolve only genuine surrounding drift, rerun the 43-test focus, push the
   resulting commit, then follow the reviewed report's unique-run direct-Git
   build and one-lease command. Do not run the driver or recapture seven-pack
   v4 before those gates clear.

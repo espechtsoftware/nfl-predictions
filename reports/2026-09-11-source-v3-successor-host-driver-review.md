@@ -1,8 +1,8 @@
 # Source-v3 successor host-driver review
 
 Date: 2026-09-11
-Status: implementation and hermetic validation; independent review of the
-second crash-window successor is pending. No Cloud Build, Cloud Run, GCS write,
+Status: implementation and hermetic validation complete; independent review
+of the second crash-window successor is GO. No Cloud Build, Cloud Run, GCS write,
 object read, warehouse query, or production-worktree mutation was performed;
 isolated review commits only were pushed.
 
@@ -93,7 +93,7 @@ fails before any attribution or launch authority is created and never recalls
 the launcher. Any post-intent artifact without its required intent remains
 refused before the controller launch action can run.
 
-## Implemented invariants pending final independent review
+## Independently reviewed invariants
 
 The host driver:
 
@@ -256,4 +256,9 @@ retry authority.
 - Existing source-v3 core/CLI/controller plus new driver: 42 passed.
 - Exact Cloud Build focus including the one-task component reducer: 43 passed.
 - Python compilation and driver `--help`: passed.
+- Independent immutable review of exact code commit
+  `eca72045633b193da177f9e980f020b65cf436f8` reproduced both nested
+  missing-to-true crash targets and all three wrong-current-provider
+  adversaries. It found no P0, P1, or P2 blocker; driver 21/21, nested 2/2,
+  wrong-current 3/3, exact focus 43/43, compilation, and diff checks passed.
 - Cloud execution: intentionally not performed.
