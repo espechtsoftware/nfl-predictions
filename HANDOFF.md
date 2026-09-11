@@ -22,6 +22,71 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 PREREG086 exact execution cannot reach its collection gate
+
+- At `2026-09-11T03:53:48Z`, exact lab execution `lab-run-vk9wg`, UID
+  `bd24e299-91fe-493a-8927-64896b8db8ad`, was nonterminal with 33 succeeded,
+  one failed, four running, and 34 not yet started; max retries is zero and no
+  task retry occurred. Task index 33 failed at `2026-09-11T03:37:02Z` with
+  `MechanicsGateFailure`: insufficient distinct eligible minimal cores for
+  the frozen 20-unlocked/20-locked schedule.
+- The preregistered collection gate requires exactly 72 successful tasks, so
+  this execution can no longer be collected, relabelled, or treated as
+  experiment evidence. Preserve it through terminal state. The nfl2 handoff
+  stream remains at Update 385 (`84a53`) with no reviewed repair or successor
+  authorization; route the terminal failure to lab review and do not
+  automatically relaunch it.
+
+### 2026-09-10 seven-pack successor v1 failed after valid task0; launcher repaired
+
+- Seven-pack successor `20260911-fp-sis-seven-pack-successor-v1` froze from
+  exact pushed source `b7beab10241b53cada9f36d4f238b6d4b816d5d8` with request-file
+  SHA-256 `a6af42a039dd006ab2b5c49156b1f2b7ef444a9d634a873bcf5de439970ccada`
+  and inner request SHA-256
+  `c450c9bf1429f9746a35f6e6ac6ef7f375e76aaa8662acfd0e8abdf9d3c83c71`.
+  Provider Cloud Build `20c3a59d-ffde-4bbc-b998-44b2cc6871f1` succeeded
+  from that exact requested and resolved source and produced immutable image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:f517833ece5306cb59fb7836dcb6a64da4ca22b2c4fcf7b21108b71aa3253929`.
+  The host wrapper returned 2 only because `gcloud builds submit` mixed status
+  text with the formatted ID; the provider build was reconciled rather than
+  resubmitted.
+- Under one canonical production launcher-registry lease, task0 execution
+  `atlas-cbc-32g-full-2023-w8-v1-qhwkc`, UID
+  `b37c7b28-fa0f-48b9-ace5-c7599bcb3362`, completed its actual task0 work and
+  emitted a valid `corpus-r6-matchup-seven-pack-task0-readiness/v1` receipt:
+  all normalized-v3 and candidate-v2 predecessors reopened through 26 exact
+  reads, with zero writes, zero warehouse queries, and zero publications.
+  The container then exited 1 at `2026-09-11T03:47:18.025059Z` solely because
+  the EXIT cleanup function referenced function-local `work` after
+  `container_run` returned under `set -u` (`line 126: work: unbound variable`).
+  Canonical registry completion is
+  `03e4d764e95f9014595bc7f596d8c09d263d92a2119f3192da0253d83cb32494`.
+- Exact post-failure census found zero of 15 expected GCS objects and none of
+  the five deterministic BigQuery jobs. The failed execution, request, run
+  ID, image, query IDs, and namespace are consumed failure evidence and must
+  not be retried, relabelled, or reused; no paid capture or partial
+  publication occurred.
+- On branch `production/seven-pack-successor-v1-20260911`, repair commit
+  `aa43dd824034d363970c068612ed40a6d0e09abe` expands the exact `mktemp` path
+  while installing the EXIT trap, so cleanup remains defined after local
+  scope ends. Executable regressions run the real trap form after a local
+  function returns under `set -u` and verify clean exit plus directory
+  removal. The same latent defect is repaired in the immediately downstream
+  paid-source discovery-matrix launcher. Both launchers now also extract and
+  require exactly one unique UUID from noisy Cloud Build submit output before
+  provider attestation.
+- Validation passes 82/82 across seven-pack core/operator/freezer/capture-plan,
+  shared-job terminal-gate, and discovery-matrix core/CLI/cloud suites; both
+  shell launchers and `git diff --check` pass. Ruff and ShellCheck are absent
+  from the isolated worktree environment.
+  This repair performed no warehouse query, GCS read/write, Cloud Build, or
+  Cloud Run mutation. Exact next action: independently review this repair and
+  handoff, push the resulting exact source to `origin/main`, freeze a fresh
+  seven-pack successor with a new run ID, namespace, and five query IDs, then
+  build and execute task0 -> publish -> independent reopen under one canonical
+  production lease. Generate capture-plan v3 only after that successor is
+  sealed and independently reopened.
+
 ### 2026-09-10 normalized paid-source v3 is sealed and independently reopened
 
 - Normalized successor `20260911-fp-sis-normalized-successor-v3` froze at
