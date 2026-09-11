@@ -31,13 +31,14 @@ agent or developer:
   `MechanicsGateFailure`: insufficient distinct eligible minimal cores for
   the frozen 20-unlocked/20-locked schedule.
 - The preregistered collection gate requires exactly 72 successful tasks, so
-  this execution can no longer be collected, relabelled, or treated as
-  experiment evidence. Preserve it through terminal state. The nfl2 handoff
+  this execution can no longer be collected, relabelled, or treated as a
+  completed-cohort or efficacy result. It remains mechanics-failure evidence;
+  preserve it through terminal state. The nfl2 handoff
   stream remains at Update 385 (`84a53`) with no reviewed repair or successor
   authorization; route the terminal failure to lab review and do not
   automatically relaunch it.
 
-### 2026-09-10 seven-pack successor v1 failed after valid task0; launcher repaired
+### 2026-09-10 seven-pack v1 emitted readiness output but failed in cleanup
 
 - Seven-pack successor `20260911-fp-sis-seven-pack-successor-v1` froze from
   exact pushed source `b7beab10241b53cada9f36d4f238b6d4b816d5d8` with request-file
@@ -52,13 +53,17 @@ agent or developer:
   resubmitted.
 - Under one canonical production launcher-registry lease, task0 execution
   `atlas-cbc-32g-full-2023-w8-v1-qhwkc`, UID
-  `b37c7b28-fa0f-48b9-ace5-c7599bcb3362`, completed its actual task0 work and
-  emitted a valid `corpus-r6-matchup-seven-pack-task0-readiness/v1` receipt:
+  `b37c7b28-fa0f-48b9-ace5-c7599bcb3362`, completed its task0 computation and
+  emitted a canonical, schema-valid
+  `corpus-r6-matchup-seven-pack-task0-readiness/v1` payload:
   all normalized-v3 and candidate-v2 predecessors reopened through 26 exact
   reads, with zero writes, zero warehouse queries, and zero publications.
-  The container then exited 1 at `2026-09-11T03:47:18.025059Z` solely because
-  the EXIT cleanup function referenced function-local `work` after
-  `container_run` returned under `set -u` (`line 126: work: unbound variable`).
+  This is not an admissible successful task0 receipt or gate. The cleanup
+  error logged at `2026-09-11T03:47:14.882323Z`; the container exited 1, and
+  the provider marked the execution terminal failed at
+  `2026-09-11T03:47:18.025059Z`, solely because the EXIT cleanup function
+  referenced function-local `work` after `container_run` returned under
+  `set -u` (`line 126: work: unbound variable`).
   Canonical registry completion is
   `03e4d764e95f9014595bc7f596d8c09d263d92a2119f3192da0253d83cb32494`.
 - Exact post-failure census found zero of 15 expected GCS objects and none of
