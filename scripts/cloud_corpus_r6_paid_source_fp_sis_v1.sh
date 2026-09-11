@@ -320,11 +320,19 @@ latest=$(jq -er '.status.latestCreatedExecution.name' "$work/job.json") || \
   die "reused job latest execution absent"
 gcloud run jobs executions describe "$latest" --project "$PROJECT" \
   --region "$REGION" --format=json >"$work/latest.json"
-jq -e '
-  any(.status.conditions[]?; .type == "Completed" and .status == "True") and
-  (.status.failedCount // 0) == 0 and (.status.cancelledCount // 0) == 0 and
-  (.status.runningCount // 0) == 0 and (.status.completionTime | type == "string")
-' "$work/latest.json" >/dev/null || die "reused job is not terminal-success"
+# Success, failure and cancellation are all safe predecessors once the exact
+# job-owned execution has a completion time, a terminal task count and no
+# running task. Unknown or contradictory provider states remain blocking.
+jq -e --arg job "$JOB" '
+  .metadata.labels["run.googleapis.com/job"] == $job and
+  any(.status.conditions[]?;
+    .type == "Completed" and (.status == "True" or .status == "False")) and
+  (.status.completionTime | type == "string" and length > 0) and
+  (.status.runningCount // 0) == 0 and
+  ((.status.succeededCount // 0) + (.status.failedCount // 0) +
+    (.status.cancelledCount // 0)) > 0
+' "$work/latest.json" >/dev/null || \
+  die "reused job latest execution is not terminal and idle"
 
 verify_installed_job() {
   [[ $# -eq 1 ]] || die "job verification requires one observation"
