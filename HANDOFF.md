@@ -22,6 +22,43 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-11 candidate historical replay repaired and independently accepted
+
+- The narrow historical-HEAD compatibility repair from pushed review commit
+  `02ca22ffbd0b2d9532ae900b65198f0ae85bdb4d` is integrated on
+  `production/seven-pack-successor-v1-20260911` as code commit
+  `01b0c03c`.  It adds a dedicated read-only descendant reopener without
+  changing any frozen candidate-authority module.  The adapter resolves the
+  catalog-recovery authority at the candidate root's original bound commit
+  `346b2a27a55c29cd5c2a30719b1a0739baae4b50` and at the current clean
+  durable descendant, requires ancestry and reachability from `origin/main`,
+  and requires exact equality of every stable code, review-lock, final-lock,
+  and tracked-attempt projection.
+- The only accepted representation change is the recovery
+  `capability_sha256` caused by replay-time `current_clean_commit_sha`, plus
+  the enclosing candidate-binding self-hash.  Both retained and descendant
+  self-hashes are independently validated; coherently rehashed drift in any
+  other field fails closed.  The retained binding then remains authoritative
+  through the full v1 predecessor replay, complete 110-inner-object manifest
+  gate, bundle byte reconstruction, and 165-object terminal-root byte
+  reconstruction.  The adapter itself is now part of the measured
+  capture-plan-v3 implementation surface.
+- Independent review returned GO with no P0/P1 finding.  It reproduced the
+  historical capability SHA-256
+  `cf92683b9a5469b67d977db3dba568aff7c93f5d15cd15ce5aa0d06592b1467d`,
+  proved the candidate implementation paths unchanged from the original
+  bound commit, and verified all 261 related authority/recovery/source cases.
+  Integration-tree validation additionally passed 91 focused and adjacent
+  capture tests, Python compilation, and diff checks.  No cloud, warehouse,
+  data, or capture-plan write occurred during repair or review.
+- This HANDOFF-only descendant of code commit `01b0c03c` is the final Commit A
+  once pushed to `origin/main`; the generated capture-plan lock will bind its
+  exact SHA.  Exact next action: from that clean durable Commit A, run one
+  `freeze-capture-plan` attempt against the already sealed v4 terminal
+  generation `1789106359079526`, validate the sole create-once lock and
+  receipt, then commit and push that lock separately as Commit B.  Do not
+  recapture or relabel seven-pack v4.
+
 ### 2026-09-11 seven-pack v4 sealed; capture-plan freeze exposed historical-HEAD replay bug
 
 - Fresh successor `20260911-fp-sis-seven-pack-successor-v4` froze from exact
