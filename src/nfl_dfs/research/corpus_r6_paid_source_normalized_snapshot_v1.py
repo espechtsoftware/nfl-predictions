@@ -203,8 +203,11 @@ _PACK_SLICES: Final = {
 }
 
 
-def _relation_metadata_sql(relations: Sequence[str]) -> str:
+def _relation_metadata_sql(
+    relations: Sequence[str], *, snapshot_at: str,
+) -> str:
     names = ",".join(f"'{name}'" for name in relations)
+    at = f"TIMESTAMP('{snapshot_at}')"
     return f"""
 SELECT
   'relation-metadata' AS record_kind,
@@ -227,6 +230,7 @@ SELECT
   )) AS row_json
 FROM `{PROJECT}.{DATASET}.__TABLES__` AS frozen_tables
 WHERE frozen_tables.table_id IN ({names})
+  AND TIMESTAMP_MILLIS(last_modified_time) <= {at}
 """.strip()
 
 
@@ -329,7 +333,7 @@ def frozen_query_specs_v1(*, run_id: str, snapshot_at_utc: str) -> list[dict[str
 WITH projected AS (
 {rows}
 ), relation_metadata AS (
-{_relation_metadata_sql(relations)}
+{_relation_metadata_sql(relations, snapshot_at=snapshot)}
 )
 SELECT record_kind, slice_kind, row_json FROM projected
 UNION ALL
@@ -568,11 +572,11 @@ def _capture_result(
     ):
         _fail("normalized snapshot query omitted a relation or registered slice")
     # BigQuery exposes historical table rows through time travel, while the
-    # legacy metadata views report the current relation metadata.  Prevent a
-    # mixed past-row/future-metadata receipt: the fixed snapshot instant must
-    # be at or after every reported predecessor modification.  A concurrent
-    # or backdated capture therefore fails instead of claiming one coherent
-    # predecessor snapshot.
+    # legacy metadata views report the current relation metadata.  The SQL
+    # suppresses metadata newer than the snapshot at native millisecond
+    # precision, so the complete-metadata check above fails.  Retain this
+    # parsed whole-second check as defense in depth: a concurrent or backdated
+    # capture must not claim one coherent predecessor snapshot.
     snapshot_time = datetime.strptime(
         str(spec["snapshot_at_utc"]), "%Y-%m-%dT%H:%M:%SZ"
     ).replace(tzinfo=timezone.utc)
