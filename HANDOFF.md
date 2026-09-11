@@ -22,6 +22,43 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 paid-source shared-job idle-terminal gate repaired
+
+- On pushed-candidate branch
+  `production/paid-source-idle-terminal-gate-repair-20260910`, based on
+  `origin/main` `d45d5e6dcd9679f51a6f1888e8ede4cc28d22042`, implementation commit
+  `b9ac16dd7bf34e97cc96fbc5704dc9b68b5c149a` repairs only the host-side
+  reused-job preflight in
+  `scripts/cloud_corpus_r6_paid_source_fp_sis_v1.sh`. A completed failed or
+  cancelled predecessor no longer falsely keeps an otherwise idle shared lane
+  blocked. Acceptance requires the exact execution-to-job label, a terminal
+  `Completed` condition, a nonempty provider completion time, zero running
+  tasks and at least one terminal task count. A running, unknown,
+  contradictory, zero-terminal-count, wrong-execution-job or wrong-job-UID
+  observation still fails before any job update or execution call.
+- The FP/SIS experiment registry, scientific runner, source handling,
+  candidate/world identities, selector, grading contract and outcome boundary
+  are unchanged. Provider-simulated install coverage passes 15/15 focused
+  tests; the complete five-file paid-source release regression passes 56/56.
+  Ruff check, `bash -n` and `git diff --check` pass. No Cloud Build, Cloud Run
+  execution, GCS write, source query, snapshot choice, outcome read or policy
+  action occurred in this repair.
+- Task 0 remains **NO-GO** for independent upstream reasons. There is no
+  normalized FP/SIS terminal, seven-pack terminal, matchup source-v3 release,
+  54-slate discovery-matrix terminal, paid-source execution image/build
+  attestation or prepared execution request. The previously named BigQuery
+  snapshot time `2026-08-31T05:25:27Z` is now outside the `nfl_raw` dataset's
+  168-hour time-travel window and must not be silently replaced. The current
+  six relations remain unchanged, but a fresh authority requires explicit
+  reconciliation before publication.
+- Exact next action: integrate this host-gate commit, resolve the source
+  snapshot authority without changing the frozen four-cell science, then
+  publish and independently reopen the normalized, seven-pack, source-v3 and
+  discovery-matrix predecessor terminals. Build the final exact-commit
+  paid-source image and request only after those identities exist; install it
+  through this repaired idle-lane gate, then run the existing outcome-disabled
+  task-0 command. Neo4j/importer expansion is not on this critical path.
+
 ### 2026-09-10 `28wzf` failed safely; deterministic score order repaired
 
 - Cloud Run execution `generation-shadow-suite-28wzf`, UID
