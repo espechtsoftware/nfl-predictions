@@ -106,6 +106,18 @@ def _fixture(monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
     root.pop("candidate_authority_release_sha256")
     root["candidate_authority_release_sha256"] = source.canonical_sha256(root)
     root_identity = _identity_for_body(root, uri=str(root["target_uri"]))
+    upstream_body = source.build_upstream_release_v1(
+        release_id=str(base["upstream"]["body"]["release_id"]),
+        namespace=str(base["upstream"]["body"]["namespace"]),
+        fixed_source_root_identity=root_identity,
+        packs=base["upstream"]["body"]["packs"],
+        pack_row_objects=base["upstream"]["rows"],
+    )
+    base["upstream"]["body"] = upstream_body
+    base["upstream"]["identity"] = _identity_for_body(
+        upstream_body,
+        uri=f"{upstream_body['namespace']}upstream-release.json",
+    )
     reopened = candidate.ReopenedFixedG0CandidateAuthorityV2(
         root=root,
         root_identity=root_identity,

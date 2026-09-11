@@ -1243,6 +1243,9 @@ def build_capture_plan_lock_v1(
     producer_id: str,
     producer_release_id: str,
     producer_namespace: str,
+    expected_upstream_fixed_source_root_identity: (
+        Mapping[str, object] | None
+    ) = None,
 ) -> dict[str, object]:
     """Build one non-authoritative lock from exact, already-frozen inputs."""
     _, final_lock_binding = _build_adapter_final_lock_binding(
@@ -1266,7 +1269,11 @@ def build_capture_plan_lock_v1(
         value=upstream_source_release,
         identity=upstream_source_release_identity,
         pack_row_objects=upstream_pack_row_objects,
-        expected_fixed_source_root_identity=receipt_identity,
+        expected_fixed_source_root_identity=(
+            receipt_identity
+            if expected_upstream_fixed_source_root_identity is None
+            else expected_upstream_fixed_source_root_identity
+        ),
     )
     commit = _commit(implementation_commit_sha, label="implementation commit")
     measurements = _normalize_implementation_measurements(
@@ -1614,6 +1621,9 @@ def validate_capture_plan_against_prerequisites_v1(
     upstream_source_release: Mapping[str, object],
     upstream_source_release_identity: Mapping[str, object],
     upstream_pack_row_objects: Sequence[Mapping[str, object]],
+    expected_upstream_fixed_source_root_identity: (
+        Mapping[str, object] | None
+    ) = None,
 ) -> dict[str, object]:
     """Rebuild a lock from exact-opened bodies; no remote read occurs here."""
     normalized = validate_capture_plan_lock_v1(value)
@@ -1638,6 +1648,9 @@ def validate_capture_plan_against_prerequisites_v1(
         producer_id=str(normalized["producer_id"]),
         producer_release_id=str(normalized["producer_release_id"]),
         producer_namespace=str(normalized["producer_namespace"]),
+        expected_upstream_fixed_source_root_identity=(
+            expected_upstream_fixed_source_root_identity
+        ),
     )
     if canonical_json_bytes(rebuilt) != canonical_json_bytes(normalized):
         _fail("capture plan differs from exact-opened prerequisites")

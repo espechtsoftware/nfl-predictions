@@ -826,6 +826,9 @@ def build_capture_plan_lock_v3(
             producer_id=producer_id,
             producer_release_id=producer_release_id,
             producer_namespace=producer_namespace,
+            expected_upstream_fixed_source_root_identity=(
+                candidate_authority_root_identity
+            ),
         )
     except capture_v1.CorpusR6MatchupCapturePlanV1Error as exc:
         raise CorpusR6MatchupCapturePlanOuterCandidateAuthorityV3Error(
@@ -898,6 +901,9 @@ def validate_capture_plan_against_prerequisites_v3(
             upstream_source_release=upstream_source_release,
             upstream_source_release_identity=upstream_source_release_identity,
             upstream_pack_row_objects=upstream_pack_row_objects,
+            expected_upstream_fixed_source_root_identity=plan[
+                "fixed_g0_candidate_authority_root_identity"
+            ],
         )
     except capture_v1.CorpusR6MatchupCapturePlanV1Error as exc:
         raise CorpusR6MatchupCapturePlanOuterCandidateAuthorityV3Error(
