@@ -37,6 +37,9 @@ from nfl_dfs.research import corpus_r6_matchup_source_v2 as source
 from nfl_dfs.research import (
     corpus_r6_player_catalog_fixed_g0_adapter_v1 as fixed_g0,
 )
+from nfl_dfs.research import (
+    corpus_r6_player_catalog_fixed_g0_terminal_recovery_v1 as fixed_g0_recovery,
+)
 from nfl_dfs.research import corpus_r6_player_catalog_v1 as catalog_v1
 
 
@@ -574,6 +577,87 @@ def _validate_adapter_final_release_lock_raw(
     _reject_outcome_and_authority_carriers(
         item, label="fixed-G0 adapter final release lock"
     )
+    if item.get("schema_version") == fixed_g0_recovery.FINAL_LOCK_SCHEMA:
+        measurements = [
+            _normalize_file_measurement(
+                row, label=f"fixed-G0 recovery implementation[{ordinal}]"
+            )
+            for ordinal, row in enumerate(_sequence(
+                item.get("implementation_measurements"),
+                label="fixed-G0 recovery implementation measurements",
+            ))
+        ]
+        if [str(row["relative_path"]) for row in measurements] != list(
+            fixed_g0_recovery.IMPLEMENTATION_PATHS
+        ):
+            _fail("fixed-G0 recovery implementation file order differs")
+        review_lock = {
+            "implementation_commit_sha": _commit(
+                item.get("implementation_commit_sha"),
+                label="fixed-G0 recovery implementation commit",
+            ),
+            "implementation_measurements": measurements,
+            "terminal_recovery_review_lock_sha256": _digest(
+                item.get("terminal_recovery_review_lock_internal_sha256"),
+                label="fixed-G0 recovery review-lock internal SHA",
+            ),
+            "base_adapter_review_binding": _mapping(
+                item.get("base_adapter_review_binding"),
+                label="fixed-G0 recovery base adapter review binding",
+            ),
+            "amendment_file": _normalize_file_measurement(
+                item.get("amendment_file"),
+                label="fixed-G0 recovery amendment file",
+            ),
+            "v2_failure_file": _normalize_file_measurement(
+                item.get("v2_failure_file"),
+                label="fixed-G0 recovery v2 failure file",
+            ),
+            "v1_attempt_file": _normalize_file_measurement(
+                item.get("v1_attempt_file"),
+                label="fixed-G0 recovery v1 attempt file",
+            ),
+            "v1_attempt_internal_sha256": _digest(
+                item.get("v1_attempt_internal_sha256"),
+                label="fixed-G0 recovery v1 attempt internal SHA",
+            ),
+            "v2_attempt_file": _normalize_file_measurement(
+                item.get("v2_attempt_file"),
+                label="fixed-G0 recovery v2 attempt file",
+            ),
+            "v2_attempt_internal_sha256": _digest(
+                item.get("v2_attempt_internal_sha256"),
+                label="fixed-G0 recovery v2 attempt internal SHA",
+            ),
+            "prior_real_artifact_smoke_file": _normalize_file_measurement(
+                item.get("prior_real_artifact_smoke_file"),
+                label="fixed-G0 recovery prior smoke file",
+            ),
+            "prior_real_artifact_smoke_internal_sha256": _digest(
+                item.get("prior_real_artifact_smoke_internal_sha256"),
+                label="fixed-G0 recovery prior smoke internal SHA",
+            ),
+            "prior_real_artifact_smoke_time_file": _normalize_file_measurement(
+                item.get("prior_real_artifact_smoke_time_file"),
+                label="fixed-G0 recovery prior smoke time file",
+            ),
+        }
+        review_lock_file = _normalize_file_measurement(
+            item.get("terminal_recovery_review_lock_file"),
+            label="fixed-G0 recovery review-lock file",
+        )
+        try:
+            normalized_recovery = fixed_g0_recovery.validate_final_lock_v2(
+                item,
+                review_lock_file=review_lock_file,
+                review_lock=review_lock,
+            )
+        except fixed_g0_recovery.CorpusR6FixedG0TerminalRecoveryV1Error as exc:
+            raise CorpusR6MatchupCapturePlanV1Error(str(exc)) from exc
+        normalized_recovery["implementation_measurements"] = measurements
+        if canonical_json_bytes(normalized_recovery) != canonical_json_bytes(item):
+            _fail("fixed-G0 recovery final lock canonical replay differs")
+        return normalized_recovery
     measurements = _sequence(
         item.get("implementation_measurements"),
         label="fixed-G0 final implementation measurements",

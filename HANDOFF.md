@@ -22,6 +22,31 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-11 capture-plan freeze recognizes the governed terminal-recovery v2 lock
+
+- The first exact seven-pack-v4 capture-plan freeze completed its full remote
+  replay but refused before writing with `fixed-G0 final implementation file
+  order differs`.  The tracked final release lock is the later governed
+  terminal-recovery v2 artifact: its six ordered implementation measurements
+  correctly include the terminal-recovery module and test in addition to the
+  four base-adapter files.  The capture-plan parser still recognized only the
+  superseded four-file v1 form.
+- Branch `production/capture-plan-terminal-lock-v2-20260911` adds a narrow,
+  schema-dispatched v2 validation path.  It normalizes and checks the exact
+  six-file terminal-recovery order, reconstructs the inputs consumed by the
+  existing terminal-recovery v2 validator, and delegates the complete
+  constant/schema/self-hash check to that validator.  The original v1 path is
+  unchanged.  This grants no scoring, publication, or outcome authority.
+- Evidence: the exact tracked v2 lock now validates; a coherently rehashed
+  implementation-order mutation refuses; the five related capture-plan,
+  outer-authority, bridge, cloud-runner, and operator files pass 55/55 tests;
+  Python compilation and `git diff --check` pass.  Ruff is not installed in
+  the shared virtual environment and was therefore unavailable.
+- No capture-plan lock was created by either failed attempt.  After this
+  repair reaches a clean production commit, rerun the same one-shot freeze
+  against seven-pack-v4 terminal generation `1789106359079526`, validate the
+  created lock, and commit that lock separately as Commit B.
+
 ### 2026-09-11 deeper candidate-v1 HEAD replay repaired and independently accepted
 
 - Exact pushed repair commit

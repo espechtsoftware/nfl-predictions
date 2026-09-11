@@ -16,6 +16,9 @@ from nfl_dfs.research import corpus_r6_matchup_source_v2 as source
 from nfl_dfs.research import (
     corpus_r6_player_catalog_fixed_g0_adapter_v1 as fixed_g0,
 )
+from nfl_dfs.research import (
+    corpus_r6_player_catalog_fixed_g0_terminal_recovery_v1 as fixed_g0_recovery,
+)
 from nfl_dfs.research import corpus_r6_player_catalog_v1 as catalog_v1
 
 
@@ -544,6 +547,38 @@ def _build(fixture: Mapping[str, Any]) -> dict[str, object]:
 
 def _rehash_plan(plan: Mapping[str, object]) -> dict[str, object]:
     return _rehash(plan, "capture_plan_sha256")
+
+
+def test_adapter_final_lock_accepts_tracked_terminal_recovery_v2() -> None:
+    repository_root = Path(__file__).resolve().parents[1]
+    raw = (
+        repository_root / fixed_g0.FIXED_FINAL_RELEASE_LOCK_PATH
+    ).read_bytes()
+
+    lock = capture._validate_adapter_final_release_lock_raw(raw)
+
+    assert lock["schema_version"] == fixed_g0_recovery.FINAL_LOCK_SCHEMA
+    assert [
+        row["relative_path"] for row in lock["implementation_measurements"]
+    ] == list(fixed_g0_recovery.IMPLEMENTATION_PATHS)
+
+
+def test_adapter_final_lock_rejects_rehashed_recovery_path_reorder() -> None:
+    repository_root = Path(__file__).resolve().parents[1]
+    value = json.loads(
+        (repository_root / fixed_g0.FIXED_FINAL_RELEASE_LOCK_PATH).read_text()
+    )
+    value["implementation_measurements"][0:2] = reversed(
+        value["implementation_measurements"][0:2]
+    )
+    value = _rehash(value, "final_release_lock_sha256")
+    raw = source.canonical_json_bytes(value) + b"\n"
+
+    with pytest.raises(
+        capture.CorpusR6MatchupCapturePlanV1Error,
+        match="recovery implementation file order differs",
+    ):
+        capture._validate_adapter_final_release_lock_raw(raw)
 
 
 def _secure_observation(path: str, raw: bytes) -> dict[str, object]:
