@@ -30,8 +30,10 @@ agent or developer:
   `origin/main` commit `d45d5e6dcd9679f51a6f1888e8ede4cc28d22042`.
   Repair commit `e37211c6da13c1101be8edd8a50cf4fd9cede1ba` contains the
   normalized-source precision hardening, its regression, and the exact
-  successor runbook. The dirty primary checkout was not read as release
-  authority or modified.
+  successor runbook. Follow-up commit
+  `a18dfd4686e02a76ec7ed6e5ab87c797fb375b14` closes the isolated-worktree
+  test-import boundary and adds the adversarial sub-second regression. The
+  dirty primary checkout was not read as release authority or modified.
 - The abandoned prospective normalized timestamp
   `2026-08-31T05:25:27Z` is outside the documented ordinary seven-day
   BigQuery time-travel window. It produced no normalized terminal,
@@ -57,6 +59,16 @@ agent or developer:
   required metadata row and fails before claiming coherent source authority.
   The projected columns, seasons, query count, artifact inventory, cell law,
   candidate/world law and outcome boundary are unchanged.
+- An independent bare-`pytest` reproduction correctly invalidated the first
+  validation claim: the shared virtual environment is editable-installed
+  against the primary checkout, so it collected the isolated tests but loaded
+  the primary checkout's old module. The production query construction was
+  not split: direct inspection proves both query specs contain the cutoff.
+  `pyproject.toml` now prepends the active checkout's `src` before any reused
+  editable installation. A new adversarial fixture models a table modified at
+  `12:00:00.001Z` against a `12:00:00.000Z` snapshot; the fixed query filters
+  the metadata row before whole-second formatting, incomplete metadata fails,
+  and the create-once writer remains untouched.
 - The exact DAG is now durable at
   `reports/2026-09-10-fp-sis-retrieval-successor-authority.md`: fixed six
   relations -> normalized terminal -> candidate-v2-rooted seven-pack ->
@@ -64,13 +76,16 @@ agent or developer:
   candidate-v2 plus the fixed LR8 later-source freeze -> 54-member discovery
   matrix full reopen; those two terminals alone converge at
   `fp-sis-retrieval-only-cross-v1`.
-- Validation from the isolated tree is green: normalized core/CLI/cloud
-  **19/19**, seven-pack operator/freezer/bridge/cloud compatibility **33/33**,
-  edited Python compilation, and `git diff --check`. No BigQuery or GCS call,
-  Cloud Build, Cloud Run mutation/execution, object publication, outcome read,
+- Validation from the isolated tree is now green through the previously
+  contaminated bare-pytest path: the independent exact subset is **18/18**,
+  normalized core/CLI/cloud is **20/20**, and seven-pack
+  operator/freezer/bridge/cloud compatibility is **33/33**. Edited Python
+  compilation and `git diff --check` pass. No BigQuery or GCS call, Cloud
+  Build, Cloud Run mutation/execution, object publication, outcome read,
   grade, or policy change was performed.
-- Exact next action after merging both commits and making the settled release
-  durable `origin/main`: from a clean checkout, choose one canonical UTC
+- Exact next action after merging the complete successor commit chain and
+  making the settled release durable `origin/main`: from a clean checkout,
+  choose one canonical UTC
   second and immediately build the new
   `20260910-fp-sis-normalized-successor-v1` request before any warehouse
   contact. Then run normalized task0/publish/reopen, seven-pack
