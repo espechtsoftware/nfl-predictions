@@ -7,6 +7,7 @@ import re
 import subprocess
 import sys
 
+import pytest
 import yaml
 
 from nfl_dfs.research import corpus_r6_matchup_source_v2 as source
@@ -218,3 +219,45 @@ def test_capture_plan_freezer_writes_exact_canonical_newline_bytes(
     )
     assert path.read_bytes() == raw
     assert not path.read_bytes().endswith(b"\n\n")
+
+
+def test_repository_root_must_own_the_executing_code(tmp_path: Path) -> None:
+    """The declared provenance root and the imported code must be one tree.
+
+    ``--repository-root`` selects the tree whose commit is stamped on the
+    run, but Python resolves ``nfl_dfs`` through the interpreter, not through
+    that flag.  A worktree root driven by a sibling checkout's venv would
+    otherwise record the worktree's commit over the other tree's code.
+    """
+    assert runner._trusted_repository_root(str(ROOT)) == ROOT
+
+    foreign = tmp_path.resolve()
+    with pytest.raises(
+        runner.SevenPackCaptureCliError,
+        match=r"operator CLI is loaded from outside the declared repository root",
+    ):
+        runner._trusted_repository_root(str(foreign))
+
+
+def test_repository_root_binding_covers_every_imported_authority() -> None:
+    """Every nfl_dfs module the CLI imports must be bound by the guard.
+
+    This is the part that rots: a future import added to the CLI would run
+    unbound code under a declared root that never saw it.  Derive the set
+    from the import block rather than restating it here.
+    """
+    text = RUNNER.read_text(encoding="utf-8")
+    aliases = set(
+        re.findall(r"^from nfl_dfs[.\w]* import .*? as (\w+)$", text, re.M)
+    ) | set(
+        re.findall(r"^\s+(\w+),?\s*$", "".join(
+            re.findall(r"^from nfl_dfs.* import \(\n(.*?)^\)$", text, re.M | re.S)
+        ), re.M)
+    )
+    aliases = {a for a in aliases if hasattr(runner, a)}
+    assert aliases, "no nfl_dfs imports discovered in the CLI"
+
+    body = text.split("def _bind_executing_code_to_repository_root", 1)[1]
+    body = body.split("\ndef ", 1)[0]
+    unbound = sorted(a for a in aliases if f"{a}, " not in body)
+    assert not unbound, f"CLI imports not bound to the repository root: {unbound}"

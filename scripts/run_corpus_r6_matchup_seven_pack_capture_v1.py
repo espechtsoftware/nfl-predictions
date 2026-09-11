@@ -89,7 +89,34 @@ def _trusted_repository_root(value: str) -> Path:
         or not stat.S_ISDIR(info.st_mode)
     ):
         _fail("repository root must be one canonical absolute directory")
+    _bind_executing_code_to_repository_root(path)
     return path
+
+
+def _bind_executing_code_to_repository_root(repository_root: Path) -> None:
+    """Refuse when the code that will run does not live in the declared root.
+
+    ``--repository-root`` fixes the tree whose commit is recorded as this
+    run's provenance, but it does not influence which files Python imports:
+    an editable install resolves ``nfl_dfs`` to whatever tree owns the
+    interpreter.  Run a worktree's root through a sibling checkout's venv and
+    the receipt would carry the worktree's commit over another tree's code.
+    The declared root and the executing code must therefore be one tree.
+    """
+    for label, origin in (
+        ("operator CLI", __file__),
+        ("capture module", getattr(capture, "__file__", None)),
+        ("operator module", getattr(operator, "__file__", None)),
+        ("source module", getattr(source, "__file__", None)),
+        ("plan bridge module", getattr(plan_bridge, "__file__", None)),
+    ):
+        if type(origin) is not str or not origin:
+            _fail(f"{label} has no resolvable file origin")
+        resolved = Path(origin).resolve()
+        if resolved != Path(origin) or repository_root not in resolved.parents:
+            _fail(
+                f"{label} is loaded from outside the declared repository root"
+            )
 
 
 def _clean_git_environment() -> dict[str, str]:
