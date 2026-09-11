@@ -71,3 +71,24 @@ container_scope
     )
     assert result.returncode == 0, result.stderr
     assert not work.exists()
+
+
+def test_execute_passes_parallelism_explicitly():
+    """An execution must not inherit the job's parallelism.
+
+    `verify_execution` requires parallelism == taskCount. task0 runs one task,
+    so omitting --parallelism submits it at the job's configured 54 and it can
+    never verify -- which makes the 54-task phase unreachable, since that phase
+    verifies task0 as its predecessor before launching. The variable existed
+    and was computed correctly; it simply was never passed.
+    """
+    text = SCRIPT.read_text(encoding="utf-8")
+    execute = text.split("gcloud run jobs execute", 1)[1].split("\n\n", 1)[0]
+    assert "--parallelism" in execute, (
+        "jobs execute must pass --parallelism; without it the execution "
+        "inherits the job value and verify_execution refuses it"
+    )
+    assert '--parallelism "$parallelism"' in execute
+    # Both branches must set it, or one mode silently reverts to the default.
+    assert "tasks=54 parallelism=54" in text
+    assert "tasks=1 parallelism=1" in text

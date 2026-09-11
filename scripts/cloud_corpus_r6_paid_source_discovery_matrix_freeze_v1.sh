@@ -374,8 +374,14 @@ elif [[ "$ACTION" == "task" ]]; then
 elif [[ "$ACTION" == "reopen-task" ]]; then
   [[ "$PREDECESSOR" =~ ^${JOB}-[a-z0-9]{5}$ ]] || die "matrix predecessor differs"
 fi
+# --parallelism must be passed explicitly.  Without it the execution inherits
+# the JOB's configured parallelism (54), while verify_execution requires
+# parallelism == taskCount.  task0 runs one task, so it was submitted at 54 and
+# could never verify -- which made the 54-task phase unreachable, because it
+# verifies task0 as its predecessor before launching.
 execution=$(gcloud run jobs execute "$JOB" --project "$PROJECT" --region "$REGION" \
   --tasks "$tasks" \
+  --parallelism "$parallelism" \
   --args /app/scripts/cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.sh,container-run,"$mode" \
   --update-env-vars "^|^CODE_SHA=$CODE_SHA|IMAGE_URI=$IMAGE|IMAGE_DIGEST=${IMAGE##*@}|BUILD_ID=$BUILD_ID|$ENABLE_ENV=$ENABLE_VALUE|$MODE_ENV=$mode|$OUTCOMES_ENV=false|$PAYLOAD_ENV=$payload_b64|$PAYLOAD_SHA_ENV=$payload_sha|$TASK0_EXECUTION_ENV=$task0_execution_binding|$TASK0_GATE_SHA_ENV=$task0_gate_binding|$TASK0_GATE_B64_ENV=$task0_gate_b64_binding" \
   --async --format='value(metadata.name)')
