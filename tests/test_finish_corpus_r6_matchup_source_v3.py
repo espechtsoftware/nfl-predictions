@@ -302,6 +302,7 @@ class AmbiguousLaunchRunner:
     def __init__(self, run_dir: Path, *, resolves: bool) -> None:
         self.run_dir = run_dir
         self.resolves = resolves
+        self.new_state = "MISSING"
         self.launch_count = 0
         self.post_launch_job_reads = 0
 
@@ -309,7 +310,11 @@ class AmbiguousLaunchRunner:
         args = tuple(argv)
         if args[:5] == ("gcloud", "run", "jobs", "executions", "describe"):
             name = args[5]
-            value = _prior_terminal() if name == OLD_NAME else _provider(state="MISSING")
+            value = (
+                _prior_terminal()
+                if name == OLD_NAME
+                else _provider(state=self.new_state)
+            )
             return subject.CommandResult(0, _raw(value))
         if args[:4] == ("gcloud", "run", "jobs", "describe"):
             if self.launch_count == 0:
@@ -384,6 +389,156 @@ def test_consumed_ambiguous_intent_never_relaunches_when_unresolved(
                 verifier="DISABLED",
                 publisher="DISABLED",
             )
+    assert runner.launch_count == 1
+
+
+def test_post_intent_evidence_without_intent_refuses_before_launch(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    run_dir = tmp_path / "source-v3-state" / RUN_ID
+    runner = AmbiguousLaunchRunner(run_dir, resolves=True)
+    finisher = _finisher(tmp_path, monkeypatch, runner)
+    attribution = run_dir / "phases/worker/provider-attribution.json"
+    subject._publish_once(attribution, _raw(_provider(state="MISSING")))
+
+    with pytest.raises(
+        subject.SourceV3FinisherError,
+        match="post-intent evidence exists without its launch intent",
+    ):
+        finisher._launch_or_recover(
+            phase="worker",
+            prior={},
+            payload=b"{}",
+            worker="DISABLED",
+            verifier="DISABLED",
+            publisher="DISABLED",
+        )
+    assert runner.launch_count == 0
+
+
+@pytest.mark.parametrize(
+    "crash_target",
+    ("provider-attribution-receipt.json", "launch.json"),
+)
+def test_attribution_resume_retains_original_snapshot_across_status_drift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    crash_target: str,
+) -> None:
+    run_dir = tmp_path / "source-v3-state" / RUN_ID
+    runner = AmbiguousLaunchRunner(run_dir, resolves=True)
+    finisher = _finisher(tmp_path, monkeypatch, runner)
+    publish_once = subject._publish_once
+    crashed = False
+
+    def crash_after_attribution(path: Path, raw: bytes) -> bool:
+        nonlocal crashed
+        if path.name == crash_target and not crashed:
+            crashed = True
+            raise RuntimeError("simulated host crash")
+        return publish_once(path, raw)
+
+    monkeypatch.setattr(subject, "_publish_once", crash_after_attribution)
+    with pytest.raises(RuntimeError, match="simulated host crash"):
+        finisher._launch_or_recover(
+            phase="worker",
+            prior={},
+            payload=b"{}",
+            worker="DISABLED",
+            verifier="DISABLED",
+            publisher="DISABLED",
+        )
+
+    attribution_path = run_dir / "phases/worker/provider-attribution.json"
+    retained_raw = attribution_path.read_bytes()
+    retained = json.loads(retained_raw)
+    assert retained["status"].get("conditions") == []
+    assert not (run_dir / "phases/worker/launch.json").exists()
+
+    monkeypatch.setattr(subject, "_publish_once", publish_once)
+    runner.new_state = "True"
+    launch = finisher._launch_or_recover(
+        phase="worker",
+        prior={},
+        payload=b"{}",
+        worker="DISABLED",
+        verifier="DISABLED",
+        publisher="DISABLED",
+    )
+
+    assert attribution_path.read_bytes() == retained_raw
+    assert launch["provider_sha256_at_attribution"] == subject.canonical_sha256(
+        retained
+    )
+    assert launch["provider_attribution_method"] == (
+        "provider-latest-after-ambiguous-controller-return"
+    )
+    assert runner.launch_count == 1
+
+
+def test_recovery_receipt_resume_revalidates_without_rewriting_status_snapshot(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    run_dir = tmp_path / "source-v3-state" / RUN_ID
+    runner = AmbiguousLaunchRunner(run_dir, resolves=False)
+    finisher = _finisher(tmp_path, monkeypatch, runner, reconcile_polls=1)
+    with pytest.raises(subject.SourceV3FinisherError, match="never relaunch"):
+        finisher._launch_or_recover(
+            phase="worker",
+            prior={},
+            payload=b"{}",
+            worker="DISABLED",
+            verifier="DISABLED",
+            publisher="DISABLED",
+        )
+
+    runner.resolves = True
+    publish_once = subject._publish_once
+    crashed = False
+
+    def crash_before_attribution(path: Path, raw: bytes) -> bool:
+        nonlocal crashed
+        if path.name == "provider-attribution.json" and not crashed:
+            crashed = True
+            raise RuntimeError("simulated host crash")
+        return publish_once(path, raw)
+
+    monkeypatch.setattr(subject, "_publish_once", crash_before_attribution)
+    with pytest.raises(RuntimeError, match="simulated host crash"):
+        finisher._launch_or_recover(
+            phase="worker",
+            prior={},
+            payload=b"{}",
+            worker="DISABLED",
+            verifier="DISABLED",
+            publisher="DISABLED",
+        )
+    recovery_path = run_dir / "phases/worker/launch-recovery.json"
+    recovery = json.loads(recovery_path.read_bytes())
+    assert not (run_dir / "phases/worker/provider-attribution.json").exists()
+
+    monkeypatch.setattr(subject, "_publish_once", publish_once)
+    runner.new_state = "True"
+    launch = finisher._launch_or_recover(
+        phase="worker",
+        prior={},
+        payload=b"{}",
+        worker="DISABLED",
+        verifier="DISABLED",
+        publisher="DISABLED",
+    )
+    attribution = json.loads(
+        (run_dir / "phases/worker/provider-attribution.json").read_bytes()
+    )
+    assert launch["provider_attribution_method"] == (
+        "provider-latest-after-consumed-intent"
+    )
+    assert launch["provider_sha256_at_attribution"] == subject.canonical_sha256(
+        attribution
+    )
+    assert recovery["provider_sha256"] != launch["provider_sha256_at_attribution"]
     assert runner.launch_count == 1
 
 

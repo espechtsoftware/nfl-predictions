@@ -207,6 +207,17 @@ def _read_canonical(path: Path, *, label: str) -> dict[str, object]:
     return _parse_json(path.read_bytes(), label=label, canonical=True)
 
 
+def _read_private_raw(path: Path, *, label: str) -> bytes:
+    if (
+        not path.is_absolute()
+        or path.is_symlink()
+        or path.resolve(strict=False) != path
+        or not _safe_local_file(path)
+    ):
+        _fail(f"{label} must be one absolute unaliased regular file")
+    return path.read_bytes()
+
+
 def _safe_local_file(path: Path) -> bool:
     try:
         details = path.lstat()
@@ -1334,6 +1345,281 @@ class SourceV3Finisher:
             _fail(f"persisted {phase} intent differs")
         return intent
 
+    def _validate_launch_recovery(
+        self,
+        value: object,
+        *,
+        phase: str,
+        intent: Mapping[str, object],
+    ) -> dict[str, object]:
+        item = _mapping(value, label=f"persisted {phase} launch recovery")
+        execution = _mapping(
+            item.get("execution"), label=f"persisted {phase} recovery execution"
+        )
+        if (
+            set(item)
+            != {
+                "schema_version",
+                "run_id",
+                "phase",
+                "execution",
+                "method",
+                "provider_sha256",
+                "intent_sha256",
+                "launch_repeated",
+                "complete",
+            }
+            or item.get("schema_version")
+            != "corpus-r6-matchup-source-v3-host-launch-recovery/v1"
+            or item.get("run_id") != self.run_id
+            or item.get("phase") != phase
+            or set(execution) != {"name", "uid"}
+            or type(execution.get("name")) is not str
+            or _EXECUTION.fullmatch(str(execution["name"])) is None
+            or type(execution.get("uid")) is not str
+            or _UUID.fullmatch(str(execution["uid"])) is None
+            or item.get("method")
+            not in {
+                "provider-latest-after-consumed-intent",
+                "operator-supplied-exact-name-and-uid",
+            }
+            or type(item.get("provider_sha256")) is not str
+            or _SHA.fullmatch(str(item["provider_sha256"])) is None
+            or item.get("intent_sha256") != canonical_sha256(dict(intent))
+            or item.get("launch_repeated") is not False
+            or item.get("complete") is not True
+        ):
+            _fail(f"persisted {phase} launch recovery differs")
+        supplied = self.recovery_executions.get(phase)
+        if supplied is not None and supplied != (
+            str(execution["name"]),
+            str(execution["uid"]),
+        ):
+            _fail(f"persisted {phase} recovery identity differs from operator input")
+        return item
+
+    def _launcher_attribution_context(
+        self,
+        *,
+        phase: str,
+        request: Mapping[str, object],
+    ) -> tuple[str, dict[str, object] | None]:
+        """Recover the original fresh-call attribution from durable raw bytes."""
+
+        return_path = self._phase_path(phase, "launcher-return.json")
+        stdout_path = self._phase_path(phase, "launcher-stdout.raw")
+        stderr_path = self._phase_path(phase, "launcher-stderr.raw")
+        if (
+            not return_path.exists()
+            or not stdout_path.exists()
+            or not stderr_path.exists()
+        ):
+            _fail(f"{phase} launcher attribution evidence is incomplete")
+        item = _read_canonical(return_path, label=f"persisted {phase} launcher return")
+        stdout = _read_private_raw(
+            stdout_path, label=f"persisted {phase} launcher stdout"
+        )
+        stderr = _read_private_raw(
+            stderr_path, label=f"persisted {phase} launcher stderr"
+        )
+        if (
+            set(item)
+            != {
+                "schema_version",
+                "run_id",
+                "phase",
+                "returncode",
+                "stdout_sha256",
+                "stdout_bytes",
+                "stderr_sha256",
+                "stderr_bytes",
+                "valid_controller_launch",
+                "controller_execution_name",
+                "launch_intent_preceded_call",
+                "complete",
+            }
+            or item.get("schema_version")
+            != "corpus-r6-matchup-source-v3-host-launcher-return/v1"
+            or item.get("run_id") != self.run_id
+            or item.get("phase") != phase
+            or type(item.get("returncode")) is not int
+            or item.get("stdout_sha256") != sha256(stdout).hexdigest()
+            or item.get("stdout_bytes") != len(stdout)
+            or item.get("stderr_sha256") != sha256(stderr).hexdigest()
+            or item.get("stderr_bytes") != len(stderr)
+            or type(item.get("valid_controller_launch")) is not bool
+            or item.get("launch_intent_preceded_call") is not True
+            or item.get("complete") is not True
+        ):
+            _fail(f"persisted {phase} launcher return differs")
+        if item["valid_controller_launch"] is True:
+            if item["returncode"] != 0:
+                _fail(f"persisted {phase} valid launcher return code differs")
+            controller = validate_controller_launch(
+                _parse_json(stdout, label=f"persisted {phase} launch stdout"),
+                phase=phase,
+                code_sha=self.code_sha,
+                build_id=self.build_id,
+                image=self.image,
+                payload_sha256=str(request["payload_sha256"]),
+            )
+            name = _mapping(
+                controller["execution"], label=f"persisted {phase} controller execution"
+            )["name"]
+            if item.get("controller_execution_name") != name:
+                _fail(f"persisted {phase} controller execution name differs")
+            return "controller-response-and-provider-latest", controller
+        if item.get("controller_execution_name") is not None:
+            _fail(f"persisted {phase} invalid controller execution name differs")
+        return "provider-latest-after-ambiguous-controller-return", None
+
+    def _attribution_receipt(
+        self,
+        *,
+        phase: str,
+        request: Mapping[str, object],
+        intent: Mapping[str, object],
+        provider: Mapping[str, object],
+        name: str,
+        uid: str,
+        method: str,
+        controller_launch: Mapping[str, object] | None,
+    ) -> dict[str, object]:
+        receipt = {
+            "schema_version": (
+                "corpus-r6-matchup-source-v3-host-provider-attribution/v1"
+            ),
+            "run_id": self.run_id,
+            "phase": phase,
+            "execution": {"name": name, "uid": uid},
+            "request_sha256": canonical_sha256(dict(request)),
+            "intent_sha256": canonical_sha256(dict(intent)),
+            "provider_attribution_method": method,
+            "provider_sha256_at_attribution": canonical_sha256(dict(provider)),
+            "controller_launch": (
+                None if controller_launch is None else dict(controller_launch)
+            ),
+            "launch_repeated": False,
+            "complete": True,
+        }
+        return self._validate_attribution_receipt(
+            receipt,
+            phase=phase,
+            request=request,
+            intent=intent,
+            provider=provider,
+            name=name,
+            uid=uid,
+        )
+
+    def _validate_attribution_receipt(
+        self,
+        value: object,
+        *,
+        phase: str,
+        request: Mapping[str, object],
+        intent: Mapping[str, object],
+        provider: Mapping[str, object],
+        name: str,
+        uid: str,
+    ) -> dict[str, object]:
+        item = _mapping(value, label=f"persisted {phase} provider attribution receipt")
+        execution = _mapping(
+            item.get("execution"), label=f"persisted {phase} attributed execution"
+        )
+        controller = item.get("controller_launch")
+        method = item.get("provider_attribution_method")
+        if (
+            set(item)
+            != {
+                "schema_version",
+                "run_id",
+                "phase",
+                "execution",
+                "request_sha256",
+                "intent_sha256",
+                "provider_attribution_method",
+                "provider_sha256_at_attribution",
+                "controller_launch",
+                "launch_repeated",
+                "complete",
+            }
+            or item.get("schema_version")
+            != "corpus-r6-matchup-source-v3-host-provider-attribution/v1"
+            or item.get("run_id") != self.run_id
+            or item.get("phase") != phase
+            or execution != {"name": name, "uid": uid}
+            or _EXECUTION.fullmatch(name) is None
+            or _UUID.fullmatch(uid) is None
+            or item.get("request_sha256") != canonical_sha256(dict(request))
+            or item.get("intent_sha256") != canonical_sha256(dict(intent))
+            or method
+            not in {
+                "controller-response-and-provider-latest",
+                "provider-latest-after-ambiguous-controller-return",
+                "provider-latest-after-consumed-intent",
+                "operator-supplied-exact-name-and-uid",
+            }
+            or item.get("provider_sha256_at_attribution")
+            != canonical_sha256(dict(provider))
+            or item.get("launch_repeated") is not False
+            or item.get("complete") is not True
+        ):
+            _fail(f"persisted {phase} provider attribution receipt differs")
+        if controller is not None:
+            validated_controller = validate_controller_launch(
+                controller,
+                phase=phase,
+                code_sha=self.code_sha,
+                build_id=self.build_id,
+                image=self.image,
+                payload_sha256=str(request["payload_sha256"]),
+            )
+            if (
+                method != "controller-response-and-provider-latest"
+                or _mapping(
+                    validated_controller["execution"],
+                    label=f"persisted {phase} controller execution",
+                )["name"]
+                != name
+            ):
+                _fail(f"persisted {phase} controller attribution differs")
+        elif method == "controller-response-and-provider-latest":
+            _fail(f"persisted {phase} controller attribution is absent")
+        return item
+
+    def _revalidate_attributed_execution(
+        self,
+        *,
+        phase: str,
+        intent: Mapping[str, object],
+        name: str,
+        uid: str,
+        payload: bytes,
+        worker: str,
+        verifier: str,
+        publisher: str,
+    ) -> dict[str, object]:
+        before = _mapping(
+            intent.get("provider_latest_before"),
+            label=f"{phase} intent previous latest",
+        )
+        resolved = self._wait_for_latest_change(
+            phase=phase,
+            before_name=str(before["name"]),
+            expected_name=name,
+            payload=payload,
+            worker=worker,
+            verifier=verifier,
+            publisher=publisher,
+        )
+        if resolved is None:
+            _fail(f"{phase} attributed execution is not current provider latest")
+        observed_name, observed_uid, current = resolved
+        if observed_name != name or observed_uid != uid:
+            _fail(f"{phase} attributed execution name/UID changed")
+        return current
+
     def _load_launch(
         self,
         phase: str,
@@ -1417,7 +1703,26 @@ class SourceV3Finisher:
             verifier=verifier,
             publisher=publisher,
         )
-        if canonical_sha256(attribution) != item["provider_sha256_at_attribution"]:
+        attribution_receipt = self._validate_attribution_receipt(
+            _read_canonical(
+                self._phase_path(phase, "provider-attribution-receipt.json"),
+                label=f"persisted {phase} provider attribution receipt",
+            ),
+            phase=phase,
+            request=request,
+            intent=intent,
+            provider=attribution,
+            name=str(execution["name"]),
+            uid=str(execution["uid"]),
+        )
+        if (
+            canonical_sha256(attribution)
+            != item["provider_sha256_at_attribution"]
+            or item.get("provider_attribution_method")
+            != attribution_receipt["provider_attribution_method"]
+            or item.get("controller_launch")
+            != attribution_receipt["controller_launch"]
+        ):
             _fail(f"persisted {phase} provider attribution SHA differs")
         if controller_launch is not None:
             validated = validate_controller_launch(
@@ -1480,6 +1785,23 @@ class SourceV3Finisher:
             return persisted
 
         intent_path = phase_dir / "launch-intent.json"
+        recovery_path = phase_dir / "launch-recovery.json"
+        attribution_path = phase_dir / "provider-attribution.json"
+        attribution_receipt_path = (
+            phase_dir / "provider-attribution-receipt.json"
+        )
+        post_intent_paths = (
+            recovery_path,
+            attribution_path,
+            attribution_receipt_path,
+            phase_dir / "launcher-stdout.raw",
+            phase_dir / "launcher-stderr.raw",
+            phase_dir / "launcher-return.json",
+        )
+        if not intent_path.exists() and any(
+            path.exists() for path in post_intent_paths
+        ):
+            _fail(f"{phase} post-intent evidence exists without its launch intent")
         if intent_path.exists():
             intent = self._validate_intent(
                 _read_canonical(intent_path, label=f"persisted {phase} intent"),
@@ -1490,29 +1812,92 @@ class SourceV3Finisher:
                 intent.get("provider_latest_before"),
                 label="intent previous latest",
             )
-            recovery = self.recovery_executions.get(phase)
-            if recovery is not None:
-                observed = self._describe_execution(recovery[0])
-                if observed is None:
-                    _fail(f"{phase} exact recovery execution is absent")
+            if attribution_receipt_path.exists() and not attribution_path.exists():
+                _fail(f"{phase} provider attribution body is absent")
+
+            if attribution_path.exists():
+                attributed_value = _read_canonical(
+                    attribution_path,
+                    label=f"persisted {phase} provider attribution",
+                )
+                attributed_metadata = _mapping(
+                    attributed_value.get("metadata"),
+                    label=f"persisted {phase} attributed metadata",
+                )
+                name = str(attributed_metadata.get("name", ""))
+                uid = str(attributed_metadata.get("uid", ""))
                 provider, _ = self._validate_provider(
-                    observed,
+                    attributed_value,
                     phase=phase,
-                    name=recovery[0],
-                    uid=recovery[1],
+                    name=name,
+                    uid=uid,
                     payload=payload,
                     worker=worker,
                     verifier=verifier,
                     publisher=publisher,
                 )
-                resolved = (recovery[0], recovery[1], provider)
-                method = "operator-supplied-exact-name-and-uid"
-            else:
-                try:
-                    resolved = self._wait_for_latest_change(
+                if recovery_path.exists():
+                    recovery_receipt = self._validate_launch_recovery(
+                        _read_canonical(
+                            recovery_path,
+                            label=f"persisted {phase} launch recovery",
+                        ),
                         phase=phase,
-                        before_name=str(before["name"]),
-                        expected_name=None,
+                        intent=intent,
+                    )
+                    recovery_execution = _mapping(
+                        recovery_receipt["execution"],
+                        label=f"persisted {phase} recovery execution",
+                    )
+                    if (
+                        recovery_execution != {"name": name, "uid": uid}
+                        or recovery_receipt["provider_sha256"]
+                        != canonical_sha256(provider)
+                    ):
+                        _fail(f"persisted {phase} recovery attribution differs")
+                    method = str(recovery_receipt["method"])
+                    controller_launch = None
+                else:
+                    if phase in self.recovery_executions:
+                        _fail(
+                            f"{phase} operator recovery differs from persisted "
+                            "provider attribution"
+                        )
+                    method, controller_launch = (
+                        self._launcher_attribution_context(
+                            phase=phase,
+                            request=request,
+                        )
+                    )
+
+                if attribution_receipt_path.exists():
+                    attribution_receipt = self._validate_attribution_receipt(
+                        _read_canonical(
+                            attribution_receipt_path,
+                            label=(
+                                f"persisted {phase} provider attribution receipt"
+                            ),
+                        ),
+                        phase=phase,
+                        request=request,
+                        intent=intent,
+                        provider=provider,
+                        name=name,
+                        uid=uid,
+                    )
+                    if (
+                        attribution_receipt["provider_attribution_method"]
+                        != method
+                        or attribution_receipt["controller_launch"]
+                        != controller_launch
+                    ):
+                        _fail(f"persisted {phase} attribution provenance differs")
+                try:
+                    self._revalidate_attributed_execution(
+                        phase=phase,
+                        intent=intent,
+                        name=name,
+                        uid=uid,
                         payload=payload,
                         worker=worker,
                         verifier=verifier,
@@ -1523,30 +1908,116 @@ class SourceV3Finisher:
                         phase=phase,
                         category="launch-reconciliation-refused",
                         intent_sha256=canonical_sha256(intent),
+                        execution_name=name,
+                        execution_uid=uid,
+                        provider_sha256=canonical_sha256(provider),
                     )
                     raise
-                method = "provider-latest-after-consumed-intent"
-            if resolved is None:
-                self._record_failure(
+            elif recovery_path.exists():
+                recovery_receipt = self._validate_launch_recovery(
+                    _read_canonical(
+                        recovery_path,
+                        label=f"persisted {phase} launch recovery",
+                    ),
                     phase=phase,
-                    category="launch-outcome-ambiguous-unresolved",
-                    intent_sha256=canonical_sha256(intent),
+                    intent=intent,
                 )
-                _fail(f"{phase} consumed intent remains ambiguous; never relaunch")
-            name, uid, provider = resolved
-            recovery_receipt = {
-                "schema_version": "corpus-r6-matchup-source-v3-host-launch-recovery/v1",
-                "run_id": self.run_id,
-                "phase": phase,
-                "execution": {"name": name, "uid": uid},
-                "method": method,
-                "provider_sha256": canonical_sha256(provider),
-                "intent_sha256": canonical_sha256(intent),
-                "launch_repeated": False,
-                "complete": True,
-            }
-            _publish_once(phase_dir / "launch-recovery.json", canonical_bytes(recovery_receipt))
-            controller_launch = None
+                recovery_execution = _mapping(
+                    recovery_receipt["execution"],
+                    label=f"persisted {phase} recovery execution",
+                )
+                name = str(recovery_execution["name"])
+                uid = str(recovery_execution["uid"])
+                try:
+                    provider = self._revalidate_attributed_execution(
+                        phase=phase,
+                        intent=intent,
+                        name=name,
+                        uid=uid,
+                        payload=payload,
+                        worker=worker,
+                        verifier=verifier,
+                        publisher=publisher,
+                    )
+                except SourceV3FinisherError:
+                    self._record_failure(
+                        phase=phase,
+                        category="launch-reconciliation-refused",
+                        intent_sha256=canonical_sha256(intent),
+                        execution_name=name,
+                        execution_uid=uid,
+                        provider_sha256=str(recovery_receipt["provider_sha256"]),
+                    )
+                    raise
+                method = str(recovery_receipt["method"])
+                controller_launch = None
+            else:
+                recovery = self.recovery_executions.get(phase)
+                if recovery is not None:
+                    try:
+                        resolved = self._wait_for_latest_change(
+                            phase=phase,
+                            before_name=str(before["name"]),
+                            expected_name=recovery[0],
+                            payload=payload,
+                            worker=worker,
+                            verifier=verifier,
+                            publisher=publisher,
+                        )
+                    except SourceV3FinisherError:
+                        self._record_failure(
+                            phase=phase,
+                            category="launch-reconciliation-refused",
+                            intent_sha256=canonical_sha256(intent),
+                        )
+                        raise
+                    method = "operator-supplied-exact-name-and-uid"
+                    if resolved is not None and resolved[1] != recovery[1]:
+                        _fail(f"{phase} exact recovery execution UID differs")
+                else:
+                    try:
+                        resolved = self._wait_for_latest_change(
+                            phase=phase,
+                            before_name=str(before["name"]),
+                            expected_name=None,
+                            payload=payload,
+                            worker=worker,
+                            verifier=verifier,
+                            publisher=publisher,
+                        )
+                    except SourceV3FinisherError:
+                        self._record_failure(
+                            phase=phase,
+                            category="launch-reconciliation-refused",
+                            intent_sha256=canonical_sha256(intent),
+                        )
+                        raise
+                    method = "provider-latest-after-consumed-intent"
+                if resolved is None:
+                    self._record_failure(
+                        phase=phase,
+                        category="launch-outcome-ambiguous-unresolved",
+                        intent_sha256=canonical_sha256(intent),
+                    )
+                    _fail(
+                        f"{phase} consumed intent remains ambiguous; never relaunch"
+                    )
+                name, uid, provider = resolved
+                recovery_receipt = {
+                    "schema_version": (
+                        "corpus-r6-matchup-source-v3-host-launch-recovery/v1"
+                    ),
+                    "run_id": self.run_id,
+                    "phase": phase,
+                    "execution": {"name": name, "uid": uid},
+                    "method": method,
+                    "provider_sha256": canonical_sha256(provider),
+                    "intent_sha256": canonical_sha256(intent),
+                    "launch_repeated": False,
+                    "complete": True,
+                }
+                _publish_once(recovery_path, canonical_bytes(recovery_receipt))
+                controller_launch = None
         else:
             if phase in self.recovery_executions:
                 _fail(f"{phase} recovery identity requires a consumed launch intent")
@@ -1719,8 +2190,20 @@ class SourceV3Finisher:
                 else "provider-latest-after-ambiguous-controller-return"
             )
 
+        _publish_once(attribution_path, canonical_bytes(provider))
+        attribution_receipt = self._attribution_receipt(
+            phase=phase,
+            request=request,
+            intent=intent,
+            provider=provider,
+            name=name,
+            uid=uid,
+            method=method,
+            controller_launch=controller_launch,
+        )
         _publish_once(
-            phase_dir / "provider-attribution.json", canonical_bytes(provider)
+            attribution_receipt_path,
+            canonical_bytes(attribution_receipt),
         )
         launch = {
             "schema_version": "corpus-r6-matchup-source-v3-host-launch/v1",
@@ -1732,9 +2215,13 @@ class SourceV3Finisher:
             "execution": {"name": name, "uid": uid, "task_count": 1},
             "request_sha256": canonical_sha256(request),
             "intent_sha256": canonical_sha256(intent),
-            "provider_attribution_method": method,
-            "provider_sha256_at_attribution": canonical_sha256(provider),
-            "controller_launch": controller_launch,
+            "provider_attribution_method": attribution_receipt[
+                "provider_attribution_method"
+            ],
+            "provider_sha256_at_attribution": attribution_receipt[
+                "provider_sha256_at_attribution"
+            ],
+            "controller_launch": attribution_receipt["controller_launch"],
             "automatic_relaunch": False,
             "complete": True,
         }
