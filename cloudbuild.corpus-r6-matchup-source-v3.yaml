@@ -24,7 +24,11 @@ steps:
         git -C release checkout --detach '${_CODE_SHA}'
         test "$(git -C release rev-parse HEAD)" = '${_CODE_SHA}'
         test "$(git -C release rev-parse --is-shallow-repository)" = false
-        test -z "$(git -C release status --porcelain --untracked-files=all)"
+        release_status=$(git -C release status --porcelain --untracked-files=all) || {
+          echo 'release Git status is unavailable' >&2
+          exit 2
+        }
+        test -z "${release_status}"
 
   - id: focused-commit-b-validation
     name: python:3.11-slim
@@ -34,7 +38,7 @@ steps:
       - -ceu
       - |
         apt-get update
-        apt-get install -y --no-install-recommends git libgomp1
+        apt-get install -y --no-install-recommends git jq libgomp1
         rm -rf /var/lib/apt/lists/*
         pip install --no-cache-dir --editable '.[gcp]' \
           'pytest==9.1.1' 'google-cloud-storage==3.13.1'
@@ -53,7 +57,11 @@ steps:
           tests/test_run_corpus_r6_matchup_source_batch_v3.py \
           tests/test_cloud_corpus_r6_matchup_source_task0_v3.py
         python -I -c 'from nfl_dfs.research import corpus_r6_matchup_source_batch_outer_candidate_authority_v3 as batch; closure=batch._trusted_dependency_closure_v3(); batch._trusted_capture_plan_v3(dependency_closure=closure)'
-        test -z "$(git status --porcelain --untracked-files=all)"
+        validation_status=$(git status --porcelain --untracked-files=all) || {
+          echo 'validation Git status is unavailable' >&2
+          exit 2
+        }
+        test -z "${validation_status}"
 
   - id: build-commit-b-image
     name: gcr.io/cloud-builders/docker

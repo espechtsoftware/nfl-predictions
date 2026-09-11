@@ -24,9 +24,19 @@ from pathlib import Path
 import stat
 import sys
 
-from nfl_dfs.research import (
+
+SOURCE_ROOT = (Path(__file__).resolve().parents[1] / "src").resolve()
+sys.path.insert(0, str(SOURCE_ROOT))
+from nfl_dfs.research import (  # noqa: E402
     corpus_r6_matchup_source_batch_outer_candidate_authority_v3 as batch,
 )
+
+if Path(batch.__file__).resolve() != (
+    SOURCE_ROOT
+    / "nfl_dfs/research/corpus_r6_matchup_source_batch_outer_candidate_authority_v3.py"
+):
+    raise RuntimeError("source batch runner module origin differs")
+
 MAX_LOCAL_JSON_BYTES = 256 * 1024
 
 

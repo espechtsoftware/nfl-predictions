@@ -11,7 +11,15 @@ from pathlib import Path
 import stat
 import sys
 
-from nfl_dfs.research import corpus_r6_matchup_source_task0_v3 as task0
+
+SOURCE_ROOT = (Path(__file__).resolve().parents[1] / "src").resolve()
+sys.path.insert(0, str(SOURCE_ROOT))
+from nfl_dfs.research import corpus_r6_matchup_source_task0_v3 as task0  # noqa: E402
+
+if Path(task0.__file__).resolve() != (
+    SOURCE_ROOT / "nfl_dfs/research/corpus_r6_matchup_source_task0_v3.py"
+):
+    raise RuntimeError("task0 runner module origin differs")
 
 
 MAX_JSON_BYTES = 256 * 1024

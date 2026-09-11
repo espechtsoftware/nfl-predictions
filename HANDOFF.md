@@ -22,6 +22,65 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 source-v3 provider-result boundary repair is isolated and green
+
+- Branch `codex/source-v3-controller-normalization-20260911` is based on exact
+  pushed source `895bc693babd28b630b9794ad0b93cbe22cbb593`.  The repair is
+  isolated from the active seven-pack worktree and is not pushed or eligible
+  for a source-v3 image yet.
+- The source-v3 controller now normalizes the real Cloud Run v1 execution
+  representation `timeoutSeconds="86400"` and the admitted protobuf-duration
+  representations to its existing internal `timeout_seconds="86400s"`
+  provider-receipt law.  Missing, non-string, wrong, or conflicting timeout
+  representations fail closed.  The old controller instead compared the v1
+  value directly with `"86400s"`, so it would have rejected every valid
+  terminal execution.
+- Cloud Logging result collection now admits exactly one raw stdout row with
+  exactly one of `textPayload` or `jsonPayload`, requires the exact schema for
+  the provider-proven phase, and reserializes through the measured source
+  canonicalizer before binding or publication.  Ambiguous/multiple rows,
+  unrelated stdout, wrong schemas, non-object payloads, and noncanonical text
+  all fail closed.  The old text-only filter could not collect the structured
+  `jsonPayload` form already observed from the shared Cloud Run job.
+- The host now requires the complete dedicated checkout to be clean, not only
+  a partial release-path list.  Every cleanliness probe checks `git status`
+  success before accepting empty output; the controller, image build, and
+  Cloud Build validation no longer admit a failed status command as a clean
+  tree.  Behavioral coverage rejects both an unavailable repository and a
+  dirty checkout.
+- Every host runner and inline receipt helper now prepends the exact release
+  tree's resolved `src` directory under isolated Python and verifies the
+  imported module's resolved origin.  This closes the adjacent shared-venv
+  seam: the development virtualenv is an editable install of the main
+  checkout and otherwise allowed a clean release worktree's host controller
+  to execute stale modules.  The two container-only inline phases make the
+  same `/app/src` origin assertion.  The immutable image/Commit binding
+  remains unchanged.
+- Cloud Build's focused validation image now installs `jq`, which the new
+  executable timeout tests require but `python:3.11-slim` does not provide.
+  The exact Cloud Build focused cohort passes **22/22** and the complete
+  source-batch-v3 core passes **16/16**; shell syntax and `git diff --check`
+  pass.  ShellCheck and Ruff are unavailable in this environment.  Behavioral
+  tests cover actual v1 timeout shape, both accepted duration projections,
+  exclusive text/structured log forms for all four phase schemas, and the
+  fail-closed adversaries above, including exact worktree module origins under
+  `python -I`.  No Cloud Build, Cloud Run, GCS mutation, warehouse query,
+  outcome read, publication, scoring, or policy action was performed.
+- Static inventory audit corrects earlier planning arithmetic: task0 has
+  exactly **54** create-once targets and full publication has exactly
+  **2,811**.  The schedule URI is already the role-0/period-0 slice and its
+  second semantic retain is de-duplicated.  A source-v3 build must use direct
+  Git source plus `--git-source-revision`; a local-context/no-source build
+  cannot satisfy the controller's resolved-Git provenance gate.
+- Integration remains held until the active seven-pack successor publishes
+  and independently reopens, capture-plan-v3 is generated from that exact
+  terminal and tracked in its separate Commit B, and this repair is then
+  applied on top without changing the capture plan's measured Commit-A files.
+  Re-run the same 38 unique tests from the integrated clean commit, push it,
+  build a fresh direct-Git immutable image, and only then
+  allocate/exact-preflight a fresh source-v3 run under one canonical
+  shared-job lease.
+
 ### 2026-09-10 PREREG086 exact execution cannot reach its collection gate
 
 - At `2026-09-11T03:53:48Z`, exact lab execution `lab-run-vk9wg`, UID

@@ -18,7 +18,8 @@ COPY . /app
 RUN test -d /app/.git \
     && test "$(git -C /app rev-parse HEAD)" = "${SOURCE_COMMIT_SHA}" \
     && test "$(git -C /app rev-parse --is-shallow-repository)" = false \
-    && test -z "$(git -C /app status --porcelain --untracked-files=all)" \
+    && checkout_status="$(git -C /app status --porcelain --untracked-files=all)" \
+    && test -z "${checkout_status}" \
     && mkdir -p /usr/local/share/nfl \
     && printf '%s\n' "${SOURCE_COMMIT_SHA}" >/usr/local/share/nfl/SOURCE_COMMIT \
     && pip install --no-cache-dir --editable ".[gcp]" \
@@ -30,6 +31,7 @@ RUN test -d /app/.git \
        /app/scripts/run_corpus_r6_matchup_source_batch_v3.py --help >/dev/null \
     && /usr/local/bin/python3.11 -I -c \
        'from nfl_dfs.research import corpus_r6_matchup_source_batch_outer_candidate_authority_v3 as batch; closure=batch._trusted_dependency_closure_v3(); batch._trusted_capture_plan_v3(dependency_closure=closure)' \
-    && test -z "$(git -C /app status --porcelain --untracked-files=all)"
+    && checkout_status="$(git -C /app status --porcelain --untracked-files=all)" \
+    && test -z "${checkout_status}"
 
 CMD ["/bin/bash", "/app/scripts/cloud_corpus_r6_matchup_source_task0_v3.sh", "container-help"]

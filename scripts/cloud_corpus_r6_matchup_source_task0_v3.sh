@@ -4,6 +4,14 @@ set -euo pipefail
 
 die() { printf '%s\n' "ERROR: $*" >&2; exit 2; }
 
+require_exact_clean_git() {
+  [[ $# -eq 2 ]] || die "exact-clean Git arguments differ"
+  local repository=$1 label=$2 status
+  status=$(git -C "$repository" status --porcelain --untracked-files=all) || \
+    die "$label Git status is unavailable"
+  [[ -z "$status" ]] || die "$label must be exact-clean"
+}
+
 PROJECT=nfl-predictions-503414
 REGION=us-central1
 JOB=atlas-cbc-32g-full-2023-w8-v1
@@ -27,6 +35,82 @@ MAX_PAYLOAD_BYTES=262144
 MAX_PAYLOAD_BASE64_BYTES=30000
 EMPTY_JSON_SHA256=44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
 CONTROLLER_EVIDENCE_PREFIX=gs://nfl-predictions-503414-corpus-source/research/corpus-r6-matchup-source-controller-v3
+
+# Cloud Logging may parse a one-line JSON stdout result into jsonPayload or
+# retain the producer bytes in textPayload.  Accept exactly one log row and
+# exactly one representation, require the phase-exact schema, then recreate
+# the producer's canonical JSON bytes before they can enter a provider receipt.
+STDOUT_RESULT_PY='
+import json
+from pathlib import Path
+import sys
+
+source_root = Path(sys.argv[1]).resolve()
+sys.path.insert(0, str(source_root))
+from nfl_dfs.research import corpus_r6_matchup_source_v2 as source
+if Path(source.__file__).resolve() != (
+    source_root / "nfl_dfs/research/corpus_r6_matchup_source_v2.py"
+):
+    raise SystemExit("stdout canonicalizer module origin differs")
+
+logs = json.loads(Path(sys.argv[2]).read_bytes())
+expected_schema = sys.argv[3]
+if type(logs) is not list or len(logs) != 1:
+    raise SystemExit("raw Cloud Logging response is not one row")
+entry = logs[0]
+if type(entry) is not dict:
+    raise SystemExit("Cloud Logging row is not one object")
+has_text = "textPayload" in entry
+has_json = "jsonPayload" in entry
+if has_text == has_json:
+    raise SystemExit("stdout payload source is not exclusive")
+if has_text:
+    text = entry["textPayload"]
+    if type(text) is not str:
+        raise SystemExit("textPayload type differs")
+    body = json.loads(text)
+else:
+    body = entry["jsonPayload"]
+if type(body) is not dict:
+    raise SystemExit("stdout result is not one object")
+if body.get("schema_version") != expected_schema:
+    raise SystemExit("stdout result schema differs")
+canonical = source.canonical_json_bytes(body)
+if has_text and text.encode("utf-8") != canonical:
+    raise SystemExit("textPayload is not producer-canonical JSON")
+sys.stdout.buffer.write(canonical + b"\n")
+'
+
+canonicalize_stdout_result() {
+  [[ $# -eq 3 ]] || die "stdout canonicalizer contract differs"
+  local logs=$1 expected_schema=$2 output=$3
+  "$ROOT/.venv/bin/python" -I -c "$STDOUT_RESULT_PY" \
+    "$ROOT/src" "$logs" "$expected_schema" >"$output" || \
+    die "exact singleton stdout result differs"
+}
+
+# gcloud's Cloud Run v1 execution projection uses timeoutSeconds="86400";
+# other provider projections use the protobuf duration form in timeout.  Bind
+# either exact provider representation to one internal duration string, while
+# rejecting absent, non-string, or conflicting values.
+canonical_timeout_seconds() {
+  [[ $# -eq 1 ]] || return 2
+  jq -er '
+    (.spec.template.spec // error("execution task spec is absent")) as $task |
+    ($task | has("timeoutSeconds")) as $has_seconds |
+    ($task | has("timeout")) as $has_duration |
+    (if $has_seconds then $task.timeoutSeconds else null end) as $seconds |
+    (if $has_duration then $task.timeout else null end) as $duration |
+    if
+      (($has_seconds | not) or $seconds == "86400") and
+      (($has_duration | not) or $duration == "86400s" or
+        $duration == "86400.000000000s") and
+      ($has_seconds or $has_duration)
+    then "86400s"
+    else error("execution timeout differs")
+    end
+  ' "$1"
+}
 
 decode_exact_payload() {
   [[ $# -eq 3 ]] || die "decode-exact-payload requires encoded bytes, SHA and target"
@@ -65,16 +149,18 @@ decode_payload() {
 }
 
 container_gate() {
-  local mode=$1
+  local mode=$1 container_head
   [[ "${!MODE_ENV:-}" == "$mode" && "${!OUTCOMES_ENV:-}" == false ]] || \
     die "container mode/outcome gate differs"
   [[ "${CODE_SHA:-}" =~ ^[0-9a-f]{40}$ && \
      "${IMAGE_SOURCE_COMMIT_SHA:-}" == "$CODE_SHA" && \
      "$(cat /usr/local/share/nfl/SOURCE_COMMIT)" == "$CODE_SHA" ]] || \
     die "container source commit differs"
-  [[ "$(git -C /app rev-parse HEAD)" == "$CODE_SHA" && \
-     -z "$(git -C /app status --porcelain --untracked-files=all)" ]] || \
-    die "container checkout is not exact-clean Commit B"
+  container_head=$(git -C /app rev-parse HEAD) || \
+    die "container checkout head is unavailable"
+  [[ "$container_head" == "$CODE_SHA" ]] || \
+    die "container checkout does not equal Commit B"
+  require_exact_clean_git /app "container checkout"
   [[ "${IMAGE_DIGEST:-}" =~ ^sha256:[0-9a-f]{64}$ && \
      "${IMAGE_URI:-}" =~ ^us-central1-docker\.pkg\.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:[0-9a-f]{64}$ && \
      "${IMAGE_URI##*@}" == "$IMAGE_DIGEST" ]] || die "container image differs"
@@ -131,9 +217,15 @@ container_run() {
         "$payload" >/dev/null || die "verifier provider receipt identity differs"
       CORPUS_R6_MATCHUP_SOURCE_BATCH_V3_PUBLISH=1 \
         /usr/local/bin/python3.11 -I -c '
-import json, sys
+import json, pathlib, sys
+source_root = pathlib.Path("/app/src").resolve()
+sys.path.insert(0, str(source_root))
 from nfl_dfs.research import corpus_r6_matchup_source_task0_v3 as task0
 from nfl_dfs.research import corpus_r6_matchup_source_batch_outer_candidate_authority_v3 as batch
+if pathlib.Path(task0.__file__).resolve() != source_root / "nfl_dfs/research/corpus_r6_matchup_source_task0_v3.py":
+    raise SystemExit("publisher task0 module origin differs")
+if pathlib.Path(batch.__file__).resolve() != source_root / "nfl_dfs/research/corpus_r6_matchup_source_batch_outer_candidate_authority_v3.py":
+    raise SystemExit("publisher batch module origin differs")
 with open(sys.argv[1], "r", encoding="utf-8") as handle:
     identity = json.load(handle)
 authorization = task0.authorize_full_publication_v3(
@@ -157,8 +249,12 @@ print(json.dumps(result, sort_keys=True, separators=(",", ":")))
         (.uri | test("^gs://nfl-predictions-503414-corpus-source/research/corpus-r6-matchup-source-controller-v3/.+/publish/.+/provider-receipt\\.json$"))' \
         "$payload" >/dev/null || die "publication provider receipt identity differs"
       /usr/local/bin/python3.11 -I -c '
-import json, sys
+import json, pathlib, sys
+source_root = pathlib.Path("/app/src").resolve()
+sys.path.insert(0, str(source_root))
 from nfl_dfs.research import corpus_r6_matchup_source_task0_v3 as task0
+if pathlib.Path(task0.__file__).resolve() != source_root / "nfl_dfs/research/corpus_r6_matchup_source_task0_v3.py":
+    raise SystemExit("reopener task0 module origin differs")
 with open(sys.argv[1], "r", encoding="utf-8") as handle:
     identity = json.load(handle)
 result = task0.independently_reopen_provider_publication_v3(
@@ -209,10 +305,9 @@ action=$1 image=$2 code=$3 build_id=$4 target=$5 extra=${6:-}
 [[ "$(git -C "$ROOT" rev-parse HEAD)" == "$code" && \
    "$(git -C "$ROOT" rev-parse --verify 'refs/remotes/origin/main^{commit}')" == "$code" ]] || \
   die "Commit B must equal durable origin/main"
+require_exact_clean_git "$ROOT" "Commit B checkout"
 for path in "${release_paths[@]}"; do
   git -C "$ROOT" cat-file -e "${code}:${path}" || die "release path is untracked: $path"
-  [[ -z "$(git -C "$ROOT" status --porcelain --untracked-files=all -- "$path")" ]] || \
-    die "release path differs from Commit B: $path"
 done
 
 mkdir -p "$ROOT/.build-contexts"
@@ -237,7 +332,11 @@ persist_controller_artifact() {
   uri=$CONTROLLER_EVIDENCE_PREFIX/$run/$phase/$execution/$filename
   "$ROOT/.venv/bin/python" -I -c '
 import json, pathlib, sys
+source_root = pathlib.Path(sys.argv.pop(1)).resolve()
+sys.path.insert(0, str(source_root))
 from nfl_dfs.research import corpus_r6_matchup_batch_candidate_authority_v1 as mechanics
+if pathlib.Path(mechanics.__file__).resolve() != source_root / "nfl_dfs/research/corpus_r6_matchup_batch_candidate_authority_v1.py":
+    raise SystemExit("controller transport module origin differs")
 source = pathlib.Path(sys.argv[1])
 uri = sys.argv[2]
 raw = source.read_bytes()
@@ -246,7 +345,8 @@ identity = transport.publish_create_once(uri, raw)
 if transport.read_exact(identity) != raw:
     raise SystemExit("controller evidence exact reopen differs")
 print(json.dumps(identity, sort_keys=True, separators=(",", ":")))
-' "$source" "$uri" >"$output" || die "controller evidence persistence differs"
+' "$ROOT/src" "$source" "$uri" >"$output" || \
+    die "controller evidence persistence differs"
   [[ "$(wc -l <"$output")" == 1 ]] || die "controller evidence identity differs"
 }
 
@@ -255,7 +355,11 @@ bind_controller_provider_receipt() {
   local spec=$1 operator=$2 predecessor=$3 output=$4
   "$ROOT/.venv/bin/python" -I -c '
 import json, pathlib, sys
+source_root = pathlib.Path(sys.argv.pop(1)).resolve()
+sys.path.insert(0, str(source_root))
 from nfl_dfs.research import corpus_r6_matchup_source_task0_v3 as task0
+if pathlib.Path(task0.__file__).resolve() != source_root / "nfl_dfs/research/corpus_r6_matchup_source_task0_v3.py":
+    raise SystemExit("controller receipt module origin differs")
 def load(path):
     return json.loads(pathlib.Path(path).read_text(encoding="utf-8"))
 predecessor = None if sys.argv[3] == "DISABLED" else load(sys.argv[3])
@@ -265,7 +369,7 @@ receipt = task0._build_task0_provider_receipt_v3(
     worker_provider_receipt=predecessor,
 )
 print(json.dumps(receipt, sort_keys=True, separators=(",", ":")))
-' "$spec" "$operator" "$predecessor" >"$output" || \
+' "$ROOT/src" "$spec" "$operator" "$predecessor" >"$output" || \
     die "controller provider receipt binding differs"
 }
 
@@ -274,20 +378,25 @@ exact_reopen_controller_provider_receipt() {
   local identity=$1 output=$2
   "$ROOT/.venv/bin/python" -I -c '
 import json, pathlib, sys
+source_root = pathlib.Path(sys.argv.pop(1)).resolve()
+sys.path.insert(0, str(source_root))
 from nfl_dfs.research import corpus_r6_matchup_source_task0_v3 as task0
+if pathlib.Path(task0.__file__).resolve() != source_root / "nfl_dfs/research/corpus_r6_matchup_source_task0_v3.py":
+    raise SystemExit("controller reopen module origin differs")
 identity = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
 receipt, reopened_identity = task0._exact_reopen_provider_receipt_v3(identity)
 if reopened_identity != identity:
     raise SystemExit("controller provider receipt identity projection differs")
 print(json.dumps(receipt, sort_keys=True, separators=(",", ":")))
-' "$identity" >"$output" || die "controller provider receipt exact reopen differs"
+' "$ROOT/src" "$identity" >"$output" || \
+    die "controller provider receipt exact reopen differs"
 }
 
 collect_result() {
   local execution=$1 output=$2 phase execution_json logs_json provider_spec
   local operator_output operator_stdout request_payload payload_b64 payload_sha payload_bytes
   local request_run_id bound_worker_execution bound_verifier_execution
-  local bound_publisher_execution
+  local bound_publisher_execution timeout_seconds expected_stdout_schema
   [[ "$execution" =~ ^${JOB}-[a-z0-9]{5}$ ]] || die "execution name differs"
   execution_json="$work/execution-$execution.json"
   logs_json="$work/logs-$execution.json"
@@ -305,12 +414,15 @@ collect_result() {
     elif $args == [$script,"container-run","reopen"] then "reopen"
     else error("execution phase differs") end' "$execution_json") || \
     die "execution phase differs"
+  timeout_seconds=$(canonical_timeout_seconds "$execution_json") || \
+    die "execution timeout differs"
   jq -e --arg execution "$execution" --arg image "$image" --arg job "$JOB" \
     --arg phase "$phase" --arg code "$code" --arg build "$build_id" \
     --arg digest "$digest" --arg service "$SERVICE_ACCOUNT" \
     --arg expected_job_uid "$EXPECTED_JOB_UID" --arg mode_env "$MODE_ENV" \
     --arg outcomes_env "$OUTCOMES_ENV" --arg payload_b64_env "$PAYLOAD_B64_ENV" \
-    --arg payload_sha_env "$PAYLOAD_SHA_ENV" '
+    --arg payload_sha_env "$PAYLOAD_SHA_ENV" \
+    --arg timeout_seconds "$timeout_seconds" '
     .spec.template.spec.containers as $containers |
     ($containers[0]) as $container |
     ($container.env // []) as $env_rows |
@@ -334,7 +446,7 @@ collect_result() {
     (.status.cancelledCount // 0) == 0 and (.status.runningCount // 0) == 0 and
     .spec.taskCount == 1 and .spec.parallelism == 1 and
     .spec.template.spec.maxRetries == 0 and
-    (.spec.template.spec.timeoutSeconds | tostring) == "86400s" and
+    $timeout_seconds == "86400s" and
     .spec.template.spec.serviceAccountName == $service and
     ($containers | length) == 1 and
     $container.image == $image and
@@ -405,7 +517,7 @@ collect_result() {
         die "worker request provider boundary differs"
       ;;
     verify)
-      "$ROOT/.venv/bin/python" "$ROOT/$TASK0_RUNNER" \
+      "$ROOT/.venv/bin/python" -I "$ROOT/$TASK0_RUNNER" \
         --action validate-provider-receipt \
         --provider-receipt "$request_payload" >/dev/null || \
         die "worker provider receipt validation differs"
@@ -425,7 +537,7 @@ collect_result() {
     publish)
       exact_reopen_controller_provider_receipt \
         "$request_payload" "$work/verifier-predecessor.json"
-      "$ROOT/.venv/bin/python" "$ROOT/$TASK0_RUNNER" \
+      "$ROOT/.venv/bin/python" -I "$ROOT/$TASK0_RUNNER" \
         --action validate-provider-receipt \
         --provider-receipt "$work/verifier-predecessor.json" >/dev/null || \
         die "verifier provider receipt validation differs"
@@ -457,7 +569,7 @@ collect_result() {
         die "independent reopen predecessor identity differs"
       exact_reopen_controller_provider_receipt \
         "$request_payload" "$work/publish-predecessor.json"
-      "$ROOT/.venv/bin/python" "$ROOT/$TASK0_RUNNER" \
+      "$ROOT/.venv/bin/python" -I "$ROOT/$TASK0_RUNNER" \
         --action validate-provider-receipt \
         --provider-receipt "$work/publish-predecessor.json" >/dev/null || \
         die "publish provider receipt validation differs"
@@ -488,7 +600,8 @@ collect_result() {
     --arg code "$code" --arg build "$build_id" --arg service "$SERVICE_ACCOUNT" \
     --arg request_run "$request_run_id" --arg payload_sha "$payload_sha" \
     --arg payload_bytes "$payload_bytes" --arg mode_env "$MODE_ENV" \
-    --arg outcomes_env "$OUTCOMES_ENV" '
+    --arg outcomes_env "$OUTCOMES_ENV" \
+    --arg timeout_seconds "$timeout_seconds" '
     (.spec.template.spec.containers[0]) as $container |
     ($container.env | map({key:.name,value:.value}) | from_entries) as $env |
     {schema_version:$schema,phase:$phase,project:$project,region:$region,
@@ -497,7 +610,7 @@ collect_result() {
       execution_name:.metadata.name,execution_uid:.metadata.uid,
       completion_time:.status.completionTime,task_count:.spec.taskCount,
       parallelism:.spec.parallelism,max_retries:.spec.template.spec.maxRetries,
-      timeout_seconds:(.spec.template.spec.timeoutSeconds | tostring),
+      timeout_seconds:$timeout_seconds,
       service_account:.spec.template.spec.serviceAccountName,
       cpu:$container.resources.limits.cpu,memory:$container.resources.limits.memory,
       command:$container.command,args:$container.args,image_uri:$container.image,
@@ -518,23 +631,25 @@ collect_result() {
       running_count:(.status.runningCount // 0)}' \
     "$execution_json" >"$provider_spec" || die "provider spec projection differs"
 
-  filter="resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$execution\" AND logName=\"projects/$PROJECT/logs/run.googleapis.com%2Fstdout\" AND textPayload:*"
+  case "$phase" in
+    worker)
+      expected_stdout_schema=corpus-r6-matchup-source-task0-worker-publication/v3
+      ;;
+    verify)
+      expected_stdout_schema=corpus-r6-matchup-source-task0-verifier-receipt/v3
+      ;;
+    publish)
+      expected_stdout_schema=corpus-r6-matchup-source-provider-publication-stdout/v3
+      ;;
+    reopen)
+      expected_stdout_schema=corpus-r6-matchup-source-independent-reopen-receipt/v3
+      ;;
+  esac
+  filter="resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$execution\" AND logName=\"projects/$PROJECT/logs/run.googleapis.com%2Fstdout\" AND (textPayload:* OR jsonPayload:*)"
   gcloud logging read "$filter" --project "$PROJECT" --limit 20 --order=asc \
     --format=json >"$logs_json"
-  jq -er '[.[] | .textPayload? | select(type == "string") |
-      select((fromjson? | .schema_version? |
-        startswith("corpus-r6-matchup-source-")) == true)] |
-      if length == 1 then .[0] else error("stdout result count differs") end' \
-    "$logs_json" >"$operator_stdout" || die "exact stdout result differs"
-  "$ROOT/.venv/bin/python" -I -c '
-import json, pathlib, sys
-path = pathlib.Path(sys.argv[1])
-raw = path.read_bytes()
-value = json.loads(raw.decode("utf-8"))
-canonical = (json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n").encode()
-if raw != canonical:
-    raise SystemExit("provider stdout is not exact canonical JSON")
-' "$operator_stdout" || die "provider stdout canonical bytes differ"
+  canonicalize_stdout_result \
+    "$logs_json" "$expected_stdout_schema" "$operator_stdout"
   cp "$operator_stdout" "$operator_output"
 
   case "$phase" in
@@ -595,7 +710,7 @@ if raw != canonical:
         "$provider_spec" "$operator_output" DISABLED "$output"
       ;;
   esac
-  "$ROOT/.venv/bin/python" "$ROOT/$TASK0_RUNNER" \
+  "$ROOT/.venv/bin/python" -I "$ROOT/$TASK0_RUNNER" \
     --action validate-provider-receipt --provider-receipt "$output" >/dev/null || \
     die "provider-bound stdout receipt differs"
 
@@ -632,7 +747,7 @@ case "$action" in
     ;;
   verify)
     collect_result "$target" "$work/worker.json"
-    "$ROOT/.venv/bin/python" "$ROOT/$TASK0_RUNNER" \
+    "$ROOT/.venv/bin/python" -I "$ROOT/$TASK0_RUNNER" \
       --action validate-provider-receipt \
       --provider-receipt "$work/worker.json" >/dev/null || \
       die "worker provider receipt validation differs"
@@ -653,7 +768,7 @@ case "$action" in
       die "publish requires run ID and verifier execution"
     run_id=$target
     collect_result "$extra" "$work/verifier.json"
-    "$ROOT/.venv/bin/python" "$ROOT/$TASK0_RUNNER" \
+    "$ROOT/.venv/bin/python" -I "$ROOT/$TASK0_RUNNER" \
       --action validate-provider-receipt \
       --provider-receipt "$work/verifier.json" >/dev/null || \
       die "verifier provider receipt validation differs"
@@ -681,7 +796,7 @@ case "$action" in
       die "reopen requires run ID and publish execution"
     run_id=$target
     collect_result "$extra" "$work/publish.json"
-    "$ROOT/.venv/bin/python" "$ROOT/$TASK0_RUNNER" \
+    "$ROOT/.venv/bin/python" -I "$ROOT/$TASK0_RUNNER" \
       --action validate-provider-receipt \
       --provider-receipt "$work/publish.json" >/dev/null || \
       die "publish provider receipt validation differs"
