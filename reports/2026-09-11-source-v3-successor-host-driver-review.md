@@ -1,9 +1,10 @@
 # Source-v3 successor host-driver review
 
 Date: 2026-09-11
-Status: implementation and hermetic review only; no Cloud Build, Cloud Run,
-GCS write, object read, warehouse query, push, or production-worktree mutation
-was performed
+Status: implementation and hermetic validation; independent review of the
+crash-window successor is pending. No Cloud Build, Cloud Run, GCS write,
+object read, warehouse query, or production-worktree mutation was performed;
+isolated review commits only were pushed.
 
 ## Decision
 
@@ -15,10 +16,20 @@ repairs. The driver is commit-agnostic: its `--code-sha` must equal both the
 clean checkout's `HEAD` and its already-fetched `origin/main`, and the exact
 driver and source-v3 controller must exist in that commit.
 
+The driver history is cumulative. Integration must include initial driver
+`dbfe5b87a9cf0ed7e09cfe50c3b137230b9537d0` and crash-window successor
+`9bab943843678364efd2d989ddc5f5fe74eb4e24`; the latter is a delta whose
+parent is the HANDOFF-only `52fa50c7317e75e549f5712d5598e6b2bd5a4a48`,
+not a standalone replacement for `dbfe5b87`. The required source controller
+and shared-lane predecessors remain
+`a25ef6f0ecd75830641eec9081dc54ff5dd24e1a` and
+`b2465712a0c2fff0f0953814d634a82200e673c1` respectively.
+
 The chain remains **NO-GO** before that ordering is complete. In particular,
-do not rerun the unchanged capture-plan freezer against sealed seven-pack v4,
-do not recapture v4, and do not use the source-v3 driver while the historical
-capability replay still depends incorrectly on current `HEAD`.
+do not recapture or relabel sealed seven-pack v4, and do not use the source-v3
+driver until the repaired capture-plan freeze has succeeded against that exact
+sealed generation and its reviewed lock has reached a distinct pushed Commit
+B.
 
 ## Audit of the existing source-v3 controller
 
@@ -38,7 +49,34 @@ create a second execution. The new driver wraps that controller unchanged and
 closes those host-level gaps; it does not weaken the in-controller provider or
 result gates.
 
-## Reviewed invariants
+### Crash-window correction after initial review
+
+Independent review found one host-only restart defect in initial driver commit
+`dbfe5b87`: after `provider-attribution.json` was created but before
+`launch.json` existed, a restart described the same execution at its newer
+status and tried to overwrite the create-once attribution with different
+canonical bytes. A normal `Completed` transition from missing/unknown to true
+was therefore misclassified as a local collision even though name, UID, and
+every immutable provider-envelope field still matched.
+
+Pushed successor `9bab943843678364efd2d989ddc5f5fe74eb4e24`
+closes that gap. It adds a create-once structured provider-attribution receipt
+which binds the original name, UID, snapshot SHA, attribution method,
+request/intent hashes, and optional controller response. On restart it keeps
+that original snapshot/SHA/method for launch reconstruction while separately
+requiring the current reused-job latest pointer to equal the same name and the
+current exact provider envelope to retain the same UID and immutable phase
+configuration. Current status may lawfully advance; it never becomes the
+historical attribution snapshot.
+
+The adjacent earlier crash window is also closed: when a launch-recovery
+receipt exists but the raw attribution does not, the immutable recovery
+name/UID/method is retained, the current exact latest envelope is revalidated,
+and a new create-once attribution snapshot is established without rewriting
+the recovery receipt. Any post-intent artifact without its required intent is
+refused before the controller launch action can run.
+
+## Implemented invariants pending final independent review
 
 The host driver:
 
@@ -58,8 +96,9 @@ The host driver:
   lane flock. One wrapper process owns that lease across worker, verifier,
   publisher, result collection, and the independent reopener;
 - writes create-once local request, exact payload, provider-before, launch
-  intent, raw launcher return, provider attribution, launch, poll, terminal,
-  result-attempt, controller-result, provider-receipt and failure evidence;
+  intent, raw launcher return, provider attribution, structured attribution
+  receipt, launch, poll, terminal, result-attempt, controller-result,
+  provider-receipt and failure evidence;
 - consumes the launch intent before calling the phase controller. Once an
   intent exists, no code path calls that phase's launch action again;
 - treats controller output as a hint. It accepts a launch only when the reused
@@ -78,6 +117,9 @@ The host driver:
   resolve the consumed intent, recovery requires an operator-supplied exact
   execution name **and** UID, followed by the same full provider-envelope
   validation;
+- after provider attribution but before the launch receipt, retains the
+  original attribution bytes, SHA and method across provider status drift,
+  while separately revalidating exact current latest name, UID and envelope;
 - requires four distinct execution names and accepts the release only after
   the later write-disabled reopener's provider receipt independently names
   and matches the publisher, verifier and worker; and
@@ -192,8 +234,8 @@ retry authority.
 
 ## Validation
 
-- New driver tests: 13 passed.
-- Existing source-v3 core/CLI/controller plus new driver: 34 passed.
-- Exact Cloud Build focus including the one-task component reducer: 35 passed.
+- New driver tests: 17 passed.
+- Existing source-v3 core/CLI/controller plus new driver: 38 passed.
+- Exact Cloud Build focus including the one-task component reducer: 39 passed.
 - Python compilation and driver `--help`: passed.
 - Cloud execution: intentionally not performed.

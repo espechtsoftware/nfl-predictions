@@ -25,14 +25,26 @@ agent or developer:
 ### 2026-09-11 crash-closed source-v3 successor host driver prepared
 
 - Isolated branch `codex/source-v3-driver-prep-20260911`, implementation
-  commit `dbfe5b87`, adds executable
-  `scripts/finish_corpus_r6_matchup_source_v3.py`, 13 hermetic driver tests,
-  the exact production recipe/review in
+  commit `dbfe5b87a9cf0ed7e09cfe50c3b137230b9537d0`, adds executable
+  `scripts/finish_corpus_r6_matchup_source_v3.py`, initially with 13 hermetic
+  driver tests, the exact production recipe/review in
   `reports/2026-09-11-source-v3-successor-host-driver-review.md`, and the new
   test/compile checks to the source-v3 Cloud Build focus. It was developed
-  atop `b2465712` without touching the active production worktree and is
-  intentionally commit-agnostic for later cherry-pick onto the final release
-  commit.
+  atop `b2465712a0c2fff0f0953814d634a82200e673c1` without touching the active
+  production worktree and is intentionally commit-agnostic for later
+  cherry-pick onto the final release commit.
+- Independent review then found a real crash-resume gap: if provider
+  attribution was persisted before `launch.json`, a normal Cloud Run status
+  advance changed the current provider SHA and made reconstruction collide
+  with the original create-once attribution. Pushed successor
+  `9bab943843678364efd2d989ddc5f5fe74eb4e24` retains the original attribution
+  body/SHA/method, binds them in a create-once structured attribution receipt,
+  and separately revalidates current exact latest name, UID and immutable
+  provider envelope. It also resumes a persisted launch-recovery receipt
+  without rewriting it and rejects orphan post-intent artifacts before any
+  launch call. The successor's parent is HANDOFF-only commit
+  `52fa50c7317e75e549f5712d5598e6b2bd5a4a48`; it is not a standalone
+  replacement for the initial driver commit.
 - The driver validates requested and resolved direct-Git build provenance,
   freezes and directly checks all 2,865 exact output URIs without listing,
   proves one continuous canonical production registry lease, and persists
@@ -46,21 +58,28 @@ agent or developer:
 - The terminal gate extracts `source_release_v3_identity` from the independent
   reopener, separately retains `batch_release_v3_identity`, and requires both
   to match the publisher plus all four distinct exact execution names/UIDs.
-  Existing source-v3 core/CLI/controller plus driver pass 34/34; the exact
-  Cloud Build focus including the one-task component reducer passes 35/35.
+  Existing source-v3 core/CLI/controller plus driver pass 38/38; the exact
+  Cloud Build focus including the one-task component reducer passes 39/39.
   Python compilation, YAML parsing, driver help, and `git diff --check` pass.
-- No Cloud Build or Cloud Run command, GCS read/write, warehouse query, push,
-  or production-worktree mutation was performed. There are no durable cloud
-  execution IDs from this preparation.
+- No Cloud Build or Cloud Run command, GCS read/write, warehouse query, or
+  production-worktree mutation was performed. Only the isolated review branch
+  was pushed. There are no durable cloud execution IDs from this preparation.
 - This is not launch authority. The historical candidate capability replay
-  defect exposed by sealed seven-pack v4 must first be repaired and reviewed;
-  the same sealed v4 must then create the sole capture-plan-v3 lock, and the
-  lock plus the reviewed source-v3/shared-lane repairs must reach a clean
-  pushed release commit. Exact next action for integration is to cherry-pick
-  `dbfe5b87` onto that resulting release line, resolve only genuine surrounding
-  drift, rerun the 35-test focus, push the resulting commit, then follow the
-  reviewed report's unique-run direct-Git build and one-lease command. Do not
-  run the driver or recapture seven-pack v4 before those gates clear.
+  repair and the resulting freeze remain a separate production gate; the same
+  sealed v4 must create the sole capture-plan-v3 lock, and that reviewed lock
+  must reach a distinct clean pushed Commit B. Exact next action for this
+  branch is independent immutable-diff/test review of
+  `9bab943843678364efd2d989ddc5f5fe74eb4e24`; after Commit B, integration
+  must cherry-pick
+  both `dbfe5b87a9cf0ed7e09cfe50c3b137230b9537d0` and
+  `9bab943843678364efd2d989ddc5f5fe74eb4e24` onto that resulting release
+  line (plus separately reviewed predecessors
+  `a25ef6f0ecd75830641eec9081dc54ff5dd24e1a` and
+  `b2465712a0c2fff0f0953814d634a82200e673c1`),
+  resolve only genuine surrounding drift, rerun the 39-test focus, push the
+  resulting commit, then follow the reviewed report's unique-run direct-Git
+  build and one-lease command. Do not run the driver or recapture seven-pack
+  v4 before those gates clear.
 
 ### 2026-09-10 source-v3 provider-result boundary repair is isolated and green
 
