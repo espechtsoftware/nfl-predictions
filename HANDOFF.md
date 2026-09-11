@@ -22,6 +22,32 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 Fantasy Points Week-3/Week-4 source boundary is regression-pinned
+
+- The runtime contract on current `origin/main` was already correct: a matchup
+  export must contain exactly one source season; Weeks 1--3 accept only the
+  target season or its immediately preceding season and label either source as
+  early, while Week 4 onward requires the target season and labels it mature.
+  Empty, mixed, unrelated, or prior-season-at-Week-4 inputs fail closed.
+- Lab Update 379 identified a test-coverage defect behind the earlier handoff
+  claim of closure: the focused test exercised Weeks 1, 2, and 4, but not Week
+  3. Changing the operative comparison from `week <= 3` to `week < 3` would
+  therefore leave every old assertion green while moving the boundary. Lab
+  Update 381 independently verified the narrow six-line regression repair.
+- Branch `production/week1-source-regime-boundary-20260910`, based on exact
+  `origin/main` `b8b11f20519fde4768da865e5d0b369e2017190d`, selectively ports only
+  the reviewed test change as implementation commit
+  `7e9a57b5d88dff550285f322f8a715660ce88c84`. Both prior-season and
+  active-season inputs are now asserted at Week 3, alongside the existing
+  Week-4 active-season pass and prior-season refusal. The full focused matchup
+  module passes 7/7 and `git diff --check` passes. Ruff is not installed in
+  the repository virtual environment.
+- No runtime, capture, licensed-data, schedule, scoring, image, warehouse,
+  Cloud Build, Cloud Run, or GCS state changed. The accepted Week-1 capture is
+  unaffected. Exact next action: independently verify this narrow branch and
+  integrate it into current `origin/main`; no image rebuild or cloud launch is
+  required for this test-only closure.
+
 ### 2026-09-10 normalized FP/SIS metadata-query failure repaired
 
 - Normalized task0 execution `atlas-cbc-32g-full-2023-w8-v1-7spxf`
