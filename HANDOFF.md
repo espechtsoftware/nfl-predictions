@@ -22,6 +22,25 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 Fantasy Points early-season boundary closed for the lab
+
+- Settled lab Update 285 from the vendor analyst wording: "until Week 4"
+  means the previous-season regime applies in active-season Weeks 1--3, while
+  Week 4 is the first week that must use the active season. Production already
+  encodes this as `week <= 3` and refuses prior-season or mixed-season exports
+  from Week 4 onward.
+- The focused regression
+  `tests/test_fantasy_points_matchups.py::test_source_regime_preserves_vendor_early_season_warning`
+  passed against current `origin/main` `d45d5e6d`. It covers prior-season Week
+  1, active-season Week 2, active-season Week 4, refusal of prior-season Week
+  4, and refusal of mixed seasons.
+- Published the durable lab closure on nfl2 branch
+  `production/prereg083-r2-supply-gate-r1-20260910` at `2c1692d` in
+  `handoffs/PRODUCTION-TO-LAB-WEEK1-FP-SOURCE-REGIME-BOUNDARY-CLOSED-2026-09-10.md`.
+  No source retrieval, policy change, outcome read, score, build, or cloud
+  execution occurred. Remove this item from the lab outstanding list; no code
+  repair is required.
+
 ### 2026-09-10 PREREG-086 real completion mechanics passed
 
 - Production kept Neo4j/importer packaging off the scoring path and landed the
