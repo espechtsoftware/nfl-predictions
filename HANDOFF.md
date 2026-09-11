@@ -48,20 +48,29 @@ agent or developer:
 - Production kept Neo4j/importer packaging off the scoring path and landed the
   executable PREREG-086 completion mechanics on nfl2 branch
   `production/prereg083-r2-supply-gate-r1-20260910`. The current pushed commit
-  is `c71f0b0`; mechanics-gate repair is `20ef0ff`, the thin real runner is
-  `b08fced`, and the sealed smoke commit is `c71f0b0`.
+  is `1c8ebc3`; mechanics-gate repair is `20ef0ff`, the frozen 72-slate runner
+  is `2b1b300`, and the cohort-authority smoke seal is `1c8ebc3`.
 - The exact outcome-disabled 2024-W17 / proposal-bank-860 smoke passed in 315.9
-  seconds. Both arms contain exactly 800 unique legal candidates. All 40
+  seconds in its first immutable form. Lab Updates 377--378 correctly noted
+  that the first receipt omitted the solver terminal-status census. Production
+  accepted the issue, added a closed census/refusal, and reran the exact smoke
+  from clean `2b1b300` in 316.4 seconds. Both arms contain exactly 800 unique
+  legal candidates. All 40
   minimal cores produced 10/10 distinct legal completions (400 total, all core
   expansions), exceeding the frozen 38/40-at-eight gate. Proposal and
   incumbent/corrected-hsim search/validation/audit matrices bind true banks
   860/1010/1060/1110, exact namespaces, axes, bytes, and clean code identity.
-- The tracked nfl2 result is
-  `results/086_minimal_core_real/prereg086m860-2024w17-r1/result.json`:
-  artifact SHA-256 `2e4dd566f56f370764703987522af62311ae27f446747cfa058670f6431e8726`,
-  envelope SHA-256 `e3f2ea98a0607db9095c3a33f89a864fa8eb60a816b35362bee1f201d0cbe00f`.
-  Both `outcome_opened` and `score_lane_opened` are false. Validation is 56/56
-  focused tests plus Ruff and diff checks.
+  The status census is exactly 400 `optimal` and zero in every other declared
+  status; each K20 is the exact prefix of its unique K80 path.
+- The cohort-authority result is
+  `results/086_minimal_core_real/prereg086m860-2024w17-v2-r1/result.json`:
+  artifact SHA-256 `ba2ebe9e29da6721a02c42936b0a0eb3261967b43cb6ed0892449a426b8fd204`,
+  cell SHA-256 `665ef155291c4efcb6a5b47befcffd27b103f0ac7dc24f72f5d144fbfe99cd2b`,
+  envelope SHA-256 `3950379fc28908a00da2022e208e2ee26caf954b55b799af6b3e75d234ace9cd`.
+  Independent canonical rehashing reproduced both embedded hashes and found no
+  actual/realized/scorecard field. Both `outcome_opened` and
+  `score_lane_opened` are false. Validation is 48/48 focused tests plus Ruff,
+  exact identity/status/selection checks, and diff checks.
 - This is a mechanics result, not a scoring claim. Exact next action is to seal
   the 72-slate 2021--2024 outcome-disabled cohort with fixed search-law K20/K80
   plans, then read full-pool 230+ supply and oracle gain before finite-book
