@@ -22,6 +22,38 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 FP/SIS paid-source retrieval successor is release-ready
+
+- The abandoned normalized request at `2026-08-31T05:25:27Z` is outside the
+  ordinary seven-day BigQuery time-travel window and produced no normalized,
+  seven-pack, source-v3, discovery-matrix, or ablation terminal. It must not be
+  reused. The fixed 2022--2025 six-relation domain may instead make one newly
+  frozen retrospective snapshot request; resulting evidence remains
+  `authoritative_pit=false` and cannot promote policy.
+- Branch `production/fp-sis-retrieval-release-20260910` combines the normalized
+  successor authority (`a4147ec3`), isolated-worktree test import repair
+  (`15eb50c3`), and shared paid-source job idle-terminal repair (`cf5217a4`).
+  The normalized SQL now filters `__TABLES__.last_modified_time` at native
+  millisecond precision before formatting, so a relation modified even one
+  millisecond after the frozen snapshot disappears from metadata and the
+  producer refuses before any write. Pytest now loads the current worktree's
+  `src` ahead of any reused editable installation.
+- The final ablation installer now accepts the reused job's exact latest
+  execution when it is terminal and idle whether it succeeded, failed, or was
+  cancelled. It still refuses running, unknown, contradictory, zero-terminal,
+  wrong-job, and wrong-UID observations before updating or launching anything.
+- Independent combined validation is 74/74 across normalized core/CLI/cloud,
+  seven-pack freezer/operator/cloud compatibility, and the paid-source
+  launcher gate. Bash syntax and `git diff --check` pass. No BigQuery query,
+  Cloud Build, Cloud Run job update/execution, GCS publication, outcome read,
+  or scoring action occurred on this branch.
+- Exact next action: push this integration branch, settle it onto current
+  `origin/main`, freeze one new UTC snapshot request before first warehouse
+  contact, then execute normalized task0/publish/reopen followed by the
+  seven-pack, capture-plan-v3/source-v3, and independent discovery-matrix DAG.
+  The final 2x2 FP/SIS retrieval ablation remains blocked until both branches
+  converge at independently reopened terminals.
+
 ### 2026-09-10 `28wzf` failed safely; deterministic score order repaired
 
 - Cloud Run execution `generation-shadow-suite-28wzf`, UID
