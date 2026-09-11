@@ -43,8 +43,7 @@ container_run() {
     [[ "${CLOUD_RUN_TASK_COUNT:-}" == "54" ]] || die "full cohort shape differs"
   fi
   work=$(mktemp -d /tmp/r6-paid-source-discovery-matrix.XXXXXX)
-  cleanup_container() { rm -rf "$work"; }
-  trap cleanup_container EXIT
+  trap "rm -rf -- '$work'" EXIT
   payload=$work/payload.json
   umask 077
   printf '%s' "${!PAYLOAD_ENV:?missing payload}" | base64 --decode >"$payload" || die "payload decode failed"
@@ -97,12 +96,19 @@ if [[ "${1:-}" == "build" ]]; then
   build_work=$(mktemp -d "$build_root/.build-contexts/discovery-matrix-build.XXXXXX")
   cleanup_build() { rm -rf "$build_work"; }
   trap cleanup_build EXIT
-  build_id=$(gcloud builds submit "$SOURCE_REPOSITORY" \
+  submit_output=$(gcloud builds submit "$SOURCE_REPOSITORY" \
     --git-source-revision "$build_sha" \
     --config "$build_root/cloudbuild.corpus-r6-paid-source-discovery-matrix.yaml" \
     --substitutions "_CODE_SHA=$build_sha,_BUILD_IMAGE=$image_tag" \
     --project "$PROJECT" --format='value(id)' --quiet)
-  [[ "$build_id" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ ]] || die "build did not return one ID"
+  mapfile -t build_ids < <(
+    printf '%s\n' "$submit_output" |
+      grep -Eo '[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}' |
+      sort -u
+  )
+  [[ "${#build_ids[@]}" -eq 1 ]] ||
+    die "Cloud Build did not return exactly one durable build ID"
+  build_id=${build_ids[0]}
   build_json=$build_work/build.json
   gcloud builds describe "$build_id" --project "$PROJECT" --format=json >"$build_json"
   digest=$(jq -er --arg id "$build_id" --arg sha "$build_sha" --arg tag "$image_tag" --arg repo "$SOURCE_REPOSITORY" '

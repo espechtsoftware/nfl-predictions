@@ -51,9 +51,33 @@ def test_container_is_three_mode_default_off_and_cleanup_safe() -> None:
     assert "R6_MATCHUP_SEVEN_PACK_OUTCOMES_ALLOWED" in text
     assert "--implementation-authority" in text
     assert "mktemp -d /tmp/matchup-seven-pack.XXXXXX" in text
-    assert 'rm -rf "$work"' in text
+    assert 'trap "rm -rf -- \'$work\'" EXIT' in text
+    assert "cleanup_container()" not in text
     assert "CLOUD_RUN_TASK_COUNT" in text
     assert "CLOUD_RUN_TASK_ATTEMPT" in text
+
+
+def test_container_cleanup_survives_local_scope_exit(tmp_path: Path) -> None:
+    text = SHELL.read_text(encoding="utf-8")
+    match = re.search(r'^  (trap "rm -rf -- \'\$work\'" EXIT)$', text, re.MULTILINE)
+    assert match is not None
+    work = tmp_path / "payload-work"
+    shell = f"""
+set -euo pipefail
+container_scope() {{
+  local work={work!s}
+  mkdir -p "$work"
+  : >"$work/payload.json"
+  {match.group(1)}
+}}
+container_scope
+[[ -f {work!s}/payload.json ]]
+"""
+    result = subprocess.run(
+        ["bash", "-c", shell], text=True, capture_output=True, check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert not work.exists()
 
 
 def test_host_reuses_one_exact_job_and_requires_terminal_task0() -> None:
@@ -71,6 +95,13 @@ def test_host_reuses_one_exact_job_and_requires_terminal_task0() -> None:
     assert "gcloud run jobs list" not in lowered
     assert "gcloud storage" not in lowered
     assert "add-iam-policy-binding" not in lowered
+
+
+def test_build_extracts_one_uuid_from_noisy_submit_output() -> None:
+    text = SHELL.read_text(encoding="utf-8")
+    assert "submit_output=$(gcloud builds submit" in text
+    assert "grep -Eo '[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}'" in text
+    assert '[[ "${#build_ids[@]}" -eq 1 ]]' in text
 
 
 def test_stdout_receipt_accepts_exactly_one_text_or_json_payload(

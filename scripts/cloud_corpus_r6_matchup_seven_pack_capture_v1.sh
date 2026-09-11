@@ -123,8 +123,11 @@ container_run() {
   local mode=$1 work payload
   container_gate "$mode"
   work=$(mktemp -d /tmp/matchup-seven-pack.XXXXXX)
-  cleanup_container() { rm -rf "$work"; }
-  trap cleanup_container EXIT
+  # Expand the function-local path while installing the EXIT trap.  A named
+  # trap function runs after container_run returns, when `set -u` makes the
+  # local `work` unavailable and would turn an otherwise successful phase into
+  # a terminal provider failure.
+  trap "rm -rf -- '$work'" EXIT
   payload=$work/payload.json
   decode_payload "$payload"
   case "$mode" in
@@ -216,13 +219,19 @@ if [[ "${1:-}" == build ]]; then
   make_authority "$code" "$authority"
   authority_sha=$(sha256sum "$authority" | awk '{print $1}')
   tag="${REGION}-docker.pkg.dev/${PROJECT}/nfl-dfs/nfl-dfs:matchup-seven-pack-${code}"
-  build_id=$(gcloud builds submit "$SOURCE_REPOSITORY" \
+  submit_output=$(gcloud builds submit "$SOURCE_REPOSITORY" \
     --git-source-revision "$code" \
     --config "$ROOT/cloudbuild.corpus-r6-matchup-seven-pack-capture.yaml" \
     --substitutions "_CODE_SHA=$code,_IMPLEMENTATION_AUTHORITY_SHA=$authority_sha,_BUILD_IMAGE=$tag" \
     --project "$PROJECT" --format='value(id)' --quiet)
-  [[ "$build_id" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ ]] || \
-    die "Cloud Build ID differs"
+  mapfile -t build_ids < <(
+    printf '%s\n' "$submit_output" |
+      grep -Eo '[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}' |
+      sort -u
+  )
+  [[ "${#build_ids[@]}" -eq 1 ]] ||
+    die "Cloud Build did not return exactly one durable build ID"
+  build_id=${build_ids[0]}
   gcloud builds describe "$build_id" --project "$PROJECT" --format=json >"$work/build.json"
   digest=$(jq -er --arg id "$build_id" --arg tag "$tag" --arg code "$code" \
     --arg authority "$authority_sha" --arg repo "$SOURCE_REPOSITORY" '

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 import subprocess
 
 
@@ -30,6 +31,11 @@ def test_cloud_shell_is_syntax_valid_and_default_off() -> None:
     assert "reopen-task)" in text
     assert "reopen-collect)" in text
     assert "rm -rf \"$tmp\"" in text
+    assert 'trap "rm -rf -- \'$work\'" EXIT' in text
+    assert "cleanup_container()" not in text
+    assert "submit_output=$(gcloud builds submit" in text
+    assert "grep -Eo '[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}'" in text
+    assert '[[ "${#build_ids[@]}" -eq 1 ]]' in text
     assert "IMAGE_SOURCE_COMMIT_SHA=$CODE_SHA" not in text
     assert "cat /app/SOURCE_COMMIT" in text
 
@@ -42,3 +48,26 @@ def test_container_fails_before_payload_without_enable_gate() -> None:
     )
     assert result.returncode == 2
     assert "matrix freezer disabled" in result.stderr
+
+
+def test_container_cleanup_survives_local_scope_exit(tmp_path: Path) -> None:
+    text = SCRIPT.read_text(encoding="utf-8")
+    match = re.search(r'^  (trap "rm -rf -- \'\$work\'" EXIT)$', text, re.MULTILINE)
+    assert match is not None
+    work = tmp_path / "payload-work"
+    shell = f"""
+set -euo pipefail
+container_scope() {{
+  local work={work!s}
+  mkdir -p "$work"
+  : >"$work/payload.json"
+  {match.group(1)}
+}}
+container_scope
+[[ -f {work!s}/payload.json ]]
+"""
+    result = subprocess.run(
+        ["bash", "-c", shell], text=True, capture_output=True, check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert not work.exists()
