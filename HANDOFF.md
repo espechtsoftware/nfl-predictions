@@ -22,6 +22,62 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-11 deeper candidate-v1 HEAD replay repaired and independently accepted
+
+- Exact pushed repair commit
+  `025d8ca8023f69cd43a4cd88ef32b4099fea0316` (tree
+  `10eef9b05c421dc580cb0fd65470c9c585fd5e77`) is integrated on the
+  production branch as `e2c1ca57`.  Do not use the erroneous expanded hash
+  `025d8ca8e9c8...` from an early agent message; that object does not exist.
+- Generation-exact inspection and mechanical reconstruction proved the
+  Commit-A refusal was exactly 168 scalar paths: 56 replay-time HEAD leaves
+  (54 slate-receipt catalog-terminal Git commits, the panel copy, and panel
+  `g0_source_commit_sha`) plus 112 deterministic receipt/manifest/panel/bundle
+  hashes.  No candidate, lineup, catalog, source, score, outcome, or seven-pack
+  data field differed.
+- The repair validates both representations rather than bypassing current
+  authority.  It projects only those 56 leaves and 112 hashes, validates that
+  projection with the unchanged v1 validator and real current clean HEAD,
+  separately validates the retained bundle with a root-owned historical HEAD
+  callback, and gives each replay its own complete 219-read outer-manifest
+  guard.  It then upgrades only the validated retained bundle, byte-rebuilds
+  candidate v2 and the 165-object root, and rechecks the clean HEAD for TOCTOU.
+  All 19 transitive authority-validator files and nine G0/catalog
+  selection/lock/evidence files must be byte-identical at historical commit,
+  current commit, and runtime.
+- Independent final review is GO with no P0/P1/P2 finding.  Its real
+  `346b2a27...` to repair-commit path guard passed all 28 files and its serial
+  related suite passed 119/119.  Production integration independently passed
+  105/105 adapter/capture/frozen-candidate/release/operator tests plus Python
+  compilation and diff checks.  No freezer, cloud, GCS-write, warehouse, or
+  recapture action occurred during this repair/review.
+- After this HANDOFF-only descendant is clean and pushed to `origin/main`, it
+  is the replacement Commit A.  Exact next action: run one new freeze attempt
+  against the same sealed-v4 terminal generation `1789106359079526`; require
+  a sole create-once capture-plan lock, validate its Commit-A and predecessor
+  bindings, then commit/push the lock separately as Commit B.
+
+### 2026-09-11 PREREG086 r2 mechanics cohort launched after repair review
+
+- The outcome-blind r2 under-enumeration repair and collector binding are
+  exact pushed source `91694a6cc1c8d90a4a4aecdd71ff8c8dac66695e`.
+  Cloud Build `d6d402a1-1518-483f-835d-9731de4a5bab` succeeded and the
+  independently attested 112-file source archive produced immutable image
+  `sha256:4f3282435acf51f421d37b2877edbef6680fea8d7a897ead1845eb466a14c304`.
+  The full 2022-W16 boundary regression passed all 40 seeds, 378 legal
+  completions and a recursive no-outcome scan; combined validation was 97/97.
+- Root independently accepted launcher binding
+  `b90b33c96d14e8ab4f25f2b25fbe86dd5bc500b1`, then the canonical registry
+  launched exactly one fresh run `086m860c-r2-20260911T072805Z`: Cloud Run
+  execution `lab-run-gcd57`, UID
+  `ae575075-d51b-409f-a456-2aa2b963e2dd`, job generation 146, 72 tasks,
+  parallelism 6, max retries 0, 3600-second timeout and mechanics-only argv.
+  Registry completion receipt SHA-256 is `355fb69b...`; durable lab launch
+  record is pushed at `b7cd77d`.  Latest material census is 12 succeeded,
+  five running, zero failed/cancelled/retried.  Attach only; do not collect
+  unless the exact UID reaches 72/72 with zero failures, cancellations, or
+  retries.
+
 ### 2026-09-11 Commit-A freeze passed the repaired gate and exposed a deeper historical replay seam
 
 - Commit A is exact clean pushed `e9cacf6b56a3f23bfd6ba3ee4b75c8962cdaee64`
