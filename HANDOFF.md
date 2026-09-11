@@ -31,15 +31,17 @@ agent or developer:
   from Week 4 onward.
 - The focused regression
   `tests/test_fantasy_points_matchups.py::test_source_regime_preserves_vendor_early_season_warning`
-  passed against current `origin/main` `d45d5e6d`. It covers prior-season Week
-  1, active-season Week 2, active-season Week 4, refusal of prior-season Week
-  4, and refusal of mixed seasons.
+  passed against current `origin/main` `d45d5e6d`. Lab Update 379 correctly
+  found that its first version did not pin Week 3, so production added both
+  prior-season and active-season Week-3 assertions at `196d55d5` and reran the
+  focused test successfully. The test now distinguishes `week <= 3` from the
+  incorrect `week < 3`, and also covers Week 4 and mixed-season refusals.
 - Published the durable lab closure on nfl2 branch
   `production/prereg083-r2-supply-gate-r1-20260910` at `2c1692d` in
   `handoffs/PRODUCTION-TO-LAB-WEEK1-FP-SOURCE-REGIME-BOUNDARY-CLOSED-2026-09-10.md`.
   No source retrieval, policy change, outcome read, score, build, or cloud
-  execution occurred. Remove this item from the lab outstanding list; no code
-  repair is required.
+  execution occurred. Remove this item from the lab outstanding list; the
+  implementation and both sides of the Week-3/Week-4 boundary are now pinned.
 
 ### 2026-09-10 PREREG-086 real completion mechanics passed
 
