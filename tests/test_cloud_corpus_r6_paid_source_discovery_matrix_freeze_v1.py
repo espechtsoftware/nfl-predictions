@@ -73,22 +73,27 @@ container_scope
     assert not work.exists()
 
 
-def test_execute_passes_parallelism_explicitly():
-    """An execution must not inherit the job's parallelism.
+def test_execution_parallelism_is_verified_against_the_job_not_the_task_count():
+    """An execution always carries the JOB's parallelism, never its own.
 
-    `verify_execution` requires parallelism == taskCount. task0 runs one task,
-    so omitting --parallelism submits it at the job's configured 54 and it can
-    never verify -- which makes the 54-task phase unreachable, since that phase
-    verifies task0 as its predecessor before launching. The variable existed
-    and was computed correctly; it simply was never passed.
+    Cloud Run has no per-execution parallelism override -- `jobs execute`
+    accepts --tasks only. So verify_execution must compare parallelism to the
+    job's deployed value, not to taskCount. Comparing it to taskCount made
+    task0 (one task under a job deployed at 54) impossible to verify, and since
+    the 54-task phase verifies task0 as its predecessor, the entire
+    materialization was unreachable. The 54-task case passed only by
+    coincidence, because there taskCount happens to equal the job value.
     """
     text = SCRIPT.read_text(encoding="utf-8")
+    assert "JOB_PARALLELISM=54" in text
+    assert '--argjson expected_parallelism "$JOB_PARALLELISM"' in text
+    assert '--argjson expected_parallelism "$tasks"' not in text
+
+    # --parallelism is not a valid `jobs execute` flag; passing it aborts the
+    # submit outright, so it must not reappear.
     execute = text.split("gcloud run jobs execute", 1)[1].split("\n\n", 1)[0]
-    assert "--parallelism" in execute, (
-        "jobs execute must pass --parallelism; without it the execution "
-        "inherits the job value and verify_execution refuses it"
-    )
-    assert '--parallelism "$parallelism"' in execute
-    # Both branches must set it, or one mode silently reverts to the default.
-    assert "tasks=54 parallelism=54" in text
-    assert "tasks=1 parallelism=1" in text
+    assert "--parallelism" not in execute
+
+    # task0 must still be a single task, and the cohort still 54.
+    assert "mode=task0 tasks=1" in text
+    assert "mode=$ACTION tasks=54" in text

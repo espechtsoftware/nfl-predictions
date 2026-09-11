@@ -66,6 +66,10 @@ PROJECT=nfl-predictions-503414
 REGION=us-central1
 JOB=atlas-cbc-32g-full-2023-w8-v1
 EXPECTED_JOB_UID=1f4bcf0a-2300-4afa-9fc1-9981844c8275
+# The job is always deployed at --parallelism 54 (see install).  Cloud Run has
+# no per-execution parallelism override -- `jobs execute` accepts --tasks only
+# -- so an execution ALWAYS carries the job value regardless of its task count.
+JOB_PARALLELISM=54
 SERVICE_ACCOUNT=817589974517-compute@developer.gserviceaccount.com
 SOURCE_REPOSITORY=https://github.com/espechtsoftware/nfl-predictions.git
 
@@ -215,7 +219,7 @@ verify_execution() {
     --arg task0_execution_env "$TASK0_EXECUTION_ENV" \
     --arg task0_gate_env "$TASK0_GATE_SHA_ENV" \
     --arg task0_gate_b64_env "$TASK0_GATE_B64_ENV" --argjson tasks "$tasks" \
-    --argjson expected_parallelism "$tasks" '
+    --argjson expected_parallelism "$JOB_PARALLELISM" '
     def envmap:
       reduce (.spec.template.spec.containers[0].env[]?) as $row
         ({}; .[$row.name] = $row.value);
@@ -351,12 +355,12 @@ if [[ "$ACTION" == "collect" || "$ACTION" == "reopen-collect" ]]; then
   exit 0
 fi
 
-mode=$ACTION tasks=54 parallelism=54
+mode=$ACTION tasks=54
 task0_execution_binding=none
 task0_gate_binding=none
 task0_gate_b64_binding=none
 if [[ "$ACTION" == "task0" ]]; then
-  mode=task0 tasks=1 parallelism=1
+  mode=task0 tasks=1
 elif [[ "$ACTION" == "task" ]]; then
   verify_execution "$PREDECESSOR" 1 task0 "$payload_sha"
   task0_receipt=$tmp/task0-receipt.json
@@ -374,14 +378,8 @@ elif [[ "$ACTION" == "task" ]]; then
 elif [[ "$ACTION" == "reopen-task" ]]; then
   [[ "$PREDECESSOR" =~ ^${JOB}-[a-z0-9]{5}$ ]] || die "matrix predecessor differs"
 fi
-# --parallelism must be passed explicitly.  Without it the execution inherits
-# the JOB's configured parallelism (54), while verify_execution requires
-# parallelism == taskCount.  task0 runs one task, so it was submitted at 54 and
-# could never verify -- which made the 54-task phase unreachable, because it
-# verifies task0 as its predecessor before launching.
 execution=$(gcloud run jobs execute "$JOB" --project "$PROJECT" --region "$REGION" \
   --tasks "$tasks" \
-  --parallelism "$parallelism" \
   --args /app/scripts/cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.sh,container-run,"$mode" \
   --update-env-vars "^|^CODE_SHA=$CODE_SHA|IMAGE_URI=$IMAGE|IMAGE_DIGEST=${IMAGE##*@}|BUILD_ID=$BUILD_ID|$ENABLE_ENV=$ENABLE_VALUE|$MODE_ENV=$mode|$OUTCOMES_ENV=false|$PAYLOAD_ENV=$payload_b64|$PAYLOAD_SHA_ENV=$payload_sha|$TASK0_EXECUTION_ENV=$task0_execution_binding|$TASK0_GATE_SHA_ENV=$task0_gate_binding|$TASK0_GATE_B64_ENV=$task0_gate_b64_binding" \
   --async --format='value(metadata.name)')
