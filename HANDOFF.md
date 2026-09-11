@@ -22,6 +22,32 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 PREREG-086 real completion mechanics passed
+
+- Production kept Neo4j/importer packaging off the scoring path and landed the
+  executable PREREG-086 completion mechanics on nfl2 branch
+  `production/prereg083-r2-supply-gate-r1-20260910`. The current pushed commit
+  is `c71f0b0`; mechanics-gate repair is `20ef0ff`, the thin real runner is
+  `b08fced`, and the sealed smoke commit is `c71f0b0`.
+- The exact outcome-disabled 2024-W17 / proposal-bank-860 smoke passed in 315.9
+  seconds. Both arms contain exactly 800 unique legal candidates. All 40
+  minimal cores produced 10/10 distinct legal completions (400 total, all core
+  expansions), exceeding the frozen 38/40-at-eight gate. Proposal and
+  incumbent/corrected-hsim search/validation/audit matrices bind true banks
+  860/1010/1060/1110, exact namespaces, axes, bytes, and clean code identity.
+- The tracked nfl2 result is
+  `results/086_minimal_core_real/prereg086m860-2024w17-r1/result.json`:
+  artifact SHA-256 `2e4dd566f56f370764703987522af62311ae27f446747cfa058670f6431e8726`,
+  envelope SHA-256 `e3f2ea98a0607db9095c3a33f89a864fa8eb60a816b35362bee1f201d0cbe00f`.
+  Both `outcome_opened` and `score_lane_opened` are false. Validation is 56/56
+  focused tests plus Ruff and diff checks.
+- This is a mechanics result, not a scoring claim. Exact next action is to seal
+  the 72-slate 2021--2024 outcome-disabled cohort with fixed search-law K20/K80
+  plans, then read full-pool 230+ supply and oracle gain before finite-book
+  capture. The development nomination remains more 230+ slates plus at least
+  five mean oracle points with a positive paired slate-clustered interval.
+  Adoption remains false and Week-1 money policy is unchanged.
+
 ### 2026-09-10 graph diagnostic converted directly into a scoring experiment
 
 - Neo4j importer packaging is closed as a priority. Across both PREREG-083 arms,
