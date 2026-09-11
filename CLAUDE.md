@@ -308,7 +308,16 @@ correction in a later one).
   tail Brier, exact marginals preserved). CE's first run was promising, but
   its immutable-image, exact-cap, independent-seed confirmation scored
   **26/107 versus the 27/107 boom-only control** (mean best 180.03 versus
-  179.44), so CE is research-only and production is `N_CE=0,N_BOOM=40`.
+  179.44), so CE is research-only and `N_CE=0` remains production.
+  **Correction 2026-09-11:** `N_BOOM=40` is stale. The adopted 2026 Week-1
+  generator is equal-core-solve boom-first allocation: the money path is
+  `N_BOOM=160` with `N_LEV=40` (direct-role 12 + boom 160), and the prior
+  40/160 population survives only as `incumbent_control_environment`. Nine
+  further construction levers (`OWN_BARBELL_*`, `MAX_OVERLAP`, `MIN_GAMES`,
+  `MIN_LOWOWN`, `VALUE2_MAX`) were added after 2026-08-24. Frozen research
+  chains pinned to the old environment now fail closed against the live
+  policy -- that is the guard working, not a test defect. See
+  reports/2026-09-11-frozen-factorial-policy-drift.md.
   The plain Gumbel candidate arm was also completed and rejected (Addendum
   90: 26/107 versus 27/107, identical mean best); `N_GUMBEL` stays default
   off. Its audited fixed-budget confirmation was worse still (20/107).
