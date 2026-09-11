@@ -1,0 +1,199 @@
+# Source-v3 successor host-driver review
+
+Date: 2026-09-11
+Status: implementation and hermetic review only; no Cloud Build, Cloud Run,
+GCS write, object read, warehouse query, push, or production-worktree mutation
+was performed
+
+## Decision
+
+Use `scripts/finish_corpus_r6_matchup_source_v3.py` for the first source-v3
+successor after the historical capture-plan compatibility repair, the
+generation-exact capture-plan-v3 freeze, and the subsequent pushed release
+commit containing the reviewed `a25ef6f0`/`b2465712` source-v3 and shared-lane
+repairs. The driver is commit-agnostic: its `--code-sha` must equal both the
+clean checkout's `HEAD` and its already-fetched `origin/main`, and the exact
+driver and source-v3 controller must exist in that commit.
+
+The chain remains **NO-GO** before that ordering is complete. In particular,
+do not rerun the unchanged capture-plan freezer against sealed seven-pack v4,
+do not recapture v4, and do not use the source-v3 driver while the historical
+capability replay still depends incorrectly on current `HEAD`.
+
+## Audit of the existing source-v3 controller
+
+The exact controller repair at
+`a25ef6f0ecd75830641eec9081dc54ff5dd24e1a` is retained. It correctly
+normalizes Cloud Run's two exact timeout projections, requires an exact clean
+Git checkout, validates one-task/zero-retry provider execution state, and
+collects exactly one canonical stdout result whether Cloud Logging exposes it
+as `textPayload` or `jsonPayload`.
+
+The controller intentionally remains a one-phase primitive. Before this host
+driver it had no durable pre-call intent, returned the provider execution name
+without the UID, did not hold the production lane across phases, and had no
+safe automatic recovery for an `execute` response lost after provider
+creation. Recalling the primitive after an ambiguous return could therefore
+create a second execution. The new driver wraps that controller unchanged and
+closes those host-level gaps; it does not weaken the in-controller provider or
+result gates.
+
+## Reviewed invariants
+
+The host driver:
+
+- validates a successful Cloud Build whose requested `source.gitSource` and
+  provider-resolved Git source are both exactly the pushed commit, whose
+  `_CODE_SHA` and `_BUILD_IMAGE` substitutions are exact, and whose sole
+  matching result image supplies the immutable digest;
+- recomputes the clean-commit dependency closure and secure-reads the tracked
+  capture-plan-v3 blob before it creates any launch intent;
+- freezes the exact 54 task-0 output URIs and 2,811 full-batch output URIs,
+  proves the namespaces are disjoint, and performs 2,865 direct object
+  metadata reads with no object listing; any existing object consumes and
+  rejects the run ID;
+- runs only beneath the canonical production `launcher_registry.sh` owner and
+  the exact reused-job lane. It validates receipt bytes, wrapper PID/start
+  ticks, ancestor relationship, canonical external state root, and the held
+  lane flock. One wrapper process owns that lease across worker, verifier,
+  publisher, result collection, and the independent reopener;
+- writes create-once local request, exact payload, provider-before, launch
+  intent, raw launcher return, provider attribution, launch, poll, terminal,
+  result-attempt, controller-result, provider-receipt and failure evidence;
+- consumes the launch intent before calling the phase controller. Once an
+  intent exists, no code path calls that phase's launch action again;
+- treats controller output as a hint. It accepts a launch only when the reused
+  job's latest name changed from the pre-launch snapshot, the exact execution
+  UID is captured, and the immutable provider execution matches job/job UID,
+  image, code, build, run, phase, deterministic payload, one task, one-way
+  parallelism, zero retries, resources, timeout, service account and all
+  predecessor execution bindings;
+- tolerates a temporarily absent job latest pointer or execution describe and
+  a missing/`Unknown` `Completed` condition. Such execution state remains a
+  read-only observation when failed/cancelled/retried counts are zero and the
+  one-task succeeded/running counts are internally consistent. It also admits
+  a valid completion time appearing just before `Completed=True`, but never
+  declares success until the exact `Completed=True` terminal envelope exists;
+- never relaunches after an ambiguous return. If provider latest cannot
+  resolve the consumed intent, recovery requires an operator-supplied exact
+  execution name **and** UID, followed by the same full provider-envelope
+  validation;
+- requires four distinct execution names and accepts the release only after
+  the later write-disabled reopener's provider receipt independently names
+  and matches the publisher, verifier and worker; and
+- extracts `source_release_v3_identity` from that independent reopener (not
+  `batch_release_identity`), then requires it to equal the publisher's source
+  identity. Both identities are retained separately.
+
+All local state is outside Git at:
+
+`/home/erich/.local/state/nfl-dfs/corpus-r6-matchup-source-v3/<RUN_ID>/`
+
+## Exact production recipe after the blockers clear
+
+Use a dedicated clean release worktree already fast-forwarded to the final
+pushed source-v3 commit. Do not fetch, checkout, edit, or create untracked
+files in that worktree after freezing `CODE`.
+
+```bash
+set -euo pipefail
+
+REPO=/absolute/path/to/clean/source-v3-release-worktree
+cd "$REPO"
+CODE=$(git rev-parse HEAD)
+test "$CODE" = "$(git rev-parse --verify 'refs/remotes/origin/main^{commit}')"
+test -z "$(git status --porcelain=v1 --untracked-files=all)"
+test "$(git remote get-url origin)" = \
+  https://github.com/espechtsoftware/nfl-predictions.git
+
+RUN_ID="20260911-r6-matchup-source-v3-${CODE:0:12}-v1"
+IMAGE_TAG="us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:matchup-source-v3-${CODE}"
+
+gcloud builds submit \
+  https://github.com/espechtsoftware/nfl-predictions.git \
+  --git-source-revision="$CODE" \
+  --config="$REPO/cloudbuild.corpus-r6-matchup-source-v3.yaml" \
+  --substitutions="_CODE_SHA=$CODE,_BUILD_IMAGE=$IMAGE_TAG" \
+  --project=nfl-predictions-503414 \
+  --format='value(id)' --quiet
+```
+
+Capture the one returned build UUID as `BUILD_ID`. This submission is itself
+create-once operational authority: if the command return is missing or
+ambiguous, **do not submit again**. Reconcile the sole provider build created
+after the recorded submission time by exact requested/resolved Git source,
+`_CODE_SHA`, `_BUILD_IMAGE`, and result-image tag. Stop for adjudication if
+zero or more than one build matches.
+
+After success, describe that exact `BUILD_ID` and extract the digest only from
+the single result-image row whose name equals `IMAGE_TAG`:
+
+```bash
+BUILD_JSON=$(mktemp)
+gcloud builds describe "$BUILD_ID" \
+  --project=nfl-predictions-503414 --format=json >"$BUILD_JSON"
+DIGEST=$(jq -er \
+  --arg id "$BUILD_ID" --arg code "$CODE" --arg tag "$IMAGE_TAG" \
+  --arg repo https://github.com/espechtsoftware/nfl-predictions.git '
+    select(.id == $id and .status == "SUCCESS" and
+      .source.gitSource == {url:$repo,revision:$code} and
+      .sourceProvenance.resolvedGitSource == {url:$repo,revision:$code} and
+      .substitutions._CODE_SHA == $code and
+      .substitutions._BUILD_IMAGE == $tag) |
+    [.results.images[]? | select(.name == $tag) | .digest] |
+    if length == 1 then .[0] else error("image digest differs") end
+  ' "$BUILD_JSON")
+IMAGE="${IMAGE_TAG%:*}@${DIGEST}"
+```
+
+Before continuing, prove `RUN_ID` has never had a source-v3 intent and was not
+consumed by a prior failed preflight. The driver then freezes the current
+tracked plan and performs all 2,865 exact no-listing absence checks itself.
+Run the entire chain under one canonical production lane lease:
+
+```bash
+exec "$REPO/scripts/launcher_registry.sh" run \
+  --root "$REPO" \
+  --state-root /home/erich/.local/state/nfl-dfs/production-launcher-registry \
+  --lane atlas-cbc-32g-full-2023-w8-v1 \
+  --owner production \
+  --target-prefixes "$RUN_ID" \
+  -- "$REPO/scripts/finish_corpus_r6_matchup_source_v3.py" \
+  --run-id "$RUN_ID" \
+  --code-sha "$CODE" \
+  --build-id "$BUILD_ID" \
+  --image "$IMAGE" \
+  --execute \
+  --confirmation I_UNDERSTAND_SOURCE_V3_COMPLETE_CHAIN
+```
+
+The expected terminal file is
+`.../<RUN_ID>/terminal.json`. It is not sufficient by itself: retain the
+separate `source-release-v3-identity.json`, `batch-release-v3-identity.json`,
+all four exact execution UIDs, four provider receipts, and canonical launcher
+completion.
+
+## Ambiguous-return recovery
+
+Do not delete or edit the run directory. Reacquire the same production lane
+for the same `RUN_ID` and run the identical command. If provider latest alone
+cannot resolve the consumed intent but an independently reviewed exact
+execution exists, add only the blocked phase's pair, for example:
+
+```text
+--publish-execution atlas-cbc-32g-full-2023-w8-v1-abc12
+--publish-execution-uid 00000000-0000-4000-8000-000000000000
+```
+
+Supplying only a name or only a UID is refused. The execution is still refused
+unless its complete provider envelope matches the frozen phase request. A
+terminal provider failure consumes the run namespace; it is evidence, never
+retry authority.
+
+## Validation
+
+- New driver tests: 13 passed.
+- Existing source-v3 core/CLI/controller plus new driver: 34 passed.
+- Exact Cloud Build focus including the one-task component reducer: 35 passed.
+- Python compilation and driver `--help`: passed.
+- Cloud execution: intentionally not performed.

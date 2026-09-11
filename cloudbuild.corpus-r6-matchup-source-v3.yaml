@@ -38,7 +38,7 @@ steps:
       - -ceu
       - |
         apt-get update
-        apt-get install -y --no-install-recommends git jq libgomp1
+        apt-get install -y --no-install-recommends git jq libgomp1 gzip
         rm -rf /var/lib/apt/lists/*
         pip install --no-cache-dir --editable '.[gcp]' \
           'pytest==9.1.1' 'google-cloud-storage==3.13.1'
@@ -49,13 +49,15 @@ steps:
           src/nfl_dfs/research/corpus_r6_matchup_source_task0_v3.py \
           src/nfl_dfs/research/corpus_r6_matchup_source_batch_outer_candidate_authority_v3.py \
           scripts/run_corpus_r6_matchup_source_task0_v3.py \
-          scripts/run_corpus_r6_matchup_source_batch_v3.py
+          scripts/run_corpus_r6_matchup_source_batch_v3.py \
+          scripts/finish_corpus_r6_matchup_source_v3.py
         python -m pytest -q -o addopts='' -p no:cacheprovider \
           tests/test_corpus_r6_matchup_component_producer_v1.py::test_one_task_gate_runs_production_reducer_for_only_ordinal_zero \
           tests/test_corpus_r6_matchup_source_task0_v3.py \
           tests/test_run_corpus_r6_matchup_source_task0_v3.py \
           tests/test_run_corpus_r6_matchup_source_batch_v3.py \
-          tests/test_cloud_corpus_r6_matchup_source_task0_v3.py
+          tests/test_cloud_corpus_r6_matchup_source_task0_v3.py \
+          tests/test_finish_corpus_r6_matchup_source_v3.py
         python -I -c 'from nfl_dfs.research import corpus_r6_matchup_source_batch_outer_candidate_authority_v3 as batch; closure=batch._trusted_dependency_closure_v3(); batch._trusted_capture_plan_v3(dependency_closure=closure)'
         validation_status=$(git status --porcelain --untracked-files=all) || {
           echo 'validation Git status is unavailable' >&2
