@@ -261,3 +261,59 @@ def test_repository_root_binding_covers_every_imported_authority() -> None:
     body = body.split("\ndef ", 1)[0]
     unbound = sorted(a for a in aliases if f"{a}, " not in body)
     assert not unbound, f"CLI imports not bound to the repository root: {unbound}"
+
+
+def _plan_result(plan: dict) -> dict:
+    raw = source.canonical_json_bytes(dict(plan)) + b"\n"
+    return {
+        "capture_plan_relative_path": "reports/plans/capture-plan.json",
+        "capture_plan": plan,
+        "capture_plan_sha256": sha256(raw).hexdigest(),
+        "capture_plan_bytes": len(raw),
+    }
+
+
+def test_capture_plan_write_is_re_enterable_after_a_partial_run(
+    tmp_path: Path,
+) -> None:
+    """The write must survive a later step in the same invocation failing.
+
+    This step writes the plan into the repository, and a later step requires
+    the repository tracked-clean including untracked -- which the freshly
+    written, uncommitted plan violates by existing.  A strictly absent path
+    made the chain impossible to finish: the first run wrote the artifact and
+    refused, and every retry died on the path that run had just created.
+    """
+    root = tmp_path.resolve()
+    plan = {"alpha": 1, "beta": "two"}
+    first = runner._write_capture_plan_create_once(
+        repository_root=root, result=_plan_result(plan)
+    )
+    written = first.read_bytes()
+
+    second = runner._write_capture_plan_create_once(
+        repository_root=root, result=_plan_result(plan)
+    )
+    assert second == first
+    assert second.read_bytes() == written
+
+
+def test_capture_plan_write_still_refuses_a_different_plan(
+    tmp_path: Path,
+) -> None:
+    """Re-enterable is not the same as overwritable."""
+    root = tmp_path.resolve()
+    original = {"alpha": 1, "beta": "two"}
+    path = runner._write_capture_plan_create_once(
+        repository_root=root, result=_plan_result(original)
+    )
+    before = path.read_bytes()
+
+    with pytest.raises(
+        runner.SevenPackCaptureCliError,
+        match=r"capture-plan output already holds a different plan",
+    ):
+        runner._write_capture_plan_create_once(
+            repository_root=root, result=_plan_result({"alpha": 999})
+        )
+    assert path.read_bytes() == before
