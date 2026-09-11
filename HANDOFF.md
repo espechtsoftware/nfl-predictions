@@ -22,6 +22,54 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 PREREG-086 narrowed to score-producing mechanics
+
+- Production reviewed lab draft `a941d8a` and accepted the multi-player
+  completion direction while refusing to let a new critic package, Neo4j
+  importer work, or graph deployment precede the experiment. The actionable
+  review is pushed on nfl2 branch
+  `production/prereg083-r2-supply-gate-r1-20260910` at `3f4b2ea`.
+- The first deliverable is outcome-disabled fixed-work mechanics: D800 standard
+  control versus 400 standard solves plus 40 minimal-core seeds x 10 distinct
+  completions; QB + one same-team receiver + optional existing bring-back are
+  locked, legal core expansion is allowed, and at least 38/40 seeds must yield
+  eight distinct legal completions. Existing incumbent and corrected-hsim-v0.14
+  laws judge disjoint search/validation/audit banks; no third critic is needed.
+- Production corrected the draft's claim that every incumbent calibration cell
+  fails `[0.85,1.18]`: control 210 is `6/6.393 = 0.938`, but its six observed
+  events are sparse. Candidate events are dependent within slate, so calibration
+  requires a support census and slate-clustered uncertainty; 210/220/230 remain
+  descriptive unless that law licenses them.
+- This task directly follows the graph evidence: only 3/54 R6 slates supplied a
+  230-point candidate, current book priority is nearly uncorrelated with
+  realized score, and PREREG-085 found no material gain from the exact generic
+  set-aware reranker. Full-pool 230 supply/oracle is read first, then K20/K80.
+  No build, cloud launch, or outcome read is authorized before mechanics review.
+
+### 2026-09-10 production lanes idle; one scheduled-ingest repair active
+
+- Read-only audit at `2026-09-11T00:16:18Z` found zero queued/working Cloud
+  Builds and zero genuinely active Cloud Run executions. Generation shadow
+  `generation-shadow-suite-8mz64` is terminal success; the latest scheduled
+  DraftKings ingest `ingest-dk-h4cms` is also terminal success.
+- Week-1 generation safety remains PASS at GCS generation
+  `1789079337043256`; four K80 books remain sealed under
+  `20260910t2315z-fa5d035`, terminal generation `1789080700983712`, SHA-256
+  `2927af4a...7256`. No allocation/entry artifact exists and no entry was
+  submitted. The existing DraftKings API receipt proves 90 reservations only;
+  final roster acceptance still requires exact allocation, filled assignment,
+  and a repeated authenticated capture.
+- Fantasy Points QB/WR/OL-DL matchup capture is complete at 32/32 schedule
+  pairs, and the Week-3/Week-4 source-regime boundary is already implemented.
+  The saved SIS live session remains absent; historical SIS inputs are intact.
+- The current-season nflverse ingest failed only when the upstream
+  `snap_counts_2026.parquet` object was not yet published and is scheduled to
+  try again at `2026-09-11T10:00Z`. A focused repair is active in an isolated
+  worktree to treat only that declared current-season 404 as expected absence
+  while preserving all other feed failures as fail-closed. Next operational
+  actions are to land that repair, then keep scoring mechanics ahead of any
+  optional Neo4j packaging.
+
 ### 2026-09-10 set-aware ranking closed; tail calibration routes scoring to completion
 
 - Production replaced the lab's scalar pseudo-set-aware selector with an exact
