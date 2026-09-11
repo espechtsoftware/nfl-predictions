@@ -22,6 +22,12 @@ PUBLISH_ENABLE_ENV=R6_PAID_SOURCE_NORMALIZED_SNAPSHOT_PUBLISH
 REOPEN_ENABLE_ENV=R6_PAID_SOURCE_NORMALIZED_SNAPSHOT_REOPEN
 ENABLE_VALUE=I_UNDERSTAND_RETROSPECTIVE_FP_SIS_SNAPSHOT_V1
 MAX_PAYLOAD_BYTES=16777216
+NORMALIZED_SNAPSHOT_WORK=
+
+cleanup_normalized_snapshot_payload() {
+  local cleanup_work=${NORMALIZED_SNAPSHOT_WORK:-}
+  [[ -z "$cleanup_work" ]] || rm -rf -- "$cleanup_work"
+}
 
 # Cloud Logging may encode a one-line JSON stdout object as jsonPayload or
 # retain it verbatim in textPayload.  The exact raw gcloud response must be a
@@ -156,8 +162,8 @@ container_run() {
   local mode=$1 work payload receipt
   case "$mode" in task0|publish|reopen) ;; *) die "unsupported normalized-snapshot container mode" ;; esac
   container_runtime_gate "$mode"
-  work=$(mktemp -d /tmp/paid-source-normalized-snapshot.XXXXXX)
-  cleanup_normalized_snapshot_payload() { rm -rf "$work"; }
+  NORMALIZED_SNAPSHOT_WORK=$(mktemp -d /tmp/paid-source-normalized-snapshot.XXXXXX)
+  work=$NORMALIZED_SNAPSHOT_WORK
   trap cleanup_normalized_snapshot_payload EXIT
   payload=$work/payload.json
   decode_exact_file "$PAYLOAD_B64_ENV" "$PAYLOAD_SHA_ENV" \

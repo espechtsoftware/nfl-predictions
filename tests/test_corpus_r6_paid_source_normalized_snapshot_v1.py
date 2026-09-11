@@ -137,16 +137,31 @@ def test_request_freezes_two_time_travel_queries_and_exact_inventory() -> None:
     assert request["automatic_policy_promotion"] is False
     assert len(request["output_inventory"]["nonterminal_uris"]) == 12
     for spec in request["query_specs"]:
-        assert "FOR SYSTEM_TIME AS OF" in spec["canonical_query"]
-        assert "2026-08-30T12:00:00Z" in spec["canonical_query"]
-        assert (
-            "TIMESTAMP_MILLIS(last_modified_time) <= "
-            "TIMESTAMP('2026-08-30T12:00:00Z')"
-            in spec["canonical_query"]
+        query = str(spec["canonical_query"])
+        relations = ",".join(
+            f"'{relation}'" for relation in spec["input_relations"]
         )
+        assert "FOR SYSTEM_TIME AS OF" in query
+        assert "2026-08-30T12:00:00Z" in query
+        assert (
+            "TIMESTAMP_MILLIS(frozen_tables.last_modified_time) <= "
+            "TIMESTAMP('2026-08-30T12:00:00Z')"
+            in query
+        )
+        assert query.count("relation_columns AS (") == 1
+        assert query.count("INFORMATION_SCHEMA.COLUMNS") == 1
+        assert "ARRAY_AGG(" in query
+        assert "ORDER BY ordinal_position" in query
+        assert f"WHERE table_name IN ({relations})" in query
+        assert "GROUP BY table_name" in query
+        assert "INNER JOIN relation_columns" in query
+        assert (
+            "ON relation_columns.table_name = frozen_tables.table_id" in query
+        )
+        assert "WHERE table_name = frozen_tables.table_id" not in query
         assert spec["use_query_cache"] is False
-        assert "realized" not in spec["canonical_query"].lower()
-        assert "contest" not in spec["canonical_query"].lower()
+        assert "realized" not in query.lower()
+        assert "contest" not in query.lower()
 
 
 def test_publish_creates_compatible_manifests_and_root_last() -> None:
@@ -306,7 +321,7 @@ def test_same_second_future_metadata_is_filtered_before_rounding() -> None:
         # the same retained second, but the SQL's native-millisecond predicate
         # must filter this metadata row before formatting.
         assert (
-            "TIMESTAMP_MILLIS(last_modified_time) <= "
+            "TIMESTAMP_MILLIS(frozen_tables.last_modified_time) <= "
             "TIMESTAMP('2026-08-30T12:00:00Z')"
             in spec["canonical_query"]
         )

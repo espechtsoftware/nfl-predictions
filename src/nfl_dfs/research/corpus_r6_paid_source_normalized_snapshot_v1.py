@@ -211,26 +211,43 @@ def _relation_metadata_sql(
     return f"""
 SELECT
   'relation-metadata' AS record_kind,
-  table_id AS slice_kind,
+  frozen_tables.table_id AS slice_kind,
   TO_JSON_STRING(STRUCT(
     '{PROJECT}' AS project_id,
     '{DATASET}' AS dataset_id,
-    table_id AS relation_id,
-    CAST(row_count AS INT64) AS row_count,
-    CAST(size_bytes AS INT64) AS size_bytes,
+    frozen_tables.table_id AS relation_id,
+    CAST(frozen_tables.row_count AS INT64) AS row_count,
+    CAST(frozen_tables.size_bytes AS INT64) AS size_bytes,
     FORMAT_TIMESTAMP('%Y-%m-%dT%H:%M:%SZ',
-      TIMESTAMP_MILLIS(last_modified_time), 'UTC') AS modified_time_utc,
-    ARRAY(
-      SELECT AS STRUCT column_name AS name, data_type, is_nullable,
-        CAST(ordinal_position AS INT64) AS ordinal_position
-      FROM `{PROJECT}.{DATASET}.INFORMATION_SCHEMA.COLUMNS`
-      WHERE table_name = frozen_tables.table_id
-      ORDER BY ordinal_position
-    ) AS columns
+      TIMESTAMP_MILLIS(frozen_tables.last_modified_time), 'UTC')
+      AS modified_time_utc,
+    relation_columns.columns AS columns
   )) AS row_json
 FROM `{PROJECT}.{DATASET}.__TABLES__` AS frozen_tables
+INNER JOIN relation_columns
+  ON relation_columns.table_name = frozen_tables.table_id
 WHERE frozen_tables.table_id IN ({names})
-  AND TIMESTAMP_MILLIS(last_modified_time) <= {at}
+  AND TIMESTAMP_MILLIS(frozen_tables.last_modified_time) <= {at}
+""".strip()
+
+
+def _relation_columns_sql(relations: Sequence[str]) -> str:
+    names = ",".join(f"'{name}'" for name in relations)
+    return f"""
+SELECT
+  table_name,
+  ARRAY_AGG(
+    STRUCT(
+      column_name AS name,
+      data_type AS data_type,
+      is_nullable AS is_nullable,
+      CAST(ordinal_position AS INT64) AS ordinal_position
+    )
+    ORDER BY ordinal_position
+  ) AS columns
+FROM `{PROJECT}.{DATASET}.INFORMATION_SCHEMA.COLUMNS`
+WHERE table_name IN ({names})
+GROUP BY table_name
 """.strip()
 
 
@@ -332,6 +349,8 @@ def frozen_query_specs_v1(*, run_id: str, snapshot_at_utc: str) -> list[dict[str
         query = f"""
 WITH projected AS (
 {rows}
+), relation_columns AS (
+{_relation_columns_sql(relations)}
 ), relation_metadata AS (
 {_relation_metadata_sql(relations, snapshot_at=snapshot)}
 )

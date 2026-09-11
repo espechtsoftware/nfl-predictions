@@ -371,28 +371,42 @@ def _metadata_sql(relations: Sequence[str]) -> str:
     return f"""
 SELECT
   'relation-metadata' AS record_kind,
-  table_id AS slice_kind,
+  frozen_tables.table_id AS slice_kind,
   TO_JSON_STRING(STRUCT(
     '{PRODUCTION_PROJECT}' AS project_id,
     '{WAREHOUSE_DATASET}' AS dataset_id,
-    table_id AS relation_id,
-    row_count AS row_count,
-    size_bytes AS size_bytes,
+    frozen_tables.table_id AS relation_id,
+    frozen_tables.row_count AS row_count,
+    frozen_tables.size_bytes AS size_bytes,
     FORMAT_TIMESTAMP('%Y-%m-%dT%H:%M:%SZ',
-      TIMESTAMP_MILLIS(last_modified_time), 'UTC') AS modified_time_utc,
-    ARRAY(
-      SELECT AS STRUCT
-        column_name AS name,
-        data_type AS data_type,
-        is_nullable AS is_nullable,
-        ordinal_position AS ordinal_position
-      FROM `{PRODUCTION_PROJECT}.{WAREHOUSE_DATASET}.INFORMATION_SCHEMA.COLUMNS`
-      WHERE table_name = frozen_tables.table_id
-      ORDER BY ordinal_position
-    ) AS columns
+      TIMESTAMP_MILLIS(frozen_tables.last_modified_time), 'UTC')
+      AS modified_time_utc,
+    relation_columns.columns AS columns
   )) AS row_json
 FROM `{PRODUCTION_PROJECT}.{WAREHOUSE_DATASET}.__TABLES__` AS frozen_tables
+INNER JOIN relation_columns
+  ON relation_columns.table_name = frozen_tables.table_id
 WHERE frozen_tables.table_id IN ({quoted})
+""".strip()
+
+
+def _relation_columns_sql(relations: Sequence[str]) -> str:
+    quoted = ",".join(f"'{value}'" for value in relations)
+    return f"""
+SELECT
+  table_name,
+  ARRAY_AGG(
+    STRUCT(
+      column_name AS name,
+      data_type AS data_type,
+      is_nullable AS is_nullable,
+      ordinal_position AS ordinal_position
+    )
+    ORDER BY ordinal_position
+  ) AS columns
+FROM `{PRODUCTION_PROJECT}.{WAREHOUSE_DATASET}.INFORMATION_SCHEMA.COLUMNS`
+WHERE table_name IN ({quoted})
+GROUP BY table_name
 """.strip()
 
 
@@ -526,6 +540,8 @@ def _render_warehouse_query(row_sql: str, relations: Sequence[str]) -> str:
     rendered = f"""
 WITH captured AS (
 {row_sql}
+), relation_columns AS (
+{_relation_columns_sql(relations)}
 ), relation_metadata AS (
 {_metadata_sql(relations)}
 )

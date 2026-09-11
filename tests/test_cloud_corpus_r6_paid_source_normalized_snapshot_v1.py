@@ -53,12 +53,45 @@ def test_container_dispatch_is_narrow_exact_and_cleanup_safe() -> None:
     assert "--execute" in text
     assert "mktemp -d /tmp/paid-source-normalized-snapshot.XXXXXX" in text
     assert "trap cleanup_normalized_snapshot_payload EXIT" in text
-    assert 'rm -rf "$work"' in text
+    assert 'local cleanup_work=${NORMALIZED_SNAPSHOT_WORK:-}' in text
+    assert 'rm -rf -- "$cleanup_work"' in text
+    assert 'rm -rf "$work"' not in text
     assert "exec /usr/local/bin/python" not in text
     assert "R6_PAID_SOURCE_NORMALIZED_SNAPSHOT_PAYLOAD_SHA256" in text
     assert "R6_PAID_SOURCE_NORMALIZED_SNAPSHOT_TASK0_RECEIPT_SHA256" in text
     assert "sha256sum" in text
     assert "MAX_PAYLOAD_BYTES=16777216" in text
+
+
+def test_container_cleanup_survives_local_scope_exit(tmp_path: Path) -> None:
+    text = LAUNCH.read_text(encoding="utf-8")
+    match = re.search(
+        r"(cleanup_normalized_snapshot_payload\(\) \{\n.*?\n\})",
+        text,
+        re.DOTALL,
+    )
+    assert match is not None
+    work = tmp_path / "payload-work"
+    shell = f"""
+set -euo pipefail
+NORMALIZED_SNAPSHOT_WORK=
+{match.group(1)}
+container_scope() {{
+  local work
+  NORMALIZED_SNAPSHOT_WORK={work!s}
+  work=$NORMALIZED_SNAPSHOT_WORK
+  mkdir -p "$work"
+  : >"$work/payload.json"
+  trap cleanup_normalized_snapshot_payload EXIT
+}}
+container_scope
+[[ -f "$NORMALIZED_SNAPSHOT_WORK/payload.json" ]]
+"""
+    result = subprocess.run(
+        ["bash", "-c", shell], text=True, capture_output=True, check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert not work.exists()
 
 
 def test_host_release_is_existing_job_only_exact_and_default_off() -> None:

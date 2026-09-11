@@ -263,6 +263,22 @@ def test_fixed_query_registry_has_exact_five_non_outcome_extracts() -> None:
     assert all(value["named_parameters"] == [] for value in specs)
     assert all("contest" not in value["canonical_query"].lower() for value in specs)
     assert all("realized" not in value["canonical_query"].lower() for value in specs)
+    for spec in specs:
+        query = str(spec["canonical_query"])
+        relations = ",".join(
+            f"'{relation}'" for relation in spec["input_relations"]
+        )
+        assert query.count("relation_columns AS (") == 1
+        assert query.count("INFORMATION_SCHEMA.COLUMNS") == 1
+        assert "ARRAY_AGG(" in query
+        assert "ORDER BY ordinal_position" in query
+        assert f"WHERE table_name IN ({relations})" in query
+        assert "GROUP BY table_name" in query
+        assert "INNER JOIN relation_columns" in query
+        assert (
+            "ON relation_columns.table_name = frozen_tables.table_id" in query
+        )
+        assert "WHERE table_name = frozen_tables.table_id" not in query
 
 
 def test_artifact_manifest_filters_and_accounts_for_missing_ids(
