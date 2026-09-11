@@ -1138,9 +1138,29 @@ def test_all_three_classic_routes_expose_same_policy(client, monkeypatch):
     policy_id = "classic-k1-role12-lev40-boom160-poscal-cbwu-v5"
     assert preview.json()["policy"]["policy_id"] == policy_id
     assert preview.json()["policy"]["model_ensemble"] == 1
-    assert preview.json()["policy"]["portfolio_allocation"] == {
-        "ce": 0, "role": 12, "boom": 160,
-        "total_generation_solves": 172}
+    allocation = preview.json()["policy"]["portfolio_allocation"]
+    assert allocation == {
+        "ce": 0, "role": 12, "boom": 160, "leverage": 40,
+        "core_lev_boom": 200,
+        "total_generation_solves": 172,
+        "total_generation_solves_scope": "ce-role-boom-legacy",
+        "nominal_requested_before_retries": 266,
+        "nominal_requested_per_native_search": 266,
+        "nominal_requested_per_five_book_cbwu_arm": 1330,
+        "nominal_requested_scope": (
+            "leverage-ce-role-boom-qbvar-game-dark; excludes "
+            "infeasibility, dedupe and retries"
+        ),
+    }
+    # Assert the derivations too, so a wrong subtotal fails rather than only a
+    # changed one.  The literal above alone would accept any self-consistent
+    # renumbering; these tie the disclosed figures back to their definitions.
+    assert allocation["core_lev_boom"] == (
+        allocation["leverage"] + allocation["boom"])
+    assert allocation["total_generation_solves"] == (
+        allocation["ce"] + allocation["role"] + allocation["boom"])
+    assert allocation["nominal_requested_per_five_book_cbwu_arm"] == (
+        5 * allocation["nominal_requested_per_native_search"])
     assert preview.json()["policy"]["served_position_scales"] == (
         "QB:0.970,RB:1.005,TE:0.940,WR:1.070")
     assert preview.json()["policy"]["candidate_world_portfolio"] == {
