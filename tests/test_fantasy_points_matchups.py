@@ -121,6 +121,12 @@ def test_source_regime_preserves_vendor_early_season_warning():
     assert matchups.source_regime({2026}, 2026, 2) == (
         "vendor-active-season-early"
     )
+    assert matchups.source_regime({2025}, 2026, 3) == (
+        "vendor-prior-season-early"
+    )
+    assert matchups.source_regime({2026}, 2026, 3) == (
+        "vendor-active-season-early"
+    )
     assert matchups.source_regime({2026}, 2026, 4) == (
         "vendor-active-season-mature"
     )
