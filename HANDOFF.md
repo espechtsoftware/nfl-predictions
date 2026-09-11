@@ -39394,3 +39394,72 @@ informational -- frozen-chain rule 2 argues for the latter and it is the
 smaller change. Either way the committed lock at `305fc6c6` must be regenerated
 and the chain re-verified (~85 min, and the ancestry gate requires the CLI's
 last-touching commit to be on origin/main first).
+
+## 2026-09-11 (late) — Experiment-5 discovery matrix MATERIALIZED and collected
+
+The 54-slate discovery-matrix freeze completed. This is the artifact the FP/SIS
+2x2 ablation is gated on.
+
+```
+run_id              exp5-discovery-matrix-20260911d
+code_sha            aecc18c83c513114d03e77456ec1396c09c06731
+build_id            063fe61c-515e-4c8f-90a3-91237c4dc5dd
+image               sha256:f15564d19f5181c0097097bf36fabef55064a6542294d399e28be8d2001e5e1b
+manifest            gs://.../exp5-discovery-matrix-20260911d/manifest.json
+task0 execution     atlas-cbc-32g-full-2023-w8-v1-w42kd   succeeded=1  terminal 23:27:02Z
+54-task execution   atlas-cbc-32g-full-2023-w8-v1-k85mh   succeeded=54 failed=0 terminal 23:33:42Z
+
+TERMINAL IDENTITY (the discovery_matrix_freeze_terminal_identity):
+  uri       gs://nfl-predictions-503414-corpus-retrieval/research/
+            corpus-r6-paid-source-discovery-matrices/exp5-discovery-matrix-20260911d/terminal.json
+  bytes     200367
+  generation 1789169758928625
+  sha256    265865ed3cc183434309f47b49bc291d28cc0501166f6557f6dbe2a11100ca28
+  terminal_sha256 fd322f6e7677de38eeb774f63998dfced11ab8d35406fe6d02995bfb624f2041
+```
+
+`uses_realized_outcomes: false` is asserted in the published manifest. No
+candidates were generated; the frozen fixed-G0 candidate-v2 corpus was scored
+across R0-R3 (40,000 worlds) with R4 identity-bound and never read.
+
+### FIVE never-completable defects were fixed to get here
+
+Every one was structural -- a step that could not satisfy its own gate. None
+were flaky. Production had burned four attempts on defect 1 alone.
+
+1. `--repository-root` did not bind module resolution (swept across 8 drivers).
+2. The capture-plan step wrote an untracked artifact, then required the tree
+   tracked-clean including untracked, in the same invocation.
+3. Create-once refused the path its own prior run created.
+4. **task0 parallelism.** Four sites encoded "task0 runs at parallelism 1",
+   which Cloud Run cannot produce: `jobs execute` accepts `--tasks` only, so an
+   execution always carries the JOB's deployed parallelism. The fourth site was
+   the TESTS -- their fixtures built executions with parallelism 1, a shape the
+   provider cannot emit, which is why the defect shipped green. Fixed with a
+   named `JOB_PARALLELISM` and a sweep test that discriminates parallelism from
+   the sibling task_count conditional (the latter is correct: task0 really does
+   run one task).
+5. **jq with no input.** The collect request was built by a jq taking all values
+   via `--arg`/`--slurpfile` with no input and no `-n`, so jq read stdin, hit
+   EOF, and wrote zero bytes. Measured: 0 bytes without `-n`, 315 with. collect
+   and reopen-collect could never have completed.
+
+Fixing 4 point-wise in the shell made it resurface in the runner and then the
+module -- rule 4 exactly. Sweep the class first.
+
+### Not done
+
+- The 54-task **reopen / reopen-collect** verification phase has not run. The
+  construction and collect artifacts are terminal and published; reopen proves
+  the registry replays generation-exact and should be run before the ablation
+  binds this identity.
+- Commits `4a7c9d25` (wrong, superseded), `f5d03d56`, `aecc18c8`, `958ca248`
+  are on origin/main. `4a7c9d25` added a `--parallelism` flag that does not
+  exist on `gcloud run jobs execute`; it is corrected by `f5d03d56`.
+
+### Next
+
+The FP/SIS 2x2 ablation (retrieval, ~18pt K20 oracle regret) may now bind
+`265865ed...`. Its chain is a sibling of this one with the same idioms, so sweep
+it for these five shapes before launching rather than discovering them one
+build at a time.
