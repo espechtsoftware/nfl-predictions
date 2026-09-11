@@ -629,8 +629,8 @@ def _write_capture_plan_create_once(
         raise SevenPackCaptureCliError(
             "capture-plan output parent creation failed"
         ) from exc
-    if parent != path.parent or path.exists() or path.is_symlink():
-        _fail("capture-plan output must be one absent canonical path")
+    if parent != path.parent or path.is_symlink():
+        _fail("capture-plan output must be one canonical non-symlink path")
     plan = result.get("capture_plan")
     if not isinstance(plan, Mapping):
         _fail("capture-plan body is absent")
@@ -640,6 +640,25 @@ def _write_capture_plan_create_once(
         or len(raw) != result.get("capture_plan_bytes")
     ):
         _fail("capture-plan result byte binding differs")
+    # Create-once, but re-enterable.  This step writes the plan, and a later
+    # step in the SAME invocation requires the repository tracked-clean
+    # including untracked -- which the freshly written, still-uncommitted plan
+    # violates by existing.  Demanding a strictly absent path therefore makes
+    # the chain impossible to complete: the first run writes the artifact and
+    # then refuses, and every retry dies on the path that run created.
+    # Accept an existing file only when it is byte-identical to the plan just
+    # derived; a different plan at that path is still refused, which is the
+    # protection create-once is actually for.
+    if path.exists():
+        try:
+            existing = path.read_bytes()
+        except OSError as exc:
+            raise SevenPackCaptureCliError(
+                "capture-plan existing output read failed"
+            ) from exc
+        if existing != raw:
+            _fail("capture-plan output already holds a different plan")
+        return path
     try:
         descriptor = os.open(
             path,
