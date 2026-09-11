@@ -701,11 +701,23 @@ def _normalize_source_row(
                 f"{slice_kind}.gameday is not canonical"
             ) from exc
         season = normalized.get("season")
-        # An NFL regular season is named for its starting calendar year;
-        # Week 18 can be played in January of season + 1.  Bind the date to
-        # the already registry-validated season instead of rejecting the
-        # final week of the 2025 source period merely because it is in 2026.
-        if type(season) is not int or parsed_day.year not in (season, season + 1):
+        week = normalized.get("week")
+        # The fixed 2022--2025 regular-season source is played September
+        # through December of its named season, with Weeks 17--18 permitted
+        # to roll into the following January.
+        in_named_year = (
+            type(season) is int
+            and parsed_day.year == season
+            and 9 <= parsed_day.month <= 12
+        )
+        in_january_rollover = (
+            type(season) is int
+            and type(week) is int
+            and parsed_day.year == season + 1
+            and parsed_day.month == 1
+            and 17 <= week <= 18
+        )
+        if not in_named_year and not in_january_rollover:
             _fail(f"{slice_kind}.gameday escapes the registered source period")
     if "game_type" in normalized and normalized["game_type"] != "REG":
         _fail(f"{slice_kind}.game_type differs from the regular-season law")

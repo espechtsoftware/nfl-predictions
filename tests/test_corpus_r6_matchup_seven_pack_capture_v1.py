@@ -291,7 +291,7 @@ def test_fixed_query_registry_has_exact_five_non_outcome_extracts() -> None:
 @pytest.mark.parametrize(
     ("season", "week", "gameday"),
     [
-        (2022, 18, "2023-01-08"),
+        (2022, 17, "2023-01-01"),
         (2025, 18, "2026-01-04"),
     ],
 )
@@ -301,7 +301,12 @@ def test_schedule_row_accepts_regular_season_calendar_rollover(
     row = _row(
         "nfl-schedules-2022-2025", "schedule-games", suffix="rollover"
     )
-    row.update({"season": season, "week": week, "gameday": gameday})
+    row.update({
+        "season": season,
+        "week": week,
+        "gameday": gameday,
+        "kickoff_time_utc": f"{gameday}T18:00:00Z",
+    })
     normalized = capture._normalize_source_row(
         pack_id="nfl-schedules-2022-2025",
         slice_kind="schedule-games",
@@ -311,14 +316,24 @@ def test_schedule_row_accepts_regular_season_calendar_rollover(
     assert normalized["gameday"] == gameday
 
 
-@pytest.mark.parametrize("gameday", ["2024-09-08", "2027-01-10"])
+@pytest.mark.parametrize(
+    ("week", "gameday"),
+    [
+        (18, "2024-09-08"),
+        (18, "2025-01-05"),
+        (1, "2026-12-31"),
+        (16, "2026-01-01"),
+        (18, "2026-02-01"),
+        (18, "2027-01-10"),
+    ],
+)
 def test_schedule_row_rejects_calendar_year_outside_named_season(
-    gameday: str,
+    week: int, gameday: str,
 ) -> None:
     row = _row(
         "nfl-schedules-2022-2025", "schedule-games", suffix="escape"
     )
-    row.update({"season": 2025, "week": 18, "gameday": gameday})
+    row.update({"season": 2025, "week": week, "gameday": gameday})
     with pytest.raises(
         capture.CorpusR6MatchupSevenPackCaptureV1Error,
         match="gameday escapes the registered source period",

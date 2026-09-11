@@ -55,20 +55,23 @@ agent or developer:
   result. Canonical registry completion is
   `5eca60c36602f882cd41609f69fde2e73374e318c99e34d4a6715aa8edcabc6c`.
 - The repair binds each schedule gameday to its already
-  registry-validated named season and accepts only that calendar year or the
-  immediately following calendar year. Regressions cover the 2022 and 2025
-  January rollovers plus prior-year and two-years-late refusals. The exact-ID
+  registry-validated named season: September--December in the named year, or
+  Weeks 17--18 in the immediately following January. Regressions cover the
+  2022 Week-17 and 2025 Week-18 rollovers plus wrong-month, wrong-week,
+  prior-year, and two-years-late refusals. The exact-ID
   BigQuery call now also sets `job_retry=None`, preserving no-retry semantics
-  and eliminating the provider client's future-incompatibility warning.
-  Focused core/operator/cloud validation passes 44/44, and the broader
+  and eliminating the provider client's future-incompatibility warning; a
+  behavioral fake-client regression verifies completed exact-job reuse and
+  the retry argument on the sole missing-job creation path.
+  Focused core/operator/cloud validation passes 49/49, and the broader
   seven-pack/freezer/capture-plan/shared-gate/discovery-matrix set passes
-  86/86. Bash syntax, Python compilation, and `git diff --check` pass.
+  108/108. Bash syntax, Python compilation, and `git diff --check` pass.
 - Treat the v2 run ID, request, namespace, image, task0/publish executions, and
   its five query IDs as consumed failure evidence; do not retry, relabel, or
-  reuse them. Exact next action: independently review and commit the rollover
-  repair, push the exact source, allocate a fresh v3 run/namespace/query-ID
-  set, rebuild, and execute the full task0 -> publish -> independent-reopen
-  chain under the canonical production lease.
+  reuse them. Independent review found no remaining launch blocker. Exact next
+  action: push this repair and handoff together, allocate a fresh v3
+  run/namespace/query-ID set, rebuild, and execute the full task0 -> publish ->
+  independent-reopen chain under the canonical production lease.
 
 ### 2026-09-10 PREREG086 exact execution cannot reach its collection gate
 

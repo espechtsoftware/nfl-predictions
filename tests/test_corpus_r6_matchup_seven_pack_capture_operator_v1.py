@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from hashlib import sha256
 import importlib.util
 import inspect
@@ -265,6 +266,79 @@ def test_cli_uses_isolated_bounded_gcs_transport() -> None:
     assert "corpus_r6_matchup_batch_candidate_authority_v1" not in inspect.getsource(
         cli
     )
+
+
+def test_bigquery_creation_explicitly_disables_library_job_retry() -> None:
+    cli = _load_cli()
+    query_spec = capture.frozen_warehouse_query_specs_v1(
+        "sevenpack-query-retry-test"
+    )[0]
+    captured: dict[str, object] = {}
+
+    class NotFound(Exception):
+        pass
+
+    class BigQuery:
+        @staticmethod
+        def QueryJobConfig(**kwargs: object) -> dict[str, object]:
+            return dict(kwargs)
+
+    class Job:
+        job_id = query_spec["job_id"]
+        project = capture.PRODUCTION_PROJECT
+        location = capture.WAREHOUSE_LOCATION
+        query = query_spec["canonical_query"]
+        use_legacy_sql = False
+        use_query_cache = False
+        maximum_bytes_billed = query_spec["maximum_bytes_billed"]
+        state = "DONE"
+        error_result = None
+        cache_hit = False
+        total_bytes_processed = 1
+        created = datetime(2026, 9, 11, tzinfo=timezone.utc)
+        started = datetime(2026, 9, 11, tzinfo=timezone.utc)
+        ended = datetime(2026, 9, 11, tzinfo=timezone.utc)
+
+        @staticmethod
+        def result() -> list[object]:
+            return []
+
+        @staticmethod
+        def reload() -> None:
+            return None
+
+    class Client:
+        @staticmethod
+        def get_job(*_args: object, **_kwargs: object) -> object:
+            raise NotFound
+
+        @staticmethod
+        def query(query: str, **kwargs: object) -> Job:
+            captured.update({"query": query, **kwargs})
+            return Job()
+
+    runner = object.__new__(cli.FixedBigQueryRunnerV1)
+    runner._bigquery = BigQuery
+    runner._client = Client()
+    runner.invocations = 0
+    result = runner(query_spec)
+    assert result["job_metadata"]["state"] == "DONE"
+    assert captured["job_id"] == query_spec["job_id"]
+    assert captured["job_retry"] is None
+
+    class ReuseClient:
+        @staticmethod
+        def get_job(*_args: object, **_kwargs: object) -> Job:
+            return Job()
+
+        @staticmethod
+        def query(*_args: object, **_kwargs: object) -> object:
+            raise AssertionError("a completed deterministic job must be reused")
+
+    runner._client = ReuseClient()
+    runner.invocations = 0
+    reused = runner(query_spec)
+    assert reused["job_metadata"]["job_id"] == query_spec["job_id"]
 
 
 def test_cli_transport_rejects_uninventoried_write_before_backend_call() -> None:
