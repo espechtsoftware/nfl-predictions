@@ -22,6 +22,54 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 seven-pack v2 failed safely on 2025 Week-18 date law
+
+- Fresh successor `20260911-fp-sis-seven-pack-successor-v2` has request-file
+  SHA-256 `63895213b3e9ab2cac1d86e8152a39e27572d218056e073b67392876914c8ae5`
+  and inner request SHA-256
+  `fe17a2e882e6266b9279e89db6563d5ad09fd9f7152aa9116114aa45d803e00b`.
+  Its exact 15-object namespace and all five deterministic BigQuery job IDs
+  were absent before launch. Cloud Build
+  `6dd48bd6-3849-4ff5-8765-83a79b00f3c8` succeeded from exact pushed source
+  `895bc693babd28b630b9794ad0b93cbe22cbb593`, implementation-authority
+  SHA-256 `ea7a3219b73eb533c6dcda96ff7052bb21b28ff533a0fadc3cc17785fc808ae3`,
+  and produced immutable image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:6b41dfd47cc2eaa9593e3c02bc9f91a0fb663110fa943cdf113c8a6d489c5d18`.
+- Task0 `atlas-cbc-32g-full-2023-w8-v1-8vtt6`, UID
+  `8c9025d2-f5c5-4527-be54-288ca69324d3`, succeeded at
+  `2026-09-11T04:13:01.798957Z`. Its admitted receipt deep-reopened 26 exact
+  predecessors and 58,151,778 bytes, with zero warehouse queries, writes, or
+  publications. The same registered driver then launched publish
+  `atlas-cbc-32g-full-2023-w8-v1-z2b2s`, UID
+  `6de67db4-f92d-4dcb-8bf6-e3ec98dad295`; it failed terminally at
+  `2026-09-11T04:19:29.681721Z` before any GCS write.
+- Exact BigQuery job ordinal 0,
+  `r6_matchup_7pack_20260911_fp_sis_seven_pack_successor_v2_0_20355081105a`,
+  completed without a provider error and processed 10,982,496 bytes. Jobs
+  1--4 remain absent and the namespace remains zero of 15 objects. Publication
+  stopped while normalizing that first schedule result with
+  `schedule-games.gameday escapes the registered source period`. The failing
+  row belongs to season 2025 but is played in January 2026: NFL regular seasons
+  are named for their starting year, so Week 18 may lawfully fall in
+  `season + 1`. This is a source-contract bug, not a data-quality or scoring
+  result. Canonical registry completion is
+  `5eca60c36602f882cd41609f69fde2e73374e318c99e34d4a6715aa8edcabc6c`.
+- The repair binds each schedule gameday to its already
+  registry-validated named season and accepts only that calendar year or the
+  immediately following calendar year. Regressions cover the 2022 and 2025
+  January rollovers plus prior-year and two-years-late refusals. The exact-ID
+  BigQuery call now also sets `job_retry=None`, preserving no-retry semantics
+  and eliminating the provider client's future-incompatibility warning.
+  Focused core/operator/cloud validation passes 44/44, and the broader
+  seven-pack/freezer/capture-plan/shared-gate/discovery-matrix set passes
+  86/86. Bash syntax, Python compilation, and `git diff --check` pass.
+- Treat the v2 run ID, request, namespace, image, task0/publish executions, and
+  its five query IDs as consumed failure evidence; do not retry, relabel, or
+  reuse them. Exact next action: independently review and commit the rollover
+  repair, push the exact source, allocate a fresh v3 run/namespace/query-ID
+  set, rebuild, and execute the full task0 -> publish -> independent-reopen
+  chain under the canonical production lease.
+
 ### 2026-09-10 PREREG086 exact execution cannot reach its collection gate
 
 - At `2026-09-11T03:53:48Z`, exact lab execution `lab-run-vk9wg`, UID

@@ -141,6 +141,13 @@ def _query_result(spec: dict[str, object]) -> dict[str, object]:
     result_rows: list[dict[str, object]] = []
     for slice_kind in spec["slice_kinds"]:
         positive = _row(str(spec["pack_id"]), str(slice_kind), suffix="positive")
+        if slice_kind == "schedule-games":
+            positive.update({
+                "season": 2025,
+                "week": 18,
+                "gameday": "2026-01-04",
+                "kickoff_time_utc": "2026-01-04T18:00:00Z",
+            })
         result_rows.append({
             "record_kind": "row",
             "slice_kind": slice_kind,
@@ -279,6 +286,48 @@ def test_fixed_query_registry_has_exact_five_non_outcome_extracts() -> None:
             "ON relation_columns.table_name = frozen_tables.table_id" in query
         )
         assert "WHERE table_name = frozen_tables.table_id" not in query
+
+
+@pytest.mark.parametrize(
+    ("season", "week", "gameday"),
+    [
+        (2022, 18, "2023-01-08"),
+        (2025, 18, "2026-01-04"),
+    ],
+)
+def test_schedule_row_accepts_regular_season_calendar_rollover(
+    season: int, week: int, gameday: str,
+) -> None:
+    row = _row(
+        "nfl-schedules-2022-2025", "schedule-games", suffix="rollover"
+    )
+    row.update({"season": season, "week": week, "gameday": gameday})
+    normalized = capture._normalize_source_row(
+        pack_id="nfl-schedules-2022-2025",
+        slice_kind="schedule-games",
+        value=row,
+    )
+    assert normalized["season"] == season
+    assert normalized["gameday"] == gameday
+
+
+@pytest.mark.parametrize("gameday", ["2024-09-08", "2027-01-10"])
+def test_schedule_row_rejects_calendar_year_outside_named_season(
+    gameday: str,
+) -> None:
+    row = _row(
+        "nfl-schedules-2022-2025", "schedule-games", suffix="escape"
+    )
+    row.update({"season": 2025, "week": 18, "gameday": gameday})
+    with pytest.raises(
+        capture.CorpusR6MatchupSevenPackCaptureV1Error,
+        match="gameday escapes the registered source period",
+    ):
+        capture._normalize_source_row(
+            pack_id="nfl-schedules-2022-2025",
+            slice_kind="schedule-games",
+            value=row,
+        )
 
 
 def test_artifact_shard_preserves_unresolved_projection_multiplicity() -> None:

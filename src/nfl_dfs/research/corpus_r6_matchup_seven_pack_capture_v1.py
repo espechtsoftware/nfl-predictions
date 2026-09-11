@@ -700,7 +700,12 @@ def _normalize_source_row(
             raise CorpusR6MatchupSevenPackCaptureV1Error(
                 f"{slice_kind}.gameday is not canonical"
             ) from exc
-        if not 2022 <= parsed_day.year <= 2025:
+        season = normalized.get("season")
+        # An NFL regular season is named for its starting calendar year;
+        # Week 18 can be played in January of season + 1.  Bind the date to
+        # the already registry-validated season instead of rejecting the
+        # final week of the 2025 source period merely because it is in 2026.
+        if type(season) is not int or parsed_day.year not in (season, season + 1):
             _fail(f"{slice_kind}.gameday escapes the registered source period")
     if "game_type" in normalized and normalized["game_type"] != "REG":
         _fail(f"{slice_kind}.game_type differs from the regular-season law")

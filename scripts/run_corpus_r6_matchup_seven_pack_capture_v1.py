@@ -554,6 +554,7 @@ class FixedBigQueryRunnerV1:
                     str(spec["canonical_query"]),
                     job_config=config,
                     job_id=job_id,
+                    job_retry=None,
                     location=capture.WAREHOUSE_LOCATION,
                     project=capture.PRODUCTION_PROJECT,
                 )

@@ -205,6 +205,7 @@ def test_build_is_git_source_bound_outcome_blind_and_git_free_at_runtime() -> No
     assert "COPY .git" not in dockerfile
     assert "COPY reports" not in dockerfile
     assert "!src/**" in dockerignore
+    assert "job_retry=None" in RUNNER.read_text(encoding="utf-8")
 
 
 def test_shell_parses_and_help_has_no_external_action() -> None:
