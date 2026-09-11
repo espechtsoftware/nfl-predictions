@@ -24,6 +24,10 @@ import stat
 from typing import Final
 
 from nfl_dfs.research import (
+    corpus_r6_fixed_g0_candidate_authority_descendant_reopen_v1 as
+    candidate_descendant,
+)
+from nfl_dfs.research import (
     corpus_r6_fixed_g0_candidate_authority_release_v2 as candidate,
 )
 from nfl_dfs.research import corpus_r6_matchup_capture_plan_v1 as capture_v1
@@ -56,6 +60,7 @@ CANDIDATE_RELEASE_V2_MODULE_PATH: Final = (
     "corpus_r6_fixed_g0_candidate_authority_release_v2.py"
 )
 CAPTURE_SUCCESSOR_IMPLEMENTATION_PATHS: Final = tuple(sorted((
+    candidate_descendant.ADAPTER_MODULE_PATH,
     CAPTURE_PLAN_MODULE_PATH,
     CAPTURE_V1_MODULE_PATH,
     CANDIDATE_RELEASE_V2_MODULE_PATH,
@@ -491,13 +496,16 @@ def _open_candidate(
     git_blob: GitBlob, git_status: GitStatus,
 ) -> tuple[candidate.ReopenedFixedG0CandidateAuthorityV2, dict[str, object]]:
     try:
-        reopened = candidate.reopen_fixed_g0_candidate_authority_release_v2(
-            candidate_authority_root_identity,
-            repository_root=repository_root,
-            read_exact=read_exact,
-            git_head=git_head,
-            git_blob=git_blob,
-            git_status=git_status,
+        reopened = (
+            candidate_descendant
+            .reopen_fixed_g0_candidate_authority_from_descendant_v1(
+                candidate_authority_root_identity,
+                repository_root=repository_root,
+                read_exact=read_exact,
+                git_head=git_head,
+                git_blob=git_blob,
+                git_status=git_status,
+            )
         )
     except Exception as exc:
         raise CorpusR6MatchupCapturePlanOuterCandidateAuthorityV3Error(

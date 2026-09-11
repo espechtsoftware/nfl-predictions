@@ -149,7 +149,9 @@ def _fixture(monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
         )
 
     monkeypatch.setattr(
-        candidate, "reopen_fixed_g0_candidate_authority_release_v2", reopen
+        capture.candidate_descendant,
+        "reopen_fixed_g0_candidate_authority_from_descendant_v1",
+        reopen,
     )
     monkeypatch.setattr(capture, "_measure_implementation", measure)
     return {
@@ -382,7 +384,9 @@ def test_candidate_reopen_failure_precedes_inner_and_legacy_build(
         return {}
 
     monkeypatch.setattr(
-        candidate, "reopen_fixed_g0_candidate_authority_release_v2", fail_reopen
+        capture.candidate_descendant,
+        "reopen_fixed_g0_candidate_authority_from_descendant_v1",
+        fail_reopen,
     )
     monkeypatch.setattr(capture_v1, "build_capture_plan_lock_v1", legacy_build)
     with pytest.raises(
