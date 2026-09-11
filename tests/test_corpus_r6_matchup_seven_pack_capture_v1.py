@@ -281,6 +281,103 @@ def test_fixed_query_registry_has_exact_five_non_outcome_extracts() -> None:
         assert "WHERE table_name = frozen_tables.table_id" not in query
 
 
+def test_artifact_shard_preserves_unresolved_projection_multiplicity() -> None:
+    row = _row(
+        source.FANTASY_POINTS_PACK, "fp-route-share", suffix="unresolved"
+    )
+    row["gsis_id"] = None
+    shard = capture.build_artifact_row_shard_v1(
+        pack_id=source.FANTASY_POINTS_PACK,
+        slice_kind="fp-route-share",
+        rows=[row, deepcopy(row), deepcopy(row)],
+    )
+    row_sha256 = source.canonical_sha256(row)
+    assert shard["rows"] == [row, row, row]
+    assert shard["row_count"] == 3
+    assert shard["retained_row_count"] == 0
+    assert shard["missing_id_count"] == 3
+    assert shard["rows_sha256"] == source.canonical_sha256([row, row, row])
+    assert shard["missing_id_rows_sha256"] == source.canonical_sha256(
+        [row_sha256, row_sha256, row_sha256]
+    )
+    one_fewer = capture.build_artifact_row_shard_v1(
+        pack_id=source.FANTASY_POINTS_PACK,
+        slice_kind="fp-route-share",
+        rows=[row, deepcopy(row)],
+    )
+    assert one_fewer["rows_sha256"] != shard["rows_sha256"]
+    assert one_fewer["missing_id_rows_sha256"] != shard["missing_id_rows_sha256"]
+    assert (
+        one_fewer["artifact_row_shard_sha256"]
+        != shard["artifact_row_shard_sha256"]
+    )
+    assert capture.validate_artifact_row_shard_v1(
+        shard, expected_pack_id=source.FANTASY_POINTS_PACK
+    ) == shard
+
+
+def test_artifact_shard_still_rejects_duplicate_resolved_rows() -> None:
+    row = _row(
+        source.FANTASY_POINTS_PACK, "fp-route-share", suffix="resolved"
+    )
+    with pytest.raises(
+        capture.CorpusR6MatchupSevenPackCaptureV1Error,
+        match="duplicate resolved rows",
+    ):
+        capture.build_artifact_row_shard_v1(
+            pack_id=source.FANTASY_POINTS_PACK,
+            slice_kind="fp-route-share",
+            rows=[row, deepcopy(row)],
+        )
+
+
+def test_artifact_manifest_still_rejects_resolved_duplicate_across_shards(
+    store: _MemoryStore,
+) -> None:
+    pack_id = source.FANTASY_POINTS_PACK
+    registry = source.frozen_upstream_pack_registry_v1()
+    pack = next(value for value in registry["packs"] if value["pack_id"] == pack_id)
+    shard_pairs: list[tuple[dict[str, object], dict[str, object]]] = []
+    for schema in pack["positive_row_schemas"]:
+        slice_kind = str(schema["slice_kind"])
+        row = _row(pack_id, slice_kind, suffix="resolved")
+        copies = 2 if slice_kind == "fp-route-share" else 1
+        for ordinal in range(copies):
+            shard = capture.build_artifact_row_shard_v1(
+                pack_id=pack_id, slice_kind=slice_kind, rows=[row]
+            )
+            identity = store.add_json(
+                f"gs://fixture-input/cross-shard/{slice_kind}-{ordinal}.json",
+                shard,
+            )
+            shard_pairs.append((shard, identity))
+    shard_pairs.sort(key=lambda value: str(value[1]["uri"]))
+    source_manifest = store.add(
+        "gs://fixture-input/cross-shard/source-manifest.txt", b"manifest"
+    )
+    source_artifact = store.add(
+        "gs://fixture-input/cross-shard/source-artifact.bin", b"artifact"
+    )
+
+    with pytest.raises(
+        capture.CorpusR6MatchupSevenPackCaptureV1Error,
+        match="duplicate positive rows",
+    ):
+        capture.build_artifact_pack_manifest_v1(
+            manifest_id="cross-shard-resolved-duplicate",
+            pack_id=pack_id,
+            shard_objects=[value[0] for value in shard_pairs],
+            shard_identities=[value[1] for value in shard_pairs],
+            source_manifest_identities=[source_manifest],
+            source_artifact_identities=[source_artifact],
+            projection_code_identity={
+                "source_commit_sha": "b" * 40,
+                "module_path": "src/nfl_dfs/research/projection.py",
+                "module_sha256": "c" * 64,
+            },
+        )
+
+
 def test_artifact_manifest_filters_and_accounts_for_missing_ids(
     store: _MemoryStore,
 ) -> None:

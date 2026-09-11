@@ -203,6 +203,82 @@ def test_publish_creates_compatible_manifests_and_root_last() -> None:
         assert len(manifest["source_artifact_identities"]) == 1
 
 
+def test_publish_preserves_unresolved_canonical_projection_collisions() -> None:
+    duplicate_excess = {
+        "fp-alignment": 13,
+        "fp-receiver-shell": 14,
+        "fp-route-share": 17,
+    }
+
+    def collision_result(spec: dict[str, object]) -> dict[str, object]:
+        result = _query_result(spec)
+        if spec["pack_id"] != source.FANTASY_POINTS_PACK:
+            return result
+        for slice_kind, excess in duplicate_excess.items():
+            unresolved = fixture._row(
+                source.FANTASY_POINTS_PACK,
+                slice_kind,
+                suffix=f"{slice_kind}-unresolved",
+            )
+            unresolved["gsis_id"] = None
+            result["result_rows"].extend(
+                {
+                    "record_kind": "row",
+                    "slice_kind": slice_kind,
+                    "row_json": json.dumps(
+                        unresolved, sort_keys=True, separators=(",", ":")
+                    ),
+                }
+                for _ in range(excess + 1)
+            )
+        return result
+
+    request = _request()
+    task0 = snapshot.run_normalized_snapshot_task0_v1(
+        request, query_warehouse=collision_result
+    )
+    store = Store()
+    result = snapshot.publish_normalized_snapshot_v1(
+        request,
+        task0_receipt_value=task0,
+        query_warehouse=collision_result,
+        publish_create_once=store.publish,
+        read_exact=store.read,
+    )
+
+    fp_manifest = json.loads(store.read(
+        result["artifact_manifest_identities"][source.FANTASY_POINTS_PACK]
+    ))
+    expected_missing = sum(value + 1 for value in duplicate_excess.values())
+    accounting = fp_manifest["missing_id_accounting"]
+    assert fp_manifest["projected_row_count"] == 4
+    assert accounting["retained_row_count"] == 4
+    assert accounting["missing_id_count"] == expected_missing
+    assert accounting["source_row_count"] == 4 + expected_missing
+    assert len(accounting["missing_id_fingerprints"]) == expected_missing
+    by_slice = {
+        value["slice_kind"]: value for value in accounting["slices"]
+    }
+    for slice_kind, excess in duplicate_excess.items():
+        fingerprints = [
+            value["canonical_row_sha256"]
+            for value in accounting["missing_id_fingerprints"]
+            if value["slice_kind"] == slice_kind
+        ]
+        assert by_slice[slice_kind]["retained_row_count"] == 1
+        assert by_slice[slice_kind]["missing_id_count"] == excess + 1
+        assert by_slice[slice_kind]["source_row_count"] == excess + 2
+        assert len(fingerprints) == excess + 1
+        assert len(set(fingerprints)) == 1
+        assert by_slice[slice_kind]["missing_id_rows_sha256"] == (
+            source.canonical_sha256(sorted(fingerprints))
+        )
+
+    assert capture.validate_artifact_pack_manifest_structure_v1(
+        fp_manifest, expected_pack_id=source.FANTASY_POINTS_PACK
+    ) == fp_manifest
+
+
 def test_provider_job_and_relation_metadata_fail_closed_before_writes() -> None:
     request = _request()
     task0 = _task0(request)

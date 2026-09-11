@@ -943,13 +943,23 @@ def build_artifact_row_shard_v1(
     if not normalized:
         _fail("artifact row shard must not be empty")
     normalized.sort(key=source.canonical_json_bytes)
-    encoded = [source.canonical_json_bytes(value) for value in normalized]
-    if len(encoded) != len(set(encoded)):
-        _fail("artifact row shard contains duplicate rows")
     missing = [
         value for value in normalized
         if not _row_identity_resolved(slice_kind, value)
     ]
+    resolved_encoded = [
+        source.canonical_json_bytes(value) for value in normalized
+        if _row_identity_resolved(slice_kind, value)
+    ]
+    if len(resolved_encoded) != len(set(resolved_encoded)):
+        _fail("artifact row shard contains duplicate resolved rows")
+    # The deliberately narrow canonical projection does not retain every
+    # vendor identity field.  Distinct source records without a registered
+    # identity can therefore project to the same JSON row.  Preserve those
+    # occurrences exactly: ``rows_sha256`` below hashes the ordered row
+    # multiset, while ``missing_id_rows_sha256`` hashes the ordered multiset
+    # of per-row digests.  Resolved duplicates remain fatal above and again
+    # at the complete positive-pack boundary across shards.
     body: dict[str, object] = {
         "schema_version": ARTIFACT_ROW_SHARD_SCHEMA,
         "pack_id": pack_id,
@@ -1044,7 +1054,8 @@ def build_artifact_pack_manifest_v1(
     ):
         _fail("artifact shard identities must be unique and URI-sorted")
     # This also proves all registered slices have at least one resolved row and
-    # catches duplicate rows across shards.
+    # catches duplicate resolved positive rows across shards.  Missing-ID row
+    # multiplicity remains entirely in the accounting boundary below.
     rows_object = _build_pack_rows(pack_id=pack_id, rows_by_slice=rows_by_slice)
     accounting = _missing_accounting(rows_by_slice)
     source_manifests = _sorted_identities(
