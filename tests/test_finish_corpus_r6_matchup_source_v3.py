@@ -28,8 +28,10 @@ IMAGE = f"{IMAGE_ROOT}@{DIGEST}"
 RUN_ID = "20260911-source-v3-driver-test-v1"
 OLD_NAME = f"{subject.JOB}-old00"
 NEW_NAME = f"{subject.JOB}-new00"
+OTHER_NAME = f"{subject.JOB}-othr0"
 OLD_UID = "00000000-0000-4000-8000-000000000001"
 NEW_UID = "00000000-0000-4000-8000-000000000002"
+OTHER_UID = "00000000-0000-4000-8000-000000000003"
 
 
 def _raw(value: object) -> bytes:
@@ -303,6 +305,9 @@ class AmbiguousLaunchRunner:
         self.run_dir = run_dir
         self.resolves = resolves
         self.new_state = "MISSING"
+        self.latest_name = NEW_NAME
+        self.new_uid = NEW_UID
+        self.invalid_config = False
         self.launch_count = 0
         self.post_launch_job_reads = 0
 
@@ -310,11 +315,18 @@ class AmbiguousLaunchRunner:
         args = tuple(argv)
         if args[:5] == ("gcloud", "run", "jobs", "executions", "describe"):
             name = args[5]
-            value = (
-                _prior_terminal()
-                if name == OLD_NAME
-                else _provider(state=self.new_state)
-            )
+            if name == OLD_NAME:
+                value = _prior_terminal()
+            else:
+                value = _provider(
+                    state=self.new_state,
+                    name=name,
+                    uid=self.new_uid,
+                )
+                if self.invalid_config:
+                    value["spec"]["template"]["spec"]["containers"][0][
+                        "image"
+                    ] = f"{IMAGE_ROOT}@sha256:{'f' * 64}"
             return subject.CommandResult(0, _raw(value))
         if args[:4] == ("gcloud", "run", "jobs", "describe"):
             if self.launch_count == 0:
@@ -326,7 +338,7 @@ class AmbiguousLaunchRunner:
                 elif self.post_launch_job_reads == 1:
                     latest = None
                 else:
-                    latest = NEW_NAME
+                    latest = self.latest_name
             return subject.CommandResult(0, _raw(_job(latest)))
         if args and args[0] == str(subject.LAUNCHER):
             assert (self.run_dir / "phases/worker/launch-intent.json").is_file()
@@ -477,10 +489,10 @@ def test_attribution_resume_retains_original_snapshot_across_status_drift(
     assert runner.launch_count == 1
 
 
-def test_recovery_receipt_resume_revalidates_without_rewriting_status_snapshot(
+def _freeze_consumed_recovery_before_attribution(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
-) -> None:
+) -> tuple[object, AmbiguousLaunchRunner, Path, bytes]:
     run_dir = tmp_path / "source-v3-state" / RUN_ID
     runner = AmbiguousLaunchRunner(run_dir, resolves=False)
     finisher = _finisher(tmp_path, monkeypatch, runner, reconcile_polls=1)
@@ -516,11 +528,65 @@ def test_recovery_receipt_resume_revalidates_without_rewriting_status_snapshot(
             publisher="DISABLED",
         )
     recovery_path = run_dir / "phases/worker/launch-recovery.json"
-    recovery = json.loads(recovery_path.read_bytes())
+    recovery_raw = recovery_path.read_bytes()
+    recovery = json.loads(recovery_raw)
+    frozen = recovery["provider_attribution"]
+    assert frozen["status"].get("conditions") == []
+    assert recovery["provider_sha256_at_attribution"] == (
+        subject.canonical_sha256(frozen)
+    )
+    assert recovery["provider_attribution_method"] == (
+        "provider-latest-after-consumed-intent"
+    )
     assert not (run_dir / "phases/worker/provider-attribution.json").exists()
+    assert runner.launch_count == 1
+    monkeypatch.setattr(subject, "_publish_once", publish_once)
+    return finisher, runner, run_dir, recovery_raw
+
+
+@pytest.mark.parametrize(
+    "second_crash_target",
+    ("provider-attribution-receipt.json", "launch.json"),
+)
+def test_recovery_snapshot_survives_two_stage_crash_and_status_drift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    second_crash_target: str,
+) -> None:
+    finisher, runner, run_dir, recovery_raw = (
+        _freeze_consumed_recovery_before_attribution(tmp_path, monkeypatch)
+    )
+    recovery = json.loads(recovery_raw)
+    publish_once = subject._publish_once
+    crashed = False
+
+    def crash_after_drifted_attribution(path: Path, raw: bytes) -> bool:
+        nonlocal crashed
+        if path.name == second_crash_target and not crashed:
+            crashed = True
+            raise RuntimeError("simulated second host crash")
+        return publish_once(path, raw)
+
+    runner.new_state = "True"
+    monkeypatch.setattr(subject, "_publish_once", crash_after_drifted_attribution)
+    with pytest.raises(RuntimeError, match="simulated second host crash"):
+        finisher._launch_or_recover(
+            phase="worker",
+            prior={},
+            payload=b"{}",
+            worker="DISABLED",
+            verifier="DISABLED",
+            publisher="DISABLED",
+        )
+
+    recovery_path = run_dir / "phases/worker/launch-recovery.json"
+    attribution_path = run_dir / "phases/worker/provider-attribution.json"
+    frozen_raw = subject.canonical_bytes(recovery["provider_attribution"])
+    assert recovery_path.read_bytes() == recovery_raw
+    assert attribution_path.read_bytes() == frozen_raw
+    assert runner.launch_count == 1
 
     monkeypatch.setattr(subject, "_publish_once", publish_once)
-    runner.new_state = "True"
     launch = finisher._launch_or_recover(
         phase="worker",
         prior={},
@@ -529,16 +595,49 @@ def test_recovery_receipt_resume_revalidates_without_rewriting_status_snapshot(
         verifier="DISABLED",
         publisher="DISABLED",
     )
-    attribution = json.loads(
-        (run_dir / "phases/worker/provider-attribution.json").read_bytes()
-    )
+    assert recovery_path.read_bytes() == recovery_raw
+    assert attribution_path.read_bytes() == frozen_raw
     assert launch["provider_attribution_method"] == (
         "provider-latest-after-consumed-intent"
     )
     assert launch["provider_sha256_at_attribution"] == subject.canonical_sha256(
-        attribution
+        recovery["provider_attribution"]
     )
-    assert recovery["provider_sha256"] != launch["provider_sha256_at_attribution"]
+    assert runner.launch_count == 1
+
+
+@pytest.mark.parametrize("invalid_current", ("name", "uid", "config"))
+def test_recovery_snapshot_refuses_invalid_current_provider_without_attribution(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    invalid_current: str,
+) -> None:
+    finisher, runner, run_dir, recovery_raw = (
+        _freeze_consumed_recovery_before_attribution(tmp_path, monkeypatch)
+    )
+    runner.new_state = "True"
+    if invalid_current == "name":
+        runner.latest_name = OTHER_NAME
+    elif invalid_current == "uid":
+        runner.new_uid = OTHER_UID
+    else:
+        runner.invalid_config = True
+
+    with pytest.raises(subject.SourceV3FinisherError):
+        finisher._launch_or_recover(
+            phase="worker",
+            prior={},
+            payload=b"{}",
+            worker="DISABLED",
+            verifier="DISABLED",
+            publisher="DISABLED",
+        )
+
+    phase_dir = run_dir / "phases/worker"
+    assert (phase_dir / "launch-recovery.json").read_bytes() == recovery_raw
+    assert not (phase_dir / "provider-attribution.json").exists()
+    assert not (phase_dir / "provider-attribution-receipt.json").exists()
+    assert not (phase_dir / "launch.json").exists()
     assert runner.launch_count == 1
 
 
