@@ -245,3 +245,27 @@ failure, task0 mismatch, partial namespace, failed deep reopen, moving Git
 head, nonterminal shared job, or outcome access before the grade lease is a
 hard stop. No fallback source, old source-v3 release, loose manifest, current
 object resolution, or relabelled failed prefix is authorized.
+
+## Follow-up validation closure
+
+An independent rerun exposed a test-environment contamination hazard. The
+shared virtual environment is editable-installed against the primary checkout;
+bare `pytest` from an isolated worktree therefore loaded the primary module
+while collecting the isolated worktree's tests. The production query was not
+missing its cutoff: both isolated-worktree query specs contain the exact
+millisecond predicate. `pyproject.toml` now prepends this checkout's `src`
+directory ahead of any reused editable installation and retains `.` for the
+repository-level `scripts` namespace.
+
+The focused regression also models a source relation modified at
+`12:00:00.001Z` against a snapshot frozen at `12:00:00.000Z`. It confirms that
+the native-millisecond SQL predicate filters the otherwise same-rounded-second
+metadata row and that the producer fails for incomplete relation metadata
+before any create-once write.
+
+Validation using the formerly contaminated bare-pytest path is green:
+
+- the independent reproducer's exact normalized/seven-pack subset: **18/18**;
+- normalized core, CLI, and cloud contract: **20/20**;
+- seven-pack operator, freezer, bridge, and cloud compatibility: **33/33**;
+- edited Python compilation and `git diff --check`: passed.
