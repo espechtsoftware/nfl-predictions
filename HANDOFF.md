@@ -22,6 +22,67 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 normalized paid-source v3 is sealed and independently reopened
+
+- Normalized successor `20260911-fp-sis-normalized-successor-v3` froze at
+  `2026-09-11T02:58:22Z` from exact pushed source
+  `b7beab10241b53cada9f36d4f238b6d4b816d5d8` and projection-module SHA-256
+  `bc94ee1c6bcdb64db2cdb81803028100a648b59e4f8739b79ef2f8a4ef7ccc98`.
+  Its request-file SHA-256 is
+  `6b4986a5f897736f38191f77e6b6a9572aba6c5dbb92babf04751d1d1fee2517`
+  and inner request SHA-256 is
+  `08123c3d0e491e03b4937b1c1e0256b91d1086b6a8c27d6435fb9aca27173462`.
+  Cloud Build `e873a5e5-77bf-481b-89b5-703a5200ac37` passed and produced
+  immutable image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:6ea553e02bd5bb99939e69f3ebc87f83b9ae9e3679fa2211ea79fa7a51231117`;
+  the reused job was installed at generation 53.
+- Task0 execution `atlas-cbc-32g-full-2023-w8-v1-64cd5`, UID
+  `b006df0a-08cb-44cb-b3bf-5fb25352990f`, completed successfully at
+  `2026-09-11T03:07:32.982603Z`. Exact BigQuery job
+  `r6_paid_snapshot_20260911_fp_sis_normalized_successor_v3_0_386d452094ae`
+  processed 15,335,251 bytes and returned 46,008 Fantasy Points rows:
+  16,482 alignment, 128 defense-shell, 2,093 receiver-shell, and 27,305
+  route-share. Task0 published zero objects, could not reach the write API,
+  and read no outcome artifact or column.
+- Publish execution `atlas-cbc-32g-full-2023-w8-v1-vll5l`, UID
+  `24f90f0f-6096-4871-a189-54f62b7e6e93`, completed successfully at
+  `2026-09-11T03:16:44.294434Z`. Exact SIS BigQuery job
+  `r6_paid_snapshot_20260911_fp_sis_normalized_successor_v3_1_783ff7d6ef1e`
+  processed 12,107,011 bytes. The create-once Fantasy Points manifest is
+  108,029 bytes, generation `1789096414676262`, SHA-256
+  `dd77d61966242854bf16e3215085a1ba1746b4b9424c77f70c411749f5bc2317`;
+  the SIS manifest is 4,909 bytes, generation `1789096470992846`, SHA-256
+  `31f6a7b61f5f51585bcd7a8e7f47f74b89731dc799b1d7107728525eaa3da7b6`.
+  The terminal was published last at
+  `gs://nfl-predictions-503414-corpus-source/research/corpus-r6-paid-source-normalized-snapshots-v1/20260911-fp-sis-normalized-successor-v3/snapshot-terminal.json`:
+  9,535 bytes, generation `1789096471260853`, SHA-256
+  `6667617bd6941a2b7ec162f2f60ea7e05277086533aee096f42d0761d5d7f35a`.
+- The publication's in-process independent reopen authenticated both manifests
+  and every exact predecessor, reserving 28,962,802 bytes across 12
+  generation-pinned operations. A separate reopen execution
+  `atlas-cbc-32g-full-2023-w8-v1-46mtp`, UID
+  `da02a833-ef54-40ea-b1b1-e63de64a748c`, completed successfully at
+  `2026-09-11T03:22:05.262669Z` and independently recovered the same terminal,
+  both manifests, and all predecessors with no outcome artifact or column
+  access. This seals the normalized v3 source evidence only; it grants no
+  scoring, historical-scoring, policy, promotion, or live-strategy authority.
+- Process disclosure: install and task0 were invoked directly before the
+  missing shared-launcher registration was noticed. The exact production
+  registry was empty, and the wrapper then proved the prior execution
+  terminal and idle and task0's immutable provider source/image/request
+  authority; relaunching either would be less safe and is forbidden. All
+  remaining shared-job launch actions were registered. Publish used canonical
+  registry completion
+  `60be81e640c416e0577597fe2da7bbd2705e5bfa2591c949e1a60c1f21f6aa40`;
+  separate reopen used
+  `daa26f1e9d72c4ef95dcf51eb439778eefb6677c0f6f57de0cd39079286919ea`.
+- The failed v1 and v2 requests, namespaces, executions, and query IDs remain
+  poisoned failure evidence and must never be retried, relabelled, or reused.
+  Exact next action: freeze one new seven-pack successor against the exact v3
+  terminal identity above, complete and independently reopen that chain, then
+  run the governed Fantasy Points x SIS 2x2 diagnostic. Do not start scoring
+  or infer adoption from the normalized source seal alone.
+
 ### 2026-09-10 normalized v2 failed safely; unresolved multiplicity repaired
 
 - Fresh normalized request `20260911-fp-sis-normalized-successor-v2`, frozen
