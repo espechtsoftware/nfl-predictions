@@ -6,6 +6,14 @@ set -euo pipefail
 
 die() { printf '%s\n' "ERROR: $*" >&2; exit 2; }
 
+require_exact_clean_git() {
+  [[ $# -eq 2 ]] || die "exact-clean Git arguments differ"
+  local repository=$1 label=$2 status
+  status=$(git -C "$repository" status --porcelain --untracked-files=all) || \
+    die "$label Git status is unavailable"
+  [[ -z "$status" ]] || die "$label must be exact-clean"
+}
+
 RUNNER=/app/scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py
 ENABLE_ENV=R6_PAID_SOURCE_DISCOVERY_MATRIX_ENABLE
 ENABLE_VALUE=I_UNDERSTAND_SCORE_FREE_DISCOVERY_MATRIX_FREEZE_V1
@@ -75,21 +83,23 @@ if [[ "${1:-}" == "build" ]]; then
   build_root=$(git rev-parse --show-toplevel 2>/dev/null) || die "repository root absent"
   [[ "$(git -C "$build_root" rev-parse HEAD)" == "$build_sha" ]] || die "build SHA must equal HEAD"
   [[ "$(git -C "$build_root" rev-parse --verify 'refs/remotes/origin/main^{commit}')" == "$build_sha" ]] || die "build SHA must equal origin/main"
+  require_exact_clean_git "$build_root" "build checkout"
   release_paths=(
     Dockerfile.corpus-r6-paid-source-discovery-matrix
     Dockerfile.corpus-r6-paid-source-discovery-matrix.dockerignore
     cloudbuild.corpus-r6-paid-source-discovery-matrix.yaml
     pyproject.toml README.md
     scripts/cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.sh
+    scripts/finish_corpus_r6_paid_source_discovery_matrix_v1.py
     scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py
     src/nfl_dfs/research/corpus_r6_paid_source_discovery_matrix_freeze_v1.py
     tests/test_corpus_r6_paid_source_discovery_matrix_freeze_v1.py
     tests/test_run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py
     tests/test_cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.py
+    tests/test_finish_corpus_r6_paid_source_discovery_matrix_v1.py
   )
   for path in "${release_paths[@]}"; do
     git -C "$build_root" cat-file -e "$build_sha:$path" || die "release path absent from commit: $path"
-    [[ -z "$(git -C "$build_root" status --porcelain --untracked-files=all -- "$path")" ]] || die "release path differs from commit: $path"
   done
   image_tag="${REGION}-docker.pkg.dev/${PROJECT}/nfl-dfs/nfl-dfs:paid-source-discovery-matrix-${build_sha}"
   mkdir -p "$build_root/.build-contexts"
@@ -124,13 +134,19 @@ if [[ "${1:-}" == "build" ]]; then
   attestation_uri="gs://${PROJECT}-corpus-retrieval/research/corpus-r6-paid-source-discovery-matrix-builds/${build_sha}/${build_id}/runtime-build-attestation.json"
   attestation_identity=$build_work/attestation.identity.json
   PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$build_root/src:$build_root/scripts" \
-    "$build_root/.venv/bin/python" - "$build_json" "$SOURCE_REPOSITORY" \
+    "$build_root/.venv/bin/python" - "$build_root" "$build_json" "$SOURCE_REPOSITORY" \
       "$build_sha" "$image_tag" "$digest" "$attestation_uri" >"$attestation_identity" <<'PY'
 import json, pathlib, sys
 from nfl_dfs.research import corpus_r6_construction_allocation_cross_operator_v1 as authority
 import run_corpus_r6_paid_source_discovery_matrix_freeze_v1 as runner
 
-metadata_path, repository, code_sha, tag, digest, uri = sys.argv[1:]
+build_root, metadata_path, repository, code_sha, tag, digest, uri = sys.argv[1:]
+build_root = pathlib.Path(build_root).resolve()
+source_root = build_root / "src"
+if pathlib.Path(authority.__file__).resolve() != source_root / "nfl_dfs/research/corpus_r6_construction_allocation_cross_operator_v1.py":
+    raise SystemExit("build attestation authority module origin differs")
+if pathlib.Path(runner.__file__).resolve() != build_root / "scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py":
+    raise SystemExit("build attestation runner module origin differs")
 metadata = json.loads(pathlib.Path(metadata_path).read_bytes())
 attestation = authority.runtime_build_attestation_v1(
     build_id=metadata["id"], source_repository=repository,
@@ -162,6 +178,9 @@ case "$ACTION" in
   prepare)
     [[ $# -eq 5 ]] || die "usage: $0 prepare IMAGE CODE_SHA BUILD_ID REQUEST_JSON"
     ;;
+  reconcile-prepare)
+    [[ $# -eq 5 ]] || die "usage: $0 reconcile-prepare IMAGE CODE_SHA BUILD_ID REQUEST_JSON"
+    ;;
   task0)
     [[ $# -eq 5 ]] || die "usage: $0 task0 IMAGE CODE_SHA BUILD_ID MANIFEST_IDENTITY"
     ;;
@@ -171,11 +190,17 @@ case "$ACTION" in
   collect)
     [[ $# -eq 6 ]] || die "usage: $0 collect IMAGE CODE_SHA BUILD_ID MANIFEST_IDENTITY EXACT_TASK_EXECUTION"
     ;;
+  reconcile-collect)
+    [[ $# -eq 6 ]] || die "usage: $0 reconcile-collect IMAGE CODE_SHA BUILD_ID MANIFEST_IDENTITY EXACT_TASK_EXECUTION"
+    ;;
   reopen-task)
     [[ $# -eq 6 ]] || die "usage: $0 reopen-task IMAGE CODE_SHA BUILD_ID TERMINAL_IDENTITY EXACT_TASK_EXECUTION"
     ;;
   reopen-collect)
     [[ $# -eq 6 ]] || die "usage: $0 reopen-collect IMAGE CODE_SHA BUILD_ID TERMINAL_IDENTITY EXACT_REOPEN_EXECUTION"
+    ;;
+  reconcile-reopen-collect)
+    [[ $# -eq 6 ]] || die "usage: $0 reconcile-reopen-collect IMAGE CODE_SHA BUILD_ID TERMINAL_IDENTITY EXACT_REOPEN_EXECUTION"
     ;;
   result)
     [[ $# -eq 2 && "$2" =~ ^${JOB}-[a-z0-9]{5}$ ]] || die "result requires one exact execution"
@@ -192,6 +217,7 @@ IMAGE=$2 CODE_SHA=$3 BUILD_ID=$4 PAYLOAD=${5:-} PREDECESSOR=${6:-}
 ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || die "repository root absent"
 [[ "$(git -C "$ROOT" rev-parse HEAD)" == "$CODE_SHA" ]] || die "code SHA must equal HEAD"
 [[ "$(git -C "$ROOT" rev-parse --verify 'refs/remotes/origin/main^{commit}')" == "$CODE_SHA" ]] || die "code SHA must equal origin/main"
+require_exact_clean_git "$ROOT" "host checkout"
 
 mkdir -p "$ROOT/.build-contexts"
 tmp=$(mktemp -d "$ROOT/.build-contexts/discovery-matrix-release.XXXXXX")
@@ -239,9 +265,11 @@ verify_execution() {
     def envmap:
       reduce (.spec.template.spec.containers[0].env[]?) as $row
         ({}; .[$row.name] = $row.value);
+    (.spec.template.spec.containers[0].env // []) as $envrows |
     (envmap) as $env |
     .metadata.name == $execution and .metadata.labels["run.googleapis.com/job"] == $job and
     ((.metadata.labels["run.googleapis.com/jobUid"] // .metadata.annotations["run.googleapis.com/jobUid"]) == $uid) and
+    (.metadata.labels["run.googleapis.com/jobGeneration"] | test("^[1-9][0-9]*$")) and
     (.metadata.uid | type == "string" and length > 0) and
     .spec.taskCount == $tasks and .spec.parallelism == $expected_parallelism and
     .spec.template.spec.maxRetries == 0 and
@@ -261,6 +289,7 @@ verify_execution() {
     $env[$mode_env] == $mode and $env[$outcomes_env] == "false" and
     $env[$payload_sha_env] == $payload_sha and
     ($env[$payload_env] | type == "string" and length > 0) and
+    ($envrows | length) == ($envrows | map(.name) | unique | length) and
     (($env | keys | sort) == ([
       "CODE_SHA", "IMAGE_URI", "IMAGE_DIGEST", "BUILD_ID", $enable_env,
       $mode_env, $outcomes_env, $payload_env, $payload_sha_env,
@@ -277,35 +306,60 @@ verify_execution() {
     ($env | has("IMAGE_SOURCE_COMMIT_SHA") | not) and
     ((.status.succeededCount // 0) == $tasks) and ((.status.failedCount // 0) == 0) and
     ((.status.cancelledCount // 0) == 0) and ((.status.runningCount // 0) == 0) and
-    any(.status.conditions[]?; .type == "Completed" and .status == "True")
+    ((.status.retriedCount // 0) == 0) and
+    (.status.completionTime | type == "string" and length > 0) and
+    ([.status.conditions[]? | select(.type == "Completed") | .status] == ["True"])
   ' "$file" >/dev/null || die "predecessor execution is not exact terminal success"
 }
 
 extract_task0_receipt() {
   [[ $# -eq 2 && "$1" =~ ^${JOB}-[a-z0-9]{5}$ ]] || die "task0 receipt extraction differs"
-  local execution=$1 destination=$2 logs=$tmp/task0-logs.json
+  local execution=$1 destination=$2 logs=$tmp/task0-logs.json attempt observed=false
   local filter
-  filter="resource.type=\"cloud_run_job\" AND resource.labels.job_name=\"${JOB}\" AND labels.\"run.googleapis.com/execution_name\"=\"${execution}\" AND labels.\"run.googleapis.com/task_index\"=\"0\""
-  gcloud logging read "$filter" --project "$PROJECT" --freshness=7d \
-    --order=asc --limit=200 --format=json >"$logs"
-  PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$ROOT/src:$ROOT/scripts" \
-    "$ROOT/.venv/bin/python" - "$logs" "$execution" "$destination" <<'PY' \
+  filter="resource.type=\"cloud_run_job\" AND resource.labels.job_name=\"${JOB}\" AND labels.\"run.googleapis.com/execution_name\"=\"${execution}\" AND labels.\"run.googleapis.com/task_index\"=\"0\" AND logName=\"projects/${PROJECT}/logs/run.googleapis.com%2Fstdout\""
+  # Provider completion can precede Cloud Logging visibility. Retry only an
+  # unavailable query or an exact empty array; any observed row is handed to
+  # the strict singleton/exclusive-representation validator immediately.
+  for attempt in {1..20}; do
+    if gcloud logging read "$filter" --project "$PROJECT" --freshness=7d \
+        --order=asc --limit=200 --format=json >"$logs" && \
+        jq -e 'type == "array"' "$logs" >/dev/null; then
+      if jq -e 'length > 0' "$logs" >/dev/null; then
+        observed=true
+        break
+      fi
+    fi
+    (( attempt == 20 )) || sleep 15
+  done
+  [[ "$observed" == true ]] || die "task0 stdout receipt remained unavailable"
+  PYTHONDONTWRITEBYTECODE=1 \
+    "$ROOT/.venv/bin/python" -I - "$ROOT/src" "$logs" "$execution" "$destination" <<'PY' \
     || die "exactly one canonical task0 stdout receipt was not observed"
 import json
 from pathlib import Path
 import sys
 
+source_root = Path(sys.argv.pop(1)).resolve()
+sys.path.insert(0, str(source_root))
 from nfl_dfs.research import corpus_r6_paid_source_discovery_matrix_freeze_v1 as freeze
+if Path(freeze.__file__).resolve() != source_root / "nfl_dfs/research/corpus_r6_paid_source_discovery_matrix_freeze_v1.py":
+    raise SystemExit("task0 log authority module origin differs")
 
 log_path, expected_execution, destination = sys.argv[1:]
 rows = json.loads(Path(log_path).read_bytes())
+if type(rows) is not list or len(rows) != 1:
+    raise SystemExit("expected exactly one raw task0 stdout row")
 matches = []
 for row in rows:
     if not isinstance(row, dict):
         continue
+    has_text = "textPayload" in row
+    has_json = "jsonPayload" in row
+    if has_text == has_json:
+        continue
     payload = row.get("textPayload")
     structured = row.get("jsonPayload")
-    if payload is None and isinstance(structured, dict):
+    if has_json and isinstance(structured, dict):
         if structured.get("schema_version") == freeze.TASK0_SCHEMA:
             value = structured
             if (value.get("runtime_authority") or {}).get("execution_id") \
@@ -352,22 +406,26 @@ fi
 payload_sha=$(sha256sum "$PAYLOAD" | awk '{print $1}')
 payload_b64=$(base64 -w0 "$PAYLOAD")
 
-if [[ "$ACTION" == "prepare" ]]; then
-  export "$ENABLE_ENV=$ENABLE_VALUE" "$MODE_ENV=prepare" "$OUTCOMES_ENV=false"
-  "$ROOT/.venv/bin/python" "$ROOT/scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py" prepare --request "$PAYLOAD" --execute
+if [[ "$ACTION" == "prepare" || "$ACTION" == "reconcile-prepare" ]]; then
+  export "$ENABLE_ENV=$ENABLE_VALUE" "$MODE_ENV=$ACTION" "$OUTCOMES_ENV=false"
+  execute_args=()
+  [[ "$ACTION" == "prepare" ]] && execute_args=(--execute)
+  "$ROOT/.venv/bin/python" -I "$ROOT/scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py" "$ACTION" --request "$PAYLOAD" "${execute_args[@]}"
   exit 0
 fi
-if [[ "$ACTION" == "collect" || "$ACTION" == "reopen-collect" ]]; then
+if [[ "$ACTION" =~ ^(collect|reconcile-collect|reopen-collect|reconcile-reopen-collect)$ ]]; then
   [[ "$PREDECESSOR" =~ ^${JOB}-[a-z0-9]{5}$ ]] || die "collector predecessor differs"
   provider_mode=task
-  [[ "$ACTION" == "reopen-collect" ]] && provider_mode=reopen-task
+  [[ "$ACTION" =~ reopen-collect$ ]] && provider_mode=reopen-task
   verify_execution "$PREDECESSOR" 54 "$provider_mode" "$payload_sha"
   request=$tmp/request.json
   key=manifest_identity
-  [[ "$ACTION" == "reopen-collect" ]] && key=terminal_identity
+  [[ "$ACTION" =~ reopen-collect$ ]] && key=terminal_identity
   jq -cS --arg execution "$PREDECESSOR" --arg key "$key" --slurpfile identity "$PAYLOAD" '{($key):$identity[0],execution_id:$execution}' >"$request"
   export "$ENABLE_ENV=$ENABLE_VALUE" "$MODE_ENV=$ACTION" "$OUTCOMES_ENV=false"
-  "$ROOT/.venv/bin/python" "$ROOT/scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py" "$ACTION" --request "$request" --execute
+  execute_args=()
+  [[ ! "$ACTION" =~ ^reconcile- ]] && execute_args=(--execute)
+  "$ROOT/.venv/bin/python" -I "$ROOT/scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py" "$ACTION" --request "$request" "${execute_args[@]}"
   exit 0
 fi
 
@@ -384,7 +442,7 @@ elif [[ "$ACTION" == "task" ]]; then
   extract_task0_receipt "$PREDECESSOR" "$task0_receipt"
   export "$ENABLE_ENV=$ENABLE_VALUE" "$MODE_ENV=task0-gate" "$OUTCOMES_ENV=false"
   "$ROOT/.venv/bin/python" \
-    "$ROOT/scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py" \
+    -I "$ROOT/scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py" \
     task0-gate --manifest-identity "$PAYLOAD" --task0-receipt "$task0_receipt" \
     --execution-id "$PREDECESSOR" --execute >"$task0_gate"
   task0_gate_binding=$(jq -er '.task0_gate_sha256 | select(test("^[0-9a-f]{64}$"))' "$task0_gate") \

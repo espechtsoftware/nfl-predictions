@@ -28,6 +28,74 @@ def test_every_mutating_cli_phase_is_default_off(tmp_path: Path) -> None:
             runner.run(argv, environment={})
 
 
+def test_reconciliation_cli_is_read_only_and_does_not_require_execute(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    request = tmp_path / "request.json"
+    request.write_text("{}", encoding="utf-8")
+    observed: list[tuple[dict[str, object], bool]] = []
+
+    def fake_prepare(value, *, store, publish=True):
+        observed.append((value, publish))
+        return {"complete": True, "ambiguous_return_reconciled": True}
+
+    monkeypatch.setattr(runner, "prepare", fake_prepare)
+    result = runner.run(
+        ["reconcile-prepare", "--request", str(request)],
+        environment={
+            runner.MODE_ENV: "reconcile-prepare",
+            runner.OUTCOMES_ENV: "false",
+        },
+        store=SimpleNamespace(),
+    )
+    assert result == {"complete": True, "ambiguous_return_reconciled": True}
+    assert observed == [({}, False)]
+
+
+def test_reconcile_json_requires_exact_known_body_and_never_publishes() -> None:
+    value = {"complete": True, "schema_version": "fixture/v1"}
+    raw = freeze.canonical_json_bytes(value)
+    identity = {
+        "uri": "gs://fixture/known.json",
+        "generation": "7",
+        "sha256": sha256(raw).hexdigest(),
+        "bytes": len(raw),
+    }
+    calls: list[str] = []
+
+    class Store:
+        def open_known(self, uri, maximum_bytes):
+            calls.append(f"open:{uri}:{maximum_bytes}")
+            return raw, identity
+
+        def read_exact(self, exact):
+            calls.append(f"read:{exact['generation']}")
+            return raw
+
+        def publish_bytes_create_once(self, uri, body):  # pragma: no cover
+            raise AssertionError("reconciliation must never publish")
+
+    assert runner._reconcile_json(
+        identity["uri"], value, store=Store(), label="fixture",
+    ) == identity
+    assert calls == [
+        f"open:{identity['uri']}:{runner.MAX_JSON_BYTES}",
+        "read:7",
+    ]
+
+    class WrongStore(Store):
+        def open_known(self, uri, maximum_bytes):
+            return raw + b"\n", {**identity, "bytes": len(raw) + 1}
+
+    with pytest.raises(
+        runner.DiscoveryMatrixRunnerV1Error,
+        match="fixture reconciliation differs",
+    ):
+        runner._reconcile_json(
+            identity["uri"], value, store=WrongStore(), label="fixture",
+        )
+
+
 def test_runtime_authority_binds_exact_54_task_execution() -> None:
     manifest = {
         "manifest_sha256": "1" * 64,
@@ -104,6 +172,7 @@ def test_provider_uses_one_exact_execution_and_requires_job_uid(
             "labels": {
                 "run.googleapis.com/job": runner.JOB,
                 "run.googleapis.com/jobUid": runner.JOB_UID,
+                "run.googleapis.com/jobGeneration": "7",
             },
         },
         "spec": {
@@ -131,6 +200,7 @@ def test_provider_uses_one_exact_execution_and_requires_job_uid(
         "status": {
             "succeededCount": 1,
             "conditions": [{"type": "Completed", "status": "True"}],
+            "completionTime": "2026-09-11T12:00:00Z",
         },
     }
     calls = []

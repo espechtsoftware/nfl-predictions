@@ -32,6 +32,11 @@ from nfl_dfs.research import (  # noqa: E402
     corpus_r6_paid_source_discovery_matrix_freeze_v1 as freeze,
 )
 
+if Path(freeze.__file__).resolve() != (
+    ROOT / "src/nfl_dfs/research/corpus_r6_paid_source_discovery_matrix_freeze_v1.py"
+):
+    raise RuntimeError("discovery matrix authority module origin differs")
+
 
 PROJECT: Final = freeze.PROJECT_ID
 REGION: Final = freeze.REGION
@@ -136,6 +141,48 @@ def _publish_json(uri: str, value: Mapping[str, object], *, store: Store) -> dic
     return identity
 
 
+def _reconcile_json(
+    uri: str, value: Mapping[str, object], *, store: Store, label: str,
+) -> dict[str, object]:
+    """Open one known create-once target and require the exact expected body.
+
+    This is deliberately not publish-or-same.  It is the read-only half of an
+    ambiguous host return: once the caller has durably recorded an invocation
+    intent, absence remains a consumed/blocked intent and must never cause a
+    second publication attempt.
+    """
+
+    expected = _canonical(value)
+    if len(expected) > MAX_JSON_BYTES:
+        _fail(f"{label} exceeds JSON byte ceiling")
+    raw, identity_value = store.open_known(uri, MAX_JSON_BYTES)
+    identity = _identity(identity_value, label=f"{label} reconciliation")
+    if (
+        identity["uri"] != uri
+        or identity["bytes"] != len(expected)
+        or identity["sha256"] != sha256(expected).hexdigest()
+        or raw != expected
+        or store.read_exact(identity) != expected
+    ):
+        _fail(f"{label} reconciliation differs")
+    return identity
+
+
+def _publish_or_reconcile_json(
+    uri: str,
+    value: Mapping[str, object],
+    *,
+    store: Store,
+    publish: bool,
+    label: str,
+) -> dict[str, object]:
+    return (
+        _publish_json(uri, value, store=store)
+        if publish
+        else _reconcile_json(uri, value, store=store, label=label)
+    )
+
+
 def _runtime(
     manifest: Mapping[str, object],
     ordinal: int,
@@ -212,7 +259,9 @@ def _open_manifest(identity: object, *, store: Store) -> tuple[dict, dict]:
     return manifest, retained_identity
 
 
-def prepare(request: Mapping[str, object], *, store: Store) -> dict[str, object]:
+def prepare(
+    request: Mapping[str, object], *, store: Store, publish: bool = True,
+) -> dict[str, object]:
     if set(request) != {
         "run_id", "code_sha", "immutable_image", "build_id",
         "runtime_build_attestation_identity", "candidate_root_identity",
@@ -227,8 +276,9 @@ def prepare(request: Mapping[str, object], *, store: Store) -> dict[str, object]
         later_source_freeze_identity=request["later_source_freeze_identity"],
         read_exact=store.read_exact,
     )
-    identity = _publish_json(
-        f"{manifest['output_prefix']}manifest.json", manifest, store=store
+    identity = _publish_or_reconcile_json(
+        f"{manifest['output_prefix']}manifest.json", manifest, store=store,
+        publish=publish, label="matrix manifest",
     )
     reopened, reopened_identity = _open_manifest(identity, store=store)
     if reopened != manifest or reopened_identity != identity:
@@ -238,6 +288,8 @@ def prepare(request: Mapping[str, object], *, store: Store) -> dict[str, object]
         "manifest_identity": identity,
         "manifest_sha256": manifest["manifest_sha256"],
         "task_count": freeze.TASK_COUNT,
+        "publication_performed": publish,
+        "ambiguous_return_reconciled": not publish,
         "uses_realized_outcomes": False,
         "complete": True,
     }
@@ -579,7 +631,10 @@ def validate_task0_gate(
     )
 
 
-def collect(request: Mapping[str, object], *, store: Store, provider: Provider) -> dict:
+def collect(
+    request: Mapping[str, object], *, store: Store, provider: Provider,
+    publish: bool = True,
+) -> dict:
     if set(request) != {"manifest_identity", "execution_id"}:
         _fail("matrix collect request fields differ")
     execution_id = request["execution_id"]
@@ -613,13 +668,18 @@ def collect(request: Mapping[str, object], *, store: Store, provider: Provider) 
         task_results=results, task_result_identities=identities,
         provider_execution_receipt=provider_receipt,
     )
-    terminal_identity = _publish_json(manifest["terminal_uri"], terminal, store=store)
+    terminal_identity = _publish_or_reconcile_json(
+        manifest["terminal_uri"], terminal, store=store, publish=publish,
+        label="matrix terminal",
+    )
     return {
         "schema_version": "corpus-r6-paid-source-discovery-matrix-collect-result/v1",
         "terminal_identity": terminal_identity,
         "terminal_sha256": terminal["terminal_sha256"],
         "task_count": freeze.TASK_COUNT,
         "root_published_last": True,
+        "publication_performed": publish,
+        "ambiguous_return_reconciled": not publish,
         "complete": True,
     }
 
@@ -661,7 +721,10 @@ def reopen_task(
     }
 
 
-def reopen_collect(request: Mapping[str, object], *, store: Store, provider: Provider) -> dict:
+def reopen_collect(
+    request: Mapping[str, object], *, store: Store, provider: Provider,
+    publish: bool = True,
+) -> dict:
     if set(request) != {"terminal_identity", "execution_id"}:
         _fail("matrix reopen collect request differs")
     execution_id = request["execution_id"]
@@ -691,12 +754,17 @@ def reopen_collect(request: Mapping[str, object], *, store: Store, provider: Pro
         task_receipt_identities=identities,
         provider_execution_receipt=provider_receipt,
     )
-    identity = _publish_json(root.manifest["reopen_terminal_uri"], terminal, store=store)
+    identity = _publish_or_reconcile_json(
+        root.manifest["reopen_terminal_uri"], terminal, store=store,
+        publish=publish, label="matrix reopen terminal",
+    )
     return {
         "schema_version": "corpus-r6-paid-source-discovery-matrix-reopen-collect-result/v1",
         "reopen_terminal_identity": identity,
         "reopen_sha256": terminal["reopen_sha256"],
         "task_count": freeze.TASK_COUNT,
+        "publication_performed": publish,
+        "ambiguous_return_reconciled": not publish,
         "complete": True,
     }
 
@@ -829,9 +897,19 @@ class GCloudProviderV1:
         status = value.get("status", {})
         labels = metadata.get("labels", {})
         annotations = metadata.get("annotations", {})
-        terminal = any(
-            row.get("type") == "Completed" and row.get("status") == "True"
-            for row in status.get("conditions", [])
+        completed = [
+            row.get("status") for row in status.get("conditions", [])
+            if isinstance(row, Mapping) and row.get("type") == "Completed"
+        ]
+        job_generation = labels.get("run.googleapis.com/jobGeneration")
+        terminal = (
+            completed == ["True"]
+            and type(status.get("completionTime")) is str
+            and bool(status["completionTime"])
+            and (status.get("retriedCount", 0) or 0) == 0
+            and type(job_generation) is str
+            and job_generation.isdigit()
+            and int(job_generation) > 0
         )
         return {
             "execution_id": value.get("metadata", {}).get("name"),
@@ -869,6 +947,9 @@ def _parser() -> argparse.ArgumentParser:
         command = commands.add_parser(mode)
         command.add_argument("--request", type=Path, required=True)
         command.add_argument("--execute", action="store_true")
+    for mode in ("reconcile-prepare", "reconcile-collect", "reconcile-reopen-collect"):
+        command = commands.add_parser(mode)
+        command.add_argument("--request", type=Path, required=True)
     for mode in ("task0", "task"):
         command = commands.add_parser(mode)
         command.add_argument("--manifest-identity", type=Path, required=True)
@@ -890,13 +971,19 @@ def run(
 ) -> dict[str, object]:
     args = _parser().parse_args(argv)
     env = dict(os.environ if environment is None else environment)
-    if args.execute is not True or env.get(ENABLE_ENV) != ENABLE_VALUE:
+    reconciliation = args.mode.startswith("reconcile-")
+    if not reconciliation and (
+        args.execute is not True or env.get(ENABLE_ENV) != ENABLE_VALUE
+    ):
         _fail("discovery matrix execution is disabled")
     if env.get(MODE_ENV) != args.mode or env.get(OUTCOMES_ENV) != "false":
         _fail("discovery matrix mode/outcome boundary differs")
     retained_store = store or GCSStoreV1()
-    if args.mode == "prepare":
-        return prepare(_read_file(args.request, label="prepare request"), store=retained_store)
+    if args.mode in {"prepare", "reconcile-prepare"}:
+        return prepare(
+            _read_file(args.request, label="prepare request"),
+            store=retained_store, publish=not reconciliation,
+        )
     if args.mode in {"task0", "task"}:
         identity = _read_file(args.manifest_identity, label="manifest identity")
         task_store: Store | ReadOnlyStore = retained_store
@@ -919,10 +1006,10 @@ def run(
             store=ReadOnlyStoreAdapterV1(retained_store.read_exact),
             provider=provider or GCloudProviderV1(),
         )
-    if args.mode == "collect":
+    if args.mode in {"collect", "reconcile-collect"}:
         return collect(
             _read_file(args.request, label="collect request"), store=retained_store,
-            provider=provider or GCloudProviderV1(),
+            provider=provider or GCloudProviderV1(), publish=not reconciliation,
         )
     if args.mode == "reopen-task":
         with tempfile.TemporaryDirectory(prefix="r6-discovery-matrix-reopen-") as directory:
@@ -933,6 +1020,7 @@ def run(
     return reopen_collect(
         _read_file(args.request, label="reopen collect request"),
         store=retained_store, provider=provider or GCloudProviderV1(),
+        publish=not reconciliation,
     )
 
 

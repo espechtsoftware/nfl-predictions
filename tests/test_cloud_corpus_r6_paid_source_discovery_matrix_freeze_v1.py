@@ -36,6 +36,13 @@ def _install_fake_git(directory: Path) -> None:
         "elif args == ['-C', root, 'rev-parse', '--verify', "
         "'refs/remotes/origin/main^{commit}']:\n"
         "    print(code)\n"
+        "elif args == ['-C', root, 'status', '--porcelain', "
+        "'--untracked-files=all']:\n"
+        "    mode = __import__('os').environ.get('GIT_STATUS_MODE', 'clean')\n"
+        "    if mode == 'dirty':\n"
+        "        print('?? untracked.txt')\n"
+        "    elif mode == 'failure':\n"
+        "        raise SystemExit(91)\n"
         "else:\n"
         "    print('unexpected fake git call: ' + ' '.join(args), file=sys.stderr)\n"
         "    raise SystemExit(98)\n",
@@ -121,6 +128,8 @@ def _run_host_action(
     tmp_path: Path,
     action: str,
     mode: str,
+    *,
+    git_status_mode: str = "clean",
 ) -> tuple[subprocess.CompletedProcess[str], str]:
     tmp_path.mkdir(parents=True)
     _install_fake_git(tmp_path)
@@ -142,12 +151,15 @@ def _run_host_action(
             "PATH": f"{tmp_path}:{os.environ['PATH']}",
             "FAKE_GCLOUD_CALLS": str(calls),
             "LATEST_MODE": mode,
+            "GIT_STATUS_MODE": git_status_mode,
         },
         text=True,
         capture_output=True,
         check=False,
     )
-    return result, calls.read_text(encoding="utf-8")
+    return result, (
+        calls.read_text(encoding="utf-8") if calls.exists() else ""
+    )
 
 
 def test_cloud_shell_is_syntax_valid_and_default_off() -> None:
@@ -166,6 +178,7 @@ def test_cloud_shell_is_syntax_valid_and_default_off() -> None:
     assert "task0-gate" in text
     assert "extract_task0_receipt" in text
     assert "gcloud logging read" in text
+    assert "run.googleapis.com%2Fstdout" in text
     assert "TASK0_GATE_B64" in text
     assert 'structured = row.get("jsonPayload")' in text
     assert '.spec.template.spec.timeoutSeconds == "21600"' in text
@@ -180,6 +193,7 @@ def test_cloud_shell_is_syntax_valid_and_default_off() -> None:
     assert "IMAGE_SOURCE_COMMIT_SHA=$CODE_SHA" not in text
     assert "cat /app/SOURCE_COMMIT" in text
     assert '[[ "$ACTION" =~ ^(install|task0|task|reopen-task)$ ]]' in text
+    assert 'require_exact_clean_git "$ROOT" "host checkout"' in text
     terminal_gate = text.index("reused job latest execution is not terminal and idle")
     assert terminal_gate < text.index('gcloud run jobs update "$JOB"')
     assert terminal_gate < text.index('gcloud run jobs execute "$JOB"')
@@ -193,6 +207,23 @@ def test_container_fails_before_payload_without_enable_gate() -> None:
     )
     assert result.returncode == 2
     assert "matrix freezer disabled" in result.stderr
+
+
+@pytest.mark.parametrize("mode", ["dirty", "failure"])
+def test_host_mutation_rejects_non_exact_clean_checkout_before_cloud_mutation(
+    tmp_path: Path,
+    mode: str,
+) -> None:
+    result, calls = _run_host_action(
+        tmp_path / mode, "install", "success", git_status_mode=mode,
+    )
+    assert result.returncode == 2
+    assert (
+        "host checkout must be exact-clean" in result.stderr
+        if mode == "dirty"
+        else "host checkout Git status is unavailable" in result.stderr
+    )
+    assert calls == ""
 
 
 def test_container_cleanup_survives_local_scope_exit(tmp_path: Path) -> None:

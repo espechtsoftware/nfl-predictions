@@ -26,10 +26,12 @@ steps:
           cloudbuild.corpus-r6-paid-source-discovery-matrix.yaml \
           pyproject.toml README.md src \
           scripts/cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.sh \
+          scripts/finish_corpus_r6_paid_source_discovery_matrix_v1.py \
           scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py \
           tests/test_corpus_r6_paid_source_discovery_matrix_freeze_v1.py \
           tests/test_run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py \
           tests/test_cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.py \
+          tests/test_finish_corpus_r6_paid_source_discovery_matrix_v1.py \
           release/
         printf '%s\n' '${_CODE_SHA}' >release/SOURCE_COMMIT
         test ! -e release/.git
@@ -45,22 +47,28 @@ steps:
       - -ceu
       - |
         test "$(cat SOURCE_COMMIT)" = '${_CODE_SHA}'
+        apt-get update
+        apt-get install -y --no-install-recommends jq
         ln -s /usr/local/bin/python3.14 /usr/local/bin/python3.11
         pip install --no-cache-dir 'numpy==2.5.1' 'scipy==1.18.0'
         pip install --no-cache-dir --editable '.[gcp,dev]'
         bash -n scripts/cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.sh
         PYTHONDONTWRITEBYTECODE=1 python -m py_compile \
           src/nfl_dfs/research/corpus_r6_paid_source_discovery_matrix_freeze_v1.py \
+          scripts/finish_corpus_r6_paid_source_discovery_matrix_v1.py \
           scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py
         PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -m pytest -q -o addopts='' \
           tests/test_corpus_r6_paid_source_discovery_matrix_freeze_v1.py \
           tests/test_run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py \
-          tests/test_cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.py
-        for command in prepare task0 task0-gate task collect reopen-task reopen-collect; do
+          tests/test_cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.py \
+          tests/test_finish_corpus_r6_paid_source_discovery_matrix_v1.py
+        for command in prepare reconcile-prepare task0 task0-gate task collect \
+            reconcile-collect reopen-task reopen-collect reconcile-reopen-collect; do
           /usr/local/bin/python3.11 -I \
             scripts/run_corpus_r6_paid_source_discovery_matrix_freeze_v1.py \
             "$${command}" --help >/dev/null
         done
+        scripts/finish_corpus_r6_paid_source_discovery_matrix_v1.py --help >/dev/null
         bash scripts/cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.sh \
           container-help >/dev/null
 
