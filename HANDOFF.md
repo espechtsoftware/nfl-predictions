@@ -22,6 +22,80 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-11 discovery-matrix successor controller is isolated and green
+
+- Isolated branch `codex/discovery-chain-controller-20260911` is based on
+  `5140f90dc906f25dce98e8cc1da511e5cf55eb2b`, after source-v3 repair
+  `a25ef6f0ecd75830641eec9081dc54ff5dd24e1a` and discovery shared-job guard
+  `b2465712a0c2fff0f0953814d634a82200e673c1`. Implementation commit
+  `10b736fe72784a9d2b52244d0c7f86132c06a6ff` adds the crash-closed host
+  controller, reconciliation-only runner seams, wrapper/build hardening,
+  focused tests, and the exact preflight report
+  `reports/2026-09-11-fp-sis-discovery-matrix-successor-preflight.md`.
+- The reserved successor run ID is
+  `20260911-fp-sis-discovery-matrix-successor-v1`. Its exact expected namespace
+  has 165 objects: one manifest, 54 matrix bodies, 54 task receipts, the
+  original terminal, 54 independent reopen receipts, and the reopen terminal.
+  The fixed 54-slate/199,244-candidate input produces 63,758,080,000 matrix-body
+  bytes plus 14,838,502 header bytes, 63,772,918,502 bytes total. The ordered
+  54-row census digest is
+  `5ca8f38dc2644bef83658df3047e1cb89cef0b16db3d6b97bae6fbaaca8ff991`.
+  Candidate/source identities and every per-slate byte count are recorded in
+  the report.
+- A read-only prefix absence check at `2026-09-11T06:29:12Z` found no object
+  under the reserved namespace, and the canonical local run-state path was
+  absent. This is not continuing launch authority. The controller repeats all
+  165 direct known-URI metadata probes immediately before its first prepare
+  intent, including after a crash that left an older clean preflight receipt.
+  Any observed target permanently consumes the run ID.
+- `scripts/finish_corpus_r6_paid_source_discovery_matrix_v1.py` is default-off
+  and requires exact clean `HEAD == origin/main`, direct-Git build provenance,
+  the immutable digest, canonical external state, and the live production
+  launcher-registry receipt/flock. One registry process retains the reused-job
+  lease across `install -> task0 -> task[54] -> collect -> reopen-task[54] ->
+  reopen-collect`. Every mutation has a create-once local intent before the
+  call. Existing intents are reconciliation-only forever; malformed/nonzero
+  returns never confer relaunch or republication authority. Recovery execution
+  name/UID flags are rejected before an intent exists.
+- Provider reconciliation binds exact changed latest name and UID, job name,
+  fixed job UID, positive job generation, image digest, code/build, complete
+  environment/payload transport, args, resources, task shape, timeout, zero
+  retries, and exact predecessor. Missing/Unknown conditions and provider
+  describe failures are bounded transients; partial 54-task success and the
+  documented completion-time/Completed-condition propagation lag are admitted
+  without declaring success. Numbered observations cannot acquire gaps after
+  transient query failures. Attribution is persisted before launch receipt;
+  restart after provider status drift retains the original attribution hash
+  while revalidating the current immutable envelope.
+- Prepare, collect, and reopen-collect have explicit read-only reconciliation
+  actions that compute the expected body and generation-open only the one known
+  target. The final chain seal deeply revalidates all local intent/receipt and
+  exact provider-terminal lineages. It preserves the original `terminal.json`
+  identity as `discovery_matrix_freeze_terminal_identity`; the distinct
+  `reopen-terminal.json` identity is proof only and must never replace the
+  original downstream scientific input.
+- Validation passes **106/106** unique tests: 58 discovery core/runner/cloud/
+  controller tests and the 48-test shared reused-job gate suite. Python
+  compilation, shell syntax, all CLI help seams, container-help, Cloud Build
+  YAML parsing, and `git diff --check` pass. Ruff and ShellCheck are unavailable
+  in the installed environment. No Cloud Build, Cloud Run launch/update,
+  BigQuery query, GCS publication, realized-outcome read, scoring, policy, or
+  production-worktree mutation was performed. There are no new durable cloud
+  execution IDs or object identities.
+- This is preparation, not launch authorization. First finish the active
+  historical-capability/capture blocker sequence and integrate its locked
+  commit(s), then integrate reviewed source-v3 and `b2465712`, cherry-pick
+  `10b736fe72784a9d2b52244d0c7f86132c06a6ff` plus this handoff commit, resolve
+  `HANDOFF.md` additively, and rerun the same 106 tests from the exact clean
+  pushed commit. Do not integrate source-v3 draft `dbfe5b87` until its
+  independently reported
+  provider-attribution/status-drift crash window is audited and repaired.
+  After review, perform one fresh direct-Git build, construct the exact
+  seven-field request with that build attestation, repeat namespace/local-state
+  preflight, run prepare, and only then run the complete chain under one
+  production registry lease. Do not build, prepare, launch, or write the
+  namespace from this isolated branch.
+
 ### 2026-09-11 discovery-matrix shared-job mutation guard is isolated and green
 
 - Isolated branch `codex/discovery-latest-execution-gate-20260911` is based
