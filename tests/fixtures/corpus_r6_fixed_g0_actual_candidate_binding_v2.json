@@ -1,0 +1,107 @@
+{
+  "candidate_implementation_binding_sha256": "e83013fb151da77263966c86632dd7c663a8caa5f9327ff5fda4c6890fa8283c",
+  "candidate_implementation_commit_sha": "346b2a27a55c29cd5c2a30719b1a0739baae4b50",
+  "candidate_implementation_measurements": [
+    {
+      "bytes": 52691,
+      "relative_path": "src/nfl_dfs/research/corpus_r6_fixed_g0_candidate_authority_release_v2.py",
+      "sha256": "340a4963f455b083153924a516adc8b2b714c854797161d192d355d9a3bcd2ae"
+    },
+    {
+      "bytes": 91312,
+      "relative_path": "src/nfl_dfs/research/corpus_r6_fixed_g0_candidate_authority_v1.py",
+      "sha256": "5f28de3ea7ccd722d92ac952624c6047a9444122e458c624f0d9a08f16826988"
+    },
+    {
+      "bytes": 35651,
+      "relative_path": "src/nfl_dfs/research/corpus_r6_fixed_g0_candidate_authority_v2.py",
+      "sha256": "da859efc30eb8e6687bbc8a9ee70ded91cd7864b262c2cc35f2ec635a37a286c"
+    },
+    {
+      "bytes": 9782,
+      "relative_path": "src/nfl_dfs/research/corpus_r6_fixed_g0_catalog_recovery_downstream_v1.py",
+      "sha256": "9180c2075fc8a80105cf18f0ae41f15a08b3e94982708ae0aa5b207264ac0bfe"
+    }
+  ],
+  "candidate_implementation_measurements_sha256": "15e05081362aadfcf0816b5d3020b6d7a307c2f0b271531fdf4e6644585b1fba",
+  "catalog_inner_object_count": 110,
+  "catalog_inner_object_manifest_sha256": "710736eaf294bdc5bb6ea78c55fc2fd4dfcdbc5284c14504479b4973351a9eb9",
+  "catalog_inner_release_identity": {
+    "bytes": 65922,
+    "generation": "1788047593516963",
+    "sha256": "c43b760bedda901d53c25e367bd2b075b7766ceb77ed9089a207dbd9f8608a45",
+    "uri": "gs://nfl-predictions-503414-corpus-source/research/source/20260826-r6-player-catalog-fixed-g0-v1/catalog-release.json"
+  },
+  "catalog_inner_release_sha256": "b8d8d1cd811a8082baba49e2917c48a86555f2f412002d3a31edd4509ab02a7c",
+  "catalog_inner_replay_receipt_identity": {
+    "bytes": 7399,
+    "generation": "1788047635130538",
+    "sha256": "8cb6ba23dabf4f16ea9a087609fbfd66cae411e700a60bbba6b40b9700c9e574",
+    "uri": "gs://nfl-predictions-503414-corpus-source/research/source/20260826-r6-player-catalog-fixed-g0-v1/fixed-g0-replay-receipt.json"
+  },
+  "catalog_inner_replay_receipt_sha256": "9ac2fe6be41d88e1493484c23199fcb46ea0db302cd5a04b61909e3fe3df5376",
+  "catalog_recovery_code_and_lock_binding": {
+    "attempt_marker_commit_sha": "f4a286769090c4657e56b1951a8057eb3f72d483",
+    "attempt_marker_sha256": "182d71238250cddce2aaf412d48a7e7e075405c9fd2b624eedb8fa27210d2189",
+    "capability_sha256": "cf92683b9a5469b67d977db3dba568aff7c93f5d15cd15ce5aa0d06592b1467d",
+    "final_lock_commit_sha": "1de95ae3f34ee0d23f5b6351ae01cbffa5de6a84",
+    "final_lock_internal_sha256": "dc4f4877cda458b83d822107bd815166732453b5e675a3b10b1ce51234addb2f",
+    "implementation_commit_sha": "fe814836da474c792514d63b50cd8642832b1a87",
+    "implementation_measurements_sha256": "be4270e7b27f33bfd37c615bd4daa45a5dbade654efb41ee4fe8ef046366699d",
+    "inner_authority_derived_only_from_validated_outer": true,
+    "outcome_columns_read": [],
+    "outer_attestation_identity": {
+      "bytes": 53857,
+      "generation": "1788047679701105",
+      "sha256": "65f49bcc66c7761eee050ceb066252977b4a94ed48f0fa56da644c85a6c98cf2",
+      "uri": "gs://nfl-predictions-503414-corpus-source/research/source/20260826-r6-player-catalog-fixed-g0-v1/fixed-g0-catalog-recovery-attestation-v2.json"
+    },
+    "outer_attestation_sha256": "1e7da9aa777d7d347039dacd4071bff02fbc4f5e672d1572978bbd4c045a82b4",
+    "review_lock_commit_sha": "5f665dd2278f13b8b066b6c3900da5b1cf568c32",
+    "review_lock_internal_sha256": "e6f1f925122fb7e6a5d357f6d0d010b1f8072409015d55aabcd65c99266d5a7c",
+    "schema_version": "corpus-r6-fixed-g0-catalog-recovery-downstream-authority/v1",
+    "uses_realized_outcomes": false,
+    "write_capability_exposed": false
+  },
+  "catalog_recovery_outer_attestation_sha256": "1e7da9aa777d7d347039dacd4071bff02fbc4f5e672d1572978bbd4c045a82b4",
+  "catalog_recovery_outer_identity": {
+    "bytes": 53857,
+    "generation": "1788047679701105",
+    "sha256": "65f49bcc66c7761eee050ceb066252977b4a94ed48f0fa56da644c85a6c98cf2",
+    "uri": "gs://nfl-predictions-503414-corpus-source/research/source/20260826-r6-player-catalog-fixed-g0-v1/fixed-g0-catalog-recovery-attestation-v2.json"
+  },
+  "catalog_recovery_outer_read_before_any_inner_read": true,
+  "inner_authority_derived_only_from_validated_outer": true,
+  "legacy_catalog_root_accepted_as_authority": false,
+  "outcome_columns_read": [],
+  "read_class_attestation": {
+    "accepted_task_result_and_carrier_bodies_reopened": true,
+    "historical_grader_outcome_sources_read": false,
+    "inherited_v1_build_validation_additional_read_classes": [
+      "published_candidate_artifact_bodies_54"
+    ],
+    "inherited_v1_derivation_read_classes": [
+      "fixed_g0_panel_authority",
+      "catalog_replay_receipt_body",
+      "catalog_release_body",
+      "catalog_derivation_receipt_bodies_54",
+      "player_catalog_bodies_54",
+      "task_acceptance_bodies_54",
+      "carrier_bodies_54",
+      "accepted_arm_result_object_bodies_378",
+      "world_schedule_bodies_54"
+    ],
+    "outcome_columns_read": [],
+    "realized_outcome_bodies_read": false,
+    "schema_version": "corpus-r6-fixed-g0-candidate-read-class-attestation/v2",
+    "uses_realized_outcomes": false,
+    "v2_wrapper_added_predecessor_read_classes": [
+      "catalog_recovery_outer_attestation"
+    ],
+    "warehouse_outcome_sources_read": false,
+    "world_matrix_bodies_read": false,
+    "world_schedule_bodies_read": true
+  },
+  "schema_version": "corpus-r6-fixed-g0-candidate-implementation-binding/v2",
+  "uses_realized_outcomes": false
+}
