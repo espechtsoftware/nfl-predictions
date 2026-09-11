@@ -139,6 +139,11 @@ def test_request_freezes_two_time_travel_queries_and_exact_inventory() -> None:
     for spec in request["query_specs"]:
         assert "FOR SYSTEM_TIME AS OF" in spec["canonical_query"]
         assert "2026-08-30T12:00:00Z" in spec["canonical_query"]
+        assert (
+            "TIMESTAMP_MILLIS(last_modified_time) <= "
+            "TIMESTAMP('2026-08-30T12:00:00Z')"
+            in spec["canonical_query"]
+        )
         assert spec["use_query_cache"] is False
         assert "realized" not in spec["canonical_query"].lower()
         assert "contest" not in spec["canonical_query"].lower()
