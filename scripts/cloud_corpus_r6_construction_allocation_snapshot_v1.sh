@@ -365,11 +365,18 @@ prior_execution=$(jq -er '.status.latestCreatedExecution.name' "$job_before") \
   || die "reused job lacks an exact latest execution"
 gcloud run jobs executions describe "$prior_execution" --project "$PROJECT" \
   --region "$REGION" --format=json >"$execution_json"
+# Success, failure and cancellation are safe predecessors once the exact
+# job-owned execution is conclusively terminal and no task remains running.
 jq -e --arg job "$JOB" '
   .metadata.labels["run.googleapis.com/job"] == $job and
-  any(.status.conditions[]?; .type == "Completed" and .status == "True") and
-  (.status.completionTime | type == "string" and length > 0)
-' "$execution_json" >/dev/null || die "reused job latest execution is not terminal-success"
+  any(.status.conditions[]?;
+    .type == "Completed" and (.status == "True" or .status == "False")) and
+  (.status.completionTime | type == "string" and length > 0) and
+  (.status.runningCount // 0) == 0 and
+  ((.status.succeededCount // 0) + (.status.failedCount // 0) +
+    (.status.cancelledCount // 0)) > 0
+' "$execution_json" >/dev/null || \
+  die "reused job latest execution is not terminal and idle"
 
 verify_installed_job() {
   local path=$1

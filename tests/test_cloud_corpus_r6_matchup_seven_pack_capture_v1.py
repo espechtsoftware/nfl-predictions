@@ -1,17 +1,16 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
-from hashlib import sha256
 import re
 import subprocess
 import sys
+from hashlib import sha256
+from pathlib import Path
 
 import yaml
 
 from nfl_dfs.research import corpus_r6_matchup_source_v2 as source
 from scripts import run_corpus_r6_matchup_seven_pack_capture_v1 as runner
-
 
 ROOT = Path(__file__).resolve().parents[1]
 SHELL = ROOT / "scripts/cloud_corpus_r6_matchup_seven_pack_capture_v1.sh"
@@ -66,7 +65,7 @@ def test_host_reuses_one_exact_job_and_requires_terminal_task0() -> None:
     assert "gcloud logging read" in lowered
     assert "publish requires one exact successful task0 execution" in lowered
     assert "task0 launch gate differs" in lowered
-    assert "latest execution is not terminal success" in lowered
+    assert "latest execution is not terminal and idle" in lowered
     assert "gcloud run jobs create" not in lowered
     assert "gcloud run jobs delete" not in lowered
     assert "gcloud run jobs list" not in lowered

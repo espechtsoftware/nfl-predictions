@@ -1,15 +1,14 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 import re
 import subprocess
 import sys
+from pathlib import Path
 
 import yaml
 
 from nfl_dfs.research import corpus_r6_matchup_source_v2 as source
-
 
 ROOT = Path(__file__).resolve().parents[1]
 LAUNCH = ROOT / "scripts/cloud_corpus_r6_paid_source_normalized_snapshot_v1.sh"
@@ -76,7 +75,7 @@ def test_host_release_is_existing_job_only_exact_and_default_off() -> None:
     assert "gcloud run jobs update" in lowered
     assert "gcloud run jobs execute" in lowered
     assert "expected_job_uid=1f4bcf0a-2300-4afa-9fc1-9981844c8275" in lowered
-    assert "latest execution is not terminal-success" in lowered
+    assert "latest execution is not terminal and idle" in lowered
     assert "disabled_install_only" in lowered
     assert "exact successful task0 execution" in lowered
     assert "task0 launch gate differs" in lowered
