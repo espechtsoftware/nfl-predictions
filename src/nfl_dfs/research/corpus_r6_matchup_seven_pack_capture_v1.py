@@ -450,7 +450,7 @@ WHERE season BETWEEN 2022 AND 2025
 """.strip()
 
 _LEGACY_DEPTH_ROWS_SQL: Final = f"""
-SELECT
+SELECT DISTINCT
   'row' AS record_kind,
   'legacy-depth' AS slice_kind,
   TO_JSON_STRING(STRUCT(

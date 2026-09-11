@@ -22,6 +22,72 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-11 seven-pack v3 failed safely on exact legacy-depth duplicates
+
+- Fresh successor `20260911-fp-sis-seven-pack-successor-v3` froze from exact
+  pushed source `891667edb959094c1d93d7e22f297101dbe4cfd3`, request-file
+  SHA-256 `2828650a0f503e750e85c281eaac4f0908389b4336274689ff9750fc0d47c483`,
+  and inner request SHA-256
+  `ed635120b46b1e825f48152e6e1492eec5114b4dd8a5d67cb1d79c435a53bef3`.
+  Its exact 15-object namespace and five deterministic BigQuery job IDs were
+  absent before launch. Cloud Build
+  `82d60765-0176-40ca-b101-9fa868dfb5f8` succeeded and produced immutable
+  image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:cf4bb13b0c87f325f7c7afa2e82ee58089545f07ee4d59f48b0ff49277b70968`.
+- Task0 `atlas-cbc-32g-full-2023-w8-v1-b96wx`, UID
+  `f04298ab-4189-4609-b04a-4f4f69def077`, succeeded at
+  `2026-09-11T04:50:05.309477Z`. Its receipt SHA-256 is
+  `ee33c819297245a8a2724f7f7f4c6b65d840fe8474cf3b91b2d546f5c1fc092f`;
+  it performed 26 generation-exact reads covering 58,151,778 bytes and made
+  zero warehouse queries, writes, or publications. Publish execution
+  `atlas-cbc-32g-full-2023-w8-v1-7dgtt`, UID
+  `cda86977-f82f-462a-89b3-3aecd7c20186`, then failed terminally with zero
+  retries at `2026-09-11T05:00:59.235430Z`: `upstream pack rows contain
+  duplicate positive rows`. Failure-receipt SHA-256 is
+  `407b1923e41db1b513525bdec1231179e9e0d04732fe76424469c9f7d057602c`;
+  canonical launcher completion is
+  `0e3f090d3b775c081bba7733599a6123b795a4c7ea83d897df635f2d8a740779`.
+- The exact schedule, weekly-stat, and legacy-depth jobs completed without a
+  provider error and processed respectively 10,982,496, 43,228,143, and
+  33,603,378 bytes. The failure occurred while canonicalizing ordinal 2,
+  `nfl-legacy-depth-2022-2024`; jobs 3--4 remain absent and the exact output
+  census remains zero of 15 objects. There is no terminal release, independent
+  reopen, or eligible capture-plan freeze. Treat the v3 run ID, request,
+  namespace, image, executions, and all five query IDs as consumed failure
+  evidence; never retry, relabel, or reuse them.
+- Read-only diagnostic job
+  `r6_diag_legacy_depth_duplicates_20260911_81b470f495ff` processed 45,124,173
+  bytes and proved 502 byte-identical source groups with 507 excess rows in
+  `nfl_raw.depth_charts`: 497 groups have multiplicity two and five have
+  multiplicity three. All duplicates are identical across all 15 relation
+  columns, occur across 2022--2024 and Weeks 1--18, and are not projection or
+  semantic-slice collisions. Job
+  `r6_diag_legacy_depth_game_types_20260911_90b5ae9cb10b` processed 25,123,494
+  bytes and proved the retained domain contains only `REG` rows. Job
+  `r6_diag_remaining_pack_duplicates_20260911_d73941be8a6f` processed
+  77,811,105 bytes and found zero duplicate projected rows in the still-unrun
+  snapshot-depth and three PFR slices.
+- The narrow repair gives only the legacy-depth positive-row projection SQL
+  set semantics with `SELECT DISTINCT`; every other query remains unchanged,
+  and the downstream canonical builder still rejects any duplicate returned
+  positive row. Exact live diagnostic job
+  `r6_matchup_7pack_diagnostic_legacy_depth_distinct_v1_2_fb98afde8719`
+  processed 33,603,378 bytes and passed the full production capture validator:
+  99,497 positive rows, zero unresolved IDs, row SHA-256
+  `02eb2c01257158a1e7f0f7dd06dc7e5c1711ff113a4a3c3161dbd85193997619`.
+  A stale-shared-venv diagnostic accidentally exercised superseded correlated
+  metadata SQL as job
+  `r6_matchup_7pack_sevenpack_depth_distinct_smoke_2_bf2cf08fa785`; it failed
+  at query compilation, wrote nothing, and is not evidence about this repair.
+- Regression coverage binds DISTINCT to the legacy projection only and proves
+  the downstream duplicate refusal remains active. The expanded focused
+  seven-pack/freezer/capture-plan/shared-terminal/discovery-matrix cohort
+  passes 118/118; shell syntax, Python compilation, and `git diff --check`
+  pass. Exact next action: obtain independent review, commit and push this
+  repair, then freeze/build one fresh v4 successor with a new run, namespace,
+  and five job IDs. Capture-plan v3 remains forbidden until that successor
+  publishes root-last and independently reopens.
+
 ### 2026-09-10 seven-pack v2 failed safely on 2025 Week-18 date law
 
 - Fresh successor `20260911-fp-sis-seven-pack-successor-v2` has request-file

@@ -288,6 +288,31 @@ def test_fixed_query_registry_has_exact_five_non_outcome_extracts() -> None:
         assert "WHERE table_name = frozen_tables.table_id" not in query
 
 
+def test_legacy_depth_query_set_canonicalizes_exact_source_duplicates_only() -> None:
+    specs = capture.frozen_warehouse_query_specs_v1("sevenpack-depth-set-test")
+    legacy = next(
+        value for value in specs if value["pack_id"] == source.LEGACY_DEPTH_PACK
+    )
+    other_queries = [
+        str(value["canonical_query"])
+        for value in specs
+        if value["pack_id"] != source.LEGACY_DEPTH_PACK
+    ]
+
+    assert str(legacy["canonical_query"]).count("SELECT DISTINCT\n  'row'") == 1
+    assert all("SELECT DISTINCT\n  'row'" not in query for query in other_queries)
+
+    row = _row(source.LEGACY_DEPTH_PACK, "legacy-depth", suffix="duplicate")
+    with pytest.raises(
+        source.CorpusR6MatchupSourceV2Error,
+        match="duplicate positive rows",
+    ):
+        source.build_upstream_pack_rows_v1(
+            pack_id=source.LEGACY_DEPTH_PACK,
+            slices=[{"slice_kind": "legacy-depth", "rows": [row, deepcopy(row)]}],
+        )
+
+
 @pytest.mark.parametrize(
     ("season", "week", "gameday"),
     [
