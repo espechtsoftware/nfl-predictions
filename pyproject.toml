@@ -65,9 +65,10 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-# Cloud builds run `PYTHONPATH=src pytest`; pytest still adds the repository
-# root so tests can import the repo-level `scripts` namespace.
-pythonpath = ["."]
+# Prefer this checkout's source tree before any editable installation carried
+# by a reused virtualenv. Keep the repository root for the repo-level
+# `scripts` namespace.
+pythonpath = ["src", "."]
 addopts = "-q"
 filterwarnings = [
     # PuLP 3.x deprecates direct LpVariable construction ahead of 4.0; the

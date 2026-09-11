@@ -294,6 +294,46 @@ def test_provider_job_and_relation_metadata_fail_closed_before_writes() -> None:
     assert store.writes == []
 
 
+def test_same_second_future_metadata_is_filtered_before_rounding() -> None:
+    request = _request()
+    task0 = _task0(request)
+    store = Store()
+
+    def one_millisecond_newer(spec: dict[str, object]) -> dict[str, object]:
+        result = _query_result(spec)
+        # The fixed snapshot is 12:00:00.000Z. Model __TABLES__ reporting a
+        # modification at 12:00:00.001Z: FORMAT_TIMESTAMP would round both to
+        # the same retained second, but the SQL's native-millisecond predicate
+        # must filter this metadata row before formatting.
+        assert (
+            "TIMESTAMP_MILLIS(last_modified_time) <= "
+            "TIMESTAMP('2026-08-30T12:00:00Z')"
+            in spec["canonical_query"]
+        )
+        first_relation = str(spec["input_relations"][0])
+        result["result_rows"] = [
+            row for row in result["result_rows"]
+            if not (
+                row["record_kind"] == "relation-metadata"
+                and row["slice_kind"] == first_relation
+            )
+        ]
+        return result
+
+    with pytest.raises(
+        snapshot.CorpusR6PaidSourceNormalizedSnapshotV1Error,
+        match="omitted a relation or registered slice",
+    ):
+        snapshot.publish_normalized_snapshot_v1(
+            request,
+            task0_receipt_value=task0,
+            query_warehouse=one_millisecond_newer,
+            publish_create_once=store.publish,
+            read_exact=store.read,
+        )
+    assert store.writes == []
+
+
 def test_request_rejects_query_or_code_substitution() -> None:
     request = _request()
     poisoned = deepcopy(request)
