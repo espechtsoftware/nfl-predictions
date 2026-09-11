@@ -22,6 +22,42 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 current-season NFLverse snap-count absence repaired locally
+
+- Isolated branch `production/nflverse-current-snap-absence-20260910` is
+  rebased on exact current production handoff commit
+  `f572b1a61b56fbec398b9e49e94323c88eabd442`. Implementation commit
+  `ac0da6e6b0f271cbd804bcfd50ab98aa84ac9154` repairs the failure observed in
+  Cloud Run execution `ingest-nflverse-9ndqh`: at
+  `2026-09-10T10:03:16Z`, nflreadpy raised a nested HTTP 404 for the exact
+  official object `snap_counts/snap_counts_2026.parquet` after the ordinary
+  PBP, weekly-stat, roster, schedule and identity loads had succeeded.
+- The new boundary recognizes only an authenticated response status 404 for
+  the exact official active-planning-season snap-count URL. An incremental
+  run leaves the existing snap-count table untouched during that expected
+  publication gap. A full refresh retries every available historical season
+  and omits only the unavailable active season. Historical-season 404s,
+  different URLs, 5xx responses, unauthenticated message-only errors and all
+  other feed failures still propagate and fail the job.
+- Focused validation passes 22/22 in `tests/test_nflverse_job.py`, including
+  exact-current 404 preservation, full-refresh fallback, active-versus-
+  completed season wiring, successful replacement after publication, and
+  fail-closed wrong-season/wrong-status/no-response cases. Python compilation
+  and `git diff --check` pass. Ruff is not installed in the shared repository
+  environment (`No module named ruff`), so no Ruff result is claimed.
+- A read-only provider reality check after the repair found that nflverse had
+  since published the 2026 object: it returned 93 rows, 16 columns and only
+  season 2026. The repaired wrapper followed the normal incremental path with
+  `replace_seasons=[2026]`. This check performed no BigQuery write. No Cloud
+  Build, Cloud Run job update/execution, scheduler change or other provider
+  mutation was performed from this branch.
+- Exact next action: independently review and integrate `ac0da6e6`, then build
+  and deploy it through the existing `ingest-nflverse` job lane when the
+  production image is next advanced. The currently deployed job still has the
+  old code; because the source object is now published, its next scheduled
+  attempt at `2026-09-11T10:00:02Z` should take the ordinary successful path,
+  but only provider terminality can confirm that.
+
 ### 2026-09-10 PREREG-086 narrowed to score-producing mechanics
 
 - Production reviewed lab draft `a941d8a` and accepted the multi-player
@@ -64,11 +100,10 @@ agent or developer:
   The saved SIS live session remains absent; historical SIS inputs are intact.
 - The current-season nflverse ingest failed only when the upstream
   `snap_counts_2026.parquet` object was not yet published and is scheduled to
-  try again at `2026-09-11T10:00Z`. A focused repair is active in an isolated
-  worktree to treat only that declared current-season 404 as expected absence
-  while preserving all other feed failures as fail-closed. Next operational
-  actions are to land that repair, then keep scoring mechanics ahead of any
-  optional Neo4j packaging.
+  try again at `2026-09-11T10:00Z`. The exact narrow repair is now committed
+  as `ac0da6e6`; the upstream 2026 object has since appeared with 93 rows.
+  Next operational actions are to review/integrate that repair, then keep
+  scoring mechanics ahead of any optional Neo4j packaging.
 
 ### 2026-09-10 set-aware ranking closed; tail calibration routes scoring to completion
 
