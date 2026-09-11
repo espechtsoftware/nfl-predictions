@@ -22,6 +22,64 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-10 FP/SIS fresh source successor is explicit and fail-closed
+
+- Work was performed only in isolated clean worktree
+  `/home/erich/projects/nfl-predictions-fp-sis-successor-20260910` on branch
+  `codex/fp-sis-successor-authority-20260910`, based on exact
+  `origin/main` commit `d45d5e6dcd9679f51a6f1888e8ede4cc28d22042`.
+  Repair commit `e37211c6da13c1101be8edd8a50cf4fd9cede1ba` contains the
+  normalized-source precision hardening, its regression, and the exact
+  successor runbook. The dirty primary checkout was not read as release
+  authority or modified.
+- The abandoned prospective normalized timestamp
+  `2026-08-31T05:25:27Z` is outside the documented ordinary seven-day
+  BigQuery time-travel window. It produced no normalized terminal,
+  seven-pack terminal, capture-plan-v3 lock, source-v3 successor release, or
+  FP/SIS result. It must not be attempted, relabelled, or represented by the
+  old August build images.
+- A fresh normalized snapshot is scientifically admissible before execution:
+  the registered experiment does not bind that abandoned timestamp or a
+  prior content terminal; the producer still projects only the fixed six
+  normalized FP/SIS relations over seasons 2022--2025 and remains
+  `retrospective-prior-period-reconstruction`, `authoritative_pit=false`.
+  Exact equality to the never-published August projection cannot be proved
+  from Git alone. The first successful create-once snapshot becomes the
+  source-content authority; a stricter byte comparison would require a
+  separate outcome-blind read of a retained dated backup.
+- The producer previously compared current relation modification metadata to
+  the snapshot after formatting millisecond table metadata down to seconds.
+  A write later in the same second could therefore evade the comparison.
+  Commit `e37211c6` adds the fixed
+  `TIMESTAMP_MILLIS(last_modified_time) <= snapshot_at` predicate to both
+  canonical BigQuery queries while retaining the parsed Python check as
+  defense in depth. A relation newer than the explicit snapshot now omits its
+  required metadata row and fails before claiming coherent source authority.
+  The projected columns, seasons, query count, artifact inventory, cell law,
+  candidate/world law and outcome boundary are unchanged.
+- The exact DAG is now durable at
+  `reports/2026-09-10-fp-sis-retrieval-successor-authority.md`: fixed six
+  relations -> normalized terminal -> candidate-v2-rooted seven-pack ->
+  capture-plan-v3 Commit B -> source-v3 full reopen; independently,
+  candidate-v2 plus the fixed LR8 later-source freeze -> 54-member discovery
+  matrix full reopen; those two terminals alone converge at
+  `fp-sis-retrieval-only-cross-v1`.
+- Validation from the isolated tree is green: normalized core/CLI/cloud
+  **19/19**, seven-pack operator/freezer/bridge/cloud compatibility **33/33**,
+  edited Python compilation, and `git diff --check`. No BigQuery or GCS call,
+  Cloud Build, Cloud Run mutation/execution, object publication, outcome read,
+  grade, or policy change was performed.
+- Exact next action after merging both commits and making the settled release
+  durable `origin/main`: from a clean checkout, choose one canonical UTC
+  second and immediately build the new
+  `20260910-fp-sis-normalized-successor-v1` request before any warehouse
+  contact. Then run normalized task0/publish/reopen, seven-pack
+  task0/publish/reopen, generate the still-absent capture-plan-v3 lock and
+  track it in Commit B. In parallel, run the discovery-matrix chain from the
+  fixed candidate-v2 and LR8 identities. Source-v3 and the final four-cell
+  request remain NO-GO until their exact predecessor terminals independently
+  reopen. Keep the shared Cloud Run job serialized and terminal-idle.
+
 ### 2026-09-10 `28wzf` failed safely; deterministic score order repaired
 
 - Cloud Run execution `generation-shadow-suite-28wzf`, UID
