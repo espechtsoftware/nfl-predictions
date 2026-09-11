@@ -200,6 +200,26 @@ trap cleanup_host EXIT
 job_json=$tmp/job.json
 gcloud run jobs describe "$JOB" --project "$PROJECT" --region "$REGION" --format=json >"$job_json"
 jq -e --arg uid "$EXPECTED_JOB_UID" '.metadata.uid == $uid and any(.status.conditions[]?; .type == "Ready" and .status == "True")' "$job_json" >/dev/null || die "exact reused job differs"
+if [[ "$ACTION" =~ ^(install|task0|task|reopen-task)$ ]]; then
+  latest=$(jq -er '.status.latestCreatedExecution.name' "$job_json") || \
+    die "reused job lacks an exact latest execution"
+  latest_json=$tmp/latest-execution.json
+  gcloud run jobs executions describe "$latest" --project "$PROJECT" \
+    --region "$REGION" --format=json >"$latest_json"
+  # Success, failure and cancellation are safe predecessors once the exact
+  # job-owned execution is conclusively terminal and no task remains running.
+  # Unknown, contradictory and zero-terminal-count states remain blocking.
+  jq -e --arg job "$JOB" '
+    .metadata.labels["run.googleapis.com/job"] == $job and
+    any(.status.conditions[]?;
+      .type == "Completed" and (.status == "True" or .status == "False")) and
+    (.status.completionTime | type == "string" and length > 0) and
+    (.status.runningCount // 0) == 0 and
+    ((.status.succeededCount // 0) + (.status.failedCount // 0) +
+      (.status.cancelledCount // 0)) > 0
+  ' "$latest_json" >/dev/null || \
+    die "reused job latest execution is not terminal and idle"
+fi
 
 verify_execution() {
   [[ $# -eq 4 && "$1" =~ ^${JOB}-[a-z0-9]{5}$ ]] || die "exact execution differs"

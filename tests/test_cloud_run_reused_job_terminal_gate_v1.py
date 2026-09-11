@@ -13,6 +13,7 @@ SCRIPTS = (
     "scripts/cloud_corpus_r6_paid_source_normalized_snapshot_v1.sh",
     "scripts/cloud_corpus_r6_matchup_seven_pack_capture_v1.sh",
     "scripts/cloud_corpus_r6_matchup_source_task0_v3.sh",
+    "scripts/cloud_corpus_r6_paid_source_discovery_matrix_freeze_v1.sh",
     "scripts/cloud_corpus_r6_paid_source_fp_sis_v1.sh",
     "scripts/cloud_corpus_r6_construction_allocation_snapshot_v1.sh",
 )
