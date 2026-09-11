@@ -8518,9 +8518,37 @@ def _base_parser() -> argparse.ArgumentParser:
     return parser
 
 
+
+def _bind_executing_code(repository_root: object) -> None:
+    """Refuse to run another tree's code under this run's declared root.
+
+    ``--repository-root`` fixes the tree whose commit is recorded as
+    provenance; it does not decide which files Python imports.  The bound
+    set is read from this module's own globals so an import added later
+    cannot quietly escape the binding.
+    """
+    if repository_root is None:
+        return
+    from pathlib import Path as _Path
+    from types import ModuleType as _ModuleType
+
+    from nfl_dfs.research import repository_root_code_binding_v1 as _binding
+
+    modules: dict[str, object] = {
+        name: value
+        for name, value in globals().items()
+        if isinstance(value, _ModuleType)
+        and "nfl_dfs" in str(getattr(value, "__file__", "") or "")
+    }
+    modules["operator CLI"] = __file__
+    _binding.bind_executing_code_to_repository_root_v1(
+        _Path(str(repository_root)).resolve(), modules
+    )
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = _base_parser()
     args = parser.parse_args(argv)
+    _bind_executing_code(getattr(args, "repository_root", None))
     try:
         if args.command == "parked":
             _print_json({

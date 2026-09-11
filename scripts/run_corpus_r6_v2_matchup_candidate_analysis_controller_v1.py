@@ -1257,12 +1257,40 @@ def _require_execute(args: argparse.Namespace) -> None:
         _fail(f"{args.command} requires explicit --execute")
 
 
+
+def _bind_executing_code(repository_root: object) -> None:
+    """Refuse to run another tree's code under this run's declared root.
+
+    ``--repository-root`` fixes the tree whose commit is recorded as
+    provenance; it does not decide which files Python imports.  The bound
+    set is read from this module's own globals so an import added later
+    cannot quietly escape the binding.
+    """
+    if repository_root is None:
+        return
+    from pathlib import Path as _Path
+    from types import ModuleType as _ModuleType
+
+    from nfl_dfs.research import repository_root_code_binding_v1 as _binding
+
+    modules: dict[str, object] = {
+        name: value
+        for name, value in globals().items()
+        if isinstance(value, _ModuleType)
+        and "nfl_dfs" in str(getattr(value, "__file__", "") or "")
+    }
+    modules["operator CLI"] = __file__
+    _binding.bind_executing_code_to_repository_root_v1(
+        _Path(str(repository_root)).resolve(), modules
+    )
+
 def run(
     argv: Sequence[str], *, storage: ExactObjectStore | None = None,
     provider: GCloudRunOneJobProviderV1 | None = None,
     environment: Mapping[str, str] | None = None,
 ) -> dict[str, object]:
     args = _parser().parse_args(list(argv))
+    _bind_executing_code(getattr(args, "repository_root", None))
     environ = os.environ if environment is None else environment
     if args.command == "dispatch":
         _require_execute(args)
