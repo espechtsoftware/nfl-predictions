@@ -40,11 +40,24 @@ agent or developer:
   `9bab943843678364efd2d989ddc5f5fe74eb4e24` retains the original attribution
   body/SHA/method, binds them in a create-once structured attribution receipt,
   and separately revalidates current exact latest name, UID and immutable
-  provider envelope. It also resumes a persisted launch-recovery receipt
-  without rewriting it and rejects orphan post-intent artifacts before any
+  provider envelope. It also rejects orphan post-intent artifacts before any
   launch call. The successor's parent is HANDOFF-only commit
   `52fa50c7317e75e549f5712d5598e6b2bd5a4a48`; it is not a standalone
   replacement for the initial driver commit.
+- Independent immutable review of that successor then reproduced a deeper
+  two-stage recovery crash: launch-recovery retained a missing-status provider
+  SHA but not its body; after status advanced, a second process could write the
+  newer attribution, crash, and leave exact recovery/attribution evidence that
+  could only collide. Pushed second successor
+  `eca72045633b193da177f9e980f020b65cf436f8` makes
+  launch-recovery/v2 one atomic authority containing the complete first
+  validated provider snapshot, SHA, name/UID, request/intent hashes and
+  method/context. Recovery reconstructs missing attribution only from those
+  frozen bytes while separately revalidating current exact latest name, UID
+  and immutable provider configuration; live status drift is discarded. If
+  recovery and attribution both exist they must be exactly equal, including
+  during completed-launch loading. Current wrong name, UID, or configuration
+  fails before attribution/launch creation and cannot recall the launcher.
 - The driver validates requested and resolved direct-Git build provenance,
   freezes and directly checks all 2,865 exact output URIs without listing,
   proves one continuous canonical production registry lease, and persists
@@ -58,8 +71,8 @@ agent or developer:
 - The terminal gate extracts `source_release_v3_identity` from the independent
   reopener, separately retains `batch_release_v3_identity`, and requires both
   to match the publisher plus all four distinct exact execution names/UIDs.
-  Existing source-v3 core/CLI/controller plus driver pass 38/38; the exact
-  Cloud Build focus including the one-task component reducer passes 39/39.
+  Existing source-v3 core/CLI/controller plus driver pass 42/42; the exact
+  Cloud Build focus including the one-task component reducer passes 43/43.
   Python compilation, YAML parsing, driver help, and `git diff --check` pass.
 - No Cloud Build or Cloud Run command, GCS read/write, warehouse query, or
   production-worktree mutation was performed. Only the isolated review branch
@@ -69,10 +82,10 @@ agent or developer:
   sealed v4 must create the sole capture-plan-v3 lock, and that reviewed lock
   must reach a distinct clean pushed Commit B. Exact next action for this
   branch is independent immutable-diff/test review of
-  `9bab943843678364efd2d989ddc5f5fe74eb4e24`; after Commit B, integration
-  must cherry-pick
-  both `dbfe5b87a9cf0ed7e09cfe50c3b137230b9537d0` and
-  `9bab943843678364efd2d989ddc5f5fe74eb4e24` onto that resulting release
+  `eca72045633b193da177f9e980f020b65cf436f8`; after Commit B, integration
+  must cherry-pick `dbfe5b87a9cf0ed7e09cfe50c3b137230b9537d0`,
+  `9bab943843678364efd2d989ddc5f5fe74eb4e24`, and then
+  `eca72045633b193da177f9e980f020b65cf436f8` onto that resulting release
   line (plus separately reviewed predecessors
   `a25ef6f0ecd75830641eec9081dc54ff5dd24e1a` and
   `b2465712a0c2fff0f0953814d634a82200e673c1`),

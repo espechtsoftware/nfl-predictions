@@ -2,7 +2,7 @@
 
 Date: 2026-09-11
 Status: implementation and hermetic validation; independent review of the
-crash-window successor is pending. No Cloud Build, Cloud Run, GCS write,
+second crash-window successor is pending. No Cloud Build, Cloud Run, GCS write,
 object read, warehouse query, or production-worktree mutation was performed;
 isolated review commits only were pushed.
 
@@ -17,11 +17,13 @@ clean checkout's `HEAD` and its already-fetched `origin/main`, and the exact
 driver and source-v3 controller must exist in that commit.
 
 The driver history is cumulative. Integration must include initial driver
-`dbfe5b87a9cf0ed7e09cfe50c3b137230b9537d0` and crash-window successor
-`9bab943843678364efd2d989ddc5f5fe74eb4e24`; the latter is a delta whose
-parent is the HANDOFF-only `52fa50c7317e75e549f5712d5598e6b2bd5a4a48`,
-not a standalone replacement for `dbfe5b87`. The required source controller
-and shared-lane predecessors remain
+`dbfe5b87a9cf0ed7e09cfe50c3b137230b9537d0`, first crash-window successor
+`9bab943843678364efd2d989ddc5f5fe74eb4e24`, and second successor
+`eca72045633b193da177f9e980f020b65cf436f8`. The first successor is a delta
+whose parent is the HANDOFF-only
+`52fa50c7317e75e549f5712d5598e6b2bd5a4a48`, and the second builds on its
+provider-attribution validation; neither is a standalone replacement for the
+initial driver. The required source controller and shared-lane predecessors remain
 `a25ef6f0ecd75830641eec9081dc54ff5dd24e1a` and
 `b2465712a0c2fff0f0953814d634a82200e673c1` respectively.
 
@@ -60,7 +62,7 @@ was therefore misclassified as a local collision even though name, UID, and
 every immutable provider-envelope field still matched.
 
 Pushed successor `9bab943843678364efd2d989ddc5f5fe74eb4e24`
-closes that gap. It adds a create-once structured provider-attribution receipt
+closes that first gap. It adds a create-once structured provider-attribution receipt
 which binds the original name, UID, snapshot SHA, attribution method,
 request/intent hashes, and optional controller response. On restart it keeps
 that original snapshot/SHA/method for launch reconstruction while separately
@@ -69,11 +71,26 @@ current exact provider envelope to retain the same UID and immutable phase
 configuration. Current status may lawfully advance; it never becomes the
 historical attribution snapshot.
 
-The adjacent earlier crash window is also closed: when a launch-recovery
-receipt exists but the raw attribution does not, the immutable recovery
-name/UID/method is retained, the current exact latest envelope is revalidated,
-and a new create-once attribution snapshot is established without rewriting
-the recovery receipt. Any post-intent artifact without its required intent is
+Independent review then reproduced a deeper two-stage crash window in that
+successor. The old launch-recovery receipt retained only the first provider
+snapshot's SHA. If that snapshot had `Completed` missing, the process crashed
+before raw attribution, Cloud Run advanced to `Completed=True`, and a second
+process crashed after writing the later attribution but before its structured
+receipt, the next restart correctly detected a recovery/attribution collision
+but could never resume the single already-launched execution.
+
+Pushed successor `eca72045633b193da177f9e980f020b65cf436f8`
+closes the deeper window by making launch-recovery/v2 the atomic first
+attribution authority. It embeds the complete validated provider snapshot,
+its SHA, exact name/UID, request and intent hashes, recovery method, and null
+controller context in one create-once file. If raw attribution is absent, a
+restart revalidates the current exact provider latest name, UID, and immutable
+phase configuration but discards its later status representation and creates
+raw attribution from the frozen recovery body only. If recovery and
+attribution both exist, they must be exactly equal; completed-launch loading
+enforces the same equality. A wrong current latest name, UID, or configuration
+fails before any attribution or launch authority is created and never recalls
+the launcher. Any post-intent artifact without its required intent remains
 refused before the controller launch action can run.
 
 ## Implemented invariants pending final independent review
@@ -117,9 +134,10 @@ The host driver:
   resolve the consumed intent, recovery requires an operator-supplied exact
   execution name **and** UID, followed by the same full provider-envelope
   validation;
-- after provider attribution but before the launch receipt, retains the
-  original attribution bytes, SHA and method across provider status drift,
-  while separately revalidating exact current latest name, UID and envelope;
+- after either provider attribution or atomic launch recovery but before the
+  launch receipt, retains the original attribution bytes, SHA and method
+  across provider status drift, while separately revalidating exact current
+  latest name, UID and immutable envelope;
 - requires four distinct execution names and accepts the release only after
   the later write-disabled reopener's provider receipt independently names
   and matches the publisher, verifier and worker; and
@@ -234,8 +252,8 @@ retry authority.
 
 ## Validation
 
-- New driver tests: 17 passed.
-- Existing source-v3 core/CLI/controller plus new driver: 38 passed.
-- Exact Cloud Build focus including the one-task component reducer: 39 passed.
+- New driver tests: 21 passed.
+- Existing source-v3 core/CLI/controller plus new driver: 42 passed.
+- Exact Cloud Build focus including the one-task component reducer: 43 passed.
 - Python compilation and driver `--help`: passed.
 - Cloud execution: intentionally not performed.
