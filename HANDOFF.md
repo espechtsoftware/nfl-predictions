@@ -124,6 +124,20 @@ agent or developer:
   the cohort branch before 113 has launched** — every launcher guards `CODE_SHA == HEAD`. Logs:
   `/home/erich/week1-sunday/switch_to_master_09y.log`, `/home/erich/queue_master_<stamp>.log`, cohort worktree
   `results/arm_113_sequencer.log`, `results/queue_113_launcher.log`, `results/queue_*_launches.log`.
+- **20:45Z: Cloud Run lost 13 r2 tasks (platform "Internal error" 13/14, no traceback; `maxRetries` was 0):**
+  `110b901r2` indices 1,4,9,16,17,23,24,25,32,48,53 and `110b900r2` indices 60,70. **PREREG-090 amendment 4**
+  (branch `lab/prereg090-amend4-20260912` @ `067c8c3`, pushed; cohort worktree stays at `92073df1` for the
+  guards): `maxRetries` 3 on both jobs; a registered host launcher `/home/erich/week1-sunday/queue_110_finish.sh`
+  re-runs exactly the missing slates on the same r2 image as `110b9NNr2rep<season>-<stamp>` (args
+  `--bank --season --weeks`), verifies a 72-shard census per bank; the amended reader takes `--repair` run ids
+  and loads main + repair shard unions (fail-closed on duplicates/identity). Read it FROM the amend4 worktree:
+  `cd /home/erich/projects/.nfl2-worktrees/prereg090-amend4 && PYTHONPATH=src python scripts/prereg090_report.py
+  <3 main run ids> --repair <each repair run id>` (run ids in the cohort worktree's `results/queue_110_launches.log`
+  and `results/queue_110_finish_launches.log`). Lane chain now: `/home/erich/week1-sunday/handover_v3.sh` (log
+  beside it) waits for 902's launch → stops the 110 launcher → runs the finish launcher in the foreground → moves
+  the jobs to 09y → arms the master (111→112) → the 113 sequencer follows. Cloud Run task losses are a
+  standing risk: every future launcher should keep `maxRetries` ≥ 1 and census shards, never trust
+  `succeededCount` alone.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
