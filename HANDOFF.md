@@ -94,7 +94,46 @@ agent or developer:
   the master through `launcher_registry.sh`. Observed capacity: the regional CPU quota caps concurrent tasks
   near ~50 (36 + 14 seen), so two 72-task banks share it; expected timeline 110 read ≈ 21:50Z, 111 ≈ 23:30Z,
   112 ≈ 02:00Z.
-- **Exact next actions:** on `lab-run-4jz45` terminal, run `scripts/prereg090_mechanics_gate.py 110m900r2-<stamp>`
+- **19:25Z: r2 gate PASSED** (`lab-run-4jz45`, 36 min, receipts identical to r1); banks `110b900r2` =
+  `lab-run-7gpkd` (36 tasks live) and `110b901r2` = `lab-run-slow-kh9rp` (14 live; the slow job plateaus
+  there) are running. **DST parity fix:** the live path had centred DST on a salary-linear prior (Chargers
+  first at 8.03) while the panel used production's served DST projection (Jaguars 10.1 … Chargers sixth at
+  8.0) — the likely source of the 41–59/80 Chargers concentration. `e7255e9` on
+  `lab/live-center-production-20260912` centres DST on production by `dk_player_id` (24/24 matched); the
+  paid-path worktree is now `week1-live-center-e7255e9`, runbook repointed (main `221311d2`), corrected
+  D800/D400 rebuilding. `ef7c2c2` adds the missing `player_pass_tds` market to the lab's market means (QB
+  market means were ~35% low; Week-2 effect only). Both defects are in the README deficiency log.
+- **19:45Z: DST-fixed paid pair built on `e7255e9`** — D800 `20260912T192221336726Z-e7255e9` (naive top 156.0,
+  `dst_matched` 24/24, incumbent E[max] 179.5 / P(≥220) .023; Jaguars 56/80 replaces Chargers 41/80), D400
+  `…192722600030Z`, K90 `…193302659236Z` (90 unique, ranks 1–80 = the K80 book on all nine slots). Placeholder
+  upload CSVs re-emitted: `/home/erich/week1-upload-CORRECTED-DST-20260912T1922Z-e7255e9-*` (K80 ranks 1-57 /
+  1-20 / 1-3 / 1-10 / 1-80) and `…-CORRECTED-DST-K90-20260912T1933Z-e7255e9-*` (58-77 / 78-80 / 81-90); the
+  `3df1b0c` placeholders are superseded. Live D3200 shadow (lev 640 / boom 2560, sidecars) building in the same
+  worktree (`/home/erich/week1-sunday/d3200-shadow-e7255e9.err`).
+- **PREREG-093 frozen (cohort branch `lab/prereg090-dose1600-directtail-20260912` @ `92073df1`, pushed):**
+  experiment 113 = dose response 800/1600/3200 as ONE nested stream per slate (prefix identity proven
+  roster-for-roster in the local smoke and required by `scripts/prereg093_mechanics_gate.py`), banks 930–932,
+  reader `scripts/prereg093_report.py`, launcher `scripts/queue_113.sh`. Consequence ladder composes with
+  PREREG-090 (3200 → 1600 → 800 by PASS + live-receipt conditions; see PREREG-093 §Consequences). Image
+  `…/lab/nfl2:prereg09y-92073df1b321` (110/111/112/113 at one commit; digest in the cohort worktree's
+  `results/prereg09y_image.txt`).
+- **Lane plan (all detached, host-side):** `/home/erich/week1-sunday/switch_to_master_09y.sh` waits for the 09y
+  image and the `110b902r2` launch, stops the 110 launcher, moves both jobs to 09y (CODE_SHA `92073df1`) and arms
+  `scripts/queue_master.sh` (111 → 112) through the registry; `scripts/arm_113_after_master.sh` (started by the
+  build chain) waits for the master's registry completion, then arms `scripts/queue_113.sh`. **Do not commit to
+  the cohort branch before 113 has launched** — every launcher guards `CODE_SHA == HEAD`. Logs:
+  `/home/erich/week1-sunday/switch_to_master_09y.log`, `/home/erich/queue_master_<stamp>.log`, cohort worktree
+  `results/arm_113_sequencer.log`, `results/queue_113_launcher.log`, `results/queue_*_launches.log`.
+- **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
+  `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
+  from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
+  consequence (write `/home/erich/week1-dose.env` with `PAID_LEV=320 PAID_BOOM=1280` only on D1600 PASS +
+  live receipts), append the LEDGER row; (2) after `111m910r1` / `112m920r1` / `113m930r1` succeed, check their
+  receipts against the PREREG texts (093 has a script; 091/092 by hand) before any bank is read; (3) readers
+  `prereg091_report.py`, `prereg092_report.py`, `prereg093_report.py` on their three banks; the 093 read also
+  needs the live D3200 vs D1600 receipts (`score_book_under_bank.py`); (4) Sunday 09:10 CT
+  `/home/erich/week1-sunday-build.sh` → operator publish → DK upload.
+- *(superseded)* **Exact next actions:** on `lab-run-4jz45` terminal, run `scripts/prereg090_mechanics_gate.py 110m900r2-<stamp>`
   (the launcher continues to the banks on provider success; stop it if the gate fails); read the three r2
   banks with the frozen reader; apply PREREG-090's consequences to the Sunday dose; then arm `queue_111.sh all`
   (after updating both jobs to the prereg091 image and CODE_SHA) and, lanes permitting, `queue_112.sh all`;
