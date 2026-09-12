@@ -6,9 +6,9 @@ when the three r2 banks complete (expected ~21:00–22:00Z). Nothing here opens 
 ## 1. What is fixed regardless of the read
 
 - **Paid book = corrected centering.** Every Week-1 book is built with `NFL2_LIVE_CENTER=production` from
-  `/home/erich/projects/.nfl2-worktrees/week1-live-center-818f672` (level gate on; receipts record
-  `naive_top_lineup_projection`, expected ≈145–160). The uncorrected lab level (RB/WR ≈ 8 pts) is not an
-  option.
+  `/home/erich/projects/.nfl2-worktrees/week1-live-center-e7255e9` (skill AND DST centred on production's
+  served projections; level gate on; receipts record `naive_top_lineup_projection` ≈145–160, `matched_skill`
+  ≈362, `dst_matched` 24). The uncorrected lab level (RB/WR ≈ 8 pts, salary-ranked DST) is not an option.
 - **Paid policy = P_MIX on the D800 pair** through the governed publisher (P_CTRL fallback), unless §2
   moves the dose.
 - **Entry layout:** 90 unique lineups (Milly 1–57, Play-Action 58–77, FFWC-Q6 78–80, FFWC-Q5 81–90) from
@@ -47,8 +47,10 @@ the P_MIX D800 K80 book is frozen as the primary shadow. Any other verdict → t
 | 11:20 | re-check DK inactives; if a paid-book player is ruled out, rebuild with a new run id and re-upload (DK edits allowed until lock) |
 | 12:00 | lock |
 
-Fallbacks: corrected P_CTRL run-dir CSVs (`/home/erich/week1-sunday/upload-*`) → the placeholder files
-already emitted on Saturday (`/home/erich/week1-upload-CORRECTED-*`) → production app export.
+Fallbacks: corrected P_CTRL run-dir CSVs (`/home/erich/week1-sunday/upload-*`) → the DST-fixed placeholder files
+emitted Saturday 19:41Z (`/home/erich/week1-upload-CORRECTED-DST-20260912T1922Z-e7255e9-*` for K80 ranks and
+`…-CORRECTED-DST-K90-20260912T1933Z-e7255e9-*` for ranks 58–90; the older `…-3df1b0c-*` files are Chargers-centred
+and superseded) → production app export.
 
 ## 4. Monday/Tuesday
 
