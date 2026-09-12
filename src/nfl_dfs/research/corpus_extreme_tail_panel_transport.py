@@ -115,12 +115,15 @@ PREFREEZE_SMOKE_WORKER_COMMAND: Final = (
     "bash scripts/run_t230_prefreeze_smoke_worker_v1.sh"
 )
 
-# Derive the root from this module's own location rather than pinning a
-# single checkout by absolute literal. Callers take `relative_to(REPOSITORY_ROOT)` on paths
-# built by corpus_extreme_tail_panel_execution, so a hardcoded root breaks
-# the moment the module is imported from a worktree or from /app inside the
-# release image.
-REPOSITORY_ROOT: Final = Path(__file__).resolve().parents[3]
+# NOTE: this must stay consistent with the absolute frozen-G0 paths in
+# corpus_extreme_tail_panel_execution, which is REPLAY_HEAD_STABLE_PATHS[10]
+# and therefore pinned byte-identical between the candidate commit and HEAD.
+# Deriving this root from __file__ is the correct fix, but it can only land
+# together with that module -- and that module cannot change without
+# re-establishing the candidate authority. See HANDOFF 2026-09-12.
+REPOSITORY_ROOT: Final = Path(
+    "/home/erich/projects/nfl-predictions"
+)
 SOURCE_SNAPSHOT_PATH: Final = Path(
     "/opt/nfl-dfs/foundry-t230-source-snapshot-v1.json"
 )
