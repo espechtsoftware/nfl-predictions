@@ -11,7 +11,7 @@
 #   scripts/week1_sunday_runbook.sh --run-id ... --paid-dir DIR --shadow-dir DIR   # reuse builds
 set -euo pipefail
 
-CLONE=${WEEK1_CLONE:-/home/erich/projects/.nfl2-worktrees/live-center-production-20260912}   # corrected centering: reports/2026-09-12-week1-baseline-fix-and-tonight-steps.md
+CLONE=${WEEK1_CLONE:-/home/erich/projects/.nfl2-worktrees/week1-live-center-818f672}   # corrected centering: reports/2026-09-12-week1-baseline-fix-and-tonight-steps.md
 PUBLISHER_TREE=${WEEK1_PUBLISHER_TREE:-/home/erich/projects/.nfl-predictions-worktrees/week1-publisher-20260912}
 CODE_SHA=${WEEK1_CODE_SHA:-00c6097f6b369c7f28ff88a5b8db2c3c936e9c39}
 LAB_PY=${WEEK1_LAB_PY:-/home/erich/projects/nfl2/.venv/bin/python}
@@ -19,7 +19,7 @@ PROD_PY=${WEEK1_PROD_PY:-/home/erich/projects/nfl-predictions/.venv/bin/python}
 PUBLISH_ROOT="gs://nfl-predictions-503414-raw/week1/prelock/2026-w01/a5-books"
 GROUP=151307
 LOCK_UTC="2026-09-13 17:00:00+00:00"
-EXPECT_SHA=${WEEK1_EXPECT_SHA:-3df1b0c4ec68b49e21238751981618289b8e5221}   # lab/live-center-production-20260912 (NFL2_LIVE_CENTER=production)
+EXPECT_SHA=${WEEK1_EXPECT_SHA:-818f672f4fd75b87d4a4a3f9f4677af6384df0c5}   # lab/live-center-production-20260912 (NFL2_LIVE_CENTER=production)
 UPLOAD_DIR=${WEEK1_UPLOAD_DIR:-/home/erich}
 
 RUN_ID=""; PAID_DIR=""; SHADOW_DIR=""
