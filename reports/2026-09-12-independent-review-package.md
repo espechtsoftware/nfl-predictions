@@ -324,12 +324,30 @@ Ordered by my estimate of expected value, which should itself be challenged.
    received a row; DK purges standings in ~4 days). **The Week-1 Monday/Tuesday
    standings capture is therefore load-bearing** — it is the first chance to
    price this lever rather than assume it.
-2. **A tail-supply mechanism that demonstrably generates 220+ candidates.**
-   Above 220 the pool holds 2 of 72 slates. Any mechanism should be required to
-   show generation before any selector or entry change is tested there.
+2. **A tail-supply mechanism that demonstrably generates 220+ candidates —
+   this experiment already exists and is stalled.** It is the extreme-tail
+   factorial (the Foundry's fill × retrieval engine: 7 parametric fill arms
+   including a tail-family sleeve, 4 retrieval laws, scored on frozen 50k-world
+   Atlas matrices), frozen 2026-08-24 at `c876e7f2` and never read out. It
+   stalled because the production policy then moved (N_BOOM 40→160, nine new
+   levers) and its frozen environment no longer matches — the 115 failures in
+   §5.4. **The §5.4 re-freeze decision is therefore the highest-value protocol
+   decision open:** it is the only designed, realized-score test of the
+   supply-at-237 problem, and every other lever measured here lives below the
+   winning line. Roadmap prior art: `2026-08-22-offseason-corpus-fill-and-
+   selection-roadmap.md` §9.2 presets F1-tail-family / F3-phenotype-conditional
+   and its bottom line ("tail-heavy generation can raise that ceiling
+   dramatically, but the tested selectors have not converted it").
 3. **A better discriminator (world model), not a better ranker.** Bar: double the
    K80 retrieval rate, 19% → 40%. State and test this cheaply before building a
-   chain.
+   chain. The 2026-08-17 extreme-tail review already queued the next
+   construction families behind ATLAS: portfolio-aware residual-world columns
+   (highest priority) and a discrete event-based DST shadow law.
+3a. **Concrete operator action, Monday/Tuesday 2026-09-14/15:** capture the
+   Week-1 Millionaire standings with `nfl-dfs capture-dk-standings` (validate,
+   then `--confirm-settled --confirm-full-field --apply`; exact sequence in
+   HANDOFF). This is the first-ever field score-to-rank + payout observation and
+   the only way to price the entries lever. DK purges the export in ~4 days.
 4. **FP/SIS 2×2 ablation (P0 in the Neo4j review).** Blocked by §5.2. Before
    unblocking it, restate its hypothesis: this session's evidence says the
    binding constraint is the world model's discrimination, not the ranking rule,

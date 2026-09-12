@@ -39805,3 +39805,39 @@ exist (`contest_entries` never landed; DK purges in ~4 days). **The Week-1
 Mon/Tue standings capture is load-bearing for the only positive lever found.**
 Full analysis: `reports/2026-09-12-retrieval-lever-measured-on-realized-scores.md`
 Addendum 3.
+
+### OPERATOR ACTION — Monday/Tuesday 2026-09-14/15: capture Week-1 standings
+
+This is load-bearing. It is the first-ever observation of the field's
+score-to-rank mapping and payouts, and the only way to price the entries lever
+(+13.55 at K80) that is the sole positive result of the 2026-09-12 research.
+`contest_entries` has never received a row; DK purges the export in ~4 days.
+Workflow: `docs/dk-full-field-capture.md`. Rehearsal tests are green
+(`tests/test_contest_capture_rehearsal.py`, `tests/test_dk_standings_capture.py`).
+
+1. On the DK contest page after scoring review, record the exact **submitted**
+   field size (not capacity, not row count) and the contest ID. Export the full
+   standings CSV.
+2. Validate without writing (fails closed on any inconsistency):
+```bash
+nfl-dfs capture-dk-standings ~/Downloads/contest-standings-<ID>.csv \
+  --season 2026 --week 1 --contest-id <ID> \
+  --contest-name "NFL Millionaire Maker" --expected-entries <SUBMITTED_FIELD_SIZE>
+```
+3. Only after the page shows the contest complete, rerun with the two explicit
+   confirmations and `--apply`:
+```bash
+nfl-dfs capture-dk-standings ~/Downloads/contest-standings-<ID>.csv \
+  --season 2026 --week 1 --contest-id <ID> \
+  --contest-name "NFL Millionaire Maker" --expected-entries <SUBMITTED_FIELD_SIZE> \
+  --confirm-settled --confirm-full-field --apply
+```
+4. Verify durability per §3 of the doc (`evidence_timing=post_settlement`, raw
+   CSV archived create-only, backup verified). Do not edit the CSV; redownload
+   on validation failure.
+
+Also queue: the tail-supply experiment already exists as the frozen extreme-tail
+factorial (`c876e7f2`, Foundry v12 vehicle) and stalled on the N_BOOM drift
+(section "Extreme-tail factorial: 115 failures are a TRUE POSITIVE"). Its
+re-freeze is the highest-value open protocol decision: it is the only designed
+realized-score test of the supply-at-237 problem.
