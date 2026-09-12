@@ -39719,3 +39719,59 @@ discovery matrix half is DONE and verified (`23184230...`).
 
 **Not blocked by this:** nothing in the Week-1 live path. The cadence has run
 on schedule throughout.
+
+### 2026-09-12 — RESEARCH RESULT: three levers measured on realized scores
+
+Full analysis: `reports/2026-09-12-retrieval-lever-measured-on-realized-scores.md`.
+PREREG-086 r2 sealed cohort, 72 slates, realized scores already joined. No new
+outcome was opened for any of this -- every comparison uses rules frozen before
+the 2026-09-12 efficacy read, so none of it is a search over opened outcomes.
+
+```
+more entries (K20 -> K80)            +13.55   CI (+10.61, +16.68)   POSITIVE
+minimal-core completion (PREREG-086)  +0.57   CI ( -1.70,  +2.97)   zero
+selector law (incumbent vs corrected) -0.29   CI ( -4.65,  +4.32)   zero
+```
+
+**Entries are the only lever that moved** -- ~24x the completion mechanism, ~46x
+selector choice, and the only interval excluding zero. At the 194 line it more
+than doubles clears, 8 -> 17 of 72.
+
+**The world models were confidently wrong about selectors.** Each scores its own
+selector 5-7 points higher on held-out simulated worlds; on realized outcomes the
+difference is 0.3 in the other direction. Each is measuring its own agreement
+with itself.
+
+**The tail splits at ~210.** Below it the constraint is retrieval (35 slates hold
+a 194+ candidate, K20 finds 8). Above ~220 it is supply: K20 gets 1, K80 gets 1,
+the whole pool holds 2. That is why tail-targeted arms keep returning zero --
+above 220 they measure an empty set. Any tail mechanism must first be shown to
+GENERATE 220+ candidates.
+
+**The ranker has real but thin signal.** Against a random-selection null it
+retrieves the realized-best candidate 3.33x better than chance at K20 (6/72,
+p=0.0094) and 1.94x at K80 (14/72, p=0.0113). So "selection is closed" does not
+mean "no signal" -- it means a 3.33x lift on a 2.5% base still misses the best
+candidate in 92% of slates, and dilutes to 1.94x by K80. Both selector laws share
+that same thin discriminator, which is why swapping them reshuffles the same
+shortlist.
+
+**Bar for any future retrieval lever:** roughly double the K80 retrieval rate,
+19% -> 40%, to close half the remaining 12.7 points. Cheap to state, cheap to
+falsify, and it should be demanded before a chain is built. It applies to the
+WORLD MODEL, not the ranking rule on top of it -- a paid-source ablation is worth
+running only under the hypothesis that the source improves the model.
+
+### Week-1 readiness re-verified 2026-09-12 (fires tomorrow)
+
+```
+s-nflverse      2026-09-13 10:00Z = 05:00 CT
+s-features-sun  2026-09-13 10:30Z = 05:30 CT  (first of six hourly slots)
+s-project-su    2026-09-13 11:00Z = 06:00 CT  (hourly to 11:00 CT)
+s-contests-sun  2026-09-13 11:00Z
+s-train         ran 09-08, models current for Week 1
+```
+
+Correct ordering (pull -> features -> projections). Nothing in this session's
+research or chain work touched the live path; every cloud execution reused the
+pinned job, so the Cloud Run job quota is unchanged at 1000/1000.
