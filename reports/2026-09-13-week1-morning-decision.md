@@ -27,6 +27,29 @@ than D800's under both laws (already true: 178.6 vs 177.7 incumbent, 199.0 vs 19
 the run-dir upload path (P_CTRL-equivalent; the governed P_MIX publisher only accepts the 160/640 pair), and
 the P_MIX D800 K80 book is frozen as the primary shadow. Any other verdict → the D800 P_MIX plan above.
 
+**Live receipts (outcome-blind, built Saturday on `e7255e9`, all three books scored under the D800 build's
+own two banks; `score_book_under_bank.py`) — the live-receipt conditions of PREREG-090 consequence 1 and
+PREREG-093's ladder are satisfied: every line is monotone in dose.**
+
+| live book (K80) | law | E[max] | P(≥194) | P(≥210) | P(≥220) | pool P(≥220) |
+|---|---|---:|---:|---:|---:|---:|
+| D800 `…192221336726Z` | incumbent | 179.5 | .209 | .062 | .023 | .054 |
+| D1600 `…203440469470Z` | incumbent | 180.6 | .225 | .069 | .026 | .082 |
+| D3200 `…194342612416Z` | incumbent | 181.1 | .237 | .072 | .027 | .114 |
+| D800 | corrected-hsim | 196.4 | .516 | .227 | .115 | .210 |
+| D1600 | corrected-hsim | 197.0 | .529 | .235 | .118 | .285 |
+| D3200 | corrected-hsim | 198.3 | .552 | .259 | .138 | .369 |
+
+Build cost on this workstation: D800 5 min, D1600 14 min, **D3200 51 min** (3,040 s). A D3200 K90 with
+sidecars is being built tonight as the Sunday fallback for the 3200 dose (`/home/erich/week1-sunday/d3200-k90-e7255e9.err`).
+
+**Read procedure (PREREG-090 amendment 4):** Cloud Run lost 13 r2 tasks to platform "Internal error"; the
+registered finish launcher re-runs exactly those slates on the same image. Read from the amend4 worktree:
+`cd /home/erich/projects/.nfl2-worktrees/prereg090-amend4 && PYTHONPATH=src /home/erich/projects/nfl2/.venv/bin/python
+scripts/prereg090_report.py 110b900r2-20260912T191557Z 110b901r2-20260912T191821Z <110b902r2 run id>
+--repair <each 110b9NNr2rep<season> run id>` (run ids: cohort worktree `results/queue_110_launches.log` and
+`results/queue_110_finish_launches.log`).
+
 | reader line | value |
 |---|---|
 | `D1600_DEMAX − D800_DEMAX` proxy, family interval, banks, LOSO, verdict | *pending* |
@@ -40,7 +63,7 @@ the P_MIX D800 K80 book is frozen as the primary shadow. Any other verdict → t
 | time | step |
 |---|---|
 | 08:30 | confirm `s-nflverse`, `s-features-sun` and the 09:00 `project-slate` execution succeed |
-| 09:10 | `/home/erich/week1-sunday-build.sh` (runbook build + preflight, K90, upload CSVs; add `/home/erich/week1-dose.env` with `PAID_LEV=320 PAID_BOOM=1280` first if §2 fired) |
+| 09:10 | `/home/erich/week1-sunday-build.sh` (runbook build + preflight, K90, upload CSVs; add `/home/erich/week1-dose.env` first if §2 fired: `PAID_LEV=320 PAID_BOOM=1280` for 1600, `PAID_LEV=640 PAID_BOOM=2560` for 3200 — the 3200 build takes ~51 min, so the dose book lands ≈10:15; if it is late, upload Saturday night's D3200 K90 fallback CSVs from `/home/erich/week1-sunday/` after re-checking inactives) |
 | 09:30 | publish once: runbook step 4a (`publish_week1_a5_books.py … --execute`, run id from the build log) |
 | 09:35 | emit P_MIX ranks 1–57 from the published book (runbook 4b, `--book-id P_MIX --ranks 1-57`); take ranks 58–90 from the K90 (or D1600 K90) run-dir CSVs |
 | 09:45–11:15 | upload the four contest files in the DK UI (operator-only) |
