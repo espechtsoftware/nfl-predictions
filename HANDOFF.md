@@ -39775,3 +39775,33 @@ s-train         ran 09-08, models current for Week 1
 Correct ordering (pull -> features -> projections). Nothing in this session's
 research or chain work touched the live path; every cloud execution reused the
 pinned job, so the Cloud Run job quota is unchanged at 1000/1000.
+
+### 2026-09-12 — every measured lever lives below the Millionaire winning line
+
+Joined the 68 tracked Milly winners (`real_winner_overlap.load_known_winner_rows`)
+to the PREREG-086 cohort: 34 overlapping slates (2023-2024). Verified scoring
+identical (mean diff -0.024 over 229 matched players) and universe aligned
+(295/306; misses are initial ambiguities + one wrong initial in the winner file).
+
+```
+would our best entry have WON?   K20 0/34   K80 0/34   pool (799 cands) 0/34
+pool-oracle margin to line       median -36.5   best -6.2   1/34 within 10 pts
+actual winning line, median      2023 233.2  2024 232.5  2025 239.3  2019 251.6
+```
+
+**Not an anchoring error** (I nearly reported one). The ledger deliberately uses
+194 = the MINIMUM 2025 winning line (confirmed: 2025 min 193.9) and 237 = the
+average ("median N ~10^15, effectively unreachable"), and tracks a >=237 column
+that reads 0/17 every season since 2022. The cohort re-measures that ceiling on
+realized scores.
+
+Consequence: entries (+13.55), retrieval (26-pt gap) and completion (+0.57) all
+move PLACEMENT within a band below the easiest Milly week; win probability is
+~0 for everything measured. Winning is a supply problem at ~237+ (pool holds a
+230+ candidate in 1/72 slates).
+
+Pricing placement needs payout curves + field score-to-rank data, which do not
+exist (`contest_entries` never landed; DK purges in ~4 days). **The Week-1
+Mon/Tue standings capture is load-bearing for the only positive lever found.**
+Full analysis: `reports/2026-09-12-retrieval-lever-measured-on-realized-scores.md`
+Addendum 3.
