@@ -61,10 +61,28 @@ agent or developer:
   `nfl2-lab-jobs`); two launcher defects (env parse, stdout capture) are recorded as PREREG-090
   amendments 1–2; the `banks` phase is armed after the gate passes. Reader frozen:
   `scripts/prereg090_report.py`.
-- **Exact next actions:** verify `lab-run-jdvvj`'s result against the mechanics gate; arm
-  `queue_110.sh banks`; read the three banks with the frozen reader; apply PREREG-090's consequences to
-  the Sunday dose; run the Sunday runbook at ~09:10 CT; after settlement, capture standings for all four
-  contests and write the tail-ledger row.
+- **Update 18:45Z.** Mechanics gate r1 (`lab-run-jdvvj`) PASSED the frozen gate (`scripts/prereg090_mechanics_gate.py`);
+  efficacy bank 900 r1 (`lab-run-wb58t`) lost task 36 (2023-W1, 773 players) to the 8 GiB task memory limit
+  → both r1 banks (`wb58t`, `lab-run-slow-tv4fr`) cancelled unread and the launcher stopped (PREREG-090
+  amendment 3). Runners 110/111/112 now hold one float32 decision matrix at a time; r2 image built
+  (`prereg090r2-da7d875dc85a`, digest `f696522b…`), jobs updated, local smoke reproduces the r1 receipts
+  exactly. **r2 cohort armed 18:37Z**: mechanics `110m900r2` = `lab-run-4jz45`, then banks `110b900r2/901r2/902r2`
+  launch automatically from the registered launcher. **PREREG-091** (experiment 111: `MAX_PER_GAME=4`
+  spread generation on the same worlds; column-pricing pass on the held-out bank; equal-budget dose
+  reference) and **PREREG-092** (experiment 112: k-means medoid boom schedule + union) are frozen, smoked
+  locally and their images are building; they queue behind 110 on the lanes. Design evidence:
+  `reports/2026-09-12-tail-phenotype-census-two-cohorts.md` (both opened cohorts: realized 220+ lineups are
+  broad, ≥6 games/≤3 per game, and both selectors under-select that phenotype). Live shadow books (flag-gated
+  arms on `lab/live-center-production-20260912` @ `e85c845`, durable copies under the corrected worktree's
+  `results/live/2026-w01/`): direct-tail, DT-union, spread-4, no-bring-back sleeve — scored under the corrected
+  D800 banks: DT 179.2/P≥220 .024 and DT-union 179.6/.025 vs D800 177.7/.018; spread-4 174.5/.009 under the
+  incumbent law but 198.3 (= D800) under corrected-hsim; NOBB sleeve 178.2/.021. Shadows only; settle Monday.
+- **Exact next actions:** on `lab-run-4jz45` terminal, run `scripts/prereg090_mechanics_gate.py 110m900r2-<stamp>`
+  (the launcher continues to the banks on provider success; stop it if the gate fails); read the three r2
+  banks with the frozen reader; apply PREREG-090's consequences to the Sunday dose; then arm `queue_111.sh all`
+  (after updating both jobs to the prereg091 image and CODE_SHA) and, lanes permitting, `queue_112.sh all`;
+  run the Sunday runbook at ~09:10 CT; after settlement, capture standings for all four contests, settle every
+  frozen run dir, and write the tail-ledger row.
 
 ### 2026-09-12 state audit adopted: Week-1 money path rehearsed, research branch cherry-picked
 
