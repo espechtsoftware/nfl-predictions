@@ -77,6 +77,13 @@ agent or developer:
   `results/live/2026-w01/`): direct-tail, DT-union, spread-4, no-bring-back sleeve — scored under the corrected
   D800 banks: DT 179.2/P≥220 .024 and DT-union 179.6/.025 vs D800 177.7/.018; spread-4 174.5/.009 under the
   incumbent law but 198.3 (= D800) under corrected-hsim; NOBB sleeve 178.2/.021. Shadows only; settle Monday.
+- **Paid path hardened 18:50Z.** `live_week.py` on the corrected branch now carries a projection-level sanity
+  gate (naive best-lineup projection < 135 refuses; receipt field `naive_top_lineup_projection`; verified
+  refuse at 112.2 with lab centering, pass at 145.9 with production centering). The paid-path worktree is
+  now `/home/erich/projects/.nfl2-worktrees/week1-live-center-818f672` @ `818f672` (run dirs copied); the
+  runbook's `CLONE`/`EXPECT_SHA` point there (`0354faaf`). The PREREG cohort worktree
+  `live-center-production-20260912` stays on `lab/prereg090-dose1600-directtail-20260912`; the registered
+  110 launcher runs from it.
 - **Exact next actions:** on `lab-run-4jz45` terminal, run `scripts/prereg090_mechanics_gate.py 110m900r2-<stamp>`
   (the launcher continues to the banks on provider success; stop it if the gate fails); read the three r2
   banks with the frozen reader; apply PREREG-090's consequences to the Sunday dose; then arm `queue_111.sh all`
