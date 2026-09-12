@@ -84,6 +84,16 @@ agent or developer:
   runbook's `CLONE`/`EXPECT_SHA` point there (`0354faaf`). The PREREG cohort worktree
   `live-center-production-20260912` stays on `lab/prereg090-dose1600-directtail-20260912`; the registered
   110 launcher runs from it.
+- **Lane occupancy (operator directive 19:00Z: keep the lanes busy).** A combined lean image
+  (`Dockerfile.prereg09x`, untracked until the 110 cohort has launched all its banks so `CODE_SHA` stays
+  `da7d875d`) carries experiments 110/111/112 at the same commit. `scripts/queue_master.sh` (untracked for the
+  same reason) runs 111 then 112 — mechanics gate → three banks each — launching into whichever job is free
+  under the shared 2-execution ceiling. A background switch-over (session task) waits for `110b902r2` to launch,
+  then stops the registered 110 launcher (reason: lane handover; 902's completion is verified by the frozen
+  reader, not the launcher), updates both jobs to the combined image with the unchanged `CODE_SHA`, and arms
+  the master through `launcher_registry.sh`. Observed capacity: the regional CPU quota caps concurrent tasks
+  near ~50 (36 + 14 seen), so two 72-task banks share it; expected timeline 110 read ≈ 21:50Z, 111 ≈ 23:30Z,
+  112 ≈ 02:00Z.
 - **Exact next actions:** on `lab-run-4jz45` terminal, run `scripts/prereg090_mechanics_gate.py 110m900r2-<stamp>`
   (the launcher continues to the banks on provider success; stop it if the gate fails); read the three r2
   banks with the frozen reader; apply PREREG-090's consequences to the Sunday dose; then arm `queue_111.sh all`
