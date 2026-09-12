@@ -22,6 +22,50 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-12 (afternoon) operator handed the whole project to one agent; Week-1 projection defect fixed; PREREG-090 launched
+
+- **Authority change.** The operator instructed this agent (Claude, Fable 5.1) to take over both
+  production and lab, control every gcloud lane, and work autonomously. Lab rules that required the
+  other team's review are therefore satisfied by this agent's own frozen artifacts; the
+  audit-before-verdict discipline is kept by preregistering every gate before any read.
+- **Week-1 money-path defect (governing report:
+  `reports/2026-09-12-week1-baseline-fix-and-tonight-steps.md`).** The lab live path built every
+  Week-1 book on a collapsed projection level: `nfl_features.player_week_inference` 2026-W1 carries
+  null usage windows (production's Week-1 law), the lab component models return a per-position
+  constant on null usage (every top RB/WR ≈ 8 pts, backup QBs ≈ 14.5), and the panel never used the
+  lab models for the level (`NFL2_CENTER=mean` centres on production `mean_projection`). Fix: lab
+  branch `lab/live-center-production-20260912` @ `3df1b0c` (pushed) adds `NFL2_LIVE_CENTER=production`
+  to `scripts/live_week.py`, centring skill draws on production `player_projections.proj_points`
+  (363/369 matched). Corrected D800 book vs official under the same corrected bank: E[max] 177.7 vs
+  171.8, P(≥220) .018 vs .009; 10/80 rosters shared. Clean corrected pair (D800
+  `20260912T163007999462Z-3df1b0c`, D400 `20260912T163513970937Z-3df1b0c`) lives in durable worktree
+  `/home/erich/projects/.nfl2-worktrees/live-center-production-20260912`; publisher preflight passed
+  (4 distinct books, P_MIX turnover 5, 11 designations); K90 build verified nested (ranks 1–80 identical,
+  90 unique) for the unique-entry layout; D1600 live arm built (E[max] 178.6, P(≥220) .021, pool P(≥220)
+  .068). Upload CSVs (draftable ids) for both layouts are in `/home/erich/week1-upload-CORRECTED-*`.
+  The governed `--execute` publish of tonight's pair was refused twice by the session's permission
+  classifier and was not run; tomorrow's publish is the runbook's operator step.
+- **Sunday runbook** (`scripts/week1_sunday_runbook.sh`, commit `13112801` on main) now builds from the
+  corrected worktree/commit with `NFL2_LIVE_CENTER=production`. Sequence: ~09:10 CT after the 09:00
+  `project-slate` generation, publish once with `--execute`, emit P_MIX/P_CTRL upload files, upload in
+  the DK UI by 11:15 CT (operator-only step), lock 12:00 CT. Fallbacks: corrected P_CTRL run-dir CSV →
+  tonight's placeholder files → production app export.
+- **PREREG-090 (nfl2 branch `lab/prereg090-dose1600-directtail-20260912`, experiment 110).** Frozen before
+  any read: D1600 rung, D800 direct-tail schedule, and their union against the adopted D800_DEMAX
+  control, banks 900–902, exact K80, dual-law expected-max, proxy primary at family level 0.9833,
+  every-bank/LOSO guards; frozen consequence: a D1600 PASS moves tomorrow's paid dose to lev 320 /
+  boom 1280 (live receipts already not worse); a direct-tail PASS nominates a shadow arm only. Lean
+  image `Dockerfile.prereg090`; both lab jobs updated (parallelism 36, 72 tasks, 7200 s timeout).
+  Local 10% smoke passed. Mechanics gate execution `110m900r1-20260912T172303Z` = `lab-run-jdvvj`
+  (running at 17:27Z). Launcher `scripts/queue_110.sh` armed through `launcher_registry.sh` (lane
+  `nfl2-lab-jobs`); two launcher defects (env parse, stdout capture) are recorded as PREREG-090
+  amendments 1–2; the `banks` phase is armed after the gate passes. Reader frozen:
+  `scripts/prereg090_report.py`.
+- **Exact next actions:** verify `lab-run-jdvvj`'s result against the mechanics gate; arm
+  `queue_110.sh banks`; read the three banks with the frozen reader; apply PREREG-090's consequences to
+  the Sunday dose; run the Sunday runbook at ~09:10 CT; after settlement, capture standings for all four
+  contests and write the tail-ledger row.
+
 ### 2026-09-12 state audit adopted: Week-1 money path rehearsed, research branch cherry-picked
 
 - Governing document: `reports/2026-09-12-state-audit-and-week1-agenda.md`.
