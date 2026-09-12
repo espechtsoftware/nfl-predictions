@@ -39660,3 +39660,62 @@ green because TESTS ENCODED SHAPES NO PRODUCER EMITS. The suite was not wrong
 about the code; it was wrong about reality, and it agreed with the code, so
 nothing caught it. This is precisely what frozen-chain rule 1 demands one
 outcome-blind smoke against real artifacts to prevent.
+
+### 2026-09-12 — source-v3 containerisation is PROTOCOL-DEADLOCKED (defect 8)
+
+Defects 6 and 7 are fixed and hold. Defect 8 is real, is understood exactly,
+and CANNOT be fixed as code. It needs an operator protocol decision.
+
+**The deadlock.**
+
+`src/nfl_dfs/research/corpus_extreme_tail_panel_execution.py` locates the
+frozen G0 evidence through absolute literals naming one developer tree:
+
+```
+FROZEN_G0_AUTHORITY_LOCK_PATH  = Path("/home/erich/projects/nfl-predictions/reports/...")
+FROZEN_G0_PUBLICATION_RECEIPT_PATH, FROZEN_G0_LANE_RECEIPT_PATHS  -- same shape
+```
+
+Inside the release image the repository is `/app`, so the runtime replay cannot
+`lstat` them and every containerised source-v3 worker fails closed:
+
+```
+transitive replay path[5] exact read failed:
+  reports/corpus-parametric-runs/.../g0-authority-lock-v1.json
+```
+
+That same file is `REPLAY_HEAD_STABLE_PATHS[10]` -- pinned byte-identical
+between the candidate commit and HEAD. Repairing it produces:
+
+```
+transitive replay path[10] changed between candidate and descendant HEAD:
+  src/nfl_dfs/research/corpus_extreme_tail_panel_execution.py
+```
+
+So: the file must change for the container to work, and must not change for the
+replay to validate. **The containerised source-v3 worker cannot succeed in
+either state.** Verified both directions empirically today.
+
+I attempted the repair (`b8f6235f`) and reverted it (`b5ac2c0f`). Changing a
+file the frozen chain declares immutable was my error; the finding is that the
+immutable file is itself defective for containerised use.
+
+**What breaking it requires.** Re-establishing the fixed-G0 candidate authority
+at a new commit so the pin covers the repaired file. That invalidates the
+existing candidate-v2 lineage which the capture plan, the discovery matrix and
+the ablation all bind. Operator decision -- do not do this unilaterally.
+
+**Cheaper alternative worth evaluating first:** run the source-v3
+worker/verify/publish on the HOST rather than in the image. The absolute paths
+resolve correctly there, which is almost certainly why this chain was green in
+local testing and had never been run containerised. The controller is built
+around a Cloud Run job, so this is not a flag flip, but it avoids touching the
+candidate lineage.
+
+**Consequence for the retrieval experiment.** The FP/SIS ablation still needs a
+GCS-published `source_v3_release_identity`. That publication runs through this
+worker, so the ablation stays blocked until the deadlock is resolved. The
+discovery matrix half is DONE and verified (`23184230...`).
+
+**Not blocked by this:** nothing in the Week-1 live path. The cadence has run
+on schedule throughout.
