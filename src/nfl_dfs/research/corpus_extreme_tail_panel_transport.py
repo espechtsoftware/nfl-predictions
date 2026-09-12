@@ -115,9 +115,12 @@ PREFREEZE_SMOKE_WORKER_COMMAND: Final = (
     "bash scripts/run_t230_prefreeze_smoke_worker_v1.sh"
 )
 
-REPOSITORY_ROOT: Final = Path(
-    "/home/erich/projects/nfl-predictions"
-)
+# Derive the root from this module's own location rather than pinning a
+# single checkout by absolute literal. Callers take `relative_to(REPOSITORY_ROOT)` on paths
+# built by corpus_extreme_tail_panel_execution, so a hardcoded root breaks
+# the moment the module is imported from a worktree or from /app inside the
+# release image.
+REPOSITORY_ROOT: Final = Path(__file__).resolve().parents[3]
 SOURCE_SNAPSHOT_PATH: Final = Path(
     "/opt/nfl-dfs/foundry-t230-source-snapshot-v1.json"
 )

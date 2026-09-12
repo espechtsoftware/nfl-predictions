@@ -73,24 +73,23 @@ FROZEN_G0_PANEL_URI: Final = (
     "corpus-parametric-research/panels/20260823-foundry-production-v12/"
     "foundry-v12-combined-panel-index-v1.json"
 )
-FROZEN_G0_PUBLICATION_RECEIPT_PATH: Final = Path(
-    "/home/erich/projects/nfl-predictions/reports/corpus-parametric-runs/"
-    "20260823-foundry-production-v12-panel-index/panel-index-live/published.json"
-)
+# Resolve frozen G0 evidence against the tree this module was imported from,
+# never against one operator's checkout. These were absolute literals naming
+# a single developer tree, so the runtime replay
+# could not find them inside the release image -- where the repository is
+# /app -- and every containerised source-v3 worker failed closed with
+# "transitive replay path[5] exact read failed". Frozen-chain rule 2 names
+# this exact failure mode: locate by relative identity, never by a
+# representation such as an absolute path. The relative constants below were
+# already present and are now the single source of truth.
+_MODULE_REPOSITORY_ROOT: Final = Path(__file__).resolve().parents[3]
 FROZEN_G0_PUBLICATION_RECEIPT_RELATIVE_PATH: Final = (
     "reports/corpus-parametric-runs/"
     "20260823-foundry-production-v12-panel-index/"
     "panel-index-live/published.json"
 )
-FROZEN_G0_LANE_RECEIPT_PATHS: Final = (
-    Path(
-        "/home/erich/projects/nfl-predictions/reports/corpus-parametric-runs/"
-        "20260823-foundry-production-v12a/transport-live-v12a/batch-accepted.json"
-    ),
-    Path(
-        "/home/erich/projects/nfl-predictions/reports/corpus-parametric-runs/"
-        "20260823-foundry-production-v12b/transport-live-v12b/batch-accepted.json"
-    ),
+FROZEN_G0_PUBLICATION_RECEIPT_PATH: Final = (
+    _MODULE_REPOSITORY_ROOT / FROZEN_G0_PUBLICATION_RECEIPT_RELATIVE_PATH
 )
 FROZEN_G0_LANE_RECEIPT_RELATIVE_PATHS: Final = (
     "reports/corpus-parametric-runs/"
@@ -100,13 +99,16 @@ FROZEN_G0_LANE_RECEIPT_RELATIVE_PATHS: Final = (
     "20260823-foundry-production-v12b/transport-live-v12b/"
     "batch-accepted.json",
 )
-FROZEN_G0_AUTHORITY_LOCK_PATH: Final = Path(
-    "/home/erich/projects/nfl-predictions/reports/corpus-parametric-runs/"
-    "20260823-foundry-production-v12-panel-index/g0-authority-lock-v1.json"
+FROZEN_G0_LANE_RECEIPT_PATHS: Final = tuple(
+    _MODULE_REPOSITORY_ROOT / relative
+    for relative in FROZEN_G0_LANE_RECEIPT_RELATIVE_PATHS
 )
 FROZEN_G0_AUTHORITY_LOCK_RELATIVE_PATH: Final = (
     "reports/corpus-parametric-runs/"
     "20260823-foundry-production-v12-panel-index/g0-authority-lock-v1.json"
+)
+FROZEN_G0_AUTHORITY_LOCK_PATH: Final = (
+    _MODULE_REPOSITORY_ROOT / FROZEN_G0_AUTHORITY_LOCK_RELATIVE_PATH
 )
 EXPECTED_BAKED_IMAGE_EVIDENCE_PATH: Final = Path(
     "/etc/nfl-dfs/foundry-t230-image-evidence-v1.json"

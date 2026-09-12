@@ -1663,3 +1663,40 @@ def test_gcs_collision_fails_without_current_or_latest_lookup() -> None:
         match="current/latest lookup is forbidden",
     ):
         store.publish_create_once(uri, b'{"a":1}')
+
+
+def test_frozen_g0_paths_carry_no_operator_absolute_root():
+    """Frozen G0 evidence must resolve against the importing tree.
+
+    These were absolute "/home/erich/projects/nfl-predictions/..." literals, so
+    the runtime replay could not find them inside the release image -- where
+    the repository is /app -- and every containerised source-v3 worker failed
+    closed on "transitive replay path[5] exact read failed". Frozen-chain
+    rule 2 names this failure: locate by relative identity, not by an absolute
+    representation.
+    """
+    from pathlib import Path
+
+    from nfl_dfs.research import (
+        corpus_extreme_tail_panel_execution as execution,
+        corpus_extreme_tail_panel_transport as transport,
+    )
+
+    for module in (execution, transport):
+        source = Path(module.__file__).read_text(encoding="utf-8")
+        assert "/home/erich/projects/nfl-predictions" not in source, (
+            f"{Path(module.__file__).name} pins one operator's checkout"
+        )
+
+    root = Path(execution.__file__).resolve().parents[3]
+    assert execution.FROZEN_G0_AUTHORITY_LOCK_PATH == (
+        root / execution.FROZEN_G0_AUTHORITY_LOCK_RELATIVE_PATH
+    )
+    assert execution.FROZEN_G0_PUBLICATION_RECEIPT_PATH == (
+        root / execution.FROZEN_G0_PUBLICATION_RECEIPT_RELATIVE_PATH
+    )
+    assert execution.FROZEN_G0_LANE_RECEIPT_PATHS == tuple(
+        root / relative
+        for relative in execution.FROZEN_G0_LANE_RECEIPT_RELATIVE_PATHS
+    )
+    assert transport.REPOSITORY_ROOT == root
