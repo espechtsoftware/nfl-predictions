@@ -195,3 +195,75 @@ A paid-source ablation is worth running only if the hypothesis is that the
 source improves the WORLD MODEL -- the thing producing the 3.33x -- not that it
 improves the ranking rule applied on top of it. Those are different mechanisms
 and only the first has headroom here.
+
+---
+
+# Addendum 3: every lever measured here lives below the Millionaire winning line
+
+Joining the 68 tracked Millionaire winners (`real_winner_overlap.load_known_winner_rows`)
+to the cohort gives 34 overlapping slates (2023-2024; the winner file does not
+cover 2021-2022). Verified before use: **scoring is identical** (my `actual`
+minus `winner_actual`: mean -0.024, median 0.000, 4/229 off by >1 pt) and the
+**slate universe matches** (295/306 winner players resolve; the 11 misses are
+initial-ambiguity and one wrong initial in the winner file, not absent players).
+
+```
+WOULD OUR BEST ENTRY HAVE WON?   (>= the actual winning score, 34 slates)
+  K20    0/34        margin to line, mean -67.3
+  K80    0/34                              -50.8
+  pool   0/34  (best of 799 candidates)    -38.2
+
+pool-oracle margin: min -82.2  q25 -47.5  median -36.5  q75 -26.8  max -6.2
+within 10 pts: 1/34   within 20 pts: 4/34
+closest: 2023-w02, line 193.9, pool 187.7  (the lowest winning line in the join)
+```
+
+## What the 194 line is, and is not
+
+The ledger is explicit and my data confirms it to the decimal:
+
+```
+                              2019   2023   2024   2025     (winner file, n=17 each)
+actual winning line, median  251.6  233.2  232.5  239.3
+actual winning line, min     221.6  193.9  178.3  193.9
+share of Millys won >= 237    76%    41%    29%    53%
+share of Millys won >= 194   100%    94%    88%    94%
+```
+
+`194` is the **minimum** 2025 winning line (ledger: "Line 194 (min 2025
+winning line): median N ~824k"). `237` is the **average** winning line (ledger:
+"median N ~10^15. Effectively unreachable"). The program replays against 194
+because 237 cannot be reached with this candidate pool, and it tracks a >=237
+column that reads 0/17 in every season since 2022. This is not an anchoring
+error; it is a known ceiling, and the cohort here re-measures it on realized
+scores: **0/34, median 36.5 points short.**
+
+## Consequence for the three levers
+
+```
+pool oracle, mean            194.25   <- ceiling of the current generator
+K80 book, mean               181.52
+K20 book, mean               167.97
+Milly winning line, median   ~233-239
+```
+
+The entire band in which entries (+13.55), retrieval (26.3-pt gap) and
+completion (+0.57) operate sits **below the easiest Milly week in most
+seasons**. They change *placement* -- how high a best entry finishes -- and
+that is real money under a steep payout curve. They do not change the
+probability of winning, which on this evidence is approximately zero for every
+lever measured.
+
+Winning is a **supply** problem at ~237+, exactly where the tail-split analysis
+above found the pool holds a 230+ candidate in 1 of 72 slates. No selector,
+entry count or completion mechanism can retrieve a candidate that was never
+generated.
+
+## The one thing that would turn placement into dollars
+
+Whether +13.55 at K80 is worth 60 entry fees depends on the payout curve and
+the field's score-to-rank mapping, and **that data does not exist**:
+`contest_entries` has never received a row and DK purges standings after ~4
+days. The Week-1 Monday/Tuesday standings capture is therefore load-bearing for
+the only lever this session found -- it is the first opportunity to price
+placement rather than assume it.
