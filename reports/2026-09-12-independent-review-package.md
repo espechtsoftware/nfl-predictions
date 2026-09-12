@@ -193,6 +193,13 @@ Claims I drew, each of which should be checked:
    (ledger: "median N ~10^15, effectively unreachable"). So entries/retrieval
    improve *placement*, not win probability, which is ≈0 for everything measured.
    Winning is a supply problem at ~237+ (pool holds a 230+ candidate in 1/72).
+   **Prior art:** ledger Addendum 114 (2026-08-09) already found the
+   candidate-pool oracle beats 0/68 winners (mean gap 57.69) and concluded
+   "upstream belief/candidate quality — not selector mining — [is] the dominant
+   first-place problem." Item 6 is a replication on a fresh cohort, not a
+   discovery; cite Addendum 114. The only lever that ever moved
+   237-reachability there was variance via boom draws (1/17 → 5/17), which is
+   the adopted N_BOOM=160 generator.
 
 ---
 
