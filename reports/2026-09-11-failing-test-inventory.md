@@ -81,6 +81,15 @@ mutable live object. Full analysis:
 
 **Owner: protocol authority. Not a code fix.**
 
+**Update 2026-09-12:** option 2 (pin the frozen environment as a literal) is
+implemented; `generation_additions` and `expansion_build` pass. The other
+three modules (`factorial_manifest`, `generation_companion_manifest`, and
+`retrieval_v2_implementation_contract`) fail for a *second* cause the P0 drift
+was masking: the interpreter binary changed (apt `python3.14` 1ubuntu0.1 →
+1ubuntu0.2 on 2026-09-09) and the v2 implementation contract pins it. They pass
+under the pre-upgrade binary (160 passed). See the Resolution section of
+`reports/2026-09-11-frozen-factorial-policy-drift.md`.
+
 ### 2. Forensic/ladder error cluster — ~61 ERRORS — uninvestigated
 
 Modules: `test_final_forensic`, `test_final_forensic_cleanup`,

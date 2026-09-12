@@ -984,24 +984,45 @@ def test_source_input_change_cannot_replay_an_existing_manifest() -> None:
         _validate(value, sources=sources)
 
 
-def test_seed_pair_dependency_drift_is_rejected(
+def test_live_production_policy_is_never_consulted(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    policy = manifest.production.ClassicProductionPolicy()
-    changed_extras = list(policy.multiseed_volume_extra_seed_pairs)
-    changed_extras[-1] = (changed_extras[-1][0] + 1, changed_extras[-1][1])
-    replacement = SimpleNamespace(
-        multiseed_seed_pairs=policy.multiseed_seed_pairs,
-        multiseed_volume_extra_seed_pairs=tuple(changed_extras),
-        candidate_multiple=policy.candidate_multiple,
-        n_boom=policy.n_boom,
-        n_role=policy.n_role,
-        n_ce=policy.n_ce,
-        engine_environment=policy.engine_environment,
+    """The frozen P0 environment is a literal (option 2 of
+    reports/2026-09-11-frozen-factorial-policy-drift.md): a coherent
+    production-policy change cannot redefine the historical experiment, so
+    the live policy must not be read at all."""
+    from nfl_dfs.inference import production_policy
+
+    def _forbidden(*args: object, **kwargs: object) -> object:
+        raise AssertionError("frozen manifest consulted the live policy")
+
+    monkeypatch.setattr(production_policy, "ClassicProductionPolicy", _forbidden)
+    p0 = manifest.frozen_extreme_tail_factorial_p0_environment_v1()
+    assert batch.canonical_sha256(p0) == manifest.P0_GENERATION_ENVIRONMENT_SHA256
+    value = _build()
+    assert value["p0_generation_environment_sha256"] == (
+        manifest.P0_GENERATION_ENVIRONMENT_SHA256
     )
-    monkeypatch.setattr(
-        manifest.production, "ClassicProductionPolicy", lambda: replacement
-    )
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda environment: environment.__setitem__("N_BOOM", "160"),
+        lambda environment: environment.__setitem__("N_LEV", "40"),
+        lambda environment: environment.pop("GEN_TOTAL_BUDGET"),
+        lambda environment: environment.__setitem__(
+            "MULTISEED_SEED_PAIRS", "R0=0:7332"
+        ),
+    ],
+)
+def test_pinned_frozen_environment_literal_drift_is_rejected(
+    monkeypatch: pytest.MonkeyPatch,
+    mutate: Callable[[dict[str, str]], object],
+) -> None:
+    drifted = dict(manifest._FROZEN_P0_GENERATION_ENVIRONMENT)
+    mutate(drifted)
+    monkeypatch.setattr(manifest, "_FROZEN_P0_GENERATION_ENVIRONMENT", drifted)
     with pytest.raises(
         manifest.CorpusExtremeTailFactorialManifestError,
         match="dependency constants drifted",

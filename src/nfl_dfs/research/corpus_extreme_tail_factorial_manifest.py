@@ -15,7 +15,6 @@ from collections.abc import Mapping, Sequence
 import re
 from typing import Final
 
-from nfl_dfs.inference import production_policy as production
 from nfl_dfs.research import corpus_extreme_tail_preweek_additions as additions
 from nfl_dfs.research import corpus_extreme_tail_preweek_selectors as preweek
 from nfl_dfs.research import corpus_extreme_tail_retrieval_suite as suite
@@ -207,6 +206,90 @@ _FROZEN_SEED_PAIRS: Final = (
     (3020163036, 3089093104),
     (186549143, 564317351),
 )
+
+# The complete P0 generation environment exactly as
+# `ClassicProductionPolicy().engine_environment()` produced it at the freeze
+# commit c876e7f2 (2026-08-24), plus the manifest's own `BOOM_UNIQUE_FILL=0`.
+# It is a literal for the same reason the seed pairs are: the production
+# policy is expected to keep moving (it did -- eleven keys by 2026-09-11,
+# see reports/2026-09-11-frozen-factorial-policy-drift.md), and a frozen
+# chain that re-derives its input from a live object breaks on every
+# legitimate production change.  Its canonical SHA-256 must equal
+# P0_GENERATION_ENVIRONMENT_SHA256; the dependency validator enforces that.
+_FROZEN_P0_GENERATION_ENVIRONMENT: Final[dict[str, str]] = {
+    'BLEND_MODEL_WEIGHT': '0.45',
+    'BOOM_UNIQUE_FILL': '0',
+    'CAND_MULT': '2',
+    'CE_GAMES': '4',
+    'CE_SEED': '1701',
+    'DST_CORR_DRAWS': '',
+    'EMP_MARGINALS': '1',
+    'EMP_POS': '',
+    'EPISTEMIC_FAMILY': 'role_draws',
+    'GAME_SIM_MODE': 'possession',
+    'GAME_SIM_PACE': '',
+    'GAME_SIM_TEAM_FACTORS': '1',
+    'GAME_SIM_USAGE': '',
+    'GEN_POOL_CAP': '0',
+    'GEN_POOL_CAP_MAP': '',
+    'GEN_TOTAL_BUDGET': '52',
+    'HYPER_BOOM': '0',
+    'LIVE_SIMS': '30000',
+    'M4_QBLOCK': '0',
+    'MAX_PER_GAME': '0',
+    'MAX_QBS': '0',
+    'MIN_LINEUP_SALARY': '49000',
+    'MODEL_ENSEMBLE': '1',
+    'MODEL_REGISTRY_VARIANT': 'tail_k1',
+    'MULTISEED_CANDIDATE_ENTRY_BASIS': '80',
+    'MULTISEED_PORTFOLIO': 'CBWU',
+    'MULTISEED_SEED_PAIRS': (
+        'R0=0:7331;R1=1137260708:2690847602;R2=2875959182:1630284992;'
+        'R3=253722715:3374646876;R4=1643280042:3977633467'
+    ),
+    'MULTISEED_WORLDS_PER_BLOCK': '10000',
+    'N_BOOM': '40',
+    'N_CE': '0',
+    'N_DARKGAME': '10',
+    'N_EPISTEMIC': '12',
+    'N_GAMESTACK': '4',
+    'N_GUMBEL': '0',
+    'N_LOWSAL': '0',
+    'N_MIDQB': '0',
+    'N_NOSTACK': '0',
+    'N_QB_VARIANTS': '4',
+    'OPEN_BOOM_SOLVES': '0',
+    'OWN_BARBELL': '',
+    'OWN_MODEL': '',
+    'PEAK_SLICE': '0',
+    'PUNT_BOOM': '0',
+    'PUNT_BOOM_WR': '',
+    'PUNT_MAX': '4000',
+    'PUNT_MIN': '0',
+    'PUNT_STRICT': '',
+    'Q99_WILD': '0',
+    'QD_CELLS': '0',
+    'REPLACEMENT_SLOTS': '12',
+    'ROLE_BELIEF_FEATURES': (
+        'target_share_last,carry_share_last,snap_share_last,target_sh'
+        'are_jump,carry_share_jump,snap_share_jump'
+    ),
+    'ROLE_BELIEF_SEED': '7331',
+    'ROOKIE_WIDEN': '',
+    'SELECT_LADDER': '',
+    'SELECT_LSE': '0',
+    'SELECT_OBJ': '',
+    'SERVED_POSITION_SCALES': 'QB:0.970,RB:1.005,TE:0.940,WR:1.070',
+    'SERVED_TAIL_SCALE': '1',
+    'SHAPE_MIX': '1',
+    'SIM_WIDEN_DRAWS': 'fitted',
+    'SINGLE_STACK_BOOM_SOLVES': '0',
+    'TABPFN_MARGINALS': '1',
+    'TABPFN_MARGINAL_TABLE': '',
+    'TD_LEDGER': '',
+    'VALUE2_MIN': '0',
+    'WR_BOOM': '0',
+}
 
 _EXPECTED_CELL_ROWS: Final = (
     (
@@ -541,11 +624,15 @@ def _origin_registry() -> list[dict[str, object]]:
 
 
 def frozen_extreme_tail_factorial_p0_environment_v1() -> dict[str, str]:
-    """Return the complete explicit incumbent environment for generation."""
-    environment = production.ClassicProductionPolicy().engine_environment()
-    if "BOOM_UNIQUE_FILL" in environment:
-        _fail("incumbent policy unexpectedly materializes BOOM_UNIQUE_FILL")
-    environment["BOOM_UNIQUE_FILL"] = "0"
+    """Return the complete frozen P0 generation environment.
+
+    This is the pinned freeze-time literal, not the live production policy:
+    the historical experiment is defined by what P0 was on 2026-08-24, and a
+    later production change must never redefine it.
+    """
+    environment = dict(_FROZEN_P0_GENERATION_ENVIRONMENT)
+    if environment.get("BOOM_UNIQUE_FILL") != "0":
+        _fail("frozen P0 environment must pin BOOM_UNIQUE_FILL to 0")
     if any(
         type(key) is not str or type(value) is not str
         for key, value in environment.items()
@@ -577,10 +664,9 @@ def _validated_p0_environment(
 
 def _validate_frozen_dependency_constants() -> None:
     """Fail if code dependencies could silently redefine the protocol."""
-    policy = production.ClassicProductionPolicy()
-    imported_pairs = (
-        tuple(policy.multiseed_seed_pairs)
-        + tuple(policy.multiseed_volume_extra_seed_pairs)
+    frozen_seed_pair_environment = ";".join(
+        f"R{index}={seed}:{world_seed}"
+        for index, (seed, world_seed) in enumerate(_FROZEN_SEED_PAIRS[:5])
     )
     raw_strategies = suite.frozen_extreme_tail_strategies_v1()
     raw_ids = tuple(str(row.get("strategy_id")) for row in raw_strategies)
@@ -658,12 +744,13 @@ def _validate_frozen_dependency_constants() -> None:
             "maximum-coverage-ge-230-oracle-diagnostic-v1",
         )
         or len(RETRIEVAL_IDS) != 18
-        or imported_pairs != _FROZEN_SEED_PAIRS
-        or tuple(policy.multiseed_seed_pairs) != _FROZEN_SEED_PAIRS[:5]
-        or policy.candidate_multiple != 2
-        or policy.n_boom != 40
-        or policy.n_role != 12
-        or policy.n_ce != 0
+        or len(p0_environment) != 66
+        or p0_environment["MULTISEED_SEED_PAIRS"] != frozen_seed_pair_environment
+        or p0_environment["CAND_MULT"] != "2"
+        or p0_environment["N_BOOM"] != "40"
+        or p0_environment["N_EPISTEMIC"] != "12"
+        or p0_environment["REPLACEMENT_SLOTS"] != "12"
+        or p0_environment["N_CE"] != "0"
         or batch.canonical_sha256(p0_environment)
         != P0_GENERATION_ENVIRONMENT_SHA256
         or batch.canonical_sha256(pb_environment)

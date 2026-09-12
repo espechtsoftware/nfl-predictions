@@ -81,8 +81,15 @@ agent or developer:
 - Parked, none on the money path: A7 ERROR cluster (42× "A7 committed Cloud
   Build contract differs", `scripts/finish_a7_select_ladder.py:2104`,
   `_CLOUDBUILD_CONTRACT` regex vs `cloudbuild.yaml`, single cause);
-  extreme-tail factorial environment drift — audit directs option 2 (pin the
-  frozen environment as a constant), not yet implemented; source-v3 chain
+  extreme-tail factorial environment drift — audit's option 2 is DONE (the
+  66-key P0 environment is a literal reproducing `7a638d18…`; the manifest no
+  longer reads the live policy), which exposed a second, masked guard: the v2
+  implementation contract pins the interpreter binary and apt moved
+  `python3.14` 1ubuntu0.1→0.2 on 2026-09-09; the three affected modules pass
+  under the cached pre-upgrade binary (160 passed) and stay quarantined here
+  pending an operator choice between holding the package and re-freezing the
+  contract (see the Resolution section of
+  `reports/2026-09-11-frozen-factorial-policy-drift.md`); source-v3 chain
   defect 8 (task-0 authorization is provider-rooted, host publish infeasible)
   needs an operator protocol decision; lab code-binding sweep
   (`b72e2c30`/`326b1592`) stays on its lab branch pending production review;

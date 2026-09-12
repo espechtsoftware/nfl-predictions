@@ -111,3 +111,61 @@ not hold up the season.
 live policy is now `N_BOOM=160` with `N_LEV=40` on the money path. Whichever way
 the protocol decision goes, that line needs updating so the documented stack and
 the code agree.
+
+---
+
+## Resolution (2026-09-12): option 2 implemented — and the drift was hiding a second signal
+
+**Option 2 is done.** `corpus_extreme_tail_factorial_manifest.py` now carries
+the complete 66-key P0 generation environment as a literal
+(`_FROZEN_P0_GENERATION_ENVIRONMENT`), reconstructed from
+`ClassicProductionPolicy().engine_environment()` at the freeze commit
+`c876e7f2` plus the manifest's own `BOOM_UNIQUE_FILL=0`. Its canonical hash
+reproduces the pinned `P0_GENERATION_ENVIRONMENT_SHA256` (`7a638d18…`) and the
+three-key PB derivation reproduces `5af2b682…`. The manifest no longer imports
+the production policy at all; the dependency validator checks the literal
+(`CAND_MULT=2`, `N_BOOM=40`, `N_EPISTEMIC=12`, `REPLACEMENT_SLOTS=12`,
+`N_CE=0`, and the five R-block seed pairs encoded in `MULTISEED_SEED_PAIRS`)
+instead of asserting properties of a live object. Tests:
+`test_live_production_policy_is_never_consulted` (the live policy is
+monkeypatched to raise; the manifest still builds with the frozen hash) and
+`test_pinned_frozen_environment_literal_drift_is_rejected` (four mutations of
+the literal each refuse with "dependency constants drifted").
+
+**The "one true signal" claim above was wrong.** Removing the P0 alarm
+dropped the failures from 115 to 97, and every remaining one is a different
+fail-closed guard: `corpus_retrieval_v2_implementation_contract` — "public v2
+numerical runtime identity drifted". That contract (frozen 2026-08-24,
+`5e49d774`) pins the interpreter binary itself, and exactly one runtime fact
+differs:
+
+```
+python_executable_bytes    pinned 7,481,192   current 7,477,160
+python_executable_sha256   pinned b8d8288f…   current 52e0a13e…
+(python_version 3.14.4, numpy 2.5.1 and its core binary, CPU features: identical)
+```
+
+`.venv/bin/python -> python3 -> /usr/bin/python3.14`, and apt upgraded
+`python3.14-minimal` from `3.14.4-1ubuntu0.1` to `1ubuntu0.2` on
+2026-09-09. The pre-upgrade package is still in `/var/cache/apt/archives/`;
+its `usr/bin/python3.14` hashes to the pinned identity exactly. Running the
+factorial, companion and contract modules under that extracted binary (no
+system change, `PYTHONPATH=src:.venv site-packages`) gives **160 passed**, and
+the two sibling modules the inventory listed in this band
+(`test_corpus_extreme_tail_generation_additions`, `test_corpus_expansion_build`)
+pass under the current binary too — they only ever saw the P0 drift.
+
+So the factorial band decomposes as: P0 policy drift (fixed, this commit) +
+interpreter binary change (a real runtime change the guard is designed to
+catch; not a code defect). The three affected modules stay quarantined on this
+workstation with the corrected reason in `scripts/test_lanes.sh`.
+
+**Remaining decision (operator, not urgent, no Week-1 impact):** either hold or
+downgrade `python3.14-minimal` to `1ubuntu0.1` so the workstation matches the
+frozen runtime, or amend the v2 implementation contract's runtime identity —
+which re-keys `_EXPECTED_CONTRACT_SHA256` and therefore every retained receipt
+that embeds it (`test_corpus_r6_full_union_grade_release_v1` and the score
+report CLI both compare retained contract identity against current), so it is
+a sweep, not a constant edit. Note that the pinned identity is the
+workstation's Ubuntu binary, not the `python:3.14.4-slim` image binary; the
+contract can never have validated inside the cloud image as pinned.

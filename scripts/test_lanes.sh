@@ -18,8 +18,9 @@ PY=.venv/bin/python
 # module<TAB>reason.  Keep the reason specific and dated; a bare module name
 # here is how a real regression gets lost.
 QUARANTINE_TSV=$(cat <<'TSV'
-test_corpus_extreme_tail_factorial_manifest.py	2026-09-11 frozen-chain policy drift: 11 env keys moved since c876e7f2 (N_BOOM 40->160 + 9 new levers). See reports/2026-09-11-frozen-factorial-policy-drift.md -- protocol decision, not a code fix.
-test_corpus_extreme_tail_generation_companion_manifest.py	2026-09-11 same frozen-chain drift as the factorial manifest.
+test_corpus_extreme_tail_factorial_manifest.py	2026-09-12 numerical runtime identity: corpus_retrieval_v2_implementation_contract pins /usr/bin/python3.14 as of 3.14.4-1ubuntu0.1 (sha b8d8288f...); apt moved it to 1ubuntu0.2 on 2026-09-09. The P0 policy drift (2026-09-11) is FIXED (pinned literal). Passes under the pinned binary: dpkg-deb -x /var/cache/apt/archives/python3.14-minimal_3.14.4-1ubuntu0.1_amd64.deb and run that python3.14 with PYTHONPATH=src:.venv site-packages. Operator decision: hold the package or re-freeze the contract.
+test_corpus_extreme_tail_generation_companion_manifest.py	2026-09-12 same runtime-identity cause as the factorial manifest (it validates the same v2 contract).
+test_corpus_retrieval_v2_implementation_contract.py	2026-09-12 same runtime-identity cause; this is the module that pins the interpreter binary.
 TSV
 )
 
