@@ -49,6 +49,7 @@ MONEY_TESTS=(
   tests/test_dk_paid_freshness_scheduler_contract.py
   tests/test_feature_sql.py
   tests/test_app.py
+  tests/test_dk_upload_csv_v1.py
 )
 
 changed_tests() {

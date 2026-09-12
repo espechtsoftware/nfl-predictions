@@ -47,14 +47,21 @@ agent or developer:
   `history_rows 1460` (2022-2025), `designation_count 11`; the pinned safety
   receipt (generation `1789079337043256`) is present.  Nothing was written to
   `gs://nfl-predictions-503414-raw/week1/prelock/2026-w01/a5-books/`; only the
-  09-10 publish exists there.  A rehearsal upload CSV byte-identical to the
-  D800 `book.csv` is staged at
-  `/home/erich/week1-upload-P_CTRL-D800_DEMAX-20260912T1325Z-fa5d035.csv`.
+  09-10 publish exists there.  **Upload-format finding:** the lab's
+  `book.csv` carries `dk_player_id`, which DraftKings' import does not match
+  on (README deficiency log 2026-07-25); the audit's "already DK-importable"
+  assumption was wrong.  `scripts/emit_dk_upload_csv_v1.py` now writes
+  draftable-ID files from a run dir or a published book (verified: reproduces
+  the published 09-10 P_CTRL rosters 80/80; emits the 09-10 P_MIX book).
+  Today's placeholder is
+  `/home/erich/week1-upload-P_CTRL-draftable-20260912T1325Z-fa5d035.csv`.
 - **Next concrete action (Sunday 2026-09-13, lock 17:00Z / 12:00 CT):**
   ~09:30 CT rerun both `live_week.py` commands, verify receipts, run the
   publisher preflight with a fresh `--run-id 20260913t<hhmm>z-fa5d035`, then
   once with `--execute` (create-once; never two attempts on one run-id),
-  upload in the DK UI by ~11:15 CT.  Operator decision still open before
+  emit P_MIX (paid) and P_CTRL (fallback) upload files with
+  `emit_dk_upload_csv_v1.py --source published`, upload in the DK UI by
+  ~11:15 CT.  Operator decision still open before
   lock: unique vs duplicated entries across the 90 reservations (audit §3.4).
   Monday/Tuesday `capture-dk-standings … --confirm-settled
   --confirm-full-field --apply` is load-bearing: `contest_entries` has never
@@ -74,6 +81,30 @@ agent or developer:
   replication of Addendum 114, cited as such.  Each simulator scored its own
   selector 5-7 points higher on held-out worlds; that did not survive realized
   outcomes (selector×evaluator self-consistency trap).
+- Week tail ledger v1 built (`reports/2026-09-12-week-tail-ledger-v1.md`):
+  the audit's §5.1 per-week post-settlement record — pool and book maxima,
+  tail counts at 194..240, retrieval gap and pool-max rank per book, winner
+  margins — as a self-hashed, re-derived row with every input identity
+  pinned.  Smoke-tested end to end on the real 09-10 publish with labelled
+  fabricated actuals; the first real row is the Tuesday step after standings
+  capture (command in the report).  Observation only; licenses nothing.
+- Preregistered the audit's §5.2 tail-supply shadow arms before any 2026
+  outcome (`reports/2026-09-12-prereg-prospective-tail-supply-shadow-arms.md`):
+  four arms (direct-tail 083, belief-gated completion, column-pricing M1,
+  scenario reduction S1) against `boom-first-40-160`, gated on weekly
+  200+/210+ supply and pool maximum with an 8-week interim and a full-season
+  sign test plus the registry's tail guard; 220+/230+ reported never gated;
+  a fixed 8-slot sleeve is the only pre-registered live exposure and needs an
+  operator decision.  Gates only — nothing implemented or built.
+- Checkout states to know: the main `nfl-predictions` checkout carries
+  production's uncommitted edits (HANDOFF/README/scripts/tests) plus untracked
+  research modules under `src/nfl_dfs/research/corpus_r6_*` — not committed
+  by this session, and it will refuse a plain pull once `main` moves; the main
+  `nfl2` checkout is mid cherry-pick on
+  `codex/cp1-fresh-retrieval-independent-review-20260908` (unmerged
+  `tests/test_cp4_r17_runtime_closure.py`) and was left untouched.  The
+  Week-1 live pair uses the separate clone
+  `nfl2-week1-a5-sidecars-current-20260910` at `fa5d035`, which is clean.
 - Test lanes: `scripts/test_lanes.sh` (money/changed/full/quarantine);
   quarantine narrowed to the two extreme-tail factorial manifest modules;
   construction-path failures were stale expectations, repaired in `103816ba`;

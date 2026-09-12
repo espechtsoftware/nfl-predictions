@@ -80,11 +80,39 @@ pinned generation-shadow safety receipt (generation `1789079337043256`,
 `gs://nfl-predictions-503414-raw/week1/prelock/2026-w01/a5-books/` by this run
 (create-once publish is gated behind `--execute`).
 
-## Step 3 — staged upload
+## Step 3 — staged upload (corrected: draftable IDs, not player IDs)
 
-`/home/erich/week1-upload-P_CTRL-D800_DEMAX-20260912T1325Z-fa5d035.csv`
-(81 lines) is byte-identical to the D800 `book.csv`. It is the Saturday
-rehearsal artifact only; Sunday's upload must come from Sunday's rebuild.
+The first staged file was a copy of the D800 `book.csv`. That file is **not
+importable**: the lab's `dk_csv` writes `dk_player_id` (its own docstring says
+so), while DraftKings' lineup import matches on the slate-specific draftable
+ID — the README data-deficiency log recorded exactly this on 2026-07-25
+("pre-fix DK upload CSVs were never actually importable"). The audit's
+"already DK-importable" assumption was wrong. It has been renamed
+`…csv.NOT-IMPORTABLE-player-ids`.
+
+`scripts/emit_dk_upload_csv_v1.py` (module
+`nfl_dfs/inference/dk_upload_csv_v1.py`) now writes the importable file from
+either a `live_week.py` run dir (player id → draftable id through the run's
+own `frame.parquet`, every slot checked for position eligibility) or a
+published book (`slot_dk_draftable_ids`, positions from the exact-reopened
+salary catalog). Verified: the run-dir path on the 09-10 D800 run reproduces
+the published 09-10 `P_CTRL` rosters 80/80 in rank order, and the published
+path emits the 09-10 `P_MIX` book (80 rows) with terminal/book/catalog
+identities in its receipt.
+
+Do **not** "fix" the lab's `book.csv` in place: production's
+`week1_live_pair_adapter.py` reads `book.csv` and maps every cell through
+`dk_player_id` (lines 167–207), so a draftable-ID `book.csv` would break the
+publisher. If the lab wants its own importable file it must be an additional
+artifact (e.g. `book_upload.csv`); until then the production emitter is the
+upload path.
+
+Today's placeholder (audit §3.3 step 4, P_CTRL = D800 DEMAX of the 13:25Z run):
+`/home/erich/week1-upload-P_CTRL-draftable-20260912T1325Z-fa5d035.csv`
+(80 rows, sha256 `5b0e42291cf5c439d366d234e402137c8c906751b1755781ea65458e745b44e6`),
+plus per-contest slices of the same book in `/home/erich/`:
+`…-milly-193028206-ranks-1-57.csv`, `…-playaction-193028208-ranks-1-20.csv`,
+`…-ffwc-q6-194478066-ranks-1-3.csv`, `…-ffwc-q5-194478065-ranks-1-10.csv`.
 
 ## Sunday procedure (audit §3.3, unchanged)
 
@@ -93,8 +121,13 @@ rehearsal artifact only; Sunday's upload must come from Sunday's rebuild.
 2. Rerun the publisher with a new `--run-id` (`20260913t<hhmm>z-fa5d035`),
    first WITHOUT `--execute`; if the preflight record is sane, rerun WITH
    `--execute`. The publish is create-once; never two attempts on one run-id.
-3. Upload the P_CTRL/P_MIX CSVs in the DK UI by ~11:15 CT (no scriptable
-   upload). Lock 12:00 CT.
+3. Emit the upload files from the published books — the paid book is P_MIX:
+   `PYTHONPATH=src python scripts/emit_dk_upload_csv_v1.py --source published --terminal-uri <PUBLISH_ROOT>/<run-id>/terminal.json --book-id P_MIX --output <path>`
+   (and `--book-id P_CTRL` for the fallback). Add `--ranks` per contest
+   (audit §3.1): Millionaire `1-57`, Play-Action `1-20`, FFWC Q6 `1-3`,
+   FFWC Q5 `1-10` — or the §3.4 unique-entry alternative if the operator
+   chooses it. Then upload in the DK UI by ~11:15 CT (no scriptable upload).
+   Never upload a `book.csv` directly. Lock 12:00 CT.
 4. Operator decision still open (audit §3.4): unique vs duplicated entries
    across the 90 reservations.
 5. Monday/Tuesday: `capture-dk-standings … --confirm-settled
