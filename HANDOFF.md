@@ -81,6 +81,16 @@ agent or developer:
   replication of Addendum 114, cited as such.  Each simulator scored its own
   selector 5-7 points higher on held-out worlds; that did not survive realized
   outcomes (selector×evaluator self-consistency trap).
+- Monday capture path checked: `scripts/rehearse_week1_contest_capture.py`
+  passes against its fixture (receipt sha `311a4e94…`, no external writes),
+  but nothing in the repository builds a real `dk-contest-manifest/v2` — the
+  governed allocation/manifest chain is on HOLD by its own contract (audit
+  §3.2b) — so the rehearsal is fixture-only for Week 1.  Monday's must-do is
+  `nfl-dfs capture-dk-standings` for each of the four contests (193028206,
+  193028208, 194478066, 194478065): validation-only first, then
+  `--confirm-settled --confirm-full-field --apply`; the `contest_entries`
+  table does not exist yet and the preflight tolerates that.  The tail-ledger
+  row follows once `player_week_actuals` for Week 1 has landed.
 - Week tail ledger v1 built (`reports/2026-09-12-week-tail-ledger-v1.md`):
   the audit's §5.1 per-week post-settlement record — pool and book maxima,
   tail counts at 194..240, retrieval gap and pool-max rank per book, winner
