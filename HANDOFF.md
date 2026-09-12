@@ -39463,3 +39463,51 @@ The FP/SIS 2x2 ablation (retrieval, ~18pt K20 oracle regret) may now bind
 `265865ed...`. Its chain is a sibling of this one with the same idioms, so sweep
 it for these five shapes before launching rather than discovering them one
 build at a time.
+
+### 2026-09-12 — Experiment-5 chain VERIFIED generation-exact (supersedes the 'd' run)
+
+Re-run at the fully-fixed commit and carried through the reopen phase, which had
+never executed. Bind THIS identity, not the `d` run: `d` was produced under
+`aecc18c8`, and pushing the jq repair moved origin/main past it, so `d` can
+never satisfy reopen (`runtime.code_sha == manifest.code_sha` AND
+`CODE_SHA == origin/main` cannot both hold for it).
+
+```
+run_id            exp5-discovery-matrix-20260911e
+code_sha          958ca248f5d7eb1ef80ca54aafa390ab23a51ef0
+build_id          36cd17f3-1bda-48e9-bcde-3742ef321334
+image             sha256:2add3040343a1877c7bb741e5d5923c4b1843fbc8045ab366051b70152b1fb3d
+
+task0             atlas-cbc-32g-full-2023-w8-v1-?????  succeeded=1
+54-task           succeeded=54 failed=0 cancelled=0
+reopen (54-task)  atlas-cbc-32g-full-2023-w8-v1-vcxrn  succeeded=54 failed=0
+                  terminal 2026-09-12T02:35:35Z
+
+DISCOVERY_MATRIX_FREEZE_TERMINAL_IDENTITY  (bind this)
+  uri        gs://nfl-predictions-503414-corpus-retrieval/research/
+             corpus-r6-paid-source-discovery-matrices/exp5-discovery-matrix-20260911e/terminal.json
+  bytes      200367
+  generation 1789180216692065
+  sha256     23184230bef178aeab0dbb66a16aa6b68fe4adb1a6ce12575caed7e7a7ca278d
+  terminal_sha256 dc1c92f15b84abd0fbd7b73f5905fd50328271169d2eab0f1dd4d1c4b62532a6
+
+REOPEN PROOF (registry replays generation-exact)
+  uri        .../exp5-discovery-matrix-20260911e/reopen-terminal.json
+  bytes      58781
+  generation 1789180603858938
+  sha256     7ca3351da6aa464940549a50f3063e6109bc9e72c99b6fc6690328bf25c798ec
+  reopen_sha256 636f349d781ebed2b18ef31eca573540607cd9fbfd87e2245baa8fc27c8f1ad1
+```
+
+### FP/SIS 2x2 ablation: swept clean before launch
+
+The retrieval experiment's chain was swept for all five defect shapes fixed
+here and carries NONE of them. Specifically `.spec.template.spec.parallelism
+== 54` in `cloud_corpus_r6_paid_source_fp_sis_v1.sh` is CORRECT and must not be
+"fixed": it reads a **Job**, where that path resolves (verified against the live
+job), not an **Execution**, where parallelism sits at `.spec.parallelism`. The
+two look alike and the discovery-matrix script uses the Execution form.
+
+The ablation may now bind `23184230...`. It is the retrieval question, where the
+measured headroom is (~18pt K20 candidate-oracle regret, ~58pt attributed to
+completion/supply loss on the 72-slate funnel).
