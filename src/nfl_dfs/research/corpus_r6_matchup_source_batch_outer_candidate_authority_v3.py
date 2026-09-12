@@ -1000,6 +1000,35 @@ def _build_runtime_binding_v3(
     return _normalize_runtime_binding(body, dependency_closure=closure)
 
 
+def _secure_current_observation(
+    root: Path, relative: object,
+) -> dict[str, object]:
+    """Return the secure-read observation the capture-plan reader requires.
+
+    The reader was wired to return raw bytes while its consumer requires an
+    observation mapping, so this reopen could never succeed: the only places
+    that shape existed were the consumer and its own hand-built test
+    fixtures, so the unit tests agreed with nothing a producer emits.
+
+    The three evidence flags are ENTAILED by a successful read, not asserted.
+    ``_secure_read_repository_file_v1`` opens every path component with
+    O_NOFOLLOW, fails closed unless the target fstats as one unaliased
+    regular file, and re-verifies inode identity across the read. A symlink,
+    a non-regular file, or an aliased inode raises instead of returning. If
+    control reaches the return below, all three facts hold.
+    """
+    raw = batch_mechanics._secure_read_repository_file_v1(
+        root, relative, label=f"capture-plan-v3 current {relative}"
+    )
+    return {
+        "relative_path": str(relative),
+        "raw": raw,
+        "is_regular_file": True,
+        "is_symlink": False,
+        "opened_nofollow": True,
+    }
+
+
 def _trusted_capture_plan_v3(
     *, dependency_closure: Mapping[str, object]
 ) -> tuple[dict[str, object], dict[str, object], bytes]:
@@ -1028,10 +1057,8 @@ def _trusted_capture_plan_v3(
             read_git_blob=lambda commit, relative: (
                 batch_mechanics._trusted_git_blob_v1(root, commit, relative)
             ),
-            secure_read_current=lambda relative: (
-                batch_mechanics._secure_read_repository_file_v1(
-                    root, relative, label=f"capture-plan-v3 current {relative}"
-                )
+            secure_read_current=lambda relative: _secure_current_observation(
+                root, relative
             ),
             repository_clean=True,
         )
