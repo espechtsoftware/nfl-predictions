@@ -114,13 +114,20 @@ plus per-contest slices of the same book in `/home/erich/`:
 `…-milly-193028206-ranks-1-57.csv`, `…-playaction-193028208-ranks-1-20.csv`,
 `…-ffwc-q6-194478066-ranks-1-3.csv`, `…-ffwc-q5-194478065-ranks-1-10.csv`.
 
-## Sunday procedure (audit §3.3, unchanged)
+## Sunday procedure (audit §3.3)
 
-1. ~09:30 CT: rerun both `live_week.py` commands above (fresh salary pull and
-   injury state), verify receipts exactly as in Step 1.
-2. Rerun the publisher with a new `--run-id` (`20260913t<hhmm>z-fa5d035`),
-   first WITHOUT `--execute`; if the preflight record is sane, rerun WITH
-   `--execute`. The publish is create-once; never two attempts on one run-id.
+Steps 1–2 are scripted: `scripts/week1_sunday_runbook.sh --run-id
+20260913t<hhmm>z-fa5d035` builds D800 and D400 in the clone, verifies both
+receipts (identity `fa5d035` clean, 80 written, canonical header, 80 unique,
+lock/draft group), runs the publisher preflight WITHOUT `--execute` and
+checks it (four distinct book hashes, P_MIX turnover ≥ 1), then prints the
+exact `--execute`, emit and upload commands and stops. Rehearsed today in
+reuse mode on the 13:25Z/13:31Z builds (`--paid-dir/--shadow-dir`): receipts
+ok, preflight ok (`pmix_turnover_per_side=7`, 11 designations), exit 0.
+
+1. ~09:30 CT: run the runbook (fresh salary pull and injury state).
+2. Run the printed 4a command once (`--execute`; create-once, never two
+   attempts on one run-id), then the printed 4b emit loop.
 3. Emit the upload files from the published books — the paid book is P_MIX:
    `PYTHONPATH=src python scripts/emit_dk_upload_csv_v1.py --source published --terminal-uri <PUBLISH_ROOT>/<run-id>/terminal.json --book-id P_MIX --output <path>`
    (and `--book-id P_CTRL` for the fallback). Add `--ranks` per contest

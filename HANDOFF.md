@@ -56,8 +56,10 @@ agent or developer:
   Today's placeholder is
   `/home/erich/week1-upload-P_CTRL-draftable-20260912T1325Z-fa5d035.csv`.
 - **Next concrete action (Sunday 2026-09-13, lock 17:00Z / 12:00 CT):**
-  ~09:30 CT rerun both `live_week.py` commands, verify receipts, run the
-  publisher preflight with a fresh `--run-id 20260913t<hhmm>z-fa5d035`, then
+  ~09:30 CT run `scripts/week1_sunday_runbook.sh --run-id
+  20260913t<hhmm>z-fa5d035` (builds D800/D400, verifies receipts, runs the
+  publisher preflight, prints the operator commands; rehearsed today in
+  reuse mode, exit 0), then
   once with `--execute` (create-once; never two attempts on one run-id),
   emit P_MIX (paid) and P_CTRL (fallback) upload files with
   `emit_dk_upload_csv_v1.py --source published`, upload in the DK UI by
