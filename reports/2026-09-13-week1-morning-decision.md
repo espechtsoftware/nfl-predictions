@@ -1,0 +1,57 @@
+# Week-1 morning decision — 2026-09-13 (lock 12:00 CT)
+
+**Status:** draft written 2026-09-12 ~19:00Z with the decision rule frozen; the PREREG-090 read fills §2
+when the three r2 banks complete (expected ~21:00–22:00Z). Nothing here opens a 2026 outcome.
+
+## 1. What is fixed regardless of the read
+
+- **Paid book = corrected centering.** Every Week-1 book is built with `NFL2_LIVE_CENTER=production` from
+  `/home/erich/projects/.nfl2-worktrees/week1-live-center-818f672` (level gate on; receipts record
+  `naive_top_lineup_projection`, expected ≈145–160). The uncorrected lab level (RB/WR ≈ 8 pts) is not an
+  option.
+- **Paid policy = P_MIX on the D800 pair** through the governed publisher (P_CTRL fallback), unless §2
+  moves the dose.
+- **Entry layout:** 90 unique lineups (Milly 1–57, Play-Action 58–77, FFWC-Q6 78–80, FFWC-Q5 81–90) from
+  the K90 build; the alternative 57-unique + duplicated top ranks is inferior for a weekly-max objective
+  (audit §3.4). The K90 book's ranks 1–80 are identical to the K80 paid book (verified), so P_MIX's K80 and
+  the K90 layout compose: Milly gets P_MIX ranks 1–57; the other three contests take K90 ranks 58–90 of the
+  same-seed build (P_CTRL-equivalent rows, since P_MIX is defined on K80 only).
+- **Shadows (frozen, never entered):** D400_DEMAX, D800_WEMAX, direct-tail, DT-union, spread-4, NOBB sleeve,
+  and — if PREREG-090 does not move the dose — D1600.
+
+## 2. The dose decision (fill from the frozen reader)
+
+PREREG-090 consequence 1: `D1600_DEMAX` **PASS** on the r2 cohort **and** the live D1600 receipts not worse
+than D800's under both laws (already true: 178.6 vs 177.7 incumbent, 199.0 vs 198.4 hsim, P≥220 .021 vs
+.018 / .141 vs .133) → the Milly book becomes the corrected **D1600 DEMAX K90** (lev 320 / boom 1280) via
+the run-dir upload path (P_CTRL-equivalent; the governed P_MIX publisher only accepts the 160/640 pair), and
+the P_MIX D800 K80 book is frozen as the primary shadow. Any other verdict → the D800 P_MIX plan above.
+
+| reader line | value |
+|---|---|
+| `D1600_DEMAX − D800_DEMAX` proxy, family interval, banks, LOSO, verdict | *pending* |
+| `D800_DT_DEMAX − D800_DEMAX` | *pending* |
+| `D1600_HALFDT_DEMAX − D800_DEMAX` | *pending* |
+| threshold events 200/210/220/230 per arm | *pending* |
+| supply counts ≥220/≥230 per pool | *pending* |
+
+## 3. Sunday sequence (times CT)
+
+| time | step |
+|---|---|
+| 08:30 | confirm `s-nflverse`, `s-features-sun` and the 09:00 `project-slate` execution succeed |
+| 09:10 | `/home/erich/week1-sunday-build.sh` (runbook build + preflight, K90, upload CSVs; add `/home/erich/week1-dose.env` with `PAID_LEV=320 PAID_BOOM=1280` first if §2 fired) |
+| 09:30 | publish once: runbook step 4a (`publish_week1_a5_books.py … --execute`, run id from the build log) |
+| 09:35 | emit P_MIX ranks 1–57 from the published book (runbook 4b, `--book-id P_MIX --ranks 1-57`); take ranks 58–90 from the K90 (or D1600 K90) run-dir CSVs |
+| 09:45–11:15 | upload the four contest files in the DK UI (operator-only) |
+| 11:20 | re-check DK inactives; if a paid-book player is ruled out, rebuild with a new run id and re-upload (DK edits allowed until lock) |
+| 12:00 | lock |
+
+Fallbacks: corrected P_CTRL run-dir CSVs (`/home/erich/week1-sunday/upload-*`) → the placeholder files
+already emitted on Saturday (`/home/erich/week1-upload-CORRECTED-*`) → production app export.
+
+## 4. Monday/Tuesday
+
+Standings capture for all four contests (`nfl-dfs capture-dk-standings`, validation first, then
+`--confirm-settled --confirm-full-field --apply`); settle every frozen run dir (`scripts/settle_live.py`),
+including the shadow arms; write the tail-ledger row; append the LEDGER rows for PREREG-090/091/092.
