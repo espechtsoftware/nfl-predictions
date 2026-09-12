@@ -39511,3 +39511,54 @@ two look alike and the discovery-matrix script uses the Execution form.
 The ablation may now bind `23184230...`. It is the retrieval question, where the
 measured headroom is (~18pt K20 candidate-oracle regret, ~58pt attributed to
 completion/supply loss on the 72-slate funnel).
+
+### CRITICAL PATH (found 2026-09-12): the retrieval ablation is blocked behind the capture-plan circularity
+
+The FP/SIS 2x2 ablation cannot launch on the discovery matrix alone. Its
+prepare input takes SIX fields, and two of them are artifacts:
+
+```
+schema_version, run_id, frozen_at,
+source_v3_release_identity                  <-- NOT YET PUBLISHED
+discovery_matrix_freeze_terminal_identity   <-- DONE: 23184230... (verified)
+runtime_build_attestation_identity
+```
+
+`source_v3_release_identity` must be a GCS identity (uri/bytes/generation/
+sha256) that `_read_exact` can fetch; `paid_source_ablation_execution_v1.py`
+then reads `release.upstream_source_release_identity` from it
+("source-v3 seven-pack release identity", line 538).
+
+**That document is the capture plan.** It is produced by
+`corpus_r6_matchup_capture_plan_from_seven_pack_v1.py:203`, and the locally
+committed lock
+`reports/corpus-r6-matchup-runs/20260830-r6-matchup-source-v2/capture-plan-outer-candidate-authority-v3-lock.json`
+(commit `305fc6c6`) already carries exactly the right field:
+
+```
+upstream_source_release_identity = {bytes 22925, generation 1789106359079526,
+  sha256 1de61029e63907530d1d4182c1b37189828be4a9d9e635bd61fe2529b8af34e5,
+  uri .../20260911-fp-sis-seven-pack-successor-v4/upstream-release.json}
+```
+
+But it exists only as a repository file. The ablation needs it **published to
+GCS**, and the capture-plan chain that would publish it is the one blocked by
+defect 5 (the plan records HEAD; committing the plan changes HEAD; the marker
+must reach origin/main, which moves HEAD again -- structurally unsatisfiable).
+
+So the ordering is NOT what the Neo4j report's P0/P2 implies. It is:
+
+```
+capture-plan HEAD-recording repair   <-- ON THE CRITICAL PATH, unfixed
+        |
+   publish source-v3 release to GCS
+        |
+   FP/SIS 2x2 ablation (retrieval, ~18pt K20 oracle regret)
+```
+
+The discovery matrix is done and is NOT the remaining blocker. The capture-plan
+repair is. Recommended fix remains the smaller one: compare those identities by
+CONTENT (`module_sha256`, which already matches) and treat the commit label as
+informational -- frozen-chain rule 2. Exact site:
+`corpus_r6_matchup_capture_plan_v1.py:1132 _code_identity()`, called at
+1191/1196 and 1373/1378, fed by a single `implementation_commit_sha` = HEAD.
