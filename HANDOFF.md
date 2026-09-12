@@ -152,6 +152,15 @@ agent or developer:
   179.5/180.6/181.1, P≥220 .023/.026/.027; hsim 196.4/197.0/198.3, P≥220 .115/.118/.138; pool P≥220 .054/.082/.114),
   so the live-receipt conditions of PREREG-090 c.1 and PREREG-093's ladder hold. D3200 K90 fallback built
   (`…204921…`, CSVs `/home/erich/week1-sunday/upload-FALLBACK-D3200-K90-*`). Memo §2 carries the table.
+- **23:27Z: PREREG-090 READ (first read, amendment-4 reader `3ec0d8b`, transcript sha256 `c515d696…`, committed
+  on `lab/prereg090-amend4-20260912` with the LEDGER row):** ALL THREE UNRESOLVED — D1600 −0.00061
+  [−0.00773, +0.00693] banks +/−/+ (raw −0.74); direct-tail −0.00235 (raw −0.65); half-DT union +0.00238
+  [−0.0038, +0.0087] (raw +0.45); count-matched reference +0.00198. Supply doubled (≥200 per slate-bank
+  1.04→2.28, ≥220 .08→.19, pool oracle 194.9→198.8) but best-in-book halved (.204→.102) and the K80 max did not
+  move. **Frozen consequence applied: Week-1 paid dose stays 800 (D800 P_MIX); no `week1-dose.env`.**
+  Redirect: above 800 solves the DEMAX selector, not supply, binds — PREREG-093's 3200 rung is deprioritised
+  behind a dose × retrieval crossing (PREREG-094, experiment 114: the nested 1600 stream × {DEMAX, PREREG-060 NOV})
+  being frozen now; 111 mechanics gate `lab-run-fxrwj` launched 23:23Z by the master queue.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
