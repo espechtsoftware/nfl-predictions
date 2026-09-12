@@ -19,9 +19,7 @@ PY=.venv/bin/python
 # here is how a real regression gets lost.
 QUARANTINE_TSV=$(cat <<'TSV'
 test_corpus_extreme_tail_factorial_manifest.py	2026-09-11 frozen-chain policy drift: 11 env keys moved since c876e7f2 (N_BOOM 40->160 + 9 new levers). See reports/2026-09-11-frozen-factorial-policy-drift.md -- protocol decision, not a code fix.
-test_corpus_extreme_tail_generation_additions.py	2026-09-11 same frozen-chain drift as the factorial manifest.
 test_corpus_extreme_tail_generation_companion_manifest.py	2026-09-11 same frozen-chain drift as the factorial manifest.
-test_corpus_expansion_build.py	2026-09-11 same frozen-chain drift as the factorial manifest.
 TSV
 )
 
