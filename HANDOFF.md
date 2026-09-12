@@ -39562,3 +39562,52 @@ CONTENT (`module_sha256`, which already matches) and treat the commit label as
 informational -- frozen-chain rule 2. Exact site:
 `corpus_r6_matchup_capture_plan_v1.py:1132 _code_identity()`, called at
 1191/1196 and 1373/1378, fed by a single `implementation_commit_sha` = HEAD.
+
+### CORRECTION (2026-09-12, later): defect 5 is probably NOT on the critical path
+
+The previous section said the retrieval ablation was blocked behind the
+capture-plan HEAD-recording circularity. Tracing the publisher shows that is
+likely wrong, and the correction matters because it removes a frozen-chain
+schema change from the critical path.
+
+The capture-plan freeze's job was to PRODUCE the lock. It did produce it, at
+09:36 on 2026-09-11, before failing at a later gate; the lock is committed
+(`305fc6c6`), is on origin/main, and is 106,016 bytes of canonical JSON
+carrying the right `upstream_source_release_identity`.
+
+The GCS publication is a SEPARATE chain:
+`src/nfl_dfs/research/corpus_r6_matchup_source_batch_outer_candidate_authority_v3.py`
+(driver `scripts/run_corpus_r6_matchup_source_batch_v3.py`). Its
+`_trusted_capture_plan_v3` needs only that the tracked lock match its committed
+blob -- not that the freeze run completed. Verified by running
+`--action validate` on a clean worktree at origin/main:
+
+```
+1st attempt: "source-v3 publication requires a completely clean worktree"
+             (my .venv symlink; removed)
+2nd attempt: "source-v3 immutable image identity environment is incomplete"
+```
+
+It passed the clean-worktree and tracked-lock gates and stopped only on
+IMAGE_DIGEST / IMAGE_REFERENCE / IMAGE_SOURCE_COMMIT, which are set inside the
+container. So this validator runs in the cloud, and source-v3 publication is
+its own build/install/task0/publish chain.
+
+REVISED CRITICAL PATH TO THE RETRIEVAL EXPERIMENT:
+
+```
+capture-plan lock            DONE (committed 305fc6c6, gates pass)
+discovery matrix terminal    DONE (23184230..., reopen-verified)
+source-v3 batch cloud chain  <-- NEXT: build, install, task0, publish
+FP/SIS 2x2 ablation          then binds both identities
+```
+
+Defect 5 still exists and still makes the capture-plan freeze unable to
+complete a full run, but it does not appear to gate publication. Do not spend a
+frozen-chain schema change on it before confirming the source-v3 chain
+publishes from the existing lock.
+
+Next concrete action: `scripts/run_corpus_r6_matchup_source_batch_v3.py` has
+validate/task0/reopen only -- find its cloud seam (the build/install/publish
+driver) and run it the way the discovery-matrix chain was run, sweeping first
+for the five defect shapes.
