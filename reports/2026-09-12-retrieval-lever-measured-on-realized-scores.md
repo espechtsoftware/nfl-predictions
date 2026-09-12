@@ -267,3 +267,21 @@ the field's score-to-rank mapping, and **that data does not exist**:
 days. The Week-1 Monday/Tuesday standings capture is therefore load-bearing for
 the only lever this session found -- it is the first opportunity to price
 placement rather than assume it.
+
+## Prior art — this is a replication, not a discovery
+
+Ledger **Addendum 114 (2026-08-09)** already compared the corrected true-80 book
+with all 68 known Milly winning scores: K=3 beats 0/68 (mean gap 60.69), the
+candidate-pool oracle beats 0/68 (mean gap 57.69), and concluded that "fixed
+194/200 thresholds remain useful comparative markers, but cannot be represented
+as top-prize proxies" and that "the roughly 58-point oracle gap makes upstream
+belief/candidate quality — not selector mining — the dominant first-place
+problem." The present cohort re-measures the same ceiling on different slates
+(0/34, gap median 36.5 with a larger 799-candidate pool) and reaches the same
+conclusion by the same route. It should be read as confirmation, and cited as
+Addendum 114 rather than as new.
+
+The ledger also records the only lever that has ever moved 237-reachability:
+variance, via boom-draw candidates ("variance was the lever"), which raised
+weeks-with-237-reachable-in-a-150k-field from 1/17 to 5/17. That mechanism is
+the adopted boom-first generator (N_BOOM=160).
