@@ -138,6 +138,15 @@ agent or developer:
   the jobs to 09y → arms the master (111→112) → the 113 sequencer follows. Cloud Run task losses are a
   standing risk: every future launcher should keep `maxRetries` ≥ 1 and census shards, never trust
   `succeededCount` alone.
+- **21:35Z lane state:** `110b902r2` = `lab-run-lbqv4` (launched 20:53Z by the finish launcher after the 110
+  launcher exited on bank 900's `failedCount`, never launching 902); bank 900 repaired (`110b900r2rep2024` =
+  `lab-run-slow-s5xdd`, 2/2); bank 901 has 12 lost slates (index 66 = 2024 W13 joined the earlier eleven) being
+  repaired as `110b901r2rep{2021,2022,2023,2024}`; 902's own losses (if any) follow. Three finish-launcher
+  defects were fixed in flight, all host-side (`/home/erich/week1-sunday/queue_110_finish.sh`, not in git):
+  `local a=$1 b="…$a…"` on one line (expansion precedes `local`), `grep` in a `$( … | … )` loop returning 1 under
+  `pipefail` + `set -e`, and a no-relaunch guard that refused to attach to its own completed repair. The
+  handover (`handover_v4.sh`, logs `handover_v4*.log`) runs the finish launcher in the foreground and then
+  moves the jobs to 09y and arms the master; the 113 sequencer is still waiting behind the master.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
