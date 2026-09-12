@@ -22,6 +22,74 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-12 state audit adopted: Week-1 money path rehearsed, research branch cherry-picked
+
+- Governing document: `reports/2026-09-12-state-audit-and-week1-agenda.md`.
+  The previous session's branch
+  `production/test-lanes-and-factorial-drift-20260911` is 487 commits behind
+  `origin/main` and would delete 59,825 lines if merged; per the audit it is
+  never merged.  Its thirteen commits were cherry-picked with `-x` onto
+  `production/week1-audit-adjust-20260912` from `origin/main` `b5ac2c0f`:
+  `df87dd10 96a7c99b 0d6b8cb4 d09ec1b0 103816ba 4e2e8038 4c9beefd 3ef5ca92
+  3cd40fd1 69379a50 e87317b9 af533831 90b92267` (each trailer names its
+  source commit).  `HANDOFF.md` on that branch was identical to `origin/main`
+  before this section.  This grants no scoring, publication, or outcome
+  authority.
+- **Week-1 Saturday dry run complete** (`reports/2026-09-12-week1-saturday-dry-run.md`).
+  Live-pair rebuild in the nfl2 clone at `fa5d035` (clean, salary pull
+  `2026-09-12 13:03:26Z`): D800 run `20260912T132523949270Z-fa5d035`
+  (lev/boom 160/640, 800 candidates, 80 written, 80 unique, sidecars emitted)
+  and D400 run `20260912T133100344084Z-fa5d035` (80/320, 400 candidates,
+  80/80).  Publisher preflight from worktree
+  `.nfl-predictions-worktrees/week1-publisher-20260912` at `00c6097f`
+  (`--run-id 20260912t1331z-fa5d035`, no `--execute`) exited 0 with
+  `pmix_turnover_per_side: 7`, four pairwise-distinct book hashes,
+  `history_rows 1460` (2022-2025), `designation_count 11`; the pinned safety
+  receipt (generation `1789079337043256`) is present.  Nothing was written to
+  `gs://nfl-predictions-503414-raw/week1/prelock/2026-w01/a5-books/`; only the
+  09-10 publish exists there.  A rehearsal upload CSV byte-identical to the
+  D800 `book.csv` is staged at
+  `/home/erich/week1-upload-P_CTRL-D800_DEMAX-20260912T1325Z-fa5d035.csv`.
+- **Next concrete action (Sunday 2026-09-13, lock 17:00Z / 12:00 CT):**
+  ~09:30 CT rerun both `live_week.py` commands, verify receipts, run the
+  publisher preflight with a fresh `--run-id 20260913t<hhmm>z-fa5d035`, then
+  once with `--execute` (create-once; never two attempts on one run-id),
+  upload in the DK UI by ~11:15 CT.  Operator decision still open before
+  lock: unique vs duplicated entries across the 90 reservations (audit §3.4).
+  Monday/Tuesday `capture-dk-standings … --confirm-settled
+  --confirm-full-field --apply` is load-bearing: `contest_entries` has never
+  received a row and it is the first chance to price placement.
+- Research recorded this session, all on already-joined realized scores with
+  no new outcome opened
+  (`reports/2026-09-12-retrieval-lever-measured-on-realized-scores.md`,
+  `reports/2026-09-12-independent-review-package.md`): selector law
+  incumbent vs corrected_hsim `-0.29` (95% CI `-4.65, +4.32`); entries K20→K80
+  `+13.55` (CI `+10.61, +16.68`, 54/72 slates) is the only lever whose
+  interval excludes zero; minimal-core completion `+0.57` (PREREG-086 read:
+  NO_NOMINATION).  The tail splits at ~210-220: retrieval-limited below (pool
+  holds 35 clears at 194, K80 retrieves 17), supply-limited above (pool holds
+  a 230+ candidate in 1/72 slates).  Ranker signal is real but thin (K20
+  retrieves the realized-best candidate 8.3% vs 2.5% random, p=0.0094).
+  0/34 Milly wins even for the pool oracle (median 36.5 short) — a
+  replication of Addendum 114, cited as such.  Each simulator scored its own
+  selector 5-7 points higher on held-out worlds; that did not survive realized
+  outcomes (selector×evaluator self-consistency trap).
+- Test lanes: `scripts/test_lanes.sh` (money/changed/full/quarantine);
+  quarantine narrowed to the two extreme-tail factorial manifest modules;
+  construction-path failures were stale expectations, repaired in `103816ba`;
+  documented production stack corrected to `N_BOOM=160` (`96a7c99b`).
+- Parked, none on the money path: A7 ERROR cluster (42× "A7 committed Cloud
+  Build contract differs", `scripts/finish_a7_select_ladder.py:2104`,
+  `_CLOUDBUILD_CONTRACT` regex vs `cloudbuild.yaml`, single cause);
+  extreme-tail factorial environment drift — audit directs option 2 (pin the
+  frozen environment as a constant), not yet implemented; source-v3 chain
+  defect 8 (task-0 authorization is provider-rooted, host publish infeasible)
+  needs an operator protocol decision; lab code-binding sweep
+  (`b72e2c30`/`326b1592`) stays on its lab branch pending production review;
+  FP/SIS ablation deprioritised per audit §5.  Housekeeping per audit §5.0:
+  commit the untracked 09-10 reports on `main`; after Week 1 merge
+  `production/nflverse-current-snap-absence-20260910`; prune worktrees.
+
 ### 2026-09-11 capture-plan freeze recognizes the governed terminal-recovery v2 lock
 
 - The first exact seven-pack-v4 capture-plan freeze completed its full remote
