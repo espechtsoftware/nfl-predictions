@@ -147,6 +147,11 @@ agent or developer:
   `pipefail` + `set -e`, and a no-relaunch guard that refused to attach to its own completed repair. The
   handover (`handover_v4.sh`, logs `handover_v4*.log`) runs the finish launcher in the foreground and then
   moves the jobs to 09y and arms the master; the 113 sequencer is still waiting behind the master.
+- **21:45Z: live dose shadows on `e7255e9`** — D1600 K80 (`…203440469470Z`, 14 min) and D3200 K80
+  (`…194342612416Z`, 51 min) scored under the D800 build's banks: monotone in dose on both laws (incumbent E[max]
+  179.5/180.6/181.1, P≥220 .023/.026/.027; hsim 196.4/197.0/198.3, P≥220 .115/.118/.138; pool P≥220 .054/.082/.114),
+  so the live-receipt conditions of PREREG-090 c.1 and PREREG-093's ladder hold. D3200 K90 fallback built
+  (`…204921…`, CSVs `/home/erich/week1-sunday/upload-FALLBACK-D3200-K90-*`). Memo §2 carries the table.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's

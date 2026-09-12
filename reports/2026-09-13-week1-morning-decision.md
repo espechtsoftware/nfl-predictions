@@ -41,7 +41,7 @@ PREREG-093's ladder are satisfied: every line is monotone in dose.**
 | D3200 | corrected-hsim | 198.3 | .552 | .259 | .138 | .369 |
 
 Build cost on this workstation: D800 5 min, D1600 14 min, **D3200 51 min** (3,040 s). A D3200 K90 with
-sidecars is being built tonight as the Sunday fallback for the 3200 dose (`/home/erich/week1-sunday/d3200-k90-e7255e9.err`).
+sidecars was built Saturday 20:49–21:39Z as the Sunday fallback for the 3200 dose: run dir `…/week1-live-center-e7255e9/results/live/2026-w01/20260912T204921…-e7255e9` (salary pull 20:04Z; 90 unique rosters, its own K80 nested), upload CSVs `/home/erich/week1-sunday/upload-FALLBACK-D3200-K90-20260912T204921-e7255e9-{milly-193028206-ranks-1-57, playaction-193028208-ranks-58-77, ffwc-q6-194478066-ranks-78-80, ffwc-q5-194478065-ranks-81-90}.csv` — usable only if the read selects 3200 AND the Sunday D3200 build cannot finish before ~10:45 CT; re-check DK inactives against its rosters first.
 
 **Read procedure (PREREG-090 amendment 4):** Cloud Run lost 13 r2 tasks to platform "Internal error"; the
 registered finish launcher re-runs exactly those slates on the same image. Read from the amend4 worktree:
