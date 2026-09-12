@@ -70,3 +70,53 @@ def test_reopen_accepts_only_one_absolute_regular_identity_file(
         runner.run([
             "--action", "reopen", "--batch-root-identity", path.name,
         ])
+
+
+def test_secure_current_observation_matches_the_consumer_contract(tmp_path):
+    """The producer must emit the exact shape the capture-plan reader requires.
+
+    This shape previously existed only in the consumer and in hand-built test
+    fixtures; the real producer returned raw bytes, so the tracked
+    capture-plan-v3 reopen failed with "must be a string-keyed object" and the
+    source-v3 image could never build its own validation step.
+    """
+    from nfl_dfs.research import (
+        corpus_r6_matchup_capture_plan_v1 as capture_v1,
+        corpus_r6_matchup_source_batch_outer_candidate_authority_v3 as batch,
+    )
+
+    root = tmp_path.resolve()
+    (root / "reports").mkdir()
+    target = root / "reports" / "probe.json"
+    target.write_bytes(b'{"a":1}')
+
+    observation = batch._secure_current_observation(root, "reports/probe.json")
+
+    # Exactly the consumer's field set -- no more, no less.
+    assert set(observation) == set(capture_v1._SECURE_CURRENT_OBSERVATION_FIELDS)
+    assert observation["relative_path"] == "reports/probe.json"
+    assert observation["raw"] == b'{"a":1}'
+    assert observation["is_regular_file"] is True
+    assert observation["is_symlink"] is False
+    assert observation["opened_nofollow"] is True
+
+
+def test_secure_current_observation_refuses_a_symlink(tmp_path):
+    """The flags are entailed by the read, not asserted over it.
+
+    A symlink must raise rather than return an observation claiming
+    is_symlink False -- that is what makes the hardcoded flags truthful.
+    """
+    import pytest
+
+    from nfl_dfs.research import (
+        corpus_r6_matchup_source_batch_outer_candidate_authority_v3 as batch,
+    )
+
+    root = tmp_path.resolve()
+    (root / "reports").mkdir()
+    (root / "real.json").write_bytes(b'{"a":1}')
+    (root / "reports" / "link.json").symlink_to(root / "real.json")
+
+    with pytest.raises(Exception):
+        batch._secure_current_observation(root, "reports/link.json")
