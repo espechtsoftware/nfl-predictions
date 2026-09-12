@@ -183,6 +183,16 @@ Claims I drew, each of which should be checked:
    same thin discriminator, which explains why swapping them does nothing.
 5. **Proposed bar for any future retrieval lever:** roughly double the K80
    retrieval rate (19% → 40%) to close half the remaining 12.7 points.
+6. **Every lever above lives below the Millionaire winning line.** Joining the
+   68 tracked Milly winners gives 34 overlapping slates (2023–24). Scoring is
+   identical (mean diff −0.024) and the universe matches (295/306 players
+   resolve; the misses are initial ambiguities). Result: **0/34 wins at K20,
+   K80, and the entire pool**; pool-oracle margin median **−36.5**, best −6.2.
+   Actual winning lines: median 232–239 every season; `194` is the ledger's
+   *minimum* 2025 winning line (confirmed: 2025 min = 193.9), `237` its average
+   (ledger: "median N ~10^15, effectively unreachable"). So entries/retrieval
+   improve *placement*, not win probability, which is ≈0 for everything measured.
+   Winning is a supply problem at ~237+ (pool holds a 230+ candidate in 1/72).
 
 ---
 
@@ -298,11 +308,15 @@ Analysis: `reports/2026-09-11-frozen-factorial-policy-drift.md`.
 
 Ordered by my estimate of expected value, which should itself be challenged.
 
-1. **More entries per slate.** The only lever measured with a positive interval
-   (+13.55, more than doubling 194+ clears). It is a bankroll/contest-structure
-   decision, not a model change, and **this work says nothing about ROI under
-   entry fees and payout curves** — that is where the decision actually lives and
-   it has not been analysed.
+1. **More entries per slate — for placement, not wins.** The only lever
+   measured with a positive interval (+13.55, more than doubling 194+ clears).
+   Qualified by §3.2 item 6: it moves finish position within a band that never
+   reaches the winning line (0/34). It is a bankroll/contest-structure decision,
+   and **its dollar value depends on the payout curve and field score-to-rank
+   mapping, which do not exist in the warehouse** (`contest_entries` has never
+   received a row; DK purges standings in ~4 days). **The Week-1 Monday/Tuesday
+   standings capture is therefore load-bearing** — it is the first chance to
+   price this lever rather than assume it.
 2. **A tail-supply mechanism that demonstrably generates 220+ candidates.**
    Above 220 the pool holds 2 of 72 slates. Any mechanism should be required to
    show generation before any selector or entry change is tested there.
@@ -354,6 +368,14 @@ Ranked by how much damage a mistake would do.
    would have condemned correct code (see §8).
 6. **Whether defect 8's deadlock is real,** or whether some path resolves both
    constraints that I did not find.
+7. **The winner join (§3.2 item 6).** The 0/34 rests on two alignments I
+   verified myself: identical DK scoring (229 matched players, mean diff
+   −0.024) and slate-universe overlap (295/306). The README warns the winner
+   file has known quality issues (five salary totals over $50k; two sources
+   agree on only 18/30 shared winning scores; one 2024 week duplicated, which
+   the loader drops). Re-derive the per-slate winning line as the roster sum of
+   `winner_actual` and confirm the 34-slate join keys before trusting the
+   margin distribution.
 
 ---
 
@@ -384,6 +406,14 @@ Listed because a reviewer should weight my conclusions accordingly.
   existed in the sealed shards. The operator caught this.
 - **I fixed defect 4 point-wise and it resurfaced twice** before I swept the
   class, which is exactly what frozen-chain rule 4 warns about.
+- **I nearly reported a ~37-point anchoring error that does not exist.** Seeing
+  real Milly winning lines average ~232 against the program's 194 tail line, I
+  drafted the conclusion that the headline metric was mis-anchored. Reading the
+  ledger first showed 194 is deliberately the *minimum* 2025 winning line and 237
+  the average — a known, chosen floor, not a mistake. My own winner data then
+  confirmed it (2025 min = 193.9). The lesson is the one CLAUDE.md already
+  states: read the ledger before proposing, because most "new" findings are
+  already there.
 
 ---
 
