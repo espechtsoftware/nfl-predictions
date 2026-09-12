@@ -161,6 +161,16 @@ agent or developer:
   Redirect: above 800 solves the DEMAX selector, not supply, binds — PREREG-093's 3200 rung is deprioritised
   behind a dose × retrieval crossing (PREREG-094, experiment 114: the nested 1600 stream × {DEMAX, PREREG-060 NOV})
   being frozen now; 111 mechanics gate `lab-run-fxrwj` launched 23:23Z by the master queue.
+- **23:37Z: PREREG-094 frozen and queued (cohort branch @ `578a342f`, pushed; image
+  `…/lab/nfl2:prereg09z-578a342f3350`, digest `sha256:e05f3fb3…`, digest file `results/prereg09z_image.txt`):**
+  experiment 114 = the nested 1600 stream (D800 as its proven prefix) retrieved by DEMAX and by PREREG-060's
+  novelty ladder selector (imported verbatim; source sha256 `2fb435e6…` is a gate receipt), banks 940–942; family
+  of three: D1600_NOV − D800_DEMAX, D1600_NOV − D1600_DEMAX, and the slate-bank interaction; consequence = Week-2
+  nomination only (Week-1 paid policy is frozen). Lane order is now **111 → 112 → 114 → 113**: the old 113
+  sequencer was stopped and `scripts/arm_master2_after_master.sh` waits for the 111/112 master's registry
+  completion, moves the jobs to 09z and arms `scripts/queue_master2.sh` (114 then 113). Read 114 with
+  `scripts/prereg094_report.py <3 run ids>` after `scripts/prereg094_mechanics_gate.py 114m940r1-<stamp>` passes;
+  113 keeps `prereg093_*`. Smoke receipts: prefix identity true, NOV engaged on the 1600 pool (overlap 72/80).
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
