@@ -21,8 +21,18 @@ steps:
         git init release
         git -C release remote add origin https://github.com/espechtsoftware/nfl-predictions.git
         git -C release fetch --no-tags origin '${_CODE_SHA}'
+        # Also materialise the remote-tracking ref. The runtime's candidate
+        # replay runs require_commit_reachable_from_remote_v1, which resolves
+        # refs/remotes/origin/main; fetching a bare SHA never creates it, so
+        # the census failed closed in every container and the worker could
+        # not complete. Fetching real main keeps the check truthful rather
+        # than removing it.
+        git -C release fetch --no-tags origin \
+          '+refs/heads/main:refs/remotes/origin/main'
         git -C release checkout --detach '${_CODE_SHA}'
         test "$(git -C release rev-parse HEAD)" = '${_CODE_SHA}'
+        test "$(git -C release rev-parse --verify refs/remotes/origin/main)" != ''
+        git -C release merge-base --is-ancestor '${_CODE_SHA}' refs/remotes/origin/main
         test "$(git -C release rev-parse --is-shallow-repository)" = false
         test -z "$(git -C release status --porcelain --untracked-files=all)"
 
