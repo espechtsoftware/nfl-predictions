@@ -39611,3 +39611,52 @@ Next concrete action: `scripts/run_corpus_r6_matchup_source_batch_v3.py` has
 validate/task0/reopen only -- find its cloud seam (the build/install/publish
 driver) and run it the way the discovery-matrix chain was run, sweeping first
 for the five defect shapes.
+
+### 2026-09-12 — source-v3 chain: defects 6 and 7, and a driver bug of my own
+
+Working the critical path to the FP/SIS retrieval ablation. Two more
+never-completable defects, same family as the five in the discovery-matrix
+chain, plus one bug I introduced.
+
+**Defect 6 — secure-read observation contract (fixed, `2df3f261`).**
+`secure_read_current` was supplied as a lambda returning raw bytes, while its
+consumer requires an observation mapping `{relative_path, raw, is_regular_file,
+is_symlink, opened_nofollow}`. Bytes is never a mapping, so the tracked
+capture-plan-v3 reopen failed "must be a string-keyed object" every time. That
+reopen runs inside the source-v3 image's OWN build validation, so the image had
+never built and the source-v3 release had never been publishable.
+
+Grepping the tree, that shape existed in exactly two places: the consumer, and
+the tests that hand-build it with `opened_nofollow: True` hardcoded. No
+producer emitted it. Same failure as the task0 parallelism fixtures.
+
+The three flags are ENTAILED by a successful read, not asserted:
+`_secure_read_repository_file_v1` opens every path component O_NOFOLLOW, fails
+closed unless the target fstats as one unaliased regular file, and re-verifies
+inode identity across the read. A symlink test pins this -- it must RAISE
+rather than return `is_symlink: False`.
+
+**Defect 7 — the container cannot satisfy its own git census (fixed, `a7777cc4`).**
+The runtime calls `require_commit_reachable_from_remote_v1`, resolving
+`refs/remotes/origin/main`. The build did `git fetch --no-tags origin <SHA>`
+then `checkout --detach`, which never creates a remote-tracking ref, and the
+Dockerfile copies `.git` in. So every container failed
+"remote reference census failed". Build now also fetches
+`+refs/heads/main:refs/remotes/origin/main` and asserts both the ref's
+existence and that the built commit is an ancestor of it.
+
+**My own bug — a driver that misread failure as success.**
+`gcloud --format="value(a,b,c)"` emits EMPTY fields for absent counters, and
+`read -r s f c` shifts positionally. A failed execution (succeededCount absent,
+failedCount 1) printed as "succeeded=1 failed=0", and the driver advanced. The
+controller's fail-closed gate caught it; my driver did not. Both drivers now
+parse JSON explicitly and require succeeded==expected AND failed==0 AND
+cancelled==0 AND running==0. The earlier discovery-matrix run was unaffected
+only because succeededCount was present -- luck, not design.
+
+**Running tally: seven never-completable defects across two chains.** Three of
+them (task0 parallelism, the secure-read observation, the jq request) shipped
+green because TESTS ENCODED SHAPES NO PRODUCER EMITS. The suite was not wrong
+about the code; it was wrong about reality, and it agreed with the code, so
+nothing caught it. This is precisely what frozen-chain rule 1 demands one
+outcome-blind smoke against real artifacts to prevent.
