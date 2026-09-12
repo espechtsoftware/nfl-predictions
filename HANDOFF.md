@@ -171,6 +171,13 @@ agent or developer:
   completion, moves the jobs to 09z and arms `scripts/queue_master2.sh` (114 then 113). Read 114 with
   `scripts/prereg094_report.py <3 run ids>` after `scripts/prereg094_mechanics_gate.py 114m940r1-<stamp>` passes;
   113 keeps `prereg093_*`. Smoke receipts: prefix identity true, NOV engaged on the 1600 pool (overlap 72/80).
+- **23:45Z: PREREG-091 mechanics gate PASSED** (`111m910r1-20260912T232034Z`, `lab-run-fxrwj`, checker
+  `/home/erich/week1-sunday/tools/prereg091_092_gates.py`: SPREAD4 pool share ≤4-per-game .956 ≥ 640/800 so every
+  boom roster honours the cap; M1 top-200 weakness 153.9 > 114.7; ledgers complete; no books). The master queue
+  launched the 111 banks (`lab-run-b7m95` first). Insurance for further platform losses: the generic registered
+  repair launcher `/home/erich/week1-sunday/repair_bank.sh EXP RDIR PREFIX BANK CODE_SHA` (also under
+  `week1-sunday/tools/`) re-runs missing slates per season on the bank's image; its shards need an amended reader
+  (pattern: `prereg090_report.py --repair` on the amend4 branch).
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
