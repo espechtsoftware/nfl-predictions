@@ -148,3 +148,50 @@ candidates before any selector or entry-count change can matter there.
 - These are 72 slates from 2021-2024 on one candidate corpus. The +13.55 is a
   within-cohort measurement, not a prospective claim.
 - K80 here is the book the frozen selector produced, not the best possible 80.
+
+---
+
+# Addendum 2: how much signal the ranker actually has
+
+The book does contain real signal. It is just far too thin to close a 26-point
+gap. Measured against the correct null -- selecting the same number of
+candidates at random from the same pool:
+
+```
+              retrieves the realized-best candidate
+  K20 (2.5% of pool)   6/72 =  8.3%   random 2.5%   lift 3.33x   p=0.0094
+  K80 (10%  of pool)  14/72 = 19.4%   random 10.0%  lift 1.94x   p=0.0113
+```
+
+Pool is 799 candidates per slate.
+
+Two things follow, and they pull in opposite directions.
+
+**The ranker is not noise.** Both lifts are significant at p<0.02. "Selection is
+closed" should not be read as "the selector has no signal" -- it demonstrably
+beats chance at finding the single best candidate.
+
+**But the signal is thin and it dilutes.** A 3.33x lift on a 2.5% base still
+misses the best candidate in 92% of slates, and the lift decays to 1.94x by K80.
+The discriminative power is concentrated in a very short prefix and washes out
+almost immediately.
+
+That reconciles the two results in this report. A selector swap moves nothing
+(-0.29) not because ranking is worthless, but because both laws share the same
+thin signal: they disagree about ordering while agreeing about which candidates
+are plausible at all. Changing the rule reshuffles a shortlist drawn from the
+same weak discriminator.
+
+## What would have to be true for a retrieval lever to pay
+
+To close even half the remaining 12.7 points above K80, a discriminator would
+need roughly to double the K80 retrieval rate, from 19% to ~40%. Nothing
+measured on this cohort moves it by more than a couple of points. That is the
+bar any proposed reranker, feature family or paid source should be asked to
+clear BEFORE it is built into a chain -- it is cheap to state and cheap to
+falsify, unlike a full ablation.
+
+A paid-source ablation is worth running only if the hypothesis is that the
+source improves the WORLD MODEL -- the thing producing the 3.33x -- not that it
+improves the ranking rule applied on top of it. Those are different mechanisms
+and only the first has headroom here.
