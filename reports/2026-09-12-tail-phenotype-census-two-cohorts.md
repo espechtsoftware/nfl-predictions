@@ -74,3 +74,30 @@ Queries run 2026-09-12 ~18:05Z against `bolt://127.0.0.1:7687` (auth none). Coho
 `CandidateOccurrence:Prereg083Entity` (14,400) → `Roster` (12,960; `unique_games`, `max_game_count`,
 `position_counts`). Cohort B: `HistoricalCorpusEntity{kind:'LineupCandidate'}` (279) with
 `properties_json.structural_phenotype` and `selected_final_book_count`. No graph mutation.
+
+## Addendum (19:50Z) — generation depth on Cohort A: the marginal boom world is as good as the first
+
+Same read class (outcome-viewed development data, design evidence only). `candidate_rank` orders each
+200-candidate arm in generation order (ranks 0–24 are essentially the leverage family: 8% selected, higher
+served projection; ranks 25–199 the boom worlds in visit order). Realized tail hits per 900 candidate-slates
+by rank bucket of 25:
+
+| bucket (ranks) | control ≥187 / ≥200 | treatment ≥187 / ≥200 | selected share (control / treatment) |
+|---|---:|---:|---:|
+| 0 (0–24) | 3 / 0 | 3 / 0 | .08 / .06 |
+| 1 (25–49) | 8 / 2 | 5 / 0 | .24 / .26 |
+| 2 (50–74) | 2 / 1 | 5 / 1 | .51 / .56 |
+| 3 (75–99) | 8 / 2 | 8 / 3 | .46 / .48 |
+| 4 (100–124) | 6 / 3 | 7 / 3 | .49 / .46 |
+| 5 (125–149) | 4 / 2 | 3 / 1 | .48 / .47 |
+| 6 (150–174) | 7 / 2 | 5 / 1 | .44 / .47 |
+| 7 (175–199) | 4 / 0 | 7 / 3 | .48 / .43 |
+
+No decline with depth: the boom worlds visited last produce 187+/200+ candidates at the same rate as the
+first, while the simulator's own tail figure (`sim_q99`) drifts down by only ~1.5 points across the range.
+The slate's realized-best candidate came from ranks 150–199 on 9 of 36 control slates and 11 of 36 treatment
+slates (ranks 0–49: 6 and 2). This is the per-visit view of PREREG-047's count-match null (400→800 gained
+by volume, not by better candidates) and is the design evidence behind the dose ladder PREREG-090 (1600)
+and PREREG-093 (3200, nested stream): as long as the duplicate rate stays negligible (0.0000 at 1600 on
+2023-W1), supply of 200+ candidates should scale roughly linearly with solves. It says nothing about
+selection, which converts only part of that supply (PREREG-047: ~1.2 raw points per doubling).
