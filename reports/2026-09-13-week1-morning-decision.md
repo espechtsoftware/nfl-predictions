@@ -50,13 +50,21 @@ scripts/prereg090_report.py 110b900r2-20260912T191557Z 110b901r2-20260912T191821
 --repair <each 110b9NNr2rep<season> run id>` (run ids: cohort worktree `results/queue_110_launches.log` and
 `results/queue_110_finish_launches.log`).
 
+**Read 2026-09-12 23:27Z** (amendment-4 reader `3ec0d8b`, transcript sha256 `c515d696…`, repaired slates listed in
+the transcript header). **No treatment passed — the paid dose stays 800 (D800 P_MIX plan); `/home/erich/week1-dose.env`
+is NOT written.**
+
 | reader line | value |
 |---|---|
-| `D1600_DEMAX − D800_DEMAX` proxy, family interval, banks, LOSO, verdict | *pending* |
-| `D800_DT_DEMAX − D800_DEMAX` | *pending* |
-| `D1600_HALFDT_DEMAX − D800_DEMAX` | *pending* |
-| threshold events 200/210/220/230 per arm | *pending* |
-| supply counts ≥220/≥230 per pool | *pending* |
+| `D1600_DEMAX − D800_DEMAX` | proxy −0.00061 fam[−0.00773, +0.00693], banks +.0067 / −.0095 / +.0010, W/L/T 26/43/3, LOSO +/−/−/+, **UNRESOLVED**; raw K80 −0.739 [−3.05, +1.05] |
+| `D800_DT_DEMAX − D800_DEMAX` | proxy −0.00235 fam[−0.01244, +0.00709], banks +/−/+, W/L 33/39, **UNRESOLVED**; raw −0.645 |
+| `D1600_HALFDT_DEMAX − D800_DEMAX` | proxy +0.00238 fam[−0.00380, +0.00867], banks +/−/+, W/L 34/37, **UNRESOLVED**; raw +0.449 [−0.44, +1.19]; count-matched reference +0.00198 (≈ the full D1600) |
+| threshold events (weeks of 72 ≥200/210/220/230) | D800 8/2/1/0 · D1600 9/4/1/0 · DT 12/3/0/0 · HALFDT 11/3/1/0 |
+| supply per slate-bank ≥200/≥210/≥220/≥230 | D800 1.04/.37/.08/.04 · **D1600 2.28/.77/.19/.06** · DT 1.17/.40/.10/.02 · HALFDT 2.13/.77/.18/.06; pool oracle 194.9 → 198.8 (D1600); best-in-book .204 → .102 |
+
+Reading: the 1600 rung doubles the tail supply and the book does not convert it — retrieval, not supply,
+binds above 800 with the DEMAX selector. PREREG-093's 3200 rung would test the same mechanism again; see
+HANDOFF for the redirect decision.
 
 ## 3. Sunday sequence (times CT)
 
