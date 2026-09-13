@@ -247,6 +247,14 @@ agent or developer:
   jobs to 09w and arms `scripts/queue_115.sh`; read with `scripts/prereg095_report.py` after
   `scripts/prereg095_mechanics_gate.py 115m950r1-<stamp>` passes. Lane order now: **113 (gate `lab-run-r79bv`
   running since 06:28Z) → 115** (expected to read Sunday evening).
+- **08:27Z: PREREG-093 mechanics gate PASSED** (`113m930r1-20260913T062448Z`, `lab-run-r79bv`, ~117 min: 3200
+  stream 4,752 s on 2023-W1 + independent D800 545 s + D1600 1,465 s; both prefix identities true; count-match
+  sized to D1600; ledger complete; no books). The 3200 stream is ~4× slower per solve than 1600 (sequential lev
+  cuts), so bank tasks reach ~5,100 s on the largest slate (under the 7,200 s timeout) and each 113 bank takes
+  ~2.5 h: banks 930/931 launched ~08:26Z, 932 follows — read expected ~13:45Z, i.e. minutes before the 14:10Z
+  build; if it is late the build runs at dose 800 (the ladder's default). **PREREG-095's sequencer re-armed at
+  `3c7e714c`** (image `prereg09w-3c7e714c717b`, digest `sha256:33bda1c1…`) with `--task-timeout 10800` because the
+  115 gate (stream + two verify builds + six selections) would brush 7,200 s.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
