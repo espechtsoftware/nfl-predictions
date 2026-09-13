@@ -221,6 +221,13 @@ agent or developer:
   queue drained 03:53Z; master-2 took the lane (jobs on `prereg09z-578a342f3350`, CODE_SHA `578a342f`), 114
   mechanics gate launching.** Next: `scripts/prereg094_mechanics_gate.py 114m940r1-<stamp>` when its execution
   is terminal (~35 min), then the 114 banks; then 113.
+- **04:25Z: PREREG-094 mechanics gate PASSED** (`114m940r1-20260913T035338Z`, `lab-run-n6jjj`, 1,092 s stream +
+  423 s independent D800: prefix identity true 800/800, nesting true, ledger complete, novelty source sha256
+  `2fb435e6…` matches the committed `scripts/prereg060_qd_frontier.py`, NOV engaged: overlap with DEMAX 68/80 on
+  D800 and 62/80 on D1600, no books, clean identity). Master-2 now runs the 114 banks (940–942, ~1.7 h), then the
+  113 gate + banks. Sunday automation: a session task waits for 13:35Z to list the production schedulers'
+  executions and runs `/home/erich/week1-sunday-build.sh` at 14:10Z (09:10 CT), log
+  `/home/erich/week1-sunday/sunday-build-run.log`; publish (runbook 4a) and DK upload stay operator steps.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
