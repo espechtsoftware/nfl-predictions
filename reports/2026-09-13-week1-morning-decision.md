@@ -18,7 +18,8 @@ when the three r2 banks complete (expected ~21:00–22:00Z). Nothing here opens 
   same-seed build (P_CTRL-equivalent rows, since P_MIX is defined on K80 only).
 - **Shadows (frozen, never entered):** D400_DEMAX, D800_WEMAX, direct-tail, DT-union, spread-4, NOBB sleeve,
   D1600 and D3200 (PREREG-090 did not move the dose; PREREG-091 read 01:15Z: spread-4 UNRESOLVED, column
-  pricing FAIL vs its dose reference — no adoption, no sleeve).
+  pricing FAIL vs its dose reference; PREREG-092 read 03:58Z: scenario reduction UNRESOLVED both arms — no
+  adoption, no sleeve from any of the three).
 
 ## 2. The dose decision (fill from the frozen reader)
 

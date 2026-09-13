@@ -213,6 +213,14 @@ agent or developer:
   master-2 sequencer takes the lane afterwards for 114 then 113 on the 09z image. Read 112 with
   `scripts/prereg092_report.py 112b920r1-<stamp> 112b921r1-<stamp> 112b922r1-<stamp>` (run ids in
   `results/queue_master_launches.log`); commit the transcript + LEDGER row on the amend4 branch as for 090/091.
+- **03:58Z: PREREG-092 READ** (banks 920–922 all 72/72; reader `cc653421` at `578a342f`; transcript sha256
+  `436b3067…` + LEDGER row on the amend4 branch): **both UNRESOLVED** — S1 medoid worlds +0.00231 [−0.0069,
+  +0.0112] banks +/−/+ (raw −0.41; turnover .92, i.e. a different book with the same maximum; S1 pool holds
+  FEWER realized 200+ candidates, 0.90 vs 1.14); S1-union +0.00219 [−0.0014, +0.0085] with two banks marginally
+  negative (raw +0.47 [+0.32, +0.61] co-report only — the dose effect again). No adoption, no sleeve. **Master
+  queue drained 03:53Z; master-2 took the lane (jobs on `prereg09z-578a342f3350`, CODE_SHA `578a342f`), 114
+  mechanics gate launching.** Next: `scripts/prereg094_mechanics_gate.py 114m940r1-<stamp>` when its execution
+  is terminal (~35 min), then the 114 banks; then 113.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
