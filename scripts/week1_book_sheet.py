@@ -20,6 +20,20 @@ def main():
     for k in ("cov220_hsim", "cov220_inc", "cov200_dual", "nov_ladder", "world_leader", "broad", "hsim_p220"):
         if k in sh["orderings"]: full_pos[k] = pos_of[k]
     mk = json.load(open(a.market)) if a.market else None
+    # auto-detect sibling vetting / composite outputs for this run (by source_run in their receipts)
+    comp_pos, vet_tier = {}, {}
+    for cj in pathlib.Path("/home/erich/week1-sunday").glob("composite-*/composite_receipt.json"):
+        try:
+            rec = json.load(open(cj))
+            if pathlib.Path(rec.get("source_run", "")).resolve() == run.resolve():
+                comp_pos = {int(i): pidx + 1 for pidx, i in enumerate(rec["order_source_ranks"])}
+        except Exception: pass
+    for vj in pathlib.Path("/home/erich/week1-sunday").glob("vetted-*/vetting.json"):
+        try:
+            rec = json.load(open(vj))
+            if pathlib.Path(rec.get("source_run", "")).resolve() == run.resolve():
+                for lu in rec["lineups"]: vet_tier[int(lu["rank"])] = "HARD" if lu.get("hard") else ("material" if lu.get("material") else ("soft" if lu.get("risk", 0) > 0 else ""))
+        except Exception: pass
     for i, row in book.iterrows():
         ids = [str(v) for v in row.tolist()]; fids = [dk2id[d] for d in ids]
         Mi = inc[[idx[p] for p in fids]].sum(axis=0); Mh = hs[[idx[p] for p in fids]].sum(axis=0)
@@ -28,6 +42,8 @@ def main():
              "inc_mean": round(float(Mi.mean()), 1), "inc_q99": round(float(np.quantile(Mi, .99)), 1), "inc_p220": round(float((Mi >= 220).mean()), 4),
              "hsim_mean": round(float(Mh.mean()), 1), "hsim_q99": round(float(np.quantile(Mh, .99)), 1), "hsim_p220": round(float((Mh >= 220).mean()), 4)}
         for k, pos in full_pos.items(): r[f"pos_{k}"] = pos.get(i + 1, "")
+        if comp_pos: r["pos_composite"] = comp_pos.get(i + 1, "")
+        if vet_tier: r["vet_tier"] = vet_tier.get(i + 1, "")
         if mk:
             r["move_sun_vs_sat"] = mk["lineup_move_by_rank"][i] if i < len(mk["lineup_move_by_rank"]) else ""; r["veto_vanished_line"] = "VETO" if (i + 1) in mk.get("veto_candidates_book_ranks", []) else ""
             r["pos_market_move"] = (mk["ordering_top_k_book_ranks"].index(i + 1) + 1) if (i + 1) in mk["ordering_top_k_book_ranks"] else ""
