@@ -70,6 +70,20 @@ Reading: the 1600 rung doubles the tail supply and the book does not convert it 
 binds above 800 with the DEMAX selector. PREREG-093's 3200 rung would test the same mechanism again; see
 HANDOFF for the redirect decision.
 
+## 2b. Operator decision 2026-09-13 (04:30 CT): 30 entries instead of 90, same four contests
+
+Reason given: no book has beaten a Milly winner yet and scoring still has to improve; keep all four contests so
+the leaderboard captures continue. **Layout:** ranks 1–30 of the same nested book (the selector is greedy, so ranks
+1–30 of the K90 are exactly its optimal 30-lineup book) — Milly ranks 1–19 (`193028206`), Play-Action 20–26
+(`193028208`), FFWC Q6 27 (`194478066`), FFWC Q5 28–30 (`194478065`). The Sunday script now emits these
+`k30-*` slices beside the 90-entry ones; the P_MIX publisher step uses `--ranks 1-19` for the Milly file. Withdraw
+the surplus placeholder entries in the DK UI first, then bulk-edit the kept 30.
+
+Historical cost of 30 vs 80 (D800_DEMAX control books, 72 slates × 3 banks, PREREG-094 cohort, descriptive):
+weekly max K30 172.8 vs K57 178.5 vs K80 181.4; weeks ≥200 3 / 9 / 14 of 72; ≥220 0 / 2 / 2. Rank order is a
+diversification order, not a quality order (mean realized score flat from 120.5 at ranks 1–10 to 116.6 at
+58–80; the slate's best lineup sits at median rank 38, in the top 30 only 41% of the time).
+
 ## 3. Sunday sequence (times CT)
 
 | time | step |
@@ -77,7 +91,7 @@ HANDOFF for the redirect decision.
 | 08:30 | confirm `s-nflverse`, `s-features-sun` and the 09:00 `project-slate` execution succeed |
 | 09:10 | `/home/erich/week1-sunday-build.sh` (runbook build + preflight, K90, upload CSVs; add `/home/erich/week1-dose.env` first if §2 fired: `PAID_LEV=320 PAID_BOOM=1280` for 1600, `PAID_LEV=640 PAID_BOOM=2560` for 3200 — the 3200 build takes ~51 min, so the dose book lands ≈10:15; if it is late, upload Saturday night's D3200 K90 fallback CSVs from `/home/erich/week1-sunday/` after re-checking inactives) |
 | 09:30 | publish once: runbook step 4a (`publish_week1_a5_books.py … --execute`, run id from the build log) |
-| 09:35 | emit P_MIX ranks 1–57 from the published book (runbook 4b, `--book-id P_MIX --ranks 1-57`); take ranks 58–90 from the K90 (or D1600 K90) run-dir CSVs |
+| 09:35 | emit P_MIX ranks 1–19 from the published book (runbook 4b, `--book-id P_MIX --ranks 1-19`; 1–57 if the 90-entry layout is restored); take ranks 20–30 (58–90 for 90 entries) from the K90 run-dir `k30-*` / `k90-*` CSVs |
 | 09:45–11:15 | upload the four contest files in the DK UI (operator-only) |
 | 11:20 | re-check DK inactives; if a paid-book player is ruled out, rebuild with a new run id and re-upload (DK edits allowed until lock) |
 | 12:00 | lock |
