@@ -354,3 +354,25 @@ amend4 branch (`results/read-transcripts/prereg093-first-read-transcript.txt`).
   universe change re-bases the generation RNG), contain no inactive player, and the keep/withdraw IDs are unchanged.
   Lesson for the runbook: the T-70 build must pull salaries itself (or wait for the :00 ingest after 10:30 CT) — a 10:50 CT
   build on a 10:04 CT pull misses the inactives by construction.
+
+## §4 — Post-lock record (16:10–20:30Z)
+
+- **Withdrawals.** DraftKings offered no withdraw control on the web for these entries (Millionaire and FFWC Q6 were
+  full; the FFWC Q5 withdrawals went through). Final reserved entries: 80 (Millionaire 57 / Play-Action 20 / FFWC Q6 3).
+  The operator therefore entered 80 unique lineups: the vetted book's ranks 1–57 → Millionaire, 58–77 → Play-Action,
+  78–80 → FFWC Q6 (best ranks to the largest prize), via DraftKings' entries export filled by
+  `scripts/week1_fill_dk_entries.py` and successors.
+- **Pre-lock scratches swapped on request** (best-projected active same-position player fitting the lineup's salary,
+  QB-stack bonus): Rashod Bateman (5 lineups), Josh Downs (3), Jaylen Warren (7), Dontayvion Wicks (4). The operator
+  also asked for a "proven scorer" variant (replace RB/WR/TE without a 20+ DK-point game, TE 15+, in 2025 wk2+; 46 slots
+  in 38 lineups; QBs kept to preserve stacks) — offered as v6 alongside the scratches-only v4b; which file was entered is
+  identified by Monday's standings capture (roster-only candidates in `reports/week1-entered-book-candidates/`).
+- **Late window.** 68 of 80 lineups held 3:25 CT players (226 slots; Achane 17, Jeanty 15, Tucker 13, D. Smith 13,
+  McConkey 11, Jefferson 10, Barkley 10). A stack-aware late-swap search found no qualifying upgrade on the scratches-only
+  book (0 swaps with ≥ +1.0 projection and no ceiling loss without breaking a stack). One late scratch: Luke McCaffrey
+  (WAS, OUT, 19:03Z) → swap file issued (Caleb Douglas, the only late WR fitting $3,500). No further scratches through
+  kickoff (`scripts/week1_watch_late_inactives.py`).
+- **Runbook lessons for Week 2:** (1) reserved entries are edited only through DraftKings' entries export — build the
+  keepers-first fill into the Sunday script; (2) withdrawals cannot be assumed — size reservations to the intended entry
+  count; (3) the T-70 build must pull salaries after the 10:30 CT inactives; (4) keep the scratch-swap tool ready from
+  11:00 CT through the late window.
