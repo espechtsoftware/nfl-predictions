@@ -228,6 +228,16 @@ agent or developer:
   113 gate + banks. Sunday automation: a session task waits for 13:35Z to list the production schedulers'
   executions and runs `/home/erich/week1-sunday-build.sh` at 14:10Z (09:10 CT), log
   `/home/erich/week1-sunday/sunday-build-run.log`; publish (runbook 4a) and DK upload stay operator steps.
+- **06:30Z: PREREG-094 READ** (banks 940–942 all 72/72; reader `1350c860` at `578a342f`; transcript sha256
+  `9ccc2add…` + LEDGER row on the amend4 branch @ latest): (1) D1600_NOV − D800_DEMAX **UNRESOLVED** (−0.0038,
+  banks −/+/−); (2) D1600_NOV − D1600_DEMAX **UNRESOLVED** (+0.0010 [−0.0070, +0.0107], banks −/+/+, raw +0.57 all
+  banks positive); (3) **interaction UNPASSED_NEAR_MISS** (+0.0057 [−0.0037, +0.0161], every bank ≥ 0, every LOSO
+  positive, raw +1.15 [+0.29, +2.61]). NOV loses at 800 (−0.0047, PREREG-066's null again) and gains the same
+  amount at 1600: the novelty ladder converts ADDED supply — the first retrieval signal that scales with dose — but
+  the whole change nets to zero against the adopted policy. Frozen consequence 4: no adoption, no Week-1 change.
+  Next preregistrable question (not tonight's frozen text): a NOV-family or DEMAX-core + NOV-fill selector at 3200.
+  113 (dose 3200, DEMAX only) gate launched by master-2 at ~06:26Z; its read (~11:15Z) still composes with the
+  Sunday dose ladder (3200 requires D1600 − D800 PASS there, which 090 and 094 both failed to show).
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
