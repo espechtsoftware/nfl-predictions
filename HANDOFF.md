@@ -255,6 +255,14 @@ agent or developer:
   build; if it is late the build runs at dose 800 (the ladder's default). **PREREG-095's sequencer re-armed at
   `3c7e714c`** (image `prereg09w-3c7e714c717b`, digest `sha256:33bda1c1…`) with `--task-timeout 10800` because the
   115 gate (stream + two verify builds + six selections) would brush 7,200 s.
+- **10:35Z: operator's Sunday questions answered with two local screens** (no cloud cost, no lineup result
+  opened): (a) within-book ORDERINGS on the opened PREREG-083 books — no simulator ordering beats the greedy
+  order (top-30 max 171.1 greedy vs 169.5–171.0 others; realized best at position 33–38 under all); ten
+  orderings' top-30 sets are frozen prospectively by `scripts/week1_ordering_shadows.py` (Sunday build emits
+  them from the K90, graded Monday); (b) player-level kNN "boom similarity" (55 point-in-time features, walk-
+  forward) has AUC .46–.63 for 30+/40+ games vs .81–.89 for the projection's own tail and adds nothing in a
+  walk-forward logistic — closed at the screen stage (`reports/2026-09-13-knn-boom-similarity-screen.md`).
+  Operator also cut Week-1 entries to 30 (ranks 1–30 of the nested book, all four contests); memo §2b/§2c.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
