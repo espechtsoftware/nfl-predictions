@@ -228,3 +228,50 @@ and superseded) → production app export.
 Standings capture for all four contests (`nfl-dfs capture-dk-standings`, validation first, then
 `--confirm-settled --confirm-full-field --apply`); settle every frozen run dir (`scripts/settle_live.py`),
 including the shadow arms; write the tail-ledger row; append the LEDGER rows for PREREG-090/091/092.
+
+## §2j — Learned lineup score: book re-sort and pool-level selection (13:00Z)
+
+**Question answered:** can a learned "what a good lineup looks like" score be applied to the *entire* candidate corpus at
+selection time, not only to re-sort the 90 already selected? **Yes, and historically it is the strongest ordering/selection
+signal measured today** — with one live caveat (concentration) that the historical corpus could not show.
+
+Model (frozen, `reports/2026-09-13-learned-ordering-v1.json`): ridge on 66 within-book-standardised lineup features
+(sums/min/max of projection, p10/p90/std, market points, usage windows, game total, spread, implied total, depth, cold start,
+salary; games/teams/stack structure) fitted to realized score on the 216 opened D800 books (2021–2024). What it says a good
+lineup is: **market-backed, high-floor, high-usage players in high-total, close games**; it penalises the sum of p90, the
+spread and single-player volatility — roughly the opposite of what the boom-world optimiser rewards, which is why it adds
+information on top of the expected-max order.
+
+Book re-sort (LOSO on the 216 books, top-30 realized max vs greedy order): 2021 −2.4 (no prop market that season),
+2022 −0.5, 2023 +1.7, 2024 +5.2 (corr .10 → .32 as the feature set fills in). Hypothesis-level.
+
+Pool-level (LOSO models applied to all 200 candidates per slate-arm of the Neo4j PREREG-083 corpus, 2023–2024, 72 slate-arms;
+realized max of the chosen K vs the DEMAX book; full table in `reports/2026-09-13-pool-level-learned-selection.md`):
+
+| rule | K=30 Δ | K=30 wins/losses | 2023 / 2024 | K=80 Δ | K=80 wins/losses | 2023 / 2024 |
+|---|---:|---|---|---:|---|---|
+| LEARNED_POOL (top-K by learned) | +5.11 | .57 / .24 | +1.1 / +9.1 | +1.31 | .36 / .25 | −0.1 / +2.7 |
+| LEARNED_DIV5 (greedy, overlap ≤ 5) | +5.65 | .58 / .22 | +2.3 / +9.0 | +2.66 | .39 / .17 | +1.6 / +3.7 |
+| BLEND_Q99 (z learned + z sim q99) | +2.51 | .40 / .29 | +1.2 / +3.8 | +2.00 | .31 / .11 | +1.9 / +2.1 |
+| BLEND_DIV5 | +3.65 | .44 / .25 | +2.0 / +5.4 | +2.72 | .35 / .10 | +3.1 / +2.3 |
+| UNION (DEMAX K/2 + learned K/2) | +3.08 | .38 / .19 | +1.6 / +4.6 | +1.92 | .29 / .14 | +1.9 / +1.9 |
+| RESORT (DEMAX-80 re-sorted) | +2.01 | .38 / .25 | −0.4 / +4.4 | 0 (same set) | | |
+| Q99 alone (simulator only) | −1.35 | | | −2.13 | | |
+
+Slate-arms whose K=30 max reached 200+: DEMAX 6 → LEARNED_DIV5 12 (194+: 7 → 19). Caveats: two seasons, 36 slates (the
+two arms share slates), 200-candidate pools of the 40-lev/160-boom era, no preregistration — hypothesis-level, but out of
+season and larger than any other Sunday ordering effect.
+
+**Live caveat.** On the 2026-W1 K90 run (3200-candidate pool) the unconstrained pool rules collapse onto one core: top-30
+mean pairwise overlap 5.4 (paid book 1.3), one player in 97–100% of lineups, 43 distinct players. The overlap-capped rules
+bring pairwise overlap to 3.3 but single-player exposure stays 87–97%. The historical corpus never showed this (overlap 1.5).
+The UNION book (half DEMAX) is the hedge: exposure 70%, overlap 2.7.
+
+**Implemented (post-build, applies to the whole corpus, emitter-compatible, all outcome-blind):**
+`scripts/week1_learned_score_live.py` scores every candidate of a run dir and writes six books — `learned-book` (paid K90
+re-sorted), `learned-pool`, `learned-div5`, `blend-q99`, `blend-div5`, `union` — with concentration receipts; the host chain
+`scripts/week1_learned_after_build.sh` (running) applies it to every new live run (the 14:10Z build's K80 and K90 runs and
+the T-70 rebuild), emits `upload-K90-<stamp>-<book>.csv` and per-book lineup sheets under `/home/erich/week1-sunday/`, and
+adds `pos_learned_book / pos_learned_pool / pos_blend_q99 / pos_union` columns to the paid sheet. Everything is settled
+Monday against the standings. Week-2: the same computation as a selector law inside `live_week.py` behind a preregistered
+lab cohort (PREREG-096 candidate: learned-div5 vs DEMAX on the 72-slate panel at 800 and 3200, nested LOSO fit).

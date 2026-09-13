@@ -314,6 +314,7 @@ agent or developer:
   `20260913T122747041835Z-f26b7dc` (134 skill players removed at $3,500, receipts slightly lower); selection-time
   floors cost 0.15–1.13 points of top-30 max on 216 books; lineup scores flat across cheapest-skill-salary tiers.
   Not applied to the paid book; shadow graded Monday.
+- **2026-09-13 13:00Z — learned lineup score, book and pool level.** Frozen ridge (`reports/2026-09-13-learned-ordering-v1.json`) on 216 opened D800 books; LOSO book re-sort mixed (2021 −2.4 … 2024 +5.2); pool-level on the Neo4j PREREG-083 corpus (2023–24) beats the DEMAX book out of season (K30 +5.7 overlap-capped, K80 +2.7; `reports/2026-09-13-pool-level-learned-selection.md`). Live 3200-pool picks are heavily concentrated (one player in ~all lineups) — hedge = UNION book. Post-build chain `scripts/week1_learned_after_build.sh` writes six shadow books + upload CSVs + sheets per live run; all shadows, settle Monday. Week-2 candidate PREREG-096: learned-div5 as a selector law in `live_week.py`.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
