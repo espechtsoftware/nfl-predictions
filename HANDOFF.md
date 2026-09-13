@@ -207,6 +207,12 @@ agent or developer:
   Leaderboards reachable); the frozen in-season pull (`pass-tail-weekly --target-week 5`) is unblocked. Fantasy
   Points: the operator's plan is the NFL Data Suite; the ownership product is Fantasy Pro (FanShare) and is not
   included — no collection possible under the current plan; the collector stays ready.
+- **01:40Z: PREREG-092 mechanics gate PASSED** (`112m920r1-20260913T011124Z`, `lab-run-qtmhs`, 1,608 s on
+  2023-W1: k-means 652 s, 640 non-empty clusters, largest 122, medoid overlap with control boom worlds 47/640, S1
+  640 new rosters, union 1,393; ledgers complete; no books). Master queue now runs the 112 banks (920–922); the
+  master-2 sequencer takes the lane afterwards for 114 then 113 on the 09z image. Read 112 with
+  `scripts/prereg092_report.py 112b920r1-<stamp> 112b921r1-<stamp> 112b922r1-<stamp>` (run ids in
+  `results/queue_master_launches.log`); commit the transcript + LEDGER row on the amend4 branch as for 090/091.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
