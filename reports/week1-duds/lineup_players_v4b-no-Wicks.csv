@@ -1,0 +1,721 @@
+lineup,contest,player,pos,team,salary,pts,detail
+1,193028206,Tyler Shough,QB,NO,5600,29.2,35/56 410yd 3TD 2INT; 4car 8yd 0TD
+1,193028206,Jonathan Taylor,RB,IND,7300,26.1,19car 98yd 2TD; 3rec 23yd 0TD (tgt 4)
+1,193028206,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+1,193028206,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+1,193028206,Devaughn Vele,WR,NO,3500,19.9,7rec 69yd 1TD (tgt 9)
+1,193028206,Tre Tucker,WR,LV,4000,4.7,2rec 27yd 0TD (tgt 4)
+1,193028206,Juwan Johnson,TE,NO,3700,14.4,3rec 54yd 1TD (tgt 7)
+1,193028206,De'Von Achane,RB,MIA,7000,9.1,11car 36yd 0TD; 3rec 25yd 0TD (tgt 4)
+1,193028206,Titans,DST,TEN,3100,0.0,PA 23 sacks 0 int 0 fr 0 td 0
+2,193028206,Justin Herbert,QB,LAC,6100,12.5,13/22 165yd 1TD 1INT; 5car 29yd 0TD
+2,193028206,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+2,193028206,Ashton Jeanty,RB,LV,6600,36.0,21car 105yd 0TD; 6rec 45yd 2TD (tgt 6)
+2,193028206,Quentin Johnston,WR,LAC,4700,3.7,2rec 17yd 0TD (tgt 5)
+2,193028206,Ladd McConkey,WR,LAC,5900,19.2,5rec 82yd 1TD (tgt 7)
+2,193028206,Marvin Harrison Jr.,WR,ARI,5000,4.3,1rec 33yd 0TD (tgt 3)
+2,193028206,Michael Mayer,TE,LV,2900,9.2,6rec 32yd 0TD (tgt 7)
+2,193028206,Omarion Hampton,RB,LAC,6800,9.3,12car 43yd 1TD
+2,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+3,193028206,Kyler Murray,QB,MIN,5500,0.6,3/5 18yd 0TD 1INT; 2car 9yd 0TD
+3,193028206,Travis Etienne Jr.,RB,NO,5900,14.8,9car 46yd 0TD; 7rec 32yd 0TD (tgt 9)
+3,193028206,MarShawn Lloyd,RB,GB,4800,4.0,12car 40yd 0TD
+3,193028206,Justin Jefferson,WR,MIN,7300,21.3,7rec 83yd 1TD (tgt 8)
+3,193028206,Wan'Dale Robinson,WR,TEN,4800,8.8,5rec 38yd 0TD (tgt 6)
+3,193028206,Zay Flowers,WR,BAL,6400,29.0,5rec 150yd 1TD (tgt 6)
+3,193028206,T.J. Hockenson,TE,MIN,3300,13.6,4rec 36yd 1TD (tgt 5)
+3,193028206,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+3,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+4,193028206,Baker Mayfield,QB,TB,5900,14.6,23/28 216yd 0TD 0INT; 5car 30yd 1TD
+4,193028206,D'Andre Swift,RB,CHI,6100,35.4,18car 124yd 3TD; 1rec 10yd 0TD (tgt 1)
+4,193028206,De'Von Achane,RB,MIA,7000,9.1,11car 36yd 0TD; 3rec 25yd 0TD (tgt 4)
+4,193028206,Chris Godwin Jr.,WR,TB,5200,8.3,1car 3yd 0TD; 4rec 40yd 0TD (tgt 4)
+4,193028206,Tee Higgins,WR,CIN,6300,8.9,3rec 59yd 0TD (tgt 6)
+4,193028206,Emeka Egbuka,WR,TB,6200,11.3,5rec 63yd 0TD (tgt 6)
+4,193028206,Juwan Johnson,TE,NO,3700,14.4,3rec 54yd 1TD (tgt 7)
+4,193028206,Bucky Irving,RB,TB,5700,21.3,8car 45yd 1TD; 7rec 48yd 0TD (tgt 7)
+4,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+5,193028206,Tyler Shough,QB,NO,5600,29.2,35/56 410yd 3TD 2INT; 4car 8yd 0TD
+5,193028206,Travis Etienne Jr.,RB,NO,5900,14.8,9car 46yd 0TD; 7rec 32yd 0TD (tgt 9)
+5,193028206,Ashton Jeanty,RB,LV,6600,36.0,21car 105yd 0TD; 6rec 45yd 2TD (tgt 6)
+5,193028206,DK Metcalf,WR,PIT,5400,8.0,4rec 40yd 0TD (tgt 10)
+5,193028206,Chris Olave,WR,NO,6700,31.2,10rec 182yd 0TD (tgt 13)
+5,193028206,Amon-Ra St. Brown,WR,DET,7500,28.7,10rec 67yd 2TD (tgt 14)
+5,193028206,Juwan Johnson,TE,NO,3700,14.4,3rec 54yd 1TD (tgt 7)
+5,193028206,Quinshon Judkins,RB,CLE,5500,7.0,12car 33yd 0TD; 2rec 17yd 0TD (tgt 2)
+5,193028206,Raiders,DST,LV,2900,10.0,PA 13 sacks 4 int 1 fr 0 td 0
+6,193028206,Lamar Jackson,QB,BAL,6800,29.0,17/25 324yd 1TD 0INT; 7car 40yd 1TD
+6,193028206,Travis Etienne Jr.,RB,NO,5900,14.8,9car 46yd 0TD; 7rec 32yd 0TD (tgt 9)
+6,193028206,Jonathan Taylor,RB,IND,7300,26.1,19car 98yd 2TD; 3rec 23yd 0TD (tgt 4)
+6,193028206,Hollywood Brown,WR,PHI,3800,0.0,not in box score (DNP?)
+6,193028206,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+6,193028206,Devaughn Vele,WR,NO,3500,19.9,7rec 69yd 1TD (tgt 9)
+6,193028206,Mark Andrews,TE,BAL,3900,8.9,4rec 49yd 0TD (tgt 6)
+6,193028206,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+6,193028206,Raiders,DST,LV,2900,10.0,PA 13 sacks 4 int 1 fr 0 td 0
+7,193028206,C.J. Stroud,QB,HOU,5200,18.5,26/38 274yd 2TD 0INT; 2car 15yd 0TD
+7,193028206,David Montgomery,RB,HOU,6000,28.9,20car 60yd 2TD; 3rec 19yd 1TD (tgt 3)
+7,193028206,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+7,193028206,Chris Godwin Jr.,WR,TB,5200,8.3,1car 3yd 0TD; 4rec 40yd 0TD (tgt 4)
+7,193028206,DJ Moore,WR,BUF,5600,24.0,5rec 100yd 1TD (tgt 8)
+7,193028206,Nico Collins,WR,HOU,7000,21.2,1car 7yd 0TD; 7rec 75yd 1TD (tgt 10)
+7,193028206,Dalton Schultz,TE,HOU,3400,7.5,4rec 35yd 0TD (tgt 8)
+7,193028206,Tetairoa McMillan,WR,CAR,6100,11.5,5rec 75yd 0TD (tgt 8)
+7,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+8,193028206,Bryce Young,QB,CAR,5200,35.4,23/37 361yd 3TD 1INT; 2car 10yd 1TD
+8,193028206,Derrick Henry,RB,BAL,6700,38.3,24car 144yd 3TD; 1rec 19yd 0TD (tgt 1)
+8,193028206,Chuba Hubbard,RB,CAR,5500,23.7,10car 49yd 1TD; 3rec 38yd 1TD (tgt 3)
+8,193028206,Chris Olave,WR,NO,6700,31.2,10rec 182yd 0TD (tgt 13)
+8,193028206,Garrett Wilson,WR,NYJ,5800,13.9,6rec 79yd 0TD (tgt 7)
+8,193028206,Jalen Coker,WR,CAR,4600,36.8,8rec 138yd 2TD (tgt 9)
+8,193028206,Colston Loveland,TE,CHI,5300,0.0,0rec 0yd 0TD (tgt 2)
+8,193028206,Tetairoa McMillan,WR,CAR,6100,11.5,5rec 75yd 0TD (tgt 8)
+8,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+9,193028206,Malik Willis,QB,MIA,5300,14.1,12/21 161yd 0TD 1INT; 4car 27yd 1TD
+9,193028206,D'Andre Swift,RB,CHI,6100,35.4,18car 124yd 3TD; 1rec 10yd 0TD (tgt 1)
+9,193028206,De'Von Achane,RB,MIA,7000,9.1,11car 36yd 0TD; 3rec 25yd 0TD (tgt 4)
+9,193028206,Amon-Ra St. Brown,WR,DET,7500,28.7,10rec 67yd 2TD (tgt 14)
+9,193028206,Malik Washington,WR,MIA,4200,0.9,1rec -1yd 0TD (tgt 6)
+9,193028206,Ladd McConkey,WR,LAC,5900,19.2,5rec 82yd 1TD (tgt 7)
+9,193028206,Greg Dulcich,TE,MIA,3500,3.8,2rec 18yd 0TD (tgt 2)
+9,193028206,Ashton Jeanty,RB,LV,6600,36.0,21car 105yd 0TD; 6rec 45yd 2TD (tgt 6)
+9,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+10,193028206,Baker Mayfield,QB,TB,5900,14.6,23/28 216yd 0TD 0INT; 5car 30yd 1TD
+10,193028206,Bucky Irving,RB,TB,5700,21.3,8car 45yd 1TD; 7rec 48yd 0TD (tgt 7)
+10,193028206,Omarion Hampton,RB,LAC,6800,9.3,12car 43yd 1TD
+10,193028206,Chris Godwin Jr.,WR,TB,5200,8.3,1car 3yd 0TD; 4rec 40yd 0TD (tgt 4)
+10,193028206,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+10,193028206,Chris Olave,WR,NO,6700,31.2,10rec 182yd 0TD (tgt 13)
+10,193028206,Brenton Strange,TE,JAX,3600,10.3,2rec 23yd 1TD (tgt 3)
+10,193028206,Emeka Egbuka,WR,TB,6200,11.3,5rec 63yd 0TD (tgt 6)
+10,193028206,Browns,DST,CLE,2100,2.0,PA 34 sacks 1 int 0 fr 1 td 0
+11,193028206,Lamar Jackson,QB,BAL,6800,29.0,17/25 324yd 1TD 0INT; 7car 40yd 1TD
+11,193028206,Derrick Henry,RB,BAL,6700,38.3,24car 144yd 3TD; 1rec 19yd 0TD (tgt 1)
+11,193028206,Aaron Jones Sr.,RB,MIN,5300,3.5,10car 35yd 0TD; 0rec 0yd 0TD (tgt 1)
+11,193028206,Michael Pittman Jr.,WR,PIT,4900,8.8,3rec 58yd 0TD (tgt 3)
+11,193028206,Zay Flowers,WR,BAL,6400,29.0,5rec 150yd 1TD (tgt 6)
+11,193028206,DK Metcalf,WR,PIT,5400,8.0,4rec 40yd 0TD (tgt 10)
+11,193028206,Mark Andrews,TE,BAL,3900,8.9,4rec 49yd 0TD (tgt 6)
+11,193028206,Bijan Robinson,RB,ATL,7700,31.3,21car 83yd 0TD; 8rec 90yd 1TD (tgt 10)
+11,193028206,Raiders,DST,LV,2900,10.0,PA 13 sacks 4 int 1 fr 0 td 0
+12,193028206,Jared Goff,QB,DET,6000,16.4,26/39 206yd 2TD 0INT; 2car 2yd 0TD
+12,193028206,Travis Etienne Jr.,RB,NO,5900,14.8,9car 46yd 0TD; 7rec 32yd 0TD (tgt 9)
+12,193028206,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+12,193028206,Nico Collins,WR,HOU,7000,21.2,1car 7yd 0TD; 7rec 75yd 1TD (tgt 10)
+12,193028206,Amon-Ra St. Brown,WR,DET,7500,28.7,10rec 67yd 2TD (tgt 14)
+12,193028206,Jameson Williams,WR,DET,6000,8.5,4rec 45yd 0TD (tgt 9)
+12,193028206,Sam LaPorta,TE,DET,4400,9.8,5rec 48yd 0TD (tgt 8)
+12,193028206,Tez Johnson,WR,TB,3100,-0.4,1car -4yd 0TD; 0rec 0yd 0TD (tgt 1)
+12,193028206,Browns,DST,CLE,2100,2.0,PA 34 sacks 1 int 0 fr 1 td 0
+13,193028206,Jordan Love,QB,GB,5700,23.9,15/30 322yd 2TD 0INT; 1car 0yd 0TD
+13,193028206,Aaron Jones Sr.,RB,MIN,5300,3.5,10car 35yd 0TD; 0rec 0yd 0TD (tgt 1)
+13,193028206,David Montgomery,RB,HOU,6000,28.9,20car 60yd 2TD; 3rec 19yd 1TD (tgt 3)
+13,193028206,DeVonta Smith,WR,PHI,6600,8.3,3rec 53yd 0TD (tgt 6)
+13,193028206,Christian Watson,WR,GB,5900,33.1,5rec 131yd 2TD (tgt 6)
+13,193028206,Michael Wilson,WR,ARI,5300,10.6,5rec 56yd 0TD (tgt 7)
+13,193028206,Tucker Kraft,TE,GB,4500,9.5,3rec 65yd 0TD (tgt 6)
+13,193028206,James Cook III,RB,BUF,7200,9.9,13car 57yd 0TD; 3rec 12yd 0TD (tgt 4)
+13,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+14,193028206,Daniel Jones,QB,IND,5400,10.0,19/31 166yd 1TD 1INT; 1car 4yd 0TD
+14,193028206,Jonathan Taylor,RB,IND,7300,26.1,19car 98yd 2TD; 3rec 23yd 0TD (tgt 4)
+14,193028206,Woody Marks,RB,HOU,5000,5.0,9car 42yd 0TD; 1rec -2yd 0TD (tgt 1)
+14,193028206,Alec Pierce,WR,IND,5700,10.1,4rec 61yd 0TD (tgt 6)
+14,193028206,Chris Olave,WR,NO,6700,31.2,10rec 182yd 0TD (tgt 13)
+14,193028206,Zay Flowers,WR,BAL,6400,29.0,5rec 150yd 1TD (tgt 6)
+14,193028206,Tyler Warren,TE,IND,4900,10.3,3rec 13yd 1TD (tgt 5)
+14,193028206,Chris Godwin Jr.,WR,TB,5200,8.3,1car 3yd 0TD; 4rec 40yd 0TD (tgt 4)
+14,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+15,193028206,Trevor Lawrence,QB,JAX,5800,26.1,18/23 245yd 4TD 0INT; 2car 3yd 0TD
+15,193028206,D'Andre Swift,RB,CHI,6100,35.4,18car 124yd 3TD; 1rec 10yd 0TD (tgt 1)
+15,193028206,Breece Hall,RB,NYJ,6200,22.8,22car 102yd 1TD; 2rec 16yd 0TD (tgt 2)
+15,193028206,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+15,193028206,Parker Washington,WR,JAX,5600,19.3,5rec 83yd 1TD (tgt 6)
+15,193028206,Brian Thomas Jr.,WR,JAX,5500,7.0,3rec 40yd 0TD (tgt 3)
+15,193028206,Harold Fannin Jr.,TE,CLE,4200,4.1,2rec 21yd 0TD (tgt 3)
+15,193028206,Marvin Harrison Jr.,WR,ARI,5000,4.3,1rec 33yd 0TD (tgt 3)
+15,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+16,193028206,Kirk Cousins,QB,LV,5000,16.4,21/30 160yd 3TD 2INT; 2car 0yd 0TD
+16,193028206,Saquon Barkley,RB,PHI,6900,8.0,16car 80yd 0TD; 0rec 0yd 0TD (tgt 1)
+16,193028206,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+16,193028206,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+16,193028206,Jalen Nailor,WR,LV,4300,5.7,3rec 27yd 0TD (tgt 5)
+16,193028206,Malik Washington,WR,MIA,4200,0.9,1rec -1yd 0TD (tgt 6)
+16,193028206,Michael Mayer,TE,LV,2900,9.2,6rec 32yd 0TD (tgt 7)
+16,193028206,Ashton Jeanty,RB,LV,6600,36.0,21car 105yd 0TD; 6rec 45yd 2TD (tgt 6)
+16,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+17,193028206,Tyler Shough,QB,NO,5600,29.2,35/56 410yd 3TD 2INT; 4car 8yd 0TD
+17,193028206,Travis Etienne Jr.,RB,NO,5900,14.8,9car 46yd 0TD; 7rec 32yd 0TD (tgt 9)
+17,193028206,James Cook III,RB,BUF,7200,9.9,13car 57yd 0TD; 3rec 12yd 0TD (tgt 4)
+17,193028206,Chris Olave,WR,NO,6700,31.2,10rec 182yd 0TD (tgt 13)
+17,193028206,Devaughn Vele,WR,NO,3500,19.9,7rec 69yd 1TD (tgt 9)
+17,193028206,Garrett Wilson,WR,NYJ,5800,13.9,6rec 79yd 0TD (tgt 7)
+17,193028206,Michael Mayer,TE,LV,2900,9.2,6rec 32yd 0TD (tgt 7)
+17,193028206,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+17,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+18,193028206,Joe Burrow,QB,CIN,6900,15.2,25/35 254yd 1TD 1INT; 5car 20yd 0TD
+18,193028206,Travis Etienne Jr.,RB,NO,5900,14.8,9car 46yd 0TD; 7rec 32yd 0TD (tgt 9)
+18,193028206,Bucky Irving,RB,TB,5700,21.3,8car 45yd 1TD; 7rec 48yd 0TD (tgt 7)
+18,193028206,Chris Godwin Jr.,WR,TB,5200,8.3,1car 3yd 0TD; 4rec 40yd 0TD (tgt 4)
+18,193028206,Michael Pittman Jr.,WR,PIT,4900,8.8,3rec 58yd 0TD (tgt 3)
+18,193028206,Tee Higgins,WR,CIN,6300,8.9,3rec 59yd 0TD (tgt 6)
+18,193028206,Mark Andrews,TE,BAL,3900,8.9,4rec 49yd 0TD (tgt 6)
+18,193028206,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+18,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+19,193028206,Jalen Hurts,QB,PHI,6600,19.3,12/23 163yd 2TD 0INT; 5car 48yd 0TD
+19,193028206,Chase Brown,RB,CIN,7100,18.8,16car 56yd 1TD; 5rec 22yd 0TD (tgt 6)
+19,193028206,De'Von Achane,RB,MIA,7000,9.1,11car 36yd 0TD; 3rec 25yd 0TD (tgt 4)
+19,193028206,Terry McLaurin,WR,WAS,5700,0.0,0rec 0yd 0TD (tgt 2)
+19,193028206,DeVonta Smith,WR,PHI,6600,8.3,3rec 53yd 0TD (tgt 6)
+19,193028206,Tre Tucker,WR,LV,4000,4.7,2rec 27yd 0TD (tgt 4)
+19,193028206,Juwan Johnson,TE,NO,3700,14.4,3rec 54yd 1TD (tgt 7)
+19,193028206,Parker Washington,WR,JAX,5600,19.3,5rec 83yd 1TD (tgt 6)
+19,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+20,193028206,Baker Mayfield,QB,TB,5900,14.6,23/28 216yd 0TD 0INT; 5car 30yd 1TD
+20,193028206,Tony Pollard,RB,TEN,5600,4.4,7car 35yd 0TD; 1rec -1yd 0TD (tgt 2)
+20,193028206,Chase Brown,RB,CIN,7100,18.8,16car 56yd 1TD; 5rec 22yd 0TD (tgt 6)
+20,193028206,Amon-Ra St. Brown,WR,DET,7500,28.7,10rec 67yd 2TD (tgt 14)
+20,193028206,Wan'Dale Robinson,WR,TEN,4800,8.8,5rec 38yd 0TD (tgt 6)
+20,193028206,Emeka Egbuka,WR,TB,6200,11.3,5rec 63yd 0TD (tgt 6)
+20,193028206,Cade Otton,TE,TB,3700,5.6,3rec 26yd 0TD (tgt 5)
+20,193028206,Bucky Irving,RB,TB,5700,21.3,8car 45yd 1TD; 7rec 48yd 0TD (tgt 7)
+20,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+21,193028206,Kirk Cousins,QB,LV,5000,16.4,21/30 160yd 3TD 2INT; 2car 0yd 0TD
+21,193028206,Derrick Henry,RB,BAL,6700,38.3,24car 144yd 3TD; 1rec 19yd 0TD (tgt 1)
+21,193028206,De'Von Achane,RB,MIA,7000,9.1,11car 36yd 0TD; 3rec 25yd 0TD (tgt 4)
+21,193028206,Jalen Nailor,WR,LV,4300,5.7,3rec 27yd 0TD (tgt 5)
+21,193028206,Tre Tucker,WR,LV,4000,4.7,2rec 27yd 0TD (tgt 4)
+21,193028206,Zay Flowers,WR,BAL,6400,29.0,5rec 150yd 1TD (tgt 6)
+21,193028206,Trey McBride,TE,ARI,6800,24.5,9rec 95yd 1TD (tgt 13)
+21,193028206,Ashton Jeanty,RB,LV,6600,36.0,21car 105yd 0TD; 6rec 45yd 2TD (tgt 6)
+21,193028206,Eagles,DST,PHI,3200,2.0,PA 16 sacks 1 int 0 fr 0 td 0
+22,193028206,Kyler Murray,QB,MIN,5500,0.6,3/5 18yd 0TD 1INT; 2car 9yd 0TD
+22,193028206,Aaron Jones Sr.,RB,MIN,5300,3.5,10car 35yd 0TD; 0rec 0yd 0TD (tgt 1)
+22,193028206,Bijan Robinson,RB,ATL,7700,31.3,21car 83yd 0TD; 8rec 90yd 1TD (tgt 10)
+22,193028206,Justin Jefferson,WR,MIN,7300,21.3,7rec 83yd 1TD (tgt 8)
+22,193028206,Jayden Reed,WR,GB,4900,1.6,1rec 6yd 0TD (tgt 4)
+22,193028206,Zay Flowers,WR,BAL,6400,29.0,5rec 150yd 1TD (tgt 6)
+22,193028206,T.J. Hockenson,TE,MIN,3300,13.6,4rec 36yd 1TD (tgt 5)
+22,193028206,Ladd McConkey,WR,LAC,5900,19.2,5rec 82yd 1TD (tgt 7)
+22,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+23,193028206,Malik Willis,QB,MIA,5300,14.1,12/21 161yd 0TD 1INT; 4car 27yd 1TD
+23,193028206,Bijan Robinson,RB,ATL,7700,31.3,21car 83yd 0TD; 8rec 90yd 1TD (tgt 10)
+23,193028206,De'Von Achane,RB,MIA,7000,9.1,11car 36yd 0TD; 3rec 25yd 0TD (tgt 4)
+23,193028206,Nico Collins,WR,HOU,7000,21.2,1car 7yd 0TD; 7rec 75yd 1TD (tgt 10)
+23,193028206,Tetairoa McMillan,WR,CAR,6100,11.5,5rec 75yd 0TD (tgt 8)
+23,193028206,Caleb Douglas,WR,MIA,3000,14.4,5rec 94yd 0TD (tgt 6)
+23,193028206,Greg Dulcich,TE,MIA,3500,3.8,2rec 18yd 0TD (tgt 2)
+23,193028206,Ashton Jeanty,RB,LV,6600,36.0,21car 105yd 0TD; 6rec 45yd 2TD (tgt 6)
+23,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+24,193028206,Tyler Shough,QB,NO,5600,29.2,35/56 410yd 3TD 2INT; 4car 8yd 0TD
+24,193028206,Travis Etienne Jr.,RB,NO,5900,14.8,9car 46yd 0TD; 7rec 32yd 0TD (tgt 9)
+24,193028206,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+24,193028206,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+24,193028206,Amon-Ra St. Brown,WR,DET,7500,28.7,10rec 67yd 2TD (tgt 14)
+24,193028206,Devaughn Vele,WR,NO,3500,19.9,7rec 69yd 1TD (tgt 9)
+24,193028206,Juwan Johnson,TE,NO,3700,14.4,3rec 54yd 1TD (tgt 7)
+24,193028206,Tre Tucker,WR,LV,4000,4.7,2rec 27yd 0TD (tgt 4)
+24,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+25,193028206,Aaron Rodgers,QB,PIT,5300,12.5,24/40 221yd 1TD 0INT; 3car -3yd 0TD
+25,193028206,Jonathan Taylor,RB,IND,7300,26.1,19car 98yd 2TD; 3rec 23yd 0TD (tgt 4)
+25,193028206,Travis Etienne Jr.,RB,NO,5900,14.8,9car 46yd 0TD; 7rec 32yd 0TD (tgt 9)
+25,193028206,DK Metcalf,WR,PIT,5400,8.0,4rec 40yd 0TD (tgt 10)
+25,193028206,Khalil Shakir,WR,BUF,4800,9.0,4rec 50yd 0TD (tgt 6)
+25,193028206,Zay Flowers,WR,BAL,6400,29.0,5rec 150yd 1TD (tgt 6)
+25,193028206,Pat Freiermuth,TE,PIT,3400,15.6,5rec 46yd 1TD (tgt 5)
+25,193028206,Bijan Robinson,RB,ATL,7700,31.3,21car 83yd 0TD; 8rec 90yd 1TD (tgt 10)
+25,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+26,193028206,Trevor Lawrence,QB,JAX,5800,26.1,18/23 245yd 4TD 0INT; 2car 3yd 0TD
+26,193028206,James Cook III,RB,BUF,7200,9.9,13car 57yd 0TD; 3rec 12yd 0TD (tgt 4)
+26,193028206,Bhayshul Tuten,RB,JAX,5800,9.8,15car 66yd 0TD; 1rec 22yd 0TD (tgt 1)
+26,193028206,Jerry Jeudy,WR,CLE,4100,4.6,2rec 26yd 0TD (tgt 4)
+26,193028206,Nico Collins,WR,HOU,7000,21.2,1car 7yd 0TD; 7rec 75yd 1TD (tgt 10)
+26,193028206,Amon-Ra St. Brown,WR,DET,7500,28.7,10rec 67yd 2TD (tgt 14)
+26,193028206,Brenton Strange,TE,JAX,3600,10.3,2rec 23yd 1TD (tgt 3)
+26,193028206,Brian Thomas Jr.,WR,JAX,5500,7.0,3rec 40yd 0TD (tgt 3)
+26,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+27,193028206,Baker Mayfield,QB,TB,5900,14.6,23/28 216yd 0TD 0INT; 5car 30yd 1TD
+27,193028206,Saquon Barkley,RB,PHI,6900,8.0,16car 80yd 0TD; 0rec 0yd 0TD (tgt 1)
+27,193028206,Bucky Irving,RB,TB,5700,21.3,8car 45yd 1TD; 7rec 48yd 0TD (tgt 7)
+27,193028206,Chris Godwin Jr.,WR,TB,5200,8.3,1car 3yd 0TD; 4rec 40yd 0TD (tgt 4)
+27,193028206,DeVonta Smith,WR,PHI,6600,8.3,3rec 53yd 0TD (tgt 6)
+27,193028206,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+27,193028206,Cade Otton,TE,TB,3700,5.6,3rec 26yd 0TD (tgt 5)
+27,193028206,Quentin Johnston,WR,LAC,4700,3.7,2rec 17yd 0TD (tgt 5)
+27,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+28,193028206,Bryce Young,QB,CAR,5200,35.4,23/37 361yd 3TD 1INT; 2car 10yd 1TD
+28,193028206,D'Andre Swift,RB,CHI,6100,35.4,18car 124yd 3TD; 1rec 10yd 0TD (tgt 1)
+28,193028206,MarShawn Lloyd,RB,GB,4800,4.0,12car 40yd 0TD
+28,193028206,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+28,193028206,Jalen Coker,WR,CAR,4600,36.8,8rec 138yd 2TD (tgt 9)
+28,193028206,Tetairoa McMillan,WR,CAR,6100,11.5,5rec 75yd 0TD (tgt 8)
+28,193028206,Sam LaPorta,TE,DET,4400,9.8,5rec 48yd 0TD (tgt 8)
+28,193028206,Ashton Jeanty,RB,LV,6600,36.0,21car 105yd 0TD; 6rec 45yd 2TD (tgt 6)
+28,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+29,193028206,Jared Goff,QB,DET,6000,16.4,26/39 206yd 2TD 0INT; 2car 2yd 0TD
+29,193028206,Travis Etienne Jr.,RB,NO,5900,14.8,9car 46yd 0TD; 7rec 32yd 0TD (tgt 9)
+29,193028206,Jacory Croskey-Merritt,RB,WAS,5300,12.1,14car 58yd 1TD; 1rec -7yd 0TD (tgt 1)
+29,193028206,Terry McLaurin,WR,WAS,5700,0.0,0rec 0yd 0TD (tgt 2)
+29,193028206,Amon-Ra St. Brown,WR,DET,7500,28.7,10rec 67yd 2TD (tgt 14)
+29,193028206,Marvin Harrison Jr.,WR,ARI,5000,4.3,1rec 33yd 0TD (tgt 3)
+29,193028206,Sam LaPorta,TE,DET,4400,9.8,5rec 48yd 0TD (tgt 8)
+29,193028206,Ashton Jeanty,RB,LV,6600,36.0,21car 105yd 0TD; 6rec 45yd 2TD (tgt 6)
+29,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+30,193028206,Josh Allen,QB,BUF,7000,38.7,20/29 334yd 2TD 0INT; 6car 23yd 2TD
+30,193028206,Chuba Hubbard,RB,CAR,5500,23.7,10car 49yd 1TD; 3rec 38yd 1TD (tgt 3)
+30,193028206,D'Andre Swift,RB,CHI,6100,35.4,18car 124yd 3TD; 1rec 10yd 0TD (tgt 1)
+30,193028206,DJ Moore,WR,BUF,5600,24.0,5rec 100yd 1TD (tgt 8)
+30,193028206,Kayshon Boutte,WR,HOU,4500,3.1,1rec 21yd 0TD (tgt 2)
+30,193028206,Tetairoa McMillan,WR,CAR,6100,11.5,5rec 75yd 0TD (tgt 8)
+30,193028206,Dalton Kincaid,TE,BUF,4600,21.0,5rec 130yd 0TD (tgt 6)
+30,193028206,James Cook III,RB,BUF,7200,9.9,13car 57yd 0TD; 3rec 12yd 0TD (tgt 4)
+30,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+31,193028206,Kyler Murray,QB,MIN,5500,0.6,3/5 18yd 0TD 1INT; 2car 9yd 0TD
+31,193028206,Saquon Barkley,RB,PHI,6900,8.0,16car 80yd 0TD; 0rec 0yd 0TD (tgt 1)
+31,193028206,David Montgomery,RB,HOU,6000,28.9,20car 60yd 2TD; 3rec 19yd 1TD (tgt 3)
+31,193028206,Chris Godwin Jr.,WR,TB,5200,8.3,1car 3yd 0TD; 4rec 40yd 0TD (tgt 4)
+31,193028206,Justin Jefferson,WR,MIN,7300,21.3,7rec 83yd 1TD (tgt 8)
+31,193028206,Jordan Addison,WR,MIN,5800,0.0,0rec 0yd 0TD (tgt 2)
+31,193028206,Tucker Kraft,TE,GB,4500,9.5,3rec 65yd 0TD (tgt 6)
+31,193028206,Bucky Irving,RB,TB,5700,21.3,8car 45yd 1TD; 7rec 48yd 0TD (tgt 7)
+31,193028206,Raiders,DST,LV,2900,10.0,PA 13 sacks 4 int 1 fr 0 td 0
+32,193028206,Justin Herbert,QB,LAC,6100,12.5,13/22 165yd 1TD 1INT; 5car 29yd 0TD
+32,193028206,Travis Etienne Jr.,RB,NO,5900,14.8,9car 46yd 0TD; 7rec 32yd 0TD (tgt 9)
+32,193028206,Jonathan Taylor,RB,IND,7300,26.1,19car 98yd 2TD; 3rec 23yd 0TD (tgt 4)
+32,193028206,Quentin Johnston,WR,LAC,4700,3.7,2rec 17yd 0TD (tgt 5)
+32,193028206,Ladd McConkey,WR,LAC,5900,19.2,5rec 82yd 1TD (tgt 7)
+32,193028206,Marvin Harrison Jr.,WR,ARI,5000,4.3,1rec 33yd 0TD (tgt 3)
+32,193028206,Mark Andrews,TE,BAL,3900,8.9,4rec 49yd 0TD (tgt 6)
+32,193028206,Omarion Hampton,RB,LAC,6800,9.3,12car 43yd 1TD
+32,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+33,193028206,Tyler Shough,QB,NO,5600,29.2,35/56 410yd 3TD 2INT; 4car 8yd 0TD
+33,193028206,Derrick Henry,RB,BAL,6700,38.3,24car 144yd 3TD; 1rec 19yd 0TD (tgt 1)
+33,193028206,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+33,193028206,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+33,193028206,Chris Olave,WR,NO,6700,31.2,10rec 182yd 0TD (tgt 13)
+33,193028206,Tre Tucker,WR,LV,4000,4.7,2rec 27yd 0TD (tgt 4)
+33,193028206,Mark Andrews,TE,BAL,3900,8.9,4rec 49yd 0TD (tgt 6)
+33,193028206,Juwan Johnson,TE,NO,3700,14.4,3rec 54yd 1TD (tgt 7)
+33,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+34,193028206,Cam Ward,QB,TEN,5100,11.7,19/32 140yd 1TD 0INT; 4car 21yd 0TD
+34,193028206,Saquon Barkley,RB,PHI,6900,8.0,16car 80yd 0TD; 0rec 0yd 0TD (tgt 1)
+34,193028206,De'Von Achane,RB,MIA,7000,9.1,11car 36yd 0TD; 3rec 25yd 0TD (tgt 4)
+34,193028206,DeVonta Smith,WR,PHI,6600,8.3,3rec 53yd 0TD (tgt 6)
+34,193028206,Garrett Wilson,WR,NYJ,5800,13.9,6rec 79yd 0TD (tgt 7)
+34,193028206,Carnell Tate,WR,TEN,5300,7.8,4rec 38yd 0TD (tgt 6)
+34,193028206,Gunnar Helm,TE,TEN,3200,6.8,4rec 28yd 0TD (tgt 5)
+34,193028206,Ashton Jeanty,RB,LV,6600,36.0,21car 105yd 0TD; 6rec 45yd 2TD (tgt 6)
+34,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+35,193028206,Jalen Hurts,QB,PHI,6600,19.3,12/23 163yd 2TD 0INT; 5car 48yd 0TD
+35,193028206,Chuba Hubbard,RB,CAR,5500,23.7,10car 49yd 1TD; 3rec 38yd 1TD (tgt 3)
+35,193028206,Jacory Croskey-Merritt,RB,WAS,5300,12.1,14car 58yd 1TD; 1rec -7yd 0TD (tgt 1)
+35,193028206,DeVonta Smith,WR,PHI,6600,8.3,3rec 53yd 0TD (tgt 6)
+35,193028206,Zay Flowers,WR,BAL,6400,29.0,5rec 150yd 1TD (tgt 6)
+35,193028206,Jalen Coker,WR,CAR,4600,36.8,8rec 138yd 2TD (tgt 9)
+35,193028206,Dallas Goedert,TE,PHI,4100,12.4,3rec 34yd 1TD (tgt 4)
+35,193028206,Omarion Hampton,RB,LAC,6800,9.3,12car 43yd 1TD
+35,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+36,193028206,C.J. Stroud,QB,HOU,5200,18.5,26/38 274yd 2TD 0INT; 2car 15yd 0TD
+36,193028206,David Montgomery,RB,HOU,6000,28.9,20car 60yd 2TD; 3rec 19yd 1TD (tgt 3)
+36,193028206,James Cook III,RB,BUF,7200,9.9,13car 57yd 0TD; 3rec 12yd 0TD (tgt 4)
+36,193028206,Nico Collins,WR,HOU,7000,21.2,1car 7yd 0TD; 7rec 75yd 1TD (tgt 10)
+36,193028206,Wan'Dale Robinson,WR,TEN,4800,8.8,5rec 38yd 0TD (tgt 6)
+36,193028206,Luther Burden III,WR,CHI,5500,10.5,1car 2yd 0TD; 5rec 63yd 0TD (tgt 5)
+36,193028206,Dalton Schultz,TE,HOU,3400,7.5,4rec 35yd 0TD (tgt 8)
+36,193028206,De'Von Achane,RB,MIA,7000,9.1,11car 36yd 0TD; 3rec 25yd 0TD (tgt 4)
+36,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+37,193028206,Joe Burrow,QB,CIN,6900,15.2,25/35 254yd 1TD 1INT; 5car 20yd 0TD
+37,193028206,Aaron Jones Sr.,RB,MIN,5300,3.5,10car 35yd 0TD; 0rec 0yd 0TD (tgt 1)
+37,193028206,Chase Brown,RB,CIN,7100,18.8,16car 56yd 1TD; 5rec 22yd 0TD (tgt 6)
+37,193028206,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+37,193028206,Jalen Coker,WR,CAR,4600,36.8,8rec 138yd 2TD (tgt 9)
+37,193028206,Emeka Egbuka,WR,TB,6200,11.3,5rec 63yd 0TD (tgt 6)
+37,193028206,Mike Gesicki,TE,CIN,3100,18.8,5rec 78yd 1TD (tgt 7)
+37,193028206,Marvin Harrison Jr.,WR,ARI,5000,4.3,1rec 33yd 0TD (tgt 3)
+37,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+38,193028206,Jordan Love,QB,GB,5700,23.9,15/30 322yd 2TD 0INT; 1car 0yd 0TD
+38,193028206,Bijan Robinson,RB,ATL,7700,31.3,21car 83yd 0TD; 8rec 90yd 1TD (tgt 10)
+38,193028206,De'Von Achane,RB,MIA,7000,9.1,11car 36yd 0TD; 3rec 25yd 0TD (tgt 4)
+38,193028206,Christian Watson,WR,GB,5900,33.1,5rec 131yd 2TD (tgt 6)
+38,193028206,Jayden Reed,WR,GB,4900,1.6,1rec 6yd 0TD (tgt 4)
+38,193028206,Quentin Johnston,WR,LAC,4700,3.7,2rec 17yd 0TD (tgt 5)
+38,193028206,T.J. Hockenson,TE,MIN,3300,13.6,4rec 36yd 1TD (tgt 5)
+38,193028206,Ashton Jeanty,RB,LV,6600,36.0,21car 105yd 0TD; 6rec 45yd 2TD (tgt 6)
+38,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+39,193028206,Jayden Daniels,QB,WAS,6500,11.8,13/27 118yd 1TD 0INT; 5car 31yd 0TD
+39,193028206,David Montgomery,RB,HOU,6000,28.9,20car 60yd 2TD; 3rec 19yd 1TD (tgt 3)
+39,193028206,Jacory Croskey-Merritt,RB,WAS,5300,12.1,14car 58yd 1TD; 1rec -7yd 0TD (tgt 1)
+39,193028206,Stefon Diggs,WR,WAS,5200,12.8,3rec 38yd 1TD (tgt 8)
+39,193028206,Terry McLaurin,WR,WAS,5700,0.0,0rec 0yd 0TD (tgt 2)
+39,193028206,DJ Moore,WR,BUF,5600,24.0,5rec 100yd 1TD (tgt 8)
+39,193028206,Dallas Goedert,TE,PHI,4100,12.4,3rec 34yd 1TD (tgt 4)
+39,193028206,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+39,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+40,193028206,Jared Goff,QB,DET,6000,16.4,26/39 206yd 2TD 0INT; 2car 2yd 0TD
+40,193028206,Saquon Barkley,RB,PHI,6900,8.0,16car 80yd 0TD; 0rec 0yd 0TD (tgt 1)
+40,193028206,Travis Etienne Jr.,RB,NO,5900,14.8,9car 46yd 0TD; 7rec 32yd 0TD (tgt 9)
+40,193028206,DeVonta Smith,WR,PHI,6600,8.3,3rec 53yd 0TD (tgt 6)
+40,193028206,Amon-Ra St. Brown,WR,DET,7500,28.7,10rec 67yd 2TD (tgt 14)
+40,193028206,Jameson Williams,WR,DET,6000,8.5,4rec 45yd 0TD (tgt 9)
+40,193028206,Darnell Washington,TE,PIT,3000,3.8,2rec 18yd 0TD (tgt 2)
+40,193028206,Bucky Irving,RB,TB,5700,21.3,8car 45yd 1TD; 7rec 48yd 0TD (tgt 7)
+40,193028206,Browns,DST,CLE,2100,2.0,PA 34 sacks 1 int 0 fr 1 td 0
+41,193028206,Lamar Jackson,QB,BAL,6800,29.0,17/25 324yd 1TD 0INT; 7car 40yd 1TD
+41,193028206,Jonathan Taylor,RB,IND,7300,26.1,19car 98yd 2TD; 3rec 23yd 0TD (tgt 4)
+41,193028206,Breece Hall,RB,NYJ,6200,22.8,22car 102yd 1TD; 2rec 16yd 0TD (tgt 2)
+41,193028206,Devaughn Vele,WR,NO,3500,19.9,7rec 69yd 1TD (tgt 9)
+41,193028206,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+41,193028206,Zay Flowers,WR,BAL,6400,29.0,5rec 150yd 1TD (tgt 6)
+41,193028206,Harold Fannin Jr.,TE,CLE,4200,4.1,2rec 21yd 0TD (tgt 3)
+41,193028206,Adonai Mitchell,WR,NYJ,4000,9.0,3rec 60yd 0TD (tgt 3)
+41,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+42,193028206,Kyler Murray,QB,MIN,5500,0.6,3/5 18yd 0TD 1INT; 2car 9yd 0TD
+42,193028206,Aaron Jones Sr.,RB,MIN,5300,3.5,10car 35yd 0TD; 0rec 0yd 0TD (tgt 1)
+42,193028206,Quinshon Judkins,RB,CLE,5500,7.0,12car 33yd 0TD; 2rec 17yd 0TD (tgt 2)
+42,193028206,Christian Watson,WR,GB,5900,33.1,5rec 131yd 2TD (tgt 6)
+42,193028206,Justin Jefferson,WR,MIN,7300,21.3,7rec 83yd 1TD (tgt 8)
+42,193028206,Nico Collins,WR,HOU,7000,21.2,1car 7yd 0TD; 7rec 75yd 1TD (tgt 10)
+42,193028206,T.J. Hockenson,TE,MIN,3300,13.6,4rec 36yd 1TD (tgt 5)
+42,193028206,Garrett Wilson,WR,NYJ,5800,13.9,6rec 79yd 0TD (tgt 7)
+42,193028206,Chargers,DST,LAC,3500,1.0,PA 23 sacks 1 int 0 fr 0 td 0
+43,193028206,Malik Willis,QB,MIA,5300,14.1,12/21 161yd 0TD 1INT; 4car 27yd 1TD
+43,193028206,Jonathan Taylor,RB,IND,7300,26.1,19car 98yd 2TD; 3rec 23yd 0TD (tgt 4)
+43,193028206,Chase Brown,RB,CIN,7100,18.8,16car 56yd 1TD; 5rec 22yd 0TD (tgt 6)
+43,193028206,Justin Jefferson,WR,MIN,7300,21.3,7rec 83yd 1TD (tgt 8)
+43,193028206,Tre Tucker,WR,LV,4000,4.7,2rec 27yd 0TD (tgt 4)
+43,193028206,Malik Washington,WR,MIA,4200,0.9,1rec -1yd 0TD (tgt 6)
+43,193028206,Greg Dulcich,TE,MIA,3500,3.8,2rec 18yd 0TD (tgt 2)
+43,193028206,De'Von Achane,RB,MIA,7000,9.1,11car 36yd 0TD; 3rec 25yd 0TD (tgt 4)
+43,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+44,193028206,Tyler Shough,QB,NO,5600,29.2,35/56 410yd 3TD 2INT; 4car 8yd 0TD
+44,193028206,Saquon Barkley,RB,PHI,6900,8.0,16car 80yd 0TD; 0rec 0yd 0TD (tgt 1)
+44,193028206,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+44,193028206,DJ Moore,WR,BUF,5600,24.0,5rec 100yd 1TD (tgt 8)
+44,193028206,Chris Olave,WR,NO,6700,31.2,10rec 182yd 0TD (tgt 13)
+44,193028206,Devaughn Vele,WR,NO,3500,19.9,7rec 69yd 1TD (tgt 9)
+44,193028206,Tucker Kraft,TE,GB,4500,9.5,3rec 65yd 0TD (tgt 6)
+44,193028206,Emeka Egbuka,WR,TB,6200,11.3,5rec 63yd 0TD (tgt 6)
+44,193028206,Raiders,DST,LV,2900,10.0,PA 13 sacks 4 int 1 fr 0 td 0
+45,193028206,Trevor Lawrence,QB,JAX,5800,26.1,18/23 245yd 4TD 0INT; 2car 3yd 0TD
+45,193028206,De'Von Achane,RB,MIA,7000,9.1,11car 36yd 0TD; 3rec 25yd 0TD (tgt 4)
+45,193028206,Ashton Jeanty,RB,LV,6600,36.0,21car 105yd 0TD; 6rec 45yd 2TD (tgt 6)
+45,193028206,Jerry Jeudy,WR,CLE,4100,4.6,2rec 26yd 0TD (tgt 4)
+45,193028206,Tee Higgins,WR,CIN,6300,8.9,3rec 59yd 0TD (tgt 6)
+45,193028206,Amon-Ra St. Brown,WR,DET,7500,28.7,10rec 67yd 2TD (tgt 14)
+45,193028206,Brenton Strange,TE,JAX,3600,10.3,2rec 23yd 1TD (tgt 3)
+45,193028206,Parker Washington,WR,JAX,5600,19.3,5rec 83yd 1TD (tgt 6)
+45,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+46,193028206,Joe Burrow,QB,CIN,6900,15.2,25/35 254yd 1TD 1INT; 5car 20yd 0TD
+46,193028206,D'Andre Swift,RB,CHI,6100,35.4,18car 124yd 3TD; 1rec 10yd 0TD (tgt 1)
+46,193028206,Ashton Jeanty,RB,LV,6600,36.0,21car 105yd 0TD; 6rec 45yd 2TD (tgt 6)
+46,193028206,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+46,193028206,Tre Tucker,WR,LV,4000,4.7,2rec 27yd 0TD (tgt 4)
+46,193028206,Emeka Egbuka,WR,TB,6200,11.3,5rec 63yd 0TD (tgt 6)
+46,193028206,Mike Gesicki,TE,CIN,3100,18.8,5rec 78yd 1TD (tgt 7)
+46,193028206,Luther Burden III,WR,CHI,5500,10.5,1car 2yd 0TD; 5rec 63yd 0TD (tgt 5)
+46,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+47,193028206,Spencer Rattler,QB,NO,4000,0.0,not in box score (DNP?)
+47,193028206,Travis Etienne Jr.,RB,NO,5900,14.8,9car 46yd 0TD; 7rec 32yd 0TD (tgt 9)
+47,193028206,Chase Brown,RB,CIN,7100,18.8,16car 56yd 1TD; 5rec 22yd 0TD (tgt 6)
+47,193028206,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+47,193028206,Chris Olave,WR,NO,6700,31.2,10rec 182yd 0TD (tgt 13)
+47,193028206,Devaughn Vele,WR,NO,3500,19.9,7rec 69yd 1TD (tgt 9)
+47,193028206,Juwan Johnson,TE,NO,3700,14.4,3rec 54yd 1TD (tgt 7)
+47,193028206,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+47,193028206,Eagles,DST,PHI,3200,2.0,PA 16 sacks 1 int 0 fr 0 td 0
+48,193028206,Daniel Jones,QB,IND,5400,10.0,19/31 166yd 1TD 1INT; 1car 4yd 0TD
+48,193028206,Derrick Henry,RB,BAL,6700,38.3,24car 144yd 3TD; 1rec 19yd 0TD (tgt 1)
+48,193028206,De'Von Achane,RB,MIA,7000,9.1,11car 36yd 0TD; 3rec 25yd 0TD (tgt 4)
+48,193028206,DJ Moore,WR,BUF,5600,24.0,5rec 100yd 1TD (tgt 8)
+48,193028206,Alec Pierce,WR,IND,5700,10.1,4rec 61yd 0TD (tgt 6)
+48,193028206,Jalen Coker,WR,CAR,4600,36.8,8rec 138yd 2TD (tgt 9)
+48,193028206,Tyler Warren,TE,IND,4900,10.3,3rec 13yd 1TD (tgt 5)
+48,193028206,Bucky Irving,RB,TB,5700,21.3,8car 45yd 1TD; 7rec 48yd 0TD (tgt 7)
+48,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+49,193028206,Geno Smith,QB,NYJ,4600,9.3,19/24 215yd 0TD 0INT; 6car 7yd 0TD
+49,193028206,Tony Pollard,RB,TEN,5600,4.4,7car 35yd 0TD; 1rec -1yd 0TD (tgt 2)
+49,193028206,Breece Hall,RB,NYJ,6200,22.8,22car 102yd 1TD; 2rec 16yd 0TD (tgt 2)
+49,193028206,Amon-Ra St. Brown,WR,DET,7500,28.7,10rec 67yd 2TD (tgt 14)
+49,193028206,Garrett Wilson,WR,NYJ,5800,13.9,6rec 79yd 0TD (tgt 7)
+49,193028206,Brian Thomas Jr.,WR,JAX,5500,7.0,3rec 40yd 0TD (tgt 3)
+49,193028206,Mason Taylor,TE,NYJ,2800,1.8,2rec -2yd 0TD (tgt 3)
+49,193028206,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+49,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+50,193028206,Jordan Love,QB,GB,5700,23.9,15/30 322yd 2TD 0INT; 1car 0yd 0TD
+50,193028206,Travis Etienne Jr.,RB,NO,5900,14.8,9car 46yd 0TD; 7rec 32yd 0TD (tgt 9)
+50,193028206,Ashton Jeanty,RB,LV,6600,36.0,21car 105yd 0TD; 6rec 45yd 2TD (tgt 6)
+50,193028206,Justin Jefferson,WR,MIN,7300,21.3,7rec 83yd 1TD (tgt 8)
+50,193028206,Jayden Reed,WR,GB,4900,1.6,1rec 6yd 0TD (tgt 4)
+50,193028206,Tre Tucker,WR,LV,4000,4.7,2rec 27yd 0TD (tgt 4)
+50,193028206,Tucker Kraft,TE,GB,4500,9.5,3rec 65yd 0TD (tgt 6)
+50,193028206,Omarion Hampton,RB,LAC,6800,9.3,12car 43yd 1TD
+50,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+51,193028206,Bryce Young,QB,CAR,5200,35.4,23/37 361yd 3TD 1INT; 2car 10yd 1TD
+51,193028206,Chuba Hubbard,RB,CAR,5500,23.7,10car 49yd 1TD; 3rec 38yd 1TD (tgt 3)
+51,193028206,Bijan Robinson,RB,ATL,7700,31.3,21car 83yd 0TD; 8rec 90yd 1TD (tgt 10)
+51,193028206,Drake London,WR,ATL,6500,5.5,1car 6yd 0TD; 2rec 29yd 0TD (tgt 4)
+51,193028206,Jalen Coker,WR,CAR,4600,36.8,8rec 138yd 2TD (tgt 9)
+51,193028206,Emeka Egbuka,WR,TB,6200,11.3,5rec 63yd 0TD (tgt 6)
+51,193028206,Colston Loveland,TE,CHI,5300,0.0,0rec 0yd 0TD (tgt 2)
+51,193028206,Tetairoa McMillan,WR,CAR,6100,11.5,5rec 75yd 0TD (tgt 8)
+51,193028206,Raiders,DST,LV,2900,10.0,PA 13 sacks 4 int 1 fr 0 td 0
+52,193028206,Justin Herbert,QB,LAC,6100,12.5,13/22 165yd 1TD 1INT; 5car 29yd 0TD
+52,193028206,D'Andre Swift,RB,CHI,6100,35.4,18car 124yd 3TD; 1rec 10yd 0TD (tgt 1)
+52,193028206,Bucky Irving,RB,TB,5700,21.3,8car 45yd 1TD; 7rec 48yd 0TD (tgt 7)
+52,193028206,DK Metcalf,WR,PIT,5400,8.0,4rec 40yd 0TD (tgt 10)
+52,193028206,Quentin Johnston,WR,LAC,4700,3.7,2rec 17yd 0TD (tgt 5)
+52,193028206,Ladd McConkey,WR,LAC,5900,19.2,5rec 82yd 1TD (tgt 7)
+52,193028206,Trey McBride,TE,ARI,6800,24.5,9rec 95yd 1TD (tgt 13)
+52,193028206,Bhayshul Tuten,RB,JAX,5800,9.8,15car 66yd 0TD; 1rec 22yd 0TD (tgt 1)
+52,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+53,193028206,Baker Mayfield,QB,TB,5900,14.6,23/28 216yd 0TD 0INT; 5car 30yd 1TD
+53,193028206,James Cook III,RB,BUF,7200,9.9,13car 57yd 0TD; 3rec 12yd 0TD (tgt 4)
+53,193028206,Bucky Irving,RB,TB,5700,21.3,8car 45yd 1TD; 7rec 48yd 0TD (tgt 7)
+53,193028206,Chris Godwin Jr.,WR,TB,5200,8.3,1car 3yd 0TD; 4rec 40yd 0TD (tgt 4)
+53,193028206,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+53,193028206,Zay Flowers,WR,BAL,6400,29.0,5rec 150yd 1TD (tgt 6)
+53,193028206,Cade Otton,TE,TB,3700,5.6,3rec 26yd 0TD (tgt 5)
+53,193028206,Dalton Kincaid,TE,BUF,4600,21.0,5rec 130yd 0TD (tgt 6)
+53,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+54,193028206,Jalen Hurts,QB,PHI,6600,19.3,12/23 163yd 2TD 0INT; 5car 48yd 0TD
+54,193028206,Saquon Barkley,RB,PHI,6900,8.0,16car 80yd 0TD; 0rec 0yd 0TD (tgt 1)
+54,193028206,Omarion Hampton,RB,LAC,6800,9.3,12car 43yd 1TD
+54,193028206,DeVonta Smith,WR,PHI,6600,8.3,3rec 53yd 0TD (tgt 6)
+54,193028206,Luke McCaffrey,WR,WAS,3500,0.0,not in box score (DNP?)
+54,193028206,Ladd McConkey,WR,LAC,5900,19.2,5rec 82yd 1TD (tgt 7)
+54,193028206,Dallas Goedert,TE,PHI,4100,12.4,3rec 34yd 1TD (tgt 4)
+54,193028206,Emeka Egbuka,WR,TB,6200,11.3,5rec 63yd 0TD (tgt 6)
+54,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+55,193028206,Lamar Jackson,QB,BAL,6800,29.0,17/25 324yd 1TD 0INT; 7car 40yd 1TD
+55,193028206,Travis Etienne Jr.,RB,NO,5900,14.8,9car 46yd 0TD; 7rec 32yd 0TD (tgt 9)
+55,193028206,Omarion Hampton,RB,LAC,6800,9.3,12car 43yd 1TD
+55,193028206,Devaughn Vele,WR,NO,3500,19.9,7rec 69yd 1TD (tgt 9)
+55,193028206,Jameson Williams,WR,DET,6000,8.5,4rec 45yd 0TD (tgt 9)
+55,193028206,Zay Flowers,WR,BAL,6400,29.0,5rec 150yd 1TD (tgt 6)
+55,193028206,Tyler Warren,TE,IND,4900,10.3,3rec 13yd 1TD (tgt 5)
+55,193028206,Ladd McConkey,WR,LAC,5900,19.2,5rec 82yd 1TD (tgt 7)
+55,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+56,193028206,C.J. Stroud,QB,HOU,5200,18.5,26/38 274yd 2TD 0INT; 2car 15yd 0TD
+56,193028206,David Montgomery,RB,HOU,6000,28.9,20car 60yd 2TD; 3rec 19yd 1TD (tgt 3)
+56,193028206,James Cook III,RB,BUF,7200,9.9,13car 57yd 0TD; 3rec 12yd 0TD (tgt 4)
+56,193028206,Nico Collins,WR,HOU,7000,21.2,1car 7yd 0TD; 7rec 75yd 1TD (tgt 10)
+56,193028206,Chris Olave,WR,NO,6700,31.2,10rec 182yd 0TD (tgt 13)
+56,193028206,Kayshon Boutte,WR,HOU,4500,3.1,1rec 21yd 0TD (tgt 2)
+56,193028206,Brenton Strange,TE,JAX,3600,10.3,2rec 23yd 1TD (tgt 3)
+56,193028206,Ladd McConkey,WR,LAC,5900,19.2,5rec 82yd 1TD (tgt 7)
+56,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+57,193028206,Jalen Hurts,QB,PHI,6600,19.3,12/23 163yd 2TD 0INT; 5car 48yd 0TD
+57,193028206,Jonathan Taylor,RB,IND,7300,26.1,19car 98yd 2TD; 3rec 23yd 0TD (tgt 4)
+57,193028206,Chuba Hubbard,RB,CAR,5500,23.7,10car 49yd 1TD; 3rec 38yd 1TD (tgt 3)
+57,193028206,Chris Godwin Jr.,WR,TB,5200,8.3,1car 3yd 0TD; 4rec 40yd 0TD (tgt 4)
+57,193028206,Terry McLaurin,WR,WAS,5700,0.0,0rec 0yd 0TD (tgt 2)
+57,193028206,DeVonta Smith,WR,PHI,6600,8.3,3rec 53yd 0TD (tgt 6)
+57,193028206,Dallas Goedert,TE,PHI,4100,12.4,3rec 34yd 1TD (tgt 4)
+57,193028206,Luther Burden III,WR,CHI,5500,10.5,1car 2yd 0TD; 5rec 63yd 0TD (tgt 5)
+57,193028206,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+58,193028208,Daniel Jones,QB,IND,5400,10.0,19/31 166yd 1TD 1INT; 1car 4yd 0TD
+58,193028208,Derrick Henry,RB,BAL,6700,38.3,24car 144yd 3TD; 1rec 19yd 0TD (tgt 1)
+58,193028208,Jonathan Taylor,RB,IND,7300,26.1,19car 98yd 2TD; 3rec 23yd 0TD (tgt 4)
+58,193028208,DJ Moore,WR,BUF,5600,24.0,5rec 100yd 1TD (tgt 8)
+58,193028208,Alec Pierce,WR,IND,5700,10.1,4rec 61yd 0TD (tgt 6)
+58,193028208,Michael Wilson,WR,ARI,5300,10.6,5rec 56yd 0TD (tgt 7)
+58,193028208,Tucker Kraft,TE,GB,4500,9.5,3rec 65yd 0TD (tgt 6)
+58,193028208,Ladd McConkey,WR,LAC,5900,19.2,5rec 82yd 1TD (tgt 7)
+58,193028208,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+59,193028208,Tyler Shough,QB,NO,5600,29.2,35/56 410yd 3TD 2INT; 4car 8yd 0TD
+59,193028208,Travis Etienne Jr.,RB,NO,5900,14.8,9car 46yd 0TD; 7rec 32yd 0TD (tgt 9)
+59,193028208,James Cook III,RB,BUF,7200,9.9,13car 57yd 0TD; 3rec 12yd 0TD (tgt 4)
+59,193028208,DJ Moore,WR,BUF,5600,24.0,5rec 100yd 1TD (tgt 8)
+59,193028208,Chris Olave,WR,NO,6700,31.2,10rec 182yd 0TD (tgt 13)
+59,193028208,Jameson Williams,WR,DET,6000,8.5,4rec 45yd 0TD (tgt 9)
+59,193028208,Juwan Johnson,TE,NO,3700,14.4,3rec 54yd 1TD (tgt 7)
+59,193028208,Jordan Addison,WR,MIN,5800,0.0,0rec 0yd 0TD (tgt 2)
+59,193028208,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+60,193028208,Bryce Young,QB,CAR,5200,35.4,23/37 361yd 3TD 1INT; 2car 10yd 1TD
+60,193028208,Aaron Jones Sr.,RB,MIN,5300,3.5,10car 35yd 0TD; 0rec 0yd 0TD (tgt 1)
+60,193028208,D'Andre Swift,RB,CHI,6100,35.4,18car 124yd 3TD; 1rec 10yd 0TD (tgt 1)
+60,193028208,Justin Jefferson,WR,MIN,7300,21.3,7rec 83yd 1TD (tgt 8)
+60,193028208,Jalen Coker,WR,CAR,4600,36.8,8rec 138yd 2TD (tgt 9)
+60,193028208,Tetairoa McMillan,WR,CAR,6100,11.5,5rec 75yd 0TD (tgt 8)
+60,193028208,T.J. Hockenson,TE,MIN,3300,13.6,4rec 36yd 1TD (tgt 5)
+60,193028208,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+60,193028208,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+61,193028208,Baker Mayfield,QB,TB,5900,14.6,23/28 216yd 0TD 0INT; 5car 30yd 1TD
+61,193028208,Saquon Barkley,RB,PHI,6900,8.0,16car 80yd 0TD; 0rec 0yd 0TD (tgt 1)
+61,193028208,Chuba Hubbard,RB,CAR,5500,23.7,10car 49yd 1TD; 3rec 38yd 1TD (tgt 3)
+61,193028208,Chris Godwin Jr.,WR,TB,5200,8.3,1car 3yd 0TD; 4rec 40yd 0TD (tgt 4)
+61,193028208,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+61,193028208,Emeka Egbuka,WR,TB,6200,11.3,5rec 63yd 0TD (tgt 6)
+61,193028208,Colston Loveland,TE,CHI,5300,0.0,0rec 0yd 0TD (tgt 2)
+61,193028208,Marvin Harrison Jr.,WR,ARI,5000,4.3,1rec 33yd 0TD (tgt 3)
+61,193028208,Browns,DST,CLE,2100,2.0,PA 34 sacks 1 int 0 fr 1 td 0
+62,193028208,Jared Goff,QB,DET,6000,16.4,26/39 206yd 2TD 0INT; 2car 2yd 0TD
+62,193028208,Chuba Hubbard,RB,CAR,5500,23.7,10car 49yd 1TD; 3rec 38yd 1TD (tgt 3)
+62,193028208,MarShawn Lloyd,RB,GB,4800,4.0,12car 40yd 0TD
+62,193028208,Chris Godwin Jr.,WR,TB,5200,8.3,1car 3yd 0TD; 4rec 40yd 0TD (tgt 4)
+62,193028208,Chris Olave,WR,NO,6700,31.2,10rec 182yd 0TD (tgt 13)
+62,193028208,Amon-Ra St. Brown,WR,DET,7500,28.7,10rec 67yd 2TD (tgt 14)
+62,193028208,Brock Wright,TE,DET,2900,1.5,1rec 5yd 0TD (tgt 1)
+62,193028208,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+62,193028208,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+63,193028208,C.J. Stroud,QB,HOU,5200,18.5,26/38 274yd 2TD 0INT; 2car 15yd 0TD
+63,193028208,Saquon Barkley,RB,PHI,6900,8.0,16car 80yd 0TD; 0rec 0yd 0TD (tgt 1)
+63,193028208,Breece Hall,RB,NYJ,6200,22.8,22car 102yd 1TD; 2rec 16yd 0TD (tgt 2)
+63,193028208,DJ Moore,WR,BUF,5600,24.0,5rec 100yd 1TD (tgt 8)
+63,193028208,Nico Collins,WR,HOU,7000,21.2,1car 7yd 0TD; 7rec 75yd 1TD (tgt 10)
+63,193028208,Tre Tucker,WR,LV,4000,4.7,2rec 27yd 0TD (tgt 4)
+63,193028208,Dalton Schultz,TE,HOU,3400,7.5,4rec 35yd 0TD (tgt 8)
+63,193028208,Bijan Robinson,RB,ATL,7700,31.3,21car 83yd 0TD; 8rec 90yd 1TD (tgt 10)
+63,193028208,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+64,193028208,Kirk Cousins,QB,LV,5000,16.4,21/30 160yd 3TD 2INT; 2car 0yd 0TD
+64,193028208,Tony Pollard,RB,TEN,5600,4.4,7car 35yd 0TD; 1rec -1yd 0TD (tgt 2)
+64,193028208,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+64,193028208,DeVonta Smith,WR,PHI,6600,8.3,3rec 53yd 0TD (tgt 6)
+64,193028208,Jalen Nailor,WR,LV,4300,5.7,3rec 27yd 0TD (tgt 5)
+64,193028208,Emeka Egbuka,WR,TB,6200,11.3,5rec 63yd 0TD (tgt 6)
+64,193028208,Michael Mayer,TE,LV,2900,9.2,6rec 32yd 0TD (tgt 7)
+64,193028208,De'Von Achane,RB,MIA,7000,9.1,11car 36yd 0TD; 3rec 25yd 0TD (tgt 4)
+64,193028208,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+65,193028208,Aaron Rodgers,QB,PIT,5300,12.5,24/40 221yd 1TD 0INT; 3car -3yd 0TD
+65,193028208,Bijan Robinson,RB,ATL,7700,31.3,21car 83yd 0TD; 8rec 90yd 1TD (tgt 10)
+65,193028208,Omarion Hampton,RB,LAC,6800,9.3,12car 43yd 1TD
+65,193028208,Michael Pittman Jr.,WR,PIT,4900,8.8,3rec 58yd 0TD (tgt 3)
+65,193028208,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+65,193028208,Garrett Wilson,WR,NYJ,5800,13.9,6rec 79yd 0TD (tgt 7)
+65,193028208,Pat Freiermuth,TE,PIT,3400,15.6,5rec 46yd 1TD (tgt 5)
+65,193028208,Kyle Pitts Sr.,TE,ATL,4700,0.0,0rec 0yd 0TD (tgt 1)
+65,193028208,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+66,193028208,Joe Burrow,QB,CIN,6900,15.2,25/35 254yd 1TD 1INT; 5car 20yd 0TD
+66,193028208,Chase Brown,RB,CIN,7100,18.8,16car 56yd 1TD; 5rec 22yd 0TD (tgt 6)
+66,193028208,Bucky Irving,RB,TB,5700,21.3,8car 45yd 1TD; 7rec 48yd 0TD (tgt 7)
+66,193028208,Nico Collins,WR,HOU,7000,21.2,1car 7yd 0TD; 7rec 75yd 1TD (tgt 10)
+66,193028208,Tre Tucker,WR,LV,4000,4.7,2rec 27yd 0TD (tgt 4)
+66,193028208,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+66,193028208,Mike Gesicki,TE,CIN,3100,18.8,5rec 78yd 1TD (tgt 7)
+66,193028208,KC Concepcion,WR,CLE,4600,8.8,3car 15yd 0TD; 4rec 43yd 0TD (tgt 5)
+66,193028208,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+67,193028208,Malik Willis,QB,MIA,5300,14.1,12/21 161yd 0TD 1INT; 4car 27yd 1TD
+67,193028208,Bijan Robinson,RB,ATL,7700,31.3,21car 83yd 0TD; 8rec 90yd 1TD (tgt 10)
+67,193028208,De'Von Achane,RB,MIA,7000,9.1,11car 36yd 0TD; 3rec 25yd 0TD (tgt 4)
+67,193028208,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+67,193028208,Amon-Ra St. Brown,WR,DET,7500,28.7,10rec 67yd 2TD (tgt 14)
+67,193028208,Tre Tucker,WR,LV,4000,4.7,2rec 27yd 0TD (tgt 4)
+67,193028208,Greg Dulcich,TE,MIA,3500,3.8,2rec 18yd 0TD (tgt 2)
+67,193028208,Caleb Douglas,WR,MIA,3000,14.4,5rec 94yd 0TD (tgt 6)
+67,193028208,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+68,193028208,Kyler Murray,QB,MIN,5500,0.6,3/5 18yd 0TD 1INT; 2car 9yd 0TD
+68,193028208,MarShawn Lloyd,RB,GB,4800,4.0,12car 40yd 0TD
+68,193028208,Bhayshul Tuten,RB,JAX,5800,9.8,15car 66yd 0TD; 1rec 22yd 0TD (tgt 1)
+68,193028208,DeVonta Smith,WR,PHI,6600,8.3,3rec 53yd 0TD (tgt 6)
+68,193028208,Justin Jefferson,WR,MIN,7300,21.3,7rec 83yd 1TD (tgt 8)
+68,193028208,Alec Pierce,WR,IND,5700,10.1,4rec 61yd 0TD (tgt 6)
+68,193028208,T.J. Hockenson,TE,MIN,3300,13.6,4rec 36yd 1TD (tgt 5)
+68,193028208,Ashton Jeanty,RB,LV,6600,36.0,21car 105yd 0TD; 6rec 45yd 2TD (tgt 6)
+68,193028208,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+69,193028208,Jared Goff,QB,DET,6000,16.4,26/39 206yd 2TD 0INT; 2car 2yd 0TD
+69,193028208,Travis Etienne Jr.,RB,NO,5900,14.8,9car 46yd 0TD; 7rec 32yd 0TD (tgt 9)
+69,193028208,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+69,193028208,Jameson Williams,WR,DET,6000,8.5,4rec 45yd 0TD (tgt 9)
+69,193028208,Ladd McConkey,WR,LAC,5900,19.2,5rec 82yd 1TD (tgt 7)
+69,193028208,Marvin Harrison Jr.,WR,ARI,5000,4.3,1rec 33yd 0TD (tgt 3)
+69,193028208,Sam LaPorta,TE,DET,4400,9.8,5rec 48yd 0TD (tgt 8)
+69,193028208,Carnell Tate,WR,TEN,5300,7.8,4rec 38yd 0TD (tgt 6)
+69,193028208,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+70,193028208,Jalen Hurts,QB,PHI,6600,19.3,12/23 163yd 2TD 0INT; 5car 48yd 0TD
+70,193028208,Derrick Henry,RB,BAL,6700,38.3,24car 144yd 3TD; 1rec 19yd 0TD (tgt 1)
+70,193028208,Saquon Barkley,RB,PHI,6900,8.0,16car 80yd 0TD; 0rec 0yd 0TD (tgt 1)
+70,193028208,Chris Godwin Jr.,WR,TB,5200,8.3,1car 3yd 0TD; 4rec 40yd 0TD (tgt 4)
+70,193028208,DeVonta Smith,WR,PHI,6600,8.3,3rec 53yd 0TD (tgt 6)
+70,193028208,Marvin Harrison Jr.,WR,ARI,5000,4.3,1rec 33yd 0TD (tgt 3)
+70,193028208,Harold Fannin Jr.,TE,CLE,4200,4.1,2rec 21yd 0TD (tgt 3)
+70,193028208,Jacory Croskey-Merritt,RB,WAS,5300,12.1,14car 58yd 1TD; 1rec -7yd 0TD (tgt 1)
+70,193028208,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+71,193028208,Tyler Shough,QB,NO,5600,29.2,35/56 410yd 3TD 2INT; 4car 8yd 0TD
+71,193028208,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+71,193028208,Omarion Hampton,RB,LAC,6800,9.3,12car 43yd 1TD
+71,193028208,Devaughn Vele,WR,NO,3500,19.9,7rec 69yd 1TD (tgt 9)
+71,193028208,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+71,193028208,Chris Olave,WR,NO,6700,31.2,10rec 182yd 0TD (tgt 13)
+71,193028208,Juwan Johnson,TE,NO,3700,14.4,3rec 54yd 1TD (tgt 7)
+71,193028208,Tre Tucker,WR,LV,4000,4.7,2rec 27yd 0TD (tgt 4)
+71,193028208,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+72,193028208,Bryce Young,QB,CAR,5200,35.4,23/37 361yd 3TD 1INT; 2car 10yd 1TD
+72,193028208,Jonathan Taylor,RB,IND,7300,26.1,19car 98yd 2TD; 3rec 23yd 0TD (tgt 4)
+72,193028208,De'Von Achane,RB,MIA,7000,9.1,11car 36yd 0TD; 3rec 25yd 0TD (tgt 4)
+72,193028208,Jordan Addison,WR,MIN,5800,0.0,0rec 0yd 0TD (tgt 2)
+72,193028208,Jalen Coker,WR,CAR,4600,36.8,8rec 138yd 2TD (tgt 9)
+72,193028208,Marvin Harrison Jr.,WR,ARI,5000,4.3,1rec 33yd 0TD (tgt 3)
+72,193028208,Colston Loveland,TE,CHI,5300,0.0,0rec 0yd 0TD (tgt 2)
+72,193028208,Tetairoa McMillan,WR,CAR,6100,11.5,5rec 75yd 0TD (tgt 8)
+72,193028208,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+73,193028208,Trevor Lawrence,QB,JAX,5800,26.1,18/23 245yd 4TD 0INT; 2car 3yd 0TD
+73,193028208,Aaron Jones Sr.,RB,MIN,5300,3.5,10car 35yd 0TD; 0rec 0yd 0TD (tgt 1)
+73,193028208,Travis Etienne Jr.,RB,NO,5900,14.8,9car 46yd 0TD; 7rec 32yd 0TD (tgt 9)
+73,193028208,DeVonta Smith,WR,PHI,6600,8.3,3rec 53yd 0TD (tgt 6)
+73,193028208,Parker Washington,WR,JAX,5600,19.3,5rec 83yd 1TD (tgt 6)
+73,193028208,Brian Thomas Jr.,WR,JAX,5500,7.0,3rec 40yd 0TD (tgt 3)
+73,193028208,Harold Fannin Jr.,TE,CLE,4200,4.1,2rec 21yd 0TD (tgt 3)
+73,193028208,James Cook III,RB,BUF,7200,9.9,13car 57yd 0TD; 3rec 12yd 0TD (tgt 4)
+73,193028208,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+74,193028208,Justin Herbert,QB,LAC,6100,12.5,13/22 165yd 1TD 1INT; 5car 29yd 0TD
+74,193028208,Derrick Henry,RB,BAL,6700,38.3,24car 144yd 3TD; 1rec 19yd 0TD (tgt 1)
+74,193028208,Tony Pollard,RB,TEN,5600,4.4,7car 35yd 0TD; 1rec -1yd 0TD (tgt 2)
+74,193028208,Christian Watson,WR,GB,5900,33.1,5rec 131yd 2TD (tgt 6)
+74,193028208,Quentin Johnston,WR,LAC,4700,3.7,2rec 17yd 0TD (tgt 5)
+74,193028208,Ladd McConkey,WR,LAC,5900,19.2,5rec 82yd 1TD (tgt 7)
+74,193028208,Trey McBride,TE,ARI,6800,24.5,9rec 95yd 1TD (tgt 13)
+74,193028208,MarShawn Lloyd,RB,GB,4800,4.0,12car 40yd 0TD
+74,193028208,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+75,193028208,Baker Mayfield,QB,TB,5900,14.6,23/28 216yd 0TD 0INT; 5car 30yd 1TD
+75,193028208,Tony Pollard,RB,TEN,5600,4.4,7car 35yd 0TD; 1rec -1yd 0TD (tgt 2)
+75,193028208,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+75,193028208,Chris Godwin Jr.,WR,TB,5200,8.3,1car 3yd 0TD; 4rec 40yd 0TD (tgt 4)
+75,193028208,Tee Higgins,WR,CIN,6300,8.9,3rec 59yd 0TD (tgt 6)
+75,193028208,Emeka Egbuka,WR,TB,6200,11.3,5rec 63yd 0TD (tgt 6)
+75,193028208,T.J. Hockenson,TE,MIN,3300,13.6,4rec 36yd 1TD (tgt 5)
+75,193028208,Bucky Irving,RB,TB,5700,21.3,8car 45yd 1TD; 7rec 48yd 0TD (tgt 7)
+75,193028208,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+76,193028208,Tyler Shough,QB,NO,5600,29.2,35/56 410yd 3TD 2INT; 4car 8yd 0TD
+76,193028208,Jahmyr Gibbs,RB,DET,8000,37.6,29car 156yd 2TD; 5rec 30yd 0TD (tgt 5)
+76,193028208,Bijan Robinson,RB,ATL,7700,31.3,21car 83yd 0TD; 8rec 90yd 1TD (tgt 10)
+76,193028208,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+76,193028208,Devaughn Vele,WR,NO,3500,19.9,7rec 69yd 1TD (tgt 9)
+76,193028208,Tre Tucker,WR,LV,4000,4.7,2rec 27yd 0TD (tgt 4)
+76,193028208,Juwan Johnson,TE,NO,3700,14.4,3rec 54yd 1TD (tgt 7)
+76,193028208,Ashton Jeanty,RB,LV,6600,36.0,21car 105yd 0TD; 6rec 45yd 2TD (tgt 6)
+76,193028208,Titans,DST,TEN,3100,0.0,PA 23 sacks 0 int 0 fr 0 td 0
+77,193028208,Jared Goff,QB,DET,6000,16.4,26/39 206yd 2TD 0INT; 2car 2yd 0TD
+77,193028208,Tony Pollard,RB,TEN,5600,4.4,7car 35yd 0TD; 1rec -1yd 0TD (tgt 2)
+77,193028208,Travis Etienne Jr.,RB,NO,5900,14.8,9car 46yd 0TD; 7rec 32yd 0TD (tgt 9)
+77,193028208,Amon-Ra St. Brown,WR,DET,7500,28.7,10rec 67yd 2TD (tgt 14)
+77,193028208,Devaughn Vele,WR,NO,3500,19.9,7rec 69yd 1TD (tgt 9)
+77,193028208,Jameson Williams,WR,DET,6000,8.5,4rec 45yd 0TD (tgt 9)
+77,193028208,Tyler Warren,TE,IND,4900,10.3,3rec 13yd 1TD (tgt 5)
+77,193028208,De'Von Achane,RB,MIA,7000,9.1,11car 36yd 0TD; 3rec 25yd 0TD (tgt 4)
+77,193028208,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+78,194478066,Jalen Hurts,QB,PHI,6600,19.3,12/23 163yd 2TD 0INT; 5car 48yd 0TD
+78,194478066,Breece Hall,RB,NYJ,6200,22.8,22car 102yd 1TD; 2rec 16yd 0TD (tgt 2)
+78,194478066,Travis Etienne Jr.,RB,NO,5900,14.8,9car 46yd 0TD; 7rec 32yd 0TD (tgt 9)
+78,194478066,DeVonta Smith,WR,PHI,6600,8.3,3rec 53yd 0TD (tgt 6)
+78,194478066,Ja'Marr Chase,WR,CIN,7800,3.2,2rec 12yd 0TD (tgt 4)
+78,194478066,Jayden Reed,WR,GB,4900,1.6,1rec 6yd 0TD (tgt 4)
+78,194478066,Dallas Goedert,TE,PHI,4100,12.4,3rec 34yd 1TD (tgt 4)
+78,194478066,Chig Okonkwo,TE,WAS,4000,3.6,2rec 16yd 0TD (tgt 3)
+78,194478066,Jaguars,DST,JAX,3400,15.0,PA 10 sacks 5 int 1 fr 2 td 0
+79,194478066,Kyler Murray,QB,MIN,5500,0.6,3/5 18yd 0TD 1INT; 2car 9yd 0TD
+79,194478066,David Montgomery,RB,HOU,6000,28.9,20car 60yd 2TD; 3rec 19yd 1TD (tgt 3)
+79,194478066,Tyjae Spears,RB,TEN,5100,4.4,3car 12yd 0TD; 2rec 12yd 0TD (tgt 4)
+79,194478066,Christian Watson,WR,GB,5900,33.1,5rec 131yd 2TD (tgt 6)
+79,194478066,Justin Jefferson,WR,MIN,7300,21.3,7rec 83yd 1TD (tgt 8)
+79,194478066,Amon-Ra St. Brown,WR,DET,7500,28.7,10rec 67yd 2TD (tgt 14)
+79,194478066,T.J. Hockenson,TE,MIN,3300,13.6,4rec 36yd 1TD (tgt 5)
+79,194478066,De'Von Achane,RB,MIA,7000,9.1,11car 36yd 0TD; 3rec 25yd 0TD (tgt 4)
+79,194478066,Browns,DST,CLE,2100,2.0,PA 34 sacks 1 int 0 fr 1 td 0
+80,194478066,Caleb Williams,QB,CHI,6300,37.3,21/29 269yd 2TD 0INT; 10car 65yd 2TD
+80,194478066,Chuba Hubbard,RB,CAR,5500,23.7,10car 49yd 1TD; 3rec 38yd 1TD (tgt 3)
+80,194478066,D'Andre Swift,RB,CHI,6100,35.4,18car 124yd 3TD; 1rec 10yd 0TD (tgt 1)
+80,194478066,Justin Jefferson,WR,MIN,7300,21.3,7rec 83yd 1TD (tgt 8)
+80,194478066,Rome Odunze,WR,CHI,5400,7.2,2rec 52yd 0TD (tgt 3)
+80,194478066,Luther Burden III,WR,CHI,5500,10.5,1car 2yd 0TD; 5rec 63yd 0TD (tgt 5)
+80,194478066,Colston Loveland,TE,CHI,5300,0.0,0rec 0yd 0TD (tgt 2)
+80,194478066,Aaron Jones Sr.,RB,MIN,5300,3.5,10car 35yd 0TD; 0rec 0yd 0TD (tgt 1)
+80,194478066,Eagles,DST,PHI,3200,2.0,PA 16 sacks 1 int 0 fr 0 td 0
