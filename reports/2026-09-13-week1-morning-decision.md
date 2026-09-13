@@ -197,6 +197,15 @@ operator widens the entry count so more of its top bubbles into the paid book.
   6.8 points with 17% zeros; production's "punt valuation" was kept because its deletion cost tails, so this is a
   shadow, not a change to the paid book.
 
+**Skill-salary floor, tested for today (13:10Z):** live shadow built (`…/shadow-salary-floor-20260913/results/live/2026-w01/20260913T122747041835Z-f26b7dc`,
+fresh 12:03Z projections): a $3,500 floor removed 134 skill players including $3.0–3.4k starting TEs (Waller,
+Schultz, Njoku, Hockenson, Kmet); simulated receipts slightly lower than the paid D800 under both laws (incumbent
+E[max] 178.4 vs 179.5, hsim 195.4 vs 196.4). Selection-time version on the 216 opened books (skip lineups whose
+cheapest skill player is below the floor, next ranks fill in): floor $3,000 −0.70 (wins 4% / losses 12%), $3,500
+−1.00 (21/28), $4,000 −0.15 (28/29), position-specific TE≥3,000/WR≥3,500/RB≥4,000 −1.13; lineups' realized scores
+are flat across cheapest-skill-salary tiers (116.8–118.2; share ≥187 ≈ 1% in every tier). **Not applied today**;
+the shadow is graded Monday; a generation-time floor would need a cloud cohort (Week 2 if the shadow surprises).
+
 ## 3. Sunday sequence (times CT)
 
 | time | step |

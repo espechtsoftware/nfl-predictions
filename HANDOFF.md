@@ -310,6 +310,10 @@ agent or developer:
 - **12:55Z: lineup-creation review answered (memo §2i); skill-salary-floor shadow ($3,500) building** on
   `lab/shadow-skill-salary-floor-20260913` @ `f26b7dc` (live_week `--min-skill-salary`); Week-2 item: panel salary
   hygiene (position minimums) as a preregistration amendment for the next cohort.
+- **13:10Z: skill-salary floor — negative on both live receipts and the opened books** (memo §2i): shadow run
+  `20260913T122747041835Z-f26b7dc` (134 skill players removed at $3,500, receipts slightly lower); selection-time
+  floors cost 0.15–1.13 points of top-30 max on 216 books; lineup scores flat across cheapest-skill-salary tiers.
+  Not applied to the paid book; shadow graded Monday.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
