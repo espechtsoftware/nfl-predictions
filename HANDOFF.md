@@ -290,6 +290,16 @@ agent or developer:
   played NE/SEA/SF/LA players are gone, the Sun–Mon group is now the largest kept pool). The 09:10 CT lab build and
   the T-70 rebuild centre on these instead of the 09-08 rows. Other jobs (`build-features`, app) still run the
   older image; move them after Week 1.
+- **11:55Z: PREREG-093 bank state and amendment 1.** Bank 930 72/72; bank 931 closed 69/72 (Cloud Run internal
+  errors, retries exhausted) so master-2 exited by rule after launching bank 932 (`lab-run-qrcpz`, running until
+  ~14:10Z). The host chain `/home/erich/week1-sunday/after_master2_repair_then_115.sh` verified 930, is running 931's
+  per-season repairs on the 09z image (`113b931r1rep<season>`, first = `lab-run-slow-8zg7w`), will check 932, then
+  re-arm the 115 sequencer (09w image, 3-h task timeout). Reader: `scripts/prereg093_report.py` on the amend4 branch
+  (@ `4d97275`) now takes `--repair`; `/home/erich/week1-sunday/read_113.sh` gathers main + repair run ids from
+  `results/queue_master2_launches.log` and `results/repair_bank_launches.log`, saves the transcript, and applies the
+  frozen Sunday dose ladder (writes `/home/erich/week1-dose.env` only on PASS conditions). The read lands after
+  932 + repairs (~14:30Z) — after the 09:10 CT build, so today's paid dose is 800 unless it fires before the T-70
+  rebuild at 15:50Z.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
