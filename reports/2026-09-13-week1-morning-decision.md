@@ -290,3 +290,16 @@ exposure table → `/home/erich/week1-sunday/TODAY-30-LATEST.md` names the newes
 one HARD exclusion (Jalen McMillan, doubtful, prop line vanished), exposure capped at 12/30 for Chase, Robinson, Gibbs,
 Shough, Olave, JAX DST. The paid P_MIX/K90 books remain the frozen primary shadow; the today-30 is the entered book;
 both settle Monday. Simulated q99 of the entered 30 is lower than the paid top-30 (180 vs 189) by construction.
+
+### §2j.2 — Pre-lock historic test of today's rule at the paid dose (PREREG-096, launched 14:02Z)
+
+The operator asked whether the current algorithm can be run through a historic test before kickoff. A full 3200-dose
+replay cannot finish before lock, but one 72-slate bank at the paid dose (D800, 160 lev / 640 boom) can: experiment 116 on
+a dedicated lab job (`lab-run-fast`, image `prereg09v-552b0f01b659`, execution `lab-run-fast-fbmwf`, run
+`116b960r1-20260913T140230Z`, 72 tasks, parallelism 36, `maxRetries 3`), untouched PREREG-093/095 lanes. Frozen before
+launch (`reports/2026-09-13-prereg096-learned-pool-paid-dose.md`): primary = paired K30 realized max, today's rule
+(learned score, overlap ≤ 5, exposure ≤ 40%, LOSO coefficients per season) vs the expected-max book's first 30; consequence
+limited to today — KEEP the learned today-30 iff mean delta > 0 and ≥ 3 of 4 seasons ≥ 0, else REVERT to the vetted paid
+top-30. The watcher (`/home/erich/week1-sunday/watch_116.sh`) reads the bank when it completes (or at 16:10Z on the
+complete shards), writes `prereg096_verdict.env`, and re-processes the newest live run so `TODAY-30-LATEST.md` reflects
+the verdict; the chain applies the same verdict to the T-70 rebuild. Read expected ~14:40–15:00Z.
