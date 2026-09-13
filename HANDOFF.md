@@ -300,6 +300,10 @@ agent or developer:
   frozen Sunday dose ladder (writes `/home/erich/week1-dose.env` only on PASS conditions). The read lands after
   932 + repairs (~14:30Z) — after the 09:10 CT build, so today's paid dose is 800 unless it fires before the T-70
   rebuild at 15:50Z.
+- **12:30Z: post-selection vetting pass implemented (operator request)** — `scripts/week1_vet_book.py`; tiers
+  hard/material/soft over DK status, injury report + practice, inference fields, prop-line presence/vanishing,
+  placeholder salary; keeps the selector's order except for demotions; report + vetted CSVs; wired into
+  `week1-sunday-build.sh` (09:10 and T-70 runs). Memo §2g.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's

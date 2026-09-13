@@ -150,6 +150,21 @@ settled Monday against the entered set.
    at the cost of the other law; historically P(≥220)-descending orderings did not beat greedy, so these stay
    shadows (v3 of the ordering tool, 24 orderings).
 
+## 2g. Post-selection vetting pass (operator request, implemented 12:30Z; runs inside both Sunday builds)
+
+`scripts/week1_vet_book.py` (host copy `/home/erich/week1-sunday/tools/vet_book.py`) runs after selection and ordering:
+every player in every lineup is checked against live signals — DK feed status, `nfl_raw.injuries` (designation,
+practice status + injury), `player_week_inference` (injury status, practice level, depth rank, games missed), prop
+lines (player pulled from the market since the previous fetch; no props at all for a ≥$5k player), placeholder
+salary. Tiers: **hard** (OUT/IR, market-vanished, placeholder salary) → vetoed to the back of the book; **material**
+(risk ≥ 1.0: Questionable/Doubtful, injury-DNP with a silent market, no props) → demoted behind every clean lineup;
+**soft** (limited practice, DNP with props posted, depth ≥ 3, rest-day DNP) → reported only; otherwise the selector's
+order is kept. Output: emitter-compatible vetted book (`vetted-<run>/book.csv`), `vetting_report.md` (flagged
+players with reasons; every lineup's tier and move), `vetting.json`, and upload CSVs `upload-<run>-vetted-{milly
+1-19, playaction 20-26, ffwc-q6 27, ffwc-q5 28-30, all30, all90}`. Placeholder run on Saturday's K90 with live
+Sunday signals: 7 players flagged (Odunze, Love Questionable + limited; Chase knee DNP but props posted → soft;
+Pierce, Croskey-Merritt limited; Waller, Gadsden depth 3); ranks 13 and 22 demoted out of the top 30, 31 and 32 in.
+
 ## 3. Sunday sequence (times CT)
 
 | time | step |
