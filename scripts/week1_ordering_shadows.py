@@ -15,6 +15,8 @@ For the run's selected book (ranks 1..K80/K90), computes several orderings and w
   ptail_inc / ptail_hsim   sum over the 9 players of P(player >= 25) from each selection bank (marginal tails, not the joint)
   law_agreement     lineups both laws rank highly (max of the two q99 ranks, ascending)
   player_novelty    greedy re-ordering that minimises player overlap with the lineups already placed (roster diversity first)
+  cov220_hsim / cov220_inc / cov200_dual   greedy coverage of the worlds where a lineup scores >= 220 (>= 200 on the dual)
+  world_leader      number of dual worlds the lineup wins among the book, descending
   reverse_greedy    ranks 80..1 (control)
   random            a seeded random k-subset (grading reference)
 No realized score is read.  Grade after the slate: max realized score of each set vs the entered set.
@@ -74,9 +76,20 @@ def main():
     while remaining:   # player-novelty greedy: fewest already-used players, ties by greedy rank
         j = min(remaining, key=lambda i: (sum(used[p] for p in rosters[i]), i)); placed.append(j); remaining.remove(j); used.update(rosters[j])
     orders["player_novelty"] = placed
+    # objective-aligned: greedy coverage of the worlds where a lineup scores >= 220 (tail law, then incumbent law):
+    # each pick adds the lineup covering the most still-uncovered 220+ worlds (ties: higher q99, then greedy rank)
+    for lab, Mx, q in (("cov220_hsim", Mhs, stats["hsim_q99"]), ("cov220_inc", Minc, stats["inc_q99"]), ("cov200_dual", np.concatenate([Minc, Mhs], axis=1), stats["hsim_q99"])):
+        line = 200.0 if lab.startswith("cov200") else 220.0
+        hits = Mx >= line; uncovered = np.ones(Mx.shape[1], dtype=bool); picked, chosen = [], np.zeros(n, dtype=bool)
+        for _ in range(n):
+            gains = (hits & uncovered).sum(axis=1).astype(float); gains[chosen] = -1
+            i = int(np.lexsort((np.arange(n), -q, -gains))[0]); picked.append(i); chosen[i] = True; uncovered &= ~hits[i]
+        orders[lab] = picked
+    # world-leader: how many dual worlds each lineup wins among the book (argmax count), descending
+    lead = np.bincount(np.argmax(dual, axis=0), minlength=n); orders["world_leader"] = list(np.lexsort((np.arange(n), -lead)))
     orders["reverse_greedy"] = list(range(n - 1, -1, -1))
     orders["random"] = list(np.random.default_rng(2026).permutation(n))
-    out = {"version": "ordering-shadows-v2", "run_dir": str(run), "book_size": n, "k": k, "frozen_at_utc": datetime.now(UTC).isoformat(), "banks_from": str(a.banks_from or run),
+    out = {"version": "ordering-shadows-v3", "run_dir": str(run), "book_size": n, "k": k, "frozen_at_utc": datetime.now(UTC).isoformat(), "banks_from": str(a.banks_from or run),
            "novelty_source_sha256": nov_sha, "orderings": {}}
     for name, order in orders.items():
         top = [int(i) for i in order[:k]]; sub_inc = Minc[top].max(axis=0); sub_hs = Mhs[top].max(axis=0)

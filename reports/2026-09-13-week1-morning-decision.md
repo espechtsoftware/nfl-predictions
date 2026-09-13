@@ -131,6 +131,25 @@ Q5 28–30, plus all-30) beside the plain `k30-*` slices from the same K90; the 
 built on the run-dir (P_CTRL) K90; with no Q/D/O designations on this slate P_MIX ≈ P_CTRL. Every variant is
 settled Monday against the entered set.
 
+## 2f. Additional approaches armed 11:10Z (operator asked for more than tie-breaks)
+
+1. **T-70 rebuild with final inactives (10:50 CT = 15:50Z, armed as a session task):** `week1-sunday-build.sh`
+   runs again with run tag `…-t70-e7255e9` after the 10:30 CT inactives are announced and DK marks them, so the
+   entered set can be the later build (fresh salary pull with statuses applied, latest projections). Upload the
+   `-t70-` CSVs by ~11:30 CT; the 09:10 set is the fallback. This is the largest legitimate information gain of
+   the day — the 09:10 book cannot know who is inactive.
+2. **Line-movement ordering / veto (`scripts/week1_market_move.py`):** Saturday→Sunday change in DK-implied
+   points from `nfl_raw.prop_lines` (mean across books; yards, receptions, pass TDs, anytime-TD probability),
+   summed over each lineup's skill players; lineups carrying a player whose lines VANISHED from the market are
+   veto candidates. Frozen as a shadow right after the 09:00 CT props fetch; the ledger's reopening condition
+   (market movement) — no evidence yet, so shadow/veto only unless the operator chooses otherwise.
+3. **Objective-aligned coverage orderings** (`cov220_hsim`, `cov220_inc`, `cov200_dual`) — the 30 that maximise
+   the simulated probability that at least one lineup scores 220+ (200+) under each law — and **world-leader**
+   (how many simulated worlds each lineup wins among the book). Placeholder receipts: cov220_hsim lifts the
+   top-30's hsim P(≥220) from .065 (greedy) to .077, cov220_inc lifts the incumbent P(≥220) from .013 to .019
+   at the cost of the other law; historically P(≥220)-descending orderings did not beat greedy, so these stay
+   shadows (v3 of the ordering tool, 24 orderings).
+
 ## 3. Sunday sequence (times CT)
 
 | time | step |
