@@ -179,6 +179,24 @@ Saturday's D800 book with today's data: top players Chase 2.22, St. Brown 2.18, 
 rule: this is one more frozen ordering graded Monday; if it beats the entered set over the coming weeks, the
 operator widens the entry count so more of its top bubbles into the paid book.
 
+## 2i. Lineup-creation review (operator question, 12:55Z) and the skill-salary-floor shadow
+
+- The $200 players were a historical-feed artifact (two player-weeks in five seasons; README deficiency row); the
+  live DK feed enforces position minimums (QB/RB $4,000, WR $3,000, TE $2,500, DST $2,000) and today's book has
+  nothing below them — its cheapest slots are DSTs (18 of 26 sub-$3k slots) and TEs (8); every lineup is at
+  $49.0–50.0k. Panel hygiene (drop skill players below DK's position minimum in historical frames) is a Week-2
+  preregistration amendment for the next cohort.
+- Construction per slate: 160 "lev" lineups (repeated MILP on a tournament-valued projection, ≥2 players different
+  from every previous one) + 640 "boom" lineups (the optimal lineup of each of the 640 highest-total simulated
+  worlds); QB+2 pass-catchers + bring-back and the $49k–50k salary band in every solve; no punt mandate
+  (`PUNT_MIN = 0`); selection = greedy expected-max over 10,000 fresh worlds × two laws.
+- Shadow arm frozen today: **skill-salary floor $3,500** (QB/RB/WR/TE below $3,500 removed from the pool before
+  generation; DST untouched) — `live_week.py --min-skill-salary 3500` on branch
+  `lab/shadow-skill-salary-floor-20260913` (`f26b7dc`, from the paid-path commit `e7255e9`), D800 K80, fresh Sunday
+  projections; graded Monday with the other shadows. Panel evidence for the direction: sub-$4k skill slots average
+  6.8 points with 17% zeros; production's "punt valuation" was kept because its deletion cost tails, so this is a
+  shadow, not a change to the paid book.
+
 ## 3. Sunday sequence (times CT)
 
 | time | step |

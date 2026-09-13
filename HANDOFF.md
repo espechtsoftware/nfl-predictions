@@ -307,6 +307,9 @@ agent or developer:
 - **12:15Z: post-selection player-scoring resort implemented (operator request)** — `scripts/week1_player_score.py`
   (frozen weights v1 over production proj/p90/P20+, market points + movement, both laws' player q99, DK ppg, vetting
   penalty); lineup = sum; re-sorted book + `composite-*` CSVs; wired after vetting in `week1-sunday-build.sh`. Memo §2h.
+- **12:55Z: lineup-creation review answered (memo §2i); skill-salary-floor shadow ($3,500) building** on
+  `lab/shadow-skill-salary-floor-20260913` @ `f26b7dc` (live_week `--min-skill-salary`); Week-2 item: panel salary
+  hygiene (position minimums) as a preregistration amendment for the next cohort.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
