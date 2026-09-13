@@ -98,6 +98,18 @@ is compared with the entered 30. Tonight's outcome-blind placeholder on the DST-
 `reports/week1-ordering-shadows/placeholder-D800K80-20260912T1922Z-e7255e9-k30.json` (greedy top-30 has the
 highest simulated E[max] under the incumbent law, 172.6 vs 167.6–171.8; NOV ladder highest under hsim, 188.5).
 
+## 2d. Optional real-entry trial offered to the operator: `D1600_NOV` on the non-Milly entries
+
+The only overnight mechanism that scaled with supply (PREREG-094 interaction, near-miss) can be entered as a
+live arm: D1600 K80 pool → PREREG-060's frozen novelty-ladder selector (`scripts/week1_nov_book.py`; selector
+sha `2fb435e6…`). Against the paid policy it measured flat (D1600_NOV − D800_DEMAX −0.004, UNRESOLVED) — not
+expected to be worse, upside unproven. Offered split: **Milly 19 = P_MIX ranks 1–19 (validated), Play-Action 7 +
+FFWC Q6 1 + FFWC Q5 3 = D1600_NOV ranks 1–11**; or all 30 on NOV; or none (default). Opt in by creating
+`/home/erich/week1-nov.env` before the 09:10 CT build: the Sunday script then builds the D1600 (14 min), the NOV
+book (2 min) and emits `upload-<run>-nov-d1600-*` CSVs (ranks 1–7 / 8 / 9–11, plus 1–19 and 1–30). Placeholder
+from Saturday's D1600 pool: `/home/erich/week1-sunday/nov-placeholder-D1600/` (overlap with the DEMAX book 55/80;
+sim E[max] 179.4 vs 180.5 incumbent, 198.8 vs 198.4 hsim). Graded Monday as its own book either way.
+
 ## 3. Sunday sequence (times CT)
 
 | time | step |
