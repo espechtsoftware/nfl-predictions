@@ -1,0 +1,2 @@
+ENTERED FILE (identified 2026-09-13 23:25Z from the operator's live DK score of 188 matching this book's best lineups at 189.9 / 188.3): entered-candidate-v6b-no-Wicks.csv (the proven-scorer rule applied on top of the scratch swaps).
+Counterfactual: entered-candidate-v4b-no-Wicks.csv (scratch swaps only) would have scored ~216 (lineup 60) and ~206 (lineup 8) by box-score scoring: the proven-scorer rule removed Jalen Coker (36.8) and Aaron Jones.
