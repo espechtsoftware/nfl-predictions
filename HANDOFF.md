@@ -178,6 +178,23 @@ agent or developer:
   repair launcher `/home/erich/week1-sunday/repair_bank.sh EXP RDIR PREFIX BANK CODE_SHA` (also under
   `week1-sunday/tools/`) re-runs missing slates per season on the bank's image; its shards need an amended reader
   (pattern: `prereg090_report.py --repair` on the amend4 branch).
+- **01:05Z: Fantasy Points ownership collector built (`72d5d754`; `fantasy-points-ownership collect --week N`,
+  offline tests 9/9).** It reads the site's own `/tables/nfl/projections/dfs/ownership` API payload (fields
+  operator/operatorSalary/name/fantasyPosition/season/week/team/projectedOwnershipPercentage/lastUpdated), visits
+  both operator selections, fails closed on anonymous sessions / offseason / soft-gate-locked values / wrong
+  season-week, archives CSV + redacted raw JSON + manifest create-once under
+  `gs://…-raw/licensed/fantasy-points/ownership/season=S/week=WW/sha256=…/` and appends to
+  `nfl_raw.fantasy_points_projected_ownership`. **Week-1 finding:** the grid is live (rows updated
+  2026-09-12T12:26Z) but the saved session is authenticated WITHOUT the product's role — the table's access block
+  requires role `role_OuhicOWKJHHvqVvkOGXA` / plan `plan_0x2txb5pf1ba6a2cwher` ("Fantasy Pro – Soft"), the session
+  carries `role_authenticated` + `role_uJb30OfZpu4pFfS7VQEq`, the page shows UPGRADE/SUBSCRIBE, and the API serves the
+  3-row locked preview. The 09-08 "authenticated" verdict was based on the weak uid-present signal. Either the
+  account lacks the Fantasy Pro plan (nothing to collect until it does) or a fresh
+  `fantasy-points-ownership login --terminal-credentials` refreshes the role; the collector run is
+  `PYTHONPATH=<this tree>/src python -m nfl_dfs.ops.fantasy_points_ownership --season 2026 collect --week 1`.
+  SIS: `sis-download verify-login` fails (session cookie expired; renewal is the operator's interactive
+  `sis-download login --terminal-credentials --fresh`); by the frozen 2026 contract the first in-season SIS
+  acquisition is `pass-tail-weekly --target-week 5` (source weeks 1–4), so no Week-1 SIS row is missing.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
