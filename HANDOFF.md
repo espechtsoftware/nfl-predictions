@@ -238,6 +238,15 @@ agent or developer:
   Next preregistrable question (not tonight's frozen text): a NOV-family or DEMAX-core + NOV-fill selector at 3200.
   113 (dose 3200, DEMAX only) gate launched by master-2 at ~06:26Z; its read (~11:15Z) still composes with the
   Sunday dose ladder (3200 requires D1600 − D800 PASS there, which 090 and 094 both failed to show).
+- **06:41Z: PREREG-095 frozen and queued behind 113** (cohort branch @ `6814bc8d`, pushed; image
+  `…/lab/nfl2:prereg09w-6814bc8d4a85`, digest `sha256:4769bb43…`, digest file `results/prereg09w_image.txt`):
+  experiment 115 = the nested 3200 stream (D1600/D800 prefixes proven) × {DEMAX, NOV}, banks 950–952; family of
+  three: D3200_NOV − D800_DEMAX, D3200_NOV − D3200_DEMAX, and the 3200-vs-800 interaction; consequences are
+  Week-2 nominations only. Smoke: both prefix identities true, ledger complete, NOV engaged (71/70 of 80 on
+  1600/3200). `scripts/arm_115_after_master2.sh` (pid 1522711) waits for master-2's registry completion, moves the
+  jobs to 09w and arms `scripts/queue_115.sh`; read with `scripts/prereg095_report.py` after
+  `scripts/prereg095_mechanics_gate.py 115m950r1-<stamp>` passes. Lane order now: **113 (gate `lab-run-r79bv`
+  running since 06:28Z) → 115** (expected to read Sunday evening).
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
