@@ -42,6 +42,19 @@ def greedy_div(g, col, K, cap):
         if all(len(st & c) <= cap for c in sets): chosen.append(i); sets.append(st)
         if len(chosen) == K: break
     return g.loc[chosen]
+def greedy_div_exp(g, col, K, cap, exp):
+    """Greedy by score with a pairwise-overlap cap AND a per-player exposure cap (max count = ceil(exp*K))."""
+    from collections import Counter
+    import math
+    chosen, sets, ex, lim = [], [], Counter(), math.ceil(exp * K)
+    for i, pl in zip(g.sort_values(col, ascending=False).index, g.sort_values(col, ascending=False).players):
+        st = set(pl.split(","))
+        if all(len(st & c) <= cap for c in sets) and all(ex[p] < lim for p in st): chosen.append(i); sets.append(st); ex.update(st)
+        if len(chosen) == K: break
+    return g.loc[chosen]
+def maxexp(df):
+    from collections import Counter
+    ex = Counter(p for pl in df.players for p in pl.split(",")); return max(ex.values()) / max(len(df), 1)
 def conc(df):
     sets = [set(p.split(",")) for p in df.players]; ov = [len(a & b) for a, b in itertools.combinations(sets, 2)]
     return float(np.mean(ov)) if ov else 0.0
@@ -66,12 +79,15 @@ for T in (2023, 2024):
             row[f"Q99_{K}"] = g.sort_values("sim_q99", ascending=False).head(K).actual.max()
             for cap in (4, 5, 6):
                 row[f"LEARNED_DIV{cap}_{K}"] = greedy_div(g, "learned", K, cap).actual.max(); row[f"BLEND_DIV{cap}_{K}"] = greedy_div(g, "blend_q99", K, cap).actual.max()
+            for e in (40, 50, 60):
+                row[f"LEARNED_DIV5_EXP{e}_{K}"] = greedy_div_exp(g, "learned", K, 5, e / 100).actual.max(); row[f"BLEND_DIV5_EXP{e}_{K}"] = greedy_div_exp(g, "blend_q99", K, 5, e / 100).actual.max()
+            row[f"maxexp_DEMAX_{K}"] = maxexp(demax); row[f"maxexp_LEARNED_DIV5_{K}"] = maxexp(greedy_div(g, "learned", K, 5)); row[f"maxexp_LEARNED_DIV5_EXP50_{K}"] = maxexp(greedy_div_exp(g, "learned", K, 5, .5))
             row[f"conc_DEMAX_{K}"] = conc(demax); row[f"conc_LEARNED_POOL_{K}"] = conc(pool_sorted.head(K)); row[f"conc_LEARNED_DIV5_{K}"] = conc(greedy_div(g, "learned", K, 5)); row[f"conc_BLEND_DIV5_{K}"] = conc(greedy_div(g, "blend_q99", K, 5))
             row[f"LEARNED_POOL_{K}_overlap_demax"] = len(set(pool_sorted.head(K).players) & set(demax.players))
         res.append(row)
     coef = pd.Series(w[:-1], index=fcols).sort_values(); print(f"\n## held-out {T}: coefficients (top -/+)\n", coef.head(6).round(3).to_dict(), "\n", coef.tail(8).round(3).to_dict())
 R = pd.DataFrame(res); R.to_csv(OUT / "pool_level_results.csv", index=False)
-rules = ["LEARNED_POOL", "LEARNED_DIV4", "LEARNED_DIV5", "LEARNED_DIV6", "BLEND_Q99", "BLEND_DIV4", "BLEND_DIV5", "BLEND_DIV6", "UNION", "RESORT", "Q99"]
+rules = ["LEARNED_POOL", "LEARNED_DIV5", "LEARNED_DIV5_EXP40", "LEARNED_DIV5_EXP50", "LEARNED_DIV5_EXP60", "BLEND_Q99", "BLEND_DIV5", "BLEND_DIV5_EXP40", "BLEND_DIV5_EXP50", "BLEND_DIV5_EXP60", "UNION", "RESORT", "Q99"]
 lines = []
 for K in (30, 80):
     lines.append(f"\n### K={K}  (72 slate-arms; realized max of the chosen K; delta vs DEMAX)")
@@ -80,6 +96,7 @@ for K in (30, 80):
         d_ = R[f"{ru}_{K}"] - R[f"DEMAX_{K}"]
         lines.append(f"| {ru} | {R[f'DEMAX_{K}'].mean():.2f} | {R[f'{ru}_{K}'].mean():.2f} | {d_.mean():+.2f} | {(d_>0).mean():.2f} | {(d_<0).mean():.2f} | {d_[R.season==2023].mean():+.2f} | {d_[R.season==2024].mean():+.2f} | {d_[R.arm=='control'].mean():+.2f} | {d_[R.arm=='treatment'].mean():+.2f} |")
     lines.append(f"\nmean overlap of LEARNED_POOL top-{K} with the DEMAX top-{K}: {R[f'LEARNED_POOL_{K}_overlap_demax'].mean():.1f}")
+for K in (30, 80): lines.append(f"max single-player exposure K={K}: DEMAX {R[f'maxexp_DEMAX_{K}'].mean():.2f}, LEARNED_DIV5 {R[f'maxexp_LEARNED_DIV5_{K}'].mean():.2f}, LEARNED_DIV5_EXP50 {R[f'maxexp_LEARNED_DIV5_EXP50_{K}'].mean():.2f}")
 for K in (30, 80): lines.append(f"mean pairwise overlap K={K}: DEMAX {R[f'conc_DEMAX_{K}'].mean():.2f}, LEARNED_POOL {R[f'conc_LEARNED_POOL_{K}'].mean():.2f}, LEARNED_DIV5 {R[f'conc_LEARNED_DIV5_{K}'].mean():.2f}, BLEND_DIV5 {R[f'conc_BLEND_DIV5_{K}'].mean():.2f}")
 lines.append(f"\npool oracle mean {R.pool_oracle.mean():.2f}; pool 200+ lineups per slate-arm {R.pool_ge200.mean():.2f}; in DEMAX-80 {R.sel_ge200.mean():.2f}")
 for K in (30, 80):

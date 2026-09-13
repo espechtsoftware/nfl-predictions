@@ -275,3 +275,18 @@ the T-70 rebuild), emits `upload-K90-<stamp>-<book>.csv` and per-book lineup she
 adds `pos_learned_book / pos_learned_pool / pos_blend_q99 / pos_union` columns to the paid sheet. Everything is settled
 Monday against the standings. Week-2: the same computation as a selector law inside `live_week.py` behind a preregistered
 lab cohort (PREREG-096 candidate: learned-div5 vs DEMAX on the 72-slate panel at 800 and 3200, nested LOSO fit).
+
+### §2j.1 — Adopted for today (operator decision 13:10Z: "I would like to use this today")
+
+Exposure cap tested on the same corpus before adoption (overlap ≤ 5 plus single-player exposure ≤ 40%): K=30 **+6.07**
+(2023 +3.0 / 2024 +9.1, wins .58 / losses .21), K=80 **+3.17** (losses .14) — the best rule at both sizes, and it binds
+hard on the live pool (exposure 97% → 40%, 90 distinct players in 30 lineups, pairwise overlap 1.6 vs paid 1.3).
+
+**Today's product** (`scripts/week1_learned_after_build.sh`, running; `once RUN TAG` processes any run by hand): for
+every new live run → learned scorer over the whole pool → vet the 30 (`week1_vet_book.py`: DK O/IR/OUT, placeholder
+salary, vanished prop line = HARD) → HARD players excluded and the 30 re-selected (≤ 3 passes) → `upload-<tag>-today-30.csv`
+(30 rows) and `upload-<tag>-today-90.csv` (the same 30 first, then the paid remainder in expected-max order) → sheet +
+exposure table → `/home/erich/week1-sunday/TODAY-30-LATEST.md` names the newest set. Placeholder run (last night's K90):
+one HARD exclusion (Jalen McMillan, doubtful, prop line vanished), exposure capped at 12/30 for Chase, Robinson, Gibbs,
+Shough, Olave, JAX DST. The paid P_MIX/K90 books remain the frozen primary shadow; the today-30 is the entered book;
+both settle Monday. Simulated q99 of the entered 30 is lower than the paid top-30 (180 vs 189) by construction.

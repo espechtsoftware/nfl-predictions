@@ -112,7 +112,7 @@ def main():
     rec = {"version": "vet-book-v1", "source_run": str(run), "k": k, "vetted_at_utc": datetime.now(UTC).isoformat(), "prop_fetch_days": [str(d) for d in days[-2:]],
            "signals": {"dk_status_players": sum(1 for d in weight if any(x.startswith("DK:") for x in flags[d])), "injury_report_players": len(inj), "inference_players": len(pwi), "vanished_lines": len(vanished_norm)},
            "order_source_ranks": [i + 1 for i in order], "demoted_out_of_top_k": [i + 1 for i in demoted], "promoted_into_top_k": [i + 1 for i in promoted],
-           "material_threshold": thr, "lineups": lineups, "player_flags": {name[d]: {"pos": pos[d], "team": team[d], "weight": weight[d], "flags": fl} for d, fl in flags.items()}}
+           "material_threshold": thr, "lineups": lineups, "player_flags": {name[d]: {"dk": d, "pos": pos[d], "team": team[d], "weight": weight[d], "flags": fl} for d, fl in flags.items()}}
     (out / "vetting.json").write_text(json.dumps(rec, indent=1) + "\n")
     lines = [f"# Vetting report — {run.name} (k={k}, {datetime.now(UTC):%Y-%m-%d %H:%MZ})", "",
              f"Players flagged: {len(flags)} of {len(weight)} in the book; hard flags: {sum(1 for d in weight if weight[d] >= HARD)}; prop fetch days compared: {rec['prop_fetch_days']}", "",

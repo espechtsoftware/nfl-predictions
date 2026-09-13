@@ -45,7 +45,9 @@ def write_book(out, name, lineups, fr, run, extra):
     src = json.loads((run / "receipt.json").read_text()); src.update({"learned_shadow": {"book": name, "source_run": str(run), "built_utc": datetime.now(UTC).isoformat(), **extra}, "written": len(lineups)})
     (d / "receipt.json").write_text(json.dumps(src, indent=1) + "\n"); return d
 
-def main(run, entries, k, out_root):
+def main(run, entries, k, out_root, exclude_players=None, overlap_cap=5, exposure_cap=0.40):
+    import math
+    from collections import Counter
     run = pathlib.Path(run); m = json.loads(MODEL.read_text()); out = pathlib.Path(out_root or (str(run) + "-learned")); out.mkdir(parents=True, exist_ok=True)
     fr = pd.read_parquet(run / "frame.parquet"); fr = fr.set_index(fr.id.astype(str)); fr["salary"] = pd.to_numeric(fr.salary, errors="coerce")
     cands = pd.read_parquet(run / "candidates.parquet"); lineups = [c.split(",") for c in cands.players]
@@ -80,7 +82,19 @@ def main(run, entries, k, out_root):
     Fb = lineup_features_vec([lineups[i] for i in book.index], fr, num, book.book_rank.to_numpy()).reindex(columns=m["features"]).fillna(0.0)
     book = book.assign(learned_book=z(Fb).fillna(0.0).to_numpy() @ np.array(m["coef"]))
     order_book = book.sort_values("learned_book", ascending=False)
-    pool_order = cands.sort_values("learned_pool", ascending=False); blend_order = cands.sort_values("blend_q99", ascending=False)
+    dk2id = dict(zip(fr.dk_player_id.astype(str), fr.index)); excl = {dk2id.get(x, x) for x in (exclude_players or []) if x}
+    ok = np.array([not (set(lu) & excl) for lu in lineups]); cands["eligible"] = ok
+    pool_order = cands[ok].sort_values("learned_pool", ascending=False); blend_order = cands[ok].sort_values("blend_q99", ascending=False)
+    def greedy_div_exp(order_idx, K, cap, exp):
+        lim = math.ceil(exp * K); chosen, sets, ex = [], [], Counter()
+        for i in order_idx:
+            st = set(lineups[i])
+            if all(len(st & c) <= cap for c in sets) and all(ex[q] < lim for q in st): chosen.append(i); sets.append(st); ex.update(st)
+            if len(chosen) == K: break
+        return chosen
+    exp40_all = greedy_div_exp(list(pool_order.index), entries, overlap_cap, exposure_cap); today = greedy_div_exp(list(pool_order.index), k, overlap_cap, exposure_cap)
+    tset = set(today); rest = [i for i in book.index if i not in tset and ok[i]]; fill = [i for i in exp40_all if i not in tset and i not in set(rest)]
+    today90 = today + (rest + fill)[:entries - len(today)]
     union, seen = [], set()
     for a, b in zip(book.index, pool_order.index):
         for i in (a, b):
@@ -91,13 +105,20 @@ def main(run, entries, k, out_root):
         "blend-q99": (list(blend_order.index[:entries]), {"model": "z(learned_pool) + z(sim_q99, incumbent selection bank)", "historical_K30_vs_DEMAX": "+2.51", "historical_K80_vs_DEMAX": "+2.00"}),
         "union": (union, {"model": "DEMAX and learned-pool interleaved (prefix K = DEMAX K/2 + learned K/2)", "historical_K30_vs_DEMAX": "+3.08", "historical_K80_vs_DEMAX": "+1.92"}),
         "learned-div5": (greedy_div(list(pool_order.index), lineups, entries, 5), {"model": "greedy by learned_pool, pairwise overlap <= 5", "historical_K30_vs_DEMAX": "+5.65", "historical_K80_vs_DEMAX": "+2.66"}),
-        "blend-div5": (greedy_div(list(blend_order.index), lineups, entries, 5), {"model": "greedy by blend_q99, pairwise overlap <= 5", "historical_K30_vs_DEMAX": "+3.65", "historical_K80_vs_DEMAX": "+2.72"})}
+        "blend-div5": (greedy_div(list(blend_order.index), lineups, entries, 5), {"model": "greedy by blend_q99, pairwise overlap <= 5", "historical_K30_vs_DEMAX": "+3.65", "historical_K80_vs_DEMAX": "+2.72"}),
+        "learned-div5-exp40": (exp40_all, {"model": f"greedy by learned_pool, pairwise overlap <= {overlap_cap}, single-player exposure <= {exposure_cap:.0%}", "historical_K30_vs_DEMAX": "+6.07", "historical_K80_vs_DEMAX": "+3.17"}),
+        "today-30": (today, {"model": f"TODAY'S PRODUCT: first {k} of learned-div5-exp40 over the whole pool (HARD-vetted players excluded: {sorted(excl)})", "historical_K30_vs_DEMAX": "+6.07"}),
+        "today-90": (today90, {"model": f"today-30 first, then the paid book's remaining lineups in expected-max order (then learned-div5-exp40 fill)", "historical_K30_vs_DEMAX": "+6.07 (prefix 30)"})}
     summary = {"source_run": str(run), "pool_candidates": int(len(cands)), "entries": entries, "k": k, "production_generated_at": gen_at, "feature_coverage_players": coverage, "built_utc": datetime.now(UTC).isoformat(), "books": {}}
     for name, (order, extra) in books.items():
         extra = {**extra, "source_cand_ids": [int(cands.cand.iloc[i]) for i in order], "overlap_with_paid_book": len(set(order) & demax_set), f"overlap_top{k}_with_paid_top{k}": len(set(order[:k]) & set(book.index[:k])),
                  "mean_sim_q99": float(cands.sim_q99.iloc[order].mean()), f"mean_sim_q99_top{k}": float(cands.sim_q99.iloc[order[:k]].mean()), "mean_sim_p200": float(cands.sim_p200.iloc[order].mean()),
                  "tags": cands.tag.iloc[order].value_counts().to_dict(), "mean_salary": float(cands.salary.iloc[order].mean()), f"concentration_top{k}": concentration(order, lineups, k), "concentration_all": concentration(order, lineups, entries)}
         write_book(out, name, [lineups[i] for i in order], fr, run, extra); summary["books"][name] = {kk: v for kk, v in extra.items() if kk != "source_cand_ids"}
+    ex = Counter(q for i in today for q in lineups[i]); nm = fr.display_name.astype(str); ps = fr.pos.astype(str); tm = fr.team.astype(str)
+    lines = [f"# today-30 exposure (single-player cap {exposure_cap:.0%} = {math.ceil(exposure_cap * k)} of {k}; pairwise overlap cap {overlap_cap})", "", "| player | pos | team | salary | in lineups | share |", "|---|---|---|---:|---:|---:|"]
+    lines += [f"| {nm[q]} | {ps[q]} | {tm[q]} | {int(fr.salary[q])} | {c_} | {c_ / k:.0%} |" for q, c_ in ex.most_common()]
+    (out / "today-30" / "exposure.md").write_text("\n".join(lines) + "\n"); summary["today_30"] = {"cand_ids": [int(cands.cand.iloc[i]) for i in today], "excluded_players": sorted(excl), "eligible_candidates": int(ok.sum()), "exposure_top": [(nm[q], c_) for q, c_ in ex.most_common(8)]}
     summary["paid_book"] = {f"concentration_top{k}": concentration(list(book.index), lineups, k), "concentration_all": concentration(list(book.index), lineups, entries), "mean_sim_q99": float(book.sim_q99.mean()), f"mean_sim_q99_top{k}": float(book.sim_q99.head(k).mean()), "mean_sim_p200": float(book.sim_p200.mean()), "tags": book.tag.value_counts().to_dict()}
     cands.assign(learned_book=book.learned_book.reindex(cands.index), learned_pool_pos=cands.learned_pool.rank(ascending=False).astype(int), blend_pos=cands.blend_q99.rank(ascending=False).astype(int)).drop(columns=["names", "all_tags"]).to_csv(out / "candidate_scores.csv", index=False)
     pos = {}
@@ -109,5 +130,6 @@ def main(run, entries, k, out_root):
     (out / "summary.json").write_text(json.dumps(summary, indent=1) + "\n"); print(json.dumps(summary, indent=1)); print("books under", out)
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(); ap.add_argument("run"); ap.add_argument("--entries", type=int, default=90); ap.add_argument("--k", type=int, default=30); ap.add_argument("--out-root"); a = ap.parse_args()
-    main(a.run, a.entries, a.k, a.out_root)
+    ap = argparse.ArgumentParser(); ap.add_argument("run"); ap.add_argument("--entries", type=int, default=90); ap.add_argument("--k", type=int, default=30); ap.add_argument("--out-root")
+    ap.add_argument("--exclude-players", default="", help="comma-separated dk_player_ids (HARD-vetted) excluded from every pool-level selection"); ap.add_argument("--overlap-cap", type=int, default=5); ap.add_argument("--exposure-cap", type=float, default=0.40); a = ap.parse_args()
+    main(a.run, a.entries, a.k, a.out_root, [x.strip() for x in a.exclude_players.split(",") if x.strip()], a.overlap_cap, a.exposure_cap)
