@@ -119,6 +119,18 @@ book (2 min) and emits `upload-<run>-nov-d1600-*` CSVs (ranks 1–7 / 8 / 9–11
 from Saturday's D1600 pool: `/home/erich/week1-sunday/nov-placeholder-D1600/` (overlap with the DEMAX book 55/80;
 sim E[max] 179.4 vs 180.5 incumbent, 198.8 vs 198.4 hsim). Graded Monday as its own book either way.
 
+## 2e. Front-30 hybrid offered for the entered set (operator's choice; hypothesis-level, replicated on two opened samples)
+
+Rule: keep the selector's greedy core (ranks 1–15) and fill the remaining 15 with the broadest lineups of ranks
+16–90 (most distinct games, then fewest from any one game, then greedy rank). Mean top-30 realized max vs plain
+greedy-30: **+2.38** on the 72 PREREG-083 books (wins 35% / losses 22%), **+1.45** on the 216 fresh PREREG-094
+control books (32% / 26%); core-20 +1.63 / +0.54; broad-alone +0.72 / +0.13. Direction matches the Neo4j census
+(broad 200+ lineups under-selected). Not preregistered — an informed tie-break, not proof. Tool
+`scripts/week1_hybrid30.py`; the Sunday build emits `hybrid15-*` slices (Milly 1–19, Play-Action 20–26, Q6 27,
+Q5 28–30, plus all-30) beside the plain `k30-*` slices from the same K90; the operator picks one set. The hybrid is
+built on the run-dir (P_CTRL) K90; with no Q/D/O designations on this slate P_MIX ≈ P_CTRL. Every variant is
+settled Monday against the entered set.
+
 ## 3. Sunday sequence (times CT)
 
 | time | step |
