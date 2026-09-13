@@ -84,6 +84,20 @@ weekly max K30 172.8 vs K57 178.5 vs K80 181.4; weeks ≥200 3 / 9 / 14 of 72; �
 diversification order, not a quality order (mean realized score flat from 120.5 at ranks 1–10 to 116.6 at
 58–80; the slate's best lineup sits at median rank 38, in the top 30 only 41% of the time).
 
+## 2c. Ordering shadows (frozen before lock, graded Monday) — the only legitimate "sort better" experiment
+
+Descriptive read of the opened PREREG-083 books (72 K80 books with per-lineup simulated stats): no simulator
+ordering beats the greedy order — top-30 max: greedy 171.1, sim-mean 171.0, P≥220 170.8, q99 169.9, random
+169.5; the realized best lands at position 33–38 under every ordering (random 40.5); within-book Spearman of
+realized score with the simulated mean +0.22, falling to +0.10 for P≥230. Sorting on the current simulator is not
+a lever; only new pre-lock information could be. Prospective test: `scripts/week1_ordering_shadows.py` freezes
+the top-30 sets of ten orderings (greedy = the entered layout, inc/hsim mean, inc/hsim q99, inc P≥200, hsim
+P≥220, PREREG-060 novelty ladder over the book, broad phenotype, seeded random) on the Sunday K90 (the Sunday
+script writes `/home/erich/week1-sunday/ordering_shadows-<run>-k30.json`); Monday each set's realized maximum
+is compared with the entered 30. Tonight's outcome-blind placeholder on the DST-fixed D800 book:
+`reports/week1-ordering-shadows/placeholder-D800K80-20260912T1922Z-e7255e9-k30.json` (greedy top-30 has the
+highest simulated E[max] under the incumbent law, 172.6 vs 167.6–171.8; NOV ladder highest under hsim, 188.5).
+
 ## 3. Sunday sequence (times CT)
 
 | time | step |
