@@ -284,6 +284,12 @@ agent or developer:
   projected-≥8 inactives had any lock-time flag → half are availability-judge territory (P_MIX), half need T-90
   inactives / late swap. Placeholder $200 salaries: two player-weeks in the panel, huge on their slates (README
   deficiency row; Week-2 panel amendment).
+- **11:50Z: fresh Week-1 projections deployed and generated.** Image `week1-live-193e1b44d2b4` (build `91996cf0`,
+  digest `sha256:f630fc8c…`) from `193e1b44`; `project-slate` job generation 67; execution `project-slate-ft7z5`
+  succeeded; `player_projections` 2026 W1 `generated_at 2026-09-13 11:50:22Z`, 465 rows (32 DST, 5 slate ids — the
+  played NE/SEA/SF/LA players are gone, the Sun–Mon group is now the largest kept pool). The 09:10 CT lab build and
+  the T-70 rebuild centre on these instead of the 09-08 rows. Other jobs (`build-features`, app) still run the
+  older image; move them after Week 1.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
