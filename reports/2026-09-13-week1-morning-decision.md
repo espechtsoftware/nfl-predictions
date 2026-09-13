@@ -318,3 +318,16 @@ selector; at most it is a re-sort of the expected-max book (RESORT/UNION ≈ +0.
 frozen: `TODAY-30-LATEST.md` now names the **vetted paid top-30** (`upload-K90-<stamp>-paid-vetted-30.csv`); the learned
 books stay as shadows for Monday's settlement. Lesson for the ledger: a pool-level selector must be tested at the
 generator's real dose before adoption; the small-pool corpus over-stated it by ~9 points at K30.
+
+## §2k — PREREG-093 first read (14:35Z): the 3200 rung passes both contrasts; the Sunday dose ladder still says 800
+
+Amended reader (amendment 1, repair shards unioned; bank 931 repaired with rep2021 + rep2022), three complete banks.
+GLOBAL_WEMAX_PROXY, family level 0.9833: **D1600 − D800 +0.00242** [−0.00527, +0.00789], bank 931 negative →
+UNRESOLVED (replicates PREREG-090's null on the 1600 rung); **D3200 − D800 +0.00898** [+0.00169, +0.01707], every bank
+and every LOSO positive → **PASS**; **D3200 − D1600 +0.00655** [+0.00171, +0.00997], every bank and LOSO positive →
+**PASS**. Frozen ladder: 3200 requires the 1600 rung to pass (in 090 or here) — it did not — so the paid dose stays
+**800** today (no dose env written; the T-70 rebuild runs the P_MIX D800 K80 path). Consequence 5 already holds: the
+K90 nested book IS the live D3200 stream, so the entered vetted paid top-30 comes from the 3200 pool and the D3200 book
+is in the Week-1 shadow set. The 3200 rung is the first dose above 800 to pass both its contrasts; it becomes the Week-2
+dose candidate, decided by prospective settlement plus PREREG-095 (running: 3200 × {DEMAX, NOV}). Transcript on the
+amend4 branch (`results/read-transcripts/prereg093-first-read-transcript.txt`).
