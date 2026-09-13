@@ -331,3 +331,26 @@ K90 nested book IS the live D3200 stream, so the entered vetted paid top-30 come
 is in the Week-1 shadow set. The 3200 rung is the first dose above 800 to pass both its contrasts; it becomes the Week-2
 dose candidate, decided by prospective settlement plus PREREG-095 (running: 3200 × {DEMAX, NOV}). Transcript on the
 amend4 branch (`results/read-transcripts/prereg093-first-read-transcript.txt`).
+
+## §3 — Entry mechanics and the final pre-lock build (15:35–16:10Z)
+
+- **Reserved-entry layout.** The operator holds 90 reserved entries (Millionaire 57 / Play-Action 20 / FFWC Q6 3 / FFWC Q5 10)
+  under one placeholder lineup. DraftKings edits reserved entries only through its own entries export (`DKEntries.csv`:
+  Entry ID, Contest Name, Contest ID, Entry Fee, QB..DST, player pool). There is no authenticated DK API in the system
+  (the 09-09 "lineups-API capture" was a one-shot DevTools read through the operator's browser; entry IDs were not kept).
+  New tooling: `scripts/week1_fill_dk_entries.py` fills the export positionally per contest (keepers = the vetted top-30
+  first: 19/7/1/3, then vetted ranks 31–90 as fill lineups to withdraw) and writes KEEP/WITHDRAW entry-id lists;
+  `scripts/week1_watch_dk_entries.sh` fills automatically whenever the export appears in the Windows Downloads folder or
+  the ENTER lineups change. The keep/withdraw entry IDs are positional and never change across rebuilds.
+- **T-70 double build.** The original 15:50Z rebuild task was alive after all (its sleeper was not visible to my process
+  scan), so it ran concurrently with the re-armed copy: two identical K90 books (same seeds, same inputs), run ids
+  `20260913t1550z-t70-e7255e9` (complete) and `20260913t1550z-e7255e9` (vetting/composite/hybrid steps failed on
+  collisions; the chain's own vetting succeeded). No harm: identical books, the chain processed both.
+- **Both T-70 builds used the 15:04Z salary pull — before the 10:30 CT inactives.** Live DK statuses at 16:03Z showed 77
+  newly OUT players, 24 of them in the build's eligible pool (Kamara, Sean Tucker, DJ Giddens, McMillan, …); none was in
+  the 90 filled entries. After the 16:00Z ingest (228 OUT/IR rows) and the 16:03Z projections, a final K90 build ran
+  (`20260913T160405364118Z`, exit 0 at 16:08Z): removed OUT 135 / IR 41; the chain re-vetted it (no HARD players) and the
+  watcher re-filled the operator's export at 16:09Z. The refreshed 90 share only one lineup with the 15:50Z book (the
+  universe change re-bases the generation RNG), contain no inactive player, and the keep/withdraw IDs are unchanged.
+  Lesson for the runbook: the T-70 build must pull salaries itself (or wait for the :00 ingest after 10:30 CT) — a 10:50 CT
+  build on a 10:04 CT pull misses the inactives by construction.
