@@ -303,3 +303,18 @@ limited to today — KEEP the learned today-30 iff mean delta > 0 and ≥ 3 of 4
 top-30. The watcher (`/home/erich/week1-sunday/watch_116.sh`) reads the bank when it completes (or at 16:10Z on the
 complete shards), writes `prereg096_verdict.env`, and re-processes the newest live run so `TODAY-30-LATEST.md` reflects
 the verdict; the chain applies the same verdict to the T-70 rebuild. Read expected ~14:40–15:00Z.
+
+### §2j.3 — PREREG-096 read (14:26Z): **REVERT** — the learned rule does not beat expected-max on real 800-candidate pools
+
+Bank 960 completed 72/72 (execution `lab-run-fast-fbmwf`, 23 min). Frozen primary, K30 realized max of today's rule vs the
+expected-max book's first 30: **−2.83** [−10.21, +5.11] (season-clustered 90%), wins .40 / losses .47; by season
+2021 −3.4, 2022 −17.0, 2023 −3.4, **2024 +12.5**. K80: +0.34 (flat). 2021–2022 (untouched by rule selection): −10.2.
+Threshold events at K30: 194+ 12 vs 12, 200+ 4 vs 6, 220+ 1 vs 4. Every descriptive variant is also ≤ 0 except the two
+that keep the expected-max order (UNION +0.5, RESORT +0.6). Full read: `reports/2026-09-13-prereg096-read.md`.
+
+Reading: the 200-candidate Neo4j result (+6 at K30, two seasons) **did not transfer** to 800-candidate pools — 2024 still
+carries a large positive effect, 2022 a large negative one, and the mean is negative. The learned score is not a
+selector; at most it is a re-sort of the expected-max book (RESORT/UNION ≈ +0.5, hypothesis-level). Consequence applied as
+frozen: `TODAY-30-LATEST.md` now names the **vetted paid top-30** (`upload-K90-<stamp>-paid-vetted-30.csv`); the learned
+books stay as shadows for Monday's settlement. Lesson for the ledger: a pool-level selector must be tested at the
+generator's real dose before adoption; the small-pool corpus over-stated it by ~9 points at K30.
