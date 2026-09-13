@@ -785,3 +785,17 @@ def test_live_projection_accepts_equivalent_team_alias(monkeypatch):
     result = run_projections.upcoming_slate_features(2026, 1)
 
     assert result.display_name.tolist() == ["Rams Player"]
+
+
+def test_upcoming_slate_pool_ignores_draft_groups_whose_first_game_started():
+    """2026-09-13: DK's full-week classic group (all 16 games) stopped being pulled once
+    Wednesday's game kicked off, but its Monday game kept it 'upcoming' under a MAX(game_start)
+    rule and, being the largest group, it supplied a stale pool with already-played teams.
+    A draft group is enterable only until its FIRST game starts."""
+    import inspect
+
+    from nfl_dfs.inference import run_projections
+
+    source = inspect.getsource(run_projections.upcoming_slate_features)
+    assert "HAVING MIN(game_start) >= CURRENT_TIMESTAMP()" in source
+    assert "HAVING MAX(game_start) >= CURRENT_TIMESTAMP()" not in source

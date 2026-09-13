@@ -263,6 +263,19 @@ agent or developer:
   forward) has AUC .46–.63 for 30+/40+ games vs .81–.89 for the projection's own tail and adds nothing in a
   walk-forward logistic — closed at the screen stage (`reports/2026-09-13-knn-boom-similarity-screen.md`).
   Operator also cut Week-1 entries to 30 (ranks 1–30 of the nested book, all four contests); memo §2b/§2c.
+- **12:05Z: production projection failure diagnosed and fixed (operator chose fix + cloud deploy).** `project-slate`
+  had failed every run since 09-08 (11:00Z today: "57 active slate players have no current player_week_inference
+  row"): DK's full-week classic group `153054` (all 16 games) stopped being pulled after Wednesday's kickoff but
+  its Monday game kept it under `HAVING MAX(game_start) >= now`, and as the largest group it won the per-player
+  pool selection — a stale snapshot with NE/SEA/SF/LA players. One-line fix in `run_projections.upcoming_slate_features`
+  (`HAVING MIN(game_start) >= CURRENT_TIMESTAMP()`), regression test in `tests/test_week1_source_readiness.py`;
+  deploying via `scripts/build_week1_live_image.sh` → `project-slate` image update → execute, so the 09:10 CT lab
+  build centres on Sunday projections instead of Tuesday's (all Saturday books were on 09-08 projections). Also:
+  `ingest-nflverse` fails daily on the unpublished `ftn_charting_2026.parquet` (404) AFTER rosters/injuries load —
+  README deficiency rows added; a new-season FTN tolerance is a Week-2 fix. PREREG-093 bank 931 lost 3 tasks to
+  Cloud Run internal errors (retries exhausted); the 115 sequencer was stopped and a host chain
+  (`/home/erich/week1-sunday/after_master2_repair_then_115.sh`) repairs 113's banks on the 09z image after
+  master-2 exits, then re-arms 115.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's

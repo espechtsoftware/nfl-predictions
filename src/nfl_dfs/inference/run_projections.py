@@ -168,10 +168,14 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
             AND CAST(s.season AS INT64) = @season
         ),
         pulls AS (
+          -- A draft group is enterable only until its FIRST game kicks off.
+          -- DK's full-week classic group keeps a Monday game (so MAX would keep
+          -- it) but stops being pulled once Wednesday's game starts; selecting
+          -- it served a stale pool with already-played teams (2026 Week 1).
           SELECT draft_group_id, MAX(pulled_at) AS ts
           FROM eligible_salaries
           GROUP BY draft_group_id
-          HAVING MAX(game_start) >= CURRENT_TIMESTAMP()
+          HAVING MIN(game_start) >= CURRENT_TIMESTAMP()
         ),
         latest AS (
           SELECT DISTINCT s.dk_player_id, s.display_name, s.salary,
