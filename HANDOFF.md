@@ -195,6 +195,14 @@ agent or developer:
   SIS: `sis-download verify-login` fails (session cookie expired; renewal is the operator's interactive
   `sis-download login --terminal-credentials --fresh`); by the frozen 2026 contract the first in-season SIS
   acquisition is `pass-tail-weekly --target-week 5` (source weeks 1–4), so no Week-1 SIS row is missing.
+- **01:15Z: PREREG-091 READ** (banks 910–912 all 72/72; reader `dbf031fb` at `578a342f`; transcript sha256
+  `f06e0664…` + LEDGER row on `lab/prereg090-amend4-20260912` @ `ec64336`): **SPREAD4 UNRESOLVED** (−0.00098
+  [−0.011, +0.007], banks −/+/−, raw −0.30) although the construction law engaged exactly as designed (book 4.99
+  games / 4.02 max-per-game vs 4.66 / 4.73, turnover .65) — broad books are produced, not rewarded; **M1 column
+  pricing FAIL vs the equal-budget total-order reference** (−0.00712 [−0.0124, −0.0026], all banks and all LOSO
+  negative) and UNRESOLVED vs D800; descriptive D1000_TOTAL − D800 +0.0054 (banks +/+/0). Frozen consequence 3:
+  no adoption, no sleeve, no Week-1 spread shadow beyond the already-built frozen shadow arms. 112 gate
+  `112m920r1-20260913T011124Z` = `lab-run-qtmhs` launched 01:12Z.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's

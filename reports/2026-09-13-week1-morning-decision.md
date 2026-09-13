@@ -17,7 +17,8 @@ when the three r2 banks complete (expected ~21:00–22:00Z). Nothing here opens 
   the K90 layout compose: Milly gets P_MIX ranks 1–57; the other three contests take K90 ranks 58–90 of the
   same-seed build (P_CTRL-equivalent rows, since P_MIX is defined on K80 only).
 - **Shadows (frozen, never entered):** D400_DEMAX, D800_WEMAX, direct-tail, DT-union, spread-4, NOBB sleeve,
-  and — if PREREG-090 does not move the dose — D1600.
+  D1600 and D3200 (PREREG-090 did not move the dose; PREREG-091 read 01:15Z: spread-4 UNRESOLVED, column
+  pricing FAIL vs its dose reference — no adoption, no sleeve).
 
 ## 2. The dose decision (fill from the frozen reader)
 
