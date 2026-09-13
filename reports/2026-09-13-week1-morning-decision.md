@@ -98,6 +98,15 @@ is compared with the entered 30. Tonight's outcome-blind placeholder on the DST-
 `reports/week1-ordering-shadows/placeholder-D800K80-20260912T1922Z-e7255e9-k30.json` (greedy top-30 has the
 highest simulated E[max] under the incumbent law, 172.6 vs 167.6–171.8; NOV ladder highest under hsim, 188.5).
 
+**Additional ordering families (added 10:30Z, frozen the same way):** structural — salary desc, distinct teams desc,
+max-per-team asc, 3-RB first, concentrated (control); player-level — prior-season DK points per game sum (the
+"proven performers" heuristic), per-player P(≥25) sums under each law, cross-law agreement, player-novelty greedy;
+reverse-greedy and random as controls. Descriptive hints on the 72 opened PREREG-083 books (hypothesis only):
+top-30 max broad 172.4, salary desc 172.4, max-team asc 172.4, teams desc 171.9, spread 171.5, 3-RB 171.1, greedy
+171.1, sim-mean 171.0; concentrated 169.6, 4-WR first 169.6, 2-TE first 169.4, reverse greedy 169.2, salary asc
+166.6; random 169.4. Within-book Spearman with realized score ≈ 0 for every structural feature (salary .02, games
+.03, teams .04) vs +.22 for the simulated mean. Tool: `scripts/week1_ordering_shadows.py` v2 (20 orderings).
+
 ## 2d. Optional real-entry trial offered to the operator: `D1600_NOV` on the non-Milly entries
 
 The only overnight mechanism that scaled with supply (PREREG-094 interaction, near-miss) can be entered as a
