@@ -276,6 +276,14 @@ agent or developer:
   Cloud Run internal errors (retries exhausted); the 115 sequencer was stopped and a host chain
   (`/home/erich/week1-sunday/after_master2_repair_then_115.sh`) repairs 113's banks on the 09z image after
   master-2 exits, then re-arms 115.
+- **12:00Z: low-scorer selection audit** (`reports/2026-09-13-low-scorer-selection-audit.md`, scripts
+  `low_scorer_selection_audit*.py`; opened D800 control books, 216 slate-banks): 18.5% of selected skill players
+  score < 8 and < 40% of projection; **36.8% of lineups carry a zero-point player** (mean 109.8 vs 122.1) and the
+  slate's best lineup does so 20% of the time — worth ≈ +2 points of weekly max, the size of the dose lever.
+  Categories: other bust 32%, thin role 26%, inactive/DNP 17.5%, active-but-0 13%, star bust 9%. Only 50.6% of
+  projected-≥8 inactives had any lock-time flag → half are availability-judge territory (P_MIX), half need T-90
+  inactives / late swap. Placeholder $200 salaries: two player-weeks in the panel, huge on their slates (README
+  deficiency row; Week-2 panel amendment).
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
