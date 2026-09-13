@@ -203,6 +203,10 @@ agent or developer:
   negative) and UNRESOLVED vs D800; descriptive D1000_TOTAL − D800 +0.0054 (banks +/+/0). Frozen consequence 3:
   no adoption, no sleeve, no Week-1 spread shadow beyond the already-built frozen shadow arms. 112 gate
   `112m920r1-20260913T011124Z` = `lab-run-qtmhs` launched 01:12Z.
+- **01:35Z: SIS session renewed by the operator and verified** (`sis-download verify-login` → NFL Player
+  Leaderboards reachable); the frozen in-season pull (`pass-tail-weekly --target-week 5`) is unblocked. Fantasy
+  Points: the operator's plan is the NFL Data Suite; the ownership product is Fantasy Pro (FanShare) and is not
+  included — no collection possible under the current plan; the collector stays ready.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`
   from the cohort worktree, fill `reports/2026-09-13-week1-morning-decision.md` §2, apply PREREG-090's
