@@ -376,3 +376,15 @@ amend4 branch (`results/read-transcripts/prereg093-first-read-transcript.txt`).
   keepers-first fill into the Sunday script; (2) withdrawals cannot be assumed — size reservations to the intended entry
   count; (3) the T-70 build must pull salaries after the 10:30 CT inactives; (4) keep the scratch-swap tool ready from
   11:00 CT through the late window.
+
+## §5 — PREREG-095 first read (22:34Z): 3200 × NOV beats the adopted policy through the dose, not the selector
+
+Amended reader (amendment 1, bank 950 repaired), three banks. (1) `D3200_NOV − D800_DEMAX` **+0.01041** [+0.00415, +0.01842],
+every bank and LOSO positive, W/L 45/27 → **PASS**. (2) `D3200_NOV − D3200_DEMAX` +0.00058 [−0.00275, +0.00364] → UNRESOLVED.
+(3) interaction +0.00064 → UNRESOLVED. Frozen consequence 4: no NOV adoption; the NOV family is closed at its tested form.
+The passing contrast is the dose: with 095's fresh banks the 3200 rung again clears the adopted D800 policy (093: +0.00898).
+
+Supply ladder (per slate-bank, mean over 3 banks): candidates ≥220 **0.14 (D800) → 0.25 (D1600) → 0.50 (D3200)**; pool oracle
+195.5 → 199.5 → 203.9; K80 book weeks with best ≥220: **0 → 0 → 2** (of 72); hits ≥220 across 3 banks 5 → 7 → 8–9. Dose is the
+one lever in the ledger that moves the 220 supply monotonically (roughly doubling per doubling); its book-level conversion is
+small but nonzero. Transcript on the amend4 branch (ccbbff6).
