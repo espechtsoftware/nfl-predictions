@@ -165,6 +165,20 @@ players with reasons; every lineup's tier and move), `vetting.json`, and upload 
 Sunday signals: 7 players flagged (Odunze, Love Questionable + limited; Chase knee DNP but props posted → soft;
 Pierce, Croskey-Merritt limited; Waller, Gadsden depth 3); ranks 13 and 22 demoted out of the top 30, 31 and 32 in.
 
+## 2h. Post-selection player-scoring resort (operator request, implemented 12:15Z; runs after vetting in both builds)
+
+`scripts/week1_player_score.py`: every player in the book gets an independent projected score — within-position
+z-scores of production `proj_points` (.20), `proj_p90` (.15), `p_20_plus` (.20), market-implied points from the latest
+prop fetch (.20), Sunday-vs-Saturday market movement (.05), the corrected-hsim (.10) and incumbent (.05) player q99
+from this run's banks, prior-season DK ppg (.05), minus the vetting risk weight (hard flags exclude the lineup from
+the top); lineup score = sum over the nine slots; the book is re-sorted on it (frozen weights v1). Outputs:
+`composite-<run>/{book.csv, player_scores.csv, lineup_scores.csv, composite_receipt.json}` and upload CSVs
+`upload-<run>-composite-{milly 1-19, playaction 20-26, ffwc-q6 27, ffwc-q5 28-30, all30, all90}`. Placeholder run on
+Saturday's D800 book with today's data: top players Chase 2.22, St. Brown 2.18, Gibbs 1.98, McBride 1.85, Jaguars
+1.52; the composite top-30 overlaps the greedy top-30 in 13 lineups (17 promoted from ranks 31–73). Prospective
+rule: this is one more frozen ordering graded Monday; if it beats the entered set over the coming weeks, the
+operator widens the entry count so more of its top bubbles into the paid book.
+
 ## 3. Sunday sequence (times CT)
 
 | time | step |
