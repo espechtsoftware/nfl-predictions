@@ -44,6 +44,13 @@ verifier → publish → independent reopen on the atlas job, driven from the wo
 operator step: fast-forward `main` to that branch commit (the controller and the container both require Commit B ==
 `origin/main`).
 
+**Evening update (20:10Z).** The same-path image cleared defect 8: the worker passed the candidate-authority
+reopen and the capture-plan replay in the container. It then failed closed on **defect 10**, a data invariant in the
+pinned component producer that treats SIS coverage *yards* as a count (eight real rows in 2022–2025 carry negative
+yards on a completion). Fixing the invariant means re-freezing the capture-plan lock, which is the chain blocked by
+defect 5. Decision options are in HANDOFF (A: repair defect 5 by content comparison + fix the invariant + re-freeze;
+B: re-establish the G0 authority; C: stop and record the blocker).
+
 Sign-off needed on: the option above; the endpoint family in §4 (points and finish co-primary at K20); and the
 season set (§2: the ablation's 54 slates are 2023–2025, not the lab's 2022–2024 panel).
 
