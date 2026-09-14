@@ -271,11 +271,14 @@ def _validate_settled_time(values: pd.Series) -> None:
 def _validate_ownership_against_entries(
     entries: pd.DataFrame,
     ownership: pd.DataFrame,
-) -> None:
+    field_size: int | None = None,
+) -> list[str]:
+    """DraftKings' %Drafted denominator is the whole submitted field, including entries whose lineup is blank
+    (2026-09-14); `field_size` carries that count so the cross-check reproduces DK's shares exactly."""
     appearances: Counter[str] = Counter()
     for slots_json in entries.lineup_slots_json:
         appearances.update(item["player"] for item in json.loads(slots_json))
-    denominator = float(len(entries))
+    denominator = float(field_size if field_size else len(entries))
     derived = {
         name: count * 100.0 / denominator
         for name, count in appearances.items()
@@ -285,17 +288,27 @@ def _validate_ownership_against_entries(
     unexpected = sorted(
         name for name in set(summary) - set(derived) if float(summary[name]) > 0.011
     )
-    mismatched = sorted(
-        name
-        for name in set(derived) & set(summary)
-        if abs(float(summary[name]) - derived[name]) > 0.011
-    )
+    # 2026-09-14: DK's own summary can be short by one entry for a player who appears in two roster positions in a
+    # small field (Week-1 qualifier: two players listed at 0.02% while two entries each hold them). A discrepancy of
+    # at most two entries' worth on a player below 1% is tolerated and RECORDED; anything larger fails closed.
+    one_entry = 100.0 / denominator
+    minor: list[str] = []
+    mismatched: list[str] = []
+    for name in sorted(set(derived) & set(summary)):
+        gap = abs(float(summary[name]) - derived[name])
+        if gap <= 0.011:
+            continue
+        if gap <= 2.0 * one_entry + 0.011 and float(summary[name]) < 1.0:
+            minor.append(name)
+        else:
+            mismatched.append(name)
     if missing or unexpected or mismatched:
         raise ValueError(
             "ownership summary does not reproduce the complete entry field: "
             f"missing={missing[:3]} unexpected={unexpected[:3]} "
             f"pct_mismatch={mismatched[:3]}"
         )
+    return minor
 
 
 def _validate_full_field_payload(
@@ -313,10 +326,16 @@ def _validate_full_field_payload(
         )
     entries = _parse_entries_frame(raw, path)
     ownership = _parse_standings_frame(raw, path)
-    if len(entries) != expected_entries:
+    # 2026-09-14: DraftKings' full-field export lists entries whose lineup was never filled (or was emptied) as rows
+    # with an EntryId and Rank but a blank Lineup; they are real entries of the field at zero points, so the exact
+    # field count is parsed entries + blank-lineup entries.  They carry no roster and are excluded from the entry
+    # frame, but they are counted and recorded in the receipt.
+    blank_mask = raw["EntryId"].notna() & raw["Rank"].notna() & raw["Lineup"].isna()
+    blank_lineup_entries = int(blank_mask.sum())
+    if len(entries) + blank_lineup_entries != expected_entries:
         raise ValueError(
             f"full-field count mismatch: expected {expected_entries}, "
-            f"parsed {len(entries)}"
+            f"parsed {len(entries)} with lineups + {blank_lineup_entries} blank-lineup entries"
         )
     if entries.entry_id.eq("").any():
         raise ValueError("full-field capture requires a non-empty EntryId on every row")
@@ -336,13 +355,16 @@ def _validate_full_field_payload(
 
     # DK competition rank is one plus the number of entries with a strictly
     # greater score. This catches plausible-looking truncated/cross-wired rows.
-    score_counts = entries.points.value_counts().sort_index(ascending=False)
+    # 2026-09-14: DraftKings scores are two-decimal values, but the export serialises them through single precision
+    # (217.05998 next to 217.06 for the same score), so ranks are reproduced from points rounded to DK's precision.
+    points_2dp = entries.points.astype(float).round(2)
+    score_counts = points_2dp.value_counts().sort_index(ascending=False)
     expected_rank_by_score: dict[float, int] = {}
     n_better = 0
     for score, count in score_counts.items():
         expected_rank_by_score[float(score)] = n_better + 1
         n_better += int(count)
-    expected_ranks = entries.points.map(
+    expected_ranks = points_2dp.map(
         lambda score: expected_rank_by_score[float(score)]
     )
     if not entries["rank"].eq(expected_ranks).all():
@@ -354,13 +376,15 @@ def _validate_full_field_payload(
         raise ValueError("ownership %Drafted values must be between 0 and 100")
     roster_format = str(entries.roster_format.iloc[0])
     expected_mass = 900.0 if roster_format == "classic" else 600.0
+    # blank-lineup entries carry no players, so DK's summed %Drafted is the full mass scaled by the filled share
+    expected_mass *= len(entries) / float(len(entries) + blank_lineup_entries)
     ownership_mass = float(ownership.pct_drafted.sum())
     if abs(ownership_mass - expected_mass) > 2.0:
         raise ValueError(
             f"ownership mass {ownership_mass:.3f} is inconsistent with "
             f"{roster_format} expected mass {expected_mass:.1f}"
         )
-    _validate_ownership_against_entries(entries, ownership)
+    ownership_minor_mismatches = _validate_ownership_against_entries(entries, ownership, field_size=len(entries) + blank_lineup_entries)
 
     source = Path(path)
     dupes = entries.groupby("duplicate_key").size()
@@ -375,6 +399,8 @@ def _validate_full_field_payload(
         "distinct_lineups": int(len(dupes)),
         "max_duplicate_count": int(dupes.max()),
         "winner_score": float(entries.loc[entries["rank"].eq(1), "points"].max()),
+        "blank_lineup_entries": blank_lineup_entries,
+        "ownership_minor_mismatches": ownership_minor_mismatches,
     }
 
 
@@ -441,11 +467,15 @@ def _archive_bytes_create_only(
     from google.cloud import storage
 
     blob = storage.Client(project=settings.project).bucket(bucket_name).blob(object_name)
+    # 2026-09-14: a 167 MB full-field export exceeded the single-request upload timeout; a chunked (resumable)
+    # upload with a long timeout keeps the create-once semantics (if_generation_match=0) and survives slow links.
+    blob.chunk_size = 16 * 1024 * 1024
     try:
         blob.upload_from_string(
             payload,
             content_type=content_type,
             if_generation_match=0,
+            timeout=900,
         )
         return "created"
     except PreconditionFailed:

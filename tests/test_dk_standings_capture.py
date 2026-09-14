@@ -227,3 +227,70 @@ def test_showdown_duplicate_key_preserves_captain_assignment():
         "FLEX Dalton Kincaid FLEX Player Five FLEX Bills"
     )
     assert oi._duplicate_key(a, "showdown") != oi._duplicate_key(b, "showdown")
+
+
+def _write_full_field_with_blank_entry(path: Path) -> Path:
+    """DraftKings lists never-filled entries with an EntryId and Rank but a blank Lineup (2026-09-14: 1,314 of them
+    in the Week-1 Millionaire export). They are part of the field at zero points."""
+    rows = 9
+    data = {
+        "Rank": ["1", "2", "3", "4", "5"] + [None] * (rows - 5),
+        "EntryId": ["0001", "0002", "0003", "0004", "0005"] + [None] * (rows - 5),
+        "EntryName": ["one", "two", "three", "four", "blank"] + [None] * (rows - 5),
+        "TimeRemaining": ["0"] * 5 + [None] * (rows - 5),
+        "Points": ["200.5", "190.0", "180.0", "170.0", "0"] + [None] * (rows - 5),
+        "Lineup": [LINEUP] * 4 + [None] + [None] * (rows - 5),
+        "Player": [
+            "Quarter Back", "Runner One", "Runner Two", "Wide One",
+            "Wide Two", "Wide Three", "Tight End", "Flex Player", "Defense",
+        ],
+        "Roster Position": ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"],
+        "%Drafted": ["80.00%"] * rows,   # 4 of the 5 submitted entries hold each player: DK divides by the whole field
+        "FPTS": ["20.0"] * rows,
+        "Winnings": ["$1,000", "$100", "$50", "$0", "$0"] + [None] * (rows - 5),
+    }
+    pd.DataFrame(data).to_csv(path, index=False)
+    return path
+
+
+def test_full_field_validation_counts_blank_lineup_entries_toward_the_field(tmp_path):
+    source = _write_full_field_with_blank_entry(tmp_path / "standings.csv")
+    result = oi.validate_full_field_capture(source, expected_entries=5)
+    assert result["blank_lineup_entries"] == 1
+    assert len(result["entries"]) == 4
+    with pytest.raises(ValueError, match="count mismatch"):
+        oi.validate_full_field_capture(source, expected_entries=4)
+
+
+def test_full_field_validation_ranks_ties_at_draftkings_two_decimal_precision(tmp_path):
+    """The export serialises 217.06 as 217.05998 for some entries; tied entries must still reproduce DK's shared rank."""
+    rows = 9
+    data = {
+        "Rank": ["1", "1", "3", "4"] + [None] * (rows - 4),
+        "EntryId": ["0001", "0002", "0003", "0004"] + [None] * (rows - 4),
+        "EntryName": ["one", "two", "three", "four"] + [None] * (rows - 4),
+        "TimeRemaining": ["0"] * 4 + [None] * (rows - 4),
+        "Points": ["217.06", "217.05998", "180.0", "170.0"] + [None] * (rows - 4),
+        "Lineup": [LINEUP] * 4 + [None] * (rows - 4),
+        "Player": ["Quarter Back", "Runner One", "Runner Two", "Wide One", "Wide Two", "Wide Three", "Tight End", "Flex Player", "Defense"],
+        "Roster Position": ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"],
+        "%Drafted": ["100.00%"] * rows,
+        "FPTS": ["20.0"] * rows,
+        "Winnings": ["$1,000", "$1,000", "$50", "$0"] + [None] * (rows - 4),
+    }
+    source = tmp_path / "standings.csv"
+    pd.DataFrame(data).to_csv(source, index=False)
+    result = oi.validate_full_field_capture(source, expected_entries=4)
+    assert result["winner_score"] == pytest.approx(217.06, abs=0.01)
+
+
+def test_ownership_cross_check_rejects_gaps_on_players_above_one_percent(tmp_path):
+    """The one-entry tolerance applies only below 1% ownership; a one-entry gap on a 75%-owned player fails closed."""
+    source = _write_full_field(tmp_path / "standings.csv")
+    raw = oi._read_export(source)
+    entries = oi._parse_entries_frame(raw, source)
+    ownership = oi._parse_standings_frame(raw, source)
+    assert oi._validate_ownership_against_entries(entries, ownership, field_size=4) == []
+    ownership.loc[ownership.display_name.eq("Flex Player"), "pct_drafted"] = 75.0
+    with pytest.raises(ValueError, match="pct_mismatch"):
+        oi._validate_ownership_against_entries(entries, ownership, field_size=4)
