@@ -261,7 +261,17 @@ Findings from the build itself, before any bank has run:
    per-world top-1,000 cutoffs of the sampled field correlate 0.987 with the real field's across 10,000 worlds; the
    sampled field's realized-points cutoffs land at 226.0 / 163.5 against the real 228.2 / 165.5; ownership error
    sum 0.29 of ~9. The first setting (stack 0.55, floor 47k) was 3.6 points soft at the top; raising the salary floor
-   band and the stack propensity closed it (four variants, all recorded in `PREREG-098.md` §Gate). A residual one-signed
+   band and the stack propensity closed it (four variants, all recorded in `PREREG-098.md` §Gate; the adopted one
+   against the frozen bars):
+
+   | criterion | bar | adopted (stack 0.70, floor 48,500–50,000) |
+   |---|---|---|
+   | top-1,000 cutoff correlation across 10,000 worlds | > 0.95 | 0.987 |
+   | top-1,000 mean absolute cutoff difference | < 3 | 2.63 |
+   | realized top-1,000 / cash cutoffs vs real 228.2 / 165.5 | within 5 | 226.0 / 163.5 |
+   | ownership error sum | < 0.5 | 0.291 |
+
+   A residual one-signed
    bias of about −2.4 points remains: real lineups are optimizer-built and projection-correlated, so a field that
    matches ownership marginals is still slightly less sharp than the real thing. Because the arms *rank* candidates,
    a uniform shift does not change what is selected; absolute finish probabilities read slightly optimistic.
@@ -292,17 +302,24 @@ volume (P(220) scales nearly linearly in entries).
 
 ---
 
-## 8. Operational state right now (2026-09-14 11:30Z)
+## 8. Operational state right now (2026-09-14 14:30Z)
 
 - Cloud: PREREG-097 (6,400 rung) banks 970/971/972 launching on the lab lanes via the finish launcher (host script
   `/home/erich/week1-sunday/queue_117_finish.sh`, registered; the original launcher died with the workstation
   shutdown and its registry receipt was adjudicated); read this evening with `scripts/prereg097_report.py`
   (repairs: `/home/erich/week1-sunday/repair_bank.sh`).
-- Cloud, queued: PREREG-098 (the finish objective) — image `prereg09s-7e8126b…` (see the lab branch's
-  `results/prereg09s_image.txt`), sequencer `scripts/arm_118_after_117.sh` waits for the 097 launcher's registry
-  completion and idle lanes, moves both jobs to the 09s image and arms `scripts/queue_118.sh` (mechanics execution
-  → `scripts/prereg098_mechanics_gate.py` must PASS → banks 980/981 → 982). Read with `scripts/prereg098_report.py
-  RUN980 RUN981 RUN982`; the LEDGER row carries the reader's verbatim output.
+- Cloud, queued behind 097: PREREG-098 (the finish objective). Image built: tag `prereg09s-7e8126b9b4c1`, digest
+  `sha256:d8a02797…` (full line in the 098 worktree's untracked `results/prereg09s_image.txt`). The sequencer
+  `scripts/arm_118_after_117.sh` is RUNNING on the host (pid 69162, log `results/arm_118_sequencer.log` in
+  `/home/erich/projects/.nfl2-worktrees/prereg098-finish-20260914`): it waits for the 097 finish launcher's
+  `action=completed` line in the registry log and for both lanes to be idle, updates both jobs to the 09s image with
+  `CODE_SHA` = 7e8126b, and arms `scripts/queue_118.sh` through the registry (mechanics execution `118m980r1` →
+  `scripts/prereg098_mechanics_gate.py` must PASS, or the launcher dies → banks 980/981 → 982, 53 tasks each; launcher
+  log `results/queue_118_launcher.log`). Read once with `scripts/prereg098_report.py RUN980 RUN981 RUN982`; the LEDGER
+  row carries the reader's verbatim output; then update §7 here and `reports/2026-09-14-payout-retro-test.md`.
+  Do not commit to the 098 branch while the launcher is armed (the `CODE_SHA == HEAD` guard). If the workstation is
+  shut down before 097 finishes, both the 097 launcher and this sequencer die: adjudicate the 097 receipt as before,
+  then restart the sequencer with the tag and digest from `results/prereg09s_image.txt`.
 - Warehouse: Week-1 full fields loaded; Week-1 player stats arrive with the nflverse job (which still 404s on FTN
   after loading rosters/injuries — fix the tolerance).
 - Branches, all pushed and clean: production `production/week1-audit-adjust-20260912`; lab
@@ -310,6 +327,10 @@ volume (P(220) scales nearly linearly in entries).
   (LEDGER rows for 093/095/096 with transcripts).
 - Host artifacts (untracked): `/home/erich/week1-sunday/` (tools, ENTER/, ENTERED/ with the operator's entry export
   — entry keys, never commit), `results/2026-09-13/` (the standings exports).
+- What follows, in order: (1) 097 banks terminal → `scripts/prereg097_report.py` from the 097 worktree, LEDGER row;
+  (2) 098 banks terminal → `scripts/prereg098_report.py`, LEDGER row, §7 update; its consequences clause nominates the
+  finish objective for Week 2 only as a shadow book with a projected-ownership field, never as a straight swap of
+  the paid selector; (3) the Week-2 runbook and vetting items below.
 - Runbook fixes queued for Week 2: reserved-entry fill in the Sunday script; withdrawals not assumed; T-70 salary pull
   after the 10:30 inactives; scratch-swap tool live 11:00 CT → late window; practice-status cap in vetting; no
   untested filter on an entered book.
@@ -455,6 +476,8 @@ Capacity: 100 instances / 200 vCPU per region; two 72-task banks at parallelism 
 - `reports/2026-09-14-week1-swaps-and-cheap-players.md` — every manual removal scored, the cheap slots, cheap-boom predictability.
 - `reports/2026-09-14-payout-retro-test.md` — finish-objective selection against the real field (P(top-N) vs expected-max).
 - `reports/2026-07-25-system-study.md` — the 120-addendum ledger; read the last fifteen before proposing anything.
-- Lab: `PREREG-093/094/095/096/097.md` and `LEDGER.md` on the branches above.
+- Lab: `PREREG-093/094/095/096/097/098.md` and `LEDGER.md` on the branches above. `PREREG-098.md` §Gate holds the
+  sampler gate table (four variants); the host gate scripts and per-variant JSON are under
+  `/home/erich/week1-sunday/payout/` (`sampler_gate_variant.py`, `sampler_gate_week1_*.json`, `variants.log`).
 - Memory notes for the assistant (not project truth): operator working style, lab launch lessons, tail target
   supply-bound, learned lineup score, operator DK history, Week-1 resume state.
