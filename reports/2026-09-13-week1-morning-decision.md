@@ -388,3 +388,16 @@ Supply ladder (per slate-bank, mean over 3 banks): candidates ≥220 **0.14 (D80
 195.5 → 199.5 → 203.9; K80 book weeks with best ≥220: **0 → 0 → 2** (of 72); hits ≥220 across 3 banks 5 → 7 → 8–9. Dose is the
 one lever in the ledger that moves the 220 supply monotonically (roughly doubling per doubling); its book-level conversion is
 small but nonzero. Transcript on the amend4 branch (ccbbff6).
+
+## §6 — Official Week-1 result (DraftKings contest-entry-history export, 2026-09-14 morning)
+
+80 entries (v6b): fees $399, winnings $140, net −$259; 18 of 80 cashed (min-cash). Millionaire: best 192.08 (place 34,838 of
+832,342), mean 147.4; Play-Action: best 196.24 (place 4,872 of 158,541); FFWC Q6: best 153.72 (2,093 of 5,000). My box-score
+estimates ran 2.1 points high on average (max error 21.8, late games in progress at capture). Per-lineup official record
+(no entry keys): `reports/week1-entered-book-candidates/official-results-v6b.csv`.
+
+Operator's NFL history in the same export (2020–2026, GPPs only): 1,067 entries, $8,739 in fees, $1,457 won, ROI about
+−83% every season (−65% this week); six contest dates with a 200+ entry out of 182. The decision in
+`2026-09-13-week1-findings-and-recommendations.md` now has its baseline: the finish-objective program must overcome a
+deficit of that size, which no GPP process does; the cash-game alternative (double-ups reward the calibrated mean, which
+this system has) becomes the first thing to measure against the full-standings exports.
