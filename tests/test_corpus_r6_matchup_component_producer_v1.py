@@ -1612,3 +1612,42 @@ def test_sis_defender_views_freeze_shrink_top_two_and_trade_isolation() -> None:
     assert top_two["wide"] == pytest.approx(
         (40.0 * rate_a + 20.0 * rate_b) / 60.0
     )
+
+
+def test_sis_defender_views_accept_negative_yards_but_refuse_negative_counts() -> None:
+    schedule_rows = [_schedule_row(2022, week) for week in range(15, 19)]
+    schedule_rows.append(_schedule_row(2023, 1))
+    games, by_team = producer._schedule_indexes(schedule_rows)
+    lock = next(game["_kickoff"] for game in games if game["_key"] == (2023, 1))
+    kwargs = {
+        "defense": "BBB", "schedule_games": games,
+        "schedule_by_team": by_team, "lock_time": lock,
+    }
+
+    def row(**overrides: object) -> dict[str, object]:
+        base: dict[str, object] = {
+            "season": 2022, "week": 15, "alignment": "wide",
+            "defense": "BBB", "defender_player_id": "def-a",
+            "coverage_snaps": 10, "targets": 2, "completions": 1,
+            "yards": 10, "touchdowns": 0,
+        }
+        base.update(overrides)
+        return base
+
+    # A completion for negative yards is real football data (2022 W9 LA:
+    # 1 completion, -2 yards) and must be consumed, not refused.
+    unit, top_two = producer._sis_defender_views(
+        sis_rows=[row(), row(week=16, yards=-2)], **kwargs
+    )
+    assert isinstance(unit, dict) and isinstance(top_two, dict)
+    assert (unit, top_two) == producer._sis_defender_views(
+        sis_rows=[row(), row(week=16, yards=-2)], **kwargs
+    )
+    for field in ("completions", "targets", "touchdowns", "coverage_snaps"):
+        with pytest.raises(
+            producer.CorpusR6MatchupComponentProducerV1Error,
+            match="SIS defender counts must be nonnegative",
+        ):
+            producer._sis_defender_views(
+                sis_rows=[row(), row(week=16, **{field: -1})], **kwargs
+            )
