@@ -31,9 +31,9 @@ Three ways out; the choice is a protocol decision:
 without fabricating provider evidence: the publication step (`publish_matchup_source_batch_outer_candidate_authority_v3`)
 requires a task0 authorization derived from *provider-owned* Cloud Run execution records of a worker and a distinct
 verifier (`validate_provider_execution_spec_v3` pins the job, its UID, 8 CPU / 32 GiB, the controller argv, and the
-execution's success counters). Those records exist only for real executions. The host can validate and run the read-only
-readiness smoke, and both pass at origin/main 57e1219d (`--action validate` and `--action task0`, image identity
-declared as HEAD). The actual defect is narrower than "host-only by construction": the fixed-G0 descendant reopen
+execution's success counters). Those records exist only for real executions. The host `--action validate` passes at origin/main 57e1219d
+(image identity declared as HEAD); the read-only `--action task0` readiness smoke did not finish inside a 28-minute
+ceiling (it replays real artifacts) and is being re-run with a two-hour ceiling; its result is recorded in HANDOFF. The actual defect is narrower than "host-only by construction": the fixed-G0 descendant reopen
 (`corpus_r6_fixed_g0_candidate_authority_descendant_reopen_v1._require_transitive_replay_paths_stable`) reads the four
 G0 evidence files through the absolute workstation literals in `corpus_extreme_tail_panel_execution`, and the release
 image placed the checkout at `/app`. **Adopted variant of route B:** the image keeps the checkout at
