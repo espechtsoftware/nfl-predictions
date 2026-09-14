@@ -226,7 +226,16 @@ points gate ("the money path asks the selector the wrong question" — `reports/
 winning-strategy-plan.md`). The finish objective has never been evaluated, and as of this morning the data exists to
 evaluate it on a real field.
 
-**The next test (proposed to the operator 2026-09-14, awaiting go):** for each of our 3,200 Week-1 candidates and
+**The payout retro-test (run 2026-09-14 on the operator's go; `reports/2026-09-14-payout-retro-test.md`).** Selecting
+by an estimable finish objective — P(top-1,000) or P(top-100) against the real 831,028-lineup field under the
+simulator — picks a materially different book from expected-max (6–12 of 30 lineups in common; 32–37 of 80), with
+25–70% higher simulated top-N probabilities, and on the one real week it earned more ($133 vs $71 at K=30 by finding
+the 224.54 lineup; $250–274 vs $211 at K=80). Raw expected payout is a lottery objective (the top candidate's $202
+comes from 2 worlds in 10,000) and must never be selected on. One week, field known after the fact: a sign, not a
+verdict. The historical version needs an ownership-consistent field sampler on the 54 development slates with real
+ownership (PREREG-098, proposed).
+
+**The test as originally proposed:** for each of our 3,200 Week-1 candidates and
 each of the 10,000 simulated worlds, score the entire 831,028-lineup Millionaire field in that world, read off the
 world's top-100 / top-1,000 / cash cutoffs, convert each candidate's world score to a payout under the Millionaire's
 actual table, and build the 30- and 80-lineup books that maximise expected payout. Compare with the expected-max
@@ -397,6 +406,7 @@ Capacity: 100 instances / 200 vCPU per region; two 72-task banks at parallelism 
   `reports/2026-09-13-pool-level-learned-selection.md`, `reports/2026-09-13-prereg096-read.md`.
 - `reports/2026-09-14-week1-field-winners-settlement.md` — the fields, every book settled, the winners' profile.
 - `reports/2026-09-14-week1-swaps-and-cheap-players.md` — every manual removal scored, the cheap slots, cheap-boom predictability.
+- `reports/2026-09-14-payout-retro-test.md` — finish-objective selection against the real field (P(top-N) vs expected-max).
 - `reports/2026-07-25-system-study.md` — the 120-addendum ledger; read the last fifteen before proposing anything.
 - Lab: `PREREG-093/094/095/096/097.md` and `LEDGER.md` on the branches above.
 - Memory notes for the assistant (not project truth): operator working style, lab launch lessons, tail target
