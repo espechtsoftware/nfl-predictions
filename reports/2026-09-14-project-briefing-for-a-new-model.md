@@ -233,7 +233,49 @@ simulator — picks a materially different book from expected-max (6–12 of 30 
 the 224.54 lineup; $250–274 vs $211 at K=80). Raw expected payout is a lottery objective (the top candidate's $202
 comes from 2 worlds in 10,000) and must never be selected on. One week, field known after the fact: a sign, not a
 verdict. The historical version needs an ownership-consistent field sampler on the 54 development slates with real
-ownership (PREREG-098, proposed).
+ownership (PREREG-098, built and frozen the same afternoon — next paragraph).
+
+**PREREG-098, the historical finish-objective cohort (frozen 2026-09-14; lab branch
+`lab/prereg098-finish-objective-20260914` at 7e8126b; `PREREG-098.md` is the contract).** The question: over the 53
+development slates from 2022–2024 whose Sunday Millionaire per-player ownership record joins the lab frame with ≥ 800
+of ~900 ownership mass, does choosing the book by P(top-1,000) or P(top-100) against a *modeled* field beat
+expected-max on realized finish? Construction, per slate: the D800 pool on the dual decision matrix (as in the money
+path), plus a synthetic field of 200,000 lineups drawn by an ownership-consistent sampler (`experiments/
+prereg098_field_sampler.py`: roster shape, $50k cap, salary floor drawn in [48,500, 50,000], 0.70 QB-stack
+propensity, six rounds of iterative proportional fitting so the sampled field reproduces the week's real ownership).
+Per-world cutoffs are the field's scores at the top-100 / top-1,000 / cash *fractions* of an 832,342-entry Millionaire,
+so the objective is field-size invariant. Seven arms: DEMAX K80 (control; its first 30 is the K30 control), top-K by
+P(top-1,000), by P(top-100), by P(cash), each at K30 and K80. Primary endpoint: the share of the field (scored on
+realized points) above the book's best lineup, lower is better, paired weekly and bank-averaged, season-clustered
+bootstrap at family level 0.975, PASS iff the interval clears zero with every bank ≥ 0 and ≤ 1 negative LOSO. The
+ledger's points proxy runs as a secondary so the result stays comparable with every earlier row. Three banks
+(980/981/982), 53 tasks each, launched by `scripts/queue_118.sh` through the launcher registry once PREREG-097
+has left both lab lanes (`scripts/arm_118_after_117.sh` waits for that); reader `scripts/prereg098_report.py`.
+
+Findings from the build itself, before any bank has run:
+
+1. *Real ownership joins the lab frame cleanly.* 54 of the 72 development slates have a Sunday Millionaire ownership
+   record (2022–2024); matched mass averages 861.7 of ~900 (the remainder is players outside the lab's player
+   universe); 2022 Week 16 did not join and is excluded by the frozen ≥ 800 rule, leaving 53.
+2. *An IPF-fitted sampler reproduces a real field's cutoff structure.* Gated on the one real field we hold (Week 1):
+   per-world top-1,000 cutoffs of the sampled field correlate 0.987 with the real field's across 10,000 worlds; the
+   sampled field's realized-points cutoffs land at 226.0 / 163.5 against the real 228.2 / 165.5; ownership error
+   sum 0.29 of ~9. The first setting (stack 0.55, floor 47k) was 3.6 points soft at the top; raising the salary floor
+   band and the stack propensity closed it (four variants, all recorded in `PREREG-098.md` §Gate). A residual one-signed
+   bias of about −2.4 points remains: real lineups are optimizer-built and projection-correlated, so a field that
+   matches ownership marginals is still slightly less sharp than the real thing. Because the arms *rank* candidates,
+   a uniform shift does not change what is selected; absolute finish probabilities read slightly optimistic.
+3. *The finish objective is cheap.* Sampling 200,000 lineups takes ~4 s vectorised (the first Python-loop version
+   did not finish in 12 minutes); scoring the field over 10,000 worlds ~65 s. The whole cohort is dominated by the
+   800 solves per slate, as every other cohort is.
+4. *The K30 and K80 books disagree with DEMAX to the degree the retro-test showed.* In the outcome-blind smoke on
+   2023 W1 (80 candidates at 0.1 scale), top-30 by P(top-1,000) shared 20 of 30 with DEMAX's first 30 and carried
+   1.6× the DEMAX K80 book's mean simulated P(top-1,000); the same shape as on the real Week-1 field.
+
+What the cohort will not settle: the *live* field must be modeled from projected ownership before lock (the August
+contest-aware ownership model is the candidate; its lineup arm was never scored on finish). PREREG-098's
+consequences clause therefore nominates the finish objective for Week 2 only as a shadow book plus a projected-
+ownership field, never as a straight swap of the paid selector.
 
 **The test as originally proposed:** for each of our 3,200 Week-1 candidates and
 each of the 10,000 simulated worlds, score the entire 831,028-lineup Millionaire field in that world, read off the
@@ -256,10 +298,15 @@ volume (P(220) scales nearly linearly in entries).
   `/home/erich/week1-sunday/queue_117_finish.sh`, registered; the original launcher died with the workstation
   shutdown and its registry receipt was adjudicated); read this evening with `scripts/prereg097_report.py`
   (repairs: `/home/erich/week1-sunday/repair_bank.sh`).
+- Cloud, queued: PREREG-098 (the finish objective) — image `prereg09s-7e8126b…` (see the lab branch's
+  `results/prereg09s_image.txt`), sequencer `scripts/arm_118_after_117.sh` waits for the 097 launcher's registry
+  completion and idle lanes, moves both jobs to the 09s image and arms `scripts/queue_118.sh` (mechanics execution
+  → `scripts/prereg098_mechanics_gate.py` must PASS → banks 980/981 → 982). Read with `scripts/prereg098_report.py
+  RUN980 RUN981 RUN982`; the LEDGER row carries the reader's verbatim output.
 - Warehouse: Week-1 full fields loaded; Week-1 player stats arrive with the nflverse job (which still 404s on FTN
   after loading rosters/injuries — fix the tolerance).
 - Branches, all pushed and clean: production `production/week1-audit-adjust-20260912`; lab
-  `lab/prereg097-dose6400-20260913`, `lab/prereg096-learned-pool-20260913`, `lab/prereg090-amend4-20260912`
+  `lab/prereg098-finish-objective-20260914`, `lab/prereg097-dose6400-20260913`, `lab/prereg096-learned-pool-20260913`, `lab/prereg090-amend4-20260912`
   (LEDGER rows for 093/095/096 with transcripts).
 - Host artifacts (untracked): `/home/erich/week1-sunday/` (tools, ENTER/, ENTERED/ with the operator's entry export
   — entry keys, never commit), `results/2026-09-13/` (the standings exports).
