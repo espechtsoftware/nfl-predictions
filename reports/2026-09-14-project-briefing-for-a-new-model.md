@@ -197,6 +197,21 @@ never in points.
     DNP players, and three or four low-owned booms (Coker in 92 of 100 at 7%, Swift 8%, Young 3%, Goedert 8%, Henry
     8%). Contrarianism per se was not the edge; the right game and the right cheap receiver in it were.
 
+11. **The manual removals and the cheap slots, scored on official points** (`reports/2026-09-14-week1-swaps-and-cheap-players.md`).
+    Removing Bateman (inactive), Downs and Warren (diminished) with the projection-based replacement rule was worth
+    +124 points across the book (Vele 19.9, Irving 21.3, Hubbard 23.7, McConkey 19.2). Removing Wicks, who was never
+    flagged and scored 15.3, cost −44; the proven-scorer rule cost −130 across the book and 28 on the best lineup.
+    Cheap slots (skill players ≤ $5,000): three of 287 scored 20+ on Sunday (Coker 36.8 at 7.5% owned, Goedert 23.7,
+    Kincaid 21.0); the plain book held all three, the entered book two. On 27,550 historical cheap player-weeks the
+    big-game rate is 1.5% and is strongly predictable from the signals the optimizer already uses — projection top
+    quartile 5.0% vs 0.1%, market-points top quartile 8.7% vs 0.3%, starters 7.5% vs 1.3% for third-stringers; a
+    leave-one-season-out model reaches AUC 0.84–0.87 with a top decile hitting 12.8% against a 2.7% base (Coker was
+    in that decile) — and from nothing else: game total and implied team total carry no lift for cheap players.
+    Cheap booms are the projection/market top decile hitting at about one in eight, not "unproven" players getting
+    lucky. Protocol from here: a player is removed only when DraftKings marks him OUT/IR or the inactives list names
+    him ("replace X" is answered with his live status first); cheap-player risk is controlled by exposure (no single
+    cheap player above ~15% of the book), never by history filters; the replacement rule stays.
+
 ---
 
 ## 7. The structural conclusion and the open question
@@ -256,6 +271,7 @@ volume (P(220) scales nearly linearly in entries).
 - `reports/2026-09-13-audit-winner-gap.md`, `-perfect-lineup-gap.md`, `-late-swap-and-anatomy.md`,
   `reports/2026-09-13-pool-level-learned-selection.md`, `reports/2026-09-13-prereg096-read.md`.
 - `reports/2026-09-14-week1-field-winners-settlement.md` — the fields, every book settled, the winners' profile.
+- `reports/2026-09-14-week1-swaps-and-cheap-players.md` — every manual removal scored, the cheap slots, cheap-boom predictability.
 - `reports/2026-07-25-system-study.md` — the 120-addendum ledger; read the last fifteen before proposing anything.
 - Lab: `PREREG-093/094/095/096/097.md` and `LEDGER.md` on the branches above.
 - Memory notes for the assistant (not project truth): operator working style, lab launch lessons, tail target
