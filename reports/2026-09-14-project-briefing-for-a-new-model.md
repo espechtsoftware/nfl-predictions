@@ -260,6 +260,131 @@ volume (P(220) scales nearly linearly in entries).
 
 ---
 
+## 10. The build process (how a week is produced, end to end)
+
+### 10.1 Production cadence (Cloud Run jobs on `s-*` schedulers, `nfl-predictions-503414`, us-central1)
+
+| when (CT) | scheduler → job | what it does |
+|---|---|---|
+| daily 08:00 | `s-freshness` → `check-freshness` | feed freshness receipts; the app's status reads these |
+| daily (after nflverse publishes) | `ingest-nflverse` | rosters, injuries, schedules, weekly stats; currently exits non-zero on the missing 2026 FTN charting file *after* rosters/injuries load — weekly stats for the just-played week must be verified on Monday/Tuesday |
+| Tue 06:30 | `s-features` → `build-features` | the point-in-time panel `nfl_features.player_week_training` (+ leakage checks, must pass) |
+| Tue 08:00 | `s-score` | scores last week's projections |
+| Tue 08:30/08:45 | `s-train-k1`, `s-train-k1-role` (PAUSED) | weekly model retrain (paused; the adopted models are frozen) |
+| Wed 11:00 | `s-trends` | trend tables |
+| Wed–Sat 10:00 | `s-contests` → `ingest-contests` | lobby contest list, fill/overlay snapshots (`nfl_raw.dk_contest_fills`) |
+| Sun 05:30–10:30 hourly | `s-features-sun` → `build-features` | refreshes the panel with the latest injuries/rosters |
+| Sun 06:00–11:00 hourly | `s-contests-sun` → `ingest-contests`; `ingest-dk` (salaries, DK statuses, draft groups) and `project-slate` also run hourly on Sunday morning (07:00–11:00 CT executions observed: 12:00Z … 16:00Z) | the 11:00 CT `ingest-dk` is the first pull that carries the 10:30 CT inactives; the 11:00 CT `project-slate` regenerates projections on it (~4 min) |
+| Sun ~09:45/10:45 | `s-shadow-cbwu-oi-paired-*` (ENABLED), other `s-shadow-*` (PAUSED) | outcome-blind shadow books for settlement |
+
+`project-slate` writes `nfl_predictions.player_projections` (proj_points, p10, p90, std, ownership placeholder) keyed
+by `generated_at`; every consumer reads the latest `generated_at`. Its slate selection is the DK draft group whose
+*earliest* game has not started (`MIN(game_start)`; the Week-1 fix — `MAX` picked a stale full-week group).
+
+**Deploying a production job.** `gcloud builds submit` from a clean worktree with the repo's `cloudbuild.yaml` (a
+contract regex checks the config), image `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:<tag>`
+(Week-1 tag form `week1-live-<sha12>`), then `gcloud run jobs update <job> --image <tag@digest>`; record the job
+generation and digest in HANDOFF. Never create per-run jobs (the project sits at the 1,000-job quota; the job list is
+full of frozen analysis jobs). The app (`nfl-dfs-app`, IAP) runs its own older digest and reads the warehouse live.
+
+### 10.2 The Sunday money path (host workstation, armed by `nfl-week1-sunday-build.timer` at 09:10 CT; T-70 at 10:50 CT)
+
+`/home/erich/week1-sunday-build.sh` (tracked copy: production `scripts/week1_*`; lab money path in
+`~/projects/.nfl2-worktrees/week1-live-center-e7255e9`, commit e7255e9, `NFL2_LIVE_CENTER=production`):
+
+1. **Runbook pair** — `scripts/week1_sunday_runbook.sh --run-id <tag>` builds the governed D800 paid book (lev 160 /
+   boom 640, K80) and the D400 shadow through `live_week.py`, runs the publisher **preflight** (four distinct book
+   hashes, P_MIX turnover ≥ 1) and prints the operator's 4a/4b commands. ~7 min per build.
+2. **K90 nested book** — `live_week.py --season 2026 --week 1 --group <draft group> --selector dual_emax --lev 160
+   --boom 640 --sims 10000 --k 1 --seed 2026 --entries 90 --emit-a5-sidecars` (ranks 1–80 equal the paid K80).
+   Each build writes an immutable run dir `results/live/2026-w01/<UTC stamp>-<sha7>/` and a `LATEST` marker:
+   `book.csv` (DK slot order, dk_player_id), `book.json`, `book_wemax.*`, `candidates.parquet` (the whole pool with
+   tags, sim stats, book ranks), `frame.parquet` (the player frame, 140 columns), `incumbent_player_scores.npy` and
+   `corrected_hsim_player_scores.npy` (players × 10,000 worlds, float32), `exposure_ledger.json`,
+   `universe_ledger.parquet`, `receipt.json` (identity, inputs, DK-status and roster invariants, config, hashes).
+   Any RNG-affecting change to the universe re-bases every draw: a rebuild on a different player pool yields a
+   different book, not a patched one.
+3. **Ordering shadows** (`tools/ordering_shadows.py`, 24 within-book orderings, outcome-blind), **line movement /
+   vanished-line veto** (`market_move.py`), **vetting** (`vet_book.py`: DK O/IR/OUT, placeholder salary, vanished
+   prop line = HARD; DNP/Limited/Q/D tiers; writes a re-ordered book + `vetting.json`), **composite**
+   (`player_score.py`), **hybrid15** (`hybrid30.py`), per-contest draftable-id CSVs via
+   `scripts/emit_dk_upload_csv_v1.py --source run-dir --run-dir <dir> --ranks a-b --output <csv>` (create-only
+   outputs; never upload a `book.csv`).
+4. **Post-build chain** (`learned_after_build.sh`, polling `LATEST`): learned scorer over the whole pool
+   (`learned_score_live.py` → shadow books), vetting of the entered 30, `ENTER/` folder with the reserved-entry layout
+   (keepers first per contest), `TODAY-30-LATEST.md`; `watch_dk_entries.sh` fills DraftKings' entries export the
+   moment it appears in the Windows Downloads folder; `watch_late_inactives.py` polls DK statuses for late-game
+   scratches. A scratch swap = best-projected active same-position player fitting the lineup's salary, stack bonus.
+5. **Operator steps** — 4a: `publish_week1_a5_books.py … --execute` (create-once per run id; the harness classifier
+   refuses to run it, the operator runs the printed line); 4b: emit P_MIX upload files from the published books;
+   upload in the DK UI by ~11:15 CT; lock 12:00 CT.
+
+Inputs the build depends on, and when they are fresh: DK salaries/statuses (`nfl_raw.dk_salaries`, hourly on Sunday;
+the T-70 build must use the pull *after* 10:30 CT inactives), production projections (`player_projections`, hourly),
+props (`nfl_raw.prop_lines`, ~2-hourly; last Week-1 pull 09:33 CT), injuries (`nfl_raw.injuries`, practice status),
+`player_week_inference` (depth rank, practice level, usage windows — empty in Week 1), TabPFN marginals.
+
+### 10.3 The lab cohort pipeline (`nfl-2-506823`)
+
+1. Freeze `PREREG-0NN.md` + runner `experiments/NNN_*.py` + reader `scripts/preregNNN_report.py` + gate
+   `scripts/preregNNN_mechanics_gate.py` + launcher `scripts/queue_NNN.sh` on a branch off the current cohort commit.
+2. Local smoke: `NFL2_UPLOAD=0 PYTHONPATH=<worktree>/src python -m nfl2.run experiments/NNN.py --bank=N
+   --mechanics-only --smoke --season=2023 --weeks=1` (0.1 scale), then a full-path `--smoke` when the outcome path
+   is new.
+3. Image: lean `Dockerfile.prereg0NN` (base pinned by digest, `requirements.lock`, `src`, the experiment file(s),
+   benchmark/data, frozen JSON receipts) + `cloudbuild.prereg0NN.yaml`; `gcloud builds submit --project nfl-2-506823
+   --config cloudbuild.prereg0NN.yaml --substitutions _IMAGE_TAG=us-central1-docker.pkg.dev/nfl-2-506823/lab/nfl2:prereg0NN-<sha12> .`
+   (~3 min). `.gcloudignore` excludes `results/**` except listed files — add an exception for any new frozen receipt.
+4. Jobs: `gcloud run jobs update lab-run|lab-run-slow --image <tag> --update-env-vars CODE_SHA=<sha>,IMAGE_DIGEST=<digest>
+   --parallelism 36 --tasks 72 --task-timeout <s>` (2 vCPU / 8 GiB; `maxRetries 3`). Only when both lanes are idle.
+5. Launch through the registry: `scripts/launcher_registry.sh run --root <worktree> --state-root
+   ~/.local/state/nfl-dfs/lab-launcher-registry --lane nfl2-lab-jobs --owner production --target-prefixes … -- <launcher>`
+   (detached with `setsid nohup`). The launcher checks `CODE_SHA == HEAD` and a pushed branch, runs the gate
+   (1 task, `--mechanics-only --verify-prefix`), then banks 72 tasks each under the ≤ 2-execution ceiling; a
+   registered owner that dies leaves a receipt that must be adjudicated by hand (move it to
+   `adjudicated-launcher-receipts/…orphaned-<stamp>.json` after confirming no surviving child work).
+6. Results: `gs://nfl-2-506823-lab/results/<experiment>/<RUN_ID>/result-tNN.json` (envelope: experiment, run_id,
+   code_sha, benchmark, image, args, seconds, task_index, result{params, slates, books, …}). Lost tasks: repair with
+   `/home/erich/week1-sunday/repair_bank.sh <experiment> <result dir> <prefix> <bank> <code sha>` (registered; one
+   execution per season with `--season/--weeks`), read with the reader's `--repair` union.
+7. Read once; paste the verbatim output into `LEDGER.md` with the transcript's sha256; consequences as frozen.
+
+Capacity: 100 instances / 200 vCPU per region; two 72-task banks at parallelism 36 fit; the 3200 stream takes up to
+4,752 s on the largest slate (2023-W1, 773 players), the 6,400 stream roughly double, so task timeouts must follow.
+
+### 10.4 The DraftKings side (no API; all through the logged-in desktop site)
+
+- Entries are reserved by entering a placeholder lineup N times; DraftKings edits reserved entries only through
+  **Lineups → Upload Lineups → download entries** (`DKEntries.csv`: Entry ID, Contest Name, Contest ID, Entry Fee,
+  QB…DST, then the player pool). Fill it positionally (`scripts/week1_fill_dk_entries.py`), upload on the same page.
+  Withdrawals are not available on full contests.
+- Late swap: the same upload works during live contests for players whose games have not started.
+- After the games: the contest entry history export (own entries' official points/places/winnings) and the full
+  standings `https://www.draftkings.com/contest/exportfullstandingscsv/<contestId>` (zip; every entry's lineup and
+  points plus %Drafted/FPTS per player; purged after ~4 days). Validate and load with
+  `nfl-dfs capture-dk-standings <csv> --season --week --contest-id --contest-name --expected-entries N --apply
+  --confirm-settled --confirm-full-field` (create-once archive + `nfl_raw.contest_entries` / `contest_ownership`).
+  Real exports contain blank-lineup entries, single-precision scores and occasional one-entry ownership gaps; the
+  validator handles all three as of 2026-09-14.
+
+### 10.5 Local development traps
+
+- Two venvs: production `~/projects/nfl-predictions/.venv` (Python 3.14; BigQuery, storage, pandas, pulp) and lab
+  `~/projects/nfl2/.venv` (no `neo4j`, no `sklearn`, no BigQuery client in some paths). Always run lab code with
+  `PYTHONPATH=<worktree>/src`: the editable install resolves `import nfl2` to the main checkout otherwise.
+- `pytest` runs offline (synthetic panel in `conftest.py`); never pass `-q` (the commit gate reads the "N passed"
+  line). Targeted modules only; one heavy local process at a time; heavy compute goes to Cloud Run.
+- `results/` is git-ignored in both repos: `git add -f` for transcripts/receipts that must be tracked.
+- The harness classifier refuses create-once publishes, systemd unit writes and some `grep`s in auto mode: hand the
+  operator the one-line command.
+- Background host processes must be `setsid nohup … &`-detached and named so `pgrep -f "^bash /path"` finds them;
+  `pkill -f` on a substring kills the caller's own shell (happened twice). A process scan is not proof a timer task
+  is dead: the "dead" T-70 task ran anyway.
+- Windows files are visible at `/mnt/c/Users/Erich/…`; the operator sees the Linux tree at
+  `\\wsl.localhost\Ubuntu\home\erich\…`. Give paths in that form when the operator must open them.
+
+---
+
 ## 9. Where to read the evidence
 
 - `HANDOFF.md` — authoritative, newest entries above "Exact next actions".
