@@ -27,6 +27,23 @@ Three ways out; the choice is a protocol decision:
 | A. Re-establish the fixed-G0 authority at a new commit | repair the path literals, re-pin, re-publish G0 → capture plan → discovery matrix → ablation | invalidates the candidate-v2 lineage the capture plan, discovery matrix and ablation all bind; the 54-task discovery matrix (≈ 30 min cloud) re-runs | Acceptable; two to three cloud cycles. |
 | C. Retire the chain | accept "source value not evaluated" as the standing answer | none | Not recommended: the question is the operator's own ("do we know the impact of each data point?"), and the instrument is 90 % built. |
 
+**Operator decision 2026-09-14: route B ("host run").** Working it showed that a literal host run is not possible
+without fabricating provider evidence: the publication step (`publish_matchup_source_batch_outer_candidate_authority_v3`)
+requires a task0 authorization derived from *provider-owned* Cloud Run execution records of a worker and a distinct
+verifier (`validate_provider_execution_spec_v3` pins the job, its UID, 8 CPU / 32 GiB, the controller argv, and the
+execution's success counters). Those records exist only for real executions. The host can validate and run the read-only
+readiness smoke, and both pass at origin/main 57e1219d (`--action validate` and `--action task0`, image identity
+declared as HEAD). The actual defect is narrower than "host-only by construction": the fixed-G0 descendant reopen
+(`corpus_r6_fixed_g0_candidate_authority_descendant_reopen_v1._require_transitive_replay_paths_stable`) reads the four
+G0 evidence files through the absolute workstation literals in `corpus_extreme_tail_panel_execution`, and the release
+image placed the checkout at `/app`. **Adopted variant of route B:** the image keeps the checkout at
+`/home/erich/projects/nfl-predictions` and symlinks `/app` for the controller's exact argv — a Dockerfile-only change
+(branch `production/source-v3-same-path-image-20260914`; the Dockerfile is not in the HEAD-stable replay set and no
+pinned module or evidence file changes). Publication itself then runs where the design puts it: worker → distinct
+verifier → publish → independent reopen on the atlas job, driven from the workstation by the controller. Remaining
+operator step: fast-forward `main` to that branch commit (the controller and the container both require Commit B ==
+`origin/main`).
+
 Sign-off needed on: the option above; the endpoint family in §4 (points and finish co-primary at K20); and the
 season set (§2: the ablation's 54 slates are 2023–2025, not the lab's 2022–2024 panel).
 
