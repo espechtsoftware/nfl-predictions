@@ -64,7 +64,7 @@ Cloud Build / Cloud Run operations · 8 the direct paid-source runner · 9 open 
 
 ## 2. What is running right now (2026-09-15 15:00Z)
 
-- **PREREG-098 r2 (lab, finish objective).** Launcher `queue_118.sh` armed 14:23Z through the registry from the 098
+- **PREREG-098 r2 — DONE 15:26Z, read 15:35Z: decisively NEGATIVE (finish objective closed at its tested form; no shadow book for Week 2). LEDGER row and transcript on the 098 branch; briefing §7 updated.** (Original launch note kept for the record:) Launcher `queue_118.sh` armed 14:23Z through the registry from the 098
   worktree on image `prereg09s-a8ec05612ffa` (`results/prereg09s_image.txt` there). Order: `118m980r2` mechanics
   (1 task) → `scripts/prereg098_mechanics_gate.py <run id>` must PASS → banks `118b980r2` / `118b981r2` (53 tasks each,
   both lanes) → `118b982r2` when a lane frees. Log: `results/queue_118_launcher.log`. When it prints
@@ -114,8 +114,7 @@ Cloud Build / Cloud Run operations · 8 the direct paid-source runner · 9 open 
 - Prepare the Week-2 Sunday script (§4.1) and rehearse it once end to end on Thursday's data with a rehearsal run id
   (it writes only under `/home/erich/week1-sunday/` and immutable run dirs; nothing is published).
 - Practice-status exposure cap: test on the 72 historical books before it may touch a live book (rule 1).
-- If 098 passed: build the Week-2 **shadow** finish-objective book path (needs a projected-ownership field; the
-  August contest-aware ownership model is the candidate). Shadow only.
+- (098 was negative: no finish-objective shadow book for Week 2.)
 - Weekly ETR CSV to `/market` if the operator supplies one (paid pass was Sep 8–9).
 
 ### Saturday 09-19

@@ -282,7 +282,18 @@ Findings from the build itself, before any bank has run:
    2023 W1 (80 candidates at 0.1 scale), top-30 by P(top-1,000) shared 20 of 30 with DEMAX's first 30 and carried
    1.6× the DEMAX K80 book's mean simulated P(top-1,000); the same shape as on the real Week-1 field.
 
-What the cohort will not settle: the *live* field must be modeled from projected ownership before lock (the August
+**PREREG-098 result (read 2026-09-15; lab `PREREG-098.md` §Result, LEDGER row, transcript `PREREG-098-read.txt`).**
+Decisively negative. Selecting the book by simulated P(top-1,000) or P(top-100) against the ownership-consistent field
+finished *worse* than expected-max on the realized field: best-finish percentile 5.55 % / 6.01 % vs DEMAX's 2.56 % at
+K80 (FIN1000 − DEMAX −0.030, interval [−0.048, −0.015], 9 wins / 44 losses, every bank and every leave-one-season-out
+negative), and worse on points (−8.7 / −10.5). The K30 versions were far worse (9–14 %). The frozen consequence
+applies: no adoption; the finish objective closes at its tested form. The one-week advantage in the Week-1 retro-test
+was noise. Reading: simulated top-N probabilities inherit the simulator's over-predicted upper tail and reward
+high-variance lineups whose tails do not materialise; expected-max is the better estimator of realized finish too.
+What survives: the field sampler (gated) and the finish *endpoint* as a way to score books; what is closed: P(top-N)
+selection on this simulator.
+
+What the cohort would not have settled anyway: the *live* field must be modeled from projected ownership before lock (the August
 contest-aware ownership model is the candidate; its lineup arm was never scored on finish). PREREG-098's
 consequences clause therefore nominates the finish objective for Week 2 only as a shadow book plus a projected-
 ownership field, never as a straight swap of the paid selector.
