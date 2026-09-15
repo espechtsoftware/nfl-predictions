@@ -1,3 +1,5 @@
+> **Take-over document for this week: `reports/2026-09-15-week2-operating-handoff.md` (2026-09-15). Read it before anything below.**
+
 # Project handoff
 
 This tracked file is the authoritative record for resuming development. It

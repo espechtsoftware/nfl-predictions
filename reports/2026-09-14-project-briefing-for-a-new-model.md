@@ -302,7 +302,7 @@ volume (P(220) scales nearly linearly in entries).
 
 ---
 
-## 8. Operational state right now (2026-09-14 14:30Z)
+## 8. Operational state right now (2026-09-14 14:30Z; superseded by `reports/2026-09-15-week2-operating-handoff.md`, which is the live take-over document)
 
 - Cloud: PREREG-097 (6,400 rung) banks 970/971/972 launching on the lab lanes via the finish launcher (host script
   `/home/erich/week1-sunday/queue_117_finish.sh`, registered; the original launcher died with the workstation
