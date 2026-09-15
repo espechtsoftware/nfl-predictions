@@ -93,7 +93,7 @@ Cloud Build / Cloud Run operations · 8 the direct paid-source runner · 9 open 
 ## 3. The week, day by day
 
 ### Tuesday 09-15 (today)
-- [x] Production Tuesday jobs verified (above). `ingest-nflverse` FTN 404 tolerance implemented (§9 #14); deploy = build image from the branch, `gcloud run jobs update ingest-nflverse --image <tag@digest>` (operator if the classifier refuses), confirm the next scheduled run exits 0.
+- [x] Production Tuesday jobs verified (above). `ingest-nflverse` FTN 404 tolerance implemented and its image built (§9 #14; `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:8966bc14029f…`). **Operator:** run the two commands recorded in HANDOFF (job update; main fast-forward), then confirm Wednesday's scheduled run exits 0.
 - [ ] 098 r2 read + LEDGER row when terminal (§2).
 - [ ] Direct runner read + report (§8).
 - [ ] 097 repairs after 098 (§6.4), then `scripts/prereg097_report.py`, LEDGER row.
