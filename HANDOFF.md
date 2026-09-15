@@ -1,4 +1,5 @@
 > **Take-over document for this week: `reports/2026-09-15-week2-operating-handoff.md` (2026-09-15). Read it before anything below.**
+> **Operator's machine-move guide: `reports/2026-09-15-workstation-to-laptop-transition-guide.md`.**
 
 # Project handoff
 
