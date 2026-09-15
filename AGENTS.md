@@ -1,16 +1,10 @@
-# Repository instructions
+# Repository instructions (Codex and every other agent)
 
-Read `README.md`, `CLAUDE.md`, and `HANDOFF.md` before changing this project.
-`HANDOFF.md` is the authoritative current-work record; historical notes may be
-superseded by it.
+`CLAUDE.md` is the single source of durable instructions for this repository, whichever assistant is running.
+Read it first and follow it in full: its reading order for the current state (`HANDOFF.md`, then the newest
+take-over document and briefing under `reports/`), the two-team protocol with the lab repository (`~/projects/nfl2`,
+`COORDINATION.md` there), the standing rules (frozen chains, money path, point-in-time data, validation, compute
+safety, the handoff-in-repository rule), and where results live.
 
-Update tracked `HANDOFF.md` at every material milestone and before any pause,
-machine move, or agent/developer handoff. Include the branch/commit, completed
-work, validation and durable cloud execution IDs, unresolved risks, and the
-next concrete action. Commit and push it with the associated code whenever
-possible. Never leave essential state only in assistant memory, local-only
-notes or commits, temporary files, or cloud logs/artifacts. Do not record
-tokens, credentials, or secret values.
-
-Follow all implementation, validation, point-in-time data, and compute-safety
-rules in `CLAUDE.md`.
+Nothing project-specific is duplicated here on purpose: if this file and `CLAUDE.md` ever disagree, `CLAUDE.md`
+wins and this file needs the fix.
